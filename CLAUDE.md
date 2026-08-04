@@ -28,6 +28,24 @@ pas le projet.
 > explicite,** `git -C /home/beber/Projects/subedit …`, ou est précédée d'une
 > vérification de `pwd`. Ne jamais s'en remettre au répertoire courant supposé.
 
+### Verrou mécanique
+
+L'arborescence du clone est maintenue **non inscriptible**, ce qui fait échouer
+toute écriture au niveau du système de fichiers plutôt qu'au niveau de la
+vigilance. `src/scripts/reference.sh` pilote ce verrou :
+
+| Commande | Effet |
+| :------- | :---- |
+| `./src/scripts/reference.sh status` | état du verrou, révision, écarts éventuels |
+| `./src/scripts/reference.sh fetch` | récupère l'amont, **rétablit le verrou automatiquement** |
+| `./src/scripts/reference.sh restore` | rétablit le clone dans l'état de son HEAD |
+| `./src/scripts/reference.sh lock` / `unlock` | verrouille, déverrouille |
+
+`unlock` ne s'utilise que délibérément et se referme aussitôt après. C'est un
+garde-fou contre l'erreur, pas une barrière de sécurité : le propriétaire peut
+défaire un `chmod`. Le but est précisément qu'une modification accidentelle soit
+impossible sans qu'un geste explicite l'ait précédée.
+
 Si le clone se retrouve modifié, le signaler et proposer la restauration — ne
 pas la faire silencieusement.
 
