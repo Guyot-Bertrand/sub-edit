@@ -54,10 +54,12 @@ install_apt_tools() {
     sudo apt-get install -y "${missing[@]}"
 }
 
-# gh n'est pas dans les dépôts Ubuntu par défaut sur toutes les installations.
+# gh n'est pas dans les dépôts de toutes les versions d'Ubuntu. Le test porte
+# sur la disponibilité du paquet, pas sur le texte de `apt-cache policy`, qui
+# est traduit et donc dépendant de la locale.
 ensure_gh_repository() {
     command -v gh >/dev/null 2>&1 && return 0
-    apt-cache policy gh 2>/dev/null | grep -q 'Candidat : (aucun)' || return 0
+    apt-cache show gh >/dev/null 2>&1 && return 0
     info "ajout du dépôt GitHub CLI"
     sudo mkdir -p -m 755 /etc/apt/keyrings
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \

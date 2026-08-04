@@ -24,8 +24,13 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 Points ouverts identifiés, qui feront l'objet d'une ADR le moment venu :
 
 - **Stratégie de gestion d'erreurs** — exceptions, codes de retour ou type
-  résultat. `std::expected` relève de C++23, indisponible avec GCC 13 en C++20.
-  Phase 1.
+  résultat. Mesuré le 2026-08-04 sur GCC 13.3 : **`std::expected` fonctionne en
+  `-std=c++23`**, sans changer de compilateur. Retenir le type résultat
+  impliquerait donc de passer le projet en C++23 — un drapeau, aucun paquet.
+  Deux réserves à lever à ce moment-là : le mode C++23 de GCC 13 est partiel
+  (`std::print`, *deducing this*, `ranges::to` et `std::generator` exigent
+  GCC 14, disponible dans les dépôts), et il reste à vérifier que clang-tidy 18
+  analyse correctement du C++23 compilé contre libstdc++ 13. Phase 1.
 - **Moteur d'expressions régulières** — PCRE2, compatible avec la syntaxe Python
   des motifs de Gaupol, ou RE2, plus rapide mais sans références arrière, que
   ces motifs utilisent. Phase 4, après mesure.

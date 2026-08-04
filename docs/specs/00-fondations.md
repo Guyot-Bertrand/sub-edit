@@ -367,8 +367,11 @@ Le sous-projet est terminé quand :
 influenceront le code dès les premières lignes :
 
 - **Stratégie de gestion d'erreurs** — exceptions, codes de retour ou type
-  résultat. `std::expected` relève de C++23 et n'est pas disponible avec GCC 13
-  en C++20. À trancher dans le sous-projet 1, par ADR.
+  résultat. `std::expected` relève de C++23 : indisponible en C++20, mais
+  fonctionnel avec le GCC 13 déjà installé en `-std=c++23`. Retenir le type
+  résultat reviendrait donc à passer le projet en C++23, sans changer de
+  compilateur. À trancher dans le sous-projet 1, par ADR — voir
+  [`../adr/README.md`](../adr/README.md) pour les réserves mesurées.
 - **Moteur d'expressions régulières** — PCRE2, compatible avec la syntaxe Python
   des motifs de Gaupol, ou RE2, nettement plus rapide mais sans références
   arrière. À trancher dans le sous-projet 4, après mesure.
