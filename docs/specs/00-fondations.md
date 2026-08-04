@@ -21,6 +21,12 @@ L'inventaire des fonctionnalités à couvrir est dans
 [`gaupol-reference.md`](gaupol-reference.md). Le travail est découpé en huit
 sous-projets ; celui-ci est le premier.
 
+Les règles de conception applicables à tout le code — modèles de données typés,
+propriété mémoire explicite, abstraction là où la variation est connue — sont
+dans [`../principes-de-conception.md`](../principes-de-conception.md). Ce
+sous-projet en mécanise la part vérifiable : `make check` doit refuser ce que
+ces règles interdisent, plutôt que compter sur la vigilance à la relecture.
+
 La performance est un **objectif de conception transversal** — choix de
 structures de données, d'algorithmes et d'outils qui ne gaspillent pas — et non
 la correction d'une lenteur mesurée. Cela justifie que les benchmarks soient
@@ -220,11 +226,17 @@ Cinq étapes, verdict binaire, aucune tolérance :
    -Woverloaded-virtual -Wnull-dereference -Wdouble-promotion -Werror`.
 3. **Analyse statique** — `clang-tidy` : familles `bugprone-*`, `performance-*`,
    `modernize-*`, `readability-*`, `misc-*`, plus une sélection de
-   `cppcoreguidelines-*`. Les exclusions sont listées dans `.clang-tidy` **avec
-   leur justification en commentaire** ; une exclusion non justifiée est un
-   défaut.
+   `cppcoreguidelines-*`. Y compris, explicitement, les vérifications qui
+   mécanisent les règles de propriété mémoire des principes de conception :
+   `cppcoreguidelines-owning-memory`, `cppcoreguidelines-no-malloc`,
+   `cppcoreguidelines-special-member-functions`, `modernize-make-unique`,
+   `modernize-avoid-c-arrays`, `misc-const-correctness`. Les exclusions sont
+   listées dans `.clang-tidy` **avec leur justification en commentaire** ; une
+   exclusion non justifiée est un défaut.
 4. **Tests** — exécution sous le preset `asan`, pour que toute erreur mémoire ou
-   comportement indéfini échoue au lieu de passer inaperçu.
+   comportement indéfini échoue au lieu de passer inaperçu. Le preset active
+   aussi **LeakSanitizer** : une fuite fait échouer les tests, elle ne se
+   découvre pas six mois plus tard.
 5. **Couverture** — seuil de **80 % minimum sur les bibliothèques**, relevable
    par bibliothèque quand c'est justifié. Les exécutables sont exclus du calcul :
    la règle d'architecture les vide de tout ce qui mérite d'être couvert.
@@ -296,6 +308,7 @@ définition de « terminé » d'une issue**, au même titre que les tests.
 
 | Emplacement | Contenu |
 | :---------- | :------ |
+| `docs/principes-de-conception.md` | règles permanentes de conception et de gestion mémoire |
 | `docs/specs/NN-<sujet>.md` | une spec par sous-projet, conception durable |
 | `docs/adr/NNNN-<titre>.md` | décisions techniques et alternatives écartées |
 | `docs/manual/<exécutable>/` | manuel utilisateur, un fichier par section |
