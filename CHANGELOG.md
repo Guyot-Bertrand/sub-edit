@@ -13,6 +13,7 @@ ne pas l'éditer à la main.
 
 - **scripts** — Verrou en lecture seule sur le dépôt de référence
 - Fondations du projet
+- Fermer et vérifier les portes de qualité
 
 ### Documentation
 
