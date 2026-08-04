@@ -80,10 +80,20 @@ install_git_cliff() {
     local url="https://github.com/orhun/git-cliff/releases/download/v${GIT_CLIFF_VERSION}/${archive}"
     local tmp
     tmp="$(mktemp -d)"
-    trap 'rm -rf "${tmp}"' RETURN
-    curl -fsSL "${url}" -o "${tmp}/${archive}"
-    tar -xzf "${tmp}/${archive}" -C "${tmp}"
-    find "${tmp}" -type f -name git-cliff -perm -u+x -exec install -m 755 {} "${LOCAL_BIN}/git-cliff" \;
+
+    # Nettoyage explicite plutôt qu'un `trap RETURN` : un tel piège persiste
+    # au-delà de la fonction qui l'installe et se redéclenche au retour des
+    # suivantes, quand la variable qu'il référence n'existe plus.
+    local status=0
+    {
+        curl -fsSL "${url}" -o "${tmp}/${archive}" &&
+            tar -xzf "${tmp}/${archive}" -C "${tmp}" &&
+            find "${tmp}" -type f -name git-cliff -perm -u+x \
+                -exec install -m 755 {} "${LOCAL_BIN}/git-cliff" \;
+    } || status=$?
+    rm -rf "${tmp}"
+    (( status == 0 )) || die "échec de l'installation de git-cliff (code ${status})"
+
     if ! command -v git-cliff >/dev/null 2>&1; then
         printf '  ajouter %s au PATH pour utiliser git-cliff\n' "${LOCAL_BIN}"
     fi

@@ -161,7 +161,10 @@ générateurs, n'est pas mûr.
 
 ## Construction
 
-CMake ≥ 3.28 (version présente sur la machine), générateur Ninja.
+CMake ≥ 3.28 (version présente sur la machine). Ninja est le générateur préféré,
+mais **les presets ne le figent pas** : la façade `make` le sélectionne s'il est
+installé et retombe sur les Makefiles Unix sinon. Le figer rendrait le projet
+inconstructible sur une machine qui ne l'a pas encore, pour un gain nul.
 
 ### Presets
 
@@ -343,6 +346,13 @@ Format : contexte, décision, conséquences, alternatives écartées et pourquoi
 Une ADR n'est jamais modifiée — elle est remplacée par une ADR ultérieure.
 
 ## Critères d'acceptation
+
+Le troisième critère a donné lieu à un script rejouable,
+`src/scripts/verify-gates.sh`, exposé par `make verify-gates` : il injecte un
+défaut de chaque type, vérifie que l'étape correspondante échoue, puis rétablit
+les sources. À relancer après toute modification de `.clang-format`,
+`.clang-tidy`, des options de compilation ou du seuil de couverture — une porte
+qu'on n'a jamais vue se refermer n'est qu'une croyance.
 
 Le sous-projet est terminé quand :
 

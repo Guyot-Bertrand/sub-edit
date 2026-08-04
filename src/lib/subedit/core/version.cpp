@@ -10,15 +10,10 @@ Version version() {
 
 std::string versionString() {
     const Version current = version();
-    std::string text;
-    // Three numbers and two separators: reserving avoids reallocating twice.
-    text.reserve(16);
-    text += std::to_string(current.majorNumber);
-    text += '.';
-    text += std::to_string(current.minorNumber);
-    text += '.';
-    text += std::to_string(current.patchNumber);
-    return text;
+    // No reserve() here: a version string fits in the small-string buffer, so
+    // reserving would force the very heap allocation it looks like it avoids.
+    return std::to_string(current.majorNumber) + '.' + std::to_string(current.minorNumber) + '.' +
+           std::to_string(current.patchNumber);
 }
 
 } // namespace subedit::core

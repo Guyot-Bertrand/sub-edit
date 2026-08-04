@@ -79,13 +79,17 @@ format-check: ## Vérifie le format sans modifier
 	$(call step,"format")
 	@clang-format --dry-run --Werror $(SOURCES)
 
+# compile_commands.json porte les drapeaux de GCC, dont certains n'existent pas
+# chez Clang : sans -Wno-unknown-warning-option, clang-tidy échoue sur
+# -Wuseless-cast et consorts avant d'avoir analysé la moindre ligne.
 .PHONY: tidy
 tidy: ## Exécute clang-tidy
 	$(call require,clang-tidy)
 	$(call step,"analyse statique")
 	@cmake --preset dev >/dev/null
 	@find src -name '*.cpp' -print0 \
-		| xargs -0 -P $(JOBS) -I{} clang-tidy -p build/dev --quiet {}
+		| xargs -0 -P $(JOBS) -I{} \
+			clang-tidy -p build/dev --quiet --extra-arg=-Wno-unknown-warning-option {}
 
 .PHONY: arch
 arch: ## Vérifie les invariants d'architecture
@@ -106,12 +110,14 @@ coverage: ## Mesure la couverture des bibliothèques
 	@cmake --preset coverage
 	@cmake --build --preset coverage -j $(JOBS)
 	@ctest --preset coverage
-	@gcovr --root . --filter 'src/lib/' \
+	@mkdir -p build/coverage-report
+	@gcovr --root . build/coverage/src \
+		--filter 'src/lib/' \
 		--exclude-unreachable-branches --exclude-throw-branches \
 		--print-summary --fail-under-line $(COVERAGE_MIN) \
-		--html-details build/coverage/report.html \
-		--txt build/coverage/summary.txt
-	@printf 'rapport : build/coverage/report.html\n'
+		--html-details build/coverage-report/index.html \
+		--txt build/coverage-report/summary.txt
+	@printf 'rapport : build/coverage-report/index.html\n'
 
 .PHONY: check
 check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couverture
@@ -123,6 +129,10 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 	@$(MAKE) --no-print-directory asan
 	@$(MAKE) --no-print-directory coverage
 	@printf '$(GREEN)✓ porte franchie$(RESET)\n'
+
+.PHONY: verify-gates
+verify-gates: ## Prouve que make check échoue sur chaque type de défaut
+	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog
 changelog: ## Régénère CHANGELOG.md depuis l'historique des commits

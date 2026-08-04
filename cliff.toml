@@ -14,6 +14,7 @@ Les changements notables de subedit. Format inspiré de
 
 Ce fichier est généré par `make changelog` depuis l'historique des commits :
 ne pas l'éditer à la main.
+
 """
 
 body = """
@@ -23,12 +24,11 @@ body = """
 ## Non publié
 {% endif %}\
 {% for group, commits in commits | group_by(attribute="group") %}
-
 ### {{ group }}
 {% for commit in commits %}
 - {% if commit.scope %}**{{ commit.scope }}** — {% endif %}\
 {{ commit.message | upper_first }}\
-{% endfor %}\
+{% endfor %}
 {% endfor %}\n
 """
 
