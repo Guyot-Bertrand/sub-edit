@@ -1,2 +1,10 @@
 # Dépôt de référence cloné localement, jamais commité
 reference/
+
+# Réglages d'IDE, propres à chaque poste
+.idea/
+.vscode/
+*.swp
+
+# Artefacts de construction
+build/
