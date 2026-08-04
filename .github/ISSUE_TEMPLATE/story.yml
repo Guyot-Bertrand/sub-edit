@@ -1,0 +1,42 @@
+name: Story
+description: Une fonctionnalité vue du point de vue de l'utilisateur
+labels: ["type:story"]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Besoin
+      description: >
+        Qui a besoin de quoi, et pour quoi faire. Décrire l'usage, pas la
+        solution — la conception vient après.
+      placeholder: >
+        En tant que traducteur, je veux ouvrir un fichier de traduction en
+        regard du fichier principal, afin de saisir la traduction sans perdre
+        le calage.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critères d'acceptation
+      description: Ce qui, une fois vérifiable, permet de clore la story.
+      placeholder: |
+        - [ ] …
+        - [ ] …
+    validations:
+      required: true
+
+  - type: input
+    id: reference
+    attributes:
+      label: Référence Gaupol
+      description: >
+        Le fichier ou la fonctionnalité correspondante dans reference/gaupol,
+        s'il y en a une. Le projet vise l'iso-fonctionnalité.
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Points d'attention
+      description: Difficultés pressenties, décisions à trancher, dépendances.

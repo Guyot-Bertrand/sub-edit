@@ -1,0 +1,75 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "SUBEDIT_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "dev",
+      "inherits": "base",
+      "displayName": "Développement — debug, warnings en erreurs",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "asan",
+      "inherits": "base",
+      "displayName": "Sanitizers — address, undefined, leak",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SUBEDIT_SANITIZERS": "ON"
+      }
+    },
+    {
+      "name": "coverage",
+      "inherits": "base",
+      "displayName": "Couverture — instrumentation gcov",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SUBEDIT_COVERAGE": "ON"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "base",
+      "displayName": "Release — optimisé, LTO",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "dev", "configurePreset": "dev" },
+    { "name": "asan", "configurePreset": "asan" },
+    { "name": "coverage", "configurePreset": "coverage" },
+    { "name": "release", "configurePreset": "release" }
+  ],
+  "testPresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": false
+      }
+    },
+    { "name": "dev", "inherits": "base", "configurePreset": "dev" },
+    { "name": "asan", "inherits": "base", "configurePreset": "asan" },
+    { "name": "coverage", "inherits": "base", "configurePreset": "coverage" }
+  ]
+}

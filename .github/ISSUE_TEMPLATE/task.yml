@@ -1,0 +1,29 @@
+name: Tâche
+description: Un travail technique sans effet direct pour l'utilisateur
+labels: ["type:task"]
+body:
+  - type: textarea
+    id: work
+    attributes:
+      label: Travail à faire
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Pourquoi maintenant
+      description: >
+        Ce qui rend ce travail nécessaire, et ce qu'il débloque. Une tâche sans
+        conséquence identifiée est une tâche à ne pas faire.
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: Critères de fin
+      placeholder: |
+        - [ ] …
+    validations:
+      required: true

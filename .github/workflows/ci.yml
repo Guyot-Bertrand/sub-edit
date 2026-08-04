@@ -1,0 +1,64 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Une nouvelle poussée annule la vérification en cours sur la même référence.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: porte de qualité
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # La CI installe la chaîne d'outils avec le script utilisé en local :
+      # une divergence entre les deux environnements deviendrait invisible.
+      - name: Chaîne d'outils
+        run: ./src/scripts/setup-toolchain.sh
+
+      - name: Cache de compilation
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ github.job }}
+
+      # La CI n'exécute rien d'autre que make check. Recopier ses étapes ici
+      # les ferait diverger du filet local dès la première modification.
+      - name: make check
+        run: make check
+
+      - name: Rapport de couverture
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: couverture
+          path: build/coverage/
+          if-no-files-found: ignore
+
+  commits:
+    name: messages de commit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Grammaire Conventional Commits
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: ./src/scripts/check-commit-range.sh
+
+      - name: Titre de la pull request
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: ./src/scripts/check-commit-message.sh "${PR_TITLE}"

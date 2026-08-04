@@ -1,0 +1,65 @@
+# Configuration de git-cliff — génération de CHANGELOG.md.
+#
+# Le classement provient des types de commit : c'est le retour sur
+# investissement des Conventional Commits. Aucune entrée ne peut être oubliée,
+# puisque aucune n'est saisie à la main.
+
+[changelog]
+header = """
+# Journal des modifications
+
+Les changements notables de subedit. Format inspiré de
+[Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions suivant
+[SemVer](https://semver.org/lang/fr/).
+
+Ce fichier est généré par `make changelog` depuis l'historique des commits :
+ne pas l'éditer à la main.
+"""
+
+body = """
+{% if version %}\
+## {{ version | trim_start_matches(pat="v") }} — {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+## Non publié
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+
+### {{ group }}
+{% for commit in commits %}
+- {% if commit.scope %}**{{ commit.scope }}** — {% endif %}\
+{{ commit.message | upper_first }}\
+{% endfor %}\
+{% endfor %}\n
+"""
+
+footer = ""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+protect_breaking_commits = true
+filter_commits = false
+topo_order = false
+sort_commits = "oldest"
+
+commit_parsers = [
+    { message = "^feat", group = "Ajouts" },
+    { message = "^fix", group = "Corrections" },
+    { message = "^perf", group = "Performance" },
+    { message = "^refactor", group = "Remaniements" },
+    { message = "^docs", group = "Documentation" },
+    { message = "^test", group = "Tests" },
+    { message = "^build", group = "Construction" },
+    { message = "^ci", group = "Intégration continue" },
+    # Le bruit d'entretien n'a pas sa place dans un journal destiné aux
+    # utilisateurs : il reste dans l'historique git, où il est consultable.
+    { message = "^chore", skip = true },
+    { message = "^revert", group = "Annulations" },
+]
+
+commit_preprocessors = [
+    # Rend les numéros d'issue cliquables depuis le journal.
+    { pattern = '\\(#(\\d+)\\)', replace = "([#${1}](https://github.com/Guyot-Bertrand/sub-edit/issues/${1}))" },
+]

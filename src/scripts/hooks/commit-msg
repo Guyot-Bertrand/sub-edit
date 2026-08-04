@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Valide la grammaire Conventional Commits du message en cours de rédaction.
+
+set -euo pipefail
+
+readonly REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+exec "${REPO_ROOT}/src/scripts/check-commit-message.sh" "$1"

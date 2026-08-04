@@ -63,8 +63,10 @@ avec un objectif d'iso-fonctionnalité.
 
 ## Conventions
 
-- **Langue** — documentation, specs, messages de commit et échanges en français.
-  Le code, ses identifiants et ses commentaires en anglais.
+- **Langue** — français pour la documentation, les specs, les ADR, les manuels,
+  les messages de commit, les scripts, le système de construction et les
+  échanges. Anglais pour le code C++ : identifiants, commentaires et intitulés
+  de tests. La frontière est celle du compilateur C++, pas celle du dépôt.
 - **Commits** — Conventional Commits, scopes alignés sur les labels `area:`.
 - **Qualité** — `make check` est la porte : format, warnings en erreurs,
   clang-tidy, tests sous ASan, seuil de couverture. La CI l'exécute à

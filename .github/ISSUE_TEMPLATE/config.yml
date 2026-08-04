@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feuille de route
+    url: https://github.com/Guyot-Bertrand/sub-edit/blob/main/docs/feuille-de-route.md
+    about: Les huit phases du projet et leur ordre, avant d'ouvrir une issue.
+  - name: Contribution
+    url: https://github.com/Guyot-Bertrand/sub-edit/blob/main/CONTRIBUTING.md
+    about: Le projet n'accepte pas de contributions externes pour l'instant.

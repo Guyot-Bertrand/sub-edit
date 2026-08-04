@@ -1,0 +1,46 @@
+name: Bug
+description: Un comportement incorrect, reproductible
+labels: ["type:bug"]
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: Comportement observé
+      description: Ce qui se produit, tel qu'observé.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportement attendu
+      description: Ce qui devrait se produire, et pourquoi.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction
+      description: >
+        Les étapes minimales pour reproduire. Un fichier de sous-titres réduit
+        au cas problématique vaut mieux qu'une longue description.
+      placeholder: |
+        1. subedit-cli convert exemple.srt --format microdvd
+        2. …
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Sortie de `subedit-cli --version`, ou révision git.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexte
+      description: Distribution, version de Qt, tout élément pertinent.

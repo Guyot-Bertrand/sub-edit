@@ -1,0 +1,48 @@
+cmake_minimum_required(VERSION 3.28)
+
+project(
+    subedit
+    VERSION 0.1.0
+    DESCRIPTION "Éditeur de sous-titres"
+    HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
+    LANGUAGES CXX)
+
+# Ce projet n'est jamais construit comme sous-projet d'un autre.
+if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    message(FATAL_ERROR "subedit se construit seul, pas comme sous-projet.")
+endif()
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Les extensions GNU rendraient le code non portable sans qu'on s'en aperçoive.
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Consommé par clang-tidy et par les éditeurs.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+option(SUBEDIT_BUILD_TESTS "Construire les tests et les benchmarks" ON)
+option(SUBEDIT_SANITIZERS "Activer AddressSanitizer et UndefinedBehaviorSanitizer" OFF)
+option(SUBEDIT_COVERAGE "Instrumenter pour la mesure de couverture" OFF)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(ToolchainSanity)
+include(Ccache)
+include(Warnings)
+include(Sanitizers)
+include(Coverage)
+
+add_subdirectory(src/lib)
+add_subdirectory(src/exe)
+
+if(SUBEDIT_BUILD_TESTS)
+    include(CTest)
+    include(Dependencies)
+    add_subdirectory(src/test)
+endif()
+
+message(STATUS "subedit ${PROJECT_VERSION} — ${CMAKE_BUILD_TYPE}")
+message(STATUS "  tests       : ${SUBEDIT_BUILD_TESTS}")
+message(STATUS "  sanitizers  : ${SUBEDIT_SANITIZERS}")
+message(STATUS "  couverture  : ${SUBEDIT_COVERAGE}")

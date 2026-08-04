@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Vérifications rapides avant chaque commit.
+#
+# Rapide est un critère de conception : un hook lent finit contourné par
+# --no-verify, et un hook contourné ne protège rien.
+
+set -euo pipefail
+
+readonly RED=$'\033[31m'
+readonly RESET=$'\033[0m'
+
+fail() { printf '%spre-commit : %s%s\n' "${RED}" "$*" "${RESET}" >&2; exit 1; }
+
+staged_files() { git diff --cached --name-only --diff-filter=ACMR; }
+
+# 1. Le dépôt de référence n'entre jamais dans un commit.
+check_reference_not_staged() {
+    local staged
+    staged="$(staged_files | grep '^reference/' || true)"
+    [[ -z "${staged}" ]] || fail "le dépôt de référence est indexé, il ne doit jamais être commité :
+$(printf '  %s\n' ${staged})
+  le retirer avec : git restore --staged reference/"
+}
+
+# 2. Le code indexé respecte le format.
+check_format() {
+    local sources
+    sources="$(staged_files | grep -E '\.(cpp|hpp|cc|h)$' || true)"
+    [[ -n "${sources}" ]] || return 0
+
+    if ! command -v clang-format >/dev/null 2>&1; then
+        printf 'pre-commit : clang-format absent, vérification du format ignorée\n' >&2
+        printf '             l installer avec : ./src/scripts/setup-toolchain.sh\n' >&2
+        return 0
+    fi
+
+    local unformatted=()
+    local file
+    while IFS= read -r file; do
+        [[ -f "${file}" ]] || continue
+        if ! clang-format --dry-run --Werror "${file}" >/dev/null 2>&1; then
+            unformatted+=("${file}")
+        fi
+    done <<< "${sources}"
+
+    (( ${#unformatted[@]} == 0 )) || fail "fichiers non formatés :
+$(printf '  %s\n' "${unformatted[@]}")
+  les corriger avec : make format"
+}
+
+check_reference_not_staged
+check_format

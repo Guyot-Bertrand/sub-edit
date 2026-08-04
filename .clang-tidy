@@ -1,0 +1,95 @@
+---
+# Analyse statique du projet subedit. Voir docs/specs/00-fondations.md et
+# docs/principes-de-conception.md.
+#
+# Règle du projet : toute exclusion porte sa justification en commentaire.
+# Une exclusion non justifiée est un défaut, pas un réglage.
+#
+# Les familles cppcoreguidelines sont sélectionnées une par une plutôt
+# qu'activées en bloc : le bloc contient des vérifications très bruyantes
+# (pro-bounds-*, pro-type-vararg) qui noieraient celles qui portent réellement
+# les règles de propriété mémoire.
+
+Checks: >
+  bugprone-*,
+  performance-*,
+  modernize-*,
+  readability-*,
+  misc-*,
+  cppcoreguidelines-owning-memory,
+  cppcoreguidelines-no-malloc,
+  cppcoreguidelines-special-member-functions,
+  cppcoreguidelines-prefer-member-initializer,
+  cppcoreguidelines-pro-type-member-init,
+  cppcoreguidelines-pro-type-const-cast,
+  cppcoreguidelines-pro-type-reinterpret-cast,
+  cppcoreguidelines-pro-type-static-cast-downcast,
+  cppcoreguidelines-slicing,
+  cppcoreguidelines-virtual-class-destructor,
+  cppcoreguidelines-init-variables,
+  cppcoreguidelines-narrowing-conversions,
+  cppcoreguidelines-rvalue-reference-param-not-moved,
+  cppcoreguidelines-misleading-capture-default-by-value,
+  -modernize-use-trailing-return-type,
+  -readability-identifier-length,
+  -readability-braces-around-statements,
+  -misc-no-recursion,
+  -misc-include-cleaner,
+  -bugprone-easily-swappable-parameters
+
+# Justification des exclusions ci-dessus :
+#
+# modernize-use-trailing-return-type
+#   Préférence de style, pas un défaut. Imposerait `auto f() -> int` partout.
+# readability-identifier-length
+#   Un nom court dans une portée de trois lignes est plus lisible qu'un long.
+# readability-braces-around-statements
+#   clang-format garantit déjà l'indentation ; le gain est nul et le bruit fort.
+# misc-no-recursion
+#   Le découpage de lignes et l'analyse de balises sont naturellement récursifs.
+# misc-include-cleaner
+#   Faux positifs nombreux avec les en-têtes de Qt et de la bibliothèque standard.
+# bugprone-easily-swappable-parameters
+#   Rendu obsolète par notre règle de types forts : `Timestamp` et `Duration`
+#   n'étant pas interchangeables, le compilateur couvre déjà le risque.
+
+WarningsAsErrors: '*'
+HeaderFilterRegex: 'src/.*\.hpp$'
+FormatStyle: file
+
+CheckOptions:
+  # Conventions de nommage, voir docs/specs/00-fondations.md.
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypedefCase
+    value: CamelCase
+  - key: readability-identifier-naming.FunctionCase
+    value: camelBack
+  - key: readability-identifier-naming.VariableCase
+    value: camelBack
+  - key: readability-identifier-naming.ParameterCase
+    value: camelBack
+  - key: readability-identifier-naming.PrivateMemberPrefix
+    value: m_
+  - key: readability-identifier-naming.ProtectedMemberPrefix
+    value: m_
+  - key: readability-identifier-naming.ConstexprVariableCase
+    value: CamelCase
+  - key: readability-identifier-naming.ConstexprVariablePrefix
+    value: k
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: CamelCase
+  - key: readability-identifier-naming.GlobalConstantPrefix
+    value: k
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE

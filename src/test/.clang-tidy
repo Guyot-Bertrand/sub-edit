@@ -1,0 +1,23 @@
+---
+# Le code de test hérite de la configuration racine, avec quatre assouplissements.
+#
+# Un test n'est pas du code de production : il exprime des cas concrets, donc
+# des valeurs littérales, et Catch2 impose ses propres formes.
+InheritParentConfig: true
+
+Checks: >
+  -readability-magic-numbers,
+  -readability-function-cognitive-complexity,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -misc-use-anonymous-namespace
+
+# Justification :
+#
+# readability-magic-numbers, cppcoreguidelines-avoid-magic-numbers
+#   Les valeurs attendues d'un test sont littérales par nature. Les nommer
+#   éloignerait l'attendu de l'assertion, ce qui nuit à la lisibilité.
+# readability-function-cognitive-complexity
+#   Les macros de Catch2 gonflent artificiellement la métrique.
+# misc-use-anonymous-namespace
+#   Les fonctions d'aide locales à un fichier de test sont volontairement
+#   déclarées `static`, forme plus lisible pour un lecteur de test.

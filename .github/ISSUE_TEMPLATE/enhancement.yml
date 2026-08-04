@@ -1,0 +1,27 @@
+name: Amélioration
+description: Une évolution d'un comportement existant
+labels: ["type:enhancement"]
+body:
+  - type: textarea
+    id: current
+    attributes:
+      label: Situation actuelle
+      description: Ce que fait le projet aujourd'hui.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Amélioration proposée
+      description: Ce qui changerait, et le gain attendu.
+    validations:
+      required: true
+
+  - type: textarea
+    id: measurement
+    attributes:
+      label: Mesure
+      description: >
+        S'il s'agit de performance : le benchmark qui l'établit. Aucun chiffre
+        n'est annoncé sans mesure à l'appui.
