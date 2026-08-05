@@ -1,6 +1,6 @@
 # Sous-projet 0 — Fondations
 
-**État :** conception validée, prête à planifier
+**État :** réalisée le 2026-08-05
 **Milestone :** `0 — Fondations`
 
 ## Objectif
@@ -370,6 +370,34 @@ Le sous-projet est terminé quand :
 7. Les cinq ADR sont écrites, ainsi que `README.md` et `CONTRIBUTING.md`.
 8. Le dépôt GitHub public est créé et configuré selon
    [`../configuration-github.md`](../configuration-github.md).
+
+### Réalisation
+
+| Critère | État | Preuve |
+| :------ | :--- | :----- |
+| 1 — chaîne d'outils | ✅ | `setup-toolchain.sh` exécuté sur la machine cible |
+| 2 — chaîne de bout en bout | ✅ | `subedit_core`, son test, son benchmark, `subedit-cli` |
+| 3 — les portes se referment | ✅ | `make verify-gates`, cinq défauts injectés, cinq échecs |
+| 4 — CI verte exécutant `make check` | ✅ | workflow `ci`, jobs `porte de qualité` et `messages de commit` |
+| 5 — hooks git | ✅ | message non conforme rejeté, indexation de `reference/` refusée |
+| 6 — CHANGELOG | ✅ | `make changelog`, git-cliff 2.10.1 |
+| 7 — ADR et documentation | ✅ | ADR 0001 à 0005, `README.md`, `CONTRIBUTING.md` |
+| 8 — dépôt configuré | ⚠️ | labels, milestones et rulesets faits ; deux réglages restants |
+
+Les deux réglages restants n'ont pas d'API et se font dans l'interface :
+approbation des workflows de fork, et limites d'interaction. Ils protègent
+d'interactions extérieures qui ne se produisent pas encore sur un dépôt sans
+visibilité ; leur absence ne bloque aucun travail.
+
+**Trois écarts assumés** par rapport à la conception initiale, chacun justifié
+sur place dans ce document :
+
+- les presets **ne figent pas Ninja** ;
+- le critère 3 a donné lieu à un **script rejouable** plutôt qu'à une
+  vérification unique ;
+- un **troisième invariant d'architecture** a été ajouté après coup — les
+  scripts doivent être exécutables dans l'index git — parce que son absence a
+  effectivement cassé la CI.
 
 ## Points ouverts
 

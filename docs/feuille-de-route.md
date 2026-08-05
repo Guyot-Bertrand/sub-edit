@@ -65,7 +65,12 @@ conclusions, ni une liste close.
 
 ## 0 — Fondations
 
-**Terminée.** Voir [`specs/00-fondations.md`](specs/00-fondations.md).
+**Terminée le 2026-08-05.** Voir [`specs/00-fondations.md`](specs/00-fondations.md).
+
+Structure `lib`/`exe`/`test`, CMake et presets, façade `make`, porte `make check`
+en cinq étapes prouvée dans les deux sens par `make verify-gates`, CI qui
+n'exécute rien d'autre que cette porte, hooks git, CHANGELOG généré, cinq ADR,
+et verrouillage du dépôt.
 
 ---
 
