@@ -35,6 +35,8 @@ ne pas l'éditer à la main.
 - Acter la réalisation de la phase 0
 - Régénérer le changelog
 - Régénérer le changelog
+- Régénérer le changelog
+- Spec de la phase 1 et cinq décisions d'architecture
 
 ### Intégration continue
 
