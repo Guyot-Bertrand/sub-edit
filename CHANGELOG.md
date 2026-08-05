@@ -29,6 +29,8 @@ ne pas l'éditer à la main.
 - Recadrer la feuille de route sur les priorités de l'utilisateur
 - Régénérer le changelog
 - Décrire les rulesets avec les libellés de l'interface GitHub
+- Régénérer le changelog
+- Acter la réalisation de la phase 0
 
 ### Intégration continue
 
