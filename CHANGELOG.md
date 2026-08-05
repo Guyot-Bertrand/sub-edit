@@ -14,6 +14,7 @@ ne pas l'éditer à la main.
 - **scripts** — Verrou en lecture seule sur le dépôt de référence
 - Fondations du projet
 - Fermer et vérifier les portes de qualité
+- Préparer l'analyse statique du C++23
 
 ### Documentation
 
@@ -31,6 +32,7 @@ ne pas l'éditer à la main.
 - Décrire les rulesets avec les libellés de l'interface GitHub
 - Régénérer le changelog
 - Acter la réalisation de la phase 0
+- Régénérer le changelog
 
 ### Intégration continue
 
