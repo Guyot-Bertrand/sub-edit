@@ -56,7 +56,7 @@ avec un objectif d'iso-fonctionnalité.
 
 | Document | Contenu |
 | :------- | :------ |
-| [`docs/feuille-de-route.md`](docs/feuille-de-route.md) | les huit phases, leur cadrage et leur ordre |
+| [`docs/feuille-de-route.md`](docs/feuille-de-route.md) | le contour du MVP, les phases, leur cadrage et leur ordre |
 | [`docs/principes-de-conception.md`](docs/principes-de-conception.md) | règles permanentes applicables à tout le code |
 | [`docs/specs/`](docs/specs/) | une spec par phase, plus l'inventaire de Gaupol |
 | [`docs/configuration-github.md`](docs/configuration-github.md) | verrouillage du dépôt, labels, milestones |

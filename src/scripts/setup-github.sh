@@ -100,37 +100,53 @@ apply_labels() {
 apply_milestones() {
     info "milestones"
 
+    # Les phases 0 à 7 mènent au MVP, les suivantes complètent
+    # l'iso-fonctionnalité. Voir docs/feuille-de-route.md.
     local -a phases=(
         "0 — Fondations|Structure, chaîne de construction et filet de vérification"
-        "1 — Noyau : modèle et formats|Sous-titre, positions, les neuf formats, balises, commandes réversibles"
-        "2 — Opérations d'édition|Décalage, transformation, durées, casse, recherche, presse-papiers"
-        "3 — CLI|Exécutable en ligne de commande et harnais de mesure du noyau"
-        "4 — Moteur de correction|Motifs déclaratifs, découpage de lignes, correcteur orthographique"
-        "5 — GUI : édition tabulaire|Fenêtre, vue virtualisée, multi-projets, dialogues, préférences"
-        "6 — Vidéo et timing|Lecteur intégré, incrustation, calage sur la position vidéo"
-        "7 — Finitions|Internationalisation, thème, empaquetage"
+        "1 — Noyau : modèle et formats|Sous-titre, positions, SubRip et WebVTT, balises, commandes réversibles"
+        "2 — Opérations d'édition|Édition de base, décalage, transformation, conversion de fréquence d'image"
+        "3 — CLI : harnais|Inspection, conversion et décalage, pour valider et mesurer le noyau sans interface"
+        "4 — Mentions pour malentendants|Suppression des sons entre crochets et entre parenthèses"
+        "5 — Interface : édition tabulaire|Fenêtre, table éditable, ouvrir, enregistrer sous, annuler et refaire"
+        "6 — Prévisualisation|Lancement d'un lecteur externe positionné au sous-titre courant"
+        "7 — Finitions et première livraison|Préférences, thème, manuel, empaquetage — le MVP est livrable"
+        "8 — Encodages et fins de ligne|Détection automatique, jeu complet d'encodages et de fins de ligne"
+        "9 — Formats complémentaires|SubViewer 2, SSA, ASS, MicroDVD, MPL2, TMPlayer, LRC et balises riches"
+        "10 — Opérations complémentaires|Durées, casse, italiques, tirets, fusion, scission, recherche"
+        "11 — Traduction et multi-projets|Second document, alignement, onglets, opérations groupées"
+        "12 — Moteur de correction complet|Motifs par langue, découpage de lignes, correcteur orthographique"
+        "13 — CLI complète|Sous-commandes destinées à un usage réel et traitement par lot"
+        "14 — Lecteur vidéo intégré et calage|Incrustation, calage à l'image près depuis la position vidéo"
+        "15 — Internationalisation|Reprise des vingt locales de Gaupol"
     )
 
+    # Le rapprochement se fait sur le numéro de phase et non sur le titre
+    # complet, afin qu'un libellé révisé renomme le milestone au lieu d'en
+    # créer un second.
     local existing
-    existing="$(gh api "repos/${REPO}/milestones?state=all" --jq '.[].title')"
+    existing="$(gh api "repos/${REPO}/milestones?state=all" --jq '.[] | "\(.number)|\(.title)"')"
 
-    local phase title description created=0
+    local phase title description number created=0 updated=0
     for phase in "${phases[@]}"; do
         IFS='|' read -r title description <<< "${phase}"
-        if grep -Fxq "${title}" <<< "${existing}"; then
-            continue
+        number="$(awk -F'|' -v p="${title%% *} —" \
+            'index($2, p) == 1 { print $1; exit }' <<< "${existing}")"
+
+        if [[ -n "${number}" ]]; then
+            gh api "repos/${REPO}/milestones/${number}" --method PATCH \
+                --field title="${title}" \
+                --field description="${description}" >/dev/null
+            updated=$((updated + 1))
+        else
+            gh api "repos/${REPO}/milestones" --method POST \
+                --field title="${title}" \
+                --field description="${description}" >/dev/null
+            created=$((created + 1))
         fi
-        gh api "repos/${REPO}/milestones" --method POST \
-            --field title="${title}" \
-            --field description="${description}" >/dev/null
-        created=$((created + 1))
     done
 
-    if (( created > 0 )); then
-        done_ "${created} milestones créés"
-    else
-        done_ "les 8 milestones existent déjà"
-    fi
+    done_ "${created} milestones créés, ${updated} mis à jour"
 }
 
 # --- Rulesets ---------------------------------------------------------------

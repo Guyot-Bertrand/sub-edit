@@ -103,7 +103,7 @@ explicitement : GitHub laisse la limite expirer sans prévenir.
 | Famille | Valeurs |
 | :------ | :------ |
 | `type:` | `bug`, `story`, `enhancement`, `task`, `doc` |
-| `area:` | `build`, `core`, `format`, `text`, `cli`, `gui`, `video`, `i18n`, `ci`, `doc` |
+| `area:` | `build`, `ci`, `cli`, `core`, `doc`, `format`, `gui`, `i18n`, `scripts`, `test`, `text`, `video` |
 | `prio:` | `high`, `medium`, `low` |
 | état | `blocked`, `needs-decision` |
 
@@ -113,15 +113,7 @@ rend le CHANGELOG généré directement rapprochable des tickets.
 
 ### Milestones
 
-Un par sous-projet, dans l'ordre du plan de route :
-
-```
-0 — Fondations
-1 — Noyau : modèle et formats
-2 — Opérations d'édition
-3 — CLI
-4 — Moteur de correction
-5 — GUI : édition tabulaire
-6 — Vidéo et timing
-7 — Finitions
-```
+Un par phase, dans l'ordre du plan de route. Les huit premiers mènent au MVP, les suivants complètent
+l'iso-fonctionnalité. `src/scripts/setup-github.sh` les crée et les tient à
+jour ; la liste de référence est dans
+[`feuille-de-route.md`](feuille-de-route.md).

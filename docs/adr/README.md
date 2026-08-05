@@ -33,6 +33,6 @@ Points ouverts identifiés, qui feront l'objet d'une ADR le moment venu :
   analyse correctement du C++23 compilé contre libstdc++ 13. Phase 1.
 - **Moteur d'expressions régulières** — PCRE2, compatible avec la syntaxe Python
   des motifs de Gaupol, ou RE2, plus rapide mais sans références arrière, que
-  ces motifs utilisent. Phase 4, après mesure.
-- **Backend vidéo** — libmpv ou QtMultimedia. Phase 6.
-- **Internationalisation** — Qt Linguist ou gettext. Phase 7.
+  ces motifs utilisent. Phase 12, après mesure.
+- **Backend vidéo** — libmpv ou QtMultimedia. Phase 14.
+- **Internationalisation** — Qt Linguist ou gettext. Phase 15.

@@ -70,7 +70,7 @@ Dans `subedit`, elle l'est à cinq endroits, connus dès maintenant :
 
 | Point de variation | Pourquoi |
 | :----------------- | :------- |
-| Lecture et écriture de formats | neuf implémentations dès le sous-projet 1 |
+| Lecture et écriture de formats | deux implémentations en phase 1, neuf à terme |
 | Moteur d'expressions régulières | PCRE2 contre RE2, non tranché |
 | Lecteur vidéo | libmpv contre QtMultimedia, non tranché |
 | Correcteur orthographique | hunspell, nuspell, ou service système |

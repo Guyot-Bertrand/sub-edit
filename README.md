@@ -5,7 +5,9 @@
 
 > **État : fondations.** Le projet n'édite encore aucun sous-titre. Seule
 > l'infrastructure de développement est en place. La
-> [feuille de route](docs/feuille-de-route.md) décrit les huit phases prévues.
+> [feuille de route](docs/feuille-de-route.md) décrit les seize phases prévues :
+> les huit premières mènent à un MVP, les suivantes complètent
+> l'iso-fonctionnalité avec Gaupol.
 
 ## Pourquoi
 
@@ -55,7 +57,7 @@ diverger.
 
 | Document | Contenu |
 | :------- | :------ |
-| [Feuille de route](docs/feuille-de-route.md) | les huit phases, leur cadrage et leur ordre |
+| [Feuille de route](docs/feuille-de-route.md) | le contour du MVP, les phases, leur cadrage et leur ordre |
 | [Principes de conception](docs/principes-de-conception.md) | règles permanentes applicables à tout le code |
 | [Specs](docs/specs/) | une spec par phase, et l'inventaire des fonctionnalités de Gaupol |
 | [Décisions](docs/adr/) | ce qui a été décidé, et pourquoi les autres options ont été écartées |

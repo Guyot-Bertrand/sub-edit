@@ -18,8 +18,8 @@ et en intégration continue.
 `subedit` réécrit [Gaupol](https://github.com/otsaloma/gaupol) — éditeur de
 sous-titres GTK/Python — en C++20 + Qt 6, avec un objectif d'iso-fonctionnalité.
 L'inventaire des fonctionnalités à couvrir est dans
-[`gaupol-reference.md`](gaupol-reference.md). Le travail est découpé en huit
-sous-projets ; celui-ci est le premier.
+[`gaupol-reference.md`](gaupol-reference.md). Le travail est découpé en
+phases ; celle-ci est la première.
 
 Les règles de conception applicables à tout le code — modèles de données typés,
 propriété mémoire explicite, abstraction là où la variation est connue — sont
@@ -203,9 +203,9 @@ Résolues par `find_package` sur les paquets système, à une exception près.
 | :--------- | :------ | :----------- |
 | Catch2 v3 | `FetchContent` | tests et micro-benchmarks |
 | Qt 6 | paquets système | sous-projet 5 |
-| PCRE2 ou RE2 | paquets système | sous-projet 4 — choix à trancher |
-| ICU | paquets système | encodages, sous-projet 1 |
-| hunspell | paquets système | sous-projet 4 |
+| PCRE2 ou RE2 | paquets système | phase 12 — choix à trancher |
+| ICU | paquets système | encodages, phase 8 |
+| hunspell | paquets système | phase 12 |
 
 Catch2 fait exception parce qu'il se compile en quelques secondes et que sa
 version doit être identique partout ; l'épingler évite qu'une mise à jour de
@@ -380,8 +380,8 @@ influenceront le code dès les premières lignes :
   résultat. `std::expected` relève de C++23 : indisponible en C++20, mais
   fonctionnel avec le GCC 13 déjà installé en `-std=c++23`. Retenir le type
   résultat reviendrait donc à passer le projet en C++23, sans changer de
-  compilateur. À trancher dans le sous-projet 1, par ADR — voir
+  compilateur. À trancher dans la phase 1, par ADR — voir
   [`../adr/README.md`](../adr/README.md) pour les réserves mesurées.
 - **Moteur d'expressions régulières** — PCRE2, compatible avec la syntaxe Python
   des motifs de Gaupol, ou RE2, nettement plus rapide mais sans références
-  arrière. À trancher dans le sous-projet 4, après mesure.
+  arrière. À trancher dans la phase 12, après mesure.
