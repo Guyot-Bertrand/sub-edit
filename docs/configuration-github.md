@@ -43,30 +43,59 @@ un tiers ne peut que forker et proposer une PR, qui se ferme d'un clic.
 Deux plutôt qu'un, parce qu'un ruleset n'a **qu'une seule liste de dérogation
 pour toutes ses règles**, alors que les deux besoins s'opposent.
 
-**« protection de l'historique »** — aucune dérogation.
+Les libellés ci-dessous sont ceux de l'interface GitHub, et non ceux de l'API.
 
-| Réglage | Valeur |
-| :------ | :----- |
-| Target | branche par défaut |
-| Restrict deletions | activé |
-| Block force pushes | activé |
-| Bypass list | *vide* |
+#### « protection de l'historique »
+
+| Champ de l'interface | Valeur |
+| :------------------- | :----- |
+| Ruleset Name | `protection de l'historique` |
+| Enforcement status | **Active** |
+| Bypass list | *laisser vide* |
+| Target branches → Add target | **Include default branch** |
+| Rules | cocher **Restrict deletions** et **Block force pushes** |
 
 Le propriétaire étant seul à pouvoir écrire, le risque réel n'est pas un tiers
 malveillant : c'est un `push --force` accidentel de sa part. Une règle dont il
-serait exempté ne protégerait donc de rien.
+serait exempté ne protégerait donc de rien — d'où la liste de dérogation vide.
 
-**« porte de qualité »** — dérogation pour l'administrateur.
+#### « porte de qualité »
 
-| Réglage | Valeur |
-| :------ | :----- |
-| Target | branche par défaut |
-| Require status checks to pass | activé, contexte `porte de qualité` |
-| Bypass list | rôle *Admin* |
+| Champ de l'interface | Valeur |
+| :------------------- | :----- |
+| Ruleset Name | `porte de qualité` |
+| Enforcement status | **Active** |
+| Bypass list → Add bypass | **Repository admin** — mode *Always* |
+| Target branches → Add target | **Include default branch** |
+| Rules | cocher **Require status checks to pass** |
+| → Add checks | `porte de qualité`, source **GitHub Actions** |
+| → Require branches to be up to date | décoché |
 
-Ici la dérogation est indispensable : la CI ne s'exécute qu'**après** le push,
-donc sans elle la règle rejetterait tout push direct sur `main` et imposerait
-de fait le passage par une pull request — ce qui a été écarté à ce stade.
+Deux pièges dans cette seconde :
+
+- **Le nom du contrôle est celui du *job*, pas du workflow.** C'est
+  `porte de qualité`, valeur du champ `name:` du job `check` dans
+  `.github/workflows/ci.yml` — et non `ci`.
+- **Le contrôle n'apparaît dans le sélecteur qu'après s'être exécuté au moins
+  une fois.** Sur un dépôt dont la CI n'a jamais tourné, la liste est vide et
+  il faut saisir le nom à la main.
+
+La dérogation pour l'administrateur est indispensable : la CI ne s'exécute
+qu'**après** le push, donc sans elle la règle rejetterait tout push direct sur
+`main` et imposerait de fait le passage par une pull request — ce qui a été
+écarté à ce stade.
+
+#### Vérifier
+
+```bash
+gh api repos/Guyot-Bertrand/sub-edit/rulesets --jq '.[] | "\(.id) \(.name) [\(.enforcement)]"'
+gh api repos/Guyot-Bertrand/sub-edit/rulesets/<id> \
+  --jq '{bypass: [.bypass_actors[]? | "\(.actor_type)/\(.actor_id)"], rules: [.rules[].type]}'
+```
+
+Attendu : `protection de l'historique` sans dérogation avec les règles
+`deletion` et `non_fast_forward` ; `porte de qualité` avec
+`RepositoryRole/5` et la règle `required_status_checks`.
 
 ### 3. Approbation des workflows de fork
 
