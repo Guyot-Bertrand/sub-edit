@@ -35,7 +35,8 @@ Checks: >
   -readability-braces-around-statements,
   -misc-no-recursion,
   -misc-include-cleaner,
-  -bugprone-easily-swappable-parameters
+  -bugprone-easily-swappable-parameters,
+  -performance-enum-size
 
 # Justification des exclusions ci-dessus :
 #
@@ -52,6 +53,11 @@ Checks: >
 # bugprone-easily-swappable-parameters
 #   Rendu obsolète par notre règle de types forts : `Timestamp` et `Duration`
 #   n'étant pas interchangeables, le compilateur couvre déjà le risque.
+# performance-enum-size
+#   Exigerait `enum class Format : std::uint8_t` sur chaque énumération du
+#   projet, pour économiser trois octets par valeur. C'est de l'optimisation
+#   spéculative, que docs/principes-de-conception.md proscrit sans mesure à
+#   l'appui. À réactiver si un profil montre un jour que ça compte.
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: 'src/.*\.hpp$'

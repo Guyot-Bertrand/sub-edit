@@ -17,6 +17,13 @@ export CMAKE_GENERATOR ?= $(shell command -v ninja >/dev/null 2>&1 && echo Ninja
 COVERAGE_MIN := 80
 SOURCES := $(shell find src -name '*.cpp' -o -name '*.hpp' 2>/dev/null)
 
+# libstdc++ garde <expected> derrière __cpp_concepts >= 202002L, valeur que
+# Clang 18 ne déclare pas : il ne voit alors pas std::expected. On prend donc la
+# version la plus récente disponible, sans exiger qu'elle soit installée.
+CLANG_TIDY := $(shell command -v clang-tidy-20 2>/dev/null \
+	|| command -v clang-tidy-19 2>/dev/null \
+	|| command -v clang-tidy 2>/dev/null || echo clang-tidy)
+
 BOLD := \033[1m
 GREEN := \033[32m
 RED := \033[31m
@@ -84,12 +91,12 @@ format-check: ## Vérifie le format sans modifier
 # -Wuseless-cast et consorts avant d'avoir analysé la moindre ligne.
 .PHONY: tidy
 tidy: ## Exécute clang-tidy
-	$(call require,clang-tidy)
-	$(call step,"analyse statique")
+	$(call require,$(CLANG_TIDY))
+	$(call step,"analyse statique — $(notdir $(CLANG_TIDY))")
 	@cmake --preset dev >/dev/null
 	@find src -name '*.cpp' -print0 \
 		| xargs -0 -P $(JOBS) -I{} \
-			clang-tidy -p build/dev --quiet --extra-arg=-Wno-unknown-warning-option {}
+			$(CLANG_TIDY) -p build/dev --quiet --extra-arg=-Wno-unknown-warning-option {}
 
 .PHONY: arch
 arch: ## Vérifie les invariants d'architecture

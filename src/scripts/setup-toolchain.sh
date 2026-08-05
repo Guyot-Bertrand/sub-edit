@@ -19,9 +19,12 @@ info() { printf '\033[1m%s\033[0m\n' "$*"; }
 skip() { printf '  déjà présent : %s\n' "$*"; }
 
 # Paquets APT : nom de commande -> nom de paquet.
+# clang-tidy 20 plutôt que la version par défaut : libstdc++ garde <expected>
+# derrière __cpp_concepts >= 202002L, valeur que Clang 18 ne déclare pas. Avec
+# lui, std::expected est invisible à l'analyse statique.
 declare -A APT_TOOLS=(
     [ninja]=ninja-build
-    [clang-tidy]=clang-tidy
+    [clang-tidy-20]=clang-tidy-20
     [clang-format]=clang-format
     [gcovr]=gcovr
     [ccache]=ccache
@@ -119,7 +122,7 @@ check_cxx_alternative() {
 report() {
     info "état de la chaîne d'outils"
     local cmd
-    for cmd in cmake ninja g++ clang-tidy clang-format gcovr ccache git git-cliff gh; do
+    for cmd in cmake ninja g++ clang-tidy-20 clang-format gcovr ccache git git-cliff gh; do
         if command -v "${cmd}" >/dev/null 2>&1; then
             printf '  \033[32m✓\033[0m %-14s %s\n' "${cmd}" "$("${cmd}" --version 2>/dev/null | head -1)"
         else
