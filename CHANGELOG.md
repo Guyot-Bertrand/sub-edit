@@ -33,6 +33,7 @@ ne pas l'éditer à la main.
 - Régénérer le changelog
 - Acter la réalisation de la phase 0
 - Régénérer le changelog
+- Régénérer le changelog
 
 ### Intégration continue
 

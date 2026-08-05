@@ -10,6 +10,11 @@ SHELL := /bin/bash
 
 JOBS ?= $(shell nproc)
 
+# git-cliff s'installe dans ~/.local/bin, que ~/.profile n'ajoute au PATH qu'à
+# l'ouverture de session suivante. On ne dépend pas de la configuration du
+# shell de l'utilisateur.
+export PATH := $(HOME)/.local/bin:$(PATH)
+
 # Ninja est préféré, sans être requis : le figer dans les presets rendrait le
 # projet inconstructible sur une machine qui ne l'a pas encore.
 export CMAKE_GENERATOR ?= $(shell command -v ninja >/dev/null 2>&1 && echo Ninja || echo "Unix Makefiles")
@@ -116,6 +121,10 @@ coverage: ## Mesure la couverture des bibliothèques
 	$(call step,"couverture")
 	@cmake --preset coverage
 	@cmake --build --preset coverage -j $(JOBS)
+	# Les .gcda d'une exécution antérieure survivent à la recompilation et
+	# gcov les fusionne : un fichier modifié depuis produirait un taux de
+	# couverture faux, sans autre signe qu'un avertissement noyé dans la sortie.
+	@find build/coverage -name '*.gcda' -delete
 	@ctest --preset coverage
 	@mkdir -p build/coverage-report
 	@gcovr --root . build/coverage/src \

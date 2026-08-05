@@ -122,13 +122,29 @@ check_cxx_alternative() {
 report() {
     info "état de la chaîne d'outils"
     local cmd
+    local path_warning=0
     for cmd in cmake ninja g++ clang-tidy-20 clang-format gcovr ccache git git-cliff gh; do
         if command -v "${cmd}" >/dev/null 2>&1; then
             printf '  \033[32m✓\033[0m %-14s %s\n' "${cmd}" "$("${cmd}" --version 2>/dev/null | head -1)"
+        elif [[ -x "${LOCAL_BIN}/${cmd}" ]]; then
+            # Installé, mais hors du PATH de ce terminal. Sur Ubuntu,
+            # ~/.profile n'ajoute ~/.local/bin qu'à l'ouverture de session, et
+            # seulement si le répertoire existait déjà — ce qui n'est pas le
+            # cas quand ce script vient de le créer.
+            printf '  \033[33m!\033[0m %-14s %s\n' "${cmd}" \
+                "$("${LOCAL_BIN}/${cmd}" --version 2>/dev/null | head -1)"
+            path_warning=1
         else
             printf '  \033[31m✗\033[0m %-14s absent\n' "${cmd}"
         fi
     done
+
+    if (( path_warning )); then
+        printf '\n  \033[33m!\033[0m installé dans %s, absent du PATH de ce terminal.\n' "${LOCAL_BIN}"
+        printf '      effectif à la prochaine ouverture de session, ou tout de suite avec :\n'
+        printf '        export PATH="%s:$PATH"\n' "${LOCAL_BIN}"
+        printf '      les cibles make fonctionnent sans cela.\n'
+    fi
 }
 
 main() {

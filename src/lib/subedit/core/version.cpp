@@ -5,7 +5,11 @@
 namespace subedit::core {
 
 Version version() {
-    return Version{SUBEDIT_VERSION_MAJOR, SUBEDIT_VERSION_MINOR, SUBEDIT_VERSION_PATCH};
+    return Version{
+        .majorNumber = SUBEDIT_VERSION_MAJOR,
+        .minorNumber = SUBEDIT_VERSION_MINOR,
+        .patchNumber = SUBEDIT_VERSION_PATCH,
+    };
 }
 
 std::string versionString() {
