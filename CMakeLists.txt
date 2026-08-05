@@ -12,7 +12,9 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     message(FATAL_ERROR "subedit se construit seul, pas comme sous-projet.")
 endif()
 
-set(CMAKE_CXX_STANDARD 20)
+# C++23 pour std::expected — voir docs/adr/0007-cpp23-et-std-expected.md.
+# Exige clang-tidy >= 19 : la version 18 ne voit pas <expected>.
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Les extensions GNU rendraient le code non portable sans qu'on s'en aperçoive.
 set(CMAKE_CXX_EXTENSIONS OFF)
