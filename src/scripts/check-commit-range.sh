@@ -17,21 +17,33 @@ HEAD_SHA="${HEAD_SHA:-}"
 BEFORE_SHA="${BEFORE_SHA:-}"
 AFTER_SHA="${AFTER_SHA:-HEAD}"
 
+narrowed=0
+range=""
+
+# Affecte les variables globales plutôt que d'écrire sur la sortie : appelée
+# par substitution de commande, la fonction s'exécuterait dans un sous-shell et
+# l'indicateur de réduction serait perdu.
 resolve_range() {
     if [[ "${EVENT}" == "pull_request" && -n "${BASE_SHA}" && -n "${HEAD_SHA}" ]]; then
-        printf '%s..%s' "${BASE_SHA}" "${HEAD_SHA}"
+        range="${BASE_SHA}..${HEAD_SHA}"
         return
     fi
-    # Première poussée sur une branche : pas de plage, on valide la tête seule.
+    # Première poussée d'une branche : GitHub ne fournit pas de base, on se
+    # rabat sur la tête seule. C'est une réduction réelle de la couverture de
+    # la vérification — elle est signalée plutôt que subie en silence.
     if [[ -z "${BEFORE_SHA}" || "${BEFORE_SHA}" == "${EMPTY_SHA}" ]]; then
-        printf '%s~1..%s' "${AFTER_SHA}" "${AFTER_SHA}"
+        narrowed=1
+        range="${AFTER_SHA}~1..${AFTER_SHA}"
         return
     fi
-    printf '%s..%s' "${BEFORE_SHA}" "${AFTER_SHA}"
+    range="${BEFORE_SHA}..${AFTER_SHA}"
 }
 
-range="$(resolve_range)"
-printf 'plage vérifiée : %s\n\n' "${range}"
+resolve_range
+printf 'plage vérifiée : %s\n' "${range}"
+(( narrowed == 0 )) || printf \
+    'attention : première poussée de cette branche, seul le dernier commit est vérifié\n'
+printf '\n'
 
 failures=0
 while IFS= read -r sha; do

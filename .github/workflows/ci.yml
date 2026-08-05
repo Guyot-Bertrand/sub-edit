@@ -15,7 +15,7 @@ jobs:
     name: porte de qualité
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # La CI installe la chaîne d'outils avec le script utilisé en local :
       # une divergence entre les deux environnements deviendrait invisible.
@@ -34,7 +34,7 @@ jobs:
 
       - name: Rapport de couverture
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: couverture
           path: build/coverage-report/
@@ -44,7 +44,7 @@ jobs:
     name: messages de commit
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 

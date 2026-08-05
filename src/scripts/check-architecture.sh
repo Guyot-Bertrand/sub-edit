@@ -67,8 +67,29 @@ check_executables_are_thin() {
     done < <(find "${REPO_ROOT}/src/exe" -name 'main.cpp' -print0 2>/dev/null)
 }
 
+# Invariant 3 — les scripts sont exécutables dans l'index git.
+#
+# Un script commité en 100644 s'exécute sans problème en local, où le bit
+# d'exécution existe sur le disque, et échoue en CI sur un « Permission
+# denied » après un clone frais. Le mode enregistré dans git est donc la seule
+# source de vérité qui compte.
+check_scripts_are_executable() {
+    local offenders
+    offenders="$(git -C "${REPO_ROOT}" ls-files -s src/scripts \
+        | awk '$1 != "100755" { print $4 }')"
+
+    if [[ -n "${offenders}" ]]; then
+        report_failure "scripts non exécutables dans l'index git :
+$(printf '    %s\n' ${offenders})
+    corriger avec : git update-index --chmod=+x <fichier>"
+    else
+        report_success "les scripts de src/scripts sont exécutables"
+    fi
+}
+
 check_core_has_no_ui
 check_executables_are_thin
+check_scripts_are_executable
 
 if (( failures > 0 )); then
     printf '\n%s%d invariant(s) d architecture violé(s)%s\n' "${RED}" "${failures}" "${RESET}" >&2
