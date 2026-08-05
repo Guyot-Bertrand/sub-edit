@@ -23,9 +23,11 @@ ne pas l'éditer à la main.
 - Règle critique de lecture seule sur le dépôt de référence
 - Préciser la disponibilité de std::expected
 - Régénérer le changelog
+- Régénérer le changelog
 
 ### Intégration continue
 
 - Corriger la vérification des messages de commit
+- Passer les actions GitHub en v7
 
 
