@@ -13,6 +13,20 @@ Si un jour l'exigence devient « aucune interaction extérieure possible », la
 seule réponse complète est un dépôt privé. La GPL-3.0 n'impose rien tant que le
 binaire n'est pas distribué.
 
+## Application
+
+`src/scripts/setup-github.sh` applique tout ce qui a une API — labels,
+milestones, rulesets — de façon idempotente. Le reste n'en a pas et figure plus
+bas.
+
+```bash
+./src/scripts/setup-github.sh
+```
+
+Les rulesets exigent la permission **Administration: Read and write** du jeton ;
+un jeton à granularité fine ne l'accorde pas par défaut. Sans elle, le script
+signale l'échec, applique le reste et se termine normalement.
+
 ## Configuration à appliquer
 
 ### 1. Aucun collaborateur
@@ -22,22 +36,37 @@ binaire n'est pas distribué.
 C'est la mesure qui fait l'essentiel du travail : sans droit d'écriture,
 un tiers ne peut que forker et proposer une PR, qui se ferme d'un clic.
 
-### 2. Ruleset sur `main`
+### 2. Deux rulesets sur `main`
 
-*Settings → Rules → Rulesets → New branch ruleset*
+*Settings → Rules → Rulesets*, ou `src/scripts/setup-github.sh`.
+
+Deux plutôt qu'un, parce qu'un ruleset n'a **qu'une seule liste de dérogation
+pour toutes ses règles**, alors que les deux besoins s'opposent.
+
+**« protection de l'historique »** — aucune dérogation.
 
 | Réglage | Valeur |
 | :------ | :----- |
-| Target | `main` |
+| Target | branche par défaut |
 | Restrict deletions | activé |
 | Block force pushes | activé |
-| Require status checks to pass | activé, cocher le job `check` |
-| Bypass list | le propriétaire du dépôt |
+| Bypass list | *vide* |
 
-Le *bypass* est ce qui distingue un ruleset de l'ancienne protection de branche :
-il autorise le push direct sur `main` sans ouvrir la porte à qui que ce soit
-d'autre. Pas de PR obligatoire, donc, mais un historique impossible à réécrire
-accidentellement.
+Le propriétaire étant seul à pouvoir écrire, le risque réel n'est pas un tiers
+malveillant : c'est un `push --force` accidentel de sa part. Une règle dont il
+serait exempté ne protégerait donc de rien.
+
+**« porte de qualité »** — dérogation pour l'administrateur.
+
+| Réglage | Valeur |
+| :------ | :----- |
+| Target | branche par défaut |
+| Require status checks to pass | activé, contexte `porte de qualité` |
+| Bypass list | rôle *Admin* |
+
+Ici la dérogation est indispensable : la CI ne s'exécute qu'**après** le push,
+donc sans elle la règle rejetterait tout push direct sur `main` et imposerait
+de fait le passage par une pull request — ce qui a été écarté à ce stade.
 
 ### 3. Approbation des workflows de fork
 
