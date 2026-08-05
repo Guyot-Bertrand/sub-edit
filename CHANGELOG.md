@@ -15,6 +15,7 @@ ne pas l'éditer à la main.
 - Fondations du projet
 - Fermer et vérifier les portes de qualité
 - Préparer l'analyse statique du C++23
+- Passer à clang-tidy 20 et fiabiliser la couverture
 
 ### Documentation
 
