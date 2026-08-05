@@ -25,6 +25,8 @@ ne pas l'éditer à la main.
 - Régénérer le changelog
 - Régénérer le changelog
 - Régénérer le changelog
+- Régénérer le changelog
+- Recadrer la feuille de route sur les priorités de l'utilisateur
 
 ### Intégration continue
 
