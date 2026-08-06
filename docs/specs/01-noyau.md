@@ -265,8 +265,66 @@ Distinction stricte, posée par [0008](../adr/0008-lecture-au-mieux-avec-diagnos
 | Fichier inaccessible, octets invalides en UTF-8, aucun sous-titre reconnaissable | `std::unexpected` |
 | Ligne ignorée, horodatage incohérent, fin avant début, chevauchement, bloc inconnu | diagnostic, lecture poursuivie |
 
-L'écriture est **atomique** — écriture dans un temporaire puis renommage, comme
-Gaupol. Une sauvegarde interrompue ne détruit pas le fichier existant.
+`DiagnosticKind` énumère les anomalies que le corpus doit couvrir : ligne
+ignorée, horodatage illisible, champs courts, fin avant début, chevauchement,
+numérotation absente ou incohérente, texte avant tout horodatage, balise non
+fermée, bloc inconnu, fins de ligne mélangées. `Severity` distingue ce que le
+lecteur a **laissé tel quel** faute de pouvoir décider — `Warning` — de ce sur
+quoi il a **tranché**, comme une numérotation régénérée : `Recovered`.
+
+Le numéro de ligne reste un `int`. C'est une exception délibérée à la règle des
+types forts : il n'est jamais qu'affiché, jamais mêlé à un calcul avec un indice
+de sous-titre, et un type de plus n'achèterait rien ici.
+
+### Système de fichiers
+
+```cpp
+class FileSystem {                       // uniquement des primitives
+    virtual bool exists(path) const = 0;
+    virtual expected<string, FileError> readFile(path) const = 0;
+    virtual expected<void, FileError>   writeFile(path, string_view) = 0;
+    virtual expected<void, FileError>   rename(from, to) = 0;
+    virtual expected<void, FileError>   remove(path) = 0;
+};
+
+expected<void, FileError> writeAtomically(FileSystem&, path, string_view);
+```
+
+L'interface est **délibérément primitive**. Écrire sans risque est une
+*politique*, pas une primitive : `writeAtomically` la construit au-dessus de ces
+opérations, de sorte qu'elle s'écrive une fois et se teste, au lieu d'être
+réimplémentée — et éventuellement simulée — par chaque implémentation. Le même
+raisonnement sort `fileErrorKindOf` de l'ombre : la correspondance
+`std::error_code` → `FileErrorKind` est partagée, donc testable contre les codes
+eux-mêmes plutôt que contre un périphérique qu'il faudrait faire échouer.
+
+Trois valeurs seulement dans `FileErrorKind` — `NotFound`, `PermissionDenied`,
+`Io` — parce que trois sont ce sur quoi un appelant peut agir : recommencer
+ailleurs, demander des droits, ou renoncer.
+
+Deux implémentations. `RealFileSystem` ouvre en binaire, un flux qui
+traduirait les fins de ligne ruinant la détection. `InMemoryFileSystem` **vit
+dans la bibliothèque**, et non dans les tests : tout module touchant aux
+fichiers en a besoin, et sa capacité à échouer sur commande est la seule façon
+honnête de tester une sauvegarde interrompue — attendre un vrai disque plein
+n'est pas un test.
+
+L'écriture est **atomique** — écriture dans un temporaire voisin puis renommage,
+comme Gaupol. Une sauvegarde interrompue ne détruit pas le fichier existant, et
+le temporaire est retiré si le renommage échoue, pour ne rien laisser traîner à
+côté du fichier.
+
+**Limite à connaître :** l'atomicité porte sur le *remplacement*, un renommage
+dans un répertoire étant atomique. Elle ne garantit pas la *durabilité* face à
+une coupure de courant, qui demanderait de vider le fichier et son répertoire
+sur le périphérique. Gaupol ne le fait pas davantage, et la panne dont il s'agit
+de protéger l'utilisateur est la fréquente : une sauvegarde qui échoue en cours
+de route.
+
+Deux lignes de `RealFileSystem` restent non couvertes — les vérifications qui
+suivent une lecture et une fermeture de flux. Les atteindre demanderait un
+périphérique défaillant en cours d'opération ; elles sont conservées comme
+gardes, et signalées ici plutôt que retirées pour faire un chiffre.
 
 ### SubRip
 
