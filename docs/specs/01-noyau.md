@@ -198,9 +198,20 @@ class Project {
     std::vector<Subtitle> m_subtitles;
     FrameRate  m_frameRate;         // par défaut 24000/1001, comme Gaupol
     SourceFile m_sourceFile;
-    History    m_history;           // arrive avec l'issue #4
 };
 ```
+
+Les sous-titres se joignent par `subtitleAt(SubtitleIndex)`, en lecture comme
+en écriture — c'est ce dont une commande a besoin pour modifier un sous-titre
+sans reconstruire le vecteur entier. Un indice hors bornes lève
+`std::out_of_range` : c'est une erreur de programmation, et échouer bruyamment
+vaut mieux que lire ce qui suit le vecteur.
+
+**`SubtitleIndex` est un type fort**, comme l'annoncent les principes de
+conception. Deux numérotations coexistent — la position à partir de zéro, côté
+code, et le numéro à partir de un, celui que l'utilisateur lit et que SubRip
+écrit. Les confondre est le décalage d'un classique d'un éditeur de
+sous-titres ; la conversion est écrite une fois, dans le type.
 
 `std::vector` plutôt qu'une structure plus savante : les accès sont
 essentiellement séquentiels et par indice, les insertions et suppressions
@@ -298,27 +309,61 @@ public:
     virtual ~Command() = default;
     virtual void apply(Project&) = 0;
     virtual void revert(Project&) = 0;
-    [[nodiscard]] virtual Change describe() const = 0;   // indices touchés, documents concernés
+    [[nodiscard]] virtual std::vector<Change> describe() const = 0;
 };
+
+struct Change {
+    ChangeKind                 kind;      // Positions | MainText | TranslationText
+                                          // | Insertion | Removal
+    std::vector<SubtitleIndex> indices;
+};
+
+bool affects(ChangeKind, Document);
 ```
 
-`History` tient deux piles de `std::unique_ptr<Command>`, un compteur de
-modification par document, et sait regrouper. Une commande composite contient une
-suite de commandes et ne compte que pour une entrée.
+`describe()` rend **une liste** et non un `Change` unique : une commande
+composite rapporte ce que rapportent toutes celles qu'elle contient, et l'union
+se fait sans que le socle ait à fusionner des indices.
 
-Le **compteur de modification** vaut zéro quand le document correspond au fichier
-sur disque, augmente à chaque action, diminue à chaque annulation. Annuler
-jusqu'au point de sauvegarde y ramène, ce qu'un booléen ne saurait pas faire.
-
-`Change` porte les indices affectés et la nature du changement — positions,
-texte principal, texte de traduction, insertion, suppression. L'interface de la
-phase 5 s'en servira pour ne rafraîchir que ce qui bouge. Le noyau ne connaît
+`Change` porte les indices affectés et la nature du changement. L'interface de
+la phase 5 s'en servira pour ne rafraîchir que ce qui bouge. Le noyau ne connaît
 aucun mécanisme de signal : il retourne l'information, l'appelant en fait ce
 qu'il veut.
 
+Les documents concernés se **déduisent** de la nature du changement, plutôt
+qu'être portés en double : un sous-titre n'a qu'une paire de positions pour ses
+deux textes, donc un déplacement périme les deux documents, comme une insertion
+ou une suppression. Seul un changement de texte ne concerne qu'un document.
+
+`History` tient deux piles de `std::unique_ptr<Command>`, un compteur de
+modification par document, et sait regrouper. Une commande composite contient une
+suite de commandes, ne compte que pour une entrée, et **s'annule dans l'ordre
+inverse** — défaire « insérer puis décaler » en commençant par l'insertion
+décalerait des sous-titres qui n'existent plus.
+
+Le **compteur de modification** vaut zéro quand le document correspond au fichier
+sur disque, augmente à chaque action, diminue à chaque annulation. Annuler
+jusqu'au point de sauvegarde y ramène, ce qu'un booléen ne saurait pas faire. Il
+devient négatif si l'on annule au-delà d'une sauvegarde, ce qui est un écart
+comme un autre.
+
+**`History` n'est pas un membre de `Project`.** L'ADR 0010 dit que l'historique
+appartient au projet ; il faut l'entendre comme « il relève du noyau, pas de
+l'interface », ce que la comparaison avec `QUndoStack` établit. Deux raisons
+concrètes s'opposent à l'inclusion : `model` ne dépendrait plus seulement de
+`time` mais aussi de `command`, à rebours de l'organisation des modules ; et
+surtout un `Project` cesserait d'être copiable, puisqu'une pile de
+`unique_ptr` ne se copie pas. L'appelant tient les deux ensemble.
+
+La **taille de l'historique est bornée**, à 1000 entrées par défaut. Le chiffre
+est **provisoire** : l'ADR 0010 promet de mesurer l'empreinte réelle avant de le
+fixer, et aucune commande concrète n'existe encore pour être mesurée. La borne
+est là pour que la mémoire le soit ; le nombre se décidera en phase 2.
+
 Cette phase ne fournit **aucune commande concrète** — elles arrivent avec les
-opérations, en phase 2. Elle fournit le socle et un test le prouvant sur une
-commande factice.
+opérations, en phase 2. Elle fournit le socle et des tests le prouvant sur des
+commandes factices : l'une qui modifie réellement un projet, l'autre qui note
+l'ordre dans lequel on l'a appelée.
 
 ## Tests
 
