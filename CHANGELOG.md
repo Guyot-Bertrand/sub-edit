@@ -9,6 +9,10 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **core** — Types de position, conversions et horodatages
+
 ### Construction
 
 - **scripts** — Verrou en lecture seule sur le dépôt de référence
@@ -39,11 +43,15 @@ ne pas l'éditer à la main.
 - Spec de la phase 1 et cinq décisions d'architecture
 - Régénérer le changelog
 - Aligner les références sur l'état réel du projet
+- Régénérer le changelog
+- Régénérer le changelog
 
 ### Intégration continue
 
 - Corriger la vérification des messages de commit
 - Passer les actions GitHub en v7
 - Automatiser la configuration GitHub du dépôt
+- Déclencher la porte de qualité sur toutes les branches
+- Revenir au déclenchement d'origine, garder la relance manuelle
 
 
