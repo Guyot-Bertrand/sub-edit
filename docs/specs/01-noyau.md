@@ -34,6 +34,7 @@ SubRip et WebVTT, en UTF-8, avec des fins de ligne Unix.
 | ADR | Décision |
 | :-- | :------- |
 | [0006](../adr/0006-positions-en-millisecondes.md) | positions en millisecondes entières, types forts, fréquence rationnelle |
+| [0011](../adr/0011-numero-d-image-en-type-fort.md) | numéro d'image en type fort `Frame` |
 | [0007](../adr/0007-cpp23-et-std-expected.md) | C++23 et `std::expected` |
 | [0008](../adr/0008-lecture-au-mieux-avec-diagnostics.md) | ouvrir au mieux, rapporter des diagnostics |
 | [0009](../adr/0009-texte-en-chaine-brute.md) | texte stocké en chaîne brute |
@@ -43,7 +44,7 @@ SubRip et WebVTT, en UTF-8, avec des fins de ligne Unix.
 
 ```
 src/lib/subedit/core/
-├── time/        Timestamp, Duration, FrameRate, conversions, formatage
+├── time/        Timestamp, Duration, Frame, FrameRate, conversions, formatage
 ├── model/       Subtitle, Project, extras spécifiques aux formats
 ├── format/      lecture et écriture, détection, diagnostics
 └── command/     Command, CompositeCommand, History
@@ -57,6 +58,7 @@ Chaque module est testable seul. `time` ne dépend de rien, `model` de `time`,
 ```cpp
 class Duration;   // millisecondes signées
 class Timestamp;  // millisecondes signées, position absolue
+class Frame;      // numéro d'image signé
 class FrameRate;  // rationnel exact
 ```
 
@@ -68,8 +70,20 @@ Timestamp − Timestamp → Duration
 Timestamp ± Duration  → Timestamp
 Duration  ± Duration  → Duration
 Duration  × entier    → Duration
+Frame     ± Frame     → Frame
 Timestamp + Timestamp → ne compile pas
+Timestamp − Frame     → ne compile pas
 ```
+
+Aucune de ces classes n'a de constructeur public : on passe par des fabriques
+nommées — `Timestamp::fromMilliseconds`, `Frame::fromNumber`,
+`FrameRate::create` — pour que l'unité soit écrite au site d'appel.
+
+`Frame` est le type de la « vue en images » que
+[0006](../adr/0006-positions-en-millisecondes.md) nomme sans la typer ;
+[0011](../adr/0011-numero-d-image-en-type-fort.md) le décide et dit pourquoi.
+L'image n'ayant pas de sous-unité, un seul type sert de position et de compte,
+d'où `Frame + Frame` alors que `Timestamp + Timestamp` est refusé.
 
 `FrameRate` est un rationnel `numérateur / dénominateur`. Les huit valeurs de
 Gaupol sont exactes : `24000/1001`, `24/1`, `25/1`, `30000/1001`, `30/1`,
@@ -103,8 +117,19 @@ positions négatives portent un signe en tête. **Saturation à `99:59:59,999`**
 l'écriture, comme Gaupol — contrainte de format, pas de représentation.
 
 L'analyse d'un horodatage est délibérément permissive, à l'image de Gaupol :
-champs de 1 ou 2 chiffres, millisecondes de 1 à 3 chiffres, heures facultatives
-en WebVTT, virgule ou point comme séparateur décimal, signe négatif accepté.
+champs de 1 ou 2 chiffres, millisecondes de 1 à 3 chiffres — ou absentes —,
+heures facultatives en WebVTT, virgule ou point comme séparateur décimal, signe
+négatif accepté, blancs alentour ignorés.
+
+Deux limites à cette permissivité, décidées à l'écriture :
+
+- **des minutes ou des secondes hors de leur plage sont refusées.** `00:60:00`
+  n'est pas un horodatage de 60 minutes, c'est un fichier abîmé ; le refus
+  permet au lecteur d'émettre un diagnostic sur la ligne plutôt que d'inventer
+  une position. L'analyse rend `std::optional<Timestamp>` — une seule cause
+  d'échec, aucune information qu'un `expected` porterait en plus.
+- **les heures reviennent quand la position atteint une heure**, même si
+  l'appelant les avait demandées omises : `61:01.500` ne se relit pas.
 
 ## Modèle
 

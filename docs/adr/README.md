@@ -23,6 +23,11 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0008](0008-lecture-au-mieux-avec-diagnostics.md) | Ouvrir au mieux, rapporter des diagnostics | acceptée |
 | [0009](0009-texte-en-chaine-brute.md) | Texte en chaîne brute portant les balises du format | acceptée |
 | [0010](0010-annulation-par-commandes.md) | Commandes portant leur propre inverse | acceptée |
+| [0011](0011-numero-d-image-en-type-fort.md) | Numéro d'image en type fort `Frame` | acceptée |
+
+[0011](0011-numero-d-image-en-type-fort.md) complète
+[0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
+images » que 0006 nomme sans la typer. Aucun point de 0006 n'est remis en cause.
 
 [0007](0007-cpp23-et-std-expected.md) remplace partiellement
 [0001](0001-cpp20-et-qt6.md) sur le point de la norme : C++23 et non C++20. Le
