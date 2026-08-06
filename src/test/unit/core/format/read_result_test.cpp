@@ -1,0 +1,113 @@
+#include <subedit/core/format/diagnostic.hpp>
+#include <subedit/core/format/read_error.hpp>
+#include <subedit/core/format/read_result.hpp>
+#include <subedit/core/format/subtitle_reader.hpp>
+#include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle.hpp>
+
+#include <catch2/catch_test_macros.hpp>
+
+#include <expected>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+using subedit::core::Diagnostic;
+using subedit::core::DiagnosticKind;
+using subedit::core::Newline;
+using subedit::core::ReadError;
+using subedit::core::ReadErrorKind;
+using subedit::core::ReadResult;
+using subedit::core::Severity;
+using subedit::core::Subtitle;
+using subedit::core::SubtitleReader;
+
+/// A reader that answers according to what it is handed, to show the contract
+/// without waiting for a real format.
+class ContrivedReader final : public SubtitleReader {
+
+public:
+    [[nodiscard]] std::expected<ReadResult, ReadError>
+    read(std::string_view content) const override {
+        if (content.empty())
+            return std::unexpected(ReadError{
+                .kind = ReadErrorKind::NoSubtitleFound,
+                .detail = "aucun bloc reconnaissable",
+            });
+
+        ReadResult result;
+        result.subtitles.push_back(Subtitle{.mainText = std::string{content}});
+        if (content.front() == '?')
+            result.diagnostics.push_back(Diagnostic{
+                .severity = Severity::Warning,
+                .line = 1,
+                .kind = DiagnosticKind::EndBeforeStart,
+                .detail = {},
+            });
+        return result;
+    }
+};
+
+} // namespace
+
+TEST_CASE("a fresh read result is empty and assumes nothing", "[format][read]") {
+    const ReadResult result;
+
+    CHECK(result.subtitles.empty());
+    CHECK(result.header.empty());
+    CHECK(result.newline == Newline::Lf);
+    CHECK_FALSE(result.hadUtf8Bom);
+    CHECK(result.diagnostics.empty());
+}
+
+TEST_CASE("a diagnostic says where and what, without a sentence", "[format][diagnostic]") {
+    // A category rather than a message: it can be translated, and a test can
+    // assert on it without comparing prose that will be reworded.
+    const Diagnostic diagnostic{
+        .severity = Severity::Recovered,
+        .line = 12,
+        .kind = DiagnosticKind::MissingNumbering,
+        .detail = "bloc 3",
+    };
+
+    CHECK(diagnostic.severity == Severity::Recovered);
+    CHECK(diagnostic.line == 12);
+    CHECK(diagnostic.kind == DiagnosticKind::MissingNumbering);
+    CHECK(diagnostic.detail == "bloc 3");
+}
+
+TEST_CASE("a line number is counted from one, as an editor shows it", "[format][diagnostic]") {
+    const Diagnostic diagnostic{.severity = Severity::Warning,
+                                .line = 1,
+                                .kind = DiagnosticKind::TextBeforeAnyTimestamp,
+                                .detail = {}};
+
+    CHECK(diagnostic.line == 1);
+}
+
+TEST_CASE("what can be read is returned, with its diagnostics", "[format][read]") {
+    // ADR 0008: an anomaly the reader recovers from does not stop the reading.
+    const ContrivedReader reader;
+
+    const std::expected<ReadResult, ReadError> result = reader.read("?du texte");
+
+    REQUIRE(result.has_value());
+    CHECK(result->subtitles.size() == 1);
+    REQUIRE(result->diagnostics.size() == 1);
+    CHECK(result->diagnostics.front().kind == DiagnosticKind::EndBeforeStart);
+}
+
+TEST_CASE("what cannot be read at all is a failure, not a diagnostic", "[format][read]") {
+    // The strict line of ADR 0008: nothing recognisable is a failure; anything
+    // recovered from is a diagnostic. Returning an empty result with a warning
+    // would let the caller silently lose a file.
+    const ContrivedReader reader;
+
+    const std::expected<ReadResult, ReadError> result = reader.read("");
+
+    REQUIRE_FALSE(result.has_value());
+    CHECK(result.error().kind == ReadErrorKind::NoSubtitleFound);
+    CHECK(result.error().detail == "aucun bloc reconnaissable");
+}

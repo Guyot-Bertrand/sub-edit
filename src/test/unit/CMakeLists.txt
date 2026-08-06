@@ -18,7 +18,12 @@ add_executable(
     core/model/project_access_test.cpp
     core/command/change_test.cpp
     core/command/composite_command_test.cpp
-    core/command/history_test.cpp)
+    core/command/history_test.cpp
+    core/format/read_result_test.cpp
+    core/format/in_memory_file_system_test.cpp
+    core/format/atomic_write_test.cpp
+    core/format/real_file_system_test.cpp
+    core/format/file_error_test.cpp)
 
 target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain)
 

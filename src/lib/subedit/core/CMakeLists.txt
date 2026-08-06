@@ -7,6 +7,9 @@ add_library(
     subedit_core STATIC
     command/composite_command.cpp
     command/history.cpp
+    format/atomic_write.cpp
+    format/in_memory_file_system.cpp
+    format/real_file_system.cpp
     time/timestamp.cpp
     version.cpp)
 add_library(subedit::core ALIAS subedit_core)
