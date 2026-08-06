@@ -37,6 +37,8 @@ ne pas l'éditer à la main.
 - Régénérer le changelog
 - Régénérer le changelog
 - Spec de la phase 1 et cinq décisions d'architecture
+- Régénérer le changelog
+- Aligner les références sur l'état réel du projet
 
 ### Intégration continue
 
