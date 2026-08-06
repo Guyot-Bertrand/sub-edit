@@ -145,7 +145,9 @@ struct Subtitle {
 };
 ```
 
-`duration()` est dérivée : `end - start`. Elle n'est pas stockée.
+`duration()` est dérivée : `end - start`. Elle n'est pas stockée. `text(Document)`
+donne accès à l'un ou l'autre texte, en lecture et en écriture, pour que les
+opérations de la phase 2 nomment leur cible au lieu de la coder en dur.
 
 **Un sous-titre porte les deux textes et une seule paire de positions.** C'est le
 modèle de Gaupol, et il exprime directement le fait que la traduction n'a pas de
@@ -164,6 +166,7 @@ l'aller-retour — perdre les `settings` d'une cue WebVTT, c'est perdre son
 positionnement à l'écran.
 
 ```cpp
+struct Rectangle     { int x1, x2, y1, y2; };
 struct SubRipExtras  { std::optional<Rectangle> coordinates; };
 struct WebVttExtras  { std::string id, settings, style, comment; };
 
@@ -174,20 +177,45 @@ Un `variant` plutôt que le sac d'attributs dynamiques de Gaupol : le compilateu
 sait quels champs existent, et l'exhaustivité des traitements est vérifiable.
 `std::monostate` couvre les formats sans données propres.
 
+Les coordonnées sont une **option**, et non quatre entiers nuls : Gaupol ne les
+écrit que si elles ne sont pas toutes à zéro, donc « absentes » et « toutes à
+zéro » sont deux états distincts qui doivent tous deux survivre à
+l'aller-retour.
+
 ### Projet
 
 ```cpp
+enum class Newline { Lf, CrLf, Cr };
+
+struct SourceFile {
+    std::optional<std::filesystem::path> path;   // absent si jamais ouvert ni enregistré
+    Newline     newline;
+    bool        hadUtf8Bom;
+    std::string header;                          // WebVTT
+};
+
 class Project {
     std::vector<Subtitle> m_subtitles;
-    FrameRate m_frameRate;          // par défaut 24000/1001, comme Gaupol
-    History m_history;
-    // fichier d'origine, encodage, fin de ligne, en-tête
+    FrameRate  m_frameRate;         // par défaut 24000/1001, comme Gaupol
+    SourceFile m_sourceFile;
+    History    m_history;           // arrive avec l'issue #4
 };
 ```
 
 `std::vector` plutôt qu'une structure plus savante : les accès sont
 essentiellement séquentiels et par indice, les insertions et suppressions
 groupées. Une structure différente devra être justifiée par une mesure.
+
+`SourceFile` n'est pas de la décoration : réécrire sans BOM ni CRLF un fichier
+qui en portait réécrirait chacune de ses lignes, et l'utilisateur trouverait un
+diff là où il attendait un sous-titre corrigé. Le chemin y est une **valeur**,
+pas une poignée — l'accès au disque passe par l'abstraction injectée de
+l'issue #5.
+
+`Project` ne décide de rien : il détient l'état et le rend. Les modifications
+passent par les commandes réversibles, qui arrivent avec les opérations. Le
+format du fichier n'y figure pas encore : il apparaîtra avec la détection, à
+l'issue #8, plutôt que d'être introduit ici sans utilisateur.
 
 ## Lecture et écriture
 

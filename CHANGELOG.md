@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **core** — Types de position, conversions et horodatages
+- **core** — Modèle du sous-titre et du projet
 
 ### Construction
 
