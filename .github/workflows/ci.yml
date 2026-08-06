@@ -1,9 +1,31 @@
 name: ci
 
 on:
+  # La poussée déclenche la porte sur toute branche, et non sur `main` seule.
+  #
+  # C'est un contournement, assumé comme tel : sur ce dépôt, l'événement
+  # `pull_request` ne crée aucun run. Il est pourtant bien enregistré côté
+  # GitHub — `opened`, `synchronize` et `reopened` ont été émis puis vérifiés
+  # un par un, et aucune check suite n'apparaît sur la tête de la pull request.
+  # Réglages du dépôt, état du workflow et grammaire du fichier ont été
+  # écartés ; l'anomalie est signalée au support.
+  #
+  # Le remplacement couvre les mêmes cas : le projet n'accepte pas de
+  # contribution externe, donc toute branche vit ici, et les check runs d'une
+  # poussée s'attachent au SHA de tête — celui qu'inspecte la règle
+  # `porte de qualité`.
   push:
-    branches: [main]
+    branches: ['**']
+
+  # Conservé sans illusion. S'il se remet à fonctionner, il ramène avec lui la
+  # vérification du titre de la pull request, que la poussée ne peut pas faire.
+  # Le prix serait alors un run en double par poussée sur une branche dont la
+  # pull request est ouverte.
   pull_request:
+
+  # Relance manuelle. N'apparaît dans l'interface qu'une fois ce fichier sur la
+  # branche par défaut, contrainte de GitHub.
+  workflow_dispatch:
 
 # Une nouvelle poussée annule la vérification en cours sur la même référence.
 concurrency:
