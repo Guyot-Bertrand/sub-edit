@@ -1,6 +1,6 @@
 # subedit
 
-Éditeur de sous-titres, réécriture en C++20 et Qt 6 de
+Éditeur de sous-titres, réécriture en C++23 et Qt 6 de
 [Gaupol](https://github.com/otsaloma/gaupol).
 
 > **État : fondations.** Le projet n'édite encore aucun sous-titre. Seule
@@ -18,7 +18,7 @@ algorithmes adaptés dès la conception, plutôt qu'optimisation après coup.
 
 ## Construire
 
-Dépendances : CMake ≥ 3.28, un compilateur C++20 (GCC 13 convient), et la chaîne
+Dépendances : CMake ≥ 3.28, un compilateur C++23 (GCC 13 convient), et la chaîne
 d'outils de vérification.
 
 ```bash

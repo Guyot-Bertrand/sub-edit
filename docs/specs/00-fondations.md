@@ -16,7 +16,7 @@ et en intégration continue.
 ## Contexte
 
 `subedit` réécrit [Gaupol](https://github.com/otsaloma/gaupol) — éditeur de
-sous-titres GTK/Python — en C++20 + Qt 6, avec un objectif d'iso-fonctionnalité.
+sous-titres GTK/Python — en C++23 + Qt 6, avec un objectif d'iso-fonctionnalité.
 L'inventaire des fonctionnalités à couvrir est dans
 [`gaupol-reference.md`](gaupol-reference.md). Le travail est découpé en
 phases ; celle-ci est la première.
@@ -155,8 +155,9 @@ du projet. Ces règles sont **appliquées mécaniquement** par
 Format : `.clang-format` dérivé du style LLVM, indentation de 4 espaces, limite
 de colonne à 100, pointeurs alignés à gauche.
 
-Norme : C++20. Concepts et ranges sont disponibles avec GCC 13. **Les modules
-C++20 sont exclus** — le support des outils, en particulier clang-tidy et les
+Norme : **C++23** depuis [`../adr/0007-cpp23-et-std-expected.md`](../adr/0007-cpp23-et-std-expected.md),
+C++20 à l'origine de cette phase. Exige clang-tidy ≥ 19. **Les modules C++ sont
+exclus** — le support des outils, en particulier clang-tidy et les
 générateurs, n'est pas mûr.
 
 ## Construction

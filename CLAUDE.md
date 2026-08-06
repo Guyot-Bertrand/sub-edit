@@ -51,7 +51,7 @@ pas la faire silencieusement.
 
 ## Le projet
 
-`subedit` réécrit Gaupol — éditeur de sous-titres GTK/Python — en C++20 + Qt 6,
+`subedit` réécrit Gaupol — éditeur de sous-titres GTK/Python — en C++23 + Qt 6,
 avec un objectif d'iso-fonctionnalité.
 
 | Document | Contenu |

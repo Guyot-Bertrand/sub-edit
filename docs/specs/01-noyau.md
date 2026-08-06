@@ -285,18 +285,22 @@ conversion de fréquence d'image sur l'ensemble.
 
 ## Découpage en issues
 
-| # | Travail | Nature |
-| - | :------ | :----- |
-| 1 | Types `Timestamp`, `Duration`, `FrameRate`, conversions, formatage, analyse d'horodatage | **point de contrôle** |
-| 2 | `Subtitle`, `Project`, extras typés | structurante |
-| 3 | `Command`, `CompositeCommand`, `History`, compteur de modification | structurante |
-| 4 | Diagnostics, abstraction du système de fichiers, écriture atomique | structurante |
-| 5 | Lecture et écriture SubRip | mécanique |
-| 6 | Lecture et écriture WebVTT | mécanique |
-| 7 | Détection de format, BOM UTF-8, fins de ligne | mécanique |
-| 8 | Corpus de test et benchmarks de référence | mécanique |
+Dans l'ordre de traitement. Les numéros sont ceux des issues GitHub.
 
-**L'issue 1 est le point de contrôle convenu** : elle porte les décisions les
+| Issue | Travail | Nature |
+| :---- | :------ | :----- |
+| #2 | Types `Timestamp`, `Duration`, `FrameRate`, conversions, formatage, analyse d'horodatage | **point de contrôle** |
+| #3 | `Subtitle`, `Project`, extras typés | structurante |
+| #4 | `Command`, `CompositeCommand`, `History`, compteur de modification | structurante |
+| #5 | Diagnostics, abstraction du système de fichiers, écriture atomique | structurante |
+| #6 | Lecture et écriture SubRip | mécanique |
+| #7 | Lecture et écriture WebVTT | mécanique |
+| #8 | Détection de format, BOM UTF-8, fins de ligne | mécanique |
+| #9 | Corpus de test et benchmarks de référence | mécanique |
+
+L'issue #1 est celle du cadrage, close par la présente spec.
+
+**L'issue #2 est le point de contrôle convenu** : elle porte les décisions les
 plus coûteuses à défaire, et sera relue avant que le reste s'appuie dessus. Les
 issues 2 à 4 restent structurantes ; les suivantes sont à boucle courte, validées
 par le corpus.

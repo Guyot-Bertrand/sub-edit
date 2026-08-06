@@ -5,7 +5,7 @@ subedit n'est pas encore empaqueté. L'outil se construit depuis les sources.
 ## Prérequis
 
 - CMake ≥ 3.28
-- un compilateur C++20 — GCC 13 convient
+- un compilateur C++23 — GCC 13 convient
 - `make`
 
 ## Construire
