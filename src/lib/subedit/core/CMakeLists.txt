@@ -3,7 +3,12 @@
 # Contrainte structurante : aucune dépendance à Qt ni à une interface
 # graphique. Elle est vérifiée par src/scripts/check-architecture.sh.
 
-add_library(subedit_core STATIC time/timestamp.cpp version.cpp)
+add_library(
+    subedit_core STATIC
+    command/composite_command.cpp
+    command/history.cpp
+    time/timestamp.cpp
+    version.cpp)
 add_library(subedit::core ALIAS subedit_core)
 
 # La racine d'inclusion est src/lib/, d'où des inclusions toujours qualifiées :

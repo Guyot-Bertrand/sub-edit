@@ -13,6 +13,7 @@ ne pas l'éditer à la main.
 
 - **core** — Types de position, conversions et horodatages
 - **core** — Modèle du sous-titre et du projet
+- **core** — Historique de commandes réversibles
 
 ### Construction
 
@@ -44,6 +45,7 @@ ne pas l'éditer à la main.
 - Spec de la phase 1 et cinq décisions d'architecture
 - Régénérer le changelog
 - Aligner les références sur l'état réel du projet
+- Régénérer le changelog
 - Régénérer le changelog
 - Régénérer le changelog
 

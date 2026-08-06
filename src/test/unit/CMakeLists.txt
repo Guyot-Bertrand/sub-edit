@@ -13,7 +13,12 @@ add_executable(
     core/time/timestamp_parse_test.cpp
     core/model/format_extras_test.cpp
     core/model/subtitle_test.cpp
-    core/model/project_test.cpp)
+    core/model/project_test.cpp
+    core/model/subtitle_index_test.cpp
+    core/model/project_access_test.cpp
+    core/command/change_test.cpp
+    core/command/composite_command_test.cpp
+    core/command/history_test.cpp)
 
 target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain)
 
