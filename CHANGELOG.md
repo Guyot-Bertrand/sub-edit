@@ -15,6 +15,7 @@ ne pas l'éditer à la main.
 - **core** — Modèle du sous-titre et du projet
 - **core** — Historique de commandes réversibles
 - **core** — Socle de lecture et écriture atomique
+- **core** — Lecture et écriture SubRip
 
 ### Construction
 
@@ -23,6 +24,7 @@ ne pas l'éditer à la main.
 - Fermer et vérifier les portes de qualité
 - Préparer l'analyse statique du C++23
 - Passer à clang-tidy 20 et fiabiliser la couverture
+- Limiter le parallélisme à un cœur par défaut
 
 ### Documentation
 
@@ -46,6 +48,7 @@ ne pas l'éditer à la main.
 - Spec de la phase 1 et cinq décisions d'architecture
 - Régénérer le changelog
 - Aligner les références sur l'état réel du projet
+- Régénérer le changelog
 - Régénérer le changelog
 - Régénérer le changelog
 - Régénérer le changelog
