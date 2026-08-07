@@ -35,8 +35,12 @@ jobs:
 
       # La CI n'exécute rien d'autre que make check. Recopier ses étapes ici
       # les ferait diverger du filet local dès la première modification.
+      #
+      # JOBS est passé explicitement : la valeur par défaut est de un cœur, pour
+      # ne pas affamer les autres travaux d'une machine de développement. Ici la
+      # machine est à nous seuls, et rien ne justifie d'attendre.
       - name: make check
-        run: make check
+        run: make check JOBS=$(nproc)
 
       - name: Rapport de couverture
         if: always()

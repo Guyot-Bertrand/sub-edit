@@ -8,7 +8,26 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -eu -o pipefail -c
 
-JOBS ?= $(shell nproc)
+# Nombre de tâches parallèles, pour la compilation et pour l'analyse statique.
+#
+# **Un seul cœur par défaut, délibérément.** La machine de développement fait
+# tourner d'autres projets en même temps, et une compilation qui prend tous les
+# cœurs y provoque des échecs de tests sur délai d'attente : un défaut ailleurs,
+# causé ici. Le confort local ne vaut pas ce prix, d'autant que le seuil est
+# invisible — on ne voit pas ce qu'on casse chez le voisin.
+#
+# Se relève au besoin, sans toucher à ce fichier :
+#
+#     make build JOBS=8
+#     JOBS=$$(nproc) make check
+#
+# La CI passe `nproc` explicitement : sa machine n'est qu'à elle.
+#
+# Les tests restent séquentiels quoi qu'il arrive. Ce n'est pas un oubli :
+# `ctest` ne parallélise que sur `-j` explicite, et le lui donner ferait
+# fusionner les `.gcda` de plusieurs exécutions concurrentes, donc un taux de
+# couverture faux sans autre signe qu'un avertissement noyé dans la sortie.
+JOBS ?= 1
 
 # git-cliff s'installe dans ~/.local/bin, que ~/.profile n'ajoute au PATH qu'à
 # l'ouverture de session suivante. On ne dépend pas de la configuration du
@@ -54,6 +73,7 @@ help: ## Affiche cette aide
 		| sort \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  $(BOLD)%-12s$(RESET) %s\n", $$1, $$2}'
 	@printf '\ngénérateur : $(CMAKE_GENERATOR)\n'
+	@printf 'tâches parallèles : $(JOBS)   (relever avec JOBS=N)\n'
 
 .PHONY: setup
 setup: ## Installe la chaîne d'outils et les hooks git
