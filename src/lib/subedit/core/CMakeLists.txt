@@ -9,6 +9,9 @@ add_library(
     command/history.cpp
     format/atomic_write.cpp
     format/in_memory_file_system.cpp
+    format/lines.cpp
+    format/sub_rip_reader.cpp
+    format/sub_rip_writer.cpp
     format/real_file_system.cpp
     time/timestamp.cpp
     version.cpp)

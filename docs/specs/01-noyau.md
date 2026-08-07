@@ -326,15 +326,77 @@ suivent une lecture et une fermeture de flux. Les atteindre demanderait un
 périphérique défaillant en cours d'opération ; elles sont conservées comme
 gardes, et signalées ici plutôt que retirées pour faire un chiffre.
 
+### Découpage en lignes
+
+```cpp
+std::vector<std::string_view> splitLines(std::string_view content);
+```
+
+Partagé par les formats, qui sont tous en lignes. Les trois fins de ligne sont
+reconnues, aucune n'entre dans le texte, et une fin de ligne finale n'invente
+pas de ligne vide. Les vues pointent dans le contenu : un fichier de plusieurs
+milliers de sous-titres se découpe sans copier une seule ligne.
+
+### Écriture
+
+```cpp
+struct WriteRequest {
+    std::span<const Subtitle> subtitles;
+    Document document;   // lequel des deux textes part dans le fichier
+    Newline  newline;    // LF par défaut
+};
+
+class SubtitleWriter {
+    virtual std::string write(const WriteRequest&) const = 0;
+};
+```
+
+**Un écrivain rend une chaîne, il ne touche pas au disque.** L'y porter est
+l'affaire de `writeAtomically`, qui sait ne pas détruire la version
+précédente — une préoccupation qu'aucun format n'a à répéter.
+
+La fin de ligne est celle qu'on lui donne, LF par défaut, comme le demande la
+feuille de route. Celle du fichier d'origine n'est pas perdue pour autant : elle
+est conservée dans `SourceFile`, et c'est l'appelant qui décide de la remettre,
+plutôt que l'écrivain qui le ferait dans son dos.
+
 ### SubRip
 
 Numérotation régénérée à l'écriture. Séparateur décimal virgule. Coordonnées
 étendues `X1/X2/Y1/Y2` écrites seulement si présentes et non nulles.
 
+**Ce qui ouvre un sous-titre est la ligne d'horodatage** — ni le numéro
+au-dessus, ni la ligne vide avant. Les fichiers réels ont des numéros absents,
+des numéros qui ne se suivent pas, et séparent leurs blocs comme ils veulent ;
+seul l'horodatage est fiable. Le numéro est donc repris *a posteriori* parmi les
+lignes en attente, puisqu'il appartient au sous-titre qui commence et non à
+celui qui finit.
+
 Piège relevé chez Gaupol : sa lecture concatène toute ligne non horodatée au
 sous-titre précédent, ce qui produit une exception non documentée quand le
-premier bloc n'est pas un horodatage. Notre lecteur doit produire un diagnostic
-puis chercher le bloc suivant.
+premier bloc n'est pas un horodatage — une note de traducteur en tête de fichier
+suffit. Notre lecteur émet un diagnostic par ligne et cherche le bloc suivant.
+
+Deux règles de prudence, décidées à l'écriture du lecteur :
+
+- **une ligne qui voulait être un horodatage sans y parvenir est signalée puis
+  conservée comme texte.** Détruire une ligne qu'on n'a pas comprise serait pire
+  que de la montrer telle quelle ;
+- **des coordonnées à moitié écrites disqualifient la ligne entière.** Garder
+  les horodatages et jeter le reste serait une décision qu'on n'a aucun titre à
+  prendre.
+
+À l'écriture, la disposition est celle de Gaupol, ligne vide close comprise, y
+compris après le dernier bloc. D'où la forme exacte de la garantie
+d'aller-retour :
+
+- **fidèle octet pour octet** sur un fichier déjà dans cette disposition ;
+- **idempotent** sinon — le premier enregistrement normalise, aucun ensuite ne
+  touche plus rien.
+
+La numérotation est la seule chose qui ne revient pas à l'identique, et c'est
+voulu : c'est ce qui fait qu'un fichier dont les numéros ne se suivent pas se
+soigne en étant ouvert puis enregistré.
 
 ### WebVTT
 

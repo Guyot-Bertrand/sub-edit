@@ -23,7 +23,11 @@ add_executable(
     core/format/in_memory_file_system_test.cpp
     core/format/atomic_write_test.cpp
     core/format/real_file_system_test.cpp
-    core/format/file_error_test.cpp)
+    core/format/file_error_test.cpp
+    core/format/lines_test.cpp
+    core/format/sub_rip_reader_test.cpp
+    core/format/sub_rip_writer_test.cpp
+    core/format/sub_rip_round_trip_test.cpp)
 
 target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain)
 
