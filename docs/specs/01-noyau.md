@@ -448,16 +448,77 @@ que rien n'atteint une heure revient sans elles.
 
 ### Détection de format
 
+```cpp
+enum class SubtitleFormat { SubRip, WebVtt };
+
+std::optional<SubtitleFormat> detectFormat(std::string_view content);
+```
+
 Par motif sur le contenu, à l'image de Gaupol. En cas d'ambiguïté, le format le
 plus spécifique l'emporte ; en cas d'échec, une erreur de lecture explicite,
 jamais un format supposé.
 
+| Format | Ce qui le reconnaît |
+| :----- | :------------------ |
+| WebVTT | la signature `WEBVTT` en tête, lignes vides mises à part |
+| SubRip | une ligne d'horodatage **à virgule** |
+
+La signature tranche quelle que soit la suite : un fichier WebVTT dont les
+horodatages ont été écrits avec des virgules est un WebVTT malformé, pas un
+SubRip.
+
+**La virgule est ce qui départage.** Un fichier dont les horodatages emploient
+le point et qui ne porte pas de signature n'est revendiqué par personne — ni
+WebVTT faute de signature, ni SubRip faute de virgule — et le refuser vaut mieux
+que d'en choisir un au hasard.
+
+**Les règles épousent ce que les lecteurs acceptent, délibérément.** Une
+détection qui promettrait un format que son lecteur refuse ensuite serait pire
+que pas de détection du tout. C'est pourquoi la signature est exigée en
+majuscules comme le veut le format, alors que Gaupol l'accepte dans n'importe
+quelle casse : reconnaître `webvtt` produirait un fichier qu'aucun navigateur
+n'accepte.
+
 ### Encodage
 
-UTF-8 seul dans cette phase. Le **BOM UTF-8 est détecté**, retiré à la lecture
-et restitué à l'écriture s'il était présent — il se rencontre couramment, même
-si les autres encodages relèvent de la phase 8. Le type de fin de ligne est
-détecté et conservé ; l'écriture utilise LF.
+UTF-8 seul dans cette phase, et **vérifié** plutôt que supposé. Lire du Latin-1
+comme de l'UTF-8 n'échoue pas : cela remplace les accents par du charabia, et
+l'utilisateur ne s'en aperçoit qu'une fois le fichier réenregistré par-dessus.
+Les encodages trop longs et les demi-surrogates sont refusés aussi — ce ne sont
+pas des curiosités, c'est ainsi qu'on contourne une vérification de longueur.
+
+Le **BOM UTF-8 est détecté**, retiré à la lecture et restitué à l'écriture s'il
+était présent — il se rencontre couramment, même si les autres encodages
+relèvent de la phase 8. Un BOM resté dans le texte apparaîtrait comme un
+caractère invisible en tête du premier sous-titre.
+
+Le type de fin de ligne est détecté et conservé. La fin la plus fréquente
+l'emporte ; un fichier qui en mélange plusieurs — assemblé à partir de deux
+autres, ce qui arrive plus souvent qu'il ne faudrait — produit un diagnostic
+`MixedNewlines` plutôt qu'une normalisation silencieuse. L'écriture utilise LF.
+
+### Ouvrir et enregistrer
+
+```cpp
+enum class Utf8Bom { Absent, Present };
+
+std::expected<ReadResult, ReadError> readSubtitles(std::string_view content);
+std::string writeSubtitles(SubtitleFormat, const WriteRequest&, Utf8Bom);
+```
+
+Ce qui relie l'encodage, la détection et les lecteurs. `readSubtitles` vérifie
+les octets, retire le BOM, regarde les fins de ligne, reconnaît le format et
+appelle son lecteur — dans cet ordre, parce que tout ce qui suit lit du texte et
+que des octets invalides ne sont pas du texte. `ReadResult` porte le format
+retenu, chaque lecteur renseignant le sien.
+
+`Utf8Bom` est une énumération et non un booléen : `writeSubtitles(format,
+request, true)` ne dit rien, au point d'appel, de ce qui est vrai.
+
+Deux échecs distincts, et les distinguer est ce qui permet de dire quelque chose
+d'utile à l'utilisateur : un fichier dont aucun format ne veut rend
+`UnknownFormat` ; un fichier reconnu mais vide de sous-titres rend
+`NoSubtitleFound`.
 
 ## Commandes réversibles
 

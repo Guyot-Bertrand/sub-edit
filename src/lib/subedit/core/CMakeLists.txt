@@ -9,7 +9,10 @@ add_library(
     command/history.cpp
     format/atomic_write.cpp
     format/in_memory_file_system.cpp
+    format/encoding.cpp
     format/lines.cpp
+    format/subtitle_file.cpp
+    format/subtitle_format.cpp
     format/sub_rip_reader.cpp
     format/sub_rip_writer.cpp
     format/web_vtt_reader.cpp

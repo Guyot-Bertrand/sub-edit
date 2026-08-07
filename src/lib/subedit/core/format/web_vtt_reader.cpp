@@ -2,6 +2,7 @@
 #include <subedit/core/format/lines.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
+#include <subedit/core/format/subtitle_format.hpp>
 #include <subedit/core/format/web_vtt_reader.hpp>
 #include <subedit/core/model/format_extras.hpp>
 #include <subedit/core/model/subtitle.hpp>
@@ -228,7 +229,7 @@ private:
         });
     }
 
-    ReadResult m_result;
+    ReadResult m_result{.format = SubtitleFormat::WebVtt};
     State m_state = State::Header;
 
     std::optional<Subtitle> m_current;

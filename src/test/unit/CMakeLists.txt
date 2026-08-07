@@ -30,7 +30,10 @@ add_executable(
     core/format/sub_rip_round_trip_test.cpp
     core/format/web_vtt_reader_test.cpp
     core/format/web_vtt_writer_test.cpp
-    core/format/web_vtt_round_trip_test.cpp)
+    core/format/web_vtt_round_trip_test.cpp
+    core/format/subtitle_format_test.cpp
+    core/format/encoding_test.cpp
+    core/format/subtitle_file_test.cpp)
 
 target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain)
 
