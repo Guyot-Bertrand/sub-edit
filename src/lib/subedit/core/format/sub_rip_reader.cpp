@@ -3,6 +3,7 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/sub_rip_reader.hpp>
+#include <subedit/core/format/subtitle_format.hpp>
 #include <subedit/core/model/format_extras.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/timestamp.hpp>
@@ -258,7 +259,7 @@ private:
         });
     }
 
-    ReadResult m_result;
+    ReadResult m_result{.format = SubtitleFormat::SubRip};
     std::vector<NumberedLine> m_pending;
     std::optional<Subtitle> m_current;
     std::optional<Timestamp> m_previousEnd;

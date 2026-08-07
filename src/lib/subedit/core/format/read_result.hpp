@@ -1,6 +1,7 @@
 #pragma once
 
 #include <subedit/core/format/diagnostic.hpp>
+#include <subedit/core/format/subtitle_format.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 
@@ -13,6 +14,10 @@ namespace subedit::core {
 /// like, and what was wrong with it.
 struct ReadResult {
     std::vector<Subtitle> subtitles{};
+
+    /// The format of the reader that produced this result. Always set by that
+    /// reader, so that a caller who did not choose it knows what it read.
+    SubtitleFormat format = SubtitleFormat::SubRip;
 
     /// The WebVTT header, empty for the formats that have none.
     std::string header{};
