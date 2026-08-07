@@ -16,6 +16,7 @@ ne pas l'éditer à la main.
 - **core** — Historique de commandes réversibles
 - **core** — Socle de lecture et écriture atomique
 - **core** — Lecture et écriture SubRip
+- **core** — Lecture et écriture WebVTT
 
 ### Construction
 
@@ -48,6 +49,7 @@ ne pas l'éditer à la main.
 - Spec de la phase 1 et cinq décisions d'architecture
 - Régénérer le changelog
 - Aligner les références sur l'état réel du projet
+- Régénérer le changelog
 - Régénérer le changelog
 - Régénérer le changelog
 - Régénérer le changelog
