@@ -12,6 +12,8 @@ add_library(
     format/lines.cpp
     format/sub_rip_reader.cpp
     format/sub_rip_writer.cpp
+    format/web_vtt_reader.cpp
+    format/web_vtt_writer.cpp
     format/real_file_system.cpp
     time/timestamp.cpp
     version.cpp)
