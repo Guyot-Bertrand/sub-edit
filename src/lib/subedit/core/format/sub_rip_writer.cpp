@@ -47,21 +47,6 @@ void appendCoordinates(std::string& text, const FormatExtras& extras) {
     appendPadded(text, box.y2, kCoordinateDigits);
 }
 
-/// Rewrites the endings of a text that holds them as line feeds.
-void appendText(std::string& out, std::string_view text, std::string_view ending) {
-    std::size_t start = 0;
-    while (true) {
-        const std::size_t lineFeed = text.find('\n', start);
-        if (lineFeed == std::string_view::npos) {
-            out += text.substr(start);
-            return;
-        }
-        out += text.substr(start, lineFeed - start);
-        out += ending;
-        start = lineFeed + 1;
-    }
-}
-
 } // namespace
 
 std::string SubRipWriter::write(const WriteRequest& request) const {
@@ -81,7 +66,7 @@ std::string SubRipWriter::write(const WriteRequest& request) const {
         appendCoordinates(out, subtitle.extras);
         out += ending;
 
-        appendText(out, subtitle.text(request.document), ending);
+        appendWithEnding(out, subtitle.text(request.document), ending);
         out += ending;
 
         // The blank line closing every block, the last one included.

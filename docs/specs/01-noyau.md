@@ -337,13 +337,20 @@ reconnues, aucune n'entre dans le texte, et une fin de ligne finale n'invente
 pas de ligne vide. Les vues pointent dans le contenu : un fichier de plusieurs
 milliers de sous-titres se découpe sans copier une seule ligne.
 
+`trimmedBlanks` et `isBlank` l'accompagnent : chaque lecteur a besoin de la même
+réponse à « cette ligne est-elle vide ? », et trois copies en seraient trois
+occasions de diverger. Côté écriture, `appendWithEnding` joue le même rôle — un
+texte se garde avec des sauts de ligne, la fin de ligne est une propriété du
+fichier, décidée au moment de l'écrire.
+
 ### Écriture
 
 ```cpp
 struct WriteRequest {
     std::span<const Subtitle> subtitles;
-    Document document;   // lequel des deux textes part dans le fichier
-    Newline  newline;    // LF par défaut
+    Document         document;   // lequel des deux textes part dans le fichier
+    Newline          newline;    // LF par défaut
+    std::string_view header;     // WebVTT ; vide pour les formats sans en-tête
 };
 
 class SubtitleWriter {
@@ -402,11 +409,42 @@ soigne en étant ouvert puis enregistré.
 
 Analyse par blocs séparés par des lignes vides, avec les états `en-tête`,
 `style`, `commentaire`, `identifiant`, `horodatage`, `texte`. Les blocs `STYLE`
-et `NOTE` sont rattachés au sous-titre qui suit.
+et `NOTE` sont rattachés au sous-titre **qui suit** — c'est ce que dit le
+format, et c'est ce qui les fait survivre à l'aller-retour.
+
+**La signature est exigée.** Un fichier qui ne commence pas par `WEBVTT` est
+refusé — `ReadErrorKind::UnknownFormat` — plutôt que lu au jugé. La détection de
+l'issue #8 a besoin de lecteurs qui savent dire non, faute de quoi elle
+supposerait un format au lieu de le reconnaître.
+
+Une ligne isolée qui n'est suivie d'aucun horodatage n'était pas un identifiant
+de cue mais un bloc d'un genre que nous ne traitons pas — `REGION`, ou ce
+qu'ajoutera une révision ultérieure du format. Elle produit un diagnostic
+`UnknownBlock`.
+
+Un horodatage illisible est signalé puis conservé comme texte, exactement comme
+en SubRip et pour la même raison. Deux lecteurs du même socle qui traiteraient
+différemment la même anomalie seraient un piège à eux seuls.
+
+Les balises que le format autorise dans le texte — `<v Locuteur>`, `<c.classe>`,
+`<ruby>` — ne sont **pas** interprétées, conformément à
+[0009](../adr/0009-texte-en-chaine-brute.md). Un lecteur qui les normaliserait
+ferait revenir le fichier modifié.
 
 À l'écriture : en-tête `WEBVTT`, identifiant de cue s'il existe, réglages
-accolés à la ligne d'horodatage, blocs `STYLE` et `NOTE` restitués. Les heures
-sont omises si tous les sous-titres se terminent avant une heure, comme Gaupol.
+accolés à la ligne d'horodatage, blocs `STYLE` et `NOTE` restitués. Un fichier
+sans aucune cue reste un fichier WebVTT : la signature seule est valide, alors
+que ne rien écrire produirait ce qu'aucun lecteur n'accepte.
+
+Les heures sont omises si aucune cue n'atteint une heure, comme Gaupol — à une
+correction près : **la décision regarde toutes les cues, et non la dernière.**
+Le raccourci de Gaupol suppose le fichier trié ; un fichier qui ne l'est pas en
+sortirait avec des minutes au-delà de cinquante-neuf, que nul lecteur n'accepte.
+Tous les horodatages d'un fichier sont écrits de la même façon : mélanger les
+deux formes serait licite et illisible.
+
+C'est la seule normalisation du format — un fichier écrit avec ses heures alors
+que rien n'atteint une heure revient sans elles.
 
 ### Détection de format
 

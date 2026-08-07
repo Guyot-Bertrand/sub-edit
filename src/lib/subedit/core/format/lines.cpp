@@ -6,6 +6,19 @@
 
 namespace subedit::core {
 
+namespace {
+
+constexpr std::string_view kBlanks = " \t";
+
+} // namespace
+
+std::string_view trimmedBlanks(std::string_view text) {
+    const std::size_t first = text.find_first_not_of(kBlanks);
+    if (first == std::string_view::npos)
+        return {};
+    return text.substr(first, text.find_last_not_of(kBlanks) - first + 1);
+}
+
 std::vector<std::string_view> splitLines(std::string_view content) {
     std::vector<std::string_view> lines;
 

@@ -4,6 +4,7 @@
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 
+#include <cstddef>
 #include <span>
 #include <string>
 #include <string_view>
@@ -13,7 +14,7 @@ namespace subedit::core {
 
 /// What to write, and how.
 struct WriteRequest {
-    std::span<const Subtitle> subtitles;
+    std::span<const Subtitle> subtitles{};
 
     /// Which of the two texts goes into the file.
     Document document = Document::Main;
@@ -24,6 +25,12 @@ struct WriteRequest {
     /// The choice belongs to the caller, and the information needed to put
     /// back what a file arrived with is kept in `SourceFile`.
     Newline newline = Newline::Lf;
+
+    /// The header the file came with, for the formats that have one.
+    ///
+    /// Empty for the others, and for a project that came from nowhere; a
+    /// writer that needs a header then produces the one its format requires.
+    std::string_view header{};
 };
 
 /// Turns subtitles into the text of a file.
@@ -45,6 +52,25 @@ protected:
     SubtitleWriter& operator=(const SubtitleWriter&) = default;
     SubtitleWriter& operator=(SubtitleWriter&&) = default;
 };
+
+/// Appends `text`, rewriting the line feeds it holds as `ending`.
+///
+/// A text is held with line feeds whatever the file it came from used; the
+/// ending is a property of the file, decided at writing time. Every writer has
+/// the same rewriting to do, so it is written once.
+inline void appendWithEnding(std::string& out, std::string_view text, std::string_view ending) {
+    std::size_t start = 0;
+    while (true) {
+        const std::size_t lineFeed = text.find('\n', start);
+        if (lineFeed == std::string_view::npos) {
+            out += text.substr(start);
+            return;
+        }
+        out += text.substr(start, lineFeed - start);
+        out += ending;
+        start = lineFeed + 1;
+    }
+}
 
 /// Returns the characters `newline` stands for.
 [[nodiscard]] constexpr std::string_view charactersOf(Newline newline) {

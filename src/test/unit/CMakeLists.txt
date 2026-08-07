@@ -27,7 +27,10 @@ add_executable(
     core/format/lines_test.cpp
     core/format/sub_rip_reader_test.cpp
     core/format/sub_rip_writer_test.cpp
-    core/format/sub_rip_round_trip_test.cpp)
+    core/format/sub_rip_round_trip_test.cpp
+    core/format/web_vtt_reader_test.cpp
+    core/format/web_vtt_writer_test.cpp
+    core/format/web_vtt_round_trip_test.cpp)
 
 target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain)
 

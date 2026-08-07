@@ -16,4 +16,15 @@ namespace subedit::core {
 /// reader reports it, but reporting it means having read the file first.
 [[nodiscard]] std::vector<std::string_view> splitLines(std::string_view content);
 
+/// Strips the spaces and tabulations around `text`.
+///
+/// Shared because every reader needs the same answer to « is this line
+/// blank ? », and three copies of it would be three chances to disagree.
+[[nodiscard]] std::string_view trimmedBlanks(std::string_view text);
+
+/// Tells whether `text` holds nothing but blanks.
+[[nodiscard]] inline bool isBlank(std::string_view text) {
+    return trimmedBlanks(text).empty();
+}
+
 } // namespace subedit::core

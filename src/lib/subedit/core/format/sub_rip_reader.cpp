@@ -36,19 +36,12 @@ struct TimeLine {
     std::optional<Rectangle> coordinates;
 };
 
-[[nodiscard]] std::string_view trimmed(std::string_view text) {
-    const std::size_t first = text.find_first_not_of(kBlanks);
-    if (first == std::string_view::npos)
-        return {};
-    return text.substr(first, text.find_last_not_of(kBlanks) - first + 1);
-}
-
 /// Reads `X1:040 X2:600 Y1:020 Y2:460`, or nothing if that is not what follows.
 [[nodiscard]] std::optional<Rectangle> parseCoordinates(std::string_view text) {
     static constexpr std::array<std::string_view, 4> kLabels = {"X1:", "X2:", "Y1:", "Y2:"};
     std::array<int, 4> values{};
 
-    std::string_view rest = trimmed(text);
+    std::string_view rest = trimmedBlanks(text);
     for (std::size_t field = 0; field < kLabels.size(); ++field) {
         if (!rest.starts_with(kLabels[field]))
             return std::nullopt;
@@ -64,7 +57,7 @@ struct TimeLine {
             value = (value * kDecimalBase) + (digit - '0');
         values[field] = value;
 
-        rest = trimmed(rest.substr(number.size()));
+        rest = trimmedBlanks(rest.substr(number.size()));
     }
 
     if (!rest.empty())
@@ -91,7 +84,7 @@ struct TimeLine {
     if (!start.has_value())
         return std::nullopt;
 
-    const std::string_view rest = trimmed(line.substr(arrow + kArrow.size()));
+    const std::string_view rest = trimmedBlanks(line.substr(arrow + kArrow.size()));
 
     // The end timestamp runs up to the first blank; anything after it is the
     // extended coordinates, which not every file carries.
@@ -102,7 +95,7 @@ struct TimeLine {
 
     std::optional<Rectangle> coordinates;
     if (endOfStamp != std::string_view::npos) {
-        const std::string_view tail = trimmed(rest.substr(endOfStamp));
+        const std::string_view tail = trimmedBlanks(rest.substr(endOfStamp));
         if (!tail.empty()) {
             coordinates = parseCoordinates(tail);
             if (!coordinates.has_value())
@@ -115,7 +108,7 @@ struct TimeLine {
 
 /// Reads a line holding nothing but a number, the SubRip numbering.
 [[nodiscard]] std::optional<int> parseNumbering(std::string_view line) {
-    const std::string_view text = trimmed(line);
+    const std::string_view text = trimmedBlanks(line);
     if (text.empty() || text.size() > kMaxNumberingDigits)
         return std::nullopt;
 
@@ -138,7 +131,7 @@ struct NumberedLine {
 /// lines that only separated it from the next block.
 [[nodiscard]] std::string joinText(const std::vector<NumberedLine>& pending) {
     std::size_t last = pending.size();
-    while (last > 0 && trimmed(pending[last - 1].text).empty())
+    while (last > 0 && trimmedBlanks(pending[last - 1].text).empty())
         --last;
 
     std::string text;
@@ -168,7 +161,7 @@ public:
                 .severity = Severity::Warning,
                 .line = lineNumber,
                 .kind = DiagnosticKind::MalformedTimestamp,
-                .detail = std::string{trimmed(line)},
+                .detail = std::string{trimmedBlanks(line)},
             });
         }
 
@@ -220,7 +213,7 @@ private:
     /// lines that separated it from the previous block.
     [[nodiscard]] std::optional<int> takeTrailingNumbering() {
         std::size_t last = m_pending.size();
-        while (last > 0 && trimmed(m_pending[last - 1].text).empty())
+        while (last > 0 && trimmedBlanks(m_pending[last - 1].text).empty())
             --last;
 
         if (last == 0)
@@ -247,12 +240,12 @@ private:
     /// Reports the lines standing before the first timestamp of the file.
     void reportBefore() {
         for (const NumberedLine& line : m_pending) {
-            if (trimmed(line.text).empty())
+            if (trimmedBlanks(line.text).empty())
                 continue;
             report(Severity::Warning,
                    line.number,
                    DiagnosticKind::TextBeforeAnyTimestamp,
-                   std::string{trimmed(line.text)});
+                   std::string{trimmedBlanks(line.text)});
         }
     }
 
