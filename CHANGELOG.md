@@ -15,6 +15,7 @@ ne pas l'éditer à la main.
 - **core** — Sélection, insertion et suppression dans le projet
 - **core** — Session, genre de commande et politique d'ordre
 - **core** — Commandes de modification d'un texte et d'une position
+- **core** — Commandes d'insertion et de suppression
 
 ### Construction
 
