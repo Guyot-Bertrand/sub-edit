@@ -252,6 +252,40 @@ colonnes configurables, coloration des différences.
 - Configuration typée et persistée, en remplacement du dictionnaire imbriqué de
   Gaupol. Format de fichier et stratégie de migration entre versions.
 - Édition en place de texte multiligne dans une cellule.
+- **Un changement de fréquence d'image n'est déclaré par aucun `ChangeKind` — à
+  ré-évaluer ici.** La phase 2 a écarté d'en ajouter un : la fréquence n'est la
+  propriété d'aucun sous-titre, et un énumérateur que personne ne lit est une
+  promesse sans garant, règle que `DiagnosticKind` énonce déjà. `describe()` d'une
+  conversion ne rapporte donc que les positions. Si la fenêtre affiche la
+  fréquence courante, elle aura besoin de savoir qu'elle a changé — et ce sera
+  alors un énumérateur avec un lecteur, ce qui lève l'objection.
+- **D'où vient la fréquence d'entrée d'une conversion ?** Question ouverte, et
+  elle se pose ici parce que c'est ici qu'un dialogue la demandera.
+
+  **Le fichier ne la porte pas, et ne peut pas la porter.** SubRip n'a aucun
+  en-tête ; l'en-tête WebVTT est du texte libre. Les deux formats du MVP sont
+  temporels : une fréquence d'image n'y a pas de place. Seuls les formats
+  *à images* — MicroDVD, phase 9 — en déclarent une, sur leur première ligne.
+
+  **Le nom du fichier, lui, reste à examiner — et le corpus local ne peut pas le
+  dire.** Les quinze fichiers de `src/data/` ont été renommés à la main avant
+  d'entrer dans le dépôt : ils portent le titre, parfois l'édition (`Alien.DC`),
+  parfois la langue (`eng`, `ger`, `fr`), mais ces noms sont le produit d'un
+  nettoyage et non une observation. **Trancher cette question demande des
+  fichiers neufs, aux noms intacts.**
+
+  Ce qu'on peut déjà dire sans eux : les noms de publication en ligne portent
+  `DVD`, `BluRay`, `1080p`, qui *corrèlent* avec 25 et 23,976 sans les nommer.
+  Une corrélation n'est pas une donnée, et se tromper de fréquence décale tout le
+  fichier sans rien signaler — le pire mode d'échec possible pour cette
+  opération : silencieux et global. Une heuristique de nom ne peut donc être
+  qu'une **proposition montrée comme telle**, jamais un choix appliqué en
+  silence.
+
+  Reste donc l'utilisateur, avec deux façons de l'aider qui ne mentent pas :
+  proposer un défaut tiré du nom **en le montrant comme une proposition**, ou
+  déduire la fréquence de la durée de la vidéo quand la phase 14 aura un lecteur.
+  À trancher au cadrage — après avoir regardé des noms de fichiers intacts.
 
 **Point difficile**
 
