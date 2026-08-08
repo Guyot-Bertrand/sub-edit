@@ -1,0 +1,6 @@
+Note du traducteur : version de travail.
+
+1
+00:00:01,000 --> 00:00:03,000
+Le vrai premier sous-titre.
+

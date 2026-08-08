@@ -33,9 +33,19 @@ add_executable(
     core/format/web_vtt_round_trip_test.cpp
     core/format/subtitle_format_test.cpp
     core/format/encoding_test.cpp
-    core/format/subtitle_file_test.cpp)
+    core/format/subtitle_file_test.cpp
+    core/format/corpus_test.cpp
+    core/format/local_corpus_test.cpp)
 
 target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain)
+
+# Le corpus vit sur le disque et se lit à l'exécution. Le chemin est passé à la
+# compilation plutôt que déduit du répertoire courant : un test ne doit pas
+# dépendre de l'endroit d'où on le lance.
+target_compile_definitions(
+    subedit_core_test
+    PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
+            SUBEDIT_LOCAL_DATA_DIR="${CMAKE_SOURCE_DIR}/src/data")
 
 subedit_set_warnings(subedit_core_test)
 
