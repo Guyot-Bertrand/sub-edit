@@ -14,6 +14,7 @@ ne pas l'éditer à la main.
 - **core** — Mise à l'échelle des positions par un rationnel exact
 - **core** — Sélection, insertion et suppression dans le projet
 - **core** — Session, genre de commande et politique d'ordre
+- **core** — Commandes de modification d'un texte et d'une position
 
 ### Construction
 
