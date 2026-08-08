@@ -31,6 +31,12 @@ ne pas l'éditer à la main.
 - Deux ADR pour la phase 2
 - Incrémenter le patch à chaque version de PR
 - Manuel à jour en fin de ticket, bump de version au dernier moment
+- Deux questions ouvertes de la conversion de fréquence, phase 5
+- La vidéo associée comme source de la fréquence d'image
+
+### Tests
+
+- **core** — Mesurer les opérations réellement implémentées
 
 ## 0.1.0 — 2026-08-08
 
