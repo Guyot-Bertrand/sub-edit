@@ -7,6 +7,19 @@ Les changements notables de subedit. Format inspiré de
 Ce fichier est généré par `make changelog` depuis l'historique des commits :
 ne pas l'éditer à la main.
 
+## Non publié
+
+### Construction
+
+- Date de génération, garde-fou de version, changelog allégé
+
+### Documentation
+
+- Spec de la phase 2
+- Noter la stratégie de version dans les instructions du projet
+- Deux ADR pour la phase 2
+- Incrémenter le patch à chaque version de PR
+
 ## 0.1.0 — 2026-08-08
 
 ### Ajouts
@@ -36,30 +49,11 @@ ne pas l'éditer à la main.
 - Feuille de route des huit phases
 - Règle critique de lecture seule sur le dépôt de référence
 - Préciser la disponibilité de std::expected
-- Régénérer le changelog
-- Régénérer le changelog
-- Régénérer le changelog
-- Régénérer le changelog
 - Recadrer la feuille de route sur les priorités de l'utilisateur
-- Régénérer le changelog
 - Décrire les rulesets avec les libellés de l'interface GitHub
-- Régénérer le changelog
 - Acter la réalisation de la phase 0
-- Régénérer le changelog
-- Régénérer le changelog
-- Régénérer le changelog
 - Spec de la phase 1 et cinq décisions d'architecture
-- Régénérer le changelog
 - Aligner les références sur l'état réel du projet
-- Régénérer le changelog
-- Régénérer le changelog
-- Régénérer le changelog
-- Régénérer le changelog
-- Régénérer le changelog
-- Régénérer le changelog
-- Régénérer le changelog
-- Régénérer le changelog
-- Régénérer le changelog
 
 ### Intégration continue
 
