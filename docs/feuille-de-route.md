@@ -282,10 +282,15 @@ colonnes configurables, coloration des différences.
   qu'une **proposition montrée comme telle**, jamais un choix appliqué en
   silence.
 
-  Reste donc l'utilisateur, avec deux façons de l'aider qui ne mentent pas :
-  proposer un défaut tiré du nom **en le montrant comme une proposition**, ou
-  déduire la fréquence de la durée de la vidéo quand la phase 14 aura un lecteur.
-  À trancher au cadrage — après avoir regardé des noms de fichiers intacts.
+  **La piste sérieuse est la vidéo elle-même.** Son conteneur déclare sa
+  fréquence : ce n'est pas une corrélation mais la donnée, lue à la source. La
+  phase 6 associe déjà une vidéo au projet pour la prévisualisation, et la
+  phase 14 en ouvre une pour de bon — l'information est donc à portée avant même
+  le lecteur intégré. Voir la question posée à la [phase 6](#6--prévisualisation).
+
+  Reste l'utilisateur pour les cas sans vidéo, et un défaut tiré du nom **montré
+  comme une proposition**. À trancher au cadrage — après avoir regardé des noms
+  de fichiers intacts, et vérifié ce que coûte la lecture des métadonnées.
 
 **Point difficile**
 
@@ -315,6 +320,17 @@ commandes des trois lecteurs), `gaupol/agents/preview.py`.
 - Détection du lecteur disponible, et commande personnalisable.
 - Association d'un fichier vidéo à un projet : par convention de nom, comme
   Gaupol (`find_video`), ou choix explicite ?
+- **Lire la fréquence d'image dans la vidéo associée ?** La conversion de
+  fréquence de la phase 2 a besoin d'une fréquence d'entrée que le fichier de
+  sous-titres ne porte pas et ne peut pas porter — voir la question posée à la
+  [phase 5](#5--interface--édition-tabulaire). Le conteneur vidéo, lui, la
+  déclare : c'est la donnée et non une corrélation. Une vidéo est déjà associée
+  au projet ici, avant le lecteur intégré de la phase 14.
+
+  À vérifier au cadrage : ce que coûte cette lecture. La prévisualisation lance
+  un lecteur externe et n'a donc aucune bibliothèque vidéo en mémoire ; lire des
+  métadonnées demanderait `ffprobe` — un exécutable de plus à détecter — ou une
+  dépendance. Le gain est réel, le prix reste à mesurer.
 - Fichier temporaire : durée de vie, encodage forcé en UTF-8.
 
 ---
