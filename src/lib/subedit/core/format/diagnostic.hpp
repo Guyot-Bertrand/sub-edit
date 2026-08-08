@@ -19,16 +19,21 @@ enum class Severity {
 ///
 /// A category, not a sentence: it can be translated, and a test can assert on
 /// it without comparing prose that will be reworded.
+///
+/// **Every one of these is produced by a reader.** An enumerator nothing emits
+/// is a promise not kept: the interface would offer a filter that never
+/// matches, and a test would have no way to cover it. Two were dropped for
+/// that reason — timestamps written without their zero padding, which writing
+/// normalises silently and which would flood the list; and unclosed tags,
+/// which need the tag-aware parser of phase 4 and will come back with it.
 enum class DiagnosticKind {
     IgnoredLine,            ///< a line that fits nowhere
     MalformedTimestamp,     ///< a timestamp that could not be read
-    ShortTimestampFields,   ///< fields written without their zero padding
     EndBeforeStart,         ///< a subtitle that ends before it starts
     OverlappingSubtitles,   ///< a subtitle starting before the previous one ends
     MissingNumbering,       ///< a SubRip block without its number
     InconsistentNumbering,  ///< SubRip numbers that do not follow
     TextBeforeAnyTimestamp, ///< text before the first timestamp of the file
-    UnclosedTag,            ///< a tag opened and never closed
     UnknownBlock,           ///< a WebVTT block of an unknown kind
     MixedNewlines,          ///< several line endings in the same file
 };

@@ -1,6 +1,9 @@
 # Dépôt de référence cloné localement, jamais commité
 reference/
 
+# Fichiers de travail.
+src/data/
+
 # Réglages d'IDE, propres à chaque poste
 .idea/
 .vscode/
