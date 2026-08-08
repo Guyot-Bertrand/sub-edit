@@ -17,6 +17,7 @@ ne pas l'éditer à la main.
 - **core** — Commandes de modification d'un texte et d'une position
 - **core** — Commandes d'insertion et de suppression
 - **core** — Commande de décalage des positions
+- **core** — Transformation des positions par deux repères
 
 ### Construction
 

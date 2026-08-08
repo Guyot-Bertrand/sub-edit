@@ -11,6 +11,7 @@ add_library(
     edit/remove_command.cpp
     edit/session.cpp
     edit/shift_command.cpp
+    edit/transform_command.cpp
     edit/set_position_command.cpp
     edit/set_text_command.cpp
     edit/sort_command.cpp
