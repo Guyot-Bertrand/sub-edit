@@ -1,5 +1,6 @@
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/command/command.hpp>
+#include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/command/composite_command.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle.hpp>
@@ -18,6 +19,7 @@ namespace {
 using subedit::core::Change;
 using subedit::core::ChangeKind;
 using subedit::core::Command;
+using subedit::core::CommandKind;
 using subedit::core::CompositeCommand;
 using subedit::core::Project;
 using subedit::core::Subtitle;
@@ -42,7 +44,7 @@ TEST_CASE("a composite applies its commands in order", "[command][composite]") {
     std::vector<std::unique_ptr<Command>> commands;
     commands.push_back(std::make_unique<Tracing>(trace, "premier"));
     commands.push_back(std::make_unique<Tracing>(trace, "second"));
-    CompositeCommand composite{std::move(commands)};
+    CompositeCommand composite{CommandKind::SetText, std::move(commands)};
     Project project;
 
     composite.apply(project);
@@ -57,7 +59,7 @@ TEST_CASE("a composite reverts its commands in reverse order", "[command][compos
     std::vector<std::unique_ptr<Command>> commands;
     commands.push_back(std::make_unique<Tracing>(trace, "premier"));
     commands.push_back(std::make_unique<Tracing>(trace, "second"));
-    CompositeCommand composite{std::move(commands)};
+    CompositeCommand composite{CommandKind::SetText, std::move(commands)};
     Project project;
 
     composite.revert(project);
@@ -72,7 +74,7 @@ TEST_CASE("a composite restores the exact state it started from", "[command][com
         std::make_unique<SetMainText>(project, SubtitleIndex::fromValue(0), "Premier."));
     commands.push_back(
         std::make_unique<SetMainText>(project, SubtitleIndex::fromValue(2), "Troisième."));
-    CompositeCommand composite{std::move(commands)};
+    CompositeCommand composite{CommandKind::SetText, std::move(commands)};
 
     composite.apply(project);
     CHECK(project.subtitleAt(SubtitleIndex::fromValue(0)).mainText == "Premier.");
@@ -92,7 +94,7 @@ TEST_CASE("a composite reports what all of its commands touched", "[command][com
         std::make_unique<SetMainText>(project, SubtitleIndex::fromValue(0), "Premier."));
     commands.push_back(
         std::make_unique<SetMainText>(project, SubtitleIndex::fromValue(2), "Troisième."));
-    const CompositeCommand composite{std::move(commands)};
+    const CompositeCommand composite{CommandKind::SetText, std::move(commands)};
 
     const std::vector<Change> changes = composite.describe();
 
@@ -103,7 +105,7 @@ TEST_CASE("a composite reports what all of its commands touched", "[command][com
 }
 
 TEST_CASE("an empty composite does nothing and says so", "[command][composite]") {
-    CompositeCommand composite{{}};
+    CompositeCommand composite{CommandKind::SetText, {}};
     Project project = withThreeSubtitles();
 
     composite.apply(project);

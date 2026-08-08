@@ -18,7 +18,13 @@ class Project;
 class CompositeCommand final : public Command {
 
 public:
-    explicit CompositeCommand(std::vector<std::unique_ptr<Command>> commands);
+    /// Builds a group named `kind`.
+    ///
+    /// The name is given rather than taken from the commands held, because a
+    /// group is named after what the user asked for and not after everything
+    /// it took: a shift that a strict order policy follows with a sort is
+    /// still « shift » in the undo menu.
+    CompositeCommand(CommandKind kind, std::vector<std::unique_ptr<Command>> commands);
 
     void apply(Project& project) override;
 
@@ -28,10 +34,13 @@ public:
     /// first would shift subtitles that are no longer there.
     void revert(Project& project) override;
 
+    [[nodiscard]] CommandKind kind() const override { return m_kind; }
+
     /// Returns the changes of every command it holds, in order.
     [[nodiscard]] std::vector<Change> describe() const override;
 
 private:
+    CommandKind m_kind;
     std::vector<std::unique_ptr<Command>> m_commands;
 };
 

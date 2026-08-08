@@ -173,6 +173,22 @@ décalage. Les sous-commandes destinées à un usage réel relèvent de la phase
   Décision par ADR — c'est une dépendance de plus.
 - Codes de retour signifiants, et comportement en cas d'échec partiel sur un
   lot.
+- **Ce que `Project::outOfOrder()` doit rendre — à ré-évaluer ici.** La phase 2
+  l'a implémenté en comparant chaque sous-titre à son **prédécesseur immédiat**,
+  ce que dit la spec. L'autre lecture — comparer au plus grand début rencontré
+  jusque-là — rend un ensemble différent : sur les départs `0, 4000, 2000, 3000`,
+  la première rend `{2}`, la seconde `{2, 3}`.
+
+  Les deux s'accordent toujours sur le fait qu'il y a du désordre ou non : une
+  suite dont chaque élément suit son prédécesseur est croissante, donc chaque
+  élément suit aussi tous les précédents. Elles ne diffèrent que sur **la liste**.
+  Rien avant l'inspection ne consomme cette liste — la politique stricte de la
+  phase 2 se déclenche sur le `CommandKind`, pas sur une requête de désordre, et
+  ses tests ne regardent que le vide ou le non-vide.
+
+  L'inspection est donc le premier appelant à devoir trancher : « les lignes qui
+  rompent l'ordre » ou « les lignes à déplacer pour rétablir l'ordre ». La
+  phase 5 affichera le même ensemble et suivra ce choix.
 
 ---
 

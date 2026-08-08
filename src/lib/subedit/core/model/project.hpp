@@ -74,6 +74,12 @@ public:
     /// breaks it against: that is the line an interface has to show. Equal
     /// starts are not disorder — neither precedes the other.
     ///
+    /// Compared against the **immediate predecessor**, not against the largest
+    /// start seen so far. The two agree on whether there is disorder at all and
+    /// differ only on which indices they name; nothing consumes that list yet.
+    /// The phase-3 inspection is the first caller that has to choose, and the
+    /// roadmap holds the question.
+    ///
     /// A query and not an invariant: the model never sorts by itself. See the
     /// order policy of the phase-2 spec, and ADR 0012.
     [[nodiscard]] std::vector<SubtitleIndex> outOfOrder() const;
