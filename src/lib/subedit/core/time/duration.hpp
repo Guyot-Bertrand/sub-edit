@@ -1,5 +1,7 @@
 #pragma once
 
+#include <subedit/core/time/ratio.hpp>
+
 #include <compare>
 #include <cstdint>
 
@@ -23,6 +25,14 @@ public:
 
     /// Returns the signed millisecond count.
     [[nodiscard]] constexpr std::int64_t milliseconds() const { return m_milliseconds; }
+
+    /// Returns this duration multiplied by `factor`, rounded once.
+    ///
+    /// A named method and not an operator: scaling is a rounding decision, and
+    /// none of them is taken implicitly.
+    [[nodiscard]] constexpr Duration scaledBy(Ratio factor) const {
+        return Duration{factor.scale(m_milliseconds)};
+    }
 
     constexpr Duration& operator+=(Duration other) {
         m_milliseconds += other.m_milliseconds;

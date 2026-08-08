@@ -9,7 +9,7 @@ puis se termine.
 
 ```console
 $ subedit-cli
-subedit 0.1.1
+subedit 0.1.2
 ```
 
 ## Code de retour

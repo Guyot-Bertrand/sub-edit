@@ -7,6 +7,8 @@ add_executable(
     core/time/duration_test.cpp
     core/time/frame_test.cpp
     core/time/frame_rate_test.cpp
+    core/time/ratio_test.cpp
+    core/time/scaling_test.cpp
     core/time/timestamp_test.cpp
     core/time/timestamp_conversion_test.cpp
     core/time/timestamp_format_test.cpp
