@@ -7,6 +7,8 @@ add_library(
     subedit_core STATIC
     command/composite_command.cpp
     command/history.cpp
+    edit/insert_command.cpp
+    edit/remove_command.cpp
     edit/session.cpp
     edit/set_position_command.cpp
     edit/set_text_command.cpp
