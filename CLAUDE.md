@@ -68,6 +68,12 @@ avec un objectif d'iso-fonctionnalité.
   échanges. Anglais pour le code C++ : identifiants, commentaires et intitulés
   de tests. La frontière est celle du compilateur C++, pas celle du dépôt.
 - **Commits** — Conventional Commits, scopes alignés sur les labels `area:`.
+- **Versions** — un tag `vX.Y.Z` par milestone terminée, le **mineur incrémenté
+  à chaque fois** : `v0.1.0` clôt la phase 1, `v0.2.0` clôra la phase 2, et
+  ainsi de suite jusqu'à une `v1.0.0` à la fin. Le tag et le `project(VERSION)`
+  de `CMakeLists.txt` doivent porter le même numéro : **bumper le CMake avant de
+  tagger**, sinon le binaire annonce une version périmée. Rien ne le vérifie
+  encore.
 - **Qualité** — `make check` est la porte : format, warnings en erreurs,
   clang-tidy, tests sous ASan, seuil de couverture. La CI l'exécute à
   l'identique. Ne jamais annoncer un travail terminé sans l'avoir lancée.
