@@ -49,6 +49,9 @@ commit_parsers = [
     { message = "^fix", group = "Corrections" },
     { message = "^perf", group = "Performance" },
     { message = "^refactor", group = "Remaniements" },
+    # La régénération du journal n'a rien à dire dans le journal. La règle
+    # précède celle de `docs` : le premier motif qui correspond l'emporte.
+    { message = "^docs: régénérer le changelog", skip = true },
     { message = "^docs", group = "Documentation" },
     { message = "^test", group = "Tests" },
     { message = "^build", group = "Construction" },

@@ -30,6 +30,7 @@ target_compile_definitions(
     subedit_core
     PRIVATE SUBEDIT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
             SUBEDIT_VERSION_MINOR=${PROJECT_VERSION_MINOR}
-            SUBEDIT_VERSION_PATCH=${PROJECT_VERSION_PATCH})
+            SUBEDIT_VERSION_PATCH=${PROJECT_VERSION_PATCH}
+            SUBEDIT_BUILD_DATE="${SUBEDIT_BUILD_DATE}")
 
 subedit_set_warnings(subedit_core)
