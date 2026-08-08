@@ -39,8 +39,22 @@ Trois conséquences qui ne se lisent pas directement dans la liste :
 
 ## Déroulé d'une phase
 
-Chaque phase s'ouvre par une **issue de cadrage** (`type:task`), dont le travail
-est :
+Trois issues encadrent chaque phase — une pour l'équiper, une pour la cadrer,
+une pour la relire — et les issues d'implémentation viennent entre les deux
+dernières.
+
+### 1. Initialisation — l'outillage (`type:task`)
+
+**Avant le cadrage.** La question qu'elle pose : *qu'est-ce qui, dans cette
+phase, se vérifiera à la main faute d'outil ?* Ce qui se vérifie tout seul n'a
+pas à se vérifier à la main, et l'outil coûte moins cher construit au début de
+la phase qu'à la fin.
+
+Elle produit une décision par outil : ceux qui sont retenus ont leur issue, ceux
+qui sont écartés ont **leur raison écrite** — un outil écarté sans trace revient
+à chaque phase.
+
+### 2. Cadrage (`type:task`)
 
 1. **Analyse préalable** — lecture ciblée du code de Gaupol correspondant, dans
    `reference/gaupol`, pour comprendre ce qui est fait et pourquoi.
@@ -50,8 +64,29 @@ est :
    les décisions coûteuses à revenir dessus.
 4. **Découpage en issues d'implémentation**, rattachées au milestone.
 
+### 3. Relecture de fin de phase (`type:task`)
+
+**Après la dernière issue d'implémentation, avant de clore.** Elle ne produit
+pas de fonctionnalité : elle vérifie que la phase tient.
+
+- **Confronter la spec au réalisé.** Un écart est soit corrigé, soit inscrit ;
+  un écart non consigné est un écart oublié.
+- **Répercuter les renvois.** Tout « à voir plus tard » doit atterrir sur une
+  phase ou une issue nommée. Sans cela une promesse finit par désigner une phase
+  déjà passée — c'est arrivé en phase 2, où la borne de l'historique promettait
+  d'être mesurée « en phase 2 » et ne l'a pas été.
+- **Relire le manuel d'un bloc.** Il se met à jour ticket par ticket, donc en
+  morceaux, et par des gens qui connaissent déjà la réponse. C'est le seul
+  moment où l'on voit ce que ça donne pour quelqu'un qui découvre : ce qui
+  manque, ce qui a vieilli, ce qui est exact mais rangé là où personne ne le
+  cherchera.
+- **Regard critique sur l'ensemble du code de la phase**, et non fichier par
+  fichier : duplications, abstractions manquantes ou de trop, tests qui
+  promettent plus qu'ils ne prouvent. Ce qui en sort **n'est pas corrigé là** :
+  chaque axe se discute et devient une issue s'il est retenu.
+
 Une phase n'est close que lorsque sa spec, ses tests, ses benchmarks, sa section
-de manuel et son entrée de CHANGELOG existent.
+de manuel, son entrée de CHANGELOG et sa relecture existent.
 
 **L'analyse se fait au démarrage de la phase concernée, pas maintenant.** Les
 questions et points difficiles listés ci-dessous sont des repères relevés lors

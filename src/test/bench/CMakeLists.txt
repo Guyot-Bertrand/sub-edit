@@ -3,6 +3,7 @@
 
 add_executable(
     subedit_core_bench
+    core/edit/operations_bench.cpp
     core/format/subtitle_file_bench.cpp
     core/time/timestamp_bench.cpp
     core/version_bench.cpp)
