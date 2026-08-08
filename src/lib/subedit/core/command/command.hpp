@@ -1,6 +1,7 @@
 #pragma once
 
 #include <subedit/core/command/change.hpp>
+#include <subedit/core/command/command_kind.hpp>
 
 #include <vector>
 
@@ -31,6 +32,13 @@ public:
     /// Exactly: an operation that cannot undo itself faithfully has to empty
     /// the stack rather than lie about being reversible.
     virtual void revert(Project& project) = 0;
+
+    /// Returns what kind of operation this is.
+    ///
+    /// What an interface names when it offers to undo it, and what an order
+    /// policy reads to know whether the operation could have broken the order.
+    /// Neither has to know the concrete class.
+    [[nodiscard]] virtual CommandKind kind() const = 0;
 
     /// Reports what the command touched, and where.
     ///

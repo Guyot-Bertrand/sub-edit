@@ -20,6 +20,9 @@ add_executable(
     core/model/project_access_test.cpp
     core/model/project_edit_test.cpp
     core/model/selection_test.cpp
+    core/edit/session_test.cpp
+    core/edit/sort_command_test.cpp
+    core/edit/order_policy_test.cpp
     core/command/change_test.cpp
     core/command/composite_command_test.cpp
     core/command/history_test.cpp

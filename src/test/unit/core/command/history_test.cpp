@@ -1,5 +1,6 @@
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/command/command.hpp>
+#include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/command/composite_command.hpp>
 #include <subedit/core/command/history.hpp>
 #include <subedit/core/model/document.hpp>
@@ -20,6 +21,7 @@ namespace {
 
 using subedit::core::ChangeKind;
 using subedit::core::Command;
+using subedit::core::CommandKind;
 using subedit::core::CompositeCommand;
 using subedit::core::Document;
 using subedit::core::History;
@@ -117,7 +119,8 @@ TEST_CASE("a group of seven commands is undone in one go", "[command][history]")
     for (int step = 0; step < kGroupSize; ++step)
         group.push_back(setFirstText(project, "étape " + std::to_string(step)));
 
-    history.apply(std::make_unique<CompositeCommand>(std::move(group)), project);
+    history.apply(std::make_unique<CompositeCommand>(CommandKind::SetText, std::move(group)),
+                  project);
 
     CHECK(history.undoableCount() == 1);
     CHECK(project.subtitleAt(SubtitleIndex::fromValue(0)).mainText == "étape 6");

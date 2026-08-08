@@ -7,6 +7,8 @@ add_library(
     subedit_core STATIC
     command/composite_command.cpp
     command/history.cpp
+    edit/session.cpp
+    edit/sort_command.cpp
     model/project.cpp
     model/selection.cpp
     format/atomic_write.cpp

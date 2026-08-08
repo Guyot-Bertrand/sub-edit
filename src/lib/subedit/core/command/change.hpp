@@ -15,6 +15,7 @@ enum class ChangeKind {
     TranslationText, ///< the translation
     Insertion,       ///< subtitles added
     Removal,         ///< subtitles taken away
+    Reordering,      ///< subtitles moved, without any of them changing
 };
 
 /// What a command touched, and where.
@@ -44,6 +45,7 @@ struct Change {
     case ChangeKind::Positions:
     case ChangeKind::Insertion:
     case ChangeKind::Removal:
+    case ChangeKind::Reordering:
         return true;
     }
     // Exhaustive above, and the compiler checks that it is. Only a cast from

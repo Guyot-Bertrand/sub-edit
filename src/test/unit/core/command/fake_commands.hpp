@@ -9,6 +9,7 @@
 
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/command/command.hpp>
+#include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 
@@ -38,6 +39,8 @@ public:
         project.subtitleAt(m_index).mainText = m_oldText;
     }
 
+    [[nodiscard]] core::CommandKind kind() const override { return core::CommandKind::SetText; }
+
     [[nodiscard]] std::vector<core::Change> describe() const override {
         return {core::Change{.kind = core::ChangeKind::MainText, .indices = {m_index}}};
     }
@@ -55,11 +58,15 @@ private:
 class Declaring final : public core::Command {
 
 public:
-    explicit Declaring(core::ChangeKind kind) : m_kind(kind) {}
+    explicit Declaring(core::ChangeKind kind,
+                       core::CommandKind commandKind = core::CommandKind::SetText)
+        : m_kind(kind), m_commandKind(commandKind) {}
 
     void apply(core::Project&) override {}
 
     void revert(core::Project&) override {}
+
+    [[nodiscard]] core::CommandKind kind() const override { return m_commandKind; }
 
     [[nodiscard]] std::vector<core::Change> describe() const override {
         return {core::Change{.kind = m_kind, .indices = {}}};
@@ -67,6 +74,7 @@ public:
 
 private:
     core::ChangeKind m_kind;
+    core::CommandKind m_commandKind;
 };
 
 /// Appends a line to a trace shared with the test, so that the order of calls
@@ -83,6 +91,8 @@ public:
     void apply(core::Project&) override { m_trace.push_back("apply " + m_name); }
 
     void revert(core::Project&) override { m_trace.push_back("revert " + m_name); }
+
+    [[nodiscard]] core::CommandKind kind() const override { return core::CommandKind::SetText; }
 
     [[nodiscard]] std::vector<core::Change> describe() const override {
         return {core::Change{.kind = core::ChangeKind::MainText, .indices = {}}};

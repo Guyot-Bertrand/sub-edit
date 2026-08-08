@@ -9,8 +9,8 @@
 
 namespace subedit::core {
 
-CompositeCommand::CompositeCommand(std::vector<std::unique_ptr<Command>> commands)
-    : m_commands(std::move(commands)) {}
+CompositeCommand::CompositeCommand(CommandKind kind, std::vector<std::unique_ptr<Command>> commands)
+    : m_kind(kind), m_commands(std::move(commands)) {}
 
 void CompositeCommand::apply(Project& project) {
     for (const std::unique_ptr<Command>& command : m_commands)
