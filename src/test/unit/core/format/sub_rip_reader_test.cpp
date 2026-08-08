@@ -190,6 +190,24 @@ TEST_CASE("subtitles that overlap are reported", "[format][subrip]") {
 
     REQUIRE(result.subtitles.size() == 2);
     CHECK(hasDiagnostic(result, DiagnosticKind::OverlappingSubtitles));
+    CHECK_FALSE(hasDiagnostic(result, DiagnosticKind::OutOfOrder));
+}
+
+TEST_CASE("subtitles out of order are reported", "[format][subrip]") {
+    // Both diagnostics, because they are not the same statement: the second
+    // subtitle starts before the first one started, which a sort would fix,
+    // and before it ended, which only a change of duration would.
+    const ReadResult result = readOrFail("1\n"
+                                         "00:00:05,000 --> 00:00:07,000\n"
+                                         "Bonjour.\n"
+                                         "\n"
+                                         "2\n"
+                                         "00:00:01,000 --> 00:00:03,000\n"
+                                         "Au revoir.\n");
+
+    REQUIRE(result.subtitles.size() == 2);
+    CHECK(hasDiagnostic(result, DiagnosticKind::OutOfOrder));
+    CHECK(hasDiagnostic(result, DiagnosticKind::OverlappingSubtitles));
 }
 
 TEST_CASE("a timestamp line that cannot be read is reported and kept as text", "[format][subrip]") {

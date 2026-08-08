@@ -12,6 +12,8 @@
 
 namespace subedit::core {
 
+class Selection;
+
 /// A set of subtitles, its frame rate, and where it came from.
 ///
 /// The subtitles live in a `std::vector`: access is essentially sequential and
@@ -48,6 +50,33 @@ public:
     [[nodiscard]] Subtitle& subtitleAt(SubtitleIndex index) {
         return m_subtitles.at(index.value());
     }
+
+    /// Inserts `subtitles` before `index`, keeping their order.
+    ///
+    /// `index` may equal `count()`, which appends — one past the last is the
+    /// insertion point of every sequence, and refusing it would make appending
+    /// the one case a caller has to write differently. Throws
+    /// `std::out_of_range` beyond that.
+    void insert(SubtitleIndex index, std::span<const Subtitle> subtitles);
+
+    /// Removes the selected subtitles and returns them, ascending by index.
+    ///
+    /// Returning them is the point: that is exactly the state the inverse
+    /// command has to retain, and handing it back saves reading it before
+    /// erasing it. Throws `std::out_of_range` if the selection names an index
+    /// the project does not have.
+    [[nodiscard]] std::vector<Subtitle> remove(const Selection& selection);
+
+    /// Returns the indices of the subtitles that start before the one before
+    /// them, a pure query.
+    ///
+    /// The index reported is the one that breaks the order, not the one it
+    /// breaks it against: that is the line an interface has to show. Equal
+    /// starts are not disorder — neither precedes the other.
+    ///
+    /// A query and not an invariant: the model never sorts by itself. See the
+    /// order policy of the phase-2 spec, and ADR 0012.
+    [[nodiscard]] std::vector<SubtitleIndex> outOfOrder() const;
 
     /// Returns the frame rate the project is read against.
     [[nodiscard]] FrameRate frameRate() const { return m_frameRate; }

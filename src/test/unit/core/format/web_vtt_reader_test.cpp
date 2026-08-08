@@ -191,6 +191,19 @@ TEST_CASE("cues that overlap are reported", "[format][webvtt]") {
                                          "Second.\n");
 
     CHECK(hasDiagnostic(result, DiagnosticKind::OverlappingSubtitles));
+    CHECK_FALSE(hasDiagnostic(result, DiagnosticKind::OutOfOrder));
+}
+
+TEST_CASE("cues out of order are reported", "[format][webvtt]") {
+    const ReadResult result = readOrFail("WEBVTT\n"
+                                         "\n"
+                                         "00:05.000 --> 00:07.000\n"
+                                         "Premier.\n"
+                                         "\n"
+                                         "00:01.000 --> 00:03.000\n"
+                                         "Second.\n");
+
+    CHECK(hasDiagnostic(result, DiagnosticKind::OutOfOrder));
 }
 
 TEST_CASE("a comment spanning several lines keeps them all", "[format][webvtt]") {
