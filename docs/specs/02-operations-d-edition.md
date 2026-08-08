@@ -32,9 +32,10 @@ interface (phases 3 et 5).
 | [0006](../adr/0006-positions-en-millisecondes.md) | positions en millisecondes entières, types forts |
 | [0010](../adr/0010-annulation-par-commandes.md) | commandes portant leur propre inverse |
 | [0011](../adr/0011-numero-d-image-en-type-fort.md) | numéro d'image en type fort |
+| [0012](../adr/0012-ordre-des-sous-titres-par-composition.md) | ne pas trier de soi-même, mode strict par composition |
+| [0013](../adr/0013-mise-a-l-echelle-exacte-des-positions.md) | mise à l'échelle par un rationnel exact, arrondi une fois |
 
-Deux décisions de cette phase sont coûteuses à défaire et feront l'objet d'une
-ADR : la **politique d'ordre** et la **mise à l'échelle exacte des positions**.
+Les deux dernières sont propres à cette phase et ont été écrites avant elle.
 
 ## Ce qui manque au noyau
 
