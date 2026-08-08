@@ -1,6 +1,7 @@
 #include <subedit/core/version.hpp>
 
 #include <string>
+#include <string_view>
 
 namespace subedit::core {
 
@@ -18,6 +19,10 @@ std::string versionString() {
     // reserving would force the very heap allocation it looks like it avoids.
     return std::to_string(current.majorNumber) + '.' + std::to_string(current.minorNumber) + '.' +
            std::to_string(current.patchNumber);
+}
+
+std::string_view buildDate() {
+    return SUBEDIT_BUILD_DATE;
 }
 
 } // namespace subedit::core

@@ -28,6 +28,26 @@ option(SUBEDIT_BUILD_TESTS "Construire les tests et les benchmarks" ON)
 option(SUBEDIT_SANITIZERS "Activer AddressSanitizer et UndefinedBehaviorSanitizer" OFF)
 option(SUBEDIT_COVERAGE "Instrumenter pour la mesure de couverture" OFF)
 
+# Date de génération : celle du commit, et non l'horloge. Deux compilations
+# d'une même source donnent alors le même binaire — ce que l'horloge
+# interdirait, et que ccache paierait en recompilations inutiles. La date se
+# rafraîchit à la configuration, ce qui suffit à son usage : dire de quel état
+# du source vient un binaire.
+set(SUBEDIT_BUILD_DATE "")
+find_package(Git QUIET)
+if(GIT_FOUND)
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" log -1 --format=%cs
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE SUBEDIT_COMMIT_DATE
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+        RESULT_VARIABLE SUBEDIT_GIT_STATUS)
+    if(SUBEDIT_GIT_STATUS EQUAL 0)
+        set(SUBEDIT_BUILD_DATE "${SUBEDIT_COMMIT_DATE}")
+    endif()
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(ToolchainSanity)
 include(Ccache)

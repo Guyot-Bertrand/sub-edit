@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Vérifie les deux invariants d'architecture du projet.
+# Vérifie les invariants du projet que la relecture ne tiendrait pas.
 #
 # Ils sont énoncés dans docs/specs/00-fondations.md. Les inscrire dans une
 # vérification automatique plutôt que dans une relecture est ce qui les rend
@@ -87,9 +87,42 @@ $(printf '    %s\n' ${offenders})
     fi
 }
 
+# Invariant 4 — un tag de version sur HEAD correspond à la version déclarée.
+#
+# Le tag et project(VERSION) sont deux écritures du même numéro, et rien ne les
+# tenait ensemble : un tag posé sans bumper le CMake donne un binaire qui
+# annonce une version périmée. La vérification est inerte tant qu'aucun tag ne
+# pointe sur HEAD, donc elle ne gêne pas le travail courant.
+check_version_matches_tag() {
+    local tag
+    # « || true » n'est pas décoratif : sans tag sur HEAD, grep sort en 1, et
+    # set -o pipefail joint à set -e interromprait le script au lieu de le
+    # laisser conclure qu'il n'y a rien à confronter. C'est le cas ordinaire en
+    # intégration continue, où le clone ne récupère pas les tags.
+    tag="$(git -C "${REPO_ROOT}" tag --points-at HEAD 2>/dev/null \
+        | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)"
+
+    if [[ -z "${tag}" ]]; then
+        report_success "aucun tag de version sur HEAD, rien à confronter"
+        return 0
+    fi
+
+    local declared
+    declared="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' \
+        "${REPO_ROOT}/CMakeLists.txt" | head -1)"
+
+    if [[ "v${declared}" != "${tag}" ]]; then
+        report_failure "le tag ${tag} et CMakeLists.txt (${declared:-absent}) ne s'accordent pas
+    bumper project(VERSION) avant de poser le tag, sinon le binaire ment."
+    else
+        report_success "le tag ${tag} correspond à la version déclarée"
+    fi
+}
+
 check_core_has_no_ui
 check_executables_are_thin
 check_scripts_are_executable
+check_version_matches_tag
 
 if (( failures > 0 )); then
     printf '\n%s%d invariant(s) d architecture violé(s)%s\n' "${RED}" "${failures}" "${RESET}" >&2
