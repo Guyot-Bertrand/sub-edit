@@ -23,6 +23,7 @@ ne pas l'éditer à la main.
 - Noter la stratégie de version dans les instructions du projet
 - Deux ADR pour la phase 2
 - Incrémenter le patch à chaque version de PR
+- Manuel à jour en fin de ticket, bump de version au dernier moment
 
 ## 0.1.0 — 2026-08-08
 
