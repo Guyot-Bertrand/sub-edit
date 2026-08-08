@@ -68,6 +68,13 @@ avec un objectif d'iso-fonctionnalité.
   échanges. Anglais pour le code C++ : identifiants, commentaires et intitulés
   de tests. La frontière est celle du compilateur C++, pas celle du dépôt.
 - **Commits** — Conventional Commits, scopes alignés sur les labels `area:`.
+- **Fermeture d'une issue** — le corps de la PR porte une ligne `Closes #N`,
+  **en anglais**. Ce n'est pas de la prose mais une instruction à GitHub, qui ne
+  reconnaît que ses propres mots-clés : « Ferme #26 » n'en est pas un, et
+  l'issue reste ouverte après la fusion. La règle de langue ne s'y applique pas,
+  comme elle ne s'applique pas au `Co-Authored-By` d'un commit. Écrire la phrase
+  française **en plus** si elle apporte quelque chose ; la ligne `Closes #N`
+  n'est pas négociable.
 - **Versions** — le `project(VERSION)` de `CMakeLists.txt` est la source du
   numéro courant ; il bouge à deux occasions :
   - **patch, à chaque PR** — toute PR incrémente le patch dans son propre
