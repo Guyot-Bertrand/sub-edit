@@ -252,6 +252,45 @@ colonnes configurables, coloration des différences.
 - Configuration typée et persistée, en remplacement du dictionnaire imbriqué de
   Gaupol. Format de fichier et stratégie de migration entre versions.
 - Édition en place de texte multiligne dans une cellule.
+- **Un changement de fréquence d'image n'est déclaré par aucun `ChangeKind` — à
+  ré-évaluer ici.** La phase 2 a écarté d'en ajouter un : la fréquence n'est la
+  propriété d'aucun sous-titre, et un énumérateur que personne ne lit est une
+  promesse sans garant, règle que `DiagnosticKind` énonce déjà. `describe()` d'une
+  conversion ne rapporte donc que les positions. Si la fenêtre affiche la
+  fréquence courante, elle aura besoin de savoir qu'elle a changé — et ce sera
+  alors un énumérateur avec un lecteur, ce qui lève l'objection.
+- **D'où vient la fréquence d'entrée d'une conversion ?** Question ouverte, et
+  elle se pose ici parce que c'est ici qu'un dialogue la demandera.
+
+  **Le fichier ne la porte pas, et ne peut pas la porter.** SubRip n'a aucun
+  en-tête ; l'en-tête WebVTT est du texte libre. Les deux formats du MVP sont
+  temporels : une fréquence d'image n'y a pas de place. Seuls les formats
+  *à images* — MicroDVD, phase 9 — en déclarent une, sur leur première ligne.
+
+  **Le nom du fichier, lui, reste à examiner — et le corpus local ne peut pas le
+  dire.** Les quinze fichiers de `src/data/` ont été renommés à la main avant
+  d'entrer dans le dépôt : ils portent le titre, parfois l'édition (`Alien.DC`),
+  parfois la langue (`eng`, `ger`, `fr`), mais ces noms sont le produit d'un
+  nettoyage et non une observation. **Trancher cette question demande des
+  fichiers neufs, aux noms intacts.**
+
+  Ce qu'on peut déjà dire sans eux : les noms de publication en ligne portent
+  `DVD`, `BluRay`, `1080p`, qui *corrèlent* avec 25 et 23,976 sans les nommer.
+  Une corrélation n'est pas une donnée, et se tromper de fréquence décale tout le
+  fichier sans rien signaler — le pire mode d'échec possible pour cette
+  opération : silencieux et global. Une heuristique de nom ne peut donc être
+  qu'une **proposition montrée comme telle**, jamais un choix appliqué en
+  silence.
+
+  **La piste sérieuse est la vidéo elle-même.** Son conteneur déclare sa
+  fréquence : ce n'est pas une corrélation mais la donnée, lue à la source. La
+  phase 6 associe déjà une vidéo au projet pour la prévisualisation, et la
+  phase 14 en ouvre une pour de bon — l'information est donc à portée avant même
+  le lecteur intégré. Voir la question posée à la [phase 6](#6--prévisualisation).
+
+  Reste l'utilisateur pour les cas sans vidéo, et un défaut tiré du nom **montré
+  comme une proposition**. À trancher au cadrage — après avoir regardé des noms
+  de fichiers intacts, et vérifié ce que coûte la lecture des métadonnées.
 
 **Point difficile**
 
@@ -281,6 +320,17 @@ commandes des trois lecteurs), `gaupol/agents/preview.py`.
 - Détection du lecteur disponible, et commande personnalisable.
 - Association d'un fichier vidéo à un projet : par convention de nom, comme
   Gaupol (`find_video`), ou choix explicite ?
+- **Lire la fréquence d'image dans la vidéo associée ?** La conversion de
+  fréquence de la phase 2 a besoin d'une fréquence d'entrée que le fichier de
+  sous-titres ne porte pas et ne peut pas porter — voir la question posée à la
+  [phase 5](#5--interface--édition-tabulaire). Le conteneur vidéo, lui, la
+  déclare : c'est la donnée et non une corrélation. Une vidéo est déjà associée
+  au projet ici, avant le lecteur intégré de la phase 14.
+
+  À vérifier au cadrage : ce que coûte cette lecture. La prévisualisation lance
+  un lecteur externe et n'a donc aucune bibliothèque vidéo en mémoire ; lire des
+  métadonnées demanderait `ffprobe` — un exécutable de plus à détecter — ou une
+  dépendance. Le gain est réel, le prix reste à mesurer.
 - Fichier temporaire : durée de vie, encodage forcé en UTF-8.
 
 ---
