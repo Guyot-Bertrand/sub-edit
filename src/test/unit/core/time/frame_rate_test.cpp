@@ -1,4 +1,5 @@
 #include <subedit/core/time/frame_rate.hpp>
+#include <subedit/core/time/ratio.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -11,6 +12,7 @@ namespace {
 
 using subedit::core::FrameRate;
 using subedit::core::kStandardFrameRates;
+using subedit::core::Ratio;
 using subedit::core::StandardFrameRate;
 
 } // namespace
@@ -86,6 +88,46 @@ TEST_CASE("a frame rate must be strictly positive", "[time][framerate]") {
     CHECK_FALSE(FrameRate::create(25, 0).has_value());
     CHECK_FALSE(FrameRate::create(-25, 1).has_value());
     CHECK_FALSE(FrameRate::create(25, -1).has_value());
+}
+
+TEST_CASE("a frame rate refuses terms no frame rate could have", "[time][framerate]") {
+    // The bound is what makes the conversions below total: a rate whose terms
+    // stay under a billion can be turned into milliseconds per frame, or
+    // divided by another rate, without any product leaving `std::int64_t`.
+    CHECK(FrameRate::create(1000000000, 1).has_value());
+    CHECK(FrameRate::create(1, 1000000000).has_value());
+    CHECK_FALSE(FrameRate::create(1000000001, 1).has_value());
+    CHECK_FALSE(FrameRate::create(1, 1000000001).has_value());
+}
+
+TEST_CASE("a frame rate is a rational number of frames per second", "[time][framerate]") {
+    const FrameRate ntscFilm{StandardFrameRate::Fps23976};
+
+    CHECK(ntscFilm.framesPerSecond().numerator() == 24000);
+    CHECK(ntscFilm.framesPerSecond().denominator() == 1001);
+}
+
+TEST_CASE("a frame rate says how long a frame lasts, exactly", "[time][framerate]") {
+    const FrameRate pal{StandardFrameRate::Fps25};
+    const FrameRate ntscFilm{StandardFrameRate::Fps23976};
+
+    // 40 ms at 25 fps; 1001/24 ms — not a whole number — at 24000/1001.
+    CHECK(pal.millisecondsPerFrame() == Ratio::create(40, 1));
+    CHECK(ntscFilm.millisecondsPerFrame() == Ratio::create(1001, 24));
+    CHECK(pal.framesPerMillisecond() == Ratio::create(1, 40));
+    CHECK(ntscFilm.framesPerMillisecond() == Ratio::create(24, 1001));
+}
+
+TEST_CASE("the conversion factor between two rates is their exact quotient", "[time][framerate]") {
+    // A position timed at one rate is multiplied by this factor to be timed at
+    // the other. Naming the direction is the point: the inverse factor is just
+    // as valid a ratio, and tells nothing apart from the result being wrong.
+    const FrameRate pal{StandardFrameRate::Fps25};
+    const FrameRate ntscFilm{StandardFrameRate::Fps23976};
+
+    CHECK(pal.conversionTo(ntscFilm) == Ratio::create(std::int64_t{25} * 1001, 24000));
+    CHECK(ntscFilm.conversionTo(pal) == Ratio::create(24000, std::int64_t{25} * 1001));
+    CHECK(pal.conversionTo(pal) == Ratio::one());
 }
 
 TEST_CASE("frame rates compare by value, not by representation", "[time][framerate]") {

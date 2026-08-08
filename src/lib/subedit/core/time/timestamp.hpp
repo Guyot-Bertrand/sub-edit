@@ -3,6 +3,7 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame.hpp>
 #include <subedit/core/time/frame_rate.hpp>
+#include <subedit/core/time/ratio.hpp>
 
 #include <compare>
 #include <cstdint>
@@ -47,8 +48,7 @@ public:
     /// zero. This round trip is exact: converting the result back with the
     /// same rate gives `frame` again, for any rate up to 60 frames per second.
     [[nodiscard]] static constexpr Timestamp fromFrame(Frame frame, FrameRate rate) {
-        return Timestamp{roundedDivide(frame.number() * rate.denominator() * kMillisecondsPerSecond,
-                                       rate.numerator())};
+        return Timestamp{rate.millisecondsPerFrame().scale(frame.number())};
     }
 
     /// Reads a position from a timestamp, or nothing if the text is not one.
@@ -71,14 +71,25 @@ public:
     /// leaves the position itself untouched.
     [[nodiscard]] std::string format(DecimalMark mark, HourField hours = HourField::Always) const;
 
+    /// Returns this position multiplied by `factor`, rounded once.
+    ///
+    /// A named method and not an operator: scaling is a rounding decision, and
+    /// none of them is taken implicitly.
+    ///
+    /// This is how a position changes scale — never by converting it to a
+    /// frame and back, which would quantise it on the frame grid and answer up
+    /// to half a frame away.
+    [[nodiscard]] constexpr Timestamp scaledBy(Ratio factor) const {
+        return Timestamp{factor.scale(m_milliseconds)};
+    }
+
     /// Returns the frame this position falls in, at `rate`.
     ///
     /// Rounded to the nearest frame, halves away from zero. Sub-frame
     /// precision is lost, so converting the result back does not give this
     /// position again — inherent to the coarser grid, not a defect.
     [[nodiscard]] constexpr Frame toFrame(FrameRate rate) const {
-        return Frame::fromNumber(roundedDivide(m_milliseconds * rate.numerator(),
-                                               rate.denominator() * kMillisecondsPerSecond));
+        return Frame::fromNumber(rate.framesPerMillisecond().scale(m_milliseconds));
     }
 
     constexpr Timestamp& operator+=(Duration shift) {
@@ -125,29 +136,6 @@ private:
         kWritableHours * kMillisecondsPerHour - 1;
 
     explicit constexpr Timestamp(std::int64_t count) : m_milliseconds(count) {}
-
-    /// Divides, rounding to the nearest integer with halves away from zero.
-    ///
-    /// `divisor` is strictly positive: it always comes from a `FrameRate`,
-    /// whose two terms are positive by construction.
-    ///
-    /// Symmetry around zero is the point. Round-half-to-even, which Gaupol
-    /// inherits from Python, gives different answers for a value and its
-    /// opposite, so shifting a subtitle by the same amount on either side of
-    /// the origin would not give matching results.
-    [[nodiscard]] static constexpr std::int64_t roundedDivide(std::int64_t dividend,
-                                                              std::int64_t divisor) {
-        const std::int64_t quotient = dividend / divisor;
-        const std::int64_t remainder = dividend % divisor;
-        if (remainder == 0)
-            return quotient;
-
-        const std::int64_t distanceFromQuotient = remainder < 0 ? -remainder : remainder;
-        if (2 * distanceFromQuotient < divisor)
-            return quotient;
-
-        return dividend > 0 ? quotient + 1 : quotient - 1;
-    }
 
     std::int64_t m_milliseconds;
 };

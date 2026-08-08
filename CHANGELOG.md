@@ -9,6 +9,10 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **core** — Mise à l'échelle des positions par un rationnel exact
+
 ### Construction
 
 - Date de génération, garde-fou de version, changelog allégé

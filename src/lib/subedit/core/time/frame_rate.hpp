@@ -1,8 +1,9 @@
 #pragma once
 
+#include <subedit/core/time/ratio.hpp>
+
 #include <array>
 #include <cstdint>
-#include <numeric>
 #include <optional>
 #include <utility>
 
@@ -38,12 +39,20 @@ inline constexpr std::array<StandardFrameRate, 8> kStandardFrameRates = {
 
 /// A frame rate, as an exact rational number of frames per second.
 ///
-/// Stored reduced to lowest terms, so that two rates written differently but
-/// equal in value compare equal. Both terms are strictly positive, an
-/// invariant the factory function is there to guarantee.
+/// A `Ratio` with two invariants of its own: both terms are strictly positive,
+/// and neither passes `kLargestTerm`. The first says that a rate is a rate; the
+/// second is what makes the conversions below total, since every product they
+/// form then holds in a `std::int64_t`.
 class FrameRate {
 
 public:
+    /// The largest either term may reach.
+    ///
+    /// A billion frames per second is not a video, and the bound has to sit
+    /// somewhere for `millisecondsPerFrame` and `conversionTo` to be unable to
+    /// overflow. One billion leaves both of them a factor of nine.
+    static constexpr std::int64_t kLargestTerm = 1000000000;
+
     /// Builds one of the standard frame rates.
     ///
     /// Explicit on purpose: a `StandardFrameRate` names a choice offered to the
@@ -52,50 +61,98 @@ public:
     explicit constexpr FrameRate(StandardFrameRate standard) : FrameRate(exactValueOf(standard)) {}
 
     /// Builds an arbitrary frame rate, or nothing if either term is not
-    /// strictly positive.
+    /// strictly positive, or passes `kLargestTerm`.
     [[nodiscard]] static constexpr std::optional<FrameRate> create(std::int64_t numerator,
                                                                    std::int64_t denominator) {
         if (numerator <= 0 || denominator <= 0)
             return std::nullopt;
-        return FrameRate{Terms{.numerator = numerator, .denominator = denominator}};
+        if (numerator > kLargestTerm || denominator > kLargestTerm)
+            return std::nullopt;
+
+        return FrameRate{ratioOf(numerator, denominator)};
     }
 
+    /// Returns the rate itself, as a factor.
+    [[nodiscard]] constexpr Ratio framesPerSecond() const { return m_framesPerSecond; }
+
     /// Returns the numerator of the reduced fraction, in frames.
-    [[nodiscard]] constexpr std::int64_t numerator() const { return m_numerator; }
+    [[nodiscard]] constexpr std::int64_t numerator() const { return m_framesPerSecond.numerator(); }
 
     /// Returns the denominator of the reduced fraction, in seconds.
-    [[nodiscard]] constexpr std::int64_t denominator() const { return m_denominator; }
+    [[nodiscard]] constexpr std::int64_t denominator() const {
+        return m_framesPerSecond.denominator();
+    }
 
-    [[nodiscard]] friend constexpr bool operator==(FrameRate, FrameRate) = default;
+    /// Returns how long one frame lasts, in milliseconds, exactly.
+    ///
+    /// Never a whole number of milliseconds for the NTSC rates: a frame at
+    /// 24000/1001 lasts 1001/24 of one. That is the reason a position is
+    /// computed from the rational and rounded once, at the end.
+    ///
+    /// Held rather than derived on call: a reader converts once per subtitle,
+    /// and reducing the fraction each time measured 3.7 times the cost of the
+    /// conversion itself. A frame rate is built once per project.
+    [[nodiscard]] constexpr Ratio millisecondsPerFrame() const { return m_millisecondsPerFrame; }
+
+    /// Returns how many frames one millisecond spans, exactly.
+    [[nodiscard]] constexpr Ratio framesPerMillisecond() const { return m_framesPerMillisecond; }
+
+    /// Returns the factor carrying a position timed at this rate to the same
+    /// position timed at `destination`.
+    ///
+    /// Naming the direction is the point. The inverse is just as valid a ratio
+    /// and looks the same at the call site; applied by mistake it drifts the
+    /// file the other way — some seven seconds over a feature film between 25
+    /// and 23.976 — with nothing to say so until someone plays it.
+    [[nodiscard]] constexpr Ratio conversionTo(FrameRate destination) const {
+        return ratioOf(numerator() * destination.denominator(),
+                       denominator() * destination.numerator());
+    }
+
+    /// Two rates are equal when they are the same number of frames per second.
+    /// The two derived ratios follow from that one, and comparing them again
+    /// would only ask the same question twice.
+    [[nodiscard]] friend constexpr bool operator==(FrameRate left, FrameRate right) {
+        return left.m_framesPerSecond == right.m_framesPerSecond;
+    }
 
 private:
-    struct Terms {
-        std::int64_t numerator;
-        std::int64_t denominator;
-    };
+    static constexpr std::int64_t kMillisecondsPerSecond = 1000;
 
-    explicit constexpr FrameRate(Terms terms)
-        : m_numerator(terms.numerator / std::gcd(terms.numerator, terms.denominator)),
-          m_denominator(terms.denominator / std::gcd(terms.numerator, terms.denominator)) {}
+    explicit constexpr FrameRate(Ratio framesPerSecond)
+        : m_framesPerSecond(framesPerSecond),
+          m_millisecondsPerFrame(ratioOf(kMillisecondsPerSecond * framesPerSecond.denominator(),
+                                         framesPerSecond.numerator())),
+          m_framesPerMillisecond(ratioOf(framesPerSecond.numerator(),
+                                         kMillisecondsPerSecond * framesPerSecond.denominator())) {}
 
-    [[nodiscard]] static constexpr Terms exactValueOf(StandardFrameRate standard) {
+    /// Builds a ratio from terms this class has already established as valid.
+    ///
+    /// Strictly positive and bounded by `kLargestTerm`, so `Ratio`'s fallible
+    /// factory would answer a question that is already settled. `FrameRate` is
+    /// a friend of `Ratio` for this one reason.
+    [[nodiscard]] static constexpr Ratio ratioOf(std::int64_t numerator, std::int64_t denominator) {
+        return Ratio{Ratio::reduce(numerator, denominator)};
+    }
+
+    [[nodiscard]] static constexpr Ratio exactValueOf(StandardFrameRate standard) {
         switch (standard) {
         case StandardFrameRate::Fps23976:
-            return {.numerator = 24000, .denominator = 1001};
+            return ratioOf(24000, 1001);
         case StandardFrameRate::Fps24:
-            return {.numerator = 24, .denominator = 1};
+            return ratioOf(24, 1);
         case StandardFrameRate::Fps25:
-            return {.numerator = 25, .denominator = 1};
+            return ratioOf(25, 1);
         case StandardFrameRate::Fps29970:
-            return {.numerator = 30000, .denominator = 1001};
+            return ratioOf(30000, 1001);
         case StandardFrameRate::Fps30:
-            return {.numerator = 30, .denominator = 1};
+            return ratioOf(30, 1);
         case StandardFrameRate::Fps50:
-            return {.numerator = 50, .denominator = 1};
+            return ratioOf(50, 1);
         case StandardFrameRate::Fps59940:
-            return {.numerator = 60000, .denominator = 1001};
+            return ratioOf(60000, 1001);
         case StandardFrameRate::Fps60:
-            return {.numerator = 60, .denominator = 1};
+            return ratioOf(60, 1);
         }
         // The switch above covers every enumerator, and the compiler checks
         // that it does. Only a cast from an out-of-range integer could land
@@ -104,8 +161,9 @@ private:
         std::unreachable();
     }
 
-    std::int64_t m_numerator;
-    std::int64_t m_denominator;
+    Ratio m_framesPerSecond;
+    Ratio m_millisecondsPerFrame;
+    Ratio m_framesPerMillisecond;
 };
 
 } // namespace subedit::core
