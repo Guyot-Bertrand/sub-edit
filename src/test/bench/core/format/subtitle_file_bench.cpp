@@ -13,7 +13,6 @@
 #include <subedit/core/format/subtitle_format.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/model/subtitle.hpp>
-#include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
 #include <catch2/benchmark/catch_benchmark.hpp>
@@ -25,11 +24,9 @@
 
 namespace {
 
-using subedit::core::FrameRate;
 using subedit::core::ReadError;
 using subedit::core::ReadResult;
 using subedit::core::readSubtitles;
-using subedit::core::StandardFrameRate;
 using subedit::core::Subtitle;
 using subedit::core::SubtitleFormat;
 using subedit::core::Timestamp;
@@ -84,17 +81,8 @@ TEST_CASE("reading and writing a full-length file", "[benchmark]") {
     };
 }
 
-TEST_CASE("converting the frame rate of a full-length file", "[benchmark]") {
-    const std::vector<Subtitle> subtitles = parsedOnce(generateSubRip());
-    const FrameRate from{StandardFrameRate::Fps25};
-    const FrameRate to{StandardFrameRate::Fps23976};
-
-    BENCHMARK("conversion de fréquence sur 4000 sous-titres") {
-        std::vector<Subtitle> converted = subtitles;
-        for (Subtitle& subtitle : converted) {
-            subtitle.start = Timestamp::fromFrame(subtitle.start.toFrame(from), to);
-            subtitle.end = Timestamp::fromFrame(subtitle.end.toFrame(from), to);
-        }
-        return converted;
-    };
-}
+// The frame-rate conversion of a full-length file used to be measured here, by
+// the round trip through the frames. Phase 2 decided against that path — ADR
+// 0013 — so the measurement was of an operation that does not exist. It moved
+// to `core/edit/operations_bench.cpp`, where it goes through the command that
+// was actually written.
