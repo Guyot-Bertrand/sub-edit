@@ -83,12 +83,26 @@ avec un objectif d'iso-fonctionnalité.
     bumpe le mineur, et on pose un tag `vX.Y.0` : `v0.1.0` clôt la phase 1,
     `v0.2.0` clôra la phase 2, et ainsi de suite jusqu'à une `v1.0.0` à la fin.
 
-  **Le bump se fait au dernier moment, juste avant d'ouvrir la PR** — jamais en
-  début de travail. Le numéro n'est connu qu'à ce moment-là : entre le premier
-  commit et la PR, d'autres PR ont pu être fusionnées et avoir pris le numéro
-  visé. Bumper tôt, c'est se garantir un conflit sur `CMakeLists.txt` et un
-  rebase de plus. L'ordre est donc : coder, `make check`, relire, corriger,
-  **puis** bumper le patch, régénérer le CHANGELOG, ouvrir la PR.
+  **Le bump se fait au dernier moment** — jamais en début de travail. Le numéro
+  n'est connu qu'à ce moment-là : entre le premier commit et la PR, d'autres PR
+  ont pu être fusionnées et avoir pris le numéro visé. Bumper tôt, c'est se
+  garantir un conflit sur `CMakeLists.txt` et un rebase de plus.
+
+  « Au dernier moment » veut dire **juste avant la dernière porte, pas après**.
+  Le bump touche `CMakeLists.txt`, que la porte lit — le passer après elle
+  obligerait à la relancer, dix minutes pour un chiffre. L'ordre est donc :
+
+  1. coder et tester ;
+  2. relire, corriger ;
+  3. **bumper le patch** ;
+  4. `make check` — une seule fois, elle voit le code *et* le bump ;
+  5. **mettre à jour la documentation** — manuel, notes, exemples de version.
+     Rien de tout cela n'est lu par la porte, donc rien ne la réouvre ;
+  6. commiter, régénérer le CHANGELOG, ouvrir la PR.
+
+  L'étape 5 vient après la 4 par construction : c'est la seule position où la
+  documentation ne coûte rien. Et l'exemple de version du manuel a besoin du
+  numéro décidé à l'étape 3.
 
   Le tag et le `project(VERSION)` doivent porter le même numéro : **bumper le
   CMake avant de tagger**, sinon le binaire annonce une version périmée.
@@ -96,10 +110,27 @@ avec un objectif d'iso-fonctionnalité.
 - **Qualité** — `make check` est la porte : format, warnings en erreurs,
   clang-tidy, tests sous ASan, seuil de couverture. La CI l'exécute à
   l'identique. Ne jamais annoncer un travail terminé sans l'avoir lancée.
+
+  **Elle ne se relance que si elle peut voir la différence.** Elle coûte une
+  dizaine de minutes ; les modifications qu'elle ne lit pas ne les valent pas.
+  Ce qu'elle lit :
+
+  | Elle voit | Elle ne voit pas |
+  | :-------- | :--------------- |
+  | `src/**/*.cpp`, `src/**/*.hpp` | `docs/**`, y compris le manuel |
+  | `CMakeLists.txt`, `CMakePresets.json`, `cmake/*.cmake` | `CHANGELOG.md`, `CLAUDE.md`, `README.md` |
+  | `Makefile` | `.github/workflows/**` — c'est la CI qui les lit |
+  | `src/scripts/*.sh` | `cliff.toml`, `LICENSE` |
+  | `src/test/data/**`, `src/data/**` — les tests de corpus les lisent | |
+
+  Conséquence pratique : **le bump de version en compte** — `CMakeLists.txt` est
+  recompilé et `check-architecture.sh` le confronte au tag. Une note ajoutée à
+  un document après une porte verte, en revanche, ne la réouvre pas.
 - **Manuel utilisateur** — [`docs/manual/`](docs/manual/). **Tout ticket qui
   change ce que l'utilisateur voit se termine par sa mise à jour**, une fois le
   code écrit, relu et validé — pas avant, sinon le manuel décrit une intention
-  et non un logiciel. Ce qui doit y figurer, exhaustivement :
+  et non un logiciel. Concrètement, à l'étape 5 de l'ordre décrit plus haut :
+  après la porte, qui ne le lit pas. Ce qui doit y figurer, exhaustivement :
 
   | Élément | Ce qu'on en dit |
   | :------ | :-------------- |

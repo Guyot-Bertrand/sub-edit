@@ -131,6 +131,21 @@ TEST_CASE("sorting an empty project is not a special case", "[edit][sort]") {
     CHECK(command.describe().empty());
 }
 
+TEST_CASE("redoing a sort puts the order back", "[edit][sort]") {
+    // The spec asks it of each of the eight operations: applying then undoing
+    // restores the exact state, and redoing reproduces it. The sort was the
+    // one covered only through a composite, where a failure would have been
+    // read as the composite's.
+    Project project = projectOf({at(4000, "c"), at(0, "a"), at(2000, "b")});
+    SortCommand command;
+
+    command.apply(project);
+    command.revert(project);
+    command.apply(project);
+
+    CHECK(textsOf(project) == std::vector<std::string>{"a", "b", "c"});
+}
+
 TEST_CASE("a sort says what it is", "[edit][sort]") {
     CHECK(SortCommand{}.kind() == CommandKind::Sort);
 }

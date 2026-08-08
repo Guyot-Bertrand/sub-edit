@@ -7,6 +7,9 @@ subedit n'est pas encore empaqueté. L'outil se construit depuis les sources.
 - CMake ≥ 3.28
 - un compilateur C++23 — GCC 13 convient
 - `make`
+- **une connexion réseau au premier `cmake`** : la bibliothèque de tests Catch2
+  est récupérée depuis GitHub à la configuration. Elle n'est plus retéléchargée
+  ensuite. Pour construire l'outil seul, sans réseau, voir plus bas.
 
 ## Construire
 
@@ -26,6 +29,19 @@ cmake --build --preset release
 ```
 
 Le binaire est alors dans `build/release/bin/subedit-cli`.
+
+## Construire l'outil seul
+
+Les tests sont construits par défaut, et ce sont eux qui réclament le réseau. Les
+désactiver donne le binaire sans rien télécharger :
+
+```bash
+cmake --preset release -DSUBEDIT_BUILD_TESTS=OFF
+cmake --build --preset release
+```
+
+Cela ne dispense de rien pour qui contribue : la porte de qualité, elle, les
+exige.
 
 ## Si la compilation échoue au moment de l'édition des liens
 
