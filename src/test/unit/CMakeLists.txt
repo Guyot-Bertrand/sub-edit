@@ -21,6 +21,8 @@ add_executable(
     core/model/project_edit_test.cpp
     core/model/selection_test.cpp
     core/edit/session_test.cpp
+    core/edit/set_text_command_test.cpp
+    core/edit/set_position_command_test.cpp
     core/edit/sort_command_test.cpp
     core/edit/order_policy_test.cpp
     core/command/change_test.cpp

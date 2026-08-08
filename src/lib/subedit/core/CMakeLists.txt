@@ -8,6 +8,8 @@ add_library(
     command/composite_command.cpp
     command/history.cpp
     edit/session.cpp
+    edit/set_position_command.cpp
+    edit/set_text_command.cpp
     edit/sort_command.cpp
     model/project.cpp
     model/selection.cpp

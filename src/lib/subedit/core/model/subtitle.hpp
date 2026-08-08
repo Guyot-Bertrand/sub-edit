@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/model/boundary.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/format_extras.hpp>
 #include <subedit/core/time/duration.hpp>
@@ -35,6 +36,16 @@ struct Subtitle {
     /// more thing to keep in step with them. Negative when the end precedes
     /// the start, which is how that anomaly stays visible.
     [[nodiscard]] Duration duration() const { return end - start; }
+
+    /// Returns the position of `boundary`.
+    [[nodiscard]] Timestamp position(Boundary boundary) const {
+        return boundary == Boundary::Start ? start : end;
+    }
+
+    /// Returns the position of `boundary`, for writing.
+    [[nodiscard]] Timestamp& position(Boundary boundary) {
+        return boundary == Boundary::Start ? start : end;
+    }
 
     /// Returns the text of `document`.
     [[nodiscard]] const std::string& text(Document document) const {
