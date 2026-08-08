@@ -24,6 +24,7 @@ add_executable(
     core/edit/set_text_command_test.cpp
     core/edit/insert_command_test.cpp
     core/edit/shift_command_test.cpp
+    core/edit/transform_command_test.cpp
     core/edit/remove_command_test.cpp
     core/edit/set_position_command_test.cpp
     core/edit/sort_command_test.cpp
