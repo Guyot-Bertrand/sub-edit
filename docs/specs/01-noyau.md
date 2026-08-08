@@ -595,10 +595,22 @@ texte avant tout horodatage ; balise non fermée ; bloc WebVTT inconnu ; octets
 invalides en UTF-8.
 
 Des fichiers issus d'un usage réel valent mieux que des fichiers fabriqués.
+Un second corpus, propre à chaque poste, vit donc hors dépôt dans `src/data/` :
+un test le lit s'il est présent et se déclare ignoré sinon, ce qui est le cas en
+intégration continue. Le corpus versionné couvre les formes auxquelles nous
+avons pensé, le local rencontre les autres.
 
-Benchmarks à poser dès cette phase, car ils serviront de référence :
-lecture d'un `.srt` de plusieurs milliers de sous-titres, écriture du même,
-conversion de fréquence d'image sur l'ensemble.
+Benchmarks posés dès cette phase, car ils servent de référence. Le document est
+**engendré** plutôt que lu : un benchmark qui dépendrait d'un fichier mesurerait
+le disque autant que le code.
+
+| Mesure, sur 4000 sous-titres | Référence |
+| :--------------------------- | --------: |
+| lecture d'un `.srt` | ~3,0 ms |
+| écriture du même | ~0,64 ms |
+| conversion de fréquence d'image | ~0,33 ms |
+
+Points de comparaison entre deux états du code, pas des promesses.
 
 ## Découpage en issues
 

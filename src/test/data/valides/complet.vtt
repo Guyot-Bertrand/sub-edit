@@ -1,0 +1,13 @@
+WEBVTT - Dialogue
+
+STYLE
+::cue { color: yellow }
+
+NOTE relecture faite le 8 août
+
+chapitre-1
+00:01.000 --> 00:03.500 align:start position:10%
+<v Marie>Le canot dérive depuis l'aube.</v>
+
+00:04.000 --> 00:06.200
+<c.discret>Personne n'a vu la côte.</c>
