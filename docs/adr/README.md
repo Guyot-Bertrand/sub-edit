@@ -24,6 +24,8 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0009](0009-texte-en-chaine-brute.md) | Texte en chaîne brute portant les balises du format | acceptée |
 | [0010](0010-annulation-par-commandes.md) | Commandes portant leur propre inverse | acceptée |
 | [0011](0011-numero-d-image-en-type-fort.md) | Numéro d'image en type fort `Frame` | acceptée |
+| [0012](0012-ordre-des-sous-titres-par-composition.md) | Ne pas trier de soi-même, mode strict par composition | acceptée |
+| [0013](0013-mise-a-l-echelle-exacte-des-positions.md) | Mise à l'échelle par un rationnel exact, arrondi une fois | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
