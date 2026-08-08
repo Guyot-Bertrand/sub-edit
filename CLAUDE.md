@@ -76,11 +76,35 @@ avec un objectif d'iso-fonctionnalité.
     bumpe le mineur, et on pose un tag `vX.Y.0` : `v0.1.0` clôt la phase 1,
     `v0.2.0` clôra la phase 2, et ainsi de suite jusqu'à une `v1.0.0` à la fin.
 
+  **Le bump se fait au dernier moment, juste avant d'ouvrir la PR** — jamais en
+  début de travail. Le numéro n'est connu qu'à ce moment-là : entre le premier
+  commit et la PR, d'autres PR ont pu être fusionnées et avoir pris le numéro
+  visé. Bumper tôt, c'est se garantir un conflit sur `CMakeLists.txt` et un
+  rebase de plus. L'ordre est donc : coder, `make check`, relire, corriger,
+  **puis** bumper le patch, régénérer le CHANGELOG, ouvrir la PR.
+
   Le tag et le `project(VERSION)` doivent porter le même numéro : **bumper le
   CMake avant de tagger**, sinon le binaire annonce une version périmée.
   `src/scripts/check-architecture.sh` le vérifie dès qu'un tag pointe sur HEAD.
 - **Qualité** — `make check` est la porte : format, warnings en erreurs,
   clang-tidy, tests sous ASan, seuil de couverture. La CI l'exécute à
   l'identique. Ne jamais annoncer un travail terminé sans l'avoir lancée.
+- **Manuel utilisateur** — [`docs/manual/`](docs/manual/). **Tout ticket qui
+  change ce que l'utilisateur voit se termine par sa mise à jour**, une fois le
+  code écrit, relu et validé — pas avant, sinon le manuel décrit une intention
+  et non un logiciel. Ce qui doit y figurer, exhaustivement :
+
+  | Élément | Ce qu'on en dit |
+  | :------ | :-------------- |
+  | commande, sous-commande | son nom, ce qu'elle fait, et ce qu'elle ne fait pas |
+  | argument, option | sa forme longue et courte, s'il est requis, sa valeur par défaut |
+  | valeurs acceptées | l'ensemble fermé, énuméré ; les bornes, pour un intervalle |
+  | sortie | ce qui est écrit, où, et sous quelle forme |
+  | codes de retour | chacun, avec sa signification |
+  | erreurs | ce qui les déclenche et le message correspondant |
+
+  Un exemple d'appel réel accompagne chaque commande. **Le manuel décrit ce qui
+  existe, jamais ce qui est prévu** — le prévu va dans la feuille de route.
 - **Définition de « terminé »** — code, tests, benchmark si la performance est en
-  jeu, section de manuel, entrée de CHANGELOG régénérée.
+  jeu, **section de manuel à jour**, patch bumpé, entrée de CHANGELOG
+  régénérée.
