@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **core** — Mise à l'échelle des positions par un rationnel exact
+- **core** — Sélection, insertion et suppression dans le projet
 
 ### Construction
 

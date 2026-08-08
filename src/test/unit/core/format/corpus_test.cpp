@@ -155,6 +155,7 @@ TEST_CASE("the malformed files open, and say what is wrong with them", "[format]
         {.name = "malformes/fins-de-ligne-melangees.srt", .kind = DiagnosticKind::MixedNewlines},
         {.name = "malformes/fin-avant-debut.srt", .kind = DiagnosticKind::EndBeforeStart},
         {.name = "malformes/chevauchement.srt", .kind = DiagnosticKind::OverlappingSubtitles},
+        {.name = "malformes/desordre.srt", .kind = DiagnosticKind::OutOfOrder},
         {.name = "malformes/numerotation-absente.srt", .kind = DiagnosticKind::MissingNumbering},
         {.name = "malformes/numerotation-incoherente.srt",
          .kind = DiagnosticKind::InconsistentNumbering},

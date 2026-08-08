@@ -31,6 +31,7 @@ enum class DiagnosticKind {
     MalformedTimestamp,     ///< a timestamp that could not be read
     EndBeforeStart,         ///< a subtitle that ends before it starts
     OverlappingSubtitles,   ///< a subtitle starting before the previous one ends
+    OutOfOrder,             ///< a subtitle starting before the previous one starts
     MissingNumbering,       ///< a SubRip block without its number
     InconsistentNumbering,  ///< SubRip numbers that do not follow
     TextBeforeAnyTimestamp, ///< text before the first timestamp of the file
