@@ -18,6 +18,7 @@ ne pas l'éditer à la main.
 - **core** — Commandes d'insertion et de suppression
 - **core** — Commande de décalage des positions
 - **core** — Transformation des positions par deux repères
+- **core** — Commande de conversion de fréquence d'image
 
 ### Construction
 
