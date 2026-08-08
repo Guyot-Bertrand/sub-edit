@@ -7,7 +7,7 @@ Les changements notables de subedit. Format inspiré de
 Ce fichier est généré par `make changelog` depuis l'historique des commits :
 ne pas l'éditer à la main.
 
-## Non publié
+## 0.1.0 — 2026-08-08
 
 ### Ajouts
 
@@ -51,6 +51,7 @@ ne pas l'éditer à la main.
 - Spec de la phase 1 et cinq décisions d'architecture
 - Régénérer le changelog
 - Aligner les références sur l'état réel du projet
+- Régénérer le changelog
 - Régénérer le changelog
 - Régénérer le changelog
 - Régénérer le changelog
