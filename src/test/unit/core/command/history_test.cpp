@@ -131,6 +131,26 @@ TEST_CASE("a group of seven commands is undone in one go", "[command][history]")
     CHECK(history.modificationCount(Document::Main) == 0);
 }
 
+TEST_CASE("a group counts as one modification, not as many", "[command][history]") {
+    // Returning to zero after undoing proves nothing on its own: a counter
+    // that went up seven times and back down seven times would also land
+    // there. What has to hold is that the group moved it **once**, which is
+    // what makes the count mean « how far from the file » rather than « how
+    // many commands ran ».
+    Project project = withThreeSubtitles();
+    History history;
+    constexpr int kGroupSize = 7;
+    std::vector<std::unique_ptr<Command>> group;
+    group.reserve(kGroupSize);
+    for (int step = 0; step < kGroupSize; ++step)
+        group.push_back(setFirstText(project, "étape " + std::to_string(step)));
+
+    history.apply(std::make_unique<CompositeCommand>(CommandKind::SetText, std::move(group)),
+                  project);
+
+    CHECK(history.modificationCount(Document::Main) == 1);
+}
+
 TEST_CASE("the modification counter follows the actions and their undoing", "[command][history]") {
     // An integer rather than a boolean, precisely so that undoing back to the
     // save point says « unmodified » again.
