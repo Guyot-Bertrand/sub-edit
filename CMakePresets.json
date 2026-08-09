@@ -45,7 +45,7 @@
       "inherits": "base",
       "displayName": "Release — optimisé, LTO",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
       }
     }

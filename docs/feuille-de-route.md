@@ -54,6 +54,12 @@ Elle produit une décision par outil : ceux qui sont retenus ont leur issue, ceu
 qui sont écartés ont **leur raison écrite** — un outil écarté sans trace revient
 à chaque phase.
 
+Les issues d'outillage qu'elle ouvre passent **avant la première issue
+d'implémentation**. C'est une contrainte d'ordre sur la phase et non une tâche
+du ticket d'initialisation : quand celui-ci se termine, rien n'est encore en
+place, par construction. L'écrire comme un critère de fin donnerait une case
+qu'on ne peut jamais cocher.
+
 ### 2. Cadrage (`type:task`)
 
 1. **Analyse préalable** — lecture ciblée du code de Gaupol correspondant, dans

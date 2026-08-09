@@ -1,11 +1,12 @@
 #include <subedit/core/format/file_system.hpp>
 #include <subedit/core/format/real_file_system.hpp>
 
+#include <array>
+#include <cstddef>
 #include <expected>
 #include <filesystem>
 #include <fstream>
 #include <ios>
-#include <iterator>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -13,6 +14,13 @@
 namespace subedit::core {
 
 namespace {
+
+/// How much a single read asks for.
+///
+/// Large enough that a subtitle file of a few hundred kilobytes takes a handful
+/// of reads, small enough to stay off the stack's limits — it is a member of an
+/// automatic array.
+constexpr std::size_t kReadBlockSize = std::size_t{64} * 1024;
 
 [[nodiscard]] std::unexpected<FileError>
 failure(FileErrorKind kind, const std::filesystem::path& path, std::string_view reason) {
@@ -44,7 +52,15 @@ RealFileSystem::readFile(const std::filesystem::path& path) const {
                        path,
                        "ouverture impossible");
 
-    std::string content{std::istreambuf_iterator<char>{file}, std::istreambuf_iterator<char>{}};
+    // Read in blocks rather than through `istreambuf_iterator`, which walks the
+    // stream one character at a time. The size is never asked for: `tellg`
+    // answers -1 on anything that is not a plain seekable file, and a size read
+    // before the content is a size that may already be wrong.
+    std::string content;
+    std::array<char, kReadBlockSize> block{};
+    while (file.read(block.data(), block.size()) || file.gcount() > 0)
+        content.append(block.data(), static_cast<std::size_t>(file.gcount()));
+
     if (file.bad())
         return failure(FileErrorKind::Io, path, "lecture interrompue");
 

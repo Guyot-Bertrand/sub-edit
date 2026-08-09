@@ -13,6 +13,17 @@
 // copying a project of four thousand subtitles costs more than any of the
 // operations. `BENCHMARK_ADVANCED` is what keeps that copy out of the measured
 // region: the copies are made first, the chronometer starts after.
+//
+// **That pattern has a floor, and it is the operation's own cost.** Catch2
+// chooses how many runs make a measurable sample: the slower the operation, the
+// fewer. Every whole-file operation below is slow enough to get one run, so one
+// copy — a megabyte. An operation fast enough to be asked for thousands of runs
+// would ask for gigabytes, and did: the single-subtitle edit at the end of this
+// file exhausted the machine's memory until it stopped copying at all.
+//
+// So: a whole-file operation copies, a single-subtitle one must not. Anything
+// added here that is faster than a few microseconds belongs in the second
+// group, whatever its shape.
 
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/insert_command.hpp>
@@ -39,6 +50,7 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -212,20 +224,26 @@ TEST_CASE("inserting into and removing from a full-length file", "[benchmark]") 
 TEST_CASE("editing one subtitle of a full-length file", "[benchmark]") {
     // The operation an interface runs on every keystroke. Its cost must not
     // depend on the size of the file, and this is what says so.
-    const Project project = fullLengthProject();
+    //
+    // **One session, reused.** The operations above copy a project per run
+    // because each mutates the whole of it; this one does not need to. It also
+    // must not: it is fast enough that Catch2 asks for thousands of runs, and a
+    // project copy each would be gigabytes — measured, on this very benchmark,
+    // as an allocation failure under a four-gigabyte cap.
+    //
+    // Reusing the session is faithful rather than merely cheap: an interface
+    // does exactly this, typing into a file it keeps open. The history grows to
+    // its bound and then drops its oldest, which is the state a real session
+    // spends its life in.
     const SubtitleIndex middle = SubtitleIndex::fromValue(kSubtitleCount / 2);
 
     BENCHMARK_ADVANCED("modification d'un texte, à travers une session")
     (Catch::Benchmark::Chronometer meter) {
-        std::vector<Session> sessions;
-        sessions.reserve(static_cast<std::size_t>(meter.runs()));
-        for (int run = 0; run < meter.runs(); ++run)
-            sessions.emplace_back(project);
+        Session session{fullLengthProject()};
 
         meter.measure([&](int run) {
-            Session& session = sessions[static_cast<std::size_t>(run)];
             session.apply(std::make_unique<SetTextCommand>(
-                session.project(), middle, Document::Main, "Autre."));
+                session.project(), middle, Document::Main, "Autre " + std::to_string(run)));
             return session.undoableCount();
         });
     };
