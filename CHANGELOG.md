@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Construction
+
+- Construire en Release, et y mesurer
+
+## 0.2.0 — 2026-08-08
+
 ### Ajouts
 
 - **core** — Mise à l'échelle des positions par un rationnel exact

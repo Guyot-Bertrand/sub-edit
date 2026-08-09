@@ -107,9 +107,14 @@ check_version_matches_tag() {
         return 0
     fi
 
+    # Lue dans le commit, et non dans l'arbre de travail. Un tag désigne un
+    # commit ; le confronter à des fichiers modifiés depuis compare deux choses
+    # différentes. Le cas se présente au début de chaque phase : la branche part
+    # du commit fusionné, qui porte le tag de la phase précédente, et le premier
+    # bump de la nouvelle phase déclencherait une fausse alerte.
     local declared
-    declared="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' \
-        "${REPO_ROOT}/CMakeLists.txt" | head -1)"
+    declared="$(git -C "${REPO_ROOT}" show HEAD:CMakeLists.txt 2>/dev/null \
+        | sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' | head -1)"
 
     if [[ "v${declared}" != "${tag}" ]]; then
         report_failure "le tag ${tag} et CMakeLists.txt (${declared:-absent}) ne s'accordent pas

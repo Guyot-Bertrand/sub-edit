@@ -94,15 +94,19 @@ avec un objectif d'iso-fonctionnalité.
 
   1. coder et tester ;
   2. relire, corriger ;
-  3. **bumper le patch** ;
-  4. `make check` — une seule fois, elle voit le code *et* le bump ;
-  5. **mettre à jour la documentation** — manuel, notes, exemples de version.
-     Rien de tout cela n'est lu par la porte, donc rien ne la réouvre ;
-  6. commiter, régénérer le CHANGELOG, ouvrir la PR.
+  3. **rejouer `make bench`** et regarder les chiffres. Avant la porte, parce
+     qu'une régression se corrige tant qu'il est temps — la découvrir après
+     obligerait à tout reprendre ;
+  4. **bumper le patch** ;
+  5. `make check` — une seule fois, elle voit le code *et* le bump ;
+  6. **mettre à jour la documentation et le relevé de mesures** — manuel, notes,
+     exemples de version, chiffres relevés à l'étape 3. Rien de tout cela n'est
+     lu par la porte, donc rien ne la réouvre ;
+  7. commiter, régénérer le CHANGELOG, ouvrir la PR.
 
-  L'étape 5 vient après la 4 par construction : c'est la seule position où la
+  L'étape 6 vient après la 5 par construction : c'est la seule position où la
   documentation ne coûte rien. Et l'exemple de version du manuel a besoin du
-  numéro décidé à l'étape 3.
+  numéro décidé à l'étape 4.
 
   Le tag et le `project(VERSION)` doivent porter le même numéro : **bumper le
   CMake avant de tagger**, sinon le binaire annonce une version périmée.
@@ -143,6 +147,13 @@ avec un objectif d'iso-fonctionnalité.
 
   Un exemple d'appel réel accompagne chaque commande. **Le manuel décrit ce qui
   existe, jamais ce qui est prévu** — le prévu va dans la feuille de route.
-- **Définition de « terminé »** — code, tests, benchmark si la performance est en
-  jeu, **section de manuel à jour**, patch bumpé, entrée de CHANGELOG
+- **Définition de « terminé »** — code, tests, **benchmarks rejoués et mesures
+  relevées**, section de manuel à jour, patch bumpé, entrée de CHANGELOG
   régénérée.
+
+  Les benchmarks se rejouent **à chaque issue**, et non seulement quand la
+  performance est en jeu : une mesure ne dit rien seule, elle ne parle que
+  comparée à la précédente. Ils tournent en `Release`, le mode livré, et la
+  porte ne les construit pas — c'est donc une commande à part,
+  `make bench`. Tant qu'ils prennent une minute, la question de leur coût ne
+  se pose pas ; elle se posera, et se traitera alors par un sous-ensemble.

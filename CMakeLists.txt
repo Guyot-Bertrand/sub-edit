@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(
     subedit
-    VERSION 0.2.0
+    VERSION 0.2.1
     DESCRIPTION "Éditeur de sous-titres"
     HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
     LANGUAGES CXX)
@@ -54,6 +54,7 @@ include(Ccache)
 include(Warnings)
 include(Sanitizers)
 include(Coverage)
+include(Lto)
 
 add_subdirectory(src/lib)
 add_subdirectory(src/exe)

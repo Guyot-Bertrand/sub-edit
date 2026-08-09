@@ -93,9 +93,13 @@ test: ## Compile et exécute les tests
 	@ctest --preset dev
 
 .PHONY: bench
+# `JOBS` gouverne aussi le LTO. Sans cela, l'optimisation entre modules se
+# déclenche en `-flto=auto`, c'est-à-dire autant de processus que de cœurs, à
+# chaque édition de liens — un parallélisme qui n'apparaît dans aucun `-j` et
+# qui sature une machine sur laquelle on fait autre chose.
 bench: ## Exécute les benchmarks en release
 	$(call step,"benchmarks (release)")
-	@cmake --preset release
+	@cmake --preset release -DSUBEDIT_LTO_JOBS=$(JOBS)
 	@cmake --build --preset release -j $(JOBS) --target subedit_core_bench
 	@./build/release/bin/subedit_core_bench
 
