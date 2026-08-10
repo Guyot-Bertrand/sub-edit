@@ -10,24 +10,32 @@ SHELL := /bin/bash
 
 # Nombre de tâches parallèles, pour la compilation et pour l'analyse statique.
 #
-# **Un seul cœur par défaut, délibérément.** La machine de développement fait
-# tourner d'autres projets en même temps, et une compilation qui prend tous les
-# cœurs y provoque des échecs de tests sur délai d'attente : un défaut ailleurs,
-# causé ici. Le confort local ne vaut pas ce prix, d'autant que le seuil est
-# invisible — on ne voit pas ce qu'on casse chez le voisin.
+# **Deux cœurs par défaut, pas plus.** La machine de développement fait tourner
+# d'autres projets en même temps, et une compilation qui prend tous les cœurs y
+# provoque des échecs de tests sur délai d'attente : un défaut ailleurs, causé
+# ici. Deux est le plafond convenu pour le travail local — une règle, pas un
+# jugement au cas par cas, précisément parce que le seuil est invisible : on ne
+# voit pas ce qu'on casse chez le voisin avant de l'avoir cassé. Le chiffre
+# vient d'une mesure : `make check` à un seul cœur prend environ 17 minutes,
+# dont environ 15 pour clang-tidy à lui seul.
 #
 # Se relève au besoin, sans toucher à ce fichier :
 #
 #     make build JOBS=8
 #     JOBS=$$(nproc) make check
 #
-# La CI passe `nproc` explicitement : sa machine n'est qu'à elle.
+# La CI passe `nproc` explicitement : sa machine n'est qu'à elle, le plafond ne
+# la concerne pas.
+#
+# src/scripts/check-parallelism.sh vérifie mécaniquement qu'aucune recette de
+# ce fichier ni aucun script de src/scripts/ ne contourne $(JOBS) par un
+# parallélisme câblé en dur.
 #
 # Les tests restent séquentiels quoi qu'il arrive. Ce n'est pas un oubli :
 # `ctest` ne parallélise que sur `-j` explicite, et le lui donner ferait
 # fusionner les `.gcda` de plusieurs exécutions concurrentes, donc un taux de
 # couverture faux sans autre signe qu'un avertissement noyé dans la sortie.
-JOBS ?= 1
+JOBS ?= 2
 
 # git-cliff s'installe dans ~/.local/bin, que ~/.profile n'ajoute au PATH qu'à
 # l'ouverture de session suivante. On ne dépend pas de la configuration du
@@ -153,6 +161,11 @@ arch: ## Vérifie les invariants d'architecture
 	$(call step,"invariants d architecture")
 	@./src/scripts/check-architecture.sh
 
+.PHONY: parallelism
+parallelism: ## Vérifie qu'aucun parallélisme ne contourne $(JOBS)
+	$(call step,"parallélisme maîtrisé")
+	@./src/scripts/check-parallelism.sh
+
 .PHONY: requirements
 requirements: ## Confronte le registre d'exigences aux tests de bout en bout
 	$(call step,"exigences")
@@ -204,14 +217,15 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 #
 # `check-local` est l'endroit pour les vérifications qu'on veut voir passer
 # avant d'ouvrir une pull request, mais qu'on ne veut pas voir gater la CI.
-# Aujourd'hui, la confrontation du registre d'exigences ; les issues #50 et
-# #52 y ajouteront les leurs.
+# Aujourd'hui, la confrontation du registre d'exigences et le contrôle du
+# parallélisme maîtrisé ; les issues #50 et #52 y ajouteront les leurs.
 .PHONY: check-local
-check-local: ## Vérifications locales, hors CI — aujourd'hui, les exigences
+check-local: ## Vérifications locales, hors CI — exigences et parallélisme maîtrisé
 	@$(MAKE) --no-print-directory requirements
+	@$(MAKE) --no-print-directory parallelism
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que make check échoue sur chaque type de défaut
+verify-gates: ## Prouve que check et check-local échouent chacun sur ses défauts (huit)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog
