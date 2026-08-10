@@ -69,11 +69,12 @@ subedit/
 │   ├── configuration-github.md
 │   ├── specs/                  une spec par sous-projet
 │   ├── adr/                    décisions techniques
+│   ├── exigences.md            registre des exigences, cité par les tests
 │   └── manual/                 manuels utilisateur, un dossier par exécutable
 ├── src/
 │   ├── lib/subedit/<lib>/…     bibliothèques
 │   ├── exe/<binaire>/main.cpp  exécutables
-│   ├── test/{unit,bench,data}/ tests, benchmarks, fixtures
+│   ├── test/{unit,e2e,bench,data}/ tests, harnais de bout en bout, benchmarks, fixtures
 │   └── scripts/                automatisation
 └── reference/gaupol            clone de référence, ignoré par git
 ```
@@ -135,6 +136,18 @@ src/test/data/                              fichiers de sous-titres de référen
 Un binaire de test par bibliothèque, enregistré dans CTest via
 `catch_discover_tests` pour que chaque cas soit visible et filtrable
 individuellement.
+
+`src/test/e2e/` fait exception à cette symétrie : il miroite `src/exe/`, non
+`src/lib/`. Ces tests ne lient pas la logique qu'ils vérifient — ils lancent le
+binaire réel par `posix_spawn`, sans shell, et confrontent sortie standard,
+sortie d'erreur et code de retour. Chaque cas cite une exigence de
+[`docs/exigences.md`](../exigences.md) par un tag Catch2, ce que
+`src/scripts/check-requirements.sh` confronte au registre.
+
+Ils ne sont pas enregistrés dans CTest sous le preset `coverage` : `subedit-cli`
+y est instrumenté, et chaque invocation gonflerait la couverture de `src/lib`
+sans qu'aucun test unitaire ait été écrit pour ce code. Voir
+[l'ADR 0014](../adr/0014-registre-d-exigences.md).
 
 ## Conventions de code
 
@@ -222,13 +235,19 @@ gh, et les paquets de développement Qt6 le moment venu.
 
 ## La porte de qualité : `make check`
 
-Cinq étapes, verdict binaire, aucune tolérance :
+Six étapes, verdict binaire, aucune tolérance :
 
 1. **Format** — `clang-format --dry-run --Werror` sur tous les fichiers suivis.
 2. **Compilation** — preset `dev` avec `-Wall -Wextra -Wpedantic -Wconversion
    -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused
    -Woverloaded-virtual -Wnull-dereference -Wdouble-promotion -Werror`.
-3. **Analyse statique** — `clang-tidy` : familles `bugprone-*`, `performance-*`,
+3. **Exigences** — `check-requirements.sh` confronte le registre
+   [`docs/exigences.md`](../exigences.md) aux tags des tests de bout en bout,
+   dans les deux sens : une exigence `implémentée` que rien ne cite échoue, un
+   tag en forme d'identifiant qui ne désigne aucune exigence échoue. La
+   couverture de lignes dit quel code a été exécuté ; celle-ci dit quelle
+   promesse est démontrée.
+4. **Analyse statique** — `clang-tidy` : familles `bugprone-*`, `performance-*`,
    `modernize-*`, `readability-*`, `misc-*`, plus une sélection de
    `cppcoreguidelines-*`. Y compris, explicitement, les vérifications qui
    mécanisent les règles de propriété mémoire des principes de conception :
@@ -237,13 +256,15 @@ Cinq étapes, verdict binaire, aucune tolérance :
    `modernize-avoid-c-arrays`, `misc-const-correctness`. Les exclusions sont
    listées dans `.clang-tidy` **avec leur justification en commentaire** ; une
    exclusion non justifiée est un défaut.
-4. **Tests** — exécution sous le preset `asan`, pour que toute erreur mémoire ou
+5. **Tests** — exécution sous le preset `asan`, pour que toute erreur mémoire ou
    comportement indéfini échoue au lieu de passer inaperçu. Le preset active
    aussi **LeakSanitizer** : une fuite fait échouer les tests, elle ne se
    découvre pas six mois plus tard.
-5. **Couverture** — seuil de **80 % minimum sur les bibliothèques**, relevable
-   par bibliothèque quand c'est justifié. Les exécutables sont exclus du calcul :
-   la règle d'architecture les vide de tout ce qui mérite d'être couvert.
+6. **Couverture** — seuil de **99,2 % minimum sur les bibliothèques**, relevable
+   par bibliothèque quand c'est justifié. Le chiffre est le taux mesuré, pas un
+   plancher symbolique — le vrai cliquet reste à construire, sujet de
+   l'issue #50. Les exécutables sont exclus du calcul : la règle d'architecture
+   les vide de tout ce qui mérite d'être couvert.
 
 **La CI appelle `make check`, et rien d'autre.** Aucune étape n'est recopiée dans
 le YAML. C'est la seule manière que le filet local et le filet distant restent
@@ -315,6 +336,7 @@ définition de « terminé » d'une issue**, au même titre que les tests.
 | `docs/principes-de-conception.md` | règles permanentes de conception et de gestion mémoire |
 | `docs/specs/NN-<sujet>.md` | une spec par sous-projet, conception durable |
 | `docs/adr/NNNN-<titre>.md` | décisions techniques et alternatives écartées |
+| `docs/exigences.md` | ce que le binaire promet, et l'état de ce qui le prouve |
 | `docs/manual/<exécutable>/` | manuel utilisateur, un fichier par section |
 | `README.md` | ce qu'est le projet, pourquoi, comment le construire |
 | `CONTRIBUTING.md` | flux de travail, conventions, commandes |
