@@ -55,6 +55,10 @@ export CMAKE_GENERATOR ?= $(shell command -v ninja >/dev/null 2>&1 && echo Ninja
 # Le vrai cliquet — où vit ce nombre, et ce qui se passe quand la couverture
 # monte — reste le sujet de l'issue #50 ; ceci n'en est pas le mécanisme
 # final.
+#
+# La marge est étroite : sur 1353 lignes et 1345 couvertes, perdre quatre
+# lignes déjà couvertes fait tomber le taux arrondi à 99,1 et fait échouer la
+# porte ; en perdre trois seulement la laisse passer.
 COVERAGE_MIN := 99.2
 SOURCES := $(shell find src -name '*.cpp' -o -name '*.hpp' 2>/dev/null)
 
