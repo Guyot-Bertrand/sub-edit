@@ -41,9 +41,9 @@ TEST_CASE("invoking with no argument writes the version", "[e2e][CLI-VERSION-01]
 ```
 
 `src/scripts/check-requirements.sh` confronte ces affirmations aux tags que le
-binaire de test déclare, et `make check` l'exécute. Une exigence `implémentée`
-sans test ne franchit pas la porte ; un tag qui ne désigne aucune exigence non
-plus.
+binaire de test déclare, et `make check-local` l'exécute. Une exigence
+`implémentée` sans test ne franchit pas la porte ; un tag qui ne désigne
+aucune exigence non plus.
 
 **Le registre s'alimente en début d'issue**, avant le code. Une exigence écrite
 après coup décrit ce qui a été fait ; écrite avant, elle décide ce qui sera

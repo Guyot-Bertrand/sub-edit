@@ -63,7 +63,10 @@ Les tests de bout en bout de `src/test/e2e/` citent une exigence par un **tag
 Catch2**, `[CLI-VERSION-01]`, et non par un préfixe de titre.
 `src/scripts/check-requirements.sh` interroge le binaire de test — `--list-tags`
 sort l'ensemble exact des tags — et confronte les deux listes. Il entre dans
-`make check`.
+`make check-local`, pas dans `make check` : la CI n'exécute que `make check`,
+et cette vérification ne gate donc pas chaque push. `make check-local` est la
+cible dédiée aux vérifications qu'on veut voir passer avant d'ouvrir une pull
+request sans les voir gater la CI.
 
 ## Alternatives écartées
 
@@ -110,14 +113,27 @@ sort l'ensemble exact des tags — et confronte les deux listes. Il entre dans
 ## Conséquences
 
 Ce que la décision rend facile : lire en un seul endroit ce que l'outil promet
-et ce qui le prouve. Une exigence implémentée sans test ne franchit plus la
-porte, et un tag qui ne désigne rien non plus.
+et ce qui le prouve. Une exigence implémentée sans test ne franchit plus
+`make check-local`, et un tag qui ne désigne rien non plus.
 
 Ce qu'elle rend contraignant : **toute issue qui ajoute un comportement visible
 alimente le registre en début de travail**, avant le code. C'est le but, et
 c'est une discipline qui ne tient que parce qu'un script la vérifie — la même
 règle écrite dans `CLAUDE.md` aurait dérivé, comme y a dérivé la règle du
 `Closes #N`.
+
+Le coût réel de la placer dans `check-local` plutôt que dans `check` : le
+script ne gate pas la CI. Une pull request dont le registre et les tags
+divergent n'est arrêtée que si quelqu'un lance `make check-local` avant de
+l'ouvrir — rien ne l'y oblige mécaniquement, contrairement à `make check`, que
+la CI impose à tout le monde. C'est acceptable pour ce que la vérification
+protège : un registre qui ment sur ce qui est prouvé est un défaut visible à
+la prochaine lecture du fichier, pas un bug livré à l'utilisateur — la nature
+du risque tolère un filet plus lâche que celui qui protège contre une fuite
+mémoire ou une régression de couverture. Mais c'est une vraie faiblesse, pas
+une chose à enjoliver : sans discipline locale, une pull request peut fusionner
+avec le registre en dérive, et rien ne le signale avant qu'une relecture
+humaine ou un `make check-local` tardif ne le remarque.
 
 Le harnais lance un vrai processus, ce qui a un effet à surveiller sur la
 mesure de couverture : sous le preset `coverage`, `subedit-cli` est lui aussi
@@ -130,8 +146,8 @@ Le registre ne dit rien du noyau, et c'est délibéré. Si une garantie interne
 mérite un jour d'être nommée, ce sera par une décision distincte, pas par un
 glissement de portée.
 
-Défaire la décision coûterait peu : retirer le script de la porte suffit, les
-tags redeviennent des tags inertes et le registre un document. Le déclencheur
+Défaire la décision coûterait peu : retirer le script de `check-local` suffit,
+les tags redeviennent des tags inertes et le registre un document. Le déclencheur
 d'un réexamen est identifié — le jour où une exigence ne sera démontrable que
 par l'interface graphique, le harnais devra couvrir une seconde surface, et
 « un binaire, un `--list-tags` » devra devenir « plusieurs ».

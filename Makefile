@@ -188,16 +188,27 @@ coverage: ## Mesure la couverture des bibliothèques
 	@printf 'rapport : build/coverage-report/index.html\n'
 
 .PHONY: check
-check: ## Porte de qualité — format, warnings, exigences, tidy, tests sous ASan, couverture
+check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couverture
 	@printf '$(BOLD)porte de qualité$(RESET)\n'
 	@$(MAKE) --no-print-directory format-check
 	@$(MAKE) --no-print-directory arch
 	@$(MAKE) --no-print-directory build
-	@$(MAKE) --no-print-directory requirements
 	@$(MAKE) --no-print-directory tidy
 	@$(MAKE) --no-print-directory asan
 	@$(MAKE) --no-print-directory coverage
 	@printf '$(GREEN)✓ porte franchie$(RESET)\n'
+
+# `check` est ce que la CI exécute — .github/workflows/ci.yml n'appelle que
+# cette cible, rien d'autre. Tout ce qui y entre gate donc chaque push, de
+# tout le monde ; on n'y ajoute rien à la légère.
+#
+# `check-local` est l'endroit pour les vérifications qu'on veut voir passer
+# avant d'ouvrir une pull request, mais qu'on ne veut pas voir gater la CI.
+# Aujourd'hui, la confrontation du registre d'exigences ; les issues #50 et
+# #52 y ajouteront les leurs.
+.PHONY: check-local
+check-local: ## Vérifications locales, hors CI — aujourd'hui, les exigences
+	@$(MAKE) --no-print-directory requirements
 
 .PHONY: verify-gates
 verify-gates: ## Prouve que make check échoue sur chaque type de défaut

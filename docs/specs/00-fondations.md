@@ -207,6 +207,7 @@ construction, seulement des raccourcis.
 | `make coverage` | produit le rapport de couverture |
 | `make changelog` | régénère `CHANGELOG.md` |
 | `make check` | **la porte de qualité, décrite ci-dessous** |
+| `make check-local` | vérifications locales, hors CI — décrites ci-dessous |
 | `make clean` | supprime le répertoire de build |
 
 ## Dépendances
@@ -235,19 +236,13 @@ gh, et les paquets de développement Qt6 le moment venu.
 
 ## La porte de qualité : `make check`
 
-Six étapes, verdict binaire, aucune tolérance :
+Cinq étapes, verdict binaire, aucune tolérance :
 
 1. **Format** — `clang-format --dry-run --Werror` sur tous les fichiers suivis.
 2. **Compilation** — preset `dev` avec `-Wall -Wextra -Wpedantic -Wconversion
    -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused
    -Woverloaded-virtual -Wnull-dereference -Wdouble-promotion -Werror`.
-3. **Exigences** — `check-requirements.sh` confronte le registre
-   [`docs/exigences.md`](../exigences.md) aux tags des tests de bout en bout,
-   dans les deux sens : une exigence `implémentée` que rien ne cite échoue, un
-   tag en forme d'identifiant qui ne désigne aucune exigence échoue. La
-   couverture de lignes dit quel code a été exécuté ; celle-ci dit quelle
-   promesse est démontrée.
-4. **Analyse statique** — `clang-tidy` : familles `bugprone-*`, `performance-*`,
+3. **Analyse statique** — `clang-tidy` : familles `bugprone-*`, `performance-*`,
    `modernize-*`, `readability-*`, `misc-*`, plus une sélection de
    `cppcoreguidelines-*`. Y compris, explicitement, les vérifications qui
    mécanisent les règles de propriété mémoire des principes de conception :
@@ -256,11 +251,11 @@ Six étapes, verdict binaire, aucune tolérance :
    `modernize-avoid-c-arrays`, `misc-const-correctness`. Les exclusions sont
    listées dans `.clang-tidy` **avec leur justification en commentaire** ; une
    exclusion non justifiée est un défaut.
-5. **Tests** — exécution sous le preset `asan`, pour que toute erreur mémoire ou
+4. **Tests** — exécution sous le preset `asan`, pour que toute erreur mémoire ou
    comportement indéfini échoue au lieu de passer inaperçu. Le preset active
    aussi **LeakSanitizer** : une fuite fait échouer les tests, elle ne se
    découvre pas six mois plus tard.
-6. **Couverture** — seuil de **99,2 % minimum sur les bibliothèques**, relevable
+5. **Couverture** — seuil de **99,2 % minimum sur les bibliothèques**, relevable
    par bibliothèque quand c'est justifié. Le chiffre est le taux mesuré, pas un
    plancher symbolique — le vrai cliquet reste à construire, sujet de
    l'issue #50. Les exécutables sont exclus du calcul : la règle d'architecture
@@ -269,6 +264,29 @@ Six étapes, verdict binaire, aucune tolérance :
 **La CI appelle `make check`, et rien d'autre.** Aucune étape n'est recopiée dans
 le YAML. C'est la seule manière que le filet local et le filet distant restent
 identiques dans six mois.
+
+## La cible `make check-local` : vérifications locales, hors CI
+
+`make check` est ce que la CI exécute — `.github/workflows/ci.yml` n'appelle
+que cette cible. Une vérification qu'on veut voir passer avant d'ouvrir une
+pull request, mais qu'on ne veut pas voir gater chaque push de chaque
+personne, n'a donc pas sa place dans `make check` : elle va dans
+`make check-local`, une cible séparée que la CI n'exécute jamais.
+
+Aujourd'hui, `check-local` exécute une seule chose :
+
+- **Exigences** — `check-requirements.sh` confronte le registre
+  [`docs/exigences.md`](../exigences.md) aux tags des tests de bout en bout,
+  dans les deux sens : une exigence `implémentée` que rien ne cite échoue, un
+  tag en forme d'identifiant qui ne désigne aucune exigence échoue. La
+  couverture de lignes dit quel code a été exécuté ; celle-ci dit quelle
+  promesse est démontrée. Voir [l'ADR 0014](../adr/0014-registre-d-exigences.md),
+  dont les Conséquences discutent le prix de la garder hors CI.
+
+Les issues #50 (cliquet de couverture) et #52 y ajouteront leurs propres
+vérifications. Le critère d'entrée dans `check-local` est le même pour
+toutes : utile avant une pull request, mais pas assez universel — ou trop
+coûteux — pour gater chaque push sur la CI.
 
 ## Intégration continue
 
