@@ -5,7 +5,7 @@ Ce que `subedit` promet, ligne par ligne, avec l'état de ce qui le prouve.
 Une exigence est **ce que le binaire montre** : sortie standard, sortie
 d'erreur, code de retour, fichier produit. Les garanties internes du noyau n'en
 sont pas — leurs tests unitaires et la couverture de lignes tiennent ce rôle.
-La décision, et les six options écartées, sont dans
+La décision, et les sept options écartées, sont dans
 [l'ADR 0014](adr/0014-registre-d-exigences.md).
 
 Ce registre ne remplace pas le [manuel](manual/), qui reste la description
