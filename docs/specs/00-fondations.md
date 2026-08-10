@@ -210,6 +210,27 @@ construction, seulement des raccourcis.
 | `make check-local` | vérifications locales, hors CI — décrites ci-dessous |
 | `make clean` | supprime le répertoire de build |
 
+### Parallélisme maîtrisé
+
+Chaque site de parallélisme de la façade — compilation, `clang-tidy`, LTO des
+benchmarks — passe par une unique variable, `JOBS`, dont la valeur par défaut
+est **deux cœurs en local**. La machine de développement fait tourner d'autres
+projets en même temps, et un parallélisme non borné y provoque des échecs de
+tests sur délai d'attente ; deux est le plafond convenu, relevable au cas par
+cas avec `make build JOBS=8` sans toucher au `Makefile`. **La CI choisit pour
+elle-même** — `.github/workflows/ci.yml` appelle `make check JOBS=$(nproc)`
+explicitement, sa machine n'étant qu'à elle.
+
+La discipline ne vaudrait rien sans un contrôle mécanique : `make parallelism`,
+qui exécute `src/scripts/check-parallelism.sh`, refuse toute recette du
+`Makefile` où `-j` ou `-P` n'est pas suivi de `$(JOBS)`, tout script de
+`src/scripts/` qui introduirait son propre parallélisme (`-j`/`-P` codé en
+dur, `xargs -P`, appel à `nproc`, commande mise en arrière-plan par un `&`),
+et tout `-flto=` codé en dur dans `cmake/*.cmake` ou `CMakeLists.txt` en dehors
+du mécanisme `SUBEDIT_LTO_JOBS`. Cette vérification vit dans `make
+check-local`, pas dans `make check` : elle protège le poste de développement,
+pas la CI, qui borne déjà son propre parallélisme autrement.
+
 ## Dépendances
 
 Résolues par `find_package` sur les paquets système, à une exception près.
@@ -273,7 +294,7 @@ pull request, mais qu'on ne veut pas voir gater chaque push de chaque
 personne, n'a donc pas sa place dans `make check` : elle va dans
 `make check-local`, une cible séparée que la CI n'exécute jamais.
 
-Aujourd'hui, `check-local` exécute une seule chose :
+Aujourd'hui, `check-local` exécute deux choses :
 
 - **Exigences** — `check-requirements.sh` confronte le registre
   [`docs/exigences.md`](../exigences.md) aux tags des tests de bout en bout,
@@ -282,6 +303,10 @@ Aujourd'hui, `check-local` exécute une seule chose :
   couverture de lignes dit quel code a été exécuté ; celle-ci dit quelle
   promesse est démontrée. Voir [l'ADR 0014](../adr/0014-registre-d-exigences.md),
   dont les Conséquences discutent le prix de la garder hors CI.
+- **Parallélisme maîtrisé** — `check-parallelism.sh` refuse tout site de
+  parallélisme, dans le `Makefile`, dans `src/scripts/` ou dans `cmake/`, qui
+  contourne `$(JOBS)` ou `SUBEDIT_LTO_JOBS`. Voir
+  [« Parallélisme maîtrisé »](#parallélisme-maîtrisé) plus haut.
 
 Les issues #50 (cliquet de couverture) et #52 y ajouteront leurs propres
 vérifications. Le critère d'entrée dans `check-local` est le même pour
