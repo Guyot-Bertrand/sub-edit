@@ -132,6 +132,13 @@ arch: ## Vérifie les invariants d'architecture
 	$(call step,"invariants d architecture")
 	@./src/scripts/check-architecture.sh
 
+.PHONY: requirements
+requirements: ## Confronte le registre d'exigences aux tests de bout en bout
+	$(call step,"exigences")
+	@cmake --preset dev >/dev/null
+	@cmake --build --preset dev -j $(JOBS) --target subedit_e2e_test
+	@./src/scripts/check-requirements.sh
+
 .PHONY: asan
 asan: ## Exécute les tests sous ASan et UBSan
 	$(call step,"tests sous sanitizers")
@@ -160,11 +167,12 @@ coverage: ## Mesure la couverture des bibliothèques
 	@printf 'rapport : build/coverage-report/index.html\n'
 
 .PHONY: check
-check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couverture
+check: ## Porte de qualité — format, warnings, exigences, tidy, tests sous ASan, couverture
 	@printf '$(BOLD)porte de qualité$(RESET)\n'
 	@$(MAKE) --no-print-directory format-check
 	@$(MAKE) --no-print-directory arch
 	@$(MAKE) --no-print-directory build
+	@$(MAKE) --no-print-directory requirements
 	@$(MAKE) --no-print-directory tidy
 	@$(MAKE) --no-print-directory asan
 	@$(MAKE) --no-print-directory coverage
