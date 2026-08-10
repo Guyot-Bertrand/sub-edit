@@ -38,7 +38,24 @@ export PATH := $(HOME)/.local/bin:$(PATH)
 # projet inconstructible sur une machine qui ne l'a pas encore.
 export CMAKE_GENERATOR ?= $(shell command -v ninja >/dev/null 2>&1 && echo Ninja || echo "Unix Makefiles")
 
-COVERAGE_MIN := 80
+# 80 était une valeur de départ, posée quand le projet tenait en quelques
+# dizaines de lignes ; elle a cessé de vouloir dire quoi que ce soit une fois
+# la couverture réelle montée à 99 %. Un seuil planté dix-neuf points en
+# dessous de la vérité laisse passer une régression de dix-neuf points sans un
+# mot — verify-gates.sh l'a démontré : sa fonction non couverte injectée
+# passait sans encombre.
+#
+# La décimale n'est pas un caprice. gcovr arrondit le taux à une décimale
+# avant de le comparer au seuil, si bien qu'un seuil entier de 99 ne peut
+# jamais être franchi par un taux à 98,95 % ou plus. Le taux mesuré est
+# 99,4 % ; le défaut injecté par verify-gates.sh tombe à 98,97 %, qui arrondit
+# à 99,0. 99,2 se place entre les deux : c'est ce qui rend la porte capable de
+# se refermer.
+#
+# Le vrai cliquet — où vit ce nombre, et ce qui se passe quand la couverture
+# monte — reste le sujet de l'issue #50 ; ceci n'en est pas le mécanisme
+# final.
+COVERAGE_MIN := 99.2
 SOURCES := $(shell find src -name '*.cpp' -o -name '*.hpp' 2>/dev/null)
 
 # libstdc++ garde <expected> derrière __cpp_concepts >= 202002L, valeur que
