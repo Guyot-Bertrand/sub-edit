@@ -117,30 +117,40 @@ declare -A cited=()
 # avalé en silence, et `cited` resterait vide sans qu'aucune ligne ne le
 # signale. Un contrôleur qui répond « tout va bien » quand il n'a rien pu
 # lire est pire qu'aucun contrôleur.
+#
+# stdout et stderr sont capturés à part, dans un fichier temporaire pour ce
+# dernier : les fondre avec `2>&1` ferait extraire des tags depuis les
+# diagnostics du binaire — un `[IDENTIFIANT]` mentionné dans un message
+# d'erreur serait alors pris pour une citation réelle, dans un sens comme
+# dans l'autre. stderr reste néanmoins lu et affiché en cas d'échec, pour
+# que le diagnostic d'un plantage reste visible.
+list_tags_stderr="$(mktemp)"
+trap 'rm -f "${list_tags_stderr}"' EXIT
+
 list_tags_status=0
-list_tags_raw="$("${binary}" --list-tags 2>&1)" || list_tags_status=$?
+list_tags_stdout="$("${binary}" --list-tags 2>"${list_tags_stderr}")" || list_tags_status=$?
 
 if (( list_tags_status != 0 )); then
     report_failure "le binaire de test a échoué sur --list-tags (code ${list_tags_status}) :
-$(printf '    %s\n' "${list_tags_raw}")
+$(sed 's/^/    /' "${list_tags_stderr}")
     vérifier que ${binary} répond à --list-tags, et que Catch2 n'a pas changé sa sortie."
 else
-    # On extrait tous les groupes entre crochets de la sortie entière plutôt
-    # que d'ancrer sur « N espaces crochet » : Catch2 met sur une même ligne
-    # toutes les orthographes d'un tag, et replie la ligne à 70 colonnes quand
-    # elle dépasse. Ni l'en-tête ni le pied de la sortie ne contiennent de
-    # crochets. Le « || true » évite qu'un grep sans correspondance — sortie
-    # sans le moindre tag — ne fasse échouer silencieusement la substitution
-    # de processus : c'est au garde qui suit de le dire, pas à `set -e` de
-    # l'avaler.
+    # On extrait tous les groupes entre crochets de la sortie standard
+    # entière plutôt que d'ancrer sur « N espaces crochet » : Catch2 met sur
+    # une même ligne toutes les orthographes d'un tag, et replie la ligne à
+    # 70 colonnes quand elle dépasse. Ni l'en-tête ni le pied de la sortie ne
+    # contiennent de crochets. Le « || true » évite qu'un grep sans
+    # correspondance — sortie sans le moindre tag — ne fasse échouer
+    # silencieusement la substitution de processus : c'est au garde qui suit
+    # de le dire, pas à `set -e` de l'avaler.
     while read -r tag; do
         [[ -n "${tag}" ]] && cited["${tag}"]=1
-    done < <(printf '%s' "${list_tags_raw}" | grep -o '\[[^][]*\]' | tr -d '[]' | sort -u || true)
+    done < <(printf '%s' "${list_tags_stdout}" | grep -o '\[[^][]*\]' | tr -d '[]' | sort -u || true)
 
     # Symétrique au garde sur ${#state_of[@]} plus haut : zéro tag n'est
     # jamais légitime ici, le binaire de test porte toujours au moins [e2e].
     if (( ${#cited[@]} == 0 )); then
-        report_failure "aucun tag lu dans la sortie de ${binary} --list-tags
+        report_failure "aucun tag lu dans la sortie standard de ${binary} --list-tags
     la forme de la sortie de Catch2 a-t-elle changé ? le binaire de test porte
     toujours au moins le tag [e2e] ; son absence signale un défaut, jamais un
     état normal."
