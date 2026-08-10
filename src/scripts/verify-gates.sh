@@ -6,10 +6,10 @@
 # la cible correspondante échoue, puis rétablit les sources.
 #
 # Les cinq premières injections visent des étapes de `make check`, que la CI
-# exécute. Les deux dernières visent `make requirements`, qui vit dans
-# `make check-local` et ne gate donc que le poste de développement — raison de
-# plus pour que ce script prouve qu'elle se referme, puisque rien d'autre ne
-# l'exercera.
+# exécute. Les trois dernières visent `make check-local` — deux fois
+# `requirements`, une fois `parallelism` — qui ne gate donc que le poste de
+# développement : raison de plus pour que ce script prouve que chacune se
+# referme, puisque rien d'autre ne les exercera.
 #
 # À rejouer après toute modification de .clang-format, .clang-tidy, des options
 # de compilation, du seuil de couverture ou du registre d'exigences.
@@ -21,6 +21,7 @@ readonly LIB_SOURCE="${REPO_ROOT}/src/lib/subedit/core/version.cpp"
 readonly TEST_SOURCE="${REPO_ROOT}/src/test/unit/core/version_test.cpp"
 readonly REGISTRY="${REPO_ROOT}/docs/exigences.md"
 readonly E2E_SOURCE="${REPO_ROOT}/src/test/e2e/cli/version_test.cpp"
+readonly MAKEFILE_SOURCE="${REPO_ROOT}/Makefile"
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -35,6 +36,7 @@ restore() {
     cp "${backup_dir}/version_test.cpp" "${TEST_SOURCE}"
     cp "${backup_dir}/exigences.md" "${REGISTRY}"
     cp "${backup_dir}/e2e_version_test.cpp" "${E2E_SOURCE}"
+    cp "${backup_dir}/Makefile" "${MAKEFILE_SOURCE}"
 }
 
 cleanup() {
@@ -46,6 +48,7 @@ cp "${LIB_SOURCE}" "${backup_dir}/version.cpp"
 cp "${TEST_SOURCE}" "${backup_dir}/version_test.cpp"
 cp "${REGISTRY}" "${backup_dir}/exigences.md"
 cp "${E2E_SOURCE}" "${backup_dir}/e2e_version_test.cpp"
+cp "${MAKEFILE_SOURCE}" "${backup_dir}/Makefile"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -147,9 +150,21 @@ expect_gate_closes \
     CHECK(true);
 }'
 
+# Recette Makefile qui code un parallélisme en dur au lieu de passer par
+# $(JOBS) — exactement ce que check-parallelism.sh existe pour repérer. La
+# cible injectée n'est référencée par personne : ni `make parallelism` ni
+# aucune autre cible ne l'exécute, donc l'échec attendu ne peut venir que du
+# balayage du Makefile par le script, pas d'une tentative de construction.
+expect_gate_closes \
+    "parallélisme codé en dur dans le Makefile" \
+    "parallelism" \
+    "${MAKEFILE_SOURCE}" \
+    'cible-injectee-parallelisme:
+	@cmake --build --preset dev -j 8'
+
 printf '\n'
 if (( failures > 0 )); then
     printf '%s%d porte(s) laissent passer un défaut%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles sept portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles huit portes se referment%s\n' "${GREEN}" "${RESET}"
