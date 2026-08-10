@@ -4,4 +4,5 @@
 # trouve à partir du fichier qu'il couvre, et réciproquement.
 
 add_subdirectory(unit)
+add_subdirectory(e2e)
 add_subdirectory(bench)
