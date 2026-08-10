@@ -3,10 +3,16 @@
 #
 # Une porte qu'on n'a jamais vue échouer n'est pas une porte : c'est une
 # croyance. Ce script injecte délibérément un défaut de chaque type, vérifie que
-# l'étape correspondante de `make check` échoue, puis rétablit les sources.
+# la cible correspondante échoue, puis rétablit les sources.
+#
+# Les cinq premières injections visent des étapes de `make check`, que la CI
+# exécute. Les deux dernières visent `make requirements`, qui vit dans
+# `make check-local` et ne gate donc que le poste de développement — raison de
+# plus pour que ce script prouve qu'elle se referme, puisque rien d'autre ne
+# l'exercera.
 #
 # À rejouer après toute modification de .clang-format, .clang-tidy, des options
-# de compilation ou du seuil de couverture.
+# de compilation, du seuil de couverture ou du registre d'exigences.
 
 set -euo pipefail
 
