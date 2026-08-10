@@ -156,11 +156,14 @@ void drain(Descriptor& outEnd, Descriptor& errEnd, std::string& output, std::str
                 targets[index]->append(buffer.data(), static_cast<std::size_t>(count));
                 continue;
             }
-            if (count < 0 && errno == EINTR) {
-                continue;
+            if (count < 0) {
+                if (errno == EINTR) {
+                    continue;
+                }
+                fail(errno, "read");
             }
-            // End of file, or an error we will not recover from: either way
-            // this end has nothing more to say.
+            // count == 0: a clean end of file. This end has nothing more to
+            // say.
             ends[index]->reset();
             --remaining;
         }
@@ -180,6 +183,12 @@ CliRun invoke(const std::vector<std::string>& args) {
     // parent never sees end of file and drain() waits forever.
     actions.closeInChild(out.readEnd.get());
     actions.closeInChild(err.readEnd.get());
+    // dup2 above leaves the original write-end descriptor numbers open too.
+    // Harmless for subedit-cli today, but a live write end would follow any
+    // subprocess it ever spawned, and drain() would then wait forever on the
+    // very deadlock its own comment warns about.
+    actions.closeInChild(out.writeEnd.get());
+    actions.closeInChild(err.writeEnd.get());
 
     // argv[0] is the program itself, by convention and by necessity.
     std::vector<std::string> owned;
@@ -207,7 +216,17 @@ CliRun invoke(const std::vector<std::string>& args) {
     err.writeEnd.reset();
 
     CliRun run;
-    drain(out.readEnd, err.readEnd, run.output, run.errors);
+    try {
+        drain(out.readEnd, err.readEnd, run.output, run.errors);
+    } catch (...) {
+        // A failed read must not also leave a zombie behind. Best-effort: if
+        // the reap itself fails here, the exception already in flight is the
+        // one that matters, so its error is not chased any further.
+        int reapStatus = 0;
+        while (::waitpid(child, &reapStatus, 0) < 0 && errno == EINTR) {
+        }
+        throw;
+    }
 
     int status = 0;
     while (::waitpid(child, &status, 0) < 0) {
