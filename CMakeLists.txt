@@ -27,6 +27,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 option(SUBEDIT_BUILD_TESTS "Construire les tests et les benchmarks" ON)
 option(SUBEDIT_SANITIZERS "Activer AddressSanitizer et UndefinedBehaviorSanitizer" OFF)
 option(SUBEDIT_COVERAGE "Instrumenter pour la mesure de couverture" OFF)
+# OFF par défaut ; seuls les presets asan et release le mettent à ON. Un
+# indicateur déclaratif se lit mieux dans six mois qu'un if() composé sur
+# CMAKE_BUILD_TYPE et SUBEDIT_SANITIZERS — voir src/test/e2e/CMakeLists.txt
+# pour la raison de ce choix de presets.
+option(SUBEDIT_REGISTER_E2E "Enregistrer les tests de bout en bout dans CTest" OFF)
 
 # Date de génération : celle du commit, et non l'horloge. Deux compilations
 # d'une même source donnent alors le même binaire — ce que l'horloge

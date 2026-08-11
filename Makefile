@@ -98,7 +98,7 @@ endef
 .PHONY: help
 help: ## Affiche cette aide
 	@printf '$(BOLD)subedit$(RESET) — cibles disponibles\n\n'
-	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
+	@grep -hE '^[a-z0-9-]+:.*?## ' $(MAKEFILE_LIST) \
 		| sort \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  $(BOLD)%-12s$(RESET) %s\n", $$1, $$2}'
 	@printf '\ngénérateur : $(CMAKE_GENERATOR)\n'
@@ -114,8 +114,12 @@ build: ## Compile le preset dev
 	@cmake --preset dev
 	@cmake --build --preset dev -j $(JOBS)
 
+# N'exécute pas les tests de bout en bout : ils ne s'enregistrent dans CTest
+# que sous les presets asan et release — voir SUBEDIT_REGISTER_E2E dans
+# src/test/e2e/CMakeLists.txt. `make asan` est la façon la plus rapide de les
+# voir tourner en boucle de développement ; `make e2e` cible release seul.
 .PHONY: test
-test: ## Compile et exécute les tests
+test: ## Compile et exécute les tests (hors bout en bout — voir make asan)
 	$(call step,"tests (dev)")
 	@cmake --preset dev
 	@cmake --build --preset dev -j $(JOBS)
@@ -173,6 +177,17 @@ requirements: ## Confronte le registre d'exigences aux tests de bout en bout
 	@cmake --build --preset dev -j $(JOBS) --target subedit_e2e_test
 	@./src/scripts/check-requirements.sh
 
+# Ne construit et n'exécute que le harnais de bout en bout, filtré par
+# l'étiquette CTest `e2e` plutôt que par nom de test — un nom de test unitaire
+# qui s'en approcherait ne le tromperait pas. Partage le build release avec
+# `make bench` : la seconde invocation ne recompile rien.
+.PHONY: e2e
+e2e: ## Exécute uniquement les tests de bout en bout (release)
+	$(call step,"tests de bout en bout (release)")
+	@cmake --preset release -DSUBEDIT_LTO_JOBS=$(JOBS)
+	@cmake --build --preset release -j $(JOBS) --target subedit_e2e_test
+	@ctest --preset release -L e2e
+
 .PHONY: asan
 asan: ## Exécute les tests sous ASan et UBSan
 	$(call step,"tests sous sanitizers")
@@ -215,14 +230,20 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 # cette cible, rien d'autre. Tout ce qui y entre gate donc chaque push, de
 # tout le monde ; on n'y ajoute rien à la légère.
 #
-# `check-local` est l'endroit pour les vérifications qu'on veut voir passer
-# avant d'ouvrir une pull request, mais qu'on ne veut pas voir gater la CI.
-# Aujourd'hui, la confrontation du registre d'exigences et le contrôle du
-# parallélisme maîtrisé ; les issues #50 et #52 y ajouteront les leurs.
+# `check-local` est l'unique commande à lancer avant d'ouvrir une pull
+# request : elle enchaîne tout ce qu'on veut voir passer en local sans le
+# voir gater la CI. L'ordre va du moins cher au plus cher, pour qu'un échec
+# coûte des secondes plutôt que la totalité de la chaîne : exigences,
+# parallélisme maîtrisé, tests de bout en bout, puis benchmarks. `bench` n'a
+# pas de verdict binaire — c'est voulu, la règle du projet impose de rejouer
+# les benchmarks à chaque issue, et les chaîner ici est ce qui le garantit
+# plutôt que de compter sur la mémoire de qui ouvre la pull request.
 .PHONY: check-local
-check-local: ## Vérifications locales, hors CI — exigences et parallélisme maîtrisé
+check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory requirements
 	@$(MAKE) --no-print-directory parallelism
+	@$(MAKE) --no-print-directory e2e
+	@$(MAKE) --no-print-directory bench
 
 .PHONY: verify-gates
 verify-gates: ## Prouve que check et check-local échouent chacun sur ses défauts (huit)
