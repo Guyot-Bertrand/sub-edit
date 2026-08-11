@@ -233,15 +233,19 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 # `check-local` est l'unique commande à lancer avant d'ouvrir une pull
 # request : elle enchaîne tout ce qu'on veut voir passer en local sans le
 # voir gater la CI. L'ordre va du moins cher au plus cher, pour qu'un échec
-# coûte des secondes plutôt que la totalité de la chaîne : exigences,
-# parallélisme maîtrisé, tests de bout en bout, puis benchmarks. `bench` n'a
-# pas de verdict binaire — c'est voulu, la règle du projet impose de rejouer
-# les benchmarks à chaque issue, et les chaîner ici est ce qui le garantit
-# plutôt que de compter sur la mémoire de qui ouvre la pull request.
+# coûte des secondes plutôt que la totalité de la chaîne : parallélisme
+# maîtrisé (un grep, sous la seconde), exigences (compilation incrémentale
+# dev), tests de bout en bout (build release), puis benchmarks. `parallelism`
+# passe en premier précisément parce qu'elle ne construit rien — la faire
+# attendre derrière `requirements`, qui compile, coûterait à un `-j 8` codé en
+# dur le temps d'un build entier avant qu'on l'entende. `bench` n'a pas de
+# verdict binaire — c'est voulu, la règle du projet impose de rejouer les
+# benchmarks à chaque issue, et les chaîner ici est ce qui le garantit plutôt
+# que de compter sur la mémoire de qui ouvre la pull request.
 .PHONY: check-local
 check-local: ## Unique commande locale à lancer avant une pull request
-	@$(MAKE) --no-print-directory requirements
 	@$(MAKE) --no-print-directory parallelism
+	@$(MAKE) --no-print-directory requirements
 	@$(MAKE) --no-print-directory e2e
 	@$(MAKE) --no-print-directory bench
 

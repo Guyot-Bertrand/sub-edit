@@ -232,6 +232,7 @@ ses paramètres.
 
 | Cible | Rôle | Preset | Enchaîne | Paramètres |
 | :---- | :--- | :----- | :------- | :--------- |
+| `make help` | affiche cette liste, générée depuis les commentaires `##` du `Makefile` | — | — | — |
 | `make setup` | installe la chaîne d'outils manquante et les hooks git | — | — | — |
 | `make build` | configure et compile | `dev` | — | `JOBS` |
 | `make test` | compile et exécute les tests, **hors bout en bout** — voir `make asan` | `dev` | — | `JOBS` |
@@ -246,22 +247,24 @@ ses paramètres.
 | `make coverage` | mesure la couverture des bibliothèques, échoue sous `COVERAGE_MIN` | `coverage` | — | `JOBS` |
 | `make bench` | exécute les benchmarks, verdict lu par un humain, pas binaire | `release` | — | `JOBS` |
 | `make check` | **porte de qualité — CI, FIGÉE, décrite ci-dessous** | `dev`/`asan`/`coverage` via ses sous-cibles | `format-check`, `arch`, `build`, `tidy`, `asan`, `coverage` | `JOBS` |
-| `make check-local` | **unique commande avant une pull request, décrite ci-dessous** | tous les presets qu'utilisent ses sous-cibles | `requirements`, `parallelism`, `e2e`, `bench` | `JOBS` |
+| `make check-local` | **unique commande avant une pull request, décrite ci-dessous** | tous les presets qu'utilisent ses sous-cibles | `parallelism`, `requirements`, `e2e`, `bench` | `JOBS` |
 | `make verify-gates` | prouve que `check` et `check-local` échouent chacun sur ses défauts injectés | — | — | — |
 | `make changelog` | régénère `CHANGELOG.md` depuis l'historique des commits | — | — | — |
 | `make clean` | supprime `build/` | — | — | — |
 
 `make e2e` et `make bench` configurent et compilent tous deux le preset
-`release` : lancer l'un après l'autre ne recompile rien de plus, le second
-retrouve le premier build tel quel.
+`release` : lancer l'un après l'autre ne recompile rien *de la bibliothèque* —
+`subedit_core` est un objet partagé entre les deux. Chacun lie son propre
+exécutable (`subedit_e2e_test`, `subedit_core_bench`), donc l'édition de liens
+et la compilation des fichiers propres à cet exécutable restent à faire.
 
 **Pourquoi deux gates.** `make check` est ce que la CI exécute, à l'identique,
 sur chaque push de chaque personne — elle en est le seul filet, et ce qui y
 entre gate tout le monde. Une vérification utile mais trop coûteuse, ou trop
-propre au poste de développement, pour gater chaque push (la confrontation du
-registre d'exigences, le contrôle du parallélisme maîtrisé, le harnais de
-bout en bout, les benchmarks) n'a donc pas sa place dans `make check` : elle
-va dans `make check-local`, une cible que la CI n'exécute jamais et qu'on
+propre au poste de développement, pour gater chaque push (le contrôle du
+parallélisme maîtrisé, la confrontation du registre d'exigences, le harnais
+de bout en bout, les benchmarks) n'a donc pas sa place dans `make check` :
+elle va dans `make check-local`, une cible que la CI n'exécute jamais et qu'on
 lance soi-même avant d'ouvrir une pull request. **La commande à retenir avant
 d'ouvrir une pull request est `make check-local`.**
 
@@ -353,7 +356,14 @@ personne, n'a donc pas sa place dans `make check` : elle va dans
 d'abord, pour qu'un défaut coûte des secondes plutôt que la totalité de la
 chaîne :
 
-1. **Exigences** — `make requirements` : `check-requirements.sh` confronte le
+1. **Parallélisme maîtrisé** — `make parallelism` : `check-parallelism.sh`
+   refuse tout site de parallélisme, dans le `Makefile`, dans `src/scripts/`
+   ou dans `cmake/`, qui contourne `$(JOBS)` ou `SUBEDIT_LTO_JOBS`. Un grep,
+   sous la seconde — d'où sa place en tête : la faire attendre derrière une
+   étape qui compile coûterait à un `-j 8` codé en dur le temps de ce build
+   avant qu'on l'entende. Voir
+   [« Parallélisme maîtrisé »](#parallélisme-maîtrisé) plus haut.
+2. **Exigences** — `make requirements` : `check-requirements.sh` confronte le
    registre [`docs/exigences.md`](../exigences.md) aux tags des tests de bout
    en bout, dans les deux sens : une exigence `implémentée` que rien ne cite
    échoue, un tag en forme d'identifiant qui ne désigne aucune exigence
@@ -361,21 +371,19 @@ chaîne :
    quelle promesse est démontrée. Voir
    [l'ADR 0014](../adr/0014-registre-d-exigences.md), dont les Conséquences
    discutent le prix de la garder hors CI.
-2. **Parallélisme maîtrisé** — `make parallelism` : `check-parallelism.sh`
-   refuse tout site de parallélisme, dans le `Makefile`, dans `src/scripts/`
-   ou dans `cmake/`, qui contourne `$(JOBS)` ou `SUBEDIT_LTO_JOBS`. Voir
-   [« Parallélisme maîtrisé »](#parallélisme-maîtrisé) plus haut.
 3. **Tests de bout en bout** — `make e2e` : configure et compile le preset
    `release`, puis exécute uniquement le harnais de bout en bout (étiquette
    CTest `e2e`, filtrée avec `ctest -L` plutôt que par nom de test). Voir
    [« Enregistrement des tests de bout en bout »](#enregistrement-des-tests-de-bout-en-bout)
    plus haut pour le mécanisme d'enregistrement.
-4. **Benchmarks** — `make bench` : partage le build `release` de l'étape
-   précédente, donc ne recompile rien de plus. Son verdict se lit, il n'est
-   pas binaire — c'est voulu : la [définition de « terminé »](../../CLAUDE.md)
-   du projet impose de rejouer les benchmarks à chaque issue, et les chaîner
-   ici est ce qui le garantit plutôt que de compter sur la mémoire de qui
-   ouvre la pull request.
+4. **Benchmarks** — `make bench` : réutilise l'objet `subedit_core` déjà
+   compilé par l'étape précédente, mais lie son propre exécutable
+   (`subedit_core_bench`) — ce n'est donc pas un no-op, seulement moins cher
+   qu'un build `release` complet. Son verdict se lit, il n'est pas binaire —
+   c'est voulu : la [définition de « terminé »](../../CLAUDE.md) du projet
+   impose de rejouer les benchmarks à chaque issue, et les chaîner ici est ce
+   qui le garantit plutôt que de compter sur la mémoire de qui ouvre la pull
+   request.
 
 Le critère d'entrée dans `check-local` est le même pour toute future
 addition : utile avant une pull request, mais pas assez universelle — ou trop
