@@ -23,6 +23,8 @@ ne pas l'éditer à la main.
 - **test** — Ne plus lire les tags dans les diagnostics du binaire
 - **ci** — Corriger COVERAGE_MIN à 99.2 pour que la porte se referme
 - **scripts** — Corriger deux failles de check-parallelism.sh
+- **scripts** — Retrait de commentaire sensible aux guillemets
+- **build** — Ordonner check-local du moins cher au plus cher
 
 ### Documentation
 
@@ -34,6 +36,8 @@ ne pas l'éditer à la main.
 - **build** — Documenter le parallélisme maîtrisé des fondations
 - **doc** — Corriger le compte d'alternatives écartées de l'ADR 0014
 - **doc** — Documenter la façade make et les deux gates
+- **doc** — Aligner README et CONTRIBUTING sur le nouveau make test
+- **scripts** — Écrire la limite du suivi des guillemets
 
 ### Intégration continue
 
