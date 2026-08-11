@@ -28,7 +28,8 @@
       "displayName": "Sanitizers — address, undefined, leak",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "SUBEDIT_SANITIZERS": "ON"
+        "SUBEDIT_SANITIZERS": "ON",
+        "SUBEDIT_REGISTER_E2E": "ON"
       }
     },
     {
@@ -46,7 +47,8 @@
       "displayName": "Release — optimisé, LTO",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON",
+        "SUBEDIT_REGISTER_E2E": "ON"
       }
     }
   ],
@@ -70,6 +72,7 @@
     },
     { "name": "dev", "inherits": "base", "configurePreset": "dev" },
     { "name": "asan", "inherits": "base", "configurePreset": "asan" },
-    { "name": "coverage", "inherits": "base", "configurePreset": "coverage" }
+    { "name": "coverage", "inherits": "base", "configurePreset": "coverage" },
+    { "name": "release", "inherits": "base", "configurePreset": "release" }
   ]
 }

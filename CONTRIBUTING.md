@@ -89,7 +89,7 @@ exclusion non justifiée est un défaut, pas un réglage.
 | Commande | Effet |
 | :------- | :---- |
 | `make build` | compile le preset `dev` |
-| `make test` | compile et exécute les tests |
+| `make test` | compile et exécute les tests (hors bout en bout — voir `make asan`) |
 | `make check` | la porte de qualité complète |
 | `make format` | applique clang-format |
 | `make tidy` | analyse statique |

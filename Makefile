@@ -10,24 +10,32 @@ SHELL := /bin/bash
 
 # Nombre de tâches parallèles, pour la compilation et pour l'analyse statique.
 #
-# **Un seul cœur par défaut, délibérément.** La machine de développement fait
-# tourner d'autres projets en même temps, et une compilation qui prend tous les
-# cœurs y provoque des échecs de tests sur délai d'attente : un défaut ailleurs,
-# causé ici. Le confort local ne vaut pas ce prix, d'autant que le seuil est
-# invisible — on ne voit pas ce qu'on casse chez le voisin.
+# **Deux cœurs par défaut, pas plus.** La machine de développement fait tourner
+# d'autres projets en même temps, et une compilation qui prend tous les cœurs y
+# provoque des échecs de tests sur délai d'attente : un défaut ailleurs, causé
+# ici. Deux est le plafond convenu pour le travail local — une règle, pas un
+# jugement au cas par cas, précisément parce que le seuil est invisible : on ne
+# voit pas ce qu'on casse chez le voisin avant de l'avoir cassé. Le chiffre
+# vient d'une mesure : `make check` à un seul cœur prend environ 17 minutes,
+# dont environ 15 pour clang-tidy à lui seul.
 #
 # Se relève au besoin, sans toucher à ce fichier :
 #
 #     make build JOBS=8
 #     JOBS=$$(nproc) make check
 #
-# La CI passe `nproc` explicitement : sa machine n'est qu'à elle.
+# La CI passe `nproc` explicitement : sa machine n'est qu'à elle, le plafond ne
+# la concerne pas.
+#
+# src/scripts/check-parallelism.sh vérifie mécaniquement qu'aucune recette de
+# ce fichier ni aucun script de src/scripts/ ne contourne $(JOBS) par un
+# parallélisme câblé en dur.
 #
 # Les tests restent séquentiels quoi qu'il arrive. Ce n'est pas un oubli :
 # `ctest` ne parallélise que sur `-j` explicite, et le lui donner ferait
 # fusionner les `.gcda` de plusieurs exécutions concurrentes, donc un taux de
 # couverture faux sans autre signe qu'un avertissement noyé dans la sortie.
-JOBS ?= 1
+JOBS ?= 2
 
 # git-cliff s'installe dans ~/.local/bin, que ~/.profile n'ajoute au PATH qu'à
 # l'ouverture de session suivante. On ne dépend pas de la configuration du
@@ -38,7 +46,28 @@ export PATH := $(HOME)/.local/bin:$(PATH)
 # projet inconstructible sur une machine qui ne l'a pas encore.
 export CMAKE_GENERATOR ?= $(shell command -v ninja >/dev/null 2>&1 && echo Ninja || echo "Unix Makefiles")
 
-COVERAGE_MIN := 80
+# 80 était une valeur de départ, posée quand le projet tenait en quelques
+# dizaines de lignes ; elle a cessé de vouloir dire quoi que ce soit une fois
+# la couverture réelle montée à 99 %. Un seuil planté dix-neuf points en
+# dessous de la vérité laisse passer une régression de dix-neuf points sans un
+# mot — verify-gates.sh l'a démontré : sa fonction non couverte injectée
+# passait sans encombre.
+#
+# La décimale n'est pas un caprice. gcovr arrondit le taux à une décimale
+# avant de le comparer au seuil, si bien qu'un seuil entier de 99 ne peut
+# jamais être franchi par un taux à 98,95 % ou plus. Le taux mesuré est
+# 99,4 % ; le défaut injecté par verify-gates.sh tombe à 98,97 %, qui arrondit
+# à 99,0. 99,2 se place entre les deux : c'est ce qui rend la porte capable de
+# se refermer.
+#
+# Le vrai cliquet — où vit ce nombre, et ce qui se passe quand la couverture
+# monte — reste le sujet de l'issue #50 ; ceci n'en est pas le mécanisme
+# final.
+#
+# La marge est étroite : sur 1353 lignes et 1345 couvertes, perdre quatre
+# lignes déjà couvertes fait tomber le taux arrondi à 99,1 et fait échouer la
+# porte ; en perdre trois seulement la laisse passer.
+COVERAGE_MIN := 99.2
 SOURCES := $(shell find src -name '*.cpp' -o -name '*.hpp' 2>/dev/null)
 
 # libstdc++ garde <expected> derrière __cpp_concepts >= 202002L, valeur que
@@ -69,7 +98,7 @@ endef
 .PHONY: help
 help: ## Affiche cette aide
 	@printf '$(BOLD)subedit$(RESET) — cibles disponibles\n\n'
-	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
+	@grep -hE '^[a-z0-9-]+:.*?## ' $(MAKEFILE_LIST) \
 		| sort \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  $(BOLD)%-12s$(RESET) %s\n", $$1, $$2}'
 	@printf '\ngénérateur : $(CMAKE_GENERATOR)\n'
@@ -85,8 +114,12 @@ build: ## Compile le preset dev
 	@cmake --preset dev
 	@cmake --build --preset dev -j $(JOBS)
 
+# N'exécute pas les tests de bout en bout : ils ne s'enregistrent dans CTest
+# que sous les presets asan et release — voir SUBEDIT_REGISTER_E2E dans
+# src/test/e2e/CMakeLists.txt. `make asan` est la façon la plus rapide de les
+# voir tourner en boucle de développement ; `make e2e` cible release seul.
 .PHONY: test
-test: ## Compile et exécute les tests
+test: ## Compile et exécute les tests (hors bout en bout — voir make asan)
 	$(call step,"tests (dev)")
 	@cmake --preset dev
 	@cmake --build --preset dev -j $(JOBS)
@@ -132,6 +165,29 @@ arch: ## Vérifie les invariants d'architecture
 	$(call step,"invariants d architecture")
 	@./src/scripts/check-architecture.sh
 
+.PHONY: parallelism
+parallelism: ## Vérifie qu'aucun parallélisme ne contourne $(JOBS)
+	$(call step,"parallélisme maîtrisé")
+	@./src/scripts/check-parallelism.sh
+
+.PHONY: requirements
+requirements: ## Confronte le registre d'exigences aux tests de bout en bout
+	$(call step,"exigences")
+	@cmake --preset dev >/dev/null
+	@cmake --build --preset dev -j $(JOBS) --target subedit_e2e_test
+	@./src/scripts/check-requirements.sh
+
+# Ne construit et n'exécute que le harnais de bout en bout, filtré par
+# l'étiquette CTest `e2e` plutôt que par nom de test — un nom de test unitaire
+# qui s'en approcherait ne le tromperait pas. Partage le build release avec
+# `make bench` : la seconde invocation ne recompile rien.
+.PHONY: e2e
+e2e: ## Exécute uniquement les tests de bout en bout (release)
+	$(call step,"tests de bout en bout (release)")
+	@cmake --preset release -DSUBEDIT_LTO_JOBS=$(JOBS)
+	@cmake --build --preset release -j $(JOBS) --target subedit_e2e_test
+	@ctest --preset release -L e2e
+
 .PHONY: asan
 asan: ## Exécute les tests sous ASan et UBSan
 	$(call step,"tests sous sanitizers")
@@ -170,8 +226,31 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 	@$(MAKE) --no-print-directory coverage
 	@printf '$(GREEN)✓ porte franchie$(RESET)\n'
 
+# `check` est ce que la CI exécute — .github/workflows/ci.yml n'appelle que
+# cette cible, rien d'autre. Tout ce qui y entre gate donc chaque push, de
+# tout le monde ; on n'y ajoute rien à la légère.
+#
+# `check-local` est l'unique commande à lancer avant d'ouvrir une pull
+# request : elle enchaîne tout ce qu'on veut voir passer en local sans le
+# voir gater la CI. L'ordre va du moins cher au plus cher, pour qu'un échec
+# coûte des secondes plutôt que la totalité de la chaîne : parallélisme
+# maîtrisé (un grep, sous la seconde), exigences (compilation incrémentale
+# dev), tests de bout en bout (build release), puis benchmarks. `parallelism`
+# passe en premier précisément parce qu'elle ne construit rien — la faire
+# attendre derrière `requirements`, qui compile, coûterait à un `-j 8` codé en
+# dur le temps d'un build entier avant qu'on l'entende. `bench` n'a pas de
+# verdict binaire — c'est voulu, la règle du projet impose de rejouer les
+# benchmarks à chaque issue, et les chaîner ici est ce qui le garantit plutôt
+# que de compter sur la mémoire de qui ouvre la pull request.
+.PHONY: check-local
+check-local: ## Unique commande locale à lancer avant une pull request
+	@$(MAKE) --no-print-directory parallelism
+	@$(MAKE) --no-print-directory requirements
+	@$(MAKE) --no-print-directory e2e
+	@$(MAKE) --no-print-directory bench
+
 .PHONY: verify-gates
-verify-gates: ## Prouve que make check échoue sur chaque type de défaut
+verify-gates: ## Prouve que check et check-local échouent chacun sur ses défauts (huit)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog

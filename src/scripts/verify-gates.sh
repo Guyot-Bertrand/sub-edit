@@ -3,16 +3,25 @@
 #
 # Une porte qu'on n'a jamais vue échouer n'est pas une porte : c'est une
 # croyance. Ce script injecte délibérément un défaut de chaque type, vérifie que
-# l'étape correspondante de `make check` échoue, puis rétablit les sources.
+# la cible correspondante échoue, puis rétablit les sources.
+#
+# Les cinq premières injections visent des étapes de `make check`, que la CI
+# exécute. Les trois dernières visent `make check-local` — deux fois
+# `requirements`, une fois `parallelism` — qui ne gate donc que le poste de
+# développement : raison de plus pour que ce script prouve que chacune se
+# referme, puisque rien d'autre ne les exercera.
 #
 # À rejouer après toute modification de .clang-format, .clang-tidy, des options
-# de compilation ou du seuil de couverture.
+# de compilation, du seuil de couverture ou du registre d'exigences.
 
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 readonly LIB_SOURCE="${REPO_ROOT}/src/lib/subedit/core/version.cpp"
 readonly TEST_SOURCE="${REPO_ROOT}/src/test/unit/core/version_test.cpp"
+readonly REGISTRY="${REPO_ROOT}/docs/exigences.md"
+readonly E2E_SOURCE="${REPO_ROOT}/src/test/e2e/cli/version_test.cpp"
+readonly MAKEFILE_SOURCE="${REPO_ROOT}/Makefile"
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -25,6 +34,9 @@ failures=0
 restore() {
     cp "${backup_dir}/version.cpp" "${LIB_SOURCE}"
     cp "${backup_dir}/version_test.cpp" "${TEST_SOURCE}"
+    cp "${backup_dir}/exigences.md" "${REGISTRY}"
+    cp "${backup_dir}/e2e_version_test.cpp" "${E2E_SOURCE}"
+    cp "${backup_dir}/Makefile" "${MAKEFILE_SOURCE}"
 }
 
 cleanup() {
@@ -34,6 +46,9 @@ cleanup() {
 
 cp "${LIB_SOURCE}" "${backup_dir}/version.cpp"
 cp "${TEST_SOURCE}" "${backup_dir}/version_test.cpp"
+cp "${REGISTRY}" "${backup_dir}/exigences.md"
+cp "${E2E_SOURCE}" "${backup_dir}/e2e_version_test.cpp"
+cp "${MAKEFILE_SOURCE}" "${backup_dir}/Makefile"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -117,9 +132,39 @@ int injectedUncovered(int value) {
 }
 } // namespace subedit::core'
 
+# Exigence déclarée implémentée que rien ne cite. L'injection se fait en
+# ajoutant une ligne en fin de fichier, ce qui exige que la table du registre
+# soit la dernière chose de docs/exigences.md — c'est écrit dans ce fichier.
+expect_gate_closes \
+    "exigence implémentée sans test" \
+    "requirements" \
+    "${REGISTRY}" \
+    '| `CLI-FANTOME-01` | exigence injectée que rien ne démontre | 3 | implémentée |'
+
+# Tag en forme d'identifiant qui ne désigne aucune exigence du registre.
+expect_gate_closes \
+    "tag sans exigence correspondante" \
+    "requirements" \
+    "${E2E_SOURCE}" \
+    'TEST_CASE("injected unknown requirement", "[e2e][CLI-INEXISTANT-99]") {
+    CHECK(true);
+}'
+
+# Recette Makefile qui code un parallélisme en dur au lieu de passer par
+# $(JOBS) — exactement ce que check-parallelism.sh existe pour repérer. La
+# cible injectée n'est référencée par personne : ni `make parallelism` ni
+# aucune autre cible ne l'exécute, donc l'échec attendu ne peut venir que du
+# balayage du Makefile par le script, pas d'une tentative de construction.
+expect_gate_closes \
+    "parallélisme codé en dur dans le Makefile" \
+    "parallelism" \
+    "${MAKEFILE_SOURCE}" \
+    'cible-injectee-parallelisme:
+	@cmake --build --preset dev -j 8'
+
 printf '\n'
 if (( failures > 0 )); then
     printf '%s%d porte(s) laissent passer un défaut%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles cinq portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles huit portes se referment%s\n' "${GREEN}" "${RESET}"

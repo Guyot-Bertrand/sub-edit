@@ -12,6 +12,42 @@ ne pas l'éditer à la main.
 ### Construction
 
 - Construire en Release, et y mesurer
+- **ci** — Garder le contrôle des exigences hors de make check
+- **build** — Plafonner JOBS à deux cœurs, contrôle mécanique à l'appui
+- Restreindre le harnais e2e à asan/release, enchaîner check-local
+
+### Corrections
+
+- **test** — Corriger la lecture des tubes du harnais de bout en bout
+- **test** — Refuser un binaire de test muet ou en échec sur --list-tags
+- **test** — Ne plus lire les tags dans les diagnostics du binaire
+- **ci** — Corriger COVERAGE_MIN à 99.2 pour que la porte se referme
+- **scripts** — Corriger deux failles de check-parallelism.sh
+- **scripts** — Retrait de commentaire sensible aux guillemets
+- **build** — Ordonner check-local du moins cher au plus cher
+
+### Documentation
+
+- **test** — Décider la forme du registre d'exigences
+- **test** — Ouvrir le registre d'exigences sur la commande de version
+- **build** — Chiffrer la marge de couverture avant que la porte échoue
+- **test** — Décrire le harnais et l'étape exigences de la porte
+- **ci** — Dire quelles cibles verify-gates.sh éprouve désormais
+- **build** — Documenter le parallélisme maîtrisé des fondations
+- **doc** — Corriger le compte d'alternatives écartées de l'ADR 0014
+- **doc** — Documenter la façade make et les deux gates
+- **doc** — Aligner README et CONTRIBUTING sur le nouveau make test
+- **scripts** — Écrire la limite du suivi des guillemets
+
+### Intégration continue
+
+- **test** — Refuser une exigence implémentée que rien ne démontre
+
+### Tests
+
+- **test** — Lancer le binaire réel depuis un harnais de bout en bout
+- **ci** — Prouver que le contrôle des exigences se referme
+- **build** — Prouver que le parallélisme codé en dur échoue
 
 ## 0.2.0 — 2026-08-08
 

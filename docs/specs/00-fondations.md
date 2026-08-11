@@ -69,11 +69,12 @@ subedit/
 │   ├── configuration-github.md
 │   ├── specs/                  une spec par sous-projet
 │   ├── adr/                    décisions techniques
+│   ├── exigences.md            registre des exigences, cité par les tests
 │   └── manual/                 manuels utilisateur, un dossier par exécutable
 ├── src/
 │   ├── lib/subedit/<lib>/…     bibliothèques
 │   ├── exe/<binaire>/main.cpp  exécutables
-│   ├── test/{unit,bench,data}/ tests, benchmarks, fixtures
+│   ├── test/{unit,e2e,bench,data}/ tests, harnais de bout en bout, benchmarks, fixtures
 │   └── scripts/                automatisation
 └── reference/gaupol            clone de référence, ignoré par git
 ```
@@ -136,6 +137,18 @@ Un binaire de test par bibliothèque, enregistré dans CTest via
 `catch_discover_tests` pour que chaque cas soit visible et filtrable
 individuellement.
 
+`src/test/e2e/` fait exception à cette symétrie : il miroite `src/exe/`, non
+`src/lib/`. Ces tests ne lient pas la logique qu'ils vérifient — ils lancent le
+binaire réel par `posix_spawn`, sans shell, et confrontent sortie standard,
+sortie d'erreur et code de retour. Chaque cas cite une exigence de
+[`docs/exigences.md`](../exigences.md) par un tag Catch2, ce que
+`src/scripts/check-requirements.sh` confronte au registre.
+
+Ils ne sont pas enregistrés dans CTest sous le preset `coverage` : `subedit-cli`
+y est instrumenté, et chaque invocation gonflerait la couverture de `src/lib`
+sans qu'aucun test unitaire ait été écrit pour ce code. Voir
+[l'ADR 0014](../adr/0014-registre-d-exigences.md).
+
 ## Conventions de code
 
 | Élément | Convention |
@@ -178,23 +191,103 @@ inconstructible sur une machine qui ne l'a pas encore, pour un gain nul.
 
 `ccache` est utilisé s'il est présent, ignoré sinon.
 
+### Enregistrement des tests de bout en bout
+
+Les tests de `src/test/e2e/` se construisent dans les quatre presets — leurs
+warnings sont les nôtres partout — mais ne s'enregistrent dans CTest que sous
+**`asan` et `release`**, via une option de cache déclarative,
+`SUBEDIT_REGISTER_E2E` (`CMakeLists.txt`), mise à `ON` explicitement par ces
+deux presets dans `CMakePresets.json` et nulle part ailleurs. Le choix d'un
+indicateur déclaratif plutôt que d'un `if()` composé sur `CMAKE_BUILD_TYPE` et
+`SUBEDIT_SANITIZERS` est délibéré : il se relit sans reconstituer le
+raisonnement.
+
+- **`dev` n'enregistre pas les tests de bout en bout.** `dev` et `asan` sont
+  tous deux des builds Debug ; `asan` est strictement plus informatif
+  (AddressSanitizer, UndefinedBehaviorSanitizer, LeakSanitizer), donc les
+  enregistrer aussi sous `dev` n'ajouterait qu'une exécution de plus, sans
+  nouveau signal. **Conséquence pratique : `make test` n'exerce plus le
+  harnais de bout en bout ; `make asan` en est désormais le moyen le plus
+  rapide en boucle de développement.**
+- **`release` les enregistre** : c'est le mode qui expédie, le binaire qu'un
+  utilisateur lance réellement. `make e2e` configure et compile ce preset puis
+  n'exécute que ces tests, filtrés par l'étiquette CTest `e2e`
+  (`catch_discover_tests(... PROPERTIES LABELS e2e)`) plutôt que par nom de
+  test — un nom de test unitaire qui s'en approcherait ne le tromperait pas.
+- **`coverage` ne les enregistre pas**, pour la raison déjà en place avant ce
+  mécanisme : sous ce preset, `subedit-cli` est lui aussi instrumenté, et
+  chaque invocation gonflerait la couverture de `src/lib` sans qu'aucun test
+  unitaire ait été écrit pour ce code. Voir
+  [l'ADR 0014](../adr/0014-registre-d-exigences.md).
+
 ### Façade `make`
 
 CMake est verbeux à l'usage ; le `Makefile` n'ajoute aucune logique de
-construction, seulement des raccourcis.
+construction, seulement des raccourcis. Deux cibles gouvernent tout le
+reste : **`make check`**, la porte que la CI impose à chaque push, et
+**`make check-local`**, l'unique commande à lancer avant d'ouvrir une pull
+request. Les deux sont décrites en détail plus bas ; le tableau donne le rôle
+de chaque cible, le preset CMake qu'elle configure, ce qu'elle enchaîne, et
+ses paramètres.
 
-| Cible | Effet |
-| :---- | :---- |
-| `make setup` | installe la chaîne d'outils manquante et les hooks git |
-| `make build` | configure et compile le preset `dev` |
-| `make test` | compile et exécute les tests |
-| `make bench` | exécute les benchmarks en `release` |
-| `make format` | applique `clang-format` |
-| `make tidy` | exécute `clang-tidy` |
-| `make coverage` | produit le rapport de couverture |
-| `make changelog` | régénère `CHANGELOG.md` |
-| `make check` | **la porte de qualité, décrite ci-dessous** |
-| `make clean` | supprime le répertoire de build |
+| Cible | Rôle | Preset | Enchaîne | Paramètres |
+| :---- | :--- | :----- | :------- | :--------- |
+| `make help` | affiche cette liste, générée depuis les commentaires `##` du `Makefile` | — | — | — |
+| `make setup` | installe la chaîne d'outils manquante et les hooks git | — | — | — |
+| `make build` | configure et compile | `dev` | — | `JOBS` |
+| `make test` | compile et exécute les tests, **hors bout en bout** — voir `make asan` | `dev` | — | `JOBS` |
+| `make format` | applique `clang-format` sur les fichiers suivis | — | — | — |
+| `make format-check` | vérifie le format sans modifier, verdict `--Werror` | — | — | — |
+| `make tidy` | exécute `clang-tidy` sur `src/**/*.cpp` | `dev` (pour `compile_commands.json`) | — | `JOBS` |
+| `make arch` | vérifie les invariants d'architecture (`check-architecture.sh`) | — | — | — |
+| `make parallelism` | vérifie qu'aucun parallélisme ne contourne `$(JOBS)` (`check-parallelism.sh`) | — | — | — |
+| `make requirements` | confronte `docs/exigences.md` aux tags des tests de bout en bout (`check-requirements.sh`) | `dev` | — | `JOBS` |
+| `make e2e` | exécute **seulement** les tests de bout en bout, filtrés par l'étiquette CTest `e2e` | `release` | — | `JOBS` |
+| `make asan` | exécute les tests sous ASan/UBSan/LeakSanitizer — y compris les tests de bout en bout | `asan` | — | `JOBS` |
+| `make coverage` | mesure la couverture des bibliothèques, échoue sous `COVERAGE_MIN` | `coverage` | — | `JOBS` |
+| `make bench` | exécute les benchmarks, verdict lu par un humain, pas binaire | `release` | — | `JOBS` |
+| `make check` | **porte de qualité — CI, FIGÉE, décrite ci-dessous** | `dev`/`asan`/`coverage` via ses sous-cibles | `format-check`, `arch`, `build`, `tidy`, `asan`, `coverage` | `JOBS` |
+| `make check-local` | **unique commande avant une pull request, décrite ci-dessous** | tous les presets qu'utilisent ses sous-cibles | `parallelism`, `requirements`, `e2e`, `bench` | `JOBS` |
+| `make verify-gates` | prouve que `check` et `check-local` échouent chacun sur ses défauts injectés | — | — | — |
+| `make changelog` | régénère `CHANGELOG.md` depuis l'historique des commits | — | — | — |
+| `make clean` | supprime `build/` | — | — | — |
+
+`make e2e` et `make bench` configurent et compilent tous deux le preset
+`release` : lancer l'un après l'autre ne recompile rien *de la bibliothèque* —
+`subedit_core` est un objet partagé entre les deux. Chacun lie son propre
+exécutable (`subedit_e2e_test`, `subedit_core_bench`), donc l'édition de liens
+et la compilation des fichiers propres à cet exécutable restent à faire.
+
+**Pourquoi deux gates.** `make check` est ce que la CI exécute, à l'identique,
+sur chaque push de chaque personne — elle en est le seul filet, et ce qui y
+entre gate tout le monde. Une vérification utile mais trop coûteuse, ou trop
+propre au poste de développement, pour gater chaque push (le contrôle du
+parallélisme maîtrisé, la confrontation du registre d'exigences, le harnais
+de bout en bout, les benchmarks) n'a donc pas sa place dans `make check` :
+elle va dans `make check-local`, une cible que la CI n'exécute jamais et qu'on
+lance soi-même avant d'ouvrir une pull request. **La commande à retenir avant
+d'ouvrir une pull request est `make check-local`.**
+
+### Parallélisme maîtrisé
+
+Chaque site de parallélisme de la façade — compilation, `clang-tidy`, LTO des
+benchmarks — passe par une unique variable, `JOBS`, dont la valeur par défaut
+est **deux cœurs en local**. La machine de développement fait tourner d'autres
+projets en même temps, et un parallélisme non borné y provoque des échecs de
+tests sur délai d'attente ; deux est le plafond convenu, relevable au cas par
+cas avec `make build JOBS=8` sans toucher au `Makefile`. **La CI choisit pour
+elle-même** — `.github/workflows/ci.yml` appelle `make check JOBS=$(nproc)`
+explicitement, sa machine n'étant qu'à elle.
+
+La discipline ne vaudrait rien sans un contrôle mécanique : `make parallelism`,
+qui exécute `src/scripts/check-parallelism.sh`, refuse toute recette du
+`Makefile` où `-j` ou `-P` n'est pas suivi de `$(JOBS)`, tout script de
+`src/scripts/` qui introduirait son propre parallélisme (`-j`/`-P` codé en
+dur, `xargs -P`, appel à `nproc`, commande mise en arrière-plan par un `&`
+final), et tout `-flto=` codé en dur dans `cmake/*.cmake` ou `CMakeLists.txt`
+en dehors du mécanisme `SUBEDIT_LTO_JOBS`. Cette vérification vit dans `make
+check-local`, pas dans `make check` : elle protège le poste de développement,
+pas la CI, qui borne déjà son propre parallélisme autrement.
 
 ## Dépendances
 
@@ -241,13 +334,60 @@ Cinq étapes, verdict binaire, aucune tolérance :
    comportement indéfini échoue au lieu de passer inaperçu. Le preset active
    aussi **LeakSanitizer** : une fuite fait échouer les tests, elle ne se
    découvre pas six mois plus tard.
-5. **Couverture** — seuil de **80 % minimum sur les bibliothèques**, relevable
-   par bibliothèque quand c'est justifié. Les exécutables sont exclus du calcul :
-   la règle d'architecture les vide de tout ce qui mérite d'être couvert.
+5. **Couverture** — seuil de **99,2 % minimum sur les bibliothèques**, relevable
+   par bibliothèque quand c'est justifié. Le chiffre est le taux mesuré, pas un
+   plancher symbolique — le vrai cliquet reste à construire, sujet de
+   l'issue #50. Les exécutables sont exclus du calcul : la règle d'architecture
+   les vide de tout ce qui mérite d'être couvert.
 
 **La CI appelle `make check`, et rien d'autre.** Aucune étape n'est recopiée dans
 le YAML. C'est la seule manière que le filet local et le filet distant restent
 identiques dans six mois.
+
+## La cible `make check-local` : l'unique commande avant une pull request
+
+`make check` est ce que la CI exécute — `.github/workflows/ci.yml` n'appelle
+que cette cible. Une vérification qu'on veut voir passer avant d'ouvrir une
+pull request, mais qu'on ne veut pas voir gater chaque push de chaque
+personne, n'a donc pas sa place dans `make check` : elle va dans
+`make check-local`, une cible séparée que la CI n'exécute jamais.
+
+`check-local` enchaîne quatre étapes, dans cet ordre précis — la moins chère
+d'abord, pour qu'un défaut coûte des secondes plutôt que la totalité de la
+chaîne :
+
+1. **Parallélisme maîtrisé** — `make parallelism` : `check-parallelism.sh`
+   refuse tout site de parallélisme, dans le `Makefile`, dans `src/scripts/`
+   ou dans `cmake/`, qui contourne `$(JOBS)` ou `SUBEDIT_LTO_JOBS`. Un grep,
+   sous la seconde — d'où sa place en tête : la faire attendre derrière une
+   étape qui compile coûterait à un `-j 8` codé en dur le temps de ce build
+   avant qu'on l'entende. Voir
+   [« Parallélisme maîtrisé »](#parallélisme-maîtrisé) plus haut.
+2. **Exigences** — `make requirements` : `check-requirements.sh` confronte le
+   registre [`docs/exigences.md`](../exigences.md) aux tags des tests de bout
+   en bout, dans les deux sens : une exigence `implémentée` que rien ne cite
+   échoue, un tag en forme d'identifiant qui ne désigne aucune exigence
+   échoue. La couverture de lignes dit quel code a été exécuté ; celle-ci dit
+   quelle promesse est démontrée. Voir
+   [l'ADR 0014](../adr/0014-registre-d-exigences.md), dont les Conséquences
+   discutent le prix de la garder hors CI.
+3. **Tests de bout en bout** — `make e2e` : configure et compile le preset
+   `release`, puis exécute uniquement le harnais de bout en bout (étiquette
+   CTest `e2e`, filtrée avec `ctest -L` plutôt que par nom de test). Voir
+   [« Enregistrement des tests de bout en bout »](#enregistrement-des-tests-de-bout-en-bout)
+   plus haut pour le mécanisme d'enregistrement.
+4. **Benchmarks** — `make bench` : réutilise l'objet `subedit_core` déjà
+   compilé par l'étape précédente, mais lie son propre exécutable
+   (`subedit_core_bench`) — ce n'est donc pas un no-op, seulement moins cher
+   qu'un build `release` complet. Son verdict se lit, il n'est pas binaire —
+   c'est voulu : la [définition de « terminé »](../../CLAUDE.md) du projet
+   impose de rejouer les benchmarks à chaque issue, et les chaîner ici est ce
+   qui le garantit plutôt que de compter sur la mémoire de qui ouvre la pull
+   request.
+
+Le critère d'entrée dans `check-local` est le même pour toute future
+addition : utile avant une pull request, mais pas assez universelle — ou trop
+coûteuse — pour gater chaque push sur la CI.
 
 ## Intégration continue
 
@@ -315,6 +455,7 @@ définition de « terminé » d'une issue**, au même titre que les tests.
 | `docs/principes-de-conception.md` | règles permanentes de conception et de gestion mémoire |
 | `docs/specs/NN-<sujet>.md` | une spec par sous-projet, conception durable |
 | `docs/adr/NNNN-<titre>.md` | décisions techniques et alternatives écartées |
+| `docs/exigences.md` | ce que le binaire promet, et l'état de ce qui le prouve |
 | `docs/manual/<exécutable>/` | manuel utilisateur, un fichier par section |
 | `README.md` | ce qu'est le projet, pourquoi, comment le construire |
 | `CONTRIBUTING.md` | flux de travail, conventions, commandes |
