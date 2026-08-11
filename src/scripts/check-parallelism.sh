@@ -63,6 +63,46 @@ report_success() {
     printf '%s✓%s %s\n' "${GREEN}" "${RESET}" "$*"
 }
 
+# Retire un commentaire de fin de ligne, en respectant les guillemets : un `#`
+# à l'intérieur d'une chaîne simple ou double ('run #1', "run #1") ne débute
+# pas un commentaire, seul celui qui apparaît hors guillemet et en tête de mot
+# (début de ligne, ou précédé d'une espace ou d'un métacaractère shell comme
+# `&`, `;`, `|`, `(`) en débute un — `tache &#collé` est un commentaire valide
+# sans espace, `echo "run #1" &` n'en est pas un. Une analyse par caractère,
+# pas un motif : un motif fondé sur " #" se ferait justement piéger par le
+# premier cas.
+strip_trailing_comment() {
+    local line="$1"
+    local -i i len=${#line}
+    local c prev="" in_single=0 in_double=0
+    local result=""
+
+    for ((i = 0; i < len; i++)); do
+        c="${line:i:1}"
+
+        if (( in_single )); then
+            [[ "${c}" == "'" ]] && in_single=0
+        elif (( in_double )); then
+            [[ "${c}" == '"' ]] && in_double=0
+        elif [[ "${c}" == "'" ]]; then
+            in_single=1
+        elif [[ "${c}" == '"' ]]; then
+            in_double=1
+        elif [[ "${c}" == '#' ]]; then
+            case "${prev}" in
+                ''|[[:space:]]|'&'|';'|'|'|'(')
+                    break
+                    ;;
+            esac
+        fi
+
+        result+="${c}"
+        prev="${c}"
+    done
+
+    printf '%s' "${result}"
+}
+
 # Un jeton "-j"/"-P" (collé ou séparé) est légitime seulement s'il vaut
 # littéralement $(JOBS). Prend un jeton et le suivant (peut être vide),
 # renvoie 0 (légitime) ou 1 (contournement).
@@ -173,11 +213,12 @@ check_scripts() {
             if [[ -z "${reason}" ]]; then
                 # Un commentaire de fin de ligne ne change pas la nature de la
                 # commande : `tâche & # commentaire` reste une tâche mise en
-                # arrière-plan. On le retire avant de chercher le `&` final —
-                # sans quoi c'est la fin du commentaire qui est testée, pas la
-                # fin de la commande.
-                local rtrimmed="${line%"${line##*[![:space:]]}"}"
-                local without_comment="${rtrimmed%% #*}"
+                # arrière-plan. strip_trailing_comment le retire avant qu'on
+                # cherche le `&` final — sans quoi c'est la fin du commentaire
+                # qui serait testée, pas la fin de la commande — tout en
+                # laissant intact un `#` cité, comme dans `echo "run #1" &`.
+                local without_comment
+                without_comment="$(strip_trailing_comment "${line}")"
                 without_comment="${without_comment%"${without_comment##*[![:space:]]}"}"
                 if [[ "${without_comment}" == *'&' && "${without_comment}" != *'&&' ]]; then
                     reason="commande mise en arrière-plan (&)"
@@ -240,6 +281,6 @@ check_scripts
 check_cmake
 
 if (( failures > 0 )); then
-    printf '\n%s%d contournement(s) de \$(JOBS)%s\n' "${RED}" "${failures}" "${RESET}" >&2
+    printf '\n%s%d contournement(s) de $(JOBS)%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
