@@ -124,16 +124,20 @@ $(printf '    %s\n' "${offenders[@]}")"
 # toutes lettres, comme motifs à reconnaître plutôt que comme commandes à
 # exécuter. Le confronter à ses propres motifs ne prouverait rien d'autre
 # qu'il se contient lui-même.
+#
+# Un ✓ par invariant, pas un ✓ par fichier balayé : la liste des fautifs ne
+# sort que sur échec, sans quoi chaque script ou fichier cmake ajouté au
+# projet ajouterait une ligne permanente à une sortie censée rester lisible.
 check_scripts() {
     local self
     self="$(basename "${BASH_SOURCE[0]}")"
 
+    local -a offenders=()
     local script relative
     while IFS= read -r -d '' script; do
         relative="${script#"${REPO_ROOT}"/}"
         [[ "$(basename "${script}")" == "${self}" ]] && continue
 
-        local -a offenders=()
         local line trimmed
         while IFS= read -r line; do
             trimmed="${line#"${line%%[![:space:]]*}"}"
@@ -167,26 +171,36 @@ check_scripts() {
             fi
 
             if [[ -z "${reason}" ]]; then
+                # Un commentaire de fin de ligne ne change pas la nature de la
+                # commande : `tâche & # commentaire` reste une tâche mise en
+                # arrière-plan. On le retire avant de chercher le `&` final —
+                # sans quoi c'est la fin du commentaire qui est testée, pas la
+                # fin de la commande.
                 local rtrimmed="${line%"${line##*[![:space:]]}"}"
-                if [[ "${rtrimmed}" == *'&' && "${rtrimmed}" != *'&&' ]]; then
+                local without_comment="${rtrimmed%% #*}"
+                without_comment="${without_comment%"${without_comment##*[![:space:]]}"}"
+                if [[ "${without_comment}" == *'&' && "${without_comment}" != *'&&' ]]; then
                     reason="commande mise en arrière-plan (&)"
                 fi
             fi
 
-            [[ -n "${reason}" ]] && offenders+=("${reason} : ${trimmed}")
+            [[ -n "${reason}" ]] && offenders+=("${relative} : ${reason} : ${trimmed}")
         done < "${script}"
-
-        if (( ${#offenders[@]} > 0 )); then
-            report_failure "${relative} : parallélisme propre au script :
-$(printf '    %s\n' "${offenders[@]}")"
-        else
-            report_success "${relative} : aucun parallélisme propre au script"
-        fi
     done < <(find "${REPO_ROOT}/src/scripts" -maxdepth 1 -name '*.sh' -print0 2>/dev/null)
+
+    if (( ${#offenders[@]} > 0 )); then
+        report_failure "src/scripts : parallélisme propre à un script :
+$(printf '    %s\n' "${offenders[@]}")"
+    else
+        report_success "src/scripts : aucun script n'introduit son propre parallélisme"
+    fi
 }
 
 # Invariant 3 — le LTO ne code aucun nombre de processus en dehors de
 # SUBEDIT_LTO_JOBS.
+#
+# Un ✓ par invariant, comme check_scripts : la liste des fichiers fautifs ne
+# sort que sur échec.
 check_cmake() {
     local -a files=()
     local f
@@ -195,27 +209,30 @@ check_cmake() {
     done < <(find "${REPO_ROOT}/cmake" -maxdepth 1 -name '*.cmake' -print0 2>/dev/null)
     [[ -f "${REPO_ROOT}/CMakeLists.txt" ]] && files+=("${REPO_ROOT}/CMakeLists.txt")
 
+    local -a offenders=()
     local relative line trimmed
     for f in "${files[@]}"; do
         relative="${f#"${REPO_ROOT}"/}"
-        local -a offenders=()
 
         while IFS= read -r line; do
             trimmed="${line#"${line%%[![:space:]]*}"}"
             [[ -z "${trimmed}" || "${trimmed}" == '#'* ]] && continue
 
             if [[ "${line}" == *'-flto='* && "${line}" != *'-flto=${SUBEDIT_LTO_JOBS}'* ]]; then
-                offenders+=("${trimmed}")
+                offenders+=("${relative} : ${trimmed}")
             fi
         done < "${f}"
-
-        if (( ${#offenders[@]} > 0 )); then
-            report_failure "${relative} : -flto= codé en dur hors de SUBEDIT_LTO_JOBS :
-$(printf '    %s\n' "${offenders[@]}")"
-        else
-            report_success "${relative} : le LTO passe par SUBEDIT_LTO_JOBS"
-        fi
     done
+
+    if (( ${#offenders[@]} > 0 )); then
+        report_failure "cmake : -flto= codé en dur hors de SUBEDIT_LTO_JOBS :
+$(printf '    %s\n' "${offenders[@]}")"
+    else
+        # Établi : aucun de ces fichiers ne code -flto= en dehors de
+        # SUBEDIT_LTO_JOBS. Ça ne dit rien de ceux qui ne mentionnent pas le
+        # LTO du tout — c'est pourquoi la phrase reste vraie pour eux aussi.
+        report_success "cmake : aucun -flto= codé en dur hors de SUBEDIT_LTO_JOBS"
+    fi
 }
 
 check_makefile
