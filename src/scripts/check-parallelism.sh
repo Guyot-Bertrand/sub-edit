@@ -71,6 +71,14 @@ report_success() {
 # sans espace, `echo "run #1" &` n'en est pas un. Une analyse par caractère,
 # pas un motif : un motif fondé sur " #" se ferait justement piéger par le
 # premier cas.
+#
+# Limite assumée, écrite ici pour que ce commentaire ne promette pas plus que
+# le code ne tient : les guillemets échappés par `\` ne sont pas suivis. Dans
+# `printf "a \" # b" &`, le `\"` est pris pour une fermeture, le `#` passe
+# alors pour un commentaire, et le `&` final échappe au contrôle. Aucun script
+# du dépôt n'a cette forme ; la traiter demanderait de suivre l'échappement,
+# et de proche en proche d'écrire un analyseur shell — disproportionné pour ce
+# que ce contrôle protège.
 strip_trailing_comment() {
     local line="$1"
     local -i i len=${#line}
