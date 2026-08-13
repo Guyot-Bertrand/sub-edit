@@ -643,6 +643,6 @@ par le corpus.
 - [ ] `image → ms → image` est vérifié exact pour les huit fréquences
 - [ ] L'historique annule et rétablit une commande factice, groupée et isolée,
       et le compteur de modification revient à zéro au point de sauvegarde
-- [ ] `make check` passe, couverture des modules au-dessus du seuil
+- [ ] `make check` passe, cliquet de couverture des modules tenu
 - [ ] Benchmarks de lecture, d'écriture et de conversion de fréquence en place
 - [ ] Section de manuel et entrée de CHANGELOG à jour

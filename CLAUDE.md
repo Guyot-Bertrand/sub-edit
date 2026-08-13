@@ -96,11 +96,16 @@ avec un objectif d'iso-fonctionnalité.
   2. relire, corriger ;
   3. **rejouer `make bench`** et regarder les chiffres. Avant la porte, parce
      qu'une régression se corrige tant qu'il est temps — la découvrir après
-     obligerait à tout reprendre ;
+     obligerait à tout reprendre. **Cette exécution reste diagnostique :** la
+     version n'a pas encore bougé, donc son relevé ne doit pas rester dans le
+     journal — il porterait le nom de la version précédente ;
   4. **bumper le patch** ;
-  5. `make check` — une seule fois, elle voit le code *et* le bump ;
+  5. `make check` — une seule fois, elle voit le code *et* le bump — puis
+     `make check-local`, dont le `make bench` qu'il enchaîne tourne cette
+     fois sur la version bumpée : **c'est cette exécution-là, postérieure au
+     bump, qui enregistre la mesure qui reste dans le journal** ;
   6. **mettre à jour la documentation et le relevé de mesures** — manuel, notes,
-     exemples de version, chiffres relevés à l'étape 3. Rien de tout cela n'est
+     exemples de version, chiffres relevés à l'étape 5. Rien de tout cela n'est
      lu par la porte, donc rien ne la réouvre ;
   7. commiter, régénérer le CHANGELOG, ouvrir la PR.
 

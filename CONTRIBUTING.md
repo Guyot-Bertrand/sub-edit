@@ -95,6 +95,7 @@ exclusion non justifiée est un défaut, pas un réglage.
 | `make tidy` | analyse statique |
 | `make asan` | tests sous AddressSanitizer et UndefinedBehaviorSanitizer |
 | `make coverage` | rapport de couverture |
-| `make bench` | benchmarks en Release |
+| `make ratchet` | enregistre la couverture mesurée comme nouveau cliquet |
+| `make bench` | benchmarks en Release, versés dans `docs/mesures/performances.md` |
 | `make changelog` | régénère `CHANGELOG.md` |
 | `make help` | toutes les cibles |

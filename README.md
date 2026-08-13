@@ -50,8 +50,8 @@ Les inclusions internes sont toujours qualifiées depuis `src/lib` :
 
 `make check` est la porte, et la CI n'exécute rien d'autre : format, warnings en
 erreurs, clang-tidy, invariants d'architecture, tests sous AddressSanitizer et
-UndefinedBehaviorSanitizer, seuil de couverture. Local et distant ne peuvent pas
-diverger.
+UndefinedBehaviorSanitizer, cliquet de couverture. Local et distant ne peuvent
+pas diverger.
 
 ## Documentation
 
