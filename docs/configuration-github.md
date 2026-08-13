@@ -68,27 +68,35 @@ serait exempté ne protégerait donc de rien — d'où la liste de dérogation v
 | Bypass list → Add bypass | **Repository admin** — mode *Always* |
 | Target branches → Add target | **Include default branch** |
 | Rules | cocher **Require status checks to pass** |
-| → Add checks | `porte de qualité` et `contrôles de pull request`, source **GitHub Actions** |
+| → Add checks | `porte de qualité`, source **GitHub Actions** |
 | → Require branches to be up to date | décoché |
 
-Trois pièges dans cette seconde :
+Deux pièges dans cette seconde :
 
 - **Le nom du contrôle est celui du *job*, pas du workflow.** C'est
   `porte de qualité`, valeur du champ `name:` du job `check` dans
-  `.github/workflows/ci.yml` — et non `ci`. De même,
-  `contrôles de pull request` est le `name:` du job `pull-request` de
-  `.github/workflows/pull-request.yml`, et non `pull request`.
+  `.github/workflows/ci.yml` — et non `ci`.
 - **Le contrôle n'apparaît dans le sélecteur qu'après s'être exécuté au moins
   une fois.** Sur un dépôt dont la CI n'a jamais tourné, la liste est vide et
   il faut saisir le nom à la main.
-- **`contrôles de pull request` ne rapporte rien lors d'un push direct sur
-  `main`** : son workflow ne se déclenche que sur l'événement `pull_request`.
-  C'est sans conséquence, la dérogation de l'administrateur couvrant déjà ce
-  cas — mais un contrôle requis qui reste muet bloquerait une fusion si cette
-  dérogation venait à disparaître.
 
-Le job `messages de commit` de `ci.yml` n'est, lui, pas requis : il échoue en
-rouge sans empêcher la fusion. C'est un écart connu, laissé en l'état.
+#### Les deux contrôles qui ne sont pas requis
+
+`messages de commit` et `contrôles de pull request` échouent en rouge sans
+empêcher la fusion. **C'est délibéré, et provisoire.** Un contrôle jeune qui
+bloque une fusion coûte plus cher qu'il ne rapporte tant qu'on n'a pas vu s'il
+produit des faux positifs ; le rouge suffit à le rendre visible pendant cette
+observation. À rediscuter à l'ouverture de la phase 4.
+
+Le jour où l'on voudra les rendre bloquants, deux choses à savoir :
+
+- le nom à saisir est celui du job — `contrôles de pull request`, `name:` du
+  job `pull-request` de `.github/workflows/pull-request.yml`, et non
+  `pull request` ;
+- **`contrôles de pull request` ne rapporte rien lors d'un push direct sur
+  `main`**, son workflow ne se déclenchant que sur l'événement `pull_request`.
+  Sans conséquence tant que l'administrateur déroge — mais un contrôle requis
+  qui reste muet bloquerait toute fusion si cette dérogation disparaissait.
 
 La dérogation pour l'administrateur est indispensable : la CI ne s'exécute
 qu'**après** le push, donc sans elle la règle rejetterait tout push direct sur

@@ -262,7 +262,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory bench
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (onze)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (vingt et une preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog
