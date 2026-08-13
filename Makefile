@@ -151,6 +151,22 @@ parallelism: ## Vérifie qu'aucun parallélisme ne contourne $(JOBS)
 	$(call step,"parallélisme maîtrisé")
 	@./src/scripts/check-parallelism.sh
 
+# Ne construit que `subedit-cli` : les exemples du manuel n'invoquent que lui,
+# et lui demander la bibliothèque de tests coûterait sans rien apporter.
+.PHONY: manual
+manual: ## Régénère les exemples d'appel du manuel
+	$(call step,"exemples du manuel")
+	@cmake --preset dev >/dev/null
+	@cmake --build --preset dev -j $(JOBS) --target subedit-cli
+	@./src/scripts/generate-manual.sh
+
+.PHONY: manual-check
+manual-check: ## Vérifie que les exemples du manuel sont à jour
+	$(call step,"exemples du manuel")
+	@cmake --preset dev >/dev/null
+	@cmake --build --preset dev -j $(JOBS) --target subedit-cli
+	@./src/scripts/generate-manual.sh --check
+
 .PHONY: requirements
 requirements: ## Confronte le registre d'exigences aux tests de bout en bout
 	$(call step,"exigences")
@@ -223,17 +239,24 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 # request : elle enchaîne tout ce qu'on veut voir passer en local sans le
 # voir gater la CI. L'ordre va du moins cher au plus cher, pour qu'un échec
 # coûte des secondes plutôt que la totalité de la chaîne : parallélisme
-# maîtrisé (un grep, sous la seconde), exigences (compilation incrémentale
-# dev), tests de bout en bout (build release), puis benchmarks. `parallelism`
+# maîtrisé (un grep, sous la seconde), exemples du manuel (le seul binaire de
+# la CLI), exigences (compilation incrémentale dev), tests de bout en bout
+# (build release), puis benchmarks. `parallelism`
 # passe en premier précisément parce qu'elle ne construit rien — la faire
 # attendre derrière `requirements`, qui compile, coûterait à un `-j 8` codé en
-# dur le temps d'un build entier avant qu'on l'entende. `bench` n'a pas de
+# dur le temps d'un build entier avant qu'on l'entende.
+#
+# `manual-check` est ici et non dans `check`, ce qui a une conséquence à
+# connaître : **la CI ne verra pas un manuel périmé.** L'y mettre ferait entrer
+# `docs/manual/**` dans le périmètre de la porte, dont `docs/**` est exclu, et
+# une retouche de prose rouvrirait quinze minutes de compilation. `bench` n'a pas de
 # verdict binaire — c'est voulu, la règle du projet impose de rejouer les
 # benchmarks à chaque issue, et les chaîner ici est ce qui le garantit plutôt
 # que de compter sur la mémoire de qui ouvre la pull request.
 .PHONY: check-local
 check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory parallelism
+	@$(MAKE) --no-print-directory manual-check
 	@$(MAKE) --no-print-directory requirements
 	@$(MAKE) --no-print-directory e2e
 	@$(MAKE) --no-print-directory bench

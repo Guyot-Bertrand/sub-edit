@@ -14,6 +14,7 @@ ne pas l'éditer à la main.
 - **ci** — Compter les lignes non couvertes plutôt qu'un pourcentage
 - **ci** — Donner une mémoire aux mesures de performance
 - **ci** — Vérifier les trois obligations d'une pull request
+- **doc** — Générer les exemples d'appel du manuel
 
 ### Construction
 
@@ -22,6 +23,7 @@ ne pas l'éditer à la main.
 - **build** — Plafonner JOBS à deux cœurs, contrôle mécanique à l'appui
 - Restreindre le harnais e2e à asan/release, enchaîner check-local
 - **build** — Câbler le cliquet et le journal dans la façade make
+- **build** — Câbler make manual et manual-check dans la façade
 
 ### Corrections
 
@@ -49,6 +51,7 @@ ne pas l'éditer à la main.
 - **doc** — Décider la forme de la mémoire des mesures
 - **doc** — Décrire le cliquet et le journal, et bumper le patch
 - **doc** — Aligner CONTRIBUTING et le manuel, et bumper le patch
+- **doc** — Décrire les exemples déclarés, et bumper le patch
 
 ### Intégration continue
 
@@ -61,6 +64,7 @@ ne pas l'éditer à la main.
 - **ci** — Prouver que le contrôle des exigences se referme
 - **build** — Prouver que le parallélisme codé en dur échoue
 - **ci** — Prouver que les trois contrôles de pull request refusent
+- **ci** — Prouver les quatre refus du générateur d'exemples
 
 ## 0.2.0 — 2026-08-08
 
