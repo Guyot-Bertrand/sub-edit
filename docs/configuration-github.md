@@ -68,17 +68,27 @@ serait exempté ne protégerait donc de rien — d'où la liste de dérogation v
 | Bypass list → Add bypass | **Repository admin** — mode *Always* |
 | Target branches → Add target | **Include default branch** |
 | Rules | cocher **Require status checks to pass** |
-| → Add checks | `porte de qualité`, source **GitHub Actions** |
+| → Add checks | `porte de qualité` et `contrôles de pull request`, source **GitHub Actions** |
 | → Require branches to be up to date | décoché |
 
-Deux pièges dans cette seconde :
+Trois pièges dans cette seconde :
 
 - **Le nom du contrôle est celui du *job*, pas du workflow.** C'est
   `porte de qualité`, valeur du champ `name:` du job `check` dans
-  `.github/workflows/ci.yml` — et non `ci`.
+  `.github/workflows/ci.yml` — et non `ci`. De même,
+  `contrôles de pull request` est le `name:` du job `pull-request` de
+  `.github/workflows/pull-request.yml`, et non `pull request`.
 - **Le contrôle n'apparaît dans le sélecteur qu'après s'être exécuté au moins
   une fois.** Sur un dépôt dont la CI n'a jamais tourné, la liste est vide et
   il faut saisir le nom à la main.
+- **`contrôles de pull request` ne rapporte rien lors d'un push direct sur
+  `main`** : son workflow ne se déclenche que sur l'événement `pull_request`.
+  C'est sans conséquence, la dérogation de l'administrateur couvrant déjà ce
+  cas — mais un contrôle requis qui reste muet bloquerait une fusion si cette
+  dérogation venait à disparaître.
+
+Le job `messages de commit` de `ci.yml` n'est, lui, pas requis : il échoue en
+rouge sans empêcher la fusion. C'est un écart connu, laissé en l'état.
 
 La dérogation pour l'administrateur est indispensable : la CI ne s'exécute
 qu'**après** le push, donc sans elle la règle rejetterait tout push direct sur
@@ -96,6 +106,17 @@ gh api repos/Guyot-Bertrand/sub-edit/rulesets/<id> \
 Attendu : `protection de l'historique` sans dérogation avec les règles
 `deletion` et `non_fast_forward` ; `porte de qualité` avec
 `RepositoryRole/5` et la règle `required_status_checks`.
+
+Les contextes exigés se lisent à part, la requête ci-dessus ne descendant pas
+dans les paramètres des règles :
+
+```bash
+gh api repos/Guyot-Bertrand/sub-edit/rulesets/<id> \
+  --jq '[.rules[] | select(.type == "required_status_checks")
+         | .parameters.required_status_checks[].context]'
+```
+
+Attendu : `porte de qualité` et `contrôles de pull request`.
 
 ### 3. Approbation des workflows de fork
 

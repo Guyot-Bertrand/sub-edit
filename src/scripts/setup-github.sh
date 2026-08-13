@@ -161,6 +161,11 @@ apply_milestones() {
 #   - « porte de qualité » déroge à l'administrateur, ce qui préserve le push
 #     direct sur main. Sans cette dérogation, la règle bloquerait tout push,
 #     puisque la CI ne s'exécute qu'après.
+#
+# Le ruleset « porte de qualité » exige deux contextes, et non un : le job de
+# construction, et les contrôles de pull request. Ce second ne s'exécute que sur
+# l'événement `pull_request`, donc il ne rapporte rien lors d'un push direct sur
+# main — sans conséquence, la dérogation de l'administrateur couvrant ce cas.
 
 ruleset_exists() {
     gh api "repos/${REPO}/rulesets" --jq ".[] | select(.name == \"$1\") | .id" 2>/dev/null
@@ -215,7 +220,10 @@ apply_rulesets() {
             "type": "required_status_checks",
             "parameters": {
                 "strict_required_status_checks_policy": false,
-                "required_status_checks": [{"context": "porte de qualité"}]
+                "required_status_checks": [
+                    {"context": "porte de qualité"},
+                    {"context": "contrôles de pull request"}
+                ]
             }
         }]
     }'
