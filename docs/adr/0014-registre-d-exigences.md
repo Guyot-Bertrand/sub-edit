@@ -139,8 +139,17 @@ Le harnais lance un vrai processus, ce qui a un effet à surveiller sur la
 mesure de couverture : sous le preset `coverage`, `subedit-cli` est lui aussi
 instrumenté et chaque invocation gonflerait la couverture de `src/lib` sans
 qu'aucun test unitaire ait été écrit pour ce code. Les tests de bout en bout ne
-sont donc **pas enregistrés dans CTest sous ce preset**. Ils le restent sous
-`asan`, où une fuite du binaire réel se voit.
+sont donc **enregistrés dans CTest que sous `asan` et `release`** — l'option de
+cache `SUBEDIT_REGISTER_E2E`, à `ON` dans ces deux presets et nulle part
+ailleurs, le déclare plutôt que de le laisser déduire des drapeaux de
+compilation.
+
+Sous `asan`, une fuite du binaire réel se voit. `release` est le mode livré,
+donc le seul dont le comportement engage l'utilisateur. `dev` n'y gagnait
+rien : c'est un build Debug comme `asan`, qui est strictement plus informatif.
+Conséquence à connaître, écrite aussi dans la spec des fondations :
+**`make test` n'exerce pas le harnais** ; `make asan` est le chemin le plus
+court pour le faire.
 
 Le registre ne dit rien du noyau, et c'est délibéré. Si une garantie interne
 mérite un jour d'être nommée, ce sera par une décision distincte, pas par un

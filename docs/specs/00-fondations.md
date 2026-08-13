@@ -70,6 +70,7 @@ subedit/
 │   ├── specs/                  une spec par sous-projet
 │   ├── adr/                    décisions techniques
 │   ├── exigences.md            registre des exigences, cité par les tests
+│   ├── mesures/                relevés de couverture et de performances
 │   └── manual/                 manuels utilisateur, un dossier par exécutable
 ├── src/
 │   ├── lib/subedit/<lib>/…     bibliothèques
@@ -244,8 +245,9 @@ ses paramètres.
 | `make requirements` | confronte `docs/exigences.md` aux tags des tests de bout en bout (`check-requirements.sh`) | `dev` | — | `JOBS` |
 | `make e2e` | exécute **seulement** les tests de bout en bout, filtrés par l'étiquette CTest `e2e` | `release` | — | `JOBS` |
 | `make asan` | exécute les tests sous ASan/UBSan/LeakSanitizer — y compris les tests de bout en bout | `asan` | — | `JOBS` |
-| `make coverage` | mesure la couverture des bibliothèques, échoue sous `COVERAGE_MIN` | `coverage` | — | `JOBS` |
-| `make bench` | exécute les benchmarks, verdict lu par un humain, pas binaire | `release` | — | `JOBS` |
+| `make coverage` | mesure la couverture des bibliothèques, échoue si le nombre de lignes non couvertes augmente par rapport au relevé | `coverage` | — | `JOBS` |
+| `make ratchet` | enregistre la couverture mesurée comme nouveau cliquet dans le relevé | — | — | — |
+| `make bench` | exécute les benchmarks, verse les chiffres au journal `docs/mesures/performances.md`, verdict lu par un humain, pas binaire | `release` | — | `JOBS` |
 | `make check` | **porte de qualité — CI, FIGÉE, décrite ci-dessous** | `dev`/`asan`/`coverage` via ses sous-cibles | `format-check`, `arch`, `build`, `tidy`, `asan`, `coverage` | `JOBS` |
 | `make check-local` | **unique commande avant une pull request, décrite ci-dessous** | tous les presets qu'utilisent ses sous-cibles | `parallelism`, `requirements`, `e2e`, `bench` | `JOBS` |
 | `make verify-gates` | prouve que `check` et `check-local` échouent chacun sur ses défauts injectés | — | — | — |
@@ -334,11 +336,15 @@ Cinq étapes, verdict binaire, aucune tolérance :
    comportement indéfini échoue au lieu de passer inaperçu. Le preset active
    aussi **LeakSanitizer** : une fuite fait échouer les tests, elle ne se
    découvre pas six mois plus tard.
-5. **Couverture** — seuil de **99,2 % minimum sur les bibliothèques**, relevable
-   par bibliothèque quand c'est justifié. Le chiffre est le taux mesuré, pas un
-   plancher symbolique — le vrai cliquet reste à construire, sujet de
-   l'issue #50. Les exécutables sont exclus du calcul : la règle d'architecture
-   les vide de tout ce qui mérite d'être couvert.
+5. **Couverture** — le nombre de lignes de `src/lib/` que les tests n'exercent
+   pas ne doit pas augmenter. Le relevé vit dans
+   [`docs/mesures/couverture.md`](../mesures/couverture.md) ; la porte échoue à
+   la hausse en nommant les fichiers concernés, et invite à `make ratchet` à la
+   baisse. Un compte de lignes plutôt qu'un pourcentage : un pourcentage monte
+   dès qu'on ajoute du code bien testé, ce qui resserrerait le cliquet sans que
+   personne l'ait décidé. Voir [l'ADR 0015](../adr/0015-memoire-des-mesures.md).
+   Les exécutables restent exclus du calcul : la règle d'architecture les vide
+   de tout ce qui mérite d'être couvert.
 
 **La CI appelle `make check`, et rien d'autre.** Aucune étape n'est recopiée dans
 le YAML. C'est la seule manière que le filet local et le filet distant restent

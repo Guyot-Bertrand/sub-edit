@@ -311,5 +311,5 @@ et la politique, et tout ce qui suit s'y appuie.
 - [ ] La conversion de fréquence égale le calcul rationnel exact
 - [ ] Un décalage partiel rompant l'ordre est signalé en souple, trié en strict
 - [ ] `Session::project()` est constante : aucune modification hors commande
-- [ ] `make check` passe, couverture au-dessus du seuil
+- [ ] `make check` passe, cliquet de couverture tenu
 - [ ] Benchmarks refaits, section de manuel et entrée de CHANGELOG à jour

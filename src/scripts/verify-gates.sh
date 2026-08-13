@@ -12,7 +12,7 @@
 # referme, puisque rien d'autre ne les exercera.
 #
 # À rejouer après toute modification de .clang-format, .clang-tidy, des options
-# de compilation, du seuil de couverture ou du registre d'exigences.
+# de compilation, du cliquet de couverture ou du registre d'exigences.
 
 set -euo pipefail
 
@@ -115,7 +115,8 @@ TEST_CASE("injected use after free", "[injected]") {
     CHECK(observer->size() == 7);
 }'
 
-# Code non exercé par les tests : fait chuter la couverture sous le seuil.
+# Code non exercé par les tests : fait grimper le nombre de lignes non
+# couvertes au-delà du cliquet.
 expect_gate_closes \
     "chute de la couverture" \
     "coverage" \
@@ -131,6 +132,14 @@ int injectedUncovered(int value) {
     return 0;
 }
 } // namespace subedit::core'
+
+# expect_gate_closes ne restaure que les sources : le résumé JSON et le rapport
+# HTML que « make coverage » vient de produire à partir du défaut injecté lui
+# survivent dans build/coverage-report/. Laissé en place, ce résidu affirme
+# encore des lignes non couvertes attribuées à une fonction qui n'existe plus
+# dans aucune source — un « make ratchet » lancé juste après l'enregistrerait
+# tel quel et desserrerait le cliquet contre un défaut qui n'a jamais existé.
+rm -rf "${REPO_ROOT}/build/coverage-report"
 
 # Exigence déclarée implémentée que rien ne cite. L'injection se fait en
 # ajoutant une ligne en fin de fichier, ce qui exige que la table du registre
