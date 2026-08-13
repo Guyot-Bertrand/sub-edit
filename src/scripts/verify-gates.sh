@@ -11,11 +11,14 @@
 # développement : raison de plus pour que ce script prouve que chacune se
 # referme, puisque rien d'autre ne les exercera.
 #
-# Les trois dernières ne visent ni l'une ni l'autre : ce sont les contrôles de
+# Les trois suivantes ne visent ni l'une ni l'autre : ce sont les contrôles de
 # pull request, qui n'ont de sens que sur GitHub — un corps de pull request
 # n'existe pas en local. Rien ne les exercerait donc jamais avant qu'une vraie
 # pull request en dépende. Ils sont invoqués un par un, contrôle par contrôle,
 # pour qu'une injection soit seule à pouvoir faire échouer son exécution.
+#
+# Les quatre dernières visent `make manual-check`, une par mode d'arrêt du
+# générateur d'exemples du manuel.
 #
 # À rejouer après toute modification de .clang-format, .clang-tidy, des options
 # de compilation, du cliquet de couverture, du registre d'exigences ou de
@@ -34,6 +37,7 @@ readonly E2E_SOURCE="${REPO_ROOT}/src/test/e2e/cli/version_test.cpp"
 readonly MAKEFILE_SOURCE="${REPO_ROOT}/Makefile"
 readonly CMAKE_SOURCE="${REPO_ROOT}/CMakeLists.txt"
 readonly CHANGELOG_SOURCE="${REPO_ROOT}/CHANGELOG.md"
+readonly MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-cli/invocation.md"
 readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 
 readonly RED=$'\033[31m'
@@ -52,6 +56,7 @@ restore() {
     cp "${backup_dir}/Makefile" "${MAKEFILE_SOURCE}"
     cp "${backup_dir}/CMakeLists.txt" "${CMAKE_SOURCE}"
     cp "${backup_dir}/CHANGELOG.md" "${CHANGELOG_SOURCE}"
+    cp "${backup_dir}/invocation.md" "${MANUAL_SOURCE}"
 }
 
 cleanup() {
@@ -66,6 +71,7 @@ cp "${E2E_SOURCE}" "${backup_dir}/e2e_version_test.cpp"
 cp "${MAKEFILE_SOURCE}" "${backup_dir}/Makefile"
 cp "${CMAKE_SOURCE}" "${backup_dir}/CMakeLists.txt"
 cp "${CHANGELOG_SOURCE}" "${backup_dir}/CHANGELOG.md"
+cp "${MANUAL_SOURCE}" "${backup_dir}/invocation.md"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -76,7 +82,10 @@ expect_gate_closes() {
     local snippet="$4"
 
     printf '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
-    printf '%s\n' "${snippet}" >> "${file}"
+    # Un extrait vide veut dire que l'injection a déjà été faite par l'appelant,
+    # parce qu'elle ne consiste pas à ajouter du texte en fin de fichier —
+    # modifier un bloc existant, par exemple.
+    [[ -z "${snippet}" ]] || printf '%s\n' "${snippet}" >> "${file}"
 
     if make -C "${REPO_ROOT}" --no-print-directory "${target}" >/dev/null 2>&1; then
         printf '  %s✗ la porte « %s » a laissé passer le défaut%s\n' "${RED}" "${target}" "${RESET}"
@@ -243,9 +252,55 @@ expect_pr_check_closes \
     "CHANGELOG.md non régénéré" \
     "changelog"
 
+# Les quatre suivantes visent « make manual-check », une par mode d'arrêt du
+# générateur d'exemples. Le pire résultat que ce générateur puisse produire est
+# un manuel silencieusement vidé de ses exemples ; c'est pourquoi chacun de ses
+# refus se prouve, et non seulement celui du manuel périmé.
+
+# Bloc dont la sortie ne correspond plus à ce que la commande produit. La
+# modification porte sur un bloc existant, pas sur une ligne ajoutée en fin de
+# fichier : d'où l'extrait vide passé à l'injecteur.
+sed -i 's/^subedit [0-9][0-9.]*$/subedit 0.9.9/' "${MANUAL_SOURCE}"
+expect_gate_closes \
+    "exemple du manuel périmé" \
+    "manual-check" \
+    "${MANUAL_SOURCE}" \
+    ''
+
+expect_gate_closes \
+    "exemple dont la commande échoue" \
+    "manual-check" \
+    "${MANUAL_SOURCE}" \
+    '
+<!-- exemple: echo bonjour; exit 3 -->
+```console
+$ echo bonjour; exit 3
+bonjour
+```'
+
+expect_gate_closes \
+    "marqueur non suivi d'un bloc console" \
+    "manual-check" \
+    "${MANUAL_SOURCE}" \
+    '
+<!-- exemple: subedit-cli -->
+Ce paragraphe ne commence pas un bloc console.'
+
+# Commande muette : c'est le cas qui produirait un bloc vide si le générateur
+# le laissait passer.
+expect_gate_closes \
+    "exemple dont la commande ne produit rien" \
+    "manual-check" \
+    "${MANUAL_SOURCE}" \
+    '
+<!-- exemple: true -->
+```console
+$ true
+```'
+
 printf '\n'
 if (( failures > 0 )); then
     printf '%s%d porte(s) laissent passer un défaut%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles onze portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles quinze portes se referment%s\n' "${GREEN}" "${RESET}"
