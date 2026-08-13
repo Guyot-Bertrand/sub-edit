@@ -9,12 +9,18 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **ci** — Compter les lignes non couvertes plutôt qu'un pourcentage
+- **ci** — Donner une mémoire aux mesures de performance
+
 ### Construction
 
 - Construire en Release, et y mesurer
 - **ci** — Garder le contrôle des exigences hors de make check
 - **build** — Plafonner JOBS à deux cœurs, contrôle mécanique à l'appui
 - Restreindre le harnais e2e à asan/release, enchaîner check-local
+- **build** — Câbler le cliquet et le journal dans la façade make
 
 ### Corrections
 
@@ -38,6 +44,9 @@ ne pas l'éditer à la main.
 - **doc** — Documenter la façade make et les deux gates
 - **doc** — Aligner README et CONTRIBUTING sur le nouveau make test
 - **scripts** — Écrire la limite du suivi des guillemets
+- **doc** — Corriger les presets du harnais dans l'ADR 0014
+- **doc** — Décider la forme de la mémoire des mesures
+- **doc** — Décrire le cliquet et le journal, et bumper le patch
 
 ### Intégration continue
 
