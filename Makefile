@@ -46,28 +46,6 @@ export PATH := $(HOME)/.local/bin:$(PATH)
 # projet inconstructible sur une machine qui ne l'a pas encore.
 export CMAKE_GENERATOR ?= $(shell command -v ninja >/dev/null 2>&1 && echo Ninja || echo "Unix Makefiles")
 
-# 80 était une valeur de départ, posée quand le projet tenait en quelques
-# dizaines de lignes ; elle a cessé de vouloir dire quoi que ce soit une fois
-# la couverture réelle montée à 99 %. Un seuil planté dix-neuf points en
-# dessous de la vérité laisse passer une régression de dix-neuf points sans un
-# mot — verify-gates.sh l'a démontré : sa fonction non couverte injectée
-# passait sans encombre.
-#
-# La décimale n'est pas un caprice. gcovr arrondit le taux à une décimale
-# avant de le comparer au seuil, si bien qu'un seuil entier de 99 ne peut
-# jamais être franchi par un taux à 98,95 % ou plus. Le taux mesuré est
-# 99,4 % ; le défaut injecté par verify-gates.sh tombe à 98,97 %, qui arrondit
-# à 99,0. 99,2 se place entre les deux : c'est ce qui rend la porte capable de
-# se refermer.
-#
-# Le vrai cliquet — où vit ce nombre, et ce qui se passe quand la couverture
-# monte — reste le sujet de l'issue #50 ; ceci n'en est pas le mécanisme
-# final.
-#
-# La marge est étroite : sur 1353 lignes et 1345 couvertes, perdre quatre
-# lignes déjà couvertes fait tomber le taux arrondi à 99,1 et fait échouer la
-# porte ; en perdre trois seulement la laisse passer.
-COVERAGE_MIN := 99.2
 SOURCES := $(shell find src -name '*.cpp' -o -name '*.hpp' 2>/dev/null)
 
 # libstdc++ garde <expected> derrière __cpp_concepts >= 202002L, valeur que
@@ -130,11 +108,14 @@ test: ## Compile et exécute les tests (hors bout en bout — voir make asan)
 # déclenche en `-flto=auto`, c'est-à-dire autant de processus que de cœurs, à
 # chaque édition de liens — un parallélisme qui n'apparaît dans aucun `-j` et
 # qui sature une machine sur laquelle on fait autre chose.
-bench: ## Exécute les benchmarks en release
+bench: ## Exécute les benchmarks en release et verse les chiffres au journal
 	$(call step,"benchmarks (release)")
 	@cmake --preset release -DSUBEDIT_LTO_JOBS=$(JOBS)
 	@cmake --build --preset release -j $(JOBS) --target subedit_core_bench
-	@./build/release/bin/subedit_core_bench
+	@./build/release/bin/subedit_core_bench \
+		--reporter console \
+		--reporter xml::out=build/release/bench.xml
+	@./src/scripts/record-bench.sh --xml build/release/bench.xml --mode Release
 
 .PHONY: format
 format: ## Applique clang-format
@@ -210,10 +191,18 @@ coverage: ## Mesure la couverture des bibliothèques
 	@gcovr --root . build/coverage/src \
 		--filter 'src/lib/' \
 		--exclude-unreachable-branches --exclude-throw-branches \
-		--print-summary --fail-under-line $(COVERAGE_MIN) \
+		--print-summary \
+		--json-summary build/coverage-report/summary.json \
 		--html-details build/coverage-report/index.html \
 		--txt build/coverage-report/summary.txt
 	@printf 'rapport : build/coverage-report/index.html\n'
+	@./src/scripts/check-coverage.sh --summary build/coverage-report/summary.json
+
+.PHONY: ratchet
+ratchet: ## Enregistre la couverture mesurée comme nouveau cliquet
+	$(call step,"cliquet de couverture")
+	@./src/scripts/check-coverage.sh \
+		--summary build/coverage-report/summary.json --record
 
 .PHONY: check
 check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couverture
