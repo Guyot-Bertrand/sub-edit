@@ -27,6 +27,7 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0012](0012-ordre-des-sous-titres-par-composition.md) | Ne pas trier de soi-même, mode strict par composition | acceptée |
 | [0013](0013-mise-a-l-echelle-exacte-des-positions.md) | Mise à l'échelle par un rationnel exact, arrondi une fois | acceptée |
 | [0014](0014-registre-d-exigences.md) | Registre d'exigences plat, cité par un tag de test | acceptée |
+| [0015](0015-memoire-des-mesures.md) | Cliquet sur les lignes non couvertes, historique des performances | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
