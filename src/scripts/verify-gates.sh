@@ -17,8 +17,14 @@
 # pull request en dépende. Ils sont invoqués un par un, contrôle par contrôle,
 # pour qu'une injection soit seule à pouvoir faire échouer son exécution.
 #
-# Les quatre dernières visent `make manual-check`, une par mode d'arrêt du
+# Les quatre suivantes visent `make manual-check`, une par mode d'arrêt du
 # générateur d'exemples du manuel.
+#
+# Les six dernières visent `make parallelism` : deux familles de fichiers qui
+# échappaient au balayage, trois formes qu'il ne reconnaissait pas, et **une
+# preuve d'un genre différent** — que du code légitime n'est pas signalé. Un
+# critère de non-signalement ne se démontre par aucune injection qui échoue,
+# d'où `expect_gate_stays_open`.
 #
 # À rejouer après toute modification de .clang-format, .clang-tidy, des options
 # de compilation, du cliquet de couverture, du registre d'exigences ou de
@@ -38,6 +44,9 @@ readonly MAKEFILE_SOURCE="${REPO_ROOT}/Makefile"
 readonly CMAKE_SOURCE="${REPO_ROOT}/CMakeLists.txt"
 readonly CHANGELOG_SOURCE="${REPO_ROOT}/CHANGELOG.md"
 readonly MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-cli/invocation.md"
+readonly HOOK_SOURCE="${REPO_ROOT}/src/scripts/hooks/pre-commit"
+readonly PLAIN_SCRIPT_SOURCE="${REPO_ROOT}/src/scripts/install-hooks.sh"
+readonly NESTED_CMAKE_SOURCE="${REPO_ROOT}/src/lib/CMakeLists.txt"
 readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 
 readonly RED=$'\033[31m'
@@ -57,6 +66,9 @@ restore() {
     cp "${backup_dir}/CMakeLists.txt" "${CMAKE_SOURCE}"
     cp "${backup_dir}/CHANGELOG.md" "${CHANGELOG_SOURCE}"
     cp "${backup_dir}/invocation.md" "${MANUAL_SOURCE}"
+    cp "${backup_dir}/pre-commit" "${HOOK_SOURCE}"
+    cp "${backup_dir}/install-hooks.sh" "${PLAIN_SCRIPT_SOURCE}"
+    cp "${backup_dir}/lib-CMakeLists.txt" "${NESTED_CMAKE_SOURCE}"
 }
 
 cleanup() {
@@ -72,6 +84,9 @@ cp "${MAKEFILE_SOURCE}" "${backup_dir}/Makefile"
 cp "${CMAKE_SOURCE}" "${backup_dir}/CMakeLists.txt"
 cp "${CHANGELOG_SOURCE}" "${backup_dir}/CHANGELOG.md"
 cp "${MANUAL_SOURCE}" "${backup_dir}/invocation.md"
+cp "${HOOK_SOURCE}" "${backup_dir}/pre-commit"
+cp "${PLAIN_SCRIPT_SOURCE}" "${backup_dir}/install-hooks.sh"
+cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -117,6 +132,32 @@ expect_pr_check_closes() {
         failures=$((failures + 1))
     else
         printf '  %s✓ le contrôle « %s » a refusé, comme attendu%s\n' "${GREEN}" "${control}" "${RESET}"
+    fi
+
+    restore
+}
+
+# L'inverse d'expect_gate_closes : injecte du code légitime que le contrôle
+# pourrait confondre avec un défaut, et vérifie qu'il ne le signale pas.
+#
+# Un critère de la forme « ceci n'est pas signalé » ne se démontre par aucune
+# injection qui échoue. Sans une preuve de ce genre, il resterait une croyance
+# — et c'est le mode d'échec qui compte le plus : un contrôle qui crie au loup
+# finit désactivé, et ne protège alors plus rien.
+expect_gate_stays_open() {
+    local label="$1"
+    local target="$2"
+    local file="$3"
+    local snippet="$4"
+
+    printf '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
+    printf '%s\n' "${snippet}" >> "${file}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory "${target}" >/dev/null 2>&1; then
+        printf '  %s✓ « make %s » a laissé passer, comme attendu%s\n' "${GREEN}" "${target}" "${RESET}"
+    else
+        printf '  %s✗ « make %s » a signalé du code légitime%s\n' "${RED}" "${target}" "${RESET}"
+        failures=$((failures + 1))
     fi
 
     restore
@@ -298,9 +339,62 @@ expect_gate_closes \
 $ true
 ```'
 
+# Les cinq suivantes visent l'élargissement de `make parallelism` : deux
+# familles de fichiers qui échappaient au balayage, trois formes de
+# parallélisme qu'il ne reconnaissait pas.
+
+# Hook git : dans un sous-répertoire et sans extension .sh, donc doublement
+# manqué par l'ancien balayage — qui ne descendait pas et filtrait sur *.sh.
+expect_gate_closes \
+    "parallélisme codé en dur dans un hook git" \
+    "parallelism" \
+    "${HOOK_SOURCE}" \
+    'cmake --build . -j 8'
+
+# CMakeLists imbriqué : l'ancien balayage ne lisait que cmake/*.cmake et le
+# CMakeLists de la racine, en laissant les huit de src/ — ceux-là mêmes qui
+# déclarent les cibles de test et de benchmark.
+expect_gate_closes \
+    "-flto= codé en dur dans un CMakeLists de src/" \
+    "parallelism" \
+    "${NESTED_CMAKE_SOURCE}" \
+    'target_compile_options(subedit_core PRIVATE -flto=8)'
+
+# `-j` sans valeur prend autant de processus que la machine a de cœurs : c'est
+# pire qu'un nombre en dur, et ça passait.
+expect_gate_closes \
+    "make -j sans valeur" \
+    "parallelism" \
+    "${PLAIN_SCRIPT_SOURCE}" \
+    'make -j'
+
+expect_gate_closes \
+    "cmake --build --parallel avec un nombre" \
+    "parallelism" \
+    "${PLAIN_SCRIPT_SOURCE}" \
+    'cmake --build . --parallel 8'
+
+expect_gate_closes \
+    "parallélisme passé par MAKEFLAGS" \
+    "parallelism" \
+    "${PLAIN_SCRIPT_SOURCE}" \
+    'MAKEFLAGS=-j8 make all'
+
+# La seule preuve de non-signalement du fichier, et la plus importante des six
+# ajoutées ici : le contrôle lisait ses lignes sans retirer les commentaires de
+# fin, donc un exemple cité dans un commentaire passait pour un contournement.
+# Aucune injection qui échoue ne peut démontrer qu'un faux positif a disparu.
+expect_gate_stays_open \
+    "commentaire de fin de ligne citant -j 4" \
+    "parallelism" \
+    "${PLAIN_SCRIPT_SOURCE}" \
+    'cmake --build . # exemple : -j 4 pour aller plus vite'
+
 printf '\n'
 if (( failures > 0 )); then
     printf '%s%d porte(s) laissent passer un défaut%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles quinze portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles vingt portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%set le contrôle de parallélisme laisse passer le code légitime%s\n' \
+    "${GREEN}" "${RESET}"
