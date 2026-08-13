@@ -7,9 +7,10 @@ subedit-cli
 Affiche la version de la bibliothèque avec laquelle l'outil a été construit,
 puis se termine.
 
+<!-- exemple: subedit-cli -->
 ```console
 $ subedit-cli
-subedit 0.2.4
+subedit 0.2.5
 ```
 
 ## Sortie
@@ -23,10 +24,10 @@ Rien n'est écrit sur la sortie d'erreur.
 **L'outil n'en accepte aucun, et n'en refuse aucun non plus.** Tout ce qui suit
 le nom du programme est ignoré sans un mot, y compris `--help` et `--version` :
 
+<!-- exemple: subedit-cli --help fichier.srt; echo $? -->
 ```console
-$ subedit-cli --help fichier.srt
-subedit 0.2.4
-$ echo $?
+$ subedit-cli --help fichier.srt; echo $?
+subedit 0.2.5
 0
 ```
 
