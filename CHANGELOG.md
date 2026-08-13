@@ -13,6 +13,7 @@ ne pas l'éditer à la main.
 
 - **ci** — Compter les lignes non couvertes plutôt qu'un pourcentage
 - **ci** — Donner une mémoire aux mesures de performance
+- **ci** — Vérifier les trois obligations d'une pull request
 
 ### Construction
 
@@ -47,16 +48,19 @@ ne pas l'éditer à la main.
 - **doc** — Corriger les presets du harnais dans l'ADR 0014
 - **doc** — Décider la forme de la mémoire des mesures
 - **doc** — Décrire le cliquet et le journal, et bumper le patch
+- **doc** — Aligner CONTRIBUTING et le manuel, et bumper le patch
 
 ### Intégration continue
 
 - **test** — Refuser une exigence implémentée que rien ne démontre
+- **ci** — Rendre les contrôles de pull request bloquants
 
 ### Tests
 
 - **test** — Lancer le binaire réel depuis un harnais de bout en bout
 - **ci** — Prouver que le contrôle des exigences se referme
 - **build** — Prouver que le parallélisme codé en dur échoue
+- **ci** — Prouver que les trois contrôles de pull request refusent
 
 ## 0.2.0 — 2026-08-08
 
