@@ -1,0 +1,56 @@
+name: pull request
+
+# Les trois obligations que la porte de qualité ne voit pas : la ligne
+# « Closes #N » dans le corps, le bump du patch et la régénération du journal.
+# Elles sont mécaniquement décidables et étaient faites à la main jusqu'ici.
+#
+# Fichier séparé de ci.yml à cause du type « edited » : le corps d'une pull
+# request se corrige souvent, et ajouter ce type au déclencheur commun
+# relancerait la porte de qualité — un quart d'heure de compilation — à chaque
+# retouche. Ce travail-ci ne construit rien et tient en quelques secondes.
+#
+# « edited » est indispensable : sans lui, corriger un corps oublié ne
+# relancerait rien et le contrôle resterait rouge. « synchronize » l'est tout
+# autant, pour que la version et le journal soient revus à chaque poussée.
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+# Une nouvelle poussée, ou une nouvelle édition, annule la vérification en
+# cours sur la même pull request.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pull-request:
+    name: contrôles de pull request
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # La tête de la branche, et non le commit de fusion que GitHub
+          # fabrique par défaut. Régénérer le journal sur la fusion y ferait
+          # entrer les commits arrivés sur main depuis l'ouverture, donc un
+          # journal différent de celui que l'auteur a commité — et le refus
+          # d'une pull request correcte.
+          ref: ${{ github.event.pull_request.head.sha }}
+          # git-cliff a besoin de l'historique complet et des tags, et le
+          # contrôle de version doit pouvoir lire CMakeLists.txt sur la base.
+          fetch-depth: 0
+
+      # Pas setup-toolchain.sh en entier : ce travail ne compile rien, et
+      # installer cmake, clang-tidy et gcovr lui coûterait plusieurs minutes
+      # pour trois comparaisons de texte.
+      - name: git-cliff
+        run: ./src/scripts/setup-toolchain.sh --git-cliff-only
+
+      # Les trois contrôles vivent dans un script, pas dans ce fichier : un
+      # script se teste en local, et src/scripts/verify-gates.sh prouve que
+      # chacun se referme sur le défaut qu'il existe pour attraper.
+      - name: Contrôles de pull request
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: ./src/scripts/check-pull-request.sh

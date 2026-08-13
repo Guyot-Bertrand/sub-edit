@@ -6,13 +6,23 @@
 # la cible correspondante échoue, puis rétablit les sources.
 #
 # Les cinq premières injections visent des étapes de `make check`, que la CI
-# exécute. Les trois dernières visent `make check-local` — deux fois
+# exécute. Les trois suivantes visent `make check-local` — deux fois
 # `requirements`, une fois `parallelism` — qui ne gate donc que le poste de
 # développement : raison de plus pour que ce script prouve que chacune se
 # referme, puisque rien d'autre ne les exercera.
 #
+# Les trois dernières ne visent ni l'une ni l'autre : ce sont les contrôles de
+# pull request, qui n'ont de sens que sur GitHub — un corps de pull request
+# n'existe pas en local. Rien ne les exercerait donc jamais avant qu'une vraie
+# pull request en dépende. Ils sont invoqués un par un, contrôle par contrôle,
+# pour qu'une injection soit seule à pouvoir faire échouer son exécution.
+#
 # À rejouer après toute modification de .clang-format, .clang-tidy, des options
-# de compilation, du cliquet de couverture ou du registre d'exigences.
+# de compilation, du cliquet de couverture, du registre d'exigences ou de
+# cliff.toml.
+#
+# Exige git-cliff, que le contrôle du journal appelle par `make changelog` :
+# ./src/scripts/setup-toolchain.sh l'installe.
 
 set -euo pipefail
 
@@ -22,6 +32,9 @@ readonly TEST_SOURCE="${REPO_ROOT}/src/test/unit/core/version_test.cpp"
 readonly REGISTRY="${REPO_ROOT}/docs/exigences.md"
 readonly E2E_SOURCE="${REPO_ROOT}/src/test/e2e/cli/version_test.cpp"
 readonly MAKEFILE_SOURCE="${REPO_ROOT}/Makefile"
+readonly CMAKE_SOURCE="${REPO_ROOT}/CMakeLists.txt"
+readonly CHANGELOG_SOURCE="${REPO_ROOT}/CHANGELOG.md"
+readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -37,6 +50,8 @@ restore() {
     cp "${backup_dir}/exigences.md" "${REGISTRY}"
     cp "${backup_dir}/e2e_version_test.cpp" "${E2E_SOURCE}"
     cp "${backup_dir}/Makefile" "${MAKEFILE_SOURCE}"
+    cp "${backup_dir}/CMakeLists.txt" "${CMAKE_SOURCE}"
+    cp "${backup_dir}/CHANGELOG.md" "${CHANGELOG_SOURCE}"
 }
 
 cleanup() {
@@ -49,6 +64,8 @@ cp "${TEST_SOURCE}" "${backup_dir}/version_test.cpp"
 cp "${REGISTRY}" "${backup_dir}/exigences.md"
 cp "${E2E_SOURCE}" "${backup_dir}/e2e_version_test.cpp"
 cp "${MAKEFILE_SOURCE}" "${backup_dir}/Makefile"
+cp "${CMAKE_SOURCE}" "${backup_dir}/CMakeLists.txt"
+cp "${CHANGELOG_SOURCE}" "${backup_dir}/CHANGELOG.md"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -66,6 +83,31 @@ expect_gate_closes() {
         failures=$((failures + 1))
     else
         printf '  %s✓ « make %s » a échoué, comme attendu%s\n' "${GREEN}" "${target}" "${RESET}"
+    fi
+
+    restore
+}
+
+# Même chose pour un contrôle de pull request. Deux différences avec la porte de
+# qualité : le contrôle n'est pas une cible make, et son défaut peut vivre dans
+# l'environnement — un corps de pull request n'est pas un fichier du dépôt.
+#
+# Le contrôle est nommé explicitement plutôt que de lancer les trois : une
+# exécution complète échouerait de toute façon sur les deux autres, et
+# l'injection ne prouverait plus rien. Les arguments qui suivent sont des
+# affectations passées à `env`.
+expect_pr_check_closes() {
+    local label="$1"
+    local control="$2"
+    shift 2
+
+    printf '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
+
+    if env "$@" "${PR_CHECK}" "${control}" >/dev/null 2>&1; then
+        printf '  %s✗ le contrôle « %s » a laissé passer le défaut%s\n' "${RED}" "${control}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ le contrôle « %s » a refusé, comme attendu%s\n' "${GREEN}" "${control}" "${RESET}"
     fi
 
     restore
@@ -171,9 +213,39 @@ expect_gate_closes \
     'cible-injectee-parallelisme:
 	@cmake --build --preset dev -j 8'
 
+# Corps de pull request qui décrit le travail sans porter la ligne que GitHub
+# lit. C'est le défaut mesuré de la phase 2 : cinq issues restées ouvertes après
+# la fusion de leur pull request, parce que « Ferme #22 » n'est pas un mot-clé.
+expect_pr_check_closes \
+    "corps de pull request sans « Closes #N »" \
+    "closes" \
+    "PR_BODY=Ce corps décrit le travail, mais aucune ligne n'y ferme l'issue."
+
+# Version de la branche recopiée depuis celle de HEAD, qui sert de base : les
+# deux annoncent alors le même numéro. La recopie est nécessaire — se contenter
+# de désigner HEAD comme base supposerait que la copie de travail ne l'a pas
+# déjà dépassé, ce qu'un bump non encore commité démentirait, et l'injection ne
+# prouverait plus rien.
+head_version="$(git -C "${REPO_ROOT}" show HEAD:CMakeLists.txt \
+    | sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' | head -1)"
+sed -i "s/^\([[:space:]]*VERSION[[:space:]]\+\)[0-9][0-9.]*[[:space:]]*$/\1${head_version}/" \
+    "${CMAKE_SOURCE}"
+expect_pr_check_closes \
+    "version identique à celle de la base" \
+    "version" \
+    "BASE_SHA=$(git -C "${REPO_ROOT}" rev-parse HEAD)"
+
+# Journal modifié à la main, donc différent de ce que git-cliff produit à partir
+# de l'historique. C'est exactement la forme que prend un journal non régénéré :
+# un contenu que la commande ne redonnerait pas.
+printf "ligne injectée qu'aucune régénération ne redonnerait\n" >> "${CHANGELOG_SOURCE}"
+expect_pr_check_closes \
+    "CHANGELOG.md non régénéré" \
+    "changelog"
+
 printf '\n'
 if (( failures > 0 )); then
     printf '%s%d porte(s) laissent passer un défaut%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles huit portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles onze portes se referment%s\n' "${GREEN}" "${RESET}"

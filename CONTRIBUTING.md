@@ -39,11 +39,20 @@ Une issue n'est close que lorsque tout ceci est vrai :
 - [ ] Le comportement ajouté ou corrigé est couvert par des tests
 - [ ] Un benchmark existe si la performance est en jeu
 - [ ] La section de manuel concernée est à jour
+- [ ] Le patch de `project(VERSION)` a été incrémenté dans `CMakeLists.txt`
 - [ ] `make changelog` a été régénéré
+- [ ] Le corps de la pull request porte une ligne `Closes #N`
 - [ ] Une ADR est écrite si une décision coûteuse à défaire a été prise
 
 Rédiger le manuel fait partie du travail, pas d'une passe de rattrapage :
 formuler en français le comportement attendu est un test de conception.
+
+Les trois points mécaniquement décidables de cette liste — le bump, le journal
+et la ligne `Closes #N` — sont vérifiés par le job `contrôles de pull request`,
+et n'ont donc plus à être relus. **`Closes` et non « Ferme » :** GitHub ne
+ferme une issue que sur ses propres mots-clés, tous anglais. La règle de langue
+du projet ne s'applique pas à cette ligne, qui est une instruction à GitHub et
+non de la prose.
 
 ## Conventions
 

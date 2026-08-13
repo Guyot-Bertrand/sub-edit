@@ -6,6 +6,11 @@
 #
 # Nécessite sudo pour les paquets APT. git-cliff n'étant pas empaqueté, il est
 # récupéré depuis les releases GitHub vers ~/.local/bin.
+#
+# Deux modes réduits :
+#
+#   --with-qt          ajoute les paquets Qt, requis à partir de la phase 5
+#   --git-cliff-only   n'installe que git-cliff, et rien d'autre
 
 set -euo pipefail
 
@@ -13,7 +18,7 @@ readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 readonly LOCAL_BIN="${HOME}/.local/bin"
 readonly GIT_CLIFF_VERSION="2.10.1"
 
-readonly WITH_QT="${1:-}"
+readonly MODE="${1:-}"
 
 info() { printf '\033[1m%s\033[0m\n' "$*"; }
 skip() { printf '  déjà présent : %s\n' "$*"; }
@@ -42,7 +47,7 @@ install_apt_tools() {
         fi
     done
 
-    if [[ "${WITH_QT}" == "--with-qt" ]]; then
+    if [[ "${MODE}" == "--with-qt" ]]; then
         # Requis à partir de la phase 5 seulement.
         missing+=(qt6-base-dev qt6-multimedia-dev)
     fi
@@ -148,6 +153,17 @@ report() {
 }
 
 main() {
+    # Le job « contrôles de pull request » ne construit rien : de toute la
+    # chaîne, il n'a besoin que de git-cliff, pour régénérer le journal et
+    # comparer. Lui installer cmake, clang-tidy et gcovr coûterait plusieurs
+    # minutes à chaque édition d'un corps de pull request. Le mode existe ici
+    # plutôt que dans le YAML pour que le numéro de version de git-cliff reste
+    # écrit à un seul endroit.
+    if [[ "${MODE}" == "--git-cliff-only" ]]; then
+        install_git_cliff
+        return
+    fi
+
     check_cxx_alternative
     ensure_gh_repository
     install_apt_tools
