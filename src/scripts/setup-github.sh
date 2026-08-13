@@ -162,10 +162,13 @@ apply_milestones() {
 #     direct sur main. Sans cette dérogation, la règle bloquerait tout push,
 #     puisque la CI ne s'exécute qu'après.
 #
-# Le ruleset « porte de qualité » exige deux contextes, et non un : le job de
-# construction, et les contrôles de pull request. Ce second ne s'exécute que sur
-# l'événement `pull_request`, donc il ne rapporte rien lors d'un push direct sur
-# main — sans conséquence, la dérogation de l'administrateur couvrant ce cas.
+# Le ruleset n'exige qu'un seul contexte, « porte de qualité ». Le job
+# « contrôles de pull request », livré par #51, en est délibérément absent : il
+# est jeune, et un contrôle jeune qui bloque une fusion coûte plus cher qu'il ne
+# rapporte tant qu'on n'a pas vu s'il produit des faux positifs. Il échoue en
+# rouge, ce qui suffit à le rendre visible pendant l'observation. À rediscuter à
+# l'ouverture de la phase 4. Le job « messages de commit » est dans le même cas,
+# et pour la même raison.
 
 ruleset_exists() {
     gh api "repos/${REPO}/rulesets" --jq ".[] | select(.name == \"$1\") | .id" 2>/dev/null
@@ -220,10 +223,7 @@ apply_rulesets() {
             "type": "required_status_checks",
             "parameters": {
                 "strict_required_status_checks_policy": false,
-                "required_status_checks": [
-                    {"context": "porte de qualité"},
-                    {"context": "contrôles de pull request"}
-                ]
+                "required_status_checks": [{"context": "porte de qualité"}]
             }
         }]
     }'
