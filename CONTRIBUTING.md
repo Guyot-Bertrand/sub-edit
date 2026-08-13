@@ -44,15 +44,36 @@ Une issue n'est close que lorsque tout ceci est vrai :
 - [ ] Le corps de la pull request porte une ligne `Closes #N`
 - [ ] Une ADR est écrite si une décision coûteuse à défaire a été prise
 
-Rédiger le manuel fait partie du travail, pas d'une passe de rattrapage :
-formuler en français le comportement attendu est un test de conception.
-
 Les trois points mécaniquement décidables de cette liste — le bump, le journal
 et la ligne `Closes #N` — sont vérifiés par le job `contrôles de pull request`,
 et n'ont donc plus à être relus. **`Closes` et non « Ferme » :** GitHub ne
 ferme une issue que sur ses propres mots-clés, tous anglais. La règle de langue
 du projet ne s'applique pas à cette ligne, qui est une instruction à GitHub et
 non de la prose.
+
+Rédiger le manuel fait partie du travail, pas d'une passe de rattrapage :
+formuler en français le comportement attendu est un test de conception.
+
+**Ses exemples d'appel, en revanche, ne s'écrivent pas : ils se déclarent.** Un
+bloc `console` du manuel est précédé d'un marqueur qui nomme la commande à
+illustrer, et `make manual` réécrit le bloc avec ce que cette commande produit
+réellement.
+
+````markdown
+<!-- exemple: subedit-cli -->
+```console
+… réécrit par make manual …
+```
+````
+
+Le marqueur porte une ligne de shell entière, ce qui permet d'illustrer un
+enchaînement — `subedit-cli fichier.srt; echo $?` — comme un utilisateur
+l'écrirait.
+
+Une sortie recopiée à la main est de la documentation périmée en sursis : le
+seul numéro de version que le manuel contenait a été corrigé douze fois pendant
+la phase 2, sans que rien vérifie qu'il était vrai. `make check-local` refuse
+désormais un manuel dont les exemples ne correspondent plus.
 
 ## Conventions
 
@@ -107,4 +128,5 @@ exclusion non justifiée est un défaut, pas un réglage.
 | `make ratchet` | enregistre la couverture mesurée comme nouveau cliquet |
 | `make bench` | benchmarks en Release, versés dans `docs/mesures/performances.md` |
 | `make changelog` | régénère `CHANGELOG.md` |
+| `make manual` | régénère les exemples d'appel du manuel |
 | `make help` | toutes les cibles |
