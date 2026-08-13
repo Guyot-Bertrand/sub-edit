@@ -15,6 +15,7 @@ ne pas l'éditer à la main.
 - **ci** — Donner une mémoire aux mesures de performance
 - **ci** — Vérifier les trois obligations d'une pull request
 - **doc** — Générer les exemples d'appel du manuel
+- **scripts** — Élargir la portée du contrôle de parallélisme
 
 ### Construction
 
@@ -52,11 +53,13 @@ ne pas l'éditer à la main.
 - **doc** — Décrire le cliquet et le journal, et bumper le patch
 - **doc** — Aligner CONTRIBUTING et le manuel, et bumper le patch
 - **doc** — Décrire les exemples déclarés, et bumper le patch
+- **doc** — Bumper le patch et relever les mesures
 
 ### Intégration continue
 
 - **test** — Refuser une exigence implémentée que rien ne démontre
 - **ci** — Rendre les contrôles de pull request bloquants
+- **ci** — Ne pas exiger encore les contrôles de pull request
 
 ### Tests
 
@@ -65,6 +68,7 @@ ne pas l'éditer à la main.
 - **build** — Prouver que le parallélisme codé en dur échoue
 - **ci** — Prouver que les trois contrôles de pull request refusent
 - **ci** — Prouver les quatre refus du générateur d'exemples
+- **ci** — Prouver ce que le contrôle attrape, et ce qu'il laisse passer
 
 ## 0.2.0 — 2026-08-08
 
