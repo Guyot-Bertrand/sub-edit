@@ -10,6 +10,7 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/subtitle_format.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/time/frame_rate.hpp>
 
 #include <cstddef>
 #include <string>
@@ -32,6 +33,16 @@ namespace subedit::cli {
 
 /// Why the file system refused, in the same shape.
 [[nodiscard]] std::string_view reasonOf(subedit::core::FileErrorKind kind);
+
+/// A frame rate, as a report writes it: "25", "23.9", "24000/1001".
+///
+/// **A decimal only when a decimal is exact.** A rate whose denominator divides
+/// a thousand is written as one, trailing zeros trimmed; anything else is
+/// written as its fraction. The NTSC rates fall on the second side, which is
+/// the point: naming `24000/1001` "23.976" would report a conversion that did
+/// not happen, and this line is the only place the user sees which rate was
+/// actually used.
+[[nodiscard]] std::string nameOf(subedit::core::FrameRate rate);
 
 /// A count and its noun, agreeing: "1 subtitle", "2 subtitles".
 ///

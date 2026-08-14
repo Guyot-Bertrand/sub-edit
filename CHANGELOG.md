@@ -22,6 +22,7 @@ ne pas l'éditer à la main.
 - **cli** — Convert, et la grammaire de destination
 - **cli** — Shift, et la grammaire du temps
 - **cli** — Transform, et la grammaire des indices
+- **cli** — Framerate, et la grammaire des cadences
 
 ### Construction
 
@@ -69,6 +70,7 @@ ne pas l'éditer à la main.
 - **doc** — Manuel de convert, et bumper le patch
 - **doc** — Manuel de shift, et bumper le patch
 - **doc** — Manuel de transform, et bumper le patch
+- **doc** — Manuel de framerate, et bumper le patch
 
 ### Intégration continue
 
@@ -91,6 +93,7 @@ ne pas l'éditer à la main.
 - **cli** — Prouver la conversion, ses six formes et ses refus
 - **cli** — Prouver le décalage, sa grammaire et ses refus
 - **cli** — Prouver la transformation, ses bornes et ses refus
+- **cli** — Prouver la conversion de cadence et son arrondi unique
 
 ## 0.2.0 — 2026-08-08
 

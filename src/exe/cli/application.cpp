@@ -2,6 +2,8 @@
 
 #include <subedit/cli/conversion.hpp>
 #include <subedit/cli/destination.hpp>
+#include <subedit/cli/frame_rate_conversion.hpp>
+#include <subedit/cli/frame_rate_grammar.hpp>
 #include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/reporter.hpp>
@@ -180,6 +182,54 @@ runTransform(const TransformOptions& options, core::FileSystem& files, const Rep
     return transformAll(files, options.files, *transform, *destination, reporter);
 }
 
+/// What `framerate` was asked for.
+struct FrameRateOptions {
+    std::vector<std::string> files;
+    std::string from;
+    std::string to;
+    std::string output;
+    std::string outputDir;
+    bool inPlace = false;
+};
+
+CLI::App* describeFrameRate(CLI::App& app, FrameRateOptions& options) {
+    CLI::App* framerate =
+        app.add_subcommand("framerate", "Re-time a file mastered at one frame rate for another");
+    framerate->add_option("files", options.files, "Subtitle files to re-time")->required();
+    framerate->add_option("--from", options.from, "Frame rate the file is timed at: 25, 23.976")
+        ->required();
+    framerate->add_option("--to", options.to, "Frame rate to time it for: 24, 29.97")->required();
+
+    framerate->add_option("--output", options.output, "File to write, for a single input");
+    framerate->add_option("--output-dir", options.outputDir, "Directory to write into");
+    framerate->add_flag("--in-place", options.inPlace, "Write back over the inputs");
+    return framerate;
+}
+
+ExitCode
+runFrameRate(const FrameRateOptions& options, core::FileSystem& files, const Reporter& reporter) {
+    const std::expected<core::FrameRate, std::string> from = parseFrameRate(options.from);
+    if (!from) {
+        std::cerr << from.error() << '\n';
+        return ExitCode::Usage;
+    }
+
+    const std::expected<core::FrameRate, std::string> to = parseFrameRate(options.to);
+    if (!to) {
+        std::cerr << to.error() << '\n';
+        return ExitCode::Usage;
+    }
+
+    const std::expected<Destination, std::string> destination =
+        Destination::from(options.output, options.outputDir, options.inPlace, options.files.size());
+    if (!destination) {
+        std::cerr << destination.error() << '\n';
+        return ExitCode::Usage;
+    }
+
+    return convertFrameRateAll(files, options.files, *from, *to, *destination, reporter);
+}
+
 core::Newline newlineNamed(const std::string& name) {
     if (name == "windows") {
         return core::Newline::CrLf;
@@ -274,6 +324,8 @@ ExitCode run(int argc, char** argv) {
     const CLI::App* shift = describeShift(app, shiftOptions);
     TransformOptions transformOptions;
     const CLI::App* transform = describeTransform(app, transformOptions);
+    FrameRateOptions frameRateOptions;
+    const CLI::App* framerate = describeFrameRate(app, frameRateOptions);
 
     try {
         app.parse(argc, argv);
@@ -311,6 +363,9 @@ ExitCode run(int argc, char** argv) {
     }
     if (transform->parsed()) {
         return runTransform(transformOptions, files, reporter);
+    }
+    if (framerate->parsed()) {
+        return runFrameRate(frameRateOptions, files, reporter);
     }
     return ExitCode::Success;
 }

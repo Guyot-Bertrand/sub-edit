@@ -84,5 +84,5 @@ plus rien.
 | `CLI-SHIFT-02` | un décalage rendant une position négative est refusé en nommant le sous-titre | 3 | implémentée |
 | `CLI-TRANSFORM-01` | deux repères transforment les positions, les autres suivent | 3 | implémentée |
 | `CLI-TRANSFORM-02` | deux indices confondus sont refusés | 3 | implémentée |
-| `CLI-FRAMERATE-01` | `--from`/`--to` convertit les positions | 3 | prévue |
-| `CLI-FRAMERATE-02` | une fréquence nulle ou négative est refusée | 3 | prévue |
+| `CLI-FRAMERATE-01` | `--from`/`--to` convertit les positions | 3 | implémentée |
+| `CLI-FRAMERATE-02` | une fréquence nulle ou négative est refusée | 3 | implémentée |

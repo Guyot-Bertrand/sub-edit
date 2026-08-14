@@ -65,6 +65,29 @@ std::string_view reasonOf(FileErrorKind kind) {
     std::unreachable();
 }
 
+std::string nameOf(core::FrameRate rate) {
+    constexpr std::int64_t kThousand = 1000;
+    if (kThousand % rate.denominator() != 0) {
+        return std::to_string(rate.numerator()) + "/" + std::to_string(rate.denominator());
+    }
+
+    // Both terms are bounded by a billion, so a thousandth of the rate holds in
+    // an int64 with three orders of magnitude to spare.
+    const std::int64_t thousandths = rate.numerator() * (kThousand / rate.denominator());
+    std::string whole = std::to_string(thousandths / kThousand);
+    const std::int64_t rest = thousandths % kThousand;
+    if (rest == 0) {
+        return whole;
+    }
+
+    std::string decimals = std::to_string(rest);
+    decimals.insert(0, 3 - decimals.size(), '0');
+    while (decimals.back() == '0') {
+        decimals.pop_back();
+    }
+    return whole + "." + decimals;
+}
+
 std::string countOf(std::size_t count, std::string_view noun) {
     std::string text = std::to_string(count) + " " + std::string{noun};
     if (count != 1) {

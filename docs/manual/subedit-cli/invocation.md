@@ -23,6 +23,7 @@ Subcommands:
   convert                     Write a subtitle file out in another format or shape
   shift                       Move every position of a file by a fixed amount
   transform                   Correct every position from two points known to be right
+  framerate                   Re-time a file mastered at one frame rate for another
 ```
 
 ## La ligne de commande est en anglais
@@ -48,7 +49,7 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.2.13
+subedit 0.2.14
 ```
 
 ## Sous-commandes
@@ -59,9 +60,9 @@ subedit 0.2.13
 | [`convert`](convert.md) | écrit un fichier dans un autre format, ou une autre forme |
 | [`shift`](shift.md) | décale toutes les positions d'une même durée |
 | [`transform`](transform.md) | corrige toutes les positions à partir de deux repères |
+| [`framerate`](framerate.md) | recale un fichier d'une cadence d'images vers une autre |
 
-La conversion de fréquence d'image relève du ticket suivant de la phase 3 ; elle
-n'existe pas encore et l'aide ne l'annonce pas.
+Les cinq sont là ; l'aide de l'outil les énumère dans le même ordre.
 
 ## Deux sorties, deux rôles
 
