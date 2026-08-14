@@ -31,12 +31,12 @@ pas le sujet de ce ticket.
 | position vers image | 6.49 ns | 0.2.9 — 2026-08-14 | 8.78 ns | 0.2.3 — 2026-08-12 |
 | image vers position | 6.48 ns | 0.2.10 — 2026-08-14 | 8.79 ns | 0.2.2 — 2026-08-12 |
 | mise à l'échelle par un rationnel exact | 6.72 ns | 0.2.9 — 2026-08-14 | 9.07 ns | 0.2.2 — 2026-08-12 |
-| lecture de 4000 sous-titres | 2.2 ms | 0.2.4 — 2026-08-13 | 3.08 ms | 0.2.7 — 2026-08-14 |
+| lecture de 4000 sous-titres | 2.2 ms | 0.2.4 — 2026-08-13 | 3.09 ms | 0.2.12 — 2026-08-14 |
 | écriture de 4000 sous-titres | 505 µs | 0.2.9 — 2026-08-14 | 641 µs | 0.2.7 — 2026-08-14 |
 | décalage de 4000 sous-titres | 9.03 µs | 0.2.10 — 2026-08-14 | 11.2 µs | 0.2.7 — 2026-08-14 |
 | décalage puis annulation | 15.3 µs | 0.2.10 — 2026-08-14 | 20.7 µs | 0.2.6 — 2026-08-13 |
-| transformation de 4000 sous-titres | 74.5 µs | 0.2.10 — 2026-08-14 | 87.1 µs | 0.2.7 — 2026-08-14 |
-| conversion de fréquence sur 4000 sous-titres | 74.4 µs | 0.2.10 — 2026-08-14 | 89.5 µs | 0.2.3 — 2026-08-12 |
+| transformation de 4000 sous-titres | 74.5 µs | 0.2.10 — 2026-08-14 | 93.3 µs | 0.2.12 — 2026-08-14 |
+| conversion de fréquence sur 4000 sous-titres | 74.4 µs | 0.2.10 — 2026-08-14 | 100 µs | 0.2.12 — 2026-08-14 |
 | tri de 4000 sous-titres à l'envers | 207 µs | 0.2.4 — 2026-08-13 | 274 µs | 0.2.6 — 2026-08-13 |
 | suppression d'un sous-titre sur deux | 9.92 ms | 0.2.4 — 2026-08-13 | 12.5 ms | 0.2.3 — 2026-08-12 |
 | insertion de 100 sous-titres vides au milieu | 50.3 µs | 0.2.11 — 2026-08-14 | 65.8 µs | 0.2.2 — 2026-08-12 |
@@ -48,12 +48,12 @@ pas le sujet de ce ticket.
 <!-- position vers image min=6.4895 max=8.77599 -->
 <!-- image vers position min=6.47591 max=8.79029 -->
 <!-- mise à l'échelle par un rationnel exact min=6.71811 max=9.06914 -->
-<!-- lecture de 4000 sous-titres min=2198390.0 max=3078630.0 -->
+<!-- lecture de 4000 sous-titres min=2198390.0 max=3091860.0 -->
 <!-- écriture de 4000 sous-titres min=504839.0 max=640976.0 -->
 <!-- décalage de 4000 sous-titres min=9033.41 max=11244.6 -->
 <!-- décalage puis annulation min=15274.2 max=20725.3 -->
-<!-- transformation de 4000 sous-titres min=74507.1 max=87141.3 -->
-<!-- conversion de fréquence sur 4000 sous-titres min=74444.8 max=89464.1 -->
+<!-- transformation de 4000 sous-titres min=74507.1 max=93254.5 -->
+<!-- conversion de fréquence sur 4000 sous-titres min=74444.8 max=100492.0 -->
 <!-- tri de 4000 sous-titres à l'envers min=207024.0 max=273761.0 -->
 <!-- suppression d'un sous-titre sur deux min=9921060.0 max=12451000.0 -->
 <!-- insertion de 100 sous-titres vides au milieu min=50345.9 max=65814.7 -->
@@ -65,6 +65,27 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.2.12 — 2026-08-14 — Release
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| versionString | 50.1 ns | 11.5 ns |
+| parse | 37.6 ns | 9.1 ns |
+| format | 38.3 ns | 1.76 ns |
+| position vers image | 7.67 ns | 1.53 ns |
+| image vers position | 7.48 ns | 0.318 ns |
+| mise à l'échelle par un rationnel exact | 7.73 ns | 0.238 ns |
+| lecture de 4000 sous-titres | 3.09 ms | 816 µs |
+| écriture de 4000 sous-titres | 576 µs | 27.3 µs |
+| décalage de 4000 sous-titres | 10.7 µs | 4.03 µs |
+| décalage puis annulation | 18.6 µs | 2.46 µs |
+| transformation de 4000 sous-titres | 93.3 µs | 18.5 µs |
+| conversion de fréquence sur 4000 sous-titres | 100 µs | 20.8 µs |
+| tri de 4000 sous-titres à l'envers | 213 µs | 40 µs |
+| suppression d'un sous-titre sur deux | 11 ms | 793 µs |
+| insertion de 100 sous-titres vides au milieu | 56.7 µs | 16.4 µs |
+| modification d'un texte, à travers une session | 126 ns | 31.2 ns |
 
 ### 0.2.11 — 2026-08-14 — Release
 
