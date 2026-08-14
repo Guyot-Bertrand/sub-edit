@@ -1,6 +1,7 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 
+#include <algorithm>
 #include <cstddef>
 #include <span>
 #include <stdexcept>
@@ -52,11 +53,25 @@ std::vector<Subtitle> Project::remove(const Selection& selection) {
     return removed;
 }
 
-std::vector<SubtitleIndex> Project::outOfOrder() const {
+std::vector<SubtitleIndex> Project::outOfOrder(OrderReport report) const {
     std::vector<SubtitleIndex> indices;
+    if (m_subtitles.empty())
+        return indices;
+
+    // The reference a start is judged against: the previous start, or the
+    // largest one seen. That single difference is the whole of the two
+    // readings — everything else about them is identical, and writing them as
+    // two loops would invite them to drift apart.
+    Timestamp highest = m_subtitles.front().start;
     for (std::size_t value = 1; value < m_subtitles.size(); ++value) {
-        if (m_subtitles[value].start < m_subtitles[value - 1].start)
+        const Timestamp start = m_subtitles[value].start;
+        const Timestamp reference =
+            report == OrderReport::Breaks ? m_subtitles[value - 1].start : highest;
+
+        if (start < reference)
             indices.push_back(SubtitleIndex::fromValue(value));
+
+        highest = std::max(highest, start);
     }
 
     return indices;

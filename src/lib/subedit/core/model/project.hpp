@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/model/order_report.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
@@ -67,22 +68,22 @@ public:
     /// the project does not have.
     [[nodiscard]] std::vector<Subtitle> remove(const Selection& selection);
 
-    /// Returns the indices of the subtitles that start before the one before
-    /// them, a pure query.
+    /// Returns the indices of the subtitles that are out of order, a pure
+    /// query.
     ///
-    /// The index reported is the one that breaks the order, not the one it
-    /// breaks it against: that is the line an interface has to show. Equal
-    /// starts are not disorder — neither precedes the other.
+    /// The index reported is the one that is out of place, not the one it is
+    /// out of place against: that is the line an interface has to show. Equal
+    /// starts are not disorder under either reading — neither precedes the
+    /// other.
     ///
-    /// Compared against the **immediate predecessor**, not against the largest
-    /// start seen so far. The two agree on whether there is disorder at all and
-    /// differ only on which indices they name; nothing consumes that list yet.
-    /// The phase-3 inspection is the first caller that has to choose, and the
-    /// roadmap holds the question.
+    /// `report` chooses what "out of order" means; see `OrderReport`. The
+    /// default is the reading phase 2 shipped, so that callers written before
+    /// the second one existed are unaffected.
     ///
     /// A query and not an invariant: the model never sorts by itself. See the
     /// order policy of the phase-2 spec, and ADR 0012.
-    [[nodiscard]] std::vector<SubtitleIndex> outOfOrder() const;
+    [[nodiscard]] std::vector<SubtitleIndex>
+    outOfOrder(OrderReport report = OrderReport::Breaks) const;
 
     /// Returns the frame rate the project is read against.
     [[nodiscard]] FrameRate frameRate() const { return m_frameRate; }
