@@ -3,9 +3,9 @@
 Outil en ligne de commande de subedit : manipulation de fichiers de sous-titres
 sans interface graphique, en traitement par lot ou depuis un script.
 
-> **État actuel.** `subedit-cli` sait inspecter un fichier. Les commandes qui
-> écrivent — conversion, décalage, transformation, fréquence d'image — sont en
-> cours et n'existent pas encore ; voir la
+> **État actuel.** `subedit-cli` sait inspecter et convertir. Le décalage, la
+> transformation et la conversion de fréquence d'image sont en cours et
+> n'existent pas encore ; voir la
 > [feuille de route](../../feuille-de-route.md). Ce manuel décrit ce qui existe,
 > jamais ce qui est prévu.
 
@@ -16,3 +16,4 @@ sans interface graphique, en traitement par lot ou depuis un script.
 | [Installation](installation.md) | construire et installer l'outil |
 | [Invocation](invocation.md) | options globales, sorties, codes de retour |
 | [`inspect`](inspect.md) | rapporter ce qu'un fichier contient |
+| [`convert`](convert.md) | écrire un fichier dans un autre format ou une autre forme |

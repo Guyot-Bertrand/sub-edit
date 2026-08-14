@@ -20,6 +20,7 @@ Options:
 
 Subcommands:
   inspect                     Report what a subtitle file is made of
+  convert                     Write a subtitle file out in another format or shape
 ```
 
 ## La ligne de commande est en anglais
@@ -45,7 +46,7 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.2.10
+subedit 0.2.11
 ```
 
 ## Sous-commandes
@@ -53,10 +54,11 @@ subedit 0.2.10
 | Sous-commande | Ce qu'elle fait |
 | :------------ | :-------------- |
 | [`inspect`](inspect.md) | rapporte ce qu'un fichier contient, sans rien modifier |
+| [`convert`](convert.md) | écrit un fichier dans un autre format, ou une autre forme |
 
-Les sous-commandes qui écrivent — conversion, décalage, transformation,
-fréquence d'image — relèvent des tickets suivants de la phase 3 ; elles
-n'existent pas encore et l'aide ne les annonce pas.
+Le décalage, la transformation et la conversion de fréquence d'image relèvent
+des tickets suivants de la phase 3 ; ils n'existent pas encore et l'aide ne les
+annonce pas.
 
 ## Deux sorties, deux rôles
 

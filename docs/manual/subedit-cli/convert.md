@@ -1,0 +1,124 @@
+# `convert`
+
+```
+subedit-cli convert --to srt|vtt
+                    [--line-endings unix|windows|mac] [--bom | --no-bom]
+                    (--output FICHIER | --output-dir DOSSIER | --in-place)
+                    <fichier>...
+```
+
+Écrit chaque fichier dans le format et la forme demandés. **Ne modifie jamais
+l'entrée**, sauf si `--in-place` le demande explicitement.
+
+<!-- exemple: subedit-cli convert --help -->
+```console
+$ subedit-cli convert --help
+Write a subtitle file out in another format or shape
+Usage: subedit-cli convert [OPTIONS] files...
+
+Positionals:
+  files TEXT ... REQUIRED     Subtitle files to convert
+
+Options:
+  -h,--help                   Print this help message and exit
+  --to TEXT:{srt,vtt} REQUIRED
+                              Format to write
+  --line-endings TEXT:{unix,windows,mac}
+                              Line endings to write; the source's by default
+  --bom                       Write a byte order mark
+  --no-bom                    Write no byte order mark
+  --output TEXT               File to write, for a single input
+  --output-dir TEXT           Directory to write into
+  --in-place                  Write back over the inputs
+```
+
+## Arguments et options
+
+| Option | Requis | Valeurs | Défaut |
+| :----- | :----- | :------ | :----- |
+| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `--to` | **oui** | `srt` ou `vtt`, et rien d'autre | — |
+| `--line-endings` | non | `unix`, `windows` ou `mac` | celles du fichier lu |
+| `--bom` / `--no-bom` | non | drapeaux, exclusifs l'un de l'autre | ce que portait le fichier lu |
+| `--output` | l'une des trois | un chemin de fichier ; une seule entrée | — |
+| `--output-dir` | l'une des trois | un dossier existant | — |
+| `--in-place` | l'une des trois | drapeau | — |
+
+`mac` désigne le retour chariot seul (`\r`), la fin de ligne du Mac OS classique.
+
+## La destination est toujours explicite
+
+Les trois façons de la donner s'excluent, et **il en faut une** : sans elle,
+rien n'est écrit et le code de retour est `1`.
+
+| Option | Où va le résultat |
+| :----- | :---------------- |
+| `--output FICHIER` | dans ce fichier, sous ce nom exact ; une seule entrée |
+| `--output-dir DOSSIER` | dans ce dossier, sous le nom de base de l'entrée **et l'extension du format écrit** |
+| `--in-place` | par-dessus l'entrée, par écriture atomique |
+
+`--output` avec plusieurs entrées est refusé : le dernier fichier s'écrirait
+sur les précédents.
+
+**`--output-dir` change l'extension avec le format.** `convert --to vtt` sur
+`a.srt` écrit `a.vtt`, jamais `a.srt` contenant du WebVTT — un fichier dont le
+nom ment fait trébucher tous les autres outils.
+
+## Convertir sur place est refusé
+
+`--in-place` avec un `--to` qui change le format donne le code `1` et n'écrit
+rien : sur place, il n'y a pas de second nom pour porter le nouveau format, et
+le fichier resterait sous une extension que son contenu ne justifie plus.
+
+`--in-place` reste utilisable pour changer **la forme sans le format** —
+réécrire un `.srt` en `.srt` avec d'autres fins de ligne, par exemple.
+
+Le refus se décide sur **l'extension seule**, avant toute lecture : une erreur
+d'usage ne doit jamais laisser un lot à moitié écrit.
+
+## Fins de ligne et marque d'ordre des octets
+
+Par défaut, **le fichier écrit reprend ce que portait le fichier lu**. Le modèle
+retient les deux à la lecture ; les imposer par défaut perdrait à chaque
+conversion une information conservée exprès.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
+a.srt: 1 subtitle written as WebVTT -> b.vtt
+WEBVTT
+
+00:01.000 --> 00:03.000
+Bonjour.
+```
+
+## Sortie
+
+**Sortie standard** — rien : le résultat est le fichier écrit.
+
+Sur la sortie d'erreur, selon le niveau :
+
+| Niveau | Ce qui s'ajoute |
+| :----- | :-------------- |
+| 1 | `<chemin>: N subtitles written as WebVTT -> <destination>` |
+| 2 | `<chemin>: SubRip -> WebVTT, LF line endings, no BOM` |
+| 3 | `<chemin>: N bytes read, M written` |
+
+## Codes de retour
+
+Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` si
+certains seulement, `1` sur une erreur d'usage.
+
+## Erreurs
+
+| Ce qui la déclenche | Message |
+| :------------------ | :------ |
+| aucune destination | `no destination given: use --output, --output-dir or --in-place` |
+| deux destinations | `--output, --output-dir and --in-place exclude one another` |
+| `--output` sur un lot | `--output names one file but several were given: use --output-dir instead` |
+| `--bom` avec `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
+| `--in-place` qui change le format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
+| destination non inscriptible | `<chemin>: <destination>: cannot be opened: permission denied` |
+
+Les erreurs de lecture sont celles d'[`inspect`](inspect.md) : elles portent sur
+le fichier d'entrée et ont les mêmes messages.
