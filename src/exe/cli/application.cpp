@@ -4,6 +4,8 @@
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/cli/shifting.hpp>
+#include <subedit/cli/time_grammar.hpp>
 #include <subedit/cli/verbosity.hpp>
 #include <subedit/core/format/real_file_system.hpp>
 #include <subedit/core/version.hpp>
@@ -77,6 +79,45 @@ CLI::App* describeConvert(CLI::App& app, ConvertOptions& options) {
     convert->add_option("--output-dir", options.outputDir, "Directory to write into");
     convert->add_flag("--in-place", options.inPlace, "Write back over the inputs");
     return convert;
+}
+
+/// What `shift` was asked for.
+struct ShiftOptions {
+    std::vector<std::string> files;
+    std::string by;
+    std::string output;
+    std::string outputDir;
+    bool inPlace = false;
+};
+
+CLI::App* describeShift(CLI::App& app, ShiftOptions& options) {
+    CLI::App* shift =
+        app.add_subcommand("shift", "Move every position of a file by a fixed amount");
+    shift->add_option("files", options.files, "Subtitle files to shift")->required();
+    shift->add_option("--by", options.by, "Amount to move by: 2.999, -7.001, or 00:00:07.001")
+        ->required();
+
+    shift->add_option("--output", options.output, "File to write, for a single input");
+    shift->add_option("--output-dir", options.outputDir, "Directory to write into");
+    shift->add_flag("--in-place", options.inPlace, "Write back over the inputs");
+    return shift;
+}
+
+ExitCode runShift(const ShiftOptions& options, core::FileSystem& files, const Reporter& reporter) {
+    const std::expected<core::Duration, std::string> by = parseTime(options.by);
+    if (!by) {
+        std::cerr << by.error() << '\n';
+        return ExitCode::Usage;
+    }
+
+    const std::expected<Destination, std::string> destination =
+        Destination::from(options.output, options.outputDir, options.inPlace, options.files.size());
+    if (!destination) {
+        std::cerr << destination.error() << '\n';
+        return ExitCode::Usage;
+    }
+
+    return shiftAll(files, options.files, *by, *destination, reporter);
 }
 
 core::Newline newlineNamed(const std::string& name) {
@@ -169,6 +210,8 @@ ExitCode run(int argc, char** argv) {
     const CLI::App* inspect = describeInspect(app, inspectOptions);
     ConvertOptions convertOptions;
     const CLI::App* convert = describeConvert(app, convertOptions);
+    ShiftOptions shiftOptions;
+    const CLI::App* shift = describeShift(app, shiftOptions);
 
     try {
         app.parse(argc, argv);
@@ -200,6 +243,9 @@ ExitCode run(int argc, char** argv) {
     }
     if (convert->parsed()) {
         return runConvert(convertOptions, files, reporter);
+    }
+    if (shift->parsed()) {
+        return runShift(shiftOptions, files, reporter);
     }
     return ExitCode::Success;
 }

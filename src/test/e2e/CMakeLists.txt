@@ -12,7 +12,8 @@ add_executable(
     cli/inspect_test.cpp
     cli/narration_test.cpp
     cli/batch_test.cpp
-    cli/convert_test.cpp)
+    cli/convert_test.cpp
+    cli/shift_test.cpp)
 
 # subedit::core pour versionString() : l'attendu d'un test se calcule, il ne se
 # recopie pas — un numéro recopié est un numéro qui se périme.

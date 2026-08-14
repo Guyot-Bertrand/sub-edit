@@ -77,6 +77,8 @@ add_executable(
     cli/destination_test.cpp
     cli/inspection_test.cpp
     cli/reporter_test.cpp
+    cli/shifting_test.cpp
+    cli/time_grammar_test.cpp
     cli/verbosity_test.cpp)
 
 target_link_libraries(subedit_cli_test PRIVATE subedit::cli Catch2::Catch2WithMain)

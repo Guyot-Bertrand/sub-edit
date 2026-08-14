@@ -80,8 +80,8 @@ plus rien.
 | `CLI-CONVERT-01` | `--to` produit le format demandé | 3 | implémentée |
 | `CLI-CONVERT-02` | fins de ligne et BOM sont conservés par défaut, réglables sinon | 3 | implémentée |
 | `CLI-CONVERT-03` | sans destination explicite, rien n'est écrit et le code est 1 | 3 | implémentée |
-| `CLI-SHIFT-01` | `--by` décale toutes les positions, dans les deux sens | 3 | prévue |
-| `CLI-SHIFT-02` | un décalage rendant une position négative est refusé en nommant le sous-titre | 3 | prévue |
+| `CLI-SHIFT-01` | `--by` décale toutes les positions, dans les deux sens | 3 | implémentée |
+| `CLI-SHIFT-02` | un décalage rendant une position négative est refusé en nommant le sous-titre | 3 | implémentée |
 | `CLI-TRANSFORM-01` | deux repères transforment les positions, les autres suivent | 3 | prévue |
 | `CLI-TRANSFORM-02` | deux indices confondus sont refusés | 3 | prévue |
 | `CLI-FRAMERATE-01` | `--from`/`--to` convertit les positions | 3 | prévue |
