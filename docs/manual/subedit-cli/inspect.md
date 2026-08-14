@@ -1,7 +1,7 @@
 # `inspect`
 
 ```
-subedit-cli inspect <fichier>...
+subedit-cli inspect [--order-report breaks|late] <fichier>...
 ```
 
 Rapporte ce que chaque fichier contient. **Ne modifie rien et n'écrit aucun
@@ -18,15 +18,20 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
+  --order-report TEXT:{breaks,late} [breaks] 
+                              Which lines to name when the file is out of order
 ```
 
 ## Arguments
 
-| Argument | Requis | Valeur |
-| :------- | :----- | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins de fichiers de sous-titres |
+| Argument | Requis | Valeur | Défaut |
+| :------- | :----- | :----- | :----- |
+| `<fichier>...` | oui | un ou plusieurs chemins de fichiers de sous-titres | — |
+| `--order-report` | non | `breaks` ou `late`, et rien d'autre | `breaks` |
 
-Aucun chemin n'est une erreur d'usage, donc le code `1`.
+Aucun chemin n'est une erreur d'usage, donc le code `1`. Une valeur de
+`--order-report` hors de ces deux-là aussi, et le message énumère l'ensemble
+attendu.
 
 ## Sortie
 
@@ -61,10 +66,39 @@ exemple.srt
 sur un fichier dont l'ordre est rompu, les deux diffèrent, et seul le second dit
 la vérité sur ce que le fichier couvre.
 
-**`order` nomme les lignes qui rompent l'ordre** par rapport à celle qui les
-précède, comptées à partir de 1 comme elles s'affichent. Une seconde lecture —
-toutes les lignes en retard sur ce qui a déjà été vu — sera proposée par un
-ticket ultérieur.
+**`order` compte les lignes à partir de 1**, comme elles s'affichent, et sa
+formulation dépend de la lecture demandée — voir ci-dessous.
+
+## Deux lectures du désordre
+
+`--order-report` choisit **ce que « hors d'ordre » veut dire**. Les deux
+s'accordent toujours sur le fait qu'un fichier est en désordre ou non ; elles
+diffèrent sur les lignes à nommer.
+
+| Valeur | Ce qu'elle nomme | Ce que le rapport écrit |
+| :----- | :--------------- | :---------------------- |
+| `breaks` (défaut) | les lignes qui commencent avant celle qui les précède | `line 3 breaks the order` |
+| `late` | les lignes qui commencent avant quelque chose de déjà vu | `lines 3, 4 start late` |
+
+Sur des débuts à `0`, `4 s`, `2 s`, `3 s` : la troisième ligne rompt l'ordre, la
+quatrième suit pourtant la troisième — elle ne rompt rien — mais reste en retard
+sur les `4 s` déjà rencontrées. `breaks` nomme la troisième, `late` nomme la
+troisième et la quatrième.
+
+<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -1; subedit-cli --quiet inspect --order-report late desordre.srt | tail -1 -->
+```console
+$ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -1; subedit-cli --quiet inspect --order-report late desordre.srt | tail -1
+  order: line 3 breaks the order
+  order: lines 3, 4 start late
+```
+
+**La formulation change avec la lecture**, et c'est volontaire : une liste
+d'indices seule serait ambiguë entre les deux, alors qu'elles ne désignent pas
+les mêmes lignes.
+
+Aucune des deux n'est encore retenue comme *la* bonne. Les deux existent pour
+être comparées sur des fichiers réels ; l'interface graphique tranchera, et
+l'option disparaîtra alors au profit de la lecture retenue.
 
 ## Narration
 

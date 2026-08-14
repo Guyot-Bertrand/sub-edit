@@ -402,6 +402,16 @@ utilisateur complet pour le contour livré, empaquetage Linux.
 
 - Format de fichier de configuration et migration entre versions.
 - Empaquetage : Flatpak, `.deb`, AppImage — lequel pour une première livraison ?
+- **Règles `install()` dans CMake, et cibles `install` / `uninstall`.** Le
+  projet n'en a aucune : l'outil se lance depuis l'arbre de construction, et
+  `docs/manual/subedit-cli/installation.md` le dit. Relevé au cadrage de la
+  phase 3 et laissé ici volontairement — une cible écrite avant que le format
+  d'empaquetage soit tranché préjugerait de la réponse.
+
+  Deux conséquences à traiter en même temps : les exemples du manuel montrent
+  `$ subedit-cli` comme si l'outil était dans le `PATH`, ce qui ne deviendra
+  vrai qu'ici ; et `make manual` l'exécute depuis `build/dev/bin`, ce qui restera
+  le bon choix pour la génération même une fois l'installation possible.
 
 **À l'issue de cette phase, le MVP est livrable.**
 
