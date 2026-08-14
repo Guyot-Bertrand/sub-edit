@@ -5,7 +5,13 @@
 # code de retour. L'arborescence miroite src/exe, comme celle de unit/ miroite
 # src/lib.
 
-add_executable(subedit_e2e_test cli/cli_run.cpp cli/version_test.cpp)
+add_executable(
+    subedit_e2e_test
+    cli/cli_run.cpp
+    cli/usage_test.cpp
+    cli/inspect_test.cpp
+    cli/narration_test.cpp
+    cli/batch_test.cpp)
 
 # subedit::core pour versionString() : l'attendu d'un test se calcule, il ne se
 # recopie pas — un numéro recopié est un numéro qui se périme.
@@ -14,8 +20,9 @@ target_link_libraries(subedit_e2e_test PRIVATE subedit::core Catch2::Catch2WithM
 # Le chemin exact du binaire, résolu par CMake, comme SUBEDIT_TEST_DATA_DIR
 # l'est pour le corpus : un test ne doit pas dépendre du répertoire d'où on le
 # lance.
-target_compile_definitions(subedit_e2e_test
-                           PRIVATE SUBEDIT_CLI_BINARY="$<TARGET_FILE:subedit-cli>")
+target_compile_definitions(
+    subedit_e2e_test PRIVATE SUBEDIT_CLI_BINARY="$<TARGET_FILE:subedit-cli>"
+                             SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
 
 # $<TARGET_FILE:…> donne un chemin, pas un ordre de construction. Sans cette
 # ligne, rien ne garantit que le binaire existe quand le test le lance.
