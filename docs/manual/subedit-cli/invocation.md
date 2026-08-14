@@ -1,49 +1,125 @@
 # Invocation
 
 ```
-subedit-cli
+subedit-cli [options globales] <sous-commande> [options] <fichier>...
 ```
 
-Affiche la version de la bibliothèque avec laquelle l'outil a été construit,
-puis se termine.
+Sans sous-commande, l'outil écrit son aide et s'arrête.
 
 <!-- exemple: subedit-cli -->
 ```console
 $ subedit-cli
-subedit 0.2.7
+Read, inspect and retime subtitle files.
+Usage: subedit-cli [OPTIONS] [SUBCOMMAND]
+
+Options:
+  -h,--help                   Print this help message and exit
+  --version                   Display program version information and exit
+  -v                          Say more: -v is the default, -vv details, -vvv debugs
+  -q,--quiet                  Say nothing but errors
+
+Subcommands:
+  inspect                     Report what a subtitle file is made of
 ```
 
-## Sortie
+## La ligne de commande est en anglais
 
-Une ligne sur la **sortie standard**, terminée par un retour à la ligne :
-le mot `subedit`, une espace, puis la version au format `majeur.mineur.patch`.
-Rien n'est écrit sur la sortie d'erreur.
+Noms de sous-commandes, noms d'options, aide et messages d'erreur sont en
+anglais. Ce manuel reste en français et cite la sortie telle qu'elle est
+produite — ces blocs sont engendrés par `make manual`, jamais recopiés.
 
-## Arguments
+## Options globales
 
-**L'outil n'en accepte aucun, et n'en refuse aucun non plus.** Tout ce qui suit
-le nom du programme est ignoré sans un mot, y compris `--help` et `--version` :
+Elles s'écrivent **avant ou après** le nom de la sous-commande, indifféremment.
 
-<!-- exemple: subedit-cli --help fichier.srt; echo $? -->
+| Option | Effet |
+| :----- | :---- |
+| `-h`, `--help` | écrit l'aide et s'arrête ; celle de la sous-commande si l'on en nomme une |
+| `--version` | écrit `subedit <version>` et s'arrête |
+| `-q`, `--quiet` | niveau 0 — plus aucune narration |
+| `-v`, `-vv`, `-vvv` | niveaux 1 à 3 ; le niveau 1 est celui par défaut |
+
+`--quiet` et `-v` dans la même invocation sont refusés : deux intentions
+opposées ne sont pas arbitrées au profit de la dernière écrite.
+
+<!-- exemple: subedit-cli --version -->
 ```console
-$ subedit-cli --help fichier.srt; echo $?
-subedit 0.2.7
-0
+$ subedit-cli --version
+subedit 0.2.8
 ```
 
-C'est le comportement d'un programme qui n'a pas encore d'analyse d'arguments,
-pas celui d'un programme qui les valide. Un script ne doit donc pas déduire
-d'un code de retour nul que ce qu'il a passé a été compris.
+## Sous-commandes
 
-## Code de retour
+| Sous-commande | Ce qu'elle fait |
+| :------------ | :-------------- |
+| [`inspect`](inspect.md) | rapporte ce qu'un fichier contient, sans rien modifier |
+
+Les sous-commandes qui écrivent — conversion, décalage, transformation,
+fréquence d'image — relèvent des tickets suivants de la phase 3 ; elles
+n'existent pas encore et l'aide ne les annonce pas.
+
+## Deux sorties, deux rôles
+
+| Sortie | Ce qu'elle porte |
+| :----- | :--------------- |
+| standard | **le résultat, et lui seul** — le rapport d'`inspect` |
+| erreur | **tout le reste** — la narration, les avertissements, les erreurs |
+
+C'est ce partage qui permet de rediriger le résultat sans y récupérer le récit :
+
+```console
+$ subedit-cli inspect *.srt > rapport.txt
+```
+
+Le rapport part dans le fichier, la narration reste à l'écran.
+
+## Niveaux de narration
+
+Chaque niveau **contient le précédent** : monter d'un cran ajoute, ne remplace
+jamais.
+
+| Niveau | Comment | Ce que la sortie d'erreur porte |
+| :----- | :------ | :------------------------------ |
+| 0 | `--quiet` | rien, **sauf les erreurs** |
+| 1 | par défaut, ou `-v` | une ligne par fichier traité, et un bilan dès qu'il y en a plusieurs |
+| 2 | `-vv` | et ce qui a été reconnu : format, encodage, BOM, fins de ligne |
+| 3 | `-vvv` | et la trace de mise au point : taille lue, nombre de diagnostics |
+
+**Les erreurs ne sont jamais tues, `--quiet` compris.** Une commande qui échoue
+en silence ne laisserait que son code de retour.
+
+Le bilan n'apparaît qu'à partir de deux fichiers : sur une entrée unique, il
+répéterait la ligne qui le précède.
+
+## Plusieurs fichiers
+
+Toutes les sous-commandes acceptent plusieurs chemins. Chacun est traité
+indépendamment : l'échec de l'un n'interrompt pas les autres, et les échecs
+sont rapportés en nommant le fichier et la raison.
+
+## Codes de retour
 
 | Code | Signification |
 | :--- | :------------ |
-| `0` | succès — le seul cas possible aujourd'hui |
+| `0` | tout a réussi |
+| `1` | erreur d'usage — option inconnue, valeur invalide, combinaison interdite |
+| `2` | aucun fichier n'a pu être traité |
+| `3` | certains fichiers ont été traités, d'autres non |
 
-## À venir
+`2` et `3` sont distingués pour qu'un script sache agir sans relire la sortie :
+« rien n'a marché » et « il en manque un » n'appellent pas la même réaction.
 
-L'analyse d'arguments, les sous-commandes et les codes de retour signifiants
-relèvent de la phase 3. Leur périmètre — conversion, décalage, transformation,
-ajustement des durées, correction, inspection — sera arbitré au cadrage de cette
-phase, sachant que Gaupol n'offre pas d'équivalent : c'est une conception neuve.
+Une erreur d'usage est détectée **avant tout traitement** : elle ne laisse
+jamais un lot à moitié traité.
+
+## Erreurs
+
+| Ce qui la déclenche | Ce qui est écrit, sur la sortie d'erreur |
+| :------------------ | :--------------------------------------- |
+| option ou sous-commande inconnue | le nom fautif, et un renvoi à `--help` |
+| `--quiet` avec `-v` | `--quiet and -v ask for opposite things; give one or the other` |
+| fichier absent | `<chemin>: does not exist` |
+| fichier illisible | `<chemin>: cannot be opened: permission denied` |
+| octets qui ne sont pas de l'UTF-8 | `<chemin>: is not valid UTF-8` |
+| format non reconnu | `<chemin>: is in no format this tool knows` |
+| rien qui ressemble à un sous-titre | `<chemin>: holds nothing recognisable as a subtitle` |

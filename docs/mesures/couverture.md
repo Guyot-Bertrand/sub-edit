@@ -25,7 +25,7 @@ de lui-même :** un fichier versionné ne bouge que si quelqu'un le demande.
 
     total : 8
 
-Relevé sur la version 0.2.2, le 2026-08-11.
+Relevé sur la version 0.2.8, le 2026-08-14.
 
 | Lignes | Fichier |
 | -----: | :------ |

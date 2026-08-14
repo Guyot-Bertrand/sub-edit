@@ -87,6 +87,33 @@ $(printf '    %s\n' ${offenders})
     fi
 }
 
+# Invariant 5 — aucun nom de cas de test ne commence par un tiret.
+#
+# CTest passe le nom du cas en argument au binaire de test, et Catch2 lit alors
+# un nom commençant par un tiret comme une de ses propres options :
+# « -v alone is the default » devient une demande de verbosité, et le cas
+# échoue sans que son intitulé ait rien d'anormal.
+#
+# Ce qui rend le défaut coûteux, c'est qu'il ne se voit **que** à travers CTest,
+# donc dans la porte et dans la CI. Lancer le binaire à la main exécute tous
+# les cas d'un coup, sans jamais nommer aucun d'eux : le test passe. Il a été
+# payé deux fois pendant l'écriture de la CLI avant d'être inscrit ici.
+check_test_names_are_not_options() {
+    local tests="${REPO_ROOT}/src/test"
+    [[ -d "${tests}" ]] || return 0
+
+    local offenders
+    offenders="$(grep -rn 'TEST_CASE("-' "${tests}" 2>/dev/null || true)"
+
+    if [[ -n "${offenders}" ]]; then
+        report_failure "un nom de cas de test commence par un tiret :
+$(printf '    %s\n' "${offenders}")
+    CTest le passe en argument, et Catch2 y lit une option ; le renommer."
+    else
+        report_success "aucun nom de cas de test ne peut passer pour une option"
+    fi
+}
+
 # Invariant 4 — un tag de version sur HEAD correspond à la version déclarée.
 #
 # Le tag et project(VERSION) sont deux écritures du même numéro, et rien ne les
@@ -128,6 +155,7 @@ check_core_has_no_ui
 check_executables_are_thin
 check_scripts_are_executable
 check_version_matches_tag
+check_test_names_are_not_options
 
 if (( failures > 0 )); then
     printf '\n%s%d invariant(s) d architecture violé(s)%s\n' "${RED}" "${failures}" "${RESET}" >&2

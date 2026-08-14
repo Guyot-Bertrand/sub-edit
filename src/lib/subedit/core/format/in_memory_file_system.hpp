@@ -30,6 +30,13 @@ public:
     /// Returns how many files exist — enough to notice a temporary left behind.
     [[nodiscard]] std::size_t fileCount() const { return m_files.size(); }
 
+    /// Makes the next read fail, and only the next one.
+    ///
+    /// Same reason as the two below: a caller that reports "permission
+    /// denied" differently from "not found" can only be tested against a
+    /// device that refuses on demand, and waiting for a real one is not a test.
+    void failNextRead(FileErrorKind kind);
+
     /// Makes the next write fail, and only the next one.
     void failNextWrite(FileErrorKind kind);
 
@@ -52,6 +59,7 @@ public:
 private:
     std::map<std::filesystem::path, std::string> m_files;
 
+    mutable std::optional<FileErrorKind> m_pendingReadFailure;
     std::optional<FileErrorKind> m_pendingWriteFailure;
     std::optional<FileErrorKind> m_pendingRenameFailure;
 };

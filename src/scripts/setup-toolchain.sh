@@ -36,6 +36,15 @@ declare -A APT_TOOLS=(
     [gh]=gh
 )
 
+# Paquets APT sans commande à sonder : un fichier dit leur présence.
+#
+# CLI11 est une bibliothèque d'en-têtes — `command -v` ne la verrait jamais, et
+# la ranger dans la table ci-dessus la ferait réinstaller à chaque exécution.
+# Le chemin sondé est celui que `find_package(CLI11)` finit par lire.
+declare -A APT_LIBS=(
+    [/usr/include/CLI/CLI.hpp]=libcli11-dev
+)
+
 install_apt_tools() {
     local missing=()
     local cmd
@@ -44,6 +53,15 @@ install_apt_tools() {
             skip "${cmd}"
         else
             missing+=("${APT_TOOLS[${cmd}]}")
+        fi
+    done
+
+    local probe
+    for probe in "${!APT_LIBS[@]}"; do
+        if [[ -e "${probe}" ]]; then
+            skip "${APT_LIBS[${probe}]}"
+        else
+            missing+=("${APT_LIBS[${probe}]}")
         fi
     done
 
@@ -141,6 +159,15 @@ report() {
             path_warning=1
         else
             printf '  \033[31m✗\033[0m %-14s absent\n' "${cmd}"
+        fi
+    done
+
+    local probe
+    for probe in "${!APT_LIBS[@]}"; do
+        if [[ -e "${probe}" ]]; then
+            printf '  \033[32m✓\033[0m %-14s %s\n' "${APT_LIBS[${probe}]}" "${probe}"
+        else
+            printf '  \033[31m✗\033[0m %-14s absent\n' "${APT_LIBS[${probe}]}"
         fi
     done
 

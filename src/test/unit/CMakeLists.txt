@@ -68,3 +68,17 @@ subedit_set_warnings(subedit_core_test)
 # corpus local fait échouer la porte — sur la machine qui n'a pas ce corpus,
 # donc jamais sur celle où on l'écrit.
 catch_discover_tests(subedit_core_test PROPERTIES SKIP_RETURN_CODE 4)
+
+# Un binaire par bibliothèque : subedit_cli a le sien, comme subedit_core.
+add_executable(
+    subedit_cli_test
+    cli/batch_test.cpp
+    cli/inspection_test.cpp
+    cli/reporter_test.cpp
+    cli/verbosity_test.cpp)
+
+target_link_libraries(subedit_cli_test PRIVATE subedit::cli Catch2::Catch2WithMain)
+
+subedit_set_warnings(subedit_cli_test)
+
+catch_discover_tests(subedit_cli_test)
