@@ -1,5 +1,7 @@
 #include "application.hpp"
 
+#include <subedit/cli/conversion.hpp>
+#include <subedit/cli/destination.hpp>
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/verbosity.hpp>
@@ -13,6 +15,136 @@
 #include <vector>
 
 namespace subedit::cli {
+
+namespace {
+
+/// What `inspect` was asked for.
+struct InspectOptions {
+    std::vector<std::string> files;
+    std::string reading = "breaks";
+};
+
+/// What `convert` was asked for, verbatim.
+///
+/// Kept as the strings CLI11 filled in rather than as the types the core wants.
+/// Translating them belongs to the run functions below: doing it here would
+/// mean deciding before the command line has been read whole.
+struct ConvertOptions {
+    std::vector<std::string> files;
+    std::string target;
+    std::string lineEndings;
+    bool bom = false;
+    bool noBom = false;
+    std::string output;
+    std::string outputDir;
+    bool inPlace = false;
+};
+
+CLI::App* describeInspect(CLI::App& app, InspectOptions& options) {
+    CLI::App* inspect = app.add_subcommand("inspect", "Report what a subtitle file is made of");
+    inspect->add_option("files", options.files, "Subtitle files to report on")->required();
+
+    // Both readings of disorder are offered rather than one chosen: this phase
+    // is a harness, and comparing them on real files will settle the question
+    // better than arguing it without data. Phase 5 inherits the answer and this
+    // option goes — see docs/specs/03-cli.md.
+    inspect
+        ->add_option(
+            "--order-report", options.reading, "Which lines to name when the file is out of order")
+        ->check(CLI::IsMember({"breaks", "late"}))
+        ->capture_default_str();
+    return inspect;
+}
+
+CLI::App* describeConvert(CLI::App& app, ConvertOptions& options) {
+    CLI::App* convert =
+        app.add_subcommand("convert", "Write a subtitle file out in another format or shape");
+    convert->add_option("files", options.files, "Subtitle files to convert")->required();
+    convert->add_option("--to", options.target, "Format to write")
+        ->required()
+        ->check(CLI::IsMember({"srt", "vtt"}));
+
+    // Left empty on purpose: empty means "as the source had it", and the model
+    // of phase 1 kept both so that a conversion would not throw them away.
+    convert
+        ->add_option(
+            "--line-endings", options.lineEndings, "Line endings to write; the source's by default")
+        ->check(CLI::IsMember({"unix", "windows", "mac"}));
+    convert->add_flag("--bom", options.bom, "Write a byte order mark");
+    convert->add_flag("--no-bom", options.noBom, "Write no byte order mark");
+
+    convert->add_option("--output", options.output, "File to write, for a single input");
+    convert->add_option("--output-dir", options.outputDir, "Directory to write into");
+    convert->add_flag("--in-place", options.inPlace, "Write back over the inputs");
+    return convert;
+}
+
+core::Newline newlineNamed(const std::string& name) {
+    if (name == "windows") {
+        return core::Newline::CrLf;
+    }
+    return name == "mac" ? core::Newline::Cr : core::Newline::Lf;
+}
+
+std::expected<WriteShape, std::string> shapeOf(const ConvertOptions& options) {
+    if (options.bom && options.noBom) {
+        return std::unexpected{
+            std::string{"--bom and --no-bom ask for opposite things; give one or the other"}};
+    }
+
+    WriteShape shape;
+    if (!options.lineEndings.empty()) {
+        shape.newline = newlineNamed(options.lineEndings);
+    }
+    if (options.bom) {
+        shape.bom = core::Utf8Bom::Present;
+    }
+    if (options.noBom) {
+        shape.bom = core::Utf8Bom::Absent;
+    }
+    return shape;
+}
+
+ExitCode
+runConvert(const ConvertOptions& options, core::FileSystem& files, const Reporter& reporter) {
+    const core::SubtitleFormat target =
+        options.target == "vtt" ? core::SubtitleFormat::WebVtt : core::SubtitleFormat::SubRip;
+
+    // Refused rather than obeyed: in place there is no second name to carry the
+    // new format, and the file would be left under an extension its content no
+    // longer justifies.
+    if (options.inPlace && wouldMisname(options.files, target)) {
+        std::cerr << "--in-place cannot change the format: the file would keep a name "
+                     "its content no longer matches\n";
+        return ExitCode::Usage;
+    }
+
+    const std::expected<WriteShape, std::string> shape = shapeOf(options);
+    if (!shape) {
+        std::cerr << shape.error() << '\n';
+        return ExitCode::Usage;
+    }
+
+    const std::expected<Destination, std::string> destination =
+        Destination::from(options.output, options.outputDir, options.inPlace, options.files.size());
+    if (!destination) {
+        std::cerr << destination.error() << '\n';
+        return ExitCode::Usage;
+    }
+
+    return convertAll(files, options.files, target, *shape, *destination, reporter);
+}
+
+ExitCode
+runInspect(const InspectOptions& options, const core::FileSystem& files, const Reporter& reporter) {
+    // One of the two: CLI11 refused anything else before we got here, which is
+    // what makes this a lookup rather than a decision.
+    const core::OrderReport order =
+        options.reading == "late" ? core::OrderReport::Late : core::OrderReport::Breaks;
+    return inspectAll(files, options.files, std::cout, reporter, order);
+}
+
+} // namespace
 
 ExitCode run(int argc, char** argv) {
     CLI::App app{"Read, inspect and retime subtitle files."};
@@ -33,19 +165,10 @@ ExitCode run(int argc, char** argv) {
     bool quiet = false;
     app.add_flag("-q,--quiet", quiet, "Say nothing but errors");
 
-    CLI::App* inspect = app.add_subcommand("inspect", "Report what a subtitle file is made of");
-    std::vector<std::string> inspected;
-    inspect->add_option("files", inspected, "Subtitle files to report on")->required();
-
-    // Both readings of disorder are offered rather than one chosen: this phase
-    // is a harness, and comparing them on real files will settle the question
-    // better than arguing it without data. Phase 5 inherits the answer and this
-    // option goes — see docs/specs/03-cli.md.
-    std::string reading = "breaks";
-    inspect
-        ->add_option("--order-report", reading, "Which lines to name when the file is out of order")
-        ->check(CLI::IsMember({"breaks", "late"}))
-        ->capture_default_str();
+    InspectOptions inspectOptions;
+    const CLI::App* inspect = describeInspect(app, inspectOptions);
+    ConvertOptions convertOptions;
+    const CLI::App* convert = describeConvert(app, convertOptions);
 
     try {
         app.parse(argc, argv);
@@ -69,15 +192,14 @@ ExitCode run(int argc, char** argv) {
         return ExitCode::Success;
     }
 
-    const core::RealFileSystem files;
+    core::RealFileSystem files;
     const Reporter reporter{std::cerr, *level};
 
     if (inspect->parsed()) {
-        // The value is one of the two: CLI11 refused anything else before we
-        // got here, which is what makes this a lookup rather than a decision.
-        const core::OrderReport order =
-            reading == "late" ? core::OrderReport::Late : core::OrderReport::Breaks;
-        return inspectAll(files, inspected, std::cout, reporter, order);
+        return runInspect(inspectOptions, files, reporter);
+    }
+    if (convert->parsed()) {
+        return runConvert(convertOptions, files, reporter);
     }
     return ExitCode::Success;
 }

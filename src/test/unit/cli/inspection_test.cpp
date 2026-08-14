@@ -161,7 +161,7 @@ TEST_CASE("the narration deepens with the level", "[cli][inspection]") {
     CHECK(narrate(1) == "a.srt: 2 subtitles\n");
     CHECK_THAT(narrate(2), ContainsSubstring("a.srt: SubRip, UTF-8, no BOM, LF line endings\n"));
     CHECK_THAT(narrate(3), ContainsSubstring("bytes read"));
-    CHECK_THAT(narrate(3), ContainsSubstring("diagnostic(s) while reading"));
+    CHECK_THAT(narrate(3), ContainsSubstring("diagnostics while reading"));
 }
 
 TEST_CASE("a batch keeps going after a failure", "[cli][inspection]") {

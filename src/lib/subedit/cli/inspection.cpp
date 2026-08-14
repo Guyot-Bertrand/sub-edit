@@ -1,6 +1,7 @@
 #include <subedit/cli/batch.hpp>
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/cli/wording.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/file_system.hpp>
 #include <subedit/core/format/read_error.hpp>
@@ -19,55 +20,6 @@ namespace subedit::cli {
 namespace {
 
 using core::DiagnosticKind;
-using core::Newline;
-using core::ReadErrorKind;
-using core::SubtitleFormat;
-
-std::string_view nameOf(SubtitleFormat format) {
-    switch (format) {
-    case SubtitleFormat::SubRip:
-        return "SubRip";
-    case SubtitleFormat::WebVtt:
-        return "WebVTT";
-    }
-    std::unreachable();
-}
-
-std::string_view nameOf(Newline newline) {
-    switch (newline) {
-    case Newline::Lf:
-        return "LF";
-    case Newline::CrLf:
-        return "CRLF";
-    case Newline::Cr:
-        return "CR";
-    }
-    std::unreachable();
-}
-
-std::string_view reasonOf(ReadErrorKind kind) {
-    switch (kind) {
-    case ReadErrorKind::InvalidUtf8:
-        return "is not valid UTF-8";
-    case ReadErrorKind::NoSubtitleFound:
-        return "holds nothing recognisable as a subtitle";
-    case ReadErrorKind::UnknownFormat:
-        return "is in no format this tool knows";
-    }
-    std::unreachable();
-}
-
-std::string_view reasonOf(core::FileErrorKind kind) {
-    switch (kind) {
-    case core::FileErrorKind::NotFound:
-        return "does not exist";
-    case core::FileErrorKind::PermissionDenied:
-        return "cannot be opened: permission denied";
-    case core::FileErrorKind::Io:
-        return "cannot be read";
-    }
-    std::unreachable();
-}
 
 /// The line ending, plus where a second kind first appears when the file mixes
 /// them. A file assembled out of two others does that more often than it
@@ -155,13 +107,13 @@ bool inspectFile(const core::FileSystem& files,
 
     // Most detailed first, least detailed last: that order is what makes each
     // level contain the one below it line for line.
-    reporter.say(
-        3, path + ": " + std::to_string(read->diagnostics.size()) + " diagnostic(s) while reading");
+    reporter.say(3,
+                 path + ": " + countOf(read->diagnostics.size(), "diagnostic") + " while reading");
     reporter.say(2,
                  path + ": " + std::string{nameOf(read->format)} + ", UTF-8, " +
                      (read->hadUtf8Bom ? "BOM" : "no BOM") + ", " +
                      std::string{nameOf(read->newline)} + " line endings");
-    reporter.say(1, path + ": " + std::to_string(read->subtitles.size()) + " subtitles");
+    reporter.say(1, path + ": " + countOf(read->subtitles.size(), "subtitle"));
 
     core::Project project;
     project.setSubtitles(read->subtitles);

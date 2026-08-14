@@ -39,7 +39,7 @@ pas le sujet de ce ticket.
 | conversion de fréquence sur 4000 sous-titres | 74.4 µs | 0.2.10 — 2026-08-14 | 89.5 µs | 0.2.3 — 2026-08-12 |
 | tri de 4000 sous-titres à l'envers | 207 µs | 0.2.4 — 2026-08-13 | 274 µs | 0.2.6 — 2026-08-13 |
 | suppression d'un sous-titre sur deux | 9.92 ms | 0.2.4 — 2026-08-13 | 12.5 ms | 0.2.3 — 2026-08-12 |
-| insertion de 100 sous-titres vides au milieu | 50.6 µs | 0.2.10 — 2026-08-14 | 65.8 µs | 0.2.2 — 2026-08-12 |
+| insertion de 100 sous-titres vides au milieu | 50.3 µs | 0.2.11 — 2026-08-14 | 65.8 µs | 0.2.2 — 2026-08-12 |
 | modification d'un texte, à travers une session | 117 ns | 0.2.4 — 2026-08-13 | 161 ns | 0.2.2 — 2026-08-12 |
 
 <!-- versionString min=32.3131 max=52.7577 -->
@@ -56,7 +56,7 @@ pas le sujet de ce ticket.
 <!-- conversion de fréquence sur 4000 sous-titres min=74444.8 max=89464.1 -->
 <!-- tri de 4000 sous-titres à l'envers min=207024.0 max=273761.0 -->
 <!-- suppression d'un sous-titre sur deux min=9921060.0 max=12451000.0 -->
-<!-- insertion de 100 sous-titres vides au milieu min=50586.7 max=65814.7 -->
+<!-- insertion de 100 sous-titres vides au milieu min=50345.9 max=65814.7 -->
 <!-- modification d'un texte, à travers une session min=116.874 max=161.356 -->
 
 ## Relevés
@@ -65,6 +65,27 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.2.11 — 2026-08-14 — Release
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| versionString | 41.8 ns | 1.06 ns |
+| parse | 34.5 ns | 2.59 ns |
+| format | 37.3 ns | 1.64 ns |
+| position vers image | 7.71 ns | 1.49 ns |
+| image vers position | 7.43 ns | 0.0749 ns |
+| mise à l'échelle par un rationnel exact | 7.62 ns | 3.02 ns |
+| lecture de 4000 sous-titres | 2.32 ms | 243 µs |
+| écriture de 4000 sous-titres | 550 µs | 24 µs |
+| décalage de 4000 sous-titres | 9.08 µs | 3.28 µs |
+| décalage puis annulation | 15.5 µs | 3.11 µs |
+| transformation de 4000 sous-titres | 85.4 µs | 12.8 µs |
+| conversion de fréquence sur 4000 sous-titres | 75.5 µs | 13.1 µs |
+| tri de 4000 sous-titres à l'envers | 227 µs | 24.4 µs |
+| suppression d'un sous-titre sur deux | 9.94 ms | 620 µs |
+| insertion de 100 sous-titres vides au milieu | 50.3 µs | 18.6 µs |
+| modification d'un texte, à travers une session | 124 ns | 97.3 ns |
 
 ### 0.2.10 — 2026-08-14 — Release
 
