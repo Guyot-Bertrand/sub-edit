@@ -61,3 +61,28 @@ plus rien.
 | `CLI-VERSION-01` | l'invocation sans argument écrit `subedit <version>` sur la sortie standard | 3 | implémentée |
 | `CLI-VERSION-02` | rien n'est écrit sur la sortie d'erreur | 3 | implémentée |
 | `CLI-VERSION-03` | tout argument est ignoré, code de retour 0 | 3 | implémentée |
+| `CLI-VERSION-04` | `--version` écrit `subedit <version>` sur la sortie standard, code 0 | 3 | prévue |
+| `CLI-VERSION-05` | une invocation qui réussit n'écrit rien sur la sortie d'erreur | 3 | prévue |
+| `CLI-USAGE-01` | sans argument, l'aide est écrite sur la sortie standard, code 0 | 3 | prévue |
+| `CLI-USAGE-02` | une option inconnue ou une valeur invalide donne le code 1 | 3 | prévue |
+| `CLI-USAGE-03` | une erreur d'usage est détectée avant tout traitement | 3 | prévue |
+| `CLI-USAGE-04` | `--quiet` et `-v` ensemble donnent une erreur d'usage | 3 | prévue |
+| `CLI-OUTPUT-01` | seul le résultat va sur la sortie standard, la narration sur la sortie d'erreur | 3 | prévue |
+| `CLI-OUTPUT-02` | `--quiet` supprime toute narration et laisse passer les erreurs | 3 | prévue |
+| `CLI-OUTPUT-03` | chaque niveau de verbosité contient le précédent, ligne pour ligne | 3 | prévue |
+| `CLI-OUTPUT-04` | le niveau par défaut écrit une ligne par fichier traité | 3 | prévue |
+| `CLI-OUTPUT-05` | le bilan n'apparaît qu'à partir de deux fichiers d'entrée | 3 | prévue |
+| `CLI-BATCH-01` | plusieurs fichiers sont traités indépendamment, les échecs nommés | 3 | prévue |
+| `CLI-BATCH-02` | tous en échec donne le code 2, un échec partiel le code 3 | 3 | prévue |
+| `CLI-INSPECT-01` | format, encodage, BOM, fins de ligne, nombre et étendue sont rapportés | 3 | prévue |
+| `CLI-INSPECT-02` | des fins de ligne mélangées sont signalées avec leur ligne | 3 | prévue |
+| `CLI-INSPECT-03` | `--order-report` rend les deux lectures du désordre | 3 | prévue |
+| `CLI-CONVERT-01` | `--to` produit le format demandé | 3 | prévue |
+| `CLI-CONVERT-02` | fins de ligne et BOM sont conservés par défaut, réglables sinon | 3 | prévue |
+| `CLI-CONVERT-03` | sans destination explicite, rien n'est écrit et le code est 1 | 3 | prévue |
+| `CLI-SHIFT-01` | `--by` décale toutes les positions, dans les deux sens | 3 | prévue |
+| `CLI-SHIFT-02` | un décalage rendant une position négative est refusé en nommant le sous-titre | 3 | prévue |
+| `CLI-TRANSFORM-01` | deux repères transforment les positions, les autres suivent | 3 | prévue |
+| `CLI-TRANSFORM-02` | deux indices confondus sont refusés | 3 | prévue |
+| `CLI-FRAMERATE-01` | `--from`/`--to` convertit les positions | 3 | prévue |
+| `CLI-FRAMERATE-02` | une fréquence nulle ou négative est refusée | 3 | prévue |

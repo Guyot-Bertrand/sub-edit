@@ -198,38 +198,32 @@ dialogue, fusion, scission, recherche et remplacement, presse-papiers.
 
 ## 3 — CLI
 
-**Fortement restreinte.** La ligne de commande n'apparaît pas dans les besoins
-de l'utilisateur : elle sert ici de **harnais de validation et de mesure** du
-noyau, avant qu'il existe une fenêtre.
+**Cadrée le 2026-08-14.** Voir [`specs/03-cli.md`](specs/03-cli.md).
 
-Périmètre : inspection d'un fichier, conversion entre les deux formats du MVP,
-décalage. Les sous-commandes destinées à un usage réel relèvent de la phase 13.
+La ligne de commande n'apparaît pas dans les besoins de l'utilisateur : elle
+sert de **harnais de validation et de mesure** du noyau, avant qu'il existe une
+fenêtre. Les sous-commandes destinées à un usage réel relèvent de la phase 13.
 
-**Analyse préalable** — pas de source à reprendre : Gaupol n'a pas d'équivalent.
-`bin/gaupol.in` montre les options existantes de l'application.
+**Le périmètre annoncé ici a été élargi au cadrage.** Il disait inspection,
+conversion et décalage ; la spec y ajoute la transformation par deux points de
+repère et la conversion de fréquence d'image. La raison tient en une phrase : le
+noyau les implémente déjà, et un harnais qui ne les expose pas ne les valide
+pas — elles resteraient sans aucun test de bout en bout jusqu'à la phase 13.
 
-**Questions d'architecture**
+Deux questions ouvertes ici y sont tranchées : CLI11 pour l'analyse d'arguments
+([ADR 0016](adr/0016-cli11-pour-l-analyse-d-arguments.md)), et quatre codes de
+retour distinguant l'échec total de l'échec partiel sur un lot.
 
-- Bibliothèque d'analyse d'arguments : CLI11, cxxopts, ou implémentation propre.
-  Décision par ADR — c'est une dépendance de plus.
-- Codes de retour signifiants, et comportement en cas d'échec partiel sur un
-  lot.
-- **Ce que `Project::outOfOrder()` doit rendre — à ré-évaluer ici.** La phase 2
-  l'a implémenté en comparant chaque sous-titre à son **prédécesseur immédiat**,
-  ce que dit la spec. L'autre lecture — comparer au plus grand début rencontré
-  jusque-là — rend un ensemble différent : sur les départs `0, 4000, 2000, 3000`,
-  la première rend `{2}`, la seconde `{2, 3}`.
+**Ce que `Project::outOfOrder()` doit rendre reste ouvert, délibérément.** La
+phase 2 compare chaque sous-titre à son prédécesseur immédiat ; l'autre lecture
+compare au plus grand début rencontré. Sur les départs `0, 4000, 2000, 3000`, la
+première rend `{2}`, la seconde `{2, 3}`. Les deux s'accordent toujours sur
+l'existence d'un désordre et ne diffèrent que sur la liste.
 
-  Les deux s'accordent toujours sur le fait qu'il y a du désordre ou non : une
-  suite dont chaque élément suit son prédécesseur est croissante, donc chaque
-  élément suit aussi tous les précédents. Elles ne diffèrent que sur **la liste**.
-  Rien avant l'inspection ne consomme cette liste — la politique stricte de la
-  phase 2 se déclenche sur le `CommandKind`, pas sur une requête de désordre, et
-  ses tests ne regardent que le vide ou le non-vide.
-
-  L'inspection est donc le premier appelant à devoir trancher : « les lignes qui
-  rompent l'ordre » ou « les lignes à déplacer pour rétablir l'ordre ». La
-  phase 5 affichera le même ensemble et suivra ce choix.
+L'inspection est le premier appelant à consommer cette liste. Plutôt que de
+trancher sans données, elle **expose les deux** sous une option, le temps de les
+comparer sur des fichiers réels. **La phase 5 hérite du choix et fait
+disparaître l'option** — c'est son déclencheur, inscrit comme tel dans la spec.
 
 ---
 
@@ -372,6 +366,24 @@ commandes des trois lecteurs), `gaupol/agents/preview.py`.
   un lecteur externe et n'a donc aucune bibliothèque vidéo en mémoire ; lire des
   métadonnées demanderait `ffprobe` — un exécutable de plus à détecter — ou une
   dépendance. Le gain est réel, le prix reste à mesurer.
+- **Valider les opérations contre la durée de la vidéo.** Même mécanisme que la
+  question précédente, et donc même prix : la durée est une métadonnée du
+  conteneur, lue en même temps que la fréquence ou pas du tout.
+
+  Ce qu'elle permettrait : refuser, ou du moins signaler, une opération qui
+  pousse des sous-titres au-delà de la fin du film. Aujourd'hui le noyau ne peut
+  vérifier qu'une borne, celle de zéro — un décalage négatif trop grand rend une
+  position négative, et c'est tout ce qu'il sait dire. La borne haute n'existe
+  pas pour lui, faute de savoir où le film s'arrête.
+
+  Le décalage est le cas le plus net. Les autres opérations sont concernées
+  **sous d'autres formes** : une transformation dont le second repère tombe
+  après la fin, une conversion de fréquence qui étire l'ensemble au-delà. Chacune
+  demande sa propre formulation, et aucune ne se déduit de celle du décalage.
+
+  Relevé au cadrage de la phase 3, où rien ne pouvait en être fait : la CLI n'a
+  aucune notion de vidéo, et lui en donner une avant que le projet en ait une
+  serait bâtir la vérification avant la donnée.
 - Fichier temporaire : durée de vie, encodage forcé en UTF-8.
 
 ---
