@@ -5,7 +5,7 @@
 # croyance. Ce script injecte délibérément un défaut de chaque type, vérifie que
 # la cible correspondante échoue, puis rétablit les sources.
 #
-# Les cinq premières injections visent des étapes de `make check`, que la CI
+# Les six premières injections visent des étapes de `make check`, que la CI
 # exécute. Les trois suivantes visent `make check-local` — deux fois
 # `requirements`, une fois `parallelism` — qui ne gate donc que le poste de
 # développement : raison de plus pour que ce script prouve que chacune se
@@ -94,6 +94,11 @@ cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
+#
+# **Le fragment injecté est écrit entre apostrophes simples**, donc il ne peut
+# pas en contenir : une apostrophe française dans un commentaire C++ referme la
+# chaîne et le script meurt sur une erreur de syntaxe, loin de la ligne fautive.
+# Écrire les commentaires du fragment sans apostrophe.
 expect_gate_closes() {
     local label="$1"
     local target="$2"
@@ -209,6 +214,28 @@ TEST_CASE("injected use after free", "[injected]") {
     const std::string* observer = owned.get();
     owned.reset();
     CHECK(observer->size() == 7);
+}'
+
+# Débordement d'entier signé : invisible pour l'analyse statique et pour ASan,
+# détecté par UBSan. Sa propre preuve, distincte de celle d'ASan, parce que les
+# deux sanitizers s'arrêtent pour des raisons différentes — ASan tue le
+# processus de lui-même, UBSan ne le fait que depuis
+# -fno-sanitize-recover=undefined. Sans cette option il signalait le défaut et
+# laissait le test passer, ce qu'un vrai débordement de la grammaire du temps a
+# démontré à la relecture de la phase 3.
+expect_gate_closes \
+    "comportement indéfini à l'exécution" \
+    "asan" \
+    "${TEST_SOURCE}" \
+    '#include <cstdint>
+#include <limits>
+
+TEST_CASE("injected signed overflow", "[injected]") {
+    // Lu à travers une référence : à -O0 le compilateur ne peut pas replier le
+    // calcul, et le débordement a donc bien lieu pendant le test.
+    std::int64_t largest = std::numeric_limits<std::int64_t>::max();
+    const std::int64_t& read = largest;
+    CHECK(read + 1 > 0);
 }'
 
 # Code non exercé par les tests : fait grimper le nombre de lignes non
@@ -412,6 +439,6 @@ if (( failures > 0 )); then
     printf '%s%d porte(s) laissent passer un défaut%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles vingt-et-une portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles vingt-deux portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%set le contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"

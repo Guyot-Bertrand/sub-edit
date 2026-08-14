@@ -67,6 +67,39 @@ TEST_CASE("a refusal names what was given", "[cli][time]") {
     CHECK_THAT(parseTime("bientôt").error(), ContainsSubstring("bientôt"));
 }
 
+TEST_CASE("an amount too large to hold is refused", "[cli][time]") {
+    // Unguarded, the accumulation overflows — undefined behaviour, and then a
+    // shift by whatever the wrapping produced, reported as a success. A
+    // position is a signed count of milliseconds and nothing may pretend to be
+    // one from outside that range.
+    CHECK_FALSE(parseTime("99999999999999999999").has_value());
+    CHECK_FALSE(parseTime("-99999999999999999999").has_value());
+    CHECK_FALSE(parseTime("9223372036854775808").has_value());
+}
+
+TEST_CASE("the multiplication into milliseconds is guarded too", "[cli][time]") {
+    // 9223372036854776 seconds holds in an int64; a thousand times it does not.
+    CHECK_FALSE(parseTime("9223372036854776").has_value());
+    // One less thousand-fold is the largest that does.
+    CHECK(parseTime("9223372036854775").value().milliseconds() == 9'223'372'036'854'775'000);
+}
+
+TEST_CASE("the decimals are weighed against what the seconds already take", "[cli][time]") {
+    // The largest whole second that holds leaves exactly 807 milliseconds of
+    // room. The boundary is pinned on both sides because it is the one place
+    // where a value the two earlier guards let through still does not fit.
+    CHECK(parseTime("9223372036854775.807").value().milliseconds() == 9'223'372'036'854'775'807);
+    CHECK_FALSE(parseTime("9223372036854775.808").has_value());
+}
+
+TEST_CASE("a refusal for size says so", "[cli][time]") {
+    CHECK_THAT(parseTime("99999999999999999999").error(), ContainsSubstring("too large"));
+}
+
+TEST_CASE("a timestamp too large to hold is refused as well", "[cli][time]") {
+    CHECK_FALSE(parseTime("99999999999999999999:00:00.000").has_value());
+}
+
 TEST_CASE("a sign with nothing after it is not a time", "[cli][time]") {
     CHECK_FALSE(parseTime("-").has_value());
     CHECK_FALSE(parseTime("+").has_value());

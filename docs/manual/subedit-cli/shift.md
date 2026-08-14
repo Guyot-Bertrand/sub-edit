@@ -33,7 +33,7 @@ Options:
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
 | `--by` | **oui** | une durée signée, voir ci-dessous | — |
-| `--output` / `--output-dir` / `--in-place` | l'une des trois | voir [`convert`](convert.md) | — |
+| `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |
 
 Le format du fichier lu est **conservé** : changer de format est le travail de
 [`convert`](convert.md).
@@ -111,4 +111,6 @@ certains seulement, `1` sur une erreur d'usage.
 | texte qui n'est pas une durée | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
 | décalage avant l'origine | `<chemin>: subtitle N would start before the origin, which no subtitle file can hold` |
 
-Les erreurs de destination sont celles de [`convert`](convert.md).
+**Rien n'est écrit sans l'une des trois options de destination**, et ses
+erreurs sont communes aux quatre sous-commandes qui écrivent :
+voir [Invocation](invocation.md#la-destination).

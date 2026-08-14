@@ -480,12 +480,17 @@ fois l'ossature posée.
 | valider les opérations contre la durée de la vidéo | la phase 6, qui associe une vidéo au projet — le détail est écrit là-bas, dans la feuille de route |
 
 Sur ce dernier point, ce que cette phase peut et ne peut pas faire mérite d'être
-dit ici, puisque c'est en l'écrivant qu'on l'a vu : **`shift` ne sait vérifier
-qu'une seule borne, celle de zéro.** Un décalage négatif trop grand rend une
-position négative, et le refus est possible. La borne haute — ne pas pousser des
+dit ici, puisque c'est en l'écrivant qu'on l'a vu : **on ne sait vérifier qu'une
+seule borne, celle de zéro.** Un décalage négatif trop grand rend une position
+négative, et le refus est possible. La borne haute — ne pas pousser des
 sous-titres après la fin du film — n'existe pas pour le noyau, qui ignore où le
-film s'arrête. Les autres opérations sont concernées sous d'autres formes, et
-aucune ne se déduit de celle du décalage.
+film s'arrête.
+
+**Corrigé à la relecture :** cette phrase ne parlait que de `shift`. `transform`
+est concernée de la même façon — un sous-titre placé avant le premier repère
+peut être repoussé sous zéro — et porte le même refus, avec le même message.
+`framerate` ne l'est pas : le facteur est strictement positif, donc une position
+positive le reste. Les deux autres bornes, elles, restent hors d'atteinte.
 
 ## Critères de fin
 

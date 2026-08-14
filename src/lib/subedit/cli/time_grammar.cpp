@@ -3,6 +3,8 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <expected>
+#include <limits>
 #include <optional>
 
 namespace subedit::cli {
@@ -20,13 +22,32 @@ std::string refusal(std::string_view text, std::string_view why) {
     return "\"" + std::string{text} + "\" is not a time: " + std::string{why};
 }
 
-/// Reads `[-]S[.mmm]`, or nothing when the text is not of that shape.
+/// Why a text is not the seconds form.
+enum class NotSeconds {
+    Shape,    ///< it is not of that shape at all; a timestamp may still fit
+    TooLarge, ///< it is, but no position could hold the number
+};
+
+/// Multiplies by ten and adds `digit`, or nothing if that would overflow.
+///
+/// Checked before it happens rather than detected after. Left unguarded, the
+/// accumulation is undefined behaviour, and what came out of the wrapping was
+/// then written to a file as if it had been asked for.
+std::optional<std::int64_t> appended(std::int64_t value, std::int64_t digit) {
+    constexpr std::int64_t kLargest = std::numeric_limits<std::int64_t>::max();
+    if (value > (kLargest - digit) / kBase) {
+        return std::nullopt;
+    }
+    return (value * kBase) + digit;
+}
+
+/// Reads `[-]S[.mmm]`, or says why the text is not of that shape.
 ///
 /// Written out rather than handed to `std::from_chars` on a double: seconds
 /// with three decimals are exactly what a binary float cannot hold, and
 /// `7.001` would come back as a hair under seven thousand and one
 /// milliseconds. Counting the digits keeps the arithmetic in integers.
-std::optional<std::int64_t> secondsFormOf(std::string_view text) {
+std::expected<std::int64_t, NotSeconds> secondsFormOf(std::string_view text) {
     std::int64_t sign = 1;
     if (text.starts_with('-')) {
         sign = -1;
@@ -35,7 +56,7 @@ std::optional<std::int64_t> secondsFormOf(std::string_view text) {
         text.remove_prefix(1);
     }
     if (text.empty()) {
-        return std::nullopt;
+        return std::unexpected{NotSeconds::Shape};
     }
 
     const std::size_t dot = text.find('.');
@@ -44,16 +65,27 @@ std::optional<std::int64_t> secondsFormOf(std::string_view text) {
 
     const auto isDigit = [](char c) { return c >= '0' && c <= '9'; };
     if (whole.empty() || !std::ranges::all_of(whole, isDigit)) {
-        return std::nullopt;
+        return std::unexpected{NotSeconds::Shape};
     }
     if (dot != std::string_view::npos &&
         (decimals.empty() || !std::ranges::all_of(decimals, isDigit))) {
-        return std::nullopt;
+        return std::unexpected{NotSeconds::Shape};
     }
 
     std::int64_t total = 0;
     for (const char digit : whole) {
-        total = total * kBase + (digit - '0');
+        const std::optional<std::int64_t> grown = appended(total, digit - '0');
+        if (!grown.has_value()) {
+            return std::unexpected{NotSeconds::TooLarge};
+        }
+        total = *grown;
+    }
+
+    // Seconds become milliseconds, and a count that held may stop holding: the
+    // guard covers the scaling as well as the reading.
+    constexpr std::int64_t kLargest = std::numeric_limits<std::int64_t>::max();
+    if (total > kLargest / kMillisecondsPerSecond) {
+        return std::unexpected{NotSeconds::TooLarge};
     }
     total *= kMillisecondsPerSecond;
 
@@ -68,6 +100,11 @@ std::optional<std::int64_t> secondsFormOf(std::string_view text) {
         fraction *= kBase;
     }
 
+    // And the decimals on top of them, which the scaling guard above leaves
+    // room for in every case but the very largest.
+    if (total > kLargest - fraction) {
+        return std::unexpected{NotSeconds::TooLarge};
+    }
     return sign * (total + fraction);
 }
 
@@ -90,8 +127,13 @@ std::expected<Duration, std::string> parseTime(std::string_view text) {
         return std::unexpected{refusal(text, "positions are held to the millisecond, no finer")};
     }
 
-    if (const std::optional<std::int64_t> seconds = secondsFormOf(text); seconds.has_value()) {
+    const std::expected<std::int64_t, NotSeconds> seconds = secondsFormOf(text);
+    if (seconds.has_value()) {
         return Duration::fromMilliseconds(*seconds);
+    }
+    if (seconds.error() == NotSeconds::TooLarge) {
+        return std::unexpected{
+            refusal(text, "it is too large to hold, positions being counted in milliseconds")};
     }
 
     // A timestamp, then. The core reads those, and more permissively than this

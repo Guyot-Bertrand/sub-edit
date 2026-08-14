@@ -39,7 +39,7 @@ Options:
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
 | `--first` | **oui** | un repère, `<indice>=<temps>` | — |
 | `--last` | **oui** | un repère, `<indice>=<temps>` | — |
-| `--output` / `--output-dir` / `--in-place` | l'une des trois | voir [`convert`](convert.md) | — |
+| `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |
 
 Il n'y a pas de forme courte : ces deux options ne s'écrivent qu'en toutes
 lettres.
@@ -183,4 +183,6 @@ certains seulement, `1` sur une erreur d'usage.
 | deux sous-titres commençant ensemble | `<chemin>: subtitles N and M start at the same moment, so they define no transform` |
 | position avant l'origine | `<chemin>: subtitle N would land before the origin, which no subtitle file can hold` |
 
-Les erreurs de destination sont celles de [`convert`](convert.md).
+**Rien n'est écrit sans l'une des trois options de destination**, et ses
+erreurs sont communes aux quatre sous-commandes qui écrivent :
+voir [Invocation](invocation.md#la-destination).

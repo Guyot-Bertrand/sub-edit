@@ -91,6 +91,46 @@ TEST_CASE("each level keeps every line of the one below", "[e2e][CLI-OUTPUT-03]"
     CHECK(lines(three).size() > lines(two).size());
 }
 
+TEST_CASE("the levels nest on a subcommand that writes, too", "[e2e][CLI-OUTPUT-03]") {
+    // Proved above on `inspect`, which writes no file, and here on one that
+    // does. The two narrations are built by different code — inspection.cpp and
+    // rewriting.cpp — and only the first was ever compared level to level.
+    const std::filesystem::path directory =
+        std::filesystem::temp_directory_path() / "subedit-narration-e2e";
+    std::filesystem::create_directories(directory);
+    const std::string out = directory.string();
+
+    const std::string one = invoke({"shift", "--by", "1", "--output-dir", out, kGood}).errors;
+    const std::string two =
+        invoke({"-vv", "shift", "--by", "1", "--output-dir", out, kGood}).errors;
+    const std::string three =
+        invoke({"-vvv", "shift", "--by", "1", "--output-dir", out, kGood}).errors;
+
+    CHECK(contains(two, one));
+    CHECK(contains(three, two));
+    CHECK(lines(two).size() > lines(one).size());
+    CHECK(lines(three).size() > lines(two).size());
+
+    std::filesystem::remove_all(directory);
+}
+
+TEST_CASE("a subcommand that writes says nothing on standard output", "[e2e][CLI-OUTPUT-01]") {
+    // Its result is the file. At the loudest level, where a stray line is most
+    // likely, standard output must still be empty.
+    const std::filesystem::path directory =
+        std::filesystem::temp_directory_path() / "subedit-narration-e2e-quiet";
+    std::filesystem::create_directories(directory);
+
+    const CliRun run =
+        invoke({"-vvv", "shift", "--by", "1", "--output-dir", directory.string(), kGood});
+
+    CHECK(run.exitCode == 0);
+    CHECK(run.output.empty());
+    CHECK_FALSE(run.errors.empty());
+
+    std::filesystem::remove_all(directory);
+}
+
 TEST_CASE("a single -v is the default level", "[e2e][CLI-OUTPUT-04]") {
     CHECK(invoke({"-v", "inspect", kGood}).errors == invoke({"inspect", kGood}).errors);
 }

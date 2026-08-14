@@ -117,6 +117,8 @@ et verrouillage du dépôt.
 
 ## 1 — Noyau : modèle de données et formats
 
+**Terminée le 2026-08-08.** Voir [`specs/01-noyau.md`](specs/01-noyau.md).
+
 Sous-titre, document, projet, positions, SubRip et WebVTT, balises, et
 l'architecture de commandes réversibles.
 
@@ -166,6 +168,9 @@ ligne Unix seules, pas de détection automatique d'encodage.
 
 ## 2 — Opérations d'édition
 
+**Terminée le 2026-08-09.** Voir
+[`specs/02-operations-d-edition.md`](specs/02-operations-d-edition.md).
+
 Ce qu'exige l'édition dans la table, plus les trois opérations de positions
 listées en priorité.
 
@@ -198,7 +203,7 @@ dialogue, fusion, scission, recherche et remplacement, presse-papiers.
 
 ## 3 — CLI
 
-**Cadrée le 2026-08-14.** Voir [`specs/03-cli.md`](specs/03-cli.md).
+**Terminée le 2026-08-14.** Voir [`specs/03-cli.md`](specs/03-cli.md).
 
 La ligne de commande n'apparaît pas dans les besoins de l'utilisateur : elle
 sert de **harnais de validation et de mesure** du noyau, avant qu'il existe une
