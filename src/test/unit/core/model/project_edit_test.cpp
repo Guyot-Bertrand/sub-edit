@@ -17,6 +17,7 @@
 
 namespace {
 
+using subedit::core::OrderReport;
 using subedit::core::Project;
 using subedit::core::Selection;
 using subedit::core::Subtitle;
@@ -191,4 +192,47 @@ TEST_CASE("a reversed project reports every subtitle but the first", "[model][pr
 
 TEST_CASE("an empty project reports no disorder", "[model][project]") {
     CHECK(projectOf({}).outOfOrder().empty());
+}
+
+TEST_CASE("the two readings of disorder differ on the same project", "[model][project]") {
+    // The example the phase-3 spec argues from. Both agree that there is
+    // disorder; they disagree on which lines to name.
+    const Project project =
+        projectOf({startingAt(0), startingAt(4000), startingAt(2000), startingAt(3000)});
+
+    CHECK(valuesOf(project.outOfOrder(OrderReport::Breaks)) == std::vector<std::size_t>{2});
+    CHECK(valuesOf(project.outOfOrder(OrderReport::Late)) == std::vector<std::size_t>{2, 3});
+}
+
+TEST_CASE("naming what breaks the order is the default reading", "[model][project]") {
+    // Phase 2 shipped this reading, and every caller written before the second
+    // one existed still gets it.
+    const Project project =
+        projectOf({startingAt(0), startingAt(4000), startingAt(2000), startingAt(3000)});
+
+    CHECK(project.outOfOrder() == project.outOfOrder(OrderReport::Breaks));
+}
+
+TEST_CASE("both readings agree that an ordered project is ordered", "[model][project]") {
+    const Project project = projectOf({startingAt(0), startingAt(2000), startingAt(4000)});
+
+    CHECK(project.outOfOrder(OrderReport::Breaks).empty());
+    CHECK(project.outOfOrder(OrderReport::Late).empty());
+}
+
+TEST_CASE("equal starts are disorder under neither reading", "[model][project]") {
+    const Project project = projectOf({startingAt(1000), startingAt(1000)});
+
+    CHECK(project.outOfOrder(OrderReport::Breaks).empty());
+    CHECK(project.outOfOrder(OrderReport::Late).empty());
+}
+
+TEST_CASE("a line that recovers is late but breaks nothing", "[model][project]") {
+    // 3000 follows 2000, so it breaks nothing; it still starts before the 4000
+    // already seen. This is exactly where the two readings part.
+    const Project project =
+        projectOf({startingAt(4000), startingAt(2000), startingAt(3000), startingAt(5000)});
+
+    CHECK(valuesOf(project.outOfOrder(OrderReport::Breaks)) == std::vector<std::size_t>{1});
+    CHECK(valuesOf(project.outOfOrder(OrderReport::Late)) == std::vector<std::size_t>{1, 2});
 }
