@@ -103,18 +103,32 @@ std::string span(const std::vector<core::Subtitle>& subtitles) {
     return write(first) + " -> " + write(last);
 }
 
-/// Which lines break the order, counted from one as they are shown.
-std::string order(const core::Project& project) {
-    const std::vector<core::SubtitleIndex> broken = project.outOfOrder();
-    if (broken.empty()) {
+/// Which lines are out of order, counted from one as they are shown.
+///
+/// The wording differs between the two readings, and that is what tells a
+/// reader which one they are looking at: a bare list of indices would be
+/// ambiguous between "breaks the order" and "starts late", which name different
+/// lines on the same file.
+std::string order(const core::Project& project, core::OrderReport reading) {
+    const std::vector<core::SubtitleIndex> named = project.outOfOrder(reading);
+    if (named.empty()) {
         return "in order";
     }
 
-    std::string text = broken.size() == 1 ? "line " : "lines ";
-    for (std::size_t i = 0; i < broken.size(); ++i) {
-        text += (i == 0 ? "" : ", ") + std::to_string(broken[i].number());
+    const bool one = named.size() == 1;
+    std::string text = one ? "line " : "lines ";
+    for (std::size_t i = 0; i < named.size(); ++i) {
+        text += (i == 0 ? "" : ", ") + std::to_string(named[i].number());
     }
-    text += broken.size() == 1 ? " breaks the order" : " break the order";
+
+    switch (reading) {
+    case core::OrderReport::Breaks:
+        text += one ? " breaks the order" : " break the order";
+        break;
+    case core::OrderReport::Late:
+        text += one ? " starts late" : " start late";
+        break;
+    }
     return text;
 }
 
@@ -123,7 +137,8 @@ std::string order(const core::Project& project) {
 bool inspectFile(const core::FileSystem& files,
                  const std::string& path,
                  std::ostream& out,
-                 const Reporter& reporter) {
+                 const Reporter& reporter,
+                 core::OrderReport reading) {
     const std::expected<std::string, core::FileError> content = files.readFile(path);
     if (!content) {
         reporter.failed(path + ": " + std::string{reasonOf(content.error().kind)});
@@ -161,7 +176,7 @@ bool inspectFile(const core::FileSystem& files,
     out << "  line endings: " << lineEndings(*read) << '\n';
     out << "  subtitles: " << read->subtitles.size() << '\n';
     out << "  span: " << span(read->subtitles) << '\n';
-    out << "  order: " << order(project) << '\n';
+    out << "  order: " << order(project, reading) << '\n';
 
     return true;
 }
@@ -169,10 +184,11 @@ bool inspectFile(const core::FileSystem& files,
 ExitCode inspectAll(const core::FileSystem& files,
                     const std::vector<std::string>& paths,
                     std::ostream& out,
-                    const Reporter& reporter) {
+                    const Reporter& reporter,
+                    core::OrderReport reading) {
     std::size_t done = 0;
     for (const std::string& path : paths) {
-        if (inspectFile(files, path, out, reporter)) {
+        if (inspectFile(files, path, out, reporter, reading)) {
             ++done;
         }
     }
