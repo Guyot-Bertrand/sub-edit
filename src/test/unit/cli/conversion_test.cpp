@@ -233,3 +233,21 @@ TEST_CASE("the extension is read whatever its case", "[cli][conversion]") {
 TEST_CASE("a name without an extension would be misnamed", "[cli][conversion]") {
     CHECK(subedit::cli::wouldMisname({"soustitres"}, SubtitleFormat::SubRip));
 }
+
+TEST_CASE("a readable file in no known format is refused", "[cli][conversion]") {
+    // Told apart from a file that is not there: one is a file system failure,
+    // the other a reading one, and the messages differ.
+    InMemoryFileSystem files;
+    files.addFile("a.srt", "nothing any reader claims\n");
+    std::ostringstream errors;
+
+    const ExitCode code = convertAll(files,
+                                     {"a.srt"},
+                                     SubtitleFormat::WebVtt,
+                                     {},
+                                     Destination::from("", "out", false, 1).value(),
+                                     Reporter{errors, 0});
+
+    CHECK(code == ExitCode::AllFailed);
+    CHECK_THAT(errors.str(), ContainsSubstring("is in no format this tool knows"));
+}
