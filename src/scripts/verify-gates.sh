@@ -20,11 +20,15 @@
 # Les quatre suivantes visent `make manual-check`, une par mode d'arrêt du
 # générateur d'exemples du manuel.
 #
-# Les six dernières visent `make parallelism` : deux familles de fichiers qui
+# Les six suivantes visent `make parallelism` : deux familles de fichiers qui
 # échappaient au balayage, trois formes qu'il ne reconnaissait pas, et **une
 # preuve d'un genre différent** — que du code légitime n'est pas signalé. Un
 # critère de non-signalement ne se démontre par aucune injection qui échoue,
 # d'où `expect_gate_stays_open`.
+#
+# La dernière vise `make arch` : un nom de cas de test qui commence par un
+# tiret. Elle est ici parce que ce défaut ne se voit qu'à travers CTest, jamais
+# en lançant le binaire de test à la main — donc uniquement dans la porte.
 #
 # À rejouer après toute modification de .clang-format, .clang-tidy, des options
 # de compilation, du cliquet de couverture, du registre d'exigences ou de
@@ -39,7 +43,7 @@ readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 readonly LIB_SOURCE="${REPO_ROOT}/src/lib/subedit/core/version.cpp"
 readonly TEST_SOURCE="${REPO_ROOT}/src/test/unit/core/version_test.cpp"
 readonly REGISTRY="${REPO_ROOT}/docs/exigences.md"
-readonly E2E_SOURCE="${REPO_ROOT}/src/test/e2e/cli/version_test.cpp"
+readonly E2E_SOURCE="${REPO_ROOT}/src/test/e2e/cli/usage_test.cpp"
 readonly MAKEFILE_SOURCE="${REPO_ROOT}/Makefile"
 readonly CMAKE_SOURCE="${REPO_ROOT}/CMakeLists.txt"
 readonly CHANGELOG_SOURCE="${REPO_ROOT}/CHANGELOG.md"
@@ -266,6 +270,19 @@ expect_gate_closes \
 # Corps de pull request qui décrit le travail sans porter la ligne que GitHub
 # lit. C'est le défaut mesuré de la phase 2 : cinq issues restées ouvertes après
 # la fusion de leur pull request, parce que « Ferme #22 » n'est pas un mot-clé.
+# Nom de cas de test qui commence par un tiret. CTest le passe en argument au
+# binaire, Catch2 y lit une de ses options, et le cas échoue — mais seulement à
+# travers CTest, jamais quand on lance le binaire à la main. L'injection porte
+# sur un fichier de test, et l'échec attendu vient du balayage de
+# check-architecture.sh, pas d'une compilation.
+expect_gate_closes \
+    "nom de cas de test qui passe pour une option" \
+    "arch" \
+    "${TEST_SOURCE}" \
+    'TEST_CASE("-v looks like an option to Catch2", "[injected]") {
+    CHECK(true);
+}'
+
 expect_pr_check_closes \
     "corps de pull request sans « Closes #N »" \
     "closes" \
@@ -395,6 +412,6 @@ if (( failures > 0 )); then
     printf '%s%d porte(s) laissent passer un défaut%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles vingt portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles vingt-et-une portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%set le contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"

@@ -103,11 +103,18 @@ src/lib/subedit/gui/     subedit_gui    interface Qt, au-dessus de core
 Chaque enfant direct de `src/lib/subedit/` est une cible CMake. Si `core`
 grossit trop, il se scinde sans impact sur le reste.
 
-**Deux invariants vérifiés par la CI :**
+**Cinq invariants vérifiés par la CI**, tous par
+[`check-architecture.sh`](../../src/scripts/check-architecture.sh) :
 
 1. `subedit_core` ne dépend d'aucun symbole Qt ni d'aucune UI.
 2. `src/exe/**/main.cpp` ne contient ni classe, ni algorithme, ni appel système
    direct.
+3. les scripts de `src/scripts/` sont exécutables dans l'index git.
+4. un tag de version sur `HEAD` s'accorde avec `project(VERSION)`.
+5. aucun nom de cas de test ne commence par un tiret.
+
+Les trois derniers ont été ajoutés après coup, chacun parce que son absence
+avait coûté quelque chose de réel — voir « Ce qui a bougé pendant la phase ».
 
 ### Inclusions
 
@@ -545,7 +552,13 @@ sur place dans ce document :
   vérification unique ;
 - un **troisième invariant d'architecture** a été ajouté après coup — les
   scripts doivent être exécutables dans l'index git — parce que son absence a
-  effectivement cassé la CI.
+  effectivement cassé la CI. Deux autres l'ont suivi pour la même raison : un
+  tag de version qui ne s'accorde pas avec `project(VERSION)` ferait annoncer
+  au binaire une version périmée, et **un nom de cas de test commençant par un
+  tiret est lu par Catch2 comme une de ses options** quand CTest le lui passe
+  en argument. Ce dernier ne se voit qu'à travers CTest — donc dans la porte et
+  dans la CI, jamais en lançant le binaire de test à la main — et il a été payé
+  deux fois pendant l'écriture de la CLI avant d'être inscrit.
 
 ## Points ouverts
 
