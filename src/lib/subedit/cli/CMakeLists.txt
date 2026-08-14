@@ -15,6 +15,7 @@ add_library(
     subedit_cli STATIC
     batch.cpp
     destination.cpp
+    diagnostics.cpp
     frame_rate_conversion.cpp
     frame_rate_grammar.cpp
     inspection.cpp

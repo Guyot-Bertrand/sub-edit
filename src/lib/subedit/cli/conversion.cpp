@@ -1,6 +1,7 @@
 #include <subedit/cli/batch.hpp>
 #include <subedit/cli/conversion.hpp>
 #include <subedit/cli/destination.hpp>
+#include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/wording.hpp>
 #include <subedit/core/format/atomic_write.hpp>
@@ -64,10 +65,12 @@ bool convertFile(core::FileSystem& files,
     reporter.say(3,
                  path + ": " + std::to_string(content->size()) + " bytes read, " +
                      std::to_string(written.size()) + " written");
+    sayDiagnostics(reporter, path, read->diagnostics);
     reporter.say(2,
                  path + ": " + std::string{nameOf(read->format)} + " -> " +
-                     std::string{nameOf(target)} + ", " + std::string{nameOf(newline)} +
-                     " line endings, " + (bom == core::Utf8Bom::Present ? "BOM" : "no BOM"));
+                     std::string{nameOf(target)} + ", UTF-8, " +
+                     (bom == core::Utf8Bom::Present ? "BOM" : "no BOM") + ", " +
+                     std::string{nameOf(newline)} + " line endings");
     reporter.say(1,
                  path + ": " + countOf(read->subtitles.size(), "subtitle") + " written as " +
                      std::string{nameOf(target)} + " -> " + out.string());

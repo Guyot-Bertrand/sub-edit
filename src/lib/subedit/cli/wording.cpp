@@ -4,9 +4,11 @@
 
 namespace subedit::cli {
 
+using core::DiagnosticKind;
 using core::FileErrorKind;
 using core::Newline;
 using core::ReadErrorKind;
+using core::Severity;
 using core::SubtitleFormat;
 
 std::string_view nameOf(SubtitleFormat format) {
@@ -61,6 +63,42 @@ std::string_view reasonOf(FileErrorKind kind) {
         return "cannot be opened: permission denied";
     case FileErrorKind::Io:
         return "cannot be read";
+    }
+    std::unreachable();
+}
+
+std::string_view nameOf(core::DiagnosticKind kind) {
+    switch (kind) {
+    case DiagnosticKind::IgnoredLine:
+        return "a line that fits nowhere";
+    case DiagnosticKind::MalformedTimestamp:
+        return "a timing line that could not be read";
+    case DiagnosticKind::EndBeforeStart:
+        return "a subtitle that ends before it starts";
+    case DiagnosticKind::OverlappingSubtitles:
+        return "a subtitle starting before the previous one ends";
+    case DiagnosticKind::OutOfOrder:
+        return "a subtitle starting before the previous one starts";
+    case DiagnosticKind::MissingNumbering:
+        return "a SubRip block without its number";
+    case DiagnosticKind::InconsistentNumbering:
+        return "SubRip numbers that do not follow";
+    case DiagnosticKind::TextBeforeAnyTimestamp:
+        return "text before the first timing line";
+    case DiagnosticKind::UnknownBlock:
+        return "a WebVTT block of an unknown kind";
+    case DiagnosticKind::MixedNewlines:
+        return "more than one kind of line ending";
+    }
+    std::unreachable();
+}
+
+std::string_view nameOf(core::Severity severity) {
+    switch (severity) {
+    case Severity::Warning:
+        return "left as it stands";
+    case Severity::Recovered:
+        return "settled by the reader";
     }
     std::unreachable();
 }
