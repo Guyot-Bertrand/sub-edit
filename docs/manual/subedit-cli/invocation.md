@@ -22,6 +22,7 @@ Subcommands:
   inspect                     Report what a subtitle file is made of
   convert                     Write a subtitle file out in another format or shape
   shift                       Move every position of a file by a fixed amount
+  transform                   Correct every position from two points known to be right
 ```
 
 ## La ligne de commande est en anglais
@@ -47,7 +48,7 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.2.12
+subedit 0.2.13
 ```
 
 ## Sous-commandes
@@ -57,10 +58,10 @@ subedit 0.2.12
 | [`inspect`](inspect.md) | rapporte ce qu'un fichier contient, sans rien modifier |
 | [`convert`](convert.md) | écrit un fichier dans un autre format, ou une autre forme |
 | [`shift`](shift.md) | décale toutes les positions d'une même durée |
+| [`transform`](transform.md) | corrige toutes les positions à partir de deux repères |
 
-La transformation et la conversion de fréquence d'image relèvent des tickets
-suivants de la phase 3 ; elles n'existent pas encore et l'aide ne les annonce
-pas.
+La conversion de fréquence d'image relève du ticket suivant de la phase 3 ; elle
+n'existe pas encore et l'aide ne l'annonce pas.
 
 ## Deux sorties, deux rôles
 
