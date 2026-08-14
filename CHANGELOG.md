@@ -11,6 +11,20 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Nommer chaque diagnostic de lecture, partout
+
+### Documentation
+
+- **doc** — La lecture au mieux au manuel, et bumper le patch
+
+### Tests
+
+- **cli** — Prouver ce que chaque diagnostic dit, et à quel niveau
+
+## 0.3.0 — 2026-08-14
+
+### Ajouts
+
 - **ci** — Compter les lignes non couvertes plutôt qu'un pourcentage
 - **ci** — Donner une mémoire aux mesures de performance
 - **ci** — Vérifier les trois obligations d'une pull request

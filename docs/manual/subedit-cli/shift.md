@@ -94,8 +94,8 @@ code=2
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
 | 1 | `<chemin>: N subtitles shifted by 2.999 s -> <destination>` |
-| 2 | `<chemin>: SubRip, LF line endings kept` |
-| 3 | `<chemin>: N bytes read, M written` |
+| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` |
+| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ## Codes de retour
 

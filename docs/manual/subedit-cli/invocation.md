@@ -49,7 +49,7 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.3.0
+subedit 0.3.1
 ```
 
 ## Sous-commandes
@@ -125,13 +125,74 @@ jamais.
 | 0 | `--quiet` | rien, **sauf les erreurs** |
 | 1 | par défaut, ou `-v` | une ligne par fichier traité, et un bilan dès qu'il y en a plusieurs |
 | 2 | `-vv` | et ce qui a été reconnu : format, encodage, BOM, fins de ligne |
-| 3 | `-vvv` | et la trace de mise au point : taille lue, nombre de diagnostics |
+| 3 | `-vvv` | et la trace de mise au point : octets lus et écrits, et **chaque diagnostic de lecture** |
 
 **Les erreurs ne sont jamais tues, `--quiet` compris.** Une commande qui échoue
 en silence ne laisserait que son code de retour.
 
 Le bilan n'apparaît qu'à partir de deux fichiers : sur une entrée unique, il
 répéterait la ligne qui le précède.
+
+## Les diagnostics de lecture
+
+Les formats de sous-titres se lisent **au mieux** : devant une anomalie, le
+lecteur ne s'arrête pas — il décide, ou il laisse en l'état, et il le dit. Ce
+qu'il a rencontré sort au **niveau 3**, une ligne par anomalie, sur la sortie
+d'erreur :
+
+```
+a.srt: 2 diagnostics while reading
+a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+a.srt: line 9: a subtitle that ends before it starts, left as it stands
+```
+
+Les cinq sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
+un fichier lu au mieux puis réécrit a subi les mêmes décisions, et les taire
+laisserait croire que rien ne s'est passé.
+
+**Un diagnostic n'est jamais un échec.** Le fichier a été lu, la commande a
+abouti, le code de retour est `0`. C'est pourquoi ils vivent au niveau le plus
+détaillé : plus bas, ils enterreraient la ligne qui dit ce qui a réellement été
+fait.
+
+### Ce que chaque ligne porte
+
+| Partie | Ce qu'elle dit |
+| :----- | :------------- |
+| `line N` | où, compté à partir de 1, comme un éditeur l'affiche |
+| la phrase | ce qui a été rencontré, parmi les dix catégories ci-dessous |
+| `("…")` | le texte fautif du fichier, quand la catégorie ne suffit pas ; tronqué à 80 octets |
+| la fin | ce qui en a été fait : `settled by the reader`, ou `left as it stands` |
+
+**La fin de la ligne est le plus important.** `settled by the reader` veut dire
+que le lecteur a tranché et que le fichier écrit porte sa décision — une
+numérotation absente est régénérée. `left as it stands` veut dire qu'il n'a rien
+touché parce que **vous seul pouvez décider** : un sous-titre qui finit avant de
+commencer reste tel quel.
+
+### Le numéro de ligne d'un bloc
+
+Une anomalie qui porte sur **un bloc entier** est ancrée sur sa ligne
+d'horodatage, et non sur la ligne exacte qui la déclenche. Une numérotation
+incohérente écrite ligne 5 se rapporte donc ligne 6, celle de l'horodatage qui
+suit — le numéro fautif est dans le `("…")`. Seules les anomalies qui portent sur
+**une ligne** — un horodatage illisible, du texte avant le premier — se
+rapportent sur elles-mêmes.
+
+### Les dix catégories
+
+| Phrase | Ce qui la déclenche |
+| :----- | :------------------ |
+| `a line that fits nowhere` | une ligne qui n'entre dans aucun bloc |
+| `a timing line that could not be read` | une ligne d'horodatage illisible |
+| `a subtitle that ends before it starts` | une fin antérieure au début |
+| `a subtitle starting before the previous one ends` | un chevauchement |
+| `a subtitle starting before the previous one starts` | un désordre |
+| `a SubRip block without its number` | numérotation absente, régénérée à l'écriture |
+| `SubRip numbers that do not follow` | numérotation qui saute |
+| `text before the first timing line` | du texte avant le premier horodatage |
+| `a WebVTT block of an unknown kind` | un bloc WebVTT non reconnu |
+| `more than one kind of line ending` | des fins de ligne mélangées |
 
 ## Plusieurs fichiers
 

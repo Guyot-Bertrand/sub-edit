@@ -46,6 +46,26 @@ const std::string kGood = corpus("valides/minimal.srt");
 const std::string kOther = corpus("valides/minimal.vtt");
 const std::string kUnreadable = corpus("malformes/vide.srt");
 
+/// Readable, but not without the reader having to decide something: its second
+/// block is numbered 7 where 2 was due.
+const std::string kNumbering = corpus("malformes/numerotation-incoherente.srt");
+
+/// What that one diagnostic is owed, in full.
+///
+/// Line 6 and not 5, where the « 7 » sits: a diagnostic about a block is
+/// anchored on the block, that is on its timing line. Only the diagnostics
+/// about a single line — an unreadable timestamp, text before the first one —
+/// point at themselves.
+const std::string kNumberingSaid =
+    ": line 6: SubRip numbers that do not follow (\"7\"), settled by the reader\n";
+
+std::string scratch(const std::string& name) {
+    const std::filesystem::path directory = std::filesystem::temp_directory_path() / name;
+    std::filesystem::remove_all(directory);
+    std::filesystem::create_directories(directory);
+    return directory.string();
+}
+
 } // namespace
 
 TEST_CASE("the report goes to standard output and the narration to standard error",
@@ -139,6 +159,72 @@ TEST_CASE("the second level says what was recognised", "[e2e][CLI-OUTPUT-03]") {
     const CliRun run = invoke({"-vv", "inspect", kGood});
 
     CHECK_THAT(run.errors, ContainsSubstring(kGood + ": SubRip, UTF-8, no BOM, LF line endings\n"));
+}
+
+TEST_CASE("the third level names each diagnostic, not only how many", "[e2e][CLI-OUTPUT-06]") {
+    // « 1 diagnostic while reading » leaves the reader with a number and no way
+    // to learn what it was. The count stays — it is the summary — and each one
+    // is now named under it.
+    const CliRun run = invoke({"-vvv", "inspect", kNumbering});
+
+    CHECK_THAT(run.errors, ContainsSubstring(kNumbering + ": 1 diagnostic while reading\n"));
+    CHECK_THAT(run.errors, ContainsSubstring(kNumbering + kNumberingSaid));
+}
+
+TEST_CASE("the diagnostics stay at the level that details", "[e2e][CLI-OUTPUT-06]") {
+    // They are informative, never a failure: the file was read and the command
+    // succeeded. Below the third level they would bury what actually happened.
+    CHECK_THAT(invoke({"-vv", "inspect", kNumbering}).errors, !ContainsSubstring("do not follow"));
+    CHECK(invoke({"inspect", kNumbering}).exitCode == 0);
+}
+
+TEST_CASE("a subcommand that writes reports what the reader had to decide",
+          "[e2e][CLI-OUTPUT-06]") {
+    // ADR 0008 has the core read at best effort and say what it settled. A
+    // promise kept by one subcommand out of five is not kept: shift rewrites
+    // the same file and owes the same account.
+    const CliRun run = invoke(
+        {"-vvv", "shift", "--by", "1", "--output-dir", scratch("subedit-diag-e2e"), kNumbering});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.errors, ContainsSubstring(kNumbering + kNumberingSaid));
+}
+
+TEST_CASE("converting reports them too", "[e2e][CLI-OUTPUT-06]") {
+    const CliRun run = invoke({"-vvv",
+                               "convert",
+                               "--to",
+                               "vtt",
+                               "--output-dir",
+                               scratch("subedit-diag-convert-e2e"),
+                               kNumbering});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.errors, ContainsSubstring(kNumbering + kNumberingSaid));
+}
+
+TEST_CASE("the second level says the byte order mark, whichever subcommand",
+          "[e2e][CLI-OUTPUT-03]") {
+    // One shape for the three, in one order: format, encoding, mark, endings.
+    // The mark is the property most easily lost and the least visible; saying
+    // it for two subcommands out of three was the worst of both.
+    CHECK_THAT(invoke({"-vv", "inspect", kGood}).errors,
+               ContainsSubstring(kGood + ": SubRip, UTF-8, no BOM, LF line endings\n"));
+
+    CHECK_THAT(
+        invoke({"-vv", "shift", "--by", "1", "--output-dir", scratch("subedit-bom-e2e"), kGood})
+            .errors,
+        ContainsSubstring(kGood + ": SubRip, UTF-8, no BOM, LF line endings kept\n"));
+
+    CHECK_THAT(invoke({"-vv",
+                       "convert",
+                       "--to",
+                       "vtt",
+                       "--output-dir",
+                       scratch("subedit-bom-convert-e2e"),
+                       kGood})
+                   .errors,
+               ContainsSubstring(kGood + ": SubRip -> WebVTT, UTF-8, no BOM, LF line endings\n"));
 }
 
 TEST_CASE("a single file gets no summary", "[e2e][CLI-OUTPUT-05]") {

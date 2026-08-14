@@ -1,4 +1,5 @@
 #include <subedit/cli/batch.hpp>
+#include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/wording.hpp>
@@ -109,6 +110,7 @@ bool inspectFile(const core::FileSystem& files,
     // level contain the one below it line for line.
     reporter.say(3,
                  path + ": " + countOf(read->diagnostics.size(), "diagnostic") + " while reading");
+    sayDiagnostics(reporter, path, read->diagnostics);
     reporter.say(2,
                  path + ": " + std::string{nameOf(read->format)} + ", UTF-8, " +
                      (read->hadUtf8Bom ? "BOM" : "no BOM") + ", " +

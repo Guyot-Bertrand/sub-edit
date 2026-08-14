@@ -1,5 +1,6 @@
 #include <subedit/cli/batch.hpp>
 #include <subedit/cli/destination.hpp>
+#include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/cli/wording.hpp>
@@ -68,8 +69,10 @@ bool rewriteFile(core::FileSystem& files,
     reporter.say(3,
                  path + ": " + std::to_string(content->size()) + " bytes read, " +
                      std::to_string(written.size()) + " written");
+    sayDiagnostics(reporter, path, read->diagnostics);
     reporter.say(2,
-                 path + ": " + std::string{nameOf(read->format)} + ", " +
+                 path + ": " + std::string{nameOf(read->format)} + ", UTF-8, " +
+                     (read->hadUtf8Bom ? "BOM" : "no BOM") + ", " +
                      std::string{nameOf(read->newline)} + " line endings kept");
     reporter.say(1,
                  path + ": " + countOf(count, "subtitle") + " " + std::string{verb} + " " +

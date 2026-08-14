@@ -91,8 +91,8 @@ Sur la sortie d'erreur, selon le niveau :
 | Niveau | Ce qui s'ajoute |
 | :----- | :-------------- |
 | 1 | `<chemin>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<chemin>: SubRip -> WebVTT, LF line endings, no BOM` |
-| 3 | `<chemin>: N bytes read, M written` |
+| 2 | `<chemin>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` |
+| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ## Codes de retour
 

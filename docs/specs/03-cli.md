@@ -157,7 +157,16 @@ impossible.
 | 0 | `--quiet`, `-q` | rien, **sauf les erreurs** |
 | 1 | par défaut, ou `-v` | une ligne par fichier traité, et un bilan dès qu'il y en a plusieurs |
 | 2 | `-vv` | et ce qui a été décidé pour chacun : format reconnu, encodage, BOM, fins de ligne conservées ou imposées, nombre de sous-titres touchés, chemin écrit |
-| 3 | `-vvv` | et la trace de mise au point : arguments analysés, chemins résolus, diagnostics de lecture au détail |
+| 3 | `-vvv` | et la trace de mise au point : octets lus et écrits, et **chaque diagnostic de lecture, nommé** |
+
+**Le niveau 3 a été corrigé après coup**, à l'issue #78. Il annonçait « arguments
+analysés, chemins résolus, diagnostics de lecture au détail » et ne livrait que
+les octets lus et un *compte* de diagnostics. Deux des trois promesses sont
+retirées plutôt qu'honorées : CLI11 signale déjà un argument fautif, et le
+niveau 1 imprime déjà le chemin écrit — les livrer aurait ajouté du bruit sans
+rien apprendre. La troisième, elle, manquait vraiment : les diagnostics sont
+désormais nommés un par un, et par les cinq sous-commandes et non par la seule
+qui n'écrit rien.
 
 Chaque niveau **contient le précédent** : monter d'un cran ajoute, ne remplace
 jamais. Un utilisateur qui relance en `-vv` pour comprendre un incident retrouve

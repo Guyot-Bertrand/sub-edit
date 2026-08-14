@@ -108,7 +108,7 @@ Sur la sortie d'erreur, selon le niveau demandé :
 | :----- | :-------------- |
 | 1 | `<chemin>: N subtitles` |
 | 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings` |
-| 3 | `<chemin>: N bytes read` et `<chemin>: N diagnostic(s) while reading` |
+| 3 | `<chemin>: N bytes read`, `<chemin>: N diagnostic(s) while reading`, puis **chacun d'eux** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ## Codes de retour
 
