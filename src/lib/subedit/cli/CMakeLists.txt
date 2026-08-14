@@ -14,9 +14,12 @@
 add_library(
     subedit_cli STATIC
     batch.cpp
+    destination.cpp
     inspection.cpp
+    conversion.cpp
     reporter.cpp
-    verbosity.cpp)
+    verbosity.cpp
+    wording.cpp)
 
 add_library(subedit::cli ALIAS subedit_cli)
 
