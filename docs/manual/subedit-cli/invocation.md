@@ -10,7 +10,7 @@ puis se termine.
 <!-- exemple: subedit-cli -->
 ```console
 $ subedit-cli
-subedit 0.2.6
+subedit 0.2.7
 ```
 
 ## Sortie
@@ -27,7 +27,7 @@ le nom du programme est ignoré sans un mot, y compris `--help` et `--version` :
 <!-- exemple: subedit-cli --help fichier.srt; echo $? -->
 ```console
 $ subedit-cli --help fichier.srt; echo $?
-subedit 0.2.6
+subedit 0.2.7
 0
 ```
 
