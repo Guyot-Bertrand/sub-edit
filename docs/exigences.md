@@ -77,9 +77,9 @@ plus rien.
 | `CLI-INSPECT-01` | format, encodage, BOM, fins de ligne, nombre et étendue sont rapportés | 3 | implémentée |
 | `CLI-INSPECT-02` | des fins de ligne mélangées sont signalées avec leur ligne | 3 | implémentée |
 | `CLI-INSPECT-03` | `--order-report` rend les deux lectures du désordre | 3 | implémentée |
-| `CLI-CONVERT-01` | `--to` produit le format demandé | 3 | prévue |
-| `CLI-CONVERT-02` | fins de ligne et BOM sont conservés par défaut, réglables sinon | 3 | prévue |
-| `CLI-CONVERT-03` | sans destination explicite, rien n'est écrit et le code est 1 | 3 | prévue |
+| `CLI-CONVERT-01` | `--to` produit le format demandé | 3 | implémentée |
+| `CLI-CONVERT-02` | fins de ligne et BOM sont conservés par défaut, réglables sinon | 3 | implémentée |
+| `CLI-CONVERT-03` | sans destination explicite, rien n'est écrit et le code est 1 | 3 | implémentée |
 | `CLI-SHIFT-01` | `--by` décale toutes les positions, dans les deux sens | 3 | prévue |
 | `CLI-SHIFT-02` | un décalage rendant une position négative est refusé en nommant le sous-titre | 3 | prévue |
 | `CLI-TRANSFORM-01` | deux repères transforment les positions, les autres suivent | 3 | prévue |

@@ -73,6 +73,8 @@ catch_discover_tests(subedit_core_test PROPERTIES SKIP_RETURN_CODE 4)
 add_executable(
     subedit_cli_test
     cli/batch_test.cpp
+    cli/conversion_test.cpp
+    cli/destination_test.cpp
     cli/inspection_test.cpp
     cli/reporter_test.cpp
     cli/verbosity_test.cpp)

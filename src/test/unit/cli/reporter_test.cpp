@@ -1,4 +1,5 @@
 #include <subedit/cli/reporter.hpp>
+#include <subedit/cli/wording.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -65,4 +66,10 @@ TEST_CASE("the level is readable", "[cli][reporter]") {
     std::ostringstream errors;
 
     CHECK(Reporter{errors, 3}.level() == 3);
+}
+
+TEST_CASE("a count agrees with its noun", "[cli][wording]") {
+    CHECK(subedit::cli::countOf(0, "subtitle") == "0 subtitles");
+    CHECK(subedit::cli::countOf(1, "subtitle") == "1 subtitle");
+    CHECK(subedit::cli::countOf(2, "subtitle") == "2 subtitles");
 }
