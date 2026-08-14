@@ -410,7 +410,7 @@ Nouvelles entrées au registre, à l'état `prévue` jusqu'à ce qu'un test les 
 | `CLI-VERSION-04` | `--version` écrit `subedit <version>` sur la sortie standard, code `0` |
 | `CLI-VERSION-05` | une invocation qui réussit n'écrit rien sur la sortie d'erreur |
 | `CLI-USAGE-01` | sans argument, l'aide est écrite sur la sortie standard, code `0` |
-| `CLI-USAGE-02` | une option inconnue ou une valeur invalide donne le code `1`, sans rien écrire |
+| `CLI-USAGE-02` | une option inconnue ou une valeur invalide donne le code `1`, sans rien écrire sur la sortie standard |
 | `CLI-USAGE-03` | une erreur d'usage est détectée avant tout traitement |
 | `CLI-USAGE-04` | `--quiet` et `-v` ensemble donnent une erreur d'usage |
 | `CLI-OUTPUT-01` | seul le résultat va sur la sortie standard, la narration sur la sortie d'erreur |
@@ -441,18 +441,35 @@ plus une décision, c'est une justification après coup.
 
 | Issue | Sujet | Dépend de |
 | :---- | :---- | :-------- |
-| [#61](https://github.com/Guyot-Bertrand/sub-edit/issues/61) | ossature : aiguillage, `--version`, `--help`, codes de retour, lot, les quatre niveaux de verbosité et le partage des deux sorties | — |
+| Issue | Sujet | Dépend de |
+| :---- | :---- | :-------- |
+| [#61](https://github.com/Guyot-Bertrand/sub-edit/issues/61) | ossature — aiguillage, `--version`, `--help`, codes de retour, lot, verbosité, partage des deux sorties — **et `inspect`** | — |
 | [#62](https://github.com/Guyot-Bertrand/sub-edit/issues/62) | la seconde lecture du désordre dans le noyau | — |
-| [#63](https://github.com/Guyot-Bertrand/sub-edit/issues/63) | `inspect` | #61, #62 |
-| [#64](https://github.com/Guyot-Bertrand/sub-edit/issues/64) | `convert`, fins de ligne et BOM | #61 |
-| [#65](https://github.com/Guyot-Bertrand/sub-edit/issues/65) | `shift` | #61 |
-| [#66](https://github.com/Guyot-Bertrand/sub-edit/issues/66) | `transform` | #61 |
+| [#63](https://github.com/Guyot-Bertrand/sub-edit/issues/63) | `--order-report` sur `inspect` | #61, #62 |
+| [#64](https://github.com/Guyot-Bertrand/sub-edit/issues/64) | `convert`, fins de ligne et BOM, **et la destination** | #61 |
+| [#65](https://github.com/Guyot-Bertrand/sub-edit/issues/65) | `shift`, **et la grammaire du temps** | #61 |
+| [#66](https://github.com/Guyot-Bertrand/sub-edit/issues/66) | `transform`, **et la grammaire des indices** | #61 |
 | [#67](https://github.com/Guyot-Bertrand/sub-edit/issues/67) | `framerate` | #61 |
 | [#68](https://github.com/Guyot-Bertrand/sub-edit/issues/68) | relecture de fin de phase | tout |
 
-`#62` ne touche pas à la CLI et peut donc se faire en parallèle de `#61`. Les
-quatre sous-commandes qui écrivent — `#64` à `#67` — sont indépendantes entre
-elles une fois l'ossature posée.
+**`inspect` est dans l'ossature, et la grammaire commune n'y est pas.** Ce
+n'était pas le découpage initial ; il a été corrigé en l'attaquant, pour une
+raison qui vaut d'être écrite.
+
+Une ossature sans sous-commande n'a **rien d'atteignable** : pas de liste de
+fichiers, donc pas de lot ; pas de traitement, donc rien à raconter aux niveaux
+1 à 3 ; et les codes `2` et `3` ne peuvent pas se produire. La première issue
+aurait promis quatre codes de retour et quatre niveaux en n'en prouvant que deux
+et un. `inspect` est le plus simple des exerciseurs — il n'écrit aucun fichier —
+et il rend le reste atteignable.
+
+Symétriquement, la grammaire du temps, des indices et de la destination
+descend dans les issues qui en ont l'usage. L'écrire dans l'ossature la
+laisserait sans appelant, donc sans preuve — le même défaut, dans l'autre sens.
+
+`#62` ne touche pas à la CLI et peut se faire en parallèle de `#61`. Les quatre
+sous-commandes qui écrivent — `#64` à `#67` — sont indépendantes entre elles une
+fois l'ossature posée.
 
 ## Points ouverts
 
