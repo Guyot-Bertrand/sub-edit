@@ -119,8 +119,8 @@ Un.
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
 | 1 | `<chemin>: N subtitles retimed from 25 to 24000/1001 fps -> <destination>` |
-| 2 | `<chemin>: SubRip, LF line endings kept` |
-| 3 | `<chemin>: N bytes read, M written` |
+| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` |
+| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 **La narration nomme la cadence exacte, pas l'étiquette tapée.** Écrire
 `23.976` sur cette ligne rapporterait une conversion qui n'a pas eu lieu ; c'est

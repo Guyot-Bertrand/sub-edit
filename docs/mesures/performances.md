@@ -36,8 +36,8 @@ pas le sujet de ce ticket.
 | décalage de 4000 sous-titres | 9.03 µs | 0.2.10 — 2026-08-14 | 37.7 µs | 0.2.15 — 2026-08-14 |
 | décalage puis annulation | 15.3 µs | 0.2.10 — 2026-08-14 | 22.9 µs | 0.2.15 — 2026-08-14 |
 | transformation de 4000 sous-titres | 74.5 µs | 0.2.10 — 2026-08-14 | 117 µs | 0.2.15 — 2026-08-14 |
-| conversion de fréquence sur 4000 sous-titres | 74.4 µs | 0.2.10 — 2026-08-14 | 105 µs | 0.2.15 — 2026-08-14 |
-| tri de 4000 sous-titres à l'envers | 207 µs | 0.2.4 — 2026-08-13 | 316 µs | 0.2.15 — 2026-08-14 |
+| conversion de fréquence sur 4000 sous-titres | 73.5 µs | 0.3.1 — 2026-08-14 | 105 µs | 0.2.15 — 2026-08-14 |
+| tri de 4000 sous-titres à l'envers | 204 µs | 0.3.1 — 2026-08-14 | 316 µs | 0.2.15 — 2026-08-14 |
 | suppression d'un sous-titre sur deux | 9.92 ms | 0.2.4 — 2026-08-13 | 16.2 ms | 0.2.15 — 2026-08-14 |
 | insertion de 100 sous-titres vides au milieu | 50.3 µs | 0.2.11 — 2026-08-14 | 74.2 µs | 0.2.15 — 2026-08-14 |
 | modification d'un texte, à travers une session | 114 ns | 0.2.14 — 2026-08-14 | 172 ns | 0.2.15 — 2026-08-14 |
@@ -53,8 +53,8 @@ pas le sujet de ce ticket.
 <!-- décalage de 4000 sous-titres min=9033.41 max=37698.1 -->
 <!-- décalage puis annulation min=15274.2 max=22888.5 -->
 <!-- transformation de 4000 sous-titres min=74507.1 max=117401.0 -->
-<!-- conversion de fréquence sur 4000 sous-titres min=74444.8 max=104696.0 -->
-<!-- tri de 4000 sous-titres à l'envers min=207024.0 max=316241.0 -->
+<!-- conversion de fréquence sur 4000 sous-titres min=73472.3 max=104696.0 -->
+<!-- tri de 4000 sous-titres à l'envers min=204035.0 max=316241.0 -->
 <!-- suppression d'un sous-titre sur deux min=9921060.0 max=16201500.0 -->
 <!-- insertion de 100 sous-titres vides au milieu min=50345.9 max=74221.2 -->
 <!-- modification d'un texte, à travers une session min=113.921 max=171.566 -->
@@ -65,6 +65,27 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.3.1 — 2026-08-14 — Release
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| versionString | 37.1 ns | 0.388 ns |
+| parse | 34 ns | 8.59 ns |
+| format | 38 ns | 2.81 ns |
+| position vers image | 7.87 ns | 0.404 ns |
+| image vers position | 6.93 ns | 2.33 ns |
+| mise à l'échelle par un rationnel exact | 7.69 ns | 0.0586 ns |
+| lecture de 4000 sous-titres | 2.45 ms | 71.1 µs |
+| écriture de 4000 sous-titres | 557 µs | 15.1 µs |
+| décalage de 4000 sous-titres | 9.29 µs | 1.51 µs |
+| décalage puis annulation | 17.9 µs | 3.24 µs |
+| transformation de 4000 sous-titres | 75.2 µs | 7.97 µs |
+| conversion de fréquence sur 4000 sous-titres | 73.5 µs | 8.38 µs |
+| tri de 4000 sous-titres à l'envers | 204 µs | 15.1 µs |
+| suppression d'un sous-titre sur deux | 10.4 ms | 331 µs |
+| insertion de 100 sous-titres vides au milieu | 54.2 µs | 23.5 µs |
+| modification d'un texte, à travers une session | 116 ns | 6.55 ns |
 
 ### 0.2.15 — 2026-08-14 — Release
 
