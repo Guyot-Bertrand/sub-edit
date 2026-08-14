@@ -18,6 +18,7 @@ ne pas l'éditer à la main.
 - **scripts** — Élargir la portée du contrôle de parallélisme
 - **cli** — Ossature de la ligne de commande et sous-commande inspect
 - **core** — Seconde lecture du désordre, choisie par un paramètre
+- **cli** — --order-report, pour choisir la lecture du désordre
 
 ### Construction
 
@@ -61,6 +62,7 @@ ne pas l'éditer à la main.
 - **doc** — Bumper le patch et relever les mesures
 - **doc** — Manuel de la CLI, et bumper le patch
 - **doc** — Bumper le patch et relever les mesures
+- **doc** — Documenter les deux lectures, et bumper le patch
 
 ### Intégration continue
 
@@ -79,6 +81,7 @@ ne pas l'éditer à la main.
 - **cli** — Prouver l'ossature, inspect et les quatre niveaux
 - **ci** — Interdire les noms de test qui passent pour une option
 - **core** — Prouver que les deux lectures diffèrent, et où
+- **cli** — Prouver les deux lectures jusqu'au binaire
 
 ## 0.2.0 — 2026-08-08
 
