@@ -19,6 +19,7 @@ ne pas l'éditer à la main.
 - **cli** — Ossature de la ligne de commande et sous-commande inspect
 - **core** — Seconde lecture du désordre, choisie par un paramètre
 - **cli** — --order-report, pour choisir la lecture du désordre
+- **cli** — Convert, et la grammaire de destination
 
 ### Construction
 
@@ -63,6 +64,7 @@ ne pas l'éditer à la main.
 - **doc** — Manuel de la CLI, et bumper le patch
 - **doc** — Bumper le patch et relever les mesures
 - **doc** — Documenter les deux lectures, et bumper le patch
+- **doc** — Manuel de convert, et bumper le patch
 
 ### Intégration continue
 
@@ -82,6 +84,7 @@ ne pas l'éditer à la main.
 - **ci** — Interdire les noms de test qui passent pour une option
 - **core** — Prouver que les deux lectures diffèrent, et où
 - **cli** — Prouver les deux lectures jusqu'au binaire
+- **cli** — Prouver la conversion, ses six formes et ses refus
 
 ## 0.2.0 — 2026-08-08
 
