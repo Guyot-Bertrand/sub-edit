@@ -37,6 +37,10 @@ std::optional<std::string> InMemoryFileSystem::contentOf(const std::filesystem::
     return found->second;
 }
 
+void InMemoryFileSystem::failNextRead(FileErrorKind kind) {
+    m_pendingReadFailure = kind;
+}
+
 void InMemoryFileSystem::failNextWrite(FileErrorKind kind) {
     m_pendingWriteFailure = kind;
 }
@@ -51,6 +55,9 @@ bool InMemoryFileSystem::exists(const std::filesystem::path& path) const {
 
 std::expected<std::string, FileError>
 InMemoryFileSystem::readFile(const std::filesystem::path& path) const {
+    if (const std::optional<FileErrorKind> kind = take(m_pendingReadFailure); kind.has_value())
+        return failure(*kind, path);
+
     const auto found = m_files.find(path);
     if (found == m_files.end())
         return failure(FileErrorKind::NotFound, path);

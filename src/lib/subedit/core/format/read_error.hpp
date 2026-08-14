@@ -10,8 +10,15 @@ namespace subedit::core {
 /// failure; what the reader recovers from is a `Diagnostic` and the reading
 /// carries on. Returning an empty result with a warning would let the caller
 /// lose a file without noticing.
+/// **Every one of these is produced by a reader**, as for `DiagnosticKind`. An
+/// enumerator nothing emits is a promise not kept: every caller translating one
+/// into a message would carry a branch no test can reach.
+///
+/// One was dropped for that reason — `FileNotReadable`, which nothing ever
+/// emitted. `readSubtitles` is given bytes and never a path, so it opens
+/// nothing and cannot fail to; opening belongs to `FileSystem`, whose
+/// `FileErrorKind` already tells absent from refused from broken.
 enum class ReadErrorKind {
-    FileNotReadable, ///< the file could not be opened
     InvalidUtf8,     ///< bytes that are not valid UTF-8
     NoSubtitleFound, ///< nothing recognisable as a subtitle
     UnknownFormat,   ///< no format matched, and none is ever assumed
