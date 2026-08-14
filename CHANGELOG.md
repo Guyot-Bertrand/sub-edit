@@ -54,6 +54,9 @@ ne pas l'éditer à la main.
 - **doc** — Aligner CONTRIBUTING et le manuel, et bumper le patch
 - **doc** — Décrire les exemples déclarés, et bumper le patch
 - **doc** — Bumper le patch et relever les mesures
+- **doc** — Cadrer la phase 3 et décider CLI11
+- **doc** — Inscrire les exigences de la phase 3 et les renvois
+- **doc** — Bumper le patch et relever les mesures
 
 ### Intégration continue
 
