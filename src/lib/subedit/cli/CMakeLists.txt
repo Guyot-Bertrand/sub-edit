@@ -17,10 +17,12 @@ add_library(
     destination.cpp
     inspection.cpp
     conversion.cpp
+    index_grammar.cpp
     reporter.cpp
     rewriting.cpp
     shifting.cpp
     time_grammar.cpp
+    transforming.cpp
     verbosity.cpp
     wording.cpp)
 

@@ -21,6 +21,7 @@ ne pas l'éditer à la main.
 - **cli** — --order-report, pour choisir la lecture du désordre
 - **cli** — Convert, et la grammaire de destination
 - **cli** — Shift, et la grammaire du temps
+- **cli** — Transform, et la grammaire des indices
 
 ### Construction
 
@@ -67,6 +68,7 @@ ne pas l'éditer à la main.
 - **doc** — Documenter les deux lectures, et bumper le patch
 - **doc** — Manuel de convert, et bumper le patch
 - **doc** — Manuel de shift, et bumper le patch
+- **doc** — Manuel de transform, et bumper le patch
 
 ### Intégration continue
 
@@ -88,6 +90,7 @@ ne pas l'éditer à la main.
 - **cli** — Prouver les deux lectures jusqu'au binaire
 - **cli** — Prouver la conversion, ses six formes et ses refus
 - **cli** — Prouver le décalage, sa grammaire et ses refus
+- **cli** — Prouver la transformation, ses bornes et ses refus
 
 ## 0.2.0 — 2026-08-08
 

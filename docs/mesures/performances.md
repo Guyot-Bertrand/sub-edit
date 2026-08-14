@@ -30,8 +30,8 @@ pas le sujet de ce ticket.
 | format | 32.6 ns | 0.2.10 — 2026-08-14 | 44 ns | 0.2.2 — 2026-08-12 |
 | position vers image | 6.49 ns | 0.2.9 — 2026-08-14 | 8.78 ns | 0.2.3 — 2026-08-12 |
 | image vers position | 6.48 ns | 0.2.10 — 2026-08-14 | 8.79 ns | 0.2.2 — 2026-08-12 |
-| mise à l'échelle par un rationnel exact | 6.72 ns | 0.2.9 — 2026-08-14 | 9.07 ns | 0.2.2 — 2026-08-12 |
-| lecture de 4000 sous-titres | 2.2 ms | 0.2.4 — 2026-08-13 | 3.09 ms | 0.2.12 — 2026-08-14 |
+| mise à l'échelle par un rationnel exact | 6.72 ns | 0.2.9 — 2026-08-14 | 9.09 ns | 0.2.13 — 2026-08-14 |
+| lecture de 4000 sous-titres | 2.2 ms | 0.2.4 — 2026-08-13 | 3.17 ms | 0.2.13 — 2026-08-14 |
 | écriture de 4000 sous-titres | 505 µs | 0.2.9 — 2026-08-14 | 641 µs | 0.2.7 — 2026-08-14 |
 | décalage de 4000 sous-titres | 9.03 µs | 0.2.10 — 2026-08-14 | 11.2 µs | 0.2.7 — 2026-08-14 |
 | décalage puis annulation | 15.3 µs | 0.2.10 — 2026-08-14 | 20.7 µs | 0.2.6 — 2026-08-13 |
@@ -39,7 +39,7 @@ pas le sujet de ce ticket.
 | conversion de fréquence sur 4000 sous-titres | 74.4 µs | 0.2.10 — 2026-08-14 | 100 µs | 0.2.12 — 2026-08-14 |
 | tri de 4000 sous-titres à l'envers | 207 µs | 0.2.4 — 2026-08-13 | 274 µs | 0.2.6 — 2026-08-13 |
 | suppression d'un sous-titre sur deux | 9.92 ms | 0.2.4 — 2026-08-13 | 12.5 ms | 0.2.3 — 2026-08-12 |
-| insertion de 100 sous-titres vides au milieu | 50.3 µs | 0.2.11 — 2026-08-14 | 65.8 µs | 0.2.2 — 2026-08-12 |
+| insertion de 100 sous-titres vides au milieu | 50.3 µs | 0.2.11 — 2026-08-14 | 67 µs | 0.2.13 — 2026-08-14 |
 | modification d'un texte, à travers une session | 117 ns | 0.2.4 — 2026-08-13 | 161 ns | 0.2.2 — 2026-08-12 |
 
 <!-- versionString min=32.3131 max=52.7577 -->
@@ -47,8 +47,8 @@ pas le sujet de ce ticket.
 <!-- format min=32.5602 max=43.9743 -->
 <!-- position vers image min=6.4895 max=8.77599 -->
 <!-- image vers position min=6.47591 max=8.79029 -->
-<!-- mise à l'échelle par un rationnel exact min=6.71811 max=9.06914 -->
-<!-- lecture de 4000 sous-titres min=2198390.0 max=3091860.0 -->
+<!-- mise à l'échelle par un rationnel exact min=6.71811 max=9.09391 -->
+<!-- lecture de 4000 sous-titres min=2198390.0 max=3170340.0 -->
 <!-- écriture de 4000 sous-titres min=504839.0 max=640976.0 -->
 <!-- décalage de 4000 sous-titres min=9033.41 max=11244.6 -->
 <!-- décalage puis annulation min=15274.2 max=20725.3 -->
@@ -56,7 +56,7 @@ pas le sujet de ce ticket.
 <!-- conversion de fréquence sur 4000 sous-titres min=74444.8 max=100492.0 -->
 <!-- tri de 4000 sous-titres à l'envers min=207024.0 max=273761.0 -->
 <!-- suppression d'un sous-titre sur deux min=9921060.0 max=12451000.0 -->
-<!-- insertion de 100 sous-titres vides au milieu min=50345.9 max=65814.7 -->
+<!-- insertion de 100 sous-titres vides au milieu min=50345.9 max=66981.4 -->
 <!-- modification d'un texte, à travers une session min=116.874 max=161.356 -->
 
 ## Relevés
@@ -65,6 +65,27 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.2.13 — 2026-08-14 — Release
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| versionString | 44.3 ns | 0.899 ns |
+| parse | 36.1 ns | 2.02 ns |
+| format | 42.1 ns | 14.4 ns |
+| position vers image | 7.47 ns | 0.23 ns |
+| image vers position | 8.45 ns | 2.13 ns |
+| mise à l'échelle par un rationnel exact | 9.09 ns | 3.63 ns |
+| lecture de 4000 sous-titres | 3.17 ms | 651 µs |
+| écriture de 4000 sous-titres | 619 µs | 72.5 µs |
+| décalage de 4000 sous-titres | 10.8 µs | 982 ns |
+| décalage puis annulation | 18.3 µs | 1.78 µs |
+| transformation de 4000 sous-titres | 83.3 µs | 9.57 µs |
+| conversion de fréquence sur 4000 sous-titres | 85.6 µs | 11.6 µs |
+| tri de 4000 sous-titres à l'envers | 233 µs | 32.1 µs |
+| suppression d'un sous-titre sur deux | 11.6 ms | 635 µs |
+| insertion de 100 sous-titres vides au milieu | 67 µs | 21.1 µs |
+| modification d'un texte, à travers une session | 142 ns | 56.8 ns |
 
 ### 0.2.12 — 2026-08-14 — Release
 

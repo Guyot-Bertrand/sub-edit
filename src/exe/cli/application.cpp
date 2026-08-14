@@ -2,10 +2,12 @@
 
 #include <subedit/cli/conversion.hpp>
 #include <subedit/cli/destination.hpp>
+#include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/shifting.hpp>
 #include <subedit/cli/time_grammar.hpp>
+#include <subedit/cli/transforming.hpp>
 #include <subedit/cli/verbosity.hpp>
 #include <subedit/core/format/real_file_system.hpp>
 #include <subedit/core/version.hpp>
@@ -120,6 +122,64 @@ ExitCode runShift(const ShiftOptions& options, core::FileSystem& files, const Re
     return shiftAll(files, options.files, *by, *destination, reporter);
 }
 
+/// What `transform` was asked for.
+struct TransformOptions {
+    std::vector<std::string> files;
+    std::string first;
+    std::string last;
+    std::string output;
+    std::string outputDir;
+    bool inPlace = false;
+};
+
+CLI::App* describeTransform(CLI::App& app, TransformOptions& options) {
+    CLI::App* transform =
+        app.add_subcommand("transform", "Correct every position from two points known to be right");
+    transform->add_option("files", options.files, "Subtitle files to transform")->required();
+    transform
+        ->add_option(
+            "--first", options.first, "Earlier reference, as <index>=<time>: 1=00:00:01.000")
+        ->required();
+    transform
+        ->add_option("--last", options.last, "Later reference, as <index>=<time>: 3=00:00:10.000")
+        ->required();
+
+    transform->add_option("--output", options.output, "File to write, for a single input");
+    transform->add_option("--output-dir", options.outputDir, "Directory to write into");
+    transform->add_flag("--in-place", options.inPlace, "Write back over the inputs");
+    return transform;
+}
+
+ExitCode
+runTransform(const TransformOptions& options, core::FileSystem& files, const Reporter& reporter) {
+    const std::expected<Reference, std::string> first = parseReference(options.first);
+    if (!first) {
+        std::cerr << first.error() << '\n';
+        return ExitCode::Usage;
+    }
+
+    const std::expected<Reference, std::string> last = parseReference(options.last);
+    if (!last) {
+        std::cerr << last.error() << '\n';
+        return ExitCode::Usage;
+    }
+
+    const std::expected<Transform, std::string> transform = Transform::between(*first, *last);
+    if (!transform) {
+        std::cerr << transform.error() << '\n';
+        return ExitCode::Usage;
+    }
+
+    const std::expected<Destination, std::string> destination =
+        Destination::from(options.output, options.outputDir, options.inPlace, options.files.size());
+    if (!destination) {
+        std::cerr << destination.error() << '\n';
+        return ExitCode::Usage;
+    }
+
+    return transformAll(files, options.files, *transform, *destination, reporter);
+}
+
 core::Newline newlineNamed(const std::string& name) {
     if (name == "windows") {
         return core::Newline::CrLf;
@@ -212,6 +272,8 @@ ExitCode run(int argc, char** argv) {
     const CLI::App* convert = describeConvert(app, convertOptions);
     ShiftOptions shiftOptions;
     const CLI::App* shift = describeShift(app, shiftOptions);
+    TransformOptions transformOptions;
+    const CLI::App* transform = describeTransform(app, transformOptions);
 
     try {
         app.parse(argc, argv);
@@ -246,6 +308,9 @@ ExitCode run(int argc, char** argv) {
     }
     if (shift->parsed()) {
         return runShift(shiftOptions, files, reporter);
+    }
+    if (transform->parsed()) {
+        return runTransform(transformOptions, files, reporter);
     }
     return ExitCode::Success;
 }
