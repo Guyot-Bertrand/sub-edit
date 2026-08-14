@@ -16,6 +16,7 @@ ne pas l'éditer à la main.
 - **ci** — Vérifier les trois obligations d'une pull request
 - **doc** — Générer les exemples d'appel du manuel
 - **scripts** — Élargir la portée du contrôle de parallélisme
+- **cli** — Ossature de la ligne de commande et sous-commande inspect
 
 ### Construction
 
@@ -57,6 +58,7 @@ ne pas l'éditer à la main.
 - **doc** — Cadrer la phase 3 et décider CLI11
 - **doc** — Inscrire les exigences de la phase 3 et les renvois
 - **doc** — Bumper le patch et relever les mesures
+- **doc** — Manuel de la CLI, et bumper le patch
 
 ### Intégration continue
 
@@ -72,6 +74,8 @@ ne pas l'éditer à la main.
 - **ci** — Prouver que les trois contrôles de pull request refusent
 - **ci** — Prouver les quatre refus du générateur d'exemples
 - **ci** — Prouver ce que le contrôle attrape, et ce qu'il laisse passer
+- **cli** — Prouver l'ossature, inspect et les quatre niveaux
+- **ci** — Interdire les noms de test qui passent pour une option
 
 ## 0.2.0 — 2026-08-08
 
