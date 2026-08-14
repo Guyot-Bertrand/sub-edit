@@ -18,6 +18,9 @@ add_library(
     inspection.cpp
     conversion.cpp
     reporter.cpp
+    rewriting.cpp
+    shifting.cpp
+    time_grammar.cpp
     verbosity.cpp
     wording.cpp)
 
