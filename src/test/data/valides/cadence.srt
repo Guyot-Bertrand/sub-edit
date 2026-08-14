@@ -1,0 +1,8 @@
+1
+00:00:01,010 --> 00:00:02,020
+Le canot dérive depuis l'aube.
+
+2
+01:00:00,017 --> 01:00:02,000
+Une heure de film plus tard.
+
