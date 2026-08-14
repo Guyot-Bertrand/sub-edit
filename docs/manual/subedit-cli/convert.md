@@ -40,29 +40,19 @@ Options:
 | `--to` | **oui** | `srt` ou `vtt`, et rien d'autre | — |
 | `--line-endings` | non | `unix`, `windows` ou `mac` | celles du fichier lu |
 | `--bom` / `--no-bom` | non | drapeaux, exclusifs l'un de l'autre | ce que portait le fichier lu |
-| `--output` | l'une des trois | un chemin de fichier ; une seule entrée | — |
-| `--output-dir` | l'une des trois | un dossier existant | — |
-| `--in-place` | l'une des trois | drapeau | — |
+| `--output` / `--output-dir` / `--in-place` | l'une des trois | voir [Invocation](invocation.md#la-destination) | — |
 
 `mac` désigne le retour chariot seul (`\r`), la fin de ligne du Mac OS classique.
 
-## La destination est toujours explicite
+## La destination
 
-Les trois façons de la donner s'excluent, et **il en faut une** : sans elle,
-rien n'est écrit et le code de retour est `1`.
+Les trois options et leurs règles sont communes aux quatre sous-commandes qui
+écrivent : voir [Invocation](invocation.md#la-destination). Rien n'est écrit
+sans l'une d'elles.
 
-| Option | Où va le résultat |
-| :----- | :---------------- |
-| `--output FICHIER` | dans ce fichier, sous ce nom exact ; une seule entrée |
-| `--output-dir DOSSIER` | dans ce dossier, sous le nom de base de l'entrée **et l'extension du format écrit** |
-| `--in-place` | par-dessus l'entrée, par écriture atomique |
-
-`--output` avec plusieurs entrées est refusé : le dernier fichier s'écrirait
-sur les précédents.
-
-**`--output-dir` change l'extension avec le format.** `convert --to vtt` sur
-`a.srt` écrit `a.vtt`, jamais `a.srt` contenant du WebVTT — un fichier dont le
-nom ment fait trébucher tous les autres outils.
+Ce qui est propre à `convert` : **`--output-dir` change l'extension avec le
+format.** `convert --to vtt` sur `a.srt` écrit `a.vtt`, jamais `a.srt` contenant
+du WebVTT — un fichier dont le nom ment fait trébucher tous les autres outils.
 
 ## Convertir sur place est refusé
 
@@ -113,12 +103,11 @@ certains seulement, `1` sur une erreur d'usage.
 
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |
-| aucune destination | `no destination given: use --output, --output-dir or --in-place` |
-| deux destinations | `--output, --output-dir and --in-place exclude one another` |
-| `--output` sur un lot | `--output names one file but several were given: use --output-dir instead` |
 | `--bom` avec `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` qui change le format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| destination non inscriptible | `<chemin>: <destination>: cannot be opened: permission denied` |
+
+Celles de la destination sont communes aux quatre sous-commandes qui écrivent :
+voir [Invocation](invocation.md#la-destination).
 
 Les erreurs de lecture sont celles d'[`inspect`](inspect.md) : elles portent sur
 le fichier d'entrée et ont les mêmes messages.

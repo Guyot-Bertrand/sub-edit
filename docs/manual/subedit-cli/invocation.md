@@ -49,7 +49,7 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.2.14
+subedit 0.2.15
 ```
 
 ## Sous-commandes
@@ -63,6 +63,42 @@ subedit 0.2.14
 | [`framerate`](framerate.md) | recale un fichier d'une cadence d'images vers une autre |
 
 Les cinq sont là ; l'aide de l'outil les énumère dans le même ordre.
+
+## La destination
+
+Les quatre sous-commandes qui écrivent — [`convert`](convert.md),
+[`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md) —
+prennent leur destination de la même façon. [`inspect`](inspect.md) n'écrit
+aucun fichier et n'accepte aucune de ces options.
+
+**Rien n'est jamais écrit sans destination explicite.** Les trois façons de la
+donner s'excluent, et il en faut une : sans elle, rien n'est écrit et le code de
+retour est `1`.
+
+| Option | Où va le résultat |
+| :----- | :---------------- |
+| `--output FICHIER` | dans ce fichier, sous ce nom exact ; une seule entrée |
+| `--output-dir DOSSIER` | dans ce dossier, sous le nom de base de l'entrée |
+| `--in-place` | par-dessus l'entrée, par écriture atomique |
+
+Un outil qui écrase son entrée parce qu'on ne lui a rien dit est un outil qu'on
+cesse d'utiliser à la deuxième fois. Le refus coûte une ligne et sauve le
+fichier.
+
+`--output` avec plusieurs entrées est refusé : le dernier fichier s'écrirait sur
+les précédents. Avec un lot, `--output-dir` est le seul des trois qui ait un
+sens, avec `--in-place`.
+
+**L'extension suit le format écrit.** Elle ne change que pour
+[`convert`](convert.md), seule sous-commande qui change de format ; les trois
+autres conservent celui du fichier lu, donc son extension.
+
+| Ce qui la déclenche | Message |
+| :------------------ | :------ |
+| aucune destination | `no destination given: use --output, --output-dir or --in-place` |
+| deux destinations | `--output, --output-dir and --in-place exclude one another` |
+| `--output` sur un lot | `--output names one file but several were given: use --output-dir instead` |
+| destination non inscriptible | `<chemin>: <destination>: cannot be opened: permission denied` |
 
 ## Deux sorties, deux rôles
 

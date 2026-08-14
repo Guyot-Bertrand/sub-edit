@@ -39,7 +39,7 @@ Options:
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
 | `--from` | **oui** | une cadence, voir ci-dessous | — |
 | `--to` | **oui** | une cadence, voir ci-dessous | — |
-| `--output` / `--output-dir` / `--in-place` | l'une des trois | voir [`convert`](convert.md) | — |
+| `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |
 
 `--from` est la cadence pour laquelle le fichier **est** minuté, `--to` celle
 pour laquelle on veut qu'il le soit. Les intervertir décale le fichier dans
@@ -152,4 +152,6 @@ code=1
 | texte qui n'est pas un nombre | `"…" is not a frame rate: expected frames per second, like 25 or 23.976` |
 | cadence démesurée | `"…" is not a frame rate: no video runs at that many frames per second` |
 
-Les erreurs de destination sont celles de [`convert`](convert.md).
+**Rien n'est écrit sans l'une des trois options de destination**, et ses
+erreurs sont communes aux quatre sous-commandes qui écrivent :
+voir [Invocation](invocation.md#la-destination).
