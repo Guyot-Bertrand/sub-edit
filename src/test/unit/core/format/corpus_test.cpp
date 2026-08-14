@@ -66,8 +66,9 @@ bool hasDiagnostic(const ReadResult& result, DiagnosticKind kind) {
 }
 
 /// The files that must open, and come back out unchanged.
-constexpr std::array<std::string_view, 7> kValid = {
+constexpr std::array<std::string_view, 8> kValid = {
     "valides/minimal.srt",
+    "valides/trois.srt",
     "valides/coordonnees.srt",
     "valides/balises.srt",
     "valides/crlf-bom.srt",
