@@ -1,4 +1,5 @@
 #include <subedit/cli/wording.hpp>
+#include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -23,6 +24,31 @@ FrameRate rateOf(std::int64_t numerator, std::int64_t denominator) {
 }
 
 } // namespace
+
+TEST_CASE("every kind of diagnostic has a phrase", "[cli][wording]") {
+    // Named one by one rather than looped over: a new enumerator must fail to
+    // compile here, not fall through to an empty line in a report.
+    using subedit::core::DiagnosticKind;
+    CHECK(nameOf(DiagnosticKind::IgnoredLine) == "a line that fits nowhere");
+    CHECK(nameOf(DiagnosticKind::MalformedTimestamp) == "a timing line that could not be read");
+    CHECK(nameOf(DiagnosticKind::EndBeforeStart) == "a subtitle that ends before it starts");
+    CHECK(nameOf(DiagnosticKind::OverlappingSubtitles) ==
+          "a subtitle starting before the previous one ends");
+    CHECK(nameOf(DiagnosticKind::OutOfOrder) ==
+          "a subtitle starting before the previous one starts");
+    CHECK(nameOf(DiagnosticKind::MissingNumbering) == "a SubRip block without its number");
+    CHECK(nameOf(DiagnosticKind::InconsistentNumbering) == "SubRip numbers that do not follow");
+    CHECK(nameOf(DiagnosticKind::TextBeforeAnyTimestamp) == "text before the first timing line");
+    CHECK(nameOf(DiagnosticKind::UnknownBlock) == "a WebVTT block of an unknown kind");
+    CHECK(nameOf(DiagnosticKind::MixedNewlines) == "more than one kind of line ending");
+}
+
+TEST_CASE("what was done about an anomaly is named too", "[cli][wording]") {
+    using subedit::core::Severity;
+    // The whole point of the distinction: one of the two needs a human.
+    CHECK(nameOf(Severity::Warning) == "left as it stands");
+    CHECK(nameOf(Severity::Recovered) == "settled by the reader");
+}
 
 TEST_CASE("a whole rate is named by its number alone", "[cli][wording]") {
     CHECK(nameOf(FrameRate{StandardFrameRate::Fps25}) == "25");

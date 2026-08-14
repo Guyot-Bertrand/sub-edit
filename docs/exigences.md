@@ -72,6 +72,7 @@ plus rien.
 | `CLI-OUTPUT-03` | chaque niveau de verbosité contient le précédent, ligne pour ligne | 3 | implémentée |
 | `CLI-OUTPUT-04` | le niveau par défaut écrit une ligne par fichier traité | 3 | implémentée |
 | `CLI-OUTPUT-05` | le bilan n'apparaît qu'à partir de deux fichiers d'entrée | 3 | implémentée |
+| `CLI-OUTPUT-06` | le niveau 3 nomme chaque diagnostic de lecture, sur les cinq sous-commandes | 3 | implémentée |
 | `CLI-BATCH-01` | plusieurs fichiers sont traités indépendamment, les échecs nommés | 3 | implémentée |
 | `CLI-BATCH-02` | tous en échec donne le code 2, un échec partiel le code 3 | 3 | implémentée |
 | `CLI-INSPECT-01` | format, encodage, BOM, fins de ligne, nombre et étendue sont rapportés | 3 | implémentée |
