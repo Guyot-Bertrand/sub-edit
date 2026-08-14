@@ -104,3 +104,37 @@ TEST_CASE("inspect writes its report even when asked for silence", "[e2e][CLI-OU
     CHECK_THAT(run.output, ContainsSubstring("  format: SubRip\n"));
     CHECK(run.errors.empty());
 }
+
+TEST_CASE("the default reading names what breaks the order", "[e2e][CLI-INSPECT-03]") {
+    const CliRun run = invoke({"inspect", corpus("malformes/desordre.srt")});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.output, ContainsSubstring("  order: line 2 breaks the order\n"));
+}
+
+TEST_CASE("asking for the other reading names what starts late", "[e2e][CLI-INSPECT-03]") {
+    const CliRun run =
+        invoke({"inspect", "--order-report", "late", corpus("malformes/desordre.srt")});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.output, ContainsSubstring("  order: line 2 starts late\n"));
+}
+
+TEST_CASE("naming the default reading changes nothing", "[e2e][CLI-INSPECT-03]") {
+    const std::string path = corpus("malformes/desordre.srt");
+
+    CHECK(invoke({"inspect", "--order-report", "breaks", path}).output ==
+          invoke({"inspect", path}).output);
+}
+
+TEST_CASE("a reading that does not exist is refused", "[e2e][CLI-USAGE-02]") {
+    const CliRun run =
+        invoke({"inspect", "--order-report", "sideways", corpus("valides/minimal.srt")});
+
+    CHECK(run.exitCode == 1);
+    CHECK(run.output.empty());
+    // The closed set is named, so that the caller learns what was expected
+    // rather than only that they were wrong.
+    CHECK_THAT(run.errors, ContainsSubstring("breaks"));
+    CHECK_THAT(run.errors, ContainsSubstring("late"));
+}

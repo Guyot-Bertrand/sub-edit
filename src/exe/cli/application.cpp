@@ -37,6 +37,16 @@ ExitCode run(int argc, char** argv) {
     std::vector<std::string> inspected;
     inspect->add_option("files", inspected, "Subtitle files to report on")->required();
 
+    // Both readings of disorder are offered rather than one chosen: this phase
+    // is a harness, and comparing them on real files will settle the question
+    // better than arguing it without data. Phase 5 inherits the answer and this
+    // option goes — see docs/specs/03-cli.md.
+    std::string reading = "breaks";
+    inspect
+        ->add_option("--order-report", reading, "Which lines to name when the file is out of order")
+        ->check(CLI::IsMember({"breaks", "late"}))
+        ->capture_default_str();
+
     try {
         app.parse(argc, argv);
     } catch (const CLI::ParseError& error) {
@@ -63,7 +73,11 @@ ExitCode run(int argc, char** argv) {
     const Reporter reporter{std::cerr, *level};
 
     if (inspect->parsed()) {
-        return inspectAll(files, inspected, std::cout, reporter);
+        // The value is one of the two: CLI11 refused anything else before we
+        // got here, which is what makes this a lookup rather than a decision.
+        const core::OrderReport order =
+            reading == "late" ? core::OrderReport::Late : core::OrderReport::Breaks;
+        return inspectAll(files, inspected, std::cout, reporter, order);
     }
     return ExitCode::Success;
 }

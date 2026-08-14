@@ -76,7 +76,7 @@ plus rien.
 | `CLI-BATCH-02` | tous en échec donne le code 2, un échec partiel le code 3 | 3 | implémentée |
 | `CLI-INSPECT-01` | format, encodage, BOM, fins de ligne, nombre et étendue sont rapportés | 3 | implémentée |
 | `CLI-INSPECT-02` | des fins de ligne mélangées sont signalées avec leur ligne | 3 | implémentée |
-| `CLI-INSPECT-03` | `--order-report` rend les deux lectures du désordre | 3 | prévue |
+| `CLI-INSPECT-03` | `--order-report` rend les deux lectures du désordre | 3 | implémentée |
 | `CLI-CONVERT-01` | `--to` produit le format demandé | 3 | prévue |
 | `CLI-CONVERT-02` | fins de ligne et BOM sont conservés par défaut, réglables sinon | 3 | prévue |
 | `CLI-CONVERT-03` | sans destination explicite, rien n'est écrit et le code est 1 | 3 | prévue |
