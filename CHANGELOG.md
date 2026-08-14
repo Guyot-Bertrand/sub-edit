@@ -17,6 +17,7 @@ ne pas l'éditer à la main.
 - **doc** — Générer les exemples d'appel du manuel
 - **scripts** — Élargir la portée du contrôle de parallélisme
 - **cli** — Ossature de la ligne de commande et sous-commande inspect
+- **core** — Seconde lecture du désordre, choisie par un paramètre
 
 ### Construction
 
@@ -59,6 +60,7 @@ ne pas l'éditer à la main.
 - **doc** — Inscrire les exigences de la phase 3 et les renvois
 - **doc** — Bumper le patch et relever les mesures
 - **doc** — Manuel de la CLI, et bumper le patch
+- **doc** — Bumper le patch et relever les mesures
 
 ### Intégration continue
 
@@ -76,6 +78,7 @@ ne pas l'éditer à la main.
 - **ci** — Prouver ce que le contrôle attrape, et ce qu'il laisse passer
 - **cli** — Prouver l'ossature, inspect et les quatre niveaux
 - **ci** — Interdire les noms de test qui passent pour une option
+- **core** — Prouver que les deux lectures diffèrent, et où
 
 ## 0.2.0 — 2026-08-08
 
