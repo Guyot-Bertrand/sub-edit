@@ -15,6 +15,7 @@ using subedit::cli::inspectFile;
 using subedit::cli::Reporter;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::OrderReport;
 
 namespace {
 
@@ -34,6 +35,14 @@ const std::string kOutOfOrder = "1\n"
                                 "2\n"
                                 "00:00:01,000 --> 00:00:03,000\n"
                                 "Earlier.\n";
+
+// Starts 0, 4000, 2000, 3000: the third breaks the order against the second,
+// and the fourth follows the third while still landing before the 4000 already
+// seen. The one case where the two readings part.
+const std::string kTwoLateLines = "1\n00:00:00,000 --> 00:00:00,500\nFirst.\n"
+                                  "\n2\n00:00:04,000 --> 00:00:04,500\nSecond.\n"
+                                  "\n3\n00:00:02,000 --> 00:00:02,500\nThird.\n"
+                                  "\n4\n00:00:03,000 --> 00:00:03,500\nFourth.\n";
 
 InMemoryFileSystem withFile(const std::string& path, const std::string& content) {
     InMemoryFileSystem files;
@@ -231,4 +240,55 @@ TEST_CASE("classic Mac line endings are named", "[cli][inspection]") {
 
     CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}));
     CHECK_THAT(out.str(), ContainsSubstring("  line endings: CR\n"));
+}
+
+TEST_CASE("the report names lines that break the order", "[cli][inspection]") {
+    const InMemoryFileSystem files = withFile("a.srt", kTwoLateLines);
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}, OrderReport::Breaks));
+
+    // Counted from one, as the report shows them: the third subtitle of the
+    // file is the one that starts before the one before it.
+    CHECK_THAT(out.str(), ContainsSubstring("  order: line 3 breaks the order\n"));
+}
+
+TEST_CASE("the report names lines that start late", "[cli][inspection]") {
+    const InMemoryFileSystem files = withFile("a.srt", kTwoLateLines);
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}, OrderReport::Late));
+
+    // The wording differs, and that is what tells the reader which reading they
+    // are looking at: a bare list of indices would be ambiguous between the two.
+    CHECK_THAT(out.str(), ContainsSubstring("  order: lines 3, 4 start late\n"));
+}
+
+TEST_CASE("naming what breaks the order is the default reading", "[cli][inspection]") {
+    const InMemoryFileSystem files = withFile("a.srt", kTwoLateLines);
+
+    const auto report = [&files](auto&&... reading) {
+        std::ostringstream out;
+        std::ostringstream errors;
+        static_cast<void>(inspectFile(files, "a.srt", out, Reporter{errors, 0}, reading...));
+        return out.str();
+    };
+
+    CHECK(report() == report(OrderReport::Breaks));
+}
+
+TEST_CASE("both readings agree on a file that is in order", "[cli][inspection]") {
+    const InMemoryFileSystem files = withFile("a.srt", kTwoSubtitles);
+
+    const auto order = [&files](OrderReport reading) {
+        std::ostringstream out;
+        std::ostringstream errors;
+        static_cast<void>(inspectFile(files, "a.srt", out, Reporter{errors, 0}, reading));
+        return out.str();
+    };
+
+    CHECK_THAT(order(OrderReport::Breaks), ContainsSubstring("  order: in order\n"));
+    CHECK_THAT(order(OrderReport::Late), ContainsSubstring("  order: in order\n"));
 }
