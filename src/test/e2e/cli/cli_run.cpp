@@ -3,8 +3,11 @@
 #include <array>
 #include <cerrno>
 #include <cstddef>
+#include <filesystem>
+#include <fstream>
 #include <poll.h>
 #include <spawn.h>
+#include <sstream>
 #include <string>
 #include <sys/wait.h>
 #include <system_error>
@@ -236,6 +239,52 @@ CliRun invoke(const std::vector<std::string>& args) {
     }
     run.exitCode = WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
     return run;
+}
+
+} // namespace subedit::e2e
+
+namespace subedit::e2e {
+
+namespace {
+
+/// A number no two live scratch directories share.
+int nextScratch() {
+    static int next = 0;
+    return ++next;
+}
+
+} // namespace
+
+std::string corpus(const std::string& relative) {
+    return (std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / relative).string();
+}
+
+std::string contentOf(const std::filesystem::path& path) {
+    const std::ifstream file{path, std::ios::binary};
+    std::ostringstream all;
+    all << file.rdbuf();
+    return all.str();
+}
+
+Scratch::Scratch() {
+    const std::filesystem::path root = std::filesystem::temp_directory_path();
+    m_path = root / ("subedit-e2e-" + std::to_string(std::filesystem::hash_value(root)) + "-" +
+                     std::to_string(nextScratch()));
+    std::filesystem::remove_all(m_path);
+    std::filesystem::create_directories(m_path);
+}
+
+Scratch::~Scratch() {
+    std::error_code ignored;
+    std::filesystem::remove_all(m_path, ignored);
+}
+
+std::string Scratch::of(const std::string& name) const {
+    return (m_path / name).string();
+}
+
+std::string Scratch::path() const {
+    return m_path.string();
 }
 
 } // namespace subedit::e2e
