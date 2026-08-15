@@ -14,6 +14,14 @@
 # moyenne d'une minute met une minute à l'oublier. Quelques dizaines de secondes
 # suffisent le plus souvent.
 #
+# Mais on n'attend que ce qui vient : **si la charge ne baisse pas, on renonce
+# tout de suite.** Une machine partagée avec un autre travail — une validation
+# d'un autre projet qui dure trois quarts d'heure, par exemple — ne redeviendra
+# pas calme dans le délai, et l'attendre coûterait le délai entier à chaque
+# exécution. Notre propre build, lui, décroît de façon nette et régulière : c'est
+# ce qui distingue les deux cas, et non le niveau de la charge, que les deux
+# poussent aussi haut.
+#
 # Sortie standard : la charge finale, un nombre, toujours écrite.
 # Code de retour : 0 si elle est passée sous le seuil, 1 sinon. L'appelant
 # décide ce qu'il fait d'une mesure prise sur une machine occupée ; ce script ne
@@ -22,6 +30,13 @@
 set -euo pipefail
 
 readonly INTERVAL=5
+
+# Sur combien d'échantillons juger que la charge ne baisse plus, et de combien
+# elle doit baisser pour qu'attendre ait un sens. Trente secondes et cinq pour
+# cent : la décroissance d'une moyenne d'une minute après un build est bien plus
+# franche que cela, une charge entretenue par un autre travail ne l'est pas.
+readonly PATIENCE=6
+readonly PROGRESS=0.95
 
 below=2.0
 timeout=180
@@ -69,9 +84,23 @@ if [[ ! -r /proc/loadavg ]]; then
     exit 0
 fi
 
+# Le plus faible des `PATIENCE` derniers échantillons, pour juger du sens.
+falling() {
+    awk -v now="$1" -v before="$2" -v factor="${PROGRESS}" \
+        'BEGIN { exit !(now < before * factor) }'
+}
+
 waited=0
+samples=()
 load="$(current_load)"
 while ! is_below "${load}" "${below}"; do
+    samples+=("${load}")
+    if (( ${#samples[@]} > PATIENCE )); then
+        if ! falling "${load}" "${samples[$(( ${#samples[@]} - PATIENCE - 1 ))]}"; then
+            printf '%s\n' "${load}"
+            exit 1
+        fi
+    fi
     if (( waited >= timeout )); then
         printf '%s\n' "${load}"
         exit 1
