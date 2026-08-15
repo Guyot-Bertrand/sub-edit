@@ -15,6 +15,7 @@ add_executable(
     core/time/timestamp_conversion_test.cpp
     core/time/timestamp_format_test.cpp
     core/time/timestamp_parse_test.cpp
+    core/text/hearing_impaired_test.cpp
     core/model/format_extras_test.cpp
     core/model/subtitle_test.cpp
     core/model/project_test.cpp
@@ -54,6 +55,11 @@ add_executable(
     core/format/local_corpus_test.cpp)
 
 target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain)
+
+# Le harnais de cas de texte vit à la racine de unit/. Sans ce chemin
+# d'inclusion, un test rangé dans un sous-répertoire le désignerait par une
+# suite de « ../ » qui changerait à chaque déplacement de fichier.
+target_include_directories(subedit_core_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Le corpus vit sur le disque et se lit à l'exécution. Le chemin est passé à la
 # compilation plutôt que déduit du répertoire courant : un test ne doit pas

@@ -127,10 +127,12 @@ TEST_CASE("a file that is not there says so", "[test][textcases]") {
 TEST_CASE("the corpus of the phase reads, long before there is anything to run it against",
           "[test][textcases]") {
     // mentions.cas holds what has been decided about removing hearing-impaired
-    // mentions, written before the transformation exists — that is the point of
-    // the format. Nothing runs those cases yet; what is checked here is that
-    // they are well formed, so that a case added the day a question is settled
-    // fails now rather than at implementation time.
+    // mentions, written before the transformation existed — that is the point
+    // of the format. The transformation now runs them, in
+    // core/text/hearing_impaired_test.cpp; what is checked here is something
+    // else, and still worth its own case: that every case is **well formed**.
+    // A corpus that loads badly would run fewer cases than it holds and still
+    // report green.
     const std::vector<TextCase> decided = textCasesOf("textes/mentions.cas");
 
     CHECK_FALSE(decided.empty());
