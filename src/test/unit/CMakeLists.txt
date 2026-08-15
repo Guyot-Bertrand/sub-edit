@@ -25,6 +25,7 @@ add_executable(
     core/model/selection_test.cpp
     core/edit/session_test.cpp
     core/edit/set_text_command_test.cpp
+    core/edit/hearing_impaired_removal_test.cpp
     core/edit/insert_command_test.cpp
     core/edit/shift_command_test.cpp
     core/edit/transform_command_test.cpp

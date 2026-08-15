@@ -89,3 +89,58 @@ TEST_CASE("the compiler knows which fields a format has", "[model][extras]") {
 
     CHECK(kind == "subrip");
 }
+
+// Comparing extras is what makes « exactly » true elsewhere.
+//
+// The undo of a whole-file operation asserts that the project it restores is
+// the one from before, subtitle by subtitle, and says « exactly ». That claim
+// rests entirely on `Subtitle`'s comparison reaching this far: an equality
+// that stopped at positions and text would let an operation lose a cue's
+// settings while every undo test stayed green.
+//
+// The operators are defaulted, so these cases guard against someone writing
+// them by hand and forgetting a field — which is precisely when the loss would
+// become silent.
+
+TEST_CASE("extras of different formats are not equal", "[model][extras]") {
+    CHECK(FormatExtras{SubRipExtras{}} != FormatExtras{WebVttExtras{}});
+    CHECK(FormatExtras{} != FormatExtras{SubRipExtras{}});
+}
+
+TEST_CASE("SubRip coordinates count in the comparison", "[model][extras]") {
+    const FormatExtras placed{
+        SubRipExtras{.coordinates = Rectangle{.x1 = 40, .x2 = 600, .y1 = 20, .y2 = 460}}};
+
+    CHECK(placed == FormatExtras{SubRipExtras{
+                        .coordinates = Rectangle{.x1 = 40, .x2 = 600, .y1 = 20, .y2 = 460}}});
+    CHECK(placed != FormatExtras{SubRipExtras{
+                        .coordinates = Rectangle{.x1 = 41, .x2 = 600, .y1 = 20, .y2 = 460}}});
+    CHECK(placed != FormatExtras{SubRipExtras{}});
+}
+
+TEST_CASE("every WebVTT field counts in the comparison", "[model][extras]") {
+    // One case per field: forgetting one in a hand-written operator would
+    // otherwise leave three of the four still proving something.
+    const WebVttExtras full{.id = "chapitre-1",
+                            .settings = "align:start position:10%",
+                            .style = "STYLE\n::cue { color: yellow }",
+                            .comment = "NOTE traduction à revoir"};
+
+    CHECK(FormatExtras{full} == FormatExtras{full});
+
+    WebVttExtras other = full;
+    other.id = "chapitre-2";
+    CHECK(FormatExtras{full} != FormatExtras{other});
+
+    other = full;
+    other.settings.clear();
+    CHECK(FormatExtras{full} != FormatExtras{other});
+
+    other = full;
+    other.style.clear();
+    CHECK(FormatExtras{full} != FormatExtras{other});
+
+    other = full;
+    other.comment.clear();
+    CHECK(FormatExtras{full} != FormatExtras{other});
+}

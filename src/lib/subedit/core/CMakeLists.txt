@@ -8,6 +8,7 @@ add_library(
     command/composite_command.cpp
     command/history.cpp
     edit/convert_frame_rate_command.cpp
+    edit/hearing_impaired_removal.cpp
     edit/insert_command.cpp
     edit/remove_command.cpp
     edit/session.cpp

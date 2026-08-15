@@ -47,6 +47,9 @@ enum class OrderPolicy {
     case CommandKind::SetEnd:
     case CommandKind::Remove:
     case CommandKind::Sort:
+    // It does only what the two above it do — rewrite texts, take subtitles
+    // out. Not one position moves.
+    case CommandKind::RemoveHearingImpaired:
         return false;
     }
     // Exhaustive above, and the compiler checks that it is. Only a cast from
