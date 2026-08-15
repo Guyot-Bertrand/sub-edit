@@ -14,12 +14,14 @@ ne pas l'éditer à la main.
 - **cli** — Nommer chaque diagnostic de lecture, partout
 - **scripts** — Un relevé pris sous charge ne fixe plus d'extrême
 - **scripts** — N'attendre la machine que si sa charge baisse
+- **scripts** — Interdire au code de lire le dépôt de référence
 
 ### Documentation
 
 - **doc** — La lecture au mieux au manuel, et bumper le patch
 - **doc** — Recalculer la table des extrêmes sans le relevé chargé
 - **test** — Écrire la spécification des mentions, cas par cas
+- **doc** — Ne pas reprendre les motifs de Gaupol, et dire pourquoi
 
 ### Remaniements
 
