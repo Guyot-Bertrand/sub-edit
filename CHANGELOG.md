@@ -20,6 +20,7 @@ ne pas l'éditer à la main.
 ### Remaniements
 
 - **cli** — Une seule accumulation gardée pour les trois grammaires
+- **cli** — Un seul câblage de destination, et un refus nommé
 
 ### Tests
 
