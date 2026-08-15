@@ -36,21 +36,32 @@ readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # verrait — c'est le risque assumé, et il est écrit.
 readonly WIDE_PATTERN='^(\.clang-tidy|Makefile|CMakePresets\.json|cmake/|src/scripts/tidy-scope\.sh)$'
 
-# Le CMakeLists.txt racine est large — il fixe la norme et les options — mais
-# **toute pull request du projet le touche**, pour le seul bump de patch que la
-# convention impose. Le compter large sans regarder ce qu'il change ferait
-# retomber chaque pull request sur l'analyse complète, et cette restriction ne
-# servirait jamais à rien.
-#
-# On regarde donc ce qui a bougé dedans : si ce n'est que la ligne VERSION, rien
-# de ce qui gouverne l'analyse n'a changé.
-version_bump_only() {
-    local touched
-    touched="$(git -C "${REPO_ROOT}" diff -U0 "${base}...HEAD" -- CMakeLists.txt \
-        | grep -E '^[+-]' | grep -vE '^(\+\+\+|---)' || true)"
-    [[ -n "${touched}" ]] || return 0
-    ! grep -qvE '^[+-][[:space:]]*VERSION[[:space:]]' <<<"${touched}"
+# Ce qui a bougé dans un fichier, lignes de diff nues.
+changed_lines_of() {
+    git -C "${REPO_ROOT}" diff -U0 "${base}...HEAD" -- "$1" \
+        | grep -E '^[+-]' | grep -vE '^(\+\+\+|---)' || true
 }
+
+# Vrai si toutes les lignes changées de $1 répondent au motif $2 — donc si ce
+# fichier n'a bougé que d'une façon dont on sait qu'elle ne change rien à
+# l'analyse.
+#
+# **C'est ce qui rend la restriction utile plutôt que théorique.** Les fichiers
+# de construction bougent à presque chaque pull request, et pour deux raisons
+# qui ne gouvernent rien : le bump de patch que la convention impose, et un
+# fichier source ajouté à une cible. Les compter larges sans les lire ferait
+# retomber chaque pull request sur l'analyse complète, et ce script ne servirait
+# jamais. Une ligne qui ne répond pas au motif — un drapeau, un chemin
+# d'inclusion, une bibliothèque — rend la main à l'analyse complète.
+only_lines_matching() {
+    local touched
+    touched="$(changed_lines_of "$1")"
+    [[ -n "${touched}" ]] || return 0
+    ! grep -qvE "$2" <<<"${touched}"
+}
+
+readonly VERSION_LINE='^[+-][[:space:]]*VERSION[[:space:]]'
+readonly SOURCE_LINE='^[+-][[:space:]]*[A-Za-z0-9_./-]+\.(cpp|hpp)[[:space:]]*$'
 
 everything() {
     find "${REPO_ROOT}/src" -name '*.cpp' -printf '%P\n' 2>/dev/null | sed 's|^|src/|' | sort
@@ -80,7 +91,10 @@ if grep -qE "${WIDE_PATTERN}" <<<"${changed}"; then
     exit 0
 fi
 
-if grep -qxF 'CMakeLists.txt' <<<"${changed}" && ! version_bump_only; then
+# La racine fixe la norme et les options : large, sauf quand elle n'a reçu que
+# le bump de patch.
+if grep -qxF 'CMakeLists.txt' <<<"${changed}" \
+    && ! only_lines_matching CMakeLists.txt "${VERSION_LINE}"; then
     everything
     exit 0
 fi
@@ -112,8 +126,12 @@ done
 # atteints, plus tout un répertoire dont le CMakeLists.txt a bougé.
 scope="$(grep -E '\.cpp$' <<<"${changed}" | grep -E '^src/' || true)"$'\n'
 
+# Un CMakeLists.txt imbriqué qui n'a fait qu'ajouter ou retirer un fichier ne
+# change rien pour les autres. S'il a touché autre chose — un drapeau, un chemin
+# d'inclusion — c'est toute sa cible qui est en cause, donc tout son répertoire.
 while IFS= read -r lists; do
     [[ -n "${lists}" ]] || continue
+    only_lines_matching "${lists}" "${SOURCE_LINE}" && continue
     directory="${REPO_ROOT}/$(dirname "${lists}")"
     [[ -d "${directory}" ]] || continue
     scope+="$(find "${directory}" -name '*.cpp' 2>/dev/null \
