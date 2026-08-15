@@ -10,17 +10,8 @@
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::e2e::CliRun;
+using subedit::e2e::corpus;
 using subedit::e2e::invoke;
-
-namespace {
-
-// Resolved by CMake, like the corpus of the unit tests: a test must not depend
-// on the directory it was launched from.
-std::string corpus(const std::string& relative) {
-    return (std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / relative).string();
-}
-
-} // namespace
 
 TEST_CASE("the help lists the subcommand", "[e2e][CLI-USAGE-01]") {
     const std::string help = invoke({}).output;

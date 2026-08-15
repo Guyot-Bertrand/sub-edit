@@ -10,13 +10,10 @@
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::e2e::CliRun;
+using subedit::e2e::corpus;
 using subedit::e2e::invoke;
 
 namespace {
-
-std::string corpus(const std::string& relative) {
-    return (std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / relative).string();
-}
 
 const std::string kGood = corpus("valides/minimal.srt");
 const std::string kOther = corpus("valides/minimal.vtt");

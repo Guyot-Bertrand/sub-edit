@@ -12,6 +12,7 @@
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::e2e::CliRun;
+using subedit::e2e::corpus;
 using subedit::e2e::invoke;
 
 TEST_CASE("invoking with no argument writes the help", "[e2e][CLI-USAGE-01]") {
@@ -61,9 +62,7 @@ TEST_CASE("asking for silence and for detail at once is refused", "[e2e][CLI-USA
     // Otherwise valid on purpose: with no file to work on, the parser would
     // complain about that first, and the test would prove nothing about the
     // conflict it is named after.
-    const std::string path =
-        (std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / "valides/minimal.srt").string();
-    const CliRun run = invoke({"--quiet", "-v", "inspect", path});
+    const CliRun run = invoke({"--quiet", "-v", "inspect", corpus("valides/minimal.srt")});
 
     CHECK(run.exitCode == 1);
     CHECK(run.output.empty());

@@ -13,13 +13,11 @@
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::e2e::CliRun;
+using subedit::e2e::corpus;
 using subedit::e2e::invoke;
+using subedit::e2e::Scratch;
 
 namespace {
-
-std::string corpus(const std::string& relative) {
-    return (std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / relative).string();
-}
 
 std::vector<std::string> lines(const std::string& text) {
     std::vector<std::string> result;
@@ -58,13 +56,6 @@ const std::string kNumbering = corpus("malformes/numerotation-incoherente.srt");
 /// point at themselves.
 const std::string kNumberingSaid =
     ": line 6: SubRip numbers that do not follow (\"7\"), settled by the reader\n";
-
-std::string scratch(const std::string& name) {
-    const std::filesystem::path directory = std::filesystem::temp_directory_path() / name;
-    std::filesystem::remove_all(directory);
-    std::filesystem::create_directories(directory);
-    return directory.string();
-}
 
 } // namespace
 
@@ -115,10 +106,8 @@ TEST_CASE("the levels nest on a subcommand that writes, too", "[e2e][CLI-OUTPUT-
     // Proved above on `inspect`, which writes no file, and here on one that
     // does. The two narrations are built by different code — inspection.cpp and
     // rewriting.cpp — and only the first was ever compared level to level.
-    const std::filesystem::path directory =
-        std::filesystem::temp_directory_path() / "subedit-narration-e2e";
-    std::filesystem::create_directories(directory);
-    const std::string out = directory.string();
+    const Scratch scratch;
+    const std::string out = scratch.path();
 
     const std::string one = invoke({"shift", "--by", "1", "--output-dir", out, kGood}).errors;
     const std::string two =
@@ -130,25 +119,19 @@ TEST_CASE("the levels nest on a subcommand that writes, too", "[e2e][CLI-OUTPUT-
     CHECK(contains(three, two));
     CHECK(lines(two).size() > lines(one).size());
     CHECK(lines(three).size() > lines(two).size());
-
-    std::filesystem::remove_all(directory);
 }
 
 TEST_CASE("a subcommand that writes says nothing on standard output", "[e2e][CLI-OUTPUT-01]") {
     // Its result is the file. At the loudest level, where a stray line is most
     // likely, standard output must still be empty.
-    const std::filesystem::path directory =
-        std::filesystem::temp_directory_path() / "subedit-narration-e2e-quiet";
-    std::filesystem::create_directories(directory);
+    const Scratch scratch;
 
     const CliRun run =
-        invoke({"-vvv", "shift", "--by", "1", "--output-dir", directory.string(), kGood});
+        invoke({"-vvv", "shift", "--by", "1", "--output-dir", scratch.path(), kGood});
 
     CHECK(run.exitCode == 0);
     CHECK(run.output.empty());
     CHECK_FALSE(run.errors.empty());
-
-    std::filesystem::remove_all(directory);
 }
 
 TEST_CASE("a single -v is the default level", "[e2e][CLI-OUTPUT-04]") {
@@ -180,24 +163,21 @@ TEST_CASE("the diagnostics stay at the level that details", "[e2e][CLI-OUTPUT-06
 
 TEST_CASE("a subcommand that writes reports what the reader had to decide",
           "[e2e][CLI-OUTPUT-06]") {
+    const Scratch scratch;
     // ADR 0008 has the core read at best effort and say what it settled. A
     // promise kept by one subcommand out of five is not kept: shift rewrites
     // the same file and owes the same account.
-    const CliRun run = invoke(
-        {"-vvv", "shift", "--by", "1", "--output-dir", scratch("subedit-diag-e2e"), kNumbering});
+    const CliRun run =
+        invoke({"-vvv", "shift", "--by", "1", "--output-dir", scratch.path(), kNumbering});
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(run.errors, ContainsSubstring(kNumbering + kNumberingSaid));
 }
 
 TEST_CASE("converting reports them too", "[e2e][CLI-OUTPUT-06]") {
-    const CliRun run = invoke({"-vvv",
-                               "convert",
-                               "--to",
-                               "vtt",
-                               "--output-dir",
-                               scratch("subedit-diag-convert-e2e"),
-                               kNumbering});
+    const Scratch scratch;
+    const CliRun run =
+        invoke({"-vvv", "convert", "--to", "vtt", "--output-dir", scratch.path(), kNumbering});
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(run.errors, ContainsSubstring(kNumbering + kNumberingSaid));
@@ -205,26 +185,19 @@ TEST_CASE("converting reports them too", "[e2e][CLI-OUTPUT-06]") {
 
 TEST_CASE("the second level says the byte order mark, whichever subcommand",
           "[e2e][CLI-OUTPUT-03]") {
+    const Scratch scratch;
     // One shape for the three, in one order: format, encoding, mark, endings.
     // The mark is the property most easily lost and the least visible; saying
     // it for two subcommands out of three was the worst of both.
     CHECK_THAT(invoke({"-vv", "inspect", kGood}).errors,
                ContainsSubstring(kGood + ": SubRip, UTF-8, no BOM, LF line endings\n"));
 
-    CHECK_THAT(
-        invoke({"-vv", "shift", "--by", "1", "--output-dir", scratch("subedit-bom-e2e"), kGood})
-            .errors,
-        ContainsSubstring(kGood + ": SubRip, UTF-8, no BOM, LF line endings kept\n"));
+    CHECK_THAT(invoke({"-vv", "shift", "--by", "1", "--output-dir", scratch.path(), kGood}).errors,
+               ContainsSubstring(kGood + ": SubRip, UTF-8, no BOM, LF line endings kept\n"));
 
-    CHECK_THAT(invoke({"-vv",
-                       "convert",
-                       "--to",
-                       "vtt",
-                       "--output-dir",
-                       scratch("subedit-bom-convert-e2e"),
-                       kGood})
-                   .errors,
-               ContainsSubstring(kGood + ": SubRip -> WebVTT, UTF-8, no BOM, LF line endings\n"));
+    CHECK_THAT(
+        invoke({"-vv", "convert", "--to", "vtt", "--output-dir", scratch.path(), kGood}).errors,
+        ContainsSubstring(kGood + ": SubRip -> WebVTT, UTF-8, no BOM, LF line endings\n"));
 }
 
 TEST_CASE("a single file gets no summary", "[e2e][CLI-OUTPUT-05]") {

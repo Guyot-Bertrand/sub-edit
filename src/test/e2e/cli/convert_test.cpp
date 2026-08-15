@@ -12,56 +12,10 @@
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::e2e::CliRun;
+using subedit::e2e::contentOf;
+using subedit::e2e::corpus;
 using subedit::e2e::invoke;
-
-namespace {
-
-std::string corpus(const std::string& relative) {
-    return (std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / relative).string();
-}
-
-/// A directory of its own per test, removed with everything in it.
-class Scratch {
-
-public:
-    Scratch() {
-        m_path =
-            std::filesystem::temp_directory_path() /
-            ("subedit-e2e-" +
-             std::to_string(std::filesystem::hash_value(std::filesystem::temp_directory_path())) +
-             "-" + std::to_string(counter()));
-        std::filesystem::remove_all(m_path);
-        std::filesystem::create_directories(m_path);
-    }
-
-    Scratch(const Scratch&) = delete;
-    Scratch& operator=(const Scratch&) = delete;
-    Scratch(Scratch&&) = delete;
-    Scratch& operator=(Scratch&&) = delete;
-
-    ~Scratch() { std::filesystem::remove_all(m_path); }
-
-    [[nodiscard]] std::string of(const std::string& name) const { return (m_path / name).string(); }
-
-    [[nodiscard]] std::string path() const { return m_path.string(); }
-
-private:
-    static int counter() {
-        static int next = 0;
-        return ++next;
-    }
-
-    std::filesystem::path m_path;
-};
-
-std::string contentOf(const std::string& path) {
-    const std::ifstream file{path, std::ios::binary};
-    std::ostringstream all;
-    all << file.rdbuf();
-    return all.str();
-}
-
-} // namespace
+using subedit::e2e::Scratch;
 
 TEST_CASE("converting writes the format asked for", "[e2e][CLI-CONVERT-01]") {
     const Scratch scratch;
