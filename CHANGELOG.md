@@ -17,9 +17,14 @@ ne pas l'éditer à la main.
 
 - **doc** — La lecture au mieux au manuel, et bumper le patch
 
+### Remaniements
+
+- **cli** — Une seule accumulation gardée pour les trois grammaires
+
 ### Tests
 
 - **cli** — Prouver ce que chaque diagnostic dit, et à quel niveau
+- **cli** — Épingler la borne de l'accumulation des deux côtés
 
 ## 0.3.0 — 2026-08-14
 
