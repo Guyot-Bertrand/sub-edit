@@ -66,6 +66,11 @@ SOURCES := $(shell find src -name '*.cpp' -o -name '*.hpp' 2>/dev/null)
 # src/scripts/tidy-scope.sh la calcule, en fermeture transitive des en-têtes. Le
 # défaut reste la liste complète : une restriction s'obtient en la demandant,
 # jamais par omission.
+#
+# **Une liste sur une seule ligne, séparée par des espaces.** Make recopie la
+# valeur telle quelle dans la recette : des sauts de ligne y créeraient des
+# lignes de shell, et le deuxième fichier serait exécuté au lieu d'être
+# analysé.
 TIDY_FILES ?= $(shell find src -name '*.cpp' 2>/dev/null | sort)
 
 # libstdc++ garde <expected> derrière __cpp_concepts >= 202002L, valeur que

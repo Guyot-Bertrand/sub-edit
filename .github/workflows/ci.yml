@@ -93,15 +93,18 @@ jobs:
       #
       # Hors pull request — hebdomadaire, relance manuelle — la variable reste
       # vide et le Makefile prend son défaut : tout.
+      # **Sur une seule ligne, séparés par des espaces.** Une valeur à
+      # plusieurs lignes passée à make est recopiée telle quelle dans la
+      # recette : la deuxième ligne y devient une commande shell, et le premier
+      # fichier de la liste s'exécute au lieu d'être analysé. Le défaut a été
+      # payé sur cette pull request même, où « main.cpp: Permission denied » a
+      # arrêté la porte.
       - name: Périmètre de l'analyse statique
         id: perimetre
         if: github.event_name == 'pull_request'
         run: |
-          {
-            echo 'fichiers<<FIN'
-            ./src/scripts/tidy-scope.sh "origin/${{ github.base_ref }}"
-            echo FIN
-          } >> "$GITHUB_OUTPUT"
+          fichiers="$(./src/scripts/tidy-scope.sh "origin/${{ github.base_ref }}" | tr '\n' ' ')"
+          echo "fichiers=${fichiers}" >> "$GITHUB_OUTPUT"
 
       # La CI n'exécute rien d'autre que make check. Recopier ses étapes ici
       # les ferait diverger du filet local dès la première modification.
