@@ -19,6 +19,10 @@ ne pas l'éditer à la main.
 - **text** — Retirer les mentions pour malentendants
 - **scripts** — Calculer ce que clang-tidy doit analyser
 
+### Corrections
+
+- **ci** — Passer le périmètre de clang-tidy sur une seule ligne
+
 ### Documentation
 
 - **doc** — La lecture au mieux au manuel, et bumper le patch
