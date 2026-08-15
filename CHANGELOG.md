@@ -23,6 +23,9 @@ ne pas l'éditer à la main.
 - **doc** — Recalculer la table des extrêmes sans le relevé chargé
 - **test** — Écrire la spécification des mentions, cas par cas
 - **doc** — Ne pas reprendre les motifs de Gaupol, et dire pourquoi
+- **doc** — Cadrer la phase 4 et décider l'analyseur
+- **doc** — Inscrire les exigences de la phase 4 et les renvois
+- Préciser quand un bump de version rouvre la porte
 
 ### Remaniements
 
