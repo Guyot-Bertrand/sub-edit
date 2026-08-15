@@ -37,6 +37,18 @@ SHELL := /bin/bash
 # couverture faux sans autre signe qu'un avertissement noyé dans la sortie.
 JOBS ?= 2
 
+# Charge maximale sous laquelle une mesure de performance compte comme propre.
+#
+# Une et demie, et non deux : le seuil a été abaissé le jour même où il a été
+# posé. Le relevé de la version 0.3.5, pris à 1,88 — sous le seuil, donc admis —
+# a fixé un maximum de 853 µs pour l'écriture de 4000 sous-titres, là où
+# l'enveloppe des dix-sept relevés précédents allait de 492 à 641. Les relevés
+# pris sous 1,4 n'ont posé que des minima.
+#
+# Le chiffre reste une heuristique, et le journal est là pour l'affiner : chaque
+# relevé porte sa charge, donc le rapport entre les deux se lit désormais.
+BENCH_MAX_LOAD ?= 1.5
+
 # git-cliff s'installe dans ~/.local/bin, que ~/.profile n'ajoute au PATH qu'à
 # l'ouverture de session suivante. On ne dépend pas de la configuration du
 # shell de l'utilisateur.
@@ -112,10 +124,12 @@ bench: ## Exécute les benchmarks en release et verse les chiffres au journal
 	$(call step,"benchmarks (release)")
 	@cmake --preset release -DSUBEDIT_LTO_JOBS=$(JOBS)
 	@cmake --build --preset release -j $(JOBS) --target subedit_core_bench
-	@./build/release/bin/subedit_core_bench \
+	@load="$$(./src/scripts/await-quiet.sh --below $(BENCH_MAX_LOAD) || true)" ; \
+	./build/release/bin/subedit_core_bench \
 		--reporter console \
-		--reporter xml::out=build/release/bench.xml
-	@./src/scripts/record-bench.sh --xml build/release/bench.xml --mode Release
+		--reporter xml::out=build/release/bench.xml && \
+	./src/scripts/record-bench.sh --xml build/release/bench.xml --mode Release \
+		--load "$$load" --below $(BENCH_MAX_LOAD)
 
 .PHONY: format
 format: ## Applique clang-format

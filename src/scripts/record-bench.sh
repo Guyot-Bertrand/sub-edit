@@ -28,15 +28,19 @@ readonly RESET=$'\033[0m'
 
 xml=""
 mode=""
+load=""
+below=""
 
 usage() {
     cat >&2 <<'USAGE'
-usage: record-bench.sh --xml <sortie.xml> --mode <mode>
+usage: record-bench.sh --xml <sortie.xml> --mode <mode> --load <charge> --below <seuil>
 
-  --xml   la sortie du rapporteur XML de Catch2
-  --mode  le mode de compilation à consigner dans l'en-tête de section
-          (ex. Release) — c'est à l'appelant de le dire, pas au script de
-          le supposer : lui seul sait quel preset CMake a produit le binaire.
+  --xml    la sortie du rapporteur XML de Catch2
+  --mode   le mode de compilation à consigner dans l'en-tête de section
+           (ex. Release) — c'est à l'appelant de le dire, pas au script de
+           le supposer : lui seul sait quel preset CMake a produit le binaire.
+  --load   la charge de la machine au moment de mesurer, ou « inconnue »
+  --below  le seuil sous lequel une mesure compte comme propre
 USAGE
     exit 2
 }
@@ -44,7 +48,9 @@ USAGE
 while (( $# > 0 )); do
     case "$1" in
         --xml)  [[ $# -ge 2 ]] || usage; xml="$2"; shift 2 ;;
-        --mode) [[ $# -ge 2 ]] || usage; mode="$2"; shift 2 ;;
+        --mode)  [[ $# -ge 2 ]] || usage; mode="$2";  shift 2 ;;
+        --load)  [[ $# -ge 2 ]] || usage; load="$2";  shift 2 ;;
+        --below) [[ $# -ge 2 ]] || usage; below="$2"; shift 2 ;;
         -h|--help) usage ;;
         *) printf 'argument inconnu : %s\n' "$1" >&2; usage ;;
     esac
@@ -52,6 +58,8 @@ done
 
 [[ -n "${xml}" ]] || usage
 [[ -n "${mode}" ]] || usage
+[[ -n "${load}" ]] || usage
+[[ -n "${below}" ]] || usage
 [[ -f "${xml}" ]] || { printf 'sortie XML introuvable : %s\n' "${xml}" >&2; exit 1; }
 [[ -f "${JOURNAL}" ]] || { printf 'journal introuvable : %s\n' "${JOURNAL}" >&2; exit 1; }
 
@@ -59,7 +67,8 @@ version="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]
     "${REPO_ROOT}/CMakeLists.txt" | head -1)"
 [[ -n "${version}" ]] || { printf 'version illisible dans CMakeLists.txt\n' >&2; exit 1; }
 
-python3 - "${xml}" "${JOURNAL}" "${version}" "$(date +%Y-%m-%d)" "${RETENTION_DAYS}" "${mode}" <<'PY'
+python3 - "${xml}" "${JOURNAL}" "${version}" "$(date +%Y-%m-%d)" "${RETENTION_DAYS}" "${mode}" \
+    "${load}" "${below}" <<'PY'
 import datetime
 import os
 import re
@@ -67,7 +76,7 @@ import sys
 import tempfile
 import xml.etree.ElementTree as ET
 
-xml_path, journal_path, version, today, retention, mode = sys.argv[1:7]
+xml_path, journal_path, version, today, retention, mode, load, below = sys.argv[1:9]
 retention = int(retention)
 today_date = datetime.date.fromisoformat(today)
 
@@ -187,7 +196,15 @@ for match in section_pattern.finditer(records):
     if age <= retention:
         kept.append(block.rstrip())
 
-lines = [f"### {version} — {today} — {mode}", "", "| Mesure | Moyenne | Écart-type |", "| :----- | ------: | ---------: |"]
+# Une charge illisible — pas de /proc — ne vaut pas condamnation : la mesure est
+# consignée telle quelle, sans qualité affirmée, et elle ne fixe pas d'extrême
+# non plus. Affirmer qu'elle est propre serait affirmer ce qu'on n'a pas vu.
+try:
+    quiet = float(load) < float(below)
+except ValueError:
+    quiet = False
+
+lines = [f"### {version} — {today} — {mode} — charge {load}", "", "| Mesure | Moyenne | Écart-type |", "| :----- | ------: | ---------: |"]
 for measure in measures:
     lines.append(
         f"| {escape_cell(measure['name'])} | {humanise(measure['mean'])} | {humanise(measure['sd'])} |"
@@ -262,6 +279,7 @@ for measure in measures:
 
 rows = []
 comments = []
+withheld = []
 for name in ordered_names:
     if name not in current_means:
         # Non mesurée cette fois : recopiée sans y toucher.
@@ -275,10 +293,17 @@ for name in ordered_names:
         else:
             low = high = value
             minsrc = maxsrc = stamp
-        if value < low:
+        # Le cœur de la règle : une mesure prise sur une machine occupée entre
+        # dans l'historique mais ne touche pas à l'enveloppe. Un maximum posé
+        # par du bruit est définitif — la table n'est jamais élaguée — et rend
+        # la mesure aveugle à toute régression plus petite que ce bruit.
+        if quiet and value < low:
             low, minsrc = value, stamp
-        if value > high:
+        if quiet and value > high:
             high, maxsrc = value, stamp
+        if not quiet and (value < raw.get(name, (value, value))[0] or
+                          value > raw.get(name, (value, value))[1]):
+            withheld.append(name)
     rows.append(
         f"| {escape_cell(name)} | {humanise(low)} | {minsrc} | {humanise(high)} | {maxsrc} |"
     )
@@ -318,6 +343,18 @@ try:
 except BaseException:
     os.unlink(tmp_path)
     raise
+
+if not quiet:
+    print(
+        f"avertissement : charge {load}, seuil {below} — ce relevé entre au "
+        "journal mais ne fixe aucun extrême.",
+        file=sys.stderr,
+    )
+    if withheld:
+        print(
+            "  il en aurait posé pour : " + ", ".join(sorted(withheld)),
+            file=sys.stderr,
+        )
 PY
 
 printf '%s✓%s relevé versé dans %s pour la version %s\n' \
