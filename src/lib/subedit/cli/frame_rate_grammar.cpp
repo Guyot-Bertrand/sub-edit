@@ -1,9 +1,9 @@
+#include <subedit/cli/digits.hpp>
 #include <subedit/cli/frame_rate_grammar.hpp>
 
 #include <algorithm>
 #include <array>
 #include <cstdint>
-#include <limits>
 #include <optional>
 
 namespace subedit::cli {
@@ -12,9 +12,6 @@ namespace {
 
 using core::FrameRate;
 using core::StandardFrameRate;
-
-constexpr std::int64_t kBase = 10;
-constexpr std::int64_t kLargest = std::numeric_limits<std::int64_t>::max();
 
 std::string refusal(std::string_view text, std::string_view why) {
     return "\"" + std::string{text} + "\" is not a frame rate: " + std::string{why};
@@ -47,17 +44,6 @@ struct Decimal {
     bool negative;
 };
 
-/// Multiplies by ten and adds `digit`, or nothing if that would overflow.
-///
-/// Checked before it happens rather than detected after: a wrapped value would
-/// name some other rate, which is worse than a refusal.
-std::optional<std::int64_t> appended(std::int64_t value, std::int64_t digit) {
-    if (value > (kLargest - digit) / kBase) {
-        return std::nullopt;
-    }
-    return (value * kBase) + digit;
-}
-
 /// Reads `[±]digits[.digits]`, or nothing when the text is not of that shape.
 ///
 /// Written out rather than handed to `std::from_chars` on a double for the
@@ -87,15 +73,16 @@ std::optional<Decimal> decimalOf(std::string_view text) {
     }
 
     for (const char digit : whole) {
-        const std::optional<std::int64_t> grown = appended(read.numerator, digit - '0');
+        const std::optional<std::int64_t> grown = appendedDigit(read.numerator, digit);
         if (!grown.has_value()) {
             return std::nullopt;
         }
         read.numerator = *grown;
     }
     for (const char digit : decimals) {
-        const std::optional<std::int64_t> grown = appended(read.numerator, digit - '0');
-        const std::optional<std::int64_t> scaled = appended(read.denominator, 0);
+        const std::optional<std::int64_t> grown = appendedDigit(read.numerator, digit);
+        // A zero appended to the denominator is one decimal place more.
+        const std::optional<std::int64_t> scaled = appendedDigit(read.denominator, '0');
         if (!grown.has_value() || !scaled.has_value()) {
             return std::nullopt;
         }

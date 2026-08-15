@@ -16,6 +16,7 @@ add_library(
     batch.cpp
     destination.cpp
     diagnostics.cpp
+    digits.cpp
     frame_rate_conversion.cpp
     frame_rate_grammar.cpp
     inspection.cpp

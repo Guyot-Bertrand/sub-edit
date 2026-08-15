@@ -1,3 +1,4 @@
+#include <subedit/cli/digits.hpp>
 #include <subedit/cli/time_grammar.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
@@ -27,19 +28,6 @@ enum class NotSeconds {
     Shape,    ///< it is not of that shape at all; a timestamp may still fit
     TooLarge, ///< it is, but no position could hold the number
 };
-
-/// Multiplies by ten and adds `digit`, or nothing if that would overflow.
-///
-/// Checked before it happens rather than detected after. Left unguarded, the
-/// accumulation is undefined behaviour, and what came out of the wrapping was
-/// then written to a file as if it had been asked for.
-std::optional<std::int64_t> appended(std::int64_t value, std::int64_t digit) {
-    constexpr std::int64_t kLargest = std::numeric_limits<std::int64_t>::max();
-    if (value > (kLargest - digit) / kBase) {
-        return std::nullopt;
-    }
-    return (value * kBase) + digit;
-}
 
 /// Reads `[-]S[.mmm]`, or says why the text is not of that shape.
 ///
@@ -74,7 +62,7 @@ std::expected<std::int64_t, NotSeconds> secondsFormOf(std::string_view text) {
 
     std::int64_t total = 0;
     for (const char digit : whole) {
-        const std::optional<std::int64_t> grown = appended(total, digit - '0');
+        const std::optional<std::int64_t> grown = appendedDigit(total, digit);
         if (!grown.has_value()) {
             return std::unexpected{NotSeconds::TooLarge};
         }

@@ -76,6 +76,7 @@ add_executable(
     cli/conversion_test.cpp
     cli/destination_test.cpp
     cli/diagnostics_test.cpp
+    cli/digits_test.cpp
     cli/frame_rate_conversion_test.cpp
     cli/frame_rate_grammar_test.cpp
     cli/index_grammar_test.cpp
