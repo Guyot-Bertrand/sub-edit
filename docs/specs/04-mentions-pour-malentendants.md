@@ -111,6 +111,17 @@ d'autre, pas ce qui était écrit autour.
 | `[Bruit de pas] Bonjour` | `Bonjour` |
 | `Bonjour [il tousse]` | `Bonjour` |
 
+**Une balise ne borde pas une mention.** Cinquante-trois sous-titres du corpus
+s'écrivent `<i>(Guild navigator) We have` : par la lettre de la règle, la balise
+est ce qui entourait la mention, et le retrait laisserait `<i> The Bene` — une
+espace en tête de ligne à l'écran, ce que « rien en bord de ligne » interdit
+précisément. La balise ne compte donc pas, ni pour juger d'un bord, ni pour
+juger d'une vacuité. C'est la même règle des deux côtés, et elle est écrite en
+un seul endroit.
+
+*Décidé à l'implémentation (#101), sur pièces.* La spec n'avait vu que la
+vacuité ; le bord est apparu en cherchant les fichiers qui portent la première.
+
 **Quand la mention enjambe le saut de ligne, c'est le saut qui subsiste**, pas
 l'espace : les deux lignes restent deux lignes.
 
