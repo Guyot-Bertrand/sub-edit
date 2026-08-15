@@ -29,6 +29,7 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0014](0014-registre-d-exigences.md) | Registre d'exigences plat, cité par un tag de test | acceptée |
 | [0015](0015-memoire-des-mesures.md) | Cliquet sur les lignes non couvertes, historique des performances | acceptée |
 | [0016](0016-cli11-pour-l-analyse-d-arguments.md) | CLI11 pour l'analyse d'arguments, aide engendrée | acceptée |
+| [0017](0017-analyseur-de-mentions-ecrit-a-la-main.md) | Balayage écrit à la main, sans moteur d'expressions rationnelles | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
@@ -44,6 +45,9 @@ Points ouverts identifiés, qui feront l'objet d'une ADR le moment venu :
 
 - **Moteur d'expressions régulières** — PCRE2, compatible avec la syntaxe Python
   des motifs de Gaupol, ou RE2, plus rapide mais sans références arrière, que
-  ces motifs utilisent. Phase 12, après mesure.
+  ces motifs utilisent. Phase 12, après mesure. La phase 4 s'en passe et dit
+  pourquoi — [0017](0017-analyseur-de-mentions-ecrit-a-la-main.md) — donc la
+  question reste entière, à trancher avec les critères de la phase 12 sous les
+  yeux plutôt qu'avec deux délimiteurs littéraux pour seul usage.
 - **Backend vidéo** — libmpv ou QtMultimedia. Phase 14.
 - **Internationalisation** — Qt Linguist ou gettext. Phase 15.

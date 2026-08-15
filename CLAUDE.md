@@ -141,9 +141,21 @@ avec un objectif d'iso-fonctionnalité.
   | `src/scripts/*.sh` | `cliff.toml`, `LICENSE` |
   | `src/test/data/**`, `src/data/**` — les tests de corpus les lisent | |
 
-  Conséquence pratique : **le bump de version en compte** — `CMakeLists.txt` est
-  recompilé et `check-architecture.sh` le confronte au tag. Une note ajoutée à
-  un document après une porte verte, en revanche, ne la réouvre pas.
+  Conséquence pratique : une note ajoutée à un document après une porte verte ne
+  la réouvre pas.
+
+  **Le bump de version, lui, ne compte que si un tag pointe sur HEAD.** C'est le
+  seul contrôle qui lit le numéro : `check-architecture.sh` le confronte au tag,
+  et il est inerte sans tag. Rien d'autre ne peut en différer — `version_test`
+  et le test de bout en bout de `--version` dérivent tous deux le numéro de
+  `versionString()` plutôt que de l'écrire en dur, et le seul endroit où il est
+  recopié, l'exemple `--version` du manuel, est tenu par `manual-check`, qui est
+  dans `check-local`.
+
+  Donc : **une PR qui ne touche que de la documentation et le patch se contente
+  de `make check-local`.** C'est le cas de toute PR de cadrage, de manuel ou
+  d'ADR. Dès qu'un `.cpp`, un `.hpp`, un script ou une donnée de test bouge, la
+  porte reprend ses droits.
 - **Manuel utilisateur** — [`docs/manual/`](docs/manual/). **Tout ticket qui
   change ce que l'utilisateur voit se termine par sa mise à jour**, une fois le
   code écrit, relu et validé — pas avant, sinon le manuel décrit une intention
