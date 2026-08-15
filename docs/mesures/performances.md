@@ -27,6 +27,13 @@ cause la plus fréquente est la cible qui précède, et la moyenne d'une minute 
 une minute à l'oublier. Passé ce délai il mesure quand même, le dit, et le
 relevé reste hors de la table ci-dessous.
 
+**Il n'attend que ce qui vient.** Si la charge ne baisse pas — une demi-minute
+sans progrès suffit à le dire — il renonce aussitôt : une machine partagée avec
+un autre travail de longue haleine ne redeviendra pas calme dans le délai, et
+l'attendre coûterait trois minutes à chaque exécution. Notre propre build, lui,
+décroît franchement ; c'est ce qui distingue les deux cas, et non le niveau de
+la charge, que les deux poussent aussi haut.
+
 Sans cette règle, un maximum posé par du bruit est **définitif** — la table
 n'est jamais élaguée — et rend la mesure aveugle à toute régression plus petite
 que ce bruit.

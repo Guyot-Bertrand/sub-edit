@@ -13,6 +13,7 @@ ne pas l'éditer à la main.
 
 - **cli** — Nommer chaque diagnostic de lecture, partout
 - **scripts** — Un relevé pris sous charge ne fixe plus d'extrême
+- **scripts** — N'attendre la machine que si sa charge baisse
 
 ### Documentation
 
