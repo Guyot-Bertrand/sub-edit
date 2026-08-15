@@ -11,6 +11,7 @@
 #
 #   --with-qt          ajoute les paquets Qt, requis à partir de la phase 5
 #   --git-cliff-only   n'installe que git-cliff, et rien d'autre
+#   --list-packages    écrit les paquets APT, un par ligne, et n'installe rien
 
 set -euo pipefail
 
@@ -179,7 +180,23 @@ report() {
     fi
 }
 
+# Écrit la liste des paquets APT, sans rien installer.
+#
+# Elle sert au cache de la CI, qui a besoin de nommer ce qu'il restaure. La
+# faire dire par ce script plutôt que par le YAML est ce qui garde **une seule
+# liste** : une seconde, recopiée dans un workflow, divergerait au premier
+# paquet ajouté, et le cache restaurerait alors une chaîne d'outils incomplète
+# sans que rien ne le signale.
+list_packages() {
+    printf '%s\n' "${APT_TOOLS[@]}" "${APT_LIBS[@]}" | sort -u
+}
+
 main() {
+    if [[ "${MODE}" == "--list-packages" ]]; then
+        list_packages
+        return
+    fi
+
     # Le job « contrôles de pull request » ne construit rien : de toute la
     # chaîne, il n'a besoin que de git-cliff, pour régénérer le journal et
     # comparer. Lui installer cmake, clang-tidy et gcovr coûterait plusieurs

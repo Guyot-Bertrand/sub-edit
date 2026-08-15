@@ -1,9 +1,38 @@
 name: ci
 
+# **Une exécution par pull request, et pas deux.** Il y avait ici un
+# déclencheur `push` sur `main` qui rejouait, après la fusion, exactement
+# l'arbre que la pull request venait de valider : la moitié du quota d'Actions
+# partait à revérifier ce qui l'avait déjà été. Ce qu'il couvrait vraiment —
+# une pull request fusionnée sur une base périmée — est repris par
+# l'exécution hebdomadaire ci-dessous, et se ferme complètement en exigeant
+# une branche à jour avant fusion.
+#
+# **La documentation ne réveille pas la porte.** C'est la règle écrite dans
+# CLAUDE.md — elle ne se relance que si elle peut voir la différence —
+# appliquée ici. Une pull request de cadrage, de manuel ou d'ADR ne déclenche
+# donc rien. Les contrôles qui, eux, doivent tourner sur une pull request de
+# documentation — grammaire des messages, titre, « Closes #N », bump, journal —
+# vivent dans pull-request.yml, qui n'a pas de filtre de chemins.
+
 on:
-  push:
-    branches: [main]
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'CHANGELOG.md'
+      - 'CLAUDE.md'
+      - 'CONTRIBUTING.md'
+      - 'README.md'
+      - 'cliff.toml'
+      - 'LICENSE'
+
+  # Le filet de l'analyse complète, une fois par semaine sur main : la porte
+  # d'une pull request n'analyse plus que ce qu'elle met en cause, et ce qui
+  # échappe à ce calcul — un drapeau changé dans un CMakeLists imbriqué — se
+  # verrait ici. Lundi, à une heure où personne n'attend le résultat.
+  schedule:
+    - cron: '0 4 * * 1'
+
   # Relance manuelle, sur n'importe quelle branche. Utile quand un run se perd
   # sans que le dépôt y soit pour quelque chose — une panne d'Actions, par
   # exemple — et qu'il faut reproduire le check sans commit vide. Le bouton
@@ -22,9 +51,33 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+        with:
+          # L'historique complet : le périmètre de clang-tidy se calcule contre
+          # la base de la pull request, et un clone superficiel ne la connaît
+          # pas. tidy-scope.sh le dit et retombe sur l'analyse complète — ce
+          # qui est sûr, mais coûte précisément ce qu'on cherche à éviter.
+          fetch-depth: 0
+
+      # Les paquets sont restaurés installés, pas retéléchargés : c'est la
+      # différence entre trois secondes et près de cinq minutes, mesurées.
+      #
+      # La liste vient de setup-toolchain.sh et n'est pas recopiée ici. Une
+      # seconde liste divergerait au premier paquet ajouté, et le cache
+      # restaurerait une chaîne d'outils incomplète sans que rien ne le dise.
+      - name: Paquets de la chaîne d'outils
+        id: paquets
+        run: echo "liste=$(./src/scripts/setup-toolchain.sh --list-packages | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache des paquets
+        uses: awalsh128/cache-apt-pkgs-action@v1.6.3
+        with:
+          packages: ${{ steps.paquets.outputs.liste }}
+          version: 1
 
       # La CI installe la chaîne d'outils avec le script utilisé en local :
-      # une divergence entre les deux environnements deviendrait invisible.
+      # une divergence entre les deux environnements deviendrait invisible. Le
+      # script est idempotent — après le cache, il ne réinstalle rien et se
+      # contente de git-cliff et des hooks.
       - name: Chaîne d'outils
         run: ./src/scripts/setup-toolchain.sh
 
@@ -33,14 +86,45 @@ jobs:
         with:
           key: ${{ github.job }}
 
+      # Ce que clang-tidy doit analyser, calculé plutôt que deviné : les
+      # sources touchées, et la fermeture transitive des en-têtes qu'elles
+      # modifient. Le script décide seul de rendre la liste complète quand
+      # quelque chose la met en cause — voir son en-tête.
+      #
+      # Hors pull request — hebdomadaire, relance manuelle — la variable reste
+      # vide et le Makefile prend son défaut : tout.
+      - name: Périmètre de l'analyse statique
+        id: perimetre
+        if: github.event_name == 'pull_request'
+        run: |
+          {
+            echo 'fichiers<<FIN'
+            ./src/scripts/tidy-scope.sh "origin/${{ github.base_ref }}"
+            echo FIN
+          } >> "$GITHUB_OUTPUT"
+
       # La CI n'exécute rien d'autre que make check. Recopier ses étapes ici
       # les ferait diverger du filet local dès la première modification.
       #
       # JOBS est passé explicitement : la valeur par défaut est de un cœur, pour
       # ne pas affamer les autres travaux d'une machine de développement. Ici la
       # machine est à nous seuls, et rien ne justifie d'attendre.
+      #
+      # TIDY_FILES n'est passé que sur une pull request. Le passer vide
+      # ailleurs n'aurait pas rendu la main au défaut du Makefile : une
+      # variable donnée sur la ligne de commande l'emporte, même vide, et
+      # clang-tidy n'aurait alors analysé **rien du tout**, en silence et en
+      # vert. Le seul cas où la liste est légitimement vide est une pull
+      # request qui ne touche aucune source.
       - name: make check
-        run: make check JOBS=$(nproc)
+        env:
+          PERIMETRE: ${{ steps.perimetre.outputs.fichiers }}
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              make check JOBS=$(nproc) TIDY_FILES="${PERIMETRE}"
+          else
+              make check JOBS=$(nproc)
+          fi
 
       - name: Rapport de couverture
         if: always()
@@ -49,26 +133,3 @@ jobs:
           name: couverture
           path: build/coverage-report/
           if-no-files-found: ignore
-
-  commits:
-    name: messages de commit
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Grammaire Conventional Commits
-        env:
-          EVENT: ${{ github.event_name }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          BEFORE_SHA: ${{ github.event.before }}
-          AFTER_SHA: ${{ github.sha }}
-        run: ./src/scripts/check-commit-range.sh
-
-      - name: Titre de la pull request
-        if: github.event_name == 'pull_request'
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: ./src/scripts/check-commit-message.sh "${PR_TITLE}"

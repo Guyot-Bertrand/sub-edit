@@ -54,3 +54,34 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: ./src/scripts/check-pull-request.sh
+
+  # Ce travail vivait dans ci.yml, et il en descend pour deux raisons.
+  #
+  # **Il y était sourd aux corrections.** ci.yml n'écoute pas « edited » : un
+  # titre de pull request corrigé ne relançait jamais son propre contrôle, qui
+  # restait rouge indéfiniment. C'est arrivé sur la #99. Ici, « edited » est
+  # dans le déclencheur, précisément parce qu'un corps et un titre se
+  # corrigent.
+  #
+  # **Il y aurait été sauté.** ci.yml ignore désormais les pull requests qui ne
+  # touchent que la documentation — et une pull request de documentation a
+  # exactement autant besoin d'un titre valide que les autres.
+  commits:
+    name: messages de commit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Grammaire Conventional Commits
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: ./src/scripts/check-commit-range.sh
+
+      - name: Titre de la pull request
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: ./src/scripts/check-commit-message.sh "${PR_TITLE}"
