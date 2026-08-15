@@ -7,7 +7,8 @@
 //
 // The document is generated rather than read from the corpus, for the reason
 // the format benchmark already gives: a benchmark that depended on a file would
-// measure the disk as much as the code.
+// measure the disk as much as the code. What it is made of — frozen positions,
+// text that looks like a real subtitling — is `full_length_project.hpp`.
 //
 // Every operation here mutates its project, so each run needs a fresh one — and
 // copying a project of four thousand subtitles costs more than any of the
@@ -54,6 +55,8 @@
 #include <utility>
 #include <vector>
 
+#include "full_length_project.hpp"
+
 namespace {
 
 using subedit::core::ConvertFrameRateCommand;
@@ -75,28 +78,8 @@ using subedit::core::Timestamp;
 using subedit::core::TransformCommand;
 using subedit::core::TransformReference;
 
-/// Roughly a feature film: two subtitles every five seconds for three hours.
-/// The same shape the format benchmark uses, so the figures compare.
-constexpr std::size_t kSubtitleCount = 4000;
-constexpr std::int64_t kStepMilliseconds = 2500;
-constexpr std::int64_t kDurationMilliseconds = 2000;
-
-[[nodiscard]] Project fullLengthProject() {
-    std::vector<Subtitle> subtitles;
-    subtitles.reserve(kSubtitleCount);
-    for (std::size_t index = 0; index < kSubtitleCount; ++index) {
-        const std::int64_t start = static_cast<std::int64_t>(index) * kStepMilliseconds;
-        subtitles.push_back(
-            Subtitle{.start = Timestamp::fromMilliseconds(start),
-                     .end = Timestamp::fromMilliseconds(start + kDurationMilliseconds),
-                     .mainText = "Une réplique de longueur ordinaire,\nsur deux lignes."});
-    }
-
-    Project project;
-    project.setSubtitles(std::move(subtitles));
-    project.setFrameRate(FrameRate{StandardFrameRate::Fps25});
-    return project;
-}
+using subedit::test::fullLengthProject;
+using subedit::test::kSubtitleCount;
 
 /// The subtitles in reverse order, the worst case a sort can meet.
 [[nodiscard]] Project reversedProject() {
