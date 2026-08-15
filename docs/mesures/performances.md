@@ -57,7 +57,38 @@ posé : le relevé de la version `0.3.5`, pris à 1,88 et donc admis, a fixé un
 maximum de 853 µs pour l'écriture de 4000 sous-titres là où les dix-sept relevés
 précédents allaient de 492 à 641. Ceux pris sous 1,4 n'ont posé que des minima.
 
-Ce fichier est écrit par `make bench` : ne pas l'éditer à la main.
+Ce fichier est écrit par `make bench` : ne pas l'éditer à la main — sauf cette
+préface, que le script recopie telle quelle.
+
+## Le texte de la fixture d'édition a changé une fois, en 0.3.9
+
+Les mesures de `core/edit` portent sur un document engendré de quatre mille
+sous-titres. **Ses positions n'ont jamais bougé et ne bougeront pas** — c'est ce
+qui rend chaque chiffre comparable à son propre passé. Son **texte**, lui, a
+changé une fois : jusqu'à la version `0.3.8` les quatre mille répliques étaient
+la même chaîne de cinquante-trois octets ; depuis la `0.3.9`, le texte varie et
+un sous-titre sur cinq porte une mention pour malentendants, dans les
+proportions que donnent de vrais fichiers. Le pourquoi et les chiffres sont dans
+`src/test/bench/full_length_project.hpp` ; ce qui compte ici est que le document
+pèse désormais 122 Ko de texte au lieu de 212 Ko.
+
+**L'effet sur les mesures qui ne portent pas sur le texte est sous le bruit.**
+Les deux fixtures ont été mesurées le même jour, à une heure d'intervalle, sur
+une machine à 0,6 de charge : la lecture de 4000 sous-titres, dont la fixture n'a
+pas bougé d'un octet, s'est écartée de 14 % entre les deux exécutions — davantage
+que toute mesure d'édition. Le décalage, mesuré à 11,3 puis 8,67 µs, est revenu à
+9,01 au relevé de la `0.3.9` : à 0,02 µs de son minimum historique.
+
+**Une mesure fait exception, et c'est la seule qui recopie du texte.** La
+suppression d'un sous-titre sur deux garde ce qu'elle retire, pour pouvoir
+l'annuler : `Project::remove` copie chacun des deux mille sous-titres ôtés, donc
+leurs chaînes. Deux fois moins d'octets à copier se voient — son minimum est
+passé de 9,92 à 8,95 ms. Ce n'est pas une amélioration du code, c'est une fixture
+plus légère : pour cette mesure, les relevés antérieurs à la `0.3.9` et les
+suivants ne se comparent qu'à un dixième près.
+
+Rien n'a été élagué de la table pour autant : l'enveloppe d'avant reste vraie de
+ce qu'elle mesurait.
 
 ## Extrêmes
 
@@ -72,37 +103,37 @@ pas le sujet de ce ticket.
 | :----- | ------: | :-------- | ------: | :-------- |
 | versionString | 32.3 ns | 0.2.4 — 2026-08-13 | 52.8 ns | 0.2.6 — 2026-08-13 |
 | parse | 29.9 ns | 0.2.6 — 2026-08-13 | 39.6 ns | 0.2.8 — 2026-08-14 |
-| format | 32.6 ns | 0.2.10 — 2026-08-14 | 44 ns | 0.3.3 — 2026-08-15 |
+| format | 32.4 ns | 0.3.9 — 2026-08-15 | 44 ns | 0.3.3 — 2026-08-15 |
 | position vers image | 6.49 ns | 0.2.9 — 2026-08-14 | 8.78 ns | 0.2.3 — 2026-08-12 |
-| image vers position | 6.48 ns | 0.2.10 — 2026-08-14 | 10.3 ns | 0.3.4 — 2026-08-15 |
+| image vers position | 6.48 ns | 0.2.10 — 2026-08-14 | 12.1 ns | 0.3.9 — 2026-08-15 |
 | mise à l'échelle par un rationnel exact | 6.71 ns | 0.2.14 — 2026-08-14 | 9.09 ns | 0.2.13 — 2026-08-14 |
-| lecture de 4000 sous-titres | 2.2 ms | 0.2.4 — 2026-08-13 | 3.17 ms | 0.2.13 — 2026-08-14 |
+| lecture de 4000 sous-titres | 2.17 ms | 0.3.9 — 2026-08-15 | 3.17 ms | 0.2.13 — 2026-08-14 |
 | écriture de 4000 sous-titres | 492 µs | 0.3.2 — 2026-08-15 | 641 µs | 0.2.7 — 2026-08-14 |
-| décalage de 4000 sous-titres | 9.03 µs | 0.2.10 — 2026-08-14 | 11.4 µs | 0.3.3 — 2026-08-15 |
-| décalage puis annulation | 15.3 µs | 0.2.10 — 2026-08-14 | 20.7 µs | 0.2.6 — 2026-08-13 |
-| transformation de 4000 sous-titres | 74.5 µs | 0.2.10 — 2026-08-14 | 93.3 µs | 0.2.12 — 2026-08-14 |
-| conversion de fréquence sur 4000 sous-titres | 73.5 µs | 0.3.1 — 2026-08-14 | 100 µs | 0.2.12 — 2026-08-14 |
+| décalage de 4000 sous-titres | 9.01 µs | 0.3.9 — 2026-08-15 | 11.4 µs | 0.3.3 — 2026-08-15 |
+| décalage puis annulation | 14.9 µs | 0.3.9 — 2026-08-15 | 20.7 µs | 0.2.6 — 2026-08-13 |
+| transformation de 4000 sous-titres | 72.8 µs | 0.3.9 — 2026-08-15 | 93.3 µs | 0.2.12 — 2026-08-14 |
+| conversion de fréquence sur 4000 sous-titres | 73 µs | 0.3.9 — 2026-08-15 | 100 µs | 0.2.12 — 2026-08-14 |
 | tri de 4000 sous-titres à l'envers | 196 µs | 0.3.2 — 2026-08-15 | 274 µs | 0.2.6 — 2026-08-13 |
-| suppression d'un sous-titre sur deux | 9.92 ms | 0.2.4 — 2026-08-13 | 12.5 ms | 0.3.3 — 2026-08-15 |
+| suppression d'un sous-titre sur deux | 8.95 ms | 0.3.9 — 2026-08-15 | 12.5 ms | 0.3.3 — 2026-08-15 |
 | insertion de 100 sous-titres vides au milieu | 50.3 µs | 0.2.11 — 2026-08-14 | 67 µs | 0.2.13 — 2026-08-14 |
-| modification d'un texte, à travers une session | 114 ns | 0.2.14 — 2026-08-14 | 149 ns | 0.2.5 — 2026-08-13 |
+| modification d'un texte, à travers une session | 114 ns | 0.2.14 — 2026-08-14 | 180 ns | 0.3.9 — 2026-08-15 |
 
 <!-- versionString min=32.3 max=52.8 -->
 <!-- parse min=29.9 max=39.6 -->
-<!-- format min=32.6 max=44.0 -->
+<!-- format min=32.3737 max=44.0 -->
 <!-- position vers image min=6.49 max=8.78 -->
-<!-- image vers position min=6.48 max=10.3 -->
+<!-- image vers position min=6.48 max=12.0852 -->
 <!-- mise à l'échelle par un rationnel exact min=6.71 max=9.09 -->
-<!-- lecture de 4000 sous-titres min=2200000.0 max=3170000.0 -->
+<!-- lecture de 4000 sous-titres min=2165410.0 max=3170000.0 -->
 <!-- écriture de 4000 sous-titres min=492000.0 max=641000.0 -->
-<!-- décalage de 4000 sous-titres min=9030.0 max=11400.0 -->
-<!-- décalage puis annulation min=15300.0 max=20700.0 -->
-<!-- transformation de 4000 sous-titres min=74500.0 max=93300.0 -->
-<!-- conversion de fréquence sur 4000 sous-titres min=73500.0 max=100000.0 -->
+<!-- décalage de 4000 sous-titres min=9010.1 max=11400.0 -->
+<!-- décalage puis annulation min=14851.9 max=20700.0 -->
+<!-- transformation de 4000 sous-titres min=72845.6 max=93300.0 -->
+<!-- conversion de fréquence sur 4000 sous-titres min=73037.6 max=100000.0 -->
 <!-- tri de 4000 sous-titres à l'envers min=196000.0 max=274000.0 -->
-<!-- suppression d'un sous-titre sur deux min=9920000.0 max=12500000.0 -->
+<!-- suppression d'un sous-titre sur deux min=8949200.0 max=12500000.0 -->
 <!-- insertion de 100 sous-titres vides au milieu min=50300.0 max=67000.0 -->
-<!-- modification d'un texte, à travers une session min=114.0 max=149.0 -->
+<!-- modification d'un texte, à travers une session min=114.0 max=179.799 -->
 
 ## Relevés
 
@@ -110,6 +141,27 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.3.9 — 2026-08-15 — Release — charge 1.26
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| versionString | 32.4 ns | 0.358 ns |
+| parse | 32.3 ns | 2.62 ns |
+| format | 32.4 ns | 6.36 ns |
+| position vers image | 6.49 ns | 0.0943 ns |
+| image vers position | 12.1 ns | 0.572 ns |
+| mise à l'échelle par un rationnel exact | 7.06 ns | 0.0668 ns |
+| lecture de 4000 sous-titres | 2.17 ms | 61.2 µs |
+| écriture de 4000 sous-titres | 507 µs | 83.4 µs |
+| décalage de 4000 sous-titres | 9.01 µs | 2.4 µs |
+| décalage puis annulation | 14.9 µs | 1.87 µs |
+| transformation de 4000 sous-titres | 72.8 µs | 3.91 µs |
+| conversion de fréquence sur 4000 sous-titres | 73 µs | 5.07 µs |
+| tri de 4000 sous-titres à l'envers | 215 µs | 21.5 µs |
+| suppression d'un sous-titre sur deux | 8.95 ms | 264 µs |
+| insertion de 100 sous-titres vides au milieu | 50.3 µs | 20.1 µs |
+| modification d'un texte, à travers une session | 180 ns | 242 ns |
 
 ### 0.3.8 — 2026-08-15 — Release — charge 2.23
 
