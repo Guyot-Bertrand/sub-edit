@@ -25,6 +25,8 @@ ne pas l'éditer à la main.
 
 - **cli** — Prouver ce que chaque diagnostic dit, et à quel niveau
 - **cli** — Épingler la borne de l'accumulation des deux côtés
+- **test** — Loger corpus, contentOf et Scratch dans le harnais
+- **test** — Un dossier par test, et plus aucune copie de helper
 
 ## 0.3.0 — 2026-08-14
 
