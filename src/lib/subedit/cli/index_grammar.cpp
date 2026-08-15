@@ -1,16 +1,16 @@
+#include <subedit/cli/digits.hpp>
 #include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/time_grammar.hpp>
 #include <subedit/core/time/duration.hpp>
 
 #include <algorithm>
+#include <cstdint>
 #include <expected>
-#include <limits>
+#include <optional>
 
 namespace subedit::cli {
 
 namespace {
-
-constexpr std::size_t kBase = 10;
 
 std::string refusal(std::string_view text, std::string_view why) {
     return "\"" + std::string{text} + "\" is not a subtitle number: " + std::string{why};
@@ -28,23 +28,23 @@ std::expected<std::size_t, std::string> parseSubtitleNumber(std::string_view tex
             refusal(text, "expected a whole number, counted from 1 as the file shows them")};
     }
 
-    constexpr std::size_t kLargest = std::numeric_limits<std::size_t>::max();
-    std::size_t number = 0;
+    // Accumulated as a signed integer, and returned as a count: the guard is
+    // shared with the two other grammars, and a subtitle number that does not
+    // fit in a signed sixty-four bits is not one anyway.
+    std::int64_t number = 0;
     for (const char digit : text) {
-        const auto added = static_cast<std::size_t>(digit - '0');
-        // Checked before it happens rather than detected after: an overflowed
-        // count would name some other subtitle, which is worse than a refusal.
-        if (number > (kLargest - added) / kBase) {
+        const std::optional<std::int64_t> grown = appendedDigit(number, digit);
+        if (!grown.has_value()) {
             return std::unexpected{refusal(text, "no subtitle file holds that many subtitles")};
         }
-        number = number * kBase + added;
+        number = *grown;
     }
 
     if (number == 0) {
         return std::unexpected{
             refusal(text, "subtitles are counted from 1, as the file shows them")};
     }
-    return number;
+    return static_cast<std::size_t>(number);
 }
 
 std::expected<Reference, std::string> parseReference(std::string_view text) {
