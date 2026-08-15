@@ -18,6 +18,7 @@ ne pas l'éditer à la main.
 
 - **doc** — La lecture au mieux au manuel, et bumper le patch
 - **doc** — Recalculer la table des extrêmes sans le relevé chargé
+- **test** — Écrire la spécification des mentions, cas par cas
 
 ### Remaniements
 
@@ -30,6 +31,7 @@ ne pas l'éditer à la main.
 - **cli** — Épingler la borne de l'accumulation des deux côtés
 - **test** — Loger corpus, contentOf et Scratch dans le harnais
 - **test** — Un dossier par test, et plus aucune copie de helper
+- **test** — Un corpus de cas de texte, lu plutôt que compilé
 
 ## 0.3.0 — 2026-08-14
 
