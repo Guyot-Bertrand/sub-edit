@@ -15,14 +15,54 @@
 #include <subedit/core/version.hpp>
 
 #include <CLI/CLI.hpp>
+#include <cstddef>
 #include <expected>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace subedit::cli {
 
 namespace {
+
+/// Where a subcommand writes, as the three options that say it.
+///
+/// A type of its own rather than three fields repeated in four structs: they
+/// always travel together, they are always declared the same way, and they are
+/// always turned into a `Destination` by the same call. A fifth subcommand that
+/// writes now costs none of the three.
+struct DestinationOptions {
+    std::string output;
+    std::string outputDir;
+    bool inPlace = false;
+};
+
+/// Declares the three options on `command`.
+///
+/// Called last by every `describe…`, so that a subcommand lists its own options
+/// before those it shares — the order the help shows and the manual quotes.
+void describeDestination(CLI::App* command, DestinationOptions& options) {
+    command->add_option("--output", options.output, "File to write, for a single input");
+    command->add_option("--output-dir", options.outputDir, "Directory to write into");
+    command->add_flag("--in-place", options.inPlace, "Write back over the inputs");
+}
+
+/// The destination those options describe, or why they cannot be honoured.
+std::expected<Destination, std::string> destinationOf(const DestinationOptions& options,
+                                                      std::size_t inputCount) {
+    return Destination::from(options.output, options.outputDir, options.inPlace, inputCount);
+}
+
+/// Writes a refusal and gives the code that goes with it.
+///
+/// Every value this file reads can be refused, and each refusal was written out
+/// in four lines, nine times over. Named once, a usage error stops being a shape
+/// one has to recognise.
+ExitCode refuse(std::string_view why) {
+    std::cerr << why << '\n';
+    return ExitCode::Usage;
+}
 
 /// What `inspect` was asked for.
 struct InspectOptions {
@@ -41,9 +81,7 @@ struct ConvertOptions {
     std::string lineEndings;
     bool bom = false;
     bool noBom = false;
-    std::string output;
-    std::string outputDir;
-    bool inPlace = false;
+    DestinationOptions destination;
 };
 
 CLI::App* describeInspect(CLI::App& app, InspectOptions& options) {
@@ -79,9 +117,7 @@ CLI::App* describeConvert(CLI::App& app, ConvertOptions& options) {
     convert->add_flag("--bom", options.bom, "Write a byte order mark");
     convert->add_flag("--no-bom", options.noBom, "Write no byte order mark");
 
-    convert->add_option("--output", options.output, "File to write, for a single input");
-    convert->add_option("--output-dir", options.outputDir, "Directory to write into");
-    convert->add_flag("--in-place", options.inPlace, "Write back over the inputs");
+    describeDestination(convert, options.destination);
     return convert;
 }
 
@@ -89,9 +125,7 @@ CLI::App* describeConvert(CLI::App& app, ConvertOptions& options) {
 struct ShiftOptions {
     std::vector<std::string> files;
     std::string by;
-    std::string output;
-    std::string outputDir;
-    bool inPlace = false;
+    DestinationOptions destination;
 };
 
 CLI::App* describeShift(CLI::App& app, ShiftOptions& options) {
@@ -101,24 +135,20 @@ CLI::App* describeShift(CLI::App& app, ShiftOptions& options) {
     shift->add_option("--by", options.by, "Amount to move by: 2.999, -7.001, or 00:00:07.001")
         ->required();
 
-    shift->add_option("--output", options.output, "File to write, for a single input");
-    shift->add_option("--output-dir", options.outputDir, "Directory to write into");
-    shift->add_flag("--in-place", options.inPlace, "Write back over the inputs");
+    describeDestination(shift, options.destination);
     return shift;
 }
 
 ExitCode runShift(const ShiftOptions& options, core::FileSystem& files, const Reporter& reporter) {
     const std::expected<core::Duration, std::string> by = parseTime(options.by);
     if (!by) {
-        std::cerr << by.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(by.error());
     }
 
     const std::expected<Destination, std::string> destination =
-        Destination::from(options.output, options.outputDir, options.inPlace, options.files.size());
+        destinationOf(options.destination, options.files.size());
     if (!destination) {
-        std::cerr << destination.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(destination.error());
     }
 
     return shiftAll(files, options.files, *by, *destination, reporter);
@@ -129,9 +159,7 @@ struct TransformOptions {
     std::vector<std::string> files;
     std::string first;
     std::string last;
-    std::string output;
-    std::string outputDir;
-    bool inPlace = false;
+    DestinationOptions destination;
 };
 
 CLI::App* describeTransform(CLI::App& app, TransformOptions& options) {
@@ -146,9 +174,7 @@ CLI::App* describeTransform(CLI::App& app, TransformOptions& options) {
         ->add_option("--last", options.last, "Later reference, as <index>=<time>: 3=00:00:10.000")
         ->required();
 
-    transform->add_option("--output", options.output, "File to write, for a single input");
-    transform->add_option("--output-dir", options.outputDir, "Directory to write into");
-    transform->add_flag("--in-place", options.inPlace, "Write back over the inputs");
+    describeDestination(transform, options.destination);
     return transform;
 }
 
@@ -156,27 +182,23 @@ ExitCode
 runTransform(const TransformOptions& options, core::FileSystem& files, const Reporter& reporter) {
     const std::expected<Reference, std::string> first = parseReference(options.first);
     if (!first) {
-        std::cerr << first.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(first.error());
     }
 
     const std::expected<Reference, std::string> last = parseReference(options.last);
     if (!last) {
-        std::cerr << last.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(last.error());
     }
 
     const std::expected<Transform, std::string> transform = Transform::between(*first, *last);
     if (!transform) {
-        std::cerr << transform.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(transform.error());
     }
 
     const std::expected<Destination, std::string> destination =
-        Destination::from(options.output, options.outputDir, options.inPlace, options.files.size());
+        destinationOf(options.destination, options.files.size());
     if (!destination) {
-        std::cerr << destination.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(destination.error());
     }
 
     return transformAll(files, options.files, *transform, *destination, reporter);
@@ -187,9 +209,7 @@ struct FrameRateOptions {
     std::vector<std::string> files;
     std::string from;
     std::string to;
-    std::string output;
-    std::string outputDir;
-    bool inPlace = false;
+    DestinationOptions destination;
 };
 
 CLI::App* describeFrameRate(CLI::App& app, FrameRateOptions& options) {
@@ -200,9 +220,7 @@ CLI::App* describeFrameRate(CLI::App& app, FrameRateOptions& options) {
         ->required();
     framerate->add_option("--to", options.to, "Frame rate to time it for: 24, 29.97")->required();
 
-    framerate->add_option("--output", options.output, "File to write, for a single input");
-    framerate->add_option("--output-dir", options.outputDir, "Directory to write into");
-    framerate->add_flag("--in-place", options.inPlace, "Write back over the inputs");
+    describeDestination(framerate, options.destination);
     return framerate;
 }
 
@@ -210,21 +228,18 @@ ExitCode
 runFrameRate(const FrameRateOptions& options, core::FileSystem& files, const Reporter& reporter) {
     const std::expected<core::FrameRate, std::string> from = parseFrameRate(options.from);
     if (!from) {
-        std::cerr << from.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(from.error());
     }
 
     const std::expected<core::FrameRate, std::string> to = parseFrameRate(options.to);
     if (!to) {
-        std::cerr << to.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(to.error());
     }
 
     const std::expected<Destination, std::string> destination =
-        Destination::from(options.output, options.outputDir, options.inPlace, options.files.size());
+        destinationOf(options.destination, options.files.size());
     if (!destination) {
-        std::cerr << destination.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(destination.error());
     }
 
     return convertFrameRateAll(files, options.files, *from, *to, *destination, reporter);
@@ -264,23 +279,20 @@ runConvert(const ConvertOptions& options, core::FileSystem& files, const Reporte
     // Refused rather than obeyed: in place there is no second name to carry the
     // new format, and the file would be left under an extension its content no
     // longer justifies.
-    if (options.inPlace && wouldMisname(options.files, target)) {
-        std::cerr << "--in-place cannot change the format: the file would keep a name "
-                     "its content no longer matches\n";
-        return ExitCode::Usage;
+    if (options.destination.inPlace && wouldMisname(options.files, target)) {
+        return refuse("--in-place cannot change the format: the file would keep a name "
+                      "its content no longer matches");
     }
 
     const std::expected<WriteShape, std::string> shape = shapeOf(options);
     if (!shape) {
-        std::cerr << shape.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(shape.error());
     }
 
     const std::expected<Destination, std::string> destination =
-        Destination::from(options.output, options.outputDir, options.inPlace, options.files.size());
+        destinationOf(options.destination, options.files.size());
     if (!destination) {
-        std::cerr << destination.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(destination.error());
     }
 
     return convertAll(files, options.files, target, *shape, *destination, reporter);
@@ -338,8 +350,7 @@ ExitCode run(int argc, char** argv) {
 
     const std::expected<int, std::string> level = levelFrom(quiet, verboseCount);
     if (!level) {
-        std::cerr << level.error() << '\n';
-        return ExitCode::Usage;
+        return refuse(level.error());
     }
 
     // No subcommand: show what the tool can be asked to do. On standard
