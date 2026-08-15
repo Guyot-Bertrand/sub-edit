@@ -16,6 +16,7 @@ add_library(
     edit/set_position_command.cpp
     edit/set_text_command.cpp
     edit/sort_command.cpp
+    text/hearing_impaired.cpp
     model/project.cpp
     model/selection.cpp
     format/atomic_write.cpp

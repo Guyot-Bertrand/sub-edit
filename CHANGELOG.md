@@ -16,6 +16,7 @@ ne pas l'éditer à la main.
 - **scripts** — N'attendre la machine que si sa charge baisse
 - **scripts** — Interdire au code de lire le dépôt de référence
 - **scripts** — Mesurer les mentions d'un corpus de sous-titres
+- **text** — Retirer les mentions pour malentendants
 
 ### Documentation
 
@@ -26,6 +27,7 @@ ne pas l'éditer à la main.
 - **doc** — Cadrer la phase 4 et décider l'analyseur
 - **doc** — Inscrire les exigences de la phase 4 et les renvois
 - Préciser quand un bump de version rouvre la porte
+- **doc** — Une balise ne borde pas une mention
 
 ### Remaniements
 
@@ -40,6 +42,7 @@ ne pas l'éditer à la main.
 - **test** — Un dossier par test, et plus aucune copie de helper
 - **test** — Un corpus de cas de texte, lu plutôt que compilé
 - **test** — Une fixture de mesure dont le texte mord
+- **test** — Écrire les cas que le cadrage et le corpus ont tranchés
 
 ## 0.3.0 — 2026-08-14
 
