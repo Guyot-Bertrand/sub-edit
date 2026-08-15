@@ -12,10 +12,12 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **cli** — Nommer chaque diagnostic de lecture, partout
+- **scripts** — Un relevé pris sous charge ne fixe plus d'extrême
 
 ### Documentation
 
 - **doc** — La lecture au mieux au manuel, et bumper le patch
+- **doc** — Recalculer la table des extrêmes sans le relevé chargé
 
 ### Remaniements
 
