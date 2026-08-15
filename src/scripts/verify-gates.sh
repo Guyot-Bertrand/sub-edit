@@ -26,8 +26,8 @@
 # critère de non-signalement ne se démontre par aucune injection qui échoue,
 # d'où `expect_gate_stays_open`.
 #
-# La dernière vise `make arch` : un nom de cas de test qui commence par un
-# tiret. Elle est ici parce que ce défaut ne se voit qu'à travers CTest, jamais
+# Les deux dernières visent `make arch` : un nom de cas de test qui commence par
+# un tiret, et un test qui lirait le dépôt de référence. Elle est ici parce que ce défaut ne se voit qu'à travers CTest, jamais
 # en lançant le binaire de test à la main — donc uniquement dans la porte.
 #
 # À rejouer après toute modification de .clang-format, .clang-tidy, des options
@@ -424,6 +424,16 @@ expect_gate_closes \
     "${PLAIN_SCRIPT_SOURCE}" \
     'MAKEFLAGS=-j8 make all'
 
+# Un test qui lit le dépôt de référence. Il passerait ici, où le clone existe,
+# et échouerait partout ailleurs — ou se déclarerait ignoré, ce qui est pire :
+# vert sans rien prouver.
+expect_gate_closes \
+    "lecture du dépôt de référence" \
+    "arch" \
+    "${TEST_SOURCE}" \
+    '// reference/gaupol/aeidon/data/patterns'
+
+
 # La seule preuve de non-signalement du fichier, et la plus importante des six
 # ajoutées ici : le contrôle lisait ses lignes sans retirer les commentaires de
 # fin, donc un exemple cité dans un commentaire passait pour un contournement.
@@ -439,6 +449,6 @@ if (( failures > 0 )); then
     printf '%s%d porte(s) laissent passer un défaut%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles vingt-deux portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles vingt-trois portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%set le contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"

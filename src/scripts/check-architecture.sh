@@ -120,6 +120,44 @@ $(printf '    %s\n' "${offenders}")
 # tenait ensemble : un tag posé sans bumper le CMake donne un binaire qui
 # annonce une version périmée. La vérification est inerte tant qu'aucun tag ne
 # pointe sur HEAD, donc elle ne gêne pas le travail courant.
+# Invariant 6 — rien sous src/ ne lit le dépôt de référence.
+#
+# reference/gaupol est un clone de Gaupol, présent pour être lu par un humain.
+# Il n'est pas suivi par git, ne fait pas partie du projet, et son arborescence
+# est maintenue non inscriptible. Il est absent de la CI, absent de toute
+# machine fraîchement clonée, et absent d'une archive du dépôt.
+#
+# Un test qui le lit passe donc chez qui l'a et échoue chez tous les autres —
+# ou, pire, se déclare ignoré et ne prouve plus rien tout en restant vert. La
+# tentation est concrète : la phase 4 reprend peut-être le format de motifs de
+# Gaupol, et ses fichiers sont là, à portée de chemin relatif.
+#
+# La donnée de test versionnée vit dans src/test/data/. src/data/ n'est pas une
+# option : il est ignoré par git, c'est le corpus privé de chaque machine.
+#
+# Le contrôle porte sur le code et les tests, pas sur src/scripts : ce sont eux
+# qui pilotent le verrou du clone et interdisent de le commiter, et les nommer
+# est leur travail. Une liste d'exceptions par fichier aurait grandi à chaque
+# script ajouté ; viser les trois répertoires qui n'ont rien à y faire ne
+# grandit jamais.
+check_nothing_reads_the_reference() {
+    local offenders=""
+    local directory
+    for directory in lib exe test; do
+        [[ -d "${REPO_ROOT}/src/${directory}" ]] || continue
+        offenders+="$(grep -rn 'reference/' "${REPO_ROOT}/src/${directory}" 2>/dev/null || true)"
+    done
+
+    if [[ -n "${offenders}" ]]; then
+        report_failure "du code de src/ désigne le dépôt de référence :
+$(printf '    %s\n' "${offenders}")
+    Il est absent de la CI et de toute machine qui ne l'a pas cloné.
+    La donnée de test versionnée vit dans src/test/data/."
+    else
+        report_success "rien sous src/ ne lit le dépôt de référence"
+    fi
+}
+
 check_version_matches_tag() {
     local tag
     # « || true » n'est pas décoratif : sans tag sur HEAD, grep sort en 1, et
@@ -156,6 +194,7 @@ check_executables_are_thin
 check_scripts_are_executable
 check_version_matches_tag
 check_test_names_are_not_options
+check_nothing_reads_the_reference
 
 if (( failures > 0 )); then
     printf '\n%s%d invariant(s) d architecture violé(s)%s\n' "${RED}" "${failures}" "${RESET}" >&2
