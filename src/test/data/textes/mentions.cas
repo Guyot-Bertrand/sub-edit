@@ -1,0 +1,83 @@
+# La suppression des mentions pour malentendants — ce qui est décidé.
+#
+# Ce fichier est la spécification de la phase 4, écrite cas par cas. Il précède
+# le code : la transformation n'existe pas encore, et c'est voulu — ces cas sont
+# des questions posées à qui décide, pas des vérifications d'un comportement
+# déjà écrit.
+#
+# Tant que l'opération n'existe pas, seule leur bonne forme est éprouvée. Le jour
+# où elle existe, une ligne de test suffit à la confronter à tout ce qui suit.
+
+# --- La règle, telle que les cas la font apparaître -------------------------
+#
+# Une mention retirée laisse **exactement un espace entre ce qui l'entourait**,
+# et **rien en bord de ligne**.
+#
+# Ce n'est pas « on recolle les espaces qui traînent » : « Bonjour[il tousse]Marie »
+# n'en avait aucun et en gagne un. Ce qui compte est ce qui reste de part et
+# d'autre, pas ce qui était écrit autour de la mention.
+#
+# Un texte que la règle vide entièrement emporte son sous-titre.
+
+deux voisins, un seul espace              | "Bonjour [il tousse] Marie" | "Bonjour Marie"
+deux voisins collés en gagnent un         | "Bonjour[il tousse]Marie"   | "Bonjour Marie"
+deux mentions voisines valent une         | "A [un] [deux] B"           | "A B"
+en tête de ligne, rien n'est laissé       | "[Bruit de pas] Bonjour"    | "Bonjour"
+en fin de ligne non plus                  | "Bonjour [il tousse]"       | "Bonjour"
+une ligne vidée disparaît                 | "Bonjour\n[soupir]"         | "Bonjour"
+une ligne vidée en tête disparaît aussi   | "[soupir]\nBonjour"         | "Bonjour"
+un texte entièrement vidé emporte le tout | "[Bruit de pas]"            | supprimé
+
+# --- Le dialogue qui n'a plus qu'une voix -----------------------------------
+#
+# Décidé : un dialogue **réduit à une seule voix n'en est plus un**, et son
+# tiret s'en va. Tant qu'il en reste deux, les tirets restent.
+#
+# C'est une règle sur les tirets, pas sur les mentions : elle vaudrait aussi
+# pour une ligne supprimée à la main. Elle est ici parce que c'est ici qu'on
+# la rencontre — la phase 12, qui portera le moteur complet, en héritera.
+
+deux voix, une vidée : le tiret restant part | "- [ Hisses ]\n- Uhh-"       | "Uhh-"
+trois voix, une vidée : il en reste deux     | "- A\n- [rires]\n- B"        | "- A\n- B"
+
+# --- Une référence n'est pas une mention ------------------------------------
+#
+# Décidé : une référence est **purement numérique** — que des chiffres entre les
+# crochets, ni lettre, ni signe. Le blanc qui borde les chiffres est toléré :
+# « [ 156478 ] », « [156478\t] » et « [\t156478] » en sont toutes. Un blanc
+# **entre** les chiffres, non. Elle est gardée telle quelle, crochets compris.
+#
+# Le critère est volontairement étroit. Il ne cherche pas à reconnaître une
+# référence au sens humain, seulement à ne pas manger ce qu'aucune mention ne
+# ressemble : « [1] » n'a jamais désigné un bruit.
+
+une référence purement numérique est gardée  | "Voir [1] la note"          | =
+plusieurs chiffres restent une référence     | "Voir [12] la note"         | =
+des espaces au bord ne changent rien         | "Voir [ 156478 ] la note"   | =
+collée à gauche seulement                    | "Voir [156478 ] la note"    | =
+collée à droite seulement                    | "Voir [ 156478] la note"    | =
+tabulations et espaces mêlés, toujours       | "Voir [ \t 156478 \t ] la note" | =
+une lettre en fait une mention               | "Voir [1a] la note"         | "Voir la note"
+un espace entre les chiffres aussi           | "Voir [1 2] la note"        | "Voir la note"
+un signe aussi                               | "Voir [-1] la note"         | "Voir la note"
+
+# --- Des crochets vides ------------------------------------------------------
+#
+# Décidé : ils s'en vont. Aucun chiffre, donc pas une référence ; rien à dire,
+# donc rien à garder. Le blanc seul compte pour vide — c'est la même tolérance
+# que celle des références, prise à sa limite.
+
+des crochets vides s'en vont                 | "Voir [] la note"           | "Voir la note"
+du blanc seul est encore vide                | "Voir [ \t ] la note"       | "Voir la note"
+vides et seuls, ils emportent le sous-titre  | "[]"                        | supprimé
+
+# --- Ce qui reste à décider -------------------------------------------------
+#
+# Une question ouverte — l'écrire ici est ce qui empêche de la trancher par
+# accident à l'implémentation.
+#
+#   "[Musique sans fin"
+#       Crochet ouvrant sans fermant. En l'état on ne sait pas trancher : il
+#       faut des fichiers réels pour voir comment cela se présente — le crochet
+#       manquant peut être n'importe où, et ce qu'il faut en faire dépend de ce
+#       qu'on trouve. À reprendre avec des exemples sous les yeux.
