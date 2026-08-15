@@ -66,6 +66,27 @@ extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
 
+### 0.3.3 — 2026-08-15 — Release
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| versionString | 44.5 ns | 7.76 ns |
+| parse | 36.7 ns | 2.79 ns |
+| format | 44 ns | 33.4 ns |
+| position vers image | 7.83 ns | 0.117 ns |
+| image vers position | 7.91 ns | 0.948 ns |
+| mise à l'échelle par un rationnel exact | 8.12 ns | 0.205 ns |
+| lecture de 4000 sous-titres | 2.92 ms | 275 µs |
+| écriture de 4000 sous-titres | 610 µs | 56.1 µs |
+| décalage de 4000 sous-titres | 11.4 µs | 1.35 µs |
+| décalage puis annulation | 20.1 µs | 2.68 µs |
+| transformation de 4000 sous-titres | 92 µs | 11.2 µs |
+| conversion de fréquence sur 4000 sous-titres | 92.5 µs | 11.6 µs |
+| tri de 4000 sous-titres à l'envers | 243 µs | 33.6 µs |
+| suppression d'un sous-titre sur deux | 12.5 ms | 1.98 ms |
+| insertion de 100 sous-titres vides au milieu | 61.6 µs | 13.1 µs |
+| modification d'un texte, à travers une session | 141 ns | 31.5 ns |
+
 ### 0.3.2 — 2026-08-15 — Release
 
 | Mesure | Moyenne | Écart-type |
