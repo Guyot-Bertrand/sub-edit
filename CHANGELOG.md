@@ -15,6 +15,7 @@ ne pas l'éditer à la main.
 - **scripts** — Un relevé pris sous charge ne fixe plus d'extrême
 - **scripts** — N'attendre la machine que si sa charge baisse
 - **scripts** — Interdire au code de lire le dépôt de référence
+- **scripts** — Mesurer les mentions d'un corpus de sous-titres
 
 ### Documentation
 
@@ -35,6 +36,7 @@ ne pas l'éditer à la main.
 - **test** — Loger corpus, contentOf et Scratch dans le harnais
 - **test** — Un dossier par test, et plus aucune copie de helper
 - **test** — Un corpus de cas de texte, lu plutôt que compilé
+- **test** — Une fixture de mesure dont le texte mord
 
 ## 0.3.0 — 2026-08-14
 
