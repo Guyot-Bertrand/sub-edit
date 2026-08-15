@@ -1,0 +1,26 @@
+# Les cas qui éprouvent le harnais lui-même, et rien d'autre.
+#
+# Chaque ligne est un cas : un nom, ce qu'on donne, ce qu'on doit obtenir.
+# Les deux textes sont entre guillemets, ce qui laisse aligner les colonnes
+# sans changer la donnée — un espace hors des guillemets ne compte pas, un
+# espace dedans compte. « = » à la place de l'attendu veut dire « inchangé ».
+#
+# Échappements dans un texte : \" pour un guillemet, \n pour un saut de ligne,
+# \\ pour une barre oblique inverse.
+#
+# La transformation éprouvée ici est celle du test : elle retire ce qui est
+# entre crochets, et rien de plus. Ce n'est pas celle de la phase 4, et aucun
+# cas ci-dessous ne dit ce que celle-là devra faire — ils disent ce que le
+# harnais doit savoir lire. Les cas de la vraie suppression vivent dans
+# mentions.cas.
+
+un texte sans crochet est rendu tel quel  | "Bonjour Marie"            | =
+une mention seule ne laisse rien          | "[Bruit de pas]"           | supprimé
+un espace dans les guillemets est donné   | "Bonjour [il tousse] fin"  | "Bonjour  fin"
+deux mentions partent toutes les deux     | "[Rires][Bravo]suite"      | "suite"
+un crochet jamais fermé ne mord pas       | "[Musique sans fin"        | =
+la deuxième ligne seule est touchée       | "Bonjour\n[soupir]"        | "Bonjour\n"
+un guillemet dans le texte se protège     | "il dit \"non\""           | =
+une barre oblique inverse aussi           | "chemin\\ici"              | =
+une tabulation s'écrit \t                  | "avant\taprès"             | =
+une barre verticale n'a rien de spécial   | "avant | après"            | =

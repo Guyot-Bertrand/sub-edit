@@ -3,6 +3,8 @@
 
 add_executable(
     subedit_core_test
+    text_cases.cpp
+    text_cases_test.cpp
     core/version_test.cpp
     core/time/duration_test.cpp
     core/time/frame_test.cpp
