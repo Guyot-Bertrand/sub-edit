@@ -12,33 +12,14 @@
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::e2e::CliRun;
+using subedit::e2e::contentOf;
+using subedit::e2e::corpus;
 using subedit::e2e::invoke;
-
-namespace {
-
-std::string corpus(const std::string& relative) {
-    return (std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / relative).string();
-}
-
-std::filesystem::path scratch(const std::string& name) {
-    const std::filesystem::path directory =
-        std::filesystem::temp_directory_path() / "subedit-transform-e2e";
-    std::filesystem::create_directories(directory);
-    return directory / name;
-}
-
-std::string contentOf(const std::filesystem::path& path) {
-    const std::ifstream file{path, std::ios::binary};
-    std::ostringstream all;
-    all << file.rdbuf();
-    return all.str();
-}
-
-} // namespace
+using subedit::e2e::Scratch;
 
 TEST_CASE("the two references land exactly where they were asked to", "[e2e][CLI-TRANSFORM-01]") {
-    const std::filesystem::path out = scratch("references.srt");
-    std::filesystem::remove(out);
+    const Scratch scratch;
+    const std::string out = scratch.of("references.srt");
 
     const CliRun run = invoke({"transform",
                                "--first",
@@ -46,13 +27,12 @@ TEST_CASE("the two references land exactly where they were asked to", "[e2e][CLI
                                "--last",
                                "3=00:00:10.000",
                                "--output",
-                               out.string(),
+                               out,
                                corpus("valides/trois.srt")});
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(contentOf(out), ContainsSubstring("00:00:01,000 --> "));
     CHECK_THAT(contentOf(out), ContainsSubstring("00:00:10,000 --> "));
-    std::filesystem::remove(out);
 }
 
 TEST_CASE("every other position follows the two references", "[e2e][CLI-TRANSFORM-01]") {
@@ -63,8 +43,8 @@ TEST_CASE("every other position follows the two references", "[e2e][CLI-TRANSFOR
     //    5001 -> 1000 + 4001 × 9/8  = 1000 + 4501.125 -> 5501
     //    7000 -> 1000 + 6000 × 9/8  = 7750
     //   11000 -> 1000 + 10000 × 9/8 = 12250
-    const std::filesystem::path out = scratch("between.srt");
-    std::filesystem::remove(out);
+    const Scratch scratch;
+    const std::string out = scratch.of("between.srt");
 
     const CliRun run = invoke({"transform",
                                "--first",
@@ -72,7 +52,7 @@ TEST_CASE("every other position follows the two references", "[e2e][CLI-TRANSFOR
                                "--last",
                                "3=00:00:10.000",
                                "--output",
-                               out.string(),
+                               out,
                                corpus("valides/trois.srt")});
 
     REQUIRE(run.exitCode == 0);
@@ -80,13 +60,13 @@ TEST_CASE("every other position follows the two references", "[e2e][CLI-TRANSFOR
     CHECK_THAT(written, ContainsSubstring("00:00:01,000 --> 00:00:03,250"));
     CHECK_THAT(written, ContainsSubstring("00:00:05,501 --> 00:00:07,750"));
     CHECK_THAT(written, ContainsSubstring("00:00:10,000 --> 00:00:12,250"));
-    std::filesystem::remove(out);
 }
 
 TEST_CASE("a reference in seconds says the same thing as one in a timestamp",
           "[e2e][CLI-TRANSFORM-01]") {
-    const std::filesystem::path one = scratch("seconds.srt");
-    const std::filesystem::path other = scratch("stamp.srt");
+    const Scratch scratch;
+    const std::string one = scratch.of("seconds.srt");
+    const std::string other = scratch.of("stamp.srt");
 
     CHECK(invoke({"--quiet",
                   "transform",
@@ -95,7 +75,7 @@ TEST_CASE("a reference in seconds says the same thing as one in a timestamp",
                   "--last",
                   "3=10",
                   "--output",
-                  one.string(),
+                  one,
                   corpus("valides/trois.srt")})
               .exitCode == 0);
     CHECK(invoke({"--quiet",
@@ -105,19 +85,17 @@ TEST_CASE("a reference in seconds says the same thing as one in a timestamp",
                   "--last",
                   "3=00:00:10.000",
                   "--output",
-                  other.string(),
+                  other,
                   corpus("valides/trois.srt")})
               .exitCode == 0);
 
     CHECK(contentOf(one) == contentOf(other));
-    std::filesystem::remove(one);
-    std::filesystem::remove(other);
 }
 
 TEST_CASE("two references on one subtitle are refused before anything is read",
           "[e2e][CLI-TRANSFORM-02]") {
-    const std::filesystem::path out = scratch("confounded.srt");
-    std::filesystem::remove(out);
+    const Scratch scratch;
+    const std::string out = scratch.of("confounded.srt");
 
     const CliRun run = invoke({"transform",
                                "--first",
@@ -125,7 +103,7 @@ TEST_CASE("two references on one subtitle are refused before anything is read",
                                "--last",
                                "2=00:00:04.000",
                                "--output",
-                               out.string(),
+                               out,
                                corpus("valides/trois.srt")});
 
     // A usage error, and not a failure to process: the two options are wrong
@@ -134,12 +112,11 @@ TEST_CASE("two references on one subtitle are refused before anything is read",
     CHECK(run.output.empty());
     CHECK_FALSE(std::filesystem::exists(out));
     CHECK_THAT(run.errors, ContainsSubstring("subtitle 2"));
-    std::filesystem::remove(out);
 }
 
 TEST_CASE("a subtitle past the end is refused, naming the bound", "[e2e][CLI-TRANSFORM-02]") {
-    const std::filesystem::path out = scratch("beyond.srt");
-    std::filesystem::remove(out);
+    const Scratch scratch;
+    const std::string out = scratch.of("beyond.srt");
 
     const CliRun run = invoke({"transform",
                                "--first",
@@ -147,7 +124,7 @@ TEST_CASE("a subtitle past the end is refused, naming the bound", "[e2e][CLI-TRA
                                "--last",
                                "9=00:00:10.000",
                                "--output",
-                               out.string(),
+                               out,
                                corpus("valides/trois.srt")});
 
     // The file is what settles it, so this one is a processing failure.
@@ -155,14 +132,13 @@ TEST_CASE("a subtitle past the end is refused, naming the bound", "[e2e][CLI-TRA
     CHECK_FALSE(std::filesystem::exists(out));
     CHECK_THAT(run.errors, ContainsSubstring("subtitle 9"));
     CHECK_THAT(run.errors, ContainsSubstring("3 subtitles"));
-    std::filesystem::remove(out);
 }
 
 TEST_CASE("a transform that would go before the origin is refused", "[e2e][CLI-TRANSFORM-01]") {
     // r = (1000 - 100) / (9000 - 5001) = 300/1333, and the first subtitle sits
     // before the first reference: 100 + (1000 - 5001) × 300/1333 = -800.
-    const std::filesystem::path out = scratch("negative.srt");
-    std::filesystem::remove(out);
+    const Scratch scratch;
+    const std::string out = scratch.of("negative.srt");
 
     const CliRun run = invoke({"transform",
                                "--first",
@@ -170,7 +146,7 @@ TEST_CASE("a transform that would go before the origin is refused", "[e2e][CLI-T
                                "--last",
                                "3=00:00:01.000",
                                "--output",
-                               out.string(),
+                               out,
                                corpus("valides/trois.srt")});
 
     CHECK(run.exitCode == 2);
@@ -180,13 +156,14 @@ TEST_CASE("a transform that would go before the origin is refused", "[e2e][CLI-T
 }
 
 TEST_CASE("a reference without an equals sign is refused", "[e2e][CLI-USAGE-02]") {
+    const Scratch scratch;
     const CliRun run = invoke({"transform",
                                "--first",
                                "1",
                                "--last",
                                "3=00:00:10.000",
                                "--output-dir",
-                               scratch("").parent_path().string(),
+                               scratch.path(),
                                corpus("valides/trois.srt")});
 
     CHECK(run.exitCode == 1);
@@ -195,13 +172,14 @@ TEST_CASE("a reference without an equals sign is refused", "[e2e][CLI-USAGE-02]"
 }
 
 TEST_CASE("a subtitle numbered from zero is refused", "[e2e][CLI-USAGE-02]") {
+    const Scratch scratch;
     const CliRun run = invoke({"transform",
                                "--first",
                                "0=00:00:01.000",
                                "--last",
                                "3=00:00:10.000",
                                "--output-dir",
-                               scratch("").parent_path().string(),
+                               scratch.path(),
                                corpus("valides/trois.srt")});
 
     CHECK(run.exitCode == 1);
