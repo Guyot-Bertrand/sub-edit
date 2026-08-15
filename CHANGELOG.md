@@ -17,6 +17,7 @@ ne pas l'éditer à la main.
 - **scripts** — Interdire au code de lire le dépôt de référence
 - **scripts** — Mesurer les mentions d'un corpus de sous-titres
 - **text** — Retirer les mentions pour malentendants
+- **scripts** — Calculer ce que clang-tidy doit analyser
 
 ### Documentation
 
@@ -28,11 +29,17 @@ ne pas l'éditer à la main.
 - **doc** — Inscrire les exigences de la phase 4 et les renvois
 - Préciser quand un bump de version rouvre la porte
 - **doc** — Une balise ne borde pas une mention
+- Inscrire le périmètre de clang-tidy et l'ordre du manuel
+
+### Intégration continue
+
+- **ci** — Une exécution par pull request, et rien pour la documentation
 
 ### Remaniements
 
 - **cli** — Une seule accumulation gardée pour les trois grammaires
 - **cli** — Un seul câblage de destination, et un refus nommé
+- **scripts** — Lire ce qui change dans les fichiers de build
 
 ### Tests
 
