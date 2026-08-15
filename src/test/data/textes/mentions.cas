@@ -40,6 +40,23 @@ un texte entièrement vidé emporte le tout | "[Bruit de pas]"            | supp
 deux voix, une vidée : le tiret restant part | "- [ Hisses ]\n- Uhh-"       | "Uhh-"
 trois voix, une vidée : il en reste deux     | "- A\n- [rires]\n- B"        | "- A\n- B"
 
+# --- Une mention à cheval sur deux lignes -----------------------------------
+#
+# Trouvé dans de vrais fichiers, et non imaginé : sur quinze sous-titrages, les
+# seuls crochets « non fermés » sont des mentions coupées par le saut de ligne.
+# Douze dans un même film, toutes de cette forme. Il n'existe pas de crochet
+# réellement orphelin.
+#
+# Le motif s'applique donc au **texte entier du sous-titre**, saut de ligne
+# compris, et jamais ligne par ligne. C'est ce que dit le DOTALL de Gaupol.
+#
+# Décidé : quand la mention enjambe le saut de ligne, **c'est le saut qui
+# subsiste**, pas l'espace — les deux lignes restent deux lignes. Sauf si l'une
+# se retrouve vide, auquel cas elle disparaît, comme partout ailleurs.
+
+à cheval, les deux lignes gardent leur saut   | "fall back. [ Hicks\n] Fall back, now!" | "fall back.\nFall back, now!"
+à cheval, une ligne vidée disparaît           | "Go! [\nMurmurs Of Agreement ]"         | "Go!"
+
 # --- Une référence n'est pas une mention ------------------------------------
 #
 # Décidé : une référence est **purement numérique** — que des chiffres entre les
@@ -71,13 +88,15 @@ des crochets vides s'en vont                 | "Voir [] la note"           | "Vo
 du blanc seul est encore vide                | "Voir [ \t ] la note"       | "Voir la note"
 vides et seuls, ils emportent le sous-titre  | "[]"                        | supprimé
 
-# --- Ce qui reste à décider -------------------------------------------------
+# --- Ce qui a été refermé ----------------------------------------------------
 #
-# Une question ouverte — l'écrire ici est ce qui empêche de la trancher par
-# accident à l'implémentation.
+# « [Musique sans fin » — le crochet ouvrant sans fermant — était la dernière
+# question. Elle est close, et par des fichiers plutôt que par un raisonnement :
+# sur quinze sous-titrages réels, aucun crochet n'est orphelin. Les douze qui en
+# avaient l'air sont des mentions à cheval sur le saut de ligne, traitées
+# ci-dessus.
 #
-#   "[Musique sans fin"
-#       Crochet ouvrant sans fermant. En l'état on ne sait pas trancher : il
-#       faut des fichiers réels pour voir comment cela se présente — le crochet
-#       manquant peut être n'importe où, et ce qu'il faut en faire dépend de ce
-#       qu'on trouve. À reprendre avec des exemples sous les yeux.
+# Un crochet réellement seul reste possible dans un fichier abîmé. Le motif ne
+# mordra pas, et le texte sortira tel quel — ce n'est pas une décision, c'est ce
+# que fait une expression rationnelle qui ne trouve pas sa fin. Rien ne justifie
+# d'écrire du code pour un cas qu'aucun fichier n'a produit.

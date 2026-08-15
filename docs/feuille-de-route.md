@@ -250,6 +250,24 @@ phase**, et peut être différé à la phase 12 où il se posera vraiment.
 `agents/text.py` (méthode `remove_hearing_impaired`), et
 `data/patterns/Latn.hearing-impaired`.
 
+**Ce que la lecture a donné**, relevé à l'issue #88 pour ne pas la refaire :
+
+| Constat | Détail |
+| :------ | :----- |
+| cinq motifs, pas deux | crochets, parenthèses, paroles entre `#`, paroles sur une ligne, nom du locuteur avant deux-points — les trois derniers relèvent de la phase 12 |
+| sections homonymes | `[Hearing Impaired Pattern]` se répète, ce qu'aucun lecteur INI standard n'accepte |
+| `Flags=DOTALL;MULTILINE;` | le motif traverse le saut de ligne, et c'est nécessaire : dans de vrais fichiers, une mention est souvent coupée par lui |
+| `Replacement=\0` | le `\0` protège la valeur, ici vide ; `-\040` donne un tiret et une espace |
+| `.conf` XML | `enabled="false"` pour tous les motifs — rien n'est actif par défaut |
+
+**Les données de motifs ne sont pas reprises.** Gaupol est en GPL-3 comme ce
+projet, donc la copie serait licite ; elle n'est pas utile. Les deux motifs de
+la phase tiennent en deux expressions, la spécification écrite dans
+`src/test/data/textes/mentions.cas` en dit déjà bien davantage — références,
+crochets vides, tirets de dialogue, mentions à cheval — et le format des
+fichiers de motifs reste une décision de cadrage. Reprendre une donnée dans un
+format qu'on n'a pas choisi serait s'engager avant d'avoir décidé.
+
 **Questions d'architecture**
 
 - Reprendre le format INI des motifs de Gaupol tel quel — ce qui permet de
