@@ -19,6 +19,15 @@ apparente :
 consulter les évolutions amont. Même la mise à jour de la copie de travail
 (`pull`, `merge`) se discute avant d'être faite.
 
+**La lecture est pour l'humain, jamais pour le code.** Rien sous `src/lib`,
+`src/exe` ou `src/test` ne désigne `reference/` : le clone est absent de la CI,
+absent d'une machine fraîchement clonée, absent d'une archive du dépôt. Un test
+qui le lit passe chez qui l'a et échoue chez tous les autres — ou se déclare
+ignoré, ce qui est pire, puisqu'il reste vert sans rien prouver. La donnée de
+test versionnée vit dans `src/test/data/` ; `src/data/` n'est pas une option,
+c'est le corpus privé de chaque machine et il est ignoré par git.
+`check-architecture.sh` le vérifie.
+
 **Piège pratique, déjà rencontré :** le répertoire de travail du shell persiste
 d'un appel à l'autre. Un `cd reference/gaupol` fait plus tôt dans la session
 rend toute commande ultérieure dangereuse — `git add -A` cible alors le clone,
