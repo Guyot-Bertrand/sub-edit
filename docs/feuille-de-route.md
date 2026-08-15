@@ -234,6 +234,8 @@ disparaître l'option** — c'est son déclencheur, inscrit comme tel dans la sp
 
 ## 4 — Suppression des mentions pour malentendants
 
+**Cadrée.** Voir [`specs/04-mentions-pour-malentendants.md`](specs/04-mentions-pour-malentendants.md).
+
 **Fortement restreinte.** Le moteur de correction complet — motifs par langue,
 découpage de lignes, correcteur orthographique — relève de la phase 12. Ici,
 seuls les deux motifs demandés :
@@ -268,22 +270,30 @@ crochets vides, tirets de dialogue, mentions à cheval — et le format des
 fichiers de motifs reste une décision de cadrage. Reprendre une donnée dans un
 format qu'on n'a pas choisi serait s'engager avant d'avoir décidé.
 
-**Questions d'architecture**
+**Les deux questions d'architecture posées ici sont tranchées au cadrage**, et
+la spec les développe.
 
-- Reprendre le format INI des motifs de Gaupol tel quel — ce qui permet de
-  réutiliser ses fichiers sans conversion et de bénéficier de leurs mises à
-  jour — ou définir le nôtre ? Deux détails de compatibilité à ne pas découvrir
-  tard : chaque fichier de motifs est accompagné d'un `.conf` **XML** qui active
-  ou désactive les motifs par nom, et un `\0` en tête de valeur sert à protéger
-  les espaces initiaux (`patternman.py`).
-- Comment le moteur de motifs est-il conçu pour que la phase 12 l'étende sans le
-  reprendre ?
+*Reprendre le format INI des motifs, ou définir le nôtre ?* **Ni l'un ni
+l'autre : aucun fichier de motifs dans cette phase.** La transformation est
+décidée, pas configurable ; les fichiers, leur `.conf` et l'activation par nom
+arrivent avec le moteur de la phase 12, qui choisira le format en sachant ce
+qu'il doit porter.
 
-**Point difficile**
+*Comment le moteur est-il conçu pour que la phase 12 l'étende ?* **Il n'y a pas
+de moteur** — [ADR 0017](adr/0017-analyseur-de-mentions-ecrit-a-la-main.md). La
+règle du projet n'est pas une substitution : elle laisse *exactement un espace
+entre ce qui entourait la mention*, ce qui se décide au site du retrait, quand
+une passe d'expression rationnelle est globale et réécrit du texte qu'on ne lui
+a pas demandé de toucher. Gaupol le paie en sept passes de rattrapage. Un
+balayage écrit à la main tient la règle exactement, et la phase 12 reste libre
+de son moteur.
 
-Supprimer `[Bruit de pas]` laisse une ligne vide, ou une ligne réduite à un
-espace. Gaupol traite ce nettoyage à part (option `remove_blank`). Le
-comportement attendu se spécifie, il ne s'improvise pas.
+**Le point difficile est tranché lui aussi.** Supprimer `[Bruit de pas]` ne
+laisse pas une ligne vide : une ligne que le retrait vide disparaît, et un texte
+entièrement vidé emporte son sous-titre — sans option, là où Gaupol offre
+`remove_blank`. La vacuité ignore les balises de format, parce que neuf
+sous-titres réels du corpus s'écrivent `<i>[PEOPLE SCREAMING]</i>` et
+laisseraient sinon un `<i></i>` à l'écran.
 
 ---
 
