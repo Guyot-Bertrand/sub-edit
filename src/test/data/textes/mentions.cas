@@ -1,12 +1,13 @@
 # La suppression des mentions pour malentendants — ce qui est décidé.
 #
-# Ce fichier est la spécification de la phase 4, écrite cas par cas. Il précède
-# le code : la transformation n'existe pas encore, et c'est voulu — ces cas sont
-# des questions posées à qui décide, pas des vérifications d'un comportement
-# déjà écrit.
+# Ce fichier est la spécification de la phase 4, écrite cas par cas. Il a précédé
+# le code : ces cas ont été des questions posées à qui décide avant d'être des
+# vérifications d'un comportement écrit.
 #
-# Tant que l'opération n'existe pas, seule leur bonne forme est éprouvée. Le jour
-# où elle existe, une ligne de test suffit à la confronter à tout ce qui suit.
+# **Depuis #101, ils sont l'un et l'autre.** `withoutHearingImpaired` les passe
+# tous, et c'est une seule ligne de test qui l'y confronte — ce pour quoi le
+# format existe. Un cas ajouté ici le jour où une question se tranche est donc
+# un test qui échoue le jour même.
 
 # --- La règle, telle que les cas la font apparaître -------------------------
 #
@@ -100,3 +101,51 @@ vides et seuls, ils emportent le sous-titre  | "[]"                        | sup
 # mordra pas, et le texte sortira tel quel — ce n'est pas une décision, c'est ce
 # que fait une expression rationnelle qui ne trouve pas sa fin. Rien ne justifie
 # d'écrire du code pour un cas qu'aucun fichier n'a produit.
+
+# --- Les deux délimiteurs sont symétriques ------------------------------------
+#
+# Décidé au cadrage : ce qui vaut entre crochets vaut entre parenthèses. Un
+# chiffre est un chiffre, et deux règles à retenir là où une suffit se paient à
+# chaque relecture. Le corpus ne montre aucune référence numérique, d'aucun des
+# deux genres ; l'asymétrie n'aurait donc même pas eu de fichier pour la
+# justifier.
+
+une référence entre parenthèses est gardée   | "Voir (1) la note"          | =
+des espaces au bord ne changent rien non plus | "Voir ( 156478 ) la note"  | =
+une lettre en fait une mention, ici aussi    | "Voir (1a) la note"         | "Voir la note"
+des parenthèses vides s'en vont              | "Voir () la note"           | "Voir la note"
+vides et seules, elles emportent le sous-titre | "()"                      | supprimé
+
+# --- Une balise n'est pas du texte -------------------------------------------
+#
+# Décidé sur pièces, et pas par raisonnement. Neuf sous-titres réels s'écrivent
+# « <i>[PEOPLE SCREAMING]</i> » : sans cette règle il resterait « <i></i> », un
+# sous-titre vide à l'écran que rien n'aurait retiré. Cinquante-trois autres
+# s'écrivent « <i>(Guild navigator) We have » : par la lettre de la règle de
+# couture, la balise borde la mention et le retrait laisse une espace en tête de
+# ligne — ce que « rien en bord de ligne » interdit précisément.
+#
+# La règle est donc la même des deux côtés : **pour juger d'un bord comme d'une
+# vacuité, une balise ne compte pas.** Elle n'est pour autant jamais retirée —
+# l'ADR 0009 garde le texte brut, et c'est au jugement de les ignorer, pas au
+# texte de les perdre.
+
+un texte réduit à ses balises est vide       | "<i>[PEOPLE SCREAMING]</i>" | supprimé
+une ligne réduite à ses balises disparaît    | "Bonjour\n<i>[soupir]</i>"  | "Bonjour"
+une balise ouvrante ne borde pas la mention  | "<i>(Guild navigator) We have" | "<i>We have"
+la balise reste, elle n'est pas retirée      | "<i>[soupir] Bonjour</i>"   | "<i>Bonjour</i>"
+
+# --- Ce à quoi on ne touche pas ----------------------------------------------
+#
+# Ces trois cas ne décident rien de neuf : ils rendent vérifiable ce que la
+# règle de couture dit déjà, et qui est l'argument de l'ADR 0017. Une passe
+# d'expression rationnelle « deux espaces deviennent un » les casserait tous —
+# c'est là qu'on verrait la différence entre la règle locale et la règle
+# globale, et c'est pour cela qu'ils sont écrits.
+
+un texte sans mention n'est pas touché       | "Bonjour  Marie"            | =
+les espaces d'origine ne sont pas recollés   | "Bonjour  Marie [rires]"    | "Bonjour  Marie"
+un texte vide sans mention le reste          | ""                          | =
+une ligne déjà vide n'est pas emportée       | "\nBonjour [rires]"         | "\nBonjour"
+un crochet jamais refermé ne mord pas        | "[Musique sans fin"         | =
+une balise jamais refermée est du texte      | "<i Bonjour [rires]"        | "<i Bonjour"
