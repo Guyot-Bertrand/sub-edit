@@ -21,20 +21,15 @@ ExitCode convertFrameRateAll(core::FileSystem& files,
     // No refusal of its own: the grammar has already established that both
     // texts named a rate, and two rates always define a ratio. This is the one
     // rewriting operation that cannot fail on the contents of a file.
-    const Operation retime = [input,
-                              output](core::Session& session) -> std::expected<void, std::string> {
+    const Operation retime =
+        [input, output](core::Session& session) -> std::expected<std::string, std::string> {
         session.apply(std::make_unique<core::ConvertFrameRateCommand>(
             session.project(), core::Selection::all(session.project()), input, output));
-        return {};
+        return countOf(session.project().count(), "subtitle") + " retimed from " + nameOf(input) +
+               " to " + nameOf(output) + " fps";
     };
 
-    return rewriteAll(files,
-                      paths,
-                      destination,
-                      reporter,
-                      "retimed",
-                      "from " + nameOf(input) + " to " + nameOf(output) + " fps",
-                      retime);
+    return rewriteAll(files, paths, destination, reporter, "retimed", retime);
 }
 
 } // namespace subedit::cli
