@@ -39,11 +39,25 @@ TEST_CASE("a subtitle the removal empties leaves the file", "[e2e][CLI-HEARING-0
     CHECK(invoke({"--quiet", "hearing-impaired", "--output", out, corpus("valides/mentions.srt")})
               .exitCode == 0);
 
-    // Five subtitles in, one of them nothing but a mention: four come out, and
+    // Six subtitles in, one of them nothing but a mention: five come out, and
     // they are renumbered from one.
     CHECK_THAT(contentOf(out), !ContainsSubstring("Bruit de pas"));
-    CHECK_THAT(contentOf(out), ContainsSubstring("4\n00:00:13,000"));
-    CHECK_THAT(contentOf(out), !ContainsSubstring("5\n"));
+    CHECK_THAT(contentOf(out), ContainsSubstring("5\n00:00:16,000"));
+    CHECK_THAT(contentOf(out), !ContainsSubstring("6\n"));
+}
+
+TEST_CASE("a mention cut by the line break is removed whole", "[e2e][CLI-HEARING-01]") {
+    // The case that came from real files rather than from imagination: on
+    // fifteen subtitlings, every bracket that looked orphaned was a mention the
+    // line break had cut in two. The line break is what survives, so the two
+    // lines stay two lines.
+    const Scratch scratch;
+    const std::string out = scratch.of("cheval.srt");
+
+    CHECK(invoke({"--quiet", "hearing-impaired", "--output", out, corpus("valides/mentions.srt")})
+              .exitCode == 0);
+
+    CHECK_THAT(contentOf(out), ContainsSubstring("Reculez !\nTout de suite !"));
 }
 
 TEST_CASE("a numeric reference is left alone", "[e2e][CLI-HEARING-03]") {
@@ -64,9 +78,9 @@ TEST_CASE("the report names what changed and what went", "[e2e][CLI-HEARING-04]"
         invoke({"hearing-impaired", "--output", out, corpus("valides/mentions.srt")});
 
     CHECK(run.exitCode == 0);
-    // Two rewritten — « Attends [il tousse] Marie » and the dialogue that lost
-    // a voice — and one taken out entirely.
-    CHECK_THAT(run.errors, ContainsSubstring("2 subtitles cleaned, 1 removed"));
+    // Three rewritten — « Attends [il tousse] Marie », the dialogue that lost a
+    // voice, and the mention cut by the line break — and one taken out.
+    CHECK_THAT(run.errors, ContainsSubstring("3 subtitles cleaned, 1 removed"));
 }
 
 TEST_CASE("a file with no mention is written unchanged", "[e2e][CLI-HEARING-05]") {
