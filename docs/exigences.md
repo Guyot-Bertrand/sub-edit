@@ -87,9 +87,9 @@ plus rien.
 | `CLI-TRANSFORM-02` | deux indices confondus sont refusés | 3 | implémentée |
 | `CLI-FRAMERATE-01` | `--from`/`--to` convertit les positions | 3 | implémentée |
 | `CLI-FRAMERATE-02` | une fréquence nulle ou négative est refusée | 3 | implémentée |
-| `CLI-HEARING-01` | `hearing-impaired` retire les mentions entre crochets et entre parenthèses | 4 | prévue |
-| `CLI-HEARING-02` | un sous-titre que le retrait vide est supprimé du fichier écrit | 4 | prévue |
-| `CLI-HEARING-03` | une référence purement numérique est laissée telle quelle | 4 | prévue |
-| `CLI-HEARING-04` | le rapport nomme le nombre de sous-titres changés et supprimés | 4 | prévue |
-| `CLI-HEARING-05` | un fichier sans aucune mention est écrit inchangé, code 0 | 4 | prévue |
-| `CLI-HEARING-06` | sans destination explicite, rien n'est écrit et le code est 1 | 4 | prévue |
+| `CLI-HEARING-01` | `hearing-impaired` retire les mentions entre crochets et entre parenthèses | 4 | implémentée |
+| `CLI-HEARING-02` | un sous-titre que le retrait vide est supprimé du fichier écrit | 4 | implémentée |
+| `CLI-HEARING-03` | une référence purement numérique est laissée telle quelle | 4 | implémentée |
+| `CLI-HEARING-04` | le rapport nomme le nombre de sous-titres changés et supprimés | 4 | implémentée |
+| `CLI-HEARING-05` | un fichier sans aucune mention est écrit inchangé, code 0 | 4 | implémentée |
+| `CLI-HEARING-06` | sans destination explicite, rien n'est écrit et le code est 1 | 4 | implémentée |

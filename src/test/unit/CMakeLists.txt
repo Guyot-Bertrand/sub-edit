@@ -88,6 +88,7 @@ add_executable(
     cli/digits_test.cpp
     cli/frame_rate_conversion_test.cpp
     cli/frame_rate_grammar_test.cpp
+    cli/hearing_impaired_test.cpp
     cli/index_grammar_test.cpp
     cli/inspection_test.cpp
     cli/reporter_test.cpp
