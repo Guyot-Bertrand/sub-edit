@@ -37,6 +37,7 @@ ne pas l'éditer à la main.
 - **doc** — Une balise ne borde pas une mention
 - Inscrire le périmètre de clang-tidy et l'ordre du manuel
 - **doc** — Le manuel de hearing-impaired
+- **doc** — Inscrire les écarts de la phase 4 et compléter les renvois
 
 ### Intégration continue
 
@@ -58,6 +59,7 @@ ne pas l'éditer à la main.
 - **test** — Un corpus de cas de texte, lu plutôt que compilé
 - **test** — Une fixture de mesure dont le texte mord
 - **test** — Écrire les cas que le cadrage et le corpus ont tranchés
+- **test** — La mention à cheval manquait aux tests de bout en bout
 
 ## 0.3.0 — 2026-08-14
 
