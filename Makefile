@@ -60,6 +60,19 @@ export CMAKE_GENERATOR ?= $(shell command -v ninja >/dev/null 2>&1 && echo Ninja
 
 SOURCES := $(shell find src -name '*.cpp' -o -name '*.hpp' 2>/dev/null)
 
+# Les fichiers que clang-tidy analyse. Tous, par défaut.
+#
+# La CI restreint la liste à ce qu'une pull request met en cause —
+# src/scripts/tidy-scope.sh la calcule, en fermeture transitive des en-têtes. Le
+# défaut reste la liste complète : une restriction s'obtient en la demandant,
+# jamais par omission.
+#
+# **Une liste sur une seule ligne, séparée par des espaces.** Make recopie la
+# valeur telle quelle dans la recette : des sauts de ligne y créeraient des
+# lignes de shell, et le deuxième fichier serait exécuté au lieu d'être
+# analysé.
+TIDY_FILES ?= $(shell find src -name '*.cpp' 2>/dev/null | sort)
+
 # libstdc++ garde <expected> derrière __cpp_concepts >= 202002L, valeur que
 # Clang 18 ne déclare pas : il ne voit alors pas std::expected. On prend donc la
 # version la plus récente disponible, sans exiger qu'elle soit installée.
@@ -147,12 +160,13 @@ format-check: ## Vérifie le format sans modifier
 # chez Clang : sans -Wno-unknown-warning-option, clang-tidy échoue sur
 # -Wuseless-cast et consorts avant d'avoir analysé la moindre ligne.
 .PHONY: tidy
-tidy: ## Exécute clang-tidy
+tidy: ## Exécute clang-tidy (sur $(TIDY_FILES))
 	$(call require,$(CLANG_TIDY))
-	$(call step,"analyse statique — $(notdir $(CLANG_TIDY))")
+	$(call step,"analyse statique — $(notdir $(CLANG_TIDY)) — $(words $(TIDY_FILES)) fichier(s)")
 	@cmake --preset dev >/dev/null
-	@find src -name '*.cpp' -print0 \
-		| xargs -0 -P $(JOBS) -I{} \
+	@printf '%s\n' $(TIDY_FILES) \
+		| sed '/^$$/d' \
+		| xargs -r -P $(JOBS) -I{} \
 			$(CLANG_TIDY) -p build/dev --quiet --extra-arg=-Wno-unknown-warning-option {}
 
 .PHONY: arch

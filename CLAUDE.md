@@ -109,25 +109,39 @@ avec un objectif d'iso-fonctionnalité.
      version n'a pas encore bougé, donc son relevé ne doit pas rester dans le
      journal — il porterait le nom de la version précédente ;
   4. **bumper le patch** ;
-  5. `make check` — une seule fois, elle voit le code *et* le bump — puis
+  5. **`make manual`** — le bump vient de périmer l'exemple `--version`, qui
+     cite le numéro. Ça tient en dix secondes, et l'oublier fait échouer
+     l'étape suivante : `check-local` enchaîne `manual-check`, qui compare ce
+     bloc à ce que le binaire écrit. Le défaut a été payé trois fois avant
+     d'être inscrit ici ;
+  6. `make check` — une seule fois, elle voit le code *et* le bump — puis
      `make check-local`, dont le `make bench` qu'il enchaîne tourne cette
      fois sur la version bumpée : **c'est cette exécution-là, postérieure au
      bump, qui enregistre la mesure qui reste dans le journal** ;
-  6. **mettre à jour la documentation et le relevé de mesures** — manuel, notes,
-     exemples de version, chiffres relevés à l'étape 5. Rien de tout cela n'est
-     lu par la porte, donc rien ne la réouvre ;
-  7. commiter, régénérer le CHANGELOG, ouvrir la PR.
+  7. **mettre à jour le reste de la documentation et le relevé de mesures** —
+     notes, sections de manuel que le ticket change, chiffres relevés à
+     l'étape 6. Rien de tout cela n'est lu par la porte, donc rien ne la
+     réouvre ;
+  8. commiter, régénérer le CHANGELOG, ouvrir la PR.
 
-  L'étape 6 vient après la 5 par construction : c'est la seule position où la
-  documentation ne coûte rien. Et l'exemple de version du manuel a besoin du
-  numéro décidé à l'étape 4.
+  L'étape 7 vient après la 6 par construction : c'est la seule position où la
+  documentation ne coûte rien. L'exemple de version, lui, ne peut pas y
+  attendre — il est lu par `check-local`, d'où l'étape 5 qui lui est réservée.
 
   Le tag et le `project(VERSION)` doivent porter le même numéro : **bumper le
   CMake avant de tagger**, sinon le binaire annonce une version périmée.
   `src/scripts/check-architecture.sh` le vérifie dès qu'un tag pointe sur HEAD.
 - **Qualité** — `make check` est la porte : format, warnings en erreurs,
-  clang-tidy, tests sous ASan, seuil de couverture. La CI l'exécute à
-  l'identique. Ne jamais annoncer un travail terminé sans l'avoir lancée.
+  clang-tidy, tests sous ASan, seuil de couverture. La CI exécute la même
+  cible. Ne jamais annoncer un travail terminé sans l'avoir lancée.
+
+  **Une seule différence, et elle est écrite :** sur une pull request, la CI
+  restreint clang-tidy aux fichiers que la pull request met en cause —
+  `src/scripts/tidy-scope.sh` calcule la liste, en fermeture transitive des
+  en-têtes, et retombe sur l'analyse complète au moindre doute. L'analyse
+  complète tourne chaque semaine sur `main`. En local, `make check` analyse
+  tout : le défaut de `TIDY_FILES` est la liste entière, et une restriction se
+  demande, elle ne s'obtient jamais par omission.
 
   **Elle ne se relance que si elle peut voir la différence.** Elle coûte une
   dizaine de minutes ; les modifications qu'elle ne lit pas ne les valent pas.
@@ -159,7 +173,7 @@ avec un objectif d'iso-fonctionnalité.
 - **Manuel utilisateur** — [`docs/manual/`](docs/manual/). **Tout ticket qui
   change ce que l'utilisateur voit se termine par sa mise à jour**, une fois le
   code écrit, relu et validé — pas avant, sinon le manuel décrit une intention
-  et non un logiciel. Concrètement, à l'étape 5 de l'ordre décrit plus haut :
+  et non un logiciel. Concrètement, à l'étape 7 de l'ordre décrit plus haut :
   après la porte, qui ne le lit pas. Ce qui doit y figurer, exhaustivement :
 
   | Élément | Ce qu'on en dit |
