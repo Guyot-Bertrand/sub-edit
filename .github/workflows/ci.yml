@@ -86,26 +86,6 @@ jobs:
         with:
           key: ${{ github.job }}
 
-      # Ce que clang-tidy doit analyser, calculé plutôt que deviné : les
-      # sources touchées, et la fermeture transitive des en-têtes qu'elles
-      # modifient. Le script décide seul de rendre la liste complète quand
-      # quelque chose la met en cause — voir son en-tête.
-      #
-      # Hors pull request — hebdomadaire, relance manuelle — la variable reste
-      # vide et le Makefile prend son défaut : tout.
-      # **Sur une seule ligne, séparés par des espaces.** Une valeur à
-      # plusieurs lignes passée à make est recopiée telle quelle dans la
-      # recette : la deuxième ligne y devient une commande shell, et le premier
-      # fichier de la liste s'exécute au lieu d'être analysé. Le défaut a été
-      # payé sur cette pull request même, où « main.cpp: Permission denied » a
-      # arrêté la porte.
-      - name: Périmètre de l'analyse statique
-        id: perimetre
-        if: github.event_name == 'pull_request'
-        run: |
-          fichiers="$(./src/scripts/tidy-scope.sh "origin/${{ github.base_ref }}" | tr '\n' ' ')"
-          echo "fichiers=${fichiers}" >> "$GITHUB_OUTPUT"
-
       # La CI n'exécute rien d'autre que make check. Recopier ses étapes ici
       # les ferait diverger du filet local dès la première modification.
       #
@@ -113,20 +93,16 @@ jobs:
       # ne pas affamer les autres travaux d'une machine de développement. Ici la
       # machine est à nous seuls, et rien ne justifie d'attendre.
       #
-      # TIDY_FILES n'est passé que sur une pull request. Le passer vide
-      # ailleurs n'aurait pas rendu la main au défaut du Makefile : une
-      # variable donnée sur la ligne de commande l'emporte, même vide, et
-      # clang-tidy n'aurait alors analysé **rien du tout**, en silence et en
-      # vert. Le seul cas où la liste est légitimement vide est une pull
-      # request qui ne touche aucune source.
+      # **La CI ne dit que la base**, et laisse le Makefile calculer le
+      # périmètre de clang-tidy : c'est le même chemin qu'en local, donc le
+      # même comportement, et il n'y a qu'un endroit où se tromper. Une base
+      # vide — hebdomadaire, relance manuelle — veut dire « analyse tout ».
       - name: make check
-        env:
-          PERIMETRE: ${{ steps.perimetre.outputs.fichiers }}
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-              make check JOBS=$(nproc) TIDY_FILES="${PERIMETRE}"
+              make check JOBS=$(nproc) TIDY_BASE="origin/${{ github.base_ref }}"
           else
-              make check JOBS=$(nproc)
+              make check JOBS=$(nproc) TIDY_BASE=
           fi
 
       - name: Rapport de couverture

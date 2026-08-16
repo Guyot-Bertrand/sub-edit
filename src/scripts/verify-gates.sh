@@ -444,11 +444,39 @@ expect_gate_stays_open \
     "${PLAIN_SCRIPT_SOURCE}" \
     'cmake --build . # exemple : -j 4 pour aller plus vite'
 
+# La preuve que le périmètre restreint de clang-tidy ne peut pas rendre un vert
+# vide.
+#
+# **Le défaut qu'elle attrape a existé.** tidy-scope.sh calculait son périmètre
+# avec `git diff base...HEAD`, qui ne voit que ce qui est commité : juste en
+# intégration continue, faux en local, où la porte se lance avant de commiter.
+# Sur une branche sans commit, il rendait zéro fichier — donc une porte verte
+# qui n avait rien analysé.
+#
+# Elle ne peut pas passer par expect_gate_closes : la cible porte ici une
+# affectation, et cette fonction passe son argument en un seul mot.
+expect_restricted_tidy_closes() {
+    printf '%s▸ %s%s\n' "${BOLD}" "défaut dans un fichier non commité, périmètre restreint" "${RESET}"
+    printf '\nnamespace { int probeForTheProof() { int value = 1; return value; } }\n' \
+        >> "${LIB_SOURCE}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory tidy TIDY_BASE=HEAD >/dev/null 2>&1; then
+        printf '  %s✗ la porte « tidy » a laissé passer le défaut%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make tidy TIDY_BASE=HEAD » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    restore
+}
+
+expect_restricted_tidy_closes
+
 printf '\n'
 if (( failures > 0 )); then
     printf '%s%d porte(s) laissent passer un défaut%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles vingt-trois portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles vingt-quatre portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%set le contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
