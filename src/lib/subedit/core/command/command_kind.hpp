@@ -18,6 +18,7 @@ enum class CommandKind {
     Transform,
     ConvertFrameRate,
     Sort,
+    RemoveHearingImpaired,
 };
 
 } // namespace subedit::core

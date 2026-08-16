@@ -26,7 +26,9 @@
 // added here that is faster than a few microseconds belongs in the second
 // group, whatever its shape.
 
+#include <subedit/core/command/command.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
+#include <subedit/core/edit/hearing_impaired_removal.hpp>
 #include <subedit/core/edit/insert_command.hpp>
 #include <subedit/core/edit/remove_command.hpp>
 #include <subedit/core/edit/session.hpp>
@@ -59,6 +61,7 @@
 
 namespace {
 
+using subedit::core::Command;
 using subedit::core::ConvertFrameRateCommand;
 using subedit::core::Document;
 using subedit::core::Duration;
@@ -66,6 +69,7 @@ using subedit::core::FrameRate;
 using subedit::core::InsertCommand;
 using subedit::core::Project;
 using subedit::core::RemoveCommand;
+using subedit::core::removeHearingImpaired;
 using subedit::core::Selection;
 using subedit::core::Session;
 using subedit::core::SetTextCommand;
@@ -228,6 +232,29 @@ TEST_CASE("editing one subtitle of a full-length file", "[benchmark]") {
             session.apply(std::make_unique<SetTextCommand>(
                 session.project(), middle, Document::Main, "Autre " + std::to_string(run)));
             return session.undoableCount();
+        });
+    };
+}
+
+TEST_CASE("removing hearing impaired mentions from a full-length file", "[benchmark]") {
+    // The first measurement of text in the journal, and the reason the fixture
+    // of #89 was written: one subtitle in five carries a mention, and 11.6 % of
+    // them are taken away by the removal — the expensive case.
+    //
+    // Measured through the command, building included, because that is what a
+    // user triggers. The scan alone would be steadier to measure and would
+    // measure less.
+    const Project project = fullLengthProject();
+
+    BENCHMARK_ADVANCED("suppression des mentions sur 4000 sous-titres")
+    (Catch::Benchmark::Chronometer meter) {
+        std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
+        meter.measure([&](int run) {
+            Project& copy = copies[static_cast<std::size_t>(run)];
+            std::unique_ptr<Command> command = removeHearingImpaired(copy, Document::Main);
+            if (command)
+                command->apply(copy);
+            return copy.count();
         });
     };
 }

@@ -18,6 +18,7 @@ ne pas l'éditer à la main.
 - **scripts** — Mesurer les mentions d'un corpus de sous-titres
 - **text** — Retirer les mentions pour malentendants
 - **scripts** — Calculer ce que clang-tidy doit analyser
+- **core** — La commande de retrait des mentions, et sa mesure
 
 ### Corrections
 

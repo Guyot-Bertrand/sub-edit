@@ -23,13 +23,12 @@ de lui-même :** un fichier versionné ne bouge que si quelqu'un le demande.
 
 ## Relevé
 
-    total : 6
+    total : 5
 
-Relevé sur la version 0.2.12, le 2026-08-14.
+Relevé sur la version 0.3.13, le 2026-08-16.
 
 | Lignes | Fichier |
 | -----: | :------ |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 2 | `src/lib/subedit/core/format/real_file_system.cpp` |
-| 1 | `src/lib/subedit/core/command/composite_command.hpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
