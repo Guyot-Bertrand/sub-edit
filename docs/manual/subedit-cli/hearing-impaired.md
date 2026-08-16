@@ -60,6 +60,20 @@ Le retrait laisse **exactement une espace entre ce qui l'entourait, et rien en
 bord de ligne**. Ce n'est pas un nettoyage des espaces du fichier : deux espaces
 que le texte portait déjà restent deux espaces.
 
+**Quand la mention enjambe le saut de ligne, c'est le saut qui subsiste** — les
+deux lignes restent deux lignes. Ce cas n'est pas une curiosité : sur quinze
+sous-titrages réels, tous les crochets qui semblaient orphelins étaient des
+mentions coupées ainsi.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nReculez ! [Il\nhurle] Tout de suite !\n\n' > a.srt; subedit-cli --quiet hearing-impaired --output b.srt a.srt; cat b.srt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:03,000\nReculez ! [Il\nhurle] Tout de suite !\n\n' > a.srt; subedit-cli --quiet hearing-impaired --output b.srt a.srt; cat b.srt
+1
+00:00:01,000 --> 00:00:03,000
+Reculez !
+Tout de suite !
+```
+
 **Ce qui n'est pas une mention et ne bouge pas :**
 
 | Cas | Ce qui se passe |
