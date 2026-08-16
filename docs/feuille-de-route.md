@@ -512,6 +512,13 @@ découpage de lignes et correcteur orthographique.
   motifs sont écrits en syntaxe Python et utilisent abondamment les **références
   arrière** (`\1 \2`), que RE2 ne gère pas ; PCRE2 est compatible mais peut
   exploser en temps sur certains motifs. Mesurer avant de trancher.
+
+  **La phase 4 s'en est passée, et son [ADR 0017](adr/0017-analyseur-de-mentions-ecrit-a-la-main.md)
+  est à lire avant de trancher ici.** Elle explique pourquoi un moteur n'aurait
+  pas suffi pour ses deux motifs — la règle de couture est locale au site du
+  retrait, une substitution est globale — et pose son propre déclencheur de
+  réouverture : « le troisième motif demandé, quel qu'il soit ». Ce troisième
+  motif, c'est cette phase-ci qui le demande.
 - **Mesure de longueur de texte.** Point d'attention majeur : Gaupol mesure les
   lignes en *ems*, et le fait en demandant à **un widget GTK de mesurer le rendu
   du texte** (`gaupol/ruler.py`). L'algorithme de découpage dépend donc du

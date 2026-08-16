@@ -206,9 +206,17 @@ entrée d'historique, donc une seule annulation — c'est précisément ce pour 
 
 **Aucune classe de commande nouvelle.** `CompositeCommand` *est* la commande ;
 en écrire une qui lui délègue la doublerait. Ce qu'il faut en revanche, c'est un
-`CommandKind::RemoveHearingImpaired`, pour que l'historique la nomme et que le
-rapport de la CLI la distingue — un énumérateur avec un lecteur, donc, ce que la
-phase 2 exigeait déjà de tout nouvel énumérateur.
+`CommandKind::RemoveHearingImpaired`, faute de quoi le groupe devrait se faire
+passer pour autre chose — `Remove` mentirait, l'opération réécrivant bien plus
+qu'elle ne supprime.
+
+*Corrigé à la relecture (#110).* Cette section annonçait que « le rapport de la
+CLI la distingue ». **C'est faux du code écrit** : le rapport lit `describe()`,
+qui porte les chiffres, et jamais le `kind`. Son unique lecteur de production
+est `mayBreakOrder`, qui répond « non, aucune position ne bouge ». Le lecteur qui
+nommera l'opération dans un menu « annuler » arrive avec la fenêtre de la phase
+5 — l'énumérateur est donc pour l'instant justifié par l'honnêteté du nom, pas
+par un affichage.
 
 **Rien du tout quand rien ne mord.** Un composite vide s'appliquerait sans rien
 faire et pousserait une entrée d'historique que l'utilisateur ne comprendrait
@@ -237,6 +245,13 @@ subedit-cli hearing-impaired (--output FICHIER | --output-dir DOSSIER | --in-pla
 Elle réutilise **la grammaire de destination, le rapporteur, les niveaux de
 verbosité et les codes de retour de la phase 3**, sans rien inventer.
 
+*Une exception, apparue à l'écriture (#103) :* la charpente de réécriture ne
+savait dire qu'une phrase fixe, décidée une fois pour tout le lot — « by
+2.999 s ». Un retrait a des chiffres **par fichier**, qu'aucune phrase décidée
+d'avance ne peut porter. L'opération formule donc désormais elle-même sa phrase,
+puisqu'elle seule sait ce qu'elle a fait ; les trois sous-commandes antérieures
+disent mot pour mot ce qu'elles disaient.
+
 **Le fichier entier, le texte principal.** Aucune sous-commande ne prend de
 sélection, et `Document::Translation` n'apparaît nulle part dans `src/lib/subedit/cli`
 — une option `--document` serait de la grammaire morte. Le noyau, lui, accepte
@@ -260,9 +275,11 @@ harnais — la spec de la phase 3 l'écrit — et ses noms peuvent encore bouger
 
 ## Tests
 
-**Les cas de `mentions.cas` passent par la fonction pure** — vingt-quatre
-aujourd'hui — en une ligne de test : `checkTextCases` existe depuis #87 et attend exactement cette
-signature. Les cas jumeaux des parenthèses et ceux des balises y sont ajoutés.
+**Les cas de `mentions.cas` passent par la fonction pure**, en une ligne de
+test : `checkTextCases` existe depuis #87 et attend exactement cette signature.
+Le corpus est passé de vingt-quatre cas à trente-neuf en écrivant la phase — les
+jumeaux des parenthèses, ceux des balises, ceux qui prouvent qu'on ne touche à
+rien d'autre, et les deux délimiteurs que rien ne referme.
 
 **L'annulation se prouve sur le projet, pas sur la commande** : après `apply`
 puis `revert`, le projet est celui d'avant, exactement — textes et sous-titres
@@ -271,6 +288,11 @@ supprimés remis à leur place, y compris quand la suppression est discontinue.
 **De bout en bout, par le binaire réel**, sur un fichier qui porte les cas qui
 comptent : une mention seule, une mention à cheval, un dialogue à une voix, une
 référence numérique laissée tranquille.
+
+*La mention à cheval manquait à la fixture, et la relecture (#110) l'a
+rattrapée.* C'était le cas le plus utile des quatre : le seul qui vienne de
+fichiers réels plutôt que du raisonnement, et le seul qu'une lecture ligne par
+ligne casserait sans que rien d'autre ne le dise.
 
 **Aucun test ne compare deux implémentations.** Ce qui est attendu est écrit
 dans le test ou dans le corpus de cas, jamais produit par Gaupol.
