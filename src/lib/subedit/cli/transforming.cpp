@@ -72,7 +72,7 @@ ExitCode transformAll(core::FileSystem& files,
                       const Destination& destination,
                       const Reporter& reporter) {
     const Operation retime =
-        [&transform](core::Session& session) -> std::expected<void, std::string> {
+        [&transform](core::Session& session) -> std::expected<std::string, std::string> {
         const std::size_t count = session.project().subtitles().size();
         if (const std::optional<std::string> beyond = beyondOf(transform.first(), count)) {
             return std::unexpected{*beyond};
@@ -104,16 +104,11 @@ ExitCode transformAll(core::FileSystem& files,
             session.undo();
             return std::unexpected{*refused};
         }
-        return {};
+        return countOf(session.project().count(), "subtitle") + " transformed onto " +
+               wordedOf(transform.first()) + " and " + wordedOf(transform.last());
     };
 
-    return rewriteAll(files,
-                      paths,
-                      destination,
-                      reporter,
-                      "transformed",
-                      "onto " + wordedOf(transform.first()) + " and " + wordedOf(transform.last()),
-                      retime);
+    return rewriteAll(files, paths, destination, reporter, "transformed", retime);
 }
 
 } // namespace subedit::cli

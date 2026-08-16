@@ -1,5 +1,6 @@
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/cli/shifting.hpp>
+#include <subedit/cli/wording.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
 #include <subedit/core/model/project.hpp>
@@ -42,7 +43,8 @@ ExitCode shiftAll(core::FileSystem& files,
                   core::Duration by,
                   const Destination& destination,
                   const Reporter& reporter) {
-    const Operation shift = [by](core::Session& session) -> std::expected<void, std::string> {
+    const Operation shift =
+        [by](core::Session& session) -> std::expected<std::string, std::string> {
         const std::span<const core::Subtitle> subtitles = session.project().subtitles();
         for (std::size_t i = 0; i < subtitles.size(); ++i) {
             if ((subtitles[i].start + by).milliseconds() < 0) {
@@ -54,10 +56,10 @@ ExitCode shiftAll(core::FileSystem& files,
 
         session.apply(
             std::make_unique<core::ShiftCommand>(core::Selection::all(session.project()), by));
-        return {};
+        return countOf(session.project().count(), "subtitle") + " shifted by " + secondsOf(by);
     };
 
-    return rewriteAll(files, paths, destination, reporter, "shifted", "by " + secondsOf(by), shift);
+    return rewriteAll(files, paths, destination, reporter, "shifted", shift);
 }
 
 } // namespace subedit::cli

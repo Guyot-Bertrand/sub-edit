@@ -19,6 +19,7 @@ ne pas l'éditer à la main.
 - **text** — Retirer les mentions pour malentendants
 - **scripts** — Calculer ce que clang-tidy doit analyser
 - **core** — La commande de retrait des mentions, et sa mesure
+- **cli** — La sous-commande hearing-impaired
 
 ### Corrections
 
@@ -35,6 +36,7 @@ ne pas l'éditer à la main.
 - Préciser quand un bump de version rouvre la porte
 - **doc** — Une balise ne borde pas une mention
 - Inscrire le périmètre de clang-tidy et l'ordre du manuel
+- **doc** — Le manuel de hearing-impaired
 
 ### Intégration continue
 
@@ -45,6 +47,7 @@ ne pas l'éditer à la main.
 - **cli** — Une seule accumulation gardée pour les trois grammaires
 - **cli** — Un seul câblage de destination, et un refus nommé
 - **scripts** — Lire ce qui change dans les fichiers de build
+- **cli** — Laisser chaque opération formuler son résultat
 
 ### Tests
 

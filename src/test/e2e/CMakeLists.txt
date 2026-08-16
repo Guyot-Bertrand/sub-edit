@@ -13,6 +13,7 @@ add_executable(
     cli/narration_test.cpp
     cli/batch_test.cpp
     cli/convert_test.cpp
+    cli/hearing_impaired_test.cpp
     cli/shift_test.cpp
     cli/transform_test.cpp
     cli/framerate_test.cpp)

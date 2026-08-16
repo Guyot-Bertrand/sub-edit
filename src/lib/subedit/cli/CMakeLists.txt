@@ -24,6 +24,7 @@ add_library(
     index_grammar.cpp
     reporter.cpp
     rewriting.cpp
+    hearing_impaired.cpp
     shifting.cpp
     time_grammar.cpp
     transforming.cpp

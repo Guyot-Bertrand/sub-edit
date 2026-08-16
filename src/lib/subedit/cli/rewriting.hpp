@@ -26,7 +26,13 @@ class Reporter;
 /// command line drives the very commands the window will drive**. Applying the
 /// arithmetic here instead would leave the core's operations exercised by
 /// nothing but their own unit tests — and this phase exists to exercise them.
-using Operation = std::function<std::expected<void, std::string>(subedit::core::Session&)>;
+///
+/// **It words its own result**, and that phrase becomes the narration of the
+/// file: « 4000 subtitles shifted by 2.999 s ». A fixed sentence, decided once
+/// for every file of the batch, could not say what a removal does — how many
+/// subtitles it rewrote, how many it took away — because those numbers differ
+/// from one file to the next, and only the operation knows them.
+using Operation = std::function<std::expected<std::string, std::string>(subedit::core::Session&)>;
 
 /// Applies `operation` to every path and writes each result back.
 ///
@@ -35,13 +41,13 @@ using Operation = std::function<std::expected<void, std::string>(subedit::core::
 /// would make the failures of one indistinguishable from the failures of the
 /// other.
 ///
-/// `verb` and `detail` build the narration — "shifted", "by 2.999 s".
+/// `verb` names the operation in the summary of the batch — « 3 files
+/// shifted ». What each file gets is the phrase the operation itself returned.
 [[nodiscard]] ExitCode rewriteAll(subedit::core::FileSystem& files,
                                   const std::vector<std::string>& paths,
                                   const Destination& destination,
                                   const Reporter& reporter,
                                   std::string_view verb,
-                                  std::string_view detail,
                                   const Operation& operation);
 
 } // namespace subedit::cli

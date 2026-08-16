@@ -22,8 +22,6 @@ bool rewriteFile(core::FileSystem& files,
                  const std::string& path,
                  const Destination& destination,
                  const Reporter& reporter,
-                 std::string_view verb,
-                 std::string_view detail,
                  const Operation& operation) {
     const std::expected<std::string, core::FileError> content = files.readFile(path);
     if (!content) {
@@ -41,7 +39,8 @@ bool rewriteFile(core::FileSystem& files,
     project.setSubtitles(read->subtitles);
     core::Session session{std::move(project)};
 
-    if (const std::expected<void, std::string> done = operation(session); !done) {
+    const std::expected<std::string, std::string> done = operation(session);
+    if (!done) {
         reporter.failed(path + ": " + done.error());
         return false;
     }
@@ -65,7 +64,6 @@ bool rewriteFile(core::FileSystem& files,
         return false;
     }
 
-    const std::size_t count = session.project().subtitles().size();
     reporter.say(3,
                  path + ": " + std::to_string(content->size()) + " bytes read, " +
                      std::to_string(written.size()) + " written");
@@ -74,9 +72,7 @@ bool rewriteFile(core::FileSystem& files,
                  path + ": " + std::string{nameOf(read->format)} + ", UTF-8, " +
                      (read->hadUtf8Bom ? "BOM" : "no BOM") + ", " +
                      std::string{nameOf(read->newline)} + " line endings kept");
-    reporter.say(1,
-                 path + ": " + countOf(count, "subtitle") + " " + std::string{verb} + " " +
-                     std::string{detail} + " -> " + out.string());
+    reporter.say(1, path + ": " + *done + " -> " + out.string());
     return true;
 }
 
@@ -87,11 +83,10 @@ ExitCode rewriteAll(core::FileSystem& files,
                     const Destination& destination,
                     const Reporter& reporter,
                     std::string_view verb,
-                    std::string_view detail,
                     const Operation& operation) {
     std::size_t done = 0;
     for (const std::string& path : paths) {
-        if (rewriteFile(files, path, destination, reporter, verb, detail, operation)) {
+        if (rewriteFile(files, path, destination, reporter, operation)) {
             ++done;
         }
     }

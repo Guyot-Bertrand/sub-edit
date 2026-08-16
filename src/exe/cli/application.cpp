@@ -4,6 +4,7 @@
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/frame_rate_conversion.hpp>
 #include <subedit/cli/frame_rate_grammar.hpp>
+#include <subedit/cli/hearing_impaired.hpp>
 #include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/reporter.hpp>
@@ -152,6 +153,37 @@ ExitCode runShift(const ShiftOptions& options, core::FileSystem& files, const Re
     }
 
     return shiftAll(files, options.files, *by, *destination, reporter);
+}
+
+/// What `hearing-impaired` was asked for.
+///
+/// Nothing but files and a destination: the rule is decided, not configurable,
+/// and it applies to the whole of the main text. What a phase 12 will make
+/// adjustable is written in its spec, not guessed at here.
+struct HearingImpairedOptions {
+    std::vector<std::string> files;
+    DestinationOptions destination;
+};
+
+CLI::App* describeHearingImpaired(CLI::App& app, HearingImpairedOptions& options) {
+    CLI::App* hearing = app.add_subcommand(
+        "hearing-impaired", "Remove the sounds described between brackets or parentheses");
+    hearing->add_option("files", options.files, "Subtitle files to clean")->required();
+
+    describeDestination(hearing, options.destination);
+    return hearing;
+}
+
+ExitCode runHearingImpaired(const HearingImpairedOptions& options,
+                            core::FileSystem& files,
+                            const Reporter& reporter) {
+    const std::expected<Destination, std::string> destination =
+        destinationOf(options.destination, options.files.size());
+    if (!destination) {
+        return refuse(destination.error());
+    }
+
+    return removeHearingImpairedIn(files, options.files, *destination, reporter);
 }
 
 /// What `transform` was asked for.
@@ -338,6 +370,8 @@ ExitCode run(int argc, char** argv) {
     const CLI::App* transform = describeTransform(app, transformOptions);
     FrameRateOptions frameRateOptions;
     const CLI::App* framerate = describeFrameRate(app, frameRateOptions);
+    HearingImpairedOptions hearingOptions;
+    const CLI::App* hearing = describeHearingImpaired(app, hearingOptions);
 
     try {
         app.parse(argc, argv);
@@ -377,6 +411,9 @@ ExitCode run(int argc, char** argv) {
     }
     if (framerate->parsed()) {
         return runFrameRate(frameRateOptions, files, reporter);
+    }
+    if (hearing->parsed()) {
+        return runHearingImpaired(hearingOptions, files, reporter);
     }
     return ExitCode::Success;
 }
