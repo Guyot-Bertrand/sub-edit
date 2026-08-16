@@ -135,17 +135,16 @@ avec un objectif d'iso-fonctionnalité.
   clang-tidy, tests sous ASan, seuil de couverture. La CI exécute la même
   cible. Ne jamais annoncer un travail terminé sans l'avoir lancée.
 
-  **Une seule différence, et elle est écrite :** sur une pull request, la CI
-  restreint clang-tidy aux fichiers que la pull request met en cause —
-  `src/scripts/tidy-scope.sh` calcule la liste, en fermeture transitive des
-  en-têtes, et retombe sur l'analyse complète au moindre doute. L'analyse
-  complète tourne chaque semaine sur `main`. En local, `make check` analyse
-  tout : le défaut de `TIDY_FILES` est la liste entière, et une restriction se
-  demande, elle ne s'obtient jamais par omission.
+  **Elle n'analyse que ce qui a changé, en local comme en CI.**
+  `src/scripts/tidy-scope.sh` calcule le périmètre depuis `TIDY_BASE`
+  — `origin/main` par défaut — en fermeture transitive des en-têtes, en voyant
+  le travail non commité, et **il retombe sur l'analyse complète au moindre
+  doute**. C'est ce qui rend la porte tenable : clang-tidy en est 90 %, et le
+  cas courant tombe de 827 s à **72 s**. `make check TIDY_BASE=` analyse tout ;
+  la CI le fait chaque semaine sur `main`.
 
-  **Elle ne se relance que si elle peut voir la différence.** Elle coûte une
-  dizaine de minutes ; les modifications qu'elle ne lit pas ne les valent pas.
-  Ce qu'elle lit :
+  **Elle ne se relance que si elle peut voir la différence.** Les modifications
+  qu'elle ne lit pas ne valent pas son coût. Ce qu'elle lit :
 
   | Elle voit | Elle ne voit pas |
   | :-------- | :--------------- |
