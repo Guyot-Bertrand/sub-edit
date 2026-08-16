@@ -11,6 +11,17 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **build** — Restreindre clang-tidy au périmètre modifié, en local aussi
+- **build** — Prouver le périmètre restreint et relever son gain
+
+### Corrections
+
+- **scripts** — Voir le travail non commité dans le périmètre de tidy
+
+## 0.4.0 — 2026-08-16
+
+### Ajouts
+
 - **cli** — Nommer chaque diagnostic de lecture, partout
 - **scripts** — Un relevé pris sous charge ne fixe plus d'extrême
 - **scripts** — N'attendre la machine que si sa charge baisse
