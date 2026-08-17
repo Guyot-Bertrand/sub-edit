@@ -26,9 +26,15 @@
 # critère de non-signalement ne se démontre par aucune injection qui échoue,
 # d'où `expect_gate_stays_open`.
 #
-# Les deux dernières visent `make arch` : un nom de cas de test qui commence par
+# Les deux suivantes visent `make arch` : un nom de cas de test qui commence par
 # un tiret, et un test qui lirait le dépôt de référence. Elle est ici parce que ce défaut ne se voit qu'à travers CTest, jamais
 # en lançant le binaire de test à la main — donc uniquement dans la porte.
+#
+# La dernière ne vise aucune porte : c'est `src/scripts/prune-runs.sh`, qui ne
+# refuse rien mais choisit ce qu'il supprime. Elle est ici faute d'un meilleur
+# endroit — ce script est le seul harnais du projet pour ce qui s'écrit en
+# shell, et une sélection irréversible qu'aucune exécution ne vérifie serait
+# elle aussi une croyance.
 #
 # À rejouer après toute modification de .clang-format, .clang-tidy, des options
 # de compilation, du cliquet de couverture, du registre d'exigences ou de
@@ -52,6 +58,7 @@ readonly HOOK_SOURCE="${REPO_ROOT}/src/scripts/hooks/pre-commit"
 readonly PLAIN_SCRIPT_SOURCE="${REPO_ROOT}/src/scripts/install-hooks.sh"
 readonly NESTED_CMAKE_SOURCE="${REPO_ROOT}/src/lib/CMakeLists.txt"
 readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
+readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -499,11 +506,84 @@ expect_generated_source_closes() {
 
 expect_generated_source_closes
 
+# Une preuve d un troisième genre. prune-runs.sh n est pas une porte : il ne
+# refuse rien, il choisit. Ce qui peut être faux chez lui n est donc pas de
+# laisser passer un défaut, mais de supprimer une exécution qu il fallait garder
+# — et cette erreur-là est irréversible, GitHub ne rend pas un run supprimé.
+#
+# Elle ne peut pas s exercer contre GitHub. Un jeton personnel reçoit 403 sur
+# les Actions, et faire dépendre une preuve du réseau la rendrait rouge un jour
+# de panne, pour une raison étrangère au dépôt. D où --input, qui donne au
+# script sa liste au lieu de la lui faire chercher : la sélection est une
+# fonction de la liste, donc elle se démontre sur une liste écrite à la main.
+#
+# Le jeu couvre les cinq cas qui décident du fichier :
+#
+#   ids 1 à 35    « ci », terminées      les 30 plus récentes restent, les 5
+#                                        plus vieilles partent
+#   id 99         « ci », main, la plus  part : « la plus récente sur main », au
+#                 vieille de toutes      singulier, n épargne pas les autres
+#   id 100        « ci », main, vieille  reste : c est la plus récente sur main
+#   id 101        « ci », en cours       reste : GitHub refuse de supprimer une
+#                                        exécution non terminée
+#   ids 200 à 202 « pull request »       rien ne part : moins de 30
+#
+# Le cas 99 est celui qui compte le plus. Sans lui, « garder le plus récent sur
+# main » se lirait « garder tous ceux sur main » — et ressusciterait les
+# quarante-sept exécutions du déclencheur push supprimé à la #106, que cet
+# élagage existe précisément pour effacer.
+expect_prune_selection_holds() {
+    local fixture
+    local expected="1 2 3 4 5 99"
+    local actual
+
+    printf '%s▸ %s%s\n' "${BOLD}" "choix des exécutions à supprimer" "${RESET}"
+
+    fixture="$(mktemp)"
+    local index
+    for index in $(seq 1 35); do
+        printf '{"id":%d,"workflow_id":1,"name":"ci","head_branch":"feat/x","status":"completed","created_at":"2026-01-01T00:%02d:00Z"}\n' \
+            "${index}" "${index}" >> "${fixture}"
+    done
+    printf '%s\n' \
+        '{"id":99,"workflow_id":1,"name":"ci","head_branch":"main","status":"completed","created_at":"2024-01-01T00:00:00Z"}' \
+        '{"id":100,"workflow_id":1,"name":"ci","head_branch":"main","status":"completed","created_at":"2025-01-01T00:00:00Z"}' \
+        '{"id":101,"workflow_id":1,"name":"ci","head_branch":"feat/y","status":"in_progress","created_at":"2025-01-02T00:00:00Z"}' \
+        '{"id":200,"workflow_id":2,"name":"pull request","head_branch":"feat/z","status":"completed","created_at":"2026-01-01T01:00:00Z"}' \
+        '{"id":201,"workflow_id":2,"name":"pull request","head_branch":"feat/z","status":"completed","created_at":"2026-01-01T01:01:00Z"}' \
+        '{"id":202,"workflow_id":2,"name":"pull request","head_branch":"feat/z","status":"completed","created_at":"2026-01-01T01:02:00Z"}' \
+        >> "${fixture}"
+
+    # Le statut est recueilli plutôt que subi : sous `set -e`, un script absent
+    # ou qui meurt arrêterait le harnais au lieu de compter une preuve en
+    # échec, et les preuves suivantes ne seraient jamais exécutées.
+    local status=0
+    actual="$("${PRUNE_SCRIPT}" --dry-run --input "${fixture}" | sort -n | tr '\n' ' ')" \
+        || status=$?
+    actual="${actual% }"
+    rm -f "${fixture}"
+
+    if (( status != 0 )); then
+        printf '  %s✗ la sélection est morte, code %d%s\n' "${RED}" "${status}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${actual}" == "${expected}" ]]; then
+        printf '  %s✓ la sélection donne « %s », comme attendu%s\n' "${GREEN}" "${actual}" "${RESET}"
+    else
+        printf '  %s✗ la sélection donne « %s », attendu « %s »%s\n' \
+            "${RED}" "${actual}" "${expected}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+}
+
+expect_prune_selection_holds
+
 printf '\n'
 if (( failures > 0 )); then
-    printf '%s%d porte(s) laissent passer un défaut%s\n' "${RED}" "${failures}" "${RESET}" >&2
+    printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
 printf '%sles vingt-cinq portes se referment%s\n' "${GREEN}" "${RESET}"
-printf '%set le contrôle de parallélisme laisse passer le code légitime%s\n' \
+printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
+    "${GREEN}" "${RESET}"
+printf '%set l élagueur choisit les exécutions attendues%s\n' \
     "${GREEN}" "${RESET}"

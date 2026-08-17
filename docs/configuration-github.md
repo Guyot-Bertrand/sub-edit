@@ -154,6 +154,103 @@ explicitement : GitHub laisse la limite expirer sans prévenir.
   externes pour l'instant. C'est une politesse autant qu'une protection : ça
   évite à un tiers de travailler pour rien.
 
+### 7. Rétention des journaux et des artefacts
+
+*Settings → Actions → General → Artifact and log retention* → **7 jours**
+(réglable de 1 à 90 ; 90 par défaut, mais ce dépôt était **déjà à 30** — mesuré,
+et non supposé, sur l'écart entre `created_at` et `expires_at` des artefacts).
+
+C'est le seul poste de stockage facturé du dépôt. Un unique artefact est
+téléversé — `couverture`, le rapport HTML produit par `ci.yml` à chaque
+exécution de la porte, 321 Kio invariablement. À une douzaine d'exécutions par
+jour, le plateau est d'environ 103 Mio à 30 jours et de **~24 Mio à 7 jours**,
+sur les 500 Mio d'un compte gratuit. Les 105 artefacts présents ne pesaient que
+23,4 Mio parce que dix jours d'accumulation seulement les séparaient du départ :
+le plateau n'était pas atteint.
+
+Le réglage n'est pas scriptable : l'API des Actions répond
+`403 Resource not accessible by personal access token`. Il se pose donc à la
+main, comme les six précédents.
+
+**Il ne fait pas le travail de l'élagueur, et réciproquement.** La durée efface
+les journaux et les artefacts ; elle laisse la ligne d'exécution dans la liste,
+avec ses étapes vides. C'est pourquoi il faut les deux — l'un borne le
+stockage, l'autre le nombre.
+
+#### Vérifier
+
+Le réglage ne se lit pas par l'API sans jeton d'administration. Ce qui se lit,
+et qui suffit, c'est l'écart que portent les artefacts eux-mêmes :
+
+```bash
+gh api repos/Guyot-Bertrand/sub-edit/actions/artifacts --paginate \
+  --jq '.artifacts[] | "\(.created_at)\t\(.expires_at)"' |
+  while IFS=$'\t' read -r c e; do
+      echo $(( ( $(date -u -d "$e" +%s) - $(date -u -d "$c" +%s) ) / 86400 ))
+  done | sort -u
+```
+
+Attendu : `6`, l'expiration étant calculée depuis le début de l'exécution et non
+depuis le téléversement. Avant l'application du réglage, la même commande
+répondait `29`.
+
+Le réglage ne vaut que pour les artefacts créés après lui : ceux d'avant gardent
+la date d'expiration qu'ils portaient déjà. C'est l'élagueur qui les emporte,
+en supprimant leur exécution.
+
+### 8. Élagage des exécutions
+
+`.github/workflows/elagage.yml`, tous les lundis à 6 h, et à la main par
+*Actions → élagage → Run workflow*.
+
+**La règle :** de chaque workflow, garder les trente exécutions les plus
+récentes, plus la plus récente dont la branche est `main` si elle n'y est pas
+déjà ; supprimer le reste ; ne jamais toucher une exécution non terminée.
+
+Contrairement aux sept réglages précédents, celui-ci vit dans le dépôt et non
+dans l'interface — et il n'avait pas le choix. Un jeton personnel ne peut pas
+supprimer une exécution ; seul le `GITHUB_TOKEN` d'un workflow le peut, avec
+`permissions: actions: write`. La règle elle-même est dans
+`src/scripts/prune-runs.sh`, dont `verify-gates.sh` prouve la sélection.
+
+L'exception sur `main` protège l'analyse complète du lundi, dont la période est
+de sept jours : sans elle, elle sortirait des trente en trois jours. Elle est au
+singulier, ce qui l'empêche de ressusciter les quarante-sept exécutions du
+déclencheur `push` supprimé à la #106.
+
+#### Ce que ça donne
+
+| | |
+| :--- | ---: |
+| avant | 146 |
+| à supprimer | 86 |
+| gardées | 60 |
+
+Relevé par `--dry-run` le 2026-08-17, avant que le workflow n'ait tourné : c'est
+donc la sélection qui est mesurée, pas encore la suppression. Le premier passage
+réel se déclenche à la main une fois ce fichier sur `main`, et son résumé porte
+le compte effectif.
+
+Les 60 se répartissent en 30 `ci` et 30 `pull request`. L'hebdomadaire du lundi
+était déjà dans les trente : l'exception n'a rien eu à épargner ce jour-là, ce
+qui est le cas normal — elle ne sert que les jours où l'analyse complète a
+vieilli de plus de trente exécutions. Le régime permanent se stabilise à 60, au
+lieu de croître d'une quinzaine par jour.
+
+#### Vérifier
+
+```bash
+./src/scripts/prune-runs.sh --dry-run
+```
+
+Lecture seule, et donc lançable avec un jeton personnel : il écrit sur la sortie
+d'erreur le compte total, le nombre à supprimer et le nombre gardé, et sur la
+sortie standard les identifiants condamnés. Après un passage de l'élagueur, le
+nombre à supprimer doit être nul ou proche de zéro.
+
+Chaque exécution du workflow écrit d'elle-même son avant/après dans le résumé de
+son travail — un chiffre figé dans ce document vieillirait, celui-là non.
+
 ## Taxonomie des issues
 
 ### Labels
