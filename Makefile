@@ -60,18 +60,30 @@ export CMAKE_GENERATOR ?= $(shell command -v ninja >/dev/null 2>&1 && echo Ninja
 
 SOURCES := $(shell find src -name '*.cpp' -o -name '*.hpp' 2>/dev/null)
 
-# Les fichiers que clang-tidy analyse. Tous, par défaut.
+# Ce que clang-tidy analyse : ce qui a changé depuis TIDY_BASE, et rien d'autre.
 #
-# La CI restreint la liste à ce qu'une pull request met en cause —
-# src/scripts/tidy-scope.sh la calcule, en fermeture transitive des en-têtes. Le
-# défaut reste la liste complète : une restriction s'obtient en la demandant,
-# jamais par omission.
+# **C'est la seule optimisation qui compte.** Mesuré sur cette machine, ccache
+# chaud : l'analyse complète prend 751 s quand tout le reste de la porte —
+# format, invariants, trois constructions, tests, couverture — tient en 76.
+# Environ 6 s par fichier, donc la restriction rapporte exactement en proportion
+# de ce qu'une branche ne touche pas.
 #
-# **Une liste sur une seule ligne, séparée par des espaces.** Make recopie la
-# valeur telle quelle dans la recette : des sauts de ligne y créeraient des
-# lignes de shell, et le deuxième fichier serait exécuté au lieu d'être
-# analysé.
-TIDY_FILES ?= $(shell find src -name '*.cpp' 2>/dev/null | sort)
+# src/scripts/tidy-scope.sh calcule la liste, en fermeture transitive des
+# en-têtes, en voyant le travail non commité, et **il retombe sur la liste
+# complète au moindre doute** — base introuvable, fichier gouvernant l'analyse,
+# ou calcul qui ne retient rien alors que des sources ont changé. Il annonce à
+# chaque fois ce qu'il a retenu et pourquoi.
+#
+# Pour tout analyser sans condition, vider la base :
+#
+#     make check TIDY_BASE=
+#
+# **Un seul bouton, et c'est voulu.** Il y en a eu deux un moment — une base et
+# une liste de fichiers — et la liste était un piège : passée vide sur la ligne
+# de commande, elle l'emportait sur le défaut du Makefile et clang-tidy
+# n'analysait plus rien, en silence et en vert. Une base vide, elle, veut dire
+# « tout », ce qui est le sens sûr.
+TIDY_BASE ?= origin/main
 
 # libstdc++ garde <expected> derrière __cpp_concepts >= 202002L, valeur que
 # Clang 18 ne déclare pas : il ne voit alors pas std::expected. On prend donc la
@@ -159,12 +171,17 @@ format-check: ## Vérifie le format sans modifier
 # compile_commands.json porte les drapeaux de GCC, dont certains n'existent pas
 # chez Clang : sans -Wno-unknown-warning-option, clang-tidy échoue sur
 # -Wuseless-cast et consorts avant d'avoir analysé la moindre ligne.
+# Le périmètre est calculé une fois, dans la recette, et non par une variable :
+# une variable récursive relancerait le script à chaque emploi, donc deux fois,
+# et annoncerait deux fois ce qu'elle a retenu.
 .PHONY: tidy
-tidy: ## Exécute clang-tidy (sur $(TIDY_FILES))
+tidy: ## Exécute clang-tidy sur ce qui a changé depuis TIDY_BASE
 	$(call require,$(CLANG_TIDY))
-	$(call step,"analyse statique — $(notdir $(CLANG_TIDY)) — $(words $(TIDY_FILES)) fichier(s)")
 	@cmake --preset dev >/dev/null
-	@printf '%s\n' $(TIDY_FILES) \
+	@files="$$(./src/scripts/tidy-scope.sh $(TIDY_BASE))" ; \
+	printf '$(BOLD)▸ analyse statique — %s — %s fichier(s)$(RESET)\n' \
+		'$(notdir $(CLANG_TIDY))' "$$(printf '%s' "$$files" | grep -c . || true)" ; \
+	printf '%s\n' "$$files" \
 		| sed '/^$$/d' \
 		| xargs -r -P $(JOBS) -I{} \
 			$(CLANG_TIDY) -p build/dev --quiet --extra-arg=-Wno-unknown-warning-option {}
@@ -290,7 +307,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory bench
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (vingt-trois preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (vingt-quatre preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog
