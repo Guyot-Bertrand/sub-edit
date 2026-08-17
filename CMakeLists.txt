@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(
     subedit
-    VERSION 0.4.3
+    VERSION 0.4.4
     DESCRIPTION "Éditeur de sous-titres"
     HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
     LANGUAGES CXX)
@@ -43,7 +43,10 @@ set(SUBEDIT_BUILD_DATE "")
 # cœur de ce que le projet livre. Widgets et Multimedia — le second pour la
 # prévisualisation de la phase 6, déclaré ici pour que son absence se voie à la
 # configuration plutôt qu'au milieu de cette phase-là.
-find_package(Qt6 REQUIRED COMPONENTS Widgets Multimedia)
+# Test accompagne Widgets : il porte les fonctions qui simulent un clic ou une
+# frappe, dont le harnais d'interface se sert depuis Catch2 — sans être pour
+# autant un binaire QTest.
+find_package(Qt6 REQUIRED COMPONENTS Widgets Multimedia Test)
 
 find_package(Git QUIET)
 if(GIT_FOUND)

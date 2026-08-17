@@ -18,7 +18,7 @@
 
 #include "../cli/cli_run.hpp"
 
-TEST_CASE("the window binary runs where there is no screen", "[e2e][gui]") {
+TEST_CASE("the window binary runs where there is no screen", "[e2e][gui][GUI-VERSION-01]") {
     const subedit::e2e::CliRun run = subedit::e2e::invokeGui({"--version"});
 
     CHECK(run.exitCode == 0);
