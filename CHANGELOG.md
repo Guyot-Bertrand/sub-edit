@@ -16,6 +16,7 @@ ne pas l'éditer à la main.
 - **build** — Qt dans la chaîne d'outils, dans la CI, et sans écran
 - **build** — Tenir la raison qui rend les quatre portes correctes
 - **test** — Un harnais de test d'interface, en Catch2
+- **ci** — Élaguer les exécutions d'Actions, et borner leur rétention
 
 ### Corrections
 
