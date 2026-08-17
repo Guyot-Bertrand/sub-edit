@@ -39,6 +39,17 @@ struct CliRun {
 /// cannot be read. A test that cannot run the binary has nothing to assert.
 CliRun invoke(const std::vector<std::string>& args);
 
+/// The same, for the window binary.
+///
+/// **One runner for both, and not two.** Everything above — the pipes, the
+/// signal turned into an exit code, the absence of a shell — has nothing to do
+/// with which binary is started; only the path differs. #80 removed the same
+/// duplication once already, in this very harness.
+///
+/// It runs with no screen: CTest gives the binary `QT_QPA_PLATFORM=offscreen`,
+/// without which a `QApplication` aborts on « could not connect to display ».
+CliRun invokeGui(const std::vector<std::string>& args);
+
 /// A path into the test corpus, resolved by the build.
 ///
 /// `SUBEDIT_TEST_DATA_DIR` comes from CMake and never from the current
