@@ -13,6 +13,7 @@ ne pas l'éditer à la main.
 
 - **build** — Restreindre clang-tidy au périmètre modifié, en local aussi
 - **build** — Prouver le périmètre restreint et relever son gain
+- **build** — Qt dans la chaîne d'outils, dans la CI, et sans écran
 
 ### Corrections
 

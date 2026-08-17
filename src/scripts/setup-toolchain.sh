@@ -9,7 +9,6 @@
 #
 # Deux modes réduits :
 #
-#   --with-qt          ajoute les paquets Qt, requis à partir de la phase 5
 #   --git-cliff-only   n'installe que git-cliff, et rien d'autre
 #   --list-packages    écrit les paquets APT, un par ligne, et n'installe rien
 
@@ -42,8 +41,17 @@ declare -A APT_TOOLS=(
 # CLI11 est une bibliothèque d'en-têtes — `command -v` ne la verrait jamais, et
 # la ranger dans la table ci-dessus la ferait réinstaller à chaque exécution.
 # Le chemin sondé est celui que `find_package(CLI11)` finit par lire.
+#
+# **Qt y est entré à la phase 5, et le mode `--with-qt` a disparu avec.** Il
+# décrivait un monde où Qt était optionnel : ce n'est plus vrai, la porte
+# construit tout, donc quiconque lance `make check` en a besoin. Il n'avait
+# d'ailleurs jamais servi, et son défaut était de mettre les paquets Qt hors de
+# `--list-packages`, donc hors du cache de la CI — qui aurait restauré une
+# chaîne d'outils incomplète sans que rien ne le signale.
 declare -A APT_LIBS=(
     [/usr/include/CLI/CLI.hpp]=libcli11-dev
+    [/usr/lib/x86_64-linux-gnu/cmake/Qt6/Qt6Config.cmake]=qt6-base-dev
+    [/usr/lib/x86_64-linux-gnu/cmake/Qt6Multimedia/Qt6MultimediaConfig.cmake]=qt6-multimedia-dev
 )
 
 install_apt_tools() {
@@ -65,11 +73,6 @@ install_apt_tools() {
             missing+=("${APT_LIBS[${probe}]}")
         fi
     done
-
-    if [[ "${MODE}" == "--with-qt" ]]; then
-        # Requis à partir de la phase 5 seulement.
-        missing+=(qt6-base-dev qt6-multimedia-dev)
-    fi
 
     if (( ${#missing[@]} == 0 )); then
         info "paquets APT : rien à installer"

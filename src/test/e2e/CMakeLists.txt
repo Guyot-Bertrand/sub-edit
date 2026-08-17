@@ -16,7 +16,8 @@ add_executable(
     cli/hearing_impaired_test.cpp
     cli/shift_test.cpp
     cli/transform_test.cpp
-    cli/framerate_test.cpp)
+    cli/framerate_test.cpp
+    gui/version_test.cpp)
 
 # subedit::core pour versionString() : l'attendu d'un test se calcule, il ne se
 # recopie pas — un numéro recopié est un numéro qui se périme.
@@ -27,11 +28,12 @@ target_link_libraries(subedit_e2e_test PRIVATE subedit::core Catch2::Catch2WithM
 # lance.
 target_compile_definitions(
     subedit_e2e_test PRIVATE SUBEDIT_CLI_BINARY="$<TARGET_FILE:subedit-cli>"
+                             SUBEDIT_GUI_BINARY="$<TARGET_FILE:subedit-gui>"
                              SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
 
 # $<TARGET_FILE:…> donne un chemin, pas un ordre de construction. Sans cette
 # ligne, rien ne garantit que le binaire existe quand le test le lance.
-add_dependencies(subedit_e2e_test subedit-cli)
+add_dependencies(subedit_e2e_test subedit-cli subedit-gui)
 
 subedit_set_warnings(subedit_e2e_test)
 
@@ -58,5 +60,16 @@ if(SUBEDIT_REGISTER_E2E)
     # vingt-cinq minutes avant de dire pourquoi. L'étiquette LABELS e2e permet
     # à `make e2e` de filtrer ces tests par `ctest -L e2e`, sans dépendre de
     # leurs noms — un test unitaire nommé de façon proche ne le tromperait pas.
-    catch_discover_tests(subedit_e2e_test PROPERTIES TIMEOUT 30 LABELS e2e)
+    # **QT_QPA_PLATFORM=offscreen, et il est indispensable.** Mesuré : dans un
+    # environnement sans écran, la construction d'une QApplication avorte sur
+    # « could not connect to display » — un échec d'exécution, que nulle
+    # compilation ne peut annoncer. La CI n'a pas de serveur graphique.
+    #
+    # Il se règle ici, sur CTest, plutôt que dans chaque binaire : un réglage
+    # posé par le code serait à reposer à chaque nouveau binaire, et son oubli
+    # ne se verrait que sur la machine qui n'a pas d'écran — jamais sur celle
+    # où on l'écrit.
+    catch_discover_tests(
+        subedit_e2e_test
+        PROPERTIES TIMEOUT 30 LABELS e2e ENVIRONMENT QT_QPA_PLATFORM=offscreen)
 endif()

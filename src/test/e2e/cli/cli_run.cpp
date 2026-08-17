@@ -175,7 +175,11 @@ void drain(Descriptor& outEnd, Descriptor& errEnd, std::string& output, std::str
 
 } // namespace
 
-CliRun invoke(const std::vector<std::string>& args) {
+namespace {
+
+/// Starts `binary` with `args` and waits for it. The only difference between
+/// the two exported runners is which path lands in argv[0].
+CliRun run(const char* binary, const std::vector<std::string>& args) {
     Channel out = makeChannel();
     Channel err = makeChannel();
 
@@ -196,7 +200,7 @@ CliRun invoke(const std::vector<std::string>& args) {
     // argv[0] is the program itself, by convention and by necessity.
     std::vector<std::string> owned;
     owned.reserve(args.size() + 1);
-    owned.emplace_back(SUBEDIT_CLI_BINARY);
+    owned.emplace_back(binary);
     owned.insert(owned.end(), args.begin(), args.end());
 
     std::vector<char*> argv;
@@ -240,6 +244,8 @@ CliRun invoke(const std::vector<std::string>& args) {
     run.exitCode = WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
     return run;
 }
+
+} // namespace
 
 } // namespace subedit::e2e
 
@@ -285,6 +291,14 @@ std::string Scratch::of(const std::string& name) const {
 
 std::string Scratch::path() const {
     return m_path.string();
+}
+
+CliRun invoke(const std::vector<std::string>& args) {
+    return run(SUBEDIT_CLI_BINARY, args);
+}
+
+CliRun invokeGui(const std::vector<std::string>& args) {
+    return run(SUBEDIT_GUI_BINARY, args);
 }
 
 } // namespace subedit::e2e

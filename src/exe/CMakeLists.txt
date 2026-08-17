@@ -5,3 +5,4 @@
 # vit dans src/lib.
 
 add_subdirectory(cli)
+add_subdirectory(gui)

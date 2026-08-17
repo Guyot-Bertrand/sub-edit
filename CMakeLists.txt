@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(
     subedit
-    VERSION 0.4.1
+    VERSION 0.4.2
     DESCRIPTION "Éditeur de sous-titres"
     HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
     LANGUAGES CXX)
@@ -39,6 +39,12 @@ option(SUBEDIT_REGISTER_E2E "Enregistrer les tests de bout en bout dans CTest" O
 # rafraîchit à la configuration, ce qui suffit à son usage : dire de quel état
 # du source vient un binaire.
 set(SUBEDIT_BUILD_DATE "")
+# Qt est requis depuis la phase 5, et non plus optionnel : la fenêtre est le
+# cœur de ce que le projet livre. Widgets et Multimedia — le second pour la
+# prévisualisation de la phase 6, déclaré ici pour que son absence se voie à la
+# configuration plutôt qu'au milieu de cette phase-là.
+find_package(Qt6 REQUIRED COMPONENTS Widgets Multimedia)
+
 find_package(Git QUIET)
 if(GIT_FOUND)
     execute_process(
