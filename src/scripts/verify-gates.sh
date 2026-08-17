@@ -472,11 +472,38 @@ expect_restricted_tidy_closes() {
 
 expect_restricted_tidy_closes
 
+# Un fichier engendré déposé sous src/. Il passerait les quatre portes qui
+# filtrent sur src/ — format, analyse statique, couverture, périmètre — parce
+# qu aucune ne sait distinguer une ligne écrite d une ligne produite.
+#
+# L injection porte le marqueur qu écrivent moc, uic et rcc, assemblé ici pour
+# la même raison que dans le contrôle : écrit en clair, il ferait de ce script
+# un fichier engendré aux yeux du contrôle.
+expect_generated_source_closes() {
+    local marker="All changes made in this file"
+    local victim="${REPO_ROOT}/src/lib/subedit/core/moc_probe.cpp"
+
+    printf '%s▸ %s%s\n' "${BOLD}" "fichier engendré déposé sous src/" "${RESET}"
+    printf '/**** %s will be lost! ****/\n' "${marker}" > "${victim}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory arch >/dev/null 2>&1; then
+        printf '  %s✗ la porte « arch » a laissé passer le défaut%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make arch » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    rm -f "${victim}"
+    restore
+}
+
+expect_generated_source_closes
+
 printf '\n'
 if (( failures > 0 )); then
     printf '%s%d porte(s) laissent passer un défaut%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles vingt-quatre portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles vingt-cinq portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%set le contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"

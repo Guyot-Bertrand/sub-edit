@@ -158,6 +158,55 @@ $(printf '    %s\n' "${offenders}")
     fi
 }
 
+# Invariant 7 — rien sous src/ n'est engendré par un outil.
+#
+# Quatre portes filtrent sur `src/` : le format, l'analyse statique, le cliquet
+# de couverture et le calcul du périmètre de clang-tidy. Aucune ne sait
+# distinguer une ligne écrite d'une ligne produite ; toutes sont pourtant
+# correctes, et **pour une seule raison** : Qt engendre dans `build/`, et `src/`
+# ne contient que ce qu'un humain a tapé.
+#
+# Cette raison n'était écrite nulle part, donc rien ne la tenait. Un `.ui`
+# compilé au mauvais endroit, un fichier recopié depuis un répertoire de
+# construction, et les quatre portes se mettent à lire du code que personne n'a
+# écrit — sans rien signaler.
+#
+# **Le cliquet de couverture est le plus insidieux des quatre.** Un format qui
+# se plaint se voit ; un compte de lignes faussé ne se voit pas, il se croit.
+#
+# Ce que le contrôle cherche : les noms que moc, uic et rcc donnent à leur
+# production, et l avertissement qu ils écrivent en tête de chaque fichier. Si
+# un jour un fichier engendré doit vraiment vivre sous src/, ce contrôle le
+# nommera — et c est là qu il faudra rouvrir la question, pas après coup.
+check_sources_are_handwritten() {
+    local by_name by_marker offenders
+
+    by_name="$(find "${REPO_ROOT}/src" \
+        \( -name 'moc_*.cpp' -o -name 'ui_*.h' -o -name 'qrc_*.cpp' -o -name '*.moc' \
+        -o -name 'mocs_compilation*.cpp' \) -printf '%P\n' 2>/dev/null || true)"
+
+    # L avertissement que les trois outils de Qt écrivent en tête de ce qu ils
+    # produisent, et qu aucun fichier écrit à la main ne porte.
+    #
+    # **Il est assemblé plutôt qu écrit en clair**, sans quoi ce script se
+    # dénoncerait lui-même : il vit sous src/, et le motif qu il cherche y
+    # figurerait. Le défaut a été constaté à la première exécution.
+    local marker="All changes made in this file"
+    by_marker="$(grep -rl "${marker} will be lost" \
+        "${REPO_ROOT}/src" 2>/dev/null | sed "s|^${REPO_ROOT}/src/||" || true)"
+
+    offenders="$(printf '%s\n%s\n' "${by_name}" "${by_marker}" | sed '/^$/d' | sort -u)"
+
+    if [[ -n "${offenders}" ]]; then
+        report_failure "du code engendré vit sous src/ :
+$(printf '    %s\n' ${offenders})
+    Le format, l analyse statique, la couverture et le périmètre de clang-tidy
+    filtrent tous sur src/ en supposant qu il est écrit à la main."
+    else
+        report_success "rien sous src/ n est engendré par un outil"
+    fi
+}
+
 check_version_matches_tag() {
     local tag
     # « || true » n'est pas décoratif : sans tag sur HEAD, grep sort en 1, et
@@ -190,6 +239,7 @@ check_version_matches_tag() {
 }
 
 check_core_has_no_ui
+check_sources_are_handwritten
 check_executables_are_thin
 check_scripts_are_executable
 check_version_matches_tag
