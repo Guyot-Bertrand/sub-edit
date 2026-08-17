@@ -17,7 +17,17 @@ set -euo pipefail
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 registry="${REPO_ROOT}/docs/exigences.md"
-binary="${REPO_ROOT}/build/dev/bin/subedit_e2e_test"
+
+# **Plusieurs binaires, et non un seul.** Une exigence de ligne de commande se
+# prouve en lançant le binaire et en lisant ce qu'il écrit ; une exigence
+# d'interface se prouve en construisant la fenêtre dans le processus du test et
+# en la pilotant. Les deux sont « ce que le binaire montre » au sens du registre,
+# mais elles ne peuvent pas vivre dans le même exécutable : le harnais de bout en
+# bout ne lie aucune bibliothèque de ce qu'il éprouve, et c'est ce qui fait sa
+# valeur.
+#
+# Le contrôle réunit donc les tags de tous les binaires qu'on lui nomme.
+binaries=()
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -35,7 +45,8 @@ usage() {
 usage: check-requirements.sh [--registry <fichier>] [--binary <exécutable>]
 
   --registry  registre à lire      (défaut : docs/exigences.md)
-  --binary    binaire à interroger (défaut : build/dev/bin/subedit_e2e_test)
+  --binary    binaire à interroger, répétable
+              (défaut : les harnais de bout en bout et d'interface)
 USAGE
     exit 2
 }
@@ -43,11 +54,19 @@ USAGE
 while (( $# > 0 )); do
     case "$1" in
         --registry) [[ $# -ge 2 ]] || usage; registry="$2"; shift 2 ;;
-        --binary)   [[ $# -ge 2 ]] || usage; binary="$2";   shift 2 ;;
+        --binary)   [[ $# -ge 2 ]] || usage; binaries+=("$2"); shift 2 ;;
         -h|--help)  usage ;;
         *)          printf 'argument inconnu : %s\n' "$1" >&2; usage ;;
     esac
 done
+
+# Le défaut ne peut être posé qu'ici : une valeur mise avant l'analyse des
+# arguments s'ajouterait à celles que l'appelant donne au lieu de leur céder la
+# place.
+if (( ${#binaries[@]} == 0 )); then
+    binaries=("${REPO_ROOT}/build/dev/bin/subedit_e2e_test"
+              "${REPO_ROOT}/build/dev/bin/subedit_gui_test")
+fi
 
 report_failure() {
     printf '%s✗%s %s\n' "${RED}" "${RESET}" "$*" >&2
@@ -59,11 +78,13 @@ report_success() {
 }
 
 [[ -f "${registry}" ]] || { printf 'registre introuvable : %s\n' "${registry}" >&2; exit 1; }
-[[ -x "${binary}" ]] || {
-    printf 'binaire de test introuvable : %s\n' "${binary}" >&2
-    printf '  le construire avec : make build\n' >&2
-    exit 1
-}
+for binary in "${binaries[@]}"; do
+    [[ -x "${binary}" ]] || {
+        printf 'binaire de test introuvable : %s\n' "${binary}" >&2
+        printf '  le construire avec : make build\n' >&2
+        exit 1
+    }
+done
 
 # Lit la table du registre et sort « identifiant état », un par ligne.
 #
@@ -127,13 +148,22 @@ declare -A cited=()
 list_tags_stderr="$(mktemp)"
 trap 'rm -f "${list_tags_stderr}"' EXIT
 
+list_tags_stdout=""
 list_tags_status=0
-list_tags_stdout="$("${binary}" --list-tags 2>"${list_tags_stderr}")" || list_tags_status=$?
-
-if (( list_tags_status != 0 )); then
-    report_failure "le binaire de test a échoué sur --list-tags (code ${list_tags_status}) :
+for binary in "${binaries[@]}"; do
+    one=""
+    one="$("${binary}" --list-tags 2>"${list_tags_stderr}")" || {
+        report_failure "le binaire de test a échoué sur --list-tags :
 $(sed 's/^/    /' "${list_tags_stderr}")
     vérifier que ${binary} répond à --list-tags, et que Catch2 n'a pas changé sa sortie."
+        list_tags_status=1
+        continue
+    }
+    list_tags_stdout+="${one}"$'\n'
+done
+
+if (( list_tags_status != 0 )); then
+    :
 else
     # On extrait tous les groupes entre crochets de la sortie standard
     # entière plutôt que d'ancrer sur « N espaces crochet » : Catch2 met sur
@@ -150,7 +180,7 @@ else
     # Symétrique au garde sur ${#state_of[@]} plus haut : zéro tag n'est
     # jamais légitime ici, le binaire de test porte toujours au moins [e2e].
     if (( ${#cited[@]} == 0 )); then
-        report_failure "aucun tag lu dans la sortie standard de ${binary} --list-tags
+        report_failure "aucun tag lu dans la sortie standard des binaires interrogés
     la forme de la sortie de Catch2 a-t-elle changé ? le binaire de test porte
     toujours au moins le tag [e2e] ; son absence signale un défaut, jamais un
     état normal."

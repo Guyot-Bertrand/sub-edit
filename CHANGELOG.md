@@ -15,6 +15,7 @@ ne pas l'éditer à la main.
 - **build** — Prouver le périmètre restreint et relever son gain
 - **build** — Qt dans la chaîne d'outils, dans la CI, et sans écran
 - **build** — Tenir la raison qui rend les quatre portes correctes
+- **test** — Un harnais de test d'interface, en Catch2
 
 ### Corrections
 

@@ -93,3 +93,4 @@ plus rien.
 | `CLI-HEARING-04` | le rapport nomme le nombre de sous-titres changés et supprimés | 4 | implémentée |
 | `CLI-HEARING-05` | un fichier sans aucune mention est écrit inchangé, code 0 | 4 | implémentée |
 | `CLI-HEARING-06` | sans destination explicite, rien n'est écrit et le code est 1 | 4 | implémentée |
+| `GUI-VERSION-01` | `subedit-gui --version` écrit `subedit <version>` sur la sortie standard, code 0 | 5 | implémentée |
