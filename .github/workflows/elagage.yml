@@ -1,0 +1,57 @@
+name: élagage
+
+# Les exécutions d'Actions s'accumulaient sans que rien ne les efface : 146 en
+# dix jours au moment d'écrire ceci, dont 47 héritées du déclencheur `push` sur
+# `main` supprimé à la #106. GitHub sait fixer une durée de rétention, pas un
+# nombre — et sa durée n'efface que les journaux et les artefacts, en laissant
+# la ligne d'exécution dans la liste. Il faut donc supprimer, une par une, par
+# l'API.
+#
+# **Un workflow, et non un script qu'on lance à la main.** C'est le point
+# technique qui décide de la forme, et il a été vérifié : un jeton personnel
+# reçoit `403 Resource not accessible by personal access token` sur les
+# Actions. Seul le `GITHUB_TOKEN` d'un workflow peut supprimer une exécution,
+# et seulement si `permissions: actions: write` le lui accorde.
+#
+# La règle elle-même n'est pas ici mais dans `src/scripts/prune-runs.sh` : un
+# script se teste en local, un bloc de YAML non. `verify-gates.sh` prouve que
+# sa sélection traite les cinq cas qui la décident, sur une liste écrite à la
+# main plutôt que contre GitHub — une preuve qui dépendrait du réseau serait
+# rouge un jour de panne, pour une raison étrangère au dépôt.
+
+on:
+  # Lundi, **deux heures après** l'analyse complète de `ci.yml` (`0 4 * * 1`,
+  # qui dure un quart d'heure). L'ordre compte : l'élagueur épargne la plus
+  # récente exécution sur `main`, et il faut donc que celle de la semaine
+  # existe déjà quand il regarde, sinon il épargnerait celle d'avant et la
+  # nouvelle prendrait sa place sans que personne n'y gagne.
+  schedule:
+    - cron: '0 6 * * 1'
+
+  # C'est par lui qu'est passé le premier nettoyage, celui du passif : les 146
+  # exécutions accumulées ne se rattrapaient pas toutes seules. Le bouton
+  # n'apparaît dans l'interface que si ce fichier est sur la branche par
+  # défaut, contrainte de GitHub.
+  workflow_dispatch:
+
+# Le strict nécessaire. `actions: write` est ce sans quoi rien ne fonctionne ;
+# `contents: read` sert au checkout, qui n'est là que pour lire le script.
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  elagage:
+    name: élaguer les exécutions
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      # Pas de setup-toolchain.sh : ce travail ne compile rien, et les deux
+      # outils dont le script a besoin — gh et jq — sont préinstallés sur les
+      # machines GitHub. Installer la chaîne complète coûterait plusieurs
+      # minutes pour quelques appels d'API.
+      - name: Élaguer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./src/scripts/prune-runs.sh

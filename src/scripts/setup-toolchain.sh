@@ -34,6 +34,11 @@ declare -A APT_TOOLS=(
     [gcovr]=gcovr
     [ccache]=ccache
     [gh]=gh
+    # jq est entré avec l'élagueur d'exécutions d'Actions : la preuve de sa
+    # sélection, dans verify-gates.sh, l'exerce sur une liste écrite à la main,
+    # donc en local. Les machines GitHub l'ont d'origine, pas forcément un poste
+    # fraîchement installé — et une preuve qui ne s'exécute pas n'en est pas une.
+    [jq]=jq
 )
 
 # Paquets APT sans commande à sonder : un fichier dit leur présence.
@@ -150,7 +155,7 @@ report() {
     info "état de la chaîne d'outils"
     local cmd
     local path_warning=0
-    for cmd in cmake ninja g++ clang-tidy-20 clang-format gcovr ccache git git-cliff gh; do
+    for cmd in cmake ninja g++ clang-tidy-20 clang-format gcovr ccache git git-cliff gh jq; do
         if command -v "${cmd}" >/dev/null 2>&1; then
             printf '  \033[32m✓\033[0m %-14s %s\n' "${cmd}" "$("${cmd}" --version 2>/dev/null | head -1)"
         elif [[ -x "${LOCAL_BIN}/${cmd}" ]]; then
