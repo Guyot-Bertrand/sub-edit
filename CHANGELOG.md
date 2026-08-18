@@ -22,6 +22,11 @@ ne pas l'éditer à la main.
 
 - **scripts** — Voir le travail non commité dans le périmètre de tidy
 
+### Documentation
+
+- Cadrer la phase 5, et ouvrir la phase 16 des fréquences d'image
+- Numéroter le découpage en issues de la phase 5
+
 ## 0.4.0 — 2026-08-16
 
 ### Ajouts
