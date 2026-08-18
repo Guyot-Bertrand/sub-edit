@@ -117,7 +117,7 @@ TEST_CASE("a sort reports the rows that moved", "[edit][sort]") {
     const std::vector<subedit::core::Change> changes = command.describe();
     REQUIRE(changes.size() == 1);
     CHECK(changes[0].kind == ChangeKind::Reordering);
-    CHECK(changes[0].indices.size() == 3);
+    CHECK(changes[0].subtitles.count() == 3);
 }
 
 TEST_CASE("sorting an empty project is not a special case", "[edit][sort]") {

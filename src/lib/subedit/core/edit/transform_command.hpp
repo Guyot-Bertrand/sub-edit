@@ -65,8 +65,7 @@ public:
 
     /// Reports a change of positions on the selected subtitles.
     [[nodiscard]] std::vector<Change> describe() const override {
-        return {Change{.kind = ChangeKind::Positions,
-                       .indices = {m_selection.indices().begin(), m_selection.indices().end()}}};
+        return {Change{.kind = ChangeKind::Positions, .subtitles = m_selection}};
     }
 
 private:

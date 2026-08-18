@@ -95,12 +95,13 @@ void InsertCommand::revert(Project& project) {
 }
 
 std::vector<Change> InsertCommand::describe() const {
-    std::vector<SubtitleIndex> indices;
-    indices.reserve(m_subtitles.size());
-    for (std::size_t rank = 0; rank < m_subtitles.size(); ++rank)
-        indices.push_back(SubtitleIndex::fromValue(m_index.value() + rank));
+    // Inserted subtitles are consecutive by construction, so the run is the
+    // whole of what there is to say.
+    if (m_subtitles.empty())
+        return {Change{.kind = ChangeKind::Insertion, .subtitles = Selection::of({})}};
 
-    return {Change{.kind = ChangeKind::Insertion, .indices = std::move(indices)}};
+    const SubtitleIndex last = SubtitleIndex::fromValue(m_index.value() + m_subtitles.size() - 1);
+    return {Change{.kind = ChangeKind::Insertion, .subtitles = Selection::range(m_index, last)}};
 }
 
 } // namespace subedit::core

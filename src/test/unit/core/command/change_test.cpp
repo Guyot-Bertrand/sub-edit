@@ -1,5 +1,6 @@
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/model/document.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -10,6 +11,7 @@ using subedit::core::affects;
 using subedit::core::Change;
 using subedit::core::ChangeKind;
 using subedit::core::Document;
+using subedit::core::Selection;
 using subedit::core::SubtitleIndex;
 
 } // namespace
@@ -17,12 +19,12 @@ using subedit::core::SubtitleIndex;
 TEST_CASE("a change names what it touched and where", "[command][change]") {
     const Change change{
         .kind = ChangeKind::Positions,
-        .indices = {SubtitleIndex::fromValue(3), SubtitleIndex::fromValue(4)},
+        .subtitles = Selection::range(SubtitleIndex::fromValue(3), SubtitleIndex::fromValue(4)),
     };
 
     CHECK(change.kind == ChangeKind::Positions);
-    REQUIRE(change.indices.size() == 2);
-    CHECK(change.indices[0] == SubtitleIndex::fromValue(3));
+    CHECK(change.subtitles.count() == 2);
+    CHECK(change.subtitles.contains(SubtitleIndex::fromValue(3)));
 }
 
 TEST_CASE("a change of positions makes both documents stale", "[command][change]") {

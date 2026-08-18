@@ -23,7 +23,7 @@ public:
     /// How many entries the history keeps before dropping its oldest.
     ///
     /// **Measured, as ADR 0010 asked.** On a file of four thousand subtitles,
-    /// a full history of a thousand entries costs:
+    /// a full history of a thousand entries cost, before issue #45:
     ///
     /// | what filled it | per entry | for a thousand |
     /// | :------------- | --------: | -------------: |
@@ -33,13 +33,17 @@ public:
     ///
     /// The first line is what a history really holds — typing in a cell. The
     /// other two are what a user would have to do a thousand times in a row,
-    /// each on the entire file, to reach them; and even then the figure is
+    /// each on the entire file, to reach them; and even then the figure was
     /// bounded and survivable. A thousand entries stands.
     ///
-    /// What costs, when it costs, is the `Selection` a command carries and the
-    /// positions it keeps to undo itself — one index and one pair of positions
-    /// per subtitle. Shrinking that is an optimisation of the commands, not of
-    /// this bound.
+    /// **Half of that is gone since issue #45.** The two other lines were the
+    /// `Selection` a command carries — one index per subtitle, thirty-two
+    /// kilobytes of them — and a whole-file selection is now two bounds. What
+    /// is left is the state a command keeps to undo itself: nothing at all for
+    /// a shift, which retains a `Duration`; one pair of positions per subtitle
+    /// for a transform and for a frame-rate conversion, which cannot be
+    /// inverted without them. Shrinking *that* would be an optimisation of
+    /// those two commands, not of this bound.
     static constexpr std::size_t kDefaultMaximumEntries = 1000;
 
     explicit History(std::size_t maximumEntries = kDefaultMaximumEntries)

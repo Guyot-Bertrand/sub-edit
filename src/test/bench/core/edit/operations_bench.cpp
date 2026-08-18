@@ -195,6 +195,20 @@ TEST_CASE("inserting into and removing from a full-length file", "[benchmark]") 
         });
     };
 
+    // The undo of that same removal, and the other half of issue #45: putting
+    // the subtitles back one at a time shifts the tail once per subtitle.
+    BENCHMARK_ADVANCED("suppression puis annulation")
+    (Catch::Benchmark::Chronometer meter) {
+        std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
+        meter.measure([&](int run) {
+            Project& copy = copies[static_cast<std::size_t>(run)];
+            RemoveCommand command{halfOfThem};
+            command.apply(copy);
+            command.revert(copy);
+            return copy.count();
+        });
+    };
+
     BENCHMARK_ADVANCED("insertion de 100 sous-titres vides au milieu")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);

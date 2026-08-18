@@ -118,6 +118,7 @@ pas le sujet de ce ticket.
 | insertion de 100 sous-titres vides au milieu | 48.9 µs | 0.3.13 — 2026-08-16 | 67 µs | 0.2.13 — 2026-08-14 |
 | modification d'un texte, à travers une session | 114 ns | 0.2.14 — 2026-08-14 | 180 ns | 0.3.9 — 2026-08-15 |
 | suppression des mentions sur 4000 sous-titres | 4.93 ms | 0.3.15 — 2026-08-16 | 5.68 ms | 0.4.4 — 2026-08-17 |
+| suppression puis annulation | 251 µs | 0.4.8 — 2026-08-18 | 251 µs | 0.4.8 — 2026-08-18 |
 
 <!-- versionString min=32.3 max=55.096 -->
 <!-- parse min=29.9 max=41.1824 -->
@@ -136,6 +137,7 @@ pas le sujet de ce ticket.
 <!-- insertion de 100 sous-titres vides au milieu min=48927.4 max=67000.0 -->
 <!-- modification d'un texte, à travers une session min=114.0 max=179.799 -->
 <!-- suppression des mentions sur 4000 sous-titres min=4926150.0 max=5676890.0 -->
+<!-- suppression puis annulation min=250531.0 max=250531.0 -->
 
 ## Relevés
 
@@ -143,6 +145,29 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.4.8 — 2026-08-18 — Release — charge 3.25
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| versionString | 73.8 ns | 7.55 ns |
+| parse | 99.9 ns | 8.68 ns |
+| format | 107 ns | 4.07 ns |
+| position vers image | 15.1 ns | 0.409 ns |
+| image vers position | 15.8 ns | 1.75 ns |
+| mise à l'échelle par un rationnel exact | 43.1 ns | 231 ns |
+| lecture de 4000 sous-titres | 7.47 ms | 1.56 ms |
+| écriture de 4000 sous-titres | 1.89 ms | 877 µs |
+| décalage de 4000 sous-titres | 23.5 µs | 24.5 µs |
+| décalage puis annulation | 41.2 µs | 45.3 µs |
+| transformation de 4000 sous-titres | 247 µs | 342 µs |
+| conversion de fréquence sur 4000 sous-titres | 187 µs | 94.4 µs |
+| tri de 4000 sous-titres à l'envers | 845 µs | 616 µs |
+| suppression d'un sous-titre sur deux | 406 µs | 230 µs |
+| suppression puis annulation | 786 µs | 453 µs |
+| insertion de 100 sous-titres vides au milieu | 70.5 µs | 43.5 µs |
+| modification d'un texte, à travers une session | 269 ns | 112 ns |
+| suppression des mentions sur 4000 sous-titres | 1.23 ms | 119 µs |
 
 ### 0.4.7 — 2026-08-18 — Release — charge 3.93
 

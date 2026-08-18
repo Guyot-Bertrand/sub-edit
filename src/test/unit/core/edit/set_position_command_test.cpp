@@ -6,6 +6,7 @@
 #include <subedit/core/model/boundary.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
@@ -25,6 +26,7 @@ using subedit::core::CommandKind;
 using subedit::core::Document;
 using subedit::core::OrderPolicy;
 using subedit::core::Project;
+using subedit::core::Selection;
 using subedit::core::Session;
 using subedit::core::SetPositionCommand;
 using subedit::core::Subtitle;
@@ -105,7 +107,7 @@ TEST_CASE("a position change reports positions, whichever boundary moved", "[edi
 
     REQUIRE(command.describe().size() == 1);
     CHECK(command.describe()[0].kind == ChangeKind::Positions);
-    CHECK(command.describe()[0].indices == std::vector<SubtitleIndex>{kFirst});
+    CHECK(command.describe()[0].subtitles == Selection::range(kFirst, kFirst));
 }
 
 TEST_CASE("a position change says which boundary it is", "[edit][setposition]") {

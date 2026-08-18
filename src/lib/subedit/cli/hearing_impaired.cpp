@@ -34,7 +34,7 @@ struct Tally {
     Tally tally;
     for (const core::Change& change : command.describe()) {
         if (change.kind == core::ChangeKind::Removal)
-            tally.removed += change.indices.size();
+            tally.removed += change.subtitles.count();
         else
             ++tally.cleaned;
     }

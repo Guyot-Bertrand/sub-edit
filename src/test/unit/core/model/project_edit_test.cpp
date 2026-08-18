@@ -161,6 +161,67 @@ TEST_CASE("what removal hands back goes back where it came from", "[model][proje
     CHECK(textsOf(project) == before);
 }
 
+TEST_CASE("restore puts a whole selection back in one call", "[model][project]") {
+    // The exact inverse of removal, and the entry point issue #45 asks for:
+    // re-inserting one subtitle at a time shifts the tail once per subtitle,
+    // which is quadratic. The destinations are the very indices removal was
+    // given — positions in the *final* project, not in the current one.
+    Project project = projectOf({named("a"), named("b"), named("c"), named("d")});
+    const std::vector<std::string> before = textsOf(project);
+    const std::array<SubtitleIndex, 2> targets = {SubtitleIndex::fromValue(1),
+                                                  SubtitleIndex::fromValue(3)};
+    const Selection selection = Selection::of(targets);
+
+    const std::vector<Subtitle> removed = project.remove(selection);
+    project.restore(selection, removed);
+
+    CHECK(textsOf(project) == before);
+}
+
+TEST_CASE("restore places a run of subtitles at its far end", "[model][project]") {
+    // A run whose destination reaches the end of the project: the merge has to
+    // walk past everything that stays before it emits the tail.
+    Project project = projectOf({named("a"), named("b"), named("c")});
+    const Selection selection =
+        Selection::range(SubtitleIndex::fromValue(1), SubtitleIndex::fromValue(2));
+
+    const std::vector<Subtitle> removed = project.remove(selection);
+    REQUIRE(textsOf(project) == std::vector<std::string>{"a"});
+    project.restore(selection, removed);
+
+    CHECK(textsOf(project) == std::vector<std::string>{"a", "b", "c"});
+}
+
+TEST_CASE("restoring nothing leaves the project alone", "[model][project]") {
+    Project project = projectOf({named("a"), named("b")});
+
+    project.restore(Selection::of({}), {});
+
+    CHECK(textsOf(project) == std::vector<std::string>{"a", "b"});
+}
+
+TEST_CASE("restoring past the end is refused", "[model][project]") {
+    // Loudly, as everywhere else: a destination the restored project cannot
+    // have is a programming error, and reading past the vector would be worse.
+    Project project = projectOf({named("a")});
+    const std::array<Subtitle, 1> subtitles = {named("b")};
+
+    CHECK_THROWS_AS(
+        project.restore(Selection::range(SubtitleIndex::fromValue(2), SubtitleIndex::fromValue(2)),
+                        subtitles),
+        std::out_of_range);
+}
+
+TEST_CASE("restoring a count that does not match its destinations is refused", "[model][project]") {
+    Project project = projectOf({named("a")});
+    const std::array<Subtitle, 1> subtitles = {named("b")};
+
+    CHECK_THROWS_AS(
+        project.restore(Selection::range(SubtitleIndex::fromValue(0), SubtitleIndex::fromValue(1)),
+                        subtitles),
+        std::invalid_argument);
+}
+
 TEST_CASE("a project in order reports no disorder", "[model][project]") {
     const Project project = projectOf({startingAt(0), startingAt(2000), startingAt(4000)});
 

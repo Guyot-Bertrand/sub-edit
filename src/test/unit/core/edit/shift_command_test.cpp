@@ -137,7 +137,24 @@ TEST_CASE("a shift reports the positions it moved", "[edit][shift]") {
     const std::vector<subedit::core::Change> changes = command.describe();
     REQUIRE(changes.size() == 1);
     CHECK(changes[0].kind == ChangeKind::Positions);
-    CHECK(changes[0].indices == std::vector<SubtitleIndex>{SubtitleIndex::fromValue(2)});
+    CHECK(changes[0].subtitles ==
+          Selection::range(SubtitleIndex::fromValue(2), SubtitleIndex::fromValue(2)));
+}
+
+TEST_CASE("describing a shift over a whole file reports one range", "[edit][shift]") {
+    // The second half of issue #45: a compact selection wins nothing while
+    // describe() still has to hand back one index per line. The interface
+    // reads this on every apply, undo and redo, and wants runs anyway — Qt
+    // refreshes a table by top-left and bottom-right corners.
+    Project project;
+    project.setSubtitles(std::vector<Subtitle>(4000));
+    const ShiftCommand command{Selection::all(project), milliseconds(1000)};
+
+    const std::vector<subedit::core::Change> changes = command.describe();
+
+    REQUIRE(changes.size() == 1);
+    REQUIRE(changes[0].subtitles.ranges().size() == 1);
+    CHECK(changes[0].subtitles.count() == 4000);
 }
 
 TEST_CASE("a shift says what it is", "[edit][shift]") {

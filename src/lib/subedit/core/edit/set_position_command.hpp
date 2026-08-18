@@ -4,6 +4,7 @@
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/model/boundary.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
@@ -48,7 +49,8 @@ public:
     /// A subtitle carries one pair of positions for both its texts, so moving
     /// either end concerns both documents.
     [[nodiscard]] std::vector<Change> describe() const override {
-        return {Change{.kind = ChangeKind::Positions, .indices = {m_index}}};
+        return {
+            Change{.kind = ChangeKind::Positions, .subtitles = Selection::range(m_index, m_index)}};
     }
 
 private:

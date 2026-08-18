@@ -11,10 +11,7 @@ void RemoveCommand::apply(Project& project) {
 }
 
 void RemoveCommand::revert(Project& project) {
-    const std::span<const SubtitleIndex> indices = m_selection.indices();
-    for (std::size_t rank = 0; rank < m_removed.size(); ++rank)
-        project.insert(indices[rank], std::span{&m_removed[rank], 1});
-
+    project.restore(m_selection, m_removed);
     m_removed.clear();
 }
 

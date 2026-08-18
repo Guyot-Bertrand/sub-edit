@@ -1,10 +1,10 @@
 #pragma once
 
 #include <subedit/core/model/document.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 
 #include <utility>
-#include <vector>
 
 namespace subedit::core {
 
@@ -23,9 +23,15 @@ enum class ChangeKind {
 /// The core knows no signal mechanism: it returns the information and the
 /// caller does what it likes with it. This is what lets the interface refresh
 /// the rows that moved instead of rebuilding the whole table.
+///
+/// **A `Selection` and not a list of indices, since issue #45.** The two carry
+/// the same thing under the same invariants, and describing a shift over four
+/// thousand subtitles used to hand back four thousand indices — on every
+/// apply, undo and redo. A table model wants runs anyway: Qt refreshes by
+/// top-left and bottom-right corners, not row by row.
 struct Change {
     ChangeKind kind;
-    std::vector<SubtitleIndex> indices;
+    Selection subtitles;
 
     friend bool operator==(const Change&, const Change&) = default;
 };

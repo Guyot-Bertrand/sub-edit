@@ -42,7 +42,8 @@ public:
     [[nodiscard]] core::CommandKind kind() const override { return core::CommandKind::SetText; }
 
     [[nodiscard]] std::vector<core::Change> describe() const override {
-        return {core::Change{.kind = core::ChangeKind::MainText, .indices = {m_index}}};
+        return {core::Change{.kind = core::ChangeKind::MainText,
+                             .subtitles = core::Selection::range(m_index, m_index)}};
     }
 
 private:
@@ -69,7 +70,7 @@ public:
     [[nodiscard]] core::CommandKind kind() const override { return m_commandKind; }
 
     [[nodiscard]] std::vector<core::Change> describe() const override {
-        return {core::Change{.kind = m_kind, .indices = {}}};
+        return {core::Change{.kind = m_kind, .subtitles = core::Selection::of({})}};
     }
 
 private:
@@ -95,7 +96,8 @@ public:
     [[nodiscard]] core::CommandKind kind() const override { return core::CommandKind::SetText; }
 
     [[nodiscard]] std::vector<core::Change> describe() const override {
-        return {core::Change{.kind = core::ChangeKind::MainText, .indices = {}}};
+        return {
+            core::Change{.kind = core::ChangeKind::MainText, .subtitles = core::Selection::of({})}};
     }
 
 private:

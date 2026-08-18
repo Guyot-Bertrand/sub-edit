@@ -3,6 +3,7 @@
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/command/command_kind.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 
 #include <cstddef>
@@ -49,7 +50,7 @@ private:
     std::vector<std::size_t> m_previousOrder;
 
     /// The indices that ended up holding a different subtitle.
-    std::vector<SubtitleIndex> m_moved;
+    Selection m_moved = Selection::of({});
 };
 
 } // namespace subedit::core

@@ -68,6 +68,22 @@ public:
     /// the project does not have.
     [[nodiscard]] std::vector<Subtitle> remove(const Selection& selection);
 
+    /// Puts `subtitles` back at `destinations`, in one pass.
+    ///
+    /// The exact inverse of `remove`: `destinations` are the very indices that
+    /// removal was given — positions in the **restored** project, and not in
+    /// the one this is called on. That is what lets a command undo itself by
+    /// handing back what it kept, unchanged.
+    ///
+    /// One call rather than one insertion per subtitle, which is the point:
+    /// inserting `k` subtitles one at a time shifts the tail `k` times, where
+    /// rebuilding the vector once costs `O(n + k)`.
+    ///
+    /// Throws `std::invalid_argument` when the counts disagree, and
+    /// `std::out_of_range` when a destination lies past the end of the project
+    /// that would result. Both are programming errors, refused loudly.
+    void restore(const Selection& destinations, std::span<const Subtitle> subtitles);
+
     /// Returns the indices of the subtitles that are out of order, a pure
     /// query.
     ///

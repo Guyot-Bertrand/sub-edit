@@ -180,7 +180,7 @@ TEST_CASE("a conversion reports the positions it moved", "[edit][framerate]") {
     const std::vector<subedit::core::Change> changes = command.describe();
     REQUIRE(changes.size() == 1);
     CHECK(changes[0].kind == ChangeKind::Positions);
-    CHECK(changes[0].indices == std::vector<SubtitleIndex>{kFirst, kSecond});
+    CHECK(changes[0].subtitles == Selection::range(kFirst, kSecond));
 }
 
 TEST_CASE("a conversion says what it is", "[edit][framerate]") {
