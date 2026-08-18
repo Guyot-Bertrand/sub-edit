@@ -366,9 +366,10 @@ fait pas mieux.
 
 **La question a toutefois trouvé sa réponse pendant ce cadrage, et elle a fait
 naître une phase.** Convertir une fréquence suppose que les positions étaient
-calées sur une grille d'images ; quand c'est le cas, la grille se mesure — 100 %
-des débuts de `First.Man` tombent sur celle de 23,976, contre 2 à 3 % de bruit
-de fond. Le fichier ne *déclare* pas sa fréquence, mais il la *trahit*. C'est une
+calées sur une grille d'images ; quand c'est le cas, la grille se mesure — huit
+des quinze fichiers du corpus privé la donnent sans ambiguïté, contre un bruit
+de fond de quelques pour cent sur les fréquences qu'ils n'ont pas.
+Le fichier ne *déclare* pas sa fréquence, mais il la *trahit*. C'est une
 donnée et non une corrélation, et c'est l'objet de la
 [phase 16](#16--fréquences-dimage--déduction-et-correction), programmée juste
 après la 6. La phase 5 n'en dépend pas : son dialogue demande la fréquence, et
@@ -489,37 +490,91 @@ vrai, chaque position vaut `round(n × 1000 / R)`, et cette grille se mesure.
 
 ### Ce que la mesure a déjà donné
 
-Relevé au cadrage de la phase 5, sur les quinze fichiers de `src/data/`, en
-comparant chaque position aux huit fréquences normalisées :
+Relevé au cadrage de la phase 5, puis **refait** après que les jeux d'exemples ont
+montré que la première méthode était la mauvaise.
 
-| Constat | Détail |
-| :------ | :----- |
-| le signal est massif quand il existe | `First.Man` 100 % des débuts sur la grille 23,976 ; `Aliens.eng` 99,5 % ; `Dirty.Pretty.Things` 96,8 % sur 24 |
-| le bruit de fond est connu | 2 à 3 %, soit exactement la probabilité qu'une position quelconque tombe dans la tolérance — un rapport de 1 à 30 |
-| **il faut regarder les débuts seuls** | `First.Man` : 100 % de débuts sur grille, **0 % de fins**. Le cue-in est posé sur une image, le cue-out est calculé en millisecondes par une règle de vitesse de lecture |
-| les harmoniques sont inhérentes | une grille 24 est incluse dans une grille 48 ; `Dirty.Pretty.Things` sort à 50 % sur 60 et 25,9 % sur 30, ce qui est arithmétiquement forcé |
-| l'échec est bruyant | un fichier écrit en millisecondes score 6 % partout : « je ne sais pas », et non une mauvaise réponse |
-| la moitié des fichiers sont muets ou mixtes | 3 fichiers sur 15 répondent sans ambiguïté, 4 donnent un indice partiel (54 à 66 %), 8 ne disent rien |
-| la forme des écarts les distingue | `Aliens` : 8 positions hors grille sur 1596, en huit points isolés — des anomalies. `RoboCop` : 341 sur 1015, en 49 blocs contigus — une section retimée ou un fichier assemblé |
-| notre propre conversion préserve la propriété | `Dirty.Pretty.Things` converti de 24 vers 25 passe de 96,8 % sur la grille 24 à 96,8 % sur la grille 25 |
+**Aucun de ces chiffres n'est reproductible ailleurs.** `src/data/` est ignoré
+par git — corpus privé de chaque machine, comme `reference/gaupol` est un clone
+privé. Les relevés qui suivent sont donc des observations consignées, pas des
+mesures qu'un tiers peut rejouer, et **aucun test de cette phase ne pourra lire
+ces fichiers.** Il lui faudra des fixtures versionnées ; il n'en existe pas.
+
+#### La méthode : chercher une grille *et sa phase*
+
+Pour chacune des huit fréquences normalisées, on calcule la phase de chaque
+début sur la grille d'images correspondante, et on mesure **la concentration de
+ces phases** — la longueur du vecteur résultant. Cent pour cent : une grille
+parfaite, quelle que soit sa phase. Près de zéro : aucune structure.
+
+Elle n'a **aucun paramètre de tolérance**, et elle est insensible à un décalage.
+
+**C'est un jeu d'exemples qui l'a imposée.** Une première version cherchait une
+grille de phase nulle, et notait à zéro un fichier qui est un 24 images par
+seconde parfait, décalé d'un millième de seconde et demi. Ses onze cent dix-sept
+débuts tombent dans exactement **trois** classes de résidu — ce que produit une
+grille à 24 images écrite en millisecondes entières — et le décalage appliqué par
+Gaupol translate les trois de la même quantité.
+
+#### Ce que les opérations de Gaupol font à la grille
+
+Vérité terrain : les jeux d'exemples 004, 005 et 006 du corpus privé sont des
+fichiers produits par Gaupol, l'opération appliquée étant consignée à côté.
+
+| Opération | Ce qu'elle fait à la grille |
+| :-------- | :-------------------------- |
+| conversion de fréquence, 25 → 24 et 25 → 23,976 | **la transpose** — chaque sortie annonce sa nouvelle fréquence à 100, et l'ancienne retombe au bruit |
+| décalage, de −7,001 s et de +2,999 s | **la préserve**, seule la phase change — 100 avant comme après, dans les deux sens |
+| transformation par deux repères | **la détruit** — 100 avant, 3 après |
+
+La conversion et le décalage sont donc réversibles du point de vue de la
+déduction ; la transformation, non. C'est une propriété utile : elle dit ce
+qu'on peut espérer retrouver d'un fichier et ce qui est perdu.
+
+#### Sur les quinze fichiers du corpus privé
+
+| Verdict | Fichiers | Fréquences trouvées |
+| :------ | -------: | :------------------ |
+| grille nette — concentration ≥ 90 | **8** | cinq à 23,976, un à 24, un à 25, un à 29,97 |
+| indice partiel — de 50 à 90 | 4 | trois à 29,97, un à 23,976 |
+| muet — moins de 50 | 3 | — |
+
+**L'échec est bruyant.** Un fichier écrit en millisecondes sans grille reste sous
+quelques pour cent sur les huit candidates : c'est un « je ne sais pas » sans
+équivoque, et non une mauvaise réponse. C'est la propriété qui autorise à s'en
+servir, là où une heuristique de nom de fichier ne l'aurait jamais offerte.
+
+**L'ambiguïté harmonique est réelle et apparaît dès le premier fichier.** Une
+grille à 25 est incluse dans une grille à 50 : deux fichiers sortent à 100 sur
+les deux. Dans l'ensemble normalisé, les seules paires ambiguës sont celles dont
+l'une est le multiple entier de l'autre — **25 et 50, 29,97 et 59,94, 30 et 60**.
+Aucune autre : 24 et 60 sont dans un rapport de deux et demi, donc une image sur
+deux seulement coïncide.
+
+**Les débuts sont le signal, les fins corroborent.** Partout où une grille
+existe, les débuts sont à 100 sans exception ; les fins vont de 55 à 100. Le
+*cue-in* est posé sur une image, le *cue-out* est souvent calculé par une règle
+de vitesse de lecture.
 
 ### Questions d'architecture
 
-- **Que rend la déduction ?** Un classement de candidats avec leur score, ou une
-  réponse et une confiance ? Le second est plus simple à consommer, le premier
-  ne cache rien — et un fichier mixte à 66 % n'est ni l'un ni l'autre.
-- **L'ensemble des candidats doit être clos et petit** — les huit fréquences
+- **Que rend la déduction ?** Un classement de candidates avec leur
+  concentration, ou une réponse et une confiance ? Le second est plus simple à
+  consommer, le premier ne cache rien — et un fichier partiel n'est ni l'un ni
+  l'autre.
+- **L'ensemble des candidates doit être clos et petit** — les huit fréquences
   normalisées. Résoudre pour un `R` quelconque est un tout autre problème, et
   sans objet : personne ne masterise à 26,3 images par seconde.
+- **La phase est une information, pas un déchet.** Un fichier dont les positions
+  sont sur la grille à une constante près a été décalé, et cette constante se
+  mesure. Faut-il la rendre ? La corriger ?
 - **Où vit la fonction ?** Elle est pure et ne dépend que des positions :
   `core/time/`, ou un `core/analysis/` qui accueillerait aussi les anomalies
   d'un document.
-- **Que recouvre « corriger » ?** Trois mécanismes distincts, à trier :
-  recaler les positions sur la grille déduite ; refuser ou signaler une
-  conversion dont la fréquence d'entrée contredit la mesure ; retrouver la paire
-  d'une conversion faite avec la mauvaise fréquence, en cherchant le rationnel
-  qui remet le fichier sur une grille normalisée. Le troisième est le plus utile
-  et le moins sûr.
+- **Que recouvre « corriger » ?** Trois mécanismes distincts, à trier : ramener
+  la phase à zéro ; refuser ou signaler une conversion dont la fréquence
+  d'entrée contredit la mesure ; retrouver la paire d'une conversion faite avec
+  la mauvaise fréquence, en cherchant le rationnel qui remet le fichier sur une
+  grille normalisée. Le troisième est le plus utile et le moins sûr.
 - **Surface exposée.** Une sous-commande de la ligne de commande, ou une lecture
   de plus dans `inspect` ? Et dans la fenêtre : le dialogue de conversion
   pré-remplit sa fréquence d'entrée **en montrant sa mesure**, jamais en
@@ -531,6 +586,12 @@ comparant chaque position aux huit fréquences normalisées :
 
 ### Points difficiles
 
+- **Les fichiers de test n'existent pas.** Les deux corpus qui ont servi à tout
+  ce qui précède sont ignorés par git, et la plus fournie des fixtures
+  versionnées porte six horodatages sur quinze secondes. Or la déduction demande
+  de l'étendue *et* du volume. Il faudra des fichiers engendrés sur une grille
+  connue, et c'est la question que le ticket d'initialisation de la phase devra
+  poser en premier.
 - **L'édition manuelle sort de la grille.** Dès qu'un utilisateur corrige une
   position dans la table, elle cesse d'être alignée. Un détecteur naïf
   signalerait le travail de l'utilisateur comme une anomalie. C'est la raison
@@ -539,14 +600,14 @@ comparant chaque position aux huit fréquences normalisées :
 - **Distinguer 23,976 de 24 demande de l'étendue.** Elles divergent de 3,6 s par
   heure : écrasant sur un film de deux heures, invisible sur un extrait de trente
   secondes. La déduction doit rendre l'étendue qu'elle a eue sous les yeux, et
-  pas seulement son score.
-- **Les fichiers mixtes sont le cas intéressant et le plus dur.** Ni grille ni
-  bruit — quatre des quinze fichiers du corpus. Dire « 66 % de vos débuts sont
-  sur une grille 29,97 » est vrai et n'aide personne ; dire *lesquels* et *où ils
-  se groupent* aide, et demande de décider ce qui compte comme un bloc.
-- **La tolérance est un paramètre, pas une constante.** 0,6 ms tient pour des
-  positions écrites en millisecondes ; un format qui écrirait en centièmes
-  demanderait autre chose.
+  pas seulement sa concentration.
+- **Les fichiers partiels sont le cas intéressant et le plus dur.** Ni grille ni
+  bruit — quatre des quinze du corpus privé, entre 50 et 83. Dire « les deux
+  tiers de vos débuts sont sur une grille 29,97 » est vrai et n'aide personne ;
+  dire *lesquels* et *où ils se groupent* aide, et demande de décider ce qui
+  compte comme un bloc. L'observation faite au cadrage : les écarts isolés
+  ressemblent à des anomalies ponctuelles, les écarts groupés à une section
+  retimée ou à un fichier assemblé.
 
 ---
 

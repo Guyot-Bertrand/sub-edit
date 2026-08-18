@@ -28,6 +28,26 @@ test versionnée vit dans `src/test/data/` ; `src/data/` n'est pas une option,
 c'est le corpus privé de chaque machine et il est ignoré par git.
 `check-architecture.sh` le vérifie.
 
+**Le contenu de `src/data/` ne se cite jamais dans un fichier versionné.** Ni le
+code, ni la documentation, ni une spec, ni une ADR, ni un message de commit, ni
+le corps d'une issue ou d'une pull request ne nomme un fichier du corpus privé —
+pas plus son titre que son nom de fichier, pas plus dans un tableau de mesures
+que dans une phrase. Cela vaut pour `src/data/exemples/` comme pour le reste.
+
+La raison est double. Ce sont **des fichiers qui n'appartiennent pas au projet**
+et dont le dépôt n'a pas à publier l'inventaire. Et un chiffre attribué à un fichier que
+personne d'autre ne possède est **une preuve que personne ne peut rejouer** :
+le lecteur croit lire une mesure là où il n'a qu'un témoignage.
+
+Ce qui reste permis, et qui suffit : parler du corpus **globalement** — « huit
+des quinze fichiers », « les jeux d'exemples 004 à 006 », « le corpus privé ne
+tranche pas ». Une observation ainsi formulée s'assume comme telle. Et quand un
+chiffre doit devenir une garantie plutôt qu'une observation, il lui faut une
+fixture dans `src/test/data/`, versionnée, que tout le monde peut lire.
+
+Défaut déjà commis, en août 2026, dans la feuille de route et une spec de phase :
+cinq titres de films cités dans un tableau de mesures. Corrigé après coup.
+
 **Piège pratique, déjà rencontré :** le répertoire de travail du shell persiste
 d'un appel à l'autre. Un `cd reference/gaupol` fait plus tôt dans la session
 rend toute commande ultérieure dangereuse — `git add -A` cible alors le clone,
