@@ -22,12 +22,18 @@ void SortCommand::apply(Project& project) {
 
     std::vector<Subtitle> sorted;
     sorted.reserve(count);
-    m_moved.clear();
+    std::vector<SubtitleIndex> moved;
     for (std::size_t position = 0; position < count; ++position) {
         sorted.push_back(project.subtitles()[order[position]]);
         if (order[position] != position)
-            m_moved.push_back(SubtitleIndex::fromValue(position));
+            moved.push_back(SubtitleIndex::fromValue(position));
     }
+
+    // Kept as a selection and not as a list: this is what the history retains,
+    // and a sort that moves a whole file used to keep one index per subtitle.
+    // The permutation below cannot be compacted the same way — it is a
+    // permutation and not a set — so half the cost stays.
+    m_moved = Selection::of(moved);
 
     m_previousOrder = std::move(order);
     project.setSubtitles(std::move(sorted));
@@ -42,10 +48,10 @@ void SortCommand::revert(Project& project) {
 }
 
 std::vector<Change> SortCommand::describe() const {
-    if (m_moved.empty())
+    if (m_moved.isEmpty())
         return {};
 
-    return {Change{.kind = ChangeKind::Reordering, .indices = m_moved}};
+    return {Change{.kind = ChangeKind::Reordering, .subtitles = m_moved}};
 }
 
 } // namespace subedit::core

@@ -4,6 +4,7 @@
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
@@ -24,6 +25,7 @@ using subedit::core::CommandKind;
 using subedit::core::Document;
 using subedit::core::InsertCommand;
 using subedit::core::Project;
+using subedit::core::Selection;
 using subedit::core::Session;
 using subedit::core::Subtitle;
 using subedit::core::SubtitleIndex;
@@ -88,8 +90,21 @@ TEST_CASE("an insertion reports the indices it filled", "[edit][insert]") {
     const std::vector<subedit::core::Change> changes = command.describe();
     REQUIRE(changes.size() == 1);
     CHECK(changes[0].kind == ChangeKind::Insertion);
-    CHECK(changes[0].indices ==
-          std::vector<SubtitleIndex>{SubtitleIndex::fromValue(1), SubtitleIndex::fromValue(2)});
+    CHECK(changes[0].subtitles ==
+          Selection::range(SubtitleIndex::fromValue(1), SubtitleIndex::fromValue(2)));
+}
+
+TEST_CASE("an insertion of nothing reports an empty selection", "[edit][insert]") {
+    // A run needs a last index, and an insertion of nothing has none. The case
+    // is not hypothetical: a caller loops over what it collected, and what it
+    // collected can be empty.
+    const InsertCommand command{SubtitleIndex::fromValue(0), {}};
+
+    const std::vector<subedit::core::Change> changes = command.describe();
+
+    REQUIRE(changes.size() == 1);
+    CHECK(changes[0].kind == ChangeKind::Insertion);
+    CHECK(changes[0].subtitles.isEmpty());
 }
 
 TEST_CASE("an insertion says what it is", "[edit][insert]") {

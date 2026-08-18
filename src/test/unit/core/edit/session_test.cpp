@@ -5,6 +5,7 @@
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/duration.hpp>
@@ -30,6 +31,7 @@ using subedit::core::Document;
 using subedit::core::Duration;
 using subedit::core::OrderPolicy;
 using subedit::core::Project;
+using subedit::core::Selection;
 using subedit::core::Session;
 using subedit::core::Subtitle;
 using subedit::core::SubtitleIndex;
@@ -79,7 +81,8 @@ public:
     [[nodiscard]] CommandKind kind() const override { return CommandKind::Shift; }
 
     [[nodiscard]] std::vector<Change> describe() const override {
-        return {Change{.kind = ChangeKind::Positions, .indices = {m_index}}};
+        return {
+            Change{.kind = ChangeKind::Positions, .subtitles = Selection::range(m_index, m_index)}};
     }
 
 private:
@@ -104,7 +107,8 @@ public:
     [[nodiscard]] CommandKind kind() const override { return CommandKind::SetText; }
 
     [[nodiscard]] std::vector<Change> describe() const override {
-        return {Change{.kind = ChangeKind::MainText, .indices = {m_index}}};
+        return {
+            Change{.kind = ChangeKind::MainText, .subtitles = Selection::range(m_index, m_index)}};
     }
 
 private:

@@ -46,11 +46,12 @@ void TransformCommand::apply(Project& project) {
 }
 
 void TransformCommand::revert(Project& project) {
-    const std::span<const SubtitleIndex> indices = m_selection.indices();
-    for (std::size_t rank = 0; rank < indices.size(); ++rank) {
-        Subtitle& subtitle = project.subtitleAt(indices[rank]);
+    std::size_t rank = 0;
+    for (const SubtitleIndex index : m_selection.indices()) {
+        Subtitle& subtitle = project.subtitleAt(index);
         subtitle.start = m_previous[rank].start;
         subtitle.end = m_previous[rank].end;
+        ++rank;
     }
 }
 

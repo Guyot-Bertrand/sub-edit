@@ -1,5 +1,6 @@
 #include <subedit/core/edit/set_text_command.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/selection.hpp>
 
 #include <string>
 #include <utility>
@@ -28,7 +29,7 @@ std::vector<Change> SetTextCommand::describe() const {
     const ChangeKind kind =
         m_document == Document::Main ? ChangeKind::MainText : ChangeKind::TranslationText;
 
-    return {Change{.kind = kind, .indices = {m_index}}};
+    return {Change{.kind = kind, .subtitles = Selection::range(m_index, m_index)}};
 }
 
 } // namespace subedit::core

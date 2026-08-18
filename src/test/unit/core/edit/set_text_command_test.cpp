@@ -4,6 +4,7 @@
 #include <subedit/core/edit/set_text_command.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 
@@ -20,6 +21,7 @@ using subedit::core::ChangeKind;
 using subedit::core::CommandKind;
 using subedit::core::Document;
 using subedit::core::Project;
+using subedit::core::Selection;
 using subedit::core::Session;
 using subedit::core::SetTextCommand;
 using subedit::core::Subtitle;
@@ -78,7 +80,7 @@ TEST_CASE("a text change reports the document it touched", "[edit][settext]") {
 
     REQUIRE(main.describe().size() == 1);
     CHECK(main.describe()[0].kind == ChangeKind::MainText);
-    CHECK(main.describe()[0].indices == std::vector<SubtitleIndex>{kFirst});
+    CHECK(main.describe()[0].subtitles == Selection::range(kFirst, kFirst));
 
     REQUIRE(translation.describe().size() == 1);
     CHECK(translation.describe()[0].kind == ChangeKind::TranslationText);

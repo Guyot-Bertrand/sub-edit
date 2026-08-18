@@ -9,15 +9,35 @@
 
 namespace subedit::core {
 
-Selection Selection::all(const Project& project) {
-    std::vector<SubtitleIndex> indices;
-    indices.reserve(project.count());
-    for (std::size_t value = 0; value < project.count(); ++value)
-        indices.push_back(SubtitleIndex::fromValue(value));
+namespace {
 
-    // Already ascending and unique, so the sort the other factories need would
-    // only walk the vector again.
-    return Selection{std::move(indices)};
+/// Turns ascending, duplicate-free indices into runs, merging the consecutive
+/// ones.
+[[nodiscard]] std::vector<IndexRange> runsOf(std::span<const SubtitleIndex> ascending) {
+    std::vector<IndexRange> ranges;
+    for (const SubtitleIndex index : ascending) {
+        // Adjacent to the run being built means extending it, which is what
+        // keeps the form canonical: two selections holding the same subtitles
+        // hold the same runs, so comparing them compares what they cover.
+        if (!ranges.empty() && ranges.back().last.value() + 1 == index.value()) {
+            ranges.back().last = index;
+            continue;
+        }
+
+        ranges.push_back(IndexRange{.first = index, .last = index});
+    }
+
+    return ranges;
+}
+
+} // namespace
+
+Selection Selection::all(const Project& project) {
+    if (project.count() == 0)
+        return Selection{{}};
+
+    return Selection{{IndexRange{.first = SubtitleIndex::fromValue(0),
+                                 .last = SubtitleIndex::fromValue(project.count() - 1)}}};
 }
 
 Selection Selection::of(std::span<const SubtitleIndex> indices) {
@@ -26,23 +46,31 @@ Selection Selection::of(std::span<const SubtitleIndex> indices) {
     const auto duplicates = std::ranges::unique(sorted);
     sorted.erase(duplicates.begin(), duplicates.end());
 
-    return Selection{std::move(sorted)};
+    return Selection{runsOf(sorted)};
 }
 
 Selection Selection::range(SubtitleIndex first, SubtitleIndex last) {
-    std::vector<SubtitleIndex> indices;
     if (last < first)
-        return Selection{std::move(indices)};
+        return Selection{{}};
 
-    indices.reserve(last.value() - first.value() + 1);
-    for (std::size_t value = first.value(); value <= last.value(); ++value)
-        indices.push_back(SubtitleIndex::fromValue(value));
+    return Selection{{IndexRange{.first = first, .last = last}}};
+}
 
-    return Selection{std::move(indices)};
+std::size_t Selection::count() const {
+    std::size_t total = 0;
+    for (const IndexRange& range : m_ranges)
+        total += range.count();
+
+    return total;
 }
 
 bool Selection::contains(SubtitleIndex index) const {
-    return std::ranges::binary_search(m_indices, index);
+    // The first run that could hold it is the first whose end is not before
+    // it; the runs being ascending and disjoint, no other one can.
+    const auto candidate = std::ranges::lower_bound(
+        m_ranges, index, {}, [](const IndexRange& range) { return range.last; });
+
+    return candidate != m_ranges.end() && candidate->first <= index;
 }
 
 } // namespace subedit::core

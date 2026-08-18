@@ -121,8 +121,9 @@ TEST_CASE("a removal reports the indices it emptied", "[edit][remove]") {
     const std::vector<subedit::core::Change> changes = command.describe();
     REQUIRE(changes.size() == 1);
     CHECK(changes[0].kind == ChangeKind::Removal);
-    CHECK(changes[0].indices ==
-          std::vector<SubtitleIndex>{SubtitleIndex::fromValue(1), SubtitleIndex::fromValue(3)});
+    const std::array<SubtitleIndex, 2> emptied = {SubtitleIndex::fromValue(1),
+                                                  SubtitleIndex::fromValue(3)};
+    CHECK(changes[0].subtitles == Selection::of(emptied));
 }
 
 TEST_CASE("a removal says what it is", "[edit][remove]") {

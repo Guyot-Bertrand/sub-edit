@@ -11,6 +11,7 @@
 
 namespace {
 
+using subedit::core::IndexRange;
 using subedit::core::Project;
 using subedit::core::Selection;
 using subedit::core::Subtitle;
@@ -38,6 +39,19 @@ TEST_CASE("a selection of everything covers the project in order", "[model][sele
 
     CHECK(selection.count() == 3);
     CHECK(valuesOf(selection) == std::vector<std::size_t>{0, 1, 2});
+}
+
+TEST_CASE("a selection of everything holds a single range", "[model][selection]") {
+    // The point of the compact form, and the whole of issue #45: covering four
+    // thousand subtitles costs two bounds, not four thousand indices. Asserting
+    // the shape rather than a byte count is what makes the guarantee exact.
+    const Project project = projectOf(4000);
+
+    const Selection selection = Selection::all(project);
+
+    REQUIRE(selection.ranges().size() == 1);
+    CHECK(selection.ranges().front().first.value() == 0);
+    CHECK(selection.ranges().front().last.value() == 3999);
 }
 
 TEST_CASE("a selection of everything in an empty project is empty", "[model][selection]") {
@@ -86,6 +100,53 @@ TEST_CASE("a range whose bounds are the wrong way round is empty", "[model][sele
         Selection::range(SubtitleIndex::fromValue(5), SubtitleIndex::fromValue(2));
 
     CHECK(selection.isEmpty());
+}
+
+TEST_CASE("consecutive indices become one range", "[model][selection]") {
+    // Handed in any order, and still one run: the merge is what makes the form
+    // canonical, so two selections covering the same subtitles compare equal.
+    const std::array<SubtitleIndex, 4> given = {
+        SubtitleIndex::fromValue(6),
+        SubtitleIndex::fromValue(4),
+        SubtitleIndex::fromValue(7),
+        SubtitleIndex::fromValue(5),
+    };
+
+    const Selection selection = Selection::of(given);
+
+    REQUIRE(selection.ranges().size() == 1);
+    CHECK(selection.ranges().front().first.value() == 4);
+    CHECK(selection.ranges().front().last.value() == 7);
+    CHECK(selection.count() == 4);
+}
+
+TEST_CASE("a gap of one index splits a range in two", "[model][selection]") {
+    const std::array<SubtitleIndex, 3> given = {
+        SubtitleIndex::fromValue(0),
+        SubtitleIndex::fromValue(1),
+        SubtitleIndex::fromValue(3),
+    };
+
+    const Selection selection = Selection::of(given);
+
+    REQUIRE(selection.ranges().size() == 2);
+    CHECK(selection.ranges()[0] ==
+          IndexRange{SubtitleIndex::fromValue(0), SubtitleIndex::fromValue(1)});
+    CHECK(selection.ranges()[1] ==
+          IndexRange{SubtitleIndex::fromValue(3), SubtitleIndex::fromValue(3)});
+}
+
+TEST_CASE("two selections covering the same subtitles are equal", "[model][selection]") {
+    // What the canonical form buys: the one built as a range and the one built
+    // from a scattered list hold the same runs, so they compare equal.
+    const std::array<SubtitleIndex, 3> given = {
+        SubtitleIndex::fromValue(3),
+        SubtitleIndex::fromValue(1),
+        SubtitleIndex::fromValue(2),
+    };
+
+    CHECK(Selection::of(given) ==
+          Selection::range(SubtitleIndex::fromValue(1), SubtitleIndex::fromValue(3)));
 }
 
 TEST_CASE("a selection says whether it holds an index", "[model][selection]") {

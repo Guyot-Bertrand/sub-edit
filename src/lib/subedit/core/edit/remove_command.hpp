@@ -39,8 +39,7 @@ public:
 
     /// Reports the indices the removal emptied.
     [[nodiscard]] std::vector<Change> describe() const override {
-        return {Change{.kind = ChangeKind::Removal,
-                       .indices = {m_selection.indices().begin(), m_selection.indices().end()}}};
+        return {Change{.kind = ChangeKind::Removal, .subtitles = m_selection}};
     }
 
 private:

@@ -28,6 +28,10 @@ ne pas l'éditer à la main.
 - Numéroter le découpage en issues de la phase 5
 - Mesurer les grilles d'images par leur phase
 
+### Performance
+
+- **core** — Sélections et changements décrits par plages
+
 ## 0.4.0 — 2026-08-16
 
 ### Ajouts

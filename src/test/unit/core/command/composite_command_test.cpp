@@ -3,6 +3,7 @@
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/command/composite_command.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 
@@ -22,6 +23,7 @@ using subedit::core::Command;
 using subedit::core::CommandKind;
 using subedit::core::CompositeCommand;
 using subedit::core::Project;
+using subedit::core::Selection;
 using subedit::core::Subtitle;
 using subedit::core::SubtitleIndex;
 using subedit::test::SetMainText;
@@ -100,8 +102,10 @@ TEST_CASE("a composite reports what all of its commands touched", "[command][com
 
     REQUIRE(changes.size() == 2);
     CHECK(changes[0].kind == ChangeKind::MainText);
-    CHECK(changes[0].indices == std::vector{SubtitleIndex::fromValue(0)});
-    CHECK(changes[1].indices == std::vector{SubtitleIndex::fromValue(2)});
+    CHECK(changes[0].subtitles ==
+          Selection::range(SubtitleIndex::fromValue(0), SubtitleIndex::fromValue(0)));
+    CHECK(changes[1].subtitles ==
+          Selection::range(SubtitleIndex::fromValue(2), SubtitleIndex::fromValue(2)));
 }
 
 TEST_CASE("an empty composite does nothing and says so", "[command][composite]") {
