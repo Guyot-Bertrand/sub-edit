@@ -144,6 +144,28 @@ extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
 
+### 0.4.6 — 2026-08-18 — Release — charge 2.27
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| versionString | 39.1 ns | 1.5 ns |
+| parse | 39.6 ns | 4.04 ns |
+| format | 38 ns | 1.51 ns |
+| position vers image | 7.54 ns | 0.11 ns |
+| image vers position | 7.81 ns | 0.0662 ns |
+| mise à l'échelle par un rationnel exact | 6.71 ns | 0.0591 ns |
+| lecture de 4000 sous-titres | 2.44 ms | 190 µs |
+| écriture de 4000 sous-titres | 556 µs | 27.6 µs |
+| décalage de 4000 sous-titres | 10.5 µs | 5.01 µs |
+| décalage puis annulation | 16.6 µs | 996 ns |
+| transformation de 4000 sous-titres | 89.5 µs | 3.59 µs |
+| conversion de fréquence sur 4000 sous-titres | 95.3 µs | 12.7 µs |
+| tri de 4000 sous-titres à l'envers | 362 µs | 98 µs |
+| suppression d'un sous-titre sur deux | 10.7 ms | 960 µs |
+| insertion de 100 sous-titres vides au milieu | 64.9 µs | 12.8 µs |
+| modification d'un texte, à travers une session | 173 ns | 50.7 ns |
+| suppression des mentions sur 4000 sous-titres | 5.82 ms | 550 µs |
+
 ### 0.4.5 — 2026-08-17 — Release — charge 1.42
 
 | Mesure | Moyenne | Écart-type |
