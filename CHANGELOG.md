@@ -26,6 +26,7 @@ ne pas l'éditer à la main.
 
 - Cadrer la phase 5, et ouvrir la phase 16 des fréquences d'image
 - Numéroter le découpage en issues de la phase 5
+- Mesurer les grilles d'images par leur phase
 
 ## 0.4.0 — 2026-08-16
 
