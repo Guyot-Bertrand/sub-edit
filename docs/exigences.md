@@ -94,3 +94,22 @@ plus rien.
 | `CLI-HEARING-05` | un fichier sans aucune mention est écrit inchangé, code 0 | 4 | implémentée |
 | `CLI-HEARING-06` | sans destination explicite, rien n'est écrit et le code est 1 | 4 | implémentée |
 | `GUI-VERSION-01` | `subedit-gui --version` écrit `subedit <version>` sur la sortie standard, code 0 | 5 | implémentée |
+| `GUI-OPEN-01` | `subedit-gui <fichier>` ouvre le fichier et affiche ses sous-titres | 5 | prévue |
+| `GUI-OPEN-02` | un fichier illisible donne un message et laisse la fenêtre vide | 5 | prévue |
+| `GUI-OPEN-03` | les diagnostics de lecture sont montrés, avec leur ligne | 5 | prévue |
+| `GUI-TABLE-01` | les cinq colonnes affichent numéro, début, fin, durée et texte | 5 | prévue |
+| `GUI-TABLE-02` | les sous-titres en anomalie sont marqués et nommés | 5 | prévue |
+| `GUI-EDIT-01` | éditer une cellule de texte modifie le sous-titre et rien d'autre | 5 | prévue |
+| `GUI-EDIT-02` | éditer un début ou une fin lit un horodatage permissif | 5 | prévue |
+| `GUI-EDIT-03` | une validation qui ne change rien n'entre pas dans l'historique | 5 | prévue |
+| `GUI-UNDO-01` | annuler rétablit l'état précédent, l'action nomme l'opération | 5 | prévue |
+| `GUI-UNDO-02` | rétablir refait ce qui vient d'être annulé | 5 | prévue |
+| `GUI-SAVE-01` | enregistrer réécrit le fichier dans sa forme d'origine | 5 | prévue |
+| `GUI-SAVE-02` | enregistrer sous choisit chemin et format | 5 | prévue |
+| `GUI-SAVE-03` | fermer avec des modifications non enregistrées demande confirmation | 5 | prévue |
+| `GUI-SHIFT-01` | le dialogue de décalage décale la cible | 5 | prévue |
+| `GUI-TRANSFORM-01` | le dialogue de transformation corrige par deux repères | 5 | prévue |
+| `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible | 5 | prévue |
+| `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier | 5 | prévue |
+| `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique | 5 | prévue |
+| `CLI-INSPECT-04` | les anomalies d'un document sont rapportées par numéro de sous-titre | 5 | prévue |

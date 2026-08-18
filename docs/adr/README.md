@@ -30,6 +30,8 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0015](0015-memoire-des-mesures.md) | Cliquet sur les lignes non couvertes, historique des performances | acceptée |
 | [0016](0016-cli11-pour-l-analyse-d-arguments.md) | CLI11 pour l'analyse d'arguments, aide engendrée | acceptée |
 | [0017](0017-analyseur-de-mentions-ecrit-a-la-main.md) | Balayage écrit à la main, sans moteur d'expressions rationnelles | acceptée |
+| [0018](0018-vocabulaire-des-formats-dans-le-modele.md) | Séparer le vocabulaire des formats de leurs opérations | acceptée |
+| [0019](0019-table-en-adaptateur-mince.md) | Lire à travers le modèle du noyau, qui rend ses changements | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en

@@ -1,8 +1,16 @@
 # Feuille de route
 
-Quatorze phases, chacune associée à un milestone GitHub. Les huit premières
-mènent à un **MVP livrable** ; les suivantes complètent l'iso-fonctionnalité
-avec Gaupol.
+Dix-sept phases, chacune associée à un milestone GitHub. Neuf mènent à un
+**MVP livrable** — les huit premières, plus la [16](#16--fréquences-dimage--déduction-et-correction)
+intercalée avant la 7 ; les autres complètent l'iso-fonctionnalité avec Gaupol.
+
+**Le numéro d'une phase l'identifie, il ne dit pas son rang.** L'ordre est celui
+de ce document, et lui seul. Une phase ajoutée en cours de route prend le
+premier numéro libre plutôt que de décaler les suivantes — c'est déjà la règle
+des identifiants d'exigences, et pour la même raison : un renvoi qui change de
+référent égare plus qu'un numéro dans le désordre. Six ADR, sept fichiers de
+`src/` et neuf milestones citent des numéros de phase ; les décaler les rendrait
+tous silencieusement faux.
 
 Ce document tient le cadrage amont : ce qu'il faut analyser, ce qu'il faut
 trancher, et ce qui sera difficile. Il est révisé au fil du projet — une phase
@@ -24,6 +32,8 @@ Les priorités viennent de l'utilisateur final, transmises le 2026-08-05 :
 
 Les phases 1 à 7 sont donc **restreintes à ce contour**, interface comprise.
 Elles ne changent ni d'identité ni d'ordre : elles couvrent moins de terrain.
+La [16](#16--fréquences-dimage--déduction-et-correction), elle, l'élargit — la
+seule à le faire, et la seule à dépasser l'iso-fonctionnalité avec Gaupol.
 
 Trois conséquences qui ne se lisent pas directement dans la liste :
 
@@ -299,73 +309,101 @@ laisseraient sinon un `<i></i>` à l'écran.
 
 ## 5 — Interface : édition tabulaire
 
+**Cadrée.** Voir [`specs/05-interface-tabulaire.md`](specs/05-interface-tabulaire.md).
+
 Le cœur de l'usage : ouvrir, éditer dans la table, enregistrer sous, annuler.
 
-**Restreint au contour du MVP :** une seule fenêtre, un seul projet à la fois,
-colonnes numéro / début / fin / durée / texte, dialogues des opérations des
-phases 2 et 4. Sont reportés : multi-projets en onglets, colonne de traduction,
-colonnes configurables, coloration des différences.
+**Restreint au contour du MVP,** et resserré au cadrage : une seule fenêtre, un
+seul projet à la fois, colonnes numéro / début / fin / durée / texte, dialogues
+des opérations des phases 2 et 4. Sont reportés : multi-projets en onglets,
+colonne de traduction, colonnes configurables, coloration des différences —
+et, décidés au cadrage, **l'insertion et la suppression de sous-titres** ainsi
+que **la configuration persistée**, tous deux en phase 7.
 
 **Analyse préalable** — `gaupol/` : `view.py`, `page.py`, `application.py`,
-`renderers/*.py`, `dialogs/{open,save,position_shift,position_transform,framerate_convert}.py`.
+`renderers/*.py`,
+`dialogs/{open,save,position_shift,position_transform,framerate_convert}.py`.
 
-**Questions d'architecture**
+**Ce que la lecture a donné**, relevé pour ne pas la refaire :
 
-- `QAbstractTableModel` au-dessus du modèle du noyau : adaptateur mince, ou
-  modèle propre synchronisé ? Le premier évite la duplication d'état, le second
-  découple mais impose une synchronisation.
-- **Ne pas dupliquer la pile d'annulation.** Qt propose `QUndoStack`. Le noyau a
-  la sienne, et c'est elle qui fait autorité puisque la CLI en dépend aussi.
-  L'interface doit s'y brancher, pas en tenir une seconde.
-- Configuration typée et persistée, en remplacement du dictionnaire imbriqué de
-  Gaupol. Format de fichier et stratégie de migration entre versions.
-- Édition en place de texte multiligne dans une cellule.
-- **Un changement de fréquence d'image n'est déclaré par aucun `ChangeKind` — à
-  ré-évaluer ici.** La phase 2 a écarté d'en ajouter un : la fréquence n'est la
-  propriété d'aucun sous-titre, et un énumérateur que personne ne lit est une
-  promesse sans garant, règle que `DiagnosticKind` énonce déjà. `describe()` d'une
-  conversion ne rapporte donc que les positions. Si la fenêtre affiche la
-  fréquence courante, elle aura besoin de savoir qu'elle a changé — et ce sera
-  alors un énumérateur avec un lecteur, ce qui lève l'objection.
-- **D'où vient la fréquence d'entrée d'une conversion ?** Question ouverte, et
-  elle se pose ici parce que c'est ici qu'un dialogue la demandera.
+| Constat | Détail |
+| :------ | :----- |
+| la table est intégralement dupliquée | `page.py` recopie chaque sous-titre dans un `Gtk.ListStore` et le resynchronise par huit gestionnaires de signaux |
+| et le prix est écrit dans le code | `reload_view_all()` à chaque ouverture, le modèle **débranché** au-delà de 50 lignes retirées, un `iterate_main()` après chaque rafraîchissement |
+| le numéro n'est pas une donnée | une fonction de cellule le calcule depuis l'indice de ligne |
+| aucune migration de configuration, jamais | une clé inconnue est effacée à l'écriture, une valeur illisible laisse le défaut, une option au défaut est réécrite **commentée** ; `general.version` est écrit et jamais relu |
+| la fréquence d'entrée vient d'une préférence | `conf.editor.framerate`, 23,976 par défaut — aucune heuristique de nom, aucune lecture de vidéo, en vingt ans |
+| l'édition multiligne coûte un widget | une `Gtk.TextView` implémentant `Gtk.CellEditable`, `Entrée` et `Échap` à la main, un contournement à la perte de focus |
 
-  **Le fichier ne la porte pas, et ne peut pas la porter.** SubRip n'a aucun
-  en-tête ; l'en-tête WebVTT est du texte libre. Les deux formats du MVP sont
-  temporels : une fréquence d'image n'y a pas de place. Seuls les formats
-  *à images* — MicroDVD, phase 9 — en déclarent une, sur leur première ligne.
+**Les questions d'architecture posées ici sont tranchées au cadrage**, et la
+spec les développe.
 
-  **Le nom du fichier, lui, reste à examiner — et le corpus local ne peut pas le
-  dire.** Les quinze fichiers de `src/data/` ont été renommés à la main avant
-  d'entrer dans le dépôt : ils portent le titre, parfois l'édition (`Alien.DC`),
-  parfois la langue (`eng`, `ger`, `fr`), mais ces noms sont le produit d'un
-  nettoyage et non une observation. **Trancher cette question demande des
-  fichiers neufs, aux noms intacts.**
+*Adaptateur mince ou modèle propre synchronisé ?* **Adaptateur mince** —
+[ADR 0019](adr/0019-table-en-adaptateur-mince.md). Le choix ne se discute pas
+par goût : les trois cicatrices ci-dessus sont ce que coûte la duplication, et
+elles sont dans le code de la référence.
 
-  Ce qu'on peut déjà dire sans eux : les noms de publication en ligne portent
-  `DVD`, `BluRay`, `1080p`, qui *corrèlent* avec 25 et 23,976 sans les nommer.
-  Une corrélation n'est pas une donnée, et se tromper de fréquence décale tout le
-  fichier sans rien signaler — le pire mode d'échec possible pour cette
-  opération : silencieux et global. Une heuristique de nom ne peut donc être
-  qu'une **proposition montrée comme telle**, jamais un choix appliqué en
-  silence.
+*Comment l'interface se branche-t-elle sur l'historique du noyau sans en tenir
+un second ?* `Session::apply`, `undo` et `redo` **rendent ce qu'ils ont
+changé**, au lieu de `void`. Aucun signal n'entre dans le cœur. Pas de
+`QUndoStack`. Et la question de groupement laissée ouverte en phase 2 se referme
+sans mécanisme : un délégué valide une fois, donc une cellule éditée produit une
+commande.
 
-  **La piste sérieuse est la vidéo elle-même.** Son conteneur déclare sa
-  fréquence : ce n'est pas une corrélation mais la donnée, lue à la source. La
-  phase 6 associe déjà une vidéo au projet pour la prévisualisation, et la
-  phase 14 en ouvre une pour de bon — l'information est donc à portée avant même
-  le lecteur intégré. Voir la question posée à la [phase 6](#6--prévisualisation).
+*Configuration typée et persistée ?* **Pas ici.** La phase 7 la porte déjà, et
+rien de persistant n'est requis pour que la table fonctionne.
 
-  Reste l'utilisateur pour les cas sans vidéo, et un défaut tiré du nom **montré
-  comme une proposition**. À trancher au cadrage — après avoir regardé des noms
-  de fichiers intacts, et vérifié ce que coûte la lecture des métadonnées.
+*Un `ChangeKind` pour la fréquence d'image ?* **Toujours non.** La phase 2 avait
+posé la condition — « si la fenêtre affiche la fréquence courante ». Elle ne
+l'affiche pas, donc l'énumérateur n'aurait toujours aucun lecteur.
 
-**Point difficile**
+*D'où vient la fréquence d'entrée d'une conversion ?* **De l'utilisateur, et
+sans heuristique.** Le dialogue la demande, pré-remplie par celle du projet.
+L'heuristique de nom est écartée faute de données : les fichiers de `src/data/`
+ont été renommés à la main, aucun fichier aux noms intacts n'est disponible, et
+se tromper de fréquence décale tout le fichier sans rien signaler. Gaupol ne
+fait pas mieux.
 
-Rester fluide sur plusieurs milliers de lignes : le modèle ne doit jamais
-matérialiser ce qui n'est pas visible, et les signaux de modification doivent
-être fins plutôt que globaux. C'est l'objectif de performance du projet, à
-l'endroit où l'utilisateur le perçoit.
+**La question a toutefois trouvé sa réponse pendant ce cadrage, et elle a fait
+naître une phase.** Convertir une fréquence suppose que les positions étaient
+calées sur une grille d'images ; quand c'est le cas, la grille se mesure — 100 %
+des débuts de `First.Man` tombent sur celle de 23,976, contre 2 à 3 % de bruit
+de fond. Le fichier ne *déclare* pas sa fréquence, mais il la *trahit*. C'est une
+donnée et non une corrélation, et c'est l'objet de la
+[phase 16](#16--fréquences-dimage--déduction-et-correction), programmée juste
+après la 6. La phase 5 n'en dépend pas : son dialogue demande la fréquence, et
+recevra la proposition mesurée quand elle existera.
+
+**Le cadrage a par ailleurs ouvert le noyau,** ce qui n'était pas prévu :
+
+- **le vocabulaire des formats rejoint le modèle** — [ADR 0018](adr/0018-vocabulaire-des-formats-dans-le-modele.md).
+  `SourceFile` ne retenait pas le format du fichier, et une fenêtre qui ouvre
+  puis enregistre en a besoin. `format/` ne garde que des opérations, `io/` et
+  `text/` accueillent ce qui ignore jusqu'au mot « sous-titre » ;
+- **les diagnostics se scindent** — ce qu'une lecture a rencontré se repère par
+  une ligne, ce qu'un document est se repère par un indice. Une ligne n'existe
+  qu'au moment de la lecture ; un indice survit à l'édition, et **une table
+  surligne des rangs**. `inspect` désignera donc un numéro de sous-titre là où
+  il donnait un numéro de ligne ;
+- **la lecture du désordre est tranchée : `Breaks`**, et `--order-report`
+  disparaît. Le corpus ne l'a pas départagée — aucun de ses quinze fichiers
+  n'est en désordre, les deux lectures s'y accordent trivialement. La décision
+  est prise par raisonnement, et la spec le dit plutôt que de laisser croire à
+  une mesure.
+
+**Le point difficile est tranché lui aussi.** Rester fluide sur plusieurs
+milliers de lignes tient à ce que le modèle ne matérialise jamais ce qui n'est
+pas visible — l'adaptateur mince l'assure par construction — et à des signaux
+fins plutôt que globaux, ce que `Change` porte déjà. Une réserve subsiste et
+elle est écrite : **un changement de structure passe par une réinitialisation du
+modèle**, parce que Qt exige d'encadrer avant et que `Session` ne rapporte
+qu'après. Tenable tant que son seul producteur est le retrait des mentions ; à
+reprendre en phase 7, qui apporte l'insertion et la suppression.
+
+[#45](https://github.com/Guyot-Bertrand/sub-edit/issues/45) passe **avant** la
+table, et non après : le modèle traduit un `Change` en `dataChanged(topLeft,
+bottomRight)`, donc Qt veut des plages et non des indices. La représentation
+compacte doit exposer des intervalles utilisables tels quels.
 
 ---
 
@@ -390,10 +428,14 @@ commandes des trois lecteurs), `gaupol/agents/preview.py`.
   Gaupol (`find_video`), ou choix explicite ?
 - **Lire la fréquence d'image dans la vidéo associée ?** La conversion de
   fréquence de la phase 2 a besoin d'une fréquence d'entrée que le fichier de
-  sous-titres ne porte pas et ne peut pas porter — voir la question posée à la
-  [phase 5](#5--interface--édition-tabulaire). Le conteneur vidéo, lui, la
-  déclare : c'est la donnée et non une corrélation. Une vidéo est déjà associée
-  au projet ici, avant le lecteur intégré de la phase 14.
+  sous-titres ne *déclare* pas. Le conteneur vidéo, lui, l'annonce, et une vidéo
+  est déjà associée au projet ici, avant le lecteur intégré de la phase 14.
+
+  **C'est la seconde source de la même donnée.** La
+  [phase 16](#16--fréquences-dimage--déduction-et-correction) la déduit des
+  positions elles-mêmes, sans vidéo. Deux mesures indépendantes valent une
+  vérification croisée — et un désaccord entre elles est une information, à
+  condition de savoir la présenter.
 
   À vérifier au cadrage : ce que coûte cette lecture. La prévisualisation lance
   un lecteur externe et n'a donc aucune bibliothèque vidéo en mémoire ; lire des
@@ -421,12 +463,128 @@ commandes des trois lecteurs), `gaupol/agents/preview.py`.
 
 ---
 
+## 16 — Fréquences d'image : déduction et correction
+
+**Dans le MVP, programmée entre la [6](#6--prévisualisation) et la
+[7](#7--finitions-et-première-livraison).** Son numéro est le premier libre au
+moment où elle a été ajoutée ; il l'identifie et ne dit pas son rang.
+
+**Elle dépasse l'iso-fonctionnalité, et c'est délibéré** — la première à le
+faire. Gaupol ne déduit aucune fréquence d'image : son dialogue de conversion
+pré-remplit ses deux listes avec `conf.editor.framerate`, une préférence globale
+à 23,976, et n'a jamais fait mieux en vingt ans. Ce qui suit n'a donc pas de
+contrepartie à lire dans `reference/gaupol`.
+
+### D'où elle vient
+
+Le cadrage de la phase 5 butait sur une question que la feuille de route porte
+depuis le début : **d'où vient la fréquence d'entrée d'une conversion ?** Le
+fichier ne la déclare pas — SubRip n'a pas d'en-tête, celui de WebVTT est du
+texte libre — et une heuristique tirée du nom de fichier avait été écartée comme
+une corrélation, non une donnée.
+
+L'observation qui ouvre cette phase est ailleurs : **convertir une fréquence
+suppose que les positions étaient calées sur une grille d'images.** Quand c'est
+vrai, chaque position vaut `round(n × 1000 / R)`, et cette grille se mesure.
+
+### Ce que la mesure a déjà donné
+
+Relevé au cadrage de la phase 5, sur les quinze fichiers de `src/data/`, en
+comparant chaque position aux huit fréquences normalisées :
+
+| Constat | Détail |
+| :------ | :----- |
+| le signal est massif quand il existe | `First.Man` 100 % des débuts sur la grille 23,976 ; `Aliens.eng` 99,5 % ; `Dirty.Pretty.Things` 96,8 % sur 24 |
+| le bruit de fond est connu | 2 à 3 %, soit exactement la probabilité qu'une position quelconque tombe dans la tolérance — un rapport de 1 à 30 |
+| **il faut regarder les débuts seuls** | `First.Man` : 100 % de débuts sur grille, **0 % de fins**. Le cue-in est posé sur une image, le cue-out est calculé en millisecondes par une règle de vitesse de lecture |
+| les harmoniques sont inhérentes | une grille 24 est incluse dans une grille 48 ; `Dirty.Pretty.Things` sort à 50 % sur 60 et 25,9 % sur 30, ce qui est arithmétiquement forcé |
+| l'échec est bruyant | un fichier écrit en millisecondes score 6 % partout : « je ne sais pas », et non une mauvaise réponse |
+| la moitié des fichiers sont muets ou mixtes | 3 fichiers sur 15 répondent sans ambiguïté, 4 donnent un indice partiel (54 à 66 %), 8 ne disent rien |
+| la forme des écarts les distingue | `Aliens` : 8 positions hors grille sur 1596, en huit points isolés — des anomalies. `RoboCop` : 341 sur 1015, en 49 blocs contigus — une section retimée ou un fichier assemblé |
+| notre propre conversion préserve la propriété | `Dirty.Pretty.Things` converti de 24 vers 25 passe de 96,8 % sur la grille 24 à 96,8 % sur la grille 25 |
+
+### Questions d'architecture
+
+- **Que rend la déduction ?** Un classement de candidats avec leur score, ou une
+  réponse et une confiance ? Le second est plus simple à consommer, le premier
+  ne cache rien — et un fichier mixte à 66 % n'est ni l'un ni l'autre.
+- **L'ensemble des candidats doit être clos et petit** — les huit fréquences
+  normalisées. Résoudre pour un `R` quelconque est un tout autre problème, et
+  sans objet : personne ne masterise à 26,3 images par seconde.
+- **Où vit la fonction ?** Elle est pure et ne dépend que des positions :
+  `core/time/`, ou un `core/analysis/` qui accueillerait aussi les anomalies
+  d'un document.
+- **Que recouvre « corriger » ?** Trois mécanismes distincts, à trier :
+  recaler les positions sur la grille déduite ; refuser ou signaler une
+  conversion dont la fréquence d'entrée contredit la mesure ; retrouver la paire
+  d'une conversion faite avec la mauvaise fréquence, en cherchant le rationnel
+  qui remet le fichier sur une grille normalisée. Le troisième est le plus utile
+  et le moins sûr.
+- **Surface exposée.** Une sous-commande de la ligne de commande, ou une lecture
+  de plus dans `inspect` ? Et dans la fenêtre : le dialogue de conversion
+  pré-remplit sa fréquence d'entrée **en montrant sa mesure**, jamais en
+  l'appliquant en silence.
+- **Articulation avec la [phase 6](#6--prévisualisation),** qui pose la même
+  question par l'autre bout : la vidéo associée *déclare* sa fréquence. Deux
+  sources indépendantes pour la même donnée, donc une vérification croisée
+  gratuite — et un désaccord à savoir présenter.
+
+### Points difficiles
+
+- **L'édition manuelle sort de la grille.** Dès qu'un utilisateur corrige une
+  position dans la table, elle cesse d'être alignée. Un détecteur naïf
+  signalerait le travail de l'utilisateur comme une anomalie. C'est la raison
+  pour laquelle la phase 5 s'interdit d'utiliser la grille pour marquer quoi que
+  ce soit.
+- **Distinguer 23,976 de 24 demande de l'étendue.** Elles divergent de 3,6 s par
+  heure : écrasant sur un film de deux heures, invisible sur un extrait de trente
+  secondes. La déduction doit rendre l'étendue qu'elle a eue sous les yeux, et
+  pas seulement son score.
+- **Les fichiers mixtes sont le cas intéressant et le plus dur.** Ni grille ni
+  bruit — quatre des quinze fichiers du corpus. Dire « 66 % de vos débuts sont
+  sur une grille 29,97 » est vrai et n'aide personne ; dire *lesquels* et *où ils
+  se groupent* aide, et demande de décider ce qui compte comme un bloc.
+- **La tolérance est un paramètre, pas une constante.** 0,6 ms tient pour des
+  positions écrites en millisecondes ; un format qui écrirait en centièmes
+  demanderait autre chose.
+
+---
+
 ## 7 — Finitions et première livraison
 
 Ce qui manque pour qu'un tiers installe et utilise l'outil.
 
 Préférences persistées, thème clair et sombre suivant le système, manuel
 utilisateur complet pour le contour livré, empaquetage Linux.
+
+**Trois renvois du cadrage de la phase 5 atterrissent ici**, et le premier n'y
+était pas prévu :
+
+- **insérer et supprimer des sous-titres depuis la fenêtre.** Les commandes
+  existent au noyau depuis la phase 2 et ne sont exposées nulle part — ni par la
+  ligne de commande, ni par la table. La phase 7 est leur première surface, et
+  le premier moment où elles auront une preuve de bout en bout ;
+- **la configuration persistée elle-même**, que la phase 5 a laissée entière :
+  elle n'a besoin de rien de persistant pour que sa table fonctionne. Ce qu'elle
+  aurait voulu retenir arrive donc ici — géométrie de la fenêtre, largeur des
+  colonnes, fréquence d'image par défaut ;
+- **un `Session` qui annonce un changement de structure avant de le faire**, si
+  la mesure le demande. La phase 5 réinitialise le modèle pour toute insertion ou
+  suppression de lignes ; son seul producteur y est global et rare, ce qui ne
+  sera plus vrai dès qu'un menu ajoutera une ligne à la fois.
+  [ADR 0019](adr/0019-table-en-adaptateur-mince.md) porte le déclencheur.
+
+**Ce que la lecture de `gaupol/config.py` a donné**, relevé au cadrage de la
+phase 5 pour ne pas la refaire : **il n'y a aucune migration, et c'est un
+dispositif.** Le fichier est lu option par option ; une clé inconnue est acceptée
+puis effacée à l'écriture si elle n'est plus dans les défauts ; une valeur
+illisible imprime sur la sortie d'erreur et laisse le défaut en place ; toute
+option restée à sa valeur par défaut est réécrite **commentée**, si bien qu'un
+changement de défaut prend effet chez qui ne l'a jamais surchargé.
+`general.version` est écrit et n'est jamais relu : une trace, pas un
+déclencheur. La question « format de fichier et migration » ci-dessous se pose
+donc avec une réponse possible déjà sur la table — la tolérance par option,
+plutôt qu'une migration versionnée.
 
 **Analyse préalable** — `gaupol/config.py`, `gaupol/style.py`, `data/`,
 `PACKAGING.md`, `flatpak/`.
