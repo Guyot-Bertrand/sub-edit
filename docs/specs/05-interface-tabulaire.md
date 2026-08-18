@@ -314,9 +314,10 @@ atteinte.
 **Deux pistes existent, et aucune n'est de cette phase.** Le conteneur vidéo
 *déclare* sa fréquence, et la phase 6 associe déjà une vidéo au projet. Et les
 positions elles-mêmes la *trahissent* : convertir une fréquence suppose qu'elles
-étaient calées sur une grille d'images, et cette grille se mesure — 100 % des
-débuts de `First.Man` tombent sur celle de 23,976, contre 2 à 3 % de bruit de
-fond. C'est l'objet de la **phase 16**, née de ce cadrage.
+étaient calées sur une grille d'images, et cette grille se mesure — huit des
+quinze fichiers du corpus privé la donnent sans ambiguïté, contre un bruit de
+fond de quelques pour cent. C'est l'objet de la **phase 16**, née de ce
+cadrage.
 
 **La phase 5 ne dépend d'aucune des deux.** Son dialogue demande la fréquence et
 la pré-remplit par celle du projet ; le jour où une mesure existe, elle
