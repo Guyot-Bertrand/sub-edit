@@ -428,17 +428,17 @@ projet — après la porte, qui ne lit pas le manuel.
 
 | Ordre | Issue | Dépend de |
 | :---: | :---- | :-------- |
-| 1 | Réorganiser le noyau : `io/`, `text/`, le format au modèle | — |
-| 2 | Scinder les diagnostics : ce qu'une lecture rencontre, ce qu'un document est | 1 |
-| 3 | [#45](https://github.com/Guyot-Bertrand/sub-edit/issues/45) — coût d'une opération portant sur tout un fichier | 1 |
-| 4 | La fenêtre et son modèle de table | 2, 3 |
-| 5 | Éditer une cellule : texte multiligne, début, fin | 4 |
-| 6 | Annuler, rétablir, et le libellé de l'action | 5 |
-| 7 | Ouvrir, enregistrer, enregistrer sous | 6 |
-| 8 | Décaler, transformer, convertir la fréquence | 7 |
-| 9 | Retirer les mentions depuis la fenêtre | 8 |
-| 10 | Marquer le désordre dans la table, retirer `--order-report` | 4 |
-| 11 | Relecture de fin de phase 5 | tout |
+| 1 | [#126](https://github.com/Guyot-Bertrand/sub-edit/issues/126) — ranger le vocabulaire des formats, les opérations, et le reste | — |
+| 2 | [#127](https://github.com/Guyot-Bertrand/sub-edit/issues/127) — scinder les diagnostics de lecture et les anomalies d'un document | #126 |
+| 3 | [#45](https://github.com/Guyot-Bertrand/sub-edit/issues/45) — coût d'une opération portant sur tout un fichier | #126 |
+| 4 | [#128](https://github.com/Guyot-Bertrand/sub-edit/issues/128) — la fenêtre et son modèle de table | #127, #45 |
+| 5 | [#129](https://github.com/Guyot-Bertrand/sub-edit/issues/129) — éditer une cellule : texte multiligne, début, fin | #128 |
+| 6 | [#130](https://github.com/Guyot-Bertrand/sub-edit/issues/130) — annuler, rétablir, et le libellé de l'action | #129 |
+| 7 | [#131](https://github.com/Guyot-Bertrand/sub-edit/issues/131) — ouvrir, enregistrer, enregistrer sous | #130 |
+| 8 | [#132](https://github.com/Guyot-Bertrand/sub-edit/issues/132) — décaler, transformer, convertir la fréquence | #131 |
+| 9 | [#133](https://github.com/Guyot-Bertrand/sub-edit/issues/133) — retirer les mentions, sur une sélection | #132 |
+| 10 | [#134](https://github.com/Guyot-Bertrand/sub-edit/issues/134) — marquer le désordre, retirer `--order-report` | #128, #127 |
+| 11 | [#135](https://github.com/Guyot-Bertrand/sub-edit/issues/135) — relecture de fin de phase 5 | tout |
 
 L'ordre 5 → 6 → 7 mérite un mot : l'annulation vient **après** l'édition parce
 qu'il faut quelque chose à annuler, et l'ouverture **après** l'annulation parce
