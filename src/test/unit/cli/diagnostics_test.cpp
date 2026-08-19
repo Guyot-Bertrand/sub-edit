@@ -33,8 +33,8 @@ std::string said(const std::vector<Diagnostic>& diagnostics, int level) {
 } // namespace
 
 TEST_CASE("a diagnostic names its line, what happened and what was done", "[cli][diagnostics]") {
-    CHECK(reportOf(at(7, DiagnosticKind::EndBeforeStart, Severity::Warning)) ==
-          "line 7: a subtitle that ends before it starts, left as it stands");
+    CHECK(reportOf(at(7, DiagnosticKind::IgnoredLine, Severity::Warning)) ==
+          "line 7: a line that fits nowhere, left as it stands");
 }
 
 TEST_CASE("a diagnostic the reader settled says so", "[cli][diagnostics]") {
@@ -68,7 +68,7 @@ TEST_CASE("the detail is truncated rather than allowed to flood the line", "[cli
 TEST_CASE("diagnostics are said one by one, at the level that details", "[cli][diagnostics]") {
     const std::vector<Diagnostic> two = {
         at(3, DiagnosticKind::MissingNumbering, Severity::Recovered),
-        at(7, DiagnosticKind::EndBeforeStart, Severity::Warning),
+        at(7, DiagnosticKind::IgnoredLine, Severity::Warning),
     };
 
     const std::string third = said(two, 3);
@@ -76,7 +76,7 @@ TEST_CASE("diagnostics are said one by one, at the level that details", "[cli][d
                ContainsSubstring("a.srt: line 3: a SubRip block without its number, "
                                  "settled by the reader\n"));
     CHECK_THAT(third,
-               ContainsSubstring("a.srt: line 7: a subtitle that ends before it starts, "
+               ContainsSubstring("a.srt: line 7: a line that fits nowhere, "
                                  "left as it stands\n"));
 }
 

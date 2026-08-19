@@ -168,18 +168,21 @@ TEST_CASE("numbers that do not follow are recovered from", "[format][subrip]") {
     CHECK(hasDiagnostic(result, DiagnosticKind::InconsistentNumbering));
 }
 
-TEST_CASE("a subtitle ending before it starts is kept and reported", "[format][subrip]") {
-    // ADR 0008: the user has to see it to fix it.
+TEST_CASE("a subtitle ending before it starts is kept, and not reported", "[format][subrip]") {
+    // Kept, as ADR 0008 asks. Not reported, since ADR 0018: a subtitle that ends
+    // before it starts is a property of the document and not something a reading
+    // ran into — `scanAnomalies` says it, by index, and keeps saying it after an
+    // edition. A line number would not have survived the first one.
     const ReadResult result = readOrFail("1\n"
                                          "00:00:05,000 --> 00:00:02,000\n"
                                          "Bonjour.\n");
 
     REQUIRE(result.subtitles.size() == 1);
     CHECK(result.subtitles[0].duration().milliseconds() == -3000);
-    CHECK(hasDiagnostic(result, DiagnosticKind::EndBeforeStart));
+    CHECK(result.diagnostics.empty());
 }
 
-TEST_CASE("subtitles that overlap are reported", "[format][subrip]") {
+TEST_CASE("subtitles that overlap are kept, and not reported", "[format][subrip]") {
     const ReadResult result = readOrFail("1\n"
                                          "00:00:01,000 --> 00:00:05,000\n"
                                          "Bonjour.\n"
@@ -189,11 +192,10 @@ TEST_CASE("subtitles that overlap are reported", "[format][subrip]") {
                                          "Au revoir.\n");
 
     REQUIRE(result.subtitles.size() == 2);
-    CHECK(hasDiagnostic(result, DiagnosticKind::OverlappingSubtitles));
-    CHECK_FALSE(hasDiagnostic(result, DiagnosticKind::OutOfOrder));
+    CHECK(result.diagnostics.empty());
 }
 
-TEST_CASE("subtitles out of order are reported", "[format][subrip]") {
+TEST_CASE("subtitles out of order are kept, and not reported", "[format][subrip]") {
     // Both diagnostics, because they are not the same statement: the second
     // subtitle starts before the first one started, which a sort would fix,
     // and before it ended, which only a change of duration would.
@@ -206,8 +208,7 @@ TEST_CASE("subtitles out of order are reported", "[format][subrip]") {
                                          "Au revoir.\n");
 
     REQUIRE(result.subtitles.size() == 2);
-    CHECK(hasDiagnostic(result, DiagnosticKind::OutOfOrder));
-    CHECK(hasDiagnostic(result, DiagnosticKind::OverlappingSubtitles));
+    CHECK(result.diagnostics.empty());
 }
 
 TEST_CASE("a timestamp line that cannot be read is reported and kept as text", "[format][subrip]") {
@@ -224,12 +225,19 @@ TEST_CASE("a timestamp line that cannot be read is reported and kept as text", "
 }
 
 TEST_CASE("a diagnostic points at the line it came from", "[format][subrip]") {
+    // A line number is what a diagnostic is for, and what tells it apart from
+    // an anomaly — ADR 0018. The example has to be something a *reading* ran
+    // into, since nothing about the positions is reported here any more.
     const ReadResult result = readOrFail("1\n"
-                                         "00:00:05,000 --> 00:00:02,000\n"
-                                         "Bonjour.\n");
+                                         "00:00:01,000 --> 00:00:02,000\n"
+                                         "Bonjour.\n"
+                                         "\n"
+                                         "00:00:03,000 --> 00:00:04,000\n"
+                                         "Au revoir.\n");
 
-    REQUIRE_FALSE(result.diagnostics.empty());
-    CHECK(result.diagnostics.front().line == 2);
+    REQUIRE(result.diagnostics.size() == 1);
+    CHECK(result.diagnostics.front().kind == DiagnosticKind::MissingNumbering);
+    CHECK(result.diagnostics.front().line == 5);
 }
 
 TEST_CASE("a second subtitle without its number is recovered from", "[format][subrip]") {

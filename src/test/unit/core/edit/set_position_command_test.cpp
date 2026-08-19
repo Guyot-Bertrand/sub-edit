@@ -153,7 +153,7 @@ TEST_CASE("a strict session sorts after a start that broke the order", "[edit][s
     session.apply(setStart(session.project(), kSecond, 0));
 
     CHECK(session.project().subtitleAt(kFirst).start.milliseconds() == 0);
-    CHECK(session.project().outOfOrder().empty());
+    CHECK(session.project().isInOrder());
     CHECK(session.undoableCount() == 1);
 }
 

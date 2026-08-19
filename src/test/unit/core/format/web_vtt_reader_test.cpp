@@ -178,7 +178,7 @@ TEST_CASE("a cue ending before it starts is kept and reported", "[format][webvtt
                                          "Bonjour.\n");
 
     REQUIRE(result.subtitles.size() == 1);
-    CHECK(hasDiagnostic(result, DiagnosticKind::EndBeforeStart));
+    CHECK(result.diagnostics.empty());
 }
 
 TEST_CASE("cues that overlap are reported", "[format][webvtt]") {
@@ -190,11 +190,10 @@ TEST_CASE("cues that overlap are reported", "[format][webvtt]") {
                                          "00:03.000 --> 00:06.000\n"
                                          "Second.\n");
 
-    CHECK(hasDiagnostic(result, DiagnosticKind::OverlappingSubtitles));
-    CHECK_FALSE(hasDiagnostic(result, DiagnosticKind::OutOfOrder));
+    CHECK(result.diagnostics.empty());
 }
 
-TEST_CASE("cues out of order are reported", "[format][webvtt]") {
+TEST_CASE("cues out of order are kept, and not reported", "[format][webvtt]") {
     const ReadResult result = readOrFail("WEBVTT\n"
                                          "\n"
                                          "00:05.000 --> 00:07.000\n"
@@ -203,7 +202,8 @@ TEST_CASE("cues out of order are reported", "[format][webvtt]") {
                                          "00:01.000 --> 00:03.000\n"
                                          "Second.\n");
 
-    CHECK(hasDiagnostic(result, DiagnosticKind::OutOfOrder));
+    REQUIRE(result.subtitles.size() == 2);
+    CHECK(result.diagnostics.empty());
 }
 
 TEST_CASE("a comment spanning several lines keeps them all", "[format][webvtt]") {

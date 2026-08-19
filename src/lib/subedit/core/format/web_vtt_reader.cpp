@@ -119,7 +119,7 @@ private:
     /// Handles a line that is not inside a style, a comment or a header.
     void feedOutsideBlock(std::string_view line, int lineNumber) {
         if (const std::optional<TimeLine> timeLine = parseTimeLine(line)) {
-            openCue(*timeLine, lineNumber);
+            openCue(*timeLine);
             return;
         }
 
@@ -160,23 +160,14 @@ private:
         m_pendingIdLine = lineNumber;
     }
 
-    void openCue(const TimeLine& timeLine, int lineNumber) {
+    void openCue(const TimeLine& timeLine) {
         closeCue();
 
-        if (timeLine.end < timeLine.start)
-            report(Severity::Warning, lineNumber, DiagnosticKind::EndBeforeStart);
-
-        if (m_previousEnd.has_value() && timeLine.start < *m_previousEnd)
-            report(Severity::Warning, lineNumber, DiagnosticKind::OverlappingSubtitles);
-        m_previousEnd = timeLine.end;
-
-        // Reported on top of the overlap, not instead of it: a subtitle that
-        // starts before the previous one started also starts before it ended,
-        // and the two say different things. The order is what a sort would
-        // change; the overlap is what a duration would.
-        if (m_previousStart.has_value() && timeLine.start < *m_previousStart)
-            report(Severity::Warning, lineNumber, DiagnosticKind::OutOfOrder);
-        m_previousStart = timeLine.start;
+        // **Nothing is reported about the positions here** — ADR 0018. A cue
+        // ending before it starts, overlapping its predecessor or preceding it
+        // are properties of the document, not things a reading ran into:
+        // `scanAnomalies` states them by index, and keeps stating them after an
+        // edition, where a line number would already be meaningless.
 
         m_current = Subtitle{
             .start = timeLine.start,
@@ -242,8 +233,6 @@ private:
 
     std::optional<Subtitle> m_current;
     std::string m_currentText;
-    std::optional<Timestamp> m_previousEnd;
-    std::optional<Timestamp> m_previousStart;
 
     std::optional<std::string> m_pendingId;
     int m_pendingIdLine = 0;

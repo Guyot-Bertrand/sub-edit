@@ -101,28 +101,13 @@ void Project::restore(const Selection& destinations, std::span<const Subtitle> s
     m_subtitles = std::move(merged);
 }
 
-std::vector<SubtitleIndex> Project::outOfOrder(OrderReport report) const {
-    std::vector<SubtitleIndex> indices;
-    if (m_subtitles.empty())
-        return indices;
-
-    // The reference a start is judged against: the previous start, or the
-    // largest one seen. That single difference is the whole of the two
-    // readings — everything else about them is identical, and writing them as
-    // two loops would invite them to drift apart.
-    Timestamp highest = m_subtitles.front().start;
-    for (std::size_t value = 1; value < m_subtitles.size(); ++value) {
-        const Timestamp start = m_subtitles[value].start;
-        const Timestamp reference =
-            report == OrderReport::Breaks ? m_subtitles[value - 1].start : highest;
-
-        if (start < reference)
-            indices.push_back(SubtitleIndex::fromValue(value));
-
-        highest = std::max(highest, start);
+bool Project::isInOrder() const {
+    for (std::size_t position = 1; position < m_subtitles.size(); ++position) {
+        if (m_subtitles[position].start < m_subtitles[position - 1].start)
+            return false;
     }
 
-    return indices;
+    return true;
 }
 
 } // namespace subedit::core

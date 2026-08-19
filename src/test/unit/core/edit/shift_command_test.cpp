@@ -166,13 +166,12 @@ TEST_CASE("a shift says what it is", "[edit][shift]") {
 TEST_CASE("a partial shift that breaks the order is reported under a lenient session",
           "[edit][shift]") {
     // The core reports and does not repair: the file keeps the order it came
-    // with, and `outOfOrder` names the line that no longer follows.
+    // with, and `isInOrder` says that a line no longer follows.
     Session session{threeSubtitles()};
 
     session.apply(std::make_unique<ShiftCommand>(lastOnly(), milliseconds(-4500)));
 
-    CHECK(session.project().outOfOrder() ==
-          std::vector<SubtitleIndex>{SubtitleIndex::fromValue(2)});
+    CHECK_FALSE(session.project().isInOrder());
     CHECK(boundsOf(session.project()) ==
           std::vector<std::int64_t>{1000, 2000, 3000, 4000, 500, 1500});
 }
@@ -183,7 +182,7 @@ TEST_CASE("a partial shift that breaks the order is sorted under a strict sessio
 
     session.apply(std::make_unique<ShiftCommand>(lastOnly(), milliseconds(-4500)));
 
-    CHECK(session.project().outOfOrder().empty());
+    CHECK(session.project().isInOrder());
     CHECK(boundsOf(session.project()) ==
           std::vector<std::int64_t>{500, 1500, 1000, 2000, 3000, 4000});
     CHECK(session.undoableCount() == 1);
@@ -197,7 +196,7 @@ TEST_CASE("a broken order undoes exactly under a lenient session", "[edit][shift
     session.undo();
 
     CHECK(boundsOf(session.project()) == before);
-    CHECK(session.project().outOfOrder().empty());
+    CHECK(session.project().isInOrder());
 }
 
 TEST_CASE("a broken order undoes exactly under a strict session", "[edit][shift]") {

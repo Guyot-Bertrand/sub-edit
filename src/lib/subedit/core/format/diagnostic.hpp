@@ -20,8 +20,14 @@ enum class Severity {
 /// A category, not a sentence: it can be translated, and a test can assert on
 /// it without comparing prose that will be reworded.
 ///
-/// **Every one of these is produced by a reader.** An enumerator nothing emits
-/// is a promise not kept: the interface would offer a filter that never
+/// **Every one of these is what a reading ran into, and each points at a line.**
+/// Three more used to live here — a subtitle ending before it starts,
+/// overlapping its predecessor, or preceding it. They left with ADR 0018:
+/// those describe what a document *is*, they are computed by `scanAnomalies`,
+/// and they point at a subtitle rather than at a line. A line stops meaning
+/// anything the moment the document is edited; an index does not.
+///
+/// An enumerator nothing emits is a promise not kept: the interface would offer a filter that never
 /// matches, and a test would have no way to cover it. Two were dropped for
 /// that reason — timestamps written without their zero padding, which writing
 /// normalises silently and which would flood the list; and unclosed tags,
@@ -29,9 +35,6 @@ enum class Severity {
 enum class DiagnosticKind {
     IgnoredLine,            ///< a line that fits nowhere
     MalformedTimestamp,     ///< a timestamp that could not be read
-    EndBeforeStart,         ///< a subtitle that ends before it starts
-    OverlappingSubtitles,   ///< a subtitle starting before the previous one ends
-    OutOfOrder,             ///< a subtitle starting before the previous one starts
     MissingNumbering,       ///< a SubRip block without its number
     InconsistentNumbering,  ///< SubRip numbers that do not follow
     TextBeforeAnyTimestamp, ///< text before the first timestamp of the file

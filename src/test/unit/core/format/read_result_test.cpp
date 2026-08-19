@@ -47,7 +47,7 @@ public:
             result.diagnostics.push_back(Diagnostic{
                 .severity = Severity::Warning,
                 .line = 1,
-                .kind = DiagnosticKind::EndBeforeStart,
+                .kind = DiagnosticKind::IgnoredLine,
                 .detail = {},
             });
         return result;
@@ -100,7 +100,7 @@ TEST_CASE("what can be read is returned, with its diagnostics", "[format][read]"
     REQUIRE(result.has_value());
     CHECK(result->subtitles.size() == 1);
     REQUIRE(result->diagnostics.size() == 1);
-    CHECK(result->diagnostics.front().kind == DiagnosticKind::EndBeforeStart);
+    CHECK(result->diagnostics.front().kind == DiagnosticKind::IgnoredLine);
 }
 
 TEST_CASE("what cannot be read at all is a failure, not a diagnostic", "[format][read]") {

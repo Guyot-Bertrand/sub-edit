@@ -4,6 +4,7 @@
 
 namespace subedit::cli {
 
+using core::AnomalyKind;
 using core::DiagnosticKind;
 using core::FileErrorKind;
 using core::Newline;
@@ -67,18 +68,24 @@ std::string_view reasonOf(FileErrorKind kind) {
     std::unreachable();
 }
 
-std::string_view nameOf(core::DiagnosticKind kind) {
+std::string_view nameOf(AnomalyKind kind) {
+    switch (kind) {
+    case AnomalyKind::EndBeforeStart:
+        return "ends before it starts";
+    case AnomalyKind::OverlappingSubtitles:
+        return "starts before the previous one ends";
+    case AnomalyKind::OutOfOrder:
+        return "starts before the previous one starts";
+    }
+    std::unreachable();
+}
+
+std::string_view nameOf(DiagnosticKind kind) {
     switch (kind) {
     case DiagnosticKind::IgnoredLine:
         return "a line that fits nowhere";
     case DiagnosticKind::MalformedTimestamp:
         return "a timing line that could not be read";
-    case DiagnosticKind::EndBeforeStart:
-        return "a subtitle that ends before it starts";
-    case DiagnosticKind::OverlappingSubtitles:
-        return "a subtitle starting before the previous one ends";
-    case DiagnosticKind::OutOfOrder:
-        return "a subtitle starting before the previous one starts";
     case DiagnosticKind::MissingNumbering:
         return "a SubRip block without its number";
     case DiagnosticKind::InconsistentNumbering:

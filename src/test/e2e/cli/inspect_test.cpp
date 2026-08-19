@@ -53,18 +53,9 @@ TEST_CASE("inspect recognises WebVTT", "[e2e][CLI-INSPECT-01]") {
                ContainsSubstring("  format: WebVTT\n"));
 }
 
-TEST_CASE("inspect says a file is in order", "[e2e][CLI-INSPECT-01]") {
+TEST_CASE("inspect says a file has nothing wrong with it", "[e2e][CLI-INSPECT-01]") {
     CHECK_THAT(invoke({"inspect", corpus("valides/minimal.srt")}).output,
-               ContainsSubstring("  order: in order\n"));
-}
-
-TEST_CASE("inspect names the line that breaks the order", "[e2e][CLI-INSPECT-01]") {
-    const CliRun run = invoke({"inspect", corpus("malformes/desordre.srt")});
-
-    CHECK(run.exitCode == 0);
-    // The second subtitle starts before the first one does. Counted from one,
-    // as it is shown.
-    CHECK_THAT(run.output, ContainsSubstring("  order: line 2 breaks the order\n"));
+               ContainsSubstring("  anomalies: none\n"));
 }
 
 TEST_CASE("inspect signals mixed line endings with their line", "[e2e][CLI-INSPECT-02]") {
@@ -96,36 +87,35 @@ TEST_CASE("inspect writes its report even when asked for silence", "[e2e][CLI-OU
     CHECK(run.errors.empty());
 }
 
-TEST_CASE("the default reading names what breaks the order", "[e2e][CLI-INSPECT-03]") {
+TEST_CASE("the report names the subtitles out of place", "[e2e][CLI-INSPECT-04]") {
     const CliRun run = invoke({"inspect", corpus("malformes/desordre.srt")});
 
     CHECK(run.exitCode == 0);
-    CHECK_THAT(run.output, ContainsSubstring("  order: line 2 breaks the order\n"));
+    // **By subtitle number, not by line** — ADR 0018. The overlap comes with the
+    // disorder: a subtitle that starts before the previous one started also
+    // starts before it ended, and the two are fixed differently.
+    CHECK_THAT(run.output,
+               ContainsSubstring("  anomalies: subtitle 2 starts before the previous one ends, "
+                                 "subtitle 2 starts before the previous one starts\n"));
 }
 
-TEST_CASE("asking for the other reading names what starts late", "[e2e][CLI-INSPECT-03]") {
-    const CliRun run =
-        invoke({"inspect", "--order-report", "late", corpus("malformes/desordre.srt")});
+TEST_CASE("a sound file has no anomaly to report", "[e2e][CLI-INSPECT-04]") {
+    const CliRun run = invoke({"inspect", corpus("valides/trois.srt")});
 
     CHECK(run.exitCode == 0);
-    CHECK_THAT(run.output, ContainsSubstring("  order: line 2 starts late\n"));
+    CHECK_THAT(run.output, ContainsSubstring("  anomalies: none\n"));
 }
 
-TEST_CASE("naming the default reading changes nothing", "[e2e][CLI-INSPECT-03]") {
-    const std::string path = corpus("malformes/desordre.srt");
-
-    CHECK(invoke({"inspect", "--order-report", "breaks", path}).output ==
-          invoke({"inspect", path}).output);
-}
-
-TEST_CASE("a reading that does not exist is refused", "[e2e][CLI-USAGE-02]") {
-    const CliRun run =
-        invoke({"inspect", "--order-report", "sideways", corpus("valides/minimal.srt")});
+TEST_CASE("a value outside a closed set is refused", "[e2e][CLI-USAGE-02]") {
+    // `inspect --order-report` used to carry this case; it went with the option.
+    // The property is the command line's, not that option's, so it moved to the
+    // nearest closed set rather than disappearing with its example.
+    const CliRun run = invoke({"convert", "--to", "sideways", corpus("valides/minimal.srt")});
 
     CHECK(run.exitCode == 1);
     CHECK(run.output.empty());
     // The closed set is named, so that the caller learns what was expected
     // rather than only that they were wrong.
-    CHECK_THAT(run.errors, ContainsSubstring("breaks"));
-    CHECK_THAT(run.errors, ContainsSubstring("late"));
+    CHECK_THAT(run.errors, ContainsSubstring("srt"));
+    CHECK_THAT(run.errors, ContainsSubstring("vtt"));
 }

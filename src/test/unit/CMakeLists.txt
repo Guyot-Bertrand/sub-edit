@@ -21,6 +21,7 @@ add_executable(
     core/model/project_test.cpp
     core/model/subtitle_index_test.cpp
     core/model/project_access_test.cpp
+    core/model/anomaly_test.cpp
     core/model/project_edit_test.cpp
     core/model/selection_test.cpp
     core/edit/session_test.cpp

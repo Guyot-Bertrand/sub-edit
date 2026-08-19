@@ -10,6 +10,8 @@
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/io/real_file_system.hpp>
+#include <subedit/core/model/anomaly.hpp>
+#include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -25,12 +27,16 @@
 
 namespace {
 
+using subedit::core::Anomaly;
+using subedit::core::AnomalyKind;
 using subedit::core::DiagnosticKind;
+using subedit::core::Project;
 using subedit::core::ReadError;
 using subedit::core::ReadErrorKind;
 using subedit::core::ReadResult;
 using subedit::core::readSubtitles;
 using subedit::core::RealFileSystem;
+using subedit::core::scanAnomalies;
 using subedit::core::Utf8Bom;
 using subedit::core::WriteRequest;
 using subedit::core::writeSubtitles;
@@ -155,9 +161,6 @@ TEST_CASE("the malformed files open, and say what is wrong with them", "[format]
     // whole of ADR 0008, checked against files rather than against strings.
     const std::vector<Expectation> expectations = {
         {.name = "malformes/fins-de-ligne-melangees.srt", .kind = DiagnosticKind::MixedNewlines},
-        {.name = "malformes/fin-avant-debut.srt", .kind = DiagnosticKind::EndBeforeStart},
-        {.name = "malformes/chevauchement.srt", .kind = DiagnosticKind::OverlappingSubtitles},
-        {.name = "malformes/desordre.srt", .kind = DiagnosticKind::OutOfOrder},
         {.name = "malformes/numerotation-absente.srt", .kind = DiagnosticKind::MissingNumbering},
         {.name = "malformes/numerotation-incoherente.srt",
          .kind = DiagnosticKind::InconsistentNumbering},
@@ -200,4 +203,39 @@ TEST_CASE("an unclosed tag goes through untouched", "[format][corpus]") {
     REQUIRE(result->subtitles.size() == 1);
     CHECK(result->subtitles[0].mainText == "<i>La balise ne se referme jamais.");
     CHECK(result->diagnostics.empty());
+}
+
+TEST_CASE("the files whose positions are wrong open, and the document says so",
+          "[format][corpus]") {
+    // The counterpart of the case above, on the other side of the line ADR 0018
+    // draws: these three files are not malformed as *text*, so a reading has
+    // nothing to say about them. What is wrong with them is what they hold —
+    // and `scanAnomalies` still says it once they have been edited.
+    struct Expectation {
+        std::string_view name;
+        AnomalyKind kind;
+    };
+
+    const std::vector<Expectation> expectations = {
+        {.name = "malformes/fin-avant-debut.srt", .kind = AnomalyKind::EndBeforeStart},
+        {.name = "malformes/chevauchement.srt", .kind = AnomalyKind::OverlappingSubtitles},
+        {.name = "malformes/desordre.srt", .kind = AnomalyKind::OutOfOrder},
+    };
+
+    for (const Expectation& expected : expectations) {
+        const std::expected<ReadResult, ReadError> result =
+            readSubtitles(bytesOf(corpus(expected.name)));
+
+        INFO("fichier : " << expected.name);
+        REQUIRE(result.has_value());
+        CHECK(result->diagnostics.empty());
+
+        Project project;
+        project.setSubtitles(result->subtitles);
+
+        const std::vector<Anomaly> found = scanAnomalies(project);
+        const bool named = std::ranges::any_of(
+            found, [&expected](const Anomaly& anomaly) { return anomaly.kind == expected.kind; });
+        CHECK(named);
+    }
 }
