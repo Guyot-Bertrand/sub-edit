@@ -1,8 +1,8 @@
-#include <subedit/core/format/lines.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/format/web_vtt_writer.hpp>
 #include <subedit/core/model/format_extras.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/text/lines.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
 #include <algorithm>

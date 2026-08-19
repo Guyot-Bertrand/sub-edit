@@ -1,4 +1,4 @@
-#include <subedit/core/format/lines.hpp>
+#include <subedit/core/text/lines.hpp>
 
 #include <cstddef>
 #include <string_view>

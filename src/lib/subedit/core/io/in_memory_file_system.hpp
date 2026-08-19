@@ -1,6 +1,6 @@
 #pragma once
 
-#include <subedit/core/format/file_system.hpp>
+#include <subedit/core/io/file_system.hpp>
 
 #include <cstddef>
 #include <expected>

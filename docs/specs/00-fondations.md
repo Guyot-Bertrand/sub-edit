@@ -103,7 +103,7 @@ src/lib/subedit/gui/     subedit_gui    interface Qt, au-dessus de core
 Chaque enfant direct de `src/lib/subedit/` est une cible CMake. Si `core`
 grossit trop, il se scinde sans impact sur le reste.
 
-**Cinq invariants vérifiés par la CI**, tous par
+**Huit invariants vérifiés par la CI**, tous par
 [`check-architecture.sh`](../../src/scripts/check-architecture.sh) :
 
 1. `subedit_core` ne dépend d'aucun symbole Qt ni d'aucune UI.
@@ -112,9 +112,18 @@ grossit trop, il se scinde sans impact sur le reste.
 3. les scripts de `src/scripts/` sont exécutables dans l'index git.
 4. un tag de version sur `HEAD` s'accorde avec `project(VERSION)`.
 5. aucun nom de cas de test ne commence par un tiret.
+6. rien sous `src/` ne lit le dépôt de référence.
+7. rien sous `src/` n'est engendré par un outil.
+8. rien sous `model/` n'inclut `format/`, `io/`, `edit/` ou `command/`.
 
-Les trois derniers ont été ajoutés après coup, chacun parce que son absence
-avait coûté quelque chose de réel — voir « Ce qui a bougé pendant la phase ».
+**Deux seulement datent de cette phase.** Les six autres ont été ajoutés après
+coup, chacun parce que son absence avait coûté quelque chose de réel — voir
+« Ce qui a bougé pendant la phase » pour les trois premiers ; la phase 4 pour
+celui qui protège le dépôt de référence ; l'outillage de la phase 5 pour celui
+qui écarte les fichiers engendrés, `moc` en produisant à foison ; et
+[l'ADR 0018](../adr/0018-vocabulaire-des-formats-dans-le-modele.md) pour le
+dernier — la frontière entre le modèle et les opérations s'était déjà effacée
+une fois sans que rien ne le signale.
 
 ### Inclusions
 

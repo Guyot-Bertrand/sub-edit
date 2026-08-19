@@ -1,5 +1,5 @@
-#include <subedit/core/format/file_system.hpp>
-#include <subedit/core/format/real_file_system.hpp>
+#include <subedit/core/io/file_system.hpp>
+#include <subedit/core/io/real_file_system.hpp>
 
 #include <array>
 #include <cstddef>

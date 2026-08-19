@@ -12,7 +12,7 @@
 #include <subedit/cli/time_grammar.hpp>
 #include <subedit/cli/transforming.hpp>
 #include <subedit/cli/verbosity.hpp>
-#include <subedit/core/format/real_file_system.hpp>
+#include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/version.hpp>
 
 #include <CLI/CLI.hpp>

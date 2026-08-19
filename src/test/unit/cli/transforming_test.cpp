@@ -2,7 +2,7 @@
 #include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/transforming.hpp>
-#include <subedit/core/format/in_memory_file_system.hpp>
+#include <subedit/core/io/in_memory_file_system.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>

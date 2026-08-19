@@ -32,6 +32,10 @@ ne pas l'éditer à la main.
 
 - **core** — Sélections et changements décrits par plages
 
+### Remaniements
+
+- **core** — Ranger le vocabulaire des formats dans le modèle
+
 ## 0.4.0 — 2026-08-16
 
 ### Ajouts

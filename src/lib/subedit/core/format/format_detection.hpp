@@ -1,15 +1,11 @@
 #pragma once
 
+#include <subedit/core/model/subtitle_format.hpp>
+
 #include <optional>
 #include <string_view>
 
 namespace subedit::core {
-
-/// The subtitle formats the library handles.
-enum class SubtitleFormat {
-    SubRip,
-    WebVtt,
-};
 
 /// Recognises the format of `content`, or nothing if none claims it.
 ///

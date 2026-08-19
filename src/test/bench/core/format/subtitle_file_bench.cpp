@@ -10,9 +10,9 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
-#include <subedit/core/format/subtitle_format.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
 #include <catch2/benchmark/catch_benchmark.hpp>

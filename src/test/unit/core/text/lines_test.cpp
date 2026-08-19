@@ -1,4 +1,4 @@
-#include <subedit/core/format/lines.hpp>
+#include <subedit/core/text/lines.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

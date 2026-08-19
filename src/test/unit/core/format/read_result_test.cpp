@@ -4,10 +4,12 @@
 #include <subedit/core/format/subtitle_reader.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <expected>
+#include <filesystem>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -21,7 +23,9 @@ using subedit::core::ReadError;
 using subedit::core::ReadErrorKind;
 using subedit::core::ReadResult;
 using subedit::core::Severity;
+using subedit::core::SourceFile;
 using subedit::core::Subtitle;
+using subedit::core::SubtitleFormat;
 using subedit::core::SubtitleReader;
 
 /// A reader that answers according to what it is handed, to show the contract
@@ -110,4 +114,33 @@ TEST_CASE("what cannot be read at all is a failure, not a diagnostic", "[format]
     REQUIRE_FALSE(result.has_value());
     CHECK(result.error().kind == ReadErrorKind::NoSubtitleFound);
     CHECK(result.error().detail == "aucun bloc reconnaissable");
+}
+
+TEST_CASE("a source file records the shape the reader saw", "[format][read]") {
+    // What a project has to remember to write itself back out unchanged: the
+    // format among the rest. Before ADR 0018 it was the one thing a SourceFile
+    // did not carry, and a window that opens then saves needs it.
+    const ReadResult result{
+        .format = SubtitleFormat::WebVtt,
+        .header = "WEBVTT - le titre",
+        .newline = Newline::CrLf,
+        .hadUtf8Bom = true,
+    };
+
+    const SourceFile source = sourceFileOf(result, "quelque/part/film.vtt");
+
+    CHECK(source.format == SubtitleFormat::WebVtt);
+    CHECK(source.header == "WEBVTT - le titre");
+    CHECK(source.newline == Newline::CrLf);
+    CHECK(source.hadUtf8Bom);
+    // L'option entière plutôt que son contenu : clang-tidy ne reconnaît pas le
+    // REQUIRE de Catch2 comme une vérification, et comparer l'option se passe
+    // de tout accès — en affirmant davantage, au passage.
+    CHECK(source.path == std::filesystem::path{"quelque/part/film.vtt"});
+}
+
+TEST_CASE("a source file with no path is one that was never on disk", "[format][read]") {
+    const SourceFile source = sourceFileOf(ReadResult{}, {});
+
+    CHECK_FALSE(source.path.has_value());
 }

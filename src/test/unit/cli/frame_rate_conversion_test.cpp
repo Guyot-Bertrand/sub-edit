@@ -1,7 +1,7 @@
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/frame_rate_conversion.hpp>
 #include <subedit/cli/reporter.hpp>
-#include <subedit/core/format/in_memory_file_system.hpp>
+#include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 
 #include <catch2/catch_test_macros.hpp>

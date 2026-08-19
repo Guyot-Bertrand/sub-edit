@@ -1,14 +1,15 @@
 #include <subedit/core/format/diagnostic.hpp>
-#include <subedit/core/format/encoding.hpp>
+#include <subedit/core/format/format_detection.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/sub_rip_reader.hpp>
 #include <subedit/core/format/sub_rip_writer.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
-#include <subedit/core/format/subtitle_format.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/format/web_vtt_reader.hpp>
 #include <subedit/core/format/web_vtt_writer.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/text/encoding.hpp>
 
 #include <expected>
 #include <optional>

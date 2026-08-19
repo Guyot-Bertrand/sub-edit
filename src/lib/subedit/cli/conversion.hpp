@@ -4,8 +4,8 @@
 
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
-#include <subedit/core/format/subtitle_format.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 
 #include <optional>
 #include <string>
