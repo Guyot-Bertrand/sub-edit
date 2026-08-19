@@ -7,10 +7,10 @@
 // the same file would be "SubRip" in one report and "SRT" in the next.
 
 #include <subedit/core/format/diagnostic.hpp>
-#include <subedit/core/format/file_system.hpp>
 #include <subedit/core/format/read_error.hpp>
-#include <subedit/core/format/subtitle_format.hpp>
+#include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 
 #include <cstddef>

@@ -1,5 +1,5 @@
-#include <subedit/core/format/file_system.hpp>
-#include <subedit/core/format/in_memory_file_system.hpp>
+#include <subedit/core/io/file_system.hpp>
+#include <subedit/core/io/in_memory_file_system.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

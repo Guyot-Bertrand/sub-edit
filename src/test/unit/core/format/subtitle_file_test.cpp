@@ -2,9 +2,9 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
-#include <subedit/core/format/subtitle_format.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -20,17 +20,17 @@ add_library(
     text/hearing_impaired.cpp
     model/project.cpp
     model/selection.cpp
-    format/atomic_write.cpp
-    format/in_memory_file_system.cpp
-    format/encoding.cpp
-    format/lines.cpp
+    io/atomic_write.cpp
+    io/in_memory_file_system.cpp
+    text/encoding.cpp
+    text/lines.cpp
     format/subtitle_file.cpp
-    format/subtitle_format.cpp
+    format/format_detection.cpp
     format/sub_rip_reader.cpp
     format/sub_rip_writer.cpp
     format/web_vtt_reader.cpp
     format/web_vtt_writer.cpp
-    format/real_file_system.cpp
+    io/real_file_system.cpp
     time/timestamp.cpp
     version.cpp)
 add_library(subedit::core ALIAS subedit_core)

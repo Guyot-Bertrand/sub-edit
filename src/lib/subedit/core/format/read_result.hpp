@@ -1,11 +1,14 @@
 #pragma once
 
 #include <subedit/core/format/diagnostic.hpp>
-#include <subedit/core/format/subtitle_format.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 
+#include <filesystem>
+#include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace subedit::core {
@@ -29,5 +32,25 @@ struct ReadResult {
     /// What the reader recovered from, in the order it was met.
     std::vector<Diagnostic> diagnostics{};
 };
+
+/// Builds what a project has to remember of the file it came from.
+///
+/// The counterpart of reading: everything a writer needs to put the file back
+/// as it was — its format, its header, its line endings, its byte order mark —
+/// plus where it lives. An empty `path` is a document that was never on disk.
+///
+/// A free function and not a member: `ReadResult` is what a reader produces,
+/// `SourceFile` is what the model keeps, and neither has to know the other's
+/// reasons.
+[[nodiscard]] inline SourceFile sourceFileOf(const ReadResult& result, std::filesystem::path path) {
+    return SourceFile{
+        .path = path.empty() ? std::optional<std::filesystem::path>{}
+                             : std::optional<std::filesystem::path>{std::move(path)},
+        .format = result.format,
+        .newline = result.newline,
+        .hadUtf8Bom = result.hadUtf8Bom,
+        .header = result.header,
+    };
+}
 
 } // namespace subedit::core

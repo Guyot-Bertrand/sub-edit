@@ -4,9 +4,9 @@
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/wording.hpp>
 #include <subedit/core/format/diagnostic.hpp>
-#include <subedit/core/format/file_system.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
+#include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/time/timestamp.hpp>
 

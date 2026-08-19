@@ -1,9 +1,9 @@
 // The one test that touches a real disk, because it is the one place where
 // the disk is the subject. Everything else goes through InMemoryFileSystem.
 
-#include <subedit/core/format/atomic_write.hpp>
-#include <subedit/core/format/file_system.hpp>
-#include <subedit/core/format/real_file_system.hpp>
+#include <subedit/core/io/atomic_write.hpp>
+#include <subedit/core/io/file_system.hpp>
+#include <subedit/core/io/real_file_system.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

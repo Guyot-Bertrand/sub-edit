@@ -38,19 +38,19 @@ add_executable(
     core/command/composite_command_test.cpp
     core/command/history_test.cpp
     core/format/read_result_test.cpp
-    core/format/in_memory_file_system_test.cpp
-    core/format/atomic_write_test.cpp
-    core/format/real_file_system_test.cpp
-    core/format/file_error_test.cpp
-    core/format/lines_test.cpp
+    core/io/in_memory_file_system_test.cpp
+    core/io/atomic_write_test.cpp
+    core/io/real_file_system_test.cpp
+    core/io/file_error_test.cpp
+    core/text/lines_test.cpp
     core/format/sub_rip_reader_test.cpp
     core/format/sub_rip_writer_test.cpp
     core/format/sub_rip_round_trip_test.cpp
     core/format/web_vtt_reader_test.cpp
     core/format/web_vtt_writer_test.cpp
     core/format/web_vtt_round_trip_test.cpp
-    core/format/subtitle_format_test.cpp
-    core/format/encoding_test.cpp
+    core/format/format_detection_test.cpp
+    core/text/encoding_test.cpp
     core/format/subtitle_file_test.cpp
     core/format/corpus_test.cpp
     core/format/local_corpus_test.cpp)

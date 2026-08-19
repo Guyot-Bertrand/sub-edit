@@ -5,9 +5,9 @@
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/cli/wording.hpp>
 #include <subedit/core/edit/session.hpp>
-#include <subedit/core/format/atomic_write.hpp>
-#include <subedit/core/format/file_system.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
+#include <subedit/core/io/atomic_write.hpp>
+#include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/project.hpp>
 
 #include <cstddef>

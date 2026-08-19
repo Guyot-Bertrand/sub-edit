@@ -238,6 +238,30 @@ check_version_matches_tag() {
     fi
 }
 
+# Invariant 8 — le modèle ne dépend d'aucune opération.
+#
+# ADR 0018 tranche le sens : `format/` traduit des octets en modèle, donc il a
+# besoin de lui ; le modèle n'a jamais besoin d'un lecteur. Ce qui rend la règle
+# tenable, c'est qu'elle est mécanique — la frontière s'est effacée une fois
+# déjà, quand les types propres aux formats ont été rangés sous `model/` sans
+# que rien ne le signale.
+check_model_depends_on_no_operation() {
+    local model="${REPO_ROOT}/src/lib/subedit/core/model"
+    [[ -d "${model}" ]] || return 0
+
+    local offenders
+    offenders="$(grep -rlE '#include[[:space:]]*<subedit/core/(format|io|edit|command)/' \
+        "${model}" 2>/dev/null || true)"
+
+    if [[ -n "${offenders}" ]]; then
+        report_failure "le modèle dépend d une opération :
+$(printf '    %s\n' ${offenders})
+    format/, io/, edit/ et command/ dépendent du modèle ; l inverse ferme un cycle."
+    else
+        report_success "le modèle ne dépend d aucune opération"
+    fi
+}
+
 check_core_has_no_ui
 check_sources_are_handwritten
 check_executables_are_thin
@@ -245,6 +269,7 @@ check_scripts_are_executable
 check_version_matches_tag
 check_test_names_are_not_options
 check_nothing_reads_the_reference
+check_model_depends_on_no_operation
 
 if (( failures > 0 )); then
     printf '\n%s%d invariant(s) d architecture violé(s)%s\n' "${RED}" "${failures}" "${RESET}" >&2

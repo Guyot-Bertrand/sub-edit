@@ -1,5 +1,5 @@
-#include <subedit/core/format/lines.hpp>
-#include <subedit/core/format/subtitle_format.hpp>
+#include <subedit/core/format/format_detection.hpp>
+#include <subedit/core/text/lines.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
 #include <algorithm>

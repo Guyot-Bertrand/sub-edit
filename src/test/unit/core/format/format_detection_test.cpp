@@ -1,4 +1,5 @@
-#include <subedit/core/format/subtitle_format.hpp>
+#include <subedit/core/format/format_detection.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

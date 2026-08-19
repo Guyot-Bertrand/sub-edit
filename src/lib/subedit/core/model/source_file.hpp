@@ -1,5 +1,7 @@
 #pragma once
 
+#include <subedit/core/model/subtitle_format.hpp>
+
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -25,6 +27,14 @@ enum class Newline {
 struct SourceFile {
     /// Absent for a project that has never been opened or saved.
     std::optional<std::filesystem::path> path{};
+
+    /// The format the file was read as, and the one saving writes back.
+    ///
+    /// **Here since ADR 0018**, where it was the one thing this struct did not
+    /// carry: a window that opens a file then saves it has to remember what it
+    /// opened, and passing the format alongside the project would have been a
+    /// second source of truth for one answer.
+    SubtitleFormat format = SubtitleFormat::SubRip;
 
     Newline newline = Newline::Lf;
     bool hadUtf8Bom = false;

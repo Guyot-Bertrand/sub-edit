@@ -1,5 +1,5 @@
-#include <subedit/core/format/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/text/encoding.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

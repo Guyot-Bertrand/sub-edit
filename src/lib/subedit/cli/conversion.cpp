@@ -4,9 +4,9 @@
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/wording.hpp>
-#include <subedit/core/format/atomic_write.hpp>
-#include <subedit/core/format/file_system.hpp>
 #include <subedit/core/format/read_error.hpp>
+#include <subedit/core/io/atomic_write.hpp>
+#include <subedit/core/io/file_system.hpp>
 
 #include <algorithm>
 #include <cctype>

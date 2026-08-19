@@ -57,6 +57,7 @@ readonly MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-cli/invocation.md"
 readonly HOOK_SOURCE="${REPO_ROOT}/src/scripts/hooks/pre-commit"
 readonly PLAIN_SCRIPT_SOURCE="${REPO_ROOT}/src/scripts/install-hooks.sh"
 readonly NESTED_CMAKE_SOURCE="${REPO_ROOT}/src/lib/CMakeLists.txt"
+readonly MODEL_SOURCE="${REPO_ROOT}/src/lib/subedit/core/model/subtitle_index.hpp"
 readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
 
@@ -80,6 +81,7 @@ restore() {
     cp "${backup_dir}/pre-commit" "${HOOK_SOURCE}"
     cp "${backup_dir}/install-hooks.sh" "${PLAIN_SCRIPT_SOURCE}"
     cp "${backup_dir}/lib-CMakeLists.txt" "${NESTED_CMAKE_SOURCE}"
+    cp "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
 }
 
 cleanup() {
@@ -98,6 +100,7 @@ cp "${MANUAL_SOURCE}" "${backup_dir}/invocation.md"
 cp "${HOOK_SOURCE}" "${backup_dir}/pre-commit"
 cp "${PLAIN_SCRIPT_SOURCE}" "${backup_dir}/install-hooks.sh"
 cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
+cp "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -309,6 +312,18 @@ expect_gate_closes \
 # travers CTest, jamais quand on lance le binaire à la main. L'injection porte
 # sur un fichier de test, et l'échec attendu vient du balayage de
 # check-architecture.sh, pas d'une compilation.
+# En-tête du modèle qui inclut une opération. La frontière posée par l'ADR 0018
+# s'était déjà effacée une fois, quand les types propres aux formats se sont
+# retrouvés sous model/ sans que rien ne le signale : d'où une porte plutôt
+# qu'une vigilance. L'injection porte sur un en-tête, et l'échec attendu vient
+# du balayage de check-architecture.sh — l'inclusion en fin de fichier ne
+# compile rien.
+expect_gate_closes \
+    "modèle qui dépend d'une opération" \
+    "arch" \
+    "${MODEL_SOURCE}" \
+    '#include <subedit/core/format/read_result.hpp>'
+
 expect_gate_closes \
     "nom de cas de test qui passe pour une option" \
     "arch" \
@@ -582,7 +597,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles vingt-cinq portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles vingt-six portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
