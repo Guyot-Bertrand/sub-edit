@@ -50,7 +50,7 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.4.9
+subedit 0.4.10
 ```
 
 ## Sous-commandes
@@ -138,13 +138,13 @@ répéterait la ligne qui le précède.
 
 Les formats de sous-titres se lisent **au mieux** : devant une anomalie, le
 lecteur ne s'arrête pas — il décide, ou il laisse en l'état, et il le dit. Ce
-qu'il a rencontré sort au **niveau 3**, une ligne par anomalie, sur la sortie
+qu'il a rencontré sort au **niveau 3**, une ligne par diagnostic, sur la sortie
 d'erreur :
 
 ```
 a.srt: 2 diagnostics while reading
 a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a subtitle that ends before it starts, left as it stands
+a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
 Les cinq sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
@@ -186,9 +186,6 @@ rapportent sur elles-mêmes.
 | :----- | :------------------ |
 | `a line that fits nowhere` | une ligne qui n'entre dans aucun bloc |
 | `a timing line that could not be read` | une ligne d'horodatage illisible |
-| `a subtitle that ends before it starts` | une fin antérieure au début |
-| `a subtitle starting before the previous one ends` | un chevauchement |
-| `a subtitle starting before the previous one starts` | un désordre |
 | `a SubRip block without its number` | numérotation absente, régénérée à l'écriture |
 | `SubRip numbers that do not follow` | numérotation qui saute |
 | `text before the first timing line` | du texte avant le premier horodatage |

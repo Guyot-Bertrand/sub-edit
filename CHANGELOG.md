@@ -35,6 +35,7 @@ ne pas l'éditer à la main.
 ### Remaniements
 
 - **core** — Ranger le vocabulaire des formats dans le modèle
+- **core** — Séparer les anomalies d'un document de sa lecture
 
 ## 0.4.0 — 2026-08-16
 

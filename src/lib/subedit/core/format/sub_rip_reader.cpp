@@ -195,20 +195,11 @@ private:
                    std::to_string(*numbering));
         ++m_expectedNumbering;
 
-        if (timeLine.end < timeLine.start)
-            report(Severity::Warning, lineNumber, DiagnosticKind::EndBeforeStart);
-
-        if (m_previousEnd.has_value() && timeLine.start < *m_previousEnd)
-            report(Severity::Warning, lineNumber, DiagnosticKind::OverlappingSubtitles);
-        m_previousEnd = timeLine.end;
-
-        // Reported on top of the overlap, not instead of it: a subtitle that
-        // starts before the previous one started also starts before it ended,
-        // and the two say different things. The order is what a sort would
-        // change; the overlap is what a duration would.
-        if (m_previousStart.has_value() && timeLine.start < *m_previousStart)
-            report(Severity::Warning, lineNumber, DiagnosticKind::OutOfOrder);
-        m_previousStart = timeLine.start;
+        // **Nothing is reported about the positions here** — ADR 0018. A
+        // subtitle ending before it starts, overlapping its predecessor or
+        // preceding it are properties of the document, not things a reading ran
+        // into: `scanAnomalies` states them by index, and keeps stating them
+        // after an edition, where a line number would already be meaningless.
 
         m_current = Subtitle{
             .start = timeLine.start,
@@ -270,8 +261,6 @@ private:
     ReadResult m_result{.format = SubtitleFormat::SubRip};
     std::vector<NumberedLine> m_pending;
     std::optional<Subtitle> m_current;
-    std::optional<Timestamp> m_previousEnd;
-    std::optional<Timestamp> m_previousStart;
     int m_expectedNumbering = 1;
 };
 

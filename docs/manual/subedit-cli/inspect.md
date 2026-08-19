@@ -1,7 +1,7 @@
 # `inspect`
 
 ```
-subedit-cli inspect [--order-report breaks|late] <fichier>...
+subedit-cli inspect <fichier>...
 ```
 
 Rapporte ce que chaque fichier contient. **Ne modifie rien et n'écrit aucun
@@ -18,8 +18,6 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
-  --order-report TEXT:{breaks,late} [breaks] 
-                              Which lines to name when the file is out of order
 ```
 
 ## Arguments
@@ -27,11 +25,8 @@ Options:
 | Argument | Requis | Valeur | Défaut |
 | :------- | :----- | :----- | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins de fichiers de sous-titres | — |
-| `--order-report` | non | `breaks` ou `late`, et rien d'autre | `breaks` |
 
-Aucun chemin n'est une erreur d'usage, donc le code `1`. Une valeur de
-`--order-report` hors de ces deux-là aussi, et le message énumère l'ensemble
-attendu.
+Aucun chemin n'est une erreur d'usage, donc le code `1`.
 
 ## Sortie
 
@@ -49,7 +44,7 @@ exemple.srt
   line endings: LF
   subtitles: 2
   span: 00:00:01.000 -> 00:00:06.200
-  order: in order
+  anomalies: none
 ```
 
 | Champ | Ce qu'il dit |
@@ -60,45 +55,46 @@ exemple.srt
 | `line endings` | `LF`, `CRLF` ou `CR`, suivi de `, mixed from line N` si le fichier en mélange |
 | `subtitles` | le nombre de sous-titres lus |
 | `span` | du début le plus tôt à la fin la plus tardive, `HH:MM:SS.mmm` |
-| `order` | `in order`, ou les lignes qui rompent l'ordre |
+| `anomalies` | `none`, ou ce qui cloche, sous-titre par sous-titre |
 
 **`span` n'est pas « du premier au dernier »** mais du plus tôt au plus tard :
 sur un fichier dont l'ordre est rompu, les deux diffèrent, et seul le second dit
 la vérité sur ce que le fichier couvre.
 
-**`order` compte les lignes à partir de 1**, comme elles s'affichent, et sa
-formulation dépend de la lecture demandée — voir ci-dessous.
+**`anomalies` compte les sous-titres à partir de 1**, comme le fichier les
+numérote — et non les lignes du fichier. Un numéro de sous-titre survit à une
+modification ; un numéro de ligne, non. Voir ci-dessous.
 
-## Deux lectures du désordre
+## Ce que `anomalies` rapporte
 
-`--order-report` choisit **ce que « hors d'ordre » veut dire**. Les deux
-s'accordent toujours sur le fait qu'un fichier est en désordre ou non ; elles
-diffèrent sur les lignes à nommer.
+Trois choses peuvent clocher dans un document, et chacune se répare autrement :
 
-| Valeur | Ce qu'elle nomme | Ce que le rapport écrit |
-| :----- | :--------------- | :---------------------- |
-| `breaks` (défaut) | les lignes qui commencent avant celle qui les précède | `line 3 breaks the order` |
-| `late` | les lignes qui commencent avant quelque chose de déjà vu | `lines 3, 4 start late` |
+| Ce qui est écrit | Ce que ça veut dire |
+| :--------------- | :------------------ |
+| `subtitle N ends before it starts` | la fin précède le début |
+| `subtitle N starts before the previous one ends` | il chevauche celui d'avant |
+| `subtitle N starts before the previous one starts` | il rompt l'ordre du fichier |
 
-Sur des débuts à `0`, `4 s`, `2 s`, `3 s` : la troisième ligne rompt l'ordre, la
-quatrième suit pourtant la troisième — elle ne rompt rien — mais reste en retard
-sur les `4 s` déjà rencontrées. `breaks` nomme la troisième, `late` nomme la
-troisième et la quatrième.
+**Un même sous-titre peut apparaître deux fois**, et c'est voulu : celui qui
+commence avant que le précédent ait commencé commence aussi avant qu'il ait
+fini. Le premier point se règle en déplaçant le sous-titre, le second en
+changeant une durée.
 
-<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -1; subedit-cli --quiet inspect --order-report late desordre.srt | tail -1 -->
+**Le sous-titre nommé est celui qui est mal placé**, pas celui contre lequel il
+l'est. Sur des débuts à `0`, `4 s`, `2 s`, `3 s` : le troisième rompt l'ordre, le
+quatrième suit pourtant le troisième et n'est donc pas nommé — il n'y a rien à
+faire de lui.
+
+<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -1 -->
 ```console
-$ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -1; subedit-cli --quiet inspect --order-report late desordre.srt | tail -1
-  order: line 3 breaks the order
-  order: lines 3, 4 start late
+$ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -1
+  anomalies: subtitle 3 starts before the previous one ends, subtitle 3 starts before the previous one starts
 ```
 
-**La formulation change avec la lecture**, et c'est volontaire : une liste
-d'indices seule serait ambiguë entre les deux, alors qu'elles ne désignent pas
-les mêmes lignes.
-
-Aucune des deux n'est encore retenue comme *la* bonne. Les deux existent pour
-être comparées sur des fichiers réels ; l'interface graphique tranchera, et
-l'option disparaîtra alors au profit de la lecture retenue.
+**Ce n'est pas un diagnostic de lecture.** Les diagnostics disent ce que la
+lecture a rencontré et pointent une **ligne du fichier** ; les anomalies disent
+ce que le document *est* et pointent un **sous-titre**. Un fichier dont l'ordre
+est rompu n'est pas malformé pour autant : la lecture n'a rien à en dire.
 
 ## Narration
 

@@ -68,7 +68,6 @@ ExitCode refuse(std::string_view why) {
 /// What `inspect` was asked for.
 struct InspectOptions {
     std::vector<std::string> files;
-    std::string reading = "breaks";
 };
 
 /// What `convert` was asked for, verbatim.
@@ -89,15 +88,11 @@ CLI::App* describeInspect(CLI::App& app, InspectOptions& options) {
     CLI::App* inspect = app.add_subcommand("inspect", "Report what a subtitle file is made of");
     inspect->add_option("files", options.files, "Subtitle files to report on")->required();
 
-    // Both readings of disorder are offered rather than one chosen: this phase
-    // is a harness, and comparing them on real files will settle the question
-    // better than arguing it without data. Phase 5 inherits the answer and this
-    // option goes — see docs/specs/03-cli.md.
-    inspect
-        ->add_option(
-            "--order-report", options.reading, "Which lines to name when the file is out of order")
-        ->check(CLI::IsMember({"breaks", "late"}))
-        ->capture_default_str();
+    // `--order-report` lived here, offering both readings of disorder while
+    // real files settled the question. They did not — none of the corpus is out
+    // of order — so it was settled by reasoning, and the option is gone: the
+    // report names what breaks the order, because that is the subtitle there is
+    // something to do about.
     return inspect;
 }
 
@@ -332,11 +327,7 @@ runConvert(const ConvertOptions& options, core::FileSystem& files, const Reporte
 
 ExitCode
 runInspect(const InspectOptions& options, const core::FileSystem& files, const Reporter& reporter) {
-    // One of the two: CLI11 refused anything else before we got here, which is
-    // what makes this a lookup rather than a decision.
-    const core::OrderReport order =
-        options.reading == "late" ? core::OrderReport::Late : core::OrderReport::Breaks;
-    return inspectAll(files, options.files, std::cout, reporter, order);
+    return inspectAll(files, options.files, std::cout, reporter);
 }
 
 } // namespace

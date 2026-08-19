@@ -51,7 +51,7 @@ TEST_CASE("sorting puts the subtitles in order of their start", "[edit][sort]") 
     command.apply(project);
 
     CHECK(textsOf(project) == std::vector<std::string>{"a", "b", "c"});
-    CHECK(project.outOfOrder().empty());
+    CHECK(project.isInOrder());
 }
 
 TEST_CASE("sorting is stable on equal starts", "[edit][sort]") {

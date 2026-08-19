@@ -25,17 +25,21 @@ FrameRate rateOf(std::int64_t numerator, std::int64_t denominator) {
 
 } // namespace
 
+TEST_CASE("every kind of anomaly has a clause", "[cli][wording]") {
+    // Named one by one rather than looped over, for the same reason as below.
+    // The clauses follow « subtitle 12 », so each starts with its verb.
+    using subedit::core::AnomalyKind;
+    CHECK(nameOf(AnomalyKind::EndBeforeStart) == "ends before it starts");
+    CHECK(nameOf(AnomalyKind::OverlappingSubtitles) == "starts before the previous one ends");
+    CHECK(nameOf(AnomalyKind::OutOfOrder) == "starts before the previous one starts");
+}
+
 TEST_CASE("every kind of diagnostic has a phrase", "[cli][wording]") {
     // Named one by one rather than looped over: a new enumerator must fail to
     // compile here, not fall through to an empty line in a report.
     using subedit::core::DiagnosticKind;
     CHECK(nameOf(DiagnosticKind::IgnoredLine) == "a line that fits nowhere");
     CHECK(nameOf(DiagnosticKind::MalformedTimestamp) == "a timing line that could not be read");
-    CHECK(nameOf(DiagnosticKind::EndBeforeStart) == "a subtitle that ends before it starts");
-    CHECK(nameOf(DiagnosticKind::OverlappingSubtitles) ==
-          "a subtitle starting before the previous one ends");
-    CHECK(nameOf(DiagnosticKind::OutOfOrder) ==
-          "a subtitle starting before the previous one starts");
     CHECK(nameOf(DiagnosticKind::MissingNumbering) == "a SubRip block without its number");
     CHECK(nameOf(DiagnosticKind::InconsistentNumbering) == "SubRip numbers that do not follow");
     CHECK(nameOf(DiagnosticKind::TextBeforeAnyTimestamp) == "text before the first timing line");

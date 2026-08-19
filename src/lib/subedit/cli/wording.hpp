@@ -9,6 +9,7 @@
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/model/anomaly.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/time/frame_rate.hpp>
@@ -40,6 +41,13 @@ namespace subedit::cli {
 /// A phrase and not a sentence: it is the middle of a line that already names
 /// the file and the line number, and it is followed by what was done about it.
 [[nodiscard]] std::string_view nameOf(subedit::core::DiagnosticKind kind);
+
+/// What is wrong with a document, in one clause.
+///
+/// Written to follow « subtitle 12 » — the subject is the subtitle, so the
+/// clause starts with its verb. An anomaly names a subtitle where a diagnostic
+/// names a line, which is the whole of the distinction ADR 0018 draws.
+[[nodiscard]] std::string_view nameOf(subedit::core::AnomalyKind kind);
 
 /// What was done about an anomaly, as a report writes it.
 ///

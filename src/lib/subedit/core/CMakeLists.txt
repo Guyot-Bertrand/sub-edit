@@ -18,6 +18,7 @@ add_library(
     edit/set_text_command.cpp
     edit/sort_command.cpp
     text/hearing_impaired.cpp
+    model/anomaly.cpp
     model/project.cpp
     model/selection.cpp
     io/atomic_write.cpp

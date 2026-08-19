@@ -1,6 +1,5 @@
 #pragma once
 
-#include <subedit/core/model/order_report.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
@@ -84,22 +83,18 @@ public:
     /// that would result. Both are programming errors, refused loudly.
     void restore(const Selection& destinations, std::span<const Subtitle> subtitles);
 
-    /// Returns the indices of the subtitles that are out of order, a pure
-    /// query.
+    /// Tells whether every subtitle starts no earlier than the one before it.
     ///
-    /// The index reported is the one that is out of place, not the one it is
-    /// out of place against: that is the line an interface has to show. Equal
-    /// starts are not disorder under either reading — neither precedes the
-    /// other.
+    /// A boolean and not a list: the strict order policy asks this after every
+    /// operation, and building a vector nobody reads to answer it would be a
+    /// cost paid at each edit. What is *where* the disorder lies belongs to
+    /// `scanAnomalies`, which reports it among the rest.
     ///
-    /// `report` chooses what "out of order" means; see `OrderReport`. The
-    /// default is the reading phase 2 shipped, so that callers written before
-    /// the second one existed are unaffected.
+    /// Equal starts are in order — neither precedes the other.
     ///
     /// A query and not an invariant: the model never sorts by itself. See the
     /// order policy of the phase-2 spec, and ADR 0012.
-    [[nodiscard]] std::vector<SubtitleIndex>
-    outOfOrder(OrderReport report = OrderReport::Breaks) const;
+    [[nodiscard]] bool isInOrder() const;
 
     /// Returns the frame rate the project is read against.
     [[nodiscard]] FrameRate frameRate() const { return m_frameRate; }

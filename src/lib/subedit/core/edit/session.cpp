@@ -11,7 +11,7 @@ namespace subedit::core {
 
 Session::Session(Project project, OrderPolicy policy)
     : m_project(std::move(project)), m_policy(policy) {
-    if (m_policy == OrderPolicy::Strict && !m_project.outOfOrder().empty())
+    if (m_policy == OrderPolicy::Strict && !m_project.isInOrder())
         m_history.apply(std::make_unique<SortCommand>(), m_project);
 }
 

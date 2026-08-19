@@ -17,7 +17,6 @@
 
 namespace {
 
-using subedit::core::OrderReport;
 using subedit::core::Project;
 using subedit::core::Selection;
 using subedit::core::Subtitle;
@@ -56,15 +55,6 @@ using subedit::core::Timestamp;
         texts.push_back(subtitle.mainText);
     return texts;
 }
-
-[[nodiscard]] std::vector<std::size_t> valuesOf(const std::vector<SubtitleIndex>& indices) {
-    std::vector<std::size_t> values;
-    values.reserve(indices.size());
-    for (const SubtitleIndex index : indices)
-        values.push_back(index.value());
-    return values;
-}
-
 } // namespace
 
 TEST_CASE("subtitles insert before the index they are given", "[model][project]") {
@@ -222,78 +212,15 @@ TEST_CASE("restoring a count that does not match its destinations is refused", "
         std::invalid_argument);
 }
 
-TEST_CASE("a project in order reports no disorder", "[model][project]") {
-    const Project project = projectOf({startingAt(0), startingAt(2000), startingAt(4000)});
-
-    CHECK(project.outOfOrder().empty());
+TEST_CASE("a project says whether it is in order", "[model][project]") {
+    // What the strict order policy asks after every operation, and all it asks:
+    // a boolean, answered without building a list nobody reads.
+    CHECK(projectOf({startingAt(1000), startingAt(3000)}).isInOrder());
+    CHECK(projectOf({}).isInOrder());
+    CHECK_FALSE(projectOf({startingAt(3000), startingAt(1000)}).isInOrder());
 }
 
-TEST_CASE("two subtitles starting at the same moment are in order", "[model][project]") {
-    // Equal starts are odd, not disordered: neither precedes the other, and
-    // reporting them would flood the list on files that stack captions.
-    const Project project = projectOf({startingAt(1000), startingAt(1000)});
-
-    CHECK(project.outOfOrder().empty());
-}
-
-TEST_CASE("a project names the subtitles that start too early", "[model][project]") {
-    // The index reported is the one that breaks the order, not the one before
-    // it: that is the line the interface has to show.
-    const Project project =
-        projectOf({startingAt(0), startingAt(4000), startingAt(2000), startingAt(6000)});
-
-    CHECK(valuesOf(project.outOfOrder()) == std::vector<std::size_t>{2});
-}
-
-TEST_CASE("a reversed project reports every subtitle but the first", "[model][project]") {
-    const Project project = projectOf({startingAt(4000), startingAt(2000), startingAt(0)});
-
-    CHECK(valuesOf(project.outOfOrder()) == std::vector<std::size_t>{1, 2});
-}
-
-TEST_CASE("an empty project reports no disorder", "[model][project]") {
-    CHECK(projectOf({}).outOfOrder().empty());
-}
-
-TEST_CASE("the two readings of disorder differ on the same project", "[model][project]") {
-    // The example the phase-3 spec argues from. Both agree that there is
-    // disorder; they disagree on which lines to name.
-    const Project project =
-        projectOf({startingAt(0), startingAt(4000), startingAt(2000), startingAt(3000)});
-
-    CHECK(valuesOf(project.outOfOrder(OrderReport::Breaks)) == std::vector<std::size_t>{2});
-    CHECK(valuesOf(project.outOfOrder(OrderReport::Late)) == std::vector<std::size_t>{2, 3});
-}
-
-TEST_CASE("naming what breaks the order is the default reading", "[model][project]") {
-    // Phase 2 shipped this reading, and every caller written before the second
-    // one existed still gets it.
-    const Project project =
-        projectOf({startingAt(0), startingAt(4000), startingAt(2000), startingAt(3000)});
-
-    CHECK(project.outOfOrder() == project.outOfOrder(OrderReport::Breaks));
-}
-
-TEST_CASE("both readings agree that an ordered project is ordered", "[model][project]") {
-    const Project project = projectOf({startingAt(0), startingAt(2000), startingAt(4000)});
-
-    CHECK(project.outOfOrder(OrderReport::Breaks).empty());
-    CHECK(project.outOfOrder(OrderReport::Late).empty());
-}
-
-TEST_CASE("equal starts are disorder under neither reading", "[model][project]") {
-    const Project project = projectOf({startingAt(1000), startingAt(1000)});
-
-    CHECK(project.outOfOrder(OrderReport::Breaks).empty());
-    CHECK(project.outOfOrder(OrderReport::Late).empty());
-}
-
-TEST_CASE("a line that recovers is late but breaks nothing", "[model][project]") {
-    // 3000 follows 2000, so it breaks nothing; it still starts before the 4000
-    // already seen. This is exactly where the two readings part.
-    const Project project =
-        projectOf({startingAt(4000), startingAt(2000), startingAt(3000), startingAt(5000)});
-
-    CHECK(valuesOf(project.outOfOrder(OrderReport::Breaks)) == std::vector<std::size_t>{1});
-    CHECK(valuesOf(project.outOfOrder(OrderReport::Late)) == std::vector<std::size_t>{1, 2});
+TEST_CASE("equal starts leave a project in order", "[model][project]") {
+    // Neither precedes the other, so neither is out of place.
+    CHECK(projectOf({startingAt(1000), startingAt(1000)}).isInOrder());
 }

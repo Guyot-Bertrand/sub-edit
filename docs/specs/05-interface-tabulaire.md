@@ -127,14 +127,23 @@ l'édition.**
 | `IgnoredLine`, `MalformedTimestamp`, `MissingNumbering`, `InconsistentNumbering`, `TextBeforeAnyTimestamp`, `UnknownBlock`, `MixedNewlines` | `EndBeforeStart`, `OverlappingSubtitles`, `OutOfOrder` |
 
 Le modèle expose `scanAnomalies(const Project&)`, que lisent **`inspect` et la
-fenêtre**. `Project::outOfOrder()` perd son paramètre et devient la lecture
-retenue, dont `scanAnomalies` se sert.
+fenêtre**. `Project::outOfOrder()` disparaît avec `OrderReport` : rien ne lisait
+plus la liste, et la politique d'ordre stricte se contente d'un `isInOrder()`
+qui n'alloue rien. **`--order-report` part dans le même mouvement**, faute de
+consommateur — le retrait était annoncé pour #134, il a suivi la fonction qui
+l'alimentait.
 
-**Ce que ça change pour l'utilisateur :** `inspect` désigne un numéro de
-sous-titre là où il donnait un numéro de ligne. Pour qui ouvre le fichier dans un
-éditeur de texte, c'est un repère de moins bonne qualité ; c'est accepté parce
-que l'indice est le seul qui survive à une édition, et qu'aucune anomalie ne
-serait autrement calculable après une modification.
+**Ce que ça change pour l'utilisateur**, corrigé au moment de le faire : je
+craignais ici la perte d'un repère de ligne. Elle n'a pas lieu pour le désordre —
+la ligne `order:` de `inspect` **donnait déjà un numéro de sous-titre**, sous
+l'étiquette trompeuse « line ». Le changement réel est ailleurs : la fin avant le
+début et le chevauchement quittent les diagnostics, où ils portaient une vraie
+ligne de fichier, pour rejoindre les anomalies, qui portent un sous-titre. C'est
+un repère moins précis pour qui ouvre le fichier dans un éditeur de texte, et il
+est accepté parce que l'indice est le seul qui survive à une édition — sans quoi
+aucune anomalie ne serait calculable après une modification.
+
+La ligne `order:` devient `anomalies:`, et son étiquette cesse de mentir.
 
 **La lecture du désordre est tranchée : `Breaks`.** Sur les départs
 `0, 4000, 2000, 3000`, elle nomme `{2}` quand l'autre nomme `{2, 3}` — or la
@@ -438,7 +447,7 @@ projet — après la porte, qui ne lit pas le manuel.
 | 7 | [#131](https://github.com/Guyot-Bertrand/sub-edit/issues/131) — ouvrir, enregistrer, enregistrer sous | #130 |
 | 8 | [#132](https://github.com/Guyot-Bertrand/sub-edit/issues/132) — décaler, transformer, convertir la fréquence | #131 |
 | 9 | [#133](https://github.com/Guyot-Bertrand/sub-edit/issues/133) — retirer les mentions, sur une sélection | #132 |
-| 10 | [#134](https://github.com/Guyot-Bertrand/sub-edit/issues/134) — marquer le désordre, retirer `--order-report` | #128, #127 |
+| 10 | [#134](https://github.com/Guyot-Bertrand/sub-edit/issues/134) — marquer les anomalies dans la table | #128, #127 |
 | 11 | [#135](https://github.com/Guyot-Bertrand/sub-edit/issues/135) — relecture de fin de phase 5 | tout |
 
 L'ordre 5 → 6 → 7 mérite un mot : l'annulation vient **après** l'édition parce

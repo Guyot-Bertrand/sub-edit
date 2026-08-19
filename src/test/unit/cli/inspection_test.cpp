@@ -15,7 +15,6 @@ using subedit::cli::inspectFile;
 using subedit::cli::Reporter;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
-using subedit::core::OrderReport;
 
 namespace {
 
@@ -66,7 +65,7 @@ TEST_CASE("the report says what the file is made of", "[cli][inspection]") {
                        "  line endings: LF\n"
                        "  subtitles: 2\n"
                        "  span: 00:00:01.000 -> 00:00:06.200\n"
-                       "  order: in order\n");
+                       "  anomalies: none\n");
 }
 
 TEST_CASE("the span runs from the earliest start to the latest end", "[cli][inspection]") {
@@ -81,14 +80,19 @@ TEST_CASE("the span runs from the earliest start to the latest end", "[cli][insp
     CHECK_THAT(out.str(), ContainsSubstring("  span: 00:00:01.000 -> 00:00:07.000\n"));
 }
 
-TEST_CASE("the report names the line that breaks the order", "[cli][inspection]") {
+TEST_CASE("the report names the subtitle that breaks the order", "[cli][inspection]") {
     const InMemoryFileSystem files = withFile("a.srt", kOutOfOrder);
     std::ostringstream out;
     std::ostringstream errors;
 
     CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}));
 
-    CHECK_THAT(out.str(), ContainsSubstring("  order: line 2 breaks the order\n"));
+    // By subtitle number, not by line — ADR 0018. The overlap comes with it:
+    // a subtitle that starts before the previous one started also starts before
+    // it ended, and the two are fixed differently.
+    CHECK_THAT(out.str(),
+               ContainsSubstring("  anomalies: subtitle 2 starts before the previous one ends, "
+                                 "subtitle 2 starts before the previous one starts\n"));
 }
 
 TEST_CASE("a byte order mark and Windows endings are seen", "[cli][inspection]") {
@@ -242,53 +246,17 @@ TEST_CASE("classic Mac line endings are named", "[cli][inspection]") {
     CHECK_THAT(out.str(), ContainsSubstring("  line endings: CR\n"));
 }
 
-TEST_CASE("the report names lines that break the order", "[cli][inspection]") {
+TEST_CASE("the report names every subtitle out of place", "[cli][inspection]") {
     const InMemoryFileSystem files = withFile("a.srt", kTwoLateLines);
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}, OrderReport::Breaks));
+    CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}));
 
-    // Counted from one, as the report shows them: the third subtitle of the
-    // file is the one that starts before the one before it.
-    CHECK_THAT(out.str(), ContainsSubstring("  order: line 3 breaks the order\n"));
-}
-
-TEST_CASE("the report names lines that start late", "[cli][inspection]") {
-    const InMemoryFileSystem files = withFile("a.srt", kTwoLateLines);
-    std::ostringstream out;
-    std::ostringstream errors;
-
-    CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}, OrderReport::Late));
-
-    // The wording differs, and that is what tells the reader which reading they
-    // are looking at: a bare list of indices would be ambiguous between the two.
-    CHECK_THAT(out.str(), ContainsSubstring("  order: lines 3, 4 start late\n"));
-}
-
-TEST_CASE("naming what breaks the order is the default reading", "[cli][inspection]") {
-    const InMemoryFileSystem files = withFile("a.srt", kTwoLateLines);
-
-    const auto report = [&files](auto&&... reading) {
-        std::ostringstream out;
-        std::ostringstream errors;
-        static_cast<void>(inspectFile(files, "a.srt", out, Reporter{errors, 0}, reading...));
-        return out.str();
-    };
-
-    CHECK(report() == report(OrderReport::Breaks));
-}
-
-TEST_CASE("both readings agree on a file that is in order", "[cli][inspection]") {
-    const InMemoryFileSystem files = withFile("a.srt", kTwoSubtitles);
-
-    const auto order = [&files](OrderReport reading) {
-        std::ostringstream out;
-        std::ostringstream errors;
-        static_cast<void>(inspectFile(files, "a.srt", out, Reporter{errors, 0}, reading));
-        return out.str();
-    };
-
-    CHECK_THAT(order(OrderReport::Breaks), ContainsSubstring("  order: in order\n"));
-    CHECK_THAT(order(OrderReport::Late), ContainsSubstring("  order: in order\n"));
+    // Counted from one, as the report shows them. **Only the third is named as
+    // breaking the order** — the fourth follows the third, so there is nothing
+    // to do about it. That is the reading kept, and `--order-report` offered
+    // the other one until the corpus failed to settle the question.
+    CHECK_THAT(out.str(), ContainsSubstring("subtitle 3 starts before the previous one starts"));
+    CHECK_THAT(out.str(), !ContainsSubstring("subtitle 4 starts before the previous one starts"));
 }

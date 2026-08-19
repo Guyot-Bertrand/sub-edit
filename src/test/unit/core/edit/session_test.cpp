@@ -154,13 +154,13 @@ TEST_CASE("a command applied through a session changes the project", "[edit][ses
 
 TEST_CASE("a lenient session leaves the disorder an operation caused", "[edit][session]") {
     // The core never sorts of its own accord: the file keeps the order it came
-    // with, and `outOfOrder` says where the disorder is.
+    // with, and `isInOrder` says whether there is any.
     Session session{projectOf({at(0, "a"), at(2000, "b"), at(4000, "c")})};
 
     session.apply(shiftLast(Duration::fromMilliseconds(-3000)));
 
     CHECK(textsOf(session.project()) == std::vector<std::string>{"a", "b", "c"});
-    CHECK(session.project().outOfOrder().size() == 1);
+    CHECK_FALSE(session.project().isInOrder());
 }
 
 TEST_CASE("a strict session sorts what an operation disordered", "[edit][session]") {
@@ -169,7 +169,7 @@ TEST_CASE("a strict session sorts what an operation disordered", "[edit][session
     session.apply(shiftLast(Duration::fromMilliseconds(-3000)));
 
     CHECK(textsOf(session.project()) == std::vector<std::string>{"a", "c", "b"});
-    CHECK(session.project().outOfOrder().empty());
+    CHECK(session.project().isInOrder());
 }
 
 TEST_CASE("in strict mode the operation and its sort are one entry", "[edit][session]") {
