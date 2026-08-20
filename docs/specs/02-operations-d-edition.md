@@ -128,6 +128,27 @@ nu reste modifiable — le lecteur doit bien le remplir — mais qui en tient un
 en train de le construire, pas de l'éditer. L'ADR 0010 s'entend ainsi, et la
 frontière est vérifiable au lieu d'être promise.
 
+## Le groupement d'actions — question close
+
+**Fermée par la phase 5, et sans mécanisme.** La feuille de route posait ici la
+question en pensant à la frappe : vingt caractères tapés dans une cellule ne
+doivent pas faire vingt entrées d'annulation, et il fallait bien un moyen de les
+réunir.
+
+Le moyen n'a pas eu à être construit, parce que la frappe ne produit rien. Un
+`QStyledItemDelegate` ne rend sa valeur qu'une fois — à `Entrée` ou à la perte du
+focus —, jamais touche par touche. **Une cellule éditée produit une commande**,
+donc il n'y a rien à grouper.
+
+Le mécanisme qui aurait servi existe d'ailleurs, écrit pour une autre raison :
+`CompositeCommand` fait déjà tenir une opération et le tri que la politique
+stricte lui ajoute dans une seule entrée. Il attendra un besoin réel — la
+recherche-remplacement de la phase 10 en est un candidat, qui touche plusieurs
+sous-titres d'un geste.
+
+Constaté à l'issue [#129](https://github.com/Guyot-Bertrand/sub-edit/issues/129),
+qui a posé les délégués d'édition.
+
 ## Politique d'ordre
 
 **`Lenient` par défaut.** Le noyau ne trie jamais de lui-même : il rapporte et

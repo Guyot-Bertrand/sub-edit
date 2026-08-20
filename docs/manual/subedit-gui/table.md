@@ -9,7 +9,7 @@ colonnes.
 | `Début` | la position d'apparition, `HH:MM:SS,mmm` |
 | `Fin` | la position de disparition |
 | `Durée` | `Fin − Début` |
-| `Texte` | le texte du sous-titre, sauts de ligne compris |
+| `Texte` | le texte du sous-titre |
 
 **Le numéro n'est pas une donnée du fichier** mais le rang de la ligne. Une
 insertion ou une suppression renumérote donc tout ce qui suit, sans que rien ne
@@ -22,9 +22,17 @@ un point pour WebVTT. Ce qui s'affiche est ce qui sera écrit.
 début affiche une durée négative plutôt que zéro : c'est une anomalie du
 fichier, et la masquer la rendrait introuvable.
 
+**Le début, la fin et le texte s'éditent en place** ; le numéro et la durée non.
+Voir [Éditer une cellule](edition.md).
+
+**Un texte de plusieurs lignes n'en montre qu'une** : la hauteur des lignes de
+la table est fixe, et le reste est coupé à l'affichage. Rien n'est perdu — le
+texte entier réapparaît dès qu'on ouvre la cellule, et c'est lui qui sera
+écrit.
+
 ## Ce que la table ne fait pas encore
 
-Rien n'est modifiable : les cellules s'affichent, ne s'éditent pas. La sélection
-d'une ligne fonctionne, mais aucune opération ne s'y applique. Le tri par
-colonne n'existe pas — l'ordre affiché est celui du fichier, et c'est le seul
-qui ait un sens pour des sous-titres.
+La sélection d'une ligne fonctionne, mais aucune opération ne s'y applique.
+Ajouter ou supprimer une ligne n'est pas possible. Le tri par colonne n'existe
+pas — l'ordre affiché est celui du fichier, et c'est le seul qui ait un sens
+pour des sous-titres.

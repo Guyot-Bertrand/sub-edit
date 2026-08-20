@@ -18,8 +18,9 @@ class SubtitleTableModel;
 /// The window, and everything a project needs to be looked at.
 ///
 /// It owns the session — the project, its history and its order policy — and
-/// the table model that reads through it. **Nothing is editable yet**: the
-/// delegates arrive with the next issue, and the actions after them.
+/// the table model that reads and writes through it. **The three editable
+/// cells are wired**: a start, an end and a text each open the editor their
+/// nature calls for. The actions — undo, redo, open, save — arrive next.
 ///
 /// Kept in `subedit::gui` and not in `main.cpp` because that is what makes it
 /// testable: `check-architecture.sh` refuses a `main` that defines a class, and
