@@ -8,10 +8,12 @@
 # soit un binaire QTest : ni QTEST_MAIN, ni slots privés, ni moc.
 set(CMAKE_AUTOMOC ON)
 
-add_executable(subedit_gui_test window_harness_test.cpp)
+add_executable(
+    subedit_gui_test window_harness_test.cpp subtitle_table_model_test.cpp
+    main_window_test.cpp)
 
 target_link_libraries(
-    subedit_gui_test PRIVATE subedit::core Qt6::Widgets Qt6::Test Catch2::Catch2)
+    subedit_gui_test PRIVATE subedit::gui subedit::core Qt6::Widgets Qt6::Test Catch2::Catch2)
 
 subedit_set_warnings(subedit_gui_test)
 

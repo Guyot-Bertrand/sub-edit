@@ -261,3 +261,65 @@ TEST_CASE("a session counts modifications and forgets them once saved", "[edit][
     session.undo();
     CHECK(session.modificationCount(Document::Main) == -1);
 }
+
+TEST_CASE("applying a command says what it changed", "[edit][session]") {
+    // The core knows no signal mechanism, deliberately: it hands the report
+    // back and the caller does what it likes with it. This is what lets the
+    // window refresh the rows that moved instead of redrawing the table.
+    Session session{projectOf({at(0, "a"), at(2000, "b"), at(4000, "c")})};
+
+    const std::vector<Change> changes = session.apply(
+        std::make_unique<SetText>(session.project(), SubtitleIndex::fromValue(0), "Bonjour."));
+
+    REQUIRE(changes.size() == 1);
+    CHECK(changes[0].kind == ChangeKind::MainText);
+    CHECK(changes[0].subtitles ==
+          Selection::range(SubtitleIndex::fromValue(0), SubtitleIndex::fromValue(0)));
+}
+
+TEST_CASE("undoing says what it changed, the other way round", "[edit][session]") {
+    Session session{projectOf({at(0, "a"), at(2000, "b"), at(4000, "c")})};
+    session.apply(
+        std::make_unique<SetText>(session.project(), SubtitleIndex::fromValue(0), "Bonjour."));
+
+    const std::vector<Change> changes = session.undo();
+
+    REQUIRE(changes.size() == 1);
+    CHECK(changes[0].kind == ChangeKind::MainText);
+    CHECK(changes[0].subtitles ==
+          Selection::range(SubtitleIndex::fromValue(0), SubtitleIndex::fromValue(0)));
+}
+
+TEST_CASE("redoing says what it changed, as the command did", "[edit][session]") {
+    Session session{projectOf({at(0, "a"), at(2000, "b"), at(4000, "c")})};
+    session.apply(
+        std::make_unique<SetText>(session.project(), SubtitleIndex::fromValue(0), "Bonjour."));
+    session.undo();
+
+    const std::vector<Change> changes = session.redo();
+
+    REQUIRE(changes.size() == 1);
+    CHECK(changes[0].kind == ChangeKind::MainText);
+}
+
+TEST_CASE("undoing nothing says nothing", "[edit][session]") {
+    // Not a case for the caller to guard against: an empty report asks for an
+    // empty refresh, which is what should happen.
+    Session session{projectOf({at(0, "a"), at(2000, "b"), at(4000, "c")})};
+
+    CHECK(session.undo().empty());
+    CHECK(session.redo().empty());
+}
+
+TEST_CASE("a strict sort is reported with the operation that caused it", "[edit][session]") {
+    // One action for the user, one undo — and one report, holding both what the
+    // command did and what the sort had to do about it.
+    Session session{projectOf({at(0, "a"), at(2000, "b"), at(4000, "c")}), OrderPolicy::Strict};
+
+    const std::vector<Change> changes = session.apply(std::make_unique<ShiftOne>(
+        SubtitleIndex::fromValue(2), Duration::fromMilliseconds(-10000)));
+
+    REQUIRE(changes.size() == 2);
+    CHECK(changes[0].kind == ChangeKind::Positions);
+    CHECK(changes[1].kind == ChangeKind::Reordering);
+}

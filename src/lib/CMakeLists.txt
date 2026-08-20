@@ -5,3 +5,4 @@
 
 add_subdirectory(subedit/core)
 add_subdirectory(subedit/cli)
+add_subdirectory(subedit/gui)

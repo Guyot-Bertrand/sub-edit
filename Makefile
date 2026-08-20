@@ -148,9 +148,9 @@ test: ## Compile et exécute les tests (hors bout en bout — voir make asan)
 bench: ## Exécute les benchmarks en release et verse les chiffres au journal
 	$(call step,"benchmarks (release)")
 	@cmake --preset release -DSUBEDIT_LTO_JOBS=$(JOBS)
-	@cmake --build --preset release -j $(JOBS) --target subedit_core_bench
+	@cmake --build --preset release -j $(JOBS) --target subedit_bench
 	@load="$$(./src/scripts/await-quiet.sh --below $(BENCH_MAX_LOAD) || true)" ; \
-	./build/release/bin/subedit_core_bench \
+	./build/release/bin/subedit_bench \
 		--reporter console \
 		--reporter xml::out=build/release/bench.xml && \
 	./src/scripts/record-bench.sh --xml build/release/bench.xml --mode Release \

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/command/change.hpp>
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/model/document.hpp>
 
@@ -49,21 +50,31 @@ public:
     explicit History(std::size_t maximumEntries = kDefaultMaximumEntries)
         : m_maximumEntries(maximumEntries) {}
 
-    /// Carries `command` out on `project` and makes it undoable.
+    /// Carries `command` out on `project`, makes it undoable, and says what it
+    /// changed.
     ///
     /// Drops whatever could have been redone: after a new action, redo would
     /// replay a command whose starting state no longer exists.
-    void apply(std::unique_ptr<Command> command, Project& project);
+    ///
+    /// **The report comes back rather than through a signal** — the core knows
+    /// no signal mechanism, and the command line ignores what it is handed
+    /// while the window refreshes the rows it names.
+    std::vector<Change> apply(std::unique_ptr<Command> command, Project& project);
 
     [[nodiscard]] bool canUndo() const { return !m_undoable.empty(); }
 
     [[nodiscard]] bool canRedo() const { return !m_redoable.empty(); }
 
-    /// Undoes the most recent command. Does nothing if there is none.
-    void undo(Project& project);
+    /// Undoes the most recent command, and says what that changed.
+    ///
+    /// **Inverted**: what an insertion added is what its undo removes. Empty
+    /// when there was nothing to undo, which asks for an empty refresh.
+    std::vector<Change> undo(Project& project);
 
-    /// Redoes the most recently undone command. Does nothing if there is none.
-    void redo(Project& project);
+    /// Redoes the most recently undone command, and says what that changed.
+    ///
+    /// Not inverted: redoing is doing again.
+    std::vector<Change> redo(Project& project);
 
     /// Returns how far `document` stands from the file on disk.
     ///

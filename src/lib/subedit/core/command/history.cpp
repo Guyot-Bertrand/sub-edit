@@ -18,9 +18,14 @@ constexpr std::array kDocuments = {Document::Main, Document::Translation};
 
 } // namespace
 
-void History::apply(std::unique_ptr<Command> command, Project& project) {
+std::vector<Change> History::apply(std::unique_ptr<Command> command, Project& project) {
     command->apply(project);
     shiftCounters(*command, 1);
+
+    // Asked after the command ran, because that is when it is true: a command
+    // that decides what it touches while applying — the hearing-impaired
+    // removal does — could not have answered before.
+    std::vector<Change> changes = command->describe();
 
     m_redoable.clear();
     m_undoable.push_back(std::move(command));
@@ -30,11 +35,13 @@ void History::apply(std::unique_ptr<Command> command, Project& project) {
     // container of pointers.
     if (m_undoable.size() > m_maximumEntries)
         m_undoable.erase(m_undoable.begin());
+
+    return changes;
 }
 
-void History::undo(Project& project) {
+std::vector<Change> History::undo(Project& project) {
     if (m_undoable.empty())
-        return;
+        return {};
 
     std::unique_ptr<Command> command = std::move(m_undoable.back());
     m_undoable.pop_back();
@@ -42,12 +49,15 @@ void History::undo(Project& project) {
     command->revert(project);
     shiftCounters(*command, -1);
 
+    std::vector<Change> changes = inverted(command->describe());
     m_redoable.push_back(std::move(command));
+
+    return changes;
 }
 
-void History::redo(Project& project) {
+std::vector<Change> History::redo(Project& project) {
     if (m_redoable.empty())
-        return;
+        return {};
 
     std::unique_ptr<Command> command = std::move(m_redoable.back());
     m_redoable.pop_back();
@@ -55,7 +65,10 @@ void History::redo(Project& project) {
     command->apply(project);
     shiftCounters(*command, 1);
 
+    std::vector<Change> changes = command->describe();
     m_undoable.push_back(std::move(command));
+
+    return changes;
 }
 
 void History::clear() {

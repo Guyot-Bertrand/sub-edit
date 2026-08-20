@@ -21,14 +21,28 @@ décision et les alternatives écartées sont dans
 `make ratchet` réécrit ce fichier depuis la dernière mesure. **Il n'écrit jamais
 de lui-même :** un fichier versionné ne bouge que si quelqu'un le demande.
 
+## Ce que le cliquet a laissé passer, et pourquoi
+
+Le relever est une décision, pas un ajustement. Chaque relèvement se justifie
+ici, sans quoi le cliquet ne mesure plus rien.
+
+**Deux lignes du modèle de table, en phase 5.** Ce sont des `std::unreachable()`
+placés après un `switch` que le compilateur vérifie exhaustif. Aucun test ne
+peut les atteindre — c'est leur objet : elles n'existent que pour dire au
+compilateur que la fin de fonction n'est pas atteignable, et un `return` par
+défaut à leur place accepterait en silence un énumérateur ajouté sans cas.
+Toutes les branches réellement atteignables du modèle sont, elles, couvertes,
+gardes comprises.
+
 ## Relevé
 
-    total : 5
+    total : 7
 
-Relevé sur la version 0.3.13, le 2026-08-16.
+Relevé sur la version 0.4.10, le 2026-08-20.
 
 | Lignes | Fichier |
 | -----: | :------ |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
-| 2 | `src/lib/subedit/core/format/real_file_system.cpp` |
+| 2 | `src/lib/subedit/core/io/real_file_system.cpp` |
+| 2 | `src/lib/subedit/gui/subtitle_table_model.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |

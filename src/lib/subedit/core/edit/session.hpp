@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/command/change.hpp>
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/command/history.hpp>
 #include <subedit/core/edit/order_policy.hpp>
@@ -47,20 +48,22 @@ public:
     /// change nobody asked for. Apply a `SortCommand` for that.
     void setOrderPolicy(OrderPolicy policy) { m_policy = policy; }
 
-    /// Carries `command` out and makes it undoable.
+    /// Carries `command` out, makes it undoable, and says what it changed.
     ///
     /// Under `OrderPolicy::Strict`, an operation that could have broken the
     /// order is followed by a sort **inside the same history entry**: one
-    /// action for the user, one undo.
-    void apply(std::unique_ptr<Command> command);
+    /// action for the user, one undo — and one report, holding both.
+    std::vector<Change> apply(std::unique_ptr<Command> command);
 
     [[nodiscard]] bool canUndo() const { return m_history.canUndo(); }
 
     [[nodiscard]] bool canRedo() const { return m_history.canRedo(); }
 
-    void undo() { m_history.undo(m_project); }
+    /// Undoes the most recent action, and says what that changed.
+    std::vector<Change> undo() { return m_history.undo(m_project); }
 
-    void redo() { m_history.redo(m_project); }
+    /// Redoes the most recently undone action, and says what that changed.
+    std::vector<Change> redo() { return m_history.redo(m_project); }
 
     /// Returns how far `document` stands from the file on disk.
     [[nodiscard]] int modificationCount(Document document) const {
