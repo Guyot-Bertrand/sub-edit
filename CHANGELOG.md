@@ -17,6 +17,7 @@ ne pas l'éditer à la main.
 - **build** — Tenir la raison qui rend les quatre portes correctes
 - **test** — Un harnais de test d'interface, en Catch2
 - **ci** — Élaguer les exécutions d'Actions, et borner leur rétention
+- **gui** — La fenêtre et son modèle de table
 
 ### Corrections
 

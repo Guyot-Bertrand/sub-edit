@@ -1,0 +1,23 @@
+---
+# Le code d'interface hérite de la configuration racine, avec un assouplissement.
+#
+# Qt possède ses widgets par filiation : un widget construit avec un parent est
+# détruit par lui, et le lui reprendre par un pointeur propriétaire mènerait à
+# une double libération. Ce n'est pas une fuite, c'est le contrat du toolkit.
+InheritParentConfig: true
+
+Checks: >
+  -cppcoreguidelines-owning-memory
+
+# Justification :
+#
+# cppcoreguidelines-owning-memory
+#   `new QTableView{this}` ne fuit pas : `this` prend la propriété, et Qt
+#   détruit l'enfant avec le parent. La vérification ne modélise pas cette
+#   propriété-là et signalerait chaque widget de chaque fenêtre. Envelopper
+#   dans un `unique_ptr` puis appeler `release()` au moment de le confier à Qt
+#   satisferait l'outil en rendant le code plus fragile, pas moins.
+#
+#   Ce qui reste vérifié : tout ce qui n'est pas un widget confié à Qt. Un
+#   `new` sans parent dans ce répertoire échappe à ce filet — c'est le prix, et
+#   il est écrit ici pour qu'on le sache.

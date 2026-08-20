@@ -273,7 +273,7 @@ ses paramètres.
 `make e2e` et `make bench` configurent et compilent tous deux le preset
 `release` : lancer l'un après l'autre ne recompile rien *de la bibliothèque* —
 `subedit_core` est un objet partagé entre les deux. Chacun lie son propre
-exécutable (`subedit_e2e_test`, `subedit_core_bench`), donc l'édition de liens
+exécutable (`subedit_e2e_test`, `subedit_bench`), donc l'édition de liens
 et la compilation des fichiers propres à cet exécutable restent à faire.
 
 **Pourquoi deux gates.** `make check` est ce que la CI exécute, à l'identique,
@@ -400,7 +400,7 @@ chaîne :
    plus haut pour le mécanisme d'enregistrement.
 4. **Benchmarks** — `make bench` : réutilise l'objet `subedit_core` déjà
    compilé par l'étape précédente, mais lie son propre exécutable
-   (`subedit_core_bench`) — ce n'est donc pas un no-op, seulement moins cher
+   (`subedit_bench`) — ce n'est donc pas un no-op, seulement moins cher
    qu'un build `release` complet. Son verdict se lit, il n'est pas binaire —
    c'est voulu : la [définition de « terminé »](../../CLAUDE.md) du projet
    impose de rejouer les benchmarks à chaque issue, et les chaîner ici est ce

@@ -5,6 +5,7 @@
 #include <subedit/core/model/subtitle_index.hpp>
 
 #include <utility>
+#include <vector>
 
 namespace subedit::core {
 
@@ -35,6 +36,39 @@ struct Change {
 
     friend bool operator==(const Change&, const Change&) = default;
 };
+
+/// Returns what the same change becomes when it is undone.
+///
+/// Only a change of structure has a direction: undoing an insertion removes the
+/// rows it added, and undoing a removal puts them back. Everything else names
+/// the same rows whichever way it is played — a text put back is still a text
+/// changed.
+///
+/// **The indices do not move.** A removal hands back the subtitles at the very
+/// indices it took them from, so the same `Selection` describes both directions.
+[[nodiscard]] constexpr ChangeKind invert(ChangeKind kind) {
+    switch (kind) {
+    case ChangeKind::Insertion:
+        return ChangeKind::Removal;
+    case ChangeKind::Removal:
+        return ChangeKind::Insertion;
+    case ChangeKind::Positions:
+    case ChangeKind::MainText:
+    case ChangeKind::TranslationText:
+    case ChangeKind::Reordering:
+        return kind;
+    }
+    // Exhaustive above, and the compiler checks that it is.
+    std::unreachable();
+}
+
+/// Returns `changes` as they read when they are undone.
+[[nodiscard]] inline std::vector<Change> inverted(std::vector<Change> changes) {
+    for (Change& change : changes)
+        change.kind = invert(change.kind);
+
+    return changes;
+}
 
 /// Tells whether a change of that nature makes `document` differ from the file
 /// on disk.

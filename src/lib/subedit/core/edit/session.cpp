@@ -1,3 +1,4 @@
+#include <subedit/core/command/change.hpp>
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/command/composite_command.hpp>
 #include <subedit/core/edit/session.hpp>
@@ -11,15 +12,15 @@ namespace subedit::core {
 
 Session::Session(Project project, OrderPolicy policy)
     : m_project(std::move(project)), m_policy(policy) {
+    // Nobody is watching yet — the session is being built — so the report the
+    // sort hands back has no reader.
     if (m_policy == OrderPolicy::Strict && !m_project.isInOrder())
         m_history.apply(std::make_unique<SortCommand>(), m_project);
 }
 
-void Session::apply(std::unique_ptr<Command> command) {
-    if (m_policy != OrderPolicy::Strict || !mayBreakOrder(command->kind())) {
-        m_history.apply(std::move(command), m_project);
-        return;
-    }
+std::vector<Change> Session::apply(std::unique_ptr<Command> command) {
+    if (m_policy != OrderPolicy::Strict || !mayBreakOrder(command->kind()))
+        return m_history.apply(std::move(command), m_project);
 
     // The group keeps the name of what was asked for: the sort is how the
     // policy is honoured, not a second operation the user performed.
@@ -30,7 +31,7 @@ void Session::apply(std::unique_ptr<Command> command) {
     group.push_back(std::move(command));
     group.push_back(std::make_unique<SortCommand>());
 
-    m_history.apply(std::make_unique<CompositeCommand>(kind, std::move(group)), m_project);
+    return m_history.apply(std::make_unique<CompositeCommand>(kind, std::move(group)), m_project);
 }
 
 } // namespace subedit::core

@@ -94,10 +94,10 @@ plus rien.
 | `CLI-HEARING-05` | un fichier sans aucune mention est écrit inchangé, code 0 | 4 | implémentée |
 | `CLI-HEARING-06` | sans destination explicite, rien n'est écrit et le code est 1 | 4 | implémentée |
 | `GUI-VERSION-01` | `subedit-gui --version` écrit `subedit <version>` sur la sortie standard, code 0 | 5 | implémentée |
-| `GUI-OPEN-01` | `subedit-gui <fichier>` ouvre le fichier et affiche ses sous-titres | 5 | prévue |
-| `GUI-OPEN-02` | un fichier illisible donne un message et laisse la fenêtre vide | 5 | prévue |
+| `GUI-OPEN-01` | `subedit-gui <fichier>` ouvre le fichier et affiche ses sous-titres | 5 | implémentée |
+| `GUI-OPEN-02` | un fichier illisible donne un message et laisse la fenêtre vide | 5 | implémentée |
 | `GUI-OPEN-03` | les diagnostics de lecture sont montrés, avec leur ligne | 5 | prévue |
-| `GUI-TABLE-01` | les cinq colonnes affichent numéro, début, fin, durée et texte | 5 | prévue |
+| `GUI-TABLE-01` | les cinq colonnes affichent numéro, début, fin, durée et texte | 5 | implémentée |
 | `GUI-TABLE-02` | les sous-titres en anomalie sont marqués et nommés | 5 | prévue |
 | `GUI-EDIT-01` | éditer une cellule de texte modifie le sous-titre et rien d'autre | 5 | prévue |
 | `GUI-EDIT-02` | éditer un début ou une fin lit un horodatage permissif | 5 | prévue |
