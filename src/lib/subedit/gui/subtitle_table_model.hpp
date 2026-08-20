@@ -13,6 +13,7 @@
 /// definitions come in the implementation file.
 namespace subedit::core {
 class Project;
+class Session;
 struct Change;
 enum class ChangeKind;
 } // namespace subedit::core
@@ -27,9 +28,18 @@ namespace subedit::gui {
 /// code: it unplugs the model from the view past fifty removed rows, "because a
 /// large batch of separate live updates is slow".
 ///
-/// The model **does not own the project and does not edit it**. It is handed
-/// what changed and turns that into signals; whoever applies a command is the
-/// one who knows.
+/// **It edits through the session, and owns neither.** Issue #128 wrote the
+/// opposite here — the model was to be handed what changed and nothing more —
+/// and issue #129 had to undo it: Qt hands a finished cell edit to `setData`,
+/// and routing it back out to whoever holds the session would cost either a
+/// second translation of the same string or an interface class for one caller.
+/// The frontier that mattered is still held, and by the compiler: what the
+/// model reads is `session.project()`, which is constant, so the only road to
+/// a change remains a command.
+///
+/// Two entrances, then, and they meet in the same place: `setData` builds the
+/// command a cell edit calls for, and `applied` takes the report of a command
+/// applied elsewhere — an undo, a dialog. Both end in `dataChanged`.
 class SubtitleTableModel final : public QAbstractTableModel {
     Q_OBJECT
 
@@ -53,14 +63,20 @@ public:
     /// rien n'atteint jamais.
     static constexpr int kColumnCount = 5;
 
-    /// Builds a table over `project`, which must outlive it.
-    explicit SubtitleTableModel(const core::Project& project, QObject* parent = nullptr);
+    /// Builds a table over `session`, which must outlive it.
+    explicit SubtitleTableModel(core::Session& session, QObject* parent = nullptr);
 
     [[nodiscard]] int rowCount(const QModelIndex& parent) const override;
 
     [[nodiscard]] int columnCount(const QModelIndex& parent) const override;
 
     [[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;
+
+    /// Says which cells an editor may open on.
+    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
+
+    /// Carries a finished cell edit out, as a command.
+    bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
     /// Rend un index, y compris hors table — ce qu’un test doit pouvoir
     /// fabriquer pour éprouver les gardes.
@@ -85,7 +101,7 @@ private:
     /// The columns a change of that nature makes stale, as a closed span.
     [[nodiscard]] static std::pair<int, int> columnsFor(core::ChangeKind kind);
 
-    const core::Project* m_project;
+    core::Session* m_session;
 };
 
 } // namespace subedit::gui

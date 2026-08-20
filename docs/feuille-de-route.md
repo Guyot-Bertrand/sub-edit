@@ -195,7 +195,9 @@ dialogue, fusion, scission, recherche et remplacement, presse-papiers.
 
 - Toute opération est-elle une commande annulable de premier ordre, y compris la
   frappe dans une cellule ? Comment se fait le **regroupement** d'actions en une
-  seule entrée d'annulation ?
+  seule entrée d'annulation ? — *close, sans mécanisme : un délégué valide une
+  fois, donc une cellule éditée produit une commande. Voir
+  [la spec de la phase 2](specs/02-operations-d-edition.md#le-groupement-dactions--question-close).*
 - Modèle de **cible** : sélection, plage, projet entier. Gaupol le traite par un
   paramètre `target` répété dans chaque signature — on peut faire mieux.
 - Où passe la frontière entre opération du noyau et logique d'interface ?

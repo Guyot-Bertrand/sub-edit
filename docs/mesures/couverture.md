@@ -26,23 +26,31 @@ de lui-même :** un fichier versionné ne bouge que si quelqu'un le demande.
 Le relever est une décision, pas un ajustement. Chaque relèvement se justifie
 ici, sans quoi le cliquet ne mesure plus rien.
 
-**Deux lignes du modèle de table, en phase 5.** Ce sont des `std::unreachable()`
-placés après un `switch` que le compilateur vérifie exhaustif. Aucun test ne
-peut les atteindre — c'est leur objet : elles n'existent que pour dire au
-compilateur que la fin de fonction n'est pas atteignable, et un `return` par
-défaut à leur place accepterait en silence un énumérateur ajouté sans cas.
-Toutes les branches réellement atteignables du modèle sont, elles, couvertes,
-gardes comprises.
+**Deux lignes du modèle de table, en phase 5 — et le relèvement était de trop.**
+Elles avaient été portées au compte des `std::unreachable()` placés après les
+`switch` exhaustifs, qu'aucun test ne peut atteindre par construction. C'était
+faux : `gcovr` ne compte pas ces lignes-là. Les deux non couvertes étaient les
+gardes de rang et de colonne de `data()`, parfaitement atteignables — mais les
+tests censés les éprouver fabriquaient leur index avec `index()`, qui refuse de
+sortir de la table et rend un index invalide. Ils butaient donc sur la première
+garde et n'atteignaient jamais les deux autres.
+
+Corrigé à l'issue #129, en fabriquant ces index avec `createIndex` — ce pour
+quoi l'en-tête l'expose. Le modèle est couvert en entier, et le cliquet
+redescend de 7 à 5.
+
+La leçon vaut d'être écrite : **un relèvement justifié par une lecture du code
+plutôt que par une mesure est un relèvement à vérifier.** Le raisonnement était
+plausible, il tenait une phase entière, et il désignait les mauvaises lignes.
 
 ## Relevé
 
-    total : 7
+    total : 5
 
-Relevé sur la version 0.4.10, le 2026-08-20.
+Relevé sur la version 0.4.12, le 2026-08-20.
 
 | Lignes | Fichier |
 | -----: | :------ |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 2 | `src/lib/subedit/core/io/real_file_system.cpp` |
-| 2 | `src/lib/subedit/gui/subtitle_table_model.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |

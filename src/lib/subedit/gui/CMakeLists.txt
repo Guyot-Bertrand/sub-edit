@@ -5,7 +5,8 @@
 # un main qui définit une classe. C'est ce qui rend l'interface testable.
 set(CMAKE_AUTOMOC ON)
 
-add_library(subedit_gui STATIC subtitle_table_model.cpp opening.cpp main_window.cpp)
+add_library(subedit_gui STATIC subtitle_table_model.cpp cell_delegates.cpp opening.cpp
+                          main_window.cpp)
 add_library(subedit::gui ALIAS subedit_gui)
 
 target_include_directories(subedit_gui PUBLIC "${CMAKE_SOURCE_DIR}/src/lib")

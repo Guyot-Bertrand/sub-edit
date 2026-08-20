@@ -2,10 +2,14 @@
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
 
+#include <QModelIndex>
+#include <QPlainTextEdit>
 #include <QTableView>
+#include <QTest>
 #include <catch2/catch_test_macros.hpp>
 
 #include <expected>
@@ -21,6 +25,8 @@ using subedit::core::ReadErrorKind;
 using subedit::core::SubtitleFormat;
 using subedit::gui::MainWindow;
 using subedit::gui::openProject;
+using subedit::gui::PositionDelegate;
+using subedit::gui::TextDelegate;
 
 constexpr const char* kThree = "1\n"
                                "00:00:01,000 --> 00:00:02,000\n"
@@ -100,4 +106,39 @@ TEST_CASE("the window names the file it holds", "[gui][GUI-OPEN-01]") {
     const MainWindow window{*project};
 
     CHECK(window.windowTitle().toStdString().find("film.srt") != std::string::npos);
+}
+
+TEST_CASE("the window puts an editor on the three cells that can be edited", "[gui][GUI-EDIT-01]") {
+    const MainWindow window{Project{}};
+    const QTableView* table = window.table();
+
+    // Le numéro et la durée n'en ont pas : ils ne sont pas éditables, et un
+    // délégué posé là promettrait le contraire.
+    CHECK(table->itemDelegateForColumn(0) == nullptr);
+    CHECK(qobject_cast<PositionDelegate*>(table->itemDelegateForColumn(1)) != nullptr);
+    CHECK(qobject_cast<PositionDelegate*>(table->itemDelegateForColumn(2)) != nullptr);
+    CHECK(table->itemDelegateForColumn(3) == nullptr);
+    CHECK(qobject_cast<TextDelegate*>(table->itemDelegateForColumn(4)) != nullptr);
+}
+
+TEST_CASE("typing in a cell of the window changes the file it holds", "[gui][GUI-EDIT-01]") {
+    // Le seul test qui parcourt la chaîne entière — vue, délégué, modèle,
+    // commande, session —, et le seul qui montre ce que l'utilisateur fait.
+    const InMemoryFileSystem files = withFile("film.srt", kThree);
+    const std::expected<Project, ReadError> project = openProject(files, "film.srt");
+    REQUIRE(project.has_value());
+
+    const MainWindow window{*project};
+    QTableView* table = window.table();
+    const QModelIndex cell = table->model()->index(1, 4);
+    table->setCurrentIndex(cell);
+    table->edit(cell);
+
+    auto* editor = table->findChild<QPlainTextEdit*>();
+    REQUIRE(editor != nullptr);
+    editor->setPlainText(QStringLiteral("Deux, autrement."));
+    QTest::keyClick(editor, Qt::Key_Return);
+
+    CHECK(table->model()->data(cell, Qt::DisplayRole).toString().toStdString() ==
+          "Deux, autrement.");
 }
