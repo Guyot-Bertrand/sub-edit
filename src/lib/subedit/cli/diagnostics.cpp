@@ -1,6 +1,6 @@
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/reporter.hpp>
-#include <subedit/cli/wording.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <cstddef>
 

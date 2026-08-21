@@ -13,16 +13,12 @@ enum class CommandKind;
 
 namespace subedit::gui {
 
-/// Names an operation, in the language of the interface.
+/// What the undo action reads: « Undo: shifting », or « Undo » alone when
+/// there is nothing to defeat.
 ///
-/// **A free function of `subedit::gui`, and that is the point.** The core
-/// speaks no French — `CommandKind` exists precisely so that the wording lives
-/// where the wording belongs, and so that a test can hold on to the
-/// enumerator rather than to prose that will be reworded.
-[[nodiscard]] QString labelOf(core::CommandKind kind);
-
-/// What the undo action reads: « Annuler : décalage », or « Annuler » alone
-/// when there is nothing to defeat.
+/// **Only the sentence lives here.** Naming the operation is `core::nameOf`,
+/// which the command line uses too; putting a verb in front of it is what a
+/// menu does, and no report has any use for that.
 [[nodiscard]] QString undoLabel(std::optional<core::CommandKind> kind);
 
 /// What the redo action reads.

@@ -187,15 +187,15 @@ QVariant SubtitleTableModel::headerData(int section, Qt::Orientation orientation
 
     switch (static_cast<Column>(section)) {
     case Number:
-        return QStringLiteral("N°");
+        return QStringLiteral("#");
     case Start:
-        return QStringLiteral("Début");
+        return QStringLiteral("Start");
     case End:
-        return QStringLiteral("Fin");
+        return QStringLiteral("End");
     case Duration:
-        return QStringLiteral("Durée");
+        return QStringLiteral("Duration");
     case Text:
-        return QStringLiteral("Texte");
+        return QStringLiteral("Text");
     }
 
     std::unreachable();

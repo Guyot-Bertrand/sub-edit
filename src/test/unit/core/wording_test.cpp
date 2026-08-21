@@ -1,14 +1,18 @@
-#include <subedit/cli/wording.hpp>
+#include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/time/frame_rate.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <array>
 #include <cstdint>
 #include <optional>
+#include <set>
+#include <string_view>
 
-using subedit::cli::nameOf;
 using subedit::core::FrameRate;
+using subedit::core::nameOf;
 using subedit::core::StandardFrameRate;
 
 namespace {
@@ -77,4 +81,30 @@ TEST_CASE("an NTSC rate is named by its fraction", "[cli][wording]") {
 
 TEST_CASE("a rate below one frame per second is named all the same", "[cli][wording]") {
     CHECK(nameOf(rateOf(1, 8)) == "0.125");
+}
+
+TEST_CASE("every kind of command has a name of its own", "[wording]") {
+    // Deux noms identiques rendraient une action d'annulation ambiguë, et un
+    // nom vide la rendrait muette. Le compilateur tient l'exhaustivité du
+    // `switch` ; ce test tient ce qu'il ne peut pas voir.
+    constexpr std::array kEveryKind = {
+        subedit::core::CommandKind::SetText,
+        subedit::core::CommandKind::SetStart,
+        subedit::core::CommandKind::SetEnd,
+        subedit::core::CommandKind::Insert,
+        subedit::core::CommandKind::Remove,
+        subedit::core::CommandKind::Shift,
+        subedit::core::CommandKind::Transform,
+        subedit::core::CommandKind::ConvertFrameRate,
+        subedit::core::CommandKind::Sort,
+        subedit::core::CommandKind::RemoveHearingImpaired,
+    };
+
+    std::set<std::string_view> seen;
+    for (const subedit::core::CommandKind kind : kEveryKind) {
+        CHECK_FALSE(nameOf(kind).empty());
+        seen.insert(nameOf(kind));
+    }
+
+    CHECK(seen.size() == kEveryKind.size());
 }

@@ -1,12 +1,12 @@
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/cli/transforming.hpp>
-#include <subedit/cli/wording.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/transform_command.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <cstddef>
 #include <expected>
@@ -36,7 +36,7 @@ std::optional<std::string> beyondOf(const Reference& reference, std::size_t coun
         return std::nullopt;
     }
     return "subtitle " + std::to_string(reference.number) + " is past the end: the file holds " +
-           countOf(count, "subtitle");
+           core::countOf(count, "subtitle");
 }
 
 /// Says which subtitle the transform would take before the origin, if any.
@@ -104,7 +104,7 @@ ExitCode transformAll(core::FileSystem& files,
             session.undo();
             return std::unexpected{*refused};
         }
-        return countOf(session.project().count(), "subtitle") + " transformed onto " +
+        return core::countOf(session.project().count(), "subtitle") + " transformed onto " +
                wordedOf(transform.first()) + " and " + wordedOf(transform.last());
     };
 

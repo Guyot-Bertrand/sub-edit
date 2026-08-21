@@ -3,13 +3,17 @@
 La fenêtre montre les sous-titres du fichier ouvert, un par ligne, dans cinq
 colonnes.
 
+**La fenêtre est en anglais**, comme la ligne de commande. La traduction est
+une phase à elle seule ; ce manuel cite donc les intitulés tels qu'ils
+s'affichent.
+
 | Colonne | Ce qu'elle montre |
 | :------ | :---------------- |
-| `N°` | le rang du sous-titre, à partir de 1 |
-| `Début` | la position d'apparition, `HH:MM:SS,mmm` |
-| `Fin` | la position de disparition |
-| `Durée` | `Fin − Début` |
-| `Texte` | le texte du sous-titre |
+| `#` | le rang du sous-titre, à partir de 1 |
+| `Start` | la position d'apparition, `HH:MM:SS,mmm` |
+| `End` | la position de disparition |
+| `Duration` | `End − Start` |
+| `Text` | le texte du sous-titre |
 
 **Le numéro n'est pas une donnée du fichier** mais le rang de la ligne. Une
 insertion ou une suppression renumérote donc tout ce qui suit, sans que rien ne
@@ -18,7 +22,7 @@ soit réécrit.
 **Le séparateur décimal suit le format du fichier** : une virgule pour SubRip,
 un point pour WebVTT. Ce qui s'affiche est ce qui sera écrit.
 
-**La durée est calculée**, jamais saisie. Un sous-titre dont la fin précède le
+**La durée (`Duration`) est calculée**, jamais saisie. Un sous-titre dont la fin précède le
 début affiche une durée négative plutôt que zéro : c'est une anomalie du
 fichier, et la masquer la rendrait introuvable.
 

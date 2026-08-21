@@ -1,10 +1,10 @@
 #include <subedit/cli/frame_rate_conversion.hpp>
 #include <subedit/cli/rewriting.hpp>
-#include <subedit/cli/wording.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <expected>
 #include <memory>
@@ -25,8 +25,8 @@ ExitCode convertFrameRateAll(core::FileSystem& files,
         [input, output](core::Session& session) -> std::expected<std::string, std::string> {
         session.apply(std::make_unique<core::ConvertFrameRateCommand>(
             session.project(), core::Selection::all(session.project()), input, output));
-        return countOf(session.project().count(), "subtitle") + " retimed from " + nameOf(input) +
-               " to " + nameOf(output) + " fps";
+        return core::countOf(session.project().count(), "subtitle") + " retimed from " +
+               nameOf(input) + " to " + nameOf(output) + " fps";
     };
 
     return rewriteAll(files, paths, destination, reporter, "retimed", retime);

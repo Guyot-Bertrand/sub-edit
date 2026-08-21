@@ -1,5 +1,5 @@
 #include <subedit/cli/reporter.hpp>
-#include <subedit/cli/wording.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -69,7 +69,7 @@ TEST_CASE("the level is readable", "[cli][reporter]") {
 }
 
 TEST_CASE("a count agrees with its noun", "[cli][wording]") {
-    CHECK(subedit::cli::countOf(0, "subtitle") == "0 subtitles");
-    CHECK(subedit::cli::countOf(1, "subtitle") == "1 subtitle");
-    CHECK(subedit::cli::countOf(2, "subtitle") == "2 subtitles");
+    CHECK(subedit::core::countOf(0, "subtitle") == "0 subtitles");
+    CHECK(subedit::core::countOf(1, "subtitle") == "1 subtitle");
+    CHECK(subedit::core::countOf(2, "subtitle") == "2 subtitles");
 }

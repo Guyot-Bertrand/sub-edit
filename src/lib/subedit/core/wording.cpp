@@ -1,16 +1,8 @@
-#include <subedit/cli/wording.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <utility>
 
-namespace subedit::cli {
-
-using core::AnomalyKind;
-using core::DiagnosticKind;
-using core::FileErrorKind;
-using core::Newline;
-using core::ReadErrorKind;
-using core::Severity;
-using core::SubtitleFormat;
+namespace subedit::core {
 
 std::string_view nameOf(SubtitleFormat format) {
     switch (format) {
@@ -110,6 +102,36 @@ std::string_view nameOf(core::Severity severity) {
     std::unreachable();
 }
 
+std::string_view nameOf(CommandKind kind) {
+    switch (kind) {
+    case CommandKind::SetText:
+        return "editing a text";
+    case CommandKind::SetStart:
+        return "editing a start";
+    case CommandKind::SetEnd:
+        return "editing an end";
+    case CommandKind::Insert:
+        return "inserting";
+    case CommandKind::Remove:
+        return "removing";
+    case CommandKind::Shift:
+        return "shifting";
+    case CommandKind::Transform:
+        return "transforming";
+    case CommandKind::ConvertFrameRate:
+        return "converting the frame rate";
+    case CommandKind::Sort:
+        return "sorting";
+    case CommandKind::RemoveHearingImpaired:
+        return "removing hearing-impaired mentions";
+    }
+
+    // The ten are handled and the compiler checks it. A `default` here would
+    // take an enumerator added without a name in silence, and the action would
+    // announce it as an empty string.
+    std::unreachable();
+}
+
 std::string nameOf(core::FrameRate rate) {
     constexpr std::int64_t kThousand = 1000;
     if (kThousand % rate.denominator() != 0) {
@@ -141,4 +163,4 @@ std::string countOf(std::size_t count, std::string_view noun) {
     return text;
 }
 
-} // namespace subedit::cli
+} // namespace subedit::core
