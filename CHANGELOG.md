@@ -19,6 +19,7 @@ ne pas l'éditer à la main.
 - **ci** — Élaguer les exécutions d'Actions, et borner leur rétention
 - **gui** — La fenêtre et son modèle de table
 - **gui** — L'édition en place des cellules
+- **gui** — Annuler et rétablir, et le libellé de l'action
 
 ### Corrections
 
