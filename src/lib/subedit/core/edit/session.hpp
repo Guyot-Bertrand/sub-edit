@@ -6,6 +6,7 @@
 #include <subedit/core/edit/order_policy.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/source_file.hpp>
 
 #include <memory>
 #include <optional>
@@ -41,6 +42,17 @@ public:
     [[nodiscard]] const Project& project() const { return m_project; }
 
     [[nodiscard]] OrderPolicy orderPolicy() const { return m_policy; }
+
+    /// Records that the document now lives somewhere else, or in another
+    /// format.
+    ///
+    /// **Not a command, and deliberately so.** « Save as » changes where a
+    /// document lives, not what it holds; nobody would want to undo it, and
+    /// the history stays a faithful account of what was done to the subtitles.
+    /// The rule it looks like an exception to — inside a session the only road
+    /// to a change is a command — is about the document, and this is not the
+    /// document.
+    void setSourceFile(SourceFile source) { m_project.setSourceFile(std::move(source)); }
 
     /// Changes the policy for the operations to come.
     ///

@@ -43,14 +43,45 @@ La leçon vaut d'être écrite : **un relèvement justifié par une lecture du c
 plutôt que par une mesure est un relèvement à vérifier.** Le raisonnement était
 plausible, il tenait une phase entière, et il désignait les mauvaises lignes.
 
+**Vingt-six lignes de `QtPrompts`, en phase 5.** C'est le relèvement le plus
+important du projet, et il tient en une phrase : ces lignes ouvrent une boîte
+modale de Qt, qui fait tourner sa propre boucle d'événements jusqu'à ce qu'un
+humain clique. Un test qui en atteint une ne rend jamais la main.
+
+**Mesurées, et nommées** — `qt_prompts.cpp` 42 à 76, plus le constructeur en
+en-tête. Il n'y en a pas d'autres, et chacune est soit l'appel à `QFileDialog`
+ou `QMessageBox`, soit la garde « l'utilisateur n'a rien choisi », soit la
+construction du retour à partir de ce que la boîte a rendu.
+
+**Ce que ce relèvement achète.** L'interface `Prompts` concentre là tout ce qui
+n'est pas atteignable, au lieu de le répandre dans la fenêtre. En échange, les
+chemins où vivent les fautes — l'utilisateur annule, il choisit d'abandonner, il
+choisit d'enregistrer d'abord, l'écriture échoue — sont parcourus par des tests,
+ce qu'aucune autre disposition ne permettait. `MainWindow` et
+`DiagnosticsPanel` sont couverts en entier.
+
+**Ce qui a été sorti de là plutôt que compté.** Deux décisions vivaient dans ces
+méthodes et n'avaient rien à y faire : quel format un filtre désigne, et ce que
+vaut un bouton de la boîte de confirmation. Exposées, testées, elles ne sont
+plus dans ce compte — c'est ce qui l'a fait tomber de trente-six à
+vingt-cinq.
+
+**L'alternative, pesée et écartée.** On sait piloter une boîte modale depuis un
+test, en programmant sa fermeture avant d'entrer dans la boucle. Cela aurait
+donné un chiffre vert au prix d'un test fragile qui éprouve le dialogue de Qt
+plutôt que nos quatre lignes de raccord. Le cliquet compte et justifie ; il
+n'exige pas zéro.
+
 ## Relevé
 
-    total : 5
+    total : 31
 
-Relevé sur la version 0.4.12, le 2026-08-20.
+Relevé sur la version 0.4.15, le 2026-08-21.
 
 | Lignes | Fichier |
 | -----: | :------ |
+| 25 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 2 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
+| 1 | `src/lib/subedit/gui/qt_prompts.hpp` |

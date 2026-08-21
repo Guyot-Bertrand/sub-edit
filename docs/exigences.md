@@ -96,7 +96,7 @@ plus rien.
 | `GUI-VERSION-01` | `subedit-gui --version` écrit `subedit <version>` sur la sortie standard, code 0 | 5 | implémentée |
 | `GUI-OPEN-01` | `subedit-gui <fichier>` ouvre le fichier et affiche ses sous-titres | 5 | implémentée |
 | `GUI-OPEN-02` | un fichier illisible donne un message et laisse la fenêtre vide | 5 | implémentée |
-| `GUI-OPEN-03` | les diagnostics de lecture sont montrés, avec leur ligne | 5 | prévue |
+| `GUI-OPEN-03` | les diagnostics de lecture sont montrés, avec leur ligne | 5 | implémentée |
 | `GUI-TABLE-01` | les cinq colonnes affichent numéro, début, fin, durée et texte | 5 | implémentée |
 | `GUI-TABLE-02` | les sous-titres en anomalie sont marqués et nommés | 5 | prévue |
 | `GUI-EDIT-01` | éditer une cellule de texte modifie le sous-titre et rien d'autre | 5 | implémentée |
@@ -104,9 +104,9 @@ plus rien.
 | `GUI-EDIT-03` | une validation qui ne change rien n'entre pas dans l'historique | 5 | implémentée |
 | `GUI-UNDO-01` | annuler rétablit l'état précédent, l'action nomme l'opération | 5 | implémentée |
 | `GUI-UNDO-02` | rétablir refait ce qui vient d'être annulé | 5 | implémentée |
-| `GUI-SAVE-01` | enregistrer réécrit le fichier dans sa forme d'origine | 5 | prévue |
-| `GUI-SAVE-02` | enregistrer sous choisit chemin et format | 5 | prévue |
-| `GUI-SAVE-03` | fermer avec des modifications non enregistrées demande confirmation | 5 | prévue |
+| `GUI-SAVE-01` | enregistrer réécrit le fichier dans sa forme d'origine | 5 | implémentée |
+| `GUI-SAVE-02` | enregistrer sous choisit chemin et format | 5 | implémentée |
+| `GUI-SAVE-03` | fermer avec des modifications non enregistrées demande confirmation | 5 | implémentée |
 | `GUI-SHIFT-01` | le dialogue de décalage décale la cible | 5 | prévue |
 | `GUI-TRANSFORM-01` | le dialogue de transformation corrige par deux repères | 5 | prévue |
 | `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible | 5 | prévue |

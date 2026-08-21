@@ -7,7 +7,8 @@ set(CMAKE_AUTOMOC ON)
 
 add_library(
     subedit_gui STATIC subtitle_table_model.cpp cell_delegates.cpp command_label.cpp
-                       opening.cpp main_window.cpp)
+                       opening.cpp saving.cpp
+                       diagnostics_panel.cpp qt_prompts.cpp main_window.cpp)
 add_library(subedit::gui ALIAS subedit_gui)
 
 target_include_directories(subedit_gui PUBLIC "${CMAKE_SOURCE_DIR}/src/lib")

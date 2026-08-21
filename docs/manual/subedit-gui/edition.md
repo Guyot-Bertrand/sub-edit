@@ -55,14 +55,10 @@ La comparaison porte sur la **position**, pas sur la chaîne : saisir `0:01.0`
 dans une cellule qui affiche `00:00:01,000` désigne le même instant, et ne
 change donc rien non plus.
 
-## Ce que l'édition ne fait pas encore
+## Ce qu'une cellule éditée devient
 
-**Rien ne s'enregistre.** La fenêtre n'a ni « Enregistrer » ni « Enregistrer
-sous » : les modifications vivent en mémoire et disparaissent à la fermeture,
-sans avertissement.
-
-En revanche chaque cellule éditée **s'annule** : une cellule, une entrée. Voir
+Elle **s'annule** — une cellule, une entrée. Voir
 [Annuler et rétablir](annulation.md).
 
-L'enregistrement vient ensuite ; voir la
-[feuille de route](../../feuille-de-route.md).
+Elle **s'enregistre**, et fermer la fenêtre sans l'avoir fait demande
+confirmation. Voir [Ouvrir et enregistrer](fichiers.md).

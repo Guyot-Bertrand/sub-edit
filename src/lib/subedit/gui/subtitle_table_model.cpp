@@ -30,8 +30,13 @@ using core::ChangeKind;
 using core::DecimalMark;
 using core::SubtitleFormat;
 
-/// The mark the file will be written with, so that the screen shows what the
-/// file will hold.
+/// The mark the file will be written with, so that the separator on screen is
+/// the one the file will hold.
+///
+/// **The separator, and that alone.** The table always writes the hours, where
+/// WebVTT leaves them out below one hour; a column whose width followed the
+/// position would be worse to read than one that is merely not the file's exact
+/// spelling.
 [[nodiscard]] DecimalMark markOf(const core::Project& project) {
     return project.sourceFile().format == SubtitleFormat::WebVtt ? DecimalMark::Period
                                                                  : DecimalMark::Comma;
@@ -221,6 +226,13 @@ std::pair<int, int> SubtitleTableModel::columnsFor(ChangeKind kind) {
     }
 
     std::unreachable();
+}
+
+void SubtitleTableModel::refreshAll() {
+    if (rowCount({}) == 0)
+        return;
+
+    emit dataChanged(index(0, 0), index(rowCount({}) - 1, kColumnCount - 1));
 }
 
 void SubtitleTableModel::applied(std::span<const Change> changes) {

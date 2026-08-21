@@ -9,8 +9,8 @@
 
 namespace subedit::gui {
 
-std::expected<core::Project, core::ReadError> openProject(const core::FileSystem& files,
-                                                          const std::filesystem::path& path) {
+std::expected<OpenedFile, core::ReadError> openProject(const core::FileSystem& files,
+                                                       const std::filesystem::path& path) {
     const std::expected<std::string, core::FileError> content = files.readFile(path.string());
     if (!content) {
         // A file that cannot be opened and a file that cannot be understood are
@@ -28,7 +28,7 @@ std::expected<core::Project, core::ReadError> openProject(const core::FileSystem
     project.setSubtitles(std::move(read->subtitles));
     project.setSourceFile(sourceFileOf(*read, path));
 
-    return project;
+    return OpenedFile{.project = std::move(project), .diagnostics = std::move(read->diagnostics)};
 }
 
 } // namespace subedit::gui

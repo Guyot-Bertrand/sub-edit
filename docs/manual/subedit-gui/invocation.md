@@ -42,7 +42,7 @@ raison est écrite sur la sortie d'erreur.
 
 ```console
 $ subedit-gui notes.txt
-subedit-gui: notes.txt : rien à ouvrir
+subedit-gui: notes.txt: nothing to open
 ```
 
 Ouvrir vide plutôt que refuser de démarrer : l'outil sert encore à quelque

@@ -97,6 +97,14 @@ public:
     /// removal decides what it empties while it runs.
     void applied(std::span<const core::Change> changes);
 
+    /// Says that everything on screen is stale.
+    ///
+    /// What a change of format calls for: the decimal separator every position
+    /// is written with follows the format, so a « save as » that changes it
+    /// makes every cell of two columns wrong at once. Not a `Change` — nothing
+    /// about the document moved — so it does not go through `applied`.
+    void refreshAll();
+
 signals:
     /// Announces that the session may have moved.
     ///

@@ -277,9 +277,23 @@ d'origine — `SourceFile` les porte tous, et portera le format après la
 réorganisation. L'écriture passe par l'écriture atomique existante, et
 `Session::markSaved` remet le compteur de modifications à zéro.
 
-« Enregistrer sous » ajoute le choix du chemin et du format. Un changement de
-format laisse en place des `FormatExtras` de l'autre variante : **l'issue devra
-regarder ce que les écrivains en font**, plutôt que le supposer.
+« Enregistrer sous » ajoute le choix du chemin et du format.
+
+**Les `FormatExtras` de l'autre variante : regardé, et rien à faire.** La
+question était ouverte — un projet lu en WebVTT porte des `WebVttExtras` qu'un
+écrivain SubRip n'a que faire, et réciproquement. Les deux écrivains
+interrogent la variante par `std::get_if` et retombent sur leurs valeurs par
+défaut quand elle appartient à l'autre format : `sub_rip_writer.cpp` pour les
+coordonnées, `web_vtt_writer.cpp` pour l'identifiant, les réglages, le style et
+le commentaire.
+
+Ce qui n'appartient pas au format écrit est donc **ignoré silencieusement**, et
+non traduit au hasard ni recopié tel quel. C'est le bon comportement, il était
+déjà là, et rien ne le disait : deux tests le disent désormais. Les extras ne
+sont pas perdus pour autant — ils restent dans le projet, et réenregistrer dans
+le format d'origine les réécrit.
+
+Constaté à l'issue [#131](https://github.com/Guyot-Bertrand/sub-edit/issues/131).
 
 Fermer ou ouvrir un autre fichier alors que `hasUnsavedChanges` est vrai demande
 confirmation.

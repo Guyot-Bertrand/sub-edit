@@ -6,7 +6,9 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
+#include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
@@ -14,6 +16,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstdint>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -341,4 +344,24 @@ TEST_CASE("a session says what its two actions would defeat", "[edit][session]")
 
     CHECK_FALSE(session.nextUndoKind().has_value());
     CHECK(session.nextRedoKind() == CommandKind::Shift);
+}
+
+TEST_CASE("a session can be told the document now lives elsewhere", "[edit][session]") {
+    // « Enregistrer sous » change l'endroit où vit le document, pas ce qu'il
+    // contient : ce n'est donc pas une commande, et personne ne voudrait
+    // l'annuler. L'historique n'en garde pas trace et le projet reste ce qu'il
+    // était.
+    Session session{projectOf({at(0, "Un.")})};
+    session.apply(
+        std::make_unique<ShiftOne>(SubtitleIndex::fromValue(0), Duration::fromMilliseconds(500)));
+
+    session.setSourceFile(subedit::core::SourceFile{
+        .path = std::filesystem::path{"ailleurs.vtt"},
+        .format = subedit::core::SubtitleFormat::WebVtt,
+    });
+
+    CHECK(session.project().sourceFile().format == subedit::core::SubtitleFormat::WebVtt);
+    CHECK(session.project().sourceFile().path == std::filesystem::path{"ailleurs.vtt"});
+    CHECK(session.undoableCount() == 1);
+    CHECK(session.project().count() == 1);
 }

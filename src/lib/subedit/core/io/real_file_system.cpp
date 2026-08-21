@@ -71,12 +71,12 @@ std::expected<void, FileError> RealFileSystem::writeFile(const std::filesystem::
                                                          std::string_view content) {
     std::ofstream file{path, std::ios::binary | std::ios::trunc};
     if (!file)
-        return failure(FileErrorKind::Io, path, "ouverture en écriture impossible");
+        return failure(FileErrorKind::Io, path, "could not be opened for writing");
 
     file.write(content.data(), static_cast<std::streamsize>(content.size()));
     file.close();
     if (!file)
-        return failure(FileErrorKind::Io, path, "écriture interrompue");
+        return failure(FileErrorKind::Io, path, "writing was interrupted");
 
     return {};
 }
