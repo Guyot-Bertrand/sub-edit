@@ -6,6 +6,7 @@ add_executable(
     text_cases.cpp
     text_cases_test.cpp
     core/version_test.cpp
+    core/wording_test.cpp
     core/time/duration_test.cpp
     core/time/frame_test.cpp
     core/time/frame_rate_test.cpp
@@ -96,8 +97,7 @@ add_executable(
     cli/shifting_test.cpp
     cli/time_grammar_test.cpp
     cli/transforming_test.cpp
-    cli/verbosity_test.cpp
-    cli/wording_test.cpp)
+    cli/verbosity_test.cpp)
 
 target_link_libraries(subedit_cli_test PRIVATE subedit::cli Catch2::Catch2WithMain)
 

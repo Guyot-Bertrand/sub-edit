@@ -105,11 +105,11 @@ TEST_CASE("every column says what it holds", "[gui][GUI-TABLE-01]") {
         return model.headerData(column, Qt::Horizontal, Qt::DisplayRole).toString().toStdString();
     };
 
-    CHECK(header(0) == "N°");
-    CHECK(header(1) == "Début");
-    CHECK(header(2) == "Fin");
-    CHECK(header(3) == "Durée");
-    CHECK(header(4) == "Texte");
+    CHECK(header(0) == "#");
+    CHECK(header(1) == "Start");
+    CHECK(header(2) == "End");
+    CHECK(header(3) == "Duration");
+    CHECK(header(4) == "Text");
 }
 
 TEST_CASE("an index outside the table holds nothing", "[gui][GUI-TABLE-01]") {

@@ -28,8 +28,7 @@ add_library(
     shifting.cpp
     time_grammar.cpp
     transforming.cpp
-    verbosity.cpp
-    wording.cpp)
+    verbosity.cpp)
 
 add_library(subedit::cli ALIAS subedit_cli)
 

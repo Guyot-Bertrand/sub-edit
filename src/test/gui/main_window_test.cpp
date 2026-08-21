@@ -185,8 +185,8 @@ TEST_CASE("with nothing done, both actions are inactive", "[gui][GUI-UNDO-01]") 
 
     CHECK_FALSE(window.undoAction()->isEnabled());
     CHECK_FALSE(window.redoAction()->isEnabled());
-    CHECK(window.undoAction()->text().toStdString() == "Annuler");
-    CHECK(window.redoAction()->text().toStdString() == "Rétablir");
+    CHECK(window.undoAction()->text().toStdString() == "Undo");
+    CHECK(window.redoAction()->text().toStdString() == "Redo");
 }
 
 TEST_CASE("an edit makes undo possible, and names it", "[gui][GUI-UNDO-01]") {
@@ -196,15 +196,15 @@ TEST_CASE("an edit makes undo possible, and names it", "[gui][GUI-UNDO-01]") {
     REQUIRE(edits(window, 0, 4, "Autre chose."));
 
     CHECK(window.undoAction()->isEnabled());
-    CHECK(window.undoAction()->text().toStdString() == "Annuler : modification du texte");
+    CHECK(window.undoAction()->text().toStdString() == "Undo: editing a text");
     CHECK_FALSE(window.redoAction()->isEnabled());
 
     // Le libellé long au menu, le court à la barre d'outils — et c'est
     // maintenant qu'on peut le vérifier, les deux ayant enfin divergé. Un
     // bouton dont la largeur suivrait la dernière opération bougerait sous le
     // pointeur.
-    CHECK(window.undoAction()->iconText().toStdString() == "Annuler");
-    CHECK(window.undoAction()->toolTip().toStdString() == "Annuler : modification du texte");
+    CHECK(window.undoAction()->iconText().toStdString() == "Undo");
+    CHECK(window.undoAction()->toolTip().toStdString() == "Undo: editing a text");
 }
 
 TEST_CASE("undo and redo walk a run of edits both ways", "[gui][GUI-UNDO-02]") {
@@ -241,7 +241,7 @@ TEST_CASE("the redo action names what it would replay", "[gui][GUI-UNDO-02]") {
     window.undoAction()->trigger();
 
     CHECK(window.redoAction()->isEnabled());
-    CHECK(window.redoAction()->text().toStdString() == "Rétablir : modification du début");
+    CHECK(window.redoAction()->text().toStdString() == "Redo: editing a start");
 }
 
 TEST_CASE("the window carries the mark of unsaved changes", "[gui][GUI-UNDO-01]") {

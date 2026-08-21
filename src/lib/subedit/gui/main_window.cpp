@@ -57,8 +57,8 @@ buildAction(QObject* parent, const QString& shortName, const QString& themeIcon)
 MainWindow::MainWindow(core::Project project, QWidget* parent)
     : QMainWindow(parent),
       m_table(new QTableView{this}),
-      m_undo(buildAction(this, QStringLiteral("Annuler"), QStringLiteral("edit-undo"))),
-      m_redo(buildAction(this, QStringLiteral("Rétablir"), QStringLiteral("edit-redo"))) {
+      m_undo(buildAction(this, QStringLiteral("Undo"), QStringLiteral("edit-undo"))),
+      m_redo(buildAction(this, QStringLiteral("Redo"), QStringLiteral("edit-redo"))) {
     setWindowTitle(titleFor(project));
 
     m_session = std::make_unique<core::Session>(std::move(project));
@@ -90,11 +90,11 @@ MainWindow::MainWindow(core::Project project, QWidget* parent)
     // l'apprend — y compris d'une édition qui n'a rien changé.
     connect(m_model.get(), &SubtitleTableModel::historyChanged, this, &MainWindow::refreshActions);
 
-    QMenu* edition = menuBar()->addMenu(QStringLiteral("&Édition"));
+    QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
     edition->addAction(m_undo);
     edition->addAction(m_redo);
 
-    QToolBar* bar = addToolBar(QStringLiteral("Édition"));
+    QToolBar* bar = addToolBar(QStringLiteral("Edit"));
     bar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     bar->addAction(m_undo);
     bar->addAction(m_redo);

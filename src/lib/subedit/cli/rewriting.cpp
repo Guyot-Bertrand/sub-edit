@@ -3,12 +3,12 @@
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/rewriting.hpp>
-#include <subedit/cli/wording.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <cstddef>
 #include <filesystem>

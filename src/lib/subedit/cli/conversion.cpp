@@ -3,10 +3,10 @@
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/reporter.hpp>
-#include <subedit/cli/wording.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <algorithm>
 #include <cctype>
@@ -72,7 +72,7 @@ bool convertFile(core::FileSystem& files,
                      (bom == core::Utf8Bom::Present ? "BOM" : "no BOM") + ", " +
                      std::string{nameOf(newline)} + " line endings");
     reporter.say(1,
-                 path + ": " + countOf(read->subtitles.size(), "subtitle") + " written as " +
+                 path + ": " + core::countOf(read->subtitles.size(), "subtitle") + " written as " +
                      std::string{nameOf(target)} + " -> " + out.string());
     return true;
 }

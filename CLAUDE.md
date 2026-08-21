@@ -96,6 +96,18 @@ avec un objectif d'iso-fonctionnalité.
   les messages de commit, les scripts, le système de construction et les
   échanges. Anglais pour le code C++ : identifiants, commentaires et intitulés
   de tests. La frontière est celle du compilateur C++, pas celle du dépôt.
+
+  **Anglais aussi pour tout ce que le binaire écrit à un utilisateur** — sortie
+  standard, sortie d'erreur, en-têtes de colonne, libellés de menu, messages de
+  dialogue. Les deux surfaces disent les mêmes mots, et
+  [`core/wording.hpp`](src/lib/subedit/core/wording.hpp) est l'unique endroit
+  où ils sont écrits. La traduction est une phase à elle seule ; d'ici là, une
+  seule langue.
+
+  Cette ligne manquait, et le silence a coûté : la fenêtre des phases 5 est née
+  en français — « N° », « Début », « Annuler : décalage » — pendant que la
+  ligne de commande écrivait en anglais. Repris en août 2026, une fois la
+  troisième issue d'interface fusionnée.
 - **Commits** — Conventional Commits, scopes alignés sur les labels `area:`.
 - **Fermeture d'une issue** — le corps de la PR porte une ligne `Closes #N`,
   **en anglais**. Ce n'est pas de la prose mais une instruction à GitHub, qui ne

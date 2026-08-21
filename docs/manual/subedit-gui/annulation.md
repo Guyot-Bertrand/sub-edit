@@ -6,28 +6,31 @@ seule la validation compte.
 
 | Action | Raccourci | Où |
 | :----- | :-------- | :- |
-| Annuler | `Ctrl+Z` | menu **Édition**, barre d'outils |
-| Rétablir | `Ctrl+Maj+Z` | menu **Édition**, barre d'outils |
+| `Undo` | `Ctrl+Z` | menu **Edit**, barre d'outils |
+| `Redo` | `Ctrl+Maj+Z` | menu **Edit**, barre d'outils |
 
 ## L'action nomme ce qu'elle défera
 
-Le menu ne dit pas « Annuler » mais **« Annuler : modification du texte »**, du
-nom de l'opération qui sera défaite. Le bouton de la barre d'outils garde le mot
+Le menu ne dit pas « Undo » mais **« Undo: editing a text »**, du nom de
+l'opération qui sera défaite. Le bouton de la barre d'outils garde le mot
 seul — sa largeur suivrait sinon la dernière opération, et il bougerait sous le
 pointeur — mais son infobulle porte le libellé entier.
 
 | Opération | Ce que l'action lit |
 | :-------- | :------------------ |
-| une cellule de texte éditée | modification du texte |
-| un début, une fin | modification du début, modification de la fin |
-| un décalage | décalage |
-| une transformation | transformation |
-| une conversion de fréquence | conversion de fréquence |
-| un tri | tri |
-| un retrait des mentions | retrait des mentions |
-| une insertion, une suppression | insertion, suppression |
+| une cellule de texte éditée | `editing a text` |
+| un début, une fin | `editing a start`, `editing an end` |
+| un décalage | `shifting` |
+| une transformation | `transforming` |
+| une conversion de fréquence | `converting the frame rate` |
+| un tri | `sorting` |
+| un retrait des mentions | `removing hearing-impaired mentions` |
+| une insertion, une suppression | `inserting`, `removing` |
 
-Quand il n'y a rien à défaire, l'action lit « Annuler » tout court **et elle est
+Ce sont les mêmes mots que ceux de la ligne de commande : ils sont écrits une
+fois, dans le noyau.
+
+Quand il n'y a rien à défaire, l'action lit « Undo » tout court **et elle est
 inactive** : son raccourci ne fait rien.
 
 ## La marque de modification

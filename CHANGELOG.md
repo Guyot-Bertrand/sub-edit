@@ -39,6 +39,7 @@ ne pas l'éditer à la main.
 
 - **core** — Ranger le vocabulaire des formats dans le modèle
 - **core** — Séparer les anomalies d'un document de sa lecture
+- Une seule langue pour l'interface, et l'anglais
 
 ## 0.4.0 — 2026-08-16
 

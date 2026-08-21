@@ -33,7 +33,8 @@ add_library(
     format/web_vtt_writer.cpp
     io/real_file_system.cpp
     time/timestamp.cpp
-    version.cpp)
+    version.cpp
+    wording.cpp)
 add_library(subedit::core ALIAS subedit_core)
 
 # La racine d'inclusion est src/lib/, d'où des inclusions toujours qualifiées :

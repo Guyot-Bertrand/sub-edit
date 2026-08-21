@@ -1,12 +1,12 @@
 #include <subedit/cli/hearing_impaired.hpp>
 #include <subedit/cli/rewriting.hpp>
-#include <subedit/cli/wording.hpp>
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/edit/hearing_impaired_removal.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <cstddef>
 #include <expected>
@@ -56,8 +56,8 @@ ExitCode removeHearingImpairedIn(core::FileSystem& files,
         const Tally tally = tallyOf(*command);
         session.apply(std::move(command));
 
-        return countOf(tally.cleaned, "subtitle") + " cleaned, " + std::to_string(tally.removed) +
-               " removed";
+        return core::countOf(tally.cleaned, "subtitle") + " cleaned, " +
+               std::to_string(tally.removed) + " removed";
     };
 
     return rewriteAll(files, paths, destination, reporter, "cleaned", clean);

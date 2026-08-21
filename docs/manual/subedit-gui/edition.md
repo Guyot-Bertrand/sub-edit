@@ -1,6 +1,6 @@
 # Éditer une cellule
 
-Trois colonnes s'éditent en place : `Début`, `Fin` et `Texte`. `N°` et `Durée`
+Trois colonnes s'éditent en place : `Start`, `End` et `Text`. `#` et `Duration`
 ne s'éditent pas — le numéro est le rang de la ligne, la durée est
 `Fin − Début`, et ni l'un ni l'autre n'est une donnée du fichier.
 
@@ -43,7 +43,7 @@ bornes : l'éditeur se referme et rien n'a bougé. Aucune position n'est invent�
 — se tromper de position est silencieux, rien à l'écran ne distingue un
 sous-titre mal calé d'un sous-titre bien calé.
 
-Modifier un début ou une fin met la `Durée` à jour aussitôt.
+Modifier un début ou une fin met la `Duration` à jour aussitôt.
 
 ## Une validation qui ne change rien ne fait rien
 

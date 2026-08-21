@@ -2,13 +2,13 @@
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/reporter.hpp>
-#include <subedit/cli/wording.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <algorithm>
 #include <ostream>
@@ -101,14 +101,14 @@ bool inspectFile(const core::FileSystem& files,
 
     // Most detailed first, least detailed last: that order is what makes each
     // level contain the one below it line for line.
-    reporter.say(3,
-                 path + ": " + countOf(read->diagnostics.size(), "diagnostic") + " while reading");
+    reporter.say(
+        3, path + ": " + core::countOf(read->diagnostics.size(), "diagnostic") + " while reading");
     sayDiagnostics(reporter, path, read->diagnostics);
     reporter.say(2,
                  path + ": " + std::string{nameOf(read->format)} + ", UTF-8, " +
                      (read->hadUtf8Bom ? "BOM" : "no BOM") + ", " +
                      std::string{nameOf(read->newline)} + " line endings");
-    reporter.say(1, path + ": " + countOf(read->subtitles.size(), "subtitle"));
+    reporter.say(1, path + ": " + core::countOf(read->subtitles.size(), "subtitle"));
 
     core::Project project;
     project.setSubtitles(read->subtitles);
