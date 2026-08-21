@@ -10,7 +10,9 @@ set(CMAKE_AUTOMOC ON)
 
 add_executable(
     subedit_gui_test window_harness_test.cpp subtitle_table_model_test.cpp
-    cell_delegates_test.cpp command_label_test.cpp main_window_test.cpp)
+    cell_delegates_test.cpp command_label_test.cpp saving_test.cpp
+    window_files_test.cpp qt_prompts_test.cpp
+    main_window_test.cpp)
 
 target_link_libraries(
     subedit_gui_test PRIVATE subedit::gui subedit::core Qt6::Widgets Qt6::Test Catch2::Catch2)

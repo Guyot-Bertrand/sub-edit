@@ -9,6 +9,7 @@
 #include <subedit/core/version.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
+#include <subedit/gui/qt_prompts.hpp>
 
 #include <QApplication>
 #include <QStringList>
@@ -27,19 +28,20 @@ int main(int argc, char** argv) {
             return 0;
         }
 
-        const subedit::core::RealFileSystem files;
-        subedit::core::Project project;
+        subedit::core::RealFileSystem files;
+        subedit::gui::OpenedFile opened;
 
         if (arguments.size() > 1) {
-            auto opened = subedit::gui::openProject(files, arguments.at(1).toStdString());
-            if (opened)
-                project = std::move(*opened);
+            auto read = subedit::gui::openProject(files, arguments.at(1).toStdString());
+            if (read)
+                opened = std::move(*read);
             else
                 std::cerr << "subedit-gui: " << arguments.at(1).toStdString()
-                          << " : rien à ouvrir\n";
+                          << ": nothing to open\n";
         }
 
-        subedit::gui::MainWindow window{std::move(project)};
+        subedit::gui::QtPrompts prompts{nullptr};
+        subedit::gui::MainWindow window{files, std::move(opened), prompts};
         window.show();
 
         return QApplication::exec();

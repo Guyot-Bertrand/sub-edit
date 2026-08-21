@@ -42,10 +42,11 @@ disque — une astérisque, ou ce que la plateforme utilise à sa place.
 détail d'affichage : le nombre de modifications est compté, pas noté par un
 oui-ou-non, donc revenir en arrière peut le ramener à zéro et la marque s'en va.
 
-## Ce que l'historique ne fait pas encore
+## Deux choses à savoir
 
-**Rien ne s'enregistre**, donc le point de référence est toujours l'ouverture du
-fichier. « Enregistrer » viendra le déplacer.
+**Le point de référence est le dernier enregistrement**, ou l'ouverture du
+fichier s'il n'y en a pas eu. Enregistrer le déplace : la marque disparaît, et
+annuler ensuite la fait réapparaître.
 
 Une opération refaite après une annulation **efface ce qu'il y avait à
 rétablir** : rétablir rejouerait une commande dont l'état de départ n'existe
