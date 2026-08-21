@@ -148,8 +148,10 @@ bool SubtitleTableModel::setData(const QModelIndex& index, const QVariant& value
         if (!wanted.has_value())
             return false;
 
-        if (*wanted == (start ? subtitle.start : subtitle.end))
+        if (*wanted == (start ? subtitle.start : subtitle.end)) {
+            emit historyChanged();
             return true;
+        }
 
         applied(m_session->apply(std::make_unique<core::SetPositionCommand>(
             m_session->project(),
@@ -163,8 +165,10 @@ bool SubtitleTableModel::setData(const QModelIndex& index, const QVariant& value
         // l'historique n'a pas à retenir une frappe suivie d'un `Entrée` sur un
         // texte identique, sans quoi l'annulation se remplirait de
         // non-événements.
-        if (typed == subtitle.mainText)
+        if (typed == subtitle.mainText) {
+            emit historyChanged();
             return true;
+        }
 
         applied(m_session->apply(std::make_unique<core::SetTextCommand>(
             m_session->project(), position, core::Document::Main, std::move(typed))));
@@ -227,6 +231,7 @@ void SubtitleTableModel::applied(std::span<const Change> changes) {
     if (structural) {
         beginResetModel();
         endResetModel();
+        emit historyChanged();
         return;
     }
 
@@ -240,6 +245,10 @@ void SubtitleTableModel::applied(std::span<const Change> changes) {
                              index(static_cast<int>(run.last.value()), last));
         }
     }
+
+    // Annoncé une fois par opération, et sans condition : une annulation qui
+    // ne rapporte rien a tout de même vidé une pile.
+    emit historyChanged();
 }
 
 } // namespace subedit::gui

@@ -3,9 +3,9 @@
 La fenêtre de subedit : ouvrir un fichier de sous-titres et le voir dans une
 table.
 
-> **État actuel.** La fenêtre **affiche** un fichier et **édite ses cellules** ;
-> elle ne l'enregistre pas encore, et rien ne s'y annule. L'annulation, les
-> dialogues d'opération et l'enregistrement viennent ensuite — voir la
+> **État actuel.** La fenêtre **affiche** un fichier, **édite ses cellules** et
+> **annule** ; elle ne l'enregistre pas encore. Les dialogues d'opération et
+> l'enregistrement viennent ensuite — voir la
 > [feuille de route](../../feuille-de-route.md). Ce manuel décrit ce qui existe,
 > jamais ce qui est prévu.
 
@@ -23,3 +23,4 @@ table.
 | [Invocation](invocation.md) | lancer la fenêtre, arguments, codes de retour |
 | [La table](table.md) | ce que chaque colonne montre |
 | [Éditer une cellule](edition.md) | quelles cellules s'éditent, et comment |
+| [Annuler et rétablir](annulation.md) | l'historique, les deux actions, la marque de modification |

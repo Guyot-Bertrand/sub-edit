@@ -97,6 +97,15 @@ public:
     /// removal decides what it empties while it runs.
     void applied(std::span<const core::Change> changes);
 
+signals:
+    /// Announces that the session may have moved.
+    ///
+    /// What an undo action listens to. It is **not** `dataChanged`: an edit
+    /// that changes nothing has no row to refresh and must still be announced,
+    /// because whoever recomputes the state of a menu has to be right after
+    /// every operation, including the one that did nothing.
+    void historyChanged();
+
 private:
     /// The columns a change of that nature makes stale, as a closed span.
     [[nodiscard]] static std::pair<int, int> columnsFor(core::ChangeKind kind);

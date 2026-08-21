@@ -61,8 +61,8 @@ change donc rien non plus.
 sous » : les modifications vivent en mémoire et disparaissent à la fermeture,
 sans avertissement.
 
-**Rien ne s'annule depuis la fenêtre.** Chaque cellule éditée entre bien dans
-l'historique — une cellule, une entrée —, mais aucune action ne le parcourt
-encore.
+En revanche chaque cellule éditée **s'annule** : une cellule, une entrée. Voir
+[Annuler et rétablir](annulation.md).
 
-Les deux viennent ensuite ; voir la [feuille de route](../../feuille-de-route.md).
+L'enregistrement vient ensuite ; voir la
+[feuille de route](../../feuille-de-route.md).

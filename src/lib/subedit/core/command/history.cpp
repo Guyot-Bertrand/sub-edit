@@ -7,6 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -17,6 +18,20 @@ namespace {
 constexpr std::array kDocuments = {Document::Main, Document::Translation};
 
 } // namespace
+
+std::optional<CommandKind> History::nextUndoKind() const {
+    if (m_undoable.empty())
+        return std::nullopt;
+
+    return m_undoable.back()->kind();
+}
+
+std::optional<CommandKind> History::nextRedoKind() const {
+    if (m_redoable.empty())
+        return std::nullopt;
+
+    return m_redoable.back()->kind();
+}
 
 std::vector<Change> History::apply(std::unique_ptr<Command> command, Project& project) {
     command->apply(project);

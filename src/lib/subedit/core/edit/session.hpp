@@ -8,6 +8,7 @@
 #include <subedit/core/model/project.hpp>
 
 #include <memory>
+#include <optional>
 #include <utility>
 
 namespace subedit::core {
@@ -58,6 +59,18 @@ public:
     [[nodiscard]] bool canUndo() const { return m_history.canUndo(); }
 
     [[nodiscard]] bool canRedo() const { return m_history.canRedo(); }
+
+    /// Names what undoing would defeat, and what redoing would replay.
+    ///
+    /// Relayed rather than recomputed: the history is the authority, and the
+    /// session is only the door a window reaches it through.
+    [[nodiscard]] std::optional<CommandKind> nextUndoKind() const {
+        return m_history.nextUndoKind();
+    }
+
+    [[nodiscard]] std::optional<CommandKind> nextRedoKind() const {
+        return m_history.nextRedoKind();
+    }
 
     /// Undoes the most recent action, and says what that changed.
     std::vector<Change> undo() { return m_history.undo(m_project); }

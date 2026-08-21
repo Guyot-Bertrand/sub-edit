@@ -7,6 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace subedit::core {
@@ -64,6 +65,20 @@ public:
     [[nodiscard]] bool canUndo() const { return !m_undoable.empty(); }
 
     [[nodiscard]] bool canRedo() const { return !m_redoable.empty(); }
+
+    /// Names the command undoing would defeat, or nothing if there is none.
+    ///
+    /// **A kind, not the command.** What an interface needs of it is one word
+    /// — « Annuler : décalage » — and handing out the command would hand out
+    /// the right to apply it again, outside the history that owns it.
+    ///
+    /// A group answers with the name it was built under, which is the one the
+    /// user asked for: a shift the strict policy follows with a sort is still
+    /// a shift.
+    [[nodiscard]] std::optional<CommandKind> nextUndoKind() const;
+
+    /// Names the command redoing would replay, or nothing if there is none.
+    [[nodiscard]] std::optional<CommandKind> nextRedoKind() const;
 
     /// Undoes the most recent command, and says what that changed.
     ///
