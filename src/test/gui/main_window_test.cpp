@@ -6,10 +6,17 @@
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
 
+#include <QAbstractItemModel>
+#include <QAction>
+#include <QKeySequence>
+#include <QMenu>
+#include <QMenuBar>
 #include <QModelIndex>
 #include <QPlainTextEdit>
+#include <QString>
 #include <QTableView>
 #include <QTest>
+#include <QToolBar>
 #include <catch2/catch_test_macros.hpp>
 
 #include <expected>
@@ -141,4 +148,155 @@ TEST_CASE("typing in a cell of the window changes the file it holds", "[gui][GUI
 
     CHECK(table->model()->data(cell, Qt::DisplayRole).toString().toStdString() ==
           "Deux, autrement.");
+}
+
+// Annuler et rétablir — issue #130.
+//
+// Pas de `QUndoStack` : l'historique du noyau fait autorité, puisque la ligne
+// de commande en dépend aussi, et deux sources de vérité pour la même question
+// en font une de trop. Les deux `QAction` ne font que le lire.
+
+namespace {
+
+[[nodiscard]] MainWindow openedOnThree(const InMemoryFileSystem& files) {
+    const std::expected<Project, ReadError> project = openProject(files, "film.srt");
+    REQUIRE(project.has_value());
+    return MainWindow{*project};
+}
+
+/// Ce qu'une cellule vaut, vu de la fenêtre.
+[[nodiscard]] std::string cell(const MainWindow& window, int row, int column) {
+    return window.table()
+        ->model()
+        ->data(window.table()->model()->index(row, column), Qt::DisplayRole)
+        .toString()
+        .toStdString();
+}
+
+[[nodiscard]] bool edits(const MainWindow& window, int row, int column, const char* typed) {
+    return window.table()->model()->setData(
+        window.table()->model()->index(row, column), QString::fromUtf8(typed), Qt::EditRole);
+}
+
+} // namespace
+
+TEST_CASE("with nothing done, both actions are inactive", "[gui][GUI-UNDO-01]") {
+    const MainWindow window{Project{}};
+
+    CHECK_FALSE(window.undoAction()->isEnabled());
+    CHECK_FALSE(window.redoAction()->isEnabled());
+    CHECK(window.undoAction()->text().toStdString() == "Annuler");
+    CHECK(window.redoAction()->text().toStdString() == "Rétablir");
+}
+
+TEST_CASE("an edit makes undo possible, and names it", "[gui][GUI-UNDO-01]") {
+    const InMemoryFileSystem files = withFile("film.srt", kThree);
+    const MainWindow window = openedOnThree(files);
+
+    REQUIRE(edits(window, 0, 4, "Autre chose."));
+
+    CHECK(window.undoAction()->isEnabled());
+    CHECK(window.undoAction()->text().toStdString() == "Annuler : modification du texte");
+    CHECK_FALSE(window.redoAction()->isEnabled());
+
+    // Le libellé long au menu, le court à la barre d'outils — et c'est
+    // maintenant qu'on peut le vérifier, les deux ayant enfin divergé. Un
+    // bouton dont la largeur suivrait la dernière opération bougerait sous le
+    // pointeur.
+    CHECK(window.undoAction()->iconText().toStdString() == "Annuler");
+    CHECK(window.undoAction()->toolTip().toStdString() == "Annuler : modification du texte");
+}
+
+TEST_CASE("undo and redo walk a run of edits both ways", "[gui][GUI-UNDO-02]") {
+    const InMemoryFileSystem files = withFile("film.srt", kThree);
+    const MainWindow window = openedOnThree(files);
+    REQUIRE(edits(window, 0, 4, "Un bis."));
+    REQUIRE(edits(window, 1, 4, "Deux bis."));
+    REQUIRE(edits(window, 0, 1, "00:00:09,000"));
+
+    window.undoAction()->trigger();
+    window.undoAction()->trigger();
+    window.undoAction()->trigger();
+
+    CHECK(cell(window, 0, 4) == "Un.");
+    CHECK(cell(window, 1, 4) == "Deux.");
+    CHECK(cell(window, 0, 1) == "00:00:01,000");
+    CHECK_FALSE(window.undoAction()->isEnabled());
+
+    window.redoAction()->trigger();
+    window.redoAction()->trigger();
+    window.redoAction()->trigger();
+
+    CHECK(cell(window, 0, 4) == "Un bis.");
+    CHECK(cell(window, 1, 4) == "Deux bis.");
+    CHECK(cell(window, 0, 1) == "00:00:09,000");
+    CHECK_FALSE(window.redoAction()->isEnabled());
+}
+
+TEST_CASE("the redo action names what it would replay", "[gui][GUI-UNDO-02]") {
+    const InMemoryFileSystem files = withFile("film.srt", kThree);
+    const MainWindow window = openedOnThree(files);
+    REQUIRE(edits(window, 0, 1, "00:00:09,000"));
+
+    window.undoAction()->trigger();
+
+    CHECK(window.redoAction()->isEnabled());
+    CHECK(window.redoAction()->text().toStdString() == "Rétablir : modification du début");
+}
+
+TEST_CASE("the window carries the mark of unsaved changes", "[gui][GUI-UNDO-01]") {
+    const InMemoryFileSystem files = withFile("film.srt", kThree);
+    const MainWindow window = openedOnThree(files);
+
+    CHECK_FALSE(window.isWindowModified());
+
+    REQUIRE(edits(window, 0, 4, "Autre chose."));
+
+    CHECK(window.isWindowModified());
+}
+
+TEST_CASE("undoing back to the save point clears the mark", "[gui][GUI-UNDO-02]") {
+    // Ce qu'un booléen n'aurait jamais su faire : le noyau compte les
+    // modifications, donc revenir au point d'enregistrement se dit. Le point,
+    // ici, est l'ouverture — « Enregistrer » n'existe pas encore.
+    const InMemoryFileSystem files = withFile("film.srt", kThree);
+    const MainWindow window = openedOnThree(files);
+    REQUIRE(edits(window, 0, 4, "Un bis."));
+    REQUIRE(edits(window, 1, 4, "Deux bis."));
+    REQUIRE(window.isWindowModified());
+
+    window.undoAction()->trigger();
+    CHECK(window.isWindowModified());
+
+    window.undoAction()->trigger();
+    CHECK_FALSE(window.isWindowModified());
+}
+
+TEST_CASE("a validation that changed nothing leaves the actions alone", "[gui][GUI-UNDO-01]") {
+    // L'état se recalcule après chaque opération, y compris après celle qui
+    // n'a rien changé — et il faut qu'il tombe juste.
+    const InMemoryFileSystem files = withFile("film.srt", kThree);
+    const MainWindow window = openedOnThree(files);
+
+    REQUIRE(edits(window, 0, 4, "Un."));
+
+    CHECK_FALSE(window.undoAction()->isEnabled());
+    CHECK_FALSE(window.isWindowModified());
+}
+
+TEST_CASE("both actions are reachable from the menu and the toolbar", "[gui][GUI-UNDO-01]") {
+    const MainWindow window{Project{}};
+
+    const QList<QMenu*> menus = window.menuBar()->findChildren<QMenu*>();
+    REQUIRE(menus.size() == 1);
+    CHECK(menus.at(0)->actions().contains(window.undoAction()));
+    CHECK(menus.at(0)->actions().contains(window.redoAction()));
+
+    const QList<QToolBar*> bars = window.findChildren<QToolBar*>();
+    REQUIRE(bars.size() == 1);
+    CHECK(bars.at(0)->actions().contains(window.undoAction()));
+    CHECK(bars.at(0)->actions().contains(window.redoAction()));
+
+    CHECK(window.undoAction()->shortcut() == QKeySequence::Undo);
+    CHECK(window.redoAction()->shortcut() == QKeySequence::Redo);
 }

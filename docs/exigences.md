@@ -102,8 +102,8 @@ plus rien.
 | `GUI-EDIT-01` | éditer une cellule de texte modifie le sous-titre et rien d'autre | 5 | implémentée |
 | `GUI-EDIT-02` | éditer un début ou une fin lit un horodatage permissif | 5 | implémentée |
 | `GUI-EDIT-03` | une validation qui ne change rien n'entre pas dans l'historique | 5 | implémentée |
-| `GUI-UNDO-01` | annuler rétablit l'état précédent, l'action nomme l'opération | 5 | prévue |
-| `GUI-UNDO-02` | rétablir refait ce qui vient d'être annulé | 5 | prévue |
+| `GUI-UNDO-01` | annuler rétablit l'état précédent, l'action nomme l'opération | 5 | implémentée |
+| `GUI-UNDO-02` | rétablir refait ce qui vient d'être annulé | 5 | implémentée |
 | `GUI-SAVE-01` | enregistrer réécrit le fichier dans sa forme d'origine | 5 | prévue |
 | `GUI-SAVE-02` | enregistrer sous choisit chemin et format | 5 | prévue |
 | `GUI-SAVE-03` | fermer avec des modifications non enregistrées demande confirmation | 5 | prévue |

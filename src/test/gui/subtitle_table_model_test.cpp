@@ -472,3 +472,35 @@ TEST_CASE("validating a position that did not change writes nothing to the histo
     CHECK(session.undoableCount() == 0);
     CHECK_FALSE(session.hasUnsavedChanges(Document::Main));
 }
+
+TEST_CASE("every accepted edit is announced, even one that changed nothing", "[gui][GUI-UNDO-01]") {
+    // Le contrat que l'en-tête annonce, et il ne se lit pas par ses effets :
+    // une édition qui ne change rien laisse l'historique où il était, donc
+    // quiconque recalculerait un menu trouverait le même état. C'est le signal
+    // lui-même qui est promis, et c'est donc lui qu'on éprouve.
+    Session session{threeSubtitles()};
+    SubtitleTableModel model{session};
+    const QSignalSpy announced{&model, &SubtitleTableModel::historyChanged};
+
+    REQUIRE(edits(model, 0, 4, "Autre chose."));
+    CHECK(announced.count() == 1);
+
+    REQUIRE(edits(model, 0, 4, "Autre chose."));
+    CHECK(announced.count() == 2);
+
+    REQUIRE(edits(model, 0, 1, "0:01.0"));
+    CHECK(announced.count() == 3);
+}
+
+TEST_CASE("a refused edit announces nothing", "[gui][GUI-UNDO-01]") {
+    // Rien n'a été tenté que le modèle ait accepté : il n'y a rien à annoncer,
+    // et annoncer quand même ferait du signal un compteur de frappes.
+    Session session{threeSubtitles()};
+    SubtitleTableModel model{session};
+    const QSignalSpy announced{&model, &SubtitleTableModel::historyChanged};
+
+    CHECK_FALSE(edits(model, 0, 1, "bientôt"));
+    CHECK_FALSE(edits(model, 0, 0, "7"));
+
+    CHECK(announced.count() == 0);
+}

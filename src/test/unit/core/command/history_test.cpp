@@ -226,3 +226,74 @@ TEST_CASE("clearing the history leaves the project untouched", "[command][histor
     CHECK_FALSE(history.canRedo());
     CHECK(project.subtitleAt(SubtitleIndex::fromValue(0)).mainText == "Premier.");
 }
+
+// De quoi nommer une action d'annulation — issue #130.
+//
+// L'énumération existe pour ça et son commentaire le dit depuis la phase 2 ;
+// il manquait seulement de quoi la lire depuis l'extérieur. Un `CommandKind`
+// et non la commande : l'interface a besoin d'un mot, pas d'un objet.
+
+TEST_CASE("the history names what undoing would defeat", "[command][history]") {
+    Project project = withThreeSubtitles();
+    History history;
+
+    history.apply(std::make_unique<Declaring>(ChangeKind::Positions, CommandKind::Shift), project);
+
+    CHECK(history.nextUndoKind() == CommandKind::Shift);
+}
+
+TEST_CASE("an empty history names nothing", "[command][history]") {
+    const History history;
+
+    CHECK_FALSE(history.nextUndoKind().has_value());
+    CHECK_FALSE(history.nextRedoKind().has_value());
+}
+
+TEST_CASE("what was undone is what redoing would name", "[command][history]") {
+    Project project = withThreeSubtitles();
+    History history;
+    history.apply(std::make_unique<Declaring>(ChangeKind::Positions, CommandKind::Sort), project);
+
+    history.undo(project);
+
+    CHECK_FALSE(history.nextUndoKind().has_value());
+    CHECK(history.nextRedoKind() == CommandKind::Sort);
+}
+
+TEST_CASE("the most recent of several is the one named", "[command][history]") {
+    Project project = withThreeSubtitles();
+    History history;
+    history.apply(std::make_unique<Declaring>(ChangeKind::Positions, CommandKind::Shift), project);
+    history.apply(setFirstText(project, "Après."), project);
+
+    CHECK(history.nextUndoKind() == CommandKind::SetText);
+}
+
+TEST_CASE("a group is named after what was asked for", "[command][history]") {
+    // Ce qui fait qu'un décalage suivi d'un tri par la politique stricte
+    // s'annonce « décalage » : `CompositeCommand` porte déjà ce nom-là, et rien
+    // n'est à ajouter ici pour que l'action le dise.
+    Project project = withThreeSubtitles();
+    History history;
+
+    std::vector<std::unique_ptr<Command>> group;
+    group.push_back(std::make_unique<Declaring>(ChangeKind::Positions, CommandKind::Sort));
+    history.apply(std::make_unique<CompositeCommand>(CommandKind::Shift, std::move(group)),
+                  project);
+
+    CHECK(history.nextUndoKind() == CommandKind::Shift);
+}
+
+TEST_CASE("redoing names the most recently undone, not the oldest", "[command][history]") {
+    // Deux entrées et non une : avec une seule, lire la pile par le mauvais
+    // bout donne la même réponse, et le test ne prouverait rien.
+    Project project = withThreeSubtitles();
+    History history;
+    history.apply(std::make_unique<Declaring>(ChangeKind::Positions, CommandKind::Shift), project);
+    history.apply(std::make_unique<Declaring>(ChangeKind::Positions, CommandKind::Sort), project);
+
+    history.undo(project);
+    history.undo(project);
+
+    CHECK(history.nextRedoKind() == CommandKind::Shift);
+}

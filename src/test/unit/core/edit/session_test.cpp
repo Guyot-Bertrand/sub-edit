@@ -323,3 +323,22 @@ TEST_CASE("a strict sort is reported with the operation that caused it", "[edit]
     CHECK(changes[0].kind == ChangeKind::Positions);
     CHECK(changes[1].kind == ChangeKind::Reordering);
 }
+
+TEST_CASE("a session says what its two actions would defeat", "[edit][session]") {
+    // Relayé et non recalculé : l'historique fait autorité, la session n'est
+    // que la porte par laquelle une fenêtre l'atteint.
+    Session session{projectOf({at(0, "Un."), at(2000, "Deux.")})};
+
+    CHECK_FALSE(session.nextUndoKind().has_value());
+
+    session.apply(
+        std::make_unique<ShiftOne>(SubtitleIndex::fromValue(0), Duration::fromMilliseconds(500)));
+
+    CHECK(session.nextUndoKind() == CommandKind::Shift);
+    CHECK_FALSE(session.nextRedoKind().has_value());
+
+    session.undo();
+
+    CHECK_FALSE(session.nextUndoKind().has_value());
+    CHECK(session.nextRedoKind() == CommandKind::Shift);
+}
