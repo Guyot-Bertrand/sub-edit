@@ -20,6 +20,7 @@ ne pas l'éditer à la main.
 - **gui** — La fenêtre et son modèle de table
 - **gui** — L'édition en place des cellules
 - **gui** — Annuler et rétablir, et le libellé de l'action
+- **gui** — Ouvrir, enregistrer, enregistrer sous
 
 ### Corrections
 
