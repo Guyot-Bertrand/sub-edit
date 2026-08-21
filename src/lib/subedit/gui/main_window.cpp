@@ -1,4 +1,8 @@
+#include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/edit/shift_command.hpp>
+#include <subedit/core/edit/shift_limits.hpp>
+#include <subedit/core/edit/transform_command.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/document.hpp>
@@ -8,16 +12,21 @@
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/command_label.hpp>
 #include <subedit/gui/diagnostics_panel.hpp>
+#include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/saving.hpp>
+#include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
+#include <subedit/gui/target.hpp>
+#include <subedit/gui/transform_dialog.hpp>
 
 #include <QAction>
 #include <QCloseEvent>
 #include <QHeaderView>
 #include <QIcon>
+#include <QItemSelectionModel>
 #include <QKeySequence>
 #include <QMenu>
 #include <QMenuBar>
@@ -30,7 +39,9 @@
 #include <expected>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <span>
+#include <string>
 #include <utility>
 
 namespace subedit::gui {
@@ -80,7 +91,10 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_redo(buildAction(this, QStringLiteral("Redo"), QStringLiteral("edit-redo"))),
       m_open(buildAction(this, QStringLiteral("Open…"), QStringLiteral("document-open"))),
       m_save(buildAction(this, QStringLiteral("Save"), QStringLiteral("document-save"))),
-      m_saveAs(buildAction(this, QStringLiteral("Save As…"), QStringLiteral("document-save-as"))) {
+      m_saveAs(buildAction(this, QStringLiteral("Save As…"), QStringLiteral("document-save-as"))),
+      m_shift(buildAction(this, QStringLiteral("Shift Positions…"), {})),
+      m_transform(buildAction(this, QStringLiteral("Transform Positions…"), {})),
+      m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})) {
     // Un délégué par nature de cellule, et aucun sur le numéro ni sur la durée,
     // qui ne s'éditent pas : la table de Qt n'en pose que là où on lui en pose.
     m_table->setItemDelegateForColumn(SubtitleTableModel::Start, new PositionDelegate{this});
@@ -124,6 +138,15 @@ MainWindow::MainWindow(core::FileSystem& files,
     file->addSeparator();
     file->addAction(m_save);
     file->addAction(m_saveAs);
+
+    connect(m_shift, &QAction::triggered, this, &MainWindow::shiftTarget);
+    connect(m_transform, &QAction::triggered, this, &MainWindow::transformTarget);
+    connect(m_frameRate, &QAction::triggered, this, &MainWindow::convertFrameRateOfTarget);
+
+    QMenu* tools = menuBar()->addMenu(QStringLiteral("&Tools"));
+    tools->addAction(m_shift);
+    tools->addAction(m_transform);
+    tools->addAction(m_frameRate);
 
     QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
     edition->addAction(m_undo);
@@ -275,6 +298,87 @@ void MainWindow::refreshActions() {
     m_redo->setToolTip(redo);
 
     setWindowModified(m_session->hasUnsavedChanges(core::Document::Main));
+
+    // Rien à décaler, rien à transformer : une action active ouvrirait un
+    // dialogue qui ne pourrait porter sur rien.
+    const bool anything = m_session->project().count() != 0;
+    m_shift->setEnabled(anything);
+    m_transform->setEnabled(anything);
+    m_frameRate->setEnabled(anything);
+}
+
+void MainWindow::applyOperation(std::unique_ptr<core::Command> command) {
+    m_model->applied(m_session->apply(std::move(command)));
+}
+
+void MainWindow::shiftTarget() {
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+
+    ShiftDialog dialog{m_session->project().count(), this};
+    if (!m_prompts->run(dialog))
+        return;
+
+    const std::optional<core::Duration> by = dialog.shift();
+    if (!by.has_value())
+        return;
+
+    // Une position avant l'origine est représentable, mais aucun fichier de
+    // sous-titres ne peut la porter. La règle vit dans le noyau depuis #132,
+    // partagée avec la ligne de commande.
+    if (const std::optional<core::SubtitleIndex> refused =
+            core::firstBeforeOrigin(m_session->project(), target, *by);
+        refused.has_value()) {
+        m_prompts->reportFailure("subtitle " + std::to_string(refused->number()) +
+                                 " would start before the origin, which no subtitle file can "
+                                 "hold");
+        return;
+    }
+
+    applyOperation(std::make_unique<core::ShiftCommand>(target, *by));
+}
+
+void MainWindow::transformTarget() {
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+
+    TransformDialog dialog{m_session->project().count(), this};
+    if (!m_prompts->run(dialog))
+        return;
+
+    const std::optional<TypedReference> first = dialog.first();
+    const std::optional<TypedReference> second = dialog.second();
+    if (!first.has_value() || !second.has_value())
+        return;
+
+    // Ce que le dialogue a lu devient ici la valeur du noyau : il tient des
+    // widgets, pas le vocabulaire d'une commande.
+    const auto referenceOf = [](const TypedReference& typed) {
+        return core::TransformReference{
+            .index = core::SubtitleIndex::fromNumber(static_cast<std::size_t>(typed.number)),
+            .target = typed.target,
+        };
+    };
+
+    std::optional<core::TransformCommand> command = core::TransformCommand::create(
+        m_session->project(), target, referenceOf(*first), referenceOf(*second));
+    if (!command.has_value()) {
+        m_prompts->reportFailure("the two references define no correction");
+        return;
+    }
+
+    applyOperation(std::make_unique<core::TransformCommand>(std::move(*command)));
+}
+
+void MainWindow::convertFrameRateOfTarget() {
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+
+    // Pré-remplie par celle du projet, jamais devinée : le fichier ne la
+    // porte pas, et se tromper décale tout sans rien signaler.
+    FrameRateDialog dialog{m_session->project().count(), m_session->project().frameRate(), this};
+    if (!m_prompts->run(dialog))
+        return;
+
+    applyOperation(std::make_unique<core::ConvertFrameRateCommand>(
+        m_session->project(), target, dialog.input(), dialog.output()));
 }
 
 MainWindow::~MainWindow() = default;

@@ -7,6 +7,7 @@
 #include <optional>
 #include <string>
 
+class QDialog;
 class QString;
 class QWidget;
 
@@ -52,6 +53,8 @@ public:
     [[nodiscard]] std::optional<SaveTarget> saveTarget(const core::SourceFile& current) override;
 
     [[nodiscard]] UnsavedChoice aboutUnsavedChanges() override;
+
+    [[nodiscard]] bool run(QDialog& dialog) override;
 
     void reportFailure(const std::string& message) override;
 

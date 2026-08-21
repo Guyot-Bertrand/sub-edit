@@ -8,6 +8,7 @@
 #include <span>
 
 namespace subedit::core {
+class Command;
 struct Diagnostic;
 class FileSystem;
 class Project;
@@ -77,6 +78,12 @@ public:
     /// The panel of what the last reading ran into.
     [[nodiscard]] DiagnosticsPanel* diagnostics() const { return m_diagnostics; }
 
+    [[nodiscard]] QAction* shiftAction() const { return m_shift; }
+
+    [[nodiscard]] QAction* transformAction() const { return m_transform; }
+
+    [[nodiscard]] QAction* frameRateAction() const { return m_frameRate; }
+
 protected:
     /// Refuses to close while there are changes nobody chose to lose.
     void closeEvent(QCloseEvent* event) override;
@@ -106,16 +113,43 @@ private:
 
     void openFromPrompt();
 
-    core::FileSystem* m_files;
-    Prompts* m_prompts;
+    /// Applies `command` and refreshes what the window shows of it.
+    ///
+    /// The one road from a dialog to the history: every operation of this
+    /// phase ends here, so the refresh cannot be forgotten in one of them.
+    void applyOperation(std::unique_ptr<core::Command> command);
 
-    QTableView* m_table;
-    DiagnosticsPanel* m_diagnostics;
-    QAction* m_undo;
-    QAction* m_redo;
-    QAction* m_open;
-    QAction* m_save;
-    QAction* m_saveAs;
+    void shiftTarget();
+
+    void transformTarget();
+
+    void convertFrameRateOfTarget();
+
+    /// **Initialisés ici, et pas seulement dans la liste du constructeur.**
+    ///
+    /// Trois actions ajoutées ensemble à l'issue #132 ont été oubliées de cette
+    /// liste, et le premier symptôme a été un segfault dans `QObject::connect`.
+    /// `-Wuninitialized` ne dit rien de ce cas — il ne modélise, pour un
+    /// membre, que celui qui en initialise un autre avant son tour — et cela ne
+    /// dépend pas du niveau d'optimisation.
+    ///
+    /// La porte, elle, l'aurait dit : `cppcoreguidelines-pro-type-member-init`
+    /// nomme les champs qu'un constructeur laisse de côté. Ces `nullptr` sont
+    /// donc une ceinture par-dessus des bretelles — ils rendent l'oubli
+    /// inoffensif là où le contrôle le rend visible.
+    core::FileSystem* m_files = nullptr;
+    Prompts* m_prompts = nullptr;
+
+    QTableView* m_table = nullptr;
+    DiagnosticsPanel* m_diagnostics = nullptr;
+    QAction* m_undo = nullptr;
+    QAction* m_redo = nullptr;
+    QAction* m_open = nullptr;
+    QAction* m_save = nullptr;
+    QAction* m_saveAs = nullptr;
+    QAction* m_shift = nullptr;
+    QAction* m_transform = nullptr;
+    QAction* m_frameRate = nullptr;
 
     /// Held by pointer so that this header stays parsable by `moc`, which
     /// chokes on the C++20 library headers the core drags in.

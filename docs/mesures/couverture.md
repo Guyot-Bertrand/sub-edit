@@ -43,13 +43,13 @@ La leçon vaut d'être écrite : **un relèvement justifié par une lecture du c
 plutôt que par une mesure est un relèvement à vérifier.** Le raisonnement était
 plausible, il tenait une phase entière, et il désignait les mauvaises lignes.
 
-**Vingt-six lignes de `QtPrompts`, en phase 5.** C'est le relèvement le plus
+**Vingt-huit lignes de `QtPrompts`, en phase 5.** C'est le relèvement le plus
 important du projet, et il tient en une phrase : ces lignes ouvrent une boîte
 modale de Qt, qui fait tourner sa propre boucle d'événements jusqu'à ce qu'un
 humain clique. Un test qui en atteint une ne rend jamais la main.
 
-**Mesurées, et nommées** — `qt_prompts.cpp` 42 à 76, plus le constructeur en
-en-tête. Il n'y en a pas d'autres, et chacune est soit l'appel à `QFileDialog`
+**Mesurées, et nommées** — les quatre méthodes de `qt_prompts.cpp`, plus `run`
+et le constructeur en en-tête. Il n'y en a pas d'autres, et chacune est soit l'appel à `QFileDialog`
 ou `QMessageBox`, soit la garde « l'utilisateur n'a rien choisi », soit la
 construction du retour à partir de ce que la boîte a rendu.
 
@@ -66,6 +66,20 @@ vaut un bouton de la boîte de confirmation. Exposées, testées, elles ne sont
 plus dans ce compte — c'est ce qui l'a fait tomber de trente-six à
 vingt-cinq.
 
+**Deux lignes de plus en phase 5, et pour la même raison.** L'issue #132 ajoute
+`QtPrompts::run` — « montre ce dialogue, dis s'il a été accepté ». C'est la
+couture des dialogues que le projet écrit lui-même, et elle est plus étroite que
+les précédentes : les trois dialogues d'opération sont des widgets ordinaires
+qu'un test construit, remplit et interroge, donc seule la boucle modale sort du
+compte. Un `exec()`, une ligne, plutôt qu'une méthode par dialogue.
+
+La première mesure de cette issue en donnait six de plus dans `MainWindow` :
+deux dialogues annulés et trois gardes qu'aucun utilisateur n'atteint, le bouton
+de validation suivant l'état du dialogue. Testées plutôt que justifiées — une
+garde qu'aucun test ne traverse est une promesse que personne ne vérifie, et le
+faux `Prompts` valide sans regarder le bouton, ce qui est exactement la
+situation dont elles protègent.
+
 **L'alternative, pesée et écartée.** On sait piloter une boîte modale depuis un
 test, en programmant sa fermeture avant d'entrer dans la boucle. Cela aurait
 donné un chiffre vert au prix d'un test fragile qui éprouve le dialogue de Qt
@@ -74,13 +88,13 @@ n'exige pas zéro.
 
 ## Relevé
 
-    total : 31
+    total : 33
 
-Relevé sur la version 0.4.15, le 2026-08-21.
+Relevé sur la version 0.4.16, le 2026-08-21.
 
 | Lignes | Fichier |
 | -----: | :------ |
-| 25 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 27 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 2 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |

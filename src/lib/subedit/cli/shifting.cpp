@@ -2,6 +2,7 @@
 #include <subedit/cli/shifting.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
+#include <subedit/core/edit/shift_limits.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/wording.hpp>
@@ -9,6 +10,7 @@
 #include <cstddef>
 #include <expected>
 #include <memory>
+#include <optional>
 #include <span>
 #include <string>
 
@@ -45,17 +47,19 @@ ExitCode shiftAll(core::FileSystem& files,
                   const Reporter& reporter) {
     const Operation shift =
         [by](core::Session& session) -> std::expected<std::string, std::string> {
-        const std::span<const core::Subtitle> subtitles = session.project().subtitles();
-        for (std::size_t i = 0; i < subtitles.size(); ++i) {
-            if ((subtitles[i].start + by).milliseconds() < 0) {
-                return std::unexpected{"subtitle " + std::to_string(i + 1) +
-                                       " would start before the origin, which no subtitle "
-                                       "file can hold"};
-            }
+        const core::Selection whole = core::Selection::all(session.project());
+
+        // La règle vit dans le noyau depuis l'issue #132 : la fenêtre la
+        // demande aussi, et deux copies d'une même règle dérivent.
+        if (const std::optional<core::SubtitleIndex> refused =
+                core::firstBeforeOrigin(session.project(), whole, by);
+            refused.has_value()) {
+            return std::unexpected{"subtitle " + std::to_string(refused->number()) +
+                                   " would start before the origin, which no subtitle "
+                                   "file can hold"};
         }
 
-        session.apply(
-            std::make_unique<core::ShiftCommand>(core::Selection::all(session.project()), by));
+        session.apply(std::make_unique<core::ShiftCommand>(whole, by));
         return core::countOf(session.project().count(), "subtitle") + " shifted by " +
                secondsOf(by);
     };

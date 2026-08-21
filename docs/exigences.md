@@ -107,9 +107,9 @@ plus rien.
 | `GUI-SAVE-01` | enregistrer réécrit le fichier dans sa forme d'origine | 5 | implémentée |
 | `GUI-SAVE-02` | enregistrer sous choisit chemin et format | 5 | implémentée |
 | `GUI-SAVE-03` | fermer avec des modifications non enregistrées demande confirmation | 5 | implémentée |
-| `GUI-SHIFT-01` | le dialogue de décalage décale la cible | 5 | prévue |
-| `GUI-TRANSFORM-01` | le dialogue de transformation corrige par deux repères | 5 | prévue |
-| `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible | 5 | prévue |
+| `GUI-SHIFT-01` | le dialogue de décalage décale la cible | 5 | implémentée |
+| `GUI-TRANSFORM-01` | le dialogue de transformation corrige par deux repères | 5 | implémentée |
+| `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible | 5 | implémentée |
 | `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier | 5 | prévue |
 | `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique | 5 | prévue |
 | `CLI-INSPECT-04` | les anomalies d'un document sont rapportées par numéro de sous-titre | 5 | implémentée |

@@ -3,6 +3,7 @@
 #include <subedit/core/wording.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 
+#include <QDialog>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QString>
@@ -69,6 +70,10 @@ UnsavedChoice QtPrompts::aboutUnsavedChanges() {
                               QStringLiteral("The document has changes that were never written."),
                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
                               QMessageBox::Save));
+}
+
+bool QtPrompts::run(QDialog& dialog) {
+    return dialog.exec() == QDialog::Accepted;
 }
 
 void QtPrompts::reportFailure(const std::string& message) {

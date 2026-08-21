@@ -10,7 +10,10 @@
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/gui/prompts.hpp>
 
+#include <QDialog>
+
 #include <filesystem>
+#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
@@ -51,6 +54,24 @@ public:
     [[nodiscard]] gui::UnsavedChoice aboutUnsavedChanges() override {
         ++unsavedAsked;
         return nextUnsavedChoice;
+    }
+
+    /// Ce qu'un dialogue devient sans humain : ce que le scénario a posé dans
+    /// `nextRun`, et ce qu'il a écrit dans les champs avant d'y arriver.
+    bool nextRun = false;
+    int runAsked = 0;
+    QDialog* lastDialog = nullptr;
+
+    /// Ce que le scénario fait du dialogue avant de répondre — remplir ses
+    /// champs, c'est-à-dire jouer l'utilisateur qui tape.
+    std::function<void(QDialog&)> fill{};
+
+    [[nodiscard]] bool run(QDialog& dialog) override {
+        ++runAsked;
+        lastDialog = &dialog;
+        if (fill)
+            fill(dialog);
+        return nextRun;
     }
 
     void reportFailure(const std::string& message) override { failures.push_back(message); }

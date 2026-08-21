@@ -11,7 +11,8 @@ set(CMAKE_AUTOMOC ON)
 add_executable(
     subedit_gui_test window_harness_test.cpp subtitle_table_model_test.cpp
     cell_delegates_test.cpp command_label_test.cpp saving_test.cpp
-    window_files_test.cpp qt_prompts_test.cpp
+    window_files_test.cpp qt_prompts_test.cpp target_test.cpp
+    operation_dialogs_test.cpp window_operations_test.cpp
     main_window_test.cpp)
 
 target_link_libraries(

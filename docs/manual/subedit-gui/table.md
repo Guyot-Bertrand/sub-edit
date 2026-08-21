@@ -29,6 +29,9 @@ fichier, et la masquer la rendrait introuvable.
 **Le début, la fin et le texte s'éditent en place** ; le numéro et la durée non.
 Voir [Éditer une cellule](edition.md).
 
+**La sélection désigne ce sur quoi une opération porte** — voir
+[Décaler, transformer, convertir](operations.md).
+
 **Un texte de plusieurs lignes n'en montre qu'une** : la hauteur des lignes de
 la table est fixe, et le reste est coupé à l'affichage. Rien n'est perdu — le
 texte entier réapparaît dès qu'on ouvre la cellule, et c'est lui qui sera
@@ -36,7 +39,6 @@ texte entier réapparaît dès qu'on ouvre la cellule, et c'est lui qui sera
 
 ## Ce que la table ne fait pas encore
 
-La sélection d'une ligne fonctionne, mais aucune opération ne s'y applique.
 Ajouter ou supprimer une ligne n'est pas possible. Le tri par colonne n'existe
 pas — l'ordre affiché est celui du fichier, et c'est le seul qui ait un sens
 pour des sous-titres.
