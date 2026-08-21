@@ -7,6 +7,7 @@ add_executable(
     text_cases_test.cpp
     core/version_test.cpp
     core/wording_test.cpp
+    core/edit/shift_limits_test.cpp
     core/time/duration_test.cpp
     core/time/frame_test.cpp
     core/time/frame_rate_test.cpp

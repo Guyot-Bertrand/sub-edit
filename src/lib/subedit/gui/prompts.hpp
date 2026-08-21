@@ -6,6 +6,8 @@
 #include <optional>
 #include <string>
 
+class QDialog;
+
 namespace subedit::core {
 struct SourceFile;
 } // namespace subedit::core
@@ -53,6 +55,16 @@ public:
 
     /// What to do with changes that were never written.
     [[nodiscard]] virtual UnsavedChoice aboutUnsavedChanges() = 0;
+
+    /// Shows `dialog` and says whether it was accepted.
+    ///
+    /// **One method for every dialog this project writes itself**, and that is
+    /// the whole difference with the file and message boxes above. Those
+    /// belong to Qt: nothing of them could be reached but the call. Ours are
+    /// ordinary widgets — a test builds one, fills its fields and reads what it
+    /// makes of them, without ever entering an event loop. What cannot be
+    /// tested is `exec()`, and `exec()` alone, so that is all this hides.
+    [[nodiscard]] virtual bool run(QDialog& dialog) = 0;
 
     /// Says that something could not be done, and why.
     ///

@@ -19,9 +19,11 @@
 #include <QToolBar>
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <expected>
 #include <filesystem>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <utility>
 
@@ -309,11 +311,15 @@ TEST_CASE("both actions are reachable from the menu and the toolbar", "[gui][GUI
     const Windowed fixture;
     const MainWindow& window = fixture.window();
 
-    // Deux menus depuis l'issue #131 : « File » d'abord, « Edit » ensuite.
+    // Trouvé par son titre et non par son rang : chaque ticket d'interface
+    // ajoute un menu, et compter les positions ferait échouer ce test à chaque
+    // fois sans que rien ne soit cassé.
     const QList<QMenu*> menus = window.menuBar()->findChildren<QMenu*>();
-    REQUIRE(menus.size() == 2);
-    CHECK(menus.at(1)->actions().contains(window.undoAction()));
-    CHECK(menus.at(1)->actions().contains(window.redoAction()));
+    const auto edit = std::ranges::find_if(
+        menus, [](const QMenu* menu) { return menu->title() == QStringLiteral("&Edit"); });
+    REQUIRE(edit != menus.end());
+    CHECK((*edit)->actions().contains(window.undoAction()));
+    CHECK((*edit)->actions().contains(window.redoAction()));
 
     const QList<QToolBar*> bars = window.findChildren<QToolBar*>();
     REQUIRE(bars.size() == 1);

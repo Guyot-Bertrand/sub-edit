@@ -10,6 +10,7 @@ add_library(
     edit/convert_frame_rate_command.cpp
     edit/hearing_impaired_removal.cpp
     edit/insert_command.cpp
+    edit/shift_limits.cpp
     edit/remove_command.cpp
     edit/session.cpp
     edit/shift_command.cpp
