@@ -21,6 +21,7 @@ ne pas l'éditer à la main.
 - **gui** — L'édition en place des cellules
 - **gui** — Annuler et rétablir, et le libellé de l'action
 - **gui** — Ouvrir, enregistrer, enregistrer sous
+- **gui** — Décaler, transformer, convertir la fréquence d'image
 
 ### Corrections
 
