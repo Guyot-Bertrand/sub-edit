@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
                           << ": nothing to open\n";
         }
 
-        subedit::gui::QtPrompts prompts{nullptr};
+        subedit::gui::QtPrompts prompts;
         subedit::gui::MainWindow window{files, std::move(opened), prompts};
         window.show();
 

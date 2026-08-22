@@ -2,8 +2,9 @@
 //
 // `QtPrompts` is the one class of this library no test enters: each method
 // opens a modal box, which spins its own event loop until somebody clicks. This
-// file tests the two things it decides on its own, taken out of there for that
-// very reason: which format a filter names, and what a button is worth.
+// file tests the things it decides on its own, taken out of there for that very
+// reason: which format a filter names, what a button is worth, and which window
+// its boxes sit over.
 
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/gui/prompts.hpp>
@@ -11,6 +12,7 @@
 
 #include <QMessageBox>
 #include <QString>
+#include <QWidget>
 #include <catch2/catch_test_macros.hpp>
 
 namespace {
@@ -18,6 +20,7 @@ namespace {
 using subedit::core::SubtitleFormat;
 using subedit::gui::choiceOf;
 using subedit::gui::formatOfFilter;
+using subedit::gui::QtPrompts;
 using subedit::gui::subtitleFilters;
 using subedit::gui::UnsavedChoice;
 
@@ -59,4 +62,22 @@ TEST_CASE("anything that is not an explicit answer cancels", "[gui][GUI-SAVE-03]
     CHECK(choiceOf(QMessageBox::Cancel) == UnsavedChoice::Cancel);
     CHECK(choiceOf(QMessageBox::NoButton) == UnsavedChoice::Cancel);
     CHECK(choiceOf(QMessageBox::Ok) == UnsavedChoice::Cancel);
+}
+
+TEST_CASE("the boxes sit over the window that took them", "[gui][GUI-SAVE-03]") {
+    // They used to sit over nothing: `subedit-gui` built its prompts before the
+    // window — it has to, the window takes a reference to them — and passed
+    // `nullptr` for want of anything better. No file box, no message box was
+    // ever placed on the window.
+    //
+    // The window says it itself now, at its own construction, which is the one
+    // place it cannot be forgotten from.
+    QWidget window;
+    QtPrompts prompts;
+
+    CHECK(prompts.owner() == nullptr);
+
+    prompts.ownedBy(&window);
+
+    CHECK(prompts.owner() == &window);
 }

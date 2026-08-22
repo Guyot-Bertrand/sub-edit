@@ -45,8 +45,17 @@ namespace subedit::gui {
 class QtPrompts final : public Prompts {
 
 public:
-    /// Builds prompts parented on `owner`, which the dialogs sit over.
-    explicit QtPrompts(QWidget* owner) : m_owner(owner) {}
+    /// Builds prompts on no window yet: the one they sit over tells them so
+    /// itself, through `ownedBy`, once it exists.
+    QtPrompts() = default;
+
+    void ownedBy(QWidget* window) override { m_owner = window; }
+
+    /// The window the boxes sit over, or nothing before one says so.
+    ///
+    /// Exposed for the reason the two functions above are: it is a thing this
+    /// class can get wrong on its own, without any modal loop, and it did.
+    [[nodiscard]] QWidget* owner() const { return m_owner; }
 
     [[nodiscard]] std::optional<std::filesystem::path> fileToOpen() override;
 
@@ -61,7 +70,7 @@ public:
     void reportOutcome(const std::string& message) override;
 
 private:
-    QWidget* m_owner;
+    QWidget* m_owner = nullptr;
 };
 
 } // namespace subedit::gui

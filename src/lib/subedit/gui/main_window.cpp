@@ -168,6 +168,11 @@ MainWindow::MainWindow(core::FileSystem& files,
     bar->addAction(m_undo);
     bar->addAction(m_redo);
 
+    // The boxes sit over this window, and it is the window that says so: built
+    // before it, prompts cannot know it, and leaving that to `main` is what let
+    // it be forgotten once already.
+    m_prompts->ownedBy(this);
+
     // The document arrives by the same road as those that will follow: one way
     // of putting a file in the window, therefore one place where it can be
     // wrong.

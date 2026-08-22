@@ -7,6 +7,7 @@
 #include <string>
 
 class QDialog;
+class QWidget;
 
 namespace subedit::core {
 struct SourceFile;
@@ -73,6 +74,18 @@ public:
     /// learns « 1 subtitle cleaned, 1 removed » has not been warned of
     /// anything.
     virtual void reportOutcome(const std::string& message) = 0;
+
+    /// Says which widget the boxes are to sit over.
+    ///
+    /// **Told by the window, at its own construction**, and not given here at
+    /// construction: a `Prompts` has to exist before the window that takes it,
+    /// so the owner cannot be known then. Passing it later from `main` would
+    /// work too, and was the shape that let it be forgotten — `subedit-gui`
+    /// built its prompts on nothing, and no box ever sat over the window.
+    ///
+    /// Does nothing by default: a fake has no widget to sit over, and only
+    /// `QtPrompts` has any use for the answer.
+    virtual void ownedBy(QWidget* /*window*/) {}
 
     /// Says that something could not be done, and why.
     ///
