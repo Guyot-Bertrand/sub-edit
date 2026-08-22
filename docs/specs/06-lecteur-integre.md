@@ -215,12 +215,20 @@ dernier. Ce qu'il ne fait pas : empêcher quoi que ce soit (D4).
 | ouvrir, chercher, la durée | la couture, sur les fixtures de #163 — deux secondes de vidéo suffisent |
 | la fenêtre | le harnais Catch2 de #119, hors écran |
 
-**Un lecteur sans écran est le point à régler avant tout le reste.** C'est
-exactement le problème que #117 a résolu pour la fenêtre — `QT_QPA_PLATFORM=offscreen`
-— et il se repose pour la vidéo : libmpv doit pouvoir se construire et chercher
-sans sortie visible, ce que `vo=null` promet. Une issue d'outillage le tranche
-avant la première issue d'implémentation, comme la phase l'a déjà fait trois
-fois.
+**Un lecteur sans écran était le point à régler avant tout le reste**, et #178
+l'a réglé. C'était exactement le problème que #117 avait résolu pour la fenêtre
+— `QT_QPA_PLATFORM=offscreen` — et il se reposait pour la vidéo.
+
+La réponse est `vo=null`, et elle est mesurée plutôt que promise : avec `vo=auto`
+et sans écran, mpv n'ouvre même pas le fichier — il répond `end-file`, et la
+durée revient « property unavailable ». Ce qu'un test peut alors attendre d'un
+lecteur sans sortie : la durée, la position après une recherche exacte, la
+géométrie de l'image, une lecture qui avance en temps réel. **Pas une image
+décodée** — il n'y a pas de sortie d'où la prendre — et c'est donc dans la
+fenêtre que la réplique dessinée se prouvera, jamais ici.
+
+`src/test/unit/core/video/player_harness_test.cpp` porte cette preuve, et il vit
+dans le binaire où vivront les tests de la couture.
 
 ## Mesures
 

@@ -72,7 +72,7 @@ Dans `subedit`, elle l'est à cinq endroits, connus dès maintenant :
 | :----------------- | :------- |
 | Lecture et écriture de formats | deux implémentations en phase 1, neuf à terme |
 | Moteur d'expressions régulières | PCRE2 contre RE2, non tranché |
-| Lecteur vidéo | libmpv contre QtMultimedia, non tranché |
+| Lecteur vidéo | libmpv, tranché par l'[ADR 0020](adr/0020-libmpv-pour-le-lecteur-integre.md) ; l'abstraction reste, c'est le backend qui est choisi |
 | Correcteur orthographique | hunspell, nuspell, ou service système |
 | Accès au système de fichiers | remplaçable en test, sans écrire sur disque |
 

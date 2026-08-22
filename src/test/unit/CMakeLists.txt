@@ -59,9 +59,16 @@ add_executable(
     core/text/encoding_test.cpp
     core/format/subtitle_file_test.cpp
     core/format/corpus_test.cpp
-    core/format/local_corpus_test.cpp)
+    core/format/local_corpus_test.cpp
+    core/video/player_harness_test.cpp)
 
-target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain)
+# PkgConfig::mpv, alors que subedit_core ne lie pas encore libmpv : la couture
+# du lecteur est à venir, et core/video/player_harness_test.cpp est ce qui
+# prouve d'ici là que la chaîne existe — la bibliothèque se trouve, ses en-têtes
+# se compilent, et un lecteur s'initialise sans écran. La cible qui l'éprouve
+# est celle où vivront ses tests, ce qui est tout l'intérêt de la preuve.
+target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain
+                                                PkgConfig::mpv)
 
 # Le harnais de cas de texte vit à la racine de unit/. Sans ce chemin
 # d'inclusion, un test rangé dans un sous-répertoire le désignerait par une

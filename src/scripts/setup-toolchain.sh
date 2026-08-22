@@ -49,6 +49,12 @@ declare -A APT_TOOLS=(
     # donc en local. Les machines GitHub l'ont d'origine, pas forcément un poste
     # fraîchement installé — et une preuve qui ne s'exécute pas n'en est pas une.
     [jq]=jq
+    # pkg-config est ce par quoi libmpv se trouve : il ne fournit pas de fichier
+    # de configuration CMake, et `find_package(PkgConfig REQUIRED)` échoue sans
+    # lui. Les machines GitHub l'ont d'origine ; une Ubuntu de bureau
+    # fraîchement installée, pas toujours — et c'est celle-là que ce script
+    # promet de rendre constructible.
+    [pkg-config]=pkg-config
 )
 
 # Paquets APT sans commande à sonder : un fichier dit leur présence.
@@ -63,10 +69,16 @@ declare -A APT_TOOLS=(
 # d'ailleurs jamais servi, et son défaut était de mettre les paquets Qt hors de
 # `--list-packages`, donc hors du cache de la CI — qui aurait restauré une
 # chaîne d'outils incomplète sans que rien ne le signale.
+#
+# **libmpv est entré à la phase 6**, qui met un lecteur dans la fenêtre — voir
+# docs/adr/0020-libmpv-pour-le-lecteur-integre.md. Le chemin sondé est un
+# fichier `.pc` et non un `Qt6Config.cmake` : libmpv ne fournit pas de fichier
+# de configuration CMake, seulement de quoi être trouvé par `pkg-config`, et
+# c'est donc ce chemin-là que la configuration finit par lire.
 declare -A APT_LIBS=(
     [/usr/include/CLI/CLI.hpp]=libcli11-dev
     [/usr/lib/x86_64-linux-gnu/cmake/Qt6/Qt6Config.cmake]=qt6-base-dev
-    [/usr/lib/x86_64-linux-gnu/cmake/Qt6Multimedia/Qt6MultimediaConfig.cmake]=qt6-multimedia-dev
+    [/usr/lib/x86_64-linux-gnu/pkgconfig/mpv.pc]=libmpv-dev
 )
 
 install_apt_tools() {
@@ -165,7 +177,7 @@ report() {
     info "état de la chaîne d'outils"
     local cmd
     local path_warning=0
-    for cmd in cmake ninja g++ clang-tidy-20 clang-format gcovr ccache git git-cliff gh jq ffprobe; do
+    for cmd in cmake ninja g++ clang-tidy-20 clang-format gcovr ccache git git-cliff gh jq ffprobe pkg-config; do
         if command -v "${cmd}" >/dev/null 2>&1; then
             printf '  \033[32m✓\033[0m %-14s %s\n' "${cmd}" "$("${cmd}" --version 2>/dev/null | head -1)"
         elif [[ -x "${LOCAL_BIN}/${cmd}" ]]; then

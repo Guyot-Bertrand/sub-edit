@@ -40,13 +40,33 @@ option(SUBEDIT_REGISTER_E2E "Enregistrer les tests de bout en bout dans CTest" O
 # du source vient un binaire.
 set(SUBEDIT_BUILD_DATE "")
 # Qt est requis depuis la phase 5, et non plus optionnel : la fenêtre est le
-# cœur de ce que le projet livre. Widgets et Multimedia — le second pour la
-# prévisualisation de la phase 6, déclaré ici pour que son absence se voie à la
-# configuration plutôt qu'au milieu de cette phase-là.
+# cœur de ce que le projet livre.
+#
 # Test accompagne Widgets : il porte les fonctions qui simulent un clic ou une
 # frappe, dont le harnais d'interface se sert depuis Catch2 — sans être pour
 # autant un binaire QTest.
-find_package(Qt6 REQUIRED COMPONENTS Widgets Multimedia Test)
+#
+# **Multimedia était déclaré ici, et ne l'est plus.** Il l'avait été « pour la
+# prévisualisation de la phase 6 » ; l'ADR 0020 a tranché le backend vidéo en
+# faveur de libmpv, et personne ne l'a jamais lié. Une dépendance que rien
+# n'utilise n'est pas gratuite : elle est dans le cache de paquets de la CI, et
+# la ligne qui la déclarait annonçait un usage qui n'existera pas.
+find_package(Qt6 REQUIRED COMPONENTS Widgets Test)
+
+# libmpv — le moteur du lecteur intégré, voir
+# docs/adr/0020-libmpv-pour-le-lecteur-integre.md.
+#
+# Par pkg-config et non par find_package : libmpv ne fournit pas de fichier de
+# configuration CMake, seulement un `mpv.pc`. `IMPORTED_TARGET` en tire
+# `PkgConfig::mpv`, qui porte ses chemins d'inclusion et ses drapeaux d'édition
+# de liens comme le ferait une cible Qt — donc rien à recopier à la main dans
+# les cibles qui s'en servent.
+#
+# Déclaré à la racine, comme Qt, pour que son absence se voie à la
+# configuration : une bibliothèque manquante découverte au milieu d'une
+# compilation coûte le temps de la compilation.
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(mpv REQUIRED IMPORTED_TARGET mpv)
 
 find_package(Git QUIET)
 if(GIT_FOUND)

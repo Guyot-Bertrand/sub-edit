@@ -22,7 +22,7 @@ Dépendances : CMake ≥ 3.28, un compilateur C++23 (GCC 13 convient), et la cha
 d'outils de vérification.
 
 ```bash
-./src/scripts/setup-toolchain.sh   # ninja, clang-tidy, clang-format, gcovr, ccache, git-cliff, Qt 6, ffmpeg
+./src/scripts/setup-toolchain.sh   # ninja, clang-tidy, clang-format, gcovr, ccache, git-cliff, Qt 6, libmpv, ffmpeg
 make build                         # compile
 make test                          # compile et exécute les tests (hors bout en bout — voir make asan)
 make check                         # la porte de qualité complète
