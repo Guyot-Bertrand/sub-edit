@@ -22,6 +22,13 @@ namespace {
 /// automatic array.
 constexpr std::size_t kReadBlockSize = std::size_t{64} * 1024;
 
+/// Builds the refusal, with the reason as free context.
+///
+/// **The reason is written in English even though nobody reads it yet.** Every
+/// caller reports `reasonOf(kind)` and drops the detail, so surfacing it one
+/// day should be a decision — not the day the program starts answering in two
+/// languages at once. Three of them were French until the phase 6 toolchain
+/// went past.
 [[nodiscard]] std::unexpected<FileError>
 failure(FileErrorKind kind, const std::filesystem::path& path, std::string_view reason) {
     return std::unexpected(FileError{
@@ -64,7 +71,7 @@ RealFileSystem::readFile(const std::filesystem::path& path) const {
     if (!file)
         return failure(exists(path) ? FileErrorKind::Io : FileErrorKind::NotFound,
                        path,
-                       "ouverture impossible");
+                       "could not be opened for reading");
 
     // Read in blocks rather than through `istreambuf_iterator`, which walks the
     // stream one character at a time. The size is never asked for: `tellg`
@@ -76,7 +83,7 @@ RealFileSystem::readFile(const std::filesystem::path& path) const {
         content.append(block.data(), static_cast<std::size_t>(file.gcount()));
 
     if (file.bad())
-        return failure(FileErrorKind::Io, path, "lecture interrompue");
+        return failure(FileErrorKind::Io, path, "reading was interrupted");
 
     return content;
 }
@@ -109,7 +116,7 @@ std::expected<void, FileError> RealFileSystem::remove(const std::filesystem::pat
     if (!std::filesystem::remove(path, code)) {
         if (code)
             return failure(code, path);
-        return failure(FileErrorKind::NotFound, path, "fichier absent");
+        return failure(FileErrorKind::NotFound, path, "no such file");
     }
     return {};
 }
