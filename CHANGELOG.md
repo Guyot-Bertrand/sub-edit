@@ -13,6 +13,7 @@ ne pas l'éditer à la main.
 
 - **core** — Chercher un exécutable sur un chemin de recherche injecté
 - **core** — Lancer un programme extérieur, et ne pas l'attendre
+- **scripts** — L'allure d'un relevé, écrite dans son en-tête
 
 ### Construction
 
@@ -23,6 +24,7 @@ ne pas l'éditer à la main.
 - **doc** — La règle du titre de pull request, dans CLAUDE.md
 - **doc** — Les six étapes de check-local, dont les fixtures vidéo
 - **doc** — Les programmes que les tests lancent, et le cliquet relevé
+- **doc** — Le seuil de charge, mis en doute, mesuré, et gardé
 
 ### Remaniements
 
