@@ -9,6 +9,14 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **core** — Chercher un exécutable sur un chemin de recherche injecté
+
+### Construction
+
+- **build** — Ffprobe dans la chaîne d'outils et dans le cache de la CI
+
 ### Documentation
 
 - **doc** — La règle du titre de pull request, dans CLAUDE.md
