@@ -410,21 +410,31 @@ compacte doit exposer des intervalles utilisables tels quels.
 
 ---
 
-## 6 — Prévisualisation
+## 6 — Le lecteur intégré
 
-**Re-cadrée.** Le lecteur vidéo intégré et le calage image par image
-n'apparaissent pas dans les priorités et constituent la partie la plus coûteuse
-du projet ; ils passent en phase 14.
+**Cadrée.** Voir [`specs/06-lecteur-integre.md`](specs/06-lecteur-integre.md).
 
-Reste ce qui sert directement les opérations prioritaires : après un décalage ou
-une transformation, **vérifier le résultat**. Gaupol le fait en écrivant un
-fichier temporaire et en lançant un lecteur externe — mpv, VLC ou MPlayer —
-positionné au sous-titre courant.
+**Re-cadrée deux fois, et la seconde annule la première.** Elle était d'abord
+tout le lecteur vidéo ; puis restreinte à une prévisualisation par lecteur
+externe, l'intégré passant en phase 14 comme « la partie la plus coûteuse du
+projet » ; puis rendue au lecteur intégré au cadrage.
+
+Ce que la première restriction avait manqué : **Gaupol a les deux.**
+`gaupol/player.py` est un lecteur GStreamer embarqué, distinct de
+`aeidon/agents/preview.py`. La feuille de route avait retenu le second et oublié
+le premier. Le lecteur externe disparaît ; la vidéo se regarde dans la fenêtre,
+avec la réplique courante dessinée par-dessus, et le backend est libmpv — voir
+[l'ADR 0020](adr/0020-libmpv-pour-le-lecteur-integre.md).
+
+Ce qui suit décrit le cadrage abandonné, gardé parce qu'il montre d'où l'on
+partait.
 
 **Analyse préalable** — `aeidon/agents/preview.py`, `aeidon/enums.py` (les
 commandes des trois lecteurs), `gaupol/agents/preview.py`.
 
-**Questions d'architecture**
+**Questions d'architecture — toutes tranchées au cadrage**, et la spec porte les
+réponses. Ce qui suit reste écrit tel qu'il l'était avant, parce que la valeur
+de ces lignes est de montrer d'où l'on partait.
 
 - Détection du lecteur disponible, et commande personnalisable.
 - Association d'un fichier vidéo à un projet : par convention de nom, comme
@@ -468,7 +478,7 @@ commandes des trois lecteurs), `gaupol/agents/preview.py`.
 
 ## 16 — Fréquences d'image : déduction et correction
 
-**Dans le MVP, programmée entre la [6](#6--prévisualisation) et la
+**Dans le MVP, programmée entre la [6](#6--le-lecteur-intégré) et la
 [7](#7--finitions-et-première-livraison).** Son numéro est le premier libre au
 moment où elle a été ajoutée ; il l'identifie et ne dit pas son rang.
 
@@ -581,7 +591,7 @@ de vitesse de lecture.
   de plus dans `inspect` ? Et dans la fenêtre : le dialogue de conversion
   pré-remplit sa fréquence d'entrée **en montrant sa mesure**, jamais en
   l'appliquant en silence.
-- **Articulation avec la [phase 6](#6--prévisualisation),** qui pose la même
+- **Articulation avec la [phase 6](#6--le-lecteur-intégré),** qui pose la même
   question par l'autre bout : la vidéo associée *déclare* sa fréquence. Deux
   sources indépendantes pour la même donnée, donc une vérification croisée
   gratuite — et un désaccord à savoir présenter.
@@ -780,20 +790,27 @@ lisible par un humain et sortie exploitable par un script.
 Gaupol n'a pas d'équivalent : c'est une conception neuve, et un gain
 fonctionnel réel.
 
-## 14 — Lecteur vidéo intégré et calage
+## 14 — Calage fin
 
-Lecture, incrustation des sous-titres et du timecode, sélection de piste audio,
-définir début et fin depuis la position vidéo, insérer un sous-titre à la
-position vidéo, avancer ou reculer par petits incréments.
+**Réduite.** Le lecteur lui-même est passé en phase 6, qui l'a repris au
+cadrage : lire, chercher, jouer, dessiner la réplique sur l'image. Ce qui reste
+ici est ce que la phase 6 ne fait pas.
 
-**Questions d'architecture** — backend vidéo : libmpv, embarquable et très
-tolérant aux formats, contre QtMultimedia, intégré mais plus limité. Décision
-par ADR, en tenant compte de la portabilité Windows.
+Définir début et fin depuis la position vidéo, insérer un sous-titre à la
+position vidéo, avancer ou reculer image par image, incrustation du timecode,
+sélection de piste audio.
+
+**Le backend est décidé** — libmpv, voir
+[l'ADR 0020](adr/0020-libmpv-pour-le-lecteur-integre.md). Et c'est cette phase
+qui l'a décidé : les deux candidats savaient servir la phase 6, seul libmpv sait
+avancer d'une image.
 
 **Point difficile** — **précision de positionnement.** Caler un sous-titre exige
 un `seek` exact à l'image près ; la plupart des backends ne le garantissent qu'au
 mot-clé le plus proche. C'est la fonctionnalité la plus exigeante de tout le
 projet, et celle qui décide de la qualité de l'outil pour le travail de timing.
+La phase 6 pose déjà la recherche exacte, ce qui la rend éprouvable avant
+d'arriver ici.
 
 ## 15 — Internationalisation
 

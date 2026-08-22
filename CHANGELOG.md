@@ -25,6 +25,8 @@ ne pas l'éditer à la main.
 - **doc** — Les six étapes de check-local, dont les fixtures vidéo
 - **doc** — Les programmes que les tests lancent, et le cliquet relevé
 - **doc** — Le seuil de charge, mis en doute, mesuré, et gardé
+- **doc** — La spec de la phase 6, autour du lecteur intégré
+- **doc** — Libmpv pour le lecteur intégré, et la phase 14 réduite
 
 ### Remaniements
 
