@@ -66,6 +66,14 @@ public:
     /// tested is `exec()`, and `exec()` alone, so that is all this hides.
     [[nodiscard]] virtual bool run(QDialog& dialog) = 0;
 
+    /// Says what an operation did, when the table cannot show it.
+    ///
+    /// Distinct from `reportFailure`, and not out of taste: one is a warning
+    /// and the other a notice, they carry different icons, and a user who
+    /// learns « 1 subtitle cleaned, 1 removed » has not been warned of
+    /// anything.
+    virtual void reportOutcome(const std::string& message) = 0;
+
     /// Says that something could not be done, and why.
     ///
     /// The one method that asks nothing. It is here rather than in the window

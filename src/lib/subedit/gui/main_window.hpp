@@ -84,6 +84,8 @@ public:
 
     [[nodiscard]] QAction* frameRateAction() const { return m_frameRate; }
 
+    [[nodiscard]] QAction* hearingImpairedAction() const { return m_hearingImpaired; }
+
 protected:
     /// Refuses to close while there are changes nobody chose to lose.
     void closeEvent(QCloseEvent* event) override;
@@ -125,6 +127,8 @@ private:
 
     void convertFrameRateOfTarget();
 
+    void removeHearingImpairedFromTarget();
+
     /// **Initialisés ici, et pas seulement dans la liste du constructeur.**
     ///
     /// Trois actions ajoutées ensemble à l'issue #132 ont été oubliées de cette
@@ -150,6 +154,7 @@ private:
     QAction* m_shift = nullptr;
     QAction* m_transform = nullptr;
     QAction* m_frameRate = nullptr;
+    QAction* m_hearingImpaired = nullptr;
 
     /// Held by pointer so that this header stays parsable by `moc`, which
     /// chokes on the C++20 library headers the core drags in.

@@ -1,3 +1,4 @@
+#include <subedit/core/command/change.hpp>
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/command/composite_command.hpp>
 #include <subedit/core/edit/hearing_impaired_removal.hpp>
@@ -17,7 +18,8 @@
 
 namespace subedit::core {
 
-std::unique_ptr<Command> removeHearingImpaired(const Project& project, Document document) {
+std::unique_ptr<Command>
+removeHearingImpaired(const Project& project, const Selection& selection, Document document) {
     std::vector<std::unique_ptr<Command>> commands;
     std::vector<SubtitleIndex> emptied;
 
@@ -26,8 +28,7 @@ std::unique_ptr<Command> removeHearingImpaired(const Project& project, Document 
     // now, and the indices the removal will use are those of the project as it
     // stands now. Applying as we go would have each command capture the state
     // the previous one left.
-    for (std::size_t rank = 0; rank < project.count(); ++rank) {
-        const SubtitleIndex index = SubtitleIndex::fromValue(rank);
+    for (const SubtitleIndex index : selection.indices()) {
         const std::string& text = project.subtitleAt(index).text(document);
 
         const std::optional<std::string> cleaned = withoutHearingImpaired(text);
@@ -56,6 +57,17 @@ std::unique_ptr<Command> removeHearingImpaired(const Project& project, Document 
 
     return std::make_unique<CompositeCommand>(CommandKind::RemoveHearingImpaired,
                                               std::move(commands));
+}
+
+HearingImpairedTally tallyOf(const Command& command) {
+    HearingImpairedTally tally;
+    for (const Change& change : command.describe()) {
+        if (change.kind == ChangeKind::Removal)
+            tally.removed += change.subtitles.count();
+        else
+            ++tally.cleaned;
+    }
+    return tally;
 }
 
 } // namespace subedit::core

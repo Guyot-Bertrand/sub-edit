@@ -265,7 +265,8 @@ TEST_CASE("removing hearing impaired mentions from a full-length file", "[benchm
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
             Project& copy = copies[static_cast<std::size_t>(run)];
-            std::unique_ptr<Command> command = removeHearingImpaired(copy, Document::Main);
+            std::unique_ptr<Command> command =
+                removeHearingImpaired(copy, Selection::all(copy), Document::Main);
             if (command)
                 command->apply(copy);
             return copy.count();

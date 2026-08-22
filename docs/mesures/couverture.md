@@ -43,7 +43,7 @@ La leçon vaut d'être écrite : **un relèvement justifié par une lecture du c
 plutôt que par une mesure est un relèvement à vérifier.** Le raisonnement était
 plausible, il tenait une phase entière, et il désignait les mauvaises lignes.
 
-**Vingt-huit lignes de `QtPrompts`, en phase 5.** C'est le relèvement le plus
+**Trente et une lignes de `QtPrompts`, en phase 5.** C'est le relèvement le plus
 important du projet, et il tient en une phrase : ces lignes ouvrent une boîte
 modale de Qt, qui fait tourner sa propre boucle d'événements jusqu'à ce qu'un
 humain clique. Un test qui en atteint une ne rend jamais la main.
@@ -80,6 +80,15 @@ garde qu'aucun test ne traverse est une promesse que personne ne vérifie, et le
 faux `Prompts` valide sans regarder le bouton, ce qui est exactement la
 situation dont elles protègent.
 
+**Trois lignes de plus en phase 5, et toujours la même raison.** L'issue #133
+ajoute `reportOutcome` — la notice qui dit ce qu'une opération a fait, distincte
+de l'avertissement qui dit ce qui a échoué : deux icônes, deux sens, et un
+utilisateur qui lit « 1 subtitle cleaned, 1 removed » n'a été averti de rien.
+
+Sa confirmation, elle, n'a rien coûté : le dialogue de retrait est un
+`OperationDialog` sans champ, donc il passe par le `run` déjà en place. Une
+opération sans réglage n'avait pas besoin d'une question de plus.
+
 **L'alternative, pesée et écartée.** On sait piloter une boîte modale depuis un
 test, en programmant sa fermeture avant d'entrer dans la boucle. Cela aurait
 donné un chiffre vert au prix d'un test fragile qui éprouve le dialogue de Qt
@@ -88,13 +97,13 @@ n'exige pas zéro.
 
 ## Relevé
 
-    total : 33
+    total : 36
 
-Relevé sur la version 0.4.16, le 2026-08-21.
+Relevé sur la version 0.4.16, le 2026-08-22.
 
 | Lignes | Fichier |
 | -----: | :------ |
-| 27 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 30 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 2 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |

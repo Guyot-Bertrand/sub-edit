@@ -6,6 +6,7 @@
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/wording.hpp>
 
 #include <cstddef>
@@ -17,43 +18,21 @@
 
 namespace subedit::cli {
 
-namespace {
-
-/// What the removal did, read from the command rather than counted again.
-///
-/// `describe()` already says it: one change of main text per subtitle
-/// rewritten, one removal naming every subtitle taken away. Counting a second
-/// time — by comparing the texts before and after, say — would give two answers
-/// to one question, and the one shown would be the one no test compares.
-struct Tally {
-    std::size_t cleaned = 0;
-    std::size_t removed = 0;
-};
-
-[[nodiscard]] Tally tallyOf(const core::Command& command) {
-    Tally tally;
-    for (const core::Change& change : command.describe()) {
-        if (change.kind == core::ChangeKind::Removal)
-            tally.removed += change.subtitles.count();
-        else
-            ++tally.cleaned;
-    }
-    return tally;
-}
-
-} // namespace
+namespace {} // namespace
 
 ExitCode removeHearingImpairedIn(core::FileSystem& files,
                                  const std::vector<std::string>& paths,
                                  const Destination& destination,
                                  const Reporter& reporter) {
     const Operation clean = [](core::Session& session) -> std::expected<std::string, std::string> {
-        std::unique_ptr<core::Command> command =
-            core::removeHearingImpaired(session.project(), core::Document::Main);
+        // Le fichier entier : la sélection est arrivée au noyau avec la
+        // fenêtre, et une ligne de commande n'en a pas.
+        std::unique_ptr<core::Command> command = core::removeHearingImpaired(
+            session.project(), core::Selection::all(session.project()), core::Document::Main);
         if (!command)
             return std::string{"no mention to remove"};
 
-        const Tally tally = tallyOf(*command);
+        const core::HearingImpairedTally tally = core::tallyOf(*command);
         session.apply(std::move(command));
 
         return core::countOf(tally.cleaned, "subtitle") + " cleaned, " +

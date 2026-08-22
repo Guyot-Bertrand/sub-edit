@@ -80,4 +80,8 @@ void QtPrompts::reportFailure(const std::string& message) {
     QMessageBox::warning(m_owner, QStringLiteral("subedit"), QString::fromStdString(message));
 }
 
+void QtPrompts::reportOutcome(const std::string& message) {
+    QMessageBox::information(m_owner, QStringLiteral("subedit"), QString::fromStdString(message));
+}
+
 } // namespace subedit::gui

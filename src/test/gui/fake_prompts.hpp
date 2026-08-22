@@ -74,7 +74,13 @@ public:
         return nextRun;
     }
 
+    /// Ce qui a été rapporté sans être un échec — le compte rendu d'une
+    /// opération, que l'utilisateur lit et qui ne demande rien.
+    std::vector<std::string> outcomes{};
+
     void reportFailure(const std::string& message) override { failures.push_back(message); }
+
+    void reportOutcome(const std::string& message) override { outcomes.push_back(message); }
 };
 
 } // namespace subedit::test

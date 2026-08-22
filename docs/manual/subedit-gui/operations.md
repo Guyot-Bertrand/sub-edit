@@ -1,12 +1,12 @@
-# Décaler, transformer, convertir
+# Les opérations
 
-Le menu **Tools** porte trois opérations. Chacune ouvre un dialogue, et chacune
+Le menu **Tools** porte quatre opérations. Chacune ouvre un dialogue, et chacune
 s'annule d'un `Ctrl+Z`.
 
 ## Sur quoi elles portent
 
 **Les lignes sélectionnées, ou tout le fichier si rien ne l'est.** C'est la même
-règle pour les trois, et le dialogue le rappelle en toutes lettres :
+règle pour les quatre, et le dialogue le rappelle en toutes lettres :
 
 ```
 Applies to: 4 subtitles
@@ -14,7 +14,7 @@ Applies to: 4 subtitles
 
 Sélectionner toutes les lignes revient au même que n'en sélectionner aucune.
 
-Les trois actions sont **inactives sur un fichier vide** : il n'y aurait rien à
+Les quatre actions sont **inactives sur un fichier vide** : il n'y aurait rien à
 décaler.
 
 ## `Shift Positions…`
@@ -73,7 +73,37 @@ s'ouvre sur la fréquence du projet.**
 
 Convertir une fréquence en elle-même ne change rien : le bouton reste inactif.
 
-## Ce que les opérations ne font pas encore
+## `Remove Hearing-Impaired Mentions…`
 
-Le retrait des mentions pour malentendants, quatrième opération de cette phase,
-vient ensuite — voir la [feuille de route](../../feuille-de-route.md).
+Retire les mentions destinées aux spectateurs sourds ou malentendants — les
+descriptions de sons entre crochets ou entre parenthèses, les noms de locuteurs.
+
+Le dialogue ne demande rien : l'opération n'a pas de réglage, et il ne sert qu'à
+confirmer et à rappeler sur quoi elle porte.
+
+**C'est la seule opération qui fasse disparaître des lignes.** Un sous-titre qui
+n'était *que* mention n'a plus de texte une fois nettoyé, et un sous-titre sans
+texte n'a pas lieu d'être : il est retiré du fichier. Les autres sont réécrits
+sans leur mention.
+
+Le compte rendu dit les deux :
+
+```
+1 subtitle cleaned, 1 removed
+```
+
+**Quand rien ne mord, rien ne se passe** — et le dialogue le dit : « no mention
+to remove ». Aucune entrée n'entre dans l'historique, car une opération qui ne
+change rien n'est pas une opération à annuler.
+
+**Annuler remet tout en place**, les sous-titres retirés comme les textes
+réécrits, chacun avec le texte qu'il avait. Un sous-titre que la règle a vidé
+n'est jamais réécrit avant d'être retiré, précisément pour qu'il revienne
+entier.
+
+> **La sélection est perdue à cette occasion**, et à celle-là seulement : retirer
+> des lignes change la structure de la table, qui se reconstruit. Les trois
+> autres opérations la conservent.
+
+Une référence purement numérique — « Voir [1] la note » — n'est pas une mention
+et reste telle quelle.
