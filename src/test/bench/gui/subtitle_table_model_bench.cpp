@@ -9,6 +9,7 @@
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
+#include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
 #include <QLatin1Char>
@@ -19,6 +20,7 @@
 #include <catch2/benchmark/catch_chronometer.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include <cstddef>
 #include <vector>
 
 #include "full_length_project.hpp"
@@ -29,6 +31,7 @@ using subedit::core::Change;
 using subedit::core::ChangeKind;
 using subedit::core::Selection;
 using subedit::core::Session;
+using subedit::core::SubtitleIndex;
 using subedit::gui::SubtitleTableModel;
 using subedit::test::fullLengthProject;
 
@@ -73,6 +76,35 @@ TEST_CASE("turning a whole-file change into signals", "[benchmark]") {
     BENCHMARK("rafraîchir après un décalage de 4000 sous-titres") {
         model.applied(whole);
         return whole.size();
+    };
+}
+
+TEST_CASE("resetting the table on a change of structure", "[benchmark]") {
+    // **What ADR 0019 asked to be measured before phase 7 builds on it.** A row
+    // added or taken away is not bracketed but reset: Qt wants an insertion
+    // announced *before* it happens, and a session only reports it after.
+    // Tenable while the sole producer is the hearing-impaired removal — global
+    // and rare — and the ADR says so, with a trigger: an insertion menu, one
+    // line at a time, would make a full reset ridiculous.
+    //
+    // So one line is what is measured, and not four thousand: the model resets
+    // whatever the report holds, which is the whole point.
+    //
+    // **What this number does not hold, and cannot.** The view's share. A
+    // `QTableView` needs a `QApplication`, and this binary has none — it is
+    // Catch2's own `main`, and the models it measures are `QObject`s. What is
+    // measured here is the model's side of a reset, which is the side we would
+    // be replacing; whether the view's side is the one that hurts is a question
+    // for a machine with a screen.
+    Session session{fullLengthProject()};
+    SubtitleTableModel model{session};
+    const SubtitleIndex middle = SubtitleIndex::fromValue(subedit::test::kSubtitleCount / 2);
+    const std::vector<Change> oneLineGone = {
+        Change{.kind = ChangeKind::Removal, .subtitles = Selection::range(middle, middle)}};
+
+    BENCHMARK("réinitialisation du modèle après une ligne retirée") {
+        model.applied(oneLineGone);
+        return model.rowCount({});
     };
 }
 
