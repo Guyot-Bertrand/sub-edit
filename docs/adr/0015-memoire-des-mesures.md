@@ -150,6 +150,14 @@ version déjà livrée en gagne un second, faux.
 seconde étape que le ticket annonce sans la traiter, et elle a besoin de
 connaître la variance avant de pouvoir poser un chiffre.
 
+*Premier chiffre, en août 2026, sur trente-huit relevés :* une mesure sur huit
+dépasse une fois et demie la médiane de ses voisines dans le temps, et le seuil
+de charge en écarte neuf sur dix. C'est ce que
+[`analyse-bench-journal.py`](../../src/scripts/analyse-bench-journal.py) calcule
+depuis le journal, et la préface de
+[`performances.md`](../mesures/performances.md) en tire la conséquence : le
+critère d'admission a été remis en cause, mesuré, et gardé.
+
 **Le coût, écrit plutôt que tu :** un compte de lignes ne dit pas *où*. Le
 script doit nommer le fichier qui a gagné des lignes non couvertes, sinon le
 message d'échec envoie chercher une aiguille dans mille trois cents lignes.
