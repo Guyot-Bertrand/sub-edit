@@ -18,6 +18,7 @@ ne pas l'éditer à la main.
 ### Construction
 
 - **build** — Ffprobe dans la chaîne d'outils et dans le cache de la CI
+- **build** — Libmpv dans la chaîne d'outils, et un lecteur sans écran
 
 ### Documentation
 
