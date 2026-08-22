@@ -109,7 +109,7 @@ apply_milestones() {
         "3 — CLI : harnais|Inspection, conversion et décalage, pour valider et mesurer le noyau sans interface"
         "4 — Mentions pour malentendants|Suppression des sons entre crochets et entre parenthèses"
         "5 — Interface : édition tabulaire|Fenêtre, table éditable, ouvrir, enregistrer sous, annuler et refaire"
-        "6 — Prévisualisation|Lancement d'un lecteur externe positionné au sous-titre courant"
+        "6 — Le lecteur intégré|Lire la vidéo dans la fenêtre, la réplique dessinée sur l'image"
         "7 — Finitions et première livraison|Préférences, thème, manuel, empaquetage — le MVP est livrable"
         "8 — Encodages et fins de ligne|Détection automatique, jeu complet d'encodages et de fins de ligne"
         "9 — Formats complémentaires|SubViewer 2, SSA, ASS, MicroDVD, MPL2, TMPlayer, LRC et balises riches"
@@ -117,7 +117,7 @@ apply_milestones() {
         "11 — Traduction et multi-projets|Second document, alignement, onglets, opérations groupées"
         "12 — Moteur de correction complet|Motifs par langue, découpage de lignes, correcteur orthographique"
         "13 — CLI complète|Sous-commandes destinées à un usage réel et traitement par lot"
-        "14 — Lecteur vidéo intégré et calage|Incrustation, calage à l'image près depuis la position vidéo"
+        "14 — Calage fin|Poser début et fin depuis la position vidéo, avancer image par image, incruster le timecode"
         "15 — Internationalisation|Reprise des vingt locales de Gaupol"
     )
 
