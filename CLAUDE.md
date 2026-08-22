@@ -109,6 +109,23 @@ avec un objectif d'iso-fonctionnalité.
   ligne de commande écrivait en anglais. Repris en août 2026, une fois la
   troisième issue d'interface fusionnée.
 - **Commits** — Conventional Commits, scopes alignés sur les labels `area:`.
+- **Titre d'une pull request** — **la même grammaire, la même limite de 72
+  caractères.** `.github/workflows/pull-request.yml` passe le titre à
+  `check-commit-message.sh`, exactement comme le hook `commit-msg` lui passe un
+  message. « Relecture de fin de phase 5 » n'est donc pas un titre valide ;
+  « docs(doc): relecture de fin de phase 5 » l'est.
+
+  Se vérifie avant d'ouvrir, en une seconde :
+
+  ```console
+  $ ./src/scripts/check-commit-message.sh "docs(doc): relecture de fin de phase 5"
+  ```
+
+  Cette ligne manquait, et le silence a coûté : trois pull requests d'affilée
+  ouvertes avec un titre non conforme en août 2026, trois fois la même étape
+  rouge, et la règle découverte en lisant le YAML plutôt qu'ici. C'est le défaut
+  de la langue de l'interface, à l'identique — une contrainte réelle, tenue par
+  un contrôle, et absente du seul document qu'on lit avant d'agir.
 - **Fermeture d'une issue** — le corps de la PR porte une ligne `Closes #N`,
   **en anglais**. Ce n'est pas de la prose mais une instruction à GitHub, qui ne
   reconnaît que ses propres mots-clés : « Ferme #26 » n'en est pas un, et
