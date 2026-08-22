@@ -32,6 +32,7 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0017](0017-analyseur-de-mentions-ecrit-a-la-main.md) | Balayage écrit à la main, sans moteur d'expressions rationnelles | acceptée |
 | [0018](0018-vocabulaire-des-formats-dans-le-modele.md) | Séparer le vocabulaire des formats de leurs opérations | acceptée |
 | [0019](0019-table-en-adaptateur-mince.md) | Lire à travers le modèle du noyau, qui rend ses changements | acceptée |
+| [0020](0020-libmpv-pour-le-lecteur-integre.md) | libmpv pour le lecteur intégré | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
@@ -51,5 +52,4 @@ Points ouverts identifiés, qui feront l'objet d'une ADR le moment venu :
   pourquoi — [0017](0017-analyseur-de-mentions-ecrit-a-la-main.md) — donc la
   question reste entière, à trancher avec les critères de la phase 12 sous les
   yeux plutôt qu'avec deux délimiteurs littéraux pour seul usage.
-- **Backend vidéo** — libmpv ou QtMultimedia. Phase 14.
 - **Internationalisation** — Qt Linguist ou gettext. Phase 15.
