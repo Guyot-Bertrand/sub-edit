@@ -89,6 +89,16 @@ Sa confirmation, elle, n'a rien coûté : le dialogue de retrait est un
 `OperationDialog` sans champ, donc il passe par le `run` déjà en place. Une
 opération sans réglage n'avait pas besoin d'une question de plus.
 
+**Une ligne rendue, à la relecture de la phase.** Le constructeur de `QtPrompts`
+était compté : aucun test n'en construisait un, faute d'avoir quoi que ce soit à
+lui demander. La relecture lui en a donné une — les boîtes se posaient sur
+`nullptr`, donc sur aucune fenêtre — et la fenêtre le lui dit désormais
+elle-même. Le test qui l'éprouve construit la classe, ce qui couvre la ligne par
+surcroît. **Trente-cinq, contre trente-six.**
+
+Le reste de `qt_prompts.cpp` ne bouge pas, et ne bougera pas : c'est le
+`QFileDialog` et le `QMessageBox`, et leur boucle d'événements.
+
 **L'alternative, pesée et écartée.** On sait piloter une boîte modale depuis un
 test, en programmant sa fermeture avant d'entrer dans la boucle. Cela aurait
 donné un chiffre vert au prix d'un test fragile qui éprouve le dialogue de Qt
@@ -97,9 +107,9 @@ n'exige pas zéro.
 
 ## Relevé
 
-    total : 36
+    total : 35
 
-Relevé sur la version 0.4.16, le 2026-08-22.
+Relevé sur la version 0.4.20, le 2026-08-22.
 
 | Lignes | Fichier |
 | -----: | :------ |
@@ -107,4 +117,3 @@ Relevé sur la version 0.4.16, le 2026-08-22.
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 2 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
-| 1 | `src/lib/subedit/gui/qt_prompts.hpp` |
