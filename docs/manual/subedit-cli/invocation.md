@@ -50,7 +50,7 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.4.21
+subedit 0.5.0
 ```
 
 ## Sous-commandes
