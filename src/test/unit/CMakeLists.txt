@@ -4,6 +4,7 @@
 add_executable(
     subedit_core_test
     text_cases.cpp
+    await_process.cpp
     text_cases_test.cpp
     core/version_test.cpp
     core/wording_test.cpp
@@ -45,6 +46,7 @@ add_executable(
     core/io/atomic_write_test.cpp
     core/io/find_executable_test.cpp
     core/io/real_file_system_test.cpp
+    core/process/start_process_test.cpp
     core/io/file_error_test.cpp
     core/text/lines_test.cpp
     core/format/sub_rip_reader_test.cpp
@@ -72,7 +74,12 @@ target_include_directories(subedit_core_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
 target_compile_definitions(
     subedit_core_test
     PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
-            SUBEDIT_LOCAL_DATA_DIR="${CMAKE_SOURCE_DIR}/src/data")
+            SUBEDIT_LOCAL_DATA_DIR="${CMAKE_SOURCE_DIR}/src/data"
+            SUBEDIT_FAKE_PLAYER_BINARY="$<TARGET_FILE:subedit_fake_player>")
+
+# $<TARGET_FILE:…> donne un chemin, pas un ordre de construction. Sans cette
+# ligne, rien ne garantit que le faux lecteur existe quand un test le lance.
+add_dependencies(subedit_core_test subedit_fake_player)
 
 subedit_set_warnings(subedit_core_test)
 
