@@ -44,6 +44,20 @@ bool RealFileSystem::exists(const std::filesystem::path& path) const {
     return std::filesystem::exists(path, code) && !code;
 }
 
+// `status` rather than `symlink_status`: it follows symbolic links, and
+// `/usr/bin/ffprobe` is one on most distributions.
+bool RealFileSystem::isExecutable(const std::filesystem::path& path) const {
+    std::error_code code;
+    const std::filesystem::file_status status = std::filesystem::status(path, code);
+    if (code || !std::filesystem::is_regular_file(status))
+        return false;
+
+    constexpr std::filesystem::perms kAnyExecuteBit = std::filesystem::perms::owner_exec |
+                                                      std::filesystem::perms::group_exec |
+                                                      std::filesystem::perms::others_exec;
+    return (status.permissions() & kAnyExecuteBit) != std::filesystem::perms::none;
+}
+
 std::expected<std::string, FileError>
 RealFileSystem::readFile(const std::filesystem::path& path) const {
     std::ifstream file{path, std::ios::binary};

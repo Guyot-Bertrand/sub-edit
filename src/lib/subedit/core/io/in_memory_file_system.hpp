@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <map>
 #include <optional>
+#include <set>
 #include <string>
 #include <string_view>
 
@@ -23,6 +24,14 @@ class InMemoryFileSystem final : public FileSystem {
 public:
     /// Puts a file there, as if it had always been.
     void addFile(const std::filesystem::path& path, std::string content);
+
+    /// Puts an executable file there, with no content worth reading.
+    ///
+    /// What a fake `PATH` is made of: a test looking for an external program
+    /// lays out the directories it wants, puts the program in one of them —
+    /// or in none, which is the interesting case — and never touches the
+    /// machine it runs on.
+    void addExecutable(const std::filesystem::path& path);
 
     /// Returns the content of `path`, or nothing if it is not there.
     [[nodiscard]] std::optional<std::string> contentOf(const std::filesystem::path& path) const;
@@ -45,6 +54,8 @@ public:
 
     [[nodiscard]] bool exists(const std::filesystem::path& path) const override;
 
+    [[nodiscard]] bool isExecutable(const std::filesystem::path& path) const override;
+
     [[nodiscard]] std::expected<std::string, FileError>
     readFile(const std::filesystem::path& path) const override;
 
@@ -58,6 +69,12 @@ public:
 
 private:
     std::map<std::filesystem::path, std::string> m_files;
+
+    /// Which of them the system would agree to run. A second container rather
+    /// than a field on the entry: nothing but the search for a program reads
+    /// it, and every other test would have to name a mode it does not care
+    /// about.
+    std::set<std::filesystem::path> m_executables;
 
     mutable std::optional<FileErrorKind> m_pendingReadFailure;
     std::optional<FileErrorKind> m_pendingWriteFailure;

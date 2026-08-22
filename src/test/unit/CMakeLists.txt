@@ -43,6 +43,7 @@ add_executable(
     core/format/read_result_test.cpp
     core/io/in_memory_file_system_test.cpp
     core/io/atomic_write_test.cpp
+    core/io/find_executable_test.cpp
     core/io/real_file_system_test.cpp
     core/io/file_error_test.cpp
     core/text/lines_test.cpp
