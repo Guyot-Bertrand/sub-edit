@@ -90,6 +90,36 @@ suivants ne se comparent qu'à un dixième près.
 Rien n'a été élagué de la table pour autant : l'enveloppe d'avant reste vraie de
 ce qu'elle mesurait.
 
+## Le modèle de table scrute les anomalies, en 0.4.18
+
+Deux mesures font un bond, et il est attendu plutôt que subi :
+
+| Mesure | Avant | Après |
+| :----- | ----: | ----: |
+| construction du modèle sur 4000 sous-titres | 59 ns | ~8 µs |
+| rafraîchir après un décalage de 4000 sous-titres | 26 ns | ~9 µs |
+
+L'issue #134 fait marquer par la table les sous-titres dont les positions ne
+tiennent pas debout. Le calcul est `scanAnomalies`, qui parcourt le document
+entier ; le modèle le refait à sa construction et après **chaque changement de
+position** — c'est ce qui garantit qu'un marquage n'est jamais périmé, y compris
+après une annulation.
+
+**Le rapport est de cent, la somme est de huit microsecondes.** Le calcul a lieu
+une fois par opération, jamais par cellule : ouvrir un fichier coûte 2,4 ms de
+lecture, où ces 8 µs pèsent trois millièmes ; décaler quatre mille sous-titres
+coûtait 7,7 µs et en coûte le double, ce qu'aucun œil ne distingue d'un geste.
+
+Ce qui aurait été économisé, et pourquoi ça ne l'a pas été : rendre le calcul
+paresseux — marquer sale, recalculer au premier affichage — rendrait ces deux
+mesures à leur valeur d'avant sans rien changer au programme, puisque
+l'affichage suit toujours l'opération. Ce serait optimiser le banc d'essai.
+
+Ce qui l'a été : `data()` cherche les anomalies d'une ligne par dichotomie et
+non par balayage. Aucun benchmark ne le montre — leur fixture est saine, donc la
+liste est vide — mais sur un fichier très abîmé, un balayage ferait payer à
+chaque cellule le nombre d'anomalies du document.
+
 ## Extrêmes
 
 Le minimum et le maximum jamais relevés pour chaque mesure. Cette table n'est
@@ -155,6 +185,34 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.4.18 — 2026-08-22 — Release — charge 6.57
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| construction du modèle sur 4000 sous-titres | 8.69 µs | 2.5 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 17.5 µs | 351 ns |
+| rafraîchir après un décalage de 4000 sous-titres | 8.81 µs | 2.39 µs |
+| édition d'une cellule de texte | 412 ns | 35 ns |
+| édition d'une cellule de position | 10 µs | 3.85 µs |
+| versionString | 38.7 ns | 4.54 ns |
+| parse | 40.4 ns | 2.12 ns |
+| format | 95.9 ns | 22.3 ns |
+| position vers image | 7.44 ns | 0.114 ns |
+| image vers position | 7.6 ns | 1.38 ns |
+| mise à l'échelle par un rationnel exact | 8.11 ns | 0.241 ns |
+| lecture de 4000 sous-titres | 2.88 ms | 281 µs |
+| écriture de 4000 sous-titres | 687 µs | 142 µs |
+| décalage de 4000 sous-titres | 8.21 µs | 1.71 µs |
+| décalage puis annulation | 16.4 µs | 9.03 µs |
+| transformation de 4000 sous-titres | 82.1 µs | 10.5 µs |
+| conversion de fréquence sur 4000 sous-titres | 80.5 µs | 16.2 µs |
+| tri de 4000 sous-titres à l'envers | 312 µs | 87.3 µs |
+| suppression d'un sous-titre sur deux | 168 µs | 37.5 µs |
+| suppression puis annulation | 264 µs | 24.1 µs |
+| insertion de 100 sous-titres vides au milieu | 58.8 µs | 16.6 µs |
+| modification d'un texte, à travers une session | 204 ns | 80.8 ns |
+| suppression des mentions sur 4000 sous-titres | 1.08 ms | 57.1 µs |
 
 ### 0.4.17 — 2026-08-22 — Release — charge 2.05
 

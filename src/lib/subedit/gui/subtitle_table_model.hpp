@@ -5,6 +5,7 @@
 
 #include <span>
 #include <utility>
+#include <vector>
 
 /// **Declared rather than included, deliberately.** `moc` parses this header,
 /// and it chokes on the C++20 library headers that `change.hpp` drags in
@@ -16,6 +17,7 @@ class Project;
 class Session;
 struct Change;
 enum class ChangeKind;
+enum class AnomalyKind;
 } // namespace subedit::core
 
 namespace subedit::gui {
@@ -105,6 +107,19 @@ public:
     /// about the document moved — so it does not go through `applied`.
     void refreshAll();
 
+private:
+    /// What is wrong with the document, by row.
+    ///
+    /// **Held, where the core computes on demand**, and the difference is a
+    /// question of who asks: `scanAnomalies` walks the whole project, and a
+    /// table asks its model once per visible cell. Recomputing there would
+    /// make a repaint cost the file.
+    ///
+    /// Rebuilt after every change that could move a position — and after
+    /// nothing else, because a text belongs to no anomaly.
+    void rescanAnomalies();
+
+public:
 signals:
     /// Announces that the session may have moved.
     ///
@@ -115,10 +130,19 @@ signals:
     void historyChanged();
 
 private:
+    /// The tint or the tooltip a row's anomalies call for, or nothing.
+    [[nodiscard]] QVariant anomalyMark(const QModelIndex& index, int role) const;
+
+    /// The anomalies of one row, most telling first, or empty.
+    [[nodiscard]] std::span<const core::AnomalyKind> anomaliesAt(int row) const;
+
     /// The columns a change of that nature makes stale, as a closed span.
     [[nodiscard]] static std::pair<int, int> columnsFor(core::ChangeKind kind);
 
     core::Session* m_session;
+
+    /// One entry per subtitle that carries at least one anomaly, ascending.
+    std::vector<std::pair<int, std::vector<core::AnomalyKind>>> m_anomalies;
 };
 
 } // namespace subedit::gui

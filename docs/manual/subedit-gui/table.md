@@ -37,6 +37,38 @@ la table est fixe, et le reste est coupé à l'affichage. Rien n'est perdu — l
 texte entier réapparaît dès qu'on ouvre la cellule, et c'est lui qui sera
 écrit.
 
+## Les anomalies
+
+Un sous-titre dont les positions ne tiennent pas debout est **teinté sur ses
+colonnes de temps**, et le survoler dit ce qui ne va pas.
+
+| Teinte | Ce qu'elle signale | Ce qu'il faut faire |
+| :----- | :----------------- | :------------------ |
+| rouge | `ends before it starts` | corriger sa fin, ou son début |
+| bleue | `starts before the previous one starts` | le remettre à sa place dans l'ordre |
+| ambre | `starts before the previous one ends` | ajuster son calage |
+
+Seules les colonnes `Start`, `End` et `Duration` sont teintées : une anomalie ne
+parle que de temps, et teinter le texte laisserait croire qu'il y est pour
+quelque chose.
+
+**Un sous-titre peut en porter plusieurs**, et l'infobulle les nomme toutes. La
+teinte est celle de la première à réparer : un sous-titre cassé en lui-même
+l'est quoi que fassent ses voisins ; un sous-titre mal placé se remet en place,
+et son chevauchement s'en va avec lui.
+
+> Ce n'est pas un hasard si le désordre l'emporte presque toujours sur le
+> chevauchement : commencer avant que le précédent ne commence, c'est commencer
+> avant qu'il ne finisse — sauf si le précédent est lui-même cassé.
+
+**Le marquage se recalcule après chaque changement de position**, qu'il vienne
+d'une cellule éditée, d'une opération ou d'une annulation. Il dit ce que le
+fichier est maintenant, pas ce qu'il était à l'ouverture.
+
+Il ne s'appuie sur aucune grille d'images : dès qu'une position est corrigée à
+la main, elle en sort, et un marquage fondé dessus signalerait le travail de
+l'utilisateur.
+
 ## Ce que la table ne fait pas encore
 
 Ajouter ou supprimer une ligne n'est pas possible. Le tri par colonne n'existe

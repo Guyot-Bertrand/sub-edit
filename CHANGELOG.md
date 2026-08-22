@@ -23,6 +23,7 @@ ne pas l'éditer à la main.
 - **gui** — Ouvrir, enregistrer, enregistrer sous
 - **gui** — Décaler, transformer, convertir la fréquence d'image
 - **gui** — Retirer les mentions pour malentendants
+- **gui** — Marquer les anomalies dans la table
 
 ### Corrections
 
