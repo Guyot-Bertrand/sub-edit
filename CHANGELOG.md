@@ -20,10 +20,15 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — La règle du titre de pull request, dans CLAUDE.md
+- **doc** — Les six étapes de check-local, dont les fixtures vidéo
 
 ### Remaniements
 
 - **core** — Les détails d'erreur du système de fichiers, en anglais
+
+### Tests
+
+- **test** — Deux fixtures vidéo minuscules, vérifiables plutôt que crues
 
 ## 0.5.0 — 2026-08-22
 
