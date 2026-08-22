@@ -20,6 +20,10 @@
 # Les quatre suivantes visent `make manual-check`, une par mode d'arrêt du
 # générateur d'exemples du manuel.
 #
+# La dernière ne vise aucune porte : clean-stale-coverage.sh répare au lieu de
+# refuser, et ce qui peut être faux chez lui va dans les deux sens — garder un
+# arbre incohérent, ou écarter un arbre sain.
+#
 # Les six suivantes visent `make parallelism` : deux familles de fichiers qui
 # échappaient au balayage, trois formes qu'il ne reconnaissait pas, et **une
 # preuve d'un genre différent** — que du code légitime n'est pas signalé. Un
@@ -592,12 +596,72 @@ expect_prune_selection_holds() {
 
 expect_prune_selection_holds
 
+# Une preuve d un quatrième genre, et du même esprit que la précédente.
+# clean-stale-coverage.sh ne refuse rien non plus : il répare. Ce qui peut être
+# faux chez lui est donc de laisser passer un arbre incohérent — un .gcno qu un
+# déplacement de source a orphelin, et qui fait échouer gcovr sur un message qui
+# ne nomme ni le fichier fautif ni le remède.
+#
+# Et l erreur symétrique compte autant : écarter un arbre sain coûterait une
+# reconstruction complète à chaque mesure, ce que personne ne remarquerait
+# autrement que par une lenteur inexpliquée. Les deux sens sont donc éprouvés.
+#
+# Sur un arbre de mensonge plutôt que sur le vrai : la mécanique est une
+# comparaison de listes, elle se démontre sur des listes écrites à la main, et
+# rien ici ne doit dépendre d une compilation de vingt minutes.
+expect_stale_coverage_is_cleared() {
+    local build
+    local script="${REPO_ROOT}/src/scripts/clean-stale-coverage.sh"
+
+    printf '%s▸ %s%s\n' "${BOLD}" "arbre de couverture périmé par un déplacement" "${RESET}"
+
+    build="$(mktemp -d)"
+    touch "${build}/temoin.gcno"
+
+    # Premier passage : pas de relevé, donc rien à comparer et rien à écarter.
+    local status=0
+    "${script}" --build-dir "${build}" >/dev/null || status=$?
+
+    if (( status != 0 )) || [[ ! -f "${build}/temoin.gcno" ]]; then
+        printf '  %s✗ le premier passage a écarté un arbre qu il ne pouvait pas juger%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+        rm -rf "${build}"
+        return
+    fi
+
+    # Deuxième passage : rien n a bougé depuis le relevé, l arbre doit survivre.
+    "${script}" --build-dir "${build}" >/dev/null || status=$?
+    if [[ ! -f "${build}/temoin.gcno" ]]; then
+        printf '  %s✗ un arbre sain a été écarté%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+        rm -rf "${build}"
+        return
+    fi
+
+    # Troisième passage : une source du relevé a disparu, comme après un
+    # déplacement. L arbre entier doit partir, témoin compris.
+    printf 'src/lib/subedit/core/deplacee.cpp\n' >> "${build}/.sources"
+    "${script}" --build-dir "${build}" >/dev/null || status=$?
+
+    if [[ -f "${build}/temoin.gcno" ]]; then
+        printf '  %s✗ un arbre orphelin a été gardé%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ sain gardé, orphelin écarté%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    rm -rf "${build}"
+}
+
+expect_stale_coverage_is_cleared
+
 printf '\n'
 if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles vingt-six portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles vingt-sept portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

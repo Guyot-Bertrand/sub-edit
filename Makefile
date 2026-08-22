@@ -241,6 +241,13 @@ asan: ## Exécute les tests sous ASan et UBSan
 coverage: ## Mesure la couverture des bibliothèques
 	$(call require,gcovr)
 	$(call step,"couverture")
+	# Le pendant du nettoyage des .gcda plus bas, pour l'autre moitié du
+	# problème. Celui-là naît d'une recompilation ; celui-ci d'un déplacement
+	# de source, qui laisse un .gcno que plus rien ne rattache à une source —
+	# et gcovr échoue dessus sur un message qui ne nomme ni le fichier fautif
+	# ni le remède. Le script porte le raisonnement et la raison d'écarter
+	# l'arbre plutôt que d'y retrancher.
+	@./src/scripts/clean-stale-coverage.sh
 	@cmake --preset coverage
 	@cmake --build --preset coverage -j $(JOBS)
 	# Les .gcda d'une exécution antérieure survivent à la recompilation et
