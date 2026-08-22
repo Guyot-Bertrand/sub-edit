@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **core** — Chercher un exécutable sur un chemin de recherche injecté
+- **core** — Lancer un programme extérieur, et ne pas l'attendre
 
 ### Construction
 
@@ -21,6 +22,7 @@ ne pas l'éditer à la main.
 
 - **doc** — La règle du titre de pull request, dans CLAUDE.md
 - **doc** — Les six étapes de check-local, dont les fixtures vidéo
+- **doc** — Les programmes que les tests lancent, et le cliquet relevé
 
 ### Remaniements
 
@@ -29,6 +31,7 @@ ne pas l'éditer à la main.
 ### Tests
 
 - **test** — Deux fixtures vidéo minuscules, vérifiables plutôt que crues
+- **test** — Un faux lecteur vidéo, et l'attente bornée d'un enfant
 
 ## 0.5.0 — 2026-08-22
 
