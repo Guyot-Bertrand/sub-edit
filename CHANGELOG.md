@@ -38,6 +38,7 @@ ne pas l'éditer à la main.
 - Numéroter le découpage en issues de la phase 5
 - Mesurer les grilles d'images par leur phase
 - **core** — Trois commentaires qui décrivaient un état révolu
+- **doc** — Les écarts de la phase 5, et ses renvois qui atterrissent
 
 ### Performance
 

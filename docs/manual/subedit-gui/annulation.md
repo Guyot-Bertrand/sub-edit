@@ -23,9 +23,14 @@ pointeur — mais son infobulle porte le libellé entier.
 | un décalage | `shifting` |
 | une transformation | `transforming` |
 | une conversion de fréquence | `converting the frame rate` |
-| un tri | `sorting` |
 | un retrait des mentions | `removing hearing-impaired mentions` |
-| une insertion, une suppression | `inserting`, `removing` |
+
+**Six libellés, et c'est tout ce que la fenêtre sait produire.** Le noyau en
+nomme trois autres — `inserting`, `removing`, `sorting` — qu'aucune action de la
+fenêtre n'atteint : les deux premières arrivent avec le menu d'insertion, et le
+tri n'a lieu que sous une politique d'ordre stricte, alors que la fenêtre ouvre
+ses documents sous la politique souple, qui signale le désordre au lieu de le
+réparer.
 
 Ce sont les mêmes mots que ceux de la ligne de commande : ils sont écrits une
 fois, dans le noyau.

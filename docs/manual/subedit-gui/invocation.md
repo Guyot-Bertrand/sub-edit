@@ -37,8 +37,12 @@ format est reconnu au contenu et non à l'extension.
 ## Quand l'ouverture échoue
 
 Un fichier absent, illisible, qui n'est pas de l'UTF-8 valide, ou dont aucun
-format ne reconnaît le contenu : **la fenêtre s'ouvre quand même, vide**, et la
-raison est écrite sur la sortie d'erreur.
+format ne reconnaît le contenu : **la fenêtre s'ouvre quand même, vide**, et
+l'échec est écrit sur la sortie d'erreur.
+
+**Le message est le même pour les quatre cas.** La fenêtre ne distingue pas ce
+que le système de fichiers a refusé de ce qu'aucun format n'a reconnu ; la ligne
+de commande, elle, le dit.
 
 ```console
 $ subedit-gui notes.txt
@@ -48,9 +52,9 @@ subedit-gui: notes.txt: nothing to open
 Ouvrir vide plutôt que refuser de démarrer : l'outil sert encore à quelque
 chose, et l'échec d'un argument n'est pas une raison de ne pas se lancer.
 
-**Les diagnostics d'une lecture qui a réussi ne sont pas encore montrés.** Un
-fichier mal formé mais lisible s'ouvre en silence ; `subedit-cli inspect` les
-rapporte en attendant.
+**Un fichier mal formé mais lisible s'ouvre**, et ce que la lecture a rattrapé
+en chemin s'affiche sous la table — voir
+[les diagnostics d'une lecture](fichiers.md#les-diagnostics-dune-lecture).
 
 ## Codes de retour
 

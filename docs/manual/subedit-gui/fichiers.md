@@ -17,8 +17,9 @@ Le dialogue filtre les deux formats lus, **SubRip** (`.srt`) et **WebVTT**
 pas à l'extension : un `.txt` qui contient du SubRip s'ouvre.
 
 **Un fichier illisible ne remplace rien.** Absent, refusé par le système, non
-UTF-8, ou d'aucun format connu : un message le dit, et la fenêtre garde ce
-qu'elle avait — sous-titres, historique et modifications comprises.
+UTF-8, ou d'aucun format connu : un message le dit — le même pour les quatre —
+et la fenêtre garde ce qu'elle avait, sous-titres, historique et modifications
+comprises.
 
 Ouvrir depuis la ligne de commande fonctionne toujours : `subedit-gui film.srt`.
 Là, un fichier illisible écrit la raison sur la sortie d'erreur et la fenêtre
