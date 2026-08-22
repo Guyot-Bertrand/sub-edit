@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — La règle du titre de pull request, dans CLAUDE.md
+
+## 0.5.0 — 2026-08-22
+
 ### Ajouts
 
 - **build** — Restreindre clang-tidy au périmètre modifié, en local aussi
