@@ -2,6 +2,7 @@
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/set_position_command.hpp>
 #include <subedit/core/edit/set_text_command.hpp>
+#include <subedit/core/model/anomaly.hpp>
 #include <subedit/core/model/boundary.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
@@ -9,8 +10,11 @@
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/wording.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
+#include <QBrush>
+#include <QColor>
 #include <QString>
 
 #include <algorithm>
@@ -20,15 +24,75 @@
 #include <span>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace subedit::gui {
 
 namespace {
 
+using core::AnomalyKind;
 using core::Change;
 using core::ChangeKind;
 using core::DecimalMark;
 using core::SubtitleFormat;
+
+/// Which anomaly a row is named and tinted by when it carries several.
+///
+/// **A subtitle in disorder almost always overlaps too**, and that is
+/// arithmetic rather than coincidence: starting before its predecessor starts
+/// means starting before it ends, unless the predecessor is itself broken.
+/// Taking whichever came first would therefore have shown the overlap and
+/// never the disorder.
+///
+/// So the order is the order of repair. A subtitle broken in itself is wrong
+/// whatever its neighbours do. One in the wrong place is put back, and its
+/// overlap goes with it. An overlap alone is the one that is only about timing.
+[[nodiscard]] int repairOrderOf(AnomalyKind kind) {
+    switch (kind) {
+    case AnomalyKind::EndBeforeStart:
+        return 0;
+    case AnomalyKind::OutOfOrder:
+        return 1;
+    case AnomalyKind::OverlappingSubtitles:
+        return 2;
+    }
+
+    std::unreachable();
+}
+
+/// The tint a kind of anomaly paints its positions with.
+///
+/// **Translucent on purpose.** The window follows the desktop's palette, which
+/// may be light or dark; a solid colour would be right against one and unread-
+/// able against the other. An alpha wash tints whatever is underneath.
+///
+/// Three hues because the three are repaired differently — a subtitle broken in
+/// itself, one that runs into its neighbour, one that is in the wrong place.
+/// How much of the tint reaches the eye, out of 255.
+///
+/// Assez pour se voir d'un coup d'œil sur une table de quatre mille lignes,
+/// assez peu pour que le texte reste lisible par-dessus, clair ou sombre.
+constexpr int kWash = 64;
+
+/// Rouge pour un sous-titre cassé en lui-même, ambre pour un chevauchement,
+/// bleu pour une ligne mal placée. Trois teintes qu'on distingue même sans
+/// distinguer les rouges des verts.
+constexpr QColor kBrokenTint{200, 40, 40, kWash};
+constexpr QColor kOverlapTint{220, 140, 0, kWash};
+constexpr QColor kDisorderTint{70, 90, 210, kWash};
+
+[[nodiscard]] QBrush tintOf(AnomalyKind kind) {
+    switch (kind) {
+    case AnomalyKind::EndBeforeStart:
+        return QBrush{kBrokenTint};
+    case AnomalyKind::OverlappingSubtitles:
+        return QBrush{kOverlapTint};
+    case AnomalyKind::OutOfOrder:
+        return QBrush{kDisorderTint};
+    }
+
+    std::unreachable();
+}
 
 /// The mark the file will be written with, so that the separator on screen is
 /// the one the file will hold.
@@ -49,7 +113,40 @@ using core::SubtitleFormat;
 } // namespace
 
 SubtitleTableModel::SubtitleTableModel(core::Session& session, QObject* parent)
-    : QAbstractTableModel(parent), m_session(&session) {}
+    : QAbstractTableModel(parent), m_session(&session) {
+    rescanAnomalies();
+}
+
+void SubtitleTableModel::rescanAnomalies() {
+    m_anomalies.clear();
+
+    // Rangées par sous-titre : `scanAnomalies` les rend dans l'ordre des
+    // sous-titres, donc un même indice arrive d'affilée.
+    for (const core::Anomaly& anomaly : core::scanAnomalies(m_session->project())) {
+        const int row = static_cast<int>(anomaly.index.value());
+        if (m_anomalies.empty() || m_anomalies.back().first != row)
+            m_anomalies.emplace_back(row, std::vector<AnomalyKind>{});
+
+        m_anomalies.back().second.push_back(anomaly.kind);
+    }
+
+    // Ce qui se répare en premier se lit en premier, et donne la teinte.
+    for (auto& [row, kinds] : m_anomalies)
+        std::ranges::sort(kinds, {}, repairOrderOf);
+}
+
+std::span<const AnomalyKind> SubtitleTableModel::anomaliesAt(int row) const {
+    // **Par dichotomie, et non par balayage.** `data()` pose la question une
+    // fois par cellule visible ; sur un fichier très abîmé, une recherche
+    // linéaire ferait payer chaque cellule le nombre d'anomalies du document.
+    // Les entrées sont rangées par ligne croissante, ce qui suffit.
+    const auto found = std::ranges::lower_bound(
+        m_anomalies, row, {}, &std::pair<int, std::vector<AnomalyKind>>::first);
+    if (found == m_anomalies.end() || found->first != row)
+        return {};
+
+    return found->second;
+}
 
 int SubtitleTableModel::rowCount(const QModelIndex& parent) const {
     // A table has no children: a valid parent asks for the rows *under* a cell,
@@ -62,10 +159,16 @@ int SubtitleTableModel::columnCount(const QModelIndex& parent) const {
 }
 
 QVariant SubtitleTableModel::data(const QModelIndex& index, int role) const {
+    if (!index.isValid())
+        return {};
+
+    if (role == Qt::BackgroundRole || role == Qt::ToolTipRole)
+        return anomalyMark(index, role);
+
     // Les deux rôles rendent la même chose, et c'est ce qui fait marcher les
     // délégués hérités : `setEditorData` lit `Qt::EditRole`, et un éditeur de
     // position doit s'ouvrir sur l'horodatage tel qu'il est écrit à l'écran.
-    if (!index.isValid() || (role != Qt::DisplayRole && role != Qt::EditRole))
+    if (role != Qt::DisplayRole && role != Qt::EditRole)
         return {};
 
     if (index.row() < 0 || index.row() >= rowCount({}))
@@ -105,6 +208,30 @@ QVariant SubtitleTableModel::data(const QModelIndex& index, int role) const {
     // Les cinq colonnes sont traitées, la garde ci-dessus écarte le reste, et
     // le compilateur vérifie que l'énumération est épuisée.
     std::unreachable();
+}
+
+QVariant SubtitleTableModel::anomalyMark(const QModelIndex& index, int role) const {
+    // Les positions et ce qui s'en déduit. Teinter le texte laisserait croire
+    // qu'il est pour quelque chose dans une anomalie qui ne parle que de temps.
+    const int column = index.column();
+    if (column != Start && column != End && column != Duration)
+        return {};
+
+    const std::span<const AnomalyKind> kinds = anomaliesAt(index.row());
+    if (kinds.empty())
+        return {};
+
+    // La première dans l'ordre de réparation gouverne la teinte.
+    if (role == Qt::BackgroundRole)
+        return tintOf(kinds.front());
+
+    QString named;
+    for (const AnomalyKind kind : kinds) {
+        if (!named.isEmpty())
+            named += QStringLiteral("\n");
+        named += QString::fromUtf8(core::nameOf(kind));
+    }
+    return named;
 }
 
 Qt::ItemFlags SubtitleTableModel::flags(const QModelIndex& index) const {
@@ -242,10 +369,19 @@ void SubtitleTableModel::applied(std::span<const Change> changes) {
 
     if (structural) {
         beginResetModel();
+        rescanAnomalies();
         endResetModel();
         emit historyChanged();
         return;
     }
+
+    // Un texte n'entre dans aucune anomalie ; tout le reste peut déplacer une
+    // position, donc tout le reste demande un recalcul.
+    const bool positional = std::ranges::any_of(changes, [](const Change& change) {
+        return change.kind == ChangeKind::Positions || change.kind == ChangeKind::Reordering;
+    });
+    if (positional)
+        rescanAnomalies();
 
     for (const Change& change : changes) {
         const auto [first, last] = columnsFor(change.kind);
