@@ -153,12 +153,15 @@ src/test/tools/                             les programmes que les tests lancent
 
 `src/test/tools/` sort de la symétrie parce qu'il ne miroite rien : ce ne sont
 pas des tests, mais **les tiers qu'un test a besoin de faire exister**. Le
-premier est `fake_player.cpp`, entré à la phase 6 — un lecteur vidéo qui ne lit
-rien et dit ce qu'on lui a demandé de lire. Ce qu'il faut prouver d'une
-prévisualisation est que la bonne ligne de commande est construite et lancée,
-et un vrai lecteur coûterait un film, un écran et un processus qui ne s'arrête
-pas tout seul. Rien de livré ne les contient : aucune cible d'installation ne
-les nomme.
+premier est `fake_player.cpp`, entré à la phase 6 — un programme qui écrit ses
+arguments, se plaint sur commande et s'arrête. Il servait un lecteur vidéo
+externe, que le cadrage de la phase 6 a supprimé au profit d'un lecteur intégré ;
+il sert maintenant à doubler `ffprobe`, ce qui demande exactement les mêmes
+choses de lui. Ce qu'un test veut d'un programme extérieur est de savoir avec
+quels arguments il a été lancé et de pouvoir le faire échouer — le vrai
+coûterait ce qu'il coûte et ne serait pas installé partout.
+
+Rien de livré ne les contient : aucune cible d'installation ne les nomme.
 
 Un binaire de test par bibliothèque, enregistré dans CTest via
 `catch_discover_tests` pour que chaque cas soit visible et filtrable
