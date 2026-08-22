@@ -72,6 +72,7 @@ python3 - "${xml}" "${JOURNAL}" "${version}" "$(date +%Y-%m-%d)" "${RETENTION_DA
 import datetime
 import os
 import re
+import statistics
 import sys
 import tempfile
 import xml.etree.ElementTree as ET
@@ -102,6 +103,25 @@ def humanise(nanoseconds):
 def escape_cell(text):
     """Protège une cellule de table markdown contre un '|' dans le nom."""
     return text.replace("|", "\\|")
+
+
+UNITS = {"ns": 1.0, "µs": 1e3, "ms": 1e6, "s": 1e9}
+
+
+def dehumanise(cell):
+    """Relit une durée écrite par humanise(), en nanosecondes.
+
+    Trois chiffres significatifs, donc à un pour mille près. Assez pour juger
+    si un relevé tourne dix pour cent au-dessus des précédents, et c'est le
+    seul usage qui en est fait.
+    """
+    match = re.match(r"^([0-9.eE+-]+)\s*(ns|µs|ms|s)$", cell.strip())
+    if match is None:
+        return None
+    try:
+        return float(match.group(1)) * UNITS[match.group(2)]
+    except ValueError:
+        return None
 
 
 def unescape_cell(text):
@@ -196,6 +216,70 @@ for match in section_pattern.finditer(records):
     if age <= retention:
         kept.append(block.rstrip())
 
+# --- l'allure d'un relevé : ce qu'il vaut comparé à ceux d'avant ---
+#
+# Le rapport médian, mesure par mesure, entre ce relevé et la médiane des
+# PACE_WINDOW précédents. Médian, parce qu'une seule mesure qui s'emballe ne
+# dit rien de la machine, alors que la moitié d'entre elles qui glissent
+# ensemble le dit.
+#
+# **C'est un diagnostic, pas un critère**, et cette distinction a été payée.
+# L'allure a été essayée à la place de la charge, pour l'issue #168 : elle
+# semblait mesurer la bonne chose — « ce relevé est-il lent ? » plutôt que
+# « la machine était-elle occupée il y a une minute ? ». La mesure a tranché
+# dans l'autre sens. Sur les sept cent quarante-deux mesures comparables du
+# journal, la charge en admet trois cent soixante et une dont quatre pointes
+# au-delà de 1,5 fois leurs voisines ; l'allure en admettrait cinq cent
+# quatre-vingt-quatorze, dont vingt-cinq pointes.
+#
+# La raison est nette une fois vue : **une machine occupée ne ralentit pas
+# tous les benchmarks, elle en ralentit quelques-uns.** Le relevé 0.4.18
+# tournait à l'allure 1,04 sous une charge de 6,57, et portait pourtant trois
+# mesures à plus du double de leurs voisines. Un critère qui juge le relevé
+# entier ne peut pas voir cela ; la charge, elle, écarte le relevé.
+#
+# L'allure reste écrite dans l'en-tête parce qu'elle répond à la question
+# qu'on se pose vraiment devant un relevé qui pose dix maxima d'un coup — et
+# que faute d'elle, cette question a été mal tranchée une fois.
+PACE_WINDOW = 3
+PACE_MINIMUM_MEASURES = 5
+
+row_pattern = re.compile(r"^\| (?P<name>.+?) \| (?P<mean>[^|]+?) \| (?P<sd>[^|]+?) \|$", re.MULTILINE)
+
+
+def read_means(block):
+    """Relit les moyennes d'un relevé déjà écrit.
+
+    Seules les moyennes : l'en-tête n'a rien à apprendre ici, et le lire
+    demanderait un motif de plus à tenir en accord avec celui qui l'écrit.
+    """
+    means = {}
+    for row in row_pattern.finditer(block):
+        value = dehumanise(row.group("mean"))
+        if value is not None:
+            means[unescape_cell(row.group("name").strip())] = value
+    return means
+
+
+def pace_of(means, previous):
+    """L'allure de `means` face à `previous`, du plus récent au plus ancien.
+
+    Rend None quand l'historique est trop court pour trancher — les premiers
+    relevés du journal, et ceux dont les mesures viennent d'être renommées.
+    """
+    ratios = []
+    for name, value in means.items():
+        earlier = [record[name] for record in previous[:PACE_WINDOW] if name in record]
+        if len(earlier) < 2:
+            continue
+        base = statistics.median(earlier)
+        if base > 0:
+            ratios.append(value / base)
+    if len(ratios) < PACE_MINIMUM_MEASURES:
+        return None
+    return statistics.median(ratios)
+
+
 # Une charge illisible — pas de /proc — ne vaut pas condamnation : la mesure est
 # consignée telle quelle, sans qualité affirmée, et elle ne fixe pas d'extrême
 # non plus. Affirmer qu'elle est propre serait affirmer ce qu'on n'a pas vu.
@@ -204,7 +288,14 @@ try:
 except ValueError:
     quiet = False
 
-lines = [f"### {version} — {today} — {mode} — charge {load}", "", "| Mesure | Moyenne | Écart-type |", "| :----- | ------: | ---------: |"]
+# `kept` est du plus récent au plus ancien : c'est l'ordre qu'attend pace_of.
+history = [means for means in (read_means(block) for block in kept) if means]
+
+current_means = {measure["name"]: measure["mean"] for measure in measures}
+pace = pace_of(current_means, history)
+
+pace_cell = "inconnue" if pace is None else f"×{pace:.2f}"
+lines = [f"### {version} — {today} — {mode} — charge {load} — allure {pace_cell}", "", "| Mesure | Moyenne | Écart-type |", "| :----- | ------: | ---------: |"]
 for measure in measures:
     lines.append(
         f"| {escape_cell(measure['name'])} | {humanise(measure['mean'])} | {humanise(measure['sd'])} |"
@@ -265,6 +356,7 @@ if set(known) != set(raw):
     )
 
 stamp = f"{version} — {today}"
+
 current_means = {measure["name"]: measure["mean"] for measure in measures}
 
 # La table des extrêmes n'est jamais élaguée : une mesure absente du relevé
