@@ -196,6 +196,11 @@ parallelism: ## Vérifie qu'aucun parallélisme ne contourne $(JOBS)
 	$(call step,"parallélisme maîtrisé")
 	@./src/scripts/check-parallelism.sh
 
+.PHONY: fixtures
+fixtures: ## Vérifie que les fixtures vidéo déclarent ce que la table dit
+	$(call step,"fixtures vidéo")
+	@./src/scripts/video-fixtures.sh --check
+
 # Ne construit que `subedit-cli` : les exemples du manuel n'invoquent que lui,
 # et lui demander la bibliothèque de tests coûterait sans rien apporter.
 .PHONY: manual
@@ -291,7 +296,8 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 # request : elle enchaîne tout ce qu'on veut voir passer en local sans le
 # voir gater la CI. L'ordre va du moins cher au plus cher, pour qu'un échec
 # coûte des secondes plutôt que la totalité de la chaîne : parallélisme
-# maîtrisé (un grep, sous la seconde), exemples du manuel (le seul binaire de
+# maîtrisé (un grep, sous la seconde), fixtures vidéo (deux appels à ffprobe,
+# sous la seconde aussi), exemples du manuel (le seul binaire de
 # la CLI), exigences (compilation incrémentale dev), tests de bout en bout
 # (build release), puis benchmarks. `parallelism`
 # passe en premier précisément parce qu'elle ne construit rien — la faire
@@ -308,13 +314,14 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 .PHONY: check-local
 check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory parallelism
+	@$(MAKE) --no-print-directory fixtures
 	@$(MAKE) --no-print-directory manual-check
 	@$(MAKE) --no-print-directory requirements
 	@$(MAKE) --no-print-directory e2e
 	@$(MAKE) --no-print-directory bench
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (vingt-six preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (vingt-sept preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog
