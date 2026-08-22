@@ -328,8 +328,15 @@ autour de `find_package`, adopter Conan ou vcpkg plus tard est presque gratuit �
 tous deux fonctionnent en s'interposant précisément sur ce mécanisme. Le
 déclencheur serait le portage Windows effectif.
 
-`src/scripts/setup-toolchain.sh` installe ce qui manque sur une machine Ubuntu : ninja, clang-tidy, clang-format, gcovr, ccache, git-cliff,
-gh, et les paquets de développement Qt6 le moment venu.
+`src/scripts/setup-toolchain.sh` installe ce qui manque sur une machine
+Ubuntu : ninja, clang-tidy, clang-format, gcovr, ccache, git-cliff, gh, jq,
+CLI11, les paquets de développement de Qt 6, et `ffmpeg` pour son `ffprobe`.
+
+Les deux derniers ne sont pas des dépendances de la même nature que les autres.
+Qt 6 est lié au binaire, donc obligatoire pour construire — le mode
+`--with-qt`, qui prétendait le contraire, a disparu à la phase 5. `ffprobe` est
+un exécutable qu'on lance : le projet l'exige d'une machine de développement,
+jamais d'un utilisateur, et le code porte la branche de son absence.
 
 ## La porte de qualité : `make check`
 
