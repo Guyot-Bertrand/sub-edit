@@ -30,7 +30,7 @@ fichier, et la masquer la rendrait introuvable.
 Voir [Éditer une cellule](edition.md).
 
 **La sélection désigne ce sur quoi une opération porte** — voir
-[Décaler, transformer, convertir](operations.md).
+[Les opérations](operations.md).
 
 **Un texte de plusieurs lignes n'en montre qu'une** : la hauteur des lignes de
 la table est fixe, et le reste est coupé à l'affichage. Rien n'est perdu — le

@@ -1,4 +1,5 @@
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
+#include <subedit/core/edit/hearing_impaired_removal.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
 #include <subedit/core/edit/shift_limits.hpp>
@@ -13,6 +14,7 @@
 #include <subedit/gui/command_label.hpp>
 #include <subedit/gui/diagnostics_panel.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
+#include <subedit/gui/hearing_impaired_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
 #include <subedit/gui/prompts.hpp>
@@ -94,7 +96,9 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_saveAs(buildAction(this, QStringLiteral("Save As…"), QStringLiteral("document-save-as"))),
       m_shift(buildAction(this, QStringLiteral("Shift Positions…"), {})),
       m_transform(buildAction(this, QStringLiteral("Transform Positions…"), {})),
-      m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})) {
+      m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
+      m_hearingImpaired(
+          buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})) {
     // Un délégué par nature de cellule, et aucun sur le numéro ni sur la durée,
     // qui ne s'éditent pas : la table de Qt n'en pose que là où on lui en pose.
     m_table->setItemDelegateForColumn(SubtitleTableModel::Start, new PositionDelegate{this});
@@ -142,11 +146,15 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(m_shift, &QAction::triggered, this, &MainWindow::shiftTarget);
     connect(m_transform, &QAction::triggered, this, &MainWindow::transformTarget);
     connect(m_frameRate, &QAction::triggered, this, &MainWindow::convertFrameRateOfTarget);
+    connect(
+        m_hearingImpaired, &QAction::triggered, this, &MainWindow::removeHearingImpairedFromTarget);
 
     QMenu* tools = menuBar()->addMenu(QStringLiteral("&Tools"));
     tools->addAction(m_shift);
     tools->addAction(m_transform);
     tools->addAction(m_frameRate);
+    tools->addSeparator();
+    tools->addAction(m_hearingImpaired);
 
     QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
     edition->addAction(m_undo);
@@ -305,6 +313,32 @@ void MainWindow::refreshActions() {
     m_shift->setEnabled(anything);
     m_transform->setEnabled(anything);
     m_frameRate->setEnabled(anything);
+    m_hearingImpaired->setEnabled(anything);
+}
+
+void MainWindow::removeHearingImpairedFromTarget() {
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+
+    HearingImpairedDialog dialog{m_session->project().count(), this};
+    if (!m_prompts->run(dialog))
+        return;
+
+    // Bâtie avant d'être appliquée, et interrogée sur ce qu'elle fera : le
+    // compte se lit dans la commande, jamais en recomptant après coup.
+    std::unique_ptr<core::Command> command =
+        core::removeHearingImpaired(m_session->project(), target, core::Document::Main);
+    if (!command) {
+        // Rien n'a mordu. Le dire, et ne rien mettre dans l'historique : une
+        // opération qui ne change rien n'est pas une opération à annuler.
+        m_prompts->reportOutcome("no mention to remove");
+        return;
+    }
+
+    const core::HearingImpairedTally tally = core::tallyOf(*command);
+    applyOperation(std::move(command));
+
+    m_prompts->reportOutcome(core::countOf(tally.cleaned, "subtitle") + " cleaned, " +
+                             std::to_string(tally.removed) + " removed");
 }
 
 void MainWindow::applyOperation(std::unique_ptr<core::Command> command) {

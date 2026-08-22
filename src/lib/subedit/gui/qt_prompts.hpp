@@ -58,6 +58,8 @@ public:
 
     void reportFailure(const std::string& message) override;
 
+    void reportOutcome(const std::string& message) override;
+
 private:
     QWidget* m_owner;
 };

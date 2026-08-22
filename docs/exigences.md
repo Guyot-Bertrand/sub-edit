@@ -110,6 +110,6 @@ plus rien.
 | `GUI-SHIFT-01` | le dialogue de décalage décale la cible | 5 | implémentée |
 | `GUI-TRANSFORM-01` | le dialogue de transformation corrige par deux repères | 5 | implémentée |
 | `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible | 5 | implémentée |
-| `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier | 5 | prévue |
-| `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique | 5 | prévue |
+| `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier | 5 | implémentée |
+| `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique | 5 | implémentée |
 | `CLI-INSPECT-04` | les anomalies d'un document sont rapportées par numéro de sous-titre | 5 | implémentée |

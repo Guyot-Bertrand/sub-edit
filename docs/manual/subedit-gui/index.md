@@ -4,9 +4,10 @@ La fenêtre de subedit : ouvrir un fichier de sous-titres et le voir dans une
 table.
 
 > **État actuel.** La fenêtre **ouvre**, **affiche**, **édite ses cellules**,
-> **annule**, **enregistre**, et porte trois opérations — décaler, transformer,
-> convertir la fréquence d'image. Le retrait des mentions pour malentendants,
-> l'insertion et la suppression de lignes viennent ensuite. Voir la
+> **annule**, **enregistre**, et porte les quatre opérations de la phase —
+> décaler, transformer, convertir la fréquence d'image, retirer les mentions
+> pour malentendants. L'insertion et la suppression de lignes viennent ensuite,
+> ainsi que le marquage des sous-titres en anomalie. Voir la
 > [feuille de route](../../feuille-de-route.md). Ce manuel décrit ce qui existe,
 > jamais ce qui est prévu.
 
@@ -26,4 +27,4 @@ table.
 | [La table](table.md) | ce que chaque colonne montre |
 | [Éditer une cellule](edition.md) | quelles cellules s'éditent, et comment |
 | [Annuler et rétablir](annulation.md) | l'historique, les deux actions, la marque de modification |
-| [Décaler, transformer, convertir](operations.md) | les trois opérations, leur cible, leurs refus |
+| [Les opérations](operations.md) | décaler, transformer, convertir, retirer les mentions |
