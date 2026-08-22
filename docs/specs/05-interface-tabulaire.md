@@ -237,8 +237,12 @@ déclencheur de réexamen.
 ### L'annulation
 
 Pas de `QUndoStack`. `canUndo()` et `canRedo()` pilotent deux `QAction` ; le
-libellé « Annuler : … » vient de `CommandKind` traduit par une fonction libre de
+libellé « Undo: … » vient de `CommandKind` traduit par une fonction libre de
 `subedit::gui` — l'énumération existe pour ça, son commentaire le dit.
+
+Écrit « Annuler : … » au cadrage, et corrigé à la relecture : l'interface est en
+anglais depuis [#145](https://github.com/Guyot-Bertrand/sub-edit/issues/145), et
+une spec qui garde l'ancien mot fait douter du code plutôt que d'elle-même.
 
 **La question de groupement laissée ouverte en phase 2 se referme sans
 mécanisme.** Un `QStyledItemDelegate` valide une fois, à `Entrée` ou à la perte
@@ -391,6 +395,23 @@ un rendu.
 Le corpus de fichiers de `src/test/data/` sert à l'ouverture ; **`src/data/` n'est
 lu par aucun test**, la règle du projet ne changeant pas ici.
 
+**Une limite, écrite à la relecture parce qu'elle n'était nulle part.**
+`src/exe/gui/main.cpp` n'est prouvé que par `--version`. Le chemin « un fichier
+en argument », et le message que le manuel cite quand il échoue, ne sont
+vérifiés par rien — et **aucun test de bout en bout ne peut les atteindre** :
+passé l'argument, le binaire montre une fenêtre et entre dans
+`QApplication::exec()`, dont il ne sort qu'à la fermeture d'une fenêtre que
+personne ne ferme. Ce que la fenêtre fait s'éprouve donc un cran plus bas,
+contre `MainWindow`, ce que le harnais de #119 avait prévu. Ce qui reste sans
+preuve est le câblage de `main`, une quinzaine de lignes que
+`check-architecture.sh` maintient triviales — et c'est précisément pour cela
+qu'il les maintient triviales.
+
+La spec annonçait par ailleurs que le corpus versionné servait à l'ouverture,
+et aucun test de fenêtre ne le lisait : tous passaient par `InMemoryFileSystem`.
+Corrigé à [#153](https://github.com/Guyot-Bertrand/sub-edit/issues/153), qui
+ouvre un fichier du corpus à travers un vrai système de fichiers.
+
 ## Mesures
 
 `make bench` tourne à chaque issue, comme partout. Deux mesures nouvelles
@@ -407,12 +428,53 @@ Il n'y a pas de benchmark d'interface au sens d'une fenêtre pilotée : #116 l'a
 écarté, et sa raison tient toujours — la mesure vient avec le code qu'elle
 mesure.
 
+**L'empreinte n'a pas été mesurée, et elle ne pouvait pas l'être.** Le projet
+n'a aucun instrument de mesure mémoire : `make bench` chronomètre, et rien
+d'autre. #45 a donc rendu des temps — la suppression d'un sous-titre sur deux
+passée de 9,09 ms à 168 µs, celle des mentions de 5,34 ms à 1,15 ms — et jamais
+les octets que cette ligne promettait. Constaté à la relecture, et écrit ici
+plutôt que laissé croire.
+
+Ce qu'on peut affirmer se lit dans les structures, et c'est une dérivation, pas
+une mesure :
+
+| Opération sur 4000 sous-titres | Avant | Après |
+| :----------------------------- | ----: | ----: |
+| décalage | 32 Ko | **deux bornes** |
+| transformation | 64 Ko de positions + 32 Ko de sélection | 64 Ko de positions |
+| édition d'un texte | 270 o | 270 o |
+
+Le décalage était **entièrement** sa sélection : `ShiftCommand` ne retient qu'une
+`Duration`, son inverse étant le même décalage à l'envers, exact et sans
+arrondi. La transformation garde une position par sous-titre et les gardera —
+la mise à l'échelle arrondit, donc elle n'est pas inversible sans elles ;
+l'économie de l'[ADR 0010](../adr/0010-annulation-par-commandes.md) ne vaut que
+pour les commandes qui portent leur propre inverse. Elle n'a donc gagné que les
+32 Ko de sa sélection, soit un tiers.
+
+**Une mesure d'empreinte reste à construire le jour où une décision en
+dépendra.** Aucune n'en dépend aujourd'hui : le plafond de l'historique est à
+mille entrées, et la commande la plus lourde du MVP pèse 64 Ko.
+
+**Une mesure nouvelle est née de la relecture** : la réinitialisation du modèle
+sur changement de structure, que l'[ADR 0019](../adr/0019-table-en-adaptateur-mince.md)
+demandait de chiffrer avant que la phase 7 ne construise dessus. Réponse, sur
+une machine au repos : **8,15 µs** après une ligne retirée, contre 8,25 µs pour
+rafraîchir un décalage de quatre mille sous-titres et 8,38 µs pour construire le
+modèle. **Les trois sont le même chiffre**, à un vingtième près, et c'est le
+`scanAnomalies` qu'elles partagent — côté modèle,
+réinitialiser ne coûte rien de plus que rafraîchir. Le déclencheur de l'ADR ne
+trouvera donc pas son argument là, mais côté vue, qu'un binaire de benchmarks
+sans `QApplication` ne peut pas atteindre. La mesure ne répond pas à la question
+de la phase 7 : elle la déplace, et dit où elle vit.
+
 ## Exigences
 
 Inscrites à l'état `prévue`, comme la règle l'exige, avant le code.
 
 | ID | Exigence |
 | :- | :------- |
+| `GUI-VERSION-01` | `subedit-gui --version` écrit `subedit <version>`, code 0 |
 | `GUI-OPEN-01` | `subedit-gui <fichier>` ouvre le fichier et affiche ses sous-titres |
 | `GUI-OPEN-02` | un fichier illisible donne un message et laisse la fenêtre vide |
 | `GUI-OPEN-03` | les diagnostics de lecture sont montrés, avec leur ligne |
@@ -431,6 +493,10 @@ Inscrites à l'état `prévue`, comme la règle l'exige, avant le code.
 | `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible |
 | `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier |
 | `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique |
+
+`GUI-VERSION-01` a été ajoutée à cette table à la relecture : elle est née avec
+le harnais de #119, avant que cette liste ne soit écrite, et le registre la
+portait sans que la spec la compte. Dix-neuf, donc, et non dix-huit.
 
 Deux lignes du registre bougent par ailleurs :
 
@@ -464,6 +530,15 @@ projet — après la porte, qui ne lit pas le manuel.
 | 10 | [#134](https://github.com/Guyot-Bertrand/sub-edit/issues/134) — marquer les anomalies dans la table | #128, #127 |
 | 11 | [#135](https://github.com/Guyot-Bertrand/sub-edit/issues/135) — relecture de fin de phase 5 | tout |
 
+**Trois issues sont nées en cours de phase**, et ce tableau les ignorait :
+[#145](https://github.com/Guyot-Bertrand/sub-edit/issues/145), qui a remis
+l'interface en anglais — la règle de langue ne couvrait pas ce que le binaire
+écrit, et le silence a coûté une fenêtre entière en français ;
+[#152](https://github.com/Guyot-Bertrand/sub-edit/issues/152), un arbre de
+couverture périmé par le déplacement de #126 ; et
+[#153](https://github.com/Guyot-Bertrand/sub-edit/issues/153), ce que la
+relecture a trouvé dans le code.
+
 L'ordre 5 → 6 → 7 mérite un mot : l'annulation vient **après** l'édition parce
 qu'il faut quelque chose à annuler, et l'ouverture **après** l'annulation parce
 qu'un chemin en argument suffit jusque-là. Chaque issue laisse un binaire qui
@@ -485,13 +560,60 @@ Tout « plus tard » de cette spec atterrit sur une phase nommée.
 | multi-projets, colonne de traduction | phase 11 |
 | un `Session` qui annonce un changement de structure avant de le faire | phase 7, si la mesure le demande |
 
+**Les neuf atterrissent, deux d'entre eux depuis la relecture seulement.** La
+phase 9 ne disait rien du mode d'édition en images, et la phase 10 portait
+l'ajustement des durées sans dire que la colonne `Duration` deviendrait
+saisissable avec la commande qui lui manque. Un renvoi vers une phase qui ne le
+mentionne pas n'est pas un renvoi : c'est un oubli qui a l'air rangé.
+
+## Ce que la relecture a trouvé
+
+[#135](https://github.com/Guyot-Bertrand/sub-edit/issues/135), sur la spec, le
+registre, le manuel, les trente fichiers de `src/lib/subedit/gui/`, les tests et
+les deux relevés de mesures.
+
+**Un défaut visible à l'écran**, et un seul. Les quatre dialogues d'opération
+recevaient le compte du projet là où l'opération portait sur la cible : deux
+lignes sélectionnées sur quatre donnaient « Applies to: 4 subtitles » et deux
+sous-titres changés. Le seul test du libellé construisait les dialogues à la
+main, sans passer par la fenêtre — **la garantie était exactement là où le
+défaut n'était pas.** Corrigé à
+[#153](https://github.com/Guyot-Bertrand/sub-edit/issues/153).
+
+**Une langue perdue de vue.** Onze des trente fichiers de `gui/`, deux de `cli/`
+écrits pendant cette phase, douze des quatorze fichiers de tests d'interface :
+leurs commentaires étaient en français, contre la règle du projet, et zéro
+partout ailleurs dans le noyau. Le même silence que celui qui avait donné la
+fenêtre en français à #145 — sauf que la règle, cette fois, existait. Corrigé à
+#153, quatre cent quarante lignes.
+
+**Trois axes, et deux issues.** #153 a porté le reste du code : des boîtes
+modales qui ne se posaient sur aucune fenêtre, trois commentaires décrivant un
+état révolu, le benchmark de la réinitialisation, l'ouverture d'un fichier du
+corpus. [#154](https://github.com/Guyot-Bertrand/sub-edit/issues/154) porte ce
+qui ne pouvait pas tenir dans une porte de fin de phase : `gui/opening.cpp` et
+`gui/saving.cpp` ne contiennent pas une ligne de Qt, la recette qu'ils tiennent
+est écrite quatre fois dans le dépôt, et la fenêtre écrase quatre causes
+d'échec d'ouverture en un seul message là où la ligne de commande les distingue.
+
+**Ce qui tient.** Les dix-neuf exigences `GUI-…` sont citées par au moins un
+test, tag par tag. La frontière de l'ADR 0018 n'a pas bougé : `format/` ne
+contient que des lecteurs, des écrivains, une détection et les types qu'ils
+produisent. `OperationDialog` porte ce qui est commun aux quatre dialogues et
+rien de plus — le défaut y était un paramètre mal alimenté, pas une redite. Et
+les trois gardes qu'aucun utilisateur ne peut atteindre sont traversées par des
+tests, ce qui est la bonne réponse à « une garde qu'aucun test ne traverse est
+une promesse que personne ne vérifie ».
+
 ## Critères de fin
 
-- [ ] La fenêtre ouvre, édite, enregistre, annule et rétablit
-- [ ] Les quatre opérations sont accessibles, sur sélection ou fichier entier
-- [ ] Le noyau est réorganisé, les diagnostics scindés, #45 fait et mesuré
-- [ ] `--order-report` a disparu, du binaire, du manuel et du registre
-- [ ] Chaque exigence `GUI-…` est `implémentée` et citée par un test
-- [ ] `docs/manual/subedit-gui/` décrit ce que la fenêtre fait, et rien de plus
-- [ ] Les benchmarks sont rejoués et les mesures relevées
-- [ ] La relecture de fin de phase a eu lieu
+- [x] La fenêtre ouvre, édite, enregistre, annule et rétablit
+- [x] Les quatre opérations sont accessibles, sur sélection ou fichier entier
+- [x] Le noyau est réorganisé, les diagnostics scindés, #45 fait et mesuré — en
+      temps ; son empreinte est dérivée et non mesurée, et la section « Mesures »
+      dit pourquoi
+- [x] `--order-report` a disparu, du binaire, du manuel et du registre
+- [x] Chaque exigence `GUI-…` est `implémentée` et citée par un test
+- [x] `docs/manual/subedit-gui/` décrit ce que la fenêtre fait, et rien de plus
+- [x] Les benchmarks sont rejoués et les mesures relevées
+- [x] La relecture de fin de phase a eu lieu

@@ -691,6 +691,15 @@ d'équivalent direct en C++. Candidats : ICU, `uchardet`, `compact_enc_det`.
 SubViewer 2, Sub Station Alpha, Advanced SSA — les trois formats cités comme
 secondaires — puis MicroDVD, MPL2, TMPlayer et LRC.
 
+**Un renvoi du cadrage de la phase 5 atterrit ici : le mode d'édition en
+images.** Gaupol laisse basculer la table entre positions temporelles et numéros
+d'image ; la phase 5 s'en est passée pour une raison qui tombe précisément
+ici — **aucun format à images n'existe avant MicroDVD**, et les deux formats du
+MVP sont temporels. Une bascule vers des images qu'aucun fichier ne porte
+n'aurait affiché qu'une conversion, calculée contre une fréquence que rien ne
+déclare. Le premier format à images arrive dans cette phase, et avec lui la
+question de ce que la table montre.
+
 **Point difficile** — ASS n'est pas un format de timing mais un format structuré
 avec sections, styles nommés et événements typés. La conversion vers SubRip est
 **structurellement à perte** : quelle politique de dégradation, et la
@@ -701,6 +710,14 @@ balises conçu en phase 1.
 
 Ajustement des durées, casse, italiques, tirets de dialogue, fusion, scission,
 recherche et remplacement, presse-papiers.
+
+**Un renvoi du cadrage de la phase 5 atterrit ici : l'édition de la durée dans
+la table.** La colonne `Duration` s'affiche et ne se saisit pas, parce que le
+noyau n'a pas de `SetDurationCommand` — la phase 2 s'est arrêtée à « un texte,
+un début, une fin » — et qu'en inventer une dans une phase d'interface aurait
+été du travail de noyau glissé ailleurs. La commande naît ici, où l'ajustement
+des durées en a besoin de toute façon ; la colonne devient éditable du même
+coup, et il faudra dire laquelle des deux bornes elle déplace.
 
 **Points difficiles**
 
