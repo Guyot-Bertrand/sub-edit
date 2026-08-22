@@ -35,6 +35,7 @@ make help                          # toutes les cibles
 src/lib/subedit/<lib>/    bibliothèques — tout le code utile vit ici
 src/exe/<binaire>/        exécutables — un main et du câblage, rien d'autre
 src/test/{unit,bench}/    tests et benchmarks, en miroir des bibliothèques
+src/test/tools/           les programmes que les tests lancent
 src/scripts/              automatisation
 docs/                     specs, décisions, manuels
 reference/gaupol          clone de référence, en lecture seule, non commité

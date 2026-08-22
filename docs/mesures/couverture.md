@@ -105,15 +105,38 @@ donné un chiffre vert au prix d'un test fragile qui éprouve le dialogue de Qt
 plutôt que nos quatre lignes de raccord. Le cliquet compte et justifie ; il
 n'exige pas zéro.
 
+**Trois lignes de `startProcess`, en phase 6 — et elles ne parlent qu'à un
+manque de mémoire.** L'issue #164 lance un programme extérieur, ce que le projet
+n'avait jamais fait. Les trois lignes sont les deux gardes du préparatif de
+`posix_spawn` et l'enregistrement de leur code d'erreur :
+`posix_spawn_file_actions_init` et `…_addopen` ne peuvent échouer que sur
+`ENOMEM` — ou sur `EBADF` pour un descripteur invalide, et les trois passés ici
+sont `0`, `1` et `2`.
+
+**Mesuré plutôt que lu**, parce que ce fichier dit lui-même qu'un relèvement
+justifié par une lecture du code est un relèvement à vérifier. La lecture
+initiale était fausse : on croyait qu'un fichier de sortie impossible à écrire
+ferait échouer `addopen`, donc qu'un test l'atteindrait. Il n'en est rien —
+`addopen` ne fait qu'enregistrer l'intention, et c'est `posix_spawn` qui rend
+`ENOENT` au moment d'ouvrir. Le test existe, il passe, et il ne traverse aucune
+des trois lignes.
+
+**Ce qui a été couvert plutôt que justifié.** La première mesure en donnait
+quatre : la quatrième était `LaunchErrorKind::Failed`, le cas ni « absent » ni
+« pas à nous ». Un fichier exécutable qui n'est pas un programme le produit —
+le système répond `ENOEXEC` — et le test qui l'éprouve est le seul des trois
+refus qui démontre que la table en est une, et non deux cas particuliers.
+
 ## Relevé
 
-    total : 35
+    total : 38
 
-Relevé sur la version 0.4.20, le 2026-08-22.
+Relevé sur la version 0.5.3, le 2026-08-22.
 
 | Lignes | Fichier |
 | -----: | :------ |
 | 30 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 3 | `src/lib/subedit/core/process/start_process.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 2 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |

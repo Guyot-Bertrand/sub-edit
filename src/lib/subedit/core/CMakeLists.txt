@@ -34,6 +34,7 @@ add_library(
     format/web_vtt_reader.cpp
     format/web_vtt_writer.cpp
     io/real_file_system.cpp
+    process/start_process.cpp
     time/timestamp.cpp
     version.cpp
     wording.cpp)
