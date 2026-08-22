@@ -1,7 +1,7 @@
-// Ce sur quoi une opération porte — issue #132.
+// What an operation applies to — issue #132.
 //
-// **La sélection, ou tout le fichier.** C'est ce que la phase 4 avait renvoyé
-// ici, et le pont est écrit une fois pour les quatre dialogues.
+// **The selection, or the whole file.** That is what phase 4 sent here, and the
+// bridge is written once for the four dialogs.
 
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/project.hpp>
@@ -41,7 +41,7 @@ using subedit::gui::targetOf;
     return project;
 }
 
-/// Les indices d'une sélection, à plat, pour qu'un test les nomme.
+/// The indices of a selection, flattened, so that a test can name them.
 [[nodiscard]] std::vector<std::size_t> valuesOf(const Selection& selection) {
     std::vector<std::size_t> values;
     for (const SubtitleIndex index : selection.indices())
@@ -49,7 +49,7 @@ using subedit::gui::targetOf;
     return values;
 }
 
-/// Coche une ligne dans un modèle de sélection.
+/// Ticks one row in a selection model.
 void select(QItemSelectionModel& selection, const SubtitleTableModel& model, int row) {
     selection.select(model.index(row, 0), QItemSelectionModel::Select | QItemSelectionModel::Rows);
 }
@@ -57,8 +57,8 @@ void select(QItemSelectionModel& selection, const SubtitleTableModel& model, int
 } // namespace
 
 TEST_CASE("nothing selected means the whole file", "[gui][GUI-SHIFT-01]") {
-    // Le défaut qui rend les dialogues utilisables : personne ne sélectionne
-    // quatre mille lignes pour décaler un fichier entier.
+    // The default that makes the dialogs usable: nobody selects four thousand
+    // rows to shift a whole file.
     Session session{four()};
     SubtitleTableModel model{session};
     const QItemSelectionModel selection{&model};
@@ -89,8 +89,9 @@ TEST_CASE("a scattered selection keeps its holes", "[gui][GUI-SHIFT-01]") {
 }
 
 TEST_CASE("selecting every row is the whole file, and says so once", "[gui][GUI-SHIFT-01]") {
-    // Le même résultat que la sélection vide, par un autre chemin : rien ne
-    // distingue « tout coché » de « rien coché », et c'est bien ainsi.
+    // The same answer as the empty selection, by another road: nothing tells
+    // « everything ticked » from « nothing ticked », and that is as it should
+    // be.
     Session session{four()};
     SubtitleTableModel model{session};
     QItemSelectionModel selection{&model};

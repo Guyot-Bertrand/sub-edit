@@ -22,8 +22,9 @@ core::Selection targetOf(const QItemSelectionModel& selection, const core::Proje
     for (const QModelIndex& row : rows)
         indices.push_back(core::SubtitleIndex::fromValue(static_cast<std::size_t>(row.row())));
 
-    // `Selection::of` trie, déduplique et recolle en plages : ce que Qt rend
-    // suit l'ordre des clics, et personne en aval n'a à s'en accommoder.
+    // `Selection::of` sorts, deduplicates and glues into runs: what Qt hands
+    // back follows the order of the clicks, and nobody downstream has to put up
+    // with that.
     return core::Selection::of(indices);
 }
 

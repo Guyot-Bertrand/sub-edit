@@ -1,8 +1,8 @@
-// Ce que la table montre d'un document abîmé — issue #134.
+// What the table shows of a damaged document — issue #134.
 //
-// **Marqué, et nommé.** Une anomalie n'est pas une erreur de lecture : c'est ce
-// qu'un document *est*, et elle survit à l'édition. La table la porte donc,
-// plutôt qu'un rapport lu une fois à l'ouverture.
+// **Marked, and named.** An anomaly is not a reading error: it is what a
+// document *is*, and it survives editing. The table carries it, then, rather
+// than a report read once on opening.
 
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
@@ -42,7 +42,7 @@ using subedit::gui::SubtitleTableModel;
                     .mainText = "x"};
 }
 
-/// Deux sous-titres nets, l'un après l'autre.
+/// Two sound subtitles, one after the other.
 [[nodiscard]] Project sound() {
     Project project;
     project.setSubtitles({from(1000, 2000), from(3000, 4000)});
@@ -85,7 +85,7 @@ TEST_CASE("a subtitle that ends before it starts is marked and named", "[gui][GU
 
 TEST_CASE("an overlap marks the subtitle that is out of place, not the one before",
           "[gui][GUI-TABLE-02]") {
-    // C'est la ligne qu'on déplace, pas celle contre laquelle elle bute.
+    // It is the line one moves, not the one it runs into.
     Project project;
     project.setSubtitles({from(1000, 5000), from(3000, 6000)});
     Session session{std::move(project)};
@@ -97,11 +97,10 @@ TEST_CASE("an overlap marks the subtitle that is out of place, not the one befor
 }
 
 TEST_CASE("disorder is marked as such, and leads what it is named by", "[gui][GUI-TABLE-02]") {
-    // **Un sous-titre en désordre chevauche presque toujours son
-    // prédécesseur**, et c'est de l'arithmétique : commencer avant qu'il ne
-    // commence, c'est commencer avant qu'il ne finisse, sauf s'il est
-    // lui-même cassé. C'est donc le désordre qui gouverne — le remettre en
-    // place emporte le chevauchement avec lui.
+    // **A subtitle out of order almost always overlaps its predecessor**, and
+    // that is arithmetic: starting before it starts means starting before it
+    // ends, unless it is itself broken. So the disorder governs — putting the
+    // line back in place takes the overlap with it.
     Project project;
     project.setSubtitles({from(4000, 5000), from(1000, 2000)});
     Session session{std::move(project)};
@@ -111,7 +110,7 @@ TEST_CASE("disorder is marked as such, and leads what it is named by", "[gui][GU
 }
 
 TEST_CASE("the three kinds are told apart by their tint", "[gui][GUI-TABLE-02]") {
-    // Elles se réparent autrement, donc elles se distinguent.
+    // They are repaired differently, so they are told apart.
     Project broken;
     broken.setSubtitles({from(3000, 1000)});
     Session brokenSession{std::move(broken)};
@@ -132,8 +131,8 @@ TEST_CASE("the three kinds are told apart by their tint", "[gui][GUI-TABLE-02]")
 }
 
 TEST_CASE("only the position columns are tinted", "[gui][GUI-TABLE-02]") {
-    // Une anomalie est une affaire de positions ; teinter le texte laisserait
-    // croire qu'il y est pour quelque chose.
+    // An anomaly is a matter of positions; tinting the text would suggest it
+    // has something to do with it.
     Project project;
     project.setSubtitles({from(3000, 1000)});
     Session session{std::move(project)};
@@ -147,7 +146,7 @@ TEST_CASE("only the position columns are tinted", "[gui][GUI-TABLE-02]") {
 }
 
 TEST_CASE("a subtitle carrying two anomalies names both", "[gui][GUI-TABLE-02]") {
-    // Chacune se répare autrement, donc chacune se dit.
+    // Each is repaired differently, so each is said.
     Project project;
     project.setSubtitles({from(4000, 5000), from(1000, 2000)});
     Session session{std::move(project)};
@@ -159,8 +158,8 @@ TEST_CASE("a subtitle carrying two anomalies names both", "[gui][GUI-TABLE-02]")
 }
 
 TEST_CASE("the marking follows a change of positions", "[gui][GUI-TABLE-02]") {
-    // Recalculé, jamais retenu : une anomalie est ce que le document est
-    // maintenant, pas ce qu'il était à l'ouverture.
+    // Recomputed, never remembered: an anomaly is what the document is now,
+    // not what it was on opening.
     Session session{sound()};
     SubtitleTableModel model{session};
     REQUIRE_FALSE(tinted(model, 1, 1));
@@ -195,8 +194,8 @@ TEST_CASE("the marking follows a cell edited by hand", "[gui][GUI-TABLE-02]") {
 }
 
 TEST_CASE("editing a text changes no marking", "[gui][GUI-TABLE-02]") {
-    // Le texte n'entre dans aucune anomalie : recalculer serait sans effet, et
-    // ne pas recalculer se voit ici.
+    // A text belongs to no anomaly: recomputing would have no effect, and not
+    // recomputing would show here.
     Project project;
     project.setSubtitles({from(3000, 1000)});
     Session session{std::move(project)};
@@ -210,10 +209,10 @@ TEST_CASE("editing a text changes no marking", "[gui][GUI-TABLE-02]") {
 
 TEST_CASE("a subtitle carrying all three is named by the one to repair first",
           "[gui][GUI-TABLE-02]") {
-    // Le pire cas, et celui qui met la précédence à l'épreuve : ce sous-titre
-    // finit avant de commencer, commence avant le précédent, et le chevauche.
-    // Le teinter en « chevauchement » enverrait l'utilisateur ajuster un calage
-    // alors que la ligne est cassée en elle-même.
+    // The worst case, and the one that puts the precedence to the test: this
+    // subtitle ends before it starts, starts before the previous one, and
+    // overlaps it. Tinting it as an overlap would send the user off adjusting a
+    // timing while the line is broken in itself.
     Project project;
     project.setSubtitles({from(4000, 5000), from(1000, 500)});
     Session session{std::move(project)};
@@ -224,7 +223,7 @@ TEST_CASE("a subtitle carrying all three is named by the one to repair first",
     CHECK(tip.find("starts before the previous one starts") != std::string::npos);
     CHECK(tip.find("starts before the previous one ends") != std::string::npos);
 
-    // Et la teinte est celle de la première, pas celle des deux autres.
+    // And the tint is the first one's, not either of the other two.
     Project alone;
     alone.setSubtitles({from(3000, 1000)});
     Session aloneSession{std::move(alone)};

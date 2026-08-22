@@ -58,11 +58,11 @@ public:
         Text,
     };
 
-    /// Combien il y en a.
+    /// How many there are.
     ///
-    /// Une constante et non un dernier énumérateur : une sentinelle dans
-    /// l'énumération oblige chaque `switch` exhaustif à lui donner un cas, que
-    /// rien n'atteint jamais.
+    /// A constant and not a last enumerator: a sentinel inside the enumeration
+    /// forces every exhaustive `switch` to give it a case that nothing ever
+    /// reaches.
     static constexpr int kColumnCount = 5;
 
     /// Builds a table over `session`, which must outlive it.
@@ -80,8 +80,8 @@ public:
     /// Carries a finished cell edit out, as a command.
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
-    /// Rend un index, y compris hors table — ce qu’un test doit pouvoir
-    /// fabriquer pour éprouver les gardes.
+    /// Builds an index, outside the table included — what a test has to be
+    /// able to make to put the guards to the test.
     using QAbstractTableModel::createIndex;
 
     [[nodiscard]] QVariant

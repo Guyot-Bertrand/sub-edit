@@ -116,10 +116,10 @@ TEST_CASE("an index outside the table holds nothing", "[gui][GUI-TABLE-01]") {
     Session session{threeSubtitles()};
     const SubtitleTableModel model{session};
 
-    // `index()` refuse de fabriquer hors table et rend un index invalide :
-    // c'est la première garde qu'il éprouve, pas celle du rang. Atteindre
-    // celle-là demande `createIndex`, qui ne demande rien à personne — et c'est
-    // pour ça que l'en-tête l'expose.
+    // `index()` refuses to build outside the table and returns an invalid
+    // index: that is the first guard it meets, not the one on the row.
+    // Reaching that one calls for `createIndex`, which asks nobody anything —
+    // and that is what the header exposes it for.
     CHECK_FALSE(model.data(model.index(9, 0), Qt::DisplayRole).isValid());
     CHECK_FALSE(model.data(model.createIndex(9, 0), Qt::DisplayRole).isValid());
     CHECK_FALSE(model.data({}, Qt::DisplayRole).isValid());
@@ -274,17 +274,17 @@ TEST_CASE("a reordering refreshes every column", "[gui][GUI-TABLE-01]") {
     CHECK(refreshed.at(0).at(1).toModelIndex().column() == 4);
 }
 
-// L'édition en place — issue #129.
+// Editing in place — issue #129.
 //
-// Le modèle édite, et c'est un choix : la vue appelle le délégué, le délégué
-// appelle `setData`, et détourner ce chemin coûterait soit une traduction en
-// double, soit une classe de plus. Ce que le modèle sait faire est ce qu'il
-// faut ici — formater une position et la relire —, et la commande qu'il
-// fabrique part dans la session comme n'importe quelle autre.
+// The model edits, and that is a choice: the view calls the delegate, the
+// delegate calls `setData`, and routing that road elsewhere would cost either a
+// second translation of the same string or one more class. What the model knows
+// how to do is what is needed here — format a position and read it back — and
+// the command it builds goes into the session like any other.
 
 namespace {
 
-/// Ce qu'une cellule vaut après édition, relu par la vue.
+/// What a cell holds after an edit, read back as the view would.
 [[nodiscard]] bool edits(SubtitleTableModel& model, int row, int column, const char* typed) {
     return model.setData(model.index(row, column), QString::fromUtf8(typed), Qt::EditRole);
 }
@@ -296,13 +296,13 @@ namespace {
 } // namespace
 
 TEST_CASE("the two positions and the text are what a cell edit can reach", "[gui][GUI-EDIT-01]") {
-    // Le numéro est un rang et la durée une différence : ni l'un ni l'autre
-    // n'est une donnée, et le noyau n'a pas de commande qui les poserait.
+    // The number is a rank and the duration a difference: neither is a datum,
+    // and the core has no command that would set either.
     Session session{threeSubtitles()};
     const SubtitleTableModel model{session};
 
-    // Un index invalide n'est pas une cellule : il rend les fanions hérités,
-    // sans le droit d'édition qu'aucune vue ne lui demanderait.
+    // An invalid index is not a cell: it returns the inherited flags, without
+    // the editable one no view would ask it for.
     CHECK_FALSE(model.flags({}).testFlag(Qt::ItemIsEditable));
 
     CHECK_FALSE(editable(model, 0));
@@ -334,9 +334,9 @@ TEST_CASE("a multiline text is read back exactly as it was typed", "[gui][GUI-ED
 }
 
 TEST_CASE("an edited cell makes exactly one undoable action", "[gui][GUI-EDIT-01]") {
-    // La question de groupement laissée ouverte par la phase 2 se referme ici,
-    // et sans mécanisme : un délégué valide une fois, donc une cellule éditée
-    // produit une commande. Il n'y a rien à grouper.
+    // The question of grouping left open by phase 2 closes here, and without a
+    // mechanism: a delegate validates once, so an edited cell makes one
+    // command. There is nothing to group.
     Session session{threeSubtitles()};
     SubtitleTableModel model{session};
 
@@ -383,9 +383,9 @@ TEST_CASE("an edit outside the table, or in another role, changes nothing", "[gu
     Session session{threeSubtitles()};
     SubtitleTableModel model{session};
 
-    // Les deux premières frappent la garde d'index, les deux suivantes celles
-    // du rang et de la colonne : `createIndex` fabrique ce que `index()`
-    // refuse, et c'est ce qui laisse éprouver le fond des gardes.
+    // The first two hit the guard on the index, the next two those on the row
+    // and the column: `createIndex` builds what `index()` refuses, and that is
+    // what lets the far side of the guards be tested.
     CHECK_FALSE(edits(model, 9, 4, "hors table"));
     CHECK_FALSE(model.setData(model.index(0, 4), QStringLiteral("affichage"), Qt::DisplayRole));
     CHECK_FALSE(model.setData(model.createIndex(9, 4), QStringLiteral("hors rang"), Qt::EditRole));
@@ -396,9 +396,9 @@ TEST_CASE("an edit outside the table, or in another role, changes nothing", "[gu
 }
 
 TEST_CASE("editing a start reads a permissive timestamp", "[gui][GUI-EDIT-02]") {
-    // Permissif comme les fichiers réels l'exigent, et donc comme une saisie
-    // l'est aussi : heures omises, un chiffre par champ, une seule décimale,
-    // point pour virgule.
+    // Permissive as real files require, and therefore as a typed value is too:
+    // hours left out, one digit per field, a single decimal, a period for a
+    // comma.
     Session session{threeSubtitles()};
     SubtitleTableModel model{session};
 
@@ -431,9 +431,9 @@ TEST_CASE("a position edit refreshes the two ends and the duration", "[gui][GUI-
 }
 
 TEST_CASE("an unreadable position leaves the cell as it was", "[gui][GUI-EDIT-02]") {
-    // Plutôt qu'inventer une position. Soixante-dix minutes n'en est pas une :
-    // `Timestamp::parse` refuse un champ hors bornes, et c'est ce refus qui
-    // remonte jusqu'ici.
+    // Rather than inventing a position. Seventy minutes is not one:
+    // `Timestamp::parse` refuses a field out of bounds, and it is that refusal
+    // which comes back up here.
     Session session{threeSubtitles()};
     SubtitleTableModel model{session};
 
@@ -447,8 +447,8 @@ TEST_CASE("an unreadable position leaves the cell as it was", "[gui][GUI-EDIT-02
 
 TEST_CASE("validating a text that did not change writes nothing to the history",
           "[gui][GUI-EDIT-03]") {
-    // Ouvrir une cellule, ne rien taper, appuyer sur Entrée. L'édition est
-    // acceptée — il n'y a pas d'erreur à signaler — et n'a rien produit.
+    // Open a cell, type nothing, press Enter. The edit is accepted — there is
+    // no error to report — and produced nothing.
     Session session{threeSubtitles()};
     SubtitleTableModel model{session};
     const QSignalSpy refreshed{&model, &SubtitleTableModel::dataChanged};
@@ -462,8 +462,8 @@ TEST_CASE("validating a text that did not change writes nothing to the history",
 
 TEST_CASE("validating a position that did not change writes nothing to the history",
           "[gui][GUI-EDIT-03]") {
-    // Comparé sur la position et non sur la chaîne : `1.0` et `00:00:01,000`
-    // sont le même instant écrit deux fois.
+    // Compared on the position and not on the string: `1.0` and
+    // `00:00:01,000` are the same instant written twice.
     Session session{threeSubtitles()};
     SubtitleTableModel model{session};
 
@@ -474,10 +474,10 @@ TEST_CASE("validating a position that did not change writes nothing to the histo
 }
 
 TEST_CASE("every accepted edit is announced, even one that changed nothing", "[gui][GUI-UNDO-01]") {
-    // Le contrat que l'en-tête annonce, et il ne se lit pas par ses effets :
-    // une édition qui ne change rien laisse l'historique où il était, donc
-    // quiconque recalculerait un menu trouverait le même état. C'est le signal
-    // lui-même qui est promis, et c'est donc lui qu'on éprouve.
+    // The contract the header announces, and it cannot be read from its
+    // effects: an edit that changes nothing leaves the history where it was, so
+    // whoever recomputed a menu would find the same state. It is the signal
+    // itself that is promised, so it is the signal that is tested.
     Session session{threeSubtitles()};
     SubtitleTableModel model{session};
     const QSignalSpy announced{&model, &SubtitleTableModel::historyChanged};
@@ -493,8 +493,8 @@ TEST_CASE("every accepted edit is announced, even one that changed nothing", "[g
 }
 
 TEST_CASE("a refused edit announces nothing", "[gui][GUI-UNDO-01]") {
-    // Rien n'a été tenté que le modèle ait accepté : il n'y a rien à annoncer,
-    // et annoncer quand même ferait du signal un compteur de frappes.
+    // Nothing the model accepted was attempted: there is nothing to announce,
+    // and announcing anyway would turn the signal into a keystroke counter.
     Session session{threeSubtitles()};
     SubtitleTableModel model{session};
     const QSignalSpy announced{&model, &SubtitleTableModel::historyChanged};

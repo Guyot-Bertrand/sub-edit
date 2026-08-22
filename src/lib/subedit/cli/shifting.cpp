@@ -49,8 +49,8 @@ ExitCode shiftAll(core::FileSystem& files,
         [by](core::Session& session) -> std::expected<std::string, std::string> {
         const core::Selection whole = core::Selection::all(session.project());
 
-        // La règle vit dans le noyau depuis l'issue #132 : la fenêtre la
-        // demande aussi, et deux copies d'une même règle dérivent.
+        // The rule has lived in the core since issue #132: the window asks for
+        // it too, and two copies of one rule drift apart.
         if (const std::optional<core::SubtitleIndex> refused =
                 core::firstBeforeOrigin(session.project(), whole, by);
             refused.has_value()) {

@@ -67,9 +67,9 @@ namespace {
 /// Builds one of the two actions, named for the toolbar and for the menu.
 ///
 /// `text` is what the menu reads and it changes at every operation —
-/// « Annuler : décalage ». `iconText` is what the toolbar button reads and it
-/// never changes: a button whose width followed the last operation would move
-/// under the pointer.
+/// « Undo: shifting ». `iconText` is what the toolbar button reads and it never
+/// changes: a button whose width followed the last operation would move under
+/// the pointer.
 [[nodiscard]] QAction*
 buildAction(QObject* parent, const QString& shortName, const QString& themeIcon) {
     auto* action = new QAction{QIcon::fromTheme(themeIcon), shortName, parent};
@@ -99,8 +99,8 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
       m_hearingImpaired(
           buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})) {
-    // Un délégué par nature de cellule, et aucun sur le numéro ni sur la durée,
-    // qui ne s'éditent pas : la table de Qt n'en pose que là où on lui en pose.
+    // One delegate per nature of cell, and none on the number or the duration,
+    // which are not editable: Qt's table puts one only where it is given one.
     m_table->setItemDelegateForColumn(SubtitleTableModel::Start, new PositionDelegate{this});
     m_table->setItemDelegateForColumn(SubtitleTableModel::End, new PositionDelegate{this});
     m_table->setItemDelegateForColumn(SubtitleTableModel::Text, new TextDelegate{this});
@@ -111,8 +111,8 @@ MainWindow::MainWindow(core::FileSystem& files,
     // and the four others are known widths.
     m_table->horizontalHeader()->setStretchLastSection(true);
 
-    // La table prend la place, le panneau se glisse dessous et disparaît quand
-    // il n'a rien à dire.
+    // The table takes the room, the panel slips underneath and goes away when
+    // it has nothing to say.
     auto* centre = new QWidget{this};
     auto* stack = new QVBoxLayout{centre};
     stack->setContentsMargins(0, 0, 0, 0);
@@ -132,8 +132,8 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_save->setEnabled(true);
     m_saveAs->setEnabled(true);
     connect(m_open, &QAction::triggered, this, &MainWindow::openFromPrompt);
-    // La valeur rendue ne sert qu'à qui enchaîne derrière ; déclenchée par
-    // l'action, elle n'a personne à renseigner.
+    // The returned value only serves whoever carries on afterwards; fired by
+    // the action, it has nobody to inform.
     connect(m_save, &QAction::triggered, this, [this] { (void)save(); });
     connect(m_saveAs, &QAction::triggered, this, [this] { (void)saveAs(); });
 
@@ -168,29 +168,29 @@ MainWindow::MainWindow(core::FileSystem& files,
     bar->addAction(m_undo);
     bar->addAction(m_redo);
 
-    // Le document arrive par le même chemin que ceux qui suivront : une seule
-    // façon de poser un fichier dans la fenêtre, donc un seul endroit où elle
-    // peut être fausse.
+    // The document arrives by the same road as those that will follow: one way
+    // of putting a file in the window, therefore one place where it can be
+    // wrong.
     openOn(std::move(opened.project), opened.diagnostics);
 }
 
 void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic> diagnostics) {
     setWindowTitle(titleFor(project));
 
-    // Reconstruits plutôt que remis à zéro : une session porte un historique,
-    // et l'historique d'un fichier n'a rien à dire du suivant.
+    // Rebuilt rather than reset: a session carries a history, and the history
+    // of one file has nothing to say about the next.
     auto session = std::make_unique<core::Session>(std::move(project));
     auto model = std::make_unique<SubtitleTableModel>(*session);
 
     m_table->setModel(model.get());
-    // Le modèle applique les commandes d'une cellule depuis l'issue #129, donc
-    // la fenêtre ne les voit pas passer. Ce signal est ce par quoi elle
-    // l'apprend — y compris d'une édition qui n'a rien changé. Rebranché à
-    // chaque ouverture, le modèle d'avant partant avec le fichier d'avant.
+    // The model has carried a cell edit out as a command since issue #129, so
+    // the window does not see them go by. This signal is how it learns of one —
+    // including an edit that changed nothing. Reconnected at every opening, the
+    // previous model leaving with the previous file.
     connect(model.get(), &SubtitleTableModel::historyChanged, this, &MainWindow::refreshActions);
 
-    // Dans cet ordre : la vue lâche l'ancien modèle avant qu'il ne parte, et
-    // le modèle avant la session qu'il lit.
+    // In this order: the view lets go of the old model before it goes, and the
+    // model before the session it reads.
     m_model = std::move(model);
     m_session = std::move(session);
 
@@ -230,8 +230,8 @@ bool MainWindow::saveAs() {
         return false;
     }
 
-    // Le document vit désormais là, et dans ce format : ce n'est pas une
-    // commande, personne ne voudrait l'annuler.
+    // The document lives there now, and in that format: this is not a command,
+    // nobody would want to undo it.
     core::SourceFile moved = m_session->project().sourceFile();
     moved.path = target->path;
     moved.format = target->format;
@@ -240,8 +240,8 @@ bool MainWindow::saveAs() {
     m_session->markSaved(core::Document::Main);
     setWindowTitle(titleFor(m_session->project()));
 
-    // Le format gouverne le séparateur décimal que la table montre : il vient
-    // de changer, donc tout ce qu'elle affiche est à relire.
+    // The format governs the decimal mark the table shows: it has just
+    // changed, so everything on screen is to be read again.
     m_model->refreshAll();
     refreshActions();
     return true;
@@ -264,8 +264,8 @@ bool MainWindow::mayDiscardChanges() {
 }
 
 void MainWindow::openFromPrompt() {
-    // Demandé avant de demander quoi ouvrir : renoncer à perdre son travail ne
-    // doit pas obliger à choisir un fichier d'abord.
+    // Asked before asking what to open: giving up rather than losing one's
+    // work should not require choosing a file first.
     if (!mayDiscardChanges())
         return;
 
@@ -296,9 +296,9 @@ void MainWindow::refreshActions() {
 
     m_undo->setEnabled(m_session->canUndo());
     m_undo->setText(undo);
-    // Posée explicitement : sans elle, Qt fait de l'infobulle l'`iconText`,
-    // et le bouton de la barre d'outils dirait « Annuler » deux fois au lieu
-    // de nommer ce qu'il défera.
+    // Set explicitly: without it, Qt makes the tooltip out of the `iconText`,
+    // and the toolbar button would say « Undo » twice instead of naming what it
+    // would defeat.
     m_undo->setToolTip(undo);
 
     m_redo->setEnabled(m_session->canRedo());
@@ -307,8 +307,8 @@ void MainWindow::refreshActions() {
 
     setWindowModified(m_session->hasUnsavedChanges(core::Document::Main));
 
-    // Rien à décaler, rien à transformer : une action active ouvrirait un
-    // dialogue qui ne pourrait porter sur rien.
+    // Nothing to shift, nothing to transform: an enabled action would open a
+    // dialog that could apply to nothing.
     const bool anything = m_session->project().count() != 0;
     m_shift->setEnabled(anything);
     m_transform->setEnabled(anything);
@@ -323,13 +323,13 @@ void MainWindow::removeHearingImpairedFromTarget() {
     if (!m_prompts->run(dialog))
         return;
 
-    // Bâtie avant d'être appliquée, et interrogée sur ce qu'elle fera : le
-    // compte se lit dans la commande, jamais en recomptant après coup.
+    // Built before being applied, and asked what it will do: the count is read
+    // from the command, never by counting again afterwards.
     std::unique_ptr<core::Command> command =
         core::removeHearingImpaired(m_session->project(), target, core::Document::Main);
     if (!command) {
-        // Rien n'a mordu. Le dire, et ne rien mettre dans l'historique : une
-        // opération qui ne change rien n'est pas une opération à annuler.
+        // Nothing bit. Say so, and put nothing in the history: an operation
+        // that changes nothing is not an operation to undo.
         m_prompts->reportOutcome("no mention to remove");
         return;
     }
@@ -356,9 +356,9 @@ void MainWindow::shiftTarget() {
     if (!by.has_value())
         return;
 
-    // Une position avant l'origine est représentable, mais aucun fichier de
-    // sous-titres ne peut la porter. La règle vit dans le noyau depuis #132,
-    // partagée avec la ligne de commande.
+    // A position before the origin is representable, but no subtitle file can
+    // hold one. The rule has lived in the core since #132, shared with the
+    // command line.
     if (const std::optional<core::SubtitleIndex> refused =
             core::firstBeforeOrigin(m_session->project(), target, *by);
         refused.has_value()) {
@@ -383,8 +383,8 @@ void MainWindow::transformTarget() {
     if (!first.has_value() || !second.has_value())
         return;
 
-    // Ce que le dialogue a lu devient ici la valeur du noyau : il tient des
-    // widgets, pas le vocabulaire d'une commande.
+    // What the dialog read becomes the core's own value here: it holds
+    // widgets, not the vocabulary of a command.
     const auto referenceOf = [](const TypedReference& typed) {
         return core::TransformReference{
             .index = core::SubtitleIndex::fromNumber(static_cast<std::size_t>(typed.number)),
@@ -405,8 +405,8 @@ void MainWindow::transformTarget() {
 void MainWindow::convertFrameRateOfTarget() {
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
-    // Pré-remplie par celle du projet, jamais devinée : le fichier ne la
-    // porte pas, et se tromper décale tout sans rien signaler.
+    // Pre-filled with the project's own, never guessed: the file does not
+    // carry it, and getting it wrong shifts everything without a word.
     FrameRateDialog dialog{target.count(), m_session->project().frameRate(), this};
     if (!m_prompts->run(dialog))
         return;

@@ -34,9 +34,9 @@ TransformDialog::TransformDialog(std::size_t targetCount,
       m_secondTarget(new QLineEdit{this}) {
     setWindowTitle(QStringLiteral("Transform positions"));
 
-    // Le second repère par défaut sur le dernier sous-titre : deux repères
-    // éloignés donnent une correction plus sûre que deux repères voisins, et
-    // c'est ce que l'utilisateur veut neuf fois sur dix.
+    // The second reference defaults to the last subtitle: two distant
+    // references give a surer correction than two neighbouring ones, and that
+    // is what the user wants nine times out of ten.
     m_secondNumber->setValue(m_secondNumber->maximum());
 
     for (QLineEdit* target : {m_firstTarget, m_secondTarget}) {
@@ -77,9 +77,9 @@ bool TransformDialog::isComplete() const {
     if (!one.has_value() || !other.has_value())
         return false;
 
-    // Deux repères sur un même sous-titre ne définissent aucune correction :
-    // le noyau le refuse par un dénominateur nul, et le dire ici évite de
-    // laisser valider pour rien.
+    // Two references on one subtitle define no correction: the core refuses it
+    // by a zero denominator, and saying so here saves letting it be validated
+    // for nothing.
     return one->number != other->number;
 }
 

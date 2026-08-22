@@ -1,10 +1,9 @@
-// Les trois délégués d'édition — issue #129.
+// The editing delegates — issue #129.
 //
-// Ils sont éprouvés hors de toute vue, en leur passant l'événement à la main :
-// ce qu'on veut savoir est ce que le délégué fait d'une touche, et une vue
-// n'ajouterait à cette question que le hasard d'un focus. Que la table les
-// pose bien sur les bonnes colonnes est une autre question, et elle est dans
-// `main_window_test.cpp`.
+// They are tested outside any view, by handing them the event: what we want to
+// know is what a delegate makes of a key, and a view would add nothing to that
+// question but the luck of a focus. Whether the table puts them on the right
+// columns is another question, and it is in `main_window_test.cpp`.
 
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/project.hpp>
@@ -48,7 +47,7 @@ using subedit::gui::TextDelegate;
     return project;
 }
 
-/// La frappe qu'un délégué reçoit, montée à la main.
+/// The keystroke a delegate receives, assembled by hand.
 [[nodiscard]] QKeyEvent pressing(int key, Qt::KeyboardModifiers modifiers = Qt::NoModifier) {
     return QKeyEvent{QEvent::KeyPress, key, modifiers};
 }
@@ -85,8 +84,8 @@ TEST_CASE("enter validates what was typed in a text cell", "[gui][GUI-EDIT-01]")
     QKeyEvent enter = pressing(Qt::Key_Return);
     const bool swallowed = delegate.eventFilter(editor.get(), &enter);
 
-    // Avalée, et c'est ce qui compte : laissée passer, elle vaudrait un saut de
-    // ligne dans le texte validé.
+    // Swallowed, and that is what counts: let through, it would amount to a
+    // line break in the validated text.
     CHECK(swallowed);
     CHECK(committed.count() == 1);
 
@@ -107,7 +106,7 @@ TEST_CASE("shift and enter make a line break rather than a validation", "[gui][G
     QKeyEvent enter = pressing(Qt::Key_Return, Qt::ShiftModifier);
     const bool swallowed = delegate.eventFilter(editor.get(), &enter);
 
-    // Rendue à l'éditeur, qui en fait le saut de ligne.
+    // Handed back to the editor, which makes the line break of it.
     CHECK_FALSE(swallowed);
     CHECK(committed.count() == 0);
 }
@@ -148,9 +147,9 @@ TEST_CASE("the position delegate opens on what the cell shows", "[gui][GUI-EDIT-
 }
 
 TEST_CASE("the position field refuses what could never be a position", "[gui][GUI-EDIT-02]") {
-    // La contrainte est celle de la forme, et elle s'arrête là : les bornes des
-    // champs sont à `Timestamp::parse`, qui refuse soixante-dix minutes sans
-    // que la forme ait rien à en dire.
+    // The constraint is the one of the shape, and it stops there: the bounds of
+    // the fields belong to `Timestamp::parse`, which refuses seventy minutes
+    // without the shape having anything to say about it.
     Session session{oneSubtitle()};
     const SubtitleTableModel model{session};
     const PositionDelegate delegate;

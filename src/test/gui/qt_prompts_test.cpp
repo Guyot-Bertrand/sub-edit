@@ -1,10 +1,9 @@
-// Ce que les dialogues décident, hors des dialogues — issue #131.
+// What the dialogs decide, outside the dialogs — issue #131.
 //
-// `QtPrompts` est la seule classe de cette bibliothèque qu'aucun test ne
-// traverse : chaque méthode ouvre une boîte modale, qui tourne sa propre boucle
-// d'événements jusqu'à ce que quelqu'un clique. Ce fichier éprouve les deux
-// choses qu'elle décide seule, sorties de là pour cette raison : quel format un
-// filtre désigne, et ce que vaut un bouton.
+// `QtPrompts` is the one class of this library no test enters: each method
+// opens a modal box, which spins its own event loop until somebody clicks. This
+// file tests the two things it decides on its own, taken out of there for that
+// very reason: which format a filter names, and what a button is worth.
 
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/gui/prompts.hpp>
@@ -31,17 +30,17 @@ TEST_CASE("the save filter names the format it will be written in", "[gui][GUI-S
 
 TEST_CASE("a filter that names both formats writes the one the project defaults to",
           "[gui][GUI-SAVE-02]") {
-    // « Subtitles (*.srt *.vtt) » et « All files (*) » ne tranchent pas. SubRip
-    // plutôt qu'un refus : c'est le format que le projet écrit sans qu'on lui
-    // demande, et un dialogue n'a pas à échouer sur une question qu'il a posée
-    // lui-même.
+    // « Subtitles (*.srt *.vtt) » and « All files (*) » settle nothing. SubRip
+    // rather than a refusal: it is the format the project writes when nobody
+    // asks for another, and a dialog has no business failing on a question it
+    // asked itself.
     CHECK(formatOfFilter(QStringLiteral("Subtitles (*.srt *.vtt)")) == SubtitleFormat::SubRip);
     CHECK(formatOfFilter(QStringLiteral("All files (*)")) == SubtitleFormat::SubRip);
 }
 
 TEST_CASE("every filter the dialog offers names a format", "[gui][GUI-SAVE-02]") {
-    // Ce qui tient les deux ensemble : un filtre ajouté à la liste sans être
-    // reconnu ferait écrire du SubRip sous une extension `.vtt`.
+    // What holds the two together: a filter added to the list without being
+    // recognised would write SubRip under a `.vtt` extension.
     const QStringList offered = subtitleFilters().split(QStringLiteral(";;"));
 
     REQUIRE(offered.size() == 4);
@@ -55,9 +54,8 @@ TEST_CASE("the two explicit answers about unsaved changes are honoured", "[gui][
 }
 
 TEST_CASE("anything that is not an explicit answer cancels", "[gui][GUI-SAVE-03]") {
-    // Fermer la boîte par la croix, appuyer sur Échap, ou n'importe quel bouton
-    // qu'on ajouterait sans y penser : rien de tout cela n'autorise à perdre un
-    // travail.
+    // Closing the box by its cross, pressing Escape, or any button somebody
+    // adds without thinking: none of that authorises losing work.
     CHECK(choiceOf(QMessageBox::Cancel) == UnsavedChoice::Cancel);
     CHECK(choiceOf(QMessageBox::NoButton) == UnsavedChoice::Cancel);
     CHECK(choiceOf(QMessageBox::Ok) == UnsavedChoice::Cancel);

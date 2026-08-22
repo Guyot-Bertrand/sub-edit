@@ -1,8 +1,8 @@
-// L'entrée de subedit-gui.
+// The entry point of subedit-gui.
 //
-// **Du câblage, et rien d'autre.** Tout ce qui se teste vit dans
-// `subedit::gui` ; `check-architecture.sh` refuse ici une classe ou un
-// algorithme, et c'est ce qui rend la fenêtre éprouvable sans écran.
+// **Wiring, and nothing else.** Everything testable lives in `subedit::gui`;
+// `check-architecture.sh` refuses a class or an algorithm here, and that is
+// what makes the window testable without a screen.
 
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>

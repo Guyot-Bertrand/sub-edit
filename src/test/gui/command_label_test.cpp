@@ -1,8 +1,9 @@
-// La phrase qu'une action d'annulation lit — issue #130.
+// The sentence an undo action reads — issue #130.
 //
-// Nommer l'opération est le travail de `core::nameOf`, que la ligne de commande
-// utilise aussi ; mettre un verbe devant est celui d'un menu, et aucun rapport
-// n'en a l'usage. Ce fichier n'éprouve donc que le verbe et sa ponctuation.
+// Naming the operation is `core::nameOf`'s work, which the command line uses
+// too; putting a verb in front of it is a menu's, and no report has any use for
+// that. This file therefore tests the verb and its punctuation, and nothing
+// else.
 
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/gui/command_label.hpp>
@@ -26,8 +27,8 @@ TEST_CASE("an action names the operation it would defeat", "[gui][GUI-UNDO-01]")
 }
 
 TEST_CASE("with nothing to defeat, the action says only what it is", "[gui][GUI-UNDO-01]") {
-    // Pas « Undo: nothing » : l'action est alors inactive, et lui faire dire
-    // quelque chose de son vide serait du bruit.
+    // Not « Undo: nothing »: the action is disabled then, and making it say
+    // something about its own emptiness would be noise.
     CHECK(undoLabel(std::nullopt).toStdString() == "Undo");
     CHECK(redoLabel(std::nullopt).toStdString() == "Redo");
 }

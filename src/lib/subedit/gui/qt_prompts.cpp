@@ -19,9 +19,9 @@ QString subtitleFilters() {
 }
 
 core::SubtitleFormat formatOfFilter(const QString& filter) {
-    // WebVTT seulement si le filtre le nomme seul : « Subtitles (*.srt *.vtt) »
-    // et « All files (*) » ne tranchent pas, et SubRip est alors le défaut —
-    // c'est le format que le projet écrit sans qu'on lui demande.
+    // WebVTT only if the filter names it alone: « Subtitles (*.srt *.vtt) »
+    // and « All files (*) » settle nothing, and SubRip is then the default —
+    // it is the format the project writes when nobody asks for another.
     return filter.contains(QStringLiteral("*.vtt")) && !filter.contains(QStringLiteral("*.srt"))
                ? core::SubtitleFormat::WebVtt
                : core::SubtitleFormat::SubRip;
@@ -34,8 +34,8 @@ UnsavedChoice choiceOf(int button) {
     case QMessageBox::Discard:
         return UnsavedChoice::Discard;
     default:
-        // Fermer la boîte par la croix ou par Échap rend autre chose, et tout
-        // ce qui n'est pas un choix explicite vaut « ne rien faire ».
+        // Closing the box by its cross or by Escape returns something else,
+        // and anything that is not an explicit choice means « do nothing ».
         return UnsavedChoice::Cancel;
     }
 }

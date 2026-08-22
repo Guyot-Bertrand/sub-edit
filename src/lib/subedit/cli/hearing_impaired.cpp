@@ -25,8 +25,8 @@ ExitCode removeHearingImpairedIn(core::FileSystem& files,
                                  const Destination& destination,
                                  const Reporter& reporter) {
     const Operation clean = [](core::Session& session) -> std::expected<std::string, std::string> {
-        // Le fichier entier : la sélection est arrivée au noyau avec la
-        // fenêtre, et une ligne de commande n'en a pas.
+        // The whole file: the selection reached the core with the window, and
+        // a command line has none.
         std::unique_ptr<core::Command> command = core::removeHearingImpaired(
             session.project(), core::Selection::all(session.project()), core::Document::Main);
         if (!command)

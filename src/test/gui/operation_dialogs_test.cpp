@@ -1,8 +1,8 @@
-// Les trois dialogues d'opération — issue #132.
+// The operation dialogs — issue #132.
 //
-// **Ils s'éprouvent sans jamais entrer dans `exec()`.** Ce sont nos widgets :
-// un test en construit un, remplit ses champs et lit ce qu'il en fait. Seule
-// la boucle modale reste hors d'atteinte, et elle est derrière `Prompts::run`.
+// **They are tested without ever entering `exec()`.** They are our own widgets:
+// a test builds one, fills its fields and reads what it makes of them. Only the
+// modal loop stays out of reach, and it is behind `Prompts::run`.
 
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/duration.hpp>
@@ -41,8 +41,8 @@ TEST_CASE("the shift dialog reads a signed duration", "[gui][GUI-SHIFT-01]") {
 }
 
 TEST_CASE("a shift that cannot be read is no shift at all", "[gui][GUI-SHIFT-01]") {
-    // Plutôt que d'inventer une durée. Le dialogue refuse alors d'être validé,
-    // ce qui est la seule façon de ne pas décaler un fichier au hasard.
+    // Rather than inventing a duration. The dialog then refuses to be
+    // validated, which is the only way not to shift a file at random.
     ShiftDialog dialog{4};
 
     dialog.setTyped(QStringLiteral("bientôt"));
@@ -52,8 +52,8 @@ TEST_CASE("a shift that cannot be read is no shift at all", "[gui][GUI-SHIFT-01]
 }
 
 TEST_CASE("the shift dialog says what it is about to touch", "[gui][GUI-SHIFT-01]") {
-    // Le compte, parce que « la sélection ou tout le fichier » est une règle
-    // qu'on ne devine pas devant une boîte de dialogue.
+    // The count, because « the selection, or the whole file » is not a rule
+    // anyone guesses in front of a dialog box.
     const ShiftDialog whole{4};
     const ShiftDialog some{2};
 
@@ -66,9 +66,9 @@ TEST_CASE("the transform dialog reads two references", "[gui][GUI-TRANSFORM-01]"
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("00:00:09,000"));
 
-    // Le repère entier plutôt que ses champs : clang-tidy ne reconnaît pas le
-    // REQUIRE de Catch2 comme une vérification, et la convention du projet est
-    // de comparer l'option elle-même.
+    // The whole reference rather than its fields: clang-tidy does not
+    // recognise Catch2's REQUIRE as a check, and the project's convention is to
+    // compare the optional itself.
     CHECK(dialog.first() ==
           TypedReference{.number = 1, .target = Timestamp::fromMilliseconds(1000)});
     CHECK(dialog.second() ==
@@ -77,9 +77,9 @@ TEST_CASE("the transform dialog reads two references", "[gui][GUI-TRANSFORM-01]"
 }
 
 TEST_CASE("two references on the same subtitle define no transform", "[gui][GUI-TRANSFORM-01]") {
-    // Le noyau le refuse déjà — `TransformCommand::create` rend `nullopt` sur
-    // un dénominateur nul. Le dialogue le dit avant, plutôt que de laisser
-    // l'utilisateur valider pour rien.
+    // The core already refuses it — `TransformCommand::create` returns
+    // `nullopt` on a zero denominator. The dialog says so beforehand, rather
+    // than letting the user validate for nothing.
     TransformDialog dialog{4, 4};
 
     dialog.setTyped(2, QStringLiteral("00:00:01,000"), 2, QStringLiteral("00:00:09,000"));
@@ -88,9 +88,9 @@ TEST_CASE("two references on the same subtitle define no transform", "[gui][GUI-
 }
 
 TEST_CASE("a reference outside the file cannot be asked for", "[gui][GUI-TRANSFORM-01]") {
-    // Non pas refusé après coup, mais impossible à saisir : le champ est borné
-    // par le nombre de sous-titres. Un neuvième repère dans un fichier de
-    // quatre retombe sur le quatrième.
+    // Not refused afterwards, but impossible to type: the field is bounded by
+    // the number of subtitles. A ninth reference in a file of four falls back
+    // to the fourth.
     TransformDialog dialog{4, 4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 9, QStringLiteral("00:00:09,000"));
@@ -101,9 +101,9 @@ TEST_CASE("a reference outside the file cannot be asked for", "[gui][GUI-TRANSFO
 
 TEST_CASE("the transform dialog counts its target apart from its bounds",
           "[gui][GUI-TRANSFORM-01]") {
-    // Deux comptes, et ils ne disent pas la même chose. L'opération porte sur
-    // deux sous-titres ; un repère reste un numéro de sous-titre, donc il va
-    // jusqu'au dernier du fichier, sélectionné ou non.
+    // Two counts, and they do not say the same thing. The operation applies to
+    // two subtitles; a reference is still a subtitle number, so it goes up to
+    // the last of the file, selected or not.
     TransformDialog dialog{2, 4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("00:00:09,000"));
@@ -123,8 +123,8 @@ TEST_CASE("an unreadable reference position is refused", "[gui][GUI-TRANSFORM-01
 }
 
 TEST_CASE("the frame rate dialog opens on the rate of the project", "[gui][GUI-FRAMERATE-01]") {
-    // Pré-rempli, et sans heuristique : le fichier ne porte pas sa fréquence,
-    // et se tromper décale tout sans rien signaler.
+    // Pre-filled, and without a heuristic: the file does not carry its rate,
+    // and getting it wrong shifts everything without a word.
     const FrameRateDialog dialog{4, FrameRate{StandardFrameRate::Fps25}};
 
     CHECK(dialog.input() == FrameRate{StandardFrameRate::Fps25});

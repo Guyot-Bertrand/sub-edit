@@ -42,8 +42,8 @@ DiagnosticsPanel::DiagnosticsPanel(QWidget* parent)
     m_toggle->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     m_toggle->setArrowType(Qt::RightArrow);
 
-    // Repliée au départ : ce qu'une lecture a rattrapé mérite d'être
-    // consultable, pas de s'imposer entre l'utilisateur et sa table.
+    // Folded to start with: what a reading recovered from deserves to be
+    // available, not to stand between the user and their table.
     m_lines->setVisible(false);
     connect(m_toggle, &QToolButton::toggled, this, [this](bool open) {
         m_lines->setVisible(open);

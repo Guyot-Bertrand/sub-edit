@@ -129,18 +129,18 @@ private:
 
     void removeHearingImpairedFromTarget();
 
-    /// **Initialisés ici, et pas seulement dans la liste du constructeur.**
+    /// **Initialised here, and not only in the constructor's list.**
     ///
-    /// Trois actions ajoutées ensemble à l'issue #132 ont été oubliées de cette
-    /// liste, et le premier symptôme a été un segfault dans `QObject::connect`.
-    /// `-Wuninitialized` ne dit rien de ce cas — il ne modélise, pour un
-    /// membre, que celui qui en initialise un autre avant son tour — et cela ne
-    /// dépend pas du niveau d'optimisation.
+    /// Three actions added together at issue #132 were left out of that list,
+    /// and the first symptom was a segfault inside `QObject::connect`.
+    /// `-Wuninitialized` says nothing of that case — for a member, it models
+    /// only the one that initialises another before its turn — and that does
+    /// not depend on the optimisation level.
     ///
-    /// La porte, elle, l'aurait dit : `cppcoreguidelines-pro-type-member-init`
-    /// nomme les champs qu'un constructeur laisse de côté. Ces `nullptr` sont
-    /// donc une ceinture par-dessus des bretelles — ils rendent l'oubli
-    /// inoffensif là où le contrôle le rend visible.
+    /// The gate would have said it: `cppcoreguidelines-pro-type-member-init`
+    /// names the fields a constructor leaves out. These `nullptr` are therefore
+    /// a belt over braces — they make the omission harmless where the check
+    /// makes it visible.
     core::FileSystem* m_files = nullptr;
     Prompts* m_prompts = nullptr;
 

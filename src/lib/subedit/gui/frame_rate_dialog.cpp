@@ -68,8 +68,8 @@ core::FrameRate FrameRateDialog::output() const {
 }
 
 bool FrameRateDialog::isComplete() const {
-    // Convertir une fréquence en elle-même ne change rien : le laisser valider
-    // mettrait une entrée dans l'historique pour un fichier inchangé.
+    // Converting a rate into itself changes nothing: letting it be validated
+    // would put an entry in the history for an unchanged file.
     return !(input() == output());
 }
 

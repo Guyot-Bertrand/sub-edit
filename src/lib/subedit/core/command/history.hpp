@@ -69,7 +69,7 @@ public:
     /// Names the command undoing would defeat, or nothing if there is none.
     ///
     /// **A kind, not the command.** What an interface needs of it is one word
-    /// — « Annuler : décalage » — and handing out the command would hand out
+    /// — « Undo: shifting » — and handing out the command would hand out
     /// the right to apply it again, outside the history that owns it.
     ///
     /// A group answers with the name it was built under, which is the one the
