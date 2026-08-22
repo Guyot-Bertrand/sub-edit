@@ -10,8 +10,9 @@ namespace subedit::core {
 /// order.
 enum class OrderPolicy {
     /// Nothing. The file keeps the order it came with, and no edit moves a
-    /// line. `Project::outOfOrder()` says where the disorder is, and the
-    /// interface shows it.
+    /// line. `scanAnomalies` says where the disorder is — it took the place of
+    /// `Project::outOfOrder()` at issue #127 — and the interface shows it: the
+    /// table tints the subtitles it names.
     ///
     /// The default, and the reading of ADR 0008 that the core applies
     /// everywhere: report, do not repair.

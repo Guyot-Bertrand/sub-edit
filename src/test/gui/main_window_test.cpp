@@ -1,5 +1,6 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/gui/cell_delegates.hpp>
@@ -34,6 +35,7 @@ namespace {
 using subedit::core::InMemoryFileSystem;
 using subedit::core::ReadError;
 using subedit::core::ReadErrorKind;
+using subedit::core::RealFileSystem;
 using subedit::core::SubtitleFormat;
 using subedit::gui::MainWindow;
 using subedit::gui::OpenedFile;
@@ -59,15 +61,15 @@ constexpr const char* kThree = "1\n"
     return files;
 }
 
-/// Ce qu'une fenêtre a autour d'elle, tenu ensemble.
+/// What a window has around it, held together.
 ///
-/// Elle garde des références sur le système de fichiers et sur les questions
-/// posées à l'utilisateur, donc les deux doivent lui survivre. Les laisser
-/// dans le corps du test marcherait ; les réunir ici évite d'y penser.
+/// It keeps references to the file system and to the questions put to the
+/// user, so both have to outlive it. Leaving them in the body of the test would
+/// work; gathering them here saves having to think about it.
 class Windowed {
 
 public:
-    /// Sur un fichier, ou sur rien du tout.
+    /// On a file, or on nothing at all.
     explicit Windowed(const char* content = nullptr) {
         if (content == nullptr) {
             m_window = std::make_unique<MainWindow>(m_files, OpenedFile{}, m_prompts);
@@ -99,9 +101,39 @@ TEST_CASE("opening a file gives a project that remembers where it came from",
     REQUIRE(opened.has_value());
     CHECK(opened->project.count() == 3);
     CHECK(opened->project.sourceFile().format == SubtitleFormat::SubRip);
-    // L'option entière plutôt que son contenu : clang-tidy ne reconnaît pas le
-    // REQUIRE de Catch2 comme une vérification.
+    // The whole optional rather than its content: clang-tidy does not
+    // recognise Catch2's REQUIRE as a check.
     CHECK(opened->project.sourceFile().path == std::filesystem::path{"film.srt"});
+}
+
+TEST_CASE("a file of the corpus opens through the real file system", "[gui][GUI-OPEN-01]") {
+    // **The one test of the window that touches a disk.** Every other one goes
+    // through `InMemoryFileSystem` and a string written for the occasion, which
+    // is the right way to put a window to the test — and left `openProject`
+    // without a single proof on a file that exists, while the phase spec said
+    // the corpus of `src/test/data/` served the opening.
+    //
+    // What only a real file can carry: bytes read by the platform, an encoding
+    // the reader had to accept, and a path a project remembers.
+    RealFileSystem files;
+    const std::filesystem::path path =
+        std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / "valides" / "trois.srt";
+
+    std::expected<OpenedFile, ReadError> opened = openProject(files, path);
+
+    REQUIRE(opened.has_value());
+    CHECK(opened->diagnostics.empty());
+
+    subedit::test::FakePrompts prompts;
+    const MainWindow window{files, std::move(*opened), prompts};
+
+    const QAbstractItemModel* table = window.table()->model();
+    REQUIRE(table->rowCount({}) == 3);
+    CHECK(table->data(table->index(1, 1), Qt::DisplayRole).toString().toStdString() ==
+          "00:00:05,001");
+    CHECK(table->data(table->index(0, 4), Qt::DisplayRole).toString().toStdString() ==
+          "Le vent se lève sur le port.");
+    CHECK(window.windowTitle().toStdString() == "trois.srt[*] — subedit");
 }
 
 TEST_CASE("opening what is not a subtitle file fails, and says why", "[gui][GUI-OPEN-02]") {
@@ -150,8 +182,8 @@ TEST_CASE("the window puts an editor on the three cells that can be edited", "[g
     const MainWindow& window = fixture.window();
     const QTableView* table = window.table();
 
-    // Le numéro et la durée n'en ont pas : ils ne sont pas éditables, et un
-    // délégué posé là promettrait le contraire.
+    // The number and the duration have none: they are not editable, and a
+    // delegate put there would promise otherwise.
     CHECK(table->itemDelegateForColumn(0) == nullptr);
     CHECK(qobject_cast<PositionDelegate*>(table->itemDelegateForColumn(1)) != nullptr);
     CHECK(qobject_cast<PositionDelegate*>(table->itemDelegateForColumn(2)) != nullptr);
@@ -160,8 +192,8 @@ TEST_CASE("the window puts an editor on the three cells that can be edited", "[g
 }
 
 TEST_CASE("typing in a cell of the window changes the file it holds", "[gui][GUI-EDIT-01]") {
-    // Le seul test qui parcourt la chaîne entière — vue, délégué, modèle,
-    // commande, session —, et le seul qui montre ce que l'utilisateur fait.
+    // The one test that walks the whole chain — view, delegate, model,
+    // command, session — and the only one that shows what the user does.
     const Windowed fixture{kThree};
     const MainWindow& window = fixture.window();
     QTableView* table = window.table();
@@ -178,15 +210,15 @@ TEST_CASE("typing in a cell of the window changes the file it holds", "[gui][GUI
           "Deux, autrement.");
 }
 
-// Annuler et rétablir — issue #130.
+// Undo and redo — issue #130.
 //
-// Pas de `QUndoStack` : l'historique du noyau fait autorité, puisque la ligne
-// de commande en dépend aussi, et deux sources de vérité pour la même question
-// en font une de trop. Les deux `QAction` ne font que le lire.
+// No `QUndoStack`: the core's history is the authority, since the command line
+// depends on it too, and two sources of truth for one question would be one too
+// many. The two `QAction` only read it.
 
 namespace {
 
-/// Ce qu'une cellule vaut, vu de la fenêtre.
+/// What a cell holds, seen from the window.
 [[nodiscard]] std::string cell(const MainWindow& window, int row, int column) {
     return window.table()
         ->model()
@@ -222,10 +254,9 @@ TEST_CASE("an edit makes undo possible, and names it", "[gui][GUI-UNDO-01]") {
     CHECK(window.undoAction()->text().toStdString() == "Undo: editing a text");
     CHECK_FALSE(window.redoAction()->isEnabled());
 
-    // Le libellé long au menu, le court à la barre d'outils — et c'est
-    // maintenant qu'on peut le vérifier, les deux ayant enfin divergé. Un
-    // bouton dont la largeur suivrait la dernière opération bougerait sous le
-    // pointeur.
+    // The long label in the menu, the short one on the toolbar — and now is
+    // when it can be checked, the two having finally diverged. A button whose
+    // width followed the last operation would move under the pointer.
     CHECK(window.undoAction()->iconText().toStdString() == "Undo");
     CHECK(window.undoAction()->toolTip().toStdString() == "Undo: editing a text");
 }
@@ -279,9 +310,9 @@ TEST_CASE("the window carries the mark of unsaved changes", "[gui][GUI-UNDO-01]"
 }
 
 TEST_CASE("undoing back to the save point clears the mark", "[gui][GUI-UNDO-02]") {
-    // Ce qu'un booléen n'aurait jamais su faire : le noyau compte les
-    // modifications, donc revenir au point d'enregistrement se dit. Le point,
-    // ici, est l'ouverture — « Enregistrer » n'existe pas encore.
+    // What a boolean could never have done: the core counts the changes, so
+    // coming back to the save point can be told. The point, here, is the
+    // opening — « Save » does not exist yet.
     const Windowed fixture{kThree};
     const MainWindow& window = fixture.window();
     REQUIRE(edits(window, 0, 4, "Un bis."));
@@ -296,8 +327,8 @@ TEST_CASE("undoing back to the save point clears the mark", "[gui][GUI-UNDO-02]"
 }
 
 TEST_CASE("a validation that changed nothing leaves the actions alone", "[gui][GUI-UNDO-01]") {
-    // L'état se recalcule après chaque opération, y compris après celle qui
-    // n'a rien changé — et il faut qu'il tombe juste.
+    // The state is recomputed after every operation, the one that changed
+    // nothing included — and it has to come out right.
     const Windowed fixture{kThree};
     const MainWindow& window = fixture.window();
 
@@ -311,9 +342,9 @@ TEST_CASE("both actions are reachable from the menu and the toolbar", "[gui][GUI
     const Windowed fixture;
     const MainWindow& window = fixture.window();
 
-    // Trouvé par son titre et non par son rang : chaque ticket d'interface
-    // ajoute un menu, et compter les positions ferait échouer ce test à chaque
-    // fois sans que rien ne soit cassé.
+    // Found by its title and not by its rank: every interface ticket adds a
+    // menu, and counting positions would fail this test every time without
+    // anything being broken.
     const QList<QMenu*> menus = window.menuBar()->findChildren<QMenu*>();
     const auto edit = std::ranges::find_if(
         menus, [](const QMenu* menu) { return menu->title() == QStringLiteral("&Edit"); });

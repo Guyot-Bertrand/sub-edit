@@ -21,6 +21,13 @@ target_link_libraries(
 
 subedit_set_warnings(subedit_gui_test)
 
+# Le corpus versionné, pour le seul test qui ouvre un vrai fichier à travers un
+# vrai système de fichiers. Les autres passent par InMemoryFileSystem, ce qui
+# est le bon choix pour éprouver une fenêtre — mais laissait `openProject` sans
+# preuve sur un fichier qui existe.
+target_compile_definitions(subedit_gui_test
+                           PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
+
 # Catch2 sans son main : le binaire fournit le sien, parce que la QApplication
 # doit vivre sur la pile de main. Détruite parmi les gestionnaires de fin de
 # processus — ce que fait une statique — elle plante, et ASan l'a montré.

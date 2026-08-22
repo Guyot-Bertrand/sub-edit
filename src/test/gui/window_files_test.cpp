@@ -1,9 +1,9 @@
-// Ouvrir, enregistrer, enregistrer sous, et ce qui protège un travail non
-// enregistré — issue #131.
+// Open, save, save as, and what protects work that was never written —
+// issue #131.
 //
-// Tout passe par un faux `Prompts` : ce qu'on éprouve n'est pas le dialogue de
-// Qt mais ce que la fenêtre fait de la réponse, y compris quand la réponse est
-// « non ».
+// Everything goes through a fake `Prompts`: what is tested is not Qt's dialog
+// but what the window makes of the answer, including when the answer is
+// « no ».
 
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/document.hpp>
@@ -49,8 +49,8 @@ constexpr const char* kThree = "1\n"
                                "Deux.\n"
                                "\n";
 
-/// Un fichier dont la lecture rencontre une anomalie : le numéro du second
-/// bloc manque, et le lecteur s'en remet.
+/// A file whose reading runs into something: the number of the second block is
+/// missing, and the reader recovers.
 constexpr const char* kNumberless = "1\n"
                                     "00:00:01,000 --> 00:00:02,000\n"
                                     "Un.\n"
@@ -96,7 +96,7 @@ TEST_CASE("saving writes the file the window was opened on", "[gui][GUI-SAVE-01]
 
     CHECK(files.contentOf("film.srt").value_or("").find("Un bis.") != std::string::npos);
     CHECK_FALSE(window.isWindowModified());
-    // Aucune question posée : la destination est connue.
+    // No question asked: the destination is known.
     CHECK(prompts.saveTargetAsked == 0);
 }
 
@@ -122,8 +122,8 @@ TEST_CASE("saving under another name moves the document there", "[gui][GUI-SAVE-
 
     CHECK(files.contentOf("film.vtt").value_or("").starts_with("WEBVTT"));
     CHECK(window.windowTitle().toStdString().find("film.vtt") != std::string::npos);
-    // Le séparateur de la table suit le format : la fenêtre écrit désormais
-    // du WebVTT, donc elle montre des points.
+    // The table's separator follows the format: the window writes WebVTT from
+    // now on, so it shows periods.
     CHECK(window.table()
               ->model()
               ->data(window.table()->model()->index(0, 1), Qt::DisplayRole)
@@ -153,7 +153,7 @@ TEST_CASE("a save that cannot be written says so and keeps the changes", "[gui][
     window.saveAction()->trigger();
 
     CHECK(prompts.failures.size() == 1);
-    // Le travail n'est pas perdu, et la marque le dit encore.
+    // The work is not lost, and the mark still says so.
     CHECK(window.isWindowModified());
 }
 
@@ -198,7 +198,8 @@ TEST_CASE("opening with unsaved changes asks, and cancelling opens nothing", "[g
     window.openAction()->trigger();
 
     CHECK(prompts.unsavedAsked == 1);
-    // Ni ouvert, ni même demandé quel fichier : la question s'arrête avant.
+    // Neither opened, nor even asked which file: the question stops before
+    // that.
     CHECK(prompts.openAsked == 0);
     CHECK(textAt(window, 0) == "Un bis.");
 }
@@ -215,7 +216,7 @@ TEST_CASE("discarding unsaved changes opens the other file anyway", "[gui][GUI-S
     window.openAction()->trigger();
 
     CHECK(textAt(window, 0) == "Ailleurs.");
-    // Abandonnées veut dire abandonnées : le fichier d'origine est intact.
+    // Discarded means discarded: the original file is untouched.
     CHECK(files.contentOf("film.srt").value_or("") == kThree);
 }
 
@@ -265,12 +266,12 @@ TEST_CASE("the diagnostics of a reading are shown", "[gui][GUI-OPEN-03]") {
 
     REQUIRE(window.diagnostics() != nullptr);
     CHECK(window.diagnostics()->count() == 1);
-    // La ligne du fichier, que seule la lecture connaît.
+    // The line of the file, which only the reading knows.
     CHECK(window.diagnostics()->lineAt(0).toStdString().starts_with("line 5:"));
 }
 
 TEST_CASE("a reading with nothing to report shows no panel", "[gui][GUI-OPEN-03]") {
-    // Un panneau vide dirait qu'il y a quelque chose à lire.
+    // An empty panel would say there is something to read.
     InMemoryFileSystem files = withFile("film.srt", kThree);
     FakePrompts prompts;
     const MainWindow window{files, fileIn(files, "film.srt"), prompts};
@@ -280,12 +281,12 @@ TEST_CASE("a reading with nothing to report shows no panel", "[gui][GUI-OPEN-03]
 }
 
 TEST_CASE("a diagnostic that quotes the file quotes it, and bounds it", "[gui][GUI-OPEN-03]") {
-    // L'extrait vient du fichier : entre guillemets, sinon une ligne finissant
-    // par une virgule se lirait comme la suite de la phrase ; borné, sinon une
-    // seule ligne absurde pousserait le panneau hors de l'écran. Ni l'un ni
-    // l'autre n'est à nous de faire confiance.
-    // Une ligne d'horodatage illisible, et démesurée : le lecteur la rapporte
-    // en la citant, ce qui est exactement le cas à borner.
+    // The excerpt comes from the file: quoted, or a line ending in a comma
+    // would read as the rest of the sentence; bounded, or one absurd line would
+    // push the panel off the screen. Neither is ours to trust.
+    //
+    // An unreadable timing line, and an outsized one: the reader reports it by
+    // quoting it, which is exactly the case to bound.
     const std::string absurd(120, 'z');
     InMemoryFileSystem files = withFile("bancal.srt",
                                         "1\n"
@@ -308,8 +309,8 @@ TEST_CASE("a diagnostic that quotes the file quotes it, and bounds it", "[gui][G
 }
 
 TEST_CASE("the diagnostics panel folds and unfolds", "[gui][GUI-OPEN-03]") {
-    // Replié au départ : ce qu'une lecture a rattrapé mérite d'être
-    // consultable, pas de s'imposer entre l'utilisateur et sa table.
+    // Folded to start with: what a reading recovered from deserves to be
+    // available, not to stand between the user and their table.
     InMemoryFileSystem files = withFile("bancal.srt", kNumberless);
     FakePrompts prompts;
     const MainWindow window{files, fileIn(files, "bancal.srt"), prompts};
@@ -338,8 +339,8 @@ TEST_CASE("a save-as that cannot be written says so and moves nothing", "[gui][G
     window.saveAsAction()->trigger();
 
     CHECK(prompts.failures.size() == 1);
-    // Le document n'a pas déménagé : le titre et la destination de « Save »
-    // seraient faux si l'échec les avait laissés bouger.
+    // The document has not moved: the title and what « Save » aims at would be
+    // wrong if the failure had let them move.
     CHECK(window.windowTitle().toStdString().find("film.srt") != std::string::npos);
 }
 

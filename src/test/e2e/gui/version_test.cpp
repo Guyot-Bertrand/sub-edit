@@ -1,8 +1,11 @@
 // The chain under the window, through the real binary.
 //
-// It checks nothing of what the interface does — nothing exists yet. It checks
-// that the interface **can run at all where there is no screen**: Qt is found,
-// a `QApplication` constructs, and the platform plugin loads.
+// It checks nothing of what the interface does, and it cannot: opening a file
+// puts a window on screen and enters `QApplication::exec()`, which returns when
+// somebody closes it. What the window does is therefore tested one level down,
+// against `MainWindow`. What is checked here is that the interface **can run at
+// all where there is no screen**: Qt is found, a `QApplication` constructs, and
+// the platform plugin loads.
 //
 // That last point is the only reason this test exists. A missing plugin fails
 // at construction and never at compilation, so no build can warn about it —

@@ -10,7 +10,7 @@ class Project;
 
 /// What is wrong with a document, as a category.
 ///
-/// **Distinct from `DiagnosticKind`, and the repère says why** — ADR 0018. A
+/// **Distinct from `DiagnosticKind`, and the marker says why** — ADR 0018. A
 /// diagnostic is what a *reading* ran into, and it points at a line; a line
 /// only exists while a file is being read. An anomaly is what a *document is*,
 /// and it points at a subtitle; an index survives an edition, and a table

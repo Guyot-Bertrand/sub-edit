@@ -1,13 +1,15 @@
-// Ce que la fenêtre fait des trois dialogues — issue #132.
+// What the window makes of the three dialogs — issue #132.
 //
-// Le faux `Prompts` joue l'utilisateur : il reçoit le dialogue, y écrit ce que
-// le scénario veut, et dit s'il valide. La boucle modale n'est jamais atteinte.
+// The fake `Prompts` plays the user: it receives the dialog, writes into it
+// what the scenario wants, and says whether it is validated. The modal loop is
+// never reached.
 
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
+#include <subedit/gui/operation_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
@@ -32,11 +34,12 @@ using subedit::gui::FrameRateDialog;
 using subedit::gui::MainWindow;
 using subedit::gui::OpenedFile;
 using subedit::gui::openProject;
+using subedit::gui::OperationDialog;
 using subedit::gui::ShiftDialog;
 using subedit::gui::TransformDialog;
 using subedit::test::FakePrompts;
 
-/// Quatre sous-titres à une, trois, cinq et sept secondes.
+/// Four subtitles, at one, three, five and seven seconds.
 constexpr const char* kFour = "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n"
                               "2\n00:00:03,000 --> 00:00:04,000\nDeux.\n\n"
                               "3\n00:00:05,000 --> 00:00:06,000\nTrois.\n\n"
@@ -54,7 +57,7 @@ constexpr const char* kFour = "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n"
     return std::move(*opened);
 }
 
-/// Le début d'une ligne, tel que la table le montre.
+/// The start of a row, as the table shows it.
 [[nodiscard]] std::string startAt(const MainWindow& window, int row) {
     return window.table()
         ->model()
@@ -104,6 +107,49 @@ TEST_CASE("shifting a selection moves only it", "[gui][GUI-SHIFT-01]") {
     CHECK(startAt(window, 2) == "00:00:05,000");
 }
 
+TEST_CASE("a dialog names the selection, and not the file", "[gui][GUI-SHIFT-01]") {
+    // The defect the end-of-phase review found: the window handed the count of
+    // the file to the four dialogs, which announced « 4 subtitles » while the
+    // operation changed two. The dialog tests built them by hand, so none of
+    // them could see it.
+    //
+    // Read from `fill`, while the dialog lives: it sits on the window's stack
+    // and does not survive the return of the action.
+    InMemoryFileSystem files = withFour();
+    FakePrompts prompts;
+    prompts.nextRun = false;
+    std::string said;
+    prompts.fill = [&said](QDialog& dialog) {
+        said = dynamic_cast<OperationDialog&>(dialog).targetLabel().toStdString();
+    };
+    const MainWindow window{files, fourIn(files), prompts};
+
+    SECTION("nothing selected is the whole file") {
+        window.shiftAction()->trigger();
+
+        CHECK(said == "4 subtitles");
+    }
+
+    SECTION("two rows selected are two subtitles") {
+        selectRow(window, 1);
+        selectRow(window, 2);
+
+        window.shiftAction()->trigger();
+
+        CHECK(said == "2 subtitles");
+    }
+
+    SECTION("and the three others count the same way") {
+        selectRow(window, 0);
+
+        window.transformAction()->trigger();
+        CHECK(said == "1 subtitle");
+
+        window.frameRateAction()->trigger();
+        CHECK(said == "1 subtitle");
+    }
+}
+
 TEST_CASE("giving up on a dialog applies nothing", "[gui][GUI-SHIFT-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
@@ -122,9 +168,9 @@ TEST_CASE("giving up on a dialog applies nothing", "[gui][GUI-SHIFT-01]") {
 
 TEST_CASE("a shift that would go before the origin is refused, and names the subtitle",
           "[gui][GUI-SHIFT-01]") {
-    // Une position négative est représentable — le noyau le dit — mais aucun
-    // fichier de sous-titres ne peut la porter. Le refus nomme le premier
-    // fautif, qui est celui qu'il faut regarder.
+    // A negative position is representable — the core says so — but no
+    // subtitle file can hold one. The refusal names the first offender, which
+    // is the one to look at.
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = true;
@@ -142,8 +188,8 @@ TEST_CASE("a shift that would go before the origin is refused, and names the sub
 }
 
 TEST_CASE("transforming corrects the file from two references", "[gui][GUI-TRANSFORM-01]") {
-    // Le premier reste où il est, le dernier va deux fois plus loin : tout
-    // s'étire entre les deux, et les deux repères atterrissent exactement.
+    // The first stays where it is, the last goes twice as far: everything
+    // stretches between the two, and both references land exactly.
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = true;
@@ -173,8 +219,8 @@ TEST_CASE("converting the frame rate re-times the file", "[gui][GUI-FRAMERATE-01
 
     window.frameRateAction()->trigger();
 
-    // Vingt-cinq images par seconde relues à vingt-quatre : tout dure plus
-    // longtemps, dans le rapport 25/24.
+    // Twenty-five frames per second played back at twenty-four: everything
+    // lasts longer, in the ratio 25/24.
     CHECK(startAt(window, 0) == "00:00:01,042");
     CHECK(window.undoAction()->text().toStdString() == "Undo: converting the frame rate");
 }
@@ -190,8 +236,8 @@ TEST_CASE("the three operations are reachable from a menu of their own", "[gui][
 }
 
 TEST_CASE("an operation on an empty file is not offered", "[gui][GUI-SHIFT-01]") {
-    // Rien à décaler, rien à transformer : les actions sont inactives plutôt
-    // que d'ouvrir un dialogue qui ne pourrait porter sur rien.
+    // Nothing to shift, nothing to transform: the actions are disabled rather
+    // than opening a dialog that could apply to nothing.
     InMemoryFileSystem files;
     FakePrompts prompts;
     const MainWindow window{files, OpenedFile{}, prompts};
@@ -225,11 +271,11 @@ TEST_CASE("giving up on the frame rate dialog applies nothing", "[gui][GUI-FRAME
     CHECK_FALSE(window.undoAction()->isEnabled());
 }
 
-// Les trois cas suivants ne peuvent pas arriver à un utilisateur : le bouton de
-// validation suit `isComplete()`, donc un dialogue incomplet ne se valide pas.
-// Ce sont des gardes, et une garde qu'aucun test ne traverse est une promesse
-// que personne ne vérifie — le faux `Prompts` valide sans regarder le bouton,
-// ce qui est exactement la situation dont elles protègent.
+// The three cases below cannot happen to a user: the accept button follows
+// `isComplete()`, so an incomplete dialog is not validated. They are guards,
+// and a guard no test walks through is a promise nobody checks — the fake
+// `Prompts` validates without looking at the button, which is exactly the
+// situation they protect against.
 
 TEST_CASE("a shift validated on an unreadable duration does nothing", "[gui][GUI-SHIFT-01]") {
     InMemoryFileSystem files = withFour();
@@ -265,8 +311,8 @@ TEST_CASE("a transform validated on an unreadable reference does nothing",
 }
 
 TEST_CASE("two references on one subtitle are refused, and said so", "[gui][GUI-TRANSFORM-01]") {
-    // Le noyau rend `nullopt` sur un dénominateur nul. La fenêtre le dit plutôt
-    // que de ne rien faire sans raison apparente.
+    // The core returns `nullopt` on a zero denominator. The window says so
+    // rather than doing nothing for no apparent reason.
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = true;

@@ -1,9 +1,9 @@
-// Écrire le fichier qu'une fenêtre tient — issue #131.
+// Writing the file a window holds — issue #131.
 //
-// **L'aller-retour octet pour octet est le critère**, et il n'est pas
-// décoratif : un fichier arrivé avec un BOM et des fins de ligne CRTL réécrit
-// sans eux montrerait un diff sur chacune de ses lignes là où l'utilisateur
-// attendait un sous-titre corrigé.
+// **The byte-for-byte round trip is the criterion**, and it is not decorative:
+// a file that arrived with a byte order mark and CRLF line endings, rewritten
+// without them, would show a diff on every one of its lines where the user
+// expected one corrected subtitle.
 
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/project.hpp>
@@ -26,9 +26,9 @@ using subedit::core::SubtitleFormat;
 using subedit::gui::openProject;
 using subedit::gui::saveProject;
 
-/// Dans la disposition que le projet écrit — ligne vide close comprise, y
-/// compris après le dernier bloc. C'est sur celle-là que l'aller-retour est
-/// fidèle octet pour octet ; la spec de la phase 1 le dit ainsi.
+/// In the layout the project writes — closing blank line included, after the
+/// last block too. That is the one the round trip is faithful to byte for byte;
+/// the phase 1 spec puts it that way.
 constexpr const char* kSubRip = "1\n"
                                 "00:00:01,000 --> 00:00:02,000\n"
                                 "Un.\n"
@@ -38,7 +38,8 @@ constexpr const char* kSubRip = "1\n"
                                 "Deux.\n"
                                 "\n";
 
-/// Le même sans sa ligne vide finale : lisible, courant, et hors disposition.
+/// The same without its final blank line: readable, common, and outside the
+/// layout.
 constexpr const char* kSubRipUnclosed = "1\n"
                                         "00:00:01,000 --> 00:00:02,000\n"
                                         "Un.\n"
@@ -47,7 +48,8 @@ constexpr const char* kSubRipUnclosed = "1\n"
                                         "00:00:03,000 --> 00:00:04,000\n"
                                         "Deux.\n";
 
-/// Le même, tel qu'un éditeur de Windows l'aurait laissé : BOM et CRLF.
+/// The same, as a Windows editor would have left it: byte order mark and
+/// CRLF.
 [[nodiscard]] std::string withBomAndCrLf(const std::string& content) {
     std::string out = "\xEF\xBB\xBF";
     for (const char letter : content) {
@@ -82,7 +84,7 @@ TEST_CASE("a file already in the layout the project writes comes back identical 
 
 TEST_CASE("saving keeps the line endings and the byte order mark of the file it came from",
           "[gui][GUI-SAVE-01]") {
-    // Chacun séparément, pour qu'un échec dise lequel des deux a été perdu.
+    // Each separately, so that a failure says which of the two was lost.
     InMemoryFileSystem files;
     files.addFile("unix.srt", kSubRip);
 
@@ -115,10 +117,9 @@ TEST_CASE("saving in the other format writes that format", "[gui][GUI-SAVE-02]")
     const std::string written = files.contentOf("film.vtt").value_or("");
     CHECK(written.starts_with("WEBVTT"));
     CHECK(written.find(",000") == std::string::npos);
-    // Le point, et non la virgule : c'est ce que WebVTT écrit.
-    // Le point pour virgule, et les heures omises sous une heure : les deux
-    // sont ce que WebVTT écrit, et les deux distinguent le fichier produit de
-    // celui qu'on a lu.
+    // A period for a comma, and the hours left out below one hour: both are
+    // what WebVTT writes, and both tell the file produced from the one that was
+    // read.
     CHECK(written.find("00:01.000 --> 00:02.000") != std::string::npos);
 }
 
@@ -135,10 +136,10 @@ TEST_CASE("a save that cannot be written says so", "[gui][GUI-SAVE-01]") {
 }
 
 TEST_CASE("a file outside that layout is normalised once and never again", "[gui][GUI-SAVE-01]") {
-    // La seconde moitié de la garantie, telle que la spec de la phase 1
-    // l'énonce : le premier enregistrement ferme le dernier bloc par la ligne
-    // vide que la disposition demande, et aucun enregistrement ensuite ne
-    // touche plus rien. Le fichier bouge une fois, pas à chaque sauvegarde.
+    // The second half of the guarantee, as the phase 1 spec states it: the
+    // first save closes the last block with the blank line the layout calls
+    // for, and no save afterwards touches anything. The file moves once, not at
+    // every save.
     InMemoryFileSystem files;
     files.addFile("film.srt", kSubRipUnclosed);
 
@@ -157,14 +158,14 @@ TEST_CASE("a file outside that layout is normalised once and never again", "[gui
 
 TEST_CASE("changing format leaves the other variant's extras out of the file",
           "[gui][GUI-SAVE-02]") {
-    // **Le point que le ticket demandait de regarder plutôt que de supposer.**
-    // Un projet lu en WebVTT porte des `WebVttExtras` — un identifiant de cue,
-    // des réglages de placement — qui n'ont aucun sens en SubRip, et
-    // réciproquement pour les coordonnées de SubRip.
+    // **The point the ticket asked to look at rather than assume.** A project
+    // read as WebVTT carries `WebVttExtras` — a cue identifier, placement
+    // settings — which mean nothing in SubRip, and the other way round for
+    // SubRip's coordinates.
     //
-    // Les écrivains interrogent la variante par `std::get_if` et retombent sur
-    // leurs valeurs par défaut quand elle appartient à l'autre format. Rien à
-    // changer donc, mais rien qui le disait : ce test le dit.
+    // The writers query the variant through `std::get_if` and fall back on
+    // their default values when it belongs to the other format. Nothing to
+    // change, then, but nothing that said so: this test says it.
     InMemoryFileSystem files;
     files.addFile("film.vtt",
                   "WEBVTT\n"
@@ -180,14 +181,15 @@ TEST_CASE("changing format leaves the other variant's extras out of the file",
     const std::string written = files.contentOf("film.srt").value_or("");
     CHECK(written.find("chapitre-1") == std::string::npos);
     CHECK(written.find("align:start") == std::string::npos);
-    // Ce qui compte est bien là, dans la forme de SubRip.
+    // What matters is there, in SubRip's own shape.
     CHECK(written.find("00:00:01,000 --> 00:00:02,000") != std::string::npos);
     CHECK(written.find("Un.") != std::string::npos);
 }
 
 TEST_CASE("the extras of the format written are kept", "[gui][GUI-SAVE-02]") {
-    // Le pendant du précédent : ce qui est ignoré l'est parce qu'il appartient
-    // à l'autre format, et non parce que les extras seraient perdus.
+    // The counterpart of the previous one: what is left out is left out because
+    // it belongs to the other format, and not because the extras would be
+    // lost.
     InMemoryFileSystem files;
     files.addFile("film.vtt",
                   "WEBVTT\n"

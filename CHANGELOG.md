@@ -29,12 +29,15 @@ ne pas l'éditer à la main.
 
 - **scripts** — Voir le travail non commité dans le périmètre de tidy
 - **build** — Écarter un arbre de couverture périmé par un déplacement
+- **gui** — Un dialogue qui annonce la cible, et non le fichier
+- **gui** — Des boîtes modales posées sur la fenêtre
 
 ### Documentation
 
 - Cadrer la phase 5, et ouvrir la phase 16 des fréquences d'image
 - Numéroter le découpage en issues de la phase 5
 - Mesurer les grilles d'images par leur phase
+- **core** — Trois commentaires qui décrivaient un état révolu
 
 ### Performance
 
@@ -45,6 +48,11 @@ ne pas l'éditer à la main.
 - **core** — Ranger le vocabulaire des formats dans le modèle
 - **core** — Séparer les anomalies d'un document de sa lecture
 - Une seule langue pour l'interface, et l'anglais
+
+### Tests
+
+- **test** — Mesurer la réinitialisation du modèle, une fois pour de bon
+- **test** — Ouvrir un fichier du corpus, sur un vrai disque
 
 ## 0.4.0 — 2026-08-16
 

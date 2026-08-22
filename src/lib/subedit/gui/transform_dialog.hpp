@@ -39,9 +39,17 @@ class TransformDialog final : public OperationDialog {
     Q_OBJECT
 
 public:
-    /// `subtitleCount` bounds the two indices: a reference outside the file
-    /// corrects nothing.
-    explicit TransformDialog(std::size_t subtitleCount, QWidget* parent = nullptr);
+    /// Two counts, and they are not the same one.
+    ///
+    /// `targetCount` is what the operation would touch — the selection, or the
+    /// whole file — and it is what the dialog says it applies to.
+    /// `subtitleCount` bounds the two indices, and it is the file: a reference
+    /// is a subtitle number, so it may name a line the selection leaves out,
+    /// and one outside the file corrects nothing.
+    ///
+    /// They were one parameter until the review of the phase, which is how the
+    /// label came to name the file while the operation touched the selection.
+    TransformDialog(std::size_t targetCount, std::size_t subtitleCount, QWidget* parent = nullptr);
 
     [[nodiscard]] std::optional<TypedReference> first() const;
 

@@ -120,6 +120,38 @@ non par balayage. Aucun benchmark ne le montre — leur fixture est saine, donc 
 liste est vide — mais sur un fichier très abîmé, un balayage ferait payer à
 chaque cellule le nombre d'anomalies du document.
 
+## Réinitialiser coûte ce que rafraîchir coûte, en 0.4.20
+
+Une mesure nouvelle, demandée par
+[l'ADR 0019](../adr/0019-table-en-adaptateur-mince.md) avant que la phase 7 ne
+construise dessus : **un changement de structure réinitialise le modèle**, et
+l'ADR se donne pour déclencheur de réexamen le moment où un menu ajoutera les
+lignes une par une — « une réinitialisation complète à chaque ligne ajoutée
+serait alors ridicule ».
+
+Le chiffre ne dit pas ce qu'on attendait :
+
+| Mesure | Ordre de grandeur |
+| :----- | ----------------: |
+| réinitialisation du modèle après une ligne retirée | ~13 µs |
+| rafraîchir après un décalage de 4000 sous-titres | ~12 µs |
+| construction du modèle sur 4000 sous-titres | ~10 µs |
+
+**Les trois sont le même chiffre**, et c'est le `scanAnomalies` qu'elles
+partagent. Côté modèle, réinitialiser ne coûte rien de plus que rafraîchir : les
+`beginResetModel` / `endResetModel` sont deux signaux, le reste est le balayage
+du document que toute opération de position paie déjà.
+
+**Ce que la mesure ne contient pas, et ne peut pas contenir : la part de la
+vue.** Un `QTableView` demande une `QApplication`, et le binaire de benchmarks
+n'en a pas — il prend le `main` de Catch2, et les modèles qu'il mesure sont des
+`QObject`. Or c'est précisément la vue qui reconstruit tout, perd la sélection
+et refait sa mise en page.
+
+Le déclencheur de l'ADR ne trouvera donc pas son argument ici. La mesure ne
+répond pas à la question : **elle la déplace, et dit où elle vit.** C'est ce
+qu'on peut en attendre de plus honnête avant d'avoir un écran sous la main.
+
 ## Extrêmes
 
 Le minimum et le maximum jamais relevés pour chaque mesure. Cette table n'est
@@ -154,6 +186,7 @@ pas le sujet de ce ticket.
 | rafraîchir après un décalage de 4000 sous-titres | 25.6 ns | 0.4.11 — 2026-08-20 | 28.7 ns | 0.4.14 — 2026-08-21 |
 | édition d'une cellule de texte | 379 ns | 0.4.15 — 2026-08-21 | 899 ns | 0.4.12 — 2026-08-20 |
 | édition d'une cellule de position | 484 ns | 0.4.15 — 2026-08-21 | 931 ns | 0.4.12 — 2026-08-20 |
+| réinitialisation du modèle après une ligne retirée | 13 µs | 0.4.20 — 2026-08-22 | 13 µs | 0.4.20 — 2026-08-22 |
 
 <!-- versionString min=30.121 max=55.096 -->
 <!-- parse min=29.9 max=41.1824 -->
@@ -178,6 +211,7 @@ pas le sujet de ce ticket.
 <!-- rafraîchir après un décalage de 4000 sous-titres min=25.5559 max=28.7059 -->
 <!-- édition d'une cellule de texte min=379.121 max=898.579 -->
 <!-- édition d'une cellule de position min=484.262 max=930.619 -->
+<!-- réinitialisation du modèle après une ligne retirée min=13047.7 max=13047.7 -->
 
 ## Relevés
 
@@ -185,6 +219,35 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.4.20 — 2026-08-22 — Release — charge 3.87
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| construction du modèle sur 4000 sous-titres | 10.5 µs | 6.84 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 35.3 µs | 3.52 µs |
+| rafraîchir après un décalage de 4000 sous-titres | 12.5 µs | 6.71 µs |
+| réinitialisation du modèle après une ligne retirée | 13 µs | 2.18 µs |
+| édition d'une cellule de texte | 527 ns | 331 ns |
+| édition d'une cellule de position | 14.5 µs | 4.67 µs |
+| versionString | 48.2 ns | 11 ns |
+| parse | 79.1 ns | 6.14 ns |
+| format | 46.7 ns | 11.6 ns |
+| position vers image | 8.06 ns | 0.956 ns |
+| image vers position | 11.1 ns | 1.84 ns |
+| mise à l'échelle par un rationnel exact | 12.6 ns | 2.62 ns |
+| lecture de 4000 sous-titres | 3.53 ms | 787 µs |
+| écriture de 4000 sous-titres | 1.11 ms | 285 µs |
+| décalage de 4000 sous-titres | 8.3 µs | 3.37 µs |
+| décalage puis annulation | 18.9 µs | 4.74 µs |
+| transformation de 4000 sous-titres | 88.2 µs | 14.3 µs |
+| conversion de fréquence sur 4000 sous-titres | 83 µs | 15.9 µs |
+| tri de 4000 sous-titres à l'envers | 312 µs | 93.8 µs |
+| suppression d'un sous-titre sur deux | 297 µs | 188 µs |
+| suppression puis annulation | 468 µs | 209 µs |
+| insertion de 100 sous-titres vides au milieu | 76.7 µs | 33.4 µs |
+| modification d'un texte, à travers une session | 238 ns | 54.3 ns |
+| suppression des mentions sur 4000 sous-titres | 1.73 ms | 407 µs |
 
 ### 0.4.19 — 2026-08-22 — Release — charge 3.13
 

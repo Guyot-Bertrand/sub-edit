@@ -70,13 +70,13 @@ using core::SubtitleFormat;
 /// itself, one that runs into its neighbour, one that is in the wrong place.
 /// How much of the tint reaches the eye, out of 255.
 ///
-/// Assez pour se voir d'un coup d'œil sur une table de quatre mille lignes,
-/// assez peu pour que le texte reste lisible par-dessus, clair ou sombre.
+/// Enough to be seen at a glance on a table of four thousand rows, little
+/// enough that the text stays readable over it, light or dark.
 constexpr int kWash = 64;
 
-/// Rouge pour un sous-titre cassé en lui-même, ambre pour un chevauchement,
-/// bleu pour une ligne mal placée. Trois teintes qu'on distingue même sans
-/// distinguer les rouges des verts.
+/// Red for a subtitle broken in itself, amber for an overlap, blue for a line
+/// in the wrong place. Three hues that are told apart even by an eye that does
+/// not tell red from green.
 constexpr QColor kBrokenTint{200, 40, 40, kWash};
 constexpr QColor kOverlapTint{220, 140, 0, kWash};
 constexpr QColor kDisorderTint{70, 90, 210, kWash};
@@ -120,8 +120,8 @@ SubtitleTableModel::SubtitleTableModel(core::Session& session, QObject* parent)
 void SubtitleTableModel::rescanAnomalies() {
     m_anomalies.clear();
 
-    // Rangées par sous-titre : `scanAnomalies` les rend dans l'ordre des
-    // sous-titres, donc un même indice arrive d'affilée.
+    // Grouped by subtitle: `scanAnomalies` returns them in the order of the
+    // subtitles, so one index arrives in a row.
     for (const core::Anomaly& anomaly : core::scanAnomalies(m_session->project())) {
         const int row = static_cast<int>(anomaly.index.value());
         if (m_anomalies.empty() || m_anomalies.back().first != row)
@@ -130,16 +130,16 @@ void SubtitleTableModel::rescanAnomalies() {
         m_anomalies.back().second.push_back(anomaly.kind);
     }
 
-    // Ce qui se répare en premier se lit en premier, et donne la teinte.
+    // What is repaired first is read first, and gives the tint.
     for (auto& [row, kinds] : m_anomalies)
         std::ranges::sort(kinds, {}, repairOrderOf);
 }
 
 std::span<const AnomalyKind> SubtitleTableModel::anomaliesAt(int row) const {
-    // **Par dichotomie, et non par balayage.** `data()` pose la question une
-    // fois par cellule visible ; sur un fichier très abîmé, une recherche
-    // linéaire ferait payer chaque cellule le nombre d'anomalies du document.
-    // Les entrées sont rangées par ligne croissante, ce qui suffit.
+    // **By bisection, and not by sweeping.** `data()` asks the question once
+    // per visible cell; on a badly damaged file, a linear search would make
+    // every cell pay the number of anomalies of the document. The entries are
+    // ordered by ascending row, which is all it takes.
     const auto found = std::ranges::lower_bound(
         m_anomalies, row, {}, &std::pair<int, std::vector<AnomalyKind>>::first);
     if (found == m_anomalies.end() || found->first != row)
@@ -165,17 +165,17 @@ QVariant SubtitleTableModel::data(const QModelIndex& index, int role) const {
     if (role == Qt::BackgroundRole || role == Qt::ToolTipRole)
         return anomalyMark(index, role);
 
-    // Les deux rôles rendent la même chose, et c'est ce qui fait marcher les
-    // délégués hérités : `setEditorData` lit `Qt::EditRole`, et un éditeur de
-    // position doit s'ouvrir sur l'horodatage tel qu'il est écrit à l'écran.
+    // Both roles return the same thing, and that is what makes the inherited
+    // delegates work: `setEditorData` reads `Qt::EditRole`, and a position
+    // editor has to open on the timestamp as it is written on screen.
     if (role != Qt::DisplayRole && role != Qt::EditRole)
         return {};
 
     if (index.row() < 0 || index.row() >= rowCount({}))
         return {};
 
-    // Une colonne hors de la table est une erreur d'appelant, pas un cas à
-    // servir : elle rend une valeur vide plutôt que de choisir pour lui.
+    // A column outside the table is a caller's mistake, not a case to serve:
+    // it returns an empty value rather than choosing for them.
     if (index.column() < 0 || index.column() >= kColumnCount)
         return {};
 
@@ -184,9 +184,9 @@ QVariant SubtitleTableModel::data(const QModelIndex& index, int role) const {
     const core::Subtitle& subtitle = m_session->project().subtitleAt(position);
     const DecimalMark mark = markOf(m_session->project());
 
-    // Transtypé, et non commuté sur l'entier : la garde ci-dessus a ramené la
-    // valeur dans le domaine de l'énumération, et c'est ce qui permet au
-    // compilateur de vérifier que les cinq colonnes sont traitées.
+    // Cast, and not switched on the integer: the guard above brought the value
+    // back into the domain of the enumeration, and that is what lets the
+    // compiler check that the five columns are handled.
     switch (static_cast<Column>(index.column())) {
     case Number:
         // Computed, never stored: an insertion would otherwise renumber every
@@ -205,14 +205,14 @@ QVariant SubtitleTableModel::data(const QModelIndex& index, int role) const {
         return QString::fromStdString(subtitle.mainText);
     }
 
-    // Les cinq colonnes sont traitées, la garde ci-dessus écarte le reste, et
-    // le compilateur vérifie que l'énumération est épuisée.
+    // The five columns are handled, the guard above rules out the rest, and
+    // the compiler checks that the enumeration is exhausted.
     std::unreachable();
 }
 
 QVariant SubtitleTableModel::anomalyMark(const QModelIndex& index, int role) const {
-    // Les positions et ce qui s'en déduit. Teinter le texte laisserait croire
-    // qu'il est pour quelque chose dans une anomalie qui ne parle que de temps.
+    // The positions and what is derived from them. Tinting the text would
+    // suggest it has something to do with an anomaly that is only about time.
     const int column = index.column();
     if (column != Start && column != End && column != Duration)
         return {};
@@ -221,7 +221,7 @@ QVariant SubtitleTableModel::anomalyMark(const QModelIndex& index, int role) con
     if (kinds.empty())
         return {};
 
-    // La première dans l'ordre de réparation gouverne la teinte.
+    // The first in the order of repair governs the tint.
     if (role == Qt::BackgroundRole)
         return tintOf(kinds.front());
 
@@ -239,8 +239,8 @@ Qt::ItemFlags SubtitleTableModel::flags(const QModelIndex& index) const {
     if (!index.isValid())
         return inherited;
 
-    // Le numéro est un rang et la durée une différence : aucune commande du
-    // noyau ne les pose, donc aucun éditeur ne s'ouvre dessus.
+    // The number is a rank and the duration a difference: no command of the
+    // core sets either, so no editor opens on them.
     const int column = index.column();
     if (column != Start && column != End && column != Text)
         return inherited;
@@ -266,17 +266,17 @@ bool SubtitleTableModel::setData(const QModelIndex& index, const QVariant& value
     switch (static_cast<Column>(index.column())) {
     case Number:
     case Duration:
-        // `flags()` l'a déjà dit à la vue, qui n'ouvrira pas d'éditeur ici. Le
-        // refus est pour qui appelle `setData` sans passer par une vue.
+        // `flags()` has already told the view, which will open no editor here.
+        // The refusal is for whoever calls `setData` without a view.
         return false;
     case Start:
     case End: {
         const bool start = index.column() == Start;
         const std::optional<core::Timestamp> wanted = core::Timestamp::parse(typed);
 
-        // **Illisible laisse la cellule inchangée** plutôt que d'inventer une
-        // position. Se tromper de position est silencieux : rien à l'écran ne
-        // distingue un sous-titre mal placé d'un sous-titre bien placé.
+        // **Unreadable leaves the cell as it was** rather than inventing a
+        // position. Getting a position wrong is silent: nothing on screen tells
+        // a badly timed subtitle from a well timed one.
         if (!wanted.has_value())
             return false;
 
@@ -293,10 +293,9 @@ bool SubtitleTableModel::setData(const QModelIndex& index, const QVariant& value
         return true;
     }
     case Text:
-        // Une validation qui ne change rien ne produit aucune commande :
-        // l'historique n'a pas à retenir une frappe suivie d'un `Entrée` sur un
-        // texte identique, sans quoi l'annulation se remplirait de
-        // non-événements.
+        // A validation that changes nothing produces no command: the history
+        // has no business remembering a keystroke followed by an `Enter` on an
+        // identical text, or undoing would fill up with non-events.
         if (typed == subtitle.mainText) {
             emit historyChanged();
             return true;
@@ -375,8 +374,8 @@ void SubtitleTableModel::applied(std::span<const Change> changes) {
         return;
     }
 
-    // Un texte n'entre dans aucune anomalie ; tout le reste peut déplacer une
-    // position, donc tout le reste demande un recalcul.
+    // A text belongs to no anomaly; everything else may move a position, so
+    // everything else calls for a recount.
     const bool positional = std::ranges::any_of(changes, [](const Change& change) {
         return change.kind == ChangeKind::Positions || change.kind == ChangeKind::Reordering;
     });
@@ -394,8 +393,8 @@ void SubtitleTableModel::applied(std::span<const Change> changes) {
         }
     }
 
-    // Annoncé une fois par opération, et sans condition : une annulation qui
-    // ne rapporte rien a tout de même vidé une pile.
+    // Announced once per operation, and unconditionally: an undo that reports
+    // nothing has emptied a stack all the same.
     emit historyChanged();
 }
 

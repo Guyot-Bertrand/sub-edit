@@ -1,14 +1,15 @@
-// Ce que coûte la table, là où l'utilisateur le sent.
+// What the table costs, where the user feels it.
 //
-// **La promesse de l'adaptateur mince se mesure ici** : construire le modèle ne
-// doit rien copier, et `data()` ne doit toucher que la ligne demandée. Gaupol
-// recopie ses quatre mille sous-titres dans un magasin séparé ; nous affirmons
-// que le nôtre n'en recopie aucun, et un chiffre vaut mieux qu'une affirmation.
+// **The promise of the thin adapter is measured here**: building the model must
+// copy nothing, and `data()` must touch only the row it was asked for. Gaupol
+// copies its four thousand subtitles into a separate store; we claim ours
+// copies none, and a number beats a claim.
 
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
+#include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
 #include <QLatin1Char>
@@ -19,6 +20,7 @@
 #include <catch2/benchmark/catch_chronometer.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include <cstddef>
 #include <vector>
 
 #include "full_length_project.hpp"
@@ -29,11 +31,12 @@ using subedit::core::Change;
 using subedit::core::ChangeKind;
 using subedit::core::Selection;
 using subedit::core::Session;
+using subedit::core::SubtitleIndex;
 using subedit::gui::SubtitleTableModel;
 using subedit::test::fullLengthProject;
 
-/// Ce qu'une fenêtre montre d'un coup, à la louche : Qt ne demande `data()` que
-/// pour les cellules visibles, et c'est ce qui rend l'adaptateur tenable.
+/// What a window shows at once, roughly: Qt asks `data()` only for the visible
+/// cells, and that is what makes the adapter tenable.
 constexpr int kVisibleRows = 40;
 
 } // namespace
@@ -62,9 +65,9 @@ TEST_CASE("reading the cells a window shows", "[benchmark]") {
 }
 
 TEST_CASE("turning a whole-file change into signals", "[benchmark]") {
-    // Ce pour quoi #45 est passée avant ce ticket : un décalage de tout le
-    // fichier tient en une plage, donc en un signal, là où quatre mille indices
-    // auraient demandé quatre mille appels ou un recollage.
+    // What #45 went before this ticket for: a shift of the whole file fits in
+    // one run, therefore in one signal, where four thousand indices would have
+    // called for four thousand emissions or a regluing.
     Session session{fullLengthProject()};
     SubtitleTableModel model{session};
     const std::vector<Change> whole = {
@@ -76,16 +79,45 @@ TEST_CASE("turning a whole-file change into signals", "[benchmark]") {
     };
 }
 
-TEST_CASE("carrying a cell edit out", "[benchmark]") {
-    // Ce que coûte une frappe validée, depuis le `setData` que Qt appelle. Le
-    // noyau mesure déjà la commande seule ; ce chiffre-ci lui ajoute ce que la
-    // table met autour — la conversion de la chaîne, la comparaison qui écarte
-    // une validation vide, le signal émis.
+TEST_CASE("resetting the table on a change of structure", "[benchmark]") {
+    // **What ADR 0019 asked to be measured before phase 7 builds on it.** A row
+    // added or taken away is not bracketed but reset: Qt wants an insertion
+    // announced *before* it happens, and a session only reports it after.
+    // Tenable while the sole producer is the hearing-impaired removal — global
+    // and rare — and the ADR says so, with a trigger: an insertion menu, one
+    // line at a time, would make a full reset ridiculous.
     //
-    // **Une session réutilisée**, pour la raison qui vaut au benchmark de noyau
-    // qui fait de même : l'édition est trop rapide pour qu'une copie de projet
-    // par itération tienne en mémoire, et une fenêtre ouverte fait exactement
-    // ça — taper dans un fichier qu'elle garde.
+    // So one line is what is measured, and not four thousand: the model resets
+    // whatever the report holds, which is the whole point.
+    //
+    // **What this number does not hold, and cannot.** The view's share. A
+    // `QTableView` needs a `QApplication`, and this binary has none — it is
+    // Catch2's own `main`, and the models it measures are `QObject`s. What is
+    // measured here is the model's side of a reset, which is the side we would
+    // be replacing; whether the view's side is the one that hurts is a question
+    // for a machine with a screen.
+    Session session{fullLengthProject()};
+    SubtitleTableModel model{session};
+    const SubtitleIndex middle = SubtitleIndex::fromValue(subedit::test::kSubtitleCount / 2);
+    const std::vector<Change> oneLineGone = {
+        Change{.kind = ChangeKind::Removal, .subtitles = Selection::range(middle, middle)}};
+
+    BENCHMARK("réinitialisation du modèle après une ligne retirée") {
+        model.applied(oneLineGone);
+        return model.rowCount({});
+    };
+}
+
+TEST_CASE("carrying a cell edit out", "[benchmark]") {
+    // What a validated keystroke costs, from the `setData` Qt calls. The core
+    // already measures the command alone; this number adds what the table puts
+    // around it — the conversion of the string, the comparison that rules out
+    // an empty validation, the signal emitted.
+    //
+    // **One session, reused**, for the reason that holds for the core benchmark
+    // that does the same: an edit is too fast for a copy of the project per
+    // iteration to fit in memory, and an open window does exactly this — typing
+    // into a file it keeps.
     const int middle = static_cast<int>(subedit::test::kSubtitleCount) / 2;
 
     BENCHMARK_ADVANCED("édition d'une cellule de texte")
@@ -93,8 +125,8 @@ TEST_CASE("carrying a cell edit out", "[benchmark]") {
         Session session{fullLengthProject()};
         SubtitleTableModel model{session};
 
-        // Un texte différent à chaque tour : identique, il emprunterait le
-        // chemin qui ne fait rien, et ce n'est pas celui qu'on mesure.
+        // A different text on every round: an identical one would take the
+        // road that does nothing, and that is not the one being measured.
         meter.measure([&](int run) {
             model.setData(model.index(middle, SubtitleTableModel::Text),
                           QStringLiteral("Autre ") + QString::number(run),
