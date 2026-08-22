@@ -6,6 +6,7 @@
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
+#include <subedit/gui/operation_dialog.hpp>
 
 #include <QAbstractItemModel>
 #include <QAction>
@@ -24,6 +25,7 @@ using subedit::core::InMemoryFileSystem;
 using subedit::gui::MainWindow;
 using subedit::gui::OpenedFile;
 using subedit::gui::openProject;
+using subedit::gui::OperationDialog;
 using subedit::test::FakePrompts;
 
 /// Un fichier réel en miniature : un sous-titre net, un qui porte une mention
@@ -153,6 +155,27 @@ TEST_CASE("undoing a removal puts the subtitles back, with their own text",
     CHECK(textAt(window, 1) == "Attends [il tousse] Marie");
     CHECK(textAt(window, 2) == "[Bruit de pas]");
     CHECK_FALSE(window.isWindowModified());
+}
+
+TEST_CASE("the confirmation names the selection, and not the file", "[gui][GUI-HEARING-01]") {
+    // La cible **est** la question de ce dialogue : il n'a rien d'autre à
+    // demander. Un compte qui annonce le fichier entier pendant que l'opération
+    // porte sur deux lignes fait dire à la confirmation le contraire de ce
+    // qu'elle confirme.
+    InMemoryFileSystem files = withFile(kFour);
+    FakePrompts prompts;
+    prompts.nextRun = false;
+    std::string said;
+    prompts.fill = [&said](QDialog& dialog) {
+        said = dynamic_cast<OperationDialog&>(dialog).targetLabel().toStdString();
+    };
+    const MainWindow window{files, fileIn(files), prompts};
+    selectRow(window, 1);
+    selectRow(window, 2);
+
+    window.hearingImpairedAction()->trigger();
+
+    CHECK(said == "2 subtitles");
 }
 
 TEST_CASE("the removal is not offered on an empty file", "[gui][GUI-HEARING-01]") {

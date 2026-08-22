@@ -24,8 +24,10 @@ namespace {
 
 } // namespace
 
-TransformDialog::TransformDialog(std::size_t subtitleCount, QWidget* parent)
-    : OperationDialog(subtitleCount, parent),
+TransformDialog::TransformDialog(std::size_t targetCount,
+                                 std::size_t subtitleCount,
+                                 QWidget* parent)
+    : OperationDialog(targetCount, parent),
       m_firstNumber(numberField(this, subtitleCount)),
       m_firstTarget(new QLineEdit{this}),
       m_secondNumber(numberField(this, subtitleCount)),

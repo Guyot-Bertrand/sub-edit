@@ -62,7 +62,7 @@ TEST_CASE("the shift dialog says what it is about to touch", "[gui][GUI-SHIFT-01
 }
 
 TEST_CASE("the transform dialog reads two references", "[gui][GUI-TRANSFORM-01]") {
-    TransformDialog dialog{4};
+    TransformDialog dialog{4, 4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("00:00:09,000"));
 
@@ -80,7 +80,7 @@ TEST_CASE("two references on the same subtitle define no transform", "[gui][GUI-
     // Le noyau le refuse déjà — `TransformCommand::create` rend `nullopt` sur
     // un dénominateur nul. Le dialogue le dit avant, plutôt que de laisser
     // l'utilisateur valider pour rien.
-    TransformDialog dialog{4};
+    TransformDialog dialog{4, 4};
 
     dialog.setTyped(2, QStringLiteral("00:00:01,000"), 2, QStringLiteral("00:00:09,000"));
 
@@ -91,7 +91,7 @@ TEST_CASE("a reference outside the file cannot be asked for", "[gui][GUI-TRANSFO
     // Non pas refusé après coup, mais impossible à saisir : le champ est borné
     // par le nombre de sous-titres. Un neuvième repère dans un fichier de
     // quatre retombe sur le quatrième.
-    TransformDialog dialog{4};
+    TransformDialog dialog{4, 4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 9, QStringLiteral("00:00:09,000"));
 
@@ -99,8 +99,22 @@ TEST_CASE("a reference outside the file cannot be asked for", "[gui][GUI-TRANSFO
           TypedReference{.number = 4, .target = Timestamp::fromMilliseconds(9000)});
 }
 
+TEST_CASE("the transform dialog counts its target apart from its bounds",
+          "[gui][GUI-TRANSFORM-01]") {
+    // Deux comptes, et ils ne disent pas la même chose. L'opération porte sur
+    // deux sous-titres ; un repère reste un numéro de sous-titre, donc il va
+    // jusqu'au dernier du fichier, sélectionné ou non.
+    TransformDialog dialog{2, 4};
+
+    dialog.setTyped(1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("00:00:09,000"));
+
+    CHECK(dialog.targetLabel().toStdString() == "2 subtitles");
+    CHECK(dialog.second() ==
+          TypedReference{.number = 4, .target = Timestamp::fromMilliseconds(9000)});
+}
+
 TEST_CASE("an unreadable reference position is refused", "[gui][GUI-TRANSFORM-01]") {
-    TransformDialog dialog{4};
+    TransformDialog dialog{4, 4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("plus tard"));
 

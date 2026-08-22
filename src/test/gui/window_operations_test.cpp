@@ -8,6 +8,7 @@
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
+#include <subedit/gui/operation_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
@@ -32,6 +33,7 @@ using subedit::gui::FrameRateDialog;
 using subedit::gui::MainWindow;
 using subedit::gui::OpenedFile;
 using subedit::gui::openProject;
+using subedit::gui::OperationDialog;
 using subedit::gui::ShiftDialog;
 using subedit::gui::TransformDialog;
 using subedit::test::FakePrompts;
@@ -102,6 +104,49 @@ TEST_CASE("shifting a selection moves only it", "[gui][GUI-SHIFT-01]") {
     CHECK(startAt(window, 0) == "00:00:01,000");
     CHECK(startAt(window, 1) == "00:00:04,000");
     CHECK(startAt(window, 2) == "00:00:05,000");
+}
+
+TEST_CASE("a dialog names the selection, and not the file", "[gui][GUI-SHIFT-01]") {
+    // Le défaut que la relecture de fin de phase a trouvé : la fenêtre passait
+    // le compte du fichier aux quatre dialogues, qui annonçaient « 4 subtitles »
+    // pendant que l'opération en changeait deux. Les tests de dialogue le
+    // construisaient à la main, donc aucun ne pouvait le voir.
+    //
+    // Lu depuis `fill`, pendant que le dialogue vit : il est sur la pile de la
+    // fenêtre et ne survit pas au retour de l'action.
+    InMemoryFileSystem files = withFour();
+    FakePrompts prompts;
+    prompts.nextRun = false;
+    std::string said;
+    prompts.fill = [&said](QDialog& dialog) {
+        said = dynamic_cast<OperationDialog&>(dialog).targetLabel().toStdString();
+    };
+    const MainWindow window{files, fourIn(files), prompts};
+
+    SECTION("nothing selected is the whole file") {
+        window.shiftAction()->trigger();
+
+        CHECK(said == "4 subtitles");
+    }
+
+    SECTION("two rows selected are two subtitles") {
+        selectRow(window, 1);
+        selectRow(window, 2);
+
+        window.shiftAction()->trigger();
+
+        CHECK(said == "2 subtitles");
+    }
+
+    SECTION("and the three others count the same way") {
+        selectRow(window, 0);
+
+        window.transformAction()->trigger();
+        CHECK(said == "1 subtitle");
+
+        window.frameRateAction()->trigger();
+        CHECK(said == "1 subtitle");
+    }
 }
 
 TEST_CASE("giving up on a dialog applies nothing", "[gui][GUI-SHIFT-01]") {

@@ -319,7 +319,7 @@ void MainWindow::refreshActions() {
 void MainWindow::removeHearingImpairedFromTarget() {
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
-    HearingImpairedDialog dialog{m_session->project().count(), this};
+    HearingImpairedDialog dialog{target.count(), this};
     if (!m_prompts->run(dialog))
         return;
 
@@ -348,7 +348,7 @@ void MainWindow::applyOperation(std::unique_ptr<core::Command> command) {
 void MainWindow::shiftTarget() {
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
-    ShiftDialog dialog{m_session->project().count(), this};
+    ShiftDialog dialog{target.count(), this};
     if (!m_prompts->run(dialog))
         return;
 
@@ -374,7 +374,7 @@ void MainWindow::shiftTarget() {
 void MainWindow::transformTarget() {
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
-    TransformDialog dialog{m_session->project().count(), this};
+    TransformDialog dialog{target.count(), m_session->project().count(), this};
     if (!m_prompts->run(dialog))
         return;
 
@@ -407,7 +407,7 @@ void MainWindow::convertFrameRateOfTarget() {
 
     // Pré-remplie par celle du projet, jamais devinée : le fichier ne la
     // porte pas, et se tromper décale tout sans rien signaler.
-    FrameRateDialog dialog{m_session->project().count(), m_session->project().frameRate(), this};
+    FrameRateDialog dialog{target.count(), m_session->project().frameRate(), this};
     if (!m_prompts->run(dialog))
         return;
 
