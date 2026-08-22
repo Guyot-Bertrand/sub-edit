@@ -1,5 +1,6 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/gui/cell_delegates.hpp>
@@ -34,6 +35,7 @@ namespace {
 using subedit::core::InMemoryFileSystem;
 using subedit::core::ReadError;
 using subedit::core::ReadErrorKind;
+using subedit::core::RealFileSystem;
 using subedit::core::SubtitleFormat;
 using subedit::gui::MainWindow;
 using subedit::gui::OpenedFile;
@@ -102,6 +104,36 @@ TEST_CASE("opening a file gives a project that remembers where it came from",
     // The whole optional rather than its content: clang-tidy does not
     // recognise Catch2's REQUIRE as a check.
     CHECK(opened->project.sourceFile().path == std::filesystem::path{"film.srt"});
+}
+
+TEST_CASE("a file of the corpus opens through the real file system", "[gui][GUI-OPEN-01]") {
+    // **The one test of the window that touches a disk.** Every other one goes
+    // through `InMemoryFileSystem` and a string written for the occasion, which
+    // is the right way to put a window to the test — and left `openProject`
+    // without a single proof on a file that exists, while the phase spec said
+    // the corpus of `src/test/data/` served the opening.
+    //
+    // What only a real file can carry: bytes read by the platform, an encoding
+    // the reader had to accept, and a path a project remembers.
+    RealFileSystem files;
+    const std::filesystem::path path =
+        std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / "valides" / "trois.srt";
+
+    std::expected<OpenedFile, ReadError> opened = openProject(files, path);
+
+    REQUIRE(opened.has_value());
+    CHECK(opened->diagnostics.empty());
+
+    subedit::test::FakePrompts prompts;
+    const MainWindow window{files, std::move(*opened), prompts};
+
+    const QAbstractItemModel* table = window.table()->model();
+    REQUIRE(table->rowCount({}) == 3);
+    CHECK(table->data(table->index(1, 1), Qt::DisplayRole).toString().toStdString() ==
+          "00:00:05,001");
+    CHECK(table->data(table->index(0, 4), Qt::DisplayRole).toString().toStdString() ==
+          "Le vent se lève sur le port.");
+    CHECK(window.windowTitle().toStdString() == "trois.srt[*] — subedit");
 }
 
 TEST_CASE("opening what is not a subtitle file fails, and says why", "[gui][GUI-OPEN-02]") {
