@@ -258,6 +258,7 @@ ses paramètres.
 | `make tidy` | exécute `clang-tidy` sur `src/**/*.cpp` | `dev` (pour `compile_commands.json`) | — | `JOBS` |
 | `make arch` | vérifie les invariants d'architecture (`check-architecture.sh`) | — | — | — |
 | `make parallelism` | vérifie qu'aucun parallélisme ne contourne `$(JOBS)` (`check-parallelism.sh`) | — | — | — |
+| `make fixtures` | confronte les fixtures vidéo de `src/test/data/videos/` à la table de `video-fixtures.sh` | — | — | — |
 | `make requirements` | confronte `docs/exigences.md` aux tags des tests de bout en bout (`check-requirements.sh`) | `dev` | — | `JOBS` |
 | `make e2e` | exécute **seulement** les tests de bout en bout, filtrés par l'étiquette CTest `e2e` | `release` | — | `JOBS` |
 | `make asan` | exécute les tests sous ASan/UBSan/LeakSanitizer — y compris les tests de bout en bout | `asan` | — | `JOBS` |
@@ -265,7 +266,7 @@ ses paramètres.
 | `make ratchet` | enregistre la couverture mesurée comme nouveau cliquet dans le relevé | — | — | — |
 | `make bench` | exécute les benchmarks, verse les chiffres au journal `docs/mesures/performances.md`, verdict lu par un humain, pas binaire | `release` | — | `JOBS` |
 | `make check` | **porte de qualité — CI, FIGÉE, décrite ci-dessous** | `dev`/`asan`/`coverage` via ses sous-cibles | `format-check`, `arch`, `build`, `tidy`, `asan`, `coverage` | `JOBS` |
-| `make check-local` | **unique commande avant une pull request, décrite ci-dessous** | tous les presets qu'utilisent ses sous-cibles | `parallelism`, `requirements`, `e2e`, `bench` | `JOBS` |
+| `make check-local` | **unique commande avant une pull request, décrite ci-dessous** | tous les presets qu'utilisent ses sous-cibles | `parallelism`, `fixtures`, `manual-check`, `requirements`, `e2e`, `bench` | `JOBS` |
 | `make verify-gates` | prouve que `check` et `check-local` échouent chacun sur ses défauts injectés | — | — | — |
 | `make changelog` | régénère `CHANGELOG.md` depuis l'historique des commits | — | — | — |
 | `make clean` | supprime `build/` | — | — | — |
@@ -381,7 +382,7 @@ pull request, mais qu'on ne veut pas voir gater chaque push de chaque
 personne, n'a donc pas sa place dans `make check` : elle va dans
 `make check-local`, une cible séparée que la CI n'exécute jamais.
 
-`check-local` enchaîne quatre étapes, dans cet ordre précis — la moins chère
+`check-local` enchaîne six étapes, dans cet ordre précis — la moins chère
 d'abord, pour qu'un défaut coûte des secondes plutôt que la totalité de la
 chaîne :
 
@@ -392,7 +393,20 @@ chaîne :
    étape qui compile coûterait à un `-j 8` codé en dur le temps de ce build
    avant qu'on l'entende. Voir
    [« Parallélisme maîtrisé »](#parallélisme-maîtrisé) plus haut.
-2. **Exigences** — `make requirements` : `check-requirements.sh` confronte le
+2. **Fixtures vidéo** — `make fixtures` : `video-fixtures.sh --check` confronte
+   les conteneurs de [`src/test/data/videos/`](../../src/test/data/videos/) à
+   la table qui dit ce qu'ils déclarent — fréquence d'image, durée, taille
+   maximale. Deux appels à `ffprobe`, sous la seconde, et rien à construire.
+   Elle est ici et non dans `make check` pour la raison qui vaut pour tout le
+   reste de cette liste, et **avec la même conséquence à connaître : la CI ne
+   verra pas une fixture qui a dérivé.** Le défaut naît en la refabriquant,
+   donc sur le poste qui la refabrique, donc avant la pull request.
+3. **Exemples du manuel** — `make manual-check` : `generate-manual.sh --check`
+   compare chaque bloc d'exemple à ce que la commande écrit vraiment. Elle est
+   ici et non dans la porte parce que l'y mettre ferait entrer `docs/manual/**`
+   dans le périmètre de `check`, dont `docs/**` est exclu, et qu'une retouche
+   de prose rouvrirait quinze minutes de compilation.
+4. **Exigences** — `make requirements` : `check-requirements.sh` confronte le
    registre [`docs/exigences.md`](../exigences.md) aux tags des tests de bout
    en bout, dans les deux sens : une exigence `implémentée` que rien ne cite
    échoue, un tag en forme d'identifiant qui ne désigne aucune exigence
@@ -400,12 +414,12 @@ chaîne :
    quelle promesse est démontrée. Voir
    [l'ADR 0014](../adr/0014-registre-d-exigences.md), dont les Conséquences
    discutent le prix de la garder hors CI.
-3. **Tests de bout en bout** — `make e2e` : configure et compile le preset
+5. **Tests de bout en bout** — `make e2e` : configure et compile le preset
    `release`, puis exécute uniquement le harnais de bout en bout (étiquette
    CTest `e2e`, filtrée avec `ctest -L` plutôt que par nom de test). Voir
    [« Enregistrement des tests de bout en bout »](#enregistrement-des-tests-de-bout-en-bout)
    plus haut pour le mécanisme d'enregistrement.
-4. **Benchmarks** — `make bench` : réutilise l'objet `subedit_core` déjà
+6. **Benchmarks** — `make bench` : réutilise l'objet `subedit_core` déjà
    compilé par l'étape précédente, mais lie son propre exécutable
    (`subedit_bench`) — ce n'est donc pas un no-op, seulement moins cher
    qu'un build `release` complet. Son verdict se lit, il n'est pas binaire —
