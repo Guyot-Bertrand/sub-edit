@@ -323,12 +323,13 @@ pas la CI, qui borne déjà son propre parallélisme autrement.
 
 ## Dépendances
 
-Résolues par `find_package` sur les paquets système, à une exception près.
+Résolues par `find_package` sur les paquets système, à deux exceptions près.
 
 | Dépendance | Origine | Requise pour |
 | :--------- | :------ | :----------- |
 | Catch2 v3 | `FetchContent` | tests et micro-benchmarks |
 | Qt 6 | paquets système | sous-projet 5 |
+| libmpv | paquets système | phase 6 — le lecteur intégré, voir [l'ADR 0020](../adr/0020-libmpv-pour-le-lecteur-integre.md) |
 | PCRE2 ou RE2 | paquets système | phase 12 — choix à trancher |
 | ICU | paquets système | encodages, phase 8 |
 | hunspell | paquets système | phase 12 |
@@ -337,6 +338,12 @@ Catch2 fait exception parce qu'il se compile en quelques secondes et que sa
 version doit être identique partout ; l'épingler évite qu'une mise à jour de
 distribution casse les tests.
 
+libmpv fait exception autrement : c'est bien un paquet système, mais il ne
+publie pas de fichier de configuration CMake — seulement un `mpv.pc`.
+`pkg_check_modules(… IMPORTED_TARGET mpv)` en tire `PkgConfig::mpv`, une cible
+qui porte ses chemins d'inclusion et ses drapeaux d'édition de liens comme le
+ferait une cible Qt.
+
 Aucun gestionnaire de paquets C++ n'est mis en place. Le CMake étant écrit
 autour de `find_package`, adopter Conan ou vcpkg plus tard est presque gratuit —
 tous deux fonctionnent en s'interposant précisément sur ce mécanisme. Le
@@ -344,13 +351,25 @@ déclencheur serait le portage Windows effectif.
 
 `src/scripts/setup-toolchain.sh` installe ce qui manque sur une machine
 Ubuntu : ninja, clang-tidy, clang-format, gcovr, ccache, git-cliff, gh, jq,
-CLI11, les paquets de développement de Qt 6, et `ffmpeg` pour son `ffprobe`.
+pkg-config, CLI11, les paquets de développement de Qt 6, `libmpv-dev`, et
+`ffmpeg` pour son `ffprobe`.
 
-Les deux derniers ne sont pas des dépendances de la même nature que les autres.
-Qt 6 est lié au binaire, donc obligatoire pour construire — le mode
-`--with-qt`, qui prétendait le contraire, a disparu à la phase 5. `ffprobe` est
-un exécutable qu'on lance : le projet l'exige d'une machine de développement,
-jamais d'un utilisateur, et le code porte la branche de son absence.
+Les trois derniers ne sont pas des dépendances de la même nature que les autres.
+Qt 6 et libmpv sont liés au binaire, donc obligatoires pour construire — le mode
+`--with-qt`, qui prétendait le contraire pour Qt, a disparu à la phase 5.
+`ffprobe` est un exécutable qu'on lance : le projet l'exige d'une machine de
+développement, jamais d'un utilisateur, et le code porte la branche de son
+absence.
+
+`pkg-config` est dans la liste pour libmpv, qui se trouve par lui : sans lui,
+`find_package(PkgConfig REQUIRED)` échoue sur une machine nue.
+
+**Qt Multimedia y a figuré, et n'y figure plus.** Il avait été déclaré à la
+phase 5 « pour la prévisualisation de la phase 6 » ; l'ADR 0020 a tranché le
+backend vidéo en faveur de libmpv, et rien ne l'avait jamais lié. Une
+dépendance que personne n'utilise n'est pas gratuite : elle est dans le cache
+de paquets de la CI, et la ligne qui la déclarait annonçait un usage qui
+n'existera pas.
 
 ## La porte de qualité : `make check`
 
