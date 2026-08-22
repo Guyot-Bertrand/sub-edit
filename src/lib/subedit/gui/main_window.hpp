@@ -30,7 +30,8 @@ class SubtitleTableModel;
 /// It owns the session — the project, its history and its order policy — and
 /// the table model that reads and writes through it. **The three editable
 /// cells are wired**: a start, an end and a text each open the editor their
-/// nature calls for. The actions — undo, redo, open, save — arrive next.
+/// nature calls for. So are the actions the phase asked for — undo and redo,
+/// open, save and save as, and the four operations of the `Tools` menu.
 ///
 /// Kept in `subedit::gui` and not in `main.cpp` because that is what makes it
 /// testable: `check-architecture.sh` refuses a `main` that defines a class, and
