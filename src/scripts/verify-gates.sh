@@ -34,6 +34,13 @@
 # un tiret, et un test qui lirait le dépôt de référence. Elle est ici parce que ce défaut ne se voit qu'à travers CTest, jamais
 # en lançant le binaire de test à la main — donc uniquement dans la porte.
 #
+# La suivante vise `make fixtures` : une fixture vidéo refabriquée avec la
+# mauvaise fréquence d'image. C'est la seule injection du script qui ne soit pas
+# du texte — un conteneur est illisible dans un diff, et c'est précisément ce
+# qui fait que rien d'autre n'attraperait le défaut. Elle est aussi la seule à
+# passer par ffmpeg plutôt que par un extrait ajouté en fin de fichier :
+# ajouter du texte à la fin d'un MP4 ne le change pas, ffprobe l'ayant déjà lu.
+#
 # La dernière ne vise aucune porte : c'est `src/scripts/prune-runs.sh`, qui ne
 # refuse rien mais choisit ce qu'il supprime. Elle est ici faute d'un meilleur
 # endroit — ce script est le seul harnais du projet pour ce qui s'écrit en
@@ -44,8 +51,9 @@
 # de compilation, du cliquet de couverture, du registre d'exigences ou de
 # cliff.toml.
 #
-# Exige git-cliff, que le contrôle du journal appelle par `make changelog` :
-# ./src/scripts/setup-toolchain.sh l'installe.
+# Exige git-cliff, que le contrôle du journal appelle par `make changelog`, et
+# ffmpeg pour la fixture vidéo : ./src/scripts/setup-toolchain.sh installe les
+# deux.
 
 set -euo pipefail
 
@@ -64,6 +72,7 @@ readonly NESTED_CMAKE_SOURCE="${REPO_ROOT}/src/lib/CMakeLists.txt"
 readonly MODEL_SOURCE="${REPO_ROOT}/src/lib/subedit/core/model/subtitle_index.hpp"
 readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
+readonly VIDEO_FIXTURE="${REPO_ROOT}/src/test/data/videos/cadence-25.mp4"
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -86,6 +95,7 @@ restore() {
     cp "${backup_dir}/install-hooks.sh" "${PLAIN_SCRIPT_SOURCE}"
     cp "${backup_dir}/lib-CMakeLists.txt" "${NESTED_CMAKE_SOURCE}"
     cp "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
+    cp "${backup_dir}/cadence-25.mp4" "${VIDEO_FIXTURE}"
 }
 
 cleanup() {
@@ -105,6 +115,7 @@ cp "${HOOK_SOURCE}" "${backup_dir}/pre-commit"
 cp "${PLAIN_SCRIPT_SOURCE}" "${backup_dir}/install-hooks.sh"
 cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
 cp "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
+cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -458,6 +469,24 @@ expect_gate_closes \
     "arch" \
     "${TEST_SOURCE}" \
     '// reference/gaupol/aeidon/data/patterns'
+
+# Une fixture vidéo refabriquée avec la mauvaise fréquence. C est le seul défaut
+# que la table de video-fixtures.sh existe pour attraper, et le seul que
+# personne ne verrait autrement : un conteneur est illisible dans un diff.
+#
+# L injection est faite ici plutôt que passée en extrait, parce qu ajouter du
+# texte a la fin d un MP4 ne le change pas — ffprobe lit le fichier avant.
+ffmpeg -v error -y \
+    -f lavfi -i 'color=c=black:s=16x16:r=30:d=2' \
+    -c:v mpeg4 -qscale:v 31 -pix_fmt yuv420p \
+    -fflags +bitexact -flags:v +bitexact -map_metadata -1 \
+    "${VIDEO_FIXTURE}"
+
+expect_gate_closes \
+    "fixture vidéo à la mauvaise fréquence" \
+    "fixtures" \
+    "${VIDEO_FIXTURE}" \
+    ''
 
 
 # La seule preuve de non-signalement du fichier, et la plus importante des six
