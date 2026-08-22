@@ -3,6 +3,7 @@
 
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/io/find_executable.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -16,6 +17,7 @@ namespace {
 
 using subedit::core::FileError;
 using subedit::core::FileErrorKind;
+using subedit::core::findExecutable;
 using subedit::core::RealFileSystem;
 using subedit::core::writeAtomically;
 
@@ -161,4 +163,45 @@ TEST_CASE("writing into a directory that does not exist fails without a crash",
 
     REQUIRE_FALSE(written.has_value());
     CHECK(written.error().kind == FileErrorKind::Io);
+}
+
+TEST_CASE("on disk, a program is told apart from an ordinary file and from a directory",
+          "[filesystem][executable][disk]") {
+    const ScratchDirectory scratch;
+    RealFileSystem files;
+
+    const std::filesystem::path program = scratch.file("faux-lecteur");
+    REQUIRE(files.writeFile(program, "#!/bin/sh\nexit 0\n").has_value());
+    std::filesystem::permissions(
+        program, std::filesystem::perms::owner_exec, std::filesystem::perm_options::add);
+
+    const std::filesystem::path plain = scratch.file("dialogue.srt");
+    REQUIRE(files.writeFile(plain, "contenu").has_value());
+
+    const std::filesystem::path directory = scratch.file("bin");
+    std::filesystem::create_directories(directory);
+
+    CHECK(files.isExecutable(program));
+    // A directory is searchable, which is a different thing from runnable, and
+    // the difference is exactly what a search on a `PATH` must not confuse.
+    CHECK_FALSE(files.isExecutable(directory));
+    CHECK_FALSE(files.isExecutable(plain));
+    CHECK_FALSE(files.isExecutable(scratch.file("absent")));
+}
+
+TEST_CASE("on disk, the real ffprobe is found through the search path or is absent",
+          "[filesystem][executable][disk]") {
+    const ScratchDirectory scratch;
+    RealFileSystem files;
+
+    const std::filesystem::path program = scratch.file("ffprobe");
+    REQUIRE(files.writeFile(program, "#!/bin/sh\nexit 0\n").has_value());
+    std::filesystem::permissions(
+        program, std::filesystem::perms::owner_exec, std::filesystem::perm_options::add);
+
+    const std::string searchPath = program.parent_path().string();
+    CHECK(findExecutable(files, "ffprobe", searchPath) == program);
+    // The same machine, told to look somewhere else: this is how a test walks
+    // the branch where the program is not installed, on a real disk.
+    CHECK_FALSE(findExecutable(files, "ffprobe", "/nowhere/at/all").has_value());
 }

@@ -26,6 +26,17 @@ class RealFileSystem final : public FileSystem {
 public:
     [[nodiscard]] bool exists(const std::filesystem::path& path) const override;
 
+    /// Answers « this file carries an execute bit », not « this user may run
+    /// it ».
+    ///
+    /// The two differ only on a file executable by somebody else, and what
+    /// catches that case is the launch failing — which the caller has to
+    /// handle anyway, since the program may also disappear between the
+    /// question and the answer. The exact question is `access(X_OK)`, ruled
+    /// out by ADR 0003: no direct POSIX call where the standard library has an
+    /// equivalent.
+    [[nodiscard]] bool isExecutable(const std::filesystem::path& path) const override;
+
     [[nodiscard]] std::expected<std::string, FileError>
     readFile(const std::filesystem::path& path) const override;
 

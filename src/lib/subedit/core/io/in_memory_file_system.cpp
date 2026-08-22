@@ -30,6 +30,13 @@ void InMemoryFileSystem::addFile(const std::filesystem::path& path, std::string 
     m_files[path] = std::move(content);
 }
 
+void InMemoryFileSystem::addExecutable(const std::filesystem::path& path) {
+    // A program is a file like any other, and one a test never reads: what is
+    // asked of it is that it be there and be runnable.
+    m_files.try_emplace(path);
+    m_executables.insert(path);
+}
+
 std::optional<std::string> InMemoryFileSystem::contentOf(const std::filesystem::path& path) const {
     const auto found = m_files.find(path);
     if (found == m_files.end())
@@ -51,6 +58,10 @@ void InMemoryFileSystem::failNextRename(FileErrorKind kind) {
 
 bool InMemoryFileSystem::exists(const std::filesystem::path& path) const {
     return m_files.contains(path);
+}
+
+bool InMemoryFileSystem::isExecutable(const std::filesystem::path& path) const {
+    return m_executables.contains(path);
 }
 
 std::expected<std::string, FileError>
@@ -84,12 +95,19 @@ std::expected<void, FileError> InMemoryFileSystem::rename(const std::filesystem:
 
     m_files[to] = std::move(found->second);
     m_files.erase(found);
+
+    // The mode travels with the file, as it does on a real system. Leaving it
+    // behind would make the old name still look runnable, which is exactly the
+    // lie a fake is there not to tell.
+    if (m_executables.erase(from) != 0)
+        m_executables.insert(to);
     return {};
 }
 
 std::expected<void, FileError> InMemoryFileSystem::remove(const std::filesystem::path& path) {
     if (m_files.erase(path) == 0)
         return failure(FileErrorKind::NotFound, path);
+    m_executables.erase(path);
     return {};
 }
 

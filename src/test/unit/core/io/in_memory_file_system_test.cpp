@@ -119,3 +119,34 @@ TEST_CASE("a rename can be made to fail on demand", "[format][filesystem]") {
     CHECK(renamed.error().kind == FileErrorKind::Io);
     CHECK(files.exists(kPath));
 }
+
+TEST_CASE("a program put in memory is runnable, and an ordinary file is not",
+          "[filesystem][executable]") {
+    InMemoryFileSystem files;
+    files.addExecutable("/usr/bin/ffprobe");
+    files.addFile(kPath, "contenu");
+
+    CHECK(files.exists("/usr/bin/ffprobe"));
+    CHECK(files.isExecutable("/usr/bin/ffprobe"));
+    CHECK_FALSE(files.isExecutable(kPath));
+    CHECK_FALSE(files.isExecutable("/usr/bin/absent"));
+}
+
+TEST_CASE("renaming a program carries its mode over", "[filesystem][executable]") {
+    InMemoryFileSystem files;
+    files.addExecutable("/usr/bin/ffprobe");
+
+    REQUIRE(files.rename("/usr/bin/ffprobe", "/usr/bin/ffprobe.old").has_value());
+
+    CHECK(files.isExecutable("/usr/bin/ffprobe.old"));
+    CHECK_FALSE(files.isExecutable("/usr/bin/ffprobe"));
+}
+
+TEST_CASE("removing a program leaves nothing runnable behind", "[filesystem][executable]") {
+    InMemoryFileSystem files;
+    files.addExecutable("/usr/bin/ffprobe");
+
+    REQUIRE(files.remove("/usr/bin/ffprobe").has_value());
+
+    CHECK_FALSE(files.isExecutable("/usr/bin/ffprobe"));
+}

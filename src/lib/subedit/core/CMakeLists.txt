@@ -23,6 +23,7 @@ add_library(
     model/project.cpp
     model/selection.cpp
     io/atomic_write.cpp
+    io/find_executable.cpp
     io/in_memory_file_system.cpp
     text/encoding.cpp
     text/lines.cpp

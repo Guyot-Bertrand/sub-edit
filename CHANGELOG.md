@@ -9,9 +9,21 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **core** — Chercher un exécutable sur un chemin de recherche injecté
+
+### Construction
+
+- **build** — Ffprobe dans la chaîne d'outils et dans le cache de la CI
+
 ### Documentation
 
 - **doc** — La règle du titre de pull request, dans CLAUDE.md
+
+### Remaniements
+
+- **core** — Les détails d'erreur du système de fichiers, en anglais
 
 ## 0.5.0 — 2026-08-22
 

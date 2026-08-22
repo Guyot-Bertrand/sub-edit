@@ -34,6 +34,16 @@ declare -A APT_TOOLS=(
     [gcovr]=gcovr
     [ccache]=ccache
     [gh]=gh
+    # ffprobe est entré avec la phase 6, qui lit la fréquence d'image et la
+    # durée dans le conteneur vidéo. Le paquet est ffmpeg, dont il n'est qu'un
+    # des exécutables — c'est la commande qu'on sonde, jamais le paquet, sans
+    # quoi une installation partielle passerait pour complète.
+    #
+    # **Le projet ne l'exige pas d'un utilisateur** : il l'exige d'une machine
+    # de développement, ce qui n'est pas la même promesse. Le code porte la
+    # branche de son absence, et src/test/unit/core/io/find_executable_test.cpp
+    # la parcourt sans rien désinstaller.
+    [ffprobe]=ffmpeg
     # jq est entré avec l'élagueur d'exécutions d'Actions : la preuve de sa
     # sélection, dans verify-gates.sh, l'exerce sur une liste écrite à la main,
     # donc en local. Les machines GitHub l'ont d'origine, pas forcément un poste
@@ -155,7 +165,7 @@ report() {
     info "état de la chaîne d'outils"
     local cmd
     local path_warning=0
-    for cmd in cmake ninja g++ clang-tidy-20 clang-format gcovr ccache git git-cliff gh jq; do
+    for cmd in cmake ninja g++ clang-tidy-20 clang-format gcovr ccache git git-cliff gh jq ffprobe; do
         if command -v "${cmd}" >/dev/null 2>&1; then
             printf '  \033[32m✓\033[0m %-14s %s\n' "${cmd}" "$("${cmd}" --version 2>/dev/null | head -1)"
         elif [[ -x "${LOCAL_BIN}/${cmd}" ]]; then

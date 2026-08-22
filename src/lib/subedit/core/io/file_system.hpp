@@ -55,6 +55,14 @@ public:
 
     [[nodiscard]] virtual bool exists(const std::filesystem::path& path) const = 0;
 
+    /// Tells whether `path` is a file the system would agree to run.
+    ///
+    /// Here rather than beside the caller because looking for an external
+    /// program — a video player, `ffprobe` — is a question about the file
+    /// system, and asking it through this interface is what lets a test answer
+    /// « the program is not installed » without uninstalling anything.
+    [[nodiscard]] virtual bool isExecutable(const std::filesystem::path& path) const = 0;
+
     [[nodiscard]] virtual std::expected<std::string, FileError>
     readFile(const std::filesystem::path& path) const = 0;
 
