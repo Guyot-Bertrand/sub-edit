@@ -28,6 +28,7 @@ ne pas l'éditer à la main.
 ### Corrections
 
 - **scripts** — Voir le travail non commité dans le périmètre de tidy
+- **build** — Écarter un arbre de couverture périmé par un déplacement
 
 ### Documentation
 
