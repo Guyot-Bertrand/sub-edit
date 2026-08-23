@@ -18,6 +18,7 @@ ne pas l'éditer à la main.
 - **core** — Lire la fréquence déclarée par le conteneur avec ffprobe
 - **core** — La couture du lecteur, et libmpv derrière
 - **core** — Avertir de ce qui dépasse la fin de la vidéo
+- **gui** — Choisir une vidéo, et voir laquelle est associée
 
 ### Construction
 
