@@ -226,11 +226,33 @@ La durée que le lecteur annonce lui donne l'autre bout.
 
 **Le décalage est le cas le plus net, et il n'est pas le seul.** Une
 transformation dont le second repère tombe après la fin, une conversion de
-fréquence qui étire l'ensemble au-delà : chacune demande sa propre formulation,
-et aucune ne se déduit de celle du décalage.
+fréquence qui étire l'ensemble au-delà : les trois dépassent, et l'avertissement
+doit être branché sur les trois.
 
 Ce que l'avertissement dit : combien de sous-titres dépassent, et de combien le
-dernier. Ce qu'il ne fait pas : empêcher quoi que ce soit (D4).
+plus lointain. Ce qu'il ne fait pas : empêcher quoi que ce soit (D4).
+
+**Ce que #174 a tranché : un calcul, trois formulations.** Les trois opérations
+dépassent de trois façons, mais elles arrivent toutes à la même conclusion — des
+sous-titres qui finissent trop tard — et `beyondEnd` la lit **après l'opération,
+sur l'état qu'elle a produit**, ce que la fenêtre montre de toute façon. Rejouer
+l'arithmétique de chaque commande pour l'annoncer d'avance aurait été trois
+copies de ce que les commandes calculent déjà.
+
+Ce qui reste propre à chacune est la **phrase**, qui nomme l'opération :
+`noticeOf` la compose depuis `CommandKind`, et un avertissement qui ne dirait pas
+laquelle des trois vient de tourner laisserait l'utilisateur deviner.
+
+Trois lectures que le calcul assume, et qu'un test fixe :
+
+- **le périmètre est la sélection**, c'est-à-dire ce que l'opération a touché. Un
+  sous-titre que personne n'a déplacé, déjà au-delà parce que la vidéo associée
+  est la mauvaise, n'est pas le fait de cette opération ;
+- **finir exactement avec la vidéo, c'est finir dedans** — la même lecture que la
+  borne de zéro, qui admet la position zéro ;
+- **le dépassement est celui du plus lointain**, et non du dernier dans l'ordre
+  du fichier : un document en désordre est ordinaire, et ce que l'utilisateur a
+  besoin de savoir est jusqu'où il va.
 
 ## La fenêtre
 

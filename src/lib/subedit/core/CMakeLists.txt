@@ -11,6 +11,7 @@ add_library(
     edit/hearing_impaired_removal.cpp
     edit/insert_command.cpp
     edit/shift_limits.cpp
+    edit/video_bounds.cpp
     edit/remove_command.cpp
     edit/session.cpp
     edit/shift_command.cpp

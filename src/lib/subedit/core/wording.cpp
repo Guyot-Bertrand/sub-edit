@@ -1,8 +1,16 @@
 #include <subedit/core/wording.hpp>
 
+#include <cstdint>
+#include <string>
 #include <utility>
 
 namespace subedit::core {
+
+namespace {
+
+constexpr std::int64_t kMillisecondsPerSecond = 1000;
+
+} // namespace
 
 std::string_view nameOf(SubtitleFormat format) {
     switch (format) {
@@ -153,6 +161,31 @@ std::string nameOf(core::FrameRate rate) {
         decimals.pop_back();
     }
     return whole + "." + decimals;
+}
+
+std::string secondsOf(Duration length) {
+    const std::int64_t total = length.milliseconds();
+    const std::int64_t whole = total / kMillisecondsPerSecond;
+    std::int64_t rest = total % kMillisecondsPerSecond;
+    if (rest < 0)
+        rest = -rest;
+
+    std::string text = std::to_string(whole);
+    // A length between −1 s and 0 has a whole part of zero, which carries no
+    // sign of its own: "-0.500 s" would otherwise be written "0.500 s".
+    if (total < 0 && whole == 0)
+        text = "-" + text;
+
+    std::string decimals = std::to_string(rest);
+    decimals.insert(0, 3 - decimals.size(), '0');
+    return text + "." + decimals + " s";
+}
+
+std::string noticeOf(CommandKind kind, BeyondEnd beyond) {
+    // « by ... at most » rather than « the furthest by ... », which reads
+    // wrong when there is exactly one of them — and one is the common case.
+    return std::string{nameOf(kind)} + " leaves " + countOf(beyond.count, "subtitle") +
+           " past the end of the video, by " + secondsOf(beyond.overshoot) + " at most";
 }
 
 std::string countOf(std::size_t count, std::string_view noun) {

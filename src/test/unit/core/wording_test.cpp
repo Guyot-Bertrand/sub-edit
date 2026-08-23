@@ -108,3 +108,48 @@ TEST_CASE("every kind of command has a name of its own", "[wording]") {
 
     CHECK(seen.size() == kEveryKind.size());
 }
+
+TEST_CASE("a length is written in signed seconds, to the millisecond", "[wording]") {
+    using subedit::core::Duration;
+    using subedit::core::secondsOf;
+
+    CHECK(secondsOf(Duration::fromMilliseconds(2999)) == "2.999 s");
+    CHECK(secondsOf(Duration::zero()) == "0.000 s");
+    CHECK(secondsOf(Duration::fromMilliseconds(-7001)) == "-7.001 s");
+    // A length between −1 s and 0 has a whole part of zero, which carries no
+    // sign of its own. It was already right in the command line, and moving it
+    // here is what keeps it right in both places.
+    CHECK(secondsOf(Duration::fromMilliseconds(-500)) == "-0.500 s");
+}
+
+// The three formulations issue #174 asks for. What differs between them is the
+// operation named — the two numbers are the same two in all three, and writing
+// the sentence three times would have been three copies of one rule.
+TEST_CASE("each operation says in its own name what it left past the end", "[wording]") {
+    using subedit::core::BeyondEnd;
+    using subedit::core::CommandKind;
+    using subedit::core::Duration;
+    using subedit::core::noticeOf;
+
+    const BeyondEnd beyond{.count = 3, .overshoot = Duration::fromMilliseconds(4200)};
+
+    CHECK(noticeOf(CommandKind::Shift, beyond) ==
+          "shifting leaves 3 subtitles past the end of the video, by 4.200 s at most");
+    CHECK(noticeOf(CommandKind::Transform, beyond) ==
+          "transforming leaves 3 subtitles past the end of the video, by 4.200 s at most");
+    CHECK(noticeOf(CommandKind::ConvertFrameRate, beyond) ==
+          "converting the frame rate leaves 3 subtitles past the end of the video, "
+          "by 4.200 s at most");
+}
+
+// One is the common case, and « the furthest by » would read wrong for it.
+TEST_CASE("a single subtitle past the end is said in the singular", "[wording]") {
+    using subedit::core::BeyondEnd;
+    using subedit::core::CommandKind;
+    using subedit::core::Duration;
+    using subedit::core::noticeOf;
+
+    CHECK(noticeOf(CommandKind::Shift,
+                   BeyondEnd{.count = 1, .overshoot = Duration::fromMilliseconds(500)}) ==
+          "shifting leaves 1 subtitle past the end of the video, by 0.500 s at most");
+}
