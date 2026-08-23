@@ -7,8 +7,9 @@ table.
 > **annule**, **enregistre**, **marque les sous-titres dont les positions ne
 > tiennent pas debout**, et porte les quatre opérations de la phase — décaler,
 > transformer, convertir la fréquence d'image, retirer les mentions pour
-> malentendants. L'insertion et la suppression de lignes viennent ensuite, avec
-> les préférences persistées. Voir la
+> malentendants. Elle **associe une vidéo au document**, choisie ou devinée,
+> sans encore la jouer : le lecteur vient ensuite. L'insertion et la suppression
+> de lignes viennent après, avec les préférences persistées. Voir la
 > [feuille de route](../../feuille-de-route.md). Ce manuel décrit ce qui existe,
 > jamais ce qui est prévu.
 
@@ -29,3 +30,4 @@ table.
 | [Éditer une cellule](edition.md) | quelles cellules s'éditent, et comment |
 | [Annuler et rétablir](annulation.md) | l'historique, les deux actions, la marque de modification |
 | [Les opérations](operations.md) | décaler, transformer, convertir, retirer les mentions |
+| [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la barre d'état |

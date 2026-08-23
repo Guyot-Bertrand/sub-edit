@@ -4,6 +4,7 @@
 #include <array>
 #include <cctype>
 #include <filesystem>
+#include <span>
 #include <string>
 #include <string_view>
 
@@ -28,6 +29,10 @@ constexpr std::array<std::string_view, 10> kVideoExtensions{
 }
 
 } // namespace
+
+std::span<const std::string_view> videoExtensions() {
+    return kVideoExtensions;
+}
 
 bool isVideoFile(const std::filesystem::path& path) {
     // `.mkv` alone is a hidden file whose whole name is `.mkv`, and

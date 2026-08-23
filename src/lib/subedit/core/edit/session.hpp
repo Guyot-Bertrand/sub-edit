@@ -8,6 +8,7 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
 
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -53,6 +54,20 @@ public:
     /// to a change is a command — is about the document, and this is not the
     /// document.
     void setSourceFile(SourceFile source) { m_project.setSourceFile(std::move(source)); }
+
+    /// Associates the video the user named, whatever was there before.
+    ///
+    /// **Not a command either, and for the same reason as `setSourceFile`.**
+    /// Which film a document is watched against is not the document: no
+    /// subtitle changes, the file on disk does not start differing from what
+    /// is held, and undoing a shift has no business un-associating a film.
+    void chooseVideo(std::filesystem::path path) { m_project.chooseVideo(std::move(path)); }
+
+    /// Offers the video the naming convention found, and says whether it was
+    /// taken. A choice is never replaced by a guess — decision D5.
+    bool proposeVideo(std::filesystem::path path) {
+        return m_project.proposeVideo(std::move(path));
+    }
 
     /// Changes the policy for the operations to come.
     ///

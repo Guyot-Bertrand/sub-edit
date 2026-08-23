@@ -43,6 +43,18 @@ public:
         return nextFileToOpen;
     }
 
+    /// What the video chooser answers, and where it was told to open.
+    std::optional<std::filesystem::path> nextVideoToOpen{};
+    int videoAsked = 0;
+    std::filesystem::path lastVideoDirectory{};
+
+    [[nodiscard]] std::optional<std::filesystem::path>
+    videoToOpen(const std::filesystem::path& directory) override {
+        ++videoAsked;
+        lastVideoDirectory = directory;
+        return nextVideoToOpen;
+    }
+
     [[nodiscard]] std::optional<gui::SaveTarget>
     saveTarget(const core::SourceFile& current) override {
         ++saveTargetAsked;

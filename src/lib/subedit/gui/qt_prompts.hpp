@@ -16,6 +16,12 @@ namespace subedit::gui {
 /// What the file dialogs filter on, in the order they offer it.
 [[nodiscard]] QString subtitleFilters();
 
+/// What the video chooser filters on, built from the core's own list.
+///
+/// **Built and not written**, so that a chooser cannot offer a file the rest
+/// of the program would refuse to call a video, nor hide one it would accept.
+[[nodiscard]] QString videoFilters();
+
 /// Which format a chosen filter names.
 ///
 /// **Exposed, and not because a test needed a keyhole.** It decides what a
@@ -58,6 +64,9 @@ public:
     [[nodiscard]] QWidget* owner() const { return m_owner; }
 
     [[nodiscard]] std::optional<std::filesystem::path> fileToOpen() override;
+
+    [[nodiscard]] std::optional<std::filesystem::path>
+    videoToOpen(const std::filesystem::path& directory) override;
 
     [[nodiscard]] std::optional<SaveTarget> saveTarget(const core::SourceFile& current) override;
 
