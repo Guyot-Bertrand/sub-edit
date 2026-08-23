@@ -155,9 +155,18 @@ convention de nom en a besoin, et elle est au noyau.
 ### La lecture de la fréquence
 
 Un appel à `ffprobe`, qui rend `r_frame_rate` sous forme de rationnel exact.
-`findExecutable` (#162) le trouve ; `startProcess` et `outcomeOf` (#164) le
-lancent et le récoltent. L'appel attend : il prend quelques millisecondes, et
-aucune interface n'a de raison de rendre la main pendant ce temps.
+`findExecutable` (#162) le trouve. L'appel attend : il prend quelques
+millisecondes, et aucune interface n'a de raison de rendre la main pendant ce
+temps.
+
+**Ce n'est pas `startProcess` qui le lance**, contrairement à ce que cette
+section a d'abord annoncé. #172 lui a écrit un frère, `runAndCapture` : il
+attend, et rend ce que le programme a écrit. Celui de #164 est fait pour un
+lecteur vidéo, qui survit à l'appel qui l'a lancé — il rend la main aussitôt et
+écrit la sortie dans un fichier, qu'il aurait fallu nommer, poser sur un
+support inscriptible, relire et effacer, le tout pour douze octets, et sonder
+`outcomeOf` en boucle en attendant. Poser la question par un tube et attendre
+la réponse dit la même chose en moins.
 
 Trois issues possibles, et une seule est une erreur :
 

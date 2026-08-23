@@ -145,16 +145,27 @@ qu'on le lit ne fait pas échouer `readdir` sur Linux. C'est la même famille qu
 les trois lignes de `start_process.cpp` — des refus du système qu'un test ne
 sait pas provoquer.
 
+**Une ligne de plus dans `start_process.cpp`, en phase 6.** #172 lui ajoute
+`runAndCapture`, qui pose une question à un programme et attend sa réponse par
+un tube. La ligne non couverte est le refus rendu quand `pipe` échoue — ce qui
+demande d'avoir épuisé les descripteurs du processus, état qu'un test ne peut
+pas fabriquer sans emporter avec lui tout le binaire de tests.
+
+C'est la quatrième de ce fichier et la même famille que les trois autres : des
+refus du système, atteignables seulement en le mettant à genoux. Le reste de la
+fonction est parcouru, y compris ses deux sorties d'erreur utiles — un
+programme absent, et un fichier exécutable qui n'est pas un programme.
+
 ## Relevé
 
-    total : 39
+    total : 40
 
-Relevé sur la version 0.5.8, le 2026-08-23.
+Relevé sur la version 0.5.9, le 2026-08-23.
 
 | Lignes | Fichier |
 | -----: | :------ |
 | 30 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 4 | `src/lib/subedit/core/process/start_process.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
-| 3 | `src/lib/subedit/core/process/start_process.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
