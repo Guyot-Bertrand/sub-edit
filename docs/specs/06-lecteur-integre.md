@@ -191,8 +191,32 @@ Ce qu'elle expose, et rien de plus tant que la phase 14 n'est pas là :
 | position | où en est la lecture, pour suivre la ligne courante |
 | durée | ce que le conteneur déclare, une fois ouvert |
 
-**Le noyau ne connaît pas Qt**, et cette couture non plus : `check-architecture.sh`
-le vérifie depuis la phase 0. Ce qui touche à un widget vit dans `subedit_gui`.
+**L'interface vit au noyau, l'implémentation dans `subedit_gui`.** La distinction
+est celle du principe 3, et elle a été reprise pendant #173 : `core::VideoPlayer`
+ne nomme ni Qt ni libmpv, et c'est ce qui permet au reste du noyau de raisonner
+sur un lecteur sans en connaître un. `MpvPlayer`, lui, est un élément
+d'interface — il n'existe que pour la fenêtre, il en reçoit la sienne, et rien
+d'autre ne le construira. Faire entrer libmpv dans `subedit_core` aurait donné au
+domaine une dépendance d'infrastructure pour la seule commodité d'un harnais de
+test plus léger, ce qui n'est pas une raison d'architecture.
+
+Le déplacement a d'ailleurs révélé un défaut que la place au noyau masquait :
+**libmpv refuse de démarrer si `LC_NUMERIC` n'est pas « C »**, et `QApplication`
+le règle sur celle de l'utilisateur. Au noyau, les tests tournaient sans
+`QApplication`, donc en locale « C » ; le défaut n'apparaissait pas, et toute
+vraie fenêtre l'aurait rencontré.
+
+**Le rendu, tranché par #173 : la fenêtre native que libmpv adopte**, par la
+propriété `wid`. C'est **un nombre**, et c'est précisément ce qui permet au
+noyau de désigner une fenêtre sans rien savoir d'une fenêtre. La voie est la
+plus courte des deux, et elle laisse la réplique à l'`osd-overlay` de libmpv —
+que D2 autorise, puisque le texte y vient du modèle et non d'un fichier. #176 le
+vérifiera ; c'est là que la question se pose vraiment.
+
+**Ce que #173 n'a pas écrit, et pourquoi.** Le lecteur ne montre rien : il n'y a
+pas encore de fenêtre à lui donner, et poser `wid` sans qu'aucun test ne puisse
+parcourir cette ligne serait écrire du code pour plus tard. #176 a la fenêtre,
+et l'ajoutera avec la preuve qui va avec.
 
 ### La borne haute
 
@@ -250,8 +274,11 @@ géométrie de l'image, une lecture qui avance en temps réel. **Pas une image
 décodée** — il n'y a pas de sortie d'où la prendre — et c'est donc dans la
 fenêtre que la réplique dessinée se prouvera, jamais ici.
 
-`src/test/unit/core/video/player_harness_test.cpp` porte cette preuve, et il vit
-dans le binaire où vivront les tests de la couture.
+`src/test/gui/mpv_player_test.cpp` porte cette preuve. C'était
+d'abord un harnais séparé, écrit par #178 avant que la couture existe ; #173 l'a
+absorbé, parce que deux fichiers qui ouvrent les mêmes fixtures pour la même
+raison finissent par diverger, et que celui qui compte est celui qui passe par
+le code employé.
 
 ## Mesures
 
@@ -312,7 +339,7 @@ les cinq qui la précèdent la servent.**
 | avance image par image, pose d'un repère depuis la position | phase 14, qui n'a plus que cela |
 | croiser la fréquence lue et la fréquence déduite, et présenter un désaccord | phase 16, qui apporte la seconde |
 | le lecteur pour un document de traduction | phase 11, qui apporte le second document |
-| rendu dans une fenêtre native ou dans un contexte OpenGL | tranché à l'implémentation de #173 ; l'ADR 0020 dit pourquoi ce n'est pas une décision coûteuse |
+| rendu dans une fenêtre native ou dans un contexte OpenGL | **tranché par #173** : la fenêtre native, propriété `wid`. Posée par #176, qui a une fenêtre à donner |
 
 ## Critères de fin
 
