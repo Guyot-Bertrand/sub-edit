@@ -16,6 +16,7 @@ ne pas l'éditer à la main.
 - **scripts** — L'allure d'un relevé, écrite dans son en-tête
 - **core** — La vidéo associée à un document, et la convention de nom
 - **core** — Lire la fréquence déclarée par le conteneur avec ffprobe
+- **core** — La couture du lecteur, et libmpv derrière
 
 ### Construction
 
