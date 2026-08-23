@@ -1,11 +1,14 @@
 #pragma once
 
+#include <subedit/core/model/associated_video.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 
 #include <cstddef>
+#include <filesystem>
+#include <optional>
 #include <span>
 #include <utility>
 #include <vector>
@@ -22,6 +25,11 @@ class Selection;
 ///
 /// This class holds state and hands it back; it decides nothing. Editing goes
 /// through reversible commands, which arrive with the operations.
+///
+/// One exception, and it is a rule about the state rather than about editing:
+/// **a chosen video is never replaced by a guessed one** — decision D5. Left to
+/// each caller, that rule would be re-stated at every place a file is opened or
+/// saved, and forgotten at one of them.
 class Project {
 
 public:
@@ -101,6 +109,22 @@ public:
 
     void setFrameRate(FrameRate rate) { m_frameRate = rate; }
 
+    /// Returns the video this document is watched against, and where its path
+    /// came from. Nothing, for a document no video has been associated with.
+    [[nodiscard]] const std::optional<AssociatedVideo>& video() const { return m_video; }
+
+    /// Associates the video the user named, whatever was there before.
+    void chooseVideo(std::filesystem::path path);
+
+    /// Offers the video the naming convention found, and answers whether it
+    /// was taken.
+    ///
+    /// A proposal replaces an earlier proposal — reopening or renaming makes
+    /// the convention speak again, and its latest word is the one that counts.
+    /// It never replaces a choice: that is D5, and it is why the origin is
+    /// remembered at all.
+    bool proposeVideo(std::filesystem::path path);
+
     /// Returns what the file this project came from looked like.
     [[nodiscard]] const SourceFile& sourceFile() const { return m_sourceFile; }
 
@@ -115,6 +139,8 @@ private:
     FrameRate m_frameRate{StandardFrameRate::Fps23976};
 
     SourceFile m_sourceFile;
+
+    std::optional<AssociatedVideo> m_video;
 };
 
 } // namespace subedit::core

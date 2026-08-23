@@ -96,6 +96,20 @@ nôtre — `film.mkv` pour `film.fr.srt`, la règle de `find_video`. Ce que la
 convention trouve est **une proposition** : le choix explicite l'écrase et n'est
 jamais réécrasé par elle.
 
+Deux points que la règle de Gaupol laissait ouverts, tranchés par #171 :
+
+- **le préfixe se lit segment par segment**, la frontière étant le point.
+  Gaupol compare des chaînes brutes, où `fil.mkv` répond pour `film.fr.srt` —
+  un film proposé pour un sous-titre qui ne le concerne pas, et l'utilisateur
+  ne s'en aperçoit qu'en regardant la mauvaise image ;
+- **le nom le plus long l'emporte, et une égalité ne propose rien.**
+  `film.fr.mkv` bat `film.mkv` pour `film.fr.srt`, étant le plus proche des
+  deux. Mais `film.mkv` et `film.mp4` ne se départagent pas : ni l'ordre du
+  système de fichiers — qui n'est pas stable — ni l'ordre de notre propre liste
+  d'extensions — que personne ne peut lire — n'est une réponse. Le silence en
+  est une, et D5 fait le reste, puisque le choix de l'utilisateur n'est jamais
+  réécrasé.
+
 **D6 — la fréquence lue dans le conteneur est proposée, jamais imposée.** C'est
 la seconde source de la même donnée, et la phase 16 en apportera une troisième,
 déduite des positions. Une source qui s'impose interdit de croiser ; une source

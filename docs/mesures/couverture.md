@@ -127,16 +127,34 @@ quatre : la quatrième était `LaunchErrorKind::Failed`, le cas ni « absent » 
 le système répond `ENOEXEC` — et le test qui l'éprouve est le seul des trois
 refus qui démontre que la table en est une, et non deux cas particuliers.
 
+**Une ligne de `RealFileSystem::filesIn`, en phase 6.** Le listage d'un
+répertoire lit ses entrées une à une, et chaque avance peut échouer : le
+répertoire peut disparaître entre deux lectures. La ligne non couverte est le
+refus qui en résulte.
+
+**Ce qu'on achète en la gardant.** Sans elle, l'itérateur devient « fin » et la
+fonction rend la liste partielle qu'elle avait — silencieusement. Un appelant
+lirait « voici les fichiers » là où il faudrait lire « je n'ai pas pu finir »,
+et c'est exactement le genre de mensonge qu'une couture au système ne doit pas
+raconter. Le prix est d'une ligne, et il est payé une fois.
+
+**Pourquoi aucun test ne l'atteint.** Il faudrait faire échouer une lecture
+entre deux entrées, depuis l'extérieur, sur un flux de répertoire déjà ouvert :
+retirer les droits ne touche pas un flux ouvert, et effacer le répertoire pendant
+qu'on le lit ne fait pas échouer `readdir` sur Linux. C'est la même famille que
+les trois lignes de `start_process.cpp` — des refus du système qu'un test ne
+sait pas provoquer.
+
 ## Relevé
 
-    total : 38
+    total : 39
 
-Relevé sur la version 0.5.3, le 2026-08-22.
+Relevé sur la version 0.5.8, le 2026-08-23.
 
 | Lignes | Fichier |
 | -----: | :------ |
 | 30 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 3 | `src/lib/subedit/core/process/start_process.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
-| 2 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |

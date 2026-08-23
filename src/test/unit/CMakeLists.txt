@@ -22,6 +22,8 @@ add_executable(
     core/model/format_extras_test.cpp
     core/model/subtitle_test.cpp
     core/model/project_test.cpp
+    core/model/project_video_test.cpp
+    core/model/video_file_test.cpp
     core/model/subtitle_index_test.cpp
     core/model/project_access_test.cpp
     core/model/anomaly_test.cpp
@@ -45,6 +47,7 @@ add_executable(
     core/io/in_memory_file_system_test.cpp
     core/io/atomic_write_test.cpp
     core/io/find_executable_test.cpp
+    core/io/find_video_test.cpp
     core/io/real_file_system_test.cpp
     core/process/start_process_test.cpp
     core/io/file_error_test.cpp

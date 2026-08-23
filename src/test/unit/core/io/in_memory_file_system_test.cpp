@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -149,4 +150,42 @@ TEST_CASE("removing a program leaves nothing runnable behind", "[filesystem][exe
     REQUIRE(files.remove("/usr/bin/ffprobe").has_value());
 
     CHECK_FALSE(files.isExecutable("/usr/bin/ffprobe"));
+}
+
+TEST_CASE("the files of a directory are listed, sorted, and one level deep",
+          "[filesystem][video]") {
+    InMemoryFileSystem files;
+    files.addFile("/films/film.mkv", "");
+    files.addFile("/films/dialogue.srt", "");
+    files.addFile("/films/archives/vieux.mkv", "");
+    files.addFile("/ailleurs/film.mkv", "");
+
+    const auto listed = files.filesIn("/films");
+
+    REQUIRE(listed.has_value());
+    CHECK(*listed == std::vector<std::filesystem::path>{"/films/dialogue.srt", "/films/film.mkv"});
+}
+
+// In memory a directory exists exactly as long as a file names it, so an
+// unknown one refuses like an unknown one — and a caller passing a typo reads
+// a refusal rather than a reassuring emptiness.
+TEST_CASE("listing a directory nothing lives in is a refusal", "[filesystem][video]") {
+    InMemoryFileSystem files;
+    files.addFile("/films/film.mkv", "");
+
+    const auto listed = files.filesIn("/nulle-part");
+
+    REQUIRE_FALSE(listed.has_value());
+    CHECK(listed.error().kind == FileErrorKind::NotFound);
+}
+
+TEST_CASE("files added under no directory are the current one", "[filesystem][video]") {
+    InMemoryFileSystem files;
+    files.addFile("film.mkv", "");
+    files.addFile("/films/autre.mkv", "");
+
+    const auto listed = files.filesIn("");
+
+    REQUIRE(listed.has_value());
+    CHECK(*listed == std::vector<std::filesystem::path>{"film.mkv"});
 }

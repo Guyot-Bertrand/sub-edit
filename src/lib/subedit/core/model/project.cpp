@@ -3,9 +3,11 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <filesystem>
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace subedit::core {
@@ -107,6 +109,18 @@ bool Project::isInOrder() const {
             return false;
     }
 
+    return true;
+}
+
+void Project::chooseVideo(std::filesystem::path path) {
+    m_video = AssociatedVideo{.path = std::move(path), .origin = VideoOrigin::Chosen};
+}
+
+bool Project::proposeVideo(std::filesystem::path path) {
+    if (m_video.has_value() && m_video->origin == VideoOrigin::Chosen)
+        return false;
+
+    m_video = AssociatedVideo{.path = std::move(path), .origin = VideoOrigin::Guessed};
     return true;
 }
 
