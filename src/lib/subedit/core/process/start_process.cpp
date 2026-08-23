@@ -1,6 +1,8 @@
 #include <subedit/core/process/start_process.hpp>
 
+#include <array>
 #include <cerrno>
+#include <cstddef>
 #include <expected>
 #include <fcntl.h>
 #include <filesystem>
@@ -56,6 +58,15 @@ public:
         record(posix_spawn_file_actions_adddup2(&m_actions, from, to));
     }
 
+    /// Closes a descriptor in the child, and only there.
+    ///
+    /// What keeps the reading end of a pipe out of the program being asked: as
+    /// long as somebody holds a writing end open, the reader waits — and a
+    /// child holding one it never writes to would make the answer never end.
+    void addClose(int descriptor) {
+        record(posix_spawn_file_actions_addclose(&m_actions, descriptor));
+    }
+
     [[nodiscard]] int error() const { return m_error; }
 
     [[nodiscard]] const posix_spawn_file_actions_t* get() const { return &m_actions; }
@@ -87,19 +98,61 @@ failure(int code, const std::filesystem::path& program, const std::string& reaso
     });
 }
 
-} // namespace
+/// A file descriptor, closed exactly once.
+///
+/// A pipe is two of them, and both have to be let go on every path out —
+/// including the ones a refusal takes. Counting them by hand is how a program
+/// runs out of descriptors after a few thousand refusals.
+class Descriptor {
 
-std::expected<ProcessHandle, LaunchError> startProcess(const std::filesystem::path& program,
-                                                       std::span<const std::string> arguments,
-                                                       const std::filesystem::path& output) {
-    SpawnActions actions;
+public:
+    explicit Descriptor(int descriptor = -1) : m_descriptor(descriptor) {}
+
+    Descriptor(const Descriptor&) = delete;
+    Descriptor(Descriptor&&) = delete;
+    Descriptor& operator=(const Descriptor&) = delete;
+    Descriptor& operator=(Descriptor&&) = delete;
+
+    ~Descriptor() { close(); }
+
+    [[nodiscard]] int get() const { return m_descriptor; }
+
+    void close() {
+        if (m_descriptor >= 0)
+            ::close(m_descriptor);
+        m_descriptor = -1;
+    }
+
+private:
+    int m_descriptor;
+};
+
+/// How much one read asks for. A frame rate is twelve bytes; a program with
+/// more to say is read in as many turns as it takes.
+constexpr std::size_t kReadBlockSize = 4096;
+
+/// Turns what `waitpid` filled in into the number a caller reads.
+///
+/// Without `WUNTRACED` or `WCONTINUED`, `waitpid` only answers for a process
+/// that has ended: the two cases are exhaustive, and a third branch would be a
+/// line no test could ever reach.
+[[nodiscard]] int exitCodeOf(int status) {
+    if (WIFSIGNALED(status))
+        return kSignalledExitBase + WTERMSIG(status);
+    return WEXITSTATUS(status);
+}
+
+/// Starts `program` under `actions`, or says why it could not.
+///
+/// Shared by the two ways of running a program: everything but the
+/// redirections is the same, and the refusals — a launch that could not be
+/// prepared, redirections the system would not record, a program that is not
+/// there — are the same three whichever way one runs it.
+[[nodiscard]] std::expected<pid_t, LaunchError> spawnWith(const SpawnActions& actions,
+                                                          const std::filesystem::path& program,
+                                                          std::span<const std::string> arguments) {
     if (!actions.valid())
         return failure(errno, program, "could not prepare the launch");
-
-    actions.addOpen(STDIN_FILENO, "/dev/null", O_RDONLY, 0);
-    actions.addOpen(
-        STDOUT_FILENO, output.c_str(), O_WRONLY | O_CREAT | O_TRUNC, kOutputPermissions);
-    actions.addDuplicate(STDOUT_FILENO, STDERR_FILENO);
     if (actions.error() != 0)
         return failure(actions.error(), program, "could not redirect the output");
 
@@ -123,7 +176,71 @@ std::expected<ProcessHandle, LaunchError> startProcess(const std::filesystem::pa
     if (spawned != 0)
         return failure(spawned, program, "could not be started");
 
-    return ProcessHandle{.id = child};
+    return child;
+}
+
+} // namespace
+
+std::expected<ProcessHandle, LaunchError> startProcess(const std::filesystem::path& program,
+                                                       std::span<const std::string> arguments,
+                                                       const std::filesystem::path& output) {
+    SpawnActions actions;
+    actions.addOpen(STDIN_FILENO, "/dev/null", O_RDONLY, 0);
+    actions.addOpen(
+        STDOUT_FILENO, output.c_str(), O_WRONLY | O_CREAT | O_TRUNC, kOutputPermissions);
+    actions.addDuplicate(STDOUT_FILENO, STDERR_FILENO);
+
+    const std::expected<pid_t, LaunchError> child = spawnWith(actions, program, arguments);
+    if (!child.has_value())
+        return std::unexpected(child.error());
+
+    return ProcessHandle{.id = *child};
+}
+
+std::expected<ProgramOutput, LaunchError> runAndCapture(const std::filesystem::path& program,
+                                                        std::span<const std::string> arguments) {
+    std::array<int, 2> ends{-1, -1};
+    if (::pipe(ends.data()) != 0)
+        return failure(errno, program, "could not open a pipe");
+    const Descriptor readEnd{ends[0]};
+    Descriptor writeEnd{ends[1]};
+
+    SpawnActions actions;
+    actions.addOpen(STDIN_FILENO, "/dev/null", O_RDONLY, 0);
+    actions.addDuplicate(writeEnd.get(), STDOUT_FILENO);
+    actions.addOpen(STDERR_FILENO, "/dev/null", O_WRONLY, 0);
+    // Neither end of the pipe is the child's to hold: it writes through the
+    // standard output it was just given.
+    actions.addClose(writeEnd.get());
+    actions.addClose(readEnd.get());
+
+    const std::expected<pid_t, LaunchError> child = spawnWith(actions, program, arguments);
+    if (!child.has_value())
+        return std::unexpected(child.error());
+
+    // **Ours has to go before the reading starts.** End of file comes when the
+    // last writing end closes, and this one is a writing end.
+    writeEnd.close();
+
+    ProgramOutput answer;
+    std::array<char, kReadBlockSize> buffer{};
+    while (true) {
+        const ssize_t count = ::read(readEnd.get(), buffer.data(), buffer.size());
+        // Nothing more to come, or a read that failed for a reason other than
+        // having been interrupted — an interruption is not an answer, only an
+        // interruption of the asking.
+        if (count == 0 || (count < 0 && errno != EINTR))
+            break;
+        if (count > 0)
+            answer.output.append(buffer.data(), static_cast<std::size_t>(count));
+    }
+
+    int status = 0;
+    while (::waitpid(*child, &status, 0) < 0 && errno == EINTR) {
+    }
+
+    answer.code = exitCodeOf(status);
+    return answer;
 }
 
 std::optional<ProcessOutcome> outcomeOf(ProcessHandle handle) {
@@ -142,12 +259,7 @@ std::optional<ProcessOutcome> outcomeOf(ProcessHandle handle) {
     if (answered <= 0)
         return std::nullopt;
 
-    // Without WUNTRACED or WCONTINUED, `waitpid` only answers for a process
-    // that has ended: the two cases below are exhaustive, and a third branch
-    // here would be a line no test could ever reach.
-    if (WIFSIGNALED(status))
-        return ProcessOutcome{.code = kSignalledExitBase + WTERMSIG(status)};
-    return ProcessOutcome{.code = WEXITSTATUS(status)};
+    return ProcessOutcome{.code = exitCodeOf(status)};
 }
 
 } // namespace subedit::core

@@ -15,6 +15,7 @@ ne pas l'éditer à la main.
 - **core** — Lancer un programme extérieur, et ne pas l'attendre
 - **scripts** — L'allure d'un relevé, écrite dans son en-tête
 - **core** — La vidéo associée à un document, et la convention de nom
+- **core** — Lire la fréquence déclarée par le conteneur avec ffprobe
 
 ### Construction
 

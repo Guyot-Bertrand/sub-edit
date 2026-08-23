@@ -48,8 +48,10 @@ add_executable(
     core/io/atomic_write_test.cpp
     core/io/find_executable_test.cpp
     core/io/find_video_test.cpp
+    core/video/declared_frame_rate_test.cpp
     core/io/real_file_system_test.cpp
     core/process/start_process_test.cpp
+    core/process/run_and_capture_test.cpp
     core/io/file_error_test.cpp
     core/text/lines_test.cpp
     core/format/sub_rip_reader_test.cpp

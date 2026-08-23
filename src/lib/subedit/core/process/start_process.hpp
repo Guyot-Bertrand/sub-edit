@@ -72,6 +72,39 @@ startProcess(const std::filesystem::path& program,
              std::span<const std::string> arguments,
              const std::filesystem::path& output);
 
+/// What a program wrote, and how it ended.
+struct ProgramOutput {
+    /// Its exit code, read as `ProcessOutcome::code` is.
+    int code = 0;
+
+    /// Everything it wrote on standard output, to the last byte.
+    std::string output;
+
+    friend bool operator==(const ProgramOutput&, const ProgramOutput&) = default;
+};
+
+/// Runs `program` with `arguments`, **waits for it**, and returns what it said.
+///
+/// The sibling of `startProcess`, and its opposite in every way that matters.
+/// A video player outlives the call that started it, so that one returns at
+/// once and leaves the answer for later. A program one asks a question of —
+/// `ffprobe`, and what a container declares — answers in milliseconds and is
+/// then done: waiting for it is the whole point, and there is nothing an
+/// interface could usefully do in between.
+///
+/// Which is why this reads through a pipe rather than through a file. There is
+/// no temporary to name, to place on a writable device, to remove afterwards,
+/// and no two runs of the program to keep from writing over one another.
+///
+/// **Standard error is discarded**, and that is a decision rather than an
+/// oversight: what comes back is parsed, and a complaint mixed into the answer
+/// would be read as part of it. A caller that needs to know why a program
+/// failed has its exit code.
+///
+/// Standard input comes from `/dev/null`, for the reason `startProcess` gives.
+[[nodiscard]] std::expected<ProgramOutput, LaunchError>
+runAndCapture(const std::filesystem::path& program, std::span<const std::string> arguments);
+
 /// How the process ended, or nothing while it is still running.
 ///
 /// Never blocks. **Collects the process when it answers**, so the answer comes
