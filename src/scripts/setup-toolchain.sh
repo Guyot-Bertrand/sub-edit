@@ -75,10 +75,28 @@ declare -A APT_TOOLS=(
 # fichier `.pc` et non un `Qt6Config.cmake` : libmpv ne fournit pas de fichier
 # de configuration CMake, seulement de quoi être trouvé par `pkg-config`, et
 # c'est donc ce chemin-là que la configuration finit par lire.
+#
+# **BLAS et LAPACK sont là pour libmpv, et c'est moins absurde qu'il n'y paraît.**
+# La chaîne est celle-ci : libmpv tire libavfilter, qui tire le filtre de
+# reconnaissance vocale d'ffmpeg, qui tire `libsphinxbase`, qui a besoin de
+# `libblas.so.3` et de `liblapack.so.3`.
+#
+# Ces deux-là sont des **paquets virtuels** — plusieurs paquets réels les
+# fournissent, `libblas3`, `libopenblas0-pthread`, `libmkl-rt`. C'est exactement
+# ce que la fermeture de dépendances du cache de paquets de la CI ne sait pas
+# résoudre : elle restaure `libsphinxbase3` sans fournisseur, et la chaîne arrive
+# trouée. L'édition de liens s'arrête alors sur des symboles indéfinis, et le
+# chargement de libmpv échouerait de la même façon.
+#
+# Le chemin sondé est le lien géré par le système d'alternatives : si un
+# fournisseur quelconque est déjà là, rien n'est installé — une machine qui a
+# déjà OpenBLAS n'en gagne pas un second.
 declare -A APT_LIBS=(
     [/usr/include/CLI/CLI.hpp]=libcli11-dev
     [/usr/lib/x86_64-linux-gnu/cmake/Qt6/Qt6Config.cmake]=qt6-base-dev
     [/usr/lib/x86_64-linux-gnu/pkgconfig/mpv.pc]=libmpv-dev
+    [/usr/lib/x86_64-linux-gnu/libblas.so.3]=libblas3
+    [/usr/lib/x86_64-linux-gnu/liblapack.so.3]=liblapack3
 )
 
 install_apt_tools() {

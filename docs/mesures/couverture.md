@@ -156,11 +156,26 @@ refus du système, atteignables seulement en le mettant à genoux. Le reste de l
 fonction est parcouru, y compris ses deux sorties d'erreur utiles — un
 programme absent, et un fichier exécutable qui n'est pas un programme.
 
+**Une ligne de `MpvPlayer::create`, en phase 6.** Bâtir un lecteur peut échouer
+de trois façons — pas de mémoire pour un handle, une option que cette version de
+libmpv ne connaît pas, une initialisation qu'elle refuse — et la ligne non
+couverte est le refus qui en sort. Les trois sont écrites comme une seule
+réponse courante plutôt que comme trois contrôles, précisément pour qu'il n'y en
+ait qu'une : à qui demande un lecteur, ce sont le même événement.
+
+**Ce qui a été restructuré plutôt que compté.** La première mesure en donnait
+cinq. Quatre étaient la même garde défensive — « la propriété n'a pas répondu
+alors qu'une vidéo est ouverte » — répétée dans la durée, la position et l'état
+de lecture. Rien ne fait oublier à un fichier ouvert combien il dure, donc aucun
+test ne pouvait les parcourir. Écrites comme une expression unique, où l'absence
+de réponse est un résultat du même rang que le nombre, elles disparaissent du
+compte sans que rien ne soit perdu — et le code y gagne.
+
 ## Relevé
 
-    total : 40
+    total : 41
 
-Relevé sur la version 0.5.9, le 2026-08-23.
+Relevé sur la version 0.5.10, le 2026-08-23.
 
 | Lignes | Fichier |
 | -----: | :------ |
@@ -169,3 +184,4 @@ Relevé sur la version 0.5.9, le 2026-08-23.
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
+| 1 | `src/lib/subedit/gui/mpv_player.cpp` |
