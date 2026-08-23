@@ -171,15 +171,28 @@ test ne pouvait les parcourir. Écrites comme une expression unique, où l'absen
 de réponse est un résultat du même rang que le nombre, elles disparaissent du
 compte sans que rien ne soit perdu — et le code y gagne.
 
+**Huit lignes de plus dans `QtPrompts`, en phase 6.** #175 lui ajoute
+`videoToOpen`, le sélecteur de vidéo : un appel à `QFileDialog`, la garde « rien
+n'a été choisi », et le chemin rendu. C'est la troisième méthode de cette classe
+et la même raison que les précédentes — une boîte modale fait tourner sa propre
+boucle d'événements jusqu'à ce qu'un humain clique.
+
+**Ce qui a été sorti de là plutôt que compté**, comme les fois précédentes : le
+filtre. `videoFilters` assemble la liste d'extensions que le noyau reconnaît, et
+c'est une chose que cette classe peut avoir fausse toute seule — un sélecteur qui
+offrirait un fichier que le reste du programme refuse d'appeler une vidéo serait
+un piège. Exposé, il est éprouvé par un test ordinaire, qui confronte le filtre à
+`isVideoFile` extension par extension.
+
 ## Relevé
 
-    total : 41
+    total : 49
 
-Relevé sur la version 0.5.10, le 2026-08-23.
+Relevé sur la version 0.5.12, le 2026-08-23.
 
 | Lignes | Fichier |
 | -----: | :------ |
-| 30 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 38 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 4 | `src/lib/subedit/core/process/start_process.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |

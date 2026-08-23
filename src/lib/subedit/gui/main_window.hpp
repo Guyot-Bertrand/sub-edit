@@ -17,6 +17,7 @@ class Session;
 
 class QAction;
 class QCloseEvent;
+class QLabel;
 class QTableView;
 
 namespace subedit::gui {
@@ -87,6 +88,12 @@ public:
 
     [[nodiscard]] QAction* hearingImpairedAction() const { return m_hearingImpaired; }
 
+    [[nodiscard]] QAction* selectVideoAction() const { return m_selectVideo; }
+
+    /// What the status bar says of the associated film — its name, or that
+    /// there is none. This is what `GUI-VIDEO-01` promises the user sees.
+    [[nodiscard]] QLabel* videoStatus() const { return m_videoStatus; }
+
 protected:
     /// Refuses to close while there are changes nobody chose to lose.
     void closeEvent(QCloseEvent* event) override;
@@ -122,6 +129,20 @@ private:
     /// phase ends here, so the refresh cannot be forgotten in one of them.
     void applyOperation(std::unique_ptr<core::Command> command);
 
+    /// Asks which film to watch the document against, and associates it.
+    void selectVideo();
+
+    /// Offers the film the naming convention finds beside the subtitle file.
+    ///
+    /// Called wherever the file's name becomes known or changes — an opening,
+    /// a « save as » — because that name is all the convention reads. A choice
+    /// already made is never replaced: D5 lives in `Project`, so calling this
+    /// too often costs nothing but a look at a directory.
+    void proposeVideoBeside();
+
+    /// Puts what the document is watched against into the status bar.
+    void refreshVideoStatus();
+
     void shiftTarget();
 
     void transformTarget();
@@ -156,6 +177,8 @@ private:
     QAction* m_transform = nullptr;
     QAction* m_frameRate = nullptr;
     QAction* m_hearingImpaired = nullptr;
+    QAction* m_selectVideo = nullptr;
+    QLabel* m_videoStatus = nullptr;
 
     /// Held by pointer so that this header stays parsable by `moc`, which
     /// chokes on the C++20 library headers the core drags in.

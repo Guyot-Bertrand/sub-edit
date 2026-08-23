@@ -6,6 +6,8 @@
 #include <subedit/core/edit/transform_command.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/io/find_video.hpp>
+#include <subedit/core/model/associated_video.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
@@ -30,8 +32,10 @@
 #include <QIcon>
 #include <QItemSelectionModel>
 #include <QKeySequence>
+#include <QLabel>
 #include <QMenu>
 #include <QMenuBar>
+#include <QStatusBar>
 #include <QString>
 #include <QTableView>
 #include <QToolBar>
@@ -97,8 +101,9 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_shift(buildAction(this, QStringLiteral("Shift Positions…"), {})),
       m_transform(buildAction(this, QStringLiteral("Transform Positions…"), {})),
       m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
-      m_hearingImpaired(
-          buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})) {
+      m_hearingImpaired(buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})),
+      m_selectVideo(buildAction(this, QStringLiteral("Select Video…"), {})),
+      m_videoStatus(new QLabel{this}) {
     // One delegate per nature of cell, and none on the number or the duration,
     // which are not editable: Qt's table puts one only where it is given one.
     m_table->setItemDelegateForColumn(SubtitleTableModel::Start, new PositionDelegate{this});
@@ -156,6 +161,17 @@ MainWindow::MainWindow(core::FileSystem& files,
     tools->addSeparator();
     tools->addAction(m_hearingImpaired);
 
+    m_selectVideo->setEnabled(true);
+    connect(m_selectVideo, &QAction::triggered, this, &MainWindow::selectVideo);
+
+    QMenu* video = menuBar()->addMenu(QStringLiteral("&Video"));
+    video->addAction(m_selectVideo);
+
+    // A permanent widget and not `showMessage`: what film is associated is a
+    // standing fact, not a passing remark, and a message can be pushed aside
+    // by the next one.
+    statusBar()->addPermanentWidget(m_videoStatus);
+
     QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
     edition->addAction(m_undo);
     edition->addAction(m_redo);
@@ -200,7 +216,45 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
     m_session = std::move(session);
 
     m_diagnostics->setDiagnostics(diagnostics);
+    proposeVideoBeside();
     refreshActions();
+}
+
+void MainWindow::selectVideo() {
+    const std::optional<std::filesystem::path>& source = m_session->project().sourceFile().path;
+    const std::filesystem::path directory =
+        source.has_value() ? source->parent_path() : std::filesystem::path{};
+
+    const std::optional<std::filesystem::path> chosen = m_prompts->videoToOpen(directory);
+    if (!chosen.has_value())
+        return;
+
+    m_session->chooseVideo(*chosen);
+    refreshVideoStatus();
+}
+
+void MainWindow::proposeVideoBeside() {
+    const std::optional<std::filesystem::path>& source = m_session->project().sourceFile().path;
+    if (source.has_value()) {
+        if (const std::optional<std::filesystem::path> found =
+                core::findVideoBeside(*m_files, *source);
+            found.has_value()) {
+            // The answer is dropped on purpose: whether the proposal was taken
+            // is D5's business, and a caller acting on it would be a second
+            // place where that rule lives.
+            (void)m_session->proposeVideo(*found);
+        }
+    }
+
+    refreshVideoStatus();
+}
+
+void MainWindow::refreshVideoStatus() {
+    const std::optional<core::AssociatedVideo>& associated = m_session->project().video();
+    const std::optional<std::filesystem::path> path =
+        associated.has_value() ? std::optional{associated->path} : std::nullopt;
+
+    m_videoStatus->setText(QString::fromStdString(core::videoStatusOf(path)));
 }
 
 bool MainWindow::save() {
@@ -244,6 +298,11 @@ bool MainWindow::saveAs() {
 
     m_session->markSaved(core::Document::Main);
     setWindowTitle(titleFor(m_session->project()));
+
+    // The file answers to another name now, so the convention has something new
+    // to say — and D5 makes it safe to ask: a film the user chose is not
+    // replaced by one the convention finds.
+    proposeVideoBeside();
 
     // The format governs the decimal mark the table shows: it has just
     // changed, so everything on screen is to be read again.

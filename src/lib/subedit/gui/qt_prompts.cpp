@@ -1,5 +1,6 @@
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/model/video_file.hpp>
 #include <subedit/core/wording.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 
@@ -11,11 +12,24 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <string_view>
 
 namespace subedit::gui {
 
 QString subtitleFilters() {
     return QStringLiteral("Subtitles (*.srt *.vtt);;SubRip (*.srt);;WebVTT (*.vtt);;All files (*)");
+}
+
+QString videoFilters() {
+    QString patterns;
+    for (const std::string_view extension : core::videoExtensions()) {
+        if (!patterns.isEmpty())
+            patterns += QLatin1Char(' ');
+        patterns +=
+            QStringLiteral("*") + QString::fromUtf8(extension.data(), qsizetype(extension.size()));
+    }
+
+    return QStringLiteral("Videos (") + patterns + QStringLiteral(");;All files (*)");
 }
 
 core::SubtitleFormat formatOfFilter(const QString& filter) {
@@ -43,6 +57,18 @@ UnsavedChoice choiceOf(int button) {
 std::optional<std::filesystem::path> QtPrompts::fileToOpen() {
     const QString chosen =
         QFileDialog::getOpenFileName(m_owner, QStringLiteral("Open"), {}, subtitleFilters());
+    if (chosen.isEmpty())
+        return std::nullopt;
+
+    return std::filesystem::path{chosen.toStdString()};
+}
+
+std::optional<std::filesystem::path>
+QtPrompts::videoToOpen(const std::filesystem::path& directory) {
+    const QString chosen = QFileDialog::getOpenFileName(m_owner,
+                                                        QStringLiteral("Select Video"),
+                                                        QString::fromStdString(directory.string()),
+                                                        videoFilters());
     if (chosen.isEmpty())
         return std::nullopt;
 

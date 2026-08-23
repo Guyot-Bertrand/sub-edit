@@ -28,6 +28,8 @@
 #include <subedit/core/time/frame_rate.hpp>
 
 #include <cstddef>
+#include <filesystem>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -104,6 +106,13 @@ namespace subedit::core {
 /// A notice and not a refusal: nothing was prevented, and the sentence is
 /// written to be read after the fact.
 [[nodiscard]] std::string noticeOf(CommandKind kind, BeyondEnd beyond);
+
+/// What the window says of the film a document is watched against.
+///
+/// Its name, or that there is none — and its name alone, not its path: the
+/// line sits in a status bar, where a path of two hundred characters would push
+/// out everything else. Whoever wants the path has the chooser that named it.
+[[nodiscard]] std::string videoStatusOf(const std::optional<std::filesystem::path>& video);
 
 /// A count and its noun, agreeing: "1 subtitle", "2 subtitles".
 ///

@@ -163,6 +163,12 @@ std::string nameOf(core::FrameRate rate) {
     return whole + "." + decimals;
 }
 
+std::string videoStatusOf(const std::optional<std::filesystem::path>& video) {
+    if (!video.has_value())
+        return "No video";
+    return "Video: " + video->filename().string();
+}
+
 std::string secondsOf(Duration length) {
     const std::int64_t total = length.milliseconds();
     const std::int64_t whole = total / kMillisecondsPerSecond;

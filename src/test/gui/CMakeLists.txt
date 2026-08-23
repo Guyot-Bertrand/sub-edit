@@ -14,7 +14,7 @@ add_executable(
     window_files_test.cpp qt_prompts_test.cpp target_test.cpp
     operation_dialogs_test.cpp window_operations_test.cpp
     window_hearing_impaired_test.cpp anomaly_marking_test.cpp
-    main_window_test.cpp mpv_player_test.cpp)
+    main_window_test.cpp mpv_player_test.cpp window_video_test.cpp)
 
 target_link_libraries(
     subedit_gui_test PRIVATE subedit::gui subedit::core Qt6::Widgets Qt6::Test Catch2::Catch2)

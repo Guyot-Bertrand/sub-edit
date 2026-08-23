@@ -7,13 +7,17 @@
 // its boxes sit over.
 
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/model/video_file.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 
 #include <QMessageBox>
 #include <QString>
+#include <QStringList>
 #include <QWidget>
 #include <catch2/catch_test_macros.hpp>
+
+#include <string_view>
 
 namespace {
 
@@ -23,6 +27,7 @@ using subedit::gui::formatOfFilter;
 using subedit::gui::QtPrompts;
 using subedit::gui::subtitleFilters;
 using subedit::gui::UnsavedChoice;
+using subedit::gui::videoFilters;
 
 } // namespace
 
@@ -80,4 +85,22 @@ TEST_CASE("the boxes sit over the window that took them", "[gui][GUI-SAVE-03]") 
     prompts.ownedBy(&window);
 
     CHECK(prompts.owner() == &window);
+}
+
+// The chooser and the recognition read one list, which is the whole point of
+// building the filter rather than writing it: a chooser that offered a file the
+// rest of the program refuses to call a video would be a trap, and one that hid
+// a file it accepts would be a mystery.
+TEST_CASE("the video chooser filters on the extensions the core recognises", "[gui]") {
+    const QStringList offered = videoFilters().split(QStringLiteral(";;"));
+
+    REQUIRE(offered.size() == 2);
+    for (const std::string_view extension : subedit::core::videoExtensions()) {
+        const QString pattern =
+            QStringLiteral("*") + QString::fromUtf8(extension.data(), qsizetype(extension.size()));
+        CHECK(offered.at(0).contains(pattern));
+        CHECK(subedit::core::isVideoFile("film" + std::string{extension}));
+    }
+
+    CHECK(offered.at(1) == QStringLiteral("All files (*)"));
 }

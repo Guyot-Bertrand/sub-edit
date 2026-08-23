@@ -48,6 +48,15 @@ public:
     /// Which file to open, or nothing if the user changed their mind.
     [[nodiscard]] virtual std::optional<std::filesystem::path> fileToOpen() = 0;
 
+    /// Which film to watch the document against, or nothing if the user
+    /// changed their mind.
+    ///
+    /// `directory` is where the question opens — the directory of the subtitle
+    /// file, since that is where the film almost always is, and it is the
+    /// directory the naming convention has just looked through.
+    [[nodiscard]] virtual std::optional<std::filesystem::path>
+    videoToOpen(const std::filesystem::path& directory) = 0;
+
     /// Where to save and in which format, or nothing if the user gave up.
     ///
     /// `current` is what the document carries now, so that the question opens

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <filesystem>
+#include <span>
+#include <string_view>
 
 namespace subedit::core {
 
@@ -19,5 +21,12 @@ namespace subedit::core {
 /// The extension is compared without regard to case, the rest of the name is
 /// not: files that came from elsewhere carry the case of elsewhere.
 [[nodiscard]] bool isVideoFile(const std::filesystem::path& path);
+
+/// The extensions themselves, dot included, in the order Gaupol lists them.
+///
+/// Exposed because a file chooser has to name what it filters on, and reading
+/// that list from the same place the recognition uses is what keeps a chooser
+/// from offering a file the rest of the program would not call a video.
+[[nodiscard]] std::span<const std::string_view> videoExtensions();
 
 } // namespace subedit::core
