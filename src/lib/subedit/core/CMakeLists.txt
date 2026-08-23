@@ -21,9 +21,11 @@ add_library(
     text/hearing_impaired.cpp
     model/anomaly.cpp
     model/project.cpp
+    model/video_file.cpp
     model/selection.cpp
     io/atomic_write.cpp
     io/find_executable.cpp
+    io/find_video.cpp
     io/in_memory_file_system.cpp
     text/encoding.cpp
     text/lines.cpp

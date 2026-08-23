@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace subedit::core {
 
@@ -36,6 +37,9 @@ public:
     /// out by ADR 0003: no direct POSIX call where the standard library has an
     /// equivalent.
     [[nodiscard]] bool isExecutable(const std::filesystem::path& path) const override;
+
+    [[nodiscard]] std::expected<std::vector<std::filesystem::path>, FileError>
+    filesIn(const std::filesystem::path& directory) const override;
 
     [[nodiscard]] std::expected<std::string, FileError>
     readFile(const std::filesystem::path& path) const override;

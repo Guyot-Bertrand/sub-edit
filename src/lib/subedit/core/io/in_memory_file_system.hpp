@@ -10,6 +10,7 @@
 #include <set>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace subedit::core {
 
@@ -55,6 +56,9 @@ public:
     [[nodiscard]] bool exists(const std::filesystem::path& path) const override;
 
     [[nodiscard]] bool isExecutable(const std::filesystem::path& path) const override;
+
+    [[nodiscard]] std::expected<std::vector<std::filesystem::path>, FileError>
+    filesIn(const std::filesystem::path& directory) const override;
 
     [[nodiscard]] std::expected<std::string, FileError>
     readFile(const std::filesystem::path& path) const override;

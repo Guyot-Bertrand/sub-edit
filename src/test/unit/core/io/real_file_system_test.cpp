@@ -4,6 +4,7 @@
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/find_executable.hpp>
+#include <subedit/core/io/find_video.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -12,12 +13,14 @@
 #include <expected>
 #include <filesystem>
 #include <string>
+#include <vector>
 
 namespace {
 
 using subedit::core::FileError;
 using subedit::core::FileErrorKind;
 using subedit::core::findExecutable;
+using subedit::core::findVideoBeside;
 using subedit::core::RealFileSystem;
 using subedit::core::writeAtomically;
 
@@ -204,4 +207,45 @@ TEST_CASE("on disk, the real ffprobe is found through the search path or is abse
     // The same machine, told to look somewhere else: this is how a test walks
     // the branch where the program is not installed, on a real disk.
     CHECK_FALSE(findExecutable(files, "ffprobe", "/nowhere/at/all").has_value());
+}
+
+TEST_CASE("on disk, a directory hands back its files, sorted, without its directories",
+          "[filesystem][video][disk]") {
+    const ScratchDirectory scratch;
+    RealFileSystem files;
+
+    // Written in an order that is not the sorted one, so that a listing left
+    // to the device would have to be lucky to pass.
+    REQUIRE(files.writeFile(scratch.file("film.mkv"), "").has_value());
+    REQUIRE(files.writeFile(scratch.file("dialogue.srt"), "").has_value());
+    std::filesystem::create_directories(scratch.file("archives"));
+
+    const std::filesystem::path directory = scratch.file("film.mkv").parent_path();
+    const auto listed = files.filesIn(directory);
+
+    REQUIRE(listed.has_value());
+    CHECK(*listed == std::vector<std::filesystem::path>{scratch.file("dialogue.srt"),
+                                                        scratch.file("film.mkv")});
+}
+
+TEST_CASE("on disk, a directory that is not there refuses", "[filesystem][video][disk]") {
+    const ScratchDirectory scratch;
+    const RealFileSystem files;
+
+    const auto listed = files.filesIn(scratch.file("nulle-part"));
+
+    REQUIRE_FALSE(listed.has_value());
+    CHECK(listed.error().kind == FileErrorKind::NotFound);
+}
+
+// The convention of D5 against a real disk, on files the repository carries:
+// everything else about it is proved in memory, and this is what proves that
+// the rule and the device agree.
+TEST_CASE("on disk, the film beside a subtitle file is found", "[filesystem][video][disk]") {
+    const RealFileSystem files;
+    const std::filesystem::path neighbourhood =
+        std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / "voisinage";
+
+    CHECK(findVideoBeside(files, neighbourhood / "film.fr.srt") == neighbourhood / "film.mkv");
+    CHECK_FALSE(findVideoBeside(files, neighbourhood / "orphelin.srt").has_value());
 }

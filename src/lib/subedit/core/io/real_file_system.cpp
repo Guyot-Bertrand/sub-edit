@@ -1,6 +1,7 @@
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <expected>
@@ -10,6 +11,7 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <vector>
 
 namespace subedit::core {
 
@@ -63,6 +65,37 @@ bool RealFileSystem::isExecutable(const std::filesystem::path& path) const {
                                                       std::filesystem::perms::group_exec |
                                                       std::filesystem::perms::others_exec;
     return (status.permissions() & kAnyExecuteBit) != std::filesystem::perms::none;
+}
+
+std::expected<std::vector<std::filesystem::path>, FileError>
+RealFileSystem::filesIn(const std::filesystem::path& directory) const {
+    // An empty path names the current directory, which `directory_iterator`
+    // refuses; « . » is how the system spells the same thing.
+    const std::filesystem::path target = directory.empty() ? std::filesystem::path{"."} : directory;
+
+    std::error_code code;
+    std::filesystem::directory_iterator entries{target, code};
+    if (code)
+        return failure(code, target);
+
+    std::vector<std::filesystem::path> files;
+    while (entries != std::filesystem::directory_iterator{}) {
+        // `is_regular_file` on the entry follows symbolic links, and a link to
+        // a film is a film. A directory, a socket or a device is not one.
+        std::error_code entryCode;
+        if (entries->is_regular_file(entryCode))
+            files.push_back(entries->path());
+
+        // The incrementing overload that reports rather than throws: a
+        // directory can be taken away while it is being read, and that is a
+        // refusal like any other.
+        entries.increment(code);
+        if (code)
+            return failure(code, target);
+    }
+
+    std::ranges::sort(files);
+    return files;
 }
 
 std::expected<std::string, FileError>

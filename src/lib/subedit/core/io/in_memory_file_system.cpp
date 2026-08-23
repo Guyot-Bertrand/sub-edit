@@ -7,6 +7,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace subedit::core {
 
@@ -62,6 +63,25 @@ bool InMemoryFileSystem::exists(const std::filesystem::path& path) const {
 
 bool InMemoryFileSystem::isExecutable(const std::filesystem::path& path) const {
     return m_executables.contains(path);
+}
+
+std::expected<std::vector<std::filesystem::path>, FileError>
+InMemoryFileSystem::filesIn(const std::filesystem::path& directory) const {
+    // Sorted for free: the map is ordered by path, and a path orders by its
+    // directory before its name.
+    std::vector<std::filesystem::path> found;
+    for (const auto& [path, content] : m_files)
+        if (path.parent_path() == directory)
+            found.push_back(path);
+
+    // **A directory exists here exactly as long as a file names it.** There is
+    // no directory entity in this fake, so an empty one cannot be told from one
+    // that was never made — and answering « nothing to list » where a device
+    // answers « no such directory » would let a caller pass a typo and read a
+    // reassuring emptiness.
+    if (found.empty())
+        return failure(FileErrorKind::NotFound, directory);
+    return found;
 }
 
 std::expected<std::string, FileError>
