@@ -17,6 +17,7 @@ ne pas l'éditer à la main.
 - **core** — La vidéo associée à un document, et la convention de nom
 - **core** — Lire la fréquence déclarée par le conteneur avec ffprobe
 - **core** — La couture du lecteur, et libmpv derrière
+- **core** — Avertir de ce qui dépasse la fin de la vidéo
 
 ### Construction
 

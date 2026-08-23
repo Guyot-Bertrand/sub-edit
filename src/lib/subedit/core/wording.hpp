@@ -17,12 +17,14 @@
 // this file is where it will have to reach.
 
 #include <subedit/core/command/command_kind.hpp>
+#include <subedit/core/edit/video_bounds.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/anomaly.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 
 #include <cstddef>
@@ -81,6 +83,27 @@ namespace subedit::core {
 /// not happen, and this line is the only place the user sees which rate was
 /// actually used.
 [[nodiscard]] std::string nameOf(FrameRate rate);
+
+/// A length in seconds, signed, to the millisecond: "-7.001 s".
+///
+/// Here since #174, and it was in the command line before — where the window
+/// could not reach it. Both surfaces now say a length the same way, which is
+/// what this file is for.
+[[nodiscard]] std::string secondsOf(Duration length);
+
+/// What an operation left past the end of the video, in one sentence.
+///
+/// Says the two things decision D4 asks for and nothing else: how many
+/// subtitles reach past the end, and by how much the furthest of them does.
+///
+/// **It names the operation**, which is the whole reason it takes a kind.
+/// Shifting, transforming and converting a frame rate overshoot in three
+/// different ways, and a notice that did not say which one had just run would
+/// leave the user to guess between the three.
+///
+/// A notice and not a refusal: nothing was prevented, and the sentence is
+/// written to be read after the fact.
+[[nodiscard]] std::string noticeOf(CommandKind kind, BeyondEnd beyond);
 
 /// A count and its noun, agreeing: "1 subtitle", "2 subtitles".
 ///
