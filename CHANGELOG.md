@@ -14,6 +14,7 @@ ne pas l'éditer à la main.
 - **core** — Chercher un exécutable sur un chemin de recherche injecté
 - **core** — Lancer un programme extérieur, et ne pas l'attendre
 - **scripts** — L'allure d'un relevé, écrite dans son en-tête
+- **core** — La vidéo associée à un document, et la convention de nom
 
 ### Construction
 
