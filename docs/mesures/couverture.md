@@ -199,9 +199,11 @@ Les sept premières demandent une session X11 pour être parcourues. Ce n'est pa
 une gêne de test mais la propriété même qu'on mesure : un lecteur sans écran est
 ce que #178 a réglé pour tout le reste, et ces sept lignes sont exactement
 l'endroit où l'écran redevient nécessaire. Elles ont été **vérifiées à la main**,
-sous `QT_QPA_PLATFORM=xcb` — et cette vérification a rapporté un défaut que le
-code portait alors : le contexte laissé au choix de mpv ouvrait une fenêtre à
-côté de la nôtre plutôt que dans elle.
+sous `QT_QPA_PLATFORM=xcb` — et cette vérification a rapporté **deux** défauts que
+le code portait alors : le contexte laissé au choix de mpv ouvrait une fenêtre à
+côté de la nôtre plutôt que dans elle, et la fenêtre adoptée avant d'être à
+l'écran n'était jamais mappée, si bien que le panneau restait vide. Sept lignes
+qu'aucun test ne parcourt sont sept lignes où deux défauts tenaient.
 
 La huitième est une garde défensive derrière une action désactivée. Qt ne
 déclenche pas une action désactivée, donc rien ne peut la parcourir ; la retirer

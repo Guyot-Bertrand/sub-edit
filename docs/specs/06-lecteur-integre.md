@@ -86,6 +86,12 @@ serait le mauvais choix, puisqu'il faudrait le réécrire à chaque frappe. Ce q
 s'affiche vient du même `Project` que la table de la phase 5, donc ce qu'on voit
 sur l'image est ce qu'on vient de taper.
 
+**Il ne suffit pas de ne pas le lui demander**, et #176 l'a mesuré : livré
+`film.mp4`, mpv charge de lui-même le `film.srt` posé à côté — celui-là même
+qu'on édite. L'image aurait montré l'état du disque pendant que la table montre
+la frappe, les deux se séparant à la première correction. `sub-auto=no` tient
+D2 là où elle se serait perdue en silence.
+
 **D3 — prévisualiser un changement, c'est l'appliquer puis l'annuler.** Gaupol
 copie les sous-titres, applique l'opération hors historique, prévisualise, et
 restaure. Il l'a écrit faute d'une annulation fiable ; `subedit` en a une depuis
@@ -199,6 +205,7 @@ Ce qu'elle expose, et rien de plus tant que la phase 14 n'est pas là :
 | jouer, s'arrêter | ce que les mots disent |
 | position | où en est la lecture, pour suivre la ligne courante |
 | durée | ce que le conteneur déclare, une fois ouvert |
+| dessiner la réplique | poser un texte sur l'image, ou l'effacer — D2 |
 
 **L'interface vit au noyau, l'implémentation dans `subedit_gui`.** La distinction
 est celle du principe 3, et elle a été reprise pendant #173 : `core::VideoPlayer`
@@ -219,13 +226,25 @@ vraie fenêtre l'aurait rencontré.
 propriété `wid`. C'est **un nombre**, et c'est précisément ce qui permet au
 noyau de désigner une fenêtre sans rien savoir d'une fenêtre. La voie est la
 plus courte des deux, et elle laisse la réplique à l'`osd-overlay` de libmpv —
-que D2 autorise, puisque le texte y vient du modèle et non d'un fichier. #176 le
-vérifiera ; c'est là que la question se pose vraiment.
+que D2 autorise, puisque le texte y vient du modèle et non d'un fichier.
 
-**Ce que #173 n'a pas écrit, et pourquoi.** Le lecteur ne montre rien : il n'y a
-pas encore de fenêtre à lui donner, et poser `wid` sans qu'aucun test ne puisse
-parcourir cette ligne serait écrire du code pour plus tard. #176 a la fenêtre,
-et l'ajoutera avec la preuve qui va avec.
+**Ce que #176 a trouvé en la posant**, et que rien n'annonçait. Les trois points
+ont été mesurés, chacun après un symptôme visible :
+
+| Ce qui arrive | Ce qu'il a fallu |
+| :------------ | :--------------- |
+| adopter une fenêtre native est **un mécanisme X11** — libmpv le dit dans son propre en-tête | `subedit-gui` demande `xcb` quand la session laisse le choix ouvert, et refuse de construire un lecteur ailleurs |
+| laissé sonder, mpv choisit le contexte de la session — Wayland — où `wid` ne veut rien dire, et **ouvre une fenêtre à côté de la nôtre** | nommer `gpu-context=x11egl` |
+| une fenêtre pas encore à l'écran est adoptée et **jamais mappée** : `IsUnMapped` pour la vie du processus | ouvrir le film au premier `showEvent`, la vue rendue visible d'abord |
+
+Le troisième est celui qui a coûté : le panneau restait vide, et la relecture
+avait conclu au bon fonctionnement en constatant que la fenêtre de mpv était
+**fille** de la vue vidéo — sans lire son état de mappage. Une preuve
+structurelle prise pour une preuve visuelle.
+
+**Ce que la décision de #173 coûte, en une ligne** : le lecteur ne fonctionne
+que sur une plateforme Qt `xcb`. L'[ADR 0020](../adr/0020-libmpv-pour-le-lecteur-integre.md)
+porte le constat et le déclencheur qui la rouvrirait.
 
 ### La borne haute
 
@@ -322,9 +341,22 @@ Deux mesures nouvelles, et pas une de plus :
 Le décodage lui-même ne se mesure pas : ce qu'on chronométrerait est libmpv, qui
 n'appartient pas au projet.
 
+**Quatre au relevé, et non deux** : chacune des deux s'est dédoublée le jour où
+il a fallu la mesurer. Ouvrir et chercher sont deux appels de coûts très
+différents — 11 ms contre 0,6 — et « dessiner la réplique » s'est séparé en ce
+qui nous appartient : trouver le sous-titre à l'écran, et composer l'événement
+que l'incrustation reçoit. Le reste est libmpv, et n'est pas chronométré.
+
 ## Exigences
 
 Ajoutées au registre en début d'issue, à l'état `prévue`.
+
+**Ce n'est pas ce qui a été fait**, et l'écart est inscrit plutôt que corrigé
+après coup : les sept lignes sont entrées au registre à la fin de leur issue,
+directement `implémentée`. Rien n'en a souffert — aucune n'a été oubliée, le
+contrôle de `check-requirements.sh` les confronte toutes à un test — mais l'état
+`prévue` n'a donc jamais rien tenu de cette phase. À trancher au cadrage de la
+suivante : soit la pratique rejoint la règle, soit la règle disparaît.
 
 | Identifiant | Ce qu'il promet |
 | :---------- | :-------------- |
