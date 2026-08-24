@@ -19,6 +19,7 @@ ne pas l'éditer à la main.
 - **core** — La couture du lecteur, et libmpv derrière
 - **core** — Avertir de ce qui dépasse la fin de la vidéo
 - **gui** — Choisir une vidéo, et voir laquelle est associée
+- **gui** — Jouer la vidéo dans la fenêtre, la réplique dessinée
 
 ### Construction
 
