@@ -21,6 +21,7 @@ using subedit::core::Duration;
 using subedit::core::PlayerError;
 using subedit::core::Timestamp;
 using subedit::core::VideoPlayer;
+using subedit::gui::assEventOf;
 using subedit::gui::MpvPlayer;
 
 [[nodiscard]] std::filesystem::path fixture(const std::string& name) {
@@ -151,8 +152,8 @@ TEST_CASE("a player that is moved gives its handle back once", "[video][player]"
     CHECK(taken.duration() == Duration::fromMilliseconds(2000));
 }
 
-// The seam is what the window will hold, and what #176 will double. Driving
-// the real one through it is what says the two agree on their shape.
+// The seam is what the window holds, and what #176 doubles. Driving the real
+// one through it is what says the two agree on their shape.
 TEST_CASE("a player answers through the seam", "[video][player]") {
     MpvPlayer built = player();
     VideoPlayer& seam = built;
@@ -162,4 +163,66 @@ TEST_CASE("a player answers through the seam", "[video][player]") {
 
     CHECK(seam.duration() == Duration::fromMilliseconds(2002));
     CHECK(seam.position() == Timestamp::fromMilliseconds(500));
+}
+
+// Nothing here can look at a picture, so what these two hold is that the order
+// is composed and handed over without upsetting the player. What this file can
+// get wrong on its own — the text — is tested further down, in the open.
+TEST_CASE("a replica is handed to a player watching a film", "[video][player]") {
+    MpvPlayer drawing = player();
+    REQUIRE(drawing.open(fixture("videos/cadence-25.mp4")).has_value());
+
+    drawing.showSubtitle("Un.\nDeux.");
+    drawing.showSubtitle({});
+
+    CHECK(drawing.duration() == Duration::fromMilliseconds(2000));
+}
+
+TEST_CASE("drawing a replica with nothing open does nothing", "[video][player]") {
+    MpvPlayer idle = player();
+
+    idle.showSubtitle("Un.");
+
+    CHECK_FALSE(idle.position().has_value());
+}
+
+// What the replica becomes on its way to libmpv's overlay — issue #176.
+//
+// **Out in the open because nothing here can be read back.** An overlay is
+// written to a picture, and there is no picture where these tests run; the
+// order handed to libmpv is answered « success » whatever it says. What this
+// file can get wrong on its own is the text it composes, so that is what is
+// tested, as an ordinary function with ordinary cases.
+
+TEST_CASE("a replica is drawn at the foot of the picture", "[video][player]") {
+    CHECK(assEventOf("Un.") == "{\\an2}Un.");
+}
+
+// Empty in, empty out: it is how the window says « draw nothing », and the
+// player turns it into the overlay format that means the same.
+TEST_CASE("an empty replica composes to nothing", "[video][player]") {
+    CHECK(assEventOf("").empty());
+}
+
+TEST_CASE("a break in a replica becomes the hard break of ASS", "[video][player]") {
+    CHECK(assEventOf("Un.\nDeux.") == "{\\an2}Un.\\NDeux.");
+}
+
+// A text read from a file with Windows endings would otherwise carry a stray
+// character before every break.
+TEST_CASE("a carriage return is not drawn", "[video][player]") {
+    CHECK(assEventOf("Un.\r\nDeux.") == "{\\an2}Un.\\NDeux.");
+}
+
+// A brace opens an override block in ASS. Unescaped, a subtitle saying
+// « {rires} » would disappear into a tag libass does not recognise.
+TEST_CASE("braces in a replica are escaped", "[video][player]") {
+    CHECK(assEventOf("{rires}") == "{\\an2}\\{rires\\}");
+}
+
+// ADR 0009: the model holds the text as the file wrote it, tags included, and
+// this draws what the model holds. Gaupol strips them; understanding a tag
+// well enough to remove it is what phase 9 is for.
+TEST_CASE("a tag of the format is drawn as it stands", "[video][player]") {
+    CHECK(assEventOf("<i>Un.</i>") == "{\\an2}<i>Un.</i>");
 }

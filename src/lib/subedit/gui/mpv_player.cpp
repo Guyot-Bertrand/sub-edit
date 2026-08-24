@@ -8,35 +8,56 @@
 #include <array>
 #include <clocale>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace subedit::gui {
 
 namespace {
 
-/// What a player is built with, and the whole of it.
+/// What every player is built with, whatever it draws into.
+///
+/// None of the four is decoration. `config=no` keeps a developer's own
+/// `~/.config/mpv` from deciding whether the gate passes; `terminal=no` keeps
+/// mpv's chatter off our output; `pause=yes` because opening a film is not
+/// watching it, and the window would have to stop it again on the next line.
+///
+/// **`sub-auto=no` is decision D2, held where it would otherwise be lost.**
+/// Handed `film.mp4`, mpv loads the `film.srt` lying beside it of its own
+/// accord — measured, and it is exactly the file being edited. The picture
+/// would then show what the disk holds while the table shows what was typed,
+/// the two parting company at the first keystroke, and the replica this player
+/// draws would land on top of a stale one. The overlay is the only subtitle
+/// this player is ever to know.
+constexpr std::array<std::pair<const char*, const char*>, 4> kEveryPlayer{{
+    {"config", "no"},
+    {"terminal", "no"},
+    {"pause", "yes"},
+    {"sub-auto", "no"},
+}};
+
+/// What a player with nowhere to draw is built with — the shape of every test.
 ///
 /// **`vo=null` is what makes this work without a screen, and it was measured
 /// rather than taken on promise.** With `vo=auto` and no display, the very
 /// same sequence loads nothing: mpv answers `end-file`, and the duration comes
-/// back « property unavailable ». Which is what the tests need, and what the
-/// continuous integration needs — and it is what #176 will replace with a
-/// window to draw into.
+/// back « property unavailable ». `ao=null` follows it for the same reason a
+/// runner has no sound device — and a player nobody can see is not one anybody
+/// should hear.
 ///
-/// The other four are not decoration either. `config=no` keeps a developer's
-/// own `~/.config/mpv` from deciding whether the gate passes; `terminal=no`
-/// keeps mpv's chatter off our output; `ao=null` because a runner has no sound
-/// device; `pause=yes` because opening a film is not watching it.
-constexpr std::array<std::pair<const char*, const char*>, 5> kOptions{{
-    {"config", "no"},
-    {"terminal", "no"},
+/// A player that *is* given a window is left mpv's own defaults for both.
+/// Checking that a subtitle lands on the right line is done as much by ear as
+/// by eye, and a `subedit` that played films silently would have made that
+/// harder for the sake of one shared constant.
+constexpr std::array<std::pair<const char*, const char*>, 2> kNowhereToDraw{{
     {"vo", "null"},
     {"ao", "null"},
-    {"pause", "yes"},
 }};
 
 /// How long one wait for an event may take.
@@ -49,6 +70,32 @@ constexpr double kEventTimeoutSeconds = 5.0;
 constexpr int kMaxEventsAwaited = 100;
 
 constexpr double kMillisecondsPerSecond = 1000.0;
+
+/// Which overlay of libmpv the replica is drawn on.
+///
+/// One and always the same: an overlay is replaced by writing to its own
+/// number, so a player that varied it would stack every line it ever drew.
+constexpr const char* kOverlayId = "1";
+
+/// The height the overlay's coordinates are read against.
+///
+/// mpv's own default for this command. It is what makes the text scale with
+/// the picture rather than with the window: a film played in a corner and one
+/// played full screen get a replica of the same relative size.
+constexpr const char* kOverlayHeight = "720";
+
+/// How many words the overlay command takes, the closing `nullptr` counted.
+constexpr std::size_t kOverlayCommandWords = 10;
+
+/// Where the replica sits: centred, at the foot of the picture, which is where
+/// a viewer's eye already goes looking for it.
+constexpr const char* kBottomCentre = "{\\an2}";
+
+/// Which of libmpv's GPU contexts draws into a window we hand over.
+///
+/// EGL on X11, and named rather than probed — see where it is set for what
+/// probing did instead.
+constexpr const char* kX11Context = "x11egl";
 
 /// What a player that could not be built answers.
 constexpr const char* kNotStarted = "the video player could not be started";
@@ -91,7 +138,41 @@ void MpvPlayer::TerminateAndDestroy::operator()(mpv_handle* player) const noexce
     mpv_terminate_destroy(player);
 }
 
-std::expected<MpvPlayer, core::PlayerError> MpvPlayer::create() {
+std::string assEventOf(std::string_view line) {
+    if (line.empty())
+        return {};
+
+    std::string event{kBottomCentre};
+    for (const char character : line) {
+        switch (character) {
+        case '\n':
+            // The hard break of ASS. A `\n` is the soft one, which libass
+            // honours or not depending on the wrapping mode — and a break the
+            // author wrote is not a suggestion.
+            event += "\\N";
+            break;
+        case '\r':
+            // Never drawn: a text read from a file with Windows endings would
+            // otherwise carry one before every break.
+            break;
+        case '{':
+        case '}':
+            // What would open and close an override block. Escaped, so that a
+            // subtitle saying « {laughs} » says it rather than disappearing
+            // into a tag libass does not recognise.
+            event += '\\';
+            event += character;
+            break;
+        default:
+            event += character;
+            break;
+        }
+    }
+
+    return event;
+}
+
+std::expected<MpvPlayer, core::PlayerError> MpvPlayer::create(std::uintptr_t window) {
     // **libmpv refuses to start unless `LC_NUMERIC` is « C », and Qt sets it to
     // the user's.** `QApplication` calls `setlocale(LC_ALL, "")` when it is
     // built, which in a French session makes the decimal mark a comma; libmpv
@@ -116,8 +197,34 @@ std::expected<MpvPlayer, core::PlayerError> MpvPlayer::create() {
     // to whoever asked for a player, and none of them can be brought about
     // from a test.
     bool ready = handle != nullptr;
-    for (const auto& [name, value] : kOptions)
+    for (const auto& [name, value] : kEveryPlayer)
         ready = ready && mpv_set_option_string(handle.get(), name, value) >= 0;
+
+    if (window == 0) {
+        for (const auto& [name, value] : kNowhereToDraw)
+            ready = ready && mpv_set_option_string(handle.get(), name, value) >= 0;
+    } else {
+        // Set before `mpv_initialize` because that is the only moment libmpv
+        // reads it — measured, and the reason a player belongs to one surface
+        // for its whole life.
+        ready = ready &&
+                mpv_set_option_string(handle.get(), "wid", std::to_string(window).c_str()) >= 0;
+
+        // **And the context is named rather than probed, which was a defect
+        // before it was a line.** Adopting a native window is an X11
+        // mechanism; left to choose, mpv picks by what the session offers, and
+        // on a machine where `WAYLAND_DISPLAY` is set it picks Wayland — where
+        // `wid` means nothing. Measured, with the window handed over and the
+        // context left free: mpv opened **a window of its own**, beside ours,
+        // and the picture appeared everywhere except where it had been asked
+        // for. Named, the very same run draws inside our window.
+        //
+        // Which is also why `mpvPlayers` hands a window over on the `xcb`
+        // platform and on no other: a number that is not an X window would
+        // send this straight into an X error.
+        ready = ready && mpv_set_option_string(handle.get(), "gpu-context", kX11Context) >= 0;
+    }
+
     ready = ready && mpv_initialize(handle.get()) >= 0;
 
     if (!ready)
@@ -207,6 +314,33 @@ void MpvPlayer::play() {
 void MpvPlayer::pause() {
     if (m_open)
         mpv_set_property_string(m_handle.get(), "pause", "yes");
+}
+
+void MpvPlayer::showSubtitle(std::string_view line) {
+    if (!m_open)
+        return;
+
+    const std::string event = assEventOf(line);
+
+    // « none » rather than an empty event: it is how this command is told to
+    // draw nothing at all, and an empty `ass-events` leaves the last line
+    // where it was.
+    std::array<const char*, kOverlayCommandWords> command{"osd-overlay",
+                                                          kOverlayId,
+                                                          event.empty() ? "none" : "ass-events",
+                                                          event.c_str(),
+                                                          "0",
+                                                          kOverlayHeight,
+                                                          "0",
+                                                          "no",
+                                                          "no",
+                                                          nullptr};
+
+    // The answer is dropped, and it is the only place here that does so: there
+    // is nothing a window would do about an overlay libmpv would not draw, and
+    // no picture to read it back from anyway. What this file can get wrong on
+    // its own is `assEventOf`, which is tested out in the open.
+    (void)mpv_command(m_handle.get(), command.data());
 }
 
 bool MpvPlayer::isPlaying() const {

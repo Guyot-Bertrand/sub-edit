@@ -66,7 +66,15 @@ en chemin s'affiche sous la table — voir
 L'échec d'ouverture d'un fichier **ne change pas le code de retour** : la
 fenêtre s'est ouverte, et c'est ce que le code rapporte.
 
-## Sans écran
+## La plateforme Qt
+
+`QT_QPA_PLATFORM` choisit sur quoi la fenêtre tourne. **Si la variable est
+posée, `subedit-gui` la respecte sans discuter.**
+
+Si elle ne l'est pas, il en pose une lui-même dans un seul cas : une session
+Wayland avec un serveur X à côté, où il demande `xcb`. C'est ce qui permet au
+lecteur intégré d'afficher le film **dans** la fenêtre — voir
+[Le lecteur](lecteur.md). Partout ailleurs, il laisse Qt choisir.
 
 `QT_QPA_PLATFORM=offscreen` fait tourner la fenêtre là où il n'y a pas de
 serveur graphique — c'est ce que font l'intégration continue et les tests.

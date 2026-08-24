@@ -28,6 +28,7 @@ add_library(
     io/find_executable.cpp
     io/find_video.cpp
     video/declared_frame_rate.cpp
+    video/showing.cpp
     io/in_memory_file_system.cpp
     text/encoding.cpp
     text/lines.cpp

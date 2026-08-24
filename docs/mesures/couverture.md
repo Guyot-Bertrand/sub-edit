@@ -184,17 +184,50 @@ offrirait un fichier que le reste du programme refuse d'appeler une vidéo serai
 un piège. Exposé, il est éprouvé par un test ordinaire, qui confronte le filtre à
 `isVideoFile` extension par extension.
 
+**Huit lignes de plus en phase 6, et toutes disent la même chose : il n'y a
+pas d'écran ici.** #176 met la vidéo dans la fenêtre, et adopter une fenêtre
+native est un mécanisme X11 — les tests, eux, tournent sur la plateforme Qt
+`offscreen`, qui n'en fournit aucune.
+
+| Lignes | Où | Ce qu'elles font |
+| -----: | :- | :--------------- |
+| 3 | `mpv_player.cpp` | poser `wid` et nommer le contexte X11, quand une fenêtre est donnée |
+| 4 | `player_factory.cpp` | construire un vrai `MpvPlayer` pour cette fenêtre |
+| 1 | `main_window.cpp` | la garde de `Play / Pause` quand aucun film n'est ouvert |
+
+Les sept premières demandent une session X11 pour être parcourues. Ce n'est pas
+une gêne de test mais la propriété même qu'on mesure : un lecteur sans écran est
+ce que #178 a réglé pour tout le reste, et ces sept lignes sont exactement
+l'endroit où l'écran redevient nécessaire. Elles ont été **vérifiées à la main**,
+sous `QT_QPA_PLATFORM=xcb` — et cette vérification a rapporté un défaut que le
+code portait alors : le contexte laissé au choix de mpv ouvrait une fenêtre à
+côté de la nôtre plutôt que dans elle.
+
+La huitième est une garde défensive derrière une action désactivée. Qt ne
+déclenche pas une action désactivée, donc rien ne peut la parcourir ; la retirer
+ferait dépendre l'absence de plantage de l'état d'un widget.
+
+**Ce qui a été couvert plutôt que compté.** La composition de la réplique — le
+passage d'un texte de sous-titre à l'événement ASS que l'incrustation dessine —
+est sortie de `showSubtitle` en fonction libre, `assEventOf`, pour la raison qui
+avait sorti le filtre du sélecteur en #175 : c'est une chose que ce fichier peut
+avoir fausse tout seul, et rien de ce qui part vers libmpv ne se relit.
+`showSubtitle`, lui, est parcouru par deux cas — un lecteur qui a un film, un
+qui n'en a pas.
+
 ## Relevé
 
-    total : 49
+    total : 57
 
-Relevé sur la version 0.5.12, le 2026-08-23.
+Relevé sur la version 0.5.13, le 2026-08-24.
 
 | Lignes | Fichier |
 | -----: | :------ |
 | 38 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 4 | `src/lib/subedit/core/process/start_process.cpp` |
+| 4 | `src/lib/subedit/gui/mpv_player.cpp` |
+| 4 | `src/lib/subedit/gui/player_factory.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
-| 1 | `src/lib/subedit/gui/mpv_player.cpp` |
+| 1 | `src/lib/subedit/gui/main_window.cpp` |

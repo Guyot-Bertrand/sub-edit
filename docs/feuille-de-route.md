@@ -792,13 +792,43 @@ fonctionnel réel.
 
 ## 14 — Calage fin
 
-**Réduite.** Le lecteur lui-même est passé en phase 6, qui l'a repris au
-cadrage : lire, chercher, jouer, dessiner la réplique sur l'image. Ce qui reste
-ici est ce que la phase 6 ne fait pas.
+**Réduite, mais pas vidée.** Le lecteur lui-même est passé en phase 6, qui l'a
+repris au cadrage : associer un film, l'ouvrir dans la fenêtre, jouer, s'arrêter,
+chercher, dessiner la réplique sur l'image. Ce qui reste ici est ce que la
+phase 6 ne fait pas — et cela va au-delà du calage proprement dit, parce que
+**la phase 6 ne livre du pilotage que jouer et s'arrêter.**
 
-Définir début et fin depuis la position vidéo, insérer un sous-titre à la
-position vidéo, avancer ou reculer image par image, incrustation du timecode,
-sélection de piste audio.
+Le contour a été recompté contre le menu **Video** de Gaupol et sa barre de
+lecteur, poste par poste, après une relecture qui a montré que la moitié
+manquait au cadrage. Trois familles, et rien d'autre.
+
+**Le pilotage de la lecture.** Ce qu'une barre de lecteur porte, et ce que la
+phase 6 laisse à qui n'a que `Ctrl+P` :
+
+| Commande | Ce qu'elle fait | Chez Gaupol |
+| :------- | :-------------- | :---------- |
+| position | une barre qu'on lit et qu'on déplace | `Gtk.Scale` de la barre de lecteur |
+| saut avant, saut arrière | d'un pas réglable | `Seek Forward`, `Seek Backward` |
+| sous-titre précédent, suivant | se placer à son début | `Seek Previous`, `Seek Next` |
+| début, fin de la sélection | s'y placer, avec un peu d'avance | `Seek Selection Start`, `Seek Selection End` |
+| jouer la sélection | et s'arrêter au bout | `Play Selection` |
+| volume | monter, baisser, un réglage | `Volume Up`, `Volume Down`, `Gtk.VolumeButton` |
+
+**Le calage lui-même**, qui est le cœur du travail de *timing* :
+
+| Commande | Ce qu'elle fait |
+| :------- | :-------------- |
+| début, fin depuis la position vidéo | poser un repère sur ce qu'on regarde |
+| insérer un sous-titre à la position vidéo | idem, pour une réplique qui n'existe pas encore |
+| avancer, reculer image par image | ce pour quoi l'ADR 0020 a choisi libmpv |
+| décaler début ou fin par petits incréments | le réglage fin, au clavier |
+
+**Ce qui s'affiche** : incrustation du timecode, sélection de piste audio.
+
+**Ce que la phase 6 a déjà livré, et qui n'est donc pas ici** : associer un
+film, l'ouvrir dans la fenêtre, jouer et s'arrêter, la réplique dessinée depuis
+le modèle, la ligne courante qui suit la lecture, la recherche exacte au
+sous-titre sélectionné.
 
 **Le backend est décidé** — libmpv, voir
 [l'ADR 0020](adr/0020-libmpv-pour-le-lecteur-integre.md). Et c'est cette phase

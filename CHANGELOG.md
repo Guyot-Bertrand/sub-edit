@@ -19,11 +19,16 @@ ne pas l'éditer à la main.
 - **core** — La couture du lecteur, et libmpv derrière
 - **core** — Avertir de ce qui dépasse la fin de la vidéo
 - **gui** — Choisir une vidéo, et voir laquelle est associée
+- **gui** — Jouer la vidéo dans la fenêtre, la réplique dessinée
 
 ### Construction
 
 - **build** — Ffprobe dans la chaîne d'outils et dans le cache de la CI
 - **build** — Libmpv dans la chaîne d'outils, et un lecteur sans écran
+
+### Corrections
+
+- **gui** — Montrer la vidéo, et non un panneau vide
 
 ### Documentation
 

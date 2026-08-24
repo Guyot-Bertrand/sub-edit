@@ -11,6 +11,10 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/video/showing.hpp>
+#include <subedit/core/video/video_player.hpp>
 #include <subedit/core/wording.hpp>
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/command_label.hpp>
@@ -22,10 +26,12 @@
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/saving.hpp>
 #include <subedit/gui/shift_dialog.hpp>
+#include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 #include <subedit/gui/target.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
+#include <QAbstractItemView>
 #include <QAction>
 #include <QCloseEvent>
 #include <QHeaderView>
@@ -35,13 +41,21 @@
 #include <QLabel>
 #include <QMenu>
 #include <QMenuBar>
+#include <QModelIndex>
+#include <QModelIndexList>
+#include <QShowEvent>
+#include <QSplitter>
 #include <QStatusBar>
 #include <QString>
 #include <QTableView>
+#include <QTimer>
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <filesystem>
 #include <memory>
@@ -82,16 +96,44 @@ buildAction(QObject* parent, const QString& shortName, const QString& themeIcon)
     return action;
 }
 
+/// How often the window asks the player where it is, in milliseconds.
+///
+/// Ten times a second, which is under what an eye notices on a replica and far
+/// under what the reading costs — the answer is a property of an object in
+/// this same process. Gaupol polls its own overlay every ten milliseconds; a
+/// hundred is the same promise at a tenth of the price.
+constexpr int kFollowIntervalMs = 100;
+
+/// How tall the picture may not go under, in pixels.
+///
+/// A splitter with nothing to stop it lets a child be dragged to nothing, and
+/// a video view of zero pixels is indistinguishable from the one that is not
+/// there — which is the state the window uses to mean « no film ».
+constexpr int kMinimumVideoHeight = 180;
+
+/// Which row of a selection playback follows: the first, in table order.
+///
+/// -1 when nothing is selected. `selectedRows` hands them back in the order
+/// they were selected, which is not the order they are read in.
+[[nodiscard]] int firstSelectedRow(const QItemSelectionModel& selection) {
+    const QModelIndexList rows = selection.selectedRows();
+    if (rows.isEmpty())
+        return -1;
+
+    return std::ranges::min(rows, {}, [](const QModelIndex& index) { return index.row(); }).row();
+}
+
 } // namespace
 
 MainWindow::MainWindow(core::FileSystem& files,
                        OpenedFile opened,
                        Prompts& prompts,
+                       PlayerFactory buildPlayer,
                        QWidget* parent)
     : QMainWindow(parent),
       m_files(&files),
       m_prompts(&prompts),
-      m_table(new QTableView{this}),
+      m_table(new SubtitleTable{this}),
       m_diagnostics(new DiagnosticsPanel{this}),
       m_undo(buildAction(this, QStringLiteral("Undo"), QStringLiteral("edit-undo"))),
       m_redo(buildAction(this, QStringLiteral("Redo"), QStringLiteral("edit-redo"))),
@@ -103,7 +145,12 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
       m_hearingImpaired(buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})),
       m_selectVideo(buildAction(this, QStringLiteral("Select Video…"), {})),
-      m_videoStatus(new QLabel{this}) {
+      m_playPause(buildAction(
+          this, QStringLiteral("Play / Pause"), QStringLiteral("media-playback-start"))),
+      m_videoStatus(new QLabel{this}),
+      m_videoView(new QWidget{this}),
+      m_ticker(new QTimer{this}),
+      m_buildPlayer(std::move(buildPlayer)) {
     // One delegate per nature of cell, and none on the number or the duration,
     // which are not editable: Qt's table puts one only where it is given one.
     m_table->setItemDelegateForColumn(SubtitleTableModel::Start, new PositionDelegate{this});
@@ -116,12 +163,34 @@ MainWindow::MainWindow(core::FileSystem& files,
     // and the four others are known widths.
     m_table->horizontalHeader()->setStretchLastSection(true);
 
+    // **A window of the system, and that is the whole point of these two
+    // attributes.** libmpv draws into a window the platform numbers; a plain Qt
+    // widget shares its parent's, and there would be nothing of its own to hand
+    // over. `WA_DontCreateNativeAncestors` keeps the demand from spreading
+    // upwards and turning the table into a native window as well.
+    m_videoView->setAttribute(Qt::WA_NativeWindow);
+    m_videoView->setAttribute(Qt::WA_DontCreateNativeAncestors);
+    m_videoView->setMinimumHeight(kMinimumVideoHeight);
+    m_videoView->hide();
+
+    // The picture on top, the table under it, and the line between them
+    // draggable — which is the one thing a fixed layout could not give.
+    auto* split = new QSplitter{Qt::Vertical, this};
+    split->addWidget(m_videoView);
+    split->addWidget(m_table);
+
+    // A window made taller gives the room to the table, not to the picture.
+    // Gaupol reads it the same way, and for the same reason: what one runs out
+    // of while editing is rows.
+    split->setStretchFactor(0, 0);
+    split->setStretchFactor(1, 1);
+
     // The table takes the room, the panel slips underneath and goes away when
     // it has nothing to say.
     auto* centre = new QWidget{this};
     auto* stack = new QVBoxLayout{centre};
     stack->setContentsMargins(0, 0, 0, 0);
-    stack->addWidget(m_table);
+    stack->addWidget(split);
     stack->addWidget(m_diagnostics);
     setCentralWidget(centre);
 
@@ -164,8 +233,21 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_selectVideo->setEnabled(true);
     connect(m_selectVideo, &QAction::triggered, this, &MainWindow::selectVideo);
 
+    // **`Ctrl+P` where Gaupol has a bare `P`**, and the difference is not
+    // taste. A one-letter shortcut of window scope is taken before the widget
+    // that has the focus sees it, so a `P` would be swallowed on its way into
+    // a cell editor — and this table has three columns one types in. Nothing
+    // prints here, so the sequence is free.
+    m_playPause->setShortcut(QKeySequence{QStringLiteral("Ctrl+P")});
+    connect(m_playPause, &QAction::triggered, this, &MainWindow::togglePlayback);
+
     QMenu* video = menuBar()->addMenu(QStringLiteral("&Video"));
     video->addAction(m_selectVideo);
+    video->addSeparator();
+    video->addAction(m_playPause);
+
+    m_ticker->setInterval(kFollowIntervalMs);
+    connect(m_ticker, &QTimer::timeout, this, &MainWindow::followPlayback);
 
     // A permanent widget and not `showMessage`: what film is associated is a
     // standing fact, not a passing remark, and a message can be pushed aside
@@ -215,6 +297,15 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
     m_model = std::move(model);
     m_session = std::move(session);
 
+    // Made again at every opening, with the selection model the table has just
+    // been given: `setModel` throws the previous one away, and every connection
+    // that named it with it.
+    connect(m_table->selectionModel(),
+            &QItemSelectionModel::selectionChanged,
+            this,
+            &MainWindow::placePlaybackAtSelection);
+    m_placedAt = -1;
+
     m_diagnostics->setDiagnostics(diagnostics);
     proposeVideoBeside();
     refreshActions();
@@ -230,7 +321,7 @@ void MainWindow::selectVideo() {
         return;
 
     m_session->chooseVideo(*chosen);
-    refreshVideoStatus();
+    refreshVideo();
 }
 
 void MainWindow::proposeVideoBeside() {
@@ -246,7 +337,7 @@ void MainWindow::proposeVideoBeside() {
         }
     }
 
-    refreshVideoStatus();
+    refreshVideo();
 }
 
 void MainWindow::refreshVideoStatus() {
@@ -255,6 +346,157 @@ void MainWindow::refreshVideoStatus() {
         associated.has_value() ? std::optional{associated->path} : std::nullopt;
 
     m_videoStatus->setText(QString::fromStdString(core::videoStatusOf(path)));
+}
+
+void MainWindow::refreshVideo() {
+    refreshVideoStatus();
+    watchAssociatedVideo();
+}
+
+core::VideoPlayer* MainWindow::player() {
+    if (!m_playerAsked && m_buildPlayer) {
+        m_playerAsked = true;
+        // Asked here and not in the constructor, so that the surface is native
+        // before its number is read — and so that a window nobody shows a film
+        // to never builds a player at all.
+        m_player = m_buildPlayer(static_cast<std::uintptr_t>(m_videoView->winId()));
+    }
+
+    return m_player.get();
+}
+
+void MainWindow::watchAssociatedVideo() {
+    // Nothing is handed to a player before the window has been on screen once.
+    // `showEvent` comes back here the moment it has, and until then this leaves
+    // `m_associated` alone so that it finds the film still waiting.
+    if (!m_wasShown)
+        return;
+
+    const std::optional<core::AssociatedVideo>& associated = m_session->project().video();
+    const std::filesystem::path wanted =
+        associated.has_value() ? associated->path : std::filesystem::path{};
+
+    if (wanted == m_associated)
+        return;
+
+    m_associated = wanted;
+    m_watching = false;
+    m_shown.clear();
+    m_placedAt = -1;
+
+    // **Shown before the film is opened, and not after.** libmpv adopts the
+    // window it is handed at that moment; one that is not on screen is adopted
+    // and never mapped. Taken away again below if the film will not open, which
+    // costs nothing anybody sees: nothing has been painted into it yet.
+    m_videoView->setVisible(!wanted.empty());
+
+    core::VideoPlayer* watching = wanted.empty() ? nullptr : player();
+    if (watching != nullptr) {
+        if (const std::expected<void, core::PlayerError> opened = watching->open(wanted); opened)
+            m_watching = true;
+        else
+            m_prompts->reportFailure(wanted.string() + ": " + opened.error().reason);
+    } else if (!wanted.empty() && m_buildPlayer) {
+        // A film was named and there is no player to show it with. Said here
+        // and not when the program started, because that is where it matters
+        // and where it is not a remark about something nobody asked for yet.
+        // Why there is none — a session whose windows libmpv cannot adopt, a
+        // libmpv that would not start — is one sentence in the manual rather
+        // than a taxonomy in a dialog.
+        m_prompts->reportFailure(wanted.string() + ": no video player is available");
+    }
+
+    // A film that has been left behind must not go on playing under a document
+    // that no longer shows it — least of all one nobody can see any more.
+    if (!m_watching && m_player) {
+        m_player->pause();
+        m_player->showSubtitle({});
+    }
+
+    m_videoView->setVisible(m_watching);
+    m_playPause->setEnabled(m_watching);
+
+    if (m_watching) {
+        m_ticker->start();
+        followPlayback();
+    } else {
+        m_ticker->stop();
+    }
+}
+
+void MainWindow::togglePlayback() {
+    if (!m_watching)
+        return;
+
+    if (m_player->isPlaying())
+        m_player->pause();
+    else
+        m_player->play();
+}
+
+void MainWindow::placePlaybackAtSelection() {
+    if (!m_watching)
+        return;
+
+    const int row = firstSelectedRow(*m_table->selectionModel());
+    if (row < 0 || row == m_placedAt)
+        return;
+
+    m_placedAt = row;
+    const auto index = core::SubtitleIndex::fromValue(static_cast<std::size_t>(row));
+    m_player->seek(m_session->project().subtitleAt(index).start);
+
+    // At once rather than at the next tick: what the picture shows and what the
+    // table points at have to agree by the time the click is over.
+    followPlayback();
+}
+
+void MainWindow::followPlayback() {
+    if (!m_watching)
+        return;
+
+    const core::Project& project = m_session->project();
+
+    // Written as one running answer rather than as a guard and a return, the
+    // way `seconds` is in the player: « the player does not know where it is »
+    // is an answer of the same rank as a position, and it leads to the same
+    // place as a moment between two subtitles — nothing drawn, and the row
+    // left where it was.
+    const std::optional<core::Timestamp> where = m_player->position();
+    const std::optional<core::SubtitleIndex> showing =
+        where.has_value() ? core::showingAt(project, *where) : std::nullopt;
+
+    // Read from the project at every tick, which is what makes D2 true rather
+    // than merely stated: a text edited a moment ago is on the picture within a
+    // tenth of a second, and nothing was written to a disk to put it there.
+    const std::string line = showing.has_value()
+                                 ? project.subtitleAt(*showing).text(core::Document::Main)
+                                 : std::string{};
+    if (line != m_shown) {
+        m_player->showSubtitle(line);
+        m_shown = line;
+    }
+
+    if (!showing.has_value())
+        return;
+
+    // **Whoever is typing wins.** Moving the current cell closes the editor
+    // open on it, and a correction half made would go with it.
+    if (m_table->isEditing())
+        return;
+
+    const QModelIndex current = m_table->currentIndex();
+    const int row = static_cast<int>(showing->value());
+    if (current.isValid() && current.row() == row)
+        return;
+
+    // `NoUpdate` is what keeps the selection out of this. The selection is what
+    // an operation applies to, and a film playing in the background has no
+    // business rewriting the user's target row by row — it also happens to be
+    // what keeps this from firing the seek that watches the selection.
+    const QModelIndex followed = m_model->index(row, current.isValid() ? current.column() : 0);
+    m_table->selectionModel()->setCurrentIndex(followed, QItemSelectionModel::NoUpdate);
+    m_table->scrollTo(followed);
 }
 
 bool MainWindow::save() {
@@ -347,6 +589,16 @@ void MainWindow::openFromPrompt() {
     openOn(std::move(opened->project), opened->diagnostics);
 }
 
+void MainWindow::showEvent(QShowEvent* event) {
+    QMainWindow::showEvent(event);
+
+    if (m_wasShown)
+        return;
+
+    m_wasShown = true;
+    watchAssociatedVideo();
+}
+
 void MainWindow::closeEvent(QCloseEvent* event) {
     if (mayDiscardChanges())
         event->accept();
@@ -407,6 +659,11 @@ void MainWindow::removeHearingImpairedFromTarget() {
 
 void MainWindow::applyOperation(std::unique_ptr<core::Command> command) {
     m_model->applied(m_session->apply(std::move(command)));
+
+    // The row playback was placed at holds something else now — a shift moved
+    // it, a removal may have taken it away. Forgetting it is what lets a click
+    // on that same row send playback where the subtitle has gone.
+    m_placedAt = -1;
 }
 
 void MainWindow::shiftTarget() {

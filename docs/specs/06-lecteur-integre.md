@@ -59,11 +59,20 @@ touchera.
 
 | Ce qui n'y est pas | Où, et pourquoi |
 | :----------------- | :-------------- |
-| avance image par image, pose d'un repère depuis la position courante | phase 14 — c'est tout ce qui lui reste |
+| **tout le pilotage sauf jouer et s'arrêter** — barre de position, saut avant et arrière, saut au sous-titre voisin, lecture de la sélection, volume | phase 14, qui les porte toutes et les nomme une par une |
+| avance image par image, pose d'un repère depuis la position courante | phase 14 |
 | prévisualisation par lecteur externe | supprimée, voir plus haut |
-| choix de piste audio, forme d'onde | phase 14 ou jamais ; rien ne les demande |
+| choix de piste audio, incrustation du timecode | phase 14 |
+| forme d'onde | jamais ; rien ne la demande |
 | déduire la fréquence des positions, sans vidéo | phase 16 |
 | refuser une opération hors des bornes du film | jamais — la phase avertit et n'empêche rien |
+
+**La première ligne a été écrite après coup**, et c'est le défaut que cette
+phase a commis : elle livrait « Jouer / Pause au clavier et au menu » sans dire
+nulle part que Gaupol en a huit de plus, ni où elles allaient. Une fenêtre sans
+barre de lecteur est un choix défendable pour une phase ; ne pas savoir dans
+quelle phase elle arrive n'en est pas un. La feuille de route porte désormais le
+compte, relevé poste par poste contre le menu **Video** de Gaupol.
 
 ## Décisions applicables
 
@@ -358,7 +367,8 @@ les cinq qui la précèdent la servent.**
 
 | Ce qui est renvoyé | Où |
 | :----------------- | :- |
-| avance image par image, pose d'un repère depuis la position | phase 14, qui n'a plus que cela |
+| avance image par image, pose d'un repère depuis la position | phase 14 |
+| le pilotage de la lecture au-delà de jouer et s'arrêter | phase 14, qui en tient la liste |
 | croiser la fréquence lue et la fréquence déduite, et présenter un désaccord | phase 16, qui apporte la seconde |
 | le lecteur pour un document de traduction | phase 11, qui apporte le second document |
 | rendu dans une fenêtre native ou dans un contexte OpenGL | **tranché par #173** : la fenêtre native, propriété `wid`. Posée par #176, qui a une fenêtre à donner |

@@ -115,3 +115,6 @@ plus rien.
 | `CLI-INSPECT-04` | les anomalies d'un document sont rapportées par numéro de sous-titre | 5 | implémentée |
 | `GUI-VIDEO-01` | choisir une vidéo l'associe au document, et la fenêtre la nomme | 6 | implémentée |
 | `GUI-VIDEO-02` | ouvrir un fichier de sous-titres propose la vidéo voisine de même nom | 6 | implémentée |
+| `GUI-PLAYER-01` | la vidéo s'ouvre dans la fenêtre, et se joue | 6 | implémentée |
+| `GUI-PLAYER-02` | sélectionner un sous-titre place la lecture à son début | 6 | implémentée |
+| `GUI-PLAYER-03` | une vidéo qui ne s'ouvre pas le dit, et laisse la fenêtre utilisable | 6 | implémentée |
