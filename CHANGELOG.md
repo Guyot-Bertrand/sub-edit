@@ -39,6 +39,8 @@ ne pas l'éditer à la main.
 - **doc** — Le seuil de charge, mis en doute, mesuré, et gardé
 - **doc** — La spec de la phase 6, autour du lecteur intégré
 - **doc** — Libmpv pour le lecteur intégré, et la phase 14 réduite
+- **doc** — Un gabarit pour les relectures de fin de phase
+- **doc** — Relecture de fin de phase 6
 
 ### Remaniements
 
