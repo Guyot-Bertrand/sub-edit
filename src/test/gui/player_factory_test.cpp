@@ -5,6 +5,7 @@
 // program asks for a Qt platform whose windows can be adopted when the session
 // leaves that open, and it declines to build a player when they cannot be.
 
+#include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/player_factory.hpp>
 
@@ -17,6 +18,8 @@
 
 namespace {
 
+using subedit::core::InMemoryFileSystem;
+using subedit::gui::declaredFrameRates;
 using subedit::gui::mpvPlayers;
 using subedit::gui::platformFor;
 using subedit::gui::PlayerFactory;
@@ -114,4 +117,18 @@ TEST_CASE("no player is made where a window cannot be adopted", "[video][player]
     const PlayerFactory players = mpvPlayers();
 
     CHECK(players(1) == nullptr);
+}
+
+// The other seam of the video: what a film says of itself, read by `ffprobe`.
+//
+// **Asked of a file system that holds no `ffprobe`**, which is how a machine
+// with no `ffmpeg` answers — and it is an ordinary machine, not a degraded one.
+// Nothing comes back, nothing is proposed, and no operation behaves differently
+// for it. What `ffprobe` says when it is there is proved in the core, on the
+// fixtures of #163.
+TEST_CASE("a film declares nothing when there is no ffprobe to ask", "[video][framerate]") {
+    const InMemoryFileSystem files;
+    const auto declares = declaredFrameRates(files);
+
+    CHECK_FALSE(declares("/films/film.mkv").has_value());
 }

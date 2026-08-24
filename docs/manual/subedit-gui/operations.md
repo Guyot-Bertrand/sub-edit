@@ -71,6 +71,35 @@ s'ouvre sur la fréquence du projet.**
 > tout le fichier **sans rien signaler** : c'est le pire mode d'échec de cette
 > opération, et la seule protection est de savoir d'où vient le fichier.
 
+### Ce que la vidéo déclare
+
+Quand une vidéo est associée **et** que `ffprobe` est installé, le dialogue
+porte une ligne de plus, et la liste de sortie s'ouvre dessus :
+
+| Ligne | Ce qu'elle dit |
+| :---- | :------------- |
+| `The video declares` | la fréquence que le conteneur annonce, par exemple `24000/1001` |
+
+**C'est la sortie qu'elle pré-remplit, jamais l'entrée.** Le fichier a été calé
+contre une fréquence que lui seul connaît — c'est la liste du haut, et personne
+ne peut la deviner. Ce que le conteneur annonce est la fréquence à laquelle le
+film tourne vraiment, donc celle à laquelle les sous-titres doivent arriver.
+
+**Proposée, jamais imposée.** La liste reste modifiable, et c'est délibéré :
+c'est la deuxième source d'une même donnée, une troisième viendra plus tard,
+déduite des positions, et une source qui s'impose interdit de croiser. Un
+désaccord entre deux mesures indépendantes est une information.
+
+Deux cas où la ligne n'apparaît pas : aucune vidéo associée, ou pas de
+`ffprobe`. Le dialogue est alors exactement celui décrit plus haut, et **aucune
+opération ne se refuse pour autant** — la fréquence vient de l'utilisateur, et
+`ffprobe` la propose quand il est là. Voir
+[La vidéo associée](video.md#ffmpeg-nest-pas-requis).
+
+Une fréquence que le film annonce mais qui n'est pas l'une des huit normalisées
+est **affichée sans être choisie** : savoir que le film tourne à une cadence
+inhabituelle est l'information, et il n'y a rien à quoi la convertir ici.
+
 Convertir une fréquence en elle-même ne change rien : le bouton reste inactif.
 
 ## `Remove Hearing-Impaired Mentions…`
@@ -107,3 +136,32 @@ entier.
 
 Une référence purement numérique — « Voir [1] la note » — n'est pas une mention
 et reste telle quelle.
+
+## Au-delà de la fin du film
+
+Quand une vidéo est ouverte, une opération qui **pousse des sous-titres après la
+fin du film** le signale, une fois faite :
+
+```
+shifting leaves 3 subtitles past the end of the video, by 4.200 s at most
+```
+
+La phrase nomme l'opération — `shifting`, `transforming`,
+`converting the frame rate` —, combien de sous-titres dépassent, et de combien
+va le plus lointain.
+
+| Ce qui est compté | Ce qui ne l'est pas |
+| :---------------- | :------------------ |
+| ce que l'opération vient de toucher, c'est-à-dire la cible | un sous-titre que personne n'a déplacé |
+| un sous-titre qui finit **après** la fin | un sous-titre qui finit exactement avec elle |
+
+**C'est un avertissement, et rien d'autre.** Rien n'est refusé, rien n'est
+corrigé : un sous-titre qui tombe après le générique de fin est peut-être
+exactement ce qu'on voulait, et un refus qui se trompe coûte plus cher qu'un
+avertissement qu'on ignore. L'opération est dans l'historique, et `Undo` la
+défait comme n'importe quelle autre.
+
+Le message n'apparaît pas si aucune vidéo n'est ouverte : la durée vient du
+lecteur, et sans film il n'y a pas de fin à dépasser. Les trois opérations qui
+déplacent des positions sont concernées ; le retrait des mentions, qui n'en
+déplace aucune, ne l'est pas.

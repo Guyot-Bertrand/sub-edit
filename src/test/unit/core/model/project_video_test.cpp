@@ -3,10 +3,12 @@
 
 #include <subedit/core/model/associated_video.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/time/frame_rate.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <filesystem>
+#include <optional>
 
 namespace {
 
@@ -75,4 +77,65 @@ TEST_CASE("a choice overwrites a proposal, and another choice", "[video][model]"
     project.chooseVideo("/films/finalement.mkv");
     CHECK(project.video() ==
           AssociatedVideo{.path = "/films/finalement.mkv", .origin = VideoOrigin::Chosen});
+}
+
+// What the container declares, kept beside the path — the third thing decision
+// D6 rests on, and the reason it is remembered rather than recomputed.
+TEST_CASE("a project remembers what the film declares", "[video][model]") {
+    using subedit::core::FrameRate;
+    using subedit::core::StandardFrameRate;
+
+    Project project;
+    project.chooseVideo("/films/film.mkv");
+
+    project.setDeclaredFrameRate(FrameRate{StandardFrameRate::Fps23976});
+
+    CHECK(project.video() == AssociatedVideo{.path = "/films/film.mkv",
+                                             .origin = VideoOrigin::Chosen,
+                                             .declared = FrameRate{StandardFrameRate::Fps23976}});
+}
+
+// Nothing is an ordinary answer: no `ffprobe`, or a file that declares no video
+// stream. It is said, and it replaces whatever was known before.
+TEST_CASE("a film that declares nothing says so", "[video][model]") {
+    using subedit::core::FrameRate;
+    using subedit::core::StandardFrameRate;
+
+    Project project;
+    project.chooseVideo("/films/film.mkv");
+    project.setDeclaredFrameRate(FrameRate{StandardFrameRate::Fps25});
+
+    project.setDeclaredFrameRate(std::nullopt);
+
+    CHECK(project.video() ==
+          AssociatedVideo{.path = "/films/film.mkv", .origin = VideoOrigin::Chosen});
+}
+
+// A film that has just been chosen has not been asked yet, and a rate read from
+// the one before it would be a rate attributed to the wrong film.
+TEST_CASE("choosing another film forgets what the last one declared", "[video][model]") {
+    using subedit::core::FrameRate;
+    using subedit::core::StandardFrameRate;
+
+    Project project;
+    project.chooseVideo("/films/film.mkv");
+    project.setDeclaredFrameRate(FrameRate{StandardFrameRate::Fps25});
+
+    project.chooseVideo("/films/autre.mkv");
+
+    CHECK(project.video() ==
+          AssociatedVideo{.path = "/films/autre.mkv", .origin = VideoOrigin::Chosen});
+}
+
+// Nothing to record it on. Said out loud because the alternative — inventing an
+// association to hang a rate on — is the kind of thing that happens by accident.
+TEST_CASE("a document with no film records no declared rate", "[video][model]") {
+    using subedit::core::FrameRate;
+    using subedit::core::StandardFrameRate;
+
+    Project project;
+
+    project.setDeclaredFrameRate(FrameRate{StandardFrameRate::Fps25});
+
+    CHECK_FALSE(project.video().has_value());
 }

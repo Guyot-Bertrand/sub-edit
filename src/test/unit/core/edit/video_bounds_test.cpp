@@ -6,6 +6,7 @@
 // subtitle after the closing credits may be exactly what the user meant, and a
 // refusal that is wrong costs more than a warning that is ignored.
 
+#include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
@@ -109,4 +110,32 @@ TEST_CASE("a duration of zero or less is no duration at all", "[video][bounds]")
 
     CHECK_FALSE(beyondEnd(project, Selection::all(project), Duration::zero()).has_value());
     CHECK_FALSE(beyondEnd(project, Selection::all(project), seconds(-5)).has_value());
+}
+
+// Which operations the notice is branched onto — decision D4 names three, and
+// `beyondEnd` cannot tell them apart on its own: it reads the state an
+// operation produced, not whether that operation moved anything.
+TEST_CASE("three operations can put a subtitle past the end", "[video][bounds]") {
+    using subedit::core::CommandKind;
+    using subedit::core::movesPositions;
+
+    CHECK(movesPositions(CommandKind::Shift));
+    CHECK(movesPositions(CommandKind::Transform));
+    CHECK(movesPositions(CommandKind::ConvertFrameRate));
+}
+
+// A subtitle already past the end because the associated film is the wrong one
+// is nobody's doing — least of all that of a removal of mentions, which moves
+// no position at all.
+TEST_CASE("the other operations move nothing, and are not asked", "[video][bounds]") {
+    using subedit::core::CommandKind;
+    using subedit::core::movesPositions;
+
+    CHECK_FALSE(movesPositions(CommandKind::RemoveHearingImpaired));
+    CHECK_FALSE(movesPositions(CommandKind::SetText));
+    CHECK_FALSE(movesPositions(CommandKind::SetStart));
+    CHECK_FALSE(movesPositions(CommandKind::SetEnd));
+    CHECK_FALSE(movesPositions(CommandKind::Insert));
+    CHECK_FALSE(movesPositions(CommandKind::Remove));
+    CHECK_FALSE(movesPositions(CommandKind::Sort));
 }

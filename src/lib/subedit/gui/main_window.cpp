@@ -10,6 +10,7 @@
 #include <subedit/core/model/associated_video.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
@@ -129,6 +130,7 @@ MainWindow::MainWindow(core::FileSystem& files,
                        OpenedFile opened,
                        Prompts& prompts,
                        PlayerFactory buildPlayer,
+                       FrameRateReader readDeclaredRate,
                        QWidget* parent)
     : QMainWindow(parent),
       m_files(&files),
@@ -150,7 +152,8 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_videoStatus(new QLabel{this}),
       m_videoView(new QWidget{this}),
       m_ticker(new QTimer{this}),
-      m_buildPlayer(std::move(buildPlayer)) {
+      m_buildPlayer(std::move(buildPlayer)),
+      m_readDeclaredRate(std::move(readDeclaredRate)) {
     // One delegate per nature of cell, and none on the number or the duration,
     // which are not editable: Qt's table puts one only where it is given one.
     m_table->setItemDelegateForColumn(SubtitleTableModel::Start, new PositionDelegate{this});
@@ -383,6 +386,14 @@ void MainWindow::watchAssociatedVideo() {
     m_watching = false;
     m_shown.clear();
     m_placedAt = -1;
+
+    // Asked once per film, here, where the association has just changed for
+    // certain: `ffprobe` is a process, and running it at every opening of the
+    // frame rate dialog would pay for it again for an answer that cannot have
+    // moved. Nothing, without a reader or without a film — which is what a
+    // machine with no `ffmpeg` gets, and it is an ordinary state.
+    m_session->setDeclaredFrameRate(
+        !wanted.empty() && m_readDeclaredRate ? m_readDeclaredRate(wanted) : std::nullopt);
 
     // **Shown before the film is opened, and not after.** libmpv adopts the
     // window it is handed at that moment; one that is not on screen is adopted
@@ -651,19 +662,48 @@ void MainWindow::removeHearingImpairedFromTarget() {
     }
 
     const core::HearingImpairedTally tally = core::tallyOf(*command);
-    applyOperation(std::move(command));
+    applyOperation(std::move(command), target);
 
     m_prompts->reportOutcome(core::countOf(tally.cleaned, "subtitle") + " cleaned, " +
                              std::to_string(tally.removed) + " removed");
 }
 
-void MainWindow::applyOperation(std::unique_ptr<core::Command> command) {
+void MainWindow::applyOperation(std::unique_ptr<core::Command> command,
+                                const core::Selection& target) {
+    // Read before the command goes: what it is, is what the notice names.
+    const core::CommandKind kind = command->kind();
+
     m_model->applied(m_session->apply(std::move(command)));
 
     // The row playback was placed at holds something else now — a shift moved
     // it, a removal may have taken it away. Forgetting it is what lets a click
     // on that same row send playback where the subtitle has gone.
     m_placedAt = -1;
+
+    reportWhatPassesTheEnd(kind, target);
+}
+
+std::optional<core::Duration> MainWindow::videoLength() const {
+    return m_watching ? m_player->duration() : std::nullopt;
+}
+
+void MainWindow::reportWhatPassesTheEnd(core::CommandKind kind, const core::Selection& target) {
+    // **Only the operations that move a position.** `beyondEnd` reads the state
+    // an operation produced; on its own it cannot tell whether that operation
+    // put anything there. A subtitle already past the end because the film is
+    // the wrong one is nobody's doing, least of all that of a removal of
+    // hearing-impaired mentions.
+    if (!core::movesPositions(kind))
+        return;
+
+    const std::optional<core::BeyondEnd> beyond =
+        core::beyondEnd(m_session->project(), target, videoLength());
+    if (!beyond.has_value())
+        return;
+
+    // A notice and not a failure: nothing was prevented, and the sentence is
+    // written to be read after the fact.
+    m_prompts->reportOutcome(core::noticeOf(kind, *beyond));
 }
 
 void MainWindow::shiftTarget() {
@@ -689,7 +729,7 @@ void MainWindow::shiftTarget() {
         return;
     }
 
-    applyOperation(std::make_unique<core::ShiftCommand>(target, *by));
+    applyOperation(std::make_unique<core::ShiftCommand>(target, *by), target);
 }
 
 void MainWindow::transformTarget() {
@@ -720,20 +760,27 @@ void MainWindow::transformTarget() {
         return;
     }
 
-    applyOperation(std::make_unique<core::TransformCommand>(std::move(*command)));
+    applyOperation(std::make_unique<core::TransformCommand>(std::move(*command)), target);
 }
 
 void MainWindow::convertFrameRateOfTarget() {
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
     // Pre-filled with the project's own, never guessed: the file does not
-    // carry it, and getting it wrong shifts everything without a word.
-    FrameRateDialog dialog{target.count(), m_session->project().frameRate(), this};
+    // carry it, and getting it wrong shifts everything without a word. What the
+    // film declares is handed over beside it, and the dialog decides what to do
+    // with it — proposed, never imposed (D6).
+    const std::optional<core::AssociatedVideo>& associated = m_session->project().video();
+    FrameRateDialog dialog{target.count(),
+                           m_session->project().frameRate(),
+                           associated.has_value() ? associated->declared : std::nullopt,
+                           this};
     if (!m_prompts->run(dialog))
         return;
 
     applyOperation(std::make_unique<core::ConvertFrameRateCommand>(
-        m_session->project(), target, dialog.input(), dialog.output()));
+                       m_session->project(), target, dialog.input(), dialog.output()),
+                   target);
 }
 
 MainWindow::~MainWindow() = default;

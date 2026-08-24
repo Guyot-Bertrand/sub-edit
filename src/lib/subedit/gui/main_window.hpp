@@ -15,9 +15,12 @@
 
 namespace subedit::core {
 class Command;
+enum class CommandKind;
+class Duration;
 struct Diagnostic;
 class FileSystem;
 class Project;
+class Selection;
 class Session;
 class VideoPlayer;
 } // namespace subedit::core
@@ -57,10 +60,15 @@ public:
     ///
     /// `buildPlayer` is the other seam, and it is optional: without one, the
     /// window associates films and names them and never plays anything.
+    ///
+    /// `readDeclaredRate` is the third, optional too: without it nothing is
+    /// proposed in the frame rate dialog, which is what a machine with no
+    /// `ffmpeg` gets — and no operation behaves differently for it.
     MainWindow(core::FileSystem& files,
                OpenedFile opened,
                Prompts& prompts,
                PlayerFactory buildPlayer = {},
+               FrameRateReader readDeclaredRate = {},
                QWidget* parent = nullptr);
 
     ~MainWindow() override;
@@ -171,11 +179,29 @@ private:
 
     void openFromPrompt();
 
-    /// Applies `command` and refreshes what the window shows of it.
+    /// Applies `command` over `target` and refreshes what the window shows.
     ///
     /// The one road from a dialog to the history: every operation of this
-    /// phase ends here, so the refresh cannot be forgotten in one of them.
-    void applyOperation(std::unique_ptr<core::Command> command);
+    /// phase ends here, so neither the refresh nor the notice below can be
+    /// forgotten in one of them.
+    ///
+    /// `target` is what the operation was applied to, and it is carried here
+    /// for one reason: what reaches past the end of the film is read over it,
+    /// after the fact, on the state the operation produced.
+    void applyOperation(std::unique_ptr<core::Command> command, const core::Selection& target);
+
+    /// Says what an operation left past the end of the film, if anything.
+    ///
+    /// **A notice, never a refusal** — decision D4. A subtitle landing after
+    /// the closing credits may be exactly what was meant; refusing wrongly
+    /// costs more than a warning that is ignored.
+    ///
+    /// Silent without a film open: the length is what the player knows, and
+    /// there is nothing to be past the end of.
+    void reportWhatPassesTheEnd(core::CommandKind kind, const core::Selection& target);
+
+    /// How long the open film lasts, or nothing.
+    [[nodiscard]] std::optional<core::Duration> videoLength() const;
 
     /// Asks which film to watch the document against, and associates it.
     void selectVideo();
@@ -265,6 +291,7 @@ private:
     QTimer* m_ticker = nullptr;
 
     PlayerFactory m_buildPlayer{};
+    FrameRateReader m_readDeclaredRate{};
     std::unique_ptr<core::VideoPlayer> m_player;
     bool m_playerAsked = false;
 

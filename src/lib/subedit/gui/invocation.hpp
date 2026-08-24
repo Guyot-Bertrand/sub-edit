@@ -1,5 +1,7 @@
 #pragma once
 
+#include <subedit/gui/opening.hpp>
+
 #include <QStringList>
 
 #include <iosfwd>
@@ -23,5 +25,23 @@ namespace subedit::gui {
 /// Returns whether the version was asked for, which is also whether there is
 /// anything left to do: `--version` is answered and nothing else happens.
 [[nodiscard]] bool reportVersion(const QStringList& arguments, std::ostream& out);
+
+/// Opens what the command line names, and says on `errors` what it could not.
+///
+/// An empty document when nothing was named, and **an empty document when what
+/// was named could not be read** — which is the decision this carries: a file
+/// that will not open is a reason to say so, never a reason to refuse to start.
+/// The window opens either way, and the user opens something else from it.
+///
+/// Only the first argument is read. A second file would be a second window,
+/// and this program has one.
+///
+/// Here rather than in `main.cpp` for the reason `check-architecture.sh`
+/// holds, and it said so twice: the entry point went over its budget the day
+/// it also had to choose a Qt platform, and again the day it had to hand the
+/// window a reader of frame rates.
+[[nodiscard]] OpenedFile openFromArguments(const core::FileSystem& files,
+                                           const QStringList& arguments,
+                                           std::ostream& errors);
 
 } // namespace subedit::gui

@@ -8,7 +8,6 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 
@@ -33,23 +32,18 @@ int main(int argc, char** argv) {
             return 0;
 
         subedit::core::RealFileSystem files;
-        subedit::gui::OpenedFile opened;
-
-        if (arguments.size() > 1) {
-            auto read = subedit::gui::openProject(files, arguments.at(1).toStdString());
-            if (read)
-                opened = std::move(*read);
-            else
-                std::cerr << "subedit-gui: " << arguments.at(1).toStdString()
-                          << ": nothing to open\n";
-        }
+        subedit::gui::OpenedFile opened =
+            subedit::gui::openFromArguments(files, arguments, std::cerr);
 
         subedit::gui::QtPrompts prompts;
 
         // The player of ADR 0020, made where the window can hand over the
         // surface it draws into — libmpv reads that only while it initialises.
-        subedit::gui::MainWindow window{
-            files, std::move(opened), prompts, subedit::gui::mpvPlayers()};
+        subedit::gui::MainWindow window{files,
+                                        std::move(opened),
+                                        prompts,
+                                        subedit::gui::mpvPlayers(),
+                                        subedit::gui::declaredFrameRates(files)};
         window.show();
 
         return QApplication::exec();

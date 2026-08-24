@@ -116,6 +116,11 @@ void Project::chooseVideo(std::filesystem::path path) {
     m_video = AssociatedVideo{.path = std::move(path), .origin = VideoOrigin::Chosen};
 }
 
+void Project::setDeclaredFrameRate(std::optional<FrameRate> rate) {
+    if (m_video.has_value())
+        m_video->declared = rate;
+}
+
 bool Project::proposeVideo(std::filesystem::path path) {
     if (m_video.has_value() && m_video->origin == VideoOrigin::Chosen)
         return false;

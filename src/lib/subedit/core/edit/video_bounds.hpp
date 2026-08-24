@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/time/duration.hpp>
 
 #include <cstddef>
@@ -54,5 +55,23 @@ struct BeyondEnd {
 /// end would turn a bound into a prohibition.
 [[nodiscard]] std::optional<BeyondEnd>
 beyondEnd(const Project& project, const Selection& selection, std::optional<Duration> length);
+
+/// Whether an operation of this kind can put a subtitle past the end.
+///
+/// **The other half of « the selection is what the operation touched ».**
+/// `beyondEnd` reads the state an operation produced, and reads it over what it
+/// was applied to; it cannot tell, from that alone, whether the operation moved
+/// anything. Removing hearing-impaired mentions from subtitles that were
+/// already past the end would otherwise be reported as having put them there.
+///
+/// Three kinds answer yes, and decision D4 names the same three: shifting,
+/// transforming, converting a frame rate. They overshoot in three different
+/// ways and arrive at the same place, which is what `noticeOf` says in three
+/// sentences.
+///
+/// **Editing a start or an end by hand is not among them**, though it moves
+/// one: that is a user typing a position they can see, and telling them it
+/// lands after the end of the film would be remarking on what they just did.
+[[nodiscard]] bool movesPositions(CommandKind kind);
 
 } // namespace subedit::core

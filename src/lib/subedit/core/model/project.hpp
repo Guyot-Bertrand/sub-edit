@@ -125,6 +125,15 @@ public:
     /// remembered at all.
     bool proposeVideo(std::filesystem::path path);
 
+    /// Records what the container of the associated video declares, or that it
+    /// declares nothing. Does nothing when no video is associated.
+    ///
+    /// **Separate from associating the film, and not by oversight.** Reading it
+    /// costs a process; a proposal that a choice refuses reads nothing, and a
+    /// film that has not changed is not asked again. Whoever associates decides
+    /// when the question is worth its answer.
+    void setDeclaredFrameRate(std::optional<FrameRate> rate);
+
     /// Returns what the file this project came from looked like.
     [[nodiscard]] const SourceFile& sourceFile() const { return m_sourceFile; }
 
