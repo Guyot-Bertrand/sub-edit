@@ -11,7 +11,7 @@ add_library(
                        diagnostics_panel.cpp qt_prompts.cpp target.cpp
                        operation_dialog.cpp shift_dialog.cpp transform_dialog.cpp
                        frame_rate_dialog.cpp hearing_impaired_dialog.cpp
-                       mpv_player.cpp main_window.cpp)
+                       mpv_player.cpp player_factory.cpp main_window.cpp)
 add_library(subedit::gui ALIAS subedit_gui)
 
 target_include_directories(subedit_gui PUBLIC "${CMAKE_SOURCE_DIR}/src/lib")

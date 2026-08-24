@@ -50,6 +50,7 @@ add_executable(
     core/io/find_executable_test.cpp
     core/io/find_video_test.cpp
     core/video/declared_frame_rate_test.cpp
+    core/video/showing_test.cpp
     core/io/real_file_system_test.cpp
     core/process/start_process_test.cpp
     core/process/run_and_capture_test.cpp

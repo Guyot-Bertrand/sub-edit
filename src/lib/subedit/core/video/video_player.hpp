@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <string_view>
 
 namespace subedit::core {
 
@@ -94,6 +95,20 @@ public:
 
     /// Holds playback where it is. Does nothing when no video is open.
     virtual void pause() = 0;
+
+    /// Draws `line` over the picture, or clears it when `line` is empty.
+    ///
+    /// **Decision D2, and the reason this is a method rather than a file.**
+    /// A player knows how to load a subtitle file, and for an editor that
+    /// would be the wrong road: the file would have to be written again at
+    /// every keystroke. What is drawn comes from the same `Project` the table
+    /// shows, so what is on the picture is what was just typed.
+    ///
+    /// The text is the subtitle's own, tags of its format included — see
+    /// ADR 0009. What a player makes of them is its business.
+    ///
+    /// Does nothing when no video is open, like every other order here.
+    virtual void showSubtitle(std::string_view line) = 0;
 
     /// Whether the video is playing right now.
     ///

@@ -9,6 +9,7 @@
 #include <subedit/core/version.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
+#include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 
 #include <QApplication>
@@ -41,7 +42,11 @@ int main(int argc, char** argv) {
         }
 
         subedit::gui::QtPrompts prompts;
-        subedit::gui::MainWindow window{files, std::move(opened), prompts};
+
+        // The player of ADR 0020, made where the window can hand over the
+        // surface it draws into — libmpv reads that only while it initialises.
+        subedit::gui::MainWindow window{
+            files, std::move(opened), prompts, subedit::gui::mpvPlayers()};
         window.show();
 
         return QApplication::exec();

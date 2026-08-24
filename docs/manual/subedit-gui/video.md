@@ -20,8 +20,8 @@ les extensions vidéo reconnues :
 Il propose aussi d'afficher tous les fichiers. Renoncer au dialogue ne change
 rien.
 
-Le fichier choisi n'est pas ouvert ni lu : à ce stade, la fenêtre en retient le
-chemin et le nomme. La lecture vient avec le lecteur.
+Le fichier choisi est **ouvert aussitôt** : l'image apparaît dans la fenêtre, à
+l'arrêt sur son premier instant. Voir [Le lecteur](lecteur.md).
 
 ## La proposition automatique
 

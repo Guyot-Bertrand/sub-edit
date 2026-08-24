@@ -1,11 +1,17 @@
 #pragma once
 
 #include <subedit/gui/opening.hpp>
+#include <subedit/gui/player_factory.hpp>
+#include <subedit/gui/subtitle_table.hpp>
 
 #include <QMainWindow>
 
+#include <cstdint>
+#include <filesystem>
+#include <functional>
 #include <memory>
 #include <span>
+#include <string>
 
 namespace subedit::core {
 class Command;
@@ -13,12 +19,13 @@ struct Diagnostic;
 class FileSystem;
 class Project;
 class Session;
+class VideoPlayer;
 } // namespace subedit::core
 
 class QAction;
 class QCloseEvent;
 class QLabel;
-class QTableView;
+class QTimer;
 
 namespace subedit::gui {
 
@@ -46,9 +53,13 @@ public:
     /// `files` and `prompts` must outlive it. The second is the seam that
     /// makes this class testable at all: every question a human answers goes
     /// through it, so a test answers them instead.
+    ///
+    /// `buildPlayer` is the other seam, and it is optional: without one, the
+    /// window associates films and names them and never plays anything.
     MainWindow(core::FileSystem& files,
                OpenedFile opened,
                Prompts& prompts,
+               PlayerFactory buildPlayer = {},
                QWidget* parent = nullptr);
 
     ~MainWindow() override;
@@ -59,7 +70,7 @@ public:
     MainWindow& operator=(MainWindow&&) = delete;
 
     /// Returns the table, for a test to look at what the window shows.
-    [[nodiscard]] QTableView* table() const { return m_table; }
+    [[nodiscard]] SubtitleTable* table() const { return m_table; }
 
     /// The two actions, for a test to read their state and to fire them.
     ///
@@ -90,9 +101,34 @@ public:
 
     [[nodiscard]] QAction* selectVideoAction() const { return m_selectVideo; }
 
+    [[nodiscard]] QAction* playPauseAction() const { return m_playPause; }
+
+    /// The surface the film is drawn on, for a test to read whether it is
+    /// there at all. Hidden while no film is open, which is what « the table
+    /// takes the whole window » means.
+    [[nodiscard]] QWidget* videoView() const { return m_videoView; }
+
     /// What the status bar says of the associated film — its name, or that
     /// there is none. This is what `GUI-VIDEO-01` promises the user sees.
     [[nodiscard]] QLabel* videoStatus() const { return m_videoStatus; }
+
+    /// Reads where playback stands and puts the window in step with it.
+    ///
+    /// Two things, and they are the same thing seen twice: the replica drawn
+    /// over the picture is the subtitle showing now, and so is the row the
+    /// table points at.
+    ///
+    /// **It gives way to whoever is typing.** Moving the current row closes an
+    /// open editor, which is how a film playing in the corner of the screen
+    /// would eat a correction halfway through being made. While a cell is
+    /// being edited the row stays where it is; the replica still follows,
+    /// since drawing on the picture disturbs nobody.
+    ///
+    /// **Public because the ticker is not the only thing that must run it.**
+    /// A test drives it directly rather than waiting on a clock, and a seek
+    /// runs it at once so that the picture and the table agree before the next
+    /// tick rather than a tenth of a second later.
+    void followPlayback();
 
 protected:
     /// Refuses to close while there are changes nobody chose to lose.
@@ -143,6 +179,39 @@ private:
     /// Puts what the document is watched against into the status bar.
     void refreshVideoStatus();
 
+    /// Puts the window in step with the film the document is now associated
+    /// with — the status bar, the picture, and whether there is one at all.
+    ///
+    /// Called wherever the association can have changed, and it is cheap to
+    /// call when it has not: a film already open is not opened again.
+    void refreshVideo();
+
+    /// Opens the associated film, or takes the view away.
+    ///
+    /// **A film that will not open is said, named, and then let go.** Nothing
+    /// else about the window changes: the document is still there, the
+    /// operations still work, and the association still stands — the user may
+    /// well want to see which file it is that the player refused.
+    void watchAssociatedVideo();
+
+    /// Returns the player, building it the first time one is needed.
+    ///
+    /// Nothing, when no factory was given or when the factory declined. Asked
+    /// **once**: a libmpv that would not give a player will not give one on
+    /// the second film either, and asking again would report the same failure
+    /// at every attempt.
+    [[nodiscard]] core::VideoPlayer* player();
+
+    /// Plays, or holds where it is — the player is the one that knows which.
+    void togglePlayback();
+
+    /// Places playback at the start of the first selected subtitle.
+    ///
+    /// **Only when that first row changes**, and that is not a refinement:
+    /// extending a selection downwards over four thousand rows fires this at
+    /// every step, and a seek waits for the player to arrive.
+    void placePlaybackAtSelection();
+
     void shiftTarget();
 
     void transformTarget();
@@ -166,7 +235,7 @@ private:
     core::FileSystem* m_files = nullptr;
     Prompts* m_prompts = nullptr;
 
-    QTableView* m_table = nullptr;
+    SubtitleTable* m_table = nullptr;
     DiagnosticsPanel* m_diagnostics = nullptr;
     QAction* m_undo = nullptr;
     QAction* m_redo = nullptr;
@@ -178,7 +247,35 @@ private:
     QAction* m_frameRate = nullptr;
     QAction* m_hearingImpaired = nullptr;
     QAction* m_selectVideo = nullptr;
+    QAction* m_playPause = nullptr;
     QLabel* m_videoStatus = nullptr;
+    QWidget* m_videoView = nullptr;
+    QTimer* m_ticker = nullptr;
+
+    PlayerFactory m_buildPlayer{};
+    std::unique_ptr<core::VideoPlayer> m_player;
+    bool m_playerAsked = false;
+
+    /// The film the window last acted on, whether or not it opened.
+    ///
+    /// Distinct from `m_watching` on purpose: a film that was refused must not
+    /// be offered to the player again — and refused again, and reported again
+    /// — every time the naming convention speaks.
+    std::filesystem::path m_associated;
+
+    /// Whether a film is open and being drawn.
+    bool m_watching = false;
+
+    /// The line the overlay currently carries.
+    ///
+    /// Held so that a tick that changes nothing costs nothing: the replica is
+    /// recomputed from the project ten times a second, and it is only handed
+    /// over when it differs — which is also what makes a keystroke show up on
+    /// the picture within a tick.
+    std::string m_shown;
+
+    /// The row playback was last placed at, or -1.
+    int m_placedAt = -1;
 
     /// Held by pointer so that this header stays parsable by `moc`, which
     /// chokes on the C++20 library headers the core drags in.
