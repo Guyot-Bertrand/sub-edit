@@ -1,3 +1,6 @@
+#include <subedit/core/io/file_system.hpp>
+#include <subedit/core/time/frame_rate.hpp>
+#include <subedit/core/video/declared_frame_rate.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/mpv_player.hpp>
 #include <subedit/gui/player_factory.hpp>
@@ -10,7 +13,10 @@
 
 #include <cstdint>
 #include <expected>
+#include <filesystem>
 #include <memory>
+#include <optional>
+#include <string>
 #include <string_view>
 #include <utility>
 
@@ -67,6 +73,18 @@ void preferEmbeddablePlatform() {
     if (!wanted.empty())
         qputenv(kPlatformVariable,
                 QByteArray::fromRawData(wanted.data(), static_cast<qsizetype>(wanted.size())));
+}
+
+FrameRateReader declaredFrameRates(const core::FileSystem& files) {
+    return [&files](const std::filesystem::path& video) -> std::optional<core::FrameRate> {
+        // Read here rather than captured once: a `PATH` is a thing a session
+        // can change, and asking again costs a string.
+        const QByteArray path = qgetenv("PATH");
+        return core::readDeclaredFrameRate(
+            files,
+            std::string_view{path.constData(), static_cast<std::size_t>(path.size())},
+            video);
+    };
 }
 
 PlayerFactory mpvPlayers() {

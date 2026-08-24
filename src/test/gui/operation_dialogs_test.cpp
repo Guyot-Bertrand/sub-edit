@@ -148,3 +148,51 @@ TEST_CASE("converting a rate into itself changes nothing, and the dialog says so
 
     CHECK_FALSE(dialog.isComplete());
 }
+
+// Decision D6, in the dialog: what the container names is proposed on « should
+// play at », because that is the rate the film actually runs at — what the
+// document was timed against is the field above, and only the user knows it.
+TEST_CASE("the frame rate the film declares is proposed", "[gui][GUI-FRAMERATE-02]") {
+    const FrameRateDialog dialog{
+        4, FrameRate{StandardFrameRate::Fps25}, FrameRate{StandardFrameRate::Fps23976}};
+
+    CHECK(dialog.input() == FrameRate{StandardFrameRate::Fps25});
+    CHECK(dialog.output() == FrameRate{StandardFrameRate::Fps23976});
+    // And the dialog is ready: the two rates differ, which is the case this is
+    // meant to make easy.
+    CHECK(dialog.isComplete());
+}
+
+// « Sa provenance est dite » : the number alone would be a value out of
+// nowhere, and D6 rests on the user knowing it is a proposal they may refuse.
+TEST_CASE("the dialog says where the proposed rate comes from", "[gui][GUI-FRAMERATE-02]") {
+    const FrameRateDialog dialog{
+        4, FrameRate{StandardFrameRate::Fps25}, FrameRate{StandardFrameRate::Fps23976}};
+
+    CHECK(dialog.declaredLabel().toStdString() == "24000/1001");
+}
+
+// Without a film, or without `ffprobe`: the row is not there, and the dialog is
+// exactly the one that came before.
+TEST_CASE("with nothing declared the dialog is the one from before", "[gui][GUI-FRAMERATE-02]") {
+    const FrameRateDialog dialog{4, FrameRate{StandardFrameRate::Fps25}};
+
+    CHECK(dialog.declaredLabel().isEmpty());
+    CHECK(dialog.input() == FrameRate{StandardFrameRate::Fps25});
+    CHECK(dialog.output() == FrameRate{StandardFrameRate::Fps25});
+    CHECK_FALSE(dialog.isComplete());
+}
+
+// A film may declare a rate this dialog cannot offer — the list is the eight
+// standards, closed on purpose. It is still said, because knowing that the film
+// runs at something unusual is the information; there is simply nothing to
+// convert to.
+TEST_CASE("a rate outside the eight standards is said and not picked", "[gui][GUI-FRAMERATE-02]") {
+    const std::optional<FrameRate> unusual = FrameRate::create(15, 1);
+    REQUIRE(unusual.has_value());
+
+    const FrameRateDialog dialog{4, FrameRate{StandardFrameRate::Fps25}, unusual};
+
+    CHECK(dialog.declaredLabel().toStdString() == "15");
+    CHECK(dialog.output() == FrameRate{StandardFrameRate::Fps25});
+}

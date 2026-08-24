@@ -57,3 +57,27 @@ correction tient.
 **Le nom du fichier, jamais son chemin.** Un chemin de deux cents caractères
 chasserait tout le reste de la barre ; le chemin complet est celui que le
 dialogue a montré.
+
+## `ffmpeg` n'est pas requis
+
+`subedit-gui` interroge `ffprobe` — livré avec `ffmpeg` — pour une chose et une
+seule : **la fréquence d'images que le conteneur déclare**. Elle est lue une fois
+par film, au moment où il est associé.
+
+| Avec `ffprobe` | Sans |
+| :------------- | :--- |
+| le dialogue de conversion propose la fréquence du film | il ne propose rien, et s'ouvre comme avant |
+
+**Rien d'autre n'en dépend, et aucune opération ne se refuse.** Le lecteur, lui,
+n'a pas besoin de `ffprobe` du tout : il s'appuie sur `libmpv`, qui est une
+dépendance de compilation. La durée du film, celle qui sert à signaler ce qui
+dépasse la fin, vient du lecteur et non de `ffprobe`.
+
+Ce n'est donc pas un mode dégradé mais **le fonctionnement normal** d'une machine
+qui n'a jamais installé `ffmpeg` : la donnée vient de l'utilisateur, et `ffprobe`
+la propose quand il est là.
+
+Une fréquence lue est un **rationnel exact** — `24000/1001`, et non `23.976`.
+C'est la raison pour laquelle `ffprobe` est gardé pour cette réponse-là : le
+lecteur connaît la même chose sous forme de nombre à virgule, et une fréquence
+approchée re-calerait tout le fichier à côté.

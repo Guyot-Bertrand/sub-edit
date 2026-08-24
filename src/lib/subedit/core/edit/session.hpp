@@ -69,6 +69,13 @@ public:
         return m_project.proposeVideo(std::move(path));
     }
 
+    /// Records what the container of the associated video declares. Not a
+    /// command either, and for the same reason: it says something about the
+    /// film, and nothing about the document.
+    void setDeclaredFrameRate(std::optional<FrameRate> rate) {
+        m_project.setDeclaredFrameRate(rate);
+    }
+
     /// Changes the policy for the operations to come.
     ///
     /// Does not sort what is already there: a policy says what happens next,

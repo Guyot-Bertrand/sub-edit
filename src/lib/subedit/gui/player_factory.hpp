@@ -1,11 +1,16 @@
 #pragma once
 
+#include <subedit/core/time/frame_rate.hpp>
+
 #include <cstdint>
+#include <filesystem>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string_view>
 
 namespace subedit::core {
+class FileSystem;
 class VideoPlayer;
 } // namespace subedit::core
 
@@ -36,6 +41,27 @@ using PlayerFactory = std::function<std::unique_ptr<core::VideoPlayer>(std::uint
 /// running the program. It said so out loud — the entry point went eight lines
 /// over its budget the moment this was written there.
 [[nodiscard]] PlayerFactory mpvPlayers();
+
+/// How the window asks a film what frame rate it declares.
+///
+/// **The second seam of the video**, beside `PlayerFactory`, and separate from
+/// it on purpose: the rate comes from `ffprobe` and the duration from the
+/// player — decision D7. One is an external program that may not be installed,
+/// the other a library the project links.
+///
+/// Answering nothing is the ordinary answer, and it is what a window with no
+/// reader at all behaves like: nothing is proposed, and every operation goes
+/// on working. A test passes a reader that answers what the scenario needs,
+/// without an `ffprobe` anywhere near it.
+using FrameRateReader =
+    std::function<std::optional<core::FrameRate>(const std::filesystem::path& video)>;
+
+/// The reader `subedit-gui` hands its window: `ffprobe`, found on the `PATH`.
+///
+/// `files` must outlive the reader — it is how the executable is looked for,
+/// and the reason the search is not asked of the process directly: a branch
+/// only a machine without `ffmpeg` walks has to be reachable from a test.
+[[nodiscard]] FrameRateReader declaredFrameRates(const core::FileSystem& files);
 
 /// Which Qt platform to ask for, given what the session offers — nothing when
 /// there is no reason to ask for one.

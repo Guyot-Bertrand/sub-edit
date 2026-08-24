@@ -1,6 +1,9 @@
 #pragma once
 
+#include <subedit/core/time/frame_rate.hpp>
+
 #include <filesystem>
+#include <optional>
 
 namespace subedit::core {
 
@@ -19,6 +22,17 @@ enum class VideoOrigin {
 struct AssociatedVideo {
     std::filesystem::path path;
     VideoOrigin origin = VideoOrigin::Chosen;
+
+    /// What the container declares as its frame rate, or nothing.
+    ///
+    /// **Nothing is the ordinary answer**, not a failure: `ffprobe` may not be
+    /// installed, and the file may declare no video stream. Whoever reads this
+    /// proposes what it holds and asks the user otherwise — decision D6, and
+    /// the reason it is remembered rather than recomputed: the phase that
+    /// deduces a rate from the positions themselves will want to set this one
+    /// beside its own, and a source that has been overwritten cannot be
+    /// compared with anything.
+    std::optional<FrameRate> declared{};
 
     friend bool operator==(const AssociatedVideo&, const AssociatedVideo&) = default;
 };

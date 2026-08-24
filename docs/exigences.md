@@ -118,3 +118,5 @@ plus rien.
 | `GUI-PLAYER-01` | la vidéo s'ouvre dans la fenêtre, et se joue | 6 | implémentée |
 | `GUI-PLAYER-02` | sélectionner un sous-titre place la lecture à son début | 6 | implémentée |
 | `GUI-PLAYER-03` | une vidéo qui ne s'ouvre pas le dit, et laisse la fenêtre utilisable | 6 | implémentée |
+| `GUI-FRAMERATE-02` | la fréquence lue dans la vidéo est proposée, et sa provenance est dite | 6 | implémentée |
+| `GUI-BOUNDS-01` | une opération qui dépasse la fin du film le signale sans l'empêcher | 6 | implémentée |

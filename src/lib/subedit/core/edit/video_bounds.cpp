@@ -1,3 +1,4 @@
+#include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
@@ -8,6 +9,7 @@
 
 #include <algorithm>
 #include <optional>
+#include <utility>
 
 namespace subedit::core {
 
@@ -31,6 +33,25 @@ beyondEnd(const Project& project, const Selection& selection, std::optional<Dura
     if (beyond.count == 0)
         return std::nullopt;
     return beyond;
+}
+
+bool movesPositions(CommandKind kind) {
+    switch (kind) {
+    case CommandKind::Shift:
+    case CommandKind::Transform:
+    case CommandKind::ConvertFrameRate:
+        return true;
+    case CommandKind::SetText:
+    case CommandKind::SetStart:
+    case CommandKind::SetEnd:
+    case CommandKind::Insert:
+    case CommandKind::Remove:
+    case CommandKind::Sort:
+    case CommandKind::RemoveHearingImpaired:
+        return false;
+    }
+
+    std::unreachable();
 }
 
 } // namespace subedit::core

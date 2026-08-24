@@ -4,6 +4,8 @@
 // — before, only a whole process could, and the end-to-end harness had to
 // launch one to read a single line.
 
+#include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/model/project.hpp>
 #include <subedit/core/version.hpp>
 #include <subedit/gui/invocation.hpp>
 
@@ -34,4 +36,45 @@ TEST_CASE("any other argument is not the version being asked for", "[gui]") {
 
     CHECK_FALSE(answered);
     CHECK(written.str().empty());
+}
+
+// What the command line names, opened — or said to be unopenable.
+
+TEST_CASE("the file named on the command line is opened", "[gui]") {
+    subedit::core::InMemoryFileSystem files;
+    files.addFile("/films/film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n");
+    std::ostringstream errors;
+
+    const subedit::gui::OpenedFile opened = subedit::gui::openFromArguments(
+        files,
+        QStringList{QStringLiteral("subedit-gui"), QStringLiteral("/films/film.srt")},
+        errors);
+
+    CHECK(opened.project.count() == 1U);
+    CHECK(errors.str().empty());
+}
+
+TEST_CASE("naming nothing opens an empty document", "[gui]") {
+    const subedit::core::InMemoryFileSystem files;
+    std::ostringstream errors;
+
+    const subedit::gui::OpenedFile opened =
+        subedit::gui::openFromArguments(files, QStringList{QStringLiteral("subedit-gui")}, errors);
+
+    CHECK(opened.project.count() == 0U);
+    CHECK(errors.str().empty());
+}
+
+// **The window opens either way**, and that is the decision this carries: a
+// file that will not open is a reason to say so, never a reason to refuse to
+// start. One message for the four ways of failing, as the manual says.
+TEST_CASE("a file that will not open is said, and the document is empty", "[gui]") {
+    const subedit::core::InMemoryFileSystem files;
+    std::ostringstream errors;
+
+    const subedit::gui::OpenedFile opened = subedit::gui::openFromArguments(
+        files, QStringList{QStringLiteral("subedit-gui"), QStringLiteral("/absent.srt")}, errors);
+
+    CHECK(opened.project.count() == 0U);
+    CHECK(errors.str() == "subedit-gui: /absent.srt: nothing to open\n");
 }
