@@ -75,11 +75,36 @@ crée, qu'on interroge par propriétés et qu'on pilote par commandes, et qu'il
 faut détruire. C'est un propriétaire de ressource au sens du principe 2 du
 projet, et il vaudra sa classe, comme `SpawnActions` a valu la sienne.
 
-**Une question d'affichage qui reste ouverte**, et qui sera tranchée à
-l'implémentation : rendre dans une fenêtre native que libmpv adopte
-(propriété `wid`), ou dans un contexte de rendu OpenGL que Qt fournit. La
-première est la plus courte ; la seconde compose mieux avec le reste de la
-fenêtre. Ce n'est pas une décision coûteuse à défaire, donc elle n'est pas ici.
+**Une question d'affichage tranchée à l'implémentation, et son prix.** Le choix
+était entre rendre dans une fenêtre native que libmpv adopte (propriété `wid`)
+et rendre dans un contexte OpenGL que Qt fournit. #173 a retenu la première,
+comme la plus courte. Ce paragraphe annonçait que la décision ne serait « pas
+coûteuse à défaire » ; elle s'est révélée coûteuse à **tenir**, et le constat
+est inscrit ici parce qu'il change ce qu'on sait, non ce qu'on a décidé.
+
+Ce que #176 a mesuré en la posant :
+
+- **adopter une fenêtre native est un mécanisme X11.** L'en-tête de libmpv le
+  dit — « This works on X11, win32, and OSX only » — et recommande l'API de
+  rendu. `subedit-gui` demande donc `xcb` quand la session laisse le choix
+  ouvert, et **refuse de construire un lecteur** sur toute autre plateforme Qt ;
+- **le contexte doit être nommé.** Laissé sonder sur une machine où
+  `WAYLAND_DISPLAY` est posé, mpv choisit Wayland, où `wid` ne veut rien dire,
+  et ouvre une fenêtre à côté de la nôtre ;
+- **la fenêtre doit être à l'écran avant d'être adoptée**, sans quoi mpv ne
+  mappe jamais la sienne.
+
+Trois lignes de code, et trois défauts que seul l'usage a montrés.
+
+**Ce que cela laisse ouvert, et pour quand.** L'API de rendu marche sous
+Wayland, et c'est celle que libmpv recommande. La phase 14 rouvre ce code de
+toute façon — avance image par image, incrustation du timecode — et c'est là que
+le changement coûterait le moins. La décision n'est pas prise ici : elle demande
+de peser un contexte OpenGL maintenu à la main contre une dépendance à XWayland,
+et cela se fait au cadrage de la phase 14.
+
+**Le déclencheur qui la forcerait**, lui, est net : une session sans serveur X du
+tout. `subedit-gui` n'y jouerait aucun film, et le dit.
 
 **Le sous-titre affiché ne vient pas d'un fichier.** libmpv sait charger un
 fichier de sous-titres externe, et ce serait le mauvais choix pour un éditeur :

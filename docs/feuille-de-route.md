@@ -745,6 +745,13 @@ Second document en regard du principal, alignement du fichier de traduction par
 numéro ou par position, onglets, sauvegarde et fermeture groupées, scission d'un
 projet, ajout d'un fichier à la suite d'un autre.
 
+**Un renvoi de la phase 6 atterrit ici : le lecteur pour un document de
+traduction.** La réplique dessinée sur l'image vient du document principal, et
+`Subtitle` porte les deux textes pour une seule paire de positions depuis la
+phase 1 — il faudra donc dire lequel des deux s'affiche, et si le choix est un
+réglage ou suit l'onglet actif. La relecture de fin de phase 6 a constaté que ce
+renvoi ne tombait nulle part ; il tombe ici.
+
 **Réserve** — le besoin n'est pas confirmé. Le modèle de données de la phase 1
 l'accueille ; cette phase construit l'interface et les opérations associées.
 
