@@ -26,6 +26,10 @@ ne pas l'éditer à la main.
 - **build** — Ffprobe dans la chaîne d'outils et dans le cache de la CI
 - **build** — Libmpv dans la chaîne d'outils, et un lecteur sans écran
 
+### Corrections
+
+- **gui** — Montrer la vidéo, et non un panneau vide
+
 ### Documentation
 
 - **doc** — La règle du titre de pull request, dans CLAUDE.md
