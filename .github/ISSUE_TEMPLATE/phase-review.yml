@@ -1,0 +1,110 @@
+name: Relecture de fin de phase
+description: Vérifier qu'une phase tient, avant de la clore
+title: "Relecture de fin de phase "
+labels: ["type:task", "area:doc", "prio:high"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        **La troisième des trois issues qui encadrent une phase**, après
+        l'initialisation et le cadrage. Elle s'ouvre quand la dernière issue
+        d'implémentation est fusionnée, et se ferme avant la milestone.
+
+
+        Elle ne produit pas de fonctionnalité : elle vérifie que la phase tient.
+        Les blocs ci-dessous arrivent pré-remplis de ce qui vaut pour toute
+        phase — les modifier est attendu, les laisser tels quels ne l'est pas.
+
+  - type: input
+    id: framing
+    attributes:
+      label: Les issues qui encadrent la phase
+      description: >
+        L'initialisation et le cadrage, par leur numéro — celles qu'il y a eu.
+        Elles disent ce que la phase s'était promis, et c'est à elles que le
+        réalisé se confronte.
+      placeholder: "#161 (initialisation), #165 (cadrage)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: axes
+    attributes:
+      label: Ce qu'elle fait
+      description: >
+        Les quatre axes valent pour toute phase. Les préciser avec ce que
+        celle-ci a de particulier.
+      value: |
+        - **Confronter la spec au réalisé.** Un écart est soit corrigé, soit
+          inscrit ; un écart non consigné est un écart oublié. Regarder d'abord
+          les endroits où la spec a bougé en cours de route.
+        - **Répercuter les renvois.** Tout « plus tard » doit atterrir sur une
+          phase ou une issue nommée.
+        - **Relire le manuel d'un bloc.** *Garder la ligne qui vaut pour cette
+          phase.* Pour `subedit-gui` : de la prose que rien ne tient — décision
+          de #116 — donc cette relecture est la seule garantie qu'il ait. Pour
+          `subedit-cli` : `manual-check` tient les exemples, pas les phrases
+          autour ; c'est celles-là qu'on relit.
+        - **Relire les ADR que la phase a produites.** Disent-elles encore ce
+          qui a été construit ? Une décision dont le coût s'est révélé après
+          coup se réexamine ici, ou nulle part.
+        - **Confronter les mesures à celles d'avant.** Le journal des
+          performances et le cliquet de couverture : ce qui a bougé pendant la
+          phase, et si la justification écrite tient toujours.
+        - **Regard critique sur l'ensemble du code de la phase.** Ce qui en sort
+          n'est pas corrigé ici : chaque axe se discute et devient une issue
+          s'il est retenu.
+    validations:
+      required: true
+
+  - type: textarea
+    id: deferrals
+    attributes:
+      label: Les renvois de la phase, et où ils atterrissent
+      description: >
+        Un par ligne, avec sa destination. Un « plus tard » qui ne nomme pas de
+        phase est un renvoi perdu : la phase 6 en a laissé six derrière ces deux
+        mots — six commandes de pilotage inscrites nulle part — et ne s'en est
+        aperçue qu'en recomptant contre Gaupol.
+      placeholder: |
+        - avance image par image → phase 14
+        - croiser deux sources de fréquence → phase 16
+        - forme d'onde → jamais, rien ne la demande
+    validations:
+      required: true
+
+  - type: textarea
+    id: attention
+    attributes:
+      label: Points à regarder en particulier
+      description: >
+        **Ce qui a surpris pendant la phase**, pas une liste générique : une
+        décision dont on a mesuré le coût après coup, un défaut que seul l'usage
+        a montré, une répétition qu'on a absorbée deux fois sans la lire.
+
+
+        Y faire figurer, s'il y a lieu, **ce qui a été annoncé vérifié sans
+        l'être** : la phase 6 a déclaré son lecteur fonctionnel sur une preuve
+        structurelle, et le panneau est resté vide jusqu'à ce qu'un humain lance
+        le programme. Distinguer ce qui a été observé de ce qui a été déduit
+        coûte une relecture et se paie une fois.
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: Critères de fin
+      description: >
+        Les quatre premiers valent pour toute phase. Ajouter ceux que les points
+        ci-dessus appellent — une question ouverte se ferme par écrit, pas par
+        un accord tacite.
+      value: |
+        - [ ] La spec et le réalisé concordent, ou l'écart est inscrit
+        - [ ] Tout renvoi atterrit sur une phase ou une issue nommée
+        - [ ] Le manuel a été relu d'un bloc, par quelqu'un qui le découvre
+        - [ ] Chaque exigence de la phase est `implémentée` et citée par un test
+        - [ ] Les ADR de la phase décrivent ce qui a été construit
+        - [ ] Les axes retenus par la relecture ont leur issue
+    validations:
+      required: true

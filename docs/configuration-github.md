@@ -266,6 +266,33 @@ Les valeurs de `area:` sont **les mêmes que les scopes des messages de commit**
 Une issue et les commits qui la traitent portent donc le même vocabulaire, ce qui
 rend le CHANGELOG généré directement rapprochable des tickets.
 
+### Gabarits d'issue
+
+`.github/ISSUE_TEMPLATE/` porte des **formulaires**, pas des fichiers Markdown :
+GitHub en tire des champs, et un champ requis vide empêche d'ouvrir l'issue. Les
+issues vierges sont désactivées, ce qui force le passage par l'un d'eux.
+
+| Gabarit | Pour quoi | Labels posés |
+| :------ | :-------- | :----------- |
+| `story.yml` | une fonctionnalité vue de l'utilisateur | `type:story` |
+| `task.yml` | un travail technique sans effet direct | `type:task` |
+| `bug.yml` | un défaut | `type:bug` |
+| `enhancement.yml` | une amélioration de l'existant | `type:enhancement` |
+| `phase-review.yml` | la relecture qui clôt une phase | `type:task`, `area:doc`, `prio:high` |
+
+**Le dernier est le seul à arriver pré-rempli**, et c'est ce qui le distingue :
+la relecture de fin de phase a des axes qui valent pour toutes les phases —
+confronter la spec au réalisé, répercuter les renvois, relire le manuel et les
+ADR, confronter les mesures — et les redécouvrir à chaque fois, c'est en oublier
+un. Ce qui est pré-rempli est un point de départ à modifier, pas une formule à
+laisser telle quelle ; deux champs le disent explicitement, parce que la partie
+qui compte est celle qui change d'une phase à l'autre.
+
+Ce que le gabarit **n'essaie pas** de pré-remplir : ce que la phase a de
+particulier. Le champ « points à regarder » est requis et sa description
+demande ce qui a surpris pendant la phase — une relecture sans point propre est
+une relecture que personne n'a faite.
+
 ### Milestones
 
 Un par phase, dans l'ordre du plan de route. Les huit premiers mènent au MVP, les suivants complètent
