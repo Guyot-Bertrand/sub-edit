@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <string_view>
 
 namespace subedit::core {
 class VideoPlayer;
@@ -35,5 +36,35 @@ using PlayerFactory = std::function<std::unique_ptr<core::VideoPlayer>(std::uint
 /// running the program. It said so out loud — the entry point went eight lines
 /// over its budget the moment this was written there.
 [[nodiscard]] PlayerFactory mpvPlayers();
+
+/// Which Qt platform to ask for, given what the session offers — nothing when
+/// there is no reason to ask for one.
+///
+/// **The decidable half of `preferEmbeddablePlatform`**, out where a test can
+/// walk it: reading the environment and writing to it are two lines that
+/// cannot be run twice in one process, and the choice between them is the part
+/// that can be wrong.
+///
+/// `chosen` is what `QT_QPA_PLATFORM` already says, `wayland` what
+/// `WAYLAND_DISPLAY` says, `x11` what `DISPLAY` says. Empty means unset.
+[[nodiscard]] std::string_view
+platformFor(std::string_view chosen, std::string_view wayland, std::string_view x11);
+
+/// Asks for a Qt platform whose windows libmpv can adopt, when the session
+/// leaves the choice open.
+///
+/// **Must be called before the `QApplication` is built**, which is the only
+/// moment Qt reads it — and the reason this is a free function called from the
+/// entry point rather than something the window does.
+///
+/// A Wayland session makes Qt pick `wayland`, whose windows are not the kind
+/// libmpv adopts; XWayland is almost always there beside it, and going through
+/// it is what makes the film appear inside the window instead of nowhere. The
+/// alternative was to leave it alone and tell the user to set the variable
+/// themselves — which is a feature that does not work, described in a manual.
+///
+/// **A choice already made is never overridden.** Somebody who asks for
+/// `wayland` gets `wayland`, and no picture, which is their business.
+void preferEmbeddablePlatform();
 
 } // namespace subedit::gui

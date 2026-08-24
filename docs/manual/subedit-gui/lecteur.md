@@ -96,27 +96,37 @@ Dans les deux cas, **la vidéo reste associée** — il faut bien voir de quel
 fichier il s'agit pour en choisir un autre — et **la fenêtre reste utilisable** :
 le document est ouvert, les opérations fonctionnent, l'enregistrement aussi.
 
-Le second message a une cause fréquente et une seule solution. **Le lecteur
-intégré s'appuie sur l'adoption d'une fenêtre native, qui est un mécanisme
-X11.** Sous une session Wayland, la fenêtre que Qt fournit n'en est pas une, et
-`subedit-gui` préfère ne rien jouer plutôt que d'ouvrir une fenêtre vidéo
-séparée à côté de la sienne. Le remède tient en une variable d'environnement,
-qui fait passer la fenêtre par XWayland :
+**Le lecteur intégré s'appuie sur l'adoption d'une fenêtre native, qui est un
+mécanisme X11.** Sous une session Wayland, la fenêtre que Qt fournit par défaut
+n'en est pas une. `subedit-gui` s'en occupe : il demande la plateforme `xcb`
+avant de construire son application, ce qui le fait passer par XWayland, et le
+film s'affiche dans la fenêtre.
+
+Il ne le fait **que si personne n'a choisi**. Un `QT_QPA_PLATFORM` déjà posé est
+respecté tel quel :
 
 ```console
-$ QT_QPA_PLATFORM=xcb subedit-gui film.fr.srt
+$ QT_QPA_PLATFORM=wayland subedit-gui film.fr.srt   # pas d'image, et c'est voulu
 ```
 
-L'autre cause est une bibliothèque `libmpv` qui refuse de démarrer. Elle est
-requise à la compilation ; si elle est là et que le message persiste sous
-`xcb`, c'est de ce côté qu'il faut chercher.
+Restent deux cas où le second message apparaît, et ils sont rares : une session
+Wayland **sans serveur X du tout**, où il n'y a rien de mieux à demander ; et une
+bibliothèque `libmpv` qui refuse de démarrer, alors qu'elle est requise à la
+compilation.
 
 ## Ce qui n'y est pas
 
+**Le pilotage se limite à jouer et arrêter.** Tout le reste — et c'est la
+majeure partie d'une barre de lecteur — vient avec le calage fin :
+
 | Ce qui manque | Où c'est prévu |
 | :------------ | :------------- |
-| barre de progression, réglage du volume | plus tard |
-| avance image par image, poser un repère depuis la position courante | avec le calage fin |
-| choix de la piste audio, forme d'onde | rien ne les demande encore |
+| barre de position, saut avant et arrière | calage fin |
+| saut au sous-titre précédent ou suivant, au début ou à la fin de la sélection | calage fin |
+| jouer la seule sélection | calage fin |
+| réglage du volume | calage fin |
+| avance image par image, poser un repère depuis la position courante | calage fin |
+| incrustation du timecode, choix de la piste audio | calage fin |
+| forme d'onde | rien ne la demande |
 
 Voir la [feuille de route](../../feuille-de-route.md).

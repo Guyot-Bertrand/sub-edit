@@ -25,6 +25,7 @@ class VideoPlayer;
 class QAction;
 class QCloseEvent;
 class QLabel;
+class QShowEvent;
 class QTimer;
 
 namespace subedit::gui {
@@ -133,6 +134,17 @@ public:
 protected:
     /// Refuses to close while there are changes nobody chose to lose.
     void closeEvent(QCloseEvent* event) override;
+
+    /// Opens the associated film, the first time the window is on screen.
+    ///
+    /// **The film waits for this, and it is not a refinement.** libmpv adopts
+    /// the window it is handed at the moment it loads a file; handed one that
+    /// is not on screen yet, it adopts it and never maps its own — measured,
+    /// mpv's window stays `IsUnMapped` for the life of the process and the
+    /// panel stays empty for ever. A window built and never shown is not a
+    /// window a user has, and this is where that stops being a distinction
+    /// without a difference.
+    void showEvent(QShowEvent* event) override;
 
 private:
     /// Recomputes what the two actions may do and what they read.
@@ -265,6 +277,11 @@ private:
 
     /// Whether a film is open and being drawn.
     bool m_watching = false;
+
+    /// Whether the window has been on screen once.
+    ///
+    /// Nothing is handed to a player before it has: see `showEvent`.
+    bool m_wasShown = false;
 
     /// The line the overlay currently carries.
     ///

@@ -5,7 +5,6 @@
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/mpv_player.hpp>
-#include <subedit/gui/player_factory.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -24,8 +23,6 @@ using subedit::core::Timestamp;
 using subedit::core::VideoPlayer;
 using subedit::gui::assEventOf;
 using subedit::gui::MpvPlayer;
-using subedit::gui::mpvPlayers;
-using subedit::gui::PlayerFactory;
 
 [[nodiscard]] std::filesystem::path fixture(const std::string& name) {
     return std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / name;
@@ -187,18 +184,6 @@ TEST_CASE("drawing a replica with nothing open does nothing", "[video][player]")
     idle.showSubtitle("Un.");
 
     CHECK_FALSE(idle.position().has_value());
-}
-
-// The factory `subedit-gui` hands its window, asked where no window can be
-// adopted — which is exactly where these tests run.
-//
-// Embedding a native window is an X11 mechanism, and these run on Qt's
-// `offscreen` platform. Nothing comes back, and that is the answer: a window
-// with no player shows no picture, and goes on editing subtitles.
-TEST_CASE("no player is made where a window cannot be adopted", "[video][player]") {
-    const PlayerFactory players = mpvPlayers();
-
-    CHECK(players(1) == nullptr);
 }
 
 // What the replica becomes on its way to libmpv's overlay — issue #176.

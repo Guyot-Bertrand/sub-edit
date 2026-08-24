@@ -43,6 +43,7 @@
 #include <QMenuBar>
 #include <QModelIndex>
 #include <QModelIndexList>
+#include <QShowEvent>
 #include <QSplitter>
 #include <QStatusBar>
 #include <QString>
@@ -365,6 +366,12 @@ core::VideoPlayer* MainWindow::player() {
 }
 
 void MainWindow::watchAssociatedVideo() {
+    // Nothing is handed to a player before the window has been on screen once.
+    // `showEvent` comes back here the moment it has, and until then this leaves
+    // `m_associated` alone so that it finds the film still waiting.
+    if (!m_wasShown)
+        return;
+
     const std::optional<core::AssociatedVideo>& associated = m_session->project().video();
     const std::filesystem::path wanted =
         associated.has_value() ? associated->path : std::filesystem::path{};
@@ -376,6 +383,12 @@ void MainWindow::watchAssociatedVideo() {
     m_watching = false;
     m_shown.clear();
     m_placedAt = -1;
+
+    // **Shown before the film is opened, and not after.** libmpv adopts the
+    // window it is handed at that moment; one that is not on screen is adopted
+    // and never mapped. Taken away again below if the film will not open, which
+    // costs nothing anybody sees: nothing has been painted into it yet.
+    m_videoView->setVisible(!wanted.empty());
 
     core::VideoPlayer* watching = wanted.empty() ? nullptr : player();
     if (watching != nullptr) {
@@ -574,6 +587,16 @@ void MainWindow::openFromPrompt() {
     }
 
     openOn(std::move(opened->project), opened->diagnostics);
+}
+
+void MainWindow::showEvent(QShowEvent* event) {
+    QMainWindow::showEvent(event);
+
+    if (m_wasShown)
+        return;
+
+    m_wasShown = true;
+    watchAssociatedVideo();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {

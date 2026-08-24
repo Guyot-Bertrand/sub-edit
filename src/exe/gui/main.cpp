@@ -6,7 +6,7 @@
 
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
-#include <subedit/core/version.hpp>
+#include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
 #include <subedit/gui/player_factory.hpp>
@@ -21,13 +21,16 @@
 
 int main(int argc, char** argv) {
     try {
+        // Before the `QApplication`, which is the only moment Qt reads the
+        // platform — and what makes the film appear in the window rather than
+        // nowhere on a Wayland session.
+        subedit::gui::preferEmbeddablePlatform();
+
         const QApplication application{argc, argv};
 
         const QStringList arguments = QApplication::arguments();
-        if (arguments.contains(QStringLiteral("--version"))) {
-            std::cout << "subedit " << subedit::core::versionString() << "\n";
+        if (subedit::gui::reportVersion(arguments, std::cout))
             return 0;
-        }
 
         subedit::core::RealFileSystem files;
         subedit::gui::OpenedFile opened;

@@ -139,7 +139,8 @@ TEST_CASE("the film beside the document opens in the window", "[gui][GUI-PLAYER-
     InMemoryFileSystem files = directoryHolding({"film.mkv"});
     FakePrompts prompts;
     Projectionist booth;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
 
     REQUIRE(booth.player != nullptr);
     CHECK(booth.player->opened == std::vector<std::filesystem::path>{"/films/film.mkv"});
@@ -153,7 +154,8 @@ TEST_CASE("the player is built for the surface of the window", "[gui][GUI-PLAYER
     InMemoryFileSystem files = directoryHolding({"film.mkv"});
     FakePrompts prompts;
     Projectionist booth;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
 
     CHECK(booth.built == 1);
     CHECK(booth.surface == static_cast<std::uintptr_t>(window.videoView()->winId()));
@@ -163,7 +165,8 @@ TEST_CASE("a document with no film has no picture and nothing to play", "[gui][G
     InMemoryFileSystem files = directoryHolding({});
     FakePrompts prompts;
     Projectionist booth;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
 
     CHECK_FALSE(showsPicture(window));
     CHECK_FALSE(window.playPauseAction()->isEnabled());
@@ -176,7 +179,8 @@ TEST_CASE("play and pause reach the player", "[gui][GUI-PLAYER-01]") {
     InMemoryFileSystem files = directoryHolding({"film.mkv"});
     FakePrompts prompts;
     Projectionist booth;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
 
     // Opening a film is not watching it.
@@ -193,7 +197,8 @@ TEST_CASE("selecting a subtitle places playback at its start", "[gui][GUI-PLAYER
     InMemoryFileSystem files = directoryHolding({"film.mkv"});
     FakePrompts prompts;
     Projectionist booth;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
 
     selectRow(window, 1);
@@ -208,7 +213,8 @@ TEST_CASE("extending a selection does not place playback again", "[gui][GUI-PLAY
     InMemoryFileSystem files = directoryHolding({"film.mkv"});
     FakePrompts prompts;
     Projectionist booth;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
 
     selectRow(window, 0);
@@ -225,7 +231,8 @@ TEST_CASE("clearing the selection places playback nowhere", "[gui][GUI-PLAYER-02
     InMemoryFileSystem files = directoryHolding({"film.mkv"});
     FakePrompts prompts;
     Projectionist booth;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
     selectRow(window, 1);
     const std::size_t placed = booth.player->seeks.size();
@@ -239,7 +246,8 @@ TEST_CASE("selecting a subtitle with no film open does nothing at all", "[gui][G
     InMemoryFileSystem files = directoryHolding({});
     FakePrompts prompts;
     Projectionist booth;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
 
     selectRow(window, 1);
 
@@ -252,7 +260,8 @@ TEST_CASE("a film that will not open is named, and the window stays usable",
     FakePrompts prompts;
     Projectionist booth;
     booth.refusal = PlayerError{.reason = "unrecognized file format"};
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
 
     REQUIRE(prompts.failures.size() == 1U);
     CHECK(prompts.failures.front() == "/films/film.mkv: unrecognized file format");
@@ -274,7 +283,8 @@ TEST_CASE("a film that was refused is not offered again", "[gui][GUI-PLAYER-03]"
     FakePrompts prompts;
     Projectionist booth;
     booth.refusal = PlayerError{.reason = "unrecognized file format"};
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(prompts.failures.size() == 1U);
 
     // The naming convention speaks again at every « save as ». It has the same
@@ -291,7 +301,8 @@ TEST_CASE("a window with no player edits all the same", "[gui][GUI-PLAYER-03]") 
     FakePrompts prompts;
     Projectionist booth;
     booth.gives = false;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
 
     CHECK(booth.built == 1);
     CHECK_FALSE(showsPicture(window));
@@ -307,6 +318,7 @@ TEST_CASE("the replica drawn is the subtitle showing now", "[gui][GUI-PLAYER-01]
     FakePrompts prompts;
     Projectionist booth;
     MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
 
     playbackReaches(window, *booth.player, 1500);
@@ -327,6 +339,7 @@ TEST_CASE("an edited text reaches the picture", "[gui][GUI-PLAYER-01]") {
     FakePrompts prompts;
     Projectionist booth;
     MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
 
     playbackReaches(window, *booth.player, 1500);
@@ -348,6 +361,7 @@ TEST_CASE("a replica that has not changed is not drawn again", "[gui][GUI-PLAYER
     FakePrompts prompts;
     Projectionist booth;
     MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
 
     playbackReaches(window, *booth.player, 1200);
@@ -364,6 +378,7 @@ TEST_CASE("the current row follows playback", "[gui][GUI-PLAYER-01]") {
     FakePrompts prompts;
     Projectionist booth;
     MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
 
     playbackReaches(window, *booth.player, 1500);
@@ -380,6 +395,7 @@ TEST_CASE("following playback leaves the selection alone", "[gui][GUI-PLAYER-01]
     FakePrompts prompts;
     Projectionist booth;
     MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
 
     selectRow(window, 0);
@@ -401,6 +417,7 @@ TEST_CASE("an edit in progress survives playback advancing", "[gui][GUI-PLAYER-0
     FakePrompts prompts;
     Projectionist booth;
     MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
 
     const QModelIndex edited = window.table()->model()->index(0, SubtitleTableModel::Text);
@@ -421,7 +438,8 @@ TEST_CASE("opening a document with no film takes the picture away", "[gui][GUI-P
     files.addFile("/autre/seul.srt", kThree);
     FakePrompts prompts;
     Projectionist booth;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
     window.playPauseAction()->trigger();
     REQUIRE(booth.player->isPlaying());
@@ -442,7 +460,8 @@ TEST_CASE("choosing another film opens that one", "[gui][GUI-PLAYER-01]") {
     FakePrompts prompts;
     Projectionist booth;
     prompts.nextVideoToOpen = "/ailleurs/le-bon-montage.mkv";
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
 
     window.selectVideoAction()->trigger();
@@ -454,6 +473,24 @@ TEST_CASE("choosing another film opens that one", "[gui][GUI-PLAYER-01]") {
     CHECK(booth.built == 1);
 }
 
+// A window hidden and shown again does not open the film a second time. It is
+// already open, and opening it afresh would send playback back to the start
+// under somebody who had just placed it where they wanted it.
+TEST_CASE("showing the window again does not open the film again", "[gui][GUI-PLAYER-01]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+    REQUIRE(booth.player->opened.size() == 1U);
+
+    window.hide();
+    window.show();
+
+    CHECK(booth.player->opened.size() == 1U);
+}
+
 // Everything above drives the follower by hand, which is what keeps these cases
 // off a clock. This one case pays for the clock, and it is the only thing that
 // says the ticker is wired at all.
@@ -461,7 +498,8 @@ TEST_CASE("the window follows playback on its own", "[gui][GUI-PLAYER-01]") {
     InMemoryFileSystem files = directoryHolding({"film.mkv"});
     FakePrompts prompts;
     Projectionist booth;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
     REQUIRE(booth.player != nullptr);
 
     booth.player->where = Timestamp::fromMilliseconds(5500);
