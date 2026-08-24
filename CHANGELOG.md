@@ -20,6 +20,7 @@ ne pas l'éditer à la main.
 - **core** — Avertir de ce qui dépasse la fin de la vidéo
 - **gui** — Choisir une vidéo, et voir laquelle est associée
 - **gui** — Jouer la vidéo dans la fenêtre, la réplique dessinée
+- **gui** — Proposer la fréquence lue, signaler la fin du film
 
 ### Construction
 
