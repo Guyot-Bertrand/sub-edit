@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Tests
+
+- **test** — Des fixtures de sous-titres sur grille connue
+
+## 0.6.0 — 2026-08-25
+
 ### Ajouts
 
 - **core** — Chercher un exécutable sur un chemin de recherche injecté

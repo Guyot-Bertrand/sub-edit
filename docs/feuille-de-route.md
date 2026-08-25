@@ -598,12 +598,19 @@ de vitesse de lecture.
 
 ### Points difficiles
 
-- **Les fichiers de test n'existent pas.** Les deux corpus qui ont servi à tout
-  ce qui précède sont ignorés par git, et la plus fournie des fixtures
-  versionnées porte six horodatages sur quinze secondes. Or la déduction demande
-  de l'étendue *et* du volume. Il faudra des fichiers engendrés sur une grille
-  connue, et c'est la question que le ticket d'initialisation de la phase devra
-  poser en premier.
+- ~~**Les fichiers de test n'existent pas.**~~ **Réglé.** Les deux corpus qui
+  ont servi à tout ce qui précède sont ignorés par git, et la plus fournie des
+  fixtures versionnées portait six horodatages sur quinze secondes. C'était la
+  première question du ticket d'initialisation, et c'est le seul outil qu'il a
+  retenu : `src/scripts/subtitle-fixtures.py` engendre treize fichiers sur des
+  grilles connues — les huit fréquences normalisées, une fréquence absurde, une
+  grille décalée, une étendue insuffisante, et les deux visages du fichier
+  partiel. `src/test/data/grilles/LISEZMOI.md` porte ce que chacun est et ce que
+  chacun donne.
+
+  Ce que ces fixtures ne portent pas encore, et qu'il faudra leur ajouter : des
+  fins calculées par une règle de vitesse de lecture plutôt que posées sur une
+  image, et un fichier écrit en millisecondes sans aucune grille.
 - **L'édition manuelle sort de la grille.** Dès qu'un utilisateur corrige une
   position dans la table, elle cesse d'être alignée. Un détecteur naïf
   signalerait le travail de l'utilisateur comme une anomalie. C'est la raison

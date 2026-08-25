@@ -197,9 +197,11 @@ parallelism: ## Vérifie qu'aucun parallélisme ne contourne $(JOBS)
 	@./src/scripts/check-parallelism.sh
 
 .PHONY: fixtures
-fixtures: ## Vérifie que les fixtures vidéo déclarent ce que la table dit
+fixtures: ## Vérifie que les fixtures engendrées sont ce que leur table dit
 	$(call step,"fixtures vidéo")
 	@./src/scripts/video-fixtures.sh --check
+	$(call step,"fixtures de grille")
+	@./src/scripts/subtitle-fixtures.py --check
 
 # Ne construit que `subedit-cli` : les exemples du manuel n'invoquent que lui,
 # et lui demander la bibliothèque de tests coûterait sans rien apporter.
@@ -321,7 +323,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory bench
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (vingt-sept preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (vingt-huit preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog

@@ -34,8 +34,9 @@
 # un tiret, et un test qui lirait le dépôt de référence. Elle est ici parce que ce défaut ne se voit qu'à travers CTest, jamais
 # en lançant le binaire de test à la main — donc uniquement dans la porte.
 #
-# La suivante vise `make fixtures` : une fixture vidéo refabriquée avec la
-# mauvaise fréquence d'image. C'est la seule injection du script qui ne soit pas
+# Les deux suivantes visent `make fixtures` : une fixture vidéo refabriquée avec
+# la mauvaise fréquence d'image, et une position de fixture de grille déplacée
+# d'une milliseconde. C'est la seule injection du script qui ne soit pas
 # du texte — un conteneur est illisible dans un diff, et c'est précisément ce
 # qui fait que rien d'autre n'attraperait le défaut. Elle est aussi la seule à
 # passer par ffmpeg plutôt que par un extrait ajouté en fin de fichier :
@@ -76,6 +77,7 @@ readonly MODEL_SOURCE="${REPO_ROOT}/src/lib/subedit/core/model/subtitle_index.hp
 readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
 readonly VIDEO_FIXTURE="${REPO_ROOT}/src/test/data/videos/cadence-25.mp4"
+readonly GRID_FIXTURE="${REPO_ROOT}/src/test/data/grilles/grille-25.srt"
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -99,6 +101,7 @@ restore() {
     cp "${backup_dir}/lib-CMakeLists.txt" "${NESTED_CMAKE_SOURCE}"
     cp "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
     cp "${backup_dir}/cadence-25.mp4" "${VIDEO_FIXTURE}"
+    cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
 }
 
 cleanup() {
@@ -119,6 +122,7 @@ cp "${PLAIN_SCRIPT_SOURCE}" "${backup_dir}/install-hooks.sh"
 cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
 cp "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
 cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
+cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -491,6 +495,22 @@ expect_gate_closes \
     "${VIDEO_FIXTURE}" \
     ''
 
+# Une position de fixture de grille déplacée d une milliseconde. C est le plus
+# petit défaut que subtitle-fixtures.py existe pour attraper, et le plus
+# instructif : une milliseconde ne se voit pas dans un fichier de cent soixante-
+# dix répliques, et elle suffit à sortir une position de la grille.
+#
+# L injection est faite ici plutôt que passée en extrait, parce qu ajouter du
+# texte en fin de fichier serait un défaut grossier. Ce qui est prouvé, c est
+# que la porte lit les positions, et non la taille du fichier.
+sed -i '0,/00:00:01,000/s//00:00:01,001/' "${GRID_FIXTURE}"
+
+expect_gate_closes \
+    "position de grille déplacée d une milliseconde" \
+    "fixtures" \
+    "${GRID_FIXTURE}" \
+    ''
+
 
 # La seule preuve de non-signalement du fichier, et la plus importante des six
 # ajoutées ici : le contrôle lisait ses lignes sans retirer les commentaires de
@@ -799,7 +819,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles vingt-sept portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles vingt-huit portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
