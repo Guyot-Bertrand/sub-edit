@@ -9,6 +9,10 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **core** — Déduire la fréquence d'image des positions
+
 ### Documentation
 
 - **doc** — Cadrage de la phase 16, la déduction de fréquence

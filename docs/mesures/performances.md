@@ -210,7 +210,7 @@ pas le sujet de ce ticket.
 | écriture de 4000 sous-titres | 488 µs | 0.3.10 — 2026-08-15 | 783 µs | 0.5.3 — 2026-08-22 |
 | décalage de 4000 sous-titres | 6.85 µs | 0.4.9 — 2026-08-19 | 11.4 µs | 0.3.3 — 2026-08-15 |
 | décalage puis annulation | 12.8 µs | 0.4.15 — 2026-08-21 | 20.7 µs | 0.2.6 — 2026-08-13 |
-| transformation de 4000 sous-titres | 71.7 µs | 0.3.13 — 2026-08-16 | 93.3 µs | 0.2.12 — 2026-08-14 |
+| transformation de 4000 sous-titres | 71 µs | 0.6.3 — 2026-08-25 | 93.3 µs | 0.2.12 — 2026-08-14 |
 | conversion de fréquence sur 4000 sous-titres | 67.5 µs | 0.5.10 — 2026-08-23 | 100 µs | 0.2.12 — 2026-08-14 |
 | tri de 4000 sous-titres à l'envers | 196 µs | 0.3.2 — 2026-08-15 | 742 µs | 0.5.0 — 2026-08-22 |
 | suppression d'un sous-titre sur deux | 138 µs | 0.4.14 — 2026-08-21 | 12.5 ms | 0.3.3 — 2026-08-15 |
@@ -224,10 +224,11 @@ pas le sujet de ce ticket.
 | édition d'une cellule de texte | 371 ns | 0.5.9 — 2026-08-23 | 899 ns | 0.4.12 — 2026-08-20 |
 | édition d'une cellule de position | 484 ns | 0.4.15 — 2026-08-21 | 13.3 µs | 0.5.3 — 2026-08-22 |
 | réinitialisation du modèle après une ligne retirée | 7.45 µs | 0.5.0 — 2026-08-22 | 13 µs | 0.4.20 — 2026-08-22 |
-| la réplique en cours, sur 4000 sous-titres | 5.69 µs | 0.6.1 — 2026-08-25 | 8.81 µs | 0.5.13 — 2026-08-24 |
-| composer une réplique de deux lignes | 188 ns | 0.5.13 — 2026-08-24 | 218 ns | 0.6.1 — 2026-08-25 |
-| ouvrir une vidéo | 9.42 ms | 0.6.1 — 2026-08-25 | 10.9 ms | 0.5.13 — 2026-08-24 |
+| la réplique en cours, sur 4000 sous-titres | 4.87 µs | 0.6.3 — 2026-08-25 | 8.81 µs | 0.5.13 — 2026-08-24 |
+| composer une réplique de deux lignes | 167 ns | 0.6.3 — 2026-08-25 | 218 ns | 0.6.1 — 2026-08-25 |
+| ouvrir une vidéo | 9.08 ms | 0.6.3 — 2026-08-25 | 10.9 ms | 0.5.13 — 2026-08-24 |
 | chercher une position | 577 µs | 0.5.13 — 2026-08-24 | 600 µs | 0.6.1 — 2026-08-25 |
+| deduce the frame rate of 4000 subtitles | 374 µs | 0.6.3 — 2026-08-25 | 374 µs | 0.6.3 — 2026-08-25 |
 
 <!-- versionString min=29.1524 max=64.5489 -->
 <!-- parse min=29.9 max=42.7539 -->
@@ -239,7 +240,7 @@ pas le sujet de ce ticket.
 <!-- écriture de 4000 sous-titres min=488279.0 max=782932.0 -->
 <!-- décalage de 4000 sous-titres min=6850.43 max=11400.0 -->
 <!-- décalage puis annulation min=12847.6 max=20700.0 -->
-<!-- transformation de 4000 sous-titres min=71737.0 max=93300.0 -->
+<!-- transformation de 4000 sous-titres min=71001.3 max=93300.0 -->
 <!-- conversion de fréquence sur 4000 sous-titres min=67493.7 max=100000.0 -->
 <!-- tri de 4000 sous-titres à l'envers min=196000.0 max=741836.0 -->
 <!-- suppression d'un sous-titre sur deux min=137974.0 max=12500000.0 -->
@@ -253,10 +254,11 @@ pas le sujet de ce ticket.
 <!-- édition d'une cellule de texte min=370.791 max=898.579 -->
 <!-- édition d'une cellule de position min=484.262 max=13302.7 -->
 <!-- réinitialisation du modèle après une ligne retirée min=7452.24 max=13047.7 -->
-<!-- la réplique en cours, sur 4000 sous-titres min=5693.69 max=8805.31 -->
-<!-- composer une réplique de deux lignes min=187.598 max=217.822 -->
-<!-- ouvrir une vidéo min=9423670.0 max=10930700.0 -->
+<!-- la réplique en cours, sur 4000 sous-titres min=4873.6 max=8805.31 -->
+<!-- composer une réplique de deux lignes min=167.295 max=217.822 -->
+<!-- ouvrir une vidéo min=9083550.0 max=10930700.0 -->
 <!-- chercher une position min=577286.0 max=599664.0 -->
+<!-- deduce the frame rate of 4000 subtitles min=374108.0 max=374108.0 -->
 
 ## Relevés
 
@@ -264,6 +266,40 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.6.3 — 2026-08-25 — Release — charge 1.46 — allure ×0.78
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| la réplique en cours, sur 4000 sous-titres | 4.87 µs | 1.29 µs |
+| composer une réplique de deux lignes | 167 ns | 1.78 ns |
+| ouvrir une vidéo | 9.08 ms | 247 µs |
+| chercher une position | 583 µs | 161 µs |
+| construction du modèle sur 4000 sous-titres | 8.18 µs | 2.14 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 15.6 µs | 2.81 µs |
+| rafraîchir après un décalage de 4000 sous-titres | 8.11 µs | 1.34 µs |
+| réinitialisation du modèle après une ligne retirée | 8.16 µs | 1.19 µs |
+| édition d'une cellule de texte | 373 ns | 25.2 ns |
+| édition d'une cellule de position | 9.06 µs | 1.18 µs |
+| versionString | 33.6 ns | 0.391 ns |
+| parse | 39.3 ns | 2.67 ns |
+| format | 40.5 ns | 15.4 ns |
+| position vers image | 6.5 ns | 0.0738 ns |
+| image vers position | 6.7 ns | 0.836 ns |
+| mise à l'échelle par un rationnel exact | 6.72 ns | 0.0729 ns |
+| lecture de 4000 sous-titres | 2.32 ms | 57.7 µs |
+| écriture de 4000 sous-titres | 515 µs | 23.6 µs |
+| décalage de 4000 sous-titres | 7.04 µs | 3.73 µs |
+| décalage puis annulation | 13.3 µs | 3.75 µs |
+| transformation de 4000 sous-titres | 71 µs | 12.1 µs |
+| conversion de fréquence sur 4000 sous-titres | 67.5 µs | 7.8 µs |
+| tri de 4000 sous-titres à l'envers | 263 µs | 26 µs |
+| suppression d'un sous-titre sur deux | 153 µs | 17.3 µs |
+| suppression puis annulation | 232 µs | 28.2 µs |
+| insertion de 100 sous-titres vides au milieu | 50.1 µs | 20.4 µs |
+| modification d'un texte, à travers une session | 175 ns | 17.3 ns |
+| suppression des mentions sur 4000 sous-titres | 892 µs | 36 µs |
+| deduce the frame rate of 4000 subtitles | 374 µs | 43.1 µs |
 
 ### 0.6.2 — 2026-08-25 — Release — charge 5.39 — allure ×1.47
 

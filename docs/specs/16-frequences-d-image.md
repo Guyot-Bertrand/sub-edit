@@ -113,6 +113,29 @@ multiple entier de l'autre : 25 et 50, 29,97 et 59,94, 30 et 60. Aucune autre �
 coïncide. **L'ambiguïté est dite, jamais cachée** : la déduction nomme la
 candidate écartée.
 
+**Quand la paire compte-t-elle comme ambiguë ?** Précisé par #203, qui a dû
+l'écrire : on compare les **bandes**, pas un écart. Un fichier réellement calé
+sur la fréquence haute fait s'effondrer la basse vers le bruit, donc les deux
+tombent dans des bandes différentes ; un fichier calé sur la basse les met dans
+la même, quoi que l'arrondi ait fait de leur ordre. La règle ne demande alors
+aucun seuil neuf — elle réutilise ceux du verdict — et elle tient sur les huit
+cas que les fixtures offrent :
+
+| Fixture | La basse | La haute | Même bande ? | Retenue |
+| :------ | -------: | -------: | :----------- | :------ |
+| `grille-25.srt` | 100,0 | 100,0 | oui | 25 |
+| `grille-30.srt` | 99,9 | 99,5 | oui | 30 |
+| `grille-29-97.srt` | 99,8 | 99,4 | oui | 29,97 |
+| `grille-50.srt` | 15,8 | 100,0 | non | 50 |
+| `grille-60.srt` | 1,3 | 99,5 | non | 60 |
+| `grille-59-94.srt` | 4,8 | 99,4 | non | 59,94 |
+| `melange-groupe.srt` | 65,1 | 66,4 | oui | 29,97 |
+| `melange-disperse.srt` | 75,4 | 84,9 | oui | 25 |
+
+Un écart chiffré n'aurait pas tenu : les deux dernières lignes sont séparées de
+1,3 et de 9,5 points, et la quatrième de 84. Aucune marge ne passe entre 9,5
+et 84 sans être choisie après coup pour ça.
+
 **D6 — l'étendue est rendue, et les candidates qu'elle ne sépare pas sont
 nommées.** 23,976 et 24 dérivent d'une milliseconde par seconde de film, et une
 image en dure 41,7 : la phase sur la mauvaise candidate fait un tour complet
@@ -142,6 +165,15 @@ barre d'état, au dialogue de conversion et à `inspect` de la montrer sans que
 l'utilisateur la réclame. Elle est donc **sur le chemin de lecture**, qui coûte
 2,5 ms pour 4000 sous-titres : son budget est **un cinquième de la lecture**,
 vérifié au benchmark et non espéré. Au-delà, elle devient paresseuse.
+
+**Mesuré par #203 : 374 µs** au relevé de la version 0.6.3, contre 2,32 ms pour
+la lecture du même relevé — **16 %, le budget est tenu.**
+
+Il ne l'était pas au premier jet. Le gain vient d'une propriété et non d'une
+astuce : une position est un nombre entier de millisecondes, donc sur une
+fréquence entière la phase ne prend que mille valeurs, et cinq des huit
+candidates se répondent alors par une table **exacte**, pas approchée. Mesuré
+dos à dos, elle divise le coût par deux.
 
 **D10 — deux opérations, et elles ne font pas la même chose.**
 
@@ -219,15 +251,22 @@ struct GridFit {          // une candidate, et ce qu'elle vaut
 
 enum class GridVerdict { Clean, Partial, Silent };
 
-struct Deduction {
-    std::array<GridFit, 8> ranked;      // décroissant, D4
-    GridVerdict verdict;                // D4
-    std::optional<FrameRate> harmonic;  // la candidate écartée par D5
-    Duration span;                      // l'étendue vue, D6
-    std::size_t starts;                 // combien de débuts l'ont donnée
-    std::vector<SubtitleIndex> strays;  // les débuts hors grille, D7
+struct FrameRateDeduction {
+    std::array<GridFit, 8> ranked;         // décroissant, D4
+    GridFit retained;                      // la réponse, après D5
+    GridVerdict verdict;                   // D4
+    std::optional<FrameRate> harmonic;     // la candidate écartée par D5
+    std::vector<FrameRate> notSeparated;   // ce que l'étendue ne sépare pas, D6
+    Duration span;                         // l'étendue vue, D6
+    std::size_t starts;                    // combien de débuts l'ont donnée
+    std::vector<SubtitleIndex> strays;     // les débuts hors grille, D7
 };
 ```
+
+**`retained` n'est pas `ranked.front()`, et les deux sont exposés.** C'est ce que
+D5 impose : le classement reste l'ordre honnête des concentrations, la réponse
+est celle que la règle harmonique désigne. Les confondre obligerait soit à
+mentir sur l'ordre, soit à refaire la règle chez chaque appelant.
 
 Les seuils — 90 pour `Clean`, 50 pour `Partial` — sont écrits **une seule fois**,
 ici, et nulle part ailleurs. C'est la conclusion de #197 : le score d'un couple
