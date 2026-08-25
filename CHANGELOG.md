@@ -30,6 +30,7 @@ ne pas l'éditer à la main.
 ### Corrections
 
 - **gui** — Montrer la vidéo, et non un panneau vide
+- **scripts** — Ne poser un extrême que sur un relevé propre
 
 ### Documentation
 
