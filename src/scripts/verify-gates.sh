@@ -41,8 +41,11 @@
 # passer par ffmpeg plutôt que par un extrait ajouté en fin de fichier :
 # ajouter du texte à la fin d'un MP4 ne le change pas, ffprobe l'ayant déjà lu.
 #
-# La dernière ne vise aucune porte : c'est `src/scripts/prune-runs.sh`, qui ne
-# refuse rien mais choisit ce qu'il supprime. Elle est ici faute d'un meilleur
+# Les deux dernières ne visent aucune porte : `src/scripts/record-bench.sh`, qui
+# ne refuse rien mais choisit ce qu'il inscrit dans une table qu'on n'élague
+# jamais — un extrême posé par du bruit est définitif — et
+# `src/scripts/prune-runs.sh`, qui ne refuse rien mais choisit ce qu'il
+# supprime. Elle est ici faute d'un meilleur
 # endroit — ce script est le seul harnais du projet pour ce qui s'écrit en
 # shell, et une sélection irréversible qu'aucune exécution ne vérifie serait
 # elle aussi une croyance.
@@ -685,6 +688,112 @@ expect_stale_coverage_is_cleared() {
 
 expect_stale_coverage_is_cleared
 
+# Une preuve du même esprit que les deux précédentes : record-bench.sh ne refuse
+# rien non plus, il choisit ce qu il inscrit dans la table des extrêmes. Et ce
+# qu il y inscrit est **définitif** — la table n est jamais élaguée — donc une
+# valeur posée par du bruit rend la mesure aveugle à toute régression plus
+# petite que ce bruit.
+#
+# Le défaut qu elle ferme a été trouvé à l usage, en phase 6 : une mesure neuve
+# posait ses deux extrêmes au premier relevé qui la portait, **même sale**.
+# Faute d avoir quelque chose à comparer, la règle du seuil de charge n avait
+# rien à refuser, et ne s appliquait donc jamais à ce qui venait de naître.
+#
+# Sur un journal jetable plutôt que sur celui du dépôt : ce que le script décide
+# est une fonction du journal qu il lit, d où --journal, comme prune-runs.sh a
+# --input.
+expect_bench_extremes_hold() {
+    local script="${REPO_ROOT}/src/scripts/record-bench.sh"
+    local work
+    local journal
+    local status=0
+
+    printf '%s▸ %s%s\n' "${BOLD}" "choix des extrêmes du journal des mesures" "${RESET}"
+
+    work="$(mktemp -d)"
+    journal="${work}/performances.md"
+
+    write_bench_xml() {
+        printf '%s\n' \
+            '<?xml version="1.0" encoding="UTF-8"?>' \
+            '<Catch2TestRun name="verify">' \
+            '  <TestCase name="t">' \
+            "    <BenchmarkResults name=\"$1\" samples=\"1\" resamples=\"0\" iterations=\"1\" clockResolution=\"1\" estimatedDuration=\"1\">" \
+            "      <mean value=\"$2\" lowerBound=\"$2\" upperBound=\"$2\" ci=\"0.95\"/>" \
+            '      <standardDeviation value="1" lowerBound="1" upperBound="1" ci="0.95"/>' \
+            '    </BenchmarkResults>' \
+            '  </TestCase>' \
+            '</Catch2TestRun>' > "${work}/run.xml"
+    }
+
+    printf '%s\n' \
+        '# Journal' '' '<!-- extrêmes -->' '' \
+        '| Mesure | Minimum | Relevé le | Maximum | Relevé le |' \
+        '| :----- | ------: | :-------- | ------: | :-------- |' \
+        '| ancienne | 100 ns | 0.0.1 — 2020-01-01 | 300 ns | 0.0.1 — 2020-01-01 |' '' \
+        '<!-- ancienne min=100.0 max=300.0 -->' '' \
+        '## Relevés' '' '<!-- relevés -->' '' > "${journal}"
+
+    # Premier passage, machine occupée : la mesure neuve entre au relevé et
+    # **pas** dans la table.
+    write_bench_xml "neuve" 1000
+    "${script}" --xml "${work}/run.xml" --mode Release --load 9 --below 1.5 \
+        --journal "${journal}" >/dev/null 2>&1 || status=$?
+    # Le commentaire brut, et non la ligne du tableau : le relevé courant
+    # porte lui aussi une ligne « | neuve | … », et la chercher là reviendrait
+    # à vérifier que la mesure est absente du journal — ce qu'elle ne doit pas
+    # être. Les commentaires bruts n'existent que dans la table des extrêmes.
+    if (( status != 0 )) || grep -q '<!-- neuve min=' "${journal}"; then
+        printf '  %s✗ une mesure neuve a posé ses extrêmes sur un relevé sale%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+        rm -rf "${work}"
+        return
+    fi
+
+    # Deuxième passage, machine calme : elle y entre.
+    write_bench_xml "neuve" 800
+    "${script}" --xml "${work}/run.xml" --mode Release --load 0.5 --below 1.5 \
+        --journal "${journal}" >/dev/null 2>&1 || status=$?
+    if ! grep -q '<!-- neuve min=800.0 max=800.0 -->' "${journal}"; then
+        printf '  %s✗ un relevé calme n a pas posé les extrêmes d une mesure neuve%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+        rm -rf "${work}"
+        return
+    fi
+
+    # Troisième passage, même version, calme, **pire** : l extrême que ce relevé
+    # remplace n a plus de source, donc il est repris — sans quoi la table
+    # citerait, pour une version présente au journal, un chiffre qu elle n y
+    # montre plus.
+    write_bench_xml "neuve" 950
+    "${script}" --xml "${work}/run.xml" --mode Release --load 0.5 --below 1.5 \
+        --journal "${journal}" >/dev/null 2>&1 || status=$?
+    if ! grep -q '<!-- neuve min=950.0 max=950.0 -->' "${journal}"; then
+        printf '  %s✗ un extrême posé par le relevé remplacé n a pas été repris%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+        rm -rf "${work}"
+        return
+    fi
+
+    # Et l enveloppe d une autre version ne bouge pas pour autant.
+    if ! grep -q '<!-- ancienne min=100.0 max=300.0 -->' "${journal}"; then
+        printf '  %s✗ l enveloppe d une autre version a été touchée%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+        rm -rf "${work}"
+        return
+    fi
+
+    printf '  %s✓ neuve écartée à chaud, posée au calme, reprise quand sa source est remplacée%s\n' \
+        "${GREEN}" "${RESET}"
+    rm -rf "${work}"
+}
+
+expect_bench_extremes_hold
+
 printf '\n'
 if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
@@ -694,4 +803,6 @@ printf '%sles vingt-sept portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
+    "${GREEN}" "${RESET}"
+printf '%set le journal des mesures ne pose un extrême que sur un relevé propre%s\n' \
     "${GREEN}" "${RESET}"
