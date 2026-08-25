@@ -478,6 +478,9 @@ de ces lignes est de montrer d'où l'on partait.
 
 ## 16 — Fréquences d'image : déduction et correction
 
+**Cadrée.** Voir [`specs/16-frequences-d-image.md`](specs/16-frequences-d-image.md)
+et l'[ADR 0021](adr/0021-analyse-du-document-a-l-ouverture.md).
+
 **Dans le MVP, programmée entre la [6](#6--le-lecteur-intégré) et la
 [7](#7--finitions-et-première-livraison).** Son numéro est le premier libre au
 moment où elle a été ajoutée ; il l'identifie et ne dit pas son rang.

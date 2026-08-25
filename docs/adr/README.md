@@ -33,6 +33,7 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0018](0018-vocabulaire-des-formats-dans-le-modele.md) | Séparer le vocabulaire des formats de leurs opérations | acceptée |
 | [0019](0019-table-en-adaptateur-mince.md) | Lire à travers le modèle du noyau, qui rend ses changements | acceptée |
 | [0020](0020-libmpv-pour-le-lecteur-integre.md) | libmpv pour le lecteur intégré | acceptée |
+| [0021](0021-analyse-du-document-a-l-ouverture.md) | Une analyse du document, calculée à l'ouverture | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
@@ -41,6 +42,12 @@ images » que 0006 nomme sans la typer. Aucun point de 0006 n'est remis en cause
 [0007](0007-cpp23-et-std-expected.md) remplace partiellement
 [0001](0001-cpp20-et-qt6.md) sur le point de la norme : C++23 et non C++20. Le
 reste de 0001 — Qt 6, cœur sans dépendance à l'interface — reste en vigueur.
+
+[0021](0021-analyse-du-document-a-l-ouverture.md) donne un endroit à ce que
+[0006](0006-positions-en-millisecondes.md) et
+[0011](0011-numero-d-image-en-type-fort.md) rendaient possible sans le nommer :
+une inférence sur un document, distincte de ce qu'il est et de ce qui le change.
+Elle place, sans le faire, le déplacement de `core/model/anomaly.hpp`.
 
 ## Décisions attendues
 
