@@ -72,7 +72,8 @@ TEST_CASE("removing mentions cleans what it can and takes away what it empties",
     InMemoryFileSystem files = withFile(kFour);
     FakePrompts prompts;
     prompts.nextRun = true;
-    const MainWindow window{files, fileIn(files), prompts};
+    MainWindow window{files, fileIn(files), prompts};
+    window.show();
 
     window.hearingImpairedAction()->trigger();
 
@@ -86,7 +87,8 @@ TEST_CASE("the removal reports what it did", "[gui][GUI-HEARING-02]") {
     InMemoryFileSystem files = withFile(kFour);
     FakePrompts prompts;
     prompts.nextRun = true;
-    const MainWindow window{files, fileIn(files), prompts};
+    MainWindow window{files, fileIn(files), prompts};
+    window.show();
 
     window.hearingImpairedAction()->trigger();
 
@@ -98,7 +100,8 @@ TEST_CASE("removing mentions from a selection leaves the rest alone", "[gui][GUI
     InMemoryFileSystem files = withFile(kFour);
     FakePrompts prompts;
     prompts.nextRun = true;
-    const MainWindow window{files, fileIn(files), prompts};
+    MainWindow window{files, fileIn(files), prompts};
+    window.show();
     selectRow(window, 1);
 
     window.hearingImpairedAction()->trigger();
@@ -115,7 +118,8 @@ TEST_CASE("a removal that changes nothing says so and stays out of the history",
     InMemoryFileSystem files = withFile(kClean);
     FakePrompts prompts;
     prompts.nextRun = true;
-    const MainWindow window{files, fileIn(files), prompts};
+    MainWindow window{files, fileIn(files), prompts};
+    window.show();
 
     window.hearingImpairedAction()->trigger();
 
@@ -129,7 +133,8 @@ TEST_CASE("giving up on the confirmation removes nothing", "[gui][GUI-HEARING-01
     InMemoryFileSystem files = withFile(kFour);
     FakePrompts prompts;
     prompts.nextRun = false;
-    const MainWindow window{files, fileIn(files), prompts};
+    MainWindow window{files, fileIn(files), prompts};
+    window.show();
 
     window.hearingImpairedAction()->trigger();
 
@@ -145,7 +150,8 @@ TEST_CASE("undoing a removal puts the subtitles back, with their own text",
     InMemoryFileSystem files = withFile(kFour);
     FakePrompts prompts;
     prompts.nextRun = true;
-    const MainWindow window{files, fileIn(files), prompts};
+    MainWindow window{files, fileIn(files), prompts};
+    window.show();
     window.hearingImpairedAction()->trigger();
     REQUIRE(window.table()->model()->rowCount({}) == 3);
 
@@ -168,7 +174,8 @@ TEST_CASE("the confirmation names the selection, and not the file", "[gui][GUI-H
     prompts.fill = [&said](QDialog& dialog) {
         said = dynamic_cast<OperationDialog&>(dialog).targetLabel().toStdString();
     };
-    const MainWindow window{files, fileIn(files), prompts};
+    MainWindow window{files, fileIn(files), prompts};
+    window.show();
     selectRow(window, 1);
     selectRow(window, 2);
 
@@ -180,7 +187,8 @@ TEST_CASE("the confirmation names the selection, and not the file", "[gui][GUI-H
 TEST_CASE("the removal is not offered on an empty file", "[gui][GUI-HEARING-01]") {
     InMemoryFileSystem files;
     FakePrompts prompts;
-    const MainWindow window{files, OpenedFile{}, prompts};
+    MainWindow window{files, OpenedFile{}, prompts};
+    window.show();
 
     CHECK_FALSE(window.hearingImpairedAction()->isEnabled());
 }

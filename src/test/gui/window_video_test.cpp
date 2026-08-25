@@ -62,7 +62,8 @@ TEST_CASE("choosing a video associates it, and the window names it", "[gui][GUI-
     InMemoryFileSystem files = directoryHolding({});
     FakePrompts prompts;
     prompts.nextVideoToOpen = "/ailleurs/autre-montage.mkv";
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    window.show();
 
     window.selectVideoAction()->trigger();
 
@@ -75,7 +76,8 @@ TEST_CASE("choosing a video associates it, and the window names it", "[gui][GUI-
 TEST_CASE("the chooser opens on the directory of the subtitle file", "[gui][GUI-VIDEO-01]") {
     InMemoryFileSystem files = directoryHolding({});
     FakePrompts prompts;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    window.show();
 
     window.selectVideoAction()->trigger();
 
@@ -85,7 +87,8 @@ TEST_CASE("the chooser opens on the directory of the subtitle file", "[gui][GUI-
 TEST_CASE("a chooser nobody answered changes nothing", "[gui][GUI-VIDEO-01]") {
     InMemoryFileSystem files = directoryHolding({});
     FakePrompts prompts;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    window.show();
 
     window.selectVideoAction()->trigger();
 
@@ -96,7 +99,8 @@ TEST_CASE("a chooser nobody answered changes nothing", "[gui][GUI-VIDEO-01]") {
 TEST_CASE("opening a subtitle file proposes the film beside it", "[gui][GUI-VIDEO-02]") {
     InMemoryFileSystem files = directoryHolding({"film.mkv"});
     FakePrompts prompts;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    window.show();
 
     // Nobody was asked anything: the convention speaks on its own.
     CHECK(prompts.videoAsked == 0);
@@ -106,7 +110,8 @@ TEST_CASE("opening a subtitle file proposes the film beside it", "[gui][GUI-VIDE
 TEST_CASE("a directory with no film proposes none", "[gui][GUI-VIDEO-02]") {
     InMemoryFileSystem files = directoryHolding({"notes.txt"});
     FakePrompts prompts;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    window.show();
 
     CHECK(statusOf(window) == "No video");
 }
@@ -116,7 +121,8 @@ TEST_CASE("opening another file proposes the film beside that one", "[gui][GUI-V
     files.addFile("/autre/serie.mkv", "");
     files.addFile("/autre/serie.srt", kOne);
     FakePrompts prompts;
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    window.show();
     REQUIRE(statusOf(window) == "Video: film.mkv");
 
     prompts.nextFileToOpen = "/autre/serie.srt";
@@ -132,7 +138,8 @@ TEST_CASE("a chosen film survives a save under another name", "[gui][GUI-VIDEO-0
     InMemoryFileSystem files = directoryHolding({"film.mkv"});
     FakePrompts prompts;
     prompts.nextVideoToOpen = "/ailleurs/le-bon-montage.mkv";
-    const MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts};
+    window.show();
     window.selectVideoAction()->trigger();
     REQUIRE(statusOf(window) == "Video: le-bon-montage.mkv");
 

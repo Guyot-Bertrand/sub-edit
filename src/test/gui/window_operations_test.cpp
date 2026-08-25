@@ -81,7 +81,8 @@ TEST_CASE("shifting with nothing selected moves the whole file", "[gui][GUI-SHIF
     prompts.fill = [](QDialog& dialog) {
         dynamic_cast<ShiftDialog&>(dialog).setTyped(QStringLiteral("00:00:01,000"));
     };
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     window.shiftAction()->trigger();
 
@@ -97,7 +98,8 @@ TEST_CASE("shifting a selection moves only it", "[gui][GUI-SHIFT-01]") {
     prompts.fill = [](QDialog& dialog) {
         dynamic_cast<ShiftDialog&>(dialog).setTyped(QStringLiteral("00:00:01,000"));
     };
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
     selectRow(window, 1);
 
     window.shiftAction()->trigger();
@@ -122,7 +124,8 @@ TEST_CASE("a dialog names the selection, and not the file", "[gui][GUI-SHIFT-01]
     prompts.fill = [&said](QDialog& dialog) {
         said = dynamic_cast<OperationDialog&>(dialog).targetLabel().toStdString();
     };
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     SECTION("nothing selected is the whole file") {
         window.shiftAction()->trigger();
@@ -157,7 +160,8 @@ TEST_CASE("giving up on a dialog applies nothing", "[gui][GUI-SHIFT-01]") {
     prompts.fill = [](QDialog& dialog) {
         dynamic_cast<ShiftDialog&>(dialog).setTyped(QStringLiteral("00:00:01,000"));
     };
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     window.shiftAction()->trigger();
 
@@ -177,7 +181,8 @@ TEST_CASE("a shift that would go before the origin is refused, and names the sub
     prompts.fill = [](QDialog& dialog) {
         dynamic_cast<ShiftDialog&>(dialog).setTyped(QStringLiteral("-0:02,000"));
     };
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     window.shiftAction()->trigger();
 
@@ -197,7 +202,8 @@ TEST_CASE("transforming corrects the file from two references", "[gui][GUI-TRANS
         dynamic_cast<TransformDialog&>(dialog).setTyped(
             1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("00:00:13,000"));
     };
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     window.transformAction()->trigger();
 
@@ -215,7 +221,8 @@ TEST_CASE("converting the frame rate re-times the file", "[gui][GUI-FRAMERATE-01
         dynamic_cast<FrameRateDialog&>(dialog).setRates(FrameRate{StandardFrameRate::Fps25},
                                                         FrameRate{StandardFrameRate::Fps24});
     };
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     window.frameRateAction()->trigger();
 
@@ -228,7 +235,8 @@ TEST_CASE("converting the frame rate re-times the file", "[gui][GUI-FRAMERATE-01
 TEST_CASE("the three operations are reachable from a menu of their own", "[gui][GUI-SHIFT-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     CHECK(window.shiftAction()->isEnabled());
     CHECK(window.transformAction()->isEnabled());
@@ -240,7 +248,8 @@ TEST_CASE("an operation on an empty file is not offered", "[gui][GUI-SHIFT-01]")
     // than opening a dialog that could apply to nothing.
     InMemoryFileSystem files;
     FakePrompts prompts;
-    const MainWindow window{files, OpenedFile{}, prompts};
+    MainWindow window{files, OpenedFile{}, prompts};
+    window.show();
 
     CHECK_FALSE(window.shiftAction()->isEnabled());
     CHECK_FALSE(window.transformAction()->isEnabled());
@@ -251,7 +260,8 @@ TEST_CASE("giving up on the transform dialog applies nothing", "[gui][GUI-TRANSF
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = false;
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     window.transformAction()->trigger();
 
@@ -263,7 +273,8 @@ TEST_CASE("giving up on the frame rate dialog applies nothing", "[gui][GUI-FRAME
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = false;
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     window.frameRateAction()->trigger();
 
@@ -284,7 +295,8 @@ TEST_CASE("a shift validated on an unreadable duration does nothing", "[gui][GUI
     prompts.fill = [](QDialog& dialog) {
         dynamic_cast<ShiftDialog&>(dialog).setTyped(QStringLiteral("bientôt"));
     };
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     window.shiftAction()->trigger();
 
@@ -302,7 +314,8 @@ TEST_CASE("a transform validated on an unreadable reference does nothing",
         dynamic_cast<TransformDialog&>(dialog).setTyped(
             1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("plus tard"));
     };
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     window.transformAction()->trigger();
 
@@ -320,7 +333,8 @@ TEST_CASE("two references on one subtitle are refused, and said so", "[gui][GUI-
         dynamic_cast<TransformDialog&>(dialog).setTyped(
             2, QStringLiteral("00:00:01,000"), 2, QStringLiteral("00:00:09,000"));
     };
-    const MainWindow window{files, fourIn(files), prompts};
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
 
     window.transformAction()->trigger();
 
