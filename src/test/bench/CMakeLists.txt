@@ -10,6 +10,7 @@ set(CMAKE_AUTOMOC ON)
 add_executable(
     subedit_bench
     full_length_project.cpp
+    core/analysis/frame_rate_deduction_bench.cpp
     core/edit/operations_bench.cpp
     core/format/subtitle_file_bench.cpp
     core/time/timestamp_bench.cpp
