@@ -9,6 +9,10 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Cadrage de la phase 16, la déduction de fréquence
+
 ### Tests
 
 - **test** — Des fixtures de sous-titres sur grille connue
