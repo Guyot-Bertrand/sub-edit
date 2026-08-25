@@ -51,6 +51,7 @@ ne pas l'éditer à la main.
 
 - **test** — Deux fixtures vidéo minuscules, vérifiables plutôt que crues
 - **test** — Un faux lecteur vidéo, et l'attente bornée d'un enfant
+- **test** — Montrer la fenêtre que les tests pilotent
 
 ## 0.5.0 — 2026-08-22
 
