@@ -20,8 +20,14 @@
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-readonly JOURNAL="${REPO_ROOT}/docs/mesures/performances.md"
 readonly RETENTION_DAYS=31
+
+# Le journal est un paramètre, pour la raison qui a donné `--input` à
+# prune-runs.sh : **ce que ce script décide est une fonction du journal qu'il
+# lit**, donc cela se démontre sur un journal écrit à la main. Sans cela, la
+# seule façon d'éprouver le choix des extrêmes serait de le faire écrire dans
+# le fichier versionné du dépôt, ce qu'aucune preuve ne peut se permettre.
+journal="${REPO_ROOT}/docs/mesures/performances.md"
 
 readonly GREEN=$'\033[32m'
 readonly RESET=$'\033[0m'
@@ -34,6 +40,7 @@ below=""
 usage() {
     cat >&2 <<'USAGE'
 usage: record-bench.sh --xml <sortie.xml> --mode <mode> --load <charge> --below <seuil>
+                       [--journal <fichier>]
 
   --xml    la sortie du rapporteur XML de Catch2
   --mode   le mode de compilation à consigner dans l'en-tête de section
@@ -41,6 +48,9 @@ usage: record-bench.sh --xml <sortie.xml> --mode <mode> --load <charge> --below 
            le supposer : lui seul sait quel preset CMake a produit le binaire.
   --load   la charge de la machine au moment de mesurer, ou « inconnue »
   --below  le seuil sous lequel une mesure compte comme propre
+  --journal  le journal à écrire (défaut : docs/mesures/performances.md) —
+             c'est ce qui permet d'éprouver le choix des extrêmes sur un
+             journal jetable plutôt que sur celui du dépôt
 USAGE
     exit 2
 }
@@ -51,6 +61,7 @@ while (( $# > 0 )); do
         --mode)  [[ $# -ge 2 ]] || usage; mode="$2";  shift 2 ;;
         --load)  [[ $# -ge 2 ]] || usage; load="$2";  shift 2 ;;
         --below) [[ $# -ge 2 ]] || usage; below="$2"; shift 2 ;;
+        --journal) [[ $# -ge 2 ]] || usage; journal="$2"; shift 2 ;;
         -h|--help) usage ;;
         *) printf 'argument inconnu : %s\n' "$1" >&2; usage ;;
     esac
@@ -61,13 +72,13 @@ done
 [[ -n "${load}" ]] || usage
 [[ -n "${below}" ]] || usage
 [[ -f "${xml}" ]] || { printf 'sortie XML introuvable : %s\n' "${xml}" >&2; exit 1; }
-[[ -f "${JOURNAL}" ]] || { printf 'journal introuvable : %s\n' "${JOURNAL}" >&2; exit 1; }
+[[ -f "${journal}" ]] || { printf 'journal introuvable : %s\n' "${journal}" >&2; exit 1; }
 
 version="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' \
     "${REPO_ROOT}/CMakeLists.txt" | head -1)"
 [[ -n "${version}" ]] || { printf 'version illisible dans CMakeLists.txt\n' >&2; exit 1; }
 
-python3 - "${xml}" "${JOURNAL}" "${version}" "$(date +%Y-%m-%d)" "${RETENTION_DAYS}" "${mode}" \
+python3 - "${xml}" "${journal}" "${version}" "$(date +%Y-%m-%d)" "${RETENTION_DAYS}" "${mode}" \
     "${load}" "${below}" <<'PY'
 import datetime
 import os
@@ -364,14 +375,32 @@ current_means = {measure["name"]: measure["mean"] for measure in measures}
 # minimum, son maximum et leurs dates tels quels plutôt que de disparaître.
 # L'ordre déjà présent dans le journal est conservé ; les mesures nouvelles
 # sont ajoutées à la suite, dans l'ordre où le XML les rapporte.
-ordered_names = list(known)
-for measure in measures:
-    if measure["name"] not in known:
-        ordered_names.append(measure["name"])
+#
+# **Une mesure neuve n'y entre que sur un relevé propre**, et cette garde a été
+# payée. Sans elle, elle posait ses deux extrêmes au premier relevé qui la
+# portait, **même sale** : faute d'avoir quelque chose à comparer, la règle qui
+# protège l'enveloppe n'avait rien à refuser, et le seuil de charge ne
+# s'appliquait donc jamais à ce qui venait de naître. Les quatre mesures vidéo
+# de la phase 6 sont nées ainsi sous une charge de 5,73, et la table a dû être
+# corrigée à la main. Laissée hors de la table, une mesure neuve y entrera au
+# premier relevé calme — le journal montre son chiffre entre-temps.
+newcomers = [measure["name"] for measure in measures if measure["name"] not in known]
+ordered_names = list(known) + (newcomers if quiet else [])
+
+
+def posed_by_replaced(source):
+    """Cet extrême vient-il du relevé que celui-ci remplace ?
+
+    La comparaison porte sur la version seule : c'est elle qui décide du
+    remplacement d'une section, quelle que soit la date qui l'accompagne.
+    """
+    return source.split(" — ")[0] == version
+
 
 rows = []
 comments = []
 withheld = []
+stale = []
 for name in ordered_names:
     if name not in current_means:
         # Non mesurée cette fois : recopiée sans y toucher.
@@ -382,6 +411,19 @@ for name in ordered_names:
         if name in raw:
             low, high = raw[name]
             minsrc, maxsrc = known[name]["minsrc"], known[name]["maxsrc"]
+
+            # **Un extrême posé par le relevé qu'on remplace n'a plus de
+            # source.** Sa section disparaît du fichier, remplacée par
+            # celle-ci ; le laisser tel quel ferait citer, pour une version
+            # présente au journal, des chiffres que cette version n'y montre
+            # plus. Repris du relevé courant s'il est propre — meilleur ou
+            # pire, ce qui compte est qu'il soit vérifiable.
+            if quiet and posed_by_replaced(minsrc):
+                low, minsrc = value, stamp
+            if quiet and posed_by_replaced(maxsrc):
+                high, maxsrc = value, stamp
+            if not quiet and (posed_by_replaced(minsrc) or posed_by_replaced(maxsrc)):
+                stale.append(name)
         else:
             low = high = value
             minsrc = maxsrc = stamp
@@ -447,7 +489,22 @@ if not quiet:
             "  il en aurait posé pour : " + ", ".join(sorted(withheld)),
             file=sys.stderr,
         )
+    if newcomers:
+        print(
+            "  mesures neuves laissées hors de la table : "
+            + ", ".join(sorted(newcomers))
+            + " — elles y entreront au premier relevé calme.",
+            file=sys.stderr,
+        )
+    if stale:
+        print(
+            "  extrêmes laissés sur un relevé que celui-ci remplace : "
+            + ", ".join(sorted(stale))
+            + " — rejouer make bench au calme pour qu'ils redeviennent "
+            "vérifiables.",
+            file=sys.stderr,
+        )
 PY
 
 printf '%s✓%s relevé versé dans %s pour la version %s\n' \
-    "${GREEN}" "${RESET}" "${JOURNAL#"${REPO_ROOT}"/}" "${version}"
+    "${GREEN}" "${RESET}" "${journal#"${REPO_ROOT}"/}" "${version}"

@@ -45,23 +45,28 @@ recalculée sans lui, depuis les relevés conservés — tous les extrêmes qu'e
 citait en venaient, donc rien n'a été perdu qu'un peu de précision : les relevés
 n'affichent que trois chiffres significatifs.
 
-**Et cela se reproduit pour une mesure neuve, par une autre porte.** Une mesure
-qui n'a pas d'histoire pose ses deux extrêmes au premier relevé qui la porte,
-**même pris au-dessus du seuil** : il n'y a rien à comparer, donc rien à
-refuser. Les quatre mesures de la version `0.5.13` sont nées ainsi, sous une
-charge de 5,73 — puis le relevé a été rejoué à 2,75, remplaçant la section de
-version sans toucher à la table. Les extrêmes citaient alors, pour une version
-donnée, des chiffres qui n'apparaissaient nulle part dans le journal : un
-maximum de 27,8 ms pour l'ouverture d'une vidéo là où le relevé conservé en
-montre 10,9. La table a été corrigée à la main sur le relevé conservé, comme
-elle l'avait été pour `0.2.15` et pour la même raison.
+**Cela s'était reproduit pour une mesure neuve, par une autre porte**, et cette
+porte-là est refermée depuis #189. Une mesure sans histoire posait ses deux
+extrêmes au premier relevé qui la portait, **même pris au-dessus du seuil** : il
+n'y avait rien à comparer, donc rien à refuser, et la règle ci-dessus ne
+s'appliquait jamais à ce qui venait de naître. Les quatre mesures de la version
+`0.5.13` sont nées ainsi, sous une charge de 5,73 — puis le relevé a été rejoué
+à 2,75, remplaçant la section de version sans toucher à la table. Les extrêmes
+citaient alors, pour une version présente au journal, des chiffres qu'elle n'y
+montrait plus : un maximum de 27,8 ms pour l'ouverture d'une vidéo là où le
+relevé conservé en montre 10,9. La table a été corrigée à la main, comme elle
+l'avait été pour `0.2.15`.
 
-**Et il faudra le refaire à chaque fois, tant que le script ne le fait pas.**
-La correction n'est pas un incident réglé : elle se repose à chaque exécution de
-`make bench` sur cette version, puisque la section de version est remplacée sans
-que la table le soit. Ce que `record-bench.sh` devrait faire — ne poser les
-extrêmes d'une mesure neuve que sur un relevé sous le seuil, et les reprendre du
-relevé conservé quand il en remplace un — reste à écrire.
+**Deux règles en sont sorties**, et `verify-gates.sh` les tient :
+
+- **une mesure neuve n'entre dans la table que sur un relevé propre.** Prise sur
+  une machine occupée, elle est consignée au relevé et laissée hors de
+  l'enveloppe ; elle y entrera au premier relevé calme, et le script le dit ;
+- **un extrême posé par le relevé qu'on remplace est repris du relevé courant**,
+  meilleur ou pire. Sa section disparaît du fichier ; le laisser tel quel ferait
+  citer des chiffres que cette version n'y montre plus. Quand le relevé courant
+  n'est pas propre, l'extrême reste tel quel et le script signale qu'il n'est
+  plus vérifiable.
 
 **Conséquence pratique : l'enveloppe ne grandit que sur une machine libre.** Un
 relevé pris pendant qu'on travaille ailleurs sur la même machine est consigné,
@@ -259,6 +264,39 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.5.16 — 2026-08-25 — Release — charge 3.74 — allure ×1.44
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| la réplique en cours, sur 4000 sous-titres | 8.14 µs | 6.98 µs |
+| composer une réplique de deux lignes | 221 ns | 27.7 ns |
+| ouvrir une vidéo | 11.4 ms | 1.25 ms |
+| chercher une position | 1.25 ms | 1.08 ms |
+| construction du modèle sur 4000 sous-titres | 12.1 µs | 4.16 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 38.1 µs | 6.22 µs |
+| rafraîchir après un décalage de 4000 sous-titres | 10.3 µs | 2.45 µs |
+| réinitialisation du modèle après une ligne retirée | 11.1 µs | 3.32 µs |
+| édition d'une cellule de texte | 688 ns | 342 ns |
+| édition d'une cellule de position | 15 µs | 4.18 µs |
+| versionString | 43.2 ns | 4.74 ns |
+| parse | 54.3 ns | 13.3 ns |
+| format | 75.4 ns | 7.25 ns |
+| position vers image | 11.9 ns | 2.04 ns |
+| image vers position | 8.35 ns | 0.528 ns |
+| mise à l'échelle par un rationnel exact | 12.4 ns | 2.33 ns |
+| lecture de 4000 sous-titres | 5.39 ms | 1.15 ms |
+| écriture de 4000 sous-titres | 1.41 ms | 507 µs |
+| décalage de 4000 sous-titres | 11.9 µs | 7.03 µs |
+| décalage puis annulation | 26 µs | 17.3 µs |
+| transformation de 4000 sous-titres | 193 µs | 102 µs |
+| conversion de fréquence sur 4000 sous-titres | 124 µs | 42.3 µs |
+| tri de 4000 sous-titres à l'envers | 433 µs | 130 µs |
+| suppression d'un sous-titre sur deux | 392 µs | 274 µs |
+| suppression puis annulation | 431 µs | 226 µs |
+| insertion de 100 sous-titres vides au milieu | 159 µs | 133 µs |
+| modification d'un texte, à travers une session | 232 ns | 52.9 ns |
+| suppression des mentions sur 4000 sous-titres | 1.66 ms | 441 µs |
 
 ### 0.5.15 — 2026-08-24 — Release — charge 7.49 — allure ×0.81
 
