@@ -73,6 +73,7 @@ public:
     explicit Windowed(const char* content = nullptr) {
         if (content == nullptr) {
             m_window = std::make_unique<MainWindow>(m_files, OpenedFile{}, m_prompts);
+            m_window->show();
             return;
         }
 
@@ -80,6 +81,7 @@ public:
         auto opened = openProject(m_files, "film.srt");
         REQUIRE(opened.has_value());
         m_window = std::make_unique<MainWindow>(m_files, std::move(*opened), m_prompts);
+        m_window->show();
     }
 
     [[nodiscard]] MainWindow& window() const { return *m_window; }
@@ -125,7 +127,8 @@ TEST_CASE("a file of the corpus opens through the real file system", "[gui][GUI-
     CHECK(opened->diagnostics.empty());
 
     subedit::test::FakePrompts prompts;
-    const MainWindow window{files, std::move(*opened), prompts};
+    MainWindow window{files, std::move(*opened), prompts};
+    window.show();
 
     const QAbstractItemModel* table = window.table()->model();
     REQUIRE(table->rowCount({}) == 3);

@@ -89,7 +89,8 @@ constexpr const char* kNumberless = "1\n"
 TEST_CASE("saving writes the file the window was opened on", "[gui][GUI-SAVE-01]") {
     InMemoryFileSystem files = withFile("film.srt", kThree);
     FakePrompts prompts;
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
     REQUIRE(edit(window, 0, "Un bis."));
 
     window.saveAction()->trigger();
@@ -104,7 +105,8 @@ TEST_CASE("saving a document that came from nowhere asks where", "[gui][GUI-SAVE
     InMemoryFileSystem files;
     FakePrompts prompts;
     prompts.nextSaveTarget = SaveTarget{.path = "neuf.srt", .format = SubtitleFormat::SubRip};
-    const MainWindow window{files, OpenedFile{}, prompts};
+    MainWindow window{files, OpenedFile{}, prompts};
+    window.show();
 
     window.saveAction()->trigger();
 
@@ -116,7 +118,8 @@ TEST_CASE("saving under another name moves the document there", "[gui][GUI-SAVE-
     InMemoryFileSystem files = withFile("film.srt", kThree);
     FakePrompts prompts;
     prompts.nextSaveTarget = SaveTarget{.path = "film.vtt", .format = SubtitleFormat::WebVtt};
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
 
     window.saveAsAction()->trigger();
 
@@ -134,7 +137,8 @@ TEST_CASE("saving under another name moves the document there", "[gui][GUI-SAVE-
 TEST_CASE("saving under another name asks first, and gives up if told to", "[gui][GUI-SAVE-02]") {
     InMemoryFileSystem files = withFile("film.srt", kThree);
     FakePrompts prompts; // nextSaveTarget vide : l'utilisateur a annulé
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
 
     window.saveAsAction()->trigger();
 
@@ -146,7 +150,8 @@ TEST_CASE("saving under another name asks first, and gives up if told to", "[gui
 TEST_CASE("a save that cannot be written says so and keeps the changes", "[gui][GUI-SAVE-01]") {
     InMemoryFileSystem files = withFile("film.srt", kThree);
     FakePrompts prompts;
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
     REQUIRE(edit(window, 0, "Un bis."));
     files.failNextWrite(FileErrorKind::PermissionDenied);
 
@@ -162,7 +167,8 @@ TEST_CASE("opening replaces what the window holds", "[gui][GUI-OPEN-01]") {
     files.addFile("autre.srt", "1\n00:00:09,000 --> 00:00:10,000\nAilleurs.\n\n");
     FakePrompts prompts;
     prompts.nextFileToOpen = "autre.srt";
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
 
     window.openAction()->trigger();
 
@@ -177,7 +183,8 @@ TEST_CASE("opening what cannot be read says so and leaves the window as it was",
     files.addFile("notes.txt", "rien de reconnaissable\n");
     FakePrompts prompts;
     prompts.nextFileToOpen = "notes.txt";
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
 
     window.openAction()->trigger();
 
@@ -192,7 +199,8 @@ TEST_CASE("opening with unsaved changes asks, and cancelling opens nothing", "[g
     FakePrompts prompts;
     prompts.nextFileToOpen = "autre.srt";
     prompts.nextUnsavedChoice = UnsavedChoice::Cancel;
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
     REQUIRE(edit(window, 0, "Un bis."));
 
     window.openAction()->trigger();
@@ -210,7 +218,8 @@ TEST_CASE("discarding unsaved changes opens the other file anyway", "[gui][GUI-S
     FakePrompts prompts;
     prompts.nextFileToOpen = "autre.srt";
     prompts.nextUnsavedChoice = UnsavedChoice::Discard;
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
     REQUIRE(edit(window, 0, "Un bis."));
 
     window.openAction()->trigger();
@@ -226,7 +235,8 @@ TEST_CASE("choosing to save before opening writes, then opens", "[gui][GUI-SAVE-
     FakePrompts prompts;
     prompts.nextFileToOpen = "autre.srt";
     prompts.nextUnsavedChoice = UnsavedChoice::Save;
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
     REQUIRE(edit(window, 0, "Un bis."));
 
     window.openAction()->trigger();
@@ -259,7 +269,8 @@ TEST_CASE("closing with unsaved changes asks, and cancelling keeps the window",
 TEST_CASE("the diagnostics of a reading are shown", "[gui][GUI-OPEN-03]") {
     InMemoryFileSystem files = withFile("bancal.srt", kNumberless);
     FakePrompts prompts;
-    const MainWindow window{files, OpenedFile{}, prompts};
+    MainWindow window{files, OpenedFile{}, prompts};
+    window.show();
     prompts.nextFileToOpen = "bancal.srt";
 
     window.openAction()->trigger();
@@ -274,7 +285,8 @@ TEST_CASE("a reading with nothing to report shows no panel", "[gui][GUI-OPEN-03]
     // An empty panel would say there is something to read.
     InMemoryFileSystem files = withFile("film.srt", kThree);
     FakePrompts prompts;
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
 
     CHECK(window.diagnostics()->count() == 0);
     CHECK_FALSE(window.diagnostics()->isVisibleTo(&window));
@@ -299,7 +311,8 @@ TEST_CASE("a diagnostic that quotes the file quotes it, and bounds it", "[gui][G
                                             "\n"
                                             "Deux.\n");
     FakePrompts prompts;
-    const MainWindow window{files, fileIn(files, "bancal.srt"), prompts};
+    MainWindow window{files, fileIn(files, "bancal.srt"), prompts};
+    window.show();
 
     REQUIRE(window.diagnostics()->count() >= 1);
     const std::string line = window.diagnostics()->lineAt(0).toStdString();
@@ -313,7 +326,8 @@ TEST_CASE("the diagnostics panel folds and unfolds", "[gui][GUI-OPEN-03]") {
     // available, not to stand between the user and their table.
     InMemoryFileSystem files = withFile("bancal.srt", kNumberless);
     FakePrompts prompts;
-    const MainWindow window{files, fileIn(files, "bancal.srt"), prompts};
+    MainWindow window{files, fileIn(files, "bancal.srt"), prompts};
+    window.show();
 
     auto* toggle = window.diagnostics()->findChild<QToolButton*>();
     REQUIRE(toggle != nullptr);
@@ -333,7 +347,8 @@ TEST_CASE("a save-as that cannot be written says so and moves nothing", "[gui][G
     InMemoryFileSystem files = withFile("film.srt", kThree);
     FakePrompts prompts;
     prompts.nextSaveTarget = SaveTarget{.path = "ailleurs.vtt", .format = SubtitleFormat::WebVtt};
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
     files.failNextWrite(FileErrorKind::PermissionDenied);
 
     window.saveAsAction()->trigger();
@@ -347,7 +362,8 @@ TEST_CASE("a save-as that cannot be written says so and moves nothing", "[gui][G
 TEST_CASE("giving up on the file dialog opens nothing", "[gui][GUI-OPEN-01]") {
     InMemoryFileSystem files = withFile("film.srt", kThree);
     FakePrompts prompts; // nextFileToOpen vide : l'utilisateur a renoncé
-    const MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
 
     window.openAction()->trigger();
 
