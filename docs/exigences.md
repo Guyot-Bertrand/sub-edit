@@ -113,6 +113,9 @@ plus rien.
 | `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier | 5 | implémentée |
 | `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique | 5 | implémentée |
 | `CLI-INSPECT-04` | les anomalies d'un document sont rapportées par numéro de sous-titre | 5 | implémentée |
+| `CLI-INSPECT-05` | `inspect` écrit la grille déduite, sa concentration et le verdict | 16 | implémentée |
+| `CLI-INSPECT-06` | un fichier sans grille le dit, et ne nomme aucune fréquence | 16 | implémentée |
+| `CLI-INSPECT-07` | une ambiguïté harmonique est nommée, et la plus basse est retenue | 16 | implémentée |
 | `GUI-VIDEO-01` | choisir une vidéo l'associe au document, et la fenêtre la nomme | 6 | implémentée |
 | `GUI-VIDEO-02` | ouvrir un fichier de sous-titres propose la vidéo voisine de même nom | 6 | implémentée |
 | `GUI-PLAYER-01` | la vidéo s'ouvre dans la fenêtre, et se joue | 6 | implémentée |

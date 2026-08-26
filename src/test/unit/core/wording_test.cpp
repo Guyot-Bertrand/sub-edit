@@ -1,3 +1,4 @@
+#include <subedit/core/analysis/grid_verdict.hpp>
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/time/frame_rate.hpp>
@@ -153,4 +154,26 @@ TEST_CASE("a single subtitle past the end is said in the singular", "[wording]")
     CHECK(noticeOf(CommandKind::Shift,
                    BeyondEnd{.count = 1, .overshoot = Duration::fromMilliseconds(500)}) ==
           "shifting leaves 1 subtitle past the end of the video, by 0.500 s at most");
+}
+
+TEST_CASE("every grid verdict has a word of its own", "[wording]") {
+    // The same three words the window shows in its status bar. Two surfaces
+    // wording one verdict twice is how they start to disagree, which is why
+    // this lives in `wording` rather than in the report that first needed it.
+    using subedit::core::GridVerdict;
+
+    CHECK(nameOf(GridVerdict::Clean) == "clean");
+    CHECK(nameOf(GridVerdict::Partial) == "partial");
+    CHECK(nameOf(GridVerdict::Silent) == "none");
+}
+
+TEST_CASE("a concentration is written with one decimal", "[wording]") {
+    using subedit::core::percentOf;
+
+    CHECK(percentOf(100.0) == "100.0%");
+    CHECK(percentOf(99.87) == "99.9%");
+    CHECK(percentOf(15.34) == "15.3%");
+    // One decimal and not more: the third digit says nothing a reader can act
+    // on, and a clean grid reads better as 99.9% than as 99.87342%.
+    CHECK(percentOf(0.0) == "0.0%");
 }

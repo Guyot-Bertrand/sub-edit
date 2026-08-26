@@ -185,11 +185,20 @@ wholeRateTable() {
     if (meanTurn < 0.0)
         meanTurn += 1.0;
 
-    const double phase = meanTurn * millisecondsPerFrameOf(rate);
+    // Rounded to whole milliseconds, which is the unit positions are written
+    // in — and then wrapped, because the rounding can land on the frame length
+    // itself. A phase of one whole frame is a phase of none, and reporting it
+    // as forty milliseconds would send a reader looking for a shift that is not
+    // there.
+    const std::int64_t perFrame = rate.millisecondsPerFrame().scale(1);
+    std::int64_t phase = std::llround(meanTurn * millisecondsPerFrameOf(rate));
+    if (phase >= perFrame)
+        phase -= perFrame;
+
     return GridFit{
         .rate = rate,
         .concentration = concentration,
-        .phase = Duration::fromMilliseconds(std::llround(phase)),
+        .phase = Duration::fromMilliseconds(phase),
     };
 }
 
@@ -297,6 +306,8 @@ FrameRateDeduction deduceFrameRate(std::span<const Timestamp> starts) {
     if (starts.size() < kFewestStarts)
         return deduction;
 
+    deduction.enoughStarts = true;
+
     // The harmonic rule, and the reason it compares bands rather than a margin:
     // a file truly on the higher rate sees the lower one collapse to the noise,
     // so the two land in different bands. A file on the lower rate puts both in
@@ -319,6 +330,17 @@ FrameRateDeduction deduceFrameRate(std::span<const Timestamp> starts) {
     deduction.notSeparated = notSeparatedFrom(deduction.retained.rate, span);
     deduction.strays = straysOf(starts, deduction.retained);
     return deduction;
+}
+
+std::size_t runsOfStrays(const FrameRateDeduction& deduction) {
+    std::size_t runs = 0;
+    for (std::size_t rank = 0; rank < deduction.strays.size(); ++rank) {
+        const bool opensARun =
+            rank == 0 || deduction.strays[rank].value() != deduction.strays[rank - 1].value() + 1;
+        if (opensARun)
+            ++runs;
+    }
+    return runs;
 }
 
 } // namespace subedit::core

@@ -119,3 +119,75 @@ TEST_CASE("a value outside a closed set is refused", "[e2e][CLI-USAGE-02]") {
     CHECK_THAT(run.errors, ContainsSubstring("srt"));
     CHECK_THAT(run.errors, ContainsSubstring("vtt"));
 }
+
+TEST_CASE("inspect reports the grid a file was written on", "[e2e][CLI-INSPECT-05]") {
+    const CliRun run = invoke({"inspect", corpus("grilles/grille-24.srt")});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.output, ContainsSubstring("  frame rate grid: 24 fps, clean ("));
+}
+
+TEST_CASE("inspect reports a partial grid as partial", "[e2e][CLI-INSPECT-05]") {
+    // Two thirds on a grid at 29.97, the last third retimed. Saying « clean »
+    // or « none » would both be wrong, and the number of runs is what tells a
+    // retimed section from positions corrected one by one.
+    const CliRun run = invoke({"inspect", corpus("grilles/melange-groupe.srt")});
+
+    CHECK_THAT(run.output, ContainsSubstring("  frame rate grid: 30000/1001 fps, partial ("));
+    CHECK_THAT(run.output, ContainsSubstring("  off the grid: "));
+    CHECK_THAT(run.output, ContainsSubstring(" runs\n"));
+}
+
+TEST_CASE("inspect reports the offset of a shifted grid", "[e2e][CLI-INSPECT-05]") {
+    const CliRun run = invoke({"inspect", corpus("grilles/grille-24-decalee.srt")});
+
+    CHECK_THAT(run.output, ContainsSubstring("  frame rate grid: 24 fps, clean ("));
+    CHECK_THAT(run.output, ContainsSubstring("  grid offset: "));
+}
+
+TEST_CASE("a file on no grid at all says so, and names no rate", "[e2e][CLI-INSPECT-06]") {
+    // 26.3 frames per second: perfectly regular, and none of the eight
+    // candidates. Reporting the least wrong of them would be a bad answer
+    // where « I do not know » is the right one — and it is that property which
+    // makes the deduction usable at all.
+    const CliRun run = invoke({"inspect", corpus("grilles/grille-absurde.srt")});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.output, ContainsSubstring("  frame rate grid: none (best candidate at "));
+    CHECK_THAT(run.output, !ContainsSubstring(" fps,"));
+}
+
+TEST_CASE("too few subtitles say so rather than nothing", "[e2e][CLI-INSPECT-06]") {
+    // Two starts always look concentrated: the noise floor is one over the
+    // square root of the count. The two causes of a silent verdict are not the
+    // same answer, and the report distinguishes them.
+    const CliRun run = invoke({"inspect", corpus("valides/minimal.srt")});
+
+    CHECK_THAT(run.output, ContainsSubstring("  frame rate grid: none (too few subtitles"));
+}
+
+TEST_CASE("a harmonic ambiguity is named, and the lower rate kept", "[e2e][CLI-INSPECT-07]") {
+    // A grid at 25 is included in a grid at 50, so a file written on 25 scores
+    // full marks on both. The implication holds one way only, which is why the
+    // lower rate is the one reported — and the other is said rather than hidden.
+    const CliRun run = invoke({"inspect", corpus("grilles/grille-25.srt")});
+
+    CHECK_THAT(run.output, ContainsSubstring("  frame rate grid: 25 fps, clean ("));
+    CHECK_THAT(run.output, ContainsSubstring("  also fits: 50 fps"));
+}
+
+TEST_CASE("a file truly on the higher rate keeps it, with no ambiguity", "[e2e][CLI-INSPECT-07]") {
+    const CliRun run = invoke({"inspect", corpus("grilles/grille-50.srt")});
+
+    CHECK_THAT(run.output, ContainsSubstring("  frame rate grid: 50 fps, clean ("));
+    CHECK_THAT(run.output, !ContainsSubstring("  also fits: "));
+}
+
+TEST_CASE("too short a span to separate two rates says which", "[e2e][CLI-INSPECT-05]") {
+    // Ten seconds on a grid at 24. The candidate at 24000/1001 drifts by a
+    // millisecond per second of film, so it is still at ninety-odd per cent —
+    // answering « 24 » without saying so would be lying by omission.
+    const CliRun run = invoke({"inspect", corpus("grilles/grille-24-courte.srt")});
+
+    CHECK_THAT(run.output, ContainsSubstring("  too short a span to separate: 24000/1001 fps"));
+}

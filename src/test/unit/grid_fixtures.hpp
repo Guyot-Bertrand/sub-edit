@@ -14,10 +14,15 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
+#include <string>
 #include <string_view>
 #include <vector>
 
 namespace subedit::test {
+
+/// The bytes of a grid fixture, for a test that wants to hand them to a reader
+/// of its own rather than to the one built in.
+[[nodiscard]] std::string gridBytes(std::string_view name);
 
 /// Opens a grid fixture as a project, timed at `rate`.
 ///

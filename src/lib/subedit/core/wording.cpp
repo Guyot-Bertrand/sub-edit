@@ -1,5 +1,6 @@
 #include <subedit/core/wording.hpp>
 
+#include <cmath>
 #include <cstdint>
 #include <string>
 #include <utility>
@@ -163,6 +164,26 @@ std::string nameOf(core::FrameRate rate) {
         decimals.pop_back();
     }
     return whole + "." + decimals;
+}
+
+std::string_view nameOf(GridVerdict verdict) {
+    switch (verdict) {
+    case GridVerdict::Clean:
+        return "clean";
+    case GridVerdict::Partial:
+        return "partial";
+    case GridVerdict::Silent:
+        return "none";
+    }
+
+    // The three are handled and the compiler checks it.
+    std::unreachable();
+}
+
+std::string percentOf(double value) {
+    constexpr std::int64_t kTenths = 10;
+    const std::int64_t tenths = std::llround(value * static_cast<double>(kTenths));
+    return std::to_string(tenths / kTenths) + "." + std::to_string(tenths % kTenths) + "%";
 }
 
 std::string videoStatusOf(const std::optional<std::filesystem::path>& video) {

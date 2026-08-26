@@ -5,6 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <grid_fixtures.hpp>
 #include <sstream>
 #include <string>
 
@@ -65,6 +66,12 @@ TEST_CASE("the report says what the file is made of", "[cli][inspection]") {
                        "  line endings: LF\n"
                        "  subtitles: 2\n"
                        "  span: 00:00:01.000 -> 00:00:06.200\n"
+                       // Two starts always look perfectly concentrated: the
+                       // noise floor is one over the square root of the count.
+                       // A verdict drawn from two points would be a coin toss
+                       // wearing a number, so the report says which of the two
+                       // silences this is.
+                       "  frame rate grid: none (too few subtitles to tell)\n"
                        "  anomalies: none\n");
 }
 
@@ -259,4 +266,76 @@ TEST_CASE("the report names every subtitle out of place", "[cli][inspection]") {
     // the other one until the corpus failed to settle the question.
     CHECK_THAT(out.str(), ContainsSubstring("subtitle 3 starts before the previous one starts"));
     CHECK_THAT(out.str(), !ContainsSubstring("subtitle 4 starts before the previous one starts"));
+}
+
+TEST_CASE("the report names the grid a file was written on", "[cli][inspection]") {
+    const InMemoryFileSystem files = withFile("a.srt", subedit::test::gridBytes("grille-24.srt"));
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}));
+
+    CHECK_THAT(out.str(), ContainsSubstring("  frame rate grid: 24 fps, clean (99.9%)\n"));
+}
+
+TEST_CASE("the report names the harmonic it set aside", "[cli][inspection]") {
+    // A grid at 25 is included in a grid at 50: the file fits both, the lower
+    // rate is the parsimonious reading, and the other is said rather than hidden.
+    const InMemoryFileSystem files = withFile("a.srt", subedit::test::gridBytes("grille-25.srt"));
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}));
+
+    CHECK_THAT(out.str(), ContainsSubstring("  frame rate grid: 25 fps, clean (100.0%)\n"));
+    CHECK_THAT(out.str(),
+               ContainsSubstring("  also fits: 50 fps, of which this rate is a whole divisor\n"));
+}
+
+TEST_CASE("the report gives the offset of a shifted grid", "[cli][inspection]") {
+    const InMemoryFileSystem files =
+        withFile("a.srt", subedit::test::gridBytes("grille-24-decalee.srt"));
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}));
+
+    CHECK_THAT(out.str(), ContainsSubstring("  grid offset: 0.041 s\n"));
+}
+
+TEST_CASE("the report says when the span is too short to choose", "[cli][inspection]") {
+    const InMemoryFileSystem files =
+        withFile("a.srt", subedit::test::gridBytes("grille-24-courte.srt"));
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}));
+
+    CHECK_THAT(out.str(), ContainsSubstring("  too short a span to separate: 24000/1001 fps\n"));
+}
+
+TEST_CASE("the report counts the starts that left the grid", "[cli][inspection]") {
+    // Two thirds on a grid, the last third retimed: a few long runs. A file
+    // corrected by hand would show as many runs as strays, and the count is
+    // what tells the two apart.
+    const InMemoryFileSystem files =
+        withFile("a.srt", subedit::test::gridBytes("melange-groupe.srt"));
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}));
+
+    CHECK_THAT(out.str(), ContainsSubstring("  frame rate grid: 30000/1001 fps, partial ("));
+    CHECK_THAT(out.str(), ContainsSubstring("  off the grid: 53 of 168 starts, in 4 runs\n"));
+}
+
+TEST_CASE("a file on no known grid names no rate at all", "[cli][inspection]") {
+    const InMemoryFileSystem files =
+        withFile("a.srt", subedit::test::gridBytes("grille-absurde.srt"));
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    CHECK(inspectFile(files, "a.srt", out, Reporter{errors, 0}));
+
+    CHECK_THAT(out.str(), ContainsSubstring("  frame rate grid: none (best candidate at 15.3%)\n"));
 }

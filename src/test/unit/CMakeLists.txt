@@ -103,6 +103,7 @@ catch_discover_tests(subedit_core_test PROPERTIES SKIP_RETURN_CODE 4)
 # Un binaire par bibliothèque : subedit_cli a le sien, comme subedit_core.
 add_executable(
     subedit_cli_test
+    grid_fixtures.cpp
     cli/batch_test.cpp
     cli/conversion_test.cpp
     cli/destination_test.cpp
@@ -120,6 +121,12 @@ add_executable(
     cli/verbosity_test.cpp)
 
 target_link_libraries(subedit_cli_test PRIVATE subedit::cli Catch2::Catch2WithMain)
+
+# Les fixtures de grille, et la racine où elles vivent : le rapport d'inspection
+# les lit, comme le noyau, et il n'y a qu'un jeu de fichiers pour les deux.
+target_include_directories(subedit_cli_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(subedit_cli_test
+                           PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
 
 subedit_set_warnings(subedit_cli_test)
 

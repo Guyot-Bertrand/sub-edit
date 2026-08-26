@@ -16,6 +16,7 @@
 // English, like everything the tool prints. Translation is a phase of its own;
 // this file is where it will have to reach.
 
+#include <subedit/core/analysis/grid_verdict.hpp>
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
 #include <subedit/core/format/diagnostic.hpp>
@@ -85,6 +86,20 @@ namespace subedit::core {
 /// not happen, and this line is the only place the user sees which rate was
 /// actually used.
 [[nodiscard]] std::string nameOf(FrameRate rate);
+
+/// What the deduction concluded, in one word.
+///
+/// Here rather than in the report that first needed it: the window says the
+/// same thing about the same file, and two surfaces wording one verdict twice
+/// is how they start to disagree.
+[[nodiscard]] std::string_view nameOf(GridVerdict verdict);
+
+/// A concentration, as a percentage with one decimal.
+///
+/// One decimal and not more: the third digit of a concentration says nothing a
+/// reader can act on, and a clean grid reads better as `99.9%` than as
+/// `99.87342%`.
+[[nodiscard]] std::string percentOf(double value);
 
 /// A length in seconds, signed, to the millisecond: "-7.001 s".
 ///

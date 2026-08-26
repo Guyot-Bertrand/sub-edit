@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/analysis/grid_verdict.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
@@ -29,18 +30,6 @@ struct GridFit {
     /// Not waste. A file whose positions sit on the grid to within a constant
     /// has been shifted, and the constant is what shifts it back.
     Duration phase;
-};
-
-/// What the deduction concludes about a document as a whole.
-///
-/// **The thresholds that separate these three live in the implementation, and
-/// deliberately so.** A caller that could read them could re-implement the
-/// verdict, and four surfaces re-implementing the same two numbers end up
-/// disagreeing. Ask for the verdict; do not recompute it.
-enum class GridVerdict {
-    Clean,   ///< the positions are on a grid
-    Partial, ///< a part of them is, and the rest is not
-    Silent,  ///< no candidate explains anything, which is an answer
 };
 
 /// Everything the deduction found, hiding nothing.
@@ -84,6 +73,18 @@ struct FrameRateDeduction {
     /// How many starts the deduction had to work with.
     std::size_t starts = 0;
 
+    /// Whether there were enough of them for any verdict at all.
+    ///
+    /// Two starts always look concentrated and three nearly always do: the
+    /// noise floor is one over the square root of the count. Below the minimum
+    /// the ranking is still filled in — a caller may want to show it — but it
+    /// means nothing, and a report that quoted it would print « none » next to
+    /// « 100 % » and be wrong twice in one line.
+    ///
+    /// A silent verdict therefore has two causes, and they are not the same
+    /// answer: **nothing fits**, or **there was not enough to look at**.
+    bool enoughStarts = false;
+
     /// The starts that leave the retained grid, in order.
     ///
     /// Empty on a clean file, and on a silent one — there, everything would be
@@ -104,5 +105,17 @@ struct FrameRateDeduction {
 /// positions and returns a judgement, which is what makes it testable against
 /// thirteen files and a table of constants.
 [[nodiscard]] FrameRateDeduction deduceFrameRate(std::span<const Timestamp> starts);
+
+/// How many runs of consecutive strays the deduction found.
+///
+/// It is the whole of the partial case, and it costs one pass. Many runs of one
+/// are positions corrected by hand, one at a time; a few long runs are a section
+/// that was retimed, or a file assembled out of two others. The two read the
+/// same by their count and not at all by their cause, and the number of runs is
+/// what tells them apart.
+///
+/// Here rather than in each surface: the report and the window have to say the
+/// same thing about the same file.
+[[nodiscard]] std::size_t runsOfStrays(const FrameRateDeduction& deduction);
 
 } // namespace subedit::core
