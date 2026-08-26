@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **core** — Déduire la fréquence d'image des positions
+- **core** — Aligner les positions sur une fréquence d'image
 
 ### Documentation
 
