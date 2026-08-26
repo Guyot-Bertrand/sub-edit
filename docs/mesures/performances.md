@@ -267,6 +267,41 @@ extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
 
+### 0.6.6 — 2026-08-26 — Release — charge 4.12 — allure ×1.09
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| la réplique en cours, sur 4000 sous-titres | 5.49 µs | 3.91 µs |
+| composer une réplique de deux lignes | 197 ns | 10.5 ns |
+| ouvrir une vidéo | 20.9 ms | 7.67 ms |
+| chercher une position | 1.3 ms | 1.29 ms |
+| construction du modèle sur 4000 sous-titres | 17.5 µs | 12.4 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 36 µs | 6.95 µs |
+| rafraîchir après un décalage de 4000 sous-titres | 13.2 µs | 7.34 µs |
+| réinitialisation du modèle après une ligne retirée | 10.4 µs | 2.43 µs |
+| édition d'une cellule de texte | 616 ns | 219 ns |
+| édition d'une cellule de position | 20.6 µs | 5.51 µs |
+| versionString | 51.6 ns | 12.2 ns |
+| parse | 41.2 ns | 6.35 ns |
+| format | 45.6 ns | 7.29 ns |
+| position vers image | 8.09 ns | 0.586 ns |
+| image vers position | 9.01 ns | 2.4 ns |
+| mise à l'échelle par un rationnel exact | 9.39 ns | 1.45 ns |
+| lecture de 4000 sous-titres | 5.45 ms | 995 µs |
+| écriture de 4000 sous-titres | 892 µs | 299 µs |
+| décalage de 4000 sous-titres | 14.5 µs | 5.33 µs |
+| décalage puis annulation | 24 µs | 17.2 µs |
+| transformation de 4000 sous-titres | 96.1 µs | 26.4 µs |
+| conversion de fréquence sur 4000 sous-titres | 87.3 µs | 26.1 µs |
+| alignement sur 4000 sous-titres | 151 µs | 15.4 µs |
+| tri de 4000 sous-titres à l'envers | 902 µs | 546 µs |
+| suppression d'un sous-titre sur deux | 253 µs | 121 µs |
+| suppression puis annulation | 730 µs | 466 µs |
+| insertion de 100 sous-titres vides au milieu | 72.6 µs | 30.4 µs |
+| modification d'un texte, à travers une session | 370 ns | 145 ns |
+| suppression des mentions sur 4000 sous-titres | 1.47 ms | 308 µs |
+| déduction de fréquence sur 4000 sous-titres | 495 µs | 41.3 µs |
+
 ### 0.6.5 — 2026-08-26 — Release — charge 4.94 — allure ×0.99
 
 | Mesure | Moyenne | Écart-type |

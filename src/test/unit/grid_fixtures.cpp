@@ -16,6 +16,16 @@ namespace subedit::test {
 namespace {
 
 [[nodiscard]] core::ReadResult openOrFail(std::string_view name) {
+    std::expected<core::ReadResult, core::ReadError> result = core::readSubtitles(gridBytes(name));
+    if (!result.has_value())
+        FAIL("fixture de grille illisible : " + std::string{name});
+
+    return *std::move(result);
+}
+
+} // namespace
+
+std::string gridBytes(std::string_view name) {
     const std::filesystem::path path =
         std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / "grilles" / name;
 
@@ -24,14 +34,8 @@ namespace {
     if (!bytes.has_value())
         FAIL("fixture de grille introuvable : " + path.string());
 
-    std::expected<core::ReadResult, core::ReadError> result = core::readSubtitles(*bytes);
-    if (!result.has_value())
-        FAIL("fixture de grille illisible : " + path.string());
-
-    return *std::move(result);
+    return bytes.value_or(std::string{});
 }
-
-} // namespace
 
 core::Project gridProject(std::string_view name, core::FrameRate rate) {
     core::Project project;

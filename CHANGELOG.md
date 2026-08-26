@@ -14,6 +14,7 @@ ne pas l'éditer à la main.
 - **core** — Déduire la fréquence d'image des positions
 - **core** — Aligner les positions sur une fréquence d'image
 - **core** — Ramener un fichier sur la grille qu'il a quittée
+- **cli** — Inspect rapporte la grille d'images du fichier
 
 ### Documentation
 

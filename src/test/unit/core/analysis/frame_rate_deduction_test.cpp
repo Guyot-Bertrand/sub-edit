@@ -27,6 +27,7 @@ using subedit::core::deduceFrameRate;
 using subedit::core::FrameRate;
 using subedit::core::FrameRateDeduction;
 using subedit::core::GridVerdict;
+using subedit::core::runsOfStrays;
 using subedit::core::StandardFrameRate;
 using subedit::core::Timestamp;
 
@@ -41,21 +42,6 @@ double concentrationOn(const FrameRateDeduction& deduction, StandardFrameRate st
     const auto* const found = std::ranges::find_if(
         deduction.ranked, [wanted](const auto& fit) { return fit.rate == wanted; });
     return found == deduction.ranked.end() ? 0.0 : found->concentration;
-}
-
-/// How many runs of consecutive strays a deduction found.
-///
-/// One run per stray means positions corrected one by one; a long run means a
-/// section that was retimed. It is the whole of D7, and it costs one pass.
-std::size_t runsOfStrays(const FrameRateDeduction& deduction) {
-    std::size_t runs = 0;
-    for (std::size_t i = 0; i < deduction.strays.size(); ++i) {
-        const bool startsARun =
-            i == 0 || deduction.strays[i].value() != deduction.strays[i - 1].value() + 1;
-        if (startsARun)
-            ++runs;
-    }
-    return runs;
 }
 
 /// A grid at `rate`, translated by `offset`, with an irregular step.

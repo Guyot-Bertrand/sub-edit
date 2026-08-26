@@ -2,11 +2,15 @@
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/time/duration.hpp>
+#include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/wording.hpp>
 
@@ -54,6 +58,58 @@ std::string span(const std::vector<core::Subtitle>& subtitles) {
         return point.format(core::DecimalMark::Period, core::HourField::Always);
     };
     return write(first) + " -> " + write(last);
+}
+
+/// What the positions say about the grid they were written on.
+///
+/// A subtitle file does not declare the frame rate its positions were computed
+/// against — SubRip has no header, WebVTT's is free text — so this is deduced
+/// rather than read. The lines below the first appear only when they say
+/// something: a file on a clean grid with no ambiguity gets one line, which is
+/// all there is to know about it.
+void sayGrid(std::ostream& out, const std::vector<core::Subtitle>& subtitles) {
+    std::vector<core::Timestamp> starts;
+    starts.reserve(subtitles.size());
+    for (const core::Subtitle& subtitle : subtitles)
+        starts.push_back(subtitle.start);
+
+    const core::FrameRateDeduction grid = core::deduceFrameRate(starts);
+
+    if (!grid.enoughStarts) {
+        out << "  frame rate grid: " << nameOf(grid.verdict) << " (too few subtitles to tell)\n";
+        return;
+    }
+
+    if (grid.verdict == core::GridVerdict::Silent) {
+        // **No rate is named**, and that is the point of a closed set of
+        // candidates: a file regular on a grid that is none of the eight would
+        // otherwise be reported as the least wrong of them. « I do not know »
+        // is the right answer, and it is what makes the deduction usable.
+        out << "  frame rate grid: " << nameOf(grid.verdict) << " (best candidate at "
+            << core::percentOf(grid.ranked.front().concentration) << ")\n";
+        return;
+    }
+
+    out << "  frame rate grid: " << core::nameOf(grid.retained.rate) << " fps, "
+        << nameOf(grid.verdict) << " (" << core::percentOf(grid.retained.concentration) << ")\n";
+
+    if (grid.retained.phase != core::Duration::zero())
+        out << "  grid offset: " << core::secondsOf(grid.retained.phase) << "\n";
+
+    if (grid.harmonic.has_value())
+        out << "  also fits: " << core::nameOf(*grid.harmonic)
+            << " fps, of which this rate is a whole divisor\n";
+
+    if (!grid.notSeparated.empty()) {
+        out << "  too short a span to separate:";
+        for (const core::FrameRate other : grid.notSeparated)
+            out << " " << core::nameOf(other) << " fps";
+        out << "\n";
+    }
+
+    if (!grid.strays.empty())
+        out << "  off the grid: " << grid.strays.size() << " of " << starts.size() << " starts, in "
+            << core::countOf(core::runsOfStrays(grid), "run") << "\n";
 }
 
 /// What is wrong with the document, subtitle by subtitle.
@@ -123,6 +179,7 @@ bool inspectFile(const core::FileSystem& files,
     out << "  line endings: " << lineEndings(*read) << '\n';
     out << "  subtitles: " << read->subtitles.size() << '\n';
     out << "  span: " << span(read->subtitles) << '\n';
+    sayGrid(out, read->subtitles);
     out << "  anomalies: " << anomalies(project) << '\n';
 
     return true;
