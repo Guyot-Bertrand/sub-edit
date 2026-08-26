@@ -1,7 +1,7 @@
 # `shift`
 
 ```
-subedit-cli shift --by <temps>
+subedit-cli shift (--by <temps> | --to-grid)
                   (--output FICHIER | --output-dir DOSSIER | --in-place)
                   <fichier>...
 ```
@@ -21,7 +21,8 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
-  --by TEXT REQUIRED          Amount to move by: 2.999, -7.001, or 00:00:07.001
+  --by TEXT                   Amount to move by: 2.999, -7.001, or 00:00:07.001
+  --to-grid                   Move by the amount that puts the positions back on their frame grid
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
   --in-place                  Write back over the inputs
@@ -32,11 +33,46 @@ Options:
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--by` | **oui** | une durée signée, voir ci-dessous | — |
+| `--by` | **l'une des deux** | une durée signée, voir ci-dessous | — |
+| `--to-grid` | **l'une des deux** | drapeau : le montant est mesuré, voir ci-dessous | — |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |
 
 Le format du fichier lu est **conservé** : changer de format est le travail de
 [`convert`](convert.md).
+
+## `--to-grid` : le montant mesuré plutôt que donné
+
+Un fichier dont les positions sont sur une grille d'images **à une constante
+près** a été décalé, et cette constante se mesure sur les positions elles-mêmes.
+`--to-grid` la mesure et l'applique, sans qu'on ait à la connaître.
+
+Le montant est **propre à chaque fichier** : deux fichiers décalés de la même
+grille de deux quantités différentes reviennent chacun de la sienne. Il est
+écrit dans la narration, avec la cadence retrouvée.
+
+**Le chemin est le plus court.** Passé la demi-image, la ligne de grille la plus
+proche est la suivante : la correction va vers l'avant plutôt que de reculer de
+presque une image entière.
+
+<!-- exemple: k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40 + 7)); e=$((s+2000)); k=$((k+1)); printf '%d\n%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\nRéplique %d.\n\n' $k $((s/3600000)) $((s/60000%60)) $((s/1000%60)) $((s%1000)) $((e/3600000)) $((e/60000%60)) $((e/1000%60)) $((e%1000)) $k; done > decale.srt; subedit-cli shift --to-grid --output recale.srt decale.srt -->
+```console
+$ k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40 + 7)); e=$((s+2000)); k=$((k+1)); printf '%d\n%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\nRéplique %d.\n\n' $k $((s/3600000)) $((s/60000%60)) $((s/1000%60)) $((s%1000)) $((e/3600000)) $((e/60000%60)) $((e/1000%60)) $((e%1000)) $k; done > decale.srt; subedit-cli shift --to-grid --output recale.srt decale.srt
+decale.srt: 12 subtitles shifted by -0.007 s onto their 25 fps grid -> recale.srt
+```
+
+**Un fichier sur aucune grille connue est refusé, et on lui dit pourquoi.** Il
+n'y a rien à rejoindre, et une phase mesurée sur du bruit déplacerait le fichier
+au hasard. Voir [`inspect`](inspect.md#ce-que-frame-rate-grid-rapporte) pour
+savoir ce qu'un fichier donne avant de tenter l'opération.
+
+`--by` et `--to-grid` disent tous deux de combien décaler : les donner ensemble
+est une erreur d'usage, n'en donner aucun aussi.
+
+**`--to-grid` n'est pas [`snap`](snap.md).** Celui-ci décale tout le fichier
+d'une même quantité et préserve **exactement** le minutage relatif ; `snap`
+déplace chaque position indépendamment et absorbe au passage celles qui avaient
+été corrigées à la main. Sur un fichier propre les deux donnent le même
+résultat ; sur un fichier partiel, non.
 
 ## Écrire une durée
 

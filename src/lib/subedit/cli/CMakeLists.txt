@@ -13,6 +13,7 @@
 
 add_library(
     subedit_cli STATIC
+    aligning.cpp
     batch.cpp
     destination.cpp
     diagnostics.cpp

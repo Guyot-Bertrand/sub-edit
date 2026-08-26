@@ -6,6 +6,9 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <cstdint>
+#include <grid_fixtures.hpp>
+#include <iomanip>
 #include <sstream>
 #include <string>
 
@@ -172,4 +175,83 @@ TEST_CASE("a backward shift under one second keeps its sign", "[cli][shifting]")
     // "-0.500", not "0.500": the whole part is zero, so the sign has nowhere
     // else to show.
     CHECK_THAT(shift(kTwo, -500).errors, ContainsSubstring("shifted by -0.500 s"));
+}
+
+TEST_CASE("shifting onto the grid measures its own amount", "[cli][shifting]") {
+    // A grid at 24 translated by 2999 milliseconds. The nearest grid line is
+    // the next one, so the correction goes forwards by one millisecond rather
+    // than back by almost a whole frame.
+    InMemoryFileSystem files;
+    files.addFile("a.srt", subedit::test::gridBytes("grille-24-decalee.srt"));
+    std::ostringstream errors;
+
+    const ExitCode code = subedit::cli::shiftOntoGridAll(
+        files, {"a.srt"}, Destination::from("", "out", false, 1).value(), Reporter{errors, 1});
+
+    CHECK(code == ExitCode::Success);
+    CHECK_THAT(errors.str(), ContainsSubstring(" shifted by 0.001 s onto their 24 fps grid"));
+}
+
+TEST_CASE("shifting onto the grid refuses a file that has none", "[cli][shifting]") {
+    // 26.3 frames per second: regular, and none of the eight candidates. A
+    // phase measured on noise would move the file by an arbitrary amount, which
+    // is the silent failure this phase exists to avoid.
+    InMemoryFileSystem files;
+    files.addFile("a.srt", subedit::test::gridBytes("grille-absurde.srt"));
+    std::ostringstream errors;
+
+    const ExitCode code = subedit::cli::shiftOntoGridAll(
+        files, {"a.srt"}, Destination::from("", "out", false, 1).value(), Reporter{errors, 1});
+
+    CHECK(code != ExitCode::Success);
+    CHECK_THAT(errors.str(), ContainsSubstring("no frame rate grid was found"));
+    CHECK_FALSE(files.contentOf("out/a.srt").has_value());
+}
+
+namespace {
+
+/// A file on a 25 fps grid offset by five milliseconds, whose **first** start
+/// was moved by hand to sit nearer the origin than that offset.
+///
+/// It takes a partial file to reach this: on a clean one the smallest start is
+/// itself a grid line plus the phase, so shifting back by the phase lands it
+/// exactly on the origin and never before. Only a position somebody edited can
+/// be closer to zero than the phase measured around it.
+[[nodiscard]] std::string gridNearTheOrigin() {
+    const auto stamp = [](std::int64_t ms) {
+        std::ostringstream text;
+        text << std::setfill('0') << std::setw(2) << ms / 3'600'000 << ':' << std::setw(2)
+             << ms / 60'000 % 60 << ':' << std::setw(2) << ms / 1'000 % 60 << ',' << std::setw(3)
+             << ms % 1'000;
+        return text.str();
+    };
+
+    std::string content;
+    for (int index = 1; index <= 20; ++index) {
+        // The first cue is the edited one, at two milliseconds; the rest sit on
+        // the grid, five milliseconds past their frame.
+        const std::int64_t start = index == 1 ? 2 : (index * 2'000) + 5;
+        content += std::to_string(index) + "\n" + stamp(start) + " --> " + stamp(start + 1'000) +
+                   "\nLigne.\n\n";
+    }
+    return content;
+}
+
+} // namespace
+
+TEST_CASE("a correction that would cross the origin is refused", "[cli][shifting]") {
+    // The rule the core has held since #132, reached here by the one route that
+    // can: the grid says to move back by five milliseconds, and one subtitle is
+    // only two from the origin. A file cannot hold a negative timestamp, so the
+    // whole operation is refused rather than half written.
+    InMemoryFileSystem files;
+    files.addFile("a.srt", gridNearTheOrigin());
+    std::ostringstream errors;
+
+    const ExitCode code = subedit::cli::shiftOntoGridAll(
+        files, {"a.srt"}, Destination::from("", "out", false, 1).value(), Reporter{errors, 1});
+
+    CHECK(code != ExitCode::Success);
+    CHECK_THAT(errors.str(), ContainsSubstring("would start before the origin"));
+    CHECK_FALSE(files.contentOf("out/a.srt").has_value());
 }

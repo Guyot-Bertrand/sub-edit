@@ -1,5 +1,6 @@
 #include "application.hpp"
 
+#include <subedit/cli/aligning.hpp>
 #include <subedit/cli/conversion.hpp>
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/frame_rate_conversion.hpp>
@@ -118,9 +119,15 @@ CLI::App* describeConvert(CLI::App& app, ConvertOptions& options) {
 }
 
 /// What `shift` was asked for.
+///
+/// The amount is given by `--by`, or measured by `--to-grid`. Exactly one of
+/// the two, and neither is `required()` on its own: CLI11 would then insist on
+/// both, and the check below can say why in a sentence rather than in the
+/// usage.
 struct ShiftOptions {
     std::vector<std::string> files;
     std::string by;
+    bool toGrid = false;
     DestinationOptions destination;
 };
 
@@ -128,17 +135,65 @@ CLI::App* describeShift(CLI::App& app, ShiftOptions& options) {
     CLI::App* shift =
         app.add_subcommand("shift", "Move every position of a file by a fixed amount");
     shift->add_option("files", options.files, "Subtitle files to shift")->required();
-    shift->add_option("--by", options.by, "Amount to move by: 2.999, -7.001, or 00:00:07.001")
-        ->required();
+    shift->add_option("--by", options.by, "Amount to move by: 2.999, -7.001, or 00:00:07.001");
+    shift->add_flag("--to-grid",
+                    options.toGrid,
+                    "Move by the amount that puts the positions back on their frame grid");
 
     describeDestination(shift, options.destination);
     return shift;
 }
 
 ExitCode runShift(const ShiftOptions& options, core::FileSystem& files, const Reporter& reporter) {
+    const std::expected<Destination, std::string> destination =
+        destinationOf(options.destination, options.files.size());
+    if (!destination) {
+        return refuse(destination.error());
+    }
+
+    if (options.toGrid && !options.by.empty()) {
+        return refuse("--by and --to-grid both say by how much to move; give one or the other");
+    }
+
+    // Measured rather than given, and file by file: two files shifted off the
+    // same grid by different amounts come back by different amounts.
+    if (options.toGrid) {
+        return shiftOntoGridAll(files, options.files, *destination, reporter);
+    }
+
+    if (options.by.empty()) {
+        return refuse("shift needs --by, or --to-grid to work the amount out from the positions");
+    }
+
     const std::expected<core::Duration, std::string> by = parseTime(options.by);
     if (!by) {
         return refuse(by.error());
+    }
+
+    return shiftAll(files, options.files, *by, *destination, reporter);
+}
+
+/// What `snap` was asked for.
+struct SnapOptions {
+    std::vector<std::string> files;
+    std::string rate;
+    DestinationOptions destination;
+};
+
+CLI::App* describeSnap(CLI::App& app, SnapOptions& options) {
+    CLI::App* snap = app.add_subcommand(
+        "snap", "Move every position onto the nearest frame of a frame rate (see framerate)");
+    snap->add_option("files", options.files, "Subtitle files to align")->required();
+    snap->add_option("--rate", options.rate, "Frame rate to align on: 25, 23.976")->required();
+
+    describeDestination(snap, options.destination);
+    return snap;
+}
+
+ExitCode runSnap(const SnapOptions& options, core::FileSystem& files, const Reporter& reporter) {
+    const std::expected<core::FrameRate, std::string> rate = parseFrameRate(options.rate);
+    if (!rate) {
+        return refuse(rate.error());
     }
 
     const std::expected<Destination, std::string> destination =
@@ -147,7 +202,7 @@ ExitCode runShift(const ShiftOptions& options, core::FileSystem& files, const Re
         return refuse(destination.error());
     }
 
-    return shiftAll(files, options.files, *by, *destination, reporter);
+    return alignAll(files, options.files, *rate, *destination, reporter);
 }
 
 /// What `hearing-impaired` was asked for.
@@ -361,6 +416,8 @@ ExitCode run(int argc, char** argv) {
     const CLI::App* transform = describeTransform(app, transformOptions);
     FrameRateOptions frameRateOptions;
     const CLI::App* framerate = describeFrameRate(app, frameRateOptions);
+    SnapOptions snapOptions;
+    const CLI::App* snap = describeSnap(app, snapOptions);
     HearingImpairedOptions hearingOptions;
     const CLI::App* hearing = describeHearingImpaired(app, hearingOptions);
 
@@ -402,6 +459,9 @@ ExitCode run(int argc, char** argv) {
     }
     if (framerate->parsed()) {
         return runFrameRate(frameRateOptions, files, reporter);
+    }
+    if (snap->parsed()) {
+        return runSnap(snapOptions, files, reporter);
     }
     if (hearing->parsed()) {
         return runHearingImpaired(hearingOptions, files, reporter);

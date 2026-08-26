@@ -309,8 +309,18 @@ Deux propriétés à tenir, et à éprouver :
 | `shift --to-grid` | ramener sur la grille ; le montant vient de la mesure, et il est écrit avant d'être appliqué |
 | `snap --rate <R>` | aligner sur une fréquence ; écrit combien de positions ont bougé et de combien au plus |
 
-`--rate` accepte les six formes déjà acceptées par `framerate` (phase 2).
-`snap` refuse une fréquence hors des huit normalisées, comme `framerate`.
+`--rate` accepte les six formes déjà acceptées par `framerate` (phase 2), et
+**n'importe quelle cadence valide**, pas seulement les huit normalisées.
+
+> **Correction, par #207.** Cette ligne disait l'inverse — « `snap` refuse une
+> fréquence hors des huit normalisées, comme `framerate` » — et se trompait deux
+> fois. `framerate` ne les refuse pas ; et l'ensemble clos des huit appartient à
+> la **déduction**, qui doit choisir parmi des candidates, non à une opération
+> dont l'utilisateur nomme lui-même la cible. Restreindre `snap` aurait ajouté
+> une règle sans bénéfice et incohérente avec l'opération qu'elle jouxte.
+>
+> L'exigence `CLI-SNAP-03` qui en découlait est donc **retirée** avant d'avoir
+> été écrite, plutôt que rendue vraie de force.
 
 Un fichier muet fait dire à `inspect` qu'il n'a trouvé aucune grille, **et non
 une fréquence à faible confiance** : c'est le sens de D2, et c'est la propriété

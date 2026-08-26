@@ -1,5 +1,12 @@
 # `framerate`
 
+> **Ce n'est pas [`snap`](snap.md).** Cette commande **met le fichier à
+> l'échelle** : elle sert quand le minutage est faux et dérive de plusieurs
+> secondes en fin de film. `snap` repose les horodatages sur la grille la plus
+> proche sans re-miner quoi que ce soit, et sert quand le minutage est déjà
+> juste. Les deux prennent les mêmes arguments, et se tromper ne provoque
+> aucune erreur.
+
 ```
 subedit-cli framerate --from <fps> --to <fps>
                       (--output FICHIER | --output-dir DOSSIER | --in-place)
