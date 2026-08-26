@@ -11,10 +11,6 @@
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/snap_command.hpp>
-#include <subedit/core/format/read_error.hpp>
-#include <subedit/core/format/read_result.hpp>
-#include <subedit/core/format/subtitle_file.hpp>
-#include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
@@ -27,11 +23,8 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <expected>
-#include <filesystem>
+#include <grid_fixtures.hpp>
 #include <memory>
-#include <string>
-#include <string_view>
 #include <vector>
 
 namespace {
@@ -41,9 +34,6 @@ using subedit::core::CommandKind;
 using subedit::core::ConvertFrameRateCommand;
 using subedit::core::FrameRate;
 using subedit::core::Project;
-using subedit::core::ReadError;
-using subedit::core::readSubtitles;
-using subedit::core::RealFileSystem;
 using subedit::core::Selection;
 using subedit::core::Session;
 using subedit::core::SnapCommand;
@@ -86,30 +76,6 @@ const FrameRate kCinema{StandardFrameRate::Fps24};
     return furthest;
 }
 
-/// A file written on a grid at 24 frames per second, ten minutes of it.
-[[nodiscard]] Project gridFixture() {
-    const std::filesystem::path path =
-        std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / "grilles" / "grille-24.srt";
-
-    const RealFileSystem files;
-    const std::expected<std::string, subedit::core::FileError> bytes = files.readFile(path);
-    if (!bytes.has_value()) {
-        FAIL("fixture de grille introuvable : " + path.string());
-        return {};
-    }
-
-    const std::expected<subedit::core::ReadResult, ReadError> result = readSubtitles(*bytes);
-    if (!result.has_value()) {
-        FAIL("fixture de grille illisible : " + path.string());
-        return {};
-    }
-
-    Project project;
-    project.setSubtitles(result->subtitles);
-    project.setFrameRate(kCinema);
-    return project;
-}
-
 [[nodiscard]] std::unique_ptr<SnapCommand> snapTo(const Project& project, FrameRate rate) {
     return std::make_unique<SnapCommand>(project, Selection::all(project), rate);
 }
@@ -138,7 +104,7 @@ TEST_CASE("aligning puts every position on the grid", "[edit][snap]") {
 }
 
 TEST_CASE("aligning moves nothing by more than half a frame", "[edit][snap]") {
-    Session session{gridFixture()};
+    Session session{subedit::test::gridProject("grille-24.srt", kCinema)};
 
     const std::vector<std::int64_t> before = boundsOf(session.project());
     session.apply(snapTo(session.project(), kPal));
@@ -160,7 +126,7 @@ TEST_CASE("aligning twice on the same rate changes nothing", "[edit][snap]") {
 }
 
 TEST_CASE("aligning on the rate a file already sits on changes nothing", "[edit][snap]") {
-    Session session{gridFixture()};
+    Session session{subedit::test::gridProject("grille-24.srt", kCinema)};
 
     const std::vector<std::int64_t> before = boundsOf(session.project());
     session.apply(snapTo(session.project(), kCinema));
@@ -169,7 +135,7 @@ TEST_CASE("aligning on the rate a file already sits on changes nothing", "[edit]
 }
 
 TEST_CASE("aligning keeps the starts in order", "[edit][snap]") {
-    Session session{gridFixture()};
+    Session session{subedit::test::gridProject("grille-24.srt", kCinema)};
 
     session.apply(snapTo(session.project(), kPal));
 
@@ -216,8 +182,8 @@ TEST_CASE("aligning is not converting, and the gap is seconds", "[edit][snap]") 
     // The whole point of D11, held to a measurement rather than to prose. The
     // same file, the same pair of rates, and two operations that a user could
     // confuse: one moves it by half a frame, the other by seconds.
-    Session aligned{gridFixture()};
-    Session converted{gridFixture()};
+    Session aligned{subedit::test::gridProject("grille-24.srt", kCinema)};
+    Session converted{subedit::test::gridProject("grille-24.srt", kCinema)};
 
     const std::vector<std::int64_t> before = boundsOf(aligned.project());
 

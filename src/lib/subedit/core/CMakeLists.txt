@@ -6,6 +6,7 @@
 add_library(
     subedit_core STATIC
     analysis/frame_rate_deduction.cpp
+    analysis/grid_correction.cpp
     command/composite_command.cpp
     command/history.cpp
     edit/convert_frame_rate_command.cpp
