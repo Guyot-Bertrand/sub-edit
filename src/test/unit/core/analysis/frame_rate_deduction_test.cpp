@@ -7,11 +7,6 @@
 // candidates make a table of numbers, and a table reads better than a verb.
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
-#include <subedit/core/format/read_error.hpp>
-#include <subedit/core/format/read_result.hpp>
-#include <subedit/core/format/subtitle_file.hpp>
-#include <subedit/core/io/real_file_system.hpp>
-#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/frame.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
@@ -22,9 +17,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
-#include <expected>
-#include <filesystem>
-#include <string>
+#include <grid_fixtures.hpp>
 #include <string_view>
 #include <vector>
 
@@ -34,39 +27,11 @@ using subedit::core::deduceFrameRate;
 using subedit::core::FrameRate;
 using subedit::core::FrameRateDeduction;
 using subedit::core::GridVerdict;
-using subedit::core::ReadError;
-using subedit::core::readSubtitles;
-using subedit::core::RealFileSystem;
 using subedit::core::StandardFrameRate;
 using subedit::core::Timestamp;
 
-/// Reads a grid fixture and keeps its starts, which are the whole signal.
-std::vector<Timestamp> startsOf(std::string_view name) {
-    const std::filesystem::path path =
-        std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / "grilles" / name;
-
-    const RealFileSystem files;
-    const std::expected<std::string, subedit::core::FileError> bytes = files.readFile(path);
-    if (!bytes.has_value()) {
-        FAIL("fixture de grille introuvable : " + path.string());
-        return {};
-    }
-
-    const std::expected<subedit::core::ReadResult, ReadError> result = readSubtitles(*bytes);
-    if (!result.has_value()) {
-        FAIL("fixture de grille illisible : " + path.string());
-        return {};
-    }
-
-    std::vector<Timestamp> starts;
-    starts.reserve(result->subtitles.size());
-    for (const subedit::core::Subtitle& subtitle : result->subtitles)
-        starts.push_back(subtitle.start);
-    return starts;
-}
-
 FrameRateDeduction deductionOf(std::string_view name) {
-    return deduceFrameRate(startsOf(name));
+    return deduceFrameRate(subedit::test::gridStarts(name));
 }
 
 /// The concentration a candidate reaches on a fixture, or zero if the rate is
