@@ -96,6 +96,7 @@ TEST_CASE("every kind of command has a name of its own", "[wording]") {
         subedit::core::CommandKind::Shift,
         subedit::core::CommandKind::Transform,
         subedit::core::CommandKind::ConvertFrameRate,
+        subedit::core::CommandKind::Snap,
         subedit::core::CommandKind::Sort,
         subedit::core::CommandKind::RemoveHearingImpaired,
     };

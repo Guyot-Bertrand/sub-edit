@@ -128,13 +128,15 @@ std::string_view nameOf(CommandKind kind) {
         return "transforming";
     case CommandKind::ConvertFrameRate:
         return "converting the frame rate";
+    case CommandKind::Snap:
+        return "aligning on the frame rate";
     case CommandKind::Sort:
         return "sorting";
     case CommandKind::RemoveHearingImpaired:
         return "removing hearing-impaired mentions";
     }
 
-    // The ten are handled and the compiler checks it. A `default` here would
+    // The eleven are handled and the compiler checks it. A `default` here would
     // take an enumerator added without a name in silence, and the action would
     // announce it as an empty string.
     std::unreachable();
