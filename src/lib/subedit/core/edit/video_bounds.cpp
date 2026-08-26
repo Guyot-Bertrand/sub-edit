@@ -40,6 +40,7 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::Shift:
     case CommandKind::Transform:
     case CommandKind::ConvertFrameRate:
+    case CommandKind::Snap:
         return true;
     case CommandKind::SetText:
     case CommandKind::SetStart:

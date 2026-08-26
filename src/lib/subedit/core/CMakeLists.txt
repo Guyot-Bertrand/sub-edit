@@ -15,6 +15,7 @@ add_library(
     edit/video_bounds.cpp
     edit/remove_command.cpp
     edit/session.cpp
+    edit/snap_command.cpp
     edit/shift_command.cpp
     edit/transform_command.cpp
     edit/set_position_command.cpp

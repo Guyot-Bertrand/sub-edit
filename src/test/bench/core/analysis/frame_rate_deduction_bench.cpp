@@ -40,7 +40,7 @@ using subedit::core::Timestamp;
 TEST_CASE("deducing the frame rate of a full-length file", "[bench][analysis]") {
     const Project project = subedit::test::fullLengthProject();
 
-    BENCHMARK("deduce the frame rate of 4000 subtitles") {
+    BENCHMARK("déduction de fréquence sur 4000 sous-titres") {
         std::vector<Timestamp> starts;
         starts.reserve(project.count());
         for (const Subtitle& subtitle : project.subtitles())

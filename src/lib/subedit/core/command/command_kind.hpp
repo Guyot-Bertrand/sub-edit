@@ -17,6 +17,7 @@ enum class CommandKind {
     Shift,
     Transform,
     ConvertFrameRate,
+    Snap,
     Sort,
     RemoveHearingImpaired,
 };

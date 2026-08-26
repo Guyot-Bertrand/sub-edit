@@ -122,6 +122,7 @@ TEST_CASE("three operations can put a subtitle past the end", "[video][bounds]")
     CHECK(movesPositions(CommandKind::Shift));
     CHECK(movesPositions(CommandKind::Transform));
     CHECK(movesPositions(CommandKind::ConvertFrameRate));
+    CHECK(movesPositions(CommandKind::Snap));
 }
 
 // A subtitle already past the end because the associated film is the wrong one

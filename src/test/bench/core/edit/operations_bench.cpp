@@ -34,6 +34,7 @@
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/set_text_command.hpp>
 #include <subedit/core/edit/shift_command.hpp>
+#include <subedit/core/edit/snap_command.hpp>
 #include <subedit/core/edit/sort_command.hpp>
 #include <subedit/core/edit/transform_command.hpp>
 #include <subedit/core/model/document.hpp>
@@ -74,6 +75,7 @@ using subedit::core::Selection;
 using subedit::core::Session;
 using subedit::core::SetTextCommand;
 using subedit::core::ShiftCommand;
+using subedit::core::SnapCommand;
 using subedit::core::SortCommand;
 using subedit::core::StandardFrameRate;
 using subedit::core::Subtitle;
@@ -155,6 +157,25 @@ TEST_CASE("converting the frame rate of a full-length file", "[benchmark]") {
         meter.measure([&](int run) {
             Project& copy = copies[static_cast<std::size_t>(run)];
             ConvertFrameRateCommand command{copy, Selection::all(copy), from, to};
+            command.apply(copy);
+            return copy.count();
+        });
+    };
+}
+
+TEST_CASE("aligning a full-length file on a frame rate", "[benchmark]") {
+    // Next to the conversion on purpose: the two are the pair D11 of the phase
+    // 16 spec opposes, and reading their two figures side by side in the
+    // journal is part of what keeps them distinct.
+    const Project project = fullLengthProject();
+    const FrameRate to{StandardFrameRate::Fps25};
+
+    BENCHMARK_ADVANCED("alignement sur 4000 sous-titres")
+    (Catch::Benchmark::Chronometer meter) {
+        std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
+        meter.measure([&](int run) {
+            Project& copy = copies[static_cast<std::size_t>(run)];
+            SnapCommand command{copy, Selection::all(copy), to};
             command.apply(copy);
             return copy.count();
         });
