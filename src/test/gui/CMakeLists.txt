@@ -16,7 +16,8 @@ add_executable(
     window_hearing_impaired_test.cpp anomaly_marking_test.cpp
     main_window_test.cpp mpv_player_test.cpp window_video_test.cpp
     window_player_test.cpp player_factory_test.cpp invocation_test.cpp
-    window_video_bounds_test.cpp)
+    window_video_bounds_test.cpp window_grid_test.cpp
+    ${CMAKE_SOURCE_DIR}/src/test/unit/grid_fixtures.cpp)
 
 target_link_libraries(
     subedit_gui_test PRIVATE subedit::gui subedit::core Qt6::Widgets Qt6::Test Catch2::Catch2)
@@ -29,6 +30,10 @@ subedit_set_warnings(subedit_gui_test)
 # preuve sur un fichier qui existe.
 target_compile_definitions(subedit_gui_test
                            PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
+
+# Les fixtures de grille, partagées avec les tests du noyau et ceux de la ligne
+# de commande : il n'y a qu'un jeu de fichiers, et qu'une façon de l'ouvrir.
+target_include_directories(subedit_gui_test PRIVATE ${CMAKE_SOURCE_DIR}/src/test/unit)
 
 # Catch2 sans son main : le binaire fournit le sien, parce que la QApplication
 # doit vivre sur la pile de main. Détruite parmi les gestionnaires de fin de

@@ -201,7 +201,7 @@ pas le sujet de ce ticket.
 | Mesure | Minimum | Relevé le | Maximum | Relevé le |
 | :----- | ------: | :-------- | ------: | :-------- |
 | versionString | 29.2 ns | 0.5.9 — 2026-08-23 | 64.5 ns | 0.5.10 — 2026-08-23 |
-| parse | 29.9 ns | 0.2.6 — 2026-08-13 | 42.8 ns | 0.5.3 — 2026-08-22 |
+| parse | 29.9 ns | 0.2.6 — 2026-08-13 | 66.7 ns | 0.6.8 — 2026-08-26 |
 | format | 29.8 ns | 0.3.11 — 2026-08-15 | 47.9 ns | 0.4.14 — 2026-08-21 |
 | position vers image | 6.48 ns | 0.3.11 — 2026-08-15 | 16.8 ns | 0.4.10 — 2026-08-19 |
 | image vers position | 6.48 ns | 0.4.5 — 2026-08-17 | 12.1 ns | 0.3.9 — 2026-08-15 |
@@ -219,7 +219,7 @@ pas le sujet de ce ticket.
 | suppression des mentions sur 4000 sous-titres | 850 µs | 0.4.9 — 2026-08-19 | 5.68 ms | 0.4.4 — 2026-08-17 |
 | suppression puis annulation | 213 µs | 0.4.14 — 2026-08-21 | 354 µs | 0.5.3 — 2026-08-22 |
 | construction du modèle sur 4000 sous-titres | 59.3 ns | 0.4.14 — 2026-08-21 | 13.2 µs | 0.5.3 — 2026-08-22 |
-| une fenêtre de 40 lignes, cinq colonnes | 14.7 µs | 0.4.15 — 2026-08-21 | 18.3 µs | 0.5.3 — 2026-08-22 |
+| une fenêtre de 40 lignes, cinq colonnes | 14.7 µs | 0.4.15 — 2026-08-21 | 28.9 µs | 0.6.8 — 2026-08-26 |
 | rafraîchir après un décalage de 4000 sous-titres | 25.6 ns | 0.4.11 — 2026-08-20 | 10.8 µs | 0.5.9 — 2026-08-23 |
 | édition d'une cellule de texte | 371 ns | 0.5.9 — 2026-08-23 | 899 ns | 0.4.12 — 2026-08-20 |
 | édition d'une cellule de position | 484 ns | 0.4.15 — 2026-08-21 | 13.3 µs | 0.5.3 — 2026-08-22 |
@@ -227,11 +227,12 @@ pas le sujet de ce ticket.
 | la réplique en cours, sur 4000 sous-titres | 4.87 µs | 0.6.3 — 2026-08-25 | 8.81 µs | 0.5.13 — 2026-08-24 |
 | composer une réplique de deux lignes | 167 ns | 0.6.3 — 2026-08-25 | 218 ns | 0.6.1 — 2026-08-25 |
 | ouvrir une vidéo | 9.08 ms | 0.6.3 — 2026-08-25 | 10.9 ms | 0.5.13 — 2026-08-24 |
-| chercher une position | 577 µs | 0.5.13 — 2026-08-24 | 600 µs | 0.6.1 — 2026-08-25 |
-| déduction de fréquence sur 4000 sous-titres | 374 µs | 0.6.3 — 2026-08-25 | 374 µs | 0.6.3 — 2026-08-25 |
+| chercher une position | 577 µs | 0.5.13 — 2026-08-24 | 649 µs | 0.6.8 — 2026-08-26 |
+| déduction de fréquence sur 4000 sous-titres | 374 µs | 0.6.3 — 2026-08-25 | 443 µs | 0.6.8 — 2026-08-26 |
+| alignement sur 4000 sous-titres | 141 µs | 0.6.8 — 2026-08-26 | 141 µs | 0.6.8 — 2026-08-26 |
 
 <!-- versionString min=29.1524 max=64.5489 -->
-<!-- parse min=29.9 max=42.7539 -->
+<!-- parse min=29.9 max=66.7499 -->
 <!-- format min=29.8143 max=47.8971 -->
 <!-- position vers image min=6.48462 max=16.831 -->
 <!-- image vers position min=6.47637 max=12.0852 -->
@@ -249,7 +250,7 @@ pas le sujet de ce ticket.
 <!-- suppression des mentions sur 4000 sous-titres min=850257.0 max=5676890.0 -->
 <!-- suppression puis annulation min=213280.0 max=353822.0 -->
 <!-- construction du modèle sur 4000 sous-titres min=59.2521 max=13180.9 -->
-<!-- une fenêtre de 40 lignes, cinq colonnes min=14699.7 max=18297.5 -->
+<!-- une fenêtre de 40 lignes, cinq colonnes min=14699.7 max=28872.4 -->
 <!-- rafraîchir après un décalage de 4000 sous-titres min=25.5559 max=10829.7 -->
 <!-- édition d'une cellule de texte min=370.791 max=898.579 -->
 <!-- édition d'une cellule de position min=484.262 max=13302.7 -->
@@ -257,8 +258,9 @@ pas le sujet de ce ticket.
 <!-- la réplique en cours, sur 4000 sous-titres min=4873.6 max=8805.31 -->
 <!-- composer une réplique de deux lignes min=167.295 max=217.822 -->
 <!-- ouvrir une vidéo min=9083550.0 max=10930700.0 -->
-<!-- chercher une position min=577286.0 max=599664.0 -->
-<!-- déduction de fréquence sur 4000 sous-titres min=374108.0 max=374108.0 -->
+<!-- chercher une position min=577286.0 max=649297.0 -->
+<!-- déduction de fréquence sur 4000 sous-titres min=374108.0 max=442610.0 -->
+<!-- alignement sur 4000 sous-titres min=141097.0 max=141097.0 -->
 
 ## Relevés
 
@@ -266,6 +268,41 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.6.8 — 2026-08-26 — Release — charge 1.42 — allure ×0.77
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| la réplique en cours, sur 4000 sous-titres | 7.05 µs | 1.38 µs |
+| composer une réplique de deux lignes | 187 ns | 3.24 ns |
+| ouvrir une vidéo | 10.1 ms | 1.24 ms |
+| chercher une position | 649 µs | 146 µs |
+| construction du modèle sur 4000 sous-titres | 8.99 µs | 2.27 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 28.9 µs | 2.19 µs |
+| rafraîchir après un décalage de 4000 sous-titres | 9.26 µs | 3.35 µs |
+| réinitialisation du modèle après une ligne retirée | 9.4 µs | 2.8 µs |
+| édition d'une cellule de texte | 478 ns | 119 ns |
+| édition d'une cellule de position | 9.3 µs | 915 ns |
+| versionString | 32.3 ns | 12.5 ns |
+| parse | 66.7 ns | 11 ns |
+| format | 38.2 ns | 0.718 ns |
+| position vers image | 7.45 ns | 0.0789 ns |
+| image vers position | 7.43 ns | 0.0918 ns |
+| mise à l'échelle par un rationnel exact | 8.11 ns | 1.62 ns |
+| lecture de 4000 sous-titres | 2.84 ms | 218 µs |
+| écriture de 4000 sous-titres | 641 µs | 126 µs |
+| décalage de 4000 sous-titres | 7.59 µs | 1.91 µs |
+| décalage puis annulation | 14.9 µs | 3.14 µs |
+| transformation de 4000 sous-titres | 76.7 µs | 17.2 µs |
+| conversion de fréquence sur 4000 sous-titres | 76.2 µs | 5.53 µs |
+| alignement sur 4000 sous-titres | 141 µs | 6.65 µs |
+| tri de 4000 sous-titres à l'envers | 292 µs | 20.7 µs |
+| suppression d'un sous-titre sur deux | 177 µs | 20.9 µs |
+| suppression puis annulation | 263 µs | 24.1 µs |
+| insertion de 100 sous-titres vides au milieu | 57.3 µs | 19.3 µs |
+| modification d'un texte, à travers une session | 211 ns | 38.1 ns |
+| suppression des mentions sur 4000 sous-titres | 960 µs | 72.2 µs |
+| déduction de fréquence sur 4000 sous-titres | 443 µs | 31.3 µs |
 
 ### 0.6.7 — 2026-08-26 — Release — charge 3.93 — allure ×0.95
 

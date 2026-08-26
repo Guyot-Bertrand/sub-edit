@@ -120,6 +120,8 @@ plus rien.
 | `CLI-SNAP-02` | `snap` écrit combien de positions ont bougé, et de combien au plus | 16 | implémentée |
 | `CLI-SHIFT-03` | `shift --to-grid` décale du montant mesuré, et l'écrit | 16 | implémentée |
 | `CLI-SHIFT-04` | `shift --to-grid` sur un fichier sans grille refuse et dit pourquoi | 16 | implémentée |
+| `GUI-GRID-01` | la barre d'état porte le verdict de la déduction | 16 | implémentée |
+| `GUI-GRID-02` | la modale d'analyse montre les huit candidates, l'étendue et les écarts | 16 | implémentée |
 | `GUI-VIDEO-01` | choisir une vidéo l'associe au document, et la fenêtre la nomme | 6 | implémentée |
 | `GUI-VIDEO-02` | ouvrir un fichier de sous-titres propose la vidéo voisine de même nom | 6 | implémentée |
 | `GUI-PLAYER-01` | la vidéo s'ouvre dans la fenêtre, et se joue | 6 | implémentée |
