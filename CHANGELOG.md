@@ -15,6 +15,7 @@ ne pas l'éditer à la main.
 - **core** — Aligner les positions sur une fréquence d'image
 - **core** — Ramener un fichier sur la grille qu'il a quittée
 - **cli** — Inspect rapporte la grille d'images du fichier
+- **cli** — Aligner sur une fréquence, ramener sur la grille
 
 ### Documentation
 

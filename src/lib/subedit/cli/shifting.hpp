@@ -31,4 +31,20 @@ class Reporter;
                                 const Destination& destination,
                                 const Reporter& reporter);
 
+/// Shifts every path back onto the frame grid its positions were written on.
+///
+/// The amount is **measured, not given**: a file whose positions sit on a grid
+/// to within a constant has been shifted, and the deduction reads that constant
+/// off the positions themselves. Each file therefore moves by its own amount,
+/// which is why this cannot be `shiftAll` with a number worked out beforehand.
+///
+/// **A file on no grid is refused, and told why.** There is nothing to shift
+/// onto, and a phase measured on noise would move the file by an arbitrary
+/// amount — which is exactly the silent failure this whole phase exists to
+/// avoid.
+[[nodiscard]] ExitCode shiftOntoGridAll(subedit::core::FileSystem& files,
+                                        const std::vector<std::string>& paths,
+                                        const Destination& destination,
+                                        const Reporter& reporter);
+
 } // namespace subedit::cli

@@ -24,6 +24,7 @@ Subcommands:
   shift                       Move every position of a file by a fixed amount
   transform                   Correct every position from two points known to be right
   framerate                   Re-time a file mastered at one frame rate for another
+  snap                        Move every position onto the nearest frame of a frame rate (see framerate)
   hearing-impaired            Remove the sounds described between brackets or parentheses
 ```
 
@@ -50,7 +51,7 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.6.6
+subedit 0.6.7
 ```
 
 ## Sous-commandes

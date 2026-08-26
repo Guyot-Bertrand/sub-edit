@@ -19,4 +19,5 @@ sans interface graphique, en traitement par lot ou depuis un script.
 | [`shift`](shift.md) | décaler toutes les positions d'une même durée |
 | [`transform`](transform.md) | corriger toutes les positions à partir de deux repères |
 | [`framerate`](framerate.md) | recaler un fichier d'une cadence d'images vers une autre |
+| [`snap`](snap.md) | reposer les horodatages sur les images d'une cadence |
 | [`hearing-impaired`](hearing-impaired.md) | retirer les mentions pour malentendants |
