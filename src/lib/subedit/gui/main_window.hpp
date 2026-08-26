@@ -121,6 +121,12 @@ public:
     /// there is none. This is what `GUI-VIDEO-01` promises the user sees.
     [[nodiscard]] QLabel* videoStatus() const { return m_videoStatus; }
 
+    /// What the status bar says of the grid the positions were written on.
+    /// This is what `GUI-GRID-01` promises the user sees.
+    [[nodiscard]] QLabel* gridStatus() const { return m_gridStatus; }
+
+    [[nodiscard]] QAction* analyseGridAction() const { return m_analyseGrid; }
+
     /// Reads where playback stands and puts the window in step with it.
     ///
     /// Two things, and they are the same thing seen twice: the replica drawn
@@ -217,6 +223,17 @@ private:
     /// Puts what the document is watched against into the status bar.
     void refreshVideoStatus();
 
+    /// Recomputes the deduction and puts the status bar in step with it.
+    ///
+    /// **Recomputed rather than kept**, which is ADR 0021's choice: a stored
+    /// derived value is an invalidation to hold, and every edit of a position
+    /// would stale it. A pure function called again has no such problem, and it
+    /// costs a fraction of a millisecond on a full-length file.
+    void refreshGridStatus();
+
+    /// Opens the analysis, which reports and changes nothing.
+    void analyseGrid();
+
     /// Puts the window in step with the film the document is now associated
     /// with — the status bar, the picture, and whether there is one at all.
     ///
@@ -284,9 +301,11 @@ private:
     QAction* m_transform = nullptr;
     QAction* m_frameRate = nullptr;
     QAction* m_hearingImpaired = nullptr;
+    QAction* m_analyseGrid = nullptr;
     QAction* m_selectVideo = nullptr;
     QAction* m_playPause = nullptr;
     QLabel* m_videoStatus = nullptr;
+    QLabel* m_gridStatus = nullptr;
     QWidget* m_videoView = nullptr;
     QTimer* m_ticker = nullptr;
 

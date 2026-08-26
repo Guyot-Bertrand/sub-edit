@@ -186,6 +186,16 @@ std::string percentOf(double value) {
     return std::to_string(tenths / kTenths) + "." + std::to_string(tenths % kTenths) + "%";
 }
 
+std::string gridStatusOf(GridVerdict verdict, std::optional<FrameRate> rate) {
+    if (!rate.has_value())
+        return "No grid";
+
+    std::string text = "Grid: " + nameOf(*rate) + " fps";
+    if (verdict == GridVerdict::Partial)
+        text += " (" + std::string{nameOf(verdict)} + ")";
+    return text;
+}
+
 std::string videoStatusOf(const std::optional<std::filesystem::path>& video) {
     if (!video.has_value())
         return "No video";

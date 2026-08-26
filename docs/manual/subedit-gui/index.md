@@ -31,6 +31,7 @@ table.
 | [La table](table.md) | ce que chaque colonne montre |
 | [Éditer une cellule](edition.md) | quelles cellules s'éditent, et comment |
 | [Annuler et rétablir](annulation.md) | l'historique, les deux actions, la marque de modification |
+| [La grille d'images](grille.md) | la cadence déduite des positions, et l'analyse |
 | [Les opérations](operations.md) | décaler, transformer, convertir, retirer les mentions, et ce qui dépasse la fin du film |
 | [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la barre d'état, `ffmpeg` |
 | [Le lecteur](lecteur.md) | la vue vidéo, jouer, la ligne qui suit, la réplique dessinée |

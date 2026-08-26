@@ -47,7 +47,9 @@ correction tient.
 
 ## Ce que la barre d'état montre
 
-À droite de la barre d'état, une ligne dit ce que le document accompagne.
+À droite de la barre d'état, une ligne dit ce que le document accompagne. À
+côté d'elle, une autre dit la [grille d'images](grille.md) déduite des
+positions.
 
 | Situation | Ce qui est écrit |
 | :-------- | :--------------- |

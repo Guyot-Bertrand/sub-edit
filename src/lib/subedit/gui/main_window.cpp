@@ -1,3 +1,4 @@
+#include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/hearing_impaired_removal.hpp>
 #include <subedit/core/edit/session.hpp>
@@ -21,6 +22,7 @@
 #include <subedit/gui/command_label.hpp>
 #include <subedit/gui/diagnostics_panel.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
+#include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/hearing_impaired_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
@@ -68,6 +70,20 @@
 namespace subedit::gui {
 
 namespace {
+
+/// What the positions of `project` say about the grid they were written on.
+///
+/// A free function and not a member: nothing is kept between calls, so there is
+/// no state for a member to hold — see ADR 0021 on why the deduction is
+/// recomputed rather than cached.
+[[nodiscard]] core::FrameRateDeduction deductionOf(const core::Project& project) {
+    std::vector<core::Timestamp> starts;
+    starts.reserve(project.count());
+    for (const core::Subtitle& subtitle : project.subtitles())
+        starts.push_back(subtitle.start);
+
+    return core::deduceFrameRate(starts);
+}
 
 /// What the title bar says: the file name, or that nothing is open.
 ///
@@ -150,6 +166,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_playPause(buildAction(
           this, QStringLiteral("Play / Pause"), QStringLiteral("media-playback-start"))),
       m_videoStatus(new QLabel{this}),
+      m_gridStatus(new QLabel{this}),
       m_videoView(new QWidget{this}),
       m_ticker(new QTimer{this}),
       m_buildPlayer(std::move(buildPlayer)),
@@ -226,12 +243,20 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(
         m_hearingImpaired, &QAction::triggered, this, &MainWindow::removeHearingImpairedFromTarget);
 
+    m_analyseGrid = new QAction{QStringLiteral("Frame Rate &Analysis…"), this};
+    m_analyseGrid->setEnabled(false);
+    connect(m_analyseGrid, &QAction::triggered, this, &MainWindow::analyseGrid);
+
     QMenu* tools = menuBar()->addMenu(QStringLiteral("&Tools"));
     tools->addAction(m_shift);
     tools->addAction(m_transform);
     tools->addAction(m_frameRate);
     tools->addSeparator();
     tools->addAction(m_hearingImpaired);
+    tools->addSeparator();
+    // Below the separator because it changes nothing: the four above it act on
+    // the document, this one only reports on it.
+    tools->addAction(m_analyseGrid);
 
     m_selectVideo->setEnabled(true);
     connect(m_selectVideo, &QAction::triggered, this, &MainWindow::selectVideo);
@@ -255,6 +280,10 @@ MainWindow::MainWindow(core::FileSystem& files,
     // A permanent widget and not `showMessage`: what film is associated is a
     // standing fact, not a passing remark, and a message can be pushed aside
     // by the next one.
+    // Two standing facts about the document, side by side: what film it
+    // accompanies, and what grid its positions were written on. Neither is a
+    // passing remark, so neither goes through `showMessage`.
+    statusBar()->addPermanentWidget(m_gridStatus);
     statusBar()->addPermanentWidget(m_videoStatus);
 
     QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
@@ -341,6 +370,20 @@ void MainWindow::proposeVideoBeside() {
     }
 
     refreshVideo();
+}
+
+void MainWindow::refreshGridStatus() {
+    const core::FrameRateDeduction grid = deductionOf(m_session->project());
+    const std::optional<core::FrameRate> retained = grid.verdict == core::GridVerdict::Silent
+                                                        ? std::nullopt
+                                                        : std::optional{grid.retained.rate};
+
+    m_gridStatus->setText(QString::fromStdString(core::gridStatusOf(grid.verdict, retained)));
+}
+
+void MainWindow::analyseGrid() {
+    GridAnalysisDialog dialog{deductionOf(m_session->project()), this};
+    (void)m_prompts->run(dialog);
 }
 
 void MainWindow::refreshVideoStatus() {
@@ -634,12 +677,20 @@ void MainWindow::refreshActions() {
 
     setWindowModified(m_session->hasUnsavedChanges(core::Document::Main));
 
+    // Every change of the document may have moved a position, so the verdict is
+    // taken again here rather than at the opening alone: an alignment that put
+    // the file on another grid must not leave the status bar saying the old one.
+    refreshGridStatus();
+
     // Nothing to shift, nothing to transform: an enabled action would open a
     // dialog that could apply to nothing.
     const bool anything = m_session->project().count() != 0;
     m_shift->setEnabled(anything);
     m_transform->setEnabled(anything);
     m_frameRate->setEnabled(anything);
+    // Nothing to analyse either: an empty document has no positions to read a
+    // grid off, and the dialog would open on « too few subtitles ».
+    m_analyseGrid->setEnabled(anything);
     m_hearingImpaired->setEnabled(anything);
 }
 

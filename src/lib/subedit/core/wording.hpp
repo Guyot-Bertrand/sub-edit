@@ -101,6 +101,17 @@ namespace subedit::core {
 /// `99.87342%`.
 [[nodiscard]] std::string percentOf(double value);
 
+/// What the status bar says of the grid the positions were written on.
+///
+/// Beside what it already says of the associated film, and worded here for the
+/// same reason: it is a standing fact about the document, and the report of
+/// `inspect` says it in the same words.
+///
+/// `rate` is the candidate retained, or nothing when the verdict is silent —
+/// there is then no rate to name, which is the whole point of a closed set of
+/// candidates.
+[[nodiscard]] std::string gridStatusOf(GridVerdict verdict, std::optional<FrameRate> rate);
+
 /// A length in seconds, signed, to the millisecond: "-7.001 s".
 ///
 /// Here since #174, and it was in the command line before — where the window
