@@ -20,6 +20,10 @@ ne pas l'éditer à la main.
 - **gui** — La mesure dans le dialogue de conversion
 - **gui** — Aligner sur une fréquence, ramener sur la grille
 
+### Construction
+
+- **scripts** — Refuser un fichier laissé par les tests
+
 ### Corrections
 
 - **gui** — Six corrections d'usage de la fenêtre
@@ -32,10 +36,13 @@ ne pas l'éditer à la main.
 ### Remaniements
 
 - **core** — Déduire la fréquence depuis un projet
+- **gui** — Une seule liste des huit fréquences
+- **core** — Ranger les anomalies parmi les analyses
 
 ### Tests
 
 - **test** — Des fixtures de sous-titres sur grille connue
+- **core** — Éprouver les seuils de la déduction à leur frontière
 
 ## 0.6.0 — 2026-08-25
 
