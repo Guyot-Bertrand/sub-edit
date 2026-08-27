@@ -112,6 +112,56 @@ inhabituelle est l'information, et il n'y a rien à quoi la convertir ici.
 
 Convertir une fréquence en elle-même ne change rien : le bouton reste inactif.
 
+## `Snap to Frame Rate…`
+
+Pose **chaque horodatage** — début et fin — sur l'image la plus proche de la
+cadence choisie. Une seule liste, et c'est toute la différence avec la
+conversion : une conversion a besoin de deux cadences parce qu'elle met le
+fichier à l'échelle de l'une vers l'autre ; un alignement n'a besoin que de la
+grille sur laquelle atterrir.
+
+| | `Convert Frame Rate…` | `Snap to Frame Rate…` |
+| :--- | :-------------------- | :-------------------- |
+| déplacement | proportionnel au temps — **plusieurs secondes** sur un long métrage | une demi-image au plus, **partout** |
+| pour quel fichier | un fichier dont le **minutage est faux** | un fichier dont le minutage est **juste** et dont la grille est fausse |
+
+**Le cas d'usage**, en toutes lettres : un film à 25 images par seconde, des
+sous-titres écrits sur une grille à 24, des répliques déjà à peu près à leur
+place à quelques millisecondes près. Il n'y a rien à re-miner — seulement à
+reposer les horodatages sur les bonnes images.
+
+La liste **s'ouvre sur ce que la vidéo déclare**, et non sur ce que les
+positions disent : l'intention est de rejoindre la grille du film, et la
+déduction nomme celle qu'on quitte. Sans vidéo ou sans `ffprobe`, elle s'ouvre
+sur la cadence du projet.
+
+Aligner un fichier sur la grille qu'il occupe déjà ne le change pas, et ce n'est
+pas une erreur : l'opération s'applique, ne déplace rien, et s'annule comme
+n'importe quelle autre.
+
+## `Shift onto Grid`
+
+Décale **tout le fichier** de la quantité qui remet ses positions sur la grille
+qu'elles ont quittée. Un fichier dont les positions sont sur une grille à une
+constante près a été décalé, et cette constante se mesure.
+
+**L'entrée de menu porte le montant** — `Shift onto Grid (+0.001 s)`. Il n'y a
+pas de dialogue : l'opération ne prend aucune option, et une entrée qui va
+déplacer un fichier entier doit dire de combien avant d'être choisie.
+
+**Elle s'éteint quand aucune grille n'a été trouvée.** Il n'y a alors rien à
+rejoindre, et une phase mesurée sur du bruit déplacerait le fichier au hasard.
+« Rien à rejoindre » et « rejoindre de zéro » ne disent pas la même chose : le
+second reste proposé, parce qu'un fichier déjà sur sa grille en est un cas
+normal.
+
+**Ce n'est pas `Snap to Frame Rate…`.** Celui-ci décale tout d'une même quantité
+et préserve **exactement** le minutage relatif ; l'alignement déplace chaque
+position indépendamment et absorbe au passage celles qui avaient été corrigées à
+la main. Sur un fichier propre les deux donnent le même résultat ; sur un
+fichier partiel, non — et le [détail de l'analyse](grille.md) dit lequel des
+deux on a sous les yeux.
+
 ## `Remove Hearing-Impaired Mentions…`
 
 Retire les mentions destinées aux spectateurs sourds ou malentendants — les

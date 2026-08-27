@@ -33,4 +33,11 @@ QString redoLabel(std::optional<CommandKind> kind) {
     return actionLabel(QStringLiteral("Redo"), kind);
 }
 
+QString shiftOntoGridLabel(std::optional<core::Duration> by) {
+    if (!by.has_value())
+        return QStringLiteral("Shift onto Grid");
+
+    return QStringLiteral("Shift onto Grid (%1)").arg(QString::fromStdString(core::secondsOf(*by)));
+}
+
 } // namespace subedit::gui

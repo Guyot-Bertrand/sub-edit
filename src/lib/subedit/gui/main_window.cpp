@@ -1,9 +1,11 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/analysis/grid_correction.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/hearing_impaired_removal.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
 #include <subedit/core/edit/shift_limits.hpp>
+#include <subedit/core/edit/snap_command.hpp>
 #include <subedit/core/edit/transform_command.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/io/file_system.hpp>
@@ -29,6 +31,7 @@
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/saving.hpp>
 #include <subedit/gui/shift_dialog.hpp>
+#include <subedit/gui/snap_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 #include <subedit/gui/target.hpp>
@@ -162,6 +165,8 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_transform(buildAction(this, QStringLiteral("Transform Positions…"), {})),
       m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
       m_hearingImpaired(buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})),
+      m_snap(buildAction(this, QStringLiteral("Snap to Frame Rate…"), {})),
+      m_shiftOntoGrid(buildAction(this, shiftOntoGridLabel(std::nullopt), {})),
       m_selectVideo(buildAction(this, QStringLiteral("Select Video…"), {})),
       m_playPause(buildAction(
           this, QStringLiteral("Play / Pause"), QStringLiteral("media-playback-start"))),
@@ -243,6 +248,9 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(
         m_hearingImpaired, &QAction::triggered, this, &MainWindow::removeHearingImpairedFromTarget);
 
+    connect(m_snap, &QAction::triggered, this, &MainWindow::snapToFrameRate);
+    connect(m_shiftOntoGrid, &QAction::triggered, this, &MainWindow::shiftOntoGrid);
+
     m_analyseGrid = new QAction{QStringLiteral("Frame Rate &Analysis…"), this};
     m_analyseGrid->setEnabled(false);
     connect(m_analyseGrid, &QAction::triggered, this, &MainWindow::analyseGrid);
@@ -253,6 +261,13 @@ MainWindow::MainWindow(core::FileSystem& files,
     tools->addAction(m_frameRate);
     tools->addSeparator();
     tools->addAction(m_hearingImpaired);
+    tools->addSeparator();
+    // The two of phase 16, together: one lays each position on the nearest
+    // frame, the other moves the whole file back onto its own grid. They read
+    // alike and are not alike, which is why they sit side by side rather than
+    // among the four above.
+    tools->addAction(m_snap);
+    tools->addAction(m_shiftOntoGrid);
     tools->addSeparator();
     // Below the separator because it changes nothing: the four above it act on
     // the document, this one only reports on it.
@@ -379,6 +394,42 @@ void MainWindow::refreshGridStatus() {
                                                         : std::optional{grid.retained.rate};
 
     m_gridStatus->setText(QString::fromStdString(core::gridStatusOf(grid.verdict, retained)));
+}
+
+void MainWindow::snapToFrameRate() {
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+    const std::optional<core::AssociatedVideo>& associated = m_session->project().video();
+
+    SnapDialog dialog{target.count(),
+                      m_session->project().frameRate(),
+                      associated.has_value() ? associated->declared : std::nullopt,
+                      this};
+    if (!m_prompts->run(dialog))
+        return;
+
+    applyOperation(std::make_unique<core::SnapCommand>(m_session->project(), target, dialog.rate()),
+                   target);
+}
+
+void MainWindow::shiftOntoGrid() {
+    const std::optional<core::Duration> by = core::shiftOntoGrid(deductionOf(m_session->project()));
+    if (!by.has_value())
+        return;
+
+    const core::Selection whole = core::Selection::all(m_session->project());
+
+    // The rule the core has held since #132, shared with the command line: a
+    // position before the origin is representable, and no subtitle file can
+    // hold one.
+    if (const std::optional<core::SubtitleIndex> refused =
+            core::firstBeforeOrigin(m_session->project(), whole, *by);
+        refused.has_value()) {
+        m_prompts->reportFailure("subtitle " + std::to_string(refused->number()) +
+                                 " would start before the origin, which no subtitle file can hold");
+        return;
+    }
+
+    applyOperation(std::make_unique<core::ShiftCommand>(whole, *by), whole);
 }
 
 void MainWindow::analyseGrid() {
@@ -691,6 +742,15 @@ void MainWindow::refreshActions() {
     // Nothing to analyse either: an empty document has no positions to read a
     // grid off, and the dialog would open on « too few subtitles ».
     m_analyseGrid->setEnabled(anything);
+    m_snap->setEnabled(anything);
+
+    // The amount is measured here rather than when the entry is chosen, so that
+    // the menu can say what it will do — and the entry goes out when there is
+    // no grid to rejoin, which is not the same thing as an amount of zero.
+    const std::optional<core::Duration> onto =
+        anything ? core::shiftOntoGrid(deductionOf(m_session->project())) : std::nullopt;
+    m_shiftOntoGrid->setEnabled(onto.has_value());
+    m_shiftOntoGrid->setText(shiftOntoGridLabel(onto));
     m_hearingImpaired->setEnabled(anything);
 }
 
