@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <grid_fixtures.hpp>
 #include <span>
@@ -45,6 +46,57 @@ double concentrationOn(const FrameRateDeduction& deduction, StandardFrameRate st
     const auto* const found = std::ranges::find_if(
         deduction.ranked, [wanted](const auto& fit) { return fit.rate == wanted; });
     return found == deduction.ranked.end() ? 0.0 : found->concentration;
+}
+
+/// A perfect 25 fps grid of exactly `count` starts, with an irregular step.
+///
+/// The count is the whole subject: `kFewestStarts` decides from how many starts
+/// a verdict is honest, and nothing but the count may differ between the two
+/// sides of that frontier.
+[[nodiscard]] std::vector<Timestamp> gridOf(std::size_t count) {
+    constexpr std::array<std::int64_t, 3> kGapsInFrames = {47, 61, 53};
+    constexpr std::int64_t kFrame = 40; // one frame at 25 fps, in milliseconds
+
+    std::vector<Timestamp> starts;
+    std::int64_t frame = 0;
+    for (std::size_t rank = 0; rank < count; ++rank) {
+        starts.push_back(Timestamp::fromMilliseconds(frame * kFrame));
+        frame += kGapsInFrames[rank % kGapsInFrames.size()];
+    }
+    return starts;
+}
+
+/// Positions whose concentration on the 25 fps grid is exactly
+/// `aligned / (aligned + 2 × pairs)`, in per cent.
+///
+/// **Chosen to the digit rather than measured afterwards**, and that is what
+/// makes it usable on a frontier. A frame at 25 lasts 40 milliseconds, so a
+/// position's phase is `(t mod 40) / 40`: positions at `t ≡ 0` all point the
+/// same way, while a pair at `t ≡ 10` and `t ≡ 30` points a quarter turn either
+/// side and **cancels exactly** — the two unit vectors are opposite. What
+/// survives the sum is the aligned ones, over the count.
+///
+/// The thirteen fixtures cannot do this. They fall frankly on one side or the
+/// other — the lowest clean grid is at 99.4, the loudest silent one at 15.3 —
+/// so they show that the method separates clear cases, not that a threshold is
+/// where the spec says it is.
+[[nodiscard]] std::vector<Timestamp> concentratedOn25(std::size_t aligned, std::size_t pairs) {
+    constexpr std::int64_t kFrame = 40;
+    constexpr std::int64_t kQuarter = 10;
+
+    std::vector<Timestamp> starts;
+    std::int64_t at = 0;
+    for (std::size_t rank = 0; rank < aligned; ++rank) {
+        starts.push_back(Timestamp::fromMilliseconds(at));
+        at += kFrame;
+    }
+    for (std::size_t rank = 0; rank < pairs; ++rank) {
+        starts.push_back(Timestamp::fromMilliseconds(at + kQuarter));
+        at += kFrame;
+        starts.push_back(Timestamp::fromMilliseconds(at + (3 * kQuarter)));
+        at += kFrame;
+    }
+    return starts;
 }
 
 /// A grid at `rate`, translated by `offset`, with an irregular step.
@@ -286,4 +338,65 @@ TEST_CASE("an empty project is not a crash either", "[analysis][deduction]") {
     CHECK(deduction.verdict == GridVerdict::Silent);
     CHECK(deduction.starts == 0);
     CHECK(deduction.span == subedit::core::Duration::zero());
+}
+
+// The three thresholds of the whole phase, each held on both sides of its own
+// frontier — issue #225.
+//
+// They live in the implementation, one copy each, with their reason written
+// next to them. What was missing was never the number; it was a test that
+// notices when it moves. **Moving any of the three by one point makes one of
+// the three cases below fail**, which is the only property that makes a
+// threshold checkable at all.
+
+TEST_CASE("a clean grid starts at ninety, and not at eighty-nine", "[analysis][deduction]") {
+    // 91 aligned against 5 cancelling pairs is 91 of 101, which is 90.099 — a
+    // tenth of a point above. Two fewer aligned is 89 of 99, which is 89.899, a
+    // tenth below. Nothing else differs between the two.
+    const FrameRateDeduction above = deduceFrameRate(concentratedOn25(91, 5));
+    const FrameRateDeduction below = deduceFrameRate(concentratedOn25(89, 5));
+
+    REQUIRE(above.retained.rate == FrameRate{StandardFrameRate::Fps25});
+    REQUIRE(below.retained.rate == FrameRate{StandardFrameRate::Fps25});
+
+    CHECK_THAT(above.retained.concentration, Catch::Matchers::WithinAbs(90.099, 0.001));
+    CHECK(above.verdict == GridVerdict::Clean);
+
+    CHECK_THAT(below.retained.concentration, Catch::Matchers::WithinAbs(89.899, 0.001));
+    CHECK(below.verdict == GridVerdict::Partial);
+}
+
+TEST_CASE("a partial grid starts at fifty, and not at forty-nine", "[analysis][deduction]") {
+    // 51 of 101 is 50.495; 49 of 99 is 49.495. Below the second the deduction
+    // names no rate at all, which is the answer a closed set of candidates
+    // exists to be able to give.
+    const FrameRateDeduction above = deduceFrameRate(concentratedOn25(51, 25));
+    const FrameRateDeduction below = deduceFrameRate(concentratedOn25(49, 25));
+
+    REQUIRE(above.retained.rate == FrameRate{StandardFrameRate::Fps25});
+
+    CHECK_THAT(above.retained.concentration, Catch::Matchers::WithinAbs(50.495, 0.001));
+    CHECK(above.verdict == GridVerdict::Partial);
+
+    CHECK_THAT(below.retained.concentration, Catch::Matchers::WithinAbs(49.495, 0.001));
+    CHECK(below.verdict == GridVerdict::Silent);
+}
+
+TEST_CASE("ten starts earn a verdict, and nine do not", "[analysis][deduction]") {
+    const FrameRateDeduction nine = deduceFrameRate(gridOf(9));
+    const FrameRateDeduction ten = deduceFrameRate(gridOf(10));
+
+    // Both sit perfectly on the grid, and the ranking says so in both cases.
+    // What the tenth start buys is not a better fit but the right to conclude
+    // from one — which is why the silent verdict below has to be read next to
+    // `enoughStarts` rather than alone.
+    CHECK_THAT(nine.ranked.front().concentration, Catch::Matchers::WithinAbs(100.0, 1e-9));
+    CHECK_THAT(ten.ranked.front().concentration, Catch::Matchers::WithinAbs(100.0, 1e-9));
+
+    CHECK(!nine.enoughStarts);
+    CHECK(nine.verdict == GridVerdict::Silent);
+
+    CHECK(ten.enoughStarts);
+    CHECK(ten.verdict == GridVerdict::Clean);
+    CHECK(ten.retained.rate == FrameRate{StandardFrameRate::Fps25});
 }
