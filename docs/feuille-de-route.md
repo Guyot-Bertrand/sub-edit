@@ -640,6 +640,10 @@ Ce qui manque pour qu'un tiers installe et utilise l'outil.
 Préférences persistées, thème clair et sombre suivant le système, manuel
 utilisateur complet pour le contour livré, empaquetage Linux.
 
+**Un renvoi de la phase 16 y attend son contenu :** l'entrée `Help ▸ Manual` de
+la fenêtre existe et est éteinte depuis #211. Le manuel qu'elle ouvrira et
+l'endroit où il sera installé se décident avec l'empaquetage, pas avant.
+
 **Trois renvois du cadrage de la phase 5 atterrissent ici**, et le premier n'y
 était pas prévu :
 
@@ -739,6 +743,20 @@ un début, une fin » — et qu'en inventer une dans une phase d'interface aurai
 des durées en a besoin de toute façon ; la colonne devient éditable du même
 coup, et il faudra dire laquelle des deux bornes elle déplace.
 
+**Deux renvois de la phase 16 atterrissent ici.**
+
+- **Retrouver la paire d'une conversion faite avec la mauvaise fréquence.** La
+  phase 16 déduit la grille d'un fichier ; quand celle-ci n'est aucune des huit,
+  c'est parfois qu'une conversion a été faite avec une fréquence d'entrée
+  fausse, et le rationnel qui remettrait le fichier sur une grille normalisée se
+  cherche. Sa spec l'a nommée « le plus utile et le moins sûr » des trois
+  mécanismes de correction, et l'a écartée pour cette raison.
+- **Deux fixtures de grille qui manquent** :
+  `src/test/data/grilles/LISEZMOI.md` le dit lui-même — des fins calculées par
+  une règle de vitesse de lecture plutôt que posées sur une image, et un fichier
+  écrit en millisecondes **sans aucune grille**. `grille-absurde.srt` est
+  régulier ; le cas du bruit pur n'a donc aucune fixture.
+
 **Points difficiles**
 
 - **Ajustement des durées** : contraintes simultanées de durée minimale,
@@ -801,8 +819,9 @@ benchmark de référence du projet.
 ## 13 — CLI complète
 
 Sous-commandes destinées à un usage réel : conversion, décalage, transformation,
-ajustement des durées, correction, inspection. Traitement par lot, sortie
-lisible par un humain et sortie exploitable par un script.
+alignement sur une grille, ajustement des durées, correction, inspection.
+Traitement par lot, sortie lisible par un humain et sortie exploitable par un
+script.
 
 Gaupol n'a pas d'équivalent : c'est une conception neuve, et un gain
 fonctionnel réel.

@@ -26,6 +26,13 @@ candidates est clos — les huit que le dialogue de conversion propose — et
 rapporter la moins fausse d'entre elles serait donner une mauvaise réponse là où
 « je ne sais pas » est la bonne.
 
+**`No grid` a deux causes, et ce ne sont pas la même réponse.** Ou bien aucune
+grille ne convient, ou bien le fichier compte trop peu de sous-titres pour qu'on
+puisse en dire quoi que ce soit — deux débuts paraissent toujours parfaitement
+alignés, et ça ne prouve rien. La barre d'état dit la même chose des deux ;
+**l'analyse les distingue**, et donne dans le premier cas de combien la
+meilleure candidate échoue.
+
 La ligne **se remet à jour après chaque opération**. Aligner un fichier sur une
 autre cadence change la grille, et la barre d'état ne doit pas continuer à
 annoncer l'ancienne.

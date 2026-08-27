@@ -169,6 +169,13 @@ vérifié au benchmark et non espéré. Au-delà, elle devient paresseuse.
 **Mesuré par #203 : 374 µs** au relevé de la version 0.6.3, contre 2,32 ms pour
 la lecture du même relevé — **16 %, le budget est tenu.**
 
+**La fenêtre va au-delà de « à l'ouverture », et c'est voulu.** Elle recalcule à
+chaque changement du document, parce qu'un alignement change la grille et que la
+barre d'état ne doit pas continuer à annoncer l'ancienne. C'est ce que
+l'[ADR 0021](../adr/0021-analyse-du-document-a-l-ouverture.md) rend possible en
+refusant de garder une valeur dérivée : il n'y a aucune invalidation à tenir, et
+le coût reste celui d'une fraction de milliseconde.
+
 Il ne l'était pas au premier jet. Le gain vient d'une propriété et non d'une
 astuce : une position est un nombre entier de millisecondes, donc sur une
 fréquence entière la phase ne prend que mille valeurs, et cinq des huit
@@ -211,7 +218,12 @@ la section de l'autre.
 d'utiliser la grille pour marquer quoi que ce soit dans la table, et cette
 interdiction tient. Dès qu'un utilisateur corrige une position à la main, elle
 cesse d'être alignée : un détecteur naïf signalerait son travail comme une
-anomalie. `melange-disperse.srt` est précisément ce fichier, et accuser ses
+anomalie.
+
+**Une teinte de ligne existe pourtant depuis #211**, et elle ne vient pas
+d'ici : c'est la réplique que le film montre à l'instant. Elle est transitoire,
+elle suit une lecture et non une mesure, et une anomalie l'emporte sur elle. D12
+interdit à la *déduction* de marquer une ligne, et cela reste vrai. `melange-disperse.srt` est précisément ce fichier, et accuser ses
 trente-et-une lignes serait accuser l'utilisateur. **La déduction parle du
 document, jamais d'une ligne** — sauf dans la modale d'analyse, que
 l'utilisateur ouvre pour cela.
@@ -396,12 +408,18 @@ déduction : c'est ce relevé-là qui dira si le budget est tenu.
 | `CLI-SHIFT-04` | `shift --to-grid` sur un fichier sans grille refuse et dit pourquoi |
 | `CLI-SNAP-01` | `snap --rate R` porte chaque position sur l'image la plus proche de R |
 | `CLI-SNAP-02` | `snap` écrit combien de positions ont bougé, et de combien au plus |
-| `CLI-SNAP-03` | `snap` refuse une fréquence hors des huit normalisées |
 | `GUI-GRID-01` | la barre d'état porte le verdict de la déduction |
 | `GUI-GRID-02` | la modale d'analyse montre les huit candidates, l'étendue et les écarts |
 | `GUI-FRAMERATE-03` | le dialogue de conversion pré-remplit l'entrée avec la mesure, et le dit |
 | `GUI-FRAMERATE-04` | un désaccord entre la mesure et ce que la vidéo déclare est montré sans être arbitré |
 | `GUI-SNAP-01` | `Snap to Frame Rate…` aligne le document, et l'opération s'annule |
+| `GUI-GRID-03` | ramener sur la grille affiche son montant, et s'éteint sans grille |
+
+**Douze, et non treize.** `CLI-SNAP-03` a été retirée par #207 avant d'être
+écrite — la raison est plus haut — et `GUI-GRID-03` est née en #210, quand
+l'entrée de menu a dû dire son montant avant de l'appliquer. Les deux écarts
+sont inscrits ici plutôt que corrigés en silence, et la relecture de fin de
+phase (#222) a confronté cette table au registre ligne à ligne.
 
 **Elles entrent au registre en début d'issue, à l'état `prévue`.** Le cadrage de
 la phase 6 renvoyait ici la question : la règle le dit, la pratique ne l'a
@@ -454,12 +472,28 @@ ne dépend de rien et se remplit en chemin.
 
 ## Renvois
 
+**Répercutés par la relecture de fin de phase (#222)**, qui a vérifié que chacun
+désigne quelque chose de réel — une section de la feuille de route ou une issue
+ouverte — plutôt qu'une intention.
+
 | Ce qui est renvoyé | Où |
 | :----------------- | :- |
-| retrouver la paire d'une conversion faite avec la mauvaise fréquence | phase 10 |
-| déplacer les anomalies de `core/model/` vers `core/analysis/` | pas de phase : à faire le jour où une seconde analyse existe |
-| des fixtures aux fins réalistes, et un fichier sans aucune grille | ici même, si un test les réclame ; sinon phase 10 |
-| le traitement par lot de `snap` et la sortie exploitable | phase 13 |
+| retrouver la paire d'une conversion faite avec la mauvaise fréquence | phase 10, dont la section le nomme désormais |
+| des fixtures aux fins réalistes, et un fichier sans aucune grille | phase 10, même section |
+| déplacer les anomalies de `core/model/` vers `core/analysis/` | #227 — une condition, pas une date : le jour où une seconde analyse existe |
+| le traitement par lot de `snap` et la sortie exploitable | phase 13, dont la liste nomme désormais l'alignement |
+| l'entrée `Help ▸ Manual`, présente et éteinte | phase 7, avec l'empaquetage qui décide où le manuel vit |
+| la géométrie de la fenêtre, retenue d'une session à l'autre | phase 7, avec la configuration persistée |
+
+**Et quatre axes sortis du regard critique**, qui ne sont pas des renvois de
+cadrage mais des dettes constatées :
+
+| Ce qui a été vu | Issue |
+| :-------------- | :---- |
+| trois appelants rassemblent les débuts avant de déduire | #223 |
+| la liste des huit fréquences est écrite deux fois | #224 |
+| les seuils ne sont pas éprouvés à leur frontière | #225 |
+| la porte ne voit pas les fichiers que les tests laissent derrière eux | #226 |
 
 ## Critères de fin
 
