@@ -67,13 +67,8 @@ std::string span(const std::vector<core::Subtitle>& subtitles) {
 /// rather than read. The lines below the first appear only when they say
 /// something: a file on a clean grid with no ambiguity gets one line, which is
 /// all there is to know about it.
-void sayGrid(std::ostream& out, const std::vector<core::Subtitle>& subtitles) {
-    std::vector<core::Timestamp> starts;
-    starts.reserve(subtitles.size());
-    for (const core::Subtitle& subtitle : subtitles)
-        starts.push_back(subtitle.start);
-
-    const core::FrameRateDeduction grid = core::deduceFrameRate(starts);
+void sayGrid(std::ostream& out, const core::Project& project) {
+    const core::FrameRateDeduction grid = core::deduceFrameRate(project);
 
     if (!grid.enoughStarts) {
         out << "  frame rate grid: " << nameOf(grid.verdict) << " (too few subtitles to tell)\n";
@@ -108,7 +103,7 @@ void sayGrid(std::ostream& out, const std::vector<core::Subtitle>& subtitles) {
     }
 
     if (!grid.strays.empty())
-        out << "  off the grid: " << grid.strays.size() << " of " << starts.size() << " starts, in "
+        out << "  off the grid: " << grid.strays.size() << " of " << grid.starts << " starts, in "
             << core::countOf(core::runsOfStrays(grid), "run") << "\n";
 }
 
@@ -179,7 +174,7 @@ bool inspectFile(const core::FileSystem& files,
     out << "  line endings: " << lineEndings(*read) << '\n';
     out << "  subtitles: " << read->subtitles.size() << '\n';
     out << "  span: " << span(read->subtitles) << '\n';
-    sayGrid(out, read->subtitles);
+    sayGrid(out, project);
     out << "  anomalies: " << anomalies(project) << '\n';
 
     return true;

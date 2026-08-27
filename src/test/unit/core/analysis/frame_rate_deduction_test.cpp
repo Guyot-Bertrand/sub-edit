@@ -7,6 +7,7 @@
 // candidates make a table of numbers, and a table reads better than a verb.
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/model/project.hpp>
 #include <subedit/core/time/frame.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
@@ -18,6 +19,7 @@
 #include <array>
 #include <cstdint>
 #include <grid_fixtures.hpp>
+#include <span>
 #include <string_view>
 #include <vector>
 
@@ -27,6 +29,7 @@ using subedit::core::deduceFrameRate;
 using subedit::core::FrameRate;
 using subedit::core::FrameRateDeduction;
 using subedit::core::GridVerdict;
+using subedit::core::Project;
 using subedit::core::runsOfStrays;
 using subedit::core::StandardFrameRate;
 using subedit::core::Timestamp;
@@ -218,7 +221,10 @@ TEST_CASE("too few positions say nothing rather than something", "[analysis][ded
 }
 
 TEST_CASE("no position at all is not a crash", "[analysis][deduction]") {
-    const FrameRateDeduction deduction = deduceFrameRate({});
+    // The span is spelled out because an empty brace would name both overloads
+    // at once — an empty span and a default-built project are each one
+    // conversion away — and neither is more nearly what is meant here.
+    const FrameRateDeduction deduction = deduceFrameRate(std::span<const Timestamp>{});
 
     CHECK(deduction.verdict == GridVerdict::Silent);
     CHECK(deduction.starts == 0);
@@ -251,4 +257,33 @@ TEST_CASE("a grid that starts before the origin is still a grid", "[analysis][de
     // nothing about whether the positions fall on frames.
     CHECK_THAT(early.retained.concentration,
                Catch::Matchers::WithinAbs(late.retained.concentration, 1e-9));
+}
+
+TEST_CASE("a project is read exactly as its starts alone", "[analysis][deduction]") {
+    // The overload exists so that no caller writes the gathering loop, and the
+    // only thing it owes anyone is that it changes nothing: the ends are as
+    // absent from its reading as they are from the other one.
+    const Project project =
+        subedit::test::gridProject("grille-24-decalee.srt", FrameRate{StandardFrameRate::Fps24});
+
+    const FrameRateDeduction fromProject = deduceFrameRate(project);
+    const FrameRateDeduction fromStarts =
+        deduceFrameRate(subedit::test::gridStarts("grille-24-decalee.srt"));
+
+    CHECK(fromProject.verdict == fromStarts.verdict);
+    CHECK(fromProject.retained.rate == fromStarts.retained.rate);
+    CHECK(fromProject.retained.phase == fromStarts.retained.phase);
+    CHECK(fromProject.starts == fromStarts.starts);
+    CHECK(fromProject.span == fromStarts.span);
+    CHECK(fromProject.strays == fromStarts.strays);
+    CHECK_THAT(fromProject.retained.concentration,
+               Catch::Matchers::WithinAbs(fromStarts.retained.concentration, 1e-9));
+}
+
+TEST_CASE("an empty project is not a crash either", "[analysis][deduction]") {
+    const FrameRateDeduction deduction = deduceFrameRate(Project{});
+
+    CHECK(deduction.verdict == GridVerdict::Silent);
+    CHECK(deduction.starts == 0);
+    CHECK(deduction.span == subedit::core::Duration::zero());
 }

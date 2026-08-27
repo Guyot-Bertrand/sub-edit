@@ -1,4 +1,6 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/model/project.hpp>
+#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
@@ -330,6 +332,15 @@ FrameRateDeduction deduceFrameRate(std::span<const Timestamp> starts) {
     deduction.notSeparated = notSeparatedFrom(deduction.retained.rate, span);
     deduction.strays = straysOf(starts, deduction.retained);
     return deduction;
+}
+
+FrameRateDeduction deduceFrameRate(const Project& project) {
+    std::vector<Timestamp> starts;
+    starts.reserve(project.count());
+    for (const Subtitle& subtitle : project.subtitles())
+        starts.push_back(subtitle.start);
+
+    return deduceFrameRate(std::span<const Timestamp>{starts});
 }
 
 std::size_t runsOfStrays(const FrameRateDeduction& deduction) {

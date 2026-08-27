@@ -29,6 +29,10 @@ ne pas l'éditer à la main.
 - **doc** — Cadrage de la phase 16, la déduction de fréquence
 - **doc** — Relecture de fin de phase 16
 
+### Remaniements
+
+- **core** — Déduire la fréquence depuis un projet
+
 ### Tests
 
 - **test** — Des fixtures de sous-titres sur grille connue

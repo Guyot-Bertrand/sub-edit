@@ -14,26 +14,23 @@
 //
 // Collecting the starts is measured with the deduction rather than before it.
 // That is deliberate: it is what a caller has to do, and hiding it would report
-// a cost nobody actually pays.
+// a cost nobody actually pays. Since issue #223 no caller writes that gathering
+// itself — the overload on `Project` does it — so the benchmark calls what they
+// call, and the figure stays the one they pay.
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
-#include <subedit/core/model/subtitle.hpp>
-#include <subedit/core/time/timestamp.hpp>
 
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include <full_length_project.hpp>
-#include <vector>
 
 namespace {
 
 using subedit::core::deduceFrameRate;
 using subedit::core::Project;
-using subedit::core::Subtitle;
-using subedit::core::Timestamp;
 
 } // namespace
 
@@ -41,11 +38,6 @@ TEST_CASE("deducing the frame rate of a full-length file", "[bench][analysis]") 
     const Project project = subedit::test::fullLengthProject();
 
     BENCHMARK("déduction de fréquence sur 4000 sous-titres") {
-        std::vector<Timestamp> starts;
-        starts.reserve(project.count());
-        for (const Subtitle& subtitle : project.subtitles())
-            starts.push_back(subtitle.start);
-
-        return deduceFrameRate(starts);
+        return deduceFrameRate(project);
     };
 }
