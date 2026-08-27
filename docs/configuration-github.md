@@ -61,10 +61,35 @@ serait exempté ne protégerait donc de rien — d'où la liste de dérogation v
 
 #### « porte de qualité »
 
+> **Suspendu depuis le 2026-08-27, et à rétablir le 2026-09-01.** Les 2000
+> minutes d'Actions du mois sont consommées, donc `ci.yml` et
+> `pull-request.yml` sont débranchés — leurs déclencheurs automatiques sont
+> commentés, `workflow_dispatch` reste. Ce ruleset a suivi, en `disabled` :
+> **il exige un check qui ne sera plus rapporté**, et une règle qui attend
+> indéfiniment ne protège de rien — elle se contourne à chaque fusion par la
+> dérogation admin, ce qui est la façon la plus sûre de prendre l'habitude de
+> passer outre.
+>
+> Ce qui garde le dépôt entre-temps est `make check`, en local. C'est la même
+> cible ; ce qu'on perd est la machine neutre qui l'exécutait.
+>
+> Les trois gestes du rétablissement, dans cet ordre :
+>
+> ```console
+> $ # 1 et 2 — décommenter les déclencheurs des deux workflows
+> $ ${EDITOR} .github/workflows/ci.yml .github/workflows/pull-request.yml
+> $ # 3 — rendre son application au ruleset
+> $ gh api -X PUT repos/Guyot-Bertrand/sub-edit/rulesets/20469201 \
+>     -f enforcement=active
+> ```
+>
+> L'identifiant se retrouve avec la commande de vérification plus bas, si
+> jamais le ruleset a été recréé entre-temps.
+
 | Champ de l'interface | Valeur |
 | :------------------- | :----- |
 | Ruleset Name | `porte de qualité` |
-| Enforcement status | **Active** |
+| Enforcement status | **Active** — `Disabled` jusqu'au 2026-09-01, voir ci-dessus |
 | Bypass list → Add bypass | **Repository admin** — mode *Always* |
 | Target branches → Add target | **Include default branch** |
 | Rules | cocher **Require status checks to pass** |

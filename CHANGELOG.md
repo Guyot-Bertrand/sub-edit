@@ -33,6 +33,10 @@ ne pas l'éditer à la main.
 - **doc** — Cadrage de la phase 16, la déduction de fréquence
 - **doc** — Relecture de fin de phase 16
 
+### Intégration continue
+
+- Débrancher les portes, le quota du mois étant épuisé
+
 ### Remaniements
 
 - **core** — Déduire la fréquence depuis un projet
