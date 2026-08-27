@@ -5,6 +5,7 @@
 
 add_library(
     subedit_core STATIC
+    analysis/anomaly.cpp
     analysis/frame_rate_deduction.cpp
     analysis/grid_correction.cpp
     command/composite_command.cpp
@@ -23,7 +24,6 @@ add_library(
     edit/set_text_command.cpp
     edit/sort_command.cpp
     text/hearing_impaired.cpp
-    model/anomaly.cpp
     model/project.cpp
     model/video_file.cpp
     model/selection.cpp

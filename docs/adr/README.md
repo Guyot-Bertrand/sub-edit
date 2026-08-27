@@ -47,7 +47,8 @@ reste de 0001 — Qt 6, cœur sans dépendance à l'interface — reste en vigue
 [0006](0006-positions-en-millisecondes.md) et
 [0011](0011-numero-d-image-en-type-fort.md) rendaient possible sans le nommer :
 une inférence sur un document, distincte de ce qu'il est et de ce qui le change.
-Elle place, sans le faire, le déplacement de `core/model/anomaly.hpp`.
+Elle a placé le déplacement de `anomaly.hpp` vers `core/analysis/` sous
+condition ; la #227 l'a fait le jour où la condition a été remplie.
 
 ## Décisions attendues
 

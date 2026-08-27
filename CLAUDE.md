@@ -181,8 +181,18 @@ avec un objectif d'iso-fonctionnalité.
   CMake avant de tagger**, sinon le binaire annonce une version périmée.
   `src/scripts/check-architecture.sh` le vérifie dès qu'un tag pointe sur HEAD.
 - **Qualité** — `make check` est la porte : format, warnings en erreurs,
-  clang-tidy, tests sous ASan, seuil de couverture. La CI exécute la même
-  cible. Ne jamais annoncer un travail terminé sans l'avoir lancée.
+  clang-tidy, tests sous ASan, seuil de couverture, et **aucun fichier laissé
+  derrière**. La CI exécute la même cible. Ne jamais annoncer un travail
+  terminé sans l'avoir lancée.
+
+  Le dernier contrôle est le plus récent et le moins évident : la porte relève
+  les fichiers non suivis avant de commencer et refuse ceux qui sont apparus
+  entre-temps. Ce sont les tests de bout en bout qui écrivent, et un nom nu
+  passé à `--output` atterrit là où CTest les lance, c'est-à-dire à la racine du
+  dépôt. **Un test qui écrit passe par le harnais `Scratch`, jamais par un nom
+  nu.** Un fichier non suivi déjà présent avant la porte — une source neuve
+  avant son `git add` — ne la dérange pas ; c'est l'apparition qui est refusée,
+  pas la présence.
 
   **Elle n'analyse que ce qui a changé, en local comme en CI.**
   `src/scripts/tidy-scope.sh` calcule le périmètre depuis `TIDY_BASE`

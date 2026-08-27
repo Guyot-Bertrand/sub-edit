@@ -8,10 +8,11 @@
 #include <cstddef>
 #include <optional>
 
-class QComboBox;
 class QLabel;
 
 namespace subedit::gui {
+
+class FrameRateBox;
 
 /// Asks which frame rate the positions were computed against, and which they
 /// should be computed against now.
@@ -75,8 +76,8 @@ public:
     [[nodiscard]] QString deducedLabel() const;
 
 private:
-    QComboBox* m_input;
-    QComboBox* m_output;
+    FrameRateBox* m_input;
+    FrameRateBox* m_output;
     QLabel* m_declared = nullptr;
     QLabel* m_deduced = nullptr;
 };

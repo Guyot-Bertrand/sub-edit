@@ -4,13 +4,13 @@
 // the occasion. Here the files exist on disk, they are read through the real
 // file system, and what is asserted is what a user would see on opening them.
 
+#include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/io/real_file_system.hpp>
-#include <subedit/core/model/anomaly.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 

@@ -42,6 +42,11 @@
 # passer par ffmpeg plutôt que par un extrait ajouté en fin de fichier :
 # ajouter du texte à la fin d'un MP4 ne le change pas, ffprobe l'ayant déjà lu.
 #
+# Les deux suivantes visent `make untracked`, la porte qui refuse ce qu'une
+# exécution laisse derrière elle : un fichier apparu pendant les tests, et — de
+# l'autre genre, celui d'`expect_gate_stays_open` — un fichier non suivi qui
+# était déjà là et qu'il ne faut surtout pas signaler.
+#
 # Les deux dernières ne visent aucune porte : `src/scripts/record-bench.sh`, qui
 # ne refuse rien mais choisit ce qu'il inscrit dans une table qu'on n'élague
 # jamais — un extrême posé par du bruit est définitif — et
@@ -78,6 +83,11 @@ readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
 readonly VIDEO_FIXTURE="${REPO_ROOT}/src/test/data/videos/cadence-25.mp4"
 readonly GRID_FIXTURE="${REPO_ROOT}/src/test/data/grilles/grille-25.srt"
+# Le fichier témoin de la preuve des fichiers laissés derrière. Il ne sauvegarde
+# rien : il est créé par la preuve et doit disparaître avec elle, y compris si
+# le script meurt — sans quoi cette preuve-là laisserait justement un fichier
+# derrière elle.
+readonly STRAY_FILE="${REPO_ROOT}/laisse-par-un-test.srt"
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -102,6 +112,7 @@ restore() {
     cp "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
     cp "${backup_dir}/cadence-25.mp4" "${VIDEO_FIXTURE}"
     cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
+    rm -f "${STRAY_FILE}"
 }
 
 cleanup() {
@@ -577,6 +588,49 @@ expect_generated_source_closes() {
 
 expect_generated_source_closes
 
+# La porte refuse ce qu une exécution a laissé derrière elle — #226.
+#
+# **Deux preuves et non une**, parce que le contrôle a deux modes d échec et
+# qu ils ne coûtent pas la même chose. Laisser passer un fichier oublié est ce
+# qui est arrivé une fois, à la #207, et personne ne l a su avant un git status.
+# Signaler un fichier non suivi qui était déjà là — une source neuve avant son
+# git add — serait pire : le contrôle crierait au loup à chaque journée de
+# travail, et un contrôle qui crie au loup finit désactivé.
+#
+# Elle ne passe pas par expect_gate_closes : le défaut ne s injecte pas en
+# ajoutant du texte à un fichier du dépôt, il consiste à en faire apparaître un.
+expect_untracked_gate() {
+    local script="${REPO_ROOT}/src/scripts/check-untracked.sh"
+
+    printf '%s▸ un test qui laisse un fichier derrière lui%s\n' "${BOLD}" "${RESET}"
+    "${script}" --record >/dev/null
+    : > "${STRAY_FILE}"
+    if make -C "${REPO_ROOT}" --no-print-directory untracked >/dev/null 2>&1; then
+        printf '  %s✗ la porte « untracked » a laissé passer le fichier%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make untracked » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+    rm -f "${STRAY_FILE}"
+
+    printf '%s▸ un fichier non suivi déjà là avant le relevé%s\n' "${BOLD}" "${RESET}"
+    : > "${STRAY_FILE}"
+    "${script}" --record >/dev/null
+    if make -C "${REPO_ROOT}" --no-print-directory untracked >/dev/null 2>&1; then
+        printf '  %s✓ « make untracked » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ la porte « untracked » a signalé un fichier antérieur%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+    rm -f "${STRAY_FILE}"
+
+    # Le relevé est refait sans le témoin, pour que les preuves suivantes ne
+    # partent pas d un état que celle-ci a écrit.
+    "${script}" --record >/dev/null
+}
+
+expect_untracked_gate
+
 # Une preuve d un troisième genre. prune-runs.sh n est pas une porte : il ne
 # refuse rien, il choisit. Ce qui peut être faux chez lui n est donc pas de
 # laisser passer un défaut, mais de supprimer une exécution qu il fallait garder
@@ -819,10 +873,12 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles vingt-huit portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles vingt-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set le journal des mesures ne pose un extrême que sur un relevé propre%s\n' \
+    "${GREEN}" "${RESET}"
+printf '%set un fichier non suivi antérieur aux tests ne fait pas crier au loup%s\n' \
     "${GREEN}" "${RESET}"

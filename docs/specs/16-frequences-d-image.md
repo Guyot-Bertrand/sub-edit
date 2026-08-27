@@ -241,7 +241,7 @@ troisième source.
 temps comme `FrameRate`, `Timestamp` ou `Ratio` : c'est une observation sur un
 document. Le répertoire est neuf et accueillera plus tard les anomalies de
 `core/model/anomaly.hpp`, qui sont la même famille — ce déplacement n'est pas de
-cette phase.
+cette phase. *(Fait depuis, hors phase, par la #227.)*
 
 ## Le noyau
 

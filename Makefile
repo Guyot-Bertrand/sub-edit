@@ -279,15 +279,28 @@ ratchet: ## Enregistre la couverture mesurée comme nouveau cliquet
 	@./src/scripts/check-coverage.sh \
 		--summary build/coverage-report/summary.json --record
 
+# Le relevé encadre tout le reste de la porte, et non les seuls tests : ce qui
+# est surveillé est ce que la porte laisse derrière elle, d'où qu'il vienne.
+# Le contrôle est ici et non dans `check-local` parce que **c'est ici que les
+# tests de bout en bout tournent** — le preset asan les exécute, sans filtre
+# d'étiquette — et ce sont eux qui écrivent. Voir src/scripts/check-untracked.sh
+# pour ce qu'il compare et pourquoi le corpus privé lui échappe.
+.PHONY: untracked
+untracked: ## Refuse un fichier non suivi apparu depuis le dernier relevé
+	$(call step,"fichiers laissés derrière")
+	@./src/scripts/check-untracked.sh --compare
+
 .PHONY: check
 check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couverture
 	@printf '$(BOLD)porte de qualité$(RESET)\n'
+	@./src/scripts/check-untracked.sh --record
 	@$(MAKE) --no-print-directory format-check
 	@$(MAKE) --no-print-directory arch
 	@$(MAKE) --no-print-directory build
 	@$(MAKE) --no-print-directory tidy
 	@$(MAKE) --no-print-directory asan
 	@$(MAKE) --no-print-directory coverage
+	@$(MAKE) --no-print-directory untracked
 	@printf '$(GREEN)✓ porte franchie$(RESET)\n'
 
 # `check` est ce que la CI exécute — .github/workflows/ci.yml n'appelle que
@@ -323,7 +336,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory bench
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (vingt-huit preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (vingt-neuf preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog

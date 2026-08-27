@@ -7,6 +7,7 @@ add_executable(
     grid_fixtures.cpp
     await_process.cpp
     text_cases_test.cpp
+    core/analysis/anomaly_test.cpp
     core/analysis/frame_rate_deduction_test.cpp
     core/analysis/grid_correction_test.cpp
     core/version_test.cpp
@@ -30,7 +31,6 @@ add_executable(
     core/model/video_file_test.cpp
     core/model/subtitle_index_test.cpp
     core/model/project_access_test.cpp
-    core/model/anomaly_test.cpp
     core/model/project_edit_test.cpp
     core/model/selection_test.cpp
     core/edit/session_test.cpp
