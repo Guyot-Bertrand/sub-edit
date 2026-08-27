@@ -20,6 +20,10 @@ ne pas l'éditer à la main.
 - **gui** — La mesure dans le dialogue de conversion
 - **gui** — Aligner sur une fréquence, ramener sur la grille
 
+### Corrections
+
+- **gui** — Six corrections d'usage de la fenêtre
+
 ### Documentation
 
 - **doc** — Cadrage de la phase 16, la déduction de fréquence
