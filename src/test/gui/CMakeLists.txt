@@ -17,6 +17,7 @@ add_executable(
     main_window_test.cpp mpv_player_test.cpp window_video_test.cpp
     window_player_test.cpp player_factory_test.cpp invocation_test.cpp
     window_video_bounds_test.cpp window_grid_test.cpp
+    window_appearance_test.cpp
     ${CMAKE_SOURCE_DIR}/src/test/unit/grid_fixtures.cpp)
 
 target_link_libraries(

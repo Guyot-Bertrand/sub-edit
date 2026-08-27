@@ -54,7 +54,21 @@ positions.
 | Situation | Ce qui est écrit |
 | :-------- | :--------------- |
 | une vidéo est associée | `Video: film.mkv` |
+| … et `ffprobe` en donne la cadence | `Video: film.mkv, 24000/1001 fps` |
 | aucune | `No video` |
+
+**La cadence va avec le film plutôt qu'à côté.** Ce sont un seul fait — ce que
+ce document accompagne — et une troisième mention la mettrait au même rang que
+la [grille déduite des positions](grille.md), qui en est un autre.
+
+## Quand il n'y a pas de film
+
+La fenêtre montre un bouton **`Select Video…`** là où l'image irait, plutôt que
+rien du tout. C'est la même commande que celle du menu `Video`, à portée de
+souris : une absence sur laquelle on ne peut pas agir se distingue mal d'un
+défaut.
+
+Le bouton disparaît dès qu'un film est ouvert, et l'image prend sa place.
 
 **Le nom du fichier, jamais son chemin.** Un chemin de deux cents caractères
 chasserait tout le reste de la barre ; le chemin complet est celui que le

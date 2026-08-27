@@ -5,6 +5,7 @@
 #include <subedit/gui/subtitle_table.hpp>
 
 #include <QMainWindow>
+#include <QStringList>
 
 #include <cstdint>
 #include <filesystem>
@@ -117,6 +118,10 @@ public:
     /// takes the whole window » means.
     [[nodiscard]] QWidget* videoView() const { return m_videoView; }
 
+    /// What stands where the picture would be while there is no film: a way in,
+    /// rather than an absence a user has to guess is one.
+    [[nodiscard]] QWidget* noVideoBanner() const { return m_noVideo; }
+
     /// What the status bar says of the associated film — its name, or that
     /// there is none. This is what `GUI-VIDEO-01` promises the user sees.
     [[nodiscard]] QLabel* videoStatus() const { return m_videoStatus; }
@@ -128,6 +133,14 @@ public:
     [[nodiscard]] QAction* analyseGridAction() const { return m_analyseGrid; }
 
     [[nodiscard]] QAction* snapAction() const { return m_snap; }
+
+    [[nodiscard]] QAction* aboutAction() const { return m_about; }
+
+    /// Present and out until phase 7 gives it a manual to open.
+    [[nodiscard]] QAction* manualAction() const { return m_manual; }
+
+    /// The names of the menus, in the order the bar shows them.
+    [[nodiscard]] QStringList menuTitles() const;
 
     /// Bringing the file back onto its own grid. Its text carries the measured
     /// amount, which is how `GUI-GRID-03` shows it before it is applied.
@@ -240,6 +253,9 @@ private:
     /// Opens the analysis, which reports and changes nothing.
     void analyseGrid();
 
+    /// Says who this is and which version is running.
+    void about();
+
     /// Asks which grid to lay the positions on, and lays them on it.
     void snapToFrameRate();
 
@@ -319,11 +335,14 @@ private:
     QAction* m_analyseGrid = nullptr;
     QAction* m_snap = nullptr;
     QAction* m_shiftOntoGrid = nullptr;
+    QAction* m_about = nullptr;
+    QAction* m_manual = nullptr;
     QAction* m_selectVideo = nullptr;
     QAction* m_playPause = nullptr;
     QLabel* m_videoStatus = nullptr;
     QLabel* m_gridStatus = nullptr;
     QWidget* m_videoView = nullptr;
+    QWidget* m_noVideo = nullptr;
     QTimer* m_ticker = nullptr;
 
     PlayerFactory m_buildPlayer{};

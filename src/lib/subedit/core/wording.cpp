@@ -196,10 +196,15 @@ std::string gridStatusOf(GridVerdict verdict, std::optional<FrameRate> rate) {
     return text;
 }
 
-std::string videoStatusOf(const std::optional<std::filesystem::path>& video) {
+std::string videoStatusOf(const std::optional<std::filesystem::path>& video,
+                          std::optional<FrameRate> declared) {
     if (!video.has_value())
         return "No video";
-    return "Video: " + video->filename().string();
+
+    std::string text = "Video: " + video->filename().string();
+    if (declared.has_value())
+        text += ", " + nameOf(*declared) + " fps";
+    return text;
 }
 
 std::string secondsOf(Duration length) {

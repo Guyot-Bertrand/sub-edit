@@ -81,6 +81,13 @@ constexpr QColor kBrokenTint{200, 40, 40, kWash};
 constexpr QColor kOverlapTint{220, 140, 0, kWash};
 constexpr QColor kDisorderTint{70, 90, 210, kWash};
 
+/// Green for the row a playing film is showing.
+///
+/// A fourth hue, told apart from the three above by an eye that does not tell
+/// red from green — it is the only one of the four that is not warm, and the
+/// only one that moves.
+constexpr QColor kShowingTint{40, 160, 90, kWash};
+
 [[nodiscard]] QBrush tintOf(AnomalyKind kind) {
     switch (kind) {
     case AnomalyKind::EndBeforeStart:
@@ -162,8 +169,14 @@ QVariant SubtitleTableModel::data(const QModelIndex& index, int role) const {
     if (!index.isValid())
         return {};
 
-    if (role == Qt::BackgroundRole || role == Qt::ToolTipRole)
-        return anomalyMark(index, role);
+    if (role == Qt::BackgroundRole || role == Qt::ToolTipRole) {
+        QVariant marked = anomalyMark(index, role);
+        if (marked.isValid() || role != Qt::BackgroundRole)
+            return marked;
+
+        // Nothing wrong with this row, and a film is showing it.
+        return index.row() == m_showing ? QVariant{QBrush{kShowingTint}} : QVariant{};
+    }
 
     // Both roles return the same thing, and that is what makes the inherited
     // delegates work: `setEditorData` reads `Qt::EditRole`, and a position
@@ -396,6 +409,26 @@ void SubtitleTableModel::applied(std::span<const Change> changes) {
     // Announced once per operation, and unconditionally: an undo that reports
     // nothing has emptied a stack all the same.
     emit historyChanged();
+}
+
+void SubtitleTableModel::setShowing(std::optional<core::SubtitleIndex> shown) {
+    // Named `shown` and not `index`: the parameter would otherwise hide
+    // `QAbstractTableModel::index`, which the repaint below needs.
+    const int row = shown.has_value() ? static_cast<int>(shown->value()) : -1;
+    if (row == m_showing)
+        return;
+
+    // Both rows are repainted, and only they: the one that stops being shown
+    // and the one that starts. Repainting the table ten times a second — which
+    // is what the ticker asks for — would undo what ADR 0019 bought.
+    const int left = m_showing;
+    m_showing = row;
+    for (const int touched : {left, row}) {
+        if (touched < 0 || touched >= rowCount({}))
+            continue;
+
+        Q_EMIT dataChanged(index(touched, 0), index(touched, Text), {Qt::BackgroundRole});
+    }
 }
 
 } // namespace subedit::gui

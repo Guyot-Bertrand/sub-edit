@@ -8,6 +8,7 @@
 
 #include <array>
 #include <cstdint>
+#include <filesystem>
 #include <optional>
 #include <set>
 #include <string_view>
@@ -176,4 +177,20 @@ TEST_CASE("a concentration is written with one decimal", "[wording]") {
     // One decimal and not more: the third digit says nothing a reader can act
     // on, and a clean grid reads better as 99.9% than as 99.87342%.
     CHECK(percentOf(0.0) == "0.0%");
+}
+
+TEST_CASE("the status line names the film and the rate it declares", "[wording]") {
+    using subedit::core::FrameRate;
+    using subedit::core::StandardFrameRate;
+    using subedit::core::videoStatusOf;
+
+    const std::filesystem::path film{"/films/le-canot.mkv"};
+
+    CHECK(videoStatusOf(std::nullopt) == "No video");
+    CHECK(videoStatusOf(film) == "Video: le-canot.mkv");
+    // The rate goes with the film rather than beside it: they are one fact,
+    // and a third widget would put it at the same rank as the grid deduced
+    // from the positions, which is another fact entirely.
+    CHECK(videoStatusOf(film, FrameRate{StandardFrameRate::Fps23976}) ==
+          "Video: le-canot.mkv, 24000/1001 fps");
 }
