@@ -18,6 +18,7 @@ ne pas l'éditer à la main.
 - **cli** — Aligner sur une fréquence, ramener sur la grille
 - **gui** — Le verdict dans la barre d'état, et l'analyse de la grille
 - **gui** — La mesure dans le dialogue de conversion
+- **gui** — Aligner sur une fréquence, ramener sur la grille
 
 ### Documentation
 
