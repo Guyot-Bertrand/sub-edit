@@ -1,8 +1,8 @@
+#include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/set_position_command.hpp>
 #include <subedit/core/edit/set_text_command.hpp>
-#include <subedit/core/model/anomaly.hpp>
 #include <subedit/core/model/boundary.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>

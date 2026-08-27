@@ -110,6 +110,13 @@ addition, pas une réécriture.
 destination écrite. Le faire demande une seconde analyse pour en valoir la
 peine ; le jour où elle existe, la question est déjà tranchée.
 
+> **Fait depuis, par la #227.** La phase 16 a posé la déduction de fréquence et
+> la correction de grille : la seconde analyse existe, donc la condition écrite
+> ci-dessus est remplie. `anomaly.hpp` et `anomaly.cpp` vivent dans
+> `core/analysis/`, les appelants ont suivi, et rien de leur comportement n'a
+> changé. La décision, elle, n'est pas revenue en discussion — c'est le propre
+> d'un déclencheur écrit à l'avance.
+
 Le déclencheur qui rouvrirait cette décision : le budget d'un cinquième non
 tenu, ou une seconde analyse assez coûteuse pour qu'aucune ne puisse plus tourner
 à l'ouverture. Aucun des deux n'est en vue.

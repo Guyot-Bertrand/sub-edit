@@ -34,6 +34,14 @@ struct Anomaly {
 
 /// Returns everything wrong with `project`, in the order of the subtitles.
 ///
+/// **An inference, and it lives where the inferences live** — issue #227. « This
+/// subtitle ends before it starts » is not a datum the file carries: it is a
+/// judgement passed on it, exactly like the frame rate deduction next door.
+/// This landed in `core/model/` for want of a better place, before
+/// `core/analysis/` existed; ADR 0021 created the place and left the move to be
+/// made, since it buys nothing while there is only one analysis. There are
+/// several now.
+///
 /// A pure query, computed on demand: the model never keeps it, so it is never
 /// stale. One subtitle may carry several anomalies — starting before the
 /// previous one ends *and* before it starts — and each is reported on its own,

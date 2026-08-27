@@ -16,13 +16,13 @@
 // English, like everything the tool prints. Translation is a phase of its own;
 // this file is where it will have to reach.
 
+#include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/analysis/grid_verdict.hpp>
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/io/file_system.hpp>
-#include <subedit/core/model/anomaly.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/time/duration.hpp>

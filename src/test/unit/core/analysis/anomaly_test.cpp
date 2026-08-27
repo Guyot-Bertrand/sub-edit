@@ -1,4 +1,4 @@
-#include <subedit/core/model/anomaly.hpp>
+#include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>

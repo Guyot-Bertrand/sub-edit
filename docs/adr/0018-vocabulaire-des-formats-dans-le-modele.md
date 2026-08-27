@@ -69,7 +69,7 @@ Elles se séparent, et le repère dit pourquoi :
 | | Repère | Vit tant que |
 | :--- | :--- | :--- |
 | `format/diagnostic.hpp` — ce qu'une lecture a rencontré | un **numéro de ligne** | le fichier n'a pas été édité |
-| `model/anomaly.hpp` — ce qu'un document est | un **`SubtitleIndex`** | le document existe |
+| `analysis/anomaly.hpp` — ce qu'un document est | un **`SubtitleIndex`** | le document existe |
 
 Une ligne n'existe qu'au moment de la lecture ; un indice survit à l'édition.
 Restent donc du côté de la lecture : `IgnoredLine`, `MalformedTimestamp`,
