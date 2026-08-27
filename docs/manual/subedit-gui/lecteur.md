@@ -45,12 +45,17 @@ Les deux vont dans les deux sens.
 | :------------ | :-------------- |
 | sélectionner une ligne | la lecture se place **au début de ce sous-titre** |
 | étendre la sélection vers le bas | rien de plus : c'est la première ligne de la sélection qui compte |
-| la lecture avance | la **ligne courante** suit le sous-titre à l'écran |
+| la lecture avance | la **ligne courante** suit le sous-titre à l'écran, **teintée**, et la table défile pour la garder en vue |
 
 La ligne courante et la sélection sont deux choses distinctes. La lecture
 déplace la première et **ne touche jamais la seconde** : la sélection est ce à
 quoi une opération s'applique, et un film qui joue dans un coin n'a pas à
 réécrire la cible de l'utilisateur ligne après ligne.
+
+La teinte suit cette même règle : c'est un repère, pas une sélection. **Une
+anomalie l'emporte sur elle** — une ligne qui porte les deux garde la couleur de
+son défaut, un défaut étant là pour être réparé quand une ligne montrée l'est le
+temps d'une réplique. Voir [La table](table.md).
 
 **Une édition en cours n'est pas interrompue.** Tant qu'un éditeur de cellule
 est ouvert, la ligne courante reste où elle est ; la réplique dessinée sur
@@ -130,17 +135,3 @@ majeure partie d'une barre de lecteur — vient avec le calage fin :
 | forme d'onde | rien ne la demande |
 
 Voir la [feuille de route](../../feuille-de-route.md).
-
-## La ligne que le film montre
-
-Pendant la lecture, **la ligne du sous-titre affiché est teintée** dans la
-table, et la table défile pour la garder en vue.
-
-**Teintée, et non sélectionnée**, et la distinction compte : la sélection est ce
-sur quoi une opération s'applique, et un film qui tourne en fond n'a pas à
-réécrire la cible de l'utilisateur ligne après ligne. Choisir une ligne reste un
-geste de l'utilisateur ; la teinte n'est qu'un repère.
-
-**Une anomalie l'emporte sur elle.** Une ligne qui porte les deux garde la
-couleur de son défaut : un défaut est là pour être réparé, là où une ligne
-montrée l'est le temps d'une réplique. Voir [La table](table.md).
