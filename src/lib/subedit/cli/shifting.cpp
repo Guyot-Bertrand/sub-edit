@@ -7,15 +7,13 @@
 #include <subedit/core/edit/shift_limits.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
-#include <subedit/core/model/subtitle.hpp>
-#include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/wording.hpp>
 
 #include <cstddef>
 #include <expected>
 #include <memory>
 #include <optional>
-#include <span>
 #include <string>
 #include <vector>
 
@@ -53,12 +51,7 @@ ExitCode shiftOntoGridAll(core::FileSystem& files,
                           const Destination& destination,
                           const Reporter& reporter) {
     const Operation onto = [](core::Session& session) -> std::expected<std::string, std::string> {
-        std::vector<core::Timestamp> starts;
-        starts.reserve(session.project().count());
-        for (const core::Subtitle& subtitle : session.project().subtitles())
-            starts.push_back(subtitle.start);
-
-        const core::FrameRateDeduction grid = core::deduceFrameRate(starts);
+        const core::FrameRateDeduction grid = core::deduceFrameRate(session.project());
         const std::optional<core::Duration> by = core::shiftOntoGrid(grid);
         if (!by.has_value()) {
             return std::unexpected{

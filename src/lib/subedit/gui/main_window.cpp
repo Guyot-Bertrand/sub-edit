@@ -15,7 +15,6 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
-#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
@@ -76,20 +75,6 @@
 namespace subedit::gui {
 
 namespace {
-
-/// What the positions of `project` say about the grid they were written on.
-///
-/// A free function and not a member: nothing is kept between calls, so there is
-/// no state for a member to hold — see ADR 0021 on why the deduction is
-/// recomputed rather than cached.
-[[nodiscard]] core::FrameRateDeduction deductionOf(const core::Project& project) {
-    std::vector<core::Timestamp> starts;
-    starts.reserve(project.count());
-    for (const core::Subtitle& subtitle : project.subtitles())
-        starts.push_back(subtitle.start);
-
-    return core::deduceFrameRate(starts);
-}
 
 /// What the title bar says: the file name, or that nothing is open.
 ///
@@ -443,7 +428,7 @@ void MainWindow::proposeVideoBeside() {
 }
 
 void MainWindow::refreshGridStatus() {
-    const core::FrameRateDeduction grid = deductionOf(m_session->project());
+    const core::FrameRateDeduction grid = core::deduceFrameRate(m_session->project());
     const std::optional<core::FrameRate> retained = grid.verdict == core::GridVerdict::Silent
                                                         ? std::nullopt
                                                         : std::optional{grid.retained.rate};
@@ -467,7 +452,8 @@ void MainWindow::snapToFrameRate() {
 }
 
 void MainWindow::shiftOntoGrid() {
-    const std::optional<core::Duration> by = core::shiftOntoGrid(deductionOf(m_session->project()));
+    const std::optional<core::Duration> by =
+        core::shiftOntoGrid(core::deduceFrameRate(m_session->project()));
     if (!by.has_value())
         return;
 
@@ -500,7 +486,7 @@ QStringList MainWindow::menuTitles() const {
 }
 
 void MainWindow::analyseGrid() {
-    GridAnalysisDialog dialog{deductionOf(m_session->project()), this};
+    GridAnalysisDialog dialog{core::deduceFrameRate(m_session->project()), this};
     (void)m_prompts->run(dialog);
 }
 
@@ -828,7 +814,7 @@ void MainWindow::refreshActions() {
     // the menu can say what it will do — and the entry goes out when there is
     // no grid to rejoin, which is not the same thing as an amount of zero.
     const std::optional<core::Duration> onto =
-        anything ? core::shiftOntoGrid(deductionOf(m_session->project())) : std::nullopt;
+        anything ? core::shiftOntoGrid(core::deduceFrameRate(m_session->project())) : std::nullopt;
     m_shiftOntoGrid->setEnabled(onto.has_value());
     m_shiftOntoGrid->setText(shiftOntoGridLabel(onto));
     m_hearingImpaired->setEnabled(anything);
@@ -965,7 +951,7 @@ void MainWindow::convertFrameRateOfTarget() {
     // **Only a clean grid pre-fills the field.** A partial one is evidence the
     // deduction itself calls partial, and this field decides an operation on
     // the whole file; the status bar and the analysis carry that case instead.
-    const core::FrameRateDeduction grid = deductionOf(m_session->project());
+    const core::FrameRateDeduction grid = core::deduceFrameRate(m_session->project());
     const std::optional<core::FrameRate> measured =
         grid.verdict == core::GridVerdict::Clean ? std::optional{grid.retained.rate} : std::nullopt;
 

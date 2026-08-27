@@ -14,6 +14,8 @@
 
 namespace subedit::core {
 
+class Project;
+
 /// How well the positions of a document fit the grid of one candidate rate.
 struct GridFit {
     FrameRate rate;
@@ -105,6 +107,25 @@ struct FrameRateDeduction {
 /// positions and returns a judgement, which is what makes it testable against
 /// thirteen files and a table of constants.
 [[nodiscard]] FrameRateDeduction deduceFrameRate(std::span<const Timestamp> starts);
+
+/// Deduces the grid of a project, which is the deduction of its starts.
+///
+/// Strictly the overload above, applied to `project.subtitles()`. It exists
+/// because gathering the starts is not the caller's subject: the report, the
+/// `--to-grid` shift and the window each wrote the same four lines before
+/// they could ask anything, and four lines repeated three times is a place for
+/// a mistake to hide rather than a design.
+///
+/// **The one on `std::span` stays, and stays the one the tests hold.** It is
+/// what makes the deduction provable on positions built by hand, without a
+/// document to carry them, and this overload adds nothing to prove but its own
+/// equality with it.
+///
+/// Nothing is kept between calls — see ADR 0021 on why the deduction is
+/// recomputed rather than cached. The window recomputes it at every change to
+/// the document, so this is also the one place where measuring its cost on a
+/// project would mean anything.
+[[nodiscard]] FrameRateDeduction deduceFrameRate(const Project& project);
 
 /// How many runs of consecutive strays the deduction found.
 ///
