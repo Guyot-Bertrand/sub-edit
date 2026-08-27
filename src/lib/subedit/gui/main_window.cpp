@@ -822,9 +822,17 @@ void MainWindow::convertFrameRateOfTarget() {
     // film declares is handed over beside it, and the dialog decides what to do
     // with it — proposed, never imposed (D6).
     const std::optional<core::AssociatedVideo>& associated = m_session->project().video();
+    // **Only a clean grid pre-fills the field.** A partial one is evidence the
+    // deduction itself calls partial, and this field decides an operation on
+    // the whole file; the status bar and the analysis carry that case instead.
+    const core::FrameRateDeduction grid = deductionOf(m_session->project());
+    const std::optional<core::FrameRate> measured =
+        grid.verdict == core::GridVerdict::Clean ? std::optional{grid.retained.rate} : std::nullopt;
+
     FrameRateDialog dialog{target.count(),
                            m_session->project().frameRate(),
                            associated.has_value() ? associated->declared : std::nullopt,
+                           measured,
                            this};
     if (!m_prompts->run(dialog))
         return;

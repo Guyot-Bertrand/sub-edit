@@ -196,3 +196,55 @@ TEST_CASE("a rate outside the eight standards is said and not picked", "[gui][GU
     CHECK(dialog.declaredLabel().toStdString() == "15");
     CHECK(dialog.output() == FrameRate{StandardFrameRate::Fps25});
 }
+
+// Phase 16, and the sentence the manual had to unlearn: « le fichier a été calé
+// contre une fréquence que lui seul connaît […] et personne ne peut la deviner
+// à sa place ». Something can now — not a guess but a measurement of the
+// positions themselves.
+TEST_CASE("the measured grid pre-fills what the file was timed against",
+          "[gui][GUI-FRAMERATE-03]") {
+    const FrameRateDialog dialog{
+        4, FrameRate{StandardFrameRate::Fps25}, std::nullopt, FrameRate{StandardFrameRate::Fps24}};
+
+    // The project said 25; the positions say 24, and the positions win the
+    // pre-fill. The box stays as free as it ever was.
+    CHECK(dialog.input() == FrameRate{StandardFrameRate::Fps24});
+    CHECK(dialog.deducedLabel().toStdString() == "24");
+}
+
+TEST_CASE("without a clean grid the field opens where it used to", "[gui][GUI-FRAMERATE-03]") {
+    const FrameRateDialog dialog{4, FrameRate{StandardFrameRate::Fps25}};
+
+    CHECK(dialog.deducedLabel().isEmpty());
+    CHECK(dialog.input() == FrameRate{StandardFrameRate::Fps25});
+}
+
+// Decision D13. The film runs at one rate and the file was written on another
+// grid: that is not a contradiction to resolve, it is the very case the
+// alignment exists for. Both are shown, neither is imposed.
+TEST_CASE("a disagreement between the two sources is shown, not arbitrated",
+          "[gui][GUI-FRAMERATE-04]") {
+    const FrameRateDialog dialog{4,
+                                 FrameRate{StandardFrameRate::Fps30},
+                                 FrameRate{StandardFrameRate::Fps25},
+                                 FrameRate{StandardFrameRate::Fps24}};
+
+    CHECK(dialog.deducedLabel().toStdString() == "24");
+    CHECK(dialog.declaredLabel().toStdString() == "25");
+    // Each proposal lands on the field it answers: the grid the file was
+    // written on above, the rate the film runs at below.
+    CHECK(dialog.input() == FrameRate{StandardFrameRate::Fps24});
+    CHECK(dialog.output() == FrameRate{StandardFrameRate::Fps25});
+}
+
+TEST_CASE("the user may still overrule both", "[gui][GUI-FRAMERATE-04]") {
+    FrameRateDialog dialog{4,
+                           FrameRate{StandardFrameRate::Fps30},
+                           FrameRate{StandardFrameRate::Fps25},
+                           FrameRate{StandardFrameRate::Fps24}};
+
+    dialog.setRates(FrameRate{StandardFrameRate::Fps50}, FrameRate{StandardFrameRate::Fps60});
+
+    CHECK(dialog.input() == FrameRate{StandardFrameRate::Fps50});
+    CHECK(dialog.output() == FrameRate{StandardFrameRate::Fps60});
+}

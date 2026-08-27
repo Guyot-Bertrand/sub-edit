@@ -122,6 +122,8 @@ plus rien.
 | `CLI-SHIFT-04` | `shift --to-grid` sur un fichier sans grille refuse et dit pourquoi | 16 | implémentée |
 | `GUI-GRID-01` | la barre d'état porte le verdict de la déduction | 16 | implémentée |
 | `GUI-GRID-02` | la modale d'analyse montre les huit candidates, l'étendue et les écarts | 16 | implémentée |
+| `GUI-FRAMERATE-03` | le dialogue de conversion pré-remplit l'entrée avec la mesure, et le dit | 16 | implémentée |
+| `GUI-FRAMERATE-04` | un désaccord entre la mesure et ce que la vidéo déclare est montré sans être arbitré | 16 | implémentée |
 | `GUI-VIDEO-01` | choisir une vidéo l'associe au document, et la fenêtre la nomme | 6 | implémentée |
 | `GUI-VIDEO-02` | ouvrir un fichier de sous-titres propose la vidéo voisine de même nom | 6 | implémentée |
 | `GUI-PLAYER-01` | la vidéo s'ouvre dans la fenêtre, et se joue | 6 | implémentée |

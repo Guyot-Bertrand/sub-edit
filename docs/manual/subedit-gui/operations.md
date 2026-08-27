@@ -62,38 +62,48 @@ nombre de sous-titres.
 Re-cale la cible quand les positions ont été calculées contre une fréquence
 d'images et doivent l'être contre une autre.
 
-Les deux listes offrent les huit fréquences normalisées. **Celle d'entrée
-s'ouvre sur la fréquence du projet.**
+Les deux listes offrent les huit fréquences normalisées.
 
-> **C'est un point de départ, pas une réponse.** Un fichier de sous-titres ne
-> porte pas sa fréquence — SubRip n'a pas d'en-tête, celui de WebVTT est du
-> texte libre — et personne ne peut la deviner à sa place. Se tromper décale
-> tout le fichier **sans rien signaler** : c'est le pire mode d'échec de cette
-> opération, et la seule protection est de savoir d'où vient le fichier.
+> **Se tromper de fréquence d'entrée décale tout le fichier sans rien
+> signaler.** C'est le pire mode d'échec de cette opération, et c'est pourquoi
+> le dialogue dit d'où viennent les valeurs qu'il propose plutôt que de les
+> poser en silence.
 
-### Ce que la vidéo déclare
+### Les deux sources, et ce qu'elles répondent
 
-Quand une vidéo est associée **et** que `ffprobe` est installé, le dialogue
-porte une ligne de plus, et la liste de sortie s'ouvre dessus :
+Le dialogue porte jusqu'à deux lignes de plus, chacune apparaissant quand elle a
+quelque chose à dire :
 
-| Ligne | Ce qu'elle dit |
-| :---- | :------------- |
-| `The video declares` | la fréquence que le conteneur annonce, par exemple `24000/1001` |
+| Ligne | Ce qu'elle dit | Ce qu'elle pré-remplit |
+| :---- | :------------- | :--------------------- |
+| `The positions say` | la [grille d'images](grille.md) déduite des positions du fichier | `Timed against` |
+| `The video declares` | la fréquence que le conteneur annonce, par exemple `24000/1001` | `Should play at` |
 
-**C'est la sortie qu'elle pré-remplit, jamais l'entrée.** Le fichier a été calé
-contre une fréquence que lui seul connaît — c'est la liste du haut, et personne
-ne peut la deviner. Ce que le conteneur annonce est la fréquence à laquelle le
-film tourne vraiment, donc celle à laquelle les sous-titres doivent arriver.
+**Chaque proposition va au champ auquel elle répond.** La grille dit sur quoi le
+fichier a été *écrit* — c'est la liste du haut. Ce que le conteneur annonce est
+la cadence à laquelle le film *tourne*, donc celle à laquelle les sous-titres
+doivent arriver — c'est la liste du bas.
 
-**Proposée, jamais imposée.** La liste reste modifiable, et c'est délibéré :
-c'est la deuxième source d'une même donnée, une troisième viendra plus tard,
-déduite des positions, et une source qui s'impose interdit de croiser. Un
-désaccord entre deux mesures indépendantes est une information.
+**Seule une grille nette pré-remplit l'entrée.** Une grille partielle est un
+indice que la déduction elle-même qualifie de partiel, et ce champ décide d'une
+opération sur le fichier entier. La [barre d'état](grille.md) et l'analyse
+portent ce cas-là ; celui-ci non.
 
-Deux cas où la ligne n'apparaît pas : aucune vidéo associée, ou pas de
-`ffprobe`. Le dialogue est alors exactement celui décrit plus haut, et **aucune
-opération ne se refuse pour autant** — la fréquence vient de l'utilisateur, et
-`ffprobe` la propose quand il est là. Voir
+### Un désaccord n'est pas une contradiction
+
+Les deux lignes peuvent s'afficher ensemble et annoncer des nombres différents.
+**Ce n'est pas une erreur à arbitrer** : le film tourne à une cadence, le
+fichier a été écrit sur une autre grille. Un fichier à 24 pour un film à 25 est
+exactement le cas que l'alignement — `snap` en ligne de commande — existe pour
+traiter.
+
+Rien n'est donc choisi à la place de l'utilisateur : les deux listes restent
+modifiables, et c'est délibéré. Une source qui s'impose interdit de croiser.
+
+Les lignes n'apparaissent pas quand il n'y a rien à dire : aucune vidéo
+associée, pas de `ffprobe`, ou aucune grille nette. Le dialogue est alors celui
+décrit plus haut, et **aucune opération ne se refuse pour autant** — la
+fréquence vient de l'utilisateur. Voir
 [La vidéo associée](video.md#ffmpeg-nest-pas-requis).
 
 Une fréquence que le film annonce mais qui n'est pas l'une des huit normalisées

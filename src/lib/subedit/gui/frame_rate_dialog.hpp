@@ -30,17 +30,31 @@ namespace subedit::gui {
 /// Without a film, or without `ffprobe`, the row is simply not there and the
 /// dialog is the one that came before.
 ///
-/// Deducing it from the positions themselves is possible, and is phase 16's
-/// business. Nothing here depends on it: the day the measurement exists it
-/// replaces the pre-filled value without this dialog changing shape.
+/// **The measurement changed that, and phase 16 is where.** The positions
+/// themselves betray the grid they were written on, so the field above opens on
+/// what they say rather than on what the project assumed — and the dialog says
+/// where the value came from. It stays a proposal: the box is as free as it
+/// ever was.
+///
+/// **Only a clean grid pre-fills it.** A partial one is evidence the deduction
+/// itself calls partial, and this field decides an operation on the whole file.
+/// The status bar and the analysis carry the partial case; this does not.
+///
+/// **Two sources, and neither is arbitrated** — decision D13. What the container
+/// declares and what the positions say are not the same fact: the first is the
+/// rate the film runs at, the second the grid the file was written on. A file
+/// at 24 for a film at 25 is not a contradiction, it is the very case the
+/// alignment exists for. So both are shown, and the user chooses.
 class FrameRateDialog final : public OperationDialog {
     Q_OBJECT
 
 public:
-    /// `declared` is what the associated film says of itself, or nothing.
+    /// `declared` is what the associated film says of itself, `deduced` what
+    /// the positions say, either of them possibly nothing.
     FrameRateDialog(std::size_t targetCount,
                     core::FrameRate current,
                     std::optional<core::FrameRate> declared = {},
+                    std::optional<core::FrameRate> deduced = {},
                     QWidget* parent = nullptr);
 
     [[nodiscard]] core::FrameRate input() const;
@@ -56,10 +70,15 @@ public:
     /// nothing, which is how a test reads « the row is not there ».
     [[nodiscard]] QString declaredLabel() const;
 
+    /// What the dialog says of the grid the positions were written on — empty
+    /// when no clean grid was found.
+    [[nodiscard]] QString deducedLabel() const;
+
 private:
     QComboBox* m_input;
     QComboBox* m_output;
     QLabel* m_declared = nullptr;
+    QLabel* m_deduced = nullptr;
 };
 
 } // namespace subedit::gui

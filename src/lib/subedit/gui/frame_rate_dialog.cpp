@@ -49,11 +49,19 @@ void pick(QComboBox& box, core::FrameRate rate) {
 FrameRateDialog::FrameRateDialog(std::size_t targetCount,
                                  core::FrameRate current,
                                  std::optional<core::FrameRate> declared,
+                                 std::optional<core::FrameRate> deduced,
                                  QWidget* parent)
     : OperationDialog(targetCount, parent), m_input(rateField(this)), m_output(rateField(this)) {
     setWindowTitle(QStringLiteral("Convert frame rate"));
 
+    // **The positions first, the project's assumption second.** Before phase 16
+    // this field could only open on what the project carried, and the manual
+    // said as much: the file does not declare its rate and nobody can guess it.
+    // Now something can — not a guess but a measurement, and only when it is
+    // clean.
     pick(*m_input, current);
+    if (deduced.has_value())
+        pick(*m_input, *deduced);
 
     // **What the film declares lands on « should play at », and nowhere else.**
     // A document is timed against something the file does not carry — that is
@@ -79,8 +87,18 @@ FrameRateDialog::FrameRateDialog(std::size_t targetCount,
     fields()->addRow(QStringLiteral("Timed against"), m_input);
     fields()->addRow(QStringLiteral("Should play at"), m_output);
 
-    // Added only when there is something to say. Without a film, or without
-    // `ffprobe`, this dialog is exactly the one that came before it.
+    // Added only when there is something to say. Without a film, without
+    // `ffprobe`, and without a grid, this dialog is exactly the one that came
+    // before it.
+    //
+    // **Both rows may show at once, saying different numbers**, and that is not
+    // a fault to resolve: the film runs at one rate, the file was written on
+    // another grid, and the difference is the reason the alignment exists.
+    if (deduced.has_value()) {
+        m_deduced = new QLabel{QString::fromStdString(core::nameOf(*deduced)), this};
+        fields()->addRow(QStringLiteral("The positions say"), m_deduced);
+    }
+
     if (declared.has_value()) {
         m_declared = new QLabel{QString::fromStdString(core::nameOf(*declared)), this};
         fields()->addRow(QStringLiteral("The video declares"), m_declared);
@@ -91,6 +109,10 @@ FrameRateDialog::FrameRateDialog(std::size_t targetCount,
 
 QString FrameRateDialog::declaredLabel() const {
     return m_declared == nullptr ? QString{} : m_declared->text();
+}
+
+QString FrameRateDialog::deducedLabel() const {
+    return m_deduced == nullptr ? QString{} : m_deduced->text();
 }
 
 core::FrameRate FrameRateDialog::input() const {
