@@ -130,3 +130,17 @@ majeure partie d'une barre de lecteur — vient avec le calage fin :
 | forme d'onde | rien ne la demande |
 
 Voir la [feuille de route](../../feuille-de-route.md).
+
+## La ligne que le film montre
+
+Pendant la lecture, **la ligne du sous-titre affiché est teintée** dans la
+table, et la table défile pour la garder en vue.
+
+**Teintée, et non sélectionnée**, et la distinction compte : la sélection est ce
+sur quoi une opération s'applique, et un film qui tourne en fond n'a pas à
+réécrire la cible de l'utilisateur ligne après ligne. Choisir une ligne reste un
+geste de l'utilisateur ; la teinte n'est qu'un repère.
+
+**Une anomalie l'emporte sur elle.** Une ligne qui porte les deux garde la
+couleur de son défaut : un défaut est là pour être réparé, là où une ligne
+montrée l'est le temps d'une réplique. Voir [La table](table.md).

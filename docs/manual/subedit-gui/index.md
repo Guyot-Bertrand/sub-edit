@@ -22,6 +22,16 @@ table.
 > raisons. **La justesse de ces pages repose donc sur leur relecture**, et sur
 > rien d'autre.
 
+## Les menus
+
+`File`, `Edit`, `Video`, `Tools`, `Help` — dans l'ordre où l'on s'en sert : le
+document, ce qu'on lui fait, ce qui l'accompagne, ce qui l'examine, ce qui
+l'explique.
+
+`Help` porte deux entrées. `About subedit` dit la version et la licence.
+`Manual` est **présente et éteinte** : le manuel qu'elle ouvrira, et l'endroit
+où il sera installé, viennent avec l'empaquetage.
+
 ## Sections
 
 | Section | Contenu |

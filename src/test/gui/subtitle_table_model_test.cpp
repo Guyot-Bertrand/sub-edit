@@ -504,3 +504,33 @@ TEST_CASE("a refused edit announces nothing", "[gui][GUI-UNDO-01]") {
 
     CHECK(announced.count() == 0);
 }
+
+TEST_CASE("the row a film is showing is tinted, not selected", "[gui][model]") {
+    // A tint and not a selection: the selection is what an operation applies
+    // to, and a film running in the background has no business rewriting the
+    // user's target row by row.
+    Session session{threeSubtitles()};
+    SubtitleTableModel model{session};
+
+    CHECK_FALSE(model.data(model.index(1, 0), Qt::BackgroundRole).isValid());
+
+    model.setShowing(SubtitleIndex::fromValue(1));
+
+    CHECK(model.data(model.index(1, 0), Qt::BackgroundRole).isValid());
+    CHECK_FALSE(model.data(model.index(0, 0), Qt::BackgroundRole).isValid());
+}
+
+TEST_CASE("the tint moves with the film, and goes with it", "[gui][model]") {
+    Session session{threeSubtitles()};
+    SubtitleTableModel model{session};
+
+    model.setShowing(SubtitleIndex::fromValue(1));
+    model.setShowing(SubtitleIndex::fromValue(2));
+
+    CHECK_FALSE(model.data(model.index(1, 0), Qt::BackgroundRole).isValid());
+    CHECK(model.data(model.index(2, 0), Qt::BackgroundRole).isValid());
+
+    model.setShowing(std::nullopt);
+
+    CHECK_FALSE(model.data(model.index(2, 0), Qt::BackgroundRole).isValid());
+}

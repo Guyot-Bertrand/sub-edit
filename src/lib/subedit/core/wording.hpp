@@ -138,7 +138,18 @@ namespace subedit::core {
 /// Its name, or that there is none — and its name alone, not its path: the
 /// line sits in a status bar, where a path of two hundred characters would push
 /// out everything else. Whoever wants the path has the chooser that named it.
-[[nodiscard]] std::string videoStatusOf(const std::optional<std::filesystem::path>& video);
+/// What the status bar says of the associated film: its name and the rate it
+/// declares, or that there is none.
+///
+/// **The rate goes with the film rather than beside it.** They are one fact —
+/// what this document accompanies — and a third widget would put the film's own
+/// cadence at the same rank as the grid deduced from the positions, which is a
+/// different fact entirely.
+///
+/// `declared` is nothing when no film is open, or when `ffprobe` is absent: the
+/// name is then said alone, as it was before the rate could be read.
+[[nodiscard]] std::string videoStatusOf(const std::optional<std::filesystem::path>& video,
+                                        std::optional<FrameRate> declared = {});
 
 /// A count and its noun, agreeing: "1 subtitle", "2 subtitles".
 ///

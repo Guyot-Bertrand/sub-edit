@@ -20,6 +20,7 @@
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/core/wording.hpp>
+#include <subedit/gui/about_dialog.hpp>
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/command_label.hpp>
 #include <subedit/gui/diagnostics_panel.hpp>
@@ -40,6 +41,7 @@
 #include <QAbstractItemView>
 #include <QAction>
 #include <QCloseEvent>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QIcon>
 #include <QItemSelectionModel>
@@ -49,6 +51,7 @@
 #include <QMenuBar>
 #include <QModelIndex>
 #include <QModelIndexList>
+#include <QPushButton>
 #include <QShowEvent>
 #include <QSplitter>
 #include <QStatusBar>
@@ -131,6 +134,20 @@ constexpr int kFollowIntervalMs = 100;
 /// there — which is the state the window uses to mean « no film ».
 constexpr int kMinimumVideoHeight = 180;
 
+/// What the window opens on, in pixels, the first time.
+///
+/// Five columns of a table and a picture above them do not fit in what Qt gives
+/// a window that never asks: it sizes to the layout's hints, and the table's
+/// hint knows nothing of how many rows there are. Twelve hundred by eight
+/// hundred shows a dozen subtitles and their whole text without a horizontal
+/// scrollbar, on the smallest screen this is likely to meet.
+///
+/// **A default, not a memory.** Remembering the size a user last chose is
+/// phase 7's business, with the rest of the persisted configuration; this is
+/// what there is to remember from before anything was.
+constexpr int kInitialWidth = 1200;
+constexpr int kInitialHeight = 800;
+
 /// Which row of a selection playback follows: the first, in table order.
 ///
 /// -1 when nothing is selected. `selectedRows` hands them back in the order
@@ -173,6 +190,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_videoStatus(new QLabel{this}),
       m_gridStatus(new QLabel{this}),
       m_videoView(new QWidget{this}),
+      m_noVideo(new QWidget{this}),
       m_ticker(new QTimer{this}),
       m_buildPlayer(std::move(buildPlayer)),
       m_readDeclaredRate(std::move(readDeclaredRate)) {
@@ -198,10 +216,27 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_videoView->setMinimumHeight(kMinimumVideoHeight);
     m_videoView->hide();
 
+    // **An absence a user cannot act on is worse than an empty pane.** Hiding
+    // the picture when there is no film left nothing at all where one would go,
+    // and the only way in was a menu one had to know about. A single button
+    // says both things at once: there is no film, and here is how to choose
+    // one.
+    //
+    // A band rather than a pane: it costs the table a line of height, where the
+    // picture costs it a third of the window.
+    auto* invite = new QPushButton{QStringLiteral("Select Video…"), m_noVideo};
+    connect(invite, &QPushButton::clicked, this, &MainWindow::selectVideo);
+
+    auto* banner = new QHBoxLayout{m_noVideo};
+    banner->addStretch();
+    banner->addWidget(invite);
+    banner->addStretch();
+
     // The picture on top, the table under it, and the line between them
     // draggable — which is the one thing a fixed layout could not give.
     auto* split = new QSplitter{Qt::Vertical, this};
     split->addWidget(m_videoView);
+    split->addWidget(m_noVideo);
     split->addWidget(m_table);
 
     // A window made taller gives the room to the table, not to the picture.
@@ -236,12 +271,6 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(m_save, &QAction::triggered, this, [this] { (void)save(); });
     connect(m_saveAs, &QAction::triggered, this, [this] { (void)saveAs(); });
 
-    QMenu* file = menuBar()->addMenu(QStringLiteral("&File"));
-    file->addAction(m_open);
-    file->addSeparator();
-    file->addAction(m_save);
-    file->addAction(m_saveAs);
-
     connect(m_shift, &QAction::triggered, this, &MainWindow::shiftTarget);
     connect(m_transform, &QAction::triggered, this, &MainWindow::transformTarget);
     connect(m_frameRate, &QAction::triggered, this, &MainWindow::convertFrameRateOfTarget);
@@ -254,6 +283,47 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_analyseGrid = new QAction{QStringLiteral("Frame Rate &Analysis…"), this};
     m_analyseGrid->setEnabled(false);
     connect(m_analyseGrid, &QAction::triggered, this, &MainWindow::analyseGrid);
+
+    m_selectVideo->setEnabled(true);
+    connect(m_selectVideo, &QAction::triggered, this, &MainWindow::selectVideo);
+
+    // **`Ctrl+P` where Gaupol has a bare `P`**, and the difference is not
+    // taste. A one-letter shortcut of window scope is taken before the widget
+    // that has the focus sees it, so a `P` would be swallowed on its way into
+    // a cell editor — and this table has three columns one types in. Nothing
+    // prints here, so the sequence is free.
+    m_playPause->setShortcut(QKeySequence{QStringLiteral("Ctrl+P")});
+    connect(m_playPause, &QAction::triggered, this, &MainWindow::togglePlayback);
+
+    m_about = new QAction{QStringLiteral("&About subedit"), this};
+    connect(m_about, &QAction::triggered, this, &MainWindow::about);
+
+    // **Present and out.** The manual it will open is phase 7's, which brings
+    // the complete user manual and the packaging that decides where it lives.
+    // The entry is here rather than added later so that the shape of the menu
+    // is settled now; an entry that opened nothing would be worse than one that
+    // says it is not ready.
+    m_manual = new QAction{QStringLiteral("&Manual"), this};
+    m_manual->setEnabled(false);
+
+    // **The menu bar, in the order a user reads it**: the document, what one
+    // does to it, what accompanies it, what inspects it, what explains it.
+    // Reading order and not construction order — the two had drifted apart, and
+    // it is the first that a user meets.
+    QMenu* file = menuBar()->addMenu(QStringLiteral("&File"));
+    file->addAction(m_open);
+    file->addSeparator();
+    file->addAction(m_save);
+    file->addAction(m_saveAs);
+
+    QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
+    edition->addAction(m_undo);
+    edition->addAction(m_redo);
+
+    QMenu* video = menuBar()->addMenu(QStringLiteral("&Video"));
+    video->addAction(m_selectVideo);
+    video->addSeparator();
+    video->addAction(m_playPause);
 
     QMenu* tools = menuBar()->addMenu(QStringLiteral("&Tools"));
     tools->addAction(m_shift);
@@ -273,37 +343,22 @@ MainWindow::MainWindow(core::FileSystem& files,
     // the document, this one only reports on it.
     tools->addAction(m_analyseGrid);
 
-    m_selectVideo->setEnabled(true);
-    connect(m_selectVideo, &QAction::triggered, this, &MainWindow::selectVideo);
+    QMenu* help = menuBar()->addMenu(QStringLiteral("&Help"));
+    help->addAction(m_manual);
+    help->addSeparator();
+    help->addAction(m_about);
 
-    // **`Ctrl+P` where Gaupol has a bare `P`**, and the difference is not
-    // taste. A one-letter shortcut of window scope is taken before the widget
-    // that has the focus sees it, so a `P` would be swallowed on its way into
-    // a cell editor — and this table has three columns one types in. Nothing
-    // prints here, so the sequence is free.
-    m_playPause->setShortcut(QKeySequence{QStringLiteral("Ctrl+P")});
-    connect(m_playPause, &QAction::triggered, this, &MainWindow::togglePlayback);
-
-    QMenu* video = menuBar()->addMenu(QStringLiteral("&Video"));
-    video->addAction(m_selectVideo);
-    video->addSeparator();
-    video->addAction(m_playPause);
+    resize(kInitialWidth, kInitialHeight);
 
     m_ticker->setInterval(kFollowIntervalMs);
     connect(m_ticker, &QTimer::timeout, this, &MainWindow::followPlayback);
 
-    // A permanent widget and not `showMessage`: what film is associated is a
-    // standing fact, not a passing remark, and a message can be pushed aside
-    // by the next one.
-    // Two standing facts about the document, side by side: what film it
-    // accompanies, and what grid its positions were written on. Neither is a
-    // passing remark, so neither goes through `showMessage`.
+    // **Permanent widgets and not `showMessage`.** What film a document
+    // accompanies and what grid its positions were written on are standing
+    // facts, not passing remarks, and a message can be pushed aside by the next
+    // one.
     statusBar()->addPermanentWidget(m_gridStatus);
     statusBar()->addPermanentWidget(m_videoStatus);
-
-    QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
-    edition->addAction(m_undo);
-    edition->addAction(m_redo);
 
     QToolBar* bar = addToolBar(QStringLiteral("Edit"));
     bar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -432,6 +487,18 @@ void MainWindow::shiftOntoGrid() {
     applyOperation(std::make_unique<core::ShiftCommand>(whole, *by), whole);
 }
 
+void MainWindow::about() {
+    AboutDialog dialog{this};
+    (void)m_prompts->run(dialog);
+}
+
+QStringList MainWindow::menuTitles() const {
+    QStringList titles;
+    for (const QAction* action : menuBar()->actions())
+        titles << action->text();
+    return titles;
+}
+
 void MainWindow::analyseGrid() {
     GridAnalysisDialog dialog{deductionOf(m_session->project()), this};
     (void)m_prompts->run(dialog);
@@ -441,8 +508,10 @@ void MainWindow::refreshVideoStatus() {
     const std::optional<core::AssociatedVideo>& associated = m_session->project().video();
     const std::optional<std::filesystem::path> path =
         associated.has_value() ? std::optional{associated->path} : std::nullopt;
+    const std::optional<core::FrameRate> declared =
+        associated.has_value() ? associated->declared : std::nullopt;
 
-    m_videoStatus->setText(QString::fromStdString(core::videoStatusOf(path)));
+    m_videoStatus->setText(QString::fromStdString(core::videoStatusOf(path, declared)));
 }
 
 void MainWindow::refreshVideo() {
@@ -494,6 +563,7 @@ void MainWindow::watchAssociatedVideo() {
     // and never mapped. Taken away again below if the film will not open, which
     // costs nothing anybody sees: nothing has been painted into it yet.
     m_videoView->setVisible(!wanted.empty());
+    m_noVideo->setVisible(wanted.empty());
 
     core::VideoPlayer* watching = wanted.empty() ? nullptr : player();
     if (watching != nullptr) {
@@ -518,7 +588,15 @@ void MainWindow::watchAssociatedVideo() {
         m_player->showSubtitle({});
     }
 
+    // The mark goes with the film: a row left green under a document that no
+    // longer shows anything would name a moment nobody is at.
+    if (!m_watching && m_model)
+        m_model->setShowing(std::nullopt);
+
     m_videoView->setVisible(m_watching);
+    // Exactly one of the two, always: a band that stayed under a playing film
+    // would offer to choose the one already chosen.
+    m_noVideo->setVisible(!m_watching);
     m_playPause->setEnabled(m_watching);
 
     if (m_watching) {
@@ -581,6 +659,8 @@ void MainWindow::followPlayback() {
         m_player->showSubtitle(line);
         m_shown = line;
     }
+
+    m_model->setShowing(showing);
 
     if (!showing.has_value())
         return;

@@ -3,6 +3,7 @@
 #include <QAbstractTableModel>
 #include <QVariant>
 
+#include <optional>
 #include <span>
 #include <utility>
 #include <vector>
@@ -99,6 +100,20 @@ public:
     /// removal decides what it empties while it runs.
     void applied(std::span<const core::Change> changes);
 
+    /// Marks the row a playing film is showing, or none.
+    ///
+    /// **A tint and not a selection**, and the distinction is the whole point.
+    /// The selection is what an operation applies to, and a film running in the
+    /// background has no business rewriting the user's target row by row —
+    /// `MainWindow::followPlayback` says so where it moves the current index
+    /// with `NoUpdate`. What was missing was never the following; it was
+    /// something a user can see.
+    ///
+    /// **An anomaly outranks it.** A row that is both is painted as the defect
+    /// it holds: a defect is there to be repaired, where a showing row is gone
+    /// a second later.
+    void setShowing(std::optional<core::SubtitleIndex> shown);
+
     /// Says that everything on screen is stale.
     ///
     /// What a change of format calls for: the decimal separator every position
@@ -132,6 +147,9 @@ signals:
 private:
     /// The tint or the tooltip a row's anomalies call for, or nothing.
     [[nodiscard]] QVariant anomalyMark(const QModelIndex& index, int role) const;
+
+    /// The row a playing film shows, or -1.
+    int m_showing = -1;
 
     /// The anomalies of one row, most telling first, or empty.
     [[nodiscard]] std::span<const core::AnomalyKind> anomaliesAt(int row) const;
