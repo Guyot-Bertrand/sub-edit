@@ -1,57 +1,26 @@
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/wording.hpp>
+#include <subedit/gui/frame_rate_box.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
 
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
 #include <QString>
-#include <QVariant>
 
 #include <cstddef>
 #include <optional>
 
 namespace subedit::gui {
 
-namespace {
-
-/// The eight standards, named as a report names them.
-///
-/// A closed list rather than free entry: a rate that is not one of these is a
-/// rate no video carries, and the conversion of a whole file is not the place
-/// to accept a typo.
-[[nodiscard]] QComboBox* rateField(QWidget* parent) {
-    auto* box = new QComboBox{parent};
-    for (const core::StandardFrameRate standard : core::kStandardFrameRates) {
-        const core::FrameRate rate{standard};
-        box->addItem(QString::fromStdString(core::nameOf(rate)),
-                     QVariant::fromValue(static_cast<int>(standard)));
-    }
-    return box;
-}
-
-[[nodiscard]] core::FrameRate rateOf(const QComboBox& box) {
-    return core::FrameRate{static_cast<core::StandardFrameRate>(box.currentData().toInt())};
-}
-
-void pick(QComboBox& box, core::FrameRate rate) {
-    for (int row = 0; row < box.count(); ++row) {
-        if (core::FrameRate{static_cast<core::StandardFrameRate>(box.itemData(row).toInt())} ==
-            rate) {
-            box.setCurrentIndex(row);
-            return;
-        }
-    }
-}
-
-} // namespace
-
 FrameRateDialog::FrameRateDialog(std::size_t targetCount,
                                  core::FrameRate current,
                                  std::optional<core::FrameRate> declared,
                                  std::optional<core::FrameRate> deduced,
                                  QWidget* parent)
-    : OperationDialog(targetCount, parent), m_input(rateField(this)), m_output(rateField(this)) {
+    : OperationDialog(targetCount, parent),
+      m_input(new FrameRateBox{this}),
+      m_output(new FrameRateBox{this}) {
     setWindowTitle(QStringLiteral("Convert frame rate"));
 
     // **The positions first, the project's assumption second.** Before phase 16
@@ -59,9 +28,9 @@ FrameRateDialog::FrameRateDialog(std::size_t targetCount,
     // said as much: the file does not declare its rate and nobody can guess it.
     // Now something can — not a guess but a measurement, and only when it is
     // clean.
-    pick(*m_input, current);
+    m_input->pick(current);
     if (deduced.has_value())
-        pick(*m_input, *deduced);
+        m_input->pick(*deduced);
 
     // **What the film declares lands on « should play at », and nowhere else.**
     // A document is timed against something the file does not carry — that is
@@ -69,19 +38,16 @@ FrameRateDialog::FrameRateDialog(std::size_t targetCount,
     // the rate the film actually runs at, which is what the subtitles have to
     // be brought to.
     //
-    // **In two steps, and the second may find nothing.** A film may declare a
-    // rate this list does not carry — the eight standards, closed on purpose —
-    // and `pick` then leaves the box where the first step put it. Which is why
-    // the first step exists: without it the box would stay where it was built,
-    // on the first of the eight, and the dialog would open on a rate nobody
-    // named. The declared rate is still said below, because knowing that the
-    // film runs at something unusual is the information; there is simply
-    // nothing here to convert it to.
-    pick(*m_output, current);
+    // **In two steps, because the second may find nothing** — see
+    // `FrameRateBox`, which is where that contract is written. The declared
+    // rate is still said below when the list does not carry it: knowing that
+    // the film runs at something unusual is the information, and there is
+    // simply nothing here to convert it to.
+    m_output->pick(current);
     if (declared.has_value())
-        pick(*m_output, *declared);
+        m_output->pick(*declared);
 
-    for (QComboBox* box : {m_input, m_output})
+    for (FrameRateBox* box : {m_input, m_output})
         connect(box, &QComboBox::currentIndexChanged, this, [this] { revalidate(); });
 
     fields()->addRow(QStringLiteral("Timed against"), m_input);
@@ -116,11 +82,11 @@ QString FrameRateDialog::deducedLabel() const {
 }
 
 core::FrameRate FrameRateDialog::input() const {
-    return rateOf(*m_input);
+    return m_input->rate();
 }
 
 core::FrameRate FrameRateDialog::output() const {
-    return rateOf(*m_output);
+    return m_output->rate();
 }
 
 bool FrameRateDialog::isComplete() const {
@@ -130,8 +96,8 @@ bool FrameRateDialog::isComplete() const {
 }
 
 void FrameRateDialog::setRates(core::FrameRate from, core::FrameRate to) {
-    pick(*m_input, from);
-    pick(*m_output, to);
+    m_input->pick(from);
+    m_output->pick(to);
 }
 
 } // namespace subedit::gui

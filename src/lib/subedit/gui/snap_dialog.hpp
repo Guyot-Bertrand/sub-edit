@@ -6,9 +6,9 @@
 #include <cstddef>
 #include <optional>
 
-class QComboBox;
-
 namespace subedit::gui {
+
+class FrameRateBox;
 
 /// Asks which frame rate to lay the positions back onto.
 ///
@@ -42,7 +42,7 @@ public:
     void setRate(core::FrameRate rate);
 
 private:
-    QComboBox* m_rate;
+    FrameRateBox* m_rate;
 };
 
 } // namespace subedit::gui

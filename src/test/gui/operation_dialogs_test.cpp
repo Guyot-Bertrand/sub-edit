@@ -22,6 +22,7 @@ namespace {
 
 using subedit::core::Duration;
 using subedit::core::FrameRate;
+using subedit::core::kStandardFrameRates;
 using subedit::core::StandardFrameRate;
 using subedit::core::Timestamp;
 using subedit::gui::FrameRateDialog;
@@ -268,4 +269,28 @@ TEST_CASE("without a film the alignment opens on the project rate", "[gui][GUI-S
     const SnapDialog dialog{4, FrameRate{StandardFrameRate::Fps24}};
 
     CHECK(dialog.rate() == FrameRate{StandardFrameRate::Fps24});
+}
+
+// One list, and the proof that it is one — issue #224.
+//
+// The two dialogues carried their own copy of the eight standards until
+// `FrameRateBox` took them over. What a test can see of that is not the class
+// but its consequence: every rate the list is supposed to hold can be chosen in
+// both dialogues, and comes back as itself.
+TEST_CASE("both dialogues offer the same eight rates", "[gui][GUI-FRAMERATE-01][GUI-SNAP-01]") {
+    SnapDialog snap{4, FrameRate{StandardFrameRate::Fps24}};
+    FrameRateDialog conversion{4, FrameRate{StandardFrameRate::Fps24}};
+
+    for (const StandardFrameRate standard : kStandardFrameRates) {
+        const FrameRate rate{standard};
+
+        snap.setRate(rate);
+        CHECK(snap.rate() == rate);
+
+        // The conversion refuses a rate converted into itself, so the two
+        // fields are set apart and read back one at a time.
+        conversion.setRates(rate, rate);
+        CHECK(conversion.input() == rate);
+        CHECK(conversion.output() == rate);
+    }
 }
