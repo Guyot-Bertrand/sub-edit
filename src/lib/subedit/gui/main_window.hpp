@@ -127,6 +127,12 @@ public:
 
     [[nodiscard]] QAction* analyseGridAction() const { return m_analyseGrid; }
 
+    [[nodiscard]] QAction* snapAction() const { return m_snap; }
+
+    /// Bringing the file back onto its own grid. Its text carries the measured
+    /// amount, which is how `GUI-GRID-03` shows it before it is applied.
+    [[nodiscard]] QAction* shiftOntoGridAction() const { return m_shiftOntoGrid; }
+
     /// Reads where playback stands and puts the window in step with it.
     ///
     /// Two things, and they are the same thing seen twice: the replica drawn
@@ -234,6 +240,15 @@ private:
     /// Opens the analysis, which reports and changes nothing.
     void analyseGrid();
 
+    /// Asks which grid to lay the positions on, and lays them on it.
+    void snapToFrameRate();
+
+    /// Moves the whole file back onto the grid it was written on.
+    ///
+    /// No dialog: the operation takes no option, and the amount it will use is
+    /// already in the menu entry that opened it.
+    void shiftOntoGrid();
+
     /// Puts the window in step with the film the document is now associated
     /// with — the status bar, the picture, and whether there is one at all.
     ///
@@ -302,6 +317,8 @@ private:
     QAction* m_frameRate = nullptr;
     QAction* m_hearingImpaired = nullptr;
     QAction* m_analyseGrid = nullptr;
+    QAction* m_snap = nullptr;
+    QAction* m_shiftOntoGrid = nullptr;
     QAction* m_selectVideo = nullptr;
     QAction* m_playPause = nullptr;
     QLabel* m_videoStatus = nullptr;

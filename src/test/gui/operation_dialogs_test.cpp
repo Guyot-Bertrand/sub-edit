@@ -10,6 +10,7 @@
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
+#include <subedit/gui/snap_dialog.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
 #include <QLineEdit>
@@ -25,6 +26,7 @@ using subedit::core::StandardFrameRate;
 using subedit::core::Timestamp;
 using subedit::gui::FrameRateDialog;
 using subedit::gui::ShiftDialog;
+using subedit::gui::SnapDialog;
 using subedit::gui::TransformDialog;
 using subedit::gui::TypedReference;
 
@@ -247,4 +249,23 @@ TEST_CASE("the user may still overrule both", "[gui][GUI-FRAMERATE-04]") {
 
     CHECK(dialog.input() == FrameRate{StandardFrameRate::Fps50});
     CHECK(dialog.output() == FrameRate{StandardFrameRate::Fps60});
+}
+
+// The alignment opens on the grid of the **film**, not on the one the positions
+// are leaving: the intention is to join the first, and the deduction names the
+// second.
+TEST_CASE("the alignment opens on what the film declares", "[gui][GUI-SNAP-01]") {
+    const SnapDialog dialog{
+        4, FrameRate{StandardFrameRate::Fps24}, FrameRate{StandardFrameRate::Fps25}};
+
+    CHECK(dialog.rate() == FrameRate{StandardFrameRate::Fps25});
+    // Always ready: aligning a file on the grid it already sits on moves
+    // nothing, which is a no-op and not an error.
+    CHECK(dialog.isComplete());
+}
+
+TEST_CASE("without a film the alignment opens on the project rate", "[gui][GUI-SNAP-01]") {
+    const SnapDialog dialog{4, FrameRate{StandardFrameRate::Fps24}};
+
+    CHECK(dialog.rate() == FrameRate{StandardFrameRate::Fps24});
 }
