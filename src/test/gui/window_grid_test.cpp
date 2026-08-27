@@ -13,6 +13,7 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/frame_rate.hpp>
+#include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/opening.hpp>
@@ -24,6 +25,7 @@
 #include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <grid_fixtures.hpp>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -158,4 +160,42 @@ TEST_CASE("the analysis gives the offset of a shifted grid", "[gui][GUI-GRID-02]
     const GridAnalysisDialog dialog{deductionOf("grille-24-decalee.srt")};
 
     CHECK_THAT(dialog.summary().toStdString(), ContainsSubstring("Shifted off the grid by"));
+}
+
+TEST_CASE("the conversion dialog opens on what the positions say", "[gui][GUI-FRAMERATE-03]") {
+    InMemoryFileSystem files;
+    FakePrompts prompts;
+    MainWindow window = windowOn("grille-24.srt", files, prompts);
+    window.show();
+
+    std::optional<subedit::core::FrameRate> opened;
+    prompts.fill = [&opened](QDialog& dialog) {
+        if (auto* rates = dynamic_cast<subedit::gui::FrameRateDialog*>(&dialog))
+            opened = rates->input();
+    };
+
+    window.frameRateAction()->trigger();
+
+    REQUIRE(opened.has_value());
+    CHECK(opened == subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps24});
+}
+
+TEST_CASE("a partial grid does not pre-fill the conversion", "[gui][GUI-FRAMERATE-03]") {
+    // Evidence the deduction itself calls partial has no business deciding an
+    // operation on the whole file. The status bar and the analysis carry that
+    // case; this field does not.
+    InMemoryFileSystem files;
+    FakePrompts prompts;
+    MainWindow window = windowOn("melange-groupe.srt", files, prompts);
+    window.show();
+
+    QString said;
+    prompts.fill = [&said](QDialog& dialog) {
+        if (auto* rates = dynamic_cast<subedit::gui::FrameRateDialog*>(&dialog))
+            said = rates->deducedLabel();
+    };
+
+    window.frameRateAction()->trigger();
+
+    CHECK(said.isEmpty());
 }
