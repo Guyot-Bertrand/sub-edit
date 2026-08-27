@@ -185,6 +185,15 @@ avec un objectif d'iso-fonctionnalité.
   derrière**. La CI exécute la même cible. Ne jamais annoncer un travail
   terminé sans l'avoir lancée.
 
+  > **Du 2026-08-27 au 2026-09-01, la CI ne l'exécute plus.** Le quota
+  > d'Actions du mois est épuisé, donc `ci.yml` et `pull-request.yml` sont
+  > débranchés et le ruleset qui exigeait leur check est en `disabled`. La
+  > phrase ci-dessus n'en change pas d'un mot — elle en devient seulement la
+  > seule garde, puisque plus personne d'autre ne la vérifie. Les contrôles de
+  > pull request étant eux aussi coupés, `Closes #N`, le bump du patch et le
+  > journal régénéré redeviennent des gestes à faire, pas à voir échouer.
+  > Rétablissement : `docs/configuration-github.md`.
+
   Le dernier contrôle est le plus récent et le moins évident : la porte relève
   les fichiers non suivis avant de commencer et refuse ceux qui sont apparus
   entre-temps. Ce sont les tests de bout en bout qui écrivent, et un nom nu

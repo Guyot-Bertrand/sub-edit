@@ -13,9 +13,28 @@ name: pull request
 # relancerait rien et le contrôle resterait rouge. « synchronize » l'est tout
 # autant, pour que la version et le journal soient revus à chaque poussée.
 
+# ==== SUSPENDU LE 2026-08-27 — quota d'Actions épuisé =======================
+#
+# Débranché avec ci.yml, et pour la même raison. Il coûte pourtant une minute
+# là où la porte en coûte un quart d'heure : c'est le geste qui est cohérent,
+# pas l'économie. Les trois obligations qu'il vérifie — « Closes #N », le bump
+# du patch, le journal régénéré — redeviennent ce qu'elles étaient avant la
+# #172 : des règles écrites dans CLAUDE.md, tenues à la main.
+#
+# `workflow_dispatch` reste, mais il ne sert pas à grand-chose ici : les
+# contrôles lisent le corps et la base de la pull request qui les déclenche,
+# et une exécution manuelle n'en a aucune. Il est là pour que le fichier reste
+# un workflow valide plutôt que pour être utilisé.
+#
+# **À rétablir le 2026-09-01** : décommenter le déclencheur ci-dessous.
+#
+# ============================================================================
+
 on:
-  pull_request:
-    types: [opened, edited, reopened, synchronize]
+  # pull_request:
+  #   types: [opened, edited, reopened, synchronize]
+
+  workflow_dispatch:
 
 # Une nouvelle poussée, ou une nouvelle édition, annule la vérification en
 # cours sur la même pull request.

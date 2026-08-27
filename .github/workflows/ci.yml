@@ -15,23 +15,48 @@ name: ci
 # documentation — grammaire des messages, titre, « Closes #N », bump, journal —
 # vivent dans pull-request.yml, qui n'a pas de filtre de chemins.
 
+# ==== SUSPENDU LE 2026-08-27 — quota d'Actions épuisé =======================
+#
+# Les 2000 minutes du mois sont consommées. **La porte n'est pas supprimée,
+# elle est débranchée :** les deux déclencheurs automatiques sont commentés
+# ci-dessous et `workflow_dispatch` reste, de sorte qu'une exécution à la
+# demande est toujours possible si une pull request la mérite.
+#
+# **Ce qui garde le dépôt entre-temps est `make check`, en local.** C'est la
+# même cible — la CI ne faisait que la rejouer sur une machine neutre. Ce
+# qu'on perd est précisément cette neutralité : la porte ne tourne plus que
+# là où le code s'écrit, donc « je l'ai lancée » n'est plus vérifiable par
+# personne d'autre. La règle du projet, ne jamais annoncer un travail terminé
+# sans l'avoir lancée, devient la seule garde.
+#
+# **Le ruleset « porte de qualité » est passé à `disabled` en même temps.** Il
+# exigeait le check du job ci-dessous, qui ne serait plus jamais rapporté :
+# chaque pull request aurait affiché une attente éternelle, contournée à la
+# main par la dérogation admin. Voir docs/configuration-github.md.
+#
+# **À rétablir le 2026-09-01**, quand le quota se renouvelle. Deux gestes :
+# décommenter les deux déclencheurs ci-dessous, et rendre son application au
+# ruleset — la commande est dans docs/configuration-github.md.
+#
+# ============================================================================
+
 on:
-  pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - 'CHANGELOG.md'
-      - 'CLAUDE.md'
-      - 'CONTRIBUTING.md'
-      - 'README.md'
-      - 'cliff.toml'
-      - 'LICENSE'
+  # pull_request:
+  #   paths-ignore:
+  #     - 'docs/**'
+  #     - 'CHANGELOG.md'
+  #     - 'CLAUDE.md'
+  #     - 'CONTRIBUTING.md'
+  #     - 'README.md'
+  #     - 'cliff.toml'
+  #     - 'LICENSE'
 
   # Le filet de l'analyse complète, une fois par semaine sur main : la porte
   # d'une pull request n'analyse plus que ce qu'elle met en cause, et ce qui
   # échappe à ce calcul — un drapeau changé dans un CMakeLists imbriqué — se
   # verrait ici. Lundi, à une heure où personne n'attend le résultat.
-  schedule:
-    - cron: '0 4 * * 1'
+  # schedule:
+  #   - cron: '0 4 * * 1'
 
   # Relance manuelle, sur n'importe quelle branche. Utile quand un run se perd
   # sans que le dépôt y soit pour quelque chose — une panne d'Actions, par
