@@ -264,6 +264,17 @@ avec un objectif d'iso-fonctionnalité.
 
   Un exemple d'appel réel accompagne chaque commande. **Le manuel décrit ce qui
   existe, jamais ce qui est prévu** — le prévu va dans la feuille de route.
+
+  **Les images du manuel d'interface sont engendrées, jamais prises à la
+  main.** `make manual` construit la vraie fenêtre, la montre sans écran et la
+  photographie ; le programme n'écrit jamais une référence, il écrit
+  `<nom>.new.png`, et `compare-screenshots.py` promeut ou efface — si bien
+  qu'une image n'entre dans un diff que le jour où l'interface a changé.
+  `check-screenshots.py` attrape ce qu'aucun des deux ne voit : une image que
+  le manuel montre et que rien n'engendre. Une nouvelle capture s'ajoute dans
+  `src/test/tools/screenshots.cpp`, et elle ne fait foi que sous les réglages
+  que ce programme pose — plateforme sans écran, style Fusion, `DejaVu Sans` ;
+  il refuse de photographier sans cette police. ADR 0024.
 - **Définition de « terminé »** — code, tests, **benchmarks rejoués et mesures
   relevées**, section de manuel à jour, patch bumpé, entrée de CHANGELOG
   régénérée.

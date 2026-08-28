@@ -15,12 +15,16 @@ table.
 > [feuille de route](../../feuille-de-route.md). Ce manuel décrit ce qui existe,
 > jamais ce qui est prévu.
 
-> **Ce manuel est de la prose, et rien ne le tient.** Les exemples de
-> `subedit-cli` sont engendrés en exécutant la commande, ce qui les empêche de
-> mentir. Une fenêtre n'a pas de `--help` : ni capture d'écran engendrée ni
-> description engendrée de l'arbre de widgets n'ont été retenues, avec leurs
-> raisons. **La justesse de ces pages repose donc sur leur relecture**, et sur
-> rien d'autre.
+> **Les images de ce manuel sont engendrées, la prose non.** Les exemples de
+> `subedit-cli` sont engendrés en exécutant la commande ; les captures d'écran
+> le sont en construisant la vraie fenêtre et en la photographiant — `make
+> manual` fait les deux. Une image ne peut donc pas décrire une interface qui
+> n'existe plus, et une interface qui change se voit dans le diff du dépôt. Ce
+> qui reste sans filet est le texte autour, dont la justesse repose sur la
+> relecture.
+
+![La fenêtre à l'ouverture : les menus, la barre d'actions, la bande où le film
+prendra place, et la table des sous-titres.](captures/fenetre.png)
 
 ## Les menus
 

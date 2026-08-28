@@ -26,6 +26,9 @@ longtemps qu'avant.
 La durée s'écrit **comme un horodatage, signe compris** — `00:00:02,500` avance,
 `-0:01,250` recule. Les formes acceptées sont celles d'une cellule de position.
 
+![Le dialogue de décalage : la durée à appliquer, et le rappel de ce sur quoi
+elle portera.](captures/decalage.png)
+
 | Refus | Pourquoi |
 | :---- | :------- |
 | une durée illisible | le bouton reste inactif ; rien n'est décalé au hasard |

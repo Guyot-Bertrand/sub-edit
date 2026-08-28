@@ -42,6 +42,9 @@ annoncer l'ancienne.
 `Tools ▸ Frame Rate Analysis…` **ne modifie rien.** Elle ouvre sur un résumé et
 le classement des huit candidates avec leur score.
 
+![La modale d'analyse : le résumé, puis les huit candidates classées par ce
+qu'elles expliquent des positions.](captures/analyse-de-grille.png)
+
 Le résumé dit la réponse, puis ce qui la nuance — chaque phrase n'apparaissant
 que si elle a quelque chose à dire :
 
