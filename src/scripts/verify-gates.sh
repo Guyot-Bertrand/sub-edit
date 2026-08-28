@@ -47,6 +47,13 @@
 # l'autre genre, celui d'`expect_gate_stays_open` — un fichier non suivi qui
 # était déjà là et qu'il ne faut surtout pas signaler.
 #
+# Les deux suivantes visent `make config-home`, le pendant de la précédente de
+# l'autre côté de la frontière du dépôt : une configuration écrite pendant les
+# tests, et — du genre d'`expect_gate_stays_open` — une configuration déjà là que
+# rien n'a touchée. Elles s'exercent sous un `XDG_CONFIG_HOME` de fortune, si
+# bien que la preuve d'une porte qui refuse qu'on écrive dans le répertoire
+# personnel n'y écrit elle-même jamais.
+#
 # Les deux dernières ne visent aucune porte : `src/scripts/record-bench.sh`, qui
 # ne refuse rien mais choisit ce qu'il inscrit dans une table qu'on n'élague
 # jamais — un extrême posé par du bruit est définitif — et
@@ -631,6 +638,56 @@ expect_untracked_gate() {
 
 expect_untracked_gate
 
+# La porte refuse qu une exécution touche la configuration de l utilisateur.
+#
+# **Deux preuves et non une**, pour la raison qui en demande deux à la
+# précédente. Laisser passer une configuration écrite est le défaut que la porte
+# existe pour attraper. Signaler une configuration que rien n a touchée serait
+# pire : qui développe subedit finit par lancer subedit, et un contrôle qui
+# crierait au loup à chaque porte finirait désactivé.
+#
+# **Elle s exerce sous un XDG_CONFIG_HOME de fortune.** Prouver qu une porte
+# refuse qu on écrive dans le répertoire personnel en y écrivant serait commettre
+# le défaut pour montrer qu il est refusé. La variable est celle dont tout
+# emplacement standard dérive, et c est précisément celle que le harnais des
+# tests déplace : la preuve emprunte le mécanisme qu elle démontre.
+expect_config_home_gate() {
+    local script="${REPO_ROOT}/src/scripts/check-config-home.sh"
+    local fake
+    fake="$(mktemp -d)"
+
+    printf '%s▸ un test qui écrit dans la configuration de l utilisateur%s\n' "${BOLD}" "${RESET}"
+    XDG_CONFIG_HOME="${fake}" "${script}" --record >/dev/null
+    mkdir -p "${fake}/subedit"
+    printf 'theme = dark\n' > "${fake}/subedit/settings.conf"
+    if XDG_CONFIG_HOME="${fake}" make -C "${REPO_ROOT}" --no-print-directory config-home \
+        >/dev/null 2>&1; then
+        printf '  %s✗ la porte « config-home » a laissé passer l écriture%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make config-home » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    printf '%s▸ une configuration déjà là que rien n a touchée%s\n' "${BOLD}" "${RESET}"
+    XDG_CONFIG_HOME="${fake}" "${script}" --record >/dev/null
+    if XDG_CONFIG_HOME="${fake}" make -C "${REPO_ROOT}" --no-print-directory config-home \
+        >/dev/null 2>&1; then
+        printf '  %s✓ « make config-home » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ la porte « config-home » a signalé une configuration intacte%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${fake}"
+
+    # Le relevé est refait sous le vrai répertoire, pour que ce qui suit ne parte
+    # pas de l empreinte d un XDG_CONFIG_HOME qui n existe plus.
+    "${script}" --record >/dev/null
+}
+
+expect_config_home_gate
+
 # Une preuve d un troisième genre. prune-runs.sh n est pas une porte : il ne
 # refuse rien, il choisit. Ce qui peut être faux chez lui n est donc pas de
 # laisser passer un défaut, mais de supprimer une exécution qu il fallait garder
@@ -873,7 +930,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles vingt-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles trente portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
@@ -881,4 +938,6 @@ printf '%set l élagueur choisit les exécutions attendues%s\n' \
 printf '%set le journal des mesures ne pose un extrême que sur un relevé propre%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set un fichier non suivi antérieur aux tests ne fait pas crier au loup%s\n' \
+    "${GREEN}" "${RESET}"
+printf '%sni une configuration d utilisateur que rien n a touchée%s\n' \
     "${GREEN}" "${RESET}"

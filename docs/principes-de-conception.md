@@ -105,6 +105,18 @@ Les autres principes, appliqués sans dogmatisme :
   de disque, ni de réseau, ni d'attente.
 - Une fonction pure est préférable à une méthode qui mute un état partagé, y
   compris quand la seconde est plus courte à écrire.
+- **Un test n'écrit que dans un bac à sable qui lui appartient**, jamais dans le
+  dépôt ni dans le répertoire personnel de qui le lance. Un test qui écrit
+  ailleurs abîme ce qu'il trouve, et — plus vicieux — devient dépendant de ce
+  qui s'y trouvait : il passe chez qui n'a jamais lancé le binaire et échoue
+  chez qui l'a lancé une fois. Le harnais `Scratch` couvre le dépôt,
+  `XDG_CONFIG_HOME` déplacé couvre la configuration, et deux contrôles —
+  `check-untracked.sh`, `check-config-home.sh` — refusent ce qui passe outre.
+- **Un emplacement se reçoit, il ne se cherche pas.** C'est la même règle que
+  l'injection ci-dessus, appliquée à un chemin : un type qui résout lui-même où
+  il vit ne se teste qu'en le laissant écrire là. Le seul code qui résout un
+  emplacement standard est celui du câblage, et il tient dans une fonction que
+  l'on peut appeler — voir `gui::userSettingsPath()` et l'ADR 0022.
 
 ## 5. Performance : mesurer, pas supposer
 

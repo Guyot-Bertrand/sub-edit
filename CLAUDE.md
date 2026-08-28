@@ -203,6 +203,16 @@ avec un objectif d'iso-fonctionnalité.
   avant son `git add` — ne la dérange pas ; c'est l'apparition qui est refusée,
   pas la présence.
 
+  **Le même contrôle existe hors du dépôt, et il a sa propre règle.**
+  `check-config-home.sh` encadre la porte de la même façon et surveille
+  `~/.config/subedit`, que `git ls-files` ne voit pas. Ce qui le tient au vert :
+  **un test ne résout jamais un emplacement de configuration, il en reçoit
+  un.** Le seul code qui en résout un est `gui::userSettingsPath()` — ADR 0022 —
+  et rien ne l'appelle pour écrire. Les deux harnais qui lancent quelque chose
+  déplacent en plus `XDG_CONFIG_HOME` vers un répertoire à eux : le binaire de
+  tests d'interface pour lui-même, celui de bout en bout pour chaque binaire
+  qu'il lance.
+
   **Elle n'analyse que ce qui a changé, en local comme en CI.**
   `src/scripts/tidy-scope.sh` calcule le périmètre depuis `TIDY_BASE`
   — `origin/main` par défaut — en fermeture transitive des en-têtes, en voyant

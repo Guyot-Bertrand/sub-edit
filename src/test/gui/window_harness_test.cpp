@@ -34,6 +34,11 @@
 #include <catch2/catch_session.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include <filesystem>
+#include <string>
+#include <system_error>
+#include <unistd.h>
+
 namespace {
 
 /// The one thing the offscreen platform says every time a window is shown.
@@ -63,6 +68,48 @@ void withoutOffscreenNoise(QtMsgType type, const QMessageLogContext& context, co
     qt_message_output(type, context, text);
 }
 
+/// A configuration home of this process's own, removed when it ends.
+///
+/// **What stands between a test and the developer's own settings.** Everything
+/// Qt derives from the standard config location — and `gui::userSettingsPath()`
+/// first of all — hangs off `XDG_CONFIG_HOME`; moving that one variable moves
+/// the lot, for this process and for anything it would spawn.
+///
+/// The seam of ADR 0022 already makes the real location unreachable by
+/// construction: the settings receive a path, so a test gives one. This is the
+/// belt around it, for what inside Qt reads a location without asking us — and
+/// for the day somebody writes a test that calls `userSettingsPath()` and then
+/// writes to what it returned.
+///
+/// Under CTest each case is its own process, so the directory is named after
+/// the process and no two runs share one. `subedit-e2e-…`'s sibling in the
+/// end-to-end harness does the same for the binaries it launches.
+class PrivateConfigHome {
+public:
+    PrivateConfigHome() {
+        m_path = std::filesystem::temp_directory_path() /
+                 ("subedit-config-" + std::to_string(::getpid()));
+        std::filesystem::remove_all(m_path);
+        std::filesystem::create_directories(m_path);
+        qputenv("XDG_CONFIG_HOME", QByteArray::fromStdString(m_path.string()));
+    }
+
+    PrivateConfigHome(const PrivateConfigHome&) = delete;
+    PrivateConfigHome& operator=(const PrivateConfigHome&) = delete;
+    PrivateConfigHome(PrivateConfigHome&&) = delete;
+    PrivateConfigHome& operator=(PrivateConfigHome&&) = delete;
+
+    /// **Never throws.** A destructor that did so while an assertion is already
+    /// unwinding the stack would end the process instead of reporting it.
+    ~PrivateConfigHome() {
+        std::error_code ignored;
+        std::filesystem::remove_all(m_path, ignored);
+    }
+
+private:
+    std::filesystem::path m_path;
+};
+
 } // namespace
 
 /// The binary owns its `QApplication`, and owns it **on the stack of `main`**.
@@ -87,6 +134,10 @@ int main(int argc, char** argv) {
 
     // Installed before the `QApplication`, which warns on its own account too.
     qInstallMessageHandler(withoutOffscreenNoise);
+
+    // Before the `QApplication` as well: Qt reads the standard locations from
+    // the moment it exists, and a variable set after it would arrive late.
+    const PrivateConfigHome configHome;
 
     const QApplication application{argc, argv};
     return Catch::Session().run(argc, argv);

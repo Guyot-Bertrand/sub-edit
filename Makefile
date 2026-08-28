@@ -290,10 +290,20 @@ untracked: ## Refuse un fichier non suivi apparu depuis le dernier relevé
 	$(call step,"fichiers laissés derrière")
 	@./src/scripts/check-untracked.sh --compare
 
+# Le pendant du précédent, de l'autre côté de la frontière du dépôt. Un fichier
+# écrit dans le répertoire personnel échappe entièrement à `git ls-files`, et
+# c'est pourtant le même défaut. Voir src/scripts/check-config-home.sh pour ce
+# qu'il surveille et pourquoi il ne surveille que ce qui porte notre nom.
+.PHONY: config-home
+config-home: ## Refuse qu'une exécution touche la configuration de l'utilisateur
+	$(call step,"configuration de l'utilisateur")
+	@./src/scripts/check-config-home.sh --compare
+
 .PHONY: check
 check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couverture
 	@printf '$(BOLD)porte de qualité$(RESET)\n'
 	@./src/scripts/check-untracked.sh --record
+	@./src/scripts/check-config-home.sh --record
 	@$(MAKE) --no-print-directory format-check
 	@$(MAKE) --no-print-directory arch
 	@$(MAKE) --no-print-directory build
@@ -301,6 +311,7 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 	@$(MAKE) --no-print-directory asan
 	@$(MAKE) --no-print-directory coverage
 	@$(MAKE) --no-print-directory untracked
+	@$(MAKE) --no-print-directory config-home
 	@printf '$(GREEN)✓ porte franchie$(RESET)\n'
 
 # `check` est ce que la CI exécute — .github/workflows/ci.yml n'appelle que
@@ -336,7 +347,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory bench
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (vingt-neuf preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (trente preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog

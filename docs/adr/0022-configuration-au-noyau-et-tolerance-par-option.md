@@ -85,6 +85,15 @@ l'issue #238 cherche, et elle l'obtient sans réglage global de Qt ni mode test.
 câblage, et c'est le seul chemin que les tests ne couvriront pas — il est nommé
 ici pour qu'on le sache.
 
+> **Corrigé en le posant, #238.** Ce chemin est couvert, et il n'a pas coûté
+> cher de le rendre tel : `gui::userSettingsPath()` est une fonction de
+> bibliothèque — `main.cpp` l'appellera d'une ligne quand #240 lui donnera un
+> type à servir — et un test lit ce qu'elle répond sans qu'aucun processus
+> n'ait à démarrer. Ce que l'ADR anticipait — une ligne hors de portée —
+> était le prix d'un `QStandardPaths` appelé sur place ; il suffisait de ne
+> pas l'y appeler. Reste vraie la phrase qui compte : c'est le
+> **seul** endroit où un emplacement standard est résolu.
+
 ## Pourquoi la tolérance plutôt qu'une migration versionnée
 
 **Elles ne coûtent pas au même moment.** La tolérance coûte à chaque lecture, un
