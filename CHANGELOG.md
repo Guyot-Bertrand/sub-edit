@@ -19,6 +19,10 @@ ne pas l'éditer à la main.
 - **doc** — Deux paquets natifs plutôt qu'un
 - **doc** — La cible release au futur, et dans le découpage
 
+### Remaniements
+
+- **core** — Une seule recette d'ouverture
+
 ### Tests
 
 - **test** — Isoler l'emplacement de configuration dans les tests
