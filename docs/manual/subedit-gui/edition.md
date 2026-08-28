@@ -7,6 +7,10 @@ ne s'éditent pas — le numéro est le rang de la ligne, la durée est
 **Ouvrir l'éditeur d'une cellule :** double-cliquer dessus, ou la sélectionner
 et appuyer sur `F2`.
 
+![Le texte du troisième sous-titre ouvert en édition : le champ est multiligne
+et montre les deux lignes telles qu'elles seront
+écrites.](captures/edition.png)
+
 ## Le texte
 
 L'éditeur est un champ **multiligne** : un sous-titre de deux lignes s'y saisit

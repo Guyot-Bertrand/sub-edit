@@ -203,21 +203,58 @@ fixtures: ## Vérifie que les fixtures engendrées sont ce que leur table dit
 	$(call step,"fixtures de grille")
 	@./src/scripts/subtitle-fixtures.py --check
 
-# Ne construit que `subedit-cli` : les exemples du manuel n'invoquent que lui,
-# et lui demander la bibliothèque de tests coûterait sans rien apporter.
+# Le répertoire où vivent les images du manuel d'interface, et le seul.
+CAPTURES := docs/manual/subedit-gui/captures
+
+# Les captures d'écran du manuel — #199.
+#
+# **Le même geste que les blocs `console`**, et c'est le fond du ticket : ce qui
+# empêche un manuel de mentir est qu'il soit engendré depuis le programme. Les
+# blocs viennent de `subedit-cli --help` ; les images viennent de la vraie
+# fenêtre, montrée sans écran.
+#
+# Le programme n'écrit jamais une référence — il écrit `<nom>.new.png`. Le
+# comparateur décide ensuite : promouvoir, et git voit une modification qui veut
+# dire quelque chose ; ou effacer, et git ne voit rien. Le garde-fou attrape ce
+# qu'aucun des deux ne peut voir — une image que le manuel montre et que rien
+# n'engendre, ou l'inverse.
+.PHONY: screenshots
+screenshots: ## Engendre les captures du manuel et promeut celles qui ont bougé
+	$(call step,"captures d'écran")
+	@cmake --preset dev >/dev/null
+	@cmake --build --preset dev -j $(JOBS) --target subedit_screenshots
+	@./build/dev/bin/subedit_screenshots --output-dir $(CAPTURES)
+	@./src/scripts/compare-screenshots.py --dir $(CAPTURES)
+	@./src/scripts/check-screenshots.py
+
+.PHONY: screenshots-check
+screenshots-check: ## Vérifie que les captures du manuel sont à jour
+	$(call step,"captures d'écran")
+	@cmake --preset dev >/dev/null
+	@cmake --build --preset dev -j $(JOBS) --target subedit_screenshots
+	@./build/dev/bin/subedit_screenshots --output-dir $(CAPTURES)
+	@./src/scripts/compare-screenshots.py --dir $(CAPTURES) --check
+	@./src/scripts/check-screenshots.py
+
+# Construit `subedit-cli` pour les blocs `console`, et `subedit_screenshots`
+# pour les images. La cible a changé de nature avec #199 : elle demande
+# désormais l'interface, donc Qt. Le prix est mesuré et il est celui d'une
+# compilation incrémentale — la porte de qualité construit déjà tout cela.
 .PHONY: manual
-manual: ## Régénère les exemples d'appel du manuel
+manual: ## Régénère les exemples d'appel et les captures du manuel
 	$(call step,"exemples du manuel")
 	@cmake --preset dev >/dev/null
 	@cmake --build --preset dev -j $(JOBS) --target subedit-cli
 	@./src/scripts/generate-manual.sh
+	@$(MAKE) --no-print-directory screenshots
 
 .PHONY: manual-check
-manual-check: ## Vérifie que les exemples du manuel sont à jour
+manual-check: ## Vérifie que les exemples et les captures du manuel sont à jour
 	$(call step,"exemples du manuel")
 	@cmake --preset dev >/dev/null
 	@cmake --build --preset dev -j $(JOBS) --target subedit-cli
 	@./src/scripts/generate-manual.sh --check
+	@$(MAKE) --no-print-directory screenshots-check
 
 .PHONY: requirements
 requirements: ## Confronte le registre d'exigences aux tests de bout en bout
@@ -347,7 +384,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory bench
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (trente preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (trente-deux preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog

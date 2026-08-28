@@ -15,6 +15,9 @@ s'affichent.
 | `Duration` | `End − Start` |
 | `Text` | le texte du sous-titre |
 
+![Les cinq colonnes de la table, sur un fichier de douze
+sous-titres.](captures/table.png)
+
 **Le numéro n'est pas une donnée du fichier** mais le rang de la ligne. Une
 insertion ou une suppression renumérote donc tout ce qui suit, sans que rien ne
 soit réécrit.
@@ -47,6 +50,10 @@ colonnes de temps**, et le survoler dit ce qui ne va pas.
 | rouge | `ends before it starts` | corriger sa fin, ou son début |
 | bleue | `starts before the previous one starts` | le remettre à sa place dans l'ordre |
 | ambre | `starts before the previous one ends` | ajuster son calage |
+
+![Trois sous-titres en anomalie : le troisième finit avant de commencer, le
+cinquième chevauche le précédent, le sixième commence avant
+lui.](captures/anomalies.png)
 
 Seules les colonnes `Start`, `End` et `Duration` sont teintées : une anomalie ne
 parle que de temps, et teinter le texte laisserait croire qu'il y est pour

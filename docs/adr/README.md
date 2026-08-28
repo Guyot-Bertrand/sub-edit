@@ -36,6 +36,7 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0021](0021-analyse-du-document-a-l-ouverture.md) | Une analyse du document, calculée à l'ouverture | acceptée |
 | [0022](0022-configuration-au-noyau-et-tolerance-par-option.md) | Configuration au noyau, tolérante option par option | acceptée |
 | [0023](0023-deb-et-rpm-pour-la-premiere-livraison.md) | Deux paquets natifs, `.deb` et `.rpm`, pour la première livraison | acceptée |
+| [0024](0024-captures-engendrees-et-ou-elles-font-foi.md) | Des captures engendrées, et l'environnement où elles font foi | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en

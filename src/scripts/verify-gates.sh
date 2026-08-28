@@ -47,6 +47,13 @@
 # l'autre genre, celui d'`expect_gate_stays_open` — un fichier non suivi qui
 # était déjà là et qu'il ne faut surtout pas signaler.
 #
+# Les deux suivantes visent les captures d'écran du manuel — #199 : une
+# référence qui ne correspond plus à la fenêtre, que `make screenshots-check`
+# doit refuser, et une image que le manuel montre sans que rien ne l'engendre,
+# que `check-screenshots.py` doit attraper. Le second défaut est le plus
+# coûteux des deux, et le seul que le comparateur ne peut pas voir : une image
+# périmée s'affiche aussi proprement qu'une image juste.
+#
 # Les deux suivantes visent `make config-home`, le pendant de la précédente de
 # l'autre côté de la frontière du dépôt : une configuration écrite pendant les
 # tests, et — du genre d'`expect_gate_stays_open` — une configuration déjà là que
@@ -90,6 +97,9 @@ readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
 readonly VIDEO_FIXTURE="${REPO_ROOT}/src/test/data/videos/cadence-25.mp4"
 readonly GRID_FIXTURE="${REPO_ROOT}/src/test/data/grilles/grille-25.srt"
+readonly GUI_MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-gui/table.md"
+readonly CAPTURE_REFERENCE="${REPO_ROOT}/docs/manual/subedit-gui/captures/table.png"
+readonly OTHER_CAPTURE="${REPO_ROOT}/docs/manual/subedit-gui/captures/decalage.png"
 # Le fichier témoin de la preuve des fichiers laissés derrière. Il ne sauvegarde
 # rien : il est créé par la preuve et doit disparaître avec elle, y compris si
 # le script meurt — sans quoi cette preuve-là laisserait justement un fichier
@@ -119,6 +129,8 @@ restore() {
     cp "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
     cp "${backup_dir}/cadence-25.mp4" "${VIDEO_FIXTURE}"
     cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
+    cp "${backup_dir}/table.md" "${GUI_MANUAL_SOURCE}"
+    cp "${backup_dir}/table.png" "${CAPTURE_REFERENCE}"
     rm -f "${STRAY_FILE}"
 }
 
@@ -141,6 +153,8 @@ cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
 cp "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
 cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
 cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
+cp "${GUI_MANUAL_SOURCE}" "${backup_dir}/table.md"
+cp "${CAPTURE_REFERENCE}" "${backup_dir}/table.png"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -688,6 +702,43 @@ expect_config_home_gate() {
 
 expect_config_home_gate
 
+# Les captures du manuel — #199.
+#
+# **Deux preuves, pour les deux pièces qui ne voient pas la même chose.** Le
+# comparateur ne voit que les captures qu une exécution vient de produire : il
+# sait dire « cette image a bougé », et rien d autre. Le garde-fou voit les trois
+# listes — ce que le programme engendre, ce que le manuel montre, ce qui existe
+# sur le disque — et c est la seule pièce qui puisse attraper une image que plus
+# rien ne réengendre.
+expect_screenshot_gates() {
+    printf '%s▸ une capture qui ne correspond plus à la fenêtre%s\n' "${BOLD}" "${RESET}"
+    # Une autre capture du même dépôt, aux dimensions différentes : le défaut
+    # est injecté sans fabriquer d image, et sans qu il faille en décrire une.
+    cp "${OTHER_CAPTURE}" "${CAPTURE_REFERENCE}"
+    if make -C "${REPO_ROOT}" --no-print-directory screenshots-check >/dev/null 2>&1; then
+        printf '  %s✗ la porte « screenshots-check » a laissé passer l image%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make screenshots-check » a échoué, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    fi
+    restore
+
+    printf '%s▸ une image que le manuel montre et que rien n engendre%s\n' "${BOLD}" "${RESET}"
+    printf '\n![Une image que personne n engendre.](captures/inexistante.png)\n' \
+        >> "${GUI_MANUAL_SOURCE}"
+    if "${REPO_ROOT}/src/scripts/check-screenshots.py" >/dev/null 2>&1; then
+        printf '  %s✗ le garde-fou a laissé passer l image absente%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « check-screenshots.py » a refusé, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+    restore
+}
+
+expect_screenshot_gates
+
 # Une preuve d un troisième genre. prune-runs.sh n est pas une porte : il ne
 # refuse rien, il choisit. Ce qui peut être faux chez lui n est donc pas de
 # laisser passer un défaut, mais de supprimer une exécution qu il fallait garder
@@ -930,7 +981,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles trente portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles trente-deux portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
