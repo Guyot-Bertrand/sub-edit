@@ -8,6 +8,7 @@
 add_executable(
     subedit_e2e_test
     cli/cli_run.cpp
+    cli/config_home_test.cpp
     cli/usage_test.cpp
     cli/inspect_test.cpp
     cli/narration_test.cpp

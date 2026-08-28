@@ -9,6 +9,7 @@
 #include <spawn.h>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <sys/wait.h>
 #include <system_error>
 #include <unistd.h>
@@ -177,6 +178,49 @@ void drain(Descriptor& outEnd, Descriptor& errEnd, std::string& output, std::str
 
 namespace {
 
+/// The name of the variable every standard configuration location hangs off.
+///
+/// One variable moves the lot, and it crosses the fork: a child reads it from
+/// the environment it was handed, so redirecting it is the only mechanism that
+/// works on a binary we do not compile into the test. Qt's own
+/// `QStandardPaths::setTestModeEnabled` moves the locations of the process that
+/// calls it, and a launched binary never calls it.
+constexpr std::string_view kConfigHomeVariable = "XDG_CONFIG_HOME=";
+
+/// A configuration home of this process's own, removed when it ends.
+class PrivateConfigHome {
+public:
+    PrivateConfigHome() {
+        m_path = std::filesystem::temp_directory_path() /
+                 ("subedit-e2e-config-" + std::to_string(::getpid()));
+        std::filesystem::remove_all(m_path);
+        std::filesystem::create_directories(m_path);
+    }
+
+    PrivateConfigHome(const PrivateConfigHome&) = delete;
+    PrivateConfigHome& operator=(const PrivateConfigHome&) = delete;
+    PrivateConfigHome(PrivateConfigHome&&) = delete;
+    PrivateConfigHome& operator=(PrivateConfigHome&&) = delete;
+
+    /// **Never throws**, for the reason `Scratch`'s destructor does not.
+    ~PrivateConfigHome() {
+        std::error_code ignored;
+        std::filesystem::remove_all(m_path, ignored);
+    }
+
+    [[nodiscard]] const std::filesystem::path& path() const { return m_path; }
+
+private:
+    std::filesystem::path m_path;
+};
+
+/// Made on first use and destroyed when the process ends, which is what removes
+/// the directory.
+const PrivateConfigHome& privateConfigHome() {
+    static const PrivateConfigHome home;
+    return home;
+}
+
 /// Starts `binary` with `args` and waits for it. The only difference between
 /// the two exported runners is which path lands in argv[0].
 CliRun run(const char* binary, const std::vector<std::string>& args) {
@@ -210,9 +254,20 @@ CliRun run(const char* binary, const std::vector<std::string>& args) {
     }
     argv.push_back(nullptr);
 
+    // The child's environment rather than ours: everything this process has,
+    // with the configuration home pointed somewhere it can do no harm.
+    std::vector<std::string> ownedEnvironment = childEnvironment();
+
+    std::vector<char*> envp;
+    envp.reserve(ownedEnvironment.size() + 1);
+    for (std::string& variable : ownedEnvironment) {
+        envp.push_back(variable.data());
+    }
+    envp.push_back(nullptr);
+
     pid_t child = -1;
-    const int spawned =
-        ::posix_spawn(&child, owned.front().c_str(), actions.get(), nullptr, argv.data(), environ);
+    const int spawned = ::posix_spawn(
+        &child, owned.front().c_str(), actions.get(), nullptr, argv.data(), envp.data());
     if (spawned != 0) {
         fail(spawned, "posix_spawn " + owned.front());
     }
@@ -260,6 +315,28 @@ int nextScratch() {
 }
 
 } // namespace
+
+std::string configHome() {
+    return privateConfigHome().path().string();
+}
+
+std::vector<std::string> childEnvironment() {
+    std::vector<std::string> variables;
+
+    for (char** entry = environ; *entry != nullptr; ++entry) {
+        const std::string_view variable{*entry};
+        // Dropped rather than left in place: `posix_spawn` hands the array over
+        // as it is, and which of two definitions of the same name wins is the
+        // child's business, not ours.
+        if (variable.starts_with(kConfigHomeVariable))
+            continue;
+
+        variables.emplace_back(variable);
+    }
+
+    variables.emplace_back(std::string{kConfigHomeVariable} + configHome());
+    return variables;
+}
 
 std::string corpus(const std::string& relative) {
     return (std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / relative).string();

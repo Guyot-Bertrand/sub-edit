@@ -50,6 +50,32 @@ CliRun invoke(const std::vector<std::string>& args);
 /// without which a `QApplication` aborts on « could not connect to display ».
 CliRun invokeGui(const std::vector<std::string>& args);
 
+/// The configuration home every launched binary is given, and none other.
+///
+/// **A binary launched for a test must not touch the settings of whoever runs
+/// it.** Two things would go wrong at once, and the second is the worse: the
+/// run destroys the developer's preferences, which is at least visible; and it
+/// starts depending on what that developer already had, so that a test passing
+/// for someone who never started the program fails for someone who started it
+/// once.
+///
+/// `Scratch` covers what a test writes inside the repository, and
+/// `check-untracked.sh` catches what it leaves there. Neither can see a file
+/// written into a home directory. This is what covers that — see
+/// `check-config-home.sh` for the control that watches the real location.
+///
+/// The directory is created empty, named after the running process so that two
+/// test binaries never share one, and removed when the process ends.
+[[nodiscard]] std::string configHome();
+
+/// The environment a launched binary receives: this process's own, with the
+/// configuration home replaced by the above.
+///
+/// Exported so that the substitution can be asserted on rather than trusted —
+/// it happens in the one place a binary is started, and a harness nobody
+/// checks is a harness that stops working quietly.
+[[nodiscard]] std::vector<std::string> childEnvironment();
+
 /// A path into the test corpus, resolved by the build.
 ///
 /// `SUBEDIT_TEST_DATA_DIR` comes from CMake and never from the current
