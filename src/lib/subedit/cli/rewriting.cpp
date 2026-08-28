@@ -4,10 +4,13 @@
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/format/open_error.hpp>
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/source_file.hpp>
 #include <subedit/core/wording.hpp>
 
 #include <cstddef>
@@ -23,21 +26,14 @@ bool rewriteFile(core::FileSystem& files,
                  const Destination& destination,
                  const Reporter& reporter,
                  const Operation& operation) {
-    const std::expected<std::string, core::FileError> content = files.readFile(path);
-    if (!content) {
-        reporter.failed(path + ": " + std::string{reasonOf(content.error().kind)});
+    std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(files, path);
+    if (!opened) {
+        reporter.failed(path + ": " + std::string{reasonOf(opened.error())});
         return false;
     }
 
-    const std::expected<core::ReadResult, core::ReadError> read = core::readSubtitles(*content);
-    if (!read) {
-        reporter.failed(path + ": " + std::string{reasonOf(read.error().kind)});
-        return false;
-    }
-
-    core::Project project;
-    project.setSubtitles(read->subtitles);
-    core::Session session{std::move(project)};
+    const core::SourceFile source = opened->project.sourceFile();
+    core::Session session{std::move(opened->project)};
 
     const std::expected<std::string, std::string> done = operation(session);
     if (!done) {
@@ -48,11 +44,11 @@ bool rewriteFile(core::FileSystem& files,
     const core::WriteRequest request{
         .subtitles = session.project().subtitles(),
         .document = core::Document::Main,
-        .newline = read->newline,
-        .header = read->header,
+        .newline = source.newline,
+        .header = source.header,
     };
     const std::string written = core::writeSubtitles(
-        read->format, request, read->hadUtf8Bom ? core::Utf8Bom::Present : core::Utf8Bom::Absent);
+        source.format, request, source.hadUtf8Bom ? core::Utf8Bom::Present : core::Utf8Bom::Absent);
 
     // The extension is left alone: the format has not changed.
     const std::filesystem::path out = destination.pathFor(path, "");
@@ -65,13 +61,13 @@ bool rewriteFile(core::FileSystem& files,
     }
 
     reporter.say(3,
-                 path + ": " + std::to_string(content->size()) + " bytes read, " +
+                 path + ": " + std::to_string(opened->bytes) + " bytes read, " +
                      std::to_string(written.size()) + " written");
-    sayDiagnostics(reporter, path, read->diagnostics);
+    sayDiagnostics(reporter, path, opened->diagnostics);
     reporter.say(2,
-                 path + ": " + std::string{nameOf(read->format)} + ", UTF-8, " +
-                     (read->hadUtf8Bom ? "BOM" : "no BOM") + ", " +
-                     std::string{nameOf(read->newline)} + " line endings kept");
+                 path + ": " + std::string{nameOf(source.format)} + ", UTF-8, " +
+                     (source.hadUtf8Bom ? "BOM" : "no BOM") + ", " +
+                     std::string{nameOf(source.newline)} + " line endings kept");
     reporter.say(1, path + ": " + *done + " -> " + out.string());
     return true;
 }

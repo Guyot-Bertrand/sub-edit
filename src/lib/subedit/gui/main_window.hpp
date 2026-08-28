@@ -1,6 +1,6 @@
 #pragma once
 
-#include <subedit/gui/opening.hpp>
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 
@@ -66,7 +66,7 @@ public:
     /// proposed in the frame rate dialog, which is what a machine with no
     /// `ffmpeg` gets — and no operation behaves differently for it.
     MainWindow(core::FileSystem& files,
-               OpenedFile opened,
+               core::OpenedFile opened,
                Prompts& prompts,
                PlayerFactory buildPlayer = {},
                FrameRateReader readDeclaredRate = {},

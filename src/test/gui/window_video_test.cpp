@@ -4,11 +4,11 @@
 // like every other: what is tested is not the dialog but what the window makes
 // of the answer, including when the answer is « no ».
 
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 #include <subedit/gui/prompts.hpp>
 
 #include <QAction>
@@ -25,10 +25,10 @@
 namespace {
 
 using subedit::core::InMemoryFileSystem;
+using subedit::core::OpenedFile;
+using subedit::core::openProject;
 using subedit::core::SubtitleFormat;
 using subedit::gui::MainWindow;
-using subedit::gui::OpenedFile;
-using subedit::gui::openProject;
 using subedit::gui::SaveTarget;
 using subedit::test::FakePrompts;
 

@@ -3,6 +3,8 @@
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/core/format/open_error.hpp>
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
@@ -28,29 +30,25 @@ bool convertFile(core::FileSystem& files,
                  const WriteShape& shape,
                  const Destination& destination,
                  const Reporter& reporter) {
-    const std::expected<std::string, core::FileError> content = files.readFile(path);
-    if (!content) {
-        reporter.failed(path + ": " + std::string{reasonOf(content.error().kind)});
+    const std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(files, path);
+    if (!opened) {
+        reporter.failed(path + ": " + std::string{reasonOf(opened.error())});
         return false;
     }
 
-    const std::expected<core::ReadResult, core::ReadError> read = core::readSubtitles(*content);
-    if (!read) {
-        reporter.failed(path + ": " + std::string{reasonOf(read.error().kind)});
-        return false;
-    }
+    const core::SourceFile& source = opened->project.sourceFile();
 
     // Empty means "as the source had it": the model kept both so that a
     // conversion would not throw them away.
-    const core::Newline newline = shape.newline.value_or(read->newline);
+    const core::Newline newline = shape.newline.value_or(source.newline);
     const core::Utf8Bom bom =
-        shape.bom.value_or(read->hadUtf8Bom ? core::Utf8Bom::Present : core::Utf8Bom::Absent);
+        shape.bom.value_or(source.hadUtf8Bom ? core::Utf8Bom::Present : core::Utf8Bom::Absent);
 
     const core::WriteRequest request{
-        .subtitles = read->subtitles,
+        .subtitles = opened->project.subtitles(),
         .document = core::Document::Main,
         .newline = newline,
-        .header = read->header,
+        .header = source.header,
     };
     const std::string written = core::writeSubtitles(target, request, bom);
 
@@ -63,17 +61,17 @@ bool convertFile(core::FileSystem& files,
     }
 
     reporter.say(3,
-                 path + ": " + std::to_string(content->size()) + " bytes read, " +
+                 path + ": " + std::to_string(opened->bytes) + " bytes read, " +
                      std::to_string(written.size()) + " written");
-    sayDiagnostics(reporter, path, read->diagnostics);
+    sayDiagnostics(reporter, path, opened->diagnostics);
     reporter.say(2,
-                 path + ": " + std::string{nameOf(read->format)} + " -> " +
+                 path + ": " + std::string{nameOf(source.format)} + " -> " +
                      std::string{nameOf(target)} + ", UTF-8, " +
                      (bom == core::Utf8Bom::Present ? "BOM" : "no BOM") + ", " +
                      std::string{nameOf(newline)} + " line endings");
     reporter.say(1,
-                 path + ": " + core::countOf(read->subtitles.size(), "subtitle") + " written as " +
-                     std::string{nameOf(target)} + " -> " + out.string());
+                 path + ": " + core::countOf(opened->project.subtitles().size(), "subtitle") +
+                     " written as " + std::string{nameOf(target)} + " -> " + out.string());
     return true;
 }
 

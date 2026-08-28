@@ -1,6 +1,6 @@
 #pragma once
 
-#include <subedit/gui/opening.hpp>
+#include <subedit/core/format/project_file.hpp>
 
 #include <QStringList>
 
@@ -33,6 +33,12 @@ namespace subedit::gui {
 /// that will not open is a reason to say so, never a reason to refuse to start.
 /// The window opens either way, and the user opens something else from it.
 ///
+/// **It says which way it failed**, in the same words the command line uses:
+/// the file does not exist, permission was refused, it cannot be read, it is
+/// not valid UTF-8, no format claims it. One sentence for all of them was the
+/// defect #154 came for — only the last of the causes was ever the one it
+/// named.
+///
 /// Only the first argument is read. A second file would be a second window,
 /// and this program has one.
 ///
@@ -40,8 +46,8 @@ namespace subedit::gui {
 /// holds, and it said so twice: the entry point went over its budget the day
 /// it also had to choose a Qt platform, and again the day it had to hand the
 /// window a reader of frame rates.
-[[nodiscard]] OpenedFile openFromArguments(const core::FileSystem& files,
-                                           const QStringList& arguments,
-                                           std::ostream& errors);
+[[nodiscard]] core::OpenedFile openFromArguments(const core::FileSystem& files,
+                                                 const QStringList& arguments,
+                                                 std::ostream& errors);
 
 } // namespace subedit::gui

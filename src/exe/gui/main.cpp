@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
             return 0;
 
         subedit::core::RealFileSystem files;
-        subedit::gui::OpenedFile opened =
+        subedit::core::OpenedFile opened =
             subedit::gui::openFromArguments(files, arguments, std::cerr);
 
         subedit::gui::QtPrompts prompts;

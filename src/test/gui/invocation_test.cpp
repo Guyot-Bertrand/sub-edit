@@ -45,7 +45,7 @@ TEST_CASE("the file named on the command line is opened", "[gui]") {
     files.addFile("/films/film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n");
     std::ostringstream errors;
 
-    const subedit::gui::OpenedFile opened = subedit::gui::openFromArguments(
+    const subedit::core::OpenedFile opened = subedit::gui::openFromArguments(
         files,
         QStringList{QStringLiteral("subedit-gui"), QStringLiteral("/films/film.srt")},
         errors);
@@ -58,7 +58,7 @@ TEST_CASE("naming nothing opens an empty document", "[gui]") {
     const subedit::core::InMemoryFileSystem files;
     std::ostringstream errors;
 
-    const subedit::gui::OpenedFile opened =
+    const subedit::core::OpenedFile opened =
         subedit::gui::openFromArguments(files, QStringList{QStringLiteral("subedit-gui")}, errors);
 
     CHECK(opened.project.count() == 0U);
@@ -67,14 +67,32 @@ TEST_CASE("naming nothing opens an empty document", "[gui]") {
 
 // **The window opens either way**, and that is the decision this carries: a
 // file that will not open is a reason to say so, never a reason to refuse to
-// start. One message for the four ways of failing, as the manual says.
+// start.
 TEST_CASE("a file that will not open is said, and the document is empty", "[gui]") {
     const subedit::core::InMemoryFileSystem files;
     std::ostringstream errors;
 
-    const subedit::gui::OpenedFile opened = subedit::gui::openFromArguments(
+    const subedit::core::OpenedFile opened = subedit::gui::openFromArguments(
         files, QStringList{QStringLiteral("subedit-gui"), QStringLiteral("/absent.srt")}, errors);
 
     CHECK(opened.project.count() == 0U);
-    CHECK(errors.str() == "subedit-gui: /absent.srt: nothing to open\n");
+    CHECK(errors.str() == "subedit-gui: /absent.srt: does not exist\n");
+}
+
+// **The cause, and not one sentence for all of them** — issue #154. It used to
+// write « nothing to open » whatever had happened, so this case and the one
+// above would have been indistinguishable; only one of the two messages was
+// ever true.
+TEST_CASE("a file in no format this tool knows is said to be exactly that", "[gui]") {
+    subedit::core::InMemoryFileSystem files;
+    files.addFile("/films/notes.txt", "rien de reconnaissable\n");
+    std::ostringstream errors;
+
+    const subedit::core::OpenedFile opened = subedit::gui::openFromArguments(
+        files,
+        QStringList{QStringLiteral("subedit-gui"), QStringLiteral("/films/notes.txt")},
+        errors);
+
+    CHECK(opened.project.count() == 0U);
+    CHECK(errors.str() == "subedit-gui: /films/notes.txt: is in no format this tool knows\n");
 }

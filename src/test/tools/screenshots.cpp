@@ -23,11 +23,11 @@
 // d'installation ne le nomme.
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -182,7 +182,7 @@ void withoutOffscreenNoise(QtMsgType type, const QMessageLogContext& context, co
                                                 subedit::gui::Prompts& prompts,
                                                 const std::string& fixture) {
     return subedit::gui::MainWindow{
-        files, subedit::gui::openProject(files, corpus(fixture)).value(), prompts, {}, {}};
+        files, subedit::core::openProject(files, corpus(fixture)).value(), prompts, {}, {}};
 }
 
 } // namespace
@@ -285,8 +285,8 @@ int main(int argc, char** argv) {
     }
 
     {
-        const subedit::gui::OpenedFile grid =
-            subedit::gui::openProject(files, corpus("grilles/grille-25.srt")).value();
+        const subedit::core::OpenedFile grid =
+            subedit::core::openProject(files, corpus("grilles/grille-25.srt")).value();
         subedit::gui::GridAnalysisDialog dialog{subedit::core::deduceFrameRate(grid.project)};
         // Assez haute pour les huit candidates : la modale s'ouvre sur six et
         // la section promet les huit, donc l'image doit les tenir.
