@@ -9,6 +9,10 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **doc** — Des captures d'écran engendrées pour le manuel
+
 ### Documentation
 
 - **doc** — Cadrage de la phase 7, finitions et livraison
