@@ -7,6 +7,12 @@ Les changements notables de subedit. Format inspiré de
 Ce fichier est généré par `make changelog` depuis l'historique des commits :
 ne pas l'éditer à la main.
 
+## Non publié
+
+### Documentation
+
+- **doc** — Cadrage de la phase 7, finitions et livraison
+
 ## 0.7.0 — 2026-08-27
 
 ### Ajouts
