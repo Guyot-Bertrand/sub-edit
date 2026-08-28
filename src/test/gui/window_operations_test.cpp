@@ -4,11 +4,11 @@
 // what the scenario wants, and says whether it is validated. The modal loop is
 // never reached.
 
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 #include <subedit/gui/operation_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/transform_dialog.hpp>
@@ -29,11 +29,11 @@ namespace {
 
 using subedit::core::FrameRate;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::OpenedFile;
+using subedit::core::openProject;
 using subedit::core::StandardFrameRate;
 using subedit::gui::FrameRateDialog;
 using subedit::gui::MainWindow;
-using subedit::gui::OpenedFile;
-using subedit::gui::openProject;
 using subedit::gui::OperationDialog;
 using subedit::gui::ShiftDialog;
 using subedit::gui::TransformDialog;

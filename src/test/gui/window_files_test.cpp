@@ -5,13 +5,13 @@
 // but what the window makes of the answer, including when the answer is
 // « no ».
 
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/gui/diagnostics_panel.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 #include <subedit/gui/prompts.hpp>
 
 #include <QAbstractItemModel>
@@ -32,10 +32,10 @@ namespace {
 
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::OpenedFile;
+using subedit::core::openProject;
 using subedit::core::SubtitleFormat;
 using subedit::gui::MainWindow;
-using subedit::gui::OpenedFile;
-using subedit::gui::openProject;
 using subedit::gui::SaveTarget;
 using subedit::gui::UnsavedChoice;
 using subedit::test::FakePrompts;
@@ -188,9 +188,29 @@ TEST_CASE("opening what cannot be read says so and leaves the window as it was",
 
     window.openAction()->trigger();
 
-    CHECK(prompts.failures.size() == 1);
+    REQUIRE(prompts.failures.size() == 1);
+    // **The cause, and not one sentence for all of them** — issue #154. The
+    // window used to say « holds nothing recognisable as a subtitle » for an
+    // absent file as readily as for this one, and had less to go on than the
+    // terminal at the very point where a user needs it most.
+    CHECK(prompts.failures.front() == "notes.txt: is in no format this tool knows");
     CHECK(window.table()->model()->rowCount({}) == 2);
     CHECK(textAt(window, 0) == "Un.");
+}
+
+TEST_CASE("opening a file that is not there says so, and not something else",
+          "[gui][GUI-OPEN-02]") {
+    InMemoryFileSystem files = withFile("film.srt", kThree);
+    FakePrompts prompts;
+    prompts.nextFileToOpen = "absent.srt";
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
+
+    window.openAction()->trigger();
+
+    REQUIRE(prompts.failures.size() == 1);
+    CHECK(prompts.failures.front() == "absent.srt: does not exist");
+    CHECK(window.table()->model()->rowCount({}) == 2);
 }
 
 TEST_CASE("opening with unsaved changes asks, and cancelling opens nothing", "[gui][GUI-SAVE-03]") {

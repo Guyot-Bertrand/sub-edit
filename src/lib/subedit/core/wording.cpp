@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <utility>
+#include <variant>
 
 namespace subedit::core {
 
@@ -67,6 +68,10 @@ std::string_view reasonOf(FileErrorKind kind) {
         return "cannot be read";
     }
     std::unreachable();
+}
+
+std::string_view reasonOf(const OpenError& error) {
+    return std::visit([](const auto& one) { return reasonOf(one.kind); }, error);
 }
 
 std::string_view nameOf(AnomalyKind kind) {

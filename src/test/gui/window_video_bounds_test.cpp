@@ -7,13 +7,13 @@
 // with no `ffmpeg` is an ordinary machine, and these cases are how that state
 // stays walked.
 
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -39,13 +39,13 @@ namespace {
 using subedit::core::Duration;
 using subedit::core::FrameRate;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::OpenedFile;
+using subedit::core::openProject;
 using subedit::core::StandardFrameRate;
 using subedit::core::VideoPlayer;
 using subedit::gui::FrameRateDialog;
 using subedit::gui::FrameRateReader;
 using subedit::gui::MainWindow;
-using subedit::gui::OpenedFile;
-using subedit::gui::openProject;
 using subedit::gui::PlayerFactory;
 using subedit::gui::ShiftDialog;
 using subedit::test::FakePrompts;

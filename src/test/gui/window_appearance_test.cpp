@@ -5,12 +5,12 @@
 // tests of the features they touch, because what they have in common is being
 // about the window itself.
 
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/version.hpp>
 #include <subedit/gui/about_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
 #include <QAction>
@@ -30,9 +30,9 @@ namespace {
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::openProject;
 using subedit::gui::AboutDialog;
 using subedit::gui::MainWindow;
-using subedit::gui::openProject;
 using subedit::test::FakePrompts;
 
 [[nodiscard]] MainWindow windowOn(InMemoryFileSystem& files, FakePrompts& prompts) {

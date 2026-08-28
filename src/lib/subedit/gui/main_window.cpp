@@ -27,9 +27,7 @@
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/hearing_impaired_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 #include <subedit/gui/prompts.hpp>
-#include <subedit/gui/saving.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/snap_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -148,7 +146,7 @@ constexpr int kInitialHeight = 800;
 } // namespace
 
 MainWindow::MainWindow(core::FileSystem& files,
-                       OpenedFile opened,
+                       core::OpenedFile opened,
                        Prompts& prompts,
                        PlayerFactory buildPlayer,
                        FrameRateReader readDeclaredRate,
@@ -676,7 +674,7 @@ bool MainWindow::save() {
         return saveAs();
 
     const std::expected<void, core::FileError> written =
-        saveProject(*m_files, m_session->project(), *source.path, source.format);
+        core::saveProject(*m_files, m_session->project(), *source.path, source.format);
     if (!written) {
         m_prompts->reportFailure(source.path->string() + ": " +
                                  std::string{core::reasonOf(written.error().kind)});
@@ -695,7 +693,7 @@ bool MainWindow::saveAs() {
         return false;
 
     const std::expected<void, core::FileError> written =
-        saveProject(*m_files, m_session->project(), target->path, target->format);
+        core::saveProject(*m_files, m_session->project(), target->path, target->format);
     if (!written) {
         m_prompts->reportFailure(target->path.string() + ": " +
                                  std::string{core::reasonOf(written.error().kind)});
@@ -750,10 +748,10 @@ void MainWindow::openFromPrompt() {
     if (!chosen.has_value())
         return;
 
-    std::expected<OpenedFile, core::ReadError> opened = openProject(*m_files, *chosen);
+    std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(*m_files, *chosen);
     if (!opened) {
         m_prompts->reportFailure(chosen->string() + ": " +
-                                 std::string{core::reasonOf(opened.error().kind)});
+                                 std::string{core::reasonOf(opened.error())});
         return;
     }
 

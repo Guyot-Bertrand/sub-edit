@@ -21,6 +21,7 @@
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
 #include <subedit/core/format/diagnostic.hpp>
+#include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/source_file.hpp>
@@ -51,6 +52,15 @@ namespace subedit::core {
 
 /// Why the file system refused, in the same shape.
 [[nodiscard]] std::string_view reasonOf(FileErrorKind kind);
+
+/// Why a file could not be opened, whichever of the two steps failed.
+///
+/// **One call for both surfaces**, and it is what the window was missing: it
+/// used to have one sentence for four causes, and the only one it was right
+/// about was the fourth. Nothing new is worded here — the two overloads above
+/// already say all seven — only the choice between them is made in one place
+/// rather than at each call site.
+[[nodiscard]] std::string_view reasonOf(const OpenError& error);
 
 /// What a reader ran into, as a report writes it.
 ///

@@ -40,13 +40,20 @@ Un fichier absent, illisible, qui n'est pas de l'UTF-8 valide, ou dont aucun
 format ne reconnaît le contenu : **la fenêtre s'ouvre quand même, vide**, et
 l'échec est écrit sur la sortie d'erreur.
 
-**Le message est le même pour les quatre cas.** La fenêtre ne distingue pas ce
-que le système de fichiers a refusé de ce qu'aucun format n'a reconnu ; la ligne
-de commande, elle, le dit.
+**Le message nomme la cause**, dans les mêmes mots que la ligne de commande :
+
+| Message | Ce qui s'est passé |
+| :------ | :----------------- |
+| `does not exist` | le chemin ne désigne aucun fichier |
+| `cannot be opened: permission denied` | le système refuse de l'ouvrir |
+| `cannot be read` | le système a refusé pour une autre raison |
+| `is not valid UTF-8` | les octets ne sont pas de l'UTF-8 |
+| `is in no format this tool knows` | aucun format ne reconnaît le contenu |
+| `holds nothing recognisable as a subtitle` | le format est reconnu, mais rien n'y est un sous-titre |
 
 ```console
 $ subedit-gui notes.txt
-subedit-gui: notes.txt: nothing to open
+subedit-gui: notes.txt: is in no format this tool knows
 ```
 
 Ouvrir vide plutôt que refuser de démarrer : l'outil sert encore à quelque

@@ -9,6 +9,7 @@
 // being aligned, and a naive detector would accuse them of their own work.
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle.hpp>
@@ -16,7 +17,6 @@
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 #include <subedit/gui/snap_dialog.hpp>
 
 #include <QAction>
@@ -41,9 +41,9 @@ using Catch::Matchers::ContainsSubstring;
 using subedit::core::deduceFrameRate;
 using subedit::core::FrameRateDeduction;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::openProject;
 using subedit::gui::GridAnalysisDialog;
 using subedit::gui::MainWindow;
-using subedit::gui::openProject;
 using subedit::test::FakePrompts;
 
 /// A window showing the grid fixture named, opened as a user would open it.

@@ -3,9 +3,9 @@
 // **The one road of the phase that makes lines disappear**, therefore the only
 // one that exercises the removal and the putting back an undo calls for.
 
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 #include <subedit/gui/operation_dialog.hpp>
 
 #include <QAbstractItemModel>
@@ -22,9 +22,9 @@
 namespace {
 
 using subedit::core::InMemoryFileSystem;
+using subedit::core::OpenedFile;
+using subedit::core::openProject;
 using subedit::gui::MainWindow;
-using subedit::gui::OpenedFile;
-using subedit::gui::openProject;
 using subedit::gui::OperationDialog;
 using subedit::test::FakePrompts;
 

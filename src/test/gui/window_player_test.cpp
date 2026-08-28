@@ -8,11 +8,11 @@
 // decides: when a film is opened, where playback is placed, what the replica
 // says, which row follows it, and who gives way to whom.
 
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
@@ -36,12 +36,12 @@
 namespace {
 
 using subedit::core::InMemoryFileSystem;
+using subedit::core::OpenedFile;
+using subedit::core::openProject;
 using subedit::core::PlayerError;
 using subedit::core::Timestamp;
 using subedit::core::VideoPlayer;
 using subedit::gui::MainWindow;
-using subedit::gui::OpenedFile;
-using subedit::gui::openProject;
 using subedit::gui::PlayerFactory;
 using subedit::gui::SubtitleTableModel;
 using subedit::test::FakePrompts;

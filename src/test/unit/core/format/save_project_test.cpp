@@ -1,15 +1,21 @@
-// Writing the file a window holds — issue #131.
+// Writing a project back to a file — issue #131, moved to the core by #154.
 //
 // **The byte-for-byte round trip is the criterion**, and it is not decorative:
 // a file that arrived with a byte order mark and CRLF line endings, rewritten
 // without them, would show a diff on every one of its lines where the user
 // expected one corrected subtitle.
+//
+// **The requirement tags are gone, and deliberately.** `GUI-SAVE-01` and
+// `GUI-SAVE-02` promise what the *window* does; `check-requirements.sh` reads
+// them from the window and end-to-end binaries, so a tag written here would be
+// invisible to it — decoration rather than traceability. What the window does
+// is tested where the window is, in `window_files_test.cpp`, and those tags
+// are there.
 
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
-#include <subedit/gui/opening.hpp>
-#include <subedit/gui/saving.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -21,10 +27,10 @@ namespace {
 using subedit::core::FileError;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::openProject;
 using subedit::core::Project;
+using subedit::core::saveProject;
 using subedit::core::SubtitleFormat;
-using subedit::gui::openProject;
-using subedit::gui::saveProject;
 
 /// In the layout the project writes — closing blank line included, after the
 /// last block too. That is the one the round trip is faithful to byte for byte;
@@ -69,7 +75,7 @@ constexpr const char* kSubRipUnclosed = "1\n"
 } // namespace
 
 TEST_CASE("a file already in the layout the project writes comes back identical byte for byte",
-          "[gui][GUI-SAVE-01]") {
+          "[format][save]") {
     const std::string original = withBomAndCrLf(kSubRip);
     InMemoryFileSystem files;
     files.addFile("film.srt", original);
@@ -83,7 +89,7 @@ TEST_CASE("a file already in the layout the project writes comes back identical 
 }
 
 TEST_CASE("saving keeps the line endings and the byte order mark of the file it came from",
-          "[gui][GUI-SAVE-01]") {
+          "[format][save]") {
     // Each separately, so that a failure says which of the two was lost.
     InMemoryFileSystem files;
     files.addFile("unix.srt", kSubRip);
@@ -96,7 +102,7 @@ TEST_CASE("saving keeps the line endings and the byte order mark of the file it 
     CHECK_FALSE(written.starts_with("\xEF\xBB\xBF"));
 }
 
-TEST_CASE("saving under another name leaves the first file alone", "[gui][GUI-SAVE-02]") {
+TEST_CASE("saving under another name leaves the first file alone", "[format][save]") {
     InMemoryFileSystem files;
     files.addFile("film.srt", kSubRip);
 
@@ -107,7 +113,7 @@ TEST_CASE("saving under another name leaves the first file alone", "[gui][GUI-SA
     CHECK(files.contentOf("copie.srt").value_or("") == kSubRip);
 }
 
-TEST_CASE("saving in the other format writes that format", "[gui][GUI-SAVE-02]") {
+TEST_CASE("saving in the other format writes that format", "[format][save]") {
     InMemoryFileSystem files;
     files.addFile("film.srt", kSubRip);
 
@@ -123,7 +129,7 @@ TEST_CASE("saving in the other format writes that format", "[gui][GUI-SAVE-02]")
     CHECK(written.find("00:01.000 --> 00:02.000") != std::string::npos);
 }
 
-TEST_CASE("a save that cannot be written says so", "[gui][GUI-SAVE-01]") {
+TEST_CASE("a save that cannot be written says so", "[format][save]") {
     InMemoryFileSystem files;
     files.addFile("film.srt", kSubRip);
     const Project project = opened(files, "film.srt");
@@ -135,7 +141,7 @@ TEST_CASE("a save that cannot be written says so", "[gui][GUI-SAVE-01]") {
     CHECK_FALSE(saved.has_value());
 }
 
-TEST_CASE("a file outside that layout is normalised once and never again", "[gui][GUI-SAVE-01]") {
+TEST_CASE("a file outside that layout is normalised once and never again", "[format][save]") {
     // The second half of the guarantee, as the phase 1 spec states it: the
     // first save closes the last block with the blank line the layout calls
     // for, and no save afterwards touches anything. The file moves once, not at
@@ -156,8 +162,7 @@ TEST_CASE("a file outside that layout is normalised once and never again", "[gui
     CHECK(files.contentOf("film.srt").value_or("") == once);
 }
 
-TEST_CASE("changing format leaves the other variant's extras out of the file",
-          "[gui][GUI-SAVE-02]") {
+TEST_CASE("changing format leaves the other variant's extras out of the file", "[format][save]") {
     // **The point the ticket asked to look at rather than assume.** A project
     // read as WebVTT carries `WebVttExtras` — a cue identifier, placement
     // settings — which mean nothing in SubRip, and the other way round for
@@ -186,7 +191,7 @@ TEST_CASE("changing format leaves the other variant's extras out of the file",
     CHECK(written.find("Un.") != std::string::npos);
 }
 
-TEST_CASE("the extras of the format written are kept", "[gui][GUI-SAVE-02]") {
+TEST_CASE("the extras of the format written are kept", "[format][save]") {
     // The counterpart of the previous one: what is left out is left out because
     // it belongs to the other format, and not because the extras would be
     // lost.

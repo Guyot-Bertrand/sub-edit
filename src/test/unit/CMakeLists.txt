@@ -69,6 +69,8 @@ add_executable(
     core/format/format_detection_test.cpp
     core/text/encoding_test.cpp
     core/format/subtitle_file_test.cpp
+    core/format/open_project_test.cpp
+    core/format/save_project_test.cpp
     core/format/corpus_test.cpp
     core/format/local_corpus_test.cpp)
 

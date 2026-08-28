@@ -17,13 +17,25 @@ Le dialogue filtre les deux formats lus, **SubRip** (`.srt`) et **WebVTT**
 pas à l'extension : un `.txt` qui contient du SubRip s'ouvre.
 
 **Un fichier illisible ne remplace rien.** Absent, refusé par le système, non
-UTF-8, ou d'aucun format connu : un message le dit — le même pour les quatre —
-et la fenêtre garde ce qu'elle avait, sous-titres, historique et modifications
-comprises.
+UTF-8, ou d'aucun format connu : une modale **nomme la cause**, et la fenêtre
+garde ce qu'elle avait, sous-titres, historique et modifications comprises.
+
+| Message | Ce qui s'est passé |
+| :------ | :----------------- |
+| `does not exist` | le chemin ne désigne aucun fichier |
+| `cannot be opened: permission denied` | le système refuse de l'ouvrir |
+| `cannot be read` | le système a refusé pour une autre raison |
+| `is not valid UTF-8` | les octets ne sont pas de l'UTF-8 |
+| `is in no format this tool knows` | aucun format ne reconnaît le contenu |
+| `holds nothing recognisable as a subtitle` | le format est reconnu, mais rien n'y est un sous-titre |
+
+Le message est précédé du chemin : `notes.txt: is in no format this tool knows`.
+Ce sont les mots de la ligne de commande, et ce n'est pas un hasard — les deux
+surfaces lisent un fichier par la même recette.
 
 Ouvrir depuis la ligne de commande fonctionne toujours : `subedit-gui film.srt`.
-Là, un fichier illisible écrit la raison sur la sortie d'erreur et la fenêtre
-s'ouvre vide.
+Là, la même raison est écrite sur la sortie d'erreur, et la fenêtre s'ouvre
+vide — voir [Invocation](invocation.md#quand-louverture-échoue).
 
 ## Les diagnostics d'une lecture
 

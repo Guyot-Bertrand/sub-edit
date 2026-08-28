@@ -1,11 +1,10 @@
-#include <subedit/core/format/read_error.hpp>
+#include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/opening.hpp>
 
 #include <QAbstractItemModel>
 #include <QAction>
@@ -33,13 +32,11 @@
 namespace {
 
 using subedit::core::InMemoryFileSystem;
-using subedit::core::ReadError;
-using subedit::core::ReadErrorKind;
+using subedit::core::OpenedFile;
+using subedit::core::openProject;
 using subedit::core::RealFileSystem;
 using subedit::core::SubtitleFormat;
 using subedit::gui::MainWindow;
-using subedit::gui::OpenedFile;
-using subedit::gui::openProject;
 using subedit::gui::PositionDelegate;
 using subedit::gui::TextDelegate;
 
@@ -98,7 +95,8 @@ TEST_CASE("opening a file gives a project that remembers where it came from",
           "[gui][GUI-OPEN-01]") {
     const InMemoryFileSystem files = withFile("film.srt", kThree);
 
-    const std::expected<OpenedFile, ReadError> opened = openProject(files, "film.srt");
+    const std::expected<OpenedFile, subedit::core::OpenError> opened =
+        openProject(files, "film.srt");
 
     REQUIRE(opened.has_value());
     CHECK(opened->project.count() == 3);
@@ -121,7 +119,7 @@ TEST_CASE("a file of the corpus opens through the real file system", "[gui][GUI-
     const std::filesystem::path path =
         std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / "valides" / "trois.srt";
 
-    std::expected<OpenedFile, ReadError> opened = openProject(files, path);
+    std::expected<OpenedFile, subedit::core::OpenError> opened = openProject(files, path);
 
     REQUIRE(opened.has_value());
     CHECK(opened->diagnostics.empty());
@@ -137,21 +135,6 @@ TEST_CASE("a file of the corpus opens through the real file system", "[gui][GUI-
     CHECK(table->data(table->index(0, 4), Qt::DisplayRole).toString().toStdString() ==
           "Le vent se lève sur le port.");
     CHECK(window.windowTitle().toStdString() == "trois.srt[*] — subedit");
-}
-
-TEST_CASE("opening what is not a subtitle file fails, and says why", "[gui][GUI-OPEN-02]") {
-    const InMemoryFileSystem files = withFile("film.srt", "rien de reconnaissable\n");
-
-    const std::expected<OpenedFile, ReadError> opened = openProject(files, "film.srt");
-
-    REQUIRE_FALSE(opened.has_value());
-    CHECK(opened.error().kind == ReadErrorKind::UnknownFormat);
-}
-
-TEST_CASE("opening a file that is not there fails", "[gui][GUI-OPEN-02]") {
-    const InMemoryFileSystem files;
-
-    CHECK_FALSE(openProject(files, "absent.srt").has_value());
 }
 
 TEST_CASE("the window shows the subtitles of the project it was given", "[gui][GUI-OPEN-01]") {
