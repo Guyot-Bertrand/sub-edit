@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — Cadrage de la phase 7, finitions et livraison
+- **doc** — Deux paquets natifs plutôt qu'un
 
 ## 0.7.0 — 2026-08-27
 
