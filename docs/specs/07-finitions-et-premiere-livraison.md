@@ -232,11 +232,11 @@ Ce que posent les règles `install()`, chemins issus de `GNUInstallDirs` :
 | manuel | `${CMAKE_INSTALL_DATADIR}/subedit/manual` |
 | `subedit-cli.1` | `${CMAKE_INSTALL_MANDIR}/man1` |
 
-**Ce qu'on empaquette est ce que `make release` produit**, et cette cible existe
-depuis qu'on faisait sans : pour obtenir un binaire optimisé, on lançait
-`make bench` et on l'interrompait. Elle ne construit ni le banc ni le harnais de
-bout en bout — ce qui est demandé est ce qu'un utilisateur lance, pas ce qui
-l'éprouve.
+**Ce qu'on empaquette est ce que produira `make release`, issue #247.** La
+cible n'existe pas encore : pour obtenir un binaire optimisé on lance
+aujourd'hui `make bench` et on l'interrompt. Elle ne construira ni le banc ni le
+harnais de bout en bout — ce qui est demandé est ce qu'un utilisateur lance, pas
+ce qui l'éprouve.
 
 ## Tests
 
@@ -301,6 +301,7 @@ aujourd'hui que l'outil se lance depuis l'arbre de construction.
 
 | Issue | Sujet | Dépend de |
 | :---- | :---- | :-------- |
+| #247 | une cible qui produit les binaires en Release | — |
 | #238 | isoler l'emplacement de configuration | — |
 | #199 | captures d'écran engendrées | D4 |
 | #154 | une seule recette d'ouverture | — |
@@ -308,7 +309,7 @@ aujourd'hui que l'outil se lance depuis l'arbre de construction.
 | #241 | le thème clair et sombre | #240, D3 |
 | #242 | insérer et supprimer depuis la fenêtre | D7 |
 | #243 | le manuel utilisateur complet | #199, #240, #241, #242 |
-| #244 | l'empaquetage et les règles `install()` | #243, #239 |
+| #244 | l'empaquetage : `install()`, `.deb` et `.rpm` | #243, #239, #247 |
 | #245 | `Help ▸ Manual` rallumée | #244, D6 |
 
 #154 ne dépend de rien et vient tôt : elle remanie le chemin d'ouverture auquel
