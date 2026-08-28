@@ -13,6 +13,11 @@ ne pas l'éditer à la main.
 
 - **doc** — Cadrage de la phase 7, finitions et livraison
 - **doc** — Deux paquets natifs plutôt qu'un
+- **doc** — La cible release au futur, et dans le découpage
+
+### Tests
+
+- **test** — Isoler l'emplacement de configuration dans les tests
 
 ## 0.7.0 — 2026-08-27
 
