@@ -52,7 +52,7 @@ installe est une page de manuel, `data/gaupol.1`.
 `.desktop`, AppStream, page de manuel et traductions avec `DESTDIR` et
 `PREFIX` ; le manifeste Flatpak se sert par-dessus. Gaupol ne choisit pas un
 format, il produit une installation correcte. C'est ce que reprend
-[l'ADR 0023](../adr/0023-deb-pour-la-premiere-livraison.md).
+[l'ADR 0023](../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md).
 
 ## Portée
 
@@ -62,7 +62,7 @@ format, il produit une installation correcte. C'est ce que reprend
 | thème clair, sombre, système | un thème propre à l'application |
 | insertion et suppression depuis la fenêtre | fusionner, scinder — phase 10 |
 | manuel utilisateur complet | la traduction du manuel — phase 15 |
-| règles `install()` et paquet `.deb` | Flatpak, AppImage — différés, ADR 0023 |
+| règles `install()`, paquets `.deb` et `.rpm` | Flatpak, AppImage — différés, ADR 0023 |
 | `Help ▸ Manual` rallumée | une aide contextuelle |
 | une seule recette d'ouverture (#154) | |
 
@@ -75,9 +75,25 @@ numéro de version ni migration. Une clé inconnue est ignorée, une valeur
 illisible laisse le défaut en place avec un diagnostic, et **une option restée à
 son défaut est réécrite commentée**.
 
-**D2 — un paquet `.deb`, après des règles `install()`.**
-[ADR 0023](../adr/0023-deb-pour-la-premiere-livraison.md). L'installation
-d'abord, le format ensuite ; Flatpak et AppImage différés avec leur raison.
+**D2 — deux paquets natifs, `.deb` et `.rpm`, après des règles `install()`.**
+[ADR 0023](../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md). L'installation
+d'abord, les formats ensuite ; Flatpak et AppImage différés avec leur raison.
+
+**Deux, et le second est ce qui met la décision à l'épreuve.** « L'installation
+d'abord » est une affirmation tant qu'un seul format l'exerce ; un `.rpm`
+construit depuis les mêmes règles la vérifie, puisque **s'il demandait de
+retoucher l'installation, c'est que l'installation était fausse.**
+
+**Ce qui diffère réellement entre les deux n'est pas la liste des fichiers mais
+les dépendances déclarées** : Qt 6 et libmpv ne portent pas les mêmes noms de
+paquets chez Debian et chez Fedora. C'est là que le paquet peut être faux sans
+que rien ne le montre à la construction.
+
+**Et une asymétrie assumée, écrite plutôt que tue** : un `.rpm` construit sur
+Ubuntu ne peut pas y être installé. Le `.deb` est prouvé de bout en bout par
+#239 ; le `.rpm` l'est jusqu'à son contenu — liste des fichiers et dépendances
+déclarées, par `rpm -qlp` et `rpm -qp --requires`. Livrer les deux en laissant
+croire qu'ils ont été éprouvés pareil serait le vrai défaut.
 
 **D3 — le thème est une préférence à trois valeurs, et « système » ne fait
 rien.** Sous Qt 6.4.2 il n'existe aucune API de schéma de couleurs —
@@ -215,6 +231,12 @@ Ce que posent les règles `install()`, chemins issus de `GNUInstallDirs` :
 | AppStream | `${CMAKE_INSTALL_DATADIR}/metainfo` |
 | manuel | `${CMAKE_INSTALL_DATADIR}/subedit/manual` |
 | `subedit-cli.1` | `${CMAKE_INSTALL_MANDIR}/man1` |
+
+**Ce qu'on empaquette est ce que `make release` produit**, et cette cible existe
+depuis qu'on faisait sans : pour obtenir un binaire optimisé, on lançait
+`make bench` et on l'interrompait. Elle ne construit ni le banc ni le harnais de
+bout en bout — ce qui est demandé est ce qu'un utilisateur lance, pas ce qui
+l'éprouve.
 
 ## Tests
 
