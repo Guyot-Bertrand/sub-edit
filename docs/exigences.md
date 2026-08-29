@@ -136,3 +136,4 @@ plus rien.
 | `GUI-CONFIG-01` | la fenêtre retrouve sa géométrie et ses colonnes d'une session à l'autre | 7 | implémentée |
 | `GUI-CONFIG-02` | une valeur illisible laisse le défaut en place, et le dit | 7 | implémentée |
 | `GUI-CONFIG-03` | une option restée à son défaut est réécrite commentée, donc un défaut changé prend effet | 7 | implémentée |
+| `GUI-THEME-01` | le thème se choisit entre trois valeurs, se retient, et « système » ne pose rien | 7 | implémentée |

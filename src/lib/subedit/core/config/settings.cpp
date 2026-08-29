@@ -23,6 +23,16 @@ namespace {
 constexpr std::string_view kGeometryKey = "window.geometry";
 constexpr std::string_view kMaximisedKey = "window.maximised";
 constexpr std::string_view kColumnsKey = "table.columns";
+constexpr std::string_view kTableShareKey = "window.table-share";
+constexpr std::string_view kDirectoryKey = "file.directory";
+constexpr std::string_view kThemeKey = "general.theme";
+
+// Les trois valeurs du thème, telles que le fichier les porte. En minuscules et
+// séparées de `nameOf(Theme)`, qui donne les intitulés du dialogue : ceci est un
+// format, cela est de la prose.
+constexpr std::string_view kSystemTheme = "system";
+constexpr std::string_view kLightTheme = "light";
+constexpr std::string_view kDarkTheme = "dark";
 
 constexpr char kSeparator = '=';
 constexpr char kComment = '#';
@@ -82,6 +92,47 @@ constexpr char kListSeparator = ',';
     return std::nullopt;
 }
 
+[[nodiscard]] std::optional<Theme> themeOf(std::string_view text) {
+    if (text == kSystemTheme)
+        return Theme::System;
+    if (text == kLightTheme)
+        return Theme::Light;
+    if (text == kDarkTheme)
+        return Theme::Dark;
+    return std::nullopt;
+}
+
+[[nodiscard]] std::string_view textOf(Theme theme) {
+    switch (theme) {
+    case Theme::System:
+        return kSystemTheme;
+    case Theme::Light:
+        return kLightTheme;
+    case Theme::Dark:
+        return kDarkTheme;
+    }
+    std::unreachable();
+}
+
+[[nodiscard]] std::optional<int> tableShareOf(std::string_view text) {
+    std::optional<int> share = integerOf(text);
+    if (share.has_value() && (*share < kSmallestTableShare || *share > kLargestTableShare))
+        share.reset();
+    return share;
+}
+
+/// Un répertoire, s'il est absolu.
+///
+/// Un chemin relatif est relatif à un répertoire courant que personne ne
+/// connaît : c'est une valeur qu'on n'a pas su lire, et non un chemin à
+/// compléter au petit bonheur.
+[[nodiscard]] std::optional<std::filesystem::path> directoryOf(std::string_view text) {
+    std::filesystem::path directory{text};
+    if (directory.empty() || !directory.is_absolute())
+        return std::nullopt;
+    return directory;
+}
+
 [[nodiscard]] std::optional<WindowGeometry> geometryOf(std::string_view text) {
     const std::optional<std::vector<int>> numbers = integersOf(text);
     // Quatre nombres, et des dimensions qui ne soient pas nulles : une fenêtre
@@ -138,6 +189,23 @@ void applyOption(SettingsRead& read, std::string_view key, std::string_view valu
     } else if (key == kColumnsKey) {
         if (const std::optional<std::vector<int>> widths = columnsOf(value))
             read.settings.columnWidths = *widths;
+        else
+            unreadable();
+    } else if (key == kTableShareKey) {
+        // L'optionnel est passé tel quel plutôt que déballé puis remballé :
+        // c'est le même contenu, et un déréférencement de moins.
+        if (const std::optional<int> share = tableShareOf(value); share.has_value())
+            read.settings.tableShare = share;
+        else
+            unreadable();
+    } else if (key == kDirectoryKey) {
+        if (std::optional<std::filesystem::path> directory = directoryOf(value))
+            read.settings.lastDirectory = *std::move(directory);
+        else
+            unreadable();
+    } else if (key == kThemeKey) {
+        if (const std::optional<Theme> theme = themeOf(value))
+            read.settings.theme = *theme;
         else
             unreadable();
     }
@@ -211,6 +279,20 @@ std::string renderSettings(const Settings& settings) {
                 kColumnsKey,
                 settings.columnWidths.empty() ? "60,110,110,110" : joined(settings.columnWidths),
                 settings.columnWidths.empty());
+
+    writeOption(out,
+                kTableShareKey,
+                settings.tableShare.has_value() ? std::to_string(*settings.tableShare) : "70",
+                !settings.tableShare.has_value());
+
+    writeOption(out,
+                kDirectoryKey,
+                settings.lastDirectory.has_value() ? settings.lastDirectory->string()
+                                                   : "/home/vous/films",
+                !settings.lastDirectory.has_value());
+
+    writeOption(
+        out, kThemeKey, std::string{textOf(settings.theme)}, settings.theme == Theme::System);
 
     return out;
 }

@@ -217,15 +217,34 @@ avoir fausse tout seul, et rien de ce qui part vers libmpv ne se relit.
 `showSubtitle`, lui, est parcouru par deux cas — un lecteur qui a un film, un
 qui n'en a pas.
 
+**Deux lignes de plus dans `QtPrompts`, en phase 7 — et ce sont les mêmes.**
+#254 donne un répertoire à la boîte « ouvrir », pour qu'elle ne s'ouvre plus là
+où le processus a été lancé. L'appel à `QFileDialog::getOpenFileName` passe donc
+de trois arguments à quatre et tient sur quatre lignes au lieu de deux.
+
+Rien de neuf n'est devenu inatteignable : c'est le même appel modal, plus long à
+écrire. Le document disait déjà, en phase 6, que « le reste de `qt_prompts.cpp`
+ne bouge pas, et ne bougera pas : c'est le `QFileDialog` et le `QMessageBox`, et
+leur boucle d'événements ». Il ne bouge toujours pas — il s'écrit seulement sur
+deux lignes de plus. **Quarante, contre trente-huit.**
+
+**Ce qui a été couvert plutôt que compté**, dans le même diff : la lecture et
+l'écriture des trois options nouvelles, les deux palettes du thème, la part
+donnée à la poignée, et le répertoire retenu. Six refus successifs du cliquet
+ont chacun donné un cas de test — une valeur booléenne `false` que personne
+n'écrivait, une largeur nulle, une ligne sans signe égal, les deux surcharges
+qui résolvent l'emplacement, un thème clair qu'on écrivait sans le relire, un
+dialogue de préférences qu'on validait sans jamais l'annuler.
+
 ## Relevé
 
-    total : 57
+    total : 59
 
-Relevé sur la version 0.5.13, le 2026-08-24.
+Relevé sur la version 0.7.10, le 2026-08-29.
 
 | Lignes | Fichier |
 | -----: | :------ |
-| 38 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 40 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 4 | `src/lib/subedit/core/process/start_process.cpp` |
 | 4 | `src/lib/subedit/gui/mpv_player.cpp` |
 | 4 | `src/lib/subedit/gui/player_factory.cpp` |

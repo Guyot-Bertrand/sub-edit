@@ -23,6 +23,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -36,6 +37,7 @@ using subedit::core::readSettings;
 using subedit::core::renderSettings;
 using subedit::core::Settings;
 using subedit::core::SettingsRead;
+using subedit::core::Theme;
 using subedit::core::WindowGeometry;
 using subedit::core::writeSettings;
 
@@ -52,7 +54,10 @@ constexpr const char* kPath = "/config/subedit/settings.conf";
 [[nodiscard]] Settings chosen() {
     return Settings{.geometry = WindowGeometry{.x = 40, .y = 60, .width = 1440, .height = 900},
                     .maximised = true,
-                    .columnWidths = {50, 120, 120, 120}};
+                    .columnWidths = {50, 120, 120, 120},
+                    .tableShare = 63,
+                    .lastDirectory = std::filesystem::path{"/films/quai"},
+                    .theme = Theme::Dark};
 }
 
 } // namespace
@@ -174,6 +179,52 @@ TEST_CASE("ce qui traîne après un nombre le rend illisible", "[config]") {
     CHECK(readOf("table.columns = 50,120,120,120 px\n").diagnostics.size() == 1);
 }
 
+// ## Les trois options venues avec #254 et #241
+
+TEST_CASE("les trois thèmes se lisent, et rien d'autre", "[config]") {
+    CHECK(readOf("general.theme = system\n").settings.theme == Theme::System);
+    CHECK(readOf("general.theme = light\n").settings.theme == Theme::Light);
+    CHECK(readOf("general.theme = dark\n").settings.theme == Theme::Dark);
+
+    // Un thème qu'on ne connaît pas laisse celui qui ne fait rien.
+    const SettingsRead unknown = readOf("general.theme = solarized\n");
+    CHECK(unknown.settings.theme == Theme::System);
+    CHECK(unknown.diagnostics.size() == 1);
+}
+
+TEST_CASE("les trois thèmes se réécrivent tels qu'ils se lisent", "[config]") {
+    // L'aller-retour des trois, et pas seulement de celui qu'on choisit dans
+    // les autres cas : une valeur qui s'écrit et ne se relit pas serait une
+    // préférence perdue au redémarrage suivant.
+    for (const Theme theme : {Theme::System, Theme::Light, Theme::Dark}) {
+        InMemoryFileSystem files;
+        REQUIRE(writeSettings(files, kPath, Settings{.theme = theme}).has_value());
+
+        CHECK(readSettings(files, kPath).settings.theme == theme);
+    }
+}
+
+TEST_CASE("la part donnée à la table refuse ses deux extrêmes", "[config]") {
+    // Ni zéro ni cent : une table haute de rien, ou une bande vidéo haute de
+    // rien, est une fenêtre qu'on ne saurait plus rouvrir autrement qu'en
+    // effaçant son fichier de configuration.
+    CHECK(readOf("window.table-share = 0\n").diagnostics.size() == 1);
+    CHECK(readOf("window.table-share = 100\n").diagnostics.size() == 1);
+    CHECK(readOf("window.table-share = 1\n").settings.tableShare == 1);
+    CHECK(readOf("window.table-share = 99\n").settings.tableShare == 99);
+    CHECK(readOf("window.table-share = deux tiers\n").diagnostics.size() == 1);
+}
+
+TEST_CASE("un répertoire relatif est illisible, un absolu ne l'est pas", "[config]") {
+    // Un chemin relatif est relatif à un répertoire courant que personne ne
+    // connaît : ce n'est pas un chemin à compléter au petit bonheur.
+    CHECK(readOf("file.directory = ../films\n").diagnostics.size() == 1);
+    CHECK_FALSE(readOf("file.directory = ../films\n").settings.lastDirectory.has_value());
+
+    CHECK(readOf("file.directory = /films/quai\n").settings.lastDirectory ==
+          std::filesystem::path{"/films/quai"});
+}
+
 // ## Option absente : le défaut, sans que ce soit un cas particulier
 
 TEST_CASE("une option absente vaut son défaut", "[config]") {
@@ -193,6 +244,9 @@ TEST_CASE("une option à son défaut est réécrite commentée", "[config]") {
     CHECK_THAT(written, ContainsSubstring("#window.geometry = "));
     CHECK_THAT(written, ContainsSubstring("#window.maximised = false"));
     CHECK_THAT(written, ContainsSubstring("#table.columns = "));
+    CHECK_THAT(written, ContainsSubstring("#window.table-share = "));
+    CHECK_THAT(written, ContainsSubstring("#file.directory = "));
+    CHECK_THAT(written, ContainsSubstring("#general.theme = system"));
 }
 
 TEST_CASE("une option réglée est réécrite nue", "[config]") {
@@ -201,6 +255,9 @@ TEST_CASE("une option réglée est réécrite nue", "[config]") {
     CHECK_THAT(written, ContainsSubstring("\nwindow.geometry = 40,60,1440,900\n"));
     CHECK_THAT(written, ContainsSubstring("\nwindow.maximised = true\n"));
     CHECK_THAT(written, ContainsSubstring("\ntable.columns = 50,120,120,120\n"));
+    CHECK_THAT(written, ContainsSubstring("\nwindow.table-share = 63\n"));
+    CHECK_THAT(written, ContainsSubstring("\nfile.directory = /films/quai\n"));
+    CHECK_THAT(written, ContainsSubstring("\ngeneral.theme = dark\n"));
 }
 
 // **Ce que la réécriture commentée achète**, et la raison pour laquelle elle

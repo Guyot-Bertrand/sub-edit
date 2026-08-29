@@ -27,12 +27,14 @@
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/hearing_impaired_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
+#include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/snap_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 #include <subedit/gui/target.hpp>
+#include <subedit/gui/theme.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
 #include <QAbstractItemView>
@@ -65,6 +67,7 @@
 #include <expected>
 #include <filesystem>
 #include <memory>
+#include <numeric>
 #include <optional>
 #include <span>
 #include <string>
@@ -128,6 +131,10 @@ constexpr int kMinimumVideoHeight = 180;
 /// **A default, not a memory.** Remembering the size a user last chose is
 /// phase 7's business, with the rest of the persisted configuration; this is
 /// what there is to remember from before anything was.
+/// Cent, pour dire « en pour cent ». Nommé parce que l'analyse le demande, et
+/// parce qu'un `100` nu au milieu d'une division de pixels se lit mal.
+constexpr int kPerCent = 100;
+
 constexpr int kInitialWidth = 1200;
 constexpr int kInitialHeight = 800;
 
@@ -174,6 +181,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_gridStatus(new QLabel{this}),
       m_videoView(new QWidget{this}),
       m_noVideo(new QWidget{this}),
+      m_split(new QSplitter{Qt::Vertical, this}),
       m_ticker(new QTimer{this}),
       m_buildPlayer(std::move(buildPlayer)),
       m_readDeclaredRate(std::move(readDeclaredRate)) {
@@ -217,7 +225,9 @@ MainWindow::MainWindow(core::FileSystem& files,
 
     // The picture on top, the table under it, and the line between them
     // draggable — which is the one thing a fixed layout could not give.
-    auto* split = new QSplitter{Qt::Vertical, this};
+    // Construit dans la liste d'initialisation, comme les autres widgets que la
+    // fenêtre garde ; il n'est ajouté à une disposition qu'ici.
+    QSplitter* split = m_split;
     split->addWidget(m_videoView);
     split->addWidget(m_noVideo);
     split->addWidget(m_table);
@@ -278,6 +288,9 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_playPause->setShortcut(QKeySequence{QStringLiteral("Ctrl+P")});
     connect(m_playPause, &QAction::triggered, this, &MainWindow::togglePlayback);
 
+    m_preferences = new QAction{QStringLiteral("&Preferences…"), this};
+    connect(m_preferences, &QAction::triggered, this, &MainWindow::openPreferences);
+
     m_about = new QAction{QStringLiteral("&About subedit"), this};
     connect(m_about, &QAction::triggered, this, &MainWindow::about);
 
@@ -302,6 +315,10 @@ MainWindow::MainWindow(core::FileSystem& files,
     QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
     edition->addAction(m_undo);
     edition->addAction(m_redo);
+    edition->addSeparator();
+    // Sous un séparateur : défaire est ce qu'on fait *à* une édition, régler le
+    // thème n'est pas une édition du tout.
+    edition->addAction(m_preferences);
 
     QMenu* video = menuBar()->addMenu(QStringLiteral("&Video"));
     video->addAction(m_selectVideo);
@@ -681,6 +698,7 @@ bool MainWindow::save() {
         return false;
     }
 
+    rememberDirectoryOf(*source.path);
     m_session->markSaved(core::Document::Main);
     refreshActions();
     return true;
@@ -699,6 +717,8 @@ bool MainWindow::saveAs() {
                                  std::string{core::reasonOf(written.error().kind)});
         return false;
     }
+
+    rememberDirectoryOf(target->path);
 
     // The document lives there now, and in that format: this is not a command,
     // nobody would want to undo it.
@@ -744,7 +764,7 @@ void MainWindow::openFromPrompt() {
     if (!mayDiscardChanges())
         return;
 
-    const std::optional<std::filesystem::path> chosen = m_prompts->fileToOpen();
+    const std::optional<std::filesystem::path> chosen = m_prompts->fileToOpen(m_lastDirectory);
     if (!chosen.has_value())
         return;
 
@@ -755,7 +775,17 @@ void MainWindow::openFromPrompt() {
         return;
     }
 
+    // **Retenu ici et non à la question** : ce qui compte est où l'utilisateur
+    // travaille, pas où il a regardé. Une boîte annulée, ou un fichier qui ne
+    // s'ouvre pas, ne déplace donc rien.
+    rememberDirectoryOf(*chosen);
+
     openOn(std::move(opened->project), opened->diagnostics);
+}
+
+void MainWindow::rememberDirectoryOf(const std::filesystem::path& file) {
+    if (file.has_parent_path())
+        m_lastDirectory = file.parent_path();
 }
 
 void MainWindow::showEvent(QShowEvent* event) {
@@ -968,6 +998,17 @@ void MainWindow::convertFrameRateOfTarget() {
 
 MainWindow::~MainWindow() = default;
 
+void MainWindow::openPreferences() {
+    PreferencesDialog dialog{m_theme, this};
+    if (!m_prompts->run(dialog))
+        return;
+
+    // Posé tout de suite : une préférence dont l'effet attend le redémarrage
+    // laisse croire qu'elle n'a pas été prise.
+    m_theme = dialog.theme();
+    applyTheme(m_theme);
+}
+
 void MainWindow::applySettings(const core::Settings& settings) {
     if (settings.geometry.has_value()) {
         const core::WindowGeometry& where = *settings.geometry;
@@ -985,6 +1026,27 @@ void MainWindow::applySettings(const core::Settings& settings) {
         for (std::size_t column = 0; column < core::kColumnWidthCount; ++column)
             m_table->setColumnWidth(static_cast<int>(column), settings.columnWidths[column]);
     }
+
+    // La poignée : une part et non des hauteurs, donc elle se rejoue à
+    // n'importe quelle taille de fenêtre. Les enfants cachés du séparateur
+    // valent zéro, si bien que la bande du haut prend tout le reste quel que
+    // soit celui des deux qui est montré.
+    if (settings.tableShare.has_value() && m_split != nullptr) {
+        // **La somme des tailles, et non la hauteur du séparateur** : la
+        // poignée elle-même prend des pixels, si bien que les deux ne sont pas
+        // égales. Poser sur l'une et relire sur l'autre ferait dériver la part
+        // d'un lancement au suivant, de quelques pour cent à chaque fois.
+        const QList<int> sizes = m_split->sizes();
+        const int total = std::accumulate(sizes.begin(), sizes.end(), 0);
+        const int height = total > 0 ? total : kInitialHeight;
+        const int table = height * *settings.tableShare / kPerCent;
+        m_split->setSizes({0, height - table, table});
+    }
+
+    m_lastDirectory = settings.lastDirectory.value_or(std::filesystem::path{});
+
+    m_theme = settings.theme;
+    applyTheme(m_theme);
 }
 
 core::Settings MainWindow::settings() const {
@@ -1002,6 +1064,20 @@ core::Settings MainWindow::settings() const {
     settings.columnWidths.reserve(core::kColumnWidthCount);
     for (std::size_t column = 0; column < core::kColumnWidthCount; ++column)
         settings.columnWidths.push_back(m_table->columnWidth(static_cast<int>(column)));
+
+    if (m_split != nullptr) {
+        const QList<int> sizes = m_split->sizes();
+        const int total = std::accumulate(sizes.begin(), sizes.end(), 0);
+        if (total > 0 && !sizes.isEmpty())
+            settings.tableShare = std::clamp(sizes.back() * kPerCent / total,
+                                             core::kSmallestTableShare,
+                                             core::kLargestTableShare);
+    }
+
+    if (!m_lastDirectory.empty())
+        settings.lastDirectory = m_lastDirectory;
+
+    settings.theme = m_theme;
 
     return settings;
 }

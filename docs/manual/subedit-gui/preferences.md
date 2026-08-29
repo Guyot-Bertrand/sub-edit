@@ -1,9 +1,14 @@
-# Ce que la fenêtre retient
+# Les préférences
 
-La fenêtre se souvient de trois choses d'une session à l'autre : **où elle
-était**, **si elle était agrandie**, et **la largeur de ses colonnes**. Rien de
-tout cela ne se règle par un dialogue : on déplace la fenêtre, on tire une
-bordure de colonne, et c'est retenu.
+La fenêtre se souvient de ce qu'on a posé à la souris — **où elle était**, **si
+elle était agrandie**, **la largeur de ses colonnes**, **la position de la
+poignée** entre le film et la table — et de **là où l'on travaille**, pour que
+`Open…` s'ouvre au bon endroit. Rien de tout cela ne se règle par un dialogue :
+on déplace, on tire, et c'est retenu.
+
+**Une seule préférence a un dialogue**, `Edit ▸ Preferences…`, et c'est le
+critère : une préférence qui a déjà un geste n'a pas besoin d'un champ. Le
+thème n'en a aucun.
 
 **Ce qui n'est pas retenu :** le dernier fichier ouvert. S'en souvenir voudrait
 dire rouvrir au lancement un document que personne n'a demandé.
@@ -28,6 +33,15 @@ qui le pose est justement celle qui ne va pas.
 | `window.geometry` | `x,y,largeur,hauteur`, en pixels ; largeur et hauteur non nulles | la fenêtre se dimensionne elle-même |
 | `window.maximised` | `true` ou `false` | `false` |
 | `table.columns` | quatre largeurs en pixels, séparées par des virgules | la table se dimensionne elle-même |
+| `window.table-share` | la part de la hauteur donnée à la table, en pour cent, de 1 à 99 | la fenêtre partage comme elle l'a toujours fait |
+| `file.directory` | un chemin **absolu** de répertoire | aucun : `Open…` s'ouvre là où le programme a été lancé |
+| `general.theme` | `system`, `light` ou `dark` | `system` |
+
+**Une part et non des hauteurs pour la poignée**, et c'est ce qui la rend
+utile : trois hauteurs en pixels ne veulent plus rien dire dès que la fenêtre
+s'ouvre à une autre taille, et une fenêtre s'ouvre souvent à une autre taille.
+La part se rejoue partout. Elle est **ramenée à ce que la fenêtre accepte** si
+elle est trop petite — la bande du film a une hauteur minimale.
 
 **Quatre largeurs pour cinq colonnes**, et ce n'est pas un oubli : la dernière,
 `Text`, prend ce que les quatre autres laissent. Lui donner une largeur ne ferait
@@ -80,8 +94,44 @@ vigueur : le défaut de la géométrie et celui des colonnes sont « ce que la
 fenêtre choisit », qui ne s'écrit pas en nombres. L'en-tête du fichier le dit
 aussi.
 
+## Le répertoire retenu
+
+`Open…` s'ouvre sur le répertoire du **dernier fichier ouvert ou enregistré**,
+et non sur celui d'une boîte qu'on a annulée : ce qui compte est là où l'on
+travaille, pas là où l'on a regardé.
+
+**Le dernier fichier, lui, n'est pas retenu.** S'en souvenir voudrait dire
+rouvrir au lancement un document que personne n'a demandé. Retenir un répertoire
+*pointe* une boîte de dialogue ; retenir un fichier en ouvrirait un.
+
+## Le thème
+
+`Edit ▸ Preferences…` ouvre la seule préférence qui n'a pas de geste.
+
+| Valeur | Ce qu'elle fait |
+| :----- | :-------------- |
+| `System` | **rien** — les couleurs restent celles du bureau |
+| `Light` | pose une palette claire |
+| `Dark` | pose une palette sombre |
+
+Le thème choisi s'applique **immédiatement**, sans redémarrer.
+
+**« System » ne fait rien, et ce n'est pas un manque.** La version de Qt sur
+laquelle subedit est bâti n'a aucun moyen de demander au bureau s'il se veut
+clair ou sombre, ni d'être prévenue quand il change d'avis. Plutôt que
+d'inventer une lecture qu'on ne sait pas faire, l'outil livre les deux thèmes
+qu'on peut demander et laisse la boîte à outils décider pour le troisième —
+ce que fait Gaupol sous les mêmes conditions.
+
+Sous un bureau dont le thème est déjà sombre, `System` donne donc une fenêtre
+sombre ; sous un bureau clair, une fenêtre claire. `Light` et `Dark` passent
+outre, quel que soit le bureau.
+
+**Les teintes d'anomalie restent lisibles dans les deux palettes** — voir
+[La table](table.md#les-anomalies). Ce n'est pas une supposition : le contraste
+du texte sur chacune des teintes est vérifié par un test, sur les deux fonds.
+
 ## Ce qui viendra
 
-Le thème clair et sombre, et une fréquence d'image par défaut, avec l'entrée
-`Preferences…`. Voir la [feuille de route](../../feuille-de-route.md) ; ce
-manuel décrit ce qui existe.
+Une fréquence d'image par défaut, dans le même dialogue. Voir la
+[feuille de route](../../feuille-de-route.md) ; ce manuel décrit ce qui existe.

@@ -11,8 +11,8 @@ table.
 > fenêtre**, la réplique courante dessinée sur l'image. Du pilotage, elle ne
 > donne que jouer et arrêter : le reste d'une barre de lecteur vient avec le
 > calage fin. Elle **retient sa géométrie et ses colonnes** d'une session à
-> l'autre. L'insertion et la suppression de lignes viennent après, avec le
-> thème. Voir la
+> l'autre, et se porte **claire ou sombre** au choix. L'insertion et la
+> suppression de lignes viennent après. Voir la
 > [feuille de route](../../feuille-de-route.md). Ce manuel décrit ce qui existe,
 > jamais ce qui est prévu.
 
@@ -33,6 +33,9 @@ prendra place, et la table des sous-titres.](captures/fenetre.png)
 document, ce qu'on lui fait, ce qui l'accompagne, ce qui l'examine, ce qui
 l'explique.
 
+`Edit` porte l'annulation, puis, sous un séparateur, `Preferences…` — défaire
+est ce qu'on fait *à* une édition, régler le thème n'est pas une édition.
+
 `Help` porte deux entrées. `About subedit` dit la version et la licence.
 `Manual` est **présente et éteinte** : le manuel qu'elle ouvrira, et l'endroit
 où il sera installé, viennent avec l'empaquetage.
@@ -50,4 +53,4 @@ où il sera installé, viennent avec l'empaquetage.
 | [Les opérations](operations.md) | décaler, transformer, convertir, retirer les mentions, et ce qui dépasse la fin du film |
 | [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la barre d'état, `ffmpeg` |
 | [Le lecteur](lecteur.md) | la vue vidéo, jouer, la ligne qui suit, la réplique dessinée |
-| [Ce que la fenêtre retient](preferences.md) | le fichier de préférences, ses options, et ce qu'il advient d'une valeur illisible |
+| [Les préférences](preferences.md) | le thème, le fichier de préférences, ses options, et ce qu'il advient d'une valeur illisible |
