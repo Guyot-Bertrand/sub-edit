@@ -16,6 +16,7 @@ ne pas l'éditer à la main.
 ### Construction
 
 - **build** — Une cible qui produit les binaires optimisés
+- **build** — Prouver qu'une installation s'installe
 
 ### Documentation
 

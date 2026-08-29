@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(
     subedit
-    VERSION 0.7.6
+    VERSION 0.7.7
     DESCRIPTION "Éditeur de sous-titres"
     HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
     LANGUAGES CXX)
@@ -92,6 +92,9 @@ include(Lto)
 
 add_subdirectory(src/lib)
 add_subdirectory(src/exe)
+
+# Après les cibles : `install(TARGETS)` ne peut nommer que ce qui existe.
+include(Installation)
 
 if(SUBEDIT_BUILD_TESTS)
     include(CTest)

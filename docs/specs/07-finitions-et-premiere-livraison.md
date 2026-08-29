@@ -232,6 +232,12 @@ Ce que posent les règles `install()`, chemins issus de `GNUInstallDirs` :
 | manuel | `${CMAKE_INSTALL_DATADIR}/subedit/manual` |
 | `subedit-cli.1` | `${CMAKE_INSTALL_MANDIR}/man1` |
 
+**Deux de ces règles existent depuis #239** — les binaires et le manuel — parce
+qu'un contrôle d'installation n'a rien à prouver sans elles. Les quatre autres
+nomment des fichiers que le dépôt ne contient pas encore : l'icône, le
+`.desktop`, les métadonnées AppStream et la page de manuel de `subedit-cli`
+viennent avec #244, et leurs règles s'ajoutent dans `cmake/Installation.cmake`.
+
 **Ce qu'on empaquette est ce que produit `make release`, issue #247.** La cible
 existe depuis cette phase ; auparavant, pour obtenir un binaire optimisé, on
 lançait `make bench` et on l'interrompait. Elle ne construit ni le banc ni le
@@ -249,7 +255,15 @@ emplacement.
 lit la palette obtenue.
 
 **L'installation s'éprouve dans un préfixe temporaire** — #239 — et le préfixe
-ne laisse rien derrière lui, ce que le contrôle de #226 verrait.
+ne laisse rien derrière lui, ce que le contrôle de #226 verrait. `make
+install-check` installe, lance les deux binaires installés, et confronte le
+manuel déposé à celui du dépôt — liste **calculée** et non recopiée, sans quoi
+un chapitre ajouté manquerait en silence.
+
+Ce qu'elle ne prouve pas est écrit dans son en-tête plutôt que laissé croire
+prouvé : rien des paquets natifs, qui n'existent pas encore, et rien de ce
+qu'aucune machine Ubuntu ne peut dire d'un `.rpm` — il s'y construit et ne s'y
+installe pas.
 
 **Les captures d'écran sont doublées** — D4 encore.
 

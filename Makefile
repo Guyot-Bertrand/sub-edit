@@ -39,7 +39,8 @@ JOBS ?= 2
 
 # Où le preset release dépose ce qu'il produit. Nommé une fois : `make release`
 # l'annonce, et l'empaquetage ira l'y chercher.
-RELEASE_BIN := build/release/bin
+RELEASE_DIR := build/release
+RELEASE_BIN := $(RELEASE_DIR)/bin
 
 # Charge maximale sous laquelle une mesure de performance compte comme propre.
 #
@@ -306,6 +307,23 @@ e2e: ## Exécute uniquement les tests de bout en bout (release)
 	@cmake --build --preset release -j $(JOBS) --target subedit_e2e_test
 	@ctest --preset release -L e2e
 
+# Installe pour de vrai, ailleurs, et lance ce qui vient d'être déposé.
+#
+# **Aucun autre contrôle ne dit cela.** Tout le reste s'exécute depuis l'arbre de
+# construction, où un fichier de données est présent par accident de
+# disposition — il est là parce que le dépôt le contient, pas parce qu'une règle
+# l'a copié. Le défaut ne se voit qu'à la première installation propre.
+#
+# Elle installe l'arbre `release`, celui que l'empaquetage prendra — ADR 0023,
+# issue #244 — et `make release` ne recompile rien si `e2e` ou `bench` l'ont
+# déjà construit. Le préfixe est temporaire et ne laisse rien derrière lui, ce
+# que le contrôle de #226 verrait.
+.PHONY: install-check
+install-check: ## Installe dans un préfixe temporaire et lance le binaire installé
+	$(call step,"installation dans un préfixe temporaire")
+	@$(MAKE) --no-print-directory release
+	@./src/scripts/check-installation.sh --build-dir $(RELEASE_DIR)
+
 .PHONY: asan
 asan: ## Exécute les tests sous ASan et UBSan
 	$(call step,"tests sous sanitizers")
@@ -394,7 +412,8 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 # maîtrisé (un grep, sous la seconde), fixtures vidéo (deux appels à ffprobe,
 # sous la seconde aussi), exemples du manuel (le seul binaire de
 # la CLI), exigences (compilation incrémentale dev), tests de bout en bout
-# (build release), puis benchmarks. `parallelism`
+# (build release), installation dans un préfixe temporaire — qui partage cet
+# arbre release et ne le reconstruit donc pas —, puis benchmarks. `parallelism`
 # passe en premier précisément parce qu'elle ne construit rien — la faire
 # attendre derrière `requirements`, qui compile, coûterait à un `-j 8` codé en
 # dur le temps d'un build entier avant qu'on l'entende.
@@ -413,10 +432,11 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory manual-check
 	@$(MAKE) --no-print-directory requirements
 	@$(MAKE) --no-print-directory e2e
+	@$(MAKE) --no-print-directory install-check
 	@$(MAKE) --no-print-directory bench
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (trente-deux preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (trente-trois preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog
