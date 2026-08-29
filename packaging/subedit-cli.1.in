@@ -1,0 +1,117 @@
+.\" La page de manuel de subedit-cli.
+.\"
+.\" **Courte, et c'est délibéré.** Le manuel complet vit sous
+.\" share/subedit/manual et fait deux mille lignes ; le recopier ici en
+.\" produirait une seconde copie à tenir, qui divergerait. Cette page dit ce
+.\" qu'une page de manuel dit : la forme d'appel, ce que chaque sous-commande
+.\" fait, les options globales, les codes de retour — puis où lire le reste.
+.\"
+.\" Le numéro de version est injecté par configure_file depuis le
+.\" project(VERSION) de CMakeLists.txt. La liste des sous-commandes, elle, est
+.\" confrontée à celle du binaire par check-installation.sh : une sous-commande
+.\" ajoutée sans être écrite ici fait échouer la porte.
+.TH SUBEDIT-CLI 1 "" "subedit @PROJECT_VERSION@" "User Commands"
+.SH NAME
+subedit\-cli \- read, inspect and retime subtitle files
+.SH SYNOPSIS
+.B subedit\-cli
+.RI [ global\ options ]
+.I subcommand
+.RI [ options ]
+.IR file ...
+.SH DESCRIPTION
+.B subedit\-cli
+reads SubRip and WebVTT subtitle files in UTF\-8, recognising the format from
+the content rather than the extension, and writes them back out shifted,
+transformed, re\-timed or cleaned.
+.PP
+Every subcommand takes several files and treats each one independently: the
+failure of one does not stop the others.
+.PP
+.B Nothing is ever written without an explicit destination.
+The six subcommands that write take one of
+.BR \-\-output ,
+.B \-\-output\-dir
+or
+.BR \-\-in\-place ,
+and refuse to run without one.
+.SH SUBCOMMANDS
+.TP
+.B inspect
+Report what a subtitle file is made of. Writes nothing.
+.TP
+.B convert
+Write a subtitle file out in another format or shape.
+.TP
+.B shift
+Move every position of a file by a fixed amount.
+.TP
+.B transform
+Correct every position from two points known to be right.
+.TP
+.B framerate
+Re\-time a file mastered at one frame rate for another.
+.TP
+.B snap
+Move every position onto the nearest frame of a frame rate.
+.TP
+.B hearing-impaired
+Remove the sounds described between brackets or parentheses.
+.PP
+.BR framerate " and " snap
+take the same arguments and do opposite things: the first re\-times a file
+whose timing is wrong, the second moves each position onto the nearest frame of
+a file whose timing is right. Getting one for the other raises no error.
+.SH GLOBAL OPTIONS
+They may be written before or after the subcommand, indifferently.
+.TP
+.BR \-h ", " \-\-help
+Print help and exit; the subcommand's own help if one is named.
+.TP
+.B \-\-version
+Print the version and exit.
+.TP
+.BR \-q ", " \-\-quiet
+Say nothing but errors.
+.TP
+.BR \-v ", " \-vv ", " \-vvv
+Say more. One is the default; two adds what was recognised of each file; three
+adds the bytes read and written, and every diagnostic the reading ran into.
+.PP
+.B \-\-quiet
+together with
+.B \-v
+is refused: two opposite intentions are not arbitrated in favour of whichever
+was written last.
+.SH OUTPUT
+The standard output carries the result and nothing else \(em the report of
+.BR inspect .
+The standard error carries everything else: the narration, the warnings and the
+errors. That split is what lets a report be redirected without the account of
+what happened going with it.
+.SH EXIT STATUS
+.TP
+.B 0
+Everything succeeded.
+.TP
+.B 1
+Usage error \(em unknown option, invalid value, forbidden combination. Detected
+before any file is touched, so a batch is never left half done.
+.TP
+.B 2
+No file could be treated.
+.TP
+.B 3
+Some files were treated, others were not.
+.SH FILES
+.TP
+.I @SUBEDIT_MANUAL_DIR@
+The complete manual, in Markdown. It is exhaustive where this page is not:
+every option, every accepted value, every message, with a real example per
+subcommand.
+.SH SEE ALSO
+The manual named above, and
+.BR subedit\-gui ,
+the window this program shares its core with. It has no page of its own: a
+window is not described by a page of manual, and its chapters are in the manual
+named above.

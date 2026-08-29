@@ -8,8 +8,8 @@
 > inspecter, convertir, décaler, transformer, recaler la cadence, aligner sur
 > une grille, retirer les mentions pour malentendants. `subedit-gui` ouvre,
 > affiche, édite, insère, supprime, annule, enregistre, joue le film associé et
-> retient ses réglages. Restent l'empaquetage et le manuel accessible depuis la
-> fenêtre. La [feuille de route](docs/feuille-de-route.md) décrit les
+> retient ses réglages. Les deux s'installent, et se livrent en `.deb` et en
+> `.rpm`. Reste le manuel accessible depuis la fenêtre. La [feuille de route](docs/feuille-de-route.md) décrit les
 > dix-sept phases : neuf mènent au MVP, les suivantes complètent
 > l'iso-fonctionnalité avec Gaupol.
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  L'icône de subedit.
+
+  Ce qu'elle dessine : un cadre d'image, et deux lignes de sous-titre en bas,
+  la seconde plus courte que la première. C'est ce qu'un sous-titre est à
+  l'écran, et c'est reconnaissable à seize pixels — le format où une icône est
+  le plus souvent vue et le moins souvent essayée.
+
+  Vectorielle et sans texte : le répertoire d'installation est
+  « scalable/apps », donc une seule image sert toutes les tailles, et un glyphe
+  y dépendrait d'une police que la machine n'a peut-être pas.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect x="4" y="10" width="56" height="44" rx="5" fill="#2d3646"/>
+  <rect x="8" y="14" width="48" height="36" rx="2" fill="#1b2230"/>
+  <rect x="14" y="36" width="36" height="5" rx="2.5" fill="#f2f2f2"/>
+  <rect x="21" y="44" width="22" height="5" rx="2.5" fill="#f2f2f2"/>
+</svg>

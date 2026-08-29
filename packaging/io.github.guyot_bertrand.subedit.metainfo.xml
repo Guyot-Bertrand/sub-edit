@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Les métadonnées AppStream, celles qu'une logithèque lit.
+
+  **En anglais, comme tout ce que l'utilisateur voit.** C'est la règle du
+  projet : la ligne de commande, la fenêtre et ce fichier disent les mêmes mots.
+  La traduction est une étape à elle seule, et AppStream l'attend sous forme
+  d'attributs `xml:lang` qui viendront avec elle.
+
+  **La liste des versions est celle des tags, et rien d'autre.** Le projet
+  incrémente son patch à chaque pull request sans poser de tag ; ce qui est
+  livré, ce sont les `vX.Y.0` de fin de phase. Écrire ici les patchs
+  reviendrait à annoncer des versions que personne n'a publiées.
+
+  Une ligne s'ajoute donc au moment du tag, avec lui.
+  `check-installation.sh` confronte la plus récente au tag le plus récent : une
+  ligne oubliée fait échouer la porte plutôt que de laisser la logithèque
+  annoncer une version périmée.
+-->
+<component type="desktop-application">
+  <id>io.github.guyot_bertrand.subedit</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>subedit</name>
+  <summary>Read, inspect and retime subtitle files</summary>
+
+  <description>
+    <p>
+      subedit opens SubRip and WebVTT subtitle files, shows them in a table,
+      and edits them cell by cell. It plays the film the file accompanies in
+      its own window, with the current line drawn over the picture, so that a
+      correction can be checked against what it is meant to match.
+    </p>
+    <p>Its operations act on the selection, or on the whole file:</p>
+    <ul>
+      <li>shift every position by a fixed amount</li>
+      <li>correct every position from two points known to be right</li>
+      <li>re-time a file mastered at one frame rate for another</li>
+      <li>move every position onto the nearest frame of a frame rate</li>
+      <li>remove the sounds described between brackets or parentheses</li>
+    </ul>
+    <p>
+      It also deduces, from the positions alone, the frame rate a file was
+      written against — a subtitle file declares none — and says how well that
+      grid explains what it holds.
+    </p>
+    <p>
+      A command line tool, subedit-cli, carries the same operations for whole
+      batches of files.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">io.github.guyot_bertrand.subedit.desktop</launchable>
+
+  <provides>
+    <binary>subedit-gui</binary>
+    <binary>subedit-cli</binary>
+  </provides>
+
+  <url type="homepage">https://github.com/Guyot-Bertrand/sub-edit</url>
+  <url type="bugtracker">https://github.com/Guyot-Bertrand/sub-edit/issues</url>
+
+  <developer id="io.github.guyot_bertrand">
+    <name>Bertrand Guyot</name>
+  </developer>
+
+  <content_rating type="oars-1.1"/>
+
+  <categories>
+    <category>AudioVideo</category>
+    <category>Video</category>
+    <category>AudioVideoEditing</category>
+  </categories>
+
+  <releases>
+    <release version="0.7.0" date="2026-08-28"/>
+    <release version="0.6.0" date="2026-08-25"/>
+    <release version="0.5.0" date="2026-08-22"/>
+    <release version="0.4.0" date="2026-08-16"/>
+    <release version="0.3.0" date="2026-08-14"/>
+    <release version="0.2.0" date="2026-08-09"/>
+    <release version="0.1.0" date="2026-08-08"/>
+  </releases>
+</component>

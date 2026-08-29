@@ -48,8 +48,10 @@ fait *à* une édition, insérer et supprimer *sont* des éditions, et régler l
 thème n'est pas une édition du tout.
 
 `Help` porte deux entrées. `About subedit` dit la version et la licence.
-`Manual` est **présente et éteinte** : le manuel qu'elle ouvrira, et l'endroit
-où il sera installé, viennent avec l'empaquetage.
+`Manual` est **présente et éteinte** : le manuel qu'elle ouvrira est déjà
+installé — sous `share/subedit/manual` du préfixe, voir
+[Installation](../subedit-cli/installation.md) — et c'est l'entrée qui reste à
+rallumer.
 
 ## Sections
 

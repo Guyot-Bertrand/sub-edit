@@ -3,8 +3,57 @@
 **Cette page vaut pour les deux programmes** — `subedit-cli` et `subedit-gui`.
 Ils sont construits et installés ensemble.
 
-subedit n'est pas encore empaqueté : il n'existe ni `.deb` ni `.rpm`. L'outil se
-construit depuis les sources, et **s'installe** ensuite où l'on veut.
+Deux chemins : **un paquet natif**, `.deb` ou `.rpm`, ou bien **la construction
+depuis les sources**, qui s'installe ensuite où l'on veut.
+
+## Les paquets
+
+Les deux sont produits par CPack depuis **les mêmes règles d'installation** :
+ils déposent les mêmes fichiers aux mêmes endroits, et ne diffèrent que par les
+noms des paquets dont ils dépendent — les mêmes bibliothèques s'appellent
+autrement chez Debian et chez Fedora.
+
+```bash
+sudo apt install ./subedit_<version>_amd64.deb      # Debian, Ubuntu
+sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, et parentes
+```
+
+| Ce que le paquet dépose | Où |
+| :---------------------- | :- |
+| `subedit-cli`, `subedit-gui` | `/usr/bin` |
+| l'entrée de menu, l'icône, les métadonnées de logithèque | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
+| ce manuel, en Markdown | `/usr/share/subedit/manual` |
+| la page de manuel de `subedit-cli` | `/usr/share/man/man1` |
+
+`ffmpeg` est **recommandé et non requis** par les deux paquets : sans lui, la
+fenêtre cesse seulement de proposer la cadence que le film déclare — voir
+[ce que `ffmpeg` change](../subedit-gui/video.md#ffmpeg-nest-pas-requis).
+
+### Ce qui est éprouvé de chacun, et ce qui ne l'est pas
+
+**Les deux ne sont pas vérifiés aussi loin, et il vaut mieux le dire que laisser
+croire à une parité qui n'existe pas.** Le développement se fait sur Ubuntu ; un
+`.rpm` construit là ne peut pas y être installé, et l'éprouver demanderait une
+machine Fedora que le dépôt n'a pas.
+
+| | `.deb` | `.rpm` |
+| :--- | :----- | :----- |
+| la liste des fichiers | vérifiée | vérifiée, et **confrontée à celle du `.deb`** |
+| les dépendances déclarées | vérifiées présentes | vérifiées présentes |
+| que les noms de dépendances existent dans la distribution | oui, ce sont ceux d'Ubuntu | **non** |
+| que le paquet s'installe | non — cela demande les droits de l'administrateur | **non** |
+
+**La confrontation des deux listes est le contrôle qui compte le plus.** Les
+deux paquets sortent de la même installation : un écart entre eux serait un
+défaut des règles d'installation, pas du format.
+
+Ce qui refermerait l'écart est un conteneur Fedora dans l'intégration continue.
+Voir [l'ADR 0023](../../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md).
+
+**Flatpak et AppImage ne sont pas proposés**, et c'est un choix expliqué dans la
+même ADR — pas un oubli.
+
+## Construire depuis les sources
 
 ## Prérequis
 
@@ -70,16 +119,29 @@ choisi :
 | Fichier | Où |
 | :------ | :- |
 | `subedit-cli`, `subedit-gui` | `<préfixe>/bin` |
-| le manuel, en Markdown | `<préfixe>/share/subedit/manual` |
+| l'entrée de menu de bureau | `<préfixe>/share/applications` |
+| l'icône | `<préfixe>/share/icons/hicolor/scalable/apps` |
+| les métadonnées de logithèque | `<préfixe>/share/metainfo` |
+| ce manuel, en Markdown | `<préfixe>/share/subedit/manual` |
+| la page de manuel de `subedit-cli` | `<préfixe>/share/man/man1` |
+
+**Ce sont les six mêmes fichiers que les paquets déposent** : ils en sortent,
+plutôt que d'être décrits une seconde fois.
 
 Avec `--prefix ~/.local`, les deux binaires atterrissent dans `~/.local/bin`,
 qui est dans le `PATH` de la plupart des distributions. Un préfixe système —
 `/usr/local`, par exemple — demande les droits correspondants.
 
-**Ce que l'installation ne pose pas encore** : l'entrée de menu de bureau,
-l'icône et les métadonnées de logithèque. Elles viennent avec l'empaquetage, et
-d'ici là `subedit-gui` se lance depuis un terminal comme n'importe quelle autre
-commande.
+**Une entrée de menu posée sous `~/.local` n'apparaît pas toujours tout de
+suite** : les bureaux relisent leur cache à leur rythme. `subedit-gui` se lance
+en attendant depuis un terminal, comme n'importe quelle autre commande.
+
+`DESTDIR` est honoré, ce qu'un empaqueteur attend : une installation mise en
+scène ne touche rien hors du répertoire de mise en scène.
+
+```bash
+DESTDIR=/tmp/scene cmake --install build/release --prefix /usr
+```
 
 ## Construire l'outil seul
 
