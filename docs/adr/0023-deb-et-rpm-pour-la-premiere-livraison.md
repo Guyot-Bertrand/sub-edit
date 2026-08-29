@@ -146,6 +146,31 @@ appartiennent à l'installation plutôt qu'aux paquets :
 Ces chemins viennent de `GNUInstallDirs`, et non de constantes écrites à la
 main : c'est ce qui fait qu'un empaqueteur peut les déplacer.
 
+## Ce que le second format a révélé — 2026-08-30, issue #244
+
+L'ADR pariait qu'un second format mettrait l'installation à l'épreuve : « s'il
+demandait de retoucher l'installation, c'est que l'installation était fausse ».
+**Il a demandé une retouche, et l'installation était effectivement fausse** — sur
+un point, petit et réel.
+
+`rpmbuild` compresse les pages de manuel lui-même. Le `.deb`, lui, portait
+`subedit-cli.1` en clair, ce que la charte Debian ne veut pas. Les deux listes de
+fichiers ne coïncidaient donc pas, et l'écart désignait un manquement du côté
+Debian plutôt qu'une divergence des formats.
+
+La retouche a porté sur l'installation et non sur l'un des deux paquets : elle
+compresse désormais la page elle-même, les deux paquets portent le même
+`subedit-cli.1.gz`, et une installation à la main en bénéficie aussi. **C'est
+exactement le mode de fonctionnement que l'ordre « l'installation d'abord »
+promettait** : ce qu'un format apprend, l'installation le corrige, et l'autre
+format en profite.
+
+Deux autres écarts sont apparus et n'en étaient pas : `rpmbuild` pose des liens
+`/usr/lib/.build-id/…` pour ses propres outils de débogage, et un `.rpm` possède
+les répertoires que sa distribution ne possède pas déjà. Ce sont des propriétés
+des formats, et `check-installation.sh` les écarte nommément plutôt que
+globalement — écarter en bloc aurait caché le premier écart avec eux.
+
 ## Conséquences
 
 **Trois dépendances d'outillage apparaissent**, et l'issue #239 les porte :

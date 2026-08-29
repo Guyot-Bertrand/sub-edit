@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=subedit
+GenericName=Subtitle Editor
+Comment=Read, inspect and retime subtitle files
+Exec=subedit-gui %f
+Icon=io.github.guyot_bertrand.subedit
+Terminal=false
+Categories=AudioVideo;Video;AudioVideoEditing;
+MimeType=application/x-subrip;text/vtt;
+Keywords=subtitle;subtitles;srt;vtt;caption;
+StartupNotify=true
+StartupWMClass=subedit-gui

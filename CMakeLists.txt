@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(
     subedit
-    VERSION 0.7.12
+    VERSION 0.7.13
     DESCRIPTION "Éditeur de sous-titres"
     HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
     LANGUAGES CXX)
@@ -95,6 +95,11 @@ add_subdirectory(src/exe)
 
 # Après les cibles : `install(TARGETS)` ne peut nommer que ce qui existe.
 include(Installation)
+
+# Après l'installation, et jamais avant : CPack empaquette ce que les règles
+# `install()` déposent, donc il n'a rien à empaqueter tant qu'elles ne sont pas
+# lues. ADR 0023.
+include(Packaging)
 
 if(SUBEDIT_BUILD_TESTS)
     include(CTest)

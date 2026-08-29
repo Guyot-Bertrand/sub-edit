@@ -323,6 +323,22 @@ e2e: ## Exécute uniquement les tests de bout en bout (release)
 # issue #244 — et `make release` ne recompile rien si `e2e` ou `bench` l'ont
 # déjà construit. Le préfixe est temporaire et ne laisse rien derrière lui, ce
 # que le contrôle de #226 verrait.
+# Les deux paquets natifs — ADR 0023.
+#
+# **Une cible à part, comme `bench` et pour la même raison** : elle n'entre dans
+# aucune porte. `install-check` construit déjà les deux paquets et les confronte
+# — c'est là qu'ils sont éprouvés. Celle-ci existe pour les avoir sous la main,
+# nommés et rangés, le jour où on les publie.
+.PHONY: packages
+packages: ## Produit le .deb et le .rpm depuis l'arbre release
+	$(call require,cpack)
+	$(call require,rpmbuild)
+	@$(MAKE) --no-print-directory release
+	$(call step,"paquets natifs")
+	@cd build/release && cpack -G "DEB;RPM" >/dev/null
+	@ls -1 build/release/subedit*.deb build/release/subedit*.rpm \
+		| sed 's/^/  /'
+
 .PHONY: install-check
 install-check: ## Installe dans un préfixe temporaire et lance le binaire installé
 	$(call step,"installation dans un préfixe temporaire")
@@ -441,7 +457,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory bench
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (trente-quatre preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (trente-cinq preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog

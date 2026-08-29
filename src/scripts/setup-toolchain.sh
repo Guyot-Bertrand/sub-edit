@@ -55,6 +55,20 @@ declare -A APT_TOOLS=(
     # fraîchement installée, pas toujours — et c'est celle-là que ce script
     # promet de rendre constructible.
     [pkg-config]=pkg-config
+    # Les trois de l'empaquetage, entrées avec #244 — et pas avant, ce que
+    # l'ADR 0004 demande : une dépendance installée pour valider des fichiers
+    # qui n'existent pas ne se justifie pas. Ils existent depuis ce ticket.
+    #
+    # Les deux premiers valident les fichiers de bureau que l'installation
+    # dépose : le `.desktop` et les métadonnées AppStream. Une Ubuntu de bureau
+    # les a d'origine ; une machine de construction nue, pas forcément.
+    [desktop-file-validate]=desktop-file-utils
+    [appstreamcli]=appstream
+    # **`rpmbuild` n'est sur aucune Ubuntu**, et sans lui le générateur RPM de
+    # CPack ne produit rien — silencieusement, ce qui est le pire des deux : la
+    # cible réussit et le paquet manque. La commande sondée n'est pas `rpm`, qui
+    # existe parfois seul, mais celle dont CPack a besoin.
+    [rpmbuild]=rpm
 )
 
 # Paquets APT sans commande à sonder : un fichier dit leur présence.

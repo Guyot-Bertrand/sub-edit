@@ -106,6 +106,7 @@ readonly GRID_FIXTURE="${REPO_ROOT}/src/test/data/grilles/grille-25.srt"
 readonly GUI_MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-gui/table.md"
 readonly CAPTURE_REFERENCE="${REPO_ROOT}/docs/manual/subedit-gui/captures/table.png"
 readonly INSTALLATION_SOURCE="${REPO_ROOT}/cmake/Installation.cmake"
+readonly DESKTOP_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.desktop"
 readonly OTHER_CAPTURE="${REPO_ROOT}/docs/manual/subedit-gui/captures/decalage.png"
 # Le fichier témoin de la preuve des fichiers laissés derrière. Il ne sauvegarde
 # rien : il est créé par la preuve et doit disparaître avec elle, y compris si
@@ -139,6 +140,7 @@ restore() {
     cp "${backup_dir}/table.md" "${GUI_MANUAL_SOURCE}"
     cp "${backup_dir}/table.png" "${CAPTURE_REFERENCE}"
     cp "${backup_dir}/Installation.cmake" "${INSTALLATION_SOURCE}"
+    cp "${backup_dir}/subedit.desktop" "${DESKTOP_SOURCE}"
     rm -f "${STRAY_FILE}"
 }
 
@@ -164,6 +166,7 @@ cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
 cp "${GUI_MANUAL_SOURCE}" "${backup_dir}/table.md"
 cp "${CAPTURE_REFERENCE}" "${backup_dir}/table.png"
 cp "${INSTALLATION_SOURCE}" "${backup_dir}/Installation.cmake"
+cp "${DESKTOP_SOURCE}" "${backup_dir}/subedit.desktop"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -802,6 +805,34 @@ BROKEN
 
 expect_installation_gate
 
+# Un fichier de bureau que sa validation refuse — #244.
+#
+# **Une preuve distincte de la précédente, et pas une redite.** Celle-ci prouve
+# qu un fichier absent est vu ; celle-là prouve que la validation en est une. Un
+# `.desktop` présent, installé, et invalide passerait la première sans être vu :
+# le contrôle compterait un fichier là où il faut en lire un.
+#
+# Le défaut injecté est le plus discret que le format connaisse : un
+# `Categories=` dont une valeur n existe pas. Le fichier reste lisible, le
+# bureau l affiche, et `desktop-file-validate` est la seule chose qui le dise.
+expect_desktop_validation_gate() {
+    printf '%s▸ un fichier .desktop que sa validation refuse%s\n' "${BOLD}" "${RESET}"
+
+    printf 'Categories=UneCategorieQuiNExistePas;\n' >> "${DESKTOP_SOURCE}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
+        printf '  %s✗ la porte « install-check » a laissé passer le .desktop invalide%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    restore
+}
+
+expect_desktop_validation_gate
+
 # Une preuve d un troisième genre. prune-runs.sh n est pas une porte : il ne
 # refuse rien, il choisit. Ce qui peut être faux chez lui n est donc pas de
 # laisser passer un défaut, mais de supprimer une exécution qu il fallait garder
@@ -1044,7 +1075,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles trente-quatre portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles trente-cinq portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
