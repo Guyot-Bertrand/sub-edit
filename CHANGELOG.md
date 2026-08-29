@@ -13,6 +13,7 @@ ne pas l'éditer à la main.
 
 - **doc** — Des captures d'écran engendrées pour le manuel
 - **gui** — La configuration persistée
+- **gui** — Le thème, la poignée et le dernier répertoire
 
 ### Construction
 
