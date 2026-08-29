@@ -55,7 +55,7 @@ Options:
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--rate` | **oui** | une cadence, dans les six formes de [`framerate`](framerate.md#les-formes-acceptées) | — |
+| `--rate` | **oui** | une cadence en images par seconde, écrite comme pour [`framerate`](framerate.md#écrire-une-cadence) | — |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |
 
 `--rate` accepte **n'importe quelle cadence valide**, et pas seulement les huit
@@ -65,13 +65,15 @@ cadence nulle ou négative est refusée.
 Le format du fichier lu est **conservé** : changer de format est le travail de
 [`convert`](convert.md).
 
-## Ce qu'elle écrit
+## Sortie
 
-Sur la sortie d'erreur, à partir du niveau 1 :
+**Sortie standard** — rien : le résultat est le fichier écrit.
 
-```
-a.srt: 176 subtitles aligned on 25 fps, 339 positions moved, by at most 20 ms
-```
+| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| :----- | :------------------------------------- |
+| 1 | `<chemin>: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms -> <destination>` |
+| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` |
+| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 **Les deux nombres sont l'intérêt de la ligne.** Une demi-image à 25 images par
 seconde vaut vingt millisecondes, et rien de plus ne peut être écrit là. Qui
@@ -107,3 +109,19 @@ inversion.
 
 Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` si
 certains seulement, `1` sur une erreur d'usage.
+
+## Erreurs
+
+Celles d'une cadence, mot pour mot celles de [`framerate`](framerate.md#erreurs)
+— les deux lisent la même valeur par le même chemin :
+
+| Ce qui la déclenche | Message |
+| :------------------ | :------ |
+| cadence nulle ou négative | `"…" is not a frame rate: a frame rate must be strictly positive; nothing runs at that speed` |
+| virgule décimale | `"…" is not a frame rate: use a decimal point and not a comma, the command line being English` |
+| texte qui n'est pas un nombre | `"…" is not a frame rate: expected frames per second, like 25 or 23.976` |
+| cadence démesurée | `"…" is not a frame rate: no video runs at that many frames per second` |
+
+**Rien n'est écrit sans l'une des trois options de destination**, et ses erreurs
+sont communes aux sous-commandes qui écrivent :
+voir [Invocation](invocation.md#la-destination).

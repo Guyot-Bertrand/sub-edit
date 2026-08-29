@@ -184,5 +184,5 @@ certains seulement, `1` sur une erreur d'usage.
 | position avant l'origine | `<chemin>: subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Rien n'est écrit sans l'une des trois options de destination**, et ses
-erreurs sont communes aux quatre sous-commandes qui écrivent :
+erreurs sont communes aux sous-commandes qui écrivent :
 voir [Invocation](invocation.md#la-destination).

@@ -51,27 +51,33 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.7.11
+subedit 0.7.12
 ```
 
 ## Sous-commandes
 
-| Sous-commande | Ce qu'elle fait |
-| :------------ | :-------------- |
-| [`inspect`](inspect.md) | rapporte ce qu'un fichier contient, sans rien modifier |
-| [`convert`](convert.md) | écrit un fichier dans un autre format, ou une autre forme |
-| [`shift`](shift.md) | décale toutes les positions d'une même durée |
-| [`transform`](transform.md) | corrige toutes les positions à partir de deux repères |
-| [`framerate`](framerate.md) | recale un fichier d'une cadence d'images vers une autre |
+| Sous-commande | Ce qu'elle fait | Écrit-elle ? |
+| :------------ | :-------------- | :----------- |
+| [`inspect`](inspect.md) | rapporte ce qu'un fichier contient, sans rien modifier | non |
+| [`convert`](convert.md) | écrit un fichier dans un autre format, ou une autre forme | oui |
+| [`shift`](shift.md) | décale toutes les positions d'une même durée | oui |
+| [`transform`](transform.md) | corrige toutes les positions à partir de deux repères | oui |
+| [`framerate`](framerate.md) | recale un fichier d'une cadence d'images vers une autre | oui |
+| [`snap`](snap.md) | repose chaque horodatage sur l'image la plus proche | oui |
+| [`hearing-impaired`](hearing-impaired.md) | retire les mentions pour malentendants | oui |
 
-Les cinq sont là ; l'aide de l'outil les énumère dans le même ordre.
+Les sept sont là ; l'aide de l'outil les énumère dans le même ordre.
+
+**Une seule ne touche à rien**, et c'est la colonne de droite : `inspect` lit et
+rapporte. Les six autres écrivent, et ce qui suit vaut pour elles six.
 
 ## La destination
 
-Les quatre sous-commandes qui écrivent — [`convert`](convert.md),
-[`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md) —
-prennent leur destination de la même façon. [`inspect`](inspect.md) n'écrit
-aucun fichier et n'accepte aucune de ces options.
+Les six sous-commandes qui écrivent — [`convert`](convert.md),
+[`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
+[`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md) — prennent leur
+destination de la même façon. [`inspect`](inspect.md) n'écrit aucun fichier et
+n'accepte aucune de ces options.
 
 **Rien n'est jamais écrit sans destination explicite.** Les trois façons de la
 donner s'excluent, et il en faut une : sans elle, rien n'est écrit et le code de
@@ -92,7 +98,7 @@ les précédents. Avec un lot, `--output-dir` est le seul des trois qui ait un
 sens, avec `--in-place`.
 
 **L'extension suit le format écrit.** Elle ne change que pour
-[`convert`](convert.md), seule sous-commande qui change de format ; les trois
+[`convert`](convert.md), seule sous-commande qui change de format ; les cinq
 autres conservent celui du fichier lu, donc son extension.
 
 | Ce qui la déclenche | Message |
@@ -148,7 +154,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Les cinq sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
+Les sept sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
 un fichier lu au mieux puis réécrit a subi les mêmes décisions, et les taire
 laisserait croire que rien ne s'est passé.
 
@@ -162,7 +168,7 @@ fait.
 | Partie | Ce qu'elle dit |
 | :----- | :------------- |
 | `line N` | où, compté à partir de 1, comme un éditeur l'affiche |
-| la phrase | ce qui a été rencontré, parmi les dix catégories ci-dessous |
+| la phrase | ce qui a été rencontré, parmi les sept catégories ci-dessous |
 | `("…")` | le texte fautif du fichier, quand la catégorie ne suffit pas ; tronqué à 80 octets |
 | la fin | ce qui en a été fait : `settled by the reader`, ou `left as it stands` |
 
@@ -181,7 +187,7 @@ suit — le numéro fautif est dans le `("…")`. Seules les anomalies qui porte
 **une ligne** — un horodatage illisible, du texte avant le premier — se
 rapportent sur elles-mêmes.
 
-### Les dix catégories
+### Les sept catégories
 
 | Phrase | Ce qui la déclenche |
 | :----- | :------------------ |

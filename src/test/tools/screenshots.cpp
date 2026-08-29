@@ -24,6 +24,7 @@
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/config/insert_placement.hpp>
+#include <subedit/core/config/theme.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
@@ -33,6 +34,7 @@
 #include <subedit/gui/qt_prompts.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
+#include <subedit/gui/theme.hpp>
 
 #include <QAbstractItemView>
 #include <QApplication>
@@ -236,32 +238,68 @@ int main(int argc, char** argv) {
 
     bool written = true;
 
+    // **Chaque écran est photographié deux fois, sous les deux palettes que
+    // l'application pose** — décision D4 du cadrage de la phase 7. Elles sont
+    // atteignables précisément parce que « clair » et « sombre » sont des
+    // palettes que nous écrivons : un programme peut les poser comme un
+    // utilisateur les choisit. Ce serait impossible si le thème était une
+    // lecture du système, que Qt 6.4 ne sait pas faire.
+    //
+    // La palette est posée **avant** de construire ce qu'on montre, et non
+    // après : elle vient de l'application, et un widget la lit à sa naissance.
+    //
+    // Chaque appel nomme sa référence par un littéral, et il le faut :
+    // `check-screenshots.py` lit ces noms dans cette source pour confronter ce
+    // qui est engendré à ce que le manuel montre. Un nom calculé lui échapperait.
+
     // La fenêtre telle qu'elle s'ouvre, film absent : ce qu'un lecteur du
     // manuel verra en lançant le programme, et rien d'arrangé.
     {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
         window.resize(kWindowWidth, kWindowHeight);
         written = capture(window, window, directory, "fenetre") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
+        window.resize(kWindowWidth, kWindowHeight);
+        written = capture(window, window, directory, "fenetre-sombre") && written;
     }
 
     // La table seule, et la fenêtre haute pour qu'elle montre de quoi lire.
     // Ce que la section décrit est la table ; l'entourer de la fenêtre serait
     // montrer surtout la bande vidéo vide.
     {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
         showWithTheTableFitted(window);
         written = capture(window, *window.table(), directory, "table") && written;
     }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
+        showWithTheTableFitted(window);
+        written = capture(window, *window.table(), directory, "table-sombre") && written;
+    }
 
     {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene-anomalies.srt");
         showWithTheTableFitted(window);
         written = capture(window, *window.table(), directory, "anomalies") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene-anomalies.srt");
+        showWithTheTableFitted(window);
+        written = capture(window, *window.table(), directory, "anomalies-sombre") && written;
     }
 
     // Une cellule ouverte, ce qui est le sujet entier de la section : le
     // marqueur d'édition n'existe qu'entre le double-clic et la validation.
     {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
         showWithTheTableFitted(window);
 
@@ -280,21 +318,47 @@ int main(int argc, char** argv) {
 
         window.table()->closePersistentEditor(edited);
     }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
+        showWithTheTableFitted(window);
+
+        const QModelIndex edited = window.table()->model()->index(kEditedRow, kTextColumn);
+        window.table()->openPersistentEditor(edited);
+        QApplication::processEvents();
+
+        written = capture(window, *window.table(), directory, "edition-sombre") && written;
+
+        window.table()->closePersistentEditor(edited);
+    }
 
     {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::ShiftDialog dialog{3};
         written = capture(dialog, dialog, directory, "decalage") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::ShiftDialog dialog{3};
+        written = capture(dialog, dialog, directory, "decalage-sombre") && written;
     }
 
     // Le dialogue d'insertion, sur un document qui porte des lignes : c'est
     // l'état où le choix du côté est offert, et c'est celui que la section
     // décrit.
     {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::InsertDialog dialog{true, subedit::core::InsertPlacement::Below};
         written = capture(dialog, dialog, directory, "insertion") && written;
     }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::InsertDialog dialog{true, subedit::core::InsertPlacement::Below};
+        written = capture(dialog, dialog, directory, "insertion-sombre") && written;
+    }
 
     {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
         const subedit::core::OpenedFile grid =
             subedit::core::openProject(files, corpus("grilles/grille-25.srt")).value();
         subedit::gui::GridAnalysisDialog dialog{subedit::core::deduceFrameRate(grid.project)};
@@ -302,6 +366,14 @@ int main(int argc, char** argv) {
         // la section promet les huit, donc l'image doit les tenir.
         dialog.resize(kDialogWidth, kDialogHeight);
         written = capture(dialog, dialog, directory, "analyse-de-grille") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        const subedit::core::OpenedFile grid =
+            subedit::core::openProject(files, corpus("grilles/grille-25.srt")).value();
+        subedit::gui::GridAnalysisDialog dialog{subedit::core::deduceFrameRate(grid.project)};
+        dialog.resize(kDialogWidth, kDialogHeight);
+        written = capture(dialog, dialog, directory, "analyse-de-grille-sombre") && written;
     }
 
     return written ? 0 : 1;

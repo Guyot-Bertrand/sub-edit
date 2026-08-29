@@ -282,12 +282,17 @@ manual: ## Régénère les exemples d'appel et les captures du manuel
 	@$(MAKE) --no-print-directory screenshots
 
 .PHONY: manual-check
-manual-check: ## Vérifie que les exemples et les captures du manuel sont à jour
+manual-check: ## Vérifie que les exemples, les captures et les renvois du manuel sont à jour
 	$(call step,"exemples du manuel")
 	@cmake --preset dev >/dev/null
 	@cmake --build --preset dev -j $(JOBS) --target subedit-cli
 	@./src/scripts/generate-manual.sh --check
 	@$(MAKE) --no-print-directory screenshots-check
+	# Le troisième filet du manuel, et le dernier qui manquait — #243. Les blocs
+	# `console` viennent du binaire, les images de la vraie fenêtre ; les renvois
+	# internes, eux, n'étaient vérifiés par rien, et une section renommée laisse
+	# derrière elle des ancres qui s'affichent aussi proprement qu'un lien juste.
+	@./src/scripts/check-manual-links.py
 
 .PHONY: requirements
 requirements: ## Confronte le registre d'exigences aux tests de bout en bout
@@ -436,7 +441,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@$(MAKE) --no-print-directory bench
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (trente-trois preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (trente-quatre preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog

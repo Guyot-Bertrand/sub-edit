@@ -1,12 +1,26 @@
 # Les opérations
 
-Le menu **Tools** porte quatre opérations. Chacune ouvre un dialogue, et chacune
-s'annule d'un `Ctrl+Z`.
+Le menu **Tools** porte six opérations et une analyse. Chacune des six s'annule
+d'un `Ctrl+Z` ; l'analyse ne modifie rien.
+
+| Entrée | Dialogue | Ce qu'elle fait |
+| :----- | :------- | :-------------- |
+| `Shift Positions…` | oui | décale la cible d'une durée |
+| `Transform Positions…` | oui | corrige la cible à partir de deux repères |
+| `Convert Frame Rate…` | oui | re-cale la cible d'une cadence vers une autre |
+| `Remove Hearing-Impaired Mentions…` | oui, sans réglage | retire les mentions pour malentendants |
+| `Snap to Frame Rate…` | oui | repose chaque horodatage sur l'image la plus proche |
+| `Shift onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
+| `Frame Rate Analysis…` | oui, sans réglage | **ne modifie rien** — voir [La grille d'images](grille.md) |
+
+Insérer et supprimer des lignes ne sont pas ici mais dans le menu `Edit` : ce
+sont des éditions du document, pas des opérations sur des positions. Voir
+[Insérer et supprimer des lignes](lignes.md).
 
 ## Sur quoi elles portent
 
 **Les lignes sélectionnées, ou tout le fichier si rien ne l'est.** C'est la même
-règle pour les quatre, et le dialogue le rappelle en toutes lettres :
+règle pour toutes, et les dialogues le rappellent en toutes lettres :
 
 ```
 Applies to: 4 subtitles
@@ -14,7 +28,12 @@ Applies to: 4 subtitles
 
 Sélectionner toutes les lignes revient au même que n'en sélectionner aucune.
 
-Les quatre actions sont **inactives sur un fichier vide** : il n'y aurait rien à
+> **Cette règle-là s'arrête au menu `Tools`.** `Remove Subtitles`, dans le menu
+> `Edit`, lit « rien de sélectionné » comme « rien à faire » et non comme « tout
+> le fichier » — sans quoi un `Suppr` malheureux viderait le document. Son entrée
+> est éteinte tant que rien n'est sélectionné.
+
+Les entrées sont **inactives sur un fichier vide** : il n'y aurait rien à
 décaler.
 
 ## `Shift Positions…`
@@ -26,8 +45,10 @@ longtemps qu'avant.
 La durée s'écrit **comme un horodatage, signe compris** — `00:00:02,500` avance,
 `-0:01,250` recule. Les formes acceptées sont celles d'une cellule de position.
 
-![Le dialogue de décalage : la durée à appliquer, et le rappel de ce sur quoi
-elle portera.](captures/decalage.png)
+![Le dialogue de décalage, palette claire : la durée à appliquer, et le rappel
+de ce sur quoi elle portera.](captures/decalage.png)
+
+![Le même dialogue sous la palette sombre.](captures/decalage-sombre.png)
 
 | Refus | Pourquoi |
 | :---- | :------- |
@@ -173,10 +194,11 @@ descriptions de sons entre crochets ou entre parenthèses, les noms de locuteurs
 Le dialogue ne demande rien : l'opération n'a pas de réglage, et il ne sert qu'à
 confirmer et à rappeler sur quoi elle porte.
 
-**C'est la seule opération qui fasse disparaître des lignes.** Un sous-titre qui
-n'était *que* mention n'a plus de texte une fois nettoyé, et un sous-titre sans
-texte n'a pas lieu d'être : il est retiré du fichier. Les autres sont réécrits
-sans leur mention.
+**C'est la seule du menu `Tools` qui fasse disparaître des lignes**, et la seule
+de tout le programme qui en fasse disparaître sans qu'on le demande. Un
+sous-titre qui n'était *que* mention n'a plus de texte une fois nettoyé, et un
+sous-titre sans texte n'a pas lieu d'être : il est retiré du fichier. Les autres
+sont réécrits sans leur mention.
 
 Le compte rendu dit les deux :
 
@@ -193,9 +215,11 @@ réécrits, chacun avec le texte qu'il avait. Un sous-titre que la règle a vid�
 n'est jamais réécrit avant d'être retiré, précisément pour qu'il revienne
 entier.
 
-> **La sélection est perdue à cette occasion**, et à celle-là seulement : retirer
-> des lignes change la structure de la table, qui se reconstruit. Les trois
-> autres opérations la conservent.
+> **La sélection est perdue à cette occasion** : retirer des lignes change la
+> structure de la table, qui se reconstruit. Les cinq autres opérations du menu
+> `Tools` la conservent. `Insert Subtitles…` et `Remove Subtitles` changent la
+> structure elles aussi, et rendent une sélection à la place de celle qu'elles
+> ont emportée — voir [Insérer et supprimer des lignes](lignes.md).
 
 Une référence purement numérique — « Voir [1] la note » — n'est pas une mention
 et reste telle quelle.

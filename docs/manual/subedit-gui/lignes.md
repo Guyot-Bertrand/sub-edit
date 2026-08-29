@@ -13,8 +13,10 @@ Les deux entrent dans l'historique : `Ctrl+Z` les défait comme le reste.
 
 ## Insérer
 
-![Le dialogue d'insertion : le nombre de lignes, et le côté de la sélection où
-elles iront.](captures/insertion.png)
+![Le dialogue d'insertion, palette claire : le nombre de lignes, et le côté de
+la sélection où elles iront.](captures/insertion.png)
+
+![Le même dialogue sous la palette sombre.](captures/insertion-sombre.png)
 
 | Champ | Ce qu'il vaut | Défaut |
 | :---- | :------------ | :----- |

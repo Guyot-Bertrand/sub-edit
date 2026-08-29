@@ -186,6 +186,23 @@ Sur la sortie d'erreur, selon le niveau demandé :
 Ceux de l'outil : `0` si tous les fichiers ont été lus, `2` si aucun, `3` si
 certains seulement, `1` sur une erreur d'usage.
 
+## Erreurs
+
+Celles d'une lecture, et elles seules : `inspect` ne prend aucune option dont la
+valeur puisse être fautive, et n'écrit rien qui puisse être refusé.
+
+| Ce qui la déclenche | Message |
+| :------------------ | :------ |
+| aucun chemin donné | `files is required`, suivi d'un renvoi à `--help` |
+| fichier absent | `<chemin>: does not exist` |
+| fichier illisible | `<chemin>: cannot be opened: permission denied` |
+| octets qui ne sont pas de l'UTF-8 | `<chemin>: is not valid UTF-8` |
+| format non reconnu | `<chemin>: is in no format this tool knows` |
+| rien qui ressemble à un sous-titre | `<chemin>: holds nothing recognisable as a subtitle` |
+
+Ce sont les mêmes messages pour les sept sous-commandes : la recette d'ouverture
+est écrite une fois, au noyau.
+
 ## Un exemple qui échoue
 
 Un fichier vide ne correspond à aucun format. Il n'est pas rapporté comme vide :

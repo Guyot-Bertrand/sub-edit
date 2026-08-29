@@ -1,20 +1,21 @@
 # subedit-gui — manuel
 
 La fenêtre de subedit : ouvrir un fichier de sous-titres et le voir dans une
-table.
+table. Pour l'autre programme et pour savoir par où commencer, voir
+[le manuel](../index.md).
 
 > **État actuel.** La fenêtre **ouvre**, **affiche**, **édite ses cellules**,
-> **annule**, **enregistre**, **marque les sous-titres dont les positions ne
-> tiennent pas debout**, et porte quatre opérations — décaler, transformer,
-> convertir la fréquence d'image, retirer les mentions pour malentendants. Elle
-> **associe une vidéo au document**, choisie ou devinée, et la **joue dans la
-> fenêtre**, la réplique courante dessinée sur l'image. Du pilotage, elle ne
-> donne que jouer et arrêter : le reste d'une barre de lecteur vient avec le
-> calage fin. Elle **retient sa géométrie et ses colonnes** d'une session à
-> l'autre, et se porte **claire ou sombre** au choix. Elle **insère et supprime
-> des lignes**. Voir la
-> [feuille de route](../../feuille-de-route.md). Ce manuel décrit ce qui existe,
-> jamais ce qui est prévu.
+> **insère et supprime des lignes**, **annule**, **enregistre**, et **marque les
+> sous-titres dont les positions ne tiennent pas debout**. Le menu `Tools` porte
+> six opérations — décaler, transformer, convertir la fréquence d'image, retirer
+> les mentions pour malentendants, aligner sur une cadence, ramener sur la
+> grille — et l'analyse de grille, qui ne modifie rien. Elle **associe une vidéo
+> au document**, choisie ou devinée, et la **joue dans la fenêtre**, la réplique
+> courante dessinée sur l'image ; du pilotage, elle ne donne que jouer et
+> arrêter. Elle **retient sa géométrie, ses colonnes et ses réglages** d'une
+> session à l'autre, et se porte **claire ou sombre** au choix. Ce manuel décrit
+> ce qui existe, jamais ce qui est prévu ; ce qui vient ensuite est dans la
+> [feuille de route](../../feuille-de-route.md).
 
 > **Les images de ce manuel sont engendrées, la prose non.** Les exemples de
 > `subedit-cli` sont engendrés en exécutant la commande ; les captures d'écran
@@ -24,8 +25,16 @@ table.
 > qui reste sans filet est le texte autour, dont la justesse repose sur la
 > relecture.
 
-![La fenêtre à l'ouverture : les menus, la barre d'actions, la bande où le film
-prendra place, et la table des sous-titres.](captures/fenetre.png)
+**Chaque écran est montré deux fois, sous les deux palettes que l'application
+pose** — `Light` et `Dark`, celles que
+[les préférences](preferences.md#le-thème) proposent. Sous un bureau dont le
+thème gouverne, `System` donne l'une ou l'autre selon ce que le bureau a choisi.
+
+![La fenêtre à l'ouverture, palette claire : les menus, la barre d'actions, la
+bande où le film prendra place, et la table des
+sous-titres.](captures/fenetre.png)
+
+![La même fenêtre sous la palette sombre.](captures/fenetre-sombre.png)
 
 ## Les menus
 
@@ -46,6 +55,7 @@ où il sera installé, viennent avec l'empaquetage.
 
 | Section | Contenu |
 | :------ | :------ |
+| [Installation](../subedit-cli/installation.md) | construire et installer — la page vaut pour les deux programmes |
 | [Invocation](invocation.md) | lancer la fenêtre, arguments, codes de retour |
 | [Ouvrir et enregistrer](fichiers.md) | les trois commandes, les diagnostics, l'aller-retour |
 | [La table](table.md) | ce que chaque colonne montre |

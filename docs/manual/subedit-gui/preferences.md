@@ -136,7 +136,17 @@ outre, quel que soit le bureau.
 [La table](table.md#les-anomalies). Ce n'est pas une supposition : le contraste
 du texte sur chacune des teintes est vérifié par un test, sur les deux fonds.
 
-## Ce qui viendra
+## Ce qui ne se règle pas
 
-Une fréquence d'image par défaut, dans le même dialogue. Voir la
-[feuille de route](../../feuille-de-route.md) ; ce manuel décrit ce qui existe.
+**Deux réglages seulement se choisissent dans un dialogue** — le thème, ici, et
+le côté d'une insertion, dans le dialogue d'insertion. Il n'y en a pas de
+troisième caché ailleurs : rien ne se règle pour le panneau de diagnostics, le
+volume du lecteur, ni le format d'enregistrement par défaut — celui-ci vient du
+fichier ouvert.
+
+Et **aucun nombre qui appartient à un document** : une durée de décalage, deux
+repères de transformation sont vrais d'un fichier et faux du suivant. Les
+dialogues les redemandent à chaque fois, délibérément.
+
+Ce manuel décrit ce qui existe : ce qui viendra est dans la
+[feuille de route](../../feuille-de-route.md).

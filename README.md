@@ -3,10 +3,14 @@
 Éditeur de sous-titres, réécriture en C++23 et Qt 6 de
 [Gaupol](https://github.com/otsaloma/gaupol).
 
-> **État : fondations.** Le projet n'édite encore aucun sous-titre. Seule
-> l'infrastructure de développement est en place. La
-> [feuille de route](docs/feuille-de-route.md) décrit les seize phases prévues :
-> les huit premières mènent à un MVP, les suivantes complètent
+> **État : phase 7 sur dix-sept, la dernière avant le MVP.** Les deux
+> programmes existent et servent. `subedit-cli` porte sept sous-commandes —
+> inspecter, convertir, décaler, transformer, recaler la cadence, aligner sur
+> une grille, retirer les mentions pour malentendants. `subedit-gui` ouvre,
+> affiche, édite, insère, supprime, annule, enregistre, joue le film associé et
+> retient ses réglages. Restent l'empaquetage et le manuel accessible depuis la
+> fenêtre. La [feuille de route](docs/feuille-de-route.md) décrit les
+> dix-sept phases : neuf mènent au MVP, les suivantes complètent
 > l'iso-fonctionnalité avec Gaupol.
 
 ## Pourquoi
@@ -64,7 +68,7 @@ pas diverger.
 | [Principes de conception](docs/principes-de-conception.md) | règles permanentes applicables à tout le code |
 | [Specs](docs/specs/) | une spec par phase, et l'inventaire des fonctionnalités de Gaupol |
 | [Décisions](docs/adr/) | ce qui a été décidé, et pourquoi les autres options ont été écartées |
-| [Manuels](docs/manual/) | un manuel par exécutable |
+| [Manuel](docs/manual/index.md) | par où commencer, puis un manuel par exécutable |
 
 ## Licence
 

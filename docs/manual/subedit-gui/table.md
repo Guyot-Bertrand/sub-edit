@@ -15,8 +15,10 @@ s'affichent.
 | `Duration` | `End − Start` |
 | `Text` | le texte du sous-titre |
 
-![Les cinq colonnes de la table, sur un fichier de douze
-sous-titres.](captures/table.png)
+![Les cinq colonnes de la table, sur un fichier de douze sous-titres, palette
+claire.](captures/table.png)
+
+![La même table sous la palette sombre.](captures/table-sombre.png)
 
 **Le numéro n'est pas une donnée du fichier** mais le rang de la ligne. Une
 insertion ou une suppression renumérote donc tout ce qui suit, sans que rien ne
@@ -51,9 +53,12 @@ colonnes de temps**, et le survoler dit ce qui ne va pas.
 | bleue | `starts before the previous one starts` | le remettre à sa place dans l'ordre |
 | ambre | `starts before the previous one ends` | ajuster son calage |
 
-![Trois sous-titres en anomalie : le troisième finit avant de commencer, le
-cinquième chevauche le précédent, le sixième commence avant
+![Trois sous-titres en anomalie, palette claire : le troisième finit avant de
+commencer, le cinquième chevauche le précédent, le sixième commence avant
 lui.](captures/anomalies.png)
+
+![Les mêmes anomalies sous la palette sombre : les trois teintes y restent
+distinctes du fond, et le texte lisible par-dessus.](captures/anomalies-sombre.png)
 
 Seules les colonnes `Start`, `End` et `Duration` sont teintées : une anomalie ne
 parle que de temps, et teinter le texte laisserait croire qu'il y est pour
@@ -76,8 +81,14 @@ Il ne s'appuie sur aucune grille d'images : dès qu'une position est corrigée �
 la main, elle en sort, et un marquage fondé dessus signalerait le travail de
 l'utilisateur.
 
-## Ce que la table ne fait pas encore
+## Ajouter et retirer des lignes
 
-Ajouter ou supprimer une ligne n'est pas possible. Le tri par colonne n'existe
-pas — l'ordre affiché est celui du fichier, et c'est le seul qui ait un sens
-pour des sous-titres.
+`Edit ▸ Insert Subtitles…` et `Edit ▸ Remove Subtitles` posent et retirent des
+lignes ; la table se renumérote toute seule. Voir
+[Insérer et supprimer des lignes](lignes.md).
+
+## Ce que la table ne fait pas
+
+**Le tri par colonne n'existe pas.** L'ordre affiché est celui du fichier, et
+c'est le seul qui ait un sens pour des sous-titres : le rang d'une ligne *est*
+sa place dans le temps.

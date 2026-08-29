@@ -1,16 +1,35 @@
 # Installation
 
+**Cette page vaut pour les deux programmes** — `subedit-cli` et `subedit-gui`.
+Ils sont construits et installés ensemble.
+
 subedit n'est pas encore empaqueté : il n'existe ni `.deb` ni `.rpm`. L'outil se
 construit depuis les sources, et **s'installe** ensuite où l'on veut.
 
 ## Prérequis
 
-- CMake ≥ 3.28
-- un compilateur C++23 — GCC 13 convient
-- `make`
-- **une connexion réseau au premier `cmake`** : la bibliothèque de tests Catch2
-  est récupérée depuis GitHub à la configuration. Elle n'est plus retéléchargée
-  ensuite. Pour construire l'outil seul, sans réseau, voir plus bas.
+| Ce qu'il faut | Pourquoi | Debian, Ubuntu |
+| :------------ | :------- | :------------- |
+| CMake ≥ 3.28 | la construction | `cmake` |
+| un compilateur C++23 — GCC 13 convient | — | `g++` |
+| `make`, `pkg-config` | la construction | `make`, `pkg-config` |
+| Qt 6, module `Widgets` | la fenêtre | `qt6-base-dev` |
+| `libmpv` | le lecteur intégré | `libmpv-dev` |
+
+**Les deux dernières sont exigées même pour ne construire que
+`subedit-cli`** : la configuration CMake les cherche pour tout le projet, et
+s'arrête si elles manquent.
+
+**Une connexion réseau au premier `cmake`** : la bibliothèque de tests Catch2
+est récupérée depuis GitHub à la configuration. Elle n'est plus retéléchargée
+ensuite. Pour construire l'outil seul, sans réseau, voir plus bas.
+
+### Ce qui n'est pas exigé
+
+| Ce qui est facultatif | Ce qu'on perd sans lui |
+| :-------------------- | :--------------------- |
+| `ffmpeg`, pour son `ffprobe` | la fenêtre ne propose plus la cadence que le film déclare — [le détail](../subedit-gui/video.md#ffmpeg-nest-pas-requis) |
+| un serveur graphique | rien pour `subedit-cli` ; `subedit-gui` en a besoin pour s'afficher |
 
 ## Construire
 
@@ -20,7 +39,8 @@ cd subedit
 make build
 ```
 
-Le binaire est produit dans `build/dev/bin/subedit-cli`.
+Les binaires sont produits dans `build/dev/bin/` — `subedit-cli` et
+`subedit-gui`.
 
 Pour une version optimisée :
 

@@ -121,17 +121,17 @@ compilation.
 
 ## Ce qui n'y est pas
 
-**Le pilotage se limite à jouer et arrêter.** Tout le reste — et c'est la
-majeure partie d'une barre de lecteur — vient avec le calage fin :
+**Le pilotage se limite à jouer et arrêter.** Ce qui n'existe pas, et qu'il est
+inutile de chercher :
 
-| Ce qui manque | Où c'est prévu |
-| :------------ | :------------- |
-| barre de position, saut avant et arrière | calage fin |
-| saut au sous-titre précédent ou suivant, au début ou à la fin de la sélection | calage fin |
-| jouer la seule sélection | calage fin |
-| réglage du volume | calage fin |
-| avance image par image, poser un repère depuis la position courante | calage fin |
-| incrustation du timecode, choix de la piste audio | calage fin |
-| forme d'onde | rien ne la demande |
+- barre de position, saut avant et arrière ;
+- saut au sous-titre précédent ou suivant, au début ou à la fin de la
+  sélection ;
+- jouer la seule sélection ;
+- réglage du volume ;
+- avance image par image, poser un repère depuis la position courante ;
+- incrustation du timecode, choix de la piste audio ;
+- forme d'onde.
 
-Voir la [feuille de route](../../feuille-de-route.md).
+Ce manuel décrit ce qui existe : ce qui viendra, et dans quel ordre, est dans la
+[feuille de route](../../feuille-de-route.md).

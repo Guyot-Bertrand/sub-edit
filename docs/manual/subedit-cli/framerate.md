@@ -140,7 +140,7 @@ Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` 
 certains seulement, `1` sur une erreur d'usage.
 
 Aucun refus ne dépend du contenu d'un fichier : deux cadences définissent
-toujours un facteur. C'est la seule des quatre sous-commandes qui écrivent dont
+toujours un facteur. C'est la seule des sous-commandes qui écrivent dont
 tous les refus tombent avant la première lecture.
 
 <!-- exemple: printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 0 --to 25 --output b.srt a.srt; echo "code=$?" -->
@@ -160,5 +160,5 @@ code=1
 | cadence démesurée | `"…" is not a frame rate: no video runs at that many frames per second` |
 
 **Rien n'est écrit sans l'une des trois options de destination**, et ses
-erreurs sont communes aux quatre sous-commandes qui écrivent :
+erreurs sont communes aux sous-commandes qui écrivent :
 voir [Invocation](invocation.md#la-destination).
