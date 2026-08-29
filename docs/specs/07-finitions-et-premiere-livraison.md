@@ -232,9 +232,9 @@ Ce que posent les règles `install()`, chemins issus de `GNUInstallDirs` :
 | manuel | `${CMAKE_INSTALL_DATADIR}/subedit/manual` |
 | `subedit-cli.1` | `${CMAKE_INSTALL_MANDIR}/man1` |
 
-**Ce qu'on empaquette est ce que produira `make release`, issue #247.** La
-cible n'existe pas encore : pour obtenir un binaire optimisé on lance
-aujourd'hui `make bench` et on l'interrompt. Elle ne construira ni le banc ni le
+**Ce qu'on empaquette est ce que produit `make release`, issue #247.** La cible
+existe depuis cette phase ; auparavant, pour obtenir un binaire optimisé, on
+lançait `make bench` et on l'interrompait. Elle ne construit ni le banc ni le
 harnais de bout en bout — ce qui est demandé est ce qu'un utilisateur lance, pas
 ce qui l'éprouve.
 

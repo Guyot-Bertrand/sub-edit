@@ -37,6 +37,10 @@ SHELL := /bin/bash
 # couverture faux sans autre signe qu'un avertissement noyé dans la sortie.
 JOBS ?= 2
 
+# Où le preset release dépose ce qu'il produit. Nommé une fois : `make release`
+# l'annonce, et l'empaquetage ira l'y chercher.
+RELEASE_BIN := build/release/bin
+
 # Charge maximale sous laquelle une mesure de performance compte comme propre.
 #
 # Une et demie, et non deux : le seuil a été abaissé le jour même où il a été
@@ -128,6 +132,34 @@ build: ## Compile le preset dev
 	$(call step,"compilation (dev)")
 	@cmake --preset dev
 	@cmake --build --preset dev -j $(JOBS)
+
+# Le pendant release de `build`, et il ne produit que ce qu'un utilisateur lance.
+#
+# **Elle existe parce qu'on faisait sans.** Le contournement était de lancer
+# `make bench` et de l'interrompre une fois l'édition de liens passée : ça
+# marche, et ça a trois défauts — il compile aussi `subedit_bench`, dont on n'a
+# que faire ; il laisse une exécution à moitié faite, dont on ne sait plus si
+# elle a écrit au journal des mesures ; et il faut le surveiller pour savoir
+# quand interrompre.
+#
+# Ni le banc ni le harnais de bout en bout, donc : ils ont leurs propres cibles.
+# Ce qui est demandé ici est ce qu'un utilisateur lance, pas ce qui l'éprouve.
+#
+# `JOBS` gouverne le LTO, pour la raison écrite sur `bench` : sans lui,
+# l'optimisation entre modules part en `-flto=auto`, c'est-à-dire autant de
+# processus que de cœurs, à chaque édition de liens — un parallélisme qui
+# n'apparaît dans aucun `-j` et qui sature une machine sur laquelle on fait
+# autre chose. C'est aussi ce qui rend cette cible préférable aux deux commandes
+# `cmake` écrites à la main, qui n'en savent rien.
+#
+# **Elle n'exécute rien.** C'est ce que l'empaquetage installera — ADR 0023,
+# issue #244.
+.PHONY: release
+release: ## Produit les deux binaires optimisés, et rien d'autre
+	$(call step,"binaires (release)")
+	@cmake --preset release -DSUBEDIT_LTO_JOBS=$(JOBS)
+	@cmake --build --preset release -j $(JOBS) --target subedit-cli subedit-gui
+	@printf '  binaires : $(RELEASE_BIN)/subedit-cli, $(RELEASE_BIN)/subedit-gui\n'
 
 # N'exécute pas les tests de bout en bout : ils ne s'enregistrent dans CTest
 # que sous les presets asan et release — voir SUBEDIT_REGISTER_E2E dans
