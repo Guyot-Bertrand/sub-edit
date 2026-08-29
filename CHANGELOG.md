@@ -27,6 +27,7 @@ ne pas l'éditer à la main.
 - **doc** — Deux paquets natifs plutôt qu'un
 - **doc** — La cible release au futur, et dans le découpage
 - **doc** — Deux réglages de plus au cadrage de la phase 7
+- **doc** — Le manuel utilisateur complet
 
 ### Remaniements
 
