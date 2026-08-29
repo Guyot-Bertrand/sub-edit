@@ -133,3 +133,6 @@ plus rien.
 | `GUI-PLAYER-03` | une vidéo qui ne s'ouvre pas le dit, et laisse la fenêtre utilisable | 6 | implémentée |
 | `GUI-FRAMERATE-02` | la fréquence lue dans la vidéo est proposée, et sa provenance est dite | 6 | implémentée |
 | `GUI-BOUNDS-01` | une opération qui dépasse la fin du film le signale sans l'empêcher | 6 | implémentée |
+| `GUI-CONFIG-01` | la fenêtre retrouve sa géométrie et ses colonnes d'une session à l'autre | 7 | implémentée |
+| `GUI-CONFIG-02` | une valeur illisible laisse le défaut en place, et le dit | 7 | implémentée |
+| `GUI-CONFIG-03` | une option restée à son défaut est réécrite commentée, donc un défaut changé prend effet | 7 | implémentée |

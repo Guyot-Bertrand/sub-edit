@@ -89,6 +89,19 @@ public:
     [[nodiscard]] virtual std::expected<void, FileError>
     writeFile(const std::filesystem::path& path, std::string_view content) = 0;
 
+    /// Makes `directory` and every missing parent above it.
+    ///
+    /// **Already there is a success**, and that is the point: this is asked
+    /// before writing, and the directory existing is the ordinary case. A
+    /// version that failed on it would make every caller write the same
+    /// « unless it exists » around it.
+    ///
+    /// Here rather than in a caller because writing where nothing has ever
+    /// been written is part of writing: the settings of a machine that has
+    /// never run the program land in a directory nobody has made yet.
+    [[nodiscard]] virtual std::expected<void, FileError>
+    createDirectories(const std::filesystem::path& directory) = 0;
+
     /// Moves `from` onto `to`, replacing `to` if it exists.
     [[nodiscard]] virtual std::expected<void, FileError>
     rename(const std::filesystem::path& from, const std::filesystem::path& to) = 0;

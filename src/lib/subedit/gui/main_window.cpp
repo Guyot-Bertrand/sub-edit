@@ -968,4 +968,42 @@ void MainWindow::convertFrameRateOfTarget() {
 
 MainWindow::~MainWindow() = default;
 
+void MainWindow::applySettings(const core::Settings& settings) {
+    if (settings.geometry.has_value()) {
+        const core::WindowGeometry& where = *settings.geometry;
+        setGeometry(where.x, where.y, where.width, where.height);
+    }
+
+    if (settings.maximised)
+        setWindowState(windowState() | Qt::WindowMaximized);
+
+    // Les quatre premières colonnes seulement : la cinquième prend ce que les
+    // autres laissent, et lui poser une largeur ne ferait rien. Le lecteur a
+    // déjà refusé un compte différent, donc arriver ici avec autre chose
+    // voudrait dire que les deux ne parlent plus des mêmes colonnes.
+    if (settings.columnWidths.size() == core::kColumnWidthCount) {
+        for (std::size_t column = 0; column < core::kColumnWidthCount; ++column)
+            m_table->setColumnWidth(static_cast<int>(column), settings.columnWidths[column]);
+    }
+}
+
+core::Settings MainWindow::settings() const {
+    core::Settings settings;
+
+    // `normalGeometry()` et non `geometry()` : maximisée, la seconde rend la
+    // taille de l'écran, et la session suivante ne saurait plus quoi rendre à
+    // qui dé-maximise.
+    const QRect where = isMaximized() ? normalGeometry() : geometry();
+    settings.geometry = core::WindowGeometry{
+        .x = where.x(), .y = where.y(), .width = where.width(), .height = where.height()};
+
+    settings.maximised = isMaximized();
+
+    settings.columnWidths.reserve(core::kColumnWidthCount);
+    for (std::size_t column = 0; column < core::kColumnWidthCount; ++column)
+        settings.columnWidths.push_back(m_table->columnWidth(static_cast<int>(column)));
+
+    return settings;
+}
+
 } // namespace subedit::gui

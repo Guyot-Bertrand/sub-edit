@@ -62,6 +62,32 @@ namespace subedit::core {
 /// rather than at each call site.
 [[nodiscard]] std::string_view reasonOf(const OpenError& error);
 
+/// The lines a settings file opens with.
+///
+/// **Here rather than in the writer** because they are prose meant for whoever
+/// opens the file in an editor, and the project keeps every such word in one
+/// place. The key names are not: they are the format, like `WEBVTT` is, and a
+/// format is not wording.
+///
+/// Ends with a newline, and each line is already a comment.
+[[nodiscard]] std::string_view settingsFileHeader();
+
+/// What is wrong with an option, in the second half of a sentence starting with
+/// the file and the option's name.
+///
+/// One sentence for the only thing that can go wrong with a value the reader
+/// keeps a default for: it could not be read. Which value it was, and what the
+/// default is, belong to the caller — it has both, and this has neither.
+[[nodiscard]] std::string_view unreadableSetting();
+
+/// What is said when a settings file could not be written.
+///
+/// Its own sentence rather than `reasonOf(FileErrorKind)`, whose words are
+/// those of a reading: « cannot be read » is a strange thing to say about a
+/// save. Nothing more precise is offered on purpose — a settings file that
+/// will not be written costs a comfort, and the program carries on.
+[[nodiscard]] std::string_view settingsNotWritten();
+
 /// What a reader ran into, as a report writes it.
 ///
 /// A phrase and not a sentence: it is the middle of a line that already names

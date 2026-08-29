@@ -74,6 +74,29 @@ std::string_view reasonOf(const OpenError& error) {
     return std::visit([](const auto& one) { return reasonOf(one.kind); }, error);
 }
 
+std::string_view settingsFileHeader() {
+    return "# subedit settings.\n"
+           "#\n"
+           "# Options left at their default are written commented out. Uncomment a\n"
+           "# line and change its value to override it; delete the line to go back\n"
+           "# to the default, whatever that default becomes in a later version.\n"
+           "#\n"
+           "# Two of them default to whatever the window chooses rather than to a\n"
+           "# number: their commented line shows the shape of a value, not a\n"
+           "# default that is in force.\n"
+           "#\n"
+           "# A value this file cannot read is left at its default, and said so on\n"
+           "# the standard error when the program starts.\n";
+}
+
+std::string_view unreadableSetting() {
+    return "cannot be read, keeping the default";
+}
+
+std::string_view settingsNotWritten() {
+    return "settings could not be written";
+}
+
 std::string_view nameOf(AnomalyKind kind) {
     switch (kind) {
     case AnomalyKind::EndBeforeStart:

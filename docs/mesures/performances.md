@@ -212,9 +212,9 @@ pas le sujet de ce ticket.
 | décalage puis annulation | 12.8 µs | 0.4.15 — 2026-08-21 | 20.7 µs | 0.2.6 — 2026-08-13 |
 | transformation de 4000 sous-titres | 70.3 µs | 0.6.11 — 2026-08-27 | 93.3 µs | 0.2.12 — 2026-08-14 |
 | conversion de fréquence sur 4000 sous-titres | 66.8 µs | 0.6.11 — 2026-08-27 | 100 µs | 0.2.12 — 2026-08-14 |
-| tri de 4000 sous-titres à l'envers | 196 µs | 0.3.2 — 2026-08-15 | 742 µs | 0.5.0 — 2026-08-22 |
+| tri de 4000 sous-titres à l'envers | 196 µs | 0.3.2 — 2026-08-15 | 821 µs | 0.7.8 — 2026-08-29 |
 | suppression d'un sous-titre sur deux | 138 µs | 0.4.14 — 2026-08-21 | 12.5 ms | 0.3.3 — 2026-08-15 |
-| insertion de 100 sous-titres vides au milieu | 48.2 µs | 0.7.5 — 2026-08-29 | 96.2 µs | 0.5.3 — 2026-08-22 |
+| insertion de 100 sous-titres vides au milieu | 48.2 µs | 0.7.5 — 2026-08-29 | 102 µs | 0.7.8 — 2026-08-29 |
 | modification d'un texte, à travers une session | 114 ns | 0.2.14 — 2026-08-14 | 223 ns | 0.5.3 — 2026-08-22 |
 | suppression des mentions sur 4000 sous-titres | 850 µs | 0.4.9 — 2026-08-19 | 5.68 ms | 0.4.4 — 2026-08-17 |
 | suppression puis annulation | 213 µs | 0.4.14 — 2026-08-21 | 354 µs | 0.5.3 — 2026-08-22 |
@@ -243,9 +243,9 @@ pas le sujet de ce ticket.
 <!-- décalage puis annulation min=12847.6 max=20700.0 -->
 <!-- transformation de 4000 sous-titres min=70267.2 max=93300.0 -->
 <!-- conversion de fréquence sur 4000 sous-titres min=66839.4 max=100000.0 -->
-<!-- tri de 4000 sous-titres à l'envers min=196000.0 max=741836.0 -->
+<!-- tri de 4000 sous-titres à l'envers min=196000.0 max=821107.0 -->
 <!-- suppression d'un sous-titre sur deux min=137974.0 max=12500000.0 -->
-<!-- insertion de 100 sous-titres vides au milieu min=48185.9 max=96227.8 -->
+<!-- insertion de 100 sous-titres vides au milieu min=48185.9 max=101894.0 -->
 <!-- modification d'un texte, à travers une session min=114.0 max=222.951 -->
 <!-- suppression des mentions sur 4000 sous-titres min=850257.0 max=5676890.0 -->
 <!-- suppression puis annulation min=213280.0 max=353822.0 -->
@@ -268,6 +268,41 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.7.8 — 2026-08-29 — Release — charge 1.43 — allure ×0.77
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| la réplique en cours, sur 4000 sous-titres | 6.65 µs | 1.57 µs |
+| composer une réplique de deux lignes | 194 ns | 3.25 ns |
+| ouvrir une vidéo | 9.27 ms | 750 µs |
+| chercher une position | 572 µs | 185 µs |
+| construction du modèle sur 4000 sous-titres | 12.3 µs | 3.21 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 18.6 µs | 3.7 µs |
+| rafraîchir après un décalage de 4000 sous-titres | 12.2 µs | 4.07 µs |
+| réinitialisation du modèle après une ligne retirée | 12.4 µs | 3.59 µs |
+| édition d'une cellule de texte | 437 ns | 50.1 ns |
+| édition d'une cellule de position | 13.8 µs | 2.73 µs |
+| versionString | 35.7 ns | 2.13 ns |
+| parse | 36.8 ns | 3.03 ns |
+| format | 43.2 ns | 13.3 ns |
+| position vers image | 7.54 ns | 0.17 ns |
+| image vers position | 7.44 ns | 0.175 ns |
+| mise à l'échelle par un rationnel exact | 7.7 ns | 0.0832 ns |
+| lecture de 4000 sous-titres | 2.5 ms | 167 µs |
+| écriture de 4000 sous-titres | 594 µs | 28.4 µs |
+| décalage de 4000 sous-titres | 8.19 µs | 3.57 µs |
+| décalage puis annulation | 15.3 µs | 1.72 µs |
+| transformation de 4000 sous-titres | 79 µs | 7.4 µs |
+| conversion de fréquence sur 4000 sous-titres | 77 µs | 5.44 µs |
+| alignement sur 4000 sous-titres | 142 µs | 8.94 µs |
+| tri de 4000 sous-titres à l'envers | 821 µs | 852 µs |
+| suppression d'un sous-titre sur deux | 156 µs | 23.4 µs |
+| suppression puis annulation | 270 µs | 32.2 µs |
+| insertion de 100 sous-titres vides au milieu | 102 µs | 162 µs |
+| modification d'un texte, à travers une session | 185 ns | 31.4 ns |
+| suppression des mentions sur 4000 sous-titres | 995 µs | 60.4 µs |
+| déduction de fréquence sur 4000 sous-titres | 380 µs | 33.2 µs |
 
 ### 0.7.7 — 2026-08-29 — Release — charge 6.18 — allure ×1.50
 

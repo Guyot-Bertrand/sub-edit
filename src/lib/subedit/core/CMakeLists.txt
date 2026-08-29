@@ -37,6 +37,7 @@ add_library(
     text/lines.cpp
     format/subtitle_file.cpp
     format/project_file.cpp
+    config/settings.cpp
     format/format_detection.cpp
     format/sub_rip_reader.cpp
     format/sub_rip_writer.cpp
