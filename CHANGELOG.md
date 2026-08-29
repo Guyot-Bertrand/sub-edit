@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **doc** — Des captures d'écran engendrées pour le manuel
+- **gui** — La configuration persistée
 
 ### Construction
 
