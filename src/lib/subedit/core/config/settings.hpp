@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/theme.hpp>
 #include <subedit/core/io/file_system.hpp>
 
@@ -87,6 +88,13 @@ struct Settings {
     std::optional<std::filesystem::path> lastDirectory{};
 
     Theme theme = Theme::System;
+
+    /// De quel côté de la sélection `Insert Subtitles…` pose ses lignes.
+    ///
+    /// **Après elle par défaut**, ce qui est le défaut de Gaupol. C'est le sens
+    /// où l'on écrit un fichier de sous-titres : la ligne suivante vient après
+    /// celle qu'on vient de regarder.
+    InsertPlacement insertPlacement = InsertPlacement::Below;
 
     friend bool operator==(const Settings&, const Settings&) = default;
 };

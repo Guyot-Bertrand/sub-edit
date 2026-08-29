@@ -4,12 +4,14 @@
 #include <subedit/core/wording.hpp>
 
 #include <charconv>
+#include <concepts>
 #include <expected>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <type_traits>
 #include <vector>
 
 namespace subedit::core {
@@ -26,6 +28,7 @@ constexpr std::string_view kColumnsKey = "table.columns";
 constexpr std::string_view kTableShareKey = "window.table-share";
 constexpr std::string_view kDirectoryKey = "file.directory";
 constexpr std::string_view kThemeKey = "general.theme";
+constexpr std::string_view kInsertPlacementKey = "edit.insert-placement";
 
 // Les trois valeurs du thème, telles que le fichier les porte. En minuscules et
 // séparées de `nameOf(Theme)`, qui donne les intitulés du dialogue : ceci est un
@@ -33,6 +36,12 @@ constexpr std::string_view kThemeKey = "general.theme";
 constexpr std::string_view kSystemTheme = "system";
 constexpr std::string_view kLightTheme = "light";
 constexpr std::string_view kDarkTheme = "dark";
+
+// Les deux côtés d'une insertion, tels que le fichier les porte — et pour la
+// même raison que le thème : ce sont des jetons de format, pas les intitulés
+// que le dialogue montre.
+constexpr std::string_view kAbovePlacement = "above";
+constexpr std::string_view kBelowPlacement = "below";
 
 constexpr char kSeparator = '=';
 constexpr char kComment = '#';
@@ -114,6 +123,24 @@ constexpr char kListSeparator = ',';
     std::unreachable();
 }
 
+[[nodiscard]] std::optional<InsertPlacement> placementOf(std::string_view text) {
+    if (text == kAbovePlacement)
+        return InsertPlacement::Above;
+    if (text == kBelowPlacement)
+        return InsertPlacement::Below;
+    return std::nullopt;
+}
+
+[[nodiscard]] std::string_view textOf(InsertPlacement placement) {
+    switch (placement) {
+    case InsertPlacement::Above:
+        return kAbovePlacement;
+    case InsertPlacement::Below:
+        return kBelowPlacement;
+    }
+    std::unreachable();
+}
+
 [[nodiscard]] std::optional<int> tableShareOf(std::string_view text) {
     std::optional<int> share = integerOf(text);
     if (share.has_value() && (*share < kSmallestTableShare || *share > kLargestTableShare))
@@ -172,43 +199,39 @@ constexpr char kListSeparator = ',';
 /// version qui en connaissait plus n'est pas un fichier fautif, et c'est le mode
 /// d'échec que la tolérance choisit.
 void applyOption(SettingsRead& read, std::string_view key, std::string_view value) {
-    const auto unreadable = [&] {
-        read.diagnostics.push_back({.key = std::string{key}, .value = std::string{value}});
+    // Ce que les sept options font toutes de la même façon : poser ce qu'on a su
+    // lire, nommer l'option sinon. Écrit une fois plutôt que sept, et ce n'est
+    // pas qu'une économie de lignes — la septième option a fait franchir à cette
+    // fonction le seuil de complexité que la porte tient.
+    const auto take = [&read, key, value](auto parsed, auto& field) {
+        if (!parsed.has_value()) {
+            read.diagnostics.push_back({.key = std::string{key}, .value = std::string{value}});
+            return;
+        }
+
+        // **Un réglage qui est lui-même optionnel reçoit l'optionnel tel quel**,
+        // et n'est pas déballé pour être remballé : c'est le même contenu, et un
+        // déréférencement de moins.
+        if constexpr (std::same_as<std::remove_cvref_t<decltype(field)>, decltype(parsed)>)
+            field = std::move(parsed);
+        else
+            field = *std::move(parsed);
     };
 
-    if (key == kGeometryKey) {
-        if (const std::optional<WindowGeometry> geometry = geometryOf(value))
-            read.settings.geometry = *geometry;
-        else
-            unreadable();
-    } else if (key == kMaximisedKey) {
-        if (const std::optional<bool> maximised = booleanOf(value))
-            read.settings.maximised = *maximised;
-        else
-            unreadable();
-    } else if (key == kColumnsKey) {
-        if (const std::optional<std::vector<int>> widths = columnsOf(value))
-            read.settings.columnWidths = *widths;
-        else
-            unreadable();
-    } else if (key == kTableShareKey) {
-        // L'optionnel est passé tel quel plutôt que déballé puis remballé :
-        // c'est le même contenu, et un déréférencement de moins.
-        if (const std::optional<int> share = tableShareOf(value); share.has_value())
-            read.settings.tableShare = share;
-        else
-            unreadable();
-    } else if (key == kDirectoryKey) {
-        if (std::optional<std::filesystem::path> directory = directoryOf(value))
-            read.settings.lastDirectory = *std::move(directory);
-        else
-            unreadable();
-    } else if (key == kThemeKey) {
-        if (const std::optional<Theme> theme = themeOf(value))
-            read.settings.theme = *theme;
-        else
-            unreadable();
-    }
+    if (key == kGeometryKey)
+        take(geometryOf(value), read.settings.geometry);
+    else if (key == kMaximisedKey)
+        take(booleanOf(value), read.settings.maximised);
+    else if (key == kColumnsKey)
+        take(columnsOf(value), read.settings.columnWidths);
+    else if (key == kTableShareKey)
+        take(tableShareOf(value), read.settings.tableShare);
+    else if (key == kDirectoryKey)
+        take(directoryOf(value), read.settings.lastDirectory);
+    else if (key == kThemeKey)
+        take(themeOf(value), read.settings.theme);
+    else if (key == kInsertPlacementKey)
+        take(placementOf(value), read.settings.insertPlacement);
 }
 
 /// Une option, écrite nue si elle est réglée, commentée si elle est au défaut.
@@ -293,6 +316,11 @@ std::string renderSettings(const Settings& settings) {
 
     writeOption(
         out, kThemeKey, std::string{textOf(settings.theme)}, settings.theme == Theme::System);
+
+    writeOption(out,
+                kInsertPlacementKey,
+                std::string{textOf(settings.insertPlacement)},
+                settings.insertPlacement == InsertPlacement::Below);
 
     return out;
 }

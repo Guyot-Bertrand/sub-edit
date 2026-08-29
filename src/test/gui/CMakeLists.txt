@@ -13,7 +13,7 @@ add_executable(
     cell_delegates_test.cpp command_label_test.cpp
     window_files_test.cpp qt_prompts_test.cpp target_test.cpp
     operation_dialogs_test.cpp window_operations_test.cpp
-    window_hearing_impaired_test.cpp anomaly_marking_test.cpp
+    window_hearing_impaired_test.cpp window_insert_test.cpp anomaly_marking_test.cpp
     main_window_test.cpp mpv_player_test.cpp window_video_test.cpp
     window_player_test.cpp player_factory_test.cpp invocation_test.cpp
     window_video_bounds_test.cpp window_grid_test.cpp

@@ -12,10 +12,8 @@
 
 namespace subedit::gui {
 
-core::Selection targetOf(const QItemSelectionModel& selection, const core::Project& project) {
+core::Selection selectionOf(const QItemSelectionModel& selection) {
     const QModelIndexList rows = selection.selectedRows();
-    if (rows.isEmpty())
-        return core::Selection::all(project);
 
     std::vector<core::SubtitleIndex> indices;
     indices.reserve(static_cast<std::size_t>(rows.size()));
@@ -26,6 +24,11 @@ core::Selection targetOf(const QItemSelectionModel& selection, const core::Proje
     // back follows the order of the clicks, and nobody downstream has to put up
     // with that.
     return core::Selection::of(indices);
+}
+
+core::Selection targetOf(const QItemSelectionModel& selection, const core::Project& project) {
+    const core::Selection selected = selectionOf(selection);
+    return selected.isEmpty() ? core::Selection::all(project) : selected;
 }
 
 } // namespace subedit::gui

@@ -19,6 +19,7 @@
 #include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/analysis/grid_verdict.hpp>
 #include <subedit/core/command/command_kind.hpp>
+#include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/theme.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
 #include <subedit/core/format/diagnostic.hpp>
@@ -70,6 +71,13 @@ namespace subedit::core {
 /// of an interface to the shape of a file, and the day the interface is
 /// translated the file would follow.
 [[nodiscard]] std::string_view nameOf(Theme theme);
+
+/// A side of the selection, as the insertion dialog offers it.
+///
+/// Separate from the token the settings file carries, for the reason
+/// `nameOf(Theme)` is: one is prose a reader picks from a pair of buttons, the
+/// other is a format.
+[[nodiscard]] std::string_view nameOf(InsertPlacement placement);
 
 /// What « system » does, in the second half of a sentence about the theme.
 ///

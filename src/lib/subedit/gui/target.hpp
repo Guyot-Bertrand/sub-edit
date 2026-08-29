@@ -10,6 +10,15 @@ class Project;
 
 namespace subedit::gui {
 
+/// The rows the user actually selected, and nothing more.
+///
+/// **Empty means empty**, which is the whole difference with `targetOf` below:
+/// a removal reads « nothing selected » as « nothing to do », where a shift
+/// reads it as « the whole file ». One convention could not serve both, and
+/// letting a removal go through `targetOf` would empty a document on a stray
+/// `Suppr`.
+[[nodiscard]] core::Selection selectionOf(const QItemSelectionModel& selection);
+
 /// What an operation is about to touch: the selected rows, or the whole file.
 ///
 /// **Nothing selected means everything**, which is what makes the dialogs
