@@ -15,6 +15,7 @@ ne pas l'éditer à la main.
 - **gui** — La configuration persistée
 - **gui** — Le thème, la poignée et le dernier répertoire
 - **gui** — Insérer et supprimer des lignes depuis la fenêtre
+- **build** — L'empaquetage, règles install(), .deb et .rpm
 
 ### Construction
 
