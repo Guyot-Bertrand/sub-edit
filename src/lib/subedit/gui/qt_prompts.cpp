@@ -54,9 +54,11 @@ UnsavedChoice choiceOf(int button) {
     }
 }
 
-std::optional<std::filesystem::path> QtPrompts::fileToOpen() {
-    const QString chosen =
-        QFileDialog::getOpenFileName(m_owner, QStringLiteral("Open"), {}, subtitleFilters());
+std::optional<std::filesystem::path> QtPrompts::fileToOpen(const std::filesystem::path& directory) {
+    const QString chosen = QFileDialog::getOpenFileName(m_owner,
+                                                        QStringLiteral("Open"),
+                                                        QString::fromStdString(directory.string()),
+                                                        subtitleFilters());
     if (chosen.isEmpty())
         return std::nullopt;
 

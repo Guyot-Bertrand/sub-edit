@@ -46,7 +46,14 @@ public:
     virtual ~Prompts() = default;
 
     /// Which file to open, or nothing if the user changed their mind.
-    [[nodiscard]] virtual std::optional<std::filesystem::path> fileToOpen() = 0;
+    ///
+    /// `directory` is where the question opens — le répertoire du dernier
+    /// fichier ouvert ou enregistré, vide au premier lancement. Sans lui, la
+    /// boîte s'ouvre là où le processus a été lancé, c'est-à-dire nulle part
+    /// d'utile quand il vient d'un menu de bureau. Le chercheur de film reçoit
+    /// le sien depuis toujours ; celui-ci l'a gagné avec #254.
+    [[nodiscard]] virtual std::optional<std::filesystem::path>
+    fileToOpen(const std::filesystem::path& directory) = 0;
 
     /// Which film to watch the document against, or nothing if the user
     /// changed their mind.

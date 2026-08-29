@@ -19,6 +19,7 @@
 #include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/analysis/grid_verdict.hpp>
 #include <subedit/core/command/command_kind.hpp>
+#include <subedit/core/config/theme.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/open_error.hpp>
@@ -61,6 +62,21 @@ namespace subedit::core {
 /// already say all seven — only the choice between them is made in one place
 /// rather than at each call site.
 [[nodiscard]] std::string_view reasonOf(const OpenError& error);
+
+/// A theme, as the preferences dialog offers it.
+///
+/// Separate from the token the settings file carries — one is prose a reader
+/// picks from a list, the other is a format. Merging them would tie the words
+/// of an interface to the shape of a file, and the day the interface is
+/// translated the file would follow.
+[[nodiscard]] std::string_view nameOf(Theme theme);
+
+/// What « system » does, in the second half of a sentence about the theme.
+///
+/// It does nothing, and the manual has to say so rather than let a reader
+/// wonder: Qt 6.4 has no colour-scheme API, so the palette stays the
+/// platform's.
+[[nodiscard]] std::string_view systemThemeExplained();
 
 /// The lines a settings file opens with.
 ///

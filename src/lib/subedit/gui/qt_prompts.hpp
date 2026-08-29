@@ -63,7 +63,8 @@ public:
     /// class can get wrong on its own, without any modal loop, and it did.
     [[nodiscard]] QWidget* owner() const { return m_owner; }
 
-    [[nodiscard]] std::optional<std::filesystem::path> fileToOpen() override;
+    [[nodiscard]] std::optional<std::filesystem::path>
+    fileToOpen(const std::filesystem::path& directory) override;
 
     [[nodiscard]] std::optional<std::filesystem::path>
     videoToOpen(const std::filesystem::path& directory) override;

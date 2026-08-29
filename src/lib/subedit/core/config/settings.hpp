@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/config/theme.hpp>
 #include <subedit/core/io/file_system.hpp>
 
 #include <cstddef>
@@ -20,6 +21,14 @@ struct WindowGeometry {
 
     friend bool operator==(const WindowGeometry&, const WindowGeometry&) = default;
 };
+
+/// Les bornes de la part donnée à la table, en pour cent.
+///
+/// Ni zéro ni cent : une table haute de rien, ou une bande vidéo haute de rien,
+/// est une fenêtre qu'on ne saurait plus rouvrir autrement qu'en effaçant son
+/// fichier de configuration.
+inline constexpr int kSmallestTableShare = 1;
+inline constexpr int kLargestTableShare = 99;
 
 /// How many column widths a settings file gives.
 ///
@@ -54,6 +63,30 @@ struct Settings {
     /// Empty, or exactly `kColumnWidthCount` widths in pixels. Empty means
     /// « as the table sizes itself », which is the default.
     std::vector<int> columnWidths{};
+
+    /// The share of the window's height the table takes, in per cent.
+    ///
+    /// **Une proportion et non des hauteurs**, et c'est le point à poser :
+    /// trois hauteurs absolues qui ne totalisent pas la fenêtre ne veulent rien
+    /// dire dès que celle-ci s'ouvre à une autre taille, et une fenêtre s'ouvre
+    /// souvent à une autre taille. Une part, elle, se rejoue partout.
+    ///
+    /// Absente par défaut : la fenêtre partage alors sa hauteur comme elle l'a
+    /// toujours fait.
+    std::optional<int> tableShare{};
+
+    /// Où la boîte « ouvrir » s'ouvre, absolu ou absent.
+    ///
+    /// **Retenir un répertoire n'est pas retenir un fichier**, et c'est la
+    /// coupure du critère D5 : un répertoire *pointe* une boîte de dialogue,
+    /// un fichier rouvrirait au lancement un document que personne n'a
+    /// demandé.
+    ///
+    /// Absolu, ou rien : un chemin relatif dans un fichier de configuration est
+    /// relatif à un répertoire courant que personne ne connaît.
+    std::optional<std::filesystem::path> lastDirectory{};
+
+    Theme theme = Theme::System;
 
     friend bool operator==(const Settings&, const Settings&) = default;
 };

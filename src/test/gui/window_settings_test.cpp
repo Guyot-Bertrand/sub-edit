@@ -13,13 +13,20 @@
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
+#include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
+#include <subedit/gui/theme.hpp>
 
+#include <QAction>
+#include <QComboBox>
+#include <QDialog>
 #include <QRect>
 #include <Qt>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <cstdlib>
+#include <filesystem>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -33,6 +40,7 @@ using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::openProject;
 using subedit::core::Settings;
+using subedit::core::Theme;
 using subedit::core::WindowGeometry;
 using subedit::gui::MainWindow;
 using subedit::test::FakePrompts;
@@ -48,6 +56,10 @@ constexpr const char* kThree = "1\n"
 
 constexpr const char* kPath = "/config/subedit/settings.conf";
 
+/// « Sombre », troisième de la liste — l'ordre du dialogue est système, clair,
+/// sombre, celle qui ne fait rien en premier puisqu'elle est le défaut.
+constexpr int kDarkIndex = 2;
+
 /// Une fenêtre sur un document, montrée : une fenêtre jamais montrée n'a pas de
 /// vraie géométrie, donc rien à retenir.
 class Windowed {
@@ -61,6 +73,8 @@ public:
     [[nodiscard]] MainWindow& window() { return *m_window; }
 
     [[nodiscard]] InMemoryFileSystem& files() { return m_files; }
+
+    [[nodiscard]] FakePrompts& prompts() { return m_prompts; }
 
 private:
     InMemoryFileSystem m_files;
@@ -162,6 +176,143 @@ TEST_CASE("sans réglages, la fenêtre s'ouvre comme elle l'a toujours fait",
 
     CHECK(window.width() >= 1200);
     CHECK(window.height() >= 800);
+}
+
+// ## La poignée — #254
+
+TEST_CASE("la part donnée à la table se pose et se relit", "[gui][config][GUI-CONFIG-01]") {
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    window.setGeometry(0, 0, 1000, 800);
+    window.show();
+
+    window.applySettings(Settings{.tableShare = 40});
+    const Settings once = window.settings();
+
+    // **Stable plutôt qu'exacte**, et c'est la bonne promesse. La bande du haut
+    // a une hauteur minimale, donc une part trop petite est ramenée à ce que le
+    // séparateur accepte — ce qui est juste, et non un défaut. Ce qui doit
+    // tenir est qu'une part relue et reposée ne bouge plus : sans cela, la
+    // poignée dériverait d'un lancement à l'autre.
+    REQUIRE(once.tableShare.has_value());
+    window.applySettings(once);
+    CHECK(window.settings().tableShare == once.tableShare);
+}
+
+TEST_CASE("une part plus grande donne une table plus haute", "[gui][config][GUI-CONFIG-01]") {
+    // L'autre moitié : une part stable qui ne voudrait rien dire serait stable
+    // pour rien.
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    window.setGeometry(0, 0, 1000, 800);
+    window.show();
+
+    window.applySettings(Settings{.tableShare = 30});
+    const int narrow = window.settings().tableShare.value_or(0);
+    window.applySettings(Settings{.tableShare = 80});
+
+    CHECK(window.settings().tableShare.value_or(0) > narrow);
+}
+
+TEST_CASE("sans part enregistrée, la poignée reste où la fenêtre la met",
+          "[gui][config][GUI-CONFIG-01]") {
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    window.show();
+    const Settings before = window.settings();
+
+    window.applySettings(Settings{});
+
+    CHECK(window.settings().tableShare == before.tableShare);
+}
+
+// ## Le dernier répertoire — #254
+
+TEST_CASE("la boîte « ouvrir » s'ouvre sur le répertoire du dernier fichier",
+          "[gui][config][GUI-CONFIG-01]") {
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    window.applySettings(Settings{.lastDirectory = std::filesystem::path{"/films/quai"}});
+    window.show();
+
+    window.openAction()->trigger();
+
+    CHECK(fixture.prompts().lastOpenDirectory == std::filesystem::path{"/films/quai"});
+}
+
+TEST_CASE("une boîte annulée ne déplace pas le répertoire retenu", "[gui][config][GUI-CONFIG-01]") {
+    // Ce qui compte est où l'utilisateur travaille, pas où il a regardé.
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    window.applySettings(Settings{.lastDirectory = std::filesystem::path{"/films/quai"}});
+    window.show();
+    fixture.prompts().nextFileToOpen = {};
+
+    window.openAction()->trigger();
+
+    CHECK(window.settings().lastDirectory == std::filesystem::path{"/films/quai"});
+}
+
+TEST_CASE("ouvrir un fichier retient son répertoire", "[gui][config][GUI-CONFIG-01]") {
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    fixture.files().addFile("/ailleurs/autre.srt", kThree);
+    fixture.prompts().nextFileToOpen = "/ailleurs/autre.srt";
+    window.show();
+
+    window.openAction()->trigger();
+
+    CHECK(window.settings().lastDirectory == std::filesystem::path{"/ailleurs"});
+}
+
+// ## Le thème — #241
+
+TEST_CASE("le thème choisi dans les préférences est celui que la fenêtre rend",
+          "[gui][config][GUI-THEME-01]") {
+    const subedit::gui::PreferencesDialog probe{Theme::System};
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    window.show();
+
+    // Le faux remplit le dialogue puis répond « validé », ce qu'un humain fait
+    // en choisissant dans la liste avant de cliquer.
+    fixture.prompts().fill = [](QDialog& dialog) {
+        auto* preferences = dynamic_cast<subedit::gui::PreferencesDialog*>(&dialog);
+        if (preferences != nullptr)
+            preferences->themeBox()->setCurrentIndex(kDarkIndex);
+    };
+    fixture.prompts().nextRun = true;
+
+    window.preferencesAction()->trigger();
+
+    CHECK(window.settings().theme == Theme::Dark);
+    CHECK(probe.theme() == Theme::System);
+}
+
+TEST_CASE("des préférences annulées ne changent rien", "[gui][config][GUI-THEME-01]") {
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    window.applySettings(Settings{.theme = Theme::Light});
+    window.show();
+
+    fixture.prompts().fill = [](QDialog& dialog) {
+        auto* preferences = dynamic_cast<subedit::gui::PreferencesDialog*>(&dialog);
+        if (preferences != nullptr)
+            preferences->themeBox()->setCurrentIndex(kDarkIndex);
+    };
+    fixture.prompts().nextRun = false;
+
+    window.preferencesAction()->trigger();
+
+    CHECK(window.settings().theme == Theme::Light);
+}
+
+TEST_CASE("un thème enregistré est celui que la fenêtre rouvre", "[gui][config][GUI-THEME-01]") {
+    Windowed fixture;
+
+    fixture.window().applySettings(Settings{.theme = Theme::Light});
+
+    CHECK(fixture.window().settings().theme == Theme::Light);
 }
 
 // ## Ce que le câblage écrit sur la sortie d'erreur

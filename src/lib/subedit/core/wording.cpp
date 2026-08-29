@@ -74,6 +74,22 @@ std::string_view reasonOf(const OpenError& error) {
     return std::visit([](const auto& one) { return reasonOf(one.kind); }, error);
 }
 
+std::string_view nameOf(Theme theme) {
+    switch (theme) {
+    case Theme::System:
+        return "System";
+    case Theme::Light:
+        return "Light";
+    case Theme::Dark:
+        return "Dark";
+    }
+    std::unreachable();
+}
+
+std::string_view systemThemeExplained() {
+    return "leaves the colours to the desktop";
+}
+
 std::string_view settingsFileHeader() {
     return "# subedit settings.\n"
            "#\n"

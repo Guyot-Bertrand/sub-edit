@@ -31,6 +31,7 @@ class QAction;
 class QCloseEvent;
 class QLabel;
 class QShowEvent;
+class QSplitter;
 class QTimer;
 
 namespace subedit::gui {
@@ -131,6 +132,9 @@ public:
     [[nodiscard]] QAction* frameRateAction() const { return m_frameRate; }
 
     [[nodiscard]] QAction* hearingImpairedAction() const { return m_hearingImpaired; }
+
+    /// L'entrée qui ouvre les préférences, pour qu'un test la déclenche.
+    [[nodiscard]] QAction* preferencesAction() const { return m_preferences; }
 
     [[nodiscard]] QAction* selectVideoAction() const { return m_selectVideo; }
 
@@ -279,6 +283,13 @@ private:
     /// Says who this is and which version is running.
     void about();
 
+    /// Ouvre les préférences, et pose ce qui en sort.
+    void openPreferences();
+
+    /// Retient le répertoire de `file` comme celui où la prochaine boîte
+    /// « ouvrir » s'ouvrira.
+    void rememberDirectoryOf(const std::filesystem::path& file);
+
     /// Asks which grid to lay the positions on, and lays them on it.
     void snapToFrameRate();
 
@@ -358,6 +369,7 @@ private:
     QAction* m_analyseGrid = nullptr;
     QAction* m_snap = nullptr;
     QAction* m_shiftOntoGrid = nullptr;
+    QAction* m_preferences = nullptr;
     QAction* m_about = nullptr;
     QAction* m_manual = nullptr;
     QAction* m_selectVideo = nullptr;
@@ -366,6 +378,7 @@ private:
     QLabel* m_gridStatus = nullptr;
     QWidget* m_videoView = nullptr;
     QWidget* m_noVideo = nullptr;
+    QSplitter* m_split = nullptr;
     QTimer* m_ticker = nullptr;
 
     PlayerFactory m_buildPlayer{};
@@ -379,6 +392,17 @@ private:
     /// be offered to the player again — and refused again, and reported again
     /// — every time the naming convention speaks.
     std::filesystem::path m_associated;
+
+    /// Le thème demandé, qu'on rendra aux réglages. Posé, pas déduit : la
+    /// palette courante ne dit pas lequel des trois l'a produite.
+    core::Theme m_theme = core::Theme::System;
+
+    /// Le répertoire où la boîte « ouvrir » s'ouvrira.
+    ///
+    /// Celui du dernier fichier **ouvert ou enregistré**, et non celui d'une
+    /// boîte annulée : ce qui compte est où l'utilisateur travaille, pas où il
+    /// a regardé.
+    std::filesystem::path m_lastDirectory;
 
     /// Whether a film is open and being drawn.
     bool m_watching = false;

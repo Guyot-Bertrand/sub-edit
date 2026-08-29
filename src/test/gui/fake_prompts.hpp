@@ -38,8 +38,13 @@ public:
     /// point — a dialog that ignored it would open on nowhere.
     core::SourceFile lastCurrent{};
 
-    [[nodiscard]] std::optional<std::filesystem::path> fileToOpen() override {
+    /// Où la dernière question s'est ouverte, pour qu'un test le lise.
+    std::filesystem::path lastOpenDirectory{};
+
+    [[nodiscard]] std::optional<std::filesystem::path>
+    fileToOpen(const std::filesystem::path& directory) override {
         ++openAsked;
+        lastOpenDirectory = directory;
         return nextFileToOpen;
     }
 
