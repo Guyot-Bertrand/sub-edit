@@ -13,6 +13,10 @@ ne pas l'éditer à la main.
 
 - **doc** — Des captures d'écran engendrées pour le manuel
 
+### Construction
+
+- **build** — Une cible qui produit les binaires optimisés
+
 ### Documentation
 
 - **doc** — Cadrage de la phase 7, finitions et livraison

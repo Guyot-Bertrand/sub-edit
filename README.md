@@ -24,6 +24,7 @@ d'outils de vérification.
 ```bash
 ./src/scripts/setup-toolchain.sh   # ninja, clang-tidy, clang-format, gcovr, ccache, git-cliff, Qt 6, libmpv, ffmpeg
 make build                         # compile
+make release                       # les deux binaires optimisés, et rien d'autre
 make test                          # compile et exécute les tests (hors bout en bout — voir make asan)
 make check                         # la porte de qualité complète
 make help                          # toutes les cibles
