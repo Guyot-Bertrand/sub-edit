@@ -121,13 +121,34 @@ qui manque toujours : une préférence est facile à ajouter et impossible à
 retirer une fois qu'un utilisateur s'y appuie.
 
 Ce qui passe : géométrie de la fenêtre, état maximisé, largeur des colonnes,
-thème, fréquence d'image par défaut.
+thème, fréquence d'image par défaut. **Plus deux, ajoutées après coup** — la
+position de la poignée entre la vidéo et la table, et le dernier répertoire
+ouvert : #254 les porte, et le paragraphe ci-dessous dit pourquoi la seconde
+passe là où le dernier *fichier* ne passe pas.
 
 Ce qui ne passe pas, et pourquoi : **le dernier fichier ouvert.** S'en souvenir
 veut dire rouvrir au lancement un document que l'utilisateur n'a pas demandé,
 et le mode strict de l'ADR 0012 fait qu'ouvrir n'est pas neutre. La liste des
 fichiers récents est autre chose — une fonctionnalité, pas une préférence —, et
 elle n'est pas de cette phase.
+
+**Retenir un répertoire n'est pas retenir un fichier**, et c'est la coupure que
+le critère fait passer là où on ne l'attend pas : un répertoire *pointe* une
+boîte de dialogue, il n'ouvre rien. Les deux moitiés du critère ne tranchent
+pas au même endroit, et c'est la seconde — « s'en souvenir est sans risque » —
+qu'on oublie de poser.
+
+**Ce que la relecture de #240 a écarté**, et qui vaut d'être écrit pour ne pas
+être reproposé : le panneau de diagnostics replié — le replier coûte un clic ;
+le volume du lecteur — il n'y a pas de réglage de volume avant la barre de
+lecture ; le format d'enregistrement par défaut — il vient du fichier ouvert,
+ADR 0018 ; et **tout nombre qui appartient à un document** — une durée de
+décalage, deux repères de transformation, vrais d'un fichier et faux du suivant.
+
+Elle a aussi mesuré ce que la conception avait déjà économisé. Les trois quarts
+de la centaine d'options de Gaupol sont l'état collant d'un dialogue, dont six
+`target` qui disent sur quoi une opération porte. `targetOf()` le déduit de la
+sélection, donc aucune n'a d'équivalent ici.
 
 **D6 — `Help ▸ Manual` ouvre le manuel installé, et non une URL.** Gaupol ouvre
 une URL ; nous ne le suivons pas ici, et pour une raison précise : **une URL
@@ -321,8 +342,9 @@ aujourd'hui que l'outil se lance depuis l'arbre de construction.
 | #154 | une seule recette d'ouverture | — |
 | #240 | la configuration persistée | #238, D1 |
 | #241 | le thème clair et sombre | #240, D3 |
+| #254 | la poignée et le dernier répertoire retenus | #240, D5 |
 | #242 | insérer et supprimer depuis la fenêtre | D7 |
-| #243 | le manuel utilisateur complet | #199, #240, #241, #242 |
+| #243 | le manuel utilisateur complet | #199, #240, #241, #242, #254 |
 | #244 | l'empaquetage : `install()`, `.deb` et `.rpm` | #243, #239, #247 |
 | #245 | `Help ▸ Manual` rallumée | #244, D6 |
 
@@ -332,6 +354,9 @@ aujourd'hui que l'outil se lance depuis l'arbre de construction.
 #245 est dernière par construction, et c'est une chaîne sans raccourci : le
 manuel doit être complet pour être installé, l'empaquetage doit être tranché
 pour décider où il vit, et l'entrée ne se rallume qu'une fois les deux faits.
+
+#254 est née de la relecture de #240 plutôt que de ce cadrage, et elle touche le
+même type que #241 : les faire ensemble évite un conflit sur `core::Settings`.
 
 ## Renvois
 
@@ -345,7 +370,7 @@ pour décider où il vit, et l'entrée ne se rallume qu'une fois les deux faits.
 
 ## Critères de fin
 
-- [ ] Les six issues d'implémentation sont fermées, plus #154, #199, #238, #239
+- [ ] Les six issues d'implémentation sont fermées, plus #154, #199, #238, #239, #247, #254
 - [ ] Un tiers installe le paquet et lance l'outil sans l'arbre de construction
 - [ ] Le manuel décrit ce qui existe, captures comprises, dans les deux thèmes
 - [ ] `Help ▸ Manual` ouvre le manuel installé
