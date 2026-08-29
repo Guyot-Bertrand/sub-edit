@@ -47,6 +47,12 @@
 # l'autre genre, celui d'`expect_gate_stays_open` — un fichier non suivi qui
 # était déjà là et qu'il ne faut surtout pas signaler.
 #
+# La suivante vise `make install-check` — #239 : des règles `install()` qui
+# oublient un fichier de données. C'est le seul contrôle du dépôt qui regarde une
+# installation propre, et le défaut qu'il attrape est invisible partout ailleurs
+# — dans l'arbre de construction, le fichier est là parce que le dépôt le
+# contient, pas parce qu'une règle l'a copié.
+#
 # Les deux suivantes visent les captures d'écran du manuel — #199 : une
 # référence qui ne correspond plus à la fenêtre, que `make screenshots-check`
 # doit refuser, et une image que le manuel montre sans que rien ne l'engendre,
@@ -99,6 +105,7 @@ readonly VIDEO_FIXTURE="${REPO_ROOT}/src/test/data/videos/cadence-25.mp4"
 readonly GRID_FIXTURE="${REPO_ROOT}/src/test/data/grilles/grille-25.srt"
 readonly GUI_MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-gui/table.md"
 readonly CAPTURE_REFERENCE="${REPO_ROOT}/docs/manual/subedit-gui/captures/table.png"
+readonly INSTALLATION_SOURCE="${REPO_ROOT}/cmake/Installation.cmake"
 readonly OTHER_CAPTURE="${REPO_ROOT}/docs/manual/subedit-gui/captures/decalage.png"
 # Le fichier témoin de la preuve des fichiers laissés derrière. Il ne sauvegarde
 # rien : il est créé par la preuve et doit disparaître avec elle, y compris si
@@ -131,6 +138,7 @@ restore() {
     cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
     cp "${backup_dir}/table.md" "${GUI_MANUAL_SOURCE}"
     cp "${backup_dir}/table.png" "${CAPTURE_REFERENCE}"
+    cp "${backup_dir}/Installation.cmake" "${INSTALLATION_SOURCE}"
     rm -f "${STRAY_FILE}"
 }
 
@@ -155,6 +163,7 @@ cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
 cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
 cp "${GUI_MANUAL_SOURCE}" "${backup_dir}/table.md"
 cp "${CAPTURE_REFERENCE}" "${backup_dir}/table.png"
+cp "${INSTALLATION_SOURCE}" "${backup_dir}/Installation.cmake"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -739,6 +748,38 @@ expect_screenshot_gates() {
 
 expect_screenshot_gates
 
+# Les règles d installation oublient un fichier de données — #239.
+#
+# **L injection réduit les règles aux seuls binaires**, plutôt que d ajouter du
+# texte à la fin du fichier : le défaut consiste ici à ne pas copier quelque
+# chose, et rien de ce qu on ajoute en fin de fichier ne défait un `install()`
+# écrit plus haut.
+#
+# Une seule preuve et non deux, contrairement aux portes voisines : ce contrôle
+# n a pas de mode d échec par excès. Il ne compare pas deux relevés et ne
+# signale rien qui préexiste — il installe dans un préfixe neuf à chaque
+# exécution, donc il ne peut pas crier au loup sur l état de la machine.
+expect_installation_gate() {
+    printf '%s▸ des règles install() qui oublient le manuel%s\n' "${BOLD}" "${RESET}"
+
+    cat > "${INSTALLATION_SOURCE}" <<'BROKEN'
+include(GNUInstallDirs)
+install(TARGETS subedit-cli subedit-gui RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+BROKEN
+
+    if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
+        printf '  %s✗ la porte « install-check » a laissé passer le manuel absent%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    restore
+}
+
+expect_installation_gate
+
 # Une preuve d un troisième genre. prune-runs.sh n est pas une porte : il ne
 # refuse rien, il choisit. Ce qui peut être faux chez lui n est donc pas de
 # laisser passer un défaut, mais de supprimer une exécution qu il fallait garder
@@ -981,7 +1022,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles trente-deux portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles trente-trois portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

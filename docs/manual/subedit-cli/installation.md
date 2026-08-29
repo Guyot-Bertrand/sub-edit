@@ -1,6 +1,7 @@
 # Installation
 
-subedit n'est pas encore empaqueté. L'outil se construit depuis les sources.
+subedit n'est pas encore empaqueté : il n'existe ni `.deb` ni `.rpm`. L'outil se
+construit depuis les sources, et **s'installe** ensuite où l'on veut.
 
 ## Prérequis
 
@@ -35,6 +36,30 @@ harnais de bout en bout, qui ont leurs propres cibles.
 de quoi savoir combien de processus l'optimisation entre modules a le droit de
 lancer : à chaque édition de liens, elle en démarre autant qu'il y a de cœurs.
 `make release` lui passe `JOBS`, comme au reste de la construction.
+
+## Installer
+
+```bash
+make release
+cmake --install build/release --prefix ~/.local
+```
+
+Ce qui est déposé, aux chemins que `GNUInstallDirs` fixe pour le préfixe
+choisi :
+
+| Fichier | Où |
+| :------ | :- |
+| `subedit-cli`, `subedit-gui` | `<préfixe>/bin` |
+| le manuel, en Markdown | `<préfixe>/share/subedit/manual` |
+
+Avec `--prefix ~/.local`, les deux binaires atterrissent dans `~/.local/bin`,
+qui est dans le `PATH` de la plupart des distributions. Un préfixe système —
+`/usr/local`, par exemple — demande les droits correspondants.
+
+**Ce que l'installation ne pose pas encore** : l'entrée de menu de bureau,
+l'icône et les métadonnées de logithèque. Elles viennent avec l'empaquetage, et
+d'ici là `subedit-gui` se lance depuis un terminal comme n'importe quelle autre
+commande.
 
 ## Construire l'outil seul
 

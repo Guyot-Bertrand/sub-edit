@@ -208,10 +208,10 @@ avec un objectif d'iso-fonctionnalité.
   `~/.config/subedit`, que `git ls-files` ne voit pas. Ce qui le tient au vert :
   **un test ne résout jamais un emplacement de configuration, il en reçoit
   un.** Le seul code qui en résout un est `gui::userSettingsPath()` — ADR 0022 —
-  et rien ne l'appelle pour écrire. Les deux harnais qui lancent quelque chose
+  et rien ne l'appelle pour écrire. Les trois harnais qui lancent quelque chose
   déplacent en plus `XDG_CONFIG_HOME` vers un répertoire à eux : le binaire de
   tests d'interface pour lui-même, celui de bout en bout pour chaque binaire
-  qu'il lance.
+  qu'il lance, et `check-installation.sh` pour ce qu'il vient d'installer.
 
   **Elle n'analyse que ce qui a changé, en local comme en CI.**
   `src/scripts/tidy-scope.sh` calcule le périmètre depuis `TIDY_BASE`
