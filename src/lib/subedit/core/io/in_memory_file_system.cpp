@@ -104,6 +104,11 @@ std::expected<void, FileError> InMemoryFileSystem::writeFile(const std::filesyst
     return {};
 }
 
+std::expected<void, FileError>
+InMemoryFileSystem::createDirectories(const std::filesystem::path& /*directory*/) {
+    return {};
+}
+
 std::expected<void, FileError> InMemoryFileSystem::rename(const std::filesystem::path& from,
                                                           const std::filesystem::path& to) {
     if (const std::optional<FileErrorKind> kind = take(m_pendingRenameFailure); kind.has_value())

@@ -4,6 +4,7 @@
 // `check-architecture.sh` refuses a class or an algorithm here, and that is
 // what makes the window testable without a screen.
 
+#include <subedit/core/config/settings.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/gui/invocation.hpp>
@@ -44,9 +45,14 @@ int main(int argc, char** argv) {
                                         prompts,
                                         subedit::gui::mpvPlayers(),
                                         subedit::gui::declaredFrameRates(files)};
+        // Les préférences de l'ADR 0022 : lues avant que la fenêtre se montre,
+        // écrites une fois qu'elle est fermée.
+        window.applySettings(subedit::gui::readUserSettings(files, std::cerr));
         window.show();
 
-        return QApplication::exec();
+        const int code = QApplication::exec();
+        subedit::gui::writeUserSettings(files, window.settings(), std::cerr);
+        return code;
     } catch (const std::exception& error) {
         std::cerr << "subedit-gui: " << error.what() << "\n";
         return 2;

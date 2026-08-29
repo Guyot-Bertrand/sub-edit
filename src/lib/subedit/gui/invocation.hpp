@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/config/settings.hpp>
 #include <subedit/core/format/project_file.hpp>
 
 #include <QStringList>
@@ -49,5 +50,48 @@ namespace subedit::gui {
 [[nodiscard]] core::OpenedFile openFromArguments(const core::FileSystem& files,
                                                  const QStringList& arguments,
                                                  std::ostream& errors);
+
+/// Reads the settings at `path`, and says on `errors` what it could not read.
+///
+/// **Ne rend jamais d'erreur, et c'est la décision de l'ADR 0022** : une
+/// configuration est un confort, sa défaillance doit coûter le confort et rien
+/// d'autre. Un fichier absent, un fichier refusé, une valeur illisible donnent
+/// tous des réglages utilisables — les défauts pour ce qui manque, ce qui se
+/// lisait pour le reste.
+///
+/// **Le diagnostic va sur la sortie d'erreur**, comme Gaupol le fait depuis son
+/// interface. Une modale au démarrage pour une préférence illisible serait un
+/// mauvais échange : elle arrête l'utilisateur pour un défaut qui ne l'empêche
+/// de rien, et elle arrive avant qu'il ait rien demandé.
+///
+/// Ici plutôt que dans `main.cpp` pour la raison que `check-architecture.sh`
+/// tient : un point d'entrée câble, il ne met pas en forme des messages.
+[[nodiscard]] core::Settings readUserSettings(const core::FileSystem& files,
+                                              const std::filesystem::path& path,
+                                              std::ostream& errors);
+
+/// The same, at the place this user's settings live.
+///
+/// **Deux surcharges plutôt qu'un défaut d'argument**, et la différence est
+/// celle d'une couture : celle-ci résout l'emplacement — c'est la seule chose
+/// que `main.cpp` a le droit de ne pas dire —, celle du dessus le reçoit et se
+/// laisse donc éprouver sans que rien n'aille voir un vrai répertoire
+/// personnel. Voir `settings_path.hpp` et l'ADR 0022.
+[[nodiscard]] core::Settings readUserSettings(const core::FileSystem& files, std::ostream& errors);
+
+/// Writes `settings` to `path`, and says on `errors` if it could not.
+///
+/// Le pendant du précédent, et il perd de la même façon : une écriture refusée
+/// est une session dont les réglages ne seront pas retrouvés, pas une raison de
+/// mal se terminer.
+void writeUserSettings(core::FileSystem& files,
+                       const std::filesystem::path& path,
+                       const core::Settings& settings,
+                       std::ostream& errors);
+
+/// The same, at the place this user's settings live.
+void writeUserSettings(core::FileSystem& files,
+                       const core::Settings& settings,
+                       std::ostream& errors);
 
 } // namespace subedit::gui

@@ -47,6 +47,9 @@ public:
     [[nodiscard]] std::expected<void, FileError> writeFile(const std::filesystem::path& path,
                                                            std::string_view content) override;
 
+    [[nodiscard]] std::expected<void, FileError>
+    createDirectories(const std::filesystem::path& directory) override;
+
     [[nodiscard]] std::expected<void, FileError> rename(const std::filesystem::path& from,
                                                         const std::filesystem::path& to) override;
 

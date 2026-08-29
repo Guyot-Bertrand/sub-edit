@@ -168,6 +168,49 @@ TEST_CASE("writing into a directory that does not exist fails without a crash",
     CHECK(written.error().kind == FileErrorKind::Io);
 }
 
+// **La seule chose que `InMemoryFileSystem` ne peut pas éprouver** : il n'a pas
+// de répertoires, un chemin y est une clé, et son `createDirectories` est donc
+// un succès qui ne crée rien. Ce qui compte — que l'arborescence manquante
+// apparaisse, et qu'un répertoire déjà là ne soit pas une erreur — ne se voit
+// que sur un vrai disque.
+TEST_CASE("on disk, the missing directories above a file are made", "[filesystem][disk]") {
+    const ScratchDirectory scratch;
+    RealFileSystem files;
+    const std::filesystem::path nested = scratch.file("config/subedit/settings.conf");
+
+    REQUIRE(files.createDirectories(nested.parent_path()).has_value());
+
+    CHECK(std::filesystem::is_directory(nested.parent_path()));
+    // Et l'écriture qui suit, qui est la seule raison de les avoir faits.
+    CHECK(writeAtomically(files, nested, "window.maximised = true\n").has_value());
+    CHECK(files.readFile(nested).value_or("") == "window.maximised = true\n");
+}
+
+TEST_CASE("on disk, a directory that is already there is not a failure", "[filesystem][disk]") {
+    // Le cas courant : on demande avant d'écrire, et il existe presque
+    // toujours. Un refus ici ferait écrire à chaque appelant le « sauf s'il
+    // existe » que cette fonction lui épargne.
+    const ScratchDirectory scratch;
+    RealFileSystem files;
+
+    REQUIRE(files.createDirectories(scratch.file("deux/niveaux")).has_value());
+
+    CHECK(files.createDirectories(scratch.file("deux/niveaux")).has_value());
+}
+
+TEST_CASE("on disk, a directory that cannot be made says so", "[filesystem][disk]") {
+    // **Un échec provoqué sans droits ni bricolage** : un fichier ne peut pas
+    // devenir un répertoire, et rien ne peut vivre dessous. Le système répond
+    // ENOTDIR, ce qui est exactement le chemin d'erreur qu'on veut voir passer
+    // — et il ne laisse rien derrière lui.
+    const ScratchDirectory scratch;
+    RealFileSystem files;
+    const std::filesystem::path blocker = scratch.file("un-fichier");
+    REQUIRE(files.writeFile(blocker, "").has_value());
+
+    CHECK_FALSE(files.createDirectories(blocker / "dessous").has_value());
+}
+
 TEST_CASE("on disk, a program is told apart from an ordinary file and from a directory",
           "[filesystem][executable][disk]") {
     const ScratchDirectory scratch;

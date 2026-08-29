@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/config/settings.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -78,6 +79,28 @@ public:
     MainWindow& operator=(const MainWindow&) = delete;
     MainWindow(MainWindow&&) = delete;
     MainWindow& operator=(MainWindow&&) = delete;
+
+    /// Puts the window back where the previous session left it.
+    ///
+    /// **Appelée avant `show()`**, sans quoi la fenêtre s'affiche à sa taille
+    /// par défaut puis saute à la sienne, ce qui se voit.
+    ///
+    /// Ce qui est absent des réglages n'est pas appliqué : une géométrie
+    /// absente laisse la fenêtre se dimensionner elle-même, assez large pour
+    /// qu'on lise la table — c'est le défaut, et il vaut mieux que zéro.
+    void applySettings(const core::Settings& settings);
+
+    /// Ce que cette session laisse derrière elle.
+    ///
+    /// Lue une fois la fenêtre fermée, par le câblage qui l'écrira. La fenêtre
+    /// ne persiste rien elle-même : elle dit son état, et c'est tout — la même
+    /// séparation qu'entre `Session` et `saveProject`.
+    ///
+    /// **La géométrie rendue est celle d'avant l'agrandissement** quand la
+    /// fenêtre est maximisée : Qt garde les deux, et retenir la taille de
+    /// l'écran comme géométrie normale ferait qu'un dé-maximisage à la session
+    /// suivante ne rendrait rien à voir.
+    [[nodiscard]] core::Settings settings() const;
 
     /// Returns the table, for a test to look at what the window shows.
     [[nodiscard]] SubtitleTable* table() const { return m_table; }

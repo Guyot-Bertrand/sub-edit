@@ -135,6 +135,18 @@ std::expected<void, FileError> RealFileSystem::writeFile(const std::filesystem::
     return {};
 }
 
+std::expected<void, FileError>
+RealFileSystem::createDirectories(const std::filesystem::path& directory) {
+    std::error_code code;
+    // La valeur de retour dit si quelque chose a été créé, pas si le
+    // répertoire est là : elle est fausse quand il existait déjà, ce qui est le
+    // cas courant. Seul le code d'erreur fait foi.
+    std::filesystem::create_directories(directory, code);
+    if (code)
+        return failure(code, directory);
+    return {};
+}
+
 std::expected<void, FileError> RealFileSystem::rename(const std::filesystem::path& from,
                                                       const std::filesystem::path& to) {
     std::error_code code;

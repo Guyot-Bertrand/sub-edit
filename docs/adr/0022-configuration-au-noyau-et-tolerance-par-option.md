@@ -137,6 +137,13 @@ la voie la moins chère et elle est acceptable pour un défaut qui n'empêche ri
 l'issue d'implémentation le tranche, et une fenêtre modale au démarrage pour une
 préférence illisible serait un mauvais échange.
 
+> **Tranché en le posant, #240 : la sortie d'erreur.** Une ligne par option
+> illisible, plus une pour le fichier entier quand il existe et se refuse ;
+> chacune nomme le fichier, l'option, et cite la valeur fautive — sans elle,
+> « cannot be read » laisse l'utilisateur chercher dans son fichier ce qui
+> n'allait pas. La mise en forme vit dans `gui::readUserSettings`, et non dans
+> `main.cpp` : un point d'entrée câble, il ne compose pas des messages.
+
 **Le fichier reste lisible et modifiable à la main**, ce qui est une propriété
 et non un effet de bord : c'est ce qui rend une préférence corrigeable quand
 l'interface qui la pose est justement celle qui ne va pas.
