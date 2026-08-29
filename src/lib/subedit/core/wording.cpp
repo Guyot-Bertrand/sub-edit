@@ -86,6 +86,16 @@ std::string_view nameOf(Theme theme) {
     std::unreachable();
 }
 
+std::string_view nameOf(InsertPlacement placement) {
+    switch (placement) {
+    case InsertPlacement::Above:
+        return "Above the selection";
+    case InsertPlacement::Below:
+        return "Below the selection";
+    }
+    std::unreachable();
+}
+
 std::string_view systemThemeExplained() {
     return "leaves the colours to the desktop";
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/gui/player_factory.hpp>
@@ -122,6 +123,12 @@ public:
 
     [[nodiscard]] QAction* saveAsAction() const { return m_saveAs; }
 
+    /// Les deux éditions de structure, pour qu'un test lise leur état et les
+    /// déclenche.
+    [[nodiscard]] QAction* insertAction() const { return m_insert; }
+
+    [[nodiscard]] QAction* removeAction() const { return m_remove; }
+
     /// The panel of what the last reading ran into.
     [[nodiscard]] DiagnosticsPanel* diagnostics() const { return m_diagnostics; }
 
@@ -207,6 +214,15 @@ protected:
     void showEvent(QShowEvent* event) override;
 
 private:
+    /// Recompute ce que les deux éditions de structure ont le droit de faire.
+    ///
+    /// **À part de `refreshActions`, et branchée sur la sélection** : ce sont
+    /// les deux seules actions dont l'état dépend de ce qui est sélectionné, et
+    /// `refreshActions` déduit la grille du fichier entier. La brancher sur la
+    /// sélection ferait payer cette déduction à chaque ligne d'un cliquer-tirer
+    /// sur quatre mille lignes.
+    void refreshStructureActions();
+
     /// Recomputes what the two actions may do and what they read.
     ///
     /// Called after **every** operation, the one that changed nothing
@@ -332,6 +348,40 @@ private:
     /// every step, and a seek waits for the player to arrive.
     void placePlaybackAtSelection();
 
+    /// Demande combien de lignes vierges, et où, puis les pose.
+    ///
+    /// **L'index est celui du dernier sélectionné**, plus un si le côté choisi
+    /// est « après ». C'est ce que Gaupol fait depuis vingt ans, et c'est le
+    /// point qu'on invente mal si on ne le lit pas : le premier sélectionné
+    /// paraît plus naturel et n'est pas ce que la main attend après avoir
+    /// balayé du haut vers le bas.
+    ///
+    /// Dans un document vide, l'index est zéro et aucune sélection n'est
+    /// exigée — c'est la seule façon de commencer un fichier neuf.
+    void insertSubtitles();
+
+    /// Retire la sélection, sans rien demander.
+    ///
+    /// **Sans confirmation, et ce n'est pas une négligence** : l'opération
+    /// entre dans l'historique comme les autres, donc `Ctrl+Z` la défait. Une
+    /// modale devant un geste annulable coûte un clic à chaque fois pour
+    /// épargner un `Ctrl+Z` de temps en temps.
+    ///
+    /// **La sélection, et jamais le fichier entier.** `targetOf` lit « rien de
+    /// sélectionné » comme « tout », ce qui est juste pour un décalage et
+    /// serait un désastre ici ; l'action est éteinte quand rien n'est
+    /// sélectionné, et cette fonction ne la rattrape pas — elle n'a pas à
+    /// connaître deux règles.
+    void removeSubtitles();
+
+    /// Sélectionne la plage de lignes donnée, et l'amène sous les yeux.
+    ///
+    /// Ce que Gaupol fait après une insertion et après une suppression : la
+    /// table a été réinitialisée, donc la sélection a disparu, et sans cela un
+    /// second `Ins` ou un second `Suppr` ne trouverait plus rien à quoi se
+    /// rapporter.
+    void selectRows(int first, int last);
+
     void shiftTarget();
 
     void transformTarget();
@@ -362,6 +412,8 @@ private:
     QAction* m_open = nullptr;
     QAction* m_save = nullptr;
     QAction* m_saveAs = nullptr;
+    QAction* m_insert = nullptr;
+    QAction* m_remove = nullptr;
     QAction* m_shift = nullptr;
     QAction* m_transform = nullptr;
     QAction* m_frameRate = nullptr;
@@ -396,6 +448,12 @@ private:
     /// Le thème demandé, qu'on rendra aux réglages. Posé, pas déduit : la
     /// palette courante ne dit pas lequel des trois l'a produite.
     core::Theme m_theme = core::Theme::System;
+
+    /// De quel côté de la sélection la prochaine insertion posera ses lignes.
+    ///
+    /// Retenu d'un appel à l'autre, et rendu aux réglages : on n'insère pas une
+    /// fois mais dix fois de suite, toujours du même côté.
+    core::InsertPlacement m_insertPlacement = core::InsertPlacement::Below;
 
     /// Le répertoire où la boîte « ouvrir » s'ouvrira.
     ///

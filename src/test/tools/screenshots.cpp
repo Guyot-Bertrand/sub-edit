@@ -23,10 +23,12 @@
 // d'installation ne le nomme.
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
+#include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 #include <subedit/gui/shift_dialog.hpp>
@@ -282,6 +284,14 @@ int main(int argc, char** argv) {
     {
         subedit::gui::ShiftDialog dialog{3};
         written = capture(dialog, dialog, directory, "decalage") && written;
+    }
+
+    // Le dialogue d'insertion, sur un document qui porte des lignes : c'est
+    // l'état où le choix du côté est offert, et c'est celui que la section
+    // décrit.
+    {
+        subedit::gui::InsertDialog dialog{true, subedit::core::InsertPlacement::Below};
+        written = capture(dialog, dialog, directory, "insertion") && written;
     }
 
     {

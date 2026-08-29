@@ -33,6 +33,7 @@ using Catch::Matchers::ContainsSubstring;
 using subedit::core::FileError;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::InsertPlacement;
 using subedit::core::readSettings;
 using subedit::core::renderSettings;
 using subedit::core::Settings;
@@ -57,7 +58,8 @@ constexpr const char* kPath = "/config/subedit/settings.conf";
                     .columnWidths = {50, 120, 120, 120},
                     .tableShare = 63,
                     .lastDirectory = std::filesystem::path{"/films/quai"},
-                    .theme = Theme::Dark};
+                    .theme = Theme::Dark,
+                    .insertPlacement = InsertPlacement::Above};
 }
 
 } // namespace
@@ -204,6 +206,29 @@ TEST_CASE("les trois thèmes se réécrivent tels qu'ils se lisent", "[config]")
     }
 }
 
+// ## Le côté d'une insertion, venu avec #242
+
+TEST_CASE("les deux côtés d'une insertion se lisent, et rien d'autre", "[config]") {
+    CHECK(readOf("edit.insert-placement = above\n").settings.insertPlacement ==
+          InsertPlacement::Above);
+    CHECK(readOf("edit.insert-placement = below\n").settings.insertPlacement ==
+          InsertPlacement::Below);
+
+    // Un côté qu'on ne connaît pas laisse celui de Gaupol, qui est le nôtre.
+    const SettingsRead unknown = readOf("edit.insert-placement = sideways\n");
+    CHECK(unknown.settings.insertPlacement == InsertPlacement::Below);
+    CHECK(unknown.diagnostics.size() == 1);
+}
+
+TEST_CASE("les deux côtés se réécrivent tels qu'ils se lisent", "[config]") {
+    for (const InsertPlacement placement : {InsertPlacement::Above, InsertPlacement::Below}) {
+        InMemoryFileSystem files;
+        REQUIRE(writeSettings(files, kPath, Settings{.insertPlacement = placement}).has_value());
+
+        CHECK(readSettings(files, kPath).settings.insertPlacement == placement);
+    }
+}
+
 TEST_CASE("la part donnée à la table refuse ses deux extrêmes", "[config]") {
     // Ni zéro ni cent : une table haute de rien, ou une bande vidéo haute de
     // rien, est une fenêtre qu'on ne saurait plus rouvrir autrement qu'en
@@ -247,6 +272,7 @@ TEST_CASE("une option à son défaut est réécrite commentée", "[config]") {
     CHECK_THAT(written, ContainsSubstring("#window.table-share = "));
     CHECK_THAT(written, ContainsSubstring("#file.directory = "));
     CHECK_THAT(written, ContainsSubstring("#general.theme = system"));
+    CHECK_THAT(written, ContainsSubstring("#edit.insert-placement = below"));
 }
 
 TEST_CASE("une option réglée est réécrite nue", "[config]") {
@@ -258,6 +284,7 @@ TEST_CASE("une option réglée est réécrite nue", "[config]") {
     CHECK_THAT(written, ContainsSubstring("\nwindow.table-share = 63\n"));
     CHECK_THAT(written, ContainsSubstring("\nfile.directory = /films/quai\n"));
     CHECK_THAT(written, ContainsSubstring("\ngeneral.theme = dark\n"));
+    CHECK_THAT(written, ContainsSubstring("\nedit.insert-placement = above\n"));
 }
 
 // **Ce que la réécriture commentée achète**, et la raison pour laquelle elle

@@ -6,9 +6,13 @@ poignée** entre le film et la table — et de **là où l'on travaille**, pour 
 `Open…` s'ouvre au bon endroit. Rien de tout cela ne se règle par un dialogue :
 on déplace, on tire, et c'est retenu.
 
-**Une seule préférence a un dialogue**, `Edit ▸ Preferences…`, et c'est le
+**Une seule préférence a un dialogue à elle**, `Edit ▸ Preferences…`, et c'est le
 critère : une préférence qui a déjà un geste n'a pas besoin d'un champ. Le
 thème n'en a aucun.
+
+**Une autre se règle là où elle sert** : le côté où `Insert Subtitles…` pose ses
+lignes est un champ de ce dialogue-là, et le dernier choix est retenu. Voir
+[Insérer et supprimer des lignes](lignes.md#le-côté-est-retenu).
 
 **Ce qui n'est pas retenu :** le dernier fichier ouvert. S'en souvenir voudrait
 dire rouvrir au lancement un document que personne n'a demandé.
@@ -36,6 +40,7 @@ qui le pose est justement celle qui ne va pas.
 | `window.table-share` | la part de la hauteur donnée à la table, en pour cent, de 1 à 99 | la fenêtre partage comme elle l'a toujours fait |
 | `file.directory` | un chemin **absolu** de répertoire | aucun : `Open…` s'ouvre là où le programme a été lancé |
 | `general.theme` | `system`, `light` ou `dark` | `system` |
+| `edit.insert-placement` | `above` ou `below` | `below` |
 
 **Une part et non des hauteurs pour la poignée**, et c'est ce qui la rend
 utile : trois hauteurs en pixels ne veulent plus rien dire dès que la fenêtre

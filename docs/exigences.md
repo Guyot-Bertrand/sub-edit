@@ -137,3 +137,6 @@ plus rien.
 | `GUI-CONFIG-02` | une valeur illisible laisse le défaut en place, et le dit | 7 | implémentée |
 | `GUI-CONFIG-03` | une option restée à son défaut est réécrite commentée, donc un défaut changé prend effet | 7 | implémentée |
 | `GUI-THEME-01` | le thème se choisit entre trois valeurs, se retient, et « système » ne pose rien | 7 | implémentée |
+| `GUI-INSERT-01` | insérer place les sous-titres après le dernier sélectionné, ou avant au choix | 7 | implémentée |
+| `GUI-INSERT-02` | insérer dans un document vide ne demande aucune sélection | 7 | implémentée |
+| `GUI-REMOVE-01` | supprimer retire la sélection, et l'opération s'annule | 7 | implémentée |

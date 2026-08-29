@@ -2,6 +2,8 @@
 #include <subedit/core/analysis/grid_correction.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/hearing_impaired_removal.hpp>
+#include <subedit/core/edit/insert_command.hpp>
+#include <subedit/core/edit/remove_command.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
 #include <subedit/core/edit/shift_limits.hpp>
@@ -26,6 +28,7 @@
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/hearing_impaired_dialog.hpp>
+#include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/prompts.hpp>
@@ -43,6 +46,7 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QIcon>
+#include <QItemSelection>
 #include <QItemSelectionModel>
 #include <QKeySequence>
 #include <QLabel>
@@ -150,6 +154,21 @@ constexpr int kInitialHeight = 800;
     return std::ranges::min(rows, {}, [](const QModelIndex& index) { return index.row(); }).row();
 }
 
+/// Which row of a selection an insertion is placed against: the last, in table
+/// order.
+///
+/// -1 when nothing is selected. **The last and not the first**, which is the
+/// point one invents wrongly without reading it: Gaupol takes
+/// `get_selected_rows()[-1]`, and has for twenty years. It is what the hand
+/// expects after sweeping downwards.
+[[nodiscard]] int lastSelectedRow(const QItemSelectionModel& selection) {
+    const QModelIndexList rows = selection.selectedRows();
+    if (rows.isEmpty())
+        return -1;
+
+    return std::ranges::max(rows, {}, [](const QModelIndex& index) { return index.row(); }).row();
+}
+
 } // namespace
 
 MainWindow::MainWindow(core::FileSystem& files,
@@ -168,6 +187,9 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_open(buildAction(this, QStringLiteral("Open…"), QStringLiteral("document-open"))),
       m_save(buildAction(this, QStringLiteral("Save"), QStringLiteral("document-save"))),
       m_saveAs(buildAction(this, QStringLiteral("Save As…"), QStringLiteral("document-save-as"))),
+      m_insert(buildAction(this, QStringLiteral("Insert Subtitles…"), QStringLiteral("list-add"))),
+      m_remove(
+          buildAction(this, QStringLiteral("Remove Subtitles"), QStringLiteral("list-remove"))),
       m_shift(buildAction(this, QStringLiteral("Shift Positions…"), {})),
       m_transform(buildAction(this, QStringLiteral("Transform Positions…"), {})),
       m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
@@ -264,6 +286,17 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(m_save, &QAction::triggered, this, [this] { (void)save(); });
     connect(m_saveAs, &QAction::triggered, this, [this] { (void)saveAs(); });
 
+    // **`Ins` et `Suppr`, et non les lettres de Gaupol.** Il donne `I` et
+    // `Delete` ; une lettre nue de portée fenêtre serait prise avant que
+    // l'éditeur d'une cellule la voie, ce que le `Ctrl+P` du lecteur explique
+    // déjà. Les deux touches d'édition, elles, sont réclamées par les champs de
+    // saisie de Qt tant qu'un éditeur est ouvert : c'est ce qui laisse `Suppr`
+    // effacer un caractère plutôt qu'un sous-titre.
+    m_insert->setShortcut(QKeySequence{Qt::Key_Insert});
+    m_remove->setShortcut(QKeySequence::Delete);
+    connect(m_insert, &QAction::triggered, this, &MainWindow::insertSubtitles);
+    connect(m_remove, &QAction::triggered, this, &MainWindow::removeSubtitles);
+
     connect(m_shift, &QAction::triggered, this, &MainWindow::shiftTarget);
     connect(m_transform, &QAction::triggered, this, &MainWindow::transformTarget);
     connect(m_frameRate, &QAction::triggered, this, &MainWindow::convertFrameRateOfTarget);
@@ -316,8 +349,12 @@ MainWindow::MainWindow(core::FileSystem& files,
     edition->addAction(m_undo);
     edition->addAction(m_redo);
     edition->addSeparator();
-    // Sous un séparateur : défaire est ce qu'on fait *à* une édition, régler le
-    // thème n'est pas une édition du tout.
+    // Sous un séparateur : défaire est ce qu'on fait *à* une édition, insérer et
+    // supprimer *sont* des éditions.
+    edition->addAction(m_insert);
+    edition->addAction(m_remove);
+    edition->addSeparator();
+    // Sous un autre : régler le thème n'est pas une édition du tout.
     edition->addAction(m_preferences);
 
     QMenu* video = menuBar()->addMenu(QStringLiteral("&Video"));
@@ -406,6 +443,14 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
             &QItemSelectionModel::selectionChanged,
             this,
             &MainWindow::placePlaybackAtSelection);
+    // Les deux seules actions dont l'état dépend de la sélection, et elles
+    // l'écoutent seules : `refreshActions` déduit la grille du fichier entier,
+    // et la brancher ici ferait payer cette déduction à chaque ligne d'un
+    // cliquer-tirer.
+    connect(m_table->selectionModel(),
+            &QItemSelectionModel::selectionChanged,
+            this,
+            &MainWindow::refreshStructureActions);
     m_placedAt = -1;
 
     m_diagnostics->setDiagnostics(diagnostics);
@@ -846,6 +891,25 @@ void MainWindow::refreshActions() {
     m_shiftOntoGrid->setEnabled(onto.has_value());
     m_shiftOntoGrid->setText(shiftOntoGridLabel(onto));
     m_hearingImpaired->setEnabled(anything);
+
+    refreshStructureActions();
+}
+
+void MainWindow::refreshStructureActions() {
+    const bool anything = m_session->project().count() != 0;
+    const bool selected = !m_table->selectionModel()->selectedRows().isEmpty();
+
+    // **Un document vide s'insère sans sélection**, et c'est la seule façon de
+    // commencer un fichier neuf. Dès qu'il porte des lignes, il faut dire après
+    // laquelle insérer : Gaupol pose la même condition, et c'est celle qui
+    // empêche l'index d'être deviné.
+    m_insert->setEnabled(!anything || selected);
+
+    // Rien de sélectionné, rien à retirer. L'action éteinte est ce qui tient la
+    // règle : sans elle, `Suppr` sur une table sans sélection deviendrait « tout
+    // le fichier », qui est ce que `targetOf` répond et qui serait ici un
+    // désastre.
+    m_remove->setEnabled(selected);
 }
 
 void MainWindow::removeHearingImpairedFromTarget() {
@@ -909,6 +973,80 @@ void MainWindow::reportWhatPassesTheEnd(core::CommandKind kind, const core::Sele
     // A notice and not a failure: nothing was prevented, and the sentence is
     // written to be read after the fact.
     m_prompts->reportOutcome(core::noticeOf(kind, *beyond));
+}
+
+void MainWindow::insertSubtitles() {
+    const core::Project& project = m_session->project();
+
+    // Le garde de l'action, redit ici : une action éteinte ne se déclenche pas
+    // à la souris, mais rien n'empêche un raccourci de la trouver éteinte une
+    // fraction de seconde trop tard.
+    const int against = lastSelectedRow(*m_table->selectionModel());
+    if (project.count() != 0 && against < 0)
+        return;
+
+    InsertDialog dialog{project.count() != 0, m_insertPlacement, this};
+    if (!m_prompts->run(dialog))
+        return;
+
+    // Retenu même si l'insertion qui suit ne change rien : c'est un réglage, et
+    // il a été posé. Rendu aux préférences à la fermeture de la fenêtre.
+    m_insertPlacement = dialog.placement();
+
+    // Le dernier sélectionné, plus un si l'on insère en dessous. Sur un
+    // document vide il n'y a rien à situer : c'est l'index zéro.
+    std::size_t at = 0;
+    if (against >= 0) {
+        at = static_cast<std::size_t>(against);
+        if (m_insertPlacement == core::InsertPlacement::Below)
+            ++at;
+    }
+
+    const std::size_t count = dialog.count();
+    const core::SubtitleIndex index = core::SubtitleIndex::fromValue(at);
+    const core::Selection inserted =
+        core::Selection::range(index, core::SubtitleIndex::fromValue(at + count - 1));
+
+    applyOperation(
+        std::make_unique<core::InsertCommand>(core::InsertCommand::blank(project, index, count)),
+        inserted);
+
+    // La table a été réinitialisée, donc la sélection a disparu avec elle.
+    // Rendre les lignes neuves sélectionnées est ce que Gaupol fait, et ce qui
+    // permet d'appuyer sur `Ins` une seconde fois.
+    selectRows(static_cast<int>(at), static_cast<int>(at + count - 1));
+}
+
+void MainWindow::removeSubtitles() {
+    const core::Selection target = selectionOf(*m_table->selectionModel());
+    if (target.isEmpty())
+        return;
+
+    // Lu avant que l'opération parte : c'est la place que la première ligne
+    // retirée laisse, et elle n'a plus de nom une fois le retrait fait.
+    const int emptied = static_cast<int>(target.ranges().front().first.value());
+
+    applyOperation(std::make_unique<core::RemoveCommand>(target), target);
+
+    // La ligne qui a pris cette place, ou la dernière quand le retrait a emporté
+    // la fin du fichier. Sans elle, un second `Suppr` ne trouverait plus de
+    // sélection et l'action serait éteinte.
+    const int left = static_cast<int>(m_session->project().count());
+    if (left > 0)
+        selectRows(std::min(emptied, left - 1), std::min(emptied, left - 1));
+}
+
+void MainWindow::selectRows(int first, int last) {
+    const QModelIndex from = m_model->index(first, 0);
+    const QModelIndex to = m_model->index(last, SubtitleTableModel::kColumnCount - 1);
+
+    // La ligne courante d'abord, et sans toucher à la sélection : passer par
+    // `setCurrentIndex` de la vue la réduirait à cette seule ligne, ce qui
+    // défairait la sélection posée juste après.
+    m_table->selectionModel()->setCurrentIndex(from, QItemSelectionModel::NoUpdate);
+    m_table->selectionModel()->select(
+        QItemSelection{from, to}, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    m_table->scrollTo(from);
 }
 
 void MainWindow::shiftTarget() {
@@ -1047,6 +1185,8 @@ void MainWindow::applySettings(const core::Settings& settings) {
 
     m_theme = settings.theme;
     applyTheme(m_theme);
+
+    m_insertPlacement = settings.insertPlacement;
 }
 
 core::Settings MainWindow::settings() const {
@@ -1078,6 +1218,7 @@ core::Settings MainWindow::settings() const {
         settings.lastDirectory = m_lastDirectory;
 
     settings.theme = m_theme;
+    settings.insertPlacement = m_insertPlacement;
 
     return settings;
 }
