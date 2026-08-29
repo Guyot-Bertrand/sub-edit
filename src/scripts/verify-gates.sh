@@ -748,6 +748,28 @@ expect_screenshot_gates() {
 
 expect_screenshot_gates
 
+# Les renvois du manuel — #243.
+#
+# Le troisième filet du manuel, après les blocs engendrés et les captures. Une
+# seule preuve : le contrôle n a pas de mode d échec par excès qui se démontre
+# — il ne compare pas deux relevés, il résout des chemins et des ancres, et le
+# vert du dépôt intact est déjà la preuve qu il ne crie pas au loup.
+expect_manual_link_gate() {
+    printf '%s▸ un renvoi du manuel qui ne mène nulle part%s\n' "${BOLD}" "${RESET}"
+    printf '\n[Un renvoi vers rien](table.md#une-section-qui-nexiste-pas)\n' \
+        >> "${GUI_MANUAL_SOURCE}"
+    if "${REPO_ROOT}/src/scripts/check-manual-links.py" >/dev/null 2>&1; then
+        printf '  %s✗ le contrôle a laissé passer l ancre absente%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « check-manual-links.py » a refusé, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    fi
+    restore
+}
+
+expect_manual_link_gate
+
 # Les règles d installation oublient un fichier de données — #239.
 #
 # **L injection réduit les règles aux seuls binaires**, plutôt que d ajouter du
@@ -1022,7 +1044,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles trente-trois portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles trente-quatre portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

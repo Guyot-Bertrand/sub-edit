@@ -1,10 +1,13 @@
 # subedit-cli — manuel
 
 Outil en ligne de commande de subedit : manipulation de fichiers de sous-titres
-sans interface graphique, en traitement par lot ou depuis un script.
+sans interface graphique, en traitement par lot ou depuis un script. Pour
+l'autre programme et pour savoir par où commencer, voir
+[le manuel](../index.md).
 
-> **État actuel.** Les cinq sous-commandes de `subedit-cli` existent :
-> inspecter, convertir, décaler, transformer et recaler la cadence. Ce manuel
+> **État actuel.** Les sept sous-commandes de `subedit-cli` existent :
+> inspecter, convertir, décaler, transformer, recaler la cadence, aligner sur
+> une grille d'images et retirer les mentions pour malentendants. Ce manuel
 > décrit ce qui existe, jamais ce qui est prévu ; ce qui vient ensuite est dans
 > la [feuille de route](../../feuille-de-route.md).
 

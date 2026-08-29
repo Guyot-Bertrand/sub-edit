@@ -20,18 +20,22 @@ pointeur — mais son infobulle porte le libellé entier.
 | :-------- | :------------------ |
 | une cellule de texte éditée | `editing a text` |
 | un début, une fin | `editing a start`, `editing an end` |
-| un décalage | `shifting` |
-| une transformation | `transforming` |
-| une conversion de fréquence | `converting the frame rate` |
-| un retrait des mentions | `removing hearing-impaired mentions` |
 | une insertion de lignes | `inserting` |
 | une suppression de lignes | `removing` |
+| un décalage, `Shift onto Grid` compris | `shifting` |
+| une transformation | `transforming` |
+| une conversion de fréquence | `converting the frame rate` |
+| un alignement sur une cadence | `aligning on the frame rate` |
+| un retrait des mentions | `removing hearing-impaired mentions` |
 
-**Huit libellés, et c'est tout ce que la fenêtre sait produire.** Le noyau en
-nomme un neuvième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri
+**Dix libellés, et c'est tout ce que la fenêtre sait produire.** Le noyau en
+nomme un onzième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri
 n'a lieu que sous une politique d'ordre stricte, alors que la fenêtre ouvre ses
 documents sous la politique souple, qui signale le désordre au lieu de le
 réparer.
+
+**`Shift onto Grid` ne se distingue pas d'un décalage**, et c'est exact : elle
+en est un, dont le montant a été mesuré plutôt que saisi.
 
 Ce sont les mêmes mots que ceux de la ligne de commande : ils sont écrits une
 fois, dans le noyau.

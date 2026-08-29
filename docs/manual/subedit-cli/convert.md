@@ -46,7 +46,7 @@ Options:
 
 ## La destination
 
-Les trois options et leurs règles sont communes aux quatre sous-commandes qui
+Les trois options et leurs règles sont communes aux six sous-commandes qui
 écrivent : voir [Invocation](invocation.md#la-destination). Rien n'est écrit
 sans l'une d'elles.
 
@@ -106,7 +106,7 @@ certains seulement, `1` sur une erreur d'usage.
 | `--bom` avec `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` qui change le format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
 
-Celles de la destination sont communes aux quatre sous-commandes qui écrivent :
+Celles de la destination sont communes aux sous-commandes qui écrivent :
 voir [Invocation](invocation.md#la-destination).
 
 Les erreurs de lecture sont celles d'[`inspect`](inspect.md) : elles portent sur
