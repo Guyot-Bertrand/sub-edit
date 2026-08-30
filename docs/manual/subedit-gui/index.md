@@ -48,9 +48,10 @@ suppression de lignes, puis, sous un autre, `Preferences…` — défaire est ce
 fait *à* une édition, insérer et supprimer *sont* des éditions, et régler le
 thème n'est pas une édition du tout.
 
-`Help` porte deux entrées. `About subedit` dit la version et la licence.
-`Manual`, ou `F1`, ouvre ce manuel dans une fenêtre — voir
-[Le manuel dans la fenêtre](aide.md).
+`Help` porte deux entrées, dans l'ordre où le menu les montre. `Manual`, ou
+`F1`, ouvre ce manuel dans une fenêtre — voir
+[Le manuel dans la fenêtre](aide.md). `About subedit` dit la version et la
+licence.
 
 ## Sections
 

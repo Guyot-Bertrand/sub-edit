@@ -412,10 +412,21 @@ dans le test, pas produit par un autre programme.
 
 ## Exigences
 
-Nouvelles entrées au registre, à l'état `prévue` jusqu'à ce qu'un test les cite :
+Les exigences de la phase, telles que le registre les porte aujourd'hui. Elles
+entrent à l'état `prévue` et n'en sortent qu'une fois citées par un test.
+
+**Quatre lignes ne datent pas du cadrage**, et la relecture de la phase 7 les a
+ramenées ici parce que rien ne les y ramenait : les trois `CLI-VERSION`
+d'origine, écrites pour l'ossature avant que la phase soit cadrée et remplacées
+depuis, et `CLI-OUTPUT-06`, née en cours de phase avec le troisième niveau de
+verbosité. `CLI-INSPECT-03` est barrée du même geste — elle l'était au registre
+et pas ici.
 
 | ID | Exigence |
 | :- | :------- |
+| ~~`CLI-VERSION-01`~~ | l'invocation sans argument écrit `subedit <version>` sur la sortie standard — remplacée par `CLI-USAGE-01` |
+| ~~`CLI-VERSION-02`~~ | rien n'est écrit sur la sortie d'erreur — remplacée par `CLI-VERSION-05` |
+| ~~`CLI-VERSION-03`~~ | tout argument est ignoré, code de retour `0` — remplacée par `CLI-USAGE-02` |
 | `CLI-VERSION-04` | `--version` écrit `subedit <version>` sur la sortie standard, code `0` |
 | `CLI-VERSION-05` | une invocation qui réussit n'écrit rien sur la sortie d'erreur |
 | `CLI-USAGE-01` | sans argument, l'aide est écrite sur la sortie standard, code `0` |
@@ -427,11 +438,12 @@ Nouvelles entrées au registre, à l'état `prévue` jusqu'à ce qu'un test les 
 | `CLI-OUTPUT-03` | chaque niveau contient le précédent, mot pour mot |
 | `CLI-OUTPUT-04` | le niveau par défaut écrit une ligne par fichier traité |
 | `CLI-OUTPUT-05` | le bilan n'apparaît qu'à partir de deux fichiers d'entrée |
+| `CLI-OUTPUT-06` | le niveau 3 nomme chaque diagnostic de lecture, sur toutes les sous-commandes |
 | `CLI-BATCH-01` | plusieurs fichiers sont traités indépendamment, les échecs nommés |
 | `CLI-BATCH-02` | tous en échec donne le code `2`, un échec partiel le code `3` |
 | `CLI-INSPECT-01` | format, encodage, BOM, fins de ligne, nombre et étendue sont rapportés |
 | `CLI-INSPECT-02` | des fins de ligne mélangées sont signalées avec leur ligne |
-| `CLI-INSPECT-03` | `--order-report` rend les deux lectures du désordre |
+| ~~`CLI-INSPECT-03`~~ | `--order-report` rend les deux lectures du désordre — abandonnée : le corpus n'a pas départagé les deux lectures |
 | `CLI-CONVERT-01` | `--to` produit le format demandé |
 | `CLI-CONVERT-02` | fins de ligne et BOM sont conservés par défaut, réglables sinon |
 | `CLI-CONVERT-03` | sans destination explicite, rien n'est écrit et le code est `1` |

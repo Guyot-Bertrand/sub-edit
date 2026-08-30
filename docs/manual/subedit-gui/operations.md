@@ -30,7 +30,7 @@ Sélectionner toutes les lignes revient au même que n'en sélectionner aucune.
 
 > **Cette règle-là s'arrête au menu `Tools`.** `Remove Subtitles`, dans le menu
 > `Edit`, lit « rien de sélectionné » comme « rien à faire » et non comme « tout
-> le fichier » — sans quoi un `Suppr` malheureux viderait le document. Son entrée
+> le fichier » — sans quoi un `Del` malheureux viderait le document. Son entrée
 > est éteinte tant que rien n'est sélectionné.
 
 Les entrées sont **inactives sur un fichier vide** : il n'y aurait rien à

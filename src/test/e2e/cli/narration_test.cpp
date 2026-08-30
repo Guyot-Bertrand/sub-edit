@@ -165,8 +165,13 @@ TEST_CASE("a subcommand that writes reports what the reader had to decide",
           "[e2e][CLI-OUTPUT-06]") {
     const Scratch scratch;
     // ADR 0008 has the core read at best effort and say what it settled. A
-    // promise kept by one subcommand out of five is not kept: shift rewrites
+    // promise kept by one subcommand out of seven is not kept: shift rewrites
     // the same file and owes the same account.
+    //
+    // Seven and no longer five: `hearing-impaired` came with phase 4 and `snap`
+    // with phase 16, and both report as this case asks. The requirement's
+    // wording followed at the phase 7 review, where the count was measured
+    // rather than carried over.
     const CliRun run =
         invoke({"-vvv", "shift", "--by", "1", "--output-dir", scratch.path(), kNumbering});
 

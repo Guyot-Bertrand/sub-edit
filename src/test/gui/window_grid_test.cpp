@@ -327,19 +327,38 @@ TEST_CASE("cancelling the alignment leaves the file alone", "[gui][GUI-SNAP-01]"
 }
 
 TEST_CASE("the entry that is out does nothing when triggered", "[gui][GUI-GRID-03]") {
-    // Measured rather than reasoned about: the slot guards against an absent
-    // amount, and whether that guard is reachable at all depends on what Qt
-    // does with a disabled action. This case is what says so.
+    // **Counted, not inferred.** The two assertions below — an unchanged status
+    // bar, an undo that stays out — hold whether or not the slot ran, so on
+    // their own they say nothing about what Qt does with a disabled action. The
+    // counter is what says it: `trigger()` on an action that is out emits
+    // nothing, so the slot is never entered.
+    //
+    // That is the behaviour the guards in `removeSubtitles` and in the manual
+    // window are written against, and the reason their tests have to switch the
+    // action back on by hand to reach them.
     InMemoryFileSystem files;
     FakePrompts prompts;
     MainWindow window = windowOn("grille-absurde.srt", files, prompts);
     window.show();
 
+    int triggered = 0;
+    QObject::connect(
+        window.shiftOntoGridAction(), &QAction::triggered, [&triggered] { triggered += 1; });
+
     REQUIRE_FALSE(window.shiftOntoGridAction()->isEnabled());
     window.shiftOntoGridAction()->trigger();
+    window.shiftOntoGridAction()->activate(QAction::Trigger);
 
+    CHECK(triggered == 0);
     CHECK(window.gridStatus()->text().toStdString() == "No grid");
     CHECK_FALSE(window.undoAction()->isEnabled());
+
+    // And the same action, switched on, does reach it: the counter measures the
+    // action rather than merely failing to move.
+    window.shiftOntoGridAction()->setEnabled(true);
+    window.shiftOntoGridAction()->trigger();
+
+    CHECK(triggered == 1);
 }
 
 TEST_CASE("a correction that would cross the origin is refused", "[gui][GUI-GRID-03]") {

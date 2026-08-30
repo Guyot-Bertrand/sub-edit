@@ -55,7 +55,7 @@ même ADR — pas un oubli.
 
 ## Construire depuis les sources
 
-## Prérequis
+### Prérequis
 
 | Ce qu'il faut | Pourquoi | Debian, Ubuntu |
 | :------------ | :------- | :------------- |
@@ -73,14 +73,14 @@ s'arrête si elles manquent.
 est récupérée depuis GitHub à la configuration. Elle n'est plus retéléchargée
 ensuite. Pour construire l'outil seul, sans réseau, voir plus bas.
 
-### Ce qui n'est pas exigé
+#### Ce qui n'est pas exigé
 
 | Ce qui est facultatif | Ce qu'on perd sans lui |
 | :-------------------- | :--------------------- |
 | `ffmpeg`, pour son `ffprobe` | la fenêtre ne propose plus la cadence que le film déclare — [le détail](../subedit-gui/video.md#ffmpeg-nest-pas-requis) |
 | un serveur graphique | rien pour `subedit-cli` ; `subedit-gui` en a besoin pour s'afficher |
 
-## Construire
+### Construire
 
 ```bash
 git clone git@github.com:Guyot-Bertrand/sub-edit.git subedit
@@ -106,7 +106,7 @@ de quoi savoir combien de processus l'optimisation entre modules a le droit de
 lancer : à chaque édition de liens, elle en démarre autant qu'il y a de cœurs.
 `make release` lui passe `JOBS`, comme au reste de la construction.
 
-## Installer
+### Installer
 
 ```bash
 make release
@@ -143,7 +143,7 @@ scène ne touche rien hors du répertoire de mise en scène.
 DESTDIR=/tmp/scene cmake --install build/release --prefix /usr
 ```
 
-## Construire l'outil seul
+### Construire l'outil seul
 
 Les tests sont construits par défaut, et ce sont eux qui réclament le réseau —
 `make release` ne les construit pas, mais il configure le projet, et c'est la
@@ -158,7 +158,7 @@ make release
 Cela ne dispense de rien pour qui contribue : la porte de qualité, elle, les
 exige.
 
-## Si la compilation échoue au moment de l'édition des liens
+### Si la compilation échoue au moment de l'édition des liens
 
 Une avalanche de « référence indéfinie vers `std::cout` » sur du code valide
 indique en général que l'alternative `c++` du système pointe sur `gcc` au lieu

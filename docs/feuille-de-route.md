@@ -635,10 +635,21 @@ de vitesse de lecture.
 
 ## 7 — Finitions et première livraison
 
+**Livrée en `v0.8.0`.** Voir
+[`specs/07-finitions-et-premiere-livraison.md`](specs/07-finitions-et-premiere-livraison.md),
+l'[ADR 0022](adr/0022-configuration-au-noyau-et-tolerance-par-option.md) et
+l'[ADR 0023](adr/0023-deb-et-rpm-pour-la-premiere-livraison.md).
+
 Ce qui manque pour qu'un tiers installe et utilise l'outil.
 
 Préférences persistées, thème clair et sombre suivant le système, manuel
 utilisateur complet pour le contour livré, empaquetage Linux.
+
+**Le thème ne suit pas le système, et c'est D3 qui le dit.** Qt 6.4 n'a aucune
+API de schéma de couleurs — `QStyleHints::colorScheme` est arrivée en 6.5 —
+donc « système » laisse la palette au thème de plate-forme au lieu de la lire.
+C'est ce que fait Gaupol sous GTK antérieur à 4.20, et c'est ce qui rend les
+deux autres valeurs éprouvables.
 
 **Un renvoi de la phase 16 y attend son contenu :** l'entrée `Help ▸ Manual` de
 la fenêtre existe et est éteinte depuis #211. Le manuel qu'elle ouvrira et
@@ -654,7 +665,9 @@ l'endroit où il sera installé se décident avec l'empaquetage, pas avant.
 - **la configuration persistée elle-même**, que la phase 5 a laissée entière :
   elle n'a besoin de rien de persistant pour que sa table fonctionne. Ce qu'elle
   aurait voulu retenir arrive donc ici — géométrie de la fenêtre, largeur des
-  colonnes, fréquence d'image par défaut ;
+  colonnes. **La fréquence d'image par défaut, elle, n'est pas venue** : rien ne
+  la lirait, et une préférence dont personne ne se sert est une case qui ment.
+  Elle attend un lecteur, en [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267) ;
 - **un `Session` qui annonce un changement de structure avant de le faire**, si
   la mesure le demande. La phase 5 réinitialise le modèle pour toute insertion ou
   suppression de lignes ; son seul producteur y est global et rare, ce qui ne
@@ -675,6 +688,24 @@ plutôt qu'une migration versionnée.
 
 **Analyse préalable** — `gaupol/config.py`, `gaupol/style.py`, `data/`,
 `PACKAGING.md`, `flatpak/`.
+
+**Ce que la phase a laissé, et où chaque chose atterrit.** La relecture de fin
+de phase a donné un endroit à quatre renvois qui n'en avaient pas, et sept axes
+sont sortis de son regard critique :
+
+| Ce qui reste | Où |
+| :----------- | :- |
+| le déclencheur de l'ADR 0019, reformulé par D8 | [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264) |
+| Flatpak et AppImage, différés par l'ADR 0023 | [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265) |
+| un conteneur Fedora pour éprouver le `.rpm` | [#266](https://github.com/Guyot-Bertrand/sub-edit/issues/266) |
+| la fréquence d'image par défaut dans les préférences | [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267) |
+| vérifier avec l'outil qui compte — le manuel, la page de manuel | [#268](https://github.com/Guyot-Bertrand/sub-edit/issues/268) |
+| le `Makefile` force l'analyse complète pour un commentaire | [#269](https://github.com/Guyot-Bertrand/sub-edit/issues/269) |
+| le seuil de charge du journal des mesures | [#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270) |
+| `check-installation.sh` a triplé | [#271](https://github.com/Guyot-Bertrand/sub-edit/issues/271) |
+| `subedit-gui` sans page de manuel | [#272](https://github.com/Guyot-Bertrand/sub-edit/issues/272) |
+| la langue des commentaires et des intitulés de tests | [#273](https://github.com/Guyot-Bertrand/sub-edit/issues/273) |
+| deux raccourcis que Qt ne pose pas sous X11 | [#274](https://github.com/Guyot-Bertrand/sub-edit/issues/274) |
 
 **Questions d'architecture**
 

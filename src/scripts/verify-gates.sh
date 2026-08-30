@@ -6,10 +6,16 @@
 # la cible correspondante échoue, puis rétablit les sources.
 #
 # Les six premières injections visent des étapes de `make check`, que la CI
-# exécute. Les trois suivantes visent `make check-local` — deux fois
+# exécute. Les cinq suivantes visent `make check-local` — quatre fois
 # `requirements`, une fois `parallelism` — qui ne gate donc que le poste de
 # développement : raison de plus pour que ce script prouve que chacune se
 # referme, puisque rien d'autre ne les exercera.
+#
+# **Les quatre de `requirements` sont ses quatre défauts** : une
+# exigence implémentée que rien ne cite, un tag qui ne désigne aucune exigence,
+# une exigence du registre absente de la table de sa spec, et une exigence
+# qu'une spec promet et que le registre ignore. Les deux dernières sont nées à
+# la relecture de la phase 7, après deux phases où l'écart est passé.
 #
 # Les trois suivantes ne visent ni l'une ni l'autre : ce sont les contrôles de
 # pull request, qui n'ont de sens que sur GitHub — un corps de pull request
@@ -108,6 +114,10 @@ readonly CAPTURE_REFERENCE="${REPO_ROOT}/docs/manual/subedit-gui/captures/table.
 readonly INSTALLATION_SOURCE="${REPO_ROOT}/cmake/Installation.cmake"
 readonly DESKTOP_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.desktop"
 readonly ICON_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.svg"
+# La spec dont la table d exigences est confrontée au registre. La phase 3 est
+# choisie parce qu elle porte le plus de lignes : une injection y est perdue
+# dans la foule, ce qui est bien le cas qu on veut prouver.
+readonly SPEC_SOURCE="${REPO_ROOT}/docs/specs/03-cli.md"
 readonly OTHER_CAPTURE="${REPO_ROOT}/docs/manual/subedit-gui/captures/decalage.png"
 # Le fichier témoin de la preuve des fichiers laissés derrière. Il ne sauvegarde
 # rien : il est créé par la preuve et doit disparaître avec elle, y compris si
@@ -143,6 +153,7 @@ restore() {
     cp "${backup_dir}/Installation.cmake" "${INSTALLATION_SOURCE}"
     cp "${backup_dir}/subedit.desktop" "${DESKTOP_SOURCE}"
     cp "${backup_dir}/subedit.svg" "${ICON_SOURCE}"
+    cp "${backup_dir}/03-cli.md" "${SPEC_SOURCE}"
     rm -f "${STRAY_FILE}"
 }
 
@@ -170,6 +181,7 @@ cp "${CAPTURE_REFERENCE}" "${backup_dir}/table.png"
 cp "${INSTALLATION_SOURCE}" "${backup_dir}/Installation.cmake"
 cp "${DESKTOP_SOURCE}" "${backup_dir}/subedit.desktop"
 cp "${ICON_SOURCE}" "${backup_dir}/subedit.svg"
+cp "${SPEC_SOURCE}" "${backup_dir}/03-cli.md"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -346,11 +358,39 @@ rm -rf "${REPO_ROOT}/build/coverage-report"
 # Exigence déclarée implémentée que rien ne cite. L'injection se fait en
 # ajoutant une ligne en fin de fichier, ce qui exige que la table du registre
 # soit la dernière chose de docs/exigences.md — c'est écrit dans ce fichier.
+#
+# **La même ligne est ajoutée à la spec de la phase**, et l'appelant fait donc
+# l'injection lui-même. Sans cela, le contrôle du cadrage échouerait lui aussi —
+# une exigence au registre et absente de sa spec — et la preuve ne dirait plus
+# rien du contrôle qu'elle vise : elle passerait même si la confrontation aux
+# tests était cassée. Une preuve qui a deux causes n'en prouve aucune.
+printf '%s\n' '| `CLI-FANTOME-01` | exigence injectée que rien ne démontre | 3 | implémentée |' \
+    >> "${REGISTRY}"
+printf '%s\n' '| `CLI-FANTOME-01` | exigence injectée que rien ne démontre |' >> "${SPEC_SOURCE}"
 expect_gate_closes \
     "exigence implémentée sans test" \
     "requirements" \
     "${REGISTRY}" \
-    '| `CLI-FANTOME-01` | exigence injectée que rien ne démontre | 3 | implémentée |'
+    ''
+
+# Exigence du registre que la table de sa spec ne porte pas. Elle est `prévue`
+# et non `implémentée`, pour la raison symétrique de celle ci-dessus : une
+# exigence prévue n'a besoin d'aucun test, donc la confrontation aux tests se
+# tait et seul le cadrage parle.
+expect_gate_closes \
+    "exigence du registre absente de la table de sa spec" \
+    "requirements" \
+    "${REGISTRY}" \
+    '| `CLI-FANTOME-02` | exigence injectée que sa spec ignore | 3 | prévue |'
+
+# Le sens inverse : une exigence qu'une spec promet et que le registre ne porte
+# pas. C'est le défaut exact que la phase 7 a trouvé chez elle — `GUI-THEME-02`
+# fondue dans `GUI-THEME-01` sans que la spec le dise — et que rien ne voyait.
+expect_gate_closes \
+    "exigence promise par une spec et absente du registre" \
+    "requirements" \
+    "${SPEC_SOURCE}" \
+    '| `CLI-FANTOME-03` | exigence promise par la spec et inconnue du registre |'
 
 # Tag en forme d'identifiant qui ne désigne aucune exigence du registre.
 expect_gate_closes \
@@ -1133,7 +1173,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles trente-sept portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles trente-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

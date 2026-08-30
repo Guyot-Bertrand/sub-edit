@@ -7,7 +7,7 @@ seule la validation compte.
 | Action | Raccourci | Où |
 | :----- | :-------- | :- |
 | `Undo` | `Ctrl+Z` | menu **Edit**, barre d'outils |
-| `Redo` | `Ctrl+Maj+Z` | menu **Edit**, barre d'outils |
+| `Redo` | `Ctrl+Y` | menu **Edit**, barre d'outils |
 
 ## L'action nomme ce qu'elle défera
 

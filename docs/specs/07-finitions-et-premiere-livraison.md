@@ -121,10 +121,20 @@ qui manque toujours : une préférence est facile à ajouter et impossible à
 retirer une fois qu'un utilisateur s'y appuie.
 
 Ce qui passe : géométrie de la fenêtre, état maximisé, largeur des colonnes,
-thème, fréquence d'image par défaut. **Plus deux, ajoutées après coup** — la
-position de la poignée entre la vidéo et la table, et le dernier répertoire
-ouvert : #254 les porte, et le paragraphe ci-dessous dit pourquoi la seconde
-passe là où le dernier *fichier* ne passe pas.
+thème. **Plus trois, ajoutées après coup** — la position de la poignée entre la
+vidéo et la table et le dernier répertoire ouvert, que #254 porte, puis le côté
+de l'insertion, `edit.insert-placement`, que D7 a rendu persistant et que cette
+liste ne comptait pas. Le paragraphe ci-dessous dit pourquoi le répertoire passe
+là où le dernier *fichier* ne passe pas.
+
+**La fréquence d'image par défaut, elle, ne passe pas — et cette liste l'a
+promise pendant toute la phase.** Rien ne la lit : aucun dialogue ne s'en sert,
+aucun document n'en hérite. Une préférence dont personne ne se sert est une case
+qui ment, et #241 a eu raison de ne pas l'écrire. Le mot est retiré ici plutôt
+que le manque comblé, et la fréquence par défaut part avec les renvois de la
+phase — [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267).
+
+Sept options, donc, et le fichier de configuration en porte sept.
 
 Ce qui ne passe pas, et pourquoi : **le dernier fichier ouvert.** S'en souvenir
 veut dire rouvrir au lancement un document que l'utilisateur n'a pas demandé,
@@ -172,7 +182,7 @@ son commentaire le dit. Le geste suit :
 | où | avant ou après la sélection, au choix, et **ce choix est persisté** |
 | l'index | le **dernier** sélectionné, plus un si « après » |
 | fichier vide | index zéro, et aucune sélection n'est exigée |
-| suppression | la sélection, touche `Suppr` |
+| suppression | la sélection, touche `Del` |
 
 Le dernier sélectionné et non le premier : c'est le point qu'on invente mal si
 on ne le lit pas, et Gaupol le fait ainsi depuis vingt ans.
@@ -228,7 +238,7 @@ d'ouverture. L'issue porte son propre constat et ce cadrage ne le rejoue pas.
 | Entrée | Menu | Raccourci |
 | :----- | :--- | :-------- |
 | `Insert Subtitles…` | Edit | `Ins` |
-| `Remove Subtitles` | Edit | `Suppr` |
+| `Remove Subtitles` | Edit | `Del` |
 | `Preferences…` | Edit | — |
 | `Manual` | Help | — |
 
@@ -236,9 +246,15 @@ Les deux premières après `Undo`/`Redo`, séparateur entre les deux groupes :
 défaire est ce qu'on fait *à* une édition, insérer et supprimer *sont* des
 éditions.
 
-`Preferences…` porte le thème et la fréquence par défaut. La géométrie et les
-largeurs de colonnes ne s'y montrent pas — elles se règlent en déplaçant la
-fenêtre, et une préférence qui a déjà un geste n'a pas besoin d'un champ.
+`Preferences…` porte le thème, et lui seul. La géométrie et les largeurs de
+colonnes ne s'y montrent pas — elles se règlent en déplaçant la fenêtre, et une
+préférence qui a déjà un geste n'a pas besoin d'un champ ; le côté de
+l'insertion se règle dans le dialogue qui s'en sert. Reste le thème, la seule
+qui n'ait aucun geste ailleurs.
+
+**Le cadrage y ajoutait la fréquence par défaut, et la phase ne l'a pas
+livrée** — voir D5 : rien ne la lirait. La ligne est corrigée ici plutôt que
+laissée dire ce qui n'existe pas ; le manuel, lui, le disait déjà juste.
 
 ## L'installation
 
@@ -303,7 +319,7 @@ Le seul chiffre qui compte pour cette phase existe déjà, et D8 l'a interprét�
 | `GUI-CONFIG-01` | la fenêtre retrouve sa géométrie et ses colonnes d'une session à l'autre |
 | `GUI-CONFIG-02` | une valeur illisible laisse le défaut en place, et le dit |
 | `GUI-CONFIG-03` | une option restée à son défaut est réécrite commentée, donc un défaut changé prend effet |
-| `GUI-THEME-01` | le thème a trois valeurs, et « système » ne pose aucune palette |
+| `GUI-THEME-01` | le thème se choisit entre trois valeurs, se retient, et « système » ne pose rien |
 | `GUI-THEME-02` | « clair » et « sombre » posent une palette explicite |
 | `GUI-INSERT-01` | insérer place les sous-titres après le dernier sélectionné, ou avant au choix |
 | `GUI-INSERT-02` | insérer dans un document vide ne demande aucune sélection |
@@ -319,6 +335,24 @@ registre.
 **Elles entrent au registre en début d'issue, à l'état `prévue`**, comme la
 phase 16 l'a tenu. Elle était la première où la règle servait vraiment ; celle-ci
 est la seconde, et c'est là qu'on saura si elle tient hors du cas favorable.
+
+**Neuf, et le registre n'en a longtemps porté que huit.** #241 a fondu
+`GUI-THEME-02` dans `GUI-THEME-01` sans que rien ne le dise, ce qui a coûté une
+promesse : la ligne restante dit que le thème a trois valeurs et se retient, elle
+ne dit pas que « clair » et « sombre » posent une palette. Or c'est précisément
+cette palette-là qui tient D3 et D4, et deux cas de `theme_test.cpp` la
+prouvaient déjà sans que rien ne les rattache à une promesse. La relecture de fin
+de phase rend donc `GUI-THEME-02` au registre et lui donne ses tags, plutôt que
+d'entériner la fusion.
+
+**Et elle donne au défaut son contrôle**, parce que c'est la deuxième phase de
+suite où il passe — la phase 16 avait retiré `CLI-SNAP-03` sans que sa spec
+suive et laissé naître `GUI-GRID-03` sans l'y inscrire.
+`check-requirements.sh` confronte désormais **la table de chaque spec aux lignes
+du registre qui portent sa phase**, dans les deux sens, avec la phase et le
+barré. Il a trouvé quatre écarts de plus au passage, tous antérieurs : trois
+`CLI-VERSION` remplacées et une `CLI-OUTPUT-06` née en cours de route, absentes
+de la spec de la phase 3, et une `CLI-INSPECT-04` absente de celle de la phase 5.
 
 ## Manuel
 
@@ -362,16 +396,78 @@ même type que #241 : les faire ensemble évite un conflit sur `core::Settings`.
 
 | Ce qui est renvoyé | Où |
 | :----------------- | :- |
-| Flatpak et AppImage | différés, ADR 0023, sans phase nommée — ce sont des livraisons, pas des finitions |
-| le déclencheur de l'ADR 0019 | reformulé par D8 : une mesure sur machine avec écran, ou un producteur plus rapide qu'un humain |
+| Flatpak et AppImage | [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265) — différés par l'ADR 0023, ce sont des livraisons et pas des finitions |
+| le déclencheur de l'ADR 0019 | [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264) — reformulé par D8 : une mesure sur machine avec écran, ou un producteur plus rapide qu'un humain |
+| un conteneur Fedora pour éprouver le `.rpm` | [#266](https://github.com/Guyot-Bertrand/sub-edit/issues/266) |
+| la fréquence d'image par défaut dans les préférences | [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267) — voir D5 : elle n'existe pas, et rien ne la lirait |
 | un bump de Qt pour lire le schéma de couleurs du système | hors phase ; D3 livre sans lui, et l'ADR 0001 se rouvrirait |
 | la liste des fichiers récents | hors phase — une fonctionnalité, pas une préférence, D5 |
 | la traduction du manuel | phase 15 |
 
+**Les quatre premiers ne désignaient personne**, et la relecture de fin de phase
+leur a donné un endroit. Trois d'entre eux étaient formulés par une condition —
+« le jour où quelqu'un mesure », « quand quelqu'un installera vraiment le
+paquet », « le jour où quelque chose la lira ». Une condition sans référent
+finit par s'oublier ; c'est le défaut que le déroulé d'une phase décrit, et
+c'est la deuxième relecture d'affilée à le trouver.
+
+## Ce que la relecture de fin de phase a sorti
+
+Sept axes, discutés et retenus, chacun avec son issue. Aucun n'est corrigé
+ici — c'est la règle du regard critique.
+
+| Issue | Ce qu'elle porte |
+| :---- | :--------------- |
+| [#268](https://github.com/Guyot-Bertrand/sub-edit/issues/268) | chaque vérification passe-t-elle par l'outil qui compte ? Le manuel n'est jamais rendu par Qt, la page de manuel jamais par groff |
+| [#269](https://github.com/Guyot-Bertrand/sub-edit/issues/269) | un commentaire ajouté au `Makefile` fait passer clang-tidy de 2 fichiers à 223 |
+| [#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270) | six des treize relevés de la phase sont pris au-dessus du seuil de charge |
+| [#271](https://github.com/Guyot-Bertrand/sub-edit/issues/271) | `check-installation.sh` a triplé : une chose, ou deux ? |
+| [#272](https://github.com/Guyot-Bertrand/sub-edit/issues/272) | `subedit-gui` n'a pas de page de manuel, et Gaupol n'en a qu'une, pour sa fenêtre |
+| [#273](https://github.com/Guyot-Bertrand/sub-edit/issues/273) | 75 intitulés de tests en français contre 1188 en anglais, tous nés dans cette phase |
+| [#274](https://github.com/Guyot-Bertrand/sub-edit/issues/274) | deux raccourcis que Qt ne pose pas sous X11, et que le manuel promettait |
+
+## Ce que la mesure a tranché
+
+**La phase 16 avait conclu l'inverse, et sa conclusion est fausse.** Elle avait
+inscrit, parmi ses trois « affirmations démenties par la mesure » :
+
+> « la garde du slot est inatteignable » → **Qt invoque le slot d'une action
+> éteinte**
+
+Qt ne l'invoque pas. `QAction::trigger()` et `QAction::activate(Trigger)` sur
+une action éteinte n'émettent rien :
+
+```
+activée, trigger()   -> 1
+éteinte, trigger()   -> 0
+éteinte, activate()  -> 0
+```
+
+Le cas qui était censé le trancher — `the entry that is out does nothing when
+triggered` — **ne pouvait pas le faire** : ses deux assertions, la barre d'état
+inchangée et l'annulation toujours éteinte, sont vraies que le slot soit atteint
+ou non. Son commentaire disait pourtant « This case is what says so ».
+
+Le cas compte désormais les émissions plutôt que de les inférer, et il vérifie
+aussi le sens positif — la même action rallumée atteint bien le slot. C'est ce
+qui distingue « mesuré » de « rien n'a bougé ».
+
+Trois commentaires de cette phase-ci reposaient déjà sur le comportement réel :
+c'est pourquoi `une suppression vide n'entre pas dans l'historique` et `le retour
+forcé sans historique ne fait rien` rallument l'action à la main pour atteindre
+le garde qu'ils éprouvent. `docs/mesures/couverture.md` le dit aussi depuis la
+phase 6 — « Qt ne déclenche pas une action désactivée, donc rien ne peut la
+parcourir ». Le quatrième, plus ancien, disait le contraire ; il est corrigé.
+
+**La leçon de la phase 16 tient malgré cela, et elle se retourne :** un cas
+écrit pour trancher ne tranche que si ses assertions distinguent les deux
+réponses. Celui-là n'en distinguait aucune, et il a servi pendant une phase
+entière à soutenir la mauvaise.
+
 ## Critères de fin
 
-- [ ] Les six issues d'implémentation sont fermées, plus #154, #199, #238, #239, #247, #254
-- [ ] Un tiers installe le paquet et lance l'outil sans l'arbre de construction
-- [ ] Le manuel décrit ce qui existe, captures comprises, dans les deux thèmes
-- [ ] `Help ▸ Manual` ouvre le manuel installé
-- [ ] La relecture de fin de phase est faite
+- [x] Les six issues d'implémentation sont fermées, plus #154, #199, #238, #239, #247, #254
+- [x] Un tiers installe le paquet et lance l'outil sans l'arbre de construction
+- [x] Le manuel décrit ce qui existe, captures comprises, dans les deux thèmes
+- [x] `Help ▸ Manual` ouvre le manuel installé
+- [x] La relecture de fin de phase est faite — #263

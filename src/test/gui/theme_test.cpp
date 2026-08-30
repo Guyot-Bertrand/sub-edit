@@ -125,7 +125,7 @@ private:
 
 } // namespace
 
-TEST_CASE("sombre est sombre, et clair est clair", "[gui][theme]") {
+TEST_CASE("sombre est sombre, et clair est clair", "[gui][theme][GUI-THEME-02]") {
     // Le fond, et non le nom : c'est ce sur quoi tout le reste se lit.
     CHECK(luminanceOf(paletteFor(Theme::Dark).base().color()) < 0.1);
     CHECK(luminanceOf(paletteFor(Theme::Light).base().color()) > 0.8);
@@ -166,7 +166,7 @@ TEST_CASE("système ne pose rien", "[gui][theme]") {
     CHECK(QApplication::palette().base().color() == QColor{1, 2, 3});
 }
 
-TEST_CASE("sombre pose sa palette sur l'application", "[gui][theme]") {
+TEST_CASE("sombre pose sa palette sur l'application", "[gui][theme][GUI-THEME-02]") {
     const PaletteRestored restored;
 
     applyTheme(Theme::Dark);

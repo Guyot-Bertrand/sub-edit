@@ -6,9 +6,13 @@ Le menu **File** porte les trois commandes.
 | :------- | :-------- | :-------------- |
 | `Open…` | `Ctrl+O` | choisit un fichier et l'ouvre à la place du courant |
 | `Save` | `Ctrl+S` | réécrit le fichier ouvert |
-| `Save As…` | `Ctrl+Maj+S` | choisit un chemin et un format, puis écrit |
+| `Save As…` | aucun | choisit un chemin et un format, puis écrit |
 
 `Open…` et `Save` sont aussi dans la barre d'outils.
+
+**`Save As…` n'a pas de raccourci sous Linux**, et l'entrée de menu n'en montre
+aucun : le raccourci standard que Qt donne à cette commande n'existe que sur
+macOS et sur Windows. Il s'atteint au menu.
 
 ## Ouvrir
 
