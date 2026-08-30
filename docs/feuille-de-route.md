@@ -665,9 +665,10 @@ l'endroit où il sera installé se décident avec l'empaquetage, pas avant.
 - **la configuration persistée elle-même**, que la phase 5 a laissée entière :
   elle n'a besoin de rien de persistant pour que sa table fonctionne. Ce qu'elle
   aurait voulu retenir arrive donc ici — géométrie de la fenêtre, largeur des
-  colonnes. **La fréquence d'image par défaut, elle, n'est pas venue** : rien ne
-  la lirait, et une préférence dont personne ne se sert est une case qui ment.
-  Elle attend un lecteur, en [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267) ;
+  colonnes. **La fréquence d'image par défaut, elle, n'est pas venue et ne
+  viendra pas** : rien ne la lirait, et une préférence dont personne ne se sert
+  est une case qui ment. Instruite puis écartée en
+  [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267) ;
 - **un `Session` qui annonce un changement de structure avant de le faire**, si
   la mesure le demande. La phase 5 réinitialise le modèle pour toute insertion ou
   suppression de lignes ; son seul producteur y est global et rare, ce qui ne
@@ -693,12 +694,18 @@ plutôt qu'une migration versionnée.
 de phase a donné un endroit à quatre renvois qui n'en avaient pas, et sept axes
 sont sortis de son regard critique :
 
+**Trois d'entre eux ont été instruits et refermés aussitôt**, et c'est un
+résultat plutôt qu'un échec : un « non » écrit ne se repropose pas.
+
+| Ce qui a été tranché | La décision |
+| :------------------- | :---------- |
+| le déclencheur de l'ADR 0019 | **abandonné** — [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264) : D8 se suffit, et la mesure qui manquait ne changerait rien |
+| Flatpak et AppImage | **écartés** — [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265) : `.deb` et `.rpm`, et ailleurs on construit depuis les sources |
+| la fréquence d'image par défaut | **écartée** — [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267) : aucun lecteur n'en avait besoin |
+
 | Ce qui reste | Où |
 | :----------- | :- |
-| le déclencheur de l'ADR 0019, reformulé par D8 | [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264) |
-| Flatpak et AppImage, différés par l'ADR 0023 | [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265) |
 | un conteneur Fedora pour éprouver le `.rpm` | [#266](https://github.com/Guyot-Bertrand/sub-edit/issues/266) |
-| la fréquence d'image par défaut dans les préférences | [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267) |
 | vérifier avec l'outil qui compte — le manuel, la page de manuel | [#268](https://github.com/Guyot-Bertrand/sub-edit/issues/268) |
 | le `Makefile` force l'analyse complète pour un commentaire | [#269](https://github.com/Guyot-Bertrand/sub-edit/issues/269) |
 | le seuil de charge du journal des mesures | [#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270) |
@@ -711,6 +718,7 @@ sont sortis de son regard critique :
 
 - Format de fichier de configuration et migration entre versions.
 - Empaquetage : Flatpak, `.deb`, AppImage — lequel pour une première livraison ?
+  **Répondu : `.deb` et `.rpm`**, les deux autres écartés — ADR 0023 et #265.
 - **Règles `install()` dans CMake, et cibles `install` / `uninstall`.** Le
   projet n'en a aucune : l'outil se lance depuis l'arbre de construction, et
   `docs/manual/subedit-cli/installation.md` le dit. Relevé au cadrage de la

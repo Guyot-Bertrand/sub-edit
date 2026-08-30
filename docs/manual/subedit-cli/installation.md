@@ -50,8 +50,10 @@ défaut des règles d'installation, pas du format.
 Ce qui refermerait l'écart est un conteneur Fedora dans l'intégration continue.
 Voir [l'ADR 0023](../../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md).
 
-**Flatpak et AppImage ne sont pas proposés**, et c'est un choix expliqué dans la
-même ADR — pas un oubli.
+**Flatpak et AppImage ne sont pas proposés**, et c'est un choix — pas un oubli.
+Il est expliqué dans la même ADR, et il est **définitif** : une distribution qui
+n'est ni de la famille Debian ni de la famille Fedora se construit depuis les
+sources, ce que la section suivante décrit en entier.
 
 ## Construire depuis les sources
 

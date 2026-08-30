@@ -62,7 +62,7 @@ format, il produit une installation correcte. C'est ce que reprend
 | thème clair, sombre, système | un thème propre à l'application |
 | insertion et suppression depuis la fenêtre | fusionner, scinder — phase 10 |
 | manuel utilisateur complet | la traduction du manuel — phase 15 |
-| règles `install()`, paquets `.deb` et `.rpm` | Flatpak, AppImage — différés, ADR 0023 |
+| règles `install()`, paquets `.deb` et `.rpm` | Flatpak, AppImage — écartés, ADR 0023 et #265 |
 | `Help ▸ Manual` rallumée | une aide contextuelle |
 | une seule recette d'ouverture (#154) | |
 
@@ -77,7 +77,8 @@ son défaut est réécrite commentée**.
 
 **D2 — deux paquets natifs, `.deb` et `.rpm`, après des règles `install()`.**
 [ADR 0023](../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md). L'installation
-d'abord, les formats ensuite ; Flatpak et AppImage différés avec leur raison.
+d'abord, les formats ensuite ; Flatpak et AppImage différés avec leur raison —
+et **écartés depuis**, la question ayant été instruite après la phase : #265.
 
 **Deux, et le second est ce qui met la décision à l'épreuve.** « L'installation
 d'abord » est une affirmation tant qu'un seul format l'exerce ; un `.rpm`
@@ -131,8 +132,8 @@ là où le dernier *fichier* ne passe pas.
 promise pendant toute la phase.** Rien ne la lit : aucun dialogue ne s'en sert,
 aucun document n'en hérite. Une préférence dont personne ne se sert est une case
 qui ment, et #241 a eu raison de ne pas l'écrire. Le mot est retiré ici plutôt
-que le manque comblé, et la fréquence par défaut part avec les renvois de la
-phase — [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267).
+que le manque comblé, et la question a été instruite puis close : elle **ne
+viendra pas** — [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267).
 
 Sept options, donc, et le fichier de configuration en porte sept.
 
@@ -254,7 +255,9 @@ qui n'ait aucun geste ailleurs.
 
 **Le cadrage y ajoutait la fréquence par défaut, et la phase ne l'a pas
 livrée** — voir D5 : rien ne la lirait. La ligne est corrigée ici plutôt que
-laissée dire ce qui n'existe pas ; le manuel, lui, le disait déjà juste.
+laissée dire ce qui n'existe pas ; le manuel, lui, le disait déjà juste. La
+question a été rouverte après la phase et refermée pour de bon : **une seule
+préférence a un dialogue, et ce sera le thème.**
 
 ## L'installation
 
@@ -396,20 +399,29 @@ même type que #241 : les faire ensemble évite un conflit sur `core::Settings`.
 
 | Ce qui est renvoyé | Où |
 | :----------------- | :- |
-| Flatpak et AppImage | [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265) — différés par l'ADR 0023, ce sont des livraisons et pas des finitions |
-| le déclencheur de l'ADR 0019 | [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264) — reformulé par D8 : une mesure sur machine avec écran, ou un producteur plus rapide qu'un humain |
 | un conteneur Fedora pour éprouver le `.rpm` | [#266](https://github.com/Guyot-Bertrand/sub-edit/issues/266) |
-| la fréquence d'image par défaut dans les préférences | [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267) — voir D5 : elle n'existe pas, et rien ne la lirait |
 | un bump de Qt pour lire le schéma de couleurs du système | hors phase ; D3 livre sans lui, et l'ADR 0001 se rouvrirait |
 | la liste des fichiers récents | hors phase — une fonctionnalité, pas une préférence, D5 |
 | la traduction du manuel | phase 15 |
 
-**Les quatre premiers ne désignaient personne**, et la relecture de fin de phase
-leur a donné un endroit. Trois d'entre eux étaient formulés par une condition —
-« le jour où quelqu'un mesure », « quand quelqu'un installera vraiment le
-paquet », « le jour où quelque chose la lira ». Une condition sans référent
-finit par s'oublier ; c'est le défaut que le déroulé d'une phase décrit, et
-c'est la deuxième relecture d'affilée à le trouver.
+**Les quatre renvois qui ne désignaient personne ont été instruits, et trois
+d'entre eux sont morts de l'être.** C'est le résultat qu'on n'attend pas d'une
+mise au propre : une condition sans référent survit parce que personne ne la
+regarde, et la regarder suffit souvent à la conclure.
+
+| Ce qui était renvoyé | Ce qui a été décidé |
+| :------------------- | :------------------ |
+| le déclencheur de l'ADR 0019, reformulé par D8 | **abandonné** — [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264). D8 se suffit : la part de la vue n'est pas mesurable au banc, celle du modèle est de l'ordre de 10 µs, et une insertion est un geste humain |
+| Flatpak et AppImage, différés par l'ADR 0023 | **écartés** — [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265). `.deb` et `.rpm` suffisent au contour visé ; ailleurs, on construit depuis les sources, et le manuel décrit ce chemin en entier |
+| la fréquence d'image par défaut dans les préférences | **écartée** — [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267). Aucun des trois lecteurs possibles n'en avait besoin, et D5 avait donc raison la première fois |
+| un conteneur Fedora pour éprouver le `.rpm` | **retenu**, et seul des quatre : c'est le seul écart de l'empaquetage qui reste ouvert |
+
+Trois d'entre eux étaient formulés par une condition — « le jour où quelqu'un
+mesure », « quand quelqu'un installera vraiment le paquet », « le jour où quelque
+chose la lira ». Une condition sans référent finit par s'oublier ; c'est le
+défaut que le déroulé d'une phase décrit, et c'est la deuxième relecture
+d'affilée à le trouver. **Trois « peut-être » sont devenus trois « non », et
+c'est un gain** : un « non » écrit ne se repropose pas.
 
 ## Ce que la relecture de fin de phase a sorti
 
