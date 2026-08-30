@@ -23,6 +23,10 @@ ne pas l'éditer à la main.
 - **build** — Une cible qui produit les binaires optimisés
 - **build** — Prouver qu'une installation s'installe
 
+### Corrections
+
+- **build** — Une icône que le bureau sait lire, et un contrôle qui la lit
+
 ### Documentation
 
 - **doc** — Cadrage de la phase 7, finitions et livraison
