@@ -30,6 +30,7 @@
 #include <subedit/gui/hearing_impaired_dialog.hpp>
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
+#include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/shift_dialog.hpp>
@@ -327,13 +328,15 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_about = new QAction{QStringLiteral("&About subedit"), this};
     connect(m_about, &QAction::triggered, this, &MainWindow::about);
 
-    // **Present and out.** The manual it will open is phase 7's, which brings
-    // the complete user manual and the packaging that decides where it lives.
-    // The entry is here rather than added later so that the shape of the menu
-    // is settled now; an entry that opened nothing would be worse than one that
-    // says it is not ready.
+    // **Éteinte tant que personne ne lui a dit où est le manuel**, ce qui est
+    // le cas d'un binaire lancé depuis l'arbre de construction : `main` appelle
+    // `setManualPath` avec ce que `installedManualPath()` a résolu, et l'entrée
+    // s'allume si le manuel y est. Une entrée qui ouvrirait le vide serait pire
+    // qu'une entrée qui dit qu'elle n'a rien à ouvrir.
     m_manual = new QAction{QStringLiteral("&Manual"), this};
     m_manual->setEnabled(false);
+    m_manual->setShortcut(QKeySequence::HelpContents);
+    connect(m_manual, &QAction::triggered, this, &MainWindow::openManual);
 
     // **The menu bar, in the order a user reads it**: the document, what one
     // does to it, what accompanies it, what inspects it, what explains it.
@@ -536,6 +539,29 @@ void MainWindow::shiftOntoGrid() {
 void MainWindow::about() {
     AboutDialog dialog{this};
     (void)m_prompts->run(dialog);
+}
+
+void MainWindow::setManualPath(std::filesystem::path directory) {
+    m_manualDirectory = std::move(directory);
+
+    // La page d'accueil et non le répertoire : un répertoire présent mais vide
+    // est une installation partielle, et c'est le cas que le cadrage nomme.
+    m_manual->setEnabled(m_files->exists(m_manualDirectory / "index.md"));
+    m_manual->setToolTip(m_manual->isEnabled()
+                             ? QStringLiteral("Open the installed manual")
+                             : QStringLiteral("No manual is installed beside this program"));
+}
+
+void MainWindow::openManual() {
+    // **Une seule fenêtre, ramenée au premier plan.** Un manuel se consulte
+    // plusieurs fois pendant une séance, et chaque appel en ouvrant une
+    // nouvelle en laisserait une pile derrière l'autre.
+    if (m_manualWindow == nullptr)
+        m_manualWindow = new ManualWindow{*m_files, m_manualDirectory, this};
+
+    m_manualWindow->show();
+    m_manualWindow->raise();
+    m_manualWindow->activateWindow();
 }
 
 QStringList MainWindow::menuTitles() const {

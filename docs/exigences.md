@@ -140,3 +140,4 @@ plus rien.
 | `GUI-INSERT-01` | insérer place les sous-titres après le dernier sélectionné, ou avant au choix | 7 | implémentée |
 | `GUI-INSERT-02` | insérer dans un document vide ne demande aucune sélection | 7 | implémentée |
 | `GUI-REMOVE-01` | supprimer retire la sélection, et l'opération s'annule | 7 | implémentée |
+| `GUI-MANUAL-01` | `Help ▸ Manual` ouvre le manuel installé | 7 | implémentée |

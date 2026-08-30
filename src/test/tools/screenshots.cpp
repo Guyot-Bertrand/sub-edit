@@ -31,6 +31,7 @@
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
+#include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -126,6 +127,23 @@ constexpr int kEditedRow = 2;
 /// La modale d'analyse, assez haute pour ses huit candidates.
 constexpr int kDialogWidth = 330;
 constexpr int kDialogHeight = 430;
+
+/// La fenêtre du manuel, assez large pour ses tableaux.
+///
+/// Plus petite que la taille d'ouverture : la capture montre de quoi
+/// reconnaître la fenêtre, et une image de neuf cents pixels de large dans une
+/// page de manuel se lit moins bien qu'une de sept cents.
+constexpr int kManualWidth = 700;
+constexpr int kManualHeight = 480;
+
+/// Le manuel que la fenêtre photographiée montre : celui du dépôt.
+///
+/// **Le vrai manuel et non un manuel de démonstration.** L'installé en est la
+/// copie, page pour page — `cmake/Installation.cmake` dépose `docs/manual/`
+/// entier —, donc la capture montre ce qu'un lecteur verra.
+[[nodiscard]] std::filesystem::path manualDirectory() {
+    return std::filesystem::path{SUBEDIT_MANUAL_DIR};
+}
 
 /// La seule phrase que la plateforme sans écran répète à chaque fenêtre montrée.
 ///
@@ -355,6 +373,22 @@ int main(int argc, char** argv) {
         subedit::gui::applyTheme(subedit::core::Theme::Dark);
         subedit::gui::InsertDialog dialog{true, subedit::core::InsertPlacement::Below};
         written = capture(dialog, dialog, directory, "insertion-sombre") && written;
+    }
+
+    // Le manuel lu dans sa fenêtre, sur le vrai manuel du dépôt : c'est ce que
+    // `Help ▸ Manual` ouvre une fois l'outil installé, à ceci près que la copie
+    // installée vit sous `share/subedit/manual` plutôt que sous `docs/`.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::gui::ManualWindow manual{files, manualDirectory()};
+        manual.resize(kManualWidth, kManualHeight);
+        written = capture(manual, manual, directory, "manuel") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::ManualWindow manual{files, manualDirectory()};
+        manual.resize(kManualWidth, kManualHeight);
+        written = capture(manual, manual, directory, "manuel-sombre") && written;
     }
 
     {

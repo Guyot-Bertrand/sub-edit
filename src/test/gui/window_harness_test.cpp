@@ -34,6 +34,8 @@
 #include <catch2/catch_session.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
+#include <array>
 #include <filesystem>
 #include <string>
 #include <system_error>
@@ -41,21 +43,30 @@
 
 namespace {
 
-/// The one thing the offscreen platform says every time a window is shown.
+/// Ce que la plateforme sans écran répète, et rien d'autre.
 ///
-/// It is true and it is harmless: nothing here has a window manager to
-/// propagate a size hint to. Showing every window makes it ninety-six lines of
-/// a test run, which is how a real warning stops being read.
-constexpr const char* kOffscreenSizeHints = "This plugin does not support propagateSizeHints()";
+/// Les deux phrases sont vraies et sans conséquence : rien ici n'a de
+/// gestionnaire de fenêtres à qui propager une taille, ni à qui demander de
+/// passer devant. Montrer chaque fenêtre en fait des dizaines de lignes par
+/// exécution, et c'est ainsi qu'un vrai avertissement cesse d'être lu.
+///
+/// **Une liste close, et deux phrases entières.** La seconde est arrivée avec
+/// la fenêtre du manuel — #245 —, qui ramène au premier plan celle qui est déjà
+/// ouverte.
+constexpr std::array<const char*, 2> kOffscreenNoise = {
+    "This plugin does not support propagateSizeHints()",
+    "This plugin does not support raise()",
+};
 
-/// Whether this message is that one, and nothing near it.
+/// Whether this message is one of those, and nothing near them.
 ///
 /// **Une égalité et non un préfixe** — a filter that matched loosely would
 /// grow into one that hides what it was not meant to hide, and a test harness
 /// that swallows warnings is worse than one that shouts. Out here rather than
 /// inside the handler so that a case can hold it to that.
 [[nodiscard]] bool isOffscreenNoise(const QString& text) {
-    return text == QLatin1StringView{kOffscreenSizeHints};
+    return std::ranges::any_of(
+        kOffscreenNoise, [&text](const char* known) { return text == QLatin1StringView{known}; });
 }
 
 /// Passes every message through but that one.
@@ -164,8 +175,9 @@ TEST_CASE("a signal can be watched", "[gui]") {
 // The harness silences one sentence of the offscreen platform, and this is what
 // keeps that silence honest: a handler that hid a warning nobody asked it to
 // hide would make every test run quieter and less true.
-TEST_CASE("le silence du harnais ne porte que sur une phrase", "[gui]") {
+TEST_CASE("le silence du harnais ne porte que sur deux phrases", "[gui]") {
     CHECK(isOffscreenNoise(QStringLiteral("This plugin does not support propagateSizeHints()")));
+    CHECK(isOffscreenNoise(QStringLiteral("This plugin does not support raise()")));
 
     CHECK_FALSE(isOffscreenNoise(QString{}));
     CHECK_FALSE(isOffscreenNoise(QStringLiteral("This plugin does not support windows")));

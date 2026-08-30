@@ -9,6 +9,7 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
+#include <subedit/gui/manual_path.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 
@@ -48,6 +49,9 @@ int main(int argc, char** argv) {
         // Les préférences de l'ADR 0022 : lues avant que la fenêtre se montre,
         // écrites une fois qu'elle est fermée.
         window.applySettings(subedit::gui::readUserSettings(files, std::cerr));
+        // La décision D6 : `Help ▸ Manual` ouvre le manuel installé, dont
+        // l'emplacement se résout ici et nulle part ailleurs — ADR 0022.
+        window.setManualPath(subedit::gui::installedManualPath());
         window.show();
 
         const int code = QApplication::exec();
