@@ -3,6 +3,19 @@
 Statut : acceptée — 2026-08-28
 Décidée au cadrage de la phase 7 (#237).
 
+> **Note de statut — 2026-08-30, après la relecture de fin de phase 7.**
+> Ce qui suit dit que Flatpak et AppImage sont **différés** ; ils sont depuis
+> **écartés**. La question a été instruite en
+> [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265) et refermée :
+> `.deb` et `.rpm` suffisent au contour visé, et une distribution qui n'est ni
+> de la famille Debian ni de la famille Fedora construit depuis les sources —
+> chemin que `docs/manual/subedit-cli/installation.md` décrit en entier.
+>
+> **Le corps de l'ADR n'est pas réécrit**, parce qu'un enregistrement de
+> décision garde ce qu'il a décidé et quand. Les deux sections « Pourquoi pas »
+> restent donc justes sur leur fond : elles disaient déjà que le coût ne se
+> justifiait pas. Seul leur « pour l'instant » a cessé d'être vrai.
+
 ## Contexte
 
 La phase 7 est celle qui rend l'outil installable. Le projet n'a aujourd'hui

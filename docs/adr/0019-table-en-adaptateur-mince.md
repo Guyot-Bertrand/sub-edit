@@ -100,3 +100,21 @@ signatures publiques que la CLI compile aussi.
 sous-titres depuis la fenêtre. Une réinitialisation complète à chaque ligne
 ajoutée serait alors ridicule, et c'est là que `Session` devra annoncer un
 changement de structure avant de le faire. Le mesurer avant de le construire.
+
+> **Le déclencheur s'est déclenché, et la réponse est non — 2026-08-30,
+> [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264).** La phase 7 a
+> livré l'insertion et la suppression, la décision D8 de sa spec a instruit la
+> question, et la relecture de fin de phase l'a refermée.
+>
+> « Le mesurer avant de le construire » a été suivi à la lettre, et c'est la
+> mesure qui a conclu : la réinitialisation du modèle après une ligne retirée
+> est de l'ordre de **10 µs sur quatre mille sous-titres**, contre un geste
+> humain. La part de la vue, elle, n'est pas mesurable au banc — il n'a pas de
+> `QApplication`. **Construire une optimisation dont le bénéfice n'est pas
+> mesurable est exactement ce que cette ADR demandait d'éviter**, donc on ne la
+> construit pas, et l'adaptateur reste mince.
+>
+> Ce qui rouvrirait la question n'est plus une mesure mais un besoin : un
+> producteur qui change la structure plus vite qu'un humain ne clique — une
+> correction en lot, un import. Il n'en existe aucun ; le jour où il en existe
+> un, il portera la question avec lui.

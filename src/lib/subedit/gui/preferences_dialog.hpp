@@ -17,10 +17,12 @@ namespace subedit::gui {
 /// bordure, et une préférence qui a déjà un geste n'a pas besoin d'un champ. Le
 /// thème n'en a aucun.
 ///
-/// La fréquence d'image par défaut, annoncée par le cadrage, viendra le jour où
-/// quelque chose la lira : une préférence dont personne ne se sert est une case
-/// qui ment. La relecture de fin de phase 7 a retiré la promesse de la spec et
-/// lui a donné une issue plutôt qu'une condition — #267.
+/// La fréquence d'image par défaut, annoncée par le cadrage, **ne viendra
+/// pas** : #267 l'a instruite puis écartée. Aucun des trois lecteurs possibles
+/// n'en avait besoin — la conversion pré-remplit son champ du haut avec la
+/// grille déduite, l'alignement s'ouvre sur ce que la vidéo déclare, et un
+/// projet sans l'une ni l'autre est un projet où l'utilisateur choisit. Une
+/// préférence dont personne ne se sert est une case qui ment.
 class PreferencesDialog final : public QDialog {
     Q_OBJECT
 
