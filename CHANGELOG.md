@@ -34,6 +34,7 @@ ne pas l'éditer à la main.
 - **doc** — La cible release au futur, et dans le découpage
 - **doc** — Deux réglages de plus au cadrage de la phase 7
 - **doc** — Le manuel utilisateur complet
+- **doc** — Relecture de fin de phase 7
 
 ### Remaniements
 
