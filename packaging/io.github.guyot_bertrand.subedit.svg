@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  L'icône de subedit.
-
-  Ce qu'elle dessine : un cadre d'image, et deux lignes de sous-titre en bas,
-  la seconde plus courte que la première. C'est ce qu'un sous-titre est à
-  l'écran, et c'est reconnaissable à seize pixels — le format où une icône est
-  le plus souvent vue et le moins souvent essayée.
-
-  Vectorielle et sans texte : le répertoire d'installation est
-  « scalable/apps », donc une seule image sert toutes les tailles, et un glyphe
-  y dépendrait d'une police que la machine n'a peut-être pas.
--->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect x="4" y="10" width="56" height="44" rx="5" fill="#2d3646"/>
-  <rect x="8" y="14" width="48" height="36" rx="2" fill="#1b2230"/>
-  <rect x="14" y="36" width="36" height="5" rx="2.5" fill="#f2f2f2"/>
-  <rect x="21" y="44" width="22" height="5" rx="2.5" fill="#f2f2f2"/>
+  <!--
+    L'icône de subedit.
+
+    **Le commentaire est ici, après la balise racine, et il doit y rester.**
+    gdk-pixbuf — le chargeur par lequel les bureaux GTK lisent une icône —
+    reconnaît un SVG en cherchant « <svg » dans les **256 premiers octets** du
+    fichier. Un commentaire placé avant la racine repousse la balise au-delà, et
+    le fichier n'est alors reconnu par personne : le bureau affiche une tuile
+    vide. C'est ce qui est arrivé — issue #260 —, et rien ne le disait, parce
+    qu'Inkscape et Qt lisent le fichier sans se soucier de cette fenêtre.
+    `check-icon.py` la vérifie désormais.
+
+    Ce qu'elle dessine : une tuile pleine, et deux lignes de sous-titre, la
+    seconde plus courte. La tuile pleine est ce qui la rend visible sur un fond
+    sombre — la version précédente était un cadre sombre sur fond transparent,
+    donc invisible sur un bureau sombre, ce qui était l'autre moitié du défaut.
+
+    Sans texte : le répertoire est « scalable/apps », une seule image sert
+    toutes les tailles, et un glyphe dépendrait d'une police que la machine peut
+    ne pas avoir.
+  -->
+  <rect x="2" y="6" width="60" height="52" rx="12" fill="#3d7ad6"/>
+  <rect x="12" y="23" width="40" height="9" rx="4.5" fill="#ffffff"/>
+  <rect x="12" y="38" width="25" height="9" rx="4.5" fill="#ffffff"/>
 </svg>

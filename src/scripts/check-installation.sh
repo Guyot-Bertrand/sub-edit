@@ -19,9 +19,9 @@
 #      attendue est calculée depuis `docs/manual`, jamais recopiée : une liste
 #      écrite à la main se périme au premier chapitre ajouté, en silence ;
 #   3. le préfixe temporaire ne laisse rien derrière lui ;
-#   4. **les quatre fichiers de bureau sont là, et les deux qui se valident
-#      valident** — le `.desktop`, l'icône, les métadonnées AppStream et la page
-#      de manuel ;
+#   4. **les quatre fichiers de bureau sont là, et trois d'entre eux se
+#      valident** — le `.desktop`, les métadonnées AppStream et l'icône, celle-ci
+#      lue par le chargeur des bureaux GTK plutôt que par n'importe lequel ;
 #   5. **la page de manuel ne ment pas** — sa version est celle du binaire, le
 #      répertoire de manuel qu'elle nomme est celui où le manuel a été déposé, et
 #      les sous-commandes qu'elle énumère sont celles que le binaire énumère ;
@@ -217,6 +217,21 @@ $(desktop-file-validate "${desktop}" 2>&1 | sed 's/^/    /')"
         else
             report_failure "appstreamcli refuse les métadonnées installées :
 $(appstreamcli validate --no-net "${metainfo}" 2>&1 | sed 's/^/    /')"
+        fi
+    fi
+
+    # **L'icône est lue, et par le chargeur des bureaux GTK** — #260. Elle était
+    # le seul fichier livré dont rien ne regardait le contenu, et elle était
+    # cassée : un commentaire avant la balise racine la rendait méconnaissable
+    # pour gdk-pixbuf, qui affichait une tuile vide. Inkscape et Qt l'ouvraient
+    # sans un mot ; c'est pourquoi le contrôle passe par celui-là et pas un
+    # autre.
+    if [[ -f "${icon}" ]]; then
+        if "${REPO_ROOT}/src/scripts/check-icon.py" "${icon}" >/dev/null 2>&1; then
+            report_success "l'icône se charge, et se voit sur les deux fonds"
+        else
+            report_failure "l'icône installée ne tient pas :
+$("${REPO_ROOT}/src/scripts/check-icon.py" "${icon}" 2>&1 | sed 's/^/    /')"
         fi
     fi
 }
