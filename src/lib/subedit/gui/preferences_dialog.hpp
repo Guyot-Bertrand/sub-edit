@@ -19,7 +19,8 @@ namespace subedit::gui {
 ///
 /// La fréquence d'image par défaut, annoncée par le cadrage, viendra le jour où
 /// quelque chose la lira : une préférence dont personne ne se sert est une case
-/// qui ment.
+/// qui ment. La relecture de fin de phase 7 a retiré la promesse de la spec et
+/// lui a donné une issue plutôt qu'une condition — #267.
 class PreferencesDialog final : public QDialog {
     Q_OBJECT
 

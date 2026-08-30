@@ -82,7 +82,9 @@ par film, au moment où il est associé.
 
 | Avec `ffprobe` | Sans |
 | :------------- | :--- |
-| le dialogue de conversion propose la fréquence du film | il ne propose rien, et s'ouvre comme avant |
+| la barre d'état écrit la cadence à côté du nom du film | elle n'écrit que le nom |
+| le dialogue de conversion propose la fréquence du film au champ du bas | il ne propose rien, et s'ouvre comme avant |
+| le dialogue d'alignement s'ouvre sur elle | il s'ouvre sur la cadence du projet |
 
 **Rien d'autre n'en dépend, et aucune opération ne se refuse.** Le lecteur, lui,
 n'a pas besoin de `ffprobe` du tout : il s'appuie sur `libmpv`, qui est une

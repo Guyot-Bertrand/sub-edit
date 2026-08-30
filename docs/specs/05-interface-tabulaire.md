@@ -493,16 +493,20 @@ Inscrites à l'état `prévue`, comme la règle l'exige, avant le code.
 | `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible |
 | `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier |
 | `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique |
+| `CLI-INSPECT-04` | les anomalies d'un document sont rapportées par numéro de sous-titre |
 
 `GUI-VERSION-01` a été ajoutée à cette table à la relecture : elle est née avec
 le harnais de #119, avant que cette liste ne soit écrite, et le registre la
 portait sans que la spec la compte. Dix-neuf, donc, et non dix-huit.
 
-Deux lignes du registre bougent par ailleurs :
+`CLI-INSPECT-04` l'a été à celle de la phase 7, et pour la même raison : la
+phase 5 l'a créée, la spec la nommait dans la phrase ci-dessous et jamais dans
+la table. **Vingt, donc.** C'est la ligne de la ligne de commande qu'une phase
+d'interface a fait naître — les anomalies deviennent une notion du noyau ici, et
+`inspect` les rapporte du même coup.
 
-- `CLI-INSPECT-03` passe à `abandonnée` — `--order-report` disparaît ;
-- une exigence nouvelle, `CLI-INSPECT-04`, dit que les anomalies d'un document
-  sont rapportées par numéro de sous-titre.
+Une ligne du registre bouge par ailleurs : `CLI-INSPECT-03` passe à
+`abandonnée` — `--order-report` disparaît.
 
 ## Manuel
 
