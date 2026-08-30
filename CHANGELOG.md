@@ -16,6 +16,7 @@ ne pas l'éditer à la main.
 - **gui** — Le thème, la poignée et le dernier répertoire
 - **gui** — Insérer et supprimer des lignes depuis la fenêtre
 - **build** — L'empaquetage, règles install(), .deb et .rpm
+- **gui** — Help ▸ Manual ouvre le manuel installé
 
 ### Construction
 

@@ -13,8 +13,9 @@ table. Pour l'autre programme et pour savoir par où commencer, voir
 > au document**, choisie ou devinée, et la **joue dans la fenêtre**, la réplique
 > courante dessinée sur l'image ; du pilotage, elle ne donne que jouer et
 > arrêter. Elle **retient sa géométrie, ses colonnes et ses réglages** d'une
-> session à l'autre, et se porte **claire ou sombre** au choix. Ce manuel décrit
-> ce qui existe, jamais ce qui est prévu ; ce qui vient ensuite est dans la
+> session à l'autre, et se porte **claire ou sombre** au choix. `Help ▸ Manual`
+> ouvre **ce manuel** dans une fenêtre. Ce manuel décrit ce qui existe, jamais
+> ce qui est prévu ; ce qui vient ensuite est dans la
 > [feuille de route](../../feuille-de-route.md).
 
 > **Les images de ce manuel sont engendrées, la prose non.** Les exemples de
@@ -48,10 +49,8 @@ fait *à* une édition, insérer et supprimer *sont* des éditions, et régler l
 thème n'est pas une édition du tout.
 
 `Help` porte deux entrées. `About subedit` dit la version et la licence.
-`Manual` est **présente et éteinte** : le manuel qu'elle ouvrira est déjà
-installé — sous `share/subedit/manual` du préfixe, voir
-[Installation](../subedit-cli/installation.md) — et c'est l'entrée qui reste à
-rallumer.
+`Manual`, ou `F1`, ouvre ce manuel dans une fenêtre — voir
+[Le manuel dans la fenêtre](aide.md).
 
 ## Sections
 
@@ -69,3 +68,4 @@ rallumer.
 | [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la barre d'état, `ffmpeg` |
 | [Le lecteur](lecteur.md) | la vue vidéo, jouer, la ligne qui suit, la réplique dessinée |
 | [Les préférences](preferences.md) | le thème, le fichier de préférences, ses options, et ce qu'il advient d'une valeur illisible |
+| [Le manuel dans la fenêtre](aide.md) | `Help ▸ Manual`, ce qu'il ouvre et comment y naviguer |

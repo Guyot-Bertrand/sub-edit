@@ -38,6 +38,7 @@ class QTimer;
 namespace subedit::gui {
 
 class DiagnosticsPanel;
+class ManualWindow;
 class Prompts;
 class SubtitleTableModel;
 
@@ -170,8 +171,24 @@ public:
 
     [[nodiscard]] QAction* aboutAction() const { return m_about; }
 
-    /// Present and out until phase 7 gives it a manual to open.
+    /// Ouvre le manuel installé. Éteinte tant qu'il n'y en a pas.
     [[nodiscard]] QAction* manualAction() const { return m_manual; }
+
+    /// Dit où le manuel installé se trouve, et allume l'entrée s'il y est.
+    ///
+    /// **Reçu plutôt que résolu**, comme les réglages et pour la même raison —
+    /// ADR 0022 : `gui::installedManualPath()` est le seul code qui sait où
+    /// regarder, `main` l'appelle et passe la réponse ici. Un test donne le
+    /// chemin qu'il veut, et n'atteint donc jamais le vrai manuel.
+    ///
+    /// **L'entrée reste éteinte quand le manuel n'est pas là**, ce qui est le
+    /// cas d'un binaire lancé depuis l'arbre de construction et celui d'une
+    /// installation partielle. C'est ce qui tient la promesse du cadrage : le
+    /// manuel absent ne fait rien planter, il éteint une entrée.
+    void setManualPath(std::filesystem::path directory);
+
+    /// La fenêtre du manuel, si elle est ouverte. Pour qu'un test la lise.
+    [[nodiscard]] ManualWindow* manualWindow() const { return m_manualWindow; }
 
     /// The names of the menus, in the order the bar shows them.
     [[nodiscard]] QStringList menuTitles() const;
@@ -299,6 +316,9 @@ private:
     /// Says who this is and which version is running.
     void about();
 
+    /// Ouvre le manuel, ou ramène au premier plan celui qui est déjà ouvert.
+    void openManual();
+
     /// Ouvre les préférences, et pose ce qui en sort.
     void openPreferences();
 
@@ -424,6 +444,7 @@ private:
     QAction* m_preferences = nullptr;
     QAction* m_about = nullptr;
     QAction* m_manual = nullptr;
+    ManualWindow* m_manualWindow = nullptr;
     QAction* m_selectVideo = nullptr;
     QAction* m_playPause = nullptr;
     QLabel* m_videoStatus = nullptr;
@@ -454,6 +475,9 @@ private:
     /// Retenu d'un appel à l'autre, et rendu aux réglages : on n'insère pas une
     /// fois mais dix fois de suite, toujours du même côté.
     core::InsertPlacement m_insertPlacement = core::InsertPlacement::Below;
+
+    /// La racine du manuel installé, ou rien.
+    std::filesystem::path m_manualDirectory;
 
     /// Le répertoire où la boîte « ouvrir » s'ouvrira.
     ///

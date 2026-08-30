@@ -18,7 +18,11 @@ add_executable(subedit_screenshots screenshots.cpp)
 
 target_link_libraries(subedit_screenshots PRIVATE subedit::gui subedit::core Qt6::Widgets)
 
+# Le corpus versionné, et le manuel du dépôt : la fenêtre du manuel se
+# photographie sur le vrai, dont l'installé est la copie page pour page.
 target_compile_definitions(
-    subedit_screenshots PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
+    subedit_screenshots
+    PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
+            SUBEDIT_MANUAL_DIR="${CMAKE_SOURCE_DIR}/docs/manual")
 
 subedit_set_warnings(subedit_screenshots)
