@@ -11,3 +11,10 @@ src/data/
 
 # Artefacts de construction
 build/
+
+# Le bytecode que Python laisse à côté d'un script importé. Le dépôt porte cinq
+# scripts Python ; il suffit qu'un outil en importe un pour qu'un __pycache__
+# apparaisse sous src/scripts, où `check-architecture.sh` le prend pour un
+# script non exécutable — c'est arrivé.
+__pycache__/
+*.pyc

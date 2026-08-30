@@ -107,6 +107,7 @@ readonly GUI_MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-gui/table.md"
 readonly CAPTURE_REFERENCE="${REPO_ROOT}/docs/manual/subedit-gui/captures/table.png"
 readonly INSTALLATION_SOURCE="${REPO_ROOT}/cmake/Installation.cmake"
 readonly DESKTOP_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.desktop"
+readonly ICON_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.svg"
 readonly OTHER_CAPTURE="${REPO_ROOT}/docs/manual/subedit-gui/captures/decalage.png"
 # Le fichier témoin de la preuve des fichiers laissés derrière. Il ne sauvegarde
 # rien : il est créé par la preuve et doit disparaître avec elle, y compris si
@@ -141,6 +142,7 @@ restore() {
     cp "${backup_dir}/table.png" "${CAPTURE_REFERENCE}"
     cp "${backup_dir}/Installation.cmake" "${INSTALLATION_SOURCE}"
     cp "${backup_dir}/subedit.desktop" "${DESKTOP_SOURCE}"
+    cp "${backup_dir}/subedit.svg" "${ICON_SOURCE}"
     rm -f "${STRAY_FILE}"
 }
 
@@ -167,6 +169,7 @@ cp "${GUI_MANUAL_SOURCE}" "${backup_dir}/table.md"
 cp "${CAPTURE_REFERENCE}" "${backup_dir}/table.png"
 cp "${INSTALLATION_SOURCE}" "${backup_dir}/Installation.cmake"
 cp "${DESKTOP_SOURCE}" "${backup_dir}/subedit.desktop"
+cp "${ICON_SOURCE}" "${backup_dir}/subedit.svg"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -833,6 +836,61 @@ expect_desktop_validation_gate() {
 
 expect_desktop_validation_gate
 
+# Une icône que le bureau ne saurait pas lire — #260.
+#
+# **Le défaut injecté est celui qui a été livré**, à la lettre : un commentaire
+# avant la balise racine, qui repousse « <svg » au-delà des 256 octets où
+# gdk-pixbuf cherche la signature d un SVG. Le fichier reste un XML valide,
+# Inkscape et Qt l ouvrent sans un mot, et le bureau affiche une tuile vide.
+#
+# **Deux preuves**, pour les deux moitiés du défaut d origine : le fichier
+# qu aucun bureau ne reconnaît, et l image parfaitement valide qui ne se voit
+# pas sur un fond sombre. La seconde est celle qu on oublie, parce qu elle ne
+# ressemble pas à une panne.
+expect_icon_gates() {
+    printf '%s▸ une icône que gdk-pixbuf ne reconnaît pas%s\n' "${BOLD}" "${RESET}"
+
+    # Trois cents caractères devant la racine : au-delà de la fenêtre de 256.
+    {
+        printf '<?xml version="1.0" encoding="UTF-8"?>\n<!-- '
+        printf 'x%.0s' {1..300}
+        printf ' -->\n'
+        tail -n +2 "${backup_dir}/subedit.svg"
+    } > "${ICON_SOURCE}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
+        printf '  %s✗ la porte « install-check » a laissé passer l icône illisible%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    restore
+
+    printf '%s▸ une icône qui ne se voit pas sur un fond sombre%s\n' "${BOLD}" "${RESET}"
+
+    cat > "${ICON_SOURCE}" <<'INVISIBLE'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect x="4" y="10" width="56" height="44" rx="5" fill="#2d3646"/>
+  <rect x="8" y="14" width="48" height="36" rx="2" fill="#1b2230"/>
+</svg>
+INVISIBLE
+
+    if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
+        printf '  %s✗ la porte « install-check » a laissé passer l icône invisible%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    restore
+}
+
+expect_icon_gates
+
 # Une preuve d un troisième genre. prune-runs.sh n est pas une porte : il ne
 # refuse rien, il choisit. Ce qui peut être faux chez lui n est donc pas de
 # laisser passer un défaut, mais de supprimer une exécution qu il fallait garder
@@ -1075,7 +1133,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles trente-cinq portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles trente-sept portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

@@ -105,12 +105,20 @@ declare -A APT_TOOLS=(
 # Le chemin sondé est le lien géré par le système d'alternatives : si un
 # fournisseur quelconque est déjà là, rien n'est installé — une machine qui a
 # déjà OpenBLAS n'en gagne pas un second.
+#
+# **Les deux derniers sont entrés avec #260**, qui a trouvé une icône que le
+# bureau ne savait pas lire. Le contrôle qui l'attrape passe par gdk-pixbuf —
+# le chargeur des bureaux GTK, et le seul qui refusait le fichier fautif — donc
+# il lui faut le module Python qui l'atteint et le greffon qui sait lire un SVG.
+# Une Ubuntu de bureau les a d'origine ; une machine de construction nue, non.
 declare -A APT_LIBS=(
     [/usr/include/CLI/CLI.hpp]=libcli11-dev
     [/usr/lib/x86_64-linux-gnu/cmake/Qt6/Qt6Config.cmake]=qt6-base-dev
     [/usr/lib/x86_64-linux-gnu/pkgconfig/mpv.pc]=libmpv-dev
     [/usr/lib/x86_64-linux-gnu/libblas.so.3]=libblas3
     [/usr/lib/x86_64-linux-gnu/liblapack.so.3]=liblapack3
+    [/usr/lib/python3/dist-packages/gi/__init__.py]=python3-gi
+    [/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so]=librsvg2-common
 )
 
 install_apt_tools() {
