@@ -142,4 +142,5 @@ exclusion non justifiée est un défaut, pas un réglage.
 | `make bench` | benchmarks en Release, versés dans `docs/mesures/performances.md` |
 | `make changelog` | régénère `CHANGELOG.md` |
 | `make manual` | régénère les exemples d'appel du manuel |
+| `make rpm-check` | installe le `.rpm` sur une Fedora en conteneur — hebdomadaire, hors porte |
 | `make help` | toutes les cibles |

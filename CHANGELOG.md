@@ -13,6 +13,10 @@ ne pas l'éditer à la main.
 
 - **gui** — Le manuel rendu par les outils qui comptent
 
+### Corrections
+
+- **build** — Le .rpm ne s'installait pas, et rien ne pouvait le dire
+
 ### Documentation
 
 - **doc** — Trois renvois tranchés, et ce qu'ils laissent

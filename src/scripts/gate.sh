@@ -106,6 +106,7 @@ run_step() {
     bench) "${STEPS_DIR}/bench.sh" ;;
     release) "${STEPS_DIR}/release.sh" ;;
     packages) "${STEPS_DIR}/packages.sh" ;;
+    rpm-check) "${STEPS_DIR}/rpm-check.sh" ;;
     *)
         printf '%sétape inconnue : %s%s\n' "${RED}" "$1" "${RESET}" >&2
         return 1

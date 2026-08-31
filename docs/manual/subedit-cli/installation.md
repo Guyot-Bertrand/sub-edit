@@ -33,22 +33,26 @@ fenêtre cesse seulement de proposer la cadence que le film déclare — voir
 
 **Les deux ne sont pas vérifiés aussi loin, et il vaut mieux le dire que laisser
 croire à une parité qui n'existe pas.** Le développement se fait sur Ubuntu ; un
-`.rpm` construit là ne peut pas y être installé, et l'éprouver demanderait une
-machine Fedora que le dépôt n'a pas.
+`.rpm` construit là ne peut pas y être installé. Il l'est ailleurs : sur une
+Fedora en conteneur, une fois par semaine.
 
 | | `.deb` | `.rpm` |
 | :--- | :----- | :----- |
 | la liste des fichiers | vérifiée | vérifiée, et **confrontée à celle du `.deb`** |
 | les dépendances déclarées | vérifiées présentes | vérifiées présentes |
-| que les noms de dépendances existent dans la distribution | oui, ce sont ceux d'Ubuntu | **non** |
-| que le paquet s'installe | non — cela demande les droits de l'administrateur | **non** |
+| que les noms de dépendances existent dans la distribution | oui, ce sont ceux d'Ubuntu | **oui**, résolus par `dnf` |
+| que le paquet s'installe | non — cela demande les droits de l'administrateur | **oui**, sur une Fedora en conteneur |
+| que les binaires installés se lancent | oui, depuis un préfixe temporaire | **oui**, depuis le paquet installé |
 
 **La confrontation des deux listes est le contrôle qui compte le plus.** Les
 deux paquets sortent de la même installation : un écart entre eux serait un
 défaut des règles d'installation, pas du format.
 
-Ce qui refermerait l'écart est un conteneur Fedora dans l'intégration continue.
-Voir [l'ADR 0023](../../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md).
+**Ce que le `.deb` ne prouve toujours pas est qu'il s'installe**, et la raison
+n'a pas changé : `dpkg -i` demande les droits de l'administrateur, qu'une porte
+de qualité n'a pas et ne doit pas demander. Le `.rpm`, lui, s'installe dans un
+conteneur qui n'appartient à personne. Voir
+[l'ADR 0023](../../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md).
 
 **Flatpak et AppImage ne sont pas proposés**, et c'est un choix — pas un oubli.
 Il est expliqué dans la même ADR, et il est **définitif** : une distribution qui

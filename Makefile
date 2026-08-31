@@ -209,6 +209,15 @@ packages: ## Produit le .deb et le .rpm depuis l'arbre release
 install-check: ## Installe dans un préfixe temporaire et lance le binaire installé
 	@./src/scripts/gate.sh install-check
 
+# **Hors de `check-local`, et c'est délibéré** — issue #266. Elle télécharge
+# près de trois cents mégaoctets et demande le réseau ; une porte qui dépend du
+# réseau est rouge un jour de panne, pour une raison étrangère au dépôt. Ce qui
+# garde les pull requests est le contrôle local que `install-check` porte
+# désormais : un `.rpm` ne possède que ses propres répertoires.
+.PHONY: rpm-check
+rpm-check: ## Installe le .rpm sur une Fedora en conteneur, et lance l'installé
+	@./src/scripts/gate.sh rpm-check
+
 .PHONY: asan
 asan: ## Exécute les tests sous ASan et UBSan
 	@./src/scripts/gate.sh asan
@@ -274,7 +283,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@./src/scripts/gate.sh check-local
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (quarante-trois preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (quarante-quatre preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog

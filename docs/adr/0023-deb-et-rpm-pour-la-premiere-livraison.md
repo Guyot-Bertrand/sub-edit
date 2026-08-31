@@ -117,6 +117,37 @@ Ce qui refermerait l'écart : un conteneur Fedora. C'est une dépendance
 d'exécution lourde pour la porte, et le quota d'Actions du mois est déjà épuisé
 (#232). À rouvrir quand quelqu'un installera vraiment le `.rpm`.
 
+## L'écart est refermé — août 2026, issue #266
+
+**Le conteneur existe.** `src/scripts/check-rpm.sh` installe le `.rpm` sur une
+`fedora:42`, et `.github/workflows/fedora.yml` le rejoue le mardi sur `main`.
+Le tableau ci-dessus n'a plus de colonne droite : `dnf` mène la transaction, les
+deux binaires installés se lancent, `man subedit-cli` rend la page, et le manuel
+est lisible là où la page l'annonce.
+
+**Il a trouvé un défaut du premier coup, et pas celui qu'on surveillait.** Les
+noms de dépendances étaient justes — `qt6-qtbase-gui` et `mpv-libs` résolvent
+trente-neuf paquets. C'étaient les répertoires : le `.rpm` déclarait posséder
+`/usr/share/applications`, `/usr/share/icons` et six autres, que `filesystem` et
+`hicolor-icon-theme` possèdent déjà, et `dnf` refusait la transaction entière
+sur six conflits. L'exclusion existait depuis #244 et n'excluait rien — elle
+était écrite en chemins relatifs, CPack en attend d'absolus.
+
+**Ce que cela dit de l'asymétrie de cette ADR est plus intéressant que le
+défaut.** « Prouvé jusqu'à son contenu » était vrai et sonnait comme « presque
+prouvé ». Ça ne l'était pas : le paquet était irréprochable à l'inspection et
+inutilisable à l'installation, et aucun degré d'inspection n'y menait — un
+conflit de propriété n'est pas dans le paquet, il est entre le paquet et la
+distribution. Un paquet ne se prouve qu'en l'installant.
+
+**La leçon a aussi une moitié bon marché**, et c'est elle qu'on paie tous les
+jours : `check-installation.sh` refuse désormais un `.rpm` qui possède un
+répertoire hors de `share/subedit`. C'est la cause du défaut, elle se lit sans
+Fedora, et elle tient les pull requests pendant que le conteneur tient la
+semaine. Les deux ne voient pas la même chose — le contrôle local ne verrait ni
+un nom de dépendance erroné, ni une bibliothèque manquante à l'exécution — et
+c'est pour cela qu'ils sont deux.
+
 ## Pourquoi pas Flatpak, pour l'instant
 
 C'est le meilleur format pour une diffusion large, et c'est précisément

@@ -114,6 +114,7 @@ readonly CAPTURE_REFERENCE="${REPO_ROOT}/docs/manual/subedit-gui/captures/table.
 readonly INSTALLATION_SOURCE="${REPO_ROOT}/cmake/Installation.cmake"
 readonly DESKTOP_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.desktop"
 readonly ICON_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.svg"
+readonly PACKAGING_SOURCE="${REPO_ROOT}/cmake/Packaging.cmake"
 # La spec dont la table d exigences est confrontée au registre. La phase 3 est
 # choisie parce qu elle porte le plus de lignes : une injection y est perdue
 # dans la foule, ce qui est bien le cas qu on veut prouver.
@@ -155,6 +156,7 @@ restore() {
     cp "${backup_dir}/Installation.cmake" "${INSTALLATION_SOURCE}"
     cp "${backup_dir}/subedit.desktop" "${DESKTOP_SOURCE}"
     cp "${backup_dir}/subedit.svg" "${ICON_SOURCE}"
+    cp "${backup_dir}/Packaging.cmake" "${PACKAGING_SOURCE}"
     cp "${backup_dir}/03-cli.md" "${SPEC_SOURCE}"
     cp "${backup_dir}/clang-tidy" "${TIDY_CONFIG}"
     rm -f "${STRAY_FILE}"
@@ -184,6 +186,7 @@ cp "${CAPTURE_REFERENCE}" "${backup_dir}/table.png"
 cp "${INSTALLATION_SOURCE}" "${backup_dir}/Installation.cmake"
 cp "${DESKTOP_SOURCE}" "${backup_dir}/subedit.desktop"
 cp "${ICON_SOURCE}" "${backup_dir}/subedit.svg"
+cp "${PACKAGING_SOURCE}" "${backup_dir}/Packaging.cmake"
 cp "${SPEC_SOURCE}" "${backup_dir}/03-cli.md"
 cp "${TIDY_CONFIG}" "${backup_dir}/clang-tidy"
 trap cleanup EXIT
@@ -975,6 +978,36 @@ INVISIBLE
 
 expect_icon_gates
 
+# Un `.rpm` qui revendique les répertoires de la distribution — #266.
+#
+# **L injection reproduit le défaut historique à l identique** : la liste
+# d exclusions écrite en chemins relatifs, `share/applications` au lieu de
+# `/usr/share/applications`. CPack compare des chemins de paquet, donc absolus,
+# et ne trouve alors aucune correspondance — l exclusion existe, elle est
+# lisible, et elle n exclut rien.
+#
+# C est ce qui rend cette preuve nécessaire plutôt que décorative. Le défaut
+# ne se voyait ni dans le diff, ni dans `rpm -qlp`, ni nulle part avant qu une
+# vraie Fedora refuse la transaction — pendant tout ce temps, la ligne était
+# là, et la seule chose qu on aurait pu vérifier est ce que ce contrôle vérifie.
+expect_rpm_directory_gate() {
+    printf '%s▸ un .rpm qui revendique les répertoires de la distribution%s\n' "${BOLD}" "${RESET}"
+
+    sed -i 's|"${CPACK_PACKAGING_INSTALL_PREFIX}/|"|g' "${PACKAGING_SOURCE}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
+        printf '  %s✗ la porte « install-check » a laissé passer les répertoires partagés%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    restore
+}
+
+expect_rpm_directory_gate
+
 # Une preuve d un troisième genre. prune-runs.sh n est pas une porte : il ne
 # refuse rien, il choisit. Ce qui peut être faux chez lui n est donc pas de
 # laisser passer un défaut, mais de supprimer une exécution qu il fallait garder
@@ -1242,7 +1275,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles quarante-trois portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles quarante-quatre portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

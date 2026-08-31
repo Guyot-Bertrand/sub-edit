@@ -74,20 +74,47 @@ set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase-gui >= 6.4, mpv-libs")
 set(CPACK_RPM_PACKAGE_LICENSE "GPL-3.0-or-later")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/Multimedia")
 
+# ## Le préfixe d'empaquetage, écrit plutôt que supposé
+#
+# `/usr` est le défaut des deux générateurs, et le laisser tacite avait un coût
+# précis : la liste d'exclusions ci-dessous s'écrit dans les chemins **du
+# paquet**, donc préfixés, et il n'y avait rien à quoi les préfixer. Le nommer
+# ici donne aux deux le même point de départ.
+set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+
 # **Les répertoires que la distribution possède déjà ne sont pas au paquet.**
-# Un `.rpm` qui déclarerait posséder `/usr/share/applications` entrerait en
-# conflit avec le paquet qui le possède vraiment, et l'installation échouerait.
-# Le générateur Debian n'a pas ce problème : un `.deb` ne possède pas ses
+# Un `.rpm` qui déclare posséder `/usr/share/applications` entre en conflit avec
+# `filesystem`, qui le possède vraiment, et `dnf` refuse la transaction. Le
+# générateur Debian n'a pas ce problème : un `.deb` ne possède pas ses
 # répertoires.
+#
+# **Cette liste existait depuis #244 et n'excluait rien** — issue #266. Elle
+# était écrite en chemins relatifs, `share/applications`, parce que
+# `CMAKE_INSTALL_DATADIR` est relatif ; CPack compare des chemins de paquet,
+# donc absolus, et n'a jamais trouvé une seule correspondance. Le `.rpm`
+# possédait ses huit répertoires partagés, et l'installation échouait sur six
+# conflits :
+#
+#     file /usr/share/applications from install of subedit-0.8.4-1.x86_64
+#     conflicts with file from package filesystem-3.18-47.fc42.x86_64
+#
+# Rien ne pouvait le dire : `rpm -qlp` lit une liste de fichiers, pas une
+# transaction, et le dépôt n'avait pas de Fedora pour en jouer une. Il en a une
+# depuis `src/scripts/check-rpm.sh`.
+#
+# **Le conflit se joue sur le mode**, et c'est ce qui le rend invisible à l'œil :
+# CPack déclare ces répertoires en 0775, `filesystem` les possède en 0755. Deux
+# paquets peuvent partager un répertoire tant qu'ils le décrivent pareil ; ceux-ci
+# ne le décrivaient pas pareil.
 set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
-    "${CMAKE_INSTALL_DATADIR}/applications"
-    "${CMAKE_INSTALL_DATADIR}/metainfo"
-    "${CMAKE_INSTALL_DATADIR}/icons"
-    "${CMAKE_INSTALL_DATADIR}/icons/hicolor"
-    "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable"
-    "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps"
-    "${CMAKE_INSTALL_MANDIR}"
-    "${CMAKE_INSTALL_MANDIR}/man1")
+    "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/applications"
+    "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/metainfo"
+    "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons"
+    "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons/hicolor"
+    "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable"
+    "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps"
+    "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}"
+    "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}/man1")
 
 # **Aucun script de post-installation, et c'est une décision.** Gaupol appelle
 # `update-desktop-database` depuis son Makefile, et seulement quand `DESTDIR` est

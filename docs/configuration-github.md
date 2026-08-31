@@ -276,6 +276,39 @@ nombre à supprimer doit être nul ou proche de zéro.
 Chaque exécution du workflow écrit d'elle-même son avant/après dans le résumé de
 son travail — un chiffre figé dans ce document vieillirait, celui-là non.
 
+### 9. Le `.rpm` sur Fedora
+
+`.github/workflows/fedora.yml`, tous les mardis à 4 h, et à la main par
+*Actions → fedora → Run workflow* — issue #266.
+
+**Ce qu'il fait :** produit le `.rpm`, l'installe sur une `fedora:42` en
+conteneur, et lance ce qui en sort. C'est le seul contrôle du dépôt qui joue une
+vraie transaction de gestionnaire de paquets ; tout le reste inspecte le paquet
+sans l'installer, et un paquet peut être irréprochable à l'inspection et refusé
+à l'installation — c'est exactement ce qu'il a trouvé au premier passage.
+
+**Pourquoi hebdomadaire et non par pull request.** Il télécharge Qt et ses
+dépendances, près de trois cents mégaoctets, et le quota d'Actions a déjà été
+épuisé une fois. Ce qu'il éprouve ne bouge qu'avec l'empaquetage, qui bouge
+rarement. Ce qui garde les pull requests entre-temps est local et gratuit :
+`check-installation.sh` refuse un `.rpm` qui possède un répertoire hors de
+`share/subedit`, ce qui était la cause du défaut trouvé.
+
+**Il n'est requis par aucun ruleset**, et ne doit pas l'être : il ne tourne pas
+sur une pull request, donc l'exiger ferait attendre indéfiniment.
+
+**Le mardi et non le lundi**, pour ne pas se mettre en travers de l'analyse
+complète de `ci.yml` à 4 h et de l'élagueur à 6 h.
+
+#### Vérifier
+
+```bash
+make rpm-check
+```
+
+Le même geste que le workflow, sur la machine de développement. Il lui faut
+podman ou docker, et il dit lequel il a pris.
+
 ## Taxonomie des issues
 
 ### Labels
