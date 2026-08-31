@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(
     subedit
-    VERSION 0.8.1
+    VERSION 0.8.2
     DESCRIPTION "Éditeur de sous-titres"
     HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
     LANGUAGES CXX)
@@ -89,6 +89,10 @@ include(Warnings)
 include(Sanitizers)
 include(Coverage)
 include(Lto)
+
+# Avant les cibles, et jamais après : `CMAKE_CXX_CLANG_TIDY` est lue au moment
+# où une cible est ajoutée. Inerte hors du preset `tidy`. Issue #269.
+include(Tidy)
 
 add_subdirectory(src/lib)
 add_subdirectory(src/exe)

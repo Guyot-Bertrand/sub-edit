@@ -253,7 +253,10 @@ raisonnement.
 ### Façade `make`
 
 CMake est verbeux à l'usage ; le `Makefile` n'ajoute aucune logique de
-construction, seulement des raccourcis. Deux cibles gouvernent tout le
+construction, seulement des raccourcis. **Depuis #269, il n'en porte plus non
+plus** : chaque étape vit dans `src/scripts/gate/`, une par fichier, et
+`src/scripts/gate.sh` porte l'ordre. Les cibles restent l'interface qu'on tape,
+réduites à un appel. Deux cibles gouvernent tout le
 reste : **`make check`**, la porte que la CI impose à chaque push, et
 **`make check-local`**, l'unique commande à lancer avant d'ouvrir une pull
 request. Les deux sont décrites en détail plus bas ; le tableau donne le rôle
@@ -268,7 +271,7 @@ ses paramètres.
 | `make test` | compile et exécute les tests, **hors bout en bout** — voir `make asan` | `dev` | — | `JOBS` |
 | `make format` | applique `clang-format` sur les fichiers suivis | — | — | — |
 | `make format-check` | vérifie le format sans modifier, verdict `--Werror` | — | — | — |
-| `make tidy` | exécute `clang-tidy` sur `src/**/*.cpp` | `dev` (pour `compile_commands.json`) | — | `JOBS` |
+| `make tidy` | analyse statique — `clang-tidy` accroché à la compilation de chaque source | `tidy` | — | `JOBS` |
 | `make arch` | vérifie les invariants d'architecture (`check-architecture.sh`) | — | — | — |
 | `make parallelism` | vérifie qu'aucun parallélisme ne contourne `$(JOBS)` (`check-parallelism.sh`) | — | — | — |
 | `make fixtures` | confronte les fixtures vidéo de `src/test/data/videos/` à la table de `video-fixtures.sh` | — | — | — |
@@ -280,9 +283,23 @@ ses paramètres.
 | `make bench` | exécute les benchmarks, verse les chiffres au journal `docs/mesures/performances.md`, verdict lu par un humain, pas binaire | `release` | — | `JOBS` |
 | `make check` | **porte de qualité — CI, FIGÉE, décrite ci-dessous** | `dev`/`asan`/`coverage` via ses sous-cibles | `format-check`, `arch`, `build`, `tidy`, `asan`, `coverage` | `JOBS` |
 | `make check-local` | **unique commande avant une pull request, décrite ci-dessous** | tous les presets qu'utilisent ses sous-cibles | `parallelism`, `fixtures`, `manual-check`, `requirements`, `e2e`, `bench` | `JOBS` |
-| `make verify-gates` | prouve que `check` et `check-local` échouent chacun sur ses défauts injectés | — | — | — |
+| `make verify-gates` | prouve que `check` et `check-local` échouent chacun sur ses défauts injectés | `tidy` et ceux de ses preuves | — | — |
 | `make changelog` | régénère `CHANGELOG.md` depuis l'historique des commits | — | — | — |
 | `make clean` | supprime `build/` | — | — | — |
+
+**On sait reprendre une suite au milieu**, ce que l'enchaînement de sous-`make`
+ne savait pas faire — et qui coûtait de repayer trente-quatre minutes quand la
+trente-cinquième cassait :
+
+```console
+$ ./src/scripts/gate.sh --list
+$ ./src/scripts/gate.sh check --from coverage
+$ ./src/scripts/gate.sh check --only tidy
+```
+
+Un nom d'étape inconnu, ou une combinaison de filtres qui ne retient rien, fait
+échouer l'invocation plutôt que de n'en jouer aucune : rendre zéro sans rien
+faire serait une porte verte qui n'a rien vérifié.
 
 `make e2e` et `make bench` configurent et compilent tous deux le preset
 `release` : lancer l'un après l'autre ne recompile rien *de la bibliothèque* —
@@ -387,7 +404,24 @@ Cinq étapes, verdict binaire, aucune tolérance :
    `cppcoreguidelines-special-member-functions`, `modernize-make-unique`,
    `modernize-avoid-c-arrays`, `misc-const-correctness`. Les exclusions sont
    listées dans `.clang-tidy` **avec leur justification en commentaire** ; une
-   exclusion non justifiée est un défaut.
+   exclusion non justifiée est un défaut. Il en va de même des deux `NOLINT`
+   locaux, dont `.clang-tidy` porte la liste et la raison : une exemption qui ne
+   se lit qu'à l'endroit où elle s'applique finit par ne plus se lire du tout.
+
+   **Elle est accrochée à la compilation de chaque source, sous le preset
+   `tidy`** — `cmake/Tidy.cmake`, issue #269. Ce qui décide de réanalyser un
+   fichier est le système de construction : sa source, un en-tête de son fichier
+   de dépendances, ou sa ligne de commande. Il n'y a donc rien à calculer, rien
+   à passer, et une modification qui ne change aucune entrée de compilation ne
+   coûte mécaniquement rien. Le contenu de `.clang-tidy` et la version du
+   binaire, que Ninja ne verrait pas, entrent dans les drapeaux sous forme
+   d'empreinte.
+
+   **Elle analyse les en-têtes, ce qu'elle n'avait jamais fait.**
+   `HeaderFilterRegex` ne correspondait à rien depuis la racine du dépôt, et le
+   preset l'a réglé par construction — son répertoire courant étant l'arbre de
+   construction. Corollaire : un `.clang-tidy` de répertoire ne gouverne que les
+   `.cpp` de ce répertoire, jamais les diagnostics levés dans un en-tête.
 4. **Tests** — exécution sous le preset `asan`, pour que toute erreur mémoire ou
    comportement indéfini échoue au lieu de passer inaperçu. Le preset active
    aussi **LeakSanitizer** : une fuite fait échouer les tests, elle ne se

@@ -112,8 +112,10 @@ jusqu'au mot « sous-titre » sort des deux — `io/` pour le disque, `text/` po
 les chaînes. `SourceFile` porte alors son format sans arête nouvelle.
 
 Le déplacement est **mécanique et sans changement de comportement** : 38 fichiers
-dont les inclusions changent. Il fait retomber `tidy-scope.sh` sur l'analyse
-complète, donc une porte à plein tarif, payée une fois.
+dont les inclusions changent. Il faisait alors retomber `tidy-scope.sh` sur
+l'analyse complète, donc une porte à plein tarif, payée une fois. Ce script a
+disparu avec #269 : l'analyse suit désormais les dépendances que le compilateur
+a écrites, et un déplacement d'en-têtes réanalyse ce qui les inclut, ni plus.
 
 ### 2. Les diagnostics se scindent
 

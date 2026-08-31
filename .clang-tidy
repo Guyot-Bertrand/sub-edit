@@ -36,7 +36,8 @@ Checks: >
   -misc-no-recursion,
   -misc-include-cleaner,
   -bugprone-easily-swappable-parameters,
-  -performance-enum-size
+  -performance-enum-size,
+  -readability-redundant-member-init
 
 # Justification des exclusions ci-dessus :
 #
@@ -58,10 +59,58 @@ Checks: >
 #   projet, pour économiser trois octets par valeur. C'est de l'optimisation
 #   spéculative, que docs/principes-de-conception.md proscrit sans mesure à
 #   l'appui. À réactiver si un profil montre un jour que ça compte.
+# readability-redundant-member-init
+#   Il appelle « redondant » un `{}` qui ne l'est pas : c'est l'initialisateur
+#   de membre par défaut, et c'est lui qui rend légale l'initialisation
+#   désignée partielle. Les modèles du noyau sont des agrégats qu'on construit
+#   en ne nommant que les champs qui comptent — `Subtitle{.start = t, .end = u}`
+#   — et retirer le `{}` fait exiger tous les autres par
+#   `clang-diagnostic-missing-designated-field-initializers`, qui est actif ici.
+#
+#   Mesuré plutôt que supposé, à la relecture de #269 : sur quinze `{}`
+#   retirés, trois sites d'appel ont cessé de compiler. Les deux contrôles se
+#   contredisent, et c'est celui-ci qui a tort — l'autre dit une vraie chose,
+#   qu'un champ oublié dans une initialisation désignée est invisible.
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: 'src/.*\.hpp$'
 FormatStyle: file
+
+# NOLINT — les deux exemptions locales du projet, et pourquoi elles le sont
+#
+# Toutes les exclusions ci-dessus portent sur le projet entier, et c'est le bon
+# grain pour un contrôle qu'on ne veut nulle part. Il existe deux cas où ce
+# grain est trop gros, et ils portent chacun leur raison à côté d'eux :
+#
+#   core/time/frame_rate.hpp, `FrameRate::exactValueOf`
+#     readability-magic-numbers. C'est la table des huit cadences normalisées :
+#     `24000/1001` y est la **définition** de `StandardFrameRate::Fps23976`, pas
+#     un nombre surgi de nulle part, et la définition d'une constante est le
+#     seul endroit où un littéral a le droit d'être nu.
+#
+#   src/test/gui/fake_video_player.hpp, `FakeVideoPlayer`
+#     misc-non-private-member-variables-in-classes. L'état retenu par un double
+#     de test *est* son interface : un cas lit `player.opened` et `player.seeks`
+#     pour dire ce que la fenêtre a fait.
+#
+# Les deux contrôles gardent donc toute leur portée ailleurs.
+#
+# **Un `.clang-tidy` n'aurait pas pu le faire**, et c'est mesuré plutôt que
+# supposé : un fichier de configuration porte sur un répertoire, et pour un
+# diagnostic levé dans un **en-tête** il ne porte même pas sur celui-là — c'est
+# la configuration de l'unité de traduction qui l'inclut qui s'applique, et
+# `frame_rate.hpp` est inclus de partout.
+#
+# Corollaire à connaître, découvert en même temps : `src/lib/subedit/gui/` et
+# `src/test/` ont chacun leur `.clang-tidy`, et ils ne gouvernent que les
+# `.cpp` de ces répertoires. Leurs en-têtes reçoivent celui-ci. Personne ne
+# pouvait s'en apercevoir tant que `HeaderFilterRegex` n'attrapait aucun
+# en-tête — issue #269.
+
+# **Rien ne suit cette liste.** `src/scripts/verify-gates.sh` prouve que la clé
+# de l'analyse se referme en ajoutant une entrée en fin de fichier ; du texte
+# après elle lui ferait injecter son défaut au mauvais endroit, et la preuve ne
+# prouverait plus rien. Même règle que la table de `docs/exigences.md`.
 
 CheckOptions:
   # Conventions de nommage, voir docs/specs/00-fondations.md.
@@ -99,3 +148,33 @@ CheckOptions:
     value: k
   - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE
+
+  # Les cinq noms que `std::iterator_traits` impose, et qu'on ne renomme pas.
+  #
+  # (Voir aussi le paragraphe « NOLINT » en bas de ce fichier : c'est ici que se
+  # lisent les exemptions qui portent sur tout le projet, là que se lit la seule
+  # qui porte sur une fonction.)
+  #
+  # Un itérateur qui appelle son `value_type` autrement n'est plus un
+  # itérateur : la bibliothèque standard les lit sous ces noms exacts, et la
+  # convention de casse du projet ne les concerne donc pas. `Selection::Indices`
+  # les porte. Le contrôle n'a rien vu jusqu'ici parce qu'il ne regardait aucun
+  # en-tête — voir HeaderFilterRegex ci-dessus.
+  - key: readability-identifier-naming.TypeAliasIgnoredRegexp
+    value: '(iterator_category|value_type|difference_type|reference|pointer)'
+
+  # Les modèles du noyau sont des agrégats, et c'est une décision.
+  #
+  # `Subtitle` porte ses deux positions et ses deux textes en clair, `IndexRange`
+  # ses deux bornes : ce sont des données, pas des objets qui gardent un
+  # invariant. `docs/principes-de-conception.md` le pose, et l'ADR 0008 va plus
+  # loin pour `Subtitle` — `end >= start` n'est **pas** un invariant, puisqu'un
+  # vrai fichier peut porter l'anomalie et que l'utilisateur doit la voir.
+  # Rendre les membres privés pour les ressortir par des accesseurs ajouterait
+  # une couche qui ne protège rien.
+  #
+  # L'option ne désarme le contrôle que là où **tous** les membres sont
+  # publics ; une classe qui en cacherait certains et pas d'autres reste
+  # signalée, ce qui est bien le cas douteux.
+  - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value: true

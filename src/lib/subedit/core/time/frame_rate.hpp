@@ -135,6 +135,20 @@ private:
         return Ratio{Ratio::reduce(numerator, denominator)};
     }
 
+    /// La table des huit, et le seul endroit où leurs termes sont écrits.
+    ///
+    // NOLINTBEGIN(readability-magic-numbers)
+    //   La définition d'une constante est le seul endroit où un littéral a le
+    //   droit d'être nu : le nom de 24000/1001 est `Fps23976`, et il est
+    //   déclaré plus haut dans ce fichier. Lui en donner un second — un
+    //   `kFps23976Numerator` — ajouterait seize identifiants qui ne diraient
+    //   rien de plus que les chiffres qu'ils remplacent.
+    //
+    //   Une exemption locale et non une option de `.clang-tidy` : la portée
+    //   voulue est cette fonction, et un `.clang-tidy` ne sait porter que sur
+    //   un répertoire — et, pour un en-tête, pas même sur lui, puisque c'est la
+    //   configuration de l'unité de traduction qui l'inclut qui s'applique.
+    //   Voir le paragraphe « NOLINT » de `.clang-tidy`, à la racine.
     [[nodiscard]] static constexpr Ratio exactValueOf(StandardFrameRate standard) {
         switch (standard) {
         case StandardFrameRate::Fps23976:
@@ -160,6 +174,8 @@ private:
         // inventing a frame rate for it would hide the bug.
         std::unreachable();
     }
+
+    // NOLINTEND(readability-magic-numbers)
 
     Ratio m_framesPerSecond;
     Ratio m_millisecondsPerFrame;

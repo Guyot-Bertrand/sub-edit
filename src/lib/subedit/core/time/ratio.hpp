@@ -30,8 +30,8 @@ public:
     /// the reduction and the move of the sign need.
     [[nodiscard]] static constexpr std::optional<Ratio> create(std::int64_t numerator,
                                                                std::int64_t denominator) {
-        constexpr std::int64_t smallest = std::numeric_limits<std::int64_t>::min();
-        if (denominator == 0 || numerator == smallest || denominator == smallest)
+        constexpr std::int64_t kSmallest = std::numeric_limits<std::int64_t>::min();
+        if (denominator == 0 || numerator == kSmallest || denominator == kSmallest)
             return std::nullopt;
 
         return Ratio{reduce(numerator, denominator)};
@@ -117,22 +117,33 @@ private:
     /// conversion: 1.9 times the cost without the guard, 1.4 with.
     [[nodiscard]] static constexpr std::int64_t saturatedProduct(std::int64_t left,
                                                                  std::int64_t right) {
-        constexpr std::int64_t largest = std::numeric_limits<std::int64_t>::max();
-        constexpr std::int64_t smallest = std::numeric_limits<std::int64_t>::min();
-        constexpr std::int64_t safe = std::int64_t{1} << 31;
+        constexpr std::int64_t kLargest = std::numeric_limits<std::int64_t>::max();
+        constexpr std::int64_t kSmallest = std::numeric_limits<std::int64_t>::min();
+        constexpr std::int64_t kSafe = std::int64_t{1} << 31;
 
-        if (left > -safe && left < safe && right > -safe && right < safe)
+        if (left > -kSafe && left < kSafe && right > -kSafe && right < kSafe)
             return left * right;
 
         if (left == 0 || right == 0)
             return 0;
 
         const bool positive = (left > 0) == (right > 0);
-        const bool overflows = left > 0
-                                   ? (right > 0 ? left > largest / right : right < smallest / left)
-                                   : (right > 0 ? left < smallest / right : left < largest / right);
+
+        // Les quatre cas de signe, écrits à plat. C'était un ternaire dans un
+        // ternaire, et la table de vérité était juste ; elle ne se relisait
+        // simplement pas deux fois de la même façon.
+        bool overflows = false;
+        if (left > 0 && right > 0)
+            overflows = left > kLargest / right;
+        else if (left > 0)
+            overflows = right < kSmallest / left;
+        else if (right > 0)
+            overflows = left < kSmallest / right;
+        else
+            overflows = left < kLargest / right;
+
         if (overflows)
-            return positive ? largest : smallest;
+            return positive ? kLargest : kSmallest;
 
         return left * right;
     }

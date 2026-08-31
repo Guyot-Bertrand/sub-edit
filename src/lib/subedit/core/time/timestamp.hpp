@@ -133,7 +133,7 @@ private:
     /// The largest magnitude the two-digit hours field can hold.
     static constexpr std::int64_t kWritableHours = 100;
     static constexpr std::int64_t kMaxWritableMilliseconds =
-        kWritableHours * kMillisecondsPerHour - 1;
+        (kWritableHours * kMillisecondsPerHour) - 1;
 
     explicit constexpr Timestamp(std::int64_t count) : m_milliseconds(count) {}
 

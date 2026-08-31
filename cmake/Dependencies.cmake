@@ -21,5 +21,20 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Catch2)
 
+# **Catch2 n'est pas notre code, et le preset `tidy` ne le lint pas.**
+# `CMAKE_CXX_CLANG_TIDY` est une variable de répertoire : toute cible ajoutée
+# après elle en hérite, y compris celles qu'une dépendance ajoute pour son
+# compte. Sans cette boucle, l'analyse porterait sur un sur-ensemble de `src/`
+# et signalerait des défauts que personne ici ne peut corriger.
+#
+# Le `SYSTEM` de la déclaration ci-dessus ne suffit pas : il traite les en-têtes
+# de Catch2 comme systèmes pour *nos* unités de traduction, il ne dit rien des
+# siennes propres.
+foreach(subedit_foreign IN ITEMS Catch2 Catch2WithMain)
+    if(TARGET ${subedit_foreign})
+        set_target_properties(${subedit_foreign} PROPERTIES CXX_CLANG_TIDY "")
+    endif()
+endforeach()
+
 list(APPEND CMAKE_MODULE_PATH "${catch2_SOURCE_DIR}/extras")
 include(Catch)

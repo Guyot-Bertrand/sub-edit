@@ -63,9 +63,9 @@ public:
                        core::CommandKind commandKind = core::CommandKind::SetText)
         : m_kind(kind), m_commandKind(commandKind) {}
 
-    void apply(core::Project&) override {}
+    void apply(core::Project& /*project*/) override {}
 
-    void revert(core::Project&) override {}
+    void revert(core::Project& /*project*/) override {}
 
     [[nodiscard]] core::CommandKind kind() const override { return m_commandKind; }
 
@@ -89,9 +89,9 @@ public:
     Tracing(std::vector<std::string>& trace, std::string name)
         : m_trace(trace), m_name(std::move(name)) {}
 
-    void apply(core::Project&) override { m_trace.push_back("apply " + m_name); }
+    void apply(core::Project& /*project*/) override { m_trace.push_back("apply " + m_name); }
 
-    void revert(core::Project&) override { m_trace.push_back("revert " + m_name); }
+    void revert(core::Project& /*project*/) override { m_trace.push_back("revert " + m_name); }
 
     [[nodiscard]] core::CommandKind kind() const override { return core::CommandKind::SetText; }
 

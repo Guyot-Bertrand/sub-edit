@@ -26,6 +26,24 @@
 
 namespace subedit::test {
 
+// NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+//   **L'état retenu par un double de test *est* son interface.** Un cas lit
+//   `player.opened` pour dire « la fenêtre a ouvert ce film », `player.seeks`
+//   pour dire « elle a placé la lecture ici ». Les cacher derrière des
+//   accesseurs ajouterait sept méthodes qui ne protègent rien : il n'y a aucun
+//   invariant à tenir, et personne d'autre que le test ne construit cette
+//   classe.
+//
+//   `src/test/.clang-tidy` aurait été l'endroit, et il ne peut pas l'être : un
+//   fichier de configuration porte sur un répertoire, et pour un diagnostic
+//   levé dans un **en-tête** c'est la configuration de l'unité de traduction
+//   qui l'inclut qui s'applique. Voir le paragraphe « NOLINT » de `.clang-tidy`
+//   à la racine — issue #269.
+//
+//   L'option `IgnoreClassesWithAllMemberVariablesBeingPublic` ne suffit pas
+//   non plus : `m_open` reste privé, et c'est juste — savoir si un film est
+//   ouvert est un détail que les méthodes font respecter. Le rendre public
+//   pour satisfaire le contrôle serait tricher.
 class FakeVideoPlayer final : public core::VideoPlayer {
 
 public:
@@ -97,5 +115,7 @@ public:
 private:
     bool m_open = false;
 };
+
+// NOLINTEND(misc-non-private-member-variables-in-classes)
 
 } // namespace subedit::test
