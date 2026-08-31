@@ -38,6 +38,7 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0023](0023-deb-et-rpm-pour-la-premiere-livraison.md) | Deux paquets natifs, `.deb` et `.rpm`, pour la première livraison | acceptée |
 | [0024](0024-captures-engendrees-et-ou-elles-font-foi.md) | Des captures engendrées, et l'environnement où elles font foi | acceptée |
 | [0025](0025-une-recette-d-ouverture-au-noyau.md) | Une seule recette d'ouverture, au noyau, et l'erreur qui en sort | acceptée |
+| [0026](0026-le-graphe-d-inclusions-reste-tel-quel.md) | Laisser le graphe d'inclusions tel quel, et pourquoi | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
