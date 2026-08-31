@@ -166,7 +166,9 @@ avec un objectif d'iso-fonctionnalité.
   6. `make check` — une seule fois, elle voit le code *et* le bump — puis
      `make check-local`, dont le `make bench` qu'il enchaîne tourne cette
      fois sur la version bumpée : **c'est cette exécution-là, postérieure au
-     bump, qui enregistre la mesure qui reste dans le journal** ;
+     bump, qui enregistre la mesure qui reste dans le journal** — à moins que
+     la machine ne soit occupée, auquel cas rien n'est enregistré et il faut
+     le dire dans la PR (issue #270) ;
   7. **mettre à jour le reste de la documentation et le relevé de mesures** —
      notes, sections de manuel que le ticket change, chiffres relevés à
      l'étape 6. Rien de tout cela n'est lu par la porte, donc rien ne la
@@ -302,3 +304,12 @@ avec un objectif d'iso-fonctionnalité.
   porte ne les construit pas — c'est donc une commande à part,
   `make bench`. Tant qu'ils prennent une minute, la question de leur coût ne
   se pose pas ; elle se posera, et se traitera alors par un sous-ensemble.
+
+  **« Mesures relevées » admet une absence, et une seule** — issue #270.
+  `make bench` attend trente secondes que la charge passe sous
+  `BENCH_MAX_LOAD` ; au-delà il mesure, affiche, et **n'inscrit rien**. Une
+  section de journal qu'on ne peut comparer à rien occupe la place de celle qui
+  manque et cache le fait qu'il n'y a pas eu de mesure ; une version sans
+  section le dit. Ce qui reste dû, alors, est une phrase dans la PR : pas de
+  mesure pour cette version, et pourquoi. Rejouer `make bench` au calme la
+  produit.

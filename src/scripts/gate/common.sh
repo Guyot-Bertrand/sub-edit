@@ -32,6 +32,10 @@ readonly JOBS
 readonly BOLD=$'\033[1m'
 readonly GREEN=$'\033[32m'
 readonly RED=$'\033[31m'
+# Le jaune est entré avec #270 : une étape qui réussit sans avoir pu faire son
+# travail n'est ni verte ni rouge. Les benchmarks sur machine occupée sont le
+# seul cas à ce jour.
+readonly YELLOW=$'\033[33m'
 readonly RESET=$'\033[0m'
 
 step() {
