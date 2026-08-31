@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — Trois renvois tranchés, et ce qu'ils laissent
+- **doc** — Ce que le graphe d'inclusions coûte, mesuré
 
 ### Remaniements
 
