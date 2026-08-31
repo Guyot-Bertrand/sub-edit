@@ -14,6 +14,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QString>
+#include <QStringList>
 #include <QUrl>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
@@ -51,13 +52,44 @@ constexpr const char* kTable = "# La table\n"
                                "\n"
                                "Cinq colonnes, une par sous-titre.\n"
                                "\n"
-                               "Retour vers [l'accueil](../index.md).\n";
+                               "Retour vers [l'accueil](../index.md).\n"
+                               "\n"
+                               "## Les anomalies\n"
+                               "\n"
+                               "Ce que la table souligne.\n"
+                               "\n"
+                               "## Les erreurs\n"
+                               "\n"
+                               "Les premières.\n"
+                               "\n"
+                               "## Les erreurs\n"
+                               "\n"
+                               "Les secondes, dont l'ancre est numérotée.\n";
+
+/// Une page qui montre une image que rien ne pose sur le disque.
+///
+/// **Les images ne passent pas par le système de fichiers de la fenêtre** : le
+/// rendu les cherche lui-même, dans le répertoire de la page. Une page en
+/// mémoire n'a donc pas d'images, et c'est ce qui rend ce cas atteignable sans
+/// rien écrire.
+constexpr const char* kSansImage = "# Une capture manquante\n"
+                                   "\n"
+                                   "![La fenêtre](captures/absente.png)\n";
+
+/// Une page qui ne commence pas par un titre.
+///
+/// Elle existe pour un seul cas : la vue posée ailleurs que sur un titre, que
+/// les pages du manuel ne produisent jamais — elles commencent toutes par leur
+/// nom.
+constexpr const char* kSansTitre = "Rien qu'un paragraphe.\n";
 
 /// Un manuel en mémoire, à l'emplacement que les cas se donnent.
 [[nodiscard]] InMemoryFileSystem withManual() {
     InMemoryFileSystem files;
     files.addFile(std::string{kManual} + "/index.md", kIndex);
     files.addFile(std::string{kManual} + "/subedit-gui/table.md", kTable);
+    files.addFile(std::string{kManual} + "/subedit-gui/sans-titre.md", kSansTitre);
+    files.addFile(std::string{kManual} + "/subedit-gui/sans-image.md", kSansImage);
     return files;
 }
 
@@ -175,15 +207,105 @@ TEST_CASE("un lien vers une page absente est dit de la même façon", "[gui][GUI
 }
 
 TEST_CASE("une ancre seule ne change pas de page", "[gui][GUI-MANUAL-01]") {
-    // « #le-thème » désigne la page courante : il n'y a rien à charger, et le
-    // navigateur y descend tout seul.
+    // « #le-thème » désigne la page courante : il n'y a rien à charger, et la
+    // fenêtre y descend.
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
-    manual.followLink(QUrl{QStringLiteral("#par-ou-commencer")});
+    manual.openPage("subedit-gui/table.md");
+    manual.followLink(QUrl{QStringLiteral("#les-anomalies")});
 
-    CHECK(manual.currentPage() == std::filesystem::path{"index.md"});
+    CHECK(manual.currentPage() == std::filesystem::path{"subedit-gui/table.md"});
     CHECK(manual.notice().isEmpty());
+    CHECK(manual.currentSection() == QStringLiteral("les-anomalies"));
+}
+
+TEST_CASE("un renvoi avec ancre ouvre la page et y descend", "[gui][GUI-MANUAL-01]") {
+    // **Le défaut trouvé par #268.** Le rendu Markdown de Qt ne nomme aucune
+    // ancre — un titre y est un bloc de niveau, pas une cible —, donc les
+    // renvois du manuel ouvraient la bonne page et la laissaient à son début.
+    // Le manuel en porte une quarantaine, tous vérifiés jusque-là contre les
+    // ancres de GitHub et jamais contre celles de la fenêtre.
+    InMemoryFileSystem files = withManual();
+    ManualWindow manual{files, kManual};
+
+    manual.followLink(QUrl{QStringLiteral("subedit-gui/table.md#les-anomalies")});
+
+    CHECK(manual.currentPage() == std::filesystem::path{"subedit-gui/table.md"});
+    CHECK(manual.currentSection() == QStringLiteral("les-anomalies"));
+}
+
+TEST_CASE("deux titres identiques donnent deux ancres", "[gui][GUI-MANUAL-01]") {
+    // La règle de GitHub, que `check-manual-links.py` applique de son côté : le
+    // second « Les erreurs » d'une page s'appelle `les-erreurs-1`.
+    InMemoryFileSystem files = withManual();
+    ManualWindow manual{files, kManual};
+
+    manual.followLink(QUrl{QStringLiteral("subedit-gui/table.md#les-erreurs-1")});
+
+    CHECK(manual.currentSection() == QStringLiteral("les-erreurs-1"));
+    CHECK_THAT(manual.shownText().toStdString(), ContainsSubstring("Les secondes"));
+}
+
+TEST_CASE("une ancre qui ne désigne rien laisse la page à son début", "[gui][GUI-MANUAL-01]") {
+    // **Silencieuse, contrairement au reste de cette fenêtre.** Le manuel est
+    // livré avec le programme et non écrit par qui l'utilise : une ancre morte
+    // est un défaut du dépôt, que `check-manual-links.py` et le test des pages
+    // réelles refusent tous les deux. Le message n'aurait jamais de lecteur.
+    InMemoryFileSystem files = withManual();
+    ManualWindow manual{files, kManual};
+
+    manual.followLink(QUrl{QStringLiteral("subedit-gui/table.md#une-section-effacee")});
+
+    CHECK(manual.currentPage() == std::filesystem::path{"subedit-gui/table.md"});
+    CHECK(manual.currentSection() == QStringLiteral("la-table"));
+    CHECK(manual.notice().isEmpty());
+}
+
+TEST_CASE("une image que le rendu ne trouve pas est nommée", "[gui][GUI-MANUAL-01]") {
+    // **Le pendant du test des pages réelles**, qui exige que le manuel du
+    // dépôt n'en ait aucune. Sans ce cas-ci, rien ne dirait que le contrôle
+    // sait répondre autre chose que « rien ne manque ».
+    InMemoryFileSystem files = withManual();
+    ManualWindow manual{files, kManual};
+
+    manual.openPage("subedit-gui/sans-image.md");
+
+    CHECK(manual.missingImages() == QStringList{QStringLiteral("captures/absente.png")});
+}
+
+TEST_CASE("les tableaux rendus se comptent", "[gui][GUI-MANUAL-01]") {
+    // Le compte, et non seulement le texte des cellules : c'est ce qui
+    // distingue un vrai `QTextTable` d'un tableau laissé en texte, et c'est ce
+    // que le test des pages réelles confronte à ce que chaque source déclare.
+    InMemoryFileSystem files = withManual();
+    ManualWindow manual{files, kManual};
+
+    CHECK(manual.shownTables() == 1);
+
+    manual.openPage("subedit-gui/table.md");
+
+    CHECK(manual.shownTables() == 0);
+}
+
+TEST_CASE("les liens rendus se lisent dans le document", "[gui][GUI-MANUAL-01]") {
+    // Ceux que le rendu a faits, et non ceux que la source écrit : un renvoi
+    // que le Markdown n'aurait pas reconnu ne serait pas dans cette liste.
+    InMemoryFileSystem files = withManual();
+    const ManualWindow manual{files, kManual};
+
+    CHECK(manual.shownLinks() == QStringList{QStringLiteral("subedit-gui/table.md"),
+                                             QStringLiteral("../feuille-de-route.md")});
+}
+
+TEST_CASE("une page qui ne commence pas par un titre n'est dans aucune section",
+          "[gui][GUI-MANUAL-01]") {
+    InMemoryFileSystem files = withManual();
+    ManualWindow manual{files, kManual};
+
+    manual.openPage("subedit-gui/sans-titre.md");
+
+    CHECK(manual.currentSection().isEmpty());
 }
 
 TEST_CASE("le retour forcé sans historique ne fait rien", "[gui][GUI-MANUAL-01]") {

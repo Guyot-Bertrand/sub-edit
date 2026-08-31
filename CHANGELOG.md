@@ -9,6 +9,10 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **gui** — Le manuel rendu par les outils qui comptent
+
 ### Documentation
 
 - **doc** — Trois renvois tranchés, et ce qu'ils laissent

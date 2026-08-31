@@ -24,6 +24,8 @@ Il s'ouvre sur la [page d'accueil](../index.md), celle qui dit par où commencer
 | Ce qu'on fait | Ce qui se passe |
 | :------------ | :-------------- |
 | cliquer un lien du manuel | la page s'ouvre dans la même fenêtre |
+| cliquer un lien qui vise une section | la page s'ouvre, et la fenêtre y descend |
+| cliquer un lien qui ne vise qu'une section | la fenêtre y descend, sans changer de page |
 | `Back` | revient à la page précédente ; éteint sur la première |
 | `Contents` | revient à la page d'accueil ; éteint quand on y est |
 
