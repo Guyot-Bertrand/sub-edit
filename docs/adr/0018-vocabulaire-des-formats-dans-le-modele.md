@@ -111,8 +111,9 @@ Gaupol ne sait pas faire — et c'est exactement ce dont une table qui surligne
 des rangs a besoin.
 
 **Rendu difficile.** Rien, structurellement. Le déplacement touche 38 fichiers
-et fait retomber `tidy-scope.sh` sur l'analyse complète : une porte à plein
-tarif, payée une fois.
+et faisait retomber `tidy-scope.sh` sur l'analyse complète : une porte à plein
+tarif, payée une fois. (Ce script n'existe plus depuis #269 ; l'analyse suit
+maintenant les dépendances réelles.)
 
 **Ce que ça coûte de défaire.** Un renommage, mécanique. La scission des
 diagnostics, elle, ne se défait pas gratuitement : elle change ce que `inspect`

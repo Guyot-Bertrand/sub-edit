@@ -122,6 +122,17 @@ TEST_CASE("a scaling that leaves the representable range saturates", "[time][rat
     CHECK(doubled.scale(kSmallest) == kSmallest);
     CHECK(opposite.scale(kSmallest) == kLargest);
     CHECK(ratioOf(3, 1).scale(kLargest / 2) == kLargest);
+
+    // **Les quatre quadrants de signe, et le quatrième manquait.** La garde
+    // d'un produit qui déborde traite séparément les quatre combinaisons de
+    // signes, parce que la comparaison qui la décide change de sens avec eux.
+    // Trois étaient éprouvées ci-dessus ; « gauche positif, droite négatif » ne
+    // l'était pas, et personne ne pouvait le voir tant que les quatre cas
+    // tenaient sur une seule ligne — un ternaire dans un ternaire, dont il
+    // suffisait qu'un chemin passe pour que la ligne compte comme couverte.
+    // Repéré en l'écrivant à plat, à l'issue #269.
+    CHECK(opposite.scale(kLargest) == -kLargest);
+    CHECK(ratioOf(-3, 1).scale(kLargest / 2) == kSmallest);
 }
 
 TEST_CASE("a huge denominator does not break the rounding", "[time][ratio]") {

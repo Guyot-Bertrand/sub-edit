@@ -77,10 +77,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          # L'historique complet : le périmètre de clang-tidy se calcule contre
-          # la base de la pull request, et un clone superficiel ne la connaît
-          # pas. tidy-scope.sh le dit et retombe sur l'analyse complète — ce
-          # qui est sûr, mais coûte précisément ce qu'on cherche à éviter.
+          # L'historique complet. Le périmètre de clang-tidy ne s'en sert plus
+          # depuis #269 — il ne se calcule plus du tout —, mais deux contrôles
+          # de la porte lisent encore git : `check-untracked.sh`, qui confronte
+          # les fichiers non suivis avant et après, et `check-architecture.sh`,
+          # qui confronte un tag à la version déclarée. Un clone superficiel
+          # les gênerait.
           fetch-depth: 0
 
       # Les paquets sont restaurés installés, pas retéléchargés : c'est la
@@ -111,6 +113,32 @@ jobs:
         with:
           key: ${{ github.job }}
 
+      # L'arbre de l'analyse statique, gardé d'une exécution à l'autre.
+      #
+      # **C'est lui qui porte l'incrémentalité depuis #269.** clang-tidy est
+      # accroché à la règle de compilation de chaque source, donc ce qui décide
+      # de réanalyser un fichier est le système de construction : la source, un
+      # en-tête de son fichier de dépendances, ou sa ligne de commande. Un
+      # coureur neuf a un arbre vide, et analyserait donc les 223 fichiers à
+      # chaque exécution — treize minutes qu'un cache rend inutiles.
+      #
+      # La clé retombe sur la base pour une pull request, ce qui donne à la
+      # branche l'arbre de `main` comme point de départ. `restore-keys` accepte
+      # un arbre plus ancien plutôt que rien : Ninja rejouera ce qui a changé
+      # depuis, ce qui est exactement son travail.
+      #
+      # **Un cache périmé ne peut pas rendre l'analyse fausse**, et c'est ce qui
+      # autorise à en poser un : Ninja compare les empreintes qu'il a écrites
+      # aux entrées qu'il trouve. Un arbre venu d'ailleurs fait au pire trop de
+      # travail, jamais trop peu.
+      - name: Cache de l'analyse statique
+        uses: actions/cache@v4
+        with:
+          path: build/tidy
+          key: tidy-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            tidy-${{ runner.os }}-
+
       # La CI n'exécute rien d'autre que make check. Recopier ses étapes ici
       # les ferait diverger du filet local dès la première modification.
       #
@@ -118,17 +146,12 @@ jobs:
       # ne pas affamer les autres travaux d'une machine de développement. Ici la
       # machine est à nous seuls, et rien ne justifie d'attendre.
       #
-      # **La CI ne dit que la base**, et laisse le Makefile calculer le
-      # périmètre de clang-tidy : c'est le même chemin qu'en local, donc le
-      # même comportement, et il n'y a qu'un endroit où se tromper. Une base
-      # vide — hebdomadaire, relance manuelle — veut dire « analyse tout ».
+      # **Plus de `TIDY_BASE`.** Le périmètre de l'analyse ne se calcule plus
+      # depuis un diff git : il n'y a plus rien à dire à la CI, et donc plus
+      # rien où se tromper. Une pull request et une exécution hebdomadaire
+      # lancent exactement la même commande — issue #269.
       - name: make check
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-              make check JOBS=$(nproc) TIDY_BASE="origin/${{ github.base_ref }}"
-          else
-              make check JOBS=$(nproc) TIDY_BASE=
-          fi
+        run: make check JOBS=$(nproc)
 
       - name: Rapport de couverture
         if: always()

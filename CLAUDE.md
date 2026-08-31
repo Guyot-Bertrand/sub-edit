@@ -213,27 +213,44 @@ avec un objectif d'iso-fonctionnalité.
   tests d'interface pour lui-même, celui de bout en bout pour chaque binaire
   qu'il lance, et `check-installation.sh` pour ce qu'il vient d'installer.
 
-  **Elle n'analyse que ce qui a changé, en local comme en CI.**
-  `src/scripts/tidy-scope.sh` calcule le périmètre depuis `TIDY_BASE`
-  — `origin/main` par défaut — en fermeture transitive des en-têtes, en voyant
-  le travail non commité, et **il retombe sur l'analyse complète au moindre
-  doute**. C'est ce qui rend la porte tenable : clang-tidy en est 90 %, et le
-  cas courant tombe de 827 s à **72 s**. `make check TIDY_BASE=` analyse tout ;
-  la CI le fait chaque semaine sur `main`.
+  **L'analyse statique n'a plus de périmètre à calculer, et plus de bouton.**
+  clang-tidy est accroché à la règle de compilation de chaque source, sous le
+  preset `tidy` — `cmake/Tidy.cmake`, issue #269. Ce qui décide de réanalyser un
+  fichier est le système de construction : sa source, un en-tête de son fichier
+  de dépendances, ou sa ligne de commande. Il n'y a donc plus de `TIDY_BASE`,
+  plus de « fichiers gouvernants », et plus de tableau de ce que la porte lit —
+  **une modification qui ne change aucune entrée de compilation ne coûte rien,
+  mécaniquement.** Pour tout réanalyser : `rm -rf build/tidy`.
 
-  **Elle ne se relance que si elle peut voir la différence.** Les modifications
-  qu'elle ne lit pas ne valent pas son coût. Ce qu'elle lit :
+  Le prix, écrit plutôt que tu : l'incrémentalité vit dans `build/tidy`, donc un
+  `make clean` la perd, et la CI la garde par un cache d'Actions.
 
-  | Elle voit | Elle ne voit pas |
-  | :-------- | :--------------- |
-  | `src/**/*.cpp`, `src/**/*.hpp` | `docs/**`, y compris le manuel |
-  | `CMakeLists.txt`, `CMakePresets.json`, `cmake/*.cmake` | `CHANGELOG.md`, `CLAUDE.md`, `README.md` |
-  | `Makefile` | `.github/workflows/**` — c'est la CI qui les lit |
-  | `src/scripts/*.sh` | `cliff.toml`, `LICENSE` |
-  | `src/test/data/**`, `src/data/**` — les tests de corpus les lisent | |
+  **Deux entrées échappent à Ninja, et une clé les lui montre** : le contenu de
+  `.clang-tidy` et la version du binaire, dont ni l'un ni l'autre n'est sur la
+  ligne de commande. `Tidy.cmake` en pose l'empreinte dans les drapeaux de
+  compilation, ce qui les y met. Sans elle, une configuration durcie laisserait
+  l'arbre vert sur une réponse périmée.
 
-  Conséquence pratique : une note ajoutée à un document après une porte verte ne
-  la réouvre pas.
+  **`HeaderFilterRegex` n'avait jamais filtré**, et personne ne pouvait le voir :
+  le motif `src/.*\.hpp$` ne correspond à rien depuis la racine du dépôt, si
+  bien que la porte n'a analysé aucun en-tête jusqu'à #269. Le preset a réglé
+  cela par construction, son répertoire courant étant l'arbre de construction.
+  Corollaire à connaître : **un `.clang-tidy` de répertoire ne gouverne que les
+  `.cpp` de ce répertoire** — pour un diagnostic levé dans un en-tête, c'est la
+  configuration de l'unité de traduction qui l'inclut qui s'applique.
+
+  **On sait reprendre la porte au milieu.** Les étapes vivent dans
+  `src/scripts/gate/`, une par fichier, et `src/scripts/gate.sh` porte l'ordre :
+
+  ```console
+  $ ./src/scripts/gate.sh --list
+  $ ./src/scripts/gate.sh check --from coverage
+  $ ./src/scripts/gate.sh check --only tidy
+  ```
+
+  Les cibles `make` restent l'interface qu'on tape, et `verify-gates.sh` les
+  invoque toujours. Un nom d'étape inconnu fait échouer l'invocation plutôt que
+  de n'en jouer aucune.
 
   **Le bump de version, lui, ne compte que si un tag pointe sur HEAD.** C'est le
   seul contrôle qui lit le numéro : `check-architecture.sh` le confronte au tag,

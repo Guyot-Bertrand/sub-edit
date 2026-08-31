@@ -9,6 +9,16 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Trois renvois tranchés, et ce qu'ils laissent
+
+### Remaniements
+
+- **build** — L'analyse suit la compilation, la porte sort du make
+
+## 0.8.0 — 2026-08-30
+
 ### Ajouts
 
 - **doc** — Des captures d'écran engendrées pour le manuel
@@ -35,7 +45,6 @@ ne pas l'éditer à la main.
 - **doc** — Deux réglages de plus au cadrage de la phase 7
 - **doc** — Le manuel utilisateur complet
 - **doc** — Relecture de fin de phase 7
-- **doc** — Trois renvois tranchés, et ce qu'ils laissent
 
 ### Remaniements
 

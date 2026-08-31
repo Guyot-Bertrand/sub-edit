@@ -118,6 +118,8 @@ readonly ICON_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.sv
 # choisie parce qu elle porte le plus de lignes : une injection y est perdue
 # dans la foule, ce qui est bien le cas qu on veut prouver.
 readonly SPEC_SOURCE="${REPO_ROOT}/docs/specs/03-cli.md"
+# La configuration de clang-tidy, dont la preuve 3 durcit une règle.
+readonly TIDY_CONFIG="${REPO_ROOT}/.clang-tidy"
 readonly OTHER_CAPTURE="${REPO_ROOT}/docs/manual/subedit-gui/captures/decalage.png"
 # Le fichier témoin de la preuve des fichiers laissés derrière. Il ne sauvegarde
 # rien : il est créé par la preuve et doit disparaître avec elle, y compris si
@@ -154,6 +156,7 @@ restore() {
     cp "${backup_dir}/subedit.desktop" "${DESKTOP_SOURCE}"
     cp "${backup_dir}/subedit.svg" "${ICON_SOURCE}"
     cp "${backup_dir}/03-cli.md" "${SPEC_SOURCE}"
+    cp "${backup_dir}/clang-tidy" "${TIDY_CONFIG}"
     rm -f "${STRAY_FILE}"
 }
 
@@ -182,6 +185,7 @@ cp "${INSTALLATION_SOURCE}" "${backup_dir}/Installation.cmake"
 cp "${DESKTOP_SOURCE}" "${backup_dir}/subedit.desktop"
 cp "${ICON_SOURCE}" "${backup_dir}/subedit.svg"
 cp "${SPEC_SOURCE}" "${backup_dir}/03-cli.md"
+cp "${TIDY_CONFIG}" "${backup_dir}/clang-tidy"
 trap cleanup EXIT
 
 # Injecte un défaut, exécute la cible make attendue en échec, rétablit.
@@ -609,33 +613,73 @@ expect_gate_stays_open \
     "${PLAIN_SCRIPT_SOURCE}" \
     'cmake --build . # exemple : -j 4 pour aller plus vite'
 
-# La preuve que le périmètre restreint de clang-tidy ne peut pas rendre un vert
-# vide.
+# Les trois preuves de l analyse statique — issue #269.
 #
-# **Le défaut qu'elle attrape a existé.** tidy-scope.sh calculait son périmètre
-# avec `git diff base...HEAD`, qui ne voit que ce qui est commité : juste en
-# intégration continue, faux en local, où la porte se lance avant de commiter.
-# Sur une branche sans commit, il rendait zéro fichier — donc une porte verte
-# qui n avait rien analysé.
+# **Elles ont changé de nature avec le mécanisme.** Il y en avait une, et elle
+# attrapait un défaut réel de tidy-scope.sh : il calculait son périmètre avec
+# `git diff base...HEAD`, qui ne voit que ce qui est commité, donc rendait zéro
+# fichier sur une branche sans commit — une porte verte qui n avait rien
+# analysé. Ce script-là n existe plus : clang-tidy est accroché à la règle de
+# compilation de chaque source, et git n entre plus dans le calcul.
 #
-# Elle ne peut pas passer par expect_gate_closes : la cible porte ici une
-# affectation, et cette fonction passe son argument en un seul mot.
-expect_restricted_tidy_closes() {
-    printf '%s▸ %s%s\n' "${BOLD}" "défaut dans un fichier non commité, périmètre restreint" "${RESET}"
-    printf '\nnamespace { int probeForTheProof() { int value = 1; return value; } }\n' \
-        >> "${LIB_SOURCE}"
+# Restent trois choses à prouver, une par entrée que le système de construction
+# doit voir : la source, ses en-têtes, et la clé qui porte le reste.
+#
+# La première invocation construit l arbre `build/tidy` en entier, ce qui coûte
+# une dizaine de minutes ; les deux suivantes sont incrémentales, et c est
+# précisément la propriété qu on éprouve.
+expect_tidy_closes() {
+    local label="$1"
+    local file="$2"
+    local snippet="$3"
 
-    if make -C "${REPO_ROOT}" --no-print-directory tidy TIDY_BASE=HEAD >/dev/null 2>&1; then
+    printf '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
+    printf '%s\n' "${snippet}" >> "${file}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory tidy >/dev/null 2>&1; then
         printf '  %s✗ la porte « tidy » a laissé passer le défaut%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make tidy TIDY_BASE=HEAD » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make tidy » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
 }
 
-expect_restricted_tidy_closes
+# 1 — un défaut dans une source non commitée. C est le cas que l ancien
+# mécanisme ratait, et il ne peut plus se poser : rien ne consulte git.
+expect_tidy_closes \
+    "défaut dans une source non commitée" \
+    "${LIB_SOURCE}" \
+    'namespace { int probeForTheProof() { int value = 1; return value; } }'
+
+# 2 — **un défaut dans un en-tête**, et c est la preuve qui n existait pas.
+#
+# L ancienne fermeture d en-têtes se faisait par `grep` du nom de fichier dans
+# les sources : elle attrapait un en-tête cité dans un commentaire et pouvait
+# manquer une inclusion indirecte. Ici c est le fichier de dépendances que le
+# compilateur a écrit qui décide, donc les unités qui incluent celui-ci sont
+# réanalysées, et elles seules.
+expect_tidy_closes \
+    "défaut dans un en-tête, atteint par ses dépendants" \
+    "${MODEL_SOURCE}" \
+    'namespace subedit::core { inline int probeForTheProof() { int value = 1; return value; } }'
+
+# 3 — **la configuration change, et l analyse le voit.**
+#
+# C est le trou que le mécanisme aurait laissé sans la clé de `cmake/Tidy.cmake`
+# — voir ce fichier : le contenu de `.clang-tidy` n est pas sur la ligne de
+# commande, donc Ninja ne le regarde pas. On y ajoute une règle de nommage que
+# tout le projet viole ; sans la clé, l arbre resterait vert sur une réponse
+# périmée, ce qui est le pire mode d échec possible.
+#
+# L injection se fait en fin de fichier, ce qui exige que la liste CheckOptions
+# soit la dernière chose de `.clang-tidy` — c est écrit dans ce fichier.
+expect_tidy_closes \
+    "configuration durcie, analyse rejouée" \
+    "${TIDY_CONFIG}" \
+    '  - key: readability-identifier-naming.ParameterCase
+    value: UPPER_CASE'
 
 # Un fichier engendré déposé sous src/. Il passerait les quatre portes qui
 # filtrent sur src/ — format, analyse statique, couverture, périmètre — parce
@@ -1169,11 +1213,36 @@ expect_bench_extremes_hold() {
 expect_bench_extremes_hold
 
 printf '\n'
+# Les deux gardes de l orchestrateur — issue #269.
+#
+# **Un filtre qui ne retient rien doit refuser, pas rendre zéro.** `gate.sh`
+# sait reprendre une suite au milieu, ce qui ouvre un mode d échec qui
+# n existait pas quand le Makefile enchaînait ses cibles : une faute de frappe
+# dans `--from` jouerait zéro étape et rendrait un code de succès. C est la
+# même famille que le périmètre vide de l analyse statique, et elle se referme
+# de la même façon — bruyamment.
+expect_orchestrator_refuses() {
+    local label="$1"
+    shift
+
+    printf '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
+
+    if "${REPO_ROOT}/src/scripts/gate.sh" "$@" >/dev/null 2>&1; then
+        printf '  %s✗ gate.sh a accepté « %s »%s\n' "${RED}" "$*" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ gate.sh a refusé, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+}
+
+expect_orchestrator_refuses "étape inconnue passée à --from" check --from covrage
+expect_orchestrator_refuses "filtres qui ne retiennent aucune étape" check --only tidy --skip tidy
+
 if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles trente-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles quarante-trois portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
