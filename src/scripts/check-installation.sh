@@ -30,19 +30,29 @@
 #      non vide, préfixe `/usr`, et rien d'écrit hors de la mise en scène ;
 #   7. **les deux paquets natifs se construisent, et disent la même chose** — un
 #      `.deb` et un `.rpm`, dont les listes de fichiers coïncident et dont les
-#      dépendances sont déclarées.
+#      dépendances sont déclarées ;
+#   8. **le `.rpm` ne possède que ses propres répertoires** — ceux de la
+#      distribution ne sont pas à lui, et `dnf` refuse la transaction entière
+#      s'il les revendique.
 #
-# ## Ce qu'il ne vérifie pas, et il vaut mieux l'écrire
+# ## Ce qu'il ne vérifie pas, et où cela se vérifie
 #
 # **Que le `.rpm` s'installe.** Un `.rpm` construit sur Ubuntu ne peut pas y être
-# installé : l'éprouver demande une machine Fedora, que ni la porte ni la CI
-# n'ont — ADR 0023. L'asymétrie est assumée et le manuel la dit.
+# installé : l'éprouver demande une Fedora. Elle existe depuis #266, en
+# conteneur — `src/scripts/check-rpm.sh`, une fois par semaine — et elle n'est
+# pas ici parce qu'elle demande le réseau, ce qu'une porte ne doit pas demander.
 #
-# | Vérifié ici | Non vérifiable ici |
-# | :---------- | :----------------- |
-# | la liste des fichiers, par `rpm -qlp` | que le paquet s'installe |
+# | Vérifié ici | Vérifié par check-rpm.sh |
+# | :---------- | :----------------------- |
+# | la liste des fichiers, par `rpm -qlp` | que la transaction `dnf` aboutit |
 # | les dépendances déclarées, par `rpm -qp --requires` | que ces noms existent chez Fedora |
-# | l'accord des deux paquets | que le binaire se lance une fois installé |
+# | l'accord des deux paquets | que les binaires installés se lancent |
+# | que le `.rpm` ne possède aucun répertoire partagé | que `man` trouve la page installée |
+#
+# **La dernière ligne de gauche est la moitié bon marché de la droite.** Le
+# `.rpm` revendiquait huit répertoires de la distribution et `dnf` refusait la
+# transaction entière ; la cause se lit dans le paquet, sans Fedora, et c'est ce
+# que le contrôle local fait désormais à chaque pull request.
 #
 # **L'accord des deux listes est le plus utile des trois**, et le seul qui ne
 # demande aucune Fedora : les deux paquets sortent de la même installation, donc
@@ -65,6 +75,11 @@ readonly MANUAL_DIR="${REPO_ROOT}/docs/manual"
 # pour confronter ce que les règles déposent à ce qu'on attend, donc il doit le
 # dire de son côté plutôt que de le lire du leur.
 readonly APP_ID="io.github.guyot_bertrand.subedit"
+
+# L'arbre que ce projet crée, et le seul qu'un paquet ait le droit de posséder.
+# Écrit ici comme `APP_ID` l'est, et pour la même raison : ce contrôle confronte
+# ce que les règles déposent à ce qu'on attend.
+readonly DATA_SUBDIR="share/subedit"
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -449,6 +464,61 @@ $(diff <(printf '%s\n' "${in_deb}") <(printf '%s\n' "${in_rpm}") | sed 's/^/    
     if [[ -n "${deb_deps}" && -n "${rpm_deps}" ]]; then
         report_success "les deux paquets déclarent leurs dépendances, chacun dans les noms de sa famille"
     fi
+
+    check_rpm_directories "${rpm}"
+}
+
+# ## Le `.rpm` ne possède que ses propres répertoires
+#
+# **Le contrôle le moins cher de ce fichier, et il a attrapé le défaut le plus
+# coûteux** — issue #266. Un `.rpm` qui déclare posséder `/usr/share/icons`
+# entre en conflit avec `hicolor-icon-theme`, qui le possède vraiment, et `dnf`
+# refuse la transaction entière. Le paquet reste parfaitement valide : il
+# s'inspecte, il s'énumère, et il ne s'installe pas.
+#
+# `cmake/Packaging.cmake` excluait déjà ces répertoires, en chemins relatifs
+# alors que CPack en attend d'absolus — l'exclusion n'a jamais rien exclu, du
+# jour où elle a été écrite jusqu'à ce que `check-rpm.sh` joue une vraie
+# transaction sur Fedora. **Une exclusion qui n'exclut rien ressemble en tout
+# point à une exclusion qui marche**, et c'est pour cela que ce contrôle-ci
+# existe : il regarde le résultat, jamais l'intention.
+#
+# **La règle est celle-ci : les seuls répertoires du paquet sont sous
+# `share/subedit`.** C'est le seul arbre que ce projet crée ; tous les autres
+# où il dépose quelque chose — `bin`, `applications`, `icons`, `man`,
+# `metainfo` — appartiennent à la distribution. Le jour où le projet en créera
+# un ailleurs, ce contrôle échouera et la règle sera relue, ce qui est
+# exactement ce qu'on veut d'elle.
+#
+# **Local, et il ne remplace pas la Fedora.** Il voit la cause de ce défaut-là ;
+# il ne verrait pas un nom de dépendance erroné, ni une bibliothèque manquante
+# à l'exécution. C'est `src/scripts/check-rpm.sh` qui les voit, et il demande un
+# conteneur et le réseau — donc une fois par semaine, pas à chaque pull request.
+check_rpm_directories() {
+    local package="$1"
+
+    # `--dump` donne le mode de chaque entrée, et un répertoire s'y reconnaît à
+    # son `04…` : on lit le type plutôt que de le deviner sur le nom.
+    # `/usr/lib/.build-id/…` est écarté ici comme il l'est de la comparaison des
+    # deux listes, et pour la même raison : `rpmbuild` pose ces répertoires pour
+    # ses propres outils de débogage, rien de ce que le projet installe ne les
+    # nomme, et la transaction Fedora les accepte — c'est une propriété du
+    # format, pas de ce qu'on empaquette.
+    local owned
+    owned="$(rpm -qp --dump "${package}" 2>/dev/null \
+        | awk '$5 ~ /^04/ { print $1 }' \
+        | grep -v '^/usr/lib/\.build-id\(/\|$\)' \
+        | grep -v "^/usr/${DATA_SUBDIR}\(/\|$\)" || true)"
+
+    if [[ -n "${owned}" ]]; then
+        report_failure "le .rpm déclare posséder des répertoires qui ne sont pas à lui :
+$(printf '%s\n' "${owned}" | sed 's/^/    /')
+    la distribution les possède déjà, et dnf refusera la transaction
+    les exclure dans CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION, en chemins absolus"
+        return
+    fi
+
+    report_success "le .rpm ne possède que ses propres répertoires"
 }
 
 check_packages
