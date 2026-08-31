@@ -1245,6 +1245,61 @@ expect_bench_extremes_hold() {
 
 expect_bench_extremes_hold
 
+# Une preuve du même genre, sur l autre moitié de la règle — issue #270.
+#
+# `await-quiet.sh` ne refuse rien non plus : il décide si la machine est assez
+# calme, et c est son code de retour qui fait qu un relevé entre au journal ou
+# n y entre pas. Ce qui peut être faux chez lui va dans les deux sens — déclarer
+# calme une machine qui ne l est pas, ou attendre une accalmie qui ne viendra
+# jamais.
+#
+# Les deux se démontrent sans attendre quoi que ce soit, en lui donnant un seuil
+# qui rend la réponse certaine : aucun `sleep` n est joué ici.
+expect_await_quiet_decides() {
+    local script="${REPO_ROOT}/src/scripts/await-quiet.sh"
+    local load
+    local status
+
+    printf '%s▸ %s%s\n' "${BOLD}" "la décision de mesurer ou non" "${RESET}"
+
+    # Le script a une échappatoire pour une machine sans /proc/loadavg — il rend
+    # « inconnue » et zéro. Cette preuve-là n a alors rien à démontrer, et le
+    # dire vaut mieux que la faire échouer pour une raison qui ne regarde pas le
+    # dépôt.
+    if [[ ! -r /proc/loadavg ]]; then
+        printf '  %s✓ pas de /proc/loadavg : la décision ne s applique pas ici%s\n' \
+            "${GREEN}" "${RESET}"
+        return
+    fi
+
+    # Un seuil qu aucune charge ne peut dépasser : il doit rendre 0 tout de
+    # suite, et écrire un nombre.
+    status=0
+    load="$("${script}" --below 100000 --timeout 0)" || status=$?
+    if (( status != 0 )) || [[ ! "${load}" =~ ^[0-9]+([.,][0-9]+)?$ ]]; then
+        printf '  %s✗ une machine calme n a pas été reconnue (code %s, charge « %s »)%s\n' \
+            "${RED}" "${status}" "${load}" "${RESET}"
+        failures=$((failures + 1))
+        return
+    fi
+
+    # Un seuil qu aucune charge ne peut atteindre : il doit renoncer, rendre 1,
+    # et écrire la charge quand même — c est elle que l appelant affiche.
+    status=0
+    load="$("${script}" --below 0 --timeout 0)" || status=$?
+    if (( status == 0 )) || [[ ! "${load}" =~ ^[0-9]+([.,][0-9]+)?$ ]]; then
+        printf '  %s✗ une machine occupée a été déclarée calme (code %s, charge « %s »)%s\n' \
+            "${RED}" "${status}" "${load}" "${RESET}"
+        failures=$((failures + 1))
+        return
+    fi
+
+    printf '  %s✓ calme reconnu, occupation refusée, et la charge écrite dans les deux cas%s\n' \
+        "${GREEN}" "${RESET}"
+}
+
+expect_await_quiet_decides
+
 printf '\n'
 # Les deux gardes de l orchestrateur — issue #269.
 #
@@ -1275,7 +1330,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles quarante-quatre portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles quarante-cinq portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

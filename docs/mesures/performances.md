@@ -20,19 +20,76 @@ moyenne d'une minute** relevée juste avant, dans son en-tête, et la règle qui
 découle est mécanique :
 
 > **Un relevé pris au-dessus de `BENCH_MAX_LOAD` — une et demie, par défaut —
-> entre au journal mais ne fixe aucun extrême.**
+> n'entre pas au journal.** Les benchmarks tournent, leurs chiffres s'affichent,
+> et rien n'est écrit.
 
-`make bench` attend d'abord que la charge redescende, trois minutes au plus : la
-cause la plus fréquente est la cible qui précède, et la moyenne d'une minute met
-une minute à l'oublier. Passé ce délai il mesure quand même, le dit, et le
-relevé reste hors de la table ci-dessous.
+`make bench` attend d'abord que la charge redescende, **trente secondes au
+plus** : la cause la plus fréquente est la cible qui précède, et la moyenne
+d'une minute met une minute à l'oublier. Passé ce délai il mesure quand même —
+les chiffres restent utiles à qui vient de lancer la commande — mais il ne verse
+rien, et il le dit.
 
-**Il n'attend que ce qui vient.** Si la charge ne baisse pas — une demi-minute
-sans progrès suffit à le dire — il renonce aussitôt : une machine partagée avec
-un autre travail de longue haleine ne redeviendra pas calme dans le délai, et
-l'attendre coûterait trois minutes à chaque exécution. Notre propre build, lui,
-décroît franchement ; c'est ce qui distingue les deux cas, et non le niveau de
-la charge, que les deux poussent aussi haut.
+### Pourquoi trente secondes, et pourquoi ne rien écrire — #270
+
+La phase 7 a donné treize relevés dont **six au-dessus du seuil**. La question
+posée était : le seuil est-il tenable dans le déroulé prescrit ?
+
+**Ce qui a été mesuré, et ce que ça a corrigé.** Première idée, fausse : que la
+charge vienne des deux étapes qui précèdent `bench` dans `check-local`. Relevée
+à la sortie d'`install-check`, toutes les cinq secondes, elle culmine à 1,78
+cinq secondes après la fin — la moyenne d'une minute retarde sur ce qui vient de
+finir — et repasse sous le seuil en une vingtaine de secondes. `e2e` et
+`install-check` sont courts ; ils ne chargent presque rien.
+
+**Ce qui charge est ce qui précède le tout.** Le déroulé prescrit enchaîne
+`make check` puis `make check-local` : un quart d'heure de clang-tidy, de tests
+sous sanitizers et de couverture, immédiatement avant. C'est cet héritage-là que
+`bench` trouve, et non celui de ses deux voisines. Quatre exécutions réelles, le
+même jour et sur la même machine :
+
+| Contexte de l'exécution | Charge à `bench` | Sort |
+| :---------------------- | ---------------: | :--- |
+| `check-local` dans la foulée de `make check` | 2,78 | refusé |
+| idem, une seconde fois | 1,84 | refusé |
+| `check-local` seul, machine au repos | 1,38 | **inscrit** |
+| `check-local` pendant une session de bureau active | 2,88 | refusé |
+| idem, plus chargée | 6,56 | refusé |
+
+Le relevé de la version `0.8.6` est celui de la troisième ligne, et il a survécu
+aux deux exécutions refusées qui l'ont suivi : **un refus n'écrit pas, donc il
+n'efface pas non plus** la mesure propre déjà en place.
+
+Les deux dernières ne sont pas des cas du projet : les processus en tête de `ps`
+n'appartenaient pas à ce dépôt — un navigateur, un environnement de
+développement, deux serveurs — et la charge est retombée à 0,64 dès que la
+session s'est calmée, sans que rien du projet n'ait changé.
+
+**Le seuil est donc tenable, et ce n'est pas lui qu'il fallait regarder.** Une
+mesure prise hors de la traîne de `make check`, sur une machine qui n'est qu'à
+nous, passe. Les six échecs de la phase 7 étaient l'une ou l'autre des deux
+causes ci-dessus, et aucune ne se soigne en attendant plus longtemps : la traîne
+d'un quart d'heure de compilation et la session de bureau durent toutes deux
+plus que n'importe quel délai qu'on accepterait de payer à chaque exécution.
+
+**D'où trente secondes.** Ce qui se rattrape se rattrape en vingt ; ce qui ne se
+rattrape pas ne se rattrape pas en trois minutes non plus. Attendre au-delà,
+c'était payer le délai pour les seuls cas où il ne pouvait rien.
+
+**Et l'inscription sans droit d'extrême était une demi-mesure au sens propre.**
+Le journal a une section par version : une section qu'on ne peut comparer à rien
+— puisqu'on ignore ce qui, dedans, vient du code — occupe la place de celle qui
+manque, et **cache** le fait qu'il n'y a pas eu de mesure. Une version sans
+section le dit. Presque un relevé sur deux de la phase 7 était dans ce cas.
+
+**Ce qui reste ouvert :** la place de `bench` dans le déroulé. Il est enchaîné
+par `check-local`, donc juste derrière la seule étape qui chauffe vraiment la
+machine, et c'est ce qui explique le plus gros des refus. Le rejouer séparément,
+au calme, coûte une minute et réussit — mais changer l'ordre prescrit est une
+décision qui dépasse cette issue.
+
+La règle de la table des extrêmes, elle, ne bouge pas : elle vaut toujours pour
+le seul relevé qui peut encore arriver avec une charge non qualifiée, celui
+d'une machine sans `/proc/loadavg`.
 
 Sans cette règle, un maximum posé par du bruit est **définitif** — la table
 n'est jamais élaguée — et rend la mesure aveugle à toute régression plus petite
@@ -210,12 +267,12 @@ pas le sujet de ce ticket.
 | écriture de 4000 sous-titres | 488 µs | 0.3.10 — 2026-08-15 | 783 µs | 0.5.3 — 2026-08-22 |
 | décalage de 4000 sous-titres | 6.57 µs | 0.6.11 — 2026-08-27 | 11.4 µs | 0.3.3 — 2026-08-15 |
 | décalage puis annulation | 12.8 µs | 0.4.15 — 2026-08-21 | 20.7 µs | 0.2.6 — 2026-08-13 |
-| transformation de 4000 sous-titres | 68.6 µs | 0.7.11 — 2026-08-29 | 93.3 µs | 0.2.12 — 2026-08-14 |
+| transformation de 4000 sous-titres | 68.3 µs | 0.8.6 — 2026-08-31 | 93.3 µs | 0.2.12 — 2026-08-14 |
 | conversion de fréquence sur 4000 sous-titres | 66.8 µs | 0.6.11 — 2026-08-27 | 100 µs | 0.2.12 — 2026-08-14 |
 | tri de 4000 sous-titres à l'envers | 196 µs | 0.3.2 — 2026-08-15 | 821 µs | 0.7.8 — 2026-08-29 |
 | suppression d'un sous-titre sur deux | 138 µs | 0.4.14 — 2026-08-21 | 12.5 ms | 0.3.3 — 2026-08-15 |
 | insertion de 100 sous-titres vides au milieu | 48.2 µs | 0.7.5 — 2026-08-29 | 102 µs | 0.7.8 — 2026-08-29 |
-| modification d'un texte, à travers une session | 114 ns | 0.2.14 — 2026-08-14 | 223 ns | 0.5.3 — 2026-08-22 |
+| modification d'un texte, à travers une session | 114 ns | 0.2.14 — 2026-08-14 | 228 ns | 0.8.6 — 2026-08-31 |
 | suppression des mentions sur 4000 sous-titres | 850 µs | 0.4.9 — 2026-08-19 | 5.68 ms | 0.4.4 — 2026-08-17 |
 | suppression puis annulation | 213 µs | 0.4.14 — 2026-08-21 | 354 µs | 0.5.3 — 2026-08-22 |
 | construction du modèle sur 4000 sous-titres | 59.3 ns | 0.4.14 — 2026-08-21 | 14.8 µs | 0.6.13 — 2026-08-27 |
@@ -241,12 +298,12 @@ pas le sujet de ce ticket.
 <!-- écriture de 4000 sous-titres min=488279.0 max=782932.0 -->
 <!-- décalage de 4000 sous-titres min=6568.55 max=11400.0 -->
 <!-- décalage puis annulation min=12847.6 max=20700.0 -->
-<!-- transformation de 4000 sous-titres min=68601.7 max=93300.0 -->
+<!-- transformation de 4000 sous-titres min=68317.9 max=93300.0 -->
 <!-- conversion de fréquence sur 4000 sous-titres min=66839.4 max=100000.0 -->
 <!-- tri de 4000 sous-titres à l'envers min=196000.0 max=821107.0 -->
 <!-- suppression d'un sous-titre sur deux min=137974.0 max=12500000.0 -->
 <!-- insertion de 100 sous-titres vides au milieu min=48185.9 max=101894.0 -->
-<!-- modification d'un texte, à travers une session min=114.0 max=222.951 -->
+<!-- modification d'un texte, à travers une session min=114.0 max=227.528 -->
 <!-- suppression des mentions sur 4000 sous-titres min=850257.0 max=5676890.0 -->
 <!-- suppression puis annulation min=213280.0 max=353822.0 -->
 <!-- construction du modèle sur 4000 sous-titres min=59.2521 max=14796.1 -->
@@ -268,6 +325,41 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.8.6 — 2026-08-31 — Release — charge 1.38 — allure ×0.83
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| la réplique en cours, sur 4000 sous-titres | 6.13 µs | 2.38 µs |
+| composer une réplique de deux lignes | 189 ns | 10.8 ns |
+| ouvrir une vidéo | 9.02 ms | 231 µs |
+| chercher une position | 586 µs | 158 µs |
+| construction du modèle sur 4000 sous-titres | 8.49 µs | 3.52 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 17.4 µs | 500 ns |
+| rafraîchir après un décalage de 4000 sous-titres | 8.73 µs | 5.91 µs |
+| réinitialisation du modèle après une ligne retirée | 9.97 µs | 5.45 µs |
+| édition d'une cellule de texte | 427 ns | 72.1 ns |
+| édition d'une cellule de position | 9.46 µs | 1.66 µs |
+| versionString | 33.5 ns | 0.361 ns |
+| parse | 32.9 ns | 4.68 ns |
+| format | 36.4 ns | 0.351 ns |
+| position vers image | 8.21 ns | 2.18 ns |
+| image vers position | 7.61 ns | 0.0634 ns |
+| mise à l'échelle par un rationnel exact | 7.01 ns | 1.03 ns |
+| lecture de 4000 sous-titres | 2.1 ms | 109 µs |
+| écriture de 4000 sous-titres | 521 µs | 33.7 µs |
+| décalage de 4000 sous-titres | 6.85 µs | 2.92 µs |
+| décalage puis annulation | 13.2 µs | 2.94 µs |
+| transformation de 4000 sous-titres | 68.3 µs | 5.6 µs |
+| conversion de fréquence sur 4000 sous-titres | 67.9 µs | 8.34 µs |
+| alignement sur 4000 sous-titres | 124 µs | 9.75 µs |
+| tri de 4000 sous-titres à l'envers | 264 µs | 33.1 µs |
+| suppression d'un sous-titre sur deux | 158 µs | 23.7 µs |
+| suppression puis annulation | 239 µs | 32.2 µs |
+| insertion de 100 sous-titres vides au milieu | 50.1 µs | 14.6 µs |
+| modification d'un texte, à travers une session | 228 ns | 40.9 ns |
+| suppression des mentions sur 4000 sous-titres | 1.01 ms | 44.1 µs |
+| déduction de fréquence sur 4000 sous-titres | 384 µs | 37 µs |
 
 ### 0.8.5 — 2026-08-31 — Release — charge 6.56 — allure ×1.30
 

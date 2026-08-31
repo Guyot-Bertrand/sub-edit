@@ -16,6 +16,7 @@ ne pas l'éditer à la main.
 ### Corrections
 
 - **build** — Le .rpm ne s'installait pas, et rien ne pouvait le dire
+- **scripts** — Mesurer au calme ou pas du tout
 
 ### Documentation
 
