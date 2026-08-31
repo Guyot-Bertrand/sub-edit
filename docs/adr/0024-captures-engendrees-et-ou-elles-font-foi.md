@@ -74,6 +74,43 @@ Un seuil unique ne distingue pas un antialiasing qui a bougé partout d'un mot
 qui a changé quelque part — le premier est du bruit, le second est le seul
 changement qui compte.
 
+## Ce que la plateforme sans écran tait — mesuré
+
+**Ajouté en août 2026, en traitant l'issue #268**, qui a demandé pour chaque
+contrôle du dépôt si l'outil qui vérifie est celui qui compte. Pour les
+captures, la réponse est non par construction : elles sont prises par la
+plateforme `offscreen`, et un lecteur du manuel a un bureau. La question n'était
+pas de changer de plateforme — la reproductibilité est ce qui fait tenir tout ce
+mécanisme, et une capture prise sur une session graphique se ferait promouvoir
+chez le suivant. La question était de savoir ce que la plateforme tait.
+
+Les seize captures ont donc été engendrées deux fois, la seconde sous un serveur
+X et la plateforme `xcb` :
+
+```console
+$ xvfb-run -a -s "-screen 0 1600x1200x24" \
+      env QT_QPA_PLATFORM=xcb build/dev/bin/subedit_screenshots --output-dir <répertoire>
+```
+
+**Quatorze des seize diffèrent, toutes très au-delà du seuil du comparateur** —
+de 0,6 % à 13,6 % des pixels. Les deux qui ne diffèrent pas d'un octet sont
+celles de la fenêtre du manuel : elle n'est qu'un `QTextBrowser`, et rien de ce
+qu'elle dessine ne dépend de la plateforme.
+
+| Ce qui change sous `xcb` | D'où cela vient |
+| :----------------------- | :-------------- |
+| les icônes de la barre d'outils et des boutons de dialogue apparaissent | `QIcon::fromTheme` ne rend rien sous `offscreen`, et poser `QT_QPA_PLATFORMTHEME` ne les ramène pas : c'est la plateforme, pas le thème |
+| `Cancel` passe à gauche de `OK`, et les mnémoniques se soulignent | l'ordre des boutons est une indication de style du thème de plateforme, que `offscreen` ne fournit pas — `offscreen` avec `QT_QPA_PLATFORMTHEME=gtk3` suffit à le changer |
+| le rectangle de cellule courante disparaît de la table | aucune fenêtre n'est jamais *active* sans gestionnaire de fenêtres |
+
+**Ce n'est pas une raison de changer de plateforme, et c'en est une de
+l'écrire.** Le manuel décrit des mots et des actions, pas des pixels, et aucune
+de ses phrases ne devient fausse : les boutons d'une capture portent les mêmes
+libellés que ceux du bureau du lecteur. Ce qu'il faut savoir tient en une
+phrase — **une capture du manuel montre la fenêtre sans les icônes de son
+bureau, et avec l'ordre de boutons de Fusion plutôt que celui du bureau.** La
+question ne se reposera pas ; elle est répondue ici.
+
 ## Alternatives écartées
 
 **Versionner la capture directement, sans comparateur.** C'est la forme la plus

@@ -69,6 +69,12 @@ declare -A APT_TOOLS=(
     # cible réussit et le paquet manque. La commande sondée n'est pas `rpm`, qui
     # existe parfois seul, mais celle dont CPack a besoin.
     [rpmbuild]=rpm
+    # **groff est entré avec #268**, qui a demandé si chaque vérification passe
+    # par l'outil qui compte. La page de manuel était lue au `sed` et n'avait
+    # jamais été rendue ; elle l'est désormais par celui qui la rend vraiment,
+    # c'est-à-dire par celui que `man` appelle. Une Ubuntu de bureau l'a
+    # d'origine, avec `man-db` ; une image de construction nue, pas toujours.
+    [groff]=groff
 )
 
 # Paquets APT sans commande à sonder : un fichier dit leur présence.

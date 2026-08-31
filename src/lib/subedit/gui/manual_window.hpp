@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QStringList>
 #include <QWidget>
 
 #include <filesystem>
@@ -53,6 +54,41 @@ public:
     /// lecteur.
     [[nodiscard]] QString shownText() const;
 
+    /// Combien de tableaux la page rendue porte — issue #268.
+    ///
+    /// **Le texte seul ne le dit pas.** Un dialecte qui ignorerait les tableaux
+    /// laisserait leurs barres dans le texte, et le contenu des cellules y
+    /// serait quand même : `shownText()` passerait. Ce que le cadrage voulait
+    /// savoir est si MD4C en fait de *vrais* `QTextTable`, ce qui ne se lit que
+    /// dans la structure du document.
+    [[nodiscard]] int shownTables() const;
+
+    /// Les adresses que la page rendue offre au clic, dans l'ordre où elles
+    /// apparaissent — issue #268.
+    ///
+    /// **Celles du document rendu, et non celles de la source.** Un lien que le
+    /// Markdown n'aurait pas reconnu ne serait pas ici : c'est la différence
+    /// entre vérifier que le manuel *écrit* un renvoi et vérifier qu'un lecteur
+    /// peut le suivre. Les doublons sont gardés, la page pouvant renvoyer deux
+    /// fois au même endroit.
+    [[nodiscard]] QStringList shownLinks() const;
+
+    /// Les images que la page montre et que le rendu n'a pas su charger —
+    /// issue #268.
+    ///
+    /// Vide quand tout se charge. C'est ce qui met `setSearchPaths` à
+    /// l'épreuve : une image existe sur le disque et reste introuvable pour le
+    /// document si le répertoire cherché n'est pas celui de la page.
+    [[nodiscard]] QStringList missingImages() const;
+
+    /// La section où la vue est posée, sous la forme d'une ancre — issue #268.
+    ///
+    /// C'est ce qu'un test lit pour savoir où un renvoi a mené. Une page
+    /// ouverte à son début rend l'ancre de son titre, la vue y étant posée
+    /// dessus ; elle rend une chaîne vide si la vue est ailleurs que sur un
+    /// titre, ce qu'aucun chemin de cette fenêtre ne produit aujourd'hui.
+    [[nodiscard]] QString currentSection() const;
+
     /// L'action de retour, pour qu'un test la déclenche et lise son état.
     [[nodiscard]] QAction* backAction() const { return m_back; }
 
@@ -82,6 +118,16 @@ public:
 private:
     /// Recompute ce que les deux actions ont le droit de faire.
     void refreshActions();
+
+    /// Pose la vue sur le titre que `anchor` désigne, ou la laisse où elle est.
+    ///
+    /// **Silencieuse quand l'ancre ne désigne rien**, contrairement au reste de
+    /// cette fenêtre, qui dit ce qu'elle ne sait pas ouvrir. Le manuel est
+    /// livré avec le programme et non écrit par qui l'utilise : une ancre morte
+    /// est un défaut du dépôt, que `check-manual-links.py` et le test des
+    /// pages réelles refusent tous les deux. Le message n'aurait donc jamais
+    /// de lecteur.
+    void showSection(const QString& anchor);
 
     core::FileSystem* m_files;
     std::filesystem::path m_directory;

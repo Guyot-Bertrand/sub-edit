@@ -1,15 +1,28 @@
 .\" La page de manuel de subedit-cli.
 .\"
-.\" **Courte, et c'est délibéré.** Le manuel complet vit sous
+.\" **Courte, et c'est delibere.** Le manuel complet vit sous
 .\" share/subedit/manual et fait deux mille lignes ; le recopier ici en
-.\" produirait une seconde copie à tenir, qui divergerait. Cette page dit ce
+.\" produirait une seconde copie a tenir, qui divergerait. Cette page dit ce
 .\" qu'une page de manuel dit : la forme d'appel, ce que chaque sous-commande
-.\" fait, les options globales, les codes de retour — puis où lire le reste.
+.\" fait, les options globales, les codes de retour, puis ou lire le reste.
 .\"
-.\" Le numéro de version est injecté par configure_file depuis le
+.\" Le numero de version est injecte par configure_file depuis le
 .\" project(VERSION) de CMakeLists.txt. La liste des sous-commandes, elle, est
-.\" confrontée à celle du binaire par check-installation.sh : une sous-commande
-.\" ajoutée sans être écrite ici fait échouer la porte.
+.\" confrontee a celle du binaire par check-installation.sh : une sous-commande
+.\" ajoutee sans etre ecrite ici fait echouer la porte.
+.\"
+.\" **Ce fichier s'ecrit sans accents, contrairement au reste du projet.**
+.\" troff lit des octets, pas de l'UTF-8, tant que personne n'appelle preconv
+.\" pour lui ; il voit alors du latin1, se tait sur ce qui s'y encode, et
+.\" avertit sur le reste. Un tiret cadratin dans ce bloc de commentaires l'a
+.\" fait avertir depuis le jour ou cette page existe, sans que rien le dise --
+.\" issue #268. Le francais accentue passait par chance et non par regle, les
+.\" lettres accentuees s'encodant justement dans ce que troff sait lire : c'est
+.\" une distinction qu'on ne veut pas avoir a tenir ligne a ligne, donc la page
+.\" reste en ASCII de bout en bout, commentaires compris.
+.\"
+.\" Ce qui la tient : check-installation.sh passe la page installee a
+.\" "groff -ww -z" et refuse le moindre avertissement.
 .TH SUBEDIT-CLI 1 "" "subedit @PROJECT_VERSION@" "User Commands"
 .SH NAME
 subedit\-cli \- read, inspect and retime subtitle files

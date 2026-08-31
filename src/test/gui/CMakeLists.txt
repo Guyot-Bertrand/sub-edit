@@ -14,7 +14,7 @@ add_executable(
     window_files_test.cpp qt_prompts_test.cpp target_test.cpp
     operation_dialogs_test.cpp window_operations_test.cpp
     window_hearing_impaired_test.cpp window_insert_test.cpp anomaly_marking_test.cpp
-    manual_window_test.cpp
+    manual_window_test.cpp real_manual_test.cpp
     main_window_test.cpp mpv_player_test.cpp window_video_test.cpp
     window_player_test.cpp player_factory_test.cpp invocation_test.cpp
     window_video_bounds_test.cpp window_grid_test.cpp
@@ -32,6 +32,13 @@ subedit_set_warnings(subedit_gui_test)
 # preuve sur un fichier qui existe.
 target_compile_definitions(subedit_gui_test
                            PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
+
+# Le manuel du dépôt, pour le seul test qui l'ouvre en entier dans une
+# `ManualWindow` — #268. Il est donné comme il l'est au programme de captures :
+# `docs/manual/` est versionné, présent sur toute machine fraîchement clonée et
+# en intégration continue, et l'installé en est la copie page pour page.
+target_compile_definitions(subedit_gui_test
+                           PRIVATE SUBEDIT_MANUAL_DIR="${CMAKE_SOURCE_DIR}/docs/manual")
 
 # Les fixtures de grille, partagées avec les tests du noyau et ceux de la ligne
 # de commande : il n'y a qu'un jeu de fichiers, et qu'une façon de l'ouvrir.

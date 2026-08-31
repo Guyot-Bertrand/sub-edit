@@ -18,8 +18,8 @@ sudo apt install ./subedit_<version>_amd64.deb      # Debian, Ubuntu
 sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, et parentes
 ```
 
-| Ce que le paquet dépose | Où |
-| :---------------------- | :- |
+| Ce que le paquet dépose | Où  |
+| :---------------------- | :-- |
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | l'entrée de menu, l'icône, les métadonnées de logithèque | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | ce manuel, en Markdown | `/usr/share/subedit/manual` |
@@ -118,8 +118,8 @@ cmake --install build/release --prefix ~/.local
 Ce qui est déposé, aux chemins que `GNUInstallDirs` fixe pour le préfixe
 choisi :
 
-| Fichier | Où |
-| :------ | :- |
+| Fichier | Où  |
+| :------ | :-- |
 | `subedit-cli`, `subedit-gui` | `<préfixe>/bin` |
 | l'entrée de menu de bureau | `<préfixe>/share/applications` |
 | l'icône | `<préfixe>/share/icons/hicolor/scalable/apps` |

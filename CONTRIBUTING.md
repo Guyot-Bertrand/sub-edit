@@ -75,6 +75,19 @@ seul numéro de version que le manuel contenait a été corrigé douze fois pend
 la phase 2, sans que rien vérifie qu'il était vrai. `make check-local` refuse
 désormais un manuel dont les exemples ne correspondent plus.
 
+**Le manuel a deux lecteurs, et ils ne lisent pas le même Markdown.** GitHub le
+rend dans le navigateur ; `QTextDocument::setMarkdown` le rend dans la fenêtre
+qu'ouvre `Help ▸ Manual`. Le second est plus strict que le premier sur un point
+au moins, mesuré en traitant l'issue #268 : **une ligne de séparation de tableau
+demande au moins trois caractères par colonne** — `| :--- |` passe partout,
+`| :- |` fait un tableau sur GitHub et du texte à barres dans la fenêtre. Trois
+tableaux du manuel étaient dans ce cas, et rien ne le disait.
+
+Il n'y a rien à retenir de plus : `src/test/gui/real_manual_test.cpp` ouvre
+chaque page réelle dans une `ManualWindow` et confronte les tableaux, les
+images et les renvois de la source à ce que le rendu en fait. Une page qui rend
+mal fait échouer la porte, sur le nom de la page.
+
 ## Conventions
 
 ### Langue

@@ -22,9 +22,10 @@
 #   4. **les quatre fichiers de bureau sont là, et trois d'entre eux se
 #      valident** — le `.desktop`, les métadonnées AppStream et l'icône, celle-ci
 #      lue par le chargeur des bureaux GTK plutôt que par n'importe lequel ;
-#   5. **la page de manuel ne ment pas** — sa version est celle du binaire, le
-#      répertoire de manuel qu'elle nomme est celui où le manuel a été déposé, et
-#      les sous-commandes qu'elle énumère sont celles que le binaire énumère ;
+#   5. **la page de manuel ne ment pas, et se rend** — sa version est celle du
+#      binaire, le répertoire de manuel qu'elle nomme est celui où le manuel a
+#      été déposé, les sous-commandes qu'elle énumère sont celles que le binaire
+#      énumère, et groff la rend sans un avertissement ;
 #   6. **une installation mise en scène ne touche rien au-dehors** — `DESTDIR`
 #      non vide, préfixe `/usr`, et rien d'écrit hors de la mise en scène ;
 #   7. **les deux paquets natifs se construisent, et disent la même chose** — un
@@ -288,6 +289,52 @@ $(diff <(printf '%s\n' "${written}") <(printf '%s\n' "${listed}") | sed 's/^/   
 }
 
 check_man_page
+
+# ## La page de manuel est rendue par l'outil qui la rend
+#
+# **Les trois contrôles ci-dessus lisent la page au `sed` ; aucun ne la rend.**
+# C'est exactement le défaut que #260 a payé sur l'icône, et #268 l'a cherché
+# partout ailleurs : une vérification qui passe par un outil qui n'est pas celui
+# qui compte. Une page de manuel se lit avec `man`, c'est-à-dire avec groff, et
+# personne ne la lui avait jamais donnée.
+#
+# Elle passait — et avec deux avertissements, sur deux caractères UTF-8 d'une
+# ligne de commentaire. Sans conséquence pour un lecteur ; la question n'était
+# pas là. La question était qu'aucun contrôle ne l'aurait dit.
+#
+# **`-z` et non un rendu** : on veut le diagnostic, pas la page. **`-ww` et non
+# le silence par défaut** : groff se tait sur presque tout, et un contrôle qui
+# ne demande rien n'apprend rien. **Sans `-k`** : preconv rendrait l'UTF-8
+# lisible et masquerait précisément ce qu'on cherche. `man` l'appelle chez nous,
+# ne l'appelle pas partout, et une page qui tient sans lui tient avec.
+#
+# **Le code de sortie ne dit rien** — groff avertit et rend 0. C'est donc la
+# sortie d'erreur qui est lue, et le moindre octet est un échec.
+check_man_page_renders() {
+    local compressed="${prefix}/share/man/man1/subedit-cli.1.gz"
+    [[ -f "${compressed}" ]] || return
+
+    if ! command -v groff >/dev/null 2>&1; then
+        report_failure "groff est absent : la page de manuel ne peut pas être rendue
+    l'installer avec « ./src/scripts/setup-toolchain.sh »"
+        return
+    fi
+
+    local complaints
+    complaints="$(gzip -dc "${compressed}" | groff -ww -z -man - 2>&1 >/dev/null)"
+
+    if [[ -n "${complaints}" ]]; then
+        report_failure "groff se plaint de la page de manuel installée :
+$(sed 's/^/    /' <<< "${complaints}")
+    la page est écrite en ASCII de bout en bout, commentaires compris —
+    voir l'en-tête de packaging/subedit-cli.1.in"
+        return
+    fi
+
+    report_success "la page de manuel se rend sans un avertissement de groff"
+}
+
+check_man_page_renders
 
 # ## Une installation mise en scène ne touche rien au-dehors
 #

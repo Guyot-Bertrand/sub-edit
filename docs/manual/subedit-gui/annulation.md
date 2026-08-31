@@ -4,8 +4,8 @@ Chaque opération entre dans un historique, et se défait. Une cellule éditée
 compte pour **une** entrée : la frappe ne s'y inscrit pas touche par touche,
 seule la validation compte.
 
-| Action | Raccourci | Où |
-| :----- | :-------- | :- |
+| Action | Raccourci | Où  |
+| :----- | :-------- | :-- |
 | `Undo` | `Ctrl+Z` | menu **Edit**, barre d'outils |
 | `Redo` | `Ctrl+Y` | menu **Edit**, barre d'outils |
 
