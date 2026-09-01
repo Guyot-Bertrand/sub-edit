@@ -95,7 +95,7 @@ constexpr const char* kSansTitre = "Rien qu'un paragraphe.\n";
 
 } // namespace
 
-TEST_CASE("le manuel s'ouvre sur sa page d'accueil", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("the manual opens on its home page", "[gui][GUI-MANUAL-01]") {
     InMemoryFileSystem files = withManual();
     const ManualWindow manual{files, kManual};
 
@@ -103,7 +103,7 @@ TEST_CASE("le manuel s'ouvre sur sa page d'accueil", "[gui][GUI-MANUAL-01]") {
     CHECK_THAT(manual.shownText().toStdString(), ContainsSubstring("Deux programmes"));
 }
 
-TEST_CASE("les tableaux du manuel sont rendus, et c'est ce que le cadrage demandait de vérifier",
+TEST_CASE("the manual's tables are rendered, which is what the scoping asked to check",
           "[gui][GUI-MANUAL-01]") {
     // **Le risque nommé par le cadrage** : « nos sections usent de tableaux, et
     // le rendu Markdown de Qt a ses limites ». Elles ne mordent pas — le
@@ -124,7 +124,7 @@ TEST_CASE("les tableaux du manuel sont rendus, et c'est ce que le cadrage demand
     CHECK_THAT(shown, !ContainsSubstring("| :--------"));
 }
 
-TEST_CASE("un lien du manuel ouvre la page qu'il désigne", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("a manual link opens the page it names", "[gui][GUI-MANUAL-01]") {
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -135,7 +135,7 @@ TEST_CASE("un lien du manuel ouvre la page qu'il désigne", "[gui][GUI-MANUAL-01
     CHECK(manual.notice().isEmpty());
 }
 
-TEST_CASE("le retour ramène à la page précédente", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("back returns to the previous page", "[gui][GUI-MANUAL-01]") {
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -150,7 +150,7 @@ TEST_CASE("le retour ramène à la page précédente", "[gui][GUI-MANUAL-01]") {
     CHECK_FALSE(manual.backAction()->isEnabled());
 }
 
-TEST_CASE("l'accueil s'éteint quand on y est déjà", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("contents is disabled when already there", "[gui][GUI-MANUAL-01]") {
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -164,7 +164,7 @@ TEST_CASE("l'accueil s'éteint quand on y est déjà", "[gui][GUI-MANUAL-01]") {
     CHECK(manual.currentPage() == std::filesystem::path{"index.md"});
 }
 
-TEST_CASE("cliquer un lien du manuel ouvre la page visée", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("clicking a manual link opens the page it targets", "[gui][GUI-MANUAL-01]") {
     // Le chemin d'un vrai clic : le lien est relatif à la page qui le porte, et
     // c'est ce qui distingue ce cas de l'ouverture directe juste au-dessus.
     InMemoryFileSystem files = withManual();
@@ -181,7 +181,8 @@ TEST_CASE("cliquer un lien du manuel ouvre la page visée", "[gui][GUI-MANUAL-01
     CHECK(manual.currentPage() == std::filesystem::path{"index.md"});
 }
 
-TEST_CASE("un lien qui sort du manuel installé est dit, jamais suivi", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("a link leaving the installed manual is reported, never followed",
+          "[gui][GUI-MANUAL-01]") {
     // **La règle que la fenêtre porte seule.** Le manuel renvoie à la feuille de
     // route et aux ADR, qui vivent dans le dépôt et ne sont pas installés. Un
     // clic sans effet laisserait croire à une panne.
@@ -195,7 +196,7 @@ TEST_CASE("un lien qui sort du manuel installé est dit, jamais suivi", "[gui][G
                ContainsSubstring("not part of the installed manual"));
 }
 
-TEST_CASE("un lien vers une page absente est dit de la même façon", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("a link to a missing page is reported the same way", "[gui][GUI-MANUAL-01]") {
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -206,7 +207,7 @@ TEST_CASE("un lien vers une page absente est dit de la même façon", "[gui][GUI
                ContainsSubstring("not part of the installed manual"));
 }
 
-TEST_CASE("une ancre seule ne change pas de page", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("an anchor alone does not change page", "[gui][GUI-MANUAL-01]") {
     // « #le-thème » désigne la page courante : il n'y a rien à charger, et la
     // fenêtre y descend.
     InMemoryFileSystem files = withManual();
@@ -220,7 +221,7 @@ TEST_CASE("une ancre seule ne change pas de page", "[gui][GUI-MANUAL-01]") {
     CHECK(manual.currentSection() == QStringLiteral("les-anomalies"));
 }
 
-TEST_CASE("un renvoi avec ancre ouvre la page et y descend", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("a link with an anchor opens the page and scrolls to it", "[gui][GUI-MANUAL-01]") {
     // **Le défaut trouvé par #268.** Le rendu Markdown de Qt ne nomme aucune
     // ancre — un titre y est un bloc de niveau, pas une cible —, donc les
     // renvois du manuel ouvraient la bonne page et la laissaient à son début.
@@ -235,7 +236,7 @@ TEST_CASE("un renvoi avec ancre ouvre la page et y descend", "[gui][GUI-MANUAL-0
     CHECK(manual.currentSection() == QStringLiteral("les-anomalies"));
 }
 
-TEST_CASE("deux titres identiques donnent deux ancres", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("two identical headings give two anchors", "[gui][GUI-MANUAL-01]") {
     // La règle de GitHub, que `check-manual-links.py` applique de son côté : le
     // second « Les erreurs » d'une page s'appelle `les-erreurs-1`.
     InMemoryFileSystem files = withManual();
@@ -247,7 +248,7 @@ TEST_CASE("deux titres identiques donnent deux ancres", "[gui][GUI-MANUAL-01]") 
     CHECK_THAT(manual.shownText().toStdString(), ContainsSubstring("Les secondes"));
 }
 
-TEST_CASE("une ancre qui ne désigne rien laisse la page à son début", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("an anchor naming nothing leaves the page at its start", "[gui][GUI-MANUAL-01]") {
     // **Silencieuse, contrairement au reste de cette fenêtre.** Le manuel est
     // livré avec le programme et non écrit par qui l'utilise : une ancre morte
     // est un défaut du dépôt, que `check-manual-links.py` et le test des pages
@@ -262,7 +263,7 @@ TEST_CASE("une ancre qui ne désigne rien laisse la page à son début", "[gui][
     CHECK(manual.notice().isEmpty());
 }
 
-TEST_CASE("une image que le rendu ne trouve pas est nommée", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("an image the rendering cannot find is named", "[gui][GUI-MANUAL-01]") {
     // **Le pendant du test des pages réelles**, qui exige que le manuel du
     // dépôt n'en ait aucune. Sans ce cas-ci, rien ne dirait que le contrôle
     // sait répondre autre chose que « rien ne manque ».
@@ -274,7 +275,7 @@ TEST_CASE("une image que le rendu ne trouve pas est nommée", "[gui][GUI-MANUAL-
     CHECK(manual.missingImages() == QStringList{QStringLiteral("captures/absente.png")});
 }
 
-TEST_CASE("les tableaux rendus se comptent", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("the rendered tables can be counted", "[gui][GUI-MANUAL-01]") {
     // Le compte, et non seulement le texte des cellules : c'est ce qui
     // distingue un vrai `QTextTable` d'un tableau laissé en texte, et c'est ce
     // que le test des pages réelles confronte à ce que chaque source déclare.
@@ -288,7 +289,7 @@ TEST_CASE("les tableaux rendus se comptent", "[gui][GUI-MANUAL-01]") {
     CHECK(manual.shownTables() == 0);
 }
 
-TEST_CASE("les liens rendus se lisent dans le document", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("the rendered links are read from the document", "[gui][GUI-MANUAL-01]") {
     // Ceux que le rendu a faits, et non ceux que la source écrit : un renvoi
     // que le Markdown n'aurait pas reconnu ne serait pas dans cette liste.
     InMemoryFileSystem files = withManual();
@@ -298,8 +299,7 @@ TEST_CASE("les liens rendus se lisent dans le document", "[gui][GUI-MANUAL-01]")
                                              QStringLiteral("../feuille-de-route.md")});
 }
 
-TEST_CASE("une page qui ne commence pas par un titre n'est dans aucune section",
-          "[gui][GUI-MANUAL-01]") {
+TEST_CASE("a page not starting with a heading is in no section", "[gui][GUI-MANUAL-01]") {
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -308,7 +308,7 @@ TEST_CASE("une page qui ne commence pas par un titre n'est dans aucune section",
     CHECK(manual.currentSection().isEmpty());
 }
 
-TEST_CASE("le retour forcé sans historique ne fait rien", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("back forced with no history does nothing", "[gui][GUI-MANUAL-01]") {
     // Le second garde, celui que l'action éteinte cache : `trigger()` sur une
     // action éteinte ne déclenche rien, donc ce chemin demande de la rallumer
     // à la main pour être atteint. Il existe quand même.
@@ -321,7 +321,7 @@ TEST_CASE("le retour forcé sans historique ne fait rien", "[gui][GUI-MANUAL-01]
     CHECK(manual.currentPage() == std::filesystem::path{"index.md"});
 }
 
-TEST_CASE("une page absente est dite, et ne remplace rien", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("a missing page is reported, and replaces nothing", "[gui][GUI-MANUAL-01]") {
     // Le cas d'une installation partielle : la fenêtre le dit et garde ce
     // qu'elle montrait.
     InMemoryFileSystem files = withManual();
@@ -333,7 +333,7 @@ TEST_CASE("une page absente est dite, et ne remplace rien", "[gui][GUI-MANUAL-01
     CHECK_THAT(manual.notice().toStdString(), ContainsSubstring("could not be read"));
 }
 
-TEST_CASE("un manuel entièrement absent ouvre une fenêtre qui le dit", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("a wholly absent manual opens a window that says so", "[gui][GUI-MANUAL-01]") {
     InMemoryFileSystem files;
     const ManualWindow manual{files, kManual};
 
@@ -341,7 +341,7 @@ TEST_CASE("un manuel entièrement absent ouvre une fenêtre qui le dit", "[gui][
     CHECK_THAT(manual.notice().toStdString(), ContainsSubstring("could not be read"));
 }
 
-TEST_CASE("l'entrée du menu s'allume quand le manuel est là", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("the menu entry lights up when the manual is there", "[gui][GUI-MANUAL-01]") {
     InMemoryFileSystem files = withManual();
     files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n");
     FakePrompts prompts;
@@ -356,7 +356,7 @@ TEST_CASE("l'entrée du menu s'allume quand le manuel est là", "[gui][GUI-MANUA
     CHECK(window.manualAction()->isEnabled());
 }
 
-TEST_CASE("l'entrée reste éteinte sur une installation partielle", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("the entry stays disabled on a partial installation", "[gui][GUI-MANUAL-01]") {
     InMemoryFileSystem files;
     files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n");
     // Un manuel dont l'accueil manque : le répertoire existe, la page non.
@@ -369,7 +369,7 @@ TEST_CASE("l'entrée reste éteinte sur une installation partielle", "[gui][GUI-
     CHECK_FALSE(window.manualAction()->isEnabled());
 }
 
-TEST_CASE("l'entrée ouvre la fenêtre du manuel, et une seule", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("the entry opens the manual window, and only one", "[gui][GUI-MANUAL-01]") {
     InMemoryFileSystem files = withManual();
     files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n");
     FakePrompts prompts;
@@ -390,7 +390,7 @@ TEST_CASE("l'entrée ouvre la fenêtre du manuel, et une seule", "[gui][GUI-MANU
     CHECK(window.manualWindow() == opened);
 }
 
-TEST_CASE("l'emplacement du manuel se déduit de l'exécutable", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("the manual's location is derived from the executable", "[gui][GUI-MANUAL-01]") {
     // **Déduit et non gravé** : le préfixe de configuration et celui
     // d'installation ne sont pas le même, et le manuel recommande justement une
     // installation sous un autre préfixe.

@@ -92,10 +92,28 @@ avec un objectif d'iso-fonctionnalité.
 
 ## Conventions
 
-- **Langue** — français pour la documentation, les specs, les ADR, les manuels,
-  les messages de commit, les scripts, le système de construction et les
-  échanges. Anglais pour le code C++ : identifiants, commentaires et intitulés
-  de tests. La frontière est celle du compilateur C++, pas celle du dépôt.
+- **Langue** — la frontière n'est pas celle du compilateur : **ce que le
+  binaire imprime est en anglais, ce qui explique pourquoi est en français.**
+
+  | Anglais | Français |
+  | :------ | :------- |
+  | les identifiants du code C++ | les commentaires, dans le code comme ailleurs |
+  | tout ce que le binaire écrit à un utilisateur | la documentation, les specs, les ADR, les manuels |
+  | les intitulés de cas de test, que Catch2 imprime | les messages de commit, les scripts, le système de construction, les échanges |
+
+  **La règle disait « anglais pour les commentaires », et c'était faux depuis la
+  phase 1** — issue #273. Les commentaires de ce dépôt sont français partout,
+  sans exception, et la clause n'a jamais décrit le projet : c'est elle qui a
+  été corrigée, pas les soixante-dix-huit fichiers. La prose de ce projet est
+  française, la précision des commentaires en dépend, et c'est une raison plutôt
+  qu'un aveu.
+
+  Les intitulés de tests, eux, avaient bien dérivé : **cent en français**,
+  presque tous nés d'une seule phase, et un `--list-tests` qui rendait deux
+  langues mêlées. Ils ont été traduits, et `check-architecture.sh` tient la
+  règle — un caractère hors ASCII ou un mot
+  outil français dans un intitulé fait échouer la porte, sauf exemption inscrite
+  et motivée.
 
   **Anglais aussi pour tout ce que le binaire écrit à un utilisateur** — sortie
   standard, sortie d'erreur, en-têtes de colonne, libellés de menu, messages de

@@ -84,7 +84,7 @@ private:
 
 } // namespace
 
-TEST_CASE("la fenêtre dit où elle est et ce que ses colonnes font",
+TEST_CASE("the window reports where it is and what its columns do",
           "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
     MainWindow& window = fixture.window();
@@ -102,7 +102,7 @@ TEST_CASE("la fenêtre dit où elle est et ce que ses colonnes font",
     CHECK(said.columnWidths.size() == subedit::core::kColumnWidthCount);
 }
 
-TEST_CASE("une géométrie posée est celle que la fenêtre prend", "[gui][config][GUI-CONFIG-01]") {
+TEST_CASE("a geometry that was set is the one the window takes", "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
     MainWindow& window = fixture.window();
 
@@ -114,7 +114,7 @@ TEST_CASE("une géométrie posée est celle que la fenêtre prend", "[gui][confi
     CHECK(window.height() == 640);
 }
 
-TEST_CASE("des largeurs de colonnes posées sont celles que la table prend",
+TEST_CASE("column widths that were set are the ones the table takes",
           "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
     MainWindow& window = fixture.window();
@@ -128,7 +128,7 @@ TEST_CASE("des largeurs de colonnes posées sont celles que la table prend",
 
 // **Le critère de l'exigence, et l'aller-retour entier** : ce qu'une session
 // laisse, la suivante le retrouve, en passant par le fichier.
-TEST_CASE("une session retrouve la géométrie et les colonnes de la précédente",
+TEST_CASE("a session finds the geometry and columns of the previous one",
           "[gui][config][GUI-CONFIG-01]") {
     InMemoryFileSystem files;
     std::ostringstream errors;
@@ -153,7 +153,7 @@ TEST_CASE("une session retrouve la géométrie et les colonnes de la précédent
     CHECK(errors.str().empty());
 }
 
-TEST_CASE("une fenêtre laissée agrandie se rouvre agrandie", "[gui][config][GUI-CONFIG-01]") {
+TEST_CASE("a window left maximised reopens maximised", "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
     MainWindow& window = fixture.window();
 
@@ -166,8 +166,7 @@ TEST_CASE("une fenêtre laissée agrandie se rouvre agrandie", "[gui][config][GU
 // **Une géométrie absente laisse la fenêtre se dimensionner elle-même**, et
 // c'est ce qui rend le premier lancement identique à celui d'avant les
 // préférences : assez large pour qu'on lise la table — #211.
-TEST_CASE("sans réglages, la fenêtre s'ouvre comme elle l'a toujours fait",
-          "[gui][config][GUI-CONFIG-01]") {
+TEST_CASE("with no settings, the window opens as it always has", "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
     MainWindow& window = fixture.window();
 
@@ -180,7 +179,7 @@ TEST_CASE("sans réglages, la fenêtre s'ouvre comme elle l'a toujours fait",
 
 // ## La poignée — #254
 
-TEST_CASE("la part donnée à la table se pose et se relit", "[gui][config][GUI-CONFIG-01]") {
+TEST_CASE("the share given to the table is set and read back", "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
     MainWindow& window = fixture.window();
     window.setGeometry(0, 0, 1000, 800);
@@ -199,7 +198,7 @@ TEST_CASE("la part donnée à la table se pose et se relit", "[gui][config][GUI-
     CHECK(window.settings().tableShare == once.tableShare);
 }
 
-TEST_CASE("une part plus grande donne une table plus haute", "[gui][config][GUI-CONFIG-01]") {
+TEST_CASE("a larger share gives a taller table", "[gui][config][GUI-CONFIG-01]") {
     // L'autre moitié : une part stable qui ne voudrait rien dire serait stable
     // pour rien.
     Windowed fixture;
@@ -214,7 +213,7 @@ TEST_CASE("une part plus grande donne une table plus haute", "[gui][config][GUI-
     CHECK(window.settings().tableShare.value_or(0) > narrow);
 }
 
-TEST_CASE("sans part enregistrée, la poignée reste où la fenêtre la met",
+TEST_CASE("with no share saved, the handle stays where the window puts it",
           "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
     MainWindow& window = fixture.window();
@@ -228,8 +227,7 @@ TEST_CASE("sans part enregistrée, la poignée reste où la fenêtre la met",
 
 // ## Le dernier répertoire — #254
 
-TEST_CASE("la boîte « ouvrir » s'ouvre sur le répertoire du dernier fichier",
-          "[gui][config][GUI-CONFIG-01]") {
+TEST_CASE("the open dialog starts in the last file's directory", "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
     MainWindow& window = fixture.window();
     window.applySettings(Settings{.lastDirectory = std::filesystem::path{"/films/quai"}});
@@ -240,7 +238,8 @@ TEST_CASE("la boîte « ouvrir » s'ouvre sur le répertoire du dernier fichier"
     CHECK(fixture.prompts().lastOpenDirectory == std::filesystem::path{"/films/quai"});
 }
 
-TEST_CASE("une boîte annulée ne déplace pas le répertoire retenu", "[gui][config][GUI-CONFIG-01]") {
+TEST_CASE("a cancelled dialog does not move the remembered directory",
+          "[gui][config][GUI-CONFIG-01]") {
     // Ce qui compte est où l'utilisateur travaille, pas où il a regardé.
     Windowed fixture;
     MainWindow& window = fixture.window();
@@ -253,7 +252,7 @@ TEST_CASE("une boîte annulée ne déplace pas le répertoire retenu", "[gui][co
     CHECK(window.settings().lastDirectory == std::filesystem::path{"/films/quai"});
 }
 
-TEST_CASE("ouvrir un fichier retient son répertoire", "[gui][config][GUI-CONFIG-01]") {
+TEST_CASE("opening a file remembers its directory", "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
     MainWindow& window = fixture.window();
     fixture.files().addFile("/ailleurs/autre.srt", kThree);
@@ -267,7 +266,7 @@ TEST_CASE("ouvrir un fichier retient son répertoire", "[gui][config][GUI-CONFIG
 
 // ## Le thème — #241
 
-TEST_CASE("le thème choisi dans les préférences est celui que la fenêtre rend",
+TEST_CASE("the theme chosen in the preferences is the one the window renders",
           "[gui][config][GUI-THEME-01]") {
     const subedit::gui::PreferencesDialog probe{Theme::System};
     Windowed fixture;
@@ -289,7 +288,7 @@ TEST_CASE("le thème choisi dans les préférences est celui que la fenêtre ren
     CHECK(probe.theme() == Theme::System);
 }
 
-TEST_CASE("des préférences annulées ne changent rien", "[gui][config][GUI-THEME-01]") {
+TEST_CASE("cancelled preferences change nothing", "[gui][config][GUI-THEME-01]") {
     Windowed fixture;
     MainWindow& window = fixture.window();
     window.applySettings(Settings{.theme = Theme::Light});
@@ -307,7 +306,7 @@ TEST_CASE("des préférences annulées ne changent rien", "[gui][config][GUI-THE
     CHECK(window.settings().theme == Theme::Light);
 }
 
-TEST_CASE("un thème enregistré est celui que la fenêtre rouvre", "[gui][config][GUI-THEME-01]") {
+TEST_CASE("a saved theme is the one the window reopens with", "[gui][config][GUI-THEME-01]") {
     Windowed fixture;
 
     fixture.window().applySettings(Settings{.theme = Theme::Light});
@@ -317,8 +316,7 @@ TEST_CASE("un thème enregistré est celui que la fenêtre rouvre", "[gui][confi
 
 // ## Ce que le câblage écrit sur la sortie d'erreur
 
-TEST_CASE("une valeur illisible est nommée, avec ce qui était écrit",
-          "[gui][config][GUI-CONFIG-02]") {
+TEST_CASE("an unreadable value is named, with what was written", "[gui][config][GUI-CONFIG-02]") {
     InMemoryFileSystem files;
     files.addFile(kPath, "window.geometry = plus tard\n");
     std::ostringstream errors;
@@ -332,7 +330,7 @@ TEST_CASE("une valeur illisible est nommée, avec ce qui était écrit",
     CHECK_THAT(errors.str(), ContainsSubstring("keeping the default"));
 }
 
-TEST_CASE("un fichier absent ne fait dire mot", "[gui][config][GUI-CONFIG-02]") {
+TEST_CASE("a missing file draws not a word", "[gui][config][GUI-CONFIG-02]") {
     const InMemoryFileSystem files;
     std::ostringstream errors;
 
@@ -340,7 +338,7 @@ TEST_CASE("un fichier absent ne fait dire mot", "[gui][config][GUI-CONFIG-02]") 
     CHECK(errors.str().empty());
 }
 
-TEST_CASE("un fichier illisible le dit, et la fenêtre part sur les défauts",
+TEST_CASE("an unreadable file says so, and the window starts on the defaults",
           "[gui][config][GUI-CONFIG-02]") {
     InMemoryFileSystem files;
     files.addFile(kPath, "window.maximised = true\n");
@@ -355,7 +353,8 @@ TEST_CASE("un fichier illisible le dit, et la fenêtre part sur les défauts",
 // écrit vraiment : une option jamais touchée n'est pas figée à la valeur du jour
 // où elle a été écrite, donc un défaut qu'on améliore atteint tout le monde. Sans
 // elle, l'améliorer n'atteindrait plus personne.
-TEST_CASE("le fichier écrit commente ce qui est resté au défaut", "[gui][config][GUI-CONFIG-03]") {
+TEST_CASE("the written file comments out what stayed at its default",
+          "[gui][config][GUI-CONFIG-03]") {
     InMemoryFileSystem files;
     std::ostringstream errors;
 
@@ -367,7 +366,7 @@ TEST_CASE("le fichier écrit commente ce qui est resté au défaut", "[gui][conf
     CHECK(errors.str().empty());
 }
 
-TEST_CASE("une option réglée est écrite sans commentaire", "[gui][config][GUI-CONFIG-03]") {
+TEST_CASE("an option that was set is written without a comment", "[gui][config][GUI-CONFIG-03]") {
     InMemoryFileSystem files;
     std::ostringstream errors;
 
@@ -384,7 +383,7 @@ TEST_CASE("une option réglée est écrite sans commentaire", "[gui][config][GUI
 // **Rien n'atteint un vrai fichier**, et pas seulement parce que le harnais
 // déplace `XDG_CONFIG_HOME` : le système de fichiers est en mémoire, donc le
 // chemin résolu n'est utilisé que comme une clé.
-TEST_CASE("écrire puis relire sans dire où rend ce qui a été écrit",
+TEST_CASE("writing then reading back without saying where returns what was written",
           "[gui][config][GUI-CONFIG-01]") {
     InMemoryFileSystem files;
     std::ostringstream errors;
@@ -396,7 +395,7 @@ TEST_CASE("écrire puis relire sans dire où rend ce qui a été écrit",
     CHECK(errors.str().empty());
 }
 
-TEST_CASE("une écriture refusée le dit, et rien de plus", "[gui][config][GUI-CONFIG-02]") {
+TEST_CASE("a refused write says so, and nothing more", "[gui][config][GUI-CONFIG-02]") {
     InMemoryFileSystem files;
     files.failNextWrite(FileErrorKind::PermissionDenied);
     std::ostringstream errors;

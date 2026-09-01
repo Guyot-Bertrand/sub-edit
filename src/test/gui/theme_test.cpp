@@ -125,13 +125,13 @@ private:
 
 } // namespace
 
-TEST_CASE("sombre est sombre, et clair est clair", "[gui][theme][GUI-THEME-02]") {
+TEST_CASE("dark is dark, and light is light", "[gui][theme][GUI-THEME-02]") {
     // Le fond, et non le nom : c'est ce sur quoi tout le reste se lit.
     CHECK(luminanceOf(paletteFor(Theme::Dark).base().color()) < 0.1);
     CHECK(luminanceOf(paletteFor(Theme::Light).base().color()) > 0.8);
 }
 
-TEST_CASE("la palette de système est celle qui est déjà là", "[gui][theme]") {
+TEST_CASE("the system palette is the one already in place", "[gui][theme]") {
     // Rendre la palette courante est la façon la plus honnête de dire « rien » :
     // celle qui serait posée est celle qui l'est.
     const PaletteRestored restored;
@@ -142,7 +142,7 @@ TEST_CASE("la palette de système est celle qui est déjà là", "[gui][theme]")
     CHECK(paletteFor(Theme::System).base().color() == QColor{7, 8, 9});
 }
 
-TEST_CASE("chaque palette lit son texte sur son fond", "[gui][theme]") {
+TEST_CASE("every palette reads its text against its background", "[gui][theme]") {
     // Quatre et demi pour un : le seuil qu'un texte doit tenir pour être lu.
     for (const Theme theme : {Theme::Light, Theme::Dark}) {
         const QPalette palette = paletteFor(theme);
@@ -155,7 +155,7 @@ TEST_CASE("chaque palette lit son texte sur son fond", "[gui][theme]") {
 // **« Système » ne pose aucune palette**, et c'est le cœur de la décision D3 :
 // on livre les deux thèmes qu'on sait poser, et on n'invente pas une lecture du
 // bureau que Qt 6.4 ne permet pas.
-TEST_CASE("système ne pose rien", "[gui][theme]") {
+TEST_CASE("system applies nothing", "[gui][theme]") {
     const PaletteRestored restored;
     QPalette peculiar;
     peculiar.setColor(QPalette::Base, QColor{1, 2, 3});
@@ -166,7 +166,7 @@ TEST_CASE("système ne pose rien", "[gui][theme]") {
     CHECK(QApplication::palette().base().color() == QColor{1, 2, 3});
 }
 
-TEST_CASE("sombre pose sa palette sur l'application", "[gui][theme][GUI-THEME-02]") {
+TEST_CASE("dark applies its palette to the application", "[gui][theme][GUI-THEME-02]") {
     const PaletteRestored restored;
 
     applyTheme(Theme::Dark);
@@ -179,7 +179,7 @@ TEST_CASE("sombre pose sa palette sur l'application", "[gui][theme][GUI-THEME-02
 // que la fenêtre suive la palette du bureau. Une couleur lisible sur blanc ne
 // l'est pas nécessairement sur presque-noir, et c'est le genre de chose qui ne
 // se voit qu'en la regardant.
-TEST_CASE("les teintes d'anomalie laissent lire le texte, clair comme sombre", "[gui][theme]") {
+TEST_CASE("anomaly tints keep the text readable, light and dark alike", "[gui][theme]") {
     Session session{damaged()};
     const SubtitleTableModel model{session};
     const std::vector<QColor> tints = tintsOf(model);
@@ -198,7 +198,7 @@ TEST_CASE("les teintes d'anomalie laissent lire le texte, clair comme sombre", "
     }
 }
 
-TEST_CASE("les teintes restent distinctes du fond, clair comme sombre", "[gui][theme]") {
+TEST_CASE("the tints stay distinct from the background, light and dark alike", "[gui][theme]") {
     // L'autre moitié : une teinte qu'on lit bien mais qu'on ne voit pas ne
     // signale rien. Elle doit se détacher du fond sans effacer le texte.
     Session session{damaged()};
