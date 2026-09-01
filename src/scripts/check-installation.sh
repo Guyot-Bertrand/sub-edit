@@ -37,6 +37,8 @@
 #      distribution ne sont pas à lui, et `dnf` refuse la transaction entière
 #      s'il les revendique.
 #
+# `--list` les énumère, `--only` en joue un seul.
+#
 # ## Ce qu'il ne vérifie pas, et où cela se vérifie
 #
 # **Que le `.rpm` s'installe.** Un `.rpm` construit sur Ubuntu ne peut pas y être
@@ -66,6 +68,46 @@
 # qualité n'a pas et ne doit pas demander. Ce qui est vérifié est ce que le
 # paquet contient et ce qu'il déclare, plus le fait que les mêmes binaires,
 # installés par `cmake --install`, se lancent.
+#
+# ## Une chose ou deux ? — issue #271, tranché par la mesure
+#
+# **La question était juste, et sa prémisse était fausse.** Ce script est passé
+# de trois contrôles à douze et de cent quarante lignes à six cents ; il
+# construit deux paquets natifs, et « deux exécutions de CPack » sonnait comme
+# quelque chose qu'on paie. D'où la proposition : sortir les paquets dans une
+# cible à eux, que `check-local` enchaînerait ou non.
+#
+# Chronométré, à charge 0,9, trois exécutions concordantes :
+#
+# | Contrôle | Coût |
+# | :------- | ---: |
+# | `cmake --install` dans le préfixe | 20 ms |
+# | les deux binaires se lancent | 130 ms |
+# | le manuel déposé | 5 ms |
+# | les fichiers de bureau, leurs trois validations | 145 ms |
+# | les deux pages de manuel | 19 ms |
+# | leur rendu par groff | 44 ms |
+# | l'installation sous `DESTDIR` | 23 ms |
+# | **les deux paquets natifs, CPack compris** | **650 ms** |
+# | **tout** | **≈ 1,0 s** |
+#
+# `make install-check`, arbre release chaud, coûte 1,6 s de bout en bout.
+# **Sortir les paquets économiserait six cent cinquante millisecondes sur un
+# `make check-local` qui dure des minutes.** La question du coût est réglée : il
+# n'y en a pas.
+#
+# **Reste la question de fond, et la réponse est « une chose ».** Ce que ce
+# script affirme n'est pas « l'installation est correcte » mais « ce qu'un tiers
+# installe fonctionne » — et un paquet natif est *comment* un tiers installe. Le
+# scinder poserait exactement le danger que l'issue nomme : une installation à
+# moitié vérifiée est pire qu'une installation qu'on sait non vérifiée.
+#
+# **Ce qui manquait n'était pas une seconde cible, c'était de savoir reprendre
+# au milieu** — le défaut que #269 a réglé pour la porte, et qu'on payait ici en
+# rejouant les douze contrôles pour en corriger un. D'où `--only`, `--list`, et
+# la garde qui va avec : un nom inconnu fait échouer l'invocation plutôt que de
+# n'en jouer aucun. Sans argument, tout est joué ; c'est le point d'entrée de
+# qui ne veut pas choisir.
 
 set -euo pipefail
 
@@ -94,22 +136,59 @@ readonly RESET=$'\033[0m'
 
 build_dir="${REPO_ROOT}/build/release"
 
+# **L'ordre des contrôles, et le seul endroit où il est écrit.** Chacun se joue
+# seul, sans rien savoir des autres : l'installation dans le préfixe est faite
+# une fois pour tous, avant eux, et aucun ne dépend de ce qu'un autre a laissé.
+# C'est ce qui rend `--only` sûr.
+readonly CONTROLS=(binaires manuel bureau pages rendu destdir paquets)
+
 usage() {
     cat >&2 <<'USAGE'
-usage: check-installation.sh [--build-dir <répertoire>]
+usage: check-installation.sh [--build-dir <répertoire>] [--only <contrôle>]
+       check-installation.sh --list
 
   --build-dir  l'arbre de construction à installer (défaut : build/release)
+  --only       ne joue que ce contrôle, répétable
+  --list       écrit les contrôles, dans l'ordre
+
+Sans --only, tout est joué : c'est le point d'entrée de qui ne veut pas
+choisir, et une installation à moitié vérifiée est pire qu'une installation
+qu'on sait non vérifiée.
 USAGE
     exit 2
 }
 
+only=()
+
 while (( $# > 0 )); do
     case "$1" in
         --build-dir) [[ $# -ge 2 ]] || usage; build_dir="$2"; shift 2 ;;
+        --only)      [[ $# -ge 2 ]] || usage; only+=("$2"); shift 2 ;;
+        --list)      printf '%s\n' "${CONTROLS[@]}"; exit 0 ;;
         -h|--help)   usage ;;
         *)           printf 'argument inconnu : %s\n' "$1" >&2; usage ;;
     esac
 done
+
+# **Tout nom donné doit désigner un contrôle**, et le contrôle a lieu avant
+# qu'un seul ne tourne. C'est la garde de `gate.sh`, pour la même raison :
+# sans elle, `--only paqets` jouerait zéro contrôle et rendrait zéro — une
+# installation déclarée correcte que personne n'a regardée.
+for named in ${only+"${only[@]}"}; do
+    if ! printf '%s\n' "${CONTROLS[@]}" | grep -qxF "${named}"; then
+        printf '%s✗ « %s » n'"'"'est pas un contrôle de ce script%s\n' \
+            "${RED}" "${named}" "${RESET}" >&2
+        printf '  les contrôles sont :\n' >&2
+        printf '    %s\n' "${CONTROLS[@]}" >&2
+        exit 2
+    fi
+done
+
+# Vrai si ce contrôle doit être joué : tous, ou ceux qu'on a nommés.
+wanted() {
+    (( ${#only[@]} == 0 )) && return 0
+    printf '%s\n' "${only[@]}" | grep -qxF "$1"
+}
 
 failures=0
 
@@ -171,8 +250,10 @@ check_binary() {
     report_success "${name} s'installe, se lance, et annonce ${VERSION}"
 }
 
-check_binary subedit-cli
-check_binary subedit-gui
+if wanted binaires; then
+    check_binary subedit-cli
+    check_binary subedit-gui
+fi
 
 # ## Chaque page du manuel se retrouve sous le préfixe
 #
@@ -207,7 +288,9 @@ $(printf '    %s\n' "${missing[@]}")
     report_success "les ${count} fichiers du manuel sont installés"
 }
 
-check_manual
+if wanted manuel; then
+    check_manual
+fi
 
 # ## Les quatre fichiers de bureau
 #
@@ -264,7 +347,9 @@ $("${REPO_ROOT}/src/scripts/check-icon.py" "${icon}" 2>&1 | sed 's/^/    /')"
     fi
 }
 
-check_desktop_files
+if wanted bureau; then
+    check_desktop_files
+fi
 
 # ## Les pages de manuel ne mentent pas
 #
@@ -346,7 +431,9 @@ $(diff <(printf '%s\n' "${written}") <(printf '%s\n' "${listed}") | sed 's/^/   
     report_success "${name}.1 dit la version, le manuel et les $(printf '%s\n' "${listed}" | wc -l) sous-commandes du binaire"
 }
 
-check_man_pages
+if wanted pages; then
+    check_man_pages
+fi
 
 # ## Les pages de manuel sont rendues par l'outil qui les rend
 #
@@ -397,7 +484,9 @@ $(sed 's/^/    /' <<< "${complaints}")
     report_success "les ${rendered} pages de manuel se rendent sans un avertissement de groff"
 }
 
-check_man_pages_render
+if wanted rendu; then
+    check_man_pages_render
+fi
 
 # ## Une installation mise en scène ne touche rien au-dehors
 #
@@ -434,7 +523,9 @@ $(printf '    %s\n' ${outside})"
     rm -rf "${staged}"
 }
 
-check_staged_install
+if wanted destdir; then
+    check_staged_install
+fi
 
 # ## Les deux paquets natifs
 #
@@ -569,7 +660,9 @@ $(printf '%s\n' "${owned}" | sed 's/^/    /')
     report_success "le .rpm ne possède que ses propres répertoires"
 }
 
-check_packages
+if wanted paquets; then
+    check_packages
+fi
 
 if (( failures > 0 )); then
     printf '%s%d contrôle(s) d'\''installation en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2

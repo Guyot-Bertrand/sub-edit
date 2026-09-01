@@ -28,6 +28,7 @@ ne pas l'éditer à la main.
 
 - **build** — L'analyse suit la compilation, la porte sort du make
 - **test** — Les intitulés de tests en anglais
+- **scripts** — Reprendre check-installation.sh au milieu
 
 ## 0.8.0 — 2026-08-30
 
