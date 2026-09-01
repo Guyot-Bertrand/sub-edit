@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **gui** — Le manuel rendu par les outils qui comptent
+- **build** — Une page de manuel pour subedit-gui
 
 ### Corrections
 
