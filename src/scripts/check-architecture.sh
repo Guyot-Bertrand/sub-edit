@@ -98,6 +98,66 @@ $(printf '    %s\n' ${offenders})
 # donc dans la porte et dans la CI. Lancer le binaire à la main exécute tous
 # les cas d'un coup, sans jamais nommer aucun d'eux : le test passe. Il a été
 # payé deux fois pendant l'écriture de la CLI avant d'être inscrit ici.
+# Invariant — aucun intitulé de cas de test n est en français.
+#
+# **La règle de langue avait une moitié fausse et une moitié dérivée** — issue
+# #273. Elle disait « anglais pour les commentaires et les intitulés de tests » ;
+# les commentaires sont en français depuis la phase 1, partout, donc cette
+# clause n a jamais décrit le projet et c est elle qui a été corrigée. Les
+# intitulés, eux, étaient bel et bien anglais — sauf ceux d une phase, quatre-
+# vingt-dix-huit d un coup, et un `--list-tests` rendait deux langues mêlées.
+#
+# La frontière retenue : **ce que le binaire imprime est en anglais, ce qui
+# explique pourquoi est en français.** Un intitulé de test est du premier côté ;
+# un commentaire du second.
+#
+# **Le contrôle est un filet, et il le dit.** Reconnaître une langue est une
+# heuristique : celle-ci cherche un caractère hors ASCII, ou l un des mots
+# outils qui n existent qu en français. Rejouée sur l arbre d avant la
+# traduction, elle relevait 102 intitulés — dont deux qu une relecture attentive
+# avait laissés passer. C est ce qui lui vaut sa place.
+#
+# **L exemption est nommée, une seule, et elle n est pas une entorse** : un
+# intitulé anglais qui cite un mot-clé du format des fixtures, lequel est
+# français. Une liste par titre plutôt qu un motif, pour qu ajouter une
+# exemption soit un geste qu on voit dans un diff.
+check_test_titles_are_english() {
+    local tests="${REPO_ROOT}/src/test"
+    [[ -d "${tests}" ]] || return 0
+
+    local french_words='le|les|un|une|des|du|et|qui|que|ne|pas|dans|pour|avec'
+    french_words+='|sans|est|sont|aux|cette|ses|leur|elle|sur|quand|deux|rien'
+    french_words+='|tel|telle|autre|autres|chaque|toujours|jamais|donc'
+
+    # Les intitulés anglais qui portent une donnée française, et pourquoi.
+    local -a allowed=(
+        # Le mot-clé du format .cas, qui est français parce que les fixtures le
+        # sont : l intitulé le cite comme son voisin cite « = ».
+        '"an expected of supprimé means the subtitle does not survive"'
+    )
+
+    local found
+    found="$(grep -rhoP 'TEST_CASE\(\s*"(?:[^"\\]|\\.)*"' "${tests}" 2>/dev/null \
+        | sed 's/^TEST_CASE(\s*//' \
+        | grep -P "[^\x00-\x7F]|(^|[^[:alnum:]])(${french_words})([^[:alnum:]]|$)" \
+        | sort -u || true)"
+
+    local one
+    for one in "${allowed[@]}"; do
+        found="$(grep -Fxv "${one}" <<< "${found}" || true)"
+    done
+
+    if [[ -n "${found}" ]]; then
+        report_failure "des intitulés de cas de test ne sont pas en anglais :
+$(printf '%s\n' "${found}" | sed 's/^/    /')
+    ce que le binaire imprime est en anglais ; ce qui explique pourquoi est en
+    français. Un intitulé cite parfois une donnée française — l inscrire alors
+    dans la liste « allowed » de ce contrôle, avec sa raison."
+    else
+        report_success "aucun intitulé de cas de test n est en français"
+    fi
+}
+
 check_test_names_are_not_options() {
     local tests="${REPO_ROOT}/src/test"
     [[ -d "${tests}" ]] || return 0
@@ -268,6 +328,7 @@ check_executables_are_thin
 check_scripts_are_executable
 check_version_matches_tag
 check_test_names_are_not_options
+check_test_titles_are_english
 check_nothing_reads_the_reference
 check_model_depends_on_no_operation
 

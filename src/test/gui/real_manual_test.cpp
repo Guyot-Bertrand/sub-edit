@@ -107,7 +107,7 @@ using subedit::gui::ManualWindow;
 
 } // namespace
 
-TEST_CASE("chaque page du manuel se rend, et rend quelque chose", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("every manual page renders, and renders something", "[gui][GUI-MANUAL-01]") {
     // **Le contrôle le plus bête, et celui qui manquait.** Une page dont le
     // rendu est vide s'ouvre exactement comme une page qu'on n'a pas écrite :
     // la fenêtre ne dit rien, puisqu'elle a bien lu le fichier.
@@ -140,7 +140,7 @@ TEST_CASE("chaque page du manuel se rend, et rend quelque chose", "[gui][GUI-MAN
     }
 }
 
-TEST_CASE("chaque tableau du manuel devient un tableau", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("every table in the manual becomes a table", "[gui][GUI-MANUAL-01]") {
     // **La question de la décision D6, posée sur les vraies pages.** Elle avait
     // été répondue sur un tableau de deux lignes écrit dans un test ; le manuel
     // en porte quatre-vingt-dix, dont des cinq colonnes, dont certains portent
@@ -169,7 +169,7 @@ TEST_CASE("chaque tableau du manuel devient un tableau", "[gui][GUI-MANUAL-01]")
     CHECK(total > 50);
 }
 
-TEST_CASE("chaque image du manuel se charge dans la page qui la montre", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("every manual image loads in the page that shows it", "[gui][GUI-MANUAL-01]") {
     // Les captures vivent dans un sous-répertoire voisin de la page, et le
     // rendu ne les trouve que par les chemins de recherche qu'`openPage` pose.
     // Un chemin posé pour la mauvaise page donnerait une page qui s'affiche
@@ -185,7 +185,7 @@ TEST_CASE("chaque image du manuel se charge dans la page qui la montre", "[gui][
     }
 }
 
-TEST_CASE("chaque renvoi du manuel se résout, ou est dit", "[gui][GUI-MANUAL-01]") {
+TEST_CASE("every manual link resolves, or is reported", "[gui][GUI-MANUAL-01]") {
     // **Ce que `check-manual-links.py` ne peut pas dire.** Il confronte les
     // renvois de la source à ce qui existe sur le disque, depuis la racine du
     // dépôt — un point de vue que la fenêtre n'a pas. Elle voit le manuel

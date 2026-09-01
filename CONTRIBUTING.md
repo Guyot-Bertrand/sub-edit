@@ -92,8 +92,25 @@ mal fait échouer la porte, sur le nom de la page.
 
 ### Langue
 
-Documentation, specs, ADR, manuels, messages de commit et issues en **français**.
-Code C++, identifiants, commentaires et intitulés de tests en **anglais**.
+**Ce que le binaire imprime est en anglais ; ce qui explique pourquoi est en
+français.** C'est la frontière, et elle ne passe pas là où le compilateur
+s'arrête.
+
+| Anglais | Français |
+| :------ | :------- |
+| les identifiants du code C++ | les commentaires, dans le code comme ailleurs |
+| tout ce que le binaire écrit à un utilisateur | la documentation, les specs, les ADR, les manuels |
+| les intitulés de cas de test, que Catch2 imprime | les messages de commit, les issues, les scripts |
+
+Un intitulé de test est du côté anglais parce que c'est une phrase que le
+binaire imprime — `--list-tests` la montre, un rapport d'échec la cite. Un
+commentaire est du côté français parce que personne d'autre qu'un mainteneur ne
+le lit.
+
+`check-architecture.sh` tient la moitié qui se contrôle : un caractère hors
+ASCII ou un mot outil français dans un intitulé fait échouer la porte. Un
+intitulé qui cite une donnée française — le format des fixtures en porte —
+s'inscrit dans la liste d'exemptions du contrôle, avec sa raison.
 
 ### Commits
 

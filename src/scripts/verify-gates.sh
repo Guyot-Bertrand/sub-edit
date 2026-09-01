@@ -711,6 +711,53 @@ expect_generated_source_closes() {
 
 expect_generated_source_closes
 
+# Un intitulé de cas de test en français — issue #273.
+#
+# **La preuve porte sur un filet, et non sur une certitude.** Reconnaître une
+# langue est une heuristique : le contrôle cherche un caractère hors ASCII ou
+# l un des mots outils qui n existent qu en français. Ce qui se démontre est
+# donc qu il attrape ce pour quoi il a été écrit — les cent intitulés qu une
+# seule phase avait laissés en français — et non qu aucun français ne lui
+# échappe jamais.
+#
+# L injection en porte les deux moitiés : un intitulé accentué, puis un intitulé
+# français sans le moindre accent. Le second est celui qui compte, parce que
+# c est celui qu un contrôle naïf laisserait passer, et parce que deux des cent
+# étaient exactement de cette forme.
+expect_french_test_title_closes() {
+    local one two
+
+    for one in "un décalage négatif remonte les positions" \
+               "un fichier absent ne fait dire mot"; do
+        printf '%s▸ %s%s\n' "${BOLD}" "un intitulé de test en français : « ${one} »" "${RESET}"
+
+        printf '\nTEST_CASE("%s", "[version]") {\n    CHECK(true);\n}\n' "${one}" \
+            >> "${TEST_SOURCE}"
+
+        if make -C "${REPO_ROOT}" --no-print-directory arch >/dev/null 2>&1; then
+            printf '  %s✗ la porte « arch » a laissé passer l intitulé%s\n' "${RED}" "${RESET}"
+            failures=$((failures + 1))
+        else
+            printf '  %s✓ « make arch » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        fi
+
+        restore
+    done
+
+    # Et le pendant : un intitulé anglais qui cite une donnée française ne doit
+    # pas être signalé. C est la seule exemption du contrôle, et une exemption
+    # qu on ne vérifie pas est une exemption qui se périme.
+    printf '%s▸ %s%s\n' "${BOLD}" "un intitulé anglais citant une donnée française" "${RESET}"
+    if make -C "${REPO_ROOT}" --no-print-directory arch >/dev/null 2>&1; then
+        printf '  %s✓ « make arch » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ la porte « arch » a signalé l intitulé exempté%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+}
+
+expect_french_test_title_closes
+
 # La porte refuse ce qu une exécution a laissé derrière elle — #226.
 #
 # **Deux preuves et non une**, parce que le contrôle a deux modes d échec et
@@ -1330,7 +1377,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles quarante-cinq portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles quarante-huit portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
