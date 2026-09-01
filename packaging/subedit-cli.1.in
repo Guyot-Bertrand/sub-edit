@@ -123,8 +123,5 @@ The complete manual, in Markdown. It is exhaustive where this page is not:
 every option, every accepted value, every message, with a real example per
 subcommand.
 .SH SEE ALSO
-The manual named above, and
-.BR subedit\-gui ,
-the window this program shares its core with. It has no page of its own: a
-window is not described by a page of manual, and its chapters are in the manual
-named above.
+.BR subedit\-gui (1),
+the window this program shares its core with, and the manual named above.
