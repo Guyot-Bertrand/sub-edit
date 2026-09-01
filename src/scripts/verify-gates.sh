@@ -1373,11 +1373,34 @@ expect_orchestrator_refuses() {
 expect_orchestrator_refuses "étape inconnue passée à --from" check --from covrage
 expect_orchestrator_refuses "filtres qui ne retiennent aucune étape" check --only tidy --skip tidy
 
+# La même garde, sur le second script qui sait reprendre au milieu — issue #271.
+#
+# `check-installation.sh` a reçu `--only` pour la raison qui l a donné à
+# `gate.sh` : rejouer douze contrôles pour en corriger un. Le mode d échec vient
+# avec, et c est le pire de tous — `--only paqets` jouerait zéro contrôle et
+# rendrait zéro, donc **une installation déclarée correcte que personne n a
+# regardée.**
+#
+# La preuve ne coûte rien : le refus a lieu avant que le premier contrôle ne
+# tourne, donc rien n est installé, rien n est empaqueté.
+expect_installation_refuses_unknown_control() {
+    printf '%s▸ %s%s\n' "${BOLD}" "contrôle inconnu passé à --only" "${RESET}"
+
+    if "${REPO_ROOT}/src/scripts/check-installation.sh" --only paqets >/dev/null 2>&1; then
+        printf '  %s✗ check-installation.sh a accepté « paqets »%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ check-installation.sh a refusé, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+}
+
+expect_installation_refuses_unknown_control
+
 if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles quarante-huit portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles quarante-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
