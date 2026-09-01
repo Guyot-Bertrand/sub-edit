@@ -19,13 +19,15 @@
 #      attendue est calculée depuis `docs/manual`, jamais recopiée : une liste
 #      écrite à la main se périme au premier chapitre ajouté, en silence ;
 #   3. le préfixe temporaire ne laisse rien derrière lui ;
-#   4. **les quatre fichiers de bureau sont là, et trois d'entre eux se
+#   4. **les cinq fichiers de bureau sont là, et trois d'entre eux se
 #      valident** — le `.desktop`, les métadonnées AppStream et l'icône, celle-ci
 #      lue par le chargeur des bureaux GTK plutôt que par n'importe lequel ;
-#   5. **la page de manuel ne ment pas, et se rend** — sa version est celle du
-#      binaire, le répertoire de manuel qu'elle nomme est celui où le manuel a
-#      été déposé, les sous-commandes qu'elle énumère sont celles que le binaire
-#      énumère, et groff la rend sans un avertissement ;
+#   5. **les deux pages de manuel ne mentent pas, et se rendent** — une par
+#      binaire depuis #272 : leur version est celle du binaire, le répertoire de
+#      manuel qu'elles nomment est celui où le manuel a été déposé, chacune porte
+#      le nom du binaire qu'elle décrit, les sous-commandes que celle de la ligne
+#      de commande énumère sont celles que le binaire énumère, et groff les rend
+#      sans un avertissement ;
 #   6. **une installation mise en scène ne touche rien au-dehors** — `DESTDIR`
 #      non vide, préfixe `/usr`, et rien d'écrit hors de la mise en scène ;
 #   7. **les deux paquets natifs se construisent, et disent la même chose** — un
@@ -80,6 +82,11 @@ readonly APP_ID="io.github.guyot_bertrand.subedit"
 # Écrit ici comme `APP_ID` l'est, et pour la même raison : ce contrôle confronte
 # ce que les règles déposent à ce qu'on attend.
 readonly DATA_SUBDIR="share/subedit"
+
+# Les binaires livrés, et leurs pages de manuel — une par binaire depuis #272.
+# Écrits ici comme `APP_ID` l'est : ce contrôle confronte ce que les règles
+# déposent à ce qu'on attend, donc il le dit de son côté.
+readonly BINARIES=(subedit-cli subedit-gui)
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -211,10 +218,15 @@ check_desktop_files() {
     local desktop="${prefix}/share/applications/${APP_ID}.desktop"
     local metainfo="${prefix}/share/metainfo/${APP_ID}.metainfo.xml"
     local icon="${prefix}/share/icons/hicolor/scalable/apps/${APP_ID}.svg"
-    local page="${prefix}/share/man/man1/subedit-cli.1.gz"
+
+    local expected=("${desktop}" "${metainfo}" "${icon}")
+    local name
+    for name in "${BINARIES[@]}"; do
+        expected+=("${prefix}/share/man/man1/${name}.1.gz")
+    done
 
     local file
-    for file in "${desktop}" "${metainfo}" "${icon}" "${page}"; do
+    for file in "${expected[@]}"; do
         [[ -f "${file}" ]] || report_failure "absent de l'installation : ${file#"${prefix}/"}"
     done
 
@@ -254,12 +266,24 @@ $("${REPO_ROOT}/src/scripts/check-icon.py" "${icon}" 2>&1 | sed 's/^/    /')"
 
 check_desktop_files
 
-# ## La page de manuel ne ment pas
+# ## Les pages de manuel ne mentent pas
 #
-# Trois affirmations, et chacune est le genre qu'une page de manuel porte
-# pendant des années sans que personne la relise.
-check_man_page() {
-    local compressed="${prefix}/share/man/man1/subedit-cli.1.gz"
+# **Deux pages depuis #272, une par binaire.** Ce qui vaut pour les deux est
+# vérifié pour les deux ; ce qui ne vaut que pour la ligne de commande — la
+# liste des sous-commandes — reste à elle.
+#
+# Chaque affirmation est du genre qu'une page de manuel porte pendant des années
+# sans que personne la relise.
+check_man_pages() {
+    local name
+    for name in "${BINARIES[@]}"; do
+        check_one_man_page "${name}"
+    done
+}
+
+check_one_man_page() {
+    local name="$1"
+    local compressed="${prefix}/share/man/man1/${name}.1.gz"
     [[ -f "${compressed}" ]] || return
 
     # Lue décompressée, comme `man` la lit. Dans une variable et non dans un
@@ -271,7 +295,8 @@ check_man_page() {
     local announced
     announced="$(sed -n 's/^\.TH .* "subedit \([0-9.]*\)".*/\1/p' <<< "${page}")"
     if [[ "${announced}" != "${VERSION}" ]]; then
-        report_failure "la page de manuel annonce « ${announced} », attendu « ${VERSION} »"
+        report_failure "${name}.1 annonce « ${announced} », attendu « ${VERSION} »"
+        return
     fi
 
     # Le répertoire qu'elle nomme est celui où le manuel a réellement été
@@ -281,33 +306,51 @@ check_man_page() {
     local named
     named="$(sed -n 's/^\.I \(.*subedit\/manual\)$/\1/p' <<< "${page}")"
     if [[ "${named}" != "${prefix}/share/subedit/manual" ]]; then
-        report_failure "la page de manuel nomme « ${named} », le manuel est sous « ${prefix}/share/subedit/manual »"
+        report_failure "${name}.1 nomme « ${named} », le manuel est sous « ${prefix}/share/subedit/manual »"
+        return
+    fi
+
+    # **Le nom qu'elle porte est celui du binaire qu'elle décrit.** Deux pages
+    # engendrées par la même boucle depuis deux gabarits : une ligne `.TH`
+    # recopiée d'un gabarit à l'autre donnerait deux pages du même nom, dont une
+    # que `man` ne trouverait jamais.
+    local titled
+    titled="$(sed -n 's/^\.TH \([A-Z-]*\) .*/\1/p' <<< "${page}" | tr 'A-Z' 'a-z')"
+    if [[ "${titled}" != "${name}" ]]; then
+        report_failure "${name}.1 se titre « ${titled} », attendu « ${name} »"
+        return
     fi
 
     # **Les sous-commandes qu'elle énumère sont celles du binaire.** Une
     # sous-commande ajoutée sans être écrite ici donnerait une page qui en
-    # oublie une, et rien d'autre ne le dirait.
+    # oublie une, et rien d'autre ne le dirait. Seule la page de la ligne de
+    # commande en a — la fenêtre n'en a pas.
+    if ! grep -q '^\.SH SUBCOMMANDS' <<< "${page}"; then
+        report_success "${name}.1 dit la bonne version, le bon manuel, et porte son nom"
+        return
+    fi
+
     local written listed
     written="$(sed -n '/^\.SH SUBCOMMANDS/,/^\.SH [A-Z]/p' <<< "${page}" \
         | sed -n 's/^\.B \([a-z][a-z-]*\)$/\1/p' | sort -u)"
     listed="$(cd "${prefix}" && QT_QPA_PLATFORM=offscreen XDG_CONFIG_HOME="${prefix}/config" \
-        "${prefix}/bin/subedit-cli" --help 2>&1 \
+        "${prefix}/bin/${name}" --help 2>&1 \
         | awk '/^Subcommands:/ { seen = 1; next } seen && NF { print $1 }' | sort -u)"
 
     if [[ "${written}" != "${listed}" ]]; then
-        report_failure "la page de manuel et le binaire ne nomment pas les mêmes sous-commandes :
+        report_failure "${name}.1 et le binaire ne nomment pas les mêmes sous-commandes :
 $(diff <(printf '%s\n' "${written}") <(printf '%s\n' "${listed}") | sed 's/^/    /')"
         return
     fi
 
-    report_success "la page de manuel dit la version, le manuel et les $(printf '%s\n' "${listed}" | wc -l) sous-commandes du binaire"
+    report_success "${name}.1 dit la version, le manuel et les $(printf '%s\n' "${listed}" | wc -l) sous-commandes du binaire"
 }
 
-check_man_page
+check_man_pages
 
-# ## La page de manuel est rendue par l'outil qui la rend
+# ## Les pages de manuel sont rendues par l'outil qui les rend
 #
-# **Les trois contrôles ci-dessus lisent la page au `sed` ; aucun ne la rend.**
+# **Les contrôles ci-dessus lisent les pages au `sed` ; aucun ne les rend.**
 # C'est exactement le défaut que #260 a payé sur l'icône, et #268 l'a cherché
 # partout ailleurs : une vérification qui passe par un outil qui n'est pas celui
 # qui compte. Une page de manuel se lit avec `man`, c'est-à-dire avec groff, et
@@ -325,31 +368,36 @@ check_man_page
 #
 # **Le code de sortie ne dit rien** — groff avertit et rend 0. C'est donc la
 # sortie d'erreur qui est lue, et le moindre octet est un échec.
-check_man_page_renders() {
-    local compressed="${prefix}/share/man/man1/subedit-cli.1.gz"
-    [[ -f "${compressed}" ]] || return
-
+check_man_pages_render() {
     if ! command -v groff >/dev/null 2>&1; then
-        report_failure "groff est absent : la page de manuel ne peut pas être rendue
+        report_failure "groff est absent : les pages de manuel ne peuvent pas être rendues
     l'installer avec « ./src/scripts/setup-toolchain.sh »"
         return
     fi
 
-    local complaints
-    complaints="$(gzip -dc "${compressed}" | groff -ww -z -man - 2>&1 >/dev/null)"
+    local name rendered=0
+    for name in "${BINARIES[@]}"; do
+        local compressed="${prefix}/share/man/man1/${name}.1.gz"
+        [[ -f "${compressed}" ]] || continue
 
-    if [[ -n "${complaints}" ]]; then
-        report_failure "groff se plaint de la page de manuel installée :
+        local complaints
+        complaints="$(gzip -dc "${compressed}" | groff -ww -z -man - 2>&1 >/dev/null)"
+
+        if [[ -n "${complaints}" ]]; then
+            report_failure "groff se plaint de ${name}.1 :
 $(sed 's/^/    /' <<< "${complaints}")
-    la page est écrite en ASCII de bout en bout, commentaires compris —
-    voir l'en-tête de packaging/subedit-cli.1.in"
-        return
-    fi
+    les pages sont écrites en ASCII de bout en bout, commentaires compris —
+    voir l'en-tête de packaging/${name}.1.in"
+            return
+        fi
 
-    report_success "la page de manuel se rend sans un avertissement de groff"
+        rendered=$((rendered + 1))
+    done
+
+    report_success "les ${rendered} pages de manuel se rendent sans un avertissement de groff"
 }
 
-check_man_page_renders
+check_man_pages_render
 
 # ## Une installation mise en scène ne touche rien au-dehors
 #

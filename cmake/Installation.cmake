@@ -72,17 +72,33 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/packaging/${SUBEDIT_APP_ID}.metainfo.
 # `check-installation.sh` refuse. `-n` pour que l'archive ne porte ni horodatage
 # ni nom d'origine : sans lui, deux constructions du même fichier donneraient
 # deux octets différents.
+# **Les deux binaires ont chacun la leur** — issue #272. `subedit-gui` n'en
+# avait pas, et le `SEE ALSO` de sa voisine en faisait une décision : « une
+# fenêtre ne se décrit pas par une page de manuel ». Le contre-exemple était
+# dans le dépôt de référence — le seul document que Gaupol installe est une page
+# de manuel, et c'est celle de son programme graphique. Ce qu'une page décrit
+# d'une application graphique n'est pas sa fenêtre mais sa surface en ligne de
+# commande, qui existe.
+#
+# La liste est écrite une fois : les deux pages sont engendrées et installées
+# par le même chemin, donc une troisième ne demanderait qu'un nom de plus.
+set(SUBEDIT_MAN_PAGES subedit-cli subedit-gui)
+
 install(
     CODE "
         set(PROJECT_VERSION \"${PROJECT_VERSION}\")
         set(SUBEDIT_MANUAL_DIR \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/subedit/manual\")
-        configure_file(
-            \"${CMAKE_CURRENT_SOURCE_DIR}/packaging/subedit-cli.1.in\"
-            \"${CMAKE_CURRENT_BINARY_DIR}/subedit-cli.1\"
-            @ONLY)
-        execute_process(
-            COMMAND gzip -9 -n -f \"${CMAKE_CURRENT_BINARY_DIR}/subedit-cli.1\"
-            COMMAND_ERROR_IS_FATAL ANY)")
+        foreach(page ${SUBEDIT_MAN_PAGES})
+            configure_file(
+                \"${CMAKE_CURRENT_SOURCE_DIR}/packaging/\${page}.1.in\"
+                \"${CMAKE_CURRENT_BINARY_DIR}/\${page}.1\"
+                @ONLY)
+            execute_process(
+                COMMAND gzip -9 -n -f \"${CMAKE_CURRENT_BINARY_DIR}/\${page}.1\"
+                COMMAND_ERROR_IS_FATAL ANY)
+        endforeach()")
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/subedit-cli.1.gz"
-        DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
+foreach(page IN LISTS SUBEDIT_MAN_PAGES)
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${page}.1.gz"
+            DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
+endforeach()

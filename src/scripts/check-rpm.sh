@@ -30,7 +30,8 @@
 #      terme ;
 #   2. chaque chemin que le paquet annonce est là où il l'annonce ;
 #   3. les deux binaires installés se lancent et disent la bonne version ;
-#   4. la page de manuel se trouve par `man`, qui est l'outil qui la lit.
+#   4. les deux pages de manuel se trouvent par `man`, qui est l'outil qui les
+#      lit.
 #
 # ## Ce qu'il coûte, et pourquoi il n'est dans aucune porte
 #
@@ -252,14 +253,21 @@ check_binary subedit-gui
 if ! dnf -y --setopt=tsflags= install man-db util-linux > /tmp/man.log 2>&1; then
     report_failure "man-db ne s'installe pas dans le conteneur ; la page de manuel n'est pas éprouvée"
 else
-    found="$(man -w subedit-cli 2>/dev/null || true)"
-    if [[ -z "${found}" ]]; then
-        report_failure "man ne trouve pas subedit-cli ; la page est hors du manpath"
-    elif ! man subedit-cli 2>/dev/null | grep -q 'subedit-cli'; then
-        report_failure "man trouve la page mais n'en rend rien"
-    else
-        report_success "man subedit-cli rend la page installée (${found})"
-    fi
+    # **Les deux binaires, depuis #272.** Une page installée sous le mauvais nom
+    # se trouve par son chemin et jamais par `man` ; c'est précisément ce que
+    # cette boucle éprouve, et un `test -f` ne le dirait pas.
+    pages=0
+    for name in subedit-cli subedit-gui; do
+        found="$(man -w "${name}" 2>/dev/null || true)"
+        if [[ -z "${found}" ]]; then
+            report_failure "man ne trouve pas ${name} ; la page est hors du manpath"
+        elif ! man "${name}" 2>/dev/null | grep -q "${name}"; then
+            report_failure "man trouve la page de ${name} mais n'en rend rien"
+        else
+            pages=$((pages + 1))
+        fi
+    done
+    ((pages == 2)) && report_success "man rend les deux pages installées"
 fi
 
 ## 5. Le manuel complet est lisible

@@ -73,6 +73,19 @@ en chemin s'affiche sous la table — voir
 L'échec d'ouverture d'un fichier **ne change pas le code de retour** : la
 fenêtre s'est ouverte, et c'est ce que le code rapporte.
 
+## La page de manuel
+
+Une installation dépose `subedit-gui(1)` sous `share/man/man1` :
+
+```console
+$ man subedit-gui
+```
+
+Elle dit la forme d'appel, `--version`, les messages d'échec d'ouverture, les
+codes de retour, les deux variables d'environnement et le fichier de réglages.
+**Elle ne décrit pas la fenêtre** — c'est ce manuel-ci qui le fait, et la page
+le renvoie ici.
+
 ## La plateforme Qt
 
 `QT_QPA_PLATFORM` choisit sur quoi la fenêtre tourne. **Si la variable est
