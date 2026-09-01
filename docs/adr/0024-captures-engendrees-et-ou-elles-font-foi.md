@@ -103,6 +103,20 @@ qu'elle dessine ne dépend de la plateforme.
 | `Cancel` passe à gauche de `OK`, et les mnémoniques se soulignent | l'ordre des boutons est une indication de style du thème de plateforme, que `offscreen` ne fournit pas — `offscreen` avec `QT_QPA_PLATFORMTHEME=gtk3` suffit à le changer |
 | le rectangle de cellule courante disparaît de la table | aucune fenêtre n'est jamais *active* sans gestionnaire de fenêtres |
 
+**Le même mécanisme a mordu ailleurs, et plus cher** — issue #274. Ce que
+`QKeySequence` rend pour une commande standard vient du thème de plateforme :
+sans thème, Qt retombe sur une table interne où `SaveAs` n'existe que pour macOS
+et Windows, et où `Redo` commence par `Ctrl+Y`. Un programme de mesure lancé
+sans thème a donc conclu que « `Save As…` n'a pas de raccourci sous Linux » et
+que « `Ctrl+Maj+Z` ne fait rien » — et **le manuel a été corrigé vers ces deux
+affirmations, qui sont fausses pour tout utilisateur**. Sur un bureau, xcb comme
+wayland, le thème donne `Ctrl+Maj+S` et `Ctrl+Maj+Z`.
+
+La leçon n'est donc pas propre aux captures : **tout ce que Qt dérive du thème
+de plateforme diffère, dans un binaire de test, de ce qu'un utilisateur obtient.**
+Une mesure faite sous `offscreen` répond sur `offscreen`, jamais sur un bureau —
+et c'est un endroit où l'on croit mesurer le programme.
+
 **Ce n'est pas une raison de changer de plateforme, et c'en est une de
 l'écrire.** Le manuel décrit des mots et des actions, pas des pixels, et aucune
 de ses phrases ne devient fausse : les boutons d'une capture portent les mêmes

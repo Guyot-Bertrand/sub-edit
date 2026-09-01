@@ -9,6 +9,7 @@
 #include <QAbstractItemModel>
 #include <QAction>
 #include <QKeySequence>
+#include <QList>
 #include <QMenu>
 #include <QMenuBar>
 #include <QModelIndex>
@@ -345,4 +346,38 @@ TEST_CASE("both actions are reachable from the menu and the toolbar", "[gui][GUI
 
     CHECK(window.undoAction()->shortcut() == QKeySequence::Undo);
     CHECK(window.redoAction()->shortcut() == QKeySequence::Redo);
+}
+
+TEST_CASE("every shortcut a desktop gives to redo is live", "[gui][GUI-UNDO-01]") {
+    // **Ce que `QKeySequence` rend dépend du thème de plateforme, et ce binaire
+    // n'en a aucun** — issue #274. Sous `offscreen`, Qt retombe sur sa table
+    // interne et met `Ctrl+Y` en tête ; sous n'importe quel bureau, le thème
+    // donne `Ctrl+Maj+Z` et lui seul. `setShortcut` n'en retenait que la
+    // première, donc la fenêtre répondait à un raccourci différent selon
+    // l'endroit — et ce test-ci n'aurait vu que celui que l'utilisateur n'a pas.
+    //
+    // Ce qui est éprouvé est donc l'invariant qui vaut des deux côtés : la
+    // liaison que tout bureau Linux donne est vivante.
+    const Windowed fixture;
+    const MainWindow& window = fixture.window();
+
+    CHECK(window.redoAction()->shortcuts().contains(QKeySequence{QStringLiteral("Ctrl+Shift+Z")}));
+}
+
+TEST_CASE("save as always carries a shortcut, whatever the platform gives", "[gui][GUI-SAVE-02]") {
+    // **La table interne de Qt ne définit `SaveAs` que pour macOS et Windows.**
+    // Tout thème de bureau donne `Ctrl+Maj+S` — mesuré sous xcb, sous wayland,
+    // et sous `offscreen` dès qu'un thème est posé —, mais sans thème la
+    // fenêtre n'avait aucun raccourci pour une commande qui écrit un fichier.
+    //
+    // La liaison conventionnelle est ajoutée quand la plateforme se tait, ce
+    // qui rend l'invariant vrai des deux côtés : jamais vide, et toujours celle
+    // que le bureau aurait donnée.
+    const Windowed fixture;
+    const MainWindow& window = fixture.window();
+
+    const QList<QKeySequence> shortcuts = window.saveAsAction()->shortcuts();
+
+    CHECK_FALSE(shortcuts.isEmpty());
+    CHECK(shortcuts.contains(QKeySequence{QStringLiteral("Ctrl+Shift+S")}));
 }

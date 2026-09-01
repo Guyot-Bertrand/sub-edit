@@ -51,6 +51,7 @@
 #include <QItemSelectionModel>
 #include <QKeySequence>
 #include <QLabel>
+#include <QList>
 #include <QMenu>
 #include <QMenuBar>
 #include <QModelIndex>
@@ -170,6 +171,27 @@ constexpr int kInitialHeight = 800;
     return std::ranges::max(rows, {}, [](const QModelIndex& index) { return index.row(); }).row();
 }
 
+/// Les raccourcis de `Save As…`, dont un que la plateforme peut ne pas donner.
+///
+/// **Le thème de plateforme donne `Ctrl+Maj+S` sur tout bureau** — mesuré sous
+/// xcb, sous wayland, et sous `offscreen` dès qu'un thème est posé. Sans thème,
+/// Qt n'en donne aucun : sa table interne ne définit `SaveAs` que pour macOS et
+/// Windows, et c'est cette table-là qu'un binaire de test rencontre.
+///
+/// La liaison conventionnelle est donc ajoutée quand la plateforme se tait —
+/// issue #274. Ce n'est pas décider à sa place : c'est dire la même chose
+/// qu'elle là où elle parle, et ne pas laisser une commande destructive
+/// inatteignable au clavier là où elle ne dit rien.
+[[nodiscard]] QList<QKeySequence> saveAsShortcuts() {
+    static const QKeySequence conventional{QStringLiteral("Ctrl+Shift+S")};
+
+    QList<QKeySequence> given = QKeySequence::keyBindings(QKeySequence::SaveAs);
+    if (!given.contains(conventional))
+        given.append(conventional);
+
+    return given;
+}
+
 } // namespace
 
 MainWindow::MainWindow(core::FileSystem& files,
@@ -270,14 +292,24 @@ MainWindow::MainWindow(core::FileSystem& files,
     stack->addWidget(m_diagnostics);
     setCentralWidget(centre);
 
+    // **Toutes les liaisons que la plateforme donne à « rétablir », et non la
+    // première** — issue #274.
+    //
+    // Ce que `QKeySequence` rend dépend du thème de plateforme, et un binaire
+    // de test n'en a aucun : sous `offscreen`, Qt retombe sur sa table interne
+    // et met `Ctrl+Y` en tête ; sous n'importe quel bureau, le thème donne
+    // `Ctrl+Maj+Z` et lui seul. `setShortcut` ne retient que la première, donc
+    // la même ligne de code posait deux raccourcis différents selon l'endroit
+    // où elle tournait — et le test n'y voyait que celui que l'utilisateur n'a
+    // pas. `setShortcuts` les prend toutes : les deux marchent partout.
     m_undo->setShortcut(QKeySequence::Undo);
-    m_redo->setShortcut(QKeySequence::Redo);
+    m_redo->setShortcuts(QKeySequence::keyBindings(QKeySequence::Redo));
     connect(m_undo, &QAction::triggered, this, [this] { m_model->applied(m_session->undo()); });
     connect(m_redo, &QAction::triggered, this, [this] { m_model->applied(m_session->redo()); });
 
     m_open->setShortcut(QKeySequence::Open);
     m_save->setShortcut(QKeySequence::Save);
-    m_saveAs->setShortcut(QKeySequence::SaveAs);
+    m_saveAs->setShortcuts(saveAsShortcuts());
     m_open->setEnabled(true);
     m_save->setEnabled(true);
     m_saveAs->setEnabled(true);
