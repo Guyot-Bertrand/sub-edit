@@ -87,7 +87,7 @@ TEST_CASE("bytes that are not UTF-8 are refused, not mangled", "[format][file]")
     CHECK(result.error().kind == ReadErrorKind::InvalidUtf8);
 }
 
-TEST_CASE("a file recognised but unreadable says which, not « unknown »", "[format][file]") {
+TEST_CASE("a file recognised but unreadable says which, not \"unknown\"", "[format][file]") {
     // The signature settles the format; that the file then holds no cue is a
     // different problem, and telling them apart is what lets a caller say
     // something useful to the user.

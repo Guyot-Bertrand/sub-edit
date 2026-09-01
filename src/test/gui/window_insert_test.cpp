@@ -88,7 +88,7 @@ void selectRow(const MainWindow& window, int row) {
 
 } // namespace
 
-TEST_CASE("insérer place les lignes après le dernier sélectionné", "[gui][GUI-INSERT-01]") {
+TEST_CASE("inserting places the lines after the last selected one", "[gui][GUI-INSERT-01]") {
     // **Le dernier et non le premier**, et la sélection est faite pour que les
     // deux ne se confondent pas : le premier donnerait l'index 1, le dernier
     // donne l'index 3. C'est le point qu'on invente mal sans lire Gaupol.
@@ -110,8 +110,7 @@ TEST_CASE("insérer place les lignes après le dernier sélectionné", "[gui][GU
     CHECK(window.undoAction()->text().toStdString() == "Undo: inserting");
 }
 
-TEST_CASE("insérer au-dessus place les lignes avant le dernier sélectionné",
-          "[gui][GUI-INSERT-01]") {
+TEST_CASE("inserting above places the lines before the last selected one", "[gui][GUI-INSERT-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = true;
@@ -129,7 +128,7 @@ TEST_CASE("insérer au-dessus place les lignes avant le dernier sélectionné",
     CHECK(textAt(window, 3) == "Trois.");
 }
 
-TEST_CASE("insérer pose autant de lignes qu'on en demande", "[gui][GUI-INSERT-01]") {
+TEST_CASE("inserting adds as many lines as were asked for", "[gui][GUI-INSERT-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = true;
@@ -146,8 +145,7 @@ TEST_CASE("insérer pose autant de lignes qu'on en demande", "[gui][GUI-INSERT-0
     CHECK(textAt(window, 6).empty());
 }
 
-TEST_CASE("les lignes insérées sont sélectionnées, donc on peut recommencer",
-          "[gui][GUI-INSERT-01]") {
+TEST_CASE("the inserted lines are selected, so it can be done again", "[gui][GUI-INSERT-01]") {
     // La table a été réinitialisée : sans cette sélection rendue, l'action
     // s'éteindrait et un second `Ins` ne ferait rien.
     InMemoryFileSystem files = withFour();
@@ -169,7 +167,7 @@ TEST_CASE("les lignes insérées sont sélectionnées, donc on peut recommencer"
     CHECK(rowCount(window) == 6);
 }
 
-TEST_CASE("une insertion annulée ne pose rien", "[gui][GUI-INSERT-01]") {
+TEST_CASE("a cancelled insertion adds nothing", "[gui][GUI-INSERT-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = false;
@@ -184,7 +182,7 @@ TEST_CASE("une insertion annulée ne pose rien", "[gui][GUI-INSERT-01]") {
     CHECK_FALSE(window.undoAction()->isEnabled());
 }
 
-TEST_CASE("insérer se défait", "[gui][GUI-INSERT-01]") {
+TEST_CASE("inserting can be undone", "[gui][GUI-INSERT-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = true;
@@ -202,7 +200,7 @@ TEST_CASE("insérer se défait", "[gui][GUI-INSERT-01]") {
     CHECK(textAt(window, 2) == "Trois.");
 }
 
-TEST_CASE("sans sélection, insérer est éteint tant que le document porte des lignes",
+TEST_CASE("with no selection, inserting is disabled while the document holds lines",
           "[gui][GUI-INSERT-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
@@ -216,7 +214,7 @@ TEST_CASE("sans sélection, insérer est éteint tant que le document porte des 
     CHECK(window.insertAction()->isEnabled());
 }
 
-TEST_CASE("insérer dans un document vide ne demande aucune sélection", "[gui][GUI-INSERT-02]") {
+TEST_CASE("inserting into an empty document needs no selection", "[gui][GUI-INSERT-02]") {
     // La seule façon de commencer un fichier neuf : il n'y a rien à
     // sélectionner, donc exiger une sélection rendrait l'insertion impossible.
     InMemoryFileSystem files;
@@ -232,7 +230,7 @@ TEST_CASE("insérer dans un document vide ne demande aucune sélection", "[gui][
     CHECK(rowCount(window) == 2);
 }
 
-TEST_CASE("le côté choisi est retenu d'une insertion à la suivante", "[gui][GUI-INSERT-01]") {
+TEST_CASE("the chosen side is kept from one insertion to the next", "[gui][GUI-INSERT-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = true;
@@ -255,8 +253,7 @@ TEST_CASE("le côté choisi est retenu d'une insertion à la suivante", "[gui][G
     CHECK(offered == InsertPlacement::Above);
 }
 
-TEST_CASE("un côté lu dans les réglages est celui que le dialogue propose",
-          "[gui][GUI-INSERT-01]") {
+TEST_CASE("a side read from the settings is the one the dialog offers", "[gui][GUI-INSERT-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = false;
@@ -274,7 +271,7 @@ TEST_CASE("un côté lu dans les réglages est celui que le dialogue propose",
     CHECK(offered == InsertPlacement::Above);
 }
 
-TEST_CASE("supprimer retire la sélection, et se défait", "[gui][GUI-REMOVE-01]") {
+TEST_CASE("removing takes out the selection, and can be undone", "[gui][GUI-REMOVE-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     MainWindow window{files, fourIn(files), prompts};
@@ -296,7 +293,7 @@ TEST_CASE("supprimer retire la sélection, et se défait", "[gui][GUI-REMOVE-01]
     CHECK(textAt(window, 2) == "Trois.");
 }
 
-TEST_CASE("supprimer ne demande rien et ne montre aucun dialogue", "[gui][GUI-REMOVE-01]") {
+TEST_CASE("removing asks nothing and shows no dialog", "[gui][GUI-REMOVE-01]") {
     // L'opération entre dans l'historique comme les autres : une modale devant
     // un geste annulable coûterait un clic à chaque fois.
     InMemoryFileSystem files = withFour();
@@ -311,7 +308,7 @@ TEST_CASE("supprimer ne demande rien et ne montre aucun dialogue", "[gui][GUI-RE
     CHECK(prompts.failures.empty());
 }
 
-TEST_CASE("sans sélection, supprimer est éteint", "[gui][GUI-REMOVE-01]") {
+TEST_CASE("with no selection, removing is disabled", "[gui][GUI-REMOVE-01]") {
     // Ce qui tient la règle : `targetOf` lit « rien de sélectionné » comme
     // « tout le fichier », ce qui serait ici un fichier vidé d'un `Suppr`.
     InMemoryFileSystem files = withFour();
@@ -326,7 +323,7 @@ TEST_CASE("sans sélection, supprimer est éteint", "[gui][GUI-REMOVE-01]") {
     CHECK(window.removeAction()->isEnabled());
 }
 
-TEST_CASE("une suppression vide n'entre pas dans l'historique", "[gui][GUI-REMOVE-01]") {
+TEST_CASE("an empty removal does not enter the history", "[gui][GUI-REMOVE-01]") {
     // **Le second garde**, celui que l'entrée éteinte cache : une action
     // éteinte ne se déclenche pas, donc ce chemin demande de la rallumer à la
     // main pour être atteint. Il existe quand même, et ce qu'il empêche est
@@ -343,8 +340,7 @@ TEST_CASE("une suppression vide n'entre pas dans l'historique", "[gui][GUI-REMOV
     CHECK_FALSE(window.undoAction()->isEnabled());
 }
 
-TEST_CASE("après une suppression, la ligne qui a pris la place est sélectionnée",
-          "[gui][GUI-REMOVE-01]") {
+TEST_CASE("after a removal, the line that took the place is selected", "[gui][GUI-REMOVE-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     MainWindow window{files, fourIn(files), prompts};
@@ -362,8 +358,7 @@ TEST_CASE("après une suppression, la ligne qui a pris la place est sélectionn�
     CHECK(rowCount(window) == 2);
 }
 
-TEST_CASE("supprimer la fin du fichier laisse la dernière ligne sélectionnée",
-          "[gui][GUI-REMOVE-01]") {
+TEST_CASE("removing the end of the file leaves the last line selected", "[gui][GUI-REMOVE-01]") {
     // `min(première retirée, dernière restante)` : la place laissée par la
     // dernière ligne d'un fichier n'existe plus une fois celle-ci retirée.
     InMemoryFileSystem files = withFour();
@@ -379,7 +374,7 @@ TEST_CASE("supprimer la fin du fichier laisse la dernière ligne sélectionnée"
     CHECK(window.table()->selectionModel()->selectedRows().first().row() == 2);
 }
 
-TEST_CASE("vider le fichier laisse la fenêtre utilisable", "[gui][GUI-REMOVE-01]") {
+TEST_CASE("emptying the file leaves the window usable", "[gui][GUI-REMOVE-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     MainWindow window{files, fourIn(files), prompts};
@@ -396,7 +391,7 @@ TEST_CASE("vider le fichier laisse la fenêtre utilisable", "[gui][GUI-REMOVE-01
     CHECK_FALSE(window.removeAction()->isEnabled());
 }
 
-TEST_CASE("les deux entrées vivent dans le menu Edit", "[gui][GUI-INSERT-01]") {
+TEST_CASE("both entries live in the Edit menu", "[gui][GUI-INSERT-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     const MainWindow window{files, fourIn(files), prompts};

@@ -1,0 +1,95 @@
+.\" La page de manuel de subedit-gui.
+.\"
+.\" **Elle existe parce que Gaupol en a une** -- issue #272. La page de
+.\" subedit-cli disait le contraire en une phrase de SEE ALSO : "une fenetre ne
+.\" se decrit pas par une page de manuel". C'etait un manque habille en
+.\" decision, et le contre-exemple etait dans le depot de reference : le seul
+.\" document que Gaupol installe est une page de manuel, et c'est celle de son
+.\" programme graphique.
+.\"
+.\" Ce qu'une page decrit d'une application graphique n'est pas sa fenetre :
+.\" c'est sa surface en ligne de commande, qui existe et qui tient ici. Les
+.\" chapitres de la fenetre restent au manuel complet.
+.\"
+.\" Comme sa voisine, cette page s'ecrit sans accents : troff lit des octets et
+.\" non de l'UTF-8 tant que personne n'appelle preconv pour lui. Voir l'en-tete
+.\" de subedit-cli.1.in ; check-installation.sh passe les deux pages a
+.\" "groff -ww -z" et refuse le moindre avertissement.
+.TH SUBEDIT-GUI 1 "" "subedit @PROJECT_VERSION@" "User Commands"
+.SH NAME
+subedit\-gui \- edit subtitle files in a window
+.SH SYNOPSIS
+.B subedit\-gui
+.RB [ \-\-version ]
+.RI [ file ]
+.SH DESCRIPTION
+.B subedit\-gui
+opens a window on a subtitle file, or on nothing. It reads SubRip and WebVTT
+files in UTF\-8, recognising the format from the content rather than the
+extension, and shares its core with
+.BR subedit\-cli (1):
+the two agree on what a file is and on what an operation does.
+.PP
+.B One file, and one only.
+Further arguments are ignored \(em the window holds a single project at a time.
+.SH OPTIONS
+.TP
+.B \-\-version
+Print the version on the standard output and exit at once, without opening a
+window.
+.SH DIAGNOSTICS
+.B A file that cannot be opened does not stop the program.
+The window opens empty and the reason is written on the standard error, in the
+same words
+.BR subedit\-cli (1)
+uses:
+.IR "does not exist" ,
+.IR "cannot be opened: permission denied" ,
+.IR "cannot be read" ,
+.IR "is not valid UTF-8" ,
+.IR "is in no format this tool knows" ,
+.IR "holds nothing recognisable as a subtitle" .
+.PP
+A malformed but readable file opens, and whatever the reading recovered on the
+way is shown under the table.
+.SH EXIT STATUS
+.TP
+.B 0
+The window opened and was closed normally, or
+.B \-\-version
+answered. A file that failed to open does not change this: the window opened,
+and that is what the status reports.
+.TP
+.B 2
+An unexpected failure before the window opened \(em Qt missing, no display
+available.
+.SH ENVIRONMENT
+.TP
+.B QT_QPA_PLATFORM
+Chooses what the window runs on.
+.B If it is set, it is honoured without discussion.
+If it is not, the program picks one in a single case: a Wayland session with an
+X server beside it, where it asks for
+.IR xcb ,
+which is what lets the video player draw inside the window.
+.I offscreen
+runs the window where there is no display server at all.
+.TP
+.B XDG_CONFIG_HOME
+Where the settings file lives. Defaults to
+.I ~/.config
+when unset.
+.SH FILES
+.TP
+.I $XDG_CONFIG_HOME/subedit/settings.conf
+The settings, written when the window closes. A settings file that cannot be
+read costs the settings and nothing else: the window opens on the defaults and
+says what it could not read.
+.TP
+.I @SUBEDIT_MANUAL_DIR@
+The complete manual, in Markdown. It is exhaustive where this page is not, and
+the window opens it itself under
+.BR "Help > Manual" .
+.SH SEE ALSO
+.BR subedit\-cli (1),
+the batch tool this program shares its core with, and the manual named above.

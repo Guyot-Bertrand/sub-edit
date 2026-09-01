@@ -51,7 +51,7 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.8.6
+subedit 0.8.7
 ```
 
 ## Sous-commandes
@@ -204,6 +204,20 @@ rapportent sur elles-mêmes.
 Toutes les sous-commandes acceptent plusieurs chemins. Chacun est traité
 indépendamment : l'échec de l'un n'interrompt pas les autres, et les échecs
 sont rapportés en nommant le fichier et la raison.
+
+## La page de manuel
+
+Une installation dépose `subedit-cli(1)` sous `share/man/man1`, à côté de
+`subedit-gui(1)` :
+
+```console
+$ man subedit-cli
+```
+
+Elle tient en une page ce que ce manuel dit en dix : la forme d'appel, ce que
+chaque sous-commande fait, les options globales, les codes de retour — puis où
+lire le reste. **Elle est courte délibérément** : la recopier entière ici en
+produirait une seconde version à tenir, qui divergerait.
 
 ## Codes de retour
 

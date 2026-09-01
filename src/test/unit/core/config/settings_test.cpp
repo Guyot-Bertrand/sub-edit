@@ -66,7 +66,7 @@ constexpr const char* kPath = "/config/subedit/settings.conf";
 
 // ## Fichier absent : tous les défauts, et ce n'est pas une erreur
 
-TEST_CASE("un fichier absent donne tous les défauts, sans rien signaler", "[config]") {
+TEST_CASE("a missing file gives every default, reporting nothing", "[config]") {
     const InMemoryFileSystem files;
 
     const SettingsRead read = readSettings(files, kPath);
@@ -79,7 +79,7 @@ TEST_CASE("un fichier absent donne tous les défauts, sans rien signaler", "[con
 
 // ## Fichier illisible : tous les défauts, et un diagnostic
 
-TEST_CASE("un fichier illisible donne tous les défauts, et le dit", "[config]") {
+TEST_CASE("an unreadable file gives every default, and says so", "[config]") {
     InMemoryFileSystem files;
     files.addFile(kPath, "window.maximised = true\n");
     files.failNextRead(FileErrorKind::PermissionDenied);
@@ -96,7 +96,7 @@ TEST_CASE("un fichier illisible donne tous les défauts, et le dit", "[config]")
 
 // ## Clé inconnue : ignorée à la lecture, absente à la réécriture
 
-TEST_CASE("une clé inconnue est ignorée sans un mot", "[config]") {
+TEST_CASE("an unknown key is ignored without a word", "[config]") {
     // Un fichier écrit par une version qui en connaissait plus n'est pas un
     // fichier fautif : c'est le mode d'échec que la tolérance choisit.
     const SettingsRead read = readOf("window.maximised = true\n"
@@ -107,7 +107,7 @@ TEST_CASE("une clé inconnue est ignorée sans un mot", "[config]") {
     CHECK(read.diagnostics.empty());
 }
 
-TEST_CASE("une clé inconnue n'est pas réécrite", "[config]") {
+TEST_CASE("an unknown key is not written back", "[config]") {
     InMemoryFileSystem files;
     files.addFile(kPath, "window.opacity = 0.5\n");
 
@@ -119,7 +119,7 @@ TEST_CASE("une clé inconnue n'est pas réécrite", "[config]") {
 
 // ## Valeur illisible : le défaut est gardé, un diagnostic est produit
 
-TEST_CASE("une valeur illisible laisse le défaut en place, et le dit", "[config]") {
+TEST_CASE("an unreadable value leaves the default in place, and says so", "[config]") {
     const SettingsRead read = readOf("window.geometry = plus tard\n");
 
     CHECK_FALSE(read.settings.geometry.has_value());
@@ -128,7 +128,7 @@ TEST_CASE("une valeur illisible laisse le défaut en place, et le dit", "[config
     CHECK(read.diagnostics.front().value == "plus tard");
 }
 
-TEST_CASE("une valeur illisible n'emporte pas les autres options", "[config]") {
+TEST_CASE("an unreadable value does not carry off the other options", "[config]") {
     // Le diagnostic accompagne le défaut plutôt que de remplacer le fichier :
     // ce qui se lisait se lit encore.
     const SettingsRead read = readOf("window.geometry = 0,0,0,0\n"
@@ -139,7 +139,7 @@ TEST_CASE("une valeur illisible n'emporte pas les autres options", "[config]") {
     CHECK(read.diagnostics.size() == 1);
 }
 
-TEST_CASE("les largeurs de colonnes se refusent en nombre autre que quatre", "[config]") {
+TEST_CASE("column widths are refused in any number but four", "[config]") {
     // Trois largeurs pour quatre colonnes réglables : deviner laquelle manque
     // serait deviner ce que l'utilisateur voulait.
     CHECK(readOf("table.columns = 50,120,120\n").diagnostics.size() == 1);
@@ -147,7 +147,7 @@ TEST_CASE("les largeurs de colonnes se refusent en nombre autre que quatre", "[c
     CHECK(readOf("table.columns = 50,120,120,120\n").diagnostics.empty());
 }
 
-TEST_CASE("les deux valeurs booléennes se lisent, et elles seules", "[config]") {
+TEST_CASE("the two boolean values read, and they alone", "[config]") {
     // `false` autant que `true` : c'est le défaut, donc personne ne l'écrit
     // spontanément — et une valeur qu'aucun test ne lit est une valeur dont on
     // ne sait pas si elle se lit.
@@ -156,7 +156,7 @@ TEST_CASE("les deux valeurs booléennes se lisent, et elles seules", "[config]")
     CHECK(readOf("window.maximised = false\n").diagnostics.empty());
 }
 
-TEST_CASE("une largeur de colonne nulle ou négative est illisible", "[config]") {
+TEST_CASE("a null or negative column width is unreadable", "[config]") {
     // Une colonne large de zéro est une colonne qu'on ne retrouverait pas, et
     // une largeur négative n'existe pas : ni l'une ni l'autre n'est une
     // largeur que l'utilisateur a posée.
@@ -164,7 +164,7 @@ TEST_CASE("une largeur de colonne nulle ou négative est illisible", "[config]")
     CHECK(readOf("table.columns = 50,-10,120,120\n").diagnostics.size() == 1);
 }
 
-TEST_CASE("une ligne sans signe égal est ignorée", "[config]") {
+TEST_CASE("a line without an equals sign is ignored", "[config]") {
     // Ce n'est pas une option, donc ce n'est pas une option illisible : rien
     // n'est signalé, et le reste du fichier se lit.
     const SettingsRead read = readOf("ceci n'est pas une option\n"
@@ -174,7 +174,7 @@ TEST_CASE("une ligne sans signe égal est ignorée", "[config]") {
     CHECK(read.diagnostics.empty());
 }
 
-TEST_CASE("ce qui traîne après un nombre le rend illisible", "[config]") {
+TEST_CASE("anything trailing after a number makes it unreadable", "[config]") {
     // « 12 pixels » n'est pas un douze suivi de bruit : c'est une valeur qu'on
     // n'a pas su lire, et l'accepter serait accepter n'importe quoi.
     CHECK(readOf("window.maximised = oui\n").diagnostics.size() == 1);
@@ -183,7 +183,7 @@ TEST_CASE("ce qui traîne après un nombre le rend illisible", "[config]") {
 
 // ## Les trois options venues avec #254 et #241
 
-TEST_CASE("les trois thèmes se lisent, et rien d'autre", "[config]") {
+TEST_CASE("the three themes read, and nothing else", "[config]") {
     CHECK(readOf("general.theme = system\n").settings.theme == Theme::System);
     CHECK(readOf("general.theme = light\n").settings.theme == Theme::Light);
     CHECK(readOf("general.theme = dark\n").settings.theme == Theme::Dark);
@@ -194,7 +194,7 @@ TEST_CASE("les trois thèmes se lisent, et rien d'autre", "[config]") {
     CHECK(unknown.diagnostics.size() == 1);
 }
 
-TEST_CASE("les trois thèmes se réécrivent tels qu'ils se lisent", "[config]") {
+TEST_CASE("the three themes are written back as they read", "[config]") {
     // L'aller-retour des trois, et pas seulement de celui qu'on choisit dans
     // les autres cas : une valeur qui s'écrit et ne se relit pas serait une
     // préférence perdue au redémarrage suivant.
@@ -208,7 +208,7 @@ TEST_CASE("les trois thèmes se réécrivent tels qu'ils se lisent", "[config]")
 
 // ## Le côté d'une insertion, venu avec #242
 
-TEST_CASE("les deux côtés d'une insertion se lisent, et rien d'autre", "[config]") {
+TEST_CASE("the two sides of an insertion read, and nothing else", "[config]") {
     CHECK(readOf("edit.insert-placement = above\n").settings.insertPlacement ==
           InsertPlacement::Above);
     CHECK(readOf("edit.insert-placement = below\n").settings.insertPlacement ==
@@ -220,7 +220,7 @@ TEST_CASE("les deux côtés d'une insertion se lisent, et rien d'autre", "[confi
     CHECK(unknown.diagnostics.size() == 1);
 }
 
-TEST_CASE("les deux côtés se réécrivent tels qu'ils se lisent", "[config]") {
+TEST_CASE("the two sides are written back as they read", "[config]") {
     for (const InsertPlacement placement : {InsertPlacement::Above, InsertPlacement::Below}) {
         InMemoryFileSystem files;
         REQUIRE(writeSettings(files, kPath, Settings{.insertPlacement = placement}).has_value());
@@ -229,7 +229,7 @@ TEST_CASE("les deux côtés se réécrivent tels qu'ils se lisent", "[config]") 
     }
 }
 
-TEST_CASE("la part donnée à la table refuse ses deux extrêmes", "[config]") {
+TEST_CASE("the share given to the table refuses both its extremes", "[config]") {
     // Ni zéro ni cent : une table haute de rien, ou une bande vidéo haute de
     // rien, est une fenêtre qu'on ne saurait plus rouvrir autrement qu'en
     // effaçant son fichier de configuration.
@@ -240,7 +240,7 @@ TEST_CASE("la part donnée à la table refuse ses deux extrêmes", "[config]") {
     CHECK(readOf("window.table-share = deux tiers\n").diagnostics.size() == 1);
 }
 
-TEST_CASE("un répertoire relatif est illisible, un absolu ne l'est pas", "[config]") {
+TEST_CASE("a relative directory is unreadable, an absolute one is not", "[config]") {
     // Un chemin relatif est relatif à un répertoire courant que personne ne
     // connaît : ce n'est pas un chemin à compléter au petit bonheur.
     CHECK(readOf("file.directory = ../films\n").diagnostics.size() == 1);
@@ -252,7 +252,7 @@ TEST_CASE("un répertoire relatif est illisible, un absolu ne l'est pas", "[conf
 
 // ## Option absente : le défaut, sans que ce soit un cas particulier
 
-TEST_CASE("une option absente vaut son défaut", "[config]") {
+TEST_CASE("a missing option is worth its default", "[config]") {
     const SettingsRead read = readOf("window.maximised = true\n");
 
     CHECK(read.settings.maximised);
@@ -263,7 +263,7 @@ TEST_CASE("une option absente vaut son défaut", "[config]") {
 
 // ## Option à son défaut : réécrite commentée
 
-TEST_CASE("une option à son défaut est réécrite commentée", "[config]") {
+TEST_CASE("an option at its default is written back commented out", "[config]") {
     const std::string written = renderSettings(Settings{});
 
     CHECK_THAT(written, ContainsSubstring("#window.geometry = "));
@@ -275,7 +275,7 @@ TEST_CASE("une option à son défaut est réécrite commentée", "[config]") {
     CHECK_THAT(written, ContainsSubstring("#edit.insert-placement = below"));
 }
 
-TEST_CASE("une option réglée est réécrite nue", "[config]") {
+TEST_CASE("an option that was set is written back bare", "[config]") {
     const std::string written = renderSettings(chosen());
 
     CHECK_THAT(written, ContainsSubstring("\nwindow.geometry = 40,60,1440,900\n"));
@@ -291,7 +291,7 @@ TEST_CASE("une option réglée est réécrite nue", "[config]") {
 // n'est pas une coquetterie : une option jamais touchée n'est pas figée à la
 // valeur du jour où elle a été écrite. Relire ce qu'on vient d'écrire redonne
 // donc les défauts, et non des valeurs gelées.
-TEST_CASE("une option à son défaut se relit au défaut après réécriture", "[config]") {
+TEST_CASE("an option at its default reads back as the default after a rewrite", "[config]") {
     InMemoryFileSystem files;
     REQUIRE(writeSettings(files, kPath, Settings{}).has_value());
 
@@ -301,7 +301,7 @@ TEST_CASE("une option à son défaut se relit au défaut après réécriture", "
     CHECK(read.diagnostics.empty());
 }
 
-TEST_CASE("ce qui a été réglé se relit tel quel", "[config]") {
+TEST_CASE("what was set reads back unchanged", "[config]") {
     InMemoryFileSystem files;
     REQUIRE(writeSettings(files, kPath, chosen()).has_value());
 
@@ -313,7 +313,7 @@ TEST_CASE("ce qui a été réglé se relit tel quel", "[config]") {
 
 // ## Ce que l'écriture demande au système de fichiers
 
-TEST_CASE("l'écriture fait le répertoire que personne n'a fait", "[config]") {
+TEST_CASE("writing makes the directory nobody made", "[config]") {
     // Au premier lancement, `~/.config/subedit` n'existe pas.
     InMemoryFileSystem files;
 
@@ -321,14 +321,14 @@ TEST_CASE("l'écriture fait le répertoire que personne n'a fait", "[config]") {
     CHECK(files.contentOf(kPath).has_value());
 }
 
-TEST_CASE("une écriture refusée est rendue, et n'arrête rien", "[config]") {
+TEST_CASE("a refused write is returned, and stops nothing", "[config]") {
     InMemoryFileSystem files;
     files.failNextWrite(FileErrorKind::PermissionDenied);
 
     CHECK_FALSE(writeSettings(files, kPath, chosen()).has_value());
 }
 
-TEST_CASE("le fichier écrit s'explique de lui-même", "[config]") {
+TEST_CASE("the written file explains itself", "[config]") {
     // Il est fait pour être ouvert dans un éditeur : sans ces lignes, un
     // lecteur qui tombe sur des options commentées croit à des restes.
     const std::string written = renderSettings(Settings{});

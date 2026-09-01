@@ -175,7 +175,7 @@ TEST_CASE("a signal can be watched", "[gui]") {
 // The harness silences one sentence of the offscreen platform, and this is what
 // keeps that silence honest: a handler that hid a warning nobody asked it to
 // hide would make every test run quieter and less true.
-TEST_CASE("le silence du harnais ne porte que sur deux phrases", "[gui]") {
+TEST_CASE("the harness silences two sentences and no more", "[gui]") {
     CHECK(isOffscreenNoise(QStringLiteral("This plugin does not support propagateSizeHints()")));
     CHECK(isOffscreenNoise(QStringLiteral("This plugin does not support raise()")));
 
