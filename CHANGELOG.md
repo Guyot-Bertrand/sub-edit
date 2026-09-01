@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **gui** — Le manuel rendu par les outils qui comptent
+- **build** — Une page de manuel pour subedit-gui
 
 ### Corrections
 
@@ -26,6 +27,7 @@ ne pas l'éditer à la main.
 ### Remaniements
 
 - **build** — L'analyse suit la compilation, la porte sort du make
+- **test** — Les intitulés de tests en anglais
 
 ## 0.8.0 — 2026-08-30
 
