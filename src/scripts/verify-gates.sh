@@ -1211,6 +1211,19 @@ expect_bench_extremes_hold() {
     work="$(mktemp -d)"
     journal="${work}/performances.md"
 
+    write_bench_xml_with_sd() {
+        printf '%s\n' \
+            '<?xml version="1.0" encoding="UTF-8"?>' \
+            '<Catch2TestRun name="verify">' \
+            '  <TestCase name="t">' \
+            "    <BenchmarkResults name=\"$1\" samples=\"1\" resamples=\"0\" iterations=\"1\" clockResolution=\"1\" estimatedDuration=\"1\">" \
+            "      <mean value=\"$2\" lowerBound=\"$2\" upperBound=\"$2\" ci=\"0.95\"/>" \
+            "      <standardDeviation value=\"$3\" lowerBound=\"$3\" upperBound=\"$3\" ci=\"0.95\"/>" \
+            '    </BenchmarkResults>' \
+            '  </TestCase>' \
+            '</Catch2TestRun>' > "${work}/run.xml"
+    }
+
     write_bench_xml() {
         printf '%s\n' \
             '<?xml version="1.0" encoding="UTF-8"?>' \
@@ -1285,7 +1298,54 @@ expect_bench_extremes_hold() {
         return
     fi
 
-    printf '  %s✓ neuve écartée à chaud, posée au calme, reprise quand sa source est remplacée%s\n' \
+    # **Le second critère : la dispersion** — issue #202. La charge lit la
+    # machine, pas la mesure. Un relevé pris à charge 1,44 — donc admis — a posé
+    # un maximum définitif sur un ticket qui ne changeait aucun `.cpp`, avec un
+    # écart-type valant 26 % de sa moyenne là où cette mesure-là se tient entre
+    # 3 et 8 %.
+    #
+    # L historique du journal jetable est écrit à 5 % de dispersion sur six
+    # relevés, ce qui donne un seuil de 6,25 % : le relevé ci-dessous est calme
+    # et six fois plus dispersé que d habitude.
+    printf '%s\n' \
+        '# Journal' '' '<!-- extrêmes -->' '' \
+        '| Mesure | Minimum | Relevé le | Maximum | Relevé le |' \
+        '| :----- | ------: | :-------- | ------: | :-------- |' \
+        '| stable | 1000 ns | 0.0.1 — 2020-01-01 | 1000 ns | 0.0.1 — 2020-01-01 |' '' \
+        '<!-- stable min=1000.0 max=1000.0 -->' '' \
+        '## Relevés' '' '<!-- relevés -->' '' > "${journal}"
+    local passe
+    for passe in 1 2 3 4 5 6; do
+        printf '%s\n' \
+            "### 0.0.${passe} — $(date +%F) — Release — charge 0.5 — allure ×1.00" '' \
+            '| Mesure | Moyenne | Écart-type |' '| :----- | ------: | ---------: |' \
+            '| stable | 1000 ns | 50 ns |' '' >> "${journal}"
+    done
+
+    write_bench_xml_with_sd "stable" 2000 520
+    "${script}" --xml "${work}/run.xml" --mode Release --load 0.5 --below 1.5 \
+        --journal "${journal}" >/dev/null 2>&1 || status=$?
+    if grep -q '<!-- stable min=1000.0 max=2000.0 -->' "${journal}"; then
+        printf '  %s✗ un relevé six fois plus dispersé que d habitude a posé son maximum%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+        rm -rf "${work}"
+        return
+    fi
+
+    # Et le pendant : la mesure entre quand même au journal. Ce qui lui est
+    # refusé est l enveloppe, pas l historique.
+    if ! grep -q '| stable | 2 µs |' "${journal}"; then
+        printf '  %s✗ un relevé dispersé a été écarté du journal, pas seulement de la table%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+        rm -rf "${work}"
+        return
+    fi
+
+    printf '  %s✓ neuve écartée à chaud, posée au calme, reprise quand sa source est remplacée,%s\n' \
+        "${GREEN}" "${RESET}"
+    printf '  %s  et une mesure trop dispersée entre au journal sans toucher à l enveloppe%s\n' \
         "${GREEN}" "${RESET}"
     rm -rf "${work}"
 }
@@ -1400,7 +1460,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles quarante-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles cinquante portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

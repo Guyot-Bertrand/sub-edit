@@ -272,6 +272,21 @@ def read_means(block):
     return means
 
 
+def read_spreads(block):
+    """La dispersion de chaque mesure d'un relevé : son écart-type sur sa moyenne.
+
+    Sans unité, donc comparable d'une mesure à l'autre — ce qu'un écart-type
+    nu n'est pas, une nanoseconde et une milliseconde ne se comparant pas.
+    """
+    spreads = {}
+    for row in row_pattern.finditer(block):
+        mean = dehumanise(row.group("mean"))
+        sd = dehumanise(row.group("sd"))
+        if mean and sd is not None:
+            spreads[unescape_cell(row.group("name").strip())] = sd / mean
+    return spreads
+
+
 def pace_of(means, previous):
     """L'allure de `means` face à `previous`, du plus récent au plus ancien.
 
@@ -384,8 +399,75 @@ current_means = {measure["name"]: measure["mean"] for measure in measures}
 # de la phase 6 sont nées ainsi sous une charge de 5,73, et la table a dû être
 # corrigée à la main. Laissée hors de la table, une mesure neuve y entrera au
 # premier relevé calme — le journal montre son chiffre entre-temps.
+# ## La dispersion, second critère d'admission — issue #202
+#
+# **Le seuil de charge lit la machine ; il ne lit pas la mesure.** Un relevé pris
+# à charge 1,44 — donc admis — a posé un maximum définitif sur un ticket qui ne
+# changeait aucun `.cpp`. Sa moyenne était haute de 10 %, et son écart-type valait
+# 26 % de sa moyenne là où cette mesure-là se tient entre 3 et 8 %. La mesure
+# disait elle-même qu'elle ne valait rien, et personne ne l'écoutait.
+#
+# **Le critère est relatif à la mesure, et il le fallait.** La dispersion médiane
+# du journal est de 17 %, et elle va de 3,8 % pour la mise à l'échelle d'un
+# rationnel à 43,6 % pour un décalage de quatre mille sous-titres. Un seuil unique
+# à 10 %, tel que l'issue le proposait, refuserait plus d'une mesure sur deux ;
+# pesé sur le journal il fait tomber les maxima posés de 134 à 84 pour n'en
+# épargner que huit de mauvais. Ce qui compte n'est pas qu'une mesure soit
+# dispersée, c'est qu'elle le soit **plus que d'habitude**.
+#
+# **Le facteur vaut un quart au-dessus de la médiane**, et c'est là que la courbe
+# tourne — mesuré sur les 87 relevés du journal, en comptant les maxima posés et
+# ceux que les relevés suivants démentent :
+#
+#     charge seule                 134 maxima posés, 11 démentis (8,2 %)
+#     charge et dispersion x1,0    119 posés,  4 démentis (3,4 %)
+#     charge et dispersion x1,25   126 posés,  4 démentis (3,2 %)
+#     charge et dispersion x1,5    121 posés,  5 démentis (4,1 %)
+#     charge et dispersion x2,0    131 posés,  6 démentis (4,6 %)
+#
+# `analyse-bench-journal.py` rejoue ce calcul ; le seuil se relève ou se resserre
+# sur des chiffres et non sur une opinion.
+#
+# **Il s'ajoute à la charge, il ne la remplace pas.** Les deux n'attrapent pas le
+# même défaut, et la dispersion seule est nettement moins bonne — 24 pointes
+# admises contre 5. La charge se lit de plus **avant** de mesurer, ce qui permet
+# de renoncer ; la dispersion ne se connaît qu'après.
+SPREAD_FACTOR = 1.25
+
+# En deçà de tant de relevés, la médiane d'une mesure ne dit rien et le critère
+# ne s'applique pas — la charge reste seule juge. Une mesure neuve est déjà
+# tenue par la règle de #189, qui la laisse hors de la table jusqu'au premier
+# relevé calme.
+SPREAD_MINIMUM = 5
+
+history_spreads = {}
+for block in kept:
+    for name, spread in read_spreads(block).items():
+        history_spreads.setdefault(name, []).append(spread)
+
+current_spreads = {
+    measure["name"]: measure["sd"] / measure["mean"]
+    for measure in measures
+    if measure["mean"]
+}
+
+
+def steady(name):
+    """Cette mesure-ci est-elle assez peu dispersée pour toucher à l'enveloppe ?"""
+    seen = history_spreads.get(name, [])
+    if len(seen) < SPREAD_MINIMUM or name not in current_spreads:
+        return True
+    return current_spreads[name] <= SPREAD_FACTOR * statistics.median(seen)
+
+
+def admits(name):
+    """Les deux critères, et il en faut deux."""
+    return quiet and steady(name)
+
+
 newcomers = [measure["name"] for measure in measures if measure["name"] not in known]
-ordered_names = list(known) + (newcomers if quiet else [])
+ordered_names = list(known) + [name for name in newcomers if admits(name)]
+
 
 
 def posed_by_replaced(source):
@@ -418,11 +500,11 @@ for name in ordered_names:
             # présente au journal, des chiffres que cette version n'y montre
             # plus. Repris du relevé courant s'il est propre — meilleur ou
             # pire, ce qui compte est qu'il soit vérifiable.
-            if quiet and posed_by_replaced(minsrc):
+            if admits(name) and posed_by_replaced(minsrc):
                 low, minsrc = value, stamp
-            if quiet and posed_by_replaced(maxsrc):
+            if admits(name) and posed_by_replaced(maxsrc):
                 high, maxsrc = value, stamp
-            if not quiet and (posed_by_replaced(minsrc) or posed_by_replaced(maxsrc)):
+            if not admits(name) and (posed_by_replaced(minsrc) or posed_by_replaced(maxsrc)):
                 stale.append(name)
         else:
             low = high = value
@@ -431,12 +513,12 @@ for name in ordered_names:
         # dans l'historique mais ne touche pas à l'enveloppe. Un maximum posé
         # par du bruit est définitif — la table n'est jamais élaguée — et rend
         # la mesure aveugle à toute régression plus petite que ce bruit.
-        if quiet and value < low:
+        if admits(name) and value < low:
             low, minsrc = value, stamp
-        if quiet and value > high:
+        if admits(name) and value > high:
             high, maxsrc = value, stamp
-        if not quiet and (value < raw.get(name, (value, value))[0] or
-                          value > raw.get(name, (value, value))[1]):
+        if not admits(name) and (value < raw.get(name, (value, value))[0] or
+                                 value > raw.get(name, (value, value))[1]):
             withheld.append(name)
     rows.append(
         f"| {escape_cell(name)} | {humanise(low)} | {minsrc} | {humanise(high)} | {maxsrc} |"
@@ -478,12 +560,32 @@ except BaseException:
     os.unlink(tmp_path)
     raise
 
+unsteady = sorted(name for name in current_spreads if quiet and not steady(name))
+
+# **Deux en-têtes, un seul jeu de détails.** Les deux critères écartent la même
+# chose — le droit de toucher à l'enveloppe — et ce qui a été écarté se dit une
+# fois, quelle que soit la raison.
 if not quiet:
     print(
         f"avertissement : charge {load}, seuil {below} — ce relevé entre au "
         "journal mais ne fixe aucun extrême.",
         file=sys.stderr,
     )
+elif unsteady:
+    print(
+        f"avertissement : {len(unsteady)} mesure(s) plus dispersées que "
+        f"d'habitude — au-delà de {SPREAD_FACTOR:g} fois leur médiane, une "
+        "mesure ne fixe aucun extrême :",
+        file=sys.stderr,
+    )
+    for name in unsteady:
+        usual = statistics.median(history_spreads[name])
+        print(
+            f"  {current_spreads[name]:.0%} contre {usual:.0%} d'habitude — {name}",
+            file=sys.stderr,
+        )
+
+if not quiet or unsteady:
     if withheld:
         print(
             "  il en aurait posé pour : " + ", ".join(sorted(withheld)),
@@ -504,6 +606,7 @@ if not quiet:
             "vérifiables.",
             file=sys.stderr,
         )
+
 PY
 
 printf '%s✓%s relevé versé dans %s pour la version %s\n' \
