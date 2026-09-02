@@ -842,6 +842,50 @@ PYTHON
 
 expect_encoding_fixture_gate
 
+# Le scorimètre ne peut pas nommer un fichier — issue #290.
+#
+# **Ce qui peut être faux ici n est pas un vert de trop, c est une fuite.** Le
+# corpus privé ne se cite jamais : ni titre, ni nom de fichier, ni chiffre
+# attribué à l un d eux. Un outil qui le parcourt et qui *peut* le nommer finit
+# par le nommer.
+#
+# Il l a fait. La première version passait la commande de détection au shell
+# avec le chemin substitué en clair ; les noms du corpus portent des espaces et
+# des crochets, donc `file` a reçu des arguments éclatés, s est plaint de
+# chacun, et ses plaintes — qui citaient les noms — ont été lues comme des
+# encodages puis imprimées.
+#
+# Deux gardes en sont sorties, et cette preuve les exerce toutes les deux : le
+# chemin est un élément d argv, et ce que le détecteur rend est refusé s il n a
+# pas la forme d un nom d encodage. Le détecteur de cette preuve fait exactement
+# ce que `file` faisait — il écrit un chemin.
+expect_scorer_never_names_a_file() {
+    local work chatty output
+    work="$(mktemp -d)"
+    chatty="${work}/bavard.sh"
+
+    printf '%s▸ un détecteur qui recrache un chemin%s\n' "${BOLD}" "${RESET}"
+
+    printf '#!/bin/sh\necho "cannot open %s"\n' \
+        "/aucun/fichier/reel/ne porte ce nom.srt" > "${chatty}"
+    chmod +x "${chatty}"
+
+    output="$("${REPO_ROOT}/src/scripts/score-encoding-detection.py" \
+        --detector "${chatty} {}" 2>&1 || true)"
+
+    if grep -q "ne porte ce nom" <<< "${output}"; then
+        printf '  %s✗ le scorimètre a imprimé ce que le détecteur lui a donné%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ la réponse a été refusée, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    rm -rf "${work}"
+}
+
+expect_scorer_never_names_a_file
+
 # La porte refuse qu une exécution touche la configuration de l utilisateur.
 #
 # **Deux preuves et non une**, pour la raison qui en demande deux à la
@@ -1501,7 +1545,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles cinquante et une portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles cinquante-deux portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
