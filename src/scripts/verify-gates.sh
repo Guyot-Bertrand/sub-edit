@@ -801,6 +801,47 @@ expect_untracked_gate() {
 
 expect_untracked_gate
 
+# Une fixture d encodage qui n est plus ce que sa table annonce — issue #289.
+#
+# **C est la seule famille de fixtures dont l altération soit invisible.** Une
+# grille se relit, une vidéo se réinterroge à ffprobe ; un fichier en CP1252 ne
+# dit même pas ce qu il est, et un octet changé y ressemble en tout point à un
+# octet juste. `--check` le reconstruit depuis la table et compare octet par
+# octet — c est tout ce qui sépare une fixture d une croyance.
+#
+# L injection change **un seul octet**, celui qui distingue justement CP1252 de
+# Latin-1 : la plage 0x80-0x9f. C est le cas que le contrôle doit voir, et celui
+# qu une comparaison de texte manquerait — les deux se décodent sans erreur.
+expect_encoding_fixture_gate() {
+    local victim="${REPO_ROOT}/src/test/data/encodages/cp1252.srt"
+
+    printf '%s▸ une fixture d encodage altérée d un octet%s\n' "${BOLD}" "${RESET}"
+
+    cp "${victim}" "${backup_dir}/cp1252.srt"
+    python3 - "${victim}" <<'PYTHON'
+import sys
+path = sys.argv[1]
+data = bytearray(open(path, "rb").read())
+for index, byte in enumerate(data):
+    if 0x80 <= byte <= 0x9F:
+        data[index] = 0x2E  # un point, parfaitement licite en Latin-1
+        break
+open(path, "wb").write(bytes(data))
+PYTHON
+
+    if make -C "${REPO_ROOT}" --no-print-directory fixtures >/dev/null 2>&1; then
+        printf '  %s✗ la porte « fixtures » a laissé passer l octet changé%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make fixtures » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    cp "${backup_dir}/cp1252.srt" "${victim}"
+}
+
+expect_encoding_fixture_gate
+
 # La porte refuse qu une exécution touche la configuration de l utilisateur.
 #
 # **Deux preuves et non une**, pour la raison qui en demande deux à la
@@ -1460,7 +1501,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles cinquante portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles cinquante et une portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

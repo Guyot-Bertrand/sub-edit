@@ -1,0 +1,1 @@
+100:00:02,000 --> 00:00:03,000Le port était vide à cette heure-là.200:00:04,000 --> 00:00:05,000Où êtes-vous passé ?300:00:06,000 --> 00:00:07,000Ça n'a pas duré très longtemps.

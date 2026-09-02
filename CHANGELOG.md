@@ -32,6 +32,10 @@ ne pas l'éditer à la main.
 - **test** — Les intitulés de tests en anglais
 - **scripts** — Reprendre check-installation.sh au milieu
 
+### Tests
+
+- **test** — Des fixtures qui sont vraiment dans leur encodage
+
 ## 0.8.0 — 2026-08-30
 
 ### Ajouts

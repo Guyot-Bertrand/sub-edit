@@ -7,3 +7,5 @@ step "fixtures vidéo"
 "${REPO_ROOT}/src/scripts/video-fixtures.sh" --check
 step "fixtures de grille"
 "${REPO_ROOT}/src/scripts/subtitle-fixtures.py" --check
+step "fixtures d encodage"
+"${REPO_ROOT}/src/scripts/encoding-fixtures.py" --check
