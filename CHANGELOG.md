@@ -13,6 +13,7 @@ ne pas l'éditer à la main.
 
 - **gui** — Le manuel rendu par les outils qui comptent
 - **build** — Une page de manuel pour subedit-gui
+- **core** — Lire un fichier dans un encodage donné, par ICU
 
 ### Corrections
 
