@@ -32,6 +32,7 @@ ne pas l'éditer à la main.
 - **build** — L'analyse suit la compilation, la porte sort du make
 - **test** — Les intitulés de tests en anglais
 - **scripts** — Reprendre check-installation.sh au milieu
+- **core** — L'encodage dans le modèle, le BOM en devient la variante
 
 ### Tests
 
