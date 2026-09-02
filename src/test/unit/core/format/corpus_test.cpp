@@ -17,7 +17,6 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
-#include <array>
 #include <expected>
 #include <filesystem>
 #include <optional>
@@ -72,25 +71,41 @@ bool hasDiagnostic(const ReadResult& result, DiagnosticKind kind) {
 }
 
 /// The files that must open, and come back out unchanged.
-constexpr std::array<std::string_view, 9> kValid = {
-    "valides/minimal.srt",
-    "valides/trois.srt",
-    "valides/cadence.srt",
-    "valides/coordonnees.srt",
-    "valides/balises.srt",
-    "valides/crlf-bom.srt",
-    "valides/minimal.vtt",
-    "valides/complet.vtt",
-    "valides/heures.vtt",
-};
+///
+/// **Enumerated, never listed** — issue #289. This used to be nine names
+/// written by hand, and a fixture added without being written in ran through
+/// nothing: the tests stayed green and proved nothing about it. It is the
+/// defect `check-installation.sh` names for the manual — "a list written by
+/// hand goes stale at the first chapter added, in silence" — and it is about
+/// to matter, because phase 8 adds fixtures by the handful.
+///
+/// The directory is the list. A file dropped into `valides/` is opened, and
+/// comes back out byte for byte, without anyone having to remember.
+[[nodiscard]] std::vector<std::filesystem::path> validFiles() {
+    std::vector<std::filesystem::path> found;
+
+    for (const std::filesystem::directory_entry& entry :
+         std::filesystem::directory_iterator{corpus("valides")}) {
+        if (entry.is_regular_file())
+            found.push_back(entry.path());
+    }
+
+    // Sorted, so that a failure names the same file from one run to the next:
+    // the order a directory hands back is the file system's business.
+    std::ranges::sort(found);
+    return found;
+}
 
 } // namespace
 
 TEST_CASE("every valid file of the corpus opens", "[format][corpus]") {
-    for (const std::string_view name : kValid) {
-        const std::expected<ReadResult, ReadError> result = readSubtitles(bytesOf(corpus(name)));
+    const std::vector<std::filesystem::path> files = validFiles();
+    REQUIRE(files.size() >= 9);
 
-        INFO("fichier : " << name);
+    for (const std::filesystem::path& path : files) {
+        const std::expected<ReadResult, ReadError> result = readSubtitles(bytesOf(path));
+
+        INFO("fichier : " << path.filename().string());
         REQUIRE(result.has_value());
         CHECK_FALSE(result->subtitles.empty());
         CHECK(result->diagnostics.empty());
@@ -102,11 +117,11 @@ TEST_CASE("every valid file of the corpus comes back byte for byte",
     // The promise made to the user: opening a file and saving it back changes
     // nothing. The numbering of SubRip is regenerated, which is why these
     // files carry the numbering the writer produces.
-    for (const std::string_view name : kValid) {
-        const std::string original = bytesOf(corpus(name));
+    for (const std::filesystem::path& path : validFiles()) {
+        const std::string original = bytesOf(path);
         const std::expected<ReadResult, ReadError> result = readSubtitles(original);
 
-        INFO("fichier : " << name);
+        INFO("fichier : " << path.filename().string());
         REQUIRE(result.has_value());
         CHECK(roundTrip(*result) == original);
     }
