@@ -1,6 +1,7 @@
 #pragma once
 
 #include <subedit/core/format/diagnostic.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -25,9 +26,9 @@ struct ReadResult {
     /// The WebVTT header, empty for the formats that have none.
     std::string header{};
 
-    /// Detected, and kept so that writing can put it back.
+    /// Detected, and kept so that writing can put them back.
     Newline newline = Newline::Lf;
-    bool hadUtf8Bom = false;
+    Encoding encoding = Encoding::utf8(ByteOrderMark::Absent);
 
     /// What the reader recovered from, in the order it was met.
     std::vector<Diagnostic> diagnostics{};
@@ -36,8 +37,9 @@ struct ReadResult {
 /// Builds what a project has to remember of the file it came from.
 ///
 /// The counterpart of reading: everything a writer needs to put the file back
-/// as it was — its format, its header, its line endings, its byte order mark —
-/// plus where it lives. An empty `path` is a document that was never on disk.
+/// as it was — its format, its header, its line endings, its encoding and the
+/// mark that encoding carries — plus where it lives. An empty `path` is a
+/// document that was never on disk.
 ///
 /// A free function and not a member: `ReadResult` is what a reader produces,
 /// `SourceFile` is what the model keeps, and neither has to know the other's
@@ -48,7 +50,7 @@ struct ReadResult {
                              : std::optional<std::filesystem::path>{std::move(path)},
         .format = result.format,
         .newline = result.newline,
-        .hadUtf8Bom = result.hadUtf8Bom,
+        .encoding = result.encoding,
         .header = result.header,
     };
 }

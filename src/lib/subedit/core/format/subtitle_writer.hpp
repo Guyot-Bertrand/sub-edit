@@ -1,6 +1,7 @@
 #pragma once
 
 #include <subedit/core/model/document.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 
@@ -25,6 +26,14 @@ struct WriteRequest {
     /// The choice belongs to the caller, and the information needed to put
     /// back what a file arrived with is kept in `SourceFile`.
     Newline newline = Newline::Lf;
+
+    /// The encoding to write in, byte order mark included.
+    ///
+    /// UTF-8 without a mark by default, which is what the project writes unless
+    /// told otherwise. Here rather than an argument of its own since phase 8:
+    /// the encoding is a property of the file being written, like its endings,
+    /// and a third positional argument said nothing at the call site.
+    Encoding encoding = Encoding::utf8(ByteOrderMark::Absent);
 
     /// The header the file came with, for the formats that have one.
     ///

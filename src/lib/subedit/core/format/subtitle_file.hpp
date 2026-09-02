@@ -11,15 +11,6 @@
 
 namespace subedit::core {
 
-/// Whether a byte order mark precedes the text of a file.
-///
-/// An enumeration rather than a boolean: `writeSubtitles(format, request,
-/// true)` says nothing at the call site about what is true.
-enum class Utf8Bom {
-    Absent,
-    Present,
-};
-
 /// Reads a file whose format is not known in advance.
 ///
 /// Ties together what the file is made of before any format sees it: the bytes
@@ -30,11 +21,14 @@ enum class Utf8Bom {
 /// format claims the content.
 [[nodiscard]] std::expected<ReadResult, ReadError> readSubtitles(std::string_view content);
 
-/// Renders subtitles into the text of a file of `format`.
+/// Renders subtitles into the bytes of a file of `format`.
 ///
-/// The counterpart of `readSubtitles`: the byte order mark goes back on here,
-/// so that no format has to know it exists.
-[[nodiscard]] std::string
-writeSubtitles(SubtitleFormat format, const WriteRequest& request, Utf8Bom bom);
+/// The counterpart of `readSubtitles`: the byte order mark of the requested
+/// encoding goes back on here, so that no format has to know it exists.
+///
+/// **The text itself is UTF-8, whatever encoding the request names.** Nothing
+/// can name another one yet — reading only ever produces UTF-8 — and the
+/// converter that would honour it comes with the phase that writes the others.
+[[nodiscard]] std::string writeSubtitles(SubtitleFormat format, const WriteRequest& request);
 
 } // namespace subedit::core

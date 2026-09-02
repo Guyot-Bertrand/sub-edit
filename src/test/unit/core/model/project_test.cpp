@@ -1,3 +1,4 @@
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
@@ -12,6 +13,8 @@
 
 namespace {
 
+using subedit::core::ByteOrderMark;
+using subedit::core::Encoding;
 using subedit::core::FrameRate;
 using subedit::core::Newline;
 using subedit::core::Project;
@@ -72,7 +75,7 @@ TEST_CASE("a project that came from nowhere has no source file", "[model][projec
 
     CHECK_FALSE(project.sourceFile().path.has_value());
     CHECK(project.sourceFile().newline == Newline::Lf);
-    CHECK_FALSE(project.sourceFile().hadUtf8Bom);
+    CHECK(project.sourceFile().encoding == Encoding::utf8(ByteOrderMark::Absent));
     CHECK(project.sourceFile().header.empty());
 }
 
@@ -85,7 +88,7 @@ TEST_CASE("a project keeps what the file it came from looked like", "[model][pro
     project.setSourceFile(SourceFile{
         .path = std::filesystem::path{"/films/dialogue.vtt"},
         .newline = Newline::CrLf,
-        .hadUtf8Bom = true,
+        .encoding = Encoding::utf8(ByteOrderMark::Present),
         .header = "WEBVTT - Dialogue",
     });
 
@@ -97,7 +100,7 @@ TEST_CASE("a project keeps what the file it came from looked like", "[model][pro
 
     CHECK(path->filename() == "dialogue.vtt");
     CHECK(project.sourceFile().newline == Newline::CrLf);
-    CHECK(project.sourceFile().hadUtf8Bom);
+    CHECK(project.sourceFile().encoding == Encoding::utf8(ByteOrderMark::Present));
     CHECK(project.sourceFile().header == "WEBVTT - Dialogue");
 }
 

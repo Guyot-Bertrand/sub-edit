@@ -41,16 +41,17 @@ bool convertFile(core::FileSystem& files,
     // Empty means "as the source had it": the model kept both so that a
     // conversion would not throw them away.
     const core::Newline newline = shape.newline.value_or(source.newline);
-    const core::Utf8Bom bom =
-        shape.bom.value_or(source.hadUtf8Bom ? core::Utf8Bom::Present : core::Utf8Bom::Absent);
+    const core::Encoding encoding =
+        shape.bom ? source.encoding.withByteOrderMark(*shape.bom) : source.encoding;
 
     const core::WriteRequest request{
         .subtitles = opened->project.subtitles(),
         .document = core::Document::Main,
         .newline = newline,
+        .encoding = encoding,
         .header = source.header,
     };
-    const std::string written = core::writeSubtitles(target, request, bom);
+    const std::string written = core::writeSubtitles(target, request);
 
     const std::filesystem::path out = destination.pathFor(path, extensionOf(target));
     const std::expected<void, core::FileError> saved = core::writeAtomically(files, out, written);
@@ -67,8 +68,8 @@ bool convertFile(core::FileSystem& files,
     reporter.say(2,
                  path + ": " + std::string{nameOf(source.format)} + " -> " +
                      std::string{nameOf(target)} + ", UTF-8, " +
-                     (bom == core::Utf8Bom::Present ? "BOM" : "no BOM") + ", " +
-                     std::string{nameOf(newline)} + " line endings");
+                     (encoding.byteOrderMark() == core::ByteOrderMark::Present ? "BOM" : "no BOM") +
+                     ", " + std::string{nameOf(newline)} + " line endings");
     reporter.say(1,
                  path + ": " + core::countOf(opened->project.subtitles().size(), "subtitle") +
                      " written as " + std::string{nameOf(target)} + " -> " + out.string());

@@ -24,6 +24,7 @@ add_executable(
     core/time/timestamp_format_test.cpp
     core/time/timestamp_parse_test.cpp
     core/text/hearing_impaired_test.cpp
+    core/model/encoding_test.cpp
     core/model/format_extras_test.cpp
     core/model/subtitle_test.cpp
     core/model/project_test.cpp

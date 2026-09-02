@@ -45,10 +45,10 @@ bool rewriteFile(core::FileSystem& files,
         .subtitles = session.project().subtitles(),
         .document = core::Document::Main,
         .newline = source.newline,
+        .encoding = source.encoding,
         .header = source.header,
     };
-    const std::string written = core::writeSubtitles(
-        source.format, request, source.hadUtf8Bom ? core::Utf8Bom::Present : core::Utf8Bom::Absent);
+    const std::string written = core::writeSubtitles(source.format, request);
 
     // The extension is left alone: the format has not changed.
     const std::filesystem::path out = destination.pathFor(path, "");
@@ -64,10 +64,11 @@ bool rewriteFile(core::FileSystem& files,
                  path + ": " + std::to_string(opened->bytes) + " bytes read, " +
                      std::to_string(written.size()) + " written");
     sayDiagnostics(reporter, path, opened->diagnostics);
-    reporter.say(2,
-                 path + ": " + std::string{nameOf(source.format)} + ", UTF-8, " +
-                     (source.hadUtf8Bom ? "BOM" : "no BOM") + ", " +
-                     std::string{nameOf(source.newline)} + " line endings kept");
+    reporter.say(
+        2,
+        path + ": " + std::string{nameOf(source.format)} + ", UTF-8, " +
+            (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "BOM" : "no BOM") +
+            ", " + std::string{nameOf(source.newline)} + " line endings kept");
     reporter.say(1, path + ": " + *done + " -> " + out.string());
     return true;
 }

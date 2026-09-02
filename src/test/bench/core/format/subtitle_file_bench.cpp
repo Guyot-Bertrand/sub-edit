@@ -30,7 +30,6 @@ using subedit::core::readSubtitles;
 using subedit::core::Subtitle;
 using subedit::core::SubtitleFormat;
 using subedit::core::Timestamp;
-using subedit::core::Utf8Bom;
 using subedit::core::WriteRequest;
 using subedit::core::writeSubtitles;
 
@@ -76,8 +75,7 @@ TEST_CASE("reading and writing a full-length file", "[benchmark]") {
     };
 
     BENCHMARK("écriture de 4000 sous-titres") {
-        return writeSubtitles(
-            SubtitleFormat::SubRip, WriteRequest{.subtitles = subtitles}, Utf8Bom::Absent);
+        return writeSubtitles(SubtitleFormat::SubRip, WriteRequest{.subtitles = subtitles});
     };
 }
 

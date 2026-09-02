@@ -8,6 +8,7 @@
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/format/web_vtt_reader.hpp>
 #include <subedit/core/format/web_vtt_writer.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/encoding.hpp>
 
@@ -20,8 +21,6 @@
 namespace subedit::core {
 
 namespace {
-
-constexpr std::string_view kUtf8Bom = "\xEF\xBB\xBF";
 
 [[nodiscard]] std::expected<ReadResult, ReadError> readAs(SubtitleFormat format,
                                                           std::string_view content) {
@@ -59,7 +58,7 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
     if (!result.has_value())
         return result;
 
-    result->hadUtf8Bom = hadBom;
+    result->encoding = Encoding::utf8(hadBom ? ByteOrderMark::Present : ByteOrderMark::Absent);
 
     const NewlineScan scan = scanNewlines(text);
     result->newline = scan.newline;
@@ -74,10 +73,8 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
     return result;
 }
 
-std::string writeSubtitles(SubtitleFormat format, const WriteRequest& request, Utf8Bom bom) {
-    std::string out;
-    if (bom == Utf8Bom::Present)
-        out += kUtf8Bom;
+std::string writeSubtitles(SubtitleFormat format, const WriteRequest& request) {
+    std::string out{request.encoding.byteOrderMarkBytes()};
 
     switch (format) {
     case SubtitleFormat::SubRip:

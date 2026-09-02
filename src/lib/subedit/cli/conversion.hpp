@@ -4,6 +4,7 @@
 
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 
@@ -22,13 +23,13 @@ class Reporter;
 
 /// What the bytes of the written file look like, beyond their format.
 ///
-/// Both are optional, and **empty means "as the source had it"**. The model of
-/// phase 1 records the line ending and the byte order mark of the file it read;
+/// Both are optional, and **empty means "as the source had it"**. The model
+/// records the line ending and the encoding of the file it read, mark included;
 /// imposing either by default would lose, at every conversion, information the
 /// core took care to keep.
 struct WriteShape {
     std::optional<subedit::core::Newline> newline{};
-    std::optional<subedit::core::Utf8Bom> bom{};
+    std::optional<subedit::core::ByteOrderMark> bom{};
 };
 
 /// Whether writing `target` back over these paths would leave a file misnamed.

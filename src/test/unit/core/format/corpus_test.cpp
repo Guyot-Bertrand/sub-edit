@@ -36,7 +36,6 @@ using subedit::core::ReadResult;
 using subedit::core::readSubtitles;
 using subedit::core::RealFileSystem;
 using subedit::core::scanAnomalies;
-using subedit::core::Utf8Bom;
 using subedit::core::WriteRequest;
 using subedit::core::writeSubtitles;
 
@@ -60,9 +59,9 @@ std::string roundTrip(const ReadResult& result) {
                           WriteRequest{
                               .subtitles = result.subtitles,
                               .newline = result.newline,
+                              .encoding = result.encoding,
                               .header = result.header,
-                          },
-                          result.hadUtf8Bom ? Utf8Bom::Present : Utf8Bom::Absent);
+                          });
 }
 
 bool hasDiagnostic(const ReadResult& result, DiagnosticKind kind) {
@@ -135,7 +134,7 @@ TEST_CASE("a file saved under Windows keeps its endings and its mark",
     const std::expected<ReadResult, ReadError> result = readSubtitles(original);
 
     REQUIRE(result.has_value());
-    CHECK(result->hadUtf8Bom);
+    CHECK(result->encoding.byteOrderMark() == subedit::core::ByteOrderMark::Present);
     CHECK(result->newline == subedit::core::Newline::CrLf);
     CHECK(roundTrip(*result) == original);
 }
