@@ -25,6 +25,7 @@ ne pas l'éditer à la main.
 
 - **doc** — Trois renvois tranchés, et ce qu'ils laissent
 - **doc** — Ce que le graphe d'inclusions coûte, mesuré
+- **doc** — Cadrage de la phase 8, les encodages
 
 ### Remaniements
 
