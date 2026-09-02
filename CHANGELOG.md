@@ -35,6 +35,7 @@ ne pas l'éditer à la main.
 ### Tests
 
 - **test** — Des fixtures qui sont vraiment dans leur encodage
+- **scripts** — Scorer une détection d'encodage plutôt que la croire
 
 ## 0.8.0 — 2026-08-30
 
