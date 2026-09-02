@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -26,49 +27,54 @@ enum class ByteOrderMark {
 /// **A validated name and not an enumeration**, because the set of encodings is
 /// ICU's — ADR 0027 — and no table of them is written in this repository. That
 /// is not a `std::string` used as an enumeration either: the constructor is
-/// private, so an encoding nobody named cannot be built. The named
-/// constructors below are the Unicode encodings *this code* speaks about,
-/// because a byte order mark names one of them; the ninety-seven others come
-/// in with the converter that can prove they exist.
+/// private, and the only way in for a name is `create`, which asks ICU whether
+/// it can convert it. An encoding nobody can read is unrepresentable rather
+/// than reported at the point of use.
 class Encoding {
 
 public:
+    /// Builds the encoding ICU knows under `name`, or nothing if it knows none.
+    ///
+    /// Aliases are accepted the way ICU accepts them — `cp1252`, `windows-1252`
+    /// and `WINDOWS 1252` all name one encoding — and the value keeps the
+    /// canonical spelling, so that two names for the same converter compare
+    /// equal. Answering "unknown" is the point: the alternative is a name that
+    /// travels through the model and fails at the moment of reading, when the
+    /// user is no longer being asked anything.
+    [[nodiscard]] static std::optional<Encoding> create(std::string_view name, ByteOrderMark mark);
+
     /// UTF-8, the encoding every file was read as until phase 8.
-    [[nodiscard]] static Encoding utf8(ByteOrderMark mark) {
-        return Encoding{"utf-8", "\xEF\xBB\xBF", mark};
-    }
+    [[nodiscard]] static Encoding utf8(ByteOrderMark mark) { return Encoding{"UTF-8", mark}; }
 
     /// UTF-16, little-endian.
-    [[nodiscard]] static Encoding utf16Le(ByteOrderMark mark) {
-        return Encoding{"utf-16-le", "\xFF\xFE", mark};
-    }
+    [[nodiscard]] static Encoding utf16Le(ByteOrderMark mark) { return Encoding{"UTF-16LE", mark}; }
 
     /// UTF-16, big-endian.
-    [[nodiscard]] static Encoding utf16Be(ByteOrderMark mark) {
-        return Encoding{"utf-16-be", "\xFE\xFF", mark};
-    }
+    [[nodiscard]] static Encoding utf16Be(ByteOrderMark mark) { return Encoding{"UTF-16BE", mark}; }
 
     /// Returns the encoding alone, mark excluded — the name a converter takes.
     ///
-    /// Never the `-sig` spelling: that one names a file, this one names a way
-    /// of turning bytes into text, and no converter knows what a mark is.
+    /// The canonical spelling ICU gives it, which is its IANA name wherever it
+    /// has one. Never the `-sig` spelling: that one names a file, this one
+    /// names a way of turning bytes into text, and no converter knows what a
+    /// mark is.
     [[nodiscard]] std::string_view charset() const { return m_charset; }
 
     /// Returns whether a mark precedes the text.
     [[nodiscard]] ByteOrderMark byteOrderMark() const { return m_mark; }
 
-    /// Returns the bytes of that mark, empty when there is none.
+    /// Returns the bytes of the mark this charset uses, empty for the ones that
+    /// use none.
     ///
-    /// Held by the encoding rather than rendered from its name, and the
-    /// difference is not cosmetic: `charactersOf(Newline)` renders a choice the
-    /// writer makes, whereas a mark is decided by the encoding itself — the two
-    /// bytes at the head of a UTF-16 file *are* what says its byte order. A
-    /// mapping from names to marks somewhere else would be that same knowledge
-    /// written twice, and dispatching on a name is the string-as-enumeration
-    /// the design principles refuse.
-    [[nodiscard]] std::string_view byteOrderMarkBytes() const {
-        return m_mark == ByteOrderMark::Present ? m_markBytes : std::string_view{};
-    }
+    /// **What the charset would carry, not what this value carries** — whether
+    /// it is actually there is `byteOrderMark`. Reading needs both apart: it
+    /// takes the mark off the bytes to see whether it was ever there.
+    ///
+    /// Held by the encoding rather than mapped from its name somewhere else:
+    /// the two bytes at the head of a UTF-16 file *are* what says its byte
+    /// order, and dispatching on a name elsewhere would be the
+    /// string-as-enumeration the design principles refuse.
+    [[nodiscard]] std::string_view byteOrderMarkBytes() const { return m_markBytes; }
 
     /// Returns the same encoding, its mark forced either way.
     ///
@@ -84,19 +90,20 @@ public:
 
     /// Returns the name of the whole answer, mark included.
     ///
-    /// `utf-8-sig` is Python's own name for UTF-8 with a mark, and Gaupol shows
-    /// it as such. Python has no name for the UTF-16 pair — it detects their
-    /// mark rather than naming it — so the same suffix is carried over rather
-    /// than a second convention invented for two cases.
+    /// The `-sig` suffix is Python's own for UTF-8 with a mark, and Gaupol
+    /// shows it as `UTF-8-SIG`. Python has no name for the UTF-16 pair — it
+    /// detects their mark rather than naming it — so the same suffix is carried
+    /// over rather than a second convention invented for two cases.
     [[nodiscard]] std::string name() const {
         return m_mark == ByteOrderMark::Present ? m_charset + "-sig" : m_charset;
     }
 
-    [[nodiscard]] friend bool operator==(const Encoding&, const Encoding&) = default;
+    [[nodiscard]] friend bool operator==(const Encoding& left, const Encoding& right) {
+        return left.m_charset == right.m_charset && left.m_mark == right.m_mark;
+    }
 
 private:
-    Encoding(std::string_view charset, std::string_view markBytes, ByteOrderMark mark)
-        : m_charset(charset), m_markBytes(markBytes), m_mark(mark) {}
+    Encoding(std::string_view charset, ByteOrderMark mark);
 
     std::string m_charset;
 

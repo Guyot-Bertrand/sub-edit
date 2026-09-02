@@ -74,6 +74,7 @@ add_executable(
     core/format/open_project_test.cpp
     core/format/save_project_test.cpp
     core/format/corpus_test.cpp
+    core/format/encoded_corpus_test.cpp
     core/format/local_corpus_test.cpp)
 
 target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain)

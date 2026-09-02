@@ -25,7 +25,7 @@ garde ce qu'elle avait, sous-titres, historique et modifications comprises.
 | `does not exist` | le chemin ne désigne aucun fichier |
 | `cannot be opened: permission denied` | le système refuse de l'ouvrir |
 | `cannot be read` | le système a refusé pour une autre raison |
-| `is not valid UTF-8` | les octets ne sont pas de l'UTF-8 |
+| `cannot be decoded in the chosen encoding` | les octets ne se lisent pas dans l'encodage retenu |
 | `is in no format this tool knows` | aucun format ne reconnaît le contenu |
 | `holds nothing recognisable as a subtitle` | le format est reconnu, mais rien n'y est un sous-titre |
 

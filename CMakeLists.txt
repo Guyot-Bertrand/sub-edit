@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(
     subedit
-    VERSION 0.8.14
+    VERSION 0.8.15
     DESCRIPTION "Éditeur de sous-titres"
     HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
     LANGUAGES CXX)
@@ -67,6 +67,19 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets Test)
 # compilation coûte le temps de la compilation.
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(mpv REQUIRED IMPORTED_TARGET mpv)
+
+# ICU — la conversion d'encodages, et la détection qui suivra. Voir
+# docs/adr/0027-icu-pour-les-encodages.md.
+#
+# **La première dépendance externe du noyau**, et donc de `subedit-cli`, qui
+# n'en avait aucune : c'est le prix écrit de l'ADR 0027, payé pour les
+# quatre-vingt-dix-sept encodages que l'iso-fonctionnalité demande et qui ne
+# s'écrivent pas à la main.
+#
+# `uc` seule : `ucnv` y vit. La détection — `ucsdet`, dans `i18n` — se déclarera
+# quand elle sera écrite, plutôt que d'annoncer ici un usage qui n'existe pas
+# encore ; c'est ce que Qt::Multimedia a coûté d'apprendre.
+find_package(ICU REQUIRED COMPONENTS uc)
 
 find_package(Git QUIET)
 if(GIT_FOUND)

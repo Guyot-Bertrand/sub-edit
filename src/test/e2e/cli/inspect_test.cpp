@@ -77,6 +77,20 @@ TEST_CASE("a file that cannot be read is named, and nothing is reported on it",
     CHECK_THAT(run.errors, ContainsSubstring(path));
 }
 
+TEST_CASE("a file no encoding decodes is refused, and the reason says so", "[e2e][CLI-ENC-06]") {
+    const std::string path = corpus("malformes/latin1.srt");
+    const CliRun run = invoke({"inspect", path});
+
+    // Read as UTF-8 — the only encoding this build reads without being told —
+    // these bytes decode nowhere. The old wording said "is not valid UTF-8",
+    // which read as "this file is broken"; with several encodings the truth is
+    // narrower, and the sentence has to be too.
+    CHECK(run.exitCode != 0);
+    CHECK(run.output.empty());
+    CHECK_THAT(run.errors, ContainsSubstring(path));
+    CHECK_THAT(run.errors, ContainsSubstring("cannot be decoded in the chosen encoding"));
+}
+
 TEST_CASE("inspect writes its report even when asked for silence", "[e2e][CLI-OUTPUT-02]") {
     const CliRun run = invoke({"--quiet", "inspect", corpus("valides/minimal.srt")});
 

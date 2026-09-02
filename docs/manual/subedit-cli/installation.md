@@ -70,10 +70,13 @@ sources, ce que la section suivante décrit en entier.
 | `make`, `pkg-config` | la construction | `make`, `pkg-config` |
 | Qt 6, module `Widgets` | la fenêtre | `qt6-base-dev` |
 | `libmpv` | le lecteur intégré | `libmpv-dev` |
+| ICU | la lecture des encodages | `libicu-dev` |
 
-**Les deux dernières sont exigées même pour ne construire que
+**Les trois dernières sont exigées même pour ne construire que
 `subedit-cli`** : la configuration CMake les cherche pour tout le projet, et
-s'arrête si elles manquent.
+s'arrête si elles manquent. ICU, elle, l'est doublement — `subedit-cli` s'en
+sert pour convertir les encodages, et c'est la seule bibliothèque qu'il charge
+à l'exécution.
 
 **Une connexion réseau au premier `cmake`** : la bibliothèque de tests Catch2
 est récupérée depuis GitHub à la configuration. Elle n'est plus retéléchargée

@@ -70,7 +70,7 @@ TEST_CASE("local files open, or fail for a reason we can name", "[format][local]
         if (!result.has_value()) {
             // The only failure allowed for now: an encoding this phase does
             // not handle. Anything else is a defect.
-            CHECK(result.error().kind == ReadErrorKind::InvalidUtf8);
+            CHECK(result.error().kind == ReadErrorKind::Undecodable);
             continue;
         }
 

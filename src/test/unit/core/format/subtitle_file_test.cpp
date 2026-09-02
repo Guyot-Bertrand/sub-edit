@@ -86,7 +86,7 @@ TEST_CASE("bytes that are not UTF-8 are refused, not mangled", "[format][file]")
         readSubtitles("1\n00:00:01,000 --> 00:00:02,000\n\xE9t\xE9\n");
 
     REQUIRE_FALSE(result.has_value());
-    CHECK(result.error().kind == ReadErrorKind::InvalidUtf8);
+    CHECK(result.error().kind == ReadErrorKind::Undecodable);
 }
 
 TEST_CASE("a file recognised but unreadable says which, not \"unknown\"", "[format][file]") {

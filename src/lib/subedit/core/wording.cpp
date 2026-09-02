@@ -48,8 +48,8 @@ std::string_view nameOf(Newline newline) {
 
 std::string_view reasonOf(ReadErrorKind kind) {
     switch (kind) {
-    case ReadErrorKind::InvalidUtf8:
-        return "is not valid UTF-8";
+    case ReadErrorKind::Undecodable:
+        return "cannot be decoded in the chosen encoding";
     case ReadErrorKind::NoSubtitleFound:
         return "holds nothing recognisable as a subtitle";
     case ReadErrorKind::UnknownFormat:
