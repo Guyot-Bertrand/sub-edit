@@ -746,8 +746,25 @@ prévision faite maintenant.
 Détection automatique de l'encodage, jeu complet d'encodages, fins de ligne
 Windows et Mac, forçage à l'enregistrement.
 
-**Question ouverte** — Gaupol s'appuie sur `charset-normalizer`, qui n'a pas
-d'équivalent direct en C++. Candidats : ICU, `uchardet`, `compact_enc_det`.
+**Cadrée** — [`docs/specs/08-encodages.md`](specs/08-encodages.md), issue #288.
+
+**La question ouverte est tranchée, et par la mesure.** Elle demandait un
+équivalent C++ à `charset-normalizer`, entre ICU, `uchardet` et
+`compact_enc_det`. Les trois voies ont été passées au même corpus étiqueté avant
+qu'aucune soit choisie — ICU 9/9, `uchardet` 9/9, un prototype de tables écrites
+6/9 — et **ce qui a décidé n'est pas la détection mais la conversion** : ICU est
+le seul des trois à convertir, et l'iso-fonctionnalité demande les
+quatre-vingt-dix-sept encodages de Gaupol, qui ne s'écrivent pas à la main.
+[ADR 0027](adr/0027-icu-pour-les-encodages.md).
+
+**Deux choses que le cadrage a trouvées et que ce paragraphe promettait mal :**
+
+- **les fins de ligne sont déjà livrées.** `Newline` porte `Lf`, `CrLf` et `Cr`
+  depuis la phase 1, `--line-endings unix|windows|mac` existe depuis la phase 3,
+  et un fichier lu est réécrit avec les siennes. La moitié du titre était faite ;
+- **la fenêtre n'offre rien de tout cela.** `Save As…` choisit un chemin et un
+  format ; ni encodage, ni fin de ligne, ni BOM. La ligne de commande sait faire
+  ce que la fenêtre ne propose pas, et cet écart entre dans le périmètre.
 
 ## 9 — Formats complémentaires et balises riches
 
