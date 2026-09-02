@@ -62,16 +62,19 @@ def releves(texte):
                 charge = float(en_tete.group("charge"))
             except ValueError:
                 charge = None
-            courant = {"version": en_tete.group("version"), "charge": charge, "mesures": {}}
+            courant = {"version": en_tete.group("version"), "charge": charge,
+                       "mesures": {}, "dispersions": {}}
             trouves.append(courant)
             continue
         if courant is None:
             continue
         cellules = [c.strip() for c in ligne.split("|")]
         if len(cellules) == 5 and cellules[1] not in ("Mesure", ":-----", ""):
-            valeur = duree(cellules[2])
+            valeur, ecart = duree(cellules[2]), duree(cellules[3])
             if valeur:
                 courant["mesures"][cellules[1]] = valeur
+                if ecart is not None:
+                    courant["dispersions"][cellules[1]] = ecart / valeur
     trouves.reverse()
     return trouves
 
@@ -142,6 +145,20 @@ def main():
         print(f"  {intitule:<38} {len(gardees):4d} mesures, {len(sales):3d} pointes ({part})")
         return sales
 
+    # La dispersion médiane de chaque mesure, sur tous les relevés conservés.
+    # C'est à elle que se compare un relevé, et non à un pourcentage écrit
+    # d'avance : la dispersion naturelle va de 3,8 % pour la mise à l'échelle
+    # d'un rationnel à 43,6 % pour un décalage de quatre mille sous-titres.
+    dispersions = {}
+    for releve in trouves:
+        for nom, part in releve["dispersions"].items():
+            dispersions.setdefault(nom, []).append(part)
+    mediane = {nom: statistics.median(parts) for nom, parts in dispersions.items()}
+    for mesure in comparables:
+        releve = next(r for r in trouves if r["version"] == mesure["version"])
+        mesure["dispersion"] = releve["dispersions"].get(mesure["nom"])
+        mesure["dispersion_usuelle"] = mediane.get(mesure["nom"])
+
     print("ce que chaque critère admettrait dans l'enveloppe :")
     peser("tout admettre", lambda m: True)
     peser("charge < 1,5 — la règle en place",
@@ -150,6 +167,61 @@ def main():
     peser("les deux à la fois",
           lambda m: m["charge"] is not None and m["charge"] < 1.5
           and m["allure"] is not None and m["allure"] <= 1.20)
+
+    def dispersee(mesure, facteur):
+        if mesure["dispersion"] is None or not mesure["dispersion_usuelle"]:
+            return True
+        return mesure["dispersion"] <= facteur * mesure["dispersion_usuelle"]
+
+    for facteur in (1.0, 1.25, 1.5, 2.0):
+        peser(f"charge, et dispersion <= {facteur:g} x sa médiane",
+              lambda m, f=facteur: m["charge"] is not None and m["charge"] < 1.5
+              and dispersee(m, f))
+
+    # ## Les maxima posés, et ceux que la suite dément — issue #202
+    #
+    # **La pointe n'est pas la bonne lunette pour cette question.** Elle voit ce
+    # qui dépasse d'une moitié ses voisines ; un maximum se pose en dépassant le
+    # précédent d'un cheveu, et il est définitif. Le relevé qui a ouvert #202
+    # n'était pas une pointe — il valait ×1,15 — et il a fixé l'enveloppe pour
+    # toujours.
+    #
+    # Ce qui se compte ici est donc : combien de maxima un critère laisse poser,
+    # et combien d'entre eux les relevés suivants démentent — la médiane des cinq
+    # suivants retombant sous quatre cinquièmes du maximum posé.
+    print()
+    print("maxima posés, et ceux que les relevés suivants démentent :")
+
+    suites = {}
+    for rang, releve in enumerate(trouves):
+        for nom, valeur in releve["mesures"].items():
+            suites.setdefault(nom, []).append((rang, valeur))
+
+    def compter(intitule, retient):
+        poses = dementis = 0
+        for nom, points in suites.items():
+            haut = None
+            for index, (rang, valeur) in enumerate(points):
+                releve = trouves[rang]
+                part = releve["dispersions"].get(nom)
+                if not retient(releve, nom, part):
+                    continue
+                if haut is None or valeur > haut:
+                    haut = valeur
+                    suivantes = [v for _, v in points[index + 1:index + 6]]
+                    if len(suivantes) >= 3:
+                        poses += 1
+                        if statistics.median(suivantes) < 0.8 * valeur:
+                            dementis += 1
+        part = f"{100 * dementis / poses:.1f} %" if poses else "—"
+        print(f"  {intitule:<38} {poses:4d} posés, {dementis:3d} démentis ({part})")
+
+    calme = lambda r, n, p: r["charge"] is not None and r["charge"] < 1.5
+    compter("charge < 1,5 — la règle d'avant #202", calme)
+    for facteur in (1.0, 1.25, 1.5, 2.0):
+        compter(f"charge, et dispersion <= {facteur:g} x sa médiane",
+                lambda r, n, p, f=facteur: calme(r, n, p)
+                and (p is None or not mediane.get(n) or p <= f * mediane[n]))
 
     if laissees:
         print()
