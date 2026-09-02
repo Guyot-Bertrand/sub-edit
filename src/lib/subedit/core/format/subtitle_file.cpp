@@ -35,17 +35,26 @@ namespace {
 
 } // namespace
 
-std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
-    // The encoding comes first: what follows reads text, and text that is not
-    // valid UTF-8 is not text.
-    if (!isValidUtf8(content))
+std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
+                                                   const Encoding& encoding) {
+    // The mark comes off first, and the bytes are what decide it was there: a
+    // converter would not take it off — to it, it is a zero-width space at the
+    // head of the first subtitle.
+    const Encoding read = encoding.withByteOrderMark(startsWithByteOrderMark(content, encoding)
+                                                         ? ByteOrderMark::Present
+                                                         : ByteOrderMark::Absent);
+
+    // The encoding comes next: what follows reads text, and bytes that do not
+    // decode are not text.
+    const std::optional<std::string> decoded =
+        decodeToUtf8(withoutByteOrderMark(content, read), read);
+    if (!decoded.has_value())
         return std::unexpected(ReadError{
-            .kind = ReadErrorKind::InvalidUtf8,
-            .detail = "octets invalides en UTF-8",
+            .kind = ReadErrorKind::Undecodable,
+            .detail = read.name(),
         });
 
-    const bool hadBom = hasUtf8Bom(content);
-    const std::string_view text = withoutUtf8Bom(content);
+    const std::string_view text = *decoded;
 
     const std::optional<SubtitleFormat> format = detectFormat(text);
     if (!format.has_value())
@@ -58,7 +67,7 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
     if (!result.has_value())
         return result;
 
-    result->encoding = Encoding::utf8(hadBom ? ByteOrderMark::Present : ByteOrderMark::Absent);
+    result->encoding = read;
 
     const NewlineScan scan = scanNewlines(text);
     result->newline = scan.newline;
@@ -73,8 +82,14 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
     return result;
 }
 
+std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
+    return readSubtitles(content, Encoding::utf8(ByteOrderMark::Absent));
+}
+
 std::string writeSubtitles(SubtitleFormat format, const WriteRequest& request) {
-    std::string out{request.encoding.byteOrderMarkBytes()};
+    std::string out;
+    if (request.encoding.byteOrderMark() == ByteOrderMark::Present)
+        out += request.encoding.byteOrderMarkBytes();
 
     switch (format) {
     case SubtitleFormat::SubRip:

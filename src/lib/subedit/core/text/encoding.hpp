@@ -1,31 +1,45 @@
 #pragma once
 
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 
+#include <optional>
+#include <string>
 #include <string_view>
 
 namespace subedit::core {
 
-/// Tells whether `bytes` decode as UTF-8.
+/// Turns `bytes` into UTF-8 text, reading them in `encoding`.
 ///
-/// Checked rather than assumed: a file read as UTF-8 when it was Latin-1 does
-/// not fail, it produces text with the accents replaced by nonsense — and the
-/// user only finds out once the file is saved over. Refusing outright is the
-/// only honest answer while this phase handles no other encoding.
+/// Nothing above this line speaks anything but UTF-8: the model holds text, the
+/// readers parse text, and the encoding is a property of the file that stops at
+/// this function. Which is why the answer is the text and not a converter.
 ///
-/// Overlong encodings and surrogate halves are refused too. They are not
-/// merely unusual: accepting them is how a length check gets bypassed.
-[[nodiscard]] bool isValidUtf8(std::string_view bytes);
+/// **Nothing is substituted.** ICU replaces a byte it cannot map with U+FFFD by
+/// default, which turns a file read in the wrong encoding into a file full of
+/// question marks that no one refuses; here the conversion stops and the answer
+/// is empty. A file read as UTF-8 when it was Latin-1 has to fail, or the user
+/// finds out once they have saved over it.
+///
+/// Overlong sequences and surrogate halves are refused with the rest. They are
+/// not merely unusual: accepting them is how a length check gets bypassed.
+[[nodiscard]] std::optional<std::string> decodeToUtf8(std::string_view bytes,
+                                                      const Encoding& encoding);
 
-/// Tells whether `bytes` begin with a UTF-8 byte order mark.
-[[nodiscard]] bool hasUtf8Bom(std::string_view bytes);
+/// Tells whether `bytes` begin with the mark `encoding` would carry.
+///
+/// The mark of the charset, whether or not this value says it is there — that
+/// is the question reading has to ask, and the answer is what it then records.
+[[nodiscard]] bool startsWithByteOrderMark(std::string_view bytes, const Encoding& encoding);
 
-/// Returns `bytes` without their byte order mark, if they had one.
+/// Returns `bytes` without that mark, if they had it.
 ///
 /// Kept out of the text and put back on writing: a mark that survived into the
 /// first subtitle would show up as an invisible character at the head of the
-/// file.
-[[nodiscard]] std::string_view withoutUtf8Bom(std::string_view bytes);
+/// file — and a converter would not take it off, since to a converter it is a
+/// zero-width space like any other.
+[[nodiscard]] std::string_view withoutByteOrderMark(std::string_view bytes,
+                                                    const Encoding& encoding);
 
 /// What the line endings of a file look like.
 struct NewlineScan {

@@ -146,7 +146,7 @@ TEST_CASE("bytes that are not UTF-8 are refused rather than mangled", "[cli][ins
 
     CHECK_FALSE(inspectFile(files, "a.srt", out, Reporter{errors, 0}));
 
-    CHECK_THAT(errors.str(), ContainsSubstring("is not valid UTF-8"));
+    CHECK_THAT(errors.str(), ContainsSubstring("cannot be decoded in the chosen encoding"));
 }
 
 TEST_CASE("a file in no known format is refused", "[cli][inspection]") {

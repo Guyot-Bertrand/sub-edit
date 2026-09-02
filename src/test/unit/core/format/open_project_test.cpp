@@ -104,7 +104,7 @@ TEST_CASE("bytes that are not UTF-8 are a reader's failure, not the system's", "
     const std::expected<OpenedFile, OpenError> opened = openProject(files, "film.srt");
 
     REQUIRE_FALSE(opened.has_value());
-    CHECK(unreadableWith(opened.error(), ReadErrorKind::InvalidUtf8));
+    CHECK(unreadableWith(opened.error(), ReadErrorKind::Undecodable));
 }
 
 TEST_CASE("a file in no format this tool knows says so", "[format][open]") {

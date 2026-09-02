@@ -158,17 +158,20 @@ bool inspectFile(const core::FileSystem& files,
     sayDiagnostics(reporter, path, opened->diagnostics);
     reporter.say(
         2,
-        path + ": " + std::string{nameOf(source.format)} + ", UTF-8, " +
+        path + ": " + std::string{nameOf(source.format)} + ", " +
+            std::string{source.encoding.charset()} + ", " +
             (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "BOM" : "no BOM") +
             ", " + std::string{nameOf(source.newline)} + " line endings");
     reporter.say(1, path + ": " + core::countOf(project.subtitles().size(), "subtitle"));
 
     out << path << '\n';
     out << "  format: " << nameOf(source.format) << '\n';
-    // The core refuses anything else outright, so there is only one answer to
-    // give today. It is written all the same: a report that omits what it
-    // cannot vary is a report that will quietly mean something else in phase 9.
-    out << "  encoding: UTF-8\n";
+    // Read off the model since phase 8, where the core learned to read other
+    // encodings. Nothing yet asks it to — no option names one, and detection is
+    // the issue after this — so the line still says UTF-8 every time; what
+    // changed is that it says it because the file was read that way, and not
+    // because there was nothing else to write.
+    out << "  encoding: " << source.encoding.charset() << '\n';
     out << "  byte order mark: "
         << (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "present" : "absent")
         << '\n';

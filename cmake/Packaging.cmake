@@ -52,7 +52,18 @@ set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
 #
 # Qt 6 et libmpv en premier lieu : ce sont les deux dépendances d'exécution que
 # l'ADR 0020 et la phase 5 ont fait entrer.
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt6widgets6 (>= 6.4), libqt6gui6 (>= 6.4), libqt6core6 (>= 6.4), libmpv2 | libmpv1")
+#
+# **ICU est entrée à la phase 8**, et elle est la seule des trois que
+# `subedit-cli` tire aussi — ADR 0027. Les deux familles ne la nomment pas
+# pareil : `libicu74` chez Debian et Ubuntu, où le numéro suit la version
+# majeure d'ICU, `libicu` chez Fedora, où il n'y en a pas. Un seul numéro et
+# non une alternative : le `SONAME` d'ICU change à chaque version majeure, donc
+# un paquet qui accepterait `libicu70` laisserait installer une bibliothèque que
+# le binaire ne sait pas charger. C'est exactement l'endroit où un paquet peut
+# être faux sans que rien ne le montre à la construction — #266 l'a payé une
+# fois — et `make rpm-check` est ce qui l'attrape désormais, en installant le
+# `.rpm` sur une vraie Fedora.
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt6widgets6 (>= 6.4), libqt6gui6 (>= 6.4), libqt6core6 (>= 6.4), libmpv2 | libmpv1, libicu74")
 set(CPACK_DEBIAN_PACKAGE_SECTION "video")
 set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "ffmpeg")
 
@@ -70,7 +81,7 @@ set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "ffmpeg")
 # remplace serait deviner, sur une distribution que ce dépôt ne sait pas
 # éprouver. Le manuel dit ce que `ffmpeg` apporte ; c'est le bon endroit pour le
 # dire à qui n'a pas de gestionnaire de paquets pour l'apprendre.
-set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase-gui >= 6.4, mpv-libs")
+set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase-gui >= 6.4, mpv-libs, libicu")
 set(CPACK_RPM_PACKAGE_LICENSE "GPL-3.0-or-later")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/Multimedia")
 

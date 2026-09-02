@@ -24,6 +24,7 @@ add_library(
     edit/set_text_command.cpp
     edit/sort_command.cpp
     text/hearing_impaired.cpp
+    model/encoding.cpp
     model/project.cpp
     model/video_file.cpp
     model/selection.cpp
@@ -60,5 +61,10 @@ target_compile_definitions(
             SUBEDIT_VERSION_MINOR=${PROJECT_VERSION_MINOR}
             SUBEDIT_VERSION_PATCH=${PROJECT_VERSION_PATCH}
             SUBEDIT_BUILD_DATE="${SUBEDIT_BUILD_DATE}")
+
+# ICU en privé : aucun en-tête du noyau ne montre `unicode/`, seuls deux
+# fichiers d'implémentation l'incluent. Ce qui dépend de subedit_core hérite
+# donc de l'édition de liens, et de rien d'autre.
+target_link_libraries(subedit_core PRIVATE ICU::uc)
 
 subedit_set_warnings(subedit_core)

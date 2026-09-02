@@ -154,7 +154,7 @@ TEST_CASE("a file that is not UTF-8 is refused rather than mangled", "[format][c
         readSubtitles(bytesOf(corpus("malformes/latin1.srt")));
 
     REQUIRE_FALSE(result.has_value());
-    CHECK(result.error().kind == ReadErrorKind::InvalidUtf8);
+    CHECK(result.error().kind == ReadErrorKind::Undecodable);
 }
 
 TEST_CASE("a WebVTT file without its signature is not guessed", "[format][corpus]") {

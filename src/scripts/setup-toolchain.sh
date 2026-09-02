@@ -112,6 +112,11 @@ declare -A APT_TOOLS=(
 # fournisseur quelconque est déjà là, rien n'est installé — une machine qui a
 # déjà OpenBLAS n'en gagne pas un second.
 #
+# **ICU est entrée à la phase 8** — ADR 0027 —, et c'est la première dépendance
+# externe du noyau, donc de `subedit-cli`, qui n'en avait aucune. Le chemin
+# sondé est l'en-tête du convertisseur : la bibliothèque d'exécution est déjà là
+# sur toute machine qui fait tourner Qt, ce sont les en-têtes qui manquent.
+#
 # **Les deux derniers sont entrés avec #260**, qui a trouvé une icône que le
 # bureau ne savait pas lire. Le contrôle qui l'attrape passe par gdk-pixbuf —
 # le chargeur des bureaux GTK, et le seul qui refusait le fichier fautif — donc
@@ -119,6 +124,7 @@ declare -A APT_TOOLS=(
 # Une Ubuntu de bureau les a d'origine ; une machine de construction nue, non.
 declare -A APT_LIBS=(
     [/usr/include/CLI/CLI.hpp]=libcli11-dev
+    [/usr/include/unicode/ucnv.h]=libicu-dev
     [/usr/lib/x86_64-linux-gnu/cmake/Qt6/Qt6Config.cmake]=qt6-base-dev
     [/usr/lib/x86_64-linux-gnu/pkgconfig/mpv.pc]=libmpv-dev
     [/usr/lib/x86_64-linux-gnu/libblas.so.3]=libblas3

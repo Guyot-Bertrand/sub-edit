@@ -19,7 +19,7 @@ namespace subedit::core {
 /// nothing and cannot fail to; opening belongs to `FileSystem`, whose
 /// `FileErrorKind` already tells absent from refused from broken.
 enum class ReadErrorKind {
-    InvalidUtf8,     ///< bytes that are not valid UTF-8
+    Undecodable,     ///< bytes that do not decode in the encoding they were read in
     NoSubtitleFound, ///< nothing recognisable as a subtitle
     UnknownFormat,   ///< no format matched, and none is ever assumed
 };

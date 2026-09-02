@@ -35,7 +35,7 @@ IncludeBlocks: Regroup
 IncludeCategories:
   - Regex: '^<subedit/'
     Priority: 1
-  - Regex: '^<(catch2|Q|mpv/)'
+  - Regex: '^<(catch2|Q|mpv/|unicode/)'
     Priority: 2
   - Regex: '^<'
     Priority: 3

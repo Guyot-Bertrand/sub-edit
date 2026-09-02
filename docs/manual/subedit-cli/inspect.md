@@ -196,7 +196,7 @@ valeur puisse être fautive, et n'écrit rien qui puisse être refusé.
 | aucun chemin donné | `files is required`, suivi d'un renvoi à `--help` |
 | fichier absent | `<chemin>: does not exist` |
 | fichier illisible | `<chemin>: cannot be opened: permission denied` |
-| octets qui ne sont pas de l'UTF-8 | `<chemin>: is not valid UTF-8` |
+| octets qui ne se décodent pas | `<chemin>: cannot be decoded in the chosen encoding` |
 | format non reconnu | `<chemin>: is in no format this tool knows` |
 | rien qui ressemble à un sous-titre | `<chemin>: holds nothing recognisable as a subtitle` |
 
