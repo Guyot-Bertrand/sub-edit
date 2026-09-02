@@ -3,6 +3,7 @@
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 
@@ -15,14 +16,15 @@
 
 namespace {
 
+using subedit::core::ByteOrderMark;
 using subedit::core::DiagnosticKind;
+using subedit::core::Encoding;
 using subedit::core::Newline;
 using subedit::core::ReadError;
 using subedit::core::ReadErrorKind;
 using subedit::core::ReadResult;
 using subedit::core::readSubtitles;
 using subedit::core::SubtitleFormat;
-using subedit::core::Utf8Bom;
 using subedit::core::WriteRequest;
 using subedit::core::writeSubtitles;
 
@@ -100,7 +102,7 @@ TEST_CASE("a file recognised but unreadable says which, not \"unknown\"", "[form
 TEST_CASE("a byte order mark is noticed and kept out of the text", "[format][file]") {
     const ReadResult result = readOrFail(std::string{kBom} + std::string{kSubRip});
 
-    CHECK(result.hadUtf8Bom);
+    CHECK(result.encoding == Encoding::utf8(ByteOrderMark::Present));
     REQUIRE(result.subtitles.size() == 1);
     CHECK(result.subtitles[0].mainText == "Bonjour.");
 }
@@ -109,11 +111,11 @@ TEST_CASE("a byte order mark does not hide the format", "[format][file]") {
     const ReadResult result = readOrFail(std::string{kBom} + std::string{kWebVtt});
 
     CHECK(result.format == SubtitleFormat::WebVtt);
-    CHECK(result.hadUtf8Bom);
+    CHECK(result.encoding == Encoding::utf8(ByteOrderMark::Present));
 }
 
 TEST_CASE("a file without a mark says so", "[format][file]") {
-    CHECK_FALSE(readOrFail(kSubRip).hadUtf8Bom);
+    CHECK(readOrFail(kSubRip).encoding == Encoding::utf8(ByteOrderMark::Absent));
 }
 
 TEST_CASE("the line ending of the file is noticed", "[format][file]") {
@@ -137,15 +139,16 @@ TEST_CASE("a file mixing its endings is read and reported", "[format][file]") {
 TEST_CASE("writing puts the byte order mark back when there was one", "[format][file]") {
     const ReadResult result = readOrFail(std::string{kBom} + std::string{kSubRip});
 
-    const std::string written = writeSubtitles(
-        result.format, WriteRequest{.subtitles = result.subtitles}, Utf8Bom::Present);
+    const std::string written =
+        writeSubtitles(result.format,
+                       WriteRequest{.subtitles = result.subtitles,
+                                    .encoding = Encoding::utf8(ByteOrderMark::Present)});
 
     CHECK(written.starts_with(kBom));
 }
 
 TEST_CASE("writing adds no mark when the file had none", "[format][file]") {
-    const std::string written =
-        writeSubtitles(SubtitleFormat::SubRip, WriteRequest{}, Utf8Bom::Absent);
+    const std::string written = writeSubtitles(SubtitleFormat::SubRip, WriteRequest{});
 
     CHECK_FALSE(written.starts_with(kBom));
 }
@@ -157,10 +160,12 @@ TEST_CASE("a file with a mark comes back with its mark and nothing else changed"
     const std::string original = std::string{kBom} + std::string{kSubRip};
     const ReadResult result = readOrFail(original);
 
-    const std::string written =
-        writeSubtitles(result.format,
-                       WriteRequest{.subtitles = result.subtitles, .newline = result.newline},
-                       result.hadUtf8Bom ? Utf8Bom::Present : Utf8Bom::Absent);
+    const std::string written = writeSubtitles(result.format,
+                                               WriteRequest{
+                                                   .subtitles = result.subtitles,
+                                                   .newline = result.newline,
+                                                   .encoding = result.encoding,
+                                               });
 
     CHECK(written == original);
 }
@@ -168,10 +173,8 @@ TEST_CASE("a file with a mark comes back with its mark and nothing else changed"
 TEST_CASE("a WebVTT file comes back with its header", "[format][file]") {
     const ReadResult result = readOrFail(kWebVtt);
 
-    const std::string written =
-        writeSubtitles(result.format,
-                       WriteRequest{.subtitles = result.subtitles, .header = result.header},
-                       Utf8Bom::Absent);
+    const std::string written = writeSubtitles(
+        result.format, WriteRequest{.subtitles = result.subtitles, .header = result.header});
 
     CHECK(written == kWebVtt);
 }

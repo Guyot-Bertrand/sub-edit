@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 
 #include <filesystem>
@@ -37,7 +38,13 @@ struct SourceFile {
     SubtitleFormat format = SubtitleFormat::SubRip;
 
     Newline newline = Newline::Lf;
-    bool hadUtf8Bom = false;
+
+    /// The encoding the file was read in, byte order mark included.
+    ///
+    /// **Since phase 8**, where the boolean that stood here — `hadUtf8Bom` —
+    /// stopped being enough: a UTF-16 mark answers a question a UTF-8 one does
+    /// not, and both answers have to survive being written back.
+    Encoding encoding = Encoding::utf8(ByteOrderMark::Absent);
 
     /// The WebVTT header, empty for the formats that have none.
     std::string header{};

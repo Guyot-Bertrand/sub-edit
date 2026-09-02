@@ -15,10 +15,10 @@ using subedit::cli::Destination;
 using subedit::cli::ExitCode;
 using subedit::cli::Reporter;
 using subedit::cli::WriteShape;
+using subedit::core::ByteOrderMark;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::Newline;
 using subedit::core::SubtitleFormat;
-using subedit::core::Utf8Bom;
 
 namespace {
 
@@ -124,9 +124,9 @@ TEST_CASE("a byte order mark can be added and removed", "[cli][conversion]") {
     const std::string marked = "\xEF\xBB\xBF"
                                "1\n00:00:01,000 --> 00:00:03,000\nOnly one.\n";
 
-    CHECK(convert(kSubRip, SubtitleFormat::SubRip, {.bom = Utf8Bom::Present})
+    CHECK(convert(kSubRip, SubtitleFormat::SubRip, {.bom = ByteOrderMark::Present})
               .written.starts_with("\xEF\xBB\xBF"));
-    CHECK_FALSE(convert(marked, SubtitleFormat::SubRip, {.bom = Utf8Bom::Absent})
+    CHECK_FALSE(convert(marked, SubtitleFormat::SubRip, {.bom = ByteOrderMark::Absent})
                     .written.starts_with("\xEF\xBB\xBF"));
 }
 

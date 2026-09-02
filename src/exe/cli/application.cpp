@@ -345,10 +345,10 @@ std::expected<WriteShape, std::string> shapeOf(const ConvertOptions& options) {
         shape.newline = newlineNamed(options.lineEndings);
     }
     if (options.bom) {
-        shape.bom = core::Utf8Bom::Present;
+        shape.bom = core::ByteOrderMark::Present;
     }
     if (options.noBom) {
-        shape.bom = core::Utf8Bom::Absent;
+        shape.bom = core::ByteOrderMark::Absent;
     }
     return shape;
 }

@@ -2,6 +2,7 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/subtitle_reader.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -16,8 +17,10 @@
 
 namespace {
 
+using subedit::core::ByteOrderMark;
 using subedit::core::Diagnostic;
 using subedit::core::DiagnosticKind;
+using subedit::core::Encoding;
 using subedit::core::Newline;
 using subedit::core::ReadError;
 using subedit::core::ReadErrorKind;
@@ -62,7 +65,7 @@ TEST_CASE("a fresh read result is empty and assumes nothing", "[format][read]") 
     CHECK(result.subtitles.empty());
     CHECK(result.header.empty());
     CHECK(result.newline == Newline::Lf);
-    CHECK_FALSE(result.hadUtf8Bom);
+    CHECK(result.encoding == Encoding::utf8(ByteOrderMark::Absent));
     CHECK(result.diagnostics.empty());
 }
 
@@ -124,7 +127,7 @@ TEST_CASE("a source file records the shape the reader saw", "[format][read]") {
         .format = SubtitleFormat::WebVtt,
         .header = "WEBVTT - le titre",
         .newline = Newline::CrLf,
-        .hadUtf8Bom = true,
+        .encoding = Encoding::utf8(ByteOrderMark::Present),
     };
 
     const SourceFile source = sourceFileOf(result, "quelque/part/film.vtt");
@@ -132,7 +135,7 @@ TEST_CASE("a source file records the shape the reader saw", "[format][read]") {
     CHECK(source.format == SubtitleFormat::WebVtt);
     CHECK(source.header == "WEBVTT - le titre");
     CHECK(source.newline == Newline::CrLf);
-    CHECK(source.hadUtf8Bom);
+    CHECK(source.encoding == Encoding::utf8(ByteOrderMark::Present));
     // L'option entière plutôt que son contenu : clang-tidy ne reconnaît pas le
     // REQUIRE de Catch2 comme une vérification, et comparer l'option se passe
     // de tout accès — en affirmant davantage, au passage.

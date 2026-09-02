@@ -42,11 +42,11 @@ std::expected<void, FileError> saveProject(FileSystem& files,
         .subtitles = project.subtitles(),
         .document = Document::Main,
         .newline = source.newline,
+        .encoding = source.encoding,
         .header = source.header,
     };
 
-    const std::string written =
-        writeSubtitles(format, request, source.hadUtf8Bom ? Utf8Bom::Present : Utf8Bom::Absent);
+    const std::string written = writeSubtitles(format, request);
 
     return writeAtomically(files, path, written);
 }

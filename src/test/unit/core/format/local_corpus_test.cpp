@@ -26,7 +26,6 @@ using subedit::core::ReadErrorKind;
 using subedit::core::ReadResult;
 using subedit::core::readSubtitles;
 using subedit::core::RealFileSystem;
-using subedit::core::Utf8Bom;
 using subedit::core::WriteRequest;
 using subedit::core::writeSubtitles;
 
@@ -48,9 +47,9 @@ using subedit::core::writeSubtitles;
                           WriteRequest{
                               .subtitles = result.subtitles,
                               .newline = result.newline,
+                              .encoding = result.encoding,
                               .header = result.header,
-                          },
-                          result.hadUtf8Bom ? Utf8Bom::Present : Utf8Bom::Absent);
+                          });
 }
 
 } // namespace

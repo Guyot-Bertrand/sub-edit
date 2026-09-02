@@ -156,10 +156,11 @@ bool inspectFile(const core::FileSystem& files,
                  path + ": " + core::countOf(opened->diagnostics.size(), "diagnostic") +
                      " while reading");
     sayDiagnostics(reporter, path, opened->diagnostics);
-    reporter.say(2,
-                 path + ": " + std::string{nameOf(source.format)} + ", UTF-8, " +
-                     (source.hadUtf8Bom ? "BOM" : "no BOM") + ", " +
-                     std::string{nameOf(source.newline)} + " line endings");
+    reporter.say(
+        2,
+        path + ": " + std::string{nameOf(source.format)} + ", UTF-8, " +
+            (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "BOM" : "no BOM") +
+            ", " + std::string{nameOf(source.newline)} + " line endings");
     reporter.say(1, path + ": " + core::countOf(project.subtitles().size(), "subtitle"));
 
     out << path << '\n';
@@ -168,7 +169,9 @@ bool inspectFile(const core::FileSystem& files,
     // give today. It is written all the same: a report that omits what it
     // cannot vary is a report that will quietly mean something else in phase 9.
     out << "  encoding: UTF-8\n";
-    out << "  byte order mark: " << (source.hadUtf8Bom ? "present" : "absent") << '\n';
+    out << "  byte order mark: "
+        << (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "present" : "absent")
+        << '\n';
     out << "  line endings: " << lineEndings(source.newline, opened->diagnostics) << '\n';
     out << "  subtitles: " << project.subtitles().size() << '\n';
     out << "  span: " << span(project.subtitles()) << '\n';
