@@ -8,8 +8,11 @@ programmes qui partagent le même noyau, donc les mêmes règles et les mêmes m
 | `subedit-gui` | ouvrir un fichier, le voir dans une table, l'éditer, le regarder contre le film | [manuel de la fenêtre](subedit-gui/index.md) |
 | `subedit-cli` | traiter des fichiers en lot, depuis un script, sans interface | [manuel de la ligne de commande](subedit-cli/index.md) |
 
-Les deux lisent et écrivent **SubRip** (`.srt`) et **WebVTT** (`.vtt`), en
-UTF-8, et reconnaissent le format au contenu plutôt qu'à l'extension.
+Les deux lisent et écrivent **SubRip** (`.srt`) et **WebVTT** (`.vtt`), et
+reconnaissent le format au contenu plutôt qu'à l'extension. **L'encodage aussi
+est reconnu au contenu** : un fichier en Latin-1, en CP1252 ou en UTF-16
+s'ouvre, et ce qu'il a été lu comme est dit. Ce qui est écrit, en revanche, est
+de l'UTF-8.
 
 ## Par où commencer
 

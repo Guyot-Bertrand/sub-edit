@@ -51,7 +51,7 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.8.15
+subedit 0.8.16
 ```
 
 ## Sous-commandes
@@ -167,10 +167,14 @@ fait.
 
 | Partie | Ce qu'elle dit |
 | :----- | :------------- |
-| `line N` | où, compté à partir de 1, comme un éditeur l'affiche |
-| la phrase | ce qui a été rencontré, parmi les sept catégories ci-dessous |
+| `line N` | où, compté à partir de 1, comme un éditeur l'affiche ; **absent** pour ce qui porte sur le fichier entier |
+| la phrase | ce qui a été rencontré, parmi les huit catégories ci-dessous |
 | `("…")` | le texte fautif du fichier, quand la catégorie ne suffit pas ; tronqué à 80 octets |
 | la fin | ce qui en a été fait : `settled by the reader`, ou `left as it stands` |
+
+**Une seule catégorie n'a pas de ligne**, et c'est l'encodage : les octets ont
+été pesés avant qu'une seule ligne existe. Sa ligne commence donc par la phrase,
+sans `line N` devant — il n'y a pas de place à nommer.
 
 **La fin de la ligne est le plus important.** `settled by the reader` veut dire
 que le lecteur a tranché et que le fichier écrit porte sa décision — une
@@ -187,7 +191,7 @@ suit — le numéro fautif est dans le `("…")`. Seules les anomalies qui porte
 **une ligne** — un horodatage illisible, du texte avant le premier — se
 rapportent sur elles-mêmes.
 
-### Les sept catégories
+### Les huit catégories
 
 | Phrase | Ce qui la déclenche |
 | :----- | :------------------ |
@@ -198,6 +202,7 @@ rapportent sur elles-mêmes.
 | `text before the first timing line` | du texte avant le premier horodatage |
 | `a WebVTT block of an unknown kind` | un bloc WebVTT non reconnu |
 | `more than one kind of line ending` | des fins de ligne mélangées |
+| `an encoding nothing declared` | l'encodage a été proposé en pesant les octets, et il n'est pas de l'UTF-8 |
 
 ## Plusieurs fichiers
 

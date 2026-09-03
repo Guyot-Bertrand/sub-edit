@@ -26,8 +26,12 @@ std::string boundedOf(const std::string& detail) {
 } // namespace
 
 std::string reportOf(const core::Diagnostic& diagnostic) {
-    std::string report =
-        "line " + std::to_string(diagnostic.line) + ": " + std::string{nameOf(diagnostic.kind)};
+    // A diagnostic about the whole file has no line to name, and "line 0"
+    // would name a place that is not there — see `kWholeFile`.
+    std::string report = diagnostic.line == core::kWholeFile
+                             ? std::string{}
+                             : "line " + std::to_string(diagnostic.line) + ": ";
+    report += std::string{nameOf(diagnostic.kind)};
     if (!diagnostic.detail.empty()) {
         report += " (\"" + boundedOf(diagnostic.detail) + "\")";
     }

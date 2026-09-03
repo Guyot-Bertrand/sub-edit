@@ -301,6 +301,22 @@ TEST_CASE("the diagnostics of a reading are shown", "[gui][GUI-OPEN-03]") {
     CHECK(window.diagnostics()->lineAt(0).toStdString().starts_with("line 5:"));
 }
 
+TEST_CASE("the encoding a reading had to guess is shown, without a line", "[gui][GUI-OPEN-03]") {
+    // The bytes were weighed before a single line existed, so there is no place
+    // to name — and a panel that said "line 0" would name one that is not
+    // there. Latin-1: a lone 0xE9 where UTF-8 would need a second byte.
+    InMemoryFileSystem files =
+        withFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9 pr\xE8s du port.\n");
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
+
+    REQUIRE(window.diagnostics()->count() == 1);
+    const std::string line = window.diagnostics()->lineAt(0).toStdString();
+    CHECK_FALSE(line.starts_with("line "));
+    CHECK(line.starts_with("an encoding nothing declared"));
+}
+
 TEST_CASE("a reading with nothing to report shows no panel", "[gui][GUI-OPEN-03]") {
     // An empty panel would say there is something to read.
     InMemoryFileSystem files = withFile("film.srt", kThree);

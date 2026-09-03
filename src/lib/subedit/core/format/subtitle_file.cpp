@@ -22,6 +22,23 @@ namespace subedit::core {
 
 namespace {
 
+/// Whether the reading has to say which encoding it settled on.
+///
+/// **Not every guess is worth a line.** A diagnostic says what happened that
+/// the user cannot see, and reading a UTF-8 file as UTF-8 is not an event: it
+/// is what every file was read as until this phase, and saying it on every
+/// opening would put a panel under the table of every ordinary document — the
+/// panel exists to be available, not to stand between the user and their
+/// subtitles.
+///
+/// What is worth a line is the file that would have been refused, or read as
+/// nonsense, before: one whose encoding was guessed to be something else. A
+/// mark is not a guess at all, and says nothing anyone can act on.
+[[nodiscard]] bool saysSomethingNew(const std::optional<DetectedEncoding>& detected) {
+    return detected.has_value() && detected->choice == EncodingChoice::Detected &&
+           detected->encoding != Encoding::utf8(ByteOrderMark::Absent);
+}
+
 [[nodiscard]] std::expected<ReadResult, ReadError> readAs(SubtitleFormat format,
                                                           std::string_view content) {
     switch (format) {
@@ -83,7 +100,30 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
 }
 
 std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
-    return readSubtitles(content, Encoding::utf8(ByteOrderMark::Absent));
+    const std::optional<DetectedEncoding> detected = detectEncoding(content);
+
+    // UTF-8 when the bytes propose nothing — an empty file, or one ICU weighed
+    // without finding anything to weigh. It is the encoding this tool wrote
+    // every file in until phase 8, and the one a file that says nothing is most
+    // likely to be.
+    const Encoding encoding = detected ? detected->encoding : Encoding::utf8(ByteOrderMark::Absent);
+
+    std::expected<ReadResult, ReadError> result = readSubtitles(content, encoding);
+    if (!result.has_value())
+        return result;
+
+    if (saysSomethingNew(detected))
+        // First, because it happened first: the encoding was settled before a
+        // single line was read.
+        result->diagnostics.insert(result->diagnostics.begin(),
+                                   Diagnostic{
+                                       .severity = Severity::Recovered,
+                                       .line = kWholeFile,
+                                       .kind = DiagnosticKind::GuessedEncoding,
+                                       .detail = result->encoding.name(),
+                                   });
+
+    return result;
 }
 
 std::string writeSubtitles(SubtitleFormat format, const WriteRequest& request) {

@@ -26,3 +26,14 @@ target_compile_definitions(
             SUBEDIT_MANUAL_DIR="${CMAKE_SOURCE_DIR}/docs/manual")
 
 subedit_set_warnings(subedit_screenshots)
+
+# La détection d'encodage, sur la ligne de commande — #296.
+#
+# Ni un test ni un livrable : ce qui permet à `score-encoding-detection.py` de
+# passer notre détection au même corpus que les autres candidates, sans que le
+# script sache rien d'elle.
+add_executable(subedit_detect_encoding detect_encoding.cpp)
+
+target_link_libraries(subedit_detect_encoding PRIVATE subedit::core)
+
+subedit_set_warnings(subedit_detect_encoding)

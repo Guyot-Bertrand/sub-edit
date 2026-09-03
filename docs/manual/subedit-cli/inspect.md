@@ -39,7 +39,7 @@ du chemin :
 $ printf '1\n00:00:01,000 --> 00:00:03,500\nLe canot dérive.\n\n2\n00:00:04,000 --> 00:00:06,200\nPersonne n a vu la côte.\n' > exemple.srt; subedit-cli --quiet inspect exemple.srt
 exemple.srt
   format: SubRip
-  encoding: UTF-8
+  encoding: UTF-8, detected
   byte order mark: absent
   line endings: LF
   subtitles: 2
@@ -51,7 +51,7 @@ exemple.srt
 | Champ | Ce qu'il dit |
 | :---- | :----------- |
 | `format` | `SubRip` ou `WebVTT` |
-| `encoding` | `UTF-8` — le seul encodage lu à ce jour, les autres sont refusés |
+| `encoding` | l'encodage lu, suivi de `, detected` ou de `, from its byte order mark` |
 | `byte order mark` | `present` ou `absent` |
 | `line endings` | `LF`, `CRLF` ou `CR`, suivi de `, mixed from line N` si le fichier en mélange |
 | `subtitles` | le nombre de sous-titres lus |

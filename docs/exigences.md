@@ -142,13 +142,13 @@ plus rien.
 | `GUI-INSERT-02` | insérer dans un document vide ne demande aucune sélection | 7 | implémentée |
 | `GUI-REMOVE-01` | supprimer retire la sélection, et l'opération s'annule | 7 | implémentée |
 | `GUI-MANUAL-01` | `Help ▸ Manual` ouvre le manuel installé | 7 | implémentée |
-| `CLI-ENC-01` | un fichier non-UTF-8 s'ouvre, et l'encodage retenu est dit | 8 | prévue |
+| `CLI-ENC-01` | un fichier non-UTF-8 s'ouvre, et l'encodage retenu est dit | 8 | implémentée |
 | `CLI-ENC-02` | `--encoding` impose l'encodage de lecture et l'emporte sur la détection | 8 | prévue |
 | `CLI-ENC-03` | un BOM l'emporte sur `--encoding`, et l'écart est dit | 8 | prévue |
 | `CLI-ENC-04` | `--encoding` à l'écriture choisit l'encodage produit | 8 | prévue |
 | `CLI-ENC-05` | un fichier réécrit sans consigne rend les mêmes octets, encodage compris | 8 | prévue |
 | `CLI-ENC-06` | un fichier qu'aucun encodage ne décode est refusé, et la raison le dit | 8 | implémentée |
-| `CLI-ENC-07` | `inspect` rapporte l'encodage lu et s'il a été deviné | 8 | prévue |
+| `CLI-ENC-07` | `inspect` rapporte l'encodage lu et s'il a été deviné | 8 | implémentée |
 | `GUI-ENC-01` | la fenêtre ouvre un fichier non-UTF-8 et affiche l'encodage retenu | 8 | prévue |
 | `GUI-ENC-02` | `Save As…` choisit l'encodage, la fin de ligne et le BOM | 8 | prévue |
 | `GUI-ENC-03` | les réglages retiennent le dernier encodage d'écriture choisi | 8 | prévue |

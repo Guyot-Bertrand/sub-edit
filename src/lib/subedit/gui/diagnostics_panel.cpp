@@ -26,9 +26,13 @@ constexpr int kLongestDetail = 80;
 } // namespace
 
 QString lineOf(const core::Diagnostic& diagnostic) {
-    QString line = QStringLiteral("line %1: %2")
-                       .arg(diagnostic.line)
-                       .arg(QString::fromUtf8(core::nameOf(diagnostic.kind)));
+    // A diagnostic about the whole file has no line to name, and "line 0"
+    // would name a place that is not there — see `kWholeFile`.
+    QString line = diagnostic.line == core::kWholeFile
+                       ? QString::fromUtf8(core::nameOf(diagnostic.kind))
+                       : QStringLiteral("line %1: %2")
+                             .arg(diagnostic.line)
+                             .arg(QString::fromUtf8(core::nameOf(diagnostic.kind)));
 
     if (!diagnostic.detail.empty())
         line += QStringLiteral(" (\"%1\")").arg(boundedOf(diagnostic.detail));

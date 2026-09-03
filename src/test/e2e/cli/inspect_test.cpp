@@ -27,7 +27,7 @@ TEST_CASE("inspect reports what a file is made of", "[e2e][CLI-INSPECT-01]") {
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(run.output, ContainsSubstring("  format: SubRip\n"));
-    CHECK_THAT(run.output, ContainsSubstring("  encoding: UTF-8\n"));
+    CHECK_THAT(run.output, ContainsSubstring("  encoding: UTF-8, detected\n"));
     CHECK_THAT(run.output, ContainsSubstring("  byte order mark: absent\n"));
     CHECK_THAT(run.output, ContainsSubstring("  line endings: LF\n"));
     CHECK_THAT(run.output, ContainsSubstring("  subtitles: 2\n"));
@@ -78,17 +78,53 @@ TEST_CASE("a file that cannot be read is named, and nothing is reported on it",
 }
 
 TEST_CASE("a file no encoding decodes is refused, and the reason says so", "[e2e][CLI-ENC-06]") {
-    const std::string path = corpus("malformes/latin1.srt");
+    const std::string path = corpus("malformes/bom-utf8-menteur.srt");
     const CliRun run = invoke({"inspect", path});
 
-    // Read as UTF-8 — the only encoding this build reads without being told —
-    // these bytes decode nowhere. The old wording said "is not valid UTF-8",
-    // which read as "this file is broken"; with several encodings the truth is
-    // narrower, and the sentence has to be too.
+    // A mark that says UTF-8 over bytes that are not. The mark settles the
+    // encoding — it is the only declaration a subtitle file carries — so no
+    // other is tried, and the reading fails. The old wording said "is not valid
+    // UTF-8", which read as "this file is broken"; with several encodings the
+    // truth is narrower, and the sentence has to be too.
     CHECK(run.exitCode != 0);
     CHECK(run.output.empty());
     CHECK_THAT(run.errors, ContainsSubstring(path));
     CHECK_THAT(run.errors, ContainsSubstring("cannot be decoded in the chosen encoding"));
+}
+
+TEST_CASE("a file that is not UTF-8 opens, and the encoding read is said", "[e2e][CLI-ENC-01]") {
+    // Refused through seven phases. What the user sees now is the file, and the
+    // encoding it was read in — the detection is a proposal, and one the user
+    // can weigh only if it is written down.
+    const CliRun run = invoke({"-vv", "inspect", corpus("encodages/koi8-r.srt")});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.output, ContainsSubstring("  subtitles: 3\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("SubRip, KOI8-R, no BOM, LF line endings"));
+}
+
+TEST_CASE("an encoding nobody declared is one of the diagnostics of the reading",
+          "[e2e][CLI-ENC-01]") {
+    // Where a reading says what it had to settle — the same list the window
+    // shows under the table. It speaks about the whole file rather than about
+    // one of its lines, and is the first diagnostic that does: no "line 0"
+    // precedes it.
+    const CliRun run = invoke({"-vvv", "inspect", corpus("encodages/cp1250.srt")});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.errors,
+               ContainsSubstring("an encoding nothing declared (\"windows-1250\"), "
+                                 "settled by the reader"));
+}
+
+TEST_CASE("inspect says the encoding, and where the answer came from", "[e2e][CLI-ENC-07]") {
+    // Two answers, and the difference is what a reader needs: a mark is a
+    // declaration, a detection is a proposal that Latin-1 and CP1252 can both
+    // fit.
+    CHECK_THAT(invoke({"inspect", corpus("encodages/cp1252.srt")}).output,
+               ContainsSubstring("  encoding: windows-1252, detected\n"));
+    CHECK_THAT(invoke({"inspect", corpus("encodages/utf-16-be-bom.srt")}).output,
+               ContainsSubstring("  encoding: UTF-16BE, from its byte order mark\n"));
 }
 
 TEST_CASE("inspect writes its report even when asked for silence", "[e2e][CLI-OUTPUT-02]") {

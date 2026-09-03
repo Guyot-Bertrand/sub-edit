@@ -61,7 +61,7 @@ TEST_CASE("the report says what the file is made of", "[cli][inspection]") {
 
     CHECK(out.str() == "a.srt\n"
                        "  format: SubRip\n"
-                       "  encoding: UTF-8\n"
+                       "  encoding: UTF-8, detected\n"
                        "  byte order mark: absent\n"
                        "  line endings: LF\n"
                        "  subtitles: 2\n"
@@ -139,8 +139,12 @@ TEST_CASE("a file that is not there is named, and nothing is reported", "[cli][i
     CHECK(errors.str() == "absent.srt: does not exist\n");
 }
 
-TEST_CASE("bytes that are not UTF-8 are refused rather than mangled", "[cli][inspection]") {
-    const InMemoryFileSystem files = withFile("a.srt", "1\n00:00:01,000 --> 00:00:03,000\n\xFF\n");
+TEST_CASE("bytes that decode nowhere are refused rather than mangled", "[cli][inspection]") {
+    // A mark that says UTF-8 over bytes that are not: the mark settles the
+    // encoding, so no other is tried and the reading fails.
+    const InMemoryFileSystem files = withFile("a.srt",
+                                              "\xEF\xBB\xBF"
+                                              "1\n00:00:01,000 --> 00:00:03,000\nCaf\xE9\n");
     std::ostringstream out;
     std::ostringstream errors;
 

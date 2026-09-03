@@ -31,14 +31,15 @@ tiendrait à jour, et un numéro figé serait faux dès le prochain incrément.
 $ subedit-gui film.srt
 ```
 
-Les formats lus sont **SubRip** (`.srt`) et **WebVTT** (`.vtt`), en UTF-8. Le
-format est reconnu au contenu et non à l'extension.
+Les formats lus sont **SubRip** (`.srt`) et **WebVTT** (`.vtt`). Le format est
+reconnu au contenu et non à l'extension, et **l'encodage l'est aussi** : un BOM
+si le fichier en porte un, sinon l'encodage que ses octets proposent.
 
 ## Quand l'ouverture échoue
 
-Un fichier absent, illisible, qui n'est pas de l'UTF-8 valide, ou dont aucun
-format ne reconnaît le contenu : **la fenêtre s'ouvre quand même, vide**, et
-l'échec est écrit sur la sortie d'erreur.
+Un fichier absent, illisible, dont les octets ne se décodent dans aucun
+encodage, ou dont aucun format ne reconnaît le contenu : **la fenêtre s'ouvre
+quand même, vide**, et l'échec est écrit sur la sortie d'erreur.
 
 **Le message nomme la cause**, dans les mêmes mots que la ligne de commande :
 

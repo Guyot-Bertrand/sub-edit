@@ -161,12 +161,32 @@ TEST_CASE("a file read in the wrong encoding is refused rather than mangled",
           "[format][encoding][corpus]") {
     // What every one of these fixtures is for: read as UTF-8, a Latin-1 file
     // used to come back as text with nonsense where its accents were. It is
-    // refused instead, and the reason names the encoding tried.
-    const std::expected<ReadResult, ReadError> result = readSubtitles(bytesOf("latin1.srt"));
+    // refused instead, and the reason names the encoding tried. Given here
+    // rather than detected — left to itself, the reading proposes Latin-1 and
+    // succeeds, which is the case just below.
+    const std::expected<ReadResult, ReadError> result =
+        readSubtitles(bytesOf("latin1.srt"), Encoding::utf8(ByteOrderMark::Absent));
 
     REQUIRE_FALSE(result.has_value());
     CHECK(result.error().kind == ReadErrorKind::Undecodable);
     CHECK(result.error().detail == "UTF-8");
+}
+
+TEST_CASE("every encoding fixture reads with nobody naming its encoding",
+          "[format][encoding][corpus]") {
+    // The same nine files, opened the way a user opens one: without saying
+    // anything. What the detection proposes has to be what they were written
+    // in, and `score-encoding-detection.py` is what measures that on the whole
+    // corpus — this is the same claim, held by the gate.
+    for (const Fixture& fixture : kFixtures) {
+        INFO("fixture : " << fixture.file);
+        const std::expected<ReadResult, ReadError> result = readSubtitles(bytesOf(fixture.file));
+
+        REQUIRE(result.has_value());
+        CHECK(result->encoding == named(fixture.encoding, fixture.mark));
+        REQUIRE_FALSE(result->subtitles.empty());
+        CHECK(result->subtitles[0].mainText == fixture.firstLine);
+    }
 }
 
 TEST_CASE("two single-byte encodings both decode, and say different things",
