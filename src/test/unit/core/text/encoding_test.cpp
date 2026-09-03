@@ -12,7 +12,10 @@ namespace {
 
 using subedit::core::ByteOrderMark;
 using subedit::core::decodeToUtf8;
+using subedit::core::DetectedEncoding;
+using subedit::core::detectEncoding;
 using subedit::core::Encoding;
+using subedit::core::EncodingChoice;
 using subedit::core::Newline;
 using subedit::core::scanNewlines;
 using subedit::core::startsWithByteOrderMark;
@@ -21,6 +24,13 @@ using subedit::core::withoutByteOrderMark;
 constexpr std::string_view kBom = "\xEF\xBB\xBF";
 
 const Encoding kUtf8 = Encoding::utf8(ByteOrderMark::Absent);
+
+/// What the detection proposes for these bytes, or a failed test.
+///
+/// A function rather than a dereference at each call: the proposal may not
+/// exist, and a test that reaches through the option without asking says the
+/// opposite of what the type promises.
+[[nodiscard]] DetectedEncoding proposedFor(std::string_view bytes);
 
 /// The encoding of that name, or a failed test — a fixture is not the place to
 /// find out that ICU is missing a converter.
@@ -31,6 +41,15 @@ const Encoding kUtf8 = Encoding::utf8(ByteOrderMark::Absent);
         return kUtf8;
     }
     return *encoding;
+}
+
+DetectedEncoding proposedFor(std::string_view bytes) {
+    const std::optional<DetectedEncoding> detected = detectEncoding(bytes);
+    if (!detected.has_value()) {
+        FAIL("aucun encodage proposé pour ces octets");
+        return DetectedEncoding{.encoding = kUtf8, .choice = EncodingChoice::Detected};
+    }
+    return *detected;
 }
 
 } // namespace
@@ -84,6 +103,54 @@ TEST_CASE("bytes that decode nowhere are refused rather than patched up", "[form
     // ICU substitutes U+FFFD for what it cannot map unless it is told to stop,
     // and a file full of replacement characters is a file nobody refuses.
     CHECK_FALSE(decodeToUtf8("\xFF\xFE\x00", named("utf-8")).has_value());
+}
+
+TEST_CASE("a mark settles the encoding, and nothing else is weighed", "[format][encoding]") {
+    // The only thing a subtitle file declares about its own encoding. What
+    // follows it is not weighed at all — the question is answered.
+    const DetectedEncoding utf8 = proposedFor(std::string{kBom} + "WEBVTT\n");
+    const DetectedEncoding little = proposedFor("\xFF\xFEW\0E\0");
+
+    CHECK(utf8.encoding == Encoding::utf8(ByteOrderMark::Present));
+    CHECK(utf8.choice == EncodingChoice::ByteOrderMark);
+    CHECK(little.encoding == Encoding::utf16Le(ByteOrderMark::Present));
+    CHECK(little.choice == EncodingChoice::ByteOrderMark);
+}
+
+TEST_CASE("bytes that decode as UTF-8 are UTF-8", "[format][encoding]") {
+    // Two files nothing declares: one of plain ASCII, where every encoding
+    // agrees and UTF-8 is the portable answer; one with multi-byte sequences,
+    // where UTF-8 is structurally verifiable. ICU's detector ranks ISO-8859-1
+    // above UTF-8 on the second, by one point of letter frequencies.
+    for (const std::string_view content : {"Nothing but ASCII here.\n", "Été à Noël\n"}) {
+        INFO("contenu : " << content);
+        const DetectedEncoding detected = proposedFor(content);
+
+        CHECK(detected.encoding == kUtf8);
+        CHECK(detected.choice == EncodingChoice::Detected);
+    }
+}
+
+TEST_CASE("bytes nothing declares are weighed, and the answer is a proposal",
+          "[format][encoding]") {
+    const DetectedEncoding detected = proposedFor("\xE9t\xE9 \xE0 No\xEBl\n");
+
+    CHECK(detected.encoding == named("iso-8859-1"));
+    CHECK(detected.choice == EncodingChoice::Detected);
+}
+
+TEST_CASE("an encoding under which the file does not decode is not proposed",
+          "[format][encoding]") {
+    // ICU's best answer is a ranking, not a verdict: it puts UTF-32BE at the
+    // top of these bytes, which a length that is not a multiple of four then
+    // refuses. Proposing an encoding that does not decode is proposing nothing.
+    CHECK_FALSE(detectEncoding(std::string{"\x00\x01\x02\xFF\xFE\x80\x81", 7}).has_value());
+}
+
+TEST_CASE("bytes that propose nothing propose nothing", "[format][encoding]") {
+    // One high byte, and no encoding to hang a proposal on. Reading falls back
+    // to UTF-8 from here, and fails — which is the honest answer.
+    CHECK_FALSE(detectEncoding("\xFF").has_value());
 }
 
 TEST_CASE("a byte order mark is seen and taken off", "[format][encoding]") {

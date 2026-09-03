@@ -151,6 +151,8 @@ std::string_view nameOf(DiagnosticKind kind) {
         return "a WebVTT block of an unknown kind";
     case DiagnosticKind::MixedNewlines:
         return "more than one kind of line ending";
+    case DiagnosticKind::GuessedEncoding:
+        return "an encoding nothing declared";
     }
     std::unreachable();
 }

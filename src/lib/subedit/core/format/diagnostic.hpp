@@ -20,7 +20,8 @@ enum class Severity {
 /// A category, not a sentence: it can be translated, and a test can assert on
 /// it without comparing prose that will be reworded.
 ///
-/// **Every one of these is what a reading ran into, and each points at a line.**
+/// **Every one of these is what a reading ran into, and all but one point at a
+/// line.**
 /// Three more used to live here — a subtitle ending before it starts,
 /// overlapping its predecessor, or preceding it. They left with ADR 0018:
 /// those describe what a document *is*, they are computed by `scanAnomalies`,
@@ -40,7 +41,17 @@ enum class DiagnosticKind {
     TextBeforeAnyTimestamp, ///< text before the first timestamp of the file
     UnknownBlock,           ///< a WebVTT block of an unknown kind
     MixedNewlines,          ///< several line endings in the same file
+    GuessedEncoding,        ///< the encoding was proposed by weighing the bytes
 };
+
+/// The line a diagnostic about the whole file points at.
+///
+/// **Zero, and it is not a line number** — an editor counts from one. A guessed
+/// encoding is the first diagnostic that speaks about the file rather than
+/// about a place in it: the bytes were weighed before a single line existed.
+/// The two surfaces that render a diagnostic leave the line out when they see
+/// it, rather than writing "line 0", which would be a place that is not there.
+inline constexpr int kWholeFile = 0;
 
 /// One anomaly met while reading, and where it was.
 struct Diagnostic {

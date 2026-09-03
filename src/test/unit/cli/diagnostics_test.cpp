@@ -37,6 +37,16 @@ TEST_CASE("a diagnostic names its line, what happened and what was done", "[cli]
           "line 7: a line that fits nowhere, left as it stands");
 }
 
+TEST_CASE("a diagnostic about the whole file names no line", "[cli][diagnostics]") {
+    // "line 0" would name a place that is not there: the bytes were weighed
+    // before a single line of the file existed.
+    CHECK(reportOf(at(subedit::core::kWholeFile,
+                      DiagnosticKind::GuessedEncoding,
+                      Severity::Recovered,
+                      "windows-1252")) ==
+          "an encoding nothing declared (\"windows-1252\"), settled by the reader");
+}
+
 TEST_CASE("a diagnostic the reader settled says so", "[cli][diagnostics]") {
     CHECK(reportOf(at(3, DiagnosticKind::MissingNumbering, Severity::Recovered)) ==
           "line 3: a SubRip block without its number, settled by the reader");

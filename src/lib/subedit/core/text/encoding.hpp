@@ -26,6 +26,34 @@ namespace subedit::core {
 [[nodiscard]] std::optional<std::string> decodeToUtf8(std::string_view bytes,
                                                       const Encoding& encoding);
 
+/// How the encoding of a file was arrived at.
+enum class EncodingChoice {
+    /// The file said so, with the only mark it can carry.
+    ByteOrderMark,
+
+    /// Nobody said, and the bytes were weighed.
+    Detected,
+};
+
+/// An encoding proposed for these bytes, and how it was arrived at.
+struct DetectedEncoding {
+    Encoding encoding;
+    EncodingChoice choice;
+};
+
+/// Proposes the encoding of `bytes`, or nothing when it can propose none.
+///
+/// **The mark first, always.** It is the only thing a subtitle file ever says
+/// about its own encoding — there is no header and no naming convention — so
+/// weighing bytes against it would be answering a question already settled.
+///
+/// **What comes after is a proposal and never a certainty**, and the type says
+/// so by naming where the answer came from. Latin-1 and CP1252 are the same
+/// encoding outside the range `0x80–0x9f`: on a text that does not use it, the
+/// bytes do not carry the answer, and a detector that picks one is guessing.
+/// ADR 0027 measured that, and `latin1.srt` of the labelled corpus is the case.
+[[nodiscard]] std::optional<DetectedEncoding> detectEncoding(std::string_view bytes);
+
 /// Tells whether `bytes` begin with the mark `encoding` would carry.
 ///
 /// The mark of the charset, whether or not this value says it is there — that

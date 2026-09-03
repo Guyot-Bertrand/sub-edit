@@ -147,11 +147,25 @@ TEST_CASE("an empty file is refused", "[format][corpus]") {
     CHECK(result.error().kind == ReadErrorKind::UnknownFormat);
 }
 
-TEST_CASE("a file that is not UTF-8 is refused rather than mangled", "[format][corpus]") {
-    // Latin-1 reads as UTF-8 only by replacing the accents with nonsense.
-    // Refusing is the honest answer until the encodings arrive.
+TEST_CASE("a file that is not UTF-8 opens, and says in what it was read", "[format][corpus]") {
+    // Refused through seven phases, and read since the eighth. The file lives
+    // in `malformes/` because that is where it was put when it could not be
+    // read; what makes it worth keeping there is that nothing declares its
+    // encoding.
     const std::expected<ReadResult, ReadError> result =
         readSubtitles(bytesOf(corpus("malformes/latin1.srt")));
+
+    REQUIRE(result.has_value());
+    CHECK_FALSE(result->subtitles.empty());
+    CHECK(hasDiagnostic(*result, DiagnosticKind::GuessedEncoding));
+}
+
+TEST_CASE("a mark contradicted by the bytes is refused", "[format][corpus]") {
+    // The one reading that still fails: a mark saying UTF-8 over bytes that are
+    // not. The mark wins over every heuristic — it is the only declaration a
+    // subtitle file carries — so no other encoding is tried.
+    const std::expected<ReadResult, ReadError> result =
+        readSubtitles(bytesOf(corpus("malformes/bom-utf8-menteur.srt")));
 
     REQUIRE_FALSE(result.has_value());
     CHECK(result.error().kind == ReadErrorKind::Undecodable);

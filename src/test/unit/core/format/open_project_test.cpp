@@ -96,10 +96,14 @@ TEST_CASE("a file the system refuses says that, and not something else", "[forma
     CHECK(refusedWith(opened.error(), FileErrorKind::PermissionDenied));
 }
 
-TEST_CASE("bytes that are not UTF-8 are a reader's failure, not the system's", "[format][open]") {
+TEST_CASE("bytes that decode nowhere are a reader's failure, not the system's", "[format][open]") {
     InMemoryFileSystem files;
-    // Latin-1: a lone 0xE9 where UTF-8 would need a second byte.
-    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nCaf\xE9.\n\n");
+    // A UTF-8 mark over Latin-1 bytes: the mark settles the encoding, and the
+    // bytes then do not decode in it. Without the mark these would simply be
+    // read as Latin-1 — the whole point of the phase.
+    files.addFile("film.srt",
+                  "\xEF\xBB\xBF"
+                  "1\n00:00:01,000 --> 00:00:02,000\nCaf\xE9.\n\n");
 
     const std::expected<OpenedFile, OpenError> opened = openProject(files, "film.srt");
 

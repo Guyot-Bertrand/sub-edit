@@ -16,9 +16,10 @@ Le dialogue filtre les deux formats lus, **SubRip** (`.srt`) et **WebVTT**
 (`.vtt`), et propose de tout afficher. Le format est ensuite reconnu au contenu,
 pas à l'extension : un `.txt` qui contient du SubRip s'ouvre.
 
-**Un fichier illisible ne remplace rien.** Absent, refusé par le système, non
-UTF-8, ou d'aucun format connu : une modale **nomme la cause**, et la fenêtre
-garde ce qu'elle avait, sous-titres, historique et modifications comprises.
+**Un fichier illisible ne remplace rien.** Absent, refusé par le système, écrit
+dans un encodage sous lequel ses octets ne se décodent pas, ou d'aucun format
+connu : une modale **nomme la cause**, et la fenêtre garde ce qu'elle avait,
+sous-titres, historique et modifications comprises.
 
 | Message | Ce qui s'est passé |
 | :------ | :----------------- |
@@ -45,13 +46,26 @@ ligne mélangées. **Ce qu'elle a rencontré s'affiche sous la table**, dans un
 panneau replié qui s'ouvre d'un clic.
 
 ```
-line 5: a SubRip block without its number, recovered
+line 5: a SubRip block without its number, settled by the reader
 ```
 
 Chaque ligne porte **le numéro de ligne du fichier** — celui qu'un éditeur de
 texte montrerait —, ce qui a été rencontré, et ce qui en a été fait. Un extrait
 du fichier suit entre guillemets quand il apporte quelque chose ; il est tronqué
 au-delà de quatre-vingts caractères.
+
+**Une seule ligne n'a pas de numéro**, celle de l'encodage : il a été proposé en
+pesant les octets, avant qu'une seule ligne du fichier existe.
+
+```
+an encoding nothing declared ("windows-1252"), settled by the reader
+```
+
+Elle ne s'affiche que lorsque l'encodage a été **deviné et n'est pas de
+l'UTF-8** — un fichier UTF-8 lu comme tel n'est pas un événement, et le dire à
+chaque ouverture mettrait un panneau sous la table de tous les documents
+ordinaires. Un fichier qui porte une marque d'ordre des octets ne la déclenche
+pas non plus : il a déclaré son encodage, rien n'a été deviné.
 
 Le panneau **n'apparaît pas** quand la lecture n'a rien à signaler.
 

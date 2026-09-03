@@ -79,11 +79,25 @@ TEST_CASE("a file of an unknown format is refused, not guessed", "[format][file]
     CHECK(result.error().kind == ReadErrorKind::UnknownFormat);
 }
 
-TEST_CASE("bytes that are not UTF-8 are refused, not mangled", "[format][file]") {
-    // Reading Latin-1 as UTF-8 does not fail, it replaces the accents with
-    // nonsense — and the user finds out once the file has been saved over.
+TEST_CASE("bytes nobody declared are read in the encoding they propose", "[format][file]") {
+    // Refused until phase 8, and read since: 0xE9 is a lone byte where UTF-8
+    // would need a second, and Latin-1 is what the bytes propose.
     const std::expected<ReadResult, ReadError> result =
-        readSubtitles("1\n00:00:01,000 --> 00:00:02,000\n\xE9t\xE9\n");
+        readSubtitles("1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9 pr\xE8s du port.\n");
+
+    REQUIRE(result.has_value());
+    REQUIRE(result->subtitles.size() == 1);
+    CHECK(result->subtitles[0].mainText == "Un café près du port.");
+    CHECK(hasDiagnostic(*result, DiagnosticKind::GuessedEncoding));
+}
+
+TEST_CASE("bytes that decode nowhere are refused, not mangled", "[format][file]") {
+    // A mark that says UTF-8 over bytes that are not. The mark wins — it is the
+    // only thing a file says about itself — so nothing else is tried, and the
+    // reading fails rather than handing back a text with nonsense where the
+    // accents were.
+    const std::expected<ReadResult, ReadError> result =
+        readSubtitles(std::string{kBom} + "1\n00:00:01,000 --> 00:00:02,000\nCaf\xE9\n");
 
     REQUIRE_FALSE(result.has_value());
     CHECK(result.error().kind == ReadErrorKind::Undecodable);

@@ -45,6 +45,22 @@ std::string lineEndings(core::Newline newline, const std::vector<core::Diagnosti
     return text;
 }
 
+/// The encoding, and how the reading arrived at it.
+///
+/// **Two answers, and the file decides which**: a mark is the one thing a
+/// subtitle file says about its own encoding, and everything else was proposed
+/// by weighing the bytes. Saying which of the two it was is what lets a reader
+/// know whether to trust the line — a mark is a declaration, a detection is a
+/// proposal, and Latin-1 and CP1252 are the same bytes on most texts.
+///
+/// The third answer — the encoding the user imposed — comes with the option
+/// that lets them impose one.
+std::string encoding(const core::Encoding& read) {
+    return std::string{read.charset()} + (read.byteOrderMark() == core::ByteOrderMark::Present
+                                              ? ", from its byte order mark"
+                                              : ", detected");
+}
+
 /// The whole stretch the subtitles cover: the earliest start and the latest
 /// end, and not the first and last of the file — which would say something
 /// false about a file whose order is broken.
@@ -166,12 +182,7 @@ bool inspectFile(const core::FileSystem& files,
 
     out << path << '\n';
     out << "  format: " << nameOf(source.format) << '\n';
-    // Read off the model since phase 8, where the core learned to read other
-    // encodings. Nothing yet asks it to — no option names one, and detection is
-    // the issue after this — so the line still says UTF-8 every time; what
-    // changed is that it says it because the file was read that way, and not
-    // because there was nothing else to write.
-    out << "  encoding: " << source.encoding.charset() << '\n';
+    out << "  encoding: " << encoding(source.encoding) << '\n';
     out << "  byte order mark: "
         << (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "present" : "absent")
         << '\n';

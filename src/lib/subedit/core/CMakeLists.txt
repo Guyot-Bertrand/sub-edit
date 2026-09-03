@@ -65,6 +65,6 @@ target_compile_definitions(
 # ICU en privé : aucun en-tête du noyau ne montre `unicode/`, seuls deux
 # fichiers d'implémentation l'incluent. Ce qui dépend de subedit_core hérite
 # donc de l'édition de liens, et de rien d'autre.
-target_link_libraries(subedit_core PRIVATE ICU::uc)
+target_link_libraries(subedit_core PRIVATE ICU::uc ICU::i18n)
 
 subedit_set_warnings(subedit_core)
