@@ -10,8 +10,11 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
+#include <subedit/core/format/subtitle_writer.hpp>
+#include <subedit/core/format/write_error.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/encoding.hpp>
+#include <subedit/core/model/subtitle.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -21,6 +24,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace {
 
@@ -32,6 +36,11 @@ using subedit::core::ReadErrorKind;
 using subedit::core::ReadResult;
 using subedit::core::readSubtitles;
 using subedit::core::RealFileSystem;
+using subedit::core::Subtitle;
+using subedit::core::WriteError;
+using subedit::core::WriteErrorKind;
+using subedit::core::WriteRequest;
+using subedit::core::writeSubtitles;
 
 /// What one fixture is: its file, the encoding it was written in, whether it
 /// carries a mark, and the first line it should give back.
@@ -136,6 +145,51 @@ TEST_CASE("every encoding fixture reads in its own encoding", "[format][encoding
         REQUIRE_FALSE(result->subtitles.empty());
         CHECK(result->subtitles[0].mainText == fixture.firstLine);
     }
+}
+
+TEST_CASE("every encoding fixture comes back byte for byte", "[format][encoding][corpus]") {
+    // **The property that carries the phase.** It does not check on the text —
+    // two encodings carry the same text — so it checks on the bytes: a file
+    // read and written back with nothing asked of it is the same file. Losing
+    // it means a user who corrected one subtitle finds every line of their
+    // file in the diff.
+    for (const Fixture& fixture : kFixtures) {
+        INFO("fixture : " << fixture.file);
+        const std::string original = bytesOf(fixture.file);
+        const std::expected<ReadResult, ReadError> result = readSubtitles(original);
+
+        REQUIRE(result.has_value());
+        const std::expected<std::string, WriteError> written =
+            writeSubtitles(result->format,
+                           WriteRequest{
+                               .subtitles = result->subtitles,
+                               .newline = result->newline,
+                               .encoding = result->encoding,
+                               .header = result->header,
+                           });
+
+        REQUIRE(written.has_value());
+        CHECK(*written == original);
+    }
+}
+
+TEST_CASE("a character the encoding cannot write is named, not replaced",
+          "[format][encoding][corpus]") {
+    // ICU writes `?` for what it cannot map unless it is told to stop, and a
+    // `?` written over the file it came from is text lost under the user's
+    // eyes. `ł` has no place in Latin-1, and no right answer either.
+    const std::expected<ReadResult, ReadError> result = readSubtitles(bytesOf("latin1.srt"));
+    REQUIRE(result.has_value());
+
+    std::vector<Subtitle> subtitles = result->subtitles;
+    subtitles[0].mainText = "Przyszedł późno.";
+
+    const std::expected<std::string, WriteError> written = writeSubtitles(
+        result->format, WriteRequest{.subtitles = subtitles, .encoding = result->encoding});
+
+    REQUIRE_FALSE(written.has_value());
+    CHECK(written.error().kind == WriteErrorKind::Unencodable);
+    CHECK(written.error().detail == "ł");
 }
 
 TEST_CASE("a mark is taken off rather than left at the head of the first line",

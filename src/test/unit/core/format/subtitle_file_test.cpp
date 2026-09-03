@@ -3,6 +3,7 @@
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
+#include <subedit/core/format/write_error.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -47,6 +48,16 @@ ReadResult readOrFail(std::string_view content) {
         return {};
     }
     return *std::move(result);
+}
+
+/// The bytes of a writing that has to succeed, or a failed test.
+std::string writeOrFail(SubtitleFormat format, const WriteRequest& request) {
+    std::expected<std::string, subedit::core::WriteError> written = writeSubtitles(format, request);
+    if (!written.has_value()) {
+        FAIL("l'écriture a échoué alors qu'elle devait aboutir");
+        return {};
+    }
+    return *std::move(written);
 }
 
 bool hasDiagnostic(const ReadResult& result, DiagnosticKind kind) {
@@ -154,15 +165,15 @@ TEST_CASE("writing puts the byte order mark back when there was one", "[format][
     const ReadResult result = readOrFail(std::string{kBom} + std::string{kSubRip});
 
     const std::string written =
-        writeSubtitles(result.format,
-                       WriteRequest{.subtitles = result.subtitles,
-                                    .encoding = Encoding::utf8(ByteOrderMark::Present)});
+        writeOrFail(result.format,
+                    WriteRequest{.subtitles = result.subtitles,
+                                 .encoding = Encoding::utf8(ByteOrderMark::Present)});
 
     CHECK(written.starts_with(kBom));
 }
 
 TEST_CASE("writing adds no mark when the file had none", "[format][file]") {
-    const std::string written = writeSubtitles(SubtitleFormat::SubRip, WriteRequest{});
+    const std::string written = writeOrFail(SubtitleFormat::SubRip, WriteRequest{});
 
     CHECK_FALSE(written.starts_with(kBom));
 }
@@ -174,12 +185,12 @@ TEST_CASE("a file with a mark comes back with its mark and nothing else changed"
     const std::string original = std::string{kBom} + std::string{kSubRip};
     const ReadResult result = readOrFail(original);
 
-    const std::string written = writeSubtitles(result.format,
-                                               WriteRequest{
-                                                   .subtitles = result.subtitles,
-                                                   .newline = result.newline,
-                                                   .encoding = result.encoding,
-                                               });
+    const std::string written = writeOrFail(result.format,
+                                            WriteRequest{
+                                                .subtitles = result.subtitles,
+                                                .newline = result.newline,
+                                                .encoding = result.encoding,
+                                            });
 
     CHECK(written == original);
 }
@@ -187,7 +198,7 @@ TEST_CASE("a file with a mark comes back with its mark and nothing else changed"
 TEST_CASE("a WebVTT file comes back with its header", "[format][file]") {
     const ReadResult result = readOrFail(kWebVtt);
 
-    const std::string written = writeSubtitles(
+    const std::string written = writeOrFail(
         result.format, WriteRequest{.subtitles = result.subtitles, .header = result.header});
 
     CHECK(written == kWebVtt);

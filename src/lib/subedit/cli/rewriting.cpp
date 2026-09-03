@@ -3,6 +3,7 @@
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/rewriting.hpp>
+#include <subedit/cli/writing.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
@@ -48,25 +49,23 @@ bool rewriteFile(core::FileSystem& files,
         .encoding = source.encoding,
         .header = source.header,
     };
-    const std::string written = core::writeSubtitles(source.format, request);
-
     // The extension is left alone: the format has not changed.
     const std::filesystem::path out = destination.pathFor(path, "");
-    if (const std::expected<void, core::FileError> saved =
-            core::writeAtomically(files, out, written);
-        !saved) {
-        reporter.failed(path + ": " + out.string() + ": " +
-                        std::string{reasonOf(saved.error().kind)});
+    const std::expected<std::size_t, std::string> written =
+        writeSubtitlesTo(files, out, source.format, request);
+    if (!written) {
+        reporter.failed(path + ": " + written.error());
         return false;
     }
 
     reporter.say(3,
                  path + ": " + std::to_string(opened->bytes) + " bytes read, " +
-                     std::to_string(written.size()) + " written");
+                     std::to_string(*written) + " written");
     sayDiagnostics(reporter, path, opened->diagnostics);
     reporter.say(
         2,
-        path + ": " + std::string{nameOf(source.format)} + ", UTF-8, " +
+        path + ": " + std::string{nameOf(source.format)} + ", " +
+            std::string{source.encoding.charset()} + ", " +
             (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "BOM" : "no BOM") +
             ", " + std::string{nameOf(source.newline)} + " line endings kept");
     reporter.say(1, path + ": " + *done + " -> " + out.string());

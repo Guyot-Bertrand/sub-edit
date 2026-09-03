@@ -15,6 +15,7 @@ ne pas l'éditer à la main.
 - **build** — Une page de manuel pour subedit-gui
 - **core** — Lire un fichier dans un encodage donné, par ICU
 - **core** — Détecter l'encodage, et dire ce qu'on a deviné
+- **core** — Écrire dans un encodage donné, et l'aller-retour d'octets
 
 ### Corrections
 

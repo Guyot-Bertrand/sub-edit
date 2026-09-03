@@ -10,6 +10,7 @@
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
+#include <subedit/core/format/write_error.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -55,13 +56,19 @@ std::string bytesOf(const std::filesystem::path& path) {
 
 /// Reads then writes, putting back what the file arrived with.
 std::string roundTrip(const ReadResult& result) {
-    return writeSubtitles(result.format,
-                          WriteRequest{
-                              .subtitles = result.subtitles,
-                              .newline = result.newline,
-                              .encoding = result.encoding,
-                              .header = result.header,
-                          });
+    std::expected<std::string, subedit::core::WriteError> written =
+        writeSubtitles(result.format,
+                       WriteRequest{
+                           .subtitles = result.subtitles,
+                           .newline = result.newline,
+                           .encoding = result.encoding,
+                           .header = result.header,
+                       });
+    if (!written.has_value()) {
+        FAIL("l'écriture a échoué alors qu'elle devait aboutir");
+        return {};
+    }
+    return *std::move(written);
 }
 
 bool hasDiagnostic(const ReadResult& result, DiagnosticKind kind) {

@@ -91,7 +91,7 @@ Sur la sortie d'erreur, selon le niveau :
 | Niveau | Ce qui s'ajoute |
 | :----- | :-------------- |
 | 1 | `<chemin>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<chemin>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` |
+| 2 | `<chemin>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — l'encodage nommé est celui qui est écrit |
 | 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ## Codes de retour
@@ -105,6 +105,13 @@ certains seulement, `1` sur une erreur d'usage.
 | :------------------ | :------ |
 | `--bom` avec `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` qui change le format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
+| `--bom` sur un encodage qui n'en a pas | `<chemin>: <encodage> has no byte order mark to write` |
+
+**Le dernier n'est pas une pédanterie.** Une marque d'ordre des octets existe
+pour les encodages Unicode et pour aucun autre : la demander sur un fichier en
+Windows-1252, c'est demander quelque chose qui n'existe pas. Le fichier
+s'écrirait sans elle, et personne ne saurait que la demande n'a pas été
+honorée.
 
 Celles de la destination sont communes aux sous-commandes qui écrivent :
 voir [Invocation](invocation.md#la-destination).

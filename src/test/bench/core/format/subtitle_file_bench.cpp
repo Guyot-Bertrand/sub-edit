@@ -75,7 +75,8 @@ TEST_CASE("reading and writing a full-length file", "[benchmark]") {
     };
 
     BENCHMARK("écriture de 4000 sous-titres") {
-        return writeSubtitles(SubtitleFormat::SubRip, WriteRequest{.subtitles = subtitles});
+        return writeSubtitles(SubtitleFormat::SubRip, WriteRequest{.subtitles = subtitles})
+            .value_or(std::string{});
     };
 }
 

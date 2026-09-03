@@ -2,6 +2,7 @@
 
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/open_error.hpp>
+#include <subedit/core/format/save_error.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 
@@ -68,7 +69,11 @@ struct OpenedFile {
 /// **Neither the project nor the session is touched.** Recording that a
 /// document was saved is `Session::markSaved`, and moving it is
 /// `Session::setSourceFile`; both belong to whoever holds the session.
-[[nodiscard]] std::expected<void, FileError> saveProject(FileSystem& files,
+///
+/// **Says which of the two steps failed**, as `openProject` does: subtitles
+/// that hold a character the encoding cannot write are not a disk that refuses
+/// them, and the user can act on only one of the two.
+[[nodiscard]] std::expected<void, SaveError> saveProject(FileSystem& files,
                                                          const Project& project,
                                                          const std::filesystem::path& path,
                                                          SubtitleFormat format);

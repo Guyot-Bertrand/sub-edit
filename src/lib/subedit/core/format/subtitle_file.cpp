@@ -8,6 +8,7 @@
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/format/web_vtt_reader.hpp>
 #include <subedit/core/format/web_vtt_writer.hpp>
+#include <subedit/core/format/write_error.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/encoding.hpp>
@@ -37,6 +38,16 @@ namespace {
 [[nodiscard]] bool saysSomethingNew(const std::optional<DetectedEncoding>& detected) {
     return detected.has_value() && detected->choice == EncodingChoice::Detected &&
            detected->encoding != Encoding::utf8(ByteOrderMark::Absent);
+}
+
+[[nodiscard]] std::string textOf(SubtitleFormat format, const WriteRequest& request) {
+    switch (format) {
+    case SubtitleFormat::SubRip:
+        return SubRipWriter{}.write(request);
+    case SubtitleFormat::WebVtt:
+        return WebVttWriter{}.write(request);
+    }
+    std::unreachable();
 }
 
 [[nodiscard]] std::expected<ReadResult, ReadError> readAs(SubtitleFormat format,
@@ -126,20 +137,23 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
     return result;
 }
 
-std::string writeSubtitles(SubtitleFormat format, const WriteRequest& request) {
+std::expected<std::string, WriteError> writeSubtitles(SubtitleFormat format,
+                                                      const WriteRequest& request) {
+    const std::expected<std::string, UnwritableCharacter> body =
+        encodeFromUtf8(textOf(format, request), request.encoding);
+    if (!body.has_value())
+        return std::unexpected(WriteError{
+            .kind = WriteErrorKind::Unencodable,
+            .detail = body.error().character,
+        });
+
+    // The mark is bytes and not text: it goes on after the conversion, as it
+    // came off before it.
     std::string out;
     if (request.encoding.byteOrderMark() == ByteOrderMark::Present)
         out += request.encoding.byteOrderMarkBytes();
 
-    switch (format) {
-    case SubtitleFormat::SubRip:
-        out += SubRipWriter{}.write(request);
-        return out;
-    case SubtitleFormat::WebVtt:
-        out += WebVttWriter{}.write(request);
-        return out;
-    }
-    std::unreachable();
+    return out + *body;
 }
 
 } // namespace subedit::core

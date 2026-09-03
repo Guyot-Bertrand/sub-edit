@@ -130,6 +130,17 @@ TEST_CASE("a byte order mark can be added and removed", "[cli][conversion]") {
                     .written.starts_with("\xEF\xBB\xBF"));
 }
 
+TEST_CASE("a mark asked of an encoding that has none is refused", "[cli][conversion]") {
+    // A byte order mark exists for the Unicode encodings and for no other.
+    // Writing the file without the mark would answer a question that was asked.
+    const std::string latin = "1\n00:00:01,000 --> 00:00:03,000\nUn caf\xE9.\n";
+
+    const Run run = convert(latin, SubtitleFormat::SubRip, {.bom = ByteOrderMark::Present});
+
+    CHECK(run.written.empty());
+    CHECK_THAT(run.errors, ContainsSubstring("ISO-8859-1 has no byte order mark to write"));
+}
+
 TEST_CASE("a round trip through the other format keeps the timings", "[cli][conversion]") {
     InMemoryFileSystem files;
     files.addFile("a.srt", kSubRip);
