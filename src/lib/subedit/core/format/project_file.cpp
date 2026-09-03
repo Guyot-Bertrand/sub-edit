@@ -1,5 +1,6 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/read_result.hpp>
+#include <subedit/core/format/save_error.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/io/atomic_write.hpp>
@@ -32,7 +33,7 @@ std::expected<OpenedFile, OpenError> openProject(const FileSystem& files,
                       .bytes = content->size()};
 }
 
-std::expected<void, FileError> saveProject(FileSystem& files,
+std::expected<void, SaveError> saveProject(FileSystem& files,
                                            const Project& project,
                                            const std::filesystem::path& path,
                                            SubtitleFormat format) {
@@ -46,9 +47,15 @@ std::expected<void, FileError> saveProject(FileSystem& files,
         .header = source.header,
     };
 
-    const std::string written = writeSubtitles(format, request);
+    const std::expected<std::string, WriteError> written = writeSubtitles(format, request);
+    if (!written.has_value())
+        return std::unexpected(SaveError{written.error()});
 
-    return writeAtomically(files, path, written);
+    if (const std::expected<void, FileError> saved = writeAtomically(files, path, *written);
+        !saved.has_value())
+        return std::unexpected(SaveError{saved.error()});
+
+    return {};
 }
 
 } // namespace subedit::core

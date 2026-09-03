@@ -3,6 +3,7 @@
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 
+#include <expected>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -53,6 +54,31 @@ struct DetectedEncoding {
 /// bytes do not carry the answer, and a detector that picks one is guessing.
 /// ADR 0027 measured that, and `latin1.srt` of the labelled corpus is the case.
 [[nodiscard]] std::optional<DetectedEncoding> detectEncoding(std::string_view bytes);
+
+/// The first character an encoding cannot write, in UTF-8.
+///
+/// A type of its own rather than a bare string: an `expected<std::string,
+/// std::string>` says nothing at the call site about which of the two is the
+/// answer and which is the failure.
+struct UnwritableCharacter {
+    std::string character;
+
+    friend bool operator==(const UnwritableCharacter&, const UnwritableCharacter&) = default;
+};
+
+/// Turns UTF-8 `text` into the bytes of a file in `encoding`.
+///
+/// The counterpart of `decodeToUtf8`, and it refuses the same way: **a
+/// character the encoding cannot write is a failure, never a substitution.**
+/// ICU writes `?` for what it cannot map unless it is told to stop, and a `?`
+/// in the middle of a subtitle is text lost under the user's eyes — the more
+/// so as it is written to disk over the file it came from. Writing an `ń` into
+/// Latin-1 has no right answer; saying so is the only one.
+///
+/// The mark is not put back here: it belongs to the file rather than to its
+/// text, and `writeSubtitles` is where a file is assembled.
+[[nodiscard]] std::expected<std::string, UnwritableCharacter>
+encodeFromUtf8(std::string_view text, const Encoding& encoding);
 
 /// Tells whether `bytes` begin with the mark `encoding` would carry.
 ///

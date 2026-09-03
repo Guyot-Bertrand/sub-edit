@@ -36,6 +36,31 @@ TEST_CASE("a directory takes the extension of the format", "[e2e][CLI-CONVERT-01
     CHECK_FALSE(std::filesystem::exists(scratch.of("minimal.srt")));
 }
 
+TEST_CASE("a file rewritten without a word comes back byte for byte", "[e2e][CLI-ENC-05]") {
+    // **The property the phase carries**, through the real binary: a file that
+    // is asked for nothing gives back the same bytes — its encoding among them.
+    // Latin-1 here, which nothing declares and everything has to keep.
+    const Scratch scratch;
+    const std::string path = corpus("encodages/latin1.srt");
+    const CliRun run =
+        invoke({"convert", "--to", "srt", "--output", scratch.of("copie.srt"), path});
+
+    CHECK(run.exitCode == 0);
+    CHECK(contentOf(scratch.of("copie.srt")) == contentOf(path));
+}
+
+TEST_CASE("a file in UTF-16 with its mark comes back byte for byte", "[e2e][CLI-ENC-05]") {
+    // The mark is two bytes and carries the byte order; the text is two bytes
+    // per character. Nothing of either survives by accident.
+    const Scratch scratch;
+    const std::string path = corpus("encodages/utf-16-le-bom.srt");
+    const CliRun run =
+        invoke({"convert", "--to", "srt", "--output", scratch.of("copie.srt"), path});
+
+    CHECK(run.exitCode == 0);
+    CHECK(contentOf(scratch.of("copie.srt")) == contentOf(path));
+}
+
 TEST_CASE("nothing is written without a destination", "[e2e][CLI-CONVERT-03]") {
     const CliRun run = invoke({"convert", "--to", "vtt", corpus("valides/minimal.srt")});
 

@@ -793,11 +793,11 @@ bool MainWindow::save() {
     if (!source.path.has_value())
         return saveAs();
 
-    const std::expected<void, core::FileError> written =
+    const std::expected<void, core::SaveError> written =
         core::saveProject(*m_files, m_session->project(), *source.path, source.format);
     if (!written) {
         m_prompts->reportFailure(source.path->string() + ": " +
-                                 std::string{core::reasonOf(written.error().kind)});
+                                 std::string{core::reasonOf(written.error())});
         return false;
     }
 
@@ -813,11 +813,11 @@ bool MainWindow::saveAs() {
     if (!target.has_value())
         return false;
 
-    const std::expected<void, core::FileError> written =
+    const std::expected<void, core::SaveError> written =
         core::saveProject(*m_files, m_session->project(), target->path, target->format);
     if (!written) {
         m_prompts->reportFailure(target->path.string() + ": " +
-                                 std::string{core::reasonOf(written.error().kind)});
+                                 std::string{core::reasonOf(written.error())});
         return false;
     }
 

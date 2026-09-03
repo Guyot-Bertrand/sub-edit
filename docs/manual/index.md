@@ -11,8 +11,8 @@ programmes qui partagent le même noyau, donc les mêmes règles et les mêmes m
 Les deux lisent et écrivent **SubRip** (`.srt`) et **WebVTT** (`.vtt`), et
 reconnaissent le format au contenu plutôt qu'à l'extension. **L'encodage aussi
 est reconnu au contenu** : un fichier en Latin-1, en CP1252 ou en UTF-16
-s'ouvre, et ce qu'il a été lu comme est dit. Ce qui est écrit, en revanche, est
-de l'UTF-8.
+s'ouvre, ce qu'il a été lu comme est dit, et il est réécrit dans le sien — un
+fichier ouvert puis enregistré sans modification ne bouge pas d'un octet.
 
 ## Par où commencer
 

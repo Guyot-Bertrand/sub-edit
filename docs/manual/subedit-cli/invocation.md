@@ -51,7 +51,7 @@ opposées ne sont pas arbitrées au profit de la dernière écrite.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.8.16
+subedit 0.8.17
 ```
 
 ## Sous-commandes
@@ -107,6 +107,13 @@ autres conservent celui du fichier lu, donc son extension.
 | deux destinations | `--output, --output-dir and --in-place exclude one another` |
 | `--output` sur un lot | `--output names one file but several were given: use --output-dir instead` |
 | destination non inscriptible | `<chemin>: <destination>: cannot be opened: permission denied` |
+| caractère absent de l'encodage écrit | `<chemin>: holds a character the chosen encoding cannot write` |
+
+**Le dernier mérite une phrase.** Un fichier est réécrit dans **l'encodage où il
+a été lu**, comme il l'est avec ses fins de ligne et sa marque. Si une
+modification y a introduit un caractère que cet encodage ne connaît pas — un
+`ł` dans du Latin-1 —, l'écriture échoue et **rien n'est écrit**. Le remplacer
+par un `?` serait perdre du texte sous les yeux de qui vient de l'écrire.
 
 ## Deux sorties, deux rôles
 

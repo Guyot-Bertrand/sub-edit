@@ -71,10 +71,10 @@ Le panneau **n'apparaît pas** quand la lecture n'a rien à signaler.
 
 ## Enregistrer
 
-`Save` réécrit le fichier ouvert **dans sa forme d'origine** : son format, ses
-fins de ligne, sa marque d'ordre des octets et son en-tête. Un fichier ouvert
-puis enregistré sans modification ne bouge pas d'un octet — voir la garantie
-exacte plus bas.
+`Save` réécrit le fichier ouvert **dans sa forme d'origine** : son format, son
+encodage, ses fins de ligne, sa marque d'ordre des octets et son en-tête. Un
+fichier ouvert puis enregistré sans modification ne bouge pas d'un octet — voir
+la garantie exacte plus bas.
 
 L'écriture est **atomique** : elle passe par un fichier temporaire renommé
 par-dessus. Une sauvegarde interrompue à n'importe quel moment laisse la version
@@ -83,8 +83,12 @@ précédente intacte.
 Enregistrer un document qui n'a jamais été sur disque revient à `Save As…`.
 
 **Une écriture qui échoue le dit et ne perd rien** : le disque plein, un fichier
-en lecture seule, un répertoire absent. Le message nomme le fichier et la raison,
-la fenêtre garde ses modifications, et la marque du titre reste.
+en lecture seule, un répertoire absent — ou **un caractère que l'encodage du
+fichier ne sait pas écrire**, un `ł` dans un fichier en Latin-1. Le message est
+alors `holds a character the chosen encoding cannot write`, et rien n'est
+écrit : remplacer le caractère par un `?` perdrait du texte sous les yeux de qui
+vient de le taper. Le message nomme le fichier et la raison, la fenêtre garde
+ses modifications, et la marque du titre reste.
 
 ## Enregistrer sous
 
@@ -106,7 +110,9 @@ ne sont simplement pas écrits.
 Elle a deux moitiés, et il faut les deux :
 
 - **fidèle octet pour octet** sur un fichier déjà dans la disposition que
-  `subedit` écrit — celle de Gaupol, ligne vide finale comprise ;
+  `subedit` écrit — celle de Gaupol, ligne vide finale comprise —, et **quel
+  que soit son encodage** : un fichier en CP1252 ou en UTF-16 est réécrit dans
+  le sien, marque comprise ;
 - **idempotent** sinon : le premier enregistrement normalise la disposition,
   aucun ensuite ne touche plus rien.
 

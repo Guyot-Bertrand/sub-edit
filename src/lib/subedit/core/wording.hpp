@@ -25,6 +25,8 @@
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/read_error.hpp>
+#include <subedit/core/format/save_error.hpp>
+#include <subedit/core/format/write_error.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -63,6 +65,16 @@ namespace subedit::core {
 /// already say all seven — only the choice between them is made in one place
 /// rather than at each call site.
 [[nodiscard]] std::string_view reasonOf(const OpenError& error);
+
+/// Why subtitles could not be written, in the same shape.
+[[nodiscard]] std::string_view reasonOf(WriteErrorKind kind);
+
+/// Why a file could not be saved, whichever of the two steps failed.
+///
+/// The mirror of the call above, and it exists for the same reason: the window
+/// and the command line say the same words about the same failure, and neither
+/// chooses between the two overloads on its own.
+[[nodiscard]] std::string_view reasonOf(const SaveError& error);
 
 /// A theme, as the preferences dialog offers it.
 ///

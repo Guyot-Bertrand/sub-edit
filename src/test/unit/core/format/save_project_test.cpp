@@ -13,24 +13,30 @@
 // are there.
 
 #include <subedit/core/format/project_file.hpp>
+#include <subedit/core/format/write_error.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <expected>
 #include <string>
+#include <variant>
 
 namespace {
 
-using subedit::core::FileError;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::openProject;
 using subedit::core::Project;
+using subedit::core::SaveError;
 using subedit::core::saveProject;
 using subedit::core::SubtitleFormat;
+using subedit::core::SubtitleIndex;
+using subedit::core::WriteError;
 
 /// In the layout the project writes — closing blank line included, after the
 /// last block too. That is the one the round trip is faithful to byte for byte;
@@ -81,7 +87,7 @@ TEST_CASE("a file already in the layout the project writes comes back identical 
     files.addFile("film.srt", original);
 
     const Project project = opened(files, "film.srt");
-    const std::expected<void, FileError> saved =
+    const std::expected<void, SaveError> saved =
         saveProject(files, project, "film.srt", SubtitleFormat::SubRip);
 
     REQUIRE(saved.has_value());
@@ -129,13 +135,71 @@ TEST_CASE("saving in the other format writes that format", "[format][save]") {
     CHECK(written.find("00:01.000 --> 00:02.000") != std::string::npos);
 }
 
+TEST_CASE("a file that is not UTF-8 comes back in its own encoding, byte for byte",
+          "[format][save]") {
+    // The encoding is put back like the line endings and the mark: the project
+    // kept what it was read in, and saving writes it there again. Latin-1, a
+    // lone 0xE9 where UTF-8 would need a second byte.
+    const std::string original = "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9.\n\n";
+    InMemoryFileSystem files;
+    files.addFile("film.srt", original);
+
+    const Project project = opened(files, "film.srt");
+    const std::expected<void, SaveError> saved =
+        saveProject(files, project, "film.srt", SubtitleFormat::SubRip);
+
+    REQUIRE(saved.has_value());
+    CHECK(files.contentOf("film.srt").value_or("") == original);
+}
+
+TEST_CASE("a save the encoding cannot carry fails, and nothing is written", "[format][save]") {
+    // Two failures meet in one answer, and they are not the same: the disk
+    // refusing the bytes, and the bytes not existing. Here it is the second —
+    // `ł` has no place in Latin-1 — and the file on disk keeps what it had.
+    const std::string original = "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9.\n\n";
+    InMemoryFileSystem files;
+    files.addFile("film.srt", original);
+
+    Project project = opened(files, "film.srt");
+    project.subtitleAt(SubtitleIndex::fromValue(0)).mainText = "Przyszedł późno.";
+
+    const std::expected<void, SaveError> saved =
+        saveProject(files, project, "film.srt", SubtitleFormat::SubRip);
+
+    REQUIRE_FALSE(saved.has_value());
+    CHECK(std::holds_alternative<WriteError>(saved.error()));
+    CHECK(files.contentOf("film.srt").value_or("") == original);
+}
+
+// The two causes of a failed save, as a user is told them. Saving is two steps,
+// and each has its own sentence — the counterpart of what #154 did for opening.
+TEST_CASE("each cause of a failed save has its own sentence", "[format][save]") {
+    InMemoryFileSystem files;
+    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9.\n\n");
+    Project project = opened(files, "film.srt");
+
+    files.failNextWrite(FileErrorKind::PermissionDenied);
+    const std::expected<void, SaveError> refused =
+        saveProject(files, project, "film.srt", SubtitleFormat::SubRip);
+
+    project.subtitleAt(SubtitleIndex::fromValue(0)).mainText = "Przyszedł późno.";
+    const std::expected<void, SaveError> unwritable =
+        saveProject(files, project, "film.srt", SubtitleFormat::SubRip);
+
+    REQUIRE_FALSE(refused.has_value());
+    REQUIRE_FALSE(unwritable.has_value());
+    CHECK(subedit::core::reasonOf(refused.error()) == "cannot be opened: permission denied");
+    CHECK(subedit::core::reasonOf(unwritable.error()) ==
+          "holds a character the chosen encoding cannot write");
+}
+
 TEST_CASE("a save that cannot be written says so", "[format][save]") {
     InMemoryFileSystem files;
     files.addFile("film.srt", kSubRip);
     const Project project = opened(files, "film.srt");
     files.failNextWrite(FileErrorKind::PermissionDenied);
 
-    const std::expected<void, FileError> saved =
+    const std::expected<void, SaveError> saved =
         saveProject(files, project, "film.srt", SubtitleFormat::SubRip);
 
     CHECK_FALSE(saved.has_value());

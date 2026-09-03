@@ -70,7 +70,19 @@ std::string_view reasonOf(FileErrorKind kind) {
     std::unreachable();
 }
 
+std::string_view reasonOf(WriteErrorKind kind) {
+    switch (kind) {
+    case WriteErrorKind::Unencodable:
+        return "holds a character the chosen encoding cannot write";
+    }
+    std::unreachable();
+}
+
 std::string_view reasonOf(const OpenError& error) {
+    return std::visit([](const auto& one) { return reasonOf(one.kind); }, error);
+}
+
+std::string_view reasonOf(const SaveError& error) {
     return std::visit([](const auto& one) { return reasonOf(one.kind); }, error);
 }
 

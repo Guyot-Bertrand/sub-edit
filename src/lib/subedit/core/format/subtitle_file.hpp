@@ -3,6 +3,7 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
+#include <subedit/core/format/write_error.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 
@@ -39,12 +40,15 @@ namespace subedit::core {
 
 /// Renders subtitles into the bytes of a file of `format`.
 ///
-/// The counterpart of `readSubtitles`: the byte order mark of the requested
-/// encoding goes back on here, so that no format has to know it exists.
+/// The counterpart of `readSubtitles`: the text is written in the encoding the
+/// request names, and that encoding's byte order mark goes back on here, so
+/// that no format has to know either exists.
 ///
-/// **The text itself is UTF-8, whatever encoding the request names.** Nothing
-/// can name another one yet — reading only ever produces UTF-8 — and the
-/// converter that would honour it comes with the phase that writes the others.
-[[nodiscard]] std::string writeSubtitles(SubtitleFormat format, const WriteRequest& request);
+/// **Fails rather than substitutes.** A character the encoding cannot write —
+/// an `ń` in Latin-1 — has no right answer, and ICU's own is a `?`. Written to
+/// disk over the file it came from, that `?` is text lost in silence; the
+/// failure names the character instead.
+[[nodiscard]] std::expected<std::string, WriteError> writeSubtitles(SubtitleFormat format,
+                                                                    const WriteRequest& request);
 
 } // namespace subedit::core

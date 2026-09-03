@@ -4,6 +4,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <expected>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -14,11 +15,13 @@ using subedit::core::ByteOrderMark;
 using subedit::core::decodeToUtf8;
 using subedit::core::DetectedEncoding;
 using subedit::core::detectEncoding;
+using subedit::core::encodeFromUtf8;
 using subedit::core::Encoding;
 using subedit::core::EncodingChoice;
 using subedit::core::Newline;
 using subedit::core::scanNewlines;
 using subedit::core::startsWithByteOrderMark;
+using subedit::core::UnwritableCharacter;
 using subedit::core::withoutByteOrderMark;
 
 constexpr std::string_view kBom = "\xEF\xBB\xBF";
@@ -103,6 +106,31 @@ TEST_CASE("bytes that decode nowhere are refused rather than patched up", "[form
     // ICU substitutes U+FFFD for what it cannot map unless it is told to stop,
     // and a file full of replacement characters is a file nobody refuses.
     CHECK_FALSE(decodeToUtf8("\xFF\xFE\x00", named("utf-8")).has_value());
+}
+
+TEST_CASE("text goes back to the bytes it came from", "[format][encoding]") {
+    // The round trip, at the level where it is decided: the same text, in the
+    // encoding it was read in, is the same bytes.
+    const std::string bytes = "\xE9t\xE9 \xE0 No\xEBl\n";
+    const Encoding latin = named("iso-8859-1");
+
+    const std::optional<std::string> text = decodeToUtf8(bytes, latin);
+
+    CHECK(encodeFromUtf8(text.value_or(std::string{}), latin) == bytes);
+}
+
+TEST_CASE("a character the encoding cannot write is named, not replaced", "[format][encoding]") {
+    // ICU writes `?` for what it cannot map unless it is told to stop. A `?` is
+    // a character the user did not type, written over the file they had.
+    const std::expected<std::string, UnwritableCharacter> written =
+        encodeFromUtf8("Przyszedł późno", named("iso-8859-1"));
+
+    REQUIRE_FALSE(written.has_value());
+    CHECK(written.error() == UnwritableCharacter{.character = "ł"});
+}
+
+TEST_CASE("an encoding that can write everything writes everything", "[format][encoding]") {
+    CHECK(encodeFromUtf8("日本語", kUtf8) == "日本語");
 }
 
 TEST_CASE("a mark settles the encoding, and nothing else is weighed", "[format][encoding]") {

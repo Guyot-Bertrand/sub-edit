@@ -146,7 +146,7 @@ plus rien.
 | `CLI-ENC-02` | `--encoding` impose l'encodage de lecture et l'emporte sur la détection | 8 | prévue |
 | `CLI-ENC-03` | un BOM l'emporte sur `--encoding`, et l'écart est dit | 8 | prévue |
 | `CLI-ENC-04` | `--encoding` à l'écriture choisit l'encodage produit | 8 | prévue |
-| `CLI-ENC-05` | un fichier réécrit sans consigne rend les mêmes octets, encodage compris | 8 | prévue |
+| `CLI-ENC-05` | un fichier réécrit sans consigne rend les mêmes octets, encodage compris | 8 | implémentée |
 | `CLI-ENC-06` | un fichier qu'aucun encodage ne décode est refusé, et la raison le dit | 8 | implémentée |
 | `CLI-ENC-07` | `inspect` rapporte l'encodage lu et s'il a été deviné | 8 | implémentée |
 | `GUI-ENC-01` | la fenêtre ouvre un fichier non-UTF-8 et affiche l'encodage retenu | 8 | prévue |

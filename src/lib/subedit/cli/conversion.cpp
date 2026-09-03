@@ -3,6 +3,7 @@
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/cli/writing.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/read_error.hpp>
@@ -44,6 +45,17 @@ bool convertFile(core::FileSystem& files,
     const core::Encoding encoding =
         shape.bom ? source.encoding.withByteOrderMark(*shape.bom) : source.encoding;
 
+    // **`--bom` on an encoding that has none is refused, not ignored.** A byte
+    // order mark exists for the Unicode encodings and for no other, so asking
+    // for one on a Windows-1252 file asks for something that does not exist.
+    // Writing the file without it would answer a question the user did ask.
+    if (encoding.byteOrderMark() == core::ByteOrderMark::Present &&
+        encoding.byteOrderMarkBytes().empty()) {
+        reporter.failed(path + ": " + std::string{encoding.charset()} +
+                        " has no byte order mark to write");
+        return false;
+    }
+
     const core::WriteRequest request{
         .subtitles = opened->project.subtitles(),
         .document = core::Document::Main,
@@ -51,23 +63,21 @@ bool convertFile(core::FileSystem& files,
         .encoding = encoding,
         .header = source.header,
     };
-    const std::string written = core::writeSubtitles(target, request);
-
     const std::filesystem::path out = destination.pathFor(path, extensionOf(target));
-    const std::expected<void, core::FileError> saved = core::writeAtomically(files, out, written);
-    if (!saved) {
-        reporter.failed(path + ": " + out.string() + ": " +
-                        std::string{reasonOf(saved.error().kind)});
+    const std::expected<std::size_t, std::string> written =
+        writeSubtitlesTo(files, out, target, request);
+    if (!written) {
+        reporter.failed(path + ": " + written.error());
         return false;
     }
 
     reporter.say(3,
                  path + ": " + std::to_string(opened->bytes) + " bytes read, " +
-                     std::to_string(written.size()) + " written");
+                     std::to_string(*written) + " written");
     sayDiagnostics(reporter, path, opened->diagnostics);
     reporter.say(2,
                  path + ": " + std::string{nameOf(source.format)} + " -> " +
-                     std::string{nameOf(target)} + ", UTF-8, " +
+                     std::string{nameOf(target)} + ", " + std::string{encoding.charset()} + ", " +
                      (encoding.byteOrderMark() == core::ByteOrderMark::Present ? "BOM" : "no BOM") +
                      ", " + std::string{nameOf(newline)} + " line endings");
     reporter.say(1,

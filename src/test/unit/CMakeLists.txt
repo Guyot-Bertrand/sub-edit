@@ -124,7 +124,8 @@ add_executable(
     cli/shifting_test.cpp
     cli/time_grammar_test.cpp
     cli/transforming_test.cpp
-    cli/verbosity_test.cpp)
+    cli/verbosity_test.cpp
+    cli/writing_test.cpp)
 
 target_link_libraries(subedit_cli_test PRIVATE subedit::cli Catch2::Catch2WithMain)
 
