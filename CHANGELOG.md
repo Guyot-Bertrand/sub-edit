@@ -16,6 +16,7 @@ ne pas l'éditer à la main.
 - **core** — Lire un fichier dans un encodage donné, par ICU
 - **core** — Détecter l'encodage, et dire ce qu'on a deviné
 - **core** — Écrire dans un encodage donné, et l'aller-retour d'octets
+- **cli** — --encoding à la lecture, --to-encoding à l'écriture
 
 ### Corrections
 
