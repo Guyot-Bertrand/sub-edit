@@ -100,12 +100,19 @@ $(printf '    %s\n' ${offenders})
 # payé deux fois pendant l'écriture de la CLI avant d'être inscrit ici.
 # Invariant — aucun intitulé de cas de test n est en français.
 #
-# **La règle de langue avait une moitié fausse et une moitié dérivée** — issue
-# #273. Elle disait « anglais pour les commentaires et les intitulés de tests » ;
-# les commentaires sont en français depuis la phase 1, partout, donc cette
-# clause n a jamais décrit le projet et c est elle qui a été corrigée. Les
-# intitulés, eux, étaient bel et bien anglais — sauf ceux d une phase, quatre-
-# vingt-dix-huit d un coup, et un `--list-tests` rendait deux langues mêlées.
+# **La règle de langue avait une moitié dérivée, et une moitié qu on a crue
+# fausse** — issue #273. Elle disait « anglais pour les commentaires et les
+# intitulés de tests ». Les intitulés étaient bel et bien anglais — sauf ceux d
+# une phase, quatre-vingt-dix-huit d un coup, et un `--list-tests` rendait deux
+# langues mêlées : c est ce que ce contrôle-ci tient, et cette moitié-là est
+# réglée.
+#
+# **L autre moitié ne l est pas, contrairement à ce qui a été écrit ici.** #273
+# a conclu que les commentaires étaient français partout et a retourné la règle
+# sur cette conclusion. La relecture de fin de phase 8 l a comptée : 6 339
+# lignes de commentaire anglaises contre 1 142 françaises sur `src/`. La règle
+# retournée décrit donc le dépôt encore moins bien que celle qu elle remplaçait,
+# et rien ici ne la tient — ce contrôle ne lit que les intitulés. Voir CLAUDE.md.
 #
 # La frontière retenue : **ce que le binaire imprime est en anglais, ce qui
 # explique pourquoi est en français.** Un intitulé de test est du premier côté ;

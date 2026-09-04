@@ -25,8 +25,8 @@ subedit\-gui \- edit subtitle files in a window
 .SH DESCRIPTION
 .B subedit\-gui
 opens a window on a subtitle file, or on nothing. It reads SubRip and WebVTT
-files in UTF\-8, recognising the format from the content rather than the
-extension, and shares its core with
+files, recognising the format from the content rather than the extension and
+the encoding from the bytes, and shares its core with
 .BR subedit\-cli (1):
 the two agree on what a file is and on what an operation does.
 .PP

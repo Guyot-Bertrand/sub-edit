@@ -146,6 +146,71 @@ qu'il écrit ; rejoué avant le bump, il nomme sa section d'après la version
 n'est jamais écrite : la version courante reste sans relevé pendant qu'une
 version déjà livrée en gagne un second, faux.
 
+**Une seconde condition s'y ajoute, et elle a coûté deux phases à trouver :**
+ce `make check-local` doit venir **avant** `make check`, pas après. C'est la
+décision de la relecture de fin de phase 8, et la mesure qui la porte est le
+taux de relevés perdus :
+
+| Phase | Relevés versés | Refusés pour charge |
+| :---- | -------------: | ------------------: |
+| 7 | 7 sur 13 | 6 |
+| 8 | 3 sur 6 | 3 — charges 1,59 · 2,08 · 10,64 |
+
+**Presque un sur deux, deux phases de suite, et #270 avait déjà nommé la
+cause :** ce qui charge la machine n'est pas ce que `check-local` fait avant le
+banc — `e2e` et `install-check` culminent à 1,78 et repassent sous le seuil en
+vingt secondes — mais le quart d'heure de `make check` que le déroulé prescrivait
+juste avant. Elle avait aussi mesuré le contre-exemple : `check-local` seul, sur
+une machine au repos, relève 1,38 et s'inscrit.
+
+**Trois pistes étaient sur la table, et elles partageaient une prémisse fausse :**
+que la place du banc dans le déroulé fût donnée. Attendre plus longtemps ne
+peut rien — la traîne d'un quart d'heure de compilation dure des minutes, ce que
+#270 a mesuré ; sortir le banc du déroulé rend au hasard une mesure que la
+définition de « terminé » exige ; accepter un relevé sur deux, c'est accepter
+une cause structurelle connue.
+
+**Première décision : l'échange des deux cibles**, `make check-local` puis
+`make check`. Le banc trouve alors une machine que rien n'a chauffée, et le
+déroulé y gagne par ailleurs — l'exécution diagnostique de `make bench` d'avant
+la porte disparaît, puisque le relevé qui reste lui est désormais antérieur.
+**Le principe l'imposait déjà** : `gate.sh` ordonne ses étapes du moins cher au
+plus cher, `check` dure un quart d'heure et `check-local` quelques minutes ; le
+déroulé prescrivait l'ordre inverse de son propre principe.
+
+**Elle ne suffit pas, et c'est sa première exécution qui l'a dit.** Sur une
+machine partie de 0,63, dans le nouvel ordre, le banc a lu **2,21** et n'a rien
+inscrit. La cause n'était donc pas — pas seulement — la traîne de `make check`.
+
+**Deuxième décision, et c'est elle qui porte le sujet : la charge se lit avant
+la construction.** `bench.sh` compilait l'arbre Release, puis demandait à
+`await-quiet.sh` si la machine était libre. Deux exécutions à une minute
+d'intervalle, le même jour et sur la même machine, isolent ce que ça coûte :
+
+| Exécution | Charge lue | Sort |
+| :-------- | ---------: | :--- |
+| `check-local` complet, avec reconstruction Release | 2,21 | refusé |
+| `make bench` seul, arbre Release déjà à jour | **1,32** | **inscrit** |
+
+**La seconde partait d'une machine plus chargée que la première, et s'est
+inscrite.** Ce qui les sépare est la construction que l'étape lance elle-même.
+
+**Le garde était mal instrumenté, et c'est le vrai sujet.** `/proc/loadavg`
+donne une moyenne d'**une minute** — c'est-à-dire le passé. Lue juste après une
+compilation en Release, elle répond sur cette compilation, pas sur la machine.
+Le seuil n'a jamais eu tort, ni le délai : on lui posait la question au seul
+moment où il ne pouvait pas répondre.
+
+La lecture passe donc avant la construction. Ce que le garde répond désormais est
+« la machine était-elle à nous quand on a commencé », et c'est la bonne
+question : ce qu'il faut écarter est une charge concurrente — un navigateur, un
+environnement de développement, la session de bureau à 10,64 — et celle-là est
+là avant comme pendant. Ce qu'il cesse de voir est une charge qui démarrerait
+pendant la construction ; le critère de dispersion la voit après coup, et c'est
+précisément pour ça qu'il existe.
+
+**Ni le seuil ni le délai ne bougent.** Aucune mesure ne les met en cause.
+
 **La table d'extrêmes est ce que lira le futur seuil d'alerte.** C'est la
 seconde étape que le ticket annonce sans la traiter, et elle a besoin de
 connaître la variance avant de pouvoir poser un chiffre.

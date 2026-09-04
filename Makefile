@@ -260,7 +260,16 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 #
 # `check-local` est l'unique commande à lancer avant d'ouvrir une pull
 # request : elle enchaîne tout ce qu'on veut voir passer en local sans le
-# voir gater la CI. L'ordre va du moins cher au plus cher, pour qu'un échec
+# voir gater la CI.
+#
+# **Elle passe avant `check`, et non après** — décision de la relecture de fin
+# de phase 8, ADR 0015. Le déroulé prescrivait l'inverse, et le banc qu'elle
+# enchaîne trouvait alors la traîne d'un quart d'heure de compilation : trois
+# relevés perdus sur six en phase 8, six sur treize en phase 7. Cet ordre-ci est
+# aussi celui que le principe voulait déjà — du moins cher au plus cher, et
+# `check-local` dure quelques minutes quand `check` en dure dix-sept.
+#
+# L'ordre interne va du moins cher au plus cher, pour qu'un échec
 # coûte des secondes plutôt que la totalité de la chaîne : parallélisme
 # maîtrisé (un grep, sous la seconde), fixtures vidéo (deux appels à ffprobe,
 # sous la seconde aussi), exemples du manuel (le seul binaire de
@@ -277,7 +286,8 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 # une retouche de prose rouvrirait quinze minutes de compilation. `bench` n'a pas de
 # verdict binaire — c'est voulu, la règle du projet impose de rejouer les
 # benchmarks à chaque issue, et les chaîner ici est ce qui le garantit plutôt
-# que de compter sur la mémoire de qui ouvre la pull request.
+# que de compter sur la mémoire de qui ouvre la pull request. Il reste donc
+# enchaîné : ce qui a changé est ce qui le précède, pas lui.
 .PHONY: check-local
 check-local: ## Unique commande locale à lancer avant une pull request
 	@./src/scripts/gate.sh check-local

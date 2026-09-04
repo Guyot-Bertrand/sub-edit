@@ -81,8 +81,17 @@ devine. Le corpus étiqueté le montre — les trois voies répondent sur
 
 Conséquence, et elle suit l'ADR 0008 :
 
-- **l'encodage retenu entre dans les diagnostics de lecture**, ceux que la
-  fenêtre affiche sous la table et que `-vv` écrit ;
+- **un encodage deviné qui n'est pas de l'UTF-8 entre dans les diagnostics de
+  lecture**, ceux que la fenêtre affiche sous la table et que `-vvv` écrit. Ce
+  cadrage écrivait « l'encodage retenu », sans réserve, et le réalisé est plus
+  étroit de deux façons : une marque d'ordre des octets ne déclenche rien —
+  rien n'a été deviné —, et un fichier deviné UTF-8 non plus, parce que c'est
+  ce que tout fichier a été lu comme jusqu'à cette phase. Le dire à chaque
+  ouverture mettrait un panneau sous la table de tous les documents ordinaires.
+  **Ce que la fenêtre y perd est inscrit** : elle n'a alors rien à dire d'un
+  fichier qui déclare son encodage, là où `inspect` écrit `UTF-16LE, from its
+  byte order mark`. Écart relevé à la relecture de fin de phase, tranché en
+  faveur du réalisé, et ce qui manque à la fenêtre est l'issue #313 ;
 - **il se contredit** : `--encoding` à la lecture impose et ne propose pas ;
 - **le BOM l'emporte sur tout**, y compris sur `--encoding`, parce qu'il est la
   seule marque explicite qu'un fichier porte. Un BOM contredit par une option
@@ -100,10 +109,18 @@ un encodage deviné est une réussite avec un diagnostic.
 
 ## D6 — Les deux surfaces, et la fenêtre rattrape son retard
 
-**Ligne de commande** — `--encoding` à la lecture et à l'écriture, dans la forme
-que `--line-endings` a déjà. À l'écriture, l'encodage du fichier lu par défaut,
-comme le BOM et les fins de ligne : un fichier réécrit sans consigne rend les
-mêmes octets.
+**Ligne de commande** — `--encoding` impose l'encodage **de lecture**, pour les
+sept sous-commandes ; `--to-encoding` choisit celui **de l'écriture**, sur
+`convert` seule, dans la forme que `--line-endings` a déjà. À l'écriture,
+l'encodage du fichier lu par défaut, comme le BOM et les fins de ligne : un
+fichier réécrit sans consigne rend les mêmes octets.
+
+> **Deux options, là où ce cadrage en écrivait une.** Il disait « `--encoding` à
+> la lecture **et** à l'écriture », et cette phrase ne pouvait pas tenir : la
+> même invocation fait les deux — `convert --encoding cp1252 --to-encoding
+> utf-8` réencode un fichier — donc un seul nom aurait eu deux valeurs à porter
+> dans une seule ligne de commande. Écart relevé à la relecture de fin de phase,
+> et tranché en faveur du réalisé.
 
 **Fenêtre** — `Save As…` gagne l'encodage, la fin de ligne et le BOM. Lui donner
 l'encodage sans les deux autres la laisserait à moitié, et les deux autres
@@ -122,11 +139,22 @@ sait les lire.
 ## Ce que la phase ne livre pas
 
 - **UTF-32.** Gaupol le détecte par BOM et ne le liste pas dans ses encodages
-  proposés. Aucun fichier de sous-titres n'en porte ; ICU le lira si on le lui
-  demande, mais rien ne le proposera.
-- **Une conversion d'encodage en lot depuis la ligne de commande.** `convert`
-  saura écrire dans l'encodage demandé ; réencoder un répertoire est une
-  fonctionnalité, pas une phase d'encodage.
+  proposés. Aucun fichier de sous-titres n'en porte, et rien ne le propose.
+
+  Ce cadrage ajoutait « ICU le lira si on le lui demande » : **c'est faux, et la
+  relecture de fin de phase l'a mesuré.** Un fichier UTF-32LE commence par
+  `ff fe 00 00`, dont les deux premiers octets sont exactement la marque de
+  l'UTF-16LE ; la marque l'emportant sur l'option, `--encoding UTF-32` ne
+  parvient jamais au convertisseur, et le fichier revient `is in no format this
+  tool knows`. `--to-encoding UTF-32` en écrit pourtant un, qu'aucune lecture ne
+  reprend. L'écart est l'issue #308.
+- ~~**Une conversion d'encodage en lot depuis la ligne de commande.**~~ **La
+  phrase est devenue fausse le jour où l'option a existé**, et la relecture de
+  fin de phase l'inscrit plutôt que de la maintenir : `convert --to-encoding
+  utf-8 --output-dir sortie *.srt` réencode un répertoire, parce que
+  `--to-encoding` s'ajoute à une sous-commande qui prend déjà plusieurs entrées
+  et une destination de lot. Il n'y avait rien à retirer pour tenir la promesse,
+  et rien à ajouter pour la rompre.
 - **La détection de la langue.** ICU la propose avec l'encodage ; rien ici n'en
   a l'usage.
 
@@ -137,7 +165,7 @@ sait les lire.
 | `CLI-ENC-01` | un fichier non-UTF-8 s'ouvre, et l'encodage retenu est dit |
 | `CLI-ENC-02` | `--encoding` impose l'encodage de lecture et l'emporte sur la détection |
 | `CLI-ENC-03` | un BOM l'emporte sur `--encoding`, et l'écart est dit |
-| `CLI-ENC-04` | `--encoding` à l'écriture choisit l'encodage produit |
+| `CLI-ENC-04` | `--to-encoding` choisit l'encodage produit à l'écriture |
 | `CLI-ENC-05` | un fichier réécrit sans consigne rend les mêmes octets, encodage compris |
 | `CLI-ENC-06` | un fichier qu'aucun encodage ne décode est refusé, et la raison le dit |
 | `CLI-ENC-07` | `inspect` rapporte l'encodage lu et s'il a été deviné |

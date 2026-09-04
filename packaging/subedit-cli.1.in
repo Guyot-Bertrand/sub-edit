@@ -34,9 +34,9 @@ subedit\-cli \- read, inspect and retime subtitle files
 .IR file ...
 .SH DESCRIPTION
 .B subedit\-cli
-reads SubRip and WebVTT subtitle files in UTF\-8, recognising the format from
-the content rather than the extension, and writes them back out shifted,
-transformed, re\-timed or cleaned.
+reads SubRip and WebVTT subtitle files, recognising the format from the content
+rather than the extension and the encoding from the bytes, and writes them back
+out shifted, transformed, re\-timed or cleaned.
 .PP
 Every subcommand takes several files and treats each one independently: the
 failure of one does not stop the others.
@@ -76,7 +76,13 @@ take the same arguments and do opposite things: the first re\-times a file
 whose timing is wrong, the second moves each position onto the nearest frame of
 a file whose timing is right. Getting one for the other raises no error.
 .SH GLOBAL OPTIONS
-They may be written before or after the subcommand, indifferently.
+They are written
+.B before
+the subcommand, and nowhere else: after it, they are refused as unexpected
+arguments.
+.B \-\-help
+is not an exception to that \(em each subcommand carries one of its own, and
+that is the one it prints.
 .TP
 .BR \-h ", " \-\-help
 Print help and exit; the subcommand's own help if one is named.

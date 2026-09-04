@@ -766,6 +766,60 @@ quatre-vingt-dix-sept encodages de Gaupol, qui ne s'écrivent pas à la main.
   format ; ni encodage, ni fin de ligne, ni BOM. La ligne de commande sait faire
   ce que la fenêtre ne propose pas, et cet écart entre dans le périmètre.
 
+**Livrée**, en six issues d'implémentation — #294 à #299 — et close par
+`v0.9.0`. Ce qui a été fait : l'encodage entre dans le modèle et le BOM devient
+sa variante, la lecture dans un encodage donné, la détection, l'écriture,
+`--encoding` et `--to-encoding` en ligne de commande, et `Save As…` qui choisit
+l'encodage, la fin de ligne et la marque. Dix exigences, dix au registre.
+
+**Quatre écarts entre la spec et le réalisé**, tous inscrits dans
+[la spec](specs/08-encodages.md) plutôt que corrigés dans le code — le réalisé
+avait raison les quatre fois :
+
+| La spec disait | Le réalisé |
+| :------------- | :--------- |
+| D6 : « `--encoding` à la lecture **et à l'écriture** » | deux options, parce qu'une seule invocation fait les deux |
+| « la phase ne livre pas la conversion en lot » | `--to-encoding` avec `--output-dir` réencode un répertoire |
+| D4 : « **l'encodage retenu** entre dans les diagnostics » | seulement s'il a été deviné et n'est pas de l'UTF-8 |
+| « UTF-32 : ICU le lira si on le lui demande » | **il ne le lira pas** — mesuré : sa marque est prise pour celle de l'UTF-16LE |
+
+**Ce que la relecture a tranché.** Le seuil de charge du banc, laissé ouvert par
+#270, l'est : **ce n'est ni le seuil ni le délai**, mais l'endroit et le moment
+où la charge est lue. Deux changements, le second trouvé parce que le premier a
+échoué à sa première exécution — `make check-local` passe avant `make check`, et
+`bench.sh` lit la charge **avant** de compiler l'arbre Release au lieu d'après,
+c'est-à-dire avant d'avoir occupé lui-même la machine sur laquelle il
+s'interroge. [ADR 0015](adr/0015-memoire-des-mesures.md).
+
+**Ce que la phase laisse, et où chaque chose atterrit.** Quatre renvois avaient
+un « plus tard » sans référent ; six axes sortent du regard critique.
+
+| Ce qui était renvoyé | Où |
+| :------------------- | :- |
+| une lecture décode le fichier deux fois | [#314](https://github.com/Guyot-Bertrand/sub-edit/issues/314) |
+| `Encoding::name()` invente `UTF-16LE-sig` | [#315](https://github.com/Guyot-Bertrand/sub-edit/issues/315) |
+| quatorze encodages au menu contre quatre-vingt-dix-sept | [#316](https://github.com/Guyot-Bertrand/sub-edit/issues/316) |
+| `file.write-encoding` ne sert qu'au document sans fichier | [#317](https://github.com/Guyot-Bertrand/sub-edit/issues/317) |
+
+| Ce que le regard critique a sorti | Où |
+| :-------------------------------- | :- |
+| un encodage dont le nom ne fixe pas l'ordre écrit sa marque, et `--no-bom` est désobéi | [#308](https://github.com/Guyot-Bertrand/sub-edit/issues/308) |
+| un `Save As…` qui échoue déplace quand même le document | [#309](https://github.com/Guyot-Bertrand/sub-edit/issues/309) |
+| la détection se trompe d'écriture sur un texte court | [#310](https://github.com/Guyot-Bertrand/sub-edit/issues/310) |
+| personne ne rejoue le score de détection | [#311](https://github.com/Guyot-Bertrand/sub-edit/issues/311) |
+| la langue des commentaires repose sur une mesure fausse | [#312](https://github.com/Guyot-Bertrand/sub-edit/issues/312) |
+| la fenêtre ne dit l'encodage que quand il a été deviné | [#313](https://github.com/Guyot-Bertrand/sub-edit/issues/313) |
+| écrire en UTF-8 passe par une conversion qui ne fait rien — un tiers de plus, invisible pendant deux versions | [#318](https://github.com/Guyot-Bertrand/sub-edit/issues/318) |
+
+**Le dernier est le plus lourd, et il corrige une issue de la relecture
+précédente.** #273 avait retourné la règle de langue des commentaires en
+concluant que « les commentaires de ce dépôt sont français partout, sans
+exception ». Compté : **6 339 lignes anglaises contre 1 142 françaises** sur
+`src/`. La mesure de #273 cherchait les fichiers portant *au moins un* caractère
+accentué, donc elle ne pouvait rendre que « il y a du français partout » — c'est
+le défaut de #268, vérifier avec l'outil qui ne compte pas, commis une issue
+après avoir été inscrit.
+
 ## 9 — Formats complémentaires et balises riches
 
 SubViewer 2, Sub Station Alpha, Advanced SSA — les trois formats cités comme

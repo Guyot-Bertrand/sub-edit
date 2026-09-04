@@ -75,8 +75,8 @@ sources, ce que la section suivante décrit en entier.
 **Les trois dernières sont exigées même pour ne construire que
 `subedit-cli`** : la configuration CMake les cherche pour tout le projet, et
 s'arrête si elles manquent. ICU, elle, l'est doublement — `subedit-cli` s'en
-sert pour convertir les encodages, et c'est la seule bibliothèque qu'il charge
-à l'exécution.
+sert pour convertir les encodages, et c'est la seule bibliothèque tierce qu'il
+charge à l'exécution.
 
 **Une connexion réseau au premier `cmake`** : la bibliothèque de tests Catch2
 est récupérée depuis GitHub à la configuration. Elle n'est plus retéléchargée

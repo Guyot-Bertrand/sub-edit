@@ -142,11 +142,58 @@ Le journal a une section par version : une section qu'on ne peut comparer à rie
 manque, et **cache** le fait qu'il n'y a pas eu de mesure. Une version sans
 section le dit. Presque un relevé sur deux de la phase 7 était dans ce cas.
 
-**Ce qui reste ouvert :** la place de `bench` dans le déroulé. Il est enchaîné
-par `check-local`, donc juste derrière la seule étape qui chauffe vraiment la
-machine, et c'est ce qui explique le plus gros des refus. Le rejouer séparément,
-au calme, coûte une minute et réussit — mais changer l'ordre prescrit est une
-décision qui dépasse cette issue.
+### La place du banc dans le déroulé, tranchée — #307
+
+#270 laissait cette question ouverte, en disant qu'elle le dépassait : le banc
+est enchaîné par `check-local`, donc juste derrière la seule étape qui chauffe
+vraiment la machine. **La phase 8 a mesuré ce que cela coûte**, et la relecture
+de fin de phase l'a tranché.
+
+| Phase | Relevés versés | Refusés pour charge |
+| :---- | -------------: | ------------------: |
+| 7 | 7 sur 13 | 6 |
+| 8 | 3 sur 6 | 3 — charges 1,59 · 2,08 · 10,64 |
+
+Les deux premières charges de la phase 8 sont la traîne de `make check`, celle
+que #270 avait mesurée à 2,78 puis 1,84 dans les mêmes conditions. La troisième
+est une session de bureau, que rien du projet ne peut soigner.
+
+**Première décision : l'échange des deux cibles**, `make check-local` d'abord,
+`make check` ensuite — le banc trouve une machine que rien n'a chauffée, et
+c'est aussi l'ordre que le principe « du moins cher au plus cher » voulait
+déjà.
+
+**Elle ne suffit pas, et sa première exécution l'a dit.** Machine partie de
+0,63, nouvel ordre : le banc a lu **2,21** et n'a rien inscrit. La traîne de
+`make check` n'était donc pas toute la cause.
+
+### Le garde lisait la charge après l'avoir créée
+
+Deux exécutions à une minute d'intervalle, le même jour et sur la même machine :
+
+| Exécution | Charge lue | Sort |
+| :-------- | ---------: | :--- |
+| `check-local` complet, avec reconstruction Release | 2,21 | refusé |
+| `make bench` seul, arbre Release déjà à jour | **1,32** | **inscrit** |
+
+**La seconde partait d'une machine plus chargée, et s'est inscrite.** Ce qui les
+sépare est la construction Release que l'étape du banc lance elle-même, juste
+avant de demander si la machine est libre.
+
+`/proc/loadavg` donne une moyenne d'**une minute**, c'est-à-dire le passé. Lue
+après une compilation, elle répond sur cette compilation. **Le seuil n'a jamais
+eu tort, ni le délai : on posait la question au seul moment où le garde ne
+pouvait pas répondre.**
+
+La lecture passe donc avant la construction. Le garde répond désormais « la
+machine était-elle à nous quand on a commencé », ce qui est la bonne question :
+une charge concurrente — navigateur, environnement de développement, la session
+de bureau à 10,64 — est là avant comme pendant. Ce qu'il cesse de voir est une
+charge qui démarrerait pendant la construction, et c'est le critère de
+dispersion qui la voit, après coup.
+
+**Ni le seuil ni le délai ne bougent.** Aucune mesure ne les met en cause. Voir
+[l'ADR 0015](../adr/0015-memoire-des-mesures.md) et `CLAUDE.md`.
 
 La règle de la table des extrêmes, elle, ne bouge pas : elle vaut toujours pour
 le seul relevé qui peut encore arriver avec une charge non qualifiée, celui
@@ -319,13 +366,13 @@ pas le sujet de ce ticket.
 | Mesure | Minimum | Relevé le | Maximum | Relevé le |
 | :----- | ------: | :-------- | ------: | :-------- |
 | versionString | 29.2 ns | 0.5.9 — 2026-08-23 | 55.1 ns | 0.4.4 — 2026-08-17 |
-| parse | 29.9 ns | 0.2.6 — 2026-08-13 | 41.2 ns | 0.4.4 — 2026-08-17 |
+| parse | 29.9 ns | 0.2.6 — 2026-08-13 | 39.3 ns | 0.9.0 — 2026-09-04 |
 | format | 29.8 ns | 0.3.11 — 2026-08-15 | 44.7 ns | 0.5.3 — 2026-08-22 |
 | position vers image | 6.48 ns | 0.7.14 — 2026-08-30 | 8.03 ns | 0.7.0 — 2026-08-27 |
 | image vers position | 6.48 ns | 0.4.5 — 2026-08-17 | 12.1 ns | 0.3.9 — 2026-08-15 |
 | mise à l'échelle par un rationnel exact | 6.71 ns | 0.2.14 — 2026-08-14 | 8.27 ns | 0.8.8 — 2026-09-01 |
 | lecture de 4000 sous-titres | 2.08 ms | 0.5.9 — 2026-08-23 | 3.28 ms | 0.5.3 — 2026-08-22 |
-| écriture de 4000 sous-titres | 488 µs | 0.3.10 — 2026-08-15 | 778 µs | 0.8.19 — 2026-09-04 |
+| écriture de 4000 sous-titres | 488 µs | 0.3.10 — 2026-08-15 | 795 µs | 0.9.0 — 2026-09-04 |
 | décalage de 4000 sous-titres | 6.57 µs | 0.6.11 — 2026-08-27 | 10.7 µs | 0.3.15 — 2026-08-16 |
 | décalage puis annulation | 12.8 µs | 0.8.10 — 2026-09-02 | 20.7 µs | 0.2.6 — 2026-08-13 |
 | transformation de 4000 sous-titres | 68.3 µs | 0.8.6 — 2026-08-31 | 91.5 µs | 0.3.10 — 2026-08-15 |
@@ -341,22 +388,22 @@ pas le sujet de ce ticket.
 | rafraîchir après un décalage de 4000 sous-titres | 26.4 ns | 0.4.15 — 2026-08-21 | 13.1 µs | 0.6.13 — 2026-08-27 |
 | édition d'une cellule de texte | 371 ns | 0.5.9 — 2026-08-23 | 496 ns | 0.8.8 — 2026-09-01 |
 | édition d'une cellule de position | 8.98 µs | 0.4.21 — 2026-08-22 | 14.8 µs | 0.8.8 — 2026-09-01 |
-| réinitialisation du modèle après une ligne retirée | 8.15 µs | 0.4.21 — 2026-08-22 | 12.9 µs | 0.8.8 — 2026-09-01 |
+| réinitialisation du modèle après une ligne retirée | 8.15 µs | 0.4.21 — 2026-08-22 | 9.6 µs | 0.9.0 — 2026-09-04 |
 | la réplique en cours, sur 4000 sous-titres | 4.71 µs | 0.8.13 — 2026-09-02 | 9.29 µs | 0.8.15 — 2026-09-02 |
-| composer une réplique de deux lignes | 163 ns | 0.7.14 — 2026-08-30 | 211 ns | 0.8.16 — 2026-09-03 |
+| composer une réplique de deux lignes | 163 ns | 0.7.14 — 2026-08-30 | 203 ns | 0.9.0 — 2026-09-04 |
 | ouvrir une vidéo | 9.01 ms | 0.7.11 — 2026-08-29 | 10.5 ms | 0.8.9 — 2026-09-01 |
 | chercher une position | 538 µs | 0.6.13 — 2026-08-27 | 649 µs | 0.6.8 — 2026-08-26 |
 | déduction de fréquence sur 4000 sous-titres | 366 µs | 0.7.15 — 2026-08-30 | 451 µs | 0.8.16 — 2026-09-03 |
 | alignement sur 4000 sous-titres | 124 µs | 0.8.12 — 2026-09-02 | 155 µs | 0.8.8 — 2026-09-01 |
 
 <!-- versionString min=29.1524 max=55.1 -->
-<!-- parse min=29.9 max=41.2 -->
+<!-- parse min=29.9 max=39.3403 -->
 <!-- format min=29.8143 max=44.7 -->
 <!-- position vers image min=6.4829 max=8.03 -->
 <!-- image vers position min=6.47637 max=12.0852 -->
 <!-- mise à l'échelle par un rationnel exact min=6.71 max=8.27 -->
 <!-- lecture de 4000 sous-titres min=2082230.0 max=3280000.0 -->
-<!-- écriture de 4000 sous-titres min=488279.0 max=777610.0 -->
+<!-- écriture de 4000 sous-titres min=488279.0 max=794597.0 -->
 <!-- décalage de 4000 sous-titres min=6568.55 max=10700.0 -->
 <!-- décalage puis annulation min=12794.1 max=20700.0 -->
 <!-- transformation de 4000 sous-titres min=68317.9 max=91500.0 -->
@@ -372,9 +419,9 @@ pas le sujet de ce ticket.
 <!-- rafraîchir après un décalage de 4000 sous-titres min=26.4 max=13098.8 -->
 <!-- édition d'une cellule de texte min=370.791 max=496.0 -->
 <!-- édition d'une cellule de position min=8980.0 max=14758.2 -->
-<!-- réinitialisation du modèle après une ligne retirée min=8150.0 max=12900.0 -->
+<!-- réinitialisation du modèle après une ligne retirée min=8150.0 max=9595.2 -->
 <!-- la réplique en cours, sur 4000 sous-titres min=4714.13 max=9285.38 -->
-<!-- composer une réplique de deux lignes min=162.912 max=211.44 -->
+<!-- composer une réplique de deux lignes min=162.912 max=203.088 -->
 <!-- ouvrir une vidéo min=9007730.0 max=10500000.0 -->
 <!-- chercher une position min=537819.0 max=649000.0 -->
 <!-- déduction de fréquence sur 4000 sous-titres min=366479.0 max=451061.0 -->
@@ -386,6 +433,41 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.9.0 — 2026-09-04 — Release — charge 1.46 — allure ×0.98
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| la réplique en cours, sur 4000 sous-titres | 6.55 µs | 1.62 µs |
+| composer une réplique de deux lignes | 203 ns | 5.59 ns |
+| ouvrir une vidéo | 9.25 ms | 585 µs |
+| chercher une position | 559 µs | 107 µs |
+| construction du modèle sur 4000 sous-titres | 9.59 µs | 2.81 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 16 µs | 3.29 µs |
+| rafraîchir après un décalage de 4000 sous-titres | 9.65 µs | 3.47 µs |
+| réinitialisation du modèle après une ligne retirée | 9.6 µs | 3.13 µs |
+| édition d'une cellule de texte | 433 ns | 60.8 ns |
+| édition d'une cellule de position | 9.54 µs | 1.94 µs |
+| versionString | 34.9 ns | 1.11 ns |
+| parse | 39.3 ns | 2.33 ns |
+| format | 42 ns | 0.452 ns |
+| position vers image | 6.63 ns | 1.09 ns |
+| image vers position | 8.16 ns | 3.3 ns |
+| mise à l'échelle par un rationnel exact | 7.7 ns | 0.0854 ns |
+| lecture de 4000 sous-titres | 3.24 ms | 1.3 ms |
+| écriture de 4000 sous-titres | 795 µs | 50.4 µs |
+| décalage de 4000 sous-titres | 7.68 µs | 2.65 µs |
+| décalage puis annulation | 15 µs | 3.11 µs |
+| transformation de 4000 sous-titres | 82.6 µs | 8.83 µs |
+| conversion de fréquence sur 4000 sous-titres | 82.4 µs | 12.1 µs |
+| alignement sur 4000 sous-titres | 149 µs | 12 µs |
+| tri de 4000 sous-titres à l'envers | 365 µs | 104 µs |
+| suppression d'un sous-titre sur deux | 203 µs | 50.1 µs |
+| suppression puis annulation | 314 µs | 99.7 µs |
+| insertion de 100 sous-titres vides au milieu | 56.6 µs | 23.9 µs |
+| modification d'un texte, à travers une session | 214 ns | 25.2 ns |
+| suppression des mentions sur 4000 sous-titres | 995 µs | 34.3 µs |
+| déduction de fréquence sur 4000 sous-titres | 433 µs | 29.1 µs |
 
 ### 0.8.19 — 2026-09-04 — Release — charge 1.43 — allure ×1.00
 

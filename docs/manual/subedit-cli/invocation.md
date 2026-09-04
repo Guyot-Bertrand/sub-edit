@@ -37,7 +37,18 @@ produite — ces blocs sont engendrés par `make manual`, jamais recopiés.
 
 ## Options globales
 
-Elles s'écrivent **avant ou après** le nom de la sous-commande, indifféremment.
+**Elles s'écrivent avant le nom de la sous-commande, et là seulement.**
+`subedit-cli --encoding cp1252 inspect film.srt` est la forme ;
+`subedit-cli inspect --encoding cp1252 film.srt` est refusé, avec
+`The following argument was not expected: --encoding`. Il en va de même de
+`--version`, de `-v` et de `--quiet`.
+
+**`--help` est l'exception, et elle n'en est pas une** : `subedit-cli inspect
+--help` est accepté parce que chaque sous-commande porte le sien, et c'est celui
+de la sous-commande qu'il écrit, pas celui de l'outil.
+
+Ce manuel a promis l'indifférence de la place depuis la phase 3 ; corrigé à la
+relecture de fin de phase 8, en essayant plutôt qu'en relisant.
 
 | Option | Effet |
 | :----- | :---- |
@@ -84,7 +95,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.8.19
+subedit 0.9.0
 ```
 
 ## Sous-commandes
@@ -208,13 +219,14 @@ fait.
 | Partie | Ce qu'elle dit |
 | :----- | :------------- |
 | `line N` | où, compté à partir de 1, comme un éditeur l'affiche ; **absent** pour ce qui porte sur le fichier entier |
-| la phrase | ce qui a été rencontré, parmi les huit catégories ci-dessous |
+| la phrase | ce qui a été rencontré, parmi les neuf catégories ci-dessous |
 | `("…")` | le texte fautif du fichier, quand la catégorie ne suffit pas ; tronqué à 80 octets |
 | la fin | ce qui en a été fait : `settled by the reader`, ou `left as it stands` |
 
-**Une seule catégorie n'a pas de ligne**, et c'est l'encodage : les octets ont
-été pesés avant qu'une seule ligne existe. Sa ligne commence donc par la phrase,
-sans `line N` devant — il n'y a pas de place à nommer.
+**Deux catégories n'ont pas de ligne**, et ce sont les deux qui portent sur
+l'encodage : les octets ont été pesés, ou leur marque lue, avant qu'une seule
+ligne du fichier existe. Leur ligne commence donc par la phrase, sans `line N`
+devant — il n'y a pas de place à nommer.
 
 **La fin de la ligne est le plus important.** `settled by the reader` veut dire
 que le lecteur a tranché et que le fichier écrit porte sa décision — une
@@ -231,7 +243,7 @@ suit — le numéro fautif est dans le `("…")`. Seules les anomalies qui porte
 **une ligne** — un horodatage illisible, du texte avant le premier — se
 rapportent sur elles-mêmes.
 
-### Les huit catégories
+### Les neuf catégories
 
 | Phrase | Ce qui la déclenche |
 | :----- | :------------------ |
@@ -243,6 +255,7 @@ rapportent sur elles-mêmes.
 | `a WebVTT block of an unknown kind` | un bloc WebVTT non reconnu |
 | `more than one kind of line ending` | des fins de ligne mélangées |
 | `an encoding nothing declared` | l'encodage a été proposé en pesant les octets, et il n'est pas de l'UTF-8 |
+| `a byte order mark that contradicts the encoding asked for` | le fichier porte une marque, et `--encoding` en nommait un autre — la marque l'emporte |
 
 ## Plusieurs fichiers
 
