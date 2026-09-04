@@ -68,6 +68,7 @@ std::expected<Transform, std::string> Transform::between(Reference first, Refere
 
 ExitCode transformAll(core::FileSystem& files,
                       const std::vector<std::string>& paths,
+                      const std::optional<core::Encoding>& reading,
                       const Transform& transform,
                       const Destination& destination,
                       const Reporter& reporter) {
@@ -108,7 +109,7 @@ ExitCode transformAll(core::FileSystem& files,
                wordedOf(transform.first()) + " and " + wordedOf(transform.last());
     };
 
-    return rewriteAll(files, paths, destination, reporter, "transformed", retime);
+    return rewriteAll(files, paths, reading, destination, reporter, "transformed", retime);
 }
 
 } // namespace subedit::cli

@@ -8,19 +8,23 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/source_file.hpp>
 
+#include <cstddef>
 #include <expected>
 #include <string>
 #include <utility>
 
 namespace subedit::core {
 
-std::expected<OpenedFile, OpenError> openProject(const FileSystem& files,
-                                                 const std::filesystem::path& path) {
-    std::expected<std::string, FileError> content = files.readFile(path);
-    if (!content)
-        return std::unexpected(OpenError{std::move(content.error())});
+namespace {
 
-    std::expected<ReadResult, ReadError> read = readSubtitles(*content);
+/// The recipe itself, once the bytes are in hand and the reading has happened.
+///
+/// The two `openProject` differ by one call — one proposes an encoding, the
+/// other is given one — and everything after it is the same work.
+[[nodiscard]] std::expected<OpenedFile, OpenError>
+projectOf(std::expected<ReadResult, ReadError> read,
+          const std::filesystem::path& path,
+          std::size_t bytes) {
     if (!read)
         return std::unexpected(OpenError{std::move(read.error())});
 
@@ -28,9 +32,28 @@ std::expected<OpenedFile, OpenError> openProject(const FileSystem& files,
     project.setSubtitles(std::move(read->subtitles));
     project.setSourceFile(sourceFileOf(*read, path));
 
-    return OpenedFile{.project = std::move(project),
-                      .diagnostics = std::move(read->diagnostics),
-                      .bytes = content->size()};
+    return OpenedFile{
+        .project = std::move(project), .diagnostics = std::move(read->diagnostics), .bytes = bytes};
+}
+
+} // namespace
+
+std::expected<OpenedFile, OpenError>
+openProject(const FileSystem& files, const std::filesystem::path& path, const Encoding& encoding) {
+    std::expected<std::string, FileError> content = files.readFile(path);
+    if (!content)
+        return std::unexpected(OpenError{std::move(content.error())});
+
+    return projectOf(readSubtitles(*content, encoding), path, content->size());
+}
+
+std::expected<OpenedFile, OpenError> openProject(const FileSystem& files,
+                                                 const std::filesystem::path& path) {
+    std::expected<std::string, FileError> content = files.readFile(path);
+    if (!content)
+        return std::unexpected(OpenError{std::move(content.error())});
+
+    return projectOf(readSubtitles(*content), path, content->size());
 }
 
 std::expected<void, SaveError> saveProject(FileSystem& files,

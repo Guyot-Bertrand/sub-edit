@@ -61,6 +61,42 @@ TEST_CASE("a file in UTF-16 with its mark comes back byte for byte", "[e2e][CLI-
     CHECK(contentOf(scratch.of("copie.srt")) == contentOf(path));
 }
 
+TEST_CASE("the encoding written is the one asked for", "[e2e][CLI-ENC-04]") {
+    // Latin-1 in, UTF-8 out — the one thing the command line could not do until
+    // now, and what `--to-encoding` is for.
+    const Scratch scratch;
+    const CliRun run = invoke({"convert",
+                               "--to",
+                               "srt",
+                               "--to-encoding",
+                               "utf-8",
+                               "--output",
+                               scratch.of("copie.srt"),
+                               corpus("encodages/latin1.srt")});
+
+    CHECK(run.exitCode == 0);
+    // « était » in UTF-8: two bytes where Latin-1 wrote one.
+    CHECK_THAT(contentOf(scratch.of("copie.srt")), ContainsSubstring("\xC3\xA9tait"));
+}
+
+TEST_CASE("a character the encoding asked for cannot write stops the file", "[e2e][CLI-ENC-04]") {
+    // KOI8-R has no room for the Latin alphabet's accents, and a `?` written in
+    // their stead would be text lost between reading and writing.
+    const Scratch scratch;
+    const CliRun run = invoke({"convert",
+                               "--to",
+                               "srt",
+                               "--to-encoding",
+                               "koi8-r",
+                               "--output",
+                               scratch.of("copie.srt"),
+                               corpus("encodages/latin1.srt")});
+
+    CHECK(run.exitCode != 0);
+    CHECK_FALSE(std::filesystem::exists(scratch.of("copie.srt")));
+    CHECK_THAT(run.errors, ContainsSubstring("holds a character the chosen encoding cannot write"));
+}
+
 TEST_CASE("nothing is written without a destination", "[e2e][CLI-CONVERT-03]") {
     const CliRun run = invoke({"convert", "--to", "vtt", corpus("valides/minimal.srt")});
 

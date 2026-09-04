@@ -17,6 +17,7 @@ Options:
   --version                   Display program version information and exit
   -v                          Say more: -v is the default, -vv details, -vvv debugs
   -q,--quiet                  Say nothing but errors
+  --encoding NAME             Encoding to read the files in; detected by default
 
 Subcommands:
   inspect                     Report what a subtitle file is made of
@@ -44,14 +45,46 @@ Elles s'écrivent **avant ou après** le nom de la sous-commande, indifféremmen
 | `--version` | écrit `subedit <version>` et s'arrête |
 | `-q`, `--quiet` | niveau 0 — plus aucune narration |
 | `-v`, `-vv`, `-vvv` | niveaux 1 à 3 ; le niveau 1 est celui par défaut |
+| `--encoding NOM` | lit les fichiers dans cet encodage, au lieu de le deviner |
 
 `--quiet` et `-v` dans la même invocation sont refusés : deux intentions
 opposées ne sont pas arbitrées au profit de la dernière écrite.
 
+### `--encoding`, et ce qu'il ne peut pas forcer
+
+**Il vaut pour toutes les sous-commandes**, parce que toutes lisent : un fichier
+dont l'encodage est mal deviné l'est quoi qu'on lui fasse, et une option que
+seul `inspect` porterait laisserait un décalage sans recours.
+
+**Le nom est celui d'ICU, et tous ses alias sont acceptés** : `cp1252`,
+`windows-1252` et `WINDOWS 1252` désignent le même encodage. Il n'y a pas
+d'ensemble fermé à énumérer — ICU en connaît quatre-vingt-dix-sept et plus — et
+un nom qu'elle ne sait pas convertir est refusé avant qu'un seul fichier soit
+lu :
+
+```console
+$ subedit-cli --encoding klingon-1 inspect film.srt
+no encoding is named "klingon-1"
+```
+
+**Une marque d'ordre des octets l'emporte sur l'option.** C'est la seule chose
+qu'un fichier de sous-titres déclare de lui-même, et le lire autrement qu'il ne
+se déclare serait obéir à l'appelant contre le fichier. L'écart est **dit**, en
+diagnostic :
+
+```console
+$ subedit-cli -vvv --encoding cp1252 inspect avec-bom.srt
+avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16LE"), settled by the reader
+```
+
+C'est ce que fait Gaupol — il recommence la lecture avec l'encodage de la
+marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce qui a
+été fait n'est pas un silence.
+
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.8.17
+subedit 0.8.18
 ```
 
 ## Sous-commandes

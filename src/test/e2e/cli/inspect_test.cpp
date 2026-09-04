@@ -127,6 +127,38 @@ TEST_CASE("inspect says the encoding, and where the answer came from", "[e2e][CL
                ContainsSubstring("  encoding: UTF-16BE, from its byte order mark\n"));
 }
 
+TEST_CASE("the encoding asked for is the one read, and the report says so", "[e2e][CLI-ENC-02]") {
+    // Latin-1 and CP1252 are the same bytes on most texts, and this file is one
+    // of them: the detection proposes the first, and the user may know better.
+    // What they asked for is what is read, and the report says it was asked.
+    const CliRun run = invoke({"--encoding", "cp1252", "inspect", corpus("encodages/latin1.srt")});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.output, ContainsSubstring("  encoding: windows-1252, as asked for\n"));
+}
+
+TEST_CASE("a name that is no encoding is refused before anything is read", "[e2e][CLI-ENC-02]") {
+    const CliRun run =
+        invoke({"--encoding", "klingon-1", "inspect", corpus("valides/minimal.srt")});
+
+    CHECK(run.exitCode == 1);
+    CHECK(run.output.empty());
+    CHECK_THAT(run.errors, ContainsSubstring("klingon-1"));
+}
+
+TEST_CASE("a mark wins over the encoding asked for, and the gap is said", "[e2e][CLI-ENC-03]") {
+    // The only declaration a subtitle file carries. It is obeyed against the
+    // option — and the reading says so rather than settling it in silence.
+    const CliRun run =
+        invoke({"-vvv", "--encoding", "cp1252", "inspect", corpus("encodages/utf-16-le-bom.srt")});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.output, ContainsSubstring("  encoding: UTF-16LE, from its byte order mark\n"));
+    CHECK_THAT(run.errors,
+               ContainsSubstring("a byte order mark that contradicts the encoding asked for "
+                                 "(\"UTF-16LE\")"));
+}
+
 TEST_CASE("inspect writes its report even when asked for silence", "[e2e][CLI-OUTPUT-02]") {
     const CliRun run = invoke({"--quiet", "inspect", corpus("valides/minimal.srt")});
 

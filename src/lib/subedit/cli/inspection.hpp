@@ -3,8 +3,10 @@
 // Reporting what a subtitle file is made of, without changing it.
 
 #include <subedit/cli/exit_code.hpp>
+#include <subedit/core/model/encoding.hpp>
 
 #include <iosfwd>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -27,6 +29,7 @@ class Reporter;
 /// caller piping the result never receives a complaint where it expected data.
 [[nodiscard]] bool inspectFile(const subedit::core::FileSystem& files,
                                const std::string& path,
+                               const std::optional<subedit::core::Encoding>& reading,
                                std::ostream& out,
                                const Reporter& reporter);
 
@@ -38,6 +41,7 @@ class Reporter;
 /// list.
 [[nodiscard]] ExitCode inspectAll(const subedit::core::FileSystem& files,
                                   const std::vector<std::string>& paths,
+                                  const std::optional<subedit::core::Encoding>& reading,
                                   std::ostream& out,
                                   const Reporter& reporter);
 

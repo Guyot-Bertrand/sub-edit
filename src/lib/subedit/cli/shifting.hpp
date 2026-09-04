@@ -3,8 +3,10 @@
 // Moving every position of a file by a fixed amount.
 
 #include <subedit/cli/exit_code.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/time/duration.hpp>
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -27,6 +29,7 @@ class Reporter;
 /// player reads. Writing it would be worse than refusing.
 [[nodiscard]] ExitCode shiftAll(subedit::core::FileSystem& files,
                                 const std::vector<std::string>& paths,
+                                const std::optional<subedit::core::Encoding>& reading,
                                 subedit::core::Duration by,
                                 const Destination& destination,
                                 const Reporter& reporter);
@@ -44,6 +47,7 @@ class Reporter;
 /// avoid.
 [[nodiscard]] ExitCode shiftOntoGridAll(subedit::core::FileSystem& files,
                                         const std::vector<std::string>& paths,
+                                        const std::optional<subedit::core::Encoding>& reading,
                                         const Destination& destination,
                                         const Reporter& reporter);
 

@@ -3,6 +3,7 @@
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/save_error.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 
@@ -52,6 +53,16 @@ struct OpenedFile {
 /// not subtitles.
 [[nodiscard]] std::expected<OpenedFile, OpenError> openProject(const FileSystem& files,
                                                                const std::filesystem::path& path);
+
+/// Reads `path` in the encoding given, rather than in the one it proposes.
+///
+/// What `--encoding` asks for: a detection is a proposal, and Latin-1 and
+/// CP1252 are the same bytes on most texts — the user is the one who may know.
+///
+/// **A mark still wins**, and the reading says so: a file that declares its
+/// encoding is not read against its own word. See `readSubtitles`.
+[[nodiscard]] std::expected<OpenedFile, OpenError>
+openProject(const FileSystem& files, const std::filesystem::path& path, const Encoding& encoding);
 
 /// Writes `project` to `path`, as a file of `format`.
 ///

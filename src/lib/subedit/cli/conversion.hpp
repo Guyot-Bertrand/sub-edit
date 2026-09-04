@@ -30,6 +30,14 @@ class Reporter;
 struct WriteShape {
     std::optional<subedit::core::Newline> newline{};
     std::optional<subedit::core::ByteOrderMark> bom{};
+
+    /// The encoding to write in, the source's when empty.
+    ///
+    /// **The one of the three that can refuse the file**: a line ending and a
+    /// mark can be put on any text, an encoding cannot carry every character.
+    /// What then happens is a failure that names the character — never a `?`
+    /// written in its place.
+    std::optional<subedit::core::Encoding> encoding{};
 };
 
 /// Whether writing `target` back over these paths would leave a file misnamed.
@@ -46,6 +54,7 @@ struct WriteShape {
 /// Each file is independent: the failure of one does not stop the others.
 [[nodiscard]] ExitCode convertAll(subedit::core::FileSystem& files,
                                   const std::vector<std::string>& paths,
+                                  const std::optional<subedit::core::Encoding>& reading,
                                   subedit::core::SubtitleFormat target,
                                   const WriteShape& shape,
                                   const Destination& destination,

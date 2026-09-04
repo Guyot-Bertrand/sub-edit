@@ -87,6 +87,13 @@ Print the version and exit.
 .BR \-q ", " \-\-quiet
 Say nothing but errors.
 .TP
+.BI \-\-encoding " NAME"
+Read the files in that encoding instead of detecting one. Any name ICU knows is
+accepted, aliases included \(em
+.BR cp1252 ", " windows\-1252 " and " "WINDOWS 1252"
+name one encoding \(em and a name nothing can convert is refused before a file
+is read. A byte order mark wins over this option, and the reading says so.
+.TP
 .BR \-v ", " \-vv ", " \-vvv
 Say more. One is the default; two adds what was recognised of each file; three
 adds the bytes read and written, and every diagnostic the reading ran into.
@@ -96,6 +103,30 @@ together with
 .B \-v
 is refused: two opposite intentions are not arbitrated in favour of whichever
 was written last.
+.SH ENCODINGS
+A subtitle file declares its encoding nowhere \(em there is no header and no
+naming convention \(em except through a byte order mark, which only the Unicode
+encodings carry.
+.PP
+Reading therefore goes in that order: the mark if there is one, then UTF\-8 if
+the bytes decode as UTF\-8, then what weighing the bytes proposes. What was
+settled is written in the report of
+.B inspect
+and in the diagnostics of every subcommand, because a detection is a proposal
+and never a certainty: Latin\-1 and CP1252 are the same encoding on a text that
+does not use the range 0x80\-0x9f.
+.PP
+.B \-\-encoding
+imposes what is read;
+.B \-\-to\-encoding
+chooses what
+.B convert
+writes. Without the second, a file is written back in the encoding it was read
+in, so that a file rewritten with nothing asked of it gives back the same bytes.
+A character the chosen encoding cannot write stops that file, and nothing is
+written for it: a
+.B ?
+put in its place would be text lost in silence.
 .SH OUTPUT
 The standard output carries the result and nothing else \(em the report of
 .BR inspect .

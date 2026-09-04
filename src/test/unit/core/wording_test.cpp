@@ -51,6 +51,9 @@ TEST_CASE("every kind of diagnostic has a phrase", "[cli][wording]") {
     CHECK(nameOf(DiagnosticKind::TextBeforeAnyTimestamp) == "text before the first timing line");
     CHECK(nameOf(DiagnosticKind::UnknownBlock) == "a WebVTT block of an unknown kind");
     CHECK(nameOf(DiagnosticKind::MixedNewlines) == "more than one kind of line ending");
+    CHECK(nameOf(DiagnosticKind::GuessedEncoding) == "an encoding nothing declared");
+    CHECK(nameOf(DiagnosticKind::MarkOverridesEncoding) ==
+          "a byte order mark that contradicts the encoding asked for");
 }
 
 TEST_CASE("what was done about an anomaly is named too", "[cli][wording]") {

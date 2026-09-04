@@ -14,18 +14,23 @@
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/wording.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <expected>
+#include <optional>
 #include <string>
 #include <variant>
 
 namespace {
 
+using subedit::core::ByteOrderMark;
+using subedit::core::Encoding;
 using subedit::core::FileError;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
@@ -35,6 +40,7 @@ using subedit::core::openProject;
 using subedit::core::ReadError;
 using subedit::core::ReadErrorKind;
 using subedit::core::SubtitleFormat;
+using subedit::core::SubtitleIndex;
 
 constexpr const char* kTwo = "1\n"
                              "00:00:01,000 --> 00:00:02,000\n"
@@ -109,6 +115,43 @@ TEST_CASE("bytes that decode nowhere are a reader's failure, not the system's", 
 
     REQUIRE_FALSE(opened.has_value());
     CHECK(unreadableWith(opened.error(), ReadErrorKind::Undecodable));
+}
+
+TEST_CASE("a file opens in the encoding it was given", "[format][open]") {
+    InMemoryFileSystem files;
+    // Latin-1, which the detection would propose anyway — what is asserted is
+    // that what was asked for is what was read, and that it is what the project
+    // keeps to write itself back.
+    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9.\n\n");
+    const std::optional<Encoding> western = Encoding::create("cp1252", ByteOrderMark::Absent);
+
+    const std::expected<OpenedFile, OpenError> opened =
+        openProject(files, "film.srt", western.value_or(Encoding::utf8(ByteOrderMark::Absent)));
+
+    REQUIRE(opened.has_value());
+    CHECK(opened->project.sourceFile().encoding == western);
+    CHECK(opened->project.subtitleAt(SubtitleIndex::fromValue(0)).mainText == "Un café.");
+}
+
+TEST_CASE("a file that will not open in the encoding given says so", "[format][open]") {
+    InMemoryFileSystem files;
+    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9.\n\n");
+
+    const std::expected<OpenedFile, OpenError> opened =
+        openProject(files, "film.srt", Encoding::utf8(ByteOrderMark::Absent));
+
+    REQUIRE_FALSE(opened.has_value());
+    CHECK(unreadableWith(opened.error(), ReadErrorKind::Undecodable));
+}
+
+TEST_CASE("a file the system will not give up is not read in any encoding", "[format][open]") {
+    const InMemoryFileSystem empty;
+
+    const std::expected<OpenedFile, OpenError> opened =
+        openProject(empty, "absent.srt", Encoding::utf8(ByteOrderMark::Absent));
+
+    REQUIRE_FALSE(opened.has_value());
+    CHECK(subedit::core::reasonOf(opened.error()) == "does not exist");
 }
 
 TEST_CASE("a file in no format this tool knows says so", "[format][open]") {

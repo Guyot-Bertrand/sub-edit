@@ -13,6 +13,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -60,8 +61,11 @@ Run clean(const std::string& content) {
     files.addFile("a.srt", content);
     std::ostringstream errors;
 
-    const ExitCode code = removeHearingImpairedIn(
-        files, {"a.srt"}, Destination::from("", "out", false, 1).value(), Reporter{errors, 1});
+    const ExitCode code = removeHearingImpairedIn(files,
+                                                  {"a.srt"},
+                                                  std::nullopt,
+                                                  Destination::from("", "out", false, 1).value(),
+                                                  Reporter{errors, 1});
     return {
         .code = code, .written = files.contentOf("out/a.srt").value_or(""), .errors = errors.str()};
 }
@@ -106,8 +110,11 @@ TEST_CASE("a file that cannot be read is named, and the code says so", "[cli][he
     InMemoryFileSystem files;
     std::ostringstream errors;
 
-    const ExitCode code = removeHearingImpairedIn(
-        files, {"absent.srt"}, Destination::from("", "out", false, 1).value(), Reporter{errors, 1});
+    const ExitCode code = removeHearingImpairedIn(files,
+                                                  {"absent.srt"},
+                                                  std::nullopt,
+                                                  Destination::from("", "out", false, 1).value(),
+                                                  Reporter{errors, 1});
 
     CHECK(code == ExitCode::AllFailed);
     CHECK_THAT(errors.str(), ContainsSubstring("absent.srt"));

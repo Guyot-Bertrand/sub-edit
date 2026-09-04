@@ -14,6 +14,7 @@ namespace subedit::cli {
 
 ExitCode convertFrameRateAll(core::FileSystem& files,
                              const std::vector<std::string>& paths,
+                             const std::optional<core::Encoding>& reading,
                              core::FrameRate input,
                              core::FrameRate output,
                              const Destination& destination,
@@ -29,7 +30,7 @@ ExitCode convertFrameRateAll(core::FileSystem& files,
                nameOf(input) + " to " + nameOf(output) + " fps";
     };
 
-    return rewriteAll(files, paths, destination, reporter, "retimed", retime);
+    return rewriteAll(files, paths, reading, destination, reporter, "retimed", retime);
 }
 
 } // namespace subedit::cli

@@ -34,6 +34,7 @@ namespace {
 
 ExitCode alignAll(core::FileSystem& files,
                   const std::vector<std::string>& paths,
+                  const std::optional<core::Encoding>& reading,
                   core::FrameRate rate,
                   const Destination& destination,
                   const Reporter& reporter) {
@@ -65,7 +66,7 @@ ExitCode alignAll(core::FileSystem& files,
                std::to_string(furthest) + " ms";
     };
 
-    return rewriteAll(files, paths, destination, reporter, "aligned", align);
+    return rewriteAll(files, paths, reading, destination, reporter, "aligned", align);
 }
 
 } // namespace subedit::cli

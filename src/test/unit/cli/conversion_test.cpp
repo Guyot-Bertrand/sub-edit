@@ -6,6 +6,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -16,6 +17,7 @@ using subedit::cli::ExitCode;
 using subedit::cli::Reporter;
 using subedit::cli::WriteShape;
 using subedit::core::ByteOrderMark;
+using subedit::core::Encoding;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::Newline;
 using subedit::core::SubtitleFormat;
@@ -44,15 +46,15 @@ struct Run {
 
 Run convert(const std::string& content,
             SubtitleFormat target,
-            WriteShape shape,
+            const WriteShape& shape,
             const std::string& outputDir = "out") {
     InMemoryFileSystem files;
     files.addFile("in/a.srt", content);
 
     std::ostringstream errors;
     const Destination destination = Destination::from("", outputDir, false, 1).value();
-    const ExitCode code =
-        convertAll(files, {"in/a.srt"}, target, shape, destination, Reporter{errors, 0});
+    const ExitCode code = convertAll(
+        files, {"in/a.srt"}, std::nullopt, target, shape, destination, Reporter{errors, 0});
 
     const std::string extension = target == SubtitleFormat::WebVtt ? ".vtt" : ".srt";
     return {.code = code,
@@ -79,6 +81,7 @@ TEST_CASE("the written file lands under the extension of its format", "[cli][con
 
     CHECK(convertAll(files,
                      {"in/a.srt"},
+                     std::nullopt,
                      SubtitleFormat::WebVtt,
                      {},
                      Destination::from("", "out", false, 1).value(),
@@ -130,6 +133,38 @@ TEST_CASE("a byte order mark can be added and removed", "[cli][conversion]") {
                     .written.starts_with("\xEF\xBB\xBF"));
 }
 
+TEST_CASE("the encoding asked for is the one written", "[cli][conversion]") {
+    // Latin-1 in, UTF-8 out: the accented letter goes from one byte to two.
+    const std::string latin = "1\n00:00:01,000 --> 00:00:03,000\nUn caf\xE9.\n";
+
+    const Run run =
+        convert(latin, SubtitleFormat::SubRip, {.encoding = Encoding::utf8(ByteOrderMark::Absent)});
+
+    CHECK(run.code == ExitCode::Success);
+    CHECK_THAT(run.written, ContainsSubstring("caf\xC3\xA9"));
+}
+
+TEST_CASE("without a word, the encoding written is the one read", "[cli][conversion]") {
+    // In the shape the writer produces — a blank line closes every block — so
+    // that the comparison is byte for byte rather than approximate.
+    const std::string latin = "1\n00:00:01,000 --> 00:00:03,000\nUn caf\xE9.\n\n";
+
+    CHECK(convert(latin, SubtitleFormat::SubRip, {}).written == latin);
+}
+
+TEST_CASE("a character the encoding asked for cannot write stops the file", "[cli][conversion]") {
+    // `ł` has no place in Latin-1, and a `?` written in its stead would be text
+    // lost between reading and writing.
+    const std::string polish = "1\n00:00:01,000 --> 00:00:03,000\nPrzyszedł późno.\n";
+
+    const Run run = convert(polish,
+                            SubtitleFormat::SubRip,
+                            {.encoding = Encoding::create("iso-8859-1", ByteOrderMark::Absent)});
+
+    CHECK(run.written.empty());
+    CHECK_THAT(run.errors, ContainsSubstring("holds a character the chosen encoding cannot write"));
+}
+
 TEST_CASE("a mark asked of an encoding that has none is refused", "[cli][conversion]") {
     // A byte order mark exists for the Unicode encodings and for no other.
     // Writing the file without the mark would answer a question that was asked.
@@ -149,12 +184,14 @@ TEST_CASE("a round trip through the other format keeps the timings", "[cli][conv
 
     CHECK(convertAll(files,
                      {"a.srt"},
+                     std::nullopt,
                      SubtitleFormat::WebVtt,
                      {},
                      Destination::from("", "one", false, 1).value(),
                      quiet) == ExitCode::Success);
     CHECK(convertAll(files,
                      {"one/a.vtt"},
+                     std::nullopt,
                      SubtitleFormat::SubRip,
                      {},
                      Destination::from("", "two", false, 1).value(),
@@ -173,6 +210,7 @@ TEST_CASE("a file that cannot be read is named and the others go on", "[cli][con
 
     const ExitCode code = convertAll(files,
                                      {"absent.srt", "good.srt"},
+                                     std::nullopt,
                                      SubtitleFormat::WebVtt,
                                      {},
                                      Destination::from("", "out", false, 2).value(),
@@ -191,6 +229,7 @@ TEST_CASE("a write that fails is reported and counted", "[cli][conversion]") {
 
     const ExitCode code = convertAll(files,
                                      {"a.srt"},
+                                     std::nullopt,
                                      SubtitleFormat::WebVtt,
                                      {},
                                      Destination::from("", "out", false, 1).value(),
@@ -207,6 +246,7 @@ TEST_CASE("the narration says what was written and where", "[cli][conversion]") 
 
     static_cast<void>(convertAll(files,
                                  {"a.srt"},
+                                 std::nullopt,
                                  SubtitleFormat::WebVtt,
                                  {},
                                  Destination::from("", "out", false, 1).value(),
@@ -254,6 +294,7 @@ TEST_CASE("a readable file in no known format is refused", "[cli][conversion]") 
 
     const ExitCode code = convertAll(files,
                                      {"a.srt"},
+                                     std::nullopt,
                                      SubtitleFormat::WebVtt,
                                      {},
                                      Destination::from("", "out", false, 1).value(),

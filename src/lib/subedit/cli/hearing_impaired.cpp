@@ -22,6 +22,7 @@ namespace {} // namespace
 
 ExitCode removeHearingImpairedIn(core::FileSystem& files,
                                  const std::vector<std::string>& paths,
+                                 const std::optional<core::Encoding>& reading,
                                  const Destination& destination,
                                  const Reporter& reporter) {
     const Operation clean = [](core::Session& session) -> std::expected<std::string, std::string> {
@@ -39,7 +40,7 @@ ExitCode removeHearingImpairedIn(core::FileSystem& files,
                std::to_string(tally.removed) + " removed";
     };
 
-    return rewriteAll(files, paths, destination, reporter, "cleaned", clean);
+    return rewriteAll(files, paths, reading, destination, reporter, "cleaned", clean);
 }
 
 } // namespace subedit::cli

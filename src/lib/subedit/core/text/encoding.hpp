@@ -42,6 +42,13 @@ struct DetectedEncoding {
     EncodingChoice choice;
 };
 
+/// The encoding named by the mark at the head of `bytes`, if there is one.
+///
+/// **The only thing a subtitle file declares about its own encoding.** There is
+/// no header and no naming convention, so this is what a reading asks before it
+/// weighs anything — and what it obeys even against an encoding it was given.
+[[nodiscard]] std::optional<Encoding> byteOrderMarkAt(std::string_view bytes);
+
 /// Proposes the encoding of `bytes`, or nothing when it can propose none.
 ///
 /// **The mark first, always.** It is the only thing a subtitle file ever says
