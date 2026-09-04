@@ -230,7 +230,7 @@ TEST_CASE("the encoding last written reads, under any of its names", "[config]")
     // Le nom d'ICU, alias compris : ce que le fichier porte est celui sur lequel
     // elle se fixe, et le relire par un autre nom donne la même valeur.
     CHECK(readOf("file.write-encoding = windows-1252\n").settings.writeEncoding ==
-          Encoding::create("cp1252", ByteOrderMark::Absent));
+          Encoding::create("cp1252", ByteOrderMark::Absent).value());
 
     // Un nom qu'ICU ne sait pas convertir est un réglage illisible : le défaut
     // reste, et il est signalé comme les autres.
@@ -241,11 +241,12 @@ TEST_CASE("the encoding last written reads, under any of its names", "[config]")
 
 TEST_CASE("the encoding last written is written back as it read", "[config]") {
     InMemoryFileSystem files;
-    const std::optional<Encoding> central = Encoding::create("windows-1250", ByteOrderMark::Absent);
+    const std::expected<Encoding, subedit::core::EncodingRefusal> central =
+        Encoding::create("windows-1250", ByteOrderMark::Absent);
     REQUIRE(central.has_value());
-    REQUIRE(writeSettings(files, kPath, Settings{.writeEncoding = central}).has_value());
+    REQUIRE(writeSettings(files, kPath, Settings{.writeEncoding = *central}).has_value());
 
-    CHECK(readSettings(files, kPath).settings.writeEncoding == central);
+    CHECK(readSettings(files, kPath).settings.writeEncoding == *central);
 }
 
 TEST_CASE("the two sides are written back as they read", "[config]") {

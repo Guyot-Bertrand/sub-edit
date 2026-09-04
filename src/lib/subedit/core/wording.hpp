@@ -28,6 +28,7 @@
 #include <subedit/core/format/save_error.hpp>
 #include <subedit/core/format/write_error.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/time/duration.hpp>
@@ -49,6 +50,18 @@ namespace subedit::core {
 
 /// The name of a line ending, as a report writes it.
 [[nodiscard]] std::string_view nameOf(Newline newline);
+
+/// Why a name did not become an encoding, as a whole sentence naming it.
+///
+/// **A sentence and not a clause**, unlike its neighbours here: the two answers
+/// put the name in different places — `no encoding is named "klingon-1"` ends
+/// with it, and the other one has to start with it — so a caller could not
+/// assemble either from a fragment.
+///
+/// The second answer names the way out rather than only the refusal. A user who
+/// typed `UTF-16` wants UTF-16; being told that it exists and is refused, with
+/// nothing further, would be the worst of both.
+[[nodiscard]] std::string refusalOf(EncodingRefusal refusal, std::string_view name);
 
 /// Why a file could not be read at all, in the second half of a sentence
 /// starting with its path.

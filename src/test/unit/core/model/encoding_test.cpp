@@ -2,6 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <expected>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -10,6 +11,7 @@ namespace {
 
 using subedit::core::ByteOrderMark;
 using subedit::core::Encoding;
+using subedit::core::EncodingRefusal;
 
 /// The encoding of that name, or a failed test.
 ///
@@ -17,7 +19,8 @@ using subedit::core::Encoding;
 /// the type is that a name may not name anything, and a test that dereferences
 /// without asking says the opposite.
 [[nodiscard]] Encoding named(std::string_view name) {
-    const std::optional<Encoding> encoding = Encoding::create(name, ByteOrderMark::Absent);
+    const std::expected<Encoding, EncodingRefusal> encoding =
+        Encoding::create(name, ByteOrderMark::Absent);
     if (!encoding.has_value()) {
         FAIL("ICU ne connaît pas l'encodage " + std::string{name});
         return Encoding::utf8(ByteOrderMark::Absent);
@@ -39,28 +42,79 @@ TEST_CASE("the encodings named here are the ones ICU knows under those names",
     // at every default construction. This is what keeps that shortcut honest:
     // the day the two spellings part, the gate says so instead of two values of
     // one encoding quietly comparing unequal.
-    CHECK(Encoding::create("utf-8", ByteOrderMark::Absent) ==
+    CHECK(Encoding::create("utf-8", ByteOrderMark::Absent).value() ==
           Encoding::utf8(ByteOrderMark::Absent));
-    CHECK(Encoding::create("utf-16-le", ByteOrderMark::Present) ==
+    CHECK(Encoding::create("utf-16-le", ByteOrderMark::Present).value() ==
           Encoding::utf16Le(ByteOrderMark::Present));
-    CHECK(Encoding::create("utf-16-be", ByteOrderMark::Present) ==
+    CHECK(Encoding::create("utf-16-be", ByteOrderMark::Present).value() ==
           Encoding::utf16Be(ByteOrderMark::Present));
 }
 
 TEST_CASE("an encoding nobody can read does not get built", "[model][encoding]") {
     // The whole point of the type: what cannot be converted cannot travel
     // through the model to fail at the moment of reading.
-    CHECK_FALSE(Encoding::create("pas-un-encodage", ByteOrderMark::Absent).has_value());
-    CHECK_FALSE(Encoding::create("", ByteOrderMark::Absent).has_value());
+    CHECK(Encoding::create("pas-un-encodage", ByteOrderMark::Absent).error() ==
+          EncodingRefusal::Unknown);
+    CHECK(Encoding::create("", ByteOrderMark::Absent).error() == EncodingRefusal::Unknown);
+}
+
+TEST_CASE("an encoding that writes its own mark does not get built", "[model][encoding]") {
+    // ICU's `UTF-16` converter puts a mark in front of the text by itself, so
+    // the mark stops being the caller's to give or withhold — `--no-bom` was
+    // accepted and disobeyed, and the report said « no BOM » of a file that
+    // carried one.
+    for (const char* name : {"UTF-16", "UTF-32"}) {
+        INFO("encodage : " << name);
+        CHECK(Encoding::create(name, ByteOrderMark::Absent).error() ==
+              EncodingRefusal::WritesItsOwnMark);
+    }
+
+    // The refusal is on the converter and not on the name, and these four are
+    // what proves it: `UTF-16LE,version=1` says its byte order and writes a
+    // mark all the same.
+    for (const char* name :
+         {"UTF-16,version=1", "UTF-16,version=2", "UTF-16LE,version=1", "UTF-16BE,version=1"}) {
+        INFO("encodage : " << name);
+        CHECK(Encoding::create(name, ByteOrderMark::Absent).error() ==
+              EncodingRefusal::WritesItsOwnMark);
+    }
+}
+
+TEST_CASE("the aliases of an encoding that writes its own mark are refused too",
+          "[model][encoding]") {
+    // The refusal is read off the canonical name, which is what makes it hold
+    // for the four spellings a user might reach for.
+    for (const char* name : {"UCS-2", "ISO-10646-UCS-2", "unicode", "utf16"}) {
+        INFO("alias : " << name);
+        CHECK(Encoding::create(name, ByteOrderMark::Absent).error() ==
+              EncodingRefusal::WritesItsOwnMark);
+    }
+}
+
+TEST_CASE("naming the byte order is what makes an encoding writable", "[model][encoding]") {
+    // The way out the refusal names, and it costs nothing: the two explicit
+    // spellings write the same bytes, mark included, under the caller's
+    // control.
+    for (const char* name : {"UTF-16LE", "UTF-16BE", "UTF-32LE", "UTF-32BE"}) {
+        INFO("encodage : " << name);
+        CHECK(Encoding::create(name, ByteOrderMark::Absent).has_value());
+    }
+}
+
+TEST_CASE("an encoding that writes bytes of its own without a mark is kept", "[model][encoding]") {
+    // **The counter-example that draws the line**, and the reason the refusal is
+    // not « writes more bytes than the text ». `HZ-GB-2312` opens with `~}`, its
+    // switch into ASCII mode: two bytes that belong to the encoded text. It is
+    // the seventh converter the probe of `encoding.cpp` turns up, and the only
+    // one of the seven that must stay writable.
+    CHECK(Encoding::create("HZ", ByteOrderMark::Absent).has_value());
 }
 
 TEST_CASE("two names for one converter are one value", "[model][encoding]") {
     // `cp1252` and `windows-1252` are the same encoding, and equality has to
     // say so — the value keeps the spelling ICU settles on, not the one asked.
-    CHECK(Encoding::create("cp1252", ByteOrderMark::Absent) ==
-          Encoding::create("windows-1252", ByteOrderMark::Absent));
-    CHECK(Encoding::create("latin1", ByteOrderMark::Absent) ==
-          Encoding::create("iso-8859-1", ByteOrderMark::Absent));
+    CHECK(named("cp1252") == named("windows-1252"));
+    CHECK(named("latin1") == named("iso-8859-1"));
 }
 
 TEST_CASE("the name kept is the one a reader recognises", "[model][encoding]") {

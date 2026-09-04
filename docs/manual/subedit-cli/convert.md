@@ -41,7 +41,7 @@ Options:
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
 | `--to` | **oui** | `srt` ou `vtt`, et rien d'autre | — |
 | `--line-endings` | non | `unix`, `windows` ou `mac` | celles du fichier lu |
-| `--to-encoding` | non | tout encodage qu'ICU sait écrire | celui du fichier lu |
+| `--to-encoding` | non | tout encodage qu'ICU sait écrire, sauf ceux qui écrivent leur propre marque | celui du fichier lu |
 | `--bom` / `--no-bom` | non | drapeaux, exclusifs l'un de l'autre | ce que portait le fichier lu |
 | `--output` / `--output-dir` / `--in-place` | l'une des trois | voir [Invocation](invocation.md#la-destination) | — |
 
@@ -68,6 +68,21 @@ perdrait du texte entre la lecture et l'écriture, sans que personne le voie.
 **Une marque d'ordre des octets n'existe que pour les encodages Unicode.**
 `--bom` avec un `--to-encoding` qui n'en porte pas est refusé plutôt qu'ignoré
 — voir la table des erreurs ci-dessous.
+
+**Et l'encodage doit nommer son ordre d'octets.** `UTF-16` et `UTF-32` sont des
+noms qu'ICU connaît, dont le convertisseur écrit **sa propre marque**, quoi
+qu'on lui demande : `--no-bom` serait alors accepté et désobéi. Les deux sont
+donc refusés, et le message nomme la sortie :
+
+```console
+$ subedit-cli convert --to srt --to-encoding UTF-16 --output copie.srt film.srt
+"UTF-16" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do
+```
+
+`UTF-16LE`, `UTF-16BE`, `UTF-32LE` et `UTF-32BE` écrivent exactement les mêmes
+octets, marque comprise — mais sous le contrôle de `--bom` et de `--no-bom`. Le
+refus ne coûte donc rien d'autre qu'un nom plus précis, et il vaut pour la
+lecture comme pour l'écriture : `--encoding UTF-16` reçoit la même réponse.
 
 ## La destination
 
@@ -132,6 +147,7 @@ certains seulement, `1` sur une erreur d'usage.
 | `--in-place` qui change le format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
 | `--bom` sur un encodage qui n'en a pas | `<chemin>: <encodage> has no byte order mark to write` |
 | `--to-encoding` nommant un encodage inconnu | `no encoding is named "<nom>"` |
+| `--to-encoding` nommant un encodage qui écrit sa propre marque | `"<nom>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
 | caractère absent de l'encodage écrit | `<chemin>: holds a character the chosen encoding cannot write` |
 
 **Le refus de `--bom` sur un encodage qui n'en porte pas n'est pas une

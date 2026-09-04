@@ -104,7 +104,7 @@ forme choisie, et le fichier d'origine reste tel qu'il était.
 | Champ | Ce qu'il propose | Défaut |
 | :---- | :--------------- | :----- |
 | `Encoding` | quatorze encodages qu'un fichier de sous-titres porte en pratique, plus `Other…` | **celui du fichier lu** |
-| `Other…` | un champ où taper n'importe quel encodage qu'ICU sait écrire — `cp1257`, `EUC-KR` | — |
+| `Other…` | un champ où taper tout encodage qu'ICU sait écrire — `cp1257`, `EUC-KR` | — |
 | `Line endings` | `LF`, `CRLF` ou `CR` | celles du fichier lu |
 | `Byte order mark` | la marque, **éteinte pour un encodage qui n'en porte pas** | celle du fichier lu |
 
@@ -119,6 +119,13 @@ n'aide personne. `Other…` ouvre le reste.
 
 **Un nom que personne ne connaît n'écrit rien.** Taper `klingon-1` ne fait pas
 retomber sur l'UTF-8 : rien n'est écrit, et le message le dit.
+
+**Un nom qui ne dit pas son ordre d'octets non plus.** `UTF-16` et `UTF-32` sont
+des noms qu'ICU connaît, dont le convertisseur écrit **sa propre marque** : la
+case `Byte order mark` cesserait alors de décider quoi que ce soit. Les deux
+sont refusés, et le message envoie vers `UTF-16LE` ou `UTF-16BE`, qui écrivent
+les mêmes octets sous le contrôle de la case. C'est le même refus, dans les
+mêmes mots, que celui de la ligne de commande.
 
 **Un caractère que l'encodage choisi ne sait pas écrire arrête l'enregistrement**
 — un `ł` dans du Latin-1. Le message est

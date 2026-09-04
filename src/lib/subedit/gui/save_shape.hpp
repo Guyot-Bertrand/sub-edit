@@ -77,12 +77,13 @@ public:
     /// Opens on what the file carries, which is what writing it back needs.
     SaveShape(const core::Encoding& encoding, core::Newline newline, QWidget* parent = nullptr);
 
-    /// The encoding chosen, mark included, or nothing when the name typed
-    /// names none.
+    /// The encoding chosen, mark included, or why the name typed names none.
     ///
-    /// Empty is what stops the saving: writing a file in an encoding nobody can
-    /// name is not something to settle by picking one.
-    [[nodiscard]] std::optional<core::Encoding> encoding() const;
+    /// A refusal is what stops the saving: writing a file in an encoding the
+    /// model will not carry is not something to settle by picking another. The
+    /// reason travels with it so that the box can say which of the two it is —
+    /// a name nobody knows, or one whose converter writes its own mark.
+    [[nodiscard]] std::expected<core::Encoding, core::EncodingRefusal> encoding() const;
 
     /// The line endings chosen.
     [[nodiscard]] core::Newline newline() const;

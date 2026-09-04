@@ -78,6 +78,20 @@ $ subedit-cli --encoding klingon-1 inspect film.srt
 no encoding is named "klingon-1"
 ```
 
+**Une exception, et une seule : l'encodage doit nommer son ordre d'octets.**
+`UTF-16` et `UTF-32` sont des noms qu'ICU connaît et dont le convertisseur
+écrit **sa propre marque**. Un encodage pareil ne peut pas vivre dans ce
+modèle — la marque cesse d'être un choix, `--no-bom` serait accepté et
+désobéi — donc les deux sont refusés, à la lecture comme à l'écriture :
+
+```console
+$ subedit-cli --encoding UTF-16 inspect film.srt
+"UTF-16" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do
+```
+
+`UTF-16LE` et `UTF-16BE` lisent et écrivent les mêmes octets, marque comprise ;
+ce que le nom précis ajoute est qu'on sache lesquels.
+
 **Une marque d'ordre des octets l'emporte sur l'option.** C'est la seule chose
 qu'un fichier de sous-titres déclare de lui-même, et le lire autrement qu'il ne
 se déclare serait obéir à l'appelant contre le fichier. L'écart est **dit**, en
@@ -95,7 +109,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.9.0
+subedit 0.9.1
 ```
 
 ## Sous-commandes
@@ -300,6 +314,7 @@ jamais un lot à moitié traité.
 | `--quiet` avec `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | fichier absent | `<chemin>: does not exist` |
 | fichier illisible | `<chemin>: cannot be opened: permission denied` |
+| encodage qui écrit sa propre marque | `"<nom>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
 | octets qui ne se décodent pas | `<chemin>: cannot be decoded in the chosen encoding` |
 | format non reconnu | `<chemin>: is in no format this tool knows` |
 | rien qui ressemble à un sous-titre | `<chemin>: holds nothing recognisable as a subtitle` |

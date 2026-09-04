@@ -123,7 +123,8 @@ TEST_CASE("a file opens in the encoding it was given", "[format][open]") {
     // that what was asked for is what was read, and that it is what the project
     // keeps to write itself back.
     files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9.\n\n");
-    const std::optional<Encoding> western = Encoding::create("cp1252", ByteOrderMark::Absent);
+    const std::expected<Encoding, subedit::core::EncodingRefusal> western =
+        Encoding::create("cp1252", ByteOrderMark::Absent);
 
     const std::expected<OpenedFile, OpenError> opened =
         openProject(files, "film.srt", western.value_or(Encoding::utf8(ByteOrderMark::Absent)));

@@ -3,6 +3,9 @@
 #include <unicode/ucnv.h>
 #include <unicode/utypes.h>
 
+#include <algorithm>
+#include <array>
+#include <expected>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -36,6 +39,39 @@ namespace {
     if (charset == "UTF-16BE")
         return "\xFE\xFF";
     return {};
+}
+
+/// The converters that write a byte order mark of their own, by canonical name.
+///
+/// **Measured, because there is no other way to know it.** ICU exposes no call
+/// that answers "does this converter write a mark". The 229 converters
+/// `ucnv_countAvailable` enumerates were therefore probed: encode `"A"`, encode
+/// `"AA"`, and see what the first carries beyond one character's worth. Seven
+/// write more than they were asked for; six of them write a mark, and here they
+/// are.
+///
+/// **The seventh is `HZ-GB-2312`, and it is deliberately absent.** What it puts
+/// in front is `~}`, its switch into ASCII mode: two bytes that belong to the
+/// encoded text rather than to a mark. Counting it with the others would have
+/// refused a perfectly legitimate write. It is the counter-example that forbids
+/// probing by size alone, and it is worth naming here.
+///
+/// **Four of the six carry a name nobody types.** `UTF-16LE,version=1` fixes
+/// the byte order *and* writes a mark all the same: what is wrong is therefore
+/// not an ambiguous name but the mark itself, which is what this list says. The
+/// ordinary aliases — `UCS-2`, `unicode`, `utf16` — are absent because they have
+/// no business being here: they become `UTF-16` before they reach it.
+[[nodiscard]] bool writesItsOwnMark(std::string_view charset) {
+    constexpr std::array<std::string_view, 6> kOwnMark = {
+        "UTF-16",
+        "UTF-32",
+        "UTF-16,version=1",
+        "UTF-16,version=2",
+        "UTF-16LE,version=1",
+        "UTF-16BE,version=1",
+    };
+
+    return std::ranges::contains(kOwnMark, charset);
 }
 
 /// The name ICU settles on for `name`, or nothing if it converts nothing.
@@ -77,12 +113,13 @@ namespace {
 Encoding::Encoding(std::string_view charset, ByteOrderMark mark)
     : m_charset(charset), m_markBytes(markBytesOf(charset)), m_mark(mark) {}
 
-std::optional<Encoding> Encoding::create(std::string_view name, ByteOrderMark mark) {
+std::expected<Encoding, EncodingRefusal> Encoding::create(std::string_view name,
+                                                          ByteOrderMark mark) {
     // An empty name is ICU's way of asking for the platform's default
     // converter, which is exactly the "encoding of the locale, silently" that
     // the phase refuses — see the analysis of Gaupol in the phase 8 spec.
     if (name.empty())
-        return std::nullopt;
+        return std::unexpected(EncodingRefusal::Unknown);
 
     // A terminated copy: ICU takes a C string, and a `string_view` promises no
     // terminator — the caller's name may well be a slice of a command line.
@@ -90,7 +127,14 @@ std::optional<Encoding> Encoding::create(std::string_view name, ByteOrderMark ma
 
     const std::optional<std::string_view> canonical = canonicalNameOf(terminated.c_str());
     if (!canonical.has_value())
-        return std::nullopt;
+        return std::unexpected(EncodingRefusal::Unknown);
+
+    // **After the canonical name, not before.** `UCS-2`, `unicode` and `utf16`
+    // are three names for one converter, and all three have to be refused;
+    // matching a list before ICU has said who they are would let two of the
+    // three through.
+    if (writesItsOwnMark(*canonical))
+        return std::unexpected(EncodingRefusal::WritesItsOwnMark);
 
     return Encoding{*canonical, mark};
 }

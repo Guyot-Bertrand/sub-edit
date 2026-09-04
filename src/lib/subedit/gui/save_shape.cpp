@@ -107,12 +107,12 @@ void SaveShape::refresh() {
     // éteinte plutôt que cachée, pour la raison qui vaut ailleurs dans cette
     // fenêtre : une case grisée dit pourquoi le choix ne s'offre pas, une case
     // absente laisse croire à un manque.
-    const std::optional<core::Encoding> chosen = encoding();
+    const std::expected<core::Encoding, core::EncodingRefusal> chosen = encoding();
     const bool carries = chosen.has_value() && !chosen->byteOrderMarkBytes().empty();
     m_mark->setEnabled(carries);
 }
 
-std::optional<core::Encoding> SaveShape::encoding() const {
+std::expected<core::Encoding, core::EncodingRefusal> SaveShape::encoding() const {
     const int index = m_encoding->currentData().toInt();
     const core::ByteOrderMark mark =
         m_mark->isChecked() ? core::ByteOrderMark::Present : core::ByteOrderMark::Absent;
@@ -171,12 +171,13 @@ std::expected<SaveTarget, std::string> targetOf(const QFileDialog& dialog) {
     if (shape == nullptr || dialog.selectedFiles().isEmpty())
         return std::unexpected(std::string{"nothing was chosen"});
 
-    // Un encodage que personne ne sait nommer n'écrit pas un fichier de
-    // travers : il n'écrit pas de fichier.
-    const std::optional<core::Encoding> chosen = shape->encoding();
+    // Un encodage que le modèle refuse n'écrit pas un fichier de travers : il
+    // n'écrit pas de fichier. Les mots sont ceux du noyau, comme partout — la
+    // ligne de commande dit la même chose du même refus.
+    const std::expected<core::Encoding, core::EncodingRefusal> chosen = shape->encoding();
     if (!chosen.has_value())
-        return std::unexpected("no encoding is named \"" +
-                               shape->otherName()->text().toStdString() + "\"");
+        return std::unexpected(
+            core::refusalOf(chosen.error(), shape->otherName()->text().trimmed().toStdString()));
 
     return SaveTarget{
         .path = std::filesystem::path{dialog.selectedFiles().first().toStdString()},
