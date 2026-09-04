@@ -6,9 +6,9 @@
 # édition de liens — un parallélisme qui n'apparaît dans aucun `-j` et qui
 # sature une machine sur laquelle on fait autre chose.
 #
-# La charge est relevée avant de mesurer : une mesure prise pendant qu'un
-# navigateur compile du JavaScript ne dit rien du code, elle dit l'état de la
-# machine.
+# La charge est relevée avant de construire et de mesurer : une mesure prise
+# pendant qu'un navigateur compile du JavaScript ne dit rien du code, elle dit
+# l'état de la machine.
 #
 # **Au-dessus du seuil, rien n'est inscrit** — issue #270. Le relevé entrait au
 # journal, sans droit de fixer d'extrême, et disait sa charge en en-tête. C'était
@@ -38,13 +38,33 @@ readonly XML="${REPO_ROOT}/build/release/bench.xml"
 
 step "benchmarks (release)"
 
-cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
-cmake --build --preset release -j "${JOBS}" --target subedit_bench
-
+# **La charge se lit avant la construction, et non après** — relecture de fin de
+# phase 8. `await-quiet.sh` lit la moyenne d'une minute, c'est-à-dire le passé ;
+# la lire après avoir compilé en Release, c'est lui demander si la machine est
+# libre juste après l'avoir occupée soi-même. Le garde répondait alors sur son
+# propre travail.
+#
+# Mesuré, deux exécutions à une minute d'intervalle sur la même machine :
+#
+#     check-local complet, avec reconstruction Release   2,21   refusé
+#     make bench seul, arbre Release déjà à jour         1,32   inscrit
+#
+# La seconde partait d'une machine **plus chargée** que la première et s'est
+# inscrite. Ce qui les sépare est la construction que cette étape-ci lance.
+#
+# Ce que le garde répond désormais : « la machine était-elle à nous quand on a
+# commencé ». C'est la bonne question — ce qu'il faut écarter est une charge
+# concurrente, un navigateur ou un environnement de développement, et celle-là
+# est là avant comme pendant. Ce qu'il cesse de voir est une charge qui démarre
+# pendant la construction ; le critère de dispersion, lui, la voit après coup.
+#
 # Le code de retour est lu, et non écarté : c'est lui qui décide si le relevé
 # sera inscrit. La charge finale est écrite dans les deux cas.
 quiet=0
 load="$("${REPO_ROOT}/src/scripts/await-quiet.sh" --below "${BENCH_MAX_LOAD}")" || quiet=$?
+
+cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
+cmake --build --preset release -j "${JOBS}" --target subedit_bench
 
 "${REPO_ROOT}/build/release/bin/subedit_bench" \
     --reporter console \

@@ -134,11 +134,11 @@ certains seulement, `1` sur une erreur d'usage.
 | `--to-encoding` nommant un encodage inconnu | `no encoding is named "<nom>"` |
 | caractère absent de l'encodage écrit | `<chemin>: holds a character the chosen encoding cannot write` |
 
-**Le dernier n'est pas une pédanterie.** Une marque d'ordre des octets existe
-pour les encodages Unicode et pour aucun autre : la demander sur un fichier en
-Windows-1252, c'est demander quelque chose qui n'existe pas. Le fichier
-s'écrirait sans elle, et personne ne saurait que la demande n'a pas été
-honorée.
+**Le refus de `--bom` sur un encodage qui n'en porte pas n'est pas une
+pédanterie.** Une marque d'ordre des octets existe pour les encodages Unicode et
+pour aucun autre : la demander sur un fichier en Windows-1252, c'est demander
+quelque chose qui n'existe pas. Le fichier s'écrirait sans elle, et personne ne
+saurait que la demande n'a pas été honorée.
 
 Celles de la destination sont communes aux sous-commandes qui écrivent :
 voir [Invocation](invocation.md#la-destination).

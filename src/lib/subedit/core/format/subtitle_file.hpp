@@ -30,12 +30,15 @@ namespace subedit::core {
 [[nodiscard]] std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
                                                                  const Encoding& encoding);
 
-/// Reads it without being told an encoding.
+/// Reads it without being told an encoding, weighing the bytes for one.
 ///
-/// UTF-8 today, because nothing yet proposes another and assuming the locale's
-/// is how a file gets read wrong in silence — the one point of Gaupol's
-/// detection this phase turns down. Detection takes this overload's place, and
-/// every caller of it, in the issue that follows.
+/// **The encoding is detected here and imposed by the overload above**, which
+/// is the whole of the difference between the two: `--encoding` and a window
+/// that was told nothing take different doors into the same reading.
+///
+/// The locale's encoding is never assumed — the one point of Gaupol's detection
+/// this phase turns down — and what was guessed is said rather than kept, as
+/// ADR 0008 has it. UTF-8 when the bytes propose nothing at all.
 [[nodiscard]] std::expected<ReadResult, ReadError> readSubtitles(std::string_view content);
 
 /// Renders subtitles into the bytes of a file of `format`.

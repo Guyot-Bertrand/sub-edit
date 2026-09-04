@@ -4,9 +4,11 @@ La fenêtre de subedit : ouvrir un fichier de sous-titres et le voir dans une
 table. Pour l'autre programme et pour savoir par où commencer, voir
 [le manuel](../index.md).
 
-> **État actuel.** La fenêtre **ouvre**, **affiche**, **édite ses cellules**,
-> **insère et supprime des lignes**, **annule**, **enregistre**, et **marque les
-> sous-titres dont les positions ne tiennent pas debout**. Le menu `Tools` porte
+> **État actuel.** La fenêtre **ouvre un fichier quel que soit son encodage**,
+> **affiche**, **édite ses cellules**, **insère et supprime des lignes**,
+> **annule**, **enregistre — en choisissant l'encodage, les fins de ligne et la
+> marque d'ordre des octets** —, et **marque les sous-titres dont les positions
+> ne tiennent pas debout**. Le menu `Tools` porte
 > six opérations — décaler, transformer, convertir la fréquence d'image, retirer
 > les mentions pour malentendants, aligner sur une cadence, ramener sur la
 > grille — et l'analyse de grille, qui ne modifie rien. Elle **associe une vidéo

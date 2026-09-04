@@ -101,12 +101,28 @@ avec un objectif d'iso-fonctionnalité.
   | tout ce que le binaire écrit à un utilisateur | la documentation, les specs, les ADR, les manuels |
   | les intitulés de cas de test, que Catch2 imprime | les messages de commit, les scripts, le système de construction, les échanges |
 
-  **La règle disait « anglais pour les commentaires », et c'était faux depuis la
-  phase 1** — issue #273. Les commentaires de ce dépôt sont français partout,
-  sans exception, et la clause n'a jamais décrit le projet : c'est elle qui a
-  été corrigée, pas les soixante-dix-huit fichiers. La prose de ce projet est
-  française, la précision des commentaires en dépend, et c'est une raison plutôt
-  qu'un aveu.
+  > **La ligne « les commentaires » de ce tableau est en sursis, et la relecture
+  > de fin de phase 8 dit pourquoi.** Elle vient de l'issue #273, qui a écrit
+  > « les commentaires de ce dépôt sont français partout, sans exception » et a
+  > retourné la règle sur cette phrase. **La phrase est fausse**, et l'inverse
+  > est vrai : sur `src/`, **6 339 lignes de commentaire anglaises contre
+  > 1 142 françaises**, et 319 fichiers à majorité anglaise contre 25.
+  >
+  > Ce qui l'a fait croire est la mesure : #273 a cherché les fichiers portant
+  > **au moins un** caractère accentué, en a trouvé soixante-dix, et en a conclu
+  > que le dépôt était français. Un fichier de cinquante commentaires anglais et
+  > d'un français y comptait pour français. C'est exactement le défaut que la
+  > relecture d'où sortait #273 venait d'inscrire — **vérifier avec l'outil qui
+  > ne compte pas** — commis une issue plus tard.
+  >
+  > La phase 8 en donne l'illustration la plus courte : `save_shape.hpp` est
+  > commenté en anglais, `save_shape.cpp` en français, et ce sont les deux
+  > moitiés d'une même classe.
+  >
+  > **Rien n'est décidé ici**, parce que ce n'est pas à une relecture de choisir
+  > entre traduire six mille lignes et retourner une règle une seconde fois. En
+  > attendant : suivre la langue du fichier qu'on modifie, et ne pas mélanger
+  > les deux dans un même fichier.
 
   Les intitulés de tests, eux, avaient bien dérivé : **cent en français**,
   presque tous nés d'une seule phase, et un `--list-tests` qui rendait deux
@@ -170,32 +186,45 @@ avec un objectif d'iso-fonctionnalité.
 
   1. coder et tester ;
   2. relire, corriger ;
-  3. **rejouer `make bench`** et regarder les chiffres. Avant la porte, parce
-     qu'une régression se corrige tant qu'il est temps — la découvrir après
-     obligerait à tout reprendre. **Cette exécution reste diagnostique :** la
-     version n'a pas encore bougé, donc son relevé ne doit pas rester dans le
-     journal — il porterait le nom de la version précédente ;
-  4. **bumper le patch** ;
-  5. **`make manual`** — le bump vient de périmer l'exemple `--version`, qui
+  3. **bumper le patch** ;
+  4. **`make manual`** — le bump vient de périmer l'exemple `--version`, qui
      cite le numéro. Ça tient en dix secondes, et l'oublier fait échouer
      l'étape suivante : `check-local` enchaîne `manual-check`, qui compare ce
      bloc à ce que le binaire écrit. Le défaut a été payé trois fois avant
      d'être inscrit ici ;
-  6. `make check` — une seule fois, elle voit le code *et* le bump — puis
-     `make check-local`, dont le `make bench` qu'il enchaîne tourne cette
-     fois sur la version bumpée : **c'est cette exécution-là, postérieure au
-     bump, qui enregistre la mesure qui reste dans le journal** — à moins que
-     la machine ne soit occupée, auquel cas rien n'est enregistré et il faut
-     le dire dans la PR (issue #270) ;
+  5. **`make check-local`**, dont le `make bench` qu'il enchaîne tourne sur la
+     version bumpée : **c'est cette exécution-là qui enregistre la mesure qui
+     reste dans le journal** — à moins que la machine ne soit occupée, auquel
+     cas rien n'est enregistré et il faut le dire dans la PR (issue #270) ;
+  6. `make check` — une seule fois, elle voit le code *et* le bump ;
   7. **mettre à jour le reste de la documentation et le relevé de mesures** —
      notes, sections de manuel que le ticket change, chiffres relevés à
-     l'étape 6. Rien de tout cela n'est lu par la porte, donc rien ne la
+     l'étape 5. Rien de tout cela n'est lu par la porte, donc rien ne la
      réouvre ;
   8. commiter, régénérer le CHANGELOG, ouvrir la PR.
 
+  **`check-local` avant `check`, et il y a une mesure derrière ce sens-là.**
+  L'ordre inverse a tenu jusqu'à la fin de la phase 8, et il coûtait presque un
+  relevé de banc sur deux : `check-local` enchaîne `make bench` en dernier, donc
+  le banc trouvait la traîne d'un quart d'heure de compilation — six relevés
+  perdus sur treize en phase 7, trois sur six en phase 8. C'est aussi l'ordre
+  que le principe voulait déjà, du moins cher au plus cher : `check` dure
+  dix-sept minutes, `check-local` quelques-unes.
+
+  **Cet échange ne suffisait pas, et sa première exécution l'a dit** — le banc a
+  lu 2,21 sur une machine partie de 0,63. Le garde compilait l'arbre Release
+  *puis* demandait si la machine était libre, c'est-à-dire juste après l'avoir
+  occupée lui-même ; la moyenne d'une minute est le passé. La lecture passe
+  désormais avant la construction.
+  [ADR 0015](docs/adr/0015-memoire-des-mesures.md).
+
+  **Il n'y a donc plus d'exécution diagnostique de `make bench` avant la
+  porte** : le relevé qui reste au journal lui est désormais antérieur, et une
+  régression s'y voit au même moment, tant qu'il est temps de la corriger.
+
   L'étape 7 vient après la 6 par construction : c'est la seule position où la
   documentation ne coûte rien. L'exemple de version, lui, ne peut pas y
-  attendre — il est lu par `check-local`, d'où l'étape 5 qui lui est réservée.
+  attendre — il est lu par `check-local`, d'où l'étape 4 qui lui est réservée.
 
   Le tag et le `project(VERSION)` doivent porter le même numéro : **bumper le
   CMake avant de tagger**, sinon le binaire annonce une version périmée.
