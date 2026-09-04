@@ -69,7 +69,8 @@ public:
     [[nodiscard]] std::optional<std::filesystem::path>
     videoToOpen(const std::filesystem::path& directory) override;
 
-    [[nodiscard]] std::optional<SaveTarget> saveTarget(const core::SourceFile& current) override;
+    [[nodiscard]] std::optional<SaveTarget> saveTarget(const core::SourceFile& current,
+                                                       const core::Encoding& encoding) override;
 
     [[nodiscard]] UnsavedChoice aboutUnsavedChanges() override;
 

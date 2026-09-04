@@ -5,10 +5,13 @@
 // but what the window makes of the answer, including when the answer is
 // « no ».
 
+#include <subedit/core/config/settings.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/document.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/gui/diagnostics_panel.hpp>
 #include <subedit/gui/main_window.hpp>
@@ -23,6 +26,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <expected>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -30,14 +34,28 @@
 
 namespace {
 
+using subedit::core::ByteOrderMark;
+using subedit::core::Encoding;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::Newline;
 using subedit::core::OpenedFile;
 using subedit::core::openProject;
 using subedit::core::SubtitleFormat;
 using subedit::gui::MainWindow;
 using subedit::gui::SaveTarget;
 using subedit::gui::UnsavedChoice;
+
+/// L'encodage de ce nom, ou un test en échec.
+[[nodiscard]] Encoding named(const char* name) {
+    const std::optional<Encoding> encoding = Encoding::create(name, ByteOrderMark::Absent);
+    if (!encoding.has_value()) {
+        FAIL("ICU ne connaît pas cet encodage");
+        return Encoding::utf8(ByteOrderMark::Absent);
+    }
+    return *encoding;
+}
+
 using subedit::test::FakePrompts;
 
 constexpr const char* kThree = "1\n"
@@ -112,6 +130,78 @@ TEST_CASE("saving a document that came from nowhere asks where", "[gui][GUI-SAVE
 
     CHECK(prompts.saveTargetAsked == 1);
     CHECK(files.contentOf("neuf.srt").has_value());
+}
+
+TEST_CASE("saving as writes in the encoding and the endings chosen", "[gui][GUI-ENC-02]") {
+    // Latin-1 et CRLF, demandés dans la boîte : ce que la fenêtre en fait est un
+    // fichier écrit ainsi, et un document qui porte désormais cette forme.
+    InMemoryFileSystem files;
+    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9.\n\n");
+    FakePrompts prompts;
+    prompts.nextSaveTarget = SaveTarget{.path = "copie.srt",
+                                        .format = SubtitleFormat::SubRip,
+                                        .encoding = named("iso-8859-1"),
+                                        .newline = Newline::CrLf};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
+
+    window.saveAsAction()->trigger();
+
+    const std::string written = files.contentOf("copie.srt").value_or("");
+    CHECK(written.find("\r\n") != std::string::npos);
+    // Latin-1 : la lettre accentuée tient sur un octet, et non sur deux.
+    CHECK(written.find("caf\xE9") != std::string::npos);
+
+    // Le document porte cette forme désormais : un `Save` qui ne demande rien
+    // réécrit le même fichier, pas celui qu'il était avant.
+    window.saveAction()->trigger();
+
+    CHECK(files.contentOf("copie.srt").value_or("") == written);
+}
+
+TEST_CASE("saving as opens on the encoding the file was read in", "[gui][GUI-ENC-02]") {
+    // Ce que le fichier porte, et non ce qu'un réglage se rappelle : l'écrire
+    // autrement sans qu'on l'ait demandé perdrait ce que la lecture a gardé.
+    InMemoryFileSystem files;
+    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9.\n\n");
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
+
+    window.saveAsAction()->trigger();
+
+    CHECK(prompts.lastProposedEncoding == Encoding::create("iso-8859-1", ByteOrderMark::Absent));
+}
+
+TEST_CASE("a document that came from no file opens on the encoding last chosen",
+          "[gui][GUI-ENC-03]") {
+    // Le seul cas où le réglage sert : un document neuf n'a pas d'encodage à
+    // lui, et ce que l'utilisateur écrit d'habitude est la meilleure réponse.
+    InMemoryFileSystem files;
+    FakePrompts prompts;
+    MainWindow window{files, OpenedFile{}, prompts};
+    window.show();
+
+    subedit::core::Settings settings;
+    settings.writeEncoding = Encoding::create("windows-1250", ByteOrderMark::Absent);
+    window.applySettings(settings);
+
+    window.saveAsAction()->trigger();
+
+    CHECK(prompts.lastProposedEncoding == settings.writeEncoding);
+}
+
+TEST_CASE("the encoding chosen is what the settings carry away", "[gui][GUI-ENC-03]") {
+    InMemoryFileSystem files = withFile("film.srt", kThree);
+    FakePrompts prompts;
+    prompts.nextSaveTarget = SaveTarget{
+        .path = "copie.srt", .format = SubtitleFormat::SubRip, .encoding = named("windows-1250")};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
+
+    window.saveAsAction()->trigger();
+
+    CHECK(window.settings().writeEncoding == named("windows-1250"));
 }
 
 TEST_CASE("saving under another name moves the document there", "[gui][GUI-SAVE-02]") {
@@ -301,7 +391,7 @@ TEST_CASE("the diagnostics of a reading are shown", "[gui][GUI-OPEN-03]") {
     CHECK(window.diagnostics()->lineAt(0).toStdString().starts_with("line 5:"));
 }
 
-TEST_CASE("the encoding a reading had to guess is shown, without a line", "[gui][GUI-OPEN-03]") {
+TEST_CASE("the encoding a reading had to guess is shown, without a line", "[gui][GUI-ENC-01]") {
     // The bytes were weighed before a single line existed, so there is no place
     // to name — and a panel that said "line 0" would name one that is not
     // there. Latin-1: a lone 0xE9 where UTF-8 would need a second byte.

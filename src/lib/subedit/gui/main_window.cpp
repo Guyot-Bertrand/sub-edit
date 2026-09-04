@@ -808,10 +808,28 @@ bool MainWindow::save() {
 }
 
 bool MainWindow::saveAs() {
-    const std::optional<SaveTarget> target =
-        m_prompts->saveTarget(m_session->project().sourceFile());
+    const core::SourceFile& source = m_session->project().sourceFile();
+
+    // **L'encodage du fichier l'emporte sur le réglage**, et le réglage sert au
+    // document qui n'a pas de fichier : réécrire dans un autre encodage un
+    // document qu'on vient d'ouvrir, parce qu'un réglage vieux de trois
+    // semaines le dit, serait perdre ce que la lecture a gardé.
+    const core::Encoding proposed =
+        source.path.has_value() ? source.encoding : m_writeEncoding.value_or(source.encoding);
+
+    const std::optional<SaveTarget> target = m_prompts->saveTarget(source, proposed);
     if (!target.has_value())
         return false;
+
+    // Ce que le document devient, posé avant l'écriture : `saveProject` écrit ce
+    // que le projet porte, et ce qu'il porte est désormais ce qui vient d'être
+    // choisi. Ce n'est pas une commande — personne ne voudrait l'annuler.
+    core::SourceFile moved = m_session->project().sourceFile();
+    moved.path = target->path;
+    moved.format = target->format;
+    moved.encoding = target->encoding;
+    moved.newline = target->newline;
+    m_session->setSourceFile(moved);
 
     const std::expected<void, core::SaveError> written =
         core::saveProject(*m_files, m_session->project(), target->path, target->format);
@@ -823,12 +841,9 @@ bool MainWindow::saveAs() {
 
     rememberDirectoryOf(target->path);
 
-    // The document lives there now, and in that format: this is not a command,
-    // nobody would want to undo it.
-    core::SourceFile moved = m_session->project().sourceFile();
-    moved.path = target->path;
-    moved.format = target->format;
-    m_session->setSourceFile(std::move(moved));
+    // Retenu même si le document en avait déjà un : c'est un choix qui vient
+    // d'être posé, et le prochain document sans fichier s'ouvrira dessus.
+    m_writeEncoding = target->encoding;
 
     m_session->markSaved(core::Document::Main);
     setWindowTitle(titleFor(m_session->project()));
@@ -1245,6 +1260,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
     applyTheme(m_theme);
 
     m_insertPlacement = settings.insertPlacement;
+    m_writeEncoding = settings.writeEncoding;
 }
 
 core::Settings MainWindow::settings() const {
@@ -1277,6 +1293,7 @@ core::Settings MainWindow::settings() const {
 
     settings.theme = m_theme;
     settings.insertPlacement = m_insertPlacement;
+    settings.writeEncoding = m_writeEncoding;
 
     return settings;
 }

@@ -84,7 +84,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.8.18
+subedit 0.8.19
 ```
 
 ## Sous-commandes

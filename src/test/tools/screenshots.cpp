@@ -33,6 +33,7 @@
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/qt_prompts.hpp>
+#include <subedit/gui/save_shape.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/theme.hpp>
@@ -373,6 +374,26 @@ int main(int argc, char** argv) {
         subedit::gui::applyTheme(subedit::core::Theme::Dark);
         subedit::gui::InsertDialog dialog{true, subedit::core::InsertPlacement::Below};
         written = capture(dialog, dialog, directory, "insertion-sombre") && written;
+    }
+
+    // La forme que `Save As…` propose. **Le widget seul, et non la boîte de
+    // fichiers qui le porte** : le contenu d'un sélecteur de fichiers dépend de
+    // la machine — des répertoires, des dates, des raccourcis latéraux —, donc
+    // sa photographie ne serait jamais deux fois la même. Ce que la section
+    // décrit est ce que la fenêtre ajoute sous la liste, et le voici.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::gui::SaveShape shape{
+            subedit::core::Encoding::utf8(subedit::core::ByteOrderMark::Absent),
+            subedit::core::Newline::Lf};
+        written = capture(shape, shape, directory, "enregistrer-sous") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::SaveShape shape{
+            subedit::core::Encoding::utf8(subedit::core::ByteOrderMark::Absent),
+            subedit::core::Newline::Lf};
+        written = capture(shape, shape, directory, "enregistrer-sous-sombre") && written;
     }
 
     // Le manuel lu dans sa fenêtre, sur le vrai manuel du dépôt : c'est ce que

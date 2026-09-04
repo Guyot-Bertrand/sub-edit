@@ -66,6 +66,19 @@ vaut un bouton de la boîte de confirmation. Exposées, testées, elles ne sont
 plus dans ce compte — c'est ce qui l'a fait tomber de trente-six à
 vingt-cinq.
 
+**Deux lignes de plus en phase 8, et la même règle appliquée deux fois.**
+`Save As…` demande désormais l'encodage, la fin de ligne et la marque, ce qui
+aurait pu ajouter treize lignes intestables à `QtPrompts`. Il en ajoute **une** :
+tout ce qui se construit et se relit — la boîte, le widget des trois champs, ce
+qu'on en tire — vit dans `save_shape.cpp`, où un test le remplit et le lit sans
+jamais entrer dans une boucle d'événements. Ce qui reste dans `QtPrompts` est
+`exec`, et lui seul.
+
+La seconde ligne est dans `save_shape.cpp` : la garde d'une boîte qui ne
+porterait pas la forme, ou qui n'aurait rien retenu. Aucun test ne l'atteint —
+`saveDialogFor` pose toujours la forme, et une boîte acceptée porte toujours un
+nom — et elle reste, parce que le pas suivant déréférence les deux.
+
 **Deux lignes de plus en phase 5, et pour la même raison.** L'issue #132 ajoute
 `QtPrompts::run` — « montre ce dialogue, dis s'il a été accepté ». C'est la
 couture des dialogues que le projet écrit lui-même, et elle est plus étroite que
@@ -238,13 +251,13 @@ dialogue de préférences qu'on validait sans jamais l'annuler.
 
 ## Relevé
 
-    total : 59
+    total : 61
 
-Relevé sur la version 0.7.10, le 2026-08-29.
+Relevé sur la version 0.8.19, le 2026-09-04.
 
 | Lignes | Fichier |
 | -----: | :------ |
-| 40 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 41 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 4 | `src/lib/subedit/core/process/start_process.cpp` |
 | 4 | `src/lib/subedit/gui/mpv_player.cpp` |
 | 4 | `src/lib/subedit/gui/player_factory.cpp` |
@@ -252,3 +265,4 @@ Relevé sur la version 0.7.10, le 2026-08-29.
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
 | 1 | `src/lib/subedit/gui/main_window.cpp` |
+| 1 | `src/lib/subedit/gui/save_shape.cpp` |

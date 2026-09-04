@@ -19,17 +19,21 @@
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/model/encoding.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace {
 
 using Catch::Matchers::ContainsSubstring;
+using subedit::core::ByteOrderMark;
+using subedit::core::Encoding;
 using subedit::core::FileError;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
@@ -220,6 +224,30 @@ TEST_CASE("the two sides of an insertion read, and nothing else", "[config]") {
     CHECK(unknown.diagnostics.size() == 1);
 }
 
+// ## Le dernier encodage d'écriture, venu avec #299
+
+TEST_CASE("the encoding last written reads, under any of its names", "[config]") {
+    // Le nom d'ICU, alias compris : ce que le fichier porte est celui sur lequel
+    // elle se fixe, et le relire par un autre nom donne la même valeur.
+    CHECK(readOf("file.write-encoding = windows-1252\n").settings.writeEncoding ==
+          Encoding::create("cp1252", ByteOrderMark::Absent));
+
+    // Un nom qu'ICU ne sait pas convertir est un réglage illisible : le défaut
+    // reste, et il est signalé comme les autres.
+    const SettingsRead unknown = readOf("file.write-encoding = klingon-1\n");
+    CHECK_FALSE(unknown.settings.writeEncoding.has_value());
+    CHECK(unknown.diagnostics.size() == 1);
+}
+
+TEST_CASE("the encoding last written is written back as it read", "[config]") {
+    InMemoryFileSystem files;
+    const std::optional<Encoding> central = Encoding::create("windows-1250", ByteOrderMark::Absent);
+    REQUIRE(central.has_value());
+    REQUIRE(writeSettings(files, kPath, Settings{.writeEncoding = central}).has_value());
+
+    CHECK(readSettings(files, kPath).settings.writeEncoding == central);
+}
+
 TEST_CASE("the two sides are written back as they read", "[config]") {
     for (const InsertPlacement placement : {InsertPlacement::Above, InsertPlacement::Below}) {
         InMemoryFileSystem files;
@@ -273,6 +301,7 @@ TEST_CASE("an option at its default is written back commented out", "[config]") 
     CHECK_THAT(written, ContainsSubstring("#file.directory = "));
     CHECK_THAT(written, ContainsSubstring("#general.theme = system"));
     CHECK_THAT(written, ContainsSubstring("#edit.insert-placement = below"));
+    CHECK_THAT(written, ContainsSubstring("#file.write-encoding = UTF-8"));
 }
 
 TEST_CASE("an option that was set is written back bare", "[config]") {

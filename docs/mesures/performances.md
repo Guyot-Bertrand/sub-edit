@@ -325,7 +325,7 @@ pas le sujet de ce ticket.
 | image vers position | 6.48 ns | 0.4.5 — 2026-08-17 | 12.1 ns | 0.3.9 — 2026-08-15 |
 | mise à l'échelle par un rationnel exact | 6.71 ns | 0.2.14 — 2026-08-14 | 8.27 ns | 0.8.8 — 2026-09-01 |
 | lecture de 4000 sous-titres | 2.08 ms | 0.5.9 — 2026-08-23 | 3.28 ms | 0.5.3 — 2026-08-22 |
-| écriture de 4000 sous-titres | 488 µs | 0.3.10 — 2026-08-15 | 636 µs | 0.8.2 — 2026-08-31 |
+| écriture de 4000 sous-titres | 488 µs | 0.3.10 — 2026-08-15 | 778 µs | 0.8.19 — 2026-09-04 |
 | décalage de 4000 sous-titres | 6.57 µs | 0.6.11 — 2026-08-27 | 10.7 µs | 0.3.15 — 2026-08-16 |
 | décalage puis annulation | 12.8 µs | 0.8.10 — 2026-09-02 | 20.7 µs | 0.2.6 — 2026-08-13 |
 | transformation de 4000 sous-titres | 68.3 µs | 0.8.6 — 2026-08-31 | 91.5 µs | 0.3.10 — 2026-08-15 |
@@ -336,7 +336,7 @@ pas le sujet de ce ticket.
 | modification d'un texte, à travers une session | 114 ns | 0.2.14 — 2026-08-14 | 228 ns | 0.8.6 — 2026-08-31 |
 | suppression des mentions sur 4000 sous-titres | 853 µs | 0.4.21 — 2026-08-22 | 5.68 ms | 0.4.4 — 2026-08-17 |
 | suppression puis annulation | 213 µs | 0.4.14 — 2026-08-21 | 300 µs | 0.8.8 — 2026-09-01 |
-| construction du modèle sur 4000 sous-titres | 59.3 ns | 0.4.14 — 2026-08-21 | 12.8 µs | 0.8.11 — 2026-09-02 |
+| construction du modèle sur 4000 sous-titres | 59.3 ns | 0.4.14 — 2026-08-21 | 12.9 µs | 0.8.19 — 2026-09-04 |
 | une fenêtre de 40 lignes, cinq colonnes | 14.7 µs | 0.4.15 — 2026-08-21 | 28.9 µs | 0.6.8 — 2026-08-26 |
 | rafraîchir après un décalage de 4000 sous-titres | 26.4 ns | 0.4.15 — 2026-08-21 | 13.1 µs | 0.6.13 — 2026-08-27 |
 | édition d'une cellule de texte | 371 ns | 0.5.9 — 2026-08-23 | 496 ns | 0.8.8 — 2026-09-01 |
@@ -356,7 +356,7 @@ pas le sujet de ce ticket.
 <!-- image vers position min=6.47637 max=12.0852 -->
 <!-- mise à l'échelle par un rationnel exact min=6.71 max=8.27 -->
 <!-- lecture de 4000 sous-titres min=2082230.0 max=3280000.0 -->
-<!-- écriture de 4000 sous-titres min=488279.0 max=636000.0 -->
+<!-- écriture de 4000 sous-titres min=488279.0 max=777610.0 -->
 <!-- décalage de 4000 sous-titres min=6568.55 max=10700.0 -->
 <!-- décalage puis annulation min=12794.1 max=20700.0 -->
 <!-- transformation de 4000 sous-titres min=68317.9 max=91500.0 -->
@@ -367,7 +367,7 @@ pas le sujet de ce ticket.
 <!-- modification d'un texte, à travers une session min=114.0 max=227.528 -->
 <!-- suppression des mentions sur 4000 sous-titres min=853000.0 max=5676890.0 -->
 <!-- suppression puis annulation min=213280.0 max=300000.0 -->
-<!-- construction du modèle sur 4000 sous-titres min=59.2521 max=12849.6 -->
+<!-- construction du modèle sur 4000 sous-titres min=59.2521 max=12924.0 -->
 <!-- une fenêtre de 40 lignes, cinq colonnes min=14699.7 max=28872.4 -->
 <!-- rafraîchir après un décalage de 4000 sous-titres min=26.4 max=13098.8 -->
 <!-- édition d'une cellule de texte min=370.791 max=496.0 -->
@@ -386,6 +386,41 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.8.19 — 2026-09-04 — Release — charge 1.43 — allure ×1.00
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| la réplique en cours, sur 4000 sous-titres | 5.08 µs | 1.77 µs |
+| composer une réplique de deux lignes | 186 ns | 40.5 ns |
+| ouvrir une vidéo | 9.54 ms | 916 µs |
+| chercher une position | 591 µs | 181 µs |
+| construction du modèle sur 4000 sous-titres | 12.9 µs | 3.43 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 17.6 µs | 699 ns |
+| rafraîchir après un décalage de 4000 sous-titres | 14.8 µs | 8.67 µs |
+| réinitialisation du modèle après une ligne retirée | 10.7 µs | 4.58 µs |
+| édition d'une cellule de texte | 786 ns | 628 ns |
+| édition d'une cellule de position | 11.1 µs | 1.03 µs |
+| versionString | 37.9 ns | 1.92 ns |
+| parse | 40.8 ns | 6.88 ns |
+| format | 42.5 ns | 0.829 ns |
+| position vers image | 7.79 ns | 1.37 ns |
+| image vers position | 7.83 ns | 2.3 ns |
+| mise à l'échelle par un rationnel exact | 7.7 ns | 0.0785 ns |
+| lecture de 4000 sous-titres | 2.6 ms | 151 µs |
+| écriture de 4000 sous-titres | 778 µs | 94.5 µs |
+| décalage de 4000 sous-titres | 7.78 µs | 1.69 µs |
+| décalage puis annulation | 13.7 µs | 3.73 µs |
+| transformation de 4000 sous-titres | 87.8 µs | 11.7 µs |
+| conversion de fréquence sur 4000 sous-titres | 78.8 µs | 8.55 µs |
+| alignement sur 4000 sous-titres | 146 µs | 20 µs |
+| tri de 4000 sous-titres à l'envers | 330 µs | 106 µs |
+| suppression d'un sous-titre sur deux | 163 µs | 26.4 µs |
+| suppression puis annulation | 275 µs | 23.3 µs |
+| insertion de 100 sous-titres vides au milieu | 61.1 µs | 16.4 µs |
+| modification d'un texte, à travers une session | 185 ns | 84 ns |
+| suppression des mentions sur 4000 sous-titres | 1.29 ms | 345 µs |
+| déduction de fréquence sur 4000 sous-titres | 429 µs | 23.8 µs |
 
 ### 0.8.16 — 2026-09-03 — Release — charge 1.05 — allure ×1.11
 

@@ -1,6 +1,7 @@
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/wording.hpp>
 
 #include <charconv>
@@ -29,6 +30,7 @@ constexpr std::string_view kTableShareKey = "window.table-share";
 constexpr std::string_view kDirectoryKey = "file.directory";
 constexpr std::string_view kThemeKey = "general.theme";
 constexpr std::string_view kInsertPlacementKey = "edit.insert-placement";
+constexpr std::string_view kWriteEncodingKey = "file.write-encoding";
 
 // Les trois valeurs du thème, telles que le fichier les porte. En minuscules et
 // séparées de `nameOf(Theme)`, qui donne les intitulés du dialogue : ceci est un
@@ -232,6 +234,12 @@ void applyOption(SettingsRead& read, std::string_view key, std::string_view valu
         take(themeOf(value), read.settings.theme);
     else if (key == kInsertPlacementKey)
         take(placementOf(value), read.settings.insertPlacement);
+    else if (key == kWriteEncodingKey)
+        // Le nom que la marque ne concerne pas : un réglage nomme un encodage,
+        // et `--bom` — ou la case du dialogue — dit ce qu'il en est de la
+        // marque. Un nom qu'ICU ne sait pas convertir est un réglage illisible,
+        // qui se signale comme les autres.
+        take(Encoding::create(value, ByteOrderMark::Absent), read.settings.writeEncoding);
 }
 
 /// Une option, écrite nue si elle est réglée, commentée si elle est au défaut.
@@ -321,6 +329,12 @@ std::string renderSettings(const Settings& settings) {
                 kInsertPlacementKey,
                 std::string{textOf(settings.insertPlacement)},
                 settings.insertPlacement == InsertPlacement::Below);
+
+    writeOption(out,
+                kWriteEncodingKey,
+                settings.writeEncoding.has_value() ? std::string{settings.writeEncoding->charset()}
+                                                   : "UTF-8",
+                !settings.writeEncoding.has_value());
 
     return out;
 }

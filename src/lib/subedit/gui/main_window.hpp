@@ -476,6 +476,15 @@ private:
     /// fois mais dix fois de suite, toujours du même côté.
     core::InsertPlacement m_insertPlacement = core::InsertPlacement::Below;
 
+    /// Le dernier encodage choisi dans `Save As…`, absent tant qu'aucun ne l'a
+    /// été.
+    ///
+    /// **Il ne sert qu'au document qui n'a pas de fichier.** Un document ouvert
+    /// porte le sien, et c'est celui-là que la boîte propose : l'aller-retour
+    /// d'octets de la phase 8 est cette promesse, et un réglage ne la défait
+    /// pas dans le dos de qui enregistre.
+    std::optional<core::Encoding> m_writeEncoding;
+
     /// La racine du manuel installé, ou rien.
     std::filesystem::path m_manualDirectory;
 
