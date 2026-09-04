@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Corrections
+
+- **core** — Un encodage qui écrit sa propre marque est refusé
+
+## 0.9.0 — 2026-09-04
+
 ### Ajouts
 
 - **gui** — Le manuel rendu par les outils qui comptent
