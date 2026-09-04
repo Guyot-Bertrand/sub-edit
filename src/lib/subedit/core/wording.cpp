@@ -165,6 +165,8 @@ std::string_view nameOf(DiagnosticKind kind) {
         return "more than one kind of line ending";
     case DiagnosticKind::GuessedEncoding:
         return "an encoding nothing declared";
+    case DiagnosticKind::MarkOverridesEncoding:
+        return "a byte order mark that contradicts the encoding asked for";
     }
     std::unreachable();
 }

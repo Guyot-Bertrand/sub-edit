@@ -7,6 +7,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -48,6 +49,7 @@ Run convert(const std::string& content, FrameRate input, FrameRate output) {
 
     const ExitCode code = convertFrameRateAll(files,
                                               {"a.srt"},
+                                              std::nullopt,
                                               input,
                                               output,
                                               Destination::from("", "out", false, 1).value(),
@@ -109,6 +111,7 @@ TEST_CASE("the format of the file read is kept", "[cli][frame-rate]") {
 
     CHECK(convertFrameRateAll(files,
                               {"a.vtt"},
+                              std::nullopt,
                               kPal,
                               kNtscFilm,
                               Destination::from("", "out", false, 1).value(),
@@ -132,6 +135,7 @@ TEST_CASE("a batch retimes what it can and counts the rest", "[cli][frame-rate]"
 
     const ExitCode code = convertFrameRateAll(files,
                                               {"absent.srt", "good.srt"},
+                                              std::nullopt,
                                               kPal,
                                               kNtscFilm,
                                               Destination::from("", "out", false, 2).value(),

@@ -10,6 +10,7 @@
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/wording.hpp>
@@ -24,10 +25,12 @@ namespace {
 /// Reads, operates, writes. Returns true when the file was written.
 bool rewriteFile(core::FileSystem& files,
                  const std::string& path,
+                 const std::optional<core::Encoding>& reading,
                  const Destination& destination,
                  const Reporter& reporter,
                  const Operation& operation) {
-    std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(files, path);
+    std::expected<core::OpenedFile, core::OpenError> opened =
+        reading ? core::openProject(files, path, *reading) : core::openProject(files, path);
     if (!opened) {
         reporter.failed(path + ": " + std::string{reasonOf(opened.error())});
         return false;
@@ -76,13 +79,14 @@ bool rewriteFile(core::FileSystem& files,
 
 ExitCode rewriteAll(core::FileSystem& files,
                     const std::vector<std::string>& paths,
+                    const std::optional<core::Encoding>& reading,
                     const Destination& destination,
                     const Reporter& reporter,
                     std::string_view verb,
                     const Operation& operation) {
     std::size_t done = 0;
     for (const std::string& path : paths) {
-        if (rewriteFile(files, path, destination, reporter, operation)) {
+        if (rewriteFile(files, path, reading, destination, reporter, operation)) {
             ++done;
         }
     }

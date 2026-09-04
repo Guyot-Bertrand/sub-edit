@@ -21,6 +21,7 @@ namespace subedit::cli {
 
 ExitCode shiftAll(core::FileSystem& files,
                   const std::vector<std::string>& paths,
+                  const std::optional<core::Encoding>& reading,
                   core::Duration by,
                   const Destination& destination,
                   const Reporter& reporter) {
@@ -43,11 +44,12 @@ ExitCode shiftAll(core::FileSystem& files,
                core::secondsOf(by);
     };
 
-    return rewriteAll(files, paths, destination, reporter, "shifted", shift);
+    return rewriteAll(files, paths, reading, destination, reporter, "shifted", shift);
 }
 
 ExitCode shiftOntoGridAll(core::FileSystem& files,
                           const std::vector<std::string>& paths,
+                          const std::optional<core::Encoding>& reading,
                           const Destination& destination,
                           const Reporter& reporter) {
     const Operation onto = [](core::Session& session) -> std::expected<std::string, std::string> {
@@ -73,7 +75,7 @@ ExitCode shiftOntoGridAll(core::FileSystem& files,
                core::secondsOf(*by) + " onto their " + nameOf(grid.retained.rate) + " fps grid";
     };
 
-    return rewriteAll(files, paths, destination, reporter, "shifted", onto);
+    return rewriteAll(files, paths, reading, destination, reporter, "shifted", onto);
 }
 
 } // namespace subedit::cli

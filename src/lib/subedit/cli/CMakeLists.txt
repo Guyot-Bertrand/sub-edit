@@ -16,6 +16,7 @@ add_library(
     aligning.cpp
     batch.cpp
     destination.cpp
+    encoding_grammar.cpp
     diagnostics.cpp
     digits.cpp
     frame_rate_conversion.cpp

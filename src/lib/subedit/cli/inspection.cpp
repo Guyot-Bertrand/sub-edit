@@ -9,6 +9,7 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
@@ -47,18 +48,19 @@ std::string lineEndings(core::Newline newline, const std::vector<core::Diagnosti
 
 /// The encoding, and how the reading arrived at it.
 ///
-/// **Two answers, and the file decides which**: a mark is the one thing a
-/// subtitle file says about its own encoding, and everything else was proposed
-/// by weighing the bytes. Saying which of the two it was is what lets a reader
-/// know whether to trust the line — a mark is a declaration, a detection is a
-/// proposal, and Latin-1 and CP1252 are the same bytes on most texts.
+/// **Three answers, and they are not worth the same**: a mark is what the file
+/// declares, an encoding asked for is what the user decided, and a detection is
+/// a proposal that Latin-1 and CP1252 can both fit. Saying which of the three
+/// it was is what lets a reader know whether to trust the line.
 ///
-/// The third answer — the encoding the user imposed — comes with the option
-/// that lets them impose one.
-std::string encoding(const core::Encoding& read) {
-    return std::string{read.charset()} + (read.byteOrderMark() == core::ByteOrderMark::Present
-                                              ? ", from its byte order mark"
-                                              : ", detected");
+/// The mark comes first here as it does in the reading: a file that declares
+/// its encoding is not read against its own word, even when another was asked
+/// for — and the reading says so in its diagnostics.
+std::string encoding(const core::Encoding& read, bool asked) {
+    if (read.byteOrderMark() == core::ByteOrderMark::Present)
+        return std::string{read.charset()} + ", from its byte order mark";
+
+    return std::string{read.charset()} + (asked ? ", as asked for" : ", detected");
 }
 
 /// The whole stretch the subtitles cover: the earliest start and the latest
@@ -154,9 +156,11 @@ std::string anomalies(const core::Project& project) {
 
 bool inspectFile(const core::FileSystem& files,
                  const std::string& path,
+                 const std::optional<core::Encoding>& reading,
                  std::ostream& out,
                  const Reporter& reporter) {
-    const std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(files, path);
+    const std::expected<core::OpenedFile, core::OpenError> opened =
+        reading ? core::openProject(files, path, *reading) : core::openProject(files, path);
     if (!opened) {
         reporter.failed(path + ": " + std::string{reasonOf(opened.error())});
         return false;
@@ -182,7 +186,7 @@ bool inspectFile(const core::FileSystem& files,
 
     out << path << '\n';
     out << "  format: " << nameOf(source.format) << '\n';
-    out << "  encoding: " << encoding(source.encoding) << '\n';
+    out << "  encoding: " << encoding(source.encoding, reading.has_value()) << '\n';
     out << "  byte order mark: "
         << (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "present" : "absent")
         << '\n';
@@ -197,11 +201,12 @@ bool inspectFile(const core::FileSystem& files,
 
 ExitCode inspectAll(const core::FileSystem& files,
                     const std::vector<std::string>& paths,
+                    const std::optional<core::Encoding>& reading,
                     std::ostream& out,
                     const Reporter& reporter) {
     std::size_t done = 0;
     for (const std::string& path : paths) {
-        if (inspectFile(files, path, out, reporter)) {
+        if (inspectFile(files, path, reading, out, reporter)) {
             ++done;
         }
     }

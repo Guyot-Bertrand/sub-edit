@@ -3,8 +3,10 @@
 // Laying every position of a file back onto the frames of a rate.
 
 #include <subedit/cli/exit_code.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -29,6 +31,7 @@ class Reporter;
 /// what tells a user in one line which of the two they just ran.
 [[nodiscard]] ExitCode alignAll(subedit::core::FileSystem& files,
                                 const std::vector<std::string>& paths,
+                                const std::optional<subedit::core::Encoding>& reading,
                                 subedit::core::FrameRate rate,
                                 const Destination& destination,
                                 const Reporter& reporter);

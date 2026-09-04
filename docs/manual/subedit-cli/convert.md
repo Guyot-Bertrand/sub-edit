@@ -2,7 +2,8 @@
 
 ```
 subedit-cli convert --to srt|vtt
-                    [--line-endings unix|windows|mac] [--bom | --no-bom]
+                    [--line-endings unix|windows|mac] [--to-encoding NOM]
+                    [--bom | --no-bom]
                     (--output FICHIER | --output-dir DOSSIER | --in-place)
                     <fichier>...
 ```
@@ -25,6 +26,7 @@ Options:
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
+  --to-encoding NAME          Encoding to write; the source's by default
   --bom                       Write a byte order mark
   --no-bom                    Write no byte order mark
   --output TEXT               File to write, for a single input
@@ -39,10 +41,33 @@ Options:
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
 | `--to` | **oui** | `srt` ou `vtt`, et rien d'autre | — |
 | `--line-endings` | non | `unix`, `windows` ou `mac` | celles du fichier lu |
+| `--to-encoding` | non | tout encodage qu'ICU sait écrire | celui du fichier lu |
 | `--bom` / `--no-bom` | non | drapeaux, exclusifs l'un de l'autre | ce que portait le fichier lu |
 | `--output` / `--output-dir` / `--in-place` | l'une des trois | voir [Invocation](invocation.md#la-destination) | — |
 
 `mac` désigne le retour chariot seul (`\r`), la fin de ligne du Mac OS classique.
+
+## Changer d'encodage
+
+**`--to-encoding` choisit l'encodage écrit ; `--encoding` dit celui qui est
+lu.** Les deux ensemble réencodent un fichier :
+
+```console
+$ subedit-cli convert --to srt --encoding cp1252 --to-encoding utf-8 \
+      --output-dir sortie film.srt
+```
+
+Sans `--to-encoding`, le fichier est réécrit dans **l'encodage où il a été lu**,
+comme il l'est avec ses fins de ligne et sa marque : un fichier converti sans
+consigne d'encodage rend les mêmes caractères, aux mêmes octets.
+
+**Un caractère que l'encodage cible ne sait pas écrire arrête le fichier**, et
+rien n'est écrit. Un `ł` n'a pas de place en Latin-1 ; le remplacer par un `?`
+perdrait du texte entre la lecture et l'écriture, sans que personne le voie.
+
+**Une marque d'ordre des octets n'existe que pour les encodages Unicode.**
+`--bom` avec un `--to-encoding` qui n'en porte pas est refusé plutôt qu'ignoré
+— voir la table des erreurs ci-dessous.
 
 ## La destination
 
@@ -106,6 +131,8 @@ certains seulement, `1` sur une erreur d'usage.
 | `--bom` avec `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` qui change le format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
 | `--bom` sur un encodage qui n'en a pas | `<chemin>: <encodage> has no byte order mark to write` |
+| `--to-encoding` nommant un encodage inconnu | `no encoding is named "<nom>"` |
+| caractère absent de l'encodage écrit | `<chemin>: holds a character the chosen encoding cannot write` |
 
 **Le dernier n'est pas une pédanterie.** Une marque d'ordre des octets existe
 pour les encodages Unicode et pour aucun autre : la demander sur un fichier en

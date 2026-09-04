@@ -27,11 +27,13 @@ using core::SubtitleFormat;
 /// Converts one file. Returns true when it was written.
 bool convertFile(core::FileSystem& files,
                  const std::string& path,
+                 const std::optional<core::Encoding>& reading,
                  SubtitleFormat target,
                  const WriteShape& shape,
                  const Destination& destination,
                  const Reporter& reporter) {
-    const std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(files, path);
+    const std::expected<core::OpenedFile, core::OpenError> opened =
+        reading ? core::openProject(files, path, *reading) : core::openProject(files, path);
     if (!opened) {
         reporter.failed(path + ": " + std::string{reasonOf(opened.error())});
         return false;
@@ -42,8 +44,10 @@ bool convertFile(core::FileSystem& files,
     // Empty means "as the source had it": the model kept both so that a
     // conversion would not throw them away.
     const core::Newline newline = shape.newline.value_or(source.newline);
-    const core::Encoding encoding =
-        shape.bom ? source.encoding.withByteOrderMark(*shape.bom) : source.encoding;
+    // The source's unless another is asked for, exactly as the line ending and
+    // the mark are — and the mark asked for is put on whichever of the two.
+    const core::Encoding asked = shape.encoding.value_or(source.encoding);
+    const core::Encoding encoding = shape.bom ? asked.withByteOrderMark(*shape.bom) : asked;
 
     // **`--bom` on an encoding that has none is refused, not ignored.** A byte
     // order mark exists for the Unicode encodings and for no other, so asking
@@ -101,13 +105,14 @@ bool wouldMisname(const std::vector<std::string>& paths, SubtitleFormat target) 
 
 ExitCode convertAll(core::FileSystem& files,
                     const std::vector<std::string>& paths,
+                    const std::optional<core::Encoding>& reading,
                     SubtitleFormat target,
                     const WriteShape& shape,
                     const Destination& destination,
                     const Reporter& reporter) {
     std::size_t done = 0;
     for (const std::string& path : paths) {
-        if (convertFile(files, path, target, shape, destination, reporter)) {
+        if (convertFile(files, path, reading, target, shape, destination, reporter)) {
             ++done;
         }
     }

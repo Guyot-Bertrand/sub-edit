@@ -4,8 +4,10 @@
 
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/cli/index_grammar.hpp>
+#include <subedit/core/model/encoding.hpp>
 
 #include <expected>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -62,6 +64,7 @@ private:
 /// player reads, so writing it would be worse than refusing.
 [[nodiscard]] ExitCode transformAll(subedit::core::FileSystem& files,
                                     const std::vector<std::string>& paths,
+                                    const std::optional<subedit::core::Encoding>& reading,
                                     const Transform& transform,
                                     const Destination& destination,
                                     const Reporter& reporter);

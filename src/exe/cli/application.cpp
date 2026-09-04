@@ -3,6 +3,7 @@
 #include <subedit/cli/aligning.hpp>
 #include <subedit/cli/conversion.hpp>
 #include <subedit/cli/destination.hpp>
+#include <subedit/cli/encoding_grammar.hpp>
 #include <subedit/cli/frame_rate_conversion.hpp>
 #include <subedit/cli/frame_rate_grammar.hpp>
 #include <subedit/cli/hearing_impaired.hpp>
@@ -20,6 +21,7 @@
 #include <cstddef>
 #include <expected>
 #include <iostream>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -80,6 +82,7 @@ struct ConvertOptions {
     std::vector<std::string> files;
     std::string target;
     std::string lineEndings;
+    std::string encoding;
     bool bom = false;
     bool noBom = false;
     DestinationOptions destination;
@@ -111,6 +114,10 @@ CLI::App* describeConvert(CLI::App& app, ConvertOptions& options) {
         ->add_option(
             "--line-endings", options.lineEndings, "Line endings to write; the source's by default")
         ->check(CLI::IsMember({"unix", "windows", "mac"}));
+    convert
+        ->add_option(
+            "--to-encoding", options.encoding, "Encoding to write; the source's by default")
+        ->option_text("NAME");
     convert->add_flag("--bom", options.bom, "Write a byte order mark");
     convert->add_flag("--no-bom", options.noBom, "Write no byte order mark");
 
@@ -144,7 +151,10 @@ CLI::App* describeShift(CLI::App& app, ShiftOptions& options) {
     return shift;
 }
 
-ExitCode runShift(const ShiftOptions& options, core::FileSystem& files, const Reporter& reporter) {
+ExitCode runShift(const ShiftOptions& options,
+                  core::FileSystem& files,
+                  const std::optional<core::Encoding>& reading,
+                  const Reporter& reporter) {
     const std::expected<Destination, std::string> destination =
         destinationOf(options.destination, options.files.size());
     if (!destination) {
@@ -158,7 +168,7 @@ ExitCode runShift(const ShiftOptions& options, core::FileSystem& files, const Re
     // Measured rather than given, and file by file: two files shifted off the
     // same grid by different amounts come back by different amounts.
     if (options.toGrid) {
-        return shiftOntoGridAll(files, options.files, *destination, reporter);
+        return shiftOntoGridAll(files, options.files, reading, *destination, reporter);
     }
 
     if (options.by.empty()) {
@@ -170,7 +180,7 @@ ExitCode runShift(const ShiftOptions& options, core::FileSystem& files, const Re
         return refuse(by.error());
     }
 
-    return shiftAll(files, options.files, *by, *destination, reporter);
+    return shiftAll(files, options.files, reading, *by, *destination, reporter);
 }
 
 /// What `snap` was asked for.
@@ -190,7 +200,10 @@ CLI::App* describeSnap(CLI::App& app, SnapOptions& options) {
     return snap;
 }
 
-ExitCode runSnap(const SnapOptions& options, core::FileSystem& files, const Reporter& reporter) {
+ExitCode runSnap(const SnapOptions& options,
+                 core::FileSystem& files,
+                 const std::optional<core::Encoding>& reading,
+                 const Reporter& reporter) {
     const std::expected<core::FrameRate, std::string> rate = parseFrameRate(options.rate);
     if (!rate) {
         return refuse(rate.error());
@@ -202,7 +215,7 @@ ExitCode runSnap(const SnapOptions& options, core::FileSystem& files, const Repo
         return refuse(destination.error());
     }
 
-    return alignAll(files, options.files, *rate, *destination, reporter);
+    return alignAll(files, options.files, reading, *rate, *destination, reporter);
 }
 
 /// What `hearing-impaired` was asked for.
@@ -226,6 +239,7 @@ CLI::App* describeHearingImpaired(CLI::App& app, HearingImpairedOptions& options
 
 ExitCode runHearingImpaired(const HearingImpairedOptions& options,
                             core::FileSystem& files,
+                            const std::optional<core::Encoding>& reading,
                             const Reporter& reporter) {
     const std::expected<Destination, std::string> destination =
         destinationOf(options.destination, options.files.size());
@@ -233,7 +247,7 @@ ExitCode runHearingImpaired(const HearingImpairedOptions& options,
         return refuse(destination.error());
     }
 
-    return removeHearingImpairedIn(files, options.files, *destination, reporter);
+    return removeHearingImpairedIn(files, options.files, reading, *destination, reporter);
 }
 
 /// What `transform` was asked for.
@@ -260,8 +274,10 @@ CLI::App* describeTransform(CLI::App& app, TransformOptions& options) {
     return transform;
 }
 
-ExitCode
-runTransform(const TransformOptions& options, core::FileSystem& files, const Reporter& reporter) {
+ExitCode runTransform(const TransformOptions& options,
+                      core::FileSystem& files,
+                      const std::optional<core::Encoding>& reading,
+                      const Reporter& reporter) {
     const std::expected<Reference, std::string> first = parseReference(options.first);
     if (!first) {
         return refuse(first.error());
@@ -283,7 +299,7 @@ runTransform(const TransformOptions& options, core::FileSystem& files, const Rep
         return refuse(destination.error());
     }
 
-    return transformAll(files, options.files, *transform, *destination, reporter);
+    return transformAll(files, options.files, reading, *transform, *destination, reporter);
 }
 
 /// What `framerate` was asked for.
@@ -306,8 +322,10 @@ CLI::App* describeFrameRate(CLI::App& app, FrameRateOptions& options) {
     return framerate;
 }
 
-ExitCode
-runFrameRate(const FrameRateOptions& options, core::FileSystem& files, const Reporter& reporter) {
+ExitCode runFrameRate(const FrameRateOptions& options,
+                      core::FileSystem& files,
+                      const std::optional<core::Encoding>& reading,
+                      const Reporter& reporter) {
     const std::expected<core::FrameRate, std::string> from = parseFrameRate(options.from);
     if (!from) {
         return refuse(from.error());
@@ -324,7 +342,7 @@ runFrameRate(const FrameRateOptions& options, core::FileSystem& files, const Rep
         return refuse(destination.error());
     }
 
-    return convertFrameRateAll(files, options.files, *from, *to, *destination, reporter);
+    return convertFrameRateAll(files, options.files, reading, *from, *to, *destination, reporter);
 }
 
 core::Newline newlineNamed(const std::string& name) {
@@ -344,6 +362,13 @@ std::expected<WriteShape, std::string> shapeOf(const ConvertOptions& options) {
     if (!options.lineEndings.empty()) {
         shape.newline = newlineNamed(options.lineEndings);
     }
+    if (!options.encoding.empty()) {
+        const std::expected<core::Encoding, std::string> named = encodingNamed(options.encoding);
+        if (!named) {
+            return std::unexpected(named.error());
+        }
+        shape.encoding = *named;
+    }
     if (options.bom) {
         shape.bom = core::ByteOrderMark::Present;
     }
@@ -353,8 +378,10 @@ std::expected<WriteShape, std::string> shapeOf(const ConvertOptions& options) {
     return shape;
 }
 
-ExitCode
-runConvert(const ConvertOptions& options, core::FileSystem& files, const Reporter& reporter) {
+ExitCode runConvert(const ConvertOptions& options,
+                    core::FileSystem& files,
+                    const std::optional<core::Encoding>& reading,
+                    const Reporter& reporter) {
     const core::SubtitleFormat target =
         options.target == "vtt" ? core::SubtitleFormat::WebVtt : core::SubtitleFormat::SubRip;
 
@@ -377,12 +404,14 @@ runConvert(const ConvertOptions& options, core::FileSystem& files, const Reporte
         return refuse(destination.error());
     }
 
-    return convertAll(files, options.files, target, *shape, *destination, reporter);
+    return convertAll(files, options.files, reading, target, *shape, *destination, reporter);
 }
 
-ExitCode
-runInspect(const InspectOptions& options, const core::FileSystem& files, const Reporter& reporter) {
-    return inspectAll(files, options.files, std::cout, reporter);
+ExitCode runInspect(const InspectOptions& options,
+                    const core::FileSystem& files,
+                    const std::optional<core::Encoding>& reading,
+                    const Reporter& reporter) {
+    return inspectAll(files, options.files, reading, std::cout, reporter);
 }
 
 } // namespace
@@ -405,6 +434,13 @@ ExitCode run(int argc, char** argv) {
 
     bool quiet = false;
     app.add_flag("-q,--quiet", quiet, "Say nothing but errors");
+
+    // **Global, because every subcommand reads.** A file whose encoding is
+    // guessed wrong is guessed wrong whatever is being done to it, and an
+    // option that only `inspect` carried would leave a shift no way to be told.
+    std::string reading;
+    app.add_option("--encoding", reading, "Encoding to read the files in; detected by default")
+        ->option_text("NAME");
 
     InspectOptions inspectOptions;
     const CLI::App* inspect = describeInspect(app, inspectOptions);
@@ -442,29 +478,40 @@ ExitCode run(int argc, char** argv) {
         return ExitCode::Success;
     }
 
+    // Read once and for every file: an encoding that names nothing is a usage
+    // error, answered while the user is still being asked something.
+    std::optional<core::Encoding> encoding;
+    if (!reading.empty()) {
+        const std::expected<core::Encoding, std::string> named = encodingNamed(reading);
+        if (!named) {
+            return refuse(named.error());
+        }
+        encoding = *named;
+    }
+
     core::RealFileSystem files;
     const Reporter reporter{std::cerr, *level};
 
     if (inspect->parsed()) {
-        return runInspect(inspectOptions, files, reporter);
+        return runInspect(inspectOptions, files, encoding, reporter);
     }
     if (convert->parsed()) {
-        return runConvert(convertOptions, files, reporter);
+        return runConvert(convertOptions, files, encoding, reporter);
     }
     if (shift->parsed()) {
-        return runShift(shiftOptions, files, reporter);
+        return runShift(shiftOptions, files, encoding, reporter);
     }
     if (transform->parsed()) {
-        return runTransform(transformOptions, files, reporter);
+        return runTransform(transformOptions, files, encoding, reporter);
     }
     if (framerate->parsed()) {
-        return runFrameRate(frameRateOptions, files, reporter);
+        return runFrameRate(frameRateOptions, files, encoding, reporter);
     }
     if (snap->parsed()) {
-        return runSnap(snapOptions, files, reporter);
+        return runSnap(snapOptions, files, encoding, reporter);
     }
     if (hearing->parsed()) {
-        return runHearingImpaired(hearingOptions, files, reporter);
+        return runHearingImpaired(hearingOptions, files, encoding, reporter);
     }
     return ExitCode::Success;
 }

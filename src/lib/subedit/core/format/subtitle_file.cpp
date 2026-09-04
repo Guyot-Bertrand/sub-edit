@@ -65,12 +65,18 @@ namespace {
 
 std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
                                                    const Encoding& encoding) {
-    // The mark comes off first, and the bytes are what decide it was there: a
-    // converter would not take it off — to it, it is a zero-width space at the
-    // head of the first subtitle.
-    const Encoding read = encoding.withByteOrderMark(startsWithByteOrderMark(content, encoding)
-                                                         ? ByteOrderMark::Present
-                                                         : ByteOrderMark::Absent);
+    // **The mark wins, even against the encoding it was given.** It is the only
+    // thing a subtitle file declares about itself, and reading it otherwise
+    // than it declares would be obeying a caller against the file's own word.
+    // Gaupol settles it the same way — `open_main` starts the reading again
+    // with the encoding of the mark — and says nothing; here the gap between
+    // what was asked and what was done is a diagnostic, below.
+    //
+    // The mark also comes off before anything else: a converter would not take
+    // it off, since to it, it is a zero-width space at the head of the first
+    // subtitle.
+    const std::optional<Encoding> declared = byteOrderMarkAt(content);
+    const Encoding read = declared.value_or(encoding.withByteOrderMark(ByteOrderMark::Absent));
 
     // The encoding comes next: what follows reads text, and bytes that do not
     // decode are not text.
@@ -96,6 +102,21 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
         return result;
 
     result->encoding = read;
+
+    if (declared.has_value() && declared->charset() != encoding.charset())
+        // First, because it happened first: the mark was read before a single
+        // line was.
+        result->diagnostics.insert(result->diagnostics.begin(),
+                                   Diagnostic{
+                                       .severity = Severity::Recovered,
+                                       .line = kWholeFile,
+                                       .kind = DiagnosticKind::MarkOverridesEncoding,
+                                       // The charset alone: that a mark is
+                                       // there is the whole subject of the
+                                       // sentence, so `-sig` would say it
+                                       // twice.
+                                       .detail = std::string{read.charset()},
+                                   });
 
     const NewlineScan scan = scanNewlines(text);
     result->newline = scan.newline;

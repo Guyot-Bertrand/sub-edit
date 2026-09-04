@@ -7,6 +7,7 @@
 // follows therefore names the encoding of each, and asserts on the text that
 // comes out.
 
+#include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
@@ -29,6 +30,7 @@
 namespace {
 
 using subedit::core::ByteOrderMark;
+using subedit::core::DiagnosticKind;
 using subedit::core::Encoding;
 using subedit::core::Newline;
 using subedit::core::ReadError;
@@ -209,6 +211,33 @@ TEST_CASE("a mark is taken off rather than left at the head of the first line",
         REQUIRE_FALSE(result->subtitles.empty());
         CHECK(result->subtitles[0].mainText.starts_with("Le port"));
     }
+}
+
+TEST_CASE("a mark wins over the encoding it was given, and the reading says so",
+          "[format][encoding][corpus]") {
+    // The only declaration a subtitle file carries. Reading it otherwise than
+    // it declares itself would obey a caller against the file's own word —
+    // Gaupol settles it the same way, and says nothing; the gap between what
+    // was asked and what was done is a diagnostic here.
+    const std::expected<ReadResult, ReadError> result =
+        readSubtitles(bytesOf("utf-16-le-bom.srt"), named("windows-1252", ByteOrderMark::Absent));
+
+    REQUIRE(result.has_value());
+    CHECK(result->encoding == named("utf-16-le", ByteOrderMark::Present));
+    REQUIRE_FALSE(result->diagnostics.empty());
+    CHECK(result->diagnostics[0].kind == DiagnosticKind::MarkOverridesEncoding);
+    CHECK(result->diagnostics[0].detail == "UTF-16LE");
+    CHECK(result->diagnostics[0].line == subedit::core::kWholeFile);
+}
+
+TEST_CASE("a mark that agrees with the encoding given says nothing", "[format][encoding][corpus]") {
+    // Nothing was contradicted, so there is nothing to report: a diagnostic
+    // that fires on agreement is a panel under every ordinary file.
+    const std::expected<ReadResult, ReadError> result =
+        readSubtitles(bytesOf("utf-8-bom-crlf.srt"), named("utf-8", ByteOrderMark::Absent));
+
+    REQUIRE(result.has_value());
+    CHECK(result->diagnostics.empty());
 }
 
 TEST_CASE("a file read in the wrong encoding is refused rather than mangled",

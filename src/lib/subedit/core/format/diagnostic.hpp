@@ -42,6 +42,7 @@ enum class DiagnosticKind {
     UnknownBlock,           ///< a WebVTT block of an unknown kind
     MixedNewlines,          ///< several line endings in the same file
     GuessedEncoding,        ///< the encoding was proposed by weighing the bytes
+    MarkOverridesEncoding,  ///< a byte order mark against the encoding asked for
 };
 
 /// The line a diagnostic about the whole file points at.

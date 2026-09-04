@@ -3,9 +3,11 @@
 // Reading a file, changing what it holds, writing it back as it was found.
 
 #include <subedit/cli/exit_code.hpp>
+#include <subedit/core/model/encoding.hpp>
 
 #include <expected>
 #include <functional>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -45,6 +47,7 @@ using Operation = std::function<std::expected<std::string, std::string>(subedit:
 /// shifted ». What each file gets is the phrase the operation itself returned.
 [[nodiscard]] ExitCode rewriteAll(subedit::core::FileSystem& files,
                                   const std::vector<std::string>& paths,
+                                  const std::optional<subedit::core::Encoding>& reading,
                                   const Destination& destination,
                                   const Reporter& reporter,
                                   std::string_view verb,

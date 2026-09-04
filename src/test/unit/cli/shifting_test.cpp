@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <grid_fixtures.hpp>
 #include <iomanip>
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -44,6 +45,7 @@ Run shift(const std::string& content, std::int64_t milliseconds) {
 
     const ExitCode code = shiftAll(files,
                                    {"a.srt"},
+                                   std::nullopt,
                                    Duration::fromMilliseconds(milliseconds),
                                    Destination::from("", "out", false, 1).value(),
                                    Reporter{errors, 1});
@@ -83,6 +85,7 @@ TEST_CASE("the format of the file read is kept", "[cli][shifting]") {
 
     CHECK(shiftAll(files,
                    {"a.vtt"},
+                   std::nullopt,
                    Duration::fromMilliseconds(1'000),
                    Destination::from("", "out", false, 1).value(),
                    Reporter{errors, 0}) == ExitCode::Success);
@@ -130,6 +133,7 @@ TEST_CASE("a batch shifts what it can and counts the rest", "[cli][shifting]") {
 
     const ExitCode code = shiftAll(files,
                                    {"absent.srt", "good.srt"},
+                                   std::nullopt,
                                    Duration::fromMilliseconds(1'000),
                                    Destination::from("", "out", false, 2).value(),
                                    Reporter{errors, 1});
@@ -147,6 +151,7 @@ TEST_CASE("a file in no known format is refused by the shift too", "[cli][shifti
 
     const ExitCode code = shiftAll(files,
                                    {"a.srt"},
+                                   std::nullopt,
                                    Duration::fromMilliseconds(1'000),
                                    Destination::from("", "out", false, 1).value(),
                                    Reporter{errors, 0});
@@ -163,6 +168,7 @@ TEST_CASE("a shift that cannot be written is reported and counted", "[cli][shift
 
     const ExitCode code = shiftAll(files,
                                    {"a.srt"},
+                                   std::nullopt,
                                    Duration::fromMilliseconds(1'000),
                                    Destination::from("", "out", false, 1).value(),
                                    Reporter{errors, 0});
@@ -185,8 +191,12 @@ TEST_CASE("shifting onto the grid measures its own amount", "[cli][shifting]") {
     files.addFile("a.srt", subedit::test::gridBytes("grille-24-decalee.srt"));
     std::ostringstream errors;
 
-    const ExitCode code = subedit::cli::shiftOntoGridAll(
-        files, {"a.srt"}, Destination::from("", "out", false, 1).value(), Reporter{errors, 1});
+    const ExitCode code =
+        subedit::cli::shiftOntoGridAll(files,
+                                       {"a.srt"},
+                                       std::nullopt,
+                                       Destination::from("", "out", false, 1).value(),
+                                       Reporter{errors, 1});
 
     CHECK(code == ExitCode::Success);
     CHECK_THAT(errors.str(), ContainsSubstring(" shifted by 0.001 s onto their 24 fps grid"));
@@ -200,8 +210,12 @@ TEST_CASE("shifting onto the grid refuses a file that has none", "[cli][shifting
     files.addFile("a.srt", subedit::test::gridBytes("grille-absurde.srt"));
     std::ostringstream errors;
 
-    const ExitCode code = subedit::cli::shiftOntoGridAll(
-        files, {"a.srt"}, Destination::from("", "out", false, 1).value(), Reporter{errors, 1});
+    const ExitCode code =
+        subedit::cli::shiftOntoGridAll(files,
+                                       {"a.srt"},
+                                       std::nullopt,
+                                       Destination::from("", "out", false, 1).value(),
+                                       Reporter{errors, 1});
 
     CHECK(code != ExitCode::Success);
     CHECK_THAT(errors.str(), ContainsSubstring("no frame rate grid was found"));
@@ -248,8 +262,12 @@ TEST_CASE("a correction that would cross the origin is refused", "[cli][shifting
     files.addFile("a.srt", gridNearTheOrigin());
     std::ostringstream errors;
 
-    const ExitCode code = subedit::cli::shiftOntoGridAll(
-        files, {"a.srt"}, Destination::from("", "out", false, 1).value(), Reporter{errors, 1});
+    const ExitCode code =
+        subedit::cli::shiftOntoGridAll(files,
+                                       {"a.srt"},
+                                       std::nullopt,
+                                       Destination::from("", "out", false, 1).value(),
+                                       Reporter{errors, 1});
 
     CHECK(code != ExitCode::Success);
     CHECK_THAT(errors.str(), ContainsSubstring("would start before the origin"));

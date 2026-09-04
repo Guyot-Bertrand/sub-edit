@@ -49,6 +49,7 @@ struct Run {
 
     const ExitCode code = alignAll(files,
                                    {"a.srt"},
+                                   std::nullopt,
                                    rate,
                                    Destination::from("", "out", false, 1).value(),
                                    Reporter{errors, 1});
@@ -63,6 +64,7 @@ struct Run {
 
     const ExitCode code = convertFrameRateAll(files,
                                               {"a.srt"},
+                                              std::nullopt,
                                               from,
                                               to,
                                               Destination::from("", "out", false, 1).value(),

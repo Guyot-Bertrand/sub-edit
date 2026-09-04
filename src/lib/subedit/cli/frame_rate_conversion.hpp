@@ -3,8 +3,10 @@
 // Re-timing a file mastered at one frame rate for playback at another.
 
 #include <subedit/cli/exit_code.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -40,6 +42,7 @@ class Reporter;
 /// anything is read.
 [[nodiscard]] ExitCode convertFrameRateAll(subedit::core::FileSystem& files,
                                            const std::vector<std::string>& paths,
+                                           const std::optional<subedit::core::Encoding>& reading,
                                            subedit::core::FrameRate input,
                                            subedit::core::FrameRate output,
                                            const Destination& destination,

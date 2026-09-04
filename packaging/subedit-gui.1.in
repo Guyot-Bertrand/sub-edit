@@ -46,7 +46,7 @@ uses:
 .IR "does not exist" ,
 .IR "cannot be opened: permission denied" ,
 .IR "cannot be read" ,
-.IR "is not valid UTF-8" ,
+.IR "cannot be decoded in the chosen encoding" ,
 .IR "is in no format this tool knows" ,
 .IR "holds nothing recognisable as a subtitle" .
 .PP

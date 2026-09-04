@@ -7,6 +7,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -54,6 +55,7 @@ Run transform(const std::string& content, Reference first, Reference last) {
 
     const ExitCode code = transformAll(files,
                                        {"a.srt"},
+                                       std::nullopt,
                                        Transform::between(first, last).value(),
                                        Destination::from("", "out", false, 1).value(),
                                        Reporter{errors, 1});
@@ -163,6 +165,7 @@ TEST_CASE("the format of the file read is kept", "[cli][transforming]") {
 
     CHECK(transformAll(files,
                        {"a.vtt"},
+                       std::nullopt,
                        Transform::between(at(1, 2'000), at(2, 10'000)).value(),
                        Destination::from("", "out", false, 1).value(),
                        Reporter{errors, 0}) == ExitCode::Success);
@@ -183,6 +186,7 @@ TEST_CASE("a batch transforms what it can and counts the rest", "[cli][transform
 
     const ExitCode code = transformAll(files,
                                        {"absent.srt", "good.srt"},
+                                       std::nullopt,
                                        Transform::between(at(1, 1'000), at(3, 10'000)).value(),
                                        Destination::from("", "out", false, 2).value(),
                                        Reporter{errors, 1});

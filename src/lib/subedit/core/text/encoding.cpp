@@ -208,15 +208,22 @@ std::expected<std::string, UnwritableCharacter> encodeFromUtf8(std::string_view 
     return *bytes;
 }
 
-std::optional<DetectedEncoding> detectEncoding(std::string_view bytes) {
-    // The mark first, and the three the phase reads. UTF-32 is left out on
-    // purpose — Gaupol detects it and offers it nowhere, and no subtitle file
-    // carries it.
+std::optional<Encoding> byteOrderMarkAt(std::string_view bytes) {
+    // The three the phase reads. UTF-32 is left out on purpose — Gaupol detects
+    // it and offers it nowhere, and no subtitle file carries it.
     for (const Encoding& marked : {Encoding::utf8(ByteOrderMark::Present),
                                    Encoding::utf16Le(ByteOrderMark::Present),
                                    Encoding::utf16Be(ByteOrderMark::Present)})
         if (startsWithByteOrderMark(bytes, marked))
-            return DetectedEncoding{.encoding = marked, .choice = EncodingChoice::ByteOrderMark};
+            return marked;
+
+    return std::nullopt;
+}
+
+std::optional<DetectedEncoding> detectEncoding(std::string_view bytes) {
+    // The mark first, always.
+    if (const std::optional<Encoding> declared = byteOrderMarkAt(bytes))
+        return DetectedEncoding{.encoding = *declared, .choice = EncodingChoice::ByteOrderMark};
 
     // **Bytes that decode as UTF-8 are UTF-8, and ICU is not asked.** Two
     // arguments meet here. On a file of plain ASCII, every encoding on offer
