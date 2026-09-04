@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include <expected>
 #include <string>
 #include <string_view>
 
@@ -13,6 +13,27 @@ namespace subedit::core {
 enum class ByteOrderMark {
     Absent,
     Present,
+};
+
+/// Why a name does not become an encoding.
+///
+/// Two answers and not one, because they are not the same news: ICU knows
+/// nothing of `klingon-1`, and it knows `UTF-16` perfectly well — too well, in
+/// fact, since its converter writes a mark of its own.
+enum class EncodingRefusal {
+    /// Nothing converts under that name.
+    Unknown,
+
+    /// The converter puts a byte order mark in front of the text by itself.
+    ///
+    /// **Which takes the mark out of the caller's hands, and that is the whole
+    /// reason to refuse.** This type's contract is that the bytes of a file are
+    /// the mark the caller asked for, followed by the text — one comparison
+    /// then decides whether a file comes back as it arrived, `--bom` and
+    /// `--no-bom` mean something, and a report that says « no BOM » is telling
+    /// the truth. A converter that writes its own mark breaks all three at
+    /// once, and silently.
+    WritesItsOwnMark,
 };
 
 /// The encoding a file was read in, and the one writing puts back.
@@ -33,7 +54,7 @@ enum class ByteOrderMark {
 class Encoding {
 
 public:
-    /// Builds the encoding ICU knows under `name`, or nothing if it knows none.
+    /// Builds the encoding ICU knows under `name`, or says why it does not.
     ///
     /// Aliases are accepted the way ICU accepts them — `cp1252`, `windows-1252`
     /// and `WINDOWS 1252` all name one encoding — and the value keeps the
@@ -41,7 +62,14 @@ public:
     /// equal. Answering "unknown" is the point: the alternative is a name that
     /// travels through the model and fails at the moment of reading, when the
     /// user is no longer being asked anything.
-    [[nodiscard]] static std::optional<Encoding> create(std::string_view name, ByteOrderMark mark);
+    ///
+    /// **A converter that writes its own byte order mark is refused here too**,
+    /// and for the same reason one door earlier: `UTF-16` used to travel
+    /// through the model, and the file it produced carried a mark the model
+    /// said was absent — so `--no-bom` was accepted and disobeyed. See
+    /// `EncodingRefusal::WritesItsOwnMark`.
+    [[nodiscard]] static std::expected<Encoding, EncodingRefusal> create(std::string_view name,
+                                                                         ByteOrderMark mark);
 
     /// UTF-8, the encoding every file was read as until phase 8.
     [[nodiscard]] static Encoding utf8(ByteOrderMark mark) { return Encoding{"UTF-8", mark}; }

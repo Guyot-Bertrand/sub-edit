@@ -11,6 +11,7 @@
 #include "cli_run.hpp"
 
 using Catch::Matchers::ContainsSubstring;
+using Catch::Matchers::StartsWith;
 using subedit::e2e::CliRun;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
@@ -95,6 +96,70 @@ TEST_CASE("a character the encoding asked for cannot write stops the file", "[e2
     CHECK(run.exitCode != 0);
     CHECK_FALSE(std::filesystem::exists(scratch.of("copie.srt")));
     CHECK_THAT(run.errors, ContainsSubstring("holds a character the chosen encoding cannot write"));
+}
+
+TEST_CASE("an encoding that writes its own mark is refused before any file", "[e2e][CLI-ENC-04]") {
+    // **The defect this case was written for**, and it was silent: ICU's
+    // `UTF-16` converter puts a mark in front of the text by itself, so
+    // `--no-bom` was accepted and disobeyed, and `-vv` reported « no BOM » of a
+    // file that carried one. The refusal happens before a file is read — it is
+    // a usage error, hence the code `1` — and it names the way out.
+    const Scratch scratch;
+    const CliRun run = invoke({"convert",
+                               "--to",
+                               "srt",
+                               "--to-encoding",
+                               "UTF-16",
+                               "--no-bom",
+                               "--output",
+                               scratch.of("copie.srt"),
+                               corpus("valides/minimal.srt")});
+
+    CHECK(run.exitCode == 1);
+    CHECK_FALSE(std::filesystem::exists(scratch.of("copie.srt")));
+    CHECK_THAT(run.errors, ContainsSubstring("\"UTF-16\" writes a byte order mark of its own"));
+    CHECK_THAT(run.errors, ContainsSubstring("UTF-16LE and UTF-16BE"));
+}
+
+TEST_CASE("naming the byte order writes the same bytes, under the caller's control",
+          "[e2e][CLI-ENC-04]") {
+    // What the refusal above sends the user to, and the proof that it costs
+    // nothing: the file asked for is written, its mark is there because `--bom`
+    // asked for it, and the report says so rather than the opposite.
+    const Scratch scratch;
+    const CliRun run = invoke({"-vv",
+                               "convert",
+                               "--to",
+                               "srt",
+                               "--to-encoding",
+                               "UTF-16LE",
+                               "--bom",
+                               "--output",
+                               scratch.of("copie.srt"),
+                               corpus("valides/minimal.srt")});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(contentOf(scratch.of("copie.srt")), StartsWith("\xFF\xFE"));
+    CHECK_THAT(run.errors, ContainsSubstring("UTF-16LE, BOM"));
+}
+
+TEST_CASE("without a mark asked for, none is written", "[e2e][CLI-ENC-04]") {
+    // The other half, and the one that used to be a lie.
+    const Scratch scratch;
+    const CliRun run = invoke({"-vv",
+                               "convert",
+                               "--to",
+                               "srt",
+                               "--to-encoding",
+                               "UTF-16LE",
+                               "--no-bom",
+                               "--output",
+                               scratch.of("copie.srt"),
+                               corpus("valides/minimal.srt")});
+
+    CHECK(run.exitCode == 0);
+    CHECK_FALSE(contentOf(scratch.of("copie.srt")).starts_with("\xFF\xFE"));
+    CHECK_THAT(run.errors, ContainsSubstring("UTF-16LE, no BOM"));
 }
 
 TEST_CASE("nothing is written without a destination", "[e2e][CLI-CONVERT-03]") {

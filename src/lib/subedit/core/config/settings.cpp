@@ -237,8 +237,11 @@ void applyOption(SettingsRead& read, std::string_view key, std::string_view valu
     else if (key == kWriteEncodingKey)
         // Le nom que la marque ne concerne pas : un réglage nomme un encodage,
         // et `--bom` — ou la case du dialogue — dit ce qu'il en est de la
-        // marque. Un nom qu'ICU ne sait pas convertir est un réglage illisible,
-        // qui se signale comme les autres.
+        // marque. Un nom que `create` refuse est un réglage illisible, qui se
+        // signale comme les autres : ici, un encodage qu'ICU ne connaît pas et
+        // un qui écrirait sa propre marque sont la même nouvelle — un réglage
+        // dont on ne peut rien faire — et `take` lit l'un comme l'autre, le
+        // refus d'un `expected` se demandant comme l'absence d'un `optional`.
         take(Encoding::create(value, ByteOrderMark::Absent), read.settings.writeEncoding);
 }
 

@@ -32,6 +32,7 @@ namespace {
 using subedit::core::ByteOrderMark;
 using subedit::core::DiagnosticKind;
 using subedit::core::Encoding;
+using subedit::core::EncodingRefusal;
 using subedit::core::Newline;
 using subedit::core::ReadError;
 using subedit::core::ReadErrorKind;
@@ -120,7 +121,7 @@ constexpr std::array<Fixture, 9> kFixtures = {
 }
 
 [[nodiscard]] Encoding named(std::string_view name, ByteOrderMark mark) {
-    const std::optional<Encoding> encoding = Encoding::create(name, mark);
+    const std::expected<Encoding, EncodingRefusal> encoding = Encoding::create(name, mark);
     if (!encoding.has_value()) {
         FAIL("ICU ne connaît pas l'encodage " + std::string{name});
         return Encoding::utf8(ByteOrderMark::Absent);

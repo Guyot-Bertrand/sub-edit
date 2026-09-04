@@ -18,6 +18,7 @@ using subedit::core::detectEncoding;
 using subedit::core::encodeFromUtf8;
 using subedit::core::Encoding;
 using subedit::core::EncodingChoice;
+using subedit::core::EncodingRefusal;
 using subedit::core::Newline;
 using subedit::core::scanNewlines;
 using subedit::core::startsWithByteOrderMark;
@@ -38,7 +39,8 @@ const Encoding kUtf8 = Encoding::utf8(ByteOrderMark::Absent);
 /// The encoding of that name, or a failed test — a fixture is not the place to
 /// find out that ICU is missing a converter.
 [[nodiscard]] Encoding named(std::string_view name) {
-    const std::optional<Encoding> encoding = Encoding::create(name, ByteOrderMark::Absent);
+    const std::expected<Encoding, EncodingRefusal> encoding =
+        Encoding::create(name, ByteOrderMark::Absent);
     if (!encoding.has_value()) {
         FAIL("ICU ne connaît pas l'encodage " + std::string{name});
         return kUtf8;

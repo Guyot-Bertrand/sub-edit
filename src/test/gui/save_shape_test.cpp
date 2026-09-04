@@ -24,6 +24,7 @@ namespace {
 
 using subedit::core::ByteOrderMark;
 using subedit::core::Encoding;
+using subedit::core::EncodingRefusal;
 using subedit::core::Newline;
 using subedit::core::SubtitleFormat;
 using subedit::gui::addSaveShapeTo;
@@ -35,7 +36,8 @@ using subedit::gui::targetOf;
 
 /// L'encodage de ce nom, ou un test en échec.
 [[nodiscard]] Encoding named(const char* name) {
-    const std::optional<Encoding> encoding = Encoding::create(name, ByteOrderMark::Absent);
+    const std::expected<Encoding, EncodingRefusal> encoding =
+        Encoding::create(name, ByteOrderMark::Absent);
     if (!encoding.has_value()) {
         FAIL("ICU ne connaît pas cet encodage");
         return Encoding::utf8(ByteOrderMark::Absent);
@@ -192,6 +194,29 @@ TEST_CASE("a name nobody knows writes no file at all", "[gui][GUI-ENC-02]") {
 
     REQUIRE_FALSE(target.has_value());
     CHECK(target.error() == "no encoding is named \"klingon-1\"");
+}
+
+TEST_CASE("an encoding that writes its own mark writes no file either", "[gui][GUI-ENC-02]") {
+    // Le même refus que la ligne de commande, dans les mêmes mots : c'est le
+    // modèle qui refuse, pas chaque surface pour son compte. Et la case de la
+    // marque n'y peut rien — ce que le convertisseur écrit ne s'éteint pas.
+    const std::unique_ptr<QFileDialog> dialog =
+        saveDialogFor(subedit::core::SourceFile{}, Encoding::utf8(ByteOrderMark::Absent), nullptr);
+    dialog->selectFile(QStringLiteral("/films/copie.srt"));
+    auto* shape = dialog->findChild<SaveShape*>();
+    REQUIRE(shape != nullptr);
+    shape->encodingBox()->setCurrentIndex(shape->encodingBox()->count() - 1);
+    shape->otherName()->setText(QStringLiteral("UTF-16"));
+
+    // La case s'éteint, faute d'un encodage dont on connaisse la marque.
+    CHECK_FALSE(shape->markBox()->isEnabled());
+
+    const std::expected<SaveTarget, std::string> target = targetOf(*dialog);
+
+    REQUIRE_FALSE(target.has_value());
+    CHECK(target.error() ==
+          "\"UTF-16\" writes a byte order mark of its own; name the byte order, as UTF-16LE and "
+          "UTF-16BE do");
 }
 
 TEST_CASE("the shape sits inside the file dialog", "[gui][GUI-ENC-02]") {

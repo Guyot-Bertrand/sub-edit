@@ -157,9 +157,10 @@ TEST_CASE("a character the encoding asked for cannot write stops the file", "[cl
     // lost between reading and writing.
     const std::string polish = "1\n00:00:01,000 --> 00:00:03,000\nPrzyszedł późno.\n";
 
-    const Run run = convert(polish,
-                            SubtitleFormat::SubRip,
-                            {.encoding = Encoding::create("iso-8859-1", ByteOrderMark::Absent)});
+    const Run run =
+        convert(polish,
+                SubtitleFormat::SubRip,
+                {.encoding = Encoding::create("iso-8859-1", ByteOrderMark::Absent).value()});
 
     CHECK(run.written.empty());
     CHECK_THAT(run.errors, ContainsSubstring("holds a character the chosen encoding cannot write"));

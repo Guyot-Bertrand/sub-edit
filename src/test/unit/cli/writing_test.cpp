@@ -17,6 +17,7 @@ namespace {
 using subedit::cli::writeSubtitlesTo;
 using subedit::core::ByteOrderMark;
 using subedit::core::Encoding;
+using subedit::core::EncodingRefusal;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::Subtitle;
@@ -26,7 +27,8 @@ using subedit::core::WriteRequest;
 
 /// The encoding of that name, or a failed test.
 [[nodiscard]] Encoding named(const char* name) {
-    const std::optional<Encoding> encoding = Encoding::create(name, ByteOrderMark::Absent);
+    const std::expected<Encoding, EncodingRefusal> encoding =
+        Encoding::create(name, ByteOrderMark::Absent);
     if (!encoding.has_value()) {
         FAIL("ICU ne connaît pas cet encodage");
         return Encoding::utf8(ByteOrderMark::Absent);

@@ -46,6 +46,18 @@ std::string_view nameOf(Newline newline) {
     std::unreachable();
 }
 
+std::string refusalOf(EncodingRefusal refusal, std::string_view name) {
+    switch (refusal) {
+    case EncodingRefusal::Unknown:
+        return "no encoding is named \"" + std::string{name} + "\"";
+    case EncodingRefusal::WritesItsOwnMark:
+        return "\"" + std::string{name} +
+               "\" writes a byte order mark of its own; name the byte order, "
+               "as UTF-16LE and UTF-16BE do";
+    }
+    std::unreachable();
+}
+
 std::string_view reasonOf(ReadErrorKind kind) {
     switch (kind) {
     case ReadErrorKind::Undecodable:

@@ -261,8 +261,13 @@ std::optional<DetectedEncoding> detectEncoding(std::string_view bytes) {
         UErrorCode naming = U_ZERO_ERROR;
         const char* name = ucsdet_getName(matches[rank], &naming);
 
-        const std::optional<Encoding> proposed =
-            name == nullptr ? std::nullopt : Encoding::create(name, ByteOrderMark::Absent);
+        // A name the model refuses is a candidate like any other that does not
+        // work out: the ranking moves on. That covers both refusals — a name
+        // nothing converts, and one whose converter writes its own mark, which
+        // no proposal of ours may carry.
+        const std::expected<Encoding, EncodingRefusal> proposed =
+            name == nullptr ? std::unexpected(EncodingRefusal::Unknown)
+                            : Encoding::create(name, ByteOrderMark::Absent);
         if (proposed.has_value() && decodeToUtf8(bytes, *proposed).has_value())
             return DetectedEncoding{.encoding = *proposed, .choice = EncodingChoice::Detected};
     }

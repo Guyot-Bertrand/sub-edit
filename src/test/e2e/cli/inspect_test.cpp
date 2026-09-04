@@ -146,6 +146,18 @@ TEST_CASE("a name that is no encoding is refused before anything is read", "[e2e
     CHECK_THAT(run.errors, ContainsSubstring("klingon-1"));
 }
 
+TEST_CASE("reading in an encoding that writes its own mark is refused too", "[e2e][CLI-ENC-02]") {
+    // **One rule, at the model, and both surfaces meet it.** A converter that
+    // writes a mark of its own has no place in this model, and the refusal is
+    // not made at the door that happens to lead to writing: `--encoding UTF-16`
+    // is answered here in the same words, before a file is read.
+    const CliRun run = invoke({"--encoding", "UTF-16", "inspect", corpus("valides/minimal.srt")});
+
+    CHECK(run.exitCode == 1);
+    CHECK(run.output.empty());
+    CHECK_THAT(run.errors, ContainsSubstring("\"UTF-16\" writes a byte order mark of its own"));
+}
+
 TEST_CASE("a mark wins over the encoding asked for, and the gap is said", "[e2e][CLI-ENC-03]") {
     // The only declaration a subtitle file carries. It is obeyed against the
     // option — and the reading says so rather than settling it in silence.

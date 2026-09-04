@@ -36,6 +36,7 @@ namespace {
 
 using subedit::core::ByteOrderMark;
 using subedit::core::Encoding;
+using subedit::core::EncodingRefusal;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::Newline;
@@ -48,7 +49,8 @@ using subedit::gui::UnsavedChoice;
 
 /// L'encodage de ce nom, ou un test en échec.
 [[nodiscard]] Encoding named(const char* name) {
-    const std::optional<Encoding> encoding = Encoding::create(name, ByteOrderMark::Absent);
+    const std::expected<Encoding, EncodingRefusal> encoding =
+        Encoding::create(name, ByteOrderMark::Absent);
     if (!encoding.has_value()) {
         FAIL("ICU ne connaît pas cet encodage");
         return Encoding::utf8(ByteOrderMark::Absent);
@@ -170,7 +172,7 @@ TEST_CASE("saving as opens on the encoding the file was read in", "[gui][GUI-ENC
 
     window.saveAsAction()->trigger();
 
-    CHECK(prompts.lastProposedEncoding == Encoding::create("iso-8859-1", ByteOrderMark::Absent));
+    CHECK(prompts.lastProposedEncoding == named("iso-8859-1"));
 }
 
 TEST_CASE("a document that came from no file opens on the encoding last chosen",
@@ -183,7 +185,7 @@ TEST_CASE("a document that came from no file opens on the encoding last chosen",
     window.show();
 
     subedit::core::Settings settings;
-    settings.writeEncoding = Encoding::create("windows-1250", ByteOrderMark::Absent);
+    settings.writeEncoding = named("windows-1250");
     window.applySettings(settings);
 
     window.saveAsAction()->trigger();
