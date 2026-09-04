@@ -11,7 +11,7 @@ add_library(
                        manual_path.cpp manual_window.cpp
                        diagnostics_panel.cpp qt_prompts.cpp target.cpp
                        operation_dialog.cpp shift_dialog.cpp transform_dialog.cpp
-                       insert_dialog.cpp
+                       insert_dialog.cpp save_shape.cpp
                        frame_rate_box.cpp frame_rate_dialog.cpp hearing_impaired_dialog.cpp
                        grid_analysis_dialog.cpp snap_dialog.cpp about_dialog.cpp
                        mpv_player.cpp player_factory.cpp main_window.cpp)

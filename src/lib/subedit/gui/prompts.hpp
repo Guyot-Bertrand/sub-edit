@@ -1,5 +1,7 @@
 #pragma once
 
+#include <subedit/core/model/encoding.hpp>
+#include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 
 #include <filesystem>
@@ -9,16 +11,22 @@
 class QDialog;
 class QWidget;
 
-namespace subedit::core {
-struct SourceFile;
-} // namespace subedit::core
-
 namespace subedit::gui {
 
-/// Where to write, and as what.
+/// Where to write, and in what shape.
+///
+/// **The four answers `Save As…` carries since phase 8.** The format was alone
+/// until then, and the window could say nothing of the three the command line
+/// had settled in phase 3 — an encoding, line endings, a mark. Giving it the
+/// first without the other two would have left it half-way.
 struct SaveTarget {
     std::filesystem::path path;
     core::SubtitleFormat format = core::SubtitleFormat::SubRip;
+
+    /// The encoding to write in, its mark included.
+    core::Encoding encoding = core::Encoding::utf8(core::ByteOrderMark::Absent);
+
+    core::Newline newline = core::Newline::Lf;
 };
 
 /// What to do about a document that differs from its file.
@@ -64,11 +72,16 @@ public:
     [[nodiscard]] virtual std::optional<std::filesystem::path>
     videoToOpen(const std::filesystem::path& directory) = 0;
 
-    /// Where to save and in which format, or nothing if the user gave up.
+    /// Where to save and in what shape, or nothing if the user gave up.
     ///
     /// `current` is what the document carries now, so that the question opens
-    /// on the file's own directory and format rather than on nowhere.
-    [[nodiscard]] virtual std::optional<SaveTarget> saveTarget(const core::SourceFile& current) = 0;
+    /// on the file's own directory, format and line endings rather than on
+    /// nowhere. `encoding` is asked for apart because it is the one answer the
+    /// window may propose from elsewhere: a document that came from no file
+    /// has none of its own, and the settings then remember what was written
+    /// last.
+    [[nodiscard]] virtual std::optional<SaveTarget> saveTarget(const core::SourceFile& current,
+                                                               const core::Encoding& encoding) = 0;
 
     /// What to do with changes that were never written.
     [[nodiscard]] virtual UnsavedChoice aboutUnsavedChanges() = 0;

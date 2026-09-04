@@ -149,6 +149,6 @@ plus rien.
 | `CLI-ENC-05` | un fichier réécrit sans consigne rend les mêmes octets, encodage compris | 8 | implémentée |
 | `CLI-ENC-06` | un fichier qu'aucun encodage ne décode est refusé, et la raison le dit | 8 | implémentée |
 | `CLI-ENC-07` | `inspect` rapporte l'encodage lu et s'il a été deviné | 8 | implémentée |
-| `GUI-ENC-01` | la fenêtre ouvre un fichier non-UTF-8 et affiche l'encodage retenu | 8 | prévue |
-| `GUI-ENC-02` | `Save As…` choisit l'encodage, la fin de ligne et le BOM | 8 | prévue |
-| `GUI-ENC-03` | les réglages retiennent le dernier encodage d'écriture choisi | 8 | prévue |
+| `GUI-ENC-01` | la fenêtre ouvre un fichier non-UTF-8 et affiche l'encodage retenu | 8 | implémentée |
+| `GUI-ENC-02` | `Save As…` choisit l'encodage, la fin de ligne et le BOM | 8 | implémentée |
+| `GUI-ENC-03` | les réglages retiennent le dernier encodage d'écriture choisi | 8 | implémentée |

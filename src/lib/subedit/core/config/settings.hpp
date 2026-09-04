@@ -3,6 +3,7 @@
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/theme.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/model/encoding.hpp>
 
 #include <cstddef>
 #include <expected>
@@ -95,6 +96,16 @@ struct Settings {
     /// où l'on écrit un fichier de sous-titres : la ligne suivante vient après
     /// celle qu'on vient de regarder.
     InsertPlacement insertPlacement = InsertPlacement::Below;
+
+    /// Le dernier encodage choisi dans `Save As…`, absent au premier lancement.
+    ///
+    /// **Il ne l'emporte jamais sur l'encodage d'un fichier lu**, et c'est la
+    /// coupure : un document ouvert porte le sien, et le réécrire dans un autre
+    /// parce qu'un réglage vieux de trois semaines le dit serait une perte que
+    /// personne n'a demandée — l'aller-retour d'octets de la phase 8 est
+    /// exactement cette promesse-là. Ce dont il se souvient sert au document qui
+    /// n'a pas de fichier : celui qu'on vient de créer.
+    std::optional<Encoding> writeEncoding{};
 
     friend bool operator==(const Settings&, const Settings&) = default;
 };

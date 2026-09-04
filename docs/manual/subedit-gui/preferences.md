@@ -41,6 +41,14 @@ qui le pose est justement celle qui ne va pas.
 | `file.directory` | un chemin **absolu** de répertoire | aucun : `Open…` s'ouvre là où le programme a été lancé |
 | `general.theme` | `system`, `light` ou `dark` | `system` |
 | `edit.insert-placement` | `above` ou `below` | `below` |
+| `file.write-encoding` | le nom d'un encodage qu'ICU sait écrire | aucun |
+
+**`file.write-encoding` retient le dernier encodage choisi dans `Save As…`, et
+ne s'impose jamais à un fichier.** Un document ouvert porte son propre encodage,
+et c'est celui-là que la boîte propose : le réécrire dans un autre parce qu'un
+réglage vieux de trois semaines le dit serait perdre ce que la lecture a gardé.
+Ce dont ce réglage se souvient sert au document qui n'a pas de fichier — celui
+qu'on vient de créer.
 
 **Une part et non des hauteurs pour la poignée**, et c'est ce qui la rend
 utile : trois hauteurs en pixels ne veulent plus rien dire dès que la fenêtre

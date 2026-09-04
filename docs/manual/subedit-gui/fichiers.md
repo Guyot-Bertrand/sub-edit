@@ -92,9 +92,38 @@ ses modifications, et la marque du titre reste.
 
 ## Enregistrer sous
 
-`Save As…` demande un chemin et un format. Le document **vit ensuite là** : le
-titre change, `Save` vise le nouveau fichier, et le fichier d'origine reste tel
-qu'il était.
+`Save As…` demande un chemin, un format, **et la forme des octets écrits** :
+l'encodage, les fins de ligne, la marque d'ordre des octets. Le document **vit
+ensuite là** : le titre change, `Save` vise le nouveau fichier et écrit dans la
+forme choisie, et le fichier d'origine reste tel qu'il était.
+
+![La forme proposée par « Save As… »](captures/enregistrer-sous.png)
+
+![La même forme sous la palette sombre.](captures/enregistrer-sous-sombre.png)
+
+| Champ | Ce qu'il propose | Défaut |
+| :---- | :--------------- | :----- |
+| `Encoding` | quatorze encodages qu'un fichier de sous-titres porte en pratique, plus `Other…` | **celui du fichier lu** |
+| `Other…` | un champ où taper n'importe quel encodage qu'ICU sait écrire — `cp1257`, `EUC-KR` | — |
+| `Line endings` | `LF`, `CRLF` ou `CR` | celles du fichier lu |
+| `Byte order mark` | la marque, **éteinte pour un encodage qui n'en porte pas** | celle du fichier lu |
+
+**Les défauts sont ceux du fichier lu, et c'est une garantie plutôt qu'une
+commodité** : un fichier ouvert puis réenregistré sans qu'on touche à ces trois
+champs rend les mêmes octets.
+
+**La liste est courte, et ce n'est pas un plafond.** ICU en connaît
+quatre-vingt-dix-sept et plus ; ce que le menu propose est ce qu'un fichier de
+sous-titres porte en pratique, parce qu'un menu de quatre-vingt-dix-sept entrées
+n'aide personne. `Other…` ouvre le reste.
+
+**Un nom que personne ne connaît n'écrit rien.** Taper `klingon-1` ne fait pas
+retomber sur l'UTF-8 : rien n'est écrit, et le message le dit.
+
+**Un caractère que l'encodage choisi ne sait pas écrire arrête l'enregistrement**
+— un `ł` dans du Latin-1. Le message est
+`holds a character the chosen encoding cannot write`, la fenêtre garde ses
+modifications, et le fichier visé n'est pas touché.
 
 Changer de format change ce que la table montre — le séparateur décimal suit le
 format, virgule pour SubRip, point pour WebVTT.

@@ -6,6 +6,7 @@
 // chose to discard », « the write failed and they read about it » become roads
 // a test walks, where a `QDialog::exec` would have left them out of reach.
 
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/gui/prompts.hpp>
 
@@ -60,10 +61,14 @@ public:
         return nextVideoToOpen;
     }
 
+    /// L'encodage que la fenêtre a proposé, pour que le scénario le lise.
+    std::optional<core::Encoding> lastProposedEncoding{};
+
     [[nodiscard]] std::optional<gui::SaveTarget>
-    saveTarget(const core::SourceFile& current) override {
+    saveTarget(const core::SourceFile& current, const core::Encoding& encoding) override {
         ++saveTargetAsked;
         lastCurrent = current;
+        lastProposedEncoding = encoding;
         return nextSaveTarget;
     }
 

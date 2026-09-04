@@ -3,13 +3,17 @@
 #include <subedit/core/model/video_file.hpp>
 #include <subedit/core/wording.hpp>
 #include <subedit/gui/qt_prompts.hpp>
+#include <subedit/gui/save_shape.hpp>
 
 #include <QDialog>
 #include <QFileDialog>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QString>
 
+#include <expected>
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -77,18 +81,19 @@ QtPrompts::videoToOpen(const std::filesystem::path& directory) {
     return std::filesystem::path{chosen.toStdString()};
 }
 
-std::optional<SaveTarget> QtPrompts::saveTarget(const core::SourceFile& current) {
-    const QString start =
-        current.path.has_value() ? QString::fromStdString(current.path->string()) : QString{};
-
-    QString picked = subtitleFilters().section(QStringLiteral(";;"), 1, 1);
-    const QString chosen = QFileDialog::getSaveFileName(
-        m_owner, QStringLiteral("Save As"), start, subtitleFilters(), &picked);
-    if (chosen.isEmpty())
+std::optional<SaveTarget> QtPrompts::saveTarget(const core::SourceFile& current,
+                                                const core::Encoding& encoding) {
+    const std::unique_ptr<QFileDialog> dialog = saveDialogFor(current, encoding, m_owner);
+    if (dialog->exec() != QDialog::Accepted)
         return std::nullopt;
 
-    return SaveTarget{.path = std::filesystem::path{chosen.toStdString()},
-                      .format = formatOfFilter(picked)};
+    const std::expected<SaveTarget, std::string> target = targetOf(*dialog);
+    if (!target.has_value()) {
+        reportFailure(target.error());
+        return std::nullopt;
+    }
+
+    return *target;
 }
 
 UnsavedChoice QtPrompts::aboutUnsavedChanges() {
