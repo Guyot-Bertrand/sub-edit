@@ -65,12 +65,9 @@ bool rewriteFile(core::FileSystem& files,
                  path + ": " + std::to_string(opened->bytes) + " bytes read, " +
                      std::to_string(*written) + " written");
     sayDiagnostics(reporter, path, opened->diagnostics);
-    reporter.say(
-        2,
-        path + ": " + std::string{nameOf(source.format)} + ", " +
-            std::string{source.encoding.charset()} + ", " +
-            (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "BOM" : "no BOM") +
-            ", " + std::string{nameOf(source.newline)} + " line endings kept");
+    reporter.say(2,
+                 path + ": " + std::string{nameOf(source.format)} + ", " + nameOf(source.encoding) +
+                     ", " + std::string{nameOf(source.newline)} + " line endings kept");
     reporter.say(1, path + ": " + *done + " -> " + out.string());
     return true;
 }

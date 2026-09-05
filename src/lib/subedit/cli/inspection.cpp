@@ -176,12 +176,9 @@ bool inspectFile(const core::FileSystem& files,
                  path + ": " + core::countOf(opened->diagnostics.size(), "diagnostic") +
                      " while reading");
     sayDiagnostics(reporter, path, opened->diagnostics);
-    reporter.say(
-        2,
-        path + ": " + std::string{nameOf(source.format)} + ", " +
-            std::string{source.encoding.charset()} + ", " +
-            (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "BOM" : "no BOM") +
-            ", " + std::string{nameOf(source.newline)} + " line endings");
+    reporter.say(2,
+                 path + ": " + std::string{nameOf(source.format)} + ", " + nameOf(source.encoding) +
+                     ", " + std::string{nameOf(source.newline)} + " line endings");
     reporter.say(1, path + ": " + core::countOf(project.subtitles().size(), "subtitle"));
 
     out << path << '\n';

@@ -8,6 +8,7 @@
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/time/frame_rate.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/prompts.hpp>
 
@@ -17,6 +18,7 @@
 
 #include <expected>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -57,6 +59,42 @@ constexpr const char* kOne = "1\n"
 }
 
 } // namespace
+
+TEST_CASE("the status bar carries the frame rate the film declares", "[gui][GUI-VIDEO-01]") {
+    // **Issue #323, and it was written, worded, manualled and unreachable.**
+    // `refreshVideo` painted the status bar before `watchAssociatedVideo` read
+    // the declared rate, and nothing painted it again: the line never carried a
+    // rate, by either door.
+    InMemoryFileSystem files = directoryHolding({});
+    FakePrompts prompts;
+    prompts.nextVideoToOpen = "/films/film.mkv";
+    MainWindow window{
+        files, fileIn(files, "/films/film.fr.srt"), prompts, {}, [](const std::filesystem::path&) {
+            return std::optional{
+                subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps23976}};
+        }};
+    window.show();
+
+    window.selectVideoAction()->trigger();
+
+    CHECK(statusOf(window) == "Video: film.mkv, 24000/1001 fps");
+}
+
+TEST_CASE("the film found beside the subtitles carries its rate too", "[gui][GUI-VIDEO-01]") {
+    // The other door, and the ordinary one: `subedit-gui film.srt` with the
+    // film next to it. The proposal is taken before the window is shown, so it
+    // is `showEvent` that reads the rate — and it did not repaint either.
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    MainWindow window{
+        files, fileIn(files, "/films/film.fr.srt"), prompts, {}, [](const std::filesystem::path&) {
+            return std::optional{subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps25}};
+        }};
+
+    window.show();
+
+    CHECK(statusOf(window) == "Video: film.mkv, 25 fps");
+}
 
 TEST_CASE("choosing a video associates it, and the window names it", "[gui][GUI-VIDEO-01]") {
     InMemoryFileSystem files = directoryHolding({});

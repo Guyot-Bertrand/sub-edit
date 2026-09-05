@@ -19,6 +19,7 @@
 
 #include <QAbstractItemModel>
 #include <QAction>
+#include <QLabel>
 #include <QListWidget>
 #include <QString>
 #include <QTableView>
@@ -206,6 +207,55 @@ TEST_CASE("the encoding chosen is what the settings carry away", "[gui][GUI-ENC-
     window.saveAsAction()->trigger();
 
     CHECK(window.settings().writeEncoding == named("windows-1250"));
+}
+
+TEST_CASE("the status bar says the encoding, mark included", "[gui][GUI-ENC-01]") {
+    // **Issue #313.** The window said the encoding in a diagnostic and nowhere
+    // else, so it said it only when the encoding had been *guessed*: a file
+    // that declares its own with a byte order mark showed nothing at all, where
+    // `inspect` writes « UTF-16LE, from its byte order mark ». The command line
+    // had three answers, the window one and a half.
+    //
+    // A Latin-1 file here — guessed, and worth a diagnostic — and a UTF-8 file
+    // with a mark below, which declares itself and is worth none. Both now say
+    // what they are.
+    InMemoryFileSystem files;
+    files.addFile("latin.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9.\n\n");
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "latin.srt"), prompts};
+    window.show();
+
+    CHECK(window.encodingStatus()->text().toStdString() == "Encoding: ISO-8859-1, no BOM");
+}
+
+TEST_CASE("a file that declares its encoding says so too", "[gui][GUI-ENC-01]") {
+    // The case the diagnostic could never carry: nothing was guessed, so
+    // nothing was said. The status bar says what the document *is* rather than
+    // what its reading did, which is why it answers here as well.
+    InMemoryFileSystem files;
+    files.addFile("marque.srt",
+                  std::string{"\xEF\xBB\xBF"} + "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n");
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "marque.srt"), prompts};
+    window.show();
+
+    CHECK(window.encodingStatus()->text().toStdString() == "Encoding: UTF-8, BOM");
+}
+
+TEST_CASE("saving under another name moves the encoding shown with it", "[gui][GUI-ENC-01]") {
+    InMemoryFileSystem files = withFile("film.srt", kThree);
+    FakePrompts prompts;
+    prompts.nextSaveTarget = SaveTarget{.path = "copie.srt",
+                                        .format = SubtitleFormat::SubRip,
+                                        .encoding = named("windows-1250"),
+                                        .newline = Newline::Lf};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
+    REQUIRE(window.encodingStatus()->text().toStdString() == "Encoding: UTF-8, no BOM");
+
+    window.saveAsAction()->trigger();
+
+    CHECK(window.encodingStatus()->text().toStdString() == "Encoding: windows-1250, no BOM");
 }
 
 TEST_CASE("a save under another name that fails moves nothing", "[gui][GUI-SAVE-02]") {

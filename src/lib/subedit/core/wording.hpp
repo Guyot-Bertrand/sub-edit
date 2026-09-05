@@ -51,6 +51,32 @@ namespace subedit::core {
 /// The name of a line ending, as a report writes it.
 [[nodiscard]] std::string_view nameOf(Newline newline);
 
+/// An encoding and its mark, as a report writes them: "UTF-8, no BOM".
+///
+/// **The mark is said in words rather than glued to the name.** `Encoding` used
+/// to answer `UTF-8-sig` — Python's own spelling, which Gaupol shows — and
+/// `UTF-16LE-sig`, which is nobody's: Python has no name for the UTF-16 pair,
+/// it detects their mark instead. A name invented here is a name a reader would
+/// copy into a search, a bug report, or an `--encoding`, where nothing knows it.
+///
+/// The shape is the one the command line already wrote at level 2, in three
+/// places that spelled it out separately. It is written once now, and the
+/// window says the same thing — issue #315.
+[[nodiscard]] std::string nameOf(const Encoding& encoding);
+
+/// What the status bar says of the encoding a document was read in.
+///
+/// Beside what it already says of the grid and of the film, and for the same
+/// reason: it is a standing fact about the document, not an event of its
+/// reading.
+///
+/// **It does not say where the answer came from**, where `inspect` does —
+/// `detected`, `from its byte order mark`, `as asked for`. That belongs to the
+/// panel under the table, which exists to say what the reading *did*; this line
+/// says what the document *is*. A guessed encoding is worth a diagnostic, and
+/// it has one.
+[[nodiscard]] std::string encodingStatusOf(const Encoding& encoding);
+
 /// Why a name did not become an encoding, as a whole sentence naming it.
 ///
 /// **A sentence and not a clause**, unlike its neighbours here: the two answers

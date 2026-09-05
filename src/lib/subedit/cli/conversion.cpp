@@ -81,9 +81,8 @@ bool convertFile(core::FileSystem& files,
     sayDiagnostics(reporter, path, opened->diagnostics);
     reporter.say(2,
                  path + ": " + std::string{nameOf(source.format)} + " -> " +
-                     std::string{nameOf(target)} + ", " + std::string{encoding.charset()} + ", " +
-                     (encoding.byteOrderMark() == core::ByteOrderMark::Present ? "BOM" : "no BOM") +
-                     ", " + std::string{nameOf(newline)} + " line endings");
+                     std::string{nameOf(target)} + ", " + nameOf(encoding) + ", " +
+                     std::string{nameOf(newline)} + " line endings");
     reporter.say(1,
                  path + ": " + core::countOf(opened->project.subtitles().size(), "subtitle") +
                      " written as " + std::string{nameOf(target)} + " -> " + out.string());

@@ -46,6 +46,15 @@ std::string_view nameOf(Newline newline) {
     std::unreachable();
 }
 
+std::string nameOf(const Encoding& encoding) {
+    return std::string{encoding.charset()} +
+           (encoding.byteOrderMark() == ByteOrderMark::Present ? ", BOM" : ", no BOM");
+}
+
+std::string encodingStatusOf(const Encoding& encoding) {
+    return "Encoding: " + nameOf(encoding);
+}
+
 std::string refusalOf(EncodingRefusal refusal, std::string_view name) {
     switch (refusal) {
     case EncodingRefusal::Unknown:
