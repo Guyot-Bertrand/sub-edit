@@ -97,9 +97,16 @@ l'encodage, les fins de ligne, la marque d'ordre des octets. Le document **vit
 ensuite là** : le titre change, `Save` vise le nouveau fichier et écrit dans la
 forme choisie, et le fichier d'origine reste tel qu'il était.
 
-![La forme proposée par « Save As… »](captures/enregistrer-sous.png)
+![Le bas de la boîte « Save As… », palette claire : le nom du fichier et son
+format, puis l'encodage, les fins de ligne et la marque, sur les mêmes
+colonnes.](captures/enregistrer-sous.png)
 
-![La même forme sous la palette sombre.](captures/enregistrer-sous-sombre.png)
+![Le même bandeau sous la palette sombre.](captures/enregistrer-sous-sombre.png)
+
+**Les images ne montrent que le bas de la boîte**, et pas la liste des fichiers
+au-dessus : celle-ci dépend de la machine — ses répertoires, ses dates, ses
+raccourcis latéraux —, donc sa photographie ne serait jamais deux fois la même.
+Ce bandeau-ci l'est, et c'est là que tout se joue.
 
 | Champ | Ce qu'il propose | Défaut |
 | :---- | :--------------- | :----- |
@@ -131,6 +138,11 @@ mêmes mots, que celui de la ligne de commande.
 — un `ł` dans du Latin-1. Le message est
 `holds a character the chosen encoding cannot write`, la fenêtre garde ses
 modifications, et le fichier visé n'est pas touché.
+
+**Le document ne déménage pas non plus** : il reste sur son fichier, dans son
+format et son encodage, et le `Save` suivant réécrit celui qu'on avait ouvert.
+Un enregistrement qui n'a pas eu lieu ne change rien du tout — ni sur le disque,
+ni dans la fenêtre.
 
 Changer de format change ce que la table montre — le séparateur décimal suit le
 format, virgule pour SubRip, point pour WebVTT.
