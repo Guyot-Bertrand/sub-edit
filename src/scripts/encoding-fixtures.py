@@ -43,6 +43,34 @@ savoir distinguer** :
 **Chaque fixture porte les mêmes répliques**, à l'accentuation près de ce que
 son encodage sait écrire. C'est ce qui permet de comparer une lecture à une
 autre sans comparer deux textes différents.
+
+## Les trois courtes, et ce qu'elles ajoutent
+
+Les neuf premières font entre cent cinquante et quatre cents octets, et un
+score relevé sur elles seules **ne mesure que le cas facile** — c'est le défaut
+qu'a soulevé l'issue #310. Trois fixtures d'une seule réplique s'y ajoutent :
+`latin1-court`, `cp1250-court`, `koi8-r-court`.
+
+**Ce n'est pas la longueur qui décide, ce sont les octets hauts**, et la mesure
+le dit — `score-encoding-detection.py --par-longueur`. Une réplique en porte
+trois là où trois répliques en portent neuf, et c'est de ce côté-là que la
+détection cesse de savoir.
+
+Chacune porte **la première réplique de son jeu**, et ce choix est une règle
+plutôt qu'un tri : choisir la réplique après avoir vu la réponse ferait dire au
+corpus le score qu'on voulait lire. `cp1250-court` en revient fausse ; elle
+reste.
+
+## La bilingue, et c'est elle qui a coûté le plus
+
+`koi8-r-rare` est à l'opposé des trois courtes : mille trois cents octets, dont
+dix-neuf hors ASCII. Vingt répliques d'anglais, une de russe — un carton, une
+note de traducteur, ce qu'un fichier réel porte souvent.
+
+Elle revenait en `ISO-8859-1`, et le russe avec elle, en latin accentué. Ce
+n'était pas un manque d'information : `uchardet` répondait juste sur le même
+fichier. C'était la masse d'ASCII qui pesait dans une statistique de lettres où
+elle n'avait rien à dire — ADR 0028.
 """
 
 from __future__ import annotations
@@ -84,6 +112,32 @@ CYRILLIC = [
     "Это длилось недолго.",
 ]
 
+# De l'anglais, qui ne porte aucun octet haut : ce qui remplit un fichier
+# bilingue autour des rares répliques qui en portent. Une seule fixture s'en
+# sert, et c'est celle qui compte le plus — #310.
+ENGLISH = [
+    "I don't know what you mean.",
+    "The harbour was empty at that hour.",
+    "Where did he go?",
+    "It didn't last very long.",
+    "She said the same thing again, quietly.",
+    "Do you think they will come back?",
+    "They told me it was settled.",
+    "The hotel had been closed since February.",
+    "Stop it, please.",
+    "After that, nobody spoke.",
+    "A strange idea, all the same.",
+    "It is already dark on the coast.",
+    "Nobody answered the telephone.",
+    "We waited until the rain stopped.",
+    "That was not what he promised.",
+    "The train leaves in ten minutes.",
+    "She never mentioned it again.",
+    "Somebody had opened the window.",
+    "You should have told me sooner.",
+    "It made no difference at all.",
+]
+
 # nom, encodage, BOM, fin de ligne, répliques, ce que la fixture montre
 FIXTURES = [
     ("utf-8-lf.srt", "utf-8", False, "lf", LATIN,
@@ -104,6 +158,22 @@ FIXTURES = [
      "un mono-octet non latin, qu'aucune heuristique latine ne confond"),
     ("cr-mac.srt", "utf-8", False, "cr", LATIN,
      "le retour chariot seul, la fin de ligne du Mac OS classique"),
+    # Les trois courtes — #310. La première réplique de leur jeu, et rien
+    # d'autre : le choix est une règle et non un tri, sans quoi le corpus
+    # dirait le score qu'on aurait voulu lire.
+    ("latin1-court.srt", "iso-8859-1", False, "lf", LATIN[:1],
+     "la même, sur une réplique : trois octets hauts au lieu de neuf"),
+    ("cp1250-court.srt", "cp1250", False, "lf", CENTRAL[:1],
+     "l'Europe centrale sur une réplique, et la falaise commence là"),
+    ("koi8-r-court.srt", "koi8-r", False, "lf", CYRILLIC[:1],
+     "le cyrillique sur une réplique, qui tient encore"),
+    # Le fichier bilingue — #310, et c'est la fixture la plus instructive du
+    # corpus. Vingt répliques d'anglais et une de cyrillique : de la statistique
+    # de lettres, la masse d'ASCII est tout ce qu'il y a à peser, et la réponse
+    # était ISO-8859-1 avant que la détection cesse de peser ce qui ne
+    # discrimine pas.
+    ("koi8-r-rare.srt", "koi8-r", False, "lf", ENGLISH + CYRILLIC[:1],
+     "un carton cyrillique dans un fichier anglais, que la masse d'ASCII noyait"),
 ]
 
 
