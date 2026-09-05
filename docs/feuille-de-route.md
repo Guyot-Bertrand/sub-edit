@@ -807,18 +807,28 @@ un « plus tard » sans référent ; six axes sortent du regard critique.
 | un `Save As…` qui échoue déplace quand même le document | [#309](https://github.com/Guyot-Bertrand/sub-edit/issues/309) |
 | la détection se trompe d'écriture sur un texte court | [#310](https://github.com/Guyot-Bertrand/sub-edit/issues/310) |
 | personne ne rejoue le score de détection | [#311](https://github.com/Guyot-Bertrand/sub-edit/issues/311) |
-| la langue des commentaires repose sur une mesure fausse | [#312](https://github.com/Guyot-Bertrand/sub-edit/issues/312) |
+| la langue des commentaires repose sur une mesure fausse | [#312](https://github.com/Guyot-Bertrand/sub-edit/issues/312) — **tranchée** : le C++ en anglais, un cliquet le tient, la traduction est [#325](https://github.com/Guyot-Bertrand/sub-edit/issues/325) |
 | la fenêtre ne dit l'encodage que quand il a été deviné | [#313](https://github.com/Guyot-Bertrand/sub-edit/issues/313) |
 | écrire en UTF-8 passe par une conversion qui ne fait rien — un tiers de plus, invisible pendant deux versions | [#318](https://github.com/Guyot-Bertrand/sub-edit/issues/318) |
 
-**Le dernier est le plus lourd, et il corrige une issue de la relecture
+**Le plus lourd est #312, et il corrige une issue de la relecture
 précédente.** #273 avait retourné la règle de langue des commentaires en
 concluant que « les commentaires de ce dépôt sont français partout, sans
-exception ». Compté : **6 339 lignes anglaises contre 1 142 françaises** sur
-`src/`. La mesure de #273 cherchait les fichiers portant *au moins un* caractère
+exception ». Sa mesure cherchait les fichiers portant *au moins un* caractère
 accentué, donc elle ne pouvait rendre que « il y a du français partout » — c'est
 le défaut de #268, vérifier avec l'outil qui ne compte pas, commis une issue
 après avoir été inscrit.
+
+**Compté ligne à ligne, la frontière est celle du fichier** : 6 460 lignes de
+commentaire anglaises contre 1 161 sur le C++, et l'inverse exact ailleurs —
+1 971 françaises contre 6 sur les scripts, 386 contre 4 sur le système de
+construction. La part de français dans les commentaires C++, par semaine
+d'écriture, donne à la dérive une date nette : 0,0 %, 0,3 %, 2,7 %, puis 30,2 %
+et 32,8 % — trois semaines d'anglais, puis les phases d'interface.
+
+**Le C++ se commente donc en anglais**, un cliquet le tient
+(`check-comment-language.py`, appelé par la porte), et les 1 161 lignes qui
+restent sont l'issue [#325](https://github.com/Guyot-Bertrand/sub-edit/issues/325).
 
 ## 9 — Formats complémentaires et balises riches
 

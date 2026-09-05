@@ -107,12 +107,12 @@ $(printf '    %s\n' ${offenders})
 # langues mêlées : c est ce que ce contrôle-ci tient, et cette moitié-là est
 # réglée.
 #
-# **L autre moitié ne l est pas, contrairement à ce qui a été écrit ici.** #273
-# a conclu que les commentaires étaient français partout et a retourné la règle
-# sur cette conclusion. La relecture de fin de phase 8 l a comptée : 6 339
-# lignes de commentaire anglaises contre 1 142 françaises sur `src/`. La règle
-# retournée décrit donc le dépôt encore moins bien que celle qu elle remplaçait,
-# et rien ici ne la tient — ce contrôle ne lit que les intitulés. Voir CLAUDE.md.
+# **L autre moitié a été retournée à l envers, et #312 l a remise d aplomb.**
+# #273 a conclu que les commentaires étaient français partout, en cherchant les
+# fichiers portant au moins un caractère accentué — une mesure qui ne pouvait
+# rendre que cela. Comptée ligne à ligne : 6 460 anglaises contre 1 161 sur le
+# C++, et l inverse exact sur les scripts. Le C++ se commente donc en anglais,
+# et `check_cpp_comments_are_english` le tient désormais.
 #
 # La frontière retenue : **ce que le binaire imprime est en anglais, ce qui
 # explique pourquoi est en français.** Un intitulé de test est du premier côté ;
@@ -329,7 +329,33 @@ $(printf '    %s\n' ${offenders})
     fi
 }
 
+# Invariant — le C++ se commente en anglais, tout le reste en français.
+#
+# **La frontière est celle du fichier, et le compte le dit** : sur `src/`, 6 460
+# lignes de commentaire anglaises contre 1 161 françaises ; sur les scripts,
+# 1 971 françaises contre 6 ; sur le système de construction, 386 contre 4.
+# Chaque famille de fichiers a sa langue, et une seule des deux a dérivé.
+#
+# **Elle a dérivé, et la dérive a une date.** Par semaine d'écriture, la part de
+# français dans les commentaires C++ : 0,0 %, puis 0,3 %, puis 2,7 %, puis
+# 30,2 % et 32,8 %. Trois semaines d'anglais, puis les phases d'interface. C'est
+# ce que #273 a vu à la fin de la quatrième semaine, et il a conclu que le dépôt
+# avait toujours été français — en cherchant les fichiers portant au moins un
+# caractère accentué, ce qui ne pouvait rendre que cela. Tranché en #312.
+#
+# Le contrôle vit dans un script à lui : il compte, et un compte se lit mieux en
+# Python qu'en awk. Voir `check-comment-language.py` pour ce qu'il reconnaît et
+# pour la faiblesse d'un cliquet global.
+check_cpp_comments_are_english() {
+    if "${REPO_ROOT}/src/scripts/check-comment-language.py"; then
+        return 0
+    fi
+
+    failures=$((failures + 1))
+}
+
 check_core_has_no_ui
+check_cpp_comments_are_english
 check_sources_are_handwritten
 check_executables_are_thin
 check_scripts_are_executable
