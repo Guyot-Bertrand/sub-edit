@@ -40,6 +40,7 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0025](0025-une-recette-d-ouverture-au-noyau.md) | Une seule recette d'ouverture, au noyau, et l'erreur qui en sort | acceptée |
 | [0026](0026-le-graphe-d-inclusions-reste-tel-quel.md) | Laisser le graphe d'inclusions tel quel, et pourquoi | acceptée |
 | [0027](0027-icu-pour-les-encodages.md) | ICU pour lire et écrire les encodages, en dépendance du noyau | acceptée |
+| [0028](0028-peser-les-lignes-qui-discriminent.md) | La détection ne pèse que les lignes qui discriminent | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
@@ -55,6 +56,13 @@ reste de 0001 — Qt 6, cœur sans dépendance à l'interface — reste en vigue
 une inférence sur un document, distincte de ce qu'il est et de ce qui le change.
 Elle a placé le déplacement de `anomaly.hpp` vers `core/analysis/` sous
 condition ; la #227 l'a fait le jour où la condition a été remplie.
+
+[0028](0028-peser-les-lignes-qui-discriminent.md) complète
+[0027](0027-icu-pour-les-encodages.md) sans la remplacer : ICU reste le
+détecteur et le convertisseur, et ce qui change est ce qu'on lui soumet. Son
+banc d'essai ne portait que des fichiers monolingues, et c'est en mesurant où la
+détection cesse de savoir — #310 — qu'un fichier bilingue s'est révélé perdre
+son second alphabet en entier.
 
 ## Décisions attendues
 

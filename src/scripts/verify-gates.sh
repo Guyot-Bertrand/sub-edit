@@ -40,6 +40,12 @@
 # un tiret, et un test qui lirait le dépôt de référence. Elle est ici parce que ce défaut ne se voit qu'à travers CTest, jamais
 # en lançant le binaire de test à la main — donc uniquement dans la porte.
 #
+# Les deux suivantes visent `make score`, le relevé de détection d encodage :
+# un relevé qu on remonte, que la porte doit refuser, et — du genre
+# d`expect_gate_stays_open` — un relevé qu on abaisse, qu elle doit laisser
+# passer. Un contrôle qui refuserait une détection meilleure que son relevé
+# serait pire qu absent.
+#
 # Les deux suivantes visent `make fixtures` : une fixture vidéo refabriquée avec
 # la mauvaise fréquence d'image, et une position de fixture de grille déplacée
 # d'une milliseconde. C'est la seule injection du script qui ne soit pas
@@ -109,6 +115,7 @@ readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
 readonly VIDEO_FIXTURE="${REPO_ROOT}/src/test/data/videos/cadence-25.mp4"
 readonly GRID_FIXTURE="${REPO_ROOT}/src/test/data/grilles/grille-25.srt"
+readonly DETECTION_JOURNAL="${REPO_ROOT}/docs/mesures/detection-d-encodage.md"
 readonly GUI_MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-gui/table.md"
 readonly CAPTURE_REFERENCE="${REPO_ROOT}/docs/manual/subedit-gui/captures/table.png"
 readonly INSTALLATION_SOURCE="${REPO_ROOT}/cmake/Installation.cmake"
@@ -151,6 +158,7 @@ restore() {
     cp "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
     cp "${backup_dir}/cadence-25.mp4" "${VIDEO_FIXTURE}"
     cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
+    cp "${backup_dir}/detection-d-encodage.md" "${DETECTION_JOURNAL}"
     cp "${backup_dir}/table.md" "${GUI_MANUAL_SOURCE}"
     cp "${backup_dir}/table.png" "${CAPTURE_REFERENCE}"
     cp "${backup_dir}/Installation.cmake" "${INSTALLATION_SOURCE}"
@@ -181,6 +189,7 @@ cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
 cp "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
 cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
 cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
+cp "${DETECTION_JOURNAL}" "${backup_dir}/detection-d-encodage.md"
 cp "${GUI_MANUAL_SOURCE}" "${backup_dir}/table.md"
 cp "${CAPTURE_REFERENCE}" "${backup_dir}/table.png"
 cp "${INSTALLATION_SOURCE}" "${backup_dir}/Installation.cmake"
@@ -856,6 +865,58 @@ PYTHON
 }
 
 expect_encoding_fixture_gate
+
+# Le score de détection, confronté à son relevé — issue #311.
+#
+# **Deux preuves, parce que le contrôle a trois issues et qu une seule est un
+# refus.** Un score qui baisse est une régression et doit échouer ; un score qui
+# monte est une bonne nouvelle et ne doit surtout pas échouer, sans quoi la
+# première pull request qui améliore la détection se heurterait à sa propre
+# amélioration. Le troisième cas, l égalité, est celui que toutes les autres
+# exécutions de ce script traversent déjà.
+#
+# **L injection porte sur le relevé et non sur la détection**, et c est ce qui
+# la rend exacte : ce que le contrôle compare est un chiffre du journal à un
+# chiffre mesuré, donc bouger le premier éprouve la comparaison elle-même,
+# quelle que soit la valeur du second. Une détection dégradée à la main
+# prouverait la même chose en moins sûr, et il faudrait la recompiler.
+expect_detection_score_gates() {
+    local recorded
+    recorded="$(sed -n 's/^ *corpus étiqueté *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
+        "${DETECTION_JOURNAL}")"
+    local right="${recorded% *}"
+    local total="${recorded#* }"
+
+    printf '%s▸ un score de détection en dessous de son relevé%s\n' "${BOLD}" "${RESET}"
+
+    sed -i "s|^ *corpus étiqueté *:.*$|    corpus étiqueté : ${total}/${total}|" \
+        "${DETECTION_JOURNAL}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory score >/dev/null 2>&1; then
+        printf '  %s✗ la porte « score » a laissé passer le recul%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make score » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    restore
+
+    printf '%s▸ un score de détection au dessus de son relevé%s\n' "${BOLD}" "${RESET}"
+
+    sed -i "s|^ *corpus étiqueté *:.*$|    corpus étiqueté : $((right - 1))/${total}|" \
+        "${DETECTION_JOURNAL}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory score >/dev/null 2>&1; then
+        printf '  %s✓ « make score » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ la porte « score » a refusé une détection meilleure%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    restore
+}
+
+expect_detection_score_gates
 
 # Le scorimètre ne peut pas nommer un fichier — issue #290.
 #
@@ -1560,7 +1621,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles cinquante-trois portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles cinquante-cinq portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

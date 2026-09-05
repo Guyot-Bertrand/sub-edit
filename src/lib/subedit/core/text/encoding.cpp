@@ -7,6 +7,7 @@
 #include <unicode/ustring.h>
 #include <unicode/utypes.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -77,6 +78,71 @@ struct DetectorCloser {
 };
 
 using DetectorHandle = std::unique_ptr<UCharsetDetector, DetectorCloser>;
+
+/// The lowest byte that is not plain ASCII.
+constexpr unsigned char kFirstHighByte = 0x80;
+
+/// The lines of `bytes` that carry a byte outside ASCII, joined back up.
+///
+/// **Only what can discriminate is weighed** — issue #310. A line of plain
+/// ASCII reads the same under every candidate, so it tells a detector nothing
+/// about which one to pick; what it does instead is weigh on the letter
+/// statistics ICU ranks by. On a subtitle file that is mostly English with a
+/// few Cyrillic lines, that mass is the whole answer: measured, ICU ranked
+/// ISO-8859-1 at 66 and KOI8-R at 2, and the Cyrillic came back as accented
+/// Latin sixty times out of sixty.
+///
+/// Handed the same file with its ASCII lines dropped, ICU ranks KOI8-R at 54
+/// and does not propose ISO-8859-1 at all.
+///
+/// **Two ways out hand the bytes back whole**, and each closes a way this could
+/// do harm rather than good.
+///
+/// *A NUL anywhere.* That is a wide encoding — UTF-16 above all — where `0x0a`
+/// is half a code unit, so cutting on it slices a character rather than a line,
+/// and where a line of plain ASCII is a line of `X\0X\0` that carries no high
+/// byte and would be dropped whole. Nothing written in a single-byte or a
+/// multi-byte Asian encoding carries a NUL, so nothing that this helps is lost
+/// here.
+///
+/// *Nothing dropped.* A file that is accented throughout has no ASCII mass to
+/// remove, and rebuilding it would only turn its line endings into `\n` for no
+/// gain. What is weighed is then exactly what was weighed before this function
+/// existed.
+[[nodiscard]] std::string weighableLines(std::string_view bytes) {
+    if (bytes.find('\0') != std::string_view::npos)
+        return std::string{bytes};
+
+    const auto carriesHighByte = [](std::string_view line) {
+        return std::ranges::any_of(
+            line, [](char byte) { return static_cast<unsigned char>(byte) >= kFirstHighByte; });
+    };
+
+    std::string kept;
+    kept.reserve(bytes.size());
+    bool dropped = false;
+
+    std::size_t start = 0;
+    while (start <= bytes.size()) {
+        std::size_t end = bytes.find_first_of("\r\n", start);
+        if (end == std::string_view::npos)
+            end = bytes.size();
+
+        const std::string_view line = bytes.substr(start, end - start);
+        if (carriesHighByte(line)) {
+            kept += line;
+            kept += '\n';
+        } else if (!line.empty()) {
+            // An empty line is a line ending met twice, not a line of ASCII:
+            // dropping it removes nothing, so it does not count as a drop.
+            dropped = true;
+        }
+
+        start = end + 1;
+    }
+
+    return dropped && !kept.empty() ? kept : std::string{bytes};
+}
 
 } // namespace
 
@@ -258,9 +324,16 @@ std::optional<DetectedEncoding> detectEncoding(std::string_view bytes) {
         return DetectedEncoding{
             .encoding = utf8, .choice = EncodingChoice::Detected, .text = std::move(asUtf8)};
 
+    // **What is weighed is not what is decoded.** ICU ranks the candidates on
+    // the lines that carry something to rank; each candidate is then tried
+    // against the whole file, because an encoding that cannot read all of it is
+    // not an answer.
+    const std::string weighable = weighableLines(bytes);
+
     UErrorCode status = U_ZERO_ERROR;
     const DetectorHandle detector{ucsdet_open(&status)};
-    ucsdet_setText(detector.get(), bytes.data(), static_cast<int32_t>(bytes.size()), &status);
+    ucsdet_setText(
+        detector.get(), weighable.data(), static_cast<int32_t>(weighable.size()), &status);
 
     // **Every match ICU weighed, in its order, and the first that actually
     // decodes.** Its best answer is a ranking and not a verdict, and the top of

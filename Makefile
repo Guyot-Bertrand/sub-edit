@@ -181,6 +181,25 @@ parallelism: ## Vérifie qu'aucun parallélisme ne contourne $(JOBS)
 fixtures: ## Vérifie que les fixtures engendrées sont ce que leur table dit
 	@./src/scripts/gate.sh fixtures
 
+# Le score de la détection d'encodage, et son enregistrement — issue #311.
+#
+# **Deux cibles pour les deux gestes**, comme `coverage` et `ratchet` : l'une
+# mesure et refuse un recul, l'autre inscrit une mesure au journal. Un score qui
+# monte est une bonne nouvelle qui demande de réécrire le journal, et rien ne
+# doit le réécrire tout seul — ce serait effacer la comparaison qu'on venait
+# faire.
+.PHONY: score
+score: ## Rejoue le score de détection d'encodage et le confronte au relevé
+	@./src/scripts/gate.sh score
+
+.PHONY: score-record
+score-record: ## Enregistre le score de détection mesuré comme nouveau relevé
+	$(call step,"relevé de détection d encodage")
+	@cmake --preset dev >/dev/null
+	@cmake --build --preset dev -j $(JOBS) --target subedit_detect_encoding
+	@./src/scripts/score-encoding-detection.py --record \
+		--detector './build/dev/bin/subedit_detect_encoding {}'
+
 .PHONY: manual
 manual: ## Régénère les exemples d'appel et les captures du manuel
 	@./src/scripts/gate.sh manual
@@ -272,7 +291,8 @@ check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couvert
 # L'ordre interne va du moins cher au plus cher, pour qu'un échec
 # coûte des secondes plutôt que la totalité de la chaîne : parallélisme
 # maîtrisé (un grep, sous la seconde), fixtures vidéo (deux appels à ffprobe,
-# sous la seconde aussi), exemples du manuel (le seul binaire de
+# sous la seconde aussi), score de détection d'encodage (le noyau et un
+# programme de quarante lignes), exemples du manuel (le seul binaire de
 # la CLI), exigences (compilation incrémentale dev), tests de bout en bout
 # (build release), installation dans un préfixe temporaire — qui partage cet
 # arbre release et ne le reconstruit donc pas —, puis benchmarks. `parallelism`
@@ -293,7 +313,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@./src/scripts/gate.sh check-local
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (cinquante-trois preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (cinquante-cinq preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog

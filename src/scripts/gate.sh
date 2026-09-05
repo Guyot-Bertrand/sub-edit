@@ -63,12 +63,14 @@ readonly CHECK_STEPS=(
 
 # **L'ordre de `check-local`, du moins cher au plus cher**, pour qu'un échec
 # coûte des secondes plutôt que la chaîne entière : parallélisme (un grep, sous
-# la seconde), fixtures (deux appels à ffprobe), manuel (un seul binaire),
+# la seconde), fixtures (deux appels à ffprobe), score de détection (le noyau et
+# un programme de quarante lignes), manuel (un binaire de plus, et Qt),
 # exigences (compilation incrémentale), bout en bout (build release),
 # installation — qui partage cet arbre — puis les benchmarks.
 readonly LOCAL_STEPS=(
     parallelism
     fixtures
+    score
     manual-check
     requirements
     e2e
@@ -98,6 +100,7 @@ run_step() {
     parallelism) printf '%s▸ parallélisme maîtrisé%s\n' "${BOLD}" "${RESET}"
         "${REPO_ROOT}/src/scripts/check-parallelism.sh" ;;
     fixtures) "${STEPS_DIR}/fixtures.sh" ;;
+    score) "${STEPS_DIR}/score.sh" ;;
     manual-check) "${STEPS_DIR}/manual.sh" --check ;;
     manual) "${STEPS_DIR}/manual.sh" ;;
     requirements) "${STEPS_DIR}/requirements.sh" ;;
