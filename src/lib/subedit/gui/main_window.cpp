@@ -224,6 +224,7 @@ MainWindow::MainWindow(core::FileSystem& files,
           this, QStringLiteral("Play / Pause"), QStringLiteral("media-playback-start"))),
       m_videoStatus(new QLabel{this}),
       m_gridStatus(new QLabel{this}),
+      m_encodingStatus(new QLabel{this}),
       m_videoView(new QWidget{this}),
       m_noVideo(new QWidget{this}),
       m_split(new QSplitter{Qt::Vertical, this}),
@@ -429,6 +430,9 @@ MainWindow::MainWindow(core::FileSystem& files,
     // accompanies and what grid its positions were written on are standing
     // facts, not passing remarks, and a message can be pushed aside by the next
     // one.
+    // The encoding first, being the only one of the three that describes the
+    // file rather than what is deduced from it or associated with it.
+    statusBar()->addPermanentWidget(m_encodingStatus);
     statusBar()->addPermanentWidget(m_gridStatus);
     statusBar()->addPermanentWidget(m_videoStatus);
 
@@ -520,6 +524,21 @@ void MainWindow::proposeVideoBeside() {
     }
 
     refreshVideo();
+}
+
+void MainWindow::refreshEncodingStatus() {
+    // **What the document is, and not what its reading did** — issue #313. The
+    // window said the encoding in a diagnostic and nowhere else, so it said it
+    // only when the encoding had been guessed: a file that declares its own
+    // with a mark showed nothing at all, where `inspect` writes « UTF-16LE,
+    // from its byte order mark ». The command line had three answers, the
+    // window one and a half.
+    //
+    // Where the answer came from stays with the diagnostics panel, which exists
+    // to say what happened; this line says what is, permanently, as the grid's
+    // and the film's do.
+    m_encodingStatus->setText(
+        QString::fromStdString(core::encodingStatusOf(m_session->project().sourceFile().encoding)));
 }
 
 void MainWindow::refreshGridStatus() {
@@ -619,8 +638,14 @@ void MainWindow::refreshVideoStatus() {
 }
 
 void MainWindow::refreshVideo() {
-    refreshVideoStatus();
+    // **In this order, and the other way round was issue #323.** It is
+    // `watchAssociatedVideo` that reads the rate the film declares — one call
+    // to `ffprobe`, once per film — so painting the status bar before it is
+    // painting it on a rate that is not there yet. Nothing painted it again,
+    // and the line never carried a rate at all: it is written, worded and in
+    // the manual, and it never reached the screen.
     watchAssociatedVideo();
+    refreshVideoStatus();
 }
 
 core::VideoPlayer* MainWindow::player() {
@@ -922,7 +947,14 @@ void MainWindow::showEvent(QShowEvent* event) {
         return;
 
     m_wasShown = true;
+
+    // **And the status bar after it**, for `refreshVideo`'s reason: this is
+    // where the film the naming convention offered is actually taken, the
+    // window not having been shown when `proposeVideoBeside` went by. Without
+    // this line, `subedit-gui film.srt` — the ordinary road — never showed the
+    // rate.
     watchAssociatedVideo();
+    refreshVideoStatus();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
@@ -953,6 +985,13 @@ void MainWindow::refreshActions() {
     // taken again here rather than at the opening alone: an alignment that put
     // the file on another grid must not leave the status bar saying the old one.
     refreshGridStatus();
+
+    // **The encoding rides here although no edit can change it**, and that is
+    // deliberate: the two places it does change — an opening, a « save as » that
+    // moved the document — both pass through here already, and a third call
+    // site is a third one to forget. Issue #323 is what that costs, on the line
+    // beside this one. Building a short string is not a deduction.
+    refreshEncodingStatus();
 
     // Nothing to shift, nothing to transform: an enabled action would open a
     // dialog that could apply to nothing.

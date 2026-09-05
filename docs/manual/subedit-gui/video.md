@@ -47,9 +47,10 @@ correction tient.
 
 ## Ce que la barre d'état montre
 
-À droite de la barre d'état, une ligne dit ce que le document accompagne. À
-côté d'elle, une autre dit la [grille d'images](grille.md) déduite des
-positions.
+À droite de la barre d'état, une ligne dit ce que le document accompagne. Elle
+est la dernière des trois : l'[encodage](fichiers.md#lencodage-dans-la-barre-détat)
+du fichier lu vient en premier, la [grille d'images](grille.md) déduite des
+positions ensuite.
 
 | Situation | Ce qui est écrit |
 | :-------- | :--------------- |

@@ -13,7 +13,9 @@ question.
 
 ## Ce que la barre d'état montre
 
-À droite, à côté de ce qu'elle dit déjà de la [vidéo associée](video.md#ce-que-la-barre-détat-montre) :
+À droite, entre ce qu'elle dit de
+l'[encodage](fichiers.md#lencodage-dans-la-barre-détat) du fichier lu et ce
+qu'elle dit de la [vidéo associée](video.md#ce-que-la-barre-détat-montre) :
 
 | Situation | Ce qui est écrit |
 | :-------- | :--------------- |

@@ -9,6 +9,10 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **gui** — La fenêtre dit l'encodage du document, et la cadence du film
+
 ### Corrections
 
 - **core** — Un encodage qui écrit sa propre marque est refusé
@@ -17,6 +21,7 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — Le C++ se commente en anglais, et un cliquet le tient
+- **gui** — La barre d'état à trois mentions, et sa capture
 
 ## 0.9.0 — 2026-09-04
 

@@ -116,15 +116,12 @@ public:
         return other;
     }
 
-    /// Returns the name of the whole answer, mark included.
-    ///
-    /// The `-sig` suffix is Python's own for UTF-8 with a mark, and Gaupol
-    /// shows it as `UTF-8-SIG`. Python has no name for the UTF-16 pair — it
-    /// detects their mark rather than naming it — so the same suffix is carried
-    /// over rather than a second convention invented for two cases.
-    [[nodiscard]] std::string name() const {
-        return m_mark == ByteOrderMark::Present ? m_charset + "-sig" : m_charset;
-    }
+    // **No `name()` here, and that is issue #315.** It used to answer the
+    // charset with `-sig` glued on when a mark was there — Python's spelling
+    // for UTF-8, and nobody's for `UTF-16LE-sig`. Naming a value for a reader
+    // is `wording.hpp`'s work, and it is where `nameOf(const Encoding&)` lives
+    // now; what this type answers is `charset()` and `byteOrderMark()`, which
+    // are what it knows.
 
     [[nodiscard]] friend bool operator==(const Encoding& left, const Encoding& right) {
         return left.m_charset == right.m_charset && left.m_mark == right.m_mark;

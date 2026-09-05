@@ -165,6 +165,10 @@ public:
     /// This is what `GUI-GRID-01` promises the user sees.
     [[nodiscard]] QLabel* gridStatus() const { return m_gridStatus; }
 
+    /// What the status bar says of the encoding the document was read in.
+    /// This is what `GUI-ENC-01` promises the user sees.
+    [[nodiscard]] QLabel* encodingStatus() const { return m_encodingStatus; }
+
     [[nodiscard]] QAction* analyseGridAction() const { return m_analyseGrid; }
 
     [[nodiscard]] QAction* snapAction() const { return m_snap; }
@@ -310,6 +314,12 @@ private:
     /// costs a fraction of a millisecond on a full-length file.
     void refreshGridStatus();
 
+    /// Puts the status bar in step with the encoding the document carries.
+    ///
+    /// Called wherever that encoding can have changed — an opening, and a
+    /// « save as » that moved the document onto another one.
+    void refreshEncodingStatus();
+
     /// Opens the analysis, which reports and changes nothing.
     void analyseGrid();
 
@@ -449,6 +459,7 @@ private:
     QAction* m_playPause = nullptr;
     QLabel* m_videoStatus = nullptr;
     QLabel* m_gridStatus = nullptr;
+    QLabel* m_encodingStatus = nullptr;
     QWidget* m_videoView = nullptr;
     QWidget* m_noVideo = nullptr;
     QSplitter* m_split = nullptr;

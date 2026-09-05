@@ -85,7 +85,7 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
     if (!decoded.has_value())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::Undecodable,
-            .detail = read.name(),
+            .detail = std::string{read.charset()},
         });
 
     const std::string_view text = *decoded;
@@ -151,8 +151,14 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
                                    Diagnostic{
                                        .severity = Severity::Recovered,
                                        .line = kWholeFile,
+                                       // The charset and not a worded name: a
+                                       // diagnostic detail is the datum the
+                                       // sentence is about, and a guessed
+                                       // encoding never carries a mark — a mark
+                                       // is a declaration, so nothing was
+                                       // guessed.
                                        .kind = DiagnosticKind::GuessedEncoding,
-                                       .detail = result->encoding.name(),
+                                       .detail = std::string{result->encoding.charset()},
                                    });
 
     return result;
