@@ -23,6 +23,10 @@ ne pas l'éditer à la main.
 - **doc** — Le C++ se commente en anglais, et un cliquet le tient
 - **gui** — La barre d'état à trois mentions, et sa capture
 
+### Performance
+
+- **core** — Deux conversions qui ne faisaient rien
+
 ## 0.9.0 — 2026-09-04
 
 ### Ajouts

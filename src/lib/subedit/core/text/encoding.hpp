@@ -36,10 +36,26 @@ enum class EncodingChoice {
     Detected,
 };
 
-/// An encoding proposed for these bytes, and how it was arrived at.
+/// An encoding proposed for these bytes, how it was arrived at, and — when
+/// arriving at it took a decoding — the text that decoding produced.
 struct DetectedEncoding {
     Encoding encoding;
     EncodingChoice choice;
+
+    /// What the bytes read as, when weighing them required reading them.
+    ///
+    /// **Handed back rather than thrown away**, and that is the whole of issue
+    /// #314. Weighing bytes means decoding them: `Detected` is answered by a
+    /// conversion that either worked or did not, and the caller then decoded
+    /// the very same bytes a second time. A third of a millisecond on a
+    /// full-length file, paid for nothing.
+    ///
+    /// **Empty when a mark answered**, because a mark answers without reading
+    /// anything: there is no text to hand back, and the caller decodes once as
+    /// it always did. That is also why this is an optional and not a string —
+    /// an empty file decodes to an empty text, which is an answer and not an
+    /// absence.
+    std::optional<std::string> text{};
 };
 
 /// The encoding named by the mark at the head of `bytes`, if there is one.
@@ -54,6 +70,9 @@ struct DetectedEncoding {
 /// **The mark first, always.** It is the only thing a subtitle file ever says
 /// about its own encoding — there is no header and no naming convention — so
 /// weighing bytes against it would be answering a question already settled.
+///
+/// **It hands back the text it had to produce**, which is not a second job but
+/// the refusal to throw away the first — see `DetectedEncoding::text`.
 ///
 /// **What comes after is a proposal and never a certainty**, and the type says
 /// so by naming where the answer came from. Latin-1 and CP1252 are the same
