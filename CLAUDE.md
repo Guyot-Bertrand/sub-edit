@@ -92,37 +92,53 @@ avec un objectif d'iso-fonctionnalité.
 
 ## Conventions
 
-- **Langue** — la frontière n'est pas celle du compilateur : **ce que le
-  binaire imprime est en anglais, ce qui explique pourquoi est en français.**
+- **Langue** — deux frontières, et la première est celle du fichier : **le C++
+  s'écrit en anglais de bout en bout, identifiants comme commentaires ; tout le
+  reste du dépôt s'écrit en français.** La seconde ne vaut qu'à l'intérieur de
+  la première : **ce que le binaire imprime est en anglais, ce qui explique
+  pourquoi est en français.**
 
   | Anglais | Français |
   | :------ | :------- |
-  | les identifiants du code C++ | les commentaires, dans le code comme ailleurs |
-  | tout ce que le binaire écrit à un utilisateur | la documentation, les specs, les ADR, les manuels |
-  | les intitulés de cas de test, que Catch2 imprime | les messages de commit, les scripts, le système de construction, les échanges |
+  | le C++, identifiants **et commentaires** | la documentation, les specs, les ADR, les manuels |
+  | tout ce que le binaire écrit à un utilisateur | les scripts et le système de construction |
+  | les intitulés de cas de test, que Catch2 imprime | les messages de commit et les échanges |
 
-  > **La ligne « les commentaires » de ce tableau est en sursis, et la relecture
-  > de fin de phase 8 dit pourquoi.** Elle vient de l'issue #273, qui a écrit
-  > « les commentaires de ce dépôt sont français partout, sans exception » et a
-  > retourné la règle sur cette phrase. **La phrase est fausse**, et l'inverse
-  > est vrai : sur `src/`, **6 339 lignes de commentaire anglaises contre
-  > 1 142 françaises**, et 319 fichiers à majorité anglaise contre 25.
-  >
-  > Ce qui l'a fait croire est la mesure : #273 a cherché les fichiers portant
-  > **au moins un** caractère accentué, en a trouvé soixante-dix, et en a conclu
-  > que le dépôt était français. Un fichier de cinquante commentaires anglais et
-  > d'un français y comptait pour français. C'est exactement le défaut que la
-  > relecture d'où sortait #273 venait d'inscrire — **vérifier avec l'outil qui
-  > ne compte pas** — commis une issue plus tard.
-  >
-  > La phase 8 en donne l'illustration la plus courte : `save_shape.hpp` est
-  > commenté en anglais, `save_shape.cpp` en français, et ce sont les deux
-  > moitiés d'une même classe.
-  >
-  > **Rien n'est décidé ici**, parce que ce n'est pas à une relecture de choisir
-  > entre traduire six mille lignes et retourner une règle une seconde fois. En
-  > attendant : suivre la langue du fichier qu'on modifie, et ne pas mélanger
-  > les deux dans un même fichier.
+  **Tranché en #312, sur un compte** — et dans l'autre sens que #273, qui avait
+  écrit l'inverse. Chaque famille de fichiers a sa langue, sans mélange :
+
+  | | anglais | français |
+  | :--- | ------: | -------: |
+  | `src/**.cpp`, `src/**.hpp` | **6 460** | 1 161 |
+  | `src/scripts` | 6 | **1 971** |
+  | `cmake`, `Makefile` | 4 | **386** |
+
+  **Une seule des deux moitiés a dérivé, et la dérive a une date.** Part de
+  français dans les commentaires C++, par semaine d'écriture :
+
+  | S32 | S33 | S34 | S35 | S36 |
+  | --: | --: | --: | --: | --: |
+  | 0,0 % | 0,3 % | 2,7 % | **30,2 %** | **32,8 %** |
+
+  Trois semaines d'anglais, puis les phases d'interface. C'est ce que #273 a vu
+  à la fin de la quatrième semaine — et il en a conclu que le dépôt avait
+  *toujours* été français, en cherchant les fichiers portant **au moins un**
+  caractère accentué, ce qui ne pouvait rendre que cela. Un fichier de cinquante
+  commentaires anglais et d'un français y comptait pour français. C'est le
+  défaut de #268 — vérifier avec l'outil qui ne compte pas — commis une issue
+  après avoir été inscrit.
+
+  **Un cliquet tient la règle**, parce que les deux versions précédentes ont
+  cessé de décrire le dépôt sans que personne le voie :
+  `check-comment-language.py` compte les lignes françaises restées dans le C++
+  et **refuse qu'elles montent**. Il est appelé par `check-architecture.sh`,
+  donc par `make check`. Le baisser est le geste normal d'une pull request qui
+  traduit ; il n'y a pas de bouton pour le remonter.
+
+  **Mille cent soixante et une lignes restent à traduire**, concentrées dans une
+  cinquantaine de fichiers d'interface — issue #325. En attendant, la règle
+  vaut pour ce qu'on écrit : **du C++ neuf se commente en anglais**, et un
+  fichier qu'on modifie ne se met pas à mélanger les deux.
 
   Les intitulés de tests, eux, avaient bien dérivé : **cent en français**,
   presque tous nés d'une seule phase, et un `--list-tests` qui rendait deux

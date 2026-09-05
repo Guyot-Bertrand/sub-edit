@@ -448,6 +448,21 @@ expect_gate_closes \
     CHECK(true);
 }'
 
+# Commentaire francais ajoute a un fichier C++. Le cliquet de langue est le seul
+# controle de ce depot dont le defaut ne peut pas etre une faute de frappe : il
+# compte, et une ligne de plus le fait deborder. Sans preuve, un cliquet pose au
+# compte exact du jour ne se distingue pas dun cliquet pose trop haut, qui
+# laisserait passer la derive quil est cense arreter.
+#
+# Le fragment est ecrit sans apostrophe ni accent, comme tous ceux dici : il
+# passe par une chaine entre apostrophes simples.
+expect_gate_closes \
+    "commentaire francais ajoute a du C++" \
+    "arch" \
+    "${LIB_SOURCE}" \
+    '// Une ligne de commentaire dans la langue qui nest pas celle des fichiers
+// que ce controle surveille, pour que la porte le dise.'
+
 expect_pr_check_closes \
     "corps de pull request sans « Closes #N »" \
     "closes" \
@@ -1545,7 +1560,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles cinquante-deux portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles cinquante-trois portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
