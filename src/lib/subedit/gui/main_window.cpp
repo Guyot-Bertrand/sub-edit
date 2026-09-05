@@ -824,7 +824,8 @@ bool MainWindow::saveAs() {
     // Ce que le document devient, posé avant l'écriture : `saveProject` écrit ce
     // que le projet porte, et ce qu'il porte est désormais ce qui vient d'être
     // choisi. Ce n'est pas une commande — personne ne voudrait l'annuler.
-    core::SourceFile moved = m_session->project().sourceFile();
+    const core::SourceFile before = m_session->project().sourceFile();
+    core::SourceFile moved = before;
     moved.path = target->path;
     moved.format = target->format;
     moved.encoding = target->encoding;
@@ -834,6 +835,14 @@ bool MainWindow::saveAs() {
     const std::expected<void, core::SaveError> written =
         core::saveProject(*m_files, m_session->project(), target->path, target->format);
     if (!written) {
+        // **And undone when the writing fails.** A document that was not
+        // written has not moved: without this step back it aims at a file that
+        // does not exist, the title still shows the old name — it is only taken
+        // up further down — and `Save` writes somewhere other than where anyone
+        // thinks. The case has been reachable since phase 8: a `ł` and a
+        // Latin-1 encoding are enough, and it does not even ask the disk to
+        // refuse.
+        m_session->setSourceFile(before);
         m_prompts->reportFailure(target->path.string() + ": " +
                                  std::string{core::reasonOf(written.error())});
         return false;

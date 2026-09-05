@@ -135,10 +135,16 @@ avec un objectif d'iso-fonctionnalité.
   donc par `make check`. Le baisser est le geste normal d'une pull request qui
   traduit ; il n'y a pas de bouton pour le remonter.
 
-  **Mille cent soixante et une lignes restent à traduire**, concentrées dans une
-  cinquantaine de fichiers d'interface — issue #325. En attendant, la règle
-  vaut pour ce qu'on écrit : **du C++ neuf se commente en anglais**, et un
-  fichier qu'on modifie ne se met pas à mélanger les deux.
+  **Mille lignes et des poussières restent à traduire**, concentrées dans une
+  cinquantaine de fichiers d'interface — issue #325. En attendant, la règle vaut
+  pour ce qu'on écrit : **du C++ neuf se commente en anglais**, dans un fichier
+  français comme ailleurs. Le mélange est transitoire et le cliquet en garantit
+  la fin ; écrire une phrase française de plus, non.
+
+  **Un fichier français qu'on retouche en profondeur se traduit d'un bloc**,
+  dans le même diff, et le cliquet descend d'autant. C'est ce qui garde les
+  fichiers lisibles pendant la transition, et ce qui fait avancer #325 sans lui
+  consacrer une pull request.
 
   Les intitulés de tests, eux, avaient bien dérivé : **cent en français**,
   presque tous nés d'une seule phase, et un `--list-tests` qui rendait deux

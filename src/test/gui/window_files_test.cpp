@@ -24,6 +24,7 @@
 #include <QTableView>
 #include <QToolButton>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <expected>
 #include <optional>
@@ -34,6 +35,7 @@
 
 namespace {
 
+using Catch::Matchers::ContainsSubstring;
 using subedit::core::ByteOrderMark;
 using subedit::core::Encoding;
 using subedit::core::EncodingRefusal;
@@ -204,6 +206,47 @@ TEST_CASE("the encoding chosen is what the settings carry away", "[gui][GUI-ENC-
     window.saveAsAction()->trigger();
 
     CHECK(window.settings().writeEncoding == named("windows-1250"));
+}
+
+TEST_CASE("a save under another name that fails moves nothing", "[gui][GUI-SAVE-02]") {
+    // **The defect of issue #309.** The target shape is put in place before the
+    // writing — `saveProject` writes what the project carries — and it was not
+    // undone when the writing failed: the document then aimed at a file that
+    // does not exist, and `Save` wrote somewhere other than where anyone
+    // thought.
+    //
+    // The `ł` and Latin-1 are the shortest road to that failure, and it asks
+    // nothing of the disk: no Latin encoding can write that letter.
+    InMemoryFileSystem files;
+    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nŁódź.\n\n");
+    FakePrompts prompts;
+    prompts.nextSaveTarget = SaveTarget{.path = "copie.srt",
+                                        .format = SubtitleFormat::SubRip,
+                                        .encoding = named("iso-8859-1"),
+                                        .newline = Newline::Lf};
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
+
+    window.saveAsAction()->trigger();
+
+    // Nothing was written, and that is what the message says.
+    CHECK_FALSE(files.contentOf("copie.srt").has_value());
+    REQUIRE_FALSE(prompts.failures.empty());
+    CHECK_THAT(prompts.failures.back(),
+               ContainsSubstring("holds a character the chosen encoding cannot write"));
+
+    // **And the document has not moved.** What proves it is the next gesture:
+    // `Save` writes the open file back, in UTF-8, where the `ł` has its place.
+    // With the defect it aimed at `copie.srt` in Latin-1 and failed a second
+    // time — hence the count of failures rather than the absence of the file,
+    // which did not tell the two apart.
+    REQUIRE(prompts.failures.size() == 1);
+
+    window.saveAction()->trigger();
+
+    CHECK(prompts.failures.size() == 1);
+    CHECK_FALSE(files.contentOf("copie.srt").has_value());
+    CHECK_THAT(files.contentOf("film.srt").value_or(""), ContainsSubstring("Łódź"));
 }
 
 TEST_CASE("saving under another name moves the document there", "[gui][GUI-SAVE-02]") {

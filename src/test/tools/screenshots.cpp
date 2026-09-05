@@ -28,6 +28,7 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/source_file.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
@@ -41,12 +42,14 @@
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QByteArray>
+#include <QFileDialog>
 #include <QFont>
 #include <QFontInfo>
 #include <QHeaderView>
 #include <QMessageLogContext>
 #include <QModelIndex>
 #include <QPixmap>
+#include <QRect>
 #include <QSplitter>
 #include <QString>
 #include <QStyleFactory>
@@ -56,6 +59,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -134,6 +138,20 @@ constexpr int kDialogHeight = 430;
 /// Plus petite que la taille d'ouverture : la capture montre de quoi
 /// reconnaître la fenêtre, et une image de neuf cents pixels de large dans une
 /// page de manuel se lit moins bien qu'une de sept cents.
+/// The save dialog, and the height of the strip kept out of it.
+///
+/// **A fixed size and a fixed strip**, because those are the only two things
+/// that make the image the same twice: the dialog takes its height from this
+/// number, and the six bottom rows take theirs from the font, which this
+/// program names. What sits above — directories, dates, sidebar shortcuts —
+/// depends on the machine, and that is precisely what the strip leaves out.
+///
+/// A hundred and sixty pixels: the hundred and fifty-three the six rows take at
+/// that size, and a little air above them.
+constexpr int kSaveAsWidth = 760;
+constexpr int kSaveAsHeight = 500;
+constexpr int kSaveAsStripHeight = 160;
+
 constexpr int kManualWidth = 700;
 constexpr int kManualHeight = 480;
 
@@ -173,6 +191,21 @@ void withoutOffscreenNoise(QtMsgType type, const QMessageLogContext& context, co
 /// fenêtre qui n'a jamais été montrée n'a pas de vraie géométrie et sa
 /// disposition n'a pas tourné : c'est ce que #191 a changé, et sans quoi il n'y
 /// aurait rien à photographier.
+/// Writes a shot already taken, under the name `compare-screenshots.py` expects.
+[[nodiscard]] bool
+writeShot(const QPixmap& shot, const std::filesystem::path& directory, const std::string& name) {
+    const std::filesystem::path target = directory / (name + ".new.png");
+
+    if (shot.isNull() || !shot.save(QString::fromStdString(target.string()), "PNG")) {
+        std::cerr << "subedit_screenshots: " << target.string() << ": nothing written\n";
+        return false;
+    }
+
+    std::cout << "  " << target.filename().string() << " — " << shot.width() << "×" << shot.height()
+              << "\n";
+    return true;
+}
+
 [[nodiscard]] bool capture(QWidget& shown,
                            QWidget& subject,
                            const std::filesystem::path& directory,
@@ -183,17 +216,25 @@ void withoutOffscreenNoise(QtMsgType type, const QMessageLogContext& context, co
     // celles du constructeur.
     QApplication::processEvents();
 
-    const std::filesystem::path target = directory / (name + ".new.png");
-    const QPixmap shot = subject.grab();
+    return writeShot(subject.grab(), directory, name);
+}
 
-    if (shot.isNull() || !shot.save(QString::fromStdString(target.string()), "PNG")) {
-        std::cerr << "subedit_screenshots: " << target.string() << ": nothing written\n";
-        return false;
-    }
+/// The bottom strip of a « Save As… » dialog, under the theme already applied.
+///
+/// The dialog is the one the window opens — `saveDialogFor` — so what is
+/// photographed is what the user sees, alignment included.
+[[nodiscard]] bool captureSaveAsStrip(const std::filesystem::path& directory,
+                                      const std::string& name) {
+    const subedit::core::SourceFile source;
+    const std::unique_ptr<QFileDialog> dialog = subedit::gui::saveDialogFor(
+        source, subedit::core::Encoding::utf8(subedit::core::ByteOrderMark::Absent), nullptr);
 
-    std::cout << "  " << target.filename().string() << " — " << shot.width() << "×" << shot.height()
-              << "\n";
-    return true;
+    dialog->resize(kSaveAsWidth, kSaveAsHeight);
+    dialog->show();
+    QApplication::processEvents();
+
+    const QRect strip{0, kSaveAsHeight - kSaveAsStripHeight, kSaveAsWidth, kSaveAsStripHeight};
+    return writeShot(dialog->grab(strip), directory, name);
 }
 
 /// La fenêtre du manuel, ouverte sur le fichier nommé.
@@ -376,24 +417,24 @@ int main(int argc, char** argv) {
         written = capture(dialog, dialog, directory, "insertion-sombre") && written;
     }
 
-    // La forme que `Save As…` propose. **Le widget seul, et non la boîte de
-    // fichiers qui le porte** : le contenu d'un sélecteur de fichiers dépend de
-    // la machine — des répertoires, des dates, des raccourcis latéraux —, donc
-    // sa photographie ne serait jamais deux fois la même. Ce que la section
-    // décrit est ce que la fenêtre ajoute sous la liste, et le voici.
+    // The shape `Save As…` offers, **inside the dialog that carries it** and
+    // not on its own.
+    //
+    // It was the widget alone until issue #321, for a good reason — the content
+    // of a file chooser depends on the machine — and with a consequence that
+    // was less good: the image avoided the very place the defect lived in. The
+    // three fields did not line up with the dialog's, and no capture could show
+    // it.
+    //
+    // The bottom strip settles both: the six rows are seen together, so their
+    // alignment is, and nothing that varies from one machine to the next is.
     {
         subedit::gui::applyTheme(subedit::core::Theme::Light);
-        subedit::gui::SaveShape shape{
-            subedit::core::Encoding::utf8(subedit::core::ByteOrderMark::Absent),
-            subedit::core::Newline::Lf};
-        written = capture(shape, shape, directory, "enregistrer-sous") && written;
+        written = captureSaveAsStrip(directory, "enregistrer-sous") && written;
     }
     {
         subedit::gui::applyTheme(subedit::core::Theme::Dark);
-        subedit::gui::SaveShape shape{
-            subedit::core::Encoding::utf8(subedit::core::ByteOrderMark::Absent),
-            subedit::core::Newline::Lf};
-        written = capture(shape, shape, directory, "enregistrer-sous-sombre") && written;
+        written = captureSaveAsStrip(directory, "enregistrer-sous-sombre") && written;
     }
 
     // Le manuel lu dans sa fenêtre, sur le vrai manuel du dépôt : c'est ce que

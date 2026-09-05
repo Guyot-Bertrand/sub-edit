@@ -16,6 +16,7 @@
 class QCheckBox;
 class QComboBox;
 class QFileDialog;
+class QGridLayout;
 class QLineEdit;
 
 namespace subedit::gui {
@@ -70,6 +71,12 @@ inline constexpr std::array<OfferedEncoding, 14> kOfferedEncodings = {
 /// written wrong, and a mark asked of an encoding that has none must not be
 /// silently dropped — and nothing of `QDialog::exec` can be. This is the same
 /// cut every other dialog of this window is drawn on.
+///
+/// **It holds the fields and never shows them itself.** It used to carry a
+/// `QFormLayout`, which gave it a column geometry of its own — so its labels
+/// lined up with the dialog's and its fields did not, two columns to the left.
+/// The fields go into the dialog's own grid now, and this object is left as
+/// what it always really was: the three answers and the rules between them.
 class SaveShape final : public QWidget {
     Q_OBJECT
 
@@ -92,6 +99,13 @@ public:
     /// carries none, whatever the box shows.
     [[nodiscard]] bool wantsByteOrderMark() const;
 
+    /// Puts its fields into `grid`, from `firstRow` down, in the two columns a
+    /// file dialog already uses for its own.
+    ///
+    /// **Here rather than in the caller** because which field goes where is
+    /// what this class knows; the caller knows only where the free rows start.
+    void layOutInto(QGridLayout& grid, int firstRow);
+
     /// The fields, so that a test sets them without clicking.
     [[nodiscard]] QComboBox* encodingBox() const { return m_encoding; }
 
@@ -112,13 +126,27 @@ private:
     QCheckBox* m_mark;
 };
 
-/// Puts a `SaveShape` under the file listing of `dialog`, and hands it back.
+/// Puts a `SaveShape` into the layout of `host`, and hands it back.
 ///
 /// **Here rather than in `QtPrompts`** so that the same three lines are what
 /// the window shows, what a test drives and what the manual photographs. What
 /// is left in `QtPrompts` is `exec`, which is all it may ever hold.
+///
+/// **A grid gets the fields row by row; anything else gets the widget whole.**
+/// The first is what a `QFileDialog` gives — a grid of three columns, labels
+/// left, fields middle, buttons right — and it is the only way the three new
+/// rows line up with `File name:` and `Files of type:`. The second is a fallback
+/// that keeps the fields present, if less well placed, the day Qt lays its
+/// dialog out otherwise: a field absent would be worse than a field misplaced.
+///
+/// Which of the two is decided by `dynamic_cast` and never by `qobject_cast`,
+/// for a reason the implementation measures.
+///
+/// `host` is a `QWidget` and not a `QFileDialog` because that is all this needs
+/// to know — and because a fallback nothing can reach is a promise nobody
+/// checks.
 [[nodiscard]] SaveShape*
-addSaveShapeTo(QFileDialog& dialog, const core::Encoding& encoding, core::Newline newline);
+addSaveShapeTo(QWidget& host, const core::Encoding& encoding, core::Newline newline);
 
 /// The whole question `Save As…` asks: where, in what format, in what shape.
 ///

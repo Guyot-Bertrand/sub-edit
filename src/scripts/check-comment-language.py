@@ -56,10 +56,12 @@ SOURCES = REPO_ROOT / "src"
 # que la traduction. Il n'y a pas de `make ratchet` pour celui-ci — ce serait
 # offrir un bouton à ce qui doit rester une ligne relue.
 #
-# Mesuré le 2026-09-05, à la décision de l'issue #312. La descente est l'issue
-# #325 ; le jour où ce nombre vaut zéro, le cliquet devient un refus sec et la
-# moitié de cet en-tête tombe.
-RATCHET = 1161
+# Mesuré le 2026-09-05, à la décision de l'issue #312 — 1 161 alors. Descendu à
+# 1 095 par la pull request des issues #309 et #321, qui a traduit les deux
+# fichiers qu'elle touchait de bout en bout plutôt que d'y mêler deux langues.
+# La descente est l'issue #325 ; le jour où ce nombre vaut zéro, le cliquet
+# devient un refus sec et la moitié de cet en-tête tombe.
+RATCHET = 1095
 
 # Les mots outils français sans homographe anglais, et les élisions. « on »,
 # « son » et « sa » en sont écartés : ce sont des mots anglais courants, et les

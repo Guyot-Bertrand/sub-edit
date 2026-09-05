@@ -7,7 +7,8 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFileDialog>
-#include <QFormLayout>
+#include <QGridLayout>
+#include <QLabel>
 #include <QLayout>
 #include <QLineEdit>
 #include <QString>
@@ -25,19 +26,19 @@ namespace subedit::gui {
 
 namespace {
 
-/// Ce que porte l'entrée « autre… », et que rien d'autre ne porte : le nom d'un
-/// encodage est une chaîne, donc une donnée d'entrée reconnaissable est ce qui
-/// distingue l'entrée sans comparer son intitulé.
+/// What the « Other… » entry carries, and nothing else does: the name of an
+/// encoding is a string, so a recognisable item datum is what tells that entry
+/// apart without comparing its label.
 constexpr int kOtherEncoding = -1;
 
-/// Les trois fins de ligne, dans l'ordre où la ligne de commande les nomme.
+/// The three line endings, in the order the command line names them.
 constexpr std::array<core::Newline, 3> kNewlines = {
     core::Newline::Lf,
     core::Newline::CrLf,
     core::Newline::Cr,
 };
 
-/// « UTF-8 (Unicode) », l'intitulé d'une entrée de la liste.
+/// « UTF-8 (Unicode) », the label of one entry of the list.
 [[nodiscard]] QString labelOf(const OfferedEncoding& offered) {
     return QStringLiteral("%1 (%2)").arg(
         QString::fromUtf8(offered.charset.data(), static_cast<int>(offered.charset.size())),
@@ -53,25 +54,25 @@ SaveShape::SaveShape(const core::Encoding& encoding, core::Newline newline, QWid
       m_other(new QLineEdit{this}),
       m_newline(new QComboBox{this}),
       m_mark(new QCheckBox{QStringLiteral("Byte order mark"), this}) {
-    // L'indice de l'entrée porté en donnée : c'est lui qui dit quel encodage la
-    // liste propose, sans avoir à relire un intitulé.
+    // The index of the entry carried as its datum: that is what says which
+    // encoding the list offers, without reading a label back.
     for (std::size_t index = 0; index < kOfferedEncodings.size(); ++index)
         m_encoding->addItem(labelOf(kOfferedEncodings[index]), static_cast<int>(index));
 
-    // **« Autre… » plutôt qu'une liste de quatre-vingt-dix-sept entrées.** Ce
-    // que la liste offre est ce qu'un fichier de sous-titres porte en pratique ;
-    // ce que le champ accepte est tout ce qu'ICU sait convertir.
+    // **« Other… » rather than a list of ninety-seven entries.** What the list
+    // offers is what a subtitle file carries in practice; what the field takes
+    // is anything ICU can convert.
     m_encoding->addItem(QStringLiteral("Other…"), kOtherEncoding);
 
     m_other->setPlaceholderText(QStringLiteral("Name of an encoding, e.g. cp1257"));
 
-    // L'intitulé vient du noyau, comme partout ; la donnée serait de trop —
-    // l'indice suffit, les trois entrées étant dans l'ordre de `kNewlines`.
+    // The label comes from the core, as everywhere; a datum would be one thing
+    // too many — the index does, the three entries being in `kNewlines` order.
     for (const core::Newline ending : kNewlines)
         m_newline->addItem(QString::fromUtf8(core::nameOf(ending)));
 
-    // Ce que le fichier porte, pour défauts : le réécrire autrement sans qu'on
-    // l'ait demandé serait perdre ce que la lecture a pris soin de garder.
+    // What the file carries, for defaults: writing it back otherwise without
+    // being asked would lose what the reading took care to keep.
     const int known = m_encoding->findText(
         QString::fromUtf8(encoding.charset().data(), static_cast<int>(encoding.charset().size())),
         Qt::MatchStartsWith);
@@ -86,27 +87,26 @@ SaveShape::SaveShape(const core::Encoding& encoding, core::Newline newline, QWid
     m_newline->setCurrentIndex(m_newline->findText(QString::fromUtf8(core::nameOf(newline))));
     m_mark->setChecked(encoding.byteOrderMark() == core::ByteOrderMark::Present);
 
-    auto* fields = new QFormLayout{this};
-    fields->setContentsMargins(0, 0, 0, 0);
-    fields->addRow(QStringLiteral("Encoding:"), m_encoding);
-    fields->addRow(QString{}, m_other);
-    fields->addRow(QStringLiteral("Line endings:"), m_newline);
-    fields->addRow(QString{}, m_mark);
-
+    // **No layout here, and that is the whole of issue #321.** A `QFormLayout`
+    // put on this widget gave it a column geometry of its own: its labels
+    // landed in the same column as the dialog's — both start at the left
+    // margin — and its fields two columns too far left, nothing tying the two
+    // grids together.
     connect(m_encoding, &QComboBox::currentIndexChanged, this, [this] { refresh(); });
     connect(m_other, &QLineEdit::textChanged, this, [this] { refresh(); });
     refresh();
 }
 
 void SaveShape::refresh() {
-    // Le champ n'apparaît que pour « autre… » : montré toujours, il donnerait à
-    // croire qu'il faut le remplir ; caché toujours, il n'y aurait pas d'autre.
+    // The field shows for « Other… » and for nothing else: always shown, it
+    // would suggest it has to be filled in; never shown, there would be no
+    // other.
     m_other->setVisible(m_encoding->currentData().toInt() == kOtherEncoding);
 
-    // **Une marque n'existe que pour les encodages Unicode.** La case est
-    // éteinte plutôt que cachée, pour la raison qui vaut ailleurs dans cette
-    // fenêtre : une case grisée dit pourquoi le choix ne s'offre pas, une case
-    // absente laisse croire à un manque.
+    // **A mark exists for the Unicode encodings and for no other.** The box is
+    // greyed rather than hidden, for the reason that holds elsewhere in this
+    // window: a greyed box says why the choice is not on offer, an absent one
+    // reads as something missing.
     const std::expected<core::Encoding, core::EncodingRefusal> chosen = encoding();
     const bool carries = chosen.has_value() && !chosen->byteOrderMarkBytes().empty();
     m_mark->setEnabled(carries);
@@ -132,16 +132,55 @@ bool SaveShape::wantsByteOrderMark() const {
     return m_mark->isChecked() && m_mark->isEnabled();
 }
 
-SaveShape*
-addSaveShapeTo(QFileDialog& dialog, const core::Encoding& encoding, core::Newline newline) {
-    auto* shape = new SaveShape{encoding, newline, &dialog};
+void SaveShape::layOutInto(QGridLayout& grid, int firstRow) {
+    // The two columns a file dialog already uses: the label on the left, the
+    // field in the middle. The third carries its buttons, over both rows, and
+    // nothing of ours belongs there.
+    constexpr int kLabels = 0;
+    constexpr int kFields = 1;
 
-    // `QLayout::addWidget` plutôt qu'un `qobject_cast` vers la grille de Qt :
-    // le premier vaut pour toute disposition, le second parie sur celle que
-    // `QFileDialog` se donne aujourd'hui.
-    if (QLayout* layout = dialog.layout())
+    grid.addWidget(new QLabel{QStringLiteral("Encoding:"), this}, firstRow, kLabels);
+    grid.addWidget(m_encoding, firstRow, kFields);
+    // Under its list and with no label: the field is the rest of « Other… »,
+    // not one more question. Hidden, it takes no height at all.
+    grid.addWidget(m_other, firstRow + 1, kFields);
+    grid.addWidget(new QLabel{QStringLiteral("Line endings:"), this}, firstRow + 2, kLabels);
+    grid.addWidget(m_newline, firstRow + 2, kFields);
+    grid.addWidget(m_mark, firstRow + 3, kFields);
+}
+
+SaveShape* addSaveShapeTo(QWidget& host, const core::Encoding& encoding, core::Newline newline) {
+    auto* shape = new SaveShape{encoding, newline, &host};
+
+    QLayout* layout = host.layout();
+    if (layout == nullptr)
+        return shape;
+
+    // **`dynamic_cast` and not `qobject_cast`, and that is measured.** The
+    // second is what Qt teaches, and it is the one that must not be used here:
+    // on the very layout of a `QFileDialog`, which *is* a grid, it answers no.
+    //
+    //     className     QGridLayout
+    //     qobject_cast  fails
+    //     dynamic_cast  succeeds
+    //     inherits      1
+    //
+    // Two `QGridLayout::staticMetaObject` live in the process — the Qt
+    // library's and this executable's — and `qobject_cast` compares their
+    // addresses. The language's own cast compares type identities and is right.
+    // Checked under both linkages, with and without this project's libraries.
+    auto* grid = dynamic_cast<QGridLayout*>(layout);
+    if (grid == nullptr) {
         layout->addWidget(shape);
+        return shape;
+    }
 
+    shape->layOutInto(*grid, grid->rowCount());
+
+    // The widget itself never shows: its fields live in the dialog's grid now,
+    // which has adopted them. It stays a child of the dialog, so `findChild`
+    // still reaches it, and it keeps what it knows about them.
+    shape->hide();
     return shape;
 }
 
@@ -149,8 +188,8 @@ std::unique_ptr<QFileDialog>
 saveDialogFor(const core::SourceFile& current, const core::Encoding& encoding, QWidget* owner) {
     auto dialog = std::make_unique<QFileDialog>(owner, QStringLiteral("Save As"));
 
-    // **Celle de Qt et non celle du système** : une boîte native ne se laisse
-    // rien ajouter, et les trois champs sont à ce prix.
+    // **Qt's own and not the system's**: a native dialog lets nothing be added
+    // to it, and the three fields are worth that price.
     dialog->setOption(QFileDialog::DontUseNativeDialog);
     dialog->setAcceptMode(QFileDialog::AcceptSave);
     dialog->setNameFilter(subtitleFilters());
@@ -163,17 +202,17 @@ saveDialogFor(const core::SourceFile& current, const core::Encoding& encoding, Q
 }
 
 std::expected<SaveTarget, std::string> targetOf(const QFileDialog& dialog) {
-    // La garde d'une boîte qui n'est pas la nôtre, ou qui n'a rien retenu.
-    // Aucun test ne l'atteint — `saveDialogFor` pose toujours la forme, et une
-    // boîte acceptée porte toujours un nom — et elle reste : le pas suivant
-    // déréférence les deux.
+    // The guard for a dialog that is not ours, or that kept nothing. No test
+    // reaches it — `saveDialogFor` always puts the shape in, and an accepted
+    // dialog always carries a name — and it stays: the next step dereferences
+    // both.
     const auto* shape = dialog.findChild<const SaveShape*>();
     if (shape == nullptr || dialog.selectedFiles().isEmpty())
         return std::unexpected(std::string{"nothing was chosen"});
 
-    // Un encodage que le modèle refuse n'écrit pas un fichier de travers : il
-    // n'écrit pas de fichier. Les mots sont ceux du noyau, comme partout — la
-    // ligne de commande dit la même chose du même refus.
+    // An encoding the model refuses does not write a file wrong: it writes no
+    // file. The words are the core's, as everywhere — the command line says the
+    // same thing of the same refusal.
     const std::expected<core::Encoding, core::EncodingRefusal> chosen = shape->encoding();
     if (!chosen.has_value())
         return std::unexpected(

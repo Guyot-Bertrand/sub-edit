@@ -44,13 +44,20 @@ TOOL = REPO_ROOT / "src/test/tools/screenshots.cpp"
 CAPTURES = REPO_ROOT / "docs/manual/subedit-gui/captures"
 MANUAL = REPO_ROOT / "docs/manual"
 
-# `capture(` — le début d'un appel. Ce qui suit est lu en comptant les
-# parenthèses plutôt qu'avec une expression rationnelle : un argument peut
-# lui-même en contenir — `*window.table()` — et clang-format est libre de
-# couper l'appel sur quatre lignes le jour où il s'allonge. Un motif qui
-# supposerait « une ligne, un appel » cesserait de voir la moitié des captures
-# à la première mise en forme, et sans rien dire.
-CAPTURE_CALL = re.compile(r"\bcapture\(")
+# `capture…(` — le début d'un appel qui photographie. Ce qui suit est lu en
+# comptant les parenthèses plutôt qu'avec une expression rationnelle : un
+# argument peut lui-même en contenir — `*window.table()` — et clang-format est
+# libre de couper l'appel sur quatre lignes le jour où il s'allonge. Un motif
+# qui supposerait « une ligne, un appel » cesserait de voir la moitié des
+# captures à la première mise en forme, et sans rien dire.
+#
+# **Le suffixe est accepté depuis l'issue #321**, qui a donné à la boîte
+# « Save As… » sa propre fonction — `captureSaveAsStrip`, parce qu'elle
+# construit la boîte et n'en garde qu'un bandeau. Un motif ancré sur
+# `capture(` exactement ne la voyait pas, et déclarait figées deux références
+# que le programme engendre bel et bien : un contrôle qui se trompe de sens est
+# pire qu'un contrôle absent, celui-ci ayant en plus le mérite de crier.
+CAPTURE_CALL = re.compile(r"\bcapture[A-Za-z]*\(")
 # Tout littéral qui nomme un PNG dans le programme de capture.
 PNG_LITERAL = re.compile(r'"([^"]*\.png)"')
 # ![texte](chemin.png) dans le manuel.
