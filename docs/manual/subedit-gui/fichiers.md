@@ -69,6 +69,30 @@ pas non plus : il a déclaré son encodage, rien n'a été deviné.
 
 Le panneau **n'apparaît pas** quand la lecture n'a rien à signaler.
 
+## L'encodage dans la barre d'état
+
+**La barre d'état dit toujours l'encodage du document ouvert**, à gauche de ce
+qu'elle dit de la [grille d'images](grille.md) et de la
+[vidéo associée](video.md) :
+
+| Situation | Ce qui est écrit |
+| :-------- | :--------------- |
+| le fichier a été lu en UTF-8, sans marque | `Encoding: UTF-8, no BOM` |
+| … avec une marque | `Encoding: UTF-8, BOM` |
+| un fichier en Latin-1 | `Encoding: ISO-8859-1, no BOM` |
+
+**Le diagnostic et cette ligne ne répondent pas à la même question**, et c'est
+pourquoi les deux existent. Le diagnostic dit ce que la lecture **a fait** — elle
+a deviné, et vous voudrez peut-être vérifier ; il ne s'affiche donc que quand il
+y a eu une devinette. La barre d'état dit ce que le document **est**, en
+permanence, y compris pour un fichier qui déclare son encodage lui-même et sur
+lequel la lecture n'a rien à raconter.
+
+**La provenance de la réponse n'y figure pas.** `inspect` la donne — `detected`,
+`from its byte order mark`, `as asked for` — parce qu'un rapport a la place de
+la dire ; une ligne de barre d'état, non, et le panneau la porte déjà quand elle
+compte.
+
 ## Enregistrer
 
 `Save` réécrit le fichier ouvert **dans sa forme d'origine** : son format, son

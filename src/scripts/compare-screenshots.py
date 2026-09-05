@@ -51,8 +51,26 @@ import zlib
 # ré-encodage déplace, très en dessous d'un changement de couleur voulu.
 DEFAULT_PIXEL_THRESHOLD = 8
 # Surface : la proportion de pixels ainsi différents au-delà de laquelle l'image
-# a changé. Un millième de 1280×800, c'est mille pixels — moins qu'un mot.
-DEFAULT_RATIO_THRESHOLD = 0.001
+# a changé.
+#
+# **Un dix-millième, et le chiffre d'avant était mille fois trop généreux.** Il
+# valait un millième — mille pixels sur 1280×800 — au motif que c'était « moins
+# qu'un mot ». Mesuré : la mention `Encoding: UTF-8, no BOM` ajoutée à la barre
+# d'état de la fenêtre, vingt-trois caractères, en allume **830**. Le seuil
+# déclarait donc « inchangée » une image dont une ligne entière avait changé, et
+# la référence gardée par le manuel montrait une fenêtre qui n'existait plus.
+# Issue #313, où le défaut s'est vu parce qu'il tombait juste sous la barre.
+#
+# Un caractère de cette police coûte une trentaine de pixels ; cent trois
+# pixels, c'est trois caractères. En dessous, il n'y a plus rien de voulu à
+# voir.
+#
+# **Ce n'est pas ce seuil-ci qui filtre l'antialiasing**, et c'est ce qui permet
+# de le baisser : la sévérité s'en charge, et les dix-sept autres captures de ce
+# dépôt rendent 0,000 % d'une exécution à l'autre. Le bruit qu'on redoutait
+# n'existe pas sur une machine, et entre deux machines c'est la police nommée
+# qui l'empêche — ADR 0024.
+DEFAULT_RATIO_THRESHOLD = 0.0001
 
 GREEN = "\033[32m"
 RED = "\033[31m"

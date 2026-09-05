@@ -61,7 +61,7 @@ licence.
 | :------ | :------ |
 | [Installation](../subedit-cli/installation.md) | construire et installer — la page vaut pour les deux programmes |
 | [Invocation](invocation.md) | lancer la fenêtre, arguments, codes de retour |
-| [Ouvrir et enregistrer](fichiers.md) | les trois commandes, les diagnostics, l'aller-retour |
+| [Ouvrir et enregistrer](fichiers.md) | les trois commandes, les diagnostics, l'encodage dans la barre d'état, l'aller-retour |
 | [La table](table.md) | ce que chaque colonne montre |
 | [Éditer une cellule](edition.md) | quelles cellules s'éditent, et comment |
 | [Insérer et supprimer des lignes](lignes.md) | les deux entrées, leurs raccourcis, où vont les lignes neuves |
