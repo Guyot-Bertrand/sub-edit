@@ -13,6 +13,7 @@ ne pas l'éditer à la main.
 
 - **gui** — La fenêtre dit l'encodage du document, et la cadence du film
 - **scripts** — Mesurer où la détection d'encodage cesse de savoir
+- **gui** — La hauteur d'une ligne suit le sous-titre qu'elle porte
 
 ### Corrections
 

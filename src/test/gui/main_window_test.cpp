@@ -5,9 +5,11 @@
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/main_window.hpp>
+#include <subedit/gui/subtitle_table.hpp>
 
 #include <QAbstractItemModel>
 #include <QAction>
+#include <QHeaderView>
 #include <QKeySequence>
 #include <QList>
 #include <QMenu>
@@ -52,6 +54,23 @@ constexpr const char* kThree = "1\n"
                                "3\n"
                                "00:00:05,000 --> 00:00:06,000\n"
                                "Trois.\n";
+
+/// One subtitle of one line, one of two, one of three — what a height that
+/// follows its text has to tell apart.
+constexpr const char* kOneTwoThree = "1\n"
+                                     "00:00:01,000 --> 00:00:02,000\n"
+                                     "Un.\n"
+                                     "\n"
+                                     "2\n"
+                                     "00:00:03,000 --> 00:00:04,000\n"
+                                     "Deux.\n"
+                                     "Et demi.\n"
+                                     "\n"
+                                     "3\n"
+                                     "00:00:05,000 --> 00:00:06,000\n"
+                                     "Trois.\n"
+                                     "Et un tiers.\n"
+                                     "Et un peu plus.\n";
 
 [[nodiscard]] InMemoryFileSystem withFile(const std::string& path, const std::string& content) {
     InMemoryFileSystem files;
@@ -162,6 +181,56 @@ TEST_CASE("the window names the file it holds", "[gui][GUI-OPEN-01]") {
     const MainWindow& window = fixture.window();
 
     CHECK(window.windowTitle().toStdString().find("film.srt") != std::string::npos);
+}
+
+TEST_CASE("a row of the table is as tall as its subtitle", "[gui][GUI-OPEN-01]") {
+    // **The three settings of #322, seen from where they show.** A row of one
+    // line, a row of two, a row of three: what is asserted is not a number of
+    // pixels — the font decides that — but that the second row is taller than
+    // the first by as much as the third is taller than the second.
+    const Windowed windowed{kOneTwoThree};
+    QCoreApplication::processEvents();
+    const subedit::gui::SubtitleTable& table = *windowed.window().table();
+
+    const int one = table.rowHeight(0);
+    const int two = table.rowHeight(1);
+    const int three = table.rowHeight(2);
+
+    CHECK(two > one);
+    CHECK(three - two == two - one);
+}
+
+TEST_CASE("the table wraps on nothing but a real line break", "[gui][GUI-OPEN-01]") {
+    // Word wrap off is what makes a height depend on the text alone and never
+    // on the width of a column — so a drag of a column edge recomputes nothing,
+    // and a line too long keeps eliding, which is the one thing an ellipsis
+    // should mean. Scrolling by pixel is what a table of unequal rows needs:
+    // by item, the bar sits where nobody put it.
+    const Windowed windowed{kOneTwoThree};
+    const subedit::gui::SubtitleTable& table = *windowed.window().table();
+
+    CHECK_FALSE(table.wordWrap());
+    CHECK(table.verticalScrollMode() == QAbstractItemView::ScrollPerPixel);
+    CHECK(table.verticalHeader()->sectionResizeMode(0) == QHeaderView::ResizeToContents);
+}
+
+TEST_CASE("a row grows when its subtitle gains a line", "[gui][GUI-EDIT-01]") {
+    // The recomputation, and where it comes from: nothing in the window asks
+    // for it. `ResizeToContents` listens to the model, and the model announces
+    // an edit the way it announces every other — so the row that grew is the
+    // row that changed, and no other.
+    const Windowed windowed{kOneTwoThree};
+    QCoreApplication::processEvents();
+    const subedit::gui::SubtitleTable& table = *windowed.window().table();
+    const int before = table.rowHeight(0);
+    const int untouched = table.rowHeight(2);
+
+    QAbstractItemModel* model = table.model();
+    REQUIRE(model->setData(model->index(0, 4), QStringLiteral("Un.\nEt demi."), Qt::EditRole));
+    QCoreApplication::processEvents();
+
+    CHECK(table.rowHeight(0) > before);
+    CHECK(table.rowHeight(2) == untouched);
 }
 
 TEST_CASE("the window puts an editor on the three cells that can be edited", "[gui][GUI-EDIT-01]") {

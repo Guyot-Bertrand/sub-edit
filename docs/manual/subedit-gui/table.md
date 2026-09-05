@@ -37,10 +37,15 @@ Voir [Éditer une cellule](edition.md).
 **La sélection désigne ce sur quoi une opération porte** — voir
 [Les opérations](operations.md).
 
-**Un texte de plusieurs lignes n'en montre qu'une** : la hauteur des lignes de
-la table est fixe, et le reste est coupé à l'affichage. Rien n'est perdu — le
-texte entier réapparaît dès qu'on ouvre la cellule, et c'est lui qui sera
-écrit.
+**La hauteur d'une ligne suit le sous-titre qu'elle porte** : un sous-titre de
+deux lignes en occupe deux, un de trois en occupe trois. Le texte est montré en
+entier, tel qu'il sera écrit.
+
+**Ce qui reste coupé est une ligne trop longue pour sa colonne**, et elle se
+termine alors par une ellipse. Élargir la colonne `Text`, ou la fenêtre, la
+montre en entier ; ouvrir la cellule aussi. Les lignes du texte ne sont jamais
+repliées : seul un vrai saut de ligne fait une ligne, si bien que la hauteur
+d'une ligne de la table ne change pas quand on tire le bord d'une colonne.
 
 ## Les anomalies
 
