@@ -49,6 +49,12 @@ pas à la main.
 Le prix est écrit dans l'ADR : `subedit-cli` y gagne sa première dépendance
 externe.
 
+**Complétée après coup par l'[ADR 0028](../adr/0028-peser-les-lignes-qui-discriminent.md).**
+Le banc ci-dessus ne portait que des fichiers monolingues, et c'est en mesurant
+où la détection cesse de savoir — issue #310 — qu'un fichier bilingue s'est
+révélé perdre son second alphabet en entier : ICU n'y voit que la masse d'ASCII.
+ICU reste le détecteur ; ce qui change est ce qu'on lui soumet.
+
 ## D2 — Le jeu d'encodages est celui d'ICU, pas une liste à nous
 
 **Aucune table d'encodages n'est écrite dans ce dépôt.** ICU en connaît plus que

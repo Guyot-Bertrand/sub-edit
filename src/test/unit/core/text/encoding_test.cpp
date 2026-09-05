@@ -169,6 +169,47 @@ TEST_CASE("bytes nothing declares are weighed, and the answer is a proposal",
     CHECK(detected.choice == EncodingChoice::Detected);
 }
 
+TEST_CASE("a script buried under ASCII is still weighed", "[format][encoding]") {
+    // **The file that cost the most, and the whole of issue #310.** Twenty
+    // English subtitles and one Cyrillic card, written in KOI8-R: nineteen
+    // bytes out of thirteen hundred carry anything at all. Weighing the file
+    // whole, ICU ranked ISO-8859-1 at 66 — labelled "en" — and KOI8-R at 2, so
+    // the card came back as accented Latin. `uchardet` answered KOI8-R on the
+    // same bytes, which is what says this was never a want of information.
+    //
+    // Lines of plain ASCII read the same under every candidate, so they cannot
+    // tell the candidates apart; what they can do, and did, is outweigh the
+    // lines that do.
+    std::string content;
+    for (int index = 1; index <= 20; ++index)
+        content += std::to_string(index) + "\n00:00:0" + std::to_string(index % 10) +
+                   ",000 --> 00:00:09,000\nNobody answered the telephone.\n\n";
+    content += "21\n00:00:42,000 --> 00:00:43,000\n\xF0\xD4\xCF \xC4\xCC\xC9\xCC\xCF"
+               "\xD3\xD8 \xCE\xC5\xC4\xCF\xCC\xC7\xCF.\n\n";
+
+    const DetectedEncoding detected = proposedFor(content);
+
+    CHECK(detected.encoding == named("koi8-r"));
+    CHECK(detected.choice == EncodingChoice::Detected);
+}
+
+TEST_CASE("UTF-16 without a mark is weighed whole", "[format][encoding]") {
+    // **The one shape the line filter must not touch.** A NUL says the bytes
+    // are a wide encoding, where `0x0a` is half a code unit rather than a line
+    // ending, and where a line of plain ASCII is a run of `X\0X\0` that carries
+    // no high byte — so dropping ASCII lines would drop the file. Both sides
+    // are checked: the filter would take the two apart, not merely blur them.
+    for (const std::string_view charset : {"utf-16le", "utf-16be"}) {
+        INFO("encodage : " << charset);
+        const Encoding wide = named(charset);
+        const std::expected<std::string, UnwritableCharacter> bytes =
+            encodeFromUtf8("1\n00:00:02,000 --> 00:00:03,000\nOù êtes-vous passé ?\n\n", wide);
+        REQUIRE(bytes.has_value());
+
+        CHECK(proposedFor(*bytes).encoding == wide);
+    }
+}
+
 TEST_CASE("an encoding under which the file does not decode is not proposed",
           "[format][encoding]") {
     // ICU's best answer is a ranking, not a verdict: it puts UTF-32BE at the
