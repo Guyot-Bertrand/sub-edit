@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Corrections
 
 - **core** — Un encodage qui écrit sa propre marque est refusé
+- **gui** — Save As… tient ce qu'il promet, et le montre
 
 ### Documentation
 
