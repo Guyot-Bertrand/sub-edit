@@ -13,6 +13,10 @@ ne pas l'éditer à la main.
 
 - **core** — Un encodage qui écrit sa propre marque est refusé
 
+### Documentation
+
+- **doc** — Le C++ se commente en anglais, et un cliquet le tient
+
 ## 0.9.0 — 2026-09-04
 
 ### Ajouts
