@@ -15,8 +15,10 @@ est multiligne et montre les deux lignes telles qu'elles seront
 
 ## Le texte
 
-L'éditeur est un champ **multiligne** : un sous-titre de deux lignes s'y saisit
-tel qu'il sera écrit.
+L'éditeur est un champ **multiligne**, et il s'ouvre à la hauteur du sous-titre :
+un sous-titre de deux lignes s'y saisit tel qu'il sera écrit, ses deux lignes
+lisibles et sans ascenseur. Un `Maj+Entrée` qui en ajoute une agrandit
+l'éditeur ; la ligne de la table s'ajuste à la validation.
 
 | Touche | Effet |
 | :----- | :---- |

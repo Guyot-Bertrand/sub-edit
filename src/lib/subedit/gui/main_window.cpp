@@ -239,6 +239,27 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->verticalHeader()->setVisible(false);
 
+    // **A row is as tall as the subtitle it carries** — issue #322. Three
+    // settings, and each one answers a question the other two do not.
+    //
+    // *No word wrap.* Only a real line break makes a line. A column too narrow
+    // elides as it always did, and the height of a row stops depending on the
+    // width of a column — which is what keeps it from having to be recomputed
+    // at every drag of a column edge, and what keeps the count linear in the
+    // length of the text. It is what Gaupol does.
+    //
+    // *Rows sized to their contents.* Without it the vertical header hands
+    // every row the same default height and the delegate is never asked. The
+    // header is hidden and still governs: what one sees of it is not what it
+    // does.
+    //
+    // *Scrolling by pixel.* Rows of unequal height under a scrollbar that
+    // moves by item make the film jump by a subtitle and the bar sit where no
+    // one put it. By pixel, the travel matches what is shown.
+    m_table->setWordWrap(false);
+    m_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    m_table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+
     // The text takes what the positions leave: it is the column that varies,
     // and the four others are known widths.
     m_table->horizontalHeader()->setStretchLastSection(true);
