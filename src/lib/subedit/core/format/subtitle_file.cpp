@@ -61,6 +61,59 @@ namespace {
     std::unreachable();
 }
 
+/// The recipe once the text exists, whichever road produced it.
+///
+/// **Two roads reach it, and only one of them decodes here** — issue #314. A
+/// caller that names an encoding hands over bytes, and they are decoded just
+/// above; a caller that names none has already had them decoded by the
+/// detection, which could not answer without doing so. Neither should pay for
+/// the other's work.
+///
+/// `markContradicted` is the one thing this cannot see for itself: whether the
+/// encoding read was the one asked for or the one the file declared against it.
+[[nodiscard]] std::expected<ReadResult, ReadError>
+readText(std::string_view text, const Encoding& read, bool markContradicted) {
+    const std::optional<SubtitleFormat> format = detectFormat(text);
+    if (!format.has_value())
+        return std::unexpected(ReadError{
+            .kind = ReadErrorKind::UnknownFormat,
+            .detail = "aucun format reconnu",
+        });
+
+    std::expected<ReadResult, ReadError> result = readAs(*format, text);
+    if (!result.has_value())
+        return result;
+
+    result->encoding = read;
+
+    if (markContradicted)
+        // First, because it happened first: the mark was read before a single
+        // line was.
+        result->diagnostics.insert(result->diagnostics.begin(),
+                                   Diagnostic{
+                                       .severity = Severity::Recovered,
+                                       .line = kWholeFile,
+                                       .kind = DiagnosticKind::MarkOverridesEncoding,
+                                       // The charset alone: that a mark is
+                                       // there is the whole subject of the
+                                       // sentence, so saying it twice would be
+                                       // saying it twice.
+                                       .detail = std::string{read.charset()},
+                                   });
+
+    const NewlineScan scan = scanNewlines(text);
+    result->newline = scan.newline;
+    if (scan.mixed)
+        result->diagnostics.push_back(Diagnostic{
+            .severity = Severity::Recovered,
+            .line = scan.mixedAtLine,
+            .kind = DiagnosticKind::MixedNewlines,
+            .detail = {},
+        });
+
+    return result;
+}
+
 } // namespace
 
 std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
@@ -88,47 +141,8 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
             .detail = std::string{read.charset()},
         });
 
-    const std::string_view text = *decoded;
-
-    const std::optional<SubtitleFormat> format = detectFormat(text);
-    if (!format.has_value())
-        return std::unexpected(ReadError{
-            .kind = ReadErrorKind::UnknownFormat,
-            .detail = "aucun format reconnu",
-        });
-
-    std::expected<ReadResult, ReadError> result = readAs(*format, text);
-    if (!result.has_value())
-        return result;
-
-    result->encoding = read;
-
-    if (declared.has_value() && declared->charset() != encoding.charset())
-        // First, because it happened first: the mark was read before a single
-        // line was.
-        result->diagnostics.insert(result->diagnostics.begin(),
-                                   Diagnostic{
-                                       .severity = Severity::Recovered,
-                                       .line = kWholeFile,
-                                       .kind = DiagnosticKind::MarkOverridesEncoding,
-                                       // The charset alone: that a mark is
-                                       // there is the whole subject of the
-                                       // sentence, so `-sig` would say it
-                                       // twice.
-                                       .detail = std::string{read.charset()},
-                                   });
-
-    const NewlineScan scan = scanNewlines(text);
-    result->newline = scan.newline;
-    if (scan.mixed)
-        result->diagnostics.push_back(Diagnostic{
-            .severity = Severity::Recovered,
-            .line = scan.mixedAtLine,
-            .kind = DiagnosticKind::MixedNewlines,
-            .detail = {},
-        });
-
-    return result;
+    return readText(
+        *decoded, read, declared.has_value() && declared->charset() != encoding.charset());
 }
 
 std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
@@ -140,7 +154,13 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
     // likely to be.
     const Encoding encoding = detected ? detected->encoding : Encoding::utf8(ByteOrderMark::Absent);
 
-    std::expected<ReadResult, ReadError> result = readSubtitles(content, encoding);
+    // **The text the detection already produced, when it produced one.** A mark
+    // answers without reading anything, so there is nothing to reuse and the
+    // overload above decodes — once, as it always did. Everything else was
+    // decoded to be weighed, and decoding it a second time was issue #314.
+    std::expected<ReadResult, ReadError> result = detected.has_value() && detected->text.has_value()
+                                                      ? readText(*detected->text, encoding, false)
+                                                      : readSubtitles(content, encoding);
     if (!result.has_value())
         return result;
 

@@ -15,6 +15,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace subedit::core {
 
@@ -190,6 +191,21 @@ std::optional<std::string> decodeToUtf8(std::string_view bytes, const Encoding& 
 
 std::expected<std::string, UnwritableCharacter> encodeFromUtf8(std::string_view text,
                                                                const Encoding& encoding) {
+    // **Writing UTF-8 is copying, and it was costing a conversion** — issue
+    // #318. Both converters are then the same one, and the text makes a round
+    // trip through UTF-16 to come back exactly as it left. A third of the cost
+    // of writing a full-length file went there.
+    //
+    // **Nothing is lost by skipping it**, and that had to be checked rather
+    // than assumed: the round trip was no safety net. The stop callback is set
+    // on `to`, which refuses a character the target cannot write; nothing is
+    // set on `from`, so malformed UTF-8 coming in was replaced by U+FFFD and
+    // written out — silently. Copying it through is not worse, and the model
+    // holds nothing but UTF-8 anyway: that is the invariant of everything above
+    // this file.
+    if (encoding.charset() == kUtf8Charset)
+        return std::string{text};
+
     const std::string charset{encoding.charset()};
 
     UErrorCode status = U_ZERO_ERROR;
@@ -238,8 +254,9 @@ std::optional<DetectedEncoding> detectEncoding(std::string_view bytes) {
     // One point of frequency statistics against a proof — and the file would
     // have come back with `Ã©` where its accents were.
     const Encoding utf8 = Encoding::utf8(ByteOrderMark::Absent);
-    if (decodeToUtf8(bytes, utf8).has_value())
-        return DetectedEncoding{.encoding = utf8, .choice = EncodingChoice::Detected};
+    if (std::optional<std::string> asUtf8 = decodeToUtf8(bytes, utf8))
+        return DetectedEncoding{
+            .encoding = utf8, .choice = EncodingChoice::Detected, .text = std::move(asUtf8)};
 
     UErrorCode status = U_ZERO_ERROR;
     const DetectorHandle detector{ucsdet_open(&status)};
@@ -261,15 +278,20 @@ std::optional<DetectedEncoding> detectEncoding(std::string_view bytes) {
         UErrorCode naming = U_ZERO_ERROR;
         const char* name = ucsdet_getName(matches[rank], &naming);
 
-        // A name the model refuses is a candidate like any other that does not
-        // work out: the ranking moves on. That covers both refusals — a name
-        // nothing converts, and one whose converter writes its own mark, which
-        // no proposal of ours may carry.
         const std::expected<Encoding, EncodingRefusal> proposed =
             name == nullptr ? std::unexpected(EncodingRefusal::Unknown)
                             : Encoding::create(name, ByteOrderMark::Absent);
-        if (proposed.has_value() && decodeToUtf8(bytes, *proposed).has_value())
-            return DetectedEncoding{.encoding = *proposed, .choice = EncodingChoice::Detected};
+        // One statement and not a guard, because a guard would be a line no test
+        // reaches: every name ICU's detector answers is a name its converters
+        // take. The refusal is kept all the same — the model may turn a name
+        // down for reasons of its own, and a candidate it will not carry is a
+        // candidate like any other that does not work out.
+        std::optional<std::string> decoded =
+            proposed.has_value() ? decodeToUtf8(bytes, *proposed) : std::nullopt;
+        if (decoded.has_value())
+            return DetectedEncoding{.encoding = *proposed,
+                                    .choice = EncodingChoice::Detected,
+                                    .text = std::move(decoded)};
     }
 
     return std::nullopt;

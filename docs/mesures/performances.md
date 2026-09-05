@@ -354,6 +354,44 @@ Le déclencheur de l'ADR ne trouvera donc pas son argument ici. La mesure ne
 répond pas à la question : **elle la déplace, et dit où elle vit.** C'est ce
 qu'on peut en attendre de plus honnête avant d'avoir un écran sous la main.
 
+## Deux conversions qui ne faisaient rien, en 0.9.5
+
+Les issues #314 et #318, du même geste : ICU convertissait dans deux cas où il
+n'y avait rien à convertir.
+
+**À l'écriture, quand la cible est de l'UTF-8**, les deux convertisseurs sont le
+même : le texte faisait l'aller-retour par UTF-16 pour revenir tel qu'il était
+parti. C'est le cas ordinaire — la grande majorité des fichiers écrits.
+
+| | avant | après |
+| :--- | ----: | ----: |
+| écriture de 4000 sous-titres | 852 µs | **~610 µs** |
+
+**Rien n'est perdu à sauter ce passage**, et il fallait le vérifier plutôt que
+le supposer : l'aller-retour n'était pas un filet. Le rappel d'arrêt est posé
+sur le convertisseur de sortie, qui refuse un caractère que la cible ne sait pas
+écrire ; rien n'était posé sur celui d'entrée, si bien qu'un UTF-8 malformé
+entrant était remplacé par des U+FFFD et écrit — en silence. Le recopier n'est
+pas pire, et le modèle ne porte que de l'UTF-8 de toute façon.
+
+**À la lecture, le fichier était décodé deux fois** : une fois par la détection,
+qui ne peut répondre sans lire, et une fois par la lecture elle-même. La
+détection rend désormais le texte qu'elle a produit.
+
+Ce gain-là **ne se voit pas au banc**, et c'est ce qu'il faut savoir de lui : il
+vaut un décodage du fichier entier, mesuré à part parce que la dispersion du
+relevé de lecture est plus grande que lui à cette taille.
+
+| Taille | Un décodage |
+| :----- | ----------: |
+| 4 000 sous-titres, 359 Ko | **212 µs** sur 2,7 ms de lecture, soit 8 % |
+| 40 000 sous-titres, 3,6 Mo | **2 195 µs** |
+
+Il est donc proportionnel au fichier, et c'est la seule chose qui le rende digne
+d'intérêt : à quatre mille répliques il disparaît dans le bruit, à quarante
+mille il vaut deux millisecondes. #314 demandait précisément que la question
+soit rouverte par une mesure plutôt que par le souvenir ; la voici.
+
 ## Extrêmes
 
 Le minimum et le maximum jamais relevés pour chaque mesure. Cette table n'est
@@ -433,6 +471,41 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.9.5 — 2026-09-05 — Release — charge 0.80 — allure ×1.03
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| la réplique en cours, sur 4000 sous-titres | 8.67 µs | 3.63 µs |
+| composer une réplique de deux lignes | 203 ns | 65.2 ns |
+| ouvrir une vidéo | 9.51 ms | 592 µs |
+| chercher une position | 586 µs | 140 µs |
+| construction du modèle sur 4000 sous-titres | 10.1 µs | 4.13 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 18.2 µs | 659 ns |
+| rafraîchir après un décalage de 4000 sous-titres | 9.28 µs | 5.02 µs |
+| réinitialisation du modèle après une ligne retirée | 9.04 µs | 3.38 µs |
+| édition d'une cellule de texte | 529 ns | 242 ns |
+| édition d'une cellule de position | 10.4 µs | 1.98 µs |
+| versionString | 31 ns | 7.17 ns |
+| parse | 38.1 ns | 2.13 ns |
+| format | 41.2 ns | 0.478 ns |
+| position vers image | 7.64 ns | 0.192 ns |
+| image vers position | 7.63 ns | 0.191 ns |
+| mise à l'échelle par un rationnel exact | 7.93 ns | 0.421 ns |
+| lecture de 4000 sous-titres | 2.39 ms | 44.6 µs |
+| écriture de 4000 sous-titres | 606 µs | 19.9 µs |
+| décalage de 4000 sous-titres | 8.44 µs | 5.46 µs |
+| décalage puis annulation | 16.6 µs | 7.49 µs |
+| transformation de 4000 sous-titres | 83.2 µs | 8.99 µs |
+| conversion de fréquence sur 4000 sous-titres | 66.8 µs | 9.8 µs |
+| alignement sur 4000 sous-titres | 152 µs | 7.95 µs |
+| tri de 4000 sous-titres à l'envers | 317 µs | 14.5 µs |
+| suppression d'un sous-titre sur deux | 199 µs | 55.3 µs |
+| suppression puis annulation | 280 µs | 35.6 µs |
+| insertion de 100 sous-titres vides au milieu | 57.4 µs | 24 µs |
+| modification d'un texte, à travers une session | 221 ns | 21.8 ns |
+| suppression des mentions sur 4000 sous-titres | 1.18 ms | 208 µs |
+| déduction de fréquence sur 4000 sous-titres | 443 µs | 8.74 µs |
 
 ### 0.9.4 — 2026-09-05 — Release — charge 0.72 — allure ×1.01
 
