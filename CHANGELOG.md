@@ -12,11 +12,13 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **gui** — La fenêtre dit l'encodage du document, et la cadence du film
+- **scripts** — Mesurer où la détection d'encodage cesse de savoir
 
 ### Corrections
 
 - **core** — Un encodage qui écrit sa propre marque est refusé
 - **gui** — Save As… tient ce qu'il promet, et le montre
+- **text** — Peser les lignes qui discriminent, pas la masse d'ASCII
 
 ### Documentation
 
@@ -26,6 +28,10 @@ ne pas l'éditer à la main.
 ### Performance
 
 - **core** — Deux conversions qui ne faisaient rien
+
+### Tests
+
+- **scripts** — Rejouer le score de détection à chaque pull request
 
 ## 0.9.0 — 2026-09-04
 
