@@ -4,27 +4,27 @@
 
 namespace subedit::gui {
 
-/// Où le manuel installé se trouve, qu'il y soit ou non.
+/// Where the installed manual is, whether or not it is there.
 ///
-/// **Déduit de l'exécutable, et jamais d'un chemin figé à la compilation.** Le
-/// préfixe de configuration et celui d'installation ne sont pas le même : le
-/// manuel décrit `cmake --install build/release --prefix ~/.local`, où le
-/// second vaut `~/.local` alors que le premier est resté `/usr/local`. Un
-/// chemin gravé à la compilation désignerait donc le mauvais endroit dans
-/// l'usage même que le manuel recommande.
+/// **Worked out from the executable, and never from a path frozen at build
+/// time.** The configure prefix and the install prefix are not the same: the
+/// manual describes `cmake --install build/release --prefix ~/.local`, where
+/// the second is `~/.local` while the first stayed `/usr/local`. A path carved
+/// in at build time would therefore name the wrong place in the very use the
+/// manual recommends.
 ///
-/// `<répertoire de l'exécutable>/../share/subedit/manual` est juste pour tous
-/// les préfixes — `/usr` du paquet, `/usr/local`, `~/.local`, le répertoire
-/// temporaire de `check-installation.sh` — parce que c'est la disposition que
-/// `GNUInstallDirs` produit, quel que soit le préfixe.
+/// `<directory of the executable>/../share/subedit/manual` is right for every
+/// prefix — the package's `/usr`, `/usr/local`, `~/.local`, the temporary
+/// directory of `check-installation.sh` — because it is the layout
+/// `GNUInstallDirs` produces, whatever the prefix.
 ///
-/// **Le même rôle que `userSettingsPath()`, et la même règle** — ADR 0022 : ceci
-/// est le seul code qui résout cet emplacement, `main.cpp` l'appelle et passe
-/// la réponse à la fenêtre. Aucun test n'atteint donc le vrai manuel par
-/// accident : il donne le chemin qu'il veut.
+/// **The same role as `userSettingsPath()`, and the same rule** — ADR 0022:
+/// this is the only code that resolves this location, `main.cpp` calls it and
+/// passes the answer to the window. No test therefore reaches the real manual
+/// by accident: it gives whatever path it likes.
 ///
-/// Absolu, et il peut ne pas exister — un binaire lancé depuis l'arbre de
-/// construction n'a pas de manuel à côté de lui, ce qui n'est pas une erreur.
+/// Absolute, and it may not exist — a binary run from the build tree has no
+/// manual beside it, which is not an error.
 [[nodiscard]] std::filesystem::path installedManualPath();
 
 } // namespace subedit::gui

@@ -8,13 +8,13 @@
 namespace subedit::gui {
 
 std::filesystem::path installedManualPath() {
-    // `applicationDirPath()` demande une `QCoreApplication` construite, ce qui
-    // est le cas partout où cette fonction sert : `main` l'appelle après avoir
-    // construit la sienne.
+    // `applicationDirPath()` asks for a `QCoreApplication` already built,
+    // which is the case everywhere this function serves: `main` calls it after
+    // building its own.
     const QString binaries = QCoreApplication::applicationDirPath();
 
-    // `lexically_normal` pour que le `..` disparaisse du chemin plutôt que
-    // d'être porté jusque dans les messages d'erreur.
+    // `lexically_normal` so that the `..` leaves the path rather than being
+    // carried all the way into the error messages.
     return (std::filesystem::path{binaries.toStdString()} / ".." / "share" / "subedit" / "manual")
         .lexically_normal();
 }

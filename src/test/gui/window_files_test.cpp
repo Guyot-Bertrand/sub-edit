@@ -50,7 +50,7 @@ using subedit::gui::MainWindow;
 using subedit::gui::SaveTarget;
 using subedit::gui::UnsavedChoice;
 
-/// L'encodage de ce nom, ou un test en échec.
+/// The encoding of that name, or a failed test.
 [[nodiscard]] Encoding named(const char* name) {
     const std::expected<Encoding, EncodingRefusal> encoding =
         Encoding::create(name, ByteOrderMark::Absent);
@@ -138,8 +138,8 @@ TEST_CASE("saving a document that came from nowhere asks where", "[gui][GUI-SAVE
 }
 
 TEST_CASE("saving as writes in the encoding and the endings chosen", "[gui][GUI-ENC-02]") {
-    // Latin-1 et CRLF, demandés dans la boîte : ce que la fenêtre en fait est un
-    // fichier écrit ainsi, et un document qui porte désormais cette forme.
+    // Latin-1 and CRLF, asked for in the box: what the window makes of it is a
+    // file written that way, and a document that now carries that shape.
     InMemoryFileSystem files;
     files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9.\n\n");
     FakePrompts prompts;
@@ -154,19 +154,19 @@ TEST_CASE("saving as writes in the encoding and the endings chosen", "[gui][GUI-
 
     const std::string written = files.contentOf("copie.srt").value_or("");
     CHECK(written.find("\r\n") != std::string::npos);
-    // Latin-1 : la lettre accentuée tient sur un octet, et non sur deux.
+    // Latin-1: the accented letter fits in one byte, and not in two.
     CHECK(written.find("caf\xE9") != std::string::npos);
 
-    // Le document porte cette forme désormais : un `Save` qui ne demande rien
-    // réécrit le même fichier, pas celui qu'il était avant.
+    // The document carries that shape now: a `Save` that asks nothing rewrites
+    // the same file, not the one it used to be.
     window.saveAction()->trigger();
 
     CHECK(files.contentOf("copie.srt").value_or("") == written);
 }
 
 TEST_CASE("saving as opens on the encoding the file was read in", "[gui][GUI-ENC-02]") {
-    // Ce que le fichier porte, et non ce qu'un réglage se rappelle : l'écrire
-    // autrement sans qu'on l'ait demandé perdrait ce que la lecture a gardé.
+    // What the file carries, and not what a setting remembers: writing it
+    // otherwise unasked would lose what the reading took care to keep.
     InMemoryFileSystem files;
     files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn caf\xE9.\n\n");
     FakePrompts prompts;
@@ -180,8 +180,8 @@ TEST_CASE("saving as opens on the encoding the file was read in", "[gui][GUI-ENC
 
 TEST_CASE("a document that came from no file opens on the encoding last chosen",
           "[gui][GUI-ENC-03]") {
-    // Le seul cas où le réglage sert : un document neuf n'a pas d'encodage à
-    // lui, et ce que l'utilisateur écrit d'habitude est la meilleure réponse.
+    // The one case where the setting serves: a new document has no encoding of
+    // its own, and what the user usually writes is the best answer.
     InMemoryFileSystem files;
     FakePrompts prompts;
     MainWindow window{files, OpenedFile{}, prompts};

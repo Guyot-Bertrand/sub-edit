@@ -135,20 +135,20 @@ private:
         return Ratio{Ratio::reduce(numerator, denominator)};
     }
 
-    /// La table des huit, et le seul endroit où leurs termes sont écrits.
+    /// The table of the eight, and the only place their terms are written.
     ///
     // NOLINTBEGIN(readability-magic-numbers)
-    //   La définition d'une constante est le seul endroit où un littéral a le
-    //   droit d'être nu : le nom de 24000/1001 est `Fps23976`, et il est
-    //   déclaré plus haut dans ce fichier. Lui en donner un second — un
-    //   `kFps23976Numerator` — ajouterait seize identifiants qui ne diraient
-    //   rien de plus que les chiffres qu'ils remplacent.
+    //   The definition of a constant is the one place a literal has the right
+    //   to be bare: the name of 24000/1001 is `Fps23976`, and it is declared
+    //   higher up in this file. Giving it a second one — a
+    //   `kFps23976Numerator` — would add sixteen identifiers saying nothing
+    //   more than the digits they replace.
     //
-    //   Une exemption locale et non une option de `.clang-tidy` : la portée
-    //   voulue est cette fonction, et un `.clang-tidy` ne sait porter que sur
-    //   un répertoire — et, pour un en-tête, pas même sur lui, puisque c'est la
-    //   configuration de l'unité de traduction qui l'inclut qui s'applique.
-    //   Voir le paragraphe « NOLINT » de `.clang-tidy`, à la racine.
+    //   A local exemption and not an option of `.clang-tidy`: the scope wanted
+    //   is this function, and a `.clang-tidy` can only bear on a directory —
+    //   and, for a header, not even on that, since it is the configuration of
+    //   the translation unit including it that applies. See the "NOLINT"
+    //   paragraph of `.clang-tidy`, at the root.
     [[nodiscard]] static constexpr Ratio exactValueOf(StandardFrameRate standard) {
         switch (standard) {
         case StandardFrameRate::Fps23976:

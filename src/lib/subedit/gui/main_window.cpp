@@ -137,8 +137,8 @@ constexpr int kMinimumVideoHeight = 180;
 /// **A default, not a memory.** Remembering the size a user last chose is
 /// phase 7's business, with the rest of the persisted configuration; this is
 /// what there is to remember from before anything was.
-/// Cent, pour dire « en pour cent ». Nommé parce que l'analyse le demande, et
-/// parce qu'un `100` nu au milieu d'une division de pixels se lit mal.
+/// A hundred, to say "per cent". Named because the analysis asks for it, and
+/// because a bare `100` in the middle of a division of pixels reads badly.
 constexpr int kPerCent = 100;
 
 constexpr int kInitialWidth = 1200;
@@ -171,17 +171,17 @@ constexpr int kInitialHeight = 800;
     return std::ranges::max(rows, {}, [](const QModelIndex& index) { return index.row(); }).row();
 }
 
-/// Les raccourcis de `Save As…`, dont un que la plateforme peut ne pas donner.
+/// The shortcuts of `Save As…`, one of which the platform may not give.
 ///
-/// **Le thème de plateforme donne `Ctrl+Maj+S` sur tout bureau** — mesuré sous
-/// xcb, sous wayland, et sous `offscreen` dès qu'un thème est posé. Sans thème,
-/// Qt n'en donne aucun : sa table interne ne définit `SaveAs` que pour macOS et
-/// Windows, et c'est cette table-là qu'un binaire de test rencontre.
+/// **The platform theme gives `Ctrl+Shift+S` on every desktop** — measured
+/// under xcb, under wayland, and under `offscreen` as soon as a theme is laid
+/// down. With no theme, Qt gives none: its internal table defines `SaveAs` for
+/// macOS and Windows alone, and that is the table a test binary meets.
 ///
-/// La liaison conventionnelle est donc ajoutée quand la plateforme se tait —
-/// issue #274. Ce n'est pas décider à sa place : c'est dire la même chose
-/// qu'elle là où elle parle, et ne pas laisser une commande destructive
-/// inatteignable au clavier là où elle ne dit rien.
+/// The conventional binding is therefore added when the platform says nothing —
+/// issue #274. This is not deciding in its stead: it is saying the same thing
+/// it does where it speaks, and not leaving a destructive command out of reach
+/// of the keyboard where it says nothing.
 [[nodiscard]] QList<QKeySequence> saveAsShortcuts() {
     static const QKeySequence conventional{QStringLiteral("Ctrl+Shift+S")};
 
@@ -292,8 +292,8 @@ MainWindow::MainWindow(core::FileSystem& files,
 
     // The picture on top, the table under it, and the line between them
     // draggable — which is the one thing a fixed layout could not give.
-    // Construit dans la liste d'initialisation, comme les autres widgets que la
-    // fenêtre garde ; il n'est ajouté à une disposition qu'ici.
+    // Built in the initialiser list, like the other widgets the window keeps;
+    // it is added to a layout only here.
     QSplitter* split = m_split;
     split->addWidget(m_videoView);
     split->addWidget(m_noVideo);
@@ -314,16 +314,16 @@ MainWindow::MainWindow(core::FileSystem& files,
     stack->addWidget(m_diagnostics);
     setCentralWidget(centre);
 
-    // **Toutes les liaisons que la plateforme donne à « rétablir », et non la
-    // première** — issue #274.
+    // **Every binding the platform gives "redo", and not the first** — issue
+    // #274.
     //
-    // Ce que `QKeySequence` rend dépend du thème de plateforme, et un binaire
-    // de test n'en a aucun : sous `offscreen`, Qt retombe sur sa table interne
-    // et met `Ctrl+Y` en tête ; sous n'importe quel bureau, le thème donne
-    // `Ctrl+Maj+Z` et lui seul. `setShortcut` ne retient que la première, donc
-    // la même ligne de code posait deux raccourcis différents selon l'endroit
-    // où elle tournait — et le test n'y voyait que celui que l'utilisateur n'a
-    // pas. `setShortcuts` les prend toutes : les deux marchent partout.
+    // What `QKeySequence` answers depends on the platform theme, and a test
+    // binary has none: under `offscreen`, Qt falls back on its internal table
+    // and puts `Ctrl+Y` at the head; under any desktop at all, the theme gives
+    // `Ctrl+Shift+Z` and nothing else. `setShortcut` keeps only the first, so
+    // one line of code laid down two different shortcuts depending on where it
+    // ran — and the test saw only the one the user does not have.
+    // `setShortcuts` takes them all: both work everywhere.
     m_undo->setShortcut(QKeySequence::Undo);
     m_redo->setShortcuts(QKeySequence::keyBindings(QKeySequence::Redo));
     connect(m_undo, &QAction::triggered, this, [this] { m_model->applied(m_session->undo()); });
@@ -341,12 +341,12 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(m_save, &QAction::triggered, this, [this] { (void)save(); });
     connect(m_saveAs, &QAction::triggered, this, [this] { (void)saveAs(); });
 
-    // **`Ins` et `Suppr`, et non les lettres de Gaupol.** Il donne `I` et
-    // `Delete` ; une lettre nue de portée fenêtre serait prise avant que
-    // l'éditeur d'une cellule la voie, ce que le `Ctrl+P` du lecteur explique
-    // déjà. Les deux touches d'édition, elles, sont réclamées par les champs de
-    // saisie de Qt tant qu'un éditeur est ouvert : c'est ce qui laisse `Suppr`
-    // effacer un caractère plutôt qu'un sous-titre.
+    // **`Ins` and `Del`, and not Gaupol's letters.** It gives `I` and
+    // `Delete`; a bare letter of window scope would be taken before the editor
+    // of a cell saw it, which the `Ctrl+P` of the player already explains. The
+    // two editing keys, for their part, are claimed by Qt's input fields for as
+    // long as an editor is open: that is what lets `Del` erase a character
+    // rather than a subtitle.
     m_insert->setShortcut(QKeySequence{Qt::Key_Insert});
     m_remove->setShortcut(QKeySequence::Delete);
     connect(m_insert, &QAction::triggered, this, &MainWindow::insertSubtitles);
@@ -382,11 +382,11 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_about = new QAction{QStringLiteral("&About subedit"), this};
     connect(m_about, &QAction::triggered, this, &MainWindow::about);
 
-    // **Éteinte tant que personne ne lui a dit où est le manuel**, ce qui est
-    // le cas d'un binaire lancé depuis l'arbre de construction : `main` appelle
-    // `setManualPath` avec ce que `installedManualPath()` a résolu, et l'entrée
-    // s'allume si le manuel y est. Une entrée qui ouvrirait le vide serait pire
-    // qu'une entrée qui dit qu'elle n'a rien à ouvrir.
+    // **Out for as long as nobody has said where the manual is**, which is the
+    // case of a binary run from the build tree: `main` calls `setManualPath`
+    // with what `installedManualPath()` resolved, and the entry lights up if
+    // the manual is there. An entry that opened emptiness would be worse than
+    // an entry saying it has nothing to open.
     m_manual = new QAction{QStringLiteral("&Manual"), this};
     m_manual->setEnabled(false);
     m_manual->setShortcut(QKeySequence::HelpContents);
@@ -406,12 +406,12 @@ MainWindow::MainWindow(core::FileSystem& files,
     edition->addAction(m_undo);
     edition->addAction(m_redo);
     edition->addSeparator();
-    // Sous un séparateur : défaire est ce qu'on fait *à* une édition, insérer et
-    // supprimer *sont* des éditions.
+    // Under a separator: undoing is what one does *to* an edit; inserting and
+    // removing *are* edits.
     edition->addAction(m_insert);
     edition->addAction(m_remove);
     edition->addSeparator();
-    // Sous un autre : régler le thème n'est pas une édition du tout.
+    // Under another: setting the theme is no edit at all.
     edition->addAction(m_preferences);
 
     QMenu* video = menuBar()->addMenu(QStringLiteral("&Video"));
@@ -503,10 +503,9 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
             &QItemSelectionModel::selectionChanged,
             this,
             &MainWindow::placePlaybackAtSelection);
-    // Les deux seules actions dont l'état dépend de la sélection, et elles
-    // l'écoutent seules : `refreshActions` déduit la grille du fichier entier,
-    // et la brancher ici ferait payer cette déduction à chaque ligne d'un
-    // cliquer-tirer.
+    // The only two actions whose state depends on the selection, and they
+    // listen to it alone: `refreshActions` deduces the grid of the whole file,
+    // and wiring it here would pay for that deduction at every row of a drag.
     connect(m_table->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
@@ -629,8 +628,8 @@ void MainWindow::about() {
 void MainWindow::setManualPath(std::filesystem::path directory) {
     m_manualDirectory = std::move(directory);
 
-    // La page d'accueil et non le répertoire : un répertoire présent mais vide
-    // est une installation partielle, et c'est le cas que le cadrage nomme.
+    // The home page and not the directory: a directory that is there but empty
+    // is a partial installation, and that is the case the scoping names.
     m_manual->setEnabled(m_files->exists(m_manualDirectory / "index.md"));
     m_manual->setToolTip(m_manual->isEnabled()
                              ? QStringLiteral("Open the installed manual")
@@ -638,9 +637,9 @@ void MainWindow::setManualPath(std::filesystem::path directory) {
 }
 
 void MainWindow::openManual() {
-    // **Une seule fenêtre, ramenée au premier plan.** Un manuel se consulte
-    // plusieurs fois pendant une séance, et chaque appel en ouvrant une
-    // nouvelle en laisserait une pile derrière l'autre.
+    // **One window, brought back to the front.** A manual is consulted several
+    // times in a sitting, and a new one at every call would leave a stack of
+    // them behind one another.
     if (m_manualWindow == nullptr)
         m_manualWindow = new ManualWindow{*m_files, m_manualDirectory, this};
 
@@ -869,10 +868,10 @@ bool MainWindow::save() {
 bool MainWindow::saveAs() {
     const core::SourceFile& source = m_session->project().sourceFile();
 
-    // **L'encodage du fichier l'emporte sur le réglage**, et le réglage sert au
-    // document qui n'a pas de fichier : réécrire dans un autre encodage un
-    // document qu'on vient d'ouvrir, parce qu'un réglage vieux de trois
-    // semaines le dit, serait perdre ce que la lecture a gardé.
+    // **The encoding of the file wins over the setting**, and the setting
+    // serves the document with no file: rewriting a document one has just
+    // opened in another encoding, because a setting three weeks old says so,
+    // would be losing what the reading took care to keep.
     const core::Encoding proposed =
         source.path.has_value() ? source.encoding : m_writeEncoding.value_or(source.encoding);
 
@@ -880,9 +879,9 @@ bool MainWindow::saveAs() {
     if (!target.has_value())
         return false;
 
-    // Ce que le document devient, posé avant l'écriture : `saveProject` écrit ce
-    // que le projet porte, et ce qu'il porte est désormais ce qui vient d'être
-    // choisi. Ce n'est pas une commande — personne ne voudrait l'annuler.
+    // What the document becomes, laid down before the writing: `saveProject`
+    // writes what the project carries, and what it carries is now what has just
+    // been chosen. This is not a command — nobody would want to undo it.
     const core::SourceFile before = m_session->project().sourceFile();
     core::SourceFile moved = before;
     moved.path = target->path;
@@ -909,8 +908,8 @@ bool MainWindow::saveAs() {
 
     rememberDirectoryOf(target->path);
 
-    // Retenu même si le document en avait déjà un : c'est un choix qui vient
-    // d'être posé, et le prochain document sans fichier s'ouvrira dessus.
+    // Kept even if the document already had one: it is a choice that has just
+    // been made, and the next document with no file will open on it.
     m_writeEncoding = target->encoding;
 
     m_session->markSaved(core::Document::Main);
@@ -961,9 +960,9 @@ void MainWindow::openFromPrompt() {
         return;
     }
 
-    // **Retenu ici et non à la question** : ce qui compte est où l'utilisateur
-    // travaille, pas où il a regardé. Une boîte annulée, ou un fichier qui ne
-    // s'ouvre pas, ne déplace donc rien.
+    // **Kept here and not at the asking**: what counts is where the user
+    // works, not where they looked. A box dismissed, or a file that does not
+    // open, therefore moves nothing.
     rememberDirectoryOf(*chosen);
 
     openOn(std::move(opened->project), opened->diagnostics);
@@ -1054,16 +1053,16 @@ void MainWindow::refreshStructureActions() {
     const bool anything = m_session->project().count() != 0;
     const bool selected = !m_table->selectionModel()->selectedRows().isEmpty();
 
-    // **Un document vide s'insère sans sélection**, et c'est la seule façon de
-    // commencer un fichier neuf. Dès qu'il porte des lignes, il faut dire après
-    // laquelle insérer : Gaupol pose la même condition, et c'est celle qui
-    // empêche l'index d'être deviné.
+    // **An empty document takes an insertion with no selection**, and it is
+    // the only way to start a new file. As soon as it carries rows, one has to
+    // say after which to insert: Gaupol sets the same condition, and it is the
+    // one that keeps the index from being guessed.
     m_insert->setEnabled(!anything || selected);
 
-    // Rien de sélectionné, rien à retirer. L'action éteinte est ce qui tient la
-    // règle : sans elle, `Suppr` sur une table sans sélection deviendrait « tout
-    // le fichier », qui est ce que `targetOf` répond et qui serait ici un
-    // désastre.
+    // Nothing selected, nothing to remove. The action being out is what holds
+    // the rule: without it, `Del` on a table with no selection would become
+    // "the whole file", which is what `targetOf` answers and would be a
+    // disaster here.
     m_remove->setEnabled(selected);
 }
 
@@ -1133,9 +1132,9 @@ void MainWindow::reportWhatPassesTheEnd(core::CommandKind kind, const core::Sele
 void MainWindow::insertSubtitles() {
     const core::Project& project = m_session->project();
 
-    // Le garde de l'action, redit ici : une action éteinte ne se déclenche pas
-    // à la souris, mais rien n'empêche un raccourci de la trouver éteinte une
-    // fraction de seconde trop tard.
+    // The guard of the action, said again here: an action that is out does not
+    // fire under the mouse, but nothing keeps a shortcut from finding it out a
+    // fraction of a second too late.
     const int against = lastSelectedRow(*m_table->selectionModel());
     if (project.count() != 0 && against < 0)
         return;
@@ -1144,12 +1143,13 @@ void MainWindow::insertSubtitles() {
     if (!m_prompts->run(dialog))
         return;
 
-    // Retenu même si l'insertion qui suit ne change rien : c'est un réglage, et
-    // il a été posé. Rendu aux préférences à la fermeture de la fenêtre.
+    // Kept even if the insertion that follows changes nothing: it is a
+    // setting, and it has been made. Handed back to the preferences when the
+    // window closes.
     m_insertPlacement = dialog.placement();
 
-    // Le dernier sélectionné, plus un si l'on insère en dessous. Sur un
-    // document vide il n'y a rien à situer : c'est l'index zéro.
+    // The last selected, plus one when inserting below. On an empty document
+    // there is nothing to place it against: the index is zero.
     std::size_t at = 0;
     if (against >= 0) {
         at = static_cast<std::size_t>(against);
@@ -1166,9 +1166,9 @@ void MainWindow::insertSubtitles() {
         std::make_unique<core::InsertCommand>(core::InsertCommand::blank(project, index, count)),
         inserted);
 
-    // La table a été réinitialisée, donc la sélection a disparu avec elle.
-    // Rendre les lignes neuves sélectionnées est ce que Gaupol fait, et ce qui
-    // permet d'appuyer sur `Ins` une seconde fois.
+    // The table has been reset, so the selection went with it. Leaving the new
+    // rows selected is what Gaupol does, and what makes it possible to press
+    // `Ins` a second time.
     selectRows(static_cast<int>(at), static_cast<int>(at + count - 1));
 }
 
@@ -1177,15 +1177,15 @@ void MainWindow::removeSubtitles() {
     if (target.isEmpty())
         return;
 
-    // Lu avant que l'opération parte : c'est la place que la première ligne
-    // retirée laisse, et elle n'a plus de nom une fois le retrait fait.
+    // Read before the operation goes: it is the place the first removed row
+    // leaves, and it has no name any more once the removal is done.
     const int emptied = static_cast<int>(target.ranges().front().first.value());
 
     applyOperation(std::make_unique<core::RemoveCommand>(target), target);
 
-    // La ligne qui a pris cette place, ou la dernière quand le retrait a emporté
-    // la fin du fichier. Sans elle, un second `Suppr` ne trouverait plus de
-    // sélection et l'action serait éteinte.
+    // The row that took that place, or the last one when the removal carried
+    // off the end of the file. Without it, a second `Del` would find no
+    // selection left and the action would be out.
     const int left = static_cast<int>(m_session->project().count());
     if (left > 0)
         selectRows(std::min(emptied, left - 1), std::min(emptied, left - 1));
@@ -1195,9 +1195,9 @@ void MainWindow::selectRows(int first, int last) {
     const QModelIndex from = m_model->index(first, 0);
     const QModelIndex to = m_model->index(last, SubtitleTableModel::kColumnCount - 1);
 
-    // La ligne courante d'abord, et sans toucher à la sélection : passer par
-    // `setCurrentIndex` de la vue la réduirait à cette seule ligne, ce qui
-    // défairait la sélection posée juste après.
+    // The current row first, and without touching the selection: going through
+    // the view's `setCurrentIndex` would shrink it to that one row, which would
+    // undo the selection laid down right after.
     m_table->selectionModel()->setCurrentIndex(from, QItemSelectionModel::NoUpdate);
     m_table->selectionModel()->select(
         QItemSelection{from, to}, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
@@ -1296,8 +1296,8 @@ void MainWindow::openPreferences() {
     if (!m_prompts->run(dialog))
         return;
 
-    // Posé tout de suite : une préférence dont l'effet attend le redémarrage
-    // laisse croire qu'elle n'a pas été prise.
+    // Laid down at once: a preference whose effect waits for a restart looks
+    // like a preference that was not taken.
     m_theme = dialog.theme();
     applyTheme(m_theme);
 }
@@ -1311,24 +1311,23 @@ void MainWindow::applySettings(const core::Settings& settings) {
     if (settings.maximised)
         setWindowState(windowState() | Qt::WindowMaximized);
 
-    // Les quatre premières colonnes seulement : la cinquième prend ce que les
-    // autres laissent, et lui poser une largeur ne ferait rien. Le lecteur a
-    // déjà refusé un compte différent, donc arriver ici avec autre chose
-    // voudrait dire que les deux ne parlent plus des mêmes colonnes.
+    // The first four columns only: the fifth takes what the others leave, and
+    // giving it a width would do nothing. The reader has already refused a
+    // different count, so arriving here with anything else would mean the two
+    // no longer speak of the same columns.
     if (settings.columnWidths.size() == core::kColumnWidthCount) {
         for (std::size_t column = 0; column < core::kColumnWidthCount; ++column)
             m_table->setColumnWidth(static_cast<int>(column), settings.columnWidths[column]);
     }
 
-    // La poignée : une part et non des hauteurs, donc elle se rejoue à
-    // n'importe quelle taille de fenêtre. Les enfants cachés du séparateur
-    // valent zéro, si bien que la bande du haut prend tout le reste quel que
-    // soit celui des deux qui est montré.
+    // The handle: a share and not heights, so it replays at any size of
+    // window. The hidden children of the splitter count zero, so the band at
+    // the top takes all the rest whichever of the two is shown.
     if (settings.tableShare.has_value() && m_split != nullptr) {
-        // **La somme des tailles, et non la hauteur du séparateur** : la
-        // poignée elle-même prend des pixels, si bien que les deux ne sont pas
-        // égales. Poser sur l'une et relire sur l'autre ferait dériver la part
-        // d'un lancement au suivant, de quelques pour cent à chaque fois.
+        // **The sum of the sizes, and not the height of the splitter**: the
+        // handle itself takes pixels, so the two are not equal. Setting against
+        // one and reading back against the other would drift the share from one
+        // launch to the next, by a few per cent every time.
         const QList<int> sizes = m_split->sizes();
         const int total = std::accumulate(sizes.begin(), sizes.end(), 0);
         const int height = total > 0 ? total : kInitialHeight;
@@ -1348,9 +1347,9 @@ void MainWindow::applySettings(const core::Settings& settings) {
 core::Settings MainWindow::settings() const {
     core::Settings settings;
 
-    // `normalGeometry()` et non `geometry()` : maximisée, la seconde rend la
-    // taille de l'écran, et la session suivante ne saurait plus quoi rendre à
-    // qui dé-maximise.
+    // `normalGeometry()` and not `geometry()`: maximised, the second answers
+    // the size of the screen, and the next session would no longer know what to
+    // give back to whoever unmaximises.
     const QRect where = isMaximized() ? normalGeometry() : geometry();
     settings.geometry = core::WindowGeometry{
         .x = where.x(), .y = where.y(), .width = where.width(), .height = where.height()};

@@ -19,10 +19,9 @@ namespace subedit::core {
 
 namespace {
 
-// Les clés du fichier. **C'est un format, et non de la prose** : elles ne
-// passent pas par `core/wording.hpp` pour la même raison que `WEBVTT` n'y passe
-// pas — ce qu'un lecteur humain lit ici, ce sont les commentaires, qui eux en
-// viennent.
+// The keys of the file. **This is a format, and not prose**: they do not go
+// through `core/wording.hpp` for the reason `WEBVTT` does not — what a human
+// reader reads here are the comments, and those do come from it.
 constexpr std::string_view kGeometryKey = "window.geometry";
 constexpr std::string_view kMaximisedKey = "window.maximised";
 constexpr std::string_view kColumnsKey = "table.columns";
@@ -33,16 +32,16 @@ constexpr std::string_view kInsertPlacementKey = "edit.insert-placement";
 constexpr std::string_view kWriteEncodingKey = "file.write-encoding";
 constexpr std::string_view kWriteBomKey = "file.write-bom";
 
-// Les trois valeurs du thème, telles que le fichier les porte. En minuscules et
-// séparées de `nameOf(Theme)`, qui donne les intitulés du dialogue : ceci est un
-// format, cela est de la prose.
+// The three values of the theme, as the file carries them. Lower case, and
+// kept apart from `nameOf(Theme)`, which gives the labels of the dialog: this
+// is a format, that is prose.
 constexpr std::string_view kSystemTheme = "system";
 constexpr std::string_view kLightTheme = "light";
 constexpr std::string_view kDarkTheme = "dark";
 
-// Les deux côtés d'une insertion, tels que le fichier les porte — et pour la
-// même raison que le thème : ce sont des jetons de format, pas les intitulés
-// que le dialogue montre.
+// The two sides of an insertion, as the file carries them — and for the reason
+// the theme is: these are tokens of a format, not the labels the dialog
+// shows.
 constexpr std::string_view kAbovePlacement = "above";
 constexpr std::string_view kBelowPlacement = "below";
 
@@ -58,13 +57,14 @@ constexpr char kListSeparator = ',';
     return text.substr(first, text.find_last_not_of(kBlanks) - first + 1);
 }
 
-/// Un entier, ou rien. Refuse ce qui traîne après le nombre : « 12 pixels » est
-/// une valeur qu'on n'a pas su lire, et non un douze.
+/// An integer, or nothing. Refuses what trails after the number: "12 pixels"
+/// is a value that could not be read, and not a twelve.
 [[nodiscard]] std::optional<int> integerOf(std::string_view text) {
     int value = 0;
-    // `std::to_address` plutôt que `.data()` : la vue porte sa longueur, et un
-    // pointeur nu passé sans elle est précisément ce que l'analyse statique
-    // refuse — à raison, même quand la fin est donnée juste à côté.
+    // `std::to_address` rather than `.data()`: the view carries its length,
+    // and a bare pointer handed over without it is precisely what the static
+    // analysis refuses — rightly, even when the end is given right beside
+    // it.
     const char* const first = std::to_address(text.begin());
     const char* const last = std::to_address(text.end());
     const std::from_chars_result read = std::from_chars(first, last, value);
@@ -73,8 +73,8 @@ constexpr char kListSeparator = ',';
     return value;
 }
 
-/// Les entiers d'une liste séparée par des virgules, ou rien si l'un d'eux
-/// n'en est pas un.
+/// The integers of a comma-separated list, or nothing if one of them is not
+/// one.
 [[nodiscard]] std::optional<std::vector<int>> integersOf(std::string_view text) {
     std::vector<int> values;
     std::size_t start = 0;
@@ -151,11 +151,10 @@ constexpr char kListSeparator = ',';
     return share;
 }
 
-/// Un répertoire, s'il est absolu.
+/// A directory, if it is absolute.
 ///
-/// Un chemin relatif est relatif à un répertoire courant que personne ne
-/// connaît : c'est une valeur qu'on n'a pas su lire, et non un chemin à
-/// compléter au petit bonheur.
+/// A relative path is relative to a working directory nobody knows: it is a
+/// value that could not be read, and not a path to complete on a hunch.
 [[nodiscard]] std::optional<std::filesystem::path> directoryOf(std::string_view text) {
     std::filesystem::path directory{text};
     if (directory.empty() || !directory.is_absolute())
@@ -165,8 +164,8 @@ constexpr char kListSeparator = ',';
 
 [[nodiscard]] std::optional<WindowGeometry> geometryOf(std::string_view text) {
     const std::optional<std::vector<int>> numbers = integersOf(text);
-    // Quatre nombres, et des dimensions qui ne soient pas nulles : une fenêtre
-    // large de zéro est une fenêtre qu'on ne retrouverait jamais.
+    // Four numbers, and dimensions that are not zero: a window zero wide is a
+    // window one would never find again.
     if (!numbers.has_value() || numbers->size() != 4 || (*numbers)[2] <= 0 || (*numbers)[3] <= 0)
         return std::nullopt;
 
@@ -196,28 +195,28 @@ constexpr char kListSeparator = ',';
     return text;
 }
 
-/// Retient une option, ou signale la valeur qu'on n'a pas su lire.
+/// Keeps an option, or reports the value that could not be read.
 ///
-/// **Une clé inconnue est ignorée, sans un mot** : un fichier écrit par une
-/// version qui en connaissait plus n'est pas un fichier fautif, et c'est le mode
-/// d'échec que la tolérance choisit.
+/// **An unknown key is ignored, without a word**: a file written by a version
+/// that knew more of them is not a faulty file, and that is the failure mode
+/// tolerance chooses.
 void applyOption(SettingsRead& read,
                  bool& wantsByteOrderMark,
                  std::string_view key,
                  std::string_view value) {
-    // Ce que les huit options font toutes de la même façon : poser ce qu'on a su
-    // lire, nommer l'option sinon. Écrit une fois plutôt que huit, et ce n'est
-    // pas qu'une économie de lignes — la septième option a fait franchir à cette
-    // fonction le seuil de complexité que la porte tient.
+    // What all eight options do the same way: lay down what could be read,
+    // name the option otherwise. Written once rather than eight times, and it
+    // is not only a saving of lines — the seventh option took this function
+    // over the complexity threshold the gate holds.
     const auto take = [&read, key, value](auto parsed, auto& field) {
         if (!parsed.has_value()) {
             read.diagnostics.push_back({.key = std::string{key}, .value = std::string{value}});
             return;
         }
 
-        // **Un réglage qui est lui-même optionnel reçoit l'optionnel tel quel**,
-        // et n'est pas déballé pour être remballé : c'est le même contenu, et un
-        // déréférencement de moins.
+        // **A setting that is itself optional receives the option as it is**,
+        // and is not unwrapped to be wrapped again: it is the same content, and
+        // one dereference fewer.
         if constexpr (std::same_as<std::remove_cvref_t<decltype(field)>, decltype(parsed)>)
             field = std::move(parsed);
         else
@@ -244,17 +243,17 @@ void applyOption(SettingsRead& read,
         // #315, and gluing it back on here would make it one again. The mark is
         // put on the encoding once the file is read — see `readSettings`.
         //
-        // Un nom que `create` refuse est un réglage illisible, qui se signale
-        // comme les autres : ici, un encodage qu'ICU ne connaît pas et un qui
-        // écrirait sa propre marque sont la même nouvelle — un réglage dont on
-        // ne peut rien faire — et `take` lit l'un comme l'autre, le refus d'un
-        // `expected` se demandant comme l'absence d'un `optional`.
+        // A name `create` refuses is an unreadable setting, reported like the
+        // others: here, an encoding ICU does not know and one that would write
+        // its own mark are the same news — a setting nothing can be done with —
+        // and `take` reads either the same way, the refusal of an `expected`
+        // being asked after like the absence of an `optional`.
         take(Encoding::create(value, ByteOrderMark::Absent), read.settings.writeEncoding);
     else if (key == kWriteBomKey)
         take(booleanOf(value), wantsByteOrderMark);
 }
 
-/// Une option, écrite nue si elle est réglée, commentée si elle est au défaut.
+/// An option, written bare when set, commented out when at its default.
 void writeOption(std::string& out, std::string_view key, std::string_view value, bool atDefault) {
     if (atDefault)
         out += kComment;
@@ -272,11 +271,11 @@ SettingsRead readSettings(const FileSystem& files, const std::filesystem::path& 
     // What `file.write-bom` said, until `file.write-encoding` has spoken too.
     bool wantsByteOrderMark = false;
 
-    // **Absent et illisible donnent tous les deux les défauts, et ne se disent
-    // pas de la même façon.** Un fichier qui n'existe pas est le premier
-    // lancement, et il n'y a rien à signaler ; un fichier qui existe et se
-    // refuse est un réglage perdu, que l'utilisateur a le droit de savoir
-    // perdu. Ni l'un ni l'autre n'est une raison de ne pas démarrer.
+    // **Absent and unreadable both give the defaults, and are not said the
+    // same way.** A file that does not exist is the first launch, and there is
+    // nothing to report; a file that exists and refuses itself is a setting
+    // lost, which the user has a right to know is lost. Neither is a reason not
+    // to start.
     std::expected<std::string, FileError> content = files.readFile(path);
     if (!content) {
         if (content.error().kind != FileErrorKind::NotFound)
@@ -375,7 +374,7 @@ std::string renderSettings(const Settings& settings) {
 
 std::expected<void, FileError>
 writeSettings(FileSystem& files, const std::filesystem::path& path, const Settings& settings) {
-    // Le répertoire d'abord : au premier lancement, personne ne l'a fait.
+    // The directory first: at the first launch, nobody has made it.
     if (const std::expected<void, FileError> made = files.createDirectories(path.parent_path());
         !made)
         return made;

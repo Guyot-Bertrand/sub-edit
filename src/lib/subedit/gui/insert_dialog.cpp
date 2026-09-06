@@ -16,21 +16,20 @@ namespace subedit::gui {
 
 namespace {
 
-/// Combien de lignes on peut demander d'un coup.
+/// How many rows one may ask for at once.
 ///
-/// Les bornes de Gaupol, reprises telles quelles : une au moins — insérer zéro
-/// ligne n'est pas une opération — et un plafond assez haut pour n'avoir jamais
-/// à être discuté.
+/// Gaupol's bounds, taken as they are: one at least — inserting zero rows is
+/// not an operation — and a ceiling high enough never to have to be argued
+/// over.
 constexpr int kSmallestCount = 1;
 constexpr int kLargestCount = 99999;
 
-/// Le bouton d'un côté, nommé par le noyau.
+/// The button of one side, named by the core.
 ///
-/// Une fonction pour deux appels, et non deux `new` dans la liste
-/// d'initialisation : écrits là, ils dépassent la ligne, et une ligne coupée
-/// dans une liste d'initialisation devient une ligne que la couverture compte
-/// sans jamais l'atteindre — c'est le code de nettoyage d'exception qui s'y
-/// range.
+/// One function for two calls, and not two `new`s in the initialiser list:
+/// written there they run past the line, and a line broken inside an
+/// initialiser list becomes a line coverage counts without ever reaching — it
+/// is the exception clean-up code that files itself there.
 [[nodiscard]] QRadioButton* buttonFor(core::InsertPlacement placement, QWidget* parent) {
     return new QRadioButton{QString::fromUtf8(core::nameOf(placement)), parent};
 }
@@ -47,17 +46,18 @@ InsertDialog::InsertDialog(bool hasSubtitles, core::InsertPlacement placement, Q
     m_count->setRange(kSmallestCount, kLargestCount);
     m_count->setValue(kSmallestCount);
 
-    // Groupés explicitement : deux boutons radio d'un même parent le sont déjà,
-    // mais le groupe dit l'intention là où la disposition ne fait que
-    // l'impliquer — et il survivrait à un champ ajouté entre les deux.
+    // Grouped on purpose: two radio buttons of one parent already are, but the
+    // group says the intent where the layout only implies it — and it would
+    // survive a field added between the two.
     auto* side = new QButtonGroup{this};
     side->addButton(m_above);
     side->addButton(m_below);
 
     setPlacement(placement);
 
-    // Éteint plutôt que caché dans un document vide : il n'y a pas de sélection
-    // à situer, donc pas de côté à choisir, et l'insertion se fait au début.
+    // Out rather than hidden in an empty document: there is no selection to
+    // place it against, so no side to choose, and the insertion happens at the
+    // beginning.
     m_above->setEnabled(hasSubtitles);
     m_below->setEnabled(hasSubtitles);
 
@@ -76,8 +76,8 @@ InsertDialog::InsertDialog(bool hasSubtitles, core::InsertPlacement placement, Q
 }
 
 std::size_t InsertDialog::count() const {
-    // Le champ ne descend pas sous un, donc la conversion ne peut pas rendre
-    // zéro : c'est la borne qui le garantit, et non un test ici.
+    // The field does not go below one, so the conversion cannot answer zero:
+    // it is the bound that guarantees it, and not a check here.
     return static_cast<std::size_t>(m_count->value());
 }
 

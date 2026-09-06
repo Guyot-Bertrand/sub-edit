@@ -46,11 +46,11 @@ int main(int argc, char** argv) {
                                         prompts,
                                         subedit::gui::mpvPlayers(),
                                         subedit::gui::declaredFrameRates(files)};
-        // Les préférences de l'ADR 0022 : lues avant que la fenêtre se montre,
-        // écrites une fois qu'elle est fermée.
+        // The preferences of ADR 0022: read before the window shows itself,
+        // written once it is closed.
         window.applySettings(subedit::gui::readUserSettings(files, std::cerr));
-        // La décision D6 : `Help ▸ Manual` ouvre le manuel installé, dont
-        // l'emplacement se résout ici et nulle part ailleurs — ADR 0022.
+        // Decision D6: `Help ▸ Manual` opens the installed manual, whose
+        // location is resolved here and nowhere else — ADR 0022.
         window.setManualPath(subedit::gui::installedManualPath());
         window.show();
 

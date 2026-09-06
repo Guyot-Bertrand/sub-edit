@@ -28,8 +28,8 @@ TEST_CASE("what leaves the starts alone cannot break the order", "[edit][order]"
     CHECK_FALSE(mayBreakOrder(CommandKind::SetEnd));
     CHECK_FALSE(mayBreakOrder(CommandKind::Remove));
     CHECK_FALSE(mayBreakOrder(CommandKind::Sort));
-    // Seule opération à déplacer des débuts sans pouvoir rompre l'ordre :
-    // l'arrondi à l'image la plus proche est monotone.
+    // The one operation that moves starts and cannot break the order:
+    // rounding to the nearest frame is monotonic.
     CHECK_FALSE(mayBreakOrder(CommandKind::Snap));
 }
 

@@ -16,8 +16,8 @@ namespace subedit::gui {
 
 namespace {
 
-/// Les trois valeurs, dans l'ordre où on les rencontre : celle qui ne fait rien
-/// d'abord, puisque c'est le défaut.
+/// The three values, in the order one meets them: the one that does nothing
+/// first, since it is the default.
 constexpr std::array<core::Theme, 3> kThemes = {
     core::Theme::System, core::Theme::Light, core::Theme::Dark};
 
@@ -35,8 +35,8 @@ PreferencesDialog::PreferencesDialog(core::Theme theme, QWidget* parent)
     auto* fields = new QFormLayout;
     fields->addRow(QStringLiteral("Theme"), m_theme);
 
-    // Ce que « système » fait, dit là où on le lit : sans cette ligne, un
-    // lecteur qui choisit « System » et ne voit rien changer croit à une panne.
+    // What "system" does, said where it is read: without this line, a reader
+    // who picks "System" and sees nothing change believes it broken.
     auto* explanation = new QLabel{
         QStringLiteral("%1 %2.").arg(QString::fromUtf8(core::nameOf(core::Theme::System)),
                                      QString::fromUtf8(core::systemThemeExplained())),

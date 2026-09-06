@@ -53,37 +53,37 @@ namespace subedit::gui {
 
 /// Reads the settings at `path`, and says on `errors` what it could not read.
 ///
-/// **Ne rend jamais d'erreur, et c'est la décision de l'ADR 0022** : une
-/// configuration est un confort, sa défaillance doit coûter le confort et rien
-/// d'autre. Un fichier absent, un fichier refusé, une valeur illisible donnent
-/// tous des réglages utilisables — les défauts pour ce qui manque, ce qui se
-/// lisait pour le reste.
+/// **Never answers an error, and that is the decision of ADR 0022**: a
+/// configuration is a comfort, and its failing must cost the comfort and
+/// nothing else. A missing file, a refused file, an unreadable value all give
+/// usable settings — the defaults for what is missing, what could be read for
+/// the rest.
 ///
-/// **Le diagnostic va sur la sortie d'erreur**, comme Gaupol le fait depuis son
-/// interface. Une modale au démarrage pour une préférence illisible serait un
-/// mauvais échange : elle arrête l'utilisateur pour un défaut qui ne l'empêche
-/// de rien, et elle arrive avant qu'il ait rien demandé.
+/// **The diagnostic goes to the error output**, as Gaupol does from its own
+/// interface. A dialog at start-up for an unreadable preference would be a bad
+/// bargain: it stops the user over a defect that prevents nothing, and it
+/// arrives before they have asked for anything.
 ///
-/// Ici plutôt que dans `main.cpp` pour la raison que `check-architecture.sh`
-/// tient : un point d'entrée câble, il ne met pas en forme des messages.
+/// Here rather than in `main.cpp` for the reason `check-architecture.sh` holds:
+/// an entry point wires, it does not shape messages.
 [[nodiscard]] core::Settings readUserSettings(const core::FileSystem& files,
                                               const std::filesystem::path& path,
                                               std::ostream& errors);
 
 /// The same, at the place this user's settings live.
 ///
-/// **Deux surcharges plutôt qu'un défaut d'argument**, et la différence est
-/// celle d'une couture : celle-ci résout l'emplacement — c'est la seule chose
-/// que `main.cpp` a le droit de ne pas dire —, celle du dessus le reçoit et se
-/// laisse donc éprouver sans que rien n'aille voir un vrai répertoire
-/// personnel. Voir `settings_path.hpp` et l'ADR 0022.
+/// **Two overloads rather than a default argument**, and the difference is one
+/// of a seam: this one resolves the location — the one thing `main.cpp` is
+/// allowed not to say — where the one above receives it and can therefore be
+/// put to the test without anything going near a real home directory. See
+/// `settings_path.hpp` and ADR 0022.
 [[nodiscard]] core::Settings readUserSettings(const core::FileSystem& files, std::ostream& errors);
 
 /// Writes `settings` to `path`, and says on `errors` if it could not.
 ///
-/// Le pendant du précédent, et il perd de la même façon : une écriture refusée
-/// est une session dont les réglages ne seront pas retrouvés, pas une raison de
-/// mal se terminer.
+/// The counterpart of the one above, and it loses the same way: a refused
+/// write is a session whose settings will not be found again, not a reason to
+/// end badly.
 void writeUserSettings(core::FileSystem& files,
                        const std::filesystem::path& path,
                        const core::Settings& settings,

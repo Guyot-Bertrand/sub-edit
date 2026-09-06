@@ -24,25 +24,25 @@ struct WindowGeometry {
     friend bool operator==(const WindowGeometry&, const WindowGeometry&) = default;
 };
 
-/// Les bornes de la part donnée à la table, en pour cent.
+/// The bounds of the share given to the table, in per cent.
 ///
-/// Ni zéro ni cent : une table haute de rien, ou une bande vidéo haute de rien,
-/// est une fenêtre qu'on ne saurait plus rouvrir autrement qu'en effaçant son
-/// fichier de configuration.
+/// Neither zero nor a hundred: a table of no height, or a video band of no
+/// height, is a window one could no longer reopen otherwise than by deleting
+/// its configuration file.
 inline constexpr int kSmallestTableShare = 1;
 inline constexpr int kLargestTableShare = 99;
 
 /// How many column widths a settings file gives.
 ///
-/// **Quatre pour cinq colonnes, et ce n'est pas un oubli.** La dernière — le
-/// texte — prend ce que les autres laissent : c'est la colonne qui varie, et
-/// les quatre premières sont des largeurs connues. Retenir la cinquième serait
-/// retenir un nombre que la table recalcule à chaque redimensionnement, donc
-/// écrire dans le fichier une valeur que la relecture ne pourrait pas honorer.
+/// **Four for five columns, and it is no oversight.** The last — the text —
+/// takes what the others leave: it is the column that varies, and the first
+/// four are known widths. Keeping the fifth would be keeping a number the table
+/// works out afresh at every resize, so writing into the file a value the
+/// reading could not honour.
 ///
-/// Un fichier qui en nomme trois ou cinq est un fichier dont les largeurs ne
-/// veulent rien dire : le lecteur garde son défaut et le dit, plutôt que de
-/// deviner de quelle colonne il s'agissait.
+/// A file that names three or five is a file whose widths mean nothing: the
+/// reader keeps its default and says so, rather than guessing which column was
+/// meant.
 inline constexpr std::size_t kColumnWidthCount = 4;
 
 /// What the window remembers from one session to the next.
@@ -68,43 +68,41 @@ struct Settings {
 
     /// The share of the window's height the table takes, in per cent.
     ///
-    /// **Une proportion et non des hauteurs**, et c'est le point à poser :
-    /// trois hauteurs absolues qui ne totalisent pas la fenêtre ne veulent rien
-    /// dire dès que celle-ci s'ouvre à une autre taille, et une fenêtre s'ouvre
-    /// souvent à une autre taille. Une part, elle, se rejoue partout.
+    /// **A proportion and not heights**, and that is the point to make: three
+    /// absolute heights that do not add up to the window mean nothing as soon
+    /// as it opens at another size, and a window often opens at another size. A
+    /// share replays anywhere.
     ///
-    /// Absente par défaut : la fenêtre partage alors sa hauteur comme elle l'a
-    /// toujours fait.
+    /// Absent by default: the window then shares its height as it always
+    /// has.
     std::optional<int> tableShare{};
 
-    /// Où la boîte « ouvrir » s'ouvre, absolu ou absent.
+    /// Where the "open" box opens, absolute or absent.
     ///
-    /// **Retenir un répertoire n'est pas retenir un fichier**, et c'est la
-    /// coupure du critère D5 : un répertoire *pointe* une boîte de dialogue,
-    /// un fichier rouvrirait au lancement un document que personne n'a
-    /// demandé.
+    /// **Keeping a directory is not keeping a file**, and that is the cut of
+    /// criterion D5: a directory *points* a dialog box, a file would reopen at
+    /// launch a document nobody asked for.
     ///
-    /// Absolu, ou rien : un chemin relatif dans un fichier de configuration est
-    /// relatif à un répertoire courant que personne ne connaît.
+    /// Absolute, or nothing: a relative path in a configuration file is
+    /// relative to a working directory nobody knows.
     std::optional<std::filesystem::path> lastDirectory{};
 
     Theme theme = Theme::System;
 
-    /// De quel côté de la sélection `Insert Subtitles…` pose ses lignes.
+    /// Which side of the selection `Insert Subtitles…` lays its rows on.
     ///
-    /// **Après elle par défaut**, ce qui est le défaut de Gaupol. C'est le sens
-    /// où l'on écrit un fichier de sous-titres : la ligne suivante vient après
-    /// celle qu'on vient de regarder.
+    /// **Below it by default**, which is Gaupol's default. It is the direction
+    /// a subtitle file is written in: the next row comes after the one just
+    /// looked at.
     InsertPlacement insertPlacement = InsertPlacement::Below;
 
-    /// Le dernier encodage choisi dans `Save As…`, absent au premier lancement.
+    /// The encoding last chosen in `Save As…`, absent at the first launch.
     ///
-    /// **Il ne l'emporte jamais sur l'encodage d'un fichier lu**, et c'est la
-    /// coupure : un document ouvert porte le sien, et le réécrire dans un autre
-    /// parce qu'un réglage vieux de trois semaines le dit serait une perte que
-    /// personne n'a demandée — l'aller-retour d'octets de la phase 8 est
-    /// exactement cette promesse-là. Ce dont il se souvient sert au document qui
-    /// n'a pas de fichier : celui qu'on vient de créer.
+    /// **It never wins over the encoding of a file that was read**, and that is
+    /// the cut: an opened document carries its own, and rewriting it in another
+    /// because a setting three weeks old says so would be a loss nobody asked
+    /// for — the byte round trip of phase 8 is exactly that promise. What it
+    /// remembers serves the document with no file: the one just created.
     ///
     /// **The mark is part of it, and the file carries it at one more key.**
     /// `file.write-encoding` names the encoding, `file.write-bom` says whether

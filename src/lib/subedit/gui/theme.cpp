@@ -11,11 +11,11 @@ namespace subedit::gui {
 
 namespace {
 
-/// Les deux fonds, et le reste s'en déduit.
+/// The two grounds, and the rest follows from them.
 ///
-/// Ce ne sont pas des couleurs choisies pour plaire : ce sont celles dont la
-/// table a besoin pour que les quatre teintes d'anomalie restent lisibles
-/// par-dessus. Le contraste est vérifié par un test plutôt que supposé.
+/// These are not colours chosen to please: they are the ones the table needs
+/// for the four anomaly tints to stay readable over them. The contrast is
+/// checked by a test rather than assumed.
 constexpr QColor kLightWindow{239, 239, 239};
 constexpr QColor kLightBase{255, 255, 255};
 constexpr QColor kLightText{16, 16, 16};
@@ -24,14 +24,14 @@ constexpr QColor kDarkWindow{45, 45, 45};
 constexpr QColor kDarkBase{30, 30, 30};
 constexpr QColor kDarkText{232, 232, 232};
 
-/// Le bleu de sélection, le même dans les deux palettes.
+/// The blue of the selection, the same in both palettes.
 ///
-/// Une sélection qui change de teinte avec le thème serait un repère de moins :
-/// c'est le seul élément que l'œil cherche sans le nommer.
+/// A selection that changed hue with the theme would be one landmark fewer: it
+/// is the one element the eye looks for without naming it.
 constexpr QColor kHighlight{53, 110, 190};
 constexpr QColor kHighlightText{255, 255, 255};
 
-/// Le gris de ce qui est éteint, assez loin du texte pour se voir éteint.
+/// The grey of what is out, far enough from the text to look out.
 constexpr QColor kLightDisabled{130, 130, 130};
 constexpr QColor kDarkDisabled{120, 120, 120};
 
@@ -42,8 +42,8 @@ paletteOf(const QColor& window, const QColor& base, const QColor& text, const QC
     palette.setColor(QPalette::Window, window);
     palette.setColor(QPalette::WindowText, text);
     palette.setColor(QPalette::Base, base);
-    // Une ligne sur deux, quand la table les alterne : assez proche du fond pour
-    // ne pas rayer, assez loin pour se voir.
+    // Every other row, when the table alternates them: near enough the ground
+    // not to stripe it, far enough to be seen.
     palette.setColor(QPalette::AlternateBase, window);
     palette.setColor(QPalette::Text, text);
     palette.setColor(QPalette::Button, window);

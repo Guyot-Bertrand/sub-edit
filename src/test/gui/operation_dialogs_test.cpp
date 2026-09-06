@@ -200,10 +200,10 @@ TEST_CASE("a rate outside the eight standards is said and not picked", "[gui][GU
     CHECK(dialog.output() == FrameRate{StandardFrameRate::Fps25});
 }
 
-// Phase 16, and the sentence the manual had to unlearn: « le fichier a été calé
-// contre une fréquence que lui seul connaît […] et personne ne peut la deviner
-// à sa place ». Something can now — not a guess but a measurement of the
-// positions themselves.
+// Phase 16, and the sentence the manual had to unlearn: that the file had been
+// timed against a rate it alone knew, and that nobody could guess it in its
+// stead. Something can now — not a guess but a measurement of the positions
+// themselves.
 TEST_CASE("the measured grid pre-fills what the file was timed against",
           "[gui][GUI-FRAMERATE-03]") {
     const FrameRateDialog dialog{

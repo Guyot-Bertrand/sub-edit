@@ -1,12 +1,12 @@
-// Ce que la fenêtre retrouve d'une session à l'autre — issue #240.
+// What the window finds again from one session to the next — issue #240.
 //
-// **L'aller-retour complet est le critère**, et non chaque moitié prise à part.
-// Une fenêtre qui dit sa géométrie et une autre qui sait en poser une ne
-// prouvent rien ensemble tant que ce qui sort de la première n'est pas entré
-// dans la seconde en passant par un fichier.
+// **The whole round trip is the criterion**, and not each half taken apart. A
+// window that says its geometry and another that knows how to lay one down
+// prove nothing together for as long as what comes out of the first has not
+// gone into the second by way of a file.
 //
-// Rien ici ne touche un emplacement réel : le fichier est en mémoire, et son
-// chemin est donné. C'est la couture de l'ADR 0022 et le harnais de #238.
+// Nothing here touches a real location: the file is in memory, and its path is
+// given. It is the seam of ADR 0022 and the harness of #238.
 
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/format/project_file.hpp>
@@ -56,12 +56,12 @@ constexpr const char* kThree = "1\n"
 
 constexpr const char* kPath = "/config/subedit/settings.conf";
 
-/// « Sombre », troisième de la liste — l'ordre du dialogue est système, clair,
-/// sombre, celle qui ne fait rien en premier puisqu'elle est le défaut.
+/// "Dark", third in the list — the order of the dialog is system, light, dark,
+/// the one that does nothing first since it is the default.
 constexpr int kDarkIndex = 2;
 
-/// Une fenêtre sur un document, montrée : une fenêtre jamais montrée n'a pas de
-/// vraie géométrie, donc rien à retenir.
+/// A window on a document, shown: a window never shown has no real geometry,
+/// and so nothing to keep.
 class Windowed {
 public:
     Windowed() {
@@ -93,9 +93,9 @@ TEST_CASE("the window reports where it is and what its columns do",
 
     const Settings said = window.settings();
 
-    // `value_or` plutôt qu'un déréférencement après `REQUIRE` : l'analyse
-    // statique ne lit pas une macro de Catch2 comme une garde, et un défaut
-    // rendrait ici zéro, ce que la comparaison refuse tout autant.
+    // `value_or` rather than a dereference after `REQUIRE`: the static
+    // analysis does not read a Catch2 macro as a guard, and a default would
+    // answer zero here, which the comparison refuses just as much.
     CHECK(said.geometry.value_or(WindowGeometry{}).width == 1000);
     CHECK(said.geometry.value_or(WindowGeometry{}).height == 700);
     CHECK_FALSE(said.maximised);
@@ -126,8 +126,8 @@ TEST_CASE("column widths that were set are the ones the table takes",
     CHECK(window.table()->columnWidth(1) == 130);
 }
 
-// **Le critère de l'exigence, et l'aller-retour entier** : ce qu'une session
-// laisse, la suivante le retrouve, en passant par le fichier.
+// **The criterion of the requirement, and the whole round trip**: what one
+// session leaves, the next finds again, by way of the file.
 TEST_CASE("a session finds the geometry and columns of the previous one",
           "[gui][config][GUI-CONFIG-01]") {
     InMemoryFileSystem files;
@@ -163,9 +163,9 @@ TEST_CASE("a window left maximised reopens maximised", "[gui][config][GUI-CONFIG
     CHECK((window.windowState() & Qt::WindowMaximized) != 0);
 }
 
-// **Une géométrie absente laisse la fenêtre se dimensionner elle-même**, et
-// c'est ce qui rend le premier lancement identique à celui d'avant les
-// préférences : assez large pour qu'on lise la table — #211.
+// **A missing geometry leaves the window to size itself**, and that is what
+// makes the first launch identical to the one from before the preferences: wide
+// enough to read the table — #211.
 TEST_CASE("with no settings, the window opens as it always has", "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
     MainWindow& window = fixture.window();
@@ -177,7 +177,7 @@ TEST_CASE("with no settings, the window opens as it always has", "[gui][config][
     CHECK(window.height() >= 800);
 }
 
-// ## La poignée — #254
+// ## The handle — #254
 
 TEST_CASE("the share given to the table is set and read back", "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
@@ -188,19 +188,19 @@ TEST_CASE("the share given to the table is set and read back", "[gui][config][GU
     window.applySettings(Settings{.tableShare = 40});
     const Settings once = window.settings();
 
-    // **Stable plutôt qu'exacte**, et c'est la bonne promesse. La bande du haut
-    // a une hauteur minimale, donc une part trop petite est ramenée à ce que le
-    // séparateur accepte — ce qui est juste, et non un défaut. Ce qui doit
-    // tenir est qu'une part relue et reposée ne bouge plus : sans cela, la
-    // poignée dériverait d'un lancement à l'autre.
+    // **Stable rather than exact**, and that is the right promise. The band at
+    // the top has a minimum height, so a share too small is brought back to
+    // what the splitter accepts — which is right, and no defect. What has to
+    // hold is that a share read back and laid down again does not move: without
+    // that, the handle would drift from one launch to the next.
     REQUIRE(once.tableShare.has_value());
     window.applySettings(once);
     CHECK(window.settings().tableShare == once.tableShare);
 }
 
 TEST_CASE("a larger share gives a taller table", "[gui][config][GUI-CONFIG-01]") {
-    // L'autre moitié : une part stable qui ne voudrait rien dire serait stable
-    // pour rien.
+    // The other half: a stable share that meant nothing would be stable for
+    // nothing.
     Windowed fixture;
     MainWindow& window = fixture.window();
     window.setGeometry(0, 0, 1000, 800);
@@ -225,7 +225,7 @@ TEST_CASE("with no share saved, the handle stays where the window puts it",
     CHECK(window.settings().tableShare == before.tableShare);
 }
 
-// ## Le dernier répertoire — #254
+// ## The last directory — #254
 
 TEST_CASE("the open dialog starts in the last file's directory", "[gui][config][GUI-CONFIG-01]") {
     Windowed fixture;
@@ -240,7 +240,7 @@ TEST_CASE("the open dialog starts in the last file's directory", "[gui][config][
 
 TEST_CASE("a cancelled dialog does not move the remembered directory",
           "[gui][config][GUI-CONFIG-01]") {
-    // Ce qui compte est où l'utilisateur travaille, pas où il a regardé.
+    // What counts is where the user works, not where they looked.
     Windowed fixture;
     MainWindow& window = fixture.window();
     window.applySettings(Settings{.lastDirectory = std::filesystem::path{"/films/quai"}});
@@ -264,7 +264,7 @@ TEST_CASE("opening a file remembers its directory", "[gui][config][GUI-CONFIG-01
     CHECK(window.settings().lastDirectory == std::filesystem::path{"/ailleurs"});
 }
 
-// ## Le thème — #241
+// ## The theme — #241
 
 TEST_CASE("the theme chosen in the preferences is the one the window renders",
           "[gui][config][GUI-THEME-01]") {
@@ -273,8 +273,8 @@ TEST_CASE("the theme chosen in the preferences is the one the window renders",
     MainWindow& window = fixture.window();
     window.show();
 
-    // Le faux remplit le dialogue puis répond « validé », ce qu'un humain fait
-    // en choisissant dans la liste avant de cliquer.
+    // The fake fills the dialog in and then answers "accepted", which is what
+    // a human does by picking from the list before clicking.
     fixture.prompts().fill = [](QDialog& dialog) {
         auto* preferences = dynamic_cast<subedit::gui::PreferencesDialog*>(&dialog);
         if (preferences != nullptr)
@@ -314,7 +314,7 @@ TEST_CASE("a saved theme is the one the window reopens with", "[gui][config][GUI
     CHECK(fixture.window().settings().theme == Theme::Light);
 }
 
-// ## Ce que le câblage écrit sur la sortie d'erreur
+// ## What the wiring writes on the error output
 
 TEST_CASE("an unreadable value is named, with what was written", "[gui][config][GUI-CONFIG-02]") {
     InMemoryFileSystem files;
@@ -325,7 +325,7 @@ TEST_CASE("an unreadable value is named, with what was written", "[gui][config][
 
     CHECK_FALSE(read.geometry.has_value());
     CHECK_THAT(errors.str(), ContainsSubstring("window.geometry"));
-    // La valeur fautive est citée : sans elle, l'utilisateur cherche.
+    // The offending value is quoted: without it, the user has to hunt.
     CHECK_THAT(errors.str(), ContainsSubstring("\"plus tard\""));
     CHECK_THAT(errors.str(), ContainsSubstring("keeping the default"));
 }
@@ -349,10 +349,10 @@ TEST_CASE("an unreadable file says so, and the window starts on the defaults",
     CHECK_THAT(errors.str(), ContainsSubstring("permission denied"));
 }
 
-// **Ce que la réécriture commentée achète**, vu du fichier que le programme
-// écrit vraiment : une option jamais touchée n'est pas figée à la valeur du jour
-// où elle a été écrite, donc un défaut qu'on améliore atteint tout le monde. Sans
-// elle, l'améliorer n'atteindrait plus personne.
+// **What writing an option commented out buys**, seen from the file the
+// program really writes: an option never touched is not frozen at the value of
+// the day it was written, so a default one improves reaches everybody. Without
+// it, improving one would reach nobody at all.
 TEST_CASE("the written file comments out what stayed at its default",
           "[gui][config][GUI-CONFIG-03]") {
     InMemoryFileSystem files;
@@ -376,13 +376,14 @@ TEST_CASE("an option that was set is written without a comment", "[gui][config][
                ContainsSubstring("\nwindow.maximised = true\n"));
 }
 
-// **Les deux surcharges qui résolvent l'emplacement se répondent.** C'est tout
-// ce qu'il y a à prouver d'elles : qu'écrire puis relire, sans jamais dire où,
-// rende ce qu'on a écrit — donc que les deux parlent du même endroit.
+// **The two overloads that resolve the location answer each other.** That is
+// all there is to prove of them: that writing and then reading back, without
+// ever saying where, gives back what was written — so that the two speak of the
+// same place.
 //
-// **Rien n'atteint un vrai fichier**, et pas seulement parce que le harnais
-// déplace `XDG_CONFIG_HOME` : le système de fichiers est en mémoire, donc le
-// chemin résolu n'est utilisé que comme une clé.
+// **Nothing reaches a real file**, and not only because the harness moves
+// `XDG_CONFIG_HOME`: the file system is in memory, so the resolved path is used
+// as a key and nothing else.
 TEST_CASE("writing then reading back without saying where returns what was written",
           "[gui][config][GUI-CONFIG-01]") {
     InMemoryFileSystem files;

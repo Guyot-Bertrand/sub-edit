@@ -55,11 +55,11 @@ public:
 
     /// Which file to open, or nothing if the user changed their mind.
     ///
-    /// `directory` is where the question opens — le répertoire du dernier
-    /// fichier ouvert ou enregistré, vide au premier lancement. Sans lui, la
-    /// boîte s'ouvre là où le processus a été lancé, c'est-à-dire nulle part
-    /// d'utile quand il vient d'un menu de bureau. Le chercheur de film reçoit
-    /// le sien depuis toujours ; celui-ci l'a gagné avec #254.
+    /// `directory` is where the question opens — the directory of the last
+    /// file opened or saved, empty at the first launch. Without it the box
+    /// opens where the process was started, which is nowhere useful when it
+    /// came from a desktop menu. The film chooser has had its own from the
+    /// start; this one earned it with #254.
     [[nodiscard]] virtual std::optional<std::filesystem::path>
     fileToOpen(const std::filesystem::path& directory) = 0;
 

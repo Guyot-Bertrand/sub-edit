@@ -23,11 +23,11 @@ namespace subedit::gui {
 struct TypedReference {
     int number = 1;
 
-    /// L'origine, et non un membre laissé au hasard : `Timestamp` n'a pas de
-    /// constructeur par défaut public qui poserait une valeur, et un
-    /// `TypedReference` construit sans initialisateur portait donc une position
-    /// indéterminée. Repéré par l'analyse des en-têtes, que la porte n'avait
-    /// jamais faite — issue #269.
+    /// The origin, and not a member left to chance: `Timestamp` has no public
+    /// default constructor that would lay a value down, so a `TypedReference`
+    /// built with no initialiser carried an indeterminate position. Spotted by
+    /// the analysis of the headers, which the gate had never done — issue
+    /// #269.
     core::Timestamp target = core::Timestamp::origin();
 
     friend bool operator==(const TypedReference&, const TypedReference&) = default;

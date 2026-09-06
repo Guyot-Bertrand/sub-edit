@@ -2,18 +2,18 @@
 
 namespace subedit::core {
 
-/// De quel côté de la sélection une insertion pose ses lignes.
+/// Which side of the selection an insertion lays its rows on.
 ///
-/// **Deux valeurs et un réglage retenu, parce que Gaupol en fait un** —
-/// décision D7 du cadrage de la phase 7. `subtitle_insert.above` y est une
-/// préférence persistée depuis vingt ans, et la raison tient à l'usage : on
-/// n'insère pas une fois, on insère dix lignes de suite, toujours du même
-/// côté. Redemander le côté à chaque fois serait redemander une réponse qui ne
-/// change jamais.
+/// **Two values and a setting that is kept, because Gaupol makes one of it** —
+/// decision D7 of the scoping of phase 7. `subtitle_insert.above` has been a
+/// persisted preference there for twenty years, and the reason is one of use:
+/// one does not insert once, one inserts ten rows in a row, always on the same
+/// side. Asking for the side every time would be asking again for an answer
+/// that never changes.
 ///
-/// Une énumération et non un booléen, pour la raison qui vaut pour `Theme` : le
-/// fichier de configuration porte des mots plutôt qu'un `true` dont personne ne
-/// devine de quoi il est vrai.
+/// An enumeration and not a boolean, for the reason that holds for `Theme`: the
+/// configuration file carries words rather than a `true` nobody can guess what
+/// it is true of.
 enum class InsertPlacement {
     Above, ///< avant la sélection
     Below, ///< après elle, ce qui est le défaut

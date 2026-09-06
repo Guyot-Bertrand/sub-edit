@@ -27,44 +27,45 @@ namespace subedit::gui {
 
 namespace {
 
-/// La page sur laquelle le manuel s'ouvre.
+/// The page the manual opens on.
 ///
-/// Celle que #243 a écrite pour cela : elle dit ce que chacun des deux
-/// programmes fait, et par où commencer.
+/// The one #243 wrote for it: it says what each of the two programs does, and
+/// where to start.
 const std::filesystem::path kHomePage{"index.md"};
 
-/// La taille d'ouverture, en pixels.
+/// The size it opens at, in pixels.
 ///
-/// Assez large pour que les tableaux du manuel tiennent sans repli — ils y sont
-/// nombreux et c'est ce qu'ils rendent le plus mal — et assez haute pour qu'une
-/// section se lise sans défiler à chaque paragraphe.
+/// Wide enough that the tables of the manual fit without wrapping — there are
+/// many of them and it is what they render worst — and tall enough that a
+/// section reads without scrolling at every paragraph.
 constexpr int kWidth = 900;
 constexpr int kHeight = 700;
 
-/// Ce qu'une page devient une fois lue, relative à la racine du manuel.
+/// What a page becomes once read, relative to the root of the manual.
 ///
-/// **Normalisée, parce que les liens sont relatifs à la page qui les porte** :
-/// `../subedit-cli/installation.md` cliqué depuis `subedit-gui/index.md` doit
-/// désigner une page du manuel et pas un chemin qui remonte au-dessus de lui.
+/// **Normalised, because links are relative to the page that carries them**:
+/// `../subedit-cli/installation.md` clicked from `subedit-gui/index.md` has to
+/// name a page of the manual and not a path that climbs above it.
 [[nodiscard]] std::filesystem::path resolved(const std::filesystem::path& from,
                                              const std::filesystem::path& target) {
     return (from.parent_path() / target).lexically_normal();
 }
 
-/// Dit si `page` reste sous la racine du manuel.
+/// Tells whether `page` stays under the root of the manual.
 [[nodiscard]] bool inside(const std::filesystem::path& page) {
     return !page.empty() && *page.begin() != "..";
 }
 
-/// L'ancre que GitHub donne à un titre.
+/// The anchor GitHub gives a heading.
 ///
-/// **La même règle que `check-manual-links.py`**, et écrite deux fois faute de
-/// pouvoir l'être une : le script vérifie les renvois du dépôt, cette fenêtre
-/// les suit, et rien ne relie un script Python à une bibliothèque C++. Les deux
-/// copies sont confrontées par le corpus plutôt que par la lecture — le manuel
-/// porte une quarantaine de renvois avec ancre, le script exige qu'ils
-/// désignent un titre, et le test des pages réelles exige que la fenêtre les
-/// trouve. Une divergence entre les deux règles ferait échouer l'un des deux.
+/// **The same rule as `check-manual-links.py`**, written twice for want of a
+/// way to write it once: the script checks the references of the repository,
+/// this window follows them, and nothing ties a Python script to a C++ library.
+/// The two copies are confronted through the corpus rather than by reading —
+/// the manual carries some forty references with an anchor, the script demands
+/// that they name a heading, and the test on the real pages demands that the
+/// window find them. A divergence between the two rules would fail one of the
+/// two.
 [[nodiscard]] QString anchorOf(const QString& title) {
     QString kept;
     for (const QChar letter : title.trimmed().toLower()) {
@@ -76,10 +77,10 @@ constexpr int kHeight = 700;
     return kept;
 }
 
-/// Les titres de la page et leur ancre, dans l'ordre où ils viennent.
+/// The headings of the page and their anchor, in the order they come.
 ///
-/// **Les doublons sont numérotés**, comme GitHub le fait : deux sections « Les
-/// erreurs » dans une même page donnent `les-erreurs` et `les-erreurs-1`.
+/// **Repeats are numbered**, as GitHub does it: two sections named "The errors"
+/// in one page give `the-errors` and `the-errors-1`.
 [[nodiscard]] std::vector<std::pair<int, QString>> headingAnchors(const QTextDocument& document) {
     std::vector<std::pair<int, QString>> found;
     std::map<QString, int> seen;
@@ -97,11 +98,11 @@ constexpr int kHeight = 700;
     return found;
 }
 
-/// Compte les tableaux d'un cadre et de tout ce qu'il contient.
+/// Counts the tables of a frame and of everything it holds.
 ///
-/// Récursif parce que le document n'est pas plat : un tableau est un cadre
-/// enfant, et il peut lui-même en porter. Compter les seuls enfants de la
-/// racine suffirait au manuel d'aujourd'hui et se tairait sur celui de demain.
+/// Recursive because the document is not flat: a table is a child frame, and it
+/// may carry frames of its own. Counting the children of the root alone would
+/// do for today's manual and say nothing about tomorrow's.
 [[nodiscard]] int tablesUnder(const QTextFrame& frame) {
     int found = 0;
     for (QTextFrame* child : frame.childFrames()) {
@@ -127,10 +128,10 @@ ManualWindow::ManualWindow(core::FileSystem& files,
     setWindowTitle(QStringLiteral("subedit — manual"));
     resize(kWidth, kHeight);
 
-    // **Les liens ne sont pas ouverts par le navigateur de texte.** Le sien
-    // appellerait `setSource`, qui lirait un fichier Markdown comme du texte
-    // brut ; nous les suivons nous-mêmes, ce qui est aussi ce qui permet de
-    // dire ce qu'on ne sait pas ouvrir.
+    // **Links are not opened by the text browser.** Its own would call
+    // `setSource`, which would read a Markdown file as plain text; we follow
+    // them ourselves, which is also what makes it possible to say what cannot
+    // be opened.
     m_view->setOpenLinks(false);
     connect(m_view, &QTextBrowser::anchorClicked, this, &ManualWindow::followLink);
 
@@ -140,8 +141,8 @@ ManualWindow::ManualWindow(core::FileSystem& files,
 
         const std::filesystem::path previous = m_visited.back();
         m_visited.pop_back();
-        // Ouverte sans être empilée : `openPage` empilerait celle qu'on quitte,
-        // et le retour ferait alors du surplace entre deux pages.
+        // Opened without being stacked: `openPage` would stack the one being
+        // left, and going back would then shuttle between two pages.
         const std::vector<std::filesystem::path> kept = m_visited;
         openPage(previous);
         m_visited = kept;
@@ -173,9 +174,9 @@ void ManualWindow::openPage(const std::filesystem::path& page) {
         m_files->readFile(m_directory / page);
 
     if (!content) {
-        // **Dit plutôt que tu.** Une installation partielle est le cas que le
-        // cadrage nomme, et une fenêtre qui s'ouvre vide laisserait croire à un
-        // manuel vide plutôt qu'à un fichier manquant.
+        // **Said rather than left unsaid.** A partial installation is the case
+        // the scoping names, and a window that opened empty would suggest an
+        // empty manual rather than a missing file.
         m_notice->setText(QStringLiteral("%1 could not be read.")
                               .arg(QString::fromStdString((m_directory / page).string())));
         m_notice->show();
@@ -188,9 +189,9 @@ void ManualWindow::openPage(const std::filesystem::path& page) {
     m_notice->clear();
     m_notice->hide();
 
-    // Les images du manuel sont voisines de la page qui les montre, et leurs
-    // adresses sont relatives à elle : c'est ce répertoire-là que le rendu doit
-    // chercher, et il change à chaque page.
+    // The images of the manual sit beside the page that shows them, and their
+    // addresses are relative to it: that is the directory the rendering has to
+    // search, and it changes with every page.
     const std::filesystem::path here = (m_directory / page).parent_path();
     m_view->setSearchPaths({QString::fromStdString(here.string())});
 
@@ -205,8 +206,8 @@ void ManualWindow::openPage(const std::filesystem::path& page) {
 void ManualWindow::followLink(const QUrl& target) {
     const std::filesystem::path asked{target.path().toStdString()};
 
-    // Une ancre seule — « #le-thème » — désigne la page courante : il n'y a
-    // rien à charger, seulement à descendre.
+    // An anchor on its own — "#the-theme" — names the current page: there is
+    // nothing to load, only somewhere to go down to.
     if (asked.empty()) {
         showSection(target.fragment());
         return;
@@ -234,19 +235,20 @@ void ManualWindow::showSection(const QString& anchor) {
         if (name != anchor)
             continue;
 
-        // **La vue est posée par son curseur, et non par `scrollToAnchor`** : le
-        // rendu Markdown de Qt ne nomme aucune ancre — un titre y est un bloc
-        // de niveau, pas une cible — donc il n'y a rien à quoi `scrollToAnchor`
-        // pourrait répondre. C'est le défaut que #268 a trouvé : les renvois
-        // avec ancre du manuel étaient vérifiés contre les ancres de GitHub,
-        // jamais contre le rendu de la fenêtre, et ils y ouvraient la page sans
-        // y descendre.
+        // **The view is placed by its cursor, and not by `scrollToAnchor`**:
+        // Qt's Markdown rendering names no anchor at all — a heading is a block
+        // with a level there, not a target — so there is nothing for
+        // `scrollToAnchor` to answer. That is the defect #268 found: the
+        // references with an anchor were checked against GitHub's anchors,
+        // never against what the window renders, and they opened the page
+        // without going down to the section.
         //
-        // Le détour par la fin met le titre en haut de la vue plutôt qu'en bas.
-        // `setTextCursor` fait défiler juste assez pour montrer le curseur :
-        // depuis le début d'une page, « juste assez » amène le titre au bas de
-        // la fenêtre, et la section commence donc hors champ. Depuis la fin, le
-        // même « juste assez » l'amène en haut, et la section se lit.
+        // The detour through the end puts the heading at the top of the view
+        // rather than the bottom. `setTextCursor` scrolls just enough to show
+        // the cursor: from the beginning of a page, "just enough" brings the
+        // heading to the bottom of the window, so the section starts out of
+        // sight. From the end, the same "just enough" brings it to the top, and
+        // the section reads.
         m_view->moveCursor(QTextCursor::End);
         m_view->setTextCursor(QTextCursor{m_view->document()->findBlockByNumber(block)});
         return;
@@ -269,10 +271,10 @@ int ManualWindow::shownTables() const {
 QStringList ManualWindow::shownLinks() const {
     QStringList found;
 
-    // Bloc par bloc, fragment par fragment : c'est la seule façon de lire un
-    // format de caractère, et un lien n'est rien d'autre. L'itération d'un
-    // document parcourt aussi les blocs des tableaux, où le manuel met la
-    // moitié de ses renvois.
+    // Block by block, fragment by fragment: it is the only way to read a
+    // character format, and a link is nothing else. Iterating a document walks
+    // the blocks of the tables too, where the manual puts half of its
+    // references.
     for (QTextBlock block = m_view->document()->begin(); block.isValid(); block = block.next()) {
         for (QTextBlock::iterator part = block.begin(); part != block.end(); ++part) {
             const QTextFragment fragment = part.fragment();
@@ -299,10 +301,10 @@ QStringList ManualWindow::missingImages() const {
 
             const QString name = fragment.charFormat().toImageFormat().name();
 
-            // `resource()` passe par `QTextBrowser::loadResource`, donc par les
-            // chemins de recherche que `openPage` vient de poser : demander
-            // l'image au document est demander ce qu'un lecteur verra, là où un
-            // `exists()` sur le disque ne dirait que ce que le disque porte.
+            // `resource()` goes through `QTextBrowser::loadResource`, and so
+            // through the search paths `openPage` has just laid down: asking
+            // the document for the image is asking what a reader will see,
+            // where an `exists()` on disk would say only what the disk holds.
             const QVariant loaded =
                 m_view->document()->resource(QTextDocument::ImageResource, QUrl{name});
 
@@ -319,10 +321,9 @@ QString ManualWindow::currentSection() const {
     if (here.blockFormat().headingLevel() == 0)
         return {};
 
-    // La boucle va jusqu'au bout plutôt que de sortir sur la première
-    // correspondance, et c'est ce qui lui évite une ligne de retour que rien
-    // n'atteindrait : un bloc de titre est toujours dans cette liste, donc un
-    // `return` après la boucle serait du code mort.
+    // The loop runs to the end rather than leaving on the first match, and
+    // that is what spares it a return line nothing would reach: a heading block
+    // is always in this list, so a `return` after the loop would be dead code.
     QString name;
     for (const auto& [block, anchor] : headingAnchors(*m_view->document())) {
         if (block == here.blockNumber())
@@ -333,10 +334,10 @@ QString ManualWindow::currentSection() const {
 }
 
 QString ManualWindow::notice() const {
-    // `isHidden()` et non `isVisible()` : la seconde est fausse tant que la
-    // fenêtre elle-même n'est pas à l'écran, si bien qu'un test qui ne montre
-    // rien lirait toujours une bande vide. La première dit ce qu'on veut
-    // savoir — la bande a-t-elle été cachée — sans rien demander aux ancêtres.
+    // `isHidden()` and not `isVisible()`: the second is false for as long as
+    // the window itself is off screen, so a test that shows nothing would
+    // always read an empty band. The first says what one wants to know — was
+    // the band hidden — without asking anything of the ancestors.
     return m_notice->isHidden() ? QString{} : m_notice->text();
 }
 

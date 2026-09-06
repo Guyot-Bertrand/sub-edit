@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compte les commentaires français restés dans le C++, et refuse qu'ils montent.
+"""Refuse un commentaire français dans le C++.
 
 **La frontière du projet est celle du fichier, pas celle du sujet.** Le C++ —
 identifiants et commentaires — est en anglais ; tout le reste est en français :
@@ -10,18 +10,18 @@ Ce contrôle-ci ne tient qu'une moitié de cette frontière, celle qui a dériv�
 L'autre n'en a pas besoin : les scripts sont français à 1 971 lignes contre 6,
 et le système de construction à 386 contre 4. Rien n'y bouge.
 
-## Pourquoi un cliquet plutôt qu'un refus
+## Il fut un cliquet, et il ne l'est plus
 
-Mille cent soixante et une lignes françaises vivent encore dans le C++ au jour
-où ce contrôle est écrit. Un refus sec rendrait l'arbre rouge à l'instant même
-où l'on pose la règle, et la règle serait débranchée avant d'avoir servi. Le
-cliquet, lui, tient dès le premier jour : **le compte ne peut que descendre.**
+Mille cent soixante et une lignes françaises vivaient dans le C++ le jour où ce
+contrôle a été écrit — issue #312. Un refus sec aurait rendu l'arbre rouge à
+l'instant où la règle était posée, et la règle aurait été débranchée avant
+d'avoir servi ; un cliquet, lui, tenait dès le premier jour, le compte ne
+pouvant que descendre.
 
-C'est la mécanique du cliquet de couverture — `docs/mesures/couverture.md` — et
-elle a la même faiblesse, qu'il vaut mieux écrire que taire : **un compte global
-se compense.** Un fichier traduit paie une dérive ailleurs, et le total ne bouge
-pas. Ce qui l'empêche en pratique est que l'échec nomme les fichiers, et qu'une
-traduction et une dérive dans la même pull request se voient à la relecture.
+**La descente est faite** — issue #325, en deux pull requests : `screenshots.cpp`
+d'abord, puis les quarante-neuf autres fichiers. Le cliquet a donc rendu ce
+qu'on lui demandait et cessé d'être utile : ce qui reste est un refus, et il
+n'y a plus de nombre à relire.
 
 ## Ce qui est reconnu, et ce qui ne l'est pas
 
@@ -39,7 +39,7 @@ paragraphe français.
 **Le seuil de douze caractères** écarte les fins de ligne — `// namespace`,
 `// NOLINT` — dont aucun vote ne dirait rien.
 
-Sortie : le compte. Code de retour 1 s'il dépasse le cliquet.
+Sortie : le compte. Code de retour 1 s'il n'est pas nul.
 """
 
 from __future__ import annotations
@@ -51,21 +51,14 @@ import sys
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 SOURCES = REPO_ROOT / "src"
 
-# **Le cliquet, et il ne remonte jamais.** Le baisser est le geste normal d'une
-# pull request qui traduit : le nouveau compte s'écrit ici, dans le même diff
-# que la traduction. Il n'y a pas de `make ratchet` pour celui-ci — ce serait
-# offrir un bouton à ce qui doit rester une ligne relue.
+# **Zéro, et ce n'est plus un cliquet.** La constante reste parce que le message
+# d'échec la cite et qu'elle nomme ce qui est attendu ; elle ne bouge plus.
 #
-# Mesuré le 2026-09-05, à la décision de l'issue #312 — 1 161 alors. Descendu à
-# 1 095 par la pull request des issues #309 et #321, qui a traduit les deux
-# fichiers qu'elle touchait de bout en bout plutôt que d'y mêler deux langues,
-# puis à 1 093 par celle des #316 et #317, pour deux lignes croisées en chemin.
-#
-# La descente proprement dite est l'issue #325, et elle se fait par fichier
-# entier : `screenshots.cpp` d'abord, 109 lignes d'un coup, ce qui met le compte
-# à 984. Le jour où ce nombre vaut zéro, le cliquet devient un refus sec et la
-# moitié de cet en-tête tombe.
-RATCHET = 984
+# L'histoire, pour qui se demanderait pourquoi ce fichier parle d'un cliquet :
+# 1 161 lignes à la décision de #312, 1 095 après la pull request des #309 et
+# #321, 1 093 après celle des #316 et #317, 984 après `screenshots.cpp`, et zéro
+# à la fin de #325.
+RATCHET = 0
 
 # Les mots outils français sans homographe anglais, et les élisions. « on »,
 # « son » et « sa » en sont écartés : ce sont des mots anglais courants, et les
@@ -124,8 +117,8 @@ def main() -> int:
 
     if total > RATCHET:
         print(
-            f"{red}✗{reset} {total} lignes de commentaire françaises dans le C++,"
-            f" contre {RATCHET} au cliquet",
+            f"{red}✗{reset} {total} ligne(s) de commentaire françaises dans le C++,"
+            " qui s'écrit en anglais",
             file=sys.stderr,
         )
         for source, lines in sorted(counted.items(), key=lambda pair: -pair[1])[:10]:
@@ -136,11 +129,7 @@ def main() -> int:
         )
         return 1
 
-    print(f"{green}✓{reset} {total} lignes de commentaire françaises dans le C++,"
-          f" cliquet à {RATCHET}")
-    if total < RATCHET:
-        print(f"    il a baissé : porter {total} dans RATCHET, "
-              f"{sys.argv[0].split('/')[-1]}")
+    print(f"{green}✓{reset} pas une ligne de commentaire française dans le C++")
     return 0
 
 

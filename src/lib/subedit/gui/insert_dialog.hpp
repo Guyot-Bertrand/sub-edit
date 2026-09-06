@@ -12,32 +12,32 @@ class QWidget;
 
 namespace subedit::gui {
 
-/// Combien de lignes vierges insérer, et de quel côté de la sélection.
+/// How many blank rows to insert, and on which side of the selection.
 ///
-/// **Pas un `OperationDialog`**, et la différence n'est pas de forme : les
-/// quatre autres annoncent « Applies to: 4 subtitles », parce qu'ils
-/// transforment des sous-titres qui existent. Celui-ci n'en touche aucun — il
-/// en ajoute — et la phrase serait fausse dans le seul cas qui compte, le
-/// document vide.
+/// **Not an `OperationDialog`**, and the difference is not one of form: the
+/// four others announce "Applies to: 4 subtitles", because they transform
+/// subtitles that exist. This one touches none — it adds some — and the
+/// sentence would be false in the one case that counts, the empty document.
 ///
-/// `hasSubtitles` éteint le choix du côté plutôt que de le cacher : dans un
-/// document vide il n'y a pas de sélection, donc pas de côté, et l'insertion se
-/// fait à l'index zéro. Une case grisée dit pourquoi le choix ne s'offre pas ;
-/// une case absente laisse croire à un manque.
+/// `hasSubtitles` puts the choice of side out rather than hiding it: in an
+/// empty document there is no selection, so no side, and the insertion happens
+/// at index zero. A greyed box says why the choice is not on offer; an absent
+/// one reads as something missing.
 class InsertDialog final : public QDialog {
     Q_OBJECT
 
 public:
     InsertDialog(bool hasSubtitles, core::InsertPlacement placement, QWidget* parent = nullptr);
 
-    /// Combien de lignes, jamais zéro.
+    /// How many rows, never zero.
     [[nodiscard]] std::size_t count() const;
 
-    /// Le côté choisi, qu'on ait validé ou non — l'appelant regarde le code de
-    /// retour pour savoir s'il doit en tenir compte, comme pour le thème.
+    /// The side chosen, whether or not it was accepted — the caller looks at
+    /// the return code to know whether to take it into account, as for the
+    /// theme.
     [[nodiscard]] core::InsertPlacement placement() const;
 
-    /// Les champs, pour qu'un test les règle sans cliquer.
+    /// The fields, so that a test sets them without clicking.
     [[nodiscard]] QSpinBox* countBox() const { return m_count; }
 
     void setPlacement(core::InsertPlacement placement);

@@ -49,19 +49,18 @@ core::Settings readUserSettings(const core::FileSystem& files,
                                 std::ostream& errors) {
     const core::SettingsRead read = core::readSettings(files, path);
 
-    // Le fichier entier d'abord : ce qui suit ne peut pas exister s'il n'a pas
-    // été lu, et l'ordre des lignes suit celui des causes.
+    // The whole file first: what follows cannot exist if it was not read, and
+    // the order of the lines follows that of the causes.
     if (read.unreadable.has_value()) {
         errors << "subedit-gui: " << path.string() << ": " << core::reasonOf(read.unreadable->kind)
                << "\n";
     }
 
     for (const core::SettingsDiagnostic& said : read.diagnostics) {
-        // La valeur fautive est citée : sans elle, « cannot be read » laisse
-        // l'utilisateur chercher dans son fichier ce qui n'allait pas. Entre
-        // guillemets droits, comme tout ce que le binaire écrit — les
-        // chevrons sont de la typographie française, et la sortie est en
-        // anglais.
+        // The offending value is quoted: without it, "cannot be read" leaves
+        // the user hunting through their file for what was wrong. In straight
+        // quotes, like everything the binary writes — guillemets are French
+        // typography, and the output is English.
         errors << "subedit-gui: " << path.string() << ": " << said.key << ": \"" << said.value
                << "\" " << core::unreadableSetting() << "\n";
     }

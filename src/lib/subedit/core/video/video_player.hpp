@@ -32,10 +32,9 @@ struct PlayerError {
 
 /// A video player, seen from the core.
 ///
-/// One of the five points where this project knows the variation is real —
-/// « lecteur vidéo » has been named in the design principles since the
-/// foundations. Behind it today: libmpv, decided by
-/// [ADR 0020](../../../../../docs/adr/0020-libmpv-pour-le-lecteur-integre.md).
+/// One of the five points where this project knows the variation is real — the
+/// video player has been named in the design principles since the foundations.
+/// Behind it today: libmpv, decided by ADR 0020.
 ///
 /// **It knows nothing of Qt, of libmpv, or of a window** — and that is the
 /// whole of what the core keeps. The implementation lives in `subedit_gui`,

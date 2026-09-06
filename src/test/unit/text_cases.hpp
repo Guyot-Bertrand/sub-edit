@@ -31,9 +31,12 @@ struct TextCase {
 /// The format is one case per line, comments starting with `#`:
 ///
 /// ```
-/// une mention seule emporte le sous-titre | "[Bruit de pas]" | supprimé
-/// une référence n'est pas un bruit        | "Voir [1] la note" | =
+/// <what the case shows> | "<the text given>" | "<the text expected>"
 /// ```
+///
+/// The cases of the corpus name themselves in French, like every other piece of
+/// test data; only the two words the format reserves are fixed — `=` and
+/// `supprimé`, described below.
 ///
 /// **The two texts are quoted**, which is what lets the columns be aligned
 /// without changing the data: a space outside the quotes is layout, a space
