@@ -16,6 +16,8 @@ ne pas l'éditer à la main.
 - **gui** — La hauteur d'une ligne suit le sous-titre qu'elle porte
 - **gui** — Le champ libre de Save As… complète sur ce qu'ICU connaît
 - **core** — File.write-bom retient la marque avec l'encodage
+- **gui** — Shift onto Grid dit qu'il porte sur tout le fichier
+- **gui** — Dire sur quoi un alignement a porté, et ce qu'il laisse
 
 ### Corrections
 
@@ -29,6 +31,7 @@ ne pas l'éditer à la main.
 - **doc** — Le C++ se commente en anglais, et un cliquet le tient
 - **gui** — La barre d'état à trois mentions, et sa capture
 - **doc** — Écrire les deux « non » de Save As… là où ils tiennent
+- **doc** — Écrire ce que la grille regarde, et ce qu'une opération prend
 
 ### Performance
 
