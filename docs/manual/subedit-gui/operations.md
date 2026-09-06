@@ -10,7 +10,7 @@ d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 | `Convert Frame Rate…` | oui | re-cale la cible d'une cadence vers une autre |
 | `Remove Hearing-Impaired Mentions…` | oui, sans réglage | retire les mentions pour malentendants |
 | `Snap to Frame Rate…` | oui | repose chaque horodatage sur l'image la plus proche |
-| `Shift onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
+| `Shift Whole File onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
 | `Frame Rate Analysis…` | oui, sans réglage | **ne modifie rien** — voir [La grille d'images](grille.md) |
 
 Insérer et supprimer des lignes ne sont pas ici mais dans le menu `Edit` : ce
@@ -27,6 +27,19 @@ Applies to: 4 subtitles
 ```
 
 Sélectionner toutes les lignes revient au même que n'en sélectionner aucune.
+
+**Une exception, et son intitulé la porte** : `Shift Whole File onto Grid`
+ignore la sélection. Une grille est une propriété du document, et une moitié de
+document n'a pas de grille à elle ; l'entrée le dit donc dans son nom plutôt que
+dans ce manuel seul.
+
+**Les deux opérations de grille ne parlent pas de la même chose que la grille.**
+Une opération porte sur la sélection ; l'analyse et la barre d'état parlent du
+**document entier**. Aligner cinq lignes sur cent soixante-seize change bien ces
+cinq-là — la table le montre — sans que ni l'une ni l'autre ne bouge, ce qui se
+lit comme un rafraîchissement manqué. C'en n'est pas un : elles n'ont rien à
+dire. Voir [`Snap to Frame Rate…`](#snap-to-frame-rate) et
+[La grille d'images](grille.md).
 
 > **Cette règle-là s'arrête au menu `Tools`.** `Remove Subtitles`, dans le menu
 > `Edit`, lit « rien de sélectionné » comme « rien à faire » et non comme « tout
@@ -163,15 +176,42 @@ Aligner un fichier sur la grille qu'il occupe déjà ne le change pas, et ce n'e
 pas une erreur : l'opération s'applique, ne déplace rien, et s'annule comme
 n'importe quelle autre.
 
-## `Shift onto Grid`
+**Aligner une partie du fichier le dit, une fois fait.** Une notice s'affiche
+quand la sélection ne couvre pas tout et que le document reste lu sur une autre
+grille :
+
+```
+5 of 176 subtitles aligned to 25 fps; the document is still read on a 24 fps grid
+```
+
+Elle relie le geste à son effet, et elle explique pourquoi la barre d'état et
+l'analyse n'ont pas bougé : elles parlent du document, l'opération portait sur
+cinq lignes. Rien n'est empêché — aligner une partie d'un fichier peut se
+vouloir.
+
+**C'est presque toujours involontaire, et c'est mesuré.** Sur les huit fichiers
+de grille du dépôt, aligner tout le fichier porte la cadence déduite sur la
+cible et sa concentration à 100 % ; aligner cinq lignes ne déplace jamais la
+cadence déduite et **abaisse** la concentration dans sept cas sur huit — les
+lignes alignées ont quitté la grille où le reste du fichier vit. Le huitième est
+50 vers 25, où la grille visée divise celle du fichier et où les positions y
+étaient déjà.
+
+La notice ne s'affiche pas quand la sélection couvre tout le fichier, quand
+aucune grille n'est déduite, ou quand le document se lit désormais sur la
+cadence demandée — c'est alors que l'alignement a fait ce qu'on lui demandait.
+
+## `Shift Whole File onto Grid`
 
 Décale **tout le fichier** de la quantité qui remet ses positions sur la grille
 qu'elles ont quittée. Un fichier dont les positions sont sur une grille à une
 constante près a été décalé, et cette constante se mesure.
 
-**L'entrée de menu porte le montant** — `Shift onto Grid (+0.001 s)`. Il n'y a
-pas de dialogue : l'opération ne prend aucune option, et une entrée qui va
-déplacer un fichier entier doit dire de combien avant d'être choisie.
+**L'entrée de menu porte le montant et la portée** —
+`Shift Whole File onto Grid (+0.001 s)`. Il n'y a pas de dialogue :
+l'opération ne prend aucune option, et une entrée qui va déplacer un fichier
+entier doit dire de combien, et qu'elle le fera en entier, avant d'être choisie.
+C'est la seule opération du menu qui ignore la sélection.
 
 **Elle s'éteint quand aucune grille n'a été trouvée.** Il n'y a alors rien à
 rejoindre, et une phase mesurée sur du bruit déplacerait le fichier au hasard.

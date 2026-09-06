@@ -22,7 +22,7 @@ pointeur — mais son infobulle porte le libellé entier.
 | un début, une fin | `editing a start`, `editing an end` |
 | une insertion de lignes | `inserting` |
 | une suppression de lignes | `removing` |
-| un décalage, `Shift onto Grid` compris | `shifting` |
+| un décalage, `Shift Whole File onto Grid` compris | `shifting` |
 | une transformation | `transforming` |
 | une conversion de fréquence | `converting the frame rate` |
 | un alignement sur une cadence | `aligning on the frame rate` |
@@ -34,7 +34,7 @@ n'a lieu que sous une politique d'ordre stricte, alors que la fenêtre ouvre ses
 documents sous la politique souple, qui signale le désordre au lieu de le
 réparer.
 
-**`Shift onto Grid` ne se distingue pas d'un décalage**, et c'est exact : elle
+**`Shift Whole File onto Grid` ne se distingue pas d'un décalage**, et c'est exact : elle
 en est un, dont le montant a été mesuré plutôt que saisi.
 
 Ce sont les mêmes mots que ceux de la ligne de commande : ils sont écrits une
