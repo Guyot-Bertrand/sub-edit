@@ -584,6 +584,19 @@ void MainWindow::snapToFrameRate() {
 
     applyOperation(std::make_unique<core::SnapCommand>(m_session->project(), target, dialog.rate()),
                    target);
+
+    // **What the table showed and the two grid surfaces did not** — issue #324.
+    // An operation takes the selection; the grid speaks of the document. Align
+    // five rows out of a hundred and seventy-six and the timestamps move under
+    // the user's eyes while the status bar and the analysis stay put, which
+    // reads as a refresh that failed. It is not one: they have nothing to say.
+    //
+    // Said here rather than in `applyOperation`, which knows a command and a
+    // target and not the rate that was asked for — and this is the only
+    // operation that asks for one.
+    if (const std::optional<core::PartialAlignment> partial =
+            core::partialAlignment(m_session->project(), target, dialog.rate()))
+        m_prompts->reportOutcome(core::noticeOf(*partial));
 }
 
 void MainWindow::shiftOntoGrid() {

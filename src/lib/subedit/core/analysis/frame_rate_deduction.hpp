@@ -15,6 +15,7 @@
 namespace subedit::core {
 
 class Project;
+class Selection;
 
 /// How well the positions of a document fit the grid of one candidate rate.
 struct GridFit {
@@ -138,5 +139,47 @@ struct FrameRateDeduction {
 /// Here rather than in each surface: the report and the window have to say the
 /// same thing about the same file.
 [[nodiscard]] std::size_t runsOfStrays(const FrameRateDeduction& deduction);
+
+/// An alignment that took part of a file, and the grid the document still reads
+/// on.
+struct PartialAlignment {
+    /// How many subtitles were aligned, out of how many the document holds.
+    std::size_t aligned;
+    std::size_t total;
+
+    /// The rate they were aligned onto.
+    FrameRate onto;
+
+    /// The rate the document is deduced to be on, which is not that one.
+    FrameRate retained;
+
+    friend bool operator==(const PartialAlignment&, const PartialAlignment&) = default;
+};
+
+/// What aligning `aligned` of `project` onto `onto` left to be said, if
+/// anything.
+///
+/// **Two rules of this window are each right, and they do not speak of the same
+/// thing** — issue #324. An operation takes the selection; the grid speaks of
+/// the document. Seen side by side, an alignment of five rows out of a hundred
+/// and seventy-six looks like a refresh that did not happen: the timestamps
+/// move in the table, and neither the status bar nor the analysis says a word.
+///
+/// **Nor is the gesture harmless, and that was measured.** Over the eight grid
+/// fixtures, aligning the whole file carries the deduced rate onto the target
+/// and its concentration to a hundred per cent; aligning five rows never moves
+/// the deduced rate and *lowers* the concentration in seven cases out of eight
+/// — 99.9 to 96.6 at worst. The eighth is 50 onto 25, where the target grid
+/// divides the file's own and the positions were already on it. Aligning part
+/// of a file onto a rate the rest does not share is close to always unintended.
+///
+/// **Read after the command, and nothing here judges the gesture**: it answers
+/// what the document says of itself now, which is what the user could not see.
+///
+/// Nothing to say when the alignment took the whole file, when the deduction is
+/// silent — there is then no rate to name — or when the document is deduced to
+/// be on the very rate just applied, which is the alignment having worked out.
+[[nodiscard]] std::optional<PartialAlignment>
+partialAlignment(const Project& project, const Selection& aligned, FrameRate onto);
 
 } // namespace subedit::core

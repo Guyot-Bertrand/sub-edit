@@ -17,6 +17,7 @@
 // this file is where it will have to reach.
 
 #include <subedit/core/analysis/anomaly.hpp>
+#include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_verdict.hpp>
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/config/insert_placement.hpp>
@@ -243,6 +244,21 @@ namespace subedit::core {
 /// A notice and not a refusal: nothing was prevented, and the sentence is
 /// written to be read after the fact.
 [[nodiscard]] std::string noticeOf(CommandKind kind, BeyondEnd beyond);
+
+/// What an alignment of part of a file left the document saying, in one
+/// sentence.
+///
+/// **It says the scope and the gap, and neither on its own would do** — issue
+/// #324. The scope, because the table shows five rows moving and the user asked
+/// for an alignment, with nothing tying the two together. The gap, because that
+/// is the news: the document is still read on another grid, which is why the
+/// status bar and the analysis did not move, and why they were taken for a
+/// refresh that had failed.
+///
+/// A notice and not a refusal, as `noticeOf` above: nothing was prevented, and
+/// the sentence is written to be read after the fact. It says what is, not what
+/// should have been — aligning part of a file is a thing one may mean to do.
+[[nodiscard]] std::string noticeOf(PartialAlignment partial);
 
 /// What the window says of the film a document is watched against.
 ///

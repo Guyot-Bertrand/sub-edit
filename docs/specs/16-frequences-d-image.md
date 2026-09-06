@@ -345,8 +345,51 @@ qui autorise à se servir de la déduction.
 | barre d'état | le verdict, à côté de `Video: film.mkv` — par exemple `Grid: 23.976 fps` ou `No grid` |
 | `Frame Rate Analysis…` | la modale d'analyse : le classement des huit, l'étendue, la phase, les débuts hors grille et leur forme |
 | `Convert Frame Rate…` | **l'entrée est désormais pré-remplie par la mesure**, et sa provenance est dite |
-| `Shift onto Grid` | l'opération de D10, montant affiché avant d'être appliqué |
+| `Shift Whole File onto Grid` | l'opération de D10, montant **et portée** affichés avant d'être appliqués |
 | `Snap to Frame Rate…` | l'opération de D10, fréquence pré-remplie par celle que la vidéo déclare |
+
+### Une opération porte sur la sélection, la grille parle du document — issue #324
+
+**Deux règles de cette fenêtre sont bonnes chacune de son côté, et elles ne
+portent pas sur la même chose.** Une opération prend la sélection ; la grille
+parle du document. Vues côte à côte, elles se lisent comme un rafraîchissement
+manqué : aligner cinq lignes sur cent soixante-seize fait bouger les
+horodatages dans la table pendant que la barre d'état et l'analyse ne disent
+rien. Elles n'ont rien à dire — le document est toujours lu sur la grille que
+les cent soixante et onze autres tiennent.
+
+**Le geste n'est pas anodin pour autant, et c'est mesuré.** Sur les huit
+fixtures de grille, aligner tout le fichier porte la cadence déduite sur la
+cible et sa concentration à 100 % ; aligner cinq lignes ne déplace jamais la
+cadence déduite et **abaisse** la concentration dans sept cas sur huit — 99,9 à
+96,6 au pire. Le huitième est 50 vers 25, où la grille visée divise celle du
+fichier. Aligner une partie d'un fichier sur une cadence que le reste ne partage
+pas est presque toujours involontaire.
+
+**Une notice le dit, une fois l'opération faite** — `noticeOf(PartialAlignment)`
+et `partialAlignment`, la même forme que ce que D4 donne au dépassement de fin
+de film : une analyse rend ce qu'il y a à dire ou rien, et le libellé est
+ailleurs. Elle porte la portée et l'écart, parce qu'aucun des deux seul ne
+suffit — la portée relie le geste à son effet, l'écart est la nouvelle.
+
+Elle se tait quand la sélection couvre tout, quand aucune grille n'est déduite,
+et quand le document se lit désormais sur la cadence demandée.
+
+**Écarté : une modale de confirmation avant d'appliquer.** Elle arrêterait le
+geste involontaire et barrerait le geste délibéré, alors qu'aligner une partie
+d'un fichier peut se vouloir. La règle du projet est de dire plutôt que de
+taire, non d'empêcher — ADR 0008.
+
+**Écarté : préciser en permanence dans la barre d'état ce que la grille
+regarde.** Elle encombrerait une ligne lue à chaque instant pour un cas qui ne
+se présente qu'après une opération.
+
+**Et `Shift onto Grid` devient `Shift Whole File onto Grid`.** C'est la seule
+opération du menu qui ignore la sélection — une grille est une propriété du
+document, et une moitié de document n'a pas de grille à elle. Le manuel le
+disait, la fenêtre non, si bien que la seule entrée qui se comporte autrement
+ressemblait à toutes les autres. Elle portait déjà son montant dans son
+intitulé ; elle y porte maintenant sa portée.
 
 Le dialogue de conversion change de nature, et le manuel d'interface l'annonce
 déjà : il écrit aujourd'hui que le dialogue pré-remplit « la sortie, jamais
