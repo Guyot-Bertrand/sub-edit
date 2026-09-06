@@ -1,26 +1,26 @@
-// Les captures d'écran du manuel, engendrées depuis la vraie fenêtre.
+// The screenshots of the manual, taken from the real window.
 //
-// **Ce que ce programme est.** Le manuel de la ligne de commande porte des
-// blocs `console` que `generate-manual.sh` réécrit en exécutant le binaire :
-// c'est ce qui les empêche de mentir. Le manuel d'interface n'avait pas
-// d'équivalent, et #116 puis #161 l'ont écrit chaque fois — une fenêtre ne
-// s'écrit pas dans un bloc `console`. Voici l'équivalent : la fenêtre est
-// construite, montrée, et photographiée.
+// **What this program is.** The manual of the command line carries `console`
+// blocks that `generate-manual.sh` rewrites by running the binary: that is what
+// keeps them from lying. The manual of the window had no counterpart, and #116
+// then #161 wrote it out by hand each time — a window does not fit in a
+// `console` block. Here is the counterpart: the window is built, shown, and
+// photographed.
 //
-// **Il n'écrit jamais une référence.** Chaque capture s'appelle
-// `<nom>.new.png`, et c'est `compare-screenshots.py` qui décide ensuite de la
-// promouvoir ou de l'effacer. Une image n'entre donc dans un diff que le jour
-// où l'interface a changé.
+// **It never writes a reference.** Every shot is named `<name>.new.png`, and it
+// is `compare-screenshots.py` that decides afterwards whether to promote it or
+// throw it away. An image therefore enters a diff only on the day the window
+// changed.
 //
-// **Il ne fait foi que sous les réglages qu'il pose lui-même** — plateforme
-// sans écran, style Fusion, police nommée, taille de fenêtre fixée. Ce sont les
-// quatre choses qui font qu'une même version du code rend la même image sur
-// deux machines, et la police est la seule qu'il ne peut pas fabriquer : il
-// refuse plutôt que de photographier avec une remplaçante. Voir l'ADR 0024.
+// **It is authoritative only under the settings it lays down itself** — a
+// platform with no screen, the Fusion style, a named font, a fixed window size.
+// Those are the four things that make one version of the code give the same
+// image on two machines, and the font is the only one it cannot manufacture: it
+// refuses rather than photograph under a stand-in. See ADR 0024.
 //
-// **Il vit ici et non dans src/exe** pour la raison des autres programmes de ce
-// répertoire : rien de ce qui est livré ne le contient, aucune règle
-// d'installation ne le nomme.
+// **It lives here and not in src/exe** for the reason the other programs of
+// this directory do: nothing that is delivered contains it, and no install rule
+// names it.
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/config/insert_placement.hpp>
@@ -65,32 +65,31 @@
 
 namespace {
 
-/// La police sous laquelle les captures font foi.
+/// The font the shots are authoritative under.
 ///
-/// DejaVu Sans plutôt que « la police du système » : elle est présente sur
-/// toute distribution Linux de bureau — `fonts-dejavu-core` — et elle est
-/// la seule chose de ce fichier qu'une machine peut ne pas avoir. Nommer une
-/// police que Qt remplacerait en silence reviendrait à ne rien nommer.
+/// DejaVu Sans rather than "the system font": it is on every desktop Linux
+/// distribution — `fonts-dejavu-core` — and it is the one thing in this file a
+/// machine may not have. Naming a font Qt would silently replace would come to
+/// naming none.
 constexpr const char* kFontFamily = "DejaVu Sans";
 constexpr int kFontPointSize = 10;
 
-/// La taille de la fenêtre photographiée.
+/// The size of the window that is photographed.
 ///
-/// Fixée, et non laissée à `sizeHint()` : la fenêtre s'ouvre assez grande pour
-/// qu'on lise la table — #211 — mais « assez grande » dépend de la police, donc
-/// de la machine. Une capture dont les dimensions varient est une capture que
-/// le comparateur promeut à chaque fois.
+/// Fixed, and not left to `sizeHint()`: the window opens large enough to read
+/// the table — #211 — but "large enough" depends on the font, and so on the
+/// machine. A shot whose dimensions vary is a shot the comparator promotes
+/// every single time.
 constexpr int kWindowWidth = 1280;
 constexpr int kWindowHeight = 800;
 
-/// La hauteur des captures qui ne montrent que la table.
+/// The height of the shots that show nothing but the table.
 ///
-/// La fenêtre est haute pour que la table le soit ; la bande vidéo vide qui
-/// l'accompagne n'entre pas dans l'image, puisque c'est la table qu'on
-/// photographie.
+/// The window is tall so that the table is; the empty video strip beside it
+/// does not enter the image, since the table is what is being photographed.
 constexpr int kTallWindowHeight = 900;
 
-/// La hauteur qu'il faut à la table pour montrer toutes ses lignes.
+/// The height the table needs to show every one of its rows.
 [[nodiscard]] int heightOfEveryRow(const subedit::gui::SubtitleTable& table) {
     int needed = table.horizontalHeader()->height() + 2;
     for (int row = 0; row < table.model()->rowCount(); ++row)
@@ -98,19 +97,18 @@ constexpr int kTallWindowHeight = 900;
     return needed;
 }
 
-/// Montre la fenêtre et donne à la table exactement ses lignes, ni plus ni
-/// moins.
+/// Shows the window and gives the table exactly its rows, no more and no less.
 ///
-/// Deux raisons, et la seconde est celle qui compte. La fenêtre partage sa
-/// hauteur entre la bande vidéo et la table, et c'est la bande qui prend
-/// l'élasticité — l'agrandir agrandit le vide. Et une table plus haute que son
-/// contenu photographie surtout du blanc : ce qui reste sous la dernière ligne
-/// n'apprend rien à personne, et la capture s'y ajuste comme une image de
-/// manuel s'ajuste à son sujet.
+/// Two reasons, and the second is the one that counts. The window shares its
+/// height between the video strip and the table, and it is the strip that takes
+/// the give — enlarging it enlarges the emptiness. And a table taller than what
+/// it holds photographs mostly white: what is left under the last row teaches
+/// nobody anything, and a shot fits its subject the way an image of a manual
+/// does.
 ///
-/// Le partage se règle là où un utilisateur le règle, en tirant la poignée. Les
-/// trois nombres sont les trois enfants du séparateur, dans l'ordre : la vue
-/// vidéo, l'invitation à en choisir une, la table.
+/// The share is set where a user sets it, by dragging the handle. The three
+/// numbers are the three children of the splitter, in order: the video view,
+/// the invitation to choose one, the table.
 void showWithTheTableFitted(subedit::gui::MainWindow& window) {
     window.resize(kWindowWidth, kTallWindowHeight);
     window.show();
@@ -122,22 +120,17 @@ void showWithTheTableFitted(subedit::gui::MainWindow& window) {
     QApplication::processEvents();
 }
 
-/// La colonne `Text`, la cinquième — voir docs/manual/subedit-gui/table.md.
+/// The `Text` column, the fifth — see docs/manual/subedit-gui/table.md.
 constexpr int kTextColumn = 4;
 
-/// La ligne dont le texte est montré ouvert : la troisième, parce qu'elle en
-/// porte deux et que c'est ce que la section explique.
+/// The row whose text is shown open: the third, because it carries two lines
+/// and that is what the section explains.
 constexpr int kEditedRow = 2;
 
-/// La modale d'analyse, assez haute pour ses huit candidates.
+/// The analysis dialog, tall enough for its eight candidates.
 constexpr int kDialogWidth = 330;
 constexpr int kDialogHeight = 430;
 
-/// La fenêtre du manuel, assez large pour ses tableaux.
-///
-/// Plus petite que la taille d'ouverture : la capture montre de quoi
-/// reconnaître la fenêtre, et une image de neuf cents pixels de large dans une
-/// page de manuel se lit moins bien qu'une de sept cents.
 /// The save dialog, and the height of the strip kept out of it.
 ///
 /// **A fixed size and a fixed strip**, because those are the only two things
@@ -152,24 +145,29 @@ constexpr int kSaveAsWidth = 760;
 constexpr int kSaveAsHeight = 500;
 constexpr int kSaveAsStripHeight = 160;
 
+/// The manual window, wide enough for its tables.
+///
+/// Smaller than the size it opens at: the shot shows enough to recognise the
+/// window, and an image nine hundred pixels wide reads less well in a page of
+/// the manual than one of seven hundred.
 constexpr int kManualWidth = 700;
 constexpr int kManualHeight = 480;
 
-/// Le manuel que la fenêtre photographiée montre : celui du dépôt.
+/// The manual the photographed window shows: the one of the repository.
 ///
-/// **Le vrai manuel et non un manuel de démonstration.** L'installé en est la
-/// copie, page pour page — `cmake/Installation.cmake` dépose `docs/manual/`
-/// entier —, donc la capture montre ce qu'un lecteur verra.
+/// **The real manual and not one made for the picture.** The installed copy is
+/// this one page for page — `cmake/Installation.cmake` lays down the whole of
+/// `docs/manual/` — so the shot shows what a reader will see.
 [[nodiscard]] std::filesystem::path manualDirectory() {
     return std::filesystem::path{SUBEDIT_MANUAL_DIR};
 }
 
-/// La seule phrase que la plateforme sans écran répète à chaque fenêtre montrée.
+/// The one sentence the screenless platform repeats at every window shown.
 ///
-/// Vraie et sans conséquence : rien ici n'a de gestionnaire de fenêtres à qui
-/// propager une taille. Le harnais des tests d'interface la tait de la même
-/// façon et pour la même raison — un avertissement répété six fois est un
-/// avertissement qu'on cesse de lire.
+/// True, and of no consequence: nothing here has a window manager to propagate
+/// a size to. The harness of the window tests silences it the same way and for
+/// the same reason — a warning repeated six times is a warning one stops
+/// reading.
 constexpr const char* kOffscreenSizeHints = "This plugin does not support propagateSizeHints()";
 
 void withoutOffscreenNoise(QtMsgType type, const QMessageLogContext& context, const QString& text) {
@@ -183,14 +181,6 @@ void withoutOffscreenNoise(QtMsgType type, const QMessageLogContext& context, co
     return std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / relative;
 }
 
-/// Photographie `subject` sous le nom donné, sans jamais toucher la référence.
-///
-/// `shown` est ce qu'on montre, `subject` ce qu'on photographie — souvent le
-/// même, parfois non : la table seule dit mieux ce que la table fait, et il
-/// faut pourtant montrer la fenêtre entière pour que la table existe. Une
-/// fenêtre qui n'a jamais été montrée n'a pas de vraie géométrie et sa
-/// disposition n'a pas tourné : c'est ce que #191 a changé, et sans quoi il n'y
-/// aurait rien à photographier.
 /// Writes a shot already taken, under the name `compare-screenshots.py` expects.
 [[nodiscard]] bool
 writeShot(const QPixmap& shot, const std::filesystem::path& directory, const std::string& name) {
@@ -206,14 +196,22 @@ writeShot(const QPixmap& shot, const std::filesystem::path& directory, const std
     return true;
 }
 
+/// Photographs `subject` under the name given, never touching the reference.
+///
+/// `shown` is what is shown, `subject` what is photographed — often the same,
+/// sometimes not: the table alone says better what the table does, and the
+/// whole window has to be shown all the same for the table to exist at all. A
+/// window that was never shown has no real geometry and its layout has not
+/// run: that is what #191 changed, and without it there would be nothing to
+/// photograph.
 [[nodiscard]] bool capture(QWidget& shown,
                            QWidget& subject,
                            const std::filesystem::path& directory,
                            const std::string& name) {
     shown.show();
-    // La disposition n'a réellement tourné qu'une fois les événements traités :
-    // sans cela, on photographie une fenêtre dont les tailles sont encore
-    // celles du constructeur.
+    // The layout has really run only once the events are through: without this,
+    // what is photographed is a window whose sizes are still the ones its
+    // constructor gave it.
     QApplication::processEvents();
 
     return writeShot(subject.grab(), directory, name);
@@ -237,11 +235,11 @@ writeShot(const QPixmap& shot, const std::filesystem::path& directory, const std
     return writeShot(dialog->grab(strip), directory, name);
 }
 
-/// La fenêtre du manuel, ouverte sur le fichier nommé.
+/// A window opened on the fixture named.
 ///
-/// Rendue par valeur et construite d'un trait : `MainWindow` n'est ni copiable
-/// ni déplaçable, donc seule l'élision garantie d'une prvalue la fait sortir
-/// d'une fonction. La taille se pose ensuite, chez l'appelant.
+/// Returned by value and built in one stroke: `MainWindow` is neither copyable
+/// nor movable, so only the guaranteed elision of a prvalue gets one out of a
+/// function. The size is set afterwards, by the caller.
 [[nodiscard]] subedit::gui::MainWindow windowOn(subedit::core::FileSystem& files,
                                                 subedit::gui::Prompts& prompts,
                                                 const std::string& fixture) {
@@ -253,17 +251,17 @@ writeShot(const QPixmap& shot, const std::filesystem::path& directory, const std
 
 int main(int argc, char** argv) {
     if (argc != 3 || std::string{argv[1]} != "--output-dir") {
-        std::cerr << "usage: subedit_screenshots --output-dir <répertoire>\n";
+        std::cerr << "usage: subedit_screenshots --output-dir <directory>\n";
         return 2;
     }
     const std::filesystem::path directory{argv[2]};
 
-    // Sans écran, comme le harnais de tests d'interface : une capture ne
-    // demande pas de serveur graphique, et la CI n'en a pas.
+    // Screenless, as the harness of the window tests is: a shot asks for no
+    // display server, and the CI has none.
     if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORM"))
         qputenv("QT_QPA_PLATFORM", "offscreen");
 
-    // Posé avant la `QApplication`, qui avertit pour son propre compte aussi.
+    // Set before the `QApplication`, which warns on its own account too.
     qInstallMessageHandler(withoutOffscreenNoise);
 
     const QApplication application{argc, argv};
@@ -273,15 +271,15 @@ int main(int argc, char** argv) {
     const QFont font{QLatin1StringView{kFontFamily}, kFontPointSize};
     QApplication::setFont(font);
 
-    // Refuser plutôt que photographier avec une remplaçante : une capture faite
-    // sous une autre police se ferait promouvoir chez le suivant, et la
-    // référence oscillerait au gré de qui a lancé la commande.
+    // Refuse rather than photograph under a stand-in: a shot taken under
+    // another font would be promoted by whoever came next, and the reference
+    // would swing with whoever ran the command.
     const QFontInfo actual{font};
     if (actual.family() != QLatin1StringView{kFontFamily}) {
-        std::cerr << "subedit_screenshots: police « " << kFontFamily
-                  << " » absente, remplacée par « " << actual.family().toStdString() << " »\n"
-                  << "  les captures ne font foi que sous cette police ; l'installer\n"
-                  << "  (Debian, Ubuntu : fonts-dejavu-core)\n";
+        std::cerr << "subedit_screenshots: the font \"" << kFontFamily
+                  << "\" is missing, replaced by \"" << actual.family().toStdString() << "\"\n"
+                  << "  the shots are authoritative under that font alone; install it\n"
+                  << "  (Debian, Ubuntu: fonts-dejavu-core)\n";
         return 1;
     }
 
@@ -298,22 +296,22 @@ int main(int argc, char** argv) {
 
     bool written = true;
 
-    // **Chaque écran est photographié deux fois, sous les deux palettes que
-    // l'application pose** — décision D4 du cadrage de la phase 7. Elles sont
-    // atteignables précisément parce que « clair » et « sombre » sont des
-    // palettes que nous écrivons : un programme peut les poser comme un
-    // utilisateur les choisit. Ce serait impossible si le thème était une
-    // lecture du système, que Qt 6.4 ne sait pas faire.
+    // **Every screen is photographed twice, under the two palettes the
+    // application lays down** — decision D4 of the scoping of phase 7. They are
+    // reachable precisely because "light" and "dark" are palettes we write: a
+    // program can lay one down the way a user picks it. It would be impossible
+    // were the theme a reading of the system, which Qt 6.4 cannot do.
     //
-    // La palette est posée **avant** de construire ce qu'on montre, et non
-    // après : elle vient de l'application, et un widget la lit à sa naissance.
+    // The palette is laid down **before** what is shown is built, and not
+    // after: it comes from the application, and a widget reads it at birth.
     //
-    // Chaque appel nomme sa référence par un littéral, et il le faut :
-    // `check-screenshots.py` lit ces noms dans cette source pour confronter ce
-    // qui est engendré à ce que le manuel montre. Un nom calculé lui échapperait.
+    // Every call names its reference with a literal, and it has to:
+    // `check-screenshots.py` reads those names out of this source to confront
+    // what is generated with what the manual shows. A computed name would
+    // escape it.
 
-    // La fenêtre telle qu'elle s'ouvre, film absent : ce qu'un lecteur du
-    // manuel verra en lançant le programme, et rien d'arrangé.
+    // The window as it opens, with no film: what a reader of the manual will
+    // see on starting the program, and nothing arranged.
     {
         subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
@@ -327,9 +325,9 @@ int main(int argc, char** argv) {
         written = capture(window, window, directory, "fenetre-sombre") && written;
     }
 
-    // La table seule, et la fenêtre haute pour qu'elle montre de quoi lire.
-    // Ce que la section décrit est la table ; l'entourer de la fenêtre serait
-    // montrer surtout la bande vidéo vide.
+    // The table alone, and the window tall so that it shows enough to read.
+    // What the section describes is the table; framing it in the window would
+    // be showing mostly the empty video strip.
     {
         subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
@@ -356,20 +354,20 @@ int main(int argc, char** argv) {
         written = capture(window, *window.table(), directory, "anomalies-sombre") && written;
     }
 
-    // Une cellule ouverte, ce qui est le sujet entier de la section : le
-    // marqueur d'édition n'existe qu'entre le double-clic et la validation.
+    // One cell open, which is the whole subject of the section: the mark of an
+    // edit exists only between the double click and the validation.
     {
         subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
         showWithTheTableFitted(window);
 
-        // `openPersistentEditor` plutôt que `edit`, et c'est une différence de
-        // propreté et non d'image : les deux ouvrent le même éditeur, mais
-        // seul le premier a un `close` qui lui répond. Un éditeur ouvert par
-        // `edit` et laissé là fait crier la vue deux fois quand elle est
-        // détruite — « commitData called with an editor that does not belong
-        // to this view » —, et un programme qui laisse du bruit derrière lui
-        // apprend à ne plus le lire.
+        // `openPersistentEditor` rather than `edit`, and it is a difference of
+        // tidiness and not of image: both open the same editor, but only the
+        // first has a `close` that answers it. An editor opened by `edit` and
+        // left there makes the view cry out twice when it is destroyed —
+        // "commitData called with an editor that does not belong to this view"
+        // — and a program that leaves noise behind teaches one to stop reading
+        // it.
         const QModelIndex edited = window.table()->model()->index(kEditedRow, kTextColumn);
         window.table()->openPersistentEditor(edited);
         QApplication::processEvents();
@@ -403,9 +401,9 @@ int main(int argc, char** argv) {
         written = capture(dialog, dialog, directory, "decalage-sombre") && written;
     }
 
-    // Le dialogue d'insertion, sur un document qui porte des lignes : c'est
-    // l'état où le choix du côté est offert, et c'est celui que la section
-    // décrit.
+    // The insertion dialog, on a document that carries rows: that is the state
+    // where the choice of side is on offer, and it is the one the section
+    // describes.
     {
         subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::InsertDialog dialog{true, subedit::core::InsertPlacement::Below};
@@ -437,9 +435,10 @@ int main(int argc, char** argv) {
         written = captureSaveAsStrip(directory, "enregistrer-sous-sombre") && written;
     }
 
-    // Le manuel lu dans sa fenêtre, sur le vrai manuel du dépôt : c'est ce que
-    // `Help ▸ Manual` ouvre une fois l'outil installé, à ceci près que la copie
-    // installée vit sous `share/subedit/manual` plutôt que sous `docs/`.
+    // The manual read in its own window, on the real manual of the repository:
+    // that is what `Help ▸ Manual` opens once the tool is installed, save that
+    // the installed copy lives under `share/subedit/manual` rather than under
+    // `docs/`.
     {
         subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::ManualWindow manual{files, manualDirectory()};
@@ -458,8 +457,8 @@ int main(int argc, char** argv) {
         const subedit::core::OpenedFile grid =
             subedit::core::openProject(files, corpus("grilles/grille-25.srt")).value();
         subedit::gui::GridAnalysisDialog dialog{subedit::core::deduceFrameRate(grid.project)};
-        // Assez haute pour les huit candidates : la modale s'ouvre sur six et
-        // la section promet les huit, donc l'image doit les tenir.
+        // Tall enough for the eight candidates: the dialog opens on six and
+        // the section promises eight, so the image has to hold them.
         dialog.resize(kDialogWidth, kDialogHeight);
         written = capture(dialog, dialog, directory, "analyse-de-grille") && written;
     }

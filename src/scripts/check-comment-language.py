@@ -58,10 +58,14 @@ SOURCES = REPO_ROOT / "src"
 #
 # Mesuré le 2026-09-05, à la décision de l'issue #312 — 1 161 alors. Descendu à
 # 1 095 par la pull request des issues #309 et #321, qui a traduit les deux
-# fichiers qu'elle touchait de bout en bout plutôt que d'y mêler deux langues.
-# La descente est l'issue #325 ; le jour où ce nombre vaut zéro, le cliquet
-# devient un refus sec et la moitié de cet en-tête tombe.
-RATCHET = 1093
+# fichiers qu'elle touchait de bout en bout plutôt que d'y mêler deux langues,
+# puis à 1 093 par celle des #316 et #317, pour deux lignes croisées en chemin.
+#
+# La descente proprement dite est l'issue #325, et elle se fait par fichier
+# entier : `screenshots.cpp` d'abord, 109 lignes d'un coup, ce qui met le compte
+# à 984. Le jour où ce nombre vaut zéro, le cliquet devient un refus sec et la
+# moitié de cet en-tête tombe.
+RATCHET = 984
 
 # Les mots outils français sans homographe anglais, et les élisions. « on »,
 # « son » et « sa » en sont écartés : ce sont des mots anglais courants, et les
