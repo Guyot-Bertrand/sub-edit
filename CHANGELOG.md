@@ -14,17 +14,21 @@ ne pas l'éditer à la main.
 - **gui** — La fenêtre dit l'encodage du document, et la cadence du film
 - **scripts** — Mesurer où la détection d'encodage cesse de savoir
 - **gui** — La hauteur d'une ligne suit le sous-titre qu'elle porte
+- **gui** — Le champ libre de Save As… complète sur ce qu'ICU connaît
+- **core** — File.write-bom retient la marque avec l'encodage
 
 ### Corrections
 
 - **core** — Un encodage qui écrit sa propre marque est refusé
 - **gui** — Save As… tient ce qu'il promet, et le montre
 - **text** — Peser les lignes qui discriminent, pas la masse d'ASCII
+- **core** — Le convertisseur ICU vit jusqu'à ce que son nom soit lu
 
 ### Documentation
 
 - **doc** — Le C++ se commente en anglais, et un cliquet le tient
 - **gui** — La barre d'état à trois mentions, et sa capture
+- **doc** — Écrire les deux « non » de Save As… là où ils tiennent
 
 ### Performance
 
