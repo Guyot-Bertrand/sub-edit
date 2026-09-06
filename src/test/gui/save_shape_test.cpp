@@ -8,11 +8,14 @@
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/gui/save_shape.hpp>
 
+#include <QAbstractItemModel>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QCompleter>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QLineEdit>
+#include <QString>
 #include <QVBoxLayout>
 #include <catch2/catch_test_macros.hpp>
 
@@ -21,6 +24,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -86,6 +90,45 @@ TEST_CASE("an encoding that is not on the list is typed", "[gui][GUI-ENC-02]") {
     shape.otherName()->setText(QStringLiteral("cp1257"));
 
     CHECK(shape.encoding() == named("windows-1257"));
+}
+
+TEST_CASE("the name field completes on what ICU knows", "[gui][GUI-ENC-02]") {
+    // **What takes the fifteenth encoding from knowing its name to typing it**
+    // — issue #316. The menu offers fourteen, Gaupol lists ninety-seven, and
+    // the box has always taken anything ICU converts. The accessible set was
+    // never what differed: the way in was.
+    const SaveShape shape{Encoding::utf8(ByteOrderMark::Absent), Newline::Lf};
+
+    QCompleter* names = shape.otherName()->completer();
+    REQUIRE(names != nullptr);
+    REQUIRE(names->model() != nullptr);
+    CHECK(names->model()->rowCount() ==
+          static_cast<int>(subedit::core::availableEncodings().size()));
+
+    // **On what it contains and not on what it starts with.** The canonical
+    // spelling is `windows-1252`, and `cp1252` is what a user has in mind:
+    // matching on the beginning answers nothing to the four digits most likely
+    // to be typed.
+    CHECK(names->filterMode() == Qt::MatchContains);
+    CHECK(names->caseSensitivity() == Qt::CaseInsensitive);
+
+    names->setCompletionPrefix(QStringLiteral("1252"));
+    CHECK(names->completionCount() > 0);
+}
+
+TEST_CASE("what the completion offers is what the field accepts", "[gui][GUI-ENC-02]") {
+    // A list and the field it serves cannot come apart: every name offered has
+    // to become the encoding of that same name.
+    const SaveShape shape{Encoding::utf8(ByteOrderMark::Absent), Newline::Lf};
+    shape.encodingBox()->setCurrentIndex(shape.encodingBox()->count() - 1);
+
+    for (const std::string& name : subedit::core::availableEncodings()) {
+        INFO("encodage : " << name);
+        shape.otherName()->setText(QString::fromStdString(name));
+        const std::expected<Encoding, subedit::core::EncodingRefusal> chosen = shape.encoding();
+        REQUIRE(chosen.has_value());
+        CHECK(chosen->charset() == name);
+    }
 }
 
 TEST_CASE("the name field shows itself only for the other entry", "[gui][GUI-ENC-02]") {

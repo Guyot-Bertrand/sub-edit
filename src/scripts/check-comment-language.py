@@ -61,7 +61,7 @@ SOURCES = REPO_ROOT / "src"
 # fichiers qu'elle touchait de bout en bout plutôt que d'y mêler deux langues.
 # La descente est l'issue #325 ; le jour où ce nombre vaut zéro, le cliquet
 # devient un refus sec et la moitié de cet en-tête tombe.
-RATCHET = 1095
+RATCHET = 1093
 
 # Les mots outils français sans homographe anglais, et les élisions. « on »,
 # « son » et « sa » en sont écartés : ce sont des mots anglais courants, et les

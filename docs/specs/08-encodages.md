@@ -66,6 +66,34 @@ courte, ordonnée, des encodages qu'un fichier de sous-titres porte en pratique,
 plus « autre… » pour le reste. Un menu de quatre-vingt-dix-sept entrées n'est pas
 une aide.
 
+### Le quinzième encodage, et ce qu'il coûte — issue #316
+
+**Cette décision et l'iso-fonctionnalité ne disaient pas la même chose, et rien
+ne les avait confrontées.** L'inventaire dit quatre-vingt-dix-sept, ce que
+`aeidon/encodings.py` liste ; le menu en offre quatorze. La relecture de fin de
+phase a posé la question, et la réponse est celle-ci.
+
+**Le jeu accessible n'a jamais été la différence.** Il est celui d'ICU, donc plus
+grand que celui de Gaupol : deux cent vingt et un encodages, aucun fichier
+refusé. Ce qui différait est le **coût du quinzième** — le champ « Other… »
+prend n'importe quel nom, à condition de le connaître, là où un menu ne demande
+que de le reconnaître.
+
+**Ce champ complète donc sur ce qu'ICU connaît.** La liste n'est écrite nulle
+part : `availableEncodings()` demande à ICU ce qu'elle convertit et passe chaque
+réponse par `Encoding::create`, si bien qu'elle ne peut pas diverger du type
+qu'elle décrit. La complétion porte sur ce que le nom **contient** et non sur ce
+par quoi il commence — le nom canonique est `windows-1252`, et `cp1252` est
+celui qu'on a en tête.
+
+**Le menu reste à quatorze**, et les deux moitiés de D2 tiennent : aucune table
+n'est écrite, et aucun menu de deux cents entrées n'est proposé. Le quinzième
+encodage coûte trois lettres.
+
+**Écarté : énumérer les convertisseurs dans le menu.** Deux cent trente-deux
+entrées, sans les descriptions que gedit donne et que Gaupol a reprises, et un
+menu que la première moitié de D2 refuse pour ce qu'il est — long.
+
 ## D3 — Ce que le modèle enregistre
 
 `SourceFile` porte aujourd'hui le format, la fin de ligne et `hadUtf8Bom`, **un
@@ -178,6 +206,29 @@ sait les lire.
 | `GUI-ENC-01` | la fenêtre ouvre un fichier non-UTF-8 et affiche l'encodage retenu |
 | `GUI-ENC-02` | `Save As…` choisit l'encodage, la fin de ligne et le BOM |
 | `GUI-ENC-03` | les réglages retiennent le dernier encodage d'écriture choisi |
+
+### Ce que `GUI-ENC-03` ne promet pas — issue #317
+
+**Le réglage ne l'emporte jamais sur l'encodage d'un fichier lu**, et c'est un
+« non » délibéré plutôt qu'une omission. Un document ouvert propose l'encodage
+de son fichier ; `file.write-encoding` ne sert qu'au document qui n'a jamais été
+sur disque — celui qu'on obtient en lançant `subedit-gui` sans argument.
+
+La raison est D7 : réécrire dans un autre encodage un document qu'on vient
+d'ouvrir, parce qu'un réglage vieux de trois semaines le dit, serait perdre ce
+que la lecture a gardé, et l'aller-retour d'octets est exactement la propriété
+que cette phase tient.
+
+**L'autre lecture a été instruite et écartée.** Préremplir toujours répondrait à
+un usage réel — quelqu'un qui livre systématiquement en UTF-8 et ouvre des
+fichiers hérités en CP1252 — au prix d'une garantie qui vaut pour tout le monde.
+Ce qui reste à qui veut ce flux est de choisir l'encodage dans le dialogue, où
+il est proposé.
+
+**Ce qui a changé, en revanche, est la marque.** Elle est retenue dans la
+session et se perdait entre deux : `file.write-encoding` porte le nom,
+`file.write-bom` porte la marque — la même coupure que `--encoding` et `--bom`,
+et la seule possible depuis que `-sig` a cessé d'être un nom (#315).
 
 ## Découpage
 

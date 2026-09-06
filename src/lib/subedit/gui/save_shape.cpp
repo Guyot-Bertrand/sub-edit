@@ -6,12 +6,14 @@
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QCompleter>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLayout>
 #include <QLineEdit>
 #include <QString>
+#include <QStringList>
 #include <QVariant>
 
 #include <array>
@@ -21,6 +23,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace subedit::gui {
 
@@ -46,6 +49,15 @@ constexpr std::array<core::Newline, 3> kNewlines = {
                           static_cast<int>(offered.description.size())));
 }
 
+/// The same names, as Qt holds a list of them.
+[[nodiscard]] QStringList stringsOf(const std::vector<std::string>& names) {
+    QStringList strings;
+    strings.reserve(static_cast<qsizetype>(names.size()));
+    for (const std::string& name : names)
+        strings.append(QString::fromStdString(name));
+    return strings;
+}
+
 } // namespace
 
 SaveShape::SaveShape(const core::Encoding& encoding, core::Newline newline, QWidget* parent)
@@ -65,6 +77,23 @@ SaveShape::SaveShape(const core::Encoding& encoding, core::Newline newline, QWid
     m_encoding->addItem(QStringLiteral("Other…"), kOtherEncoding);
 
     m_other->setPlaceholderText(QStringLiteral("Name of an encoding, e.g. cp1257"));
+
+    // **What makes the fifteenth encoding cost three letters** — issue #316.
+    // Gaupol puts ninety-seven in a menu; this window puts fourteen there and
+    // takes any of ICU's two hundred and twenty-two in the box beside it, which
+    // until now meant knowing the name to the letter. The accessible set was
+    // never what differed — the way in was.
+    //
+    // **On what it contains and not on what it starts with.** The canonical
+    // spelling is `windows-1252`, and `cp1252` is what a user has in mind:
+    // matching on the beginning would answer nothing to the four letters most
+    // likely to be typed. Either name still works typed in full — ICU takes its
+    // own aliases — so what completion adds is the case where one does not know
+    // the name, which is the whole point.
+    auto* names = new QCompleter{stringsOf(core::availableEncodings()), m_other};
+    names->setCaseSensitivity(Qt::CaseInsensitive);
+    names->setFilterMode(Qt::MatchContains);
+    m_other->setCompleter(names);
 
     // The label comes from the core, as everywhere; a datum would be one thing
     // too many — the index does, the three entries being in `kNewlines` order.

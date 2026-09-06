@@ -105,6 +105,14 @@ struct Settings {
     /// personne n'a demandée — l'aller-retour d'octets de la phase 8 est
     /// exactement cette promesse-là. Ce dont il se souvient sert au document qui
     /// n'a pas de fichier : celui qu'on vient de créer.
+    ///
+    /// **The mark is part of it, and the file carries it at one more key.**
+    /// `file.write-encoding` names the encoding, `file.write-bom` says whether
+    /// its mark precedes it — the same cut the command line makes between
+    /// `--encoding` and `--bom`, and the only one left since `-sig` stopped
+    /// being a name (#315). One value here, two lines there: the type carries
+    /// the mark as a variant of the encoding, and only the writing takes them
+    /// apart.
     std::optional<Encoding> writeEncoding{};
 
     friend bool operator==(const Settings&, const Settings&) = default;

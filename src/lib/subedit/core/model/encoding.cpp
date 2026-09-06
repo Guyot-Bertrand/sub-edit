@@ -5,10 +5,14 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
+#include <cstdint>
 #include <expected>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace subedit::core {
 
@@ -74,6 +78,18 @@ namespace {
     return std::ranges::contains(kOwnMark, charset);
 }
 
+/// A converter, closed wherever the reading leaves off.
+///
+/// `ucnv_open` allocates and `ucnv_close` releases; naming that pair a
+/// `unique_ptr` is what lets the name below be read while the converter is
+/// still open, and closed on every way out without a second `close` to
+/// remember.
+struct ConverterCloser {
+    void operator()(UConverter* converter) const { ucnv_close(converter); }
+};
+
+using ConverterHandle = std::unique_ptr<UConverter, ConverterCloser>;
+
 /// The name ICU settles on for `name`, or nothing if it converts nothing.
 ///
 /// Two names for one converter — `cp1252` and `windows-1252` — have to become
@@ -86,15 +102,22 @@ namespace {
 /// is its official name and nobody's. The MIME name is the one seen in the
 /// wild — `ISO-8859-1`, `KOI8-R`, `Shift_JIS` — and it is preferred; IANA
 /// covers what has no MIME name, `windows-1252` among them.
-[[nodiscard]] std::optional<std::string_view> canonicalNameOf(const char* name) {
+///
+/// **A string and not a view, and the converter outlives the reading.** The
+/// name `ucnv_getName` answers belongs to the converter for those that carry an
+/// option — `ibm-1141_P100-1997,swaplfnl` and its like build it in their own
+/// storage — so closing before reading it was a use after free. It survived
+/// four phases because the converters anyone names by hand keep their name in
+/// ICU's shared tables, where a freed pointer still reads correctly; the first
+/// walk over all two hundred and thirty-two found it in a second, under ASan.
+[[nodiscard]] std::optional<std::string> canonicalNameOf(const char* name) {
     // One status for both calls, as ICU's own convention has it: `ucnv_getName`
-    // returns at once on a status that already failed, and `ucnv_close` takes a
-    // null pointer. A single check then answers for the two, and there is no
-    // second branch for a test to leave unvisited.
+    // returns at once on a status that already failed. A single check then
+    // answers for the two, and there is no second branch for a test to leave
+    // unvisited.
     UErrorCode status = U_ZERO_ERROR;
-    UConverter* converter = ucnv_open(name, &status);
-    const char* internalName = ucnv_getName(converter, &status);
-    ucnv_close(converter);
+    const ConverterHandle converter{ucnv_open(name, &status)};
+    const char* internalName = ucnv_getName(converter.get(), &status);
     if (failed(status))
         return std::nullopt;
 
@@ -102,10 +125,10 @@ namespace {
         UErrorCode standardStatus = U_ZERO_ERROR;
         if (const char* named = ucnv_getStandardName(internalName, standard, &standardStatus);
             !failed(standardStatus) && named != nullptr)
-            return std::string_view{named};
+            return std::string{named};
     }
 
-    return std::string_view{internalName};
+    return std::string{internalName};
 }
 
 } // namespace
@@ -125,7 +148,7 @@ std::expected<Encoding, EncodingRefusal> Encoding::create(std::string_view name,
     // terminator — the caller's name may well be a slice of a command line.
     const std::string terminated{name};
 
-    const std::optional<std::string_view> canonical = canonicalNameOf(terminated.c_str());
+    const std::optional<std::string> canonical = canonicalNameOf(terminated.c_str());
     if (!canonical.has_value())
         return std::unexpected(EncodingRefusal::Unknown);
 
@@ -137,6 +160,42 @@ std::expected<Encoding, EncodingRefusal> Encoding::create(std::string_view name,
         return std::unexpected(EncodingRefusal::WritesItsOwnMark);
 
     return Encoding{*canonical, mark};
+}
+
+std::vector<std::string> availableEncodings() {
+    const int32_t count = ucnv_countAvailable();
+
+    std::vector<std::string> names;
+    names.reserve(static_cast<std::size_t>(count));
+    for (int32_t index = 0; index < count; ++index) {
+        // **Through `create`, and not around it.** What this answers has to be
+        // what the model accepts, down to the spelling: a name offered here and
+        // refused one field later would be the list disagreeing with the type
+        // it describes.
+        const std::expected<Encoding, EncodingRefusal> encoding =
+            Encoding::create(ucnv_getAvailableName(index), ByteOrderMark::Absent);
+        if (!encoding.has_value())
+            continue;
+
+        // **And back through it a second time, because ICU's naming does not
+        // come back to itself.** `TIS-620` is the registered name of one
+        // converter and the alias of another: typed in, it opens the second,
+        // whose own name is `windows-874-2000`. A name that answers something
+        // else than itself has no business in a list one completes on — one
+        // would pick `TIS-620` and write a file that says `windows-874-2000`.
+        // Measured: it is the only one of the two hundred and twenty-six, which
+        // is exactly why a rule is worth more here than a name struck off a
+        // list — the second one would appear in an ICU release and in no diff.
+        const std::expected<Encoding, EncodingRefusal> again =
+            Encoding::create(encoding->charset(), ByteOrderMark::Absent);
+        if (again.has_value() && again->charset() == encoding->charset())
+            names.emplace_back(encoding->charset());
+    }
+
+    std::ranges::sort(names);
+    const auto repeated = std::ranges::unique(names);
+    names.erase(repeated.begin(), repeated.end());
+    return names;
 }
 
 } // namespace subedit::core
