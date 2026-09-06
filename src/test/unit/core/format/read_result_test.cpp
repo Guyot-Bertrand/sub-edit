@@ -136,9 +136,9 @@ TEST_CASE("a source file records the shape the reader saw", "[format][read]") {
     CHECK(source.header == "WEBVTT - le titre");
     CHECK(source.newline == Newline::CrLf);
     CHECK(source.encoding == Encoding::utf8(ByteOrderMark::Present));
-    // L'option entière plutôt que son contenu : clang-tidy ne reconnaît pas le
-    // REQUIRE de Catch2 comme une vérification, et comparer l'option se passe
-    // de tout accès — en affirmant davantage, au passage.
+    // The whole option rather than its content: clang-tidy does not recognise
+    // Catch2's REQUIRE as a check, and comparing the option needs no access at
+    // all — while asserting more, in passing.
     CHECK(source.path == std::filesystem::path{"quelque/part/film.vtt"});
 }
 

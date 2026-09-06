@@ -1,13 +1,13 @@
-// Insérer et supprimer des lignes depuis la fenêtre — issue #242.
+// Inserting and removing rows from the window — issue #242.
 //
-// **Les deux commandes du noyau existent depuis la phase 2 et n'avaient aucune
-// surface.** Ces cas sont leur première preuve de bout en bout : jusqu'ici
-// `InsertCommand` et `RemoveCommand` étaient éprouvées seules, sans qu'aucun
-// utilisateur puisse les déclencher.
+// **The two commands of the core have existed since phase 2 and had no surface
+// at all.** These cases are their first end-to-end proof: until now
+// `InsertCommand` and `RemoveCommand` were tested alone, with no user able to
+// trigger them.
 //
-// Le faux `Prompts` joue l'utilisateur : il reçoit le dialogue, y écrit ce que
-// le scénario veut, et dit s'il est validé. La boucle modale n'est jamais
-// atteinte.
+// The fake `Prompts` plays the user: it receives the dialog, writes into it
+// what the scenario wants, and says whether it was accepted. The modal loop is
+// never reached.
 
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/format/project_file.hpp>
@@ -37,7 +37,7 @@ using subedit::gui::InsertDialog;
 using subedit::gui::MainWindow;
 using subedit::test::FakePrompts;
 
-/// Quatre sous-titres, à une, trois, cinq et sept secondes.
+/// Four subtitles, at one, three, five and seven seconds.
 constexpr const char* kFour = "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n"
                               "2\n00:00:03,000 --> 00:00:04,000\nDeux.\n\n"
                               "3\n00:00:05,000 --> 00:00:06,000\nTrois.\n\n"
@@ -55,10 +55,10 @@ constexpr const char* kFour = "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n"
     return std::move(*opened);
 }
 
-/// La colonne `Text`, la cinquième.
+/// The `Text` column, the fifth.
 constexpr int kTextColumn = 4;
 
-/// Le texte d'une ligne, tel que la table le montre.
+/// The text of a row, as the table shows it.
 [[nodiscard]] std::string textAt(const MainWindow& window, int row) {
     return window.table()
         ->model()
@@ -77,7 +77,7 @@ void selectRow(const MainWindow& window, int row) {
                                                  QItemSelectionModel::Rows);
 }
 
-/// Ce que l'utilisateur écrit dans le dialogue d'insertion.
+/// What the user writes into the insertion dialog.
 [[nodiscard]] auto typing(int count, InsertPlacement placement) {
     return [count, placement](QDialog& dialog) {
         auto& insertion = dynamic_cast<InsertDialog&>(dialog);
@@ -89,9 +89,9 @@ void selectRow(const MainWindow& window, int row) {
 } // namespace
 
 TEST_CASE("inserting places the lines after the last selected one", "[gui][GUI-INSERT-01]") {
-    // **Le dernier et non le premier**, et la sélection est faite pour que les
-    // deux ne se confondent pas : le premier donnerait l'index 1, le dernier
-    // donne l'index 3. C'est le point qu'on invente mal sans lire Gaupol.
+    // **The last and not the first**, and the selection is made so that the
+    // two cannot be confused: the first would give index 1, the last gives
+    // index 3. It is the point one invents badly without reading Gaupol.
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = true;
@@ -146,8 +146,8 @@ TEST_CASE("inserting adds as many lines as were asked for", "[gui][GUI-INSERT-01
 }
 
 TEST_CASE("the inserted lines are selected, so it can be done again", "[gui][GUI-INSERT-01]") {
-    // La table a été réinitialisée : sans cette sélection rendue, l'action
-    // s'éteindrait et un second `Ins` ne ferait rien.
+    // The table has been reset: without this selection given back, the action
+    // would go out and a second `Ins` would do nothing.
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     prompts.nextRun = true;
@@ -215,8 +215,8 @@ TEST_CASE("with no selection, inserting is disabled while the document holds lin
 }
 
 TEST_CASE("inserting into an empty document needs no selection", "[gui][GUI-INSERT-02]") {
-    // La seule façon de commencer un fichier neuf : il n'y a rien à
-    // sélectionner, donc exiger une sélection rendrait l'insertion impossible.
+    // The only way to start a new file: there is nothing to select, so
+    // demanding a selection would make insertion impossible.
     InMemoryFileSystem files;
     FakePrompts prompts;
     prompts.nextRun = true;
@@ -241,7 +241,7 @@ TEST_CASE("the chosen side is kept from one insertion to the next", "[gui][GUI-I
 
     window.insertAction()->trigger();
 
-    // Ce qui part aux réglages, et ce que le prochain dialogue montrera.
+    // What goes to the settings, and what the next dialog will show.
     CHECK(window.settings().insertPlacement == InsertPlacement::Above);
 
     InsertPlacement offered = InsertPlacement::Below;
@@ -294,8 +294,8 @@ TEST_CASE("removing takes out the selection, and can be undone", "[gui][GUI-REMO
 }
 
 TEST_CASE("removing asks nothing and shows no dialog", "[gui][GUI-REMOVE-01]") {
-    // L'opération entre dans l'historique comme les autres : une modale devant
-    // un geste annulable coûterait un clic à chaque fois.
+    // The operation enters the history like the others: a dialog in front of
+    // an undoable gesture would cost a click every time.
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     MainWindow window{files, fourIn(files), prompts};
@@ -309,8 +309,8 @@ TEST_CASE("removing asks nothing and shows no dialog", "[gui][GUI-REMOVE-01]") {
 }
 
 TEST_CASE("with no selection, removing is disabled", "[gui][GUI-REMOVE-01]") {
-    // Ce qui tient la règle : `targetOf` lit « rien de sélectionné » comme
-    // « tout le fichier », ce qui serait ici un fichier vidé d'un `Suppr`.
+    // What holds the rule: `targetOf` reads "nothing selected" as "the whole
+    // file", which here would be a file emptied by one `Del`.
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     MainWindow window{files, fourIn(files), prompts};
@@ -324,10 +324,10 @@ TEST_CASE("with no selection, removing is disabled", "[gui][GUI-REMOVE-01]") {
 }
 
 TEST_CASE("an empty removal does not enter the history", "[gui][GUI-REMOVE-01]") {
-    // **Le second garde**, celui que l'entrée éteinte cache : une action
-    // éteinte ne se déclenche pas, donc ce chemin demande de la rallumer à la
-    // main pour être atteint. Il existe quand même, et ce qu'il empêche est
-    // qu'un retrait de rien du tout se retrouve dans l'historique, à défaire.
+    // **The second guard**, the one the entry being out hides: an action that
+    // is out does not fire, so this path has to be reached by switching it back
+    // on by hand. It exists all the same, and what it prevents is a removal of
+    // nothing at all ending up in the history, to be undone.
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     MainWindow window{files, fourIn(files), prompts};
@@ -352,15 +352,15 @@ TEST_CASE("after a removal, the line that took the place is selected", "[gui][GU
     REQUIRE(window.table()->selectionModel()->selectedRows().size() == 1);
     CHECK(window.table()->selectionModel()->selectedRows().first().row() == 1);
 
-    // Et l'on peut donc recommencer, ce qui est tout l'intérêt.
+    // And so one can start again, which is the whole point.
     window.removeAction()->trigger();
 
     CHECK(rowCount(window) == 2);
 }
 
 TEST_CASE("removing the end of the file leaves the last line selected", "[gui][GUI-REMOVE-01]") {
-    // `min(première retirée, dernière restante)` : la place laissée par la
-    // dernière ligne d'un fichier n'existe plus une fois celle-ci retirée.
+    // `min(first removed, last left)`: the place left by the last row of a
+    // file does not exist any more once that row is gone.
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
     MainWindow window{files, fourIn(files), prompts};
@@ -385,8 +385,8 @@ TEST_CASE("emptying the file leaves the window usable", "[gui][GUI-REMOVE-01]") 
     window.removeAction()->trigger();
 
     CHECK(rowCount(window) == 0);
-    // Vide, le document se remplit de nouveau sans sélection — et c'est le seul
-    // cas où insérer reste possible sans en avoir une.
+    // Empty, the document fills again with no selection — and it is the one
+    // case where inserting stays possible without having one.
     CHECK(window.insertAction()->isEnabled());
     CHECK_FALSE(window.removeAction()->isEnabled());
 }

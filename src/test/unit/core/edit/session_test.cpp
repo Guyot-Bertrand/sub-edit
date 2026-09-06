@@ -328,8 +328,8 @@ TEST_CASE("a strict sort is reported with the operation that caused it", "[edit]
 }
 
 TEST_CASE("a session says what its two actions would defeat", "[edit][session]") {
-    // Relayé et non recalculé : l'historique fait autorité, la session n'est
-    // que la porte par laquelle une fenêtre l'atteint.
+    // Relayed and not worked out again: the history is authoritative, and the
+    // session is only the door a window reaches it through.
     Session session{projectOf({at(0, "Un."), at(2000, "Deux.")})};
 
     CHECK_FALSE(session.nextUndoKind().has_value());
@@ -347,10 +347,9 @@ TEST_CASE("a session says what its two actions would defeat", "[edit][session]")
 }
 
 TEST_CASE("a session can be told the document now lives elsewhere", "[edit][session]") {
-    // « Enregistrer sous » change l'endroit où vit le document, pas ce qu'il
-    // contient : ce n'est donc pas une commande, et personne ne voudrait
-    // l'annuler. L'historique n'en garde pas trace et le projet reste ce qu'il
-    // était.
+    // "Save As" changes where the document lives, not what it holds: it is
+    // therefore no command, and nobody would want to undo it. The history keeps
+    // no trace of it and the project stays what it was.
     Session session{projectOf({at(0, "Un.")})};
     session.apply(
         std::make_unique<ShiftOne>(SubtitleIndex::fromValue(0), Duration::fromMilliseconds(500)));

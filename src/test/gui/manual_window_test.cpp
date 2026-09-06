@@ -1,9 +1,9 @@
-// Le manuel installé, lu dans la fenêtre — issue #245.
+// The installed manual, read in the window — issue #245.
 //
-// **Rien ici ne touche un vrai manuel.** Le manuel de ces cas est écrit en
-// mémoire, et son chemin est donné : c'est la couture de l'ADR 0022, la même
-// que pour les réglages. `installedManualPath()` est le seul code qui résout
-// l'emplacement réel, et il a son propre cas plus bas.
+// **Nothing here touches a real manual.** The manual of these cases is written
+// in memory, and its path is given: it is the seam of ADR 0022, the same one as
+// for the settings. `installedManualPath()` is the only code that resolves the
+// real location, and it has a case of its own further down.
 
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
@@ -66,24 +66,24 @@ constexpr const char* kTable = "# La table\n"
                                "\n"
                                "Les secondes, dont l'ancre est numérotée.\n";
 
-/// Une page qui montre une image que rien ne pose sur le disque.
+/// A page showing an image nothing lays on disk.
 ///
-/// **Les images ne passent pas par le système de fichiers de la fenêtre** : le
-/// rendu les cherche lui-même, dans le répertoire de la page. Une page en
-/// mémoire n'a donc pas d'images, et c'est ce qui rend ce cas atteignable sans
-/// rien écrire.
+/// **Images do not go through the window's file system**: the rendering looks
+/// for them itself, in the directory of the page. A page in memory therefore
+/// has no images, and that is what makes this case reachable without writing
+/// anything.
 constexpr const char* kSansImage = "# Une capture manquante\n"
                                    "\n"
                                    "![La fenêtre](captures/absente.png)\n";
 
-/// Une page qui ne commence pas par un titre.
+/// A page that does not begin with a heading.
 ///
-/// Elle existe pour un seul cas : la vue posée ailleurs que sur un titre, que
-/// les pages du manuel ne produisent jamais — elles commencent toutes par leur
-/// nom.
+/// It exists for one case: the view sitting somewhere other than on a heading,
+/// which the pages of the manual never produce — they all begin with their
+/// name.
 constexpr const char* kSansTitre = "Rien qu'un paragraphe.\n";
 
-/// Un manuel en mémoire, à l'emplacement que les cas se donnent.
+/// A manual in memory, at the location the cases give themselves.
 [[nodiscard]] InMemoryFileSystem withManual() {
     InMemoryFileSystem files;
     files.addFile(std::string{kManual} + "/index.md", kIndex);
@@ -105,11 +105,10 @@ TEST_CASE("the manual opens on its home page", "[gui][GUI-MANUAL-01]") {
 
 TEST_CASE("the manual's tables are rendered, which is what the scoping asked to check",
           "[gui][GUI-MANUAL-01]") {
-    // **Le risque nommé par le cadrage** : « nos sections usent de tableaux, et
-    // le rendu Markdown de Qt a ses limites ». Elles ne mordent pas — le
-    // dialecte GitHub fait de vrais tableaux, et le contenu des cellules est
-    // là. L'alternative d'un rendu HTML à la construction n'a donc pas eu à
-    // être discutée.
+    // **The risk the scoping named**: "our sections use tables, and Qt's
+    // Markdown rendering has its limits". They do not bite — the GitHub dialect
+    // makes real tables, and the content of the cells is there. The alternative
+    // of rendering HTML at build time therefore never had to be argued.
     InMemoryFileSystem files = withManual();
     const ManualWindow manual{files, kManual};
 
@@ -119,8 +118,8 @@ TEST_CASE("the manual's tables are rendered, which is what the scoping asked to 
     CHECK_THAT(shown, ContainsSubstring("la fenêtre"));
     CHECK_THAT(shown, ContainsSubstring("le lot"));
 
-    // Et les barres du tableau ne sont pas rendues telles quelles : ce serait
-    // le signe d'un dialecte qui ignore les tableaux et les laisse en texte.
+    // And the bars of the table are not rendered as they are: that would be
+    // the sign of a dialect ignoring tables and leaving them as text.
     CHECK_THAT(shown, !ContainsSubstring("| :--------"));
 }
 
@@ -165,8 +164,9 @@ TEST_CASE("contents is disabled when already there", "[gui][GUI-MANUAL-01]") {
 }
 
 TEST_CASE("clicking a manual link opens the page it targets", "[gui][GUI-MANUAL-01]") {
-    // Le chemin d'un vrai clic : le lien est relatif à la page qui le porte, et
-    // c'est ce qui distingue ce cas de l'ouverture directe juste au-dessus.
+    // The path of a real click: the link is relative to the page carrying it,
+    // and that is what sets this case apart from the direct opening just
+    // above.
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -174,8 +174,8 @@ TEST_CASE("clicking a manual link opens the page it targets", "[gui][GUI-MANUAL-
 
     CHECK(manual.currentPage() == std::filesystem::path{"subedit-gui/table.md"});
 
-    // Et depuis là, un lien qui remonte d'un cran ramène à l'accueil : c'est la
-    // résolution relative qui le fait, pas une table de correspondances.
+    // And from there a link that climbs one level leads back to the home page:
+    // it is the relative resolution that does it, not a table of mappings.
     manual.followLink(QUrl{QStringLiteral("../index.md")});
 
     CHECK(manual.currentPage() == std::filesystem::path{"index.md"});
@@ -183,9 +183,9 @@ TEST_CASE("clicking a manual link opens the page it targets", "[gui][GUI-MANUAL-
 
 TEST_CASE("a link leaving the installed manual is reported, never followed",
           "[gui][GUI-MANUAL-01]") {
-    // **La règle que la fenêtre porte seule.** Le manuel renvoie à la feuille de
-    // route et aux ADR, qui vivent dans le dépôt et ne sont pas installés. Un
-    // clic sans effet laisserait croire à une panne.
+    // **The rule the window carries alone.** The manual points at the roadmap
+    // and the ADRs, which live in the repository and are not installed. A click
+    // with no effect would look like something broken.
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -208,8 +208,8 @@ TEST_CASE("a link to a missing page is reported the same way", "[gui][GUI-MANUAL
 }
 
 TEST_CASE("an anchor alone does not change page", "[gui][GUI-MANUAL-01]") {
-    // « #le-thème » désigne la page courante : il n'y a rien à charger, et la
-    // fenêtre y descend.
+    // "#the-theme" names the current page: there is nothing to load, and the
+    // window goes down in it.
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -222,11 +222,11 @@ TEST_CASE("an anchor alone does not change page", "[gui][GUI-MANUAL-01]") {
 }
 
 TEST_CASE("a link with an anchor opens the page and scrolls to it", "[gui][GUI-MANUAL-01]") {
-    // **Le défaut trouvé par #268.** Le rendu Markdown de Qt ne nomme aucune
-    // ancre — un titre y est un bloc de niveau, pas une cible —, donc les
-    // renvois du manuel ouvraient la bonne page et la laissaient à son début.
-    // Le manuel en porte une quarantaine, tous vérifiés jusque-là contre les
-    // ancres de GitHub et jamais contre celles de la fenêtre.
+    // **The defect #268 found.** Qt's Markdown rendering names no anchor — a
+    // heading is a block with a level there, not a target — so the references
+    // of the manual opened the right page and left it at its beginning. The
+    // manual carries some forty of them, all checked until then against
+    // GitHub's anchors and never against the window's.
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -237,8 +237,8 @@ TEST_CASE("a link with an anchor opens the page and scrolls to it", "[gui][GUI-M
 }
 
 TEST_CASE("two identical headings give two anchors", "[gui][GUI-MANUAL-01]") {
-    // La règle de GitHub, que `check-manual-links.py` applique de son côté : le
-    // second « Les erreurs » d'une page s'appelle `les-erreurs-1`.
+    // GitHub's rule, which `check-manual-links.py` holds to on its own side:
+    // the second "The errors" of a page is called `the-errors-1`.
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -249,10 +249,10 @@ TEST_CASE("two identical headings give two anchors", "[gui][GUI-MANUAL-01]") {
 }
 
 TEST_CASE("an anchor naming nothing leaves the page at its start", "[gui][GUI-MANUAL-01]") {
-    // **Silencieuse, contrairement au reste de cette fenêtre.** Le manuel est
-    // livré avec le programme et non écrit par qui l'utilise : une ancre morte
-    // est un défaut du dépôt, que `check-manual-links.py` et le test des pages
-    // réelles refusent tous les deux. Le message n'aurait jamais de lecteur.
+    // **Silent, unlike the rest of this window.** The manual ships with the
+    // program and is not written by whoever uses it: a dead anchor is a defect
+    // of the repository, which `check-manual-links.py` and the test on the real
+    // pages both refuse. The message would never have a reader.
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -264,9 +264,9 @@ TEST_CASE("an anchor naming nothing leaves the page at its start", "[gui][GUI-MA
 }
 
 TEST_CASE("an image the rendering cannot find is named", "[gui][GUI-MANUAL-01]") {
-    // **Le pendant du test des pages réelles**, qui exige que le manuel du
-    // dépôt n'en ait aucune. Sans ce cas-ci, rien ne dirait que le contrôle
-    // sait répondre autre chose que « rien ne manque ».
+    // **The counterpart of the test on the real pages**, which demands that
+    // the manual of the repository have none. Without this case, nothing would
+    // say the check can answer anything other than "nothing is missing".
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -276,9 +276,9 @@ TEST_CASE("an image the rendering cannot find is named", "[gui][GUI-MANUAL-01]")
 }
 
 TEST_CASE("the rendered tables can be counted", "[gui][GUI-MANUAL-01]") {
-    // Le compte, et non seulement le texte des cellules : c'est ce qui
-    // distingue un vrai `QTextTable` d'un tableau laissé en texte, et c'est ce
-    // que le test des pages réelles confronte à ce que chaque source déclare.
+    // The count, and not the text of the cells alone: it is what tells a real
+    // `QTextTable` from a table left as text, and it is what the test on the
+    // real pages confronts with what each source declares.
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -290,8 +290,8 @@ TEST_CASE("the rendered tables can be counted", "[gui][GUI-MANUAL-01]") {
 }
 
 TEST_CASE("the rendered links are read from the document", "[gui][GUI-MANUAL-01]") {
-    // Ceux que le rendu a faits, et non ceux que la source écrit : un renvoi
-    // que le Markdown n'aurait pas reconnu ne serait pas dans cette liste.
+    // Those the rendering made, and not those the source writes: a reference
+    // the Markdown failed to recognise would not be in this list.
     InMemoryFileSystem files = withManual();
     const ManualWindow manual{files, kManual};
 
@@ -309,9 +309,9 @@ TEST_CASE("a page not starting with a heading is in no section", "[gui][GUI-MANU
 }
 
 TEST_CASE("back forced with no history does nothing", "[gui][GUI-MANUAL-01]") {
-    // Le second garde, celui que l'action éteinte cache : `trigger()` sur une
-    // action éteinte ne déclenche rien, donc ce chemin demande de la rallumer
-    // à la main pour être atteint. Il existe quand même.
+    // The second guard, the one the action being out hides: `trigger()` on an
+    // action that is out fires nothing, so this path has to be reached by
+    // switching it back on by hand. It exists all the same.
     InMemoryFileSystem files = withManual();
     const ManualWindow manual{files, kManual};
 
@@ -322,8 +322,8 @@ TEST_CASE("back forced with no history does nothing", "[gui][GUI-MANUAL-01]") {
 }
 
 TEST_CASE("a missing page is reported, and replaces nothing", "[gui][GUI-MANUAL-01]") {
-    // Le cas d'une installation partielle : la fenêtre le dit et garde ce
-    // qu'elle montrait.
+    // The case of a partial installation: the window says so and keeps what it
+    // was showing.
     InMemoryFileSystem files = withManual();
     ManualWindow manual{files, kManual};
 
@@ -347,8 +347,8 @@ TEST_CASE("the menu entry lights up when the manual is there", "[gui][GUI-MANUAL
     FakePrompts prompts;
     MainWindow window{files, openProject(files, "film.srt").value(), prompts};
 
-    // Éteinte tant que personne n'a dit où regarder : c'est l'état d'un binaire
-    // lancé depuis l'arbre de construction.
+    // Out for as long as nobody has said where to look: it is the state of a
+    // binary run from the build tree.
     CHECK_FALSE(window.manualAction()->isEnabled());
 
     window.setManualPath(kManual);
@@ -359,7 +359,7 @@ TEST_CASE("the menu entry lights up when the manual is there", "[gui][GUI-MANUAL
 TEST_CASE("the entry stays disabled on a partial installation", "[gui][GUI-MANUAL-01]") {
     InMemoryFileSystem files;
     files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n");
-    // Un manuel dont l'accueil manque : le répertoire existe, la page non.
+    // A manual whose home page is missing: the directory is, the page is not.
     files.addFile(std::string{kManual} + "/subedit-gui/table.md", kTable);
     FakePrompts prompts;
     MainWindow window{files, openProject(files, "film.srt").value(), prompts};
@@ -391,9 +391,9 @@ TEST_CASE("the entry opens the manual window, and only one", "[gui][GUI-MANUAL-0
 }
 
 TEST_CASE("the manual's location is derived from the executable", "[gui][GUI-MANUAL-01]") {
-    // **Déduit et non gravé** : le préfixe de configuration et celui
-    // d'installation ne sont pas le même, et le manuel recommande justement une
-    // installation sous un autre préfixe.
+    // **Worked out and not carved in**: the configure prefix and the install
+    // prefix are not the same, and the manual recommends precisely an
+    // installation under another prefix.
     const std::filesystem::path resolved = installedManualPath();
 
     CHECK(resolved.is_absolute());
@@ -401,8 +401,8 @@ TEST_CASE("the manual's location is derived from the executable", "[gui][GUI-MAN
     CHECK(resolved.parent_path().filename() == "subedit");
     CHECK(resolved.parent_path().parent_path().filename() == "share");
 
-    // À côté de l'exécutable, et non sous lui : `bin` et `share` sont frères,
-    // ce que `GNUInstallDirs` produit quel que soit le préfixe.
+    // Beside the executable, and not under it: `bin` and `share` are
+    // siblings, which is what `GNUInstallDirs` produces whatever the prefix.
     const std::filesystem::path binaries{QApplication::applicationDirPath().toStdString()};
     CHECK(resolved.parent_path().parent_path().parent_path() == binaries.parent_path());
 }

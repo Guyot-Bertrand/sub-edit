@@ -91,7 +91,7 @@ TEST_CASE("each reference lands exactly on the position asked for", "[cli][trans
 
 TEST_CASE("the positions between the references follow", "[cli][transforming]") {
     // Worked out by hand. r = (10000 - 1000) / (9000 - 1000) = 9/8, and
-    // t' = 1000 + (t - 1000) × 9/8:
+    // moved = 1000 + (t - 1000) × 9/8:
     //   5001 -> 1000 + 4001 × 9/8 = 1000 + 4501.125 -> 5501
     //   7000 -> 1000 + 6000 × 9/8 = 7750
     const Run run = transform(kThree, at(1, 1'000), at(3, 10'000));

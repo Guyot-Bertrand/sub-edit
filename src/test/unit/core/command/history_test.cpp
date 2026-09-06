@@ -227,11 +227,11 @@ TEST_CASE("clearing the history leaves the project untouched", "[command][histor
     CHECK(project.subtitleAt(SubtitleIndex::fromValue(0)).mainText == "Premier.");
 }
 
-// De quoi nommer une action d'annulation — issue #130.
+// What it takes to name an undo action — issue #130.
 //
-// L'énumération existe pour ça et son commentaire le dit depuis la phase 2 ;
-// il manquait seulement de quoi la lire depuis l'extérieur. Un `CommandKind`
-// et non la commande : l'interface a besoin d'un mot, pas d'un objet.
+// The enumeration exists for it and its comment has said so since phase 2; all
+// that was missing was a way to read it from outside. A `CommandKind` and not
+// the command: the interface needs a word, not an object.
 
 TEST_CASE("the history names what undoing would defeat", "[command][history]") {
     Project project = withThreeSubtitles();
@@ -270,9 +270,9 @@ TEST_CASE("the most recent of several is the one named", "[command][history]") {
 }
 
 TEST_CASE("a group is named after what was asked for", "[command][history]") {
-    // Ce qui fait qu'un décalage suivi d'un tri par la politique stricte
-    // s'annonce « décalage » : `CompositeCommand` porte déjà ce nom-là, et rien
-    // n'est à ajouter ici pour que l'action le dise.
+    // What makes a shift followed by a sort under the strict policy announce
+    // itself as "shifting": `CompositeCommand` already carries that name, and
+    // nothing has to be added here for the action to say it.
     Project project = withThreeSubtitles();
     History history;
 
@@ -285,8 +285,8 @@ TEST_CASE("a group is named after what was asked for", "[command][history]") {
 }
 
 TEST_CASE("redoing names the most recently undone, not the oldest", "[command][history]") {
-    // Deux entrées et non une : avec une seule, lire la pile par le mauvais
-    // bout donne la même réponse, et le test ne prouverait rien.
+    // Two entries and not one: with a single one, reading the stack from the
+    // wrong end gives the same answer, and the test would prove nothing.
     Project project = withThreeSubtitles();
     History history;
     history.apply(std::make_unique<Declaring>(ChangeKind::Positions, CommandKind::Shift), project);

@@ -1,14 +1,13 @@
-// Le thème clair et sombre — issue #241, décision D3.
+// The light and dark theme — issue #241, decision D3.
 //
-// **Ce qui rend le thème éprouvable est sa forme.** Qt 6.4 n'a aucune API de
-// schéma de couleurs, donc « système » ne peut rien lire ; mais parce que clair
-// et sombre sont des palettes *que nous posons*, un test peut les poser aussi et
-// lire ce qu'il obtient. Une lecture du bureau ne serait ni testable ni
-// reproductible.
+// **What makes the theme testable is its shape.** Qt 6.4 has no colour scheme
+// API at all, so "system" can read nothing; but because light and dark are
+// palettes *we lay down*, a test can lay them down too and read what it gets. A
+// reading of the desktop would be neither testable nor reproducible.
 //
-// **La lisibilité des teintes d'anomalie est vérifiée et non supposée.** Le
-// modèle les veut translucides pour suivre le fond ; une couleur lisible sur
-// blanc ne l'est pas nécessairement sur presque-noir, et rien ne le disait.
+// **The readability of the anomaly tints is checked and not assumed.** The
+// model wants them translucent so as to follow the ground; a colour readable on
+// white is not necessarily readable on near-black, and nothing said so.
 
 #include <subedit/core/config/theme.hpp>
 #include <subedit/core/edit/session.hpp>
@@ -41,12 +40,12 @@ using subedit::gui::applyTheme;
 using subedit::gui::paletteFor;
 using subedit::gui::SubtitleTableModel;
 
-/// Remet la palette de l'application telle qu'elle était.
+/// Puts the palette of the application back as it was.
 ///
-/// `applyTheme` touche un état global du processus, et les cas qui suivent
-/// n'ont pas demandé à en hériter. Le rendre dans un destructeur plutôt qu'en
-/// fin de cas : une assertion qui échoue ne doit pas laisser le binaire peint
-/// en sombre pour tout le reste.
+/// `applyTheme` touches a global state of the process, and the cases that
+/// follow did not ask to inherit it. Given back in a destructor rather than at
+/// the end of a case: an assertion that fails must not leave the binary painted
+/// dark for all the rest.
 class PaletteRestored {
 public:
     PaletteRestored() : m_held(QApplication::palette()) {}
@@ -62,7 +61,7 @@ private:
     QPalette m_held;
 };
 
-/// La luminance relative d'une couleur, comme le calcul de contraste la définit.
+/// The relative luminance of a colour, as the contrast formula defines it.
 [[nodiscard]] double luminanceOf(const QColor& colour) {
     const auto channel = [](double value) {
         return value <= 0.03928 ? value / 12.92 : std::pow((value + 0.055) / 1.055, 2.4);
@@ -72,18 +71,18 @@ private:
            (0.0722 * channel(static_cast<double>(colour.blueF())));
 }
 
-/// Le rapport de contraste entre deux couleurs opaques, de 1 à 21.
+/// The contrast ratio between two opaque colours, from 1 to 21.
 [[nodiscard]] double contrastOf(const QColor& one, const QColor& other) {
     const double bright = std::max(luminanceOf(one), luminanceOf(other));
     const double dim = std::min(luminanceOf(one), luminanceOf(other));
     return (bright + 0.05) / (dim + 0.05);
 }
 
-/// La couleur qu'on voit quand `wash` est peinte par-dessus `under`.
+/// The colour one sees when `wash` is painted over `under`.
 [[nodiscard]] QColor washedOver(const QColor& wash, const QColor& under) {
-    // `QColor` travaille en `float` ; le calcul de contraste en `double`. La
-    // composition se fait donc dans le type de Qt, et la conversion est écrite
-    // plutôt que subie.
+    // `QColor` works in `float`; the contrast formula in `double`. The
+    // compositing is therefore done in Qt's type, and the conversion is written
+    // rather than suffered.
     const float alpha = wash.alphaF();
     const auto mix = [alpha](float top, float bottom) {
         return (top * alpha) + (bottom * (1 - alpha));
@@ -99,20 +98,20 @@ private:
                     .mainText = "x"};
 }
 
-/// Un document qui porte les trois anomalies à la fois, donc les trois teintes.
+/// A document carrying all three anomalies at once, and so all three tints.
 [[nodiscard]] Project damaged() {
     Project project;
     project.setSubtitles({from(1000, 2000),
                           // finit avant de commencer
                           from(3000, 2500),
-                          // chevauche le précédent
+                          // overlaps the previous one
                           from(2400, 5000),
-                          // commence avant le précédent
+                          // starts before the previous one
                           from(2000, 6000)});
     return project;
 }
 
-/// Les teintes que la table pose vraiment, lues à travers le modèle.
+/// The tints the table really lays down, read through the model.
 [[nodiscard]] std::vector<QColor> tintsOf(const SubtitleTableModel& model) {
     std::vector<QColor> tints;
     for (int row = 0; row < model.rowCount({}); ++row) {
@@ -126,14 +125,14 @@ private:
 } // namespace
 
 TEST_CASE("dark is dark, and light is light", "[gui][theme][GUI-THEME-02]") {
-    // Le fond, et non le nom : c'est ce sur quoi tout le reste se lit.
+    // The ground, and not the name: it is what all the rest is read on.
     CHECK(luminanceOf(paletteFor(Theme::Dark).base().color()) < 0.1);
     CHECK(luminanceOf(paletteFor(Theme::Light).base().color()) > 0.8);
 }
 
 TEST_CASE("the system palette is the one already in place", "[gui][theme]") {
-    // Rendre la palette courante est la façon la plus honnête de dire « rien » :
-    // celle qui serait posée est celle qui l'est.
+    // Answering the current palette is the most honest way to say "nothing":
+    // the one that would be laid down is the one that is.
     const PaletteRestored restored;
     QPalette peculiar;
     peculiar.setColor(QPalette::Base, QColor{7, 8, 9});
@@ -143,7 +142,7 @@ TEST_CASE("the system palette is the one already in place", "[gui][theme]") {
 }
 
 TEST_CASE("every palette reads its text against its background", "[gui][theme]") {
-    // Quatre et demi pour un : le seuil qu'un texte doit tenir pour être lu.
+    // Four and a half to one: the threshold a text has to hold to be read.
     for (const Theme theme : {Theme::Light, Theme::Dark}) {
         const QPalette palette = paletteFor(theme);
         CHECK(contrastOf(palette.text().color(), palette.base().color()) > 4.5);
@@ -152,9 +151,9 @@ TEST_CASE("every palette reads its text against its background", "[gui][theme]")
     }
 }
 
-// **« Système » ne pose aucune palette**, et c'est le cœur de la décision D3 :
-// on livre les deux thèmes qu'on sait poser, et on n'invente pas une lecture du
-// bureau que Qt 6.4 ne permet pas.
+// **"System" lays down no palette at all**, and that is the heart of decision
+// D3: we ship the two themes we know how to lay down, and we do not invent a
+// reading of the desktop Qt 6.4 does not allow.
 TEST_CASE("system applies nothing", "[gui][theme]") {
     const PaletteRestored restored;
     QPalette peculiar;
@@ -174,11 +173,11 @@ TEST_CASE("dark applies its palette to the application", "[gui][theme][GUI-THEME
     CHECK(QApplication::palette().base().color() == paletteFor(Theme::Dark).base().color());
 }
 
-// **Le point que l'issue demandait de vérifier plutôt que de supposer.** Le
-// modèle teinte les colonnes de temps d'un lavis translucide, à dessein, pour
-// que la fenêtre suive la palette du bureau. Une couleur lisible sur blanc ne
-// l'est pas nécessairement sur presque-noir, et c'est le genre de chose qui ne
-// se voit qu'en la regardant.
+// **The point the issue asked to check rather than assume.** The model tints
+// the time columns with a translucent wash, on purpose, so that the window
+// follows the palette of the desktop. A colour readable on white is not
+// necessarily readable on near-black, and it is the kind of thing that shows
+// only when looked at.
 TEST_CASE("anomaly tints keep the text readable, light and dark alike", "[gui][theme]") {
     Session session{damaged()};
     const SubtitleTableModel model{session};
@@ -190,17 +189,17 @@ TEST_CASE("anomaly tints keep the text readable, light and dark alike", "[gui][t
         const QPalette palette = paletteFor(theme);
         for (const QColor& tint : tints) {
             const QColor seen = washedOver(tint, palette.base().color());
-            // Trois pour un : moins que le seuil d'un texte nu, parce qu'il
-            // s'agit d'un fond teinté et non d'une couleur de texte — mais
-            // assez pour que la ligne reste lue et non devinée.
+            // Three to one: less than the threshold of bare text, because
+            // this is a tinted ground and not a colour of text — but enough for
+            // the row to stay read rather than guessed at.
             CHECK(contrastOf(palette.text().color(), seen) > 3.0);
         }
     }
 }
 
 TEST_CASE("the tints stay distinct from the background, light and dark alike", "[gui][theme]") {
-    // L'autre moitié : une teinte qu'on lit bien mais qu'on ne voit pas ne
-    // signale rien. Elle doit se détacher du fond sans effacer le texte.
+    // The other half: a tint one reads well but does not see signals nothing.
+    // It has to stand out from the ground without wiping the text.
     Session session{damaged()};
     const SubtitleTableModel model{session};
 

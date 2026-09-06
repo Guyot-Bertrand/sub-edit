@@ -85,24 +85,24 @@ public:
 
     /// Puts the window back where the previous session left it.
     ///
-    /// **Appelée avant `show()`**, sans quoi la fenêtre s'affiche à sa taille
-    /// par défaut puis saute à la sienne, ce qui se voit.
+    /// **Called before `show()`**, without which the window appears at its
+    /// default size and then jumps to its own, which shows.
     ///
-    /// Ce qui est absent des réglages n'est pas appliqué : une géométrie
-    /// absente laisse la fenêtre se dimensionner elle-même, assez large pour
-    /// qu'on lise la table — c'est le défaut, et il vaut mieux que zéro.
+    /// What the settings do not carry is not applied: a missing geometry leaves
+    /// the window to size itself, wide enough to read the table — that is the
+    /// default, and it is better than zero.
     void applySettings(const core::Settings& settings);
 
-    /// Ce que cette session laisse derrière elle.
+    /// What this session leaves behind it.
     ///
-    /// Lue une fois la fenêtre fermée, par le câblage qui l'écrira. La fenêtre
-    /// ne persiste rien elle-même : elle dit son état, et c'est tout — la même
-    /// séparation qu'entre `Session` et `saveProject`.
+    /// Read once the window is closed, by the wiring that will write it. The
+    /// window persists nothing itself: it says its state, and that is all — the
+    /// same separation as between `Session` and `saveProject`.
     ///
-    /// **La géométrie rendue est celle d'avant l'agrandissement** quand la
-    /// fenêtre est maximisée : Qt garde les deux, et retenir la taille de
-    /// l'écran comme géométrie normale ferait qu'un dé-maximisage à la session
-    /// suivante ne rendrait rien à voir.
+    /// **The geometry answered is the one from before the enlargement** when
+    /// the window is maximised: Qt keeps both, and keeping the size of the
+    /// screen as the normal geometry would mean that unmaximising at the next
+    /// session showed nothing at all.
     [[nodiscard]] core::Settings settings() const;
 
     /// Returns the table, for a test to look at what the window shows.
@@ -124,8 +124,8 @@ public:
 
     [[nodiscard]] QAction* saveAsAction() const { return m_saveAs; }
 
-    /// Les deux éditions de structure, pour qu'un test lise leur état et les
-    /// déclenche.
+    /// The two edits of structure, for a test to read their state and trigger
+    /// them.
     [[nodiscard]] QAction* insertAction() const { return m_insert; }
 
     [[nodiscard]] QAction* removeAction() const { return m_remove; }
@@ -141,7 +141,7 @@ public:
 
     [[nodiscard]] QAction* hearingImpairedAction() const { return m_hearingImpaired; }
 
-    /// L'entrée qui ouvre les préférences, pour qu'un test la déclenche.
+    /// The entry that opens the preferences, for a test to trigger it.
     [[nodiscard]] QAction* preferencesAction() const { return m_preferences; }
 
     [[nodiscard]] QAction* selectVideoAction() const { return m_selectVideo; }
@@ -175,23 +175,23 @@ public:
 
     [[nodiscard]] QAction* aboutAction() const { return m_about; }
 
-    /// Ouvre le manuel installé. Éteinte tant qu'il n'y en a pas.
+    /// Opens the installed manual. Out for as long as there is none.
     [[nodiscard]] QAction* manualAction() const { return m_manual; }
 
-    /// Dit où le manuel installé se trouve, et allume l'entrée s'il y est.
+    /// Says where the installed manual is, and lights the entry if it is there.
     ///
-    /// **Reçu plutôt que résolu**, comme les réglages et pour la même raison —
-    /// ADR 0022 : `gui::installedManualPath()` est le seul code qui sait où
-    /// regarder, `main` l'appelle et passe la réponse ici. Un test donne le
-    /// chemin qu'il veut, et n'atteint donc jamais le vrai manuel.
+    /// **Received rather than resolved**, as the settings are and for the same
+    /// reason — ADR 0022: `gui::installedManualPath()` is the only code that
+    /// knows where to look, `main` calls it and passes the answer here. A test
+    /// gives whatever path it likes, and so never reaches the real manual.
     ///
-    /// **L'entrée reste éteinte quand le manuel n'est pas là**, ce qui est le
-    /// cas d'un binaire lancé depuis l'arbre de construction et celui d'une
-    /// installation partielle. C'est ce qui tient la promesse du cadrage : le
-    /// manuel absent ne fait rien planter, il éteint une entrée.
+    /// **The entry stays out when the manual is not there**, which is the case
+    /// of a binary run from the build tree and that of a partial installation.
+    /// It is what holds the promise of the scoping: a missing manual crashes
+    /// nothing, it puts an entry out.
     void setManualPath(std::filesystem::path directory);
 
-    /// La fenêtre du manuel, si elle est ouverte. Pour qu'un test la lise.
+    /// The manual window, if it is open. For a test to read it.
     [[nodiscard]] ManualWindow* manualWindow() const { return m_manualWindow; }
 
     /// The names of the menus, in the order the bar shows them.
@@ -235,13 +235,13 @@ protected:
     void showEvent(QShowEvent* event) override;
 
 private:
-    /// Recompute ce que les deux éditions de structure ont le droit de faire.
+    /// Works out afresh what the two edits of structure are allowed to do.
     ///
-    /// **À part de `refreshActions`, et branchée sur la sélection** : ce sont
-    /// les deux seules actions dont l'état dépend de ce qui est sélectionné, et
-    /// `refreshActions` déduit la grille du fichier entier. La brancher sur la
-    /// sélection ferait payer cette déduction à chaque ligne d'un cliquer-tirer
-    /// sur quatre mille lignes.
+    /// **Apart from `refreshActions`, and wired to the selection**: they are
+    /// the only two actions whose state depends on what is selected, and
+    /// `refreshActions` deduces the grid of the whole file. Wiring that one to
+    /// the selection would pay for the deduction at every row of a drag over
+    /// four thousand of them.
     void refreshStructureActions();
 
     /// Recomputes what the two actions may do and what they read.
@@ -326,14 +326,14 @@ private:
     /// Says who this is and which version is running.
     void about();
 
-    /// Ouvre le manuel, ou ramène au premier plan celui qui est déjà ouvert.
+    /// Opens the manual, or brings the one already open back to the front.
     void openManual();
 
-    /// Ouvre les préférences, et pose ce qui en sort.
+    /// Opens the preferences, and lays down what comes out of them.
     void openPreferences();
 
-    /// Retient le répertoire de `file` comme celui où la prochaine boîte
-    /// « ouvrir » s'ouvrira.
+    /// Keeps the directory of `file` as the one the next "open" box will open
+    /// in.
     void rememberDirectoryOf(const std::filesystem::path& file);
 
     /// Asks which grid to lay the positions on, and lays them on it.
@@ -378,38 +378,37 @@ private:
     /// every step, and a seek waits for the player to arrive.
     void placePlaybackAtSelection();
 
-    /// Demande combien de lignes vierges, et où, puis les pose.
+    /// Asks how many blank rows, and where, then lays them down.
     ///
-    /// **L'index est celui du dernier sélectionné**, plus un si le côté choisi
-    /// est « après ». C'est ce que Gaupol fait depuis vingt ans, et c'est le
-    /// point qu'on invente mal si on ne le lit pas : le premier sélectionné
-    /// paraît plus naturel et n'est pas ce que la main attend après avoir
-    /// balayé du haut vers le bas.
+    /// **The index is that of the last selected**, plus one if the side chosen
+    /// is "below". It is what Gaupol has done for twenty years, and it is the
+    /// point one invents badly without reading it: the first selected looks
+    /// more natural and is not what the hand expects after sweeping from top to
+    /// bottom.
     ///
-    /// Dans un document vide, l'index est zéro et aucune sélection n'est
-    /// exigée — c'est la seule façon de commencer un fichier neuf.
+    /// In an empty document the index is zero and no selection is required —
+    /// it is the only way to start a new file.
     void insertSubtitles();
 
-    /// Retire la sélection, sans rien demander.
+    /// Removes the selection, asking nothing.
     ///
-    /// **Sans confirmation, et ce n'est pas une négligence** : l'opération
-    /// entre dans l'historique comme les autres, donc `Ctrl+Z` la défait. Une
-    /// modale devant un geste annulable coûte un clic à chaque fois pour
-    /// épargner un `Ctrl+Z` de temps en temps.
+    /// **Without confirmation, and it is no oversight**: the operation enters
+    /// the history like the others, so `Ctrl+Z` undoes it. A dialog in front of
+    /// an undoable gesture costs a click every time to spare a `Ctrl+Z` now and
+    /// then.
     ///
-    /// **La sélection, et jamais le fichier entier.** `targetOf` lit « rien de
-    /// sélectionné » comme « tout », ce qui est juste pour un décalage et
-    /// serait un désastre ici ; l'action est éteinte quand rien n'est
-    /// sélectionné, et cette fonction ne la rattrape pas — elle n'a pas à
-    /// connaître deux règles.
+    /// **The selection, and never the whole file.** `targetOf` reads "nothing
+    /// selected" as "everything", which is right for a shift and would be a
+    /// disaster here; the action is out when nothing is selected, and this
+    /// function does not catch up for it — it has no business knowing two
+    /// rules.
     void removeSubtitles();
 
-    /// Sélectionne la plage de lignes donnée, et l'amène sous les yeux.
+    /// Selects the range of rows given, and brings it into view.
     ///
-    /// Ce que Gaupol fait après une insertion et après une suppression : la
-    /// table a été réinitialisée, donc la sélection a disparu, et sans cela un
-    /// second `Ins` ou un second `Suppr` ne trouverait plus rien à quoi se
-    /// rapporter.
+    /// What Gaupol does after an insertion and after a removal: the table has
+    /// been reset, so the selection is gone, and without this a second `Ins` or
+    /// a second `Del` would find nothing left to work from.
     void selectRows(int first, int last);
 
     void shiftTarget();
@@ -477,33 +476,31 @@ private:
     /// — every time the naming convention speaks.
     std::filesystem::path m_associated;
 
-    /// Le thème demandé, qu'on rendra aux réglages. Posé, pas déduit : la
-    /// palette courante ne dit pas lequel des trois l'a produite.
+    /// The theme asked for, to be handed back to the settings. Laid down, not
+    /// deduced: the current palette does not say which of the three made it.
     core::Theme m_theme = core::Theme::System;
 
-    /// De quel côté de la sélection la prochaine insertion posera ses lignes.
+    /// Which side of the selection the next insertion will lay its rows on.
     ///
-    /// Retenu d'un appel à l'autre, et rendu aux réglages : on n'insère pas une
-    /// fois mais dix fois de suite, toujours du même côté.
+    /// Kept from one call to the next, and handed back to the settings: one
+    /// does not insert once but ten times in a row, always on the same side.
     core::InsertPlacement m_insertPlacement = core::InsertPlacement::Below;
 
-    /// Le dernier encodage choisi dans `Save As…`, absent tant qu'aucun ne l'a
-    /// été.
+    /// The encoding last chosen in `Save As…`, absent until one has been.
     ///
-    /// **Il ne sert qu'au document qui n'a pas de fichier.** Un document ouvert
-    /// porte le sien, et c'est celui-là que la boîte propose : l'aller-retour
-    /// d'octets de la phase 8 est cette promesse, et un réglage ne la défait
-    /// pas dans le dos de qui enregistre.
+    /// **It serves the document with no file, and nothing else.** An opened
+    /// document carries its own, and that is the one the box proposes: the byte
+    /// round trip of phase 8 is that promise, and a setting does not undo it
+    /// behind the back of whoever saves.
     std::optional<core::Encoding> m_writeEncoding;
 
-    /// La racine du manuel installé, ou rien.
+    /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;
 
-    /// Le répertoire où la boîte « ouvrir » s'ouvrira.
+    /// The directory the "open" box will open in.
     ///
-    /// Celui du dernier fichier **ouvert ou enregistré**, et non celui d'une
-    /// boîte annulée : ce qui compte est où l'utilisateur travaille, pas où il
-    /// a regardé.
+    /// That of the last file **opened or saved**, and not that of a box
+    /// dismissed: what counts is where the user works, not where they looked.
     std::filesystem::path m_lastDirectory;
 
     /// Whether a film is open and being drawn.

@@ -66,10 +66,10 @@ public:
     [[nodiscard]] std::expected<void, FileError> writeFile(const std::filesystem::path& path,
                                                            std::string_view content) override;
 
-    /// **Toujours un succès, et sans rien créer.** Ce système de fichiers n'a
-    /// pas de répertoires : un chemin est une clé, et son parent existe dès
-    /// qu'un fichier le nomme. Refuser ici obligerait chaque test qui écrit à
-    /// fabriquer une arborescence qui n'existe pas.
+    /// **Always a success, and it creates nothing.** This file system has no
+    /// directories: a path is a key, and its parent exists as soon as a file
+    /// names it. Refusing here would force every test that writes to build a
+    /// tree that does not exist.
     [[nodiscard]] std::expected<void, FileError>
     createDirectories(const std::filesystem::path& directory) override;
 

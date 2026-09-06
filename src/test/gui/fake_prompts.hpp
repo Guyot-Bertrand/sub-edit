@@ -39,7 +39,7 @@ public:
     /// point — a dialog that ignored it would open on nowhere.
     core::SourceFile lastCurrent{};
 
-    /// Où la dernière question s'est ouverte, pour qu'un test le lise.
+    /// Where the last question opened, for a test to read it.
     std::filesystem::path lastOpenDirectory{};
 
     [[nodiscard]] std::optional<std::filesystem::path>
@@ -61,7 +61,7 @@ public:
         return nextVideoToOpen;
     }
 
-    /// L'encodage que la fenêtre a proposé, pour que le scénario le lise.
+    /// The encoding the window proposed, for the scenario to read it.
     std::optional<core::Encoding> lastProposedEncoding{};
 
     [[nodiscard]] std::optional<gui::SaveTarget>

@@ -175,15 +175,14 @@ TEST_CASE("the translation document is cleaned on demand", "[edit]") {
     CHECK(project.subtitles().front().translationText == "Hello");
 }
 
-// Le retrait sur une cible — issue #133.
+// The removal on a target — issue #133.
 //
-// La phase 4 avait renvoyé ici l'application à une sélection. La ligne de
-// commande continue de passer le fichier entier ; la fenêtre passe ce qui est
-// sélectionné.
+// Phase 4 deferred applying it to a selection to here. The command line goes on
+// passing the whole file; the window passes what is selected.
 
 TEST_CASE("only the selected subtitles are cleaned", "[edit][hearing-impaired]") {
-    // Le deuxième est réécrit, le troisième serait vidé — mais il n'est pas
-    // visé, donc il reste tel quel.
+    // The second is rewritten, the third would be emptied — but it is not
+    // aimed at, so it stays as it is.
     Project project = fourSubtitles();
     Session session{std::move(project)};
 
@@ -200,8 +199,8 @@ TEST_CASE("only the selected subtitles are cleaned", "[edit][hearing-impaired]")
 }
 
 TEST_CASE("a selection with nothing to clean asks for no command", "[edit][hearing-impaired]") {
-    // Le premier ne porte aucune mention. Rendre un groupe vide poserait dans
-    // l'historique une entrée que l'utilisateur croiserait sans comprendre.
+    // The first carries no mention at all. Answering an empty group would put
+    // an entry in the history the user would meet without understanding.
     const Project project = fourSubtitles();
 
     const SubtitleIndex first = SubtitleIndex::fromValue(0);
@@ -223,11 +222,10 @@ TEST_CASE("a selection that empties a subtitle takes it away", "[edit][hearing-i
 
 TEST_CASE("what the removal did is read from the command, not counted again",
           "[edit][hearing-impaired]") {
-    // `describe()` le dit déjà : un changement de texte par sous-titre
-    // réécrit, un retrait nommant tous ceux qui partent. Le recompter — en
-    // comparant les textes avant et après — donnerait deux réponses à une même
-    // question, et celle qu'on montrerait serait celle qu'aucun test ne
-    // confronte.
+    // `describe()` already says it: one change of text per subtitle rewritten,
+    // one removal naming all those that go. Counting it again — by comparing
+    // the texts before and after — would give two answers to one question, and
+    // the one shown would be the one no test confronts.
     const Project project = fourSubtitles();
 
     const std::unique_ptr<Command> command =
@@ -241,8 +239,8 @@ TEST_CASE("what the removal did is read from the command, not counted again",
 
 TEST_CASE("undoing a removal puts the subtitles back, with their own text",
           "[edit][hearing-impaired]") {
-    // Le seul chemin de la phase qui retire des lignes puis les ré-insère, donc
-    // le seul qui éprouve pour de bon ce que l'issue #45 a construit.
+    // The one path of the phase that removes rows and then puts them back, and
+    // so the only one that really tests what issue #45 built.
     Project project = fourSubtitles();
     Session session{std::move(project)};
     session.apply(removeHearingImpaired(
@@ -258,10 +256,10 @@ TEST_CASE("undoing a removal puts the subtitles back, with their own text",
 }
 
 TEST_CASE("the tally counts subtitles taken away, not removals", "[edit][hearing-impaired]") {
-    // **Deux sous-titres vidés, et un seul `Change` pour les deux.** Avec un
-    // seul vidé, compter les changements donnerait la même réponse et ce test
-    // ne prouverait rien — c'est exactement ce que le comptage promet, et il
-    // faut deux lignes pour le voir.
+    // **Two subtitles emptied, and one `Change` for the two.** With only one
+    // emptied, counting the changes would give the same answer and this test
+    // would prove nothing — it is exactly what the counting promises, and it
+    // takes two rows to see it.
     Project project;
     project.setSubtitles({saying("[Musique]", 0),
                           saying("Attends [il tousse] Marie", 2000),

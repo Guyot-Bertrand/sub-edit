@@ -43,16 +43,16 @@
 
 namespace {
 
-/// Ce que la plateforme sans écran répète, et rien d'autre.
+/// What the screenless platform repeats, and nothing else.
 ///
-/// Les deux phrases sont vraies et sans conséquence : rien ici n'a de
-/// gestionnaire de fenêtres à qui propager une taille, ni à qui demander de
-/// passer devant. Montrer chaque fenêtre en fait des dizaines de lignes par
-/// exécution, et c'est ainsi qu'un vrai avertissement cesse d'être lu.
+/// Both sentences are true and of no consequence: nothing here has a window
+/// manager to propagate a size to, or to ask to come to the front. Showing
+/// every window makes dozens of lines of them per run, and that is how a real
+/// warning stops being read.
 ///
-/// **Une liste close, et deux phrases entières.** La seconde est arrivée avec
-/// la fenêtre du manuel — #245 —, qui ramène au premier plan celle qui est déjà
-/// ouverte.
+/// **A closed list, and two whole sentences.** The second arrived with the
+/// manual window — #245 — which brings the one already open back to the
+/// front.
 constexpr std::array<const char*, 2> kOffscreenNoise = {
     "This plugin does not support propagateSizeHints()",
     "This plugin does not support raise()",
@@ -181,7 +181,7 @@ TEST_CASE("the harness silences two sentences and no more", "[gui]") {
 
     CHECK_FALSE(isOffscreenNoise(QString{}));
     CHECK_FALSE(isOffscreenNoise(QStringLiteral("This plugin does not support windows")));
-    // Ce qu'un préfixe aurait avalé.
+    // What a prefix would have swallowed.
     CHECK_FALSE(
         isOffscreenNoise(QStringLiteral("This plugin does not support propagateSizeHints() — et "
                                         "autre chose d'important")));

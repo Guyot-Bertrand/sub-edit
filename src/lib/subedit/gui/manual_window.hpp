@@ -16,128 +16,127 @@ class FileSystem;
 
 namespace subedit::gui {
 
-/// Le manuel installé, lu dans une fenêtre.
+/// The installed manual, read in a window.
 ///
-/// **Le manuel installé et non une URL** — décision D6 du cadrage de la phase 7.
-/// Gaupol ouvre une adresse ; nous ne le suivons pas, parce qu'une URL décrit
-/// `main` et non la version qu'on a sous la main. Un utilisateur qui lit le
-/// manuel d'une version qu'il n'a pas est moins bien servi qu'un utilisateur
-/// sans manuel.
+/// **The installed manual and not a URL** — decision D6 of the scoping of phase
+/// 7. Gaupol opens an address; we do not follow it there, because a URL
+/// describes `main` and not the version at hand. A user reading the manual of a
+/// version they do not have is worse served than a user with no manual.
 ///
-/// **Du Markdown rendu par Qt, sans dépendance nouvelle.**
-/// `QTextDocument::setMarkdown` le fait, dialecte GitHub, et le cadrage
-/// demandait de vérifier tôt que nos tableaux tiennent : ils tiennent — ils
-/// deviennent de vrais `QTextTable`, lignes et colonnes comprises. L'alternative
-/// d'un rendu HTML à la construction n'a donc pas eu à être discutée.
+/// **Markdown rendered by Qt, with no new dependency.**
+/// `QTextDocument::setMarkdown` does it, in the GitHub dialect, and the scoping
+/// asked to check early that our tables survive: they do — they become real
+/// `QTextTable`s, rows and columns included. The alternative of rendering HTML
+/// at build time therefore never had to be argued.
 ///
-/// **Une fenêtre et non une modale.** On consulte un manuel *pendant* qu'on
-/// travaille, et une modale interdirait précisément cela. Elle échappe donc à
-/// `Prompts`, et c'est sans conséquence pour les tests : cette couture existe
-/// pour tenir `exec()` hors de leur portée, et rien ici ne l'appelle.
+/// **A window and not a dialog.** One consults a manual *while* working, and a
+/// modal dialog would forbid exactly that. It escapes `Prompts` for that
+/// reason, and it costs the tests nothing: that seam exists to keep `exec()`
+/// out of their reach, and nothing here calls it.
 class ManualWindow final : public QWidget {
     Q_OBJECT
 
 public:
-    /// Ouvre le manuel qui vit sous `directory`, sur sa page d'accueil.
+    /// Opens the manual living under `directory`, on its home page.
     ///
-    /// `files` doit lui survivre. Le manuel est lu à travers lui plutôt que par
-    /// Qt : c'est ce qui permet à un test de poser un manuel en mémoire, sans
-    /// répertoire ni fichier réels.
+    /// `files` must outlive it. The manual is read through that rather than by
+    /// Qt: it is what lets a test lay down a manual in memory, with no real
+    /// directory and no real file.
     ManualWindow(core::FileSystem& files,
                  std::filesystem::path directory,
                  QWidget* parent = nullptr);
 
-    /// La page ouverte, relative à la racine du manuel.
+    /// The page open, relative to the root of the manual.
     [[nodiscard]] std::filesystem::path currentPage() const { return m_current; }
 
-    /// Ce que la page affiche, texte seul — ce qu'un test lit à la place d'un
-    /// lecteur.
+    /// What the page shows, text alone — what a test reads in a reader's
+    /// stead.
     [[nodiscard]] QString shownText() const;
 
-    /// Combien de tableaux la page rendue porte — issue #268.
+    /// How many tables the rendered page carries — issue #268.
     ///
-    /// **Le texte seul ne le dit pas.** Un dialecte qui ignorerait les tableaux
-    /// laisserait leurs barres dans le texte, et le contenu des cellules y
-    /// serait quand même : `shownText()` passerait. Ce que le cadrage voulait
-    /// savoir est si MD4C en fait de *vrais* `QTextTable`, ce qui ne se lit que
-    /// dans la structure du document.
+    /// **The text alone does not say.** A dialect that ignored tables would
+    /// leave their bars in the text, and the content of the cells would be
+    /// there all the same: `shownText()` would pass. What the scoping wanted to
+    /// know is whether MD4C makes *real* `QTextTable`s of them, which is
+    /// readable only in the structure of the document.
     [[nodiscard]] int shownTables() const;
 
-    /// Les adresses que la page rendue offre au clic, dans l'ordre où elles
-    /// apparaissent — issue #268.
+    /// The addresses the rendered page offers to a click, in the order they
+    /// appear — issue #268.
     ///
-    /// **Celles du document rendu, et non celles de la source.** Un lien que le
-    /// Markdown n'aurait pas reconnu ne serait pas ici : c'est la différence
-    /// entre vérifier que le manuel *écrit* un renvoi et vérifier qu'un lecteur
-    /// peut le suivre. Les doublons sont gardés, la page pouvant renvoyer deux
-    /// fois au même endroit.
+    /// **Those of the rendered document, and not those of the source.** A link
+    /// the Markdown failed to recognise would not be here: that is the
+    /// difference between checking that the manual *writes* a reference and
+    /// checking that a reader can follow it. Repeats are kept, a page being
+    /// free to point twice at the same place.
     [[nodiscard]] QStringList shownLinks() const;
 
-    /// Les images que la page montre et que le rendu n'a pas su charger —
-    /// issue #268.
+    /// The images the page shows and the rendering could not load — issue
+    /// #268.
     ///
-    /// Vide quand tout se charge. C'est ce qui met `setSearchPaths` à
-    /// l'épreuve : une image existe sur le disque et reste introuvable pour le
-    /// document si le répertoire cherché n'est pas celui de la page.
+    /// Empty when everything loads. It is what puts `setSearchPaths` to the
+    /// test: an image exists on disk and stays out of the document's reach if
+    /// the directory searched is not the one of the page.
     [[nodiscard]] QStringList missingImages() const;
 
-    /// La section où la vue est posée, sous la forme d'une ancre — issue #268.
+    /// The section the view sits on, as an anchor — issue #268.
     ///
-    /// C'est ce qu'un test lit pour savoir où un renvoi a mené. Une page
-    /// ouverte à son début rend l'ancre de son titre, la vue y étant posée
-    /// dessus ; elle rend une chaîne vide si la vue est ailleurs que sur un
-    /// titre, ce qu'aucun chemin de cette fenêtre ne produit aujourd'hui.
+    /// It is what a test reads to know where a reference led. A page opened at
+    /// its beginning answers the anchor of its title, the view sitting on it;
+    /// it answers an empty string if the view is anywhere but on a heading,
+    /// which no path of this window produces today.
     [[nodiscard]] QString currentSection() const;
 
-    /// L'action de retour, pour qu'un test la déclenche et lise son état.
+    /// The back action, for a test to trigger it and read its state.
     [[nodiscard]] QAction* backAction() const { return m_back; }
 
     [[nodiscard]] QAction* homeAction() const { return m_home; }
 
-    /// Ce que la fenêtre dit quand elle ne peut pas ouvrir quelque chose, ou
-    /// rien. Une bande sous la barre d'outils, effacée dès qu'une page s'ouvre.
+    /// What the window says when it cannot open something, or nothing. A band
+    /// under the toolbar, wiped as soon as a page opens.
     [[nodiscard]] QString notice() const;
 
-    /// Ouvre `page`, relative à la racine du manuel. Publique pour qu'un test
-    /// navigue sans cliquer.
+    /// Opens `page`, relative to the root of the manual. Public so that a test
+    /// navigates without clicking.
     void openPage(const std::filesystem::path& page);
 
-    /// Suit un lien de la page courante — ce qu'un clic déclenche.
+    /// Follows a link of the current page — what a click triggers.
     ///
-    /// **Un lien qui sort du manuel installé est dit, jamais suivi.** Le manuel
-    /// renvoie huit fois à la feuille de route et aux ADR, qui sont des
-    /// documents du dépôt et non du paquet : ils existent là où le manuel
-    /// s'écrit, pas là où il s'installe. Le taire laisserait croire à un clic
-    /// sans effet.
+    /// **A link out of the installed manual is said, never followed.** The
+    /// manual points eight times at the roadmap and the ADRs, which are
+    /// documents of the repository and not of the package: they exist where the
+    /// manual is written, not where it is installed. Saying nothing would leave
+    /// a click looking like one that did nothing.
     ///
-    /// Publique pour la raison qui rend `openPage` publique, et une de plus :
-    /// c'est ici que vit la règle ci-dessus, donc c'est ici qu'un test doit
-    /// pouvoir la mettre à l'épreuve.
+    /// Public for the reason `openPage` is, and one more: the rule above lives
+    /// here, so here is where a test has to be able to put it to the test.
     void followLink(const QUrl& target);
 
 private:
-    /// Recompute ce que les deux actions ont le droit de faire.
+    /// Works out afresh what the two actions are allowed to do.
     void refreshActions();
 
-    /// Pose la vue sur le titre que `anchor` désigne, ou la laisse où elle est.
+    /// Sets the view on the heading `anchor` names, or leaves it where it is.
     ///
-    /// **Silencieuse quand l'ancre ne désigne rien**, contrairement au reste de
-    /// cette fenêtre, qui dit ce qu'elle ne sait pas ouvrir. Le manuel est
-    /// livré avec le programme et non écrit par qui l'utilise : une ancre morte
-    /// est un défaut du dépôt, que `check-manual-links.py` et le test des
-    /// pages réelles refusent tous les deux. Le message n'aurait donc jamais
-    /// de lecteur.
+    /// **Silent when the anchor names nothing**, unlike the rest of this
+    /// window, which says what it cannot open. The manual ships with the
+    /// program and is not written by whoever uses it: a dead anchor is a defect
+    /// of the repository, which `check-manual-links.py` and the test on the
+    /// real pages both refuse. The message would therefore never have a
+    /// reader.
     void showSection(const QString& anchor);
 
     core::FileSystem* m_files;
     std::filesystem::path m_directory;
     std::filesystem::path m_current;
 
-    /// Les pages déjà ouvertes, la dernière en tête de ce qui reste à défaire.
+    /// The pages already opened, the last of them at the head of what is left
+    /// to undo.
     ///
-    /// Une pile à nous plutôt que celle de `QTextBrowser` : la sienne suit
-    /// `setSource`, qui chargerait le Markdown comme du texte brut. Nous
-    /// chargeons nous-mêmes, donc nous retenons nous-mêmes.
+    /// A stack of our own rather than `QTextBrowser`'s: its own follows
+    /// `setSource`, which would load the Markdown as plain text. We load it
+    /// ourselves, so we remember it ourselves.
     std::vector<std::filesystem::path> m_visited;
 
     QTextBrowser* m_view;

@@ -129,9 +129,9 @@ private:
 
         const bool positive = (left > 0) == (right > 0);
 
-        // Les quatre cas de signe, écrits à plat. C'était un ternaire dans un
-        // ternaire, et la table de vérité était juste ; elle ne se relisait
-        // simplement pas deux fois de la même façon.
+        // The four cases of sign, written out flat. It was a ternary inside a
+        // ternary, and the truth table was right; it simply did not read the
+        // same way twice.
         bool overflows = false;
         if (left > 0 && right > 0)
             overflows = left > kLargest / right;

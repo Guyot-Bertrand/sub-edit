@@ -123,14 +123,14 @@ TEST_CASE("a scaling that leaves the representable range saturates", "[time][rat
     CHECK(opposite.scale(kSmallest) == kLargest);
     CHECK(ratioOf(3, 1).scale(kLargest / 2) == kLargest);
 
-    // **Les quatre quadrants de signe, et le quatrième manquait.** La garde
-    // d'un produit qui déborde traite séparément les quatre combinaisons de
-    // signes, parce que la comparaison qui la décide change de sens avec eux.
-    // Trois étaient éprouvées ci-dessus ; « gauche positif, droite négatif » ne
-    // l'était pas, et personne ne pouvait le voir tant que les quatre cas
-    // tenaient sur une seule ligne — un ternaire dans un ternaire, dont il
-    // suffisait qu'un chemin passe pour que la ligne compte comme couverte.
-    // Repéré en l'écrivant à plat, à l'issue #269.
+    // **The four quadrants of sign, and the fourth was missing.** The guard of
+    // a product that overflows treats the four combinations of signs
+    // separately, because the comparison that decides it changes direction with
+    // them. Three were tested above; "left positive, right negative" was not,
+    // and nobody could see it for as long as the four cases fitted on one line
+    // — a ternary inside a ternary, where one path passing was enough for the
+    // line to count as covered. Spotted by writing it out flat, at issue
+    // #269.
     CHECK(opposite.scale(kLargest) == -kLargest);
     CHECK(ratioOf(-3, 1).scale(kLargest / 2) == kSmallest);
 }

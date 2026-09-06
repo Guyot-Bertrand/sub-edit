@@ -89,9 +89,9 @@ TEST_CASE("a rate below one frame per second is named all the same", "[cli][word
 }
 
 TEST_CASE("every kind of command has a name of its own", "[wording]") {
-    // Deux noms identiques rendraient une action d'annulation ambiguë, et un
-    // nom vide la rendrait muette. Le compilateur tient l'exhaustivité du
-    // `switch` ; ce test tient ce qu'il ne peut pas voir.
+    // Two identical names would make an undo action ambiguous, and an empty
+    // name would make it mute. The compiler holds the exhaustiveness of the
+    // `switch`; this test holds what it cannot see.
     constexpr std::array kEveryKind = {
         subedit::core::CommandKind::SetText,
         subedit::core::CommandKind::SetStart,

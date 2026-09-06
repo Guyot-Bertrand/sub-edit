@@ -4,22 +4,20 @@ namespace subedit::core {
 
 /// Which palette the window wears.
 ///
-/// **Trois valeurs, et la première ne fait rien** — décision D3 du cadrage de la
-/// phase 7. Qt est en 6.4.2 sur la cible et n'a aucune API de schéma de
-/// couleurs : `QStyleHints::colorScheme` est arrivée en 6.5. L'application ne
-/// peut donc ni demander au système ce qu'il préfère, ni être prévenue quand il
-/// change d'avis.
+/// **Three values, and the first does nothing** — decision D3 of the scoping of
+/// phase 7. Qt is at 6.4.2 on the target and has no colour scheme API at all:
+/// `QStyleHints::colorScheme` arrived in 6.5. The application can therefore
+/// neither ask the system what it prefers nor be told when it changes its mind.
 ///
-/// Gaupol fait de la même contrainte la même chose, une version en avance : son
-/// thème « système » n'est résolu que sur GTK 4.20 et plus, et en dessous sa
-/// mise à jour ne fait rien du tout. C'est ce qui transforme la contrainte en
-/// comportement conçu plutôt qu'en impasse — on livre les deux thèmes que
-/// l'utilisateur peut demander, et on n'invente pas une lecture du système
-/// qu'on ne sait pas faire.
+/// Gaupol makes the same thing of the same constraint, one version ahead: its
+/// "system" theme is resolved on GTK 4.20 and above alone, and below that its
+/// update does nothing whatever. That is what turns the constraint into
+/// designed behaviour rather than a dead end — we ship the two themes a user
+/// can ask for, and we do not invent a reading of the system we cannot do.
 ///
-/// **Et c'est cette forme qui rend le thème éprouvable** : parce que clair et
-/// sombre sont des palettes que nous posons, un test peut les poser aussi et
-/// lire ce qu'il obtient.
+/// **And it is that shape which makes the theme testable**: because light and
+/// dark are palettes we lay down, a test can lay them down too and read what it
+/// gets.
 enum class Theme {
     System, ///< rien n'est posé : la palette reste celle de la plate-forme
     Light,

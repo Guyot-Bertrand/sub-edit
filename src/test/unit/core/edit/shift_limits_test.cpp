@@ -1,8 +1,8 @@
-// Ce qu'un décalage ne peut pas faire — issue #132.
+// What a shift cannot do — issue #132.
 //
-// La règle vivait dans la ligne de commande, dans la boucle de `shiftAll`. La
-// fenêtre en a besoin du même, et deux copies d'une même règle dérivent — on
-// vient d'en payer une avec le vocabulaire.
+// The rule lived in the command line, in the loop of `shiftAll`. The window
+// needs the same one, and two copies of one rule drift apart — one has just
+// been paid for with the vocabulary.
 
 #include <subedit/core/edit/shift_limits.hpp>
 #include <subedit/core/model/project.hpp>
@@ -35,7 +35,7 @@ using subedit::core::Timestamp;
                     .mainText = "x"};
 }
 
-/// Départs à une, trois et cinq secondes.
+/// Starts at one, three and five seconds.
 [[nodiscard]] Project three() {
     Project project;
     project.setSubtitles({at(1000), at(3000), at(5000)});
@@ -58,19 +58,19 @@ TEST_CASE("a shift that keeps everything on the timeline is allowed", "[edit][sh
 }
 
 TEST_CASE("a shift that would take a subtitle before the origin names the first", "[edit][shift]") {
-    // Le premier, et non n'importe lequel : c'est celui que l'utilisateur doit
-    // regarder pour comprendre de combien il s'est trompé.
+    // The first, and not any of them: it is the one the user has to look at to
+    // understand by how much they were wrong.
     const Project project = three();
 
-    // L'option entière plutôt que son contenu : clang-tidy ne reconnaît pas le
-    // REQUIRE de Catch2 comme une vérification.
+    // The whole option rather than its content: clang-tidy does not recognise
+    // Catch2's REQUIRE as a check.
     CHECK(firstBeforeOrigin(project, Selection::all(project), Duration::fromMilliseconds(-2000)) ==
           SubtitleIndex::fromNumber(1));
 }
 
 TEST_CASE("only the selected subtitles are looked at", "[edit][shift]") {
-    // Décaler le troisième de quatre secondes vers l'arrière le laisse à une
-    // seconde ; le premier passerait avant l'origine, mais on ne le décale pas.
+    // Shifting the third back by four seconds leaves it at one second; the
+    // first would pass before the origin, but it is not being shifted.
     const Project project = three();
 
     CHECK_FALSE(firstBeforeOrigin(project, only(2), Duration::fromMilliseconds(-4000)).has_value());
@@ -78,7 +78,7 @@ TEST_CASE("only the selected subtitles are looked at", "[edit][shift]") {
 }
 
 TEST_CASE("landing exactly on the origin is allowed", "[edit][shift]") {
-    // Zéro est une position, et la refuser ferait de la borne un interdit.
+    // Zero is a position, and refusing it would turn the bound into a ban.
     const Project project = three();
 
     CHECK_FALSE(

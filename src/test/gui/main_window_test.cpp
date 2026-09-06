@@ -418,15 +418,16 @@ TEST_CASE("both actions are reachable from the menu and the toolbar", "[gui][GUI
 }
 
 TEST_CASE("every shortcut a desktop gives to redo is live", "[gui][GUI-UNDO-01]") {
-    // **Ce que `QKeySequence` rend dépend du thème de plateforme, et ce binaire
-    // n'en a aucun** — issue #274. Sous `offscreen`, Qt retombe sur sa table
-    // interne et met `Ctrl+Y` en tête ; sous n'importe quel bureau, le thème
-    // donne `Ctrl+Maj+Z` et lui seul. `setShortcut` n'en retenait que la
-    // première, donc la fenêtre répondait à un raccourci différent selon
-    // l'endroit — et ce test-ci n'aurait vu que celui que l'utilisateur n'a pas.
+    // **What `QKeySequence` answers depends on the platform theme, and this
+    // binary has none** — issue #274. Under `offscreen`, Qt falls back on its
+    // internal table and puts `Ctrl+Y` at the head; under any desktop at all,
+    // the theme gives `Ctrl+Shift+Z` and nothing else. `setShortcut` kept only
+    // the first, so the window answered a different shortcut depending on where
+    // it ran — and this test would have seen only the one the user does not
+    // have.
     //
-    // Ce qui est éprouvé est donc l'invariant qui vaut des deux côtés : la
-    // liaison que tout bureau Linux donne est vivante.
+    // What is tested is therefore the invariant that holds on both sides: the
+    // binding every Linux desktop gives is live.
     const Windowed fixture;
     const MainWindow& window = fixture.window();
 
@@ -434,14 +435,15 @@ TEST_CASE("every shortcut a desktop gives to redo is live", "[gui][GUI-UNDO-01]"
 }
 
 TEST_CASE("save as always carries a shortcut, whatever the platform gives", "[gui][GUI-SAVE-02]") {
-    // **La table interne de Qt ne définit `SaveAs` que pour macOS et Windows.**
-    // Tout thème de bureau donne `Ctrl+Maj+S` — mesuré sous xcb, sous wayland,
-    // et sous `offscreen` dès qu'un thème est posé —, mais sans thème la
-    // fenêtre n'avait aucun raccourci pour une commande qui écrit un fichier.
+    // **Qt's internal table defines `SaveAs` for macOS and Windows alone.**
+    // Every desktop theme gives `Ctrl+Shift+S` — measured under xcb, under
+    // wayland, and under `offscreen` as soon as a theme is laid down — but with
+    // no theme the window had no shortcut at all for a command that writes a
+    // file.
     //
-    // La liaison conventionnelle est ajoutée quand la plateforme se tait, ce
-    // qui rend l'invariant vrai des deux côtés : jamais vide, et toujours celle
-    // que le bureau aurait donnée.
+    // The conventional binding is added when the platform says nothing, which
+    // makes the invariant true on both sides: never empty, and always the one
+    // the desktop would have given.
     const Windowed fixture;
     const MainWindow& window = fixture.window();
 

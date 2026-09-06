@@ -15,7 +15,7 @@ namespace subedit::core {
 /// and that is the whole reason `ffprobe` is kept for this one answer. libmpv
 /// knows the same thing as `container-fps`, and answers 23.976025; a
 /// `FrameRate` built from that would not be the rate the film was timed at.
-/// See [ADR 0020](../../../../../docs/adr/0020-libmpv-pour-le-lecteur-integre.md).
+/// See ADR 0020, which chose libmpv for the built-in player.
 ///
 /// Exposed beside the reading below because this is where the odd cases are,
 /// and they cannot be reached through a real `ffprobe`: nothing makes it write

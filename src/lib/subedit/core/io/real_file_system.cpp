@@ -138,9 +138,9 @@ std::expected<void, FileError> RealFileSystem::writeFile(const std::filesystem::
 std::expected<void, FileError>
 RealFileSystem::createDirectories(const std::filesystem::path& directory) {
     std::error_code code;
-    // La valeur de retour dit si quelque chose a été créé, pas si le
-    // répertoire est là : elle est fausse quand il existait déjà, ce qui est le
-    // cas courant. Seul le code d'erreur fait foi.
+    // The return value says whether something was created, not whether the
+    // directory is there: it is false when it already existed, which is the
+    // common case. The error code alone is authoritative.
     std::filesystem::create_directories(directory, code);
     if (code)
         return failure(code, directory);

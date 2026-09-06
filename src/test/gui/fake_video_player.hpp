@@ -27,23 +27,22 @@
 namespace subedit::test {
 
 // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
-//   **L'état retenu par un double de test *est* son interface.** Un cas lit
-//   `player.opened` pour dire « la fenêtre a ouvert ce film », `player.seeks`
-//   pour dire « elle a placé la lecture ici ». Les cacher derrière des
-//   accesseurs ajouterait sept méthodes qui ne protègent rien : il n'y a aucun
-//   invariant à tenir, et personne d'autre que le test ne construit cette
-//   classe.
+//   **The state a test double keeps *is* its interface.** A case reads
+//   `player.opened` to say "the window opened this film", `player.seeks` to say
+//   "it put playback here". Hiding them behind accessors would add seven
+//   methods that protect nothing: there is no invariant to hold, and nobody but
+//   the test builds this class.
 //
-//   `src/test/.clang-tidy` aurait été l'endroit, et il ne peut pas l'être : un
-//   fichier de configuration porte sur un répertoire, et pour un diagnostic
-//   levé dans un **en-tête** c'est la configuration de l'unité de traduction
-//   qui l'inclut qui s'applique. Voir le paragraphe « NOLINT » de `.clang-tidy`
-//   à la racine — issue #269.
+//   `src/test/.clang-tidy` would have been the place, and it cannot be: a
+//   configuration file bears on a directory, and for a diagnostic raised in a
+//   **header** it is the configuration of the translation unit including it
+//   that applies. See the "NOLINT" paragraph of `.clang-tidy` at the root —
+//   issue #269.
 //
-//   L'option `IgnoreClassesWithAllMemberVariablesBeingPublic` ne suffit pas
-//   non plus : `m_open` reste privé, et c'est juste — savoir si un film est
-//   ouvert est un détail que les méthodes font respecter. Le rendre public
-//   pour satisfaire le contrôle serait tricher.
+//   The `IgnoreClassesWithAllMemberVariablesBeingPublic` option does not do
+//   either: `m_open` stays private, and rightly — whether a film is open is a
+//   detail the methods enforce. Making it public to satisfy the check would be
+//   cheating.
 class FakeVideoPlayer final : public core::VideoPlayer {
 
 public:

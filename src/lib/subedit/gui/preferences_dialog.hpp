@@ -9,31 +9,30 @@ class QWidget;
 
 namespace subedit::gui {
 
-/// Ce qui se règle sans autre geste que de le régler.
+/// What is set by no gesture other than setting it.
 ///
-/// **Une seule préférence pour l'instant, et c'est un critère et non un
-/// manque** : la géométrie, l'état agrandi, les largeurs de colonnes et la
-/// position de la poignée se posent en déplaçant la fenêtre ou en tirant une
-/// bordure, et une préférence qui a déjà un geste n'a pas besoin d'un champ. Le
-/// thème n'en a aucun.
+/// **One preference for now, and that is a criterion and not a shortfall**: the
+/// geometry, the maximised state, the column widths and the position of the
+/// handle are all set by moving the window or dragging an edge, and a
+/// preference that already has a gesture does not need a field. The theme has
+/// none.
 ///
-/// La fréquence d'image par défaut, annoncée par le cadrage, **ne viendra
-/// pas** : #267 l'a instruite puis écartée. Aucun des trois lecteurs possibles
-/// n'en avait besoin — la conversion pré-remplit son champ du haut avec la
-/// grille déduite, l'alignement s'ouvre sur ce que la vidéo déclare, et un
-/// projet sans l'une ni l'autre est un projet où l'utilisateur choisit. Une
-/// préférence dont personne ne se sert est une case qui ment.
+/// The default frame rate the scoping announced **will not come**: #267 looked
+/// into it and set it aside. None of the three possible readers needed it — the
+/// conversion prefills its top field with the deduced grid, the alignment opens
+/// on what the video declares, and a project with neither is a project where
+/// the user chooses. A preference nobody uses is a box that lies.
 class PreferencesDialog final : public QDialog {
     Q_OBJECT
 
 public:
     explicit PreferencesDialog(core::Theme theme, QWidget* parent = nullptr);
 
-    /// Le thème choisi, qu'on ait validé ou non — l'appelant regarde le code de
-    /// retour pour savoir s'il doit en tenir compte.
+    /// The theme chosen, whether or not it was accepted — the caller looks at
+    /// the return code to know whether to take it into account.
     [[nodiscard]] core::Theme theme() const;
 
-    /// La liste des thèmes, pour qu'un test choisisse sans cliquer.
+    /// The list of themes, so that a test picks without clicking.
     [[nodiscard]] QComboBox* themeBox() const { return m_theme; }
 
 private:
