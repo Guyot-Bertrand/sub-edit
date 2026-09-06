@@ -31,6 +31,7 @@ constexpr std::string_view kDirectoryKey = "file.directory";
 constexpr std::string_view kThemeKey = "general.theme";
 constexpr std::string_view kInsertPlacementKey = "edit.insert-placement";
 constexpr std::string_view kWriteEncodingKey = "file.write-encoding";
+constexpr std::string_view kWriteBomKey = "file.write-bom";
 
 // Les trois valeurs du thème, telles que le fichier les porte. En minuscules et
 // séparées de `nameOf(Theme)`, qui donne les intitulés du dialogue : ceci est un
@@ -200,9 +201,12 @@ constexpr char kListSeparator = ',';
 /// **Une clé inconnue est ignorée, sans un mot** : un fichier écrit par une
 /// version qui en connaissait plus n'est pas un fichier fautif, et c'est le mode
 /// d'échec que la tolérance choisit.
-void applyOption(SettingsRead& read, std::string_view key, std::string_view value) {
-    // Ce que les sept options font toutes de la même façon : poser ce qu'on a su
-    // lire, nommer l'option sinon. Écrit une fois plutôt que sept, et ce n'est
+void applyOption(SettingsRead& read,
+                 bool& wantsByteOrderMark,
+                 std::string_view key,
+                 std::string_view value) {
+    // Ce que les huit options font toutes de la même façon : poser ce qu'on a su
+    // lire, nommer l'option sinon. Écrit une fois plutôt que huit, et ce n'est
     // pas qu'une économie de lignes — la septième option a fait franchir à cette
     // fonction le seuil de complexité que la porte tient.
     const auto take = [&read, key, value](auto parsed, auto& field) {
@@ -235,14 +239,19 @@ void applyOption(SettingsRead& read, std::string_view key, std::string_view valu
     else if (key == kInsertPlacementKey)
         take(placementOf(value), read.settings.insertPlacement);
     else if (key == kWriteEncodingKey)
-        // Le nom que la marque ne concerne pas : un réglage nomme un encodage,
-        // et `--bom` — ou la case du dialogue — dit ce qu'il en est de la
-        // marque. Un nom que `create` refuse est un réglage illisible, qui se
-        // signale comme les autres : ici, un encodage qu'ICU ne connaît pas et
-        // un qui écrirait sa propre marque sont la même nouvelle — un réglage
-        // dont on ne peut rien faire — et `take` lit l'un comme l'autre, le
-        // refus d'un `expected` se demandant comme l'absence d'un `optional`.
+        // **The name alone, the mark at the next key**, as the command line
+        // keeps `--encoding` apart from `--bom`: `-sig` stopped being a name in
+        // #315, and gluing it back on here would make it one again. The mark is
+        // put on the encoding once the file is read — see `readSettings`.
+        //
+        // Un nom que `create` refuse est un réglage illisible, qui se signale
+        // comme les autres : ici, un encodage qu'ICU ne connaît pas et un qui
+        // écrirait sa propre marque sont la même nouvelle — un réglage dont on
+        // ne peut rien faire — et `take` lit l'un comme l'autre, le refus d'un
+        // `expected` se demandant comme l'absence d'un `optional`.
         take(Encoding::create(value, ByteOrderMark::Absent), read.settings.writeEncoding);
+    else if (key == kWriteBomKey)
+        take(booleanOf(value), wantsByteOrderMark);
 }
 
 /// Une option, écrite nue si elle est réglée, commentée si elle est au défaut.
@@ -259,6 +268,9 @@ void writeOption(std::string& out, std::string_view key, std::string_view value,
 
 SettingsRead readSettings(const FileSystem& files, const std::filesystem::path& path) {
     SettingsRead read;
+
+    // What `file.write-bom` said, until `file.write-encoding` has spoken too.
+    bool wantsByteOrderMark = false;
 
     // **Absent et illisible donnent tous les deux les défauts, et ne se disent
     // pas de la même façon.** Un fichier qui n'existe pas est le premier
@@ -289,8 +301,20 @@ SettingsRead readSettings(const FileSystem& files, const std::filesystem::path& 
         const std::string_view key = trimmed(line.substr(0, separator));
         const std::string_view value = trimmed(line.substr(separator + 1));
 
-        applyOption(read, key, value);
+        applyOption(read, wantsByteOrderMark, key, value);
     }
+
+    // **The mark goes on at the end, because the order of the file is nobody's
+    // to command.** Two keys carry one value, and nothing says which of the two
+    // lines comes first — a file edited by hand puts them in whatever order it
+    // likes. Applying the mark as it is read would need the encoding to be read
+    // already; applying it here needs nothing.
+    //
+    // A mark with no encoding says nothing and puts nothing anywhere: it is the
+    // encoding that carries a mark, and there is none.
+    if (wantsByteOrderMark && read.settings.writeEncoding.has_value())
+        read.settings.writeEncoding =
+            read.settings.writeEncoding->withByteOrderMark(ByteOrderMark::Present);
 
     return read;
 }
@@ -338,6 +362,13 @@ std::string renderSettings(const Settings& settings) {
                 settings.writeEncoding.has_value() ? std::string{settings.writeEncoding->charset()}
                                                    : "UTF-8",
                 !settings.writeEncoding.has_value());
+
+    // **Written even with no encoding remembered**, as the seven others are: an
+    // option at its default is written commented out, which is what makes the
+    // file readable without a manual beside it.
+    const bool marked = settings.writeEncoding.has_value() &&
+                        settings.writeEncoding->byteOrderMark() == ByteOrderMark::Present;
+    writeOption(out, kWriteBomKey, marked ? "true" : "false", !marked);
 
     return out;
 }

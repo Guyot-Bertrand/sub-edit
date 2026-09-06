@@ -239,6 +239,29 @@ TEST_CASE("the encoding last written reads, under any of its names", "[config]")
     CHECK(unknown.diagnostics.size() == 1);
 }
 
+TEST_CASE("the mark travels with the encoding it belongs to", "[config]") {
+    // **Two keys for one value** — issue #317. `-sig` stopped being a name in
+    // #315, so the file keeps the name apart from the mark the way the command
+    // line keeps `--encoding` apart from `--bom`. What is checked here is that
+    // the two go back together: `UTF-8` chosen with its mark came back without
+    // it, from one session to the next.
+    const SettingsRead marked = readOf("file.write-encoding = UTF-8\nfile.write-bom = true\n");
+    CHECK(marked.settings.writeEncoding == Encoding::utf8(ByteOrderMark::Present));
+
+    // **The order of the two lines is nobody's to command** — a file edited by
+    // hand puts them where it likes — so the mark goes on once all of it is
+    // read.
+    const SettingsRead reversed = readOf("file.write-bom = true\nfile.write-encoding = UTF-8\n");
+    CHECK(reversed.settings.writeEncoding == Encoding::utf8(ByteOrderMark::Present));
+
+    // Without the key, no mark: that is what seven versions wrote.
+    CHECK(readOf("file.write-encoding = UTF-8\n").settings.writeEncoding ==
+          Encoding::utf8(ByteOrderMark::Absent));
+
+    // A mark with no encoding puts nothing anywhere: the encoding carries it.
+    CHECK_FALSE(readOf("file.write-bom = true\n").settings.writeEncoding.has_value());
+}
+
 TEST_CASE("the encoding last written is written back as it read", "[config]") {
     InMemoryFileSystem files;
     const std::expected<Encoding, subedit::core::EncodingRefusal> central =
@@ -247,6 +270,14 @@ TEST_CASE("the encoding last written is written back as it read", "[config]") {
     REQUIRE(writeSettings(files, kPath, Settings{.writeEncoding = *central}).has_value());
 
     CHECK(readSettings(files, kPath).settings.writeEncoding == *central);
+}
+
+TEST_CASE("an encoding chosen with its mark is found again with it", "[config]") {
+    InMemoryFileSystem files;
+    const Encoding marked = Encoding::utf8(ByteOrderMark::Present);
+    REQUIRE(writeSettings(files, kPath, Settings{.writeEncoding = marked}).has_value());
+
+    CHECK(readSettings(files, kPath).settings.writeEncoding == marked);
 }
 
 TEST_CASE("the two sides are written back as they read", "[config]") {
@@ -303,6 +334,7 @@ TEST_CASE("an option at its default is written back commented out", "[config]") 
     CHECK_THAT(written, ContainsSubstring("#general.theme = system"));
     CHECK_THAT(written, ContainsSubstring("#edit.insert-placement = below"));
     CHECK_THAT(written, ContainsSubstring("#file.write-encoding = UTF-8"));
+    CHECK_THAT(written, ContainsSubstring("#file.write-bom = false"));
 }
 
 TEST_CASE("an option that was set is written back bare", "[config]") {
