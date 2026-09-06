@@ -7,7 +7,10 @@
 // candidates make a table of numbers, and a table reads better than a verb.
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/edit/snap_command.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/selection.hpp>
+#include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/frame.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
@@ -20,6 +23,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <grid_fixtures.hpp>
+#include <optional>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -30,9 +34,14 @@ using subedit::core::deduceFrameRate;
 using subedit::core::FrameRate;
 using subedit::core::FrameRateDeduction;
 using subedit::core::GridVerdict;
+using subedit::core::PartialAlignment;
+using subedit::core::partialAlignment;
 using subedit::core::Project;
 using subedit::core::runsOfStrays;
+using subedit::core::Selection;
+using subedit::core::SnapCommand;
 using subedit::core::StandardFrameRate;
+using subedit::core::SubtitleIndex;
 using subedit::core::Timestamp;
 
 FrameRateDeduction deductionOf(std::string_view name) {
@@ -136,6 +145,15 @@ constexpr std::array<Expectation, 8> kPerfectGrids = {{
     {.fixture = "grille-59-94.srt", .rate = StandardFrameRate::Fps59940},
     {.fixture = "grille-60.srt", .rate = StandardFrameRate::Fps60},
 }};
+
+/// The first `count` rows of a document, as a selection.
+[[nodiscard]] Selection firstRows(std::size_t count) {
+    std::vector<SubtitleIndex> rows;
+    rows.reserve(count);
+    for (std::size_t index = 0; index < count; ++index)
+        rows.push_back(SubtitleIndex::fromValue(index));
+    return Selection::of(rows);
+}
 
 } // namespace
 
@@ -399,4 +417,88 @@ TEST_CASE("ten starts earn a verdict, and nine do not", "[analysis][deduction]")
     CHECK(ten.enoughStarts);
     CHECK(ten.verdict == GridVerdict::Clean);
     CHECK(ten.retained.rate == FrameRate{StandardFrameRate::Fps25});
+}
+
+// What an alignment of part of a file leaves to be said — issue #324.
+
+TEST_CASE("aligning part of a file leaves the document on another grid", "[analysis][deduction]") {
+    // **The measurement the issue was closed on.** Aligning five rows of a
+    // hundred and seventy-six onto 25 never moves the deduced rate off 24 — it
+    // only takes those five out of the grid the rest of the file lives on.
+    Project project =
+        subedit::test::gridProject("grille-24.srt", FrameRate{StandardFrameRate::Fps24});
+    const FrameRate onto{StandardFrameRate::Fps25};
+
+    const Selection some = firstRows(5);
+
+    SnapCommand command{project, some, onto};
+    command.apply(project);
+
+    const std::size_t total = project.count();
+
+    // **The whole option against the whole value**, rather than four reaches
+    // through it. It says more — a field left out of the four would go
+    // unnoticed — and it says it without an access to guard.
+    CHECK(partialAlignment(project, some, onto) ==
+          PartialAlignment{.aligned = 5,
+                           .total = total,
+                           .onto = onto,
+                           .retained = FrameRate{StandardFrameRate::Fps24}});
+}
+
+TEST_CASE("an alignment with nothing left behind says nothing", "[analysis][deduction]") {
+    const FrameRate onto{StandardFrameRate::Fps25};
+
+    SECTION("the whole file, which leaves no rest to disagree") {
+        Project project =
+            subedit::test::gridProject("grille-24.srt", FrameRate{StandardFrameRate::Fps24});
+        const Selection whole = Selection::all(project);
+        SnapCommand command{project, whole, onto};
+        command.apply(project);
+
+        CHECK_FALSE(partialAlignment(project, whole, onto).has_value());
+    }
+
+    SECTION("most of the file, which carries the document onto the rate asked for") {
+        // **A partial alignment that worked out, and it is not the same case as
+        // the whole file** — that one never reaches here, being answered by the
+        // count alone. Align a hundred and seventy of a hundred and
+        // seventy-six and the majority decides: the document is read on 25, so
+        // there is nothing left to say about it.
+        Project project =
+            subedit::test::gridProject("grille-24.srt", FrameRate{StandardFrameRate::Fps24});
+        const Selection most = firstRows(project.count() - 6);
+
+        SnapCommand command{project, most, onto};
+        command.apply(project);
+
+        REQUIRE(deduceFrameRate(project).retained.rate == onto);
+        CHECK_FALSE(partialAlignment(project, most, onto).has_value());
+    }
+
+    SECTION("a document with no grid, where there is no rate to name") {
+        const Project project =
+            subedit::test::gridProject("grille-absurde.srt", FrameRate{StandardFrameRate::Fps24});
+
+        CHECK_FALSE(partialAlignment(project, firstRows(1), onto).has_value());
+    }
+
+    SECTION("a grid the target divides, where the positions were already on it") {
+        // 50 and 25 share their frames: aligning part of a 50 fps file onto 25
+        // moves nothing off the grid the rest holds. Measured, and it is the
+        // one fixture of eight where a partial alignment costs nothing.
+        Project project =
+            subedit::test::gridProject("grille-50.srt", FrameRate{StandardFrameRate::Fps50});
+        const Selection some = firstRows(5);
+
+        SnapCommand command{project, some, onto};
+        command.apply(project);
+
+        // The document still reads on 50, which is not the rate asked for — so
+        // the notice does fire. What the fixture shows is the other half of the
+        // measurement: nothing was degraded by it.
+        const FrameRateDeduction after = deduceFrameRate(project);
+        CHECK(after.retained.rate == FrameRate{StandardFrameRate::Fps50});
+        CHECK(after.verdict == GridVerdict::Clean);
+    }
 }

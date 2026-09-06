@@ -323,6 +323,15 @@ std::string noticeOf(CommandKind kind, BeyondEnd beyond) {
            " past the end of the video, by " + secondsOf(beyond.overshoot) + " at most";
 }
 
+std::string noticeOf(PartialAlignment partial) {
+    // **« of 176 » and not « out of 176 »**, because the number that matters is
+    // the second one: a reader who sees five and a hundred and seventy-six side
+    // by side has the whole of it, and the shorter form puts them side by side.
+    return std::to_string(partial.aligned) + " of " + countOf(partial.total, "subtitle") +
+           " aligned to " + nameOf(partial.onto) + " fps; the document is still read on a " +
+           nameOf(partial.retained) + " fps grid";
+}
+
 std::string countOf(std::size_t count, std::string_view noun) {
     std::string text = std::to_string(count) + " " + std::string{noun};
     if (count != 1) {

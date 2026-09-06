@@ -1,5 +1,6 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/duration.hpp>
@@ -352,6 +353,33 @@ std::size_t runsOfStrays(const FrameRateDeduction& deduction) {
             ++runs;
     }
     return runs;
+}
+
+std::optional<PartialAlignment>
+partialAlignment(const Project& project, const Selection& aligned, FrameRate onto) {
+    // The whole file, and there is no rest to disagree with it. A selection of
+    // every row reaches here as well as an empty one did, and both are the same
+    // answer: nothing was left behind.
+    const std::size_t total = project.count();
+    if (aligned.count() >= total)
+        return std::nullopt;
+
+    const FrameRateDeduction deduction = deduceFrameRate(project);
+
+    // A silent document has no grid to name, and naming one would be inventing
+    // the very thing the closed set of candidates exists to refuse.
+    if (deduction.verdict == GridVerdict::Silent)
+        return std::nullopt;
+
+    // The document reads on the rate just applied: the alignment carried it,
+    // whatever it took, and there is nothing to warn about.
+    if (deduction.retained.rate == onto)
+        return std::nullopt;
+
+    return PartialAlignment{.aligned = aligned.count(),
+                            .total = total,
+                            .onto = onto,
+                            .retained = deduction.retained.rate};
 }
 
 } // namespace subedit::core
