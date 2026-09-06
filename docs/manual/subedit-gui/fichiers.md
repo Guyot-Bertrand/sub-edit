@@ -135,7 +135,7 @@ Ce bandeau-ci l'est, et c'est là que tout se joue.
 | Champ | Ce qu'il propose | Défaut |
 | :---- | :--------------- | :----- |
 | `Encoding` | quatorze encodages qu'un fichier de sous-titres porte en pratique, plus `Other…` | **celui du fichier lu** |
-| `Other…` | un champ où taper tout encodage qu'ICU sait écrire — `cp1257`, `EUC-KR` | — |
+| `Other…` | un champ où taper tout encodage qu'ICU sait écrire, **avec complétion** — `cp1257`, `EUC-KR` | — |
 | `Line endings` | `LF`, `CRLF` ou `CR` | celles du fichier lu |
 | `Byte order mark` | la marque, **éteinte pour un encodage qui n'en porte pas** | celle du fichier lu |
 
@@ -143,10 +143,17 @@ Ce bandeau-ci l'est, et c'est là que tout se joue.
 commodité** : un fichier ouvert puis réenregistré sans qu'on touche à ces trois
 champs rend les mêmes octets.
 
-**La liste est courte, et ce n'est pas un plafond.** ICU en connaît
-quatre-vingt-dix-sept et plus ; ce que le menu propose est ce qu'un fichier de
-sous-titres porte en pratique, parce qu'un menu de quatre-vingt-dix-sept entrées
-n'aide personne. `Other…` ouvre le reste.
+**La liste est courte, et ce n'est pas un plafond.** ICU en connaît deux cent
+vingt et un ; ce que le menu propose est ce qu'un fichier de sous-titres porte
+en pratique, parce qu'un menu de deux cents entrées n'aide personne. `Other…`
+ouvre le reste.
+
+**Le champ complète sur les deux cent vingt et un**, donc il n'y a pas à
+connaître le nom exact : taper `1252` propose `windows-1252`, taper `koi`
+propose `KOI8-R` et `KOI8-U`. La complétion porte sur ce que le nom **contient**
+et non sur ce par quoi il commence — le nom canonique de Windows Occidental est
+`windows-1252`, et `cp1252` est celui qu'on a en tête. Les deux s'écrivent
+d'ailleurs en entier sans complétion : ICU accepte ses propres alias.
 
 **Un nom que personne ne connaît n'écrit rien.** Taper `klingon-1` ne fait pas
 retomber sur l'UTF-8 : rien n'est écrit, et le message le dit.

@@ -42,6 +42,7 @@ qui le pose est justement celle qui ne va pas.
 | `general.theme` | `system`, `light` ou `dark` | `system` |
 | `edit.insert-placement` | `above` ou `below` | `below` |
 | `file.write-encoding` | le nom d'un encodage qu'ICU sait écrire, et dont le convertisseur n'écrit pas sa propre marque | aucun |
+| `file.write-bom` | `true` ou `false` | `false` |
 
 **`file.write-encoding` retient le dernier encodage choisi dans `Save As…`, et
 ne s'impose jamais à un fichier.** Un document ouvert porte son propre encodage,
@@ -49,6 +50,16 @@ et c'est celui-là que la boîte propose : le réécrire dans un autre parce qu'
 réglage vieux de trois semaines le dit serait perdre ce que la lecture a gardé.
 Ce dont ce réglage se souvient sert au document qui n'a pas de fichier — celui
 qu'on vient de créer.
+
+**C'est un « non » assumé et non un oubli.** Quelqu'un qui livre toujours dans
+le même encodage et ouvre des fichiers hérités dans un autre le rechoisit à
+chaque fichier ; la boîte le lui propose, et la garantie d'aller-retour vaut
+pour tout le monde.
+
+**`file.write-bom` porte la marque du même encodage**, et il en faut bien deux
+lignes : le nom d'un encodage ne dit pas s'il est précédé de sa marque, pas plus
+que `--encoding` ne dit ce que `--bom` dit. Les deux se lisent ensemble, dans
+l'ordre qu'on veut, et un `file.write-bom` sans encodage retenu ne pose rien.
 
 **Une part et non des hauteurs pour la poignée**, et c'est ce qui la rend
 utile : trois hauteurs en pixels ne veulent plus rien dire dès que la fenêtre
