@@ -33,6 +33,7 @@ ne pas l'éditer à la main.
 - **doc** — Écrire les deux « non » de Save As… là où ils tiennent
 - **doc** — Écrire ce que la grille regarde, et ce qu'une opération prend
 - **core** — Traduire screenshots.cpp, et le cliquet descend avec
+- **core** — Traduire les cinquante fichiers qui restaient
 
 ### Performance
 
