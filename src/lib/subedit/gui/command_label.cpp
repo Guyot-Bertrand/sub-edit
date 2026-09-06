@@ -35,9 +35,10 @@ QString redoLabel(std::optional<CommandKind> kind) {
 
 QString shiftOntoGridLabel(std::optional<core::Duration> by) {
     if (!by.has_value())
-        return QStringLiteral("Shift onto Grid");
+        return QStringLiteral("Shift Whole File onto Grid");
 
-    return QStringLiteral("Shift onto Grid (%1)").arg(QString::fromStdString(core::secondsOf(*by)));
+    return QStringLiteral("Shift Whole File onto Grid (%1)")
+        .arg(QString::fromStdString(core::secondsOf(*by)));
 }
 
 } // namespace subedit::gui

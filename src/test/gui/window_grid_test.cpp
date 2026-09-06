@@ -19,9 +19,12 @@
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/snap_dialog.hpp>
 
+#include <QAbstractItemModel>
 #include <QAction>
 #include <QDialog>
+#include <QItemSelectionModel>
 #include <QLabel>
+#include <QTableView>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
@@ -45,6 +48,14 @@ using subedit::core::openProject;
 using subedit::gui::GridAnalysisDialog;
 using subedit::gui::MainWindow;
 using subedit::test::FakePrompts;
+
+/// Selects the first `rows` lines of the table, as a user dragging would.
+void selectRows(MainWindow& window, int rows) {
+    QItemSelectionModel& selection = *window.table()->selectionModel();
+    for (int row = 0; row < rows; ++row)
+        selection.select(window.table()->model()->index(row, 0),
+                         QItemSelectionModel::Select | QItemSelectionModel::Rows);
+}
 
 /// A window showing the grid fixture named, opened as a user would open it.
 [[nodiscard]] MainWindow
@@ -304,7 +315,7 @@ TEST_CASE("without a grid there is nothing to be brought back onto", "[gui][GUI-
     // Out, and not merely offering an amount of zero: « nothing to rejoin » and
     // « rejoin by nothing » are different things to tell a user.
     CHECK_FALSE(window.shiftOntoGridAction()->isEnabled());
-    CHECK(window.shiftOntoGridAction()->text().toStdString() == "Shift onto Grid");
+    CHECK(window.shiftOntoGridAction()->text().toStdString() == "Shift Whole File onto Grid");
 }
 
 TEST_CASE("cancelling the alignment leaves the file alone", "[gui][GUI-SNAP-01]") {
@@ -324,6 +335,55 @@ TEST_CASE("cancelling the alignment leaves the file alone", "[gui][GUI-SNAP-01]"
     // The rate was picked and the dialog dismissed: picking is not applying.
     CHECK(window.gridStatus()->text().toStdString() == "Grid: 24 fps");
     CHECK_FALSE(window.undoAction()->isEnabled());
+}
+
+TEST_CASE("aligning part of a file says what it left behind", "[gui][GUI-SNAP-01]") {
+    // **The path nothing covered, and the issue says why** — #324. The cases
+    // that try the analysis build it straight from a fixture, never from the
+    // document an operation has just changed; and the one that aligns does it
+    // with nothing selected. The symptom lives only where the two meet.
+    InMemoryFileSystem files;
+    FakePrompts prompts;
+    MainWindow window = windowOn("grille-24.srt", files, prompts);
+    window.show();
+    selectRows(window, 5);
+
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        if (auto* snap = dynamic_cast<subedit::gui::SnapDialog*>(&dialog))
+            snap->setRate(subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps25});
+    };
+    window.snapAction()->trigger();
+
+    // **The two surfaces have not moved, and they are right not to.** They
+    // speak of the document, which is still read on the grid the other hundred
+    // and seventy-one rows hold. That is the whole misreading the notice ends.
+    CHECK(window.gridStatus()->text().toStdString() == "Grid: 24 fps");
+
+    REQUIRE(prompts.outcomes.size() == 1);
+    CHECK_THAT(prompts.outcomes.front(), ContainsSubstring("5 of 176 subtitles"));
+    CHECK_THAT(prompts.outcomes.front(), ContainsSubstring("aligned to 25 fps"));
+    CHECK_THAT(prompts.outcomes.front(), ContainsSubstring("still read on a 24 fps grid"));
+}
+
+TEST_CASE("aligning a whole file says nothing at all", "[gui][GUI-SNAP-01]") {
+    // The other half, and it is what keeps the notice from becoming noise: the
+    // document is read on the rate that was asked for, so there is nothing left
+    // to say about it.
+    InMemoryFileSystem files;
+    FakePrompts prompts;
+    MainWindow window = windowOn("grille-24.srt", files, prompts);
+    window.show();
+
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        if (auto* snap = dynamic_cast<subedit::gui::SnapDialog*>(&dialog))
+            snap->setRate(subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps25});
+    };
+    window.snapAction()->trigger();
+
+    CHECK(window.gridStatus()->text().toStdString() == "Grid: 25 fps");
+    CHECK(prompts.outcomes.empty());
 }
 
 TEST_CASE("the entry that is out does nothing when triggered", "[gui][GUI-GRID-03]") {
