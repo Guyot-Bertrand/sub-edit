@@ -3,6 +3,7 @@
 #include <expected>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace subedit::core {
 
@@ -137,5 +138,22 @@ private:
 
     ByteOrderMark m_mark;
 };
+
+/// Every encoding ICU converts and this type will carry, by canonical name.
+///
+/// **Not a table, and that is what keeps D2 of the phase intact** — issue #316.
+/// Nothing here is written down: ICU is asked what it converts, and each answer
+/// goes through `create`, so what comes back is exactly what the model accepts
+/// and never a list that could disagree with it. A converter that writes its own
+/// mark is absent for the same reason it is refused everywhere else.
+///
+/// **What it is for is the cost of the fifteenth encoding.** The window offers
+/// fourteen in a menu, because a menu of two hundred is not a help; the box
+/// beside it takes any name ICU knows, which used to mean knowing the name.
+/// Completing on this list is what makes the fifteenth cost three letters
+/// instead — the accessible set was never the question, the way in was.
+///
+/// Sorted and without repeats: two converters can settle on one canonical name.
+[[nodiscard]] std::vector<std::string> availableEncodings();
 
 } // namespace subedit::core

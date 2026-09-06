@@ -2,10 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <expected>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace {
 
@@ -182,4 +184,42 @@ TEST_CASE("an encoding answers its charset and its mark, and nothing worded", "[
     CHECK(Encoding::utf16Le(ByteOrderMark::Present).charset() == "UTF-16LE");
     CHECK(Encoding::utf16Le(ByteOrderMark::Present).byteOrderMark() == ByteOrderMark::Present);
     CHECK(Encoding::utf16Le(ByteOrderMark::Absent).byteOrderMark() == ByteOrderMark::Absent);
+}
+
+TEST_CASE("the encodings on offer are ICU's, and only those it will carry", "[model][encoding]") {
+    // **What keeps the completion of `Save As…` from being a second table** —
+    // issue #316. Nothing is written down: ICU is asked what it converts, and
+    // every answer goes through `create`, so the list cannot come to disagree
+    // with the type it describes.
+    const std::vector<std::string> offered = subedit::core::availableEncodings();
+
+    REQUIRE_FALSE(offered.empty());
+    CHECK(std::ranges::contains(offered, "windows-1252"));
+    CHECK(std::ranges::contains(offered, "Shift_JIS"));
+
+    // Sorted and without repeats: two converters can settle on one canonical
+    // name, and a completion that offered it twice would say so.
+    CHECK(std::ranges::is_sorted(offered));
+    CHECK(std::ranges::adjacent_find(offered) == offered.end());
+
+    // **The refusals are absent, and that is the point of going through
+    // `create`.** `UTF-16` writes a mark of its own, so nothing in this project
+    // carries it — offering it in a box would be offering a file written
+    // otherwise than the window says.
+    CHECK_FALSE(std::ranges::contains(offered, "UTF-16"));
+    CHECK_FALSE(std::ranges::contains(offered, "UTF-32"));
+
+    // **Every name on offer names an encoding, under that exact spelling.**
+    // ICU's naming does not come back to itself everywhere: `TIS-620` is the
+    // registered name of one converter and an alias of another, so typing it in
+    // opens the second and writes a file that says `windows-874-2000`. One name
+    // out of two hundred and twenty-six behaves that way today, which is why
+    // the list is filtered by a rule rather than by a name struck off it.
+    for (const std::string& name : offered) {
+        INFO("encodage : " << name);
+        const std::expected<Encoding, EncodingRefusal> made =
+            Encoding::create(name, ByteOrderMark::Absent);
+        REQUIRE(made.has_value());
+        CHECK(made->charset() == name);
+    }
 }
