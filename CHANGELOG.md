@@ -18,6 +18,7 @@ ne pas l'éditer à la main.
 - **core** — File.write-bom retient la marque avec l'encodage
 - **gui** — Shift onto Grid dit qu'il porte sur tout le fichier
 - **gui** — Dire sur quoi un alignement a porté, et ce qu'il laisse
+- **core** — Les neuf formats entrent dans le vocabulaire du modèle
 
 ### Corrections
 
