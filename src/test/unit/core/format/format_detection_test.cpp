@@ -67,3 +67,27 @@ TEST_CASE("a file of anything else is not a subtitle file", "[format][detection]
     CHECK(detectFormat("du texte ordinaire\nsur deux lignes\n") == std::nullopt);
     CHECK(detectFormat("") == std::nullopt);
 }
+
+TEST_CASE("a SubViewer 2 file is recognised by its timestamp line", "[format][detection]") {
+    // **The header is not what settles it.** A header is a promise a file makes
+    // about itself; a timestamp line is the format being spoken, and it is what
+    // Gaupol looks for too.
+    CHECK(detectFormat("[INFORMATION]\n[END INFORMATION]\n"
+                       "\n00:00:01.00,00:00:03.00\nUne réplique.\n") == SubtitleFormat::SubViewer2);
+    CHECK(detectFormat("00:00:01.00,00:00:03.00\nUne réplique.\n") == SubtitleFormat::SubViewer2);
+}
+
+TEST_CASE("a bracketed header alone claims nothing", "[format][detection]") {
+    // Nothing rather than a guess: the sections could open anything, and this
+    // one has no subtitle in it.
+    CHECK_FALSE(detectFormat("[INFORMATION]\n[TITLE]Le port\n[END INFORMATION]\n").has_value());
+}
+
+TEST_CASE("the two formats written to the thousandth are not taken for SubViewer 2",
+          "[format][detection]") {
+    // The separator and the number of decimals are what tell them apart, and
+    // the check on the shape is what keeps a permissive timestamp reader from
+    // blurring the three.
+    CHECK(detectFormat("1\n00:00:01,000 --> 00:00:03,000\nUne.\n") == SubtitleFormat::SubRip);
+    CHECK(detectFormat("WEBVTT\n\n00:01.000 --> 00:03.000\nUne.\n") == SubtitleFormat::WebVtt);
+}

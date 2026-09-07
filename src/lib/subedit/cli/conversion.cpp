@@ -65,7 +65,8 @@ bool convertFile(core::FileSystem& files,
         .document = core::Document::Main,
         .newline = newline,
         .encoding = encoding,
-        .header = source.header,
+        .header = core::headerFor(source, target),
+        .extras = core::extrasFor(source, target),
     };
     const std::filesystem::path out = destination.pathFor(path, extensionOf(target));
     const std::expected<std::size_t, std::string> written =

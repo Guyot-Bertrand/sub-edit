@@ -1,7 +1,7 @@
 # `convert`
 
 ```
-subedit-cli convert --to srt|vtt
+subedit-cli convert --to <format>
                     [--line-endings unix|windows|mac] [--to-encoding NOM]
                     [--bom | --no-bom]
                     (--output FICHIER | --output-dir DOSSIER | --in-place)
@@ -22,7 +22,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
-  --to TEXT:{srt,vtt} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
@@ -39,13 +39,43 @@ Options:
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--to` | **oui** | `srt` ou `vtt`, et rien d'autre | — |
+| `--to` | **oui** | un nom de la table ci-dessous, et rien d'autre | — |
 | `--line-endings` | non | `unix`, `windows` ou `mac` | celles du fichier lu |
 | `--to-encoding` | non | tout encodage qu'ICU sait écrire, sauf ceux qui écrivent leur propre marque | celui du fichier lu |
 | `--bom` / `--no-bom` | non | drapeaux, exclusifs l'un de l'autre | ce que portait le fichier lu |
 | `--output` / `--output-dir` / `--in-place` | l'une des trois | voir [Invocation](invocation.md#la-destination) | — |
 
 `mac` désigne le retour chariot seul (`\r`), la fin de ligne du Mac OS classique.
+
+## Les formats que `--to` accepte
+
+| Nom | Format | Extension écrite |
+| :-- | :----- | :--------------- |
+| `srt` | SubRip | `.srt` |
+| `vtt` | WebVTT | `.vtt` |
+| `subviewer2` | SubViewer 2.0 | `.sub` |
+
+**Un nom, et pas une extension.** Deux extensions désignent deux formats
+chacune — `.sub` est aussi celle de MicroDVD, `.txt` celle de MPL2 et de
+TMPlayer — donc une option qui prendrait des extensions ne saurait pas lequel
+est demandé. Les noms ci-dessus sont sans ambiguïté, et coïncident avec
+l'extension partout où celle-ci l'est aussi.
+
+**La liste s'allonge, elle ne change pas.** Un nom déjà offert le reste.
+
+## Ce qu'une conversion perd
+
+**Convertir vers un autre format n'est jamais sans perte**, et ce qui ne survit
+pas dépend de la paire :
+
+| Ce qui ne traverse pas | Pourquoi |
+| :--------------------- | :------- |
+| l'en-tête | il n'a de sens que dans son format : `[INFORMATION]` n'est pas une en-tête WebVTT |
+| les données propres au format | les coordonnées de SubRip, l'identifiant et les réglages d'une cellule WebVTT n'ont pas d'équivalent ailleurs |
+| la précision | SubViewer 2 écrit au centième ; `01:00:00,017` en revient à `01:00:00,020` |
+
+**Réécrire un fichier dans son propre format ne perd rien** — c'est la garantie
+qui tient tout le reste, et `--to srt` sur un `.srt` rend les mêmes octets.
 
 ## Changer d'encodage
 

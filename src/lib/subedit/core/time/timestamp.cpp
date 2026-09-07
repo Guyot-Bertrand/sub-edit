@@ -6,6 +6,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace subedit::core {
 
@@ -28,6 +29,28 @@ void appendDigits(std::string& text, std::int64_t value, std::size_t width) {
         rest /= kDecimalBase;
     }
     text.append(digits.data(), width);
+}
+
+/// The millisecond count one written decimal digit is worth, at that precision.
+[[nodiscard]] constexpr std::int64_t stepOf(Decimals decimals) {
+    switch (decimals) {
+    case Decimals::Milliseconds:
+        return 1;
+    case Decimals::Centiseconds:
+        return kDecimalBase;
+    }
+    std::unreachable();
+}
+
+/// How many digits follow the decimal mark, at that precision.
+[[nodiscard]] constexpr std::size_t digitsOf(Decimals decimals) {
+    switch (decimals) {
+    case Decimals::Milliseconds:
+        return 3;
+    case Decimals::Centiseconds:
+        return 2;
+    }
+    std::unreachable();
 }
 
 /// Strips the blanks around `text`.
@@ -67,7 +90,7 @@ std::optional<std::int64_t> readFraction(std::string_view digits) {
 
 } // namespace
 
-std::string Timestamp::format(DecimalMark mark, HourField hours) const {
+std::string Timestamp::format(DecimalMark mark, HourField hours, Decimals decimals) const {
     // Clamping before taking the magnitude, rather than after, keeps the most
     // negative representable value from overflowing on negation.
     std::int64_t magnitude = m_milliseconds;
@@ -76,6 +99,18 @@ std::string Timestamp::format(DecimalMark mark, HourField hours) const {
             -(magnitude < -kMaxWritableMilliseconds ? -kMaxWritableMilliseconds : magnitude);
     else if (magnitude > kMaxWritableMilliseconds)
         magnitude = kMaxWritableMilliseconds;
+
+    // **The rounding happens on the whole position, not on its fraction.**
+    // Rounding 3 999 ms to the hundredth gives four seconds, and the seconds
+    // field has to know it: rounding the fraction alone would write
+    // `00:00:03.100`, which is not a timestamp at all.
+    const std::int64_t step = stepOf(decimals);
+    magnitude = ((magnitude + (step / 2)) / step) * step;
+    // Rounding up can push the last representable position over the edge; the
+    // clamp is repeated rather than moved, since it also has to run for the
+    // values rounding leaves alone.
+    if (magnitude > kMaxWritableMilliseconds)
+        magnitude = (kMaxWritableMilliseconds / step) * step;
 
     const std::int64_t hourCount = magnitude / kMillisecondsPerHour;
 
@@ -92,7 +127,7 @@ std::string Timestamp::format(DecimalMark mark, HourField hours) const {
     text += ':';
     appendDigits(text, magnitude / kMillisecondsPerSecond % kSecondsPerMinute, kFieldDigits);
     text += mark == DecimalMark::Comma ? ',' : '.';
-    appendDigits(text, magnitude % kMillisecondsPerSecond, kFractionDigits);
+    appendDigits(text, magnitude % kMillisecondsPerSecond / step, digitsOf(decimals));
     return text;
 }
 

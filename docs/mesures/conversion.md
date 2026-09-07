@@ -56,21 +56,28 @@ même porte.
 
 <!-- relevé engendré : ne pas modifier à la main -->
 
-    aller-retour intacts : 10/12
+    aller-retour intacts : 18/26
 
-Relevé sur la version 0.9.14, le 2026-09-07.
+Relevé sur la version 0.9.16, le 2026-09-07.
 
-| Départ \ Arrivée | `srt` | `vtt` |
-| :--- | ---: | ---: |
-| `srt` | — | 7/8 |
-| `vtt` | 3/4 | — |
+| Départ \ Arrivée | `srt` | `subviewer2` | `vtt` |
+| :--- | ---: | ---: | ---: |
+| `srt` | — | 5/8 | 7/8 |
+| `subviewer2` | 0/1 | — | 0/1 |
+| `vtt` | 3/4 | 3/4 | — |
 
 | Fichier | Passage par | Première ligne qui ne revient pas |
 | :------ | :---------- | :-------------------------------- |
+| `valides/cadence.srt` | `subviewer2` | `01:00:00,017 --> 01:00:02,000` |
 | `valides/complet.vtt` | `srt` | `WEBVTT - Dialogue` |
+| `valides/complet.vtt` | `subviewer2` | `WEBVTT - Dialogue` |
 | `valides/coordonnees.srt` | `vtt` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
+| `valides/coordonnees.srt` | `subviewer2` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
+| `valides/trois.srt` | `subviewer2` | `00:00:05,001 --> 00:00:07,000` |
+| `formats/scene.subviewer2.sub` | `srt` | `[TITLE]The scene, in nine formats` |
+| `formats/scene.subviewer2.sub` | `vtt` | `[TITLE]The scene, in nine formats` |
 
-7 fichier(s) du corpus ne s'ouvrent pas encore et n'entrent dans aucune mesure.
+6 fichier(s) du corpus ne s'ouvrent pas encore et n'entrent dans aucune mesure.
 
 <!-- fin du relevé -->
 
@@ -135,12 +142,16 @@ sur une seule, et les mots sont recollés par une espace.
 lui suppose une fréquence que le fichier ne dira pas à la lecture suivante — la
 promesse conditionnelle de #338, et la question que le cadrage doit trancher.
 
-**Deux bornes que le tableau ne montre pas.** LRC écrit `mm:ss.cc` : il n'a pas
-de champ d'heures, donc rien au-delà de 99 minutes 59, et rien avant le début.
-Et la précision ci-dessus n'est pas mesurée : **la scène de #338 pose toutes ses
-positions sur la seconde entière**, exactement pour qu'elle soit la même scène
-chez le plus pauvre des neuf. Une perte de précision ne se verra donc que le
-jour où le corpus portera un fichier qui l'exerce.
+**Une borne que le tableau ne montre pas.** LRC écrit `mm:ss.cc` : il n'a pas de
+champ d'heures, donc rien au-delà de 99 minutes 59, et rien avant le début.
+
+**La précision, en revanche, se mesure — et pas là où on l'attendait.** La scène
+de #338 pose toutes ses positions sur la seconde entière, exactement pour
+qu'elle soit la même scène chez le plus pauvre des neuf ; elle ne pouvait donc
+rien en dire. C'est `valides/` qui l'exerce, sans avoir été écrit pour :
+`cadence.srt` porte une position à `01:00:00,017`, et elle revient à `,020` d'un
+passage par SubViewer 2. Le corpus qui ne ressemble à rien trouve ce que le
+corpus régulier ne peut pas trouver, et c'est la raison de garder les deux.
 
 ## Ce qui n'entre pas encore dans la mesure
 

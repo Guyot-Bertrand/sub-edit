@@ -25,6 +25,18 @@ enum class HourField {
     Omitted, ///< `MM:SS`, unless the position reaches one hour
 };
 
+/// How many decimals of a second a format writes.
+///
+/// **The model is finer than most formats**, and this is where that is paid.
+/// Positions are whole milliseconds since ADR 0006; SubRip and WebVTT write all
+/// three digits, and the formats of phase 9 write fewer. Writing fewer is a
+/// rounding, done on the whole position rather than on its fraction — 3 999 ms
+/// at the hundredth is `00:00:04.00` and not `00:00:03.100`.
+enum class Decimals {
+    Milliseconds, ///< three digits — SubRip, WebVTT
+    Centiseconds, ///< two digits — SubViewer 2, and the two Sub Station Alpha
+};
+
 /// A position on the timeline, counted in whole signed milliseconds from the
 /// start of the video.
 ///
@@ -69,7 +81,13 @@ public:
     /// Positions before the origin carry a leading sign, and the magnitude
     /// saturates at `99:59:59,999` — a constraint of the file formats, which
     /// leaves the position itself untouched.
-    [[nodiscard]] std::string format(DecimalMark mark, HourField hours = HourField::Always) const;
+    ///
+    /// `decimals` says how many digits of a second the format writes, and
+    /// rounds the position to that precision, halves away from zero — the same
+    /// rule `fromFrame` follows.
+    [[nodiscard]] std::string format(DecimalMark mark,
+                                     HourField hours = HourField::Always,
+                                     Decimals decimals = Decimals::Milliseconds) const;
 
     /// Returns this position multiplied by `factor`, rounded once.
     ///

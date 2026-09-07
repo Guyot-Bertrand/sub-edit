@@ -46,6 +46,18 @@ namespace subedit::core {
 /// The name of a format, as a report writes it.
 [[nodiscard]] std::string_view nameOf(SubtitleFormat format);
 
+/// The short name a command line uses for that format — the values of `--to`.
+///
+/// **Not the extension, and the reason is that two extensions name two formats
+/// each.** `.sub` is MicroDVD and SubViewer 2, `.txt` is MPL2 and TMPlayer, so
+/// an option taking extensions could not say which was meant. These names are
+/// unambiguous by construction, and coincide with the extension wherever the
+/// extension happens to be unambiguous.
+[[nodiscard]] std::string_view optionNameOf(SubtitleFormat format);
+
+/// The format that short name means, or nothing if it names none.
+[[nodiscard]] std::optional<SubtitleFormat> formatNamed(std::string_view option);
+
 /// The extension a file of that format is expected to carry, dot included.
 [[nodiscard]] std::string_view extensionOf(SubtitleFormat format);
 

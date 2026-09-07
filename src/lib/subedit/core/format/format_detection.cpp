@@ -1,4 +1,5 @@
 #include <subedit/core/format/format_detection.hpp>
+#include <subedit/core/format/sub_viewer2_syntax.hpp>
 #include <subedit/core/text/lines.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
@@ -52,6 +53,14 @@ std::optional<SubtitleFormat> detectFormat(std::string_view content) {
 
     if (std::ranges::any_of(lines, isSubRipTimeLine))
         return SubtitleFormat::SubRip;
+
+    // **The `[INFORMATION]` header is not what settles it, the timestamp line
+    // is.** A header is a promise a file makes about itself; a timestamp line
+    // is the format actually being spoken. Gaupol recognises this format the
+    // same way, and it is what lets a file whose header was trimmed still open.
+    if (std::ranges::any_of(
+            lines, [](std::string_view line) { return parseSubViewer2TimeLine(line).has_value(); }))
+        return SubtitleFormat::SubViewer2;
 
     return std::nullopt;
 }

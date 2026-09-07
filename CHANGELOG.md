@@ -19,6 +19,7 @@ ne pas l'éditer à la main.
 - **gui** — Shift onto Grid dit qu'il porte sur tout le fichier
 - **gui** — Dire sur quoi un alignement a porté, et ce qu'il laisse
 - **core** — Les neuf formats entrent dans le vocabulaire du modèle
+- **format** — SubViewer 2, et ce qu'un en-tête ne traverse pas
 
 ### Corrections
 
@@ -36,6 +37,7 @@ ne pas l'éditer à la main.
 - **core** — Traduire screenshots.cpp, et le cliquet descend avec
 - **core** — Traduire les cinquante fichiers qui restaient
 - **doc** — Cadrage de la phase 9, les formats complémentaires
+- Relevés de la version 0.9.17
 
 ### Performance
 
