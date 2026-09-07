@@ -1,0 +1,20 @@
+[Script Info]
+Title: The scene, in nine formats
+Original Script:
+ScriptType: v4.00+
+Collisions: Normal
+PlayResX: 384
+PlayResY: 288
+Timer: 100.0000
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Sans,18,&H00FFFFFF,&H00FFFF00,&H00000000,&H00000000,0,0,0,0,100,100,0,0.00,1,2,2,2,30,30,30,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:01.00,0:00:03.00,Default,,0000,0000,0000,,The harbour wakes before\Nthe town does.
+Dialogue: 0,0:00:04.00,0:00:06.00,Default,,0000,0000,0000,,Nothing moves on the water.
+Dialogue: 0,0:00:08.00,0:00:11.00,Default,,0000,0000,0000,,{\i1}A gull turns once above the mast\Nand settles.{\i0}
+Dialogue: 0,0:00:12.00,0:00:15.00,Default,,0000,0000,0000,,Then the light comes.
