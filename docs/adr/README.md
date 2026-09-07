@@ -41,6 +41,9 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0026](0026-le-graphe-d-inclusions-reste-tel-quel.md) | Laisser le graphe d'inclusions tel quel, et pourquoi | acceptée |
 | [0027](0027-icu-pour-les-encodages.md) | ICU pour lire et écrire les encodages, en dépendance du noyau | acceptée |
 | [0028](0028-peser-les-lignes-qui-discriminent.md) | La détection ne pèse que les lignes qui discriminent | acceptée |
+| [0029](0029-fins-deduites-et-annoncees.md) | Déduire les fins que le fichier ne porte pas, et l'annoncer | acceptée |
+| [0030](0030-ce-qu-un-document-retient-de-son-fichier.md) | Ce qu'un document retient de son fichier, la fréquence comprise | acceptée |
+| [0031](0031-pivot-de-balises-a-la-conversion.md) | Un pivot de balises, pour la seule conversion | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
@@ -63,6 +66,21 @@ détecteur et le convertisseur, et ce qui change est ce qu'on lui soumet. Son
 banc d'essai ne portait que des fichiers monolingues, et c'est en mesurant où la
 détection cesse de savoir — #310 — qu'un fichier bilingue s'est révélé perdre
 son second alphabet en entier.
+
+[0031](0031-pivot-de-balises-a-la-conversion.md) **honore**
+[0009](0009-texte-en-chaine-brute.md) sans la remplacer : le pivot qu'elle
+promettait « uniquement lors d'une conversion » est construit en phase 9, parce
+que neuf formats font cinq vocabulaires de balises là où deux en partageaient
+un. La chaîne brute reste ce qu'un texte est à l'ouverture et à
+l'enregistrement, et la porte de sortie à fragments opaques que 0009 décrit
+reste ouverte.
+
+[0029](0029-fins-deduites-et-annoncees.md) et
+[0030](0030-ce-qu-un-document-retient-de-son-fichier.md) tiennent le modèle en
+place là où deux formats le tiraient dehors : `Subtitle::end` ne devient pas
+optionnel pour LRC et TMPlayer, et les positions ne deviennent pas des images
+pour MicroDVD. Ce qui bouge est ce qu'un **document** retient de son fichier,
+pas ce qu'un **sous-titre** porte.
 
 ## Décisions attendues
 
