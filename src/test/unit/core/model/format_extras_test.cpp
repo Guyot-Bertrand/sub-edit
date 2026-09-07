@@ -144,3 +144,55 @@ TEST_CASE("every WebVTT field counts in the comparison", "[model][extras]") {
     other.comment.clear();
     CHECK(FormatExtras{full} != FormatExtras{other});
 }
+
+TEST_CASE("Sub Station Alpha extras carry what an event line holds besides its text",
+          "[model][extras]") {
+    // **One branch for the two formats.** The first event field is `Marked=0`
+    // in SSA and a layer number in Advanced SSA — the same column holding a
+    // different thing, so it is held here as the number both are.
+    const subedit::core::SubStationAlphaExtras ssa{
+        .layer = 2,
+        .style = "Default",
+        .name = "Marie",
+        .marginLeft = 30,
+        .marginRight = 30,
+        .marginVertical = 10,
+        .effect = "karaoke",
+    };
+
+    CHECK(ssa.layer == 2);
+    CHECK(ssa.style == "Default");
+    CHECK(ssa.name == "Marie");
+    CHECK(ssa.marginVertical == 10);
+    CHECK(ssa.effect == "karaoke");
+
+    // What a subtitle of a file that declares none of it looks like: every
+    // field at the value an event line leaves out.
+    const subedit::core::SubStationAlphaExtras fromNowhere;
+    CHECK(fromNowhere.layer == 0);
+    CHECK(fromNowhere.style.empty());
+    CHECK(fromNowhere.name.empty());
+    CHECK(fromNowhere.marginLeft == 0);
+    CHECK(fromNowhere.marginRight == 0);
+    CHECK(fromNowhere.marginVertical == 0);
+    CHECK(fromNowhere.effect.empty());
+
+    // The comparison is what a round trip is asserted with, so it is asserted
+    // itself: a defaulted `operator==` that nothing exercises is a promise
+    // nobody checked.
+    CHECK(ssa == ssa);
+    CHECK_FALSE(ssa == fromNowhere);
+
+    const FormatExtras extras = ssa;
+    CHECK(std::holds_alternative<subedit::core::SubStationAlphaExtras>(extras));
+    CHECK(extras == FormatExtras{ssa});
+}
+
+TEST_CASE("nine formats make four branches, and counting is the answer", "[model][extras]") {
+    // The scoping asked whether nine formats would make this a variant of nine
+    // branches. They do not: five of them carry nothing of their own per
+    // subtitle, and Sub Station Alpha and Advanced SSA share one. **A fifth
+    // branch has to fail here first**, so that adding one is a decision rather
+    // than a slide.
+    STATIC_CHECK(std::variant_size_v<FormatExtras> == 4);
+}

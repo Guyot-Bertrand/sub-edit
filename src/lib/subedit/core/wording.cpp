@@ -20,16 +20,51 @@ std::string_view nameOf(SubtitleFormat format) {
         return "SubRip";
     case SubtitleFormat::WebVtt:
         return "WebVTT";
+    case SubtitleFormat::SubViewer2:
+        return "SubViewer 2";
+    case SubtitleFormat::SubStationAlpha:
+        return "Sub Station Alpha";
+    case SubtitleFormat::AdvancedSubStationAlpha:
+        return "Advanced SSA";
+    case SubtitleFormat::MicroDvd:
+        return "MicroDVD";
+    case SubtitleFormat::Mpl2:
+        return "MPL2";
+    case SubtitleFormat::TMPlayer:
+        return "TMPlayer";
+    case SubtitleFormat::Lrc:
+        return "LRC";
     }
     std::unreachable();
 }
 
 std::string_view extensionOf(SubtitleFormat format) {
+    // **Two extensions name two formats each, and this function does not mind.**
+    // `.sub` is MicroDVD and SubViewer 2, `.txt` is MPL2 and TMPlayer. Going
+    // this way there is one answer per format — the one to suggest when saving.
+    // The other way round is not a function at all, which is why nothing here
+    // ever maps an extension back to a format: only the content decides.
     switch (format) {
     case SubtitleFormat::SubRip:
         return ".srt";
     case SubtitleFormat::WebVtt:
         return ".vtt";
+    // The two shared extensions are grouped rather than listed twice, which is
+    // also what clang-tidy asks for: two consecutive branches returning the
+    // same thing are one branch. It leaves the enumeration order, and says the
+    // sharing where a reader meets it.
+    case SubtitleFormat::SubViewer2:
+    case SubtitleFormat::MicroDvd:
+        return ".sub";
+    case SubtitleFormat::SubStationAlpha:
+        return ".ssa";
+    case SubtitleFormat::AdvancedSubStationAlpha:
+        return ".ass";
+    case SubtitleFormat::Mpl2:
+    case SubtitleFormat::TMPlayer:
+        return ".txt";
+    case SubtitleFormat::Lrc:
+        return ".lrc";
     }
     std::unreachable();
 }
@@ -95,6 +130,9 @@ std::string_view reasonOf(WriteErrorKind kind) {
     switch (kind) {
     case WriteErrorKind::Unencodable:
         return "holds a character the chosen encoding cannot write";
+    case WriteErrorKind::NoWriter:
+        // The format is the detail, so the sentence does not name it twice.
+        return "cannot be written yet";
     }
     std::unreachable();
 }

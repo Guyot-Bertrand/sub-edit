@@ -7,10 +7,12 @@
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
+#include <array>
 #include <expected>
 #include <string>
 #include <string_view>
@@ -202,4 +204,43 @@ TEST_CASE("a WebVTT file comes back with its header", "[format][file]") {
         result.format, WriteRequest{.subtitles = result.subtitles, .header = result.header});
 
     CHECK(written == kWebVtt);
+}
+
+TEST_CASE("a format that has no writer yet is refused, and named", "[format][file]") {
+    // **Seven of the nine formats are named before they can be written**, and
+    // this is what stands between that and undefined behaviour: `writeSubtitles`
+    // is public, so a caller can name any of them.
+    //
+    // Each of the seven leaves this list as its writer lands, and the case is
+    // gone when the last one does — its failing is how the phase says it is
+    // over.
+    const std::array<SubtitleFormat, 7> waiting = {
+        SubtitleFormat::SubViewer2,
+        SubtitleFormat::SubStationAlpha,
+        SubtitleFormat::AdvancedSubStationAlpha,
+        SubtitleFormat::MicroDvd,
+        SubtitleFormat::Mpl2,
+        SubtitleFormat::TMPlayer,
+        SubtitleFormat::Lrc,
+    };
+
+    for (const SubtitleFormat format : waiting) {
+        INFO("format : " << subedit::core::nameOf(format));
+        const std::expected<std::string, subedit::core::WriteError> written =
+            writeSubtitles(format, WriteRequest{});
+
+        REQUIRE_FALSE(written.has_value());
+        CHECK(written.error().kind == subedit::core::WriteErrorKind::NoWriter);
+        CHECK(written.error().detail == subedit::core::nameOf(format));
+    }
+}
+
+TEST_CASE("the two formats that have a writer still write", "[format][file]") {
+    // The other half of the case above: the refusal is a list, not a default,
+    // so a format wrongly left in it would be caught here rather than in a
+    // report nobody reads.
+    for (const SubtitleFormat format : {SubtitleFormat::SubRip, SubtitleFormat::WebVtt}) {
+        INFO("format : " << subedit::core::nameOf(format));
+        CHECK(writeSubtitles(format, WriteRequest{}).has_value());
+    }
 }

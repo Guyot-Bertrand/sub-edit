@@ -12,6 +12,7 @@
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/encoding.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <expected>
 #include <optional>
@@ -40,12 +41,29 @@ namespace {
            detected->encoding != Encoding::utf8(ByteOrderMark::Absent);
 }
 
-[[nodiscard]] std::string textOf(SubtitleFormat format, const WriteRequest& request) {
+/// **The seven labels below move out one at a time**, as phase 9 writes their
+/// readers and writers. Grouping them rather than listing a `default` is what
+/// keeps the compiler useful: a tenth format would not compile, and a format
+/// whose writer lands without being moved out here would keep refusing in
+/// silence.
+[[nodiscard]] std::expected<std::string, WriteError> textOf(SubtitleFormat format,
+                                                            const WriteRequest& request) {
     switch (format) {
     case SubtitleFormat::SubRip:
         return SubRipWriter{}.write(request);
     case SubtitleFormat::WebVtt:
         return WebVttWriter{}.write(request);
+    case SubtitleFormat::SubViewer2:
+    case SubtitleFormat::SubStationAlpha:
+    case SubtitleFormat::AdvancedSubStationAlpha:
+    case SubtitleFormat::MicroDvd:
+    case SubtitleFormat::Mpl2:
+    case SubtitleFormat::TMPlayer:
+    case SubtitleFormat::Lrc:
+        return std::unexpected(WriteError{
+            .kind = WriteErrorKind::NoWriter,
+            .detail = std::string{nameOf(format)},
+        });
     }
     std::unreachable();
 }
@@ -57,6 +75,21 @@ namespace {
         return SubRipReader{}.read(content);
     case SubtitleFormat::WebVtt:
         return WebVttReader{}.read(content);
+    case SubtitleFormat::SubViewer2:
+    case SubtitleFormat::SubStationAlpha:
+    case SubtitleFormat::AdvancedSubStationAlpha:
+    case SubtitleFormat::MicroDvd:
+    case SubtitleFormat::Mpl2:
+    case SubtitleFormat::TMPlayer:
+    case SubtitleFormat::Lrc:
+        // Unreachable through `readSubtitles`, which only ever gets here with
+        // what `detectFormat` recognised — and it recognises two. Written as a
+        // refusal all the same: this function takes a format from its caller,
+        // and a caller naming one deserves an answer rather than a crash.
+        return std::unexpected(ReadError{
+            .kind = ReadErrorKind::UnknownFormat,
+            .detail = std::string{nameOf(format)},
+        });
     }
     std::unreachable();
 }
@@ -186,8 +219,12 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
 
 std::expected<std::string, WriteError> writeSubtitles(SubtitleFormat format,
                                                       const WriteRequest& request) {
+    const std::expected<std::string, WriteError> text = textOf(format, request);
+    if (!text.has_value())
+        return std::unexpected(text.error());
+
     const std::expected<std::string, UnwritableCharacter> body =
-        encodeFromUtf8(textOf(format, request), request.encoding);
+        encodeFromUtf8(*text, request.encoding);
     if (!body.has_value())
         return std::unexpected(WriteError{
             .kind = WriteErrorKind::Unencodable,

@@ -2,6 +2,7 @@
 
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/encoding.hpp>
+#include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 
@@ -40,6 +41,14 @@ struct WriteRequest {
     /// Empty for the others, and for a project that came from nowhere; a
     /// writer that needs a header then produces the one its format requires.
     std::string_view header{};
+
+    /// What the file declared about itself that no subtitle carries — ADR 0030.
+    ///
+    /// `std::monostate` for a document that came from nowhere, and for the
+    /// formats that declare nothing. A writer that needs something here and
+    /// finds nothing produces its own default rather than refusing — except
+    /// where the default would move every position, which is MicroDVD.
+    FileExtras extras{};
 };
 
 /// Turns subtitles into the text of a file.

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <subedit/core/model/encoding.hpp>
+#include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 
 #include <filesystem>
@@ -46,8 +47,21 @@ struct SourceFile {
     /// not, and both answers have to survive being written back.
     Encoding encoding = Encoding::utf8(ByteOrderMark::Absent);
 
-    /// The WebVTT header, empty for the formats that have none.
+    /// The free header, empty for the formats that have none.
+    ///
+    /// WebVTT until phase 9, and since then SubViewer 2's `[INFORMATION]`
+    /// block, Sub Station Alpha's `[Script Info]` and styles, LRC's opening
+    /// lines and MicroDVD's `{DEFAULT}` line. A string suffices to all of them:
+    /// nothing has to understand it, only put it back.
     std::string header{};
+
+    /// What the file declares about itself that no subtitle carries.
+    ///
+    /// **Since ADR 0030.** The header above is the free text; this is the rest,
+    /// which a writer has to read rather than repeat — the order of Sub Station
+    /// Alpha's event fields, the shape of TMPlayer's hour, the rate a MicroDVD
+    /// was read at.
+    FileExtras extras{};
 
     friend bool operator==(const SourceFile&, const SourceFile&) = default;
 };
