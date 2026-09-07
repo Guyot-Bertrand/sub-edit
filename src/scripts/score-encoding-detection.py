@@ -242,10 +242,25 @@ def score_labelled(command):
     return right, total, confusions
 
 
+# Les extensions sous lesquelles un fichier de sous-titres se présente.
+#
+# **Elles étaient deux, et ce parcours a fait dire au corpus ce qu'il ne dit
+# pas** — issue #340. L'initialisation de la phase 9 a écrit que le corpus privé
+# « ne porte que du .srt et du .vtt », sur la foi de ce relevé ; il ne pouvait
+# rien trouver d'autre. Il porte aussi un MicroDVD et un Advanced SSA, réels.
+# C'est le défaut de #268, vérifier avec l'outil qui ne compte pas, une fois de
+# plus.
+#
+# `.txt` n'y est pas, et son absence est un choix : il nomme TMPlayer et MPL2,
+# et tout le reste. Les seuls `.txt` du corpus privé sont des notes et des
+# extraits de manuel.
+SUBTITLE_SUFFIXES = (".srt", ".vtt", ".sub", ".ass", ".ssa", ".lrc")
+
+
 def report_private(commands):
     """Ce que le corpus privé peut dire, et il ne peut pas dire un taux."""
     files = sorted(p for p in PRIVATE.rglob("*")
-                   if p.is_file() and p.suffix.lower() in (".srt", ".vtt"))
+                   if p.is_file() and p.suffix.lower() in SUBTITLE_SUFFIXES)
     if not files:
         print(f"\n{BOLD}corpus privé — absent de cette machine{RESET}")
         return
