@@ -1,0 +1,4 @@
+[10][30]The harbour wakes before|the town does.
+[40][60]Nothing moves on the water.
+[80][110]/A gull turns once above the mast|/and settles.
+[120][150]Then the light comes.
