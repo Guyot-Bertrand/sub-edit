@@ -835,14 +835,20 @@ restent sont l'issue [#325](https://github.com/Guyot-Bertrand/sub-edit/issues/32
 SubViewer 2, Sub Station Alpha, Advanced SSA — les trois formats cités comme
 secondaires — puis MicroDVD, MPL2, TMPlayer et LRC.
 
-**Un renvoi du cadrage de la phase 5 atterrit ici : le mode d'édition en
-images.** Gaupol laisse basculer la table entre positions temporelles et numéros
-d'image ; la phase 5 s'en est passée pour une raison qui tombe précisément
-ici — **aucun format à images n'existe avant MicroDVD**, et les deux formats du
-MVP sont temporels. Une bascule vers des images qu'aucun fichier ne porte
-n'aurait affiché qu'une conversion, calculée contre une fréquence que rien ne
-déclare. Le premier format à images arrive dans cette phase, et avec lui la
-question de ce que la table montre.
+**Cadrée, et sa spec est dans [`specs/09-formats.md`](specs/09-formats.md)** —
+issue #337. Trois ADR en sortent : les fins déduites pour les deux formats qui
+n'en portent pas ([0029](adr/0029-fins-deduites-et-annoncees.md)), la fréquence
+retenue par le document pour MicroDVD
+([0030](adr/0030-ce-qu-un-document-retient-de-son-fichier.md)), et le pivot de
+balises que l'ADR 0009 promettait depuis la phase 1
+([0031](adr/0031-pivot-de-balises-a-la-conversion.md)).
+
+**Le renvoi du cadrage de la phase 5 — le mode d'édition en images — repart vers
+la phase 14**, mieux posé qu'il n'est arrivé. La phase 5 l'avait renvoyé faute
+de format à images ; celui-ci arrive. Ce qui reste vrai est que MicroDVD porte
+des numéros d'image **et pas de fréquence** : la bascule montrerait les chiffres
+du fichier pour un MicroDVD, et une conversion contre une fréquence choisie pour
+les huit autres.
 
 **Point difficile** — ASS n'est pas un format de timing mais un format structuré
 avec sections, styles nommés et événements typés. La conversion vers SubRip est
@@ -990,6 +996,14 @@ sous-titre sélectionné.
 [l'ADR 0020](adr/0020-libmpv-pour-le-lecteur-integre.md). Et c'est cette phase
 qui l'a décidé : les deux candidats savaient servir la phase 6, seul libmpv sait
 avancer d'une image.
+
+**Un renvoi du cadrage de la phase 9 atterrit ici : le mode d'édition en
+images.** Il vient de la phase 5, qui l'avait renvoyé faute de format à images,
+et la phase 9 le repasse en l'ayant mieux posé — MicroDVD porte des numéros
+d'image et pas de fréquence, donc la bascule montrerait les chiffres du fichier
+pour lui, et une conversion contre une fréquence choisie pour les huit autres.
+C'est une question d'édition fine, et cette phase porte déjà « avancer, reculer
+image par image ».
 
 **Point difficile** — **précision de positionnement.** Caler un sous-titre exige
 un `seek` exact à l'image près ; la plupart des backends ne le garantissent qu'au

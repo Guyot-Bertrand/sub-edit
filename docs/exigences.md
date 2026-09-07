@@ -152,3 +152,17 @@ plus rien.
 | `GUI-ENC-01` | la fenêtre ouvre un fichier non-UTF-8 et affiche l'encodage retenu | 8 | implémentée |
 | `GUI-ENC-02` | `Save As…` choisit l'encodage, la fin de ligne et le BOM | 8 | implémentée |
 | `GUI-ENC-03` | les réglages retiennent le dernier encodage d'écriture choisi | 8 | implémentée |
+| `CLI-FORMAT-01` | chacun des neuf formats s'ouvre, et se réécrit octet pour octet | 9 | prévue |
+| `CLI-FORMAT-02` | un fichier qu'aucun des neuf ne revendique est refusé, sans supposition | 9 | prévue |
+| `CLI-FORMAT-03` | `inspect` nomme le format lu parmi les neuf | 9 | prévue |
+| `CLI-FORMAT-04` | un format sans fin s'ouvre, ses fins sont déduites, et la lecture le dit | 9 | prévue |
+| `CLI-FRAMES-01` | un fichier en images s'ouvre à une fréquence déclarée, que la lecture nomme | 9 | prévue |
+| `CLI-FRAMES-02` | `--frame-rate` impose la fréquence, à la lecture comme à l'écriture | 9 | prévue |
+| `CLI-CONVERT-04` | `--to` accepte les neuf formats | 9 | prévue |
+| `CLI-CONVERT-05` | convertir vers un format en images sans fréquence prend la grille déduite, et le dit | 9 | prévue |
+| `CLI-CONVERT-06` | sans fréquence ni grille, une conversion vers un format en images est refusée | 9 | prévue |
+| `CLI-CONVERT-07` | une conversion qui perd quelque chose le dit, poste par poste | 9 | prévue |
+| `GUI-FORMAT-01` | la fenêtre ouvre les neuf formats | 9 | prévue |
+| `GUI-FORMAT-02` | `Save As…` propose les neuf formats | 9 | prévue |
+| `GUI-FORMAT-03` | enregistrer dans un format à perte annonce ce qui sera perdu avant d'écrire | 9 | prévue |
+| `GUI-FRAMES-01` | ouvrir un fichier en images annonce la fréquence retenue, et laisse la changer | 9 | prévue |
