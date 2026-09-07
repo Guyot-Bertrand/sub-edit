@@ -43,6 +43,7 @@ ne pas l'éditer à la main.
 
 - **scripts** — Rejouer le score de détection à chaque pull request
 - **test** — Une scène en neuf formats, et ce que chacun promet
+- **scripts** — Mesurer ce qu'une conversion perd plutôt que la croire
 
 ## 0.9.0 — 2026-09-04
 
