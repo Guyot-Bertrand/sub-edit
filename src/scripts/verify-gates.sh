@@ -116,6 +116,7 @@ readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
 readonly VIDEO_FIXTURE="${REPO_ROOT}/src/test/data/videos/cadence-25.mp4"
 readonly GRID_FIXTURE="${REPO_ROOT}/src/test/data/grilles/grille-25.srt"
 readonly DETECTION_JOURNAL="${REPO_ROOT}/docs/mesures/detection-d-encodage.md"
+readonly CONVERSION_JOURNAL="${REPO_ROOT}/docs/mesures/conversion.md"
 readonly GUI_MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-gui/table.md"
 readonly CAPTURE_REFERENCE="${REPO_ROOT}/docs/manual/subedit-gui/captures/table.png"
 readonly INSTALLATION_SOURCE="${REPO_ROOT}/cmake/Installation.cmake"
@@ -159,6 +160,7 @@ restore() {
     cp "${backup_dir}/cadence-25.mp4" "${VIDEO_FIXTURE}"
     cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
     cp "${backup_dir}/detection-d-encodage.md" "${DETECTION_JOURNAL}"
+    cp "${backup_dir}/conversion.md" "${CONVERSION_JOURNAL}"
     cp "${backup_dir}/table.md" "${GUI_MANUAL_SOURCE}"
     cp "${backup_dir}/table.png" "${CAPTURE_REFERENCE}"
     cp "${backup_dir}/Installation.cmake" "${INSTALLATION_SOURCE}"
@@ -190,6 +192,7 @@ cp "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
 cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
 cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
 cp "${DETECTION_JOURNAL}" "${backup_dir}/detection-d-encodage.md"
+cp "${CONVERSION_JOURNAL}" "${backup_dir}/conversion.md"
 cp "${GUI_MANUAL_SOURCE}" "${backup_dir}/table.md"
 cp "${CAPTURE_REFERENCE}" "${backup_dir}/table.png"
 cp "${INSTALLATION_SOURCE}" "${backup_dir}/Installation.cmake"
@@ -918,6 +921,57 @@ expect_detection_score_gates() {
 
 expect_detection_score_gates
 
+# La perte de conversion, et son relevé — issue #339.
+#
+# **Les deux mêmes preuves que pour le score, et pour la même raison** : le
+# contrôle a trois issues et une seule est un refus. Une perte qui s aggrave est
+# une régression et doit échouer ; une perte qui se réduit est une bonne
+# nouvelle et ne doit surtout pas échouer, sans quoi la première pull request qui
+# améliore une conversion se heurterait à son propre progrès.
+#
+# **L injection porte sur le relevé et non sur la conversion.** Bouger le chiffre
+# du journal éprouve la comparaison elle-même, quelle que soit la valeur
+# mesurée ; dégrader une conversion à la main prouverait la même chose en moins
+# sûr, et il faudrait la recompiler.
+expect_conversion_loss_gates() {
+    local recorded
+    recorded="$(sed -n 's/^ *aller-retour intacts *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
+        "${CONVERSION_JOURNAL}")"
+    local kept="${recorded% *}"
+    local total="${recorded#* }"
+
+    printf '%s▸ une perte de conversion plus grande que son relevé%s\n' "${BOLD}" "${RESET}"
+
+    sed -i "s|^ *aller-retour intacts *:.*$|    aller-retour intacts : ${total}/${total}|" \
+        "${CONVERSION_JOURNAL}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory conversion >/dev/null 2>&1; then
+        printf '  %s✗ la porte « conversion » a laissé passer la perte%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make conversion » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    restore
+
+    printf '%s▸ une perte de conversion plus petite que son relevé%s\n' "${BOLD}" "${RESET}"
+
+    sed -i "s|^ *aller-retour intacts *:.*$|    aller-retour intacts : $((kept - 1))/${total}|" \
+        "${CONVERSION_JOURNAL}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory conversion >/dev/null 2>&1; then
+        printf '  %s✓ « make conversion » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ la porte « conversion » a refusé une conversion meilleure%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    restore
+}
+
+expect_conversion_loss_gates
+
 # Le scorimètre ne peut pas nommer un fichier — issue #290.
 #
 # **Ce qui peut être faux ici n est pas un vert de trop, c est une fuite.** Le
@@ -1621,7 +1675,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles cinquante-cinq portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles cinquante-sept portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
