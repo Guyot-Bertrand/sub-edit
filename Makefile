@@ -200,6 +200,24 @@ score-record: ## Enregistre le score de détection mesuré comme nouveau relevé
 	@./src/scripts/score-encoding-detection.py --record \
 		--detector './build/dev/bin/subedit_detect_encoding {}'
 
+# La perte de conversion, et son enregistrement — issue #339.
+#
+# **Deux cibles pour les deux gestes**, comme `score` et `score-record`. Une
+# perte qui se réduit est une bonne nouvelle qui demande de réécrire le journal,
+# et rien ne doit le réécrire tout seul : ce serait effacer la comparaison qu'on
+# venait faire.
+.PHONY: conversion
+conversion: ## Rejoue ce qu'une conversion perd et le confronte au relevé
+	@./src/scripts/gate.sh conversion
+
+.PHONY: conversion-record
+conversion-record: ## Enregistre la perte de conversion mesurée comme nouveau relevé
+	$(call step,"relevé de perte de conversion")
+	@cmake --preset dev >/dev/null
+	@cmake --build --preset dev -j $(JOBS) --target subedit-cli
+	@./src/scripts/measure-conversion-loss.py --record \
+		--binary ./build/dev/bin/subedit-cli
+
 .PHONY: manual
 manual: ## Régénère les exemples d'appel et les captures du manuel
 	@./src/scripts/gate.sh manual
@@ -313,7 +331,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@./src/scripts/gate.sh check-local
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (cinquante-cinq preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (cinquante-sept preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog
