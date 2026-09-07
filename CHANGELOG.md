@@ -34,6 +34,7 @@ ne pas l'éditer à la main.
 - **doc** — Écrire ce que la grille regarde, et ce qu'une opération prend
 - **core** — Traduire screenshots.cpp, et le cliquet descend avec
 - **core** — Traduire les cinquante fichiers qui restaient
+- **doc** — Cadrage de la phase 9, les formats complémentaires
 
 ### Performance
 
