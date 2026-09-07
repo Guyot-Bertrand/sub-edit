@@ -249,15 +249,43 @@ n'écrivait, une largeur nulle, une ligne sans signe égal, les deux surcharges
 qui résolvent l'emplacement, un thème clair qu'on écrivait sans le relire, un
 dialogue de préférences qu'on validait sans jamais l'annuler.
 
+## Quatre lignes montées en phase 9, et elles redescendront
+
+**Le cliquet passe de 61 à 65, et c'est la première fois qu'il monte pour du
+code qui a vocation à disparaître.** Les quatre lignes sont dans
+`core/format/subtitle_file.cpp` : le refus que `readAs` oppose aux sept formats
+de la phase 9 qui n'ont pas encore de lecteur.
+
+**Elles ne sont pas atteignables, et c'est exactement pourquoi elles existent.**
+`readAs` reçoit toujours ce que `detectFormat` a reconnu, et la détection
+reconnaît aujourd'hui les deux formats qui ont un lecteur. Les deux savoirs sont
+donc d'accord — et **la phase 9 va les faire changer neuf fois**, une par issue
+de format. Le jour où l'un avance sans l'autre, ce refus est ce qui sépare une
+erreur nommée d'un comportement indéfini.
+
+L'alternative était un `std::unreachable()`, qui ne coûte aucune ligne et paie
+la même erreur en corruption silencieuse. Quatre lignes non couvertes sont moins
+chères.
+
+**Elles s'en vont d'elles-mêmes.** Chaque format livré retire son étiquette du
+groupe ; le dernier retire la branche, et le cliquet redescend sans que personne
+ait à s'en souvenir.
+
+**Ce qui a été couvert plutôt que compté**, dans le même diff : les valeurs par
+défaut et la comparaison de `SubStationAlphaExtras`, que le premier jet avait
+écrites sans les éprouver — huit lignes de plus au refus du cliquet, et un cas
+de test qui dit ce qu'une comparaison défaillante coûterait.
+
 ## Relevé
 
-    total : 61
+    total : 65
 
-Relevé sur la version 0.8.19, le 2026-09-04.
+Relevé sur la version 0.9.16, le 2026-09-07.
 
 | Lignes | Fichier |
 | -----: | :------ |
 | 41 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 4 | `src/lib/subedit/core/format/subtitle_file.cpp` |
 | 4 | `src/lib/subedit/core/process/start_process.cpp` |
 | 4 | `src/lib/subedit/gui/mpv_player.cpp` |
 | 4 | `src/lib/subedit/gui/player_factory.cpp` |

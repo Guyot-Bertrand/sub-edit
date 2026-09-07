@@ -26,6 +26,7 @@ add_executable(
     core/text/hearing_impaired_test.cpp
     core/model/encoding_test.cpp
     core/model/format_extras_test.cpp
+    core/model/file_extras_test.cpp
     core/model/subtitle_test.cpp
     core/model/project_test.cpp
     core/model/project_video_test.cpp

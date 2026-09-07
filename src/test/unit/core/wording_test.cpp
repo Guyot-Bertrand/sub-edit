@@ -1,6 +1,8 @@
 #include <subedit/core/analysis/grid_verdict.hpp>
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/format/diagnostic.hpp>
+#include <subedit/core/format/write_error.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/wording.hpp>
 
@@ -13,6 +15,7 @@
 #include <set>
 #include <string_view>
 
+using subedit::core::extensionOf;
 using subedit::core::FrameRate;
 using subedit::core::nameOf;
 using subedit::core::StandardFrameRate;
@@ -196,4 +199,52 @@ TEST_CASE("the status line names the film and the rate it declares", "[wording]"
     // from the positions, which is another fact entirely.
     CHECK(videoStatusOf(film, FrameRate{StandardFrameRate::Fps23976}) ==
           "Video: le-canot.mkv, 24000/1001 fps");
+}
+
+TEST_CASE("every format has a name, and it is the one the outside world knows",
+          "[cli][wording][format]") {
+    // Named one by one rather than looped over, for the reason the clauses
+    // above give: a tenth format has to fail to compile here.
+    //
+    // **These strings are read outside this repository.** They are what
+    // `inspect` prints, and what `score-format-detection.py` compares its
+    // labels to — a name changed here without being changed there turns the
+    // score of the phase into nonsense while every test stays green.
+    using subedit::core::SubtitleFormat;
+    CHECK(nameOf(SubtitleFormat::SubRip) == "SubRip");
+    CHECK(nameOf(SubtitleFormat::WebVtt) == "WebVTT");
+    CHECK(nameOf(SubtitleFormat::SubViewer2) == "SubViewer 2");
+    CHECK(nameOf(SubtitleFormat::SubStationAlpha) == "Sub Station Alpha");
+    CHECK(nameOf(SubtitleFormat::AdvancedSubStationAlpha) == "Advanced SSA");
+    CHECK(nameOf(SubtitleFormat::MicroDvd) == "MicroDVD");
+    CHECK(nameOf(SubtitleFormat::Mpl2) == "MPL2");
+    CHECK(nameOf(SubtitleFormat::TMPlayer) == "TMPlayer");
+    CHECK(nameOf(SubtitleFormat::Lrc) == "LRC");
+}
+
+TEST_CASE("every format has an extension, and two of them are shared", "[cli][wording][format]") {
+    using subedit::core::SubtitleFormat;
+    CHECK(extensionOf(SubtitleFormat::SubRip) == ".srt");
+    CHECK(extensionOf(SubtitleFormat::WebVtt) == ".vtt");
+    CHECK(extensionOf(SubtitleFormat::SubViewer2) == ".sub");
+    CHECK(extensionOf(SubtitleFormat::SubStationAlpha) == ".ssa");
+    CHECK(extensionOf(SubtitleFormat::AdvancedSubStationAlpha) == ".ass");
+    CHECK(extensionOf(SubtitleFormat::MicroDvd) == ".sub");
+    CHECK(extensionOf(SubtitleFormat::Mpl2) == ".txt");
+    CHECK(extensionOf(SubtitleFormat::TMPlayer) == ".txt");
+    CHECK(extensionOf(SubtitleFormat::Lrc) == ".lrc");
+
+    // **The sharing is the point of this case.** Going this way there is one
+    // answer per format; going back there is none, which is why nothing in the
+    // library maps an extension to a format.
+    CHECK(extensionOf(SubtitleFormat::MicroDvd) == extensionOf(SubtitleFormat::SubViewer2));
+    CHECK(extensionOf(SubtitleFormat::Mpl2) == extensionOf(SubtitleFormat::TMPlayer));
+}
+
+TEST_CASE("the two reasons a writing can fail have a sentence", "[cli][wording][format]") {
+    using subedit::core::reasonOf;
+    using subedit::core::WriteErrorKind;
+    CHECK(reasonOf(WriteErrorKind::Unencodable) ==
+          "holds a character the chosen encoding cannot write");
+    CHECK(reasonOf(WriteErrorKind::NoWriter) == "cannot be written yet");
 }

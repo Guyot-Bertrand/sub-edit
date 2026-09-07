@@ -2,6 +2,7 @@
 
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/model/encoding.hpp>
+#include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -23,8 +24,11 @@ struct ReadResult {
     /// reader, so that a caller who did not choose it knows what it read.
     SubtitleFormat format = SubtitleFormat::SubRip;
 
-    /// The WebVTT header, empty for the formats that have none.
+    /// The free header, empty for the formats that have none.
     std::string header{};
+
+    /// What the file declared about itself that no subtitle carries — ADR 0030.
+    FileExtras extras{};
 
     /// Detected, and kept so that writing can put them back.
     Newline newline = Newline::Lf;
@@ -52,6 +56,7 @@ struct ReadResult {
         .newline = result.newline,
         .encoding = result.encoding,
         .header = result.header,
+        .extras = result.extras,
     };
 }
 
