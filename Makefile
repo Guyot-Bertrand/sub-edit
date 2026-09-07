@@ -200,6 +200,24 @@ score-record: ## Enregistre le score de détection mesuré comme nouveau relevé
 	@./src/scripts/score-encoding-detection.py --record \
 		--detector './build/dev/bin/subedit_detect_encoding {}'
 
+# Le score de la détection de format, et son enregistrement — issue #340.
+#
+# **Deux cibles pour les deux gestes**, comme `score` et `score-record`. Une
+# confusion, elle, échoue à elle seule : un format ouvert comme ce qu'il n'est
+# pas est ce que la règle du projet interdit, et un taux qui monte ne le rachète
+# pas.
+.PHONY: score-format
+score-format: ## Rejoue le score de détection de format et le confronte au relevé
+	@./src/scripts/gate.sh score-format
+
+.PHONY: score-format-record
+score-format-record: ## Enregistre le score de détection de format comme nouveau relevé
+	$(call step,"relevé de détection de format")
+	@cmake --preset dev >/dev/null
+	@cmake --build --preset dev -j $(JOBS) --target subedit_detect_format
+	@./src/scripts/score-format-detection.py --record \
+		--detector './build/dev/bin/subedit_detect_format {}'
+
 # La perte de conversion, et son enregistrement — issue #339.
 #
 # **Deux cibles pour les deux gestes**, comme `score` et `score-record`. Une
@@ -331,7 +349,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@./src/scripts/gate.sh check-local
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (cinquante-sept preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (cinquante-neuf preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog

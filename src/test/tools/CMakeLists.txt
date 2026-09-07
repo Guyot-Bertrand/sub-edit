@@ -37,3 +37,14 @@ add_executable(subedit_detect_encoding detect_encoding.cpp)
 target_link_libraries(subedit_detect_encoding PRIVATE subedit::core)
 
 subedit_set_warnings(subedit_detect_encoding)
+
+# La détection de format, sur la ligne de commande — #340.
+#
+# Le pendant de la précédente sur l'autre inconnue de la phase 9 : avec neuf
+# candidates, `.sub` et `.txt` désignent chacune deux formats, et une détection
+# qui se trompe se mesure au lieu de se croire.
+add_executable(subedit_detect_format detect_format.cpp)
+
+target_link_libraries(subedit_detect_format PRIVATE subedit::core)
+
+subedit_set_warnings(subedit_detect_format)

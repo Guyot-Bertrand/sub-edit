@@ -117,6 +117,7 @@ readonly VIDEO_FIXTURE="${REPO_ROOT}/src/test/data/videos/cadence-25.mp4"
 readonly GRID_FIXTURE="${REPO_ROOT}/src/test/data/grilles/grille-25.srt"
 readonly DETECTION_JOURNAL="${REPO_ROOT}/docs/mesures/detection-d-encodage.md"
 readonly CONVERSION_JOURNAL="${REPO_ROOT}/docs/mesures/conversion.md"
+readonly FORMAT_JOURNAL="${REPO_ROOT}/docs/mesures/detection-de-format.md"
 readonly GUI_MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-gui/table.md"
 readonly CAPTURE_REFERENCE="${REPO_ROOT}/docs/manual/subedit-gui/captures/table.png"
 readonly INSTALLATION_SOURCE="${REPO_ROOT}/cmake/Installation.cmake"
@@ -161,6 +162,7 @@ restore() {
     cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
     cp "${backup_dir}/detection-d-encodage.md" "${DETECTION_JOURNAL}"
     cp "${backup_dir}/conversion.md" "${CONVERSION_JOURNAL}"
+    cp "${backup_dir}/detection-de-format.md" "${FORMAT_JOURNAL}"
     cp "${backup_dir}/table.md" "${GUI_MANUAL_SOURCE}"
     cp "${backup_dir}/table.png" "${CAPTURE_REFERENCE}"
     cp "${backup_dir}/Installation.cmake" "${INSTALLATION_SOURCE}"
@@ -193,6 +195,7 @@ cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
 cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
 cp "${DETECTION_JOURNAL}" "${backup_dir}/detection-d-encodage.md"
 cp "${CONVERSION_JOURNAL}" "${backup_dir}/conversion.md"
+cp "${FORMAT_JOURNAL}" "${backup_dir}/detection-de-format.md"
 cp "${GUI_MANUAL_SOURCE}" "${backup_dir}/table.md"
 cp "${CAPTURE_REFERENCE}" "${backup_dir}/table.png"
 cp "${INSTALLATION_SOURCE}" "${backup_dir}/Installation.cmake"
@@ -972,6 +975,55 @@ expect_conversion_loss_gates() {
 
 expect_conversion_loss_gates
 
+# Le score de la détection de format, et son relevé — issue #340.
+#
+# **Les deux mêmes preuves que pour les deux autres relevés**, et pour la même
+# raison : le contrôle a trois issues et une seule est un refus.
+#
+# **La troisième issue du contrôle n est pas éprouvée ici**, et c est délibéré :
+# une confusion échoue à elle seule, quel que soit le taux, et l injecter
+# demanderait un détecteur dégradé plutôt qu un journal retouché — donc une
+# recompilation, pour prouver une branche de trois lignes. Le corpus, lui,
+# l éprouve : sept refus et pas une confusion, à chaque exécution.
+expect_format_score_gates() {
+    local recorded
+    recorded="$(sed -n 's/^ *formats reconnus *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
+        "${FORMAT_JOURNAL}")"
+    local right="${recorded% *}"
+    local total="${recorded#* }"
+
+    printf '%s▸ un score de détection de format en dessous de son relevé%s\n' "${BOLD}" "${RESET}"
+
+    sed -i "s|^ *formats reconnus *:.*$|    formats reconnus : ${total}/${total}|" \
+        "${FORMAT_JOURNAL}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory score-format >/dev/null 2>&1; then
+        printf '  %s✗ la porte « score-format » a laissé passer le recul%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make score-format » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    restore
+
+    printf '%s▸ un score de détection de format au dessus de son relevé%s\n' "${BOLD}" "${RESET}"
+
+    sed -i "s|^ *formats reconnus *:.*$|    formats reconnus : $((right - 1))/${total}|" \
+        "${FORMAT_JOURNAL}"
+
+    if make -C "${REPO_ROOT}" --no-print-directory score-format >/dev/null 2>&1; then
+        printf '  %s✓ « make score-format » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ la porte « score-format » a refusé une détection meilleure%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    restore
+}
+
+expect_format_score_gates
+
 # Le scorimètre ne peut pas nommer un fichier — issue #290.
 #
 # **Ce qui peut être faux ici n est pas un vert de trop, c est une fuite.** Le
@@ -1675,7 +1727,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles cinquante-sept portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles cinquante-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

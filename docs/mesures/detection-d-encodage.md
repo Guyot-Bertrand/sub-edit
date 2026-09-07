@@ -175,24 +175,34 @@ de `detectEncoding`. Rendre `nullopt` fait retomber `readSubtitles` sur l'UTF-8,
 qui échoue par construction : le fichier ne s'ouvre plus du tout. Une réponse
 imparfaite qu'un diagnostic annonce vaut mieux qu'un refus.
 
-## Corpus privé — 71 fichiers, sans étiquettes
+## Corpus privé — 73 fichiers, sans étiquettes
 
 `src/data/`, des fichiers réels. **Il ne donne aucun taux** : il n'y a pas de
 vérité à lui confronter, et s'en inventer une serait pire que de n'en pas avoir.
 Ce qu'il donne est ce qui se vérifie sans étiquette. Aucune porte ne le lit.
 
-| | notre détection | `uchardet`, témoin |
-| :--- | :-------------- | :----------------- |
-| fichiers qui se décodent entièrement sous la réponse | **71/71** | 71/71 |
-| réponses UTF-8 | 57 | 52 |
-| réponses de la famille latine | 14, dont 11 `cp1252` | 14, dont 5 dites `ascii` |
+**Il en portait déjà 73, et ce relevé en comptait 71** — c'est le parcours qui a
+changé, issue #340, pas le corpus. Il filtrait sur `.srt` et `.vtt`, donc il ne
+pouvait compter que du `.srt` et du `.vtt` ; l'initialisation de la phase 9 en a
+conclu, sur sa foi, que le corpus ne portait rien d'autre. Il porte aussi un
+MicroDVD et un Advanced SSA, réels, tous deux en UTF-8. C'est le défaut de
+#268 — vérifier avec l'outil qui ne compte pas — une fois de plus, et il valait
+deux fichiers.
 
-**Les deux se contredisent sur 14 fichiers sur 71**, et c'est le chiffre le plus
+| Réponse | notre détection | `uchardet`, témoin |
+| :------ | --------------: | -----------------: |
+| `utf-8` | 59 | 53 |
+| `cp1252` | 11 | 2 |
+| `iso8859-1` | 3 | 12 |
+| `ascii` | — | 6 |
+| fichiers qui se décodent entièrement sous la réponse | **73/73** | 73/73 |
+
+**Les deux se contredisent sur 15 fichiers sur 73**, et c'est le chiffre le plus
 instructif de la table. Aucun de ces désaccords ne porte sur autre chose que la
 famille latine : lire de l'ASCII comme du Latin-1 ne change aucun caractère du
 fichier tant qu'il n'est pas réécrit.
 
-Que 71 réponses sur 71 décodent le fichier de bout en bout **ne prouve à peu
+Que 73 réponses sur 73 décodent le fichier de bout en bout **ne prouve à peu
 près rien** : un encodage mono-octet décode presque toute suite d'octets, et
 c'est précisément d'où vient le mojibake. Le chiffre est nécessaire, il n'est
 pas suffisant. La section précédente en est la démonstration : les fichiers
