@@ -91,3 +91,23 @@ TEST_CASE("the two formats written to the thousandth are not taken for SubViewer
     CHECK(detectFormat("1\n00:00:01,000 --> 00:00:03,000\nUne.\n") == SubtitleFormat::SubRip);
     CHECK(detectFormat("WEBVTT\n\n00:01.000 --> 00:03.000\nUne.\n") == SubtitleFormat::WebVtt);
 }
+
+TEST_CASE("the two Sub Station Alpha formats are told apart by their version",
+          "[format][detection]") {
+    // **The `+` is the whole difference**, and Gaupol settles it the same way.
+    // A declaration beats a shape: a file saying what it is answers the
+    // question, where a line written a certain way only suggests it.
+    CHECK(detectFormat("[Script Info]\nScriptType: v4.00\n"
+                       "[Events]\nDialogue: Marked=0,0:00:01.00,0:00:03.00,Une.\n") ==
+          SubtitleFormat::SubStationAlpha);
+    CHECK(detectFormat("[Script Info]\nScriptType: v4.00+\n"
+                       "[Events]\nDialogue: 0,0:00:01.00,0:00:03.00,Une.\n") ==
+          SubtitleFormat::AdvancedSubStationAlpha);
+
+    // Case and blanks around the version are what real files vary on.
+    CHECK(detectFormat("ScriptType:   V4.00+  \n") == SubtitleFormat::AdvancedSubStationAlpha);
+}
+
+TEST_CASE("a script type of another version claims nothing", "[format][detection]") {
+    CHECK_FALSE(detectFormat("[Script Info]\nScriptType: v3.00\n").has_value());
+}

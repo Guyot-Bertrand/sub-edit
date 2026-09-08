@@ -151,6 +151,7 @@ TEST_CASE("Sub Station Alpha extras carry what an event line holds besides its t
     // in SSA and a layer number in Advanced SSA — the same column holding a
     // different thing, so it is held here as the number both are.
     const subedit::core::SubStationAlphaExtras ssa{
+        .marked = 1,
         .layer = 2,
         .style = "Default",
         .name = "Marie",
@@ -160,6 +161,7 @@ TEST_CASE("Sub Station Alpha extras carry what an event line holds besides its t
         .effect = "karaoke",
     };
 
+    CHECK(ssa.marked == 1);
     CHECK(ssa.layer == 2);
     CHECK(ssa.style == "Default");
     CHECK(ssa.name == "Marie");
@@ -169,8 +171,11 @@ TEST_CASE("Sub Station Alpha extras carry what an event line holds besides its t
     // What a subtitle of a file that declares none of it looks like: every
     // field at the value an event line leaves out.
     const subedit::core::SubStationAlphaExtras fromNowhere;
+    CHECK(fromNowhere.marked == 0);
     CHECK(fromNowhere.layer == 0);
-    CHECK(fromNowhere.style.empty());
+    // The one field whose default is not the empty value: every file declares a
+    // style by that name.
+    CHECK(fromNowhere.style == "Default");
     CHECK(fromNowhere.name.empty());
     CHECK(fromNowhere.marginLeft == 0);
     CHECK(fromNowhere.marginRight == 0);

@@ -213,9 +213,7 @@ TEST_CASE("a format that has no writer yet is refused, and named", "[format][fil
     //
     // Each of them leaves this list as its writer lands, and the case is gone
     // when the last one does — its failing is how the phase says it is over.
-    const std::array<SubtitleFormat, 6> waiting = {
-        SubtitleFormat::SubStationAlpha,
-        SubtitleFormat::AdvancedSubStationAlpha,
+    const std::array<SubtitleFormat, 4> waiting = {
         SubtitleFormat::MicroDvd,
         SubtitleFormat::Mpl2,
         SubtitleFormat::TMPlayer,
@@ -238,8 +236,11 @@ TEST_CASE("the formats that have a writer still write", "[format][file]") {
     // the refusal is a list and not a default, so a format wrongly left in it
     // is caught here. SubViewer 2 arrived with a writer while still listed as
     // waiting, and this case is what said so.
-    for (const SubtitleFormat format :
-         {SubtitleFormat::SubRip, SubtitleFormat::WebVtt, SubtitleFormat::SubViewer2}) {
+    for (const SubtitleFormat format : {SubtitleFormat::SubRip,
+                                        SubtitleFormat::WebVtt,
+                                        SubtitleFormat::SubViewer2,
+                                        SubtitleFormat::SubStationAlpha,
+                                        SubtitleFormat::AdvancedSubStationAlpha}) {
         INFO("format : " << subedit::core::nameOf(format));
         CHECK(writeSubtitles(format, WriteRequest{}).has_value());
     }

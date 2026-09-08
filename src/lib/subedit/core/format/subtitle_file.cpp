@@ -4,6 +4,8 @@
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/sub_rip_reader.hpp>
 #include <subedit/core/format/sub_rip_writer.hpp>
+#include <subedit/core/format/sub_station_alpha_reader.hpp>
+#include <subedit/core/format/sub_station_alpha_writer.hpp>
 #include <subedit/core/format/sub_viewer2_reader.hpp>
 #include <subedit/core/format/sub_viewer2_writer.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
@@ -59,6 +61,7 @@ namespace {
         return SubViewer2Writer{}.write(request);
     case SubtitleFormat::SubStationAlpha:
     case SubtitleFormat::AdvancedSubStationAlpha:
+        return SubStationAlphaWriter{format}.write(request);
     case SubtitleFormat::MicroDvd:
     case SubtitleFormat::Mpl2:
     case SubtitleFormat::TMPlayer:
@@ -82,6 +85,7 @@ namespace {
         return SubViewer2Reader{}.read(content);
     case SubtitleFormat::SubStationAlpha:
     case SubtitleFormat::AdvancedSubStationAlpha:
+        return SubStationAlphaReader{format}.read(content);
     case SubtitleFormat::MicroDvd:
     case SubtitleFormat::Mpl2:
     case SubtitleFormat::TMPlayer:

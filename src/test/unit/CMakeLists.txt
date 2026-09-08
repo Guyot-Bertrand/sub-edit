@@ -65,6 +65,10 @@ add_executable(
     core/format/sub_rip_reader_test.cpp
     core/format/sub_rip_writer_test.cpp
     core/format/sub_rip_round_trip_test.cpp
+    core/format/sub_station_alpha_reader_test.cpp
+    core/format/sub_station_alpha_writer_test.cpp
+    core/format/sub_station_alpha_round_trip_test.cpp
+    core/format/sub_station_alpha_syntax_test.cpp
     core/format/sub_viewer2_reader_test.cpp
     core/format/sub_viewer2_writer_test.cpp
     core/format/sub_viewer2_round_trip_test.cpp

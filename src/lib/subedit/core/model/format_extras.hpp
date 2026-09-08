@@ -45,13 +45,27 @@ struct WebVttExtras {
 /// What a Sub Station Alpha subtitle carries beyond positions and text.
 ///
 /// **One branch for the two formats**, which is what they are: `ass.py`
-/// inherits from `ssa.py` in Gaupol, and the event fields differ by one. The
-/// first is `Marked=0` in SSA and a layer number in Advanced SSA — the same
-/// column, holding a different thing — so it is held here as the number both
-/// are, and each writer says it its own way.
+/// inherits from `ssa.py` in Gaupol, and the event fields differ by one.
+///
+/// **That one is held as two fields and not as one**, which the first sketch of
+/// this struct got wrong. `Marked=1` is a bookmark someone put on a line;
+/// `Layer: 1` is what a subtitle is drawn on top of. They occupy the same
+/// column, and they do not mean the same thing — folding them together would
+/// turn a bookmark into a z-order the day a file is converted from one format
+/// to the other. Gaupol keeps them apart, and so does this.
 struct SubStationAlphaExtras {
+    /// `Marked=N`, the first event field of Sub Station Alpha.
+    int marked = 0;
+
+    /// The first event field of Advanced SSA, and what a subtitle is drawn over.
     int layer = 0;
-    std::string style{};
+
+    /// **`Default` and not empty**, which is Gaupol's default too: every Sub
+    /// Station Alpha file declares a style by that name, so a subtitle that
+    /// came from another format is written under the one style the file is
+    /// sure to have.
+    std::string style = "Default";
+
     std::string name{};
     int marginLeft = 0;
     int marginRight = 0;

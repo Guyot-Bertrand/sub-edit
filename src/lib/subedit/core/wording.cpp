@@ -256,6 +256,9 @@ std::string_view nameOf(DiagnosticKind kind) {
         return "text before the first timing line";
     case DiagnosticKind::UnknownBlock:
         return "a WebVTT block of an unknown kind";
+    case DiagnosticKind::UnknownEventField:
+        // The column is the detail, so the sentence does not name it twice.
+        return "declares an event column this tool cannot fill";
     case DiagnosticKind::MixedNewlines:
         return "more than one kind of line ending";
     case DiagnosticKind::GuessedEncoding:

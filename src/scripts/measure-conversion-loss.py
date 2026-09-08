@@ -80,6 +80,8 @@ TARGET_OF = {
     "SubRip": "srt",
     "WebVTT": "vtt",
     "SubViewer 2": "subviewer2",
+    "Sub Station Alpha": "ssa",
+    "Advanced SSA": "ass",
 }
 
 GREEN = "\033[32m"
