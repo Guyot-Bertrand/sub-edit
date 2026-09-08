@@ -14,6 +14,9 @@ namespace subedit::core {
 namespace {
 
 constexpr std::string_view kSignature = "WEBVTT";
+constexpr std::string_view kScriptType = "ScriptType:";
+constexpr std::string_view kAdvancedVersion = "4.00+";
+constexpr std::string_view kVersion = "4.00";
 constexpr std::string_view kArrow = "-->";
 constexpr std::string_view kBlanks = " \t";
 
@@ -42,6 +45,29 @@ constexpr std::string_view kBlanks = " \t";
     return stamp.contains(',') && Timestamp::parse(stamp).has_value();
 }
 
+/// Reads `ScriptType: v4.00+`, which is the one line the two formats disagree on.
+///
+/// **The `+` is the whole difference**, and Gaupol settles it the same way. It
+/// is checked before the version without it, since one is a prefix of the other.
+[[nodiscard]] std::optional<SubtitleFormat> scriptTypeOf(std::string_view line) {
+    const std::string_view text = trimmedBlanks(line);
+    if (!text.starts_with(kScriptType))
+        return std::nullopt;
+
+    std::string_view version = trimmedBlanks(text.substr(kScriptType.size()));
+
+    // The `v` comes in both cases in the wild, and Gaupol's pattern accepts
+    // both. Nothing else about the line varies.
+    if (version.starts_with('v') || version.starts_with('V'))
+        version.remove_prefix(1);
+
+    if (version == kAdvancedVersion)
+        return SubtitleFormat::AdvancedSubStationAlpha;
+    if (version == kVersion)
+        return SubtitleFormat::SubStationAlpha;
+    return std::nullopt;
+}
+
 } // namespace
 
 std::optional<SubtitleFormat> detectFormat(std::string_view content) {
@@ -53,6 +79,15 @@ std::optional<SubtitleFormat> detectFormat(std::string_view content) {
 
     if (std::ranges::any_of(lines, isSubRipTimeLine))
         return SubtitleFormat::SubRip;
+
+    // **A declaration, and the only one of the nine formats that carries one.**
+    // It comes before the timestamp lines below because it is stronger than
+    // them: a file saying what it is settles the question, where a line shaped
+    // a certain way only suggests it.
+    for (const std::string_view line : lines) {
+        if (const std::optional<SubtitleFormat> declared = scriptTypeOf(line))
+            return declared;
+    }
 
     // **The `[INFORMATION]` header is not what settles it, the timestamp line
     // is.** A header is a promise a file makes about itself; a timestamp line

@@ -167,3 +167,13 @@ TEST_CASE("a line of the right length with the wrong punctuation is not a timest
     REQUIRE_FALSE(refused.has_value());
     CHECK(refused.error().kind == ReadErrorKind::NoSubtitleFound);
 }
+
+TEST_CASE("a letter where a digit belongs is not a timestamp either", "[format][subviewer2]") {
+    // The other half of the shape: the three fixed places hold punctuation, and
+    // the eight others hold digits. Both are checked, and both refuse.
+    const std::expected<ReadResult, ReadError> refused =
+        SubViewer2Reader{}.read("0X:00:01.00,00:00:03.00\nUne réplique.\n");
+
+    REQUIRE_FALSE(refused.has_value());
+    CHECK(refused.error().kind == ReadErrorKind::NoSubtitleFound);
+}

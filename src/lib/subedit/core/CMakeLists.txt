@@ -42,6 +42,9 @@ add_library(
     format/format_detection.cpp
     format/sub_rip_reader.cpp
     format/sub_rip_writer.cpp
+    format/sub_station_alpha_reader.cpp
+    format/sub_station_alpha_syntax.cpp
+    format/sub_station_alpha_writer.cpp
     format/sub_viewer2_reader.cpp
     format/sub_viewer2_syntax.cpp
     format/sub_viewer2_writer.cpp

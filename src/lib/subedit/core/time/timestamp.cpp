@@ -119,7 +119,16 @@ std::string Timestamp::format(DecimalMark mark, HourField hours, Decimals decima
         text += '-';
     // Below one hour the hours may be dropped, as WebVTT allows. Above it they
     // come back: minutes past fifty-nine would not read back.
-    if (hours == HourField::Always || hourCount > 0) {
+    //
+    // **Unpadded is not the same as narrow.** Sub Station Alpha writes one hour
+    // digit, and Gaupol gets there by cutting the first character off a padded
+    // string — which would eat the tens digit of a file past ten hours. Writing
+    // the count without padding says the same thing for the hours a file
+    // really has, and keeps saying it beyond.
+    if (hours == HourField::Unpadded) {
+        text += std::to_string(hourCount);
+        text += ':';
+    } else if (hours == HourField::Always || hourCount > 0) {
         appendDigits(text, hourCount, kFieldDigits);
         text += ':';
     }

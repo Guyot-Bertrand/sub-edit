@@ -19,10 +19,11 @@ enum class DecimalMark {
     Period, ///< `00:00:01.500`, as WebVTT writes it
 };
 
-/// Whether the hours field is written.
+/// How the hours field is written.
 enum class HourField {
-    Always,  ///< `HH:MM:SS`
-    Omitted, ///< `MM:SS`, unless the position reaches one hour
+    Always,   ///< `HH:MM:SS`
+    Omitted,  ///< `MM:SS`, unless the position reaches one hour
+    Unpadded, ///< `H:MM:SS`, as the two Sub Station Alpha formats write it
 };
 
 /// How many decimals of a second a format writes.

@@ -53,6 +53,8 @@ TEST_CASE("every kind of diagnostic has a phrase", "[cli][wording]") {
     CHECK(nameOf(DiagnosticKind::InconsistentNumbering) == "SubRip numbers that do not follow");
     CHECK(nameOf(DiagnosticKind::TextBeforeAnyTimestamp) == "text before the first timing line");
     CHECK(nameOf(DiagnosticKind::UnknownBlock) == "a WebVTT block of an unknown kind");
+    CHECK(nameOf(DiagnosticKind::UnknownEventField) ==
+          "declares an event column this tool cannot fill");
     CHECK(nameOf(DiagnosticKind::MixedNewlines) == "more than one kind of line ending");
     CHECK(nameOf(DiagnosticKind::GuessedEncoding) == "an encoding nothing declared");
     CHECK(nameOf(DiagnosticKind::MarkOverridesEncoding) ==
