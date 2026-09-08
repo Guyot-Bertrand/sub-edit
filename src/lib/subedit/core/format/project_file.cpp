@@ -56,6 +56,16 @@ std::expected<OpenedFile, OpenError> openProject(const FileSystem& files,
     return projectOf(readSubtitles(*content), path, content->size());
 }
 
+std::expected<OpenedFile, OpenError> openProject(const FileSystem& files,
+                                                 const std::filesystem::path& path,
+                                                 const ReadingChoices& choices) {
+    const std::expected<std::string, FileError> content = files.readFile(path);
+    if (!content.has_value())
+        return std::unexpected(OpenError{content.error()});
+
+    return projectOf(readSubtitles(*content, choices), path, content->size());
+}
+
 std::expected<void, SaveError> saveProject(FileSystem& files,
                                            const Project& project,
                                            const std::filesystem::path& path,

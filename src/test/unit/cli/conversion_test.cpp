@@ -2,6 +2,8 @@
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/time/frame_rate.hpp>
+#include <subedit/core/time/timestamp.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
@@ -53,8 +55,13 @@ Run convert(const std::string& content,
 
     std::ostringstream errors;
     const Destination destination = Destination::from("", outputDir, false, 1).value();
-    const ExitCode code = convertAll(
-        files, {"in/a.srt"}, std::nullopt, target, shape, destination, Reporter{errors, 0});
+    const ExitCode code = convertAll(files,
+                                     {"in/a.srt"},
+                                     subedit::core::ReadingChoices{},
+                                     target,
+                                     shape,
+                                     destination,
+                                     Reporter{errors, 0});
 
     const std::string extension = target == SubtitleFormat::WebVtt ? ".vtt" : ".srt";
     return {.code = code,
@@ -81,7 +88,7 @@ TEST_CASE("the written file lands under the extension of its format", "[cli][con
 
     CHECK(convertAll(files,
                      {"in/a.srt"},
-                     std::nullopt,
+                     subedit::core::ReadingChoices{},
                      SubtitleFormat::WebVtt,
                      {},
                      Destination::from("", "out", false, 1).value(),
@@ -185,14 +192,14 @@ TEST_CASE("a round trip through the other format keeps the timings", "[cli][conv
 
     CHECK(convertAll(files,
                      {"a.srt"},
-                     std::nullopt,
+                     subedit::core::ReadingChoices{},
                      SubtitleFormat::WebVtt,
                      {},
                      Destination::from("", "one", false, 1).value(),
                      quiet) == ExitCode::Success);
     CHECK(convertAll(files,
                      {"one/a.vtt"},
-                     std::nullopt,
+                     subedit::core::ReadingChoices{},
                      SubtitleFormat::SubRip,
                      {},
                      Destination::from("", "two", false, 1).value(),
@@ -211,7 +218,7 @@ TEST_CASE("a file that cannot be read is named and the others go on", "[cli][con
 
     const ExitCode code = convertAll(files,
                                      {"absent.srt", "good.srt"},
-                                     std::nullopt,
+                                     subedit::core::ReadingChoices{},
                                      SubtitleFormat::WebVtt,
                                      {},
                                      Destination::from("", "out", false, 2).value(),
@@ -230,7 +237,7 @@ TEST_CASE("a write that fails is reported and counted", "[cli][conversion]") {
 
     const ExitCode code = convertAll(files,
                                      {"a.srt"},
-                                     std::nullopt,
+                                     subedit::core::ReadingChoices{},
                                      SubtitleFormat::WebVtt,
                                      {},
                                      Destination::from("", "out", false, 1).value(),
@@ -247,7 +254,7 @@ TEST_CASE("the narration says what was written and where", "[cli][conversion]") 
 
     static_cast<void>(convertAll(files,
                                  {"a.srt"},
-                                 std::nullopt,
+                                 subedit::core::ReadingChoices{},
                                  SubtitleFormat::WebVtt,
                                  {},
                                  Destination::from("", "out", false, 1).value(),
@@ -295,7 +302,7 @@ TEST_CASE("a readable file in no known format is refused", "[cli][conversion]") 
 
     const ExitCode code = convertAll(files,
                                      {"a.srt"},
-                                     std::nullopt,
+                                     subedit::core::ReadingChoices{},
                                      SubtitleFormat::WebVtt,
                                      {},
                                      Destination::from("", "out", false, 1).value(),
@@ -303,4 +310,92 @@ TEST_CASE("a readable file in no known format is refused", "[cli][conversion]") 
 
     CHECK(code == ExitCode::AllFailed);
     CHECK_THAT(errors.str(), ContainsSubstring("is in no format this tool knows"));
+}
+
+namespace {
+
+/// A file whose positions fall on a grid at twenty-five frames a second.
+///
+/// **Long enough for the deduction to answer.** Three subtitles fall on every
+/// grid at once; the measurement of phase 16 says so rather than guess, and a
+/// test that gave it three would be measuring its silence.
+[[nodiscard]] std::string onAGridOf(int subtitles) {
+    constexpr int kFrame = 40; // milliseconds, at twenty-five a second
+    std::string text;
+    for (int index = 1; index <= subtitles; ++index) {
+        const int start = index * 13 * kFrame;
+        const int end = start + (25 * kFrame);
+        text += std::to_string(index) + "\n" +
+                subedit::core::Timestamp::fromMilliseconds(start).format(
+                    subedit::core::DecimalMark::Comma) +
+                " --> " +
+                subedit::core::Timestamp::fromMilliseconds(end).format(
+                    subedit::core::DecimalMark::Comma) +
+                "\nSubtitle " + std::to_string(index) + ".\n\n";
+    }
+    return text;
+}
+
+/// A file whose positions fall on nothing: a millisecond off, every time.
+const std::string kOnNoGrid = "1\n"
+                              "00:00:01,001 --> 00:00:03,003\n"
+                              "First.\n"
+                              "\n"
+                              "2\n"
+                              "00:00:04,007 --> 00:00:06,013\n"
+                              "Second.\n"
+                              "\n";
+
+/// Converts into frames, saying a rate or leaving it to be worked out.
+Run convertToFrames(const std::string& content,
+                    const std::optional<subedit::core::FrameRate>& rate,
+                    int verbosity = 0) {
+    InMemoryFileSystem files;
+    files.addFile("in/a.srt", content);
+
+    std::ostringstream errors;
+    const Destination destination = Destination::from("", "out", false, 1).value();
+    const ExitCode code = convertAll(files,
+                                     {"in/a.srt"},
+                                     subedit::core::ReadingChoices{.frameRate = rate},
+                                     SubtitleFormat::MicroDvd,
+                                     {},
+                                     destination,
+                                     Reporter{errors, verbosity});
+
+    return {
+        .code = code, .written = files.readFile("out/a.sub").value_or(""), .errors = errors.str()};
+}
+
+} // namespace
+
+TEST_CASE("writing frames takes the rate that was given", "[cli][convert][frames]") {
+    const Run run = convertToFrames(
+        kOnNoGrid, subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps25});
+
+    CHECK(run.code == ExitCode::Success);
+    CHECK(run.written == "{25}{75}First.\n{100}{150}Second.\n");
+}
+
+TEST_CASE("without a rate, writing frames takes the grid the positions fall on",
+          "[cli][convert][frames]") {
+    // **The one place the deduction of phase 16 decides rather than informs.**
+    // The rate a time-based file was timed at *is* its grid, and taking it is
+    // the only answer that does not move a single subtitle.
+    const Run run = convertToFrames(onAGridOf(40), std::nullopt, 2);
+
+    CHECK(run.code == ExitCode::Success);
+    CHECK(run.written.starts_with("{13}{38}Subtitle 1.\n{26}{51}Subtitle 2.\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("counted in frames at 25"));
+}
+
+TEST_CASE("without a rate and without a grid, writing frames is refused",
+          "[cli][convert][frames]") {
+    // The only move left would be to invent a number, and every subtitle in the
+    // file would move by it. Refusing names the option that settles it.
+    const Run run = convertToFrames(kOnNoGrid, std::nullopt);
+
+    CHECK(run.code == ExitCode::AllFailed);
+    CHECK(run.written.empty());
+    CHECK_THAT(run.errors, ContainsSubstring("--frame-rate"));
 }

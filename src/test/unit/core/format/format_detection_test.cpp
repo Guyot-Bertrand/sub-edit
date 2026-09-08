@@ -115,10 +115,18 @@ TEST_CASE("a script type of another version claims nothing", "[format][detection
 TEST_CASE("MPL2 is recognised by two bracketed numbers opening a line", "[format][detection]") {
     CHECK(detectFormat("[10][30]Une réplique.\n") == SubtitleFormat::Mpl2);
 
-    // The three that open on a bracket or a brace and are not MPL2. Only the
-    // first two exist as formats today; the third is what MicroDVD looks like,
-    // and it must not be claimed by anyone before its reader lands.
+    // The two that open on a bracket and are not MPL2. Neither exists as a
+    // format yet, and each has to stay unclaimed until its reader lands — the
+    // brace that stood here left this list the day MicroDVD arrived, which is
+    // the whole use of writing them down.
     CHECK_FALSE(detectFormat("[00:12.34]Une réplique.\n").has_value());
     CHECK_FALSE(detectFormat("[INFORMATION]\n[TITLE]Le port\n").has_value());
-    CHECK_FALSE(detectFormat("{25}{75}Une réplique.\n").has_value());
+}
+
+TEST_CASE("MicroDVD is recognised by two braced numbers opening a line", "[format][detection]") {
+    // The same grammar as MPL2 with braces instead of brackets, and the only
+    // pair of the nine that had to be told apart with care.
+    CHECK(detectFormat("{25}{75}Une réplique.\n") == SubtitleFormat::MicroDvd);
+    CHECK(detectFormat("{DEFAULT}{}{Sans}\n{25}{75}Une réplique.\n") == SubtitleFormat::MicroDvd);
+    CHECK(detectFormat("[10][30]Une réplique.\n") == SubtitleFormat::Mpl2);
 }

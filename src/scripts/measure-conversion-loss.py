@@ -83,6 +83,7 @@ TARGET_OF = {
     "Sub Station Alpha": "ssa",
     "Advanced SSA": "ass",
     "MPL2": "mpl2",
+    "MicroDVD": "microdvd",
 }
 
 GREEN = "\033[32m"
@@ -142,12 +143,20 @@ def corpus_files():
     return found
 
 
+# Ce qu'une paire rend quand la conversion refuse de la faire.
+#
+# **Un refus n'est pas une perte**, et le compter comme telle dirait le
+# contraire de ce qu'il est. `convert --to microdvd` refuse un fichier temporel
+# sans grille et sans `--frame-rate` : la seule autre issue serait d'inventer une
+# fréquence et de déplacer chaque réplique. La paire n'est pas mesurable, elle
+# n'est pas perdue.
+REFUSED = object()
+
+
 def round_trip(binary, path, home, via, work):
     """Envoie le fichier en `via`, le ramène en `home`, et rend ce qui revient.
 
-    Rend `None` quand l'une des deux conversions refuse — un refus n'est pas
-    une perte, et le confondre avec une perte ferait passer une panne pour une
-    mesure.
+    Rend `REFUSED` quand l'une des deux conversions refuse.
     """
     outward = work / f"aller.{via}"
     back = work / f"retour.{home}"
@@ -155,7 +164,7 @@ def round_trip(binary, path, home, via, work):
         done = run(binary, ["--quiet", "convert", "--to", target,
                             "--output", str(output), str(source)])
         if done.returncode != 0:
-            return None
+            return REFUSED
     return back.read_bytes()
 
 
@@ -163,6 +172,7 @@ def measure(binary, known):
     """Chaque fichier lisible, envoyé dans chacun des autres formats."""
     trips = []
     unreadable = 0
+    refused = []
 
     with tempfile.TemporaryDirectory() as scratch:
         work = Path(scratch)
@@ -184,12 +194,13 @@ def measure(binary, known):
                 if via == home:
                     continue
                 came_back = round_trip(binary, path, home, via, work)
-                if came_back is None:
-                    fail(f"la conversion a échoué sur {path.name}, en passant par {via}")
+                if came_back is REFUSED:
+                    refused.append((path, via))
+                    continue
                 trips.append((path, name, via, came_back == original,
                               None if came_back == original else came_back))
 
-    return trips, unreadable
+    return trips, unreadable, refused
 
 
 def relative(path):
@@ -234,10 +245,12 @@ def matrix(trips):
     return cells
 
 
-def report(trips, unreadable):
+def report(trips, unreadable, refused):
     kept = sum(1 for *_, intact, _ in trips if intact)
     total = len(trips)
     print(f"    aller-retour intacts : {kept}/{total}")
+    if refused:
+        print(f"    {len(refused)} paire(s) que la conversion refuse de faire")
     if unreadable:
         print(f"    {unreadable} fichier(s) du corpus ne s ouvrent pas encore")
     return kept, total
@@ -272,7 +285,7 @@ def version_of():
     return ""
 
 
-def rewrite_journal(trips, unreadable, known, kept, total):
+def rewrite_journal(trips, unreadable, refused, known, kept, total):
     """Réécrit le seul bloc engendré du journal, et laisse la prose intacte."""
     text = journal_text()
     opened = text.find(BLOCK_OPEN)
@@ -313,6 +326,11 @@ def rewrite_journal(trips, unreadable, known, kept, total):
         body.append("Aucun aller-retour altéré.\n")
     body.append("\n")
 
+    if refused:
+        body.append(f"**{len(refused)} paire(s) que la conversion refuse de faire** — un fichier"
+                    " temporel vers un format en images, sans grille et sans fréquence donnée."
+                    " Un refus n'est pas une perte, et n'entre donc pas dans le compte"
+                    " ci-dessus.\n\n")
     if unreadable:
         body.append(f"{unreadable} fichier(s) du corpus ne s'ouvrent pas encore et"
                     " n'entrent dans aucune mesure.\n\n")
@@ -326,10 +344,10 @@ def rewrite_journal(trips, unreadable, known, kept, total):
     return 0
 
 
-def compare_to_journal(trips, unreadable, known, kept, total, record):
+def compare_to_journal(trips, unreadable, refused, known, kept, total, record):
     """Les trois situations, séparément — la mécanique de `make score`."""
     if record:
-        return rewrite_journal(trips, unreadable, known, kept, total)
+        return rewrite_journal(trips, unreadable, refused, known, kept, total)
 
     was, over = recorded_count(journal_text())
     command = "make conversion-record"
@@ -378,11 +396,11 @@ def main():
              "  le construire : cmake --build --preset dev --target subedit-cli")
 
     known = targets(binary)
-    trips, unreadable = measure(binary, known)
+    trips, unreadable, refused = measure(binary, known)
     if not trips:
         fail("aucun aller-retour à mesurer : le corpus ou le binaire ne rendent rien")
 
-    kept, total = report(trips, unreadable)
+    kept, total = report(trips, unreadable, refused)
 
     if options.diff:
         for path, _, via, intact, came_back in trips:
@@ -391,7 +409,8 @@ def main():
                 show_diff(path, came_back)
 
     if options.journal or options.record:
-        return compare_to_journal(trips, unreadable, known, kept, total, options.record)
+        return compare_to_journal(trips, unreadable, refused, known, kept, total,
+                                  options.record)
     return 0
 
 

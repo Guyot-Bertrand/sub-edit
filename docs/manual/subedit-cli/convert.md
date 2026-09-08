@@ -22,11 +22,12 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass,mpl2} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,mpl2,microdvd} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
   --to-encoding NAME          Encoding to write; the source's by default
+  --frame-rate RATE           Frame rate of a file counted in frames: 25, 23.976
   --bom                       Write a byte order mark
   --no-bom                    Write no byte order mark
   --output TEXT               File to write, for a single input
@@ -57,6 +58,7 @@ Options:
 | `ssa` | Sub Station Alpha | `.ssa` |
 | `ass` | Advanced SSA | `.ass` |
 | `mpl2` | MPL2 | `.txt` |
+| `microdvd` | MicroDVD | `.sub` |
 
 **Un nom, et pas une extension.** Deux extensions désignent deux formats
 chacune — `.sub` est aussi celle de MicroDVD, `.txt` celle de MPL2 et de
@@ -65,6 +67,34 @@ est demandé. Les noms ci-dessus sont sans ambiguïté, et coïncident avec
 l'extension partout où celle-ci l'est aussi.
 
 **La liste s'allonge, elle ne change pas.** Un nom déjà offert le reste.
+
+## `--frame-rate`, et le seul format qui compte en images
+
+**MicroDVD ne compte pas en secondes** : ses positions *sont* des numéros
+d'image, et aucun fichier MicroDVD ne déclare la fréquence à laquelle ils ont
+été comptés. `--frame-rate` la donne, et sert des deux côtés : elle est la
+fréquence à laquelle un `.sub` en images est lu, et celle à laquelle une
+conversion vers MicroDVD compte les images.
+
+| Option | Requis | Valeurs | Défaut |
+| :----- | :----- | :------ | :----- |
+| `--frame-rate` | non | une fréquence en images par seconde : `25`, `23.976`, `29.97` | voir ci-dessous |
+
+**À la lecture, sans `--frame-rate`, le fichier est lu à 23,976** — la valeur de
+Gaupol — et le niveau `-vvv` le dit : `counts in frames and states no rate; it
+was read at`. C'est le seul endroit de l'outil où toutes les positions affichées
+reposent sur une hypothèse que le fichier ne peut pas confirmer.
+
+**À l'écriture, sans `--frame-rate`, trois cas et trois réponses :**
+
+| Le fichier de départ | Ce qui se passe |
+| :------------------- | :-------------- |
+| est déjà du MicroDVD | la fréquence qui l'a lu le réécrit, et les images reviennent identiques |
+| est temporel, et ses positions tombent sur une grille | la grille est prise, et `-vv` dit laquelle |
+| est temporel, sans grille | **refus**, code 2 : `writing frames needs a frame rate, and the positions fall on no grid to take one from — give --frame-rate` |
+
+Le refus est délibéré. Le seul geste restant serait d'inventer un chiffre, et
+chaque réplique du fichier bougerait de ce qu'il aurait de faux.
 
 ## Ce qu'une conversion perd
 
@@ -75,7 +105,7 @@ pas dépend de la paire :
 | :--------------------- | :------- |
 | l'en-tête | il n'a de sens que dans son format : `[INFORMATION]` n'est pas une en-tête WebVTT |
 | les données propres au format | les coordonnées de SubRip, l'identifiant et les réglages d'une cellule WebVTT n'ont pas d'équivalent ailleurs |
-| la précision | SubViewer 2 et les deux Sub Station Alpha écrivent au centième, MPL2 au dixième ; `01:00:00,017` en revient à `01:00:00,020` |
+| la précision | SubViewer 2 et les deux Sub Station Alpha écrivent au centième, MPL2 au dixième, MicroDVD à l'image ; `01:00:00,017` en revient à `01:00:00,020` |
 | les balises de mise en forme | `{\i1}` d'un `.ass` n'est pas `<i>` d'un `.srt` — la traduction des balises n'est pas encore écrite |
 
 **Réécrire un fichier dans son propre format ne perd rien** — c'est la garantie

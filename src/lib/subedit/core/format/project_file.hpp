@@ -3,6 +3,7 @@
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/save_error.hpp>
+#include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -53,6 +54,16 @@ struct OpenedFile {
 /// not subtitles.
 [[nodiscard]] std::expected<OpenedFile, OpenError> openProject(const FileSystem& files,
                                                                const std::filesystem::path& path);
+
+/// Reads it under what the caller knows and the file does not say.
+///
+/// **The overload the two others are short forms of** — an encoding, a frame
+/// rate, or neither. It exists because a `.sub` counted in frames means nothing
+/// until someone names a rate, and the one who knows it is upstream of every
+/// reading.
+[[nodiscard]] std::expected<OpenedFile, OpenError> openProject(const FileSystem& files,
+                                                               const std::filesystem::path& path,
+                                                               const ReadingChoices& choices);
 
 /// Reads `path` in the encoding given, rather than in the one it proposes.
 ///

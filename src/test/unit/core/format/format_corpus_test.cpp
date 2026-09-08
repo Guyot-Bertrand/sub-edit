@@ -20,6 +20,7 @@
 #include <subedit/core/format/write_error.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/time/frame_rate.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -28,18 +29,23 @@
 #include <cstdint>
 #include <expected>
 #include <filesystem>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 namespace {
 
+using subedit::core::FrameRate;
 using subedit::core::ReadError;
 using subedit::core::ReadErrorKind;
+using subedit::core::ReadingChoices;
 using subedit::core::ReadResult;
 using subedit::core::readSubtitles;
 using subedit::core::RealFileSystem;
+using subedit::core::StandardFrameRate;
 using subedit::core::Subtitle;
 using subedit::core::WriteError;
 using subedit::core::WriteRequest;
@@ -85,6 +91,14 @@ struct Promise {
     std::span<const std::string_view> texts;
     /// The ends, whether the file carries them or a reading invents them.
     std::span<const std::int64_t> ends;
+
+    /// The rate the rendering was written for, for the format that states none.
+    ///
+    /// **This is the condition of a conditional promise, written down.** The
+    /// MicroDVD rendering of the scene holds frame numbers, and they are the
+    /// same scene as the eight others only at the rate they were counted at.
+    /// Read at any other, the file is still read — and it is another scene.
+    std::optional<FrameRate> frameRate{};
 };
 
 /// The four starts, shared by the nine renderings.
@@ -186,9 +200,10 @@ constexpr std::array<Promise, 9> kPromises = {
     Promise{.file = "scene.microdvd.sub",
             .name = "MicroDVD",
             .roundTrip = RoundTrip::Conditional,
-            .support = Support::NotYet,
+            .support = Support::Readable,
             .texts = kMicroDvdItalics,
-            .ends = kCarriedEnds},
+            .ends = kCarriedEnds,
+            .frameRate = FrameRate{StandardFrameRate::Fps25}},
     Promise{.file = "scene.mpl2.txt",
             .name = "MPL2",
             .roundTrip = RoundTrip::Bytes,
@@ -276,6 +291,11 @@ TEST_CASE("the promise table says the same thing twice, and agrees with itself",
         const bool invents = promise.roundTrip == RoundTrip::BytesEmptily;
         CHECK(std::ranges::equal(promise.ends, invents ? kInventedEnds : kCarriedEnds));
         CHECK(promise.texts.size() == kStarts.size());
+
+        // A conditional promise names its condition, and no other does: a rate
+        // written beside a format that states its own times would be a rate
+        // nothing reads.
+        CHECK(promise.frameRate.has_value() == (promise.roundTrip == RoundTrip::Conditional));
     }
 }
 
@@ -285,7 +305,8 @@ TEST_CASE("every rendering that can be read gives back the same scene", "[format
             continue;
 
         INFO("format : " << promise.name);
-        const std::expected<ReadResult, ReadError> result = readSubtitles(bytesOf(promise.file));
+        const std::expected<ReadResult, ReadError> result =
+            readSubtitles(bytesOf(promise.file), ReadingChoices{.frameRate = promise.frameRate});
         REQUIRE(result.has_value());
         REQUIRE(result->subtitles.size() == kStarts.size());
 
@@ -321,6 +342,41 @@ TEST_CASE("a rendering promised its bytes gives them back", "[format][corpus][sc
                                .header = result->header,
                            });
 
+        REQUIRE(written.has_value());
+        CHECK(*written == original);
+    }
+}
+
+TEST_CASE("a rendering promised its bytes under a condition carries that condition",
+          "[format][corpus][scene]") {
+    // **What « conditional » means, asserted rather than left as a word.** The
+    // bytes do come back — the rate that read the frames is the one that writes
+    // them, so the two conversions cancel — but only because the document
+    // carries a rate the file never stated. ADR 0030 is what makes the promise
+    // keepable, and this is where that shows.
+    for (const Promise& promise : kPromises) {
+        if (promise.support != Support::Readable || promise.roundTrip != RoundTrip::Conditional)
+            continue;
+
+        INFO("format : " << promise.name);
+        const std::string original = bytesOf(promise.file);
+        const std::expected<ReadResult, ReadError> result =
+            readSubtitles(original, ReadingChoices{.frameRate = promise.frameRate});
+        REQUIRE(result.has_value());
+
+        // The condition itself: without this, writing would have nothing to
+        // count the frames back with.
+        CHECK_FALSE(std::holds_alternative<std::monostate>(result->extras));
+
+        const std::expected<std::string, WriteError> written =
+            writeSubtitles(result->format,
+                           WriteRequest{
+                               .subtitles = result->subtitles,
+                               .newline = result->newline,
+                               .encoding = result->encoding,
+                               .header = result->header,
+                               .extras = result->extras,
+                           });
         REQUIRE(written.has_value());
         CHECK(*written == original);
     }
