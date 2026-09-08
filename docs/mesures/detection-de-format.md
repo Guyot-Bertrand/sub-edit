@@ -71,14 +71,14 @@ leur extension suffit à nommer.
 
 <!-- relevé engendré : ne pas modifier à la main -->
 
-    formats reconnus : 12/19
+    formats reconnus : 13/19
 
-Relevé sur la version 0.9.14, le 2026-09-07.
+Relevé sur la version 0.9.16, le 2026-09-07.
 
 | | Fichiers |
 | :--- | -------: |
-| reconnus | 12 |
-| refusés, faute d un lecteur | 7 |
+| reconnus | 13 |
+| refusés, faute d un lecteur | 6 |
 | **confondus** | **0** |
 
 Refusés :
@@ -88,18 +88,16 @@ Refusés :
 - `formats/scene.microdvd.sub` — MicroDVD
 - `formats/scene.mpl2.txt` — MPL2
 - `formats/scene.ssa` — Sub Station Alpha
-- `formats/scene.subviewer2.sub` — SubViewer 2
 - `formats/scene.tmplayer.txt` — TMPlayer
 
 **Aucune confusion** : la détection refuse, elle ne se trompe pas.
 
 <!-- fin du relevé -->
 
-**Sept refus sur dix-neuf, et pas une confusion.** C'est exactement l'état de la
-phase : la détection ne connaît que deux des neuf formats, elle le dit, et elle
-n'invente rien. Le chiffre monte d'un rendu à chaque format livré, et il est le
-seul du dépôt qui mesure l'avancement de la phase 9 plutôt qu'une propriété du
-code.
+**Des refus, et pas une confusion.** C'est exactement l'état de la phase : la
+détection ne connaît pas encore les neuf formats, elle le dit, et elle n'invente
+rien. Le chiffre monte d'un rendu à chaque format livré, et il est le seul du
+dépôt qui mesure l'avancement de la phase 9 plutôt qu'une propriété du code.
 
 ## Corpus privé — sans étiquettes
 

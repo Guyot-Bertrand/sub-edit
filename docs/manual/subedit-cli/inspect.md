@@ -50,7 +50,7 @@ exemple.srt
 
 | Champ | Ce qu'il dit |
 | :---- | :----------- |
-| `format` | `SubRip` ou `WebVTT` |
+| `format` | `SubRip`, `WebVTT` ou `SubViewer 2` |
 | `encoding` | l'encodage lu, suivi de **d'où vient la réponse** : `, from its byte order mark` si le fichier la déclare, `, as asked for` si `--encoding` l'a imposée, `, detected` si elle a été pesée |
 | `byte order mark` | `present` ou `absent` |
 | `line endings` | `LF`, `CRLF` ou `CR`, suivi de `, mixed from line N` si le fichier en mélange |

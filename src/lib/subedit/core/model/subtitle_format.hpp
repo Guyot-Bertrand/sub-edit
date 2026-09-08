@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 namespace subedit::core {
 
 /// The subtitle formats the library handles.
@@ -24,6 +26,23 @@ enum class SubtitleFormat {
     Mpl2,
     TMPlayer,
     Lrc,
+};
+
+/// The nine, in the order the enumeration declares them.
+///
+/// **For walking them, never for deciding anything.** A `switch` is what says
+/// what a format does; this array is what a loop needs to visit all of them,
+/// and it exists so that no caller writes the list a second time.
+inline constexpr std::array<SubtitleFormat, 9> kSubtitleFormats = {
+    SubtitleFormat::SubRip,
+    SubtitleFormat::WebVtt,
+    SubtitleFormat::SubViewer2,
+    SubtitleFormat::SubStationAlpha,
+    SubtitleFormat::AdvancedSubStationAlpha,
+    SubtitleFormat::MicroDvd,
+    SubtitleFormat::Mpl2,
+    SubtitleFormat::TMPlayer,
+    SubtitleFormat::Lrc,
 };
 
 } // namespace subedit::core

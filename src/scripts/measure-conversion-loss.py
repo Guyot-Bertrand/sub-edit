@@ -79,6 +79,7 @@ RECORDED = re.compile(r"^\s*aller-retour intacts\s*:\s*(\d+)\s*/\s*(\d+)\s*$", r
 TARGET_OF = {
     "SubRip": "srt",
     "WebVTT": "vtt",
+    "SubViewer 2": "subviewer2",
 }
 
 GREEN = "\033[32m"
@@ -120,7 +121,11 @@ def format_of(binary, path):
     done = run(binary, ["--quiet", "inspect", str(path)])
     if done.returncode != 0:
         return None
-    found = re.search(r"^\s*format:\s*(\S+)\s*$", done.stdout, re.MULTILINE)
+    # **`(.+?)` et non `(\S+)`** : « SubViewer 2 » porte une espace, et le motif
+    # d'origine ne pouvait pas le lire. Il rendait alors « pas de format », donc
+    # un fichier compté parmi ceux qui ne s'ouvrent pas — un faux négatif
+    # silencieux, trouvé le jour où le premier format à nom composé est arrivé.
+    found = re.search(r"^\s*format:\s*(.+?)\s*$", done.stdout, re.MULTILINE)
     return found.group(1) if found else None
 
 

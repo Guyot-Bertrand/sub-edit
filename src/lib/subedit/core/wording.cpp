@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <utility>
 #include <variant>
@@ -36,6 +37,41 @@ std::string_view nameOf(SubtitleFormat format) {
         return "LRC";
     }
     std::unreachable();
+}
+
+std::string_view optionNameOf(SubtitleFormat format) {
+    switch (format) {
+    case SubtitleFormat::SubRip:
+        return "srt";
+    case SubtitleFormat::WebVtt:
+        return "vtt";
+    case SubtitleFormat::SubViewer2:
+        return "subviewer2";
+    case SubtitleFormat::SubStationAlpha:
+        return "ssa";
+    case SubtitleFormat::AdvancedSubStationAlpha:
+        return "ass";
+    case SubtitleFormat::MicroDvd:
+        return "microdvd";
+    case SubtitleFormat::Mpl2:
+        return "mpl2";
+    case SubtitleFormat::TMPlayer:
+        return "tmplayer";
+    case SubtitleFormat::Lrc:
+        return "lrc";
+    }
+    std::unreachable();
+}
+
+std::optional<SubtitleFormat> formatNamed(std::string_view option) {
+    // Walked rather than tabulated a second time: `optionNameOf` is the one
+    // place the names are written, and a table facing it would be a place to
+    // forget one.
+    for (const SubtitleFormat format : kSubtitleFormats) {
+        if (optionNameOf(format) == option)
+            return format;
+    }
+    return std::nullopt;
 }
 
 std::string_view extensionOf(SubtitleFormat format) {

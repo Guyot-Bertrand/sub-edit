@@ -5,6 +5,7 @@
 #include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 
 #include <cstddef>
 #include <span>
@@ -50,6 +51,31 @@ struct WriteRequest {
     /// where the default would move every position, which is MicroDVD.
     FileExtras extras{};
 };
+
+/// The header a document's file gives to a file of `target`.
+///
+/// **A header does not cross a format boundary**, and this is where that is
+/// enforced rather than remembered. A WebVTT header at the top of a SubViewer 2
+/// file is not a header at all: the reader will not take it back, and the round
+/// trip is lost on the first save. Written in its own format, a document keeps
+/// everything — which is what makes opening and saving change nothing.
+///
+/// Found by measuring, not by reasoning: `docs/mesures/conversion.md` turned
+/// red the day a third format could hold a header, on a pair that had been
+/// converting cleanly for six phases.
+[[nodiscard]] inline std::string_view headerFor(const SourceFile& source, SubtitleFormat target) {
+    return source.format == target ? std::string_view{source.header} : std::string_view{};
+}
+
+/// What a document's file declared about itself, for a file of `target`.
+///
+/// The same rule as the header above, on what ADR 0030 puts beside it: the
+/// order of an event field, the shape of an hour, the rate frames were read
+/// at. Each of them is read back by the writer of **that** format, and means
+/// nothing to any other.
+[[nodiscard]] inline FileExtras extrasFor(const SourceFile& source, SubtitleFormat target) {
+    return source.format == target ? source.extras : FileExtras{};
+}
 
 /// Turns subtitles into the text of a file.
 ///

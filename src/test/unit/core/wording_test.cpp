@@ -248,3 +248,37 @@ TEST_CASE("the two reasons a writing can fail have a sentence", "[cli][wording][
           "holds a character the chosen encoding cannot write");
     CHECK(reasonOf(WriteErrorKind::NoWriter) == "cannot be written yet");
 }
+
+TEST_CASE("every format has a name a command line can take", "[cli][wording][format]") {
+    // **Not the extension**, because two extensions name two formats each.
+    // These are the values of `--to`, so they are named one by one here for the
+    // same reason the format names are: they are a surface, and a surface that
+    // changes silently is a surface that breaks someone's script.
+    using subedit::core::optionNameOf;
+    using subedit::core::SubtitleFormat;
+    CHECK(optionNameOf(SubtitleFormat::SubRip) == "srt");
+    CHECK(optionNameOf(SubtitleFormat::WebVtt) == "vtt");
+    CHECK(optionNameOf(SubtitleFormat::SubViewer2) == "subviewer2");
+    CHECK(optionNameOf(SubtitleFormat::SubStationAlpha) == "ssa");
+    CHECK(optionNameOf(SubtitleFormat::AdvancedSubStationAlpha) == "ass");
+    CHECK(optionNameOf(SubtitleFormat::MicroDvd) == "microdvd");
+    CHECK(optionNameOf(SubtitleFormat::Mpl2) == "mpl2");
+    CHECK(optionNameOf(SubtitleFormat::TMPlayer) == "tmplayer");
+    CHECK(optionNameOf(SubtitleFormat::Lrc) == "lrc");
+}
+
+TEST_CASE("a name a command line takes leads back to its format", "[cli][wording][format]") {
+    using subedit::core::formatNamed;
+    using subedit::core::kSubtitleFormats;
+    using subedit::core::optionNameOf;
+
+    // Both ways round, on all nine: a name that led somewhere else, or nowhere,
+    // would make `--to` answer with a format nobody asked for.
+    for (const subedit::core::SubtitleFormat format : kSubtitleFormats)
+        CHECK(formatNamed(optionNameOf(format)) == format);
+
+    // The two extensions that name two formats are deliberately not names.
+    CHECK_FALSE(formatNamed("sub").has_value());
+    CHECK_FALSE(formatNamed("txt").has_value());
+    CHECK_FALSE(formatNamed("").has_value());
+}

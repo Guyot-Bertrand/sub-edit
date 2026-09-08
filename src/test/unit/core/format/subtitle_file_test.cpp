@@ -207,15 +207,13 @@ TEST_CASE("a WebVTT file comes back with its header", "[format][file]") {
 }
 
 TEST_CASE("a format that has no writer yet is refused, and named", "[format][file]") {
-    // **Seven of the nine formats are named before they can be written**, and
-    // this is what stands between that and undefined behaviour: `writeSubtitles`
-    // is public, so a caller can name any of them.
+    // **The formats named before they can be written**, and this is what stands
+    // between that and undefined behaviour: `writeSubtitles` is public, so a
+    // caller can name any of them.
     //
-    // Each of the seven leaves this list as its writer lands, and the case is
-    // gone when the last one does — its failing is how the phase says it is
-    // over.
-    const std::array<SubtitleFormat, 7> waiting = {
-        SubtitleFormat::SubViewer2,
+    // Each of them leaves this list as its writer lands, and the case is gone
+    // when the last one does — its failing is how the phase says it is over.
+    const std::array<SubtitleFormat, 6> waiting = {
         SubtitleFormat::SubStationAlpha,
         SubtitleFormat::AdvancedSubStationAlpha,
         SubtitleFormat::MicroDvd,
@@ -235,11 +233,13 @@ TEST_CASE("a format that has no writer yet is refused, and named", "[format][fil
     }
 }
 
-TEST_CASE("the two formats that have a writer still write", "[format][file]") {
-    // The other half of the case above: the refusal is a list, not a default,
-    // so a format wrongly left in it would be caught here rather than in a
-    // report nobody reads.
-    for (const SubtitleFormat format : {SubtitleFormat::SubRip, SubtitleFormat::WebVtt}) {
+TEST_CASE("the formats that have a writer still write", "[format][file]") {
+    // The other half of the case above, and the half that just did its work:
+    // the refusal is a list and not a default, so a format wrongly left in it
+    // is caught here. SubViewer 2 arrived with a writer while still listed as
+    // waiting, and this case is what said so.
+    for (const SubtitleFormat format :
+         {SubtitleFormat::SubRip, SubtitleFormat::WebVtt, SubtitleFormat::SubViewer2}) {
         INFO("format : " << subedit::core::nameOf(format));
         CHECK(writeSubtitles(format, WriteRequest{}).has_value());
     }

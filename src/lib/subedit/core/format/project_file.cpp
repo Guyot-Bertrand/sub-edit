@@ -67,7 +67,8 @@ std::expected<void, SaveError> saveProject(FileSystem& files,
         .document = Document::Main,
         .newline = source.newline,
         .encoding = source.encoding,
-        .header = source.header,
+        .header = headerFor(source, format),
+        .extras = extrasFor(source, format),
     };
 
     const std::expected<std::string, WriteError> written = writeSubtitles(format, request);
