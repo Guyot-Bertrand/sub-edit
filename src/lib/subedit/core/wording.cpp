@@ -259,6 +259,10 @@ std::string_view nameOf(DiagnosticKind kind) {
     case DiagnosticKind::UnknownEventField:
         // The column is the detail, so the sentence does not name it twice.
         return "declares an event column this tool cannot fill";
+    case DiagnosticKind::AssumedFrameRate:
+        // The rate is the detail. What the sentence has to carry is that the
+        // file did not say it — every position on screen rests on the answer.
+        return "counts in frames and states no rate; it was read at";
     case DiagnosticKind::MixedNewlines:
         return "more than one kind of line ending";
     case DiagnosticKind::GuessedEncoding:

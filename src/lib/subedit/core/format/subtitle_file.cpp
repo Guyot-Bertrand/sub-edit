@@ -1,5 +1,7 @@
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/format_detection.hpp>
+#include <subedit/core/format/micro_dvd_reader.hpp>
+#include <subedit/core/format/micro_dvd_writer.hpp>
 #include <subedit/core/format/mpl2_reader.hpp>
 #include <subedit/core/format/mpl2_writer.hpp>
 #include <subedit/core/format/read_error.hpp>
@@ -67,6 +69,7 @@ namespace {
     case SubtitleFormat::Mpl2:
         return Mpl2Writer{}.write(request);
     case SubtitleFormat::MicroDvd:
+        return MicroDvdWriter{}.write(request);
     case SubtitleFormat::TMPlayer:
     case SubtitleFormat::Lrc:
         return std::unexpected(WriteError{
@@ -77,8 +80,8 @@ namespace {
     std::unreachable();
 }
 
-[[nodiscard]] std::expected<ReadResult, ReadError> readAs(SubtitleFormat format,
-                                                          std::string_view content) {
+[[nodiscard]] std::expected<ReadResult, ReadError>
+readAs(SubtitleFormat format, std::string_view content, const ReadingChoices& choices) {
     switch (format) {
     case SubtitleFormat::SubRip:
         return SubRipReader{}.read(content);
@@ -92,6 +95,9 @@ namespace {
     case SubtitleFormat::Mpl2:
         return Mpl2Reader{}.read(content);
     case SubtitleFormat::MicroDvd:
+        return MicroDvdReader{choices.frameRate.value_or(MicroDvdFile{}.rate),
+                              choices.frameRate.has_value()}
+            .read(content);
     case SubtitleFormat::TMPlayer:
     case SubtitleFormat::Lrc:
         // Unreachable through `readSubtitles`, which only ever gets here with
@@ -116,8 +122,10 @@ namespace {
 ///
 /// `markContradicted` is the one thing this cannot see for itself: whether the
 /// encoding read was the one asked for or the one the file declared against it.
-[[nodiscard]] std::expected<ReadResult, ReadError>
-readText(std::string_view text, const Encoding& read, bool markContradicted) {
+[[nodiscard]] std::expected<ReadResult, ReadError> readText(std::string_view text,
+                                                            const Encoding& read,
+                                                            bool markContradicted,
+                                                            const ReadingChoices& choices) {
     const std::optional<SubtitleFormat> format = detectFormat(text);
     if (!format.has_value())
         return std::unexpected(ReadError{
@@ -125,7 +133,7 @@ readText(std::string_view text, const Encoding& read, bool markContradicted) {
             .detail = "aucun format reconnu",
         });
 
-    std::expected<ReadResult, ReadError> result = readAs(*format, text);
+    std::expected<ReadResult, ReadError> result = readAs(*format, text, choices);
     if (!result.has_value())
         return result;
 
@@ -161,8 +169,11 @@ readText(std::string_view text, const Encoding& read, bool markContradicted) {
 
 } // namespace
 
-std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
-                                                   const Encoding& encoding) {
+namespace {
+
+/// The reading, once the encoding is settled one way or the other.
+[[nodiscard]] std::expected<ReadResult, ReadError>
+readDecoded(std::string_view content, const Encoding& encoding, const ReadingChoices& choices) {
     // **The mark wins, even against the encoding it was given.** It is the only
     // thing a subtitle file declares about itself, and reading it otherwise
     // than it declares would be obeying a caller against the file's own word.
@@ -187,10 +198,25 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
         });
 
     return readText(
-        *decoded, read, declared.has_value() && declared->charset() != encoding.charset());
+        *decoded, read, declared.has_value() && declared->charset() != encoding.charset(), choices);
+}
+
+} // namespace
+
+std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
+                                                   const Encoding& encoding) {
+    return readDecoded(content, encoding, ReadingChoices{});
 }
 
 std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
+    return readSubtitles(content, ReadingChoices{});
+}
+
+std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
+                                                   const ReadingChoices& choices) {
+    if (choices.encoding.has_value())
+        return readDecoded(content, *choices.encoding, choices);
+
     const std::optional<DetectedEncoding> detected = detectEncoding(content);
 
     // UTF-8 when the bytes propose nothing — an empty file, or one ICU weighed
@@ -203,9 +229,10 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content) {
     // answers without reading anything, so there is nothing to reuse and the
     // overload above decodes — once, as it always did. Everything else was
     // decoded to be weighed, and decoding it a second time was issue #314.
-    std::expected<ReadResult, ReadError> result = detected.has_value() && detected->text.has_value()
-                                                      ? readText(*detected->text, encoding, false)
-                                                      : readSubtitles(content, encoding);
+    std::expected<ReadResult, ReadError> result =
+        detected.has_value() && detected->text.has_value()
+            ? readText(*detected->text, encoding, false, choices)
+            : readDecoded(content, encoding, choices);
     if (!result.has_value())
         return result;
 

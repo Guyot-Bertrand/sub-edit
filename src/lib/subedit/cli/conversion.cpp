@@ -4,11 +4,13 @@
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/writing.hpp>
+#include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/wording.hpp>
 
 #include <algorithm>
@@ -16,7 +18,9 @@
 #include <cstddef>
 #include <expected>
 #include <filesystem>
+#include <optional>
 #include <string>
+#include <variant>
 
 namespace subedit::cli {
 
@@ -25,15 +29,42 @@ namespace {
 using core::SubtitleFormat;
 
 /// Converts one file. Returns true when it was written.
+/// The rate a file written in frames is counted at, or why there is none.
+///
+/// **Three sources, and the second is what phase 16 was written for.** What the
+/// caller said comes first. Then the grid the positions fall on — the rate a
+/// time-based file was timed at *is* its grid, and deducing it is the one place
+/// that measurement decides something rather than informing. Then nothing: the
+/// only move left would be to invent a number that displaces every subtitle.
+[[nodiscard]] std::expected<core::FrameRate, std::string>
+frameRateForFrames(const core::Project& project,
+                   const std::optional<core::FrameRate>& asked,
+                   const std::string& path,
+                   const Reporter& reporter) {
+    if (asked.has_value())
+        return *asked;
+
+    const core::FrameRateDeduction deduced = core::deduceFrameRate(project);
+    if (deduced.verdict == core::GridVerdict::Silent) {
+        return std::unexpected(path + ": writing frames needs a frame rate, and the positions "
+                                      "fall on no grid to take one from — give --frame-rate");
+    }
+
+    reporter.say(2,
+                 path + ": counted in frames at " + core::nameOf(deduced.retained.rate) +
+                     ", the grid the positions fall on");
+    return deduced.retained.rate;
+}
+
 bool convertFile(core::FileSystem& files,
                  const std::string& path,
-                 const std::optional<core::Encoding>& reading,
+                 const core::ReadingChoices& reading,
                  SubtitleFormat target,
                  const WriteShape& shape,
                  const Destination& destination,
                  const Reporter& reporter) {
     const std::expected<core::OpenedFile, core::OpenError> opened =
-        reading ? core::openProject(files, path, *reading) : core::openProject(files, path);
+        core::openProject(files, path, reading);
     if (!opened) {
         reporter.failed(path + ": " + std::string{reasonOf(opened.error())});
         return false;
@@ -60,13 +91,28 @@ bool convertFile(core::FileSystem& files,
         return false;
     }
 
+    // **A file written in frames needs a rate, and the source may not have one.**
+    // What the document carries crosses only into its own format; converting
+    // into MicroDVD from anywhere else has to take the rate from somewhere, and
+    // choosing one silently would move every position in the file.
+    core::FileExtras extras = core::extrasFor(source, target);
+    if (target == SubtitleFormat::MicroDvd && !std::holds_alternative<core::MicroDvdFile>(extras)) {
+        const std::expected<core::FrameRate, std::string> rate =
+            frameRateForFrames(opened->project, reading.frameRate, path, reporter);
+        if (!rate.has_value()) {
+            reporter.failed(rate.error());
+            return false;
+        }
+        extras = core::MicroDvdFile{.rate = *rate};
+    }
+
     const core::WriteRequest request{
         .subtitles = opened->project.subtitles(),
         .document = core::Document::Main,
         .newline = newline,
         .encoding = encoding,
         .header = core::headerFor(source, target),
-        .extras = core::extrasFor(source, target),
+        .extras = extras,
     };
     const std::filesystem::path out = destination.pathFor(path, extensionOf(target));
     const std::expected<std::size_t, std::string> written =
@@ -105,7 +151,7 @@ bool wouldMisname(const std::vector<std::string>& paths, SubtitleFormat target) 
 
 ExitCode convertAll(core::FileSystem& files,
                     const std::vector<std::string>& paths,
-                    const std::optional<core::Encoding>& reading,
+                    const core::ReadingChoices& reading,
                     SubtitleFormat target,
                     const WriteShape& shape,
                     const Destination& destination,

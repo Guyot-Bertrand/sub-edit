@@ -1,4 +1,5 @@
 #include <subedit/core/format/format_detection.hpp>
+#include <subedit/core/format/micro_dvd_syntax.hpp>
 #include <subedit/core/format/mpl2_syntax.hpp>
 #include <subedit/core/format/sub_viewer2_syntax.hpp>
 #include <subedit/core/text/lines.hpp>
@@ -104,6 +105,12 @@ std::optional<SubtitleFormat> detectFormat(std::string_view content) {
     if (std::ranges::any_of(
             lines, [](std::string_view line) { return parseMpl2TimeLine(line).has_value(); }))
         return SubtitleFormat::Mpl2;
+
+    // The same grammar in braces, and the only pair of the nine that had to be
+    // told apart with care.
+    if (std::ranges::any_of(
+            lines, [](std::string_view line) { return parseMicroDvdFrameLine(line).has_value(); }))
+        return SubtitleFormat::MicroDvd;
 
     return std::nullopt;
 }

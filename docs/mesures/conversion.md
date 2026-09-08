@@ -58,16 +58,17 @@ même porte.
 
     aller-retour intacts : 47/80
 
-Relevé sur la version 0.9.18, le 2026-09-08.
+Relevé sur la version 0.9.19, le 2026-09-08.
 
-| Départ \ Arrivée | `ass` | `mpl2` | `srt` | `ssa` | `subviewer2` | `vtt` |
-| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `ass` | — | 0/1 | 0/1 | 0/1 | 0/1 | 0/1 |
-| `mpl2` | 1/1 | — | 1/1 | 1/1 | 1/1 | 1/1 |
-| `srt` | 5/8 | 5/8 | — | 5/8 | 5/8 | 7/8 |
-| `ssa` | 0/1 | 0/1 | 0/1 | — | 0/1 | 0/1 |
-| `subviewer2` | 0/1 | 0/1 | 0/1 | 0/1 | — | 0/1 |
-| `vtt` | 3/4 | 3/4 | 3/4 | 3/4 | 3/4 | — |
+| Départ \ Arrivée | `ass` | `microdvd` | `mpl2` | `srt` | `ssa` | `subviewer2` | `vtt` |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `ass` | — | · | 0/1 | 0/1 | 0/1 | 0/1 | 0/1 |
+| `microdvd` | · | — | · | · | · | · | · |
+| `mpl2` | 1/1 | · | — | 1/1 | 1/1 | 1/1 | 1/1 |
+| `srt` | 5/8 | · | 5/8 | — | 5/8 | 5/8 | 7/8 |
+| `ssa` | 0/1 | · | 0/1 | 0/1 | — | 0/1 | 0/1 |
+| `subviewer2` | 0/1 | · | 0/1 | 0/1 | 0/1 | — | 0/1 |
+| `vtt` | 3/4 | · | 3/4 | 3/4 | 3/4 | 3/4 | — |
 
 | Fichier | Passage par | Première ligne qui ne revient pas |
 | :------ | :---------- | :-------------------------------- |
@@ -105,9 +106,26 @@ Relevé sur la version 0.9.18, le 2026-09-08.
 | `formats/scene.subviewer2.sub` | `ass` | `[TITLE]The scene, in nine formats` |
 | `formats/scene.subviewer2.sub` | `mpl2` | `[TITLE]The scene, in nine formats` |
 
-3 fichier(s) du corpus ne s'ouvrent pas encore et n'entrent dans aucune mesure.
+**22 paire(s) que la conversion refuse de faire** — un fichier temporel vers un format en images, sans grille et sans fréquence donnée. Un refus n'est pas une perte, et n'entre donc pas dans le compte ci-dessus.
+
+2 fichier(s) du corpus ne s'ouvrent pas encore et n'entrent dans aucune mesure.
 
 <!-- fin du relevé -->
+
+## La colonne qui ne se remplit pas, et ce qu'elle dit
+
+**On ne revient pas à MicroDVD.** Sa colonne est vide, et sa ligne aussi, parce
+qu'un aller-retour qui le quitte ne peut pas y rentrer : le fichier
+intermédiaire a perdu la fréquence, et la conversion refuse d'en inventer une —
+`convert --to microdvd` demande alors `--frame-rate`.
+
+C'est **la perte déclarée la plus nette des neuf formats**, et la seule qui ne
+se compte pas en pertes. Un en-tête perdu laisse un fichier ; une fréquence
+perdue laisse une conversion impossible.
+
+Ces paires sont donc comptées à part. **Un refus n'est pas une perte** : les
+compter comme telles dirait le contraire de ce qu'ils sont, et gonflerait le
+dénominateur d'un chiffre qui ne mesure plus rien.
 
 ## Ce que le nombre vaut, et ce qu'il ne vaut pas
 

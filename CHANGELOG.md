@@ -22,6 +22,7 @@ ne pas l'éditer à la main.
 - **format** — SubViewer 2, et ce qu'un en-tête ne traverse pas
 - **format** — Sub Station Alpha et Advanced SSA, colonnes comprises
 - **format** — MPL2, et un marqueur de saut écrit une seule fois
+- **format** — MicroDVD, et la fréquence que le fichier ne dit pas
 
 ### Corrections
 

@@ -41,6 +41,7 @@ enum class DiagnosticKind {
     TextBeforeAnyTimestamp, ///< text before the first timestamp of the file
     UnknownBlock,           ///< a WebVTT block of an unknown kind
     UnknownEventField,      ///< a Sub Station Alpha column nothing here can fill
+    AssumedFrameRate,       ///< a file counted in frames, opened at a rate nobody chose
     MixedNewlines,          ///< several line endings in the same file
     GuessedEncoding,        ///< the encoding was proposed by weighing the bytes
     MarkOverridesEncoding,  ///< a byte order mark against the encoding asked for

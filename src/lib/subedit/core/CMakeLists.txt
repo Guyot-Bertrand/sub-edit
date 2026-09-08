@@ -43,6 +43,9 @@ add_library(
     format/format_detection.cpp
     format/sub_rip_reader.cpp
     format/sub_rip_writer.cpp
+    format/micro_dvd_reader.cpp
+    format/micro_dvd_syntax.cpp
+    format/micro_dvd_writer.cpp
     format/mpl2_reader.cpp
     format/mpl2_syntax.cpp
     format/mpl2_writer.cpp

@@ -6,12 +6,37 @@
 #include <subedit/core/format/write_error.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/time/frame_rate.hpp>
 
 #include <expected>
+#include <optional>
 #include <string>
 #include <string_view>
 
 namespace subedit::core {
+
+/// What a caller can say about a file before it is read.
+///
+/// **Two things, and both are things the file may not say about itself.** An
+/// encoding is declared by a byte order mark or by nothing at all; a frame rate
+/// is declared by no subtitle format there is. Everything else a reading
+/// produces comes from the bytes.
+///
+/// Absent means « work it out »: the encoding is weighed, and the rate falls
+/// back on the one ADR 0030 declares — which the reading then says, since it is
+/// the one number nobody could check.
+struct ReadingChoices {
+    std::optional<Encoding> encoding{};
+    std::optional<FrameRate> frameRate{};
+};
+
+/// Reads a file whose format is not known in advance, under those choices.
+///
+/// **The one reading, and the two overloads below are its short forms.** They
+/// existed first, and they stayed: `readSubtitles(content)` is what a hundred
+/// tests and half the code say when they have nothing to add.
+[[nodiscard]] std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
+                                                                 const ReadingChoices& choices);
 
 /// Reads a file whose format is not known in advance, in the encoding given.
 ///

@@ -82,6 +82,7 @@ struct InspectOptions {
 struct ConvertOptions {
     std::vector<std::string> files;
     std::string target;
+    std::string frameRate;
     std::string lineEndings;
     std::string encoding;
     bool bom = false;
@@ -111,7 +112,7 @@ CLI::App* describeConvert(CLI::App& app, ConvertOptions& options) {
         // one with each format of phase 9. It is written here rather than
         // derived, so that offering a format the library cannot write is a
         // line someone had to add.
-        ->check(CLI::IsMember({"srt", "vtt", "subviewer2", "ssa", "ass", "mpl2"}));
+        ->check(CLI::IsMember({"srt", "vtt", "subviewer2", "ssa", "ass", "mpl2", "microdvd"}));
 
     // Left empty on purpose: empty means "as the source had it", and the model
     // of phase 1 kept both so that a conversion would not throw them away.
@@ -123,6 +124,13 @@ CLI::App* describeConvert(CLI::App& app, ConvertOptions& options) {
         ->add_option(
             "--to-encoding", options.encoding, "Encoding to write; the source's by default")
         ->option_text("NAME");
+    // **One option for both directions**, because there is one rate. A file
+    // counted in frames is read at it, and a file written in frames is counted
+    // at it; naming them apart would invite giving two and mean nothing.
+    convert
+        ->add_option(
+            "--frame-rate", options.frameRate, "Frame rate of a file counted in frames: 25, 23.976")
+        ->option_text("RATE");
     convert->add_flag("--bom", options.bom, "Write a byte order mark");
     convert->add_flag("--no-bom", options.noBom, "Write no byte order mark");
 
@@ -392,6 +400,14 @@ ExitCode runConvert(const ConvertOptions& options,
     const core::SubtitleFormat target =
         core::formatNamed(options.target).value_or(core::SubtitleFormat::SubRip);
 
+    core::ReadingChoices choices{.encoding = reading};
+    if (!options.frameRate.empty()) {
+        const std::expected<core::FrameRate, std::string> rate = parseFrameRate(options.frameRate);
+        if (!rate.has_value())
+            return refuse("--frame-rate: " + rate.error());
+        choices.frameRate = *rate;
+    }
+
     // Refused rather than obeyed: in place there is no second name to carry the
     // new format, and the file would be left under an extension its content no
     // longer justifies.
@@ -411,7 +427,7 @@ ExitCode runConvert(const ConvertOptions& options,
         return refuse(destination.error());
     }
 
-    return convertAll(files, options.files, reading, target, *shape, *destination, reporter);
+    return convertAll(files, options.files, choices, target, *shape, *destination, reporter);
 }
 
 ExitCode runInspect(const InspectOptions& options,

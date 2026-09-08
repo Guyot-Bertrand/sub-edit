@@ -284,3 +284,9 @@ TEST_CASE("a name a command line takes leads back to its format", "[cli][wording
     CHECK_FALSE(formatNamed("txt").has_value());
     CHECK_FALSE(formatNamed("").has_value());
 }
+
+TEST_CASE("the diagnostic of a rate nobody chose has its phrase", "[cli][wording]") {
+    using subedit::core::DiagnosticKind;
+    CHECK(nameOf(DiagnosticKind::AssumedFrameRate) ==
+          "counts in frames and states no rate; it was read at");
+}

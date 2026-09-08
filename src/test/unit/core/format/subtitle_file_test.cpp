@@ -213,8 +213,7 @@ TEST_CASE("a format that has no writer yet is refused, and named", "[format][fil
     //
     // Each of them leaves this list as its writer lands, and the case is gone
     // when the last one does — its failing is how the phase says it is over.
-    const std::array<SubtitleFormat, 3> waiting = {
-        SubtitleFormat::MicroDvd,
+    const std::array<SubtitleFormat, 2> waiting = {
         SubtitleFormat::TMPlayer,
         SubtitleFormat::Lrc,
     };
@@ -240,8 +239,25 @@ TEST_CASE("the formats that have a writer still write", "[format][file]") {
                                         SubtitleFormat::SubViewer2,
                                         SubtitleFormat::SubStationAlpha,
                                         SubtitleFormat::AdvancedSubStationAlpha,
-                                        SubtitleFormat::Mpl2}) {
+                                        SubtitleFormat::Mpl2,
+                                        SubtitleFormat::MicroDvd}) {
         INFO("format : " << subedit::core::nameOf(format));
         CHECK(writeSubtitles(format, WriteRequest{}).has_value());
     }
+}
+
+TEST_CASE("an encoding named among the reading choices is the one used", "[format][file]") {
+    // The same answer as the overload that takes an encoding alone, reached by
+    // the other door: a caller who has a frame rate to give says both at once.
+    const std::string latin1 = "1\n00:00:01,000 --> 00:00:03,000\nCaf\xe9.\n\n";
+    const std::expected<subedit::core::Encoding, subedit::core::EncodingRefusal> encoding =
+        subedit::core::Encoding::create("iso-8859-1", subedit::core::ByteOrderMark::Absent);
+    REQUIRE(encoding.has_value());
+
+    const std::expected<ReadResult, ReadError> result =
+        readSubtitles(latin1, subedit::core::ReadingChoices{.encoding = *encoding});
+
+    REQUIRE(result.has_value());
+    REQUIRE(result->subtitles.size() == 1);
+    CHECK(result->subtitles[0].mainText == "Café.");
 }

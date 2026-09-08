@@ -54,7 +54,7 @@ struct WriteShape {
 /// Each file is independent: the failure of one does not stop the others.
 [[nodiscard]] ExitCode convertAll(subedit::core::FileSystem& files,
                                   const std::vector<std::string>& paths,
-                                  const std::optional<subedit::core::Encoding>& reading,
+                                  const subedit::core::ReadingChoices& reading,
                                   subedit::core::SubtitleFormat target,
                                   const WriteShape& shape,
                                   const Destination& destination,
