@@ -56,48 +56,56 @@ même porte.
 
 <!-- relevé engendré : ne pas modifier à la main -->
 
-    aller-retour intacts : 34/60
+    aller-retour intacts : 47/80
 
-Relevé sur la version 0.9.17, le 2026-09-08.
+Relevé sur la version 0.9.18, le 2026-09-08.
 
-| Départ \ Arrivée | `ass` | `srt` | `ssa` | `subviewer2` | `vtt` |
-| :--- | ---: | ---: | ---: | ---: | ---: |
-| `ass` | — | 0/1 | 0/1 | 0/1 | 0/1 |
-| `srt` | 5/8 | — | 5/8 | 5/8 | 7/8 |
-| `ssa` | 0/1 | 0/1 | — | 0/1 | 0/1 |
-| `subviewer2` | 0/1 | 0/1 | 0/1 | — | 0/1 |
-| `vtt` | 3/4 | 3/4 | 3/4 | 3/4 | — |
+| Départ \ Arrivée | `ass` | `mpl2` | `srt` | `ssa` | `subviewer2` | `vtt` |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `ass` | — | 0/1 | 0/1 | 0/1 | 0/1 | 0/1 |
+| `mpl2` | 1/1 | — | 1/1 | 1/1 | 1/1 | 1/1 |
+| `srt` | 5/8 | 5/8 | — | 5/8 | 5/8 | 7/8 |
+| `ssa` | 0/1 | 0/1 | 0/1 | — | 0/1 | 0/1 |
+| `subviewer2` | 0/1 | 0/1 | 0/1 | 0/1 | — | 0/1 |
+| `vtt` | 3/4 | 3/4 | 3/4 | 3/4 | 3/4 | — |
 
 | Fichier | Passage par | Première ligne qui ne revient pas |
 | :------ | :---------- | :-------------------------------- |
 | `valides/cadence.srt` | `subviewer2` | `01:00:00,017 --> 01:00:02,000` |
 | `valides/cadence.srt` | `ssa` | `01:00:00,017 --> 01:00:02,000` |
 | `valides/cadence.srt` | `ass` | `01:00:00,017 --> 01:00:02,000` |
+| `valides/cadence.srt` | `mpl2` | `00:00:01,010 --> 00:00:02,020` |
 | `valides/complet.vtt` | `srt` | `WEBVTT - Dialogue` |
 | `valides/complet.vtt` | `subviewer2` | `WEBVTT - Dialogue` |
 | `valides/complet.vtt` | `ssa` | `WEBVTT - Dialogue` |
 | `valides/complet.vtt` | `ass` | `WEBVTT - Dialogue` |
+| `valides/complet.vtt` | `mpl2` | `WEBVTT - Dialogue` |
 | `valides/coordonnees.srt` | `vtt` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
 | `valides/coordonnees.srt` | `subviewer2` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
 | `valides/coordonnees.srt` | `ssa` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
 | `valides/coordonnees.srt` | `ass` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
+| `valides/coordonnees.srt` | `mpl2` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
 | `valides/trois.srt` | `subviewer2` | `00:00:05,001 --> 00:00:07,000` |
 | `valides/trois.srt` | `ssa` | `00:00:05,001 --> 00:00:07,000` |
 | `valides/trois.srt` | `ass` | `00:00:05,001 --> 00:00:07,000` |
+| `valides/trois.srt` | `mpl2` | `00:00:05,001 --> 00:00:07,000` |
 | `formats/scene.ass` | `srt` | `Title: The scene, in nine formats` |
 | `formats/scene.ass` | `vtt` | `Title: The scene, in nine formats` |
 | `formats/scene.ass` | `subviewer2` | `Title: The scene, in nine formats` |
 | `formats/scene.ass` | `ssa` | `Title: The scene, in nine formats` |
+| `formats/scene.ass` | `mpl2` | `Title: The scene, in nine formats` |
 | `formats/scene.ssa` | `srt` | `Title: The scene, in nine formats` |
 | `formats/scene.ssa` | `vtt` | `Title: The scene, in nine formats` |
 | `formats/scene.ssa` | `subviewer2` | `Title: The scene, in nine formats` |
 | `formats/scene.ssa` | `ass` | `Title: The scene, in nine formats` |
+| `formats/scene.ssa` | `mpl2` | `Title: The scene, in nine formats` |
 | `formats/scene.subviewer2.sub` | `srt` | `[TITLE]The scene, in nine formats` |
 | `formats/scene.subviewer2.sub` | `vtt` | `[TITLE]The scene, in nine formats` |
 | `formats/scene.subviewer2.sub` | `ssa` | `[TITLE]The scene, in nine formats` |
 | `formats/scene.subviewer2.sub` | `ass` | `[TITLE]The scene, in nine formats` |
+| `formats/scene.subviewer2.sub` | `mpl2` | `[TITLE]The scene, in nine formats` |
 
-4 fichier(s) du corpus ne s'ouvrent pas encore et n'entrent dans aucune mesure.
+3 fichier(s) du corpus ne s'ouvrent pas encore et n'entrent dans aucune mesure.
 
 <!-- fin du relevé -->
 

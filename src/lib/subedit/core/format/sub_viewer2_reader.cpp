@@ -5,6 +5,7 @@
 #include <subedit/core/format/sub_viewer2_syntax.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/text/break_marker.hpp>
 #include <subedit/core/text/lines.hpp>
 
 #include <cstddef>
@@ -70,7 +71,7 @@ std::expected<ReadResult, ReadError> SubViewer2Reader::read(std::string_view con
         std::string text;
         if (index + 1 < lines.size()) {
             ++index;
-            text = textFromSubViewer2(lines[index]);
+            text = textFromMarker(lines[index], break_marker::kBracketed);
         }
 
         result.subtitles.push_back(Subtitle{

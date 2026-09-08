@@ -111,3 +111,14 @@ TEST_CASE("the two Sub Station Alpha formats are told apart by their version",
 TEST_CASE("a script type of another version claims nothing", "[format][detection]") {
     CHECK_FALSE(detectFormat("[Script Info]\nScriptType: v3.00\n").has_value());
 }
+
+TEST_CASE("MPL2 is recognised by two bracketed numbers opening a line", "[format][detection]") {
+    CHECK(detectFormat("[10][30]Une réplique.\n") == SubtitleFormat::Mpl2);
+
+    // The three that open on a bracket or a brace and are not MPL2. Only the
+    // first two exist as formats today; the third is what MicroDVD looks like,
+    // and it must not be claimed by anyone before its reader lands.
+    CHECK_FALSE(detectFormat("[00:12.34]Une réplique.\n").has_value());
+    CHECK_FALSE(detectFormat("[INFORMATION]\n[TITLE]Le port\n").has_value());
+    CHECK_FALSE(detectFormat("{25}{75}Une réplique.\n").has_value());
+}

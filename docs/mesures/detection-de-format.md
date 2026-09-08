@@ -71,21 +71,20 @@ leur extension suffit à nommer.
 
 <!-- relevé engendré : ne pas modifier à la main -->
 
-    formats reconnus : 15/19
+    formats reconnus : 16/19
 
-Relevé sur la version 0.9.17, le 2026-09-08.
+Relevé sur la version 0.9.18, le 2026-09-08.
 
 | | Fichiers |
 | :--- | -------: |
-| reconnus | 15 |
-| refusés, faute d un lecteur | 4 |
+| reconnus | 16 |
+| refusés, faute d un lecteur | 3 |
 | **confondus** | **0** |
 
 Refusés :
 
 - `formats/scene.lrc` — LRC
 - `formats/scene.microdvd.sub` — MicroDVD
-- `formats/scene.mpl2.txt` — MPL2
 - `formats/scene.tmplayer.txt` — TMPlayer
 
 **Aucune confusion** : la détection refuse, elle ne se trompe pas.

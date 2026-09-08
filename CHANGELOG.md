@@ -21,6 +21,7 @@ ne pas l'éditer à la main.
 - **core** — Les neuf formats entrent dans le vocabulaire du modèle
 - **format** — SubViewer 2, et ce qu'un en-tête ne traverse pas
 - **format** — Sub Station Alpha et Advanced SSA, colonnes comprises
+- **format** — MPL2, et un marqueur de saut écrit une seule fois
 
 ### Corrections
 

@@ -22,7 +22,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,mpl2} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
@@ -56,6 +56,7 @@ Options:
 | `subviewer2` | SubViewer 2.0 | `.sub` |
 | `ssa` | Sub Station Alpha | `.ssa` |
 | `ass` | Advanced SSA | `.ass` |
+| `mpl2` | MPL2 | `.txt` |
 
 **Un nom, et pas une extension.** Deux extensions désignent deux formats
 chacune — `.sub` est aussi celle de MicroDVD, `.txt` celle de MPL2 et de
@@ -74,7 +75,7 @@ pas dépend de la paire :
 | :--------------------- | :------- |
 | l'en-tête | il n'a de sens que dans son format : `[INFORMATION]` n'est pas une en-tête WebVTT |
 | les données propres au format | les coordonnées de SubRip, l'identifiant et les réglages d'une cellule WebVTT n'ont pas d'équivalent ailleurs |
-| la précision | SubViewer 2 et les deux Sub Station Alpha écrivent au centième ; `01:00:00,017` en revient à `01:00:00,020` |
+| la précision | SubViewer 2 et les deux Sub Station Alpha écrivent au centième, MPL2 au dixième ; `01:00:00,017` en revient à `01:00:00,020` |
 | les balises de mise en forme | `{\i1}` d'un `.ass` n'est pas `<i>` d'un `.srt` — la traduction des balises n'est pas encore écrite |
 
 **Réécrire un fichier dans son propre format ne perd rien** — c'est la garantie
