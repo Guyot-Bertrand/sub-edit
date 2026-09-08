@@ -111,7 +111,7 @@ CLI::App* describeConvert(CLI::App& app, ConvertOptions& options) {
         // one with each format of phase 9. It is written here rather than
         // derived, so that offering a format the library cannot write is a
         // line someone had to add.
-        ->check(CLI::IsMember({"srt", "vtt", "subviewer2", "ssa", "ass"}));
+        ->check(CLI::IsMember({"srt", "vtt", "subviewer2", "ssa", "ass", "mpl2"}));
 
     // Left empty on purpose: empty means "as the source had it", and the model
     // of phase 1 kept both so that a conversion would not throw them away.

@@ -2,6 +2,7 @@
 #include <subedit/core/format/sub_viewer2_writer.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/text/break_marker.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
 #include <string>
@@ -49,7 +50,7 @@ std::string SubViewer2Writer::write(const WriteRequest& request) const {
         out += subtitle.end.format(DecimalMark::Period, HourField::Always, Decimals::Centiseconds);
         out += ending;
 
-        out += textToSubViewer2(subtitle.text(request.document));
+        out += textToMarker(subtitle.text(request.document), break_marker::kBracketed);
         out += ending;
     }
     return out;

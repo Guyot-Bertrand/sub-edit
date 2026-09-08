@@ -1,5 +1,7 @@
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/format_detection.hpp>
+#include <subedit/core/format/mpl2_reader.hpp>
+#include <subedit/core/format/mpl2_writer.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/sub_rip_reader.hpp>
@@ -62,8 +64,9 @@ namespace {
     case SubtitleFormat::SubStationAlpha:
     case SubtitleFormat::AdvancedSubStationAlpha:
         return SubStationAlphaWriter{format}.write(request);
-    case SubtitleFormat::MicroDvd:
     case SubtitleFormat::Mpl2:
+        return Mpl2Writer{}.write(request);
+    case SubtitleFormat::MicroDvd:
     case SubtitleFormat::TMPlayer:
     case SubtitleFormat::Lrc:
         return std::unexpected(WriteError{
@@ -86,8 +89,9 @@ namespace {
     case SubtitleFormat::SubStationAlpha:
     case SubtitleFormat::AdvancedSubStationAlpha:
         return SubStationAlphaReader{format}.read(content);
-    case SubtitleFormat::MicroDvd:
     case SubtitleFormat::Mpl2:
+        return Mpl2Reader{}.read(content);
+    case SubtitleFormat::MicroDvd:
     case SubtitleFormat::TMPlayer:
     case SubtitleFormat::Lrc:
         // Unreachable through `readSubtitles`, which only ever gets here with

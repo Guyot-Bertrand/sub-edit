@@ -4,14 +4,12 @@
 
 #include <cstddef>
 #include <optional>
-#include <string>
 #include <string_view>
 
 namespace subedit::core {
 
 namespace {
 
-constexpr std::string_view kBreak = "[br]";
 constexpr std::size_t kStampLength = 11; // `HH:MM:SS.cc`
 
 /// The character `HH:MM:SS.cc` holds at that place, or a null for a digit.
@@ -71,36 +69,6 @@ std::optional<SubViewer2TimeLine> parseSubViewer2TimeLine(std::string_view line)
         return std::nullopt;
 
     return SubViewer2TimeLine{.start = *start, .end = *end};
-}
-
-std::string textFromSubViewer2(std::string_view line) {
-    std::string text;
-    std::size_t start = 0;
-    while (true) {
-        const std::size_t marker = line.find(kBreak, start);
-        if (marker == std::string_view::npos) {
-            text += line.substr(start);
-            return text;
-        }
-        text += line.substr(start, marker - start);
-        text += '\n';
-        start = marker + kBreak.size();
-    }
-}
-
-std::string textToSubViewer2(std::string_view text) {
-    std::string line;
-    std::size_t start = 0;
-    while (true) {
-        const std::size_t feed = text.find('\n', start);
-        if (feed == std::string_view::npos) {
-            line += text.substr(start);
-            return line;
-        }
-        line += text.substr(start, feed - start);
-        line += kBreak;
-        start = feed + 1;
-    }
 }
 
 } // namespace subedit::core

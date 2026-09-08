@@ -23,6 +23,7 @@ add_executable(
     core/time/timestamp_conversion_test.cpp
     core/time/timestamp_format_test.cpp
     core/time/timestamp_parse_test.cpp
+    core/text/break_marker_test.cpp
     core/text/hearing_impaired_test.cpp
     core/model/encoding_test.cpp
     core/model/format_extras_test.cpp
@@ -65,6 +66,7 @@ add_executable(
     core/format/sub_rip_reader_test.cpp
     core/format/sub_rip_writer_test.cpp
     core/format/sub_rip_round_trip_test.cpp
+    core/format/mpl2_test.cpp
     core/format/sub_station_alpha_reader_test.cpp
     core/format/sub_station_alpha_writer_test.cpp
     core/format/sub_station_alpha_round_trip_test.cpp

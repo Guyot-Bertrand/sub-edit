@@ -35,6 +35,7 @@ add_library(
     video/showing.cpp
     io/in_memory_file_system.cpp
     text/encoding.cpp
+    text/break_marker.cpp
     text/lines.cpp
     format/subtitle_file.cpp
     format/project_file.cpp
@@ -42,6 +43,9 @@ add_library(
     format/format_detection.cpp
     format/sub_rip_reader.cpp
     format/sub_rip_writer.cpp
+    format/mpl2_reader.cpp
+    format/mpl2_syntax.cpp
+    format/mpl2_writer.cpp
     format/sub_station_alpha_reader.cpp
     format/sub_station_alpha_syntax.cpp
     format/sub_station_alpha_writer.cpp

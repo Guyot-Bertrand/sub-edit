@@ -82,6 +82,7 @@ TARGET_OF = {
     "SubViewer 2": "subviewer2",
     "Sub Station Alpha": "ssa",
     "Advanced SSA": "ass",
+    "MPL2": "mpl2",
 }
 
 GREEN = "\033[32m"

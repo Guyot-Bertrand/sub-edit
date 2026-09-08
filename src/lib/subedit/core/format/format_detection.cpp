@@ -1,4 +1,5 @@
 #include <subedit/core/format/format_detection.hpp>
+#include <subedit/core/format/mpl2_syntax.hpp>
 #include <subedit/core/format/sub_viewer2_syntax.hpp>
 #include <subedit/core/text/lines.hpp>
 #include <subedit/core/time/timestamp.hpp>
@@ -96,6 +97,13 @@ std::optional<SubtitleFormat> detectFormat(std::string_view content) {
     if (std::ranges::any_of(
             lines, [](std::string_view line) { return parseSubViewer2TimeLine(line).has_value(); }))
         return SubtitleFormat::SubViewer2;
+
+    // Two bracketed whole numbers opening a line, and nothing else among the
+    // nine is written that way: LRC opens on one bracket holding a time,
+    // MicroDVD on two braces.
+    if (std::ranges::any_of(
+            lines, [](std::string_view line) { return parseMpl2TimeLine(line).has_value(); }))
+        return SubtitleFormat::Mpl2;
 
     return std::nullopt;
 }
