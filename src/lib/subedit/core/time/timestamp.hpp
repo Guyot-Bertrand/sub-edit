@@ -36,6 +36,12 @@ enum class HourField {
 enum class Decimals {
     Milliseconds, ///< three digits — SubRip, WebVTT
     Centiseconds, ///< two digits — SubViewer 2, and the two Sub Station Alpha
+    /// None at all — TMPlayer, which counts in whole seconds.
+    ///
+    /// **The decimal mark goes with them.** A format that writes no decimals
+    /// writes no separator either, so `00:00:04` and not `00:00:04.`, and the
+    /// mark asked for is then a question with no answer.
+    Seconds,
 };
 
 /// A position on the timeline, counted in whole signed milliseconds from the

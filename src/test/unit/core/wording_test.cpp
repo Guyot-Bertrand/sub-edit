@@ -55,6 +55,10 @@ TEST_CASE("every kind of diagnostic has a phrase", "[cli][wording]") {
     CHECK(nameOf(DiagnosticKind::UnknownBlock) == "a WebVTT block of an unknown kind");
     CHECK(nameOf(DiagnosticKind::UnknownEventField) ==
           "declares an event column this tool cannot fill");
+    CHECK(nameOf(DiagnosticKind::AssumedFrameRate) ==
+          "counts in frames and states no rate; it was read at");
+    CHECK(nameOf(DiagnosticKind::DeducedEnds) ==
+          "carries no end times; each one was taken from the next start");
     CHECK(nameOf(DiagnosticKind::MixedNewlines) == "more than one kind of line ending");
     CHECK(nameOf(DiagnosticKind::GuessedEncoding) == "an encoding nothing declared");
     CHECK(nameOf(DiagnosticKind::MarkOverridesEncoding) ==
@@ -243,12 +247,11 @@ TEST_CASE("every format has an extension, and two of them are shared", "[cli][wo
     CHECK(extensionOf(SubtitleFormat::Mpl2) == extensionOf(SubtitleFormat::TMPlayer));
 }
 
-TEST_CASE("the two reasons a writing can fail have a sentence", "[cli][wording][format]") {
+TEST_CASE("the one reason a writing can fail has a sentence", "[cli][wording][format]") {
     using subedit::core::reasonOf;
     using subedit::core::WriteErrorKind;
     CHECK(reasonOf(WriteErrorKind::Unencodable) ==
           "holds a character the chosen encoding cannot write");
-    CHECK(reasonOf(WriteErrorKind::NoWriter) == "cannot be written yet");
 }
 
 TEST_CASE("every format has a name a command line can take", "[cli][wording][format]") {
@@ -283,10 +286,4 @@ TEST_CASE("a name a command line takes leads back to its format", "[cli][wording
     CHECK_FALSE(formatNamed("sub").has_value());
     CHECK_FALSE(formatNamed("txt").has_value());
     CHECK_FALSE(formatNamed("").has_value());
-}
-
-TEST_CASE("the diagnostic of a rate nobody chose has its phrase", "[cli][wording]") {
-    using subedit::core::DiagnosticKind;
-    CHECK(nameOf(DiagnosticKind::AssumedFrameRate) ==
-          "counts in frames and states no rate; it was read at");
 }

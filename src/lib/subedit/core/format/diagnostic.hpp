@@ -42,6 +42,7 @@ enum class DiagnosticKind {
     UnknownBlock,           ///< a WebVTT block of an unknown kind
     UnknownEventField,      ///< a Sub Station Alpha column nothing here can fill
     AssumedFrameRate,       ///< a file counted in frames, opened at a rate nobody chose
+    DeducedEnds,            ///< a file that carries no end, so every one was worked out
     MixedNewlines,          ///< several line endings in the same file
     GuessedEncoding,        ///< the encoding was proposed by weighing the bytes
     MarkOverridesEncoding,  ///< a byte order mark against the encoding asked for

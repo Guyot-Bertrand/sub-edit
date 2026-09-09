@@ -115,12 +115,36 @@ TEST_CASE("a script type of another version claims nothing", "[format][detection
 TEST_CASE("MPL2 is recognised by two bracketed numbers opening a line", "[format][detection]") {
     CHECK(detectFormat("[10][30]Une réplique.\n") == SubtitleFormat::Mpl2);
 
-    // The two that open on a bracket and are not MPL2. Neither exists as a
-    // format yet, and each has to stay unclaimed until its reader lands — the
-    // brace that stood here left this list the day MicroDVD arrived, which is
-    // the whole use of writing them down.
-    CHECK_FALSE(detectFormat("[00:12.34]Une réplique.\n").has_value());
+    // **The other two that open on a bracket, and neither is MPL2.** This list
+    // held them as unclaimed until their reader landed, and emptied as they
+    // did — the brace left it the day MicroDVD arrived, LRC the day LRC did.
+    // A SubViewer 2 header on its own still claims nothing: a header is a
+    // promise, and it is the timing line that settles the format.
+    CHECK(detectFormat("[00:12.34]Une réplique.\n") == SubtitleFormat::Lrc);
     CHECK_FALSE(detectFormat("[INFORMATION]\n[TITLE]Le port\n").has_value());
+}
+
+TEST_CASE("LRC is recognised by one bracket holding a time", "[format][detection]") {
+    // The colon inside is the whole of what tells it from MPL2, which puts two
+    // whole numbers in two brackets.
+    CHECK(detectFormat("[ar:Un artiste]\n[00:12.34]Une réplique.\n") == SubtitleFormat::Lrc);
+
+    // Tag lines look like timed ones and are not; a file of nothing but tags
+    // is claimed by no format.
+    CHECK_FALSE(detectFormat("[ar:Un artiste]\n[ti:Un titre]\n").has_value());
+}
+
+TEST_CASE("TMPlayer is recognised by three fields and a closing colon", "[format][detection]") {
+    CHECK(detectFormat("00:00:12:Une réplique.\n") == SubtitleFormat::TMPlayer);
+    CHECK(detectFormat("0:00:12:Une réplique.\n") == SubtitleFormat::TMPlayer);
+
+    // **The shape SubViewer 2 comes closest to**, and what separates them is
+    // what follows the seconds: a period and a comma there, a colon here.
+    CHECK(detectFormat("00:00:12.00,00:00:15.00\nUne réplique.\n") == SubtitleFormat::SubViewer2);
+
+    // Neither a whole field nor a closing colon.
+    CHECK_FALSE(detectFormat("000:00:12:Une réplique.\n").has_value());
+    CHECK_FALSE(detectFormat("00:00:12 Une réplique.\n").has_value());
 }
 
 TEST_CASE("MicroDVD is recognised by two braced numbers opening a line", "[format][detection]") {

@@ -68,6 +68,9 @@ add_executable(
     core/format/sub_rip_round_trip_test.cpp
     core/format/micro_dvd_test.cpp
     core/format/mpl2_test.cpp
+    core/format/tm_player_test.cpp
+    core/format/lrc_test.cpp
+    core/format/deduced_ends_test.cpp
     core/format/sub_station_alpha_reader_test.cpp
     core/format/sub_station_alpha_writer_test.cpp
     core/format/sub_station_alpha_round_trip_test.cpp

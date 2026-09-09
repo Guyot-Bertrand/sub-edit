@@ -110,9 +110,12 @@ Trois promesses, et la deuxième est la raison d'être de la table :
 
 Deux raisons, et la seconde est un piège vérifié.
 
-**Sept des neuf ne s'ouvrent pas encore.** `valides/` est le corpus de ce qui
+**Sept des neuf ne s'ouvraient pas encore.** `valides/` est le corpus de ce qui
 s'ouvre et revient octet pour octet ; un `.ass` déposé là avant qu'un lecteur
-d'ASS existe rendrait la porte rouge pendant toute la phase.
+d'ASS existe aurait rendu la porte rouge pendant toute la phase. Les neuf
+s'ouvrent aujourd'hui, mais deux ne peuvent toujours pas y aller : `valides/`
+ne demande que les octets, et sur TMPlayer et LRC les octets ne prouvent rien.
+C'est la table de promesses qui a ce qu'il faut.
 
 **Et `valides/` ne tolère aucun fichier qui ne soit pas un sous-titre.** Depuis
 #289 le répertoire *est* la liste : `validFiles()` retient tout fichier régulier

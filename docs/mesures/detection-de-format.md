@@ -71,29 +71,26 @@ leur extension suffit à nommer.
 
 <!-- relevé engendré : ne pas modifier à la main -->
 
-    formats reconnus : 17/19
+    formats reconnus : 19/19
 
-Relevé sur la version 0.9.19, le 2026-09-08.
+Relevé sur la version 0.9.21, le 2026-09-09.
 
 | | Fichiers |
 | :--- | -------: |
-| reconnus | 17 |
-| refusés, faute d un lecteur | 2 |
+| reconnus | 19 |
+| refusés, faute d un lecteur | 0 |
 | **confondus** | **0** |
-
-Refusés :
-
-- `formats/scene.lrc` — LRC
-- `formats/scene.tmplayer.txt` — TMPlayer
 
 **Aucune confusion** : la détection refuse, elle ne se trompe pas.
 
 <!-- fin du relevé -->
 
-**Des refus, et pas une confusion.** C'est exactement l'état de la phase : la
-détection ne connaît pas encore les neuf formats, elle le dit, et elle n'invente
-rien. Le chiffre monte d'un rendu à chaque format livré, et il est le seul du
-dépôt qui mesure l'avancement de la phase 9 plutôt qu'une propriété du code.
+**Ni refus ni confusion.** Le chiffre est monté d'un rendu à chaque format
+livré, et il a été le seul du dépôt qui mesurait l'avancement de la phase 9
+plutôt qu'une propriété du code. Il ne mesure plus cela : les neuf formats sont
+là, le corpus étiqueté est reconnu en entier, et ce que la mesure garde est ce
+qu'elle avait de plus important dès le premier jour — **une confusion échoue à
+elle seule.** Un plein ne se relâche pas ; il se surveille.
 
 ## Corpus privé — sans étiquettes
 
@@ -105,13 +102,19 @@ Ce qu'il donne est la distribution des réponses.
 | :------ | -------: |
 | WebVTT | 54 |
 | SubRip | 17 |
-| refusé | 2 |
+| MicroDVD | 1 |
+| Advanced SSA | 1 |
+| refusé | 0 |
 
-**Les deux refus sont les deux formats de la phase**, un MicroDVD et un Advanced
-SSA, tous deux réels. C'est la confirmation de ce que l'initialisation de la
-phase (#336) avait fini par trouver après s'être trompée : le corpus privé porte
-autre chose que du `.srt` et du `.vtt`, et le relevé qui disait le contraire
-filtrait son parcours sur ces deux extensions.
+**Les deux derniers refus ont été des reconnaissances**, un MicroDVD et un
+Advanced SSA, tous deux réels, tous deux nommés par les lecteurs de la phase.
+C'est la confirmation de ce que l'initialisation de la phase (#336) avait fini
+par trouver après s'être trompée : le corpus privé porte autre chose que du
+`.srt` et du `.vtt`, et le relevé qui disait le contraire filtrait son parcours
+sur ces deux extensions.
+
+**Le corpus privé ne dit rien de TMPlayer ni de LRC** : il n'en porte aucun. Ce
+que ces deux formats-là ont pour eux est la scène de #338, et rien de réel.
 
 ## Ce que la première version de la sonde a appris
 

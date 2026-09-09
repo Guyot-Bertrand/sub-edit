@@ -1,7 +1,9 @@
 #include <subedit/core/format/format_detection.hpp>
+#include <subedit/core/format/lrc_syntax.hpp>
 #include <subedit/core/format/micro_dvd_syntax.hpp>
 #include <subedit/core/format/mpl2_syntax.hpp>
 #include <subedit/core/format/sub_viewer2_syntax.hpp>
+#include <subedit/core/format/tm_player_syntax.hpp>
 #include <subedit/core/text/lines.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
@@ -111,6 +113,22 @@ std::optional<SubtitleFormat> detectFormat(std::string_view content) {
     if (std::ranges::any_of(
             lines, [](std::string_view line) { return parseMicroDvdFrameLine(line).has_value(); }))
         return SubtitleFormat::MicroDvd;
+
+    // One bracket holding a time, where MPL2 puts two holding whole numbers.
+    // The two are told apart by the colon inside, which is why this comes after
+    // MPL2 rather than instead of it.
+    if (std::ranges::any_of(
+            lines, [](std::string_view line) { return parseLrcTimeLine(line).has_value(); }))
+        return SubtitleFormat::Lrc;
+
+    // **Last of the nine, and it is the one that claims the least.** Three
+    // fields and a closing colon at the head of a line is a shape SubViewer 2
+    // comes close to — `00:00:01.00,` — and the two are separated by what
+    // follows the seconds. SubViewer 2 is looked for first all the same: a
+    // header and a range say more than a bare start does.
+    if (std::ranges::any_of(
+            lines, [](std::string_view line) { return parseTMPlayerTimeLine(line).has_value(); }))
+        return SubtitleFormat::TMPlayer;
 
     return std::nullopt;
 }

@@ -22,7 +22,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass,mpl2,microdvd} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,mpl2,microdvd,tmplayer,lrc} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
@@ -59,6 +59,8 @@ Options:
 | `ass` | Advanced SSA | `.ass` |
 | `mpl2` | MPL2 | `.txt` |
 | `microdvd` | MicroDVD | `.sub` |
+| `tmplayer` | TMPlayer | `.txt` |
+| `lrc` | LRC | `.lrc` |
 
 **Un nom, et pas une extension.** Deux extensions désignent deux formats
 chacune — `.sub` est aussi celle de MicroDVD, `.txt` celle de MPL2 et de
@@ -66,7 +68,31 @@ TMPlayer — donc une option qui prendrait des extensions ne saurait pas lequel
 est demandé. Les noms ci-dessus sont sans ambiguïté, et coïncident avec
 l'extension partout où celle-ci l'est aussi.
 
-**La liste s'allonge, elle ne change pas.** Un nom déjà offert le reste.
+**La liste est close.** C'est celle de Gaupol, et les neuf y sont.
+
+## Les deux formats qui ne portent pas de fin
+
+**TMPlayer et LRC n'écrivent qu'une position par réplique**, son début. Cela se
+lit des deux côtés.
+
+**En lecture**, les fins sont déduites : celle d'une réplique est le début de
+la suivante, et la dernière reçoit cinq secondes. C'est ce que fait Gaupol.
+Nous le disons en plus, par un diagnostic que `--verbose` affiche sur les trois
+sous-commandes :
+
+```
+fichier.lrc: carries no end times; each one was taken from the next start, settled by the reader
+```
+
+**En écriture**, les fins ne sont pas écrites, faute d'endroit où les mettre.
+Convertir vers l'un de ces deux formats les perd donc, et un aller-retour ne
+les retrouve pas — il les redéduit.
+
+**LRC perd une chose de plus** : il n'a aucun moyen de porter un saut de ligne.
+Une réplique de deux lignes s'écrit sur une seule, les deux lignes jointes par
+une espace. Cette perte-là ne se répare pas non plus.
+
+Ni l'un ni l'autre n'a de vocabulaire pour l'italique.
 
 ## `--frame-rate`, et le seul format qui compte en images
 
@@ -105,7 +131,9 @@ pas dépend de la paire :
 | :--------------------- | :------- |
 | l'en-tête | il n'a de sens que dans son format : `[INFORMATION]` n'est pas une en-tête WebVTT |
 | les données propres au format | les coordonnées de SubRip, l'identifiant et les réglages d'une cellule WebVTT n'ont pas d'équivalent ailleurs |
-| la précision | SubViewer 2 et les deux Sub Station Alpha écrivent au centième, MPL2 au dixième, MicroDVD à l'image ; `01:00:00,017` en revient à `01:00:00,020` |
+| la précision | SubViewer 2, les deux Sub Station Alpha et LRC écrivent au centième, MPL2 au dixième, TMPlayer à la seconde, MicroDVD à l'image ; `01:00:00,017` en revient à `01:00:00,020` |
+| la fin d'une réplique | TMPlayer et LRC n'ont pas de champ pour elle ; la lecture suivante la redéduit |
+| les sauts de ligne | LRC seul : ses répliques tiennent sur une ligne, et les deux sont recollées par une espace |
 | les balises de mise en forme | `{\i1}` d'un `.ass` n'est pas `<i>` d'un `.srt` — la traduction des balises n'est pas encore écrite |
 
 **Réécrire un fichier dans son propre format ne perd rien** — c'est la garantie

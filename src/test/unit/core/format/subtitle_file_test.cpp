@@ -12,7 +12,6 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
-#include <array>
 #include <expected>
 #include <string>
 #include <string_view>
@@ -206,41 +205,18 @@ TEST_CASE("a WebVTT file comes back with its header", "[format][file]") {
     CHECK(written == kWebVtt);
 }
 
-TEST_CASE("a format that has no writer yet is refused, and named", "[format][file]") {
-    // **The formats named before they can be written**, and this is what stands
-    // between that and undefined behaviour: `writeSubtitles` is public, so a
-    // caller can name any of them.
+TEST_CASE("every one of the nine formats writes", "[format][file]") {
+    // **What is left of a pair of cases that ran the length of phase 9.** One
+    // held the formats named before their writer existed and checked that they
+    // refused; the other held those that could write. A format wrongly left in
+    // the first list was caught by the second — SubViewer 2 was, once.
     //
-    // Each of them leaves this list as its writer lands, and the case is gone
-    // when the last one does — its failing is how the phase says it is over.
-    const std::array<SubtitleFormat, 2> waiting = {
-        SubtitleFormat::TMPlayer,
-        SubtitleFormat::Lrc,
-    };
-
-    for (const SubtitleFormat format : waiting) {
-        INFO("format : " << subedit::core::nameOf(format));
-        const std::expected<std::string, subedit::core::WriteError> written =
-            writeSubtitles(format, WriteRequest{});
-
-        REQUIRE_FALSE(written.has_value());
-        CHECK(written.error().kind == subedit::core::WriteErrorKind::NoWriter);
-        CHECK(written.error().detail == subedit::core::nameOf(format));
-    }
-}
-
-TEST_CASE("the formats that have a writer still write", "[format][file]") {
-    // The other half of the case above, and the half that just did its work:
-    // the refusal is a list and not a default, so a format wrongly left in it
-    // is caught here. SubViewer 2 arrived with a writer while still listed as
-    // waiting, and this case is what said so.
-    for (const SubtitleFormat format : {SubtitleFormat::SubRip,
-                                        SubtitleFormat::WebVtt,
-                                        SubtitleFormat::SubViewer2,
-                                        SubtitleFormat::SubStationAlpha,
-                                        SubtitleFormat::AdvancedSubStationAlpha,
-                                        SubtitleFormat::Mpl2,
-                                        SubtitleFormat::MicroDvd}) {
+    // The waiting list is empty now, and with it went `WriteErrorKind::NoWriter`:
+    // an enumerator nothing emits is a promise not kept. What survives is the
+    // question that never depended on the calendar — `writeSubtitles` is
+    // public, so a caller may name any of the nine, and every one of them has
+    // to answer.
+    for (const SubtitleFormat format : subedit::core::kSubtitleFormats) {
         INFO("format : " << subedit::core::nameOf(format));
         CHECK(writeSubtitles(format, WriteRequest{}).has_value());
     }

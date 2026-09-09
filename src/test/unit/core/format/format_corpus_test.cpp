@@ -21,6 +21,7 @@
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/frame_rate.hpp>
+#include <subedit/core/wording.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -39,8 +40,8 @@
 namespace {
 
 using subedit::core::FrameRate;
+using subedit::core::nameOf;
 using subedit::core::ReadError;
-using subedit::core::ReadErrorKind;
 using subedit::core::ReadingChoices;
 using subedit::core::ReadResult;
 using subedit::core::readSubtitles;
@@ -71,22 +72,11 @@ enum class RoundTrip {
     Conditional,
 };
 
-/// Whether a reader of that format exists yet.
-///
-/// **A ratchet, and it is meant to be moved.** The issue that writes a reader
-/// moves its format to `Readable`, and every assertion below starts applying
-/// to it at once. Leaving it behind turns the last case red.
-enum class Support {
-    Readable,
-    NotYet,
-};
-
 /// One line of the promise table: one format, one rendering of the scene.
 struct Promise {
     std::string_view file;
     std::string_view name;
     RoundTrip roundTrip;
-    Support support;
     /// What a reading of that rendering gives back, subtitle by subtitle.
     std::span<const std::string_view> texts;
     /// The ends, whether the file carries them or a reading invents them.
@@ -170,56 +160,47 @@ constexpr std::array<Promise, 9> kPromises = {
     Promise{.file = "scene.srt",
             .name = "SubRip",
             .roundTrip = RoundTrip::Bytes,
-            .support = Support::Readable,
             .texts = kHtmlItalics,
             .ends = kCarriedEnds},
     Promise{.file = "scene.vtt",
             .name = "WebVTT",
             .roundTrip = RoundTrip::Bytes,
-            .support = Support::Readable,
             .texts = kHtmlItalics,
             .ends = kCarriedEnds},
     Promise{.file = "scene.subviewer2.sub",
             .name = "SubViewer 2",
             .roundTrip = RoundTrip::Bytes,
-            .support = Support::Readable,
             .texts = kHtmlItalics,
             .ends = kCarriedEnds},
     Promise{.file = "scene.ssa",
             .name = "Sub Station Alpha",
             .roundTrip = RoundTrip::Bytes,
-            .support = Support::Readable,
             .texts = kBraceItalics,
             .ends = kCarriedEnds},
     Promise{.file = "scene.ass",
             .name = "Advanced SSA",
             .roundTrip = RoundTrip::Bytes,
-            .support = Support::Readable,
             .texts = kBraceItalics,
             .ends = kCarriedEnds},
     Promise{.file = "scene.microdvd.sub",
             .name = "MicroDVD",
             .roundTrip = RoundTrip::Conditional,
-            .support = Support::Readable,
             .texts = kMicroDvdItalics,
             .ends = kCarriedEnds,
             .frameRate = FrameRate{StandardFrameRate::Fps25}},
     Promise{.file = "scene.mpl2.txt",
             .name = "MPL2",
             .roundTrip = RoundTrip::Bytes,
-            .support = Support::Readable,
             .texts = kMpl2Italics,
             .ends = kCarriedEnds},
     Promise{.file = "scene.tmplayer.txt",
             .name = "TMPlayer",
             .roundTrip = RoundTrip::BytesEmptily,
-            .support = Support::NotYet,
             .texts = kNoItalics,
             .ends = kInventedEnds},
     Promise{.file = "scene.lrc",
             .name = "LRC",
             .roundTrip = RoundTrip::BytesEmptily,
-            .support = Support::NotYet,
             .texts = kOneLine,
             .ends = kInventedEnds},
 };
@@ -301,9 +282,6 @@ TEST_CASE("the promise table says the same thing twice, and agrees with itself",
 
 TEST_CASE("every rendering that can be read gives back the same scene", "[format][corpus][scene]") {
     for (const Promise& promise : kPromises) {
-        if (promise.support != Support::Readable)
-            continue;
-
         INFO("format : " << promise.name);
         const std::expected<ReadResult, ReadError> result =
             readSubtitles(bytesOf(promise.file), ReadingChoices{.frameRate = promise.frameRate});
@@ -325,7 +303,7 @@ TEST_CASE("a rendering promised its bytes gives them back", "[format][corpus][sc
     // does not state, so it cannot be asked this question without being told
     // that rate first.
     for (const Promise& promise : kPromises) {
-        if (promise.support != Support::Readable || promise.roundTrip == RoundTrip::Conditional)
+        if (promise.roundTrip == RoundTrip::Conditional)
             continue;
 
         INFO("format : " << promise.name);
@@ -355,7 +333,7 @@ TEST_CASE("a rendering promised its bytes under a condition carries that conditi
     // carries a rate the file never stated. ADR 0030 is what makes the promise
     // keepable, and this is where that shows.
     for (const Promise& promise : kPromises) {
-        if (promise.support != Support::Readable || promise.roundTrip != RoundTrip::Conditional)
+        if (promise.roundTrip != RoundTrip::Conditional)
             continue;
 
         INFO("format : " << promise.name);
@@ -382,19 +360,19 @@ TEST_CASE("a rendering promised its bytes under a condition carries that conditi
     }
 }
 
-TEST_CASE("a format with no reader yet is refused rather than guessed", "[format][corpus][scene]") {
-    // **The ratchet.** Seven renderings sit in the directory before anything
-    // can read them, and this is what keeps them from sitting there unnoticed:
-    // the day a reader lands, this case fails until its format is moved to
-    // `Readable`, and the three cases above take it over.
+TEST_CASE("every rendering names its own format back", "[format][corpus][scene]") {
+    // **What the ratchet became.** A `Support` column sat in the table for the
+    // length of phase 9, saying which formats had a reader yet; a case asserted
+    // that the others were refused, and it emptied as the readers landed. What
+    // is worth asking now that all nine read is the stronger question the
+    // detection has to answer: not that a file opens, but that it opens as
+    // itself.
     for (const Promise& promise : kPromises) {
-        if (promise.support != Support::NotYet)
-            continue;
-
         INFO("format : " << promise.name);
-        const std::expected<ReadResult, ReadError> result = readSubtitles(bytesOf(promise.file));
+        const std::expected<ReadResult, ReadError> result =
+            readSubtitles(bytesOf(promise.file), ReadingChoices{.frameRate = promise.frameRate});
 
-        REQUIRE_FALSE(result.has_value());
-        CHECK(result.error().kind == ReadErrorKind::UnknownFormat);
+        REQUIRE(result.has_value());
+        CHECK(nameOf(result->format) == promise.name);
     }
 }

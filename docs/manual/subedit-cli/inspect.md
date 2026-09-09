@@ -50,7 +50,7 @@ exemple.srt
 
 | Champ | Ce qu'il dit |
 | :---- | :----------- |
-| `format` | l'un des formats que `--to` accepte, écrit en toutes lettres : `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MPL2`, `MicroDVD` |
+| `format` | l'un des formats que `--to` accepte, écrit en toutes lettres : `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
 | `encoding` | l'encodage lu, suivi de **d'où vient la réponse** : `, from its byte order mark` si le fichier la déclare, `, as asked for` si `--encoding` l'a imposée, `, detected` si elle a été pesée |
 | `byte order mark` | `present` ou `absent` |
 | `line endings` | `LF`, `CRLF` ou `CR`, suivi de `, mixed from line N` si le fichier en mélange |

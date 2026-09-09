@@ -1,5 +1,7 @@
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/format_detection.hpp>
+#include <subedit/core/format/lrc_reader.hpp>
+#include <subedit/core/format/lrc_writer.hpp>
 #include <subedit/core/format/micro_dvd_reader.hpp>
 #include <subedit/core/format/micro_dvd_writer.hpp>
 #include <subedit/core/format/mpl2_reader.hpp>
@@ -14,13 +16,14 @@
 #include <subedit/core/format/sub_viewer2_writer.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
+#include <subedit/core/format/tm_player_reader.hpp>
+#include <subedit/core/format/tm_player_writer.hpp>
 #include <subedit/core/format/web_vtt_reader.hpp>
 #include <subedit/core/format/web_vtt_writer.hpp>
 #include <subedit/core/format/write_error.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/encoding.hpp>
-#include <subedit/core/wording.hpp>
 
 #include <expected>
 #include <optional>
@@ -49,13 +52,16 @@ namespace {
            detected->encoding != Encoding::utf8(ByteOrderMark::Absent);
 }
 
-/// **The seven labels below move out one at a time**, as phase 9 writes their
-/// readers and writers. Grouping them rather than listing a `default` is what
-/// keeps the compiler useful: a tenth format would not compile, and a format
-/// whose writer lands without being moved out here would keep refusing in
-/// silence.
-[[nodiscard]] std::expected<std::string, WriteError> textOf(SubtitleFormat format,
-                                                            const WriteRequest& request) {
+/// The text a file of `format` holds, before it is encoded.
+///
+/// **Nine labels, and no `default`, which is the point.** The seven formats of
+/// phase 9 moved out of a single refusing branch one issue at a time; a tenth
+/// format would still not compile, which is what the shape was for.
+///
+/// **It returns a string and not an expected**, since the last of the nine
+/// landed: every format has a writer, and a writer cannot fail. What writing
+/// can still fail on is the encoding, which happens after this and knows why.
+[[nodiscard]] std::string textOf(SubtitleFormat format, const WriteRequest& request) {
     switch (format) {
     case SubtitleFormat::SubRip:
         return SubRipWriter{}.write(request);
@@ -71,11 +77,9 @@ namespace {
     case SubtitleFormat::MicroDvd:
         return MicroDvdWriter{}.write(request);
     case SubtitleFormat::TMPlayer:
+        return TMPlayerWriter{}.write(request);
     case SubtitleFormat::Lrc:
-        return std::unexpected(WriteError{
-            .kind = WriteErrorKind::NoWriter,
-            .detail = std::string{nameOf(format)},
-        });
+        return LrcWriter{}.write(request);
     }
     std::unreachable();
 }
@@ -99,15 +103,9 @@ readAs(SubtitleFormat format, std::string_view content, const ReadingChoices& ch
                               choices.frameRate.has_value()}
             .read(content);
     case SubtitleFormat::TMPlayer:
+        return TMPlayerReader{}.read(content);
     case SubtitleFormat::Lrc:
-        // Unreachable through `readSubtitles`, which only ever gets here with
-        // what `detectFormat` recognised — and it recognises two. Written as a
-        // refusal all the same: this function takes a format from its caller,
-        // and a caller naming one deserves an answer rather than a crash.
-        return std::unexpected(ReadError{
-            .kind = ReadErrorKind::UnknownFormat,
-            .detail = std::string{nameOf(format)},
-        });
+        return LrcReader{}.read(content);
     }
     std::unreachable();
 }
@@ -258,12 +256,8 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content,
 
 std::expected<std::string, WriteError> writeSubtitles(SubtitleFormat format,
                                                       const WriteRequest& request) {
-    const std::expected<std::string, WriteError> text = textOf(format, request);
-    if (!text.has_value())
-        return std::unexpected(text.error());
-
     const std::expected<std::string, UnwritableCharacter> body =
-        encodeFromUtf8(*text, request.encoding);
+        encodeFromUtf8(textOf(format, request), request.encoding);
     if (!body.has_value())
         return std::unexpected(WriteError{
             .kind = WriteErrorKind::Unencodable,
