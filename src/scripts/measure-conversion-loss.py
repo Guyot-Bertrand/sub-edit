@@ -84,6 +84,8 @@ TARGET_OF = {
     "Advanced SSA": "ass",
     "MPL2": "mpl2",
     "MicroDVD": "microdvd",
+    "TMPlayer": "tmplayer",
+    "LRC": "lrc",
 }
 
 GREEN = "\033[32m"

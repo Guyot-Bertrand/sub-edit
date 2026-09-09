@@ -49,6 +49,13 @@ add_library(
     format/mpl2_reader.cpp
     format/mpl2_syntax.cpp
     format/mpl2_writer.cpp
+    format/deduced_ends.cpp
+    format/lrc_reader.cpp
+    format/lrc_syntax.cpp
+    format/lrc_writer.cpp
+    format/tm_player_reader.cpp
+    format/tm_player_syntax.cpp
+    format/tm_player_writer.cpp
     format/sub_station_alpha_reader.cpp
     format/sub_station_alpha_syntax.cpp
     format/sub_station_alpha_writer.cpp

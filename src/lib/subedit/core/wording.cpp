@@ -166,9 +166,6 @@ std::string_view reasonOf(WriteErrorKind kind) {
     switch (kind) {
     case WriteErrorKind::Unencodable:
         return "holds a character the chosen encoding cannot write";
-    case WriteErrorKind::NoWriter:
-        // The format is the detail, so the sentence does not name it twice.
-        return "cannot be written yet";
     }
     std::unreachable();
 }
@@ -263,6 +260,10 @@ std::string_view nameOf(DiagnosticKind kind) {
         // The rate is the detail. What the sentence has to carry is that the
         // file did not say it — every position on screen rests on the answer.
         return "counts in frames and states no rate; it was read at";
+    case DiagnosticKind::DeducedEnds:
+        // No detail: what the sentence has to carry is that not one end in the
+        // table came from the file, and naming a line would say the opposite.
+        return "carries no end times; each one was taken from the next start";
     case DiagnosticKind::MixedNewlines:
         return "more than one kind of line ending";
     case DiagnosticKind::GuessedEncoding:

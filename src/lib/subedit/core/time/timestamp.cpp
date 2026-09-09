@@ -16,6 +16,12 @@ constexpr std::int64_t kDecimalBase = 10;
 constexpr std::size_t kFieldDigits = 2;
 constexpr std::size_t kFractionDigits = 3;
 constexpr std::size_t kMaxFields = 3;
+/// A whole second, for the precision that keeps no decimals at all.
+///
+/// Written here rather than taken from the class: `stepOf` is a free function,
+/// and `Timestamp::kMillisecondsPerSecond` is private to the class it belongs
+/// to. One number, two scopes that cannot see each other.
+constexpr std::int64_t kMillisecondsPerWholeSecond = 1000;
 constexpr std::size_t kMinFields = 2;
 constexpr std::string_view kBlanks = " \t\r\n";
 constexpr std::string_view kDecimalMarks = ",.";
@@ -38,6 +44,8 @@ void appendDigits(std::string& text, std::int64_t value, std::size_t width) {
         return 1;
     case Decimals::Centiseconds:
         return kDecimalBase;
+    case Decimals::Seconds:
+        return kMillisecondsPerWholeSecond;
     }
     std::unreachable();
 }
@@ -49,6 +57,8 @@ void appendDigits(std::string& text, std::int64_t value, std::size_t width) {
         return 3;
     case Decimals::Centiseconds:
         return 2;
+    case Decimals::Seconds:
+        return 0;
     }
     std::unreachable();
 }
@@ -135,8 +145,12 @@ std::string Timestamp::format(DecimalMark mark, HourField hours, Decimals decima
     appendDigits(text, magnitude / kMillisecondsPerMinute % kMinutesPerHour, kFieldDigits);
     text += ':';
     appendDigits(text, magnitude / kMillisecondsPerSecond % kSecondsPerMinute, kFieldDigits);
-    text += mark == DecimalMark::Comma ? ',' : '.';
-    appendDigits(text, magnitude % kMillisecondsPerSecond / step, digitsOf(decimals));
+    // A format that writes no decimals writes no mark either: the separator
+    // exists to introduce digits that are not there.
+    if (const std::size_t fraction = digitsOf(decimals); fraction > 0) {
+        text += mark == DecimalMark::Comma ? ',' : '.';
+        appendDigits(text, magnitude % kMillisecondsPerSecond / step, fraction);
+    }
     return text;
 }
 

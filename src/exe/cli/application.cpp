@@ -108,11 +108,12 @@ CLI::App* describeConvert(CLI::App& app, ConvertOptions& options) {
     convert->add_option("files", options.files, "Subtitle files to convert")->required();
     convert->add_option("--to", options.target, "Format to write")
         ->required()
-        // **One value per format that can be written**, and the list grows by
-        // one with each format of phase 9. It is written here rather than
-        // derived, so that offering a format the library cannot write is a
-        // line someone had to add.
-        ->check(CLI::IsMember({"srt", "vtt", "subviewer2", "ssa", "ass", "mpl2", "microdvd"}));
+        // **One value per format that can be written**, and the list grew by
+        // one with each format of phase 9 until it held all nine. It is written
+        // here rather than derived, so that offering a format the library
+        // cannot write is a line someone had to add.
+        ->check(CLI::IsMember(
+            {"srt", "vtt", "subviewer2", "ssa", "ass", "mpl2", "microdvd", "tmplayer", "lrc"}));
 
     // Left empty on purpose: empty means "as the source had it", and the model
     // of phase 1 kept both so that a conversion would not throw them away.
