@@ -26,6 +26,7 @@ ne pas l'éditer à la main.
 - **format** — TMPlayer et LRC, et les fins que le fichier ne dit pas
 - **text** — Un pivot de balises, et ce qu'une conversion dit perdre
 - **cli** — La surface de la ligne de commande, et ses dix promesses
+- **gui** — La fenêtre ouvre et enregistre les neuf formats
 
 ### Corrections
 
