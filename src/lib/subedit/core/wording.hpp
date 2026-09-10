@@ -237,6 +237,18 @@ namespace subedit::core {
 /// candidates.
 [[nodiscard]] std::string gridStatusOf(GridVerdict verdict, std::optional<FrameRate> rate);
 
+/// The same place in the status bar, for a document counted in frames.
+///
+/// **It replaces the grid line rather than joining it**, and for the reason
+/// `inspect` gives in the same case: the positions of a MicroDVD document were
+/// computed *from* its frames at this very rate, so a grid deduced from them
+/// can only find it again. Naming it a measurement would dress a given as a
+/// finding.
+///
+/// What the file does not say is said by the reading, once, as a diagnostic.
+/// This line says what is, permanently, as the grid's and the film's do.
+[[nodiscard]] std::string framesStatusOf(FrameRate rate);
+
 /// A length in seconds, signed, to the millisecond: "-7.001 s".
 ///
 /// Here since #174, and it was in the command line before — where the window

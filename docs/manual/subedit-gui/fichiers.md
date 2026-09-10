@@ -12,9 +12,27 @@ Le menu **File** porte les trois commandes.
 
 ## Ouvrir
 
-Le dialogue filtre les deux formats lus, **SubRip** (`.srt`) et **WebVTT**
-(`.vtt`), et propose de tout afficher. Le format est ensuite reconnu au contenu,
-pas à l'extension : un `.txt` qui contient du SubRip s'ouvre.
+Le dialogue filtre **les neuf formats lus**, une entrée chacun, et une première
+entrée qui les montre tous. Le format est ensuite reconnu **au contenu, pas à
+l'extension** : un `.txt` qui contient du SubRip s'ouvre, et le filtre ne décide
+rien — il ne fait que cacher des fichiers.
+
+| Entrée du filtre | Extension |
+| :--------------- | :-------- |
+| `SubRip` | `.srt` |
+| `WebVTT` | `.vtt` |
+| `SubViewer 2` | `.sub` |
+| `Sub Station Alpha` | `.ssa` |
+| `Advanced SSA` | `.ass` |
+| `MicroDVD` | `.sub` |
+| `MPL2` | `.txt` |
+| `TMPlayer` | `.txt` |
+| `LRC` | `.lrc` |
+
+**Deux extensions désignent deux formats chacune** — `.sub` est SubViewer 2 et
+MicroDVD, `.txt` est MPL2 et TMPlayer. C'est sans conséquence à l'ouverture,
+puisque c'est le contenu qui tranche ; à l'enregistrement, c'est le **nom** de
+l'entrée choisie qui dit le format, jamais son motif.
 
 **Un fichier illisible ne remplace rien.** Absent, refusé par le système, écrit
 dans un encodage sous lequel ses octets ne se décodent pas, ou d'aucun format
@@ -121,6 +139,10 @@ l'encodage, les fins de ligne, la marque d'ordre des octets. Le document **vit
 ensuite là** : le titre change, `Save` vise le nouveau fichier et écrit dans la
 forme choisie, et le fichier d'origine reste tel qu'il était.
 
+**Les neuf formats sont proposés**, et l'entrée sélectionnée à l'ouverture de la
+boîte est **celle du document**. Enregistrer sous un autre nom sans toucher au
+filtre ne change donc pas de format.
+
 ![Le bas de la boîte « Save As… », palette claire : le nom du fichier et son
 format, puis l'encodage, les fins de ligne et la marque, sur les mêmes
 colonnes.](captures/enregistrer-sous.png)
@@ -176,13 +198,52 @@ Un enregistrement qui n'a pas eu lieu ne change rien du tout — ni sur le disqu
 ni dans la fenêtre.
 
 Changer de format change ce que la table montre — le séparateur décimal suit le
-format, virgule pour SubRip, point pour WebVTT.
+format, virgule pour SubRip, point pour WebVTT, et **les balises sont réécrites
+dans le vocabulaire du format d'arrivée** : un `<i>` devient `{\i1}` en Sub
+Station Alpha, `{Y:i}` en MicroDVD, `/` en tête de ligne en MPL2. Le document
+**est devenu** ce fichier, donc la table montre ce que le fichier porte.
+
+**Ce n'est pas une commande, et `Ctrl+Z` ne le défait pas.** Un document dont le
+format dirait LRC et dont les textes diraient encore `<i>` serait un document
+incohérent ; il n'y a pas de moitié à annuler.
+
+## Ce qu'un format ne portera pas, dit avant d'écrire
+
+**Une modale prévient, et on peut encore répondre non.** Elle liste ce que le
+format d'arrivée ne tiendra pas, poste par poste, dans les mots que la ligne de
+commande écrit après coup :
+
+```
+ends are not carried by LRC, line breaks were joined in 2 subtitles, 1 tag dropped
+```
+
+| Bouton | Effet |
+| :----- | :---- |
+| `Save` | écrit quand même, la perte assumée |
+| `Cancel` | n'écrit rien ; le document ne bouge pas, ni de fichier, ni de format |
+
+`Cancel` est le bouton par défaut : une touche Entrée pressée sans lire garde le
+fichier tel qu'il est.
+
+**Rien n'est demandé quand rien n'est perdu.** Une boîte qui annoncerait « rien
+ne sera perdu » apprendrait à congédier celle qui compte.
+
+Ce qui peut être annoncé :
+
+| Poste | Quand |
+| :---- | :---- |
+| les fins | le format d'arrivée n'en porte pas — TMPlayer, LRC |
+| les sauts de ligne | le format d'arrivée n'en porte pas — LRC |
+| les balises | une balise du départ n'a pas d'équivalent à l'arrivée, ou le pivot ne la connaît pas |
+| l'en-tête | le fichier lu en portait un, et il ne traverse pas |
+| les champs déclarés | l'ordre des colonnes SSA, la forme de l'heure TMPlayer |
+| la précision | le format d'arrivée compte plus gros — le dixième de MPL2, la seconde de TMPlayer |
 
 **Ce qui appartient à l'autre format est laissé de côté.** Un fichier WebVTT
 porte des identifiants de cue et des réglages de placement ; SubRip porte des
-coordonnées d'affichage. Écrire dans l'autre format les ignore silencieusement
-plutôt que de les traduire au hasard — ils ne sont pas perdus pour autant, ils
-ne sont simplement pas écrits.
+coordonnées d'affichage. Écrire dans l'autre format les ignore plutôt que de les
+traduire au hasard — ils ne sont pas perdus pour autant, ils ne sont simplement
+pas écrits.
 
 ## La garantie d'aller-retour
 

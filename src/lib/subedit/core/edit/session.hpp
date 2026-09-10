@@ -12,6 +12,7 @@
 #include <memory>
 #include <optional>
 #include <utility>
+#include <vector>
 
 namespace subedit::core {
 
@@ -54,6 +55,31 @@ public:
     /// to a change is a command — is about the document, and this is not the
     /// document.
     void setSourceFile(SourceFile source) { m_project.setSourceFile(std::move(source)); }
+
+    /// Records that the document has become a file of another format: its
+    /// texts speak that format's vocabulary now, and its source file says so.
+    ///
+    /// **One act and not two, which is why it is one method.** A document whose
+    /// format says LRC while its texts still say `<i>` is exactly the state
+    /// ADR 0009 forbids — the text is stored raw, with the tags of its format,
+    /// and the format is what says how to read them. Setting one without the
+    /// other would leave that state behind for as long as the caller took to
+    /// remember the second call.
+    ///
+    /// **Not a command, for `setSourceFile`'s reason carried one step
+    /// further.** Undoing half of it is the forbidden state again, and undoing
+    /// the whole of it would take back a conversion whose file is already on
+    /// disk. There is nothing here anyone would want to undo — Gaupol keeps
+    /// save-as out of its history for the same reason.
+    ///
+    /// The price is written rather than hidden: the history still holds texts
+    /// in the vocabulary the document has left, so undoing an edit made before
+    /// the conversion puts one of them back. It is the same trade the format
+    /// change alone already made, and it is bounded by what the history holds.
+    void becomeFile(SourceFile source, std::vector<Subtitle> converted) {
+        m_project.setSourceFile(std::move(source));
+        m_project.setSubtitles(std::move(converted));
+    }
 
     /// Associates the video the user named, whatever was there before.
     ///

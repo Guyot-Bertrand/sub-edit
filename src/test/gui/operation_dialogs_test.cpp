@@ -294,3 +294,40 @@ TEST_CASE("both dialogues offer the same eight rates", "[gui][GUI-FRAMERATE-01][
         CHECK(conversion.output() == rate);
     }
 }
+
+// Phase 9, and the third provenance. A file counted in frames states no rate;
+// what its positions were computed with is the one number that decides them,
+// and the dialog is where a user says it was the wrong one.
+TEST_CASE("the rate a file was read at pre-fills what it was timed against",
+          "[gui][GUI-FRAMES-01]") {
+    const FrameRateDialog dialog{4,
+                                 FrameRate{StandardFrameRate::Fps23976},
+                                 std::nullopt,
+                                 std::nullopt,
+                                 FrameRate{StandardFrameRate::Fps23976}};
+
+    CHECK(dialog.input() == FrameRate{StandardFrameRate::Fps23976});
+    CHECK(dialog.readLabel().toStdString() == "24000/1001");
+}
+
+TEST_CASE("the field opens on what the document counts at, not on what it was read at",
+          "[gui][GUI-FRAMES-01]") {
+    // **The two differ exactly once a conversion has happened**, and that is
+    // the case this pins: the file was read at 23.976, the user corrected the
+    // document to 25, and reopening the dialog must not propose the stale
+    // number back. The row still says where the file's own came from.
+    const FrameRateDialog dialog{4,
+                                 FrameRate{StandardFrameRate::Fps25},
+                                 std::nullopt,
+                                 std::nullopt,
+                                 FrameRate{StandardFrameRate::Fps23976}};
+
+    CHECK(dialog.input() == FrameRate{StandardFrameRate::Fps25});
+    CHECK(dialog.readLabel().toStdString() == "24000/1001");
+}
+
+TEST_CASE("a document counted in time has no such row", "[gui][GUI-FRAMES-01]") {
+    const FrameRateDialog dialog{4, FrameRate{StandardFrameRate::Fps25}};
+
+    CHECK(dialog.readLabel().isEmpty());
+}

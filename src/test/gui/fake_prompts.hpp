@@ -29,6 +29,14 @@ public:
     std::optional<gui::SaveTarget> nextSaveTarget{};
     gui::UnsavedChoice nextUnsavedChoice = gui::UnsavedChoice::Cancel;
 
+    /// Whether the next warning about a loss is accepted, and what it said.
+    ///
+    /// **True by default, unlike the question above.** The case one forgets
+    /// here is the opposite one: a test that saves into a lossy format wants
+    /// the file written, and the refusal is what a case asks for on purpose.
+    bool nextLossAccepted = true;
+    std::vector<std::string> losses{};
+
     /// What was asked, and what was said.
     int openAsked = 0;
     int saveTargetAsked = 0;
@@ -41,6 +49,11 @@ public:
 
     /// Where the last question opened, for a test to read it.
     std::filesystem::path lastOpenDirectory{};
+
+    [[nodiscard]] bool aboutLoss(const std::string& notice) override {
+        losses.push_back(notice);
+        return nextLossAccepted;
+    }
 
     [[nodiscard]] std::optional<std::filesystem::path>
     fileToOpen(const std::filesystem::path& directory) override {

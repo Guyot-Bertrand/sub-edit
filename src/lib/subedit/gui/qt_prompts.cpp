@@ -20,8 +20,31 @@
 
 namespace subedit::gui {
 
+QString filterFor(core::SubtitleFormat format) {
+    return QString::fromUtf8(core::nameOf(format)) + QStringLiteral(" (*") +
+           QString::fromUtf8(core::extensionOf(format)) + QLatin1Char(')');
+}
+
 QString subtitleFilters() {
-    return QStringLiteral("Subtitles (*.srt *.vtt);;SubRip (*.srt);;WebVTT (*.vtt);;All files (*)");
+    // **Nine entries and not nine patterns.** `.sub` is SubViewer 2 and
+    // MicroDVD, `.txt` is MPL2 and TMPlayer, so the first line — the one that
+    // shows everything — carries each extension once, while the entries below
+    // it name a format each. What tells them apart is the name, never the
+    // pattern; `formatOfFilter` reads it back the same way.
+    QString patterns;
+    QString entries;
+    for (const core::SubtitleFormat format : core::kSubtitleFormats) {
+        const QString pattern = QStringLiteral("*") + QString::fromUtf8(core::extensionOf(format));
+        if (!patterns.contains(pattern)) {
+            if (!patterns.isEmpty())
+                patterns += QLatin1Char(' ');
+            patterns += pattern;
+        }
+        entries += QStringLiteral(";;") + filterFor(format);
+    }
+
+    return QStringLiteral("Subtitles (") + patterns + QLatin1Char(')') + entries +
+           QStringLiteral(";;All files (*)");
 }
 
 QString videoFilters() {
@@ -37,12 +60,15 @@ QString videoFilters() {
 }
 
 core::SubtitleFormat formatOfFilter(const QString& filter) {
-    // WebVTT only if the filter names it alone: « Subtitles (*.srt *.vtt) »
-    // and « All files (*) » settle nothing, and SubRip is then the default —
-    // it is the format the project writes when nobody asks for another.
-    return filter.contains(QStringLiteral("*.vtt")) && !filter.contains(QStringLiteral("*.srt"))
-               ? core::SubtitleFormat::WebVtt
-               : core::SubtitleFormat::SubRip;
+    // **Read from the name and not from the pattern**, because two patterns
+    // name two formats each. « Subtitles (…) » and « All files (*) » settle
+    // nothing, and SubRip is then the default — it is the format the project
+    // writes when nobody asks for another.
+    for (const core::SubtitleFormat format : core::kSubtitleFormats) {
+        if (filter == filterFor(format))
+            return format;
+    }
+    return core::SubtitleFormat::SubRip;
 }
 
 UnsavedChoice choiceOf(int button) {
@@ -103,6 +129,18 @@ UnsavedChoice QtPrompts::aboutUnsavedChanges() {
                               QStringLiteral("The document has changes that were never written."),
                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
                               QMessageBox::Save));
+}
+
+bool QtPrompts::aboutLoss(const std::string& notice) {
+    // **A warning and not a notice**, which is the icon `reportFailure` uses:
+    // nothing has failed, and something is about to be given up for good. The
+    // default is the safe one — a return key pressed without reading keeps the
+    // file as it is.
+    return QMessageBox::warning(m_owner,
+                                QStringLiteral("Saving will lose something"),
+                                QString::fromStdString(notice),
+                                QMessageBox::Save | QMessageBox::Cancel,
+                                QMessageBox::Cancel) == QMessageBox::Save;
 }
 
 bool QtPrompts::run(QDialog& dialog) {

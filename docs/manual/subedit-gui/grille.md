@@ -39,6 +39,30 @@ La ligne **se remet à jour après chaque opération**. Aligner un fichier sur u
 autre cadence change la grille, et la barre d'état ne doit pas continuer à
 annoncer l'ancienne.
 
+### Un document compté en images n'a pas de grille, il a une fréquence
+
+**MicroDVD est le seul des neuf à compter en images.** Chacune de ses lignes
+porte deux numéros d'image et rien d'autre, et le fichier **ne dit pas** à
+quelle fréquence les lire. La même place de la barre d'état écrit alors :
+
+| Situation | Ce qui est écrit |
+| :-------- | :--------------- |
+| le document est compté en images | `Frames: 24000/1001 fps` |
+
+**Ce n'est pas la grille, et la grille serait circulaire ici.** Les positions
+d'un document MicroDVD ont été calculées *à partir* de ses images à cette
+fréquence-là ; en déduire une grille rendrait ce nombre, c'est-à-dire une donnée
+habillée en mesure.
+
+**D'où elle vient est dit une fois**, par la lecture, dans le
+[panneau des diagnostics](fichiers.md#les-diagnostics-dune-lecture) :
+`counts in frames and states no rate; it was read at ("24000/1001")`. La ligne
+de la barre d'état, elle, dit ce qui est, en permanence.
+
+**Se tromper de fréquence déplace tout le fichier**, et le dialogue
+[`Convert Frame Rate…`](operations.md#convert-frame-rate) est où on le corrige :
+il s'ouvre sur la fréquence de lecture et dit que c'est elle.
+
 ## Ce que l'analyse montre
 
 `Tools ▸ Frame Rate Analysis…` **ne modifie rien.** Elle ouvre sur un résumé et

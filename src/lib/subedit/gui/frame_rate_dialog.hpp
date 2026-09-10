@@ -41,6 +41,13 @@ class FrameRateBox;
 /// itself calls partial, and this field decides an operation on the whole file.
 /// The status bar and the analysis carry the partial case; this does not.
 ///
+/// **A third source, and it outranks the measurement rather than joining it.**
+/// A document read from MicroDVD carries frame numbers, and its positions were
+/// computed from them at a rate nobody could read in the file. Deducing a grid
+/// from those positions finds that rate again, which proves nothing; so when a
+/// file was read in frames, the field opens on the rate it was read at and the
+/// deduction is left out — the same choice `inspect` makes on the same case.
+///
 /// **Two sources, and neither is arbitrated** — decision D13. What the container
 /// declares and what the positions say are not the same fact: the first is the
 /// rate the film runs at, the second the grid the file was written on. A file
@@ -51,11 +58,13 @@ class FrameRateDialog final : public OperationDialog {
 
 public:
     /// `declared` is what the associated film says of itself, `deduced` what
-    /// the positions say, either of them possibly nothing.
+    /// the positions say, `read` the rate a document counted in frames was read
+    /// at — any of them possibly nothing.
     FrameRateDialog(std::size_t targetCount,
                     core::FrameRate current,
                     std::optional<core::FrameRate> declared = {},
                     std::optional<core::FrameRate> deduced = {},
+                    std::optional<core::FrameRate> read = {},
                     QWidget* parent = nullptr);
 
     [[nodiscard]] core::FrameRate input() const;
@@ -75,11 +84,16 @@ public:
     /// when no clean grid was found.
     [[nodiscard]] QString deducedLabel() const;
 
+    /// What the dialog says of the rate the file was read at — empty for a
+    /// document that does not count in frames, which is eight formats of nine.
+    [[nodiscard]] QString readLabel() const;
+
 private:
     FrameRateBox* m_input;
     FrameRateBox* m_output;
     QLabel* m_declared = nullptr;
     QLabel* m_deduced = nullptr;
+    QLabel* m_read = nullptr;
 };
 
 } // namespace subedit::gui

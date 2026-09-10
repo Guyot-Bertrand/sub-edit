@@ -86,6 +86,18 @@ public:
     /// What to do with changes that were never written.
     [[nodiscard]] virtual UnsavedChoice aboutUnsavedChanges() = 0;
 
+    /// Whether to write anyway, given what the arriving format will not carry.
+    ///
+    /// **Asked before the writing, which is the whole point.** The same words
+    /// the command line prints after the fact are a report; asked here they are
+    /// a warning, and the difference is that the answer can still be « no ».
+    /// `notice` is the core's, post by post — « ends are not carried by LRC,
+    /// line breaks were joined in 2 subtitles, 1 tag dropped ».
+    ///
+    /// Never asked when nothing is lost: a box that says « nothing will be
+    /// lost » teaches a user to dismiss the one that matters.
+    [[nodiscard]] virtual bool aboutLoss(const std::string& notice) = 0;
+
     /// Shows `dialog` and says whether it was accepted.
     ///
     /// **One method for every dialog this project writes itself**, and that is

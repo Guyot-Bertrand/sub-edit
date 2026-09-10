@@ -115,6 +115,7 @@ quelque chose à dire :
 | :---- | :------------- | :--------------------- |
 | `The positions say` | la [grille d'images](grille.md) déduite des positions du fichier | `Timed against` |
 | `The video declares` | la fréquence que le conteneur annonce, par exemple `24000/1001` | `Should play at` |
+| `The file was read at` | la fréquence à laquelle un fichier **compté en images** a été lu | `Timed against` |
 
 **Chaque proposition va au champ auquel elle répond.** La grille dit sur quoi le
 fichier a été *écrit* — c'est la liste du haut. Ce que le conteneur annonce est
@@ -125,6 +126,18 @@ doivent arriver — c'est la liste du bas.
 indice que la déduction elle-même qualifie de partiel, et ce champ décide d'une
 opération sur le fichier entier. La [barre d'état](grille.md) et l'analyse
 portent ce cas-là ; celui-ci non.
+
+**Un fichier compté en images remplace la grille plutôt que de s'y ajouter.**
+MicroDVD porte des numéros d'image, et les positions du document en ont été
+calculées à la fréquence de lecture : une grille déduite de ces positions-là ne
+peut que retrouver ce nombre. `The positions say` disparaît donc, et
+`The file was read at` prend sa place — c'est le même choix que fait
+[la barre d'état](grille.md#un-document-compté-en-images-na-pas-de-grille-il-a-une-fréquence).
+
+**C'est ainsi qu'on change la fréquence d'un MicroDVD.** Poser la fréquence lue
+en entrée et la vraie en sortie recalcule chaque position à partir des images du
+fichier — sans relire quoi que ce soit, et l'opération s'annule comme les
+autres.
 
 ### Un désaccord n'est pas une contradiction
 

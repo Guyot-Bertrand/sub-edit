@@ -6,12 +6,14 @@
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/document.hpp>
+#include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/source_file.hpp>
 
 #include <cstddef>
 #include <expected>
 #include <string>
 #include <utility>
+#include <variant>
 
 namespace subedit::core {
 
@@ -31,6 +33,14 @@ projectOf(std::expected<ReadResult, ReadError> read,
     Project project;
     project.setSubtitles(std::move(read->subtitles));
     project.setSourceFile(sourceFileOf(*read, path));
+
+    // **A document counted in frames works against the rate it was read at.**
+    // Its positions were computed from its frames with that number, so it is
+    // the one a conversion opens on and the one writing it back uses. The eight
+    // other formats count in time and leave the project on its default: what a
+    // time-based file was timed against is something no reader can know.
+    if (const auto* frames = std::get_if<MicroDvdFile>(&project.sourceFile().extras))
+        project.setFrameRate(frames->rate);
 
     return OpenedFile{
         .project = std::move(project), .diagnostics = std::move(read->diagnostics), .bytes = bytes};
