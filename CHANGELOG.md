@@ -25,6 +25,7 @@ ne pas l'éditer à la main.
 - **format** — MicroDVD, et la fréquence que le fichier ne dit pas
 - **format** — TMPlayer et LRC, et les fins que le fichier ne dit pas
 - **text** — Un pivot de balises, et ce qu'une conversion dit perdre
+- **cli** — La surface de la ligne de commande, et ses dix promesses
 
 ### Corrections
 
