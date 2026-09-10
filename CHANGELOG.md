@@ -24,6 +24,7 @@ ne pas l'éditer à la main.
 - **format** — MPL2, et un marqueur de saut écrit une seule fois
 - **format** — MicroDVD, et la fréquence que le fichier ne dit pas
 - **format** — TMPlayer et LRC, et les fins que le fichier ne dit pas
+- **text** — Un pivot de balises, et ce qu'une conversion dit perdre
 
 ### Corrections
 

@@ -254,6 +254,46 @@ TEST_CASE("the one reason a writing can fail has a sentence", "[cli][wording][fo
           "holds a character the chosen encoding cannot write");
 }
 
+TEST_CASE("a conversion that lost nothing has nothing to say", "[cli][wording][format]") {
+    // **The silence is half the design.** A line printed on every conversion is
+    // a line nobody reads, and the ones that matter would go by among them.
+    using subedit::core::ConversionLoss;
+    using subedit::core::SubtitleFormat;
+    CHECK(noticeOf(ConversionLoss{}, SubtitleFormat::SubRip, SubtitleFormat::WebVtt).empty());
+}
+
+TEST_CASE("each post of a conversion has its own words", "[cli][wording][format]") {
+    using subedit::core::ConversionLoss;
+    using subedit::core::noticeOf;
+    using subedit::core::SubtitleFormat;
+
+    CHECK(noticeOf(ConversionLoss{.ends = true}, SubtitleFormat::SubRip, SubtitleFormat::Lrc) ==
+          "ends are not carried by LRC");
+    CHECK(noticeOf(ConversionLoss{.joined = 2}, SubtitleFormat::SubRip, SubtitleFormat::Lrc) ==
+          "line breaks were joined in 2 subtitles");
+    CHECK(noticeOf(ConversionLoss{.tags = 1}, SubtitleFormat::SubRip, SubtitleFormat::WebVtt) ==
+          "1 tag dropped");
+    CHECK(noticeOf(ConversionLoss{.header = true},
+                   SubtitleFormat::WebVtt,
+                   SubtitleFormat::SubRip) == "the header was dropped");
+    // Named by what they were: whoever wrote cue settings wants to hear which
+    // fields went, not that « some data » did.
+    CHECK(noticeOf(ConversionLoss{.fields = 1}, SubtitleFormat::WebVtt, SubtitleFormat::SubRip) ==
+          "the WebVTT fields of 1 subtitle were dropped");
+    CHECK(noticeOf(ConversionLoss{.precision = 3},
+                   SubtitleFormat::SubRip,
+                   SubtitleFormat::SubViewer2) == "positions moved by up to 3 ms");
+}
+
+TEST_CASE("several posts are said in the order the phase lists them", "[cli][wording][format]") {
+    using subedit::core::ConversionLoss;
+    using subedit::core::SubtitleFormat;
+    const ConversionLoss loss{.ends = true, .joined = 1, .tags = 3};
+
+    CHECK(noticeOf(loss, SubtitleFormat::SubRip, SubtitleFormat::Lrc) ==
+          "ends are not carried by LRC, line breaks were joined in 1 subtitle, 3 tags dropped");
+}
+
 TEST_CASE("every format has a name a command line can take", "[cli][wording][format]") {
     // **Not the extension**, because two extensions name two formats each.
     // These are the values of `--to`, so they are named one by one here for the

@@ -63,6 +63,11 @@ add_executable(
     core/process/run_and_capture_test.cpp
     core/io/file_error_test.cpp
     core/text/lines_test.cpp
+    core/text/markup_test.cpp
+    core/text/html_markup_test.cpp
+    core/text/sub_station_alpha_markup_test.cpp
+    core/text/micro_dvd_markup_test.cpp
+    core/text/markup_conversion_test.cpp
     core/format/sub_rip_reader_test.cpp
     core/format/sub_rip_writer_test.cpp
     core/format/sub_rip_round_trip_test.cpp
@@ -82,6 +87,7 @@ add_executable(
     core/format/web_vtt_writer_test.cpp
     core/format/web_vtt_round_trip_test.cpp
     core/format/format_detection_test.cpp
+    core/format/degradation_test.cpp
     core/text/encoding_test.cpp
     core/format/subtitle_file_test.cpp
     core/config/settings_test.cpp

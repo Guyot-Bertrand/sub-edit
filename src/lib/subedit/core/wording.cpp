@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <variant>
+#include <vector>
 
 namespace subedit::core {
 
@@ -420,6 +421,38 @@ std::string countOf(std::size_t count, std::string_view noun) {
         text += "s";
     }
     return text;
+}
+
+std::string noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFormat to) {
+    if (!loss.isAny())
+        return {};
+
+    std::vector<std::string> posts;
+    // **The arriving format is named on the one post where it is the news.**
+    // « ends are not carried » would leave a reader wondering by what.
+    if (loss.ends)
+        posts.emplace_back("ends are not carried by " + std::string{nameOf(to)});
+    if (loss.joined > 0)
+        posts.emplace_back("line breaks were joined in " + countOf(loss.joined, "subtitle"));
+    if (loss.tags > 0)
+        posts.emplace_back(countOf(loss.tags, "tag") + " dropped");
+    if (loss.header)
+        posts.emplace_back("the header was dropped");
+    // Named by what they were, not by what they are not: a reader who wrote
+    // cue settings wants to hear « the WebVTT fields », not « some data ».
+    if (loss.fields > 0)
+        posts.emplace_back("the " + std::string{nameOf(from)} + " fields of " +
+                           countOf(loss.fields, "subtitle") + " were dropped");
+    if (loss.precision > 0)
+        posts.emplace_back("positions moved by up to " + std::to_string(loss.precision) + " ms");
+
+    std::string notice;
+    for (const std::string& post : posts) {
+        if (!notice.empty())
+            notice += ", ";
+        notice += post;
+    }
+    return notice;
 }
 
 } // namespace subedit::core

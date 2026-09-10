@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <string>
+#include <type_traits>
 #include <variant>
 
 namespace subedit::core {
@@ -88,5 +89,24 @@ struct SubStationAlphaExtras {
 /// of nine branches, is answered by the formats themselves.
 using FormatExtras =
     std::variant<std::monostate, SubRipExtras, WebVttExtras, SubStationAlphaExtras>;
+
+/// Tells whether these extras hold anything a conversion could lose.
+///
+/// **A branch is not a fact.** Every SubRip subtitle carries a `SubRipExtras`,
+/// and almost none of them carries coordinates; a reading that took the branch
+/// for the data would tell a user converting an ordinary `.srt` that they had
+/// lost something. What counts as held is what differs from the default of the
+/// branch — which is exactly what a writer would put back.
+[[nodiscard]] inline bool carriesFields(const FormatExtras& extras) {
+    return std::visit(
+        [](const auto& held) {
+            using Held = std::decay_t<decltype(held)>;
+            if constexpr (std::is_same_v<Held, std::monostate>)
+                return false;
+            else
+                return !(held == Held{});
+        },
+        extras);
+}
 
 } // namespace subedit::core

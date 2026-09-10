@@ -69,6 +69,30 @@ Run convert(const std::string& content,
             .errors = errors.str()};
 }
 
+/// Converts at the default level of narration, and hands back both sides.
+///
+/// The helper above is quiet on purpose — most of these cases are about the
+/// bytes. What a conversion *says* needs a reporter that speaks, and the notice
+/// this phase adds is written at level one, where an ordinary call sees it.
+[[nodiscard]] Run
+convertAloud(const std::string& content, SubtitleFormat target, const std::string& extension) {
+    InMemoryFileSystem files;
+    files.addFile("in/a.srt", content);
+
+    std::ostringstream errors;
+    const ExitCode code = convertAll(files,
+                                     {"in/a.srt"},
+                                     subedit::core::ReadingChoices{},
+                                     target,
+                                     {},
+                                     Destination::from("", "out", false, 1).value(),
+                                     Reporter{errors, 1});
+
+    return {.code = code,
+            .written = files.contentOf("out/a" + extension).value_or(""),
+            .errors = errors.str()};
+}
+
 } // namespace
 
 TEST_CASE("converting produces the format asked for", "[cli][conversion]") {
@@ -398,4 +422,64 @@ TEST_CASE("without a rate and without a grid, writing frames is refused",
     CHECK(run.code == ExitCode::AllFailed);
     CHECK(run.written.empty());
     CHECK_THAT(run.errors, ContainsSubstring("--frame-rate"));
+}
+
+TEST_CASE("the markup is carried into the arriving vocabulary", "[cli][conversion][markup]") {
+    // **ADR 0031, seen from the command line.** Without the pivot this file
+    // would reach a `.ssa` still saying `<i>`, which that format will never
+    // interpret — text the user sees, which is worse than a loss.
+    const std::string italic = "1\n00:00:01,000 --> 00:00:03,000\n<i>Il ne dit rien.</i>\n\n";
+
+    const Run run = convertAloud(italic, SubtitleFormat::SubStationAlpha, ".ssa");
+
+    CHECK(run.code == ExitCode::Success);
+    CHECK_THAT(run.written, ContainsSubstring(R"({\i1}Il ne dit rien.{\i0})"));
+    CHECK_FALSE(run.written.contains("<i>"));
+}
+
+TEST_CASE("a conversion that loses nothing says nothing about it", "[cli][conversion][markup]") {
+    // The narration still says what was written and where; what it does not do
+    // is add a report of a loss that did not happen.
+    const Run run = convertAloud(kSubRip, SubtitleFormat::WebVtt, ".vtt");
+
+    CHECK_THAT(run.errors, ContainsSubstring("2 subtitles written as WebVTT"));
+    CHECK_FALSE(run.errors.contains("dropped"));
+    CHECK_FALSE(run.errors.contains("not carried"));
+}
+
+TEST_CASE("a conversion that loses something says so, post by post", "[cli][conversion][markup]") {
+    const std::string rich = "1\n00:00:01,000 --> 00:00:03,000\n<i>sur deux</i>\nlignes\n\n";
+
+    const Run run = convertAloud(rich, SubtitleFormat::Lrc, ".lrc");
+
+    CHECK(run.code == ExitCode::Success);
+    CHECK_THAT(run.errors, ContainsSubstring("ends are not carried by LRC"));
+    CHECK_THAT(run.errors, ContainsSubstring("line breaks were joined in 1 subtitle"));
+    CHECK_THAT(run.errors, ContainsSubstring("1 tag dropped"));
+}
+
+TEST_CASE("a file rewritten in its own format keeps the rate it was read at",
+          "[cli][convert][frames]") {
+    // **The rate a MicroDVD file carries crosses into MicroDVD and nowhere
+    // else** — ADR 0030. Rewriting the file in its own format is the one
+    // conversion where there is nothing to deduce: the frames written back are
+    // the frames that were read.
+    InMemoryFileSystem files;
+    const std::string frames = "{25}{75}First.\n{100}{150}Second.\n";
+    files.addFile("in/a.sub", frames);
+
+    std::ostringstream errors;
+    const ExitCode code = convertAll(
+        files,
+        {"in/a.sub"},
+        subedit::core::ReadingChoices{
+            .frameRate = subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps30}},
+        SubtitleFormat::MicroDvd,
+        {},
+        Destination::from("", "out", false, 1).value(),
+        Reporter{errors, 1});
+
+    CHECK(code == ExitCode::Success);
+    CHECK(files.readFile("out/a.sub").value_or("") == frames);
+    CHECK_FALSE(errors.str().contains("dropped"));
 }

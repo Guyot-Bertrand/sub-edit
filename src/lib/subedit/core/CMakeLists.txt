@@ -36,11 +36,19 @@ add_library(
     io/in_memory_file_system.cpp
     text/encoding.cpp
     text/break_marker.cpp
+    text/markup.cpp
+    text/markup_codec.cpp
+    text/markup_vocabulary.cpp
+    text/html_markup.cpp
+    text/sub_station_alpha_markup.cpp
+    text/micro_dvd_markup.cpp
+    text/markup_conversion.cpp
     text/lines.cpp
     format/subtitle_file.cpp
     format/project_file.cpp
     config/settings.cpp
     format/format_detection.cpp
+    format/degradation.cpp
     format/sub_rip_reader.cpp
     format/sub_rip_writer.cpp
     format/micro_dvd_reader.cpp

@@ -23,6 +23,7 @@
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/theme.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
+#include <subedit/core/format/degradation.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/read_error.hpp>
@@ -296,5 +297,19 @@ namespace subedit::core {
 /// notices immediately and that ends up copied into the manual, which is
 /// generated from what the tool actually prints.
 [[nodiscard]] std::string countOf(std::size_t count, std::string_view noun);
+
+/// What a conversion cost, post by post, or nothing when it cost nothing.
+///
+/// **The silence is half the design.** A conversion that loses nothing returns
+/// an empty string and the surfaces say nothing: a report printed on every call
+/// is a report nobody reads, and the ones that matter would go by unnoticed
+/// among them.
+///
+/// The posts are the phase's, in the order the scoping lists them: the ends a
+/// format does not carry, the line breaks it joined, the tags it could not
+/// write, what it left of the header and of a subtitle's own fields, and how
+/// far the positions moved. Each appears only when it is not zero.
+[[nodiscard]] std::string
+noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFormat to);
 
 } // namespace subedit::core
