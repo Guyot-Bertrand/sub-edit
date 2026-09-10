@@ -10,6 +10,7 @@
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/encoding.hpp>
+#include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
@@ -23,6 +24,7 @@
 #include <span>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace subedit::cli {
@@ -61,6 +63,23 @@ std::string encoding(const core::Encoding& read, bool asked) {
         return std::string{read.charset()} + ", from its byte order mark";
 
     return std::string{read.charset()} + (asked ? ", as asked for" : ", detected");
+}
+
+/// The rate a file counted in frames was read at, and where that rate came from.
+///
+/// **The same shape as the encoding line, and for the same reason**: a number
+/// every position on screen rests on is worth nothing without knowing who chose
+/// it. Two answers rather than three, because a frames file declares nothing —
+/// that absence is the whole difficulty ADR 0030 was written for.
+///
+/// Which of the two it was is read from the reading itself: `AssumedFrameRate`
+/// is left behind exactly when nobody chose, so the report never has to be told
+/// twice.
+std::string frameRate(core::FrameRate rate, const std::vector<core::Diagnostic>& diagnostics) {
+    const bool assumed = std::ranges::any_of(diagnostics, [](const core::Diagnostic& d) {
+        return d.kind == DiagnosticKind::AssumedFrameRate;
+    });
+    return std::string{core::nameOf(rate)} + " fps, " + (assumed ? "assumed" : "as asked for");
 }
 
 /// The whole stretch the subtitles cover: the earliest start and the latest
@@ -156,11 +175,11 @@ std::string anomalies(const core::Project& project) {
 
 bool inspectFile(const core::FileSystem& files,
                  const std::string& path,
-                 const std::optional<core::Encoding>& reading,
+                 const core::ReadingChoices& reading,
                  std::ostream& out,
                  const Reporter& reporter) {
     const std::expected<core::OpenedFile, core::OpenError> opened =
-        reading ? core::openProject(files, path, *reading) : core::openProject(files, path);
+        core::openProject(files, path, reading);
     if (!opened) {
         reporter.failed(path + ": " + std::string{reasonOf(opened.error())});
         return false;
@@ -183,14 +202,21 @@ bool inspectFile(const core::FileSystem& files,
 
     out << path << '\n';
     out << "  format: " << nameOf(source.format) << '\n';
-    out << "  encoding: " << encoding(source.encoding, reading.has_value()) << '\n';
+    out << "  encoding: " << encoding(source.encoding, reading.encoding.has_value()) << '\n';
     out << "  byte order mark: "
         << (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "present" : "absent")
         << '\n';
     out << "  line endings: " << lineEndings(source.newline, opened->diagnostics) << '\n';
     out << "  subtitles: " << project.subtitles().size() << '\n';
     out << "  span: " << span(project.subtitles()) << '\n';
-    sayGrid(out, project);
+    // **A file counted in frames gets its rate, not a grid.** Deducing one from
+    // positions that were computed *from* frames at that very rate would answer
+    // with the number it was given, dressed as a measurement.
+    if (const auto* frames = std::get_if<core::MicroDvdFile>(&source.extras)) {
+        out << "  frame rate: " << frameRate(frames->rate, opened->diagnostics) << '\n';
+    } else {
+        sayGrid(out, project);
+    }
     out << "  anomalies: " << anomalies(project) << '\n';
 
     return true;
@@ -198,7 +224,7 @@ bool inspectFile(const core::FileSystem& files,
 
 ExitCode inspectAll(const core::FileSystem& files,
                     const std::vector<std::string>& paths,
-                    const std::optional<core::Encoding>& reading,
+                    const core::ReadingChoices& reading,
                     std::ostream& out,
                     const Reporter& reporter) {
     std::size_t done = 0;

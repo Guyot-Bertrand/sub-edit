@@ -1,6 +1,7 @@
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/time/frame_rate.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
@@ -45,6 +46,12 @@ const std::string kTwoLateLines = "1\n00:00:00,000 --> 00:00:00,500\nFirst.\n"
                                   "\n3\n00:00:02,000 --> 00:00:02,500\nThird.\n"
                                   "\n4\n00:00:03,000 --> 00:00:03,500\nFourth.\n";
 
+// Four subtitles counted in frames, on a grid of twenty-five to the second.
+const std::string kInFrames = "{25}{75}First.\n"
+                              "{100}{150}Second.\n"
+                              "{200}{260}Third.\n"
+                              "{300}{360}Fourth.\n";
+
 InMemoryFileSystem withFile(const std::string& path, const std::string& content) {
     InMemoryFileSystem files;
     files.addFile(path, content);
@@ -58,7 +65,7 @@ TEST_CASE("the report says what the file is made of", "[cli][inspection]") {
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     CHECK(out.str() == "a.srt\n"
                        "  format: SubRip\n"
@@ -81,7 +88,7 @@ TEST_CASE("the span runs from the earliest start to the latest end", "[cli][insp
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     // Not "first to last": on a file whose order is broken the two differ, and
     // only this one says the truth about what the file covers.
@@ -93,7 +100,7 @@ TEST_CASE("the report names the subtitle that breaks the order", "[cli][inspecti
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     // By subtitle number, not by line — ADR 0018. The overlap comes with it:
     // a subtitle that starts before the previous one started also starts before
@@ -111,7 +118,7 @@ TEST_CASE("a byte order mark and Windows endings are seen", "[cli][inspection]")
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     CHECK_THAT(out.str(), ContainsSubstring("  byte order mark: present\n"));
     CHECK_THAT(out.str(), ContainsSubstring("  line endings: CRLF\n"));
@@ -124,7 +131,7 @@ TEST_CASE("mixed line endings are signalled with their line", "[cli][inspection]
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     CHECK_THAT(out.str(), ContainsSubstring("mixed from line 5"));
 }
@@ -134,7 +141,7 @@ TEST_CASE("a file that is not there is named, and nothing is reported", "[cli][i
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK_FALSE(inspectFile(files, "absent.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK_FALSE(inspectFile(files, "absent.srt", {}, out, Reporter{errors, 0}));
 
     CHECK(out.str().empty());
     CHECK(errors.str() == "absent.srt: does not exist\n");
@@ -149,7 +156,7 @@ TEST_CASE("bytes that decode nowhere are refused rather than mangled", "[cli][in
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK_FALSE(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK_FALSE(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     CHECK_THAT(errors.str(), ContainsSubstring("cannot be decoded in the chosen encoding"));
 }
@@ -159,7 +166,7 @@ TEST_CASE("a file in no known format is refused", "[cli][inspection]") {
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK_FALSE(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK_FALSE(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     CHECK_THAT(errors.str(), ContainsSubstring("is in no format this tool knows"));
 }
@@ -170,7 +177,7 @@ TEST_CASE("the narration deepens with the level", "[cli][inspection]") {
     const auto narrate = [&files](int level) {
         std::ostringstream out;
         std::ostringstream errors;
-        static_cast<void>(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, level}));
+        static_cast<void>(inspectFile(files, "a.srt", {}, out, Reporter{errors, level}));
         return errors.str();
     };
 
@@ -187,7 +194,7 @@ TEST_CASE("a batch keeps going after a failure", "[cli][inspection]") {
     std::ostringstream errors;
 
     const ExitCode code =
-        inspectAll(files, {"absent.srt", "good.srt"}, std::nullopt, out, Reporter{errors, 1});
+        inspectAll(files, {"absent.srt", "good.srt"}, {}, out, Reporter{errors, 1});
 
     CHECK(code == ExitCode::SomeFailed);
     CHECK_THAT(out.str(), ContainsSubstring("good.srt\n"));
@@ -199,7 +206,7 @@ TEST_CASE("a batch where nothing survives says so", "[cli][inspection]") {
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectAll(files, {"a.srt", "b.srt"}, std::nullopt, out, Reporter{errors, 1}) ==
+    CHECK(inspectAll(files, {"a.srt", "b.srt"}, {}, out, Reporter{errors, 1}) ==
           ExitCode::AllFailed);
 }
 
@@ -210,7 +217,7 @@ TEST_CASE("a file that cannot be opened is told from one that is absent", "[cli]
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK_FALSE(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK_FALSE(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     // Not "does not exist": the file is there, and telling the two apart is
     // what lets a caller know whether to look for a typo or for a chmod.
@@ -224,7 +231,7 @@ TEST_CASE("a device that refuses for another reason says so", "[cli][inspection]
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK_FALSE(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK_FALSE(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
     CHECK(errors.str() == "a.srt: cannot be read\n");
 }
 
@@ -236,7 +243,7 @@ TEST_CASE("a recognised format holding no subtitle is refused", "[cli][inspectio
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK_FALSE(inspectFile(files, "a.vtt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK_FALSE(inspectFile(files, "a.vtt", {}, out, Reporter{errors, 0}));
     CHECK_THAT(errors.str(), ContainsSubstring("holds nothing recognisable as a subtitle"));
 }
 
@@ -246,7 +253,7 @@ TEST_CASE("WebVTT is named as such", "[cli][inspection]") {
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.vtt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.vtt", {}, out, Reporter{errors, 0}));
     CHECK_THAT(out.str(), ContainsSubstring("  format: WebVTT\n"));
 }
 
@@ -256,7 +263,7 @@ TEST_CASE("classic Mac line endings are named", "[cli][inspection]") {
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
     CHECK_THAT(out.str(), ContainsSubstring("  line endings: CR\n"));
 }
 
@@ -265,7 +272,7 @@ TEST_CASE("the report names every subtitle out of place", "[cli][inspection]") {
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     // Counted from one, as the report shows them. **Only the third is named as
     // breaking the order** — the fourth follows the third, so there is nothing
@@ -280,7 +287,7 @@ TEST_CASE("the report names the grid a file was written on", "[cli][inspection]"
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     CHECK_THAT(out.str(), ContainsSubstring("  frame rate grid: 24 fps, clean (99.9%)\n"));
 }
@@ -292,7 +299,7 @@ TEST_CASE("the report names the harmonic it set aside", "[cli][inspection]") {
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     CHECK_THAT(out.str(), ContainsSubstring("  frame rate grid: 25 fps, clean (100.0%)\n"));
     CHECK_THAT(out.str(),
@@ -305,7 +312,7 @@ TEST_CASE("the report gives the offset of a shifted grid", "[cli][inspection]") 
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     CHECK_THAT(out.str(), ContainsSubstring("  grid offset: 0.041 s\n"));
 }
@@ -316,7 +323,7 @@ TEST_CASE("the report says when the span is too short to choose", "[cli][inspect
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     CHECK_THAT(out.str(), ContainsSubstring("  too short a span to separate: 24000/1001 fps\n"));
 }
@@ -330,7 +337,7 @@ TEST_CASE("the report counts the starts that left the grid", "[cli][inspection]"
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     CHECK_THAT(out.str(), ContainsSubstring("  frame rate grid: 30000/1001 fps, partial ("));
     CHECK_THAT(out.str(), ContainsSubstring("  off the grid: 53 of 168 starts, in 4 runs\n"));
@@ -342,7 +349,50 @@ TEST_CASE("a file on no known grid names no rate at all", "[cli][inspection]") {
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", std::nullopt, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
 
     CHECK_THAT(out.str(), ContainsSubstring("  frame rate grid: none (best candidate at 15.3%)\n"));
+}
+
+TEST_CASE("a file counted in frames reports its rate, not a grid", "[cli][inspection]") {
+    // **Deducing a grid here would answer with the number it was given.** The
+    // positions were computed from frames at that very rate, so the measurement
+    // could only find it again — a given dressed as a finding.
+    const InMemoryFileSystem files = withFile("a.sub", kInFrames);
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    CHECK(inspectFile(files, "a.sub", {}, out, Reporter{errors, 0}));
+
+    CHECK_THAT(out.str(), ContainsSubstring("  frame rate: 24000/1001 fps, assumed\n"));
+    CHECK_FALSE(out.str().contains("frame rate grid"));
+}
+
+TEST_CASE("the rate asked for is the one read, and the report says so", "[cli][inspection]") {
+    // The same shape as the encoding line: the number, and who chose it. And
+    // the number is not decoration — every position of the report goes through
+    // it, `span` first.
+    const InMemoryFileSystem files = withFile("a.sub", kInFrames);
+    std::ostringstream out;
+    std::ostringstream errors;
+    const subedit::core::ReadingChoices asked{
+        .frameRate = subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps25}};
+
+    CHECK(inspectFile(files, "a.sub", asked, out, Reporter{errors, 0}));
+
+    CHECK_THAT(out.str(), ContainsSubstring("  frame rate: 25 fps, as asked for\n"));
+    CHECK_THAT(out.str(), ContainsSubstring("  span: 00:00:01.000 -> 00:00:14.400\n"));
+}
+
+TEST_CASE("a file counted in time still reports the grid it falls on", "[cli][inspection]") {
+    // The other side of the same choice: nothing else than MicroDVD counts in
+    // frames, so nothing else loses the line the deduction is there to write.
+    const InMemoryFileSystem files = withFile("a.srt", kTwoSubtitles);
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
+
+    CHECK_THAT(out.str(), ContainsSubstring("frame rate grid:"));
+    CHECK_FALSE(out.str().contains("  frame rate: "));
 }
