@@ -72,6 +72,7 @@ ExitCode refuse(std::string_view why) {
 /// What `inspect` was asked for.
 struct InspectOptions {
     std::vector<std::string> files;
+    std::string frameRate;
 };
 
 /// What `convert` was asked for, verbatim.
@@ -93,6 +94,15 @@ struct ConvertOptions {
 CLI::App* describeInspect(CLI::App& app, InspectOptions& options) {
     CLI::App* inspect = app.add_subcommand("inspect", "Report what a subtitle file is made of");
     inspect->add_option("files", options.files, "Subtitle files to report on")->required();
+    // **Reading, here, and writing too on `convert`** — one rate, one option,
+    // spelled the same on both. It is not global as `--encoding` is, because a
+    // global option has to come before the subcommand: `--frame-rate` would
+    // then be one word on `inspect` and another place entirely on `convert`,
+    // where it also governs what is written.
+    inspect
+        ->add_option(
+            "--frame-rate", options.frameRate, "Frame rate of a file counted in frames: 25, 23.976")
+        ->option_text("RATE");
 
     // `--order-report` lived here, offering both readings of disorder while
     // real files settled the question. They did not — none of the corpus is out
@@ -392,6 +402,24 @@ std::expected<WriteShape, std::string> shapeOf(const ConvertOptions& options) {
     return shape;
 }
 
+/// The two things a reading can be told, once both have been checked.
+///
+/// **Named once because two subcommands say it**, and because the refusal has
+/// to be the same sentence in both: a rate that names nothing is a usage error,
+/// not a file that failed.
+std::expected<core::ReadingChoices, std::string>
+readingWith(const std::optional<core::Encoding>& encoding, const std::string& frameRate) {
+    core::ReadingChoices choices{.encoding = encoding};
+    if (frameRate.empty())
+        return choices;
+
+    const std::expected<core::FrameRate, std::string> rate = parseFrameRate(frameRate);
+    if (!rate.has_value())
+        return std::unexpected("--frame-rate: " + rate.error());
+    choices.frameRate = *rate;
+    return choices;
+}
+
 ExitCode runConvert(const ConvertOptions& options,
                     core::FileSystem& files,
                     const std::optional<core::Encoding>& reading,
@@ -401,12 +429,10 @@ ExitCode runConvert(const ConvertOptions& options,
     const core::SubtitleFormat target =
         core::formatNamed(options.target).value_or(core::SubtitleFormat::SubRip);
 
-    core::ReadingChoices choices{.encoding = reading};
-    if (!options.frameRate.empty()) {
-        const std::expected<core::FrameRate, std::string> rate = parseFrameRate(options.frameRate);
-        if (!rate.has_value())
-            return refuse("--frame-rate: " + rate.error());
-        choices.frameRate = *rate;
+    const std::expected<core::ReadingChoices, std::string> choices =
+        readingWith(reading, options.frameRate);
+    if (!choices) {
+        return refuse(choices.error());
     }
 
     // Refused rather than obeyed: in place there is no second name to carry the
@@ -428,14 +454,20 @@ ExitCode runConvert(const ConvertOptions& options,
         return refuse(destination.error());
     }
 
-    return convertAll(files, options.files, choices, target, *shape, *destination, reporter);
+    return convertAll(files, options.files, *choices, target, *shape, *destination, reporter);
 }
 
 ExitCode runInspect(const InspectOptions& options,
                     const core::FileSystem& files,
                     const std::optional<core::Encoding>& reading,
                     const Reporter& reporter) {
-    return inspectAll(files, options.files, reading, std::cout, reporter);
+    const std::expected<core::ReadingChoices, std::string> choices =
+        readingWith(reading, options.frameRate);
+    if (!choices) {
+        return refuse(choices.error());
+    }
+
+    return inspectAll(files, options.files, *choices, std::cout, reporter);
 }
 
 } // namespace

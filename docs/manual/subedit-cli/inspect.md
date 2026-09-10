@@ -1,7 +1,7 @@
 # `inspect`
 
 ```
-subedit-cli inspect <fichier>...
+subedit-cli inspect [--frame-rate RATE] <fichier>...
 ```
 
 Rapporte ce que chaque fichier contient. **Ne modifie rien et n'écrit aucun
@@ -18,6 +18,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
+  --frame-rate RATE           Frame rate of a file counted in frames: 25, 23.976
 ```
 
 ## Arguments
@@ -27,6 +28,30 @@ Options:
 | `<fichier>...` | oui | un ou plusieurs chemins de fichiers de sous-titres | — |
 
 Aucun chemin n'est une erreur d'usage, donc le code `1`.
+
+## Options
+
+| Option | Requise | Valeur | Défaut |
+| :----- | :------ | :----- | :----- |
+| `--frame-rate` | non | une fréquence en images par seconde : `25`, `23.976`, `29.97` | 23,976 |
+
+**Elle ne sert qu'aux fichiers comptés en images**, c'est-à-dire à MicroDVD, le
+seul des neuf. Un fichier MicroDVD ne porte que des numéros d'image ; la
+fréquence à laquelle on les lit décide de **chaque position du rapport**, à
+commencer par `span`. Donnée ailleurs, elle ne change rien et n'est pas une
+erreur.
+
+Une valeur que rien ne nomme est une erreur d'usage, donc le code `1` :
+
+<!-- exemple: subedit-cli inspect --frame-rate douze film.sub; echo $? -->
+```console
+$ subedit-cli inspect --frame-rate douze film.sub; echo $?
+--frame-rate: "douze" is not a frame rate: expected frames per second, like 25 or 23.976
+1
+```
+
+C'est la même option que sur [`convert`](convert.md), au mot près, parce que
+c'est la même fréquence. `convert` s'en sert en plus pour **écrire**.
 
 ## Sortie
 
@@ -57,6 +82,7 @@ exemple.srt
 | `subtitles` | le nombre de sous-titres lus |
 | `span` | du début le plus tôt à la fin la plus tardive, `HH:MM:SS.mmm` |
 | `frame rate grid` | la fréquence d'image sur laquelle les positions ont été calculées, **déduite** — voir ci-dessous |
+| `frame rate` | pour un fichier compté en images, la fréquence à laquelle il a été lu et **d'où elle vient** — remplace la ligne précédente, voir ci-dessous |
 | `anomalies` | `none`, ou ce qui cloche, sous-titre par sous-titre |
 
 **`span` n'est pas « du premier au dernier »** mais du plus tôt au plus tard :
@@ -139,6 +165,44 @@ $ k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40)); e=$((s+2000)); 
 L'exemple fabrique son fichier plutôt que d'en lire un du dépôt, et c'est
 délibéré : il est rejouable tel quel, et la boucle montre ce qu'est une grille
 mieux qu'une phrase — des positions multiples d'une durée d'image.
+
+## Ce que `frame rate` rapporte, et pourquoi ce n'est pas une grille
+
+**Un seul des neuf formats compte en images** : MicroDVD, dont chaque ligne
+porte deux numéros d'image et rien d'autre. Sur un fichier pareil, `inspect`
+n'écrit pas `frame rate grid` mais `frame rate`, et les deux lignes ne
+s'affichent jamais ensemble.
+
+**La raison tient en une phrase.** Les positions d'un fichier MicroDVD ont été
+calculées *à partir* de ses images, à une fréquence donnée ; les déduire d'une
+grille rendrait cette fréquence-là, telle qu'on vient de la fournir. Ce serait
+un chiffre donné, habillé en mesure.
+
+Ce qui est écrit à la place est **la fréquence de lecture et d'où elle vient** —
+la même forme que la ligne `encoding` :
+
+| Ce que la ligne dit | Quand |
+| :------------------ | :---- |
+| `frame rate: 25 fps, as asked for` | `--frame-rate` l'a imposée |
+| `frame rate: 24000/1001 fps, assumed` | personne ne l'a dite ; c'est le défaut |
+
+**Deux réponses et non trois**, là où `encoding` en a trois : un fichier
+MicroDVD ne déclare rien. C'est tout le problème — la fréquence vient
+nécessairement du dehors, et le rapport dit lequel des deux dehors.
+
+**La fréquence décide de tout le reste du rapport.** `span` la traverse, et deux
+lectures du même fichier à deux fréquences donnent deux étendues :
+
+<!-- exemple: printf '{25}{75}Première.\n{100}{150}Deuxième.\n{200}{260}Troisième.\n' > images.sub; subedit-cli --quiet inspect images.sub | tail -3; subedit-cli --quiet inspect --frame-rate 25 images.sub | tail -3 -->
+```console
+$ printf '{25}{75}Première.\n{100}{150}Deuxième.\n{200}{260}Troisième.\n' > images.sub; subedit-cli --quiet inspect images.sub | tail -3; subedit-cli --quiet inspect --frame-rate 25 images.sub | tail -3
+  span: 00:00:01.043 -> 00:00:10.844
+  frame rate: 24000/1001 fps, assumed
+  anomalies: none
+  span: 00:00:01.000 -> 00:00:10.400
+  frame rate: 25 fps, as asked for
+  anomalies: none
+```
 
 ## Ce que `anomalies` rapporte
 
