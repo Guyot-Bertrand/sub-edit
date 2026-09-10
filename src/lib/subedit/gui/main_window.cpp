@@ -9,11 +9,14 @@
 #include <subedit/core/edit/shift_limits.hpp>
 #include <subedit/core/edit/snap_command.hpp>
 #include <subedit/core/edit/transform_command.hpp>
+#include <subedit/core/format/degradation.hpp>
 #include <subedit/core/format/diagnostic.hpp>
+#include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/find_video.hpp>
 #include <subedit/core/model/associated_video.hpp>
 #include <subedit/core/model/document.hpp>
+#include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
@@ -78,6 +81,8 @@
 #include <span>
 #include <string>
 #include <utility>
+#include <variant>
+#include <vector>
 
 namespace subedit::gui {
 
@@ -561,7 +566,26 @@ void MainWindow::refreshEncodingStatus() {
         QString::fromStdString(core::encodingStatusOf(m_session->project().sourceFile().encoding)));
 }
 
+std::optional<core::FrameRate> MainWindow::rateReadInFrames() const {
+    const core::FileExtras& extras = m_session->project().sourceFile().extras;
+    if (const auto* frames = std::get_if<core::MicroDvdFile>(&extras))
+        return frames->rate;
+    return std::nullopt;
+}
+
 void MainWindow::refreshGridStatus() {
+    // **A document counted in frames gets its rate, not a grid.** Deducing one
+    // from positions that were computed *from* frames at that very rate would
+    // answer with the number it was given — the same choice `inspect` makes.
+    if (rateReadInFrames().has_value()) {
+        // **The document's rate and not the file's**, so that correcting it
+        // through `Convert Frame Rate…` shows: what the line says is what the
+        // positions are counted at now, and what writing MicroDVD back will use.
+        m_gridStatus->setText(
+            QString::fromStdString(core::framesStatusOf(m_session->project().frameRate())));
+        return;
+    }
+
     const core::FrameRateDeduction grid = core::deduceFrameRate(m_session->project());
     const std::optional<core::FrameRate> retained = grid.verdict == core::GridVerdict::Silent
                                                         ? std::nullopt
@@ -879,16 +903,44 @@ bool MainWindow::saveAs() {
     if (!target.has_value())
         return false;
 
+    // **What the arriving format will not carry, said before the writing.** The
+    // command line prints the same words afterwards, where they are a report;
+    // asked here they are a warning, and the difference is that the answer can
+    // still be « no ». ADR 0031: the tags are translated on the way, so the
+    // count of what fell is the count of a conversion that really happened.
+    const core::SourceFile before = m_session->project().sourceFile();
+    const std::span<const core::Subtitle> held = m_session->project().subtitles();
+    std::vector<core::Subtitle> converted{held.begin(), held.end()};
+    // **The document's own rate, and it is a real answer here.** A file counted
+    // in frames was read at it, `Convert Frame Rate…` moves it, and nothing
+    // else in this window can leave it unset — so the command line's third
+    // case, « no rate and no grid, refuse », cannot arise.
+    const core::FrameRate rate = m_session->project().frameRate();
+    const core::ConversionLoss loss = core::convertFor(converted, before, target->format, rate);
+
+    if (const std::string notice = core::noticeOf(loss, before.format, target->format);
+        !notice.empty() && !m_prompts->aboutLoss(notice)) {
+        return false;
+    }
+
     // What the document becomes, laid down before the writing: `saveProject`
     // writes what the project carries, and what it carries is now what has just
-    // been chosen. This is not a command — nobody would want to undo it.
-    const core::SourceFile before = m_session->project().sourceFile();
+    // been chosen. One act and not two — a format and the texts that speak it —
+    // and not a command, for the reasons `Session::becomeFile` writes out.
+    const std::vector<core::Subtitle> heldBefore{held.begin(), held.end()};
     core::SourceFile moved = before;
     moved.path = target->path;
     moved.format = target->format;
     moved.encoding = target->encoding;
     moved.newline = target->newline;
-    m_session->setSourceFile(moved);
+    // **What the file declared crosses only into its own format** — ADR 0030 —
+    // and a file written in frames needs a rate whatever it came from.
+    moved.extras = core::extrasFor(before, target->format);
+    if (target->format == core::SubtitleFormat::MicroDvd &&
+        !std::holds_alternative<core::MicroDvdFile>(moved.extras)) {
+        moved.extras = core::MicroDvdFile{.rate = rate};
+    }
+    m_session->becomeFile(moved, std::move(converted));
 
     const std::expected<void, core::SaveError> written =
         core::saveProject(*m_files, m_session->project(), target->path, target->format);
@@ -900,7 +952,7 @@ bool MainWindow::saveAs() {
         // thinks. The case has been reachable since phase 8: a `ł` and a
         // Latin-1 encoding are enough, and it does not even ask the disk to
         // refuse.
-        m_session->setSourceFile(before);
+        m_session->becomeFile(before, heldBefore);
         m_prompts->reportFailure(target->path.string() + ": " +
                                  std::string{core::reasonOf(written.error())});
         return false;
@@ -1272,14 +1324,23 @@ void MainWindow::convertFrameRateOfTarget() {
     // **Only a clean grid pre-fills the field.** A partial one is evidence the
     // deduction itself calls partial, and this field decides an operation on
     // the whole file; the status bar and the analysis carry that case instead.
+    //
+    // **And a document counted in frames leaves it out entirely.** Its
+    // positions come from its frames at the rate it was read at, so the
+    // deduction can only find that rate again; what is offered instead is the
+    // rate itself, said for what it is.
+    const std::optional<core::FrameRate> read = rateReadInFrames();
     const core::FrameRateDeduction grid = core::deduceFrameRate(m_session->project());
     const std::optional<core::FrameRate> measured =
-        grid.verdict == core::GridVerdict::Clean ? std::optional{grid.retained.rate} : std::nullopt;
+        !read.has_value() && grid.verdict == core::GridVerdict::Clean
+            ? std::optional{grid.retained.rate}
+            : std::nullopt;
 
     FrameRateDialog dialog{target.count(),
                            m_session->project().frameRate(),
                            associated.has_value() ? associated->declared : std::nullopt,
                            measured,
+                           read,
                            this};
     if (!m_prompts->run(dialog))
         return;

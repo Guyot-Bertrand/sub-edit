@@ -162,7 +162,7 @@ plus rien.
 | `CLI-CONVERT-05` | convertir vers un format en images sans fréquence prend la grille déduite, et le dit | 9 | implémentée |
 | `CLI-CONVERT-06` | sans fréquence ni grille, une conversion vers un format en images est refusée | 9 | implémentée |
 | `CLI-CONVERT-07` | une conversion qui perd quelque chose le dit, poste par poste | 9 | implémentée |
-| `GUI-FORMAT-01` | la fenêtre ouvre les neuf formats | 9 | prévue |
-| `GUI-FORMAT-02` | `Save As…` propose les neuf formats | 9 | prévue |
-| `GUI-FORMAT-03` | enregistrer dans un format à perte annonce ce qui sera perdu avant d'écrire | 9 | prévue |
-| `GUI-FRAMES-01` | ouvrir un fichier en images annonce la fréquence retenue, et laisse la changer | 9 | prévue |
+| `GUI-FORMAT-01` | la fenêtre ouvre les neuf formats | 9 | implémentée |
+| `GUI-FORMAT-02` | `Save As…` propose les neuf formats | 9 | implémentée |
+| `GUI-FORMAT-03` | enregistrer dans un format à perte annonce ce qui sera perdu avant d'écrire | 9 | implémentée |
+| `GUI-FRAMES-01` | ouvrir un fichier en images annonce la fréquence retenue, et laisse la changer | 9 | implémentée |

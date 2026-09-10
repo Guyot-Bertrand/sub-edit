@@ -314,6 +314,10 @@ private:
     /// costs a fraction of a millisecond on a full-length file.
     void refreshGridStatus();
 
+    /// The rate a document counted in frames was read at, or nothing for the
+    /// eight formats of nine that count in time.
+    [[nodiscard]] std::optional<core::FrameRate> rateReadInFrames() const;
+
     /// Puts the status bar in step with the encoding the document carries.
     ///
     /// Called wherever that encoding can have changed — an opening, and a

@@ -112,6 +112,27 @@ surcroît. **Trente-cinq, contre trente-six.**
 Le reste de `qt_prompts.cpp` ne bouge pas, et ne bougera pas : c'est le
 `QFileDialog` et le `QMessageBox`, et leur boucle d'événements.
 
+**Cinq lignes de plus en phase 9, et la même règle une fois encore.** L'issue
+#352 ajoute `QtPrompts::aboutLoss` — la modale qui annonce ce qu'un format
+d'arrivée ne portera pas, **avant** d'écrire, et dont la réponse peut encore
+être « non ». C'est un `QMessageBox::warning` et rien d'autre : le titre, le
+texte, les deux boutons, celui par défaut, et la comparaison qui dit lequel a
+été cliqué. Un test qui l'atteint entre dans la boucle modale et ne rend jamais
+la main.
+
+**Ce que ce relèvement achète, et il est mesurable.** Tout ce qui décide vit
+ailleurs et est couvert : ce qui est perdu est compté par `convertFor`, les mots
+sont ceux de `noticeOf`, et la fenêtre — refuser, écrire quand même, ne rien
+demander quand rien n'est perdu — est éprouvée à travers le faux `Prompts`.
+Ce qui reste ici est l'appel, et lui seul.
+
+**Cinq et non six** : la méthode tient en une expression, que le formateur étale
+sur cinq lignes. Il n'y a pas de garde à sortir ni de décision à exposer, comme
+`choiceOf` l'avait été pour la boîte des modifications non enregistrées — la
+comparaison à `Save` est le retour même de l'appel.
+
+**Soixante-six, contre soixante et un.**
+
 **L'alternative, pesée et écartée.** On sait piloter une boîte modale depuis un
 test, en programmant sa fermeture avant d'entrer dans la boucle. Cela aurait
 donné un chiffre vert au prix d'un test fragile qui éprouve le dialogue de Qt
@@ -284,13 +305,13 @@ de test qui dit ce qu'une comparaison défaillante coûterait.
 
 ## Relevé
 
-    total : 61
+    total : 66
 
-Relevé sur la version 0.9.21, le 2026-09-09.
+Relevé sur la version 0.9.24, le 2026-09-10.
 
 | Lignes | Fichier |
 | -----: | :------ |
-| 41 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 46 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 4 | `src/lib/subedit/core/process/start_process.cpp` |
 | 4 | `src/lib/subedit/gui/mpv_player.cpp` |
 | 4 | `src/lib/subedit/gui/player_factory.cpp` |

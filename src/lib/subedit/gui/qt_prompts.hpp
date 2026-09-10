@@ -16,6 +16,13 @@ namespace subedit::gui {
 /// What the file dialogs filter on, in the order they offer it.
 [[nodiscard]] QString subtitleFilters();
 
+/// The one entry of that list which names `format` — « SubRip (*.srt) ».
+///
+/// **The name carries the format, the pattern does not.** Two extensions name
+/// two formats each, so an entry is told from another by what precedes the
+/// parenthesis; `formatOfFilter` reads it back through this very function.
+[[nodiscard]] QString filterFor(core::SubtitleFormat format);
+
 /// What the video chooser filters on, built from the core's own list.
 ///
 /// **Built and not written**, so that a chooser cannot offer a file the rest
@@ -73,6 +80,8 @@ public:
                                                        const core::Encoding& encoding) override;
 
     [[nodiscard]] UnsavedChoice aboutUnsavedChanges() override;
+
+    [[nodiscard]] bool aboutLoss(const std::string& notice) override;
 
     [[nodiscard]] bool run(QDialog& dialog) override;
 

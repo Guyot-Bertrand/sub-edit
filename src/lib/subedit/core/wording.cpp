@@ -370,6 +370,10 @@ std::string gridStatusOf(GridVerdict verdict, std::optional<FrameRate> rate) {
     return text;
 }
 
+std::string framesStatusOf(FrameRate rate) {
+    return "Frames: " + nameOf(rate) + " fps";
+}
+
 std::string videoStatusOf(const std::optional<std::filesystem::path>& video,
                           std::optional<FrameRate> declared) {
     if (!video.has_value())

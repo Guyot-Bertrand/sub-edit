@@ -8,6 +8,7 @@
 
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/model/video_file.hpp>
+#include <subedit/core/wording.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 
@@ -23,6 +24,7 @@ namespace {
 
 using subedit::core::SubtitleFormat;
 using subedit::gui::choiceOf;
+using subedit::gui::filterFor;
 using subedit::gui::formatOfFilter;
 using subedit::gui::QtPrompts;
 using subedit::gui::subtitleFilters;
@@ -31,29 +33,65 @@ using subedit::gui::videoFilters;
 
 } // namespace
 
-TEST_CASE("the save filter names the format it will be written in", "[gui][GUI-SAVE-02]") {
-    CHECK(formatOfFilter(QStringLiteral("WebVTT (*.vtt)")) == SubtitleFormat::WebVtt);
-    CHECK(formatOfFilter(QStringLiteral("SubRip (*.srt)")) == SubtitleFormat::SubRip);
+TEST_CASE("the save filter names the format it will be written in", "[gui][GUI-FORMAT-02]") {
+    // **Each of the nine, and read from the name.** Two extensions name two
+    // formats each — `.sub` is SubViewer 2 and MicroDVD, `.txt` is MPL2 and
+    // TMPlayer — so a filter told apart by its pattern would write one of the
+    // pair under the other's name.
+    for (const SubtitleFormat format : subedit::core::kSubtitleFormats) {
+        INFO("format : " << subedit::core::nameOf(format));
+        CHECK(formatOfFilter(filterFor(format)) == format);
+    }
+
+    CHECK(formatOfFilter(QStringLiteral("MicroDVD (*.sub)")) == SubtitleFormat::MicroDvd);
+    CHECK(formatOfFilter(QStringLiteral("SubViewer 2 (*.sub)")) == SubtitleFormat::SubViewer2);
 }
 
-TEST_CASE("a filter that names both formats writes the one the project defaults to",
-          "[gui][GUI-SAVE-02]") {
-    // « Subtitles (*.srt *.vtt) » and « All files (*) » settle nothing. SubRip
-    // rather than a refusal: it is the format the project writes when nobody
-    // asks for another, and a dialog has no business failing on a question it
-    // asked itself.
-    CHECK(formatOfFilter(QStringLiteral("Subtitles (*.srt *.vtt)")) == SubtitleFormat::SubRip);
+TEST_CASE("a filter that names no format writes the one the project defaults to",
+          "[gui][GUI-FORMAT-02]") {
+    // The first entry shows everything and « All files (*) » settles nothing.
+    // SubRip rather than a refusal: it is the format the project writes when
+    // nobody asks for another, and a dialog has no business failing on a
+    // question it asked itself.
+    CHECK(formatOfFilter(subtitleFilters().section(QStringLiteral(";;"), 0, 0)) ==
+          SubtitleFormat::SubRip);
     CHECK(formatOfFilter(QStringLiteral("All files (*)")) == SubtitleFormat::SubRip);
 }
 
-TEST_CASE("every filter the dialog offers names a format", "[gui][GUI-SAVE-02]") {
-    // What holds the two together: a filter added to the list without being
-    // recognised would write SubRip under a `.vtt` extension.
+TEST_CASE("the dialog offers the nine formats, and each names itself back",
+          "[gui][GUI-FORMAT-01][GUI-FORMAT-02]") {
+    // What holds the list and the recognition together: an entry added without
+    // being recognised would write SubRip under somebody else's extension.
     const QStringList offered = subtitleFilters().split(QStringLiteral(";;"));
 
-    REQUIRE(offered.size() == 4);
-    CHECK(formatOfFilter(offered.at(2)) == SubtitleFormat::WebVtt);
-    CHECK(formatOfFilter(offered.at(1)) == SubtitleFormat::SubRip);
+    // Everything, the nine, and anything.
+    REQUIRE(offered.size() == 11);
+    CHECK(offered.at(10) == QStringLiteral("All files (*)"));
+
+    // The nine sit between the two, in the order the vocabulary declares them.
+    qsizetype row = 1;
+    for (const SubtitleFormat format : subedit::core::kSubtitleFormats) {
+        INFO("format : " << subedit::core::nameOf(format));
+        CHECK(offered.at(row) == filterFor(format));
+        CHECK(formatOfFilter(offered.at(row)) == format);
+        ++row;
+    }
+}
+
+TEST_CASE("the first entry shows every extension the nine carry, once each",
+          "[gui][GUI-FORMAT-01]") {
+    // **The entry a user leaves selected**, so a file of any of the nine has to
+    // show through it. Once each, because two of the extensions are shared and
+    // a pattern written twice is a pattern nobody reads.
+    const QString everything = subtitleFilters().section(QStringLiteral(";;"), 0, 0);
+
+    for (const SubtitleFormat format : subedit::core::kSubtitleFormats) {
+        const QString pattern =
+            QStringLiteral("*") + QString::fromUtf8(subedit::core::extensionOf(format));
+        INFO("motif : " << pattern.toStdString());
+        CHECK(everything.contains(pattern));
+        CHECK(everything.count(pattern) == 1);
+    }
 }
 
 TEST_CASE("the two explicit answers about unsaved changes are honoured", "[gui][GUI-SAVE-03]") {

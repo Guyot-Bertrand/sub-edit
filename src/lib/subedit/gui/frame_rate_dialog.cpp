@@ -17,6 +17,7 @@ FrameRateDialog::FrameRateDialog(std::size_t targetCount,
                                  core::FrameRate current,
                                  std::optional<core::FrameRate> declared,
                                  std::optional<core::FrameRate> deduced,
+                                 std::optional<core::FrameRate> read,
                                  QWidget* parent)
     : OperationDialog(targetCount, parent),
       m_input(new FrameRateBox{this}),
@@ -70,6 +71,15 @@ FrameRateDialog::FrameRateDialog(std::size_t targetCount,
         fields()->addRow(QStringLiteral("The video declares"), m_declared);
     }
 
+    // The one row that says where a number came from rather than what it
+    // proposes: this file counts in frames, states no rate, and was read at
+    // this one. Changing the field above is how a user says it was the wrong
+    // one — the conversion then recomputes every position from the frames.
+    if (read.has_value()) {
+        m_read = new QLabel{QString::fromStdString(core::nameOf(*read)), this};
+        fields()->addRow(QStringLiteral("The file was read at"), m_read);
+    }
+
     finish();
 }
 
@@ -79,6 +89,10 @@ QString FrameRateDialog::declaredLabel() const {
 
 QString FrameRateDialog::deducedLabel() const {
     return m_deduced == nullptr ? QString{} : m_deduced->text();
+}
+
+QString FrameRateDialog::readLabel() const {
+    return m_read == nullptr ? QString{} : m_read->text();
 }
 
 core::FrameRate FrameRateDialog::input() const {

@@ -222,7 +222,11 @@ saveDialogFor(const core::SourceFile& current, const core::Encoding& encoding, Q
     dialog->setOption(QFileDialog::DontUseNativeDialog);
     dialog->setAcceptMode(QFileDialog::AcceptSave);
     dialog->setNameFilter(subtitleFilters());
-    dialog->selectNameFilter(subtitleFilters().section(QStringLiteral(";;"), 1, 1));
+    // **On the document's own format, and that matters since there are nine.**
+    // The entry that is selected is the format that will be written; opening on
+    // SubRip whatever was read would turn a `Save As…` meant to rename an
+    // Advanced SSA into a conversion nobody asked for.
+    dialog->selectNameFilter(filterFor(current.format));
     if (current.path.has_value())
         dialog->selectFile(QString::fromStdString(current.path->string()));
 
