@@ -134,10 +134,63 @@ pas dépend de la paire :
 | la précision | SubViewer 2, les deux Sub Station Alpha et LRC écrivent au centième, MPL2 au dixième, TMPlayer à la seconde, MicroDVD à l'image ; `01:00:00,017` en revient à `01:00:00,020` |
 | la fin d'une réplique | TMPlayer et LRC n'ont pas de champ pour elle ; la lecture suivante la redéduit |
 | les sauts de ligne | LRC seul : ses répliques tiennent sur une ligne, et les deux sont recollées par une espace |
-| les balises de mise en forme | `{\i1}` d'un `.ass` n'est pas `<i>` d'un `.srt` — la traduction des balises n'est pas encore écrite |
+| les balises que le format d'arrivée ne sait pas écrire | WebVTT n'a pas de `<font color>`, TMPlayer et LRC n'ont rien du tout |
+| la mise en page | `{\pos(x,y)}`, `{\an8}`, `<v Marie>`, `<ruby>` : ils traversent un aller-retour dans leur propre format, et disparaissent à la conversion |
 
 **Réécrire un fichier dans son propre format ne perd rien** — c'est la garantie
-qui tient tout le reste, et `--to srt` sur un `.srt` rend les mêmes octets.
+qui tient tout le reste, et `--to srt` sur un `.srt` rend les mêmes octets. Rien
+n'y est même décodé : le texte reste la chaîne brute qui a été lue.
+
+## Les balises sont traduites, pas recopiées
+
+**Chaque format écrit l'italique à sa façon**, et convertir sans traduire
+laisserait un `{\i1}` dans un `.srt` : du texte que l'utilisateur voit, dans un
+fichier qui ne saura jamais l'interpréter. Ce qui traverse, ce sont **six
+choses** — gras, italique, souligné, couleur, police et taille :
+
+| Format | Gras | Italique | Souligné | Couleur | Police | Taille |
+| :----- | :--: | :------: | :------: | :-----: | :----: | :----: |
+| SubRip | `<b>` | `<i>` | `<u>` | `<font color="#RRGGBB">` | — | — |
+| WebVTT | `<b>` | `<i>` | `<u>` | — | — | — |
+| SubViewer 2 | `<b>` | `<i>` | `<u>` | `<font color="#RRGGBB">` | — | — |
+| Sub Station Alpha | `{\b1}` | `{\i1}` | — | `{\c&HBBGGRR&}` | `{\fnNOM}` | `{\fsN}` |
+| Advanced SSA | `{\b1}` | `{\i1}` | `{\u1}` | `{\c&HBBGGRR&}` | `{\fnNOM}` | `{\fsN}` |
+| MicroDVD | `{Y:b}` | `{Y:i}` | `{Y:u}` | `{C:$BBGGRR}` | `{F:NOM}` | `{S:N}` |
+| MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NOM}` | `{S:N}` |
+| TMPlayer | — | — | — | — | — | — |
+| LRC | — | — | — | — | — | — |
+
+**Un tiret est une perte annoncée.** Convertir un `.srt` coloré en WebVTT retire
+la couleur et le dit ; le fichier produit est du WebVTT, pas du SubRip déguisé.
+
+**MicroDVD et MPL2 ne savent pas styler un morceau de ligne.** Leurs balises
+n'ont pas de fin : `{y:i}` penche tout ce qui suit jusqu'au bout de la ligne, et
+`{Y:i}` jusqu'au bout de la réplique. Une ligne dont une moitié seulement était
+en gras s'écrit donc sans gras du tout, plutôt qu'avec un gras qui déborde.
+
+## Ce que la conversion dit qu'elle a perdu
+
+**Elle le dit quand elle perd, et se tait quand elle ne perd rien.** Un rapport
+qui s'affiche à chaque appel est un rapport que personne ne lit.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
+a.srt: 1 subtitle written as LRC -> b.lrc
+a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+```
+
+La ligne paraît au niveau de bavardage par défaut, et à tous ceux au-dessus.
+Les postes, dans cet ordre :
+
+| Poste | Ce qu'il dit |
+| :---- | :----------- |
+| `ends are not carried by <format>` | le format d'arrivée n'écrit aucune fin |
+| `line breaks were joined in N subtitles` | LRC seul : N répliques tenaient sur plusieurs lignes |
+| `N tags dropped` | N balises n'ont pas su être écrites, mise en page comprise |
+| `the header was dropped` | l'en-tête ne traverse pas une frontière de format |
+| `the <format> fields of N subtitles were dropped` | N répliques portaient des données propres à leur format |
+| `positions moved by up to N ms` | la plus grande distance dont une position a bougé |
 
 ## Changer d'encodage
 

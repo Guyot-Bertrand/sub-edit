@@ -5,6 +5,7 @@
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/writing.hpp>
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/format/degradation.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/read_error.hpp>
@@ -21,6 +22,7 @@
 #include <optional>
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace subedit::cli {
 
@@ -96,18 +98,29 @@ bool convertFile(core::FileSystem& files,
     // into MicroDVD from anywhere else has to take the rate from somewhere, and
     // choosing one silently would move every position in the file.
     core::FileExtras extras = core::extrasFor(source, target);
+    core::FrameRate rate{core::MicroDvdFile{}.rate};
+    if (const auto* frames = std::get_if<core::MicroDvdFile>(&extras))
+        rate = frames->rate;
     if (target == SubtitleFormat::MicroDvd && !std::holds_alternative<core::MicroDvdFile>(extras)) {
-        const std::expected<core::FrameRate, std::string> rate =
+        const std::expected<core::FrameRate, std::string> settled =
             frameRateForFrames(opened->project, reading.frameRate, path, reporter);
-        if (!rate.has_value()) {
-            reporter.failed(rate.error());
+        if (!settled.has_value()) {
+            reporter.failed(settled.error());
             return false;
         }
-        extras = core::MicroDvdFile{.rate = *rate};
+        rate = *settled;
+        extras = core::MicroDvdFile{.rate = rate};
     }
 
+    // **The conversion happens here, once, and it measures itself.** The markup
+    // is carried into the arriving vocabulary — ADR 0031 — and the same walk
+    // counts what that format will not be able to hold.
+    std::vector<core::Subtitle> subtitles{opened->project.subtitles().begin(),
+                                          opened->project.subtitles().end()};
+    const core::ConversionLoss loss = core::convertFor(subtitles, source, target, rate);
+
     const core::WriteRequest request{
-        .subtitles = opened->project.subtitles(),
+        .subtitles = subtitles,
         .document = core::Document::Main,
         .newline = newline,
         .encoding = encoding,
@@ -131,8 +144,13 @@ bool convertFile(core::FileSystem& files,
                      std::string{nameOf(target)} + ", " + nameOf(encoding) + ", " +
                      std::string{nameOf(newline)} + " line endings");
     reporter.say(1,
-                 path + ": " + core::countOf(opened->project.subtitles().size(), "subtitle") +
-                     " written as " + std::string{nameOf(target)} + " -> " + out.string());
+                 path + ": " + core::countOf(subtitles.size(), "subtitle") + " written as " +
+                     std::string{nameOf(target)} + " -> " + out.string());
+    // **Said last, and only when there is something to say.** A conversion that
+    // loses nothing is silent, which is what makes the line worth reading when
+    // it does appear.
+    if (const std::string notice = core::noticeOf(loss, source.format, target); !notice.empty())
+        reporter.say(1, path + ": " + notice);
     return true;
 }
 

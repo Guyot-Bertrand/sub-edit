@@ -56,9 +56,9 @@ même porte.
 
 <!-- relevé engendré : ne pas modifier à la main -->
 
-    aller-retour intacts : 60/126
+    aller-retour intacts : 58/126
 
-Relevé sur la version 0.9.21, le 2026-09-09.
+Relevé sur la version 0.9.22, le 2026-09-09.
 
 | Départ \ Arrivée | `ass` | `lrc` | `microdvd` | `mpl2` | `srt` | `ssa` | `subviewer2` | `tmplayer` | `vtt` |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -66,7 +66,7 @@ Relevé sur la version 0.9.21, le 2026-09-09.
 | `lrc` | 1/1 | — | · | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 |
 | `microdvd` | · | · | — | · | · | · | · | · | · |
 | `mpl2` | 1/1 | 0/1 | · | — | 1/1 | 1/1 | 1/1 | 0/1 | 1/1 |
-| `srt` | 5/8 | 0/8 | · | 5/8 | — | 5/8 | 5/8 | 0/8 | 7/8 |
+| `srt` | 5/8 | 0/8 | · | 4/8 | — | 5/8 | 5/8 | 0/8 | 6/8 |
 | `ssa` | 0/1 | 0/1 | · | 0/1 | 0/1 | — | 0/1 | 0/1 | 0/1 |
 | `subviewer2` | 0/1 | 0/1 | · | 0/1 | 0/1 | 0/1 | — | 0/1 | 0/1 |
 | `tmplayer` | 1/1 | 0/1 | · | 1/1 | 1/1 | 1/1 | 1/1 | — | 1/1 |
@@ -74,6 +74,8 @@ Relevé sur la version 0.9.21, le 2026-09-09.
 
 | Fichier | Passage par | Première ligne qui ne revient pas |
 | :------ | :---------- | :-------------------------------- |
+| `valides/balises.srt` | `vtt` | `<b>ATTENTION</b> — <font color="#ffff00">zone interdite</font>` |
+| `valides/balises.srt` | `mpl2` | `<b>ATTENTION</b> — <font color="#ffff00">zone interdite</font>` |
 | `valides/balises.srt` | `tmplayer` | `00:00:01,000 --> 00:00:03,000` |
 | `valides/balises.srt` | `lrc` | `00:00:01,000 --> 00:00:03,000` |
 | `valides/cadence.srt` | `subviewer2` | `01:00:00,017 --> 01:00:02,000` |
@@ -186,11 +188,64 @@ est là : **une ligne se lit, un total ne se lit pas.** Les lignes `lrc` et
 `tmplayer` sont pleines — on part de ces formats sans rien perdre, puisqu'ils
 n'ont rien de plus à perdre. Ce sont leurs colonnes qui sont vides.
 
+## Il baisse une seconde fois, et cette fois c'est un progrès
+
+**60/126 devient 58/126 le jour où le pivot de balises existe**, et les deux
+paires perdues sont les deux paires qu'il fallait perdre.
+
+**L'aller-retour d'octets récompense celui qui ne fait rien**, et c'est là qu'on
+le voit. Avant le pivot, convertir un `.srt` coloré en WebVTT recopiait
+`<font color="#ffff00">` tel quel : le fichier revenait identique, et le `.vtt`
+produit portait une balise que WebVTT ne définit pas. La mesure comptait cette
+paire intacte parce qu'elle n'avait rien traduit. Le pivot retire la couleur,
+puisque WebVTT n'en a pas — le `.vtt` est enfin du WebVTT, et l'aller-retour ne
+revient plus. **Le fichier intermédiaire est devenu correct, et la mesure a
+baissé de ce fait même.**
+
+La seconde paire dit la même chose autrement. MicroDVD et MPL2 n'ont pas de
+balise qui s'arrête : `{y:i}` penche jusqu'au bout de la ligne. Une ligne dont
+une moitié seulement était en gras s'écrit donc sans gras — plutôt qu'avec un
+gras qui déborde sur le reste, ce qu'aurait donné une recopie.
+
+**C'est ce que l'ADR 0031 appelle la salissure, vue de l'autre côté.** Écrire
+`{\i1}` dans un `.srt` fait un fichier qui revient octet pour octet et que
+l'utilisateur lit de travers ; le traduire fait un fichier juste et un
+aller-retour qui perd. La mesure préfère le premier, et elle a tort — c'est la
+prose qui tranche, comme ce relevé le dit depuis le début.
+
+**Ce qui reste vrai, et c'est tout ce qu'on lui demande** : le nombre ne bouge
+pas tout seul. Il a fallu venir ici l'écrire.
+
 ## La perte déclarée
 
 Ce qui suit est **une propriété des formats, pas de notre code**. Elle s'écrit
 avant la première ligne de lecteur, et c'est ce sur quoi le cadrage de la phase 9
 (#337) tranche sa politique de dégradation.
+
+### Ce qui traverse par traduction, depuis le pivot
+
+**Six choses**, et ce sont celles de Gaupol : gras, italique, souligné, couleur,
+police et taille. Elles sont décodées du vocabulaire de départ, portées dans un
+modèle qui ne vit que le temps de la conversion, et réécrites dans le
+vocabulaire d'arrivée — [ADR 0031](../adr/0031-pivot-de-balises-a-la-conversion.md).
+
+| Vocabulaire | Formats | L'italique s'y écrit |
+| :---------- | :------ | :------------------- |
+| HTML | SubRip, WebVTT, SubViewer 2 | `<i>…</i>` |
+| Sub Station Alpha | SSA, Advanced SSA | `{\i1}…{\i0}` |
+| MicroDVD | MicroDVD | `{Y:i}`, jusqu'au bout |
+| MPL2 | MPL2 | `/` en tête de ligne |
+| aucun | TMPlayer, LRC | nulle part |
+
+**Un vocabulaire partagé n'est pas un pouvoir partagé.** SubRip et WebVTT
+écrivent l'italique de la même façon et ne s'entendent pas sur la couleur ;
+Sub Station Alpha n'écrit pas le souligné qu'Advanced SSA écrit. Ce que chaque
+format sait dire est donc une seconde table, et c'est elle qui décide de la
+perte.
+
+**Deux vocabulaires ne savent pas styler un morceau de ligne**, faute d'une
+balise qui s'arrête. Une ligne dont les runs ne s'accordent pas s'écrit sans
+style du tout en MicroDVD et en MPL2 : mieux vaut perdre que déborder.
 
 ### Ce qui ne traverse jamais une frontière de format
 
@@ -203,10 +258,17 @@ pas en WebVTT.
 **L'en-tête**, pour la même raison. `[Script Info]` n'est pas une entête WebVTT,
 et le texte libre qui suit `WEBVTT` n'est pas du SSA.
 
-Ce sont les deux seules pertes que la mesure trouve aujourd'hui, et elles sont
-toutes deux de ce côté-ci : `valides/coordonnees.srt` perd ses coordonnées en
-passant par WebVTT, `valides/complet.vtt` perd son en-tête, son bloc `STYLE`, sa
-note, l'identifiant de sa première cellule et ses réglages en passant par SubRip.
+**La mise en page**, que le pivot laisse dehors — `{\pos(x,y)}`, `{\an8}`,
+`<v Marie>`, `<ruby>`, les horodatages internes de WebVTT. Ils traversent
+intacts un aller-retour dans leur propre format, où rien n'est décodé, et
+disparaissent à la conversion. La traduire demanderait un modèle de mise en page
+que rien d'autre dans le projet ne réclame, et la plupart n'ont d'équivalent
+nulle part.
+
+Elles se lisent dans la mesure : `valides/coordonnees.srt` perd ses coordonnées
+en passant par WebVTT, `valides/complet.vtt` perd son en-tête, son bloc `STYLE`,
+sa note, l'identifiant de sa première cellule, ses réglages **et ses deux
+balises de locuteur** en passant par SubRip.
 
 ### Ce qui traverse, sauf là où le format d'arrivée ne sait pas le porter
 
