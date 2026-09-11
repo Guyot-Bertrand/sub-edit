@@ -30,6 +30,7 @@
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/hearing_impaired_removal.hpp>
 #include <subedit/core/edit/insert_command.hpp>
+#include <subedit/core/edit/italics_command.hpp>
 #include <subedit/core/edit/remove_command.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/set_text_command.hpp>
@@ -73,6 +74,7 @@ using subedit::core::RemoveCommand;
 using subedit::core::removeHearingImpaired;
 using subedit::core::Selection;
 using subedit::core::Session;
+using subedit::core::setItalics;
 using subedit::core::SetTextCommand;
 using subedit::core::ShiftCommand;
 using subedit::core::SnapCommand;
@@ -83,6 +85,7 @@ using subedit::core::SubtitleIndex;
 using subedit::core::Timestamp;
 using subedit::core::TransformCommand;
 using subedit::core::TransformReference;
+using subedit::core::wouldItalicise;
 
 using subedit::test::fullLengthProject;
 using subedit::test::kSubtitleCount;
@@ -288,6 +291,28 @@ TEST_CASE("removing hearing impaired mentions from a full-length file", "[benchm
             Project& copy = copies[static_cast<std::size_t>(run)];
             std::unique_ptr<Command> command =
                 removeHearingImpaired(copy, Selection::all(copy), Document::Main);
+            if (command)
+                command->apply(copy);
+            return copy.count();
+        });
+    };
+}
+
+TEST_CASE("putting a full-length file in italics", "[benchmark]") {
+    // The same shape as the removal above — one command per subtitle rewritten,
+    // grouped — with one thing of its own: deciding which way to go reads every
+    // text through the markup reader of the format. Both halves are measured,
+    // because both are what the button costs.
+    const Project project = fullLengthProject();
+
+    BENCHMARK_ADVANCED("mise en italique de 4000 sous-titres")
+    (Catch::Benchmark::Chronometer meter) {
+        std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
+        meter.measure([&](int run) {
+            Project& copy = copies[static_cast<std::size_t>(run)];
+            const Selection all = Selection::all(copy);
+            std::unique_ptr<Command> command =
+                setItalics(copy, all, Document::Main, wouldItalicise(copy, all, Document::Main));
             if (command)
                 command->apply(copy);
             return copy.count();

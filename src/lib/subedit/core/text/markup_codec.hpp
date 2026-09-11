@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <string>
+#include <string_view>
 
 namespace subedit::core {
 
@@ -37,6 +38,23 @@ struct WritableMarkup {
     StyledText runs{};
     std::size_t dropped = 0;
 };
+
+/// Reads `text` in `vocabulary`, into the runs of style ADR 0031 pivots on.
+///
+/// **The one place that knows which reader a vocabulary calls for**, and the
+/// one that knows which writer — the two `switch` below are the whole of it.
+/// They lived in the conversion while it was the only thing that needed them;
+/// a second reader arrived with the italic toggle, and a second `switch` over
+/// the five vocabularies would be a second place to forget one.
+[[nodiscard]] DecodedMarkup decodeAs(std::string_view text, MarkupVocabulary vocabulary);
+
+/// Writes `runs` in `vocabulary`, keeping what `abilities` can carry.
+///
+/// Its only caller is the conversion, and it sits beside `decodeAs` rather than
+/// inside it: half a codec in one file and half in another would cost more to
+/// read than the symbol costs to expose.
+[[nodiscard]] EncodedMarkup
+encodeAs(const StyledText& runs, MarkupVocabulary vocabulary, const StyleAbilities& abilities);
 
 /// Drops from every run what `abilities` cannot write, and counts it.
 ///

@@ -29,6 +29,18 @@ l'éditeur ; la ligne de la table s'ajuste à la validation.
 
 Cliquer ailleurs valide aussi : la perte du focus vaut `Entrée`.
 
+### Les balises sont celles du fichier
+
+Le texte montré et saisi est **celui du fichier, balises comprises** : un
+`<i>…</i>` d'un SubRip s'écrit ainsi, et un `{\i1}…{\i0}` d'un Advanced SSA
+aussi. Rien n'est traduit à l'affichage — le tableau de
+[`Italic`](operations.md#italic) dit ce que chaque format écrit.
+
+Pour l'italique, il n'y a donc rien à connaître : `Ctrl+I` pose la bonne balise
+pour le document ouvert, et un format qui n'en porte aucune — TMPlayer, LRC —
+éteint l'entrée plutôt que de laisser chercher. Le gras et le souligné se
+tapent, comme dans Gaupol.
+
 ## Le début et la fin
 
 L'éditeur est un champ d'une ligne, **contraint à la forme d'un horodatage** :

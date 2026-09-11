@@ -13,6 +13,7 @@ add_library(
     edit/convert_frame_rate_command.cpp
     edit/hearing_impaired_removal.cpp
     edit/insert_command.cpp
+    edit/italics_command.cpp
     edit/shift_limits.cpp
     edit/video_bounds.cpp
     edit/remove_command.cpp
@@ -24,6 +25,7 @@ add_library(
     edit/set_text_command.cpp
     edit/sort_command.cpp
     text/hearing_impaired.cpp
+    text/italics.cpp
     model/encoding.cpp
     model/project.cpp
     model/video_file.cpp

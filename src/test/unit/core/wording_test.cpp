@@ -113,6 +113,8 @@ TEST_CASE("every kind of command has a name of its own", "[wording]") {
         subedit::core::CommandKind::Snap,
         subedit::core::CommandKind::Sort,
         subedit::core::CommandKind::RemoveHearingImpaired,
+        subedit::core::CommandKind::Italicise,
+        subedit::core::CommandKind::Unitalicise,
     };
 
     std::set<std::string_view> seen;

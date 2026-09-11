@@ -141,6 +141,13 @@ public:
 
     [[nodiscard]] QAction* hearingImpairedAction() const { return m_hearingImpaired; }
 
+    /// The one button that puts a text in italics and takes them out again.
+    ///
+    /// **Out for a format that writes no style**, which is what says to a user
+    /// of a `.lrc` that there is nothing to type — an entry that is there and
+    /// grey answers « why can I not? », an entry that is gone does not.
+    [[nodiscard]] QAction* italicAction() const { return m_italic; }
+
     /// The entry that opens the preferences, for a test to trigger it.
     [[nodiscard]] QAction* preferencesAction() const { return m_preferences; }
 
@@ -423,6 +430,16 @@ private:
 
     void removeHearingImpairedFromTarget();
 
+    /// Puts the target in italics, or takes its italics out.
+    ///
+    /// **One entry and not two**, as in Gaupol: which of the two it does is
+    /// read from the target before anything is built, and a mixed selection
+    /// goes into italics whole.
+    ///
+    /// No dialog — the operation takes no option, and it enters the history
+    /// like the others, so `Ctrl+Z` undoes it.
+    void toggleItalicsOnTarget();
+
     /// **Initialised here, and not only in the constructor's list.**
     ///
     /// Three actions added together at issue #132 were left out of that list,
@@ -451,6 +468,7 @@ private:
     QAction* m_transform = nullptr;
     QAction* m_frameRate = nullptr;
     QAction* m_hearingImpaired = nullptr;
+    QAction* m_italic = nullptr;
     QAction* m_analyseGrid = nullptr;
     QAction* m_snap = nullptr;
     QAction* m_shiftOntoGrid = nullptr;
