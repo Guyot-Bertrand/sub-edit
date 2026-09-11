@@ -3,6 +3,7 @@
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/hearing_impaired_removal.hpp>
 #include <subedit/core/edit/insert_command.hpp>
+#include <subedit/core/edit/italics_command.hpp>
 #include <subedit/core/edit/remove_command.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
@@ -21,6 +22,7 @@
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/text/markup_vocabulary.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/core/wording.hpp>
@@ -222,6 +224,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_transform(buildAction(this, QStringLiteral("Transform Positions…"), {})),
       m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
       m_hearingImpaired(buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})),
+      m_italic(buildAction(this, QStringLiteral("&Italic"), QStringLiteral("format-text-italic"))),
       m_snap(buildAction(this, QStringLiteral("Snap to Frame Rate…"), {})),
       m_shiftOntoGrid(buildAction(this, shiftOntoGridLabel(std::nullopt), {})),
       m_selectVideo(buildAction(this, QStringLiteral("Select Video…"), {})),
@@ -363,6 +366,12 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(
         m_hearingImpaired, &QAction::triggered, this, &MainWindow::removeHearingImpairedFromTarget);
 
+    // **`Ctrl+I` and not a bare `I`**, for the reason the player's `Ctrl+P`
+    // already carries: a one-letter shortcut of window scope is taken before
+    // the cell editor sees it, and this table has three columns one types in.
+    m_italic->setShortcut(QKeySequence{QStringLiteral("Ctrl+I")});
+    connect(m_italic, &QAction::triggered, this, &MainWindow::toggleItalicsOnTarget);
+
     connect(m_snap, &QAction::triggered, this, &MainWindow::snapToFrameRate);
     connect(m_shiftOntoGrid, &QAction::triggered, this, &MainWindow::shiftOntoGrid);
 
@@ -429,6 +438,8 @@ MainWindow::MainWindow(core::FileSystem& files,
     tools->addAction(m_transform);
     tools->addAction(m_frameRate);
     tools->addSeparator();
+    // The two that rewrite a text rather than move a position, together.
+    tools->addAction(m_italic);
     tools->addAction(m_hearingImpaired);
     tools->addSeparator();
     // The two of phase 16, together: one lays each position on the nearest
@@ -469,6 +480,11 @@ MainWindow::MainWindow(core::FileSystem& files,
     bar->addSeparator();
     bar->addAction(m_undo);
     bar->addAction(m_redo);
+    bar->addSeparator();
+    // **The one operation of the window that belongs on a bar.** It takes no
+    // option and no dialog, so a button applies it whole; the others open a box
+    // and would be a button that asks a question.
+    bar->addAction(m_italic);
 
     // The boxes sit over this window, and it is the window that says so: built
     // before it, prompts cannot know it, and leaving that to `main` is what let
@@ -1094,6 +1110,14 @@ void MainWindow::refreshActions() {
     m_shiftOntoGrid->setText(shiftOntoGridLabel(onto));
     m_hearingImpaired->setEnabled(anything);
 
+    // **Grey rather than gone for TMPlayer and LRC**: the two formats write no
+    // style at all, and an entry that is there and out is what tells a user
+    // there is nothing to type. What the format can carry is the question, not
+    // how it spells it — SubRip and WebVTT spell italics alike and disagree
+    // about colour, which is why `abilitiesOf` exists beside `vocabularyOf`.
+    m_italic->setEnabled(anything &&
+                         core::abilitiesOf(m_session->project().sourceFile().format).italic);
+
     refreshStructureActions();
 }
 
@@ -1137,6 +1161,31 @@ void MainWindow::removeHearingImpairedFromTarget() {
 
     m_prompts->reportOutcome(core::countOf(tally.cleaned, "subtitle") + " cleaned, " +
                              std::to_string(tally.removed) + " removed");
+}
+
+void MainWindow::toggleItalicsOnTarget() {
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+
+    // Asked before anything is built, and of the target rather than of the
+    // document: the button says what it will do to what is selected.
+    const bool italic = core::wouldItalicise(m_session->project(), target, core::Document::Main);
+
+    std::unique_ptr<core::Command> command =
+        core::setItalics(m_session->project(), target, core::Document::Main, italic);
+    if (!command) {
+        // Every text was already the way it was asked for. Say so, and put
+        // nothing in the history: an operation that changes nothing is not an
+        // operation to undo.
+        m_prompts->reportOutcome("nothing to change");
+        return;
+    }
+
+    // Read from the command before it goes, never by counting again after.
+    const std::size_t rewritten = core::italicisedCount(*command);
+    applyOperation(std::move(command), target);
+
+    m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") +
+                             (italic ? " put in italics" : " taken out of italics"));
 }
 
 void MainWindow::applyOperation(std::unique_ptr<core::Command> command,

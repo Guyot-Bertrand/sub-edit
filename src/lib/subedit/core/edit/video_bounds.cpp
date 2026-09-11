@@ -49,6 +49,8 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::Remove:
     case CommandKind::Sort:
     case CommandKind::RemoveHearingImpaired:
+    case CommandKind::Italicise:
+    case CommandKind::Unitalicise:
         return false;
     }
 

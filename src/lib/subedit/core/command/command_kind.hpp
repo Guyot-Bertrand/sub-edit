@@ -20,6 +20,8 @@ enum class CommandKind {
     Snap,
     Sort,
     RemoveHearingImpaired,
+    Italicise,
+    Unitalicise,
 };
 
 } // namespace subedit::core

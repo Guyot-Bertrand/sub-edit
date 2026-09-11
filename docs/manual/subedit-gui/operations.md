@@ -1,13 +1,14 @@
 # Les opérations
 
-Le menu **Tools** porte six opérations et une analyse. Chacune des six s'annule
-d'un `Ctrl+Z` ; l'analyse ne modifie rien.
+Le menu **Tools** porte sept opérations et une analyse. Chacune des sept
+s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 
 | Entrée | Dialogue | Ce qu'elle fait |
 | :----- | :------- | :-------------- |
 | `Shift Positions…` | oui | décale la cible d'une durée |
 | `Transform Positions…` | oui | corrige la cible à partir de deux repères |
 | `Convert Frame Rate…` | oui | re-cale la cible d'une cadence vers une autre |
+| `Italic` | **non** | met la cible en italique, ou l'en retire |
 | `Remove Hearing-Impaired Mentions…` | oui, sans réglage | retire les mentions pour malentendants |
 | `Snap to Frame Rate…` | oui | repose chaque horodatage sur l'image la plus proche |
 | `Shift Whole File onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
@@ -47,7 +48,8 @@ dire. Voir [`Snap to Frame Rate…`](#snap-to-frame-rate) et
 > est éteinte tant que rien n'est sélectionné.
 
 Les entrées sont **inactives sur un fichier vide** : il n'y aurait rien à
-décaler.
+décaler. `Italic` a une seconde condition, que sa section décrit : le format
+ouvert doit savoir écrire un style.
 
 ## `Shift Positions…`
 
@@ -239,6 +241,69 @@ la main. Sur un fichier propre les deux donnent le même résultat ; sur un
 fichier partiel, non — et le [détail de l'analyse](grille.md) dit lequel des
 deux on a sous les yeux.
 
+## `Italic`
+
+Met la cible en italique en écrivant les balises du **format ouvert**, ou les
+retire si elle y est déjà. Pas de dialogue : l'opération n'a pas de réglage, et
+elle s'annule d'un `Ctrl+Z` comme les autres.
+
+| Action | Raccourci | Où |
+| :----- | :-------- | :--- |
+| `Italic` | `Ctrl+I` | menu **Tools**, barre d'outils |
+
+C'est la seule opération du menu qui ait un bouton dans la barre d'outils : les
+six autres ouvrent un dialogue, et un bouton qui pose une question n'en est pas
+vraiment un.
+
+### Ce qu'elle écrit, format par format
+
+Le texte d'un sous-titre est celui de son fichier, balises comprises — voir
+[Éditer une cellule](edition.md). Chaque format a les siennes, et c'est ce que
+cette entrée dispense de connaître :
+
+| Format | Ce qui est écrit |
+| :----- | :--------------- |
+| SubRip, WebVTT, SubViewer 2 | `<i>texte</i>` |
+| Sub Station Alpha, Advanced SSA | `{\i1}texte{\i0}` |
+| MicroDVD | `{Y:i}texte` — la balise court jusqu'à la fin du sous-titre, il n'y a rien à refermer |
+| MPL2 | `/` en tête de **chaque** ligne, le marqueur ne portant que sur la sienne |
+| TMPlayer, LRC | rien : ces deux formats n'écrivent aucun style |
+
+**L'entrée est éteinte pour un TMPlayer et un LRC, et non cachée.** Une entrée
+absente n'apprend rien ; une entrée grise répond à « pourquoi ne puis-je
+pas ? ».
+
+### Dans quel sens elle va
+
+Une seule entrée pour les deux sens, et c'est la cible qui décide :
+
+- **un seul sous-titre hors italique suffit** pour que toute la cible y passe ;
+- la cible n'en sort que lorsqu'elle y est **entièrement**.
+
+C'est la règle de Gaupol, et c'est la seule qui rende un bouton unique
+utilisable : une sélection panachée part d'un bloc plutôt que de s'inverser
+ligne par ligne, et appuyer deux fois la rend telle qu'elle était.
+
+Le compte rendu dit ce qui a été fait :
+
+```
+2 subtitles put in italics
+```
+
+**Une ligne vide ne gagne jamais de balises** — un `<i></i>` autour de rien se
+verrait dans la table. Une cible qui n'en contient que ne change donc rien, et
+le dit : « nothing to change ». Aucune entrée n'entre alors dans l'historique.
+
+### Ce qu'elle ne touche pas
+
+**Les autres balises restent exactement où elles sont** : une couleur, une
+police, un `{\pos(x,y)}` d'Advanced SSA traversent l'opération sans bouger.
+Seules les balises d'italique sont posées et retirées.
+
+Une balise qui dit plusieurs choses à la fois n'est pas emportée en entier :
+`{\b1\i1}` devient `{\b1}`, et `{Y:bi}` devient `{Y:b}`. Le gras reste, et le
+texte sort réellement de l'italique.
+
 ## `Remove Hearing-Impaired Mentions…`
 
 Retire les mentions destinées aux spectateurs sourds ou malentendants — les
@@ -270,7 +335,8 @@ entier.
 
 > **La sélection est perdue à cette occasion** : retirer des lignes change la
 > structure de la table, qui se reconstruit. Les cinq autres opérations du menu
-> `Tools` la conservent. `Insert Subtitles…` et `Remove Subtitles` changent la
+> `Tools` la conservent, `Italic` comprise. `Insert Subtitles…` et
+> `Remove Subtitles` changent la
 > structure elles aussi, et rendent une sélection à la place de celle qu'elles
 > ont emportée — voir [Insérer et supprimer des lignes](lignes.md).
 
@@ -303,5 +369,5 @@ défait comme n'importe quelle autre.
 
 Le message n'apparaît pas si aucune vidéo n'est ouverte : la durée vient du
 lecteur, et sans film il n'y a pas de fin à dépasser. Les trois opérations qui
-déplacent des positions sont concernées ; le retrait des mentions, qui n'en
-déplace aucune, ne l'est pas.
+déplacent des positions sont concernées ; le retrait des mentions et `Italic`,
+qui n'en déplacent aucune, ne le sont pas.

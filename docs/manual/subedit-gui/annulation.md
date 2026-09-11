@@ -27,6 +27,8 @@ pointeur — mais son infobulle porte le libellé entier.
 | une conversion de fréquence | `converting the frame rate` |
 | un alignement sur une cadence | `aligning on the frame rate` |
 | un retrait des mentions | `removing hearing-impaired mentions` |
+| une mise en italique | `putting in italics` |
+| un retrait de l'italique | `taking italics out` |
 
 **Dix libellés, et c'est tout ce que la fenêtre sait produire.** Le noyau en
 nomme un onzième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri

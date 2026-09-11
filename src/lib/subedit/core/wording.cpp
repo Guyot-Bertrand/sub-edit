@@ -313,9 +313,13 @@ std::string_view nameOf(CommandKind kind) {
         return "sorting";
     case CommandKind::RemoveHearingImpaired:
         return "removing hearing-impaired mentions";
+    case CommandKind::Italicise:
+        return "putting in italics";
+    case CommandKind::Unitalicise:
+        return "taking italics out";
     }
 
-    // The eleven are handled and the compiler checks it. A `default` here would
+    // The thirteen are handled and the compiler checks it. A `default` here would
     // take an enumerator added without a name in silence, and the action would
     // announce it as an empty string.
     std::unreachable();
