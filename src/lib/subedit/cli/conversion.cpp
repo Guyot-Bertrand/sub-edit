@@ -97,11 +97,13 @@ bool convertFile(core::FileSystem& files,
     // What the document carries crosses only into its own format; converting
     // into MicroDVD from anywhere else has to take the rate from somewhere, and
     // choosing one silently would move every position in the file.
-    core::FileExtras extras = core::extrasFor(source, target);
+    const core::FileExtras crossed = core::extrasFor(source, target);
     core::FrameRate rate{core::MicroDvdFile{}.rate};
-    if (const auto* frames = std::get_if<core::MicroDvdFile>(&extras))
+    if (const auto* frames = std::get_if<core::MicroDvdFile>(&crossed)) {
         rate = frames->rate;
-    if (target == SubtitleFormat::MicroDvd && !std::holds_alternative<core::MicroDvdFile>(extras)) {
+    } else if (target == SubtitleFormat::MicroDvd) {
+        // **The one thing this surface answers for itself**, because it can
+        // refuse: the window always has a rate to offer, a batch may have none.
         const std::expected<core::FrameRate, std::string> settled =
             frameRateForFrames(opened->project, reading.frameRate, path, reporter);
         if (!settled.has_value()) {
@@ -109,23 +111,21 @@ bool convertFile(core::FileSystem& files,
             return false;
         }
         rate = *settled;
-        extras = core::MicroDvdFile{.rate = rate};
     }
 
-    // **The conversion happens here, once, and it measures itself.** The markup
-    // is carried into the arriving vocabulary — ADR 0031 — and the same walk
+    // **The conversion happens once, in the core, and it measures itself.** The
+    // markup is carried into the arriving vocabulary — ADR 0031 — the header and
+    // the declared fields cross only into their own format, and the same walk
     // counts what that format will not be able to hold.
-    std::vector<core::Subtitle> subtitles{opened->project.subtitles().begin(),
-                                          opened->project.subtitles().end()};
-    const core::ConversionLoss loss = core::convertFor(subtitles, source, target, rate);
+    const core::ConvertedProject converted = core::convertProjectFor(opened->project, target, rate);
 
     const core::WriteRequest request{
-        .subtitles = subtitles,
+        .subtitles = converted.subtitles,
         .document = core::Document::Main,
         .newline = newline,
         .encoding = encoding,
-        .header = core::headerFor(source, target),
-        .extras = extras,
+        .header = converted.header,
+        .extras = converted.extras,
     };
     const std::filesystem::path out = destination.pathFor(path, extensionOf(target));
     const std::expected<std::size_t, std::string> written =
@@ -144,12 +144,13 @@ bool convertFile(core::FileSystem& files,
                      std::string{nameOf(target)} + ", " + nameOf(encoding) + ", " +
                      std::string{nameOf(newline)} + " line endings");
     reporter.say(1,
-                 path + ": " + core::countOf(subtitles.size(), "subtitle") + " written as " +
-                     std::string{nameOf(target)} + " -> " + out.string());
+                 path + ": " + core::countOf(converted.subtitles.size(), "subtitle") +
+                     " written as " + std::string{nameOf(target)} + " -> " + out.string());
     // **Said last, and only when there is something to say.** A conversion that
     // loses nothing is silent, which is what makes the line worth reading when
     // it does appear.
-    if (const std::string notice = core::noticeOf(loss, source.format, target); !notice.empty())
+    if (const std::string notice = core::noticeOf(converted.loss, source.format, target);
+        !notice.empty())
         reporter.say(1, path + ": " + notice);
     return true;
 }

@@ -910,15 +910,14 @@ bool MainWindow::saveAs() {
     // count of what fell is the count of a conversion that really happened.
     const core::SourceFile before = m_session->project().sourceFile();
     const std::span<const core::Subtitle> held = m_session->project().subtitles();
-    std::vector<core::Subtitle> converted{held.begin(), held.end()};
     // **The document's own rate, and it is a real answer here.** A file counted
     // in frames was read at it, `Convert Frame Rate…` moves it, and nothing
     // else in this window can leave it unset — so the command line's third
     // case, « no rate and no grid, refuse », cannot arise.
-    const core::FrameRate rate = m_session->project().frameRate();
-    const core::ConversionLoss loss = core::convertFor(converted, before, target->format, rate);
+    core::ConvertedProject converted = core::convertProjectFor(
+        m_session->project(), target->format, m_session->project().frameRate());
 
-    if (const std::string notice = core::noticeOf(loss, before.format, target->format);
+    if (const std::string notice = core::noticeOf(converted.loss, before.format, target->format);
         !notice.empty() && !m_prompts->aboutLoss(notice)) {
         return false;
     }
@@ -933,14 +932,11 @@ bool MainWindow::saveAs() {
     moved.format = target->format;
     moved.encoding = target->encoding;
     moved.newline = target->newline;
-    // **What the file declared crosses only into its own format** — ADR 0030 —
-    // and a file written in frames needs a rate whatever it came from.
-    moved.extras = core::extrasFor(before, target->format);
-    if (target->format == core::SubtitleFormat::MicroDvd &&
-        !std::holds_alternative<core::MicroDvdFile>(moved.extras)) {
-        moved.extras = core::MicroDvdFile{.rate = rate};
-    }
-    m_session->becomeFile(moved, std::move(converted));
+    // What the file declares of itself follows the conversion, which is the one
+    // place that decides what crosses a format boundary — ADR 0030.
+    moved.extras = converted.extras;
+    moved.header = converted.header;
+    m_session->becomeFile(moved, std::move(converted.subtitles));
 
     const std::expected<void, core::SaveError> written =
         core::saveProject(*m_files, m_session->project(), target->path, target->format);

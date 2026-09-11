@@ -8,12 +8,15 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle.hpp>
 
 #include <cstddef>
 #include <expected>
+#include <span>
 #include <string>
 #include <utility>
 #include <variant>
+#include <vector>
 
 namespace subedit::core {
 
@@ -76,19 +79,46 @@ std::expected<OpenedFile, OpenError> openProject(const FileSystem& files,
     return projectOf(readSubtitles(*content, choices), path, content->size());
 }
 
+ConvertedProject convertProjectFor(const Project& project, SubtitleFormat target, FrameRate rate) {
+    const SourceFile& source = project.sourceFile();
+    const std::span<const Subtitle> held = project.subtitles();
+
+    // **Filled field by field rather than in one aggregate, and the reason is
+    // measured.** Building the header string inside the initialiser makes gcov
+    // attribute that line the construction's exception exit, which it then
+    // counts as never taken — for a line that runs on every call. Written as an
+    // assignment, it counts.
+    ConvertedProject converted;
+    converted.subtitles.assign(held.begin(), held.end());
+    converted.header = headerFor(source, target);
+    converted.extras = extrasFor(source, target);
+
+    // **A file written in frames needs a rate whatever it came from.** What the
+    // document declared crosses only into its own format, so a MicroDVD arrived
+    // at from anywhere else has nothing to say about frames until this line.
+    if (target == SubtitleFormat::MicroDvd &&
+        !std::holds_alternative<MicroDvdFile>(converted.extras)) {
+        converted.extras = MicroDvdFile{.rate = rate};
+    }
+
+    converted.loss = convertFor(converted.subtitles, source, target, rate);
+    return converted;
+}
+
 std::expected<void, SaveError> saveProject(FileSystem& files,
                                            const Project& project,
                                            const std::filesystem::path& path,
                                            SubtitleFormat format) {
     const SourceFile& source = project.sourceFile();
+    const ConvertedProject converted = convertProjectFor(project, format, project.frameRate());
 
     const WriteRequest request{
-        .subtitles = project.subtitles(),
+        .subtitles = converted.subtitles,
         .document = Document::Main,
         .newline = source.newline,
         .encoding = source.encoding,
-        .header = headerFor(source, format),
-        .extras = extrasFor(source, format),
+        .header = converted.header,
+        .extras = converted.extras,
     };
 
     const std::expected<std::string, WriteError> written = writeSubtitles(format, request);
