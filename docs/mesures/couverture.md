@@ -21,6 +21,47 @@ décision et les alternatives écartées sont dans
 `make ratchet` réécrit ce fichier depuis la dernière mesure. **Il n'écrit jamais
 de lui-même :** un fichier versionné ne bouge que si quelqu'un le demande.
 
+## Ce que les lignes non couvertes sont, par famille
+
+**Relu d'un bloc à la relecture de la phase 9**, et la raison de le faire est
+dans la forme du chiffre : il monte d'une ou deux lignes à la fois, chacune pour
+un motif juste, chacune justifiée ici à sa date. Rien n'oblige alors à poser la
+question qui compte — **le total dit-il encore quelque chose ?**
+
+Il le dit, à condition de ne pas le lire comme une quantité. Les soixante-six
+lignes se rangent en quatre familles, et elles ne se valent pas :
+
+| Famille | Lignes | Ce qu'un test devrait faire pour l'atteindre |
+| :------ | -----: | :------------------------------------------- |
+| une boucle modale de Qt | 46 | cliquer ; `exec()` ne rend la main à personne d'autre |
+| le monde extérieur qui échoue | 11 | faire rater un `fork`, provoquer un `EINTR`, remplir un disque |
+| libmpv, pour de vrai | 4 | une bibliothèque et un serveur d'affichage dans la porte |
+| **une garde que l'appelant rend inatteignable** | **5** | rien : il faudrait l'atteindre par un chemin que le code interdit |
+
+Les trois premières sont **irréductibles par construction**, et leur compte ne
+bouge qu'avec la surface : une modale de plus, un appel système de plus. Les
+justifier une à une est le bon geste, et c'est ce que la suite de ce fichier
+fait depuis la phase 5.
+
+**La quatrième est celle qui grossit, et c'est la seule qui se discute.** Ce sont
+cinq gardes — un produit saturé dont un facteur est nul, une durée partagée en
+zéro parts, un `togglePlayback` sans film, un dialogue qui n'aurait rien retenu.
+Chacune protège un déréférencement ou une division, chacune est **juste**, et
+aucune n'est atteignable : ce qui les rend inatteignables est précisément ce qui
+les rend nécessaires — l'appelant vérifie déjà.
+
+**La leçon, et elle a une date.** En phase 9, deux fonctions du pivot de balises
+portaient des bras de `switch` du même genre ; elles ont été **réécrites** plutôt
+que justifiées, parce que là l'arm inatteignable pouvait disparaître sans rien
+affaiblir — `applyOpening` côté HTML, `appendOff` côté SSA. C'est l'arbitrage à
+refaire chaque fois : **une garde qu'on peut supprimer sans perdre la protection
+se supprime ; une garde qui protège vraiment se garde et se compte.** Les cinq
+d'aujourd'hui sont du second cas.
+
+Ce que cette table change, pour la suite : un relèvement se juge contre la
+famille où il tombe, et non contre le total. Cinq lignes de modale de plus sont
+un fait de surface ; une sixième garde inatteignable est une question.
+
 ## Ce que le cliquet a laissé passer, et pourquoi
 
 Le relever est une décision, pas un ajustement. Chaque relèvement se justifie

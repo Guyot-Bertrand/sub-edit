@@ -147,7 +147,7 @@ code=2
 ## Une position avant l'origine est refusée
 
 Comme pour [`shift`](shift.md), et pour la même raison : une position négative
-s'écrit `-00:00:01,000`, forme qu'aucun des deux formats ne définit et qu'aucun
+s'écrit `-00:00:01,000`, forme qu'aucun des neuf formats ne définit et qu'aucun
 lecteur n'accepte. Le cas se présente ici quand un sous-titre se trouve **avant
 le premier repère** et que l'échelle le repousse au-delà de zéro. Rien n'est
 écrit, le code est `2`, et le message nomme le sous-titre en cause.

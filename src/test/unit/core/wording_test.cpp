@@ -327,3 +327,23 @@ TEST_CASE("a name a command line takes leads back to its format", "[cli][wording
     CHECK_FALSE(formatNamed("txt").has_value());
     CHECK_FALSE(formatNamed("").has_value());
 }
+
+TEST_CASE("SubRip is the only one of the nine that writes a comma", "[wording]") {
+    using subedit::core::DecimalMark;
+    using subedit::core::decimalMarkOf;
+    using subedit::core::kSubtitleFormats;
+    using subedit::core::SubtitleFormat;
+
+    // **Asked of the vocabulary rather than of each writer**, so that a surface
+    // showing a position before the file holds it cannot disagree with the
+    // writer that will hold it. MicroDVD counts in frames and MPL2 in tenths
+    // inside brackets: neither has a mark of its own, and the point is what the
+    // other seven answer.
+    CHECK(decimalMarkOf(SubtitleFormat::SubRip) == DecimalMark::Comma);
+    for (const SubtitleFormat format : kSubtitleFormats) {
+        if (format == SubtitleFormat::SubRip)
+            continue;
+        INFO("format : " << nameOf(format));
+        CHECK(decimalMarkOf(format) == DecimalMark::Period);
+    }
+}

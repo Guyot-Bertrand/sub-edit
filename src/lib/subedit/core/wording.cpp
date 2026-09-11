@@ -106,6 +106,10 @@ std::string_view extensionOf(SubtitleFormat format) {
     std::unreachable();
 }
 
+DecimalMark decimalMarkOf(SubtitleFormat format) {
+    return format == SubtitleFormat::SubRip ? DecimalMark::Comma : DecimalMark::Period;
+}
+
 std::string_view nameOf(Newline newline) {
     switch (newline) {
     case Newline::Lf:

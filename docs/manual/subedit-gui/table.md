@@ -25,7 +25,19 @@ insertion ou une suppression renumérote donc tout ce qui suit, sans que rien ne
 soit réécrit.
 
 **Le séparateur décimal suit le format du fichier** : une virgule pour SubRip,
-un point pour WebVTT. Ce qui s'affiche est ce qui sera écrit.
+un point pour les huit autres. SubRip est le seul des neuf à écrire une virgule.
+
+**C'est le séparateur qui suit, pas l'orthographe entière.** La table écrit
+toujours les heures et toujours trois décimales ; un fichier WebVTT omet les
+heures sous une heure, SubViewer 2 et les deux Sub Station Alpha comptent au
+centième, MPL2 au dixième, TMPlayer à la seconde, MicroDVD en images. Une
+colonne dont la largeur suivrait le format serait plus pénible à lire qu'une
+colonne qui n'est simplement pas l'orthographe exacte du fichier.
+
+Ce que la table garantit est donc **la valeur et le séparateur**, non le nombre
+de décimales. Ce qu'un format d'arrivée arrondirait est dit au moment de
+l'enregistrement — voir
+[Ce qu'un format ne portera pas](fichiers.md#ce-quun-format-ne-portera-pas-dit-avant-décrire).
 
 **La durée (`Duration`) est calculée**, jamais saisie. Un sous-titre dont la fin précède le
 début affiche une durée négative plutôt que zéro : c'est une anomalie du

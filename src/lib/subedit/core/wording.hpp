@@ -62,6 +62,22 @@ namespace subedit::core {
 /// The extension a file of that format is expected to carry, dot included.
 [[nodiscard]] std::string_view extensionOf(SubtitleFormat format);
 
+/// The decimal mark a file of that format carries between seconds and their
+/// fraction.
+///
+/// **SubRip is the only one of the nine that writes a comma**, and everything
+/// else that writes a fraction at all writes a point — WebVTT, SubViewer 2, the
+/// two Sub Station Alpha, TMPlayer, LRC. MicroDVD counts in frames and MPL2 in
+/// tenths inside brackets, so neither has a mark of its own; the point is what
+/// a surface shows for them, being the answer of the other seven.
+///
+/// **It exists because a surface has to agree with a writer.** The table of the
+/// window shows a position before the file holds it, and it promises to show
+/// what will be written; asking each writer would be asking eight questions,
+/// and testing WebVTT alone — which is what it did until phase 9 — answered
+/// « comma » for six formats that write a point.
+[[nodiscard]] DecimalMark decimalMarkOf(SubtitleFormat format);
+
 /// The name of a line ending, as a report writes it.
 [[nodiscard]] std::string_view nameOf(Newline newline);
 

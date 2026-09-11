@@ -34,7 +34,6 @@ using core::AnomalyKind;
 using core::Change;
 using core::ChangeKind;
 using core::DecimalMark;
-using core::SubtitleFormat;
 
 /// Which anomaly a row is named and tinted by when it carries several.
 ///
@@ -109,8 +108,7 @@ constexpr QColor kShowingTint{40, 160, 90, kWash};
 /// position would be worse to read than one that is merely not the file's exact
 /// spelling.
 [[nodiscard]] DecimalMark markOf(const core::Project& project) {
-    return project.sourceFile().format == SubtitleFormat::WebVtt ? DecimalMark::Period
-                                                                 : DecimalMark::Comma;
+    return core::decimalMarkOf(project.sourceFile().format);
 }
 
 [[nodiscard]] QString written(core::Timestamp position, DecimalMark mark) {

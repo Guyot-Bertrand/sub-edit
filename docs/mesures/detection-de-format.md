@@ -94,9 +94,9 @@ elle seule.** Un plein ne se relâche pas ; il se surveille.
 
 ## Corpus privé — sans étiquettes
 
-`src/data/`, des fichiers réels. **Il ne donne aucun taux** : il n'y a pas de
-vérité à lui confronter, et s'en inventer une serait pire que de n'en pas avoir.
-Ce qu'il donne est la distribution des réponses.
+`src/data/`, soixante-dix-huit fichiers réels. **Il ne donne aucun taux** : il
+n'y a pas de vérité à lui confronter, et s'en inventer une serait pire que de
+n'en pas avoir. Ce qu'il donne est la distribution des réponses.
 
 | Réponse | Fichiers |
 | :------ | -------: |
@@ -104,17 +104,34 @@ Ce qu'il donne est la distribution des réponses.
 | SubRip | 17 |
 | MicroDVD | 1 |
 | Advanced SSA | 1 |
-| refusé | 0 |
+| refusé | 5 |
 
-**Les deux derniers refus ont été des reconnaissances**, un MicroDVD et un
-Advanced SSA, tous deux réels, tous deux nommés par les lecteurs de la phase.
+**Les deux derniers refus sur un vrai sous-titre ont été des reconnaissances**,
+un MicroDVD et un Advanced SSA, tous deux réels, tous deux nommés par les
+lecteurs de la phase.
 C'est la confirmation de ce que l'initialisation de la phase (#336) avait fini
 par trouver après s'être trompée : le corpus privé porte autre chose que du
 `.srt` et du `.vtt`, et le relevé qui disait le contraire filtrait son parcours
 sur ces deux extensions.
 
-**Le corpus privé ne dit rien de TMPlayer ni de LRC** : il n'en porte aucun. Ce
-que ces deux formats-là ont pour eux est la scène de #338, et rien de réel.
+**Les cinq refus sont mérités, et ils sont entrés au relevé à la relecture de la
+phase.** Ce sont des notes et un extrait de texte, portant l'extension `.txt` ;
+la détection dit qu'elle ne sait pas, ce qui est la bonne réponse. Un refus
+n'est pas une confusion, et c'est la confusion seule qui fait échouer.
+
+**Ils n'y étaient pas, et leur absence était un filtre.** La sonde ne parcourait
+pas les `.txt`, au motif que les seuls du corpus étaient ces notes-là. L'argument
+valait sur les fichiers d'un jour ; ce qu'il coûtait était plus grand — `.txt`
+nomme **MPL2 et TMPlayer**, donc la sonde ne pouvait pas voir un fichier de ces
+deux formats, et la phrase ci-dessous était garantie par le filtre plutôt que
+mesurée. C'est la forme exacte du défaut de #268 et de #273 : vérifier avec
+l'outil qui ne compte pas. Dans le seul relevé dont toute la valeur tient à ce
+que **l'extension n'entre nulle part dans la décision**, un filtre par extension
+n'avait pas sa place.
+
+**Le corpus privé ne dit rien de TMPlayer ni de LRC** : il n'en porte aucun —
+et c'est mesuré depuis que la sonde regarde les `.txt`. Ce que ces deux
+formats-là ont pour eux est la scène de #338, et rien de réel.
 
 ## Ce que la première version de la sonde a appris
 
