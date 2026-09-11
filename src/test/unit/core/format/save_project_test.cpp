@@ -275,3 +275,59 @@ TEST_CASE("the extras of the format written are kept", "[format][save]") {
     CHECK(written.find("chapitre-1") != std::string::npos);
     CHECK(written.find("align:start position:10%") != std::string::npos);
 }
+
+TEST_CASE("saving into another format translates the markup", "[format][save]") {
+    // **The hole issue #364 named.** `saveProject` used to write the subtitles
+    // exactly as the project held them, so a `.ssa` came out still saying
+    // `<i>` — a tag that format never interprets, which is text the user sees
+    // rather than a loss. Both surfaces converted before calling; nothing made
+    // a third caller do the same.
+    InMemoryFileSystem files;
+    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\n<i>Il ne dit rien.</i>\n\n");
+    const auto opened = openProject(files, "film.srt");
+    REQUIRE(opened.has_value());
+
+    REQUIRE(saveProject(files, opened->project, "film.ssa", SubtitleFormat::SubStationAlpha)
+                .has_value());
+
+    const std::string written = files.contentOf("film.ssa").value_or("");
+    CHECK(written.contains(R"({\i1}Il ne dit rien.{\i0})"));
+    CHECK_FALSE(written.contains("<i>"));
+}
+
+TEST_CASE("what a conversion costs is counted where it happens", "[format][save]") {
+    // The same walk that translates is the one that measures, so a caller
+    // cannot report a loss the writing did not take — nor take one it does not
+    // report. LRC carries no end, joins the lines of a subtitle, and has no
+    // vocabulary for an italic.
+    InMemoryFileSystem files;
+    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\n<i>sur deux</i>\nlignes\n\n");
+    const auto opened = openProject(files, "film.srt");
+    REQUIRE(opened.has_value());
+
+    const subedit::core::ConvertedProject converted = subedit::core::convertProjectFor(
+        opened->project, SubtitleFormat::Lrc, opened->project.frameRate());
+
+    CHECK(converted.loss.ends);
+    CHECK(converted.loss.joined == 1);
+    CHECK(converted.loss.tags == 1);
+}
+
+TEST_CASE("a file written in frames carries a rate whatever it came from", "[format][save]") {
+    // **What the document declared crosses only into its own format** — ADR
+    // 0030 — so a MicroDVD arrived at from SubRip has nothing to say about
+    // frames until the conversion gives it the rate it was asked for.
+    InMemoryFileSystem files;
+    files.addFile("film.srt", kSubRip);
+    const auto opened = openProject(files, "film.srt");
+    REQUIRE(opened.has_value());
+
+    const subedit::core::ConvertedProject converted = subedit::core::convertProjectFor(
+        opened->project,
+        SubtitleFormat::MicroDvd,
+        subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps25});
+
+    const auto* frames = std::get_if<subedit::core::MicroDvdFile>(&converted.extras);
+    REQUIRE(frames != nullptr);
+    CHECK(frames->rate == subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps25});
+}
