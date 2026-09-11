@@ -31,8 +31,9 @@ tiendrait à jour, et un numéro figé serait faux dès le prochain incrément.
 $ subedit-gui film.srt
 ```
 
-Les formats lus sont **SubRip** (`.srt`) et **WebVTT** (`.vtt`). Le format est
-reconnu au contenu et non à l'extension, et **l'encodage l'est aussi** : un BOM
+Les formats lus sont **les neuf** que le filtre d'ouverture énumère — voir
+[Ouvrir et enregistrer](fichiers.md#ouvrir). Le format est reconnu au contenu et
+non à l'extension, et **l'encodage l'est aussi** : un BOM
 si le fichier en porte un, sinon l'encodage que ses octets proposent.
 
 ## Quand l'ouverture échoue

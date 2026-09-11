@@ -80,11 +80,25 @@ NAMED = {
     "lrc": "LRC",
 }
 
-# Les extensions sous lesquelles un fichier de sous-titres se présente. `.txt`
-# n'y est pas, et son absence est un choix : il nomme TMPlayer et MPL2, et tout
-# le reste. Les seuls `.txt` du corpus privé sont des notes et des extraits de
-# manuel — les compter reviendrait à mesurer des refus mérités.
-SUBTITLE_SUFFIXES = (".srt", ".vtt", ".sub", ".ass", ".ssa", ".lrc")
+# Les extensions sous lesquelles un fichier de sous-titres se présente, **`.txt`
+# compris**.
+#
+# **Il en était exclu, et l'exclusion était écrite** : `.txt` nomme MPL2 et
+# TMPlayer et tout le reste, les seuls que le corpus privé porte sont des notes,
+# et les compter mesurait des refus mérités. L'argument est juste sur les
+# fichiers d'aujourd'hui ; ce qu'il coûte est plus grand que ce qu'il évite.
+#
+# **La sonde ne pouvait pas voir un MPL2 ni un TMPlayer**, donc la phrase du
+# journal — « le corpus privé n'en porte aucun » — était garantie par le filtre
+# plutôt que mesurée. C'est la forme exacte du défaut de #336 : vérifier avec
+# l'outil qui ne compte pas. Et c'est un filtre **par extension**, dans le seul
+# relevé dont toute la valeur tient à ce que l'extension n'entre nulle part dans
+# la décision.
+#
+# Ce qu'il en coûte de l'ôter est cinq refus de plus, et un refus n'est pas une
+# erreur : il dit qu'on ne sait pas, ce qui est vrai d'un fichier de notes. Le
+# journal les nomme pour ce qu'ils sont.
+SUBTITLE_SUFFIXES = (".srt", ".vtt", ".sub", ".ass", ".ssa", ".lrc", ".txt")
 
 # La forme d'un nom de format, et rien d'autre ne sera lu comme une réponse.
 # C'est la garde de #290, reprise telle quelle : un détecteur qui se plaint sur

@@ -109,7 +109,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.9.24
+subedit 0.10.0
 ```
 
 ## Sous-commandes
@@ -257,7 +257,7 @@ suit — le numéro fautif est dans le `("…")`. Seules les anomalies qui porte
 **une ligne** — un horodatage illisible, du texte avant le premier — se
 rapportent sur elles-mêmes.
 
-### Les neuf catégories
+### Les douze catégories
 
 | Phrase | Ce qui la déclenche |
 | :----- | :------------------ |
@@ -267,9 +267,17 @@ rapportent sur elles-mêmes.
 | `SubRip numbers that do not follow` | numérotation qui saute |
 | `text before the first timing line` | du texte avant le premier horodatage |
 | `a WebVTT block of an unknown kind` | un bloc WebVTT non reconnu |
+| `declares an event column this tool cannot fill` | une colonne d'événement Sub Station Alpha que rien ici ne remplit |
+| `counts in frames and states no rate; it was read at` | un fichier en images, qui n'énonce aucune fréquence — celle retenue est le détail |
+| `carries no end times; each one was taken from the next start` | un format sans fin, TMPlayer ou LRC : **aucune fin de la table ne vient du fichier** |
 | `more than one kind of line ending` | des fins de ligne mélangées |
 | `an encoding nothing declared` | l'encodage a été proposé en pesant les octets, et il n'est pas de l'UTF-8 |
 | `a byte order mark that contradicts the encoding asked for` | le fichier porte une marque, et `--encoding` en nommait un autre — la marque l'emporte |
+
+**Les trois du milieu sont celles de la phase 9**, et les deux dernières de ces
+trois-là ne parlent pas d'une ligne mais du fichier entier : elles disent qu'une
+valeur affichée n'a pas été lue. Une colonne `End` remplie sur un LRC, une
+position sur un MicroDVD — le fichier n'en portait rien.
 
 ## Plusieurs fichiers
 

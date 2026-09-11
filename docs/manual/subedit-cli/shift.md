@@ -111,7 +111,7 @@ le sous-titre qui ne pouvait pas encaisser le décalage, ce qui dit du même cou
 jusqu'où l'on peut aller.
 
 La raison n'est pas un principe : une position avant l'origine s'écrit
-`-00:00:01,000`, forme qu'aucun des deux formats ne définit et qu'aucun lecteur
+`-00:00:01,000`, forme qu'aucun des neuf formats ne définit et qu'aucun lecteur
 n'accepte. Le noyau, lui, autorise ces positions — les refuser ferait d'une
 opération d'édition un cas particulier — mais un fichier est autre chose qu'un
 modèle en mémoire.

@@ -44,6 +44,8 @@ ne pas l'éditer à la main.
 - **core** — Traduire screenshots.cpp, et le cliquet descend avec
 - **core** — Traduire les cinquante fichiers qui restaient
 - **doc** — Cadrage de la phase 9, les formats complémentaires
+- **doc** — Relever le banc pour la version 0.9.24
+- **doc** — Relecture de fin de phase 9
 
 ### Performance
 

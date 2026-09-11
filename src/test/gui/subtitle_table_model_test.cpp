@@ -87,14 +87,26 @@ TEST_CASE("the table shows start, end, duration and text", "[gui][GUI-TABLE-01]"
 
 TEST_CASE("the decimal mark follows the format the file will be written in",
           "[gui][GUI-TABLE-01]") {
-    // So that what is read on screen is what will end up in the file: SubRip
-    // writes a comma, WebVTT a period.
-    Project project = threeSubtitles();
-    project.setSourceFile(subedit::core::SourceFile{.format = SubtitleFormat::WebVtt});
-    Session session{std::move(project)};
-    const SubtitleTableModel model{session};
+    // **What is read on screen is what will end up in the file**, and phase 9
+    // is where that promise nearly stopped being true: the answer used to be
+    // « a point for WebVTT, a comma for anything else », which was right while
+    // there were two formats and wrong for six of the nine.
+    const auto shownAt = [](SubtitleFormat format) {
+        Project project = threeSubtitles();
+        project.setSourceFile(subedit::core::SourceFile{.format = format});
+        Session session{std::move(project)};
+        const SubtitleTableModel model{session};
+        return textAt(model, 0, 1);
+    };
 
-    CHECK(textAt(model, 0, 1) == "00:00:01.000");
+    CHECK(shownAt(SubtitleFormat::SubRip) == "00:00:01,000");
+    CHECK(shownAt(SubtitleFormat::WebVtt) == "00:00:01.000");
+    // The five that write a point and used to be shown with a comma.
+    CHECK(shownAt(SubtitleFormat::SubViewer2) == "00:00:01.000");
+    CHECK(shownAt(SubtitleFormat::SubStationAlpha) == "00:00:01.000");
+    CHECK(shownAt(SubtitleFormat::AdvancedSubStationAlpha) == "00:00:01.000");
+    CHECK(shownAt(SubtitleFormat::TMPlayer) == "00:00:01.000");
+    CHECK(shownAt(SubtitleFormat::Lrc) == "00:00:01.000");
 }
 
 TEST_CASE("every column says what it holds", "[gui][GUI-TABLE-01]") {
