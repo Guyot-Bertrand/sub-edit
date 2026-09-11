@@ -51,6 +51,10 @@ ne pas l'éditer à la main.
 
 - **core** — Deux conversions qui ne faisaient rien
 
+### Remaniements
+
+- **core** — La conversion à l'écriture descend dans le noyau
+
 ### Tests
 
 - **scripts** — Rejouer le score de détection à chaque pull request
