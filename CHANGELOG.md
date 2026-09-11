@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Une entrée qui met en italique dans les balises du format
+
+## 0.10.0 — 2026-09-11
+
+### Ajouts
+
 - **gui** — La fenêtre dit l'encodage du document, et la cadence du film
 - **scripts** — Mesurer où la détection d'encodage cesse de savoir
 - **gui** — La hauteur d'une ligne suit le sous-titre qu'elle porte
