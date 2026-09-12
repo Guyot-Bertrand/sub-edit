@@ -1,0 +1,90 @@
+# Chercher dans le texte visible, remplacer dans le texte source — la
+# spécification de la phase 10, écrite cas par cas.
+#
+# Ce fichier précède le code, comme mentions.cas a précédé celui de la phase 4 :
+# ces cas sont des questions posées à qui décide avant d'être des vérifications
+# d'un comportement écrit. Le jour où le parseur conscient des balises existera,
+# c'est lui qui les passera, et une ligne ajoutée ici le jour où une question se
+# tranche sera un test qui échoue le jour même.
+#
+# **Les textes sont écrits dans le vocabulaire HTML** — SubRip, WebVTT,
+# SubViewer 2. Les deux vocabulaires à accolades ont leur propre fichier,
+# recherche-accolades.cas, parce que la forme d'une balise change ce qu'un cas
+# montre et non ce qu'il décide.
+#
+# --- La règle, telle que les cas la font apparaître ---------------------------
+#
+# **1. On cherche ce que l'utilisateur voit.** Les balises ne sont pas du texte :
+# chercher « <i> » ne trouve rien, et chercher « Bonjour » trouve un « Bonjour »
+# dont la moitié est en italique.
+#
+# **2. Une frontière de balise qui coupe un mot est poussée au bord du mot,**
+# vers l'extérieur, avant qu'on cherche quoi que ce soit. « <i>bon</i>jour »
+# vaut « <i>bonjour</i> » : la balise englobe le mot qu'elle coupait. Sans cela
+# il faudrait décider où, dans un mot neuf, retombe une frontière — et rien
+# dans le texte ne le dit.
+#
+# **3. Tout style qui touche la correspondance couvre le remplacement entier.**
+# Remplacer « Bonjour Marie » dans « <i>Bonjour</i> Marie » rend le tout en
+# italique. La règle est symétrique : elle répond pareil si c'est la seconde
+# moitié qui portait le style, là où une règle prenant le style du premier
+# caractère répondrait deux choses pour une même forme.
+#
+# **4. Ce que la correspondance ne touche pas ne bouge pas.** Les balises
+# d'ailleurs restent où elles sont, la mise en page comprise.
+#
+# **5. Le remplacement se lit dans le vocabulaire du document.** Les balises
+# qu'il porte s'ajoutent au style hérité — c'est le seul moyen qu'a
+# l'utilisateur de mettre en forme ce qu'il écrit dans un champ de dialogue.
+#
+# **6. Une balise laissée ouverte le reste.** L'opération réécrit ce qu'elle a
+# touché ; réparer un balisage bancal serait une autre opération, et elle
+# changerait des octets que personne n'a demandé de changer.
+#
+# Les réponses ci-dessous ont été confrontées à celles de Gaupol, qui n'a pas de
+# règle sur le point 2 mais une arithmétique de décalage : « <i>Bon</i>jour »
+# cherché sur « Bonjour » et remplacé par « Bonjour tout le monde » lui rend
+# « <i>Bonjour tout le m</i>onde ». Les six cas qui coupent un mot sont donc les
+# six où nous nous en écartons, délibérément.
+
+# --- La balise et la correspondance ne se croisent pas ------------------------
+
+la balise encadre la correspondance          | "<i>Bonjour</i>"           | "Bonjour"    | "Salut"  | "<i>Salut</i>"
+la correspondance est dans la balise         | "<i>Bonjour Marie</i>"     | "Marie"      | "Sophie" | "<i>Bonjour Sophie</i>"
+la balise est ailleurs                       | "un <i>très</i> beau jour" | "beau"       | "joli"   | "un <i>très</i> joli jour"
+un motif absent ne change rien               | "<i>Bonjour</i>"           | "Sophie"     | "Claire" | =
+toutes les occurrences sont prises           | "<i>la</i> la la"          | "la"         | "lo"     | "<i>lo</i> lo lo"
+
+# --- La frontière coupe un mot : elle l'englobe -------------------------------
+
+une fermante coupe le mot                    | "<i>Bon</i>jour"           | "Bonjour"    | "Salut"  | "<i>Salut</i>"
+une ouvrante coupe le mot                    | "Bon<i>jour</i>"           | "Bonjour"    | "Salut"  | "<i>Salut</i>"
+le remplacement est plus long que le mot     | "<i>Bon</i>jour"           | "Bonjour"    | "Bonjour tout le monde" | "<i>Bonjour tout le monde</i>"
+le remplacement est plus court qu'une lettre | "<i>Bon</i>jour"           | "Bonjour"    | "S"      | "<i>S</i>"
+le mot coupé est suivi d'une ponctuation     | "<i>Bonjo</i>ur !"         | "Bonjour"    | "Salut"  | "<i>Salut</i> !"
+deux balises coupent le même mot             | "<i>Bon</i><b>jour</b>"    | "Bonjour"    | "Salut"  | "<b><i>Salut</i></b>"
+
+# --- La frontière tombe entre deux mots : le style s'étale --------------------
+
+la première moitié porte le style            | "<i>Bonjour</i> Marie"     | "Bonjour Marie" | "Salut Sophie" | "<i>Salut Sophie</i>"
+la seconde moitié le porte, même réponse     | "Bonjour <i>Marie</i>"     | "Bonjour Marie" | "Salut Sophie" | "<i>Salut Sophie</i>"
+une ponctuation ne retient pas le style      | "<i>Bonjour</i>, Marie"    | "Bonjour, Marie" | "Salut"       | "<i>Salut</i>"
+un style qui ne couvre qu'une part s'étale   | "<b>Bonjour <i>Marie</i></b>" | "Bonjour Marie" | "Salut"    | "<b><i>Salut</i></b>"
+les balises imbriquées le restent            | "<b><i>Bonjour</i></b>"    | "Bonjour"    | "Salut"  | "<b><i>Salut</i></b>"
+
+# --- Le saut de ligne ---------------------------------------------------------
+
+la correspondance traverse le saut           | "<i>Bonjour</i>\nMarie"    | "Bonjour\nMarie" | "Salut" | "<i>Salut</i>"
+les deux lignes sont encadrées à l'identique | "<i>Bonjour</i>\n<i>Marie</i>" | "Bonjour\nMarie" | "Salut" | "<i>Salut</i>"
+une ligne seulement est touchée              | "<i>Bonjour</i>\n<i>Marie</i>" | "Marie" | "Sophie" | "<i>Bonjour</i>\n<i>Sophie</i>"
+
+# --- Le remplacement porte ses propres balises --------------------------------
+
+le remplacement met en forme                 | "bonjour tout le monde"    | "bonjour"    | "<i>salut</i>" | "<i>salut</i> tout le monde"
+sa balise s'ajoute au style hérité           | "<b>bonjour</b> tout le monde" | "bonjour" | "<i>salut</i>" | "<b><i>salut</i></b> tout le monde"
+un remplacement vide ne porte aucun style    | "Bonjour <i>Marie</i>"     | " Marie"     | ""       | "Bonjour"
+
+# --- Ce qui ne se cherche pas, et ce qui ne se répare pas ---------------------
+
+chercher une balise ne trouve rien           | "<i>Bonjour</i>"           | "<i>"        | "X"      | =
+une balise jamais fermée le reste            | "<i>Bonjour Marie"         | "Marie"      | "Sophie" | "<i>Bonjour Sophie"

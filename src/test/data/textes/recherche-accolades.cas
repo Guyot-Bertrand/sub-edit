@@ -1,0 +1,30 @@
+# La même règle, dans les vocabulaires à accolades.
+#
+# Les textes sont écrits en Sub Station Alpha ; MicroDVD et MPL2 posent les
+# mêmes questions avec « {Y:i} » et « / ». La règle est dans recherche.cas, et
+# elle ne change pas d'un vocabulaire à l'autre : ce qui change est la forme
+# d'une balise, et deux formes-ci ont de quoi piéger.
+#
+# **Une accolade n'annonce pas ce qu'elle porte.** « {\i1} » est un style,
+# « {\pos(10,20)} » est une mise en page, et rien dans leur forme ne les sépare :
+# c'est le contenu qui décide. La mise en page traverse l'opération intacte,
+# parce qu'elle n'est le style de personne — et prise à l'intérieur d'une
+# correspondance, elle se retrouve devant le remplacement : elle survit à un
+# texte qui a disparu, et il n'y a rien d'autre à en dire.
+#
+# **Un bloc peut dire plusieurs choses à la fois.** « {\b1\i1} » ouvre deux
+# styles, et un remplacement qui n'en étale qu'un doit réécrire le bloc plutôt
+# que de le déplacer entier.
+#
+# **Une accolade fermante se tape.** Un utilisateur qui cherche « {\i1} » cherche
+# quatre caractères qui n'existent pas dans le texte visible ; il ne trouve rien,
+# comme il ne trouve rien en cherchant « <i> » ailleurs.
+
+la balise encadre la correspondance    | "{\\i1}Bonjour{\\i0} Marie" | "Bonjour"       | "Salut" | "{\\i1}Salut{\\i0} Marie"
+une fermante coupe le mot              | "{\\i1}Bon{\\i0}jour"       | "Bonjour"       | "Salut" | "{\\i1}Salut{\\i0}"
+le style s'étale sur la correspondance | "{\\i1}Bonjour{\\i0} Marie" | "Bonjour Marie" | "Salut" | "{\\i1}Salut{\\i0}"
+la mise en page ne bouge pas           | "{\\pos(10,20)}Bonjour"     | "Bonjour"       | "Salut" | "{\\pos(10,20)}Salut"
+prise dans la correspondance, elle précède | "Bonjour {\\an8}Marie"  | "Bonjour Marie" | "Salut" | "{\\an8}Salut"
+un bloc qui dit deux choses se réécrit | "{\\b1\\i1}Bon{\\i0}jour{\\b0}" | "Bonjour"   | "Salut" | "{\\b1\\i1}Salut{\\i0}{\\b0}"
+chercher une balise ne trouve rien     | "{\\i1}Bonjour{\\i0}"       | "{\\i1}"        | "X"     | =
+le remplacement porte sa balise        | "Bonjour tout le monde"     | "Bonjour"       | "{\\i1}Salut{\\i0}" | "{\\i1}Salut{\\i0} tout le monde"
