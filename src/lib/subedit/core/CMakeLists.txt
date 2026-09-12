@@ -40,6 +40,7 @@ add_library(
     text/break_marker.cpp
     text/markup.cpp
     text/markup_codec.cpp
+    text/markup_parser.cpp
     text/markup_vocabulary.cpp
     text/html_markup.cpp
     text/sub_station_alpha_markup.cpp

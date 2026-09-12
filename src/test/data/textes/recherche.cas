@@ -41,6 +41,14 @@
 # touché ; réparer un balisage bancal serait une autre opération, et elle
 # changerait des octets que personne n'a demandé de changer.
 #
+# **Deux balises qui se retrouvent au même endroit gardent l'ordre du
+# document.** « <i>Bon</i><b>jour</b> » rend « <i><b>Salut</b></i> » et non
+# l'inverse : l'imbrication de deux styles ne veut rien dire, et la seule
+# réponse qui n'invente pas est celle que le fichier portait déjà. Cette ligne
+# a d'abord été écrite dans l'autre sens, d'après un modèle jetable qui
+# ordonnait les styles par une table à lui ; #378 l'a corrigée en écrivant le
+# parseur, qui n'a pas de table.
+#
 # Les réponses ci-dessous ont été confrontées à celles de Gaupol, qui n'a pas de
 # règle sur le point 2 mais une arithmétique de décalage : « <i>Bon</i>jour »
 # cherché sur « Bonjour » et remplacé par « Bonjour tout le monde » lui rend
@@ -62,7 +70,7 @@ une ouvrante coupe le mot                    | "Bon<i>jour</i>"           | "Bon
 le remplacement est plus long que le mot     | "<i>Bon</i>jour"           | "Bonjour"    | "Bonjour tout le monde" | "<i>Bonjour tout le monde</i>"
 le remplacement est plus court qu'une lettre | "<i>Bon</i>jour"           | "Bonjour"    | "S"      | "<i>S</i>"
 le mot coupé est suivi d'une ponctuation     | "<i>Bonjo</i>ur !"         | "Bonjour"    | "Salut"  | "<i>Salut</i> !"
-deux balises coupent le même mot             | "<i>Bon</i><b>jour</b>"    | "Bonjour"    | "Salut"  | "<b><i>Salut</i></b>"
+deux balises coupent le même mot             | "<i>Bon</i><b>jour</b>"    | "Bonjour"    | "Salut"  | "<i><b>Salut</b></i>"
 
 # --- La frontière tombe entre deux mots : le style s'étale --------------------
 

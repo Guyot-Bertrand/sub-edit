@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **gui** — Une entrée qui met en italique dans les balises du format
+- **text** — Le parseur conscient des balises, enfin écrit
 
 ### Documentation
 
