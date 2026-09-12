@@ -16,6 +16,7 @@ ne pas l'éditer à la main.
 ### Tests
 
 - **scripts** — Recenser où les contraintes de durée se contredisent
+- **test** — Des cas pour une recherche qui traverse une balise
 
 ## 0.10.0 — 2026-09-11
 
