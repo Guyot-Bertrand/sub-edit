@@ -70,6 +70,7 @@ add_executable(
     core/text/sub_station_alpha_markup_test.cpp
     core/text/micro_dvd_markup_test.cpp
     core/text/markup_conversion_test.cpp
+    core/text/markup_parser_test.cpp
     core/format/sub_rip_reader_test.cpp
     core/format/sub_rip_writer_test.cpp
     core/format/sub_rip_round_trip_test.cpp
