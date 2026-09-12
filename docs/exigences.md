@@ -166,3 +166,15 @@ plus rien.
 | `GUI-FORMAT-02` | `Save As…` propose les neuf formats | 9 | implémentée |
 | `GUI-FORMAT-03` | enregistrer dans un format à perte annonce ce qui sera perdu avant d'écrire | 9 | implémentée |
 | `GUI-FRAMES-01` | ouvrir un fichier en images annonce la fréquence retenue, et laisse la changer | 9 | implémentée |
+| `GUI-ITALIC-01` | une entrée met la sélection en italique et l'en retire, dans les balises du format ouvert | 10 | implémentée |
+| `GUI-ITALIC-02` | un format qui ne porte aucun style éteint l'entrée sans la cacher | 10 | implémentée |
+| `GUI-CASE-01` | les quatre casses s'appliquent à la cible sans toucher aux balises | 10 | prévue |
+| `GUI-DASH-01` | les tirets de dialogue se posent et se retirent d'un même geste | 10 | prévue |
+| `GUI-SPLIT-01` | fusionner et scinder, et l'annulation rend le document tel qu'il était | 10 | prévue |
+| `GUI-DURATION-01` | la colonne `Duration` se saisit, et déplace la fin | 10 | prévue |
+| `GUI-ADJUST-01` | l'ajustement applique les quatre contraintes dans l'ordre spécifié | 10 | prévue |
+| `GUI-ADJUST-02` | ce qu'aucune fin ne peut satisfaire est dit, et compté | 10 | prévue |
+| `GUI-SEARCH-01` | chercher dans le texte visible, remplacer dans le source, sans casser les balises | 10 | prévue |
+| `GUI-SEARCH-02` | la recherche porte sur la sélection, ou sur tout le document | 10 | prévue |
+| `GUI-CLIP-01` | copier, couper, coller des textes, et des lignes naissent s'il en manque | 10 | prévue |
+| `GUI-CLIP-02` | coller depuis un document d'un autre format traduit les balises et dit la perte | 10 | prévue |

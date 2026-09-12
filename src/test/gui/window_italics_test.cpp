@@ -6,12 +6,6 @@
 // learn it. The tests below check the two things that follow from that — the
 // right tag for the document open, and an entry that goes out where a format
 // carries no style at all.
-//
-// **No requirement identifier yet, and that is the registry's own rule.** A
-// requirement is born in the spec of its phase — `check-requirements.sh`
-// refuses one whose phase has no spec — and phase 10 is not scoped. The two
-// this feature owes the registry are named in the issue; the scoping issue
-// writes them along with the rest of the phase.
 
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
@@ -84,7 +78,7 @@ void selectRow(const MainWindow& window, int row) {
 
 } // namespace
 
-TEST_CASE("the entry writes the italic tag of the document open", "[gui][italics]") {
+TEST_CASE("the entry writes the italic tag of the document open", "[gui][GUI-ITALIC-01]") {
     InMemoryFileSystem files = withFile("film.srt", kSubRip);
     FakePrompts prompts;
     MainWindow window{files, fileIn(files, "film.srt"), prompts};
@@ -96,7 +90,7 @@ TEST_CASE("the entry writes the italic tag of the document open", "[gui][italics
     CHECK(textAt(window, 1) == "<i>Au revoir.</i>");
 }
 
-TEST_CASE("the same entry writes braces on an Advanced SSA", "[gui][italics]") {
+TEST_CASE("the same entry writes braces on an Advanced SSA", "[gui][GUI-ITALIC-01]") {
     InMemoryFileSystem files = withFile("film.ass", kAdvancedSsa);
     FakePrompts prompts;
     MainWindow window{files, fileIn(files, "film.ass"), prompts};
@@ -107,7 +101,7 @@ TEST_CASE("the same entry writes braces on an Advanced SSA", "[gui][italics]") {
     CHECK(textAt(window, 0) == R"({\i1}Bonjour.{\i0})");
 }
 
-TEST_CASE("pressing it twice leaves the text as it was found", "[gui][italics]") {
+TEST_CASE("pressing it twice leaves the text as it was found", "[gui][GUI-ITALIC-01]") {
     InMemoryFileSystem files = withFile("film.srt", kSubRip);
     FakePrompts prompts;
     MainWindow window{files, fileIn(files, "film.srt"), prompts};
@@ -120,7 +114,7 @@ TEST_CASE("pressing it twice leaves the text as it was found", "[gui][italics]")
     CHECK(textAt(window, 1) == "Au revoir.");
 }
 
-TEST_CASE("only what is selected is touched", "[gui][italics]") {
+TEST_CASE("only what is selected is touched", "[gui][GUI-ITALIC-01]") {
     InMemoryFileSystem files = withFile("film.srt", kSubRip);
     FakePrompts prompts;
     MainWindow window{files, fileIn(files, "film.srt"), prompts};
@@ -133,7 +127,7 @@ TEST_CASE("only what is selected is touched", "[gui][italics]") {
     CHECK(textAt(window, 1) == "<i>Au revoir.</i>");
 }
 
-TEST_CASE("the operation enters the history and comes back out", "[gui][italics]") {
+TEST_CASE("the operation enters the history and comes back out", "[gui][GUI-ITALIC-01]") {
     InMemoryFileSystem files = withFile("film.srt", kSubRip);
     FakePrompts prompts;
     MainWindow window{files, fileIn(files, "film.srt"), prompts};
@@ -147,7 +141,7 @@ TEST_CASE("the operation enters the history and comes back out", "[gui][italics]
     CHECK(textAt(window, 0) == "Bonjour.");
 }
 
-TEST_CASE("the entry says how many subtitles it moved", "[gui][italics]") {
+TEST_CASE("the entry says how many subtitles it moved", "[gui][GUI-ITALIC-01]") {
     InMemoryFileSystem files = withFile("film.srt", kSubRip);
     FakePrompts prompts;
     MainWindow window{files, fileIn(files, "film.srt"), prompts};
@@ -160,7 +154,7 @@ TEST_CASE("the entry says how many subtitles it moved", "[gui][italics]") {
     CHECK(prompts.outcomes.back() == "2 subtitles taken out of italics");
 }
 
-TEST_CASE("a blank row gains no tags, and its selection changes nothing", "[gui][italics]") {
+TEST_CASE("a blank row gains no tags, and its selection changes nothing", "[gui][GUI-ITALIC-01]") {
     InMemoryFileSystem files = withFile("film.srt", kWithBlank);
     FakePrompts prompts;
     MainWindow window{files, fileIn(files, "film.srt"), prompts};
@@ -184,7 +178,7 @@ TEST_CASE("a blank row gains no tags, and its selection changes nothing", "[gui]
     CHECK(window.undoAction()->text().toStdString() == "Undo: putting in italics");
 }
 
-TEST_CASE("a format that carries no style leaves the entry out", "[gui][italics]") {
+TEST_CASE("a format that carries no style leaves the entry out", "[gui][GUI-ITALIC-02]") {
     InMemoryFileSystem files = withFile("film.lrc", kLrc);
     FakePrompts prompts;
     MainWindow window{files, fileIn(files, "film.lrc"), prompts};
