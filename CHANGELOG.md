@@ -13,6 +13,10 @@ ne pas l'éditer à la main.
 
 - **gui** — Une entrée qui met en italique dans les balises du format
 
+### Tests
+
+- **scripts** — Recenser où les contraintes de durée se contredisent
+
 ## 0.10.0 — 2026-09-11
 
 ### Ajouts
