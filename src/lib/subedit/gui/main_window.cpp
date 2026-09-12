@@ -1,9 +1,11 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_correction.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
+#include <subedit/core/edit/dialogue_dashes_command.hpp>
 #include <subedit/core/edit/hearing_impaired_removal.hpp>
 #include <subedit/core/edit/insert_command.hpp>
 #include <subedit/core/edit/italics_command.hpp>
+#include <subedit/core/edit/letter_case_command.hpp>
 #include <subedit/core/edit/remove_command.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
@@ -225,6 +227,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
       m_hearingImpaired(buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})),
       m_italic(buildAction(this, QStringLiteral("&Italic"), QStringLiteral("format-text-italic"))),
+      m_dialogueDashes(buildAction(this, QStringLiteral("&Dialogue"), {})),
       m_snap(buildAction(this, QStringLiteral("Snap to Frame Rate…"), {})),
       m_shiftOntoGrid(buildAction(this, shiftOntoGridLabel(std::nullopt), {})),
       m_selectVideo(buildAction(this, QStringLiteral("Select Video…"), {})),
@@ -372,6 +375,20 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_italic->setShortcut(QKeySequence{QStringLiteral("Ctrl+I")});
     connect(m_italic, &QAction::triggered, this, &MainWindow::toggleItalicsOnTarget);
 
+    // **Gaupol's four, in Gaupol's order** — `Text ▸ Case` offers Title,
+    // Sentence, Upper, Lower, and a user who knows one knows the other.
+    static constexpr std::array<const char*, 4> kCaseLabels = {
+        "&Title Case", "&Sentence case", "&UPPER CASE", "&lower case"};
+    for (std::size_t which = 0; which < m_case.size(); ++which) {
+        const core::LetterCase wanted = core::kLetterCases[which];
+        m_case[which] = buildAction(this, QString::fromUtf8(kCaseLabels[which]), {});
+        connect(m_case[which], &QAction::triggered, this, [this, wanted] {
+            changeCaseOfTarget(wanted);
+        });
+    }
+
+    connect(m_dialogueDashes, &QAction::triggered, this, &MainWindow::toggleDialogueDashesOnTarget);
+
     connect(m_snap, &QAction::triggered, this, &MainWindow::snapToFrameRate);
     connect(m_shiftOntoGrid, &QAction::triggered, this, &MainWindow::shiftOntoGrid);
 
@@ -438,8 +455,14 @@ MainWindow::MainWindow(core::FileSystem& files,
     tools->addAction(m_transform);
     tools->addAction(m_frameRate);
     tools->addSeparator();
-    // The two that rewrite a text rather than move a position, together.
+    // Those that rewrite a text rather than move a position, together.
     tools->addAction(m_italic);
+    tools->addAction(m_dialogueDashes);
+    // A submenu for the four, which is what Gaupol does: four entries side by
+    // side in a menu of nine would drown the rest.
+    QMenu* letterCase = tools->addMenu(QStringLiteral("Ca&se"));
+    for (QAction* one : m_case)
+        letterCase->addAction(one);
     tools->addAction(m_hearingImpaired);
     tools->addSeparator();
     // The two of phase 16, together: one lays each position on the nearest
@@ -1118,6 +1141,12 @@ void MainWindow::refreshActions() {
     m_italic->setEnabled(anything &&
                          core::abilitiesOf(m_session->project().sourceFile().format).italic);
 
+    // **Nothing about a format decides these five**, unlike the italic: a case
+    // and a dash are text, not style, and every format carries text.
+    m_dialogueDashes->setEnabled(anything);
+    for (QAction* one : m_case)
+        one->setEnabled(anything);
+
     refreshStructureActions();
 }
 
@@ -1186,6 +1215,50 @@ void MainWindow::toggleItalicsOnTarget() {
 
     m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") +
                              (italic ? " put in italics" : " taken out of italics"));
+}
+
+QAction* MainWindow::caseAction(core::LetterCase wanted) const {
+    const auto* const found = std::ranges::find(core::kLetterCases, wanted);
+    return m_case.at(
+        static_cast<std::size_t>(std::distance(std::ranges::begin(core::kLetterCases), found)));
+}
+
+void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+
+    std::unique_ptr<core::Command> command =
+        core::setLetterCase(m_session->project(), target, core::Document::Main, wanted);
+    if (!command) {
+        m_prompts->reportOutcome("nothing to change");
+        return;
+    }
+
+    const std::size_t rewritten = core::recasedCount(*command);
+    applyOperation(std::move(command), target);
+
+    m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") + " recased");
+}
+
+void MainWindow::toggleDialogueDashesOnTarget() {
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+
+    // Asked of the target before anything is built: the entry says what it will
+    // do to what is selected.
+    const bool dashed =
+        core::wouldAddDialogueDashes(m_session->project(), target, core::Document::Main);
+
+    std::unique_ptr<core::Command> command =
+        core::setDialogueDashes(m_session->project(), target, core::Document::Main, dashed);
+    if (!command) {
+        m_prompts->reportOutcome("nothing to change");
+        return;
+    }
+
+    const std::size_t rewritten = core::recasedCount(*command);
+    applyOperation(std::move(command), target);
+
+    m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") +
+                             (dashed ? " dashed" : " undashed"));
 }
 
 void MainWindow::applyOperation(std::unique_ptr<core::Command> command,

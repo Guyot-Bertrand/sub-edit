@@ -1,0 +1,8 @@
+# Les capitales — tout le texte, sauf ce qui précède la première lettre.
+#
+# La règle commune aux quatre casses est dans `casse-titre.cas`.
+
+un texte ordinaire                   | "bonjour marie"        | "BONJOUR MARIE"
+les accents prennent la leur         | "éléonore à noël"      | "ÉLÉONORE À NOËL"
+les balises ne changent pas de casse | "<i>bonjour</i> marie" | "<i>BONJOUR</i> MARIE"
+un texte déjà crié ne bouge pas      | "BONJOUR"              | =

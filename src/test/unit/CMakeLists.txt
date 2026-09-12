@@ -25,7 +25,9 @@ add_executable(
     core/time/timestamp_parse_test.cpp
     core/text/break_marker_test.cpp
     core/text/hearing_impaired_test.cpp
+    core/text/dialogue_dashes_test.cpp
     core/text/italics_test.cpp
+    core/text/letter_case_test.cpp
     core/model/encoding_test.cpp
     core/model/format_extras_test.cpp
     core/model/file_extras_test.cpp
@@ -41,6 +43,7 @@ add_executable(
     core/edit/set_text_command_test.cpp
     core/edit/hearing_impaired_removal_test.cpp
     core/edit/italics_command_test.cpp
+    core/edit/text_commands_test.cpp
     core/edit/insert_command_test.cpp
     core/edit/shift_command_test.cpp
     core/edit/transform_command_test.cpp

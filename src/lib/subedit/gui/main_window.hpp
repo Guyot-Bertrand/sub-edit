@@ -9,6 +9,7 @@
 #include <QMainWindow>
 #include <QStringList>
 
+#include <array>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
@@ -19,6 +20,7 @@
 namespace subedit::core {
 class Command;
 enum class CommandKind;
+enum class LetterCase;
 class Duration;
 struct Diagnostic;
 class FileSystem;
@@ -147,6 +149,12 @@ public:
     /// of a `.lrc` that there is nothing to type — an entry that is there and
     /// grey answers « why can I not? », an entry that is gone does not.
     [[nodiscard]] QAction* italicAction() const { return m_italic; }
+
+    /// The entry that puts the target in `wanted`, for a test to fire it.
+    [[nodiscard]] QAction* caseAction(core::LetterCase wanted) const;
+
+    /// The one entry that puts dialogue dashes on and takes them off.
+    [[nodiscard]] QAction* dialogueDashesAction() const { return m_dialogueDashes; }
 
     /// The entry that opens the preferences, for a test to trigger it.
     [[nodiscard]] QAction* preferencesAction() const { return m_preferences; }
@@ -440,6 +448,18 @@ private:
     /// like the others, so `Ctrl+Z` undoes it.
     void toggleItalicsOnTarget();
 
+    /// Puts the target in `wanted`.
+    ///
+    /// No dialog: the case takes no option beyond which of the four, and the
+    /// menu already said it.
+    void changeCaseOfTarget(core::LetterCase wanted);
+
+    /// Puts dialogue dashes on the target, or takes them off.
+    ///
+    /// **One entry and not two**, as for the italic: which of the two it does
+    /// is read from the target before anything is built.
+    void toggleDialogueDashesOnTarget();
+
     /// **Initialised here, and not only in the constructor's list.**
     ///
     /// Three actions added together at issue #132 were left out of that list,
@@ -469,6 +489,8 @@ private:
     QAction* m_frameRate = nullptr;
     QAction* m_hearingImpaired = nullptr;
     QAction* m_italic = nullptr;
+    std::array<QAction*, 4> m_case{};
+    QAction* m_dialogueDashes = nullptr;
     QAction* m_analyseGrid = nullptr;
     QAction* m_snap = nullptr;
     QAction* m_shiftOntoGrid = nullptr;

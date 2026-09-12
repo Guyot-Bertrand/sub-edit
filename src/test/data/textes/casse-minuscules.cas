@@ -1,0 +1,8 @@
+# Les minuscules — tout le texte, sauf ce qui précède la première lettre.
+#
+# La règle commune aux quatre casses est dans `casse-titre.cas`.
+
+un texte ordinaire                   | "BONJOUR MARIE"        | "bonjour marie"
+les accents prennent la leur         | "ÉLÉONORE À NOËL"      | "éléonore à noël"
+les balises ne changent pas de casse | "<I>BONJOUR</I> MARIE" | "<I>bonjour</I> marie"
+un texte déjà bas ne bouge pas       | "bonjour"              | =

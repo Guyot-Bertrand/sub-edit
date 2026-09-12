@@ -1,6 +1,6 @@
 # Les opérations
 
-Le menu **Tools** porte sept opérations et une analyse. Chacune des sept
+Le menu **Tools** porte douze opérations et une analyse. Chacune des douze
 s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 
 | Entrée | Dialogue | Ce qu'elle fait |
@@ -9,6 +9,11 @@ s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 | `Transform Positions…` | oui | corrige la cible à partir de deux repères |
 | `Convert Frame Rate…` | oui | re-cale la cible d'une cadence vers une autre |
 | `Italic` | **non** | met la cible en italique, ou l'en retire |
+| `Dialogue` | **non** | pose un tiret de dialogue en tête de chaque ligne, ou le retire |
+| `Case ▸ Title Case` | **non** | chaque mot prend une capitale |
+| `Case ▸ Sentence case` | **non** | la première lettre du texte, et elle seule |
+| `Case ▸ UPPER CASE` | **non** | tout en capitales |
+| `Case ▸ lower case` | **non** | tout en minuscules |
 | `Remove Hearing-Impaired Mentions…` | oui, sans réglage | retire les mentions pour malentendants |
 | `Snap to Frame Rate…` | oui | repose chaque horodatage sur l'image la plus proche |
 | `Shift Whole File onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
@@ -49,7 +54,8 @@ dire. Voir [`Snap to Frame Rate…`](#snap-to-frame-rate) et
 
 Les entrées sont **inactives sur un fichier vide** : il n'y aurait rien à
 décaler. `Italic` a une seconde condition, que sa section décrit : le format
-ouvert doit savoir écrire un style.
+ouvert doit savoir écrire un style. La casse et les tirets n'en ont pas — un
+texte est un texte dans les neuf formats.
 
 ## `Shift Positions…`
 
@@ -304,6 +310,60 @@ Une balise qui dit plusieurs choses à la fois n'est pas emportée en entier :
 `{\b1\i1}` devient `{\b1}`, et `{Y:bi}` devient `{Y:b}`. Le gras reste, et le
 texte sort réellement de l'italique.
 
+## `Case` et `Dialogue`
+
+Deux transformations du **texte visible**, et les balises n'y touchent pas : un
+sous-titre mis en minuscules garde son `<I>` tel quel, et un tiret se pose
+devant le texte, pas devant une balise ouvrante.
+
+| Entrée | Raccourci | Ce qu'elle fait |
+| :----- | :-------- | :--- |
+| `Case ▸ Title Case` | — | `bonjour marie` devient `Bonjour Marie` |
+| `Case ▸ Sentence case` | — | `BONJOUR MARIE` devient `Bonjour marie` |
+| `Case ▸ UPPER CASE` | — | tout en capitales |
+| `Case ▸ lower case` | — | tout en minuscules |
+| `Dialogue` | — | pose ou retire les tirets |
+
+### Ce que la casse ne touche pas
+
+**Ce qui précède la première lettre ou le premier chiffre est laissé tel quel.**
+Un tiret de dialogue, un guillemet ouvrant, une parenthèse survivent :
+`- bonjour` mis en casse de phrase donne `- Bonjour`, et non `- bonjour` avec un
+tiret capitalisé, ce qui n'aurait aucun sens.
+
+**La casse de phrase remet le reste en minuscules.** `BONJOUR MARIE` devient
+`Bonjour marie` : c'est ce que fait Gaupol, et c'est ce qui permet de décrier un
+sous-titre saisi en capitales.
+
+**Les accents et les alphabets non latins sont traités comme il faut.** `éléonore`
+donne `ÉLÉONORE`, et une apostrophe ne coupe pas un mot : `l'été` mis en casse de
+titre donne `L'été` et non `L'Été`.
+
+### Dans quel sens va `Dialogue`
+
+Une seule entrée pour les deux sens, et c'est la cible qui décide :
+
+- **une seule ligne sans tiret suffit** pour que toute la cible en gagne un ;
+- la cible n'en perd que lorsque **toutes** ses lignes en ont un.
+
+Appuyer deux fois rend la cible telle qu'elle était. C'est la règle de
+[`Italic`](#italic), et la seule qui rende un bouton unique utilisable.
+
+**Trois tirets sont reconnus** — le trait d'union du clavier et les deux
+cadratins du typographe, `–` et `—` — et c'est le trait d'union qui est écrit.
+Les espaces de trop après le tiret disparaissent. Une ligne vide n'en gagne
+aucun.
+
+### Ce qu'elles disent
+
+```
+2 subtitles recased
+2 subtitles dashed
+```
+
+Et quand rien ne change — une cible déjà dans la casse demandée — « nothing to
+change », sans rien poser dans l'historique.
+
 ## `Remove Hearing-Impaired Mentions…`
 
 Retire les mentions destinées aux spectateurs sourds ou malentendants — les
@@ -335,7 +395,7 @@ entier.
 
 > **La sélection est perdue à cette occasion** : retirer des lignes change la
 > structure de la table, qui se reconstruit. Les cinq autres opérations du menu
-> `Tools` la conservent, `Italic` comprise. `Insert Subtitles…` et
+> `Tools` la conservent, `Italic`, `Case` et `Dialogue` comprises. `Insert Subtitles…` et
 > `Remove Subtitles` changent la
 > structure elles aussi, et rendent une sélection à la place de celle qu'elles
 > ont emportée — voir [Insérer et supprimer des lignes](lignes.md).
@@ -369,5 +429,5 @@ défait comme n'importe quelle autre.
 
 Le message n'apparaît pas si aucune vidéo n'est ouverte : la durée vient du
 lecteur, et sans film il n'y a pas de fin à dépasser. Les trois opérations qui
-déplacent des positions sont concernées ; le retrait des mentions et `Italic`,
-qui n'en déplacent aucune, ne le sont pas.
+déplacent des positions sont concernées ; le retrait des mentions, `Italic`,
+`Case` et `Dialogue`, qui n'en déplacent aucune, ne le sont pas.

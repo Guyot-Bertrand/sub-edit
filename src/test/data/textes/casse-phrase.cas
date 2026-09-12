@@ -1,0 +1,14 @@
+# La casse de phrase — la première lettre du texte, et elle seule.
+#
+# La règle commune aux quatre casses est dans `casse-titre.cas`.
+#
+# **Le reste redescend en minuscules**, ce qui est ce que fait le `capitalize()`
+# de Python que Gaupol appelle : mettre en casse de phrase un texte crié le
+# décrie.
+
+un texte ordinaire                   | "bonjour marie"        | "Bonjour marie"
+un texte crié redescend              | "BONJOUR MARIE"        | "Bonjour marie"
+la seconde ligne n'a pas de capitale | "bonjour\nmarie"       | "Bonjour\nmarie"
+un tiret de dialogue n'est pas touché| "- bonjour marie"      | "- Bonjour marie"
+une accentuée prend sa capitale      | "éléonore"             | "Éléonore"
+et le reste redescend accentué       | "éLÉONORE"             | "Éléonore"

@@ -13,7 +13,9 @@ add_library(
     edit/convert_frame_rate_command.cpp
     edit/hearing_impaired_removal.cpp
     edit/insert_command.cpp
+    edit/dialogue_dashes_command.cpp
     edit/italics_command.cpp
+    edit/letter_case_command.cpp
     edit/shift_limits.cpp
     edit/video_bounds.cpp
     edit/remove_command.cpp
@@ -47,6 +49,8 @@ add_library(
     text/micro_dvd_markup.cpp
     text/markup_conversion.cpp
     text/lines.cpp
+    text/dialogue_dashes.cpp
+    text/letter_case.cpp
     format/subtitle_file.cpp
     format/project_file.cpp
     config/settings.cpp

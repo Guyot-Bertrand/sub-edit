@@ -115,6 +115,9 @@ TEST_CASE("every kind of command has a name of its own", "[wording]") {
         subedit::core::CommandKind::RemoveHearingImpaired,
         subedit::core::CommandKind::Italicise,
         subedit::core::CommandKind::Unitalicise,
+        subedit::core::CommandKind::ChangeCase,
+        subedit::core::CommandKind::AddDialogueDashes,
+        subedit::core::CommandKind::RemoveDialogueDashes,
     };
 
     std::set<std::string_view> seen;
