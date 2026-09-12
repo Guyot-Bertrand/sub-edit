@@ -83,11 +83,54 @@ jonction/scission de mots via correcteur orthographique.
 à la casse, ciblant le texte principal, la traduction ou les deux, sur la
 sélection / le projet courant / tous les projets ouverts.
 
-**Presse-papiers** — copier / couper / coller de sous-titres entiers.
+**Presse-papiers** — copier / couper / coller **des textes seuls**.
+`aeidon/clipboard.py` est une liste de chaînes, une par sous-titre, que
+`get_string` recolle par une ligne vide : ni positions, ni format, ni sous-titre
+entier. Coller ajoute des lignes s'il en manque pour recevoir les textes.
+*(Corrigé après lecture, en initialisant la phase 10 — cet inventaire disait
+« sous-titres entiers ».)*
 
 **Prévisualisation** — génération d'un fichier temporaire et lancement d'un
 lecteur externe (MPlayer, mpv, VLC, ou commande personnalisée) positionné au
 sous-titre courant.
+
+### `adjust_durations`, dans l'ordre
+
+Lu dans `aeidon/agents/position.py`, parce que l'ordre de résolution est ce que
+la phase 10 doit spécifier et qu'il n'est écrit nulle part chez Gaupol : il est
+l'ordre des lignes.
+
+**Un seul parcours, et une seule borne déplacée — la fin.** Le début n'est
+jamais touché. Les quatre contraintes s'appliquent l'une après l'autre :
+
+| Rang | Contrainte | Ce qu'elle pose |
+| ---: | :--------- | :-------------- |
+| 1 | vitesse de lecture | `fin = début + longueur / vitesse`, si `lengthen` et trop court, ou si `shorten` et trop long |
+| 2 | durée minimale | `fin = début + minimum` |
+| 3 | durée maximale | `fin = début + maximum` |
+| 4 | écart au suivant | `fin = max(début, suivant.début − écart)` |
+
+**La dernière appliquée gagne, et elle défait la précédente.** L'écart peut
+ramener la durée sous le minimum qu'on venait de poser, et jusqu'à zéro. Gaupol
+ne le signale pas.
+
+**La longueur du texte se compte hors balises** — `get_text_length` retire ce
+que l'expression de balises du format reconnaît, puis prend `len`, saut de ligne
+compris.
+
+Trois pièges, à ne pas reproduire par inadvertance :
+
+- **un minimum de zéro n'est pas un minimum de zéro, c'est pas de minimum.**
+  `domin = minimum and …` : en Python, `0` est faux. Le maximum a le même
+  défaut ; l'écart, testé par `gap is not None`, ne l'a pas ;
+- **le dernier sous-titre n'a pas de suivant**, et reçoit une borne en dur à
+  360 000 s, soit cent heures ;
+- les valeurs par défaut de `gaupol/config.py` sont minimum 1,5 s **actif**,
+  maximum 6 s **inactif**, écart 0 s actif, vitesse 15 car/s, allonger seulement.
+
+**Les quatre sont contradictoires sur un corpus réel**, et cela se mesure sans
+écrire un ajustement : `src/scripts/measure-duration-constraints.py` compte les
+sous-titres pour lesquels aucune fin ne satisfait deux d'entre elles. Issue #371.
 
 ## 5. Moteur de correction de texte
 
