@@ -51,6 +51,9 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::RemoveHearingImpaired:
     case CommandKind::Italicise:
     case CommandKind::Unitalicise:
+    case CommandKind::ChangeCase:
+    case CommandKind::AddDialogueDashes:
+    case CommandKind::RemoveDialogueDashes:
         return false;
     }
 

@@ -1,0 +1,25 @@
+# La casse de titre — « Chaque Mot Prend Une Capitale ».
+#
+# **Les quatre casses partagent une règle, écrite ici une fois** : ce qui
+# précède la première lettre ou le premier chiffre n'est pas touché. Un tiret de
+# dialogue, un guillemet ouvrant, une parenthèse survivent — c'est la règle de
+# Gaupol, et sans elle une phrase mise en casse de titre commencerait par son
+# tiret.
+#
+# Les balises ne sont pas du texte et ne changent pas de casse : c'est le
+# parseur de #378 qui les tient à l'écart, et les cas qui en portent le
+# vérifient. Les trois autres casses ont leur fichier, `casse-phrase.cas`,
+# `casse-capitales.cas` et `casse-minuscules.cas`.
+#
+# **ICU décide où commence un mot**, là où le `title()` de Python coupe sur
+# l'apostrophe et rendrait « L'Été ».
+
+un texte ordinaire                   | "bonjour marie"        | "Bonjour Marie"
+les capitales de trop redescendent   | "BONJOUR MARIE"        | "Bonjour Marie"
+un tiret de dialogue n'est pas touché| "- bonjour marie"      | "- Bonjour Marie"
+un guillemet non plus                | "« bonjour »"          | "« Bonjour »"
+une apostrophe ne coupe pas un mot   | "l'été sera chaud"     | "L'été Sera Chaud"
+les accents tiennent                 | "éléonore à noël"      | "Éléonore À Noël"
+les balises ne changent pas de casse | "<I>bonjour</I> marie" | "<I>Bonjour</I> Marie"
+un texte sans lettre est rendu tel quel | "!?…"               | =
+deux lignes sont deux fois traitées  | "bonjour\nmarie"       | "Bonjour\nMarie"

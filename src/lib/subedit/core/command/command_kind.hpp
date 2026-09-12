@@ -22,6 +22,9 @@ enum class CommandKind {
     RemoveHearingImpaired,
     Italicise,
     Unitalicise,
+    ChangeCase,
+    AddDialogueDashes,
+    RemoveDialogueDashes,
 };
 
 } // namespace subedit::core

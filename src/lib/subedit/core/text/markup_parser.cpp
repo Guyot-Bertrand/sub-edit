@@ -406,6 +406,36 @@ void MarkupParser::replace(std::size_t at, std::size_t count, std::string_view r
     mergeTwins(m_held->spans);
 }
 
+void MarkupParser::transform(std::size_t at, std::size_t count, std::string_view replacement) {
+    m_held->touched = true;
+    const std::size_t end = at + count;
+    const std::size_t grown = replacement.size();
+    const auto shift = static_cast<std::ptrdiff_t>(grown) - static_cast<std::ptrdiff_t>(count);
+
+    // A tag inside what was rewritten keeps the place it had, as far as the new
+    // text reaches. Nothing widens, and nothing is adopted.
+    const auto moved = [&](std::size_t position) -> std::size_t {
+        if (position <= at)
+            return position;
+        if (position >= end)
+            return static_cast<std::size_t>(static_cast<std::ptrdiff_t>(position) + shift);
+        return std::min(position, at + grown);
+    };
+
+    for (Span& span : m_held->spans) {
+        span.first = moved(span.first);
+        span.last = moved(span.last);
+    }
+    for (Loose& one : m_held->loose)
+        one.at = moved(one.at);
+
+    m_held->visible =
+        m_held->visible.substr(0, at) + std::string{replacement} + m_held->visible.substr(end);
+
+    std::erase_if(m_held->spans, [](const Span& span) { return span.first >= span.last; });
+    mergeTwins(m_held->spans);
+}
+
 std::string MarkupParser::text() const {
     if (!m_held->touched)
         return m_held->original;

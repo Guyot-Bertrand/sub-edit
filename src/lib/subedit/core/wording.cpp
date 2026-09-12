@@ -317,9 +317,15 @@ std::string_view nameOf(CommandKind kind) {
         return "putting in italics";
     case CommandKind::Unitalicise:
         return "taking italics out";
+    case CommandKind::ChangeCase:
+        return "changing the case";
+    case CommandKind::AddDialogueDashes:
+        return "adding dialogue dashes";
+    case CommandKind::RemoveDialogueDashes:
+        return "removing dialogue dashes";
     }
 
-    // The thirteen are handled and the compiler checks it. A `default` here would
+    // The sixteen are handled and the compiler checks it. A `default` here would
     // take an enumerator added without a name in silence, and the action would
     // announce it as an empty string.
     std::unreachable();

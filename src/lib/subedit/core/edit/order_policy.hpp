@@ -55,6 +55,9 @@ enum class OrderPolicy {
     // already there, and no position is read, let alone moved.
     case CommandKind::Italicise:
     case CommandKind::Unitalicise:
+    case CommandKind::ChangeCase:
+    case CommandKind::AddDialogueDashes:
+    case CommandKind::RemoveDialogueDashes:
     // It moves starts, and it is still the only such operation that cannot
     // break the order: rounding to the nearest frame is monotone, so two
     // starts a frame or more apart stay in order, and closer than that they

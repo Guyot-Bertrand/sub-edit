@@ -144,3 +144,50 @@ TEST_CASE("the parser moves", "[text][parser]") {
     other = std::move(moved);
     CHECK(other.visible() == "Bonjour");
 }
+
+TEST_CASE("a transformation lets no style spread over what it rewrote", "[text][parser]") {
+    // The whole difference with a replacement, and the case operations of #379
+    // live on it: putting a subtitle in capitals must not make its first word's
+    // italic swallow the rest.
+    MarkupParser parser{"<i>Bonjour</i> Marie", SubtitleFormat::SubRip};
+    parser.transform(0, parser.visible().size(), "BONJOUR MARIE");
+
+    CHECK(parser.text() == "<i>BONJOUR</i> MARIE");
+}
+
+TEST_CASE("a transformation that grows keeps the tags it pushed", "[text][parser]") {
+    // Putting a dialogue dash at the head of a line: what was at the head stays
+    // at the head, and the two characters go after it.
+    MarkupParser parser{"<i>Bonjour</i>\n<i>Marie</i>", SubtitleFormat::SubRip};
+    parser.transform(8, 0, "- ");
+    parser.transform(0, 0, "- ");
+
+    CHECK(parser.text() == "<i>- Bonjour</i>\n<i>- Marie</i>");
+}
+
+TEST_CASE("a transformation that shrinks brings the tags back with it", "[text][parser]") {
+    MarkupParser parser{"Bonjour <i>Marie</i> !", SubtitleFormat::SubRip};
+    parser.transform(0, 8, "");
+
+    CHECK(parser.text() == "<i>Marie</i> !");
+}
+
+TEST_CASE("nothing is read as a tag in what a transformation writes", "[text][parser]") {
+    // A transformation has no business inventing a tag: `<i>` written here is
+    // three characters a user will see.
+    MarkupParser parser{"Bonjour", SubtitleFormat::SubRip};
+    parser.transform(0, 7, "<i>Salut");
+
+    CHECK(parser.visible() == "<i>Salut");
+    CHECK(parser.text() == "<i>Salut");
+}
+
+TEST_CASE("a transformation carries the tags it understands nothing of", "[text][parser]") {
+    // A MicroDVD tag opens a style and never closes it, so the parser holds it
+    // as a place rather than a span — and a transformation moves that place
+    // like any other.
+    MarkupParser parser{"Bonjour {Y:i}Marie", SubtitleFormat::MicroDvd};
+    parser.transform(0, 7, "Salut");
+
+    CHECK(parser.text() == "Salut {Y:i}Marie");
+}

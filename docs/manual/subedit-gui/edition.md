@@ -41,6 +41,11 @@ pour le document ouvert, et un format qui n'en porte aucune — TMPlayer, LRC �
 éteint l'entrée plutôt que de laisser chercher. Le gras et le souligné se
 tapent, comme dans Gaupol.
 
+**Et les balises ne suivent pas les opérations de texte** : mettre un sous-titre
+en minuscules ne transforme pas son `<I>` en `<i>`, et un tiret de dialogue se
+pose devant le texte et non devant une balise ouvrante. Voir
+[`Case` et `Dialogue`](operations.md#case-et-dialogue).
+
 ## Le début et la fin
 
 L'éditeur est un champ d'une ligne, **contraint à la forme d'un horodatage** :

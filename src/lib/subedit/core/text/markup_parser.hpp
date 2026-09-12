@@ -53,6 +53,21 @@ public:
     /// or asks `visible()` again.
     void replace(std::size_t at, std::size_t count, std::string_view replacement);
 
+    /// Rewrites `count` visible characters at `at`, leaving every tag where it
+    /// stands.
+    ///
+    /// **The other half of the pair, and what separates them is what a style
+    /// does.** A *replacement* — a phrase typed in place of another — takes the
+    /// style of everything it touched, because nothing relates the new text to
+    /// the old. A *transformation* — the same text in another case, a dash put
+    /// at the head of a line — takes none: letting the italic over the first
+    /// word of a subtitle spread to its last because the case changed would be
+    /// absurd.
+    ///
+    /// `replacement` is visible text and only that: nothing in it is read as a
+    /// tag, a transformation having no business inventing one.
+    void transform(std::size_t at, std::size_t count, std::string_view replacement);
+
     /// The text, tags put back.
     [[nodiscard]] std::string text() const;
 

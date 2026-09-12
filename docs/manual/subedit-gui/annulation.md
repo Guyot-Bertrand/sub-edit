@@ -29,6 +29,8 @@ pointeur — mais son infobulle porte le libellé entier.
 | un retrait des mentions | `removing hearing-impaired mentions` |
 | une mise en italique | `putting in italics` |
 | un retrait de l'italique | `taking italics out` |
+| un changement de casse | `changing the case` |
+| des tirets posés, retirés | `adding dialogue dashes`, `removing dialogue dashes` |
 
 **Dix libellés, et c'est tout ce que la fenêtre sait produire.** Le noyau en
 nomme un onzième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri

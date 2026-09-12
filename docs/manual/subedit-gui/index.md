@@ -67,7 +67,7 @@ licence.
 | [Insérer et supprimer des lignes](lignes.md) | les deux entrées, leurs raccourcis, où vont les lignes neuves |
 | [Annuler et rétablir](annulation.md) | l'historique, les deux actions, la marque de modification |
 | [La grille d'images](grille.md) | la cadence déduite des positions, et l'analyse |
-| [Les opérations](operations.md) | décaler, transformer, convertir, mettre en italique, retirer les mentions, et ce qui dépasse la fin du film |
+| [Les opérations](operations.md) | décaler, transformer, convertir, mettre en italique, la casse, les tirets, retirer les mentions, et ce qui dépasse la fin du film |
 | [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la barre d'état, `ffmpeg` |
 | [Le lecteur](lecteur.md) | la vue vidéo, jouer, la ligne qui suit, la réplique dessinée |
 | [Les préférences](preferences.md) | le thème, le fichier de préférences, ses options, et ce qu'il advient d'une valeur illisible |
