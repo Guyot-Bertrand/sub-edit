@@ -2,6 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <array>
 #include <cstddef>
 #include <filesystem>
 #include <fstream>
@@ -84,9 +85,51 @@ skipSeparator(const std::string& field, std::size_t at, const std::string& file,
         ++at;
     }
     if (at >= field.size() || field[at] != '|') {
-        refuse(file, line, "trois champs attendus, séparés par « | »");
+        refuse(file, line, "des champs séparés par « | » sont attendus");
     }
     return at + 1;
+}
+
+/// Reads the name that opens a case, and says where the first `|` was.
+///
+/// Shared by the two readers: a case of three fields and one of five open the
+/// same way, and the refusal for a case without a name is written once.
+std::pair<std::string, std::size_t>
+readName(const std::string& text, const std::string& file, int line) {
+    const std::size_t first = text.find_first_not_of(" \t");
+    const std::size_t bar = text.find('|');
+    if (bar == std::string::npos) {
+        refuse(file, line, "des champs séparés par « | » sont attendus");
+    }
+
+    std::string name = text.substr(first, bar - first);
+    while (!name.empty() && name.back() == ' ') {
+        name.pop_back();
+    }
+    if (name.empty()) {
+        refuse(file, line, "un cas sans nom ne dit pas ce qu'il éprouve");
+    }
+    return {std::move(name), bar + 1};
+}
+
+/// Tells whether `text` is a line the readers walk past — blank, or a comment.
+[[nodiscard]] bool isAside(const std::string& text) {
+    const std::size_t first = text.find_first_not_of(" \t");
+    return first == std::string::npos || text[first] == '#';
+}
+
+/// Refuses whatever follows the last field of a case.
+void refuseTrailing(const std::string& text,
+                    std::size_t at,
+                    const std::string& file,
+                    int line,
+                    const std::string& which) {
+    while (at < text.size() && text[at] == ' ') {
+        ++at;
+    }
+    if (at != text.size()) {
+        refuse(file, line, "du texte traîne après le " + which + " champ");
+    }
 }
 
 } // namespace
@@ -103,39 +146,23 @@ std::vector<TextCase> textCasesOf(const std::string& relative) {
     int line = 0;
     while (std::getline(file, text)) {
         ++line;
-        const std::size_t first = text.find_first_not_of(" \t");
-        if (first == std::string::npos || text[first] == '#') {
+        if (isAside(text)) {
             continue;
         }
 
-        const std::size_t bar = text.find('|');
-        if (bar == std::string::npos) {
-            refuse(path.string(), line, "trois champs attendus, séparés par « | »");
-        }
         TextCase one;
         one.line = line;
-        one.name = text.substr(first, bar - first);
-        while (!one.name.empty() && one.name.back() == ' ') {
-            one.name.pop_back();
-        }
-        if (one.name.empty()) {
-            refuse(path.string(), line, "un cas sans nom ne dit pas ce qu'il éprouve");
-        }
+        auto [name, afterName] = readName(text, path.string(), line);
+        one.name = std::move(name);
 
-        auto [input, afterInput] = readText(text, bar + 1, path.string(), line);
+        auto [input, afterInput] = readText(text, afterName, path.string(), line);
         if (input == kUnchangedMark || input == kRemovedMark) {
             refuse(path.string(), line, "« = » et « supprimé » ne se disent que de l'attendu");
         }
         const std::size_t second = skipSeparator(text, afterInput, path.string(), line);
         auto [expected, afterExpected] = readText(text, second, path.string(), line);
 
-        std::size_t rest = afterExpected;
-        while (rest < text.size() && text[rest] == ' ') {
-            ++rest;
-        }
-        if (rest != text.size()) {
-            refuse(path.string(), line, "du texte traîne après le troisième champ");
-        }
+        refuseTrailing(text, afterExpected, path.string(), line, "troisième");
 
         one.input = input;
         if (expected == kRemovedMark) {
@@ -143,6 +170,59 @@ std::vector<TextCase> textCasesOf(const std::string& relative) {
         } else {
             one.expected = expected == kUnchangedMark ? input : expected;
         }
+        cases.push_back(std::move(one));
+    }
+    return cases;
+}
+
+std::vector<ReplacementCase> replacementCasesOf(const std::string& relative) {
+    const std::filesystem::path path = std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / relative;
+    std::ifstream file{path};
+    if (!file) {
+        throw std::runtime_error("corpus de cas introuvable : " + path.string());
+    }
+
+    std::vector<ReplacementCase> cases;
+    std::string text;
+    int line = 0;
+    while (std::getline(file, text)) {
+        ++line;
+        if (isAside(text)) {
+            continue;
+        }
+
+        ReplacementCase one;
+        one.line = line;
+        auto [name, afterName] = readName(text, path.string(), line);
+        one.name = std::move(name);
+
+        std::size_t at = afterName;
+        std::array<std::string, 3> given;
+        for (std::string& field : given) {
+            auto [read, after] = readText(text, at, path.string(), line);
+            if (read == kUnchangedMark || read == kRemovedMark) {
+                refuse(path.string(), line, "« = » et « supprimé » ne se disent que de l\'attendu");
+            }
+            field = std::move(read);
+            at = skipSeparator(text, after, path.string(), line);
+        }
+
+        auto [expected, afterExpected] = readText(text, at, path.string(), line);
+        if (expected == kRemovedMark) {
+            refuse(path.string(),
+                   line,
+                   "« supprimé » ne se dit pas d\'un remplacement : il réécrit un sous-titre, "
+                   "il n\'en retire aucun");
+        }
+        refuseTrailing(text, afterExpected, path.string(), line, "cinquième");
+
+        one.input = std::move(given[0]);
+        one.pattern = std::move(given[1]);
+        one.replacement = std::move(given[2]);
+        if (one.pattern.empty()) {
+            refuse(path.string(), line, "un motif vide ne dit pas ce qu\'il cherche");
+        }
+        one.expected = expected == kUnchangedMark ? one.input : expected;
         cases.push_back(std::move(one));
     }
     return cases;
@@ -156,6 +236,16 @@ void checkTextCases(
         // for the cases that fail, so a corpus of forty stays readable.
         INFO("cas ligne " << one.line << " : " << one.name);
         CHECK(transform(one.input) == one.expected);
+    }
+}
+
+void checkReplacementCases(
+    const std::vector<ReplacementCase>& cases,
+    const std::function<std::string(const std::string&, const std::string&, const std::string&)>&
+        replace) {
+    for (const ReplacementCase& one : cases) {
+        INFO("cas ligne " << one.line << " : " << one.name);
+        CHECK(replace(one.input, one.pattern, one.replacement) == one.expected);
     }
 }
 

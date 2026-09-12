@@ -83,6 +83,24 @@ jonction/scission de mots via correcteur orthographique.
 à la casse, ciblant le texte principal, la traduction ou les deux, sur la
 sélection / le projet courant / tous les projets ouverts.
 
+`aeidon/parser.py` est la pièce que l'[ADR 0009](../adr/0009-texte-en-chaine-brute.md)
+appelle le parseur conscient des balises : il retire les balises, retient leurs
+positions, remplace dans le texte nu, puis les remet. **Il n'a pas de règle pour
+une correspondance qui traverse une frontière de balise, seulement une
+arithmétique de décalage**, et la frontière retombe à une place qui ne veut rien
+dire dans le texte neuf :
+
+| Texte | Cherché → mis à la place | Ce que Gaupol écrit |
+| :---- | :----------------------- | :------------------ |
+| `<i>Bon</i>jour` | `Bonjour` → `Salut` | `<i>S</i>alut` |
+| `<i>Bon</i>jour` | `Bonjour` → `Bonjour tout le monde` | `<i>Bonjour tout le m</i>onde` |
+| `Bon<i>jour</i>` | `Bonjour` → `Salut` | `S<i>alut</i>` |
+
+Mesuré en exécutant le parseur, non déduit de sa lecture. C'est le seul point où
+la phase 10 s'écarte de lui délibérément : `src/test/data/textes/recherche.cas`
+porte la règle retenue — une frontière qui coupe un mot l'englobe — et les cas
+qui la fixent.
+
 **Presse-papiers** — copier / couper / coller **des textes seuls**.
 `aeidon/clipboard.py` est une liste de chaînes, une par sous-titre, que
 `get_string` recolle par une ligne vide : ni positions, ni format, ni sous-titre

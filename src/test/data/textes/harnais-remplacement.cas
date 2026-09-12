@@ -1,0 +1,27 @@
+# Les cas qui éprouvent le harnais à cinq champs, et rien d'autre.
+#
+# Chaque ligne est un cas : un nom, le texte, ce qu'on cherche, ce qu'on met à
+# la place, ce qu'on doit obtenir. Les quatre textes sont entre guillemets, ce
+# qui laisse aligner les colonnes sans changer la donnée. « = » à la place de
+# l'attendu veut dire « inchangé ».
+#
+# Échappements dans un texte : \" pour un guillemet, \n pour un saut de ligne,
+# \t pour une tabulation, \\ pour une barre oblique inverse.
+#
+# La transformation éprouvée ici est celle du test : elle remplace toutes les
+# occurrences dans la chaîne brute, sans rien savoir des balises. Ce n'est pas
+# celle de la phase 10, et aucun cas ci-dessous ne dit ce que celle-là devra
+# faire — ils disent ce que le harnais doit savoir lire. Les cas de la vraie
+# recherche vivent dans recherche.cas.
+
+un motif absent laisse tout en place   | "Bonjour Marie"  | "Sophie" | "Claire" | =
+un motif présent une fois              | "Bonjour Marie"  | "Marie"  | "Sophie" | "Bonjour Sophie"
+toutes les occurrences sont prises     | "la la la"       | "la"     | "lo"     | "lo lo lo"
+un remplacement vide retire            | "Bonjour Marie"  | " Marie" | ""       | "Bonjour"
+un espace entre guillemets est donné   | "a b"            | " "      | "-"      | "a-b"
+un saut de ligne se cherche            | "Bonjour\nMarie" | "\n"     | " "      | "Bonjour Marie"
+une barre verticale n'a rien de spécial| "a | b"          | "|"      | "!"      | "a ! b"
+un guillemet dans le texte se protège  | "il dit \"non\"" | "\""     | "'"      | "il dit 'non'"
+une tabulation s'écrit \t              | "a\tb"           | "\t"     | " "      | "a b"
+une barre oblique inverse aussi        | "a\\b"           | "\\"     | "/"      | "a/b"
+le harnais ne sait rien des balises    | "<i>Bon</i>jour" | "Bon"    | "Sal"    | "<i>Sal</i>jour"

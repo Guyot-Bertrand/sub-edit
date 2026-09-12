@@ -9,7 +9,10 @@
 #include "text_cases.hpp"
 
 using Catch::Matchers::ContainsSubstring;
+using subedit::test::checkReplacementCases;
 using subedit::test::checkTextCases;
+using subedit::test::ReplacementCase;
+using subedit::test::replacementCasesOf;
 using subedit::test::TextCase;
 using subedit::test::textCasesOf;
 
@@ -42,8 +45,38 @@ std::optional<std::string> withoutBrackets(const std::string& text) {
     return kept.empty() ? std::optional<std::string>{} : kept;
 }
 
+/// The transformation the five-field harness corpus is written against: it
+/// replaces every occurrence in the raw string, knowing nothing of tags.
+///
+/// It lives here for the reason the one above does — the real one is not
+/// written, and a harness is proved by running it on something whose answers
+/// are known. Its tag-blindness is the point: it must not be mistaken for the
+/// rule that `recherche.cas` decides.
+std::string replacedEverywhere(const std::string& text,
+                               const std::string& pattern,
+                               const std::string& replacement) {
+    std::string out;
+    std::size_t at = 0;
+    while (true) {
+        const std::size_t found = text.find(pattern, at);
+        if (found == std::string::npos) {
+            out += text.substr(at);
+            return out;
+        }
+        out += text.substr(at, found - at);
+        out += replacement;
+        at = found + pattern.size();
+    }
+}
+
 const std::vector<TextCase>& harness() {
     static const std::vector<TextCase> cases = textCasesOf("textes/harnais.cas");
+    return cases;
+}
+
+const std::vector<ReplacementCase>& replacementHarness() {
+    static const std::vector<ReplacementCase> cases =
+        replacementCasesOf("textes/harnais-remplacement.cas");
     return cases;
 }
 
@@ -152,7 +185,7 @@ TEST_CASE("a case the harness cannot read stops the run, naming the line", "[tes
                           ContainsSubstring(said) && ContainsSubstring(":2 :"));
     };
 
-    refused("sans-separateur.cas", "trois champs");
+    refused("sans-separateur.cas", "séparés par");
     refused("texte-nu.cas", "entre guillemets");
     refused("guillemet-ouvert.cas", "guillemet fermant");
     refused("echappement-inconnu.cas", "échappement inconnu");
@@ -160,4 +193,84 @@ TEST_CASE("a case the harness cannot read stops the run, naming the line", "[tes
     refused("residu.cas", "traîne après");
     refused("sans-nom.cas", "sans nom");
     refused("egal-en-entree.cas", "de l'attendu");
+}
+
+TEST_CASE("the five-field harness runs against the transformation it describes",
+          "[test][textcases]") {
+    checkReplacementCases(replacementHarness(), replacedEverywhere);
+}
+
+TEST_CASE("a replacement case carries its four texts", "[test][textcases]") {
+    REQUIRE(replacementHarness().size() == 11);
+
+    const ReplacementCase& first = replacementHarness().front();
+    CHECK(first.name == "un motif absent laisse tout en place");
+    CHECK(first.input == "Bonjour Marie");
+    CHECK(first.pattern == "Sophie");
+    CHECK(first.replacement == "Claire");
+    // `=` still means « the text is left alone », which is what a pattern that
+    // matches nothing gives.
+    CHECK(first.expected == first.input);
+}
+
+TEST_CASE("an empty replacement is a replacement", "[test][textcases]") {
+    // Not the same thing as no case at all: taking a word out is what a user
+    // does with an empty « replace with » field, and the corpus has to be able
+    // to say it.
+    for (const ReplacementCase& one : replacementHarness()) {
+        if (one.name == "un remplacement vide retire") {
+            CHECK(one.replacement.empty());
+            CHECK(one.expected == "Bonjour");
+            return;
+        }
+    }
+    FAIL("cas absent du corpus");
+}
+
+TEST_CASE("a replacement corpus the harness cannot read stops the run", "[test][textcases]") {
+    const auto refused = [](const std::string& file, const std::string& said) {
+        INFO("corpus : " << file);
+        CHECK_THROWS_WITH(replacementCasesOf("textes/refus/" + file),
+                          ContainsSubstring(said) && ContainsSubstring(":2 :"));
+    };
+
+    refused("remplacement-quatre-champs.cas", "séparés par");
+    refused("remplacement-motif-vide.cas", "ne dit pas ce qu'il cherche");
+    refused("remplacement-supprime.cas", "il n'en retire aucun");
+}
+
+TEST_CASE("the corpus of the phase reads, long before there is a parser to run it",
+          "[test][textcases]") {
+    // recherche.cas and its brace sibling hold what has been decided about
+    // searching in marked-up text, written before the tag-aware parser of
+    // ADR 0009 exists — that is the point of the format, and it is what
+    // mentions.cas did for phase 4. What is checked here is that every case is
+    // **well formed**: a corpus that loads badly would run fewer cases than it
+    // holds and still report green.
+    for (const std::string file : {"textes/recherche.cas", "textes/recherche-accolades.cas"}) {
+        INFO("corpus : " << file);
+        const std::vector<ReplacementCase> decided = replacementCasesOf(file);
+
+        CHECK(decided.size() > 5);
+        for (const ReplacementCase& one : decided) {
+            INFO("cas ligne " << one.line);
+            CHECK_FALSE(one.name.empty());
+            CHECK_FALSE(one.pattern.empty());
+        }
+    }
+}
+
+TEST_CASE("the braces of the corpus are braces, and its backslashes backslashes",
+          "[test][textcases]") {
+    // The one thing a corpus written in a vocabulary of backslashes can get
+    // wrong without anybody seeing it: `\\i1` read as two characters instead of
+    // one would make every case of that file test a text no format writes.
+    for (const ReplacementCase& one : replacementCasesOf("textes/recherche-accolades.cas")) {
+        if (one.name == "une fermante coupe le mot") {
+            CHECK(one.input == R"({\i1}Bon{\i0}jour)");
+            CHECK(one.expected == R"({\i1}Salut{\i0})");
+            return;
+        }
+    }
+    FAIL("cas absent du corpus");
 }
