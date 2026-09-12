@@ -251,7 +251,7 @@ Une fonction pure sur les positions, sans état. Elle ne dépend que de
 `core/time/` — `Duration`, `FrameRate` — et de `SubtitleIndex`, qui est un type
 de valeur du modèle et non une opération. **Elle ne connaît ni `Project`, ni
 `Session`, ni l'historique** : elle reçoit des positions et rend un jugement, ce
-qui est exactement ce qui la rend éprouvable sur treize fichiers et une table de
+qui est exactement ce qui la rend éprouvable sur quinze fichiers et une table de
 constantes.
 
 ```cpp
@@ -407,7 +407,7 @@ regroupées ici parce que la phase touche déjà l'interface.
 
 ## Tests
 
-Les fixtures existent : `src/test/data/grilles/`, treize fichiers, et leur
+Les fixtures existent : `src/test/data/grilles/`, quinze fichiers, et leur
 `LISEZMOI.md` porte les deux tables — ce que chacune est, et ce que chacune
 donne sur les huit candidates.
 
@@ -421,14 +421,18 @@ donne sur les huit candidates.
 | le partiel, ses deux causes et D7 | `melange-groupe.srt`, `melange-disperse.srt` |
 | l'idempotence de l'alignement | toutes, appliquées deux fois |
 | aligner n'est pas convertir | `grille-24.srt` aligné sur 25 bouge de moins d'une demi-image ; converti, de plusieurs secondes |
+| les débuts suffisent | `grille-24-fins-calculees.srt` — 99,9 aux débuts, 52,4 aux fins |
+| aucune grille du tout | `sans-grille.srt` — 12,5 au mieux, verdict muet |
 
 Les concentrations attendues sont des **constantes dans le code de test**,
 reprises du `LISEZMOI.md`. Aucun matcher : neuf fixtures et huit candidates font
 une table de nombres, et une table se lit mieux qu'un verbe.
 
-Ce que les fixtures ne portent pas encore, et qu'il faudra leur ajouter si un
-test le demande : des fins calculées par une règle de vitesse de lecture, et un
-fichier écrit en millisecondes sans aucune grille.
+Les deux dernières lignes ont été **ajoutées en phase 10**, issue #373 : cette
+spec les nommait comme ce qui manquait « si un test le demande », et un test les
+a demandées. `grille-24-fins-calculees.srt` garde la déduction honnête le jour
+où quelqu'un la ferait lire les fins ; `sans-grille.srt` transforme « l'échec est
+bruyant » d'observation sur le corpus privé en propriété versionnée.
 
 ## Mesures
 

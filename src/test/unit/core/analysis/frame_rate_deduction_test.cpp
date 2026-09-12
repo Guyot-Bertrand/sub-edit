@@ -3,13 +3,14 @@
 // `src/test/data/grilles/LISEZMOI.md` carries two tables: what each fixture is,
 // and what each one gives on the eight candidates. The numbers below are that
 // second table, and `./src/scripts/subtitle-fixtures.py --measure` reproduces
-// it. They are constants and not a matcher: thirteen fixtures and eight
+// it. They are constants and not a matcher: fifteen fixtures and eight
 // candidates make a table of numbers, and a table reads better than a verb.
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/edit/snap_command.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
+#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/frame.hpp>
 #include <subedit/core/time/frame_rate.hpp>
@@ -85,7 +86,7 @@ double concentrationOn(const FrameRateDeduction& deduction, StandardFrameRate st
 /// side and **cancels exactly** — the two unit vectors are opposite. What
 /// survives the sum is the aligned ones, over the count.
 ///
-/// The thirteen fixtures cannot do this. They fall frankly on one side or the
+/// The fixtures on disk cannot do this. They fall frankly on one side or the
 /// other — the lowest clean grid is at 99.4, the loudest silent one at 15.3 —
 /// so they show that the method separates clear cases, not that a threshold is
 /// where the spec says it is.
@@ -500,5 +501,50 @@ TEST_CASE("an alignment with nothing left behind says nothing", "[analysis][dedu
         const FrameRateDeduction after = deduceFrameRate(project);
         CHECK(after.retained.rate == FrameRate{StandardFrameRate::Fps50});
         CHECK(after.verdict == GridVerdict::Clean);
+    }
+}
+
+TEST_CASE("ends off the grid do not disturb a deduction that reads starts",
+          "[analysis][deduction]") {
+    // **The only fixture shaped like a real file** — issue #373. Its starts are
+    // on a 24 fps grid and its ends are computed by a reading-speed rule, which
+    // is what a cue-out is. The others put both bounds on the grid, so nothing
+    // in the repository would notice a deduction that started reading ends.
+    const FrameRateDeduction deduction = deductionOf("grille-24-fins-calculees.srt");
+
+    CHECK(deduction.verdict == GridVerdict::Clean);
+    CHECK(deduction.retained.rate == FrameRate{StandardFrameRate::Fps24});
+    CHECK(deduction.retained.concentration > 99.0);
+
+    // And the ends really are off it: read on their own they earn no clean
+    // verdict, which is what makes this fixture the guard it means to be.
+    const Project project = subedit::test::gridProject("grille-24-fins-calculees.srt",
+                                                       FrameRate{StandardFrameRate::Fps24});
+    std::vector<Timestamp> ends;
+    ends.reserve(project.count());
+    for (const subedit::core::Subtitle& subtitle : project.subtitles()) {
+        ends.push_back(subtitle.end);
+    }
+
+    const FrameRateDeduction fromEnds = deduceFrameRate(ends);
+    CHECK(fromEnds.verdict != GridVerdict::Clean);
+    CHECK(fromEnds.retained.concentration < 60.0);
+}
+
+TEST_CASE("a file on no grid at all says so on all eight", "[analysis][deduction]") {
+    // **« Failure is loud » stops being an observation on a corpus nobody else
+    // has.**
+    // `grille-absurde.srt` is regular on a rate that is none of the eight; this
+    // one is regular on nothing, which is the false-positive question and only
+    // has an answer at the size of a real file. The noise floor is one over the
+    // square root of the count: seven and a half per cent at a hundred and
+    // seventy-six starts, against a partial band that opens at fifty.
+    const FrameRateDeduction deduction = deductionOf("sans-grille.srt");
+
+    CHECK(deduction.verdict == GridVerdict::Silent);
+    REQUIRE(deduction.ranked.size() == 8);
+    for (const auto& fit : deduction.ranked) {
+        INFO("candidate : " << fit.rate.numerator() << "/" << fit.rate.denominator());
+        CHECK(fit.concentration < 25.0);
     }
 }

@@ -877,11 +877,10 @@ coup, et il faudra dire laquelle des deux bornes elle déplace.
   fausse, et le rationnel qui remettrait le fichier sur une grille normalisée se
   cherche. Sa spec l'a nommée « le plus utile et le moins sûr » des trois
   mécanismes de correction, et l'a écartée pour cette raison.
-- **Deux fixtures de grille qui manquent** :
-  `src/test/data/grilles/LISEZMOI.md` le dit lui-même — des fins calculées par
-  une règle de vitesse de lecture plutôt que posées sur une image, et un fichier
-  écrit en millisecondes **sans aucune grille**. `grille-absurde.srt` est
-  régulier ; le cas du bruit pur n'a donc aucune fixture.
+- **Deux fixtures de grille qui manquaient**, écrites par l'issue #373 : des
+  fins calculées par une règle de vitesse de lecture plutôt que posées sur une
+  image, et un fichier écrit en millisecondes **sans aucune grille** —
+  `grille-absurde.srt` étant régulier, le cas du bruit pur n'en avait aucune.
 
 **Points difficiles**
 
