@@ -17,6 +17,7 @@ ne pas l'éditer à la main.
 
 - **scripts** — Recenser où les contraintes de durée se contredisent
 - **test** — Des cas pour une recherche qui traverse une balise
+- **test** — Deux fixtures de grille, des fins calculées et du bruit
 
 ## 0.10.0 — 2026-09-11
 
