@@ -858,6 +858,11 @@ balises conçu en phase 1.
 
 ## 10 — Opérations complémentaires
 
+**Cadrée.** Voir [`specs/10-operations.md`](specs/10-operations.md), qui porte
+les huit décisions et le découpage — et qui corrige deux affirmations de ce
+cadrage-ci : le presse-papiers de Gaupol ne transporte que des textes, et son
+menu n'offre qu'un seul basculement de style, l'italique.
+
 Ajustement des durées, casse, italiques, tirets de dialogue, fusion, scission,
 recherche et remplacement, presse-papiers.
 
