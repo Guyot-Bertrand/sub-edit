@@ -13,6 +13,10 @@ ne pas l'éditer à la main.
 
 - **gui** — Une entrée qui met en italique dans les balises du format
 
+### Documentation
+
+- **doc** — Cadrage de la phase 10, les opérations complémentaires
+
 ### Tests
 
 - **scripts** — Recenser où les contraintes de durée se contredisent
