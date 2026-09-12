@@ -77,6 +77,15 @@ STANDARD_RATES = {
 FULL_EXTENT_SECONDS = 600
 SHORT_EXTENT_SECONDS = 10
 
+# La règle de vitesse de lecture qui calcule les fins d'une fixture, et ce sont
+# les deux défauts de Gaupol — `gaupol/config.py`, quinze caractères par seconde
+# et une seconde et demie de plancher. Ils sont posés ici parce qu'une fixture
+# doit dire d'où viennent ses nombres ; elle ne prétend pas être l'ajustement
+# des durées que la phase 10 écrira, seulement produire des fins hors grille
+# d'une manière plausible et reproductible.
+READING_SPEED = 15
+SHORTEST_SHOWN_MS = 1500
+
 
 class Lcg:
     """Un générateur congruentiel linéaire, écrit ici plutôt qu'emprunté.
@@ -196,6 +205,73 @@ def on_grid(rate: Fraction, extent: float, seed: int, offset: int = 0, **density
     ]
 
 
+def read_ends(rate: Fraction, extent: float, seed: int) -> list[tuple[int, int, str]]:
+    """Des débuts sur la grille, des fins calculées par une vitesse de lecture.
+
+    **C'est la forme d'un vrai fichier, et aucune autre fixture ne l'a.** Les
+    treize autres posent les deux bornes sur la grille ; dans un fichier réel
+    seuls les débuts y sont, parce qu'un *cue-out* est calculé plutôt que posé
+    sur une image. Le relevé de la phase 16 le dit du corpus privé — les débuts
+    à 100 sans exception, les fins de 55 à 100 — et c'est jusqu'ici une
+    observation que rien de versionné ne porte.
+
+    Ce qu'elle éprouve tient en une phrase : **les débuts suffisent**. Le jour
+    où la déduction se mettrait à lire les fins, cette fixture tomberait et les
+    treize autres resteraient vertes.
+
+    La fin s'arrête une image avant le début suivant. Sans cette borne un
+    sous-titre pourrait chevaucher le suivant, ce qu'aucun fichier réel ne fait
+    — et la fixture cesserait d'être plausible pour un gain nul.
+    """
+    lines = on_grid(rate, extent, seed)
+    frame = milliseconds_of(1, rate)
+
+    computed = []
+    for index, (start, _, text) in enumerate(lines):
+        # Arrondi au plus proche, la moitié vers le haut, comme partout ici.
+        wanted = max((2000 * len(text) + READING_SPEED) // (2 * READING_SPEED), SHORTEST_SHOWN_MS)
+        end = start + wanted
+        if index + 1 < len(lines):
+            end = min(end, lines[index + 1][0] - frame)
+        computed.append((start, end, text))
+    return computed
+
+
+def no_grid(extent: float, seed: int) -> list[tuple[int, int, str]]:
+    """Des positions écrites en millisecondes, sur aucune grille du tout.
+
+    **`grille-absurde.srt` n'est pas ce cas-là** : il est régulier sur une
+    fréquence non normalisée, et il éprouve « aucune des huit ». Celui-ci
+    éprouve « aucune grille », ce qui n'est pas la même question — c'est celle
+    du faux positif, et elle n'a de sens qu'à la taille d'un vrai fichier.
+
+    La feuille de route affirme que « l'échec est bruyant » et qu'un fichier
+    sans grille reste sous quelques pour cent sur les huit candidates. C'est
+    l'affirmation sur laquelle repose tout l'usage de la déduction, et elle
+    était appuyée sur trois fichiers du corpus privé que personne d'autre ne
+    possède. Cette fixture la rend vérifiable.
+
+    Le plancher de bruit vaut `1/√n` : à cent soixante-seize positions il est de
+    sept et demi pour cent, et la bande partielle commence à cinquante. La marge
+    est confortable, et elle a été vérifiée avant d'écrire ce générateur — deux
+    mille tirages de cent soixante-seize débuts quelconques ne font jamais
+    monter la meilleure des huit au-dessus de vingt-quatre.
+    """
+    steps = Lcg(seed)
+    lines: list[tuple[int, int, str]] = []
+    position = 1000
+    last = int(extent * 1000)
+    index = 1
+    while position <= last:
+        gap = steps.between(2000, 5000)
+        lines.append((position,
+                      position + steps.between(1000, gap - 500),
+                      f"Réplique {index}, sans grille."))
+        position += gap
+        index += 1
+    return lines
+
+
 def retimed_tail(rate: Fraction, extent: float, seed: int) -> list[tuple[int, int, str]]:
     """Deux tiers sur la grille, un tiers retimé — un fichier assemblé.
 
@@ -293,6 +369,16 @@ FIXTURES: list[tuple[str, str, Fixture]] = [
         ),
     ),
     (
+        "grille-24-fins-calculees.srt",
+        "débuts à 24, fins calculées à 15 caractères par seconde — hors grille",
+        partial(read_ends, Fraction(24), FULL_EXTENT_SECONDS, 106),
+    ),
+    (
+        "sans-grille.srt",
+        "des millisecondes quelconques — aucune grille, et la déduction doit se taire",
+        partial(no_grid, FULL_EXTENT_SECONDS, 107),
+    ),
+    (
         "melange-groupe.srt",
         "29,97 sur deux tiers, dernier tiers retimé — écarts groupés",
         partial(retimed_tail, Fraction(30000, 1001), FULL_EXTENT_SECONDS, 104),
@@ -320,6 +406,7 @@ FIXTURES: list[tuple[str, str, Fixture]] = [
 # tombent d'accord valent mieux qu'une qui s'auto-atteste.
 
 TIMESTAMP = re.compile(r"(\d\d):(\d\d):(\d\d),(\d\d\d) -->")
+CUE_OUT = re.compile(r"--> (\d\d):(\d\d):(\d\d),(\d\d\d)")
 
 
 def starts_of(path: Path) -> list[int]:
@@ -332,6 +419,18 @@ def starts_of(path: Path) -> list[int]:
     return [
         ((int(h) * 60 + int(m)) * 60 + int(s)) * 1000 + int(ms)
         for h, m, s, ms in TIMESTAMP.findall(path.read_text(encoding="utf-8"))
+    ]
+
+
+def ends_of(path: Path) -> list[int]:
+    """Les fins d'un fichier SubRip, en millisecondes.
+
+    Elles ne servent à aucune déduction — celle-ci ne lit que les débuts — et
+    c'est précisément ce qu'elles servent à montrer : la fixture à fins
+    calculées les a hors grille, et les treize autres les ont dessus."""
+    return [
+        ((int(h) * 60 + int(m)) * 60 + int(s)) * 1000 + int(ms)
+        for h, m, s, ms in CUE_OUT.findall(path.read_text(encoding="utf-8"))
     ]
 
 
@@ -364,9 +463,14 @@ def generate() -> int:
     FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
     for name, description, fixture in FIXTURES:
         content = render(fixture())
-        (FIXTURE_DIR / name).write_text(content, encoding="utf-8")
+        path = FIXTURE_DIR / name
+        path.write_text(content, encoding="utf-8")
         cues = content.count(" --> ")
-        print(f"  {GREEN}✓{RESET} {name} — {description}, {cues} répliques, {len(content)} octets")
+        # Le poids se lit sur le disque et non par `len(content)` : le texte des
+        # répliques porte des accents, et un caractère n'y fait pas un octet.
+        # La table du LISEZMOI a recopié la mauvaise des deux au moins une fois.
+        print(f"  {GREEN}✓{RESET} {name} — {description},"
+              f" {cues} répliques, {path.stat().st_size} octets")
     return 0
 
 
@@ -414,7 +518,7 @@ def check() -> int:
 
 def measure() -> int:
     print(f"{BOLD}concentration de chaque fixture sur les huit candidates{RESET}")
-    print("  " + " " * 24 + "  ".join(f"{name:>6s}" for name in STANDARD_RATES))
+    print("  " + " " * 28 + "  ".join(f"{name:>6s}" for name in STANDARD_RATES))
     for name, _, _ in FIXTURES:
         path = FIXTURE_DIR / name
         if not path.is_file():
@@ -422,7 +526,20 @@ def measure() -> int:
             return 1
         positions = starts_of(path)
         scores = [concentration(positions, rate) for rate in STANDARD_RATES.values()]
-        print(f"  {name:24s}" + "  ".join(f"{score:6.1f}" for score in scores))
+        print(f"  {name:28s}" + "  ".join(f"{score:6.1f}" for score in scores))
+
+    print()
+    print(f"{BOLD}les fins, sur la candidate que les débuts désignent{RESET}")
+    print(f"  {'':28s}{'candidate':>10s}{'débuts':>9s}{'fins':>7s}")
+    for name, _, _ in FIXTURES:
+        path = FIXTURE_DIR / name
+        starts = starts_of(path)
+        best, score = max(
+            ((label, concentration(starts, rate)) for label, rate in STANDARD_RATES.items()),
+            key=lambda pair: pair[1],
+        )
+        held = concentration(ends_of(path), STANDARD_RATES[best])
+        print(f"  {name:28s}{best:>10s}{score:9.1f}{held:7.1f}")
     return 0
 
 

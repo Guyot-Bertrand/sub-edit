@@ -1,6 +1,6 @@
 # Fixtures sur grille connue
 
-Treize fichiers SubRip engendrés, dont on ne lit ni le texte ni le sens : ce
+Quinze fichiers SubRip engendrés, dont on ne lit ni le texte ni le sens : ce
 qu'on y lit, c'est **si les positions tombent sur une grille d'images, et
 laquelle**. C'est la donnée dont la phase 16 a besoin, et qu'un fichier de
 sous-titres ne déclare jamais.
@@ -35,6 +35,8 @@ ne relira ces 128 Ko.
 | `grille-absurde.srt` | `263/10` | 10 min | — | 177 | 10 810 o |
 | `grille-24-decalee.srt` | `24/1` | 10 min | +2 999 ms | 168 | 10 242 o |
 | `grille-24-courte.srt` | `24/1` | 10 s | — | 37 | 2 152 o |
+| `grille-24-fins-calculees.srt` | `24/1` **aux débuts** | 10 min | — | 170 | 10 364 o |
+| `sans-grille.srt` | **aucune** | 10 min | — | 166 | 10 242 o |
 | `melange-groupe.srt` | `30000/1001` | 10 min | — | 168 | 10 264 o |
 | `melange-disperse.srt` | `25/1` | 10 min | — | 171 | 10 454 o |
 
@@ -44,11 +46,17 @@ deux à cinq secondes — et tiré d'un générateur congruentiel écrit dans le
 script : un pas constant rendrait les phases périodiques, et le fichier à
 fréquence absurde ressortirait concentré sur une candidate qu'il ne touche pas.
 
-**Les débuts et les fins sont tous les deux sur la grille.** Dans un vrai
-fichier, seuls les débuts le sont : un *cue-out* est souvent calculé par une
-règle de vitesse de lecture, ce qui fait descendre les fins entre 55 et 100. Une
-fixture qui reproduirait ce comportement reste à écrire, et le jour où elle le
-sera, c'est ici qu'il faudra la décrire.
+**Les débuts et les fins sont tous les deux sur la grille — sauf pour une.**
+Dans un vrai fichier, seuls les débuts le sont : un *cue-out* est souvent
+calculé par une règle de vitesse de lecture, ce qui fait descendre les fins
+entre 55 et 100. `grille-24-fins-calculees.srt` est cette fixture-là, ajoutée en
+phase 10 ; les quatorze autres gardent leurs fins sur la grille, et c'est le
+contraste qui rend la première utile.
+
+`--measure` rend la comparaison en une table de trois colonnes : la candidate
+que les débuts désignent, ce qu'ils y valent, et ce que les fins y valent.
+Quatorze fichiers y portent deux fois le même nombre ; le quinzième lit 99,9
+aux débuts et 52,4 aux fins.
 
 ## Ce qu'elles donnent
 
@@ -68,6 +76,8 @@ Concentration de phase sur les huit candidates, en pour cent. Refaisable par
 | `grille-absurde.srt` | 9,2 | 8,3 | 15,3 | 2,1 | 13,2 | 6,2 | 3,8 | 9,0 |
 | `grille-24-decalee.srt` | 3,7 | **99,9** | 11,8 | 2,6 | 9,5 | 5,4 | 8,6 | 4,7 |
 | `grille-24-courte.srt` | *92,7* | **99,9** | 3,9 | 10,9 | 22,2 | 10,1 | 27,2 | 8,6 |
+| `grille-24-fins-calculees.srt` | 1,1 | **99,9** | 5,5 | 7,0 | 3,8 | 7,6 | 11,0 | 19,9 |
+| `sans-grille.srt` | 3,2 | 2,9 | 7,3 | 5,0 | 5,8 | 12,5 | 5,2 | 4,0 |
 | `melange-groupe.srt` | 3,4 | 2,7 | 2,6 | *65,1* | 1,8 | 1,7 | *66,4* | 1,1 |
 | `melange-disperse.srt` | 4,1 | 7,6 | *75,4* | 8,1 | 2,6 | *84,9* | 2,9 | 11,1 |
 
@@ -118,13 +128,28 @@ la table. La concentration tombe dans la même bande, et c'est précisément ce 
 rend le cas difficile : les deux fichiers se ressemblent par le chiffre et ne se
 ressemblent pas du tout par la cause.
 
-## Deux mises en garde
+**`grille-24-fins-calculees.srt`** dit que **les débuts suffisent**. Ses débuts
+sont ceux d'une grille à 24 ; ses fins sont calculées à quinze caractères par
+seconde, avec un plancher d'une seconde et demie et une image d'écart avant le
+début suivant — les deux défauts de Gaupol, posés dans le script. Elle ne
+prétend pas être l'ajustement des durées que la phase 10 écrira : elle produit
+des fins hors grille d'une manière plausible et reproductible.
 
-**Ces fixtures n'ont pas de fins réalistes**, comme dit plus haut. Un test qui
-mesurerait la concentration des *fins* y trouverait 100, ce qu'aucun fichier réel
-ne donne.
+Le jour où la déduction se mettrait à lire les fins, **elle tomberait et les
+quatorze autres resteraient vertes.** C'est toute sa raison d'être.
 
-**Le fichier absurde n'est pas du bruit.** Il est parfaitement régulier, sur une
-grille à 26,3 images par seconde. Un fichier écrit en millisecondes sans aucune
-grille — celui qu'un logiciel de transcription produit — reste à écrire, et son
-comportement attendu est le même : sous quelques pour cent partout.
+**`sans-grille.srt`** dit que **l'échec est bruyant, et cela ne s'appuie plus
+sur un corpus que personne ne possède**. Ses positions sont des millisecondes
+quelconques, et la meilleure des huit candidates y monte à 12,5 — loin des
+cinquante où s'ouvre la bande partielle. La feuille de route affirmait qu'un
+fichier écrit en millisecondes sans grille « reste sous quelques pour cent sur
+les huit candidates » ; elle l'affirmait d'après trois fichiers du corpus privé,
+et c'était un témoignage. C'en est une mesure.
+
+**Ce n'est pas la même question que `grille-absurde.srt`.** Celui-ci est
+parfaitement régulier, sur une grille à 26,3 images par seconde, et il éprouve
+« aucune des huit ». Celui-là n'est régulier sur rien, et il éprouve « aucune
+grille » — le faux positif, qui n'a de sens qu'à la taille d'un vrai fichier.
+Le plancher de bruit vaut `1/√n` : sept et demi pour cent à cent soixante-seize
+positions, et deux mille tirages de débuts quelconques ne font jamais monter la
+meilleure des huit au-dessus de vingt-quatre.
