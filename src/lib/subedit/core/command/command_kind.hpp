@@ -25,6 +25,8 @@ enum class CommandKind {
     ChangeCase,
     AddDialogueDashes,
     RemoveDialogueDashes,
+    Merge,
+    Split,
 };
 
 } // namespace subedit::core

@@ -118,6 +118,8 @@ TEST_CASE("every kind of command has a name of its own", "[wording]") {
         subedit::core::CommandKind::ChangeCase,
         subedit::core::CommandKind::AddDialogueDashes,
         subedit::core::CommandKind::RemoveDialogueDashes,
+        subedit::core::CommandKind::Merge,
+        subedit::core::CommandKind::Split,
     };
 
     std::set<std::string_view> seen;

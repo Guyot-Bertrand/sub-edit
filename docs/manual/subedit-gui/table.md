@@ -101,8 +101,9 @@ l'utilisateur.
 ## Ajouter et retirer des lignes
 
 `Edit ▸ Insert Subtitles…` et `Edit ▸ Remove Subtitles` posent et retirent des
-lignes ; la table se renumérote toute seule. Voir
-[Insérer et supprimer des lignes](lignes.md).
+lignes, `Edit ▸ Merge Subtitles` et `Edit ▸ Split Subtitle` en fusionnent et en
+scindent ; la table se renumérote toute seule. Voir
+[Insérer, supprimer, fusionner et scinder des lignes](lignes.md).
 
 ## Ce que la table ne fait pas
 
