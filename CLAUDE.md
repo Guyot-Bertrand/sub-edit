@@ -192,10 +192,22 @@ avec un objectif d'iso-fonctionnalité.
 - **Versions** — le `project(VERSION)` de `CMakeLists.txt` est la source du
   numéro courant ; il bouge à deux occasions :
   - **patch, à chaque PR** — toute PR incrémente le patch dans son propre
-    diff (`0.1.0` → `0.1.1` → `0.1.2`…). Pas de tag pour autant.
-  - **mineur, à chaque milestone terminée** — on remet le patch à zéro, on
-    bumpe le mineur, et on pose un tag `vX.Y.0` : `v0.1.0` clôt la phase 1,
-    `v0.2.0` clôra la phase 2, et ainsi de suite jusqu'à une `v1.0.0` à la fin.
+    diff (`0.1.0` → `0.1.1` → `0.1.2`…) ;
+  - **mineur, à chaque milestone terminée** — on remet le patch à zéro et on
+    bumpe le mineur : `v0.1.0` clôt la phase 1, `v0.2.0` clôra la phase 2, et
+    ainsi de suite jusqu'à une `v1.0.0` à la fin.
+
+  **Chaque version reçoit son tag, patchs compris** — depuis #232, et
+  `v0.10.9` est le premier patch tagué. Le tag `vX.Y.Z` se pose **sur le commit
+  de fusion dans `main`**, une fois la PR du bump fusionnée : c'est le commit
+  dont le `CMakeLists.txt` porte le numéro. Les versions antérieures ne sont pas
+  taguées après coup.
+
+  **Pousser le tag publie la version.** `.github/workflows/release.yml`
+  construit le `.deb` et le `.rpm` et les dépose dans une release GitHub. Il ne
+  garde que les releases de patch de la milestone en cours : à la publication
+  de `v0.11.0`, les releases `0.10.1` à `0.10.N` partent avec leurs paquets.
+  Les `vX.Y.0` restent toutes, et **aucun tag n'est jamais supprimé**.
 
   **Le bump se fait au dernier moment** — jamais en début de travail. Le numéro
   n'est connu qu'à ce moment-là : entre le premier commit et la PR, d'autres PR
@@ -253,17 +265,14 @@ avec un objectif d'iso-fonctionnalité.
   `src/scripts/check-architecture.sh` le vérifie dès qu'un tag pointe sur HEAD.
 - **Qualité** — `make check` est la porte : format, warnings en erreurs,
   clang-tidy, tests sous ASan, seuil de couverture, et **aucun fichier laissé
-  derrière**. La CI exécute la même cible. Ne jamais annoncer un travail
-  terminé sans l'avoir lancée.
+  derrière**. Ne jamais annoncer un travail terminé sans l'avoir lancée.
 
-  > **Du 2026-08-27 au 2026-09-01, la CI ne l'exécute plus.** Le quota
-  > d'Actions du mois est épuisé, donc `ci.yml` et `pull-request.yml` sont
-  > débranchés et le ruleset qui exigeait leur check est en `disabled`. La
-  > phrase ci-dessus n'en change pas d'un mot — elle en devient seulement la
-  > seule garde, puisque plus personne d'autre ne la vérifie. Les contrôles de
-  > pull request étant eux aussi coupés, `Closes #N`, le bump du patch et le
-  > journal régénéré redeviennent des gestes à faire, pas à voir échouer.
-  > Rétablissement : `docs/configuration-github.md`.
+  **La CI ne l'exécute pas, et c'est la règle depuis #232.** Les minutes
+  d'Actions et le stockage du cache partaient trop vite pour une porte par pull
+  request : `ci.yml` et `pull-request.yml` ne tournent qu'à la demande, et
+  aucun ruleset n'exige plus leur check. La phrase ci-dessus en devient la seule
+  garde, et la pull request dit ce qui a été franchi. `Closes #N`, le bump du
+  patch et le journal régénéré sont des gestes à faire, pas à voir échouer.
 
   Le dernier contrôle est le plus récent et le moins évident : la porte relève
   les fichiers non suivis avant de commencer et refuse ceux qui sont apparus

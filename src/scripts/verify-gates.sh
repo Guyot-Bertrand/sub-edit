@@ -26,6 +26,10 @@
 # Les quatre suivantes visent `make manual-check`, une par mode d'arrêt du
 # générateur d'exemples du manuel.
 #
+# Deux autres, nées de #232, ne visent pas davantage une porte :
+# `prune-releases.sh` choisit les releases qu il supprime, et
+# `check-release-tag.sh` décide si un tag mérite d être publié.
+#
 # La dernière ne vise aucune porte : clean-stale-coverage.sh répare au lieu de
 # refuser, et ce qui peut être faux chez lui va dans les deux sens — garder un
 # arbre incohérent, ou écarter un arbre sain.
@@ -113,6 +117,8 @@ readonly NESTED_CMAKE_SOURCE="${REPO_ROOT}/src/lib/CMakeLists.txt"
 readonly MODEL_SOURCE="${REPO_ROOT}/src/lib/subedit/core/model/subtitle_index.hpp"
 readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
+readonly RELEASE_PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-releases.sh"
+readonly RELEASE_TAG_CHECK="${REPO_ROOT}/src/scripts/check-release-tag.sh"
 readonly VIDEO_FIXTURE="${REPO_ROOT}/src/test/data/videos/cadence-25.mp4"
 readonly GRID_FIXTURE="${REPO_ROOT}/src/test/data/grilles/grille-25.srt"
 readonly DETECTION_JOURNAL="${REPO_ROOT}/docs/mesures/detection-d-encodage.md"
@@ -136,6 +142,10 @@ readonly OTHER_CAPTURE="${REPO_ROOT}/docs/manual/subedit-gui/captures/decalage.p
 # le script meurt — sans quoi cette preuve-là laisserait justement un fichier
 # derrière elle.
 readonly STRAY_FILE="${REPO_ROOT}/laisse-par-un-test.srt"
+# Le fichier illisible que la preuve de détection de format glisse dans le corpus
+# étiqueté. Même discipline que le précédent : créé par la preuve, retiré par
+# `restore`, y compris si le script meurt.
+readonly FORMAT_STRAY="${REPO_ROOT}/src/test/data/formats/illisible-par-une-preuve.srt"
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -172,6 +182,7 @@ restore() {
     cp "${backup_dir}/03-cli.md" "${SPEC_SOURCE}"
     cp "${backup_dir}/clang-tidy" "${TIDY_CONFIG}"
     rm -f "${STRAY_FILE}"
+    rm -f "${FORMAT_STRAY}"
 }
 
 cleanup() {
@@ -980,11 +991,18 @@ expect_conversion_loss_gates
 # **Les deux mêmes preuves que pour les deux autres relevés**, et pour la même
 # raison : le contrôle a trois issues et une seule est un refus.
 #
+# **Le recul s injecte dans le corpus, pas dans le relevé** — et c est une
+# correction. La première version remontait le relevé à `total/total` : juste
+# tant que la détection manquait des fichiers, muette depuis que le relevé est
+# à 19/19. Remonter un score parfait à lui-même ne change rien, la porte
+# laissait passer à bon droit, et la preuve échouait sans qu aucune porte ne
+# soit en cause. Un fichier étiqueté SubRip que le détecteur refuse fait
+# reculer le taux quel que soit le relevé, ce qui est la situation à prouver.
+#
 # **La troisième issue du contrôle n est pas éprouvée ici**, et c est délibéré :
 # une confusion échoue à elle seule, quel que soit le taux, et l injecter
-# demanderait un détecteur dégradé plutôt qu un journal retouché — donc une
-# recompilation, pour prouver une branche de trois lignes. Le corpus, lui,
-# l éprouve : sept refus et pas une confusion, à chaque exécution.
+# demanderait un détecteur dégradé — donc une recompilation, pour prouver une
+# branche de trois lignes.
 expect_format_score_gates() {
     local recorded
     recorded="$(sed -n 's/^ *formats reconnus *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
@@ -994,8 +1012,7 @@ expect_format_score_gates() {
 
     printf '%s▸ un score de détection de format en dessous de son relevé%s\n' "${BOLD}" "${RESET}"
 
-    sed -i "s|^ *formats reconnus *:.*$|    formats reconnus : ${total}/${total}|" \
-        "${FORMAT_JOURNAL}"
+    printf 'pas un sous-titre\n' > "${FORMAT_STRAY}"
 
     if make -C "${REPO_ROOT}" --no-print-directory score-format >/dev/null 2>&1; then
         printf '  %s✗ la porte « score-format » a laissé passer le recul%s\n' "${RED}" "${RESET}"
@@ -1393,6 +1410,79 @@ expect_prune_selection_holds() {
 
 expect_prune_selection_holds
 
+# Du même genre que la précédente, pour les releases — issue #232. Supprimer
+# une release emporte ses paquets, et GitHub ne les rend pas.
+#
+# Le jeu couvre ce qui décide du fichier :
+#
+#   v0.9.0, v0.10.0   mineures        restent toujours
+#   v0.9.3, v0.9.12   patchs passés   partent — et 0.9.12 compté comme nombre
+#   v0.10.2, v0.10.9  patchs en cours restent : la milestone en cours est 0.10,
+#                                     que « 0.9 » précéderait comme texte
+#   v1.0.0-rc, notes  hors forme      ni comptés ni touchés
+#
+# Le second passage pousse une mineure plus haute, v0.11.0 : c'est l'événement
+# qui fait basculer les patchs de 0.10 dans le passé.
+expect_release_prune_selection_holds() {
+    printf '%s▸ %s%s\n' "${BOLD}" "choix des releases à supprimer" "${RESET}"
+
+    local fixture
+    fixture="$(mktemp)"
+    local status=0
+    local actual
+
+    printf '%s\n' v0.9.0 v0.9.3 v0.9.12 v0.10.0 v0.10.2 v0.10.9 v1.0.0-rc notes > "${fixture}"
+    actual="$("${RELEASE_PRUNE_SCRIPT}" --dry-run --input "${fixture}" 2>/dev/null \
+        | sort | tr '\n' ' ')" || status=$?
+    check_release_selection "milestone 0.10 en cours" "${status}" "${actual% }" "v0.9.12 v0.9.3"
+
+    status=0
+    printf '%s\n' v0.11.0 >> "${fixture}"
+    actual="$("${RELEASE_PRUNE_SCRIPT}" --dry-run --input "${fixture}" 2>/dev/null \
+        | sort | tr '\n' ' ')" || status=$?
+    check_release_selection "v0.11.0 publiée" "${status}" "${actual% }" \
+        "v0.10.2 v0.10.9 v0.9.12 v0.9.3"
+
+    rm -f "${fixture}"
+}
+
+check_release_selection() {
+    local label="$1" status="$2" actual="$3" expected="$4"
+
+    if (( status != 0 )); then
+        printf '  %s✗ %s : la sélection est morte, code %d%s\n' "${RED}" "${label}" "${status}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${actual}" == "${expected}" ]]; then
+        printf '  %s✓ %s : « %s », comme attendu%s\n' "${GREEN}" "${label}" "${actual}" "${RESET}"
+    else
+        printf '  %s✗ %s : « %s », attendu « %s »%s\n' \
+            "${RED}" "${label}" "${actual}" "${expected}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+}
+
+expect_release_prune_selection_holds
+
+# Le garde du workflow de release, sur ses deux refus qui ne demandent aucun tag
+# à poser : un nom qui n est pas une version, et une version qui ne désigne
+# aucun commit. Le troisième — une version en désaccord avec son CMakeLists —
+# exigerait de poser un tag dans le dépôt, ce qu une preuve n a pas à faire.
+expect_release_tag_check_refuses() {
+    printf '%s▸ %s%s\n' "${BOLD}" "tag de release refusé" "${RESET}"
+
+    local tag
+    for tag in 0.10.9 v0.10 v999.999.999; do
+        if "${RELEASE_TAG_CHECK}" "${tag}" >/dev/null 2>&1; then
+            printf '  %s✗ check-release-tag.sh a accepté « %s »%s\n' "${RED}" "${tag}" "${RESET}"
+            failures=$((failures + 1))
+        else
+            printf '  %s✓ « %s » refusé, comme attendu%s\n' "${GREEN}" "${tag}" "${RESET}"
+        fi
+    done
+}
+
+expect_release_tag_check_refuses
+
 # Une preuve d un quatrième genre, et du même esprit que la précédente.
 # clean-stale-coverage.sh ne refuse rien non plus : il répare. Ce qui peut être
 # faux chez lui est donc de laisser passer un arbre incohérent — un .gcno qu un
@@ -1731,6 +1821,8 @@ printf '%sles cinquante-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
+    "${GREEN}" "${RESET}"
+printf '%set les releases élaguées sont les patchs des milestones passées%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set le journal des mesures ne pose un extrême que sur un relevé propre%s\n' \
     "${GREEN}" "${RESET}"

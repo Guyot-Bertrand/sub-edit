@@ -1,0 +1,112 @@
+name: release
+
+# Les paquets d'une version, construits et publiés quand son tag est poussé —
+# issue #232.
+#
+# **Ce workflow remplace la porte en CI, il ne la complète pas.** Les minutes
+# d'Actions et le stockage du cache partaient trop vite pour une exécution de
+# `make check` par pull request : la porte est locale, et elle a été franchie
+# avant la fusion. Ce qui reste à faire sur une machine neutre est ce qu'un
+# poste de développement ne peut pas donner — des paquets construits depuis un
+# clone propre, et une page où les télécharger.
+#
+# **Un tag par version, patchs compris**, posé sur le commit de fusion dans
+# `main`. Voir la section « Versions » de CLAUDE.md.
+#
+# **Pas de cache**, ni de paquets apt ni de compilation : c'est le poste de
+# stockage qui a coûté. Chaque exécution compile à froid, et c'est le prix
+# accepté d'une exécution par version plutôt que par poussée.
+#
+# **Pas d'artefact d'Actions** : les paquets vont directement dans la release,
+# dont les fichiers ne comptent pas dans le stockage d'Actions.
+#
+# La logique vit dans deux scripts, pour la raison de `elagage.yml` — un script
+# se lance en local, un bloc de YAML non : `check-release-tag.sh` décide si le
+# tag mérite une release, `prune-releases.sh` décide lesquelles s'en vont.
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+  # Rejouer la publication d'un tag déjà poussé : une exécution perdue pour une
+  # raison étrangère au dépôt, ou un paquet à reconstruire. Les fichiers d'une
+  # release existante sont remplacés, pas dupliqués. Le bouton n'apparaît dans
+  # l'interface que si ce fichier est sur la branche par défaut.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Le tag à publier, vX.Y.Z'
+        required: true
+
+# Écrire une release, et en supprimer. Rien d'autre.
+permissions:
+  contents: write
+
+# Deux publications du même tag ne se marchent pas dessus ; la seconde attend
+# plutôt que d'annuler une construction à moitié faite.
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: paquets et release
+    runs-on: ubuntu-24.04
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      # Avant le checkout, parce que le nom sert de `ref:` : une saisie manuelle
+      # qui ne serait pas un tag de version n'atteint jamais git. Lu par
+      # l'environnement et jamais interpolé dans le script.
+      - name: Le nom est celui d'une version
+        run: |
+          [[ "${TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] \
+              || { echo "« ${TAG} » ne s'écrit pas vX.Y.Z" >&2; exit 1; }
+
+      # L'historique complet : `check-release-tag.sh` vérifie que le commit est
+      # sur `main`, et git-cliff écrit les notes depuis le tag précédent.
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
+          fetch-depth: 0
+
+      # Avant la chaîne d'outils, et c'est tout l'intérêt : un tag qui ne
+      # s'accorde pas avec sa version est refusé en quelques secondes, pas après
+      # vingt minutes de compilation.
+      - name: Le tag désigne une version de main
+        run: ./src/scripts/check-release-tag.sh "${TAG}"
+
+      # Le script du poste de développement, pour que la machine qui construit
+      # les paquets ne diverge pas de celle qui les éprouve.
+      - name: Chaîne d'outils
+        run: ./src/scripts/setup-toolchain.sh
+
+      - name: make packages
+        run: make packages JOBS=$(nproc)
+
+      # La section du journal de cette version, écrite par le même outil que
+      # CHANGELOG.md : `--current` la borne au tag qui pointe sur HEAD.
+      - name: Notes de version
+        run: git-cliff --current --strip header --output "${RUNNER_TEMP}/notes.md"
+
+      - name: Publier
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s failglob
+          paquets=(build/release/subedit*.deb build/release/subedit*.rpm)
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+              gh release upload "${TAG}" "${paquets[@]}" --clobber
+              gh release edit "${TAG}" --notes-file "${RUNNER_TEMP}/notes.md"
+          else
+              gh release create "${TAG}" "${paquets[@]}" --verify-tag \
+                  --title "subedit ${TAG#v}" --notes-file "${RUNNER_TEMP}/notes.md"
+          fi
+
+      # Après la publication, et dans le même travail : un tag poussé est le
+      # seul moment où la milestone en cours peut changer.
+      - name: Élaguer les releases de patch des milestones passées
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./src/scripts/prune-releases.sh

@@ -16,14 +16,14 @@ binaire n'est pas distribué.
 ## Application
 
 `src/scripts/setup-github.sh` applique tout ce qui a une API — labels,
-milestones, rulesets — de façon idempotente. Le reste n'en a pas et figure plus
+milestones, ruleset — de façon idempotente. Le reste n'en a pas et figure plus
 bas.
 
 ```bash
 ./src/scripts/setup-github.sh
 ```
 
-Les rulesets exigent la permission **Administration: Read and write** du jeton ;
+Le ruleset exige la permission **Administration: Read and write** du jeton ;
 un jeton à granularité fine ne l'accorde pas par défaut. Sans elle, le script
 signale l'échec, applique le reste et se termine normalement.
 
@@ -36,12 +36,9 @@ signale l'échec, applique le reste et se termine normalement.
 C'est la mesure qui fait l'essentiel du travail : sans droit d'écriture,
 un tiers ne peut que forker et proposer une PR, qui se ferme d'un clic.
 
-### 2. Deux rulesets sur `main`
+### 2. Un ruleset sur `main`
 
 *Settings → Rules → Rulesets*, ou `src/scripts/setup-github.sh`.
-
-Deux plutôt qu'un, parce qu'un ruleset n'a **qu'une seule liste de dérogation
-pour toutes ses règles**, alors que les deux besoins s'opposent.
 
 Les libellés ci-dessous sont ceux de l'interface GitHub, et non ceux de l'API.
 
@@ -59,74 +56,26 @@ Le propriétaire étant seul à pouvoir écrire, le risque réel n'est pas un ti
 malveillant : c'est un `push --force` accidentel de sa part. Une règle dont il
 serait exempté ne protégerait donc de rien — d'où la liste de dérogation vide.
 
-#### « porte de qualité »
+#### Il n'y a plus de « porte de qualité »
 
-> **Suspendu depuis le 2026-08-27, et à rétablir le 2026-09-01.** Les 2000
-> minutes d'Actions du mois sont consommées, donc `ci.yml` et
-> `pull-request.yml` sont débranchés — leurs déclencheurs automatiques sont
-> commentés, `workflow_dispatch` reste. Ce ruleset a suivi, en `disabled` :
-> **il exige un check qui ne sera plus rapporté**, et une règle qui attend
-> indéfiniment ne protège de rien — elle se contourne à chaque fusion par la
-> dérogation admin, ce qui est la façon la plus sûre de prendre l'habitude de
-> passer outre.
->
-> Ce qui garde le dépôt entre-temps est `make check`, en local. C'est la même
-> cible ; ce qu'on perd est la machine neutre qui l'exécutait.
->
-> Les trois gestes du rétablissement, dans cet ordre :
->
-> ```console
-> $ # 1 et 2 — décommenter les déclencheurs des deux workflows
-> $ ${EDITOR} .github/workflows/ci.yml .github/workflows/pull-request.yml
-> $ # 3 — rendre son application au ruleset
-> $ gh api -X PUT repos/Guyot-Bertrand/sub-edit/rulesets/20469201 \
->     -f enforcement=active
-> ```
->
-> L'identifiant se retrouve avec la commande de vérification plus bas, si
-> jamais le ruleset a été recréé entre-temps.
+**Supprimé à la #232.** Ce second ruleset exigeait le check `porte de qualité`
+de `.github/workflows/ci.yml`. Les minutes d'Actions et le stockage du cache
+partaient trop vite pour une exécution par pull request : `ci.yml` et
+`pull-request.yml` ne tournent plus qu'à la demande, et une règle qui attend un
+contrôle que rien ne produira ne protège de rien — elle apprend seulement à
+passer outre par la dérogation admin.
 
-| Champ de l'interface | Valeur |
-| :------------------- | :----- |
-| Ruleset Name | `porte de qualité` |
-| Enforcement status | **Active** — `Disabled` jusqu'au 2026-09-01, voir ci-dessus |
-| Bypass list → Add bypass | **Repository admin** — mode *Always* |
-| Target branches → Add target | **Include default branch** |
-| Rules | cocher **Require status checks to pass** |
-| → Add checks | `porte de qualité`, source **GitHub Actions** |
-| → Require branches to be up to date | décoché |
+Il avait été mis en `disabled` le 2026-08-27, à l'épuisement du quota d'août.
+`setup-github.sh` ne le recrée plus. S'il existe encore sur le dépôt, il se
+supprime par *Settings → Rules → Rulesets*, ou :
 
-Deux pièges dans cette seconde :
+```console
+$ gh api -X DELETE repos/Guyot-Bertrand/sub-edit/rulesets/20469201
+```
 
-- **Le nom du contrôle est celui du *job*, pas du workflow.** C'est
-  `porte de qualité`, valeur du champ `name:` du job `check` dans
-  `.github/workflows/ci.yml` — et non `ci`.
-- **Le contrôle n'apparaît dans le sélecteur qu'après s'être exécuté au moins
-  une fois.** Sur un dépôt dont la CI n'a jamais tourné, la liste est vide et
-  il faut saisir le nom à la main.
-
-#### Les deux contrôles qui ne sont pas requis
-
-`messages de commit` et `contrôles de pull request` échouent en rouge sans
-empêcher la fusion. **C'est délibéré, et provisoire.** Un contrôle jeune qui
-bloque une fusion coûte plus cher qu'il ne rapporte tant qu'on n'a pas vu s'il
-produit des faux positifs ; le rouge suffit à le rendre visible pendant cette
-observation. À rediscuter à l'ouverture de la phase 4.
-
-Le jour où l'on voudra les rendre bloquants, deux choses à savoir :
-
-- le nom à saisir est celui du job — `contrôles de pull request`, `name:` du
-  job `pull-request` de `.github/workflows/pull-request.yml`, et non
-  `pull request` ;
-- **`contrôles de pull request` ne rapporte rien lors d'un push direct sur
-  `main`**, son workflow ne se déclenchant que sur l'événement `pull_request`.
-  Sans conséquence tant que l'administrateur déroge — mais un contrôle requis
-  qui reste muet bloquerait toute fusion si cette dérogation disparaissait.
-
-La dérogation pour l'administrateur est indispensable : la CI ne s'exécute
-qu'**après** le push, donc sans elle la règle rejetterait tout push direct sur
-`main` et imposerait de fait le passage par une pull request — ce qui a été
-écarté à ce stade.
+**Ce qui garde le dépôt est `make check`, en local**, et la pull request dit ce
+qui a été franchi. Ce qui tourne sur GitHub à chaque version est la publication
+des paquets — voir la section 10.
 
 #### Vérifier
 
@@ -136,20 +85,8 @@ gh api repos/Guyot-Bertrand/sub-edit/rulesets/<id> \
   --jq '{bypass: [.bypass_actors[]? | "\(.actor_type)/\(.actor_id)"], rules: [.rules[].type]}'
 ```
 
-Attendu : `protection de l'historique` sans dérogation avec les règles
-`deletion` et `non_fast_forward` ; `porte de qualité` avec
-`RepositoryRole/5` et la règle `required_status_checks`.
-
-Les contextes exigés se lisent à part, la requête ci-dessus ne descendant pas
-dans les paramètres des règles :
-
-```bash
-gh api repos/Guyot-Bertrand/sub-edit/rulesets/<id> \
-  --jq '[.rules[] | select(.type == "required_status_checks")
-         | .parameters.required_status_checks[].context]'
-```
-
-Attendu : `porte de qualité` et `contrôles de pull request`.
+Attendu : `protection de l'historique` seul, sans dérogation, avec les règles
+`deletion` et `non_fast_forward`.
 
 ### 3. Approbation des workflows de fork
 
@@ -185,9 +122,11 @@ explicitement : GitHub laisse la limite expirer sans prévenir.
 (réglable de 1 à 90 ; 90 par défaut, mais ce dépôt était **déjà à 30** — mesuré,
 et non supposé, sur l'écart entre `created_at` et `expires_at` des artefacts).
 
-C'est le seul poste de stockage facturé du dépôt. Un unique artefact est
-téléversé — `couverture`, le rapport HTML produit par `ci.yml` à chaque
-exécution de la porte, 321 Kio invariablement. À une douzaine d'exécutions par
+C'est le seul poste de stockage facturé du dépôt avec le cache. Un unique
+artefact est téléversé — `couverture`, le rapport HTML produit par `ci.yml` à
+chaque exécution de la porte, 321 Kio invariablement. **Depuis #232, `ci.yml` ne
+tourne qu'à la demande**, donc le calcul qui suit décrit l'ancien régime ; il
+reste la raison du réglage. À une douzaine d'exécutions par
 jour, le plateau est d'environ 103 Mio à 30 jours et de **~24 Mio à 7 jours**,
 sur les 500 Mio d'un compte gratuit. Les 105 artefacts présents ne pesaient que
 23,4 Mio parce que dix jours d'accumulation seulement les séparaient du départ :
@@ -308,6 +247,75 @@ make rpm-check
 
 Le même geste que le workflow, sur la machine de développement. Il lui faut
 podman ou docker, et il dit lequel il a pris.
+
+### 10. Les paquets à chaque tag
+
+`.github/workflows/release.yml`, quand un tag `vX.Y.Z` est poussé, et à la main
+par *Actions → release → Run workflow* pour republier un tag existant — issue
+#232.
+
+**Ce qu'il fait, dans l'ordre :**
+
+1. refuse un nom qui n'est pas `vX.Y.Z`, avant même le checkout ;
+2. `src/scripts/check-release-tag.sh` — le `project(VERSION)` du commit tagué
+   porte le même numéro, et ce commit est sur `main` ;
+3. installe la chaîne d'outils par `setup-toolchain.sh` et lance
+   `make packages` ;
+4. écrit les notes par `git-cliff --current`, la section du journal de cette
+   version ;
+5. crée la release avec le `.deb` et le `.rpm` — ou, pour un tag déjà publié,
+   remplace ses fichiers et ses notes ;
+6. `src/scripts/prune-releases.sh` — élague les releases de patch des milestones
+   passées.
+
+**Pas de cache et pas d'artefact.** Le cache est le poste de stockage qui a
+coûté ; chaque exécution compile donc à froid, une fois par version plutôt
+qu'une fois par poussée. Les paquets vont directement dans la release, dont les
+fichiers ne comptent pas dans le stockage d'Actions.
+
+**Le tag se pose sur le commit de fusion dans `main`**, une fois la pull request
+du bump fusionnée :
+
+```console
+$ git -C /home/beber/Projects/subedit tag -a v0.10.10 -m "v0.10.10 — …" <commit de fusion>
+$ git -C /home/beber/Projects/subedit push origin v0.10.10
+```
+
+Un tag posé ailleurs — sur une branche de travail, ou sur un commit dont le
+`CMakeLists.txt` porte un autre numéro — est refusé à l'étape 2, et rien n'est
+construit.
+
+#### La rétention
+
+| Version | Release et paquets | Tag |
+| :------ | :----------------- | :-- |
+| `vX.Y.0`, mineure ou majeure | gardée toujours | gardé |
+| `vX.Y.Z`, `Z > 0`, milestone en cours | gardée | gardé |
+| `vX.Y.Z`, `Z > 0`, milestone passée | **supprimée** | **gardé** |
+
+« Milestone en cours » est le couple `X.Y` le plus haut parmi les releases. À la
+publication de `v0.11.0`, les releases `0.10.1` à `0.10.N` partent avec leurs
+paquets ; `v0.10.0` reste, et tous les tags aussi.
+
+**Un correctif sur une milestone passée est élagué dans la foulée** : un `v0.9.1`
+poussé après `v0.10.0` est construit, publié, puis supprimé par la même
+exécution. La règle ne fait pas d'exception pour le plus récent.
+
+`verify-gates.sh` prouve la sélection sur une liste écrite à la main, et deux
+refus du garde de tag.
+
+#### Vérifier
+
+```bash
+./src/scripts/prune-releases.sh --dry-run
+./src/scripts/check-release-tag.sh v0.10.9
+gh release list --repo Guyot-Bertrand/sub-edit
+```
+
+Le premier est en lecture seule et passe avec un jeton personnel : il écrit les
+tags dont la release partirait, et sur la sortie d'erreur le compte. Chaque
+exécution du workflow écrit d'elle-même son avant/après dans le résumé de son
+travail.
 
 ## Taxonomie des issues
 
