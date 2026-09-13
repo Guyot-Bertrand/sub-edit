@@ -64,4 +64,21 @@ public:
                                         const QModelIndex& index) const override;
 };
 
+/// The editor a duration cell opens: the field of a position, **without a
+/// sign**.
+///
+/// A duration is typed in the shape of a timestamp — the column shows it that
+/// way, and the reading is the same. What it refuses on top is the leading
+/// `-`: a start may lie before the video, a length may not be negative.
+class DurationDelegate final : public QStyledItemDelegate {
+    Q_OBJECT
+
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    [[nodiscard]] QWidget* createEditor(QWidget* parent,
+                                        const QStyleOptionViewItem& option,
+                                        const QModelIndex& index) const override;
+};
+
 } // namespace subedit::gui

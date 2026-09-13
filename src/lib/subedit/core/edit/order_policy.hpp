@@ -49,6 +49,8 @@ enum class OrderPolicy {
         return true;
     case CommandKind::SetText:
     case CommandKind::SetEnd:
+    // It moves the end, and only the end.
+    case CommandKind::SetDuration:
     case CommandKind::Remove:
     case CommandKind::Sort:
     // It does only what the two above it do — rewrite texts, take subtitles

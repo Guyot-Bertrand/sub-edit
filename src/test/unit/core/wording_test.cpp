@@ -105,6 +105,7 @@ TEST_CASE("every kind of command has a name of its own", "[wording]") {
         subedit::core::CommandKind::SetText,
         subedit::core::CommandKind::SetStart,
         subedit::core::CommandKind::SetEnd,
+        subedit::core::CommandKind::SetDuration,
         subedit::core::CommandKind::Insert,
         subedit::core::CommandKind::Remove,
         subedit::core::CommandKind::Shift,

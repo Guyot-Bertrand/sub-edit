@@ -297,6 +297,8 @@ std::string_view nameOf(CommandKind kind) {
         return "editing a start";
     case CommandKind::SetEnd:
         return "editing an end";
+    case CommandKind::SetDuration:
+        return "editing a duration";
     case CommandKind::Insert:
         return "inserting";
     case CommandKind::Remove:
@@ -329,7 +331,7 @@ std::string_view nameOf(CommandKind kind) {
         return "splitting";
     }
 
-    // The eighteen are handled and the compiler checks it. A `default` here would
+    // The nineteen are handled and the compiler checks it. A `default` here would
     // take an enumerator added without a name in silence, and the action would
     // announce it as an empty string.
     std::unreachable();

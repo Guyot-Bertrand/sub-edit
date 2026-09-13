@@ -32,6 +32,7 @@ using subedit::core::Project;
 using subedit::core::Session;
 using subedit::core::Subtitle;
 using subedit::core::Timestamp;
+using subedit::gui::DurationDelegate;
 using subedit::gui::PositionDelegate;
 using subedit::gui::SubtitleTableModel;
 using subedit::gui::TextDelegate;
@@ -314,4 +315,32 @@ TEST_CASE("the position field refuses what could never be a position", "[gui][GU
     CHECK(judge("1:02.5") == QValidator::Acceptable);
     CHECK(judge("-0:01,000") == QValidator::Acceptable);
     CHECK(judge("bientôt") == QValidator::Invalid);
+}
+
+TEST_CASE("the duration field refuses a sign at the keyboard", "[gui][GUI-DURATION-01]") {
+    // A start may lie before the video; a length may not be negative. The
+    // shape is otherwise that of a position.
+    Session session{oneSubtitle()};
+    const SubtitleTableModel model{session};
+    const DurationDelegate delegate;
+    QWidget parent;
+    const std::unique_ptr<QWidget> editor{
+        delegate.createEditor(&parent, QStyleOptionViewItem{}, model.index(0, 3))};
+    delegate.setEditorData(editor.get(), model.index(0, 3));
+
+    auto* field = qobject_cast<QLineEdit*>(editor.get());
+    REQUIRE(field != nullptr);
+    REQUIRE(field->validator() != nullptr);
+
+    const auto judge = [&field](const char* typed) {
+        QString text = QString::fromUtf8(typed);
+        int position = 0;
+        return field->validator()->validate(text, position);
+    };
+
+    CHECK(field->hasAcceptableInput());
+    CHECK(judge("00:00:02,500") == QValidator::Acceptable);
+    CHECK(judge("0:02.5") == QValidator::Acceptable);
+    CHECK(judge("-0:01,000") == QValidator::Invalid);
+    CHECK(judge("longtemps") == QValidator::Invalid);
 }

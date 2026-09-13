@@ -1,8 +1,7 @@
 # Éditer une cellule
 
-Trois colonnes s'éditent en place : `Start`, `End` et `Text`. `#` et `Duration`
-ne s'éditent pas — le numéro est le rang de la ligne, la durée est
-`Fin − Début`, et ni l'un ni l'autre n'est une donnée du fichier.
+Quatre colonnes s'éditent en place : `Start`, `End`, `Duration` et `Text`. `#`
+ne s'édite pas — le numéro est le rang de la ligne, pas une donnée du fichier.
 
 **Ouvrir l'éditeur d'une cellule :** double-cliquer dessus, ou la sélectionner
 et appuyer sur `F2`.
@@ -69,6 +68,32 @@ bornes : l'éditeur se referme et rien n'a bougé. Aucune position n'est invent�
 sous-titre mal calé d'un sous-titre bien calé.
 
 Modifier un début ou une fin met la `Duration` à jour aussitôt.
+
+## La durée
+
+**Saisir une durée déplace la fin, et jamais le début** : la fin devient
+`Start + Duration`. Déplacer le début déplacerait le sous-titre entier, ce qui
+est le travail de [`Shift Positions…`](operations.md), et la colonne `Start` se
+saisit déjà.
+
+La durée se tape **sous la forme d'un horodatage**, celle que la colonne
+affiche, et les formes de la table ci-dessus valent — à une différence près :
+
+| Élément | Début, fin | Durée |
+| :------ | :--------- | :---- |
+| forme | celle d'un horodatage | la même |
+| signe `-` en tête | accepté | **refusé à la frappe** |
+
+`0:02.5` et `00:00:02,500` sont donc deux saisies valides d'une durée de deux
+secondes et demie ; `-0:01,000` ne se tape pas. Une durée nulle est acceptée :
+le sous-titre disparaît alors à l'instant où il apparaît.
+
+**Une fin qui passe par-dessus le sous-titre suivant est permise.** Le
+chevauchement est teinté dans la table et relevé dans le panneau de
+diagnostics — un avis, pas un refus : c'est peut-être ce qu'on voulait.
+
+Une saisie illisible laisse la cellule inchangée, comme pour une position, et
+une durée identique à celle affichée n'entre pas dans l'historique.
 
 ## Une validation qui ne change rien ne fait rien
 

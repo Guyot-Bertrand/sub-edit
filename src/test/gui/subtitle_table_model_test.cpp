@@ -1,4 +1,5 @@
 #include <subedit/core/command/change.hpp>
+#include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
@@ -307,9 +308,9 @@ namespace {
 
 } // namespace
 
-TEST_CASE("the two positions and the text are what a cell edit can reach", "[gui][GUI-EDIT-01]") {
-    // The number is a rank and the duration a difference: neither is a datum,
-    // and the core has no command that would set either.
+TEST_CASE("every column but the number is what a cell edit can reach", "[gui][GUI-EDIT-01]") {
+    // The number is a rank, not a datum, and the core has no command that would
+    // set it. The duration is a difference, and setting it moves the end.
     Session session{threeSubtitles()};
     const SubtitleTableModel model{session};
 
@@ -320,7 +321,7 @@ TEST_CASE("the two positions and the text are what a cell edit can reach", "[gui
     CHECK_FALSE(editable(model, 0));
     CHECK(editable(model, 1));
     CHECK(editable(model, 2));
-    CHECK_FALSE(editable(model, 3));
+    CHECK(editable(model, 3));
     CHECK(editable(model, 4));
 }
 
@@ -381,14 +382,72 @@ TEST_CASE("editing a cell refreshes the column it changed", "[gui][GUI-EDIT-01]"
     CHECK(topLeft.column() == 4);
 }
 
-TEST_CASE("the number and the duration refuse an edit", "[gui][GUI-EDIT-01]") {
+TEST_CASE("the number refuses an edit", "[gui][GUI-EDIT-01]") {
     Session session{threeSubtitles()};
     SubtitleTableModel model{session};
 
     CHECK_FALSE(edits(model, 0, 0, "7"));
-    CHECK_FALSE(edits(model, 0, 3, "00:00:09,000"));
 
     CHECK(session.undoableCount() == 0);
+}
+
+TEST_CASE("a typed duration moves the end and leaves the start alone", "[gui][GUI-DURATION-01]") {
+    Session session{threeSubtitles()};
+    SubtitleTableModel model{session};
+
+    CHECK(edits(model, 0, 3, "0:04.5"));
+
+    CHECK(textAt(model, 0, 1) == "00:00:01,000");
+    CHECK(textAt(model, 0, 2) == "00:00:05,500");
+    CHECK(textAt(model, 0, 3) == "00:00:04,500");
+    CHECK(session.undoableCount() == 1);
+    CHECK(session.nextUndoKind() == subedit::core::CommandKind::SetDuration);
+}
+
+TEST_CASE("undoing a typed duration gives back the end it replaced", "[gui][GUI-DURATION-01]") {
+    Session session{threeSubtitles()};
+    SubtitleTableModel model{session};
+    REQUIRE(edits(model, 0, 3, "00:00:09,000"));
+
+    model.applied(session.undo());
+
+    CHECK(textAt(model, 0, 2) == "00:00:02,500");
+    CHECK(textAt(model, 0, 3) == "00:00:01,500");
+    CHECK_FALSE(session.hasUnsavedChanges(Document::Main));
+}
+
+TEST_CASE("a duration may carry the end over the next subtitle", "[gui][GUI-DURATION-01]") {
+    // An overlap is reported, never refused: decision D4 of phase 5.
+    Session session{threeSubtitles()};
+    SubtitleTableModel model{session};
+
+    CHECK(edits(model, 0, 3, "00:00:05,000"));
+
+    CHECK(textAt(model, 0, 2) == "00:00:06,000");
+    CHECK(textAt(model, 1, 1) == "00:00:03,000");
+}
+
+TEST_CASE("a negative or unreadable duration leaves the cell as it was", "[gui][GUI-DURATION-01]") {
+    Session session{threeSubtitles()};
+    SubtitleTableModel model{session};
+
+    CHECK_FALSE(edits(model, 0, 3, "-0:01,000"));
+    CHECK_FALSE(edits(model, 0, 3, "longtemps"));
+
+    CHECK(textAt(model, 0, 3) == "00:00:01,500");
+    CHECK(session.undoableCount() == 0);
+}
+
+TEST_CASE("validating a duration that did not change writes nothing to the history",
+          "[gui][GUI-DURATION-01]") {
+    Session session{threeSubtitles()};
+    SubtitleTableModel model{session};
+    const QSignalSpy announced{&model, &SubtitleTableModel::historyChanged};
+
+    CHECK(edits(model, 0, 3, "0:01.5"));
+
+    CHECK(session.undoableCount() == 0);
+    CHECK(announced.count() == 1);
 }
 
 TEST_CASE("an edit outside the table, or in another role, changes nothing", "[gui][GUI-EDIT-01]") {

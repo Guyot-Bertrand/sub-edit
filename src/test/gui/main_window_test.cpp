@@ -39,6 +39,7 @@ using subedit::core::OpenedFile;
 using subedit::core::openProject;
 using subedit::core::RealFileSystem;
 using subedit::core::SubtitleFormat;
+using subedit::gui::DurationDelegate;
 using subedit::gui::MainWindow;
 using subedit::gui::PositionDelegate;
 using subedit::gui::TextDelegate;
@@ -233,7 +234,8 @@ TEST_CASE("a row grows when its subtitle gains a line", "[gui][GUI-EDIT-01]") {
     CHECK(table.rowHeight(2) == untouched);
 }
 
-TEST_CASE("the window puts an editor on the three cells that can be edited", "[gui][GUI-EDIT-01]") {
+TEST_CASE("the window puts an editor on the four cells that can be edited",
+          "[gui][GUI-EDIT-01][GUI-DURATION-01]") {
     const Windowed fixture;
     const MainWindow& window = fixture.window();
     const QTableView* table = window.table();
@@ -243,7 +245,7 @@ TEST_CASE("the window puts an editor on the three cells that can be edited", "[g
     CHECK(table->itemDelegateForColumn(0) == nullptr);
     CHECK(qobject_cast<PositionDelegate*>(table->itemDelegateForColumn(1)) != nullptr);
     CHECK(qobject_cast<PositionDelegate*>(table->itemDelegateForColumn(2)) != nullptr);
-    CHECK(table->itemDelegateForColumn(3) == nullptr);
+    CHECK(qobject_cast<DurationDelegate*>(table->itemDelegateForColumn(3)) != nullptr);
     CHECK(qobject_cast<TextDelegate*>(table->itemDelegateForColumn(4)) != nullptr);
 }
 

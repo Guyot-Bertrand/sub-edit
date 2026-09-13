@@ -39,11 +39,12 @@ de décimales. Ce qu'un format d'arrivée arrondirait est dit au moment de
 l'enregistrement — voir
 [Ce qu'un format ne portera pas](fichiers.md#ce-quun-format-ne-portera-pas-dit-avant-décrire).
 
-**La durée (`Duration`) est calculée**, jamais saisie. Un sous-titre dont la fin précède le
+**La durée (`Duration`) est calculée**, jamais stockée : la saisir déplace la
+fin. Un sous-titre dont la fin précède le
 début affiche une durée négative plutôt que zéro : c'est une anomalie du
 fichier, et la masquer la rendrait introuvable.
 
-**Le début, la fin et le texte s'éditent en place** ; le numéro et la durée non.
+**Le début, la fin, la durée et le texte s'éditent en place** ; le numéro non.
 Voir [Éditer une cellule](edition.md).
 
 **La sélection désigne ce sur quoi une opération porte** — voir

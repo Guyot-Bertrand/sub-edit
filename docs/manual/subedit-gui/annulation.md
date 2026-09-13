@@ -20,6 +20,7 @@ pointeur — mais son infobulle porte le libellé entier.
 | :-------- | :------------------ |
 | une cellule de texte éditée | `editing a text` |
 | un début, une fin | `editing a start`, `editing an end` |
+| une durée | `editing a duration` |
 | une insertion de lignes | `inserting` |
 | une suppression de lignes | `removing` |
 | un décalage, `Shift Whole File onto Grid` compris | `shifting` |
@@ -34,8 +35,8 @@ pointeur — mais son infobulle porte le libellé entier.
 | une fusion de lignes | `merging` |
 | une scission de ligne | `splitting` |
 
-**Dix-sept libellés, et c'est tout ce que la fenêtre sait produire.** Le noyau
-en nomme un dix-huitième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri
+**Dix-huit libellés, et c'est tout ce que la fenêtre sait produire.** Le noyau
+en nomme un dix-neuvième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri
 n'a lieu que sous une politique d'ordre stricte, alors que la fenêtre ouvre ses
 documents sous la politique souple, qui signale le désordre au lieu de le
 réparer.
