@@ -12,7 +12,7 @@ thème n'en a aucun.
 
 **Une autre se règle là où elle sert** : le côté où `Insert Subtitles…` pose ses
 lignes est un champ de ce dialogue-là, et le dernier choix est retenu. Voir
-[Insérer et supprimer des lignes](lignes.md#le-côté-est-retenu).
+[Insérer, supprimer, fusionner et scinder des lignes](lignes.md#le-côté-est-retenu).
 
 **Ce qui n'est pas retenu :** le dernier fichier ouvert. S'en souvenir voudrait
 dire rouvrir au lancement un document que personne n'a demandé.

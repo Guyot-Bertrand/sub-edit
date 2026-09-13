@@ -31,9 +31,11 @@ pointeur — mais son infobulle porte le libellé entier.
 | un retrait de l'italique | `taking italics out` |
 | un changement de casse | `changing the case` |
 | des tirets posés, retirés | `adding dialogue dashes`, `removing dialogue dashes` |
+| une fusion de lignes | `merging` |
+| une scission de ligne | `splitting` |
 
-**Dix libellés, et c'est tout ce que la fenêtre sait produire.** Le noyau en
-nomme un onzième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri
+**Dix-sept libellés, et c'est tout ce que la fenêtre sait produire.** Le noyau
+en nomme un dix-huitième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri
 n'a lieu que sous une politique d'ordre stricte, alors que la fenêtre ouvre ses
 documents sous la politique souple, qui signale le désordre au lieu de le
 réparer.

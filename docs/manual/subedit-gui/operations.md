@@ -19,9 +19,10 @@ s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 | `Shift Whole File onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
 | `Frame Rate Analysis…` | oui, sans réglage | **ne modifie rien** — voir [La grille d'images](grille.md) |
 
-Insérer et supprimer des lignes ne sont pas ici mais dans le menu `Edit` : ce
-sont des éditions du document, pas des opérations sur des positions. Voir
-[Insérer et supprimer des lignes](lignes.md).
+Insérer, supprimer, fusionner et scinder des lignes ne sont pas ici mais dans le
+menu `Edit` : ce sont des éditions du document, pas des opérations sur des
+positions. Voir
+[Insérer, supprimer, fusionner et scinder des lignes](lignes.md).
 
 ## Sur quoi elles portent
 
@@ -395,10 +396,11 @@ entier.
 
 > **La sélection est perdue à cette occasion** : retirer des lignes change la
 > structure de la table, qui se reconstruit. Les cinq autres opérations du menu
-> `Tools` la conservent, `Italic`, `Case` et `Dialogue` comprises. `Insert Subtitles…` et
-> `Remove Subtitles` changent la
-> structure elles aussi, et rendent une sélection à la place de celle qu'elles
-> ont emportée — voir [Insérer et supprimer des lignes](lignes.md).
+> `Tools` la conservent, `Italic`, `Case` et `Dialogue` comprises. Les quatre
+> entrées de structure du menu `Edit` — insérer, supprimer, fusionner, scinder —
+> changent la structure elles aussi, et rendent une sélection à la place de celle
+> qu'elles ont emportée — voir
+> [Insérer, supprimer, fusionner et scinder des lignes](lignes.md).
 
 Une référence purement numérique — « Voir [1] la note » — n'est pas une mention
 et reste telle quelle.

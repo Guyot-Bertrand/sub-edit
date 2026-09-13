@@ -323,9 +323,13 @@ std::string_view nameOf(CommandKind kind) {
         return "adding dialogue dashes";
     case CommandKind::RemoveDialogueDashes:
         return "removing dialogue dashes";
+    case CommandKind::Merge:
+        return "merging";
+    case CommandKind::Split:
+        return "splitting";
     }
 
-    // The sixteen are handled and the compiler checks it. A `default` here would
+    // The eighteen are handled and the compiler checks it. A `default` here would
     // take an enumerator added without a name in silence, and the action would
     // announce it as an empty string.
     std::unreachable();

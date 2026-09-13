@@ -1,15 +1,17 @@
-# Insérer et supprimer des lignes
+# Insérer, supprimer, fusionner et scinder des lignes
 
-Deux entrées du menu `Edit`, sous un séparateur qui les sépare d'`Undo` et de
-`Redo` : défaire est ce qu'on fait *à* une édition, insérer et supprimer **sont**
-des éditions.
+Quatre entrées du menu `Edit`, sous un séparateur qui les sépare d'`Undo` et de
+`Redo` : défaire est ce qu'on fait *à* une édition, et ces quatre-là **sont**
+des éditions. Elles ont en commun de changer le nombre de lignes.
 
 | Entrée | Raccourci | Ce qu'elle fait |
 | :----- | :-------- | :-------------- |
 | `Insert Subtitles…` | `Ins` | ouvre un dialogue, puis pose des lignes vierges |
 | `Remove Subtitles` | `Del` | retire la sélection, sans rien demander |
+| `Merge Subtitles` | aucun | fait une seule ligne d'un bloc de lignes voisines |
+| `Split Subtitle` | aucun | coupe une ligne en deux au milieu de sa durée |
 
-Les deux entrent dans l'historique : `Ctrl+Z` les défait comme le reste.
+Les quatre entrent dans l'historique : `Ctrl+Z` les défait comme le reste.
 
 ## Insérer
 
@@ -94,12 +96,75 @@ fichier. Appuyer sur `Del` plusieurs fois de suite retire donc les lignes une
 Un fichier entièrement vidé laisse la fenêtre utilisable : `Insert Subtitles…`
 se rallume, puisqu'un document vide s'insère sans sélection.
 
+## Fusionner
+
+`Merge Subtitles` fait **une seule ligne** des lignes sélectionnées :
+
+| Ce que la ligne fusionnée reçoit | D'où il vient |
+| :------------------------------- | :------------ |
+| son début | le début de la première |
+| sa fin | la fin de la dernière |
+| son texte | les textes de toutes, dans l'ordre, un saut de ligne entre deux |
+| sa traduction | les traductions, recollées de la même façon |
+| ce que le format porte en plus — un style, une couche, des coordonnées | la première |
+
+**Un texte vide ne laisse pas de ligne vide** : fusionner `Un.`, une ligne sans
+texte et `Trois.` donne deux lignes de texte, pas trois.
+
+Les lignes fusionnées disparaissent, et la ligne qui les remplace prend la place
+de la première.
+
+**L'entrée est éteinte** tant que la sélection n'est pas **un bloc d'au moins
+deux lignes voisines**. Une ligne seule n'a rien avec quoi fusionner ; les lignes
+1 et 3 sans la 2 non plus, puisque le résultat passerait par-dessus la 2 et la
+recouvrirait.
+
+Après la fusion, **la ligne fusionnée est sélectionnée** : `Split Subtitle` est
+prêt à la couper de nouveau.
+
+## Scinder
+
+`Split Subtitle` coupe la ligne sélectionnée **au milieu de sa durée**, à la
+milliseconde près :
+
+| Moitié | Début | Fin | Texte |
+| :----- | :---- | :-- | :---- |
+| la première | le début d'origine | le milieu | **tout** le texte, et la traduction |
+| la seconde | le milieu | la fin d'origine | vide |
+
+**Le texte n'est pas coupé à son saut de ligne.** Ce serait juste pour un
+sous-titre de deux lignes et faux pour un sous-titre d'une ligne ou de trois ;
+tout le texte reste à la première moitié, et on déplace soi-même ce qui doit
+passer à la seconde.
+
+La première moitié garde ce que le format portait en plus du texte ; la seconde
+naît comme une ligne insérée, sans rien.
+
+**L'entrée est éteinte** tant que la sélection ne compte pas **exactement une
+ligne**. Rien de sélectionné ne veut pas dire « tout le fichier » ici.
+
+Après la scission, **les deux moitiés sont sélectionnées** — c'est ce que Gaupol
+fait après toute insertion, et `Merge Subtitles` est alors prêt à défaire le
+geste.
+
+### Pourquoi pas les raccourcis de Gaupol
+
+Gaupol fusionne par `M` et scinde par `S`. Une lettre seule serait prise à la
+table avant d'arriver dans une cellule en cours d'édition, et `Ctrl+S`
+enregistre déjà : les deux entrées se prennent par le menu.
+
 ## Ce que l'action d'annulation en dit
+
+**Une entrée d'historique par geste.** Fusionner cinq lignes se défait d'un seul
+`Ctrl+Z`, et rend les cinq lignes telles qu'elles étaient — positions, textes et
+tout ce que le format portait.
 
 | Opération | Ce que `Undo` lit |
 | :-------- | :---------------- |
 | une insertion | `Undo: inserting` |
 | une suppression | `Undo: removing` |
+| une fusion | `Undo: merging` |
+| une scission | `Undo: splitting` |
 
 Voir [Annuler et rétablir](annulation.md).
 

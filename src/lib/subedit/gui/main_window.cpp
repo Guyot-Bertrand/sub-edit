@@ -6,6 +6,7 @@
 #include <subedit/core/edit/insert_command.hpp>
 #include <subedit/core/edit/italics_command.hpp>
 #include <subedit/core/edit/letter_case_command.hpp>
+#include <subedit/core/edit/merge_split_command.hpp>
 #include <subedit/core/edit/remove_command.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
@@ -222,6 +223,8 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_insert(buildAction(this, QStringLiteral("Insert Subtitles…"), QStringLiteral("list-add"))),
       m_remove(
           buildAction(this, QStringLiteral("Remove Subtitles"), QStringLiteral("list-remove"))),
+      m_mergeSubtitles(buildAction(this, QStringLiteral("&Merge Subtitles"), {})),
+      m_splitSubtitle(buildAction(this, QStringLiteral("S&plit Subtitle"), {})),
       m_shift(buildAction(this, QStringLiteral("Shift Positions…"), {})),
       m_transform(buildAction(this, QStringLiteral("Transform Positions…"), {})),
       m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
@@ -363,6 +366,13 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(m_insert, &QAction::triggered, this, &MainWindow::insertSubtitles);
     connect(m_remove, &QAction::triggered, this, &MainWindow::removeSubtitles);
 
+    // **No shortcut, where Gaupol has `M` and `S`.** A bare letter of window
+    // scope would be taken before a cell editor saw it, and the `Ctrl` forms
+    // are spoken for: `Ctrl+S` saves. Two entries one reaches by the menu are
+    // better than a key that types a letter into the wrong place.
+    connect(m_mergeSubtitles, &QAction::triggered, this, &MainWindow::mergeSubtitles);
+    connect(m_splitSubtitle, &QAction::triggered, this, &MainWindow::splitSubtitle);
+
     connect(m_shift, &QAction::triggered, this, &MainWindow::shiftTarget);
     connect(m_transform, &QAction::triggered, this, &MainWindow::transformTarget);
     connect(m_frameRate, &QAction::triggered, this, &MainWindow::convertFrameRateOfTarget);
@@ -441,6 +451,10 @@ MainWindow::MainWindow(core::FileSystem& files,
     // removing *are* edits.
     edition->addAction(m_insert);
     edition->addAction(m_remove);
+    // Beside them: merging and splitting change how many rows there are, as
+    // inserting and removing do, and Gaupol keeps the four together.
+    edition->addAction(m_mergeSubtitles);
+    edition->addAction(m_splitSubtitle);
     edition->addSeparator();
     // Under another: setting the theme is no edit at all.
     edition->addAction(m_preferences);
@@ -1165,6 +1179,13 @@ void MainWindow::refreshStructureActions() {
     // "the whole file", which is what `targetOf` answers and would be a
     // disaster here.
     m_remove->setEnabled(selected);
+
+    // Read on the runs rather than the rows: one run is what contiguous means,
+    // and its length says whether there is anything to merge or to split.
+    const core::Selection rows = selectionOf(*m_table->selectionModel());
+    const bool oneRun = rows.ranges().size() == 1;
+    m_mergeSubtitles->setEnabled(oneRun && rows.count() >= 2);
+    m_splitSubtitle->setEnabled(oneRun && rows.count() == 1);
 }
 
 void MainWindow::removeHearingImpairedFromTarget() {
@@ -1359,6 +1380,37 @@ void MainWindow::removeSubtitles() {
     const int left = static_cast<int>(m_session->project().count());
     if (left > 0)
         selectRows(std::min(emptied, left - 1), std::min(emptied, left - 1));
+}
+
+void MainWindow::mergeSubtitles() {
+    // The guard of the action, said again: nothing keeps a trigger from finding
+    // it a fraction of a second too late. A run of one gets no command from the
+    // core, which is the second half of the same guard.
+    const core::Selection target = selectionOf(*m_table->selectionModel());
+    if (target.ranges().size() != 1)
+        return;
+
+    const core::IndexRange run = target.ranges().front();
+    std::unique_ptr<core::Command> command = core::mergeSubtitles(m_session->project(), run);
+    if (command == nullptr)
+        return;
+
+    applyOperation(std::move(command), target);
+
+    const int merged = static_cast<int>(run.first.value());
+    selectRows(merged, merged);
+}
+
+void MainWindow::splitSubtitle() {
+    const core::Selection target = selectionOf(*m_table->selectionModel());
+    if (target.count() != 1)
+        return;
+
+    const core::SubtitleIndex index = target.ranges().front().first;
+    applyOperation(core::splitSubtitle(m_session->project(), index), target);
+
+    const int first = static_cast<int>(index.value());
+    selectRows(first, first + 1);
 }
 
 void MainWindow::selectRows(int first, int last) {

@@ -54,6 +54,9 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::ChangeCase:
     case CommandKind::AddDialogueDashes:
     case CommandKind::RemoveDialogueDashes:
+    // Every position they lay down lies between two that were already there.
+    case CommandKind::Merge:
+    case CommandKind::Split:
         return false;
     }
 

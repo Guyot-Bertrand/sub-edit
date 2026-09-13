@@ -132,6 +132,10 @@ public:
 
     [[nodiscard]] QAction* removeAction() const { return m_remove; }
 
+    [[nodiscard]] QAction* mergeAction() const { return m_mergeSubtitles; }
+
+    [[nodiscard]] QAction* splitAction() const { return m_splitSubtitle; }
+
     /// The panel of what the last reading ran into.
     [[nodiscard]] DiagnosticsPanel* diagnostics() const { return m_diagnostics; }
 
@@ -423,6 +427,20 @@ private:
     /// rules.
     void removeSubtitles();
 
+    /// Merges the selected rows into one, and selects it.
+    ///
+    /// **A contiguous run of two or more**, which is what the action being out
+    /// holds: merging rows one and three would swallow row two under an
+    /// overlap. Gaupol refuses the same selection.
+    void mergeSubtitles();
+
+    /// Splits the selected row in two at the middle of its duration, and
+    /// selects both halves.
+    ///
+    /// Both, and not the first: it is what Gaupol does after any insertion, and
+    /// it leaves `Merge Subtitles` ready to take the split back.
+    void splitSubtitle();
+
     /// Selects the range of rows given, and brings it into view.
     ///
     /// What Gaupol does after an insertion and after a removal: the table has
@@ -484,6 +502,8 @@ private:
     QAction* m_saveAs = nullptr;
     QAction* m_insert = nullptr;
     QAction* m_remove = nullptr;
+    QAction* m_mergeSubtitles = nullptr;
+    QAction* m_splitSubtitle = nullptr;
     QAction* m_shift = nullptr;
     QAction* m_transform = nullptr;
     QAction* m_frameRate = nullptr;

@@ -43,6 +43,9 @@ enum class OrderPolicy {
     case CommandKind::Shift:
     case CommandKind::Transform:
     case CommandKind::ConvertFrameRate:
+    // The second half of a subtitle starts at its middle, which may lie after
+    // the start of a subtitle it overlapped.
+    case CommandKind::Split:
         return true;
     case CommandKind::SetText:
     case CommandKind::SetEnd:
@@ -58,6 +61,9 @@ enum class OrderPolicy {
     case CommandKind::ChangeCase:
     case CommandKind::AddDialogueDashes:
     case CommandKind::RemoveDialogueDashes:
+    // The merged subtitle starts where the first of the run did, and nothing
+    // after that run started earlier in an ordered file.
+    case CommandKind::Merge:
     // It moves starts, and it is still the only such operation that cannot
     // break the order: rounding to the nearest frame is monotone, so two
     // starts a frame or more apart stay in order, and closer than that they

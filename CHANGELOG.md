@@ -14,6 +14,7 @@ ne pas l'éditer à la main.
 - **gui** — Une entrée qui met en italique dans les balises du format
 - **text** — Le parseur conscient des balises, enfin écrit
 - **text** — La casse et les tirets de dialogue
+- **core** — Fusionner et scinder des sous-titres
 
 ### Documentation
 
