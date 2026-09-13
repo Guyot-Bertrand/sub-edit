@@ -15,6 +15,7 @@ ne pas l'éditer à la main.
 - **text** — Le parseur conscient des balises, enfin écrit
 - **text** — La casse et les tirets de dialogue
 - **core** — Fusionner et scinder des sous-titres
+- **core** — La durée se saisit, et déplace la fin
 
 ### Documentation
 
