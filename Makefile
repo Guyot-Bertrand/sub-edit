@@ -309,9 +309,10 @@ config-home: ## Refuse qu'une exécution touche la configuration de l'utilisateu
 check: ## Porte de qualité — format, warnings, tidy, tests sous ASan, couverture
 	@./src/scripts/gate.sh check
 
-# `check` est ce que la CI exécute — .github/workflows/ci.yml n'appelle que
-# cette cible, rien d'autre. Tout ce qui y entre gate donc chaque push, de
-# tout le monde ; on n'y ajoute rien à la légère.
+# `check` est la porte — .github/workflows/ci.yml n'appelle que cette cible,
+# quand on le lance à la main, et depuis #232 c'est la seule façon dont il tourne.
+# Tout ce qui y entre gate donc chaque pull request ; on n'y ajoute rien à la
+# légère.
 #
 # `check-local` est l'unique commande à lancer avant d'ouvrir une pull
 # request : elle enchaîne tout ce qu'on veut voir passer en local sans le

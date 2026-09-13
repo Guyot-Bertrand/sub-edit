@@ -151,24 +151,15 @@ apply_milestones() {
 
 # --- Rulesets ---------------------------------------------------------------
 #
-# Deux rulesets plutôt qu'un seul, parce qu'un ruleset n'a qu'une liste de
-# dérogation pour toutes ses règles :
+# Un seul ruleset, « protection de l'historique », qui ne déroge à personne. Le
+# propriétaire est seul à écrire ; le risque réel n'est donc pas un tiers
+# malveillant mais un force-push accidentel de sa part. Il faut que la règle
+# s'applique aussi à lui pour avoir un sens.
 #
-#   - « protection de l'historique » ne déroge à personne. Le propriétaire est
-#     seul à écrire ; le risque réel n'est donc pas un tiers malveillant mais
-#     un force-push accidentel de sa part. Il faut que la règle s'applique
-#     aussi à lui pour avoir un sens.
-#   - « porte de qualité » déroge à l'administrateur, ce qui préserve le push
-#     direct sur main. Sans cette dérogation, la règle bloquerait tout push,
-#     puisque la CI ne s'exécute qu'après.
-#
-# Le ruleset n'exige qu'un seul contexte, « porte de qualité ». Le job
-# « contrôles de pull request », livré par #51, en est délibérément absent : il
-# est jeune, et un contrôle jeune qui bloque une fusion coûte plus cher qu'il ne
-# rapporte tant qu'on n'a pas vu s'il produit des faux positifs. Il échoue en
-# rouge, ce qui suffit à le rendre visible pendant l'observation. À rediscuter à
-# l'ouverture de la phase 4. Le job « messages de commit » est dans le même cas,
-# et pour la même raison.
+# **Le second, « porte de qualité », a été supprimé à la #232.** Il exigeait le
+# check de `ci.yml`, qui ne tourne plus sur les pull requests : une règle qui
+# attend un contrôle que rien ne produira ne protège de rien. Ce script ne le
+# recrée donc pas.
 
 ruleset_exists() {
     gh api "repos/${REPO}/rulesets" --jq ".[] | select(.name == \"$1\") | .id" 2>/dev/null
@@ -210,30 +201,13 @@ apply_rulesets() {
         "conditions": {"ref_name": {"include": ["~DEFAULT_BRANCH"], "exclude": []}},
         "rules": [{"type": "deletion"}, {"type": "non_fast_forward"}]
     }'
-
-    create_ruleset "porte de qualité" '{
-        "name": "porte de qualité",
-        "target": "branch",
-        "enforcement": "active",
-        "bypass_actors": [
-            {"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"}
-        ],
-        "conditions": {"ref_name": {"include": ["~DEFAULT_BRANCH"], "exclude": []}},
-        "rules": [{
-            "type": "required_status_checks",
-            "parameters": {
-                "strict_required_status_checks_policy": false,
-                "required_status_checks": [{"context": "porte de qualité"}]
-            }
-        }]
-    }'
 }
 
 report_manual_steps() {
     info "à faire dans l'interface — sans API ou hors portée du jeton"
 
     if (( ruleset_failures > 0 )); then
-        printf '  Les rulesets exigent la permission « Administration » du jeton.\n'
+        printf '  Le ruleset exige la permission « Administration » du jeton.\n'
         printf '  Deux voies :\n'
         printf '    ajouter Administration: Read and write au jeton, puis relancer ce script\n'
         printf '    ou les créer à la main : Settings → Rules → Rulesets\n\n'
