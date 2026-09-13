@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Intégration continue
+
+- **ci** — Publier les paquets à chaque tag, à la place de la porte
+
+## 0.10.9 — 2026-09-13
+
 ### Ajouts
 
 - **gui** — Une entrée qui met en italique dans les balises du format
