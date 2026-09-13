@@ -36,6 +36,17 @@ namespace {
 /// one to three decimals or none, comma or period.
 constexpr auto kPositionPattern = R"(\s*-?\d{1,2}:\d{1,2}(:\d{1,2})?([.,]\d{1,3})?\s*)";
 
+/// The shape of a position with no sign: what a duration may be typed in.
+constexpr auto kDurationPattern = R"(\s*\d{1,2}:\d{1,2}(:\d{1,2})?([.,]\d{1,3})?\s*)";
+
+/// A one-line field that accepts `pattern`, and nothing more.
+[[nodiscard]] QWidget* constrainedField(QWidget* parent, const char* pattern) {
+    auto* editor = new QLineEdit{parent};
+    editor->setValidator(
+        new QRegularExpressionValidator{QRegularExpression{QString::fromUtf8(pattern)}, editor});
+    return editor;
+}
+
 /// The margin a `QTextDocument` keeps on each side of its text.
 ///
 /// **Read from a document rather than written here.** Qt's default is four
@@ -176,10 +187,13 @@ bool TextDelegate::eventFilter(QObject* object, QEvent* event) {
 QWidget* PositionDelegate::createEditor(QWidget* parent,
                                         const QStyleOptionViewItem& /*option*/,
                                         const QModelIndex& /*index*/) const {
-    auto* editor = new QLineEdit{parent};
-    editor->setValidator(new QRegularExpressionValidator{
-        QRegularExpression{QString::fromUtf8(kPositionPattern)}, editor});
-    return editor;
+    return constrainedField(parent, kPositionPattern);
+}
+
+QWidget* DurationDelegate::createEditor(QWidget* parent,
+                                        const QStyleOptionViewItem& /*option*/,
+                                        const QModelIndex& /*index*/) const {
+    return constrainedField(parent, kDurationPattern);
 }
 
 } // namespace subedit::gui

@@ -1,6 +1,7 @@
 #include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/edit/set_duration_command.hpp>
 #include <subedit/core/edit/set_position_command.hpp>
 #include <subedit/core/edit/set_text_command.hpp>
 #include <subedit/core/model/boundary.hpp>
@@ -9,6 +10,7 @@
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/wording.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
@@ -208,9 +210,8 @@ QVariant SubtitleTableModel::data(const QModelIndex& index, int role) const {
     case End:
         return written(subtitle.end, mark);
     case Duration:
-        // Derived, and read-only for that reason: the core has no command that
-        // sets a duration, and inventing one here would be core work smuggled
-        // into an interface.
+        // Derived from the two positions and never stored. It is written as a
+        // position past the origin, which is also the shape it is typed in.
         return written(core::Timestamp::origin() + subtitle.duration(), mark);
     case Text:
         return QString::fromStdString(subtitle.mainText);
@@ -250,10 +251,10 @@ Qt::ItemFlags SubtitleTableModel::flags(const QModelIndex& index) const {
     if (!index.isValid())
         return inherited;
 
-    // The number is a rank and the duration a difference: no command of the
-    // core sets either, so no editor opens on them.
+    // The number is a rank, and no command of the core sets it, so no editor
+    // opens on it. The duration is a difference, and setting it moves the end.
     const int column = index.column();
-    if (column != Start && column != End && column != Text)
+    if (column == Number)
         return inherited;
 
     return inherited | Qt::ItemIsEditable;
@@ -276,10 +277,31 @@ bool SubtitleTableModel::setData(const QModelIndex& index, const QVariant& value
 
     switch (static_cast<Column>(index.column())) {
     case Number:
-    case Duration:
         // `flags()` has already told the view, which will open no editor here.
         // The refusal is for whoever calls `setData` without a view.
         return false;
+    case Duration: {
+        const std::optional<core::Timestamp> typedLength = core::Timestamp::parse(typed);
+        if (!typedLength.has_value())
+            return false;
+
+        // **A negative length is refused**, as an unreadable one is. The editor
+        // already keeps the sign out; this is for whoever calls `setData`
+        // without one.
+        const core::Duration wanted = *typedLength - core::Timestamp::origin();
+        if (wanted < core::Duration::zero())
+            return false;
+
+        if (wanted == subtitle.duration()) {
+            emit historyChanged();
+            return true;
+        }
+
+        // The end moves, never the start — decision D3 of the phase-10 spec.
+        applied(m_session->apply(
+            std::make_unique<core::SetDurationCommand>(m_session->project(), position, wanted)));
+        return true;
+    }
     case Start:
     case End: {
         const bool start = index.column() == Start;

@@ -45,6 +45,7 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::SetText:
     case CommandKind::SetStart:
     case CommandKind::SetEnd:
+    case CommandKind::SetDuration:
     case CommandKind::Insert:
     case CommandKind::Remove:
     case CommandKind::Sort:

@@ -25,6 +25,7 @@ add_library(
     edit/shift_command.cpp
     edit/transform_command.cpp
     edit/set_position_command.cpp
+    edit/set_duration_command.cpp
     edit/set_text_command.cpp
     edit/sort_command.cpp
     text/hearing_impaired.cpp

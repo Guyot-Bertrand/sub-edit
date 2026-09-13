@@ -12,6 +12,7 @@ enum class CommandKind {
     SetText,
     SetStart,
     SetEnd,
+    SetDuration,
     Insert,
     Remove,
     Shift,

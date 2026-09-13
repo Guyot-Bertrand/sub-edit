@@ -245,10 +245,11 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_ticker(new QTimer{this}),
       m_buildPlayer(std::move(buildPlayer)),
       m_readDeclaredRate(std::move(readDeclaredRate)) {
-    // One delegate per nature of cell, and none on the number or the duration,
-    // which are not editable: Qt's table puts one only where it is given one.
+    // One delegate per nature of cell, and none on the number, which is not
+    // editable: Qt's table puts one only where it is given one.
     m_table->setItemDelegateForColumn(SubtitleTableModel::Start, new PositionDelegate{this});
     m_table->setItemDelegateForColumn(SubtitleTableModel::End, new PositionDelegate{this});
+    m_table->setItemDelegateForColumn(SubtitleTableModel::Duration, new DurationDelegate{this});
     m_table->setItemDelegateForColumn(SubtitleTableModel::Text, new TextDelegate{this});
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->verticalHeader()->setVisible(false);
