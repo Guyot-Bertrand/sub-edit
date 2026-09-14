@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **core** — L'ajustement des durées, et ce qu'il sacrifie
+
+## 0.10.11 — 2026-09-14
+
+### Ajouts
+
 - **core** — Le presse-papiers, et ce qu'il traduit
 
 ## 0.10.10 — 2026-09-13
