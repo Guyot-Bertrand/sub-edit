@@ -34,9 +34,10 @@ pointeur — mais son infobulle porte le libellé entier.
 | des tirets posés, retirés | `adding dialogue dashes`, `removing dialogue dashes` |
 | une fusion de lignes | `merging` |
 | une scission de ligne | `splitting` |
+| des textes coupés, collés | `cutting texts`, `pasting texts` |
 
-**Dix-huit libellés, et c'est tout ce que la fenêtre sait produire.** Le noyau
-en nomme un dix-neuvième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri
+**Vingt libellés, et c'est tout ce que la fenêtre sait produire.** Le noyau
+en nomme un vingt et unième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri
 n'a lieu que sous une politique d'ordre stricte, alors que la fenêtre ouvre ses
 documents sous la politique souple, qui signale le désordre au lieu de le
 réparer.

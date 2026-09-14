@@ -58,6 +58,8 @@ bool movesPositions(CommandKind kind) {
     // Every position they lay down lies between two that were already there.
     case CommandKind::Merge:
     case CommandKind::Split:
+    case CommandKind::Cut:
+    case CommandKind::Paste:
         return false;
     }
 

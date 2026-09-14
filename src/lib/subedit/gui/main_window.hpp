@@ -2,6 +2,7 @@
 
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/settings.hpp>
+#include <subedit/core/edit/clipboard.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -125,6 +126,14 @@ public:
     [[nodiscard]] QAction* saveAction() const { return m_save; }
 
     [[nodiscard]] QAction* saveAsAction() const { return m_saveAs; }
+
+    /// The three clipboard entries, for a test to read their state and trigger
+    /// them.
+    [[nodiscard]] QAction* cutAction() const { return m_cut; }
+
+    [[nodiscard]] QAction* copyAction() const { return m_copy; }
+
+    [[nodiscard]] QAction* pasteAction() const { return m_paste; }
 
     /// The two edits of structure, for a test to read their state and trigger
     /// them.
@@ -427,6 +436,25 @@ private:
     /// rules.
     void removeSubtitles();
 
+    /// Copies the texts of the selection, to this window and to the system.
+    ///
+    /// **Both, and for two different readers.** The system clipboard receives
+    /// plain text, which is what makes a copy pasteable anywhere; the window
+    /// keeps the texts with their format, which is what lets a paste into a
+    /// document of another format translate the tags.
+    void copyTexts();
+
+    /// Copies the texts of the selection, then empties them.
+    void cutTexts();
+
+    /// Writes the clipboard into the texts from the first selected row down.
+    ///
+    /// **What the system holds decides.** When it is still what this window
+    /// copied, the format comes with it and the tags are translated; when a
+    /// copy was made elsewhere since, that one is meant, and it has no format.
+    /// Rows laid down past the end, and tags a translation dropped, are said.
+    void pasteTexts();
+
     /// Merges the selected rows into one, and selects it.
     ///
     /// **A contiguous run of two or more**, which is what the action being out
@@ -500,6 +528,9 @@ private:
     QAction* m_open = nullptr;
     QAction* m_save = nullptr;
     QAction* m_saveAs = nullptr;
+    QAction* m_cut = nullptr;
+    QAction* m_copy = nullptr;
+    QAction* m_paste = nullptr;
     QAction* m_insert = nullptr;
     QAction* m_remove = nullptr;
     QAction* m_mergeSubtitles = nullptr;
@@ -557,6 +588,13 @@ private:
     /// round trip of phase 8 is that promise, and a setting does not undo it
     /// behind the back of whoever saves.
     std::optional<core::Encoding> m_writeEncoding;
+
+    /// The texts last copied or cut in this window, with their format.
+    ///
+    /// **Kept across openings**, and that is its reason to exist: copying from
+    /// one file and pasting into the next is the one case where the format of
+    /// the copy and that of the document differ.
+    core::ClipboardTexts m_clipboard;
 
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;

@@ -1,8 +1,8 @@
 # Insérer, supprimer, fusionner et scinder des lignes
 
-Quatre entrées du menu `Edit`, sous un séparateur qui les sépare d'`Undo` et de
-`Redo` : défaire est ce qu'on fait *à* une édition, et ces quatre-là **sont**
-des éditions. Elles ont en commun de changer le nombre de lignes.
+Quatre entrées du menu `Edit`, sous un séparateur qui les sépare de celles du
+presse-papiers : couper, copier et coller déplacent des textes, et ces quatre-là
+changent les lignes elles-mêmes. Elles ont en commun de changer le nombre de lignes.
 
 | Entrée | Raccourci | Ce qu'elle fait |
 | :----- | :-------- | :-------------- |

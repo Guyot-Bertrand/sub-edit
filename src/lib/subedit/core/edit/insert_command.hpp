@@ -35,6 +35,14 @@ public:
     [[nodiscard]] static InsertCommand
     blank(const Project& project, SubtitleIndex index, std::size_t count);
 
+    /// Returns the `count` blank subtitles `blank` would insert before `index`.
+    ///
+    /// Apart for whoever fills them before inserting: a paste that runs past
+    /// the end lays down rows that already carry their text, in one insertion
+    /// rather than an insertion followed by as many edits.
+    [[nodiscard]] static std::vector<Subtitle>
+    blankSubtitles(const Project& project, SubtitleIndex index, std::size_t count);
+
     void apply(Project& project) override;
 
     void revert(Project& project) override;

@@ -121,6 +121,8 @@ TEST_CASE("every kind of command has a name of its own", "[wording]") {
         subedit::core::CommandKind::RemoveDialogueDashes,
         subedit::core::CommandKind::Merge,
         subedit::core::CommandKind::Split,
+        subedit::core::CommandKind::Cut,
+        subedit::core::CommandKind::Paste,
     };
 
     std::set<std::string_view> seen;
@@ -354,4 +356,24 @@ TEST_CASE("SubRip is the only one of the nine that writes a comma", "[wording]")
         INFO("format : " << nameOf(format));
         CHECK(decimalMarkOf(format) == DecimalMark::Period);
     }
+}
+
+TEST_CASE("a paste says the rows it laid down and the tags it dropped, in one line",
+          "[wording][clipboard]") {
+    using subedit::core::ConversionLoss;
+    using subedit::core::noticeOfPaste;
+    using subedit::core::SubtitleFormat;
+
+    CHECK(noticeOfPaste(0, ConversionLoss{}, SubtitleFormat::SubRip, SubtitleFormat::Lrc).empty());
+    CHECK(noticeOfPaste(1, ConversionLoss{}, std::nullopt, SubtitleFormat::SubRip) ==
+          "inserted 1 subtitle to fit the clipboard");
+    CHECK(noticeOfPaste(2,
+                        ConversionLoss{.tags = 3},
+                        SubtitleFormat::AdvancedSubStationAlpha,
+                        SubtitleFormat::SubRip) ==
+          "inserted 2 subtitles to fit the clipboard; "
+          "pasting Advanced SSA texts into SubRip: 3 tags dropped");
+    // Texts of no format dropped nothing, whatever the count says.
+    CHECK(
+        noticeOfPaste(0, ConversionLoss{.tags = 3}, std::nullopt, SubtitleFormat::SubRip).empty());
 }
