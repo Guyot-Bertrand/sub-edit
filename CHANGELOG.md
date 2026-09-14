@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **text** — Rechercher et remplacer, dans la fenêtre
+
+## 0.10.12 — 2026-09-14
+
+### Ajouts
+
 - **core** — L'ajustement des durées, et ce qu'il sacrifie
 
 ## 0.10.11 — 2026-09-14
