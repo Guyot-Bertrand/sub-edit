@@ -18,6 +18,7 @@ add_library(
     edit/letter_case_command.cpp
     edit/merge_split_command.cpp
     edit/clipboard.cpp
+    edit/duration_adjustment.cpp
     edit/shift_limits.cpp
     edit/video_bounds.cpp
     edit/remove_command.cpp

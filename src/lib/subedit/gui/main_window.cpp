@@ -3,6 +3,7 @@
 #include <subedit/core/edit/clipboard.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/dialogue_dashes_command.hpp>
+#include <subedit/core/edit/duration_adjustment.hpp>
 #include <subedit/core/edit/hearing_impaired_removal.hpp>
 #include <subedit/core/edit/insert_command.hpp>
 #include <subedit/core/edit/italics_command.hpp>
@@ -34,6 +35,7 @@
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/command_label.hpp>
 #include <subedit/gui/diagnostics_panel.hpp>
+#include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/hearing_impaired_dialog.hpp>
@@ -234,6 +236,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_shift(buildAction(this, QStringLiteral("Shift Positions…"), {})),
       m_transform(buildAction(this, QStringLiteral("Transform Positions…"), {})),
       m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
+      m_adjustDurations(buildAction(this, QStringLiteral("Adjust Durations…"), {})),
       m_hearingImpaired(buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})),
       m_italic(buildAction(this, QStringLiteral("&Italic"), QStringLiteral("format-text-italic"))),
       m_dialogueDashes(buildAction(this, QStringLiteral("&Dialogue"), {})),
@@ -394,6 +397,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(m_shift, &QAction::triggered, this, &MainWindow::shiftTarget);
     connect(m_transform, &QAction::triggered, this, &MainWindow::transformTarget);
     connect(m_frameRate, &QAction::triggered, this, &MainWindow::convertFrameRateOfTarget);
+    connect(m_adjustDurations, &QAction::triggered, this, &MainWindow::adjustDurationsOfTarget);
     connect(
         m_hearingImpaired, &QAction::triggered, this, &MainWindow::removeHearingImpairedFromTarget);
 
@@ -493,6 +497,8 @@ MainWindow::MainWindow(core::FileSystem& files,
     tools->addAction(m_shift);
     tools->addAction(m_transform);
     tools->addAction(m_frameRate);
+    // With the operations on positions: it moves ends, and nothing else.
+    tools->addAction(m_adjustDurations);
     tools->addSeparator();
     // Those that rewrite a text rather than move a position, together.
     tools->addAction(m_italic);
@@ -1158,6 +1164,7 @@ void MainWindow::refreshActions() {
     m_shift->setEnabled(anything);
     m_transform->setEnabled(anything);
     m_frameRate->setEnabled(anything);
+    m_adjustDurations->setEnabled(anything);
     // Nothing to analyse either: an empty document has no positions to read a
     // grid off, and the dialog would open on « too few subtitles ».
     m_analyseGrid->setEnabled(anything);
@@ -1219,6 +1226,25 @@ void MainWindow::refreshStructureActions() {
     const bool oneRun = rows.ranges().size() == 1;
     m_mergeSubtitles->setEnabled(oneRun && rows.count() >= 2);
     m_splitSubtitle->setEnabled(oneRun && rows.count() == 1);
+}
+
+void MainWindow::adjustDurationsOfTarget() {
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+
+    DurationAdjustDialog dialog{target.count(), m_durationConstraints, this};
+    if (!m_prompts->run(dialog))
+        return;
+
+    // Kept even if nothing moves: it is what was asked, and the next dialog
+    // offers it again.
+    m_durationConstraints = dialog.constraints();
+
+    core::DurationAdjustment adjustment =
+        core::adjustDurations(m_session->project(), target, m_durationConstraints);
+    if (adjustment.command != nullptr)
+        applyOperation(std::move(adjustment.command), target);
+
+    m_prompts->reportOutcome(core::noticeOfAdjustment(adjustment.adjusted, adjustment.sacrificed));
 }
 
 void MainWindow::removeHearingImpairedFromTarget() {

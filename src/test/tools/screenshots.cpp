@@ -25,10 +25,12 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/theme.hpp>
+#include <subedit/core/edit/duration_adjustment.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
@@ -413,6 +415,14 @@ int main(int argc, char** argv) {
         subedit::gui::applyTheme(subedit::core::Theme::Dark);
         subedit::gui::InsertDialog dialog{true, subedit::core::InsertPlacement::Below};
         written = capture(dialog, dialog, directory, "insertion-sombre") && written;
+    }
+
+    // The adjustment of durations, on Gaupol's defaults: the state a user meets
+    // the first time, and the one the section's table describes.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::gui::DurationAdjustDialog dialog{3, subedit::core::DurationConstraints{}};
+        written = capture(dialog, dialog, directory, "ajustement") && written;
     }
 
     // The shape `Save As…` offers, **inside the dialog that carries it** and

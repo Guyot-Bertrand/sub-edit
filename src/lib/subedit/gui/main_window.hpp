@@ -3,6 +3,7 @@
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/edit/clipboard.hpp>
+#include <subedit/core/edit/duration_adjustment.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -153,6 +154,8 @@ public:
     [[nodiscard]] QAction* transformAction() const { return m_transform; }
 
     [[nodiscard]] QAction* frameRateAction() const { return m_frameRate; }
+
+    [[nodiscard]] QAction* adjustDurationsAction() const { return m_adjustDurations; }
 
     [[nodiscard]] QAction* hearingImpairedAction() const { return m_hearingImpaired; }
 
@@ -482,6 +485,14 @@ private:
 
     void convertFrameRateOfTarget();
 
+    /// Asks for the four constraints, applies them to the target, and says what
+    /// no end could satisfy.
+    ///
+    /// **Said even when nothing moved**: a target already at its gaps may still
+    /// hold subtitles too short for their minimum, and « nothing to adjust »
+    /// alone would let that pass for « everything is fine ».
+    void adjustDurationsOfTarget();
+
     void removeHearingImpairedFromTarget();
 
     /// Puts the target in italics, or takes its italics out.
@@ -538,6 +549,7 @@ private:
     QAction* m_shift = nullptr;
     QAction* m_transform = nullptr;
     QAction* m_frameRate = nullptr;
+    QAction* m_adjustDurations = nullptr;
     QAction* m_hearingImpaired = nullptr;
     QAction* m_italic = nullptr;
     std::array<QAction*, 4> m_case{};
@@ -595,6 +607,10 @@ private:
     /// one file and pasting into the next is the one case where the format of
     /// the copy and that of the document differ.
     core::ClipboardTexts m_clipboard;
+
+    /// What the last adjustment of durations asked for, offered again by the
+    /// next one. Gaupol's defaults until then.
+    core::DurationConstraints m_durationConstraints;
 
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;

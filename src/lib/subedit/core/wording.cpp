@@ -333,9 +333,11 @@ std::string_view nameOf(CommandKind kind) {
         return "cutting texts";
     case CommandKind::Paste:
         return "pasting texts";
+    case CommandKind::AdjustDurations:
+        return "adjusting durations";
     }
 
-    // The twenty-one are handled and the compiler checks it. A `default` here would
+    // The twenty-two are handled and the compiler checks it. A `default` here would
     // take an enumerator added without a name in silence, and the action would
     // announce it as an empty string.
     std::unreachable();
@@ -480,6 +482,26 @@ std::string noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFo
             notice += ", ";
         notice += post;
     }
+    return notice;
+}
+
+std::string noticeOfAdjustment(std::size_t adjusted, const SacrificedConstraints& sacrificed) {
+    std::string notice = adjusted == 0
+                             ? std::string{"no duration to adjust"}
+                             : "adjusted the durations of " + countOf(adjusted, "subtitle");
+
+    // In the order the constraints are applied, which is the order a reader of
+    // the dialog meets them in.
+    std::vector<std::string> posts;
+    if (sacrificed.speed > 0)
+        posts.emplace_back("the reading speed in " + countOf(sacrificed.speed, "subtitle"));
+    if (sacrificed.minimum > 0)
+        posts.emplace_back("the minimum duration in " + countOf(sacrificed.minimum, "subtitle"));
+    if (sacrificed.gap > 0)
+        posts.emplace_back("the gap in " + countOf(sacrificed.gap, "subtitle"));
+
+    for (std::size_t rank = 0; rank < posts.size(); ++rank)
+        notice += (rank == 0 ? "; could not satisfy " : ", ") + posts[rank];
     return notice;
 }
 

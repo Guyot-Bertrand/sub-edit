@@ -70,6 +70,8 @@ enum class OrderPolicy {
     case CommandKind::Merge:
     // It empties texts, and no position is read.
     case CommandKind::Cut:
+    // It moves ends, and only ends.
+    case CommandKind::AdjustDurations:
     // It moves starts, and it is still the only such operation that cannot
     // break the order: rounding to the nearest frame is monotone, so two
     // starts a frame or more apart stay in order, and closer than that they

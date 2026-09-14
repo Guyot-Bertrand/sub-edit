@@ -38,6 +38,8 @@ beyondEnd(const Project& project, const Selection& selection, std::optional<Dura
 bool movesPositions(CommandKind kind) {
     switch (kind) {
     case CommandKind::Shift:
+    // It moves ends, and an end moved later may be moved past the film.
+    case CommandKind::AdjustDurations:
     case CommandKind::Transform:
     case CommandKind::ConvertFrameRate:
     case CommandKind::Snap:

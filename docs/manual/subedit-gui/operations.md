@@ -1,6 +1,6 @@
 # Les opérations
 
-Le menu **Tools** porte douze opérations et une analyse. Chacune des douze
+Le menu **Tools** porte treize opérations et une analyse. Chacune des treize
 s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 
 | Entrée | Dialogue | Ce qu'elle fait |
@@ -8,6 +8,7 @@ s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 | `Shift Positions…` | oui | décale la cible d'une durée |
 | `Transform Positions…` | oui | corrige la cible à partir de deux repères |
 | `Convert Frame Rate…` | oui | re-cale la cible d'une cadence vers une autre |
+| `Adjust Durations…` | oui | déplace les fins pour tenir une vitesse de lecture, des durées et un écart |
 | `Italic` | **non** | met la cible en italique, ou l'en retire |
 | `Dialogue` | **non** | pose un tiret de dialogue en tête de chaque ligne, ou le retire |
 | `Case ▸ Title Case` | **non** | chaque mot prend une capitale |
@@ -170,6 +171,84 @@ est **affichée sans être choisie** : savoir que le film tourne à une cadence
 inhabituelle est l'information, et il n'y a rien à quoi la convertir ici.
 
 Convertir une fréquence en elle-même ne change rien : le bouton reste inactif.
+
+## `Adjust Durations…`
+
+Allonge ou raccourcit la durée des sous-titres de la cible **en déplaçant leur
+fin, jamais leur début**. Déplacer le début déplacerait le sous-titre, ce qui est
+le travail de [`Shift Positions…`](#shift-positions).
+
+![Le dialogue d'ajustement des durées, sur ses valeurs par défaut.](captures/ajustement.png)
+
+### Les quatre contraintes
+
+| Champ | Ce qu'il demande | Valeurs | Défaut |
+| :---- | :--------------- | :------ | :----- |
+| `Reading speed` | le temps qu'il faut pour lire le texte | de 1 à 99 caractères par seconde, au dixième | 15 car/s |
+| `Lengthen durations to match it` | allonger ce qui est trop court pour être lu | coché ou non | coché |
+| `Shorten durations to match it` | raccourcir ce qui reste affiché plus que nécessaire | coché ou non | non coché |
+| `Minimum duration` | une durée plancher | de 0 à 99 s, à la milliseconde | coché, 1,5 s |
+| `Maximum duration` | une durée plafond | de 0 à 99 s, à la milliseconde | non coché, 6 s |
+| `Gap between subtitles` | l'écart à laisser avant le sous-titre suivant | de 0 à 99 s, à la milliseconde | coché, 0 s |
+
+Ce sont les valeurs par défaut de Gaupol.
+
+**Une contrainte décochée est absente** : son champ se grise et n'est pas lu.
+Une contrainte cochée à zéro vaut zéro — un écart de 0 s interdit à un
+sous-titre de chevaucher le suivant. La vitesse de lecture n'est lue que si
+`Lengthen` ou `Shorten` est coché.
+
+**Quand tout est décoché, `OK` est éteint** : il n'y a rien à demander.
+
+Le dialogue rouvre sur les valeurs du dernier ajustement, le temps que la fenêtre
+reste ouverte ; il ne les garde pas d'une session à l'autre.
+
+### Dans quel ordre, et laquelle gagne
+
+Chaque sous-titre de la cible passe les quatre contraintes **dans cet ordre**, et
+chacune pose la fin à son tour :
+
+| Rang | Contrainte | Ce qu'elle pose |
+| ---: | :--------- | :-------------- |
+| 1 | vitesse de lecture | `fin = début + longueur ÷ vitesse`, si le sous-titre est trop court (`Lengthen`) ou trop long (`Shorten`) |
+| 2 | durée minimale | `fin = début + minimum`, si la durée est plus courte |
+| 3 | durée maximale | `fin = début + maximum`, si la durée est plus longue |
+| 4 | écart | `fin = début du suivant − écart`, si la fin en est trop près — jamais avant le début |
+
+**La dernière appliquée gagne.** L'écart vient en dernier et peut ramener une
+durée sous le minimum qu'on venait de poser : deux sous-titres à l'écran en même
+temps sont un défaut que le spectateur voit, un sous-titre un peu court ne l'est
+pas.
+
+**La longueur du texte se compte hors balises**, en caractères, sauts de ligne
+compris : `<i>été</i>` compte trois caractères. La vitesse de lecture parle de
+ce que le spectateur lit.
+
+**Le suivant est le sous-titre suivant du fichier**, qu'il soit dans la cible ou
+non. **Le dernier sous-titre du fichier n'a pas de suivant** : l'écart ne le
+contraint pas.
+
+### Ce qu'aucune fin ne peut satisfaire est dit
+
+Une fois l'ajustement fait, la fenêtre dit combien de fins ont bougé, et **ce
+qui n'a pas pu être tenu** — une contrainte n'apparaît que si elle a été
+sacrifiée pour au moins un sous-titre :
+
+```text
+adjusted the durations of 12 subtitles; could not satisfy the reading speed in 9 subtitles, the minimum duration in 4 subtitles
+```
+
+Les trois mentions possibles sont `the reading speed`, `the minimum duration` et
+`the gap`. **La durée maximale est toujours tenue** : elle vient après la vitesse
+et le minimum, et seul l'écart la suit, qui ne peut que raccourcir. Un minimum
+plus grand que le maximum lui cède, et c'est le minimum qui est compté. L'écart
+ne se sacrifie que lorsque le suivant commence avant le début du sous-titre
+lui-même.
+
+Le compte porte sur toute la cible, **y compris les sous-titres dont la fin n'a
+pas bougé** : un sous-titre déjà calé contre son suivant et trop court pour le
+minimum est compté. Quand aucune fin ne bouge, la fenêtre le dit —
+`no duration to adjust` — et rien n'entre dans l'historique.
 
 ## `Snap to Frame Rate…`
 
@@ -430,6 +509,7 @@ avertissement qu'on ignore. L'opération est dans l'historique, et `Undo` la
 défait comme n'importe quelle autre.
 
 Le message n'apparaît pas si aucune vidéo n'est ouverte : la durée vient du
-lecteur, et sans film il n'y a pas de fin à dépasser. Les trois opérations qui
-déplacent des positions sont concernées ; le retrait des mentions, `Italic`,
-`Case` et `Dialogue`, qui n'en déplacent aucune, ne le sont pas.
+lecteur, et sans film il n'y a pas de fin à dépasser. Les opérations qui
+déplacent des positions sont concernées — `Adjust Durations…` comprise, qui peut
+allonger une fin au-delà du film ; le retrait des mentions, `Italic`, `Case` et
+`Dialogue`, qui n'en déplacent aucune, ne le sont pas.
