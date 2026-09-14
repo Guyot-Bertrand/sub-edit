@@ -69,6 +69,11 @@ InsertCommand::InsertCommand(SubtitleIndex index, std::vector<Subtitle> subtitle
     : m_index(index), m_subtitles(std::move(subtitles)) {}
 
 InsertCommand InsertCommand::blank(const Project& project, SubtitleIndex index, std::size_t count) {
+    return InsertCommand{index, blankSubtitles(project, index, count)};
+}
+
+std::vector<Subtitle>
+InsertCommand::blankSubtitles(const Project& project, SubtitleIndex index, std::size_t count) {
     const Timestamp firstStart = firstStartFor(project, index);
     const Duration duration = blankDurationFor(project, index, count, firstStart);
 
@@ -79,7 +84,7 @@ InsertCommand InsertCommand::blank(const Project& project, SubtitleIndex index, 
         subtitles.push_back(Subtitle{.start = start, .end = start + duration});
     }
 
-    return InsertCommand{index, std::move(subtitles)};
+    return subtitles;
 }
 
 void InsertCommand::apply(Project& project) {

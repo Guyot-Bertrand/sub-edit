@@ -340,4 +340,16 @@ namespace subedit::core {
 [[nodiscard]] std::string
 noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFormat to);
 
+/// What a paste did that the table does not show by itself, or nothing.
+///
+/// Two posts: the rows laid down past the end to receive the texts — Gaupol's
+/// « inserted N subtitles to fit clipboard contents » — and the tags that did
+/// not survive a paste from another format, in the words of `noticeOf`, which
+/// `Save As…` already uses. `from` is nothing for a text that came from outside
+/// this program, which has no tags to translate.
+[[nodiscard]] std::string noticeOfPaste(std::size_t inserted,
+                                        const ConversionLoss& loss,
+                                        std::optional<SubtitleFormat> from,
+                                        SubtitleFormat to);
+
 } // namespace subedit::core

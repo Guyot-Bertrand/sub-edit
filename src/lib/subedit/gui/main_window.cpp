@@ -1,5 +1,6 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_correction.hpp>
+#include <subedit/core/edit/clipboard.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/dialogue_dashes_command.hpp>
 #include <subedit/core/edit/hearing_impaired_removal.hpp>
@@ -51,7 +52,9 @@
 
 #include <QAbstractItemView>
 #include <QAction>
+#include <QClipboard>
 #include <QCloseEvent>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QIcon>
@@ -220,6 +223,9 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_open(buildAction(this, QStringLiteral("Open…"), QStringLiteral("document-open"))),
       m_save(buildAction(this, QStringLiteral("Save"), QStringLiteral("document-save"))),
       m_saveAs(buildAction(this, QStringLiteral("Save As…"), QStringLiteral("document-save-as"))),
+      m_cut(buildAction(this, QStringLiteral("Cu&t Texts"), QStringLiteral("edit-cut"))),
+      m_copy(buildAction(this, QStringLiteral("&Copy Texts"), QStringLiteral("edit-copy"))),
+      m_paste(buildAction(this, QStringLiteral("&Paste Texts"), QStringLiteral("edit-paste"))),
       m_insert(buildAction(this, QStringLiteral("Insert Subtitles…"), QStringLiteral("list-add"))),
       m_remove(
           buildAction(this, QStringLiteral("Remove Subtitles"), QStringLiteral("list-remove"))),
@@ -372,6 +378,17 @@ MainWindow::MainWindow(core::FileSystem& files,
     // are spoken for: `Ctrl+S` saves. Two entries one reaches by the menu are
     // better than a key that types a letter into the wrong place.
     connect(m_mergeSubtitles, &QAction::triggered, this, &MainWindow::mergeSubtitles);
+
+    // **The platform's three, as Gaupol has them.** No conflict with a cell
+    // editor: a text field claims these sequences for as long as it has the
+    // focus, the way it claims `Del`, so inside an open cell they copy and
+    // paste characters rather than subtitles.
+    m_cut->setShortcut(QKeySequence::Cut);
+    m_copy->setShortcut(QKeySequence::Copy);
+    m_paste->setShortcut(QKeySequence::Paste);
+    connect(m_cut, &QAction::triggered, this, &MainWindow::cutTexts);
+    connect(m_copy, &QAction::triggered, this, &MainWindow::copyTexts);
+    connect(m_paste, &QAction::triggered, this, &MainWindow::pasteTexts);
     connect(m_splitSubtitle, &QAction::triggered, this, &MainWindow::splitSubtitle);
 
     connect(m_shift, &QAction::triggered, this, &MainWindow::shiftTarget);
@@ -447,6 +464,13 @@ MainWindow::MainWindow(core::FileSystem& files,
     QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
     edition->addAction(m_undo);
     edition->addAction(m_redo);
+    edition->addSeparator();
+    // Where every program puts them, and above the edits of structure: they
+    // move texts, and never add or take away a row — save a paste that runs
+    // past the end.
+    edition->addAction(m_cut);
+    edition->addAction(m_copy);
+    edition->addAction(m_paste);
     edition->addSeparator();
     // Under a separator: undoing is what one does *to* an edit; inserting and
     // removing *are* edits.
@@ -1181,6 +1205,14 @@ void MainWindow::refreshStructureActions() {
     // disaster here.
     m_remove->setEnabled(selected);
 
+    // **The selection, and never the whole file** — the rule `Remove Subtitles`
+    // follows, and for the same reason: a `Ctrl+X` on a table with nothing
+    // selected would empty every text of the document. A paste needs a row to
+    // start from, and without a selection the row would be guessed.
+    m_cut->setEnabled(selected);
+    m_copy->setEnabled(selected);
+    m_paste->setEnabled(selected);
+
     // Read on the runs rather than the rows: one run is what contiguous means,
     // and its length says whether there is anything to merge or to split.
     const core::Selection rows = selectionOf(*m_table->selectionModel());
@@ -1381,6 +1413,67 @@ void MainWindow::removeSubtitles() {
     const int left = static_cast<int>(m_session->project().count());
     if (left > 0)
         selectRows(std::min(emptied, left - 1), std::min(emptied, left - 1));
+}
+
+void MainWindow::copyTexts() {
+    const core::Selection target = selectionOf(*m_table->selectionModel());
+    if (target.isEmpty())
+        return;
+
+    m_clipboard = core::copyTexts(m_session->project(), target, core::Document::Main);
+    QGuiApplication::clipboard()->setText(QString::fromStdString(core::plainTextOf(m_clipboard)));
+}
+
+void MainWindow::cutTexts() {
+    const core::Selection target = selectionOf(*m_table->selectionModel());
+    if (target.isEmpty())
+        return;
+
+    copyTexts();
+
+    std::unique_ptr<core::Command> command =
+        core::cutTexts(m_session->project(), target, core::Document::Main);
+    if (command == nullptr)
+        return;
+
+    // A change of text and not of structure: the table keeps its selection.
+    applyOperation(std::move(command), target);
+}
+
+void MainWindow::pasteTexts() {
+    const core::Selection target = selectionOf(*m_table->selectionModel());
+    if (target.isEmpty())
+        return;
+
+    // Compared on the plain form, which is all the system keeps: the same
+    // string means the same copy, and this window knows its format.
+    const std::string plain = QGuiApplication::clipboard()->text().toStdString();
+    const core::ClipboardTexts clipboard =
+        !m_clipboard.isEmpty() && plain == core::plainTextOf(m_clipboard)
+            ? m_clipboard
+            : core::textsFromPlain(plain);
+    if (clipboard.isEmpty())
+        return;
+
+    const core::SubtitleIndex at = target.ranges().front().first;
+    const core::SubtitleFormat format = m_session->project().sourceFile().format;
+    core::PastedTexts pasted =
+        core::pasteTexts(m_session->project(), clipboard, at, core::Document::Main);
+    if (pasted.command == nullptr)
+        return;
+
+    applyOperation(std::move(pasted.command), target);
+
+    // The rows written, which a paste past the end has just rebuilt the table
+    // around: without them the selection would be gone, and a second paste
+    // would have nowhere to start.
+    const int first = static_cast<int>(at.value());
+    selectRows(first, first + static_cast<int>(clipboard.texts.size()) - 1);
+
+    const core::ConversionLoss loss{.tags = pasted.droppedTags};
+    const std::string notice = core::noticeOfPaste(pasted.inserted, loss, clipboard.format, format);
+    if (!notice.empty())
+        m_prompts->reportOutcome(notice);
 }
 
 void MainWindow::mergeSubtitles() {

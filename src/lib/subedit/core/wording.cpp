@@ -329,9 +329,13 @@ std::string_view nameOf(CommandKind kind) {
         return "merging";
     case CommandKind::Split:
         return "splitting";
+    case CommandKind::Cut:
+        return "cutting texts";
+    case CommandKind::Paste:
+        return "pasting texts";
     }
 
-    // The nineteen are handled and the compiler checks it. A `default` here would
+    // The twenty-one are handled and the compiler checks it. A `default` here would
     // take an enumerator added without a name in silence, and the action would
     // announce it as an empty string.
     std::unreachable();
@@ -474,6 +478,32 @@ std::string noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFo
     for (const std::string& post : posts) {
         if (!notice.empty())
             notice += ", ";
+        notice += post;
+    }
+    return notice;
+}
+
+std::string noticeOfPaste(std::size_t inserted,
+                          const ConversionLoss& loss,
+                          std::optional<SubtitleFormat> from,
+                          SubtitleFormat to) {
+    std::vector<std::string> posts;
+    if (inserted > 0)
+        posts.emplace_back("inserted " + countOf(inserted, "subtitle") + " to fit the clipboard");
+
+    // The formats are named here, where `Save As…` has a dialog title to do it:
+    // a box that says « 1 tag dropped » after a paste leaves a reader wondering
+    // on the way from what to what.
+    if (from.has_value()) {
+        if (const std::string lost = noticeOf(loss, *from, to); !lost.empty())
+            posts.emplace_back("pasting " + std::string{nameOf(*from)} + " texts into " +
+                               std::string{nameOf(to)} + ": " + lost);
+    }
+
+    std::string notice;
+    for (const std::string& post : posts) {
+        if (!notice.empty())
+            notice += "; ";
         notice += post;
     }
     return notice;

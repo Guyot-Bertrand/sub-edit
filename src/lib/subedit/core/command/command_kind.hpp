@@ -28,6 +28,8 @@ enum class CommandKind {
     RemoveDialogueDashes,
     Merge,
     Split,
+    Cut,
+    Paste,
 };
 
 } // namespace subedit::core

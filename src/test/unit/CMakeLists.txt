@@ -46,6 +46,7 @@ add_executable(
     core/edit/text_commands_test.cpp
     core/edit/insert_command_test.cpp
     core/edit/merge_split_command_test.cpp
+    core/edit/clipboard_test.cpp
     core/edit/shift_command_test.cpp
     core/edit/transform_command_test.cpp
     core/edit/convert_frame_rate_command_test.cpp
