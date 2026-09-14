@@ -22,6 +22,7 @@
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/theme.hpp>
+#include <subedit/core/edit/duration_adjustment.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
 #include <subedit/core/format/degradation.hpp>
 #include <subedit/core/format/diagnostic.hpp>
@@ -347,6 +348,15 @@ noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFormat to);
 /// not survive a paste from another format, in the words of `noticeOf`, which
 /// `Save As…` already uses. `from` is nothing for a text that came from outside
 /// this program, which has no tags to translate.
+/// What an adjustment of durations did, and what it gave up.
+///
+/// **What was sacrificed is said, post by post** — ADR 0008, and the one thing
+/// the phase adds to Gaupol, which violates in silence. Each constraint appears
+/// only when some subtitle could not satisfy it once the others had had their
+/// say.
+[[nodiscard]] std::string noticeOfAdjustment(std::size_t adjusted,
+                                             const SacrificedConstraints& sacrificed);
+
 [[nodiscard]] std::string noticeOfPaste(std::size_t inserted,
                                         const ConversionLoss& loss,
                                         std::optional<SubtitleFormat> from,

@@ -172,8 +172,8 @@ plus rien.
 | `GUI-DASH-01` | les tirets de dialogue se posent et se retirent d'un même geste | 10 | implémentée |
 | `GUI-SPLIT-01` | fusionner et scinder, et l'annulation rend le document tel qu'il était | 10 | implémentée |
 | `GUI-DURATION-01` | la colonne `Duration` se saisit, et déplace la fin | 10 | implémentée |
-| `GUI-ADJUST-01` | l'ajustement applique les quatre contraintes dans l'ordre spécifié | 10 | prévue |
-| `GUI-ADJUST-02` | ce qu'aucune fin ne peut satisfaire est dit, et compté | 10 | prévue |
+| `GUI-ADJUST-01` | l'ajustement applique les quatre contraintes dans l'ordre spécifié | 10 | implémentée |
+| `GUI-ADJUST-02` | ce qu'aucune fin ne peut satisfaire est dit, et compté | 10 | implémentée |
 | `GUI-SEARCH-01` | chercher dans le texte visible, remplacer dans le source, sans casser les balises | 10 | prévue |
 | `GUI-SEARCH-02` | la recherche porte sur la sélection, ou sur tout le document | 10 | prévue |
 | `GUI-CLIP-01` | copier, couper, coller des textes, et des lignes naissent s'il en manque | 10 | implémentée |

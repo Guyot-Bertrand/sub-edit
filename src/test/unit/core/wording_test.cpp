@@ -123,6 +123,7 @@ TEST_CASE("every kind of command has a name of its own", "[wording]") {
         subedit::core::CommandKind::Split,
         subedit::core::CommandKind::Cut,
         subedit::core::CommandKind::Paste,
+        subedit::core::CommandKind::AdjustDurations,
     };
 
     std::set<std::string_view> seen;
@@ -376,4 +377,18 @@ TEST_CASE("a paste says the rows it laid down and the tags it dropped, in one li
     // Texts of no format dropped nothing, whatever the count says.
     CHECK(
         noticeOfPaste(0, ConversionLoss{.tags = 3}, std::nullopt, SubtitleFormat::SubRip).empty());
+}
+
+TEST_CASE("an adjustment says what it moved and what it could not satisfy",
+          "[wording][durations]") {
+    using subedit::core::noticeOfAdjustment;
+    using subedit::core::SacrificedConstraints;
+
+    CHECK(noticeOfAdjustment(0, SacrificedConstraints{}) == "no duration to adjust");
+    CHECK(noticeOfAdjustment(1, SacrificedConstraints{}) == "adjusted the durations of 1 subtitle");
+    CHECK(noticeOfAdjustment(12, SacrificedConstraints{.speed = 9, .minimum = 4, .gap = 1}) ==
+          "adjusted the durations of 12 subtitles; could not satisfy the reading speed in "
+          "9 subtitles, the minimum duration in 4 subtitles, the gap in 1 subtitle");
+    CHECK(noticeOfAdjustment(0, SacrificedConstraints{.gap = 2}) ==
+          "no duration to adjust; could not satisfy the gap in 2 subtitles");
 }

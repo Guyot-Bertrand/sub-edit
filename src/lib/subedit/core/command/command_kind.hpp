@@ -30,6 +30,7 @@ enum class CommandKind {
     Split,
     Cut,
     Paste,
+    AdjustDurations,
 };
 
 } // namespace subedit::core
