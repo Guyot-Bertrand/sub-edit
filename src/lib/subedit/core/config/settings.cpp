@@ -31,6 +31,8 @@ constexpr std::string_view kThemeKey = "general.theme";
 constexpr std::string_view kInsertPlacementKey = "edit.insert-placement";
 constexpr std::string_view kWriteEncodingKey = "file.write-encoding";
 constexpr std::string_view kWriteBomKey = "file.write-bom";
+constexpr std::string_view kSearchRegexKey = "search.regex";
+constexpr std::string_view kSearchIgnoreCaseKey = "search.ignore-case";
 
 // The three values of the theme, as the file carries them. Lower case, and
 // kept apart from `nameOf(Theme)`, which gives the labels of the dialog: this
@@ -251,6 +253,10 @@ void applyOption(SettingsRead& read,
         take(Encoding::create(value, ByteOrderMark::Absent), read.settings.writeEncoding);
     else if (key == kWriteBomKey)
         take(booleanOf(value), wantsByteOrderMark);
+    else if (key == kSearchRegexKey)
+        take(booleanOf(value), read.settings.search.regex);
+    else if (key == kSearchIgnoreCaseKey)
+        take(booleanOf(value), read.settings.search.ignoreCase);
 }
 
 /// An option, written bare when set, commented out when at its default.
@@ -368,6 +374,15 @@ std::string renderSettings(const Settings& settings) {
     const bool marked = settings.writeEncoding.has_value() &&
                         settings.writeEncoding->byteOrderMark() == ByteOrderMark::Present;
     writeOption(out, kWriteBomKey, marked ? "true" : "false", !marked);
+
+    const SearchOptions search = settings.search;
+    const SearchOptions defaults;
+    writeOption(
+        out, kSearchRegexKey, search.regex ? "true" : "false", search.regex == defaults.regex);
+    writeOption(out,
+                kSearchIgnoreCaseKey,
+                search.ignoreCase ? "true" : "false",
+                search.ignoreCase == defaults.ignoreCase);
 
     return out;
 }

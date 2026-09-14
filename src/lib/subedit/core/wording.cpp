@@ -335,9 +335,13 @@ std::string_view nameOf(CommandKind kind) {
         return "pasting texts";
     case CommandKind::AdjustDurations:
         return "adjusting durations";
+    case CommandKind::Replace:
+        return "replacing";
+    case CommandKind::ReplaceAll:
+        return "replacing all";
     }
 
-    // The twenty-two are handled and the compiler checks it. A `default` here would
+    // The twenty-four are handled and the compiler checks it. A `default` here would
     // take an enumerator added without a name in silence, and the action would
     // announce it as an empty string.
     std::unreachable();
@@ -483,6 +487,25 @@ std::string noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFo
         notice += post;
     }
     return notice;
+}
+
+std::string reasonOf(const PatternError& error) {
+    switch (error.kind) {
+    case PatternError::Kind::Empty:
+        return "nothing to look for";
+    case PatternError::Kind::InvalidExpression:
+        return "not a regular expression (" + error.reason + ")";
+    }
+    std::unreachable();
+}
+
+std::string notFound(std::string_view pattern) {
+    return "\"" + std::string{pattern} + "\" not found";
+}
+
+std::string noticeOfReplaceAll(std::size_t count) {
+    // Not `countOf`, which adds an « s »: « match » takes « es ».
+    return "replaced " + std::to_string(count) + (count == 1 ? " match" : " matches");
 }
 
 std::string noticeOfAdjustment(std::size_t adjusted, const SacrificedConstraints& sacrificed) {

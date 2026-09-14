@@ -36,9 +36,10 @@ pointeur — mais son infobulle porte le libellé entier.
 | une scission de ligne | `splitting` |
 | des textes coupés, collés | `cutting texts`, `pasting texts` |
 | un ajustement des durées | `adjusting durations` |
+| un remplacement, tous les remplacements | `replacing`, `replacing all` |
 
-**Vingt et un libellés, et c'est tout ce que la fenêtre sait produire.** Le
-noyau en nomme un vingt-deuxième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri
+**Vingt-trois libellés, et c'est tout ce que la fenêtre sait produire.** Le
+noyau en nomme un vingt-quatrième — `sorting` — qu'aucune action de la fenêtre n'atteint : le tri
 n'a lieu que sous une politique d'ordre stricte, alors que la fenêtre ouvre ses
 documents sous la politique souple, qui signale le désordre au lieu de le
 réparer.

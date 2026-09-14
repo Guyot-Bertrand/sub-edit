@@ -1,6 +1,7 @@
 #pragma once
 
 #include <subedit/core/config/insert_placement.hpp>
+#include <subedit/core/config/search_options.hpp>
 #include <subedit/core/config/theme.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/encoding.hpp>
@@ -112,6 +113,10 @@ struct Settings {
     /// the mark as a variant of the encoding, and only the writing takes them
     /// apart.
     std::optional<Encoding> writeEncoding{};
+
+    /// The two options of `Find and Replace…`, kept from one opening of the
+    /// dialog to the next and from one session to the next.
+    SearchOptions search{};
 
     friend bool operator==(const Settings&, const Settings&) = default;
 };

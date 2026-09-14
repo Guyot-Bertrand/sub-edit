@@ -64,6 +64,7 @@ licence.
 | [Ouvrir et enregistrer](fichiers.md) | les trois commandes, les diagnostics, l'encodage dans la barre d'état, l'aller-retour |
 | [La table](table.md) | ce que chaque colonne montre |
 | [Éditer une cellule](edition.md) | quelles cellules s'éditent, et comment |
+| [Rechercher et remplacer](recherche.md) | le dialogue, les quatre gestes, les deux options, sur quoi porte la recherche |
 | [Couper, copier et coller des textes](presse-papiers.md) | les trois entrées, ce qui voyage, les lignes ajoutées, les balises traduites |
 | [Insérer, supprimer, fusionner et scinder des lignes](lignes.md) | les quatre entrées, leurs raccourcis, où vont les lignes neuves |
 | [Annuler et rétablir](annulation.md) | l'historique, les deux actions, la marque de modification |

@@ -31,6 +31,8 @@ enum class CommandKind {
     Cut,
     Paste,
     AdjustDurations,
+    Replace,
+    ReplaceAll,
 };
 
 } // namespace subedit::core

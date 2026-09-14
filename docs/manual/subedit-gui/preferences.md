@@ -14,6 +14,11 @@ thème n'en a aucun.
 lignes est un champ de ce dialogue-là, et le dernier choix est retenu. Voir
 [Insérer, supprimer, fusionner et scinder des lignes](lignes.md#le-côté-est-retenu).
 
+**Les deux options de la recherche aussi** : `Regular expression` et
+`Ignore case` restent cochées ou décochées d'une ouverture du dialogue à la
+suivante, et d'une session à la suivante. Voir
+[Rechercher et remplacer](recherche.md#les-deux-options).
+
 **Ce qui n'est pas retenu :** le dernier fichier ouvert. S'en souvenir voudrait
 dire rouvrir au lancement un document que personne n'a demandé.
 
@@ -43,6 +48,8 @@ qui le pose est justement celle qui ne va pas.
 | `edit.insert-placement` | `above` ou `below` | `below` |
 | `file.write-encoding` | le nom d'un encodage qu'ICU sait écrire, et dont le convertisseur n'écrit pas sa propre marque | aucun |
 | `file.write-bom` | `true` ou `false` | `false` |
+| `search.regex` | `true` ou `false` — le motif est une expression régulière | `false` |
+| `search.ignore-case` | `true` ou `false` — la casse est ignorée | `true` |
 
 **`file.write-encoding` retient le dernier encodage choisi dans `Save As…`, et
 ne s'impose jamais à un fichier.** Un document ouvert porte son propre encodage,

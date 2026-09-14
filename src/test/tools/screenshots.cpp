@@ -37,6 +37,7 @@
 #include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 #include <subedit/gui/save_shape.hpp>
+#include <subedit/gui/search_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/theme.hpp>
@@ -48,6 +49,7 @@
 #include <QFont>
 #include <QFontInfo>
 #include <QHeaderView>
+#include <QLineEdit>
 #include <QMessageLogContext>
 #include <QModelIndex>
 #include <QPixmap>
@@ -423,6 +425,16 @@ int main(int argc, char** argv) {
         subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::DurationAdjustDialog dialog{3, subedit::core::DurationConstraints{}};
         written = capture(dialog, dialog, directory, "ajustement") && written;
+    }
+
+    // The search dialog with a pattern typed, which is the state where its four
+    // gestures are lit — an empty one would show them all out.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::gui::SearchDialog dialog;
+        dialog.patternField()->setText(QStringLiteral("Marie"));
+        dialog.replacementField()->setText(QStringLiteral("Sophie"));
+        written = capture(dialog, dialog, directory, "recherche") && written;
     }
 
     // The shape `Save As…` offers, **inside the dialog that carries it** and

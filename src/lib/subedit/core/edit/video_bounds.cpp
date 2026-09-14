@@ -61,6 +61,8 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::Merge:
     case CommandKind::Split:
     case CommandKind::Cut:
+    case CommandKind::Replace:
+    case CommandKind::ReplaceAll:
     case CommandKind::Paste:
         return false;
     }
