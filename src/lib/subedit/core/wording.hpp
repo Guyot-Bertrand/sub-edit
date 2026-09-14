@@ -23,6 +23,7 @@
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/theme.hpp>
 #include <subedit/core/edit/duration_adjustment.hpp>
+#include <subedit/core/edit/search.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
 #include <subedit/core/format/degradation.hpp>
 #include <subedit/core/format/diagnostic.hpp>
@@ -356,6 +357,15 @@ noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFormat to);
 /// say.
 [[nodiscard]] std::string noticeOfAdjustment(std::size_t adjusted,
                                              const SacrificedConstraints& sacrificed);
+
+/// Why a pattern cannot be searched for, in the words the dialog shows.
+[[nodiscard]] std::string reasonOf(const PatternError& error);
+
+/// What a search that found nothing says: Gaupol's « "…" not found ».
+[[nodiscard]] std::string notFound(std::string_view pattern);
+
+/// What `Replace All` did: how many matches it replaced.
+[[nodiscard]] std::string noticeOfReplaceAll(std::size_t count);
 
 [[nodiscard]] std::string noticeOfPaste(std::size_t inserted,
                                         const ConversionLoss& loss,

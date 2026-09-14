@@ -10,6 +10,7 @@
 #include <subedit/core/edit/letter_case_command.hpp>
 #include <subedit/core/edit/merge_split_command.hpp>
 #include <subedit/core/edit/remove_command.hpp>
+#include <subedit/core/edit/search.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
 #include <subedit/core/edit/shift_limits.hpp>
@@ -44,6 +45,7 @@
 #include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/prompts.hpp>
+#include <subedit/gui/search_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/snap_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -228,6 +230,8 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_cut(buildAction(this, QStringLiteral("Cu&t Texts"), QStringLiteral("edit-cut"))),
       m_copy(buildAction(this, QStringLiteral("&Copy Texts"), QStringLiteral("edit-copy"))),
       m_paste(buildAction(this, QStringLiteral("&Paste Texts"), QStringLiteral("edit-paste"))),
+      m_findAndReplace(buildAction(
+          this, QStringLiteral("&Find and Replace…"), QStringLiteral("edit-find-replace"))),
       m_insert(buildAction(this, QStringLiteral("Insert Subtitles…"), QStringLiteral("list-add"))),
       m_remove(
           buildAction(this, QStringLiteral("Remove Subtitles"), QStringLiteral("list-remove"))),
@@ -392,6 +396,11 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(m_cut, &QAction::triggered, this, &MainWindow::cutTexts);
     connect(m_copy, &QAction::triggered, this, &MainWindow::copyTexts);
     connect(m_paste, &QAction::triggered, this, &MainWindow::pasteTexts);
+
+    // `Ctrl+F`, Gaupol's. A cell editor does not claim it, so it opens the
+    // dialog from inside an open cell too.
+    m_findAndReplace->setShortcut(QKeySequence::Find);
+    connect(m_findAndReplace, &QAction::triggered, this, &MainWindow::openSearch);
     connect(m_splitSubtitle, &QAction::triggered, this, &MainWindow::splitSubtitle);
 
     connect(m_shift, &QAction::triggered, this, &MainWindow::shiftTarget);
@@ -475,6 +484,8 @@ MainWindow::MainWindow(core::FileSystem& files,
     edition->addAction(m_cut);
     edition->addAction(m_copy);
     edition->addAction(m_paste);
+    edition->addSeparator();
+    edition->addAction(m_findAndReplace);
     edition->addSeparator();
     // Under a separator: undoing is what one does *to* an edit; inserting and
     // removing *are* edits.
@@ -585,6 +596,10 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
     m_model = std::move(model);
     m_session = std::move(session);
 
+    // A match and a target belong to the document they were found in.
+    m_match.reset();
+    m_searchTarget.reset();
+
     // Made again at every opening, with the selection model the table has just
     // been given: `setModel` throws the previous one away, and every connection
     // that named it with it.
@@ -592,6 +607,14 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
             &QItemSelectionModel::selectionChanged,
             this,
             &MainWindow::placePlaybackAtSelection);
+    // A selection the user makes is a new target for the next search; the one
+    // the search makes, moving to a match, is not.
+    connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this] {
+        if (!m_movingToMatch) {
+            m_searchTarget.reset();
+            m_match.reset();
+        }
+    });
     // The only two actions whose state depends on the selection, and they
     // listen to it alone: `refreshActions` deduces the grid of the whole file,
     // and wiring it here would pay for that deduction at every row of a drag.
@@ -1165,6 +1188,7 @@ void MainWindow::refreshActions() {
     m_transform->setEnabled(anything);
     m_frameRate->setEnabled(anything);
     m_adjustDurations->setEnabled(anything);
+    m_findAndReplace->setEnabled(anything);
     // Nothing to analyse either: an empty document has no positions to read a
     // grid off, and the dialog would open on « too few subtitles ».
     m_analyseGrid->setEnabled(anything);
@@ -1502,6 +1526,117 @@ void MainWindow::pasteTexts() {
         m_prompts->reportOutcome(notice);
 }
 
+void MainWindow::openSearch() {
+    if (m_search == nullptr) {
+        m_search = new SearchDialog{this};
+        m_search->setOptions(m_searchOptions);
+        connect(m_search, &SearchDialog::findNextRequested, this, [this] { findInTarget(true); });
+        connect(
+            m_search, &SearchDialog::findPreviousRequested, this, [this] { findInTarget(false); });
+        connect(m_search, &SearchDialog::replaceRequested, this, &MainWindow::replaceCurrentMatch);
+        connect(
+            m_search, &SearchDialog::replaceAllRequested, this, &MainWindow::replaceAllInTarget);
+        connect(m_search, &SearchDialog::searchChanged, this, [this] {
+            m_searchOptions = m_search->options();
+            m_match.reset();
+            m_search->setStatus({});
+        });
+    }
+
+    m_search->show();
+    m_search->raise();
+    m_search->activateWindow();
+}
+
+std::optional<core::SearchPattern> MainWindow::searchPattern() {
+    std::expected<core::SearchPattern, core::PatternError> compiled =
+        core::SearchPattern::compile(m_search->pattern().toStdString(), m_searchOptions);
+    if (!compiled.has_value()) {
+        m_search->setStatus(QString::fromStdString(core::reasonOf(compiled.error())));
+        return std::nullopt;
+    }
+    return std::move(*compiled);
+}
+
+core::Selection MainWindow::searchTarget() {
+    if (!m_searchTarget.has_value())
+        m_searchTarget = targetOf(*m_table->selectionModel(), m_session->project());
+    return *m_searchTarget;
+}
+
+void MainWindow::findInTarget(bool forward) {
+    const std::optional<core::SearchPattern> pattern = searchPattern();
+    if (!pattern.has_value())
+        return;
+
+    const core::Selection target = searchTarget();
+    const std::optional<core::TextMatch> found =
+        forward ? core::findNext(m_session->project(), target, *pattern, m_match)
+                : core::findPrevious(m_session->project(), target, *pattern, m_match);
+
+    // **A search that finds nothing says so, and touches nothing**: the
+    // selection stays where it was, and so does the target.
+    if (!found.has_value()) {
+        m_match.reset();
+        m_search->setStatus(
+            QString::fromStdString(core::notFound(m_search->pattern().toStdString())));
+        return;
+    }
+
+    m_match = found;
+    m_search->setStatus({});
+    const int row = static_cast<int>(found->index.value());
+    m_movingToMatch = true;
+    selectRows(row, row);
+    m_movingToMatch = false;
+}
+
+void MainWindow::replaceCurrentMatch() {
+    const std::optional<core::SearchPattern> pattern = searchPattern();
+    if (!pattern.has_value())
+        return;
+
+    // Nothing found yet, or the text moved under the match: find first, as
+    // Gaupol does, and let the next press replace what is then shown.
+    std::optional<core::ReplacedMatch> replaced;
+    if (m_match.has_value()) {
+        replaced = core::replaceMatch(
+            m_session->project(), *pattern, *m_match, m_search->replacement().toStdString());
+    }
+    if (!replaced.has_value()) {
+        findInTarget(true);
+        return;
+    }
+
+    if (replaced->command != nullptr) {
+        const core::SubtitleIndex index = replaced->written.index;
+        applyOperation(std::move(replaced->command), core::Selection::range(index, index));
+    }
+    m_match = replaced->written;
+    findInTarget(true);
+}
+
+void MainWindow::replaceAllInTarget() {
+    const std::optional<core::SearchPattern> pattern = searchPattern();
+    if (!pattern.has_value())
+        return;
+
+    const core::Selection target = searchTarget();
+    core::ReplacedAll replaced = core::replaceAll(
+        m_session->project(), target, *pattern, m_search->replacement().toStdString());
+    m_match.reset();
+
+    if (replaced.count == 0) {
+        m_search->setStatus(
+            QString::fromStdString(core::notFound(m_search->pattern().toStdString())));
+        return;
+    }
+
+    if (replaced.command != nullptr)
+        applyOperation(std::move(replaced.command), target);
+    m_search->setStatus(QString::fromStdString(core::noticeOfReplaceAll(replaced.count)));
+}
+
 void MainWindow::mergeSubtitles() {
     // The guard of the action, said again: nothing keeps a trigger from finding
     // it a fraction of a second too late. A run of one gets no command from the
@@ -1692,6 +1827,9 @@ void MainWindow::applySettings(const core::Settings& settings) {
     applyTheme(m_theme);
 
     m_insertPlacement = settings.insertPlacement;
+    m_searchOptions = settings.search;
+    if (m_search != nullptr)
+        m_search->setOptions(m_searchOptions);
     m_writeEncoding = settings.writeEncoding;
 }
 
@@ -1725,6 +1863,7 @@ core::Settings MainWindow::settings() const {
 
     settings.theme = m_theme;
     settings.insertPlacement = m_insertPlacement;
+    settings.search = m_searchOptions;
     settings.writeEncoding = m_writeEncoding;
 
     return settings;

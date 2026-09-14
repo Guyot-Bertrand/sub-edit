@@ -14,7 +14,8 @@ add_library(
                        insert_dialog.cpp save_shape.cpp
                        frame_rate_box.cpp frame_rate_dialog.cpp hearing_impaired_dialog.cpp
                        grid_analysis_dialog.cpp snap_dialog.cpp
-    duration_adjust_dialog.cpp about_dialog.cpp
+    duration_adjust_dialog.cpp
+    search_dialog.cpp about_dialog.cpp
                        mpv_player.cpp player_factory.cpp main_window.cpp)
 add_library(subedit::gui ALIAS subedit_gui)
 

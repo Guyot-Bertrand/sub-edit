@@ -334,6 +334,8 @@ TEST_CASE("an option at its default is written back commented out", "[config]") 
     CHECK_THAT(written, ContainsSubstring("#edit.insert-placement = below"));
     CHECK_THAT(written, ContainsSubstring("#file.write-encoding = UTF-8"));
     CHECK_THAT(written, ContainsSubstring("#file.write-bom = false"));
+    CHECK_THAT(written, ContainsSubstring("#search.regex = false"));
+    CHECK_THAT(written, ContainsSubstring("#search.ignore-case = true"));
 }
 
 TEST_CASE("an option that was set is written back bare", "[config]") {
@@ -396,4 +398,25 @@ TEST_CASE("the written file explains itself", "[config]") {
 
     CHECK(written.starts_with("# subedit settings."));
     CHECK_THAT(written, ContainsSubstring("commented out"));
+}
+
+// ## The two options of a search, which came with #384
+
+TEST_CASE("the two options of a search read, and are kept", "[config]") {
+    const SettingsRead read = readOf("search.regex = true\nsearch.ignore-case = false\n");
+    CHECK(read.settings.search.regex);
+    CHECK_FALSE(read.settings.search.ignoreCase);
+    CHECK(read.diagnostics.empty());
+
+    // Unreadable, the default stays — Gaupol's: plain text, the case ignored.
+    const SettingsRead unreadable = readOf("search.ignore-case = peut-etre\n");
+    CHECK(unreadable.settings.search.ignoreCase);
+    CHECK(unreadable.diagnostics.size() == 1);
+
+    InMemoryFileSystem files;
+    const subedit::core::SearchOptions chosenOptions{.regex = true, .ignoreCase = false};
+    REQUIRE(writeSettings(files, kPath, Settings{.search = chosenOptions}).has_value());
+    CHECK(readSettings(files, kPath).settings.search == chosenOptions);
+    CHECK_THAT(renderSettings(Settings{.search = chosenOptions}),
+               ContainsSubstring("\nsearch.regex = true"));
 }

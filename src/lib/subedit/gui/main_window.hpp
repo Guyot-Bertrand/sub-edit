@@ -4,7 +4,9 @@
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/edit/clipboard.hpp>
 #include <subedit/core/edit/duration_adjustment.hpp>
+#include <subedit/core/edit/search.hpp>
 #include <subedit/core/format/project_file.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 
@@ -40,6 +42,8 @@ class QSplitter;
 class QTimer;
 
 namespace subedit::gui {
+
+class SearchDialog;
 
 class DiagnosticsPanel;
 class ManualWindow;
@@ -135,6 +139,11 @@ public:
     [[nodiscard]] QAction* copyAction() const { return m_copy; }
 
     [[nodiscard]] QAction* pasteAction() const { return m_paste; }
+
+    [[nodiscard]] QAction* findAndReplaceAction() const { return m_findAndReplace; }
+
+    /// The search dialog once it has been opened, and nothing before.
+    [[nodiscard]] SearchDialog* searchDialog() const { return m_search; }
 
     /// The two edits of structure, for a test to read their state and trigger
     /// them.
@@ -458,6 +467,35 @@ private:
     /// Rows laid down past the end, and tags a translation dropped, are said.
     void pasteTexts();
 
+    /// Opens the search dialog, or brings it back to the front.
+    ///
+    /// **The same dialog every time**, kept from one opening to the next with
+    /// what was typed in it: finding again is the common case.
+    void openSearch();
+
+    /// Finds the next or the previous match in the search target, and moves
+    /// the table to it.
+    ///
+    /// **This one and the two after it answer the dialog's signals and nothing
+    /// else**, so the dialog exists whenever they run: `openSearch` makes it
+    /// before connecting them, and a test reaches them only by pressing its
+    /// buttons.
+    void findInTarget(bool forward);
+
+    /// Replaces the match last found, then finds the next one.
+    void replaceCurrentMatch();
+
+    /// Replaces every match of the search target, as one entry in the history.
+    void replaceAllInTarget();
+
+    /// Compiles what the dialog asks for, or shows why it cannot be.
+    [[nodiscard]] std::optional<core::SearchPattern> searchPattern();
+
+    /// What the search walks: the selection, or the whole document — captured
+    /// when a search starts, and kept while the search itself moves the
+    /// selection from match to match.
+    [[nodiscard]] core::Selection searchTarget();
+
     /// Merges the selected rows into one, and selects it.
     ///
     /// **A contiguous run of two or more**, which is what the action being out
@@ -542,6 +580,7 @@ private:
     QAction* m_cut = nullptr;
     QAction* m_copy = nullptr;
     QAction* m_paste = nullptr;
+    QAction* m_findAndReplace = nullptr;
     QAction* m_insert = nullptr;
     QAction* m_remove = nullptr;
     QAction* m_mergeSubtitles = nullptr;
@@ -611,6 +650,27 @@ private:
     /// What the last adjustment of durations asked for, offered again by the
     /// next one. Gaupol's defaults until then.
     core::DurationConstraints m_durationConstraints;
+
+    /// The search dialog, made at its first opening and kept.
+    SearchDialog* m_search = nullptr;
+
+    /// The two options of a search, which the preferences carry.
+    core::SearchOptions m_searchOptions;
+
+    /// The match last found, which `Find Next` starts after and `Replace`
+    /// rewrites. Forgotten when the pattern, an option or the document changes.
+    std::optional<core::TextMatch> m_match;
+
+    /// The target of the search under way, captured at its first gesture.
+    ///
+    /// **Captured and not read again**, because the search itself moves the
+    /// selection: read at every `Find Next`, the target would shrink to the row
+    /// of the last match. A selection the user makes resets it.
+    std::optional<core::Selection> m_searchTarget;
+
+    /// Set while the search moves the selection, so that the move is not
+    /// mistaken for the user choosing another target.
+    bool m_movingToMatch = false;
 
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;

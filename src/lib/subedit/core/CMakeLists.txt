@@ -19,6 +19,7 @@ add_library(
     edit/merge_split_command.cpp
     edit/clipboard.cpp
     edit/duration_adjustment.cpp
+    edit/search.cpp
     edit/shift_limits.cpp
     edit/video_bounds.cpp
     edit/remove_command.cpp

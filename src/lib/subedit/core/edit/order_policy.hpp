@@ -70,6 +70,9 @@ enum class OrderPolicy {
     case CommandKind::Merge:
     // It empties texts, and no position is read.
     case CommandKind::Cut:
+    // They rewrite texts, and read no position.
+    case CommandKind::Replace:
+    case CommandKind::ReplaceAll:
     // It moves ends, and only ends.
     case CommandKind::AdjustDurations:
     // It moves starts, and it is still the only such operation that cannot

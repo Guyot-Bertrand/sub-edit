@@ -124,6 +124,8 @@ TEST_CASE("every kind of command has a name of its own", "[wording]") {
         subedit::core::CommandKind::Cut,
         subedit::core::CommandKind::Paste,
         subedit::core::CommandKind::AdjustDurations,
+        subedit::core::CommandKind::Replace,
+        subedit::core::CommandKind::ReplaceAll,
     };
 
     std::set<std::string_view> seen;
@@ -391,4 +393,19 @@ TEST_CASE("an adjustment says what it moved and what it could not satisfy",
           "9 subtitles, the minimum duration in 4 subtitles, the gap in 1 subtitle");
     CHECK(noticeOfAdjustment(0, SacrificedConstraints{.gap = 2}) ==
           "no duration to adjust; could not satisfy the gap in 2 subtitles");
+}
+
+TEST_CASE("a search says what it could not do, and what it replaced", "[wording][search]") {
+    using subedit::core::notFound;
+    using subedit::core::noticeOfReplaceAll;
+    using subedit::core::PatternError;
+    using subedit::core::reasonOf;
+
+    CHECK(reasonOf(PatternError{.kind = PatternError::Kind::Empty}) == "nothing to look for");
+    CHECK(reasonOf(PatternError{.kind = PatternError::Kind::InvalidExpression,
+                                .reason = "U_REGEX_MISMATCHED_PAREN"}) ==
+          "not a regular expression (U_REGEX_MISMATCHED_PAREN)");
+    CHECK(notFound("Marie") == "\"Marie\" not found");
+    CHECK(noticeOfReplaceAll(1) == "replaced 1 match");
+    CHECK(noticeOfReplaceAll(3) == "replaced 3 matches");
 }
