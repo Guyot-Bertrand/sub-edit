@@ -19,6 +19,7 @@
 #include <subedit/core/model/subtitle_format.hpp>
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -73,6 +74,19 @@ public:
     /// `replacement` is visible text and only that: nothing in it is read as a
     /// tag, a transformation having no business inventing one.
     void transform(std::size_t at, std::size_t count, std::string_view replacement);
+
+    /// Rewrites the whole visible text, each tag carried to the offset
+    /// `placed` gives for the one it had.
+    ///
+    /// **For a transformation whose length changes inside the text** — a case
+    /// mapping, where `ﬁ` becomes `FI` and `İ` becomes two code points. A
+    /// rewrite at one offset cannot follow that: a tag keeps its byte offset,
+    /// and lands inside a letter or outside its word. Only the mapping knows
+    /// where each offset went, so it says so. Issue #401.
+    ///
+    /// `placed` receives every offset a tag holds, at the start of a code point,
+    /// and answers one into `rewritten`; it must never go backwards.
+    void rewrite(std::string_view rewritten, const std::function<std::size_t(std::size_t)>& placed);
 
     /// The text, tags put back.
     [[nodiscard]] std::string text() const;

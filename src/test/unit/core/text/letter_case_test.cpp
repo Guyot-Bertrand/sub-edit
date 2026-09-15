@@ -8,6 +8,8 @@
 #include <subedit/core/text/letter_case.hpp>
 
 #include <catch2/catch_test_macros.hpp>
+#include <unicode/uloc.h>
+#include <unicode/utypes.h>
 
 #include <optional>
 #include <set>
@@ -70,8 +72,39 @@ TEST_CASE("a format writing no tag cases everything it holds", "[text][case]") {
 
 TEST_CASE("a letter whose capital is two letters keeps its small form", "[text][case]") {
     // The German `ß` capitalises to `SS`. Writing two letters where there was
-    // one would be defensible and surprising; Gaupol leaves it, and so do we.
+    // one would be defensible and surprising, so it stays. **Gaupol does not
+    // agree**: Python's `capitalize` titlecases the first letter and writes
+    // `Ss`. A difference, and the inventory of Gaupol records it.
     CHECK(recased("ßonjour", LetterCase::Sentence, SubtitleFormat::SubRip) == "ßonjour");
     // Asked for capitals outright, it does grow — that is a different question.
     CHECK(recased("ßonjour", LetterCase::Upper, SubtitleFormat::SubRip) == "SSONJOUR");
+}
+
+TEST_CASE("the case is the same whatever locale the process runs in", "[text][case]") {
+    // Issue #401: handed the process's locale, ICU cased a Turkish way under
+    // `LANG=tr_TR` — `istanbul` in capitals became `İSTANBUL`. The same
+    // document and the same entry gave two answers on two machines.
+    struct RestoredLocale {
+        std::string was = uloc_getDefault();
+        RestoredLocale() = default;
+        RestoredLocale(const RestoredLocale&) = delete;
+        RestoredLocale& operator=(const RestoredLocale&) = delete;
+        RestoredLocale(RestoredLocale&&) = delete;
+        RestoredLocale& operator=(RestoredLocale&&) = delete;
+
+        ~RestoredLocale() {
+            UErrorCode status = U_ZERO_ERROR;
+            uloc_setDefault(was.c_str(), &status);
+        }
+    };
+
+    const RestoredLocale restored;
+
+    UErrorCode status = U_ZERO_ERROR;
+    uloc_setDefault("tr_TR", &status);
+    REQUIRE(U_SUCCESS(status));
+
+    CHECK(recased("istanbul", LetterCase::Upper, SubtitleFormat::SubRip) == "ISTANBUL");
+    CHECK(recased("ISTANBUL", LetterCase::Lower, SubtitleFormat::SubRip) == "istanbul");
+    CHECK(recased("istanbul", LetterCase::Title, SubtitleFormat::SubRip) == "Istanbul");
 }

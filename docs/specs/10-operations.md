@@ -193,6 +193,15 @@ casse de titre comprise. Aucune dépendance nouvelle, et la seule alternative
 sérieuse — une table écrite à la main — serait fausse pour toutes les langues
 qu'on n'aurait pas prévues.
 
+> **Précisé en #401 : dans la locale racine, et en suivant ce qu'ICU réécrit.**
+> Appelé sans locale, ICU casait selon celle du processus — `istanbul` en
+> capitales rendait `İSTANBUL` sous `LANG=tr_TR`. Et une casse change la longueur
+> d'une lettre — `ﬁ` devient `FI`, `İ` deux points de code — si bien que remettre
+> les balises à leur décalage en octets en écrivait une au milieu d'un caractère,
+> ou en perdait une. Les balises suivent désormais les éditions qu'ICU
+> enregistre. Casser selon la langue du document est une question de la
+> phase 15.
+
 **La casse ne touche pas ce qui précède la première lettre.** Gaupol cherche le
 premier caractère alphanumérique et n'applique la transformation qu'à partir de
 là : un tiret de dialogue, un guillemet ouvrant, une parenthèse survivent.

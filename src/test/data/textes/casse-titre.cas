@@ -24,5 +24,6 @@ une apostrophe ne coupe pas un mot   | "l'été sera chaud"     | "L'été Sera 
 les accents tiennent                 | "éléonore à noël"      | "Éléonore À Noël"
 les balises ne changent pas de casse | "<I>bonjour</I> marie" | "<I>Bonjour</I> Marie"
 une balise qui coupe un mot reste où elle est | "<i>bon</i>jour marie" | "<i>Bon</i>jour Marie"
+une ligature en tête de mot garde ses balises | "ﬁn <i>du</i> jeu" | "Fin <i>Du</i> Jeu"
 un texte sans lettre est rendu tel quel | "!?…"               | =
 deux lignes sont deux fois traitées  | "bonjour\nmarie"       | "Bonjour\nMarie"

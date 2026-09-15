@@ -438,7 +438,12 @@ sous-titre saisi en capitales.
 
 **Les accents et les alphabets non latins sont traités comme il faut.** `éléonore`
 donne `ÉLÉONORE`, et une apostrophe ne coupe pas un mot : `l'été` mis en casse de
-titre donne `L'été` et non `L'Été`.
+titre donne `L'été` et non `L'Été`. Une lettre qui change de longueur garde ses
+balises autour d'elle : `ﬁ <i>x</i>` en capitales donne `FI <i>X</i>`.
+
+**La casse ne dépend pas de la langue du système.** Elle suit les règles communes
+à toutes les langues : `istanbul` en capitales donne `ISTANBUL`, que la machine
+soit réglée en français ou en turc.
 
 ### Dans quel sens va `Dialogue`
 

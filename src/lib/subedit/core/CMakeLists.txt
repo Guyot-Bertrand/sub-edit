@@ -56,6 +56,7 @@ add_library(
     text/lines.cpp
     text/dialogue_dashes.cpp
     text/letter_case.cpp
+    text/utf8.cpp
     format/subtitle_file.cpp
     format/project_file.cpp
     config/settings.cpp

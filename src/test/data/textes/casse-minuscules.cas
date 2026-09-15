@@ -5,4 +5,5 @@
 un texte ordinaire                   | "BONJOUR MARIE"        | "bonjour marie"
 les accents prennent la leur         | "ÉLÉONORE À NOËL"      | "éléonore à noël"
 les balises ne changent pas de casse | "<I>BONJOUR</I> MARIE" | "<I>bonjour</I> marie"
+une lettre qui s'allonge laisse ses balises à leur place | "İİ <i>X</i>" | "i̇i̇ <i>x</i>"
 un texte déjà bas ne bouge pas       | "bonjour"              | =

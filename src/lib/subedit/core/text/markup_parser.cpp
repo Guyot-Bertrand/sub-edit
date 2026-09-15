@@ -1,11 +1,13 @@
 #include <subedit/core/text/markup_parser.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
+#include <subedit/core/text/utf8.hpp>
 
 #include <unicode/uchar.h>
 #include <unicode/umachine.h>
 
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -23,48 +25,6 @@ constexpr std::string_view kMpl2Markers = "\\/_";
     return letter >= 'A' && letter <= 'Z' ? static_cast<char>(letter - 'A' + 'a') : letter;
 }
 
-/// Tells whether `byte` continues a UTF-8 sequence rather than starting one.
-[[nodiscard]] bool continues(char byte) {
-    constexpr unsigned kContinuationMask = 0xC0U;
-    constexpr unsigned kContinuation = 0x80U;
-    return (static_cast<unsigned char>(byte) & kContinuationMask) == kContinuation;
-}
-
-/// The offset where the code point ending at `at` starts.
-[[nodiscard]] std::size_t codePointBefore(std::string_view text, std::size_t at) {
-    --at;
-    while (at > 0 && continues(text[at]))
-        --at;
-    return at;
-}
-
-/// The offset past the code point starting at `at`.
-[[nodiscard]] std::size_t codePointAfter(std::string_view text, std::size_t at) {
-    ++at;
-    while (at < text.size() && continues(text[at]))
-        ++at;
-    return at;
-}
-
-/// The code point written by the bytes `[from, to)`.
-///
-/// **The text is valid UTF-8** — it comes from a decoder that produced it — so
-/// the lead byte's length is the stretch's length, and nothing is checked.
-[[nodiscard]] UChar32 codePointIn(std::string_view text, std::size_t from, std::size_t to) {
-    constexpr unsigned kPayload = 0x3FU;
-    constexpr unsigned kAsciiMask = 0x7FU;
-    constexpr unsigned kBitsPerContinuation = 6U;
-
-    const std::size_t length = to - from;
-    // The lead byte keeps `7 - length` bits of its own for a sequence of
-    // `length` bytes, and all seven for a byte on its own.
-    const unsigned leadMask = length == 1 ? kAsciiMask : (kAsciiMask >> length);
-    auto point = static_cast<unsigned char>(text[from]) & leadMask;
-    for (std::size_t at = from + 1; at < to; ++at)
-        point = (point << kBitsPerContinuation) | (static_cast<unsigned char>(text[at]) & kPayload);
-    return static_cast<UChar32>(point);
-}
-
 /// Tells whether the code point ending at `at` and the one starting there both
 /// belong to a word — that is, whether a tag at `at` cuts a word in two.
 ///
@@ -77,8 +37,8 @@ constexpr std::string_view kMpl2Markers = "\\/_";
     if (at == 0 || at >= text.size())
         return false;
 
-    const UChar32 before = codePointIn(text, codePointBefore(text, at), at);
-    const UChar32 after = codePointIn(text, at, codePointAfter(text, at));
+    const auto before = static_cast<UChar32>(codePointAt(text, previousCodePoint(text, at)));
+    const auto after = static_cast<UChar32>(codePointAt(text, at));
     return u_isalnum(before) != 0 && u_isalnum(after) != 0;
 }
 
@@ -370,9 +330,9 @@ namespace {
 /// `span` with a boundary that cuts a word pushed out to the word's edge.
 [[nodiscard]] Span widenedOverWords(std::string_view visible, Span span) {
     while (cutsWord(visible, span.first))
-        span.first = codePointBefore(visible, span.first);
+        span.first = previousCodePoint(visible, span.first);
     while (cutsWord(visible, span.last))
-        span.last = codePointAfter(visible, span.last);
+        span.last = nextCodePoint(visible, span.last);
     return span;
 }
 
@@ -472,7 +432,6 @@ void MarkupParser::replace(std::size_t at, std::size_t count, std::string_view r
 }
 
 void MarkupParser::transform(std::size_t at, std::size_t count, std::string_view replacement) {
-    m_held->touched = true;
     const std::size_t end = at + count;
     const std::size_t grown = replacement.size();
     const auto shift = static_cast<std::ptrdiff_t>(grown) - static_cast<std::ptrdiff_t>(count);
@@ -487,6 +446,14 @@ void MarkupParser::transform(std::size_t at, std::size_t count, std::string_view
         return std::min(position, at + grown);
     };
 
+    rewrite(m_held->visible.substr(0, at) + std::string{replacement} + m_held->visible.substr(end),
+            moved);
+}
+
+void MarkupParser::rewrite(std::string_view rewritten,
+                           const std::function<std::size_t(std::size_t)>& placed) {
+    m_held->touched = true;
+
     // A span the rewrite emptied goes; one the file already held empty stays.
     // Nothing merges: two tags side by side before a transformation are two
     // tags side by side after it.
@@ -494,15 +461,14 @@ void MarkupParser::transform(std::size_t at, std::size_t count, std::string_view
     for (std::size_t which = 0; which < m_held->spans.size(); ++which) {
         Span& span = m_held->spans[which];
         const bool wasEmpty = span.first >= span.last;
-        span.first = moved(span.first);
-        span.last = moved(span.last);
+        span.first = placed(span.first);
+        span.last = placed(span.last);
         emptied[which] = !wasEmpty && span.first >= span.last;
     }
     for (Loose& one : m_held->loose)
-        one.at = moved(one.at);
+        one.at = placed(one.at);
 
-    m_held->visible =
-        m_held->visible.substr(0, at) + std::string{replacement} + m_held->visible.substr(end);
+    m_held->visible = std::string{rewritten};
 
     for (std::size_t which = emptied.size(); which-- > 0;) {
         if (emptied[which])

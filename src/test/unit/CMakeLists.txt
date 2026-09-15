@@ -79,6 +79,7 @@ add_executable(
     core/text/micro_dvd_markup_test.cpp
     core/text/markup_conversion_test.cpp
     core/text/markup_parser_test.cpp
+    core/text/utf8_test.cpp
     core/format/sub_rip_reader_test.cpp
     core/format/sub_rip_writer_test.cpp
     core/format/sub_rip_round_trip_test.cpp
@@ -109,7 +110,10 @@ add_executable(
     core/format/encoded_corpus_test.cpp
     core/format/local_corpus_test.cpp)
 
-target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain)
+# ICU directement, pour un seul test : celui qui pose une locale par défaut et
+# vérifie que la casse ne la suit pas (#401). Le noyau garde ICU en privé ; le
+# test, lui, doit pouvoir toucher ce que le noyau refuse de montrer.
+target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain ICU::uc)
 
 # Le harnais de cas de texte vit à la racine de unit/. Sans ce chemin
 # d'inclusion, un test rangé dans un sous-répertoire le désignerait par une
