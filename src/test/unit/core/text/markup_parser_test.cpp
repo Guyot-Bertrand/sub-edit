@@ -123,6 +123,16 @@ TEST_CASE("the two vocabularies that never close carry their tags whole", "[text
           "Bonjour/Sophie");
 }
 
+TEST_CASE("an MPL2 marker after a brace is text, as the pivot reads it", "[text][parser]") {
+    // Issue #403: the parser kept a line « at its head » across a brace, and
+    // read the `/` as a marker; the pivot and the italic toggle read text.
+    // Searching for it found nothing, and a dash landed after it.
+    const MarkupParser parser{"{y:b}/Bonjour", SubtitleFormat::Mpl2};
+
+    CHECK(parser.visible() == "/Bonjour");
+    CHECK(replacingAll("{y:b}/Bonjour", "/", "|", SubtitleFormat::Mpl2) == "{y:b}|Bonjour");
+}
+
 TEST_CASE("a tag taken inside a replacement comes out before it", "[text][parser]") {
     // It survives a text that has gone, and there is nothing else to say of it.
     CHECK(replacingAll("Bonjour {Y:i}Marie", "Bonjour Marie", "Salut", SubtitleFormat::MicroDvd) ==

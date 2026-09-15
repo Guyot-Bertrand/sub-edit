@@ -1,4 +1,5 @@
 #include <subedit/core/text/markup_parser.hpp>
+#include <subedit/core/text/markup_reader.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
 #include <subedit/core/text/utf8.hpp>
 
@@ -17,13 +18,6 @@
 namespace subedit::core {
 
 namespace {
-
-/// The three characters MPL2 writes at the head of a line.
-constexpr std::string_view kMpl2Markers = "\\/_";
-
-[[nodiscard]] char lowered(char letter) {
-    return letter >= 'A' && letter <= 'Z' ? static_cast<char>(letter - 'A' + 'a') : letter;
-}
 
 /// Tells whether the code point ending at `at` and the one starting there both
 /// belong to a word — that is, whether a tag at `at` cuts a word in two.
@@ -59,57 +53,36 @@ struct Tag {
 // Reading the tags out of a text
 // ---------------------------------------------------------------------------
 
-/// Reads one HTML tag, brackets off.
-[[nodiscard]] Tag htmlTag(std::string_view inside) {
+/// Reads one HTML tag, brackets included.
+[[nodiscard]] Tag htmlTag(std::string_view text) {
     Tag tag;
-    const bool closing = inside.starts_with('/');
-    const std::string_view body = closing ? inside.substr(1) : inside;
-
-    std::string name;
-    for (const char letter : body) {
-        if (letter == ' ' || letter == '/')
-            break;
-        name += lowered(letter);
-    }
-    if (name.empty())
+    HtmlTag read = htmlTagOf(text);
+    if (read.name.empty())
         return tag;
 
-    tag.kind = closing ? TagKind::Closes : TagKind::Opens;
-    tag.styles.push_back(std::move(name));
+    tag.kind = read.closing ? TagKind::Closes : TagKind::Opens;
+    tag.styles.push_back(std::move(read.name));
     return tag;
 }
 
-/// Reads one Sub Station Alpha block, braces off.
+/// Reads one Sub Station Alpha block, braces included.
 ///
 /// **A block says as many things as it likes**, and `{\b1\i1}` says two. Only
 /// the three flags pair up; a colour, a font, a position or a comment has no
 /// closer, so a block carrying any of them is carried whole and never moved.
-[[nodiscard]] Tag subStationAlphaTag(std::string_view block) {
+[[nodiscard]] Tag subStationAlphaTag(std::string_view text) {
     Tag tag;
+    const std::optional<std::vector<std::string_view>> overrides = overridesOf(text);
+    if (!overrides.has_value())
+        return tag;
+
     std::vector<std::string> opened;
     std::vector<std::string> closed;
-
-    while (!block.empty()) {
-        if (block.front() != '\\')
+    for (const std::string_view override : *overrides) {
+        const std::optional<FlagOverride> flag = flagOverrideOf(override);
+        if (!flag.has_value())
             return tag;
-        block.remove_prefix(1);
-        const std::size_t next = block.find('\\');
-        const std::string_view override = block.substr(0, next);
-        block = next == std::string_view::npos ? std::string_view{} : block.substr(next);
-
-        if (override.size() < 2)
-            return tag;
-        const char letter = override.front();
-        if (letter != 'b' && letter != 'i' && letter != 'u')
-            return tag;
-
-        bool on = false;
-        for (const char digit : override.substr(1)) {
-            if (digit < '0' || digit > '9')
-                return tag;
-            on = on || digit != '0';
-        }
-        (on ? opened : closed).push_back(std::string{letter});
+        (flag->on ? opened : closed).push_back(std::string{flag->letter});
     }
 
     if (opened.empty() == closed.empty())
@@ -130,12 +103,12 @@ struct Tag {
 }
 
 /// Reads one bracketed or braced tag, in the vocabulary that wrote it.
-[[nodiscard]] Tag tagOf(std::string_view inside, MarkupVocabulary vocabulary) {
+[[nodiscard]] Tag tagOf(std::string_view text, MarkupVocabulary vocabulary) {
     switch (vocabulary) {
     case MarkupVocabulary::Html:
-        return htmlTag(inside);
+        return htmlTag(text);
     case MarkupVocabulary::SubStationAlpha:
-        return subStationAlphaTag(inside);
+        return subStationAlphaTag(text);
     case MarkupVocabulary::None:
     case MarkupVocabulary::MicroDvd:
     case MarkupVocabulary::Mpl2:
@@ -152,45 +125,25 @@ struct Reading {
     std::vector<Tag> tags;
 };
 
+/// Reads `text` through the one reader of tags — issue #403.
+///
+/// Where a tag starts and ends, and whether an MPL2 marker is one, is the
+/// reader's to say; what a tag opens or closes is this parser's.
 [[nodiscard]] Reading read(std::string_view text, MarkupVocabulary vocabulary) {
     Reading found;
     found.visible.reserve(text.size());
 
-    const bool angles = vocabulary == MarkupVocabulary::Html;
-    const bool braces = vocabulary == MarkupVocabulary::SubStationAlpha ||
-                        vocabulary == MarkupVocabulary::MicroDvd ||
-                        vocabulary == MarkupVocabulary::Mpl2;
-    const bool markers = vocabulary == MarkupVocabulary::Mpl2;
-
-    bool atLineHead = true;
-    for (std::size_t at = 0; at < text.size();) {
-        if (markers && atLineHead && kMpl2Markers.contains(text[at])) {
-            Tag tag = opaqueTag();
-            tag.text = text.substr(at, 1);
-            tag.at = found.visible.size();
-            found.tags.push_back(std::move(tag));
-            ++at;
+    for (const MarkupPiece& piece : piecesOf(text, vocabulary)) {
+        if (piece.kind == MarkupPiece::Kind::Text) {
+            found.visible += piece.text;
             continue;
         }
-
-        const char opening = angles ? '<' : '{';
-        const char closing = angles ? '>' : '}';
-        if ((angles || braces) && text[at] == opening) {
-            const std::size_t ending = text.find(closing, at);
-            if (ending != std::string_view::npos) {
-                const std::string_view inside = text.substr(at + 1, ending - at - 1);
-                Tag tag = tagOf(inside, vocabulary);
-                tag.text = text.substr(at, ending - at + 1);
-                tag.at = found.visible.size();
-                found.tags.push_back(std::move(tag));
-                at = ending + 1;
-                continue;
-            }
-        }
-
-        atLineHead = text[at] == '\n';
-        found.visible += text[at];
-        ++at;
+        // A marker opens a style it never closes, as a MicroDVD tag does.
+        Tag tag =
+            piece.kind == MarkupPiece::Kind::Marker ? opaqueTag() : tagOf(piece.text, vocabulary);
+        tag.text = std::string{piece.text};
+        tag.at = found.visible.size();
+        found.tags.push_back(std::move(tag));
     }
     return found;
 }

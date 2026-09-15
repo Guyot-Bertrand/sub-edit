@@ -79,6 +79,7 @@ add_executable(
     core/text/micro_dvd_markup_test.cpp
     core/text/markup_conversion_test.cpp
     core/text/markup_parser_test.cpp
+    core/text/markup_reader_test.cpp
     core/text/utf8_test.cpp
     core/format/sub_rip_reader_test.cpp
     core/format/sub_rip_writer_test.cpp

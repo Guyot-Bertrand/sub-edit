@@ -71,6 +71,23 @@ TEST_CASE("a tag the pivot has no room for is dropped, and counted once", "[mark
     CHECK(read.unknown == 1);
 }
 
+TEST_CASE("a space before the bracket does not hide a tag", "[markup][html]") {
+    // Issue #403: the parser read `<b >` as bold and the pivot as nothing it
+    // knew — so a conversion dropped a style the search had seen.
+    const DecodedMarkup read = decodeHtmlMarkup("<b >Le canot dérive.</b >");
+
+    REQUIRE(read.runs.size() == 1);
+    CHECK(read.runs.front().style.bold);
+    CHECK(read.unknown == 0);
+}
+
+TEST_CASE("a tag closes on its own line, or is text", "[markup][html]") {
+    const DecodedMarkup read = decodeHtmlMarkup("le vent <\ni>tombe");
+
+    CHECK(subedit::core::plainTextOf(read.runs) == "le vent <\ni>tombe");
+    CHECK(read.unknown == 0);
+}
+
 TEST_CASE("an unterminated tag stops the reading rather than eating the text", "[markup][html]") {
     const DecodedMarkup read = decodeHtmlMarkup("le vent <i tombe");
 

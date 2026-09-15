@@ -10,7 +10,10 @@
 // happens. The seam is decided **late**, when real text turns up after it:
 // until then, nothing says whether anything will follow it on the line.
 
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/hearing_impaired.hpp>
+#include <subedit/core/text/markup_reader.hpp>
+#include <subedit/core/text/markup_vocabulary.hpp>
 
 #include <algorithm>
 #include <cstddef>
@@ -30,51 +33,42 @@ constexpr std::size_t kNowhere = std::string_view::npos;
     return letter == ' ' || letter == '\t';
 }
 
-/// Returns the index just past the format tag opening at `at`, or `kNowhere`.
-///
-/// A tag is `<` up to the first `>` of the same line. Nothing more is needed:
-/// what this has to answer is « does anything show here », not « what does this
-/// markup mean ».
-///
-/// A `<` that nothing closes is not a tag, and is therefore text like any
-/// other. No file of the corpus holds one — of 8 347 lines opening with `<`,
-/// every one closes — but a scan has to answer the question all the same, and
-/// answering it « it is text » is what leaves a damaged file alone.
-[[nodiscard]] std::size_t tagEnd(std::string_view text, std::size_t at) {
-    if (at >= text.size() || text[at] != '<')
-        return kNowhere;
-
-    const std::size_t closing = text.find_first_of(">\n", at + 1);
-    if (closing == kNowhere || text[closing] == '\n')
-        return kNowhere;
-    return closing + 1;
-}
-
-/// Whether nothing of `text` would show on screen — blanks and format tags only.
+/// Whether nothing of `text` would show on screen — blanks, and the tags of
+/// `vocabulary`.
 ///
 /// **The tags are why this exists.** Nine subtitles of the corpus are written
 /// `<i>[PEOPLE SCREAMING]</i>`, and without ignoring the markup the removal
 /// would leave `<i></i>`: an empty subtitle nothing would take away. ADR 0009
 /// keeps the text raw, tags included, so it is the judgement that ignores them
 /// and never the text that loses them.
-[[nodiscard]] bool showsNothing(std::string_view text) {
-    for (std::size_t index = 0; index < text.size();) {
-        if (isBlank(text[index]) || text[index] == '\n') {
-            ++index;
-            continue;
-        }
-        const std::size_t tag = tagEnd(text, index);
-        if (tag == kNowhere)
-            return false;
-        index = tag;
-    }
-    return true;
+///
+/// **The tags of the format, and not `<…>` whatever the format** — issue #403.
+/// A `{\i1}[SOUPIR]{\i0}` of Advanced SSA is emptied as the `<i>` of SubRip
+/// is, and a `<i>` on a TMPlayer line is three characters a viewer sees. Where a
+/// tag starts and ends is the one reader's to say; a `<` nothing closes on its
+/// line is text, which is what leaves a damaged file alone.
+[[nodiscard]] bool showsNothing(std::string_view text, MarkupVocabulary vocabulary) {
+    return std::ranges::all_of(piecesOf(text, vocabulary), [](const MarkupPiece& piece) {
+        return piece.kind != MarkupPiece::Kind::Text ||
+               std::ranges::all_of(piece.text,
+                                   [](char letter) { return isBlank(letter) || letter == '\n'; });
+    });
+}
+
+/// The vocabulary to read a text with when it starts in the middle of a line.
+///
+/// **MPL2 without its markers**: a marker is one only at the head of a line,
+/// and the rest of a line, or a line with its dash off, does not start there.
+[[nodiscard]] MarkupVocabulary midLine(MarkupVocabulary vocabulary) {
+    return vocabulary == MarkupVocabulary::Mpl2 ? MarkupVocabulary::MicroDvd : vocabulary;
 }
 
 /// Whether the rest of the line from `at` shows nothing.
-[[nodiscard]] bool restOfLineShowsNothing(std::string_view text, std::size_t at) {
+[[nodiscard]] bool
+restOfLineShowsNothing(std::string_view text, std::size_t at, MarkupVocabulary vocabulary) {
     const std::size_t lineEnd = text.find('\n', at);
-    return showsNothing(text.substr(at, lineEnd == kNowhere ? kNowhere : lineEnd - at));
+    return showsNothing(text.substr(at, lineEnd == kNowhere ? kNowhere : lineEnd - at),
+                        midLine(vocabulary));
 }
 
 /// Whether what sits between the delimiters is a reference rather than a sound.
@@ -143,8 +137,9 @@ struct Line {
 }
 
 /// Whether the line only carried a dialogue dash, blanks and tags.
-[[nodiscard]] bool showsNothingButItsDash(std::string_view text) {
-    return showsNothing(opensWithDash(text) ? text.substr(1) : text);
+[[nodiscard]] bool showsNothingButItsDash(std::string_view text, MarkupVocabulary vocabulary) {
+    return opensWithDash(text) ? showsNothing(text.substr(1), midLine(vocabulary))
+                               : showsNothing(text, vocabulary);
 }
 
 /// Takes the dialogue dash off a line, with the blanks that followed it.
@@ -156,7 +151,7 @@ void takeDashOff(std::string& text) {
 }
 
 /// Removes every mention, and says on which lines it removed one.
-[[nodiscard]] std::vector<Line> scanned(std::string_view text) {
+[[nodiscard]] std::vector<Line> scanned(std::string_view text, MarkupVocabulary vocabulary) {
     std::vector<Line> lines{Line{}};
     bool seamPending = false;
     bool seamIsLineBreak = false;
@@ -193,8 +188,8 @@ void takeDashOff(std::string& text) {
             // Real text is arriving, so the seam can be decided at last. It is
             // written only between two things that show: nothing at the edge of
             // a line, where a tag counts as no more than a blank.
-            const bool atEdge =
-                showsNothing(lines.back().text) || restOfLineShowsNothing(text, index);
+            const bool atEdge = showsNothing(lines.back().text, vocabulary) ||
+                                restOfLineShowsNothing(text, index, vocabulary);
             if (!atEdge) {
                 if (seamIsLineBreak) {
                     lines.emplace_back();
@@ -217,8 +212,9 @@ void takeDashOff(std::string& text) {
 
 } // namespace
 
-std::optional<std::string> withoutHearingImpaired(std::string_view text) {
-    std::vector<Line> lines = scanned(text);
+std::optional<std::string> withoutHearingImpaired(std::string_view text, SubtitleFormat format) {
+    const MarkupVocabulary vocabulary = vocabularyOf(format);
+    std::vector<Line> lines = scanned(text, vocabulary);
 
     // Nothing bit, so nothing is decided: the text goes back out as it came,
     // whatever it holds. Judging the emptiness of a text no mention touched
@@ -236,7 +232,7 @@ std::optional<std::string> withoutHearingImpaired(std::string_view text) {
     std::vector<Line> kept;
     std::size_t dropped = 0;
     for (Line& line : lines) {
-        if (line.touched && showsNothingButItsDash(line.text)) {
+        if (line.touched && showsNothingButItsDash(line.text, vocabulary)) {
             ++dropped;
             continue;
         }
@@ -260,7 +256,7 @@ std::optional<std::string> withoutHearingImpaired(std::string_view text) {
         joined += kept[rank].text;
     }
 
-    if (showsNothing(joined))
+    if (showsNothing(joined, vocabulary))
         return std::nullopt;
     return joined;
 }

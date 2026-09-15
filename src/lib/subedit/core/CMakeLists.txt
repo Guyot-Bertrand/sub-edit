@@ -48,6 +48,7 @@ add_library(
     text/markup.cpp
     text/markup_codec.cpp
     text/markup_parser.cpp
+    text/markup_reader.cpp
     text/markup_vocabulary.cpp
     text/html_markup.cpp
     text/sub_station_alpha_markup.cpp

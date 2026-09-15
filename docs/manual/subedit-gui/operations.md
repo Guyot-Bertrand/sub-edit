@@ -485,6 +485,10 @@ sous-titre qui n'était *que* mention n'a plus de texte une fois nettoyé, et un
 sous-titre sans texte n'a pas lieu d'être : il est retiré du fichier. Les autres
 sont réécrits sans leur mention.
 
+**Les balises du format ne comptent pas pour du texte** : `<i>[SOUPIR]</i>` d'un
+SubRip et `{\i1}[SOUPIR]{\i0}` d'un Advanced SSA sont retirés l'un comme l'autre.
+Un `<i>` dans un TMPlayer ou un LRC, qui n'écrivent aucune balise, est du texte.
+
 Le compte rendu dit les deux :
 
 ```

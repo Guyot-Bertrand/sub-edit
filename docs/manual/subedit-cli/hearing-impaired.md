@@ -95,6 +95,12 @@ Une ligne compte pour vide quand il n'y reste que des blancs, des balises de
 format, ou un tiret de dialogue seul — `<i>[Musique]</i>` ne laisse pas un
 `<i></i>` à l'écran.
 
+**Les balises sont celles du format du fichier.** `{\i1}[Musique]{\i0}` dans un
+Advanced SSA, `{Y:i}[Musique]` dans un MicroDVD et `/[Musique]` dans un MPL2 ne
+laissent rien non plus. À l'inverse, un `<i>` dans un format qui n'écrit aucune
+balise — TMPlayer, LRC — est du texte que le spectateur lit, et la ligne qui le
+porte n'est pas vide.
+
 **Un dialogue réduit à une seule voix n'en est plus un**, et le tiret qui reste
 s'en va. Tant qu'il reste deux voix, les tirets restent.
 

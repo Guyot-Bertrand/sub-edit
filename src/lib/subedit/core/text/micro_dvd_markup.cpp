@@ -1,5 +1,6 @@
 #include <subedit/core/text/markup.hpp>
 #include <subedit/core/text/markup_codec.hpp>
+#include <subedit/core/text/markup_reader.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
 #include <subedit/core/text/micro_dvd_markup.hpp>
 
@@ -15,8 +16,6 @@ namespace subedit::core {
 
 namespace {
 
-constexpr std::string_view kScopedLetters = "cfsyCFSY";
-constexpr std::string_view kMpl2Markers = "\\/_";
 constexpr int kDecimalBase = 10;
 
 /// Reads a run of decimal digits as a number, or nothing if there is none.
@@ -51,15 +50,11 @@ constexpr int kDecimalBase = 10;
     return effective;
 }
 
-/// Applies `X:value`, once its braces are off, or says it meant nothing here.
-[[nodiscard]] bool applyTag(Style& style, std::string_view inside) {
-    if (inside.size() < 2 || inside[1] != ':' || !kScopedLetters.contains(inside.front()))
-        return false;
+/// Applies a MicroDVD tag to `style`, or says it meant nothing here.
+[[nodiscard]] bool applyTag(Style& style, const ScopedTag& tag) {
+    const std::string_view value = tag.value;
 
-    const char letter = static_cast<char>(inside.front() | ' ');
-    const std::string_view value = inside.substr(2);
-
-    if (letter == 'y') {
+    if (tag.letter == 'y') {
         const bool bold = value.contains('b');
         const bool italic = value.contains('i');
         const bool underline = value.contains('u');
@@ -71,7 +66,7 @@ constexpr int kDecimalBase = 10;
         return true;
     }
 
-    if (letter == 'c') {
+    if (tag.letter == 'c') {
         if (!value.starts_with('$'))
             return false;
         const std::optional<Colour> colour = Colour::parseReversed(value.substr(1));
@@ -81,7 +76,7 @@ constexpr int kDecimalBase = 10;
         return true;
     }
 
-    if (letter == 'f') {
+    if (tag.letter == 'f') {
         if (value.empty())
             return false;
         style.font = std::string{value};
@@ -95,68 +90,54 @@ constexpr int kDecimalBase = 10;
     return true;
 }
 
-/// Reads one line's braces, appending its text to `read`.
+/// Appends `text` under the style its two scopes make, closing the line scope
+/// at every line ending.
+void appendLines(std::string_view text,
+                 Style& lineScope,
+                 const Style& subtitleScope,
+                 DecodedMarkup& read) {
+    while (!text.empty()) {
+        const std::size_t ending = text.find('\n');
+        if (ending == std::string_view::npos) {
+            appendRun(read.runs, text, layered(subtitleScope, lineScope));
+            return;
+        }
+        // The line ending belongs to the line it ends, and so does its style.
+        appendRun(read.runs, text.substr(0, ending + 1), layered(subtitleScope, lineScope));
+        lineScope = Style{};
+        text.remove_prefix(ending + 1);
+    }
+}
+
+/// Reads the pieces of `text`, the one reader of tags having cut them.
 ///
 /// Both scopes are written to: which one a tag lands in is decided by its case,
 /// and the subtitle scope is what survives the line ending.
-void decodeLine(std::string_view text,
-                Style& lineScope,
-                Style& subtitleScope,
-                DecodedMarkup& read) {
-    std::size_t start = 0;
-    while (start < text.size()) {
-        const std::size_t opening = text.find('{', start);
-        if (opening == std::string_view::npos)
-            break;
-        const std::size_t closing = text.find('}', opening);
-        if (closing == std::string_view::npos)
-            break;
-
-        appendRun(
-            read.runs, text.substr(start, opening - start), layered(subtitleScope, lineScope));
-
-        const std::string_view inside = text.substr(opening + 1, closing - opening - 1);
-        // **The case decides where the tag goes**, and nothing else does: the
-        // same four letters, capitalised, reach the end of the subtitle.
-        const bool wholeSubtitle =
-            !inside.empty() && inside.front() >= 'A' && inside.front() <= 'Z';
-        if (!applyTag(wholeSubtitle ? subtitleScope : lineScope, inside))
-            ++read.unknown;
-
-        start = closing + 1;
-    }
-
-    appendRun(read.runs, text.substr(start), layered(subtitleScope, lineScope));
-}
-
-[[nodiscard]] DecodedMarkup decodeBraced(std::string_view text, bool markers) {
+[[nodiscard]] DecodedMarkup decodeBraced(std::string_view text, MarkupVocabulary vocabulary) {
     DecodedMarkup read;
     Style subtitleScope;
+    Style lineScope;
 
-    std::size_t start = 0;
-    while (true) {
-        const std::size_t ending = text.find('\n', start);
-        std::string_view line = ending == std::string_view::npos
-                                    ? text.substr(start)
-                                    : text.substr(start, ending - start);
-
-        Style lineScope;
-        if (markers) {
-            const std::size_t body = line.find_first_not_of(kMpl2Markers);
-            const std::string_view found =
-                body == std::string_view::npos ? line : line.substr(0, body);
-            lineScope.bold = found.contains('\\');
-            lineScope.italic = found.contains('/');
-            lineScope.underline = found.contains('_');
-            line = body == std::string_view::npos ? std::string_view{} : line.substr(body);
-        }
-
-        decodeLine(line, lineScope, subtitleScope, read);
-
-        if (ending == std::string_view::npos)
+    for (const MarkupPiece& piece : piecesOf(text, vocabulary)) {
+        switch (piece.kind) {
+        case MarkupPiece::Kind::Marker:
+            // MPL2's markers, read as a set: `\/` is bold and italic.
+            lineScope.bold = lineScope.bold || piece.text == "\\";
+            lineScope.italic = lineScope.italic || piece.text == "/";
+            lineScope.underline = lineScope.underline || piece.text == "_";
             break;
-        appendRun(read.runs, "\n", layered(subtitleScope, lineScope));
-        start = ending + 1;
+        case MarkupPiece::Kind::Tag: {
+            // **The case decides where the tag goes**, and nothing else does: the
+            // same four letters, capitalised, reach the end of the subtitle.
+            const std::optional<ScopedTag> tag = scopedTagOf(piece.text);
+            if (!tag.has_value() || !applyTag(tag->wholeSubtitle ? subtitleScope : lineScope, *tag))
+                ++read.unknown;
+            break;
+        }
+        case MarkupPiece::Kind::Text:
+            appendLines(piece.text, lineScope, subtitleScope, read);
+            break;
+        }
     }
 
     return read;
@@ -332,7 +313,7 @@ encodeBraced(const StyledText& runs, const StyleAbilities& abilities, bool marke
 } // namespace
 
 DecodedMarkup decodeMicroDvdMarkup(std::string_view text) {
-    return decodeBraced(text, false);
+    return decodeBraced(text, MarkupVocabulary::MicroDvd);
 }
 
 EncodedMarkup encodeMicroDvdMarkup(const StyledText& runs, const StyleAbilities& abilities) {
@@ -340,7 +321,7 @@ EncodedMarkup encodeMicroDvdMarkup(const StyledText& runs, const StyleAbilities&
 }
 
 DecodedMarkup decodeMpl2Markup(std::string_view text) {
-    return decodeBraced(text, true);
+    return decodeBraced(text, MarkupVocabulary::Mpl2);
 }
 
 EncodedMarkup encodeMpl2Markup(const StyledText& runs, const StyleAbilities& abilities) {

@@ -93,6 +93,22 @@ TEST_CASE("what is not a tag at all is not rewritten", "[text][italics]") {
     CHECK(withoutItalics("{Y:i}Un{Y:i Deux", SubtitleFormat::MicroDvd) == "Un{Y:i Deux");
 }
 
+TEST_CASE("an italic tag with a space before its bracket is an italic tag", "[text][italics]") {
+    // Issue #403: the parser read `<i >` as italics and the pivot did not, and
+    // the toggle looked for `<i>` letter for letter. Put in italics, the text
+    // came back `<i><i >…</i ></i>`, and the `<i >` never came out.
+    CHECK(opensInItalics("<i >Bonjour.</i >", SubtitleFormat::SubRip));
+    CHECK(withoutItalics("<i >Bonjour.</i >", SubtitleFormat::SubRip) == "Bonjour.");
+    CHECK(inItalics("<i >Bonjour.</i >", SubtitleFormat::SubRip) == "<i>Bonjour.</i>");
+}
+
+TEST_CASE("an empty brace block is left alone when there is no italic in it", "[text][italics]") {
+    // A block goes with its italics when they were all it said. One that said
+    // nothing to start with is not the toggle's to take away.
+    CHECK(withoutItalics("{}Bonjour.", SubtitleFormat::SubStationAlpha) == "{}Bonjour.");
+    CHECK(withoutItalics("{y:}Bonjour.", SubtitleFormat::MicroDvd) == "{y:}Bonjour.");
+}
+
 TEST_CASE("an italic tag in upper case is taken out too", "[text][italics]") {
     // Our own reader lowers what it reads, so an `<I>` left behind would be a
     // text still in italics after the italics came out.

@@ -1,5 +1,6 @@
 #include <subedit/core/text/markup.hpp>
 #include <subedit/core/text/markup_codec.hpp>
+#include <subedit/core/text/markup_reader.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
 #include <subedit/core/text/sub_station_alpha_markup.hpp>
 
@@ -8,6 +9,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace subedit::core {
 
@@ -40,7 +42,6 @@ constexpr int kDecimalBase = 10;
         return false;
 
     const char letter = override.front();
-    const std::string_view rest = override.substr(1);
 
     if (letter == 'r') {
         // The reset, with or without a style name: everything closes at once.
@@ -48,17 +49,13 @@ constexpr int kDecimalBase = 10;
         return true;
     }
 
-    if ((letter == 'b' || letter == 'i' || letter == 'u') && !rest.empty()) {
-        const std::optional<int> weight = wholeNumber(rest);
-        if (!weight.has_value())
-            return false;
-        const bool on = *weight > 0;
-        if (letter == 'b')
-            style.bold = on;
-        else if (letter == 'i')
-            style.italic = on;
+    if (const std::optional<FlagOverride> flag = flagOverrideOf(override)) {
+        if (flag->letter == 'b')
+            style.bold = flag->on;
+        else if (flag->letter == 'i')
+            style.italic = flag->on;
         else
-            style.underline = on;
+            style.underline = flag->on;
         return true;
     }
 
@@ -178,39 +175,27 @@ void appendOff(std::string& out, StyleAttribute attribute) {
 DecodedMarkup decodeSubStationAlphaMarkup(std::string_view text) {
     DecodedMarkup read;
     Style current;
-    std::size_t start = 0;
 
-    while (start < text.size()) {
-        const std::size_t opening = text.find('{', start);
-        if (opening == std::string_view::npos)
-            break;
-        const std::size_t closing = text.find('}', opening);
-        if (closing == std::string_view::npos)
-            break;
-
-        appendRun(read.runs, text.substr(start, opening - start), current);
+    for (const MarkupPiece& piece : piecesOf(text, MarkupVocabulary::SubStationAlpha)) {
+        if (piece.kind == MarkupPiece::Kind::Text) {
+            appendRun(read.runs, piece.text, current);
+            continue;
+        }
 
         // **A block holds as many overrides as it likes**, and `{\b1\i1}` says
         // two things. Splitting on the backslash is what Gaupol does first too.
-        std::string_view block = text.substr(opening + 1, closing - opening - 1);
-        while (!block.empty()) {
-            if (block.front() != '\\') {
-                // Not an override at all: `{some note}` is a comment in the wild.
-                ++read.unknown;
-                break;
-            }
-            block.remove_prefix(1);
-            const std::size_t next = block.find('\\');
-            const std::string_view override = block.substr(0, next);
+        const std::optional<std::vector<std::string_view>> overrides = overridesOf(piece.text);
+        if (!overrides.has_value()) {
+            // Not an override at all: `{some note}` is a comment in the wild.
+            ++read.unknown;
+            continue;
+        }
+        for (const std::string_view override : *overrides) {
             if (!applyOverride(current, override))
                 ++read.unknown;
-            block = next == std::string_view::npos ? std::string_view{} : block.substr(next);
         }
-
-        start = closing + 1;
     }
 
-    appendRun(read.runs, text.substr(start), current);
     return read;
 }
 
