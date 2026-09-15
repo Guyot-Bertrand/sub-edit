@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Relecture de fin de phase 10
+
+## 0.10.13 — 2026-09-14
+
 ### Ajouts
 
 - **text** — Rechercher et remplacer, dans la fenêtre
