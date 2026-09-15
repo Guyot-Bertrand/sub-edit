@@ -6,7 +6,7 @@ Le menu **File** porte les trois commandes.
 | :------- | :-------- | :-------------- |
 | `Open…` | `Ctrl+O` | choisit un fichier et l'ouvre à la place du courant |
 | `Save` | `Ctrl+S` | réécrit le fichier ouvert |
-| `Save As…` | `Ctrl+Maj+S` | choisit un chemin et un format, puis écrit |
+| `Save As…` | `Ctrl+Shift+S` | choisit un chemin et un format, puis écrit |
 
 `Open…` et `Save` sont aussi dans la barre d'outils.
 

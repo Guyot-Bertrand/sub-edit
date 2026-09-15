@@ -19,8 +19,11 @@ lignes est un champ de ce dialogue-là, et le dernier choix est retenu. Voir
 suivante, et d'une session à la suivante. Voir
 [Rechercher et remplacer](recherche.md#les-deux-options).
 
-**Ce qui n'est pas retenu :** le dernier fichier ouvert. S'en souvenir voudrait
-dire rouvrir au lancement un document que personne n'a demandé.
+**Et le dernier encodage choisi dans `Save As…`**, avec sa marque d'ordre des
+octets. Voir [le fichier](#le-fichier).
+
+**Ce qui n'est pas retenu :** le dernier fichier ouvert — voir
+[Le répertoire retenu](#le-répertoire-retenu).
 
 ## Le fichier
 
@@ -164,15 +167,19 @@ du texte sur chacune des teintes est vérifié par un test, sur les deux fonds.
 
 ## Ce qui ne se règle pas
 
-**Deux réglages seulement se choisissent dans un dialogue** — le thème, ici, et
-le côté d'une insertion, dans le dialogue d'insertion. Il n'y en a pas de
-troisième caché ailleurs : rien ne se règle pour le panneau de diagnostics, le
-volume du lecteur, ni le format d'enregistrement par défaut — celui-ci vient du
-fichier ouvert.
+**Cinq réglages retenus se choisissent dans un dialogue**, et chacun dans celui où
+il sert : le thème, ici ; le côté d'une insertion, dans le dialogue d'insertion ;
+les deux options de la recherche, dans le dialogue de recherche ; l'encodage et
+la marque d'ordre des octets, dans `Save As…`. Il n'y en a pas d'autre : rien ne
+se règle pour le panneau de diagnostics, le volume du lecteur, ni le format
+d'enregistrement par défaut — celui-ci vient du fichier ouvert.
 
-Et **aucun nombre qui appartient à un document** : une durée de décalage, deux
-repères de transformation sont vrais d'un fichier et faux du suivant. Les
-dialogues les redemandent à chaque fois, délibérément.
+Et **aucun nombre qui appartient à un document n'est gardé d'une session à
+l'autre** : une durée de décalage, deux repères de transformation sont vrais d'un
+fichier et faux du suivant. Les dialogues les redemandent à chaque lancement,
+délibérément. `Adjust Durations…` est le seul à rouvrir sur ses dernières
+valeurs, le temps que la fenêtre reste ouverte : une vitesse de lecture et une
+durée minimale sont des choix de méthode plutôt que des mesures d'un fichier.
 
 Ce manuel décrit ce qui existe : ce qui viendra est dans la
 [feuille de route](../../feuille-de-route.md).

@@ -15,7 +15,7 @@ opérations n'ont pas de bonne réponse unique — elles ont un résultat qu'un
 utilisateur trouve acceptable ou non. Le cadrage doit donc dire **qui décide**,
 et pas seulement quoi calculer.
 
-Trois choses sont déjà faites quand ce cadrage s'écrit, et elles changent son
+Quatre choses sont déjà faites quand ce cadrage s'écrit, et elles changent son
 contenu :
 
 | Issue | Ce qu'elle a livré |
@@ -33,7 +33,7 @@ L'inventaire porte le détail ; trois constats gouvernent ce qui suit.
 
 **Un parseur conscient des balises est au centre.** `aeidon/parser.py` retire
 les balises, retient leurs positions, laisse transformer le texte nu, puis les
-remet. La casse, les tirets et la recherche passent tous les trois par lui. Ce
+remet. La casse et les tirets passent par lui. Ce
 n'est pas le pivot de l'ADR 0031, qui traduit un vocabulaire en un autre et
 retire ce qu'il ne sait pas porter ; l'ADR le dit elle-même — « ce sont deux
 pièces différentes ».
@@ -63,12 +63,28 @@ tête du premier, en six points. Les deux qui décident :
    `<i>bonjour</i>`.
 2. **Tout style qui touche la correspondance couvre le remplacement entier.**
 
+> **Écrit en relecture de fin de phase.** Le corpus a bougé une fois après le
+> cadrage : #378 a corrigé une réponse attendue de `recherche.cas` — deux styles
+> voisins sur un même mot, `<i>Bon</i><b>jour</b>` — et ajouté en tête du
+> fichier une règle d'ordre que les six points ne portaient pas. La réponse
+> écrite avant le code se contredisait elle-même ; c'est le corpus qui a été
+> corrigé, et il reste la spécification.
+
 **Ce que cela écarte, et pourquoi.** Gaupol n'a pas de règle sur le premier
 point, seulement une arithmétique de décalage, et la frontière retombe à une
 place sans rapport avec le texte neuf — `<i>Bon</i>jour` remplacé par
 `Bonjour tout le monde` lui rend `<i>Bonjour tout le m</i>onde`. Mesuré en
 exécutant son parseur. C'est le seul endroit où cette phase s'écarte de lui
 délibérément, et l'inventaire le porte.
+
+> **Corrigé en relecture de fin de phase : l'écart est plus large.** La
+> recherche de Gaupol **ne passe pas par son parseur** : `SearchAgent` cherche
+> dans le texte stocké, balises comprises, avec un `Finder` nu. Chez lui `<i>` se
+> trouve, et `Bonjour` ne trouve pas `<i>Bon</i>jour`. L'exemple ci-dessus décrit
+> ce que son parseur ferait, pas ce que son dialogue fait. Chercher dans le texte
+> visible est donc un choix de cette phase, pas une reprise corrigée — c'est
+> celui du point difficile que la feuille de route posait. Et la cible des
+> écarts délibérés compte d'autres lignes, que D4, D5 et D7 portent désormais.
 
 La règle « le remplacement prend le style de son premier caractère » a été
 écartée pour une raison qui se voit : elle n'est pas symétrique. Elle répond
@@ -129,15 +145,21 @@ vitesse de lecture parle de ce que le spectateur lit.
 ## D3 — Une durée saisie déplace la fin
 
 **Renvoi du cadrage de la phase 5.** La colonne `Duration` s'affiche et ne se
-saisit pas, faute d'une commande dans le noyau ; elle naît ici, dont D2 a besoin
-de toute façon.
+saisit pas, faute d'une commande dans le noyau ; elle naît ici.
+
+> **Corrigé en relecture de fin de phase.** Le cadrage ajoutait « dont D2 a
+> besoin de toute façon » : c'est faux, l'ajustement pose la fin par la commande
+> de position qui existait déjà, et `SetDurationCommand` n'a que la cellule pour
+> appelant.
 
 **La fin, et jamais le début.** C'est la borne que l'ajustement déplace, la
 colonne `Start` se saisit déjà, et déplacer le début déplacerait le sous-titre.
 
 **Un chevauchement créé par le geste est permis, et il est déjà dit.**
-`scanAnomalies` relève `OverlappingSubtitles` depuis la phase 1 et le panneau de
-diagnostics l'affiche. Refuser une saisie dont la conséquence est visible serait
+`scanAnomalies` relève `OverlappingSubtitles` depuis la phase 1 et la table le
+teinte. Le cadrage écrivait « le panneau de diagnostics l'affiche » : ce panneau
+ne parle que de la lecture du fichier et n'est alimenté qu'à l'ouverture —
+corrigé en relecture de fin de phase. Refuser une saisie dont la conséquence est visible serait
 refuser ce que l'utilisateur peut vouloir — c'est la décision D4 de la phase 5,
 un avis et jamais un refus.
 
@@ -163,13 +185,28 @@ n'en a pas, toutes en gagnent un ; sinon toutes le perdent. C'est la règle que
 l'italique de #365 a déjà posée — une entrée, deux sens, et appuyer deux fois
 rend la cible telle qu'elle était.
 
+> **Précisé en relecture de fin de phase : pour une cible homogène.** Le geste
+> normalise ce qu'il touche. Une cible panachée part d'un bloc et ne revient pas
+> panachée, et un cadratin `—` revient trait d'union. C'est le prix d'un bouton
+> unique ; l'historique, lui, rend l'état exact.
+
+> **Deux écarts à Gaupol, inscrits en relecture de fin de phase.** Sa règle des
+> tirets ne reconnaît que le trait d'union, et une ligne vide y compte comme une
+> ligne sans tiret — il en pose donc sur les lignes vides. Ici les trois tirets
+> sont reconnus et les lignes vides ignorées : une cible toute en cadratins gagne
+> des tirets chez lui et les perd ici. Et sa casse de titre est `str.title`, qui
+> rend `L'Été` ; celle d'ICU rend `L'été`.
+
 ## D5 — La fusion recolle, la scission coupe au milieu de la durée
 
 **Fusionner** prend le début du premier, la fin du dernier, et recolle les
 textes non vides par un saut de ligne.
 
 **Scinder** coupe au milieu de la durée : le premier garde tout le texte, le
-second naît vide. C'est `split_subtitle`, retenu tel quel.
+second naît vide. C'est `split_subtitle`, retenu tel quel — **à une différence
+près, relevée en relecture de fin de phase** : Gaupol remet aux défauts les
+champs propres au format des deux moitiés, et la première les garde ici, comme
+la ligne fusionnée.
 
 > **Couper le texte à son saut de ligne a été écarté.** C'est tentant — un
 > sous-titre de deux lignes en ferait deux d'une ligne — et c'est faux dès qu'il
@@ -179,6 +216,15 @@ second naît vide. C'est `split_subtitle`, retenu tel quel.
 **Une commande par geste, chacune annulable d'un coup.** La phase 2 a posé que
 l'historique est un compte fidèle de ce qui a été fait : fusionner cinq
 sous-titres est une entrée, pas cinq.
+
+**Trois choix faits par #380, inscrits en relecture de fin de phase :**
+
+- **la fusion ne prend qu'un bloc de lignes voisines** — le noyau reçoit un
+  intervalle, pas une `Selection` : fusionner 1 et 3 sans 2 recouvrirait la 2 ;
+- **le style, la couche et les coordonnées de la première sont gardés**, là où
+  Gaupol les perd ;
+- **pas de raccourcis `M` et `S`** : une lettre seule serait prise à la table
+  avant d'atteindre une cellule en cours d'édition.
 
 ## D6 — Le presse-papiers porte des textes, et traduit ce qu'il dépose
 
@@ -201,6 +247,11 @@ dans les mots que `Save As…` emploie déjà. **Un texte venu de l'extérieur d
 `subedit` n'a pas de format**, et se colle tel quel : il n'y a rien à traduire
 depuis nulle part.
 
+**La perte est dite après le collage, pas demandée avant**, à la différence de
+`Save As…` — question ouverte par #370, tranchée par #382 : un collage s'annule
+d'un `Ctrl+Z`, un fichier écrasé non. **Et les trois entrées exigent une
+sélection** : couper sans sélection viderait tous les textes du document.
+
 ## D7 — La recherche porte sur la cible, avec deux options
 
 **Deux options, celles de Gaupol** : expression régulière ou texte simple,
@@ -209,9 +260,20 @@ sensible ou non à la casse. Ses défauts sont retenus — texte simple, insensi
 
 **La portée est la cible habituelle** : la sélection, ou tout le document si
 rien n'est sélectionné. C'est la règle du menu `Tools` depuis la phase 5, et
-elle remplace les trois cibles de Gaupol.
+elle remplace les portées de Gaupol.
+
+> **Corrigé en relecture de fin de phase.** Le cadrage écrivait « les trois
+> cibles de Gaupol ». Son dialogue a **deux portées** — le projet courant ou tous
+> les projets ouverts — et **deux champs** — texte principal et traduction — et il
+> **ne regarde jamais la sélection**, qui ne lui donne que la ligne de départ.
+> Restreindre à la sélection est donc un ajout de cette phase.
 
 **`Replace All` est une entrée d'historique, pas cent.**
+
+**Un écart à Gaupol, inscrit en relecture de fin de phase : la syntaxe du
+remplacement.** Les expressions sont lues par ICU, et un groupe s'écrit `$1` ;
+Gaupol lit les siennes en Python, où il s'écrit `\1`. Taper `\1` ici met un `1`.
+Le manuel le dit.
 
 ## D8 — Les deux surfaces, et une seule est livrée
 
@@ -229,6 +291,13 @@ qu'un traitement par lot demande.
 `removeHearingImpaired` l'a été : une `Selection` reçue plutôt que déduite, et
 un compte lu sur la commande plutôt que recompté. La phase 13 n'aura que du
 câblage à faire.
+
+> **Tenu dans l'esprit, pas à la lettre — relecture de fin de phase.** Aucune
+> commande ne déduit sa cible de l'état de la fenêtre. Mais la fusion reçoit un
+> intervalle, la scission et le collage un index, parce qu'une `Selection`
+> discontinue n'y a pas de sens ; et le presse-papiers, l'ajustement et
+> `Replace All` rendent leur compte **avec** la commande, dans une structure
+> calculée à sa construction, plutôt que de le faire lire sur elle.
 
 ## Ce que la phase ne livre pas
 
@@ -286,15 +355,20 @@ trois des sept issues l'attendent.
 | [#380](https://github.com/Guyot-Bertrand/sub-edit/issues/380) | fusionner et scinder | — |
 | [#381](https://github.com/Guyot-Bertrand/sub-edit/issues/381) | la durée se saisit | — |
 | [#382](https://github.com/Guyot-Bertrand/sub-edit/issues/382) | le presse-papiers | `convertMarkup` |
-| [#383](https://github.com/Guyot-Bertrand/sub-edit/issues/383) | l'ajustement des durées | #381 |
+| [#383](https://github.com/Guyot-Bertrand/sub-edit/issues/383) | l'ajustement des durées | #378 — la longueur se compte hors balises |
 | [#384](https://github.com/Guyot-Bertrand/sub-edit/issues/384) | rechercher et remplacer | #378 |
 
 La phase se clôt sur [#385](https://github.com/Guyot-Bertrand/sub-edit/issues/385),
 la relecture de fin — la troisième des trois issues qui l'encadrent.
 
 **#380 et #381 peuvent se faire à tout moment**, et elles sont placées tôt parce
-qu'elles sont petites : une phase qui commence par deux issues courtes rend son
-outillage éprouvé avant d'attaquer les deux grosses.
+qu'elles sont petites : passé le parseur, deux issues courtes éprouvent
+l'outillage avant d'attaquer les deux grosses. C'est l'ordre qui a été suivi :
+#378, #379, #380, #381, puis le reste.
+
+> **Corrigé en relecture de fin de phase.** Le cadrage donnait #381 pour
+> dépendance à #383 ; l'ajustement ne s'en sert pas, et c'est du parseur qu'il
+> dépend.
 
 **#383 et #384 sont les deux grosses**, et pour des raisons opposées. La
 première porte un dialogue de quatre contraintes et un compte rendu de ce

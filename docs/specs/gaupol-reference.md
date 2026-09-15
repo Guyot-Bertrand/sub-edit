@@ -80,8 +80,10 @@ correction d'erreurs courantes, suppression des mentions pour malentendants,
 jonction/scission de mots via correcteur orthographique.
 
 **Recherche** — recherche et remplacement, texte brut ou regex, sensible ou non
-à la casse, ciblant le texte principal, la traduction ou les deux, sur la
-sélection / le projet courant / tous les projets ouverts.
+à la casse, ciblant le texte principal, la traduction ou les deux, sur le projet
+courant ou sur tous les projets ouverts. *(Corrigé en relecture de fin de
+phase 10 — cet inventaire ajoutait « la sélection » : la recherche n'en a pas,
+voir [plus bas](#la-recherche--finderpy-agentssearchpy).)*
 
 `aeidon/parser.py` est la pièce que l'[ADR 0009](../adr/0009-texte-en-chaine-brute.md)
 appelle le parseur conscient des balises : il retire les balises, retient leurs
@@ -110,7 +112,9 @@ entier. Coller ajoute des lignes s'il en manque pour recevoir les textes.
 
 **Prévisualisation** — génération d'un fichier temporaire et lancement d'un
 lecteur externe (MPlayer, mpv, VLC, ou commande personnalisée) positionné au
-sous-titre courant.
+sous-titre courant. **Écartée, et pas renvoyée** : le lecteur intégré de la
+phase 6 en tient lieu — spec 10,
+[« Ce que la phase ne livre pas »](10-operations.md#ce-que-la-phase-ne-livre-pas).
 
 ### `adjust_durations`, dans l'ordre
 
@@ -149,6 +153,74 @@ Trois pièges, à ne pas reproduire par inadvertance :
 **Les quatre sont contradictoires sur un corpus réel**, et cela se mesure sans
 écrire un ajustement : `src/scripts/measure-duration-constraints.py` compte les
 sous-titres pour lesquels aucune fin ne satisfait deux d'entre elles. Issue #371.
+
+**Gaupol persiste ses réglages, `subedit` non — écart constaté, non décidé.**
+`gaupol/dialogs/duration_adjust.py` lit ses dix valeurs dans
+`gaupol.conf.duration_adjust` et les y réécrit — les quatre contraintes, leurs
+cases, allonger, raccourcir, et la cible `SELECTED`, `CURRENT` ou `ALL` —, donc
+d'une session à l'autre. `subedit` les garde dans
+`MainWindow::m_durationConstraints`, le temps que la fenêtre reste ouverte. Le
+manuel le dit ; la spec 10 ne le tranche pas.
+
+### `format.py` — casse, tirets, italique
+
+Chaque geste réécrit les textes par `replace_texts`, une action d'historique.
+La casse et les tirets passent par le parseur (`get_parser`) ; l'italique non,
+il travaille sur le texte stocké avec l'expression `italic_tag` du format.
+
+| Point | Gaupol | `subedit` |
+| :---- | :----- | :-------- |
+| casse, où elle commence | `_change_case_first` : premier `\w` du texte nu, le préfixe laissé tel quel | retenu, par `u_isalnum` — D4 |
+| casse, moteur | `str.title`, `str.capitalize`, `str.upper`, `str.lower` | ICU — D4. `title` capitalise après une apostrophe (`L'Été`) ; le découpeur d'ICU non (`L'été`). `capitalize` remet le reste en minuscules : retenu |
+| casse, `ß` en tête | `str.capitalize` rend `Ss` — vérifié en exécutant la méthode seule | `sentenced` laisse `ß` ; son commentaire prête ce comportement à Gaupol, à tort |
+| tirets, pose | `add_dialogue_dashes` retire `^[-–—]\s*` puis pose `- ` à `^`, sous `MULTILINE` : chaque ligne, **ligne vide comprise** | retenu, sauf la ligne vide, qui n'en gagne aucun — D4 |
+| tirets, sens | `_should_add_dialogue_dashes` pose si une ligne, balises retirées, ne commence pas par `-` : **le trait d'union seul**, et une ligne vide compte | les trois tirets comptent, la ligne vide non (`wantsDashes`). **Écart inscrit en D4 à la relecture de fin de phase** : une cible toute en cadratins gagne des tirets chez Gaupol, et les perd ici |
+| italique | `toggle_italicization` : italicise si un texte ne s'ouvre pas, passé ses autres balises de tête, sur une balise d'italique ; `italicize` retire toutes les balises d'italique puis enveloppe le texte entier, vide compris | une entrée, deux sens — #365, sans décision dans la spec 10 ; une ligne vide ne gagne pas de balises |
+
+### `edit.py` — fusion et scission
+
+`merge_subtitles` trie les indices, bâtit un sous-titre par `new_subtitle` —
+début du premier, fin du dernier, textes principaux puis traductions non vides
+recollés par `\n` —, retire les indices et l'insère au premier. `split_subtitle`
+coupe à `calc.get_middle` : la première moitié reçoit texte et traduction, la
+seconde naît vide. Les deux regroupent retrait et insertion en une action.
+
+**Ce qu'elles perdent, lu et non supposé.** `new_subtitle` rend un `Subtitle`
+nu ; ses conteneurs de format naissent paresseusement (`Subtitle.__getattr__`)
+aux valeurs de classe d'`aeidon/containers.py` — style `Default`, couche 0,
+nom, marges et effet vides en Sub Station Alpha, coordonnées `x1`…`y2` à zéro en
+SubRip, identifiant et réglages de cue vides en WebVTT. Seul `Subtitle.copy` les
+recopie, et ni l'une ni l'autre ne l'appelle : **la perte vaut pour la fusion et
+pour les deux moitiés d'une scission.**
+
+| Point | Gaupol | `subedit` |
+| :---- | :----- | :-------- |
+| lignes fusionnées | indices quelconques : 1 et 3 fusionnent sans la 2, que le résultat recouvre | un bloc voisin, reçu comme intervalle — D5 |
+| textes, traduction | non vides, recollés par `\n` | retenu — D5 |
+| champs de format, fusion | remis aux défauts | ceux de la première — D5 |
+| scission, positions et textes | milieu ; tout à la première, rien à la seconde | retenu — D5 |
+| champs de format, scission | remis aux défauts, sur les deux moitiés | gardés sur la première (`first = whole`), la seconde naît nue. **Écart inscrit en D5 à la relecture de fin de phase**, qui écrivait « retenu tel quel » |
+| raccourcis | `M` et `S` (`gaupol/actions/edit.py`) | aucun — D5 |
+
+### La recherche — `finder.py`, `agents/search.py`
+
+**Elle ne passe pas par le parseur.** `SearchAgent` tient un `aeidon.Finder` nu
+et lui donne `get_text(doc)`, le texte stocké : `<i>` se trouve, et `Bonjour` ne
+trouve pas `<i>Bon</i>jour`. Les écarts du tableau de `parser.py`, plus haut,
+sont ceux des corrections de `agents/text.py`, qui l'emploient — pas ceux du
+dialogue de recherche.
+
+| Point | Gaupol | `subedit` |
+| :---- | :----- | :-------- |
+| options | texte ou expression, casse ignorée ou non ; défauts `regex` faux, `ignore_case` vrai | retenues, défauts compris — D7 |
+| drapeaux | `set_regex` : `DOTALL \| MULTILINE`, plus `IGNORECASE` | les mêmes en ICU — D7 |
+| texte simple | `str.index` après `lower()` des deux côtés | motif ICU `UREGEX_LITERAL`, casse repliée par ICU |
+| texte cherché | le texte stocké, balises comprises | le texte visible — D1 |
+| remplacement | littéral pour un texte ; pour une expression, `match.expand` : `\1`, `\g<1>`, `\g<nom>` | `$0` à `$9`, `\n`, `\$`, `\\` ; `\1` met `1`, pas de groupe nommé — écart inscrit en D7 |
+| portée | champs `MAIN_TEXT`, `TRAN_TEXT` et cible `CURRENT` ou `ALL` ; **jamais la sélection** : `_update_search_targets` passe `None` pour les indices, et la sélection ne donne que la ligne de départ | la cible habituelle — D7 ; traduction et tous les projets ouverts, phase 11 |
+| reprise | `wrap` vrai pour `CURRENT` : repart du début ; pour `ALL`, passe au projet suivant et boucle sur l'ensemble | repart du début, dans les deux sens (`findNext`, `findPrevious`) |
+| `Replace All` | un `replace_texts` par document, groupés si les deux changent | une entrée — D7 |
+| persistance | `regex`, `ignore_case`, `target`, `fields` dans `gaupol.conf.search` ; les dix derniers motifs et remplacements dans `search/*.history` | les deux options, en `search.regex` et `search.ignore-case`. **Pas d'historique** : écart constaté, non décidé |
 
 ## 5. Moteur de correction de texte
 

@@ -20,15 +20,19 @@ s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 | `Shift Whole File onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
 | `Frame Rate Analysis…` | oui, sans réglage | **ne modifie rien** — voir [La grille d'images](grille.md) |
 
+**Ce qu'une opération a fait se dit dans une boîte d'information**, qu'il faut
+fermer — y compris après un `Ctrl+I`. Les messages sont cités dans la section de
+chaque opération.
+
 Insérer, supprimer, fusionner et scinder des lignes ne sont pas ici mais dans le
-menu `Edit` : ce sont des éditions du document, pas des opérations sur des
-positions. Voir
+menu `Edit`, parce qu'elles changent le nombre de lignes. Voir
 [Insérer, supprimer, fusionner et scinder des lignes](lignes.md).
 
 ## Sur quoi elles portent
 
 **Les lignes sélectionnées, ou tout le fichier si rien ne l'est.** C'est la même
-règle pour toutes, et les dialogues le rappellent en toutes lettres :
+règle pour toutes, et les dialogues, quand il y en a un, le rappellent en toutes
+lettres :
 
 ```
 Applies to: 4 subtitles
@@ -49,10 +53,25 @@ lit comme un rafraîchissement manqué. C'en n'est pas un : elles n'ont rien à
 dire. Voir [`Snap to Frame Rate…`](#snap-to-frame-rate) et
 [La grille d'images](grille.md).
 
-> **Cette règle-là s'arrête au menu `Tools`.** `Remove Subtitles`, dans le menu
-> `Edit`, lit « rien de sélectionné » comme « rien à faire » et non comme « tout
-> le fichier » — sans quoi un `Del` malheureux viderait le document. Son entrée
-> est éteinte tant que rien n'est sélectionné.
+### Ce que « rien de sélectionné » veut dire, entrée par entrée
+
+La règle vaut pour le menu `Tools` et pour la recherche. Les entrées du menu
+`Edit` qui touchent aux lignes ou les vident la lisent autrement — sans quoi un
+`Del` ou un `Ctrl+X` malheureux viderait le document.
+
+| Entrée | Sans sélection | Ce qu'elle exige |
+| :----- | :------------- | :--------------- |
+| les opérations du menu `Tools` | tout le fichier | un document non vide |
+| `Shift Whole File onto Grid` | tout le fichier, **toujours** | une grille trouvée |
+| `Find and Replace…` | tout le fichier | un document non vide |
+| `Cut Texts`, `Copy Texts`, `Paste Texts` | **éteintes** | au moins une ligne sélectionnée |
+| `Remove Subtitles` | **éteinte** | au moins une ligne sélectionnée |
+| `Merge Subtitles` | **éteinte** | un bloc d'au moins deux lignes voisines |
+| `Split Subtitle` | **éteinte** | exactement une ligne |
+| `Insert Subtitles…` | éteinte, sauf sur un document vide | une ligne où se situer |
+
+Chaque page en donne la raison : [le presse-papiers](presse-papiers.md#sur-quoi-elles-portent),
+[les lignes](lignes.md), [la recherche](recherche.md#sur-quoi-porte-la-recherche).
 
 Les entrées sont **inactives sur un fichier vide** : il n'y aurait rien à
 décaler. `Italic` a une seconde condition, que sa section décrit : le format
@@ -320,7 +339,7 @@ rejoindre, et une phase mesurée sur du bruit déplacerait le fichier au hasard.
 second reste proposé, parce qu'un fichier déjà sur sa grille en est un cas
 normal.
 
-**Ce n'est pas `Snap to Frame Rate…`.** Celui-ci décale tout d'une même quantité
+**Ce n'est pas `Snap to Frame Rate…`.** Cette entrée-ci décale tout d'une même quantité
 et préserve **exactement** le minutage relatif ; l'alignement déplace chaque
 position indépendamment et absorbe au passage celles qui avaient été corrigées à
 la main. Sur un fichier propre les deux donnent le même résultat ; sur un
@@ -337,9 +356,7 @@ elle s'annule d'un `Ctrl+Z` comme les autres.
 | :----- | :-------- | :--- |
 | `Italic` | `Ctrl+I` | menu **Tools**, barre d'outils |
 
-C'est la seule opération du menu qui ait un bouton dans la barre d'outils : les
-six autres ouvrent un dialogue, et un bouton qui pose une question n'en est pas
-vraiment un.
+C'est la seule opération du menu qui ait un bouton dans la barre d'outils.
 
 ### Ce qu'elle écrit, format par format
 
@@ -370,10 +387,11 @@ C'est la règle de Gaupol, et c'est la seule qui rende un bouton unique
 utilisable : une sélection panachée part d'un bloc plutôt que de s'inverser
 ligne par ligne, et appuyer deux fois la rend telle qu'elle était.
 
-Le compte rendu dit ce qui a été fait :
+Le compte rendu dit ce qui a été fait, dans le sens où cela a été fait :
 
 ```
 2 subtitles put in italics
+2 subtitles taken out of italics
 ```
 
 **Une ligne vide ne gagne jamais de balises** — un `<i></i>` autour de rien se
@@ -439,6 +457,7 @@ aucun.
 ```
 2 subtitles recased
 2 subtitles dashed
+2 subtitles undashed
 ```
 
 Et quand rien ne change — une cible déjà dans la casse demandée — « nothing to
@@ -474,7 +493,7 @@ n'est jamais réécrit avant d'être retiré, précisément pour qu'il revienne
 entier.
 
 > **La sélection est perdue à cette occasion** : retirer des lignes change la
-> structure de la table, qui se reconstruit. Les cinq autres opérations du menu
+> structure de la table, qui se reconstruit. Toutes les autres opérations du menu
 > `Tools` la conservent, `Italic`, `Case` et `Dialogue` comprises. Les quatre
 > entrées de structure du menu `Edit` — insérer, supprimer, fusionner, scinder —
 > changent la structure elles aussi, et rendent une sélection à la place de celle
@@ -494,8 +513,10 @@ shifting leaves 3 subtitles past the end of the video, by 4.200 s at most
 ```
 
 La phrase nomme l'opération — `shifting`, `transforming`,
-`converting the frame rate` —, combien de sous-titres dépassent, et de combien
-va le plus lointain.
+`converting the frame rate`, `adjusting durations`,
+`aligning on the frame rate` —, combien de sous-titres dépassent, et de combien
+va le plus lointain. `Shift Whole File onto Grid` est un décalage, et se nomme
+`shifting`.
 
 | Ce qui est compté | Ce qui ne l'est pas |
 | :---------------- | :------------------ |
@@ -509,7 +530,9 @@ avertissement qu'on ignore. L'opération est dans l'historique, et `Undo` la
 défait comme n'importe quelle autre.
 
 Le message n'apparaît pas si aucune vidéo n'est ouverte : la durée vient du
-lecteur, et sans film il n'y a pas de fin à dépasser. Les opérations qui
-déplacent des positions sont concernées — `Adjust Durations…` comprise, qui peut
-allonger une fin au-delà du film ; le retrait des mentions, `Italic`, `Case` et
-`Dialogue`, qui n'en déplacent aucune, ne le sont pas.
+lecteur, et sans film il n'y a pas de fin à dépasser. Seules les cinq opérations
+nommées plus haut sont concernées — `Adjust Durations…` comprise, qui peut
+allonger une fin au-delà du film. Toutes les autres ne le sont pas : celles du
+menu `Tools` qui réécrivent un texte, et dans le menu `Edit` l'insertion, la
+fusion, la scission, le collage, le remplacement et les cellules éditées — une
+fin tapée à la main au-delà du film n'est pas signalée.

@@ -1,7 +1,7 @@
 # Couper, copier et coller des textes
 
-Trois entrées du menu `Edit`, sous `Undo` et `Redo`, et au-dessus des entrées qui
-insèrent et suppriment des lignes.
+Trois entrées du menu `Edit`, sous `Undo` et `Redo`, et au-dessus de
+`Find and Replace…`.
 
 | Entrée | Raccourci | Ce qu'elle fait |
 | :----- | :-------- | :-------------- |

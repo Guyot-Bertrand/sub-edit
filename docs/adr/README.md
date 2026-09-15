@@ -75,6 +75,13 @@ un. La chaîne brute reste ce qu'un texte est à l'ouverture et à
 l'enregistrement, et la porte de sortie à fragments opaques que 0009 décrit
 reste ouverte.
 
+**0031 dit le parseur conscient des balises « toujours pas écrit » ; il l'est
+depuis la phase 10**, issue #378, dans `core/text/markup_parser`. Ce sont bien
+les deux pièces que 0031 distinguait : le pivot traduit un vocabulaire en un
+autre et retire ce qu'il ne sait pas porter, le parseur transporte les balises
+autour d'un texte qu'on transforme et n'en retire aucune. La casse, les tirets,
+la recherche et l'ajustement des durées passent par lui.
+
 [0029](0029-fins-deduites-et-annoncees.md) et
 [0030](0030-ce-qu-un-document-retient-de-son-fichier.md) tiennent le modèle en
 place là où deux formats le tiraient dehors : `Subtitle::end` ne devient pas
@@ -92,4 +99,11 @@ Points ouverts identifiés, qui feront l'objet d'une ADR le moment venu :
   pourquoi — [0017](0017-analyseur-de-mentions-ecrit-a-la-main.md) — donc la
   question reste entière, à trancher avec les critères de la phase 12 sous les
   yeux plutôt qu'avec deux délimiteurs littéraux pour seul usage.
+
+  **Un troisième candidat est déjà dans l'arbre depuis la phase 10** : la
+  recherche de la fenêtre lit ses expressions avec `icu::RegexMatcher`, ICU étant
+  une dépendance depuis 0027. Ce choix n'a pas fait l'objet d'une ADR, parce
+  qu'une recherche tapée à la main n'est pas le banc de la phase 12 ; il n'en
+  reste pas moins un moteur en service, avec sa syntaxe de remplacement — `$1`
+  et non le `\1` de Python — qu'un motif de Gaupol ne comprendrait pas.
 - **Internationalisation** — Qt Linguist ou gettext. Phase 15.
