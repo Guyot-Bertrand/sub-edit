@@ -44,6 +44,11 @@ public:
 
     /// Replaces `count` visible characters at `at` by `replacement`.
     ///
+    /// **The only operation that moves a tag, and only the tags it reaches** —
+    /// issue #402. A boundary that cuts a word is pushed to the word's edge,
+    /// then every style touching the match covers the whole replacement. A tag
+    /// the match does not reach, even pushed, stays where the file had it.
+    ///
     /// `replacement` is read in the same vocabulary, so it may carry tags of
     /// its own: they are the only way a user typing in a dialog box can ask for
     /// a style. What they say is added to what the replaced text carried.
@@ -62,7 +67,8 @@ public:
     /// the old. A *transformation* — the same text in another case, a dash put
     /// at the head of a line — takes none: letting the italic over the first
     /// word of a subtitle spread to its last because the case changed would be
-    /// absurd.
+    /// absurd. **Nor does it push a boundary to a word's edge**: a tag cutting a
+    /// word before cuts it after, and two tags side by side stay two.
     ///
     /// `replacement` is visible text and only that: nothing in it is read as a
     /// tag, a transformation having no business inventing one.

@@ -5,4 +5,6 @@
 un texte ordinaire                   | "bonjour marie"        | "BONJOUR MARIE"
 les accents prennent la leur         | "éléonore à noël"      | "ÉLÉONORE À NOËL"
 les balises ne changent pas de casse | "<i>bonjour</i> marie" | "<i>BONJOUR</i> MARIE"
+une balise qui coupe un mot reste où elle est | "<i>bon</i>jour" | "<i>BON</i>JOUR"
+une balise vide reste une balise     | "a<i></i>b"            | "A<i></i>B"
 un texte déjà crié ne bouge pas      | "BONJOUR"              | =

@@ -130,9 +130,18 @@ TEST_CASE("a tag taken inside a replacement comes out before it", "[text][parser
 }
 
 TEST_CASE("an accented letter is never a word boundary", "[text][parser]") {
-    // The bytes of a UTF-8 sequence must count as part of a word, or a tag
-    // falling between them would look like a boundary and stay there.
+    // A word is read in code points: an accented letter is a letter, or a tag
+    // falling beside it would look like a boundary and stay there.
     CHECK(replacingAll("<i>ét</i>é", "été", "hiver", SubtitleFormat::SubRip) == "<i>hiver</i>");
+    // And a letter outside the basic plane, four bytes long, is one too.
+    CHECK(replacingAll("<i>a</i>𝒜b", "a𝒜b", "c", SubtitleFormat::SubRip) == "<i>c</i>");
+}
+
+TEST_CASE("a replacement leaves an empty pair elsewhere alone", "[text][parser]") {
+    // Issue #402: only what the match reaches moves or goes. An empty pair the
+    // file holds away from the match is the file's business.
+    CHECK(replacingAll("a<i></i>b Marie", "Marie", "Sophie", SubtitleFormat::SubRip) ==
+          "a<i></i>b Sophie");
 }
 
 TEST_CASE("the parser moves", "[text][parser]") {

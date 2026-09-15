@@ -412,7 +412,10 @@ texte sort réellement de l'italique.
 
 Deux transformations du **texte visible**, et les balises n'y touchent pas : un
 sous-titre mis en minuscules garde son `<I>` tel quel, et un tiret se pose
-devant le texte, pas devant une balise ouvrante.
+devant le texte, pas devant une balise ouvrante. **Aucune balise ne change de
+place** : `<i>bon</i>jour` en capitales donne `<i>BON</i>JOUR`, là où
+[un remplacement](recherche.md#le-texte-cherché-est-le-texte-visible) aurait
+étendu l'italique au mot entier.
 
 | Entrée | Raccourci | Ce qu'elle fait |
 | :----- | :-------- | :--- |

@@ -72,7 +72,11 @@ ne sont cherchés.
 | `<i>Bonjour</i> Marie` | `Bonjour Marie` → `Salut Sophie` | `<i>Salut Sophie</i>` |
 
 Une balise qui coupe un mot englobe le mot entier, et tout style qui touche la
-correspondance couvre le remplacement. **`Replace with` se lit dans les balises du
+correspondance couvre le remplacement. **Les balises que la correspondance ne
+touche pas restent où elles sont**, même celle qui coupe un autre mot du même
+sous-titre : remplacer `Marie` dans `<i>Bon</i>jour Marie` donne
+`<i>Bon</i>jour Sophie`. Un mot est fait de lettres et de chiffres — une espace
+insécable ou un guillemet n'en font pas partie. **`Replace with` se lit dans les balises du
 document** : y taper `<b>Salut</b>` dans un SubRip met le mot en gras.
 
 ## Les deux options

@@ -63,6 +63,22 @@ tête du premier, en six points. Les deux qui décident :
    `<i>bonjour</i>`.
 2. **Tout style qui touche la correspondance couvre le remplacement entier.**
 
+> **Tranché en #402 : ces deux règles sont celles du remplacement, et de lui
+> seul.** Le parseur les appliquait dès sa construction, donc à toute opération
+> qui passait par lui : la casse déplaçait une balise qui coupait un mot, un
+> remplacement réécrivait des balises qu'il ne touchait pas, deux `<font>` de
+> deux couleurs fusionnaient sur leur nom, et une espace insécable ou un
+> guillemet comptaient pour des lettres. Désormais :
+>
+> | Opération | Ce que deviennent les balises |
+> | :-------- | :---------------------------- |
+> | remplacement | celles que la correspondance atteint sont poussées au bord du mot, puis couvrent le remplacement ; les autres ne bougent pas |
+> | transformation — casse, tirets | **aucune ne bouge** : `<i>Bon</i>jour` en capitales donne `<i>BON</i>JOUR` |
+>
+> Deux plages ne fusionnent que si **la balise entière** est la même, attributs
+> compris, et un mot est fait de **lettres et de chiffres**, lus par point de
+> code.
+
 > **Écrit en relecture de fin de phase.** Le corpus a bougé une fois après le
 > cadrage : #378 a corrigé une réponse attendue de `recherche.cas` — deux styles
 > voisins sur un même mot, `<i>Bon</i><b>jour</b>` — et ajouté en tête du
@@ -167,7 +183,8 @@ un avis et jamais un refus.
 
 **Par le parseur, comme chez Gaupol.** Mettre un sous-titre en minuscules ne
 doit pas transformer `<I>` en `<i>`, et un tiret de dialogue se pose devant le
-texte, pas devant une balise ouvrante.
+texte, pas devant une balise ouvrante. **Et aucune balise ne change de place** —
+tranché en #402 : la règle du bord du mot, en D1, est celle du remplacement.
 
 **ICU porte les quatre casses.** `std::toupper` travaille octet par octet et
 couperait une lettre accentuée en deux ; ICU est une dépendance du projet depuis

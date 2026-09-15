@@ -1,6 +1,9 @@
 #include <subedit/core/text/markup_parser.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
 
+#include <unicode/uchar.h>
+#include <unicode/umachine.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <optional>
@@ -20,20 +23,63 @@ constexpr std::string_view kMpl2Markers = "\\/_";
     return letter >= 'A' && letter <= 'Z' ? static_cast<char>(letter - 'A' + 'a') : letter;
 }
 
-/// Tells whether `letter` belongs to a word.
-///
-/// **Bytes, deliberately.** Every byte of a UTF-8 sequence above the ASCII
-/// range is counted as part of a word, so an accented letter never looks like a
-/// boundary. Nothing finer is needed: the question is « does this tag fall
-/// inside a word », and a word never ends in the middle of a character.
-[[nodiscard]] bool inWord(char letter) {
-    /// The first byte above the ASCII range: everything at or above it belongs
-    /// to a multi-byte sequence, and no word ends inside a character.
-    constexpr unsigned char kBeyondAscii = 0x80;
+/// Tells whether `byte` continues a UTF-8 sequence rather than starting one.
+[[nodiscard]] bool continues(char byte) {
+    constexpr unsigned kContinuationMask = 0xC0U;
+    constexpr unsigned kContinuation = 0x80U;
+    return (static_cast<unsigned char>(byte) & kContinuationMask) == kContinuation;
+}
 
-    const auto byte = static_cast<unsigned char>(letter);
-    return byte >= kBeyondAscii || (letter >= '0' && letter <= '9') ||
-           (lowered(letter) >= 'a' && lowered(letter) <= 'z');
+/// The offset where the code point ending at `at` starts.
+[[nodiscard]] std::size_t codePointBefore(std::string_view text, std::size_t at) {
+    --at;
+    while (at > 0 && continues(text[at]))
+        --at;
+    return at;
+}
+
+/// The offset past the code point starting at `at`.
+[[nodiscard]] std::size_t codePointAfter(std::string_view text, std::size_t at) {
+    ++at;
+    while (at < text.size() && continues(text[at]))
+        ++at;
+    return at;
+}
+
+/// The code point written by the bytes `[from, to)`.
+///
+/// **The text is valid UTF-8** — it comes from a decoder that produced it — so
+/// the lead byte's length is the stretch's length, and nothing is checked.
+[[nodiscard]] UChar32 codePointIn(std::string_view text, std::size_t from, std::size_t to) {
+    constexpr unsigned kPayload = 0x3FU;
+    constexpr unsigned kAsciiMask = 0x7FU;
+    constexpr unsigned kBitsPerContinuation = 6U;
+
+    const std::size_t length = to - from;
+    // The lead byte keeps `7 - length` bits of its own for a sequence of
+    // `length` bytes, and all seven for a byte on its own.
+    const unsigned leadMask = length == 1 ? kAsciiMask : (kAsciiMask >> length);
+    auto point = static_cast<unsigned char>(text[from]) & leadMask;
+    for (std::size_t at = from + 1; at < to; ++at)
+        point = (point << kBitsPerContinuation) | (static_cast<unsigned char>(text[at]) & kPayload);
+    return static_cast<UChar32>(point);
+}
+
+/// Tells whether the code point ending at `at` and the one starting there both
+/// belong to a word — that is, whether a tag at `at` cuts a word in two.
+///
+/// **Code points, and letters or digits only** — issue #402. Counting every
+/// byte above the ASCII range as a letter kept accented letters whole, and also
+/// made letters of a no-break space, of `«`, `»` and `’`: an italic next to
+/// French punctuation swallowed it. `u_isalnum` asks the question that was
+/// meant.
+[[nodiscard]] bool cutsWord(std::string_view text, std::size_t at) {
+    if (at == 0 || at >= text.size())
+        return false;
+
+    const UChar32 before = codePointIn(text, codePointBefore(text, at), at);
+    const UChar32 after = codePointIn(text, at, codePointAfter(text, at));
+    return u_isalnum(before) != 0 && u_isalnum(after) != 0;
 }
 
 /// What one tag does: opens a style, closes one, or neither.
@@ -204,6 +250,10 @@ struct Span {
     /// Which opening tag wrote it, so that a block opening two styles is
     /// written once rather than twice.
     std::size_t writer = 0;
+    /// Whether the replacement under way reached it. **Only a span a
+    /// replacement reaches may move or merge**: the rest of the subtitle keeps
+    /// its tags exactly where the file had them.
+    bool reached = false;
 };
 
 /// A tag that opens nothing and closes nothing, and never moves on its own.
@@ -240,7 +290,8 @@ struct MarkupParser::Held {
                                      .style = style,
                                      .first = at + tag.at,
                                      .last = at + grown,
-                                     .writer = spans.size()});
+                                     .writer = spans.size(),
+                                     .reached = true});
             }
         }
 
@@ -285,7 +336,8 @@ struct MarkupParser::Held {
                                          .style = style,
                                          .first = tag.at,
                                          .last = found.visible.size(),
-                                         .writer = index});
+                                         .writer = index,
+                                         .reached = false});
                     open.push_back(spans.size() - 1);
                 }
                 continue;
@@ -315,24 +367,29 @@ struct MarkupParser::Held {
 
 namespace {
 
-/// Pushes a boundary that cuts a word out to the word's edge.
-void widenOverWords(const std::string& visible, std::vector<Span>& spans) {
-    const auto cuts = [&visible](std::size_t at) {
-        return at > 0 && at < visible.size() && inWord(visible[at - 1]) && inWord(visible[at]);
-    };
-    for (Span& span : spans) {
-        while (cuts(span.first))
-            --span.first;
-        while (cuts(span.last))
-            ++span.last;
-    }
+/// `span` with a boundary that cuts a word pushed out to the word's edge.
+[[nodiscard]] Span widenedOverWords(std::string_view visible, Span span) {
+    while (cutsWord(visible, span.first))
+        span.first = codePointBefore(visible, span.first);
+    while (cutsWord(visible, span.last))
+        span.last = codePointAfter(visible, span.last);
+    return span;
 }
 
-/// Merges the spans of one style that now cover the same stretch, or touch.
+/// Merges two spans a replacement has run together, when they are the same tag.
+///
+/// **The same tag, and not the same style** — issue #402. Two `<font>` of two
+/// colours are one style name and two things; merging on the name alone kept
+/// the first colour and lost the second. And at least one of the two must be a
+/// span the replacement reached: two identical tags side by side elsewhere in
+/// the subtitle are what the file holds, and they stay two.
 void mergeTwins(std::vector<Span>& spans) {
     for (std::size_t left = 0; left < spans.size(); ++left) {
         for (std::size_t right = spans.size(); right-- > left + 1;) {
-            if (spans[left].style != spans[right].style)
+            if (spans[left].style != spans[right].style ||
+                spans[left].opening != spans[right].opening)
+                continue;
+            if (!spans[left].reached && !spans[right].reached)
                 continue;
             if (spans[right].first > spans[left].last || spans[left].first > spans[right].last)
                 continue;
@@ -341,6 +398,7 @@ void mergeTwins(std::vector<Span>& spans) {
                 spans[left].last = spans[right].last;
                 spans[left].closing = spans[right].closing;
             }
+            spans[left].reached = true;
             spans.erase(spans.begin() + static_cast<std::ptrdiff_t>(right));
         }
     }
@@ -353,11 +411,12 @@ MarkupParser::MarkupParser(std::string_view text, SubtitleFormat format)
     m_held->original = std::string{text};
     m_held->vocabulary = vocabularyOf(format);
 
+    // The tags stay where the file put them. Pushing a boundary to the edge of
+    // a word is what a replacement does to the tags it reaches, and nothing
+    // else does it — issue #402.
     const Reading found = read(text, m_held->vocabulary);
     m_held->visible = found.visible;
     m_held->gather(found);
-    widenOverWords(m_held->visible, m_held->spans);
-    mergeTwins(m_held->spans);
 }
 
 MarkupParser::~MarkupParser() = default;
@@ -384,13 +443,16 @@ void MarkupParser::replace(std::size_t at, std::size_t count, std::string_view r
         return at; // inside what went away
     };
 
-    // **Every style that touches the match covers the whole of it**, which is
-    // the second half of the rule and the reason a span is widened before it is
-    // moved: a `<i>` over half the match comes out over all of the replacement.
+    // **A boundary that cuts a word is pushed to its edge, and every style that
+    // then touches the match covers the whole of it** — the two halves of the
+    // rule, in that order. A span the match does not reach, even widened, is
+    // left exactly where it was: it only shifts with the text before it.
     for (Span& span : m_held->spans) {
-        if (span.first < end && span.last > at) {
-            span.first = std::min(span.first, at);
-            span.last = std::max(span.last, end);
+        const Span widened = widenedOverWords(m_held->visible, span);
+        span.reached = widened.first < end && widened.last > at;
+        if (span.reached) {
+            span.first = std::min(widened.first, at);
+            span.last = std::max(widened.last, end);
         }
         span.first = moved(span.first);
         span.last = moved(span.last);
@@ -402,7 +464,10 @@ void MarkupParser::replace(std::size_t at, std::size_t count, std::string_view r
 
     m_held->visible = m_held->visible.substr(0, at) + given.visible + m_held->visible.substr(end);
 
-    std::erase_if(m_held->spans, [](const Span& span) { return span.first >= span.last; });
+    // A style whose whole text went away goes with it; an empty pair the file
+    // held elsewhere is the file's business.
+    std::erase_if(m_held->spans,
+                  [](const Span& span) { return span.reached && span.first >= span.last; });
     mergeTwins(m_held->spans);
 }
 
@@ -422,9 +487,16 @@ void MarkupParser::transform(std::size_t at, std::size_t count, std::string_view
         return std::min(position, at + grown);
     };
 
-    for (Span& span : m_held->spans) {
+    // A span the rewrite emptied goes; one the file already held empty stays.
+    // Nothing merges: two tags side by side before a transformation are two
+    // tags side by side after it.
+    std::vector<bool> emptied(m_held->spans.size(), false);
+    for (std::size_t which = 0; which < m_held->spans.size(); ++which) {
+        Span& span = m_held->spans[which];
+        const bool wasEmpty = span.first >= span.last;
         span.first = moved(span.first);
         span.last = moved(span.last);
+        emptied[which] = !wasEmpty && span.first >= span.last;
     }
     for (Loose& one : m_held->loose)
         one.at = moved(one.at);
@@ -432,8 +504,10 @@ void MarkupParser::transform(std::size_t at, std::size_t count, std::string_view
     m_held->visible =
         m_held->visible.substr(0, at) + std::string{replacement} + m_held->visible.substr(end);
 
-    std::erase_if(m_held->spans, [](const Span& span) { return span.first >= span.last; });
-    mergeTwins(m_held->spans);
+    for (std::size_t which = emptied.size(); which-- > 0;) {
+        if (emptied[which])
+            m_held->spans.erase(m_held->spans.begin() + static_cast<std::ptrdiff_t>(which));
+    }
 }
 
 std::string MarkupParser::text() const {
@@ -458,7 +532,8 @@ std::string MarkupParser::text() const {
                 out += one.text;
         }
         // Openers in the order they were made, and a tag that opened two styles
-        // at once is written once.
+        // at once is written once. An empty pair shuts where it opens, before
+        // the next opener: it wraps nothing, so nothing may land inside it.
         std::size_t written = std::string::npos;
         for (std::size_t which = 0; which < m_held->spans.size(); ++which) {
             const Span& span = m_held->spans[which];
@@ -467,6 +542,11 @@ std::string MarkupParser::text() const {
             if (span.writer != written) {
                 out += span.opening;
                 written = span.writer;
+            }
+            if (span.last == position) {
+                if (span.closing.has_value())
+                    out += *span.closing;
+                continue;
             }
             open.push_back(which);
         }

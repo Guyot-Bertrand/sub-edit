@@ -24,6 +24,14 @@
 # il faudrait décider où, dans un mot neuf, retombe une frontière — et rien
 # dans le texte ne le dit.
 #
+# **Cette règle est celle du remplacement, et de lui seul** — tranché en #402.
+# Une balise n'est poussée que si le remplacement la touche ; une frontière qui
+# coupe un mot ailleurs dans le sous-titre reste où elle est. Et une
+# transformation — la casse, les tirets — ne pousse rien du tout : les corpus
+# `casse-*.cas` et `tirets.cas` le vérifient. **Un mot, ici, est fait de lettres
+# et de chiffres** : une espace insécable ou un guillemet n'en sont pas, et ne
+# retiennent pas une frontière.
+#
 # **3. Tout style qui touche la correspondance couvre le remplacement entier.**
 # Remplacer « Bonjour Marie » dans « <i>Bonjour</i> Marie » rend le tout en
 # italique. La règle est symétrique : elle répond pareil si c'est la seconde
@@ -71,6 +79,10 @@ le remplacement est plus long que le mot     | "<i>Bon</i>jour"           | "Bon
 le remplacement est plus court qu'une lettre | "<i>Bon</i>jour"           | "Bonjour"    | "S"      | "<i>S</i>"
 le mot coupé est suivi d'une ponctuation     | "<i>Bonjo</i>ur !"         | "Bonjour"    | "Salut"  | "<i>Salut</i> !"
 deux balises coupent le même mot             | "<i>Bon</i><b>jour</b>"    | "Bonjour"    | "Salut"  | "<i><b>Salut</b></i>"
+une frontière qui coupe un mot ailleurs reste | "<i>Bon</i>jour Marie"     | "Marie"      | "Sophie" | "<i>Bon</i>jour Sophie"
+deux balises pareilles hors de la correspondance restent deux | "<i>Bon</i><i>jour</i> Marie" | "Marie" | "Sophie" | "<i>Bon</i><i>jour</i> Sophie"
+un guillemet n'est pas une lettre            | "«<i>Bonjour</i>»"         | "Bonjour"    | "Salut"  | "«<i>Salut</i>»"
+une espace insécable n'est pas une lettre    | "<i>Quoi</i> ?"            | "Quoi"       | "Comment" | "<i>Comment</i> ?"
 
 # --- La frontière tombe entre deux mots : le style s'étale --------------------
 
@@ -79,6 +91,7 @@ la seconde moitié le porte, même réponse     | "Bonjour <i>Marie</i>"     | "
 une ponctuation ne retient pas le style      | "<i>Bonjour</i>, Marie"    | "Bonjour, Marie" | "Salut"       | "<i>Salut</i>"
 un style qui ne couvre qu'une part s'étale   | "<b>Bonjour <i>Marie</i></b>" | "Bonjour Marie" | "Salut"    | "<b><i>Salut</i></b>"
 les balises imbriquées le restent            | "<b><i>Bonjour</i></b>"    | "Bonjour"    | "Salut"  | "<b><i>Salut</i></b>"
+deux balises du même nom ne se confondent pas | "<font color=\"#ff0000\">Bonjour</font><font color=\"#0000ff\"> Marie</font>" | "Marie" | "Sophie" | "<font color=\"#ff0000\">Bonjour</font><font color=\"#0000ff\"> Sophie</font>"
 
 # --- Le saut de ligne ---------------------------------------------------------
 
