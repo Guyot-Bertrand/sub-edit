@@ -50,6 +50,14 @@ change la cible** pour le geste suivant.
 La recherche porte sur le texte des sous-titres ; ni les positions ni le numéro
 ne sont cherchés.
 
+**Ce qui fait repartir de zéro** :
+
+| Geste | Ce qui est oublié |
+| :---- | :---------------- |
+| modifier `Find`, `Replace with` ou une option | la correspondance courante, et la ligne d'état |
+| sélectionner soi-même d'autres lignes | la cible et la correspondance |
+| ouvrir un autre fichier | la cible et la correspondance ; le dialogue reste ouvert, motif compris |
+
 ## Le texte cherché est le texte visible
 
 **Les balises ne sont pas du texte.** Chercher `<i>` ne trouve rien, et chercher
@@ -92,6 +100,10 @@ Dans `Replace with`, et seulement pour une expression régulière :
 | `$0` | toute la correspondance |
 | `\n` | un saut de ligne |
 | `\$`, `\\` | un `$`, une barre oblique inverse |
+| `\` suivi de tout autre caractère | ce caractère : `\t` met un `t` |
+
+**`\1` n'est pas un groupe**, et met un `1`. C'est la syntaxe de Gaupol, qui lit
+ses expressions en Python ; celle d'ici est celle d'ICU, qui lit le motif.
 
 ## Ce que le dialogue dit
 

@@ -1,10 +1,11 @@
 # La vidéo associée
 
-Le menu **Video** porte une commande.
+Le menu **Video** porte deux commandes.
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
 | `Select Video…` | aucun | choisit le fichier vidéo que le document accompagne |
+| `Play / Pause` | `Ctrl+P` | joue ou arrête la vidéo — voir [Le lecteur](lecteur.md#jouer-et-arrêter) |
 
 La vidéo associée est **une propriété du document ouvert**, pas un réglage de
 l'application : ouvrir un autre fichier de sous-titres repart de zéro. Elle

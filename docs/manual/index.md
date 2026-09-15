@@ -24,7 +24,10 @@ fichier ouvert puis enregistré sans modification ne bouge pas d'un octet.
 | recaler des sous-titres décalés d'une durée constante | [Les opérations](subedit-gui/operations.md#shift-positions), ou [`shift`](subedit-cli/shift.md) |
 | recaler un fichier écrit pour une autre cadence d'images | [`framerate`](subedit-cli/framerate.md), et [`snap`](subedit-cli/snap.md) si le minutage est déjà juste |
 | savoir contre quelle cadence un fichier a été écrit | [La grille d'images](subedit-gui/grille.md), ou [`inspect`](subedit-cli/inspect.md) |
-| retirer les mentions pour malentendants | [`hearing-impaired`](subedit-cli/hearing-impaired.md) |
+| retirer les mentions pour malentendants | [Les opérations](subedit-gui/operations.md#remove-hearing-impaired-mentions), ou [`hearing-impaired`](subedit-cli/hearing-impaired.md) |
+| allonger des sous-titres trop courts pour être lus | [`Adjust Durations…`](subedit-gui/operations.md#adjust-durations) |
+| chercher un mot et le remplacer, sans casser les balises | [Rechercher et remplacer](subedit-gui/recherche.md) |
+| mettre en italique, changer la casse, poser des tirets de dialogue | [Les opérations](subedit-gui/operations.md#italic) |
 | traiter cent fichiers d'un coup | [Invocation](subedit-cli/invocation.md) |
 
 **Entre `framerate` et `snap`, on se trompe sans que rien ne le signale.** Si
@@ -65,6 +68,8 @@ Ce qui diffère est ce que chaque surface peut faire :
 | plusieurs fichiers d'un coup | non — une fenêtre, un document | oui |
 | annuler | oui, mille entrées | sans objet — rien n'est modifié en place sans le demander |
 | éditer un texte ou une position à la main | oui | non |
-| insérer et supprimer des lignes | oui | non |
+| insérer, supprimer, fusionner et scinder des lignes | oui | non |
+| rechercher et remplacer, couper, copier et coller des textes | oui | non |
+| ajuster les durées, l'italique, la casse, les tirets | oui | non |
 | regarder le film pendant qu'on cale | oui | non |
 | écrire par-dessus l'entrée | `Save` | `--in-place` |

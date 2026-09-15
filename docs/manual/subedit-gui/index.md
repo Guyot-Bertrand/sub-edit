@@ -8,10 +8,13 @@ table. Pour l'autre programme et pour savoir par où commencer, voir
 > **affiche**, **édite ses cellules**, **insère et supprime des lignes**,
 > **annule**, **enregistre — en choisissant l'encodage, les fins de ligne et la
 > marque d'ordre des octets** —, et **marque les sous-titres dont les positions
-> ne tiennent pas debout**. Le menu `Tools` porte
-> six opérations — décaler, transformer, convertir la fréquence d'image, retirer
-> les mentions pour malentendants, aligner sur une cadence, ramener sur la
-> grille — et l'analyse de grille, qui ne modifie rien. Elle **associe une vidéo
+> ne tiennent pas debout**. Elle **fusionne et scinde** des lignes, **coupe,
+> copie et colle** des textes, et **cherche et remplace** dans le texte visible
+> sans casser les balises. Le menu `Tools` porte treize opérations — décaler,
+> transformer, convertir la fréquence d'image, ajuster les durées, mettre en
+> italique, poser les tirets de dialogue, changer la casse de quatre façons,
+> retirer les mentions pour malentendants, aligner sur une cadence, ramener sur
+> la grille — et l'analyse de grille, qui ne modifie rien. Elle **associe une vidéo
 > au document**, choisie ou devinée, et la **joue dans la fenêtre**, la réplique
 > courante dessinée sur l'image ; du pilotage, elle ne donne que jouer et
 > arrêter. Elle **retient sa géométrie, ses colonnes et ses réglages** d'une
@@ -45,10 +48,16 @@ sous-titres.](captures/fenetre.png)
 document, ce qu'on lui fait, ce qui l'accompagne, ce qui l'examine, ce qui
 l'explique.
 
-`Edit` porte l'annulation, puis, sous un séparateur, l'insertion et la
-suppression de lignes, puis, sous un autre, `Preferences…` — défaire est ce qu'on
-fait *à* une édition, insérer et supprimer *sont* des éditions, et régler le
-thème n'est pas une édition du tout.
+`Edit` porte cinq blocs, chacun sous un séparateur : l'annulation ; le
+presse-papiers — couper, copier, coller des textes ; `Find and Replace…` ;
+l'insertion, la suppression, la fusion et la scission de lignes ; enfin
+`Preferences…`. Défaire est ce qu'on fait *à* une édition, déplacer un texte
+n'ajoute ni ne retire de ligne, les quatre du bloc suivant changent le nombre de
+lignes, et régler le thème n'est pas une édition du tout.
+
+**Les touches sont nommées comme le menu les affiche**, en anglais comme le reste
+de l'interface : `Ins`, `Del`, `Ctrl+Shift+Z`. Une touche qu'on presse et
+qu'aucun menu ne nomme garde son nom français : `Entrée`, `Échap`, `Maj`.
 
 `Help` porte deux entrées, dans l'ordre où le menu les montre. `Manual`, ou
 `F1`, ouvre ce manuel dans une fenêtre — voir
@@ -64,12 +73,12 @@ licence.
 | [Ouvrir et enregistrer](fichiers.md) | les trois commandes, les diagnostics, l'encodage dans la barre d'état, l'aller-retour |
 | [La table](table.md) | ce que chaque colonne montre |
 | [Éditer une cellule](edition.md) | quelles cellules s'éditent, et comment |
-| [Rechercher et remplacer](recherche.md) | le dialogue, les quatre gestes, les deux options, sur quoi porte la recherche |
 | [Couper, copier et coller des textes](presse-papiers.md) | les trois entrées, ce qui voyage, les lignes ajoutées, les balises traduites |
+| [Rechercher et remplacer](recherche.md) | le dialogue, les quatre gestes, les deux options, sur quoi porte la recherche |
 | [Insérer, supprimer, fusionner et scinder des lignes](lignes.md) | les quatre entrées, leurs raccourcis, où vont les lignes neuves |
 | [Annuler et rétablir](annulation.md) | l'historique, les deux actions, la marque de modification |
 | [La grille d'images](grille.md) | la cadence déduite des positions, et l'analyse |
-| [Les opérations](operations.md) | décaler, transformer, convertir, mettre en italique, la casse, les tirets, retirer les mentions, et ce qui dépasse la fin du film |
+| [Les opérations](operations.md) | décaler, transformer, convertir, ajuster les durées, mettre en italique, la casse, les tirets, retirer les mentions, aligner, ramener sur la grille, et ce qui dépasse la fin du film |
 | [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la barre d'état, `ffmpeg` |
 | [Le lecteur](lecteur.md) | la vue vidéo, jouer, la ligne qui suit, la réplique dessinée |
 | [Les préférences](preferences.md) | le thème, le fichier de préférences, ses options, et ce qu'il advient d'une valeur illisible |

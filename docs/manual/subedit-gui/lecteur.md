@@ -19,8 +19,8 @@ La séparation entre l'image et la table **se déplace à la souris**. L'image n
 descend pas sous 180 pixels de haut. Agrandir la fenêtre donne la place gagnée
 à la table, pas à l'image : ce dont on manque en éditant, ce sont des lignes.
 
-Le son est celui de la vidéo, tel que le système le règle. Il n'y a pas encore
-de commande de volume dans la fenêtre.
+Le son est celui de la vidéo, tel que le système le règle. La fenêtre n'a pas de
+commande de volume.
 
 ## Jouer et arrêter
 
@@ -71,9 +71,8 @@ sous-titres.
 Deux conséquences à connaître :
 
 - **les balises du format s'affichent telles quelles** — un `<i>` est dessiné
-  comme un `<i>`. Le modèle porte le texte tel que le fichier l'écrit, et
-  comprendre une balise assez bien pour la retirer viendra avec les formats
-  riches ;
+  comme un `<i>`. Le modèle porte le texte tel que le fichier l'écrit, et la
+  réplique dessinée ne les interprète pas ;
 - **le fichier de sous-titres voisin n'est pas chargé** par le lecteur, même
   s'il porte le nom du film. Il serait celui qu'on est en train d'éditer, et
   l'image montrerait alors l'état du disque pendant que la table montre autre

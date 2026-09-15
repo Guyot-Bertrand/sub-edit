@@ -89,8 +89,15 @@ secondes et demie ; `-0:01,000` ne se tape pas. Une durée nulle est acceptée :
 le sous-titre disparaît alors à l'instant où il apparaît.
 
 **Une fin qui passe par-dessus le sous-titre suivant est permise.** Le
-chevauchement est teinté dans la table et relevé dans le panneau de
-diagnostics — un avis, pas un refus : c'est peut-être ce qu'on voulait.
+chevauchement est teinté dans la table, avec son infobulle — voir
+[La table](table.md#les-anomalies) — un avis, pas un refus : c'est peut-être ce
+qu'on voulait. Le panneau de diagnostics, lui, ne parle que de la lecture du
+fichier et ne bouge pas.
+
+**Une fin saisie au-delà de la fin du film n'est pas signalée**, à la différence
+d'une opération du menu `Tools` qui l'y pousserait — voir
+[Les opérations](operations.md#au-delà-de-la-fin-du-film). Une cellule montre
+déjà la valeur qu'on vient de taper.
 
 Une saisie illisible laisse la cellule inchangée, comme pour une position, et
 une durée identique à celle affichée n'entre pas dans l'historique.

@@ -605,15 +605,14 @@ de vitesse de lecture.
   ont servi à tout ce qui précède sont ignorés par git, et la plus fournie des
   fixtures versionnées portait six horodatages sur quinze secondes. C'était la
   première question du ticket d'initialisation, et c'est le seul outil qu'il a
-  retenu : `src/scripts/subtitle-fixtures.py` engendre treize fichiers sur des
+  retenu : `src/scripts/subtitle-fixtures.py` engendre quinze fichiers sur des
   grilles connues — les huit fréquences normalisées, une fréquence absurde, une
-  grille décalée, une étendue insuffisante, et les deux visages du fichier
-  partiel. `src/test/data/grilles/LISEZMOI.md` porte ce que chacun est et ce que
-  chacun donne.
-
-  Ce que ces fixtures ne portent pas encore, et qu'il faudra leur ajouter : des
-  fins calculées par une règle de vitesse de lecture plutôt que posées sur une
-  image, et un fichier écrit en millisecondes sans aucune grille.
+  grille décalée, une étendue insuffisante, les deux visages du fichier
+  partiel, des fins calculées par une règle de vitesse de lecture, et un fichier
+  écrit en millisecondes sans aucune grille. Les deux derniers manquaient à la
+  phase 16 et ont été écrits en phase 10, issue #373.
+  `src/test/data/grilles/LISEZMOI.md` porte ce que chacun est et ce que chacun
+  donne.
 - **L'édition manuelle sort de la grille.** Dès qu'un utilisateur corrige une
   position dans la table, elle cesse d'être alignée. Un détecteur naïf
   signalerait le travail de l'utilisateur comme une anomalie. C'est la raison
@@ -866,26 +865,21 @@ menu n'offre qu'un seul basculement de style, l'italique.
 Ajustement des durées, casse, italiques, tirets de dialogue, fusion, scission,
 recherche et remplacement, presse-papiers.
 
-**Un renvoi du cadrage de la phase 5 atterrit ici : l'édition de la durée dans
-la table.** La colonne `Duration` s'affiche et ne se saisit pas, parce que le
-noyau n'a pas de `SetDurationCommand` — la phase 2 s'est arrêtée à « un texte,
-un début, une fin » — et qu'en inventer une dans une phase d'interface aurait
-été du travail de noyau glissé ailleurs. La commande naît ici, où l'ajustement
-des durées en a besoin de toute façon ; la colonne devient éditable du même
-coup, et il faudra dire laquelle des deux bornes elle déplace.
+**Un renvoi du cadrage de la phase 5 a atterri ici : l'édition de la durée dans
+la table.** La colonne `Duration` s'affichait sans se saisir, faute d'une
+`SetDurationCommand` au noyau. Elle est née en #381, et **elle déplace la fin** —
+décision D3 de la spec.
 
-**Deux renvois de la phase 16 atterrissent ici.**
+**Deux renvois de la phase 16 y étaient posés, et un seul y a été tenu.**
 
-- **Retrouver la paire d'une conversion faite avec la mauvaise fréquence.** La
-  phase 16 déduit la grille d'un fichier ; quand celle-ci n'est aucune des huit,
-  c'est parfois qu'une conversion a été faite avec une fréquence d'entrée
-  fausse, et le rationnel qui remettrait le fichier sur une grille normalisée se
-  cherche. Sa spec l'a nommée « le plus utile et le moins sûr » des trois
-  mécanismes de correction, et l'a écartée pour cette raison.
 - **Deux fixtures de grille qui manquaient**, écrites par l'issue #373 : des
   fins calculées par une règle de vitesse de lecture plutôt que posées sur une
   image, et un fichier écrit en millisecondes **sans aucune grille** —
   `grille-absurde.srt` étant régulier, le cas du bruit pur n'en avait aucune.
+- **Retrouver la paire d'une conversion faite avec la mauvaise fréquence** a été
+  **renvoyé à la phase 14**, par le cadrage de celle-ci — issue
+  [#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386). Rien de ce que
+  la phase 10 apporte ne rend ce mécanisme plus sûr.
 
 **Points difficiles**
 
@@ -910,6 +904,13 @@ phase 1 — il faudra donc dire lequel des deux s'affiche, et si le choix est un
 réglage ou suit l'onglet actif. La relecture de fin de phase 6 a constaté que ce
 renvoi ne tombait nulle part ; il tombe ici.
 
+**Un renvoi de la phase 10 atterrit ici : la recherche au-delà du document
+courant.** Gaupol cherche dans « tous les projets ouverts » et dans le texte de
+traduction ; la phase 10 a réduit la portée à la cible habituelle — la sélection
+ou le document — et au seul texte principal, faute d'un second projet et d'une
+colonne de traduction à l'écran. Il faudra dire si la portée s'élargit avec les
+onglets, et si le champ cherché suit la colonne visible.
+
 **Réserve** — le besoin n'est pas confirmé. Le modèle de données de la phase 1
 l'accueille ; cette phase construit l'interface et les opérations associées.
 
@@ -917,7 +918,15 @@ l'accueille ; cette phase construit l'interface et les opérations associées.
 
 Motifs déclaratifs par script, langue et pays — erreurs courantes classées
 Humain et OCR, remise en majuscule, mentions pour malentendants restantes —
-découpage de lignes et correcteur orthographique.
+découpage de lignes et correcteur orthographique, avec la jonction et la
+scission de mots qu'il permet — renvoi de la phase 10.
+
+**La phase 10 a laissé ici un parseur conscient des balises** —
+`core/text/markup_parser` — que la casse, les tirets, la recherche et
+l'ajustement des durées empruntent. Les motifs de correction s'appliqueront au
+texte source et y rencontreront le défaut que l'ADR 0009 décrit ; le parseur est
+la pièce faite pour l'éviter, et le retrait des mentions de la phase 4 ne passe
+pas encore par lui.
 
 **Questions d'architecture**
 
@@ -989,7 +998,11 @@ phase 6 laisse à qui n'a que `Ctrl+P` :
 | avancer, reculer image par image | ce pour quoi l'ADR 0020 a choisi libmpv |
 | décaler début ou fin par petits incréments | le réglage fin, au clavier |
 
-**Ce qui s'affiche** : incrustation du timecode, sélection de piste audio.
+**Ce qui s'affiche** : incrustation du timecode, sélection de piste audio, et
+**la réplique dessinée sans ses balises brutes** — renvoi de la relecture de fin
+de phase 10, issue [#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408).
+Le manuel du lecteur le promettait « avec les formats riches », une phase déjà
+passée ; le parseur et le pivot existent désormais, et rien du noyau ne manque.
 
 **Ce que la phase 6 a déjà livré, et qui n'est donc pas ici** : associer un
 film, l'ouvrir dans la fenêtre, jouer et s'arrêter, la réplique dessinée depuis
@@ -1008,6 +1021,15 @@ d'image et pas de fréquence, donc la bascule montrerait les chiffres du fichier
 pour lui, et une conversion contre une fréquence choisie pour les huit autres.
 C'est une question d'édition fine, et cette phase porte déjà « avancer, reculer
 image par image ».
+
+**Un renvoi de la phase 10, venu de la phase 16, atterrit ici : retrouver la
+paire d'une conversion faite à la mauvaise fréquence** — issue
+[#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386). Quand la grille
+déduite n'est aucune des huit, c'est parfois qu'une conversion a été faite avec
+une fréquence d'entrée fausse, et le rationnel qui remettrait le fichier sur une
+grille normalisée se cherche. La spec de la phase 16 l'a nommé « le plus utile
+et le moins sûr » des trois mécanismes de correction ; ni jusqu'où chercher, ni
+comment dire sa confiance n'ont encore de réponse.
 
 **Point difficile** — **précision de positionnement.** Caler un sous-titre exige
 un `seek` exact à l'image près ; la plupart des backends ne le garantissent qu'au

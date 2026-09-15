@@ -1,8 +1,8 @@
 # Insérer, supprimer, fusionner et scinder des lignes
 
-Quatre entrées du menu `Edit`, sous un séparateur qui les sépare de celles du
-presse-papiers : couper, copier et coller déplacent des textes, et ces quatre-là
-changent les lignes elles-mêmes. Elles ont en commun de changer le nombre de lignes.
+Quatre entrées du menu `Edit`, sous un séparateur qui les sépare de
+`Find and Replace…`. Elles ont en commun de changer le nombre de lignes, là où
+couper, copier et coller, plus haut, déplacent des textes.
 
 | Entrée | Raccourci | Ce qu'elle fait |
 | :----- | :-------- | :-------------- |
@@ -174,8 +174,5 @@ Voir [Annuler et rétablir](annulation.md).
 est ouvert : la touche de suppression y efface un caractère, et non un
 sous-titre. Fermer l'éditeur — `Entrée` ou `Échap` — leur rend leur sens.
 
-> **Deux façons de nommer une touche, et la frontière est nette.** Ce manuel
-> écrit `Ins`, `Del`, `Ctrl+Z` — les noms **que le menu affiche**, en anglais
-> comme le reste de l'interface. Quand il parle d'une touche qu'on presse et
-> qu'aucun menu ne nomme, il l'appelle par son nom français : `Entrée`,
-> `Échap`, `Maj`.
+Ce manuel nomme les touches comme le menu les affiche — voir
+[Les menus](index.md#les-menus).
