@@ -48,6 +48,7 @@ add_library(
     text/markup.cpp
     text/markup_codec.cpp
     text/markup_parser.cpp
+    text/markup_reader.cpp
     text/markup_vocabulary.cpp
     text/html_markup.cpp
     text/sub_station_alpha_markup.cpp
@@ -56,6 +57,7 @@ add_library(
     text/lines.cpp
     text/dialogue_dashes.cpp
     text/letter_case.cpp
+    text/utf8.cpp
     format/subtitle_file.cpp
     format/project_file.cpp
     config/settings.cpp

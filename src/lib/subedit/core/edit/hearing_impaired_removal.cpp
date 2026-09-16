@@ -6,6 +6,7 @@
 #include <subedit/core/edit/set_text_command.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
+#include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/text/hearing_impaired.hpp>
@@ -31,7 +32,8 @@ removeHearingImpaired(const Project& project, const Selection& selection, Docume
     for (const SubtitleIndex index : selection.indices()) {
         const std::string& text = project.subtitleAt(index).text(document);
 
-        const std::optional<std::string> cleaned = withoutHearingImpaired(text);
+        const std::optional<std::string> cleaned =
+            withoutHearingImpaired(text, project.sourceFile().format);
         if (!cleaned.has_value()) {
             emptied.push_back(index);
             continue;

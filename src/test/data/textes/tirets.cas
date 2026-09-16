@@ -9,7 +9,8 @@
 # cadratins du typographe — et c'est le trait d'union qui est écrit.
 #
 # Le tiret se pose devant le texte, pas devant une balise ouvrante : une balise
-# qui tenait le début de ligne le tient encore.
+# qui tenait le début de ligne le tient encore. **Et aucune balise ne bouge** —
+# tranché en #402 : une balise qui coupe un mot le coupe encore.
 
 une ligne en gagne un                | "Bonjour"              | "- Bonjour"
 les deux lignes en gagnent un        | "Bonjour\nMarie"       | "- Bonjour\n- Marie"
@@ -19,3 +20,5 @@ un demi-cadratin aussi               | "– Bonjour"            | "- Bonjour"
 les espaces de trop disparaissent    | "-   Bonjour"          | "- Bonjour"
 une ligne vide n'en gagne pas        | "Bonjour\n"            | "- Bonjour\n"
 la balise garde le début de ligne    | "<i>Bonjour</i>"       | "<i>- Bonjour</i>"
+une balise qui coupe le mot reste    | "<i>Bon</i>jour"       | "<i>- Bon</i>jour"
+une balise dans le mot ne bouge pas  | "Bon<i>jo</i>ur"       | "- Bon<i>jo</i>ur"

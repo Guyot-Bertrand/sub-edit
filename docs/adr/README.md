@@ -82,6 +82,13 @@ autre et retire ce qu'il ne sait pas porter, le parseur transporte les balises
 autour d'un texte qu'on transforme et n'en retire aucune. La casse, les tirets,
 la recherche et l'ajustement des durées passent par lui.
 
+**Et un seul lecteur coupe les balises pour les deux**, depuis #403 —
+`core/text/markup_reader`. Le pivot, le parseur, l'italique et l'analyseur de
+mentions lisaient chacun les leurs, et se contredisaient : `<i >` était de
+l'italique pour l'un et rien pour l'autre. Ce que dit une balise reste l'affaire
+de chaque pièce ; où elle commence, où elle finit et ce qu'elle nomme se décide
+en un endroit.
+
 [0029](0029-fins-deduites-et-annoncees.md) et
 [0030](0030-ce-qu-un-document-retient-de-son-fichier.md) tiennent le modèle en
 place là où deux formats le tiraient dehors : `Subtitle::end` ne devient pas

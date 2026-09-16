@@ -9,6 +9,18 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Corrections
+
+- **text** — Seul un remplacement pousse les balises qu'il atteint
+- **text** — La casse suit ce qu'ICU réécrit, dans la locale racine
+- **text** — Ce que la relecture du lot a trouvé dans les balises
+
+### Remaniements
+
+- **text** — Un seul lecteur de balises par format
+
+## 0.10.14 — 2026-09-15
+
 ### Documentation
 
 - **doc** — Relecture de fin de phase 10

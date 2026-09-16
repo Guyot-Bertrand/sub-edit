@@ -63,6 +63,34 @@ tête du premier, en six points. Les deux qui décident :
    `<i>bonjour</i>`.
 2. **Tout style qui touche la correspondance couvre le remplacement entier.**
 
+> **Tranché en #402 : ces deux règles sont celles du remplacement, et de lui
+> seul.** Le parseur les appliquait dès sa construction, donc à toute opération
+> qui passait par lui : la casse déplaçait une balise qui coupait un mot, un
+> remplacement réécrivait des balises qu'il ne touchait pas, deux `<font>` de
+> deux couleurs fusionnaient sur leur nom, et une espace insécable ou un
+> guillemet comptaient pour des lettres. Désormais :
+>
+> | Opération | Ce que deviennent les balises |
+> | :-------- | :---------------------------- |
+> | remplacement | celles que la correspondance atteint sont poussées au bord du mot, puis couvrent le remplacement ; les autres ne bougent pas |
+> | transformation — casse, tirets | **aucune ne bouge** : `<i>Bon</i>jour` en capitales donne `<i>BON</i>JOUR` |
+>
+> Deux plages ne fusionnent que si **la balise entière** est la même, attributs
+> compris, et un mot est fait de **lettres et de chiffres**, lus par point de
+> code.
+
+> **Un seul lecteur de balises, depuis #403.** Le pivot, le parseur, l'italique
+> et l'analyseur de mentions lisaient chacun les leurs, et se contredisaient.
+> `core/text/markup_reader` décide désormais pour tous :
+>
+> | Règle | Ce qu'elle tranche |
+> | :---- | :----------------- |
+> | une balise se ferme sur sa ligne, avant tout second ouvrant | un `<` seul est du texte, et n'avale pas la balise qui suit |
+> | un repère MPL2 n'en est un qu'en tête de ligne | `{y:b}/Bonjour` porte un `/` visible |
+> | le nom d'une balise HTML s'arrête à une espace ou une tabulation | `<i >` et `<b class="x">` sont de l'italique et du gras pour tous |
+> | une balise auto-fermante ne nomme rien | `<i/>` n'ouvre aucun italique |
+> | l'analyseur de mentions lit les balises du format | `{\i1}[SOUPIR]{\i0}` est vidé ; le `(320,50)` d'un `\pos` n'est pas une mention |
+
 > **Écrit en relecture de fin de phase.** Le corpus a bougé une fois après le
 > cadrage : #378 a corrigé une réponse attendue de `recherche.cas` — deux styles
 > voisins sur un même mot, `<i>Bon</i><b>jour</b>` — et ajouté en tête du
@@ -167,7 +195,8 @@ un avis et jamais un refus.
 
 **Par le parseur, comme chez Gaupol.** Mettre un sous-titre en minuscules ne
 doit pas transformer `<I>` en `<i>`, et un tiret de dialogue se pose devant le
-texte, pas devant une balise ouvrante.
+texte, pas devant une balise ouvrante. **Et aucune balise ne change de place** —
+tranché en #402 : la règle du bord du mot, en D1, est celle du remplacement.
 
 **ICU porte les quatre casses.** `std::toupper` travaille octet par octet et
 couperait une lettre accentuée en deux ; ICU est une dépendance du projet depuis
@@ -175,6 +204,15 @@ l'[ADR 0027](../adr/0027-icu-pour-les-encodages.md) et sait faire les quatre, la
 casse de titre comprise. Aucune dépendance nouvelle, et la seule alternative
 sérieuse — une table écrite à la main — serait fausse pour toutes les langues
 qu'on n'aurait pas prévues.
+
+> **Précisé en #401 : dans la locale racine, et en suivant ce qu'ICU réécrit.**
+> Appelé sans locale, ICU casait selon celle du processus — `istanbul` en
+> capitales rendait `İSTANBUL` sous `LANG=tr_TR`. Et une casse change la longueur
+> d'une lettre — `ﬁ` devient `FI`, `İ` deux points de code — si bien que remettre
+> les balises à leur décalage en octets en écrivait une au milieu d'un caractère,
+> ou en perdait une. Les balises suivent désormais les éditions qu'ICU
+> enregistre. Casser selon la langue du document est une question de la
+> phase 15.
 
 **La casse ne touche pas ce qui précède la première lettre.** Gaupol cherche le
 premier caractère alphanumérique et n'applique la transformation qu'à partir de

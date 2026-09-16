@@ -49,6 +49,8 @@ TEST_CASE("taking the dashes off takes their spaces with them", "[text][dashes]"
     CHECK(withoutDialogueDashes("- Bonjour\n- Marie", SubtitleFormat::SubRip) == "Bonjour\nMarie");
     CHECK(withoutDialogueDashes("—   Bonjour", SubtitleFormat::SubRip) == "Bonjour");
     CHECK(withoutDialogueDashes("<i>- Bonjour</i>", SubtitleFormat::SubRip) == "<i>Bonjour</i>");
+    // A style that held the dash and nothing else goes with it.
+    CHECK(withoutDialogueDashes("<i>- </i>Bonjour", SubtitleFormat::SubRip) == "Bonjour");
 }
 
 TEST_CASE("pressing twice leaves the text as it was found", "[text][dashes]") {

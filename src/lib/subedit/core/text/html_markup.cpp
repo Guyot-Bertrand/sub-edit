@@ -1,6 +1,7 @@
 #include <subedit/core/text/html_markup.hpp>
 #include <subedit/core/text/markup.hpp>
 #include <subedit/core/text/markup_codec.hpp>
+#include <subedit/core/text/markup_reader.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
 
 #include <algorithm>
@@ -14,7 +15,7 @@ namespace subedit::core {
 
 namespace {
 
-constexpr std::string_view kFontColour = "font color=\"#";
+constexpr std::string_view kColourAttribute = "color=\"#";
 constexpr std::size_t kColourDigits = 6;
 
 /// The same letter, in lower case.
@@ -72,24 +73,29 @@ struct Tag {
     bool closing = false;
 };
 
-[[nodiscard]] Tag readTag(std::string_view inside) {
+/// Reads one tag, brackets included, named by the one reader of tags.
+///
+/// **A space before the bracket hides nothing** — issue #403. `<b >` is bold,
+/// as the parser and the italic toggle read it; the pivot alone saw a tag it
+/// had no room for, and a conversion dropped a style a search had seen.
+[[nodiscard]] Tag readTag(std::string_view text) {
+    const HtmlTag html = htmlTagOf(text);
     Tag tag;
-    tag.closing = inside.starts_with('/');
-    const std::string_view body = tag.closing ? inside.substr(1) : inside;
+    tag.closing = html.closing;
 
-    if (body.size() == 1) {
-        tag.attribute = attributeOfLetter(body.front());
+    if (html.name.size() == 1) {
+        tag.attribute = attributeOfLetter(html.name.front());
         return tag;
     }
+    if (html.name != "font")
+        return tag;
 
     if (tag.closing) {
-        if (startsWithLoosely(body, "font"))
-            tag.attribute = StyleAttribute::Colour;
+        tag.attribute = StyleAttribute::Colour;
         return tag;
     }
-
-    if (startsWithLoosely(body, kFontColour)) {
-        const std::string_view rest = body.substr(kFontColour.size());
+    if (startsWithLoosely(html.attributes, kColourAttribute)) {
+        const std::string_view rest = html.attributes.substr(kColourAttribute.size());
         if (rest.size() == kColourDigits + 1 && rest.back() == '"') {
             if (const std::optional<Colour> colour = Colour::parse(rest.substr(0, kColourDigits))) {
                 tag.attribute = StyleAttribute::Colour;
@@ -162,19 +168,14 @@ void appendClosing(std::string& out, StyleAttribute attribute) {
 DecodedMarkup decodeHtmlMarkup(std::string_view text) {
     DecodedMarkup read;
     Style current;
-    std::size_t start = 0;
 
-    while (start < text.size()) {
-        const std::size_t opening = text.find('<', start);
-        if (opening == std::string_view::npos)
-            break;
-        const std::size_t closing = text.find('>', opening);
-        if (closing == std::string_view::npos)
-            break;
+    for (const MarkupPiece& piece : piecesOf(text, MarkupVocabulary::Html)) {
+        if (piece.kind == MarkupPiece::Kind::Text) {
+            appendRun(read.runs, piece.text, current);
+            continue;
+        }
 
-        appendRun(read.runs, text.substr(start, opening - start), current);
-
-        const Tag tag = readTag(text.substr(opening + 1, closing - opening - 1));
+        const Tag tag = readTag(piece.text);
         if (!tag.attribute.has_value()) {
             // **A closing tag of an unknown pair is not counted a second time.**
             // What was lost is the thing `<c.loud>` said, and it was said once.
@@ -185,11 +186,8 @@ DecodedMarkup decodeHtmlMarkup(std::string_view text) {
         } else {
             applyOpening(current, *tag.attribute, tag.colour);
         }
-
-        start = closing + 1;
     }
 
-    appendRun(read.runs, text.substr(start), current);
     return read;
 }
 

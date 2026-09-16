@@ -412,7 +412,10 @@ texte sort réellement de l'italique.
 
 Deux transformations du **texte visible**, et les balises n'y touchent pas : un
 sous-titre mis en minuscules garde son `<I>` tel quel, et un tiret se pose
-devant le texte, pas devant une balise ouvrante.
+devant le texte, pas devant une balise ouvrante. **Aucune balise ne change de
+place** : `<i>bon</i>jour` en capitales donne `<i>BON</i>JOUR`, là où
+[un remplacement](recherche.md#le-texte-cherché-est-le-texte-visible) aurait
+étendu l'italique au mot entier.
 
 | Entrée | Raccourci | Ce qu'elle fait |
 | :----- | :-------- | :--- |
@@ -435,7 +438,12 @@ sous-titre saisi en capitales.
 
 **Les accents et les alphabets non latins sont traités comme il faut.** `éléonore`
 donne `ÉLÉONORE`, et une apostrophe ne coupe pas un mot : `l'été` mis en casse de
-titre donne `L'été` et non `L'Été`.
+titre donne `L'été` et non `L'Été`. Une lettre qui change de longueur garde ses
+balises autour d'elle : `ﬁ <i>x</i>` en capitales donne `FI <i>X</i>`.
+
+**La casse ne dépend pas de la langue du système.** Elle suit les règles communes
+à toutes les langues : `istanbul` en capitales donne `ISTANBUL`, que la machine
+soit réglée en français ou en turc.
 
 ### Dans quel sens va `Dialogue`
 
@@ -476,6 +484,10 @@ de tout le programme qui en fasse disparaître sans qu'on le demande. Un
 sous-titre qui n'était *que* mention n'a plus de texte une fois nettoyé, et un
 sous-titre sans texte n'a pas lieu d'être : il est retiré du fichier. Les autres
 sont réécrits sans leur mention.
+
+**Les balises du format ne comptent pas pour du texte** : `<i>[SOUPIR]</i>` d'un
+SubRip et `{\i1}[SOUPIR]{\i0}` d'un Advanced SSA sont retirés l'un comme l'autre.
+Un `<i>` dans un TMPlayer ou un LRC, qui n'écrivent aucune balise, est du texte.
 
 Le compte rendu dit les deux :
 

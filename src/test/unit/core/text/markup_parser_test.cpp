@@ -123,6 +123,16 @@ TEST_CASE("the two vocabularies that never close carry their tags whole", "[text
           "Bonjour/Sophie");
 }
 
+TEST_CASE("an MPL2 marker after a brace is text", "[text][parser]") {
+    // Issue #403: the parser kept a line « at its head » across a brace, and
+    // read the `/` as a marker; the pivot and the italic toggle read text.
+    // Searching for it found nothing, and a dash landed after it.
+    const MarkupParser parser{"{y:b}/Bonjour", SubtitleFormat::Mpl2};
+
+    CHECK(parser.visible() == "/Bonjour");
+    CHECK(replacingAll("{y:b}/Bonjour", "/", "|", SubtitleFormat::Mpl2) == "{y:b}|Bonjour");
+}
+
 TEST_CASE("a tag taken inside a replacement comes out before it", "[text][parser]") {
     // It survives a text that has gone, and there is nothing else to say of it.
     CHECK(replacingAll("Bonjour {Y:i}Marie", "Bonjour Marie", "Salut", SubtitleFormat::MicroDvd) ==
@@ -130,9 +140,18 @@ TEST_CASE("a tag taken inside a replacement comes out before it", "[text][parser
 }
 
 TEST_CASE("an accented letter is never a word boundary", "[text][parser]") {
-    // The bytes of a UTF-8 sequence must count as part of a word, or a tag
-    // falling between them would look like a boundary and stay there.
+    // A word is read in code points: an accented letter is a letter, or a tag
+    // falling beside it would look like a boundary and stay there.
     CHECK(replacingAll("<i>ét</i>é", "été", "hiver", SubtitleFormat::SubRip) == "<i>hiver</i>");
+    // And a letter outside the basic plane, four bytes long, is one too.
+    CHECK(replacingAll("<i>a</i>𝒜b", "a𝒜b", "c", SubtitleFormat::SubRip) == "<i>c</i>");
+}
+
+TEST_CASE("a replacement leaves an empty pair elsewhere alone", "[text][parser]") {
+    // Issue #402: only what the match reaches moves or goes. An empty pair the
+    // file holds away from the match is the file's business.
+    CHECK(replacingAll("a<i></i>b Marie", "Marie", "Sophie", SubtitleFormat::SubRip) ==
+          "a<i></i>b Sophie");
 }
 
 TEST_CASE("the parser moves", "[text][parser]") {
@@ -190,4 +209,38 @@ TEST_CASE("a transformation carries the tags it understands nothing of", "[text]
     parser.transform(0, 7, "Salut");
 
     CHECK(parser.text() == "Salut {Y:i}Marie");
+}
+
+TEST_CASE("a block that shuts two styles is written once", "[text][parser]") {
+    // `{\b0\i0}` closes the bold and the italic both. Each span kept the
+    // block as its closer, and a transformation wrote it twice.
+    MarkupParser parser{R"({\b1\i1}bonjour{\b0\i0})", SubtitleFormat::AdvancedSubStationAlpha};
+    parser.transform(0, 7, "BONJOUR");
+
+    CHECK(parser.text() == R"({\b1\i1}BONJOUR{\b0\i0})");
+}
+
+TEST_CASE("an empty pair stays inside the tag that held it", "[text][parser]") {
+    // At the offset where the bold closes, the empty italic came out after it:
+    // closers were written before anything else, and the pair wraps nothing.
+    MarkupParser parser{"<b>bonjour<i></i></b>", SubtitleFormat::SubRip};
+    parser.transform(0, 7, "BONJOUR");
+
+    CHECK(parser.text() == "<b>BONJOUR<i></i></b>");
+}
+
+TEST_CASE("a combining mark belongs to its word", "[text][parser]") {
+    // A decomposed `é` is an `e` and a mark, and a tag between them cuts the
+    // word as surely as one between two letters: a match that starts on the
+    // mark reaches the italic before it.
+    CHECK(replacingAll("<i>e</i>\u0301t", "\u0301t", "x", SubtitleFormat::SubRip) == "<i>ex</i>");
+}
+
+TEST_CASE("an empty pair written after a closer stays after it", "[text][parser]") {
+    // The other side of the one above: the pair came after the bold shut, and
+    // it goes out after it.
+    MarkupParser parser{"<b>bonjour</b><i></i>", SubtitleFormat::SubRip};
+    parser.transform(0, 7, "BONJOUR");
+
+    CHECK(parser.text() == "<b>BONJOUR</b><i></i>");
 }
