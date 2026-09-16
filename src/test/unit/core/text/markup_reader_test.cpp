@@ -12,27 +12,36 @@
 
 namespace {
 
+using subedit::core::FlagOverride;
 using subedit::core::flagOverrideOf;
 using subedit::core::htmlTagOf;
 using subedit::core::MarkupPiece;
 using subedit::core::MarkupVocabulary;
 using subedit::core::overridesOf;
 using subedit::core::piecesOf;
+using subedit::core::ScopedTag;
 using subedit::core::scopedTagOf;
 
 using Spelled = std::vector<std::string>;
 
-/// The pieces of `text`, each written as its kind's letter and its bytes.
-///
 /// `T` for text, `B` for a tag — a bracket or a brace — and `M` for a marker.
+[[nodiscard]] char letterOf(MarkupPiece::Kind kind) {
+    switch (kind) {
+    case MarkupPiece::Kind::Text:
+        return 'T';
+    case MarkupPiece::Kind::Tag:
+        return 'B';
+    case MarkupPiece::Kind::Marker:
+        return 'M';
+    }
+    return '?';
+}
+
+/// The pieces of `text`, each written as its kind's letter and its bytes.
 [[nodiscard]] Spelled spelled(std::string_view text, MarkupVocabulary vocabulary) {
     Spelled out;
-    for (const MarkupPiece& piece : piecesOf(text, vocabulary)) {
-        const char letter = piece.kind == MarkupPiece::Kind::Text  ? 'T'
-                            : piece.kind == MarkupPiece::Kind::Tag ? 'B'
-                                                                   : 'M';
-        out.push_back(std::string{letter} + ':' + std::string{piece.text});
-    }
+    for (const MarkupPiece& piece : piecesOf(text, vocabulary))
+        out.push_back(std::string{letterOf(piece.kind)} + ':' + std::string{piece.text});
     return out;
 }
 
@@ -58,6 +67,15 @@ TEST_CASE("an opener closes on its own line, or is text", "[text][reader]") {
     CHECK(spelled("le <i\n>vent", MarkupVocabulary::Html) == Spelled{"T:le <i\n>vent"});
     CHECK(spelled("le {Y:i vent", MarkupVocabulary::MicroDvd) == Spelled{"T:le {Y:i vent"});
     CHECK(spelled("<>vent", MarkupVocabulary::Html) == Spelled{"B:<>", "T:vent"});
+}
+
+TEST_CASE("a second opener before the closer makes the first one text", "[text][reader]") {
+    // Otherwise a lone `<` swallows the tag after it: `< b <i>` read as one tag
+    // hid an italic from the pivot, the parser and the toggle alike.
+    CHECK(spelled("a < b <i>c</i>", MarkupVocabulary::Html) ==
+          Spelled{"T:a < b ", "B:<i>", "T:c", "B:</i>"});
+    CHECK(spelled("a { b {Y:i}c", MarkupVocabulary::MicroDvd) ==
+          Spelled{"T:a { b ", "B:{Y:i}", "T:c"});
 }
 
 TEST_CASE("an MPL2 marker is a marker at the head of a line only", "[text][reader]") {
@@ -87,47 +105,57 @@ TEST_CASE("an HTML tag gives its name lower-cased, and what follows it", "[text]
     CHECK(htmlTagOf("</i >").name == "i");
     CHECK(htmlTagOf("</i >").closing);
     CHECK(htmlTagOf("<>").name.empty());
+
+    // A tab separates a name as a space does.
+    CHECK(htmlTagOf("<i\tclass=\"x\">").name == "i");
+}
+
+TEST_CASE("a self-closing tag names nothing", "[text][reader]") {
+    // `<i/>` opens nothing and closes nothing; read as `<i>`, it put the rest
+    // of the subtitle in italics.
+    CHECK(htmlTagOf("<i/>").name.empty());
+    CHECK(htmlTagOf("<br />").name.empty());
 }
 
 TEST_CASE("a brace block is a run of overrides, or not one at all", "[text][reader]") {
-    const auto two = overridesOf(R"({\b1\i1})");
-    REQUIRE(two.has_value());
-    CHECK(*two == std::vector<std::string_view>{"b1", "i1"});
+    using Overrides = std::vector<std::string_view>;
+    const Overrides absent{"<absent>"};
 
-    const auto none = overridesOf("{}");
-    REQUIRE(none.has_value());
-    CHECK(none->empty());
-
+    CHECK(overridesOf(R"({\b1\i1})").value_or(absent) == Overrides{"b1", "i1"});
+    CHECK(overridesOf("{}").value_or(absent).empty());
     CHECK_FALSE(overridesOf("{une note}").has_value());
 }
 
 TEST_CASE("the three flags are read with their number", "[text][reader]") {
-    const auto on = flagOverrideOf("i1");
-    REQUIRE(on.has_value());
-    CHECK(on->letter == 'i');
-    CHECK(on->on);
+    // A letter no flag has, so that an absent answer cannot pass for one.
+    const FlagOverride absent{.letter = 'x', .on = false};
 
-    CHECK(flagOverrideOf("b700")->on);
-    CHECK_FALSE(flagOverrideOf("u0")->on);
+    const FlagOverride on = flagOverrideOf("i1").value_or(absent);
+    CHECK(on.letter == 'i');
+    CHECK(on.on);
+
+    CHECK(flagOverrideOf("b700").value_or(absent).on);
+    CHECK(flagOverrideOf("u0").value_or(absent).letter == 'u');
+    CHECK_FALSE(flagOverrideOf("u0").value_or(absent).on);
 
     for (const std::string_view other : {"i", "i1x", "fs12", "pos(1,2)"}) {
-        INFO("surcharge : " << other);
+        INFO("override: " << other);
         CHECK_FALSE(flagOverrideOf(other).has_value());
     }
 }
 
 TEST_CASE("a MicroDVD tag is a letter, a scope and a value", "[text][reader]") {
-    const auto style = scopedTagOf("{Y:bi}");
-    REQUIRE(style.has_value());
-    CHECK(style->letter == 'y');
-    CHECK(style->wholeSubtitle);
-    CHECK(style->value == "bi");
+    const ScopedTag absent{.letter = 'x', .wholeSubtitle = false, .value = "<absent>"};
 
-    const auto colour = scopedTagOf("{c:$0000ff}");
-    REQUIRE(colour.has_value());
-    CHECK(colour->letter == 'c');
-    CHECK_FALSE(colour->wholeSubtitle);
-    CHECK(colour->value == "$0000ff");
+    const ScopedTag style = scopedTagOf("{Y:bi}").value_or(absent);
+    CHECK(style.letter == 'y');
+    CHECK(style.wholeSubtitle);
+    CHECK(style.value == "bi");
+
+    const ScopedTag colour = scopedTagOf("{c:$0000ff}").value_or(absent);
+    CHECK(colour.letter == 'c');
+    CHECK_FALSE(colour.wholeSubtitle);
+    CHECK(colour.value == "$0000ff");
 
     CHECK_FALSE(scopedTagOf("{une note}").has_value());
     CHECK_FALSE(scopedTagOf("{x:1}").has_value());

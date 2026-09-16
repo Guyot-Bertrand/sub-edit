@@ -39,7 +39,9 @@ struct MarkupPiece {
 /// Cuts `text` into pieces, in the vocabulary that wrote it.
 ///
 /// **A tag opens on `<` or `{` and closes on the first `>` or `}` of the same
-/// line**; an opener nothing closes before the line ends is text. No format of
+/// line**; an opener nothing closes before the line ends is text, and so is one
+/// followed by a second opener first — a lone `<` does not swallow the tag
+/// after it. No format of
 /// the nine writes a tag across a line, and reading one that did would let a
 /// stray `<` swallow the lines after it.
 ///
@@ -51,6 +53,9 @@ struct MarkupPiece {
 [[nodiscard]] std::vector<MarkupPiece> piecesOf(std::string_view text, MarkupVocabulary vocabulary);
 
 /// What an HTML tag names: `<I >` is an opening `i`, `</font>` a closing `font`.
+///
+/// The name ends at a space or a tab. A self-closing tag — `<br/>`, `<i/>` —
+/// names nothing.
 struct HtmlTag {
     /// The name, lower-cased — empty for `<>`, which names nothing.
     std::string name{};

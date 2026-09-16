@@ -13,3 +13,4 @@ un tiret de dialogue n'est pas touché| "- bonjour marie"      | "- Bonjour mari
 une accentuée prend sa capitale      | "éléonore"             | "Éléonore"
 et le reste redescend accentué       | "éLÉONORE"             | "Éléonore"
 une capitale plus courte que sa minuscule | "ſoir <i>X</i>" | "Soir <i>x</i>"
+une minuscule plus longue que sa capitale | "İSTANBUL <i>X</i>" | "İstanbul <i>x</i>"

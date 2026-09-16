@@ -55,3 +55,15 @@ TEST_CASE("what is a tag in one format is text in another", "[text]") {
     CHECK(withoutHearingImpaired("Oui [SOUPIR]/", SubtitleFormat::Mpl2).value_or("<absent>") ==
           "Oui /");
 }
+
+TEST_CASE("brackets inside a tag are not a mention", "[text]") {
+    // The scan looked for `(` letter by letter, tags included: the position of
+    // an Advanced SSA subtitle, `\pos(320,50)`, was taken for a mention and
+    // cut out of a subtitle that held none.
+    CHECK(withoutHearingImpaired(R"({\an8\pos(320,50)}Bonjour)",
+                                 SubtitleFormat::AdvancedSubStationAlpha)
+              .value_or("<absent>") == R"({\an8\pos(320,50)}Bonjour)");
+    CHECK(withoutHearingImpaired(R"({\pos(1,2)}[SOUPIR] Bonjour)",
+                                 SubtitleFormat::AdvancedSubStationAlpha)
+              .value_or("<absent>") == R"({\pos(1,2)}Bonjour)");
+}

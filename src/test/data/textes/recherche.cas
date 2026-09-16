@@ -81,6 +81,7 @@ le mot coupé est suivi d'une ponctuation     | "<i>Bonjo</i>ur !"         | "Bo
 deux balises coupent le même mot             | "<i>Bon</i><b>jour</b>"    | "Bonjour"    | "Salut"  | "<i><b>Salut</b></i>"
 une frontière qui coupe un mot ailleurs reste | "<i>Bon</i>jour Marie"     | "Marie"      | "Sophie" | "<i>Bon</i>jour Sophie"
 deux balises pareilles hors de la correspondance restent deux | "<i>Bon</i><i>jour</i> Marie" | "Marie" | "Sophie" | "<i>Bon</i><i>jour</i> Sophie"
+une balise pareille qui ne fait que toucher la correspondance reste à part | "<i>Bonjour</i><i> Marie</i>" | "Bonjour" | "Salut" | "<i>Salut</i><i> Marie</i>"
 un guillemet n'est pas une lettre            | "«<i>Bonjour</i>»"         | "Bonjour"    | "Salut"  | "«<i>Salut</i>»"
 une espace insécable n'est pas une lettre    | "<i>Quoi</i> ?"            | "Quoi"       | "Comment" | "<i>Comment</i> ?"
 
@@ -108,4 +109,5 @@ un remplacement vide ne porte aucun style    | "Bonjour <i>Marie</i>"     | " Ma
 # --- Ce qui ne se cherche pas, et ce qui ne se répare pas ---------------------
 
 chercher une balise ne trouve rien           | "<i>Bonjour</i>"           | "<i>"        | "X"      | =
+un chevron seul est du texte                 | "a < b <i>c</i>"           | "b"          | "x"      | "a < x <i>c</i>"
 une balise jamais fermée le reste            | "<i>Bonjour Marie"         | "Marie"      | "Sophie" | "<i>Bonjour Sophie"

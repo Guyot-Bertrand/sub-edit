@@ -102,6 +102,10 @@ TEST_CASE("an italic tag with a space before its bracket is an italic tag", "[te
     CHECK(inItalics("<i >Bonjour.</i >", SubtitleFormat::SubRip) == "<i>Bonjour.</i>");
 }
 
+TEST_CASE("a lone bracket does not hide the italics after it", "[text][italics]") {
+    CHECK(withoutItalics("a < b <i>c</i>", SubtitleFormat::SubRip) == "a < b c");
+}
+
 TEST_CASE("an empty brace block is left alone when there is no italic in it", "[text][italics]") {
     // A block goes with its italics when they were all it said. One that said
     // nothing to start with is not the toggle's to take away.

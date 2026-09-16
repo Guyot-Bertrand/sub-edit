@@ -19,10 +19,23 @@ namespace subedit::core {
 
 namespace {
 
+/// Tells whether `point` belongs to a word: a letter, a digit, or a mark.
+///
+/// **A combining mark is part of the letter it follows.** A decomposed `é` is
+/// an `e` and an accent, and a tag between the two cuts the word as surely as
+/// one between two letters; so does one inside a Devanagari syllable.
+[[nodiscard]] bool isWordCharacter(UChar32 point) {
+    if (u_isalnum(point) != 0)
+        return true;
+    const auto type = static_cast<UCharCategory>(u_charType(point));
+    return type == U_NON_SPACING_MARK || type == U_COMBINING_SPACING_MARK ||
+           type == U_ENCLOSING_MARK;
+}
+
 /// Tells whether the code point ending at `at` and the one starting there both
 /// belong to a word — that is, whether a tag at `at` cuts a word in two.
 ///
-/// **Code points, and letters or digits only** — issue #402. Counting every
+/// **Code points, and letters, digits or marks only** — issue #402. Counting every
 /// byte above the ASCII range as a letter kept accented letters whole, and also
 /// made letters of a no-break space, of `«`, `»` and `’`: an italic next to
 /// French punctuation swallowed it. `u_isalnum` asks the question that was
@@ -31,9 +44,8 @@ namespace {
     if (at == 0 || at >= text.size())
         return false;
 
-    const auto before = static_cast<UChar32>(codePointAt(text, previousCodePoint(text, at)));
-    const auto after = static_cast<UChar32>(codePointAt(text, at));
-    return u_isalnum(before) != 0 && u_isalnum(after) != 0;
+    return isWordCharacter(static_cast<UChar32>(codePointAt(text, previousCodePoint(text, at)))) &&
+           isWordCharacter(static_cast<UChar32>(codePointAt(text, at)));
 }
 
 /// What one tag does: opens a style, closes one, or neither.
@@ -160,9 +172,12 @@ struct Span {
     std::string style;
     std::size_t first = 0;
     std::size_t last = 0;
-    /// Which opening tag wrote it, so that a block opening two styles is
-    /// written once rather than twice.
+    /// The number of the opening tag that wrote it, so that a block opening two
+    /// styles is written once rather than twice.
     std::size_t writer = 0;
+    /// The number of the closing tag, for the same reason: `{\b0\i0}` shuts
+    /// two spans and is one tag.
+    std::size_t closer = 0;
     /// Whether the replacement under way reached it. **Only a span a
     /// replacement reaches may move or merge**: the rest of the subtitle keeps
     /// its tags exactly where the file had them.
@@ -184,13 +199,23 @@ struct MarkupParser::Held {
     std::vector<Loose> loose;
     MarkupVocabulary vocabulary = MarkupVocabulary::None;
     bool touched = false;
+    /// How many tags have been read, the text's and every replacement's.
+    ///
+    /// **What numbers a tag.** Two spans written by one tag must say so, and a
+    /// number given by position in one reading would collide with the same
+    /// position in the next.
+    std::size_t tagsRead = 0;
 
     /// Takes in the tags a replacement carried, inside the stretch it fills.
     ///
     /// They land after the inherited ones, which is what makes a `<b>` that was
     /// already there the outer of the two.
     void adopt(const Reading& given, std::size_t at, std::size_t grown) {
-        for (const Tag& tag : given.tags) {
+        const std::size_t base = tagsRead;
+        tagsRead += given.tags.size();
+
+        for (std::size_t index = 0; index < given.tags.size(); ++index) {
+            const Tag& tag = given.tags[index];
             if (tag.kind == TagKind::Opaque) {
                 loose.push_back(Loose{.text = tag.text, .at = at + tag.at});
                 continue;
@@ -203,30 +228,34 @@ struct MarkupParser::Held {
                                      .style = style,
                                      .first = at + tag.at,
                                      .last = at + grown,
-                                     .writer = spans.size(),
+                                     .writer = base + index,
+                                     .closer = 0,
                                      .reached = true});
             }
         }
 
-        for (const Tag& tag : given.tags) {
+        for (std::size_t index = 0; index < given.tags.size(); ++index) {
+            const Tag& tag = given.tags[index];
             if (tag.kind != TagKind::Closes)
                 continue;
             for (const std::string& style : tag.styles)
-                shutInside(style, tag.text, at, at + grown, at + tag.at);
+                shutInside(style, tag, base + index, at, at + grown);
         }
     }
 
-    /// Shuts the span of `style` the replacement's own opener made.
+    /// Shuts the span of `style` the replacement's own opener made, between
+    /// `first` and `last`.
     void shutInside(const std::string& style,
-                    const std::string& closing,
+                    const Tag& closing,
+                    std::size_t number,
                     std::size_t first,
-                    std::size_t last,
-                    std::size_t at) {
+                    std::size_t last) {
         for (std::size_t which = spans.size(); which-- > 0;) {
             Span& span = spans[which];
             if (span.style == style && span.first >= first && span.last == last) {
-                span.closing = closing;
-                span.last = at;
+                span.closing = closing.text;
+                span.closer = number;
+                span.last = first + closing.at;
                 return;
             }
         }
@@ -234,6 +263,8 @@ struct MarkupParser::Held {
 
     /// Turns a reading into spans and loose tags.
     void gather(const Reading& found) {
+        const std::size_t base = tagsRead;
+        tagsRead += found.tags.size();
         std::vector<std::size_t> open; // indices into spans, innermost last
 
         for (std::size_t index = 0; index < found.tags.size(); ++index) {
@@ -249,7 +280,8 @@ struct MarkupParser::Held {
                                          .style = style,
                                          .first = tag.at,
                                          .last = found.visible.size(),
-                                         .writer = index,
+                                         .writer = base + index,
+                                         .closer = 0,
                                          .reached = false});
                     open.push_back(spans.size() - 1);
                 }
@@ -266,6 +298,7 @@ struct MarkupParser::Held {
                     if (span.style != style)
                         continue;
                     span.closing = tag.text;
+                    span.closer = base + index;
                     span.last = tag.at;
                     open.erase(open.begin() + static_cast<std::ptrdiff_t>(which));
                     shut = true;
@@ -289,6 +322,18 @@ namespace {
     return span;
 }
 
+/// Tells whether two spans a replacement may have run together meet.
+///
+/// **Touching is enough when the replacement reached both**: they cover what it
+/// wrote, and two `<i>` side by side over one replacement are one italic. When
+/// it reached only one, they must overlap — an identical tag that only touches
+/// the match is a tag the file wrote apart, and it stays apart.
+[[nodiscard]] bool meet(const Span& left, const Span& right) {
+    if (left.reached && right.reached)
+        return right.first <= left.last && left.first <= right.last;
+    return right.first < left.last && left.first < right.last;
+}
+
 /// Merges two spans a replacement has run together, when they are the same tag.
 ///
 /// **The same tag, and not the same style** — issue #402. Two `<font>` of two
@@ -304,16 +349,110 @@ void mergeTwins(std::vector<Span>& spans) {
                 continue;
             if (!spans[left].reached && !spans[right].reached)
                 continue;
-            if (spans[right].first > spans[left].last || spans[left].first > spans[right].last)
+            if (!meet(spans[left], spans[right]))
                 continue;
             spans[left].first = std::min(spans[left].first, spans[right].first);
             if (spans[right].last >= spans[left].last) {
                 spans[left].last = spans[right].last;
                 spans[left].closing = spans[right].closing;
+                spans[left].closer = spans[right].closer;
             }
             spans[left].reached = true;
             spans.erase(spans.begin() + static_cast<std::ptrdiff_t>(right));
         }
+    }
+}
+
+/// The tags already written at one offset, so that a tag two spans share is
+/// written once.
+struct Written {
+    std::size_t opener = std::string::npos;
+    std::vector<std::size_t> closers;
+};
+
+/// Writes the closing tag of `span`, unless the same tag went out here already.
+void writeCloser(const Span& span, Written& written, std::string& out) {
+    if (!span.closing.has_value() ||
+        std::ranges::find(written.closers, span.closer) != written.closers.end())
+        return;
+    out += *span.closing;
+    written.closers.push_back(span.closer);
+}
+
+/// Writes an empty pair, which shuts where it opens: it wraps nothing, so
+/// nothing may land inside it.
+void writeEmpty(const Span& span, Written& written, std::string& out) {
+    if (span.writer != written.opener) {
+        out += span.opening;
+        written.opener = span.writer;
+    }
+    writeCloser(span, written, out);
+}
+
+/// The spans that open and shut at `position`.
+[[nodiscard]] std::vector<std::size_t> emptiesAt(const std::vector<Span>& spans,
+                                                 std::size_t position) {
+    std::vector<std::size_t> empties;
+    for (std::size_t which = 0; which < spans.size(); ++which) {
+        if (spans[which].first == position && spans[which].last == position)
+            empties.push_back(which);
+    }
+    return empties;
+}
+
+/// Writes the closers of the spans that end at `position`, innermost first:
+/// what opened last shuts first.
+///
+/// **An empty pair the file wrote before a closer goes before it.** `<b>x<i></i></b>`
+/// shuts the bold at the offset the pair sits at, and writing every closer
+/// first took the pair out of the bold that held it.
+void writeClosers(const std::vector<Span>& spans,
+                  std::vector<std::size_t>& open,
+                  std::vector<std::size_t>& empties,
+                  std::size_t position,
+                  Written& written,
+                  std::string& out) {
+    for (std::size_t which = open.size(); which-- > 0;) {
+        const Span& span = spans[open[which]];
+        if (span.last != position)
+            continue;
+        for (std::size_t pending = 0; pending < empties.size();) {
+            if (spans[empties[pending]].writer > span.closer) {
+                ++pending;
+                continue;
+            }
+            writeEmpty(spans[empties[pending]], written, out);
+            empties.erase(empties.begin() + static_cast<std::ptrdiff_t>(pending));
+        }
+        writeCloser(span, written, out);
+        open.erase(open.begin() + static_cast<std::ptrdiff_t>(which));
+    }
+}
+
+/// Writes the openers of the spans that start at `position`, in the order they
+/// were made, and the empty pairs no closer came after.
+///
+/// A tag that opened two styles at once is written once.
+void writeOpeners(const std::vector<Span>& spans,
+                  std::vector<std::size_t>& open,
+                  const std::vector<std::size_t>& empties,
+                  std::size_t position,
+                  Written& written,
+                  std::string& out) {
+    for (std::size_t which = 0; which < spans.size(); ++which) {
+        const Span& span = spans[which];
+        if (span.first != position)
+            continue;
+        if (span.last == position) {
+            if (std::ranges::find(empties, which) != empties.end())
+                writeEmpty(span, written, out);
+            continue;
+        }
+        if (span.writer != written.opener) {
+            out += span.opening;
+            written.opener = span.writer;
+        }
+        open.push_back(which);
     }
 }
 
@@ -437,38 +576,14 @@ std::string MarkupParser::text() const {
     std::vector<std::size_t> open;
 
     const auto writeAt = [&](std::size_t position) {
-        // Closers first, innermost first: what opened last shuts first.
-        for (std::size_t which = open.size(); which-- > 0;) {
-            const Span& span = m_held->spans[open[which]];
-            if (span.last != position)
-                continue;
-            if (span.closing.has_value())
-                out += *span.closing;
-            open.erase(open.begin() + static_cast<std::ptrdiff_t>(which));
-        }
+        Written written;
+        std::vector<std::size_t> empties = emptiesAt(m_held->spans, position);
+        writeClosers(m_held->spans, open, empties, position, written, out);
         for (const Loose& one : m_held->loose) {
             if (one.at == position)
                 out += one.text;
         }
-        // Openers in the order they were made, and a tag that opened two styles
-        // at once is written once. An empty pair shuts where it opens, before
-        // the next opener: it wraps nothing, so nothing may land inside it.
-        std::size_t written = std::string::npos;
-        for (std::size_t which = 0; which < m_held->spans.size(); ++which) {
-            const Span& span = m_held->spans[which];
-            if (span.first != position)
-                continue;
-            if (span.writer != written) {
-                out += span.opening;
-                written = span.writer;
-            }
-            if (span.last == position) {
-                if (span.closing.has_value())
-                    out += *span.closing;
-                continue;
-            }
-            open.push_back(which);
-        }
+        writeOpeners(m_held->spans, open, empties, position, written, out);
     };
 
     for (std::size_t at = 0; at < m_held->visible.size(); ++at) {

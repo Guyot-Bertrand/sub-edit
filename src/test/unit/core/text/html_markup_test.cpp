@@ -81,6 +81,33 @@ TEST_CASE("a space before the bracket does not hide a tag", "[markup][html]") {
     CHECK(read.unknown == 0);
 }
 
+TEST_CASE("a one-letter tag with attributes is still its tag", "[markup][html]") {
+    // `<b class="x">` is bold to the parser and to the italic toggle, so it is
+    // bold to the pivot too — a conversion keeps what a search saw.
+    const DecodedMarkup read = decodeHtmlMarkup(R"(<b class="x">Le canot</b>)");
+
+    REQUIRE(read.runs.size() == 1);
+    CHECK(read.runs.front().style.bold);
+    CHECK(read.unknown == 0);
+}
+
+TEST_CASE("a self-closing tag opens nothing", "[markup][html]") {
+    const DecodedMarkup read = decodeHtmlMarkup("Le canot<i/> dérive.");
+
+    REQUIRE(read.runs.size() == 1);
+    CHECK(read.runs.front().style.isPlain());
+    CHECK(read.unknown == 1);
+}
+
+TEST_CASE("a lone bracket does not swallow the tag after it", "[markup][html]") {
+    const DecodedMarkup read = decodeHtmlMarkup("a < b <i>c</i>");
+
+    REQUIRE(read.runs.size() == 2);
+    CHECK(read.runs.front().text == "a < b ");
+    CHECK(read.runs.back().style.italic);
+    CHECK(read.unknown == 0);
+}
+
 TEST_CASE("a tag closes on its own line, or is text", "[markup][html]") {
     const DecodedMarkup read = decodeHtmlMarkup("le vent <\ni>tombe");
 
@@ -141,6 +168,14 @@ TEST_CASE("a font tag that carries something else is not a colour", "[markup][ht
 
     REQUIRE(read.runs.size() == 1);
     CHECK(read.runs.front().text == "grand");
+    CHECK(read.runs.front().style.isPlain());
+    CHECK(read.unknown == 1);
+}
+
+TEST_CASE("a font tag with nothing after its name is no colour", "[markup][html]") {
+    const DecodedMarkup read = decodeHtmlMarkup("<font>grand</font>");
+
+    REQUIRE(read.runs.size() == 1);
     CHECK(read.runs.front().style.isPlain());
     CHECK(read.unknown == 1);
 }

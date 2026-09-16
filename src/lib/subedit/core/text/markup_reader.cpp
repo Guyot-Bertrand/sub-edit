@@ -48,8 +48,9 @@ std::vector<MarkupPiece> piecesOf(std::string_view text, MarkupVocabulary vocabu
     const bool markers = vocabulary == MarkupVocabulary::Mpl2;
     const char opening = angles ? '<' : '{';
     const char closing = angles ? '>' : '}';
-    // What ends a search for the closer: the closer, or the end of the line.
-    const std::string_view stops = angles ? ">\n" : "}\n";
+    // What ends a search for the closer: the closer, the end of the line, or a
+    // second opener — before which the first one opened nothing.
+    const std::string_view stops = angles ? "<>\n" : "{}\n";
 
     std::vector<MarkupPiece> pieces;
     bool atLineHead = true;
@@ -93,13 +94,19 @@ HtmlTag htmlTagOf(std::string_view tag) {
     if (read.closing)
         body.remove_prefix(1);
 
+    // **A self-closing tag names nothing**: `<i/>` opens no italic and shuts
+    // none, and read as `<i>` it put the rest of the subtitle in italics.
+    if (body.ends_with('/'))
+        return read;
+
+    const auto separates = [](char letter) { return letter == ' ' || letter == '\t'; };
     std::size_t end = 0;
-    while (end < body.size() && body[end] != ' ' && body[end] != '/') {
+    while (end < body.size() && !separates(body[end])) {
         read.name += lowered(body[end]);
         ++end;
     }
     std::string_view rest = body.substr(end);
-    while (rest.starts_with(' '))
+    while (!rest.empty() && separates(rest.front()))
         rest.remove_prefix(1);
     read.attributes = rest;
     return read;
@@ -129,8 +136,8 @@ std::optional<FlagOverride> flagOverrideOf(std::string_view override) {
     const std::string_view number = override.substr(1);
     if (!std::ranges::all_of(number, [](char digit) { return digit >= '0' && digit <= '9'; }))
         return std::nullopt;
-    return FlagOverride{.letter = letter,
-                        .on = std::ranges::any_of(number, [](char digit) { return digit != '0'; })};
+    const bool on = std::ranges::any_of(number, [](char digit) { return digit != '0'; });
+    return FlagOverride{.letter = letter, .on = on};
 }
 
 std::optional<ScopedTag> scopedTagOf(std::string_view tag) {

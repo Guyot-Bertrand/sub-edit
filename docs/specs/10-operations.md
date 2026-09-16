@@ -79,6 +79,18 @@ tête du premier, en six points. Les deux qui décident :
 > compris, et un mot est fait de **lettres et de chiffres**, lus par point de
 > code.
 
+> **Un seul lecteur de balises, depuis #403.** Le pivot, le parseur, l'italique
+> et l'analyseur de mentions lisaient chacun les leurs, et se contredisaient.
+> `core/text/markup_reader` décide désormais pour tous :
+>
+> | Règle | Ce qu'elle tranche |
+> | :---- | :----------------- |
+> | une balise se ferme sur sa ligne, avant tout second ouvrant | un `<` seul est du texte, et n'avale pas la balise qui suit |
+> | un repère MPL2 n'en est un qu'en tête de ligne | `{y:b}/Bonjour` porte un `/` visible |
+> | le nom d'une balise HTML s'arrête à une espace ou une tabulation | `<i >` et `<b class="x">` sont de l'italique et du gras pour tous |
+> | une balise auto-fermante ne nomme rien | `<i/>` n'ouvre aucun italique |
+> | l'analyseur de mentions lit les balises du format | `{\i1}[SOUPIR]{\i0}` est vidé ; le `(320,50)` d'un `\pos` n'est pas une mention |
+
 > **Écrit en relecture de fin de phase.** Le corpus a bougé une fois après le
 > cadrage : #378 a corrigé une réponse attendue de `recherche.cas` — deux styles
 > voisins sur un même mot, `<i>Bon</i><b>jour</b>` — et ajouté en tête du

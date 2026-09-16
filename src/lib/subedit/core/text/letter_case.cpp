@@ -83,35 +83,44 @@ template<typename Map>
         });
 }
 
-/// The whole text in small letters, its first letter capitalised.
+/// Appends the edits `from` records to those `into` holds.
+///
+/// For two mappings made on two stretches that follow each other: the second
+/// starts where the first ended, on both sides.
+void appendEdits(icu::Edits& into, const icu::Edits& from) {
+    icu::Edits::Iterator step = from.getFineIterator();
+    UErrorCode status = U_ZERO_ERROR;
+    while (step.next(status) != 0) {
+        if (step.hasChange() != 0)
+            into.addReplace(step.oldLength(), step.newLength());
+        else
+            into.addUnchanged(step.oldLength());
+    }
+}
+
+/// The first letter of the text capitalised, and the rest in small letters.
+///
+/// **The capital is taken from the text as it came**, and not from the text
+/// lowered first. Lowering `İ` gives `i` and a combining dot, and capitalising
+/// that gave a decomposed `İ` where the title case gives the one character —
+/// the same word in two forms depending on the entry chosen.
 ///
 /// Its caller has already found a letter, so there is always a first one.
 [[nodiscard]] Mapped sentenced(std::string_view text) {
-    Mapped small = lowered(text);
-    const std::size_t head = nextCodePoint(small.text, 0);
-    const Mapped capital = uppered(std::string_view{small.text}.substr(0, head));
-
-    // What the second step did, written as edits so the two compose: the head
-    // replaced by its capital, or left, and the rest untouched.
-    icu::Edits second;
-    const auto rest = static_cast<std::int32_t>(small.text.size() - head);
+    const std::size_t head = nextCodePoint(text, 0);
+    const Mapped capital = uppered(text.substr(0, head));
     // **A letter that grows on being capitalised keeps its small form**, and
     // the German `ß` is the one that does: its capital is `SS`, two letters
     // where there was one. Writing them would be defensible and surprising.
     // Gaupol writes `Ss` — Python's `capitalize` titlecases the first letter —
     // and the inventory of Gaupol records the difference.
-    if (nextCodePoint(capital.text, 0) == capital.text.size()) {
-        second.addReplace(static_cast<std::int32_t>(head),
-                          static_cast<std::int32_t>(capital.text.size()));
-        small.text.replace(0, head, capital.text);
-    } else {
-        second.addUnchanged(static_cast<std::int32_t>(head));
-    }
-    second.addUnchanged(rest);
+    const bool single = nextCodePoint(capital.text, 0) == capital.text.size();
+    const Mapped first = single ? capital : lowered(text.substr(0, head));
+    const Mapped rest = lowered(text.substr(head));
 
-    Mapped whole{.text = std::move(small.text), .edits = {}};
-    UErrorCode status = U_ZERO_ERROR;
-    whole.edits.mergeAndAppend(small.edits, second, status);
+    Mapped whole{.text = first.text + rest.text, .edits = {}};
+    appendEdits(whole.edits, first.edits);
+    appendEdits(whole.edits, rest.edits);
     return whole;
 }
 

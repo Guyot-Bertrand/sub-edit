@@ -123,7 +123,7 @@ TEST_CASE("the two vocabularies that never close carry their tags whole", "[text
           "Bonjour/Sophie");
 }
 
-TEST_CASE("an MPL2 marker after a brace is text, as the pivot reads it", "[text][parser]") {
+TEST_CASE("an MPL2 marker after a brace is text", "[text][parser]") {
     // Issue #403: the parser kept a line « at its head » across a brace, and
     // read the `/` as a marker; the pivot and the italic toggle read text.
     // Searching for it found nothing, and a dash landed after it.
@@ -209,4 +209,38 @@ TEST_CASE("a transformation carries the tags it understands nothing of", "[text]
     parser.transform(0, 7, "Salut");
 
     CHECK(parser.text() == "Salut {Y:i}Marie");
+}
+
+TEST_CASE("a block that shuts two styles is written once", "[text][parser]") {
+    // `{\b0\i0}` closes the bold and the italic both. Each span kept the
+    // block as its closer, and a transformation wrote it twice.
+    MarkupParser parser{R"({\b1\i1}bonjour{\b0\i0})", SubtitleFormat::AdvancedSubStationAlpha};
+    parser.transform(0, 7, "BONJOUR");
+
+    CHECK(parser.text() == R"({\b1\i1}BONJOUR{\b0\i0})");
+}
+
+TEST_CASE("an empty pair stays inside the tag that held it", "[text][parser]") {
+    // At the offset where the bold closes, the empty italic came out after it:
+    // closers were written before anything else, and the pair wraps nothing.
+    MarkupParser parser{"<b>bonjour<i></i></b>", SubtitleFormat::SubRip};
+    parser.transform(0, 7, "BONJOUR");
+
+    CHECK(parser.text() == "<b>BONJOUR<i></i></b>");
+}
+
+TEST_CASE("a combining mark belongs to its word", "[text][parser]") {
+    // A decomposed `é` is an `e` and a mark, and a tag between them cuts the
+    // word as surely as one between two letters: a match that starts on the
+    // mark reaches the italic before it.
+    CHECK(replacingAll("<i>e</i>\u0301t", "\u0301t", "x", SubtitleFormat::SubRip) == "<i>ex</i>");
+}
+
+TEST_CASE("an empty pair written after a closer stays after it", "[text][parser]") {
+    // The other side of the one above: the pair came after the bold shut, and
+    // it goes out after it.
+    MarkupParser parser{"<b>bonjour</b><i></i>", SubtitleFormat::SubRip};
+    parser.transform(0, 7, "BONJOUR");
+
+    CHECK(parser.text() == "<b>BONJOUR</b><i></i>");
 }

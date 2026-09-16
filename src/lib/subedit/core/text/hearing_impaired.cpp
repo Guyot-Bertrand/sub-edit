@@ -150,11 +150,39 @@ void takeDashOff(std::string& text) {
     text.erase(0, index);
 }
 
+/// Where a tag of `vocabulary` starting at an offset ends, walked in order.
+///
+/// **What lets the scan step over a tag whole.** Looked for letter by letter,
+/// the `(` of an Advanced SSA `\pos(320,50)` opened a mention, and a subtitle
+/// with none lost its position.
+class TagWalk {
+public:
+    TagWalk(std::string_view text, MarkupVocabulary vocabulary)
+        : m_pieces(piecesOf(text, vocabulary)) {}
+
+    /// The offset past the tag starting at `at`, or `kNowhere` when none does.
+    ///
+    /// `at` never goes backwards between two calls.
+    [[nodiscard]] std::size_t endOfTagAt(std::size_t at) {
+        while (m_next < m_pieces.size() && m_pieces[m_next].at < at)
+            ++m_next;
+        if (m_next == m_pieces.size() || m_pieces[m_next].at != at ||
+            m_pieces[m_next].kind != MarkupPiece::Kind::Tag)
+            return kNowhere;
+        return at + m_pieces[m_next].text.size();
+    }
+
+private:
+    std::vector<MarkupPiece> m_pieces;
+    std::size_t m_next = 0;
+};
+
 /// Removes every mention, and says on which lines it removed one.
 [[nodiscard]] std::vector<Line> scanned(std::string_view text, MarkupVocabulary vocabulary) {
     std::vector<Line> lines{Line{}};
     bool seamPending = false;
     bool seamIsLineBreak = false;
+    TagWalk tags{text, vocabulary};
 
     std::size_t index = 0;
     while (index < text.size()) {
@@ -174,7 +202,9 @@ void takeDashOff(std::string& text) {
             continue;
         }
 
-        const std::size_t mention = mentionEnd(text, index);
+        // A tag is copied whole, and nothing inside it is a mention.
+        const std::size_t tag = tags.endOfTagAt(index);
+        const std::size_t mention = tag == kNowhere ? mentionEnd(text, index) : kNowhere;
         if (mention != kNowhere) {
             trimTrailingBlanks(lines.back().text);
             lines.back().touched = true;
@@ -202,8 +232,9 @@ void takeDashOff(std::string& text) {
             seamIsLineBreak = false;
         }
 
-        lines.back().text += text[index];
-        ++index;
+        const std::size_t next = tag == kNowhere ? index + 1 : tag;
+        lines.back().text += text.substr(index, next - index);
+        index = next;
     }
 
     trimTrailingBlanks(lines.back().text);
