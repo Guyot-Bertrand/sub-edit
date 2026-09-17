@@ -503,6 +503,22 @@ std::string notFound(std::string_view pattern) {
     return "\"" + std::string{pattern} + "\" not found";
 }
 
+std::string_view nothingToChange() {
+    return "nothing to change";
+}
+
+std::string noticeOfItalics(std::size_t count, bool italic) {
+    return countOf(count, "subtitle") + (italic ? " put in italics" : " taken out of italics");
+}
+
+std::string noticeOfRecase(std::size_t count) {
+    return countOf(count, "subtitle") + " recased";
+}
+
+std::string noticeOfDialogueDashes(std::size_t count, bool dashed) {
+    return countOf(count, "subtitle") + (dashed ? " dashed" : " undashed");
+}
+
 std::string noticeOfReplaceAll(std::size_t count) {
     // Not `countOf`, which adds an « s »: « match » takes « es ».
     return "replaced " + std::to_string(count) + (count == 1 ? " match" : " matches");

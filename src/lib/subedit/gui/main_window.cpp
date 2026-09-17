@@ -1319,16 +1319,14 @@ void MainWindow::toggleItalicsOnTarget() {
         // Every text was already the way it was asked for. Say so, and put
         // nothing in the history: an operation that changes nothing is not an
         // operation to undo.
-        m_prompts->reportOutcome("nothing to change");
+        m_prompts->reportOutcome(std::string{core::nothingToChange()});
         return;
     }
 
     // Read from the command before it goes, never by counting again after.
     const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
-
-    m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") +
-                             (italic ? " put in italics" : " taken out of italics"));
+    m_prompts->reportOutcome(core::noticeOfItalics(rewritten, italic));
 }
 
 QAction* MainWindow::caseAction(core::LetterCase wanted) const {
@@ -1343,14 +1341,13 @@ void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
     std::unique_ptr<core::Command> command =
         core::setLetterCase(m_session->project(), target, core::Document::Main, wanted);
     if (!command) {
-        m_prompts->reportOutcome("nothing to change");
+        m_prompts->reportOutcome(std::string{core::nothingToChange()});
         return;
     }
 
     const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
-
-    m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") + " recased");
+    m_prompts->reportOutcome(core::noticeOfRecase(rewritten));
 }
 
 void MainWindow::toggleDialogueDashesOnTarget() {
@@ -1364,15 +1361,13 @@ void MainWindow::toggleDialogueDashesOnTarget() {
     std::unique_ptr<core::Command> command =
         core::setDialogueDashes(m_session->project(), target, core::Document::Main, dashed);
     if (!command) {
-        m_prompts->reportOutcome("nothing to change");
+        m_prompts->reportOutcome(std::string{core::nothingToChange()});
         return;
     }
 
     const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
-
-    m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") +
-                             (dashed ? " dashed" : " undashed"));
+    m_prompts->reportOutcome(core::noticeOfDialogueDashes(rewritten, dashed));
 }
 
 void MainWindow::applyOperation(std::unique_ptr<core::Command> command,
