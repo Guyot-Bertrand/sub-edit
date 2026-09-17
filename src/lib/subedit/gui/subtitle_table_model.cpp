@@ -298,8 +298,7 @@ bool SubtitleTableModel::setData(const QModelIndex& index, const QVariant& value
         }
 
         // The end moves, never the start — decision D3 of the phase-10 spec.
-        applied(m_session->apply(
-            std::make_unique<core::SetDurationCommand>(m_session->project(), position, wanted)));
+        applied(m_session->apply(core::setDuration(m_session->project(), position, wanted)));
         return true;
     }
     case Start:

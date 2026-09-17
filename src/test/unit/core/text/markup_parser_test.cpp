@@ -10,7 +10,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <cstddef>
 #include <string>
+#include <string_view>
 #include <text_cases.hpp>
 #include <utility>
 #include <vector>
@@ -18,10 +20,37 @@
 namespace {
 
 using subedit::core::MarkupParser;
-using subedit::core::replacingAll;
 using subedit::core::SubtitleFormat;
 using subedit::test::checkReplacementCases;
 using subedit::test::replacementCasesOf;
+
+/// Replaces every occurrence of `pattern` in `text`, through `MarkupParser`
+/// alone — the driver these cases need, now that production carries no
+/// caller of its own for a "replace everywhere" over a literal pattern.
+///
+/// Nothing is rebuilt when nothing matches: the text comes back as the very
+/// bytes it arrived as, which is what keeps a search that finds nothing from
+/// tidying a file behind the user's back.
+[[nodiscard]] std::string replacedAll(std::string_view text,
+                                      std::string_view pattern,
+                                      std::string_view replacement,
+                                      SubtitleFormat format) {
+    if (pattern.empty())
+        return std::string{text};
+
+    MarkupParser parser{text, format};
+    bool found = false;
+    std::size_t at = 0;
+    while (true) {
+        const std::size_t which = parser.visible().find(pattern, at);
+        if (which == std::string_view::npos)
+            break;
+        parser.replace(which, pattern.size(), replacement);
+        at = which + MarkupParser{replacement, format}.visible().size();
+        found = true;
+    }
+    return found ? parser.text() : std::string{text};
+}
 
 } // namespace
 
@@ -29,7 +58,7 @@ TEST_CASE("the cases written in the HTML vocabulary pass", "[text][parser]") {
     checkReplacementCases(
         replacementCasesOf("textes/recherche.cas"),
         [](const std::string& text, const std::string& pattern, const std::string& replacement) {
-            return replacingAll(text, pattern, replacement, SubtitleFormat::SubRip);
+            return replacedAll(text, pattern, replacement, SubtitleFormat::SubRip);
         });
 }
 
@@ -37,8 +66,7 @@ TEST_CASE("the cases written in braces pass too", "[text][parser]") {
     checkReplacementCases(
         replacementCasesOf("textes/recherche-accolades.cas"),
         [](const std::string& text, const std::string& pattern, const std::string& replacement) {
-            return replacingAll(
-                text, pattern, replacement, SubtitleFormat::AdvancedSubStationAlpha);
+            return replacedAll(text, pattern, replacement, SubtitleFormat::AdvancedSubStationAlpha);
         });
 }
 
@@ -47,7 +75,7 @@ TEST_CASE("a format that writes no style has nothing to hold aside", "[text][par
     const MarkupParser parser{"/Bonjour <i>Marie</i>", SubtitleFormat::Lrc};
 
     CHECK(parser.visible() == "/Bonjour <i>Marie</i>");
-    CHECK(replacingAll("/Bonjour", "Bonjour", "Salut", SubtitleFormat::Lrc) == "/Salut");
+    CHECK(replacedAll("/Bonjour", "Bonjour", "Salut", SubtitleFormat::Lrc) == "/Salut");
 }
 
 TEST_CASE("a text nothing touched comes back as the bytes it arrived as", "[text][parser]") {
@@ -56,12 +84,12 @@ TEST_CASE("a text nothing touched comes back as the bytes it arrived as", "[text
     // for something absent would tidy a file behind the user's back.
     constexpr const char* kOdd = "<i >Bonjour</I >  <b>Marie";
 
-    CHECK(replacingAll(kOdd, "Sophie", "Claire", SubtitleFormat::SubRip) == kOdd);
+    CHECK(replacedAll(kOdd, "Sophie", "Claire", SubtitleFormat::SubRip) == kOdd);
     CHECK(MarkupParser{kOdd, SubtitleFormat::SubRip}.text() == kOdd);
 }
 
 TEST_CASE("an empty pattern matches nothing rather than everything", "[text][parser]") {
-    CHECK(replacingAll("Bonjour", "", "X", SubtitleFormat::SubRip) == "Bonjour");
+    CHECK(replacedAll("Bonjour", "", "X", SubtitleFormat::SubRip) == "Bonjour");
 }
 
 TEST_CASE("what only looks like a tag is text, and stays put", "[text][parser]") {
@@ -69,7 +97,7 @@ TEST_CASE("what only looks like a tag is text, and stays put", "[text][parser]")
     // whatever the parser does not understand, it carries.
     const auto kept =
         [](const char* text, const char* pattern, const char* with, SubtitleFormat format) {
-            return replacingAll(text, pattern, with, format);
+            return replacedAll(text, pattern, with, format);
         };
 
     // An empty pair of angle brackets names nothing.
@@ -97,15 +125,15 @@ TEST_CASE("what only looks like a tag is text, and stays put", "[text][parser]")
 TEST_CASE("a closing tag shuts its own style and not the one inside it", "[text][parser]") {
     // `</i>` here has a `<b>` opened after it and still open: it must walk past
     // it rather than shut the wrong one.
-    CHECK(replacingAll("<i><b>Bonjour</i> Marie", "Marie", "Sophie", SubtitleFormat::SubRip) ==
+    CHECK(replacedAll("<i><b>Bonjour</i> Marie", "Marie", "Sophie", SubtitleFormat::SubRip) ==
           "<i><b>Bonjour</i> Sophie");
 }
 
 TEST_CASE("a replacement may carry a tag that opens nothing", "[text][parser]") {
-    CHECK(replacingAll("Bonjour tout le monde",
-                       "Bonjour",
-                       R"({\pos(1,2)}Salut)",
-                       SubtitleFormat::AdvancedSubStationAlpha) ==
+    CHECK(replacedAll("Bonjour tout le monde",
+                      "Bonjour",
+                      R"({\pos(1,2)}Salut)",
+                      SubtitleFormat::AdvancedSubStationAlpha) ==
           R"({\pos(1,2)}Salut tout le monde)");
 }
 
@@ -113,13 +141,13 @@ TEST_CASE("the two vocabularies that never close carry their tags whole", "[text
     // MicroDVD opens a style to the end of the subtitle and MPL2 to the end of
     // its line; neither has a closer, so neither has a span to widen. What they
     // have is a place, and a replacement leaves it alone.
-    CHECK(replacingAll("{Y:i}Bonjour Marie", "Marie", "Sophie", SubtitleFormat::MicroDvd) ==
+    CHECK(replacedAll("{Y:i}Bonjour Marie", "Marie", "Sophie", SubtitleFormat::MicroDvd) ==
           "{Y:i}Bonjour Sophie");
-    CHECK(replacingAll("/Bonjour\n/Marie", "Marie", "Sophie", SubtitleFormat::Mpl2) ==
+    CHECK(replacedAll("/Bonjour\n/Marie", "Marie", "Sophie", SubtitleFormat::Mpl2) ==
           "/Bonjour\n/Sophie");
 
     // A marker is only a marker at the head of a line.
-    CHECK(replacingAll("Bonjour/Marie", "Marie", "Sophie", SubtitleFormat::Mpl2) ==
+    CHECK(replacedAll("Bonjour/Marie", "Marie", "Sophie", SubtitleFormat::Mpl2) ==
           "Bonjour/Sophie");
 }
 
@@ -130,27 +158,27 @@ TEST_CASE("an MPL2 marker after a brace is text", "[text][parser]") {
     const MarkupParser parser{"{y:b}/Bonjour", SubtitleFormat::Mpl2};
 
     CHECK(parser.visible() == "/Bonjour");
-    CHECK(replacingAll("{y:b}/Bonjour", "/", "|", SubtitleFormat::Mpl2) == "{y:b}|Bonjour");
+    CHECK(replacedAll("{y:b}/Bonjour", "/", "|", SubtitleFormat::Mpl2) == "{y:b}|Bonjour");
 }
 
 TEST_CASE("a tag taken inside a replacement comes out before it", "[text][parser]") {
     // It survives a text that has gone, and there is nothing else to say of it.
-    CHECK(replacingAll("Bonjour {Y:i}Marie", "Bonjour Marie", "Salut", SubtitleFormat::MicroDvd) ==
+    CHECK(replacedAll("Bonjour {Y:i}Marie", "Bonjour Marie", "Salut", SubtitleFormat::MicroDvd) ==
           "{Y:i}Salut");
 }
 
 TEST_CASE("an accented letter is never a word boundary", "[text][parser]") {
     // A word is read in code points: an accented letter is a letter, or a tag
     // falling beside it would look like a boundary and stay there.
-    CHECK(replacingAll("<i>ét</i>é", "été", "hiver", SubtitleFormat::SubRip) == "<i>hiver</i>");
+    CHECK(replacedAll("<i>ét</i>é", "été", "hiver", SubtitleFormat::SubRip) == "<i>hiver</i>");
     // And a letter outside the basic plane, four bytes long, is one too.
-    CHECK(replacingAll("<i>a</i>𝒜b", "a𝒜b", "c", SubtitleFormat::SubRip) == "<i>c</i>");
+    CHECK(replacedAll("<i>a</i>𝒜b", "a𝒜b", "c", SubtitleFormat::SubRip) == "<i>c</i>");
 }
 
 TEST_CASE("a replacement leaves an empty pair elsewhere alone", "[text][parser]") {
     // Issue #402: only what the match reaches moves or goes. An empty pair the
     // file holds away from the match is the file's business.
-    CHECK(replacingAll("a<i></i>b Marie", "Marie", "Sophie", SubtitleFormat::SubRip) ==
+    CHECK(replacedAll("a<i></i>b Marie", "Marie", "Sophie", SubtitleFormat::SubRip) ==
           "a<i></i>b Sophie");
 }
 
@@ -233,7 +261,7 @@ TEST_CASE("a combining mark belongs to its word", "[text][parser]") {
     // A decomposed `é` is an `e` and a mark, and a tag between them cuts the
     // word as surely as one between two letters: a match that starts on the
     // mark reaches the italic before it.
-    CHECK(replacingAll("<i>e</i>\u0301t", "\u0301t", "x", SubtitleFormat::SubRip) == "<i>ex</i>");
+    CHECK(replacedAll("<i>e</i>\u0301t", "\u0301t", "x", SubtitleFormat::SubRip) == "<i>ex</i>");
 }
 
 TEST_CASE("an empty pair written after a closer stays after it", "[text][parser]") {
