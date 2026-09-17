@@ -10,6 +10,7 @@
 #include <subedit/core/edit/letter_case_command.hpp>
 #include <subedit/core/edit/merge_split_command.hpp>
 #include <subedit/core/edit/remove_command.hpp>
+#include <subedit/core/edit/rewrite_texts.hpp>
 #include <subedit/core/edit/search.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
@@ -1323,7 +1324,7 @@ void MainWindow::toggleItalicsOnTarget() {
     }
 
     // Read from the command before it goes, never by counting again after.
-    const std::size_t rewritten = core::italicisedCount(*command);
+    const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
 
     m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") +
@@ -1346,7 +1347,7 @@ void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
         return;
     }
 
-    const std::size_t rewritten = core::recasedCount(*command);
+    const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
 
     m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") + " recased");
@@ -1367,7 +1368,7 @@ void MainWindow::toggleDialogueDashesOnTarget() {
         return;
     }
 
-    const std::size_t rewritten = core::recasedCount(*command);
+    const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
 
     m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") +

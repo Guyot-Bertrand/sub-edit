@@ -3,7 +3,6 @@
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/model/document.hpp>
 
-#include <cstddef>
 #include <memory>
 
 namespace subedit::core {
@@ -34,14 +33,5 @@ wouldItalicise(const Project& project, const Selection& selection, Document docu
 /// without understanding it — the same reason as for the removal of mentions.
 [[nodiscard]] std::unique_ptr<Command>
 setItalics(const Project& project, const Selection& selection, Document document, bool italic);
-
-/// How many subtitles `command` rewrites, read from the command rather than by
-/// counting again.
-///
-/// `describe()` already says it: one change of text per subtitle rewritten.
-/// Comparing the texts before and after would give a second answer to one
-/// question, and the one shown would be the one no test compares — the same
-/// reason `tallyOf` exists beside the removal of mentions.
-[[nodiscard]] std::size_t italicisedCount(const Command& command);
 
 } // namespace subedit::core

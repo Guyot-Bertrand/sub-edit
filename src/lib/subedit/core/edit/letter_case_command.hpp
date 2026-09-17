@@ -4,7 +4,6 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/text/letter_case.hpp>
 
-#include <cstddef>
 #include <memory>
 
 namespace subedit::core {
@@ -20,9 +19,5 @@ class Selection;
                                                      const Selection& selection,
                                                      Document document,
                                                      LetterCase wanted);
-
-/// How many subtitles `command` rewrites, read from the command rather than by
-/// counting again.
-[[nodiscard]] std::size_t recasedCount(const Command& command);
 
 } // namespace subedit::core
