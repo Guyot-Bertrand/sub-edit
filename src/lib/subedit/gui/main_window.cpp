@@ -163,6 +163,10 @@ constexpr int kPerCent = 100;
 constexpr int kInitialWidth = 1200;
 constexpr int kInitialHeight = 800;
 
+/// Long enough to be read without a click, short enough not to survive past
+/// the next gesture — Qt's own convention for a transient status.
+constexpr int kOperationStatusTimeoutMs = 5000;
+
 /// Which row of a selection playback follows: the first, in table order.
 ///
 /// -1 when nothing is selected. `selectedRows` hands them back in the order
@@ -1319,14 +1323,16 @@ void MainWindow::toggleItalicsOnTarget() {
         // Every text was already the way it was asked for. Say so, and put
         // nothing in the history: an operation that changes nothing is not an
         // operation to undo.
-        m_prompts->reportOutcome(std::string{core::nothingToChange()});
+        statusBar()->showMessage(QString::fromStdString(std::string{core::nothingToChange()}),
+                                 kOperationStatusTimeoutMs);
         return;
     }
 
     // Read from the command before it goes, never by counting again after.
     const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
-    m_prompts->reportOutcome(core::noticeOfItalics(rewritten, italic));
+    statusBar()->showMessage(QString::fromStdString(core::noticeOfItalics(rewritten, italic)),
+                             kOperationStatusTimeoutMs);
 }
 
 QAction* MainWindow::caseAction(core::LetterCase wanted) const {
@@ -1341,13 +1347,15 @@ void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
     std::unique_ptr<core::Command> command =
         core::setLetterCase(m_session->project(), target, core::Document::Main, wanted);
     if (!command) {
-        m_prompts->reportOutcome(std::string{core::nothingToChange()});
+        statusBar()->showMessage(QString::fromStdString(std::string{core::nothingToChange()}),
+                                 kOperationStatusTimeoutMs);
         return;
     }
 
     const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
-    m_prompts->reportOutcome(core::noticeOfRecase(rewritten));
+    statusBar()->showMessage(QString::fromStdString(core::noticeOfRecase(rewritten)),
+                             kOperationStatusTimeoutMs);
 }
 
 void MainWindow::toggleDialogueDashesOnTarget() {
@@ -1361,13 +1369,16 @@ void MainWindow::toggleDialogueDashesOnTarget() {
     std::unique_ptr<core::Command> command =
         core::setDialogueDashes(m_session->project(), target, core::Document::Main, dashed);
     if (!command) {
-        m_prompts->reportOutcome(std::string{core::nothingToChange()});
+        statusBar()->showMessage(QString::fromStdString(std::string{core::nothingToChange()}),
+                                 kOperationStatusTimeoutMs);
         return;
     }
 
     const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
-    m_prompts->reportOutcome(core::noticeOfDialogueDashes(rewritten, dashed));
+    statusBar()->showMessage(
+        QString::fromStdString(core::noticeOfDialogueDashes(rewritten, dashed)),
+        kOperationStatusTimeoutMs);
 }
 
 void MainWindow::applyOperation(std::unique_ptr<core::Command> command,

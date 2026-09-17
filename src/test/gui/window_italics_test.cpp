@@ -14,6 +14,7 @@
 #include <QAbstractItemModel>
 #include <QAction>
 #include <QItemSelectionModel>
+#include <QStatusBar>
 #include <QTableView>
 #include <catch2/catch_test_macros.hpp>
 
@@ -148,10 +149,10 @@ TEST_CASE("the entry says how many subtitles it moved", "[gui][GUI-ITALIC-01]") 
     window.show();
 
     window.italicAction()->trigger();
-    CHECK(prompts.outcomes.back() == "2 subtitles put in italics");
+    CHECK(window.statusBar()->currentMessage().toStdString() == "2 subtitles put in italics");
 
     window.italicAction()->trigger();
-    CHECK(prompts.outcomes.back() == "2 subtitles taken out of italics");
+    CHECK(window.statusBar()->currentMessage().toStdString() == "2 subtitles taken out of italics");
 }
 
 TEST_CASE("a blank row gains no tags, and its selection changes nothing", "[gui][GUI-ITALIC-01]") {
@@ -173,7 +174,7 @@ TEST_CASE("a blank row gains no tags, and its selection changes nothing", "[gui]
     // Nothing but blank rows: no operation, and nothing added to the history.
     const bool undoable = window.undoAction()->isEnabled();
     window.italicAction()->trigger();
-    CHECK(prompts.outcomes.back() == "nothing to change");
+    CHECK(window.statusBar()->currentMessage().toStdString() == "nothing to change");
     CHECK(window.undoAction()->isEnabled() == undoable);
     CHECK(window.undoAction()->text().toStdString() == "Undo: putting in italics");
 }

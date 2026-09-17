@@ -20,9 +20,11 @@ s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 | `Shift Whole File onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
 | `Frame Rate Analysis…` | oui, sans réglage | **ne modifie rien** — voir [La grille d'images](grille.md) |
 
-**Ce qu'une opération a fait se dit dans une boîte d'information**, qu'il faut
-fermer — y compris après un `Ctrl+I`. Les messages sont cités dans la section de
-chaque opération.
+**Ce qu'une opération a fait se dit dans une boîte d'information qu'il faut
+fermer, sauf pour `Italic`, `Case` et `Dialogue`** : ces trois-là n'ouvrent pas
+de dialogue, et leur compte rendu — « nothing to change » compris — s'affiche
+dans la barre d'état, sans rien à fermer. Les messages sont cités dans la
+section de chaque opération.
 
 Insérer, supprimer, fusionner et scinder des lignes ne sont pas ici mais dans le
 menu `Edit`, parce qu'elles changent le nombre de lignes. Voir
