@@ -254,15 +254,8 @@ struct Rewritten {
         if (only.has_value() && found->span != *only)
             break;
 
-        // A match that replaces itself by the same text is not a change: not
-        // counted, and not what pushes a command past `rewrite`'s caller.
-        const std::string_view matched =
-            parser.visible().substr(found->span.start, found->span.end - found->span.start);
-        const bool changes = found->replacement != matched;
-
         parser.replace(found->span.start, found->span.end - found->span.start, found->replacement);
-        if (changes)
-            ++rewritten.count;
+        ++rewritten.count;
 
         const std::size_t length = MarkupParser{found->replacement, format}.visible().size();
         rewritten.written = {.start = found->span.start, .end = found->span.start + length};
@@ -276,10 +269,20 @@ struct Rewritten {
                  : nextCharacter(parser.visible(), rewritten.written.end);
     }
 
-    // A subtitle nothing matched keeps its bytes: the reassembly is not the
-    // identity, and a search that finds nothing must not tidy a file.
-    if (rewritten.count > 0)
-        rewritten.text = parser.text();
+    // A subtitle nothing really changed keeps its bytes and its zero count:
+    // `MarkupParser::replace` can leave the stored text exactly as it was —
+    // replacing a match by itself, with no tag to widen across it — and a
+    // match found is not the same thing as a change made. Compared once,
+    // reassembled, after the loop: a per-match visible-text comparison would
+    // miss a tag `replace` widens across a word even when what is replaced
+    // reads the same — this fix once regressed exactly that.
+    if (rewritten.count > 0) {
+        std::string reassembled = parser.text();
+        if (reassembled == text)
+            rewritten.count = 0;
+        else
+            rewritten.text = std::move(reassembled);
+    }
     return rewritten;
 }
 

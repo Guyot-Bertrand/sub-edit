@@ -274,6 +274,24 @@ TEST_CASE("replacing what nothing matches builds nothing", "[edit][search]") {
     CHECK(replaced.count == 0);
 }
 
+TEST_CASE("a replacement that only widens a tag across a word still counts as a change",
+          "[edit][search]") {
+    // Issue #402: a boundary that cuts a word is pushed to its edge as soon as
+    // a replacement reaches it, whatever the replacement's own text is. The
+    // visible text here does not change — "arie" replaces "arie" — but the
+    // italic that used to stop mid-word now covers the whole of it, which is a
+    // real change to the file.
+    Project project = projectOf({"<i>Ma</i>rie"});
+
+    const ReplacedAll replaced =
+        replaceAll(project, Selection::all(project), patternOf("arie", kPlain), "arie");
+    REQUIRE(replaced.command != nullptr);
+    replaced.command->apply(project);
+
+    CHECK(replaced.count == 1);
+    CHECK(textsOf(project) == std::vector<std::string>{"<i>Marie</i>"});
+}
+
 TEST_CASE("replacing a match by itself changes nothing and counts nothing", "[edit][search]") {
     const Project project = projectOf({"Bonjour Marie."});
 
