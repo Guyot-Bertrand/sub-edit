@@ -274,6 +274,16 @@ TEST_CASE("replacing what nothing matches builds nothing", "[edit][search]") {
     CHECK(replaced.count == 0);
 }
 
+TEST_CASE("replacing a match by itself changes nothing and counts nothing", "[edit][search]") {
+    const Project project = projectOf({"Bonjour Marie."});
+
+    const ReplacedAll replaced =
+        replaceAll(project, Selection::all(project), patternOf("Marie", kPlain), "Marie");
+
+    CHECK(replaced.count == 0);
+    CHECK(replaced.command == nullptr);
+}
+
 TEST_CASE("an expression's groups and escapes are expanded", "[edit][search]") {
     Project project = projectOf({"Marie Curie"});
 

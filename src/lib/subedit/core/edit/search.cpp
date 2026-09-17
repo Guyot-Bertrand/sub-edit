@@ -254,8 +254,15 @@ struct Rewritten {
         if (only.has_value() && found->span != *only)
             break;
 
+        // A match that replaces itself by the same text is not a change: not
+        // counted, and not what pushes a command past `rewrite`'s caller.
+        const std::string_view matched =
+            parser.visible().substr(found->span.start, found->span.end - found->span.start);
+        const bool changes = found->replacement != matched;
+
         parser.replace(found->span.start, found->span.end - found->span.start, found->replacement);
-        ++rewritten.count;
+        if (changes)
+            ++rewritten.count;
 
         const std::size_t length = MarkupParser{found->replacement, format}.visible().size();
         rewritten.written = {.start = found->span.start, .end = found->span.start + length};
