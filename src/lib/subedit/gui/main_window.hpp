@@ -658,7 +658,9 @@ private:
     core::SearchOptions m_searchOptions;
 
     /// The match last found, which `Find Next` starts after and `Replace`
-    /// rewrites. Forgotten when the pattern, an option or the document changes.
+    /// rewrites. Forgotten when the pattern, an option or the document
+    /// changes — including a structural undo or redo, which resets the model
+    /// rather than reporting the change.
     std::optional<core::TextMatch> m_match;
 
     /// The target of the search under way, captured at its first gesture.

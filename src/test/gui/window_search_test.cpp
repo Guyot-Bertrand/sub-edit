@@ -348,3 +348,32 @@ TEST_CASE("preferences read while the dialog is open reach it", "[gui][GUI-SEARC
     CHECK(dialog.regexCheck()->isChecked());
     CHECK_FALSE(dialog.ignoreCaseCheck()->isChecked());
 }
+
+TEST_CASE("an undo that resets the model forgets a stale search target",
+          "[gui][GUI-SEARCH-03]") {
+    // Four subtitles; select the fourth, split it into a fifth. The search
+    // then captures a target of {3, 4} before the split is undone.
+    InMemoryFileSystem files = withFour();
+    FakePrompts prompts;
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
+
+    selectRow(window, 3);
+    window.splitAction()->trigger();
+    CHECK(selectedRows(window) == std::vector<int>{3, 4});
+
+    const SearchDialog& dialog = searching(window, "marie");
+    dialog.nextButton()->click();
+    CHECK(selectedRows(window) == std::vector<int>{3});
+
+    // The split is undone: back to four subtitles, and the model was reset
+    // rather than told which rows changed — Qt clears the selection without a
+    // `selectionChanged`.
+    window.undoAction()->trigger();
+
+    // Before the fix, this throws `std::out_of_range` out of `spansAt`.
+    // With the fix, the search target and match are reset, so the search
+    // starts from the beginning of the document.
+    dialog.nextButton()->click();
+    CHECK(selectedRows(window) == std::vector<int>{0});
+}

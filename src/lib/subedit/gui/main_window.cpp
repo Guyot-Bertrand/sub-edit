@@ -54,6 +54,7 @@
 #include <subedit/gui/theme.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
+#include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QAction>
 #include <QClipboard>
@@ -590,6 +591,14 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
     // including an edit that changed nothing. Reconnected at every opening, the
     // previous model leaving with the previous file.
     connect(model.get(), &SubtitleTableModel::historyChanged, this, &MainWindow::refreshActions);
+    // A structural undo or redo resets the model rather than reporting which
+    // rows changed — Qt then clears the selection without a
+    // `selectionChanged`, which is otherwise what forgets a stale target. This
+    // catches that one case directly on Qt's own reset signal.
+    connect(model.get(), &QAbstractItemModel::modelReset, this, [this] {
+        m_searchTarget.reset();
+        m_match.reset();
+    });
 
     // In this order: the view lets go of the old model before it goes, and the
     // model before the session it reads.
