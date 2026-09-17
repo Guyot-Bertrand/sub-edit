@@ -18,3 +18,8 @@ build/
 # script non exécutable — c'est arrivé.
 __pycache__/
 *.pyc
+
+# Le journal et les artefacts de l'exécution d'un plan par sous-agents
+# (superpowers:subagent-driven-development) : propres à une session, jamais au
+# dépôt.
+.superpowers/
