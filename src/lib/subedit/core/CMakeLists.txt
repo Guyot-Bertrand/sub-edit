@@ -16,6 +16,7 @@ add_library(
     edit/dialogue_dashes_command.cpp
     edit/italics_command.cpp
     edit/letter_case_command.cpp
+    edit/rewrite_texts.cpp
     edit/merge_split_command.cpp
     edit/clipboard.cpp
     edit/duration_adjustment.cpp
