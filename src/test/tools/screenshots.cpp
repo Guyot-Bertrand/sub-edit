@@ -426,6 +426,11 @@ int main(int argc, char** argv) {
         subedit::gui::DurationAdjustDialog dialog{3, subedit::core::DurationAdjustmentSettings{}};
         written = capture(dialog, dialog, directory, "ajustement") && written;
     }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::DurationAdjustDialog dialog{3, subedit::core::DurationAdjustmentSettings{}};
+        written = capture(dialog, dialog, directory, "ajustement-sombre") && written;
+    }
 
     // The search dialog with a pattern typed, which is the state where its four
     // gestures are lit — an empty one would show them all out.
@@ -435,6 +440,13 @@ int main(int argc, char** argv) {
         dialog.patternField()->setText(QStringLiteral("Marie"));
         dialog.replacementField()->setText(QStringLiteral("Sophie"));
         written = capture(dialog, dialog, directory, "recherche") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::SearchDialog dialog;
+        dialog.patternField()->setText(QStringLiteral("Marie"));
+        dialog.replacementField()->setText(QStringLiteral("Sophie"));
+        written = capture(dialog, dialog, directory, "recherche-sombre") && written;
     }
 
     // The shape `Save As…` offers, **inside the dialog that carries it** and
