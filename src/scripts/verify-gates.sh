@@ -75,8 +75,8 @@
 # que `check-screenshots.py` doit attraper. Le second défaut est le plus
 # coûteux des deux, et le seul que le comparateur ne peut pas voir : une image
 # périmée s'affiche aussi proprement qu'une image juste. Trois autres, nées de
-# #400, éprouvent la paire claire et sombre de chaque écran : sa manque, elle
-# est exemptée, elle est complète.
+# #400, éprouvent la paire claire et sombre de chaque écran : elle manque au
+# programme, elle manque au manuel, elle est exemptée, elle est complète.
 #
 # Les deux suivantes visent `make config-home`, le pendant de la précédente de
 # l'autre côté de la frontière du dépôt : une configuration écrite pendant les
@@ -1176,7 +1176,7 @@ expect_screenshot_gates
 
 # Chaque capture claire a sa sombre — #400.
 #
-# **Trois preuves, sur un jeu écrit à la main.** Le manuel promettait deux fois
+# **Quatre preuves, sur un jeu écrit à la main.** Le manuel promettait deux fois
 # que chaque écran se montre sous les deux palettes, et deux écrans de la phase
 # 10 sont entrés avec la seule claire : le contrôle vérifiait qu une image
 # montrée est engendrée, pas qu elle a sa paire. Le défaut se prouve sur un
@@ -1185,8 +1185,11 @@ expect_screenshot_gates
 # pas aux captures du manuel, et elle ne dépend pas de ce qu elles montrent un
 # jour.
 #
-# **Trois, parce que la garde a trois issues.** Elle refuse une paire manquante
-# et nomme l image, sans quoi le message ne dirait pas où chercher ; elle laisse
+# **Quatre, parce que la garde a deux façons de refuser et deux de laisser
+# passer.** Elle refuse une paire que le programme n engendre pas, et nomme
+# l image, sans quoi le message ne dirait pas où chercher ; elle refuse une
+# paire que le programme engendre mais que le manuel ne montre pas, parce que la
+# promesse est faite au lecteur et non au programme de capture ; elle laisse
 # passer une exemption motivée, sans quoi un écran qui n a vraiment qu une
 # palette serait condamné à la fausse paire ; et elle laisse passer le jeu
 # complet, sans quoi elle crierait au loup à chaque exécution.
@@ -1256,6 +1259,25 @@ PY
         printf '  %s✗ le garde-fou a refusé un jeu où chaque capture a sa paire%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
+    fi
+
+    # Le jeu complet, dont la page ne montre plus la sombre de `seul` : le
+    # programme l engendre et le fichier existe, mais le lecteur ne la voit pas.
+    printf '%s▸ une sombre engendrée que le manuel ne montre pas%s\n' "${BOLD}" "${RESET}"
+    printf '%s\n' \
+        '![Clair.](captures/ecran.png)' \
+        '![Sombre.](captures/ecran-sombre.png)' \
+        '![Seul.](captures/seul.png)' > "${page}"
+    if output="$("${script}" --root "${root}" 2>&1)"; then
+        printf '  %s✗ le garde-fou a laissé passer la sombre absente du manuel%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" != *"PAIRE"*"seul.png"* || "${output}" == *"ecran.png"* ]]; then
+        printf '  %s✗ le garde-fou a refusé sans nommer la bonne image%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « check-screenshots.py » a refusé et nommé seul.png, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
     fi
 
     rm -rf "${root}"
@@ -1908,7 +1930,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles soixante-deux portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles soixante-trois portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
