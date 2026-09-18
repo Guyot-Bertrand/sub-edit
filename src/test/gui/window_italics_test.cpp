@@ -230,4 +230,7 @@ TEST_CASE("Ctrl+I while a cell is being edited commits the edit first", "[gui][G
 
     CHECK_FALSE(window.table()->isEditing());
     CHECK(textAt(window, 0).find("tout") != std::string::npos);
+    // Both, not either: the italic went on the text the editor had just
+    // committed, and not on the stale text that the commit would then overwrite.
+    CHECK(textAt(window, 0).find("<i>") != std::string::npos);
 }

@@ -16,7 +16,6 @@ add_library(
     edit/dialogue_dashes_command.cpp
     edit/italics_command.cpp
     edit/letter_case_command.cpp
-    edit/rewrite_texts.cpp
     edit/merge_split_command.cpp
     edit/clipboard.cpp
     edit/duration_adjustment.cpp
@@ -24,6 +23,7 @@ add_library(
     edit/shift_limits.cpp
     edit/video_bounds.cpp
     edit/remove_command.cpp
+    edit/rewrite_texts.cpp
     edit/session.cpp
     edit/snap_command.cpp
     edit/shift_command.cpp
