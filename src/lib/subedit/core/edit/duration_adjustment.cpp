@@ -24,6 +24,16 @@
 
 namespace subedit::core {
 
+std::optional<ReadingSpeed>
+ReadingSpeed::create(double charactersPerSecond, bool lengthen, bool shorten) {
+    // Written as a negation so that NaN, which compares false to everything,
+    // is refused with the rest.
+    if (!(charactersPerSecond > 0.0))
+        return std::nullopt;
+
+    return ReadingSpeed{charactersPerSecond, lengthen, shorten};
+}
+
 namespace {
 
 /// How many characters `text` shows, tags left out.
@@ -47,14 +57,14 @@ namespace {
 [[nodiscard]] Duration readingTimeOf(std::size_t length, const ReadingSpeed& speed) {
     constexpr double kMillisecondsPerSecond = 1000.0;
     const double milliseconds =
-        static_cast<double>(length) * kMillisecondsPerSecond / speed.charactersPerSecond;
+        static_cast<double>(length) * kMillisecondsPerSecond / speed.charactersPerSecond();
     return Duration::fromMilliseconds(static_cast<std::int64_t>(std::llround(milliseconds)));
 }
 
 /// Tells whether a duration of `shown` breaks the reading speed, given which
 /// way the speed was allowed to move the end.
 [[nodiscard]] bool breaksSpeed(Duration shown, Duration needed, const ReadingSpeed& speed) {
-    return (speed.lengthen && shown < needed) || (speed.shorten && shown > needed);
+    return (speed.lengthen() && shown < needed) || (speed.shorten() && shown > needed);
 }
 
 /// What one subtitle is measured against, read once from the project.

@@ -95,10 +95,11 @@ DurationAdjustDialog::DurationAdjustDialog(std::size_t targetCount,
     m_speed->setDecimals(kSpeedDecimals);
     m_speed->setSuffix(QStringLiteral(" char/s"));
 
-    const core::ReadingSpeed speed = initial.speed.value_or(core::ReadingSpeed{});
-    m_speed->setValue(speed.charactersPerSecond);
-    m_lengthen->setChecked(initial.speed.has_value() && speed.lengthen);
-    m_shorten->setChecked(initial.speed.has_value() && speed.shorten);
+    const core::ReadingSpeed speed = initial.speed.value_or(
+        *core::ReadingSpeed::create(core::kDefaultReadingSpeed, true, false));
+    m_speed->setValue(speed.charactersPerSecond());
+    m_lengthen->setChecked(initial.speed.has_value() && speed.lengthen());
+    m_shorten->setChecked(initial.speed.has_value() && speed.shorten());
 
     // A constraint switched off still shows a value: the one it had, or the
     // default, so that switching it on is one click and not two gestures.
@@ -129,9 +130,9 @@ DurationAdjustDialog::DurationAdjustDialog(std::size_t targetCount,
 core::DurationConstraints DurationAdjustDialog::constraints() const {
     std::optional<core::ReadingSpeed> speed;
     if (m_lengthen->isChecked() || m_shorten->isChecked()) {
-        speed = core::ReadingSpeed{.charactersPerSecond = m_speed->value(),
-                                   .lengthen = m_lengthen->isChecked(),
-                                   .shorten = m_shorten->isChecked()};
+        // The box is bounded to [1, 99]: `create` cannot refuse what it holds.
+        speed = core::ReadingSpeed::create(
+            m_speed->value(), m_lengthen->isChecked(), m_shorten->isChecked());
     }
 
     return core::DurationConstraints{.speed = speed,

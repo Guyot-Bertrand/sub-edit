@@ -140,11 +140,10 @@ TEST_CASE("with every constraint off, there is nothing to ask for", "[gui][GUI-A
 }
 
 TEST_CASE("the dialog reads what it was given back", "[gui][GUI-ADJUST-01]") {
-    const DurationConstraints asked{
-        .speed = ReadingSpeed{.charactersPerSecond = 12.5, .lengthen = false, .shorten = true},
-        .minimum = std::nullopt,
-        .maximum = Duration::fromMilliseconds(4250),
-        .gap = Duration::fromMilliseconds(80)};
+    const DurationConstraints asked{.speed = ReadingSpeed::create(12.5, false, true),
+                                    .minimum = std::nullopt,
+                                    .maximum = Duration::fromMilliseconds(4250),
+                                    .gap = Duration::fromMilliseconds(80)};
 
     const DurationAdjustDialog dialog{3, asked};
 

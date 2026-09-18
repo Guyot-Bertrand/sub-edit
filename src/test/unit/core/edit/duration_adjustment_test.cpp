@@ -92,8 +92,7 @@ TEST_CASE("the defaults are Gaupol's", "[edit][durations]") {
 
     // Compared whole rather than field by field: the analysis does not follow a
     // `REQUIRE` into the accesses after it.
-    CHECK(defaults.speed ==
-          ReadingSpeed{.charactersPerSecond = 15.0, .lengthen = true, .shorten = false});
+    CHECK(defaults.speed == ReadingSpeed::create(15.0, true, false));
     CHECK(defaults.minimum == ms(1500));
     CHECK_FALSE(defaults.maximum.has_value());
     CHECK(defaults.gap == Duration::zero());
@@ -101,13 +100,18 @@ TEST_CASE("the defaults are Gaupol's", "[edit][durations]") {
     CHECK_FALSE(none().isAny());
 }
 
+TEST_CASE("a reading speed of zero or less is refused", "[edit][durations]") {
+    CHECK_FALSE(ReadingSpeed::create(0.0, true, false).has_value());
+    CHECK_FALSE(ReadingSpeed::create(-1.0, true, false).has_value());
+    CHECK(ReadingSpeed::create(15.0, true, false).has_value());
+}
+
 TEST_CASE("a text too long for its duration is lengthened to its reading speed",
           "[edit][durations]") {
     // Eight characters at ten a second: eight hundred milliseconds.
     Project project = projectOf({from(0, 500, "Bonjour.")});
     DurationConstraints constraints = none();
-    constraints.speed =
-        ReadingSpeed{.charactersPerSecond = 10.0, .lengthen = true, .shorten = false};
+    constraints.speed = ReadingSpeed::create(10.0, true, false);
 
     const DurationAdjustment adjustment = adjusting(project, constraints);
 
@@ -120,13 +124,12 @@ TEST_CASE("a duration longer than the text needs is shortened only when asked",
           "[edit][durations]") {
     Project project = projectOf({from(0, 5000, "Bonjour.")});
     DurationConstraints constraints = none();
-    constraints.speed =
-        ReadingSpeed{.charactersPerSecond = 10.0, .lengthen = true, .shorten = false};
+    constraints.speed = ReadingSpeed::create(10.0, true, false);
 
     CHECK(adjusting(project, constraints).command == nullptr);
     CHECK(endOf(project, 0) == Timestamp::fromMilliseconds(5000));
 
-    constraints.speed->shorten = true;
+    constraints.speed = ReadingSpeed::create(10.0, true, true);
     static_cast<void>(adjusting(project, constraints));
     CHECK(endOf(project, 0) == Timestamp::fromMilliseconds(800));
 }
@@ -136,8 +139,7 @@ TEST_CASE("the length of a text counts characters, without its tags", "[edit][du
     // milliseconds at ten a second.
     Project project = projectOf({from(0, 100, "<i>été</i>")});
     DurationConstraints constraints = none();
-    constraints.speed =
-        ReadingSpeed{.charactersPerSecond = 10.0, .lengthen = true, .shorten = false};
+    constraints.speed = ReadingSpeed::create(10.0, true, false);
 
     static_cast<void>(adjusting(project, constraints));
 
@@ -173,8 +175,7 @@ TEST_CASE("a minimum of zero is a minimum of zero", "[edit][durations]") {
 TEST_CASE("the maximum is applied after the reading speed, and wins over it", "[edit][durations]") {
     Project project = projectOf({from(0, 500, "Une phrase bien trop longue pour six secondes.")});
     DurationConstraints constraints = none();
-    constraints.speed =
-        ReadingSpeed{.charactersPerSecond = 1.0, .lengthen = true, .shorten = false};
+    constraints.speed = ReadingSpeed::create(1.0, true, false);
     constraints.maximum = ms(6000);
 
     const DurationAdjustment adjustment = adjusting(project, constraints);
