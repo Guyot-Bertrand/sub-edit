@@ -13,9 +13,12 @@
 
 #include <QAbstractItemModel>
 #include <QAction>
+#include <QApplication>
 #include <QItemSelectionModel>
+#include <QPlainTextEdit>
 #include <QStatusBar>
 #include <QTableView>
+#include <QTest>
 #include <catch2/catch_test_macros.hpp>
 
 #include <string>
@@ -189,4 +192,42 @@ TEST_CASE("a format that carries no style leaves the entry out", "[gui][GUI-ITAL
     // nothing to type, and an entry that disappeared would teach nothing.
     CHECK_FALSE(window.italicAction()->isEnabled());
     CHECK(window.menuTitles().contains(QStringLiteral("&Tools")));
+}
+
+// Issue #397: a gesture without a dialog reads the target and builds a command
+// straight from what the model already holds — nothing takes the focus away
+// from a cell being edited first, unlike a dialog, which does that simply by
+// opening. `Ctrl+I` is the gesture; the row being typed into is what it must
+// not race.
+TEST_CASE("Ctrl+I while a cell is being edited commits the edit first", "[gui][GUI-EDIT-01]") {
+    InMemoryFileSystem files = withFile("film.srt", kSubRip);
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    window.show();
+
+    // A real focus-out — what the fix relies on — only fires once the window
+    // is genuinely active, which `show()` alone does not make it under the
+    // offscreen platform.
+    window.activateWindow();
+    QApplication::setActiveWindow(&window);
+    REQUIRE(QTest::qWaitForWindowActive(&window));
+
+    const QModelIndex edited = window.table()->model()->index(0, 4);
+    window.table()->setCurrentIndex(edited);
+    window.table()->edit(edited);
+    REQUIRE(window.table()->isEditing());
+
+    // The delegate's editor is a `QPlainTextEdit` (an internal subclass of it,
+    // `SubtitleEditor` — see `cell_delegates.cpp`), found the same way
+    // `main_window_test.cpp` already does for the ordinary typing case, since
+    // that internal type is not reachable from a test.
+    auto* editor = window.table()->findChild<QPlainTextEdit*>();
+    REQUIRE(editor != nullptr);
+    REQUIRE(editor->hasFocus());
+    QTest::keyClicks(editor, " tout");
+
+    window.italicAction()->trigger();
+
+    CHECK_FALSE(window.table()->isEditing());
+    CHECK(textAt(window, 0).find("tout") != std::string::npos);
 }

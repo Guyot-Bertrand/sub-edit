@@ -1310,7 +1310,20 @@ void MainWindow::removeHearingImpairedFromTarget() {
                              std::to_string(tally.removed) + " removed");
 }
 
+void MainWindow::commitCellEditor() {
+    // Ahead of every gesture without a dialog, so that the target it reads and
+    // the command it builds see the edit already applied rather than racing
+    // it — issue #397. Giving the table itself the focus is what a click
+    // elsewhere already does, and the delegate's own focus-out handling —
+    // Qt's, unmodified — takes it from there: it validates rather than
+    // discards, the same answer a dialog already gave.
+    if (m_table->isEditing())
+        m_table->setFocus();
+}
+
 void MainWindow::toggleItalicsOnTarget() {
+    commitCellEditor();
+
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
     // Asked before anything is built, and of the target rather than of the
@@ -1342,6 +1355,8 @@ QAction* MainWindow::caseAction(core::LetterCase wanted) const {
 }
 
 void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
+    commitCellEditor();
+
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
     std::unique_ptr<core::Command> command =
@@ -1359,6 +1374,8 @@ void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
 }
 
 void MainWindow::toggleDialogueDashesOnTarget() {
+    commitCellEditor();
+
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
     // Asked of the target before anything is built: the entry says what it will
@@ -1491,6 +1508,8 @@ void MainWindow::copyTexts() {
 }
 
 void MainWindow::cutTexts() {
+    commitCellEditor();
+
     const core::Selection target = selectionOf(*m_table->selectionModel());
     if (target.isEmpty())
         return;
@@ -1507,6 +1526,8 @@ void MainWindow::cutTexts() {
 }
 
 void MainWindow::pasteTexts() {
+    commitCellEditor();
+
     const core::Selection target = selectionOf(*m_table->selectionModel());
     if (target.isEmpty())
         return;
@@ -1654,6 +1675,8 @@ void MainWindow::replaceAllInTarget() {
 }
 
 void MainWindow::mergeSubtitles() {
+    commitCellEditor();
+
     // The guard of the action, said again: nothing keeps a trigger from finding
     // it a fraction of a second too late. A run of one gets no command from the
     // core, which is the second half of the same guard.
@@ -1673,6 +1696,8 @@ void MainWindow::mergeSubtitles() {
 }
 
 void MainWindow::splitSubtitle() {
+    commitCellEditor();
+
     const core::Selection target = selectionOf(*m_table->selectionModel());
     if (target.count() != 1)
         return;

@@ -555,6 +555,17 @@ private:
     /// is read from the target before anything is built.
     void toggleDialogueDashesOnTarget();
 
+    /// Commits and closes the cell editor open on the table, if any — the same
+    /// validation a modal dialog already gets by taking the focus away.
+    ///
+    /// **Ahead of every gesture without a dialog** — issue #397 — so that the
+    /// target it reads and the command it builds see the edit already applied
+    /// rather than racing it. Giving the table itself the focus is what a
+    /// click elsewhere already does, and the delegate's own focus-out
+    /// handling — Qt's, unmodified — takes it from there: it validates rather
+    /// than discards, the same answer a dialog already gave.
+    void commitCellEditor();
+
     /// **Initialised here, and not only in the constructor's list.**
     ///
     /// Three actions added together at issue #132 were left out of that list,
