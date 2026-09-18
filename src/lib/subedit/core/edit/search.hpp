@@ -138,9 +138,15 @@ struct ReplacedAll {
     std::unique_ptr<Command> command{};
 
     /// How many matches were replaced in the subtitles whose text changed;
-    /// zero when no text did. In a subtitle that mixes a replacement with no
-    /// effect and one that changes the text, both count: the figure alone is
-    /// affected, and no command is lost.
+    /// zero when no text did.
+    ///
+    /// **A subtitle is counted whole or not at all.** When its text changes,
+    /// `count` takes in every match of that subtitle, including those whose
+    /// replacement, taken alone, changes nothing — a match replaced by itself,
+    /// say, next to another that is really rewritten. The figure can therefore
+    /// be higher than the number of replacements that took effect. Only the
+    /// figure is affected: the command is built from the texts, not from this
+    /// count, so no replacement is lost.
     std::size_t count = 0;
 
     /// How many matches were found and replaced, whether or not a replacement
