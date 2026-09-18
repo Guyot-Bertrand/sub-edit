@@ -10,6 +10,10 @@
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 
+// Apart, and after the rest: as the first of the core headers, this one makes
+// moc stop on a parse error inside `<concepts>`.
+#include <subedit/core/config/duration_adjustment_settings.hpp>
+
 #include <QMainWindow>
 #include <QStringList>
 
@@ -658,9 +662,9 @@ private:
     /// the copy and that of the document differ.
     core::ClipboardTexts m_clipboard;
 
-    /// What the last adjustment of durations asked for, offered again by the
-    /// next one. Gaupol's defaults until then.
-    core::DurationConstraints m_durationConstraints;
+    /// The form of the last adjustment of durations, offered again by the next
+    /// one. Gaupol's defaults until then.
+    core::DurationAdjustmentSettings m_durationSettings;
 
     /// The search dialog, made at its first opening and kept.
     SearchDialog* m_search = nullptr;

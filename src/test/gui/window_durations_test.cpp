@@ -5,6 +5,7 @@
 // nothing to do is not a request — and what the window adds: the target, the
 // single entry in the history, and the account of what was given up.
 
+#include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/edit/duration_adjustment.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
@@ -28,7 +29,9 @@
 
 namespace {
 
+using subedit::core::constraintsOf;
 using subedit::core::Duration;
+using subedit::core::DurationAdjustmentSettings;
 using subedit::core::DurationConstraints;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::OpenedFile;
@@ -82,7 +85,7 @@ constexpr int kEndColumn = 2;
 } // namespace
 
 TEST_CASE("the dialog opens on Gaupol's defaults", "[gui][GUI-ADJUST-01]") {
-    const DurationAdjustDialog dialog{3, DurationConstraints{}};
+    const DurationAdjustDialog dialog{3, DurationAdjustmentSettings{}};
 
     CHECK(dialog.speedBox()->value() == 15.0);
     CHECK(dialog.lengthenCheck()->isChecked());
@@ -95,7 +98,8 @@ TEST_CASE("the dialog opens on Gaupol's defaults", "[gui][GUI-ADJUST-01]") {
     CHECK(dialog.gapCheck()->isChecked());
     CHECK(dialog.gapBox()->value() == 0.0);
 
-    CHECK(dialog.constraints() == DurationConstraints{});
+    CHECK(dialog.settings() == DurationAdjustmentSettings{});
+    CHECK(constraintsOf(dialog.settings()) == DurationConstraints{});
     CHECK(dialog.isComplete());
 }
 
@@ -105,7 +109,7 @@ TEST_CASE("the dialog writes a decimal point whatever the machine's locale",
     // read `15,0 char/s` beneath English labels.
     const QLocale before;
     QLocale::setDefault(QLocale{QLocale::French, QLocale::France});
-    const DurationAdjustDialog dialog{3, DurationConstraints{}};
+    const DurationAdjustDialog dialog{3, DurationAdjustmentSettings{}};
     QLocale::setDefault(before);
 
     CHECK(dialog.speedBox()->text().toStdString() == "15.0 char/s");
@@ -113,21 +117,21 @@ TEST_CASE("the dialog writes a decimal point whatever the machine's locale",
 }
 
 TEST_CASE("a constraint switched off is absent, and its field goes grey", "[gui][GUI-ADJUST-01]") {
-    const DurationAdjustDialog dialog{3, DurationConstraints{}};
+    const DurationAdjustDialog dialog{3, DurationAdjustmentSettings{}};
 
     dialog.minimumCheck()->setChecked(false);
     dialog.lengthenCheck()->setChecked(false);
 
     CHECK_FALSE(dialog.minimumBox()->isEnabled());
     CHECK_FALSE(dialog.speedBox()->isEnabled());
-    CHECK_FALSE(dialog.constraints().minimum.has_value());
-    CHECK_FALSE(dialog.constraints().speed.has_value());
+    CHECK_FALSE(constraintsOf(dialog.settings()).minimum.has_value());
+    CHECK_FALSE(constraintsOf(dialog.settings()).speed.has_value());
     // The gap is still on, at zero — and zero means zero.
-    CHECK(dialog.constraints().gap == Duration::zero());
+    CHECK(constraintsOf(dialog.settings()).gap == Duration::zero());
 }
 
 TEST_CASE("with every constraint off, there is nothing to ask for", "[gui][GUI-ADJUST-01]") {
-    const DurationAdjustDialog dialog{3, DurationConstraints{}};
+    const DurationAdjustDialog dialog{3, DurationAdjustmentSettings{}};
 
     for (QCheckBox* check : {dialog.lengthenCheck(),
                              dialog.shortenCheck(),
@@ -140,14 +144,27 @@ TEST_CASE("with every constraint off, there is nothing to ask for", "[gui][GUI-A
 }
 
 TEST_CASE("the dialog reads what it was given back", "[gui][GUI-ADJUST-01]") {
-    const DurationConstraints asked{.speed = ReadingSpeed::create(12.5, false, true),
-                                    .minimum = std::nullopt,
-                                    .maximum = Duration::fromMilliseconds(4250),
-                                    .gap = Duration::fromMilliseconds(80)};
+    const DurationAdjustmentSettings asked{.charactersPerSecond = 12.5,
+                                           .lengthen = false,
+                                           .shorten = true,
+                                           .minimumEnabled = false,
+                                           .minimumMilliseconds = 2000,
+                                           .maximumEnabled = true,
+                                           .maximumMilliseconds = 4250,
+                                           .gapEnabled = true,
+                                           .gapMilliseconds = 80};
 
     const DurationAdjustDialog dialog{3, asked};
 
-    CHECK(dialog.constraints() == asked);
+    // The form comes back whole, the value of the case that is off included...
+    CHECK(dialog.settings() == asked);
+
+    // ...and the request leaves that case out.
+    const DurationConstraints request = constraintsOf(dialog.settings());
+    CHECK(request.speed == ReadingSpeed::create(12.5, false, true));
+    CHECK_FALSE(request.minimum.has_value());
+    CHECK(request.maximum == Duration::fromMilliseconds(4250));
+    CHECK(request.gap == Duration::fromMilliseconds(80));
 }
 
 TEST_CASE("adjusting moves the ends of the target, and undoes in one step",
@@ -225,7 +242,7 @@ TEST_CASE("the next dialog offers what the last one asked", "[gui][GUI-ADJUST-01
     DurationConstraints offered;
     prompts.nextRun = false;
     prompts.fill = [&offered](QDialog& dialog) {
-        offered = dynamic_cast<DurationAdjustDialog&>(dialog).constraints();
+        offered = constraintsOf(dynamic_cast<DurationAdjustDialog&>(dialog).settings());
     };
     window.adjustDurationsAction()->trigger();
 
@@ -253,4 +270,59 @@ TEST_CASE("an empty document has nothing to adjust", "[gui][GUI-ADJUST-01]") {
     const MainWindow window{files, OpenedFile{}, prompts};
 
     CHECK_FALSE(window.adjustDurationsAction()->isEnabled());
+}
+
+TEST_CASE("an unchecked minimum keeps its value across two openings of the dialog",
+          "[gui][GUI-ADJUST-01]") {
+    InMemoryFileSystem files = withThree();
+    FakePrompts prompts;
+    MainWindow window{files, threeIn(files), prompts};
+    window.show();
+
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        auto& adjust = dynamic_cast<DurationAdjustDialog&>(dialog);
+        adjust.minimumBox()->setValue(2.0);
+        adjust.minimumCheck()->setChecked(false);
+    };
+    window.adjustDurationsAction()->trigger();
+
+    double offered = 0.0;
+    bool checked = true;
+    prompts.nextRun = false;
+    prompts.fill = [&offered, &checked](QDialog& dialog) {
+        auto& adjust = dynamic_cast<DurationAdjustDialog&>(dialog);
+        offered = adjust.minimumBox()->value();
+        checked = adjust.minimumCheck()->isChecked();
+    };
+    window.adjustDurationsAction()->trigger();
+
+    CHECK(offered == 2.0);
+    CHECK_FALSE(checked);
+}
+
+TEST_CASE("a reading speed with both cases unchecked keeps its value across two openings",
+          "[gui][GUI-ADJUST-01]") {
+    InMemoryFileSystem files = withThree();
+    FakePrompts prompts;
+    MainWindow window{files, threeIn(files), prompts};
+    window.show();
+
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        auto& adjust = dynamic_cast<DurationAdjustDialog&>(dialog);
+        adjust.speedBox()->setValue(22.5);
+        adjust.lengthenCheck()->setChecked(false);
+        adjust.shortenCheck()->setChecked(false);
+    };
+    window.adjustDurationsAction()->trigger();
+
+    double offered = 0.0;
+    prompts.nextRun = false;
+    prompts.fill = [&offered](QDialog& dialog) {
+        offered = dynamic_cast<DurationAdjustDialog&>(dialog).speedBox()->value();
+    };
+    window.adjustDurationsAction()->trigger();
+
+    CHECK(offered == 22.5);
 }

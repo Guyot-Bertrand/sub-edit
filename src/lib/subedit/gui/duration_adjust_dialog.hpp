@@ -11,7 +11,7 @@ class QDoubleSpinBox;
 // a parse error inside `<concept>` while reading this file — and a declaration
 // is all a header that only names the type in a signature needs anyway.
 namespace subedit::core {
-struct DurationConstraints;
+struct DurationAdjustmentSettings;
 } // namespace subedit::core
 
 namespace subedit::gui {
@@ -34,11 +34,14 @@ public:
     /// Opens on `initial`, which is what the last adjustment of this window
     /// asked for, or Gaupol's defaults.
     DurationAdjustDialog(std::size_t targetCount,
-                         const core::DurationConstraints& initial,
+                         const core::DurationAdjustmentSettings& initial,
                          QWidget* parent = nullptr);
 
-    /// Returns the constraints as the fields say them.
-    [[nodiscard]] core::DurationConstraints constraints() const;
+    /// Returns the form as the fields say it: every value, checked or not.
+    ///
+    /// The request the core receives is `core::constraintsOf` of this, where a
+    /// case that is off becomes absent.
+    [[nodiscard]] core::DurationAdjustmentSettings settings() const;
 
     [[nodiscard]] bool isComplete() const override;
 

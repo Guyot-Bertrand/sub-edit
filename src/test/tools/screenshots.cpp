@@ -23,9 +23,9 @@
 // names it.
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/theme.hpp>
-#include <subedit/core/edit/duration_adjustment.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
@@ -423,7 +423,7 @@ int main(int argc, char** argv) {
     // the first time, and the one the section's table describes.
     {
         subedit::gui::applyTheme(subedit::core::Theme::Light);
-        subedit::gui::DurationAdjustDialog dialog{3, subedit::core::DurationConstraints{}};
+        subedit::gui::DurationAdjustDialog dialog{3, subedit::core::DurationAdjustmentSettings{}};
         written = capture(dialog, dialog, directory, "ajustement") && written;
     }
 

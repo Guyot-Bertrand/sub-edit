@@ -1,5 +1,4 @@
-#include <subedit/core/edit/duration_adjustment.hpp>
-#include <subedit/core/time/duration.hpp>
+#include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/gui/duration_adjust_dialog.hpp>
 
 #include <QCheckBox>
@@ -11,7 +10,6 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <optional>
 
 namespace subedit::gui {
 
@@ -52,28 +50,19 @@ constexpr double kMillisecondsPerSecond = 1000.0;
     return box;
 }
 
-[[nodiscard]] double secondsOf(core::Duration duration) {
-    return static_cast<double>(duration.milliseconds()) / kMillisecondsPerSecond;
+[[nodiscard]] double secondsOf(std::int64_t milliseconds) {
+    return static_cast<double>(milliseconds) / kMillisecondsPerSecond;
 }
 
-/// The duration a box holds, rounded once to the millisecond it shows.
-[[nodiscard]] core::Duration durationOf(const QDoubleSpinBox& box) {
-    return core::Duration::fromMilliseconds(
-        static_cast<std::int64_t>(std::llround(box.value() * kMillisecondsPerSecond)));
-}
-
-/// The duration of `box` when `check` is on, and nothing otherwise.
-[[nodiscard]] std::optional<core::Duration> whenOn(const QCheckBox& check,
-                                                   const QDoubleSpinBox& box) {
-    if (!check.isChecked())
-        return std::nullopt;
-    return durationOf(box);
+/// The milliseconds a box holds, rounded once to the millisecond it shows.
+[[nodiscard]] std::int64_t millisecondsOf(const QDoubleSpinBox& box) {
+    return static_cast<std::int64_t>(std::llround(box.value() * kMillisecondsPerSecond));
 }
 
 } // namespace
 
 DurationAdjustDialog::DurationAdjustDialog(std::size_t targetCount,
-                                           const core::DurationConstraints& initial,
+                                           const core::DurationAdjustmentSettings& initial,
                                            QWidget* parent)
     : OperationDialog(targetCount, parent),
       m_speed(decimalBox(this)),
@@ -92,22 +81,18 @@ DurationAdjustDialog::DurationAdjustDialog(std::size_t targetCount,
     m_speed->setDecimals(kSpeedDecimals);
     m_speed->setSuffix(QStringLiteral(" char/s"));
 
-    const core::ReadingSpeed speed = initial.speed.value_or(
-        *core::ReadingSpeed::create(core::kDefaultReadingSpeed, true, false));
-    m_speed->setValue(speed.charactersPerSecond());
-    m_lengthen->setChecked(initial.speed.has_value() && speed.lengthen());
-    m_shorten->setChecked(initial.speed.has_value() && speed.shorten());
-
-    // A constraint switched off still shows a value: the one it had, or the
-    // default, so that switching it on is one click and not two gestures.
-    m_useMinimum->setChecked(initial.minimum.has_value());
-    m_minimum->setValue(secondsOf(initial.minimum.value_or(
-        core::Duration::fromMilliseconds(core::kDefaultMinimumMilliseconds))));
-    m_useMaximum->setChecked(initial.maximum.has_value());
-    m_maximum->setValue(secondsOf(initial.maximum.value_or(
-        core::Duration::fromMilliseconds(core::kDefaultMaximumMilliseconds))));
-    m_useGap->setChecked(initial.gap.has_value());
-    m_gap->setValue(secondsOf(initial.gap.value_or(core::Duration::zero())));
+    // Every field shows its own value, checked or not: the form keeps the
+    // number a switched-off case held, so that switching it on is one click
+    // and not two gestures.
+    m_speed->setValue(initial.charactersPerSecond);
+    m_lengthen->setChecked(initial.lengthen);
+    m_shorten->setChecked(initial.shorten);
+    m_useMinimum->setChecked(initial.minimumEnabled);
+    m_minimum->setValue(secondsOf(initial.minimumMilliseconds));
+    m_useMaximum->setChecked(initial.maximumEnabled);
+    m_maximum->setValue(secondsOf(initial.maximumMilliseconds));
+    m_useGap->setChecked(initial.gapEnabled);
+    m_gap->setValue(secondsOf(initial.gapMilliseconds));
 
     // In the order they are applied, which is the order the manual gives.
     fields()->addRow(QStringLiteral("Reading speed"), m_speed);
@@ -124,22 +109,20 @@ DurationAdjustDialog::DurationAdjustDialog(std::size_t targetCount,
     finish();
 }
 
-core::DurationConstraints DurationAdjustDialog::constraints() const {
-    std::optional<core::ReadingSpeed> speed;
-    if (m_lengthen->isChecked() || m_shorten->isChecked()) {
-        // The box is bounded to [1, 99]: `create` cannot refuse what it holds.
-        speed = core::ReadingSpeed::create(
-            m_speed->value(), m_lengthen->isChecked(), m_shorten->isChecked());
-    }
-
-    return core::DurationConstraints{.speed = speed,
-                                     .minimum = whenOn(*m_useMinimum, *m_minimum),
-                                     .maximum = whenOn(*m_useMaximum, *m_maximum),
-                                     .gap = whenOn(*m_useGap, *m_gap)};
+core::DurationAdjustmentSettings DurationAdjustDialog::settings() const {
+    return core::DurationAdjustmentSettings{.charactersPerSecond = m_speed->value(),
+                                            .lengthen = m_lengthen->isChecked(),
+                                            .shorten = m_shorten->isChecked(),
+                                            .minimumEnabled = m_useMinimum->isChecked(),
+                                            .minimumMilliseconds = millisecondsOf(*m_minimum),
+                                            .maximumEnabled = m_useMaximum->isChecked(),
+                                            .maximumMilliseconds = millisecondsOf(*m_maximum),
+                                            .gapEnabled = m_useGap->isChecked(),
+                                            .gapMilliseconds = millisecondsOf(*m_gap)};
 }
 
 bool DurationAdjustDialog::isComplete() const {
-    return constraints().isAny();
+    return core::constraintsOf(settings()).isAny();
 }
 
 void DurationAdjustDialog::refresh() {

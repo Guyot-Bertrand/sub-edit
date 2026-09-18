@@ -1,5 +1,6 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_correction.hpp>
+#include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/edit/clipboard.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/dialogue_dashes_command.hpp>
@@ -1269,16 +1270,16 @@ void MainWindow::refreshStructureActions() {
 void MainWindow::adjustDurationsOfTarget() {
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
-    DurationAdjustDialog dialog{target.count(), m_durationConstraints, this};
+    DurationAdjustDialog dialog{target.count(), m_durationSettings, this};
     if (!m_prompts->run(dialog))
         return;
 
     // Kept even if nothing moves: it is what was asked, and the next dialog
     // offers it again.
-    m_durationConstraints = dialog.constraints();
+    m_durationSettings = dialog.settings();
 
-    core::DurationAdjustment adjustment =
-        core::adjustDurations(m_session->project(), target, m_durationConstraints);
+    core::DurationAdjustment adjustment = core::adjustDurations(
+        m_session->project(), target, core::constraintsOf(m_durationSettings));
     if (adjustment.command != nullptr)
         applyOperation(std::move(adjustment.command), target);
 
