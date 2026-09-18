@@ -137,16 +137,32 @@ TEST_CASE("a target whose dashes are already there yields no command", "[edit]")
 }
 
 TEST_CASE("reverting either puts every text back exactly", "[edit]") {
+    // Either of the two commands: the case, which changes both texts, and the
+    // dashes, which are a different rewrite of the same rows.
     const Project before = documentOf(
         SubtitleFormat::SubRip, {saying("<i>bonjour</i> marie", 0), saying("AU REVOIR", 2000)});
-    Project project = before;
 
-    const std::unique_ptr<Command> command =
-        setLetterCase(project, Selection::all(project), Document::Main, LetterCase::Title);
-    REQUIRE(command != nullptr);
-    command->apply(project);
-    CHECK(textsOf(project) != textsOf(before));
+    {
+        Project project = before;
+        const std::unique_ptr<Command> command =
+            setLetterCase(project, Selection::all(project), Document::Main, LetterCase::Title);
+        REQUIRE(command != nullptr);
+        command->apply(project);
+        CHECK(textsOf(project) != textsOf(before));
 
-    command->revert(project);
-    CHECK(textsOf(project) == textsOf(before));
+        command->revert(project);
+        CHECK(textsOf(project) == textsOf(before));
+    }
+
+    {
+        Project project = before;
+        const std::unique_ptr<Command> command =
+            setDialogueDashes(project, Selection::all(project), Document::Main, true);
+        REQUIRE(command != nullptr);
+        command->apply(project);
+        CHECK(textsOf(project) != textsOf(before));
+
+        command->revert(project);
+        CHECK(textsOf(project) == textsOf(before));
+    }
 }

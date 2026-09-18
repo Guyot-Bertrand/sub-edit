@@ -18,6 +18,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "fake_prompts.hpp"
 
@@ -179,11 +180,21 @@ TEST_CASE("the five entries are out on an empty document", "[gui][GUI-CASE-01]")
     FakePrompts prompts;
     MainWindow window{files, std::move(*opened), prompts};
     window.show();
+
+    // The five: the dashes, and each of the four cases. All in, first, so that
+    // being out below is the document's doing and nothing else's.
+    std::vector<QAction*> entries{window.dialogueDashesAction()};
+    for (const LetterCase one : subedit::core::kLetterCases)
+        entries.push_back(window.caseAction(one));
+    REQUIRE(entries.size() == 5);
+    for (const QAction* entry : entries)
+        REQUIRE(entry->isEnabled());
+
     window.table()->selectAll();
     window.removeAction()->trigger();
 
-    CHECK_FALSE(window.dialogueDashesAction()->isEnabled());
-    CHECK_FALSE(window.caseAction(LetterCase::Upper)->isEnabled());
+    for (const QAction* entry : entries)
+        CHECK_FALSE(entry->isEnabled());
 }
 
 TEST_CASE("a blank row has no case and no dash to give", "[gui][GUI-DASH-01]") {

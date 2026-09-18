@@ -32,6 +32,8 @@
 namespace {
 
 using subedit::core::adjustDurations;
+using subedit::core::BeyondEnd;
+using subedit::core::beyondEnd;
 using subedit::core::CommandKind;
 using subedit::core::Duration;
 using subedit::core::DurationAdjustment;
@@ -73,6 +75,10 @@ using subedit::core::Timestamp;
 
 [[nodiscard]] Timestamp endOf(const Project& project, std::size_t index) {
     return project.subtitleAt(SubtitleIndex::fromValue(index)).end;
+}
+
+[[nodiscard]] Timestamp startOf(const Project& project, std::size_t index) {
+    return project.subtitleAt(SubtitleIndex::fromValue(index)).start;
 }
 
 /// Applies `constraints` to every subtitle of `project`, and hands back what
@@ -265,7 +271,14 @@ TEST_CASE("an adjustment is one entry in the history, and moves no start", "[edi
     CHECK(adjustment.adjusted == 3);
     static_cast<void>(session.apply(std::move(adjustment.command)));
 
+    // The default minimum of 1.5 s, laid on each start.
     CHECK(endOf(session.project(), 0) == Timestamp::fromMilliseconds(1500));
+    CHECK(endOf(session.project(), 1) == Timestamp::fromMilliseconds(4500));
+    CHECK(endOf(session.project(), 2) == Timestamp::fromMilliseconds(10500));
+    // Every end moved, and not one start.
+    CHECK(startOf(session.project(), 0) == Timestamp::fromMilliseconds(0));
+    CHECK(startOf(session.project(), 1) == Timestamp::fromMilliseconds(3000));
+    CHECK(startOf(session.project(), 2) == Timestamp::fromMilliseconds(9000));
     CHECK_FALSE(subedit::core::mayBreakOrder(CommandKind::AdjustDurations));
 
     static_cast<void>(session.undo());
@@ -277,7 +290,20 @@ TEST_CASE("an adjustment is one entry in the history, and moves no start", "[edi
 TEST_CASE("an adjustment can carry an end past the film, and is watched for it",
           "[edit][durations]") {
     // Lengthening moves ends later: the window says when one lands after the
-    // end of the video, as it does after a shift.
+    // end of the video, as it does after a shift. Both halves of the watch: the
+    // adjustment is among the kinds that move positions, and what it produced is
+    // read as past the end.
+    Project project = projectOf({from(1000, 1200)});
+    const Duration film = ms(2000);
+    REQUIRE_FALSE(beyondEnd(project, Selection::all(project), film).has_value());
+
+    DurationConstraints constraints = none();
+    constraints.minimum = ms(1500);
+    static_cast<void>(adjusting(project, constraints));
+
+    // Start 1.0 s and a minimum of 1.5 s: an end at 2.5 s, half a second late.
+    CHECK(beyondEnd(project, Selection::all(project), film) ==
+          BeyondEnd{.count = 1, .overshoot = ms(500)});
     CHECK(subedit::core::movesPositions(CommandKind::AdjustDurations));
 }
 

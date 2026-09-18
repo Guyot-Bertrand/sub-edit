@@ -247,11 +247,21 @@ TEST_CASE("the corpus of the phase reads, long before there is a parser to run i
     // mentions.cas did for phase 4. What is checked here is that every case is
     // **well formed**: a corpus that loads badly would run fewer cases than it
     // holds and still report green.
-    for (const std::string file : {"textes/recherche.cas", "textes/recherche-accolades.cas"}) {
-        INFO("corpus : " << file);
-        const std::vector<ReplacementCase> decided = replacementCasesOf(file);
+    //
+    // **The count of each is exact**, as the two harness corpora above are: a
+    // floor would let a corpus lose a case, or a reader skip one, and still
+    // pass. A case added or removed on purpose changes the number here too.
+    struct Corpus {
+        std::string file;
+        std::size_t cases;
+    };
 
-        CHECK(decided.size() > 5);
+    for (const Corpus& corpus :
+         {Corpus{"textes/recherche.cas", 31}, Corpus{"textes/recherche-accolades.cas", 8}}) {
+        INFO("corpus : " << corpus.file);
+        const std::vector<ReplacementCase> decided = replacementCasesOf(corpus.file);
+
+        CHECK(decided.size() == corpus.cases);
         for (const ReplacementCase& one : decided) {
             INFO("cas ligne " << one.line);
             CHECK_FALSE(one.name.empty());

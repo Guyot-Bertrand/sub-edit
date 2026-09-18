@@ -108,9 +108,12 @@ TEST_CASE("copying nothing gives an empty clipboard", "[edit][clipboard]") {
     CHECK(copyTexts(threeOf(), Selection::of({}), Document::Main).isEmpty());
 }
 
-TEST_CASE("the plain form glues texts by a blank line and reads back", "[edit][clipboard]") {
+TEST_CASE("the plain form glues texts by a blank line, and a hole reads back as a hole",
+          "[edit][clipboard]") {
     // Gaupol's `get_string` and `set_string`: a hole goes out as an empty text,
-    // and an empty text comes back as a hole.
+    // and an empty text comes back as a hole. Only the hole is round-tripped
+    // here; what a selected row whose text is empty becomes on that road is
+    // left unpinned, the manual being silent on it (issue #405).
     const ClipboardTexts copied{.texts = {"Un.", std::nullopt, "Deux lignes,\nla seconde."},
                                 .format = SubtitleFormat::SubRip};
 

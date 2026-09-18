@@ -144,7 +144,9 @@ TEST_CASE("the operation enters the history and comes back out", "[gui][GUI-ITAL
     CHECK(window.undoAction()->text().toStdString() == "Undo: putting in italics");
 
     window.undoAction()->trigger();
+    // Both rows, since both were changed: one entry undoes the whole operation.
     CHECK(textAt(window, 0) == "Bonjour.");
+    CHECK(textAt(window, 1) == "Au revoir.");
 }
 
 TEST_CASE("the entry says how many subtitles it moved", "[gui][GUI-ITALIC-01]") {
