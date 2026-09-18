@@ -186,6 +186,26 @@ TEST_CASE("a search that finds nothing says so, and touches nothing", "[gui][GUI
     CHECK(prompts.outcomes.empty());
 }
 
+TEST_CASE("a replacement that changes nothing says so, and writes nothing",
+          "[gui][GUI-SEARCH-01]") {
+    // « Marie » is in the document, so this is not « not found »; replacing it
+    // by itself leaves the text as it was, so nothing enters the history and
+    // nothing is « replaced ».
+    InMemoryFileSystem files = withFour();
+    FakePrompts prompts;
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
+    const SearchDialog& dialog = searching(window, "Marie");
+    dialog.ignoreCaseCheck()->setChecked(false);
+    dialog.replacementField()->setText(QStringLiteral("Marie"));
+
+    dialog.replaceAllButton()->click();
+
+    CHECK(statusOf(dialog) == "nothing to change");
+    CHECK(textAt(window, 0) == "Bonjour Marie.");
+    CHECK_FALSE(window.undoAction()->isEnabled());
+}
+
 TEST_CASE("replace rewrites the match found, keeps its tags, and moves on",
           "[gui][GUI-SEARCH-01]") {
     InMemoryFileSystem files = withFour();

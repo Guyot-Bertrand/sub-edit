@@ -124,7 +124,9 @@ struct ReplacedMatch {
 ///
 /// Returns **nothing when `match` is no longer a match** — the text changed
 /// since it was found, and replacing what is there now would replace something
-/// the user did not see.
+/// the user did not see. It also returns nothing when the replacement leaves
+/// the stored text exactly as it was — a match replaced by itself — for there
+/// is then nothing to undo.
 [[nodiscard]] std::optional<ReplacedMatch> replaceMatch(const Project& project,
                                                         const SearchPattern& pattern,
                                                         const TextMatch& match,
@@ -135,8 +137,17 @@ struct ReplacedAll {
     /// Nothing when nothing matched.
     std::unique_ptr<Command> command{};
 
-    /// How many matches were replaced.
+    /// How many matches were replaced in the subtitles whose text changed;
+    /// zero when no text did. In a subtitle that mixes a replacement with no
+    /// effect and one that changes the text, both count: the figure alone is
+    /// affected, and no command is lost.
     std::size_t count = 0;
+
+    /// How many matches were found and replaced, whether or not a replacement
+    /// changed the text. Nothing matched is `matched == 0`; matches that
+    /// changed nothing are `count == 0` with `matched > 0` — what tells "not
+    /// found" from "nothing to change".
+    std::size_t matched = 0;
 };
 
 /// Builds the command that replaces every match in the main texts of `target`.

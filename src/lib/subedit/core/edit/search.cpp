@@ -236,7 +236,12 @@ template<typename Pick>
 /// Rewrites every match of `compiled` in `text`, or only the one at `only`.
 struct Rewritten {
     std::string text;
+
+    /// Matches replaced in a text that really changed; zero when it did not.
     std::size_t count = 0;
+
+    /// Matches found and replaced, whether or not the text ended up different.
+    std::size_t matched = 0;
     Span written{};
 };
 
@@ -256,6 +261,7 @@ struct Rewritten {
 
         parser.replace(found->span.start, found->span.end - found->span.start, found->replacement);
         ++rewritten.count;
+        ++rewritten.matched;
 
         const std::size_t length = MarkupParser{found->replacement, format}.visible().size();
         rewritten.written = {.start = found->span.start, .end = found->span.start + length};
@@ -426,6 +432,7 @@ ReplacedAll replaceAll(const Project& project,
         const Rewritten rewritten = rewrite(
             text, project.sourceFile().format, pattern.compiled(), replacement, std::nullopt);
         replaced.count += rewritten.count;
+        replaced.matched += rewritten.matched;
         if (rewritten.text != text)
             commands.push_back(
                 std::make_unique<SetTextCommand>(project, index, Document::Main, rewritten.text));

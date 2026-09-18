@@ -241,6 +241,7 @@ TEST_CASE("replacing all is one entry in the history, and counts", "[edit][searc
     REQUIRE(replaced.command != nullptr);
     CHECK(replaced.command->kind() == CommandKind::ReplaceAll);
     CHECK(replaced.count == 3);
+    CHECK(replaced.matched == 3);
     static_cast<void>(session.apply(std::move(replaced.command)));
 
     CHECK(textsOf(session.project()) ==
@@ -272,6 +273,7 @@ TEST_CASE("replacing what nothing matches builds nothing", "[edit][search]") {
 
     CHECK(replaced.command == nullptr);
     CHECK(replaced.count == 0);
+    CHECK(replaced.matched == 0);
 }
 
 TEST_CASE("a replacement that only widens a tag across a word still counts as a change",
@@ -289,6 +291,7 @@ TEST_CASE("a replacement that only widens a tag across a word still counts as a 
     replaced.command->apply(project);
 
     CHECK(replaced.count == 1);
+    CHECK(replaced.matched == 1);
     CHECK(textsOf(project) == std::vector<std::string>{"<i>Marie</i>"});
 }
 
@@ -300,6 +303,9 @@ TEST_CASE("replacing a match by itself changes nothing and counts nothing", "[ed
 
     CHECK(replaced.count == 0);
     CHECK(replaced.command == nullptr);
+    // The pattern is in the document, though: found is not the same as changed,
+    // and the window tells "nothing to change" from "not found" by this.
+    CHECK(replaced.matched == 1);
 }
 
 TEST_CASE("an expression's groups and escapes are expanded", "[edit][search]") {

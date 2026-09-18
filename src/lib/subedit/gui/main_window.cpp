@@ -1312,12 +1312,7 @@ void MainWindow::removeHearingImpairedFromTarget() {
 }
 
 void MainWindow::commitCellEditor() {
-    // Ahead of every gesture without a dialog, so that the target it reads and
-    // the command it builds see the edit already applied rather than racing
-    // it — issue #397. Giving the table itself the focus is what a click
-    // elsewhere already does, and the delegate's own focus-out handling —
-    // Qt's, unmodified — takes it from there: it validates rather than
-    // discards, the same answer a dialog already gave.
+    // Why, and for which gestures: see the declaration — issue #397.
     if (m_table->isEditing())
         m_table->setFocus();
 }
@@ -1664,9 +1659,13 @@ void MainWindow::replaceAllInTarget() {
         m_session->project(), target, *pattern, m_search->replacement().toStdString());
     m_match.reset();
 
+    // **Not found is not the same as nothing to change**: a pattern that is in
+    // the document but is replaced by itself finds matches and writes nothing,
+    // and no history entry is made for it either way.
     if (replaced.count == 0) {
-        m_search->setStatus(
-            QString::fromStdString(core::notFound(m_search->pattern().toStdString())));
+        m_search->setStatus(QString::fromStdString(
+            replaced.matched == 0 ? core::notFound(m_search->pattern().toStdString())
+                                  : std::string{core::nothingToChange()}));
         return;
     }
 
