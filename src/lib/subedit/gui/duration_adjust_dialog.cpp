@@ -28,9 +28,6 @@ constexpr double kLongestDuration = 99.0;
 constexpr double kDurationStep = 0.1;
 constexpr int kDurationDecimals = 3;
 
-/// The defaults a switched-off constraint shows, Gaupol's.
-constexpr double kDefaultMaximumSeconds = 6.0;
-
 constexpr double kMillisecondsPerSecond = 1000.0;
 
 /// A decimal field that writes a period, whatever the machine's locale.
@@ -107,8 +104,8 @@ DurationAdjustDialog::DurationAdjustDialog(std::size_t targetCount,
     m_minimum->setValue(secondsOf(initial.minimum.value_or(
         core::Duration::fromMilliseconds(core::kDefaultMinimumMilliseconds))));
     m_useMaximum->setChecked(initial.maximum.has_value());
-    m_maximum->setValue(initial.maximum.has_value() ? secondsOf(*initial.maximum)
-                                                    : kDefaultMaximumSeconds);
+    m_maximum->setValue(secondsOf(initial.maximum.value_or(
+        core::Duration::fromMilliseconds(core::kDefaultMaximumMilliseconds))));
     m_useGap->setChecked(initial.gap.has_value());
     m_gap->setValue(secondsOf(initial.gap.value_or(core::Duration::zero())));
 

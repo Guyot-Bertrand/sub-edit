@@ -19,6 +19,10 @@ inline constexpr double kDefaultReadingSpeed = 15.0;
 /// Gaupol's default minimum duration, in milliseconds.
 inline constexpr std::int64_t kDefaultMinimumMilliseconds = 1500;
 
+/// Gaupol's default maximum duration, in milliseconds — off by default, and
+/// this is only what a switched-off field shows.
+inline constexpr std::int64_t kDefaultMaximumMilliseconds = 6000;
+
 /// The reading speed a duration is measured against, and which way it may move
 /// an end.
 ///
