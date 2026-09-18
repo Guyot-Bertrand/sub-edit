@@ -33,6 +33,12 @@ on:
   # raison étrangère au dépôt, ou un paquet à reconstruire. Les fichiers d'une
   # release existante sont remplacés, pas dupliqués. Le bouton n'apparaît dans
   # l'interface que si ce fichier est sur la branche par défaut.
+  #
+  # **Une reconstruction à la demande republie le paquet et n'élague pas.**
+  # Sans cela, rebâtir un patch d'une milestone close — `v0.9.3` alors que
+  # `v0.10.0` existe — recréerait la release, puis l'étape d'élagage la
+  # supprimerait dans le même travail. La garde est dans `prune-releases.sh`,
+  # qui lit `GITHUB_EVENT_NAME`.
   workflow_dispatch:
     inputs:
       tag:
@@ -105,7 +111,10 @@ jobs:
           fi
 
       # Après la publication, et dans le même travail : un tag poussé est le
-      # seul moment où la milestone en cours peut changer.
+      # seul moment où la milestone en cours peut changer. Sous
+      # `workflow_dispatch`, le script le constate dans `GITHUB_EVENT_NAME`, que
+      # les Actions posent d'elles-mêmes, et sort sans rien supprimer. Une
+      # suppression refusée le fait sortir en erreur : ce travail rougit.
       - name: Élaguer les releases de patch des milestones passées
         env:
           GH_TOKEN: ${{ github.token }}

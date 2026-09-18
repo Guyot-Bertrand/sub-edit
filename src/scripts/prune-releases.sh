@@ -20,6 +20,23 @@
 # foulée. La règle ne garde les patchs que de la milestone en cours, et elle ne
 # fait pas d'exception pour le plus récent.
 #
+# **Sauf à la main.** Reconstruire un vieux patch par `workflow_dispatch` est un
+# geste délibéré — un paquet à refaire — et l'élaguer dans la foulée annulerait ce
+# qu'on vient de demander. Le script constate l'événement (`GITHUB_EVENT_NAME`,
+# que les Actions renseignent d'elles-mêmes), dit qu'il n'élague pas, et sort en
+# 0 sans avoir cherché ni supprimé quoi que ce soit. La garde est ici plutôt que
+# dans un `if:` du workflow pour la raison de la section suivante : une
+# condition de YAML ne se rejoue pas. Elle ne vaut pas pour `--dry-run`, qui ne
+# supprime rien.
+#
+# **Deux autres choses que la règle ne disait pas.** Les brouillons sont écartés
+# avant tout : `gh api …/releases` les rend aussi, et un brouillon `v0.12.0`
+# écrit à la main ferait passer la milestone 0.11 au passé — ses patchs partiraient
+# pour une version qui n'existe pas. Et une suppression refusée n'est pas une
+# réussite : le script tente toutes les suppressions, puis sort en erreur en
+# nommant chaque release qui est restée, pour que le travail de publication ne
+# reste pas vert sur une release qu'on croyait élaguée.
+#
 # Les noms qui ne sont pas de la forme `vX.Y.Z` ne sont ni comptés ni touchés :
 # une release écrite à la main sous un autre nom n'est pas l'affaire de ce script.
 #
@@ -52,7 +69,10 @@ usage() {
 prune-releases.sh [--dry-run] [--input FICHIER]
 
 Élague les releases : garde toutes les vX.Y.0 et les patchs de la milestone en
-cours, supprime les patchs des milestones passées. Les tags restent.
+cours, supprime les patchs des milestones passées. Les tags restent. Les
+brouillons sont ignorés. Une suppression refusée fait sortir en erreur, après
+que toutes ont été tentées. Sous `workflow_dispatch` (GITHUB_EVENT_NAME), rien
+n'est élagué.
 
   --dry-run          écrit les tags dont la release partirait, ne supprime rien
   --input FICHIER    lit les tags des releases depuis un fichier, un par ligne
@@ -93,7 +113,9 @@ resolve_repository() {
     fi
 }
 
-# Les tags des releases, un par ligne.
+# Les tags des releases publiées, un par ligne. Un brouillon n'est ni une version
+# ni une release à élaguer : il est écarté ici, avant que la milestone en cours
+# soit déduite et avant que la moindre suppression soit choisie.
 fetch_tags() {
     if [[ -n "${input}" ]]; then
         [[ -f "${input}" ]] || { printf 'fichier introuvable : %s\n' "${input}" >&2; exit 1; }
@@ -103,7 +125,8 @@ fetch_tags() {
 
     require gh
     resolve_repository
-    gh api "repos/${repository}/releases" --paginate --jq '.[].tag_name'
+    gh api "repos/${repository}/releases" --paginate \
+        --jq '.[] | select(.draft == false) | .tag_name'
 }
 
 # La sélection. Une fonction de la liste, et rien d'autre — ni horloge, ni
@@ -138,6 +161,18 @@ select_doomed() {
     '
 }
 
+# Une reconstruction à la demande republie le paquet et n'élague pas. Le constat
+# précède la lecture des releases : pour ne rien supprimer, il n'y a rien à
+# chercher. `--dry-run` y échappe, puisqu'il ne supprime rien de toute façon.
+if (( dry_run == 0 )) && [[ "${GITHUB_EVENT_NAME:-}" == "workflow_dispatch" ]]; then
+    printf 'reconstruction à la demande (workflow_dispatch) : aucune release élaguée\n'
+    if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+        printf '## Élagage des releases\n\nReconstruction à la demande : rien n'"'"'est élagué.\n' \
+            >> "${GITHUB_STEP_SUMMARY}"
+    fi
+    exit 0
+fi
+
 tags="$(fetch_tags)"
 total="$(printf '%s' "${tags}" | grep -c '' || true)"
 doomed="$(printf '%s\n' "${tags}" | select_doomed)"
@@ -154,7 +189,7 @@ require gh
 resolve_repository
 
 deleted=0
-refused=0
+refused=()
 while read -r tag; do
     [[ -n "${tag}" ]] || continue
     # `</dev/null` : sans lui, gh lirait l'entrée standard et avalerait le reste
@@ -164,12 +199,12 @@ while read -r tag; do
         deleted=$(( deleted + 1 ))
     else
         printf 'refusée : %s\n' "${tag}" >&2
-        refused=$(( refused + 1 ))
+        refused+=("${tag}")
     fi
 done <<< "${doomed}"
 
 printf '%s%d supprimées, %d refusées, %d restantes%s\n' \
-    "${BOLD}" "${deleted}" "${refused}" "$(( total - deleted ))" "${RESET}"
+    "${BOLD}" "${deleted}" "${#refused[@]}" "$(( total - deleted ))" "${RESET}"
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     {
@@ -177,9 +212,17 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
         printf '| | |\n| :--- | ---: |\n'
         printf '| avant | %d |\n' "${total}"
         printf '| supprimées | %d |\n' "${deleted}"
-        printf '| refusées | %d |\n' "${refused}"
+        printf '| refusées | %d |\n' "${#refused[@]}"
         printf '| après | %d |\n' "$(( total - deleted ))"
         printf '\nRègle : toutes les `vX.Y.0`, et les patchs de la milestone en cours. '
         printf 'Les tags ne sont jamais supprimés.\n'
     } >> "${GITHUB_STEP_SUMMARY}"
+fi
+
+# Une suppression refusée fait échouer le travail : sortir en 0 laisserait la
+# publication verte sur une release qu'on croyait élaguée. Elles ont toutes été
+# tentées avant d'en arriver là, et chacune est nommée.
+if (( ${#refused[@]} > 0 )); then
+    printf 'suppression refusée, la release reste : %s\n' "${refused[*]}" >&2
+    exit 1
 fi
