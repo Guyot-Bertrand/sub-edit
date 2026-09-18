@@ -67,6 +67,14 @@ qui le pose est justement celle qui ne va pas.
 | `duration-adjust.gap-enabled` | `true` ou `false` — l'écart au sous-titre suivant est demandé | `true` |
 | `duration-adjust.gap-ms` | l'écart, en millisecondes, entier et non négatif | `0` |
 
+**Le fichier accepte plus large que le dialogue.** Le lecteur prend toute vitesse
+strictement positive et toute durée non négative ; le dialogue d'`Adjust
+Durations…`, lui, borne la vitesse de 1 à 99 caractères par seconde et chaque
+durée de 0 à 99 s. Une valeur du fichier hors de ces bornes est ramenée à la
+borne quand le dialogue s'ouvre, et le fichier la garde ainsi une fois le
+dialogue validé et la fenêtre fermée. Un dialogue annulé ne change rien à ce
+qui est retenu.
+
 **`file.write-encoding` retient le dernier encodage choisi dans `Save As…`, et
 ne s'impose jamais à un fichier.** Un document ouvert porte son propre encodage,
 et c'est celui-là que la boîte propose : le réécrire dans un autre parce qu'un
