@@ -74,7 +74,9 @@
 # doit refuser, et une image que le manuel montre sans que rien ne l'engendre,
 # que `check-screenshots.py` doit attraper. Le second défaut est le plus
 # coûteux des deux, et le seul que le comparateur ne peut pas voir : une image
-# périmée s'affiche aussi proprement qu'une image juste.
+# périmée s'affiche aussi proprement qu'une image juste. Trois autres, nées de
+# #400, éprouvent la paire claire et sombre de chaque écran : sa manque, elle
+# est exemptée, elle est complète.
 #
 # Les deux suivantes visent `make config-home`, le pendant de la précédente de
 # l'autre côté de la frontière du dépôt : une configuration écrite pendant les
@@ -1172,6 +1174,95 @@ expect_screenshot_gates() {
 
 expect_screenshot_gates
 
+# Chaque capture claire a sa sombre — #400.
+#
+# **Trois preuves, sur un jeu écrit à la main.** Le manuel promettait deux fois
+# que chaque écran se montre sous les deux palettes, et deux écrans de la phase
+# 10 sont entrés avec la seule claire : le contrôle vérifiait qu une image
+# montrée est engendrée, pas qu elle a sa paire. Le défaut se prouve sur un
+# petit dépôt de fortune — un programme de capture de trois lignes, une page, des
+# fichiers vides — plutôt qu en retirant une vraie image : la preuve ne touche
+# pas aux captures du manuel, et elle ne dépend pas de ce qu elles montrent un
+# jour.
+#
+# **Trois, parce que la garde a trois issues.** Elle refuse une paire manquante
+# et nomme l image, sans quoi le message ne dirait pas où chercher ; elle laisse
+# passer une exemption motivée, sans quoi un écran qui n a vraiment qu une
+# palette serait condamné à la fausse paire ; et elle laisse passer le jeu
+# complet, sans quoi elle crierait au loup à chaque exécution.
+#
+# L exemption est une liste du script, vide aujourd hui : la preuve la remplit en
+# chargeant le script comme un module, plutôt que de lui donner une option qui
+# permettrait de s exempter depuis la ligne de commande.
+expect_screenshot_pairs() {
+    local script="${REPO_ROOT}/src/scripts/check-screenshots.py"
+    local root output
+    root="$(mktemp -d)"
+
+    mkdir -p "${root}/src/test/tools" "${root}/docs/manual/subedit-gui/captures"
+    local tool="${root}/src/test/tools/screenshots.cpp"
+    local page="${root}/docs/manual/subedit-gui/page.md"
+    local captures="${root}/docs/manual/subedit-gui/captures"
+
+    # Un écran complet, et un second qui n a que sa claire.
+    printf '%s\n' \
+        'capture(w, w, d, "ecran");' \
+        'capture(w, w, d, "ecran-sombre");' \
+        'capture(w, w, d, "seul");' > "${tool}"
+    printf '%s\n' \
+        '![Clair.](captures/ecran.png)' \
+        '![Sombre.](captures/ecran-sombre.png)' \
+        '![Seul.](captures/seul.png)' > "${page}"
+    touch "${captures}/ecran.png" "${captures}/ecran-sombre.png" "${captures}/seul.png"
+
+    printf '%s▸ une capture claire dont la sombre manque%s\n' "${BOLD}" "${RESET}"
+    if output="$("${script}" --root "${root}" 2>&1)"; then
+        printf '  %s✗ le garde-fou a laissé passer la paire manquante%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" != *"seul.png"* || "${output}" == *"ecran.png"* ]]; then
+        printf '  %s✗ le garde-fou a refusé sans nommer la bonne image%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « check-screenshots.py » a refusé et nommé seul.png, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    fi
+
+    printf '%s▸ un écran exempté, avec sa raison%s\n' "${BOLD}" "${RESET}"
+    if python3 - "${script}" "${root}" >/dev/null 2>&1 <<'PY'
+import importlib.util
+import sys
+
+spec = importlib.util.spec_from_file_location("check_screenshots", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+module.SINGLE_PALETTE["seul"] = "un écran de preuve, qui n a qu une palette"
+sys.exit(module.main(["--root", sys.argv[2]]))
+PY
+    then
+        printf '  %s✓ l exemption a levé la garde, comme attendu%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ l exemption motivée n a pas levé la garde%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    printf '%s▸ un jeu où chaque capture a sa paire%s\n' "${BOLD}" "${RESET}"
+    printf '%s\n' 'capture(w, w, d, "seul-sombre");' >> "${tool}"
+    printf '%s\n' '![Seul, sombre.](captures/seul-sombre.png)' >> "${page}"
+    touch "${captures}/seul-sombre.png"
+    if "${script}" --root "${root}" >/dev/null 2>&1; then
+        printf '  %s✓ « check-screenshots.py » a laissé passer le jeu complet, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ le garde-fou a refusé un jeu où chaque capture a sa paire%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_screenshot_pairs
+
 # Les renvois du manuel — #243.
 #
 # Le troisième filet du manuel, après les blocs engendrés et les captures. Une
@@ -1817,7 +1908,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles cinquante-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles soixante-deux portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
