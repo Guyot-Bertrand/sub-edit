@@ -81,6 +81,21 @@ TEST_CASE("the four cases are four entries, and the tags do not follow", "[gui][
     CHECK(textAt(window, 0) == "<i>bonjour</i> marie");
 }
 
+TEST_CASE("a tag that cuts a word stays where it is under the case", "[gui][GUI-CASE-01]") {
+    // The manual's own example: nothing moves, the italic keeps ending after
+    // `bon`, and the rest of the word is not pulled inside it.
+    InMemoryFileSystem files = withFile("1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour\n\n");
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files), prompts};
+    window.show();
+
+    window.caseAction(LetterCase::Upper)->trigger();
+    CHECK(textAt(window, 0) == "<i>BON</i>JOUR");
+
+    window.caseAction(LetterCase::Lower)->trigger();
+    CHECK(textAt(window, 0) == "<i>bon</i>jour");
+}
+
 TEST_CASE("a case change enters the history, and comes back out", "[gui][GUI-CASE-01]") {
     InMemoryFileSystem files = withFile(kTwo);
     FakePrompts prompts;

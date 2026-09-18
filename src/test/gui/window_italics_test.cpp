@@ -15,6 +15,8 @@
 #include <QAction>
 #include <QApplication>
 #include <QItemSelectionModel>
+#include <QMenu>
+#include <QMenuBar>
 #include <QPlainTextEdit>
 #include <QStatusBar>
 #include <QTableView>
@@ -189,9 +191,20 @@ TEST_CASE("a format that carries no style leaves the entry out", "[gui][GUI-ITAL
     window.show();
 
     // Out and not gone: what a user of an LRC has to learn is that there is
-    // nothing to type, and an entry that disappeared would teach nothing.
+    // nothing to type, and an entry that disappeared would teach nothing. So the
+    // entry is looked for where the user looks — in the `Tools` menu itself.
+    QMenu* tools = nullptr;
+    for (QAction* entry : window.menuBar()->actions()) {
+        if (entry->text() == QStringLiteral("&Tools"))
+            tools = entry->menu();
+    }
+    REQUIRE(tools != nullptr);
+
+    CHECK(tools->actions().contains(window.italicAction()));
+    CHECK(window.italicAction()->isVisible());
+    // Laid out by the menu, which gives no room to an entry that is hidden.
+    CHECK_FALSE(tools->actionGeometry(window.italicAction()).isEmpty());
     CHECK_FALSE(window.italicAction()->isEnabled());
-    CHECK(window.menuTitles().contains(QStringLiteral("&Tools")));
 }
 
 // Issue #397: a gesture without a dialog reads the target and builds a command

@@ -82,6 +82,30 @@ constexpr int kEndColumn = 2;
     };
 }
 
+/// A subtitle of `text` from `start` to `end`, written as a SubRip block.
+[[nodiscard]] std::string
+blockOf(int number, const char* start, const char* end, const std::string& text) {
+    return std::to_string(number) + "\n" + start + " --> " + end + "\n" + text + "\n\n";
+}
+
+/// All four constraints on together, the reading speed both ways, with the
+/// values given: `speed` in characters a second, the others in seconds.
+[[nodiscard]] auto allFour(double speed, double minimum, double maximum, double gap) {
+    return [=](QDialog& dialog) {
+        auto& adjust = dynamic_cast<DurationAdjustDialog&>(dialog);
+        for (QCheckBox* check : {adjust.lengthenCheck(),
+                                 adjust.shortenCheck(),
+                                 adjust.minimumCheck(),
+                                 adjust.maximumCheck(),
+                                 adjust.gapCheck()})
+            check->setChecked(true);
+        adjust.speedBox()->setValue(speed);
+        adjust.minimumBox()->setValue(minimum);
+        adjust.maximumBox()->setValue(maximum);
+        adjust.gapBox()->setValue(gap);
+    };
+}
+
 } // namespace
 
 TEST_CASE("the dialog opens on Gaupol's defaults", "[gui][GUI-ADJUST-01]") {
@@ -190,6 +214,67 @@ TEST_CASE("adjusting moves the ends of the target, and undoes in one step",
     CHECK(endAt(window, 0) == "00:00:01,500");
     CHECK(endAt(window, 2) == "00:00:10,500");
     CHECK_FALSE(window.undoAction()->isEnabled());
+}
+
+TEST_CASE("the four constraints act in their order, and the order shows in the result",
+          "[gui][GUI-ADJUST-01]") {
+    // Reading speed 10 characters a second, both ways; minimum 2 s; maximum 4 s;
+    // gap 0.5 s. Worked by hand from the manual's order — speed, minimum,
+    // maximum, gap, the last one applied winning — and each subtitle is one
+    // where swapping two neighbours in that order would give another end.
+    InMemoryFileSystem files;
+    files.addFile("film.srt",
+                  blockOf(1, "00:00:00,000", "00:00:01,000", "Hi") +
+                      blockOf(2, "00:00:10,000", "00:00:11,000", std::string(60, 'x')) +
+                      blockOf(3, "00:00:20,000", "00:00:20,500", "Hi") +
+                      blockOf(4, "00:00:22,000", "00:00:22,500", "Hi"));
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = allFour(10.0, 2.0, 4.0, 0.5);
+    MainWindow window{files, threeIn(files), prompts};
+    window.show();
+
+    window.adjustDurationsAction()->trigger();
+
+    // 1 — "Hi" is 0.2 s of reading, so the speed shortens the second it lasts
+    // to 0.2 s, and the minimum then raises it to 2 s. The other way round, the
+    // speed would have the last word and leave 0.2 s.
+    CHECK(endAt(window, 0) == "00:00:02,000");
+    // 2 — 60 characters are 6 s of reading: the speed lengthens it to 16 s, and
+    // the maximum then brings it back to 14 s. The other way round, the speed
+    // would leave 16 s.
+    CHECK(endAt(window, 1) == "00:00:14,000");
+    // 3 — the speed gives 20.2 s and the minimum 22 s, which is where the next
+    // subtitle starts: the gap, applied last, takes it to 21.5 s. Applied
+    // before the minimum, it would leave 22 s.
+    CHECK(endAt(window, 2) == "00:00:21,500");
+    // 4 — the last subtitle has no next one to keep a gap from: the speed
+    // gives 22.2 s and the minimum 24 s, and nothing follows.
+    CHECK(endAt(window, 3) == "00:00:24,000");
+}
+
+TEST_CASE("a minimum above the maximum gives way to it, and both come after the speed",
+          "[gui][GUI-ADJUST-01]") {
+    // The one case where the order of the minimum and the maximum shows: with
+    // the minimum below the maximum the two commute, and no result tells them
+    // apart. Here, a minimum of 5 s and a maximum of 3 s, gap 0.5 s and speed
+    // 10 characters a second.
+    InMemoryFileSystem files;
+    files.addFile("film.srt",
+                  blockOf(1, "00:00:00,000", "00:00:01,000", "Hi") +
+                      blockOf(2, "00:00:10,000", "00:00:11,000", "Hi"));
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = allFour(10.0, 5.0, 3.0, 0.5);
+    MainWindow window{files, threeIn(files), prompts};
+    window.show();
+
+    window.adjustDurationsAction()->trigger();
+
+    // The speed gives 0.2 s, the minimum 5 s, the maximum 3 s. The maximum
+    // applied first would leave 5 s; the speed applied last, 0.2 s.
+    CHECK(endAt(window, 0) == "00:00:03,000");
+    CHECK(endAt(window, 1) == "00:00:13,000");
 }
 
 TEST_CASE("adjusting says what no end could satisfy", "[gui][GUI-ADJUST-02]") {
