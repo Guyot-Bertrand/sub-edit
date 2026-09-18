@@ -10,10 +10,6 @@
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 
-// Apart, and after the rest: as the first of the core headers, this one makes
-// moc stop on a parse error inside `<concepts>`.
-#include <subedit/core/config/duration_adjustment_settings.hpp>
-
 #include <QMainWindow>
 #include <QStringList>
 

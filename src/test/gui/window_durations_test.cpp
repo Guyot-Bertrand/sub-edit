@@ -326,3 +326,45 @@ TEST_CASE("a reading speed with both cases unchecked keeps its value across two 
 
     CHECK(offered == 22.5);
 }
+
+TEST_CASE("the form of the adjustment is kept by the preferences", "[gui][GUI-ADJUST-01]") {
+    InMemoryFileSystem files = withThree();
+    FakePrompts prompts;
+    MainWindow window{files, threeIn(files), prompts};
+    window.applySettings(
+        subedit::core::Settings{.durationAdjustment = {.charactersPerSecond = 12.5,
+                                                       .lengthen = false,
+                                                       .shorten = true,
+                                                       .minimumEnabled = false,
+                                                       .minimumMilliseconds = 2000}});
+    window.show();
+
+    // What the preferences carry is what the dialog opens on...
+    double speed = 0.0;
+    double minimum = 0.0;
+    bool minimumChecked = true;
+    prompts.nextRun = true;
+    prompts.fill = [&](QDialog& dialog) {
+        auto& adjust = dynamic_cast<DurationAdjustDialog&>(dialog);
+        speed = adjust.speedBox()->value();
+        minimum = adjust.minimumBox()->value();
+        minimumChecked = adjust.minimumCheck()->isChecked();
+        adjust.gapCheck()->setChecked(false);
+        adjust.maximumBox()->setValue(4.25);
+        adjust.maximumCheck()->setChecked(true);
+    };
+    window.adjustDurationsAction()->trigger();
+
+    CHECK(speed == 12.5);
+    CHECK(minimum == 2.0);
+    CHECK_FALSE(minimumChecked);
+
+    // ...and what the dialog last asked is what the preferences hand back.
+    const DurationAdjustmentSettings kept = window.settings().durationAdjustment;
+    CHECK(kept.charactersPerSecond == 12.5);
+    CHECK_FALSE(kept.minimumEnabled);
+    CHECK(kept.minimumMilliseconds == 2000);
+    CHECK(kept.maximumEnabled);
+    CHECK(kept.maximumMilliseconds == 4250);
+    CHECK_FALSE(kept.gapEnabled);
+}

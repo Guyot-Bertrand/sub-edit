@@ -6,6 +6,10 @@
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/encoding.hpp>
 
+// Apart, and after the headers above: as the first of them, this one makes moc
+// stop on a parse error inside `<concepts>` when a Qt header includes this file.
+#include <subedit/core/config/duration_adjustment_settings.hpp>
+
 #include <cstddef>
 #include <expected>
 #include <filesystem>
@@ -117,6 +121,11 @@ struct Settings {
     /// The two options of `Find and Replace…`, kept from one opening of the
     /// dialog to the next and from one session to the next.
     SearchOptions search{};
+
+    /// The form of `Adjust Durations…`, kept from one opening of the dialog to
+    /// the next and from one session to the next — issue #409, the same
+    /// treatment as `search` just above.
+    DurationAdjustmentSettings durationAdjustment{};
 
     friend bool operator==(const Settings&, const Settings&) = default;
 };

@@ -5,8 +5,10 @@
 #include <subedit/core/wording.hpp>
 
 #include <charconv>
+#include <cmath>
 #include <concepts>
 #include <expected>
+#include <format>
 #include <memory>
 #include <optional>
 #include <string>
@@ -33,6 +35,19 @@ constexpr std::string_view kWriteEncodingKey = "file.write-encoding";
 constexpr std::string_view kWriteBomKey = "file.write-bom";
 constexpr std::string_view kSearchRegexKey = "search.regex";
 constexpr std::string_view kSearchIgnoreCaseKey = "search.ignore-case";
+
+// The form of `Adjust Durations…`, nine keys under one prefix: the prefix is
+// what `applyOption` dispatches on.
+constexpr std::string_view kDurationPrefix = "duration-adjust.";
+constexpr std::string_view kDurationSpeedKey = "duration-adjust.speed";
+constexpr std::string_view kDurationLengthenKey = "duration-adjust.lengthen";
+constexpr std::string_view kDurationShortenKey = "duration-adjust.shorten";
+constexpr std::string_view kDurationMinimumEnabledKey = "duration-adjust.minimum-enabled";
+constexpr std::string_view kDurationMinimumKey = "duration-adjust.minimum-ms";
+constexpr std::string_view kDurationMaximumEnabledKey = "duration-adjust.maximum-enabled";
+constexpr std::string_view kDurationMaximumKey = "duration-adjust.maximum-ms";
+constexpr std::string_view kDurationGapEnabledKey = "duration-adjust.gap-enabled";
+constexpr std::string_view kDurationGapKey = "duration-adjust.gap-ms";
 
 // The three values of the theme, as the file carries them. Lower case, and
 // kept apart from `nameOf(Theme)`, which gives the labels of the dialog: this
@@ -71,6 +86,19 @@ constexpr char kListSeparator = ',';
     const char* const last = std::to_address(text.end());
     const std::from_chars_result read = std::from_chars(first, last, value);
     if (read.ec != std::errc{} || read.ptr != last)
+        return std::nullopt;
+    return value;
+}
+
+/// A decimal number, or nothing. Refuses what trails after it, like
+/// `integerOf`, and refuses what is not a number a person would write: `inf`
+/// and `nan` are read by `from_chars`, and are not values a file should carry.
+[[nodiscard]] std::optional<double> decimalOf(std::string_view text) {
+    double value = 0.0;
+    const char* const first = std::to_address(text.begin());
+    const char* const last = std::to_address(text.end());
+    const std::from_chars_result read = std::from_chars(first, last, value);
+    if (read.ec != std::errc{} || read.ptr != last || !std::isfinite(value))
         return std::nullopt;
     return value;
 }
@@ -153,6 +181,29 @@ constexpr char kListSeparator = ',';
     return share;
 }
 
+/// A reading speed, which is strictly positive.
+///
+/// The same refusal `ReadingSpeed::create` makes, so that a file cannot hold
+/// what the form could not show as a speed.
+[[nodiscard]] std::optional<double> speedOf(std::string_view text) {
+    std::optional<double> speed = decimalOf(text);
+    if (speed.has_value() && *speed <= 0.0)
+        speed.reset();
+    return speed;
+}
+
+/// A duration in milliseconds, which is not negative.
+///
+/// Zero is a duration: a minimum or a gap of zero is asked for, not absent.
+/// `integerOf` reads an `int`, which holds far more than the ninety-nine
+/// seconds the dialog can show.
+[[nodiscard]] std::optional<int> millisecondsOf(std::string_view text) {
+    std::optional<int> milliseconds = integerOf(text);
+    if (milliseconds.has_value() && *milliseconds < 0)
+        milliseconds.reset();
+    return milliseconds;
+}
+
 /// A directory, if it is absolute.
 ///
 /// A relative path is relative to a working directory nobody knows: it is a
@@ -197,6 +248,61 @@ constexpr char kListSeparator = ',';
     return text;
 }
 
+/// Lays down an option that could be read, and names it otherwise.
+///
+/// What all the options do the same way, written once rather than once per
+/// option — the seventh took `applyOption` over the complexity threshold the
+/// gate holds, and the nine of the duration adjustment would have been worse.
+template<typename Parsed, typename Field>
+void keepOption(
+    SettingsRead& read, std::string_view key, std::string_view value, Parsed parsed, Field& field) {
+    if (!parsed.has_value()) {
+        read.diagnostics.push_back({.key = std::string{key}, .value = std::string{value}});
+        return;
+    }
+
+    // **A setting that is itself optional receives the option as it is**, and
+    // is not unwrapped to be wrapped again: it is the same content, and one
+    // dereference fewer.
+    if constexpr (std::same_as<std::remove_cvref_t<Field>, Parsed>)
+        field = std::move(parsed);
+    else
+        field = *std::move(parsed);
+}
+
+/// Keeps one of the nine options of the duration adjustment.
+///
+/// **Apart from `applyOption`, which sends every `duration-adjust.` key here**:
+/// nine more branches would have taken it over the complexity threshold, and
+/// these have a shape of their own — a speed and a duration each carry a bound.
+void applyDurationAdjustmentOption(SettingsRead& read,
+                                   std::string_view key,
+                                   std::string_view value) {
+    const auto take = [&read, key, value](auto parsed, auto& field) {
+        keepOption(read, key, value, std::move(parsed), field);
+    };
+
+    DurationAdjustmentSettings& form = read.settings.durationAdjustment;
+    if (key == kDurationSpeedKey)
+        take(speedOf(value), form.charactersPerSecond);
+    else if (key == kDurationLengthenKey)
+        take(booleanOf(value), form.lengthen);
+    else if (key == kDurationShortenKey)
+        take(booleanOf(value), form.shorten);
+    else if (key == kDurationMinimumEnabledKey)
+        take(booleanOf(value), form.minimumEnabled);
+    else if (key == kDurationMinimumKey)
+        take(millisecondsOf(value), form.minimumMilliseconds);
+    else if (key == kDurationMaximumEnabledKey)
+        take(booleanOf(value), form.maximumEnabled);
+    else if (key == kDurationMaximumKey)
+        take(millisecondsOf(value), form.maximumMilliseconds);
+    else if (key == kDurationGapEnabledKey)
+        take(booleanOf(value), form.gapEnabled);
+    else if (key == kDurationGapKey)
+        take(millisecondsOf(value), form.gapMilliseconds);
+}
+
 /// Keeps an option, or reports the value that could not be read.
 ///
 /// **An unknown key is ignored, without a word**: a file written by a version
@@ -207,22 +313,9 @@ void applyOption(SettingsRead& read,
                  std::string_view key,
                  std::string_view value) {
     // What all eight options do the same way: lay down what could be read,
-    // name the option otherwise. Written once rather than eight times, and it
-    // is not only a saving of lines — the seventh option took this function
-    // over the complexity threshold the gate holds.
+    // name the option otherwise.
     const auto take = [&read, key, value](auto parsed, auto& field) {
-        if (!parsed.has_value()) {
-            read.diagnostics.push_back({.key = std::string{key}, .value = std::string{value}});
-            return;
-        }
-
-        // **A setting that is itself optional receives the option as it is**,
-        // and is not unwrapped to be wrapped again: it is the same content, and
-        // one dereference fewer.
-        if constexpr (std::same_as<std::remove_cvref_t<decltype(field)>, decltype(parsed)>)
-            field = std::move(parsed);
-        else
-            field = *std::move(parsed);
+        keepOption(read, key, value, std::move(parsed), field);
     };
 
     if (key == kGeometryKey)
@@ -257,6 +350,8 @@ void applyOption(SettingsRead& read,
         take(booleanOf(value), read.settings.search.regex);
     else if (key == kSearchIgnoreCaseKey)
         take(booleanOf(value), read.settings.search.ignoreCase);
+    else if (key.starts_with(kDurationPrefix))
+        applyDurationAdjustmentOption(read, key, value);
 }
 
 /// An option, written bare when set, commented out when at its default.
@@ -267,6 +362,52 @@ void writeOption(std::string& out, std::string_view key, std::string_view value,
     out += " = ";
     out += value;
     out += '\n';
+}
+
+[[nodiscard]] std::string_view flagText(bool flag) {
+    return flag ? "true" : "false";
+}
+
+/// The nine options of the duration adjustment, each written bare when it
+/// differs from Gaupol's and commented out when it does not.
+///
+/// **The speed in its shortest form**, `15` and not `15.000000`: `std::format`
+/// writes the fewest digits that read back as the same number, so what the file
+/// says is what was held, and a hand-edited `12.5` is not rewritten as
+/// something longer.
+void renderDurationAdjustment(std::string& out, const DurationAdjustmentSettings& form) {
+    const DurationAdjustmentSettings defaults;
+    writeOption(out,
+                kDurationSpeedKey,
+                std::format("{}", form.charactersPerSecond),
+                form.charactersPerSecond == defaults.charactersPerSecond);
+    writeOption(
+        out, kDurationLengthenKey, flagText(form.lengthen), form.lengthen == defaults.lengthen);
+    writeOption(out, kDurationShortenKey, flagText(form.shorten), form.shorten == defaults.shorten);
+    writeOption(out,
+                kDurationMinimumEnabledKey,
+                flagText(form.minimumEnabled),
+                form.minimumEnabled == defaults.minimumEnabled);
+    writeOption(out,
+                kDurationMinimumKey,
+                std::to_string(form.minimumMilliseconds),
+                form.minimumMilliseconds == defaults.minimumMilliseconds);
+    writeOption(out,
+                kDurationMaximumEnabledKey,
+                flagText(form.maximumEnabled),
+                form.maximumEnabled == defaults.maximumEnabled);
+    writeOption(out,
+                kDurationMaximumKey,
+                std::to_string(form.maximumMilliseconds),
+                form.maximumMilliseconds == defaults.maximumMilliseconds);
+    writeOption(out,
+                kDurationGapEnabledKey,
+                flagText(form.gapEnabled),
+                form.gapEnabled == defaults.gapEnabled);
+    writeOption(out,
+                kDurationGapKey,
+                std::to_string(form.gapMilliseconds),
+                form.gapMilliseconds == defaults.gapMilliseconds);
 }
 
 } // namespace
@@ -383,6 +524,8 @@ std::string renderSettings(const Settings& settings) {
                 kSearchIgnoreCaseKey,
                 search.ignoreCase ? "true" : "false",
                 search.ignoreCase == defaults.ignoreCase);
+
+    renderDurationAdjustment(out, settings.durationAdjustment);
 
     return out;
 }

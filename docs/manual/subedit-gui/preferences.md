@@ -19,6 +19,10 @@ lignes est un champ de ce dialogue-là, et le dernier choix est retenu. Voir
 suivante, et d'une session à la suivante. Voir
 [Rechercher et remplacer](recherche.md#les-deux-options).
 
+**Les réglages d'`Adjust Durations…` aussi** : la vitesse de lecture, ses deux
+sens, et les trois durées avec leurs cases — chacune garde sa valeur, cochée ou
+non. Voir [`Adjust Durations…`](operations.md#adjust-durations).
+
 **Et le dernier encodage choisi dans `Save As…`**, avec sa marque d'ordre des
 octets. Voir [le fichier](#le-fichier).
 
@@ -53,6 +57,15 @@ qui le pose est justement celle qui ne va pas.
 | `file.write-bom` | `true` ou `false` | `false` |
 | `search.regex` | `true` ou `false` — le motif est une expression régulière | `false` |
 | `search.ignore-case` | `true` ou `false` — la casse est ignorée | `true` |
+| `duration-adjust.speed` | la vitesse de lecture, en caractères par seconde, strictement positive ; un nombre décimal s'écrit au plus court (`15`, `12.5`) | `15` |
+| `duration-adjust.lengthen` | `true` ou `false` — allonger ce qui est trop court pour être lu | `true` |
+| `duration-adjust.shorten` | `true` ou `false` — raccourcir ce qui reste affiché plus que nécessaire | `false` |
+| `duration-adjust.minimum-enabled` | `true` ou `false` — la durée minimale est demandée | `true` |
+| `duration-adjust.minimum-ms` | la durée minimale, en millisecondes, entière et non négative | `1500` |
+| `duration-adjust.maximum-enabled` | `true` ou `false` — la durée maximale est demandée | `false` |
+| `duration-adjust.maximum-ms` | la durée maximale, en millisecondes, entière et non négative | `6000` |
+| `duration-adjust.gap-enabled` | `true` ou `false` — l'écart au sous-titre suivant est demandé | `true` |
+| `duration-adjust.gap-ms` | l'écart, en millisecondes, entier et non négatif | `0` |
 
 **`file.write-encoding` retient le dernier encodage choisi dans `Save As…`, et
 ne s'impose jamais à un fichier.** Un document ouvert porte son propre encodage,
@@ -167,19 +180,21 @@ du texte sur chacune des teintes est vérifié par un test, sur les deux fonds.
 
 ## Ce qui ne se règle pas
 
-**Cinq réglages retenus se choisissent dans un dialogue**, et chacun dans celui où
+**Six réglages retenus se choisissent dans un dialogue**, et chacun dans celui où
 il sert : le thème, ici ; le côté d'une insertion, dans le dialogue d'insertion ;
 les deux options de la recherche, dans le dialogue de recherche ; l'encodage et
-la marque d'ordre des octets, dans `Save As…`. Il n'y en a pas d'autre : rien ne
-se règle pour le panneau de diagnostics, le volume du lecteur, ni le format
-d'enregistrement par défaut — celui-ci vient du fichier ouvert.
+la marque d'ordre des octets, dans `Save As…` ; la vitesse de lecture, les durées
+et l'écart de l'ajustement des durées, dans son propre dialogue. Il n'y en a pas
+d'autre : rien ne se règle pour le panneau de diagnostics, le volume du lecteur,
+ni le format d'enregistrement par défaut — celui-ci vient du fichier ouvert.
 
 Et **aucun nombre qui appartient à un document n'est gardé d'une session à
 l'autre** : une durée de décalage, deux repères de transformation sont vrais d'un
 fichier et faux du suivant. Les dialogues les redemandent à chaque lancement,
-délibérément. `Adjust Durations…` est le seul à rouvrir sur ses dernières
-valeurs, le temps que la fenêtre reste ouverte : une vitesse de lecture et une
-durée minimale sont des choix de méthode plutôt que des mesures d'un fichier.
+délibérément. Les réglages d'`Adjust Durations…` font exception au même titre que
+les deux options de la recherche : une vitesse de lecture, une durée minimale ou
+un écart sont des choix de méthode plutôt que des mesures d'un fichier, et
+persistent d'une session à l'autre pour cette raison.
 
 Ce manuel décrit ce qui existe : ce qui viendra est dans la
 [feuille de route](../../feuille-de-route.md).

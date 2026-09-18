@@ -1870,6 +1870,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
 
     m_insertPlacement = settings.insertPlacement;
     m_searchOptions = settings.search;
+    m_durationSettings = settings.durationAdjustment;
     if (m_search != nullptr)
         m_search->setOptions(m_searchOptions);
     m_writeEncoding = settings.writeEncoding;
@@ -1906,6 +1907,7 @@ core::Settings MainWindow::settings() const {
     settings.theme = m_theme;
     settings.insertPlacement = m_insertPlacement;
     settings.search = m_searchOptions;
+    settings.durationAdjustment = m_durationSettings;
     settings.writeEncoding = m_writeEncoding;
 
     return settings;

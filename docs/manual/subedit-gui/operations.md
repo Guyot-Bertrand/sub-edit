@@ -221,8 +221,11 @@ sous-titre de chevaucher le suivant. La vitesse de lecture n'est lue que si
 
 **Quand tout est décoché, `OK` est éteint** : il n'y a rien à demander.
 
-Le dialogue rouvre sur les valeurs du dernier ajustement, le temps que la fenêtre
-reste ouverte ; il ne les garde pas d'une session à l'autre.
+Le dialogue rouvre sur les valeurs du dernier ajustement, **et les garde d'une
+session à l'autre** — comme les deux options de la recherche. **Une case décochée
+garde sa valeur** : décocher `Minimum duration` après avoir posé 2 s ne remet pas
+1,5 s, et la recocher retrouve 2 s. Les neuf réglages sont dans le
+[fichier de préférences](preferences.md#le-fichier), sous `duration-adjust.`.
 
 ### Dans quel ordre, et laquelle gagne
 
