@@ -369,7 +369,7 @@ TEST_CASE("preferences read while the dialog is open reach it", "[gui][GUI-SEARC
     CHECK_FALSE(dialog.ignoreCaseCheck()->isChecked());
 }
 
-TEST_CASE("an undo that resets the model forgets a stale search target", "[gui][GUI-SEARCH-03]") {
+TEST_CASE("an undo that resets the model forgets a stale search target", "[gui][GUI-SEARCH-02]") {
     // Four subtitles; select the fourth, split it into a fifth. The search
     // then captures a target of {3, 4} before the split is undone.
     InMemoryFileSystem files = withFour();
