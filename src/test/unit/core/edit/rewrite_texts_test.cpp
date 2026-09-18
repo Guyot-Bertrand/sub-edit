@@ -12,7 +12,6 @@
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
-#include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -36,7 +35,6 @@ using subedit::core::Selection;
 using subedit::core::SourceFile;
 using subedit::core::Subtitle;
 using subedit::core::SubtitleFormat;
-using subedit::core::SubtitleIndex;
 using subedit::core::Timestamp;
 
 [[nodiscard]] Subtitle saying(std::string_view text, std::int64_t start) {
