@@ -1,0 +1,27 @@
+# La même règle, cherchée par une expression régulière plutôt que par un texte.
+#
+# recherche.cas et recherche-accolades.cas se jouent en texte simple, sensible à
+# la casse : « Bon.our » n'y est jamais essayé, et pourtant c'est ce que tape
+# quiconque coche « Regular expression ». Ce fichier-ci se joue **en expression
+# régulière et en ignorant la casse** — les deux options cochées — et ses motifs
+# sont des expressions, ses remplacements la syntaxe de remplacement d'une
+# expression : `$1` à `$9` pour les groupes, `$0` pour toute la correspondance.
+#
+# Rien ici n'invente de règle. **Le texte cherché est le texte visible** : une
+# expression ne voit pas les balises, et `Bon.our` trouve le `Bonjour` que
+# `<i>Bon</i>jour` coupe. Une fois trouvée, la correspondance obéit à la règle de
+# recherche.cas, point pour point — une balise qui coupe un mot l'englobe, tout
+# style qui touche la correspondance couvre le remplacement, ce qu'elle ne touche
+# pas ne bouge pas. Chaque réponse ci-dessous est celle du cas de recherche.cas
+# dont la forme est la même, dite avec une expression.
+#
+# Les groupes lisent le texte visible : `(Bon)(jour)` sur `<i>Bon</i>jour` donne
+# « Bon » et « jour », sans balise dans aucun des deux.
+
+une expression traverse la balise qui coupe le mot | "<i>Bon</i>jour"             | "Bon.our"      | "Salut"   | "<i>Salut</i>"
+l'insensibilité à la casse la traverse aussi       | "<i>Bon</i>jour"             | "bon.our"      | "Salut"   | "<i>Salut</i>"
+les groupes lisent le texte visible                | "<i>Bon</i>jour"             | "(Bon)(jour)"  | "$2 $1"   | "<i>jour Bon</i>"
+un groupe repris ne porte aucune balise            | "<i>Bon</i>jour"             | "Bon.our"      | "$0 !"    | "<i>Bonjour !</i>"
+le style de la première moitié couvre les groupes  | "<i>Bonjour</i> Marie"       | "(\\w+) (\\w+)" | "$2 $1"  | "<i>Marie Bonjour</i>"
+une balise que la correspondance ne touche pas reste | "<i>Bon</i>jour Marie"     | "m.RIE"        | "Sophie"  | "<i>Bon</i>jour Sophie"
+le point traverse le saut de ligne                 | "<i>Bonjour</i>\nMarie"      | "Bonjour.Marie" | "Salut"  | "<i>Salut</i>"

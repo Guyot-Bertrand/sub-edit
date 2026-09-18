@@ -62,6 +62,13 @@
 # cherché sur « Bonjour » et remplacé par « Bonjour tout le monde » lui rend
 # « <i>Bonjour tout le m</i>onde ». Les six cas qui coupent un mot sont donc les
 # six où nous nous en écartons, délibérément.
+#
+# **Ces cas se jouent deux fois** : en texte simple et sensible à la casse, qui
+# est leur forme, puis en expression régulière insensible à la casse, motif et
+# remplacement protégés pour dire la même chose. Aucun ne dépend de la casse
+# d'une lettre, donc aucun n'a d'exception. Ce que seule une expression sait
+# demander — traverser une balise, un groupe, `.` — est dans
+# recherche-expressions.cas.
 
 # --- La balise et la correspondance ne se croisent pas ------------------------
 

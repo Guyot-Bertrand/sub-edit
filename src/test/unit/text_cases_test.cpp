@@ -241,7 +241,8 @@ TEST_CASE("a replacement corpus the harness cannot read stops the run", "[test][
 
 TEST_CASE("the corpus of the phase reads, long before there is a parser to run it",
           "[test][textcases]") {
-    // recherche.cas and its brace sibling hold what has been decided about
+    // recherche.cas and its brace and expression siblings hold what has been
+    // decided about
     // searching in marked-up text, written before the tag-aware parser of
     // ADR 0009 exists — that is the point of the format, and it is what
     // mentions.cas did for phase 4. What is checked here is that every case is
@@ -256,8 +257,9 @@ TEST_CASE("the corpus of the phase reads, long before there is a parser to run i
         std::size_t cases;
     };
 
-    for (const Corpus& corpus :
-         {Corpus{"textes/recherche.cas", 31}, Corpus{"textes/recherche-accolades.cas", 8}}) {
+    for (const Corpus& corpus : {Corpus{"textes/recherche.cas", 31},
+                                 Corpus{"textes/recherche-accolades.cas", 8},
+                                 Corpus{"textes/recherche-expressions.cas", 7}}) {
         INFO("corpus : " << corpus.file);
         const std::vector<ReplacementCase> decided = replacementCasesOf(corpus.file);
 
