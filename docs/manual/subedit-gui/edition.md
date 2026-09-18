@@ -28,6 +28,15 @@ l'éditeur ; la ligne de la table s'ajuste à la validation.
 
 Cliquer ailleurs valide aussi : la perte du focus vaut `Entrée`.
 
+**Sept gestes sans dialogue valident de même** avant de calculer leur cible :
+`Italic`, `Case ▸ …`, `Dialogue`, `Merge Subtitles`, `Split Subtitle`,
+`Cut Texts` et `Paste Texts`. Lancés depuis le menu, la barre d'outils ou un
+raccourci de la fenêtre, ils reprennent le texte tel que l'éditeur vient de le
+valider, comme après un clic ailleurs. `Ctrl+X` et `Ctrl+V` restent pourtant à
+l'éditeur tant qu'il est ouvert — voir
+[Couper, copier et coller](presse-papiers.md) : c'est le menu qui lance alors
+`Cut Texts` et `Paste Texts`.
+
 ### Les balises sont celles du fichier
 
 Le texte montré et saisi est **celui du fichier, balises comprises** : un

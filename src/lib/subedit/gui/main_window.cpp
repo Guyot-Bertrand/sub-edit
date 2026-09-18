@@ -1,5 +1,6 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_correction.hpp>
+#include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/edit/clipboard.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/dialogue_dashes_command.hpp>
@@ -10,6 +11,7 @@
 #include <subedit/core/edit/letter_case_command.hpp>
 #include <subedit/core/edit/merge_split_command.hpp>
 #include <subedit/core/edit/remove_command.hpp>
+#include <subedit/core/edit/rewrite_texts.hpp>
 #include <subedit/core/edit/search.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
@@ -54,6 +56,7 @@
 #include <subedit/gui/theme.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
+#include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QAction>
 #include <QClipboard>
@@ -160,6 +163,10 @@ constexpr int kPerCent = 100;
 
 constexpr int kInitialWidth = 1200;
 constexpr int kInitialHeight = 800;
+
+/// Long enough to be read without a click, short enough not to survive past
+/// the next gesture — Qt's own convention for a transient status.
+constexpr int kOperationStatusTimeoutMs = 5000;
 
 /// Which row of a selection playback follows: the first, in table order.
 ///
@@ -590,6 +597,14 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
     // including an edit that changed nothing. Reconnected at every opening, the
     // previous model leaving with the previous file.
     connect(model.get(), &SubtitleTableModel::historyChanged, this, &MainWindow::refreshActions);
+    // A structural undo or redo resets the model rather than reporting which
+    // rows changed — Qt then clears the selection without a
+    // `selectionChanged`, which is otherwise what forgets a stale target. This
+    // catches that one case directly on Qt's own reset signal.
+    connect(model.get(), &QAbstractItemModel::modelReset, this, [this] {
+        m_searchTarget.reset();
+        m_match.reset();
+    });
 
     // In this order: the view lets go of the old model before it goes, and the
     // model before the session it reads.
@@ -1255,16 +1270,16 @@ void MainWindow::refreshStructureActions() {
 void MainWindow::adjustDurationsOfTarget() {
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
-    DurationAdjustDialog dialog{target.count(), m_durationConstraints, this};
+    DurationAdjustDialog dialog{target.count(), m_durationSettings, this};
     if (!m_prompts->run(dialog))
         return;
 
     // Kept even if nothing moves: it is what was asked, and the next dialog
     // offers it again.
-    m_durationConstraints = dialog.constraints();
+    m_durationSettings = dialog.settings();
 
-    core::DurationAdjustment adjustment =
-        core::adjustDurations(m_session->project(), target, m_durationConstraints);
+    core::DurationAdjustment adjustment = core::adjustDurations(
+        m_session->project(), target, core::constraintsOf(m_durationSettings));
     if (adjustment.command != nullptr)
         applyOperation(std::move(adjustment.command), target);
 
@@ -1296,7 +1311,15 @@ void MainWindow::removeHearingImpairedFromTarget() {
                              std::to_string(tally.removed) + " removed");
 }
 
+void MainWindow::commitCellEditor() {
+    // Why, and for which gestures: see the declaration — issue #397.
+    if (m_table->isEditing())
+        m_table->setFocus();
+}
+
 void MainWindow::toggleItalicsOnTarget() {
+    commitCellEditor();
+
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
     // Asked before anything is built, and of the target rather than of the
@@ -1309,16 +1332,16 @@ void MainWindow::toggleItalicsOnTarget() {
         // Every text was already the way it was asked for. Say so, and put
         // nothing in the history: an operation that changes nothing is not an
         // operation to undo.
-        m_prompts->reportOutcome("nothing to change");
+        statusBar()->showMessage(QString::fromStdString(std::string{core::nothingToChange()}),
+                                 kOperationStatusTimeoutMs);
         return;
     }
 
     // Read from the command before it goes, never by counting again after.
-    const std::size_t rewritten = core::italicisedCount(*command);
+    const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
-
-    m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") +
-                             (italic ? " put in italics" : " taken out of italics"));
+    statusBar()->showMessage(QString::fromStdString(core::noticeOfItalics(rewritten, italic)),
+                             kOperationStatusTimeoutMs);
 }
 
 QAction* MainWindow::caseAction(core::LetterCase wanted) const {
@@ -1328,22 +1351,27 @@ QAction* MainWindow::caseAction(core::LetterCase wanted) const {
 }
 
 void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
+    commitCellEditor();
+
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
     std::unique_ptr<core::Command> command =
         core::setLetterCase(m_session->project(), target, core::Document::Main, wanted);
     if (!command) {
-        m_prompts->reportOutcome("nothing to change");
+        statusBar()->showMessage(QString::fromStdString(std::string{core::nothingToChange()}),
+                                 kOperationStatusTimeoutMs);
         return;
     }
 
-    const std::size_t rewritten = core::recasedCount(*command);
+    const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
-
-    m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") + " recased");
+    statusBar()->showMessage(QString::fromStdString(core::noticeOfRecase(rewritten)),
+                             kOperationStatusTimeoutMs);
 }
 
 void MainWindow::toggleDialogueDashesOnTarget() {
+    commitCellEditor();
+
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
     // Asked of the target before anything is built: the entry says what it will
@@ -1354,15 +1382,16 @@ void MainWindow::toggleDialogueDashesOnTarget() {
     std::unique_ptr<core::Command> command =
         core::setDialogueDashes(m_session->project(), target, core::Document::Main, dashed);
     if (!command) {
-        m_prompts->reportOutcome("nothing to change");
+        statusBar()->showMessage(QString::fromStdString(std::string{core::nothingToChange()}),
+                                 kOperationStatusTimeoutMs);
         return;
     }
 
-    const std::size_t rewritten = core::recasedCount(*command);
+    const std::size_t rewritten = core::rewrittenCount(*command);
     applyOperation(std::move(command), target);
-
-    m_prompts->reportOutcome(core::countOf(rewritten, "subtitle") +
-                             (dashed ? " dashed" : " undashed"));
+    statusBar()->showMessage(
+        QString::fromStdString(core::noticeOfDialogueDashes(rewritten, dashed)),
+        kOperationStatusTimeoutMs);
 }
 
 void MainWindow::applyOperation(std::unique_ptr<core::Command> command,
@@ -1475,6 +1504,8 @@ void MainWindow::copyTexts() {
 }
 
 void MainWindow::cutTexts() {
+    commitCellEditor();
+
     const core::Selection target = selectionOf(*m_table->selectionModel());
     if (target.isEmpty())
         return;
@@ -1491,6 +1522,8 @@ void MainWindow::cutTexts() {
 }
 
 void MainWindow::pasteTexts() {
+    commitCellEditor();
+
     const core::Selection target = selectionOf(*m_table->selectionModel());
     if (target.isEmpty())
         return;
@@ -1626,9 +1659,13 @@ void MainWindow::replaceAllInTarget() {
         m_session->project(), target, *pattern, m_search->replacement().toStdString());
     m_match.reset();
 
+    // **Not found is not the same as nothing to change**: a pattern that is in
+    // the document but is replaced by itself finds matches and writes nothing,
+    // and no history entry is made for it either way.
     if (replaced.count == 0) {
-        m_search->setStatus(
-            QString::fromStdString(core::notFound(m_search->pattern().toStdString())));
+        m_search->setStatus(QString::fromStdString(
+            replaced.matched == 0 ? core::notFound(m_search->pattern().toStdString())
+                                  : std::string{core::nothingToChange()}));
         return;
     }
 
@@ -1638,6 +1675,8 @@ void MainWindow::replaceAllInTarget() {
 }
 
 void MainWindow::mergeSubtitles() {
+    commitCellEditor();
+
     // The guard of the action, said again: nothing keeps a trigger from finding
     // it a fraction of a second too late. A run of one gets no command from the
     // core, which is the second half of the same guard.
@@ -1657,6 +1696,8 @@ void MainWindow::mergeSubtitles() {
 }
 
 void MainWindow::splitSubtitle() {
+    commitCellEditor();
+
     const core::Selection target = selectionOf(*m_table->selectionModel());
     if (target.count() != 1)
         return;
@@ -1828,6 +1869,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
 
     m_insertPlacement = settings.insertPlacement;
     m_searchOptions = settings.search;
+    m_durationSettings = settings.durationAdjustment;
     if (m_search != nullptr)
         m_search->setOptions(m_searchOptions);
     m_writeEncoding = settings.writeEncoding;
@@ -1864,6 +1906,7 @@ core::Settings MainWindow::settings() const {
     settings.theme = m_theme;
     settings.insertPlacement = m_insertPlacement;
     settings.search = m_searchOptions;
+    settings.durationAdjustment = m_durationSettings;
     settings.writeEncoding = m_writeEncoding;
 
     return settings;

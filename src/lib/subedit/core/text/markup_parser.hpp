@@ -96,14 +96,4 @@ private:
     std::unique_ptr<Held> m_held;
 };
 
-/// Returns `text` with every occurrence of `pattern` replaced.
-///
-/// Nothing is rebuilt when nothing matches: the text comes back as the very
-/// bytes it arrived as, which is what keeps a search that finds nothing from
-/// tidying a file behind the user's back.
-[[nodiscard]] std::string replacingAll(std::string_view text,
-                                       std::string_view pattern,
-                                       std::string_view replacement,
-                                       SubtitleFormat format);
-
 } // namespace subedit::core

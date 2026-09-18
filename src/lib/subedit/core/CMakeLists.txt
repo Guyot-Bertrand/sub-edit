@@ -23,6 +23,7 @@ add_library(
     edit/shift_limits.cpp
     edit/video_bounds.cpp
     edit/remove_command.cpp
+    edit/rewrite_texts.cpp
     edit/session.cpp
     edit/snap_command.cpp
     edit/shift_command.cpp
@@ -61,6 +62,7 @@ add_library(
     format/subtitle_file.cpp
     format/project_file.cpp
     config/settings.cpp
+    config/duration_adjustment_settings.cpp
     format/format_detection.cpp
     format/degradation.cpp
     format/sub_rip_reader.cpp

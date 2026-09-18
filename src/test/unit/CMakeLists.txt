@@ -43,6 +43,7 @@ add_executable(
     core/edit/set_text_command_test.cpp
     core/edit/hearing_impaired_removal_test.cpp
     core/edit/italics_command_test.cpp
+    core/edit/rewrite_texts_test.cpp
     core/edit/text_commands_test.cpp
     core/edit/insert_command_test.cpp
     core/edit/merge_split_command_test.cpp
@@ -104,6 +105,7 @@ add_executable(
     core/text/encoding_test.cpp
     core/format/subtitle_file_test.cpp
     core/config/settings_test.cpp
+    core/config/duration_adjustment_settings_test.cpp
     core/format/open_project_test.cpp
     core/format/save_project_test.cpp
     core/format/corpus_test.cpp

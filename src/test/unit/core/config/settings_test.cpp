@@ -15,6 +15,7 @@
 // rather than traceability. The three promises are cited where the window is
 // put to the test, in `window_settings_test.cpp`.
 
+#include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
@@ -32,6 +33,7 @@ namespace {
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::core::ByteOrderMark;
+using subedit::core::DurationAdjustmentSettings;
 using subedit::core::Encoding;
 using subedit::core::FileError;
 using subedit::core::FileErrorKind;
@@ -336,6 +338,15 @@ TEST_CASE("an option at its default is written back commented out", "[config]") 
     CHECK_THAT(written, ContainsSubstring("#file.write-bom = false"));
     CHECK_THAT(written, ContainsSubstring("#search.regex = false"));
     CHECK_THAT(written, ContainsSubstring("#search.ignore-case = true"));
+    CHECK_THAT(written, ContainsSubstring("#duration-adjust.speed = 15\n"));
+    CHECK_THAT(written, ContainsSubstring("#duration-adjust.lengthen = true"));
+    CHECK_THAT(written, ContainsSubstring("#duration-adjust.shorten = false"));
+    CHECK_THAT(written, ContainsSubstring("#duration-adjust.minimum-enabled = true"));
+    CHECK_THAT(written, ContainsSubstring("#duration-adjust.minimum-ms = 1500"));
+    CHECK_THAT(written, ContainsSubstring("#duration-adjust.maximum-enabled = false"));
+    CHECK_THAT(written, ContainsSubstring("#duration-adjust.maximum-ms = 6000"));
+    CHECK_THAT(written, ContainsSubstring("#duration-adjust.gap-enabled = true"));
+    CHECK_THAT(written, ContainsSubstring("#duration-adjust.gap-ms = 0"));
 }
 
 TEST_CASE("an option that was set is written back bare", "[config]") {
@@ -419,4 +430,97 @@ TEST_CASE("the two options of a search read, and are kept", "[config]") {
     CHECK(readSettings(files, kPath).settings.search == chosenOptions);
     CHECK_THAT(renderSettings(Settings{.search = chosenOptions}),
                ContainsSubstring("\nsearch.regex = true"));
+}
+
+// ## The form of `Adjust Durations…`, which came with #409
+
+namespace {
+
+/// A form with nothing at its default, and a speed that needs a decimal point.
+[[nodiscard]] DurationAdjustmentSettings chosenAdjustment() {
+    return DurationAdjustmentSettings{.charactersPerSecond = 12.5,
+                                      .lengthen = false,
+                                      .shorten = true,
+                                      .minimumEnabled = false,
+                                      .minimumMilliseconds = 2000,
+                                      .maximumEnabled = true,
+                                      .maximumMilliseconds = 4250,
+                                      .gapEnabled = false,
+                                      .gapMilliseconds = 80};
+}
+
+} // namespace
+
+TEST_CASE("the form of the duration adjustment is kept across sessions", "[config]") {
+    InMemoryFileSystem files;
+    const Settings written{.durationAdjustment = chosenAdjustment()};
+
+    REQUIRE(writeSettings(files, kPath, written).has_value());
+    const SettingsRead read = readSettings(files, kPath);
+
+    CHECK(read.settings.durationAdjustment == chosenAdjustment());
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("a file that does not mention the duration adjustment gives its defaults", "[config]") {
+    const SettingsRead read = readOf("window.maximised = true\n");
+
+    CHECK(read.settings.durationAdjustment == DurationAdjustmentSettings{});
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("the reading speed is written in its shortest form, and read back exactly", "[config]") {
+    const std::string fifteen = renderSettings(Settings{});
+    CHECK_THAT(fifteen, ContainsSubstring("#duration-adjust.speed = 15\n"));
+
+    for (const double speed : {12.5, 0.1, 22.75, 99.0}) {
+        InMemoryFileSystem files;
+        const Settings written{.durationAdjustment = {.charactersPerSecond = speed}};
+        REQUIRE(writeSettings(files, kPath, written).has_value());
+        CHECK(readSettings(files, kPath).settings.durationAdjustment.charactersPerSecond == speed);
+    }
+
+    CHECK_THAT(renderSettings(Settings{.durationAdjustment = chosenAdjustment()}),
+               ContainsSubstring("\nduration-adjust.speed = 12.5\n"));
+}
+
+TEST_CASE("a value of the duration adjustment that cannot be read leaves its default", "[config]") {
+    // A speed of zero or less is not a speed, a negative duration is not a
+    // duration, and neither is text: each is named, and the default stays.
+    for (const char* line : {"duration-adjust.speed = fast\n",
+                             "duration-adjust.speed = 0\n",
+                             "duration-adjust.speed = -3\n",
+                             "duration-adjust.speed = nan\n",
+                             "duration-adjust.speed = inf\n",
+                             "duration-adjust.lengthen = maybe\n",
+                             "duration-adjust.minimum-ms = -1\n",
+                             "duration-adjust.minimum-ms = 1.5\n",
+                             "duration-adjust.maximum-ms = -6000\n",
+                             "duration-adjust.gap-ms = soon\n",
+                             "duration-adjust.gap-ms = -80\n"}) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.durationAdjustment == DurationAdjustmentSettings{});
+        CHECK(read.diagnostics.size() == 1);
+    }
+
+    // One bad value does not spare the good ones around it.
+    const SettingsRead mixed =
+        readOf("duration-adjust.speed = 0\nduration-adjust.minimum-ms = 2000\n");
+    CHECK(mixed.settings.durationAdjustment.charactersPerSecond == 15.0);
+    CHECK(mixed.settings.durationAdjustment.minimumMilliseconds == 2000);
+    REQUIRE(mixed.diagnostics.size() == 1);
+    CHECK(mixed.diagnostics.front().key == "duration-adjust.speed");
+}
+
+TEST_CASE("a duration of zero is a duration, and a speed above ninety-nine is read", "[config]") {
+    // Zero milliseconds is a real minimum and a real gap. The speed's upper
+    // bound is the dialog's business: what the file says is kept, and the box
+    // clamps what it shows.
+    const SettingsRead read =
+        readOf("duration-adjust.minimum-ms = 0\nduration-adjust.speed = 120\n");
+
+    CHECK(read.settings.durationAdjustment.minimumMilliseconds == 0);
+    CHECK(read.settings.durationAdjustment.charactersPerSecond == 120.0);
+    CHECK(read.diagnostics.empty());
 }

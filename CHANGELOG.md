@@ -9,6 +9,41 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **gui** — Les gestes sans dialogue parlent dans la barre d'état
+- **gui** — L'ajustement des durées garde la valeur d'une case décochée
+- **core** — Les réglages d'ajustement des durées survivent à la session
+
+### Corrections
+
+- **gui** — Oublier la cible de recherche lors d'une réinitialisation
+- **core** — Ne plus compter un remplacement qui ne change rien
+- **core** — Comparer le texte réassemblé, pas le texte visible du coup
+- **gui** — Valider la cellule en édition avant un geste sans dialogue
+- **gui** — Replace All sans effet dit nothing to change
+
+### Documentation
+
+- **doc** — Validation de la saisie (#397) et bornes du dialogue (#409)
+
+### Remaniements
+
+- **core** — Factoriser la boucle de réécriture de textes
+- **core** — Migrer les opérations de texte vers rewriteTexts
+- **core** — Déplacer les comptes rendus de texte vers wording.hpp
+- **core** — Retirer replacingAll et convertir SetDurationCommand
+- **core** — Valider la vitesse de lecture à la construction
+- **core** — Le maximum par défaut de l'ajustement migre au noyau
+- **core** — RewriteTexts devient un gabarit, sans std::function
+
+### Tests
+
+- Les deux bloquants de make check du lot
+- **gui** — Rattacher le test de la cible oubliée à GUI-SEARCH-02
+
+## 0.10.15 — 2026-09-16
+
 ### Corrections
 
 - **text** — Seul un remplacement pousse les balises qu'il atteint

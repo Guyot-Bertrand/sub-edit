@@ -186,6 +186,26 @@ TEST_CASE("a search that finds nothing says so, and touches nothing", "[gui][GUI
     CHECK(prompts.outcomes.empty());
 }
 
+TEST_CASE("a replacement that changes nothing says so, and writes nothing",
+          "[gui][GUI-SEARCH-01]") {
+    // « Marie » is in the document, so this is not « not found »; replacing it
+    // by itself leaves the text as it was, so nothing enters the history and
+    // nothing is « replaced ».
+    InMemoryFileSystem files = withFour();
+    FakePrompts prompts;
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
+    const SearchDialog& dialog = searching(window, "Marie");
+    dialog.ignoreCaseCheck()->setChecked(false);
+    dialog.replacementField()->setText(QStringLiteral("Marie"));
+
+    dialog.replaceAllButton()->click();
+
+    CHECK(statusOf(dialog) == "nothing to change");
+    CHECK(textAt(window, 0) == "Bonjour Marie.");
+    CHECK_FALSE(window.undoAction()->isEnabled());
+}
+
 TEST_CASE("replace rewrites the match found, keeps its tags, and moves on",
           "[gui][GUI-SEARCH-01]") {
     InMemoryFileSystem files = withFour();
@@ -347,4 +367,32 @@ TEST_CASE("preferences read while the dialog is open reach it", "[gui][GUI-SEARC
 
     CHECK(dialog.regexCheck()->isChecked());
     CHECK_FALSE(dialog.ignoreCaseCheck()->isChecked());
+}
+
+TEST_CASE("an undo that resets the model forgets a stale search target", "[gui][GUI-SEARCH-02]") {
+    // Four subtitles; select the fourth, split it into a fifth. The search
+    // then captures a target of {3, 4} before the split is undone.
+    InMemoryFileSystem files = withFour();
+    FakePrompts prompts;
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
+
+    selectRow(window, 3);
+    window.splitAction()->trigger();
+    CHECK(selectedRows(window) == std::vector<int>{3, 4});
+
+    const SearchDialog& dialog = searching(window, "marie");
+    dialog.nextButton()->click();
+    CHECK(selectedRows(window) == std::vector<int>{3});
+
+    // The split is undone: back to four subtitles, and the model was reset
+    // rather than told which rows changed — Qt clears the selection without a
+    // `selectionChanged`.
+    window.undoAction()->trigger();
+
+    // Before the fix, this throws `std::out_of_range` out of `spansAt`.
+    // With the fix, the search target and match are reset, so the search
+    // starts from the beginning of the document.
+    dialog.nextButton()->click();
+    CHECK(selectedRows(window) == std::vector<int>{0});
 }

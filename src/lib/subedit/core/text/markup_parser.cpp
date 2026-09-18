@@ -594,25 +594,4 @@ std::string MarkupParser::text() const {
     return out;
 }
 
-std::string replacingAll(std::string_view text,
-                         std::string_view pattern,
-                         std::string_view replacement,
-                         SubtitleFormat format) {
-    if (pattern.empty())
-        return std::string{text};
-
-    MarkupParser parser{text, format};
-    bool found = false;
-    std::size_t at = 0;
-    while (true) {
-        const std::size_t which = parser.visible().find(pattern, at);
-        if (which == std::string_view::npos)
-            break;
-        parser.replace(which, pattern.size(), replacement);
-        at = which + MarkupParser{replacement, format}.visible().size();
-        found = true;
-    }
-    return found ? parser.text() : std::string{text};
-}
-
 } // namespace subedit::core

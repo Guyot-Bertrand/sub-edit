@@ -12,6 +12,7 @@
 #include <QAbstractItemModel>
 #include <QAction>
 #include <QItemSelectionModel>
+#include <QStatusBar>
 #include <QTableView>
 #include <catch2/catch_test_macros.hpp>
 
@@ -89,7 +90,7 @@ TEST_CASE("a case change enters the history, and comes back out", "[gui][GUI-CAS
     window.caseAction(LetterCase::Upper)->trigger();
     REQUIRE(window.undoAction()->isEnabled());
     CHECK(window.undoAction()->text().toStdString() == "Undo: changing the case");
-    CHECK(prompts.outcomes.back() == "2 subtitles recased");
+    CHECK(window.statusBar()->currentMessage().toStdString() == "2 subtitles recased");
 
     window.undoAction()->trigger();
     CHECK(textAt(window, 0) == "<i>bonjour</i> marie");
@@ -116,7 +117,7 @@ TEST_CASE("a target already in the case asked for is not an operation", "[gui][G
 
     window.caseAction(LetterCase::Lower)->trigger();
 
-    CHECK(prompts.outcomes.back() == "nothing to change");
+    CHECK(window.statusBar()->currentMessage().toStdString() == "nothing to change");
     CHECK_FALSE(window.undoAction()->isEnabled());
 }
 
@@ -129,13 +130,13 @@ TEST_CASE("one entry puts the dialogue dashes on and takes them off", "[gui][GUI
     window.dialogueDashesAction()->trigger();
     CHECK(textAt(window, 0) == "<i>- bonjour</i> marie");
     CHECK(textAt(window, 1) == "- au revoir");
-    CHECK(prompts.outcomes.back() == "2 subtitles dashed");
+    CHECK(window.statusBar()->currentMessage().toStdString() == "2 subtitles dashed");
     CHECK(window.undoAction()->text().toStdString() == "Undo: adding dialogue dashes");
 
     window.dialogueDashesAction()->trigger();
     CHECK(textAt(window, 0) == "<i>bonjour</i> marie");
     CHECK(textAt(window, 1) == "au revoir");
-    CHECK(prompts.outcomes.back() == "2 subtitles undashed");
+    CHECK(window.statusBar()->currentMessage().toStdString() == "2 subtitles undashed");
     CHECK(window.undoAction()->text().toStdString() == "Undo: removing dialogue dashes");
 }
 
@@ -151,7 +152,7 @@ TEST_CASE("one subtitle without a dash sends the whole target into them", "[gui]
     CHECK(textAt(window, 0) == "- bonjour");
     CHECK(textAt(window, 1) == "- au revoir");
     // One was already right, so only the other was rewritten.
-    CHECK(prompts.outcomes.back() == "1 subtitle dashed");
+    CHECK(window.statusBar()->currentMessage().toStdString() == "1 subtitle dashed");
 }
 
 TEST_CASE("the five entries are out on an empty document", "[gui][GUI-CASE-01]") {
@@ -182,9 +183,9 @@ TEST_CASE("a blank row has no case and no dash to give", "[gui][GUI-DASH-01]") {
 
     selectRow(window, 1);
     window.dialogueDashesAction()->trigger();
-    CHECK(prompts.outcomes.back() == "nothing to change");
+    CHECK(window.statusBar()->currentMessage().toStdString() == "nothing to change");
 
     window.caseAction(LetterCase::Sentence)->trigger();
-    CHECK(prompts.outcomes.back() == "nothing to change");
+    CHECK(window.statusBar()->currentMessage().toStdString() == "nothing to change");
     CHECK_FALSE(window.undoAction()->isEnabled());
 }

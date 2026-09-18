@@ -364,6 +364,20 @@ noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFormat to);
 /// What a search that found nothing says: Gaupol's « "…" not found ».
 [[nodiscard]] std::string notFound(std::string_view pattern);
 
+/// What no rewrite had to do — italics, case or dialogue dashes alike. Never
+/// followed by a history entry.
+[[nodiscard]] std::string_view nothingToChange();
+
+/// What toggling italics did: "N subtitle(s) put in italics" or "… taken out
+/// of italics".
+[[nodiscard]] std::string noticeOfItalics(std::size_t count, bool italic);
+
+/// What re-casing did: "N subtitle(s) recased".
+[[nodiscard]] std::string noticeOfRecase(std::size_t count);
+
+/// What toggling dialogue dashes did: "N subtitle(s) dashed" or "… undashed".
+[[nodiscard]] std::string noticeOfDialogueDashes(std::size_t count, bool dashed);
+
 /// What `Replace All` did: how many matches it replaced.
 [[nodiscard]] std::string noticeOfReplaceAll(std::size_t count);
 

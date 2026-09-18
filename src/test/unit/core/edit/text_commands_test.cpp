@@ -9,6 +9,7 @@
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/edit/dialogue_dashes_command.hpp>
 #include <subedit/core/edit/letter_case_command.hpp>
+#include <subedit/core/edit/rewrite_texts.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
@@ -33,7 +34,7 @@ using subedit::core::CommandKind;
 using subedit::core::Document;
 using subedit::core::LetterCase;
 using subedit::core::Project;
-using subedit::core::recasedCount;
+using subedit::core::rewrittenCount;
 using subedit::core::Selection;
 using subedit::core::setDialogueDashes;
 using subedit::core::setLetterCase;
@@ -98,7 +99,7 @@ TEST_CASE("the count is read from the command, and counts subtitles", "[edit]") 
 
     // One, and not three: the one already shouting is not rewritten, and the
     // blank one has nothing to case.
-    CHECK(recasedCount(*command) == 1);
+    CHECK(rewrittenCount(*command) == 1);
 }
 
 TEST_CASE("the dashes name which way they went, in the history", "[edit]") {

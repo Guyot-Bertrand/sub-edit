@@ -555,6 +555,20 @@ private:
     /// is read from the target before anything is built.
     void toggleDialogueDashesOnTarget();
 
+    /// Commits and closes the cell editor open on the table, if any — the same
+    /// validation a modal dialog already gets by taking the focus away.
+    ///
+    /// **Ahead of the seven gestures issue #397 names** — the italic, the
+    /// case, the dialogue dashes, merging, splitting, cutting and pasting
+    /// texts — so that the target each reads and the command it builds see the
+    /// edit already applied rather than racing it. Other gestures without a
+    /// dialog — copying texts, removing subtitles, undo and redo — do not call
+    /// it. Giving the table itself the focus is what a click elsewhere already
+    /// does, and the delegate's own focus-out handling — Qt's, unmodified —
+    /// takes it from there: it validates rather than discards, the same answer
+    /// a dialog already gave.
+    void commitCellEditor();
+
     /// **Initialised here, and not only in the constructor's list.**
     ///
     /// Three actions added together at issue #132 were left out of that list,
@@ -647,9 +661,9 @@ private:
     /// the copy and that of the document differ.
     core::ClipboardTexts m_clipboard;
 
-    /// What the last adjustment of durations asked for, offered again by the
-    /// next one. Gaupol's defaults until then.
-    core::DurationConstraints m_durationConstraints;
+    /// The form of the last adjustment of durations, offered again by the next
+    /// one. Gaupol's defaults until then.
+    core::DurationAdjustmentSettings m_durationSettings;
 
     /// The search dialog, made at its first opening and kept.
     SearchDialog* m_search = nullptr;
@@ -658,7 +672,9 @@ private:
     core::SearchOptions m_searchOptions;
 
     /// The match last found, which `Find Next` starts after and `Replace`
-    /// rewrites. Forgotten when the pattern, an option or the document changes.
+    /// rewrites. Forgotten when the pattern, an option or the document
+    /// changes — including a structural undo or redo, which resets the model
+    /// rather than reporting the change.
     std::optional<core::TextMatch> m_match;
 
     /// The target of the search under way, captured at its first gesture.

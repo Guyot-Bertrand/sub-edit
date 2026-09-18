@@ -2,6 +2,7 @@
 #include <subedit/core/command/composite_command.hpp>
 #include <subedit/core/edit/clipboard.hpp>
 #include <subedit/core/edit/insert_command.hpp>
+#include <subedit/core/edit/rewrite_texts.hpp>
 #include <subedit/core/edit/set_text_command.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
@@ -81,17 +82,9 @@ ClipboardTexts textsFromPlain(std::string_view plain) {
 
 std::unique_ptr<Command>
 cutTexts(const Project& project, const Selection& selection, Document document) {
-    std::vector<std::unique_ptr<Command>> commands;
-    for (const SubtitleIndex index : selection.indices()) {
-        if (project.subtitleAt(index).text(document).empty())
-            continue;
-        commands.push_back(
-            std::make_unique<SetTextCommand>(project, index, document, std::string{}));
-    }
-
-    if (commands.empty())
-        return nullptr;
-    return std::make_unique<CompositeCommand>(CommandKind::Cut, std::move(commands));
+    return rewriteTexts(project, selection, document, CommandKind::Cut, [](const std::string&) {
+        return std::string{};
+    });
 }
 
 PastedTexts pasteTexts(const Project& project,

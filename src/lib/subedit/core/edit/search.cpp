@@ -236,7 +236,12 @@ template<typename Pick>
 /// Rewrites every match of `compiled` in `text`, or only the one at `only`.
 struct Rewritten {
     std::string text;
+
+    /// Matches replaced in a text that really changed; zero when it did not.
     std::size_t count = 0;
+
+    /// Matches found and replaced, whether or not the text ended up different.
+    std::size_t matched = 0;
     Span written{};
 };
 
@@ -256,6 +261,7 @@ struct Rewritten {
 
         parser.replace(found->span.start, found->span.end - found->span.start, found->replacement);
         ++rewritten.count;
+        ++rewritten.matched;
 
         const std::size_t length = MarkupParser{found->replacement, format}.visible().size();
         rewritten.written = {.start = found->span.start, .end = found->span.start + length};
@@ -269,10 +275,20 @@ struct Rewritten {
                  : nextCharacter(parser.visible(), rewritten.written.end);
     }
 
-    // A subtitle nothing matched keeps its bytes: the reassembly is not the
-    // identity, and a search that finds nothing must not tidy a file.
-    if (rewritten.count > 0)
-        rewritten.text = parser.text();
+    // A subtitle nothing really changed keeps its bytes and its zero count:
+    // `MarkupParser::replace` can leave the stored text exactly as it was —
+    // replacing a match by itself, with no tag to widen across it — and a
+    // match found is not the same thing as a change made. Compared once,
+    // reassembled, after the loop: a per-match visible-text comparison would
+    // miss a tag `replace` widens across a word even when what is replaced
+    // reads the same — this fix once regressed exactly that.
+    if (rewritten.count > 0) {
+        std::string reassembled = parser.text();
+        if (reassembled == text)
+            rewritten.count = 0;
+        else
+            rewritten.text = std::move(reassembled);
+    }
     return rewritten;
 }
 
@@ -416,6 +432,7 @@ ReplacedAll replaceAll(const Project& project,
         const Rewritten rewritten = rewrite(
             text, project.sourceFile().format, pattern.compiled(), replacement, std::nullopt);
         replaced.count += rewritten.count;
+        replaced.matched += rewritten.matched;
         if (rewritten.text != text)
             commands.push_back(
                 std::make_unique<SetTextCommand>(project, index, Document::Main, rewritten.text));

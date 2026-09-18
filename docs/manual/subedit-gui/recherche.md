@@ -119,9 +119,17 @@ Sous les boutons, une ligne dit ce que la recherche n'a pas pu faire, ou ce qu'u
 | aucune correspondance dans la cible | `"Sophie" not found` |
 | une expression régulière qui ne se lit pas | `not a regular expression (U_REGEX_MISMATCHED_PAREN)` |
 | `Replace All` a remplacé | `replaced 3 matches` |
+| `Replace All` a trouvé le motif, mais le remplacement ne change aucun texte | `nothing to change` |
 
 **Une recherche qui ne trouve rien ne touche à rien** : la sélection reste où
 elle était, et rien n'entre dans l'historique.
+
+**`not found` et `nothing to change` ne disent pas la même chose.** `not found`
+dit que le motif n'est nulle part dans la cible. `nothing to change` dit qu'il
+y est, mais que le remplacement laisse chaque texte tel qu'il était — remplacer
+`Marie` par `Marie`, par exemple. Dans les deux cas rien n'entre dans
+l'historique. Le nombre de `replaced N matches` compte les correspondances des
+sous-titres dont le texte a changé.
 
 ## Ce que l'action d'annulation en dit
 

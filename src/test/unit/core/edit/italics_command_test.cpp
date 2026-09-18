@@ -8,6 +8,7 @@
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/edit/italics_command.hpp>
+#include <subedit/core/edit/rewrite_texts.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
@@ -169,5 +170,5 @@ TEST_CASE("the count comes from the command, and counts subtitles", "[edit]") {
     REQUIRE(command != nullptr);
 
     // Two, and not three: the one already in italics is not rewritten.
-    CHECK(subedit::core::italicisedCount(*command) == 2);
+    CHECK(subedit::core::rewrittenCount(*command) == 2);
 }

@@ -155,10 +155,13 @@ avec un objectif d'iso-fonctionnalité.
 
   **Anglais aussi pour tout ce que le binaire écrit à un utilisateur** — sortie
   standard, sortie d'erreur, en-têtes de colonne, libellés de menu, messages de
-  dialogue. Les deux surfaces disent les mêmes mots, et
-  [`core/wording.hpp`](src/lib/subedit/core/wording.hpp) est l'unique endroit
-  où ils sont écrits. La traduction est une phase à elle seule ; d'ici là, une
-  seule langue.
+  dialogue. **Ce que les deux surfaces peuvent dire toutes les deux** — le nom
+  d'un format, un compte rendu d'opération, une raison d'échec — vit dans
+  [`core/wording.hpp`](src/lib/subedit/core/wording.hpp), l'unique endroit où
+  c'est écrit ; **un libellé de menu ou de dialogue, propre à la fenêtre et
+  sans équivalent en ligne de commande, reste dans le fichier de la fenêtre**
+  — la règle porte sur les mots partagés, pas sur la surface qui les affiche.
+  La traduction est une phase à elle seule ; d'ici là, une seule langue.
 
   Cette ligne manquait, et le silence a coûté : la fenêtre des phases 5 est née
   en français — « N° », « Début », « Annuler : décalage » — pendant que la

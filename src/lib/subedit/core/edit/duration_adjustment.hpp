@@ -19,19 +19,41 @@ inline constexpr double kDefaultReadingSpeed = 15.0;
 /// Gaupol's default minimum duration, in milliseconds.
 inline constexpr std::int64_t kDefaultMinimumMilliseconds = 1500;
 
+/// Gaupol's default maximum duration, in milliseconds — off by default, and
+/// this is only what a switched-off field shows.
+inline constexpr std::int64_t kDefaultMaximumMilliseconds = 6000;
+
 /// The reading speed a duration is measured against, and which way it may move
 /// an end.
-struct ReadingSpeed {
+///
+/// Built through `create`, which refuses what is not a speed: the constructor
+/// is private, so a value of this type is always strictly positive.
+class ReadingSpeed {
+
+public:
+    /// Builds a reading speed, or nothing if `charactersPerSecond` is zero or
+    /// less.
+    [[nodiscard]] static std::optional<ReadingSpeed>
+    create(double charactersPerSecond, bool lengthen, bool shorten);
+
     /// Visible characters per second. Strictly positive.
-    double charactersPerSecond = kDefaultReadingSpeed;
+    [[nodiscard]] double charactersPerSecond() const { return m_charactersPerSecond; }
 
     /// Moves the end later when the text needs more time to be read.
-    bool lengthen = true;
+    [[nodiscard]] bool lengthen() const { return m_lengthen; }
 
     /// Moves the end earlier when the text is on screen longer than it needs.
-    bool shorten = false;
+    [[nodiscard]] bool shorten() const { return m_shorten; }
 
     friend bool operator==(const ReadingSpeed&, const ReadingSpeed&) = default;
+
+private:
+    ReadingSpeed(double charactersPerSecond, bool lengthen, bool shorten)
+        : m_charactersPerSecond(charactersPerSecond), m_lengthen(lengthen), m_shorten(shorten) {}
+
+    double m_charactersPerSecond;
+    bool m_lengthen;
+    bool m_shorten;
 };
 
 /// The four constraints of `adjust_durations` — decision D2 of the phase-10
@@ -45,7 +67,7 @@ struct ReadingSpeed {
 /// The defaults are Gaupol's: a speed of fifteen characters a second that only
 /// lengthens, a minimum of 1.5 s, no maximum, and a gap of zero.
 struct DurationConstraints {
-    std::optional<ReadingSpeed> speed = ReadingSpeed{};
+    std::optional<ReadingSpeed> speed = ReadingSpeed::create(kDefaultReadingSpeed, true, false);
     std::optional<Duration> minimum = Duration::fromMilliseconds(kDefaultMinimumMilliseconds);
     std::optional<Duration> maximum{};
     std::optional<Duration> gap = Duration::zero();
@@ -53,7 +75,7 @@ struct DurationConstraints {
     /// Tells whether any constraint is active, and so whether adjusting could
     /// do anything at all.
     [[nodiscard]] bool isAny() const {
-        const bool reads = speed.has_value() && (speed->lengthen || speed->shorten);
+        const bool reads = speed.has_value() && (speed->lengthen() || speed->shorten());
         return reads || minimum.has_value() || maximum.has_value() || gap.has_value();
     }
 
