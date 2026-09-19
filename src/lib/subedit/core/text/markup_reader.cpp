@@ -39,6 +39,42 @@ void append(std::vector<MarkupPiece>& pieces, const MarkupPiece& piece, std::str
     pieces.push_back(piece);
 }
 
+/// The character that opens a tag in `vocabulary`, when it has one.
+[[nodiscard]] std::optional<char> openerOf(MarkupVocabulary vocabulary) {
+    switch (vocabulary) {
+    case MarkupVocabulary::None:
+        return std::nullopt;
+    case MarkupVocabulary::Html:
+        return '<';
+    case MarkupVocabulary::SubStationAlpha:
+    case MarkupVocabulary::MicroDvd:
+    case MarkupVocabulary::Mpl2:
+        return '{';
+    }
+    std::unreachable();
+}
+
+/// Where the run of text that includes `text[at]` ends: at the next character
+/// that could start something else.
+///
+/// A subtitle is mostly text, and this is the loop the whole core reads its tags
+/// through, so a run is appended as one piece rather than a character at a time.
+/// In MPL2 a marker follows a line break, so a break ends the run there; nothing
+/// else can follow a character of text.
+[[nodiscard]] std::size_t
+endOfTextRun(std::string_view text, std::size_t at, MarkupVocabulary vocabulary) {
+    const std::size_t from = at + 1;
+    std::size_t end = std::string_view::npos;
+    if (vocabulary == MarkupVocabulary::Mpl2) {
+        if (text[at] == '\n')
+            return from;
+        end = text.find_first_of("{\n", from);
+    } else if (const std::optional<char> opener = openerOf(vocabulary)) {
+        end = text.find(*opener, from);
+    }
+    return end == std::string_view::npos ? text.size() : end;
+}
+
 } // namespace
 
 std::vector<MarkupPiece> piecesOf(std::string_view text, MarkupVocabulary vocabulary) {
@@ -81,18 +117,7 @@ std::vector<MarkupPiece> piecesOf(std::string_view text, MarkupVocabulary vocabu
 
         atLineHead = text[at] == '\n';
 
-        // The text runs on to the next character that could start something
-        // else, and is appended as one piece rather than a character at a time:
-        // a subtitle is mostly text, and this is the loop the whole core reads
-        // its tags through. In MPL2 a marker follows a line break, so a break
-        // ends the run there; nothing else can follow a character of text.
-        std::size_t end = at + 1;
-        if (!(markers && atLineHead)) {
-            end = markers ? text.find_first_of("{\n", end)
-                          : (angles || braces ? text.find(opening, end) : std::string_view::npos);
-            if (end == std::string_view::npos)
-                end = text.size();
-        }
+        const std::size_t end = endOfTextRun(text, at, vocabulary);
         append(pieces,
                MarkupPiece{
                    .kind = MarkupPiece::Kind::Text, .text = text.substr(at, end - at), .at = at},
@@ -103,18 +128,10 @@ std::vector<MarkupPiece> piecesOf(std::string_view text, MarkupVocabulary vocabu
 }
 
 bool mayHoldMarkup(std::string_view text, MarkupVocabulary vocabulary) {
-    switch (vocabulary) {
-    case MarkupVocabulary::None:
-        return false;
-    case MarkupVocabulary::Html:
-        return text.contains('<');
-    case MarkupVocabulary::SubStationAlpha:
-    case MarkupVocabulary::MicroDvd:
-        return text.contains('{');
-    case MarkupVocabulary::Mpl2:
+    if (vocabulary == MarkupVocabulary::Mpl2)
         return true;
-    }
-    std::unreachable();
+    const std::optional<char> opener = openerOf(vocabulary);
+    return opener.has_value() && text.contains(*opener);
 }
 
 HtmlTag htmlTagOf(std::string_view tag) {
