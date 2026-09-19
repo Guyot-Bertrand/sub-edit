@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Corrections
 
+- **gui** — Une seule boîte quand une opération dépasse la fin du film
+
+## 0.10.19 — 2026-09-19
+
+### Corrections
+
 - **core** — Copier un texte vide comme un trou, sur les deux routes
 
 ### Documentation
