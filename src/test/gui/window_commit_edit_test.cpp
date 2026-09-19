@@ -113,69 +113,74 @@ struct Gesture {
 void arrangeNothing(const MainWindow& /*window*/) {}
 
 const std::array<Gesture, 9> kGestures = {{
-    {"title case",
-     arrangeNothing,
-     [](const MainWindow& w) { return w.caseAction(LetterCase::Title); },
-     "Bonjour Marie",
-     nullptr},
-    {"sentence case",
-     arrangeNothing,
-     [](const MainWindow& w) { return w.caseAction(LetterCase::Sentence); },
-     "Bonjour marie",
-     nullptr},
-    {"upper case",
-     arrangeNothing,
-     [](const MainWindow& w) { return w.caseAction(LetterCase::Upper); },
-     "BONJOUR MARIE",
-     nullptr},
-    {"lower case",
-     arrangeNothing,
-     [](const MainWindow& w) { return w.caseAction(LetterCase::Lower); },
-     "bonjour marie",
-     nullptr},
-    {"dialogue dashes",
-     arrangeNothing,
-     [](const MainWindow& w) { return w.dialogueDashesAction(); },
-     "- BONJOUR marie",
-     nullptr},
-    {"cut",
-     arrangeNothing,
-     [](const MainWindow& w) { return w.cutAction(); },
-     "",
-     [](const MainWindow& /*w*/) {
-         // What went to the clipboard is what the row held when it was cut.
-         CHECK(QGuiApplication::clipboard()->text().toStdString() == "BONJOUR marie");
-     }},
-    {"paste",
-     [](const MainWindow& /*w*/) {
-         QGuiApplication::clipboard()->setText(QStringLiteral("pasted"));
-     },
-     [](const MainWindow& w) { return w.pasteAction(); },
-     "pasted",
-     [](const MainWindow& w) {
-         // What the paste replaced is the committed text, which undoing it
-         // must give back: the model's earlier text is not what was there.
-         w.undoAction()->trigger();
-         CHECK(textAt(w, 0) == "BONJOUR marie");
-     }},
-    {"merge",
-     [](const MainWindow& w) { selectRow(w, 1); },
-     [](const MainWindow& w) { return w.mergeAction(); },
-     "BONJOUR marie\nau revoir",
-     [](const MainWindow& w) {
-         CHECK(rowCount(w) == 2);
-         CHECK(textAt(w, 1) == "trois");
-     }},
-    {"split",
-     arrangeNothing,
-     [](const MainWindow& w) { return w.splitAction(); },
-     "BONJOUR marie",
-     [](const MainWindow& w) {
-         // The text stays with the first half, and the second starts empty.
-         CHECK(rowCount(w) == 4);
-         CHECK(textAt(w, 1).empty());
-         CHECK(textAt(w, 2) == "au revoir");
-     }},
+    {.name = "title case",
+     .arrange = arrangeNothing,
+     .action = [](const MainWindow& w) { return w.caseAction(LetterCase::Title); },
+     .firstText = "Bonjour Marie",
+     .verify = nullptr},
+    {.name = "sentence case",
+     .arrange = arrangeNothing,
+     .action = [](const MainWindow& w) { return w.caseAction(LetterCase::Sentence); },
+     .firstText = "Bonjour marie",
+     .verify = nullptr},
+    {.name = "upper case",
+     .arrange = arrangeNothing,
+     .action = [](const MainWindow& w) { return w.caseAction(LetterCase::Upper); },
+     .firstText = "BONJOUR MARIE",
+     .verify = nullptr},
+    {.name = "lower case",
+     .arrange = arrangeNothing,
+     .action = [](const MainWindow& w) { return w.caseAction(LetterCase::Lower); },
+     .firstText = "bonjour marie",
+     .verify = nullptr},
+    {.name = "dialogue dashes",
+     .arrange = arrangeNothing,
+     .action = [](const MainWindow& w) { return w.dialogueDashesAction(); },
+     .firstText = "- BONJOUR marie",
+     .verify = nullptr},
+    {.name = "cut",
+     .arrange = arrangeNothing,
+     .action = [](const MainWindow& w) { return w.cutAction(); },
+     .firstText = "",
+     .verify =
+         [](const MainWindow& /*w*/) {
+             // What went to the clipboard is what the row held when it was cut.
+             CHECK(QGuiApplication::clipboard()->text().toStdString() == "BONJOUR marie");
+         }},
+    {.name = "paste",
+     .arrange =
+         [](const MainWindow& /*w*/) {
+             QGuiApplication::clipboard()->setText(QStringLiteral("pasted"));
+         },
+     .action = [](const MainWindow& w) { return w.pasteAction(); },
+     .firstText = "pasted",
+     .verify =
+         [](const MainWindow& w) {
+             // What the paste replaced is the committed text, which undoing it
+             // must give back: the model's earlier text is not what was there.
+             w.undoAction()->trigger();
+             CHECK(textAt(w, 0) == "BONJOUR marie");
+         }},
+    {.name = "merge",
+     .arrange = [](const MainWindow& w) { selectRow(w, 1); },
+     .action = [](const MainWindow& w) { return w.mergeAction(); },
+     .firstText = "BONJOUR marie\nau revoir",
+     .verify =
+         [](const MainWindow& w) {
+             CHECK(rowCount(w) == 2);
+             CHECK(textAt(w, 1) == "trois");
+         }},
+    {.name = "split",
+     .arrange = arrangeNothing,
+     .action = [](const MainWindow& w) { return w.splitAction(); },
+     .firstText = "BONJOUR marie",
+     .verify =
+         [](const MainWindow& w) {
+             // The text stays with the first half, and the second starts empty.
+             CHECK(rowCount(w) == 4);
+             CHECK(textAt(w, 1).empty());
+             CHECK(textAt(w, 2) == "au revoir");
+         }},
 }};
 
 } // namespace

@@ -256,9 +256,9 @@ TEST_CASE("the corpus of the phase is well formed, whatever plays it", "[test][t
         std::size_t cases;
     };
 
-    for (const Corpus& corpus : {Corpus{"textes/recherche.cas", 31},
-                                 Corpus{"textes/recherche-accolades.cas", 8},
-                                 Corpus{"textes/recherche-expressions.cas", 7}}) {
+    for (const Corpus& corpus : {Corpus{.file = "textes/recherche.cas", .cases = 31},
+                                 Corpus{.file = "textes/recherche-accolades.cas", .cases = 8},
+                                 Corpus{.file = "textes/recherche-expressions.cas", .cases = 7}}) {
         INFO("corpus : " << corpus.file);
         const std::vector<ReplacementCase> decided = replacementCasesOf(corpus.file);
 
