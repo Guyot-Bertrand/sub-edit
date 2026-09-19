@@ -274,6 +274,25 @@ personne n'a demandé de toucher.
 `paste_texts`, qui insère des sous-titres vides à la fin pour recevoir ce qui
 dépasse, et dit combien.
 
+**Un texte vide, copié, est un trou** — tranché par #417. Le texte brut que le
+presse-papiers du système reçoit ne distingue pas un trou d'un texte vide : les
+deux s'y écrivent comme un morceau vide entre deux lignes vides. Une copie qui les
+gardait distincts se collait donc de deux façons selon la route — depuis la
+même fenêtre, le texte vide écrasait la ligne cible ; relue depuis le système, il
+la laissait telle quelle. Gaupol ne connaît qu'une route : `_paste_texts` lit
+toujours le presse-papiers du système d'abord, et `set_string` y relit tout `""`
+comme `None`, c'est-à-dire un trou. `subedit` fait de même, une fois, à la copie :
+une ligne sélectionnée sans texte s'enregistre comme une ligne laissée hors de la
+sélection, et la ligne cible garde son texte.
+
+**Un seul écart avec Gaupol, et il est voulu** : une copie qui ne porte qu'un
+texte vide. Chez Gaupol, `if text:` est faux pour `""`, la copie interne prend le
+relais et écrase la cible ; ici, elle ne colle rien. Cet écart tient à cette
+condition, que rien ne donne pour une règle — les tests de collage de Gaupol ne
+fixent que la réversibilité et le nombre de lignes, jamais ce qu'un texte vide
+écrase — et le garder aurait fait dépendre le résultat du nombre de lignes
+copiées.
+
 **Un texte collé depuis un document d'un autre format voit ses balises traduites,
 et la perte est dite.** Gaupol ne le fait pas et dépose du `{\i1}` dans un
 SubRip — la salissure que l'ADR 0031 a été écrite pour finir et que #364 a

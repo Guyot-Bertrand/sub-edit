@@ -32,9 +32,15 @@ tapé. Voir [Éditer une cellule](edition.md).
 dernière. **Une sélection discontinue garde sa forme** : une ligne laissée hors
 de la sélection devient un trou, et le collage ne l'écrasera pas.
 
+**Une ligne sélectionnée dont le texte est vide devient un trou, elle aussi** :
+collée, elle laisse la ligne cible telle quelle. Copier un seul texte vide ne
+colle donc rien.
+
 Le presse-papiers du système reçoit ces textes **en texte brut, séparés par une
-ligne vide** — un trou s'y écrit comme un texte vide. Ce qu'on copie ici se colle
-donc dans n'importe quel programme, et ce qu'on copie ailleurs se colle ici.
+ligne vide** — un trou s'y écrit comme un texte vide, et c'est pourquoi un texte
+vide ne peut pas être autre chose qu'un trou : le collage donne le même résultat
+que la copie vienne de cette fenêtre ou d'un autre programme. Ce qu'on copie ici se
+colle donc dans n'importe quel programme, et ce qu'on copie ailleurs se colle ici.
 
 Copier ne modifie pas le document, et n'entre pas dans l'historique.
 
@@ -55,7 +61,7 @@ sélectionnée**, une ligne par texte, vers le bas.
 | Ce que contient le presse-papiers | Ce qui se passe |
 | :-------------------------------- | :-------------- |
 | un texte | il remplace celui de la ligne |
-| un trou | la ligne garde son texte |
+| un trou, ou un texte vide copié | la ligne garde son texte |
 | plus de textes qu'il ne reste de lignes | des lignes sont ajoutées à la fin pour les recevoir |
 
 Les lignes ajoutées naissent comme des lignes insérées après la dernière : trois
