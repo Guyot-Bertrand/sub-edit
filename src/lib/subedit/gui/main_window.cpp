@@ -1359,7 +1359,7 @@ void MainWindow::toggleItalicsOnTarget() {
         // Every text was already the way it was asked for. Say so, and put
         // nothing in the history: an operation that changes nothing is not an
         // operation to undo.
-        statusBar()->showMessage(QString::fromStdString(std::string{core::nothingToChange()}),
+        statusBar()->showMessage(QString::fromStdString(core::nothingToChange()),
                                  kOperationStatusTimeoutMs);
         return;
     }
@@ -1385,7 +1385,7 @@ void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
     std::unique_ptr<core::Command> command =
         core::setLetterCase(m_session->project(), target, core::Document::Main, wanted);
     if (!command) {
-        statusBar()->showMessage(QString::fromStdString(std::string{core::nothingToChange()}),
+        statusBar()->showMessage(QString::fromStdString(core::nothingToChange()),
                                  kOperationStatusTimeoutMs);
         return;
     }
@@ -1409,7 +1409,7 @@ void MainWindow::toggleDialogueDashesOnTarget() {
     std::unique_ptr<core::Command> command =
         core::setDialogueDashes(m_session->project(), target, core::Document::Main, dashed);
     if (!command) {
-        statusBar()->showMessage(QString::fromStdString(std::string{core::nothingToChange()}),
+        statusBar()->showMessage(QString::fromStdString(core::nothingToChange()),
                                  kOperationStatusTimeoutMs);
         return;
     }
@@ -1701,7 +1701,7 @@ void MainWindow::replaceAllInTarget() {
     if (replaced.count == 0) {
         m_search->setStatus(QString::fromStdString(
             replaced.matched == 0 ? core::notFound(m_search->pattern().toStdString())
-                                  : std::string{core::nothingToChange()}));
+                                  : core::nothingToChange()));
         return;
     }
 

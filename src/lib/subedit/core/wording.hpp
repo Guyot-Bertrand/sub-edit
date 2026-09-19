@@ -280,9 +280,8 @@ namespace subedit::core {
 /// subtitles reach past the end, and by how much the furthest of them does.
 ///
 /// **It names the operation**, which is the whole reason it takes a kind.
-/// Shifting, transforming and converting a frame rate overshoot in three
-/// different ways, and a notice that did not say which one had just run would
-/// leave the user to guess between the three.
+/// The operations that can overshoot do it in different ways, and a notice that
+/// did not say which one had just run would leave the user to guess.
 ///
 /// A notice and not a refusal: nothing was prevented, and the sentence is
 /// written to be read after the fact.
@@ -366,7 +365,7 @@ noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFormat to);
 
 /// What no rewrite had to do — italics, case or dialogue dashes alike. Never
 /// followed by a history entry.
-[[nodiscard]] std::string_view nothingToChange();
+[[nodiscard]] std::string nothingToChange();
 
 /// What toggling italics did: "N subtitle(s) put in italics" or "… taken out
 /// of italics".

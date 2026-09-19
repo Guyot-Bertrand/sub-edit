@@ -112,14 +112,16 @@ TEST_CASE("a duration of zero or less is no duration at all", "[video][bounds]")
     CHECK_FALSE(beyondEnd(project, Selection::all(project), seconds(-5)).has_value());
 }
 
-// Which operations the notice is branched onto — decision D4 names three, and
-// `beyondEnd` cannot tell them apart on its own: it reads the state an
-// operation produced, not whether that operation moved anything.
-TEST_CASE("three operations can put a subtitle past the end", "[video][bounds]") {
+// Which operations the notice is branched onto — five, and `beyondEnd` cannot
+// tell them apart on its own: it reads the state an operation produced, not
+// whether that operation moved anything.
+TEST_CASE("the operations that move a position can put a subtitle past the end",
+          "[video][bounds]") {
     using subedit::core::CommandKind;
     using subedit::core::movesPositions;
 
     CHECK(movesPositions(CommandKind::Shift));
+    CHECK(movesPositions(CommandKind::AdjustDurations));
     CHECK(movesPositions(CommandKind::Transform));
     CHECK(movesPositions(CommandKind::ConvertFrameRate));
     CHECK(movesPositions(CommandKind::Snap));
