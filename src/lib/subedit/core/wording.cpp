@@ -503,7 +503,7 @@ std::string notFound(std::string_view pattern) {
     return "\"" + std::string{pattern} + "\" not found";
 }
 
-std::string_view nothingToChange() {
+std::string nothingToChange() {
     return "nothing to change";
 }
 

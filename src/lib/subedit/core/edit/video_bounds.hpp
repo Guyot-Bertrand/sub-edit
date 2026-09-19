@@ -37,11 +37,12 @@ struct BeyondEnd {
 /// Nothing too for a length of zero or less, which is not a film.
 ///
 /// **Read after the operation, on the state it produced.** That is what the
-/// window shows, and it is what keeps this one function from being three:
-/// shifting, transforming and converting a frame rate reach past the end in
-/// three different ways, and all three arrive here as subtitles that now end
-/// too late. Re-deriving each operation's arithmetic to say so beforehand
-/// would be three copies of what the commands already compute.
+/// window shows, and it is what keeps this one function from being five:
+/// shifting, transforming, converting a frame rate, adjusting durations and
+/// aligning reach past the end in different ways, and all of them arrive here
+/// as subtitles that now end too late. Re-deriving each operation's arithmetic
+/// to say so beforehand would be five copies of what the commands already
+/// compute.
 ///
 /// **`selection` is what the operation touched.** A subtitle nobody moved,
 /// already past the end because the associated film is the wrong one, is not
@@ -64,10 +65,14 @@ beyondEnd(const Project& project, const Selection& selection, std::optional<Dura
 /// anything. Removing hearing-impaired mentions from subtitles that were
 /// already past the end would otherwise be reported as having put them there.
 ///
-/// Three kinds answer yes, and decision D4 names the same three: shifting,
-/// transforming, converting a frame rate. They overshoot in three different
-/// ways and arrive at the same place, which is what `noticeOf` says in three
-/// sentences.
+/// Five kinds answer yes: shifting, transforming, converting a frame rate,
+/// adjusting durations and aligning on a frame rate. Decision D4 fixes the rule
+/// — a notice, never a refusal — and not the list: the first three are what
+/// the phase that wrote it wired the notice onto, and the last two came with
+/// the phases that added them, an adjustment lengthening an end past the film
+/// and an alignment moving every position it takes onto a frame. They
+/// overshoot in different ways and arrive at the same place, which is what
+/// `noticeOf` says in one sentence each.
 ///
 /// **Editing a start or an end by hand is not among them**, though it moves
 /// one: that is a user typing a position they can see, and telling them it
