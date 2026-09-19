@@ -11,6 +11,16 @@ ne pas l'éditer à la main.
 
 ### Corrections
 
+- **core** — Copier un texte vide comme un trou, sur les deux routes
+
+### Documentation
+
+- **doc** — Dire dans D6 et le manuel qu'un texte vide copié est un trou
+
+## 0.10.18 — 2026-09-19
+
+### Corrections
+
 - **gui** — Valider la cellule en édition avant copier, supprimer et undo
 
 ### Documentation
