@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Remaniements
+
+- **core** — Aligner les commentaires de movesPositions sur le code
+
+## 0.10.20 — 2026-09-19
+
 ### Corrections
 
 - **gui** — Une seule boîte quand une opération dépasse la fin du film
