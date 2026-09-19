@@ -308,3 +308,38 @@ TEST_CASE("cutting texts that are already empty copies them and changes nothing"
     CHECK(textAt(window, 0) == "Un.");
     CHECK_FALSE(window.undoAction()->isEnabled());
 }
+
+TEST_CASE("an empty text pastes as a hole, whichever road the copy takes", "[gui][GUI-CLIP-01]") {
+    InMemoryFileSystem files = withFiles();
+    FakePrompts prompts;
+    MainWindow window{files, opened(files, "film.srt"), prompts};
+    window.show();
+
+    // A copy of three rows whose middle one has no text: cut it, copy the three,
+    // and put the middle text back — the copy is all that keeps the emptiness.
+    selectOnly(window, 1);
+    window.cutAction()->trigger();
+    REQUIRE(textAt(window, 1).empty());
+    window.table()->selectAll();
+    window.copyAction()->trigger();
+    window.undoAction()->trigger();
+    REQUIRE(textAt(window, 1) == "<i>Deux.</i>");
+
+    // First road: the same window, whose own copy the system clipboard still
+    // agrees with.
+    selectOnly(window, 0);
+    window.pasteAction()->trigger();
+    CHECK(textAt(window, 0) == "Un.");
+    CHECK(textAt(window, 1) == "<i>Deux.</i>");
+    CHECK(textAt(window, 2) == "Trois.");
+
+    // Second road: a window that has copied nothing, and reads the plain text
+    // the system holds, as it would from any other program.
+    MainWindow other{files, opened(files, "film.srt"), prompts};
+    other.show();
+    selectOnly(other, 0);
+    other.pasteAction()->trigger();
+    CHECK(textAt(other, 0) == "Un.");
+    CHECK(textAt(other, 1) == "<i>Deux.</i>");
+    CHECK(textAt(other, 2) == "Trois.");
+}

@@ -39,8 +39,14 @@ ClipboardTexts copyTexts(const Project& project, const Selection& selection, Doc
 
     for (std::size_t value = first; value <= last; ++value) {
         const SubtitleIndex index = SubtitleIndex::fromValue(value);
-        if (selection.contains(index))
-            copied.texts.emplace_back(project.subtitleAt(index).text(document));
+        // **A selected row with no text is a hole too.** The plain form cannot
+        // tell the two apart — both are an empty piece between two blank lines —
+        // so a copy that kept them apart would paste one way here and another
+        // from the system clipboard. Gaupol reads the system first and lands on
+        // the hole (`set_string`); this is where that is settled once.
+        const std::string& text = project.subtitleAt(index).text(document);
+        if (selection.contains(index) && !text.empty())
+            copied.texts.emplace_back(text);
         else
             copied.texts.emplace_back(std::nullopt);
     }

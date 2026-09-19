@@ -25,8 +25,11 @@ class Selection;
 /// timing nobody asked to touch.
 ///
 /// **One entry per row from the first selected to the last**, and a hole where
-/// a row was not selected. A discontinuous copy keeps its shape: pasted, the row
-/// in the gap is left as it was rather than overwritten.
+/// a row was not selected **or has no text**: the plain form writes both as the
+/// same empty piece, so a copy that told them apart would paste one way from
+/// here and another from anywhere else — issue #417. A discontinuous copy keeps
+/// its shape: pasted, the row in the gap is left as it was rather than
+/// overwritten, and so is a row whose copy was empty.
 ///
 /// **The format the texts were written in, when it is known.** A copy made in
 /// this program knows it, and a paste into a document of another format

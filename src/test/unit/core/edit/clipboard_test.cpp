@@ -67,6 +67,14 @@ using Texts = std::vector<std::optional<std::string>>;
     return project;
 }
 
+/// Three subtitles, the second with no text at all.
+[[nodiscard]] Project withAnEmptyMiddle() {
+    Project project;
+    project.setSubtitles({saying("Un.", 0), saying("", 2000), saying("Trois.", 4000)});
+    project.setSourceFile(SourceFile{.format = SubtitleFormat::SubRip});
+    return project;
+}
+
 [[nodiscard]] SubtitleIndex at(std::size_t index) {
     return SubtitleIndex::fromValue(index);
 }
@@ -111,9 +119,8 @@ TEST_CASE("copying nothing gives an empty clipboard", "[edit][clipboard]") {
 TEST_CASE("the plain form glues texts by a blank line, and a hole reads back as a hole",
           "[edit][clipboard]") {
     // Gaupol's `get_string` and `set_string`: a hole goes out as an empty text,
-    // and an empty text comes back as a hole. Only the hole is round-tripped
-    // here; what a selected row whose text is empty becomes on that road is
-    // left unpinned, the manual being silent on it (issue #405).
+    // and an empty text comes back as a hole. What a selected row whose text is
+    // empty becomes on that road is pinned by the cases below (issue #417).
     const ClipboardTexts copied{.texts = {"Un.", std::nullopt, "Deux lignes,\nla seconde."},
                                 .format = SubtitleFormat::SubRip};
 
@@ -125,6 +132,62 @@ TEST_CASE("the plain form glues texts by a blank line, and a hole reads back as 
     // Read from the system, it has no format: nothing says where it came from.
     CHECK_FALSE(read.format.has_value());
     CHECK(textsFromPlain("").isEmpty());
+}
+
+TEST_CASE("a selected row with no text is copied as a hole", "[edit][clipboard]") {
+    // The plain form cannot tell an empty text from a hole: both are an empty
+    // piece between two blank lines. So the copy says the same thing before and
+    // after that road, or the same copy would paste two ways — issue #417.
+    const Project project = withAnEmptyMiddle();
+
+    const ClipboardTexts copied = copyTexts(project, rows({0, 1, 2}), Document::Main);
+
+    CHECK(copied.texts == Texts{"Un.", std::nullopt, "Trois."});
+}
+
+TEST_CASE("a copy read back from the plain form is the copy it was", "[edit][clipboard]") {
+    // Gaupol's own comment on `set_string` — « so a copy read back is the copy
+    // it was » — held for a hole and not for an empty text, until the empty text
+    // became a hole on the way in.
+    const Project project = withAnEmptyMiddle();
+
+    for (const Selection& selection : {rows({0, 1, 2}), rows({0, 1}), rows({1, 2}), rows({0, 2})}) {
+        const ClipboardTexts copied = copyTexts(project, selection, Document::Main);
+        INFO("selection of " << selection.count() << " row(s)");
+        CHECK(textsFromPlain(plainTextOf(copied)).texts == copied.texts);
+    }
+}
+
+TEST_CASE("an empty text pastes as a hole, and leaves its row as it was", "[edit][clipboard]") {
+    // A target whose three texts all differ from what is copied, so that each
+    // row that is written shows as a change and the one that is not shows as
+    // its own text.
+    Project target;
+    target.setSubtitles({saying("A.", 0), saying("B.", 2000), saying("C.", 4000)});
+    target.setSourceFile(SourceFile{.format = SubtitleFormat::SubRip});
+    Session session{target};
+
+    const ClipboardTexts copied = copyTexts(withAnEmptyMiddle(), rows({0, 1, 2}), Document::Main);
+    PastedTexts pasted = pasteTexts(session.project(), copied, at(0), Document::Main);
+    REQUIRE(pasted.command != nullptr);
+    session.apply(std::move(pasted.command));
+
+    // The middle row keeps its text: what was copied there was nothing.
+    CHECK(textsOf(session.project()) == std::vector<std::string>{"Un.", "B.", "Trois."});
+}
+
+TEST_CASE("a lone empty text pastes nothing, from either road", "[edit][clipboard]") {
+    // Read back from the plain form, a lone hole is an empty string, which is
+    // an empty clipboard; kept as it was copied, it is a clipboard of one hole.
+    // Neither writes a row.
+    const Project source = withAnEmptyMiddle();
+    const Project target = threeOf();
+
+    const ClipboardTexts kept = copyTexts(source, rows({1}), Document::Main);
+    const ClipboardTexts read = textsFromPlain(plainTextOf(kept));
+
+    CHECK(pasteTexts(target, kept, at(0), Document::Main).command == nullptr);
+    CHECK(pasteTexts(target, read, at(0), Document::Main).command == nullptr);
 }
 
 TEST_CASE("cutting empties the texts, and undoing gives them back", "[edit][clipboard]") {
