@@ -142,6 +142,10 @@ TEST_CASE("the operation enters the history and comes back out", "[gui][GUI-ITAL
     window.italicAction()->trigger();
     REQUIRE(window.undoAction()->isEnabled());
     CHECK(window.undoAction()->text().toStdString() == "Undo: putting in italics");
+    // What undo is about to take back: without it, the two checks below would
+    // pass on rows that were never put in italics.
+    REQUIRE(textAt(window, 0) == "<i>Bonjour.</i>");
+    REQUIRE(textAt(window, 1) == "<i>Au revoir.</i>");
 
     window.undoAction()->trigger();
     // Both rows, since both were changed: one entry undoes the whole operation.

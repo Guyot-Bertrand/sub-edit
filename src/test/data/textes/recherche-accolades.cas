@@ -19,6 +19,11 @@
 # **Une accolade fermante se tape.** Un utilisateur qui cherche « {\i1} » cherche
 # quatre caractères qui n'existent pas dans le texte visible ; il ne trouve rien,
 # comme il ne trouve rien en cherchant « <i> » ailleurs.
+#
+# **Ces cas se jouent deux fois, comme ceux de recherche.cas** : en texte simple
+# et sensible à la casse, qui est leur forme, puis en expression régulière
+# insensible à la casse, motif et remplacement protégés pour dire la même chose.
+# Aucun ne dépend de la casse d'une lettre, donc aucun n'a d'exception.
 
 la balise encadre la correspondance    | "{\\i1}Bonjour{\\i0} Marie" | "Bonjour"       | "Salut" | "{\\i1}Salut{\\i0} Marie"
 une fermante coupe le mot              | "{\\i1}Bon{\\i0}jour"       | "Bonjour"       | "Salut" | "{\\i1}Salut{\\i0}"

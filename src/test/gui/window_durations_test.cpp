@@ -91,7 +91,7 @@ blockOf(int number, const char* start, const char* end, const std::string& text)
 /// All four constraints on together, the reading speed both ways, with the
 /// values given: `speed` in characters a second, the others in seconds.
 [[nodiscard]] auto allFour(double speed, double minimum, double maximum, double gap) {
-    return [=](QDialog& dialog) {
+    return [speed, minimum, maximum, gap](QDialog& dialog) {
         auto& adjust = dynamic_cast<DurationAdjustDialog&>(dialog);
         for (QCheckBox* check : {adjust.lengthenCheck(),
                                  adjust.shortenCheck(),
@@ -220,8 +220,11 @@ TEST_CASE("the four constraints act in their order, and the order shows in the r
           "[gui][GUI-ADJUST-01]") {
     // Reading speed 10 characters a second, both ways; minimum 2 s; maximum 4 s;
     // gap 0.5 s. Worked by hand from the manual's order — speed, minimum,
-    // maximum, gap, the last one applied winning — and each subtitle is one
-    // where swapping two neighbours in that order would give another end.
+    // maximum, gap, the last one applied winning. Each of the first three
+    // subtitles catches a different permutation: another end comes out if the
+    // speed and the minimum (1), the speed and the maximum (2), or the minimum
+    // and the gap (3) change places. The fourth is the last subtitle, which has
+    // no next one to keep a gap from.
     InMemoryFileSystem files;
     files.addFile("film.srt",
                   blockOf(1, "00:00:00,000", "00:00:01,000", "Hi") +

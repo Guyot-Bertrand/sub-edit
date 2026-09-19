@@ -5,9 +5,10 @@
 // Measured through a `Session`, which is how an application runs them: the
 // command is built, applied, and pushed onto the history. Undo is measured
 // apart, because the two are not symmetrical — a shift undoes by arithmetic, a
-// transform by restoring what it kept. (The cases of phase 2 apply their
-// command to a bare project, which is the same work without the history; those
-// of phase 10 go through the session.)
+// transform by restoring what it kept. (Most of the earlier cases apply their
+// command to a bare project, which is the same work without the history; the
+// single-subtitle edit and, in phase 10, the replacement, the adjustment, the
+// case and the paste go through the session. The search applies nothing.)
 //
 // The document is generated rather than read from the corpus, for the reason
 // the format benchmark already gives: a benchmark that depended on a file would
@@ -426,14 +427,18 @@ TEST_CASE("replacing a frequent word in a full-length file", "[benchmark]") {
     const SearchOptions regex{.regex = true, .ignoreCase = true};
 
     // What is measured has to be something, and the same thing both ways: a
-    // search that finds nothing would say the operation is free.
+    // search that finds nothing would say the operation is free. The fixture
+    // holds 1 064 matches of the word; the floor sits a little under, so that a
+    // fixture carrying it markedly less is noticed and a small change to its
+    // tables is not.
+    constexpr std::size_t kFewestMatches = 1000;
     Session plainProbe{project};
     Session regexProbe{project};
     const std::size_t replacedInPlain =
         replaceAllThrough(plainProbe, everything, kWord, plain, kReplacement);
     const std::size_t replacedInRegex =
         replaceAllThrough(regexProbe, everything, kWordAsPattern, regex, kReplacement);
-    REQUIRE(replacedInPlain > kSubtitleCount / 20);
+    REQUIRE(replacedInPlain >= kFewestMatches);
     REQUIRE(replacedInRegex == replacedInPlain);
     REQUIRE(plainProbe.undoableCount() == 1);
 
@@ -467,6 +472,11 @@ TEST_CASE("searching a full-length file for what it does not hold", "[benchmark]
     // copied.** The project is read, the same one at every run, and the
     // measurement is a plain `BENCHMARK`. The pattern is compiled inside the
     // measured region, as the window compiles it at every press.
+    //
+    // **Only the literal mode is measured** — the default options, plain text
+    // with the case ignored. A regular expression takes another path through
+    // ICU, and « Find Next » in that mode has no figure of its own; the
+    // replacement above measures both.
     const Project project = fullLengthProject();
     const Selection everything = Selection::all(project);
     constexpr std::string_view kAbsent = "introuvable";

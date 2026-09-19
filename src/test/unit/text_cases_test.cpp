@@ -239,15 +239,15 @@ TEST_CASE("a replacement corpus the harness cannot read stops the run", "[test][
     refused("remplacement-supprime.cas", "il n'en retire aucun");
 }
 
-TEST_CASE("the corpus of the phase reads, long before there is a parser to run it",
-          "[test][textcases]") {
+TEST_CASE("the corpus of the phase is well formed, whatever plays it", "[test][textcases]") {
     // recherche.cas and its brace and expression siblings hold what has been
-    // decided about
-    // searching in marked-up text, written before the tag-aware parser of
-    // ADR 0009 exists — that is the point of the format, and it is what
-    // mentions.cas did for phase 4. What is checked here is that every case is
-    // **well formed**: a corpus that loads badly would run fewer cases than it
-    // holds and still report green.
+    // decided about searching in marked-up text. They were written before the
+    // tag-aware parser of ADR 0009 existed — that is the point of the format,
+    // and it is what mentions.cas did for phase 4 — and the parser and the
+    // search now play them, in core/text/markup_parser_test.cpp and
+    // core/edit/search_test.cpp. What is checked here is something else: that
+    // every case is **well formed**. A corpus that loads badly would run fewer
+    // cases than it holds and still report green.
     //
     // **The count of each is exact**, as the two harness corpora above are: a
     // floor would let a corpus lose a case, or a reader skip one, and still
