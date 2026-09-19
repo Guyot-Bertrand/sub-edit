@@ -168,6 +168,16 @@ constexpr int kInitialHeight = 800;
 /// the next gesture — Qt's own convention for a transient status.
 constexpr int kOperationStatusTimeoutMs = 5000;
 
+/// Two sentences for one box, one to a line, and whichever is empty left out.
+///
+/// What was done comes first and what it left past the end of the film after
+/// it: the second is a warning about the first, and is read as one.
+[[nodiscard]] std::string joinedNotices(const std::string& done, const std::string& warning) {
+    if (done.empty())
+        return warning;
+    return warning.empty() ? done : done + "\n" + warning;
+}
+
 /// Which row of a selection playback follows: the first, in table order.
 ///
 /// -1 when nothing is selected. `selectedRows` hands them back in the order
@@ -733,8 +743,8 @@ void MainWindow::snapToFrameRate() {
     if (!m_prompts->run(dialog))
         return;
 
-    applyOperation(std::make_unique<core::SnapCommand>(m_session->project(), target, dialog.rate()),
-                   target);
+    const std::string pastTheEnd = applyOperationQuietly(
+        std::make_unique<core::SnapCommand>(m_session->project(), target, dialog.rate()), target);
 
     // **What the table showed and the two grid surfaces did not** — issue #324.
     // An operation takes the selection; the grid speaks of the document. Align
@@ -745,9 +755,14 @@ void MainWindow::snapToFrameRate() {
     // Said here rather than in `applyOperation`, which knows a command and a
     // target and not the rate that was asked for — and this is the only
     // operation that asks for one.
-    if (const std::optional<core::PartialAlignment> partial =
-            core::partialAlignment(m_session->project(), target, dialog.rate()))
-        m_prompts->reportOutcome(core::noticeOf(*partial));
+    //
+    // The same box as what the alignment left past the end of the film, when it
+    // left anything — issue #418.
+    const std::optional<core::PartialAlignment> partial =
+        core::partialAlignment(m_session->project(), target, dialog.rate());
+    const std::string behind = partial.has_value() ? core::noticeOf(*partial) : std::string{};
+    if (const std::string notice = joinedNotices(behind, pastTheEnd); !notice.empty())
+        m_prompts->reportOutcome(notice);
 }
 
 void MainWindow::shiftOntoGrid() {
@@ -1286,10 +1301,16 @@ void MainWindow::adjustDurationsOfTarget() {
 
     core::DurationAdjustment adjustment = core::adjustDurations(
         m_session->project(), target, core::constraintsOf(m_durationSettings));
-    if (adjustment.command != nullptr)
-        applyOperation(std::move(adjustment.command), target);
+    const std::string account =
+        core::noticeOfAdjustment(adjustment.adjusted, adjustment.sacrificed);
 
-    m_prompts->reportOutcome(core::noticeOfAdjustment(adjustment.adjusted, adjustment.sacrificed));
+    // One box for both: lengthening an end is exactly what can carry it past
+    // the film, and two modal boxes in a row was one too many — issue #418.
+    std::string pastTheEnd;
+    if (adjustment.command != nullptr)
+        pastTheEnd = applyOperationQuietly(std::move(adjustment.command), target);
+
+    m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
 }
 
 void MainWindow::removeHearingImpairedFromTarget() {
@@ -1402,6 +1423,15 @@ void MainWindow::toggleDialogueDashesOnTarget() {
 
 void MainWindow::applyOperation(std::unique_ptr<core::Command> command,
                                 const core::Selection& target) {
+    // A notice and not a failure: nothing was prevented, and the sentence is
+    // written to be read after the fact.
+    if (const std::string notice = applyOperationQuietly(std::move(command), target);
+        !notice.empty())
+        m_prompts->reportOutcome(notice);
+}
+
+std::string MainWindow::applyOperationQuietly(std::unique_ptr<core::Command> command,
+                                              const core::Selection& target) {
     // Read before the command goes: what it is, is what the notice names.
     const core::CommandKind kind = command->kind();
 
@@ -1412,30 +1442,26 @@ void MainWindow::applyOperation(std::unique_ptr<core::Command> command,
     // on that same row send playback where the subtitle has gone.
     m_placedAt = -1;
 
-    reportWhatPassesTheEnd(kind, target);
+    return whatPassesTheEnd(kind, target);
 }
 
 std::optional<core::Duration> MainWindow::videoLength() const {
     return m_watching ? m_player->duration() : std::nullopt;
 }
 
-void MainWindow::reportWhatPassesTheEnd(core::CommandKind kind, const core::Selection& target) {
+std::string MainWindow::whatPassesTheEnd(core::CommandKind kind,
+                                         const core::Selection& target) const {
     // **Only the operations that move a position.** `beyondEnd` reads the state
     // an operation produced; on its own it cannot tell whether that operation
     // put anything there. A subtitle already past the end because the film is
     // the wrong one is nobody's doing, least of all that of a removal of
     // hearing-impaired mentions.
     if (!core::movesPositions(kind))
-        return;
+        return {};
 
     const std::optional<core::BeyondEnd> beyond =
         core::beyondEnd(m_session->project(), target, videoLength());
-    if (!beyond.has_value())
-        return;
-
-    // A notice and not a failure: nothing was prevented, and the sentence is
-    // written to be read after the fact.
-    m_prompts->reportOutcome(core::noticeOf(kind, *beyond));
+    return beyond.has_value() ? core::noticeOf(kind, *beyond) : std::string{};
 }
 
 void MainWindow::insertSubtitles() {

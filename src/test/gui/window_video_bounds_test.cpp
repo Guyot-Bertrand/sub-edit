@@ -12,20 +12,27 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/video/video_player.hpp>
+#include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/shift_dialog.hpp>
+#include <subedit/gui/snap_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 
+#include <QAbstractItemModel>
 #include <QAction>
+#include <QCheckBox>
 #include <QDialog>
+#include <QDoubleSpinBox>
 #include <QItemSelectionModel>
 #include <QString>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <cstdint>
 #include <filesystem>
+#include <grid_fixtures.hpp>
 #include <memory>
 #include <optional>
 #include <string>
@@ -36,6 +43,7 @@
 
 namespace {
 
+using Catch::Matchers::ContainsSubstring;
 using subedit::core::Duration;
 using subedit::core::FrameRate;
 using subedit::core::InMemoryFileSystem;
@@ -43,11 +51,13 @@ using subedit::core::OpenedFile;
 using subedit::core::openProject;
 using subedit::core::StandardFrameRate;
 using subedit::core::VideoPlayer;
+using subedit::gui::DurationAdjustDialog;
 using subedit::gui::FrameRateDialog;
 using subedit::gui::FrameRateReader;
 using subedit::gui::MainWindow;
 using subedit::gui::PlayerFactory;
 using subedit::gui::ShiftDialog;
+using subedit::gui::SnapDialog;
 using subedit::test::FakePrompts;
 using subedit::test::FakeVideoPlayer;
 
@@ -285,4 +295,69 @@ TEST_CASE("an operation that moves nothing is not accused of the end", "[gui][GU
     REQUIRE_FALSE(prompts.outcomes.empty());
     // What it says is what it did, and nothing about the end of the film.
     CHECK(prompts.outcomes.back() == "1 subtitle cleaned, 0 removed");
+}
+
+// Issue #418. Two things to say after one operation — what it did, and what it
+// left past the end — were two modal boxes, closed one after the other.
+TEST_CASE("an adjustment that passes the end says both in one box", "[gui][GUI-BOUNDS-01]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    Container container;
+    MainWindow window{files, fileIn(files), prompts, projecting(booth), declaring(container)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+    booth.player->length = Duration::fromMilliseconds(5000);
+
+    // A minimum of three seconds: the second subtitle, which starts at three,
+    // ends at six — one second past the film.
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        auto& adjust = dynamic_cast<DurationAdjustDialog&>(dialog);
+        adjust.lengthenCheck()->setChecked(false);
+        adjust.shortenCheck()->setChecked(false);
+        adjust.maximumCheck()->setChecked(false);
+        adjust.gapCheck()->setChecked(false);
+        adjust.minimumCheck()->setChecked(true);
+        adjust.minimumBox()->setValue(3.0);
+    };
+    window.adjustDurationsAction()->trigger();
+
+    REQUIRE(prompts.outcomes.size() == 1);
+    CHECK(prompts.outcomes.front() ==
+          "adjusted the durations of 2 subtitles\n"
+          "adjusting durations leaves 1 subtitle past the end of the video, by 1.000 s at most");
+    CHECK(window.undoAction()->isEnabled());
+}
+
+// The same defect on the other operation that has a word of its own to add: an
+// alignment of part of a file says what it left behind, and this says what it
+// left past the end.
+TEST_CASE("an alignment that passes the end says both in one box", "[gui][GUI-BOUNDS-01]") {
+    InMemoryFileSystem files;
+    files.addFile("/films/film.mkv", "");
+    files.addFile("/films/film.fr.srt", subedit::test::gridBytes("grille-24.srt"));
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+    // Shorter than everything: whatever is aligned ends after it.
+    booth.player->length = Duration::fromMilliseconds(1);
+
+    QItemSelectionModel& selection = *window.table()->selectionModel();
+    for (int row = 0; row < 5; ++row)
+        selection.select(window.table()->model()->index(row, 0),
+                         QItemSelectionModel::Select | QItemSelectionModel::Rows);
+
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        dynamic_cast<SnapDialog&>(dialog).setRate(FrameRate{StandardFrameRate::Fps25});
+    };
+    window.snapAction()->trigger();
+
+    REQUIRE(prompts.outcomes.size() == 1);
+    CHECK_THAT(prompts.outcomes.front(), ContainsSubstring("5 of 176 subtitles aligned to 25 fps"));
+    CHECK_THAT(prompts.outcomes.front(),
+               ContainsSubstring("aligning on the frame rate leaves 5 subtitles past the end"));
 }

@@ -548,6 +548,17 @@ exactement ce qu'on voulait, et un refus qui se trompe coûte plus cher qu'un
 avertissement qu'on ignore. L'opération est dans l'historique, et `Undo` la
 défait comme n'importe quelle autre.
 
+**Une seule boîte par opération.** `Adjust Durations…` et `Align` ont déjà
+quelque chose à dire — ce qu'un ajustement n'a pas pu tenir, ce qu'un alignement
+partiel a laissé de côté. Quand elles poussent aussi un sous-titre après la fin,
+la boîte porte les deux phrases, l'une sous l'autre, celle de l'opération
+d'abord :
+
+```
+adjusted the durations of 2 subtitles
+adjusting durations leaves 1 subtitle past the end of the video, by 1.000 s at most
+```
+
 Le message n'apparaît pas si aucune vidéo n'est ouverte : la durée vient du
 lecteur, et sans film il n'y a pas de fin à dépasser. Seules les cinq opérations
 nommées plus haut sont concernées — `Adjust Durations…` comprise, qui peut
