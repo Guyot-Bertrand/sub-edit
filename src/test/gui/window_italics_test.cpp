@@ -15,6 +15,8 @@
 #include <QAction>
 #include <QApplication>
 #include <QItemSelectionModel>
+#include <QMenu>
+#include <QMenuBar>
 #include <QPlainTextEdit>
 #include <QStatusBar>
 #include <QTableView>
@@ -140,9 +142,15 @@ TEST_CASE("the operation enters the history and comes back out", "[gui][GUI-ITAL
     window.italicAction()->trigger();
     REQUIRE(window.undoAction()->isEnabled());
     CHECK(window.undoAction()->text().toStdString() == "Undo: putting in italics");
+    // What undo is about to take back: without it, the two checks below would
+    // pass on rows that were never put in italics.
+    REQUIRE(textAt(window, 0) == "<i>Bonjour.</i>");
+    REQUIRE(textAt(window, 1) == "<i>Au revoir.</i>");
 
     window.undoAction()->trigger();
+    // Both rows, since both were changed: one entry undoes the whole operation.
     CHECK(textAt(window, 0) == "Bonjour.");
+    CHECK(textAt(window, 1) == "Au revoir.");
 }
 
 TEST_CASE("the entry says how many subtitles it moved", "[gui][GUI-ITALIC-01]") {
@@ -189,9 +197,20 @@ TEST_CASE("a format that carries no style leaves the entry out", "[gui][GUI-ITAL
     window.show();
 
     // Out and not gone: what a user of an LRC has to learn is that there is
-    // nothing to type, and an entry that disappeared would teach nothing.
+    // nothing to type, and an entry that disappeared would teach nothing. So the
+    // entry is looked for where the user looks — in the `Tools` menu itself.
+    QMenu* tools = nullptr;
+    for (QAction* entry : window.menuBar()->actions()) {
+        if (entry->text() == QStringLiteral("&Tools"))
+            tools = entry->menu();
+    }
+    REQUIRE(tools != nullptr);
+
+    CHECK(tools->actions().contains(window.italicAction()));
+    CHECK(window.italicAction()->isVisible());
+    // Laid out by the menu, which gives no room to an entry that is hidden.
+    CHECK_FALSE(tools->actionGeometry(window.italicAction()).isEmpty());
     CHECK_FALSE(window.italicAction()->isEnabled());
-    CHECK(window.menuTitles().contains(QStringLiteral("&Tools")));
 }
 
 // Issue #397: a gesture without a dialog reads the target and builds a command

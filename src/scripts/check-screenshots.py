@@ -24,6 +24,15 @@ Erreurs (code 1)
                    de la vraie fenêtre pour toujours. C'est le défaut le plus
                    coûteux, parce qu'une image périmée s'affiche aussi
                    proprement qu'une image juste.
+    PAIRE          une capture claire n'a pas sa sombre : le manuel promet, deux
+                   fois, que chaque écran est montré sous les deux palettes, et
+                   rien ne tenait cette promesse. Deux cas, une seule erreur :
+                   `X-sombre` n'est pas engendrée, ou le manuel montre `X.png`
+                   sans montrer `X-sombre.png`. Issue #400, née de deux écrans
+                   de la phase 10 ajoutés avec leur seule palette claire.
+
+Un écran qui n'a vraiment qu'une palette s'inscrit dans `SINGLE_PALETTE`, avec
+sa raison : une exemption sans motif est une paire oubliée qui s'ignore.
 
 Remarques (code 0)
 
@@ -34,15 +43,30 @@ Remarques (code 0)
 
 from __future__ import annotations
 
+import argparse
 import pathlib
 import re
 import sys
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 
-TOOL = REPO_ROOT / "src/test/tools/screenshots.cpp"
-CAPTURES = REPO_ROOT / "docs/manual/subedit-gui/captures"
-MANUAL = REPO_ROOT / "docs/manual"
+# Les trois emplacements se lisent sous une racine, celle du dépôt par défaut :
+# `--root` la déplace vers un jeu écrit à la main, ce qui est ce qui permet à
+# `verify-gates.sh` d'éprouver ce contrôle sans toucher aux vraies captures.
+TOOL = "src/test/tools/screenshots.cpp"
+CAPTURES = "docs/manual/subedit-gui/captures"
+MANUAL = "docs/manual"
+
+# Le suffixe qui fait d'une capture la sombre de la claire : `table` et
+# `table-sombre`. Un nom calculé échapperait à `produced()`, donc le programme
+# de capture écrit les deux en toutes lettres et ce suffixe ne sert qu'ici.
+DARK_SUFFIX = "-sombre"
+
+# Les écrans qui n'ont vraiment qu'une palette : le nom de la capture claire,
+# sans `.png`, et POURQUOI elle n'a pas de sombre. **Vide aujourd'hui** — les
+# onze écrans photographiés le sont sous les deux palettes. Une entrée est une
+# décision, pas un contournement : la raison s'écrit, et une relecture la lit.
+SINGLE_PALETTE: dict[str, str] = {}
 
 # `capture…(` — le début d'un appel qui photographie. Ce qui suit est lu en
 # comptant les parenthèses plutôt qu'avec une expression rationnelle : un
@@ -69,13 +93,13 @@ YELLOW = "\033[33m"
 RESET = "\033[0m"
 
 
-def produced() -> set[str]:
+def produced(root: pathlib.Path = REPO_ROOT) -> set[str]:
     """Les captures que le programme engendre, lues dans sa source.
 
     Le nom est le dernier littéral de l'appel, quels que soient les arguments
     qui le précèdent et la façon dont ils sont mis en forme.
     """
-    source = TOOL.read_text(encoding="utf-8")
+    source = (root / TOOL).read_text(encoding="utf-8")
     names: set[str] = set()
 
     for call in CAPTURE_CALL.finditer(source):
@@ -100,7 +124,7 @@ def balanced(source: str, start: int) -> str:
     return ""
 
 
-def bypasses() -> list[str]:
+def bypasses(root: pathlib.Path = REPO_ROOT) -> list[str]:
     """Les littéraux PNG du programme qui ne passent pas par `.new.png`.
 
     Le programme ne doit connaître qu'un seul suffixe. Un `save()` qui écrirait
@@ -109,34 +133,78 @@ def bypasses() -> list[str]:
     """
     return [
         literal
-        for literal in PNG_LITERAL.findall(TOOL.read_text(encoding="utf-8"))
+        for literal in PNG_LITERAL.findall((root / TOOL).read_text(encoding="utf-8"))
         if not literal.endswith(".new.png")
     ]
 
 
-def shown() -> dict[str, list[pathlib.Path]]:
+def shown(root: pathlib.Path = REPO_ROOT) -> dict[str, list[pathlib.Path]]:
     """Les images que le manuel montre, et où il les montre."""
     where: dict[str, list[pathlib.Path]] = {}
-    for page in sorted(MANUAL.rglob("*.md")):
+    for page in sorted((root / MANUAL).rglob("*.md")):
         for reference in MARKDOWN_IMAGE.findall(page.read_text(encoding="utf-8")):
             target = (page.parent / reference).resolve()
-            where.setdefault(target.name, []).append(page.relative_to(REPO_ROOT))
+            where.setdefault(target.name, []).append(page.relative_to(root))
     return where
 
 
-def on_disk() -> set[str]:
-    return {found.name for found in CAPTURES.glob("*.png")} if CAPTURES.is_dir() else set()
+def on_disk(root: pathlib.Path = REPO_ROOT) -> set[str]:
+    captures = root / CAPTURES
+    return {found.name for found in captures.glob("*.png")} if captures.is_dir() else set()
 
 
-def main() -> int:
-    engendrées = produced()
-    montrées = shown()
-    présentes = on_disk()
+def unpaired(
+    engendrées: set[str],
+    montrées: dict[str, list[pathlib.Path]],
+    exemptions: dict[str, str],
+) -> list[str]:
+    """Les captures claires dont la sombre manque, engendrée ou montrée.
+
+    « Claire » veut dire : toute capture engendrée ou montrée dont le nom ne
+    finit pas par `-sombre`. Les deux ensembles, et non le seul programme : une
+    image que le manuel montre sans que rien ne l'engendre est déjà FIGÉE, mais
+    la paire qui lui manque est un second défaut, et le dire est gratuit.
+    """
+    clairs = sorted(
+        name
+        for name in engendrées | {image.removesuffix(".png") for image in montrées}
+        if not name.endswith(DARK_SUFFIX) and name not in exemptions
+    )
+
+    errors: list[str] = []
+    for name in clairs:
+        sombre = f"{name}{DARK_SUFFIX}"
+        if sombre not in engendrées:
+            errors.append(
+                f"PAIRE          {name}.png — {sombre}.png n'est engendrée par personne ;\n"
+                f"               chaque écran se montre sous les deux palettes, ou s'exempte\n"
+                f"               dans SINGLE_PALETTE, avec sa raison"
+            )
+        elif f"{name}.png" in montrées and f"{sombre}.png" not in montrées:
+            errors.append(
+                f"PAIRE          {name}.png — montrée, mais {sombre}.png ne l'est par aucun manuel"
+            )
+    return errors
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+    parser.add_argument(
+        "--root",
+        type=pathlib.Path,
+        default=REPO_ROOT,
+        help="la racine sous laquelle lire le programme, le manuel et les captures",
+    )
+    root = parser.parse_args(argv).root
+
+    engendrées = produced(root)
+    montrées = shown(root)
+    présentes = on_disk(root)
 
     errors: list[str] = []
     notices: list[str] = []
 
-    for literal in bypasses():
+    for literal in bypasses(root):
         errors.append(
             f"CONTOURNEMENT  {literal} — le programme écrirait la référence sans passer\n"
             f"               par le comparateur ; le suffixe est « .new.png », toujours"
@@ -151,6 +219,8 @@ def main() -> int:
                 f"FIGÉE          {name} — montrée par {lieux}, engendrée par personne ;\n"
                 f"               plus rien ne la réengendre, elle s'éloignera de la fenêtre"
             )
+
+    errors.extend(unpaired(engendrées, montrées, SINGLE_PALETTE))
 
     for name in sorted(engendrées):
         if f"{name}.png" not in montrées:

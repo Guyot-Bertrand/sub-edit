@@ -17,6 +17,7 @@ using subedit::core::flagOverrideOf;
 using subedit::core::htmlTagOf;
 using subedit::core::MarkupPiece;
 using subedit::core::MarkupVocabulary;
+using subedit::core::mayHoldMarkup;
 using subedit::core::overridesOf;
 using subedit::core::piecesOf;
 using subedit::core::ScopedTag;
@@ -83,6 +84,67 @@ TEST_CASE("an MPL2 marker is a marker at the head of a line only", "[text][reade
           Spelled{"M:/", "M:\\", "T:Bonjour\n", "M:_", "T:Marie/"});
     CHECK(spelled("{y:b}/Bonjour", MarkupVocabulary::Mpl2) == Spelled{"B:{y:b}", "T:/Bonjour"});
     CHECK(spelled("/Bonjour", MarkupVocabulary::MicroDvd) == Spelled{"T:/Bonjour"});
+}
+
+TEST_CASE("a text without the opener of a vocabulary holds none of its markup", "[text][reader]") {
+    CHECK_FALSE(mayHoldMarkup("le vent", MarkupVocabulary::Html));
+    CHECK(mayHoldMarkup("le <i>vent", MarkupVocabulary::Html));
+    CHECK_FALSE(mayHoldMarkup("le {i}vent", MarkupVocabulary::Html));
+    CHECK_FALSE(mayHoldMarkup("le <i>vent", MarkupVocabulary::MicroDvd));
+    CHECK(mayHoldMarkup("le {Y:i}vent", MarkupVocabulary::MicroDvd));
+    CHECK(mayHoldMarkup(R"({\i1}le vent)", MarkupVocabulary::SubStationAlpha));
+    CHECK_FALSE(mayHoldMarkup("<i>{i}", MarkupVocabulary::None));
+
+    // A marker is not found by an opener, so MPL2 never rules a text out.
+    CHECK(mayHoldMarkup("/le vent", MarkupVocabulary::Mpl2));
+}
+
+TEST_CASE("a text the reader says holds no markup comes back as text alone", "[text][reader]") {
+    // What makes it safe to skip reading such a text: the answer no is never
+    // wrong, whatever the text and whichever vocabulary reads it.
+    const std::vector<std::string_view> texts = {
+        "",
+        "le vent",
+        "le <i>vent</i>",
+        "{Y:i}le vent",
+        R"({\i1}le vent{\i0})",
+        "a < b > c",
+        "un\ndeux",
+        "/un\n_deux",
+        "[bruit] (tout)",
+        "a } b",
+        "{",
+        "<",
+        "  \t ",
+        "-\n-",
+    };
+    const std::vector<MarkupVocabulary> vocabularies = {
+        MarkupVocabulary::None,
+        MarkupVocabulary::Html,
+        MarkupVocabulary::SubStationAlpha,
+        MarkupVocabulary::MicroDvd,
+        MarkupVocabulary::Mpl2,
+    };
+    std::size_t examined = 0;
+    for (const std::string_view text : texts) {
+        for (const MarkupVocabulary vocabulary : vocabularies) {
+            if (mayHoldMarkup(text, vocabulary))
+                continue;
+            ++examined;
+
+            // Text alone, and all of it: a fast path that skipped the read must
+            // find in the text exactly what the read would have shown.
+            std::string joined;
+            for (const MarkupPiece& piece : piecesOf(text, vocabulary)) {
+                CHECK(piece.kind == MarkupPiece::Kind::Text);
+                joined += piece.text;
+            }
+            CHECK(joined == text);
+        }
+    }
+    // A predicate that answered yes to everything would leave the loop empty
+    // and the case green.
+    CHECK(examined > 0);
 }
 
 TEST_CASE("each piece knows where it starts", "[text][reader]") {

@@ -32,6 +32,8 @@
 namespace {
 
 using subedit::core::adjustDurations;
+using subedit::core::BeyondEnd;
+using subedit::core::beyondEnd;
 using subedit::core::CommandKind;
 using subedit::core::Duration;
 using subedit::core::DurationAdjustment;
@@ -73,6 +75,10 @@ using subedit::core::Timestamp;
 
 [[nodiscard]] Timestamp endOf(const Project& project, std::size_t index) {
     return project.subtitleAt(SubtitleIndex::fromValue(index)).end;
+}
+
+[[nodiscard]] Timestamp startOf(const Project& project, std::size_t index) {
+    return project.subtitleAt(SubtitleIndex::fromValue(index)).start;
 }
 
 /// Applies `constraints` to every subtitle of `project`, and hands back what
@@ -265,7 +271,14 @@ TEST_CASE("an adjustment is one entry in the history, and moves no start", "[edi
     CHECK(adjustment.adjusted == 3);
     static_cast<void>(session.apply(std::move(adjustment.command)));
 
+    // The default minimum of 1.5 s, laid on each start.
     CHECK(endOf(session.project(), 0) == Timestamp::fromMilliseconds(1500));
+    CHECK(endOf(session.project(), 1) == Timestamp::fromMilliseconds(4500));
+    CHECK(endOf(session.project(), 2) == Timestamp::fromMilliseconds(10500));
+    // Every end moved, and not one start.
+    CHECK(startOf(session.project(), 0) == Timestamp::fromMilliseconds(0));
+    CHECK(startOf(session.project(), 1) == Timestamp::fromMilliseconds(3000));
+    CHECK(startOf(session.project(), 2) == Timestamp::fromMilliseconds(9000));
     CHECK_FALSE(subedit::core::mayBreakOrder(CommandKind::AdjustDurations));
 
     static_cast<void>(session.undo());
@@ -277,7 +290,20 @@ TEST_CASE("an adjustment is one entry in the history, and moves no start", "[edi
 TEST_CASE("an adjustment can carry an end past the film, and is watched for it",
           "[edit][durations]") {
     // Lengthening moves ends later: the window says when one lands after the
-    // end of the video, as it does after a shift.
+    // end of the video, as it does after a shift. Both halves of the watch: the
+    // adjustment is among the kinds that move positions, and what it produced is
+    // read as past the end.
+    Project project = projectOf({from(1000, 1200)});
+    const Duration film = ms(2000);
+    REQUIRE_FALSE(beyondEnd(project, Selection::all(project), film).has_value());
+
+    DurationConstraints constraints = none();
+    constraints.minimum = ms(1500);
+    static_cast<void>(adjusting(project, constraints));
+
+    // Start 1.0 s and a minimum of 1.5 s: an end at 2.5 s, half a second late.
+    CHECK(beyondEnd(project, Selection::all(project), film) ==
+          BeyondEnd{.count = 1, .overshoot = ms(500)});
     CHECK(subedit::core::movesPositions(CommandKind::AdjustDurations));
 }
 
@@ -294,4 +320,165 @@ TEST_CASE("the maximum always holds, and a minimum above it gives way", "[edit][
 
     CHECK(endOf(project, 0) == Timestamp::fromMilliseconds(3000));
     CHECK(adjustment.sacrificed == SacrificedConstraints{.minimum = 1});
+}
+
+// What the adjustment gives up, beyond one subtitle and one constraint.
+//
+// The five cases below are worked by hand from the documented order — speed,
+// minimum, maximum, gap, the last one applied winning — and from the rule of
+// `SacrificedConstraints`: a constraint is counted for a subtitle when the end
+// that finally stands still breaks it. Each expected figure is written with its
+// three fields, so that a zero is a zero someone chose.
+
+TEST_CASE("a constraint given up by several subtitles is counted for each of them",
+          "[edit][durations]") {
+    // Minimum 1.5 s, gap 200 ms, no speed. Five subtitles, three of which
+    // cannot have both because the next one starts too soon.
+    //
+    //   #0  0.0 -  0.5 s, next at  1.0 s: the minimum gives 1.5 s, the gap wants
+    //       an end at 1.0 - 0.2 = 0.8 s and wins. 0.8 s < 1.5 s: minimum broken.
+    //   #1  1.0 -  1.4 s, next at  2.0 s: 2.5 s, then the gap gives 1.8 s.
+    //       0.8 s < 1.5 s: minimum broken.
+    //   #2  2.0 -  2.1 s, next at 10.0 s: the minimum gives 3.5 s and the gap is
+    //       far. 1.5 s: nothing broken, though the end moved.
+    //   #3 10.0 - 10.1 s, next at 11.0 s: 11.5 s, then the gap gives 10.8 s.
+    //       0.8 s < 1.5 s: minimum broken.
+    //   #4 11.0 - 14.0 s, the last one: 3 s holds the minimum, and there is no
+    //       next subtitle to keep a gap from. Nothing moves.
+    //
+    // Four ends move, three minimums are broken, and there is no speed or gap
+    // to count.
+    Project project = projectOf(
+        {from(0, 500), from(1000, 1400), from(2000, 2100), from(10000, 10100), from(11000, 14000)});
+    DurationConstraints constraints = none();
+    constraints.minimum = ms(1500);
+    constraints.gap = ms(200);
+
+    const DurationAdjustment adjustment = adjusting(project, constraints);
+
+    CHECK(adjustment.adjusted == 4);
+    CHECK(endOf(project, 0) == Timestamp::fromMilliseconds(800));
+    CHECK(endOf(project, 1) == Timestamp::fromMilliseconds(1800));
+    CHECK(endOf(project, 2) == Timestamp::fromMilliseconds(3500));
+    CHECK(endOf(project, 3) == Timestamp::fromMilliseconds(10800));
+    CHECK(endOf(project, 4) == Timestamp::fromMilliseconds(14000));
+    CHECK(adjustment.sacrificed == SacrificedConstraints{.speed = 0, .minimum = 3, .gap = 0});
+}
+
+TEST_CASE("one subtitle can give up two constraints, and is counted for both",
+          "[edit][durations]") {
+    // Speed 10 characters a second, lengthening only; minimum 1.5 s; gap 200 ms.
+    //
+    //   #0 0.0 - 0.5 s, twenty characters, the next one at 1.0 s.
+    //      Speed: twenty characters need 2.0 s, so the end goes to 2.0 s.
+    //      Minimum: 2.0 s holds it, nothing moves.
+    //      Gap: 1.0 - 2.0 s is -1.0 s, below 200 ms, so the end goes to
+    //      1.0 - 0.2 = 0.8 s and stays there: the gap wins.
+    //      0.8 s is under the 2.0 s the speed asks and under the 1.5 s of the
+    //      minimum: two constraints broken by the same subtitle. The gap is
+    //      exactly 200 ms, which holds.
+    //   #1 1.0 - 3.0 s, "Hi": needs 0.2 s, lasts 2.0 s, is the last one.
+    //      Nothing moves and nothing is broken.
+    //
+    // Only one subtitle gives anything up, so that a count of one for each of
+    // two constraints can only mean the same subtitle.
+    Project project = projectOf({from(0, 500, std::string(20, 'x')), from(1000, 3000, "Hi")});
+    DurationConstraints constraints = none();
+    constraints.speed = ReadingSpeed::create(10.0, true, false);
+    constraints.minimum = ms(1500);
+    constraints.gap = ms(200);
+
+    const DurationAdjustment adjustment = adjusting(project, constraints);
+
+    CHECK(adjustment.adjusted == 1);
+    CHECK(endOf(project, 0) == Timestamp::fromMilliseconds(800));
+    CHECK(endOf(project, 1) == Timestamp::fromMilliseconds(3000));
+    CHECK(adjustment.sacrificed == SacrificedConstraints{.speed = 1, .minimum = 1, .gap = 0});
+}
+
+TEST_CASE("a subtitle whose next one starts before it gives up all three at once",
+          "[edit][durations]") {
+    // The files this tool opens are not sorted, and the next subtitle is the
+    // next in the file. Same constraints as above.
+    //
+    //   #0 1.0 - 1.3 s, twenty characters, the next one at 0.9 s.
+    //      Speed: 2.0 s needed, so the end goes to 3.0 s. Minimum: holds.
+    //      Gap: 0.9 - 3.0 s is far below 200 ms, so the end goes to
+    //      max(start, 0.9 - 0.2) = max(1.0, 0.7) = 1.0 s: an end never goes
+    //      before its start, and the duration is zero.
+    //      Speed: 0 < 2.0 s, broken. Minimum: 0 < 1.5 s, broken. Gap:
+    //      0.9 - 1.0 s is -100 ms, below 200 ms, broken.
+    //   #1 0.9 - 3.0 s, "Hi", the last one: nothing moves, nothing is broken.
+    Project project = projectOf({from(1000, 1300, std::string(20, 'x')), from(900, 3000, "Hi")});
+    DurationConstraints constraints = none();
+    constraints.speed = ReadingSpeed::create(10.0, true, false);
+    constraints.minimum = ms(1500);
+    constraints.gap = ms(200);
+
+    const DurationAdjustment adjustment = adjusting(project, constraints);
+
+    CHECK(adjustment.adjusted == 1);
+    CHECK(endOf(project, 0) == Timestamp::fromMilliseconds(1000));
+    CHECK(endOf(project, 1) == Timestamp::fromMilliseconds(3000));
+    CHECK(adjustment.sacrificed == SacrificedConstraints{.speed = 1, .minimum = 1, .gap = 1});
+}
+
+TEST_CASE("a reading speed that shortens is given up to the minimum, and counted",
+          "[edit][durations]") {
+    // Speed 10 characters a second, shortening only; minimum 1.5 s. This is the
+    // direction the tests above do not reach: they all lengthen.
+    //
+    //   #0  0.0 -  5.0 s, "Bonjour.": eight characters read in 0.8 s. The speed
+    //       shortens the end to 0.8 s, then the minimum lifts it to 1.5 s.
+    //       1.5 s is longer than the 0.8 s the speed asks, and this speed
+    //       shortens: broken.
+    //   #1  6.0 -  9.0 s, twenty characters: 2.0 s of reading. The speed
+    //       shortens the end to 8.0 s, and 2.0 s holds the minimum. Nothing
+    //       broken, though the end moved.
+    //   #2 20.0 - 21.8 s, twenty characters: 1.8 s is under the 2.0 s of
+    //       reading, but this speed only shortens, so being short is not a way
+    //       to break it; 1.8 s holds the minimum. Nothing moves, nothing broken.
+    Project project = projectOf({from(0, 5000, "Bonjour."),
+                                 from(6000, 9000, std::string(20, 'x')),
+                                 from(20000, 21800, std::string(20, 'x'))});
+    DurationConstraints constraints = none();
+    constraints.speed = ReadingSpeed::create(10.0, false, true);
+    constraints.minimum = ms(1500);
+
+    const DurationAdjustment adjustment = adjusting(project, constraints);
+
+    CHECK(adjustment.adjusted == 2);
+    CHECK(endOf(project, 0) == Timestamp::fromMilliseconds(1500));
+    CHECK(endOf(project, 1) == Timestamp::fromMilliseconds(8000));
+    CHECK(endOf(project, 2) == Timestamp::fromMilliseconds(21800));
+    CHECK(adjustment.sacrificed == SacrificedConstraints{.speed = 1, .minimum = 0, .gap = 0});
+}
+
+TEST_CASE("a gap the next subtitle demands is kept, and the reading speed is what gives",
+          "[edit][durations]") {
+    // Speed 10 characters a second, lengthening only; gap 300 ms; no minimum.
+    // The text wants more time than the space before the next subtitle leaves.
+    //
+    //   #0  0.0 -  0.5 s, "Bonjour.", the next one at 1.0 s.
+    //       Speed: eight characters need 0.8 s, so the end goes to 0.8 s.
+    //       Gap: 1.0 - 0.8 s is 200 ms, below 300 ms, so the end goes to
+    //       1.0 - 0.3 = 0.7 s and the gap wins. 0.7 s < 0.8 s: speed broken.
+    //       1.0 - 0.7 s is exactly 300 ms: the gap holds.
+    //   #1  1.0 -  1.5 s, "Bonjour.", the next one at 10.0 s: the speed gives
+    //       1.8 s and the next subtitle is far. Both hold.
+    //   #2 10.0 - 12.0 s, "Hi", the last one: needs 0.2 s, lasts 2.0 s.
+    //       Nothing moves and nothing is broken.
+    Project project = projectOf(
+        {from(0, 500, "Bonjour."), from(1000, 1500, "Bonjour."), from(10000, 12000, "Hi")});
+    DurationConstraints constraints = none();
+    constraints.speed = ReadingSpeed::create(10.0, true, false);
+    constraints.gap = ms(300);
+
+    const DurationAdjustment adjustment = adjusting(project, constraints);
+
+    CHECK(adjustment.adjusted == 2);
+    CHECK(endOf(project, 0) == Timestamp::fromMilliseconds(700));
+    CHECK(endOf(project, 1) == Timestamp::fromMilliseconds(1800));
+    CHECK(endOf(project, 2) == Timestamp::fromMilliseconds(12000));
+    CHECK(adjustment.sacrificed == SacrificedConstraints{.speed = 1, .minimum = 0, .gap = 0});
 }

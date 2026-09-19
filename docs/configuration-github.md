@@ -266,7 +266,7 @@ par *Actions → release → Run workflow* pour republier un tag existant — is
 5. crée la release avec le `.deb` et le `.rpm` — ou, pour un tag déjà publié,
    remplace ses fichiers et ses notes ;
 6. `src/scripts/prune-releases.sh` — élague les releases de patch des milestones
-   passées.
+   passées, sauf à la demande : voir la rétention ci-dessous.
 
 **Pas de cache et pas d'artefact.** Le cache est le poste de stockage qui a
 coûté ; chaque exécution compile donc à froid, une fois par version plutôt
@@ -301,7 +301,31 @@ paquets ; `v0.10.0` reste, et tous les tags aussi.
 poussé après `v0.10.0` est construit, publié, puis supprimé par la même
 exécution. La règle ne fait pas d'exception pour le plus récent.
 
-`verify-gates.sh` prouve la sélection sur une liste écrite à la main, et deux
+**Trois précisions, nées de #399 :**
+
+- **Une reconstruction à la demande n'élague pas.** Lancé par *Run workflow*,
+  le workflow republie le paquet du tag saisi et s'arrête là : le script lit
+  `GITHUB_EVENT_NAME`, constate `workflow_dispatch`, le dit et sort sans rien
+  supprimer. Sans cela, rebâtir `v0.9.3` alors que `v0.10.0` existe recréerait
+  la release, puis la supprimerait dans le même travail.
+- **Un brouillon n'est pas une version.** Les brouillons sont écartés avant que
+  la milestone en cours soit déduite et avant que quoi que ce soit soit choisi :
+  un brouillon `v0.12.0` créé à la main ne fait pas partir les patchs de 0.11.
+- **Un refus est rouge.** Le script tente toutes les suppressions, puis sort en
+  erreur en nommant chaque release restée ; le travail de publication ne reste
+  pas vert sur une release qu'on croyait élaguée.
+
+**Après un refus, le remède est *Re-run failed jobs*, et non *Run workflow*.**
+Rejouer une exécution rouge garde son événement, `push` : le travail reconstruit
+les paquets à froid, remplace les fichiers de la release, puis élague — et
+retente les suppressions qui avaient été refusées. *Run workflow* est un
+`workflow_dispatch` : le script le constate et n'élague pas, si bien que la
+release restée le resterait. Pour la même raison, relancer par *Run workflow* le
+tag qui ouvre une milestone — `v0.11.0` — n'emporte pas les patchs de la
+précédente ; le push suivant, qui relit la liste des releases, les rattrape.
+
+`verify-gates.sh` prouve la sélection sur une liste écrite à la main, ces trois
+comportements contre un `gh` de fortune qui ne touche à aucun dépôt, et deux
 refus du garde de tag.
 
 #### Vérifier

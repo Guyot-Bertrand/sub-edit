@@ -56,6 +56,7 @@ using subedit::core::Timestamp;
 
 constexpr SearchOptions kPlain{.regex = false, .ignoreCase = false};
 constexpr SearchOptions kRegex{.regex = true, .ignoreCase = false};
+constexpr SearchOptions kExpressionIgnoringCase{.regex = true, .ignoreCase = true};
 
 [[nodiscard]] Project projectOf(std::initializer_list<std::string_view> texts,
                                 SubtitleFormat format = SubtitleFormat::SubRip) {
@@ -91,17 +92,48 @@ constexpr SearchOptions kRegex{.regex = true, .ignoreCase = false};
 }
 
 /// Replaces every match over the whole of a one-subtitle project, as the
-/// corpora ask.
+/// corpora ask, under `options`.
 [[nodiscard]] std::string replacedEverywhere(const std::string& text,
                                              const std::string& pattern,
                                              const std::string& replacement,
-                                             SubtitleFormat format) {
+                                             SubtitleFormat format,
+                                             SearchOptions options) {
     Project project = projectOf({text}, format);
     const ReplacedAll replaced =
-        replaceAll(project, Selection::all(project), patternOf(pattern, kPlain), replacement);
+        replaceAll(project, Selection::all(project), patternOf(pattern, options), replacement);
     if (replaced.command != nullptr)
         replaced.command->apply(project);
     return project.subtitleAt(SubtitleIndex::fromValue(0)).mainText;
+}
+
+/// The expression that matches `text` and nothing else: each character an
+/// expression reads as syntax is escaped.
+///
+/// What lets a corpus written for plain text be played as expressions. The set
+/// below is the whole of what ICU reads as syntax outside a class, and it is
+/// not derived from what the code does with a pattern.
+[[nodiscard]] std::string expressionMatching(std::string_view text) {
+    constexpr std::string_view kSyntax = R"(\^$.|?*+()[]{})";
+    std::string escaped;
+    for (const char letter : text) {
+        if (kSyntax.find(letter) != std::string_view::npos)
+            escaped += '\\';
+        escaped += letter;
+    }
+    return escaped;
+}
+
+/// The replacement that writes `text` as it stands, in the syntax of an
+/// expression's replacement: the manual lists `\` and `$` as the two characters
+/// it reads, and each is escaped by a backslash.
+[[nodiscard]] std::string replacementWriting(std::string_view text) {
+    std::string escaped;
+    for (const char letter : text) {
+        if (letter == '\\' || letter == '$')
+            escaped += '\\';
+        escaped += letter;
+    }
+    return escaped;
 }
 
 } // namespace
@@ -337,7 +369,7 @@ TEST_CASE("the cases written in the HTML vocabulary pass through replace all", "
     subedit::test::checkReplacementCases(
         subedit::test::replacementCasesOf("textes/recherche.cas"),
         [](const std::string& text, const std::string& pattern, const std::string& replacement) {
-            return replacedEverywhere(text, pattern, replacement, SubtitleFormat::SubRip);
+            return replacedEverywhere(text, pattern, replacement, SubtitleFormat::SubRip, kPlain);
         });
 }
 
@@ -346,8 +378,60 @@ TEST_CASE("the cases written in braces pass through replace all", "[edit][search
         subedit::test::replacementCasesOf("textes/recherche-accolades.cas"),
         [](const std::string& text, const std::string& pattern, const std::string& replacement) {
             return replacedEverywhere(
-                text, pattern, replacement, SubtitleFormat::AdvancedSubStationAlpha);
+                text, pattern, replacement, SubtitleFormat::AdvancedSubStationAlpha, kPlain);
         });
+}
+
+TEST_CASE("the same cases pass as expressions with the case ignored", "[edit][search]") {
+    // The two corpora above are played as plain, case-sensitive text; a user
+    // who ticks « Regular expression » and leaves « Ignore case » on is asking
+    // the same questions in another syntax. Each pattern and replacement is
+    // escaped to say what it said, and no case of either corpus depends on the
+    // case of a letter, so the answers stand.
+    const auto asExpressions = [](SubtitleFormat format) {
+        return [format](const std::string& text,
+                        const std::string& pattern,
+                        const std::string& replacement) {
+            return replacedEverywhere(text,
+                                      expressionMatching(pattern),
+                                      replacementWriting(replacement),
+                                      format,
+                                      kExpressionIgnoringCase);
+        };
+    };
+
+    subedit::test::checkReplacementCases(subedit::test::replacementCasesOf("textes/recherche.cas"),
+                                         asExpressions(SubtitleFormat::SubRip));
+    subedit::test::checkReplacementCases(
+        subedit::test::replacementCasesOf("textes/recherche-accolades.cas"),
+        asExpressions(SubtitleFormat::AdvancedSubStationAlpha));
+}
+
+TEST_CASE("an expression crosses the tag that cuts a word, and the case is ignored across it",
+          "[edit][search]") {
+    // recherche-expressions.cas says, case by case, what a match found by an
+    // expression becomes. It is played with both options ticked.
+    subedit::test::checkReplacementCases(
+        subedit::test::replacementCasesOf("textes/recherche-expressions.cas"),
+        [](const std::string& text, const std::string& pattern, const std::string& replacement) {
+            return replacedEverywhere(
+                text, pattern, replacement, SubtitleFormat::SubRip, kExpressionIgnoringCase);
+        });
+}
+
+TEST_CASE("the expression corpus needs both options", "[edit][search]") {
+    // What keeps the corpus above from passing for the wrong reason. « Bon.our »
+    // finds « Bonjour » only if `.` is a wildcard, and « bon.our » finds it only
+    // if the case is ignored: the manual says what each option changes, and
+    // turning either off leaves the text as it was.
+    const std::string text = "<i>Bon</i>jour";
+    const auto replaced = [&text](const std::string& pattern, SearchOptions options) {
+        return replacedEverywhere(text, pattern, "Salut", SubtitleFormat::SubRip, options);
+    };
+
+    CHECK(replaced("Bon.our", kPlain) == text);
+    CHECK(replaced("bon.our", kRegex) == text);
+    CHECK(replaced("bon.our", kExpressionIgnoringCase) == "<i>Salut</i>");
 }
 
 TEST_CASE("an empty match past an accented letter moves by a whole character", "[edit][search]") {

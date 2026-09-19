@@ -44,10 +44,21 @@ lecteur du projet, fichier par fichier :
 
     ./src/scripts/measure-duration-constraints.py --against ./build/dev/bin/subedit-cli
 
-**Ce qu'il ne fait pas**, et c'est délibéré : appliquer un ajustement puis
-compter ce qui reste insatisfait. Cela demande l'ajustement, que la phase n'a
-pas encore écrit, et l'ordre de résolution, que le cadrage n'a pas encore
-choisi. Simuler celui de Gaupol ici reviendrait à le préjuger.
+**Ce qu'il ne fait pas**, et c'est délibéré : appliquer l'ajustement, puis
+compter ce qu'il a sacrifié. L'ajustement existe depuis la phase 10, dans le
+noyau et dans la fenêtre, et `adjustDurations` compte lui-même ce qu'il
+sacrifie ; mais la ligne de commande ne l'expose pas avant la phase 13. Un
+script Python ne peut pas appeler le noyau, et un outil lié au noyau ne
+servirait qu'à ce seul recoupement : le second mode qu'annonçait l'issue #371
+n'est donc pas écrit, et l'issue #407 en a inscrit l'abandon ici. Le tableau
+prédit vaut parce qu'il ne réimplémente pas l'ajustement : s'il le faisait, il
+cesserait d'être un témoin indépendant de celui du noyau.
+
+**Le recoupement lui-même reste à faire** : deux comptes, celui que ce script
+prédit et celui que `adjustDurations` déclare sacrifié ; s'ils diffèrent, l'un
+des deux a tort. Il se fera par la ligne de commande, une fois l'ajustement
+exposé, et il est inscrit comme travail de la phase 13 dans
+`docs/feuille-de-route.md`.
 """
 
 import argparse
@@ -293,8 +304,9 @@ def report(total: Tally, per_file: list[tuple[str, Tally]], limits: argparse.Nam
 
     print()
     print("Une contradiction n'est pas un cas de bord : c'est un sous-titre pour lequel")
-    print("le cadrage devra dire laquelle des quatre contraintes est sacrifiée. Ce que")
-    print("l'ordre de résolution choisi en fait se comptera quand l'ajustement existera.")
+    print("toute fin viole au moins une contrainte. Ce que l'ajustement sacrifie, il le")
+    print("compte lui-même ; le recoupement avec ce tableau n'est pas fait ici (voir")
+    print("l'en-tête de ce script).")
 
     print()
     print("  contredits   sous-titres   fichier")

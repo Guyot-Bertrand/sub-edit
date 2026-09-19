@@ -28,7 +28,11 @@
 #
 # Deux autres, nées de #232, ne visent pas davantage une porte :
 # `prune-releases.sh` choisit les releases qu il supprime, et
-# `check-release-tag.sh` décide si un tag mérite d être publié.
+# `check-release-tag.sh` décide si un tag mérite d être publié. Trois de plus,
+# nées de #399, éprouvent ce que le premier fait de son choix, contre un `gh` de
+# fortune : un refus qui fait sortir en erreur sans dispenser des suppressions
+# suivantes, un brouillon qui n est pas une version, et une reconstruction à la
+# demande qui n élague pas.
 #
 # La dernière ne vise aucune porte : clean-stale-coverage.sh répare au lieu de
 # refuser, et ce qui peut être faux chez lui va dans les deux sens — garder un
@@ -74,7 +78,9 @@
 # doit refuser, et une image que le manuel montre sans que rien ne l'engendre,
 # que `check-screenshots.py` doit attraper. Le second défaut est le plus
 # coûteux des deux, et le seul que le comparateur ne peut pas voir : une image
-# périmée s'affiche aussi proprement qu'une image juste.
+# périmée s'affiche aussi proprement qu'une image juste. Quatre autres, nées de
+# #400, éprouvent la paire claire et sombre de chaque écran : elle manque au
+# programme, elle manque au manuel, elle est exemptée, elle est complète.
 #
 # Les deux suivantes visent `make config-home`, le pendant de la précédente de
 # l'autre côté de la frontière du dépôt : une configuration écrite pendant les
@@ -1172,6 +1178,117 @@ expect_screenshot_gates() {
 
 expect_screenshot_gates
 
+# Chaque capture claire a sa sombre — #400.
+#
+# **Quatre preuves, sur un jeu écrit à la main.** Le manuel promettait deux fois
+# que chaque écran se montre sous les deux palettes, et deux écrans de la phase
+# 10 sont entrés avec la seule claire : le contrôle vérifiait qu une image
+# montrée est engendrée, pas qu elle a sa paire. Le défaut se prouve sur un
+# petit dépôt de fortune — un programme de capture de trois lignes, une page, des
+# fichiers vides — plutôt qu en retirant une vraie image : la preuve ne touche
+# pas aux captures du manuel, et elle ne dépend pas de ce qu elles montrent un
+# jour.
+#
+# **Quatre, parce que la garde a deux façons de refuser et deux de laisser
+# passer.** Elle refuse une paire que le programme n engendre pas, et nomme
+# l image, sans quoi le message ne dirait pas où chercher ; elle refuse une
+# paire que le programme engendre mais que le manuel ne montre pas, parce que la
+# promesse est faite au lecteur et non au programme de capture ; elle laisse
+# passer une exemption motivée, sans quoi un écran qui n a vraiment qu une
+# palette serait condamné à la fausse paire ; et elle laisse passer le jeu
+# complet, sans quoi elle crierait au loup à chaque exécution.
+#
+# L exemption est une liste du script, vide aujourd hui : la preuve la remplit en
+# chargeant le script comme un module, plutôt que de lui donner une option qui
+# permettrait de s exempter depuis la ligne de commande.
+expect_screenshot_pairs() {
+    local script="${REPO_ROOT}/src/scripts/check-screenshots.py"
+    local root output
+    root="$(mktemp -d)"
+
+    mkdir -p "${root}/src/test/tools" "${root}/docs/manual/subedit-gui/captures"
+    local tool="${root}/src/test/tools/screenshots.cpp"
+    local page="${root}/docs/manual/subedit-gui/page.md"
+    local captures="${root}/docs/manual/subedit-gui/captures"
+
+    # Un écran complet, et un second qui n a que sa claire.
+    printf '%s\n' \
+        'capture(w, w, d, "ecran");' \
+        'capture(w, w, d, "ecran-sombre");' \
+        'capture(w, w, d, "seul");' > "${tool}"
+    printf '%s\n' \
+        '![Clair.](captures/ecran.png)' \
+        '![Sombre.](captures/ecran-sombre.png)' \
+        '![Seul.](captures/seul.png)' > "${page}"
+    touch "${captures}/ecran.png" "${captures}/ecran-sombre.png" "${captures}/seul.png"
+
+    printf '%s▸ une capture claire dont la sombre manque%s\n' "${BOLD}" "${RESET}"
+    if output="$("${script}" --root "${root}" 2>&1)"; then
+        printf '  %s✗ le garde-fou a laissé passer la paire manquante%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" != *"seul.png"* || "${output}" == *"ecran.png"* ]]; then
+        printf '  %s✗ le garde-fou a refusé sans nommer la bonne image%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « check-screenshots.py » a refusé et nommé seul.png, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    fi
+
+    printf '%s▸ un écran exempté, avec sa raison%s\n' "${BOLD}" "${RESET}"
+    if python3 - "${script}" "${root}" >/dev/null 2>&1 <<'PY'
+import importlib.util
+import sys
+
+spec = importlib.util.spec_from_file_location("check_screenshots", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+module.SINGLE_PALETTE["seul"] = "un écran de preuve, qui n a qu une palette"
+sys.exit(module.main(["--root", sys.argv[2]]))
+PY
+    then
+        printf '  %s✓ l exemption a levé la garde, comme attendu%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ l exemption motivée n a pas levé la garde%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    printf '%s▸ un jeu où chaque capture a sa paire%s\n' "${BOLD}" "${RESET}"
+    printf '%s\n' 'capture(w, w, d, "seul-sombre");' >> "${tool}"
+    printf '%s\n' '![Seul, sombre.](captures/seul-sombre.png)' >> "${page}"
+    touch "${captures}/seul-sombre.png"
+    if "${script}" --root "${root}" >/dev/null 2>&1; then
+        printf '  %s✓ « check-screenshots.py » a laissé passer le jeu complet, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ le garde-fou a refusé un jeu où chaque capture a sa paire%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    # Le jeu complet, dont la page ne montre plus la sombre de `seul` : le
+    # programme l engendre et le fichier existe, mais le lecteur ne la voit pas.
+    printf '%s▸ une sombre engendrée que le manuel ne montre pas%s\n' "${BOLD}" "${RESET}"
+    printf '%s\n' \
+        '![Clair.](captures/ecran.png)' \
+        '![Sombre.](captures/ecran-sombre.png)' \
+        '![Seul.](captures/seul.png)' > "${page}"
+    if output="$("${script}" --root "${root}" 2>&1)"; then
+        printf '  %s✗ le garde-fou a laissé passer la sombre absente du manuel%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" != *"PAIRE"*"seul.png"* || "${output}" == *"ecran.png"* ]]; then
+        printf '  %s✗ le garde-fou a refusé sans nommer la bonne image%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « check-screenshots.py » a refusé et nommé seul.png, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_screenshot_pairs
+
 # Les renvois du manuel — #243.
 #
 # Le troisième filet du manuel, après les blocs engendrés et les captures. Une
@@ -1462,6 +1579,204 @@ check_release_selection() {
 }
 
 expect_release_prune_selection_holds
+
+# Trois preuves de plus sur le même script — issue #399. La précédente éprouve
+# ce que le script choisit ; celles-ci éprouvent ce qu'il fait de son choix, et
+# cela demande de laisser le script supprimer pour de bon, contre un `gh` qui
+# n'est pas le vrai.
+#
+# **Le `gh` de fortune est le point délicat, et il ne touche à rien.** Il est
+# posé en tête du `PATH` d'un répertoire à usage unique, il répond à
+# `gh api …/releases` par un fichier écrit à la main — et applique le vrai
+# filtre `--jq` du script, avec `jq`, pour que les brouillons soient écartés
+# par le code qu'on éprouve et non par la fixture — et à `gh release delete` en
+# écrivant l'appel dans un journal, en refusant ceux qu'on lui désigne. Toute
+# autre commande est notée « INATTENDU » et échoue. Le harnais refuse de lancer
+# quoi que ce soit si `gh` ne se résout pas vers lui : aucune de ces preuves ne
+# peut donc atteindre le dépôt distant, et le jeton passé est un faux.
+#
+# Les trois s'exécutent sous `GITHUB_EVENT_NAME=push`, l'événement réel de la
+# publication : une garde de `workflow_dispatch` qui se déclencherait à tort
+# ferait échouer les deux premières.
+make_fake_gh() {
+    local sandbox="$1"
+
+    mkdir -p "${sandbox}/bin"
+    : > "${sandbox}/calls.log"
+    cat > "${sandbox}/bin/gh" <<'FIN'
+#!/usr/bin/env bash
+# Un gh de fortune : il lit un fichier, il écrit un journal, il ne va nulle part.
+set -u
+log="${FAKE_GH_DIR}/calls.log"
+case "${1:-} ${2:-}" in
+    "api "*)
+        expression=""
+        arguments=("$@")
+        for ((index = 0; index < ${#arguments[@]} - 1; index++)); do
+            if [[ "${arguments[index]}" == "--jq" ]]; then
+                expression="${arguments[index + 1]}"
+            fi
+        done
+        printf 'api %s\n' "$*" >> "${log}"
+        jq -r "${expression}" "${FAKE_GH_DIR}/releases.json"
+        ;;
+    "release delete")
+        printf 'release delete %s\n' "${*:3}" >> "${log}"
+        for refused in ${FAKE_GH_REFUSE:-}; do
+            if [[ "$3" == "${refused}" ]]; then
+                printf 'HTTP 403 : suppression refusée\n' >&2
+                exit 1
+            fi
+        done
+        ;;
+    *)
+        printf 'INATTENDU %s\n' "$*" >> "${log}"
+        exit 99
+        ;;
+esac
+FIN
+    chmod +x "${sandbox}/bin/gh"
+}
+
+# Écrit la liste des releases de l'API : `tag` pour une release publiée,
+# `tag:draft` pour un brouillon.
+write_fake_releases() {
+    local sandbox="$1"
+    shift
+
+    jq -n '[$ARGS.positional[] | split(":")
+            | {tag_name: .[0], draft: (.[1] == "draft")}]' \
+        --args "$@" > "${sandbox}/releases.json"
+}
+
+# Lance le vrai script contre le gh de fortune. Le code de sortie va dans
+# `prune_status`, les sorties dans `${sandbox}/out` et `${sandbox}/err`. Les
+# arguments après le répertoire sont des affectations d'environnement.
+prune_status=0
+run_release_pruner() {
+    local sandbox="$1"
+    shift
+
+    if [[ "$(PATH="${sandbox}/bin:${PATH}" command -v gh)" != "${sandbox}/bin/gh" ]]; then
+        printf '  %s✗ gh ne se résout pas vers le gh de fortune : rien n est lancé%s\n' \
+            "${RED}" "${RESET}"
+        prune_status=99
+        return
+    fi
+
+    prune_status=0
+    env -u GITHUB_STEP_SUMMARY \
+        PATH="${sandbox}/bin:${PATH}" \
+        GH_TOKEN=jeton-de-fortune \
+        GITHUB_REPOSITORY=exemple/subedit \
+        FAKE_GH_DIR="${sandbox}" \
+        "$@" \
+        "${RELEASE_PRUNE_SCRIPT}" >"${sandbox}/out" 2>"${sandbox}/err" || prune_status=$?
+}
+
+# Les tags dont la suppression a été tentée, dans l'ordre, séparés par un espace.
+attempted_deletions() {
+    awk '$1 == "release" && $2 == "delete" { print $3 }' "$1/calls.log" | tr '\n' ' '
+}
+
+# Écrit le verdict d'un cas : `problems` est vide s'il est tenu.
+report_release_prune_case() {
+    local label="$1" problems="$2"
+
+    if [[ -z "${problems}" ]]; then
+        printf '  %s✓ %s, comme attendu%s\n' "${GREEN}" "${label}" "${RESET}"
+    else
+        printf '  %s✗ %s : %s%s\n' "${RED}" "${label}" "${problems}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+}
+
+# Un refus est rouge, et il ne dispense pas des suppressions suivantes.
+#
+# Deux des trois patchs passés sont refusés, le second des trois ne l'est pas :
+# un script qui s'arrêterait au premier refus n'aurait tenté ni le deuxième ni
+# le troisième, et un script qui sortirait en 0 rendrait vert un élagage qui
+# n'en est pas un. Le même jeu tient les deux gardes de #232 : la `v0.9.0` est
+# une mineure et ne doit jamais être tentée, et aucun appel ne porte
+# `--cleanup-tag`, qui emporterait le tag avec la release.
+expect_release_prune_fails_on_refusal() {
+    printf '%s▸ %s%s\n' "${BOLD}" "élagage de releases dont une suppression est refusée" "${RESET}"
+
+    local sandbox problems=""
+    sandbox="$(mktemp -d)"
+    make_fake_gh "${sandbox}"
+    write_fake_releases "${sandbox}" v0.9.0 v0.9.3 v0.9.5 v0.9.7 v0.10.0 v0.10.2
+    run_release_pruner "${sandbox}" GITHUB_EVENT_NAME=push FAKE_GH_REFUSE="v0.9.3 v0.9.7"
+
+    local attempted
+    attempted="$(attempted_deletions "${sandbox}")"
+    [[ "${attempted}" == "v0.9.3 v0.9.5 v0.9.7 " ]] \
+        || problems+="suppressions tentées « ${attempted% } », attendu « v0.9.3 v0.9.5 v0.9.7 » ; "
+    (( prune_status != 0 )) || problems+="sorti en 0 malgré deux refus ; "
+    grep -q 'v0.9.3' "${sandbox}/err" || problems+="le refus de v0.9.3 n est pas nommé ; "
+    grep -q 'v0.9.7' "${sandbox}/err" || problems+="le refus de v0.9.7 n est pas nommé ; "
+    ! grep -q 'v0.9.5' "${sandbox}/err" || problems+="v0.9.5, supprimée, est nommée comme refusée ; "
+    ! grep -q -e '--cleanup-tag' "${sandbox}/calls.log" \
+        || problems+="un appel porte --cleanup-tag, qui supprimerait le tag ; "
+
+    report_release_prune_case "un refus fait sortir en erreur, les autres suppressions ont lieu" "${problems}"
+    rm -rf "${sandbox}"
+}
+
+expect_release_prune_fails_on_refusal
+
+# Un brouillon n'est pas une version. `gh api …/releases` les rend avec les
+# autres ; un brouillon `v0.11.0` créé à la main ferait de 0.11 la milestone en
+# cours, et le `v0.10.2` de la vraie milestone en cours partirait avec son
+# paquet. Le brouillon `v0.9.5`, lui, est un patch passé : il ne doit pas être
+# supprimé non plus, puisqu'il n'est pas une release.
+expect_release_prune_ignores_drafts() {
+    printf '%s▸ %s%s\n' "${BOLD}" "élagage de releases en présence de brouillons" "${RESET}"
+
+    local sandbox problems=""
+    sandbox="$(mktemp -d)"
+    make_fake_gh "${sandbox}"
+    write_fake_releases "${sandbox}" \
+        v0.9.0 v0.9.3 v0.9.5:draft v0.10.0 v0.10.2 v0.11.0:draft
+    run_release_pruner "${sandbox}" GITHUB_EVENT_NAME=push
+
+    local attempted
+    attempted="$(attempted_deletions "${sandbox}")"
+    [[ "${attempted}" == "v0.9.3 " ]] \
+        || problems+="suppressions tentées « ${attempted% } », attendu « v0.9.3 » ; "
+    (( prune_status == 0 )) || problems+="code de sortie ${prune_status}, attendu 0 ; "
+
+    report_release_prune_case "un brouillon n'est ni une milestone ni une release à supprimer" "${problems}"
+    rm -rf "${sandbox}"
+}
+
+expect_release_prune_ignores_drafts
+
+# Une reconstruction à la main n'élague pas. `release.yml` offre
+# `workflow_dispatch` pour un paquet à refaire ; sur un patch d'une milestone
+# close, la publication recrée la release et l'élagage la supprimerait dans le
+# même travail. Le jeu est celui du premier cas, où trois patchs partiraient.
+expect_release_prune_skips_manual_rebuild() {
+    printf '%s▸ %s%s\n' "${BOLD}" "élagage de releases lors d'une reconstruction à la demande" "${RESET}"
+
+    local sandbox problems=""
+    sandbox="$(mktemp -d)"
+    make_fake_gh "${sandbox}"
+    write_fake_releases "${sandbox}" v0.9.0 v0.9.3 v0.9.5 v0.9.7 v0.10.0 v0.10.2
+    run_release_pruner "${sandbox}" GITHUB_EVENT_NAME=workflow_dispatch
+
+    local attempted
+    attempted="$(attempted_deletions "${sandbox}")"
+    [[ -z "${attempted}" ]] || problems+="suppressions tentées « ${attempted% } », attendu aucune ; "
+    (( prune_status == 0 )) || problems+="code de sortie ${prune_status}, attendu 0 ; "
+    grep -q 'workflow_dispatch' "${sandbox}/out" \
+        || problems+="la sortie ne dit pas qu elle n élague pas à la demande ; "
+
+    report_release_prune_case "une reconstruction à la demande ne supprime rien et le dit" "${problems}"
+    rm -rf "${sandbox}"
+}
+
+expect_release_prune_skips_manual_rebuild
 
 # Le garde du workflow de release, sur ses deux refus qui ne demandent aucun tag
 # à poser : un nom qui n est pas une version, et une version qui ne désigne
@@ -1817,12 +2132,14 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles cinquante-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles soixante-trois portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set les releases élaguées sont les patchs des milestones passées%s\n' \
+    "${GREEN}" "${RESET}"
+printf '%set l élagage échoue sur un refus, ignore les brouillons, et reste au repos à la demande%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set le journal des mesures ne pose un extrême que sur un relevé propre%s\n' \
     "${GREEN}" "${RESET}"

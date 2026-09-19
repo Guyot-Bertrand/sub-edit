@@ -201,6 +201,8 @@ le travail de [`Shift Positions…`](#shift-positions).
 
 ![Le dialogue d'ajustement des durées, sur ses valeurs par défaut.](captures/ajustement.png)
 
+![Le même dialogue sous la palette sombre.](captures/ajustement-sombre.png)
+
 ### Les quatre contraintes
 
 | Champ | Ce qu'il demande | Valeurs | Défaut |

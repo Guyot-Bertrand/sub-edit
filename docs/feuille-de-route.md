@@ -965,6 +965,23 @@ script.
 Gaupol n'a pas d'équivalent : c'est une conception neuve, et un gain
 fonctionnel réel.
 
+**Un renvoi de la phase 10 atterrit ici : recouper l'ajustement des durées avec
+ce que le script de mesure en prédisait.**
+[`measure-duration-constraints.py`](../src/scripts/measure-duration-constraints.py)
+(issue [#371](https://github.com/Guyot-Bertrand/sub-edit/issues/371)) recense,
+avant tout ajustement, les sous-titres pour lesquels aucune fin ne satisfait deux
+des contraintes de durée ; `adjustDurations` déclare, lui, ce qu'il a sacrifié.
+Le second mode qu'annonçait #371 — appliquer l'ajustement, puis compter — n'a
+pas été écrit : un script Python ne peut pas appeler le noyau, la ligne de
+commande n'expose pas l'ajustement avant cette phase, et un outil lié au noyau
+ne servirait qu'à ce seul recoupement. **Une fois l'ajustement exposé**, on
+relèvera par la ligne de commande les deux comptes sur les mêmes fichiers et les
+mêmes réglages ; s'ils diffèrent, l'un des deux a tort. Le script compte, par
+paire de contraintes, les sous-titres sans fin satisfaisante ; `adjustDurations`
+compte, par contrainte, ceux où elle reste violée : dire quels comptes se
+comparent fait partie du travail. Issue
+[#407](https://github.com/Guyot-Bertrand/sub-edit/issues/407).
+
 ## 14 — Calage fin
 
 **Réduite, mais pas vidée.** Le lecteur lui-même est passé en phase 6, qui l'a

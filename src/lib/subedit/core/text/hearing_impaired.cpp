@@ -48,10 +48,12 @@ constexpr std::size_t kNowhere = std::string_view::npos;
 /// tag starts and ends is the one reader's to say; a `<` nothing closes on its
 /// line is text, which is what leaves a damaged file alone.
 [[nodiscard]] bool showsNothing(std::string_view text, MarkupVocabulary vocabulary) {
-    return std::ranges::all_of(piecesOf(text, vocabulary), [](const MarkupPiece& piece) {
-        return piece.kind != MarkupPiece::Kind::Text ||
-               std::ranges::all_of(piece.text,
-                                   [](char letter) { return isBlank(letter) || letter == '\n'; });
+    const auto isSpace = [](char letter) { return isBlank(letter) || letter == '\n'; };
+    if (!mayHoldMarkup(text, vocabulary))
+        return std::ranges::all_of(text, isSpace);
+
+    return std::ranges::all_of(piecesOf(text, vocabulary), [&](const MarkupPiece& piece) {
+        return piece.kind != MarkupPiece::Kind::Text || std::ranges::all_of(piece.text, isSpace);
     });
 }
 
@@ -158,7 +160,8 @@ void takeDashOff(std::string& text) {
 class TagWalk {
 public:
     TagWalk(std::string_view text, MarkupVocabulary vocabulary)
-        : m_pieces(piecesOf(text, vocabulary)) {}
+        : m_pieces(mayHoldMarkup(text, vocabulary) ? piecesOf(text, vocabulary)
+                                                   : std::vector<MarkupPiece>{}) {}
 
     /// The offset past the tag starting at `at`, or `kNowhere` when none does.
     ///

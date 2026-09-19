@@ -5,6 +5,8 @@
 ![Le dialogue de recherche, un motif saisi, sur ses options par
 défaut.](captures/recherche.png)
 
+![Le même dialogue sous la palette sombre.](captures/recherche-sombre.png)
+
 **Le dialogue n'est pas modal** : il reste ouvert pendant qu'on regarde la table,
 qu'on édite une cellule, qu'on recherche encore. `Close` le ferme ; le rouvrir le
 rend tel qu'on l'avait laissé, motif et remplacement compris.

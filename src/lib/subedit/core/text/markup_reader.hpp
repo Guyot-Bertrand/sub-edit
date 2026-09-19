@@ -52,6 +52,16 @@ struct MarkupPiece {
 /// Two pieces of text never follow each other: a stretch of text is one piece.
 [[nodiscard]] std::vector<MarkupPiece> piecesOf(std::string_view text, MarkupVocabulary vocabulary);
 
+/// Whether reading `text` could turn up a tag or a marker at all.
+///
+/// **A no is always right, a yes is only a maybe**: a tag needs its opener, so a
+/// text without one is text alone, and reading it is a piece list allocated to
+/// learn that. Most subtitles are such texts, and a caller that only wants the
+/// tags can skip the read. MPL2 always says yes: a marker is found by its place
+/// at the head of a line and not by an opener, and `piecesOf` is the one to say
+/// where it sits.
+[[nodiscard]] bool mayHoldMarkup(std::string_view text, MarkupVocabulary vocabulary);
+
 /// What an HTML tag names: `<I >` is an opening `i`, `</font>` a closing `font`.
 ///
 /// The name ends at a space or a tab. A self-closing tag — `<br/>`, `<i/>` —
