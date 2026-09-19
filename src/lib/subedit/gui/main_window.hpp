@@ -317,17 +317,33 @@ private:
     /// `target` is what the operation was applied to, and it is carried here
     /// for one reason: what reaches past the end of the film is read over it,
     /// after the fact, on the state the operation produced.
+    ///
+    /// Says what it left past the end of the film in a box of its own. An
+    /// operation that has something to say as well uses `applyOperationQuietly`
+    /// and puts the two in one box — issue #418.
     void applyOperation(std::unique_ptr<core::Command> command, const core::Selection& target);
 
-    /// Says what an operation left past the end of the film, if anything.
+    /// The same, and it says nothing: what the operation left past the end of
+    /// the film comes back as the sentence to say, empty when there is none.
+    ///
+    /// **Why the box is not opened here**: `reportOutcome` is modal, and an
+    /// operation with an account of its own to give — what an adjustment could
+    /// not satisfy, what an alignment left behind — used to open a second one
+    /// straight after the first. One operation, one box.
+    [[nodiscard]] std::string applyOperationQuietly(std::unique_ptr<core::Command> command,
+                                                    const core::Selection& target);
+
+    /// What an operation left past the end of the film, said as a sentence, or
+    /// nothing.
     ///
     /// **A notice, never a refusal** — decision D4. A subtitle landing after
     /// the closing credits may be exactly what was meant; refusing wrongly
     /// costs more than a warning that is ignored.
     ///
-    /// Silent without a film open: the length is what the player knows, and
+    /// Empty without a film open: the length is what the player knows, and
     /// there is nothing to be past the end of.
-    void reportWhatPassesTheEnd(core::CommandKind kind, const core::Selection& target);
+    [[nodiscard]] std::string whatPassesTheEnd(core::CommandKind kind,
+                                               const core::Selection& target) const;
 
     /// How long the open film lasts, or nothing.
     [[nodiscard]] std::optional<core::Duration> videoLength() const;
