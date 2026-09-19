@@ -11,6 +11,16 @@ ne pas l'éditer à la main.
 
 ### Corrections
 
+- **gui** — Valider la cellule en édition avant copier, supprimer et undo
+
+### Documentation
+
+- **doc** — Dire que onze gestes valident la cellule en édition
+
+## 0.10.17 — 2026-09-19
+
+### Corrections
+
 - **ci** — Ne plus élaguer à tort ni taire un refus de suppression
 - **core** — Finir mayHoldMarkup par std::unreachable comme ses voisines
 - **scripts** — Ramener le compte de verify-gates à soixante-trois
