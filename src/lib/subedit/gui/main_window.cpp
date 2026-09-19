@@ -361,8 +361,14 @@ MainWindow::MainWindow(core::FileSystem& files,
     // `setShortcuts` takes them all: both work everywhere.
     m_undo->setShortcut(QKeySequence::Undo);
     m_redo->setShortcuts(QKeySequence::keyBindings(QKeySequence::Redo));
-    connect(m_undo, &QAction::triggered, this, [this] { m_model->applied(m_session->undo()); });
-    connect(m_redo, &QAction::triggered, this, [this] { m_model->applied(m_session->redo()); });
+    connect(m_undo, &QAction::triggered, this, [this] {
+        commitCellEditor();
+        m_model->applied(m_session->undo());
+    });
+    connect(m_redo, &QAction::triggered, this, [this] {
+        commitCellEditor();
+        m_model->applied(m_session->redo());
+    });
 
     m_open->setShortcut(QKeySequence::Open);
     m_save->setShortcut(QKeySequence::Save);
@@ -1476,6 +1482,8 @@ void MainWindow::insertSubtitles() {
 }
 
 void MainWindow::removeSubtitles() {
+    commitCellEditor();
+
     const core::Selection target = selectionOf(*m_table->selectionModel());
     if (target.isEmpty())
         return;
@@ -1495,6 +1503,8 @@ void MainWindow::removeSubtitles() {
 }
 
 void MainWindow::copyTexts() {
+    commitCellEditor();
+
     const core::Selection target = selectionOf(*m_table->selectionModel());
     if (target.isEmpty())
         return;

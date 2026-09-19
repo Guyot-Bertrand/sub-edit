@@ -558,15 +558,20 @@ private:
     /// Commits and closes the cell editor open on the table, if any — the same
     /// validation a modal dialog already gets by taking the focus away.
     ///
-    /// **Ahead of the seven gestures issue #397 names** — the italic, the
-    /// case, the dialogue dashes, merging, splitting, cutting and pasting
-    /// texts — so that the target each reads and the command it builds see the
-    /// edit already applied rather than racing it. Other gestures without a
-    /// dialog — copying texts, removing subtitles, undo and redo — do not call
-    /// it. Giving the table itself the focus is what a click elsewhere already
-    /// does, and the delegate's own focus-out handling — Qt's, unmodified —
-    /// takes it from there: it validates rather than discards, the same answer
-    /// a dialog already gave.
+    /// **Ahead of every gesture without a dialog** — the seven issue #397 names
+    /// (the italic, the case, the dialogue dashes, merging, splitting, cutting
+    /// and pasting texts), and the four issue #416 added (copying texts,
+    /// removing subtitles, undo and redo) — so that the target each reads and
+    /// the command it builds see the edit already applied rather than racing
+    /// it. **Undo and redo are the two that read the history and not the
+    /// document**: the typing goes into it first, so an undo takes the typing
+    /// off and not what came before it, and a redo finds nothing left to redo,
+    /// as typing after an undo does anywhere else. A gesture with a dialog does
+    /// not call it: opening the dialog takes the focus, which does the same
+    /// thing. Giving the table itself the focus is what a click elsewhere
+    /// already does, and the delegate's own focus-out handling — Qt's,
+    /// unmodified — takes it from there: it validates rather than discards, the
+    /// same answer a dialog already gave.
     void commitCellEditor();
 
     /// **Initialised here, and not only in the constructor's list.**
