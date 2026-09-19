@@ -79,12 +79,41 @@ std::vector<MarkupPiece> piecesOf(std::string_view text, MarkupVocabulary vocabu
         }
 
         atLineHead = text[at] == '\n';
+
+        // The text runs on to the next character that could start something
+        // else, and is appended as one piece rather than a character at a time:
+        // a subtitle is mostly text, and this is the loop the whole core reads
+        // its tags through. In MPL2 a marker follows a line break, so a break
+        // ends the run there; nothing else can follow a character of text.
+        std::size_t end = at + 1;
+        if (!(markers && atLineHead)) {
+            end = markers ? text.find_first_of("{\n", end)
+                          : (angles || braces ? text.find(opening, end) : std::string_view::npos);
+            if (end == std::string_view::npos)
+                end = text.size();
+        }
         append(pieces,
-               MarkupPiece{.kind = MarkupPiece::Kind::Text, .text = text.substr(at, 1), .at = at},
+               MarkupPiece{
+                   .kind = MarkupPiece::Kind::Text, .text = text.substr(at, end - at), .at = at},
                text);
-        ++at;
+        at = end;
     }
     return pieces;
+}
+
+bool mayHoldMarkup(std::string_view text, MarkupVocabulary vocabulary) {
+    switch (vocabulary) {
+    case MarkupVocabulary::None:
+        return false;
+    case MarkupVocabulary::Html:
+        return text.contains('<');
+    case MarkupVocabulary::SubStationAlpha:
+    case MarkupVocabulary::MicroDvd:
+        return text.contains('{');
+    case MarkupVocabulary::Mpl2:
+        return true;
+    }
+    return true;
 }
 
 HtmlTag htmlTagOf(std::string_view tag) {
