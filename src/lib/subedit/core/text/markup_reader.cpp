@@ -6,6 +6,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace subedit::core {
@@ -113,7 +114,7 @@ bool mayHoldMarkup(std::string_view text, MarkupVocabulary vocabulary) {
     case MarkupVocabulary::Mpl2:
         return true;
     }
-    return true;
+    std::unreachable();
 }
 
 HtmlTag htmlTagOf(std::string_view tag) {
