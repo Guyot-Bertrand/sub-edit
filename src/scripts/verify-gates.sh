@@ -78,7 +78,7 @@
 # doit refuser, et une image que le manuel montre sans que rien ne l'engendre,
 # que `check-screenshots.py` doit attraper. Le second défaut est le plus
 # coûteux des deux, et le seul que le comparateur ne peut pas voir : une image
-# périmée s'affiche aussi proprement qu'une image juste. Trois autres, nées de
+# périmée s'affiche aussi proprement qu'une image juste. Quatre autres, nées de
 # #400, éprouvent la paire claire et sombre de chaque écran : elle manque au
 # programme, elle manque au manuel, elle est exemptée, elle est complète.
 #

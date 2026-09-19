@@ -50,9 +50,9 @@ noyau et dans la fenêtre, et `adjustDurations` compte lui-même ce qu'il
 sacrifie ; mais la ligne de commande ne l'expose pas avant la phase 13. Un
 script Python ne peut pas appeler le noyau, et un outil lié au noyau ne
 servirait qu'à ce seul recoupement : le second mode qu'annonçait l'issue #371
-n'est donc pas écrit, et l'issue #407 en a inscrit l'abandon ici. L'écrire en
-Python reviendrait à en faire une seconde copie, et le recoupement n'aurait
-plus deux témoins.
+n'est donc pas écrit, et l'issue #407 en a inscrit l'abandon ici. Le tableau
+prédit vaut parce qu'il ne réimplémente pas l'ajustement : s'il le faisait, il
+cesserait d'être un témoin indépendant de celui du noyau.
 
 **Le recoupement lui-même reste à faire** : deux comptes, celui que ce script
 prédit et celui que `adjustDurations` déclare sacrifié ; s'ils diffèrent, l'un
