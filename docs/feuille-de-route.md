@@ -976,9 +976,10 @@ pas été écrit : un script Python ne peut pas appeler le noyau, la ligne de
 commande n'expose pas l'ajustement avant cette phase, et un outil lié au noyau
 ne servirait qu'à ce seul recoupement. **Une fois l'ajustement exposé**, on
 relèvera par la ligne de commande les deux comptes sur les mêmes fichiers et les
-mêmes réglages ; s'ils diffèrent, l'un des deux a tort. Le script compte des
-sous-titres et `adjustDurations` des contraintes sacrifiées : dire quels comptes
-se comparent fait partie du travail. Issue
+mêmes réglages ; s'ils diffèrent, l'un des deux a tort. Le script compte, par
+paire de contraintes, les sous-titres sans fin satisfaisante ; `adjustDurations`
+compte, par contrainte, ceux où elle reste violée : dire quels comptes se
+comparent fait partie du travail. Issue
 [#407](https://github.com/Guyot-Bertrand/sub-edit/issues/407).
 
 ## 14 — Calage fin

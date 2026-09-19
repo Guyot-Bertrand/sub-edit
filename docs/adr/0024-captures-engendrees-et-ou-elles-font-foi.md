@@ -163,12 +163,14 @@ vide. C'est le sujet de #190 — avec l'API de rendu, mpv dessinerait dans un
 widget Qt et l'image deviendrait capturable. La section du lecteur reste donc
 sans image, et c'est une absence nommée plutôt qu'un oubli.
 
-**Le doublement des captures par thème attend le thème.** La D4 du cadrage de
-la phase 7 promet deux captures par écran, clair et sombre ; le thème est #241
-et il n'existe pas encore. Le manuel décrit ce qui existe, donc il y a une
-capture par écran aujourd'hui. Le mécanisme les prendra sans rien changer :
-une capture de plus est un appel de plus dans le programme, un nom de plus dans
-le répertoire, une image de plus dans la section.
+**Le doublement des captures par thème est fait.** La D4 du cadrage de la
+phase 7 promet deux captures par écran, clair et sombre ; le thème est venu avec
+#241, et chaque écran se photographie désormais sous les deux palettes — onze
+paires, la sombre portant le suffixe `-sombre`. Le mécanisme les a prises sans
+rien changer : une capture de plus est un appel de plus dans le programme, un
+nom de plus dans le répertoire, une image de plus dans la section. Et
+`check-screenshots.py` exige la sombre de chaque claire (#400), sauf exemption
+motivée.
 
 **Un changement d'interface se voit dans le diff du dépôt.** C'est le bénéfice
 principal, et il vaut d'être dit à l'endroit : une capture promue est une

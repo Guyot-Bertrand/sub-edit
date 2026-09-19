@@ -54,7 +54,7 @@ au texte source casse les balises, et l'ADR en donne l'exemple — `\[.*?\]` qui
 avale une ouvrante et laisse sa fermante orpheline.
 
 **Sa règle est écrite cas par cas, et le corpus est la spécification.**
-`src/test/data/textes/recherche.cas` en porte vingt-quatre dans le vocabulaire
+`src/test/data/textes/recherche.cas` en porte trente et un dans le vocabulaire
 HTML, `recherche-accolades.cas` huit en Sub Station Alpha, et la règle est en
 tête du premier, en six points. Les deux qui décident :
 
