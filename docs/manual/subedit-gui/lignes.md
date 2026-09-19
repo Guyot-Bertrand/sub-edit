@@ -172,7 +172,9 @@ Voir [Annuler et rétablir](annulation.md).
 
 `Ins` et `Del` appartiennent au champ de saisie tant qu'un éditeur de cellule
 est ouvert : la touche de suppression y efface un caractère, et non un
-sous-titre. Fermer l'éditeur — `Entrée` ou `Échap` — leur rend leur sens.
+sous-titre. Fermer l'éditeur — `Entrée` ou `Échap` — leur rend leur sens. Lancé
+par le menu, `Remove Subtitles` valide d'abord la saisie, comme les autres
+gestes de [Éditer une cellule](edition.md).
 
 Ce manuel nomme les touches comme le menu les affiche — voir
 [Les menus](index.md#les-menus).

@@ -22,8 +22,9 @@ du document, et un collage n'aurait pas de ligne où commencer.
 
 Pendant qu'une cellule est ouverte, `Ctrl+X`, `Ctrl+C` et `Ctrl+V` appartiennent
 au champ de saisie : ils coupent, copient et collent des caractères, comme `Del`
-y efface un caractère et non un sous-titre. Voir
-[Éditer une cellule](edition.md).
+y efface un caractère et non un sous-titre. Lancées par le menu, elles valident
+d'abord la saisie : `Copy Texts` copie alors le texte tel qu'il vient d'être
+tapé. Voir [Éditer une cellule](edition.md).
 
 ## Copier
 

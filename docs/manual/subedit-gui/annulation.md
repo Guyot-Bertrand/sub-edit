@@ -72,4 +72,12 @@ Une opération refaite après une annulation **efface ce qu'il y avait à
 rétablir** : rétablir rejouerait une commande dont l'état de départ n'existe
 plus. C'est le comportement de tous les éditeurs, et il est délibéré.
 
+**Pendant qu'une cellule est ouverte**, `Undo` et `Redo` — par le menu ou la
+barre d'outils — valident d'abord la saisie, comme les autres gestes de
+[Éditer une cellule](edition.md). Ce qui vient d'être tapé devient alors la
+dernière entrée de l'historique : `Undo` la défait, et non l'opération d'avant ;
+`Redo` n'a plus rien à rétablir, puisqu'une saisie efface ce qu'il y avait à
+rétablir. Une cellule ouverte où rien n'a été tapé ne laisse aucune entrée :
+`Undo` défait alors l'opération précédente.
+
 L'historique garde mille entrées et oublie les plus anciennes au-delà.

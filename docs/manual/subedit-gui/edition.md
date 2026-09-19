@@ -28,14 +28,19 @@ l'éditeur ; la ligne de la table s'ajuste à la validation.
 
 Cliquer ailleurs valide aussi : la perte du focus vaut `Entrée`.
 
-**Sept gestes sans dialogue valident de même** avant de calculer leur cible :
+**Onze gestes sans dialogue valident de même** avant de calculer leur cible :
 `Italic`, `Case ▸ …`, `Dialogue`, `Merge Subtitles`, `Split Subtitle`,
-`Cut Texts` et `Paste Texts`. Lancés depuis le menu, la barre d'outils ou un
-raccourci de la fenêtre, ils reprennent le texte tel que l'éditeur vient de le
-valider, comme après un clic ailleurs. `Ctrl+X` et `Ctrl+V` restent pourtant à
-l'éditeur tant qu'il est ouvert — voir
-[Couper, copier et coller](presse-papiers.md) : c'est le menu qui lance alors
-`Cut Texts` et `Paste Texts`.
+`Cut Texts`, `Paste Texts`, `Copy Texts`, `Remove Subtitles`, `Undo` et `Redo`.
+Lancés depuis le menu, la barre d'outils ou un raccourci de la fenêtre, ils
+reprennent le texte tel que l'éditeur vient de le valider, comme après un clic
+ailleurs. `Ctrl+X`, `Ctrl+C` et `Ctrl+V` restent pourtant à l'éditeur tant
+qu'il est ouvert — voir [Couper, copier et coller](presse-papiers.md) : c'est le
+menu qui lance alors `Cut Texts`, `Copy Texts` et `Paste Texts`.
+
+`Undo` et `Redo` lisent l'historique et non le document : voir
+[Annuler et rétablir](annulation.md). Un geste qui ouvre un dialogue n'a pas
+besoin de cette règle, puisque le dialogue prend le focus en s'ouvrant, ce qui
+valide déjà la saisie.
 
 ### Les balises sont celles du fichier
 
