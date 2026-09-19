@@ -9,6 +9,47 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Corrections
+
+- **ci** — Ne plus élaguer à tort ni taire un refus de suppression
+- **core** — Finir mayHoldMarkup par std::unreachable comme ses voisines
+- **scripts** — Ramener le compte de verify-gates à soixante-trois
+
+### Documentation
+
+- **core** — Dire clairement ce que compte ReplacedAll::count
+- **doc** — Montrer ajustement et recherche sous la palette sombre
+- **scripts** — Dire l'abandon du second mode de la mesure des durées
+- **doc** — Inscrire en phase 13 le recoupement de l'ajustement
+- **doc** — Corriger quatre passages relevés en relecture du lot 3
+- **scripts** — Corriger le compte des preuves et une phrase du script
+
+### Performance
+
+- **core** — Lire le texte d'un bloc et sauter les textes sans balise
+
+### Remaniements
+
+- **core** — Sortir endOfTextRun et openerOf de piecesOf
+
+### Tests
+
+- **gui** — Prouver la validation de la saisie pour six gestes de #397
+- **gui** — Tenir les trois exigences que #405 disait à moitié
+- Faire dire à six intitulés ce que leur corps prouve
+- **core** — Prouver les sacrifices de l'ajustement au-delà d'un cas seul
+- **core** — Jouer la recherche en expression régulière, casse ignorée
+- **core** — Mesurer la recherche, l'ajustement, la casse et le collage
+- **gui** — Photographier ajustement et recherche en palette sombre
+- **scripts** — Exiger sa palette sombre de chaque capture claire
+- **scripts** — Prouver la sombre engendrée mais absente du manuel
+- **scripts** — Éprouver l'élagage des releases sur un gh de fortune
+- Corriger les mineurs relevés en relecture des tests et bancs
+- Resserrer le cas de mayHoldMarkup et trois en-têtes périmés
+- Initialiseurs désignés pour les tables de deux tests
+
+## 0.10.16 — 2026-09-18
+
 ### Ajouts
 
 - **gui** — Les gestes sans dialogue parlent dans la barre d'état
