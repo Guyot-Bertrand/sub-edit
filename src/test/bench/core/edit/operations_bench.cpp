@@ -1,5 +1,6 @@
 // What the operations of the edit layer cost on a full-length file: the eight
-// of phase 2, then the search, the duration adjustment, the case and the paste
+// of phase 2, the removal of hearing-impaired mentions and the italics, then
+// the replacement, the search, the duration adjustment, the case and the paste
 // of phase 10.
 //
 // Measured through a `Session`, which is how an application runs them: the

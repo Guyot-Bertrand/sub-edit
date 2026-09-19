@@ -125,14 +125,26 @@ TEST_CASE("a text the reader says holds no markup comes back as text alone", "[t
         MarkupVocabulary::MicroDvd,
         MarkupVocabulary::Mpl2,
     };
+    std::size_t examined = 0;
     for (const std::string_view text : texts) {
         for (const MarkupVocabulary vocabulary : vocabularies) {
             if (mayHoldMarkup(text, vocabulary))
                 continue;
-            for (const MarkupPiece& piece : piecesOf(text, vocabulary))
+            ++examined;
+
+            // Text alone, and all of it: a fast path that skipped the read must
+            // find in the text exactly what the read would have shown.
+            std::string joined;
+            for (const MarkupPiece& piece : piecesOf(text, vocabulary)) {
                 CHECK(piece.kind == MarkupPiece::Kind::Text);
+                joined += piece.text;
+            }
+            CHECK(joined == text);
         }
     }
+    // A predicate that answered yes to everything would leave the loop empty
+    // and the case green.
+    CHECK(examined > 0);
 }
 
 TEST_CASE("each piece knows where it starts", "[text][reader]") {

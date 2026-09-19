@@ -157,8 +157,7 @@ TEST_CASE("a file that is not there says so", "[test][textcases]") {
                       ContainsSubstring("rien-du-tout.cas"));
 }
 
-TEST_CASE("the corpus of the phase reads, long before there is anything to run it against",
-          "[test][textcases]") {
+TEST_CASE("the corpus of the mentions is well formed, whatever plays it", "[test][textcases]") {
     // mentions.cas holds what has been decided about removing hearing-impaired
     // mentions, written before the transformation existed — that is the point
     // of the format. The transformation now runs them, in

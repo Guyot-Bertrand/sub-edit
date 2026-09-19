@@ -1,11 +1,12 @@
 # Chercher dans le texte visible, remplacer dans le texte source — la
 # spécification de la phase 10, écrite cas par cas.
 #
-# Ce fichier précède le code, comme mentions.cas a précédé celui de la phase 4 :
-# ces cas sont des questions posées à qui décide avant d'être des vérifications
-# d'un comportement écrit. Le jour où le parseur conscient des balises existera,
-# c'est lui qui les passera, et une ligne ajoutée ici le jour où une question se
-# tranche sera un test qui échoue le jour même.
+# Ce fichier a précédé le code, comme mentions.cas a précédé celui de la phase 4 :
+# ces cas ont été des questions posées à qui décide avant d'être des vérifications
+# d'un comportement écrit. Le parseur conscient des balises les passe aujourd'hui
+# (markup_parser_test.cpp), et la recherche aussi (search_test.cpp) : une ligne
+# ajoutée ici le jour où une question se tranche est un test qui échoue le jour
+# même.
 #
 # **Les textes sont écrits dans le vocabulaire HTML** — SubRip, WebVTT,
 # SubViewer 2. Les deux vocabulaires à accolades ont leur propre fichier,
