@@ -80,8 +80,12 @@ struct Bounds {
 boundsOf(const Project& project, SubtitleIndex index, const DurationConstraints& constraints) {
     Bounds bounds;
     if (const std::optional<ReadingSpeed>& speed = constraints.speed; speed.has_value()) {
+        // The main text, in the main file's format, and by design: a reading
+        // speed is what the viewer reads on the picture, and the picture shows
+        // the main document. A translation in another format changes nothing.
         const std::string_view text = project.subtitleAt(index).mainText;
-        bounds.needed = readingTimeOf(visibleLength(text, project.sourceFile().format), *speed);
+        bounds.needed =
+            readingTimeOf(visibleLength(text, project.sourceFile(Document::Main).format), *speed);
     }
     if (index.value() + 1 < project.count())
         bounds.next = project.subtitleAt(SubtitleIndex::fromValue(index.value() + 1)).start;

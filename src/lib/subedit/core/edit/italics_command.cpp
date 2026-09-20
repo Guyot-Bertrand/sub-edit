@@ -14,7 +14,7 @@
 namespace subedit::core {
 
 bool wouldItalicise(const Project& project, const Selection& selection, Document document) {
-    const SubtitleFormat format = project.sourceFile().format;
+    const SubtitleFormat format = project.sourceFile(document).format;
 
     return std::ranges::any_of(selection.indices(), [&](SubtitleIndex index) {
         // A subtitle with nothing in it says nothing about the question: it is
@@ -27,7 +27,7 @@ bool wouldItalicise(const Project& project, const Selection& selection, Document
 
 std::unique_ptr<Command>
 setItalics(const Project& project, const Selection& selection, Document document, bool italic) {
-    const SubtitleFormat format = project.sourceFile().format;
+    const SubtitleFormat format = project.sourceFile(document).format;
 
     return rewriteTexts(project,
                         selection,

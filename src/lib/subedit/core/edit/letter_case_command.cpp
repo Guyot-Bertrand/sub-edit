@@ -11,7 +11,7 @@ std::unique_ptr<Command> setLetterCase(const Project& project,
                                        const Selection& selection,
                                        Document document,
                                        LetterCase wanted) {
-    const SubtitleFormat format = project.sourceFile().format;
+    const SubtitleFormat format = project.sourceFile(document).format;
 
     return rewriteTexts(
         project,

@@ -14,7 +14,7 @@
 namespace subedit::core {
 
 bool wouldAddDialogueDashes(const Project& project, const Selection& selection, Document document) {
-    const SubtitleFormat format = project.sourceFile().format;
+    const SubtitleFormat format = project.sourceFile(document).format;
 
     return std::ranges::any_of(selection.indices(), [&](SubtitleIndex index) {
         return wantsDialogueDashes(project.subtitleAt(index).text(document), format);
@@ -25,7 +25,7 @@ std::unique_ptr<Command> setDialogueDashes(const Project& project,
                                            const Selection& selection,
                                            Document document,
                                            bool dashed) {
-    const SubtitleFormat format = project.sourceFile().format;
+    const SubtitleFormat format = project.sourceFile(document).format;
 
     return rewriteTexts(project,
                         selection,

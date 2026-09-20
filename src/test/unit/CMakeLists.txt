@@ -34,6 +34,7 @@ add_executable(
     core/model/subtitle_test.cpp
     core/model/project_test.cpp
     core/model/project_video_test.cpp
+    core/model/project_documents_test.cpp
     core/model/video_file_test.cpp
     core/model/subtitle_index_test.cpp
     core/model/project_access_test.cpp
@@ -43,6 +44,7 @@ add_executable(
     core/edit/set_text_command_test.cpp
     core/edit/hearing_impaired_removal_test.cpp
     core/edit/italics_command_test.cpp
+    core/edit/document_dialect_test.cpp
     core/edit/rewrite_texts_test.cpp
     core/edit/text_commands_test.cpp
     core/edit/insert_command_test.cpp

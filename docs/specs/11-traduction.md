@@ -164,6 +164,11 @@ ce qui n'est faux que le jour où une traduction existe. **Le douzième,
 `duration_adjustment`, reste au principal, à dessein** : la vitesse de lecture se calcule
 sur `mainText`, et l'ajustement est une opération de positions.
 
+**Ils ne changent pas tous en même temps.** #429 en change huit — tous ceux qui reçoivent déjà
+un `Document`. Les trois de `search` **attendent** : la recherche ne prend pas de `Document`, elle
+lit `mainText`, et c'est #433 qui le lui donne. D'ici là ils nomment le principal (`Document::Main`),
+et un test le garde.
+
 **Ce que la décision écarte** est dans l'ADR : un fichier de traduction que le projet
 ignorerait — la fenêtre le tiendrait à côté de sa `Session`, ce que l'ADR 0018 a déjà
 refusé ; une traduction lue puis oubliée comme source, qu'on ne saurait plus enregistrer

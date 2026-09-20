@@ -174,9 +174,13 @@ struct Found {
 }
 
 /// Every match in the main text of the subtitle at `index`.
+///
+/// **The main file's format, named as such**: the search takes no document yet,
+/// and it is the issue that puts a translation on the screen that gives it one.
 [[nodiscard]] std::vector<Span>
 spansAt(const Project& project, SubtitleIndex index, const SearchPattern::Compiled& compiled) {
-    const MarkupParser parser{project.subtitleAt(index).mainText, project.sourceFile().format};
+    const MarkupParser parser{project.subtitleAt(index).mainText,
+                              project.sourceFile(Document::Main).format};
     return spansIn(parser.visible(), compiled);
 }
 
@@ -397,7 +401,7 @@ std::optional<ReplacedMatch> replaceMatch(const Project& project,
 
     const std::string& text = project.subtitleAt(match.index).mainText;
     const Rewritten rewritten = rewrite(text,
-                                        project.sourceFile().format,
+                                        project.sourceFile(Document::Main).format,
                                         pattern.compiled(),
                                         replacement,
                                         Span{.start = match.start, .end = match.end});
@@ -429,8 +433,11 @@ ReplacedAll replaceAll(const Project& project,
 
     for (const SubtitleIndex index : target.indices()) {
         const std::string& text = project.subtitleAt(index).mainText;
-        const Rewritten rewritten = rewrite(
-            text, project.sourceFile().format, pattern.compiled(), replacement, std::nullopt);
+        const Rewritten rewritten = rewrite(text,
+                                            project.sourceFile(Document::Main).format,
+                                            pattern.compiled(),
+                                            replacement,
+                                            std::nullopt);
         replaced.count += rewritten.count;
         replaced.matched += rewritten.matched;
         if (rewritten.text != text)

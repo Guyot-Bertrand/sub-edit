@@ -1,6 +1,7 @@
 #pragma once
 
 #include <subedit/core/model/associated_video.hpp>
+#include <subedit/core/model/document.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
@@ -134,10 +135,41 @@ public:
     /// when the question is worth its answer.
     void setDeclaredFrameRate(std::optional<FrameRate> rate);
 
-    /// Returns what the file this project came from looked like.
+    /// Returns what the file this project came from looked like — **the main
+    /// file**, which is what this accessor has always named.
+    ///
+    /// Every place that reads it is about the main document, and none of them
+    /// is about to learn that there are two. The ones that are about a
+    /// document ask for it by name below.
     [[nodiscard]] const SourceFile& sourceFile() const { return m_sourceFile; }
 
     void setSourceFile(SourceFile source) { m_sourceFile = std::move(source); }
+
+    /// Returns what the file of `document` looked like — ADR 0032.
+    ///
+    /// **A translation with no file of its own follows the main one**: text
+    /// typed into an empty column is written like the main document, until it
+    /// is given a format. That is what makes the answer always a file, and an
+    /// operation asking for the tags of a document never has to ask whether
+    /// it has any.
+    [[nodiscard]] const SourceFile& sourceFile(Document document) const {
+        if (document == Document::Translation && m_translationFile.has_value())
+            return *m_translationFile;
+        return m_sourceFile;
+    }
+
+    void setSourceFile(Document document, SourceFile source) {
+        if (document == Document::Translation)
+            m_translationFile = std::move(source);
+        else
+            m_sourceFile = std::move(source);
+    }
+
+    /// Returns the file the translation came from, or nothing while it has none
+    /// of its own — which is a fact `sourceFile(Document::Translation)` hides.
+    [[nodiscard]] const std::optional<SourceFile>& translationFile() const {
+        return m_translationFile;
+    }
 
 private:
     std::vector<Subtitle> m_subtitles;
@@ -148,6 +180,8 @@ private:
     FrameRate m_frameRate{StandardFrameRate::Fps23976};
 
     SourceFile m_sourceFile;
+
+    std::optional<SourceFile> m_translationFile;
 
     std::optional<AssociatedVideo> m_video;
 };
