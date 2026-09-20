@@ -1,7 +1,8 @@
 # Éditer une cellule
 
-Quatre colonnes s'éditent en place : `Start`, `End`, `Duration` et `Text`. `#`
-ne s'édite pas — le numéro est le rang de la ligne, pas une donnée du fichier.
+Quatre colonnes s'éditent en place : `Start`, `End`, `Duration` et `Text` — cinq
+avec la colonne `Translation`, quand le projet a une traduction. `#` ne s'édite
+pas — le numéro est le rang de la ligne, pas une donnée du fichier.
 
 **Ouvrir l'éditeur d'une cellule :** double-cliquer dessus, ou la sélectionner
 et appuyer sur `F2`.
@@ -13,6 +14,11 @@ est multiligne et montre les deux lignes telles qu'elles seront
 ![La même cellule ouverte sous la palette sombre.](captures/edition-sombre.png)
 
 ## Le texte
+
+**La traduction s'édite comme le texte**, avec le même champ multiligne et les
+mêmes règles ; seule la cellule change, et le texte principal reste tel qu'il
+était. Une validation qui ne change rien ne fait rien pour l'une comme pour
+l'autre — voir [plus bas](#une-validation-qui-ne-change-rien-ne-fait-rien).
 
 L'éditeur est un champ **multiligne**, et il s'ouvre à la hauteur du sous-titre :
 un sous-titre de deux lignes s'y saisit tel qu'il sera écrit, ses deux lignes

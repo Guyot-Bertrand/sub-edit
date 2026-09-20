@@ -35,7 +35,16 @@ removeHearingImpaired(const Project& project, const Selection& selection, Docume
         const std::optional<std::string> cleaned =
             withoutHearingImpaired(text, project.sourceFile(document).format);
         if (!cleaned.has_value()) {
-            emptied.push_back(index);
+            // **The subtitle goes with its main text, and stays with its
+            // translation.** A translation the rule empties is a text
+            // rewritten to nothing: the subtitle is still there, and taking
+            // it away would destroy the main text nobody aimed at — issue
+            // #431. (A text that is empty already never gets here: the rule
+            // only judges a text a mention has touched.)
+            if (document == Document::Main)
+                emptied.push_back(index);
+            else
+                commands.push_back(std::make_unique<SetTextCommand>(project, index, document, ""));
             continue;
         }
         if (*cleaned == text)

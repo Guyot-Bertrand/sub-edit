@@ -58,12 +58,12 @@ using subedit::gui::SubtitleTableModel;
 
 } // namespace
 
-TEST_CASE("the table has one row per subtitle and five columns", "[gui][GUI-TABLE-01]") {
+TEST_CASE("the table has one row per subtitle and six columns", "[gui][GUI-TABLE-01]") {
     Session session{threeSubtitles()};
     const SubtitleTableModel model{session};
 
     CHECK(model.rowCount({}) == 3);
-    CHECK(model.columnCount({}) == 5);
+    CHECK(model.columnCount({}) == 6);
 }
 
 TEST_CASE("the number column counts from one and is never stored", "[gui][GUI-TABLE-01]") {
@@ -123,6 +123,7 @@ TEST_CASE("every column says what it holds", "[gui][GUI-TABLE-01]") {
     CHECK(header(2) == "End");
     CHECK(header(3) == "Duration");
     CHECK(header(4) == "Text");
+    CHECK(header(5) == "Translation");
 }
 
 TEST_CASE("an index outside the table holds nothing", "[gui][GUI-TABLE-01]") {
@@ -253,10 +254,7 @@ TEST_CASE("a cell holds nothing for a role the table does not serve", "[gui][GUI
     CHECK_FALSE(model.data(model.index(0, 0), Qt::DecorationRole).isValid());
 }
 
-TEST_CASE("a change of translation refreshes nothing, for now", "[gui][GUI-TABLE-01]") {
-    // No column shows it: the translation document exists in the model since
-    // phase 1, and the interface builds it in phase 11. Reporting it is right;
-    // refreshing a column that is not there would not be.
+TEST_CASE("a change of translation refreshes the translation column alone", "[gui][GUI-TRANS-04]") {
     Session session{threeSubtitles()};
     SubtitleTableModel model{session};
     const QSignalSpy refreshed{&model, &SubtitleTableModel::dataChanged};
@@ -266,7 +264,9 @@ TEST_CASE("a change of translation refreshes nothing, for now", "[gui][GUI-TABLE
                   Selection::range(SubtitleIndex::fromValue(0), SubtitleIndex::fromValue(0)));
     model.applied(report);
 
-    CHECK(refreshed.count() == 0);
+    REQUIRE(refreshed.count() == 1);
+    CHECK(refreshed.at(0).at(0).toModelIndex().column() == 5);
+    CHECK(refreshed.at(0).at(1).toModelIndex().column() == 5);
 }
 
 TEST_CASE("a reordering refreshes every column", "[gui][GUI-TABLE-01]") {
@@ -284,7 +284,7 @@ TEST_CASE("a reordering refreshes every column", "[gui][GUI-TABLE-01]") {
 
     REQUIRE(refreshed.count() == 1);
     CHECK(refreshed.at(0).at(0).toModelIndex().column() == 0);
-    CHECK(refreshed.at(0).at(1).toModelIndex().column() == 4);
+    CHECK(refreshed.at(0).at(1).toModelIndex().column() == 5);
 }
 
 // Editing in place — issue #129.
@@ -323,6 +323,7 @@ TEST_CASE("every column but the number is what a cell edit can reach", "[gui][GU
     CHECK(editable(model, 2));
     CHECK(editable(model, 3));
     CHECK(editable(model, 4));
+    CHECK(editable(model, 5));
 }
 
 TEST_CASE("editing a text cell changes that subtitle and nothing else", "[gui][GUI-EDIT-01]") {
@@ -574,6 +575,90 @@ TEST_CASE("a refused edit announces nothing", "[gui][GUI-UNDO-01]") {
     CHECK_FALSE(edits(model, 0, 0, "7"));
 
     CHECK(announced.count() == 0);
+}
+
+// The translation column — issue #431.
+
+namespace {
+
+/// Three subtitles, the second of which carries a translation.
+[[nodiscard]] Project threeWithOneTranslated() {
+    Project project = threeSubtitles();
+    std::vector<Subtitle> subtitles{project.subtitles().begin(), project.subtitles().end()};
+    subtitles.at(1).translationText = "Two.";
+    project.setSubtitles(std::move(subtitles));
+    return project;
+}
+
+} // namespace
+
+TEST_CASE("the translation column shows the translation, and empty where there is none",
+          "[gui][GUI-TRANS-04]") {
+    Session session{threeWithOneTranslated()};
+    const SubtitleTableModel model{session};
+
+    CHECK(textAt(model, 1, 5) == "Two.");
+    CHECK(textAt(model, 0, 5).empty());
+    CHECK(textAt(model, 1, 4) == "Deux.");
+}
+
+TEST_CASE("editing a translation cell changes the translation and nothing else",
+          "[gui][GUI-TRANS-04]") {
+    Session session{threeWithOneTranslated()};
+    SubtitleTableModel model{session};
+
+    CHECK(edits(model, 1, 5, "Two, otherwise."));
+
+    CHECK(textAt(model, 1, 5) == "Two, otherwise.");
+    CHECK(textAt(model, 1, 4) == "Deux.");
+    CHECK(textAt(model, 1, 1) == "00:00:03,000");
+    CHECK(session.undoableCount() == 1);
+}
+
+TEST_CASE("an edited translation dirties the translation and leaves the main text clean",
+          "[gui][GUI-TRANS-04]") {
+    Session session{threeWithOneTranslated()};
+    SubtitleTableModel model{session};
+
+    REQUIRE(edits(model, 1, 5, "Two, otherwise."));
+
+    CHECK(session.hasUnsavedChanges(Document::Translation));
+    CHECK_FALSE(session.hasUnsavedChanges(Document::Main));
+}
+
+TEST_CASE("undoing an edited translation cell puts back what was there", "[gui][GUI-TRANS-04]") {
+    Session session{threeWithOneTranslated()};
+    SubtitleTableModel model{session};
+    REQUIRE(edits(model, 1, 5, "Two, otherwise."));
+
+    model.applied(session.undo());
+
+    CHECK(textAt(model, 1, 5) == "Two.");
+}
+
+TEST_CASE("editing a translation cell refreshes that column only", "[gui][GUI-TRANS-04]") {
+    Session session{threeWithOneTranslated()};
+    SubtitleTableModel model{session};
+    const QSignalSpy refreshed{&model, &SubtitleTableModel::dataChanged};
+
+    REQUIRE(edits(model, 1, 5, "Two, otherwise."));
+
+    REQUIRE(refreshed.count() == 1);
+    CHECK(refreshed.at(0).at(0).toModelIndex().column() == 5);
+    CHECK(refreshed.at(0).at(1).toModelIndex().column() == 5);
+}
+
+TEST_CASE("validating a translation that did not change writes nothing to the history",
+          "[gui][GUI-TRANS-04]") {
+    Session session{threeWithOneTranslated()};
+    SubtitleTableModel model{session};
+    const QSignalSpy refreshed{&model, &SubtitleTableModel::dataChanged};
+
+    CHECK(edits(model, 1, 5, "Two."));
+
+    CHECK(session.undoableCount() == 0);
+    CHECK_FALSE(session.hasUnsavedChanges(Document::Translation));
+    CHECK(refreshed.count() == 0);
 }
 
 TEST_CASE("the row a film is showing is tinted, not selected", "[gui][model]") {

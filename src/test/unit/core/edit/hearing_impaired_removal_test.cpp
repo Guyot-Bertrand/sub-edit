@@ -175,6 +175,71 @@ TEST_CASE("the translation document is cleaned on demand", "[edit]") {
     CHECK(project.subtitles().front().translationText == "Hello");
 }
 
+// What the removal does to a translation that it empties — issue #431.
+//
+// On the main text, a subtitle left with nothing to show is taken away: it is
+// not a subtitle any more. **On the translation it is not**, and for the same
+// reason seen from the other side: the subtitle is still there, its main text
+// says so, and taking it away would destroy a text the user did not aim at.
+
+namespace {
+
+/// One subtitle whose translation is nothing but a mention.
+[[nodiscard]] Project translatedWithOnlyAMention() {
+    Project project;
+    Subtitle both = saying("Bonjour.", 0);
+    both.translationText = "[Rires]";
+    project.setSubtitles({both});
+    return project;
+}
+
+} // namespace
+
+TEST_CASE("a translation the rule empties is emptied, and its subtitle stays",
+          "[edit][hearing-impaired]") {
+    Session session{translatedWithOnlyAMention()};
+
+    session.apply(removeHearingImpaired(
+        session.project(), Selection::all(session.project()), Document::Translation));
+
+    REQUIRE(session.project().count() == 1);
+    const Subtitle& kept = session.project().subtitleAt(SubtitleIndex::fromValue(0));
+    CHECK(kept.translationText.empty());
+    CHECK(kept.mainText == "Bonjour.");
+}
+
+TEST_CASE("emptying a translation counts as cleaned, and removes nothing",
+          "[edit][hearing-impaired]") {
+    const Project project = translatedWithOnlyAMention();
+
+    const std::unique_ptr<Command> command =
+        removeHearingImpaired(project, Selection::all(project), Document::Translation);
+    REQUIRE(command != nullptr);
+
+    CHECK(tallyOf(*command) == HearingImpairedTally{.cleaned = 1, .removed = 0});
+}
+
+TEST_CASE("undoing the emptying of a translation puts its text back", "[edit][hearing-impaired]") {
+    Session session{translatedWithOnlyAMention()};
+    session.apply(removeHearingImpaired(
+        session.project(), Selection::all(session.project()), Document::Translation));
+
+    session.undo();
+
+    CHECK(session.project().subtitleAt(SubtitleIndex::fromValue(0)).translationText == "[Rires]");
+}
+
+TEST_CASE("a translation with no text has nothing to clean", "[edit][hearing-impaired]") {
+    // The rule judges only a text a mention has touched, so an empty one is
+    // never taken for a text to empty: a command that rewrote nothing would put
+    // an entry in the history.
+    Project project;
+    project.setSubtitles({saying("Bonjour.", 0)});
+
+    CHECK(removeHearingImpaired(project, Selection::all(project), Document::Translation) ==
+          nullptr);
+}
+
 // The removal on a target — issue #133.
 //
 // Phase 4 deferred applying it to a selection to here. The command line goes on

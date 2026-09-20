@@ -199,7 +199,7 @@ QVariant SubtitleTableModel::data(const QModelIndex& index, int role) const {
 
     // Cast, and not switched on the integer: the guard above brought the value
     // back into the domain of the enumeration, and that is what lets the
-    // compiler check that the five columns are handled.
+    // compiler check that the six columns are handled.
     switch (static_cast<Column>(index.column())) {
     case Number:
         // Computed, never stored: an insertion would otherwise renumber every
@@ -215,9 +215,11 @@ QVariant SubtitleTableModel::data(const QModelIndex& index, int role) const {
         return written(core::Timestamp::origin() + subtitle.duration(), mark);
     case Text:
         return QString::fromStdString(subtitle.mainText);
+    case Translation:
+        return QString::fromStdString(subtitle.translationText);
     }
 
-    // The five columns are handled, the guard above rules out the rest, and
+    // The six columns are handled, the guard above rules out the rest, and
     // the compiler checks that the enumeration is exhausted.
     std::unreachable();
 }
@@ -325,20 +327,28 @@ bool SubtitleTableModel::setData(const QModelIndex& index, const QVariant& value
         return true;
     }
     case Text:
-        // A validation that changes nothing produces no command: the history
-        // has no business remembering a keystroke followed by an `Enter` on an
-        // identical text, or undoing would fill up with non-events.
-        if (typed == subtitle.mainText) {
-            emit historyChanged();
-            return true;
-        }
-
-        applied(m_session->apply(std::make_unique<core::SetTextCommand>(
-            m_session->project(), position, core::Document::Main, std::move(typed))));
-        return true;
+        return editText(position, core::Document::Main, std::move(typed));
+    case Translation:
+        return editText(position, core::Document::Translation, std::move(typed));
     }
 
     std::unreachable();
+}
+
+bool SubtitleTableModel::editText(core::SubtitleIndex position,
+                                  core::Document document,
+                                  std::string typed) {
+    // A validation that changes nothing produces no command: the history has no
+    // business remembering a keystroke followed by an `Enter` on an identical
+    // text, or undoing would fill up with non-events.
+    if (typed == m_session->project().subtitleAt(position).text(document)) {
+        emit historyChanged();
+        return true;
+    }
+
+    applied(m_session->apply(std::make_unique<core::SetTextCommand>(
+        m_session->project(), position, document, std::move(typed))));
+    return true;
 }
 
 QVariant SubtitleTableModel::headerData(int section, Qt::Orientation orientation, int role) const {
@@ -359,6 +369,8 @@ QVariant SubtitleTableModel::headerData(int section, Qt::Orientation orientation
         return QStringLiteral("Duration");
     case Text:
         return QStringLiteral("Text");
+    case Translation:
+        return QStringLiteral("Translation");
     }
 
     std::unreachable();
@@ -373,14 +385,14 @@ std::pair<int, int> SubtitleTableModel::columnsFor(ChangeKind kind) {
     case ChangeKind::MainText:
         return {Text, Text};
     case ChangeKind::TranslationText:
+        return {Translation, Translation};
     case ChangeKind::Insertion:
     case ChangeKind::Removal:
-        // Either no column shows it — the translation arrives in phase 11 — or
-        // the change is structural, and `applied` has already reset the model
-        // rather than asking.
-        return {-1, -1};
+        // Structural, and `applied` has already reset the model rather than
+        // asking: no column is named for a change that never gets here.
+        std::unreachable();
     case ChangeKind::Reordering:
-        return {Number, Text};
+        return {Number, Translation};
     }
 
     std::unreachable();
@@ -416,9 +428,6 @@ void SubtitleTableModel::applied(std::span<const Change> changes) {
 
     for (const Change& change : changes) {
         const auto [first, last] = columnsFor(change.kind);
-        if (first < 0)
-            continue;
-
         for (const core::IndexRange& run : change.subtitles.ranges()) {
             emit dataChanged(index(static_cast<int>(run.first.value()), first),
                              index(static_cast<int>(run.last.value()), last));

@@ -5,6 +5,7 @@
 
 #include <optional>
 #include <span>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -16,6 +17,8 @@
 namespace subedit::core {
 class Project;
 class Session;
+class SubtitleIndex;
+enum class Document;
 struct Change;
 enum class ChangeKind;
 enum class AnomalyKind;
@@ -51,12 +54,18 @@ public:
     ///
     /// `Number` is a rank and not a datum — it is `row + 1`, computed and never
     /// stored. `Duration` is derived from the two positions.
+    ///
+    /// **`Translation` is always a column of the model**, whether or not the
+    /// project has one. Whether the view shows it is the window's business — a
+    /// hidden column costs the model nothing, and a model whose width changed
+    /// with the project would reset every view that reads it.
     enum Column {
         Number = 0,
         Start,
         End,
         Duration,
         Text,
+        Translation,
     };
 
     /// How many there are.
@@ -64,7 +73,7 @@ public:
     /// A constant and not a last enumerator: a sentinel inside the enumeration
     /// forces every exhaustive `switch` to give it a case that nothing ever
     /// reaches.
-    static constexpr int kColumnCount = 5;
+    static constexpr int kColumnCount = 6;
 
     /// Builds a table over `session`, which must outlive it.
     explicit SubtitleTableModel(core::Session& session, QObject* parent = nullptr);
@@ -145,6 +154,13 @@ signals:
     void historyChanged();
 
 private:
+    /// Writes `typed` as the `document` text of the subtitle at `position`.
+    ///
+    /// The one place a text edit is built, for both text columns: what a
+    /// validation that changes nothing does — announce it, and build nothing —
+    /// is the same for the two.
+    bool editText(core::SubtitleIndex position, core::Document document, std::string typed);
+
     /// The tint or the tooltip a row's anomalies call for, or nothing.
     [[nodiscard]] QVariant anomalyMark(const QModelIndex& index, int role) const;
 
@@ -155,6 +171,9 @@ private:
     [[nodiscard]] std::span<const core::AnomalyKind> anomaliesAt(int row) const;
 
     /// The columns a change of that nature makes stale, as a closed span.
+    ///
+    /// **Never asked of a change of structure**: `applied` resets the model for
+    /// those and does not come here.
     [[nodiscard]] static std::pair<int, int> columnsFor(core::ChangeKind kind);
 
     core::Session* m_session;

@@ -24,6 +24,7 @@
 namespace subedit::core {
 class Command;
 enum class CommandKind;
+enum class Document;
 enum class LetterCase;
 class Duration;
 struct Diagnostic;
@@ -209,6 +210,16 @@ public:
     /// This is what `GUI-ENC-01` promises the user sees.
     [[nodiscard]] QLabel* encodingStatus() const { return m_encodingStatus; }
 
+    /// The entry of the `View` menu that shows the translation column or takes
+    /// it away — `GUI-TRANS-04`. Out for as long as the project has no
+    /// translation: there is nothing to show.
+    [[nodiscard]] QAction* translationColumnAction() const { return m_translationColumn; }
+
+    /// What the status bar says of the text an operation aims at, and nothing
+    /// while there is only one. This is what `GUI-TRANS-05` promises the user
+    /// sees.
+    [[nodiscard]] QLabel* targetStatus() const { return m_targetStatus; }
+
     [[nodiscard]] QAction* analyseGridAction() const { return m_analyseGrid; }
 
     [[nodiscard]] QAction* snapAction() const { return m_snap; }
@@ -275,6 +286,23 @@ protected:
     void showEvent(QShowEvent* event) override;
 
 private:
+    /// Shows the translation column, or takes it away, as the project and the
+    /// entry of the `View` menu together say.
+    void refreshTranslationColumn();
+
+    /// The text an operation of text aims at: the translation when the current
+    /// cell is in its column and the column is shown, the main text otherwise.
+    ///
+    /// **The rule of Gaupol, without its grey** — `text_column_to_document`
+    /// greys the operations of text outside a text column, and here nothing is
+    /// greyed: without a translation column the target is always the main text,
+    /// and the window behaves as it did before the translation existed.
+    [[nodiscard]] core::Document targetDocument() const;
+
+    /// Puts what depends on the target in step with it: the status bar, and
+    /// the italic entry, which follows the format of the document aimed at.
+    void refreshTarget();
+
     /// Works out afresh what the two edits of structure are allowed to do.
     ///
     /// **Apart from `refreshActions`, and wired to the selection**: they are
@@ -640,6 +668,8 @@ private:
     QLabel* m_videoStatus = nullptr;
     QLabel* m_gridStatus = nullptr;
     QLabel* m_encodingStatus = nullptr;
+    QLabel* m_targetStatus = nullptr;
+    QAction* m_translationColumn = nullptr;
     QWidget* m_videoView = nullptr;
     QWidget* m_noVideo = nullptr;
     QSplitter* m_split = nullptr;

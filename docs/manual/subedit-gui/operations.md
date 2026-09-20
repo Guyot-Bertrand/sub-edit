@@ -42,6 +42,13 @@ Applies to: 4 subtitles
 
 Sélectionner toutes les lignes revient au même que n'en sélectionner aucune.
 
+**Avec une traduction, quel texte ?** Les opérations de position et de structure
+portent sur le sous-titre entier — ses deux textes suivent. Celles qui
+réécrivent un texte — `Italic`, `Case`, `Dialogue`, `Remove Hearing-Impaired
+Mentions…` — visent **le texte de la colonne de la cellule courante** : la
+traduction dans sa colonne, le texte principal ailleurs. L'autre reste intact, et
+la barre d'état dit lequel est visé. Voir [La table](table.md#le-texte-que-les-opérations-visent).
+
 **Une exception, et son intitulé la porte** : `Shift Whole File onto Grid`
 ignore la sélection. Une grille est une propriété du document, et une moitié de
 document n'a pas de grille à elle ; l'entrée le dit donc dans son nom plutôt que
@@ -383,6 +390,11 @@ cette entrée dispense de connaître :
 absente n'apprend rien ; une entrée grise répond à « pourquoi ne puis-je
 pas ? ».
 
+**Le format lu est celui du texte visé.** Avec une traduction, le texte principal
+peut être en SubRip et la traduction en Advanced SSA : `Italic` écrit `<i>` dans
+la première et `{\i1}` dans la seconde. L'entrée s'éteint de même quand le
+texte visé est dans un format qui n'écrit aucun style, même si l'autre en écrit.
+
 ### Dans quel sens elle va
 
 Une seule entrée pour les deux sens, et c'est la cible qui décide :
@@ -495,6 +507,18 @@ sont réécrits sans leur mention.
 **Les balises du format ne comptent pas pour du texte** : `<i>[SOUPIR]</i>` d'un
 SubRip et `{\i1}[SOUPIR]{\i0}` d'un Advanced SSA sont retirés l'un comme l'autre.
 Un `<i>` dans un TMPlayer ou un LRC, qui n'écrivent aucune balise, est du texte.
+
+**Visée sur la traduction, elle ne retire aucune ligne.** Une traduction que la
+règle vide — un texte qui n'était que mention — est **vidée** et le sous-titre
+reste : il a un texte principal, que l'opération ne visait pas, et le retirer le
+détruirait. Le compte rendu la compte comme nettoyée :
+
+```text
+1 subtitle cleaned, 0 removed
+```
+
+Les balises lues sont celles du format de la traduction, qui peut n'être pas celui
+du fichier principal.
 
 Le compte rendu dit les deux :
 

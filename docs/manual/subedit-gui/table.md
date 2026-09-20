@@ -1,7 +1,7 @@
 # La table
 
 La fenêtre montre les sous-titres du fichier ouvert, un par ligne, dans cinq
-colonnes.
+colonnes — six quand le projet porte une traduction.
 
 **La fenêtre est en anglais**, comme la ligne de commande. La traduction est
 une phase à elle seule ; ce manuel cite donc les intitulés tels qu'ils
@@ -14,6 +14,7 @@ s'affichent.
 | `End` | la position de disparition |
 | `Duration` | `End − Start` |
 | `Text` | le texte du sous-titre |
+| `Translation` | la traduction du sous-titre — **absente tant que le projet n'en a pas** |
 
 ![Les cinq colonnes de la table, sur un fichier de douze sous-titres, palette
 claire.](captures/table.png)
@@ -44,8 +45,8 @@ fin. Un sous-titre dont la fin précède le
 début affiche une durée négative plutôt que zéro : c'est une anomalie du
 fichier, et la masquer la rendrait introuvable.
 
-**Le début, la fin, la durée et le texte s'éditent en place** ; le numéro non.
-Voir [Éditer une cellule](edition.md).
+**Le début, la fin, la durée, le texte et la traduction s'éditent en place** ; le
+numéro non. Voir [Éditer une cellule](edition.md).
 
 **La sélection désigne ce sur quoi une opération porte** — voir
 [Les opérations](operations.md).
@@ -98,6 +99,72 @@ fichier est maintenant, pas ce qu'il était à l'ouverture.
 Il ne s'appuie sur aucune grille d'images : dès qu'une position est corrigée à
 la main, elle en sort, et un marquage fondé dessus signalerait le travail de
 l'utilisateur.
+
+## La colonne de traduction
+
+Un sous-titre porte **deux textes et une seule paire de positions** : la
+traduction n'a pas de calage à elle, elle est rattachée à celui du sous-titre.
+La table la montre dans une sixième colonne, `Translation`, à droite de `Text`.
+
+![La table d'un projet qui porte une traduction, palette claire : la colonne
+`Translation` à droite de `Text`, et les deux textes qui se partagent la
+place.](captures/table-traduction.png)
+
+![La même table sous la palette sombre.](captures/table-traduction-sombre.png)
+
+**La colonne n'est là que si le projet a une traduction.** Sans elle, la table
+garde ses cinq colonnes, et la fenêtre se comporte comme si la traduction
+n'existait pas — rien n'est grisé ni ajouté. La fenêtre ne sait pas encore
+ouvrir un fichier de traduction ; la colonne se montre dès qu'un projet en porte
+une.
+
+**Une entrée du menu `View` la montre ou la retire** :
+
+| Entrée | Ce qu'elle fait |
+| :----- | :-------------- |
+| `View ▸ Translation` | coche : la colonne est montrée ; décoche : elle est retirée |
+
+L'entrée est **éteinte quand le projet n'a pas de traduction** — il n'y a rien à
+montrer — et cochée au démarrage. **Le choix de la retirer est celui de
+l'utilisateur** : il tient d'un fichier à l'autre, jusqu'à ce qu'on la coche de
+nouveau. Retirer la colonne ne retire pas la traduction : elle reste dans le
+projet, et revient avec l'entrée. Ouvrir un fichier qui n'en porte pas retire la
+colonne.
+
+**Les cellules de la traduction se saisissent comme celles du texte** — voir
+[Éditer une cellule](edition.md).
+
+### Le texte que les opérations visent
+
+Avec deux textes dans une ligne, les opérations de texte doivent savoir lequel
+elles réécrivent. **C'est celui de la colonne de la cellule courante** : la
+traduction si la cellule courante est dans la colonne `Translation`, le texte
+principal partout ailleurs — dans une colonne de temps comme dans `Text`.
+
+| Opération | Ce qu'elle vise |
+| :-------- | :-------------- |
+| `Italic`, `Case`, `Dialogue`, `Remove Hearing-Impaired Mentions…` | le texte de la colonne courante |
+| `Cut Texts`, `Copy Texts`, `Paste Texts` | le texte de la colonne courante |
+| les opérations de position, l'insertion, la suppression, la fusion, la scission | **les deux textes** : un sous-titre est un tout |
+
+**La barre d'état le dit quand il y a deux textes**, à gauche des autres
+indications :
+
+```text
+Text: Translation
+```
+
+ou `Text: Main` pour le texte principal. Elle se tait quand la colonne n'est pas
+montrée : il n'y a alors qu'un texte, et ce n'est pas la peine de le dire.
+
+![La fenêtre, la cellule courante dans la colonne `Translation` : la barre d'état
+dit `Text: Translation`.](captures/fenetre-traduction.png)
+
+![La même fenêtre sous la palette sombre.](captures/fenetre-traduction-sombre.png)
+
+**Rien n'est grisé.** Les opérations de texte restent disponibles quelle que soit
+la colonne courante, et sans colonne de traduction elles visent le texte
+principal, comme avant.
 
 ## Ajouter et retirer des lignes
 

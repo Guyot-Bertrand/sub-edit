@@ -60,10 +60,11 @@ TEST_CASE("the menus read in the order a user meets them", "[gui][appearance]") 
     FakePrompts prompts;
     const MainWindow window = windowOn(files, prompts);
 
-    // The document, what one does to it, what accompanies it, what inspects it,
-    // what explains it.
+    // The document, what one does to it, how one looks at it, what accompanies
+    // it, what inspects it, what explains it.
     CHECK(window.menuTitles() == QStringList{QStringLiteral("&File"),
                                              QStringLiteral("&Edit"),
+                                             QStringLiteral("&View"),
                                              QStringLiteral("&Video"),
                                              QStringLiteral("&Tools"),
                                              QStringLiteral("&Help")});
