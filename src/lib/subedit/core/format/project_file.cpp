@@ -80,7 +80,14 @@ std::expected<OpenedFile, OpenError> openProject(const FileSystem& files,
 }
 
 ConvertedProject convertProjectFor(const Project& project, SubtitleFormat target, FrameRate rate) {
-    const SourceFile& source = project.sourceFile();
+    return convertProjectFor(project, Document::Main, target, rate);
+}
+
+ConvertedProject convertProjectFor(const Project& project,
+                                   Document document,
+                                   SubtitleFormat target,
+                                   FrameRate rate) {
+    const SourceFile& source = project.sourceFile(document);
     const std::span<const Subtitle> held = project.subtitles();
 
     // **Filled field by field rather than in one aggregate, and the reason is
@@ -101,7 +108,7 @@ ConvertedProject convertProjectFor(const Project& project, SubtitleFormat target
         converted.extras = MicroDvdFile{.rate = rate};
     }
 
-    converted.loss = convertFor(converted.subtitles, source, target, rate);
+    converted.loss = convertFor(converted.subtitles, document, source, target, rate);
     return converted;
 }
 
@@ -109,12 +116,21 @@ std::expected<void, SaveError> saveProject(FileSystem& files,
                                            const Project& project,
                                            const std::filesystem::path& path,
                                            SubtitleFormat format) {
-    const SourceFile& source = project.sourceFile();
-    const ConvertedProject converted = convertProjectFor(project, format, project.frameRate());
+    return saveProject(files, project, Document::Main, path, format);
+}
+
+std::expected<void, SaveError> saveProject(FileSystem& files,
+                                           const Project& project,
+                                           Document document,
+                                           const std::filesystem::path& path,
+                                           SubtitleFormat format) {
+    const SourceFile& source = project.sourceFile(document);
+    const ConvertedProject converted =
+        convertProjectFor(project, document, format, project.frameRate());
 
     const WriteRequest request{
         .subtitles = converted.subtitles,
-        .document = Document::Main,
+        .document = document,
         .newline = source.newline,
         .encoding = source.encoding,
         .header = converted.header,

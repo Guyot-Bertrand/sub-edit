@@ -114,9 +114,8 @@ place.](captures/table-traduction.png)
 
 **La colonne n'est là que si le projet a une traduction.** Sans elle, la table
 garde ses cinq colonnes, et la fenêtre se comporte comme si la traduction
-n'existait pas — rien n'est grisé ni ajouté. La fenêtre ne sait pas encore
-ouvrir un fichier de traduction ; la colonne se montre dès qu'un projet en porte
-une.
+n'existait pas — rien n'est grisé ni ajouté. `File ▸ Open Translation…` en ouvre
+une : voir [Ouvrir une traduction](fichiers.md#ouvrir-une-traduction).
 
 **Une entrée du menu `View` la montre ou la retire** :
 

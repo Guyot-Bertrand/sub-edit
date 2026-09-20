@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/model/document.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -27,6 +28,19 @@ struct SaveTarget {
     core::Encoding encoding = core::Encoding::utf8(core::ByteOrderMark::Absent);
 
     core::Newline newline = core::Newline::Lf;
+};
+
+/// A document that differs from its file, as the questions of closing name it.
+struct ModifiedDocument {
+    core::Document document = core::Document::Main;
+
+    /// The name of its file, or « untitled » for one that never had any.
+    std::string name{};
+
+    /// Whether the file is gone from the disk. Such a document **counts as
+    /// modified**, and the list says so: what the window holds is the only copy
+    /// of it.
+    bool missing = false;
 };
 
 /// What to do about a document that differs from its file.
@@ -83,8 +97,14 @@ public:
     [[nodiscard]] virtual std::optional<SaveTarget> saveTarget(const core::SourceFile& current,
                                                                const core::Encoding& encoding) = 0;
 
-    /// What to do with changes that were never written.
-    [[nodiscard]] virtual UnsavedChoice aboutUnsavedChanges() = 0;
+    /// What to do with changes that were never written, in **one** document.
+    ///
+    /// **The question of a single document, and it is asked as it always was**
+    /// — issue #432. It says which document it is about, since a project may
+    /// hold two. When two are modified the window builds an
+    /// `UnsavedDocumentsDialog` instead and goes through `run`: one box for
+    /// both, and a way of saving one and not the other.
+    [[nodiscard]] virtual UnsavedChoice aboutUnsavedChanges(const ModifiedDocument& document) = 0;
 
     /// Whether to write anyway, given what the arriving format will not carry.
     ///

@@ -364,3 +364,42 @@ TEST_CASE("a session can be told the document now lives elsewhere", "[edit][sess
     CHECK(session.undoableCount() == 1);
     CHECK(session.project().count() == 1);
 }
+
+// Moving one document to a file of its own — issue #432.
+
+TEST_CASE("a translation moves to another file and leaves the main one where it was",
+          "[edit][session]") {
+    Session session;
+    session.setSourceFile(subedit::core::SourceFile{.path = "film.srt"});
+
+    session.setSourceFile(Document::Translation,
+                          subedit::core::SourceFile{.path = "film.en.srt",
+                                                    .format = subedit::core::SubtitleFormat::Lrc});
+
+    CHECK(session.project().sourceFile(Document::Translation).path ==
+          std::filesystem::path{"film.en.srt"});
+    CHECK(session.project().sourceFile().path == std::filesystem::path{"film.srt"});
+    CHECK(session.project().sourceFile(Document::Translation).format ==
+          subedit::core::SubtitleFormat::Lrc);
+}
+
+TEST_CASE("a translation that becomes a file takes its converted texts with it",
+          "[edit][session]") {
+    Session session;
+
+    Subtitle converted;
+    converted.translationText = R"({\i1}One.{\i0})";
+    session.becomeFile(
+        Document::Translation,
+        subedit::core::SourceFile{.path = "film.en.ssa",
+                                  .format = subedit::core::SubtitleFormat::SubStationAlpha},
+        {converted});
+
+    CHECK(session.project().sourceFile(Document::Translation).format ==
+          subedit::core::SubtitleFormat::SubStationAlpha);
+    REQUIRE(session.project().count() == 1);
+    CHECK(session.project().subtitleAt(SubtitleIndex::fromValue(0)).translationText ==
+          R"({\i1}One.{\i0})");
+    // The main document keeps the file it had: nothing of it has moved.
+    CHECK(session.project().sourceFile().format == subedit::core::SubtitleFormat::SubRip);
+}

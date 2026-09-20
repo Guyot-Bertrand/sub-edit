@@ -20,6 +20,7 @@
 #include <memory>
 #include <span>
 #include <string>
+#include <vector>
 
 namespace subedit::core {
 class Command;
@@ -49,6 +50,7 @@ class SearchDialog;
 class DiagnosticsPanel;
 class ManualWindow;
 class Prompts;
+struct ModifiedDocument;
 class SubtitleTableModel;
 
 /// The window, and everything a project needs to be looked at.
@@ -132,6 +134,19 @@ public:
     [[nodiscard]] QAction* saveAction() const { return m_save; }
 
     [[nodiscard]] QAction* saveAsAction() const { return m_saveAs; }
+
+    /// The three entries of the translation — `File ▸ Open Translation…`,
+    /// `Save Translation` and `Save Translation As…` — for a test to read their
+    /// state and to fire them.
+    ///
+    /// **The last two are out while the project has no translation**: there is
+    /// nothing to write. Opening one is out while there is nothing to align it
+    /// to — an empty document has no subtitle to give its lines to.
+    [[nodiscard]] QAction* openTranslationAction() const { return m_openTranslation; }
+
+    [[nodiscard]] QAction* saveTranslationAction() const { return m_saveTranslation; }
+
+    [[nodiscard]] QAction* saveTranslationAsAction() const { return m_saveTranslationAs; }
 
     /// The three clipboard entries, for a test to read their state and trigger
     /// them.
@@ -331,8 +346,44 @@ private:
 
     [[nodiscard]] bool saveAs();
 
+    /// The same for the translation, which is a file of its own.
+    [[nodiscard]] bool saveTranslation();
+
+    [[nodiscard]] bool saveTranslationAs();
+
+    /// Writes one of the two documents, or asks where — what the four above
+    /// are, once the document is a parameter. **One body and not two**: the
+    /// dialog, the warning about a loss, the failure that leaves the document
+    /// where it was are the same for both, and they had been written once
+    /// already.
+    [[nodiscard]] bool saveDocument(core::Document document);
+
+    [[nodiscard]] bool saveDocumentAs(core::Document document);
+
+    /// Whether `document` differs from its file. **The translation only counts
+    /// while the project has one**: a translation that was undone away has no
+    /// file to differ from.
+    [[nodiscard]] bool isModified(core::Document document) const;
+
+    /// The documents a closing would lose, in the order the window shows them.
+    ///
+    /// **A file gone from the disk counts as modified**, and is marked as such:
+    /// what the window holds is then the only copy of it.
+    [[nodiscard]] std::vector<ModifiedDocument> modifiedDocuments() const;
+
     /// Returns whether whatever is about to lose the changes may go on.
+    ///
+    /// **One question however many documents are modified.** Nothing modified
+    /// goes on; one asks what it always asked; two ask through the list, with a
+    /// box each.
     [[nodiscard]] bool mayDiscardChanges();
+
+    /// Returns whether a translation that is open may be replaced — asked
+    /// before the file is, as for the main document.
+    [[nodiscard]] bool mayReplaceTranslation();
+
+    /// Asks which translation to open and how to align it, then opens it.
+    void openTranslationFromPrompt();
 
     void openFromPrompt();
 
@@ -640,6 +691,9 @@ private:
     QAction* m_open = nullptr;
     QAction* m_save = nullptr;
     QAction* m_saveAs = nullptr;
+    QAction* m_openTranslation = nullptr;
+    QAction* m_saveTranslation = nullptr;
+    QAction* m_saveTranslationAs = nullptr;
     QAction* m_cut = nullptr;
     QAction* m_copy = nullptr;
     QAction* m_paste = nullptr;

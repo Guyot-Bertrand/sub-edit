@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/model/document.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -71,9 +72,19 @@ struct ConversionLoss {
 /// arriving format will not be able to hold. Doing it twice — once to convert,
 /// once to report — would be two chances to disagree.
 ///
+/// **Of one document, and the other is left as it was** — issue #432. A
+/// translation may be in a format of its own, so the main text is carried across
+/// in the vocabulary of the main file and the translation in that of its file;
+/// walking both with one `source` would rewrite one of them wrongly. What is
+/// counted is the loss of the document written: the tags of the other text are
+/// not the file's, and neither are the lines it holds. **A translation has no
+/// fields of its own** — a subtitle carries one set, the main text's — so it
+/// reports none.
+///
 /// `rate` is only read for a target counted in frames, and a caller converting
 /// into one has had to settle it beforehand anyway.
 [[nodiscard]] ConversionLoss convertFor(std::vector<Subtitle>& subtitles,
+                                        Document document,
                                         const SourceFile& source,
                                         SubtitleFormat target,
                                         FrameRate rate);

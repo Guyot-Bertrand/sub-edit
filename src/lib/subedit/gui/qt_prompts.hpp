@@ -38,6 +38,14 @@ namespace subedit::gui {
 /// with an ordinary test.
 [[nodiscard]] core::SubtitleFormat formatOfFilter(const QString& filter);
 
+/// What the box about one unsaved document says.
+///
+/// Exposed for the reason `choiceOf` is: it is a decision of this class that can
+/// be wrong on its own, without a modal loop. The sentence a project with a
+/// single document has always read, and the same with the translation named
+/// when a project holds one — issue #432.
+[[nodiscard]] QString sentenceAboutUnsaved(const ModifiedDocument& document);
+
 /// What a button of the unsaved-changes box means.
 ///
 /// Exposed for the same reason. Anything that is not an explicit choice —
@@ -79,7 +87,7 @@ public:
     [[nodiscard]] std::optional<SaveTarget> saveTarget(const core::SourceFile& current,
                                                        const core::Encoding& encoding) override;
 
-    [[nodiscard]] UnsavedChoice aboutUnsavedChanges() override;
+    [[nodiscard]] UnsavedChoice aboutUnsavedChanges(const ModifiedDocument& document) override;
 
     [[nodiscard]] bool aboutLoss(const std::string& notice) override;
 

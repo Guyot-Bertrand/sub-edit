@@ -85,8 +85,13 @@ public:
         return nextSaveTarget;
     }
 
-    [[nodiscard]] gui::UnsavedChoice aboutUnsavedChanges() override {
+    /// Which document the last plain question was about.
+    std::optional<core::Document> lastUnsavedDocument{};
+
+    [[nodiscard]] gui::UnsavedChoice
+    aboutUnsavedChanges(const gui::ModifiedDocument& document) override {
         ++unsavedAsked;
+        lastUnsavedDocument = document.document;
         return nextUnsavedChoice;
     }
 

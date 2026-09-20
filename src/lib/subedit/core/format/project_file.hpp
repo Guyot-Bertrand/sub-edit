@@ -5,6 +5,7 @@
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/save_error.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
+#include <subedit/core/model/document.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/project.hpp>
@@ -134,12 +135,33 @@ struct ConvertedProject {
 [[nodiscard]] ConvertedProject
 convertProjectFor(const Project& project, SubtitleFormat target, FrameRate rate);
 
+/// The same for the translation, or for the main text — issue #432.
+///
+/// **Of the document's own file**: its format says which vocabulary the texts
+/// are in, and its header and extras are the ones that cross — or do not — into
+/// `target`. The other text is left as it was, and the loss is counted on the
+/// one written. The form above is this one with `Document::Main`.
+[[nodiscard]] ConvertedProject
+convertProjectFor(const Project& project, Document document, SubtitleFormat target, FrameRate rate);
+
 /// **Converts on the way out**, through `convertProjectFor`, counting frames at
 /// the rate the project works against. A caller that wants to know what the
 /// conversion cost — to report it, or to ask before writing — calls
 /// `convertProjectFor` itself and hands the result back through the project.
 [[nodiscard]] std::expected<void, SaveError> saveProject(FileSystem& files,
                                                          const Project& project,
+                                                         const std::filesystem::path& path,
+                                                         SubtitleFormat format);
+
+/// Writes one of the two documents — issue #432.
+///
+/// **Its own file's line endings and encoding**, and its own header and extras
+/// when the format does not change: a translation in CRLF and Windows-1252 comes
+/// back so, whatever the main file is. Neither the other text nor the file of
+/// the other document is touched.
+[[nodiscard]] std::expected<void, SaveError> saveProject(FileSystem& files,
+                                                         const Project& project,
+                                                         Document document,
                                                          const std::filesystem::path& path,
                                                          SubtitleFormat format);
 

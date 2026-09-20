@@ -1,14 +1,20 @@
 # Ouvrir et enregistrer
 
-Le menu **File** porte les trois commandes.
+Le menu **File** porte les trois commandes, et trois de plus pour la
+traduction.
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
 | `Open…` | `Ctrl+O` | choisit un fichier et l'ouvre à la place du courant |
+| `Open Translation…` | — | choisit un fichier de traduction et l'aligne sur le principal |
 | `Save` | `Ctrl+S` | réécrit le fichier ouvert |
 | `Save As…` | `Ctrl+Shift+S` | choisit un chemin et un format, puis écrit |
+| `Save Translation` | — | réécrit le fichier de la traduction |
+| `Save Translation As…` | — | choisit un chemin et un format pour la traduction, puis écrit |
 
-`Open…` et `Save` sont aussi dans la barre d'outils.
+`Open…` et `Save` sont aussi dans la barre d'outils. **Les trois entrées de la
+traduction ne sont pas dans la barre** : elles ne servent qu'à ceux qui ont une
+traduction, et la barre est celle de tout le monde.
 
 ## Ouvrir
 
@@ -259,6 +265,140 @@ Elle a deux moitiés, et il faut les deux :
 Concrètement, un fichier dont le dernier bloc n'est pas suivi d'une ligne vide en
 gagne une, une fois. C'est le seul changement qu'une sauvegarde sans
 modification peut produire.
+
+## Ouvrir une traduction
+
+`File ▸ Open Translation…` pose un **second fichier** en regard du principal.
+L'entrée est éteinte tant qu'il n'y a aucun sous-titre à qui donner les lignes de
+la traduction.
+
+**Deux questions, l'une après l'autre.** Le sélecteur de fichiers, celui de
+`Open…` — même filtre, même dossier de départ, l'encodage reconnu comme pour le
+principal — puis **la méthode d'alignement** :
+
+![Le dialogue qui demande comment rattacher les lignes du fichier choisi aux
+sous-titres, palette claire.](captures/ouvrir-traduction.png)
+
+![Le même dialogue sous la palette sombre.](captures/ouvrir-traduction-sombre.png)
+
+| Méthode | Ce qu'elle fait |
+| :------ | :-------------- |
+| `By position` (défaut) | chaque ligne va au sous-titre où tombe son milieu |
+| `By number` | la nᵉ ligne va au nᵉ sous-titre, sans regarder les positions |
+
+**La position est le défaut**, parce qu'une seule ligne manquante au milieu fait
+glisser *toutes* les suivantes par numéro, alors que par position un seul
+sous-titre reste sans traduction.
+
+**Ce qui est fait, ce qui est écrit :**
+
+- les textes des lignes rattachées entrent dans la colonne `Translation`, qui
+  apparaît ;
+- **une ligne qui ne trouve aucun sous-titre en fait naître un**, avec **les
+  positions de cette ligne** — par l'une et l'autre méthode ;
+- **rien n'est trié**, ni le fichier ni le document : les lignes sont parcourues
+  dans l'ordre du temps, et le compte de celles qui n'y étaient pas est dit ;
+- **une traduction déjà ouverte est remplacée**, tous ses textes effacés d'abord.
+
+**Ce qui s'est passé se dit.** Quand chaque ligne a trouvé son sous-titre et
+qu'aucun n'est resté seul, la barre d'état l'écrit ; sinon **une boîte à fermer**,
+comme pour tout geste qui a quelque chose à dire :
+
+```text
+translation: 3 lines attached
+translation: 2 lines attached; 1 subtitle left without a translation
+translation: 3 lines attached; 1 subtitle born of a line; 2 lines out of order
+```
+
+Les postes ne sont écrits que s'ils ne sont pas nuls : les lignes rattachées, les
+sous-titres nés d'une ligne, ceux que nulle ligne n'a atteints, les lignes hors
+d'ordre. Un fichier sans aucune ligne le dit
+(`translation: the file holds no line`) plutôt que d'en faire le grief des
+sous-titres.
+
+**Ouvrir une traduction est une seule entrée d'historique**, `Undo: opening a
+translation`, et l'annuler rend tout : les textes, les sous-titres nés retirés,
+le fichier de la traduction détaché — la colonne s'en va avec. Pour l'ouvrir par
+l'autre méthode, on annule d'abord.
+
+**La traduction qu'on vient d'ouvrir n'est pas modifiée** : rien n'a été saisi, et
+la fermer ne propose pas de l'enregistrer. Si des sous-titres sont nés, c'est le
+principal qui l'est.
+
+**Une traduction modifiée est proposée à l'enregistrement avant d'être
+remplacée**, avec les trois issues de la section sur
+[les modifications non enregistrées](#les-modifications-non-enregistrées).
+
+| Message | Ce qui s'est passé |
+| :------ | :----------------- |
+| `the file is already open as the main document` | le fichier choisi est le principal lui-même, quelle que soit la façon dont son chemin est écrit |
+| `does not exist`, `cannot be decoded in the chosen encoding`, … | les mêmes causes que pour `Open…` |
+
+Le message est précédé du chemin, et **rien ne change** : la fenêtre garde son
+historique et ses modifications.
+
+**Les problèmes que la lecture a rencontrés**, s'il y en a — une ligne réparée,
+un champ ignoré —, vont dans le panneau des diagnostics, celui de
+[la dernière lecture](#les-diagnostics-dune-lecture).
+
+**Ce que la traduction ne garde pas** : les réglages **par sous-titre** de son
+fichier — un style SSA, la position d'un sous-titre WebVTT. Un sous-titre n'en
+porte qu'un jeu, celui du principal ; ils ne sont pas relus, ni réécrits.
+
+## Enregistrer la traduction
+
+**Chaque document s'enregistre à part**, dans son fichier, son format, son
+encodage et ses fins de ligne : une traduction en `.ass` sous un principal en
+`.srt`, en Windows-1252 sous un principal en UTF-8, revient comme elle est.
+
+| Entrée | Ce qu'elle fait |
+| :----- | :-------------- |
+| `Save Translation` | réécrit le fichier de la traduction — celui d'où elle vient |
+| `Save Translation As…` | le sélecteur de `Save As…`, ouvert sur le fichier **de la traduction**, avec son format et son encodage |
+
+Les deux sont **éteintes tant que le projet n'a pas de traduction**.
+`Save Translation As…` est `Save As…` sur l'autre document : mêmes champs, même
+[avertissement de perte](#ce-quun-format-ne-portera-pas-dit-avant-décrire), qui
+compte **ce que perdrait le fichier écrit** — les balises du texte principal ne
+sont pas celles de la traduction, et un format qui n'écrit pas d'italique ne
+s'en plaint que si la traduction en a.
+
+**Chaque document a son état modifié.** Enregistrer le principal laisse la
+traduction modifiée, et inversement ; **le titre de la fenêtre l'est si l'un des
+deux l'est**, et il n'a qu'un astérisque.
+
+**Rien de l'un ne touche à l'autre** : enregistrer la traduction n'écrit pas le
+principal, et ne change ni son fichier, ni son format, ni ses textes.
+
+## Fermer avec deux documents modifiés
+
+Fermer la fenêtre, ou ouvrir un autre fichier — ce qui remplace aussi la
+traduction —, alors que **les deux documents** diffèrent de leurs fichiers pose
+**une seule question**, une case par document :
+
+![La question de fermeture avec deux documents modifiés : le principal et la
+traduction, chacun avec sa case cochée, palette claire.](captures/fermeture.png)
+
+![La même question sous la palette sombre.](captures/fermeture-sombre.png)
+
+| Bouton | Ce qui se passe |
+| :----- | :-------------- |
+| `Save` | écrit les documents dont la case est cochée, puis va de l'avant — éteint quand aucune ne l'est |
+| `Close Without Saving` | perd les deux, quoi qu'il en soit des cases |
+| `Cancel` | rien ne se passe ; la fenêtre reste comme elle était |
+
+**Décocher un document, c'est le perdre** : `Save` écrit les autres et va de
+l'avant. **Si un enregistrement échoue, l'action ne se poursuit pas.** Fermer la
+boîte sans répondre vaut `Cancel`.
+
+**Avec un seul document modifié, la question est celle qu'on a toujours eue**,
+décrite plus bas, et la phrase dit lequel : `The translation has changes that
+were never written.` ou `The document has …`.
+
+**Un fichier disparu du disque compte comme modifié**, et la liste le dit —
+`(file is gone from the disk)` : ce que la fenêtre tient est alors **la seule
+copie**, et fermer sans écrire la détruirait. Avec un seul document dans ce cas,
+la phrase est `The document is no longer where it was read from.`
 
 ## Les modifications non enregistrées
 

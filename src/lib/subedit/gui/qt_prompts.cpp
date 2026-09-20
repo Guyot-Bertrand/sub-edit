@@ -122,11 +122,23 @@ std::optional<SaveTarget> QtPrompts::saveTarget(const core::SourceFile& current,
     return *target;
 }
 
-UnsavedChoice QtPrompts::aboutUnsavedChanges() {
+QString sentenceAboutUnsaved(const ModifiedDocument& document) {
+    // What was always said, for the document that has always been there; and
+    // the translation named as what it is, since a project may hold two.
+    const QString subject = document.document == core::Document::Translation
+                                ? QStringLiteral("The translation")
+                                : QStringLiteral("The document");
+    const QString what = document.missing
+                             ? QStringLiteral("%1 is no longer where it was read from.")
+                             : QStringLiteral("%1 has changes that were never written.");
+    return what.arg(subject);
+}
+
+UnsavedChoice QtPrompts::aboutUnsavedChanges(const ModifiedDocument& document) {
     return choiceOf(
         QMessageBox::question(m_owner,
                               QStringLiteral("Unsaved changes"),
-                              QStringLiteral("The document has changes that were never written."),
+                              sentenceAboutUnsaved(document),
                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
                               QMessageBox::Save));
 }
