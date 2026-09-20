@@ -56,6 +56,12 @@ public:
     /// document.
     void setSourceFile(SourceFile source) { m_project.setSourceFile(std::move(source)); }
 
+    /// The same for one of the two documents: the translation moves to another
+    /// file, and the main document stays where it was — issue #432.
+    void setSourceFile(Document document, SourceFile source) {
+        m_project.setSourceFile(document, std::move(source));
+    }
+
     /// Records that the document has become a file of another format: its
     /// texts speak that format's vocabulary now, and its source file says so.
     ///
@@ -78,6 +84,14 @@ public:
     /// change alone already made, and it is bounded by what the history holds.
     void becomeFile(SourceFile source, std::vector<Subtitle> converted) {
         m_project.setSourceFile(std::move(source));
+        m_project.setSubtitles(std::move(converted));
+    }
+
+    /// The same for one document — issue #432. What `converted` holds is the
+    /// project's subtitles with **that document's text** rewritten in the
+    /// vocabulary of its new file, and the other text as it was.
+    void becomeFile(Document document, SourceFile source, std::vector<Subtitle> converted) {
+        m_project.setSourceFile(document, std::move(source));
         m_project.setSubtitles(std::move(converted));
     }
 

@@ -6,6 +6,7 @@
 // reason: which format a filter names, what a button is worth, and which window
 // its boxes sit over.
 
+#include <subedit/core/model/document.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/model/video_file.hpp>
 #include <subedit/core/wording.hpp>
@@ -26,7 +27,9 @@ using subedit::core::SubtitleFormat;
 using subedit::gui::choiceOf;
 using subedit::gui::filterFor;
 using subedit::gui::formatOfFilter;
+using subedit::gui::ModifiedDocument;
 using subedit::gui::QtPrompts;
+using subedit::gui::sentenceAboutUnsaved;
 using subedit::gui::subtitleFilters;
 using subedit::gui::UnsavedChoice;
 using subedit::gui::videoFilters;
@@ -141,4 +144,24 @@ TEST_CASE("the video chooser filters on the extensions the core recognises", "[g
     }
 
     CHECK(offered.at(1) == QStringLiteral("All files (*)"));
+}
+
+TEST_CASE("the box about one unsaved document names the document", "[gui][GUI-CLOSE-01]") {
+    // The sentence a project with a single document has always read, and the
+    // translation named when it is the one that differs.
+    using subedit::core::Document;
+
+    CHECK(sentenceAboutUnsaved(ModifiedDocument{.document = Document::Main}).toStdString() ==
+          "The document has changes that were never written.");
+    CHECK(sentenceAboutUnsaved(ModifiedDocument{.document = Document::Translation}).toStdString() ==
+          "The translation has changes that were never written.");
+}
+
+TEST_CASE("a file gone from the disk is not described as having changes", "[gui][GUI-CLOSE-01]") {
+    using subedit::core::Document;
+
+    CHECK(sentenceAboutUnsaved(ModifiedDocument{.document = Document::Main, .missing = true})
+              .toStdString() == "The document is no longer where it was read from.");
+    CHECK(sentenceAboutUnsaved(ModifiedDocument{.document = Document::Translation, .missing = true})
+              .toStdString() == "The translation is no longer where it was read from.");
 }

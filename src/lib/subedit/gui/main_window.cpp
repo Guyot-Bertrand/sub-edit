@@ -18,9 +18,11 @@
 #include <subedit/core/edit/shift_limits.hpp>
 #include <subedit/core/edit/snap_command.hpp>
 #include <subedit/core/edit/transform_command.hpp>
+#include <subedit/core/edit/translation.hpp>
 #include <subedit/core/format/degradation.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
+#include <subedit/core/format/translation_file.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/find_video.hpp>
 #include <subedit/core/model/associated_video.hpp>
@@ -45,6 +47,7 @@
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
+#include <subedit/gui/open_translation_dialog.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/search_dialog.hpp>
@@ -55,6 +58,7 @@
 #include <subedit/gui/target.hpp>
 #include <subedit/gui/theme.hpp>
 #include <subedit/gui/transform_dialog.hpp>
+#include <subedit/gui/unsaved_documents_dialog.hpp>
 
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
@@ -253,6 +257,9 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_open(buildAction(this, QStringLiteral("Open…"), QStringLiteral("document-open"))),
       m_save(buildAction(this, QStringLiteral("Save"), QStringLiteral("document-save"))),
       m_saveAs(buildAction(this, QStringLiteral("Save As…"), QStringLiteral("document-save-as"))),
+      m_openTranslation(buildAction(this, QStringLiteral("Open &Translation…"), {})),
+      m_saveTranslation(buildAction(this, QStringLiteral("Save Tr&anslation"), {})),
+      m_saveTranslationAs(buildAction(this, QStringLiteral("Save Translation As…"), {})),
       m_cut(buildAction(this, QStringLiteral("Cu&t Texts"), QStringLiteral("edit-cut"))),
       m_copy(buildAction(this, QStringLiteral("&Copy Texts"), QStringLiteral("edit-copy"))),
       m_paste(buildAction(this, QStringLiteral("&Paste Texts"), QStringLiteral("edit-paste"))),
@@ -406,6 +413,9 @@ MainWindow::MainWindow(core::FileSystem& files,
     // the action, it has nobody to inform.
     connect(m_save, &QAction::triggered, this, [this] { (void)save(); });
     connect(m_saveAs, &QAction::triggered, this, [this] { (void)saveAs(); });
+    connect(m_openTranslation, &QAction::triggered, this, &MainWindow::openTranslationFromPrompt);
+    connect(m_saveTranslation, &QAction::triggered, this, [this] { (void)saveTranslation(); });
+    connect(m_saveTranslationAs, &QAction::triggered, this, [this] { (void)saveTranslationAs(); });
 
     // **`Ins` and `Del`, and not Gaupol's letters.** It gives `I` and
     // `Delete`; a bare letter of window scope would be taken before the editor
@@ -520,9 +530,16 @@ MainWindow::MainWindow(core::FileSystem& files,
     // it is the first that a user meets.
     QMenu* file = menuBar()->addMenu(QStringLiteral("&File"));
     file->addAction(m_open);
+    file->addAction(m_openTranslation);
     file->addSeparator();
     file->addAction(m_save);
     file->addAction(m_saveAs);
+    // The translation is a file of its own, and so are the entries that write
+    // it: under the two of the main document, where a user looking for how to
+    // save will look first.
+    file->addSeparator();
+    file->addAction(m_saveTranslation);
+    file->addAction(m_saveTranslationAs);
 
     QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
     edition->addAction(m_undo);
@@ -1062,12 +1079,28 @@ void MainWindow::followPlayback() {
 }
 
 bool MainWindow::save() {
-    const core::SourceFile& source = m_session->project().sourceFile();
+    return saveDocument(core::Document::Main);
+}
+
+bool MainWindow::saveAs() {
+    return saveDocumentAs(core::Document::Main);
+}
+
+bool MainWindow::saveTranslation() {
+    return saveDocument(core::Document::Translation);
+}
+
+bool MainWindow::saveTranslationAs() {
+    return saveDocumentAs(core::Document::Translation);
+}
+
+bool MainWindow::saveDocument(core::Document document) {
+    const core::SourceFile& source = m_session->project().sourceFile(document);
     if (!source.path.has_value())
-        return saveAs();
+        return saveDocumentAs(document);
 
     const std::expected<void, core::SaveError> written =
-        core::saveProject(*m_files, m_session->project(), *source.path, source.format);
+        core::saveProject(*m_files, m_session->project(), document, *source.path, source.format);
     if (!written) {
         m_prompts->reportFailure(source.path->string() + ": " +
                                  std::string{core::reasonOf(written.error())});
@@ -1075,13 +1108,13 @@ bool MainWindow::save() {
     }
 
     rememberDirectoryOf(*source.path);
-    m_session->markSaved(core::Document::Main);
+    m_session->markSaved(document);
     refreshActions();
     return true;
 }
 
-bool MainWindow::saveAs() {
-    const core::SourceFile& source = m_session->project().sourceFile();
+bool MainWindow::saveDocumentAs(core::Document document) {
+    const core::SourceFile& source = m_session->project().sourceFile(document);
 
     // **The encoding of the file wins over the setting**, and the setting
     // serves the document with no file: rewriting a document one has just
@@ -1099,14 +1132,14 @@ bool MainWindow::saveAs() {
     // asked here they are a warning, and the difference is that the answer can
     // still be « no ». ADR 0031: the tags are translated on the way, so the
     // count of what fell is the count of a conversion that really happened.
-    const core::SourceFile before = m_session->project().sourceFile();
+    const core::SourceFile before = m_session->project().sourceFile(document);
     const std::span<const core::Subtitle> held = m_session->project().subtitles();
     // **The document's own rate, and it is a real answer here.** A file counted
     // in frames was read at it, `Convert Frame Rate…` moves it, and nothing
     // else in this window can leave it unset — so the command line's third
     // case, « no rate and no grid, refuse », cannot arise.
     core::ConvertedProject converted = core::convertProjectFor(
-        m_session->project(), target->format, m_session->project().frameRate());
+        m_session->project(), document, target->format, m_session->project().frameRate());
 
     if (const std::string notice = core::noticeOf(converted.loss, before.format, target->format);
         !notice.empty() && !m_prompts->aboutLoss(notice)) {
@@ -1127,10 +1160,10 @@ bool MainWindow::saveAs() {
     // place that decides what crosses a format boundary — ADR 0030.
     moved.extras = converted.extras;
     moved.header = converted.header;
-    m_session->becomeFile(moved, std::move(converted.subtitles));
+    m_session->becomeFile(document, moved, std::move(converted.subtitles));
 
     const std::expected<void, core::SaveError> written =
-        core::saveProject(*m_files, m_session->project(), target->path, target->format);
+        core::saveProject(*m_files, m_session->project(), document, target->path, target->format);
     if (!written) {
         // **And undone when the writing fails.** A document that was not
         // written has not moved: without this step back it aims at a file that
@@ -1139,7 +1172,7 @@ bool MainWindow::saveAs() {
         // thinks. The case has been reachable since phase 8: a `ł` and a
         // Latin-1 encoding are enough, and it does not even ask the disk to
         // refuse.
-        m_session->becomeFile(before, heldBefore);
+        m_session->becomeFile(document, before, heldBefore);
         m_prompts->reportFailure(target->path.string() + ": " +
                                  std::string{core::reasonOf(written.error())});
         return false;
@@ -1151,28 +1184,92 @@ bool MainWindow::saveAs() {
     // been made, and the next document with no file will open on it.
     m_writeEncoding = target->encoding;
 
-    m_session->markSaved(core::Document::Main);
-    setWindowTitle(titleFor(m_session->project()));
+    m_session->markSaved(document);
 
-    // The file answers to another name now, so the convention has something new
-    // to say — and D5 makes it safe to ask: a film the user chose is not
-    // replaced by one the convention finds.
-    proposeVideoBeside();
+    if (document == core::Document::Main) {
+        setWindowTitle(titleFor(m_session->project()));
 
-    // The format governs the decimal mark the table shows: it has just
-    // changed, so everything on screen is to be read again.
+        // The file answers to another name now, so the convention has something
+        // new to say — and D5 makes it safe to ask: a film the user chose is
+        // not replaced by one the convention finds. The film goes with the main
+        // document, and the translation's name says nothing about it.
+        proposeVideoBeside();
+    }
+
+    // The format governs the decimal mark the table shows, and it is the main
+    // document's; a translation moved to another format rewrote its own texts.
+    // Either way everything on screen is to be read again.
     m_model->refreshAll();
     refreshActions();
     return true;
 }
 
+bool MainWindow::isModified(core::Document document) const {
+    // A translation counts only while there is one: undoing the opening of it
+    // takes its file away, and what is left has nothing to differ from.
+    if (document == core::Document::Translation &&
+        !m_session->project().translationFile().has_value())
+        return false;
+
+    return m_session->hasUnsavedChanges(document);
+}
+
+std::vector<ModifiedDocument> MainWindow::modifiedDocuments() const {
+    std::vector<ModifiedDocument> modified;
+
+    for (const core::Document document : {core::Document::Main, core::Document::Translation}) {
+        if (document == core::Document::Translation &&
+            !m_session->project().translationFile().has_value())
+            continue;
+
+        const core::SourceFile& source = m_session->project().sourceFile(document);
+        const bool missing = source.path.has_value() && !m_files->exists(*source.path);
+        if (!isModified(document) && !missing)
+            continue;
+
+        modified.push_back(ModifiedDocument{
+            .document = document,
+            .name = source.path.has_value() ? source.path->filename().string() : "untitled",
+            .missing = missing,
+        });
+    }
+
+    return modified;
+}
+
 bool MainWindow::mayDiscardChanges() {
-    if (!m_session->hasUnsavedChanges(core::Document::Main))
+    const std::vector<ModifiedDocument> modified = modifiedDocuments();
+    if (modified.empty())
         return true;
 
-    switch (m_prompts->aboutUnsavedChanges()) {
+    // **One document is the question it always was.** Only two put a list on the
+    // screen: a box with a single tick would ask nothing the plain one does not.
+    if (modified.size() == 1) {
+        switch (m_prompts->aboutUnsavedChanges(modified.front())) {
+        case UnsavedChoice::Save:
+            return saveDocument(modified.front().document);
+        case UnsavedChoice::Discard:
+            return true;
+        case UnsavedChoice::Cancel:
+            return false;
+        }
+
+        std::unreachable();
+    }
+
+    UnsavedDocumentsDialog dialog{modified, this};
+    if (!m_prompts->run(dialog))
+        return false;
+
+    switch (dialog.choice()) {
     case UnsavedChoice::Save:
-        return save();
+        // **One failing stops the rest**, and the closing with it: a document
+        // that could not be written is one whose changes closing would lose.
+        for (const core::Document document : dialog.toSave()) {
+            if (!saveDocument(document))
+                return false;
+        }
+        return true;
     case UnsavedChoice::Discard:
         return true;
     case UnsavedChoice::Cancel:
@@ -1180,6 +1277,86 @@ bool MainWindow::mayDiscardChanges() {
     }
 
     std::unreachable();
+}
+
+bool MainWindow::mayReplaceTranslation() {
+    if (!isModified(core::Document::Translation))
+        return true;
+
+    const core::SourceFile& source = m_session->project().sourceFile(core::Document::Translation);
+    const ModifiedDocument modified{
+        .document = core::Document::Translation,
+        .name = source.path.has_value() ? source.path->filename().string() : "untitled",
+    };
+
+    switch (m_prompts->aboutUnsavedChanges(modified)) {
+    case UnsavedChoice::Save:
+        return saveTranslation();
+    case UnsavedChoice::Discard:
+        return true;
+    case UnsavedChoice::Cancel:
+        return false;
+    }
+
+    std::unreachable();
+}
+
+void MainWindow::openTranslationFromPrompt() {
+    // Asked before asking what to open, for the reason the main document's is:
+    // giving up rather than losing one's work should not require choosing a
+    // file first.
+    if (!mayReplaceTranslation())
+        return;
+
+    const std::optional<std::filesystem::path> chosen = m_prompts->fileToOpen(m_lastDirectory);
+    if (!chosen.has_value())
+        return;
+
+    // Read before the method is asked: a file that will not open, or that is the
+    // main document itself, is not worth a question about how to align it.
+    std::expected<core::TranslationFile, core::TranslationError> read =
+        core::openTranslation(*m_files, m_session->project(), *chosen);
+    if (!read) {
+        m_prompts->reportFailure(chosen->string() + ": " +
+                                 std::string{core::reasonOf(read.error())});
+        return;
+    }
+
+    OpenTranslationDialog dialog{QString::fromStdString(chosen->filename().string()), this};
+    if (!m_prompts->run(dialog))
+        return;
+
+    rememberDirectoryOf(*chosen);
+
+    core::AttachedTranslation attached =
+        core::attachTranslation(m_session->project(), read->lines, read->source, dialog.method());
+    const core::TranslationOutcome outcome = attached.outcome;
+    const core::Selection whole = core::Selection::all(m_session->project());
+    const std::string pastTheEnd = applyOperationQuietly(std::move(attached.command), whole);
+
+    // **What has just been read is what its file says**: nothing was typed, and
+    // closing must not offer to save a translation back to the file it came from.
+    m_session->markSaved(core::Document::Translation);
+
+    // An act of the user's, as showing the column is: the choice of having taken
+    // it away once does not outlast the opening of a translation.
+    m_translationColumn->setChecked(true);
+    refreshActions();
+
+    // What the reading ran into that is not about alignment — the panel of what
+    // the last reading met.
+    if (!read->diagnostics.empty())
+        m_diagnostics->setDiagnostics(read->diagnostics);
+
+    // **In the status bar when everything found its place, in a box to close
+    // otherwise** — the rule #398 set for a gesture that has something to say.
+    const std::string notice = core::noticeOf(outcome);
+    if (outcome.isClean() && pastTheEnd.empty()) {
+        statusBar()->showMessage(QString::fromStdString(notice), kOperationStatusTimeoutMs);
+        return;
+    }
+
+    m_prompts->reportOutcome(joinedNotices(notice, pastTheEnd));
 }
 
 void MainWindow::openFromPrompt() {
@@ -1251,7 +1428,8 @@ void MainWindow::refreshActions() {
     m_redo->setText(redo);
     m_redo->setToolTip(redo);
 
-    setWindowModified(m_session->hasUnsavedChanges(core::Document::Main));
+    // Modified if either document is: the title has one asterisk for the two.
+    setWindowModified(isModified(core::Document::Main) || isModified(core::Document::Translation));
 
     // Before `refreshTarget`, further down: a column that has come or gone
     // changes which text the current cell can be aiming at.
@@ -1290,6 +1468,13 @@ void MainWindow::refreshActions() {
     m_shiftOntoGrid->setEnabled(onto.has_value());
     m_shiftOntoGrid->setText(shiftOntoGridLabel(onto));
     m_hearingImpaired->setEnabled(anything);
+
+    // Nothing to give a translation's lines to in an empty document, and nothing
+    // to write without a translation.
+    m_openTranslation->setEnabled(anything);
+    const bool hasTranslation = m_session->project().translationFile().has_value();
+    m_saveTranslation->setEnabled(hasTranslation);
+    m_saveTranslationAs->setEnabled(hasTranslation);
 
     // The italic entry is the one whose state depends on the target: see
     // `refreshTarget`.

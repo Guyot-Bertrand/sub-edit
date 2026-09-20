@@ -15,7 +15,11 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/write_error.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/model/document.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/wording.hpp>
@@ -24,7 +28,9 @@
 
 #include <expected>
 #include <string>
+#include <utility>
 #include <variant>
+#include <vector>
 
 namespace {
 
@@ -330,4 +336,101 @@ TEST_CASE("a file written in frames carries a rate whatever it came from", "[for
     const auto* frames = std::get_if<subedit::core::MicroDvdFile>(&converted.extras);
     REQUIRE(frames != nullptr);
     CHECK(frames->rate == subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps25});
+}
+
+// Writing the translation — issue #432.
+//
+// The translation is a file of its own: its path, its format, its line endings
+// and its encoding are its own, and writing it touches nothing of the main
+// document — not the file, and not the texts the conversion walks.
+
+namespace {
+
+/// A main document in SubRip, LF, UTF-8, and a translation that is another file
+/// altogether: CRLF and a byte order mark.
+[[nodiscard]] Project withATranslation(const InMemoryFileSystem& files) {
+    Project project = opened(files, "film.srt");
+
+    std::vector<subedit::core::Subtitle> subtitles{project.subtitles().begin(),
+                                                   project.subtitles().end()};
+    subtitles.at(0).translationText = "<i>One.</i>";
+    subtitles.at(1).translationText = "Two.";
+    project.setSubtitles(std::move(subtitles));
+
+    project.setSourceFile(
+        subedit::core::Document::Translation,
+        subedit::core::SourceFile{
+            .path = "film.en.srt",
+            .format = SubtitleFormat::SubRip,
+            .newline = subedit::core::Newline::CrLf,
+            .encoding = subedit::core::Encoding::utf8(subedit::core::ByteOrderMark::Present),
+        });
+    return project;
+}
+
+} // namespace
+
+TEST_CASE("the translation is written with the line endings and the encoding of its own file",
+          "[format][save]") {
+    InMemoryFileSystem files;
+    files.addFile("film.srt", kSubRip);
+    const Project project = withATranslation(files);
+
+    REQUIRE(saveProject(files,
+                        project,
+                        subedit::core::Document::Translation,
+                        "film.en.srt",
+                        SubtitleFormat::SubRip)
+                .has_value());
+
+    const std::string written = files.contentOf("film.en.srt").value_or("");
+    CHECK(written.starts_with("\xEF\xBB\xBF"));
+    CHECK(written.contains("One.</i>\r\n"));
+    CHECK_FALSE(written.contains("Un."));
+}
+
+TEST_CASE("writing the translation leaves the main file where it was", "[format][save]") {
+    InMemoryFileSystem files;
+    files.addFile("film.srt", kSubRip);
+    const Project project = withATranslation(files);
+
+    REQUIRE(saveProject(files,
+                        project,
+                        subedit::core::Document::Translation,
+                        "film.en.srt",
+                        SubtitleFormat::SubRip)
+                .has_value());
+
+    CHECK(files.contentOf("film.srt").value_or("") == kSubRip);
+}
+
+TEST_CASE("the translation is carried across in the vocabulary of its own format",
+          "[format][save]") {
+    // Its file says `<i>`, so the tags it holds are SubRip's whatever the main
+    // file is; saved as SSA, they become braces.
+    InMemoryFileSystem files;
+    files.addFile("film.srt", kSubRip);
+    const Project project = withATranslation(files);
+
+    REQUIRE(saveProject(files,
+                        project,
+                        subedit::core::Document::Translation,
+                        "film.en.ssa",
+                        SubtitleFormat::SubStationAlpha)
+                .has_value());
+
+    CHECK(files.contentOf("film.en.ssa").value_or("").contains(R"({\i1}One.{\i0})"));
+}
+
+TEST_CASE("what converting the translation costs is that of its own text", "[format][save]") {
+    InMemoryFileSystem files;
+    files.addFile("film.srt", kSubRip);
+    const Project project = withATranslation(files);
+
+    const subedit::core::ConvertedProject converted = subedit::core::convertProjectFor(
+        project, subedit::core::Document::Translation, SubtitleFormat::Lrc, project.frameRate());
+
+    // One `<i>` in the translation; the main text holds none.
+    CHECK(converted.loss.tags == 1);
+    CHECK(converted.loss.ends);
 }

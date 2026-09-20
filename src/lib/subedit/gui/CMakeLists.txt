@@ -16,6 +16,7 @@ add_library(
                        grid_analysis_dialog.cpp snap_dialog.cpp
     duration_adjust_dialog.cpp
     search_dialog.cpp about_dialog.cpp
+    open_translation_dialog.cpp unsaved_documents_dialog.cpp
                        mpv_player.cpp player_factory.cpp main_window.cpp)
 add_library(subedit::gui ALIAS subedit_gui)
 

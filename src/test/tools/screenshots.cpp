@@ -30,6 +30,7 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/translation_file.hpp>
 #include <subedit/core/io/real_file_system.hpp>
+#include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/gui/duration_adjust_dialog.hpp>
@@ -37,12 +38,15 @@
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
+#include <subedit/gui/open_translation_dialog.hpp>
+#include <subedit/gui/prompts.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 #include <subedit/gui/save_shape.hpp>
 #include <subedit/gui/search_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/theme.hpp>
+#include <subedit/gui/unsaved_documents_dialog.hpp>
 
 #include <QAbstractItemView>
 #include <QApplication>
@@ -63,6 +67,7 @@
 #include <QWidget>
 #include <QtGlobal>
 
+#include <array>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -517,6 +522,42 @@ int main(int argc, char** argv) {
         dialog.patternField()->setText(QStringLiteral("Marie"));
         dialog.replacementField()->setText(QStringLiteral("Sophie"));
         written = capture(dialog, dialog, directory, "recherche-sombre") && written;
+    }
+
+    // The two questions of a project that holds a translation: how to align the
+    // file that has just been chosen, and what to do with two modified documents
+    // at once.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::gui::OpenTranslationDialog dialog{QStringLiteral("scene-en.srt")};
+        written = capture(dialog, dialog, directory, "ouvrir-traduction") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::OpenTranslationDialog dialog{QStringLiteral("scene-en.srt")};
+        written = capture(dialog, dialog, directory, "ouvrir-traduction-sombre") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        const std::array<subedit::gui::ModifiedDocument, 2> modified = {
+            subedit::gui::ModifiedDocument{.document = subedit::core::Document::Main,
+                                           .name = "scene.srt"},
+            subedit::gui::ModifiedDocument{.document = subedit::core::Document::Translation,
+                                           .name = "scene-en.srt"},
+        };
+        subedit::gui::UnsavedDocumentsDialog dialog{modified};
+        written = capture(dialog, dialog, directory, "fermeture") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        const std::array<subedit::gui::ModifiedDocument, 2> modified = {
+            subedit::gui::ModifiedDocument{.document = subedit::core::Document::Main,
+                                           .name = "scene.srt"},
+            subedit::gui::ModifiedDocument{.document = subedit::core::Document::Translation,
+                                           .name = "scene-en.srt"},
+        };
+        subedit::gui::UnsavedDocumentsDialog dialog{modified};
+        written = capture(dialog, dialog, directory, "fermeture-sombre") && written;
     }
 
     // The shape `Save As…` offers, **inside the dialog that carries it** and

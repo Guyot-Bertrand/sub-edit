@@ -82,6 +82,7 @@ bool ConversionLoss::isAny() const {
 }
 
 ConversionLoss convertFor(std::vector<Subtitle>& subtitles,
+                          Document document,
                           const SourceFile& source,
                           SubtitleFormat target,
                           FrameRate rate) {
@@ -95,19 +96,19 @@ ConversionLoss convertFor(std::vector<Subtitle>& subtitles,
     loss.header = !source.header.empty();
 
     for (Subtitle& subtitle : subtitles) {
-        for (const Document document : {Document::Main, Document::Translation}) {
-            std::string& text = subtitle.text(document);
-            if (text.empty())
-                continue;
+        std::string& text = subtitle.text(document);
+        if (!text.empty()) {
             const ConvertedMarkup carried = convertMarkup(text, source.format, target);
             loss.tags += carried.dropped;
             text = carried.text;
         }
 
-        if (!holdsLineBreaks(target) && subtitle.mainText.contains('\n'))
+        if (!holdsLineBreaks(target) && text.contains('\n'))
             ++loss.joined;
 
-        if (carriesFields(subtitle.extras))
+        // The fields are the main text's, and a translation file is not written
+        // with them — ADR 0032.
+        if (document == Document::Main && carriesFields(subtitle.extras))
             ++loss.fields;
 
         // **Only the positions the file will hold are measured.** An end that

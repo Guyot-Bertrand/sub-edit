@@ -229,6 +229,15 @@ pour ce qu'elle est, et sa première ligne se colle **sur le mauvais sous-titre*
 rien la distingue d'un rattachement juste. Le compte de l'ouverture est ce qui laisse
 l'utilisateur le voir : trois lignes sur quatre y font naître un sous-titre.
 
+**Ce que la fenêtre en a fait** (#432) : deux questions l'une après l'autre plutôt qu'un dialogue
+unique — le sélecteur de `Open…`, puis un petit dialogue à nous pour la méthode, qui passe par
+`Prompts::run` et se teste sans boucle modale. **L'encodage n'est pas demandé**, comme il ne l'est pas
+à l'ouverture du principal : il est reconnu, et la fenêtre n'a jamais offert de le choisir à la
+lecture. La lecture est faite **avant** la question de la méthode : un fichier qui ne s'ouvre pas, ou
+qui est le principal, ne vaut pas qu'on demande comment l'aligner. Ce que la lecture a rencontré va au
+panneau des diagnostics, celui de la dernière lecture. Une traduction qu'on vient d'ouvrir **n'est pas
+modifiée** — c'est le principal qui l'est quand des sous-titres sont nés.
+
 Issue : [#430](https://github.com/Guyot-Bertrand/sub-edit/issues/430) pour le noyau,
 [#432](https://github.com/Guyot-Bertrand/sub-edit/issues/432) pour la fenêtre.
 
@@ -333,6 +342,14 @@ mêmes questions posées sur N onglets. `Save All` écrit chaque document modifi
 **un document sans fichier ouvre `Save As…`, un à la fois**, et un abandon arrête la suite en disant
 ce qui a été écrit. **`Save All As…` n'est pas livré** : c'est une suite de dialogues que `Save All`
 fait déjà, un à la fois, pour ceux qui n'ont pas de nom.
+
+**Ce que #432 a livré** : la réponse plus riche passe par `Prompts::run`, comme tout dialogue à nous —
+un `UnsavedDocumentsDialog` dont on lit `choice()` et `toSave()` —, si bien que `Prompts` n'a pas gagné
+de méthode ; `aboutUnsavedChanges` prend en revanche le document, pour dire de laquelle des deux il
+s'agit. **Deux documents modifiés ouvrent la liste, un seul pose la question de toujours.** Écrire la
+traduction lit **le fichier de la traduction** — chemin, format, encodage, fins de ligne, en-tête —, et
+la perte annoncée est celle **du document écrit** : `convertFor` ne parcourt plus les deux textes avec le
+format du principal. Ouvrir un autre fichier remplace la traduction, donc pose la même question.
 
 Issues : [#432](https://github.com/Guyot-Bertrand/sub-edit/issues/432),
 [#438](https://github.com/Guyot-Bertrand/sub-edit/issues/438).
