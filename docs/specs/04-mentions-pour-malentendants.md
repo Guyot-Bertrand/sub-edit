@@ -30,7 +30,7 @@ et la première mesure de texte du journal des performances.
 | motifs par langue, fichiers de motifs, `.conf` d'activation, correcteur orthographique, remise en majuscule | phase 12 |
 | le choix d'un moteur d'expressions rationnelles, PCRE2 ou RE2 | phase 12 — voir [l'ADR 0017](../adr/0017-analyseur-de-mentions-ecrit-a-la-main.md) |
 | appliquer l'opération à une sélection de sous-titres | phase 5, qui apporte une vraie sélection ; aucune sous-commande n'en a aujourd'hui |
-| nettoyer le document de traduction depuis la ligne de commande | phase 11 — le noyau, lui, accepte déjà les deux documents |
+| nettoyer le document de traduction depuis la ligne de commande | **phase 13**, par le cadrage de la phase 11 (D9) — le noyau, lui, accepte déjà les deux documents |
 
 ## Décisions applicables
 
@@ -349,7 +349,7 @@ et une composition de commandes, et l'échec de l'une masquerait l'autre.
 | :---- | :---------- |
 | élargir le tiret de dialogue à `–` et `—` | un fichier réel qui en montre un ; le corpus n'en a aucun sur 4 874 tirets |
 | les trois autres motifs de Gaupol, et des motifs configurables | phase 12, qui apporte le moteur et le format de fichiers |
-| nettoyer le document de traduction | phase 11 |
+| nettoyer le document de traduction | phase 13 — voir [`specs/11-traduction.md`](11-traduction.md), D9 |
 | appliquer l'opération à une sélection | phase 5, qui apporte une sélection à l'écran |
 
 ## Critères de fin

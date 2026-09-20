@@ -44,6 +44,8 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0029](0029-fins-deduites-et-annoncees.md) | Déduire les fins que le fichier ne porte pas, et l'annoncer | acceptée |
 | [0030](0030-ce-qu-un-document-retient-de-son-fichier.md) | Ce qu'un document retient de son fichier, la fréquence comprise | acceptée |
 | [0031](0031-pivot-de-balises-a-la-conversion.md) | Un pivot de balises, pour la seule conversion | acceptée |
+| [0032](0032-un-document-un-fichier.md) | Retenir un fichier par document | acceptée |
+| [0033](0033-un-projet-est-une-page.md) | Faire d'un projet une page de la fenêtre | proposée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
