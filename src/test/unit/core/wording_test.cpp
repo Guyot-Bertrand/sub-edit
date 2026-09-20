@@ -1,6 +1,8 @@
 #include <subedit/core/analysis/grid_verdict.hpp>
 #include <subedit/core/command/command_kind.hpp>
+#include <subedit/core/edit/translation.hpp>
 #include <subedit/core/format/diagnostic.hpp>
+#include <subedit/core/format/translation_file.hpp>
 #include <subedit/core/format/write_error.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/time/frame_rate.hpp>
@@ -408,4 +410,73 @@ TEST_CASE("a search says what it could not do, and what it replaced", "[wording]
     CHECK(notFound("Marie") == "\"Marie\" not found");
     CHECK(noticeOfReplaceAll(1) == "replaced 1 match");
     CHECK(noticeOfReplaceAll(3) == "replaced 3 matches");
+}
+
+TEST_CASE("opening a translation says what became of its lines, and nothing that is zero",
+          "[wording][translation]") {
+    using subedit::core::noticeOf;
+    using subedit::core::TranslationOutcome;
+
+    // Everything found its place: one short clause, and nothing else to say.
+    CHECK(noticeOf(TranslationOutcome{.attached = 4}) == "translation: 4 lines attached");
+    CHECK(noticeOf(TranslationOutcome{.attached = 1}) == "translation: 1 line attached");
+
+    // Each clause appears only when it is not zero, in the order a reader meets
+    // the things in: what worked, then what did not.
+    CHECK(noticeOf(
+              TranslationOutcome{.attached = 176, .born = 3, .untranslated = 2, .outOfOrder = 4}) ==
+          "translation: 176 lines attached; 3 subtitles born of a line; "
+          "2 subtitles left without a translation; 4 lines out of order");
+    CHECK(noticeOf(TranslationOutcome{.attached = 4, .born = 1}) ==
+          "translation: 4 lines attached; 1 subtitle born of a line");
+    CHECK(noticeOf(TranslationOutcome{.attached = 3, .untranslated = 1}) ==
+          "translation: 3 lines attached; 1 subtitle left without a translation");
+    CHECK(noticeOf(TranslationOutcome{.attached = 4, .outOfOrder = 1}) ==
+          "translation: 4 lines attached; 1 line out of order");
+}
+
+TEST_CASE("a translation with no line has nothing to count, and says so",
+          "[wording][translation]") {
+    using subedit::core::noticeOf;
+    using subedit::core::TranslationOutcome;
+
+    // Not « 176 subtitles left without a translation »: that would blame the
+    // subtitles for a file that holds nothing.
+    CHECK(noticeOf(TranslationOutcome{.untranslated = 176}) ==
+          "translation: the file holds no line");
+}
+
+TEST_CASE("an opening that is clean is told apart from one that is not", "[wording][translation]") {
+    using subedit::core::TranslationOutcome;
+
+    CHECK(TranslationOutcome{.attached = 4}.isClean());
+    CHECK_FALSE(TranslationOutcome{.attached = 4, .born = 1}.isClean());
+    CHECK_FALSE(TranslationOutcome{.attached = 3, .untranslated = 1}.isClean());
+    CHECK_FALSE(TranslationOutcome{.attached = 4, .outOfOrder = 1}.isClean());
+}
+
+TEST_CASE("a translation that cannot be opened says why, in the words of the file it names",
+          "[wording][translation]") {
+    using subedit::core::FileError;
+    using subedit::core::FileErrorKind;
+    using subedit::core::ReadError;
+    using subedit::core::ReadErrorKind;
+    using subedit::core::reasonOf;
+    using subedit::core::SameFileAsMain;
+    using subedit::core::TranslationError;
+
+    CHECK(reasonOf(TranslationError{SameFileAsMain{}}) ==
+          "the file is already open as the main document");
+    CHECK(reasonOf(TranslationError{FileError{.kind = FileErrorKind::NotFound, .detail = {}}}) ==
+          reasonOf(FileErrorKind::NotFound));
+    CHECK(
+        reasonOf(TranslationError{ReadError{.kind = ReadErrorKind::UnknownFormat, .detail = {}}}) ==
+        reasonOf(ReadErrorKind::UnknownFormat));
+}
+
+TEST_CASE("opening a translation has a name of its own in the history", "[wording][translation]") {
+    using subedit::core::CommandKind;
+    using subedit::core::nameOf;
+
+    CHECK(nameOf(CommandKind::AttachTranslation) == "opening a translation");
 }

@@ -57,9 +57,11 @@ struct PairCase {
 
     /// Whether attaching by number and by position lead to the same result.
     ///
-    /// **Three cases agree and five do not**, and the five are the point: a
+    /// **Four cases agree and four do not**, and the four are the point: a
     /// case where the methods agree teaches nothing about which to choose. The
-    /// control (`temoin`) is there to show that they can agree at all.
+    /// control (`temoin`) is there to show that they can agree at all — and
+    /// the case with one line too many at the end agrees since decision D4, which gives a
+    /// subtitle born of a line the positions of that line by either method.
     bool methodsAgree;
 
     /// How many subtitles each method's result holds.
@@ -86,7 +88,7 @@ constexpr std::array<PairCase, 8> kCases = {
              .byNumber = 4,
              .byPosition = 4},
     PairCase{.directory = "une-ligne-de-plus-a-la-fin",
-             .methodsAgree = false,
+             .methodsAgree = true,
              .byNumber = 5,
              .byPosition = 5},
     PairCase{.directory = "une-ligne-dans-un-intervalle-vide",

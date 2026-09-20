@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **core** — Ouvrir une traduction et l'aligner sur le principal
+
+## 0.11.3 — 2026-09-20
+
 ### Remaniements
 
 - **core** — Un second fichier par projet, et un format par document

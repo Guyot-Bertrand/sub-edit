@@ -54,9 +54,11 @@
 #include <subedit/core/edit/snap_command.hpp>
 #include <subedit/core/edit/sort_command.hpp>
 #include <subedit/core/edit/transform_command.hpp>
+#include <subedit/core/edit/translation.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
+#include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/text/letter_case.hpp>
@@ -82,6 +84,8 @@
 namespace {
 
 using subedit::core::adjustDurations;
+using subedit::core::AttachedTranslation;
+using subedit::core::attachTranslation;
 using subedit::core::ClipboardTexts;
 using subedit::core::Command;
 using subedit::core::ConvertFrameRateCommand;
@@ -115,6 +119,7 @@ using subedit::core::SetTextCommand;
 using subedit::core::ShiftCommand;
 using subedit::core::SnapCommand;
 using subedit::core::SortCommand;
+using subedit::core::SourceFile;
 using subedit::core::StandardFrameRate;
 using subedit::core::Subtitle;
 using subedit::core::SubtitleIndex;
@@ -122,6 +127,7 @@ using subedit::core::TextMatch;
 using subedit::core::Timestamp;
 using subedit::core::TransformCommand;
 using subedit::core::TransformReference;
+using subedit::core::TranslationMethod;
 using subedit::core::wouldItalicise;
 
 using subedit::test::fullLengthProject;
@@ -591,6 +597,59 @@ TEST_CASE("pasting four thousand texts into a full-length file", "[benchmark]") 
             if (pasted.command)
                 session.apply(std::move(pasted.command));
             return inserted + session.undoableCount();
+        });
+    };
+}
+
+TEST_CASE("opening a translation of four thousand lines over a full-length file", "[benchmark]") {
+    // Each line of the translation falls in its own subtitle, which is the
+    // ordinary case: a translation of the film the main document is of. What is
+    // measured is planning the attachment and applying it — 4000 texts written
+    // in one command — and not reading the file, which is the reading's.
+    //
+    // A whole-file operation: a session and its copy per run, made before the
+    // chronometer starts. The lines are the subtitles of the document moved a
+    // tenth of a second later, which keeps every middle inside its subtitle for
+    // the position method and changes nothing for the number method.
+    const Project project = fullLengthProject();
+    std::vector<Subtitle> lines{project.subtitles().begin(), project.subtitles().end()};
+    for (std::size_t rank = 0; rank < lines.size(); ++rank) {
+        Subtitle& line = lines[rank];
+        line.start = Timestamp::fromMilliseconds(line.start.milliseconds() + 100);
+        line.end = Timestamp::fromMilliseconds(line.end.milliseconds() + 100);
+        line.mainText = "Traduction " + std::to_string(rank);
+        line.translationText.clear();
+    }
+
+    const AttachedTranslation probe =
+        attachTranslation(project, lines, SourceFile{}, TranslationMethod::Position);
+    REQUIRE(probe.command != nullptr);
+    REQUIRE(probe.outcome.attached == kSubtitleCount);
+    REQUIRE(probe.outcome.isClean());
+
+    BENCHMARK_ADVANCED("alignement d'une traduction de 4000 lignes, par position")
+    (Catch::Benchmark::Chronometer meter) {
+        std::vector<Session> sessions = freshSessions(project, meter.runs());
+        meter.measure([&](int run) {
+            Session& session = sessions[static_cast<std::size_t>(run)];
+            AttachedTranslation attached = attachTranslation(
+                session.project(), lines, SourceFile{}, TranslationMethod::Position);
+            const std::size_t count = attached.outcome.attached;
+            session.apply(std::move(attached.command));
+            return count + session.undoableCount();
+        });
+    };
+
+    BENCHMARK_ADVANCED("alignement d'une traduction de 4000 lignes, par numéro")
+    (Catch::Benchmark::Chronometer meter) {
+        std::vector<Session> sessions = freshSessions(project, meter.runs());
+        meter.measure([&](int run) {
+            Session& session = sessions[static_cast<std::size_t>(run)];
+            AttachedTranslation attached = attachTranslation(
+                session.project(), lines, SourceFile{}, TranslationMethod::Number);
+            const std::size_t count = attached.outcome.attached;
+            session.apply(std::move(attached.command));
+            return count + session.undoableCount();
         });
     };
 }

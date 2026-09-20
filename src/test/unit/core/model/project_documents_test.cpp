@@ -83,3 +83,17 @@ TEST_CASE("writing the main file through the document accessor is the plain sett
     CHECK(project.sourceFile().format == SubtitleFormat::WebVtt);
     CHECK_FALSE(project.translationFile().has_value());
 }
+
+TEST_CASE("the translation file can be taken away again", "[model][document]") {
+    // What undoing the opening of a translation has to do: the translation
+    // follows the main file once more, as it did before it had one.
+    Project project;
+    project.setSourceFile(SourceFile{.format = SubtitleFormat::SubRip});
+    project.setSourceFile(Document::Translation,
+                          SourceFile{.format = SubtitleFormat::AdvancedSubStationAlpha});
+
+    project.clearTranslationFile();
+
+    CHECK_FALSE(project.translationFile().has_value());
+    CHECK(project.sourceFile(Document::Translation).format == SubtitleFormat::SubRip);
+}
