@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Cadrage de la phase 11, la traduction et le multi-projets
+
+## 0.11.1 — 2026-09-20
+
 ### Tests
 
 - **test** — Des paires principal/traduction et leur alignement attendu
