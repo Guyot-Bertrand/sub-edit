@@ -7,6 +7,12 @@ Les changements notables de subedit. Format inspiré de
 Ce fichier est généré par `make changelog` depuis l'historique des commits :
 ne pas l'éditer à la main.
 
+## Non publié
+
+### Tests
+
+- **test** — Des paires principal/traduction et leur alignement attendu
+
 ## 0.10.21 — 2026-09-19
 
 ### Remaniements
