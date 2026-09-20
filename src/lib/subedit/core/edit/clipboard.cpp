@@ -29,7 +29,7 @@ constexpr std::string_view kSeparator = "\n\n";
 } // namespace
 
 ClipboardTexts copyTexts(const Project& project, const Selection& selection, Document document) {
-    ClipboardTexts copied{.texts = {}, .format = project.sourceFile().format};
+    ClipboardTexts copied{.texts = {}, .format = project.sourceFile(document).format};
     if (selection.isEmpty())
         return copied;
 
@@ -98,7 +98,7 @@ PastedTexts pasteTexts(const Project& project,
                        SubtitleIndex at,
                        Document document) {
     PastedTexts pasted;
-    const SubtitleFormat target = project.sourceFile().format;
+    const SubtitleFormat target = project.sourceFile(document).format;
     const bool translates = clipboard.format.has_value() && *clipboard.format != target;
 
     // The texts as the document will hold them, translated once, here.

@@ -33,7 +33,7 @@ removeHearingImpaired(const Project& project, const Selection& selection, Docume
         const std::string& text = project.subtitleAt(index).text(document);
 
         const std::optional<std::string> cleaned =
-            withoutHearingImpaired(text, project.sourceFile().format);
+            withoutHearingImpaired(text, project.sourceFile(document).format);
         if (!cleaned.has_value()) {
             emptied.push_back(index);
             continue;

@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Remaniements
+
+- **core** — Un second fichier par projet, et un format par document
+
+## 0.11.2 — 2026-09-20
+
 ### Documentation
 
 - **doc** — Cadrage de la phase 11, la traduction et le multi-projets
