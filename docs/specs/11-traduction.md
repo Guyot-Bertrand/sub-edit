@@ -258,6 +258,16 @@ jamais de traduction.
 
 **La barre d'état dit le document visé quand il y en a deux**, et se tait sinon.
 
+**Retirer les mentions, visé sur la traduction, ne retire jamais de sous-titre.** Sur le
+principal, un texte que la règle vide emporte son sous-titre : un sous-titre sans texte n'en est
+pas un. Sur la traduction, le même geste aurait détruit le texte principal, qu'on n'avait pas
+visé — c'est la question que #429 a fait remonter, et **Gaupol ne distingue pas les deux** : son
+`remove_hearing_impaired` retire tout sous-titre dont le texte visé se vide, quel que soit le
+document. Ici la traduction est **vidée** et le sous-titre reste ; le compte rendu la compte
+comme nettoyée (`1 subtitle cleaned, 0 removed`), et annuler rend son texte. Refuser le geste
+n'aurait rien protégé de plus, et laissait à l'utilisateur une traduction pleine de mentions
+sans recours. C'est l'écart n° 8.
+
 **Le presse-papiers ne porte pas de document** : il est une liste de textes. On peut donc copier
 une cellule du principal et la coller dans la colonne de traduction, ce que Gaupol permet.
 
@@ -381,7 +391,7 @@ déjà passée.
 
 ## Écarts avec Gaupol
 
-**Sept, chacun avec sa raison**, et la relecture de fin de phase vérifie que le réalisé les tient et
+**Huit, chacun avec sa raison**, et la relecture de fin de phase vérifie que le réalisé les tient et
 qu'aucun autre ne s'est glissé.
 
 | Ce que fait Gaupol | Ce que fait `subedit` | Pourquoi |
@@ -391,6 +401,7 @@ qu'aucun autre ne s'est glissé.
 | **trie** la traduction et demande confirmation | **n'en trie aucune**, parcourt dans l'ordre du temps, et dit le compte | l'ADR 0012 — D4 |
 | l'alignement **n'annonce rien** | **le compte** : barre d'état ou boîte | l'ADR 0008 — D4 |
 | les opérations de texte sont **grisées** hors d'une colonne de texte | **rien n'est grisé**, le document visé est le principal sans colonne de traduction | ne pas régresser pour qui n'ouvre pas de traduction — D5 |
+| retirer les mentions retire le **sous-titre entier** quand le texte visé se vide, traduction comprise | **vide la traduction** et garde le sous-titre | le texte principal n'était pas visé — D5 |
 | `Save All As…`, chercher dans « les deux » textes | **non livrés** | D7, D8 |
 | `-t/--translation-file` | **phase 13** | D9 |
 

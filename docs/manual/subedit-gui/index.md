@@ -44,9 +44,12 @@ sous-titres.](captures/fenetre.png)
 
 ## Les menus
 
-`File`, `Edit`, `Video`, `Tools`, `Help` — dans l'ordre où l'on s'en sert : le
-document, ce qu'on lui fait, ce qui l'accompagne, ce qui l'examine, ce qui
-l'explique.
+`File`, `Edit`, `View`, `Video`, `Tools`, `Help` — dans l'ordre où l'on s'en
+sert : le document, ce qu'on lui fait, comment on le regarde, ce qui
+l'accompagne, ce qui l'examine, ce qui l'explique.
+
+`View` ne porte pour l'instant qu'une entrée, `Translation`, qui montre ou retire
+la colonne du même nom — voir [La table](table.md#la-colonne-de-traduction).
 
 `Edit` porte cinq blocs, chacun sous un séparateur : l'annulation ; le
 presse-papiers — couper, copier, coller des textes ; `Find and Replace…` ;

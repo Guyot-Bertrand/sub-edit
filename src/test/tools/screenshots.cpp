@@ -26,7 +26,9 @@
 #include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/theme.hpp>
+#include <subedit/core/edit/translation.hpp>
 #include <subedit/core/format/project_file.hpp>
+#include <subedit/core/format/translation_file.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
@@ -49,6 +51,7 @@
 #include <QFont>
 #include <QFontInfo>
 #include <QHeaderView>
+#include <QItemSelectionModel>
 #include <QLineEdit>
 #include <QMessageLogContext>
 #include <QModelIndex>
@@ -126,6 +129,9 @@ void showWithTheTableFitted(subedit::gui::MainWindow& window) {
 
 /// The `Text` column, the fifth — see docs/manual/subedit-gui/table.md.
 constexpr int kTextColumn = 4;
+
+/// The `Translation` column, the sixth.
+constexpr int kTranslationColumn = 5;
 
 /// The row whose text is shown open: the third, because it carries two lines
 /// and that is what the section explains.
@@ -251,6 +257,27 @@ writeShot(const QPixmap& shot, const std::filesystem::path& directory, const std
         files, subedit::core::openProject(files, corpus(fixture)).value(), prompts, {}, {}};
 }
 
+/// A window opened on the fixture named, with a translation laid over it.
+///
+/// **Laid over the way the window will lay one**: the translation file is read
+/// and attached by the command the core builds for it, so the project the shot
+/// shows is the one a user gets — not a table filled by hand. The window has no
+/// entry that opens a translation yet; this is the road it will take.
+[[nodiscard]] subedit::gui::MainWindow windowOnTranslated(subedit::core::FileSystem& files,
+                                                          subedit::gui::Prompts& prompts,
+                                                          const std::string& fixture,
+                                                          const std::string& translation) {
+    subedit::core::OpenedFile opened = subedit::core::openProject(files, corpus(fixture)).value();
+    subedit::core::TranslationFile lines =
+        subedit::core::openTranslation(files, opened.project, corpus(translation)).value();
+
+    const subedit::core::AttachedTranslation attached = subedit::core::attachTranslation(
+        opened.project, lines.lines, lines.source, subedit::core::TranslationMethod::Position);
+    attached.command->apply(opened.project);
+
+    return subedit::gui::MainWindow{files, std::move(opened), prompts, {}, {}};
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -356,6 +383,49 @@ int main(int argc, char** argv) {
         subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene-anomalies.srt");
         showWithTheTableFitted(window);
         written = capture(window, *window.table(), directory, "anomalies-sombre") && written;
+    }
+
+    // The table with a translation beside the text: what the column looks like,
+    // and how the two texts share the room.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::gui::MainWindow window =
+            windowOnTranslated(files, prompts, "manuel/scene.srt", "manuel/scene-en.srt");
+        showWithTheTableFitted(window);
+        written = capture(window, *window.table(), directory, "table-traduction") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::MainWindow window =
+            windowOnTranslated(files, prompts, "manuel/scene.srt", "manuel/scene-en.srt");
+        showWithTheTableFitted(window);
+        written = capture(window, *window.table(), directory, "table-traduction-sombre") && written;
+    }
+
+    // The whole window, the current cell in the translation column: the status
+    // bar says which text an operation would aim at, and the shot is what shows
+    // it.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::gui::MainWindow window =
+            windowOnTranslated(files, prompts, "manuel/scene.srt", "manuel/scene-en.srt");
+        window.resize(kWindowWidth, kWindowHeight);
+        window.show();
+        window.table()->selectionModel()->setCurrentIndex(
+            window.table()->model()->index(0, kTranslationColumn), QItemSelectionModel::NoUpdate);
+        QApplication::processEvents();
+        written = capture(window, window, directory, "fenetre-traduction") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::MainWindow window =
+            windowOnTranslated(files, prompts, "manuel/scene.srt", "manuel/scene-en.srt");
+        window.resize(kWindowWidth, kWindowHeight);
+        window.show();
+        window.table()->selectionModel()->setCurrentIndex(
+            window.table()->model()->index(0, kTranslationColumn), QItemSelectionModel::NoUpdate);
+        QApplication::processEvents();
+        written = capture(window, window, directory, "fenetre-traduction-sombre") && written;
     }
 
     // One cell open, which is the whole subject of the section: the mark of an

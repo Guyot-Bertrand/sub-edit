@@ -131,6 +131,15 @@ buildAction(QObject* parent, const QString& shortName, const QString& themeIcon)
     return action;
 }
 
+/// How wide the text column is while the translation column shares the table
+/// with it, in pixels.
+///
+/// Half of what a window opened at its default size leaves after the four
+/// columns that are known widths. Not persisted with the others: a text that
+/// takes the room left has no width worth keeping, and the settings file has
+/// never held one.
+constexpr int kDefaultTextWidth = 400;
+
 /// How often the window asks the player where it is, in milliseconds.
 ///
 /// Ten times a second, which is under what an eye notices on a replica and far
@@ -269,6 +278,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_videoStatus(new QLabel{this}),
       m_gridStatus(new QLabel{this}),
       m_encodingStatus(new QLabel{this}),
+      m_targetStatus(new QLabel{this}),
       m_videoView(new QWidget{this}),
       m_noVideo(new QWidget{this}),
       m_split(new QSplitter{Qt::Vertical, this}),
@@ -281,6 +291,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_table->setItemDelegateForColumn(SubtitleTableModel::End, new PositionDelegate{this});
     m_table->setItemDelegateForColumn(SubtitleTableModel::Duration, new DurationDelegate{this});
     m_table->setItemDelegateForColumn(SubtitleTableModel::Text, new TextDelegate{this});
+    m_table->setItemDelegateForColumn(SubtitleTableModel::Translation, new TextDelegate{this});
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->verticalHeader()->setVisible(false);
 
@@ -305,8 +316,12 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     m_table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
-    // The text takes what the positions leave: it is the column that varies,
-    // and the four others are known widths.
+    // The last column that is shown takes what the positions leave: it is the
+    // one that varies, and the four first are known widths. That is the text
+    // while there is no translation, and the translation once there is one —
+    // which is why the text is given a width of its own, that it keeps as long
+    // as the translation is there and that stretching ignores as long as it is
+    // not.
     m_table->horizontalHeader()->setStretchLastSection(true);
 
     // **A window of the system, and that is the whole point of these two
@@ -460,6 +475,18 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_analyseGrid->setEnabled(false);
     connect(m_analyseGrid, &QAction::triggered, this, &MainWindow::analyseGrid);
 
+    m_translationColumn = new QAction{QStringLiteral("&Translation"), this};
+    m_translationColumn->setCheckable(true);
+    m_translationColumn->setChecked(true);
+    m_translationColumn->setEnabled(false);
+    m_translationColumn->setToolTip(QStringLiteral("Show the translation next to the text"));
+    // The column first, then the target: what a cell can be aiming at depends on
+    // whether the column is there.
+    connect(m_translationColumn, &QAction::toggled, this, [this] {
+        refreshTranslationColumn();
+        refreshTarget();
+    });
+
     m_selectVideo->setEnabled(true);
     connect(m_selectVideo, &QAction::triggered, this, &MainWindow::selectVideo);
 
@@ -522,6 +549,12 @@ MainWindow::MainWindow(core::FileSystem& files,
     // Under another: setting the theme is no edit at all.
     edition->addAction(m_preferences);
 
+    // Born with the translation column, and where the other columns would sit
+    // one day — issue #442. After `Edit` and before `Video`: what one does to
+    // the document, then how one looks at it, then what accompanies it.
+    QMenu* view = menuBar()->addMenu(QStringLiteral("&View"));
+    view->addAction(m_translationColumn);
+
     QMenu* video = menuBar()->addMenu(QStringLiteral("&Video"));
     video->addAction(m_selectVideo);
     video->addSeparator();
@@ -569,8 +602,12 @@ MainWindow::MainWindow(core::FileSystem& files,
     // accompanies and what grid its positions were written on are standing
     // facts, not passing remarks, and a message can be pushed aside by the next
     // one.
-    // The encoding first, being the only one of the three that describes the
-    // file rather than what is deduced from it or associated with it.
+    // The text an operation aims at first: it is the one that changes with a
+    // key press, and it is absent for most users. Then the encoding, being the
+    // only one of the other three that describes the file rather than what is
+    // deduced from it or associated with it.
+    statusBar()->addPermanentWidget(m_targetStatus);
+    m_targetStatus->hide();
     statusBar()->addPermanentWidget(m_encodingStatus);
     statusBar()->addPermanentWidget(m_gridStatus);
     statusBar()->addPermanentWidget(m_videoStatus);
@@ -608,6 +645,10 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
     auto model = std::make_unique<SubtitleTableModel>(*session);
 
     m_table->setModel(model.get());
+    // Here and not with the header's other settings: the header has no section
+    // before it has a model, and giving a width to one that is not there is a
+    // width that is lost.
+    m_table->horizontalHeader()->resizeSection(SubtitleTableModel::Text, kDefaultTextWidth);
     // The model has carried a cell edit out as a command since issue #129, so
     // the window does not see them go by. This signal is how it learns of one —
     // including an edit that changed nothing. Reconnected at every opening, the
@@ -653,6 +694,13 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
             &QItemSelectionModel::selectionChanged,
             this,
             &MainWindow::refreshStructureActions);
+    // Which text an operation aims at follows the column of the current cell,
+    // and so does the status bar that says it. A change of *row* changes
+    // neither, and is not listened to.
+    connect(m_table->selectionModel(),
+            &QItemSelectionModel::currentColumnChanged,
+            this,
+            &MainWindow::refreshTarget);
     m_placedAt = -1;
 
     m_diagnostics->setDiagnostics(diagnostics);
@@ -1205,6 +1253,10 @@ void MainWindow::refreshActions() {
 
     setWindowModified(m_session->hasUnsavedChanges(core::Document::Main));
 
+    // Before `refreshTarget`, further down: a column that has come or gone
+    // changes which text the current cell can be aiming at.
+    refreshTranslationColumn();
+
     // Every change of the document may have moved a position, so the verdict is
     // taken again here rather than at the opening alone: an alignment that put
     // the file on another grid must not leave the status bar saying the old one.
@@ -1239,13 +1291,9 @@ void MainWindow::refreshActions() {
     m_shiftOntoGrid->setText(shiftOntoGridLabel(onto));
     m_hearingImpaired->setEnabled(anything);
 
-    // **Grey rather than gone for TMPlayer and LRC**: the two formats write no
-    // style at all, and an entry that is there and out is what tells a user
-    // there is nothing to type. What the format can carry is the question, not
-    // how it spells it — SubRip and WebVTT spell italics alike and disagree
-    // about colour, which is why `abilitiesOf` exists beside `vocabularyOf`.
-    m_italic->setEnabled(anything &&
-                         core::abilitiesOf(m_session->project().sourceFile().format).italic);
+    // The italic entry is the one whose state depends on the target: see
+    // `refreshTarget`.
+    refreshTarget();
 
     // **Nothing about a format decides these five**, unlike the italic: a case
     // and a dash are text, not style, and every format carries text.
@@ -1254,6 +1302,55 @@ void MainWindow::refreshActions() {
         one->setEnabled(anything);
 
     refreshStructureActions();
+}
+
+void MainWindow::refreshTranslationColumn() {
+    // **A translation is a fact of the project, and showing it is the user's
+    // choice**: the column is there when both hold. The entry says which of the
+    // two is missing — out when the project has nothing to show, unchecked when
+    // the user took it away.
+    const bool hasTranslation = m_session->project().translationFile().has_value();
+    m_translationColumn->setEnabled(hasTranslation);
+
+    const bool shown = hasTranslation && m_translationColumn->isChecked();
+    m_table->setColumnHidden(SubtitleTableModel::Translation, !shown);
+}
+
+core::Document MainWindow::targetDocument() const {
+    // **A column one cannot see is not one a cell is current in**: the view
+    // keeps the current index where it was when the column goes, and an
+    // operation must not reach a text nobody is looking at.
+    const bool inTranslation =
+        m_table->currentIndex().column() == SubtitleTableModel::Translation &&
+        !m_table->isColumnHidden(SubtitleTableModel::Translation);
+    return inTranslation ? core::Document::Translation : core::Document::Main;
+}
+
+void MainWindow::refreshTarget() {
+    // Two texts, and only then: the label of a window that never opens a
+    // translation says nothing, which is what keeps it from being noise.
+    const bool twoTexts = !m_table->isColumnHidden(SubtitleTableModel::Translation);
+    if (twoTexts) {
+        m_targetStatus->setText(targetDocument() == core::Document::Translation
+                                    ? QStringLiteral("Text: Translation")
+                                    : QStringLiteral("Text: Main"));
+    } else {
+        m_targetStatus->clear();
+    }
+    m_targetStatus->setVisible(twoTexts);
+
+    // **Grey rather than gone for TMPlayer and LRC**: the two formats write no
+    // style at all, and an entry that is there and out is what tells a user
+    // there is nothing to type. What the format can carry is the question, not
+    // how it spells it — SubRip and WebVTT spell italics alike and disagree
+    // about colour, which is why `abilitiesOf` exists beside `vocabularyOf`.
+    //
+    // **Of the document aimed at**: a translation may be in a format that
+    // writes no style while the main text is in one that does.
+    const bool anything = m_session->project().count() != 0;
+    m_italic->setEnabled(
+        anything &&
+        core::abilitiesOf(m_session->project().sourceFile(targetDocument()).format).italic);
 }
 
 void MainWindow::refreshStructureActions() {
@@ -1323,7 +1420,7 @@ void MainWindow::removeHearingImpairedFromTarget() {
     // Built before being applied, and asked what it will do: the count is read
     // from the command, never by counting again afterwards.
     std::unique_ptr<core::Command> command =
-        core::removeHearingImpaired(m_session->project(), target, core::Document::Main);
+        core::removeHearingImpaired(m_session->project(), target, targetDocument());
     if (!command) {
         // Nothing bit. Say so, and put nothing in the history: an operation
         // that changes nothing is not an operation to undo.
@@ -1351,10 +1448,11 @@ void MainWindow::toggleItalicsOnTarget() {
 
     // Asked before anything is built, and of the target rather than of the
     // document: the button says what it will do to what is selected.
-    const bool italic = core::wouldItalicise(m_session->project(), target, core::Document::Main);
+    const core::Document document = targetDocument();
+    const bool italic = core::wouldItalicise(m_session->project(), target, document);
 
     std::unique_ptr<core::Command> command =
-        core::setItalics(m_session->project(), target, core::Document::Main, italic);
+        core::setItalics(m_session->project(), target, document, italic);
     if (!command) {
         // Every text was already the way it was asked for. Say so, and put
         // nothing in the history: an operation that changes nothing is not an
@@ -1383,7 +1481,7 @@ void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
     const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
 
     std::unique_ptr<core::Command> command =
-        core::setLetterCase(m_session->project(), target, core::Document::Main, wanted);
+        core::setLetterCase(m_session->project(), target, targetDocument(), wanted);
     if (!command) {
         statusBar()->showMessage(QString::fromStdString(core::nothingToChange()),
                                  kOperationStatusTimeoutMs);
@@ -1403,11 +1501,11 @@ void MainWindow::toggleDialogueDashesOnTarget() {
 
     // Asked of the target before anything is built: the entry says what it will
     // do to what is selected.
-    const bool dashed =
-        core::wouldAddDialogueDashes(m_session->project(), target, core::Document::Main);
+    const core::Document document = targetDocument();
+    const bool dashed = core::wouldAddDialogueDashes(m_session->project(), target, document);
 
     std::unique_ptr<core::Command> command =
-        core::setDialogueDashes(m_session->project(), target, core::Document::Main, dashed);
+        core::setDialogueDashes(m_session->project(), target, document, dashed);
     if (!command) {
         statusBar()->showMessage(QString::fromStdString(core::nothingToChange()),
                                  kOperationStatusTimeoutMs);
@@ -1535,7 +1633,7 @@ void MainWindow::copyTexts() {
     if (target.isEmpty())
         return;
 
-    m_clipboard = core::copyTexts(m_session->project(), target, core::Document::Main);
+    m_clipboard = core::copyTexts(m_session->project(), target, targetDocument());
     QGuiApplication::clipboard()->setText(QString::fromStdString(core::plainTextOf(m_clipboard)));
 }
 
@@ -1549,7 +1647,7 @@ void MainWindow::cutTexts() {
     copyTexts();
 
     std::unique_ptr<core::Command> command =
-        core::cutTexts(m_session->project(), target, core::Document::Main);
+        core::cutTexts(m_session->project(), target, targetDocument());
     if (command == nullptr)
         return;
 
@@ -1575,9 +1673,9 @@ void MainWindow::pasteTexts() {
         return;
 
     const core::SubtitleIndex at = target.ranges().front().first;
-    const core::SubtitleFormat format = m_session->project().sourceFile().format;
-    core::PastedTexts pasted =
-        core::pasteTexts(m_session->project(), clipboard, at, core::Document::Main);
+    const core::Document document = targetDocument();
+    const core::SubtitleFormat format = m_session->project().sourceFile(document).format;
+    core::PastedTexts pasted = core::pasteTexts(m_session->project(), clipboard, at, document);
     if (pasted.command == nullptr)
         return;
 
@@ -1874,10 +1972,10 @@ void MainWindow::applySettings(const core::Settings& settings) {
     if (settings.maximised)
         setWindowState(windowState() | Qt::WindowMaximized);
 
-    // The first four columns only: the fifth takes what the others leave, and
-    // giving it a width would do nothing. The reader has already refused a
-    // different count, so arriving here with anything else would mean the two
-    // no longer speak of the same columns.
+    // The first four columns only: the last one shown takes what the others
+    // leave, and giving it a width would do nothing. The reader has already
+    // refused a different count, so arriving here with anything else would mean
+    // the two no longer speak of the same columns.
     if (settings.columnWidths.size() == core::kColumnWidthCount) {
         for (std::size_t column = 0; column < core::kColumnWidthCount; ++column)
             m_table->setColumnWidth(static_cast<int>(column), settings.columnWidths[column]);

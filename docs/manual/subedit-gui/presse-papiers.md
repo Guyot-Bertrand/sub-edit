@@ -15,6 +15,14 @@ reçoit un texte reste le sien. C'est ce que fait Gaupol.
 
 ## Sur quoi elles portent
 
+**Avec une traduction, le texte de la colonne courante** : la traduction si la
+cellule courante est dans la colonne `Translation`, le texte principal ailleurs —
+voir [La table](table.md#le-texte-que-les-opérations-visent). `Cut Texts` vide
+donc la traduction et laisse le texte principal, et `Paste Texts` écrit dans la
+colonne où l'on se trouve. **Le presse-papiers ne porte pas de document** : on
+peut copier une cellule du texte principal et la coller dans la traduction, et
+inversement.
+
 **La sélection, et jamais tout le fichier.** Les trois entrées sont éteintes tant
 que rien n'est sélectionné. Ailleurs dans la fenêtre, « rien de sélectionné » veut
 dire « tout le fichier » ; ici, un `Ctrl+X` malheureux viderait tous les textes

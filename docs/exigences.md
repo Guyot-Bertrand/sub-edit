@@ -181,8 +181,8 @@ plus rien.
 | `GUI-TRANS-01` | ouvrir un fichier de traduction l'aligne sur le principal, par position ou par numéro | 11 | prévue |
 | `GUI-TRANS-02` | l'ouverture dit ce qui s'est passé : lignes rattachées, sous-titres nés, sous-titres sans traduction, lignes hors d'ordre | 11 | prévue |
 | `GUI-TRANS-03` | ouvrir une traduction est une seule entrée d'historique, et l'annulation rend le document tel qu'il était | 11 | prévue |
-| `GUI-TRANS-04` | la colonne de traduction apparaît avec la traduction, et se saisit | 11 | prévue |
-| `GUI-TRANS-05` | une opération de texte vise le document de la colonne courante, et la barre d'état le dit | 11 | prévue |
+| `GUI-TRANS-04` | la colonne de traduction apparaît avec la traduction, et se saisit | 11 | implémentée |
+| `GUI-TRANS-05` | une opération de texte vise le document de la colonne courante, et la barre d'état le dit | 11 | implémentée |
 | `GUI-TRANS-06` | la traduction s'enregistre à part du principal, chacun avec son état modifié | 11 | prévue |
 | `GUI-CLOSE-01` | fermer avec plusieurs documents modifiés pose une seule question, une case par document | 11 | prévue |
 | `GUI-SEARCH-03` | la recherche porte sur le document visé, et remplacer écrit dans son texte source | 11 | prévue |

@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Colonne de traduction, et texte visé par les opérations
+
+## 0.11.4 — 2026-09-20
+
+### Ajouts
+
 - **core** — Ouvrir une traduction et l'aligner sur le principal
 
 ## 0.11.3 — 2026-09-20

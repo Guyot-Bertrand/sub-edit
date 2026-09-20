@@ -49,6 +49,7 @@ using subedit::core::Document;
 using subedit::core::DurationAdjustment;
 using subedit::core::DurationConstraints;
 using subedit::core::findNext;
+using subedit::core::HearingImpairedTally;
 using subedit::core::LetterCase;
 using subedit::core::PastedTexts;
 using subedit::core::pasteTexts;
@@ -148,19 +149,20 @@ TEST_CASE("the case of a translation leaves the tags of its own format alone", "
 TEST_CASE("what shows of a translation is judged in the tags of its own format",
           "[edit][document]") {
     // A translation left holding `{\i1}{\i0}` shows nothing in Advanced SSA, and
-    // the rule takes it out; in SubRip the braces would count as text, and it
-    // would be rewritten instead.
+    // the rule empties it; in SubRip the braces would count as text, and it
+    // would be rewritten instead, so the tally would name no emptying at all.
     //
-    // Only the dialect is read here. Whether a translation that empties should
-    // take its subtitle with it — the main text included — is the question of
-    // the phase's window issue, and this case does not settle it.
+    // Only the dialect is read here. What emptying a translation does to its
+    // subtitle — nothing, the subtitle stays — is settled in
+    // `hearing_impaired_removal_test.cpp`.
     const Project project = translated("Bonjour.", R"({\i1}[soupir]{\i0})");
 
     const std::unique_ptr<Command> command =
         removeHearingImpaired(project, Selection::all(project), Document::Translation);
     REQUIRE(command != nullptr);
 
-    CHECK(tallyOf(*command).removed == 1);
+    // Emptied, and counted as cleaned: one text rewritten, no subtitle taken.
+    CHECK(tallyOf(*command) == HearingImpairedTally{.cleaned = 1, .removed = 0});
 }
 
 TEST_CASE("a copy says the format of the document it was taken from", "[edit][document]") {

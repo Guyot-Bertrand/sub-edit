@@ -18,6 +18,12 @@ class Selection;
 /// would: the command line passes the whole file, the window passes what is
 /// selected, and neither has to know what the other does.
 ///
+/// **What a rule that empties a text does depends on the document.** On the
+/// main text the subtitle is taken away, since a subtitle with nothing to show
+/// is not one. On the translation the text is emptied and the subtitle stays:
+/// it has a main text of its own, and removing it would destroy a text that
+/// was not aimed at.
+///
 /// Returns **nothing when no text bites**. An empty group would apply without
 /// doing anything and still push an entry the user would meet in « undo »
 /// without understanding it.
@@ -35,7 +41,7 @@ struct HearingImpairedTally {
 /// Reads what `command` will do, from the command rather than by counting
 /// again.
 ///
-/// `describe()` already says it: one change of main text per subtitle
+/// `describe()` already says it: one change of text per subtitle
 /// rewritten, one removal naming every subtitle taken away. Counting a second
 /// time — by comparing the texts before and after, say — would give two answers
 /// to one question, and the one shown would be the one no test compares.

@@ -98,9 +98,11 @@ s'ouvre à une autre taille, et une fenêtre s'ouvre souvent à une autre taille
 La part se rejoue partout. Elle est **ramenée à ce que la fenêtre accepte** si
 elle est trop petite — la bande du film a une hauteur minimale.
 
-**Quatre largeurs pour cinq colonnes**, et ce n'est pas un oubli : la dernière,
-`Text`, prend ce que les quatre autres laissent. Lui donner une largeur ne ferait
-rien.
+**Quatre largeurs pour cinq colonnes**, et ce n'est pas un oubli : la dernière
+colonne montrée — `Text`, ou `Translation` quand le projet en a une — prend ce que
+les quatre autres laissent. Lui donner une largeur ne ferait rien. Le texte, lui,
+a une largeur qui ne se retient pas : elle ne sert que tant que la traduction est
+là.
 
 ## Ce qui arrive quand le fichier ne dit pas ce qu'on attend
 

@@ -165,7 +165,10 @@ TEST_CASE("the window shows the subtitles of the project it was given", "[gui][G
     REQUIRE(window.table() != nullptr);
     REQUIRE(window.table()->model() != nullptr);
     CHECK(window.table()->model()->rowCount({}) == 3);
-    CHECK(window.table()->model()->columnCount({}) == 5);
+    // Six with the translation, which is there and hidden until the project
+    // has one — a window over a plain file shows five.
+    CHECK(window.table()->model()->columnCount({}) == 6);
+    CHECK(window.table()->isColumnHidden(5));
 }
 
 TEST_CASE("a window with no file shows an empty table", "[gui][GUI-OPEN-01]") {
