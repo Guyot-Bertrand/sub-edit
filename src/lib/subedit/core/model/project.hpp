@@ -171,6 +171,10 @@ public:
         return m_translationFile;
     }
 
+    /// Forgets the file of the translation, which then follows the main file
+    /// once more — what undoing the opening of a translation has to do.
+    void clearTranslationFile() { m_translationFile.reset(); }
+
 private:
     std::vector<Subtitle> m_subtitles;
 

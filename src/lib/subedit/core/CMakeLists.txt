@@ -18,6 +18,7 @@ add_library(
     edit/letter_case_command.cpp
     edit/merge_split_command.cpp
     edit/clipboard.cpp
+    edit/translation.cpp
     edit/duration_adjustment.cpp
     edit/search.cpp
     edit/shift_limits.cpp
@@ -61,6 +62,7 @@ add_library(
     text/utf8.cpp
     format/subtitle_file.cpp
     format/project_file.cpp
+    format/translation_file.cpp
     config/settings.cpp
     config/duration_adjustment_settings.cpp
     format/format_detection.cpp

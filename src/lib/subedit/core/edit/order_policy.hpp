@@ -48,6 +48,9 @@ enum class OrderPolicy {
     case CommandKind::Split:
     // It may lay rows down past the end, as an insertion does.
     case CommandKind::Paste:
+    // A line that finds no subtitle gives one of its own, at the place its own
+    // positions say — and by number, at the end, wherever they say.
+    case CommandKind::AttachTranslation:
         return true;
     case CommandKind::SetText:
     case CommandKind::SetEnd:

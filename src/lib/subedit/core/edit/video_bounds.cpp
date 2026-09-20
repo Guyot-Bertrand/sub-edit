@@ -64,6 +64,8 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::Replace:
     case CommandKind::ReplaceAll:
     case CommandKind::Paste:
+    // The subtitles it gives birth to carry the positions their own file states.
+    case CommandKind::AttachTranslation:
         return false;
     }
 

@@ -53,15 +53,17 @@ revient à l'octet** — c'est vérifié, voir plus bas.
 | `traduction-plus-courte` | trois lignes : celle de S4 manque | S1 à S3 traduits, S4 sans traduction | **la même chose** |
 | `traduction-dans-le-desordre` | les quatre lignes, dans l'ordre 2, 1, 4, 3 du fichier | elle est triée d'abord : comme le témoin | **la même chose** |
 | `une-ligne-de-moins-au-milieu` | trois lignes : celle de S2 manque | **glissement** : S2 reçoit `T3`, S3 reçoit `T4`, S4 reste sans traduction | S2 sans traduction, les trois autres à leur place |
-| `une-ligne-de-plus-a-la-fin` | cinq lignes, la cinquième à 16–18 s | un sous-titre naît à **15–18 s** — trois secondes inventées, à la suite du dernier | un sous-titre naît à **16–18 s** — les positions de la traduction |
-| `une-ligne-dans-un-intervalle-vide` | cinq lignes, une à 6,5–7,5 s, entre S2 et S3 | **glissement** : S3 reçoit cette ligne, S4 reçoit `T3`, et `T4` fait naître un sous-titre à 15–18 s | un sous-titre naît à 6,5–7,5 s, entre S2 et S3 ; les quatre autres à leur place |
-| `deux-lignes-dans-un-meme-sous-titre` | S3 traduit en deux lignes, à 8–9,5 s et 9,5–11 s | la seconde glisse sur S4, et `T4` fait naître un sous-titre à 15–18 s | la seconde **fait naître** un sous-titre à 9,5–11 s ; S4 garde `T4` |
+| `une-ligne-de-plus-a-la-fin` | cinq lignes, la cinquième à 16–18 s | un sous-titre naît à **16–18 s** — les positions de la traduction | **la même chose** — *Gaupol, lui, invente 15–18 s par numéro : voir plus bas* |
+| `une-ligne-dans-un-intervalle-vide` | cinq lignes, une à 6,5–7,5 s, entre S2 et S3 | **glissement** : S3 reçoit cette ligne, S4 reçoit `T3`, et `T4` fait naître un sous-titre à 12–15 s, les siennes | un sous-titre naît à 6,5–7,5 s, entre S2 et S3 ; les quatre autres à leur place |
+| `deux-lignes-dans-un-meme-sous-titre` | S3 traduit en deux lignes, à 8–9,5 s et 9,5–11 s | la seconde glisse sur S4, et `T4` fait naître un sous-titre à 12–15 s, les siennes | la seconde **fait naître** un sous-titre à 9,5–11 s ; S4 garde `T4` |
 | `positions-decalees` | quatre lignes, toutes deux secondes plus tard | les positions sont ignorées : comme le témoin | `T1` tombe sur **S2**, les trois autres font naître un sous-titre chacune ; S1, S3 et S4 restent sans traduction — sept sous-titres |
 
-**Trois cas s'accordent et cinq non, et les cinq sont ceux qui comptent** : un cas où
+**Quatre cas s'accordent et quatre non, et les quatre sont ceux qui comptent** : un cas où
 les deux méthodes rendent la même chose n'apprend rien sur laquelle choisir. Le témoin
-est là pour montrer qu'elles peuvent s'accorder ; les deux autres, pour dire ce qui ne
-sépare pas les méthodes — une traduction plus courte, une traduction désordonnée.
+est là pour montrer qu'elles peuvent s'accorder ; les trois autres, pour dire ce qui ne
+sépare pas les méthodes — une traduction plus courte, une traduction désordonnée, et une
+ligne de plus à la fin, **que la décision D4 a fait passer d'un côté à l'autre** : voir
+plus bas.
 
 ## Ce que chaque cas demande au cadrage
 
@@ -72,8 +74,8 @@ Elles sont versées à #426 (décision 4).
   numéro, une seule ligne manquante décale **toutes** les suivantes, sans que rien ne
   le dise ; par position, une seule reste sans traduction.
 - **`une-ligne-de-plus-a-la-fin`, `une-ligne-dans-un-intervalle-vide`** — quelles
-  positions reçoit un sous-titre né d'une ligne orpheline, et si on le dit. Les deux
-  méthodes n'en donnent pas les mêmes.
+  positions reçoit un sous-titre né d'une ligne orpheline, et si on le dit. **Tranché par
+  D4 : les siennes, par l'une et l'autre méthode.** Le compte de l'ouverture le dit.
 - **`deux-lignes-dans-un-meme-sous-titre`** — si une traduction qui scinde un
   sous-titre en deux doit faire naître un sous-titre neuf.
 - **`traduction-dans-le-desordre`** — si le nombre de lignes déplacées par le tri, que
@@ -99,14 +101,42 @@ chaque ligne comparé aux bornes des sous-titres, la fenêtre de 3 s à la suite
 Les seize résultats — huit cas, deux méthodes — ont ensuite été confrontés à ce que
 Gaupol fait réellement : le paquet `aeidon` copié **hors** du clone, importé depuis la
 copie, `Project.open_main` puis `open_translation(chemin, encodage, méthode)` sur chaque
-cas. **Les seize concordent**, et le nombre de lignes déplacées du cas désordonné est
-bien 2.
+cas. **Les seize concordaient**, et le nombre de lignes déplacées du cas désordonné est
+bien 2 — *à l'écriture de #427* : voir la section suivante pour ce qui a changé depuis.
 
 **Cette confrontation est faite à la main et ne se rejoue pas.** Aucun test ne lit le
 clone de Gaupol : il est absent de la CI et d'une machine fraîche. Elle se refait en
 un petit script — copier `aeidon/` ailleurs, l'importer, comparer — et elle n'est pas
 dans le dépôt, parce qu'un script qui dépend du clone serait un test que personne d'autre
 ne peut lancer.
+
+### Ce que la décision D4 a changé, et où les attendus ne sont plus ceux de Gaupol
+
+**Trois des seize attendus par numéro s'écartent de Gaupol, exprès.** Par numéro, Gaupol
+fait naître un sous-titre pour chaque ligne qui dépasse le principal, **aux positions qu'il
+invente** — des durées égales dans la fenêtre qui précède le suivant, trois secondes à la
+suite du dernier. Le cadrage de la phase 11 (D4, [`specs/11-traduction.md`](../../../../docs/specs/11-traduction.md))
+l'écarte : le fichier de traduction **énonce** les positions de sa ligne, et les inventer
+est une perte. Le sous-titre né les garde, par l'une et l'autre méthode.
+
+Les trois cas concernés, et ce que Gaupol y fait :
+
+| Cas | Ce que Gaupol invente, par numéro | Ce que les fichiers disent maintenant |
+| :-- | :-------------------------------- | :------------------------------------ |
+| `une-ligne-de-plus-a-la-fin` | 15–18 s | 16–18 s, celles de la ligne |
+| `une-ligne-dans-un-intervalle-vide` | 15–18 s | 12–15 s, celles de `T4` |
+| `deux-lignes-dans-un-meme-sous-titre` | 15–18 s | 12–15 s, celles de `T4` |
+
+**Les fichiers `attendu-numero.*` de ces trois cas ont été réécrits par #430**, le jour où
+l'implémentation a existé et que le harnais a pu les confronter : ils disaient ce que Gaupol
+fait, et ils devaient dire ce que `subedit` fait. Les treize autres résultats n'ont pas
+changé, et concordent toujours avec Gaupol.
+
+**Conséquence, et elle a été aperçue par le test de #427 avant tout lecteur** :
+`une-ligne-de-plus-a-la-fin` ne sépare plus les méthodes. Ce cas montrait que Gaupol
+n'en donne pas les mêmes positions ; avec D4, il montre qu'elles s'accordent. Il reste dans le
+répertoire pour cela, et parce qu'il est le seul à faire naître un sous-titre **à la fin**
+sans glissement.
 
 ### Ce que l'observation a corrigé
 
