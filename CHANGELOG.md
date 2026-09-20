@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Ouvrir et enregistrer une traduction, fermer à deux
+
+## 0.11.5 — 2026-09-20
+
+### Ajouts
+
 - **gui** — Colonne de traduction, et texte visé par les opérations
 
 ## 0.11.4 — 2026-09-20
