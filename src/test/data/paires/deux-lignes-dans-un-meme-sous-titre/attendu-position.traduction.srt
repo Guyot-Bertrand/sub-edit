@@ -1,0 +1,20 @@
+1
+00:00:01,000 --> 00:00:03,000
+Le port s'éveille avant la ville.
+
+2
+00:00:04,000 --> 00:00:06,000
+Rien ne bouge sur l'eau.
+
+3
+00:00:08,000 --> 00:00:11,000
+Une mouette tourne au-dessus du mât,
+
+4
+00:00:09,500 --> 00:00:11,000
+puis se pose.
+
+5
+00:00:12,000 --> 00:00:15,000
+Puis la lumière vient.
+
