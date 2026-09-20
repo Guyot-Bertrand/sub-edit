@@ -897,6 +897,14 @@ Second document en regard du principal, alignement du fichier de traduction par
 numéro ou par position, onglets, sauvegarde et fermeture groupées, scission d'un
 projet, ajout d'un fichier à la suite d'un autre.
 
+**Cadrée.** Voir [`specs/11-traduction.md`](specs/11-traduction.md), qui porte neuf
+décisions, deux ADR ([0032](adr/0032-un-document-un-fichier.md), acceptée, et
+[0033](adr/0033-un-projet-est-une-page.md), proposée) et le découpage en **trois
+tranches** — la traduction, l'ajout d'un fichier, le multi-projets. **La réserve
+ci-dessous n'est pas levée, elle est déplacée** : une porte,
+[#435](https://github.com/Guyot-Bertrand/sub-edit/issues/435), précède la troisième
+tranche, et c'est à elle de dire si les onglets se font.
+
 **Un renvoi de la phase 6 atterrit ici : le lecteur pour un document de
 traduction.** La réplique dessinée sur l'image vient du document principal, et
 `Subtitle` porte les deux textes pour une seule paire de positions depuis la
@@ -981,6 +989,15 @@ paire de contraintes, les sous-titres sans fin satisfaisante ; `adjustDurations`
 compte, par contrainte, ceux où elle reste violée : dire quels comptes se
 comparent fait partie du travail. Issue
 [#407](https://github.com/Guyot-Bertrand/sub-edit/issues/407).
+
+**Un renvoi de la phase 11 atterrit ici : la traduction en ligne de commande.**
+`-t/--translation-file` existe chez Gaupol, et la spec de la phase 4 avait renvoyé
+à la phase 11 « nettoyer le document de traduction depuis la ligne de commande ».
+Le cadrage de la phase 11 ([`specs/11-traduction.md`](specs/11-traduction.md), D9)
+les donne à celle-ci : **rien de ce que la phase 11 écrit n'est propre à la
+fenêtre** — l'ouverture d'une traduction, son alignement et la phrase du compte
+rendu vivent au noyau et dans `core/wording.hpp` —, et il ne reste ici qu'une
+grammaire à écrire.
 
 ## 14 — Calage fin
 

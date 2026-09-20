@@ -178,3 +178,17 @@ plus rien.
 | `GUI-SEARCH-02` | la recherche porte sur la sélection, ou sur tout le document | 10 | implémentée |
 | `GUI-CLIP-01` | copier, couper, coller des textes, et des lignes naissent s'il en manque | 10 | implémentée |
 | `GUI-CLIP-02` | coller depuis un document d'un autre format traduit les balises et dit la perte | 10 | implémentée |
+| `GUI-TRANS-01` | ouvrir un fichier de traduction l'aligne sur le principal, par position ou par numéro | 11 | prévue |
+| `GUI-TRANS-02` | l'ouverture dit ce qui s'est passé : lignes rattachées, sous-titres nés, sous-titres sans traduction, lignes hors d'ordre | 11 | prévue |
+| `GUI-TRANS-03` | ouvrir une traduction est une seule entrée d'historique, et l'annulation rend le document tel qu'il était | 11 | prévue |
+| `GUI-TRANS-04` | la colonne de traduction apparaît avec la traduction, et se saisit | 11 | prévue |
+| `GUI-TRANS-05` | une opération de texte vise le document de la colonne courante, et la barre d'état le dit | 11 | prévue |
+| `GUI-TRANS-06` | la traduction s'enregistre à part du principal, chacun avec son état modifié | 11 | prévue |
+| `GUI-CLOSE-01` | fermer avec plusieurs documents modifiés pose une seule question, une case par document | 11 | prévue |
+| `GUI-SEARCH-03` | la recherche porte sur le document visé, et remplacer écrit dans son texte source | 11 | prévue |
+| `GUI-PLAYER-04` | la réplique dessinée sur l'image est celle du document visé | 11 | prévue |
+| `GUI-APPEND-01` | ajouter un fichier décale de la fin du dernier sous-titre, dit ce que la conversion perd, et s'annule d'un coup | 11 | prévue |
+| `GUI-TABS-01` | plusieurs projets s'ouvrent en onglets, chacun avec son historique, sa sélection et sa vidéo | 11 | prévue |
+| `GUI-TABS-02` | enregistrer tout et fermer tout, avec une seule question pour tous les projets | 11 | prévue |
+| `GUI-PSPLIT-01` | scinder un projet en deux, et l'ajout de la suite rend le projet de départ | 11 | prévue |
+| `GUI-SEARCH-04` | la recherche porte, au choix, sur tous les projets ouverts | 11 | prévue |
