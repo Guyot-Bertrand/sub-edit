@@ -10,6 +10,7 @@
 #include <subedit/core/config/search_options.hpp>
 #include <subedit/core/edit/search.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
@@ -35,6 +36,7 @@
 namespace {
 
 using subedit::core::CommandKind;
+using subedit::core::Document;
 using subedit::core::findNext;
 using subedit::core::findPrevious;
 using subedit::core::PatternError;
@@ -99,8 +101,8 @@ constexpr SearchOptions kExpressionIgnoringCase{.regex = true, .ignoreCase = tru
                                              SubtitleFormat format,
                                              SearchOptions options) {
     Project project = projectOf({text}, format);
-    const ReplacedAll replaced =
-        replaceAll(project, Selection::all(project), patternOf(pattern, options), replacement);
+    const ReplacedAll replaced = replaceAll(
+        project, Selection::all(project), Document::Main, patternOf(pattern, options), replacement);
     if (replaced.command != nullptr)
         replaced.command->apply(project);
     return project.subtitleAt(SubtitleIndex::fromValue(0)).mainText;
@@ -162,10 +164,14 @@ TEST_CASE("an empty pattern or a broken expression cannot be searched for", "[ed
 TEST_CASE("ignoring the case knows accented letters", "[edit][search]") {
     const Project project = projectOf({"Élise arrive."});
 
-    CHECK(findNext(project, Selection::all(project), patternOf("élise", SearchOptions{}), {}) ==
-          at(0, 0, 6));
+    CHECK(findNext(project,
+                   Selection::all(project),
+                   Document::Main,
+                   patternOf("élise", SearchOptions{}),
+                   {}) == at(0, 0, 6));
     CHECK_FALSE(
-        findNext(project, Selection::all(project), patternOf("élise", kPlain), {}).has_value());
+        findNext(project, Selection::all(project), Document::Main, patternOf("élise", kPlain), {})
+            .has_value());
 }
 
 TEST_CASE("the text searched is the visible one", "[edit][search]") {
@@ -173,14 +179,15 @@ TEST_CASE("the text searched is the visible one", "[edit][search]") {
     const Project project = projectOf({"<i>Bon</i>jour Marie"});
     const Selection all = Selection::all(project);
 
-    CHECK_FALSE(findNext(project, all, patternOf("<i>", kPlain), {}).has_value());
-    CHECK(findNext(project, all, patternOf("Bonjour", kPlain), {}) == at(0, 0, 7));
+    CHECK_FALSE(findNext(project, all, Document::Main, patternOf("<i>", kPlain), {}).has_value());
+    CHECK(findNext(project, all, Document::Main, patternOf("Bonjour", kPlain), {}) == at(0, 0, 7));
 }
 
 TEST_CASE("a plain pattern is not an expression", "[edit][search]") {
     const Project project = projectOf({"Un. Deux."});
 
-    CHECK(findNext(project, Selection::all(project), patternOf(".", kPlain), {}) == at(0, 2, 3));
+    CHECK(findNext(project, Selection::all(project), Document::Main, patternOf(".", kPlain), {}) ==
+          at(0, 2, 3));
 }
 
 TEST_CASE("finding next walks the target and comes round again", "[edit][search]") {
@@ -188,14 +195,14 @@ TEST_CASE("finding next walks the target and comes round again", "[edit][search]
     const Selection all = Selection::all(project);
     const SearchPattern pattern = patternOf("Marie", kPlain);
 
-    std::optional<TextMatch> found = findNext(project, all, pattern, {});
+    std::optional<TextMatch> found = findNext(project, all, Document::Main, pattern, {});
     CHECK(found == at(0, 0, 5));
-    found = findNext(project, all, pattern, found);
+    found = findNext(project, all, Document::Main, pattern, found);
     CHECK(found == at(2, 0, 5));
-    found = findNext(project, all, pattern, found);
+    found = findNext(project, all, Document::Main, pattern, found);
     CHECK(found == at(2, 9, 14));
     // Past the last, from the top.
-    found = findNext(project, all, pattern, found);
+    found = findNext(project, all, Document::Main, pattern, found);
     CHECK(found == at(0, 0, 5));
 }
 
@@ -204,13 +211,13 @@ TEST_CASE("finding previous walks the other way round", "[edit][search]") {
     const Selection all = Selection::all(project);
     const SearchPattern pattern = patternOf("Marie", kPlain);
 
-    std::optional<TextMatch> found = findPrevious(project, all, pattern, {});
+    std::optional<TextMatch> found = findPrevious(project, all, Document::Main, pattern, {});
     CHECK(found == at(2, 9, 14));
-    found = findPrevious(project, all, pattern, found);
+    found = findPrevious(project, all, Document::Main, pattern, found);
     CHECK(found == at(2, 0, 5));
-    found = findPrevious(project, all, pattern, found);
+    found = findPrevious(project, all, Document::Main, pattern, found);
     CHECK(found == at(0, 0, 5));
-    found = findPrevious(project, all, pattern, found);
+    found = findPrevious(project, all, Document::Main, pattern, found);
     CHECK(found == at(2, 9, 14));
 }
 
@@ -218,9 +225,12 @@ TEST_CASE("a single match is found again, and nothing is nothing", "[edit][searc
     const Project project = projectOf({"Marie.", "Rien."});
     const Selection all = Selection::all(project);
 
-    CHECK(findNext(project, all, patternOf("Marie", kPlain), at(0, 0, 5)) == at(0, 0, 5));
-    CHECK_FALSE(findNext(project, all, patternOf("Sophie", kPlain), {}).has_value());
-    CHECK_FALSE(findPrevious(project, all, patternOf("Sophie", kPlain), {}).has_value());
+    CHECK(findNext(project, all, Document::Main, patternOf("Marie", kPlain), at(0, 0, 5)) ==
+          at(0, 0, 5));
+    CHECK_FALSE(
+        findNext(project, all, Document::Main, patternOf("Sophie", kPlain), {}).has_value());
+    CHECK_FALSE(
+        findPrevious(project, all, Document::Main, patternOf("Sophie", kPlain), {}).has_value());
 }
 
 TEST_CASE("the search stays in its target", "[edit][search]") {
@@ -229,9 +239,9 @@ TEST_CASE("the search stays in its target", "[edit][search]") {
         Selection::range(SubtitleIndex::fromValue(1), SubtitleIndex::fromValue(2));
     const SearchPattern pattern = patternOf("Marie", kPlain);
 
-    std::optional<TextMatch> found = findNext(project, second, pattern, {});
+    std::optional<TextMatch> found = findNext(project, second, Document::Main, pattern, {});
     CHECK(found == at(2, 0, 5));
-    CHECK(findNext(project, second, pattern, found) == at(2, 0, 5));
+    CHECK(findNext(project, second, Document::Main, pattern, found) == at(2, 0, 5));
 }
 
 TEST_CASE("replacing a match rewrites that one and says where it now lies", "[edit][search]") {
@@ -239,7 +249,7 @@ TEST_CASE("replacing a match rewrites that one and says where it now lies", "[ed
     const SearchPattern pattern = patternOf("Marie", kPlain);
 
     std::optional<ReplacedMatch> replaced =
-        replaceMatch(session.project(), pattern, at(0, 9, 14), "Sophie");
+        replaceMatch(session.project(), Document::Main, pattern, at(0, 9, 14), "Sophie");
     REQUIRE(replaced.has_value());
     // A guard the analysis can read: it follows neither a `REQUIRE` nor a
     // `.value()` into the accesses after them.
@@ -261,15 +271,21 @@ TEST_CASE("a match the text no longer holds is not replaced", "[edit][search]") 
     const Project project = projectOf({"Rien."});
 
     CHECK_FALSE(
-        replaceMatch(project, patternOf("Marie", kPlain), at(0, 0, 5), "Sophie").has_value());
-    CHECK_FALSE(replaceMatch(project, patternOf("Rien", kPlain), at(4, 0, 4), "Tout").has_value());
+        replaceMatch(project, Document::Main, patternOf("Marie", kPlain), at(0, 0, 5), "Sophie")
+            .has_value());
+    CHECK_FALSE(
+        replaceMatch(project, Document::Main, patternOf("Rien", kPlain), at(4, 0, 4), "Tout")
+            .has_value());
 }
 
 TEST_CASE("replacing all is one entry in the history, and counts", "[edit][search]") {
     Session session{projectOf({"Marie.", "Rien.", "Marie et Marie."})};
 
-    ReplacedAll replaced = replaceAll(
-        session.project(), Selection::all(session.project()), patternOf("Marie", kPlain), "Sophie");
+    ReplacedAll replaced = replaceAll(session.project(),
+                                      Selection::all(session.project()),
+                                      Document::Main,
+                                      patternOf("Marie", kPlain),
+                                      "Sophie");
     REQUIRE(replaced.command != nullptr);
     CHECK(replaced.command->kind() == CommandKind::ReplaceAll);
     CHECK(replaced.count == 3);
@@ -288,8 +304,11 @@ TEST_CASE("replacing all is one entry in the history, and counts", "[edit][searc
 TEST_CASE("a replacement containing the pattern is not found again", "[edit][search]") {
     Project project = projectOf({"Marie."});
 
-    const ReplacedAll replaced =
-        replaceAll(project, Selection::all(project), patternOf("Marie", kPlain), "Marie-Claire");
+    const ReplacedAll replaced = replaceAll(project,
+                                            Selection::all(project),
+                                            Document::Main,
+                                            patternOf("Marie", kPlain),
+                                            "Marie-Claire");
     REQUIRE(replaced.command != nullptr);
     replaced.command->apply(project);
 
@@ -300,8 +319,8 @@ TEST_CASE("a replacement containing the pattern is not found again", "[edit][sea
 TEST_CASE("replacing what nothing matches builds nothing", "[edit][search]") {
     const Project project = projectOf({"<i >Rien</I >."});
 
-    const ReplacedAll replaced =
-        replaceAll(project, Selection::all(project), patternOf("Marie", kPlain), "Sophie");
+    const ReplacedAll replaced = replaceAll(
+        project, Selection::all(project), Document::Main, patternOf("Marie", kPlain), "Sophie");
 
     CHECK(replaced.command == nullptr);
     CHECK(replaced.count == 0);
@@ -317,8 +336,8 @@ TEST_CASE("a replacement that only widens a tag across a word still counts as a 
     // real change to the file.
     Project project = projectOf({"<i>Ma</i>rie"});
 
-    const ReplacedAll replaced =
-        replaceAll(project, Selection::all(project), patternOf("arie", kPlain), "arie");
+    const ReplacedAll replaced = replaceAll(
+        project, Selection::all(project), Document::Main, patternOf("arie", kPlain), "arie");
     REQUIRE(replaced.command != nullptr);
     replaced.command->apply(project);
 
@@ -330,8 +349,8 @@ TEST_CASE("a replacement that only widens a tag across a word still counts as a 
 TEST_CASE("replacing a match by itself changes nothing and counts nothing", "[edit][search]") {
     const Project project = projectOf({"Bonjour Marie."});
 
-    const ReplacedAll replaced =
-        replaceAll(project, Selection::all(project), patternOf("Marie", kPlain), "Marie");
+    const ReplacedAll replaced = replaceAll(
+        project, Selection::all(project), Document::Main, patternOf("Marie", kPlain), "Marie");
 
     CHECK(replaced.count == 0);
     CHECK(replaced.command == nullptr);
@@ -343,8 +362,11 @@ TEST_CASE("replacing a match by itself changes nothing and counts nothing", "[ed
 TEST_CASE("an expression's groups and escapes are expanded", "[edit][search]") {
     Project project = projectOf({"Marie Curie"});
 
-    const ReplacedAll replaced = replaceAll(
-        project, Selection::all(project), patternOf(R"((\w+) (\w+))", kRegex), R"($2,\n$1 \$$9)");
+    const ReplacedAll replaced = replaceAll(project,
+                                            Selection::all(project),
+                                            Document::Main,
+                                            patternOf(R"((\w+) (\w+))", kRegex),
+                                            R"($2,\n$1 \$$9)");
     REQUIRE(replaced.command != nullptr);
     replaced.command->apply(project);
 
@@ -357,7 +379,7 @@ TEST_CASE("an expression that matches nothing wide still advances", "[edit][sear
     Project project = projectOf({"Oui ?\nNon."});
 
     const ReplacedAll replaced =
-        replaceAll(project, Selection::all(project), patternOf("^", kRegex), "- ");
+        replaceAll(project, Selection::all(project), Document::Main, patternOf("^", kRegex), "- ");
     REQUIRE(replaced.command != nullptr);
     replaced.command->apply(project);
 
@@ -441,9 +463,11 @@ TEST_CASE("an empty match past an accented letter moves by a whole character", "
     Project project = projectOf({"été ou"});
     const SearchPattern edges = patternOf(R"(\b)", kRegex);
 
-    CHECK(findNext(project, Selection::all(project), edges, at(0, 0, 0)) == at(0, 5, 5));
+    CHECK(findNext(project, Selection::all(project), Document::Main, edges, at(0, 0, 0)) ==
+          at(0, 5, 5));
 
-    const ReplacedAll replaced = replaceAll(project, Selection::all(project), edges, "|");
+    const ReplacedAll replaced =
+        replaceAll(project, Selection::all(project), Document::Main, edges, "|");
     REQUIRE(replaced.command != nullptr);
     replaced.command->apply(project);
 
@@ -455,7 +479,8 @@ TEST_CASE("an empty target holds no match", "[edit][search]") {
     const Project project = projectOf({"Marie."});
     const Selection nothing = Selection::of({});
 
-    CHECK_FALSE(findNext(project, nothing, patternOf("Marie", kPlain), {}).has_value());
+    CHECK_FALSE(
+        findNext(project, nothing, Document::Main, patternOf("Marie", kPlain), {}).has_value());
 }
 
 TEST_CASE("a match outside the target starts the walk again from its edge", "[edit][search]") {
@@ -468,8 +493,8 @@ TEST_CASE("a match outside the target starts the walk again from its edge", "[ed
         Selection::range(SubtitleIndex::fromValue(2), SubtitleIndex::fromValue(3));
     const SearchPattern pattern = patternOf("Marie", kPlain);
 
-    CHECK(findNext(project, firstTwo, pattern, at(3, 0, 5)) == at(0, 0, 5));
-    CHECK(findPrevious(project, lastTwo, pattern, at(0, 0, 5)) == at(3, 0, 5));
+    CHECK(findNext(project, firstTwo, Document::Main, pattern, at(3, 0, 5)) == at(0, 0, 5));
+    CHECK(findPrevious(project, lastTwo, Document::Main, pattern, at(0, 0, 5)) == at(3, 0, 5));
 }
 
 TEST_CASE("a match that moved within its text is not replaced", "[edit][search]") {
@@ -477,7 +502,8 @@ TEST_CASE("a match that moved within its text is not replaced", "[edit][search]"
     const Project project = projectOf({"Rien, Marie."});
 
     CHECK_FALSE(
-        replaceMatch(project, patternOf("Marie", kPlain), at(0, 0, 5), "Sophie").has_value());
+        replaceMatch(project, Document::Main, patternOf("Marie", kPlain), at(0, 0, 5), "Sophie")
+            .has_value());
 }
 
 TEST_CASE("a compiled pattern moves, and keeps its options", "[edit][search]") {
@@ -488,5 +514,5 @@ TEST_CASE("a compiled pattern moves, and keeps its options", "[edit][search]") {
     CHECK(pattern.options() == kRegex);
 
     const Project project = projectOf({"Marie."});
-    CHECK(findNext(project, Selection::all(project), pattern, {}) == at(0, 0, 5));
+    CHECK(findNext(project, Selection::all(project), Document::Main, pattern, {}) == at(0, 0, 5));
 }

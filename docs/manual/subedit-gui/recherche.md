@@ -52,12 +52,50 @@ change la cible** pour le geste suivant.
 La recherche porte sur le texte des sous-titres ; ni les positions ni le numéro
 ne sont cherchés.
 
+### Dans quel texte
+
+**Avec une traduction, la recherche porte sur un seul des deux textes : celui de
+la colonne de la cellule courante** — la traduction si la cellule courante est
+dans la colonne `Translation`, le texte principal partout ailleurs. C'est la
+règle de toutes les opérations de texte, et il n'y a pas de réglage de plus :
+voir [Le texte que les opérations visent](table.md#le-texte-que-les-opérations-visent).
+
+**Le dialogue dit dans quel texte il cherche**, sur une ligne au-dessus de
+`Find`, et la change quand la colonne courante change — même ouvert :
+
+![Le dialogue de recherche d'un projet qui porte une traduction, la cellule
+courante dans la colonne `Translation`.](captures/recherche-traduction.png)
+
+![Le même dialogue sous la palette sombre.](captures/recherche-traduction-sombre.png)
+
+| La cellule courante est dans | La ligne dit |
+| :--------------------------- | :----------- |
+| la colonne `Translation` | `Searching in: Translation` |
+| toute autre colonne | `Searching in: Main` |
+| — le projet n'a pas de traduction, ou la colonne est retirée | rien : la ligne n'est pas là |
+
+**Remplacer écrit dans ce texte-là, et dans lui seul.** `Replace` et `Replace
+All` sur la traduction laissent le texte principal tel qu'il était, et
+l'inverse ; `Undo` rend ce qu'ils ont écrit. **Les balises sont celles du format
+du fichier de ce texte** : une traduction en Advanced SSA se lit avec ses
+`{\i1}`, même quand le texte principal est un SubRip. `Replace with` s'y écrit
+dans les mêmes balises.
+
+**La table reste dans la colonne où elle était.** `Find Next` sélectionne la ligne
+d'une correspondance sans déplacer la cellule courante d'une colonne à l'autre :
+une recherche commencée dans la traduction continue dans la traduction.
+
+**Chercher dans les deux textes à la fois n'existe pas** : chaque correspondance
+serait un couple (sous-titre, texte), et la table qui se rend à elle n'aurait
+plus de place claire où aller. On cherche dans l'un, puis on change de colonne.
+
 **Ce qui fait repartir de zéro** :
 
 | Geste | Ce qui est oublié |
 | :---- | :---------------- |
 | modifier `Find`, `Replace with` ou une option | la correspondance courante, et la ligne d'état |
 | sélectionner soi-même d'autres lignes | la cible et la correspondance |
+| passer la cellule courante d'un texte à l'autre — de `Text` à `Translation`, ou l'inverse | la correspondance : elle est une place dans un texte |
 | ouvrir un autre fichier | la cible et la correspondance ; le dialogue reste ouvert, motif compris |
 
 ## Le texte cherché est le texte visible
@@ -79,7 +117,7 @@ touche pas restent où elles sont**, même celle qui coupe un autre mot du même
 sous-titre : remplacer `Marie` dans `<i>Bon</i>jour Marie` donne
 `<i>Bon</i>jour Sophie`. Un mot est fait de lettres et de chiffres — une espace
 insécable ou un guillemet n'en font pas partie. **`Replace with` se lit dans les balises du
-document** : y taper `<b>Salut</b>` dans un SubRip met le mot en gras.
+texte visé** : y taper `<b>Salut</b>` dans un SubRip met le mot en gras.
 
 ## Les deux options
 

@@ -10,6 +10,11 @@
 
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/model/document.hpp>
+#include <subedit/core/model/project.hpp>
+#include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/main_window.hpp>
@@ -23,22 +28,29 @@
 #include <QTest>
 #include <catch2/catch_test_macros.hpp>
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "fake_prompts.hpp"
 #include "fake_video_player.hpp"
 
 namespace {
 
+using subedit::core::Document;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::OpenedFile;
 using subedit::core::openProject;
 using subedit::core::PlayerError;
+using subedit::core::SourceFile;
+using subedit::core::Subtitle;
+using subedit::core::SubtitleFormat;
 using subedit::core::Timestamp;
 using subedit::core::VideoPlayer;
 using subedit::gui::MainWindow;
@@ -106,6 +118,26 @@ struct Projectionist {
     auto opened = openProject(files, path);
     REQUIRE(opened.has_value());
     return std::move(*opened);
+}
+
+/// The same file, with a translation of each of its three subtitles.
+[[nodiscard]] OpenedFile translatedIn(const InMemoryFileSystem& files, const char* path) {
+    OpenedFile opened = fileIn(files, path);
+    std::vector<Subtitle> subtitles{opened.project.subtitles().begin(),
+                                    opened.project.subtitles().end()};
+    constexpr std::array<const char*, 3> kTranslations = {"One.", "Two.", "Three."};
+    for (std::size_t row = 0; row < subtitles.size() && row < kTranslations.size(); ++row)
+        subtitles[row].translationText = kTranslations[row];
+    opened.project.setSubtitles(std::move(subtitles));
+    opened.project.setSourceFile(Document::Translation,
+                                 SourceFile{.format = SubtitleFormat::SubRip});
+    return opened;
+}
+
+/// Puts the current cell there, without selecting anything.
+void currentAt(const MainWindow& window, int row, int column) {
+    window.table()->selectionModel()->setCurrentIndex(window.table()->model()->index(row, column),
+                                                      QItemSelectionModel::NoUpdate);
 }
 
 /// Whether the picture is part of the window.
@@ -507,4 +539,75 @@ TEST_CASE("the window follows playback on its own", "[gui][GUI-PLAYER-01]") {
 
     CHECK(booth.player->onScreen() == "Trois.");
     CHECK(currentRow(window) == 2);
+}
+
+// Decision D8, and the return of the phase-6 question « which of the two texts
+// is drawn » — answered by the rule the whole window follows, and not by a
+// setting: the document aimed at is the one of the current column.
+TEST_CASE("the replica drawn follows the column of the current cell", "[gui][GUI-PLAYER-04]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, translatedIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+
+    playbackReaches(window, *booth.player, 1500);
+    CHECK(booth.player->onScreen() == "Un.");
+
+    currentAt(window, 0, SubtitleTableModel::Translation);
+    window.followPlayback();
+    CHECK(booth.player->onScreen() == "One.");
+
+    // The film goes on, and the current cell keeps its column while it follows.
+    playbackReaches(window, *booth.player, 3000);
+    CHECK(booth.player->onScreen() == "Two.");
+
+    currentAt(window, 1, SubtitleTableModel::Text);
+    window.followPlayback();
+    CHECK(booth.player->onScreen() == "Deux.");
+}
+
+// A column nobody can see is not one a cell is current in — the rule of
+// `targetDocument`, and the picture must not show a text the table hides.
+TEST_CASE("a hidden translation column is not the one the replica is drawn from",
+          "[gui][GUI-PLAYER-04]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, translatedIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+    playbackReaches(window, *booth.player, 1500);
+    currentAt(window, 0, SubtitleTableModel::Translation);
+    window.followPlayback();
+    REQUIRE(booth.player->onScreen() == "One.");
+
+    window.translationColumnAction()->trigger();
+    window.followPlayback();
+
+    CHECK(booth.player->onScreen() == "Un.");
+}
+
+// The empty answer is the translation's own: a subtitle with nothing translated
+// yet draws nothing while its translation is the aimed text, and not the main
+// text in its place.
+TEST_CASE("a subtitle with no translation draws nothing from the translation column",
+          "[gui][GUI-PLAYER-04]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    OpenedFile opened = translatedIn(files, "/films/film.fr.srt");
+    std::vector<Subtitle> subtitles{opened.project.subtitles().begin(),
+                                    opened.project.subtitles().end()};
+    subtitles[0].translationText.clear();
+    opened.project.setSubtitles(std::move(subtitles));
+    MainWindow window{files, std::move(opened), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+    currentAt(window, 0, SubtitleTableModel::Translation);
+
+    playbackReaches(window, *booth.player, 1500);
+
+    CHECK(booth.player->onScreen().empty());
 }

@@ -171,7 +171,8 @@ using subedit::test::kSubtitleCount;
     if (!compiled.has_value())
         return 0;
 
-    ReplacedAll replaced = replaceAll(session.project(), target, *compiled, replacement);
+    ReplacedAll replaced =
+        replaceAll(session.project(), target, Document::Main, *compiled, replacement);
     const std::size_t count = replaced.count;
     if (replaced.command)
         session.apply(std::move(replaced.command));
@@ -492,13 +493,13 @@ TEST_CASE("searching a full-length file for what it does not hold", "[benchmark]
     // The measurement means « nothing found » only if that is what it finds.
     const auto probe = SearchPattern::compile(kAbsent, options);
     REQUIRE(probe.has_value());
-    REQUIRE_FALSE(findNext(project, everything, *probe, std::nullopt).has_value());
+    REQUIRE_FALSE(findNext(project, everything, Document::Main, *probe, std::nullopt).has_value());
 
     BENCHMARK("recherche sans résultat sur 4000 sous-titres") {
         const auto pattern = SearchPattern::compile(kAbsent, options);
         if (!pattern.has_value())
             return std::optional<TextMatch>{};
-        return findNext(project, everything, *pattern, std::nullopt);
+        return findNext(project, everything, Document::Main, *pattern, std::nullopt);
     };
 }
 

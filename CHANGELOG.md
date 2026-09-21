@@ -11,6 +11,20 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — La recherche et la réplique suivent le document visé
+
+### Documentation
+
+- **doc** — Exigences, spec D8 et relevé du banc pour #433
+
+### Tests
+
+- **core** — Un motif sans optional dans le test de dialecte
+
+## 0.11.6 — 2026-09-20
+
+### Ajouts
+
 - **gui** — Ouvrir et enregistrer une traduction, fermer à deux
 
 ## 0.11.5 — 2026-09-20

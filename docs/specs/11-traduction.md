@@ -165,9 +165,9 @@ ce qui n'est faux que le jour où une traduction existe. **Le douzième,
 sur `mainText`, et l'ajustement est une opération de positions.
 
 **Ils ne changent pas tous en même temps.** #429 en change huit — tous ceux qui reçoivent déjà
-un `Document`. Les trois de `search` **attendent** : la recherche ne prend pas de `Document`, elle
-lit `mainText`, et c'est #433 qui le lui donne. D'ici là ils nomment le principal (`Document::Main`),
-et un test le garde.
+un `Document`. Les trois de `search` **attendaient** : la recherche ne prenait pas de `Document`, elle
+lisait `mainText`, et c'est #433 qui le lui a donné. Ils nommaient le principal (`Document::Main`), et
+un test le gardait ; ce test dit désormais les deux sens, une recherche par document.
 
 **Ce que la décision écarte** est dans l'ADR : un fichier de traduction que le projet
 ignorerait — la fenêtre le tiendrait à côté de sa `Session`, ce que l'ADR 0018 a déjà
@@ -363,8 +363,13 @@ chacun.
   pas de traduction. **Pas de réglage** : une seule règle pour dire quel texte, sur toute la fenêtre.
   C'est le renvoi de la phase 6 — « il faudra dire lequel des deux s'affiche, et si le choix est un
   réglage ou suit l'onglet actif » : il suit la colonne active, et ce n'est pas un réglage.
-- **La recherche porte sur le document visé.** `SearchOptions` reçoit un `Document` ; la boîte dit dans
-  quel champ elle cherche ; **remplacer écrit dans le texte source de ce document**, les balises de son
+- **La recherche porte sur le document visé.** **Le `Document` est un paramètre** de `findNext`,
+  `findPrevious`, `replaceMatch` et `replaceAll`, à côté de la cible, **et non un champ de
+  `SearchOptions`** — la première rédaction de cette décision disait l'inverse, et #433 l'a corrigée :
+  `SearchOptions` est ce que le fichier de préférences retient d'une session à l'autre (`search.regex`,
+  `search.ignore-case`), et le texte visé n'est pas une préférence, il suit la colonne courante. La
+  boîte dit dans
+  quel champ elle cherche (`Searching in: Translation`, absente quand il n'y a qu'un texte) ; **remplacer écrit dans le texte source de ce document**, les balises de son
   format respectées. C'est la moitié du renvoi de la phase 10. Gaupol cherche dans le principal, la
   traduction ou les deux ; **« les deux » n'est pas livré**, et l'écrire est le motif : chercher dans
   deux textes à la fois ferait de chaque correspondance un couple (sous-titre, document), et la table
@@ -372,6 +377,22 @@ chacun.
 - **La portée « tous les projets ouverts »** est de la troisième tranche : elle n'a de sens qu'avec
   plusieurs projets. `Replace All` y est **une entrée d'historique par projet touché**, si bien
   qu'annuler dans un onglet ne défait que ce que cet onglet a reçu.
+
+**Deux choses que la décision ne disait pas, et que #433 a dû trancher.**
+
+- **La table reste dans la colonne où elle était.** `selectRows` posait la cellule courante en colonne 0
+  — donc dans le principal — chaque fois qu'elle sélectionnait des lignes : une recherche commencée dans
+  la traduction continuait dans le principal dès la première correspondance. La colonne courante est
+  conservée, et c'est ce qui rend vraie la règle « le texte visé est celui de la colonne courante » pour
+  une opération qui déplace la sélection.
+- **Une correspondance est une place dans un texte.** Quand la colonne courante passe d'un texte à
+  l'autre, la correspondance retenue est oubliée : la traduction d'un sous-titre peut lire exactement ce
+  que dit le principal, et un `Replace` la réécrirait sans que l'utilisateur l'ait vue dans ce texte.
+
+**La réplique dessine le texte tel que le modèle le porte, balises comprises** — ADR 0009, que l'issue
+n'a pas modifiée. Retirer les balises « selon le format du document » n'est pas livré : ce serait changer
+ce que voit quelqu'un qui n'ouvre jamais de traduction, et le critère de l'issue est que rien ne change
+sans traduction.
 
 Issues : [#433](https://github.com/Guyot-Bertrand/sub-edit/issues/433),
 [#440](https://github.com/Guyot-Bertrand/sub-edit/issues/440).

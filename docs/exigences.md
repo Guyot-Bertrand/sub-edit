@@ -185,8 +185,8 @@ plus rien.
 | `GUI-TRANS-05` | une opération de texte vise le document de la colonne courante, et la barre d'état le dit | 11 | implémentée |
 | `GUI-TRANS-06` | la traduction s'enregistre à part du principal, chacun avec son état modifié | 11 | implémentée |
 | `GUI-CLOSE-01` | fermer avec plusieurs documents modifiés pose une seule question, une case par document | 11 | implémentée |
-| `GUI-SEARCH-03` | la recherche porte sur le document visé, et remplacer écrit dans son texte source | 11 | prévue |
-| `GUI-PLAYER-04` | la réplique dessinée sur l'image est celle du document visé | 11 | prévue |
+| `GUI-SEARCH-03` | la recherche porte sur le document visé, et remplacer écrit dans son texte source | 11 | implémentée |
+| `GUI-PLAYER-04` | la réplique dessinée sur l'image est celle du document visé | 11 | implémentée |
 | `GUI-APPEND-01` | ajouter un fichier décale de la fin du dernier sous-titre, dit ce que la conversion perd, et s'annule d'un coup | 11 | prévue |
 | `GUI-TABS-01` | plusieurs projets s'ouvrent en onglets, chacun avec son historique, sa sélection et sa vidéo | 11 | prévue |
 | `GUI-TABS-02` | enregistrer tout et fermer tout, avec une seule question pour tous les projets | 11 | prévue |

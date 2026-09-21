@@ -239,6 +239,12 @@ constexpr int kOperationStatusTimeoutMs = 5000;
     return given;
 }
 
+/// What the window calls a text: the status bar and the search box both say it.
+[[nodiscard]] QString documentName(core::Document document) {
+    return document == core::Document::Translation ? QStringLiteral("Translation")
+                                                   : QStringLiteral("Main");
+}
+
 } // namespace
 
 MainWindow::MainWindow(core::FileSystem& files,
@@ -1046,9 +1052,11 @@ void MainWindow::followPlayback() {
     // Read from the project at every tick, which is what makes D2 true rather
     // than merely stated: a text edited a moment ago is on the picture within a
     // tenth of a second, and nothing was written to a disk to put it there.
-    const std::string line = showing.has_value()
-                                 ? project.subtitleAt(*showing).text(core::Document::Main)
-                                 : std::string{};
+    //
+    // **The text of the document aimed at**, the rule of the whole window: the
+    // column of the current cell says which, and there is no setting.
+    const std::string line =
+        showing.has_value() ? project.subtitleAt(*showing).text(targetDocument()) : std::string{};
     if (line != m_shown) {
         m_player->showSubtitle(line);
         m_shown = line;
@@ -1516,13 +1524,22 @@ void MainWindow::refreshTarget() {
     // translation says nothing, which is what keeps it from being noise.
     const bool twoTexts = !m_table->isColumnHidden(SubtitleTableModel::Translation);
     if (twoTexts) {
-        m_targetStatus->setText(targetDocument() == core::Document::Translation
-                                    ? QStringLiteral("Text: Translation")
-                                    : QStringLiteral("Text: Main"));
+        m_targetStatus->setText(QStringLiteral("Text: %1").arg(documentName(targetDocument())));
     } else {
         m_targetStatus->clear();
     }
     m_targetStatus->setVisible(twoTexts);
+
+    // A match is a place in one text: another text, another search. Compared
+    // with the last one aimed at rather than forgotten at every call, because
+    // this runs after each operation and the match just written is the one the
+    // next `Find Next` starts from.
+    const core::Document aimed = targetDocument();
+    if (aimed != m_searchDocument) {
+        m_searchDocument = aimed;
+        m_match.reset();
+    }
+    refreshSearchField();
 
     // **Grey rather than gone for TMPlayer and LRC**: the two formats write no
     // style at all, and an entry that is there and out is what tells a user
@@ -1536,6 +1553,19 @@ void MainWindow::refreshTarget() {
     m_italic->setEnabled(
         anything &&
         core::abilitiesOf(m_session->project().sourceFile(targetDocument()).format).italic);
+}
+
+void MainWindow::refreshSearchField() {
+    if (m_search == nullptr)
+        return;
+
+    // Two texts, and only then: the box of a window that never opens a
+    // translation has nothing to choose between, and says nothing.
+    const bool twoTexts = !m_table->isColumnHidden(SubtitleTableModel::Translation);
+    const QString field =
+        twoTexts ? QStringLiteral("Searching in: %1").arg(documentName(targetDocument()))
+                 : QString{};
+    m_search->setField(field);
 }
 
 void MainWindow::refreshStructureActions() {
@@ -1895,6 +1925,7 @@ void MainWindow::openSearch() {
         });
     }
 
+    refreshSearchField();
     m_search->show();
     m_search->raise();
     m_search->activateWindow();
@@ -1923,8 +1954,9 @@ void MainWindow::findInTarget(bool forward) {
 
     const core::Selection target = searchTarget();
     const std::optional<core::TextMatch> found =
-        forward ? core::findNext(m_session->project(), target, *pattern, m_match)
-                : core::findPrevious(m_session->project(), target, *pattern, m_match);
+        forward
+            ? core::findNext(m_session->project(), target, targetDocument(), *pattern, m_match)
+            : core::findPrevious(m_session->project(), target, targetDocument(), *pattern, m_match);
 
     // **A search that finds nothing says so, and touches nothing**: the
     // selection stays where it was, and so does the target.
@@ -1952,8 +1984,11 @@ void MainWindow::replaceCurrentMatch() {
     // Gaupol does, and let the next press replace what is then shown.
     std::optional<core::ReplacedMatch> replaced;
     if (m_match.has_value()) {
-        replaced = core::replaceMatch(
-            m_session->project(), *pattern, *m_match, m_search->replacement().toStdString());
+        replaced = core::replaceMatch(m_session->project(),
+                                      targetDocument(),
+                                      *pattern,
+                                      *m_match,
+                                      m_search->replacement().toStdString());
     }
     if (!replaced.has_value()) {
         findInTarget(true);
@@ -1974,8 +2009,11 @@ void MainWindow::replaceAllInTarget() {
         return;
 
     const core::Selection target = searchTarget();
-    core::ReplacedAll replaced = core::replaceAll(
-        m_session->project(), target, *pattern, m_search->replacement().toStdString());
+    core::ReplacedAll replaced = core::replaceAll(m_session->project(),
+                                                  target,
+                                                  targetDocument(),
+                                                  *pattern,
+                                                  m_search->replacement().toStdString());
     m_match.reset();
 
     // **Not found is not the same as nothing to change**: a pattern that is in
@@ -2029,7 +2067,14 @@ void MainWindow::splitSubtitle() {
 }
 
 void MainWindow::selectRows(int first, int last) {
-    const QModelIndex from = m_model->index(first, 0);
+    // **The column of the current cell stays where it is.** It says which text
+    // an operation aims at, and moving to a match, or to the rows a paste has
+    // just written, must not change the answer: a search begun in the
+    // translation column would otherwise go on in the main text from its first
+    // match on.
+    const QModelIndex current = m_table->currentIndex();
+    const int column = current.isValid() ? current.column() : 0;
+    const QModelIndex from = m_model->index(first, column);
     const QModelIndex to = m_model->index(last, SubtitleTableModel::kColumnCount - 1);
 
     // The current row first, and without touching the selection: going through

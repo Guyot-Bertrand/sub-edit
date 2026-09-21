@@ -173,14 +173,17 @@ struct Found {
     return spans;
 }
 
-/// Every match in the main text of the subtitle at `index`.
+/// Every match in the text of `document` in the subtitle at `index`.
 ///
-/// **The main file's format, named as such**: the search takes no document yet,
-/// and it is the issue that puts a translation on the screen that gives it one.
-[[nodiscard]] std::vector<Span>
-spansAt(const Project& project, SubtitleIndex index, const SearchPattern::Compiled& compiled) {
-    const MarkupParser parser{project.subtitleAt(index).mainText,
-                              project.sourceFile(Document::Main).format};
+/// **Read in the format of that document's file**: a translation may be in
+/// another dialect than the main text, and a brace is a tag in one and a letter
+/// in the other.
+[[nodiscard]] std::vector<Span> spansAt(const Project& project,
+                                        Document document,
+                                        SubtitleIndex index,
+                                        const SearchPattern::Compiled& compiled) {
+    const MarkupParser parser{project.subtitleAt(index).text(document),
+                              project.sourceFile(document).format};
     return spansIn(parser.visible(), compiled);
 }
 
@@ -217,6 +220,7 @@ spansAt(const Project& project, SubtitleIndex index, const SearchPattern::Compil
 /// going all the way round.
 template<typename Pick>
 [[nodiscard]] std::optional<TextMatch> walk(const Project& project,
+                                            Document document,
                                             const std::vector<SubtitleIndex>& order,
                                             const SearchPattern& pattern,
                                             const std::optional<TextMatch>& from,
@@ -230,7 +234,7 @@ template<typename Pick>
         const std::size_t rank = (first + step) % order.size();
         const SubtitleIndex index = order[rank];
         const bool origin = from.has_value() && index == from->index;
-        const std::vector<Span> spans = spansAt(project, index, pattern.compiled());
+        const std::vector<Span> spans = spansAt(project, document, index, pattern.compiled());
         if (const std::optional<Span> chosen = pick(spans, origin, step); chosen.has_value())
             return TextMatch{.index = index, .start = chosen->start, .end = chosen->end};
     }
@@ -342,12 +346,14 @@ std::expected<SearchPattern, PatternError> SearchPattern::compile(std::string_vi
 
 std::optional<TextMatch> findNext(const Project& project,
                                   const Selection& target,
+                                  Document document,
                                   const SearchPattern& pattern,
                                   const std::optional<TextMatch>& after) {
     const std::vector<SubtitleIndex> order = indicesOf(target);
     const Span last = after.has_value() ? Span{.start = after->start, .end = after->end} : Span{};
 
     return walk(project,
+                document,
                 order,
                 pattern,
                 after,
@@ -369,6 +375,7 @@ std::optional<TextMatch> findNext(const Project& project,
 
 std::optional<TextMatch> findPrevious(const Project& project,
                                       const Selection& target,
+                                      Document document,
                                       const SearchPattern& pattern,
                                       const std::optional<TextMatch>& before) {
     std::vector<SubtitleIndex> order = indicesOf(target);
@@ -377,6 +384,7 @@ std::optional<TextMatch> findPrevious(const Project& project,
         before.has_value() ? Span{.start = before->start, .end = before->end} : Span{};
 
     return walk(project,
+                document,
                 order,
                 pattern,
                 before,
@@ -393,15 +401,16 @@ std::optional<TextMatch> findPrevious(const Project& project,
 }
 
 std::optional<ReplacedMatch> replaceMatch(const Project& project,
+                                          Document document,
                                           const SearchPattern& pattern,
                                           const TextMatch& match,
                                           std::string_view replacement) {
     if (match.index.value() >= project.count())
         return std::nullopt;
 
-    const std::string& text = project.subtitleAt(match.index).mainText;
+    const std::string& text = project.subtitleAt(match.index).text(document);
     const Rewritten rewritten = rewrite(text,
-                                        project.sourceFile(Document::Main).format,
+                                        project.sourceFile(document).format,
                                         pattern.compiled(),
                                         replacement,
                                         Span{.start = match.start, .end = match.end});
@@ -411,7 +420,7 @@ std::optional<ReplacedMatch> replaceMatch(const Project& project,
     std::vector<std::unique_ptr<Command>> commands;
     if (rewritten.text != text) {
         commands.push_back(
-            std::make_unique<SetTextCommand>(project, match.index, Document::Main, rewritten.text));
+            std::make_unique<SetTextCommand>(project, match.index, document, rewritten.text));
     }
 
     ReplacedMatch replaced{.command = nullptr,
@@ -426,15 +435,16 @@ std::optional<ReplacedMatch> replaceMatch(const Project& project,
 
 ReplacedAll replaceAll(const Project& project,
                        const Selection& target,
+                       Document document,
                        const SearchPattern& pattern,
                        std::string_view replacement) {
     ReplacedAll replaced;
     std::vector<std::unique_ptr<Command>> commands;
 
     for (const SubtitleIndex index : target.indices()) {
-        const std::string& text = project.subtitleAt(index).mainText;
+        const std::string& text = project.subtitleAt(index).text(document);
         const Rewritten rewritten = rewrite(text,
-                                            project.sourceFile(Document::Main).format,
+                                            project.sourceFile(document).format,
                                             pattern.compiled(),
                                             replacement,
                                             std::nullopt);
@@ -442,7 +452,7 @@ ReplacedAll replaceAll(const Project& project,
         replaced.matched += rewritten.matched;
         if (rewritten.text != text)
             commands.push_back(
-                std::make_unique<SetTextCommand>(project, index, Document::Main, rewritten.text));
+                std::make_unique<SetTextCommand>(project, index, document, rewritten.text));
     }
 
     if (!commands.empty())
