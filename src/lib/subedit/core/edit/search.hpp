@@ -2,6 +2,7 @@
 
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/config/search_options.hpp>
+#include <subedit/core/model/document.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 
 #include <cstddef>
@@ -81,8 +82,14 @@ struct TextMatch {
     friend bool operator==(const TextMatch&, const TextMatch&) = default;
 };
 
-/// Returns the first match of `pattern` in the main texts of `target` that
-/// comes after `after`, or the first of all when `after` is nothing.
+/// Returns the first match of `pattern` in the texts of `document` of `target`
+/// that comes after `after`, or the first of all when `after` is nothing.
+///
+/// **One document at a time** — decision D8 of the translation phase. Looking
+/// in both would make every match a pair of a subtitle and a document, and the
+/// table that moves to it would have nowhere clear to go. The visible text is
+/// read in the format of that document's file, so that a translation in another
+/// dialect than the main text is read in its own.
 ///
 /// **It wraps around**, as Gaupol does over one document: past the last match
 /// of the target, it starts again from the top. Nothing comes back only when
@@ -93,6 +100,7 @@ struct TextMatch {
 /// `Bonjour` finds the one whose first half is in italics.
 [[nodiscard]] std::optional<TextMatch> findNext(const Project& project,
                                                 const Selection& target,
+                                                Document document,
                                                 const SearchPattern& pattern,
                                                 const std::optional<TextMatch>& after);
 
@@ -100,6 +108,7 @@ struct TextMatch {
 /// way: past the first, it starts again from the bottom.
 [[nodiscard]] std::optional<TextMatch> findPrevious(const Project& project,
                                                     const Selection& target,
+                                                    Document document,
                                                     const SearchPattern& pattern,
                                                     const std::optional<TextMatch>& before);
 
@@ -113,7 +122,8 @@ struct ReplacedMatch {
     TextMatch written;
 };
 
-/// Builds the command that replaces the match `match` by `replacement`.
+/// Builds the command that replaces the match `match` by `replacement`, in the
+/// text of `document` — the one the match was found in.
 ///
 /// **In the stored text, and without breaking a tag** — the tag-aware parser of
 /// #378 does the work, under the rules `recherche.cas` writes case by case.
@@ -128,6 +138,7 @@ struct ReplacedMatch {
 /// the stored text exactly as it was — a match replaced by itself — for there
 /// is then nothing to undo.
 [[nodiscard]] std::optional<ReplacedMatch> replaceMatch(const Project& project,
+                                                        Document document,
                                                         const SearchPattern& pattern,
                                                         const TextMatch& match,
                                                         std::string_view replacement);
@@ -156,7 +167,8 @@ struct ReplacedAll {
     std::size_t matched = 0;
 };
 
-/// Builds the command that replaces every match in the main texts of `target`.
+/// Builds the command that replaces every match in the texts of `document` of
+/// `target`, and writes nothing to the other one.
 ///
 /// **One entry in the history, not one per match.** Matches are found in the
 /// text as it is being rewritten, from the end of each replacement on — so a
@@ -165,6 +177,7 @@ struct ReplacedAll {
 /// A subtitle nothing matched keeps the very bytes it had.
 [[nodiscard]] ReplacedAll replaceAll(const Project& project,
                                      const Selection& target,
+                                     Document document,
                                      const SearchPattern& pattern,
                                      std::string_view replacement);
 

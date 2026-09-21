@@ -144,6 +144,7 @@ principal partout ailleurs — dans une colonne de temps comme dans `Text`.
 | :-------- | :-------------- |
 | `Italic`, `Case`, `Dialogue`, `Remove Hearing-Impaired Mentions…` | le texte de la colonne courante |
 | `Cut Texts`, `Copy Texts`, `Paste Texts` | le texte de la colonne courante |
+| `Find and Replace…` | le texte de la colonne courante — voir [Rechercher et remplacer](recherche.md#dans-quel-texte) |
 | les opérations de position, l'insertion, la suppression, la fusion, la scission | **les deux textes** : un sous-titre est un tout |
 
 **La barre d'état le dit quand il y a deux textes**, à gauche des autres
@@ -160,6 +161,9 @@ montrée : il n'y a alors qu'un texte, et ce n'est pas la peine de le dire.
 dit `Text: Translation`.](captures/fenetre-traduction.png)
 
 ![La même fenêtre sous la palette sombre.](captures/fenetre-traduction-sombre.png)
+
+**La réplique dessinée sur l'image suit la même règle** : c'est celle du texte de la
+colonne courante. Voir [Le lecteur](lecteur.md#la-réplique-dessinée).
 
 **Rien n'est grisé.** Les opérations de texte restent disponibles quelle que soit
 la colonne courante, et sans colonne de traduction elles visent le texte

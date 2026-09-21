@@ -129,6 +129,19 @@ TEST_CASE("a dialog made on its own starts on Gaupol's defaults", "[gui][GUI-SEA
     CHECK_FALSE(dialog.regexCheck()->isChecked());
 }
 
+TEST_CASE("a dialog says its field when it is told one, and nothing when it is not",
+          "[gui][GUI-SEARCH-03]") {
+    SearchDialog dialog;
+    CHECK(dialog.fieldLabel()->isHidden());
+
+    dialog.setField(QStringLiteral("Searching in: Translation"));
+    CHECK_FALSE(dialog.fieldLabel()->isHidden());
+    CHECK(dialog.fieldLabel()->text() == QStringLiteral("Searching in: Translation"));
+
+    dialog.setField({});
+    CHECK(dialog.fieldLabel()->isHidden());
+}
+
 TEST_CASE("find next moves the table to each match, and comes round again",
           "[gui][GUI-SEARCH-01]") {
     InMemoryFileSystem files = withFour();

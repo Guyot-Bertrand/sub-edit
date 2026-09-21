@@ -43,6 +43,13 @@ public:
     /// second box after the first had already rewritten it.
     void setOptions(core::SearchOptions options);
 
+    /// Says above the fields which text the search looks in, as `field` puts
+    /// it; an empty `field` takes the line away.
+    ///
+    /// **Told and not deduced**: the dialog searches nothing, and the text it
+    /// looks in is the window's to know.
+    void setField(const QString& field);
+
     /// Shows `message` under the fields; an empty message clears the line.
     void setStatus(const QString& message);
 
@@ -54,6 +61,8 @@ public:
     [[nodiscard]] QCheckBox* regexCheck() const { return m_regex; }
 
     [[nodiscard]] QCheckBox* ignoreCaseCheck() const { return m_ignoreCase; }
+
+    [[nodiscard]] QLabel* fieldLabel() const { return m_field; }
 
     [[nodiscard]] QLabel* statusLabel() const { return m_status; }
 
@@ -83,6 +92,7 @@ private:
     QLineEdit* m_replacement;
     QCheckBox* m_regex;
     QCheckBox* m_ignoreCase;
+    QLabel* m_field;
     QLabel* m_status;
     QPushButton* m_previous;
     QPushButton* m_next;

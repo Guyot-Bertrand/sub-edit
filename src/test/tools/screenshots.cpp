@@ -524,6 +524,25 @@ int main(int argc, char** argv) {
         written = capture(dialog, dialog, directory, "recherche-sombre") && written;
     }
 
+    // The same dialog of a project that holds a translation: the line above the
+    // fields is what says which of the two texts it looks in.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::gui::SearchDialog dialog;
+        dialog.setField(QStringLiteral("Searching in: Translation"));
+        dialog.patternField()->setText(QStringLiteral("Mary"));
+        dialog.replacementField()->setText(QStringLiteral("Sophie"));
+        written = capture(dialog, dialog, directory, "recherche-traduction") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::SearchDialog dialog;
+        dialog.setField(QStringLiteral("Searching in: Translation"));
+        dialog.patternField()->setText(QStringLiteral("Mary"));
+        dialog.replacementField()->setText(QStringLiteral("Sophie"));
+        written = capture(dialog, dialog, directory, "recherche-traduction-sombre") && written;
+    }
+
     // The two questions of a project that holds a translation: how to align the
     // file that has just been chosen, and what to do with two modified documents
     // at once.

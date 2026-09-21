@@ -314,9 +314,15 @@ private:
     /// and the window behaves as it did before the translation existed.
     [[nodiscard]] core::Document targetDocument() const;
 
-    /// Puts what depends on the target in step with it: the status bar, and
-    /// the italic entry, which follows the format of the document aimed at.
+    /// Puts what depends on the target in step with it: the status bar, the
+    /// italic entry, which follows the format of the document aimed at, and the
+    /// search, which forgets a match found in the other text and names the field
+    /// its box looks in.
     void refreshTarget();
+
+    /// Tells the search box which text it looks in, or nothing when there is
+    /// one text only. Does nothing before the box exists.
+    void refreshSearchField();
 
     /// Works out afresh what the two edits of structure are allowed to do.
     ///
@@ -779,8 +785,17 @@ private:
     /// The match last found, which `Find Next` starts after and `Replace`
     /// rewrites. Forgotten when the pattern, an option or the document
     /// changes — including a structural undo or redo, which resets the model
-    /// rather than reporting the change.
+    /// rather than reporting the change — and when the column of the current
+    /// cell changes to the other text.
     std::optional<core::TextMatch> m_match;
+
+    /// The text the search last aimed at, which is what tells a change of
+    /// column that changes the text from one that does not.
+    ///
+    /// **A match is a place in one text.** The translation of a subtitle may
+    /// read exactly what the main text does, so a match kept across the change
+    /// would be replaced there without the user having seen it found.
+    core::Document m_searchDocument = core::Document::Main;
 
     /// The target of the search under way, captured at its first gesture.
     ///

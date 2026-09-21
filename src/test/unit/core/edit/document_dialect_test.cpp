@@ -7,9 +7,9 @@
 // the braces wrong, and each result below is one that only the right dialect
 // produces.
 //
-// The last two cases are the other way round: the operations that stay on the
-// main text — the reading speed of an adjustment, and the search for now — must
-// go on reading the main file's format when the translation holds another.
+// The reading-speed case is the other way round: an operation that stays on the
+// main text must go on reading the main file's format when the translation
+// holds another. The search, which #433 gave a document, is read both ways.
 
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/config/search_options.hpp>
@@ -20,6 +20,7 @@
 #include <subedit/core/edit/italics_command.hpp>
 #include <subedit/core/edit/letter_case_command.hpp>
 #include <subedit/core/edit/search.hpp>
+#include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
@@ -32,6 +33,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <cstddef>
 #include <expected>
 #include <memory>
 #include <optional>
@@ -49,16 +51,23 @@ using subedit::core::Document;
 using subedit::core::DurationAdjustment;
 using subedit::core::DurationConstraints;
 using subedit::core::findNext;
+using subedit::core::findPrevious;
 using subedit::core::HearingImpairedTally;
 using subedit::core::LetterCase;
 using subedit::core::PastedTexts;
 using subedit::core::pasteTexts;
+using subedit::core::PatternError;
 using subedit::core::Project;
 using subedit::core::ReadingSpeed;
 using subedit::core::removeHearingImpaired;
+using subedit::core::replaceAll;
+using subedit::core::ReplacedAll;
+using subedit::core::ReplacedMatch;
+using subedit::core::replaceMatch;
 using subedit::core::SearchOptions;
 using subedit::core::SearchPattern;
 using subedit::core::Selection;
+using subedit::core::Session;
 using subedit::core::setDialogueDashes;
 using subedit::core::setItalics;
 using subedit::core::setLetterCase;
@@ -67,6 +76,7 @@ using subedit::core::Subtitle;
 using subedit::core::SubtitleFormat;
 using subedit::core::SubtitleIndex;
 using subedit::core::tallyOf;
+using subedit::core::TextMatch;
 using subedit::core::Timestamp;
 using subedit::core::wouldAddDialogueDashes;
 using subedit::core::wouldItalicise;
@@ -84,6 +94,20 @@ constexpr SubtitleFormat kTranslation = SubtitleFormat::AdvancedSubStationAlpha;
     project.setSourceFile(SourceFile{.format = kMain});
     project.setSourceFile(Document::Translation, SourceFile{.format = kTranslation});
     return project;
+}
+
+/// `text` as a plain-text pattern, or nothing when it does not compile.
+[[nodiscard]] std::optional<SearchPattern> patternOf(std::string_view text) {
+    std::expected<SearchPattern, PatternError> compiled =
+        SearchPattern::compile(text, SearchOptions{.regex = false, .ignoreCase = false});
+    if (!compiled.has_value())
+        return std::nullopt;
+    return std::move(*compiled);
+}
+
+/// A match in the only subtitle, over `start` to `end` of its visible text.
+[[nodiscard]] TextMatch matchAt(std::size_t start, std::size_t end) {
+    return TextMatch{.index = SubtitleIndex::fromValue(0), .start = start, .end = end};
 }
 
 [[nodiscard]] const Subtitle& only(const Project& project) {
@@ -204,14 +228,125 @@ TEST_CASE("the reading speed of an adjustment is measured in the tags of the mai
     CHECK(adjustment.adjusted == 0);
 }
 
-TEST_CASE("the search reads the tags of the main file, for now", "[edit][document]") {
+TEST_CASE("the search in the main text reads the tags of the main file", "[edit][document]") {
     // `Bonjour` straddles a SubRip tag: found in the main file's format, and
-    // lost if the translation's were read. The search takes a document with the
-    // issue that puts a translation on the screen; until then it is the main one.
+    // lost if the translation's were read.
     const Project project = translated("<i>Bon</i>jour", "Salut.");
-    std::expected<SearchPattern, subedit::core::PatternError> pattern =
-        SearchPattern::compile("Bonjour", SearchOptions{});
+    const std::optional<SearchPattern> pattern = patternOf("Bonjour");
     REQUIRE(pattern.has_value());
 
-    CHECK(findNext(project, Selection::all(project), *pattern, std::nullopt).has_value());
+    CHECK(findNext(project, Selection::all(project), Document::Main, *pattern, std::nullopt) ==
+          matchAt(0, 7));
+}
+
+TEST_CASE("the search in a translation reads the tags of its own format", "[edit][document]") {
+    // The same word cut by a tag, this time in the translation's dialect: the
+    // braces are not text there, and they would be in SubRip.
+    const Project project = translated("Salut.", "{\\i1}Bon{\\i0}jour");
+    const std::optional<SearchPattern> pattern = patternOf("Bonjour");
+    REQUIRE(pattern.has_value());
+    const Selection all = Selection::all(project);
+
+    CHECK(findNext(project, all, Document::Translation, *pattern, std::nullopt) == matchAt(0, 7));
+    CHECK(findPrevious(project, all, Document::Translation, *pattern, std::nullopt) ==
+          matchAt(0, 7));
+}
+
+TEST_CASE("the search looks in the text of the document it is given, and in no other",
+          "[edit][document]") {
+    const Project project = translated("Marie.", "Sophie.");
+    const Selection all = Selection::all(project);
+    const std::optional<SearchPattern> marie = patternOf("Marie");
+    const std::optional<SearchPattern> sophie = patternOf("Sophie");
+    REQUIRE(marie.has_value());
+    REQUIRE(sophie.has_value());
+
+    CHECK(findNext(project, all, Document::Main, *marie, std::nullopt).has_value());
+    CHECK_FALSE(findNext(project, all, Document::Main, *sophie, std::nullopt).has_value());
+    CHECK(findNext(project, all, Document::Translation, *sophie, std::nullopt).has_value());
+    CHECK_FALSE(findNext(project, all, Document::Translation, *marie, std::nullopt).has_value());
+    CHECK_FALSE(
+        findPrevious(project, all, Document::Translation, *marie, std::nullopt).has_value());
+}
+
+TEST_CASE("replacing a match in a translation writes that text and leaves the main one",
+          "[edit][document]") {
+    // The second « Marie » lies at 9..14 of what is read, which is the case
+    // only when the braces are read as tags: in SubRip they would be text and
+    // the span would fall elsewhere.
+    Session session{translated("Marie et Marie.", "Marie {\\i1}et{\\i0} Marie.")};
+    const std::optional<SearchPattern> pattern = patternOf("Marie");
+    REQUIRE(pattern.has_value());
+
+    std::optional<ReplacedMatch> replaced =
+        replaceMatch(session.project(), Document::Translation, *pattern, matchAt(9, 14), "Sophie");
+    REQUIRE(replaced.has_value());
+    if (!replaced.has_value())
+        return;
+    ReplacedMatch result = std::move(*replaced);
+    REQUIRE(result.command != nullptr);
+    CHECK(result.written == matchAt(9, 15));
+    static_cast<void>(session.apply(std::move(result.command)));
+
+    CHECK(only(session.project()).translationText == "Marie {\\i1}et{\\i0} Sophie.");
+    CHECK(only(session.project()).mainText == "Marie et Marie.");
+
+    static_cast<void>(session.undo());
+    CHECK(only(session.project()).translationText == "Marie {\\i1}et{\\i0} Marie.");
+}
+
+TEST_CASE("replacing a match in the main text leaves the translation", "[edit][document]") {
+    Session session{translated("Marie.", "Marie.")};
+    const std::optional<SearchPattern> pattern = patternOf("Marie");
+    REQUIRE(pattern.has_value());
+
+    std::optional<ReplacedMatch> replaced =
+        replaceMatch(session.project(), Document::Main, *pattern, matchAt(0, 5), "Sophie");
+    REQUIRE(replaced.has_value());
+    if (!replaced.has_value())
+        return;
+    ReplacedMatch result = std::move(*replaced);
+    REQUIRE(result.command != nullptr);
+    static_cast<void>(session.apply(std::move(result.command)));
+
+    CHECK(only(session.project()).mainText == "Sophie.");
+    CHECK(only(session.project()).translationText == "Marie.");
+}
+
+TEST_CASE("replacing all in a translation is one entry, and the main text is not touched",
+          "[edit][document]") {
+    Session session{translated("Marie et Marie.", "{\\i1}Marie{\\i0} et Marie.")};
+    const std::optional<SearchPattern> pattern = patternOf("Marie");
+    REQUIRE(pattern.has_value());
+
+    ReplacedAll replaced = replaceAll(session.project(),
+                                      Selection::all(session.project()),
+                                      Document::Translation,
+                                      *pattern,
+                                      "Sophie");
+    REQUIRE(replaced.command != nullptr);
+    CHECK(replaced.count == 2);
+    static_cast<void>(session.apply(std::move(replaced.command)));
+
+    CHECK(only(session.project()).translationText == "{\\i1}Sophie{\\i0} et Sophie.");
+    CHECK(only(session.project()).mainText == "Marie et Marie.");
+
+    static_cast<void>(session.undo());
+    CHECK(only(session.project()).translationText == "{\\i1}Marie{\\i0} et Marie.");
+    CHECK_FALSE(session.canUndo());
+}
+
+TEST_CASE("replacing all in the main text leaves the translation", "[edit][document]") {
+    Session session{translated("<i>Marie</i> et Marie.", "Marie et Marie.")};
+    const std::optional<SearchPattern> pattern = patternOf("Marie");
+    REQUIRE(pattern.has_value());
+
+    ReplacedAll replaced = replaceAll(
+        session.project(), Selection::all(session.project()), Document::Main, *pattern, "Sophie");
+    REQUIRE(replaced.command != nullptr);
+    CHECK(replaced.count == 2);
+    static_cast<void>(session.apply(std::move(replaced.command)));
+
+    CHECK(only(session.project()).mainText == "<i>Sophie</i> et Sophie.");
+    CHECK(only(session.project()).translationText == "Marie et Marie.");
 }

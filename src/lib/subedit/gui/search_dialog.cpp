@@ -19,6 +19,7 @@ SearchDialog::SearchDialog(QWidget* parent)
       m_replacement(new QLineEdit{this}),
       m_regex(new QCheckBox{QStringLiteral("Regular expression"), this}),
       m_ignoreCase(new QCheckBox{QStringLiteral("Ignore case"), this}),
+      m_field(new QLabel{this}),
       m_status(new QLabel{this}),
       m_previous(new QPushButton{QStringLiteral("Find &Previous"), this}),
       m_next(new QPushButton{QStringLiteral("Find &Next"), this}),
@@ -48,7 +49,12 @@ SearchDialog::SearchDialog(QWidget* parent)
     // open and a box would have to be dismissed at every miss.
     m_status->setWordWrap(true);
 
+    // Told by the window, which knows which text the search aims at; born
+    // hidden, because a window with one text has nothing to say about it.
+    m_field->hide();
+
     auto* stack = new QVBoxLayout{this};
+    stack->addWidget(m_field);
     stack->addLayout(fields);
     stack->addLayout(options);
     stack->addLayout(gestures);
@@ -95,6 +101,11 @@ core::SearchOptions SearchDialog::options() const {
 void SearchDialog::setOptions(core::SearchOptions options) {
     m_regex->setChecked(options.regex);
     m_ignoreCase->setChecked(options.ignoreCase);
+}
+
+void SearchDialog::setField(const QString& field) {
+    m_field->setText(field);
+    m_field->setVisible(!field.isEmpty());
 }
 
 void SearchDialog::setStatus(const QString& message) {

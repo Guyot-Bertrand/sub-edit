@@ -68,6 +68,18 @@ Ce qui s'affiche sur l'image vient du **document ouvert**, jamais d'un fichier :
 disque. Le texte apparaît centré, au bas de l'image, et disparaît entre deux
 sous-titres.
 
+**Avec une traduction, la réplique est celle du texte visé** : la traduction quand
+la cellule courante est dans la colonne `Translation`, le texte principal
+partout ailleurs. C'est la règle de toutes les opérations de texte — voir [Le
+texte que les opérations visent](table.md#le-texte-que-les-opérations-visent) —
+et **il n'y a pas de réglage** : passer d'une colonne à l'autre change ce que
+l'image montre, au plus une dixième de seconde plus tard. Sans traduction, ou
+avec la colonne retirée, rien ne change : c'est le texte principal.
+
+Un sous-titre que la traduction n'a pas encore rejoint ne montre **rien** tant
+que la colonne courante est la traduction : ce n'est pas le texte principal qui
+prend sa place.
+
 Deux conséquences à connaître :
 
 - **les balises du format s'affichent telles quelles** — un `<i>` est dessiné
