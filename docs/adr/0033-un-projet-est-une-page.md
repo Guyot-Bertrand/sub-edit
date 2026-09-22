@@ -1,8 +1,8 @@
 # 0033 — Faire d'un projet une page de la fenêtre
 
-Statut : proposée — 2026-09-20
-Proposée en cadrant la phase 11, issue #426. **Acceptée ou abandonnée par #435**, la porte qui précède
-la troisième tranche de la phase.
+Statut : acceptée — 2026-09-22
+Proposée en cadrant la phase 11, issue #426. **Acceptée par #435**, la porte qui précédait la troisième
+tranche de la phase : le multi-projets se livre, au prix décrit ci-dessous et en le connaissant.
 
 ## Contexte
 
@@ -64,5 +64,9 @@ seul morceau dont on ne revient pas facilement. Le critère qui la rend sûre es
 **les tests de la fenêtre passent sans qu'on en réécrive un.** Si l'un d'eux doit changer, la séparation n'était
 pas celle qu'on croyait, et l'ADR se rouvre.
 
-**Le déclencheur d'abandon** est la réponse de #435 : sans multi-projets, cette ADR devient « abandonnée », avec
-la raison, et `MainWindow` reste un objet à un projet.
+**#435 a tranché pour le multi-projets, le 2026-09-22.** La phase 11 avait construit le modèle de données
+pour l'accueillir dès la première tranche sans jamais engager la réécriture ; la décision l'engage
+maintenant, en connaissant le prix écrit ci-dessus. Les cinq issues de la troisième tranche — #436 à
+#440 — quittent `blocked`, et l'extraction de [#436](https://github.com/Guyot-Bertrand/sub-edit/issues/436)
+est la première à s'ouvrir : elle pose `ProjectPage` seule, sans onglet, avant qu'un second projet
+n'éprouve la séparation.

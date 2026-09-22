@@ -899,11 +899,10 @@ projet, ajout d'un fichier à la suite d'un autre.
 
 **Cadrée.** Voir [`specs/11-traduction.md`](specs/11-traduction.md), qui porte neuf
 décisions, deux ADR ([0032](adr/0032-un-document-un-fichier.md), acceptée, et
-[0033](adr/0033-un-projet-est-une-page.md), proposée) et le découpage en **trois
+[0033](adr/0033-un-projet-est-une-page.md), **acceptée**) et le découpage en **trois
 tranches** — la traduction, l'ajout d'un fichier, le multi-projets. **La réserve
-ci-dessous n'est pas levée, elle est déplacée** : une porte,
-[#435](https://github.com/Guyot-Bertrand/sub-edit/issues/435), précède la troisième
-tranche, et c'est à elle de dire si les onglets se font.
+ci-dessous est levée** : la porte [#435](https://github.com/Guyot-Bertrand/sub-edit/issues/435)
+a tranché pour le multi-projets le 2026-09-22, et la troisième tranche se livre.
 
 **Un renvoi de la phase 6 atterrit ici : le lecteur pour un document de
 traduction.** La réplique dessinée sur l'image vient du document principal, et
@@ -919,8 +918,8 @@ ou le document — et au seul texte principal, faute d'un second projet et d'une
 colonne de traduction à l'écran. Il faudra dire si la portée s'élargit avec les
 onglets, et si le champ cherché suit la colonne visible.
 
-**Réserve** — le besoin n'est pas confirmé. Le modèle de données de la phase 1
-l'accueille ; cette phase construit l'interface et les opérations associées.
+**Réserve levée par #435, le 2026-09-22.** Le modèle de données de la phase 1
+accueillait déjà le multi-projets sans l'engager ; la décision l'engage.
 
 ## 12 — Moteur de correction complet
 
