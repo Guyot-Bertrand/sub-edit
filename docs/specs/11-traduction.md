@@ -176,12 +176,15 @@ Une deuxième chose à comparer, `m_playingPage`, qui dit quelle page pilote le
 lecteur en ce moment — pas seulement laquelle la fenêtre montre.
 
 **Deux entrées que l'issue promettait, et que cette PR ne livre pas** : glisser
-un fichier sur la fenêtre, et un menu `Projects` énumérant les onglets. La
-première est un geste de plus, indépendant du reste ; la seconde double ce que
-la barre d'onglets fait déjà, et `Ctrl+PageUp`/`Ctrl+PageDown` couvrent le
-clavier. Ni l'un ni l'autre n'est dans les critères de fin de #437 — seule la
-prose de Gaupol les nommait. Reportées, sans issue ouverte : à reprendre si
-l'usage en montre le besoin.
+un fichier sur la fenêtre, et un menu `Projects` énumérant les onglets. Ni
+l'une ni l'autre n'est dans les critères de fin de #437 — seule la prose de
+Gaupol les nommait.
+
+**Le glisser-déposer a sa propre issue**, [#453](https://github.com/Guyot-Bertrand/sub-edit/issues/453) :
+un geste de plus, indépendant du reste, dont la portée précise reste à écrire.
+**Le menu `Projects` n'en a pas** : il double ce que la barre d'onglets fait
+déjà, et `Ctrl+PageUp`/`Ctrl+PageDown` couvrent le clavier — à reprendre si
+l'usage en montre le besoin, plutôt qu'un renvoi pour un geste redondant.
 
 ## D3 — Un document, un fichier
 
