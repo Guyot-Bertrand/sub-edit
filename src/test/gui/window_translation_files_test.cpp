@@ -681,30 +681,12 @@ TEST_CASE("a main file gone from the disk counts as modified, and the list says 
     CHECK(labels.at(1).find("gone from the disk") == std::string::npos);
 }
 
-TEST_CASE("opening another file asks about both documents too", "[gui][GUI-CLOSE-01]") {
-    // A new main document replaces the translation with it.
-    InMemoryFileSystem files = filesystem();
-    files.addFile("autre.srt", "1\n00:00:09,000 --> 00:00:10,000\nAilleurs.\n\n");
-    FakePrompts prompts;
-    MainWindow window{files, mainOf(files), prompts};
-    window.show();
-    openTranslation(window, prompts, "film.en.srt");
-    REQUIRE(edit(window, 0, kTextColumn, "Un bis."));
-    REQUIRE(edit(window, 0, kTranslationColumn, "Uno."));
-    std::size_t boxes = 0;
-    prompts.nextFileToOpen = "autre.srt";
-    prompts.nextRun = false;
-    prompts.fill = [&boxes](QDialog& dialog) {
-        if (const auto* list = dynamic_cast<UnsavedDocumentsDialog*>(&dialog))
-            boxes = static_cast<std::size_t>(list->boxes().size());
-    };
-
-    window.openAction()->trigger();
-
-    CHECK(boxes == 2);
-    CHECK(cellAt(window, 0, kTextColumn) == "Un bis.");
-}
-
+// **Opening no longer touches what was there.** It used to replace the main
+// document and the translation with it, which is why opening once asked the
+// same two-document question as closing; since #437 opening lands on a tab of
+// its own, and `window_tabs_test.cpp` is where that tab's independence from
+// this one is proved. `GUI-CLOSE-01`'s two-document question keeps its other
+// cases here, all of them against a real close.
 TEST_CASE("a box accepted without an answer closes nothing", "[gui][GUI-CLOSE-01]") {
     // The box said « accepted » and no button was pressed: what was not chosen
     // is not consent to lose the changes.

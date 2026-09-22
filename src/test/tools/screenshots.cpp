@@ -361,6 +361,24 @@ int main(int argc, char** argv) {
         written = capture(window, window, directory, "fenetre-sombre") && written;
     }
 
+    // Two tabs — issue #437, `GUI-TABS-01`. `New` rather than a second real
+    // file: the file the bar reaches for opens a real `QFileDialog`, which
+    // nothing here can drive without a display.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
+        window.newProjectAction()->trigger();
+        window.resize(kWindowWidth, kWindowHeight);
+        written = capture(window, window, directory, "onglets") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
+        window.newProjectAction()->trigger();
+        window.resize(kWindowWidth, kWindowHeight);
+        written = capture(window, window, directory, "onglets-sombre") && written;
+    }
+
     // The table alone, and the window tall so that it shows enough to read.
     // What the section describes is the table; framing it in the window would
     // be showing mostly the empty video strip.
