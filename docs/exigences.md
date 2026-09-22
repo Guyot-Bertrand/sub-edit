@@ -188,7 +188,7 @@ plus rien.
 | `GUI-SEARCH-03` | la recherche porte sur le document visé, et remplacer écrit dans son texte source | 11 | implémentée |
 | `GUI-PLAYER-04` | la réplique dessinée sur l'image est celle du document visé | 11 | implémentée |
 | `GUI-APPEND-01` | ajouter un fichier décale de la fin du dernier sous-titre, dit ce que la conversion perd, et s'annule d'un coup | 11 | implémentée |
-| `GUI-TABS-01` | plusieurs projets s'ouvrent en onglets, chacun avec son historique, sa sélection et sa vidéo | 11 | prévue |
+| `GUI-TABS-01` | plusieurs projets s'ouvrent en onglets, chacun avec son historique, sa sélection et sa vidéo | 11 | implémentée |
 | `GUI-TABS-02` | enregistrer tout et fermer tout, avec une seule question pour tous les projets | 11 | prévue |
 | `GUI-PSPLIT-01` | scinder un projet en deux, et l'ajout de la suite rend le projet de départ | 11 | prévue |
 | `GUI-SEARCH-04` | la recherche porte, au choix, sur tous les projets ouverts | 11 | prévue |
