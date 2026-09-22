@@ -32,7 +32,6 @@ struct Diagnostic;
 class FileSystem;
 class Project;
 class Selection;
-class Session;
 class VideoPlayer;
 } // namespace subedit::core
 
@@ -50,6 +49,7 @@ class SearchDialog;
 class DiagnosticsPanel;
 class ManualWindow;
 class Prompts;
+struct ProjectPage;
 struct ModifiedDocument;
 class SubtitleTableModel;
 
@@ -746,13 +746,6 @@ private:
     std::unique_ptr<core::VideoPlayer> m_player;
     bool m_playerAsked = false;
 
-    /// The film the window last acted on, whether or not it opened.
-    ///
-    /// Distinct from `m_watching` on purpose: a film that was refused must not
-    /// be offered to the player again — and refused again, and reported again
-    /// — every time the naming convention speaks.
-    std::filesystem::path m_associated;
-
     /// The theme asked for, to be handed back to the settings. Laid down, not
     /// deduced: the current palette does not say which of the three made it.
     core::Theme m_theme = core::Theme::System;
@@ -762,14 +755,6 @@ private:
     /// Kept from one call to the next, and handed back to the settings: one
     /// does not insert once but ten times in a row, always on the same side.
     core::InsertPlacement m_insertPlacement = core::InsertPlacement::Below;
-
-    /// The encoding last chosen in `Save As…`, absent until one has been.
-    ///
-    /// **It serves the document with no file, and nothing else.** An opened
-    /// document carries its own, and that is the one the box proposes: the byte
-    /// round trip of phase 8 is that promise, and a setting does not undo it
-    /// behind the back of whoever saves.
-    std::optional<core::Encoding> m_writeEncoding;
 
     /// The texts last copied or cut in this window, with their format.
     ///
@@ -788,32 +773,6 @@ private:
     /// The two options of a search, which the preferences carry.
     core::SearchOptions m_searchOptions;
 
-    /// The match last found, which `Find Next` starts after and `Replace`
-    /// rewrites. Forgotten when the pattern, an option or the document
-    /// changes — including a structural undo or redo, which resets the model
-    /// rather than reporting the change — and when the column of the current
-    /// cell changes to the other text.
-    std::optional<core::TextMatch> m_match;
-
-    /// The text the search last aimed at, which is what tells a change of
-    /// column that changes the text from one that does not.
-    ///
-    /// **A match is a place in one text.** The translation of a subtitle may
-    /// read exactly what the main text does, so a match kept across the change
-    /// would be replaced there without the user having seen it found.
-    core::Document m_searchDocument = core::Document::Main;
-
-    /// The target of the search under way, captured at its first gesture.
-    ///
-    /// **Captured and not read again**, because the search itself moves the
-    /// selection: read at every `Find Next`, the target would shrink to the row
-    /// of the last match. A selection the user makes resets it.
-    std::optional<core::Selection> m_searchTarget;
-
-    /// Set while the search moves the selection, so that the move is not
-    /// mistaken for the user choosing another target.
-    bool m_movingToMatch = false;
-
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;
 
@@ -823,29 +782,24 @@ private:
     /// dismissed: what counts is where the user works, not where they looked.
     std::filesystem::path m_lastDirectory;
 
-    /// Whether a film is open and being drawn.
-    bool m_watching = false;
-
     /// Whether the window has been on screen once.
     ///
     /// Nothing is handed to a player before it has: see `showEvent`.
     bool m_wasShown = false;
 
-    /// The line the overlay currently carries.
+    /// Everything the one project the window holds owns — ADR 0033. The
+    /// session and its history, the table model, where playback was placed,
+    /// the video associated with this project and whether it is drawn, the
+    /// replica the overlay carries, the search's own state, and the encoding
+    /// last chosen for a document with no file of its own.
     ///
-    /// Held so that a tick that changes nothing costs nothing: the replica is
-    /// recomputed from the project ten times a second, and it is only handed
-    /// over when it differs — which is also what makes a keystroke show up on
-    /// the picture within a tick.
-    std::string m_shown;
-
-    /// The row playback was last placed at, or -1.
-    int m_placedAt = -1;
-
-    /// Held by pointer so that this header stays parsable by `moc`, which
-    /// chokes on the C++20 library headers the core drags in.
-    std::unique_ptr<core::Session> m_session;
-    std::unique_ptr<SubtitleTableModel> m_model;
+    /// **Held by pointer for the reason its members used to be held by one
+    /// individually**: this header stays parsable by `moc`, which chokes on
+    /// the C++20 library headers the core drags in.
+    ///
+    /// **The window owns exactly one, for now** — #436. A second, and the tab
+    /// that would show it, are #437.
+    std::unique_ptr<ProjectPage> m_page;
 };
 
 } // namespace subedit::gui
