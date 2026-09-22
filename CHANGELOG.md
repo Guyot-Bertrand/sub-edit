@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — #435 tranche pour le multi-projets, ADR 0033 acceptée
+
+## 0.11.8 — 2026-09-22
+
 ### Ajouts
 
 - **gui** — Ajouter un fichier à la suite d'un projet
