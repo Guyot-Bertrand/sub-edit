@@ -299,6 +299,18 @@ menu où Gaupol le range.
 - **Un fichier déjà ouvert est permis** : Gaupol le permet, et ajouter un fichier à lui-même est
   légitime.
 
+**Une chose que ce cadrage promettait et que #434 a retirée : le sélecteur n'offre pas
+l'encodage.** La même correction qu'à #432 s'applique ici : la fenêtre n'en offre nulle part à la
+lecture, `Open…` compris, et en ajouter un pour ce seul sélecteur aurait été une incohérence de plus
+plutôt qu'une richesse.
+
+**Ce que #434 a dû trancher, et que ce cadrage ne disait pas.** L'ajout devient un `CommandKind` de
+plus, et deux bascules exhaustives existantes en dépendent : l'ordre (`mayBreakOrder`) le classe comme
+l'insertion et le collage — ce qu'il pose peut être hors ordre —, et le dépassement du film
+(`movesPositions`) le classe **avec le décalage et non avec l'insertion** : ce qu'il ajoute est décalé
+de tout ce que le projet porte déjà, et c'est exactement ce que l'avertissement de dépassement existe
+pour repérer.
+
 **La scission est l'inverse exact de l'ajout**, `Tools ▸ Split Project…`, grisée sous deux
 sous-titres comme chez Gaupol. La suite est copiée dans un projet neuf, ouvert dans
 un nouvel onglet, et retirée de l'origine ; le projet neuf est **décalé de moins la fin du dernier

@@ -379,6 +379,8 @@ std::string_view nameOf(CommandKind kind) {
         return "replacing";
     case CommandKind::ReplaceAll:
         return "replacing all";
+    case CommandKind::Append:
+        return "appending a file";
     }
 
     // The twenty-four are handled and the compiler checks it. A `default` here would
@@ -600,6 +602,29 @@ std::string noticeOfPaste(std::size_t inserted,
             posts.emplace_back("pasting " + std::string{nameOf(*from)} + " texts into " +
                                std::string{nameOf(to)} + ": " + lost);
     }
+
+    std::string notice;
+    for (const std::string& post : posts) {
+        if (!notice.empty())
+            notice += "; ";
+        notice += post;
+    }
+    return notice;
+}
+
+std::string noticeOfAppend(std::size_t inserted,
+                           const ConversionLoss& loss,
+                           SubtitleFormat from,
+                           SubtitleFormat to) {
+    std::vector<std::string> posts;
+    if (inserted > 0)
+        posts.emplace_back("appended " + countOf(inserted, "subtitle"));
+
+    // The same words as a paste of another format, `GUI-CLIP-02`: only what
+    // `noticeOf` builds from the loss differs by caller, and it is built once.
+    if (const std::string lost = noticeOf(loss, from, to); !lost.empty())
+        posts.emplace_back(std::string{nameOf(from)} + " into " + std::string{nameOf(to)} + ": " +
+                           lost);
 
     std::string notice;
     for (const std::string& post : posts) {

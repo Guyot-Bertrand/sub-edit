@@ -404,4 +404,12 @@ noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFormat to);
                                         std::optional<SubtitleFormat> from,
                                         SubtitleFormat to);
 
+/// What appending a file did: how many subtitles it added, and what crossing
+/// into `to` cost the ones that came from `from` — the same words as a paste
+/// of another format, through the same `noticeOf(ConversionLoss, …)`.
+[[nodiscard]] std::string noticeOfAppend(std::size_t inserted,
+                                         const ConversionLoss& loss,
+                                         SubtitleFormat from,
+                                         SubtitleFormat to);
+
 } // namespace subedit::core

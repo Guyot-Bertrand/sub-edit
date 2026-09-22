@@ -1,7 +1,7 @@
 # Les opérations
 
-Le menu **Tools** porte treize opérations et une analyse. Chacune des treize
-s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
+Le menu **Tools** porte quatorze opérations et une analyse. Chacune des
+quatorze s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 
 | Entrée | Dialogue | Ce qu'elle fait |
 | :----- | :------- | :-------------- |
@@ -9,6 +9,7 @@ s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 | `Transform Positions…` | oui | corrige la cible à partir de deux repères |
 | `Convert Frame Rate…` | oui | re-cale la cible d'une cadence vers une autre |
 | `Adjust Durations…` | oui | déplace les fins pour tenir une vitesse de lecture, des durées et un écart |
+| `Append File…` | un sélecteur de fichier | ajoute un fichier à la fin du projet |
 | `Italic` | **non** | met la cible en italique, ou l'en retire |
 | `Dialogue` | **non** | pose un tiret de dialogue en tête de chaque ligne, ou le retire |
 | `Case ▸ Title Case` | **non** | chaque mot prend une capitale |
@@ -53,6 +54,10 @@ la barre d'état dit lequel est visé. Voir [La table](table.md#le-texte-que-les
 ignore la sélection. Une grille est une propriété du document, et une moitié de
 document n'a pas de grille à elle ; l'entrée le dit donc dans son nom plutôt que
 dans ce manuel seul.
+
+**`Append File…` ignore aussi la sélection**, pour une autre raison : ce n'est
+pas une cible qu'elle réécrit, c'est une fin qu'elle recule. Voir sa
+[propre section](#append-file).
 
 **Les deux opérations de grille ne parlent pas de la même chose que la grille.**
 Une opération porte sur la sélection ; l'analyse et la barre d'état parlent du
@@ -282,6 +287,41 @@ Le compte porte sur toute la cible, **y compris les sous-titres dont la fin n'a
 pas bougé** : un sous-titre déjà calé contre son suivant et trop court pour le
 minimum est compté. Quand aucune fin ne bouge, la fenêtre le dit —
 `no duration to adjust` — et rien n'entre dans l'historique.
+
+## `Append File…`
+
+Ajoute un fichier à la fin du projet ouvert. **Rien n'est inséré entre les
+deux** : le fichier choisi est décalé de la fin du dernier sous-titre du
+projet, exactement comme Gaupol le fait.
+
+**Éteinte sur un document vide** : il n'y aurait pas de fin dont décaler. Un
+sélecteur de fichier s'ouvre, sans encodage à choisir — comme `Open…`.
+
+**Le fichier ajouté traverse la conversion**, dans les mots de `Save As…` et du
+[collage d'un autre format](presse-papiers.md#les-balises-dun-autre-format-sont-traduites) :
+ses balises sont traduites dans le format du projet, et ce que ce format ne
+sait pas écrire est dit :
+
+```text
+appended 12 subtitles; Advanced SSA into SubRip: 1 tag dropped
+```
+
+**Ce que le fichier ajouté portait ne survit pas tout entier.** Ses positions
+suivent, tags compris ; son en-tête, ses champs propres au format — nom de
+style, marges — et ce qu'un tag ne peut pas devenir dans le format du projet ne
+suivent pas, et le disent. **Il n'a pas de traduction** : une traduction reste
+propre au document qui l'a reçue, et le fichier ajouté arrive seul.
+
+**Sélectionné après coup**, comme les lignes qu'un collage a écrites au-delà de
+la fin. Quand rien n'est perdu, le compte s'affiche dans la barre d'état plutôt
+que dans une boîte à fermer — la même règle que
+[l'ouverture d'une traduction](fichiers.md#ouvrir-une-traduction).
+
+**Une seule entrée d'historique**, quel que soit le nombre de sous-titres
+ajoutés : `Ctrl+Z` les retire tous d'un coup.
+
+**Un fichier déjà ouvert peut s'ajouter à lui-même** : rien ne l'interdit, comme
+chez Gaupol.
 
 ## `Snap to Frame Rate…`
 
