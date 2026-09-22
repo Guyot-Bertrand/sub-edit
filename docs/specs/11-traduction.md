@@ -102,6 +102,10 @@ ajout lui apportent.
 S'il ne l'est pas, ses cinq issues sont fermées avec leur raison, l'ADR est
 abandonnée, et la phase se clôt sur sa relecture avec la traduction.
 
+**#435 a tranché pour le multi-projets, le 2026-09-22.** L'ADR 0033 est acceptée, et
+les cinq issues de la troisième tranche quittent `blocked` — #436, l'extraction de
+`ProjectPage`, en premier.
+
 ## D2 — Un projet est une page, et la page est un onglet
 
 **À décider par [#435](https://github.com/Guyot-Bertrand/sub-edit/issues/435), et
