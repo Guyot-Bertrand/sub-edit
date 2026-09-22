@@ -28,7 +28,7 @@ dans la forme du chiffre : il monte d'une ou deux lignes à la fois, chacune pou
 un motif juste, chacune justifiée ici à sa date. Rien n'oblige alors à poser la
 question qui compte — **le total dit-il encore quelque chose ?**
 
-Il le dit, à condition de ne pas le lire comme une quantité. Les soixante-six
+Il le dit, à condition de ne pas le lire comme une quantité. Les soixante-sept
 lignes se rangent en quatre familles, et elles ne se valent pas :
 
 | Famille | Lignes | Ce qu'un test devrait faire pour l'atteindre |
@@ -36,7 +36,7 @@ lignes se rangent en quatre familles, et elles ne se valent pas :
 | une boucle modale de Qt | 46 | cliquer ; `exec()` ne rend la main à personne d'autre |
 | le monde extérieur qui échoue | 11 | faire rater un `fork`, provoquer un `EINTR`, remplir un disque |
 | libmpv, pour de vrai | 4 | une bibliothèque et un serveur d'affichage dans la porte |
-| **une garde que l'appelant rend inatteignable** | **5** | rien : il faudrait l'atteindre par un chemin que le code interdit |
+| **une garde que l'appelant rend inatteignable** | **6** | rien : il faudrait l'atteindre par un chemin que le code interdit |
 
 Les trois premières sont **irréductibles par construction**, et leur compte ne
 bouge qu'avec la surface : une modale de plus, un appel système de plus. Les
@@ -60,7 +60,8 @@ d'aujourd'hui sont du second cas.
 
 Ce que cette table change, pour la suite : un relèvement se juge contre la
 famille où il tombe, et non contre le total. Cinq lignes de modale de plus sont
-un fait de surface ; une sixième garde inatteignable est une question.
+un fait de surface ; une sixième garde inatteignable était une question — #434
+l'a posée, et y répond plus bas.
 
 ## Ce que le cliquet a laissé passer, et pourquoi
 
@@ -344,11 +345,28 @@ défaut et la comparaison de `SubStationAlphaExtras`, que le premier jet avait
 écrites sans les éprouver — huit lignes de plus au refus du cliquet, et un cas
 de test qui dit ce qu'une comparaison défaillante coûterait.
 
+**Une ligne de plus dans `main_window.cpp`, en phase 11 — la sixième garde
+inatteignable annoncée plus haut.** #434 ajoute `Append File…`, dont le noyau
+peut légitimement rendre une commande nulle — `appendFile` refuse un projet
+ajouté qui ne porte aucun sous-titre, un cas que ses propres tests
+construisent directement. Depuis la fenêtre, `openProject` ne rend jamais un
+tel projet : les neuf lecteurs refusent tous une lecture qui ne trouverait
+aucun sous-titre, avant même de choisir un format. La garde de la fenêtre
+protège donc un chemin que le code interdit déjà, exactement la famille d'à
+côté.
+
+**Gardée plutôt que supprimée**, la même mise en balance que les quatre
+lignes de `readAs` en phase 9 : l'alternative est un `std::unreachable()`, qui
+ne coûte aucune ligne et paie le jour où un dixième format — ou un lecteur
+relâché — romprait l'invariant par une corruption silencieuse plutôt que par
+un « rien n'a été ajouté ». Une ligne non couverte reste moins chère qu'un
+déréférencement nul en cas d'erreur d'un lecteur à venir.
+
 ## Relevé
 
-    total : 66
+    total : 67
 
-Relevé sur la version 0.9.24, le 2026-09-10.
+Relevé sur la version 0.11.8, le 2026-09-22.
 
 | Lignes | Fichier |
 | -----: | :------ |
@@ -358,6 +376,6 @@ Relevé sur la version 0.9.24, le 2026-09-10.
 | 4 | `src/lib/subedit/gui/player_factory.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
+| 2 | `src/lib/subedit/gui/main_window.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
-| 1 | `src/lib/subedit/gui/main_window.cpp` |
 | 1 | `src/lib/subedit/gui/save_shape.cpp` |
