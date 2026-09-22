@@ -9,6 +9,16 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **gui** — Plusieurs projets dans une fenêtre, en onglets
+
+### Documentation
+
+- **doc** — GUI-TABS-01 implémentée
+
+## 0.11.10 — 2026-09-22
+
 ### Remaniements
 
 - **gui** — Extraire la page de projet de la fenêtre
