@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Remaniements
+
+- **gui** — Extraire la page de projet de la fenêtre
+
+## 0.11.9 — 2026-09-22
+
 ### Documentation
 
 - **doc** — #435 tranche pour le multi-projets, ADR 0033 acceptée
