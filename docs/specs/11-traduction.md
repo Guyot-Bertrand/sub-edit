@@ -117,7 +117,7 @@ proposée.
 | À la fenêtre | À un projet |
 | :----------- | :---------- |
 | les menus et leurs actions, la barre d'état, le titre | la session et son historique (`m_session`) |
-| **le lecteur**, la vue vidéo, la minuterie | le modèle et la table (`m_model`, `m_table`) |
+| **le lecteur**, la vue vidéo, la minuterie, **la table (`m_table`) — #436** | le modèle (`m_model`) |
 | le thème, les répertoires, les réglages de l'ajustement | la ligne où la lecture a été placée (`m_placedAt`) |
 | **le presse-papiers**, la boîte de recherche | la vidéo associée (`m_associated`, `m_watching`) |
 | | la réplique que l'image porte (`m_shown`) |
@@ -138,6 +138,15 @@ l'autre est ce pour quoi on en ouvre deux.
 un refactoring qui n'a qu'une page, et dont les tests de la fenêtre passent sans
 qu'on en réécrive un. C'est ce qui prouve la séparation avant qu'un second projet
 ne l'éprouve.
+
+**Une correction que #436 a dû faire : `m_table` reste à la fenêtre, pas à la page.**
+La table du tableau ci-dessus le disait avec `m_model`, comme une seule chose ;
+`ProjectPage` ne porte que le second. La vue Qt elle-même — la construction du
+widget, son parent, sa place dans `QSplitter` — est un partage d'onglets à poser
+(une pile de tables, ou une table qui change de modèle), et le poser maintenant
+aurait été trancher une question de #437 dans une issue dont le seul critère est
+de ne rien changer. `MainWindow::table()` rend le même widget qu'avant : aucun test
+n'a eu à le savoir.
 
 **Ce que la décision écarte** est dans l'ADR : une fenêtre par projet, moins chère
 aujourd'hui, mais qui fait de « fermer tout » une affaire d'application et du

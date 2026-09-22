@@ -50,6 +50,7 @@
 #include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/open_translation_dialog.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
+#include <subedit/gui/project_page.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/search_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
@@ -299,7 +300,8 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_split(new QSplitter{Qt::Vertical, this}),
       m_ticker(new QTimer{this}),
       m_buildPlayer(std::move(buildPlayer)),
-      m_readDeclaredRate(std::move(readDeclaredRate)) {
+      m_readDeclaredRate(std::move(readDeclaredRate)),
+      m_page(std::make_unique<ProjectPage>()) {
     // One delegate per nature of cell, and none on the number, which is not
     // editable: Qt's table puts one only where it is given one.
     m_table->setItemDelegateForColumn(SubtitleTableModel::Start, new PositionDelegate{this});
@@ -403,11 +405,11 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_redo->setShortcuts(QKeySequence::keyBindings(QKeySequence::Redo));
     connect(m_undo, &QAction::triggered, this, [this] {
         commitCellEditor();
-        m_model->applied(m_session->undo());
+        m_page->model->applied(m_page->session->undo());
     });
     connect(m_redo, &QAction::triggered, this, [this] {
         commitCellEditor();
-        m_model->applied(m_session->redo());
+        m_page->model->applied(m_page->session->redo());
     });
 
     m_open->setShortcut(QKeySequence::Open);
@@ -690,18 +692,18 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
     // `selectionChanged`, which is otherwise what forgets a stale target. This
     // catches that one case directly on Qt's own reset signal.
     connect(model.get(), &QAbstractItemModel::modelReset, this, [this] {
-        m_searchTarget.reset();
-        m_match.reset();
+        m_page->searchTarget.reset();
+        m_page->match.reset();
     });
 
     // In this order: the view lets go of the old model before it goes, and the
     // model before the session it reads.
-    m_model = std::move(model);
-    m_session = std::move(session);
+    m_page->model = std::move(model);
+    m_page->session = std::move(session);
 
     // A match and a target belong to the document they were found in.
-    m_match.reset();
-    m_searchTarget.reset();
+    m_page->match.reset();
+    m_page->searchTarget.reset();
 
     // Made again at every opening, with the selection model the table has just
     // been given: `setModel` throws the previous one away, and every connection
@@ -713,9 +715,9 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
     // A selection the user makes is a new target for the next search; the one
     // the search makes, moving to a match, is not.
     connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this] {
-        if (!m_movingToMatch) {
-            m_searchTarget.reset();
-            m_match.reset();
+        if (!m_page->movingToMatch) {
+            m_page->searchTarget.reset();
+            m_page->match.reset();
         }
     });
     // The only two actions whose state depends on the selection, and they
@@ -732,7 +734,7 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
             &QItemSelectionModel::currentColumnChanged,
             this,
             &MainWindow::refreshTarget);
-    m_placedAt = -1;
+    m_page->placedAt = -1;
 
     m_diagnostics->setDiagnostics(diagnostics);
     proposeVideoBeside();
@@ -740,7 +742,8 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
 }
 
 void MainWindow::selectVideo() {
-    const std::optional<std::filesystem::path>& source = m_session->project().sourceFile().path;
+    const std::optional<std::filesystem::path>& source =
+        m_page->session->project().sourceFile().path;
     const std::filesystem::path directory =
         source.has_value() ? source->parent_path() : std::filesystem::path{};
 
@@ -748,12 +751,13 @@ void MainWindow::selectVideo() {
     if (!chosen.has_value())
         return;
 
-    m_session->chooseVideo(*chosen);
+    m_page->session->chooseVideo(*chosen);
     refreshVideo();
 }
 
 void MainWindow::proposeVideoBeside() {
-    const std::optional<std::filesystem::path>& source = m_session->project().sourceFile().path;
+    const std::optional<std::filesystem::path>& source =
+        m_page->session->project().sourceFile().path;
     if (source.has_value()) {
         if (const std::optional<std::filesystem::path> found =
                 core::findVideoBeside(*m_files, *source);
@@ -761,7 +765,7 @@ void MainWindow::proposeVideoBeside() {
             // The answer is dropped on purpose: whether the proposal was taken
             // is D5's business, and a caller acting on it would be a second
             // place where that rule lives.
-            (void)m_session->proposeVideo(*found);
+            (void)m_page->session->proposeVideo(*found);
         }
     }
 
@@ -779,12 +783,12 @@ void MainWindow::refreshEncodingStatus() {
     // Where the answer came from stays with the diagnostics panel, which exists
     // to say what happened; this line says what is, permanently, as the grid's
     // and the film's do.
-    m_encodingStatus->setText(
-        QString::fromStdString(core::encodingStatusOf(m_session->project().sourceFile().encoding)));
+    m_encodingStatus->setText(QString::fromStdString(
+        core::encodingStatusOf(m_page->session->project().sourceFile().encoding)));
 }
 
 std::optional<core::FrameRate> MainWindow::rateReadInFrames() const {
-    const core::FileExtras& extras = m_session->project().sourceFile().extras;
+    const core::FileExtras& extras = m_page->session->project().sourceFile().extras;
     if (const auto* frames = std::get_if<core::MicroDvdFile>(&extras))
         return frames->rate;
     return std::nullopt;
@@ -799,11 +803,11 @@ void MainWindow::refreshGridStatus() {
         // through `Convert Frame Rate…` shows: what the line says is what the
         // positions are counted at now, and what writing MicroDVD back will use.
         m_gridStatus->setText(
-            QString::fromStdString(core::framesStatusOf(m_session->project().frameRate())));
+            QString::fromStdString(core::framesStatusOf(m_page->session->project().frameRate())));
         return;
     }
 
-    const core::FrameRateDeduction grid = core::deduceFrameRate(m_session->project());
+    const core::FrameRateDeduction grid = core::deduceFrameRate(m_page->session->project());
     const std::optional<core::FrameRate> retained = grid.verdict == core::GridVerdict::Silent
                                                         ? std::nullopt
                                                         : std::optional{grid.retained.rate};
@@ -812,18 +816,19 @@ void MainWindow::refreshGridStatus() {
 }
 
 void MainWindow::snapToFrameRate() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
-    const std::optional<core::AssociatedVideo>& associated = m_session->project().video();
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
+    const std::optional<core::AssociatedVideo>& associated = m_page->session->project().video();
 
     SnapDialog dialog{target.count(),
-                      m_session->project().frameRate(),
+                      m_page->session->project().frameRate(),
                       associated.has_value() ? associated->declared : std::nullopt,
                       this};
     if (!m_prompts->run(dialog))
         return;
 
     const std::string pastTheEnd = applyOperationQuietly(
-        std::make_unique<core::SnapCommand>(m_session->project(), target, dialog.rate()), target);
+        std::make_unique<core::SnapCommand>(m_page->session->project(), target, dialog.rate()),
+        target);
 
     // **What the table showed and the two grid surfaces did not** — issue #324.
     // An operation takes the selection; the grid speaks of the document. Align
@@ -838,7 +843,7 @@ void MainWindow::snapToFrameRate() {
     // The same box as what the alignment left past the end of the film, when it
     // left anything — issue #418.
     const std::optional<core::PartialAlignment> partial =
-        core::partialAlignment(m_session->project(), target, dialog.rate());
+        core::partialAlignment(m_page->session->project(), target, dialog.rate());
     const std::string behind = partial.has_value() ? core::noticeOf(*partial) : std::string{};
     if (const std::string notice = joinedNotices(behind, pastTheEnd); !notice.empty())
         m_prompts->reportOutcome(notice);
@@ -846,17 +851,17 @@ void MainWindow::snapToFrameRate() {
 
 void MainWindow::shiftOntoGrid() {
     const std::optional<core::Duration> by =
-        core::shiftOntoGrid(core::deduceFrameRate(m_session->project()));
+        core::shiftOntoGrid(core::deduceFrameRate(m_page->session->project()));
     if (!by.has_value())
         return;
 
-    const core::Selection whole = core::Selection::all(m_session->project());
+    const core::Selection whole = core::Selection::all(m_page->session->project());
 
     // The rule the core has held since #132, shared with the command line: a
     // position before the origin is representable, and no subtitle file can
     // hold one.
     if (const std::optional<core::SubtitleIndex> refused =
-            core::firstBeforeOrigin(m_session->project(), whole, *by);
+            core::firstBeforeOrigin(m_page->session->project(), whole, *by);
         refused.has_value()) {
         m_prompts->reportFailure("subtitle " + std::to_string(refused->number()) +
                                  " would start before the origin, which no subtitle file can hold");
@@ -902,12 +907,12 @@ QStringList MainWindow::menuTitles() const {
 }
 
 void MainWindow::analyseGrid() {
-    GridAnalysisDialog dialog{core::deduceFrameRate(m_session->project()), this};
+    GridAnalysisDialog dialog{core::deduceFrameRate(m_page->session->project()), this};
     (void)m_prompts->run(dialog);
 }
 
 void MainWindow::refreshVideoStatus() {
-    const std::optional<core::AssociatedVideo>& associated = m_session->project().video();
+    const std::optional<core::AssociatedVideo>& associated = m_page->session->project().video();
     const std::optional<std::filesystem::path> path =
         associated.has_value() ? std::optional{associated->path} : std::nullopt;
     const std::optional<core::FrameRate> declared =
@@ -942,28 +947,28 @@ core::VideoPlayer* MainWindow::player() {
 void MainWindow::watchAssociatedVideo() {
     // Nothing is handed to a player before the window has been on screen once.
     // `showEvent` comes back here the moment it has, and until then this leaves
-    // `m_associated` alone so that it finds the film still waiting.
+    // `m_page->associated` alone so that it finds the film still waiting.
     if (!m_wasShown)
         return;
 
-    const std::optional<core::AssociatedVideo>& associated = m_session->project().video();
+    const std::optional<core::AssociatedVideo>& associated = m_page->session->project().video();
     const std::filesystem::path wanted =
         associated.has_value() ? associated->path : std::filesystem::path{};
 
-    if (wanted == m_associated)
+    if (wanted == m_page->associated)
         return;
 
-    m_associated = wanted;
-    m_watching = false;
-    m_shown.clear();
-    m_placedAt = -1;
+    m_page->associated = wanted;
+    m_page->watching = false;
+    m_page->shown.clear();
+    m_page->placedAt = -1;
 
     // Asked once per film, here, where the association has just changed for
     // certain: `ffprobe` is a process, and running it at every opening of the
     // frame rate dialog would pay for it again for an answer that cannot have
     // moved. Nothing, without a reader or without a film — which is what a
     // machine with no `ffmpeg` gets, and it is an ordinary state.
-    m_session->setDeclaredFrameRate(
+    m_page->session->setDeclaredFrameRate(
         !wanted.empty() && m_readDeclaredRate ? m_readDeclaredRate(wanted) : std::nullopt);
 
     // **Shown before the film is opened, and not after.** libmpv adopts the
@@ -976,7 +981,7 @@ void MainWindow::watchAssociatedVideo() {
     core::VideoPlayer* watching = wanted.empty() ? nullptr : player();
     if (watching != nullptr) {
         if (const std::expected<void, core::PlayerError> opened = watching->open(wanted); opened)
-            m_watching = true;
+            m_page->watching = true;
         else
             m_prompts->reportFailure(wanted.string() + ": " + opened.error().reason);
     } else if (!wanted.empty() && m_buildPlayer) {
@@ -991,23 +996,23 @@ void MainWindow::watchAssociatedVideo() {
 
     // A film that has been left behind must not go on playing under a document
     // that no longer shows it — least of all one nobody can see any more.
-    if (!m_watching && m_player) {
+    if (!m_page->watching && m_player) {
         m_player->pause();
         m_player->showSubtitle({});
     }
 
     // The mark goes with the film: a row left green under a document that no
     // longer shows anything would name a moment nobody is at.
-    if (!m_watching && m_model)
-        m_model->setShowing(std::nullopt);
+    if (!m_page->watching && m_page->model)
+        m_page->model->setShowing(std::nullopt);
 
-    m_videoView->setVisible(m_watching);
+    m_videoView->setVisible(m_page->watching);
     // Exactly one of the two, always: a band that stayed under a playing film
     // would offer to choose the one already chosen.
-    m_noVideo->setVisible(!m_watching);
-    m_playPause->setEnabled(m_watching);
+    m_noVideo->setVisible(!m_page->watching);
+    m_playPause->setEnabled(m_page->watching);
 
-    if (m_watching) {
+    if (m_page->watching) {
         m_ticker->start();
         followPlayback();
     } else {
@@ -1016,7 +1021,7 @@ void MainWindow::watchAssociatedVideo() {
 }
 
 void MainWindow::togglePlayback() {
-    if (!m_watching)
+    if (!m_page->watching)
         return;
 
     if (m_player->isPlaying())
@@ -1026,16 +1031,16 @@ void MainWindow::togglePlayback() {
 }
 
 void MainWindow::placePlaybackAtSelection() {
-    if (!m_watching)
+    if (!m_page->watching)
         return;
 
     const int row = firstSelectedRow(*m_table->selectionModel());
-    if (row < 0 || row == m_placedAt)
+    if (row < 0 || row == m_page->placedAt)
         return;
 
-    m_placedAt = row;
+    m_page->placedAt = row;
     const auto index = core::SubtitleIndex::fromValue(static_cast<std::size_t>(row));
-    m_player->seek(m_session->project().subtitleAt(index).start);
+    m_player->seek(m_page->session->project().subtitleAt(index).start);
 
     // At once rather than at the next tick: what the picture shows and what the
     // table points at have to agree by the time the click is over.
@@ -1043,10 +1048,10 @@ void MainWindow::placePlaybackAtSelection() {
 }
 
 void MainWindow::followPlayback() {
-    if (!m_watching)
+    if (!m_page->watching)
         return;
 
-    const core::Project& project = m_session->project();
+    const core::Project& project = m_page->session->project();
 
     // Written as one running answer rather than as a guard and a return, the
     // way `seconds` is in the player: « the player does not know where it is »
@@ -1065,12 +1070,12 @@ void MainWindow::followPlayback() {
     // column of the current cell says which, and there is no setting.
     const std::string line =
         showing.has_value() ? project.subtitleAt(*showing).text(targetDocument()) : std::string{};
-    if (line != m_shown) {
+    if (line != m_page->shown) {
         m_player->showSubtitle(line);
-        m_shown = line;
+        m_page->shown = line;
     }
 
-    m_model->setShowing(showing);
+    m_page->model->setShowing(showing);
 
     if (!showing.has_value())
         return;
@@ -1089,7 +1094,8 @@ void MainWindow::followPlayback() {
     // an operation applies to, and a film playing in the background has no
     // business rewriting the user's target row by row — it also happens to be
     // what keeps this from firing the seek that watches the selection.
-    const QModelIndex followed = m_model->index(row, current.isValid() ? current.column() : 0);
+    const QModelIndex followed =
+        m_page->model->index(row, current.isValid() ? current.column() : 0);
     m_table->selectionModel()->setCurrentIndex(followed, QItemSelectionModel::NoUpdate);
     m_table->scrollTo(followed);
 }
@@ -1111,12 +1117,12 @@ bool MainWindow::saveTranslationAs() {
 }
 
 bool MainWindow::saveDocument(core::Document document) {
-    const core::SourceFile& source = m_session->project().sourceFile(document);
+    const core::SourceFile& source = m_page->session->project().sourceFile(document);
     if (!source.path.has_value())
         return saveDocumentAs(document);
 
-    const std::expected<void, core::SaveError> written =
-        core::saveProject(*m_files, m_session->project(), document, *source.path, source.format);
+    const std::expected<void, core::SaveError> written = core::saveProject(
+        *m_files, m_page->session->project(), document, *source.path, source.format);
     if (!written) {
         m_prompts->reportFailure(source.path->string() + ": " +
                                  std::string{core::reasonOf(written.error())});
@@ -1124,20 +1130,20 @@ bool MainWindow::saveDocument(core::Document document) {
     }
 
     rememberDirectoryOf(*source.path);
-    m_session->markSaved(document);
+    m_page->session->markSaved(document);
     refreshActions();
     return true;
 }
 
 bool MainWindow::saveDocumentAs(core::Document document) {
-    const core::SourceFile& source = m_session->project().sourceFile(document);
+    const core::SourceFile& source = m_page->session->project().sourceFile(document);
 
     // **The encoding of the file wins over the setting**, and the setting
     // serves the document with no file: rewriting a document one has just
     // opened in another encoding, because a setting three weeks old says so,
     // would be losing what the reading took care to keep.
     const core::Encoding proposed =
-        source.path.has_value() ? source.encoding : m_writeEncoding.value_or(source.encoding);
+        source.path.has_value() ? source.encoding : m_page->writeEncoding.value_or(source.encoding);
 
     const std::optional<SaveTarget> target = m_prompts->saveTarget(source, proposed);
     if (!target.has_value())
@@ -1148,14 +1154,17 @@ bool MainWindow::saveDocumentAs(core::Document document) {
     // asked here they are a warning, and the difference is that the answer can
     // still be « no ». ADR 0031: the tags are translated on the way, so the
     // count of what fell is the count of a conversion that really happened.
-    const core::SourceFile before = m_session->project().sourceFile(document);
-    const std::span<const core::Subtitle> held = m_session->project().subtitles();
+    const core::SourceFile before = m_page->session->project().sourceFile(document);
+    const std::span<const core::Subtitle> held = m_page->session->project().subtitles();
     // **The document's own rate, and it is a real answer here.** A file counted
     // in frames was read at it, `Convert Frame Rate…` moves it, and nothing
     // else in this window can leave it unset — so the command line's third
     // case, « no rate and no grid, refuse », cannot arise.
-    core::ConvertedProject converted = core::convertProjectFor(
-        m_session->project(), document, target->format, m_session->project().frameRate());
+    core::ConvertedProject converted =
+        core::convertProjectFor(m_page->session->project(),
+                                document,
+                                target->format,
+                                m_page->session->project().frameRate());
 
     if (const std::string notice = core::noticeOf(converted.loss, before.format, target->format);
         !notice.empty() && !m_prompts->aboutLoss(notice)) {
@@ -1176,10 +1185,10 @@ bool MainWindow::saveDocumentAs(core::Document document) {
     // place that decides what crosses a format boundary — ADR 0030.
     moved.extras = converted.extras;
     moved.header = converted.header;
-    m_session->becomeFile(document, moved, std::move(converted.subtitles));
+    m_page->session->becomeFile(document, moved, std::move(converted.subtitles));
 
-    const std::expected<void, core::SaveError> written =
-        core::saveProject(*m_files, m_session->project(), document, target->path, target->format);
+    const std::expected<void, core::SaveError> written = core::saveProject(
+        *m_files, m_page->session->project(), document, target->path, target->format);
     if (!written) {
         // **And undone when the writing fails.** A document that was not
         // written has not moved: without this step back it aims at a file that
@@ -1188,7 +1197,7 @@ bool MainWindow::saveDocumentAs(core::Document document) {
         // thinks. The case has been reachable since phase 8: a `ł` and a
         // Latin-1 encoding are enough, and it does not even ask the disk to
         // refuse.
-        m_session->becomeFile(document, before, heldBefore);
+        m_page->session->becomeFile(document, before, heldBefore);
         m_prompts->reportFailure(target->path.string() + ": " +
                                  std::string{core::reasonOf(written.error())});
         return false;
@@ -1198,12 +1207,12 @@ bool MainWindow::saveDocumentAs(core::Document document) {
 
     // Kept even if the document already had one: it is a choice that has just
     // been made, and the next document with no file will open on it.
-    m_writeEncoding = target->encoding;
+    m_page->writeEncoding = target->encoding;
 
-    m_session->markSaved(document);
+    m_page->session->markSaved(document);
 
     if (document == core::Document::Main) {
-        setWindowTitle(titleFor(m_session->project()));
+        setWindowTitle(titleFor(m_page->session->project()));
 
         // The file answers to another name now, so the convention has something
         // new to say — and D5 makes it safe to ask: a film the user chose is
@@ -1215,7 +1224,7 @@ bool MainWindow::saveDocumentAs(core::Document document) {
     // The format governs the decimal mark the table shows, and it is the main
     // document's; a translation moved to another format rewrote its own texts.
     // Either way everything on screen is to be read again.
-    m_model->refreshAll();
+    m_page->model->refreshAll();
     refreshActions();
     return true;
 }
@@ -1224,10 +1233,10 @@ bool MainWindow::isModified(core::Document document) const {
     // A translation counts only while there is one: undoing the opening of it
     // takes its file away, and what is left has nothing to differ from.
     if (document == core::Document::Translation &&
-        !m_session->project().translationFile().has_value())
+        !m_page->session->project().translationFile().has_value())
         return false;
 
-    return m_session->hasUnsavedChanges(document);
+    return m_page->session->hasUnsavedChanges(document);
 }
 
 std::vector<ModifiedDocument> MainWindow::modifiedDocuments() const {
@@ -1235,10 +1244,10 @@ std::vector<ModifiedDocument> MainWindow::modifiedDocuments() const {
 
     for (const core::Document document : {core::Document::Main, core::Document::Translation}) {
         if (document == core::Document::Translation &&
-            !m_session->project().translationFile().has_value())
+            !m_page->session->project().translationFile().has_value())
             continue;
 
-        const core::SourceFile& source = m_session->project().sourceFile(document);
+        const core::SourceFile& source = m_page->session->project().sourceFile(document);
         const bool missing = source.path.has_value() && !m_files->exists(*source.path);
         if (!isModified(document) && !missing)
             continue;
@@ -1299,7 +1308,8 @@ bool MainWindow::mayReplaceTranslation() {
     if (!isModified(core::Document::Translation))
         return true;
 
-    const core::SourceFile& source = m_session->project().sourceFile(core::Document::Translation);
+    const core::SourceFile& source =
+        m_page->session->project().sourceFile(core::Document::Translation);
     const ModifiedDocument modified{
         .document = core::Document::Translation,
         .name = source.path.has_value() ? source.path->filename().string() : "untitled",
@@ -1331,7 +1341,7 @@ void MainWindow::openTranslationFromPrompt() {
     // Read before the method is asked: a file that will not open, or that is the
     // main document itself, is not worth a question about how to align it.
     std::expected<core::TranslationFile, core::TranslationError> read =
-        core::openTranslation(*m_files, m_session->project(), *chosen);
+        core::openTranslation(*m_files, m_page->session->project(), *chosen);
     if (!read) {
         m_prompts->reportFailure(chosen->string() + ": " +
                                  std::string{core::reasonOf(read.error())});
@@ -1344,15 +1354,15 @@ void MainWindow::openTranslationFromPrompt() {
 
     rememberDirectoryOf(*chosen);
 
-    core::AttachedTranslation attached =
-        core::attachTranslation(m_session->project(), read->lines, read->source, dialog.method());
+    core::AttachedTranslation attached = core::attachTranslation(
+        m_page->session->project(), read->lines, read->source, dialog.method());
     const core::TranslationOutcome outcome = attached.outcome;
-    const core::Selection whole = core::Selection::all(m_session->project());
+    const core::Selection whole = core::Selection::all(m_page->session->project());
     const std::string pastTheEnd = applyOperationQuietly(std::move(attached.command), whole);
 
     // **What has just been read is what its file says**: nothing was typed, and
     // closing must not offer to save a translation back to the file it came from.
-    m_session->markSaved(core::Document::Translation);
+    m_page->session->markSaved(core::Document::Translation);
 
     // An act of the user's, as showing the column is: the choice of having taken
     // it away once does not outlast the opening of a translation.
@@ -1430,17 +1440,17 @@ void MainWindow::closeEvent(QCloseEvent* event) {
 }
 
 void MainWindow::refreshActions() {
-    const QString undo = undoLabel(m_session->nextUndoKind());
-    const QString redo = redoLabel(m_session->nextRedoKind());
+    const QString undo = undoLabel(m_page->session->nextUndoKind());
+    const QString redo = redoLabel(m_page->session->nextRedoKind());
 
-    m_undo->setEnabled(m_session->canUndo());
+    m_undo->setEnabled(m_page->session->canUndo());
     m_undo->setText(undo);
     // Set explicitly: without it, Qt makes the tooltip out of the `iconText`,
     // and the toolbar button would say « Undo » twice instead of naming what it
     // would defeat.
     m_undo->setToolTip(undo);
 
-    m_redo->setEnabled(m_session->canRedo());
+    m_redo->setEnabled(m_page->session->canRedo());
     m_redo->setText(redo);
     m_redo->setToolTip(redo);
 
@@ -1465,7 +1475,7 @@ void MainWindow::refreshActions() {
 
     // Nothing to shift, nothing to transform: an enabled action would open a
     // dialog that could apply to nothing.
-    const bool anything = m_session->project().count() != 0;
+    const bool anything = m_page->session->project().count() != 0;
     m_shift->setEnabled(anything);
     m_transform->setEnabled(anything);
     m_frameRate->setEnabled(anything);
@@ -1483,7 +1493,8 @@ void MainWindow::refreshActions() {
     // the menu can say what it will do — and the entry goes out when there is
     // no grid to rejoin, which is not the same thing as an amount of zero.
     const std::optional<core::Duration> onto =
-        anything ? core::shiftOntoGrid(core::deduceFrameRate(m_session->project())) : std::nullopt;
+        anything ? core::shiftOntoGrid(core::deduceFrameRate(m_page->session->project()))
+                 : std::nullopt;
     m_shiftOntoGrid->setEnabled(onto.has_value());
     m_shiftOntoGrid->setText(shiftOntoGridLabel(onto));
     m_hearingImpaired->setEnabled(anything);
@@ -1491,7 +1502,7 @@ void MainWindow::refreshActions() {
     // Nothing to give a translation's lines to in an empty document, and nothing
     // to write without a translation.
     m_openTranslation->setEnabled(anything);
-    const bool hasTranslation = m_session->project().translationFile().has_value();
+    const bool hasTranslation = m_page->session->project().translationFile().has_value();
     m_saveTranslation->setEnabled(hasTranslation);
     m_saveTranslationAs->setEnabled(hasTranslation);
 
@@ -1513,7 +1524,7 @@ void MainWindow::refreshTranslationColumn() {
     // choice**: the column is there when both hold. The entry says which of the
     // two is missing — out when the project has nothing to show, unchecked when
     // the user took it away.
-    const bool hasTranslation = m_session->project().translationFile().has_value();
+    const bool hasTranslation = m_page->session->project().translationFile().has_value();
     m_translationColumn->setEnabled(hasTranslation);
 
     const bool shown = hasTranslation && m_translationColumn->isChecked();
@@ -1546,9 +1557,9 @@ void MainWindow::refreshTarget() {
     // this runs after each operation and the match just written is the one the
     // next `Find Next` starts from.
     const core::Document aimed = targetDocument();
-    if (aimed != m_searchDocument) {
-        m_searchDocument = aimed;
-        m_match.reset();
+    if (aimed != m_page->searchDocument) {
+        m_page->searchDocument = aimed;
+        m_page->match.reset();
     }
     refreshSearchField();
 
@@ -1560,10 +1571,10 @@ void MainWindow::refreshTarget() {
     //
     // **Of the document aimed at**: a translation may be in a format that
     // writes no style while the main text is in one that does.
-    const bool anything = m_session->project().count() != 0;
+    const bool anything = m_page->session->project().count() != 0;
     m_italic->setEnabled(
         anything &&
-        core::abilitiesOf(m_session->project().sourceFile(targetDocument()).format).italic);
+        core::abilitiesOf(m_page->session->project().sourceFile(targetDocument()).format).italic);
 }
 
 void MainWindow::refreshSearchField() {
@@ -1580,7 +1591,7 @@ void MainWindow::refreshSearchField() {
 }
 
 void MainWindow::refreshStructureActions() {
-    const bool anything = m_session->project().count() != 0;
+    const bool anything = m_page->session->project().count() != 0;
     const bool selected = !m_table->selectionModel()->selectedRows().isEmpty();
 
     // **An empty document takes an insertion with no selection**, and it is
@@ -1612,7 +1623,7 @@ void MainWindow::refreshStructureActions() {
 }
 
 void MainWindow::adjustDurationsOfTarget() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
 
     DurationAdjustDialog dialog{target.count(), m_durationSettings, this};
     if (!m_prompts->run(dialog))
@@ -1623,7 +1634,7 @@ void MainWindow::adjustDurationsOfTarget() {
     m_durationSettings = dialog.settings();
 
     core::DurationAdjustment adjustment = core::adjustDurations(
-        m_session->project(), target, core::constraintsOf(m_durationSettings));
+        m_page->session->project(), target, core::constraintsOf(m_durationSettings));
     const std::string account =
         core::noticeOfAdjustment(adjustment.adjusted, adjustment.sacrificed);
 
@@ -1655,14 +1666,14 @@ void MainWindow::appendFileFromPrompt() {
     if (!opened->diagnostics.empty())
         m_diagnostics->setDiagnostics(opened->diagnostics);
 
-    core::AppendedFile appended = core::appendFile(m_session->project(), opened->project);
+    core::AppendedFile appended = core::appendFile(m_page->session->project(), opened->project);
     if (appended.command == nullptr)
         return;
 
     // Read before the command goes: the project it names is about to grow.
     const core::SubtitleFormat from = opened->project.sourceFile().format;
-    const core::SubtitleFormat to = m_session->project().sourceFile().format;
-    const std::size_t first = m_session->project().count();
+    const core::SubtitleFormat to = m_page->session->project().sourceFile().format;
+    const std::size_t first = m_page->session->project().count();
     const core::Selection target =
         core::Selection::range(core::SubtitleIndex::fromValue(first),
                                core::SubtitleIndex::fromValue(first + appended.inserted - 1));
@@ -1685,7 +1696,7 @@ void MainWindow::appendFileFromPrompt() {
 }
 
 void MainWindow::removeHearingImpairedFromTarget() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
 
     HearingImpairedDialog dialog{target.count(), this};
     if (!m_prompts->run(dialog))
@@ -1694,7 +1705,7 @@ void MainWindow::removeHearingImpairedFromTarget() {
     // Built before being applied, and asked what it will do: the count is read
     // from the command, never by counting again afterwards.
     std::unique_ptr<core::Command> command =
-        core::removeHearingImpaired(m_session->project(), target, targetDocument());
+        core::removeHearingImpaired(m_page->session->project(), target, targetDocument());
     if (!command) {
         // Nothing bit. Say so, and put nothing in the history: an operation
         // that changes nothing is not an operation to undo.
@@ -1718,15 +1729,15 @@ void MainWindow::commitCellEditor() {
 void MainWindow::toggleItalicsOnTarget() {
     commitCellEditor();
 
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
 
     // Asked before anything is built, and of the target rather than of the
     // document: the button says what it will do to what is selected.
     const core::Document document = targetDocument();
-    const bool italic = core::wouldItalicise(m_session->project(), target, document);
+    const bool italic = core::wouldItalicise(m_page->session->project(), target, document);
 
     std::unique_ptr<core::Command> command =
-        core::setItalics(m_session->project(), target, document, italic);
+        core::setItalics(m_page->session->project(), target, document, italic);
     if (!command) {
         // Every text was already the way it was asked for. Say so, and put
         // nothing in the history: an operation that changes nothing is not an
@@ -1752,10 +1763,10 @@ QAction* MainWindow::caseAction(core::LetterCase wanted) const {
 void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
     commitCellEditor();
 
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
 
     std::unique_ptr<core::Command> command =
-        core::setLetterCase(m_session->project(), target, targetDocument(), wanted);
+        core::setLetterCase(m_page->session->project(), target, targetDocument(), wanted);
     if (!command) {
         statusBar()->showMessage(QString::fromStdString(core::nothingToChange()),
                                  kOperationStatusTimeoutMs);
@@ -1771,15 +1782,15 @@ void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
 void MainWindow::toggleDialogueDashesOnTarget() {
     commitCellEditor();
 
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
 
     // Asked of the target before anything is built: the entry says what it will
     // do to what is selected.
     const core::Document document = targetDocument();
-    const bool dashed = core::wouldAddDialogueDashes(m_session->project(), target, document);
+    const bool dashed = core::wouldAddDialogueDashes(m_page->session->project(), target, document);
 
     std::unique_ptr<core::Command> command =
-        core::setDialogueDashes(m_session->project(), target, document, dashed);
+        core::setDialogueDashes(m_page->session->project(), target, document, dashed);
     if (!command) {
         statusBar()->showMessage(QString::fromStdString(core::nothingToChange()),
                                  kOperationStatusTimeoutMs);
@@ -1807,18 +1818,18 @@ std::string MainWindow::applyOperationQuietly(std::unique_ptr<core::Command> com
     // Read before the command goes: what it is, is what the notice names.
     const core::CommandKind kind = command->kind();
 
-    m_model->applied(m_session->apply(std::move(command)));
+    m_page->model->applied(m_page->session->apply(std::move(command)));
 
     // The row playback was placed at holds something else now — a shift moved
     // it, a removal may have taken it away. Forgetting it is what lets a click
     // on that same row send playback where the subtitle has gone.
-    m_placedAt = -1;
+    m_page->placedAt = -1;
 
     return whatPassesTheEnd(kind, target);
 }
 
 std::optional<core::Duration> MainWindow::videoLength() const {
-    return m_watching ? m_player->duration() : std::nullopt;
+    return m_page->watching ? m_player->duration() : std::nullopt;
 }
 
 std::string MainWindow::whatPassesTheEnd(core::CommandKind kind,
@@ -1832,12 +1843,12 @@ std::string MainWindow::whatPassesTheEnd(core::CommandKind kind,
         return {};
 
     const std::optional<core::BeyondEnd> beyond =
-        core::beyondEnd(m_session->project(), target, videoLength());
+        core::beyondEnd(m_page->session->project(), target, videoLength());
     return beyond.has_value() ? core::noticeOf(kind, *beyond) : std::string{};
 }
 
 void MainWindow::insertSubtitles() {
-    const core::Project& project = m_session->project();
+    const core::Project& project = m_page->session->project();
 
     // The guard of the action, said again here: an action that is out does not
     // fire under the mouse, but nothing keeps a shortcut from finding it out a
@@ -1895,7 +1906,7 @@ void MainWindow::removeSubtitles() {
     // The row that took that place, or the last one when the removal carried
     // off the end of the file. Without it, a second `Del` would find no
     // selection left and the action would be out.
-    const int left = static_cast<int>(m_session->project().count());
+    const int left = static_cast<int>(m_page->session->project().count());
     if (left > 0)
         selectRows(std::min(emptied, left - 1), std::min(emptied, left - 1));
 }
@@ -1907,7 +1918,7 @@ void MainWindow::copyTexts() {
     if (target.isEmpty())
         return;
 
-    m_clipboard = core::copyTexts(m_session->project(), target, targetDocument());
+    m_clipboard = core::copyTexts(m_page->session->project(), target, targetDocument());
     QGuiApplication::clipboard()->setText(QString::fromStdString(core::plainTextOf(m_clipboard)));
 }
 
@@ -1921,7 +1932,7 @@ void MainWindow::cutTexts() {
     copyTexts();
 
     std::unique_ptr<core::Command> command =
-        core::cutTexts(m_session->project(), target, targetDocument());
+        core::cutTexts(m_page->session->project(), target, targetDocument());
     if (command == nullptr)
         return;
 
@@ -1948,8 +1959,9 @@ void MainWindow::pasteTexts() {
 
     const core::SubtitleIndex at = target.ranges().front().first;
     const core::Document document = targetDocument();
-    const core::SubtitleFormat format = m_session->project().sourceFile(document).format;
-    core::PastedTexts pasted = core::pasteTexts(m_session->project(), clipboard, at, document);
+    const core::SubtitleFormat format = m_page->session->project().sourceFile(document).format;
+    core::PastedTexts pasted =
+        core::pasteTexts(m_page->session->project(), clipboard, at, document);
     if (pasted.command == nullptr)
         return;
 
@@ -1979,7 +1991,7 @@ void MainWindow::openSearch() {
             m_search, &SearchDialog::replaceAllRequested, this, &MainWindow::replaceAllInTarget);
         connect(m_search, &SearchDialog::searchChanged, this, [this] {
             m_searchOptions = m_search->options();
-            m_match.reset();
+            m_page->match.reset();
             m_search->setStatus({});
         });
     }
@@ -2001,9 +2013,9 @@ std::optional<core::SearchPattern> MainWindow::searchPattern() {
 }
 
 core::Selection MainWindow::searchTarget() {
-    if (!m_searchTarget.has_value())
-        m_searchTarget = targetOf(*m_table->selectionModel(), m_session->project());
-    return *m_searchTarget;
+    if (!m_page->searchTarget.has_value())
+        m_page->searchTarget = targetOf(*m_table->selectionModel(), m_page->session->project());
+    return *m_page->searchTarget;
 }
 
 void MainWindow::findInTarget(bool forward) {
@@ -2014,24 +2026,26 @@ void MainWindow::findInTarget(bool forward) {
     const core::Selection target = searchTarget();
     const std::optional<core::TextMatch> found =
         forward
-            ? core::findNext(m_session->project(), target, targetDocument(), *pattern, m_match)
-            : core::findPrevious(m_session->project(), target, targetDocument(), *pattern, m_match);
+            ? core::findNext(
+                  m_page->session->project(), target, targetDocument(), *pattern, m_page->match)
+            : core::findPrevious(
+                  m_page->session->project(), target, targetDocument(), *pattern, m_page->match);
 
     // **A search that finds nothing says so, and touches nothing**: the
     // selection stays where it was, and so does the target.
     if (!found.has_value()) {
-        m_match.reset();
+        m_page->match.reset();
         m_search->setStatus(
             QString::fromStdString(core::notFound(m_search->pattern().toStdString())));
         return;
     }
 
-    m_match = found;
+    m_page->match = found;
     m_search->setStatus({});
     const int row = static_cast<int>(found->index.value());
-    m_movingToMatch = true;
+    m_page->movingToMatch = true;
     selectRows(row, row);
-    m_movingToMatch = false;
+    m_page->movingToMatch = false;
 }
 
 void MainWindow::replaceCurrentMatch() {
@@ -2042,11 +2056,11 @@ void MainWindow::replaceCurrentMatch() {
     // Nothing found yet, or the text moved under the match: find first, as
     // Gaupol does, and let the next press replace what is then shown.
     std::optional<core::ReplacedMatch> replaced;
-    if (m_match.has_value()) {
-        replaced = core::replaceMatch(m_session->project(),
+    if (m_page->match.has_value()) {
+        replaced = core::replaceMatch(m_page->session->project(),
                                       targetDocument(),
                                       *pattern,
-                                      *m_match,
+                                      *m_page->match,
                                       m_search->replacement().toStdString());
     }
     if (!replaced.has_value()) {
@@ -2058,7 +2072,7 @@ void MainWindow::replaceCurrentMatch() {
         const core::SubtitleIndex index = replaced->written.index;
         applyOperation(std::move(replaced->command), core::Selection::range(index, index));
     }
-    m_match = replaced->written;
+    m_page->match = replaced->written;
     findInTarget(true);
 }
 
@@ -2068,12 +2082,12 @@ void MainWindow::replaceAllInTarget() {
         return;
 
     const core::Selection target = searchTarget();
-    core::ReplacedAll replaced = core::replaceAll(m_session->project(),
+    core::ReplacedAll replaced = core::replaceAll(m_page->session->project(),
                                                   target,
                                                   targetDocument(),
                                                   *pattern,
                                                   m_search->replacement().toStdString());
-    m_match.reset();
+    m_page->match.reset();
 
     // **Not found is not the same as nothing to change**: a pattern that is in
     // the document but is replaced by itself finds matches and writes nothing,
@@ -2101,7 +2115,7 @@ void MainWindow::mergeSubtitles() {
         return;
 
     const core::IndexRange run = target.ranges().front();
-    std::unique_ptr<core::Command> command = core::mergeSubtitles(m_session->project(), run);
+    std::unique_ptr<core::Command> command = core::mergeSubtitles(m_page->session->project(), run);
     if (command == nullptr)
         return;
 
@@ -2119,7 +2133,7 @@ void MainWindow::splitSubtitle() {
         return;
 
     const core::SubtitleIndex index = target.ranges().front().first;
-    applyOperation(core::splitSubtitle(m_session->project(), index), target);
+    applyOperation(core::splitSubtitle(m_page->session->project(), index), target);
 
     const int first = static_cast<int>(index.value());
     selectRows(first, first + 1);
@@ -2133,8 +2147,8 @@ void MainWindow::selectRows(int first, int last) {
     // match on.
     const QModelIndex current = m_table->currentIndex();
     const int column = current.isValid() ? current.column() : 0;
-    const QModelIndex from = m_model->index(first, column);
-    const QModelIndex to = m_model->index(last, SubtitleTableModel::kColumnCount - 1);
+    const QModelIndex from = m_page->model->index(first, column);
+    const QModelIndex to = m_page->model->index(last, SubtitleTableModel::kColumnCount - 1);
 
     // The current row first, and without touching the selection: going through
     // the view's `setCurrentIndex` would shrink it to that one row, which would
@@ -2146,7 +2160,7 @@ void MainWindow::selectRows(int first, int last) {
 }
 
 void MainWindow::shiftTarget() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
 
     ShiftDialog dialog{target.count(), this};
     if (!m_prompts->run(dialog))
@@ -2160,7 +2174,7 @@ void MainWindow::shiftTarget() {
     // hold one. The rule has lived in the core since #132, shared with the
     // command line.
     if (const std::optional<core::SubtitleIndex> refused =
-            core::firstBeforeOrigin(m_session->project(), target, *by);
+            core::firstBeforeOrigin(m_page->session->project(), target, *by);
         refused.has_value()) {
         m_prompts->reportFailure("subtitle " + std::to_string(refused->number()) +
                                  " would start before the origin, which no subtitle file can "
@@ -2172,9 +2186,9 @@ void MainWindow::shiftTarget() {
 }
 
 void MainWindow::transformTarget() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
 
-    TransformDialog dialog{target.count(), m_session->project().count(), this};
+    TransformDialog dialog{target.count(), m_page->session->project().count(), this};
     if (!m_prompts->run(dialog))
         return;
 
@@ -2193,7 +2207,7 @@ void MainWindow::transformTarget() {
     };
 
     std::optional<core::TransformCommand> command = core::TransformCommand::create(
-        m_session->project(), target, referenceOf(*first), referenceOf(*second));
+        m_page->session->project(), target, referenceOf(*first), referenceOf(*second));
     if (!command.has_value()) {
         m_prompts->reportFailure("the two references define no correction");
         return;
@@ -2203,13 +2217,13 @@ void MainWindow::transformTarget() {
 }
 
 void MainWindow::convertFrameRateOfTarget() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_session->project());
+    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
 
     // Pre-filled with the project's own, never guessed: the file does not
     // carry it, and getting it wrong shifts everything without a word. What the
     // film declares is handed over beside it, and the dialog decides what to do
     // with it — proposed, never imposed (D6).
-    const std::optional<core::AssociatedVideo>& associated = m_session->project().video();
+    const std::optional<core::AssociatedVideo>& associated = m_page->session->project().video();
     // **Only a clean grid pre-fills the field.** A partial one is evidence the
     // deduction itself calls partial, and this field decides an operation on
     // the whole file; the status bar and the analysis carry that case instead.
@@ -2219,14 +2233,14 @@ void MainWindow::convertFrameRateOfTarget() {
     // deduction can only find that rate again; what is offered instead is the
     // rate itself, said for what it is.
     const std::optional<core::FrameRate> read = rateReadInFrames();
-    const core::FrameRateDeduction grid = core::deduceFrameRate(m_session->project());
+    const core::FrameRateDeduction grid = core::deduceFrameRate(m_page->session->project());
     const std::optional<core::FrameRate> measured =
         !read.has_value() && grid.verdict == core::GridVerdict::Clean
             ? std::optional{grid.retained.rate}
             : std::nullopt;
 
     FrameRateDialog dialog{target.count(),
-                           m_session->project().frameRate(),
+                           m_page->session->project().frameRate(),
                            associated.has_value() ? associated->declared : std::nullopt,
                            measured,
                            read,
@@ -2235,7 +2249,7 @@ void MainWindow::convertFrameRateOfTarget() {
         return;
 
     applyOperation(std::make_unique<core::ConvertFrameRateCommand>(
-                       m_session->project(), target, dialog.input(), dialog.output()),
+                       m_page->session->project(), target, dialog.input(), dialog.output()),
                    target);
 }
 
@@ -2295,7 +2309,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
     m_durationSettings = settings.durationAdjustment;
     if (m_search != nullptr)
         m_search->setOptions(m_searchOptions);
-    m_writeEncoding = settings.writeEncoding;
+    m_page->writeEncoding = settings.writeEncoding;
 }
 
 core::Settings MainWindow::settings() const {
@@ -2330,7 +2344,7 @@ core::Settings MainWindow::settings() const {
     settings.insertPlacement = m_insertPlacement;
     settings.search = m_searchOptions;
     settings.durationAdjustment = m_durationSettings;
-    settings.writeEncoding = m_writeEncoding;
+    settings.writeEncoding = m_page->writeEncoding;
 
     return settings;
 }
