@@ -16,6 +16,7 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — GUI-TABS-01 implémentée
+- **doc** — #453 pour le glisser-déposer, renvoi de la spec corrigé
 
 ## 0.11.10 — 2026-09-22
 
