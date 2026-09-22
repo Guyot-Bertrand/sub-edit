@@ -11,6 +11,16 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Ajouter un fichier à la suite d'un projet
+
+### Documentation
+
+- **doc** — Exigences et cliquet de couverture pour #434
+
+## 0.11.7 — 2026-09-21
+
+### Ajouts
+
 - **gui** — La recherche et la réplique suivent le document visé
 
 ### Documentation

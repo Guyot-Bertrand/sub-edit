@@ -43,6 +43,10 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::Transform:
     case CommandKind::ConvertFrameRate:
     case CommandKind::Snap:
+    // It shifts a whole file's positions forward, by however far the project
+    // it lands on already runs — exactly what can carry them past a video the
+    // appended file was not cut to.
+    case CommandKind::Append:
         return true;
     case CommandKind::SetText:
     case CommandKind::SetStart:

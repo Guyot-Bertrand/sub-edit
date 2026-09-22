@@ -10,6 +10,7 @@ add_library(
     analysis/grid_correction.cpp
     command/composite_command.cpp
     command/history.cpp
+    edit/append.cpp
     edit/convert_frame_rate_command.cpp
     edit/hearing_impaired_removal.cpp
     edit/insert_command.cpp

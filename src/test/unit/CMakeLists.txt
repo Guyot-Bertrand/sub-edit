@@ -41,6 +41,7 @@ add_executable(
     core/model/project_edit_test.cpp
     core/model/selection_test.cpp
     core/edit/session_test.cpp
+    core/edit/append_test.cpp
     core/edit/set_text_command_test.cpp
     core/edit/hearing_impaired_removal_test.cpp
     core/edit/italics_command_test.cpp

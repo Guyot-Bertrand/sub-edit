@@ -51,6 +51,8 @@ enum class OrderPolicy {
     // A line that finds no subtitle gives one of its own, at the place its own
     // positions say — and by number, at the end, wherever they say.
     case CommandKind::AttachTranslation:
+    // What it lays down is another file's own order, not this project's.
+    case CommandKind::Append:
         return true;
     case CommandKind::SetText:
     case CommandKind::SetEnd:

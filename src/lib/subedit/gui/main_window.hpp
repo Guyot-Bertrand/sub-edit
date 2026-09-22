@@ -182,6 +182,8 @@ public:
 
     [[nodiscard]] QAction* adjustDurationsAction() const { return m_adjustDurations; }
 
+    [[nodiscard]] QAction* appendFileAction() const { return m_appendFile; }
+
     [[nodiscard]] QAction* hearingImpairedAction() const { return m_hearingImpaired; }
 
     /// The one button that puts a text in italics and takes them out again.
@@ -632,6 +634,9 @@ private:
     /// alone would let that pass for « everything is fine ».
     void adjustDurationsOfTarget();
 
+    /// Asks for a file, and appends it to the end of the project — D6.
+    void appendFileFromPrompt();
+
     void removeHearingImpairedFromTarget();
 
     /// Puts the target in italics, or takes its italics out.
@@ -712,6 +717,7 @@ private:
     QAction* m_transform = nullptr;
     QAction* m_frameRate = nullptr;
     QAction* m_adjustDurations = nullptr;
+    QAction* m_appendFile = nullptr;
     QAction* m_hearingImpaired = nullptr;
     QAction* m_italic = nullptr;
     std::array<QAction*, 4> m_case{};

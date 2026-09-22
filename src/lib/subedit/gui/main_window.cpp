@@ -1,6 +1,7 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_correction.hpp>
 #include <subedit/core/config/duration_adjustment_settings.hpp>
+#include <subedit/core/edit/append.hpp>
 #include <subedit/core/edit/clipboard.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/dialogue_dashes_command.hpp>
@@ -280,6 +281,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_transform(buildAction(this, QStringLiteral("Transform Positions…"), {})),
       m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
       m_adjustDurations(buildAction(this, QStringLiteral("Adjust Durations…"), {})),
+      m_appendFile(buildAction(this, QStringLiteral("Append &File…"), {})),
       m_hearingImpaired(buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})),
       m_italic(buildAction(this, QStringLiteral("&Italic"), QStringLiteral("format-text-italic"))),
       m_dialogueDashes(buildAction(this, QStringLiteral("&Dialogue"), {})),
@@ -461,6 +463,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(m_transform, &QAction::triggered, this, &MainWindow::transformTarget);
     connect(m_frameRate, &QAction::triggered, this, &MainWindow::convertFrameRateOfTarget);
     connect(m_adjustDurations, &QAction::triggered, this, &MainWindow::adjustDurationsOfTarget);
+    connect(m_appendFile, &QAction::triggered, this, &MainWindow::appendFileFromPrompt);
     connect(
         m_hearingImpaired, &QAction::triggered, this, &MainWindow::removeHearingImpairedFromTarget);
 
@@ -589,6 +592,11 @@ MainWindow::MainWindow(core::FileSystem& files,
     tools->addAction(m_frameRate);
     // With the operations on positions: it moves ends, and nothing else.
     tools->addAction(m_adjustDurations);
+    tools->addSeparator();
+    // On its own: it adds subtitles rather than editing the ones already
+    // there — Gaupol's own placement, next to the position operations and
+    // apart from the two that follow.
+    tools->addAction(m_appendFile);
     tools->addSeparator();
     // Those that rewrite a text rather than move a position, together.
     tools->addAction(m_italic);
@@ -1462,6 +1470,9 @@ void MainWindow::refreshActions() {
     m_transform->setEnabled(anything);
     m_frameRate->setEnabled(anything);
     m_adjustDurations->setEnabled(anything);
+    // Nothing to shift from: an empty document has no last subtitle to offset
+    // the appended file by.
+    m_appendFile->setEnabled(anything);
     m_findAndReplace->setEnabled(anything);
     // Nothing to analyse either: an empty document has no positions to read a
     // grid off, and the dialog would open on « too few subtitles ».
@@ -1622,6 +1633,54 @@ void MainWindow::adjustDurationsOfTarget() {
     if (adjustment.command != nullptr)
         pastTheEnd = applyOperationQuietly(std::move(adjustment.command), target);
 
+    m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
+}
+
+void MainWindow::appendFileFromPrompt() {
+    const std::optional<std::filesystem::path> chosen = m_prompts->fileToOpen(m_lastDirectory);
+    if (!chosen.has_value())
+        return;
+
+    std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(*m_files, *chosen);
+    if (!opened) {
+        m_prompts->reportFailure(chosen->string() + ": " +
+                                 std::string{core::reasonOf(opened.error())});
+        return;
+    }
+
+    rememberDirectoryOf(*chosen);
+
+    // What the reading ran into, whether or not there was anything to append —
+    // the panel of what the last reading met, as an ordinary opening shows it.
+    if (!opened->diagnostics.empty())
+        m_diagnostics->setDiagnostics(opened->diagnostics);
+
+    core::AppendedFile appended = core::appendFile(m_session->project(), opened->project);
+    if (appended.command == nullptr)
+        return;
+
+    // Read before the command goes: the project it names is about to grow.
+    const core::SubtitleFormat from = opened->project.sourceFile().format;
+    const core::SubtitleFormat to = m_session->project().sourceFile().format;
+    const std::size_t first = m_session->project().count();
+    const core::Selection target =
+        core::Selection::range(core::SubtitleIndex::fromValue(first),
+                               core::SubtitleIndex::fromValue(first + appended.inserted - 1));
+
+    const std::string pastTheEnd = applyOperationQuietly(std::move(appended.command), target);
+
+    // The rows the append just wrote: what a second append starts past, and
+    // what selecting them shows was added.
+    selectRows(static_cast<int>(first), static_cast<int>(first + appended.inserted - 1));
+
+    // **In the status bar when there was nothing else to say, in a box to
+    // close otherwise** — the rule #398 set for a gesture that has something
+    // to say.
+    const std::string account = core::noticeOfAppend(appended.inserted, appended.loss, from, to);
+    if (!appended.loss.isAny() && pastTheEnd.empty()) {
+        statusBar()->showMessage(QString::fromStdString(account), kOperationStatusTimeoutMs);
+        return;
+    }
     m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
 }
 

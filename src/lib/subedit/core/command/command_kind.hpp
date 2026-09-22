@@ -34,6 +34,7 @@ enum class CommandKind {
     Replace,
     ReplaceAll,
     AttachTranslation,
+    Append,
 };
 
 } // namespace subedit::core

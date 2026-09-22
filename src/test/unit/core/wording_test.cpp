@@ -383,6 +383,23 @@ TEST_CASE("a paste says the rows it laid down and the tags it dropped, in one li
         noticeOfPaste(0, ConversionLoss{.tags = 3}, std::nullopt, SubtitleFormat::SubRip).empty());
 }
 
+TEST_CASE("an append says how many subtitles it added, and what crossing formats cost",
+          "[wording][append]") {
+    using subedit::core::ConversionLoss;
+    using subedit::core::noticeOfAppend;
+    using subedit::core::SubtitleFormat;
+
+    CHECK(noticeOfAppend(0, ConversionLoss{}, SubtitleFormat::SubRip, SubtitleFormat::SubRip)
+              .empty());
+    CHECK(noticeOfAppend(2, ConversionLoss{}, SubtitleFormat::SubRip, SubtitleFormat::SubRip) ==
+          "appended 2 subtitles");
+    CHECK(noticeOfAppend(1,
+                         ConversionLoss{.tags = 3},
+                         SubtitleFormat::AdvancedSubStationAlpha,
+                         SubtitleFormat::SubRip) ==
+          "appended 1 subtitle; Advanced SSA into SubRip: 3 tags dropped");
+}
+
 TEST_CASE("an adjustment says what it moved and what it could not satisfy",
           "[wording][durations]") {
     using subedit::core::noticeOfAdjustment;
@@ -479,4 +496,11 @@ TEST_CASE("opening a translation has a name of its own in the history", "[wordin
     using subedit::core::nameOf;
 
     CHECK(nameOf(CommandKind::AttachTranslation) == "opening a translation");
+}
+
+TEST_CASE("appending a file has a name of its own in the history", "[wording][append]") {
+    using subedit::core::CommandKind;
+    using subedit::core::nameOf;
+
+    CHECK(nameOf(CommandKind::Append) == "appending a file");
 }
