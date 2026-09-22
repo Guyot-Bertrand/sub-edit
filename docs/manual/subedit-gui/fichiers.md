@@ -1,20 +1,69 @@
 # Ouvrir et enregistrer
 
-Le menu **File** porte les trois commandes, et trois de plus pour la
-traduction.
+Le menu **File** porte les trois commandes, deux pour les onglets, et trois de
+plus pour la traduction.
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
-| `Open…` | `Ctrl+O` | choisit un fichier et l'ouvre à la place du courant |
-| `Open Translation…` | — | choisit un fichier de traduction et l'aligne sur le principal |
+| `New` | `Ctrl+N` | un projet vide, dans un nouvel onglet |
+| `Open…` | `Ctrl+O` | choisit un fichier et l'ouvre dans un nouvel onglet |
+| `Open Translation…` | — | choisit un fichier de traduction et l'aligne sur le principal de l'onglet courant |
 | `Save` | `Ctrl+S` | réécrit le fichier ouvert |
 | `Save As…` | `Ctrl+Shift+S` | choisit un chemin et un format, puis écrit |
 | `Save Translation` | — | réécrit le fichier de la traduction |
 | `Save Translation As…` | — | choisit un chemin et un format pour la traduction, puis écrit |
+| `Close` | `Ctrl+W` | ferme l'onglet courant — éteinte s'il n'y en a qu'un |
 
 `Open…` et `Save` sont aussi dans la barre d'outils. **Les trois entrées de la
 traduction ne sont pas dans la barre** : elles ne servent qu'à ceux qui ont une
 traduction, et la barre est celle de tout le monde.
+
+## Plusieurs projets, en onglets
+
+**Chaque projet ouvert a son onglet**, au-dessus de l'image et de la table :
+son étiquette est le nom du fichier, ou `untitled` pour un projet qui n'en a
+pas encore. Cliquer un onglet y bascule ; `Ctrl+PageDown` et `Ctrl+PageUp` font
+de même, sans la souris, et reviennent au premier onglet après le dernier.
+
+![Deux onglets, l'un sur un fichier ouvert, l'autre sur un projet vide né de
+`New`, palette claire.](captures/onglets.png)
+
+![La même fenêtre sous la palette sombre.](captures/onglets-sombre.png)
+
+**`Open…` n'y touche jamais.** Ouvrir un fichier ne remplace plus ce que la
+fenêtre montrait : il arrive dans un onglet neuf, à côté, et l'onglet qu'on
+regardait avant garde tout ce qu'il avait — son historique, sa sélection, sa
+vidéo associée. C'est aussi pourquoi ouvrir ne demande plus rien : il n'y a
+rien à perdre, puisqu'il n'y a rien à remplacer.
+
+**Un fichier déjà ouvert n'est pas ouvert une seconde fois.** `Open…` sur un
+fichier qu'un autre onglet tient déjà rend le focus à cet onglet, et le dit
+dans la barre d'état :
+
+```text
+premier.srt: already open
+```
+
+**Chaque onglet est un projet entier, indépendant des autres** : son
+historique, sa sélection, sa vidéo associée et ce que sa dernière lecture a
+rencontré ne sont montrés que quand cet onglet est le courant, et ne
+changent pas pendant qu'un autre l'est. **Une exception, et elle est dans l'ADR
+0033** : le lecteur vidéo est unique pour toute la fenêtre — un seul processus
+mpv — et son film change avec l'onglet ; **la position de lecture ne survit pas
+à un changement d'onglet**. Le presse-papiers, lui, est à la fenêtre : copier
+dans un onglet et coller dans un autre est ce pour quoi on en ouvre deux.
+
+**`Close` ferme l'onglet courant**, en posant s'il le faut
+[la question des modifications non enregistrées](#les-modifications-non-enregistrées) —
+celle de cet onglet seul, les autres n'étant pas concernés. **Éteinte quand il
+n'y a qu'un onglet** : la fenêtre en garde toujours au moins un, et le fermer
+serait fermer la fenêtre — ce que fait déjà le bouton du système.
+
+**Fermer la fenêtre pose la question, onglet par onglet.** Chacun des projets
+modifiés est demandé à son tour, dans l'ordre où ils ont été ouverts ; le
+premier `Cancel` arrête tout, et aucun onglet n'est fermé. Une seule question
+pour tous les onglets à la fois n'est pas encore là — elle attend `Save All` et
+`Close All`.
 
 ## Ouvrir
 
@@ -372,9 +421,9 @@ principal, et ne change ni son fichier, ni son format, ni ses textes.
 
 ## Fermer avec deux documents modifiés
 
-Fermer la fenêtre, ou ouvrir un autre fichier — ce qui remplace aussi la
-traduction —, alors que **les deux documents** diffèrent de leurs fichiers pose
-**une seule question**, une case par document :
+Fermer la fenêtre, ou l'onglet courant, alors que **les deux documents** de cet
+onglet diffèrent de leurs fichiers pose **une seule question**, une case par
+document :
 
 ![La question de fermeture avec deux documents modifiés : le principal et la
 traduction, chacun avec sa case cochée, palette claire.](captures/fermeture.png)
@@ -402,12 +451,13 @@ la phrase est `The document is no longer where it was read from.`
 
 ## Les modifications non enregistrées
 
-Fermer la fenêtre ou ouvrir un autre fichier alors que le document diffère de
-celui du disque **demande confirmation**, avec trois issues :
+Fermer la fenêtre, l'onglet courant, ou ouvrir une traduction qui remplacerait
+celle déjà là, alors que le document diffère de celui du disque **demande
+confirmation**, avec trois issues :
 
 | Réponse | Ce qui se passe |
 | :------ | :-------------- |
-| `Save` | le document est écrit, puis la fenêtre se ferme ou ouvre l'autre fichier |
+| `Save` | le document est écrit, puis l'action se poursuit |
 | `Discard` | les modifications sont perdues, et l'action se poursuit |
 | `Cancel` | rien ne se passe ; la fenêtre reste comme elle était |
 

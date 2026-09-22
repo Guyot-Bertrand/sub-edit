@@ -22,6 +22,7 @@
 #include <QLabel>
 #include <QListWidget>
 #include <QString>
+#include <QTabBar>
 #include <QTableView>
 #include <QToolButton>
 #include <catch2/catch_test_macros.hpp>
@@ -347,7 +348,11 @@ TEST_CASE("a save that cannot be written says so and keeps the changes", "[gui][
     CHECK(window.isWindowModified());
 }
 
-TEST_CASE("opening replaces what the window holds", "[gui][GUI-OPEN-01]") {
+// A second tab, not a replacement — ADR 0033, `GUI-TABS-01`. What opening
+// used to do to the window it held is `window_tabs_test.cpp`'s: this file
+// keeps the single-project cases it was written for.
+TEST_CASE("opening a file opens it on top, and leaves the one before it alone",
+          "[gui][GUI-OPEN-01]") {
     InMemoryFileSystem files = withFile("film.srt", kThree);
     files.addFile("autre.srt", "1\n00:00:09,000 --> 00:00:10,000\nAilleurs.\n\n");
     FakePrompts prompts;
@@ -360,6 +365,8 @@ TEST_CASE("opening replaces what the window holds", "[gui][GUI-OPEN-01]") {
     CHECK(window.table()->model()->rowCount({}) == 1);
     CHECK(textAt(window, 0) == "Ailleurs.");
     CHECK(window.windowTitle().toStdString().find("autre.srt") != std::string::npos);
+    CHECK(window.tabBar()->count() == 2);
+    CHECK(window.tabBar()->tabText(0).toStdString() == "film.srt");
 }
 
 TEST_CASE("opening what cannot be read says so and leaves the window as it was",
@@ -398,56 +405,28 @@ TEST_CASE("opening a file that is not there says so, and not something else",
     CHECK(window.table()->model()->rowCount({}) == 2);
 }
 
-TEST_CASE("opening with unsaved changes asks, and cancelling opens nothing", "[gui][GUI-SAVE-03]") {
+// **Opening no longer asks.** It used to — opening replaced what the window
+// held, so it went through the same question as closing. Since #437 opening
+// adds a tab instead, there is nothing left to discard: `window_tabs_test.cpp`
+// is where "opening with unsaved changes elsewhere" lives now, and it finds
+// nothing to ask about either.
+TEST_CASE("opening asks nothing, whatever the current tab holds", "[gui][GUI-OPEN-01]") {
     InMemoryFileSystem files = withFile("film.srt", kThree);
     files.addFile("autre.srt", "1\n00:00:09,000 --> 00:00:10,000\nAilleurs.\n\n");
     FakePrompts prompts;
     prompts.nextFileToOpen = "autre.srt";
-    prompts.nextUnsavedChoice = UnsavedChoice::Cancel;
     MainWindow window{files, fileIn(files, "film.srt"), prompts};
     window.show();
     REQUIRE(edit(window, 0, "Un bis."));
 
     window.openAction()->trigger();
 
-    CHECK(prompts.unsavedAsked == 1);
-    // Neither opened, nor even asked which file: the question stops before
-    // that.
-    CHECK(prompts.openAsked == 0);
+    CHECK(prompts.unsavedAsked == 0);
+    CHECK(textAt(window, 0) == "Ailleurs.");
+    // The tab left behind kept the edit: nothing was discarded, because
+    // nothing was replaced.
+    window.tabBar()->setCurrentIndex(0);
     CHECK(textAt(window, 0) == "Un bis.");
-}
-
-TEST_CASE("discarding unsaved changes opens the other file anyway", "[gui][GUI-SAVE-03]") {
-    InMemoryFileSystem files = withFile("film.srt", kThree);
-    files.addFile("autre.srt", "1\n00:00:09,000 --> 00:00:10,000\nAilleurs.\n\n");
-    FakePrompts prompts;
-    prompts.nextFileToOpen = "autre.srt";
-    prompts.nextUnsavedChoice = UnsavedChoice::Discard;
-    MainWindow window{files, fileIn(files, "film.srt"), prompts};
-    window.show();
-    REQUIRE(edit(window, 0, "Un bis."));
-
-    window.openAction()->trigger();
-
-    CHECK(textAt(window, 0) == "Ailleurs.");
-    // Discarded means discarded: the original file is untouched.
-    CHECK(files.contentOf("film.srt").value_or("") == kThree);
-}
-
-TEST_CASE("choosing to save before opening writes, then opens", "[gui][GUI-SAVE-03]") {
-    InMemoryFileSystem files = withFile("film.srt", kThree);
-    files.addFile("autre.srt", "1\n00:00:09,000 --> 00:00:10,000\nAilleurs.\n\n");
-    FakePrompts prompts;
-    prompts.nextFileToOpen = "autre.srt";
-    prompts.nextUnsavedChoice = UnsavedChoice::Save;
-    MainWindow window{files, fileIn(files, "film.srt"), prompts};
-    window.show();
-    REQUIRE(edit(window, 0, "Un bis."));
-
-    window.openAction()->trigger();
-
-    CHECK(files.contentOf("film.srt").value_or("").find("Un bis.") != std::string::npos);
-    CHECK(textAt(window, 0) == "Ailleurs.");
 }
 
 TEST_CASE("a window with nothing unsaved closes without a question", "[gui][GUI-SAVE-03]") {
@@ -469,6 +448,19 @@ TEST_CASE("closing with unsaved changes asks, and cancelling keeps the window",
 
     CHECK_FALSE(window.close());
     CHECK(prompts.unsavedAsked == 1);
+}
+
+TEST_CASE("closing with one unsaved document, choosing to save, writes it and closes",
+          "[gui][GUI-SAVE-03]") {
+    InMemoryFileSystem files = withFile("film.srt", kThree);
+    FakePrompts prompts;
+    prompts.nextUnsavedChoice = UnsavedChoice::Save;
+    MainWindow window{files, fileIn(files, "film.srt"), prompts};
+    REQUIRE(edit(window, 0, "Un bis."));
+
+    CHECK(window.close());
+
+    CHECK(files.contentOf("film.srt").value_or("").find("Un bis.") != std::string::npos);
 }
 
 TEST_CASE("the diagnostics of a reading are shown", "[gui][GUI-OPEN-03]") {

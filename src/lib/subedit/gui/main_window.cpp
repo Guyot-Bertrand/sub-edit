@@ -85,6 +85,7 @@
 #include <QSplitter>
 #include <QStatusBar>
 #include <QString>
+#include <QTabBar>
 #include <QTableView>
 #include <QTimer>
 #include <QToolBar>
@@ -121,6 +122,15 @@ namespace {
 
     return QString::fromStdString(source.path.value().filename().string()) +
            QStringLiteral("[*] — subedit");
+}
+
+/// What a tab says: the file name, or that there is none yet — the title
+/// without the `[*]` Qt reads on a window, and without repeating "subedit" on
+/// every one of them.
+[[nodiscard]] QString tabLabelFor(const core::Project& project) {
+    const std::optional<std::filesystem::path>& path = project.sourceFile().path;
+    return path.has_value() ? QString::fromStdString(path->filename().string())
+                            : QStringLiteral("untitled");
 }
 
 /// Builds one of the two actions, named for the toolbar and for the menu.
@@ -263,6 +273,10 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_undo(buildAction(this, QStringLiteral("Undo"), QStringLiteral("edit-undo"))),
       m_redo(buildAction(this, QStringLiteral("Redo"), QStringLiteral("edit-redo"))),
       m_open(buildAction(this, QStringLiteral("Open…"), QStringLiteral("document-open"))),
+      m_newProject(buildAction(this, QStringLiteral("&New"), QStringLiteral("document-new"))),
+      m_closeProject(buildAction(this, QStringLiteral("&Close"), QStringLiteral("window-close"))),
+      m_nextTab(new QAction{this}),
+      m_previousTab(new QAction{this}),
       m_save(buildAction(this, QStringLiteral("Save"), QStringLiteral("document-save"))),
       m_saveAs(buildAction(this, QStringLiteral("Save As…"), QStringLiteral("document-save-as"))),
       m_openTranslation(buildAction(this, QStringLiteral("Open &Translation…"), {})),
@@ -298,10 +312,10 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_videoView(new QWidget{this}),
       m_noVideo(new QWidget{this}),
       m_split(new QSplitter{Qt::Vertical, this}),
+      m_tabBar(new QTabBar{this}),
       m_ticker(new QTimer{this}),
       m_buildPlayer(std::move(buildPlayer)),
-      m_readDeclaredRate(std::move(readDeclaredRate)),
-      m_page(std::make_unique<ProjectPage>()) {
+      m_readDeclaredRate(std::move(readDeclaredRate)) {
     // One delegate per nature of cell, and none on the number, which is not
     // editable: Qt's table puts one only where it is given one.
     m_table->setItemDelegateForColumn(SubtitleTableModel::Start, new PositionDelegate{this});
@@ -382,11 +396,19 @@ MainWindow::MainWindow(core::FileSystem& files,
     split->setStretchFactor(0, 0);
     split->setStretchFactor(1, 1);
 
+    // **One tab per open project** — ADR 0033, `GUI-TABS-01`. Above the
+    // picture and the table, which is what it names: it says which project
+    // the room below belongs to.
+    m_tabBar->setExpanding(false);
+    m_tabBar->setDocumentMode(true);
+    connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::switchToPage);
+
     // The table takes the room, the panel slips underneath and goes away when
     // it has nothing to say.
     auto* centre = new QWidget{this};
     auto* stack = new QVBoxLayout{centre};
     stack->setContentsMargins(0, 0, 0, 0);
+    stack->addWidget(m_tabBar);
     stack->addWidget(split);
     stack->addWidget(m_diagnostics);
     setCentralWidget(centre);
@@ -413,12 +435,33 @@ MainWindow::MainWindow(core::FileSystem& files,
     });
 
     m_open->setShortcut(QKeySequence::Open);
+    m_newProject->setShortcut(QKeySequence::New);
+    m_closeProject->setShortcut(QKeySequence::Close);
     m_save->setShortcut(QKeySequence::Save);
     m_saveAs->setShortcuts(saveAsShortcuts());
     m_open->setEnabled(true);
+    m_newProject->setEnabled(true);
     m_save->setEnabled(true);
     m_saveAs->setEnabled(true);
     connect(m_open, &QAction::triggered, this, &MainWindow::openFromPrompt);
+    connect(m_newProject, &QAction::triggered, this, &MainWindow::newProject);
+    connect(m_closeProject, &QAction::triggered, this, &MainWindow::closeCurrentProject);
+    // **`Ctrl+PageDown` and `Ctrl+PageUp`**, the platform's own for moving
+    // between tabs — no `QKeySequence::StandardKey` names them, so they are
+    // written out, as Gaupol's own binding is. `addAction` and not a menu:
+    // the bar already offers a click, and this is for whoever would rather
+    // not reach for the mouse.
+    m_nextTab->setShortcut(QKeySequence{QStringLiteral("Ctrl+PgDown")});
+    connect(m_nextTab, &QAction::triggered, this, [this] {
+        switchToPage((m_currentPage + 1) % static_cast<int>(m_pages.size()));
+    });
+    addAction(m_nextTab);
+    m_previousTab->setShortcut(QKeySequence{QStringLiteral("Ctrl+PgUp")});
+    connect(m_previousTab, &QAction::triggered, this, [this] {
+        const int count = static_cast<int>(m_pages.size());
+        switchToPage((m_currentPage - 1 + count) % count);
+    });
+    addAction(m_previousTab);
     // The returned value only serves whoever carries on afterwards; fired by
     // the action, it has nobody to inform.
     connect(m_save, &QAction::triggered, this, [this] { (void)save(); });
@@ -540,6 +583,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     // Reading order and not construction order — the two had drifted apart, and
     // it is the first that a user meets.
     QMenu* file = menuBar()->addMenu(QStringLiteral("&File"));
+    file->addAction(m_newProject);
     file->addAction(m_open);
     file->addAction(m_openTranslation);
     file->addSeparator();
@@ -551,6 +595,10 @@ MainWindow::MainWindow(core::FileSystem& files,
     file->addSeparator();
     file->addAction(m_saveTranslation);
     file->addAction(m_saveTranslationAs);
+    // Below everything the document itself offers: closing is what one does
+    // to the tab, not to what it holds.
+    file->addSeparator();
+    file->addAction(m_closeProject);
 
     QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
     edition->addAction(m_undo);
@@ -670,51 +718,50 @@ MainWindow::MainWindow(core::FileSystem& files,
 }
 
 void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic> diagnostics) {
-    setWindowTitle(titleFor(project));
+    // A page of its own, and a session rebuilt rather than reset: a history
+    // carries what was done to one file, and it has nothing to say about the
+    // next. Everything else `ProjectPage` holds starts at its own default —
+    // no match, no target, no video associated, nothing placed — which is
+    // exactly right for a project nothing has touched yet.
+    auto page = std::make_unique<ProjectPage>();
+    page->session = std::make_unique<core::Session>(std::move(project));
+    page->model = std::make_unique<SubtitleTableModel>(*page->session);
+    page->tableSelection = std::make_unique<QItemSelectionModel>(page->model.get());
+    page->diagnostics.assign(diagnostics.begin(), diagnostics.end());
 
-    // Rebuilt rather than reset: a session carries a history, and the history
-    // of one file has nothing to say about the next.
-    auto session = std::make_unique<core::Session>(std::move(project));
-    auto model = std::make_unique<SubtitleTableModel>(*session);
-
-    m_table->setModel(model.get());
-    // Here and not with the header's other settings: the header has no section
-    // before it has a model, and giving a width to one that is not there is a
-    // width that is lost.
-    m_table->horizontalHeader()->resizeSection(SubtitleTableModel::Text, kDefaultTextWidth);
     // The model has carried a cell edit out as a command since issue #129, so
-    // the window does not see them go by. This signal is how it learns of one —
-    // including an edit that changed nothing. Reconnected at every opening, the
-    // previous model leaving with the previous file.
-    connect(model.get(), &SubtitleTableModel::historyChanged, this, &MainWindow::refreshActions);
+    // the window does not see them go by. This signal is how it learns of
+    // one — including an edit that changed nothing. Made once, for the life
+    // of this model: a page never gets another.
+    connect(
+        page->model.get(), &SubtitleTableModel::historyChanged, this, &MainWindow::refreshActions);
     // A structural undo or redo resets the model rather than reporting which
     // rows changed — Qt then clears the selection without a
     // `selectionChanged`, which is otherwise what forgets a stale target. This
-    // catches that one case directly on Qt's own reset signal.
-    connect(model.get(), &QAbstractItemModel::modelReset, this, [this] {
+    // catches that one case directly on Qt's own reset signal. `m_page` is
+    // read rather than `page`, on purpose: by the time this can fire, the
+    // page has been switched to, and reading the capture would still be
+    // right, but reading the current page is what every other handler here
+    // does, and one rule is easier to trust than two that happen to agree.
+    connect(page->model.get(), &QAbstractItemModel::modelReset, this, [this] {
         m_page->searchTarget.reset();
         m_page->match.reset();
     });
 
-    // In this order: the view lets go of the old model before it goes, and the
-    // model before the session it reads.
-    m_page->model = std::move(model);
-    m_page->session = std::move(session);
-
-    // A match and a target belong to the document they were found in.
-    m_page->match.reset();
-    m_page->searchTarget.reset();
-
-    // Made again at every opening, with the selection model the table has just
-    // been given: `setModel` throws the previous one away, and every connection
-    // that named it with it.
-    connect(m_table->selectionModel(),
+    // **This page's own selection model, connected once, for its whole
+    // life.** `setModel` throws away whichever one the table had and makes a
+    // fresh, empty one of its own — `switchToPage` swaps it back out for this
+    // one on every visit, which is what carries the selection over rather
+    // than losing it. Reconnecting on every visit would connect the same
+    // signal to the same slot again each time, since this one object outlives
+    // them all.
+    connect(page->tableSelection.get(),
             &QItemSelectionModel::selectionChanged,
             this,
             &MainWindow::placePlaybackAtSelection);
     // A selection the user makes is a new target for the next search; the one
     // the search makes, moving to a match, is not.
-    connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this] {
+    connect(page->tableSelection.get(), &QItemSelectionModel::selectionChanged, this, [this] {
         if (!m_page->movingToMatch) {
             m_page->searchTarget.reset();
             m_page->match.reset();
@@ -723,22 +770,73 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
     // The only two actions whose state depends on the selection, and they
     // listen to it alone: `refreshActions` deduces the grid of the whole file,
     // and wiring it here would pay for that deduction at every row of a drag.
-    connect(m_table->selectionModel(),
+    connect(page->tableSelection.get(),
             &QItemSelectionModel::selectionChanged,
             this,
             &MainWindow::refreshStructureActions);
     // Which text an operation aims at follows the column of the current cell,
     // and so does the status bar that says it. A change of *row* changes
     // neither, and is not listened to.
-    connect(m_table->selectionModel(),
+    connect(page->tableSelection.get(),
             &QItemSelectionModel::currentColumnChanged,
             this,
             &MainWindow::refreshTarget);
-    m_page->placedAt = -1;
 
-    m_diagnostics->setDiagnostics(diagnostics);
+    m_pages.push_back(std::move(page));
+    const int index = static_cast<int>(m_pages.size()) - 1;
+    {
+        // Blocked: adding the very first tab to an empty bar makes Qt pick it
+        // as current on its own and fire `currentChanged` right there — before
+        // this function has had its own say, and reachable from inside the
+        // constructor, where nothing else has connected to it yet.
+        const QSignalBlocker blocker{m_tabBar};
+        m_tabBar->addTab(tabLabelFor(m_pages.back()->session->project()));
+    }
+
+    switchToPage(index);
+
+    // Here and not folded into `switchToPage`, which runs at every visit to a
+    // tab and not only at its birth: the header has no section before it has
+    // a model, so this could not run any earlier than the `setModel` above —
+    // and a column a user has since resized must not be put back at every
+    // return to this one.
+    m_table->horizontalHeader()->resizeSection(SubtitleTableModel::Text, kDefaultTextWidth);
+}
+
+void MainWindow::switchToPage(int index) {
+    if (index == m_currentPage)
+        return;
+
+    m_currentPage = index;
+    m_page = m_pages[static_cast<std::size_t>(index)].get();
+
+    // Mirrors the choice without firing `currentChanged` a second time: a
+    // click on the bar reaches this function through that very signal, and a
+    // keyboard shortcut or a closed tab reach it directly.
+    const QSignalBlocker blocker{m_tabBar};
+    m_tabBar->setCurrentIndex(index);
+
+    m_table->setModel(m_page->model.get());
+    // **Put back rather than left to what `setModel` just built.** It throws
+    // away whichever selection model the table had and makes a fresh, empty
+    // one of its own every time — including a return to a model it has shown
+    // before. This page's own, made once in `openOn` and connected there, is
+    // what carries its selection over instead of losing it.
+    m_table->setSelectionModel(m_page->tableSelection.get());
+
+    refreshForPage();
+}
+
+void MainWindow::refreshForPage() {
+    setWindowTitle(titleFor(m_page->session->project()));
+    m_diagnostics->setDiagnostics(m_page->diagnostics);
+    // Reads `m_page->associated` against `m_playingPage`, not only against
+    // what this project itself last wanted: a switch of tab means the shared
+    // player is showing someone else's film even when this one's own
+    // association has not changed since it was last the page on screen.
     proposeVideoBeside();
     refreshActions();
+    refreshTabActions();
 }
 
 void MainWindow::selectVideo() {
@@ -955,9 +1053,16 @@ void MainWindow::watchAssociatedVideo() {
     const std::filesystem::path wanted =
         associated.has_value() ? associated->path : std::filesystem::path{};
 
-    if (wanted == m_page->associated)
+    // **Two things have to agree, not one.** `wanted == m_page->associated`
+    // alone answers « has this project's own association changed since it was
+    // last synced », which is right for one project and wrong for several: a
+    // switch of tab back to a page whose association never changed still
+    // means the shared player is showing whatever the page just left behind
+    // was watching, not this one.
+    if (wanted == m_page->associated && m_playingPage == m_page)
         return;
 
+    m_playingPage = m_page;
     m_page->associated = wanted;
     m_page->watching = false;
     m_page->shown.clear();
@@ -1385,15 +1490,38 @@ void MainWindow::openTranslationFromPrompt() {
     m_prompts->reportOutcome(joinedNotices(notice, pastTheEnd));
 }
 
-void MainWindow::openFromPrompt() {
-    // Asked before asking what to open: giving up rather than losing one's
-    // work should not require choosing a file first.
-    if (!mayDiscardChanges())
-        return;
+std::optional<int> MainWindow::indexOfFile(const std::filesystem::path& path) const {
+    // **However the path is spelled** — `film.srt`, `./film.srt` and
+    // `../films/film.srt` name one file — the same rule `openTranslation`
+    // uses for the main document, compared without asking the disk.
+    const std::filesystem::path normalized = path.lexically_normal();
+    for (std::size_t index = 0; index < m_pages.size(); ++index) {
+        const std::optional<std::filesystem::path>& open =
+            m_pages[index]->session->project().sourceFile().path;
+        if (open.has_value() && open->lexically_normal() == normalized)
+            return static_cast<int>(index);
+    }
+    return std::nullopt;
+}
 
+void MainWindow::openFromPrompt() {
+    // **Nothing to discard, and nothing asked.** Opening lands on a tab of
+    // its own since #437 — ADR 0033 — and no longer replaces the one the
+    // window was showing.
     const std::optional<std::filesystem::path> chosen = m_prompts->fileToOpen(m_lastDirectory);
     if (!chosen.has_value())
         return;
+
+    // Already open, in another tab or this one: the file a second choice of
+    // it means is the one already there, and the window says so rather than
+    // reading it a second time — Gaupol's own rule.
+    if (const std::optional<int> already = indexOfFile(*chosen); already.has_value()) {
+        switchToPage(*already);
+        statusBar()->showMessage(
+            QString::fromStdString(chosen->filename().string() + ": already open"),
+            kOperationStatusTimeoutMs);
+        return;
+    }
 
     std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(*m_files, *chosen);
     if (!opened) {
@@ -1408,6 +1536,51 @@ void MainWindow::openFromPrompt() {
     rememberDirectoryOf(*chosen);
 
     openOn(std::move(opened->project), opened->diagnostics);
+}
+
+void MainWindow::newProject() {
+    openOn(core::Project{}, {});
+}
+
+void MainWindow::refreshTabActions() {
+    // **Out with one tab left.** The window always holds at least one
+    // project; closing the last would be closing the window, which is what
+    // the title bar's own button already does.
+    m_closeProject->setEnabled(m_pages.size() > 1);
+}
+
+void MainWindow::closeCurrentProject() {
+    if (m_pages.size() <= 1)
+        return;
+    if (!mayDiscardChanges())
+        return;
+
+    const int closed = m_currentPage;
+    {
+        // Blocked: removing the current tab would otherwise make the bar pick
+        // its own replacement and fire `currentChanged` before `m_pages` has
+        // been told the same tab is gone — `switchToPage` would then read an
+        // index the vector does not have yet.
+        const QSignalBlocker blocker{m_tabBar};
+        m_tabBar->removeTab(closed);
+    }
+
+    // Cleared before the page it might name is freed: `watchAssociatedVideo`
+    // only ever compares this pointer, never dereferences it, but comparing
+    // one that no longer points at anything is not a comparison this class
+    // makes anywhere else, and it does not start here.
+    if (m_playingPage == m_page)
+        m_playingPage = nullptr;
+    m_pages.erase(m_pages.begin() + closed);
+
+    // The tab that takes its place is the one now at the same rank, or the
+    // last one if the closed tab was itself the last — never out of range,
+    // since a tab was just refused to close alone.
+    const int next = std::min(closed, static_cast<int>(m_pages.size()) - 1);
+    // `m_currentPage` no longer names a page that exists: read as "already
+    // there" it would skip the very switch this needs.
+    m_currentPage = -1;
+    switchToPage(next);
 }
 
 void MainWindow::rememberDirectoryOf(const std::filesystem::path& file) {
@@ -1433,10 +1606,19 @@ void MainWindow::showEvent(QShowEvent* event) {
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
-    if (mayDiscardChanges())
-        event->accept();
-    else
-        event->ignore();
+    // **Every page in turn, and the first refusal stops the window closing at
+    // all.** One combined question for every modified project across every
+    // tab is #438's job — `GUI-TABS-02` — and until then this is what asking
+    // per tab, the way closing one already does, adds up to.
+    const int opened = static_cast<int>(m_pages.size());
+    for (int index = 0; index < opened; ++index) {
+        switchToPage(index);
+        if (!mayDiscardChanges()) {
+            event->ignore();
+            return;
+        }
+    }
+    event->accept();
 }
 
 void MainWindow::refreshActions() {

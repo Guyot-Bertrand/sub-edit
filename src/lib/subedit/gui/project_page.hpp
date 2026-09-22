@@ -1,14 +1,18 @@
 #pragma once
 
 #include <subedit/core/edit/search.hpp>
+#include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/selection.hpp>
+
+#include <QItemSelectionModel>
 
 #include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace subedit::core {
 class Session;
@@ -21,11 +25,8 @@ class SubtitleTableModel;
 /// Everything a project owns, apart from the window around it — ADR 0033,
 /// decision D2 of the phase-11 spec.
 ///
-/// **The window owns exactly one, for now** — issue #436, which moves this
-/// state out of `MainWindow` without adding a tab to show a second one: **it
-/// changes nothing a user can see**, and every test of the window keeps
-/// passing unrewritten. A second page, and the tab that would show it, are
-/// #437.
+/// **First moved out on its own** — issue #436, one page and no tab to show a
+/// second — **then given company** — #437, a tab per page, `GUI-TABS-01`.
 ///
 /// **What stays at the window is written in the ADR, and is not here**: the
 /// menus and their actions, the status bar, the title; the player, the video
@@ -47,6 +48,16 @@ struct ProjectPage {
     /// headers `session.hpp` drags in.
     std::unique_ptr<core::Session> session;
     std::unique_ptr<SubtitleTableModel> model;
+
+    /// This page's own current cell and selection in the table.
+    ///
+    /// **Kept here rather than left to the table**, which used to be enough
+    /// with one page: `QAbstractItemView::setModel` throws away whatever
+    /// selection model it had and builds a fresh, empty one every time it is
+    /// called — including a return to a model it has shown before. Without
+    /// this, a switch of tab would forget what was selected even though
+    /// nothing about the project itself changed.
+    std::unique_ptr<QItemSelectionModel> tableSelection;
 
     /// The row playback was last placed at, or -1.
     int placedAt = -1;
@@ -104,6 +115,15 @@ struct ProjectPage {
     /// round trip of phase 8 is that promise, and a setting does not undo it
     /// behind the back of whoever saves.
     std::optional<core::Encoding> writeEncoding;
+
+    /// What this project's own reading ran into, shown by the panel while
+    /// this is the page on screen.
+    ///
+    /// **Kept here rather than left to the panel alone**, which used to be
+    /// enough with one page: switching to a page must show what its own
+    /// reading met, not whatever the previous page's happened to leave
+    /// behind.
+    std::vector<core::Diagnostic> diagnostics;
 };
 
 } // namespace subedit::gui

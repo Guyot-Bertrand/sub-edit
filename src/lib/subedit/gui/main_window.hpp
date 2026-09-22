@@ -40,6 +40,7 @@ class QCloseEvent;
 class QLabel;
 class QShowEvent;
 class QSplitter;
+class QTabBar;
 class QTimer;
 
 namespace subedit::gui {
@@ -130,6 +131,28 @@ public:
     [[nodiscard]] QAction* redoAction() const { return m_redo; }
 
     [[nodiscard]] QAction* openAction() const { return m_open; }
+
+    /// `File ▸ New` and `File ▸ Close` — a project of its own in a new tab,
+    /// and the current tab taken away. `GUI-TABS-01`.
+    ///
+    /// **`Close` is out with one tab left**: the window always holds at least
+    /// one project, and closing the last would mean closing the window, which
+    /// is what the title bar's own button already does.
+    [[nodiscard]] QAction* newProjectAction() const { return m_newProject; }
+
+    [[nodiscard]] QAction* closeProjectAction() const { return m_closeProject; }
+
+    /// `Ctrl+PageDown` and `Ctrl+PageUp`, wrapping around at either end. No
+    /// menu entry: the bar already offers a click, and these are for whoever
+    /// would rather not reach for the mouse.
+    [[nodiscard]] QAction* nextTabAction() const { return m_nextTab; }
+
+    [[nodiscard]] QAction* previousTabAction() const { return m_previousTab; }
+
+    /// One tab per open project, in the order they were opened. A test reads
+    /// its count and its labels, and drives it the way a click would —
+    /// `setCurrentIndex` fires the same signal either way.
+    [[nodiscard]] QTabBar* tabBar() const { return m_tabBar; }
 
     [[nodiscard]] QAction* saveAction() const { return m_save; }
 
@@ -343,8 +366,40 @@ private:
     /// would lie.
     void refreshActions();
 
-    /// Puts the window on `project`, dropping whatever it held.
+    /// Opens `project` in a new tab, and switches to it — ADR 0033, `GUI-TABS-01`.
     void openOn(core::Project project, std::span<const core::Diagnostic> diagnostics);
+
+    /// Switches to the page at `index`, doing nothing when it is already the
+    /// one showing.
+    ///
+    /// **The one road to a change of tab**, whether a click on the bar fires
+    /// it, a new page is born on it, or `closeEvent` walks every page in turn:
+    /// one function that recalculates the window rather than several that
+    /// might one day recalculate it differently.
+    void switchToPage(int index);
+
+    /// Puts what depends on the current page in step with it: the title, the
+    /// picture, the panel of what its reading met, and everything
+    /// `refreshActions` already cascades to — the grid, the encoding, the
+    /// translation column, the target, the search box.
+    void refreshForPage();
+
+    /// The index of the tab already showing `path`, or nothing.
+    ///
+    /// **However the path is spelled** — `film.srt`, `./film.srt` and
+    /// `../films/film.srt` name one file — compared without asking the disk,
+    /// the same rule `openTranslation` uses for the main document.
+    [[nodiscard]] std::optional<int> indexOfFile(const std::filesystem::path& path) const;
+
+    /// `File ▸ New`: an empty project in a new tab.
+    void newProject();
+
+    /// `File ▸ Close`: asks about the current tab's modified documents, then
+    /// takes it away and switches to its neighbour.
+    void closeCurrentProject();
+
+    /// Whether `Close` may do anything — false with one tab left.
+    void refreshTabActions();
 
     /// Writes the document, asking where if it has never been anywhere.
     ///
@@ -700,6 +755,10 @@ private:
     QAction* m_undo = nullptr;
     QAction* m_redo = nullptr;
     QAction* m_open = nullptr;
+    QAction* m_newProject = nullptr;
+    QAction* m_closeProject = nullptr;
+    QAction* m_nextTab = nullptr;
+    QAction* m_previousTab = nullptr;
     QAction* m_save = nullptr;
     QAction* m_saveAs = nullptr;
     QAction* m_openTranslation = nullptr;
@@ -739,6 +798,7 @@ private:
     QWidget* m_videoView = nullptr;
     QWidget* m_noVideo = nullptr;
     QSplitter* m_split = nullptr;
+    QTabBar* m_tabBar = nullptr;
     QTimer* m_ticker = nullptr;
 
     PlayerFactory m_buildPlayer{};
@@ -787,19 +847,35 @@ private:
     /// Nothing is handed to a player before it has: see `showEvent`.
     bool m_wasShown = false;
 
-    /// Everything the one project the window holds owns — ADR 0033. The
-    /// session and its history, the table model, where playback was placed,
-    /// the video associated with this project and whether it is drawn, the
-    /// replica the overlay carries, the search's own state, and the encoding
-    /// last chosen for a document with no file of its own.
+    /// Every open project — ADR 0033, `GUI-TABS-01`. One tab, one entry, in
+    /// the order they were opened; never empty, since a window with nothing
+    /// left to show a blank one rather than none.
+    std::vector<std::unique_ptr<ProjectPage>> m_pages;
+
+    /// The one `m_pages` holds that the window shows — the session and its
+    /// history, the table model, where playback was placed, the video
+    /// associated with this project and whether it is drawn, the replica the
+    /// overlay carries, the search's own state, and the encoding last chosen
+    /// for a document with no file of its own.
     ///
-    /// **Held by pointer for the reason its members used to be held by one
-    /// individually**: this header stays parsable by `moc`, which chokes on
-    /// the C++20 library headers the core drags in.
+    /// **A raw, non-owning pointer into `m_pages`**, repointed by
+    /// `switchToPage` and never itself allocated or freed: what owns a page
+    /// is the vector, and this only says which one is current.
+    ProjectPage* m_page = nullptr;
+
+    /// The index `m_page` sits at in `m_pages` — what `switchToPage` compares
+    /// a request against to tell « already showing » from « switch ».
+    int m_currentPage = -1;
+
+    /// The page whose film the shared player currently has open, or nothing.
     ///
-    /// **The window owns exactly one, for now** — #436. A second, and the tab
-    /// that would show it, are #437.
-    std::unique_ptr<ProjectPage> m_page;
+    /// **Distinct from `m_page`.** `watchAssociatedVideo`'s own guard — « the
+    /// association has not changed, do nothing » — is right for one project
+    /// and wrong for several: switching to a page whose association has not
+    /// changed *since it was last shown* still means the player is showing
+    /// someone else's film. Comparing against this is what forces the reopen
+    /// a switch of tab needs, on top of that guard rather than instead of it.
+    ProjectPage* m_playingPage = nullptr;
 };
 
 } // namespace subedit::gui

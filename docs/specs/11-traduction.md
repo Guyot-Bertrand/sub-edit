@@ -154,6 +154,35 @@ lecteur un objet par fenêtre ; et un `QTabWidget` dont on échangerait l'état 
 chaque changement d'onglet, où vivent les bugs de l'état qui fuit d'un projet à
 l'autre.
 
+**#437 a tranché la question que #436 avait laissée ouverte : une seule table,
+dont le modèle change.** Pas une pile de tables par page — l'option que #436
+nommait sans choisir. `QTabBar` seule, pas `QTabWidget` : rien à empiler, une
+étiquette par page et un signal quand on en choisit une autre.
+
+**Deux choses que Qt fait de lui-même, et qu'il a fallu reprendre.**
+`QAbstractItemView::setModel` jette le modèle de sélection qu'il avait et
+en fabrique un neuf à chaque appel — y compris pour revenir à un modèle déjà
+montré. Sans y prendre garde, chaque page aurait donc oublié sa sélection au
+premier changement d'onglet. `ProjectPage` porte désormais la sienne
+(`tableSelection`), faite une fois, remise à la table à chaque page — ADR 0033
+gagne cette ligne, que le tableau ci-dessus ne comptait pas.
+
+**Le lecteur partagé a le même piège, une ligne plus haut dans le code.**
+`watchAssociatedVideo` ne fait rien quand l'association d'une page n'a pas
+changé depuis la dernière fois qu'elle a été synchronisée — la bonne règle pour
+un seul projet, fausse pour plusieurs : revenir à une page dont l'association
+n'a pas bougé laisse le lecteur sur le film de la page qu'on vient de quitter.
+Une deuxième chose à comparer, `m_playingPage`, qui dit quelle page pilote le
+lecteur en ce moment — pas seulement laquelle la fenêtre montre.
+
+**Deux entrées que l'issue promettait, et que cette PR ne livre pas** : glisser
+un fichier sur la fenêtre, et un menu `Projects` énumérant les onglets. La
+première est un geste de plus, indépendant du reste ; la seconde double ce que
+la barre d'onglets fait déjà, et `Ctrl+PageUp`/`Ctrl+PageDown` couvrent le
+clavier. Ni l'un ni l'autre n'est dans les critères de fin de #437 — seule la
+prose de Gaupol les nommait. Reportées, sans issue ouverte : à reprendre si
+l'usage en montre le besoin.
+
 ## D3 — Un document, un fichier
 
 [ADR 0032](../adr/0032-un-document-un-fichier.md), acceptée.
