@@ -504,3 +504,10 @@ TEST_CASE("appending a file has a name of its own in the history", "[wording][ap
 
     CHECK(nameOf(CommandKind::Append) == "appending a file");
 }
+
+TEST_CASE("splitting a project has a name of its own in the history", "[wording][split-project]") {
+    using subedit::core::CommandKind;
+    using subedit::core::nameOf;
+
+    CHECK(nameOf(CommandKind::SplitProject) == "splitting the project");
+}

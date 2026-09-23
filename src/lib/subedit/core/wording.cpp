@@ -381,6 +381,8 @@ std::string_view nameOf(CommandKind kind) {
         return "replacing all";
     case CommandKind::Append:
         return "appending a file";
+    case CommandKind::SplitProject:
+        return "splitting the project";
     }
 
     // The twenty-four are handled and the compiler checks it. A `default` here would

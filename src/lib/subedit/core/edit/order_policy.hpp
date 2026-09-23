@@ -59,6 +59,8 @@ enum class OrderPolicy {
     // It moves the end, and only the end.
     case CommandKind::SetDuration:
     case CommandKind::Remove:
+    // Taking the tail out of an ordered sequence leaves it ordered.
+    case CommandKind::SplitProject:
     case CommandKind::Sort:
     // It does only what the two above it do — rewrite texts, take subtitles
     // out. Not one position moves.

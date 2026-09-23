@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Scinder un projet en deux, la suite dans un nouvel onglet
+
+## 0.11.13 — 2026-09-23
+
+### Ajouts
+
 - **gui** — Enregistrer tout et fermer tout, une seule question
 
 ## 0.11.12 — 2026-09-22

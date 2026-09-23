@@ -164,6 +164,11 @@ public:
     /// Records that `document` has just been written to disk.
     void markSaved(Document document) { m_history.markSaved(document); }
 
+    /// Records that `document` differs from any file — the counterpart of
+    /// `markSaved`, for a project that was born already holding something
+    /// nobody has written.
+    void markUnsaved(Document document) { m_history.markUnsaved(document); }
+
     [[nodiscard]] std::size_t undoableCount() const { return m_history.undoableCount(); }
 
     [[nodiscard]] std::size_t redoableCount() const { return m_history.redoableCount(); }

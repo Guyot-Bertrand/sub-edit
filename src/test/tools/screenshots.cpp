@@ -44,6 +44,7 @@
 #include <subedit/gui/save_shape.hpp>
 #include <subedit/gui/search_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
+#include <subedit/gui/split_project_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/theme.hpp>
 #include <subedit/gui/unsaved_documents_dialog.hpp>
@@ -501,6 +502,16 @@ int main(int argc, char** argv) {
     // The insertion dialog, on a document that carries rows: that is the state
     // where the choice of side is on offer, and it is the one the section
     // describes.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::gui::SplitProjectDialog dialog{12, 5};
+        written = capture(dialog, dialog, directory, "scinder") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::SplitProjectDialog dialog{12, 5};
+        written = capture(dialog, dialog, directory, "scinder-sombre") && written;
+    }
     {
         subedit::gui::applyTheme(subedit::core::Theme::Light);
         subedit::gui::InsertDialog dialog{true, subedit::core::InsertPlacement::Below};
