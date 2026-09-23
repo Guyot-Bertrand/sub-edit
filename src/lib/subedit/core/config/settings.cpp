@@ -4,6 +4,8 @@
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/wording.hpp>
 
+#include <algorithm>
+#include <array>
 #include <charconv>
 #include <cmath>
 #include <concepts>
@@ -27,6 +29,8 @@ namespace {
 constexpr std::string_view kGeometryKey = "window.geometry";
 constexpr std::string_view kMaximisedKey = "window.maximised";
 constexpr std::string_view kColumnsKey = "table.columns";
+constexpr std::string_view kColumnOrderKey = "table.order";
+constexpr std::string_view kHiddenColumnsKey = "table.hidden";
 constexpr std::string_view kTableShareKey = "window.table-share";
 constexpr std::string_view kDirectoryKey = "file.directory";
 constexpr std::string_view kThemeKey = "general.theme";
@@ -238,6 +242,70 @@ constexpr char kListSeparator = ',';
     return widths;
 }
 
+/// The six columns as the file names them — tokens of a format, like the
+/// theme's, and not the labels of the table's header.
+constexpr std::array<std::string_view, kTableColumnCount> kColumnNames = {
+    "number", "start", "end", "duration", "text", "translation"};
+
+[[nodiscard]] std::string_view textOf(TableColumn column) {
+    return kColumnNames.at(static_cast<std::size_t>(column));
+}
+
+/// The columns of a comma-separated list of names, each at most once, or
+/// nothing if one is not a column or comes twice. An empty text is an empty
+/// list.
+[[nodiscard]] std::optional<std::vector<TableColumn>> columnNamesOf(std::string_view text) {
+    std::vector<TableColumn> columns;
+    if (text.empty())
+        return columns;
+
+    std::size_t start = 0;
+    while (start <= text.size()) {
+        const std::size_t next = text.find(kListSeparator, start);
+        const std::size_t end = next == std::string_view::npos ? text.size() : next;
+        const std::string_view name = trimmed(text.substr(start, end - start));
+
+        const auto* found = std::ranges::find(kColumnNames, name);
+        if (found == kColumnNames.end())
+            return std::nullopt;
+        const auto column = static_cast<TableColumn>(found - kColumnNames.begin());
+        if (std::ranges::find(columns, column) != columns.end())
+            return std::nullopt;
+        columns.push_back(column);
+
+        if (next == std::string_view::npos)
+            break;
+        start = next + 1;
+    }
+    return columns;
+}
+
+/// An order: every column, once each.
+[[nodiscard]] std::optional<std::vector<TableColumn>> columnOrderOf(std::string_view text) {
+    std::optional<std::vector<TableColumn>> order = columnNamesOf(text);
+    if (!order.has_value() || order->size() != kTableColumnCount)
+        return std::nullopt;
+    return order;
+}
+
+/// Hidden columns: only those that may be.
+[[nodiscard]] std::optional<std::vector<TableColumn>> hiddenColumnsOf(std::string_view text) {
+    std::optional<std::vector<TableColumn>> hidden = columnNamesOf(text);
+    if (!hidden.has_value() || !std::ranges::all_of(*hidden, isHideable))
+        return std::nullopt;
+    return hidden;
+}
+
+[[nodiscard]] std::string namesOf(const std::vector<TableColumn>& columns) {
+    std::string text;
+    for (const TableColumn column : columns) {
+        if (!text.empty())
+            text += kListSeparator;
+        text += textOf(column);
+    }
+    return text;
+}
+
 [[nodiscard]] std::string joined(const std::vector<int>& numbers) {
     std::string text;
     for (std::size_t index = 0; index < numbers.size(); ++index) {
@@ -324,6 +392,10 @@ void applyOption(SettingsRead& read,
         take(booleanOf(value), read.settings.maximised);
     else if (key == kColumnsKey)
         take(columnsOf(value), read.settings.columnWidths);
+    else if (key == kColumnOrderKey)
+        take(columnOrderOf(value), read.settings.columnOrder);
+    else if (key == kHiddenColumnsKey)
+        take(hiddenColumnsOf(value), read.settings.hiddenColumns);
     else if (key == kTableShareKey)
         take(tableShareOf(value), read.settings.tableShare);
     else if (key == kDirectoryKey)
@@ -483,6 +555,17 @@ std::string renderSettings(const Settings& settings) {
                 kColumnsKey,
                 settings.columnWidths.empty() ? "60,110,110,110" : joined(settings.columnWidths),
                 settings.columnWidths.empty());
+
+    writeOption(out,
+                kColumnOrderKey,
+                settings.columnOrder.empty() ? "number,start,end,duration,text,translation"
+                                             : namesOf(settings.columnOrder),
+                settings.columnOrder.empty());
+
+    writeOption(out,
+                kHiddenColumnsKey,
+                settings.hiddenColumns.empty() ? "start,end" : namesOf(settings.hiddenColumns),
+                settings.hiddenColumns.empty());
 
     writeOption(out,
                 kTableShareKey,

@@ -325,7 +325,24 @@ sans recours. C'est l'écart n° 8.
 **Le presse-papiers ne porte pas de document** : il est une liste de textes. On peut donc copier
 une cellule du principal et la coller dans la colonne de traduction, ce que Gaupol permet.
 
-Issue : [#431](https://github.com/Guyot-Bertrand/sub-edit/issues/431).
+**Ce que #442 a ajouté : le reste des colonnes.** Le renvoi ci-dessus avait un destinataire sans
+phase ; il a été traité à la suite de la tranche 3, sur trois réponses données avant d'écrire :
+
+- **Toutes se masquent sauf `Text`**, sous `View ▸ Columns` — un sous-menu, comme Gaupol ; l'entrée de
+  la traduction y est passée. Sans le texte principal il n'y a plus rien à éditer.
+- **Toutes se déplacent**, en glissant l'en-tête, et **l'ordre comme les colonnes retirées sont
+  retenus** dans les préférences (`table.order`, `table.hidden`, ADR 0022), avec les largeurs. La
+  traduction n'y est pas : sa visibilité garde la règle ci-dessus.
+- **Une cellule courante dans une colonne qu'on retire passe dans `Text`**, même ligne, sélection
+  gardée — la règle que `targetDocument` appliquait déjà à une traduction masquée, étendue à la cellule.
+
+Deux détails que l'implémentation a dû régler. Une colonne masquée mesure zéro, et le lecteur des
+préférences refuse une largeur nulle — toute la ligne aurait été perdue : la fenêtre garde la largeur
+qu'elle avait en partant. Et l'ordre survit au changement d'onglet sans rien faire : `setModel` garde
+les sections quand leur nombre ne change pas.
+
+Issues : [#431](https://github.com/Guyot-Bertrand/sub-edit/issues/431),
+[#442](https://github.com/Guyot-Bertrand/sub-edit/issues/442).
 
 ## D6 — Ajouter un fichier, et scinder un projet
 
@@ -565,6 +582,7 @@ tranche restent `prévues` jusqu'à la décision de #435 ; si elle est négative
 | `GUI-SEARCH-03` | la recherche porte sur le document visé, et remplacer écrit dans son texte source |
 | `GUI-PLAYER-04` | la réplique dessinée sur l'image est celle du document visé |
 | `GUI-APPEND-01` | ajouter un fichier décale de la fin du dernier sous-titre, dit ce que la conversion perd, et s'annule d'un coup |
+| `GUI-TABLE-03` | les colonnes, sauf le texte, se masquent ; toutes se déplacent ; la table s'en souvient |
 | `GUI-TABS-01` | plusieurs projets s'ouvrent en onglets, chacun avec son historique, sa sélection et sa vidéo |
 | `GUI-TABS-02` | fermer tout, ou quitter, avec une seule question pour tous les projets |
 | `GUI-TABS-03` | l'étiquette d'un onglet dit que son projet est modifié |

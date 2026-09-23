@@ -111,6 +111,14 @@
 
 namespace subedit::gui {
 
+// The file names the columns in the model's order, and the window converts by
+// that order alone.
+static_assert(static_cast<int>(core::TableColumn::Number) == SubtitleTableModel::Number);
+static_assert(static_cast<int>(core::TableColumn::Duration) == SubtitleTableModel::Duration);
+static_assert(static_cast<int>(core::TableColumn::Text) == SubtitleTableModel::Text);
+static_assert(static_cast<int>(core::TableColumn::Translation) == SubtitleTableModel::Translation);
+static_assert(core::kTableColumnCount == SubtitleTableModel::kColumnCount);
+
 namespace {
 
 /// What the title bar says: the file name, or that nothing is open.
@@ -363,6 +371,12 @@ MainWindow::MainWindow(core::FileSystem& files,
     // not.
     m_table->horizontalHeader()->setStretchLastSection(true);
 
+    // **The header's columns are dragged into another order** — issue #442.
+    // The order belongs to the one table, and so to every tab: a model does
+    // not change the number of columns the header counts, so `setModel` keeps
+    // it as it keeps the widths.
+    m_table->horizontalHeader()->setSectionsMovable(true);
+
     // **A window of the system, and that is the whole point of these two
     // attributes.** libmpv draws into a window the platform numbers; a plain Qt
     // widget shares its parent's, and there would be nothing of its own to hand
@@ -556,6 +570,22 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_analyseGrid->setEnabled(false);
     connect(m_analyseGrid, &QAction::triggered, this, &MainWindow::analyseGrid);
 
+    // The four that may go, beside the translation. `No.` as Gaupol names it:
+    // the header's « # » reads badly as a menu entry.
+    const std::array<QString, 4> columnNames = {QStringLiteral("&No."),
+                                                QStringLiteral("&Start"),
+                                                QStringLiteral("&End"),
+                                                QStringLiteral("&Duration")};
+    for (std::size_t column = 0; column < m_columns.size(); ++column) {
+        m_columns.at(column) = new QAction{columnNames.at(column), this};
+        m_columns.at(column)->setCheckable(true);
+        m_columns.at(column)->setChecked(true);
+        connect(m_columns.at(column), &QAction::toggled, this, [this] {
+            refreshColumns();
+            refreshTarget();
+        });
+    }
+
     m_translationColumn = new QAction{QStringLiteral("&Translation"), this};
     m_translationColumn->setCheckable(true);
     m_translationColumn->setChecked(true);
@@ -564,7 +594,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     // The column first, then the target: what a cell can be aiming at depends on
     // whether the column is there.
     connect(m_translationColumn, &QAction::toggled, this, [this] {
-        refreshTranslationColumn();
+        refreshColumns();
         refreshTarget();
     });
 
@@ -646,7 +676,12 @@ MainWindow::MainWindow(core::FileSystem& files,
     // one day — issue #442. After `Edit` and before `Video`: what one does to
     // the document, then how one looks at it, then what accompanies it.
     QMenu* view = menuBar()->addMenu(QStringLiteral("&View"));
-    view->addAction(m_translationColumn);
+    // A submenu, as Gaupol's `View ▸ Columns`: five entries loose in the menu
+    // would be five entries for one question.
+    QMenu* columns = view->addMenu(QStringLiteral("&Columns"));
+    for (QAction* column : m_columns)
+        columns->addAction(column);
+    columns->addAction(m_translationColumn);
 
     QMenu* video = menuBar()->addMenu(QStringLiteral("&Video"));
     video->addAction(m_selectVideo);
@@ -1746,7 +1781,7 @@ void MainWindow::refreshActions() {
 
     // Before `refreshTarget`, further down: a column that has come or gone
     // changes which text the current cell can be aiming at.
-    refreshTranslationColumn();
+    refreshColumns();
 
     // Every change of the document may have moved a position, so the verdict is
     // taken again here rather than at the opening alone: an alignment that put
@@ -1806,6 +1841,44 @@ void MainWindow::refreshActions() {
         one->setEnabled(anything);
 
     refreshStructureActions();
+}
+
+QAction* MainWindow::columnAction(core::TableColumn column) const {
+    switch (column) {
+    case core::TableColumn::Number:
+    case core::TableColumn::Start:
+    case core::TableColumn::End:
+    case core::TableColumn::Duration:
+        return m_columns.at(static_cast<std::size_t>(column));
+    case core::TableColumn::Translation:
+        return m_translationColumn;
+    case core::TableColumn::Text:
+        return nullptr;
+    }
+    std::unreachable();
+}
+
+void MainWindow::setPositionColumnShown(int column, bool shown) {
+    const auto at = static_cast<std::size_t>(column);
+    if (!shown && !m_table->isColumnHidden(column))
+        m_hiddenWidths.at(at) = m_table->columnWidth(column);
+    m_table->setColumnHidden(column, !shown);
+}
+
+void MainWindow::refreshColumns() {
+    for (std::size_t column = 0; column < m_columns.size(); ++column)
+        setPositionColumnShown(static_cast<int>(column), m_columns.at(column)->isChecked());
+    refreshTranslationColumn();
+
+    // **The cell goes to the text of its row**, and the selection stays: a
+    // current cell in a column nobody can see is one a keystroke would edit
+    // blind — the rule `targetDocument` already applies to a hidden
+    // translation, made true of the cell itself.
+    const QModelIndex current = m_table->currentIndex();
+    if (current.isValid() && m_table->isColumnHidden(current.column()))
+        m_table->selectionModel()->setCurrentIndex(
+            m_page->model->index(current.row(), SubtitleTableModel::Text),
+            QItemSelectionModel::NoUpdate);
 }
 
 void MainWindow::refreshTranslationColumn() {
@@ -2722,6 +2795,23 @@ void MainWindow::applySettings(const core::Settings& settings) {
             m_table->setColumnWidth(static_cast<int>(column), settings.columnWidths[column]);
     }
 
+    // **The order after the widths, the hidden columns after the order** — the
+    // widths are those of columns still shown, and a column hidden keeps the
+    // width it had when it went.
+    QHeaderView* header = m_table->horizontalHeader();
+    if (settings.columnOrder.size() == core::kTableColumnCount) {
+        for (std::size_t visual = 0; visual < core::kTableColumnCount; ++visual) {
+            const int logical = static_cast<int>(settings.columnOrder.at(visual));
+            header->moveSection(header->visualIndex(logical), static_cast<int>(visual));
+        }
+    }
+    for (std::size_t column = 0; column < m_columns.size(); ++column) {
+        const bool hidden =
+            std::ranges::find(settings.hiddenColumns, static_cast<core::TableColumn>(column)) !=
+            settings.hiddenColumns.end();
+        m_columns.at(column)->setChecked(!hidden);
+    }
+
     // The handle: a share and not heights, so it replays at any size of
     // window. The hidden children of the splitter count zero, so the band at
     // the top takes all the rest whichever of the two is shown.
@@ -2763,8 +2853,30 @@ core::Settings MainWindow::settings() const {
     settings.maximised = isMaximized();
 
     settings.columnWidths.reserve(core::kColumnWidthCount);
-    for (std::size_t column = 0; column < core::kColumnWidthCount; ++column)
-        settings.columnWidths.push_back(m_table->columnWidth(static_cast<int>(column)));
+    for (std::size_t column = 0; column < core::kColumnWidthCount; ++column) {
+        const int logical = static_cast<int>(column);
+        settings.columnWidths.push_back(m_table->isColumnHidden(logical)
+                                            ? m_hiddenWidths.at(column)
+                                            : m_table->columnWidth(logical));
+    }
+
+    // Written only when it differs from the default order: a file that says
+    // the default in so many words would stop following it if it changed.
+    const QHeaderView* header = m_table->horizontalHeader();
+    std::vector<core::TableColumn> order;
+    bool moved = false;
+    for (int visual = 0; visual < SubtitleTableModel::kColumnCount; ++visual) {
+        const int logical = header->logicalIndex(visual);
+        moved = moved || logical != visual;
+        order.push_back(static_cast<core::TableColumn>(logical));
+    }
+    if (moved)
+        settings.columnOrder = std::move(order);
+
+    for (std::size_t column = 0; column < m_columns.size(); ++column) {
+        if (!m_columns.at(column)->isChecked())
+            settings.hiddenColumns.push_back(static_cast<core::TableColumn>(column));
+    }
 
     if (m_split != nullptr) {
         const QList<int> sizes = m_split->sizes();

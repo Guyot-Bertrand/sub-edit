@@ -50,6 +50,32 @@ inline constexpr int kLargestTableShare = 99;
 /// meant.
 inline constexpr std::size_t kColumnWidthCount = 4;
 
+/// The columns of the table, in their default order — issue #442.
+///
+/// **Here and not in the window**, because the file names them: a format
+/// cannot hang on a widget. The window's model numbers its columns in this
+/// order, and says so where it converts.
+enum class TableColumn {
+    Number,
+    Start,
+    End,
+    Duration,
+    Text,
+    Translation,
+};
+
+inline constexpr std::size_t kTableColumnCount = 6;
+
+/// Whether `column` may be hidden by the user.
+///
+/// **Every column but the text**: without it there is nothing left to edit,
+/// nor any text for a search to aim at by default. The translation is
+/// hideable too, but its visibility follows its own rule — it comes back with
+/// every translation opened — and is not kept in the file.
+[[nodiscard]] constexpr bool isHideable(TableColumn column) {
+    return column != TableColumn::Text && column != TableColumn::Translation;
+}
+
 /// What the window remembers from one session to the next.
 ///
 /// **The values, their defaults, and nothing else** — no location, no
@@ -70,6 +96,14 @@ struct Settings {
     /// Empty, or exactly `kColumnWidthCount` widths in pixels. Empty means
     /// « as the table sizes itself », which is the default.
     std::vector<int> columnWidths{};
+
+    /// Empty, or every column exactly once, in the order the table shows them.
+    /// Empty means the default order — number, positions, text, translation.
+    std::vector<TableColumn> columnOrder{};
+
+    /// The columns the user took away, among those `isHideable` allows. Empty,
+    /// the default, shows them all.
+    std::vector<TableColumn> hiddenColumns{};
 
     /// The share of the window's height the table takes, in per cent.
     ///

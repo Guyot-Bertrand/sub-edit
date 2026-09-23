@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Masquer et réordonner les colonnes de la table
+
+## 0.11.15 — 2026-09-23
+
+### Ajouts
+
 - **gui** — Chercher et remplacer dans tous les projets ouverts
 
 ## 0.11.14 — 2026-09-23
