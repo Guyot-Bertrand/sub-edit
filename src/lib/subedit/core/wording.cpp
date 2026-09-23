@@ -568,6 +568,11 @@ std::string noticeOfReplaceAll(std::size_t count) {
     return "replaced " + std::to_string(count) + (count == 1 ? " match" : " matches");
 }
 
+std::string noticeOfReplaceAll(std::size_t count, std::size_t projects) {
+    return noticeOfReplaceAll(count) + " in " + std::to_string(projects) +
+           (projects == 1 ? " project" : " projects");
+}
+
 std::string noticeOfAdjustment(std::size_t adjusted, const SacrificedConstraints& sacrificed) {
     std::string notice = adjusted == 0
                              ? std::string{"no duration to adjust"}

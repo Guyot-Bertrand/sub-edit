@@ -35,6 +35,17 @@ public:
 
     [[nodiscard]] core::SearchOptions options() const;
 
+    /// Whether the search goes through every open project — decision D8 of the
+    /// phase-11 spec — rather than the one shown.
+    [[nodiscard]] bool allProjects() const;
+
+    /// Offers the scope, or takes it away: with one project open there is
+    /// nothing to widen to, and a box left ticked would say so falsely.
+    ///
+    /// **Greyed and unticked, not hidden**: a dialog that grows a box when a
+    /// second project opens is a dialog whose layout moves under the pointer.
+    void setAllProjectsAvailable(bool available);
+
     /// Checks the two boxes as `options` says.
     ///
     /// **By value, and it is a correction.** Each box announces its change, the
@@ -61,6 +72,8 @@ public:
     [[nodiscard]] QCheckBox* regexCheck() const { return m_regex; }
 
     [[nodiscard]] QCheckBox* ignoreCaseCheck() const { return m_ignoreCase; }
+
+    [[nodiscard]] QCheckBox* allProjectsCheck() const { return m_allProjects; }
 
     [[nodiscard]] QLabel* fieldLabel() const { return m_field; }
 
@@ -92,6 +105,7 @@ private:
     QLineEdit* m_replacement;
     QCheckBox* m_regex;
     QCheckBox* m_ignoreCase;
+    QCheckBox* m_allProjects;
     QLabel* m_field;
     QLabel* m_status;
     QPushButton* m_previous;

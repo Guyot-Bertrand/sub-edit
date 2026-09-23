@@ -399,6 +399,10 @@ noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFormat to);
 /// What `Replace All` did: how many matches it replaced.
 [[nodiscard]] std::string noticeOfReplaceAll(std::size_t count);
 
+/// The same, over several projects: how many matches, and in how many projects
+/// they were.
+[[nodiscard]] std::string noticeOfReplaceAll(std::size_t count, std::size_t projects);
+
 [[nodiscard]] std::string noticeOfPaste(std::size_t inserted,
                                         const ConversionLoss& loss,
                                         std::optional<SubtitleFormat> from,

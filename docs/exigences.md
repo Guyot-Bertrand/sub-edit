@@ -193,4 +193,4 @@ plus rien.
 | `GUI-TABS-03` | l'étiquette d'un onglet dit que son projet est modifié | 11 | implémentée |
 | `GUI-SAVE-04` | enregistrer tout écrit chaque document modifié, onglet par onglet, et s'arrête à un abandon en disant ce qui a été écrit | 11 | implémentée |
 | `GUI-PSPLIT-01` | scinder un projet en deux, et l'ajout de la suite rend le projet de départ | 11 | implémentée |
-| `GUI-SEARCH-04` | la recherche porte, au choix, sur tous les projets ouverts | 11 | prévue |
+| `GUI-SEARCH-04` | la recherche porte, au choix, sur tous les projets ouverts | 11 | implémentée |
