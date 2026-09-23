@@ -142,6 +142,16 @@ public:
 
     [[nodiscard]] QAction* closeProjectAction() const { return m_closeProject; }
 
+    /// `Projects ▸ Save All` and `Projects ▸ Close All`. `GUI-SAVE-04`,
+    /// `GUI-TABS-02`.
+    ///
+    /// **`Close All` is the window's own close**: the window always holds one
+    /// project, so closing all of them and closing the window are one act, and
+    /// they ask one question.
+    [[nodiscard]] QAction* saveAllDocumentsAction() const { return m_saveAllDocuments; }
+
+    [[nodiscard]] QAction* closeAllProjectsAction() const { return m_closeAllProjects; }
+
     /// `Ctrl+PageDown` and `Ctrl+PageUp`, wrapping around at either end. No
     /// menu entry: the bar already offers a click, and these are for whoever
     /// would rather not reach for the mouse.
@@ -427,12 +437,14 @@ private:
     /// while the project has one**: a translation that was undone away has no
     /// file to differ from.
     [[nodiscard]] bool isModified(core::Document document) const;
+    [[nodiscard]] static bool isModified(const ProjectPage& page, core::Document document);
 
     /// The documents a closing would lose, in the order the window shows them.
     ///
     /// **A file gone from the disk counts as modified**, and is marked as such:
     /// what the window holds is then the only copy of it.
     [[nodiscard]] std::vector<ModifiedDocument> modifiedDocuments() const;
+    [[nodiscard]] std::vector<ModifiedDocument> modifiedDocuments(const ProjectPage& page) const;
 
     /// Returns whether whatever is about to lose the changes may go on.
     ///
@@ -440,6 +452,21 @@ private:
     /// goes on; one asks what it always asked; two ask through the list, with a
     /// box each.
     [[nodiscard]] bool mayDiscardChanges();
+
+    /// The same question for every project of the window at once.
+    ///
+    /// **Nothing modified goes on; one document asks the plain question; two or
+    /// more ask through the list**, whichever projects they belong to. Saving
+    /// brings each document's tab forward first.
+    [[nodiscard]] bool mayDiscardAllChanges();
+
+    /// The question itself, over `modified` — `owners[i]` being the tab that
+    /// `modified[i]` is in — shared by the two above.
+    [[nodiscard]] bool mayDiscard(const std::vector<ModifiedDocument>& modified,
+                                  const std::vector<int>& owners);
+
+    /// `Projects ▸ Save All`: every modified document, tab by tab.
+    void saveAllDocuments();
 
     /// Returns whether a translation that is open may be replaced — asked
     /// before the file is, as for the main document.
@@ -757,6 +784,8 @@ private:
     QAction* m_open = nullptr;
     QAction* m_newProject = nullptr;
     QAction* m_closeProject = nullptr;
+    QAction* m_saveAllDocuments = nullptr;
+    QAction* m_closeAllProjects = nullptr;
     QAction* m_nextTab = nullptr;
     QAction* m_previousTab = nullptr;
     QAction* m_save = nullptr;

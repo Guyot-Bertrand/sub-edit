@@ -65,6 +65,7 @@
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QAction>
+#include <QCheckBox>
 #include <QClipboard>
 #include <QCloseEvent>
 #include <QGuiApplication>
@@ -127,10 +128,12 @@ namespace {
 /// What a tab says: the file name, or that there is none yet — the title
 /// without the `[*]` Qt reads on a window, and without repeating "subedit" on
 /// every one of them.
-[[nodiscard]] QString tabLabelFor(const core::Project& project) {
+[[nodiscard]] QString tabLabelFor(const core::Project& project, bool modified) {
     const std::optional<std::filesystem::path>& path = project.sourceFile().path;
-    return path.has_value() ? QString::fromStdString(path->filename().string())
-                            : QStringLiteral("untitled");
+    const QString name = path.has_value() ? QString::fromStdString(path->filename().string())
+                                          : QStringLiteral("untitled");
+    // An asterisk by hand: the `[*]` Qt reads is for a window's title alone.
+    return modified ? name + QStringLiteral("*") : name;
 }
 
 /// Builds one of the two actions, named for the toolbar and for the menu.
@@ -275,6 +278,8 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_open(buildAction(this, QStringLiteral("Open…"), QStringLiteral("document-open"))),
       m_newProject(buildAction(this, QStringLiteral("&New"), QStringLiteral("document-new"))),
       m_closeProject(buildAction(this, QStringLiteral("&Close"), QStringLiteral("window-close"))),
+      m_saveAllDocuments(buildAction(this, QStringLiteral("&Save All"), {})),
+      m_closeAllProjects(buildAction(this, QStringLiteral("&Close All"), {})),
       m_nextTab(new QAction{this}),
       m_previousTab(new QAction{this}),
       m_save(buildAction(this, QStringLiteral("Save"), QStringLiteral("document-save"))),
@@ -446,6 +451,14 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(m_open, &QAction::triggered, this, &MainWindow::openFromPrompt);
     connect(m_newProject, &QAction::triggered, this, &MainWindow::newProject);
     connect(m_closeProject, &QAction::triggered, this, &MainWindow::closeCurrentProject);
+    m_saveAllDocuments->setEnabled(true);
+    m_closeAllProjects->setEnabled(true);
+    m_saveAllDocuments->setShortcut(QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_L});
+    m_closeAllProjects->setShortcut(QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_W});
+    connect(m_saveAllDocuments, &QAction::triggered, this, &MainWindow::saveAllDocuments);
+    // **Closing every project is closing the window**: the window always holds
+    // one, so there is no state in between. `closeEvent` asks the one question.
+    connect(m_closeAllProjects, &QAction::triggered, this, &QWidget::close);
     // **`Ctrl+PageDown` and `Ctrl+PageUp`**, the platform's own for moving
     // between tabs — no `QKeySequence::StandardKey` names them, so they are
     // written out, as Gaupol's own binding is. `addAction` and not a menu:
@@ -669,6 +682,13 @@ MainWindow::MainWindow(core::FileSystem& files,
     // the document, this one only reports on it.
     tools->addAction(m_analyseGrid);
 
+    // What acts on every project at once. Gaupol's menu of the same name also
+    // lists the tabs and has `Save All As…`; the first is left to the tab bar
+    // and the second is a series of `Save As…` that `Save All` already asks.
+    QMenu* projects = menuBar()->addMenu(QStringLiteral("&Projects"));
+    projects->addAction(m_saveAllDocuments);
+    projects->addAction(m_closeAllProjects);
+
     QMenu* help = menuBar()->addMenu(QStringLiteral("&Help"));
     help->addAction(m_manual);
     help->addSeparator();
@@ -790,7 +810,7 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
         // this function has had its own say, and reachable from inside the
         // constructor, where nothing else has connected to it yet.
         const QSignalBlocker blocker{m_tabBar};
-        m_tabBar->addTab(tabLabelFor(m_pages.back()->session->project()));
+        m_tabBar->addTab(tabLabelFor(m_pages.back()->session->project(), false));
     }
 
     switchToPage(index);
@@ -1335,26 +1355,34 @@ bool MainWindow::saveDocumentAs(core::Document document) {
 }
 
 bool MainWindow::isModified(core::Document document) const {
+    return isModified(*m_page, document);
+}
+
+bool MainWindow::isModified(const ProjectPage& page, core::Document document) {
     // A translation counts only while there is one: undoing the opening of it
     // takes its file away, and what is left has nothing to differ from.
     if (document == core::Document::Translation &&
-        !m_page->session->project().translationFile().has_value())
+        !page.session->project().translationFile().has_value())
         return false;
 
-    return m_page->session->hasUnsavedChanges(document);
+    return page.session->hasUnsavedChanges(document);
 }
 
 std::vector<ModifiedDocument> MainWindow::modifiedDocuments() const {
+    return modifiedDocuments(*m_page);
+}
+
+std::vector<ModifiedDocument> MainWindow::modifiedDocuments(const ProjectPage& page) const {
     std::vector<ModifiedDocument> modified;
 
     for (const core::Document document : {core::Document::Main, core::Document::Translation}) {
         if (document == core::Document::Translation &&
-            !m_page->session->project().translationFile().has_value())
+            !page.session->project().translationFile().has_value())
             continue;
 
-        const core::SourceFile& source = m_page->session->project().sourceFile(document);
+        const core::SourceFile& source = page.session->project().sourceFile(document);
         const bool missing = source.path.has_value() && !m_files->exists(*source.path);
-        if (!isModified(document) && !missing)
+        if (!isModified(page, document) && !missing)
             continue;
 
         modified.push_back(ModifiedDocument{
@@ -1369,12 +1397,34 @@ std::vector<ModifiedDocument> MainWindow::modifiedDocuments() const {
 
 bool MainWindow::mayDiscardChanges() {
     const std::vector<ModifiedDocument> modified = modifiedDocuments();
+    return mayDiscard(modified, std::vector<int>(modified.size(), m_currentPage));
+}
+
+bool MainWindow::mayDiscardAllChanges() {
+    // Every modified document of every project, and the tab each one is in.
+    // Names are not qualified by project: the kind and the file's name say
+    // which document it is, and Gaupol's own list does no more.
+    std::vector<ModifiedDocument> modified;
+    std::vector<int> owners;
+    for (std::size_t index = 0; index < m_pages.size(); ++index) {
+        for (const ModifiedDocument& document : modifiedDocuments(*m_pages[index])) {
+            modified.push_back(document);
+            owners.push_back(static_cast<int>(index));
+        }
+    }
+
+    return mayDiscard(modified, owners);
+}
+
+bool MainWindow::mayDiscard(const std::vector<ModifiedDocument>& modified,
+                            const std::vector<int>& owners) {
     if (modified.empty())
         return true;
 
-    // **One document is the question it always was.** Only two put a list on the
-    // screen: a box with a single tick would ask nothing the plain one does not.
+    // One document is the question it always was, whichever tab it is in — and
+    // the tab is brought forward first, so that a `Save As…` opens over it.
     if (modified.size() == 1) {
+        switchToPage(owners.front());
         switch (m_prompts->aboutUnsavedChanges(modified.front())) {
         case UnsavedChoice::Save:
             return saveDocument(modified.front().document);
@@ -1393,10 +1443,13 @@ bool MainWindow::mayDiscardChanges() {
 
     switch (dialog.choice()) {
     case UnsavedChoice::Save:
-        // **One failing stops the rest**, and the closing with it: a document
-        // that could not be written is one whose changes closing would lose.
-        for (const core::Document document : dialog.toSave()) {
-            if (!saveDocument(document))
+        // Read off the boxes and not off `toSave()`: that names documents, and
+        // two projects both have a main one.
+        for (std::size_t index = 0; index < modified.size(); ++index) {
+            if (!dialog.boxes().at(static_cast<qsizetype>(index))->isChecked())
+                continue;
+            switchToPage(owners.at(index));
+            if (!saveDocument(modified.at(index).document))
                 return false;
         }
         return true;
@@ -1407,6 +1460,49 @@ bool MainWindow::mayDiscardChanges() {
     }
 
     std::unreachable();
+}
+
+void MainWindow::saveAllDocuments() {
+    const int origin = m_currentPage;
+    const int projects = static_cast<int>(m_pages.size());
+
+    int total = 0;
+    for (const std::unique_ptr<ProjectPage>& page : m_pages) {
+        for (const core::Document document : {core::Document::Main, core::Document::Translation})
+            total += isModified(*page, document) ? 1 : 0;
+    }
+
+    int written = 0;
+    bool stopped = false;
+    // In the order of the tabs. `saveDocument` asks for a name when a document
+    // has none, and a `Save As…` given up — or a write that fails — ends the
+    // series: what follows would be answering for someone who left.
+    for (int index = 0; index < projects && !stopped; ++index) {
+        switchToPage(index);
+        for (const core::Document document : {core::Document::Main, core::Document::Translation}) {
+            if (!isModified(document))
+                continue;
+            if (!saveDocument(document)) {
+                stopped = true;
+                break;
+            }
+            ++written;
+        }
+    }
+
+    switchToPage(origin);
+
+    const auto documents = [](int count) {
+        return std::to_string(count) + (count == 1 ? " document" : " documents");
+    };
+    if (stopped) {
+        m_prompts->reportOutcome("Save All stopped: " + std::to_string(written) + " of " +
+                                 documents(total) + " saved");
+        return;
+    }
+    statusBar()->showMessage(
+        QString::fromStdString(total == 0 ? "Nothing to save" : documents(written) + " saved"),
+        kOperationStatusTimeoutMs);
 }
 
 bool MainWindow::mayReplaceTranslation() {
@@ -1606,17 +1702,12 @@ void MainWindow::showEvent(QShowEvent* event) {
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
-    // **Every page in turn, and the first refusal stops the window closing at
-    // all.** One combined question for every modified project across every
-    // tab is #438's job — `GUI-TABS-02` — and until then this is what asking
-    // per tab, the way closing one already does, adds up to.
-    const int opened = static_cast<int>(m_pages.size());
-    for (int index = 0; index < opened; ++index) {
-        switchToPage(index);
-        if (!mayDiscardChanges()) {
-            event->ignore();
-            return;
-        }
+    // **One question for every project**, `Close All` and the window's own
+    // button alike — `GUI-TABS-02`. The first refusal stops the window closing
+    // at all.
+    if (!mayDiscardAllChanges()) {
+        event->ignore();
+        return;
     }
     event->accept();
 }
@@ -1636,8 +1727,13 @@ void MainWindow::refreshActions() {
     m_redo->setText(redo);
     m_redo->setToolTip(redo);
 
-    // Modified if either document is: the title has one asterisk for the two.
-    setWindowModified(isModified(core::Document::Main) || isModified(core::Document::Translation));
+    // Modified if either document is: the title has one asterisk for the two,
+    // and so does the tab. Here rather than at each edit because every edit,
+    // save and change of tab already passes through this function.
+    const bool modified =
+        isModified(core::Document::Main) || isModified(core::Document::Translation);
+    setWindowModified(modified);
+    m_tabBar->setTabText(m_currentPage, tabLabelFor(m_page->session->project(), modified));
 
     // Before `refreshTarget`, further down: a column that has come or gone
     // changes which text the current cell can be aiming at.

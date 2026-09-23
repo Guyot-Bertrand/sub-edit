@@ -597,6 +597,35 @@ int main(int argc, char** argv) {
         written = capture(dialog, dialog, directory, "fermeture-sombre") && written;
     }
 
+    // The same question asked over every project at once — issue #438,
+    // `GUI-TABS-02`: three documents, of two projects.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        const std::array<subedit::gui::ModifiedDocument, 3> modified = {
+            subedit::gui::ModifiedDocument{.document = subedit::core::Document::Main,
+                                           .name = "scene.srt"},
+            subedit::gui::ModifiedDocument{.document = subedit::core::Document::Translation,
+                                           .name = "scene-en.srt"},
+            subedit::gui::ModifiedDocument{.document = subedit::core::Document::Main,
+                                           .name = "untitled"},
+        };
+        subedit::gui::UnsavedDocumentsDialog dialog{modified};
+        written = capture(dialog, dialog, directory, "fermeture-projets") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        const std::array<subedit::gui::ModifiedDocument, 3> modified = {
+            subedit::gui::ModifiedDocument{.document = subedit::core::Document::Main,
+                                           .name = "scene.srt"},
+            subedit::gui::ModifiedDocument{.document = subedit::core::Document::Translation,
+                                           .name = "scene-en.srt"},
+            subedit::gui::ModifiedDocument{.document = subedit::core::Document::Main,
+                                           .name = "untitled"},
+        };
+        subedit::gui::UnsavedDocumentsDialog dialog{modified};
+        written = capture(dialog, dialog, directory, "fermeture-projets-sombre") && written;
+    }
+
     // The shape `Save As…` offers, **inside the dialog that carries it** and
     // not on its own.
     //
