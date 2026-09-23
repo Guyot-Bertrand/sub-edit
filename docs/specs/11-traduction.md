@@ -408,6 +408,24 @@ traduction lit **le fichier de la traduction** — chemin, format, encodage, fin
 la perte annoncée est celle **du document écrit** : `convertFor` ne parcourt plus les deux textes avec le
 format du principal. Ouvrir un autre fichier remplace la traduction, donc pose la même question.
 
+**Ce que #438 a livré.** Un menu `Projects`, **avec ces deux entrées seulement** : `Save All` et
+`Close All`. Celui de Gaupol énumère aussi les onglets et porte `Save All As…` ; le premier double la
+barre d'onglets (D2), le second est écarté ci-dessus.
+
+- **`Close All` est la fermeture de la fenêtre.** Elle n'a pas de méthode à elle : l'action est
+  branchée sur `close()`, et `closeEvent` pose la question. La fenêtre garde toujours un projet
+  — fermer tous les projets et fermer la fenêtre sont un seul acte, et il n'y a pas d'état intermédiaire
+  à écrire. Le critère « quitter passe par la même question » est vrai par construction.
+- **La liste est celle de #432, sur tous les onglets.** `mayDiscardAllChanges` rassemble les documents
+  modifiés de chaque page, un vecteur d'index de page en parallèle. **`Save` lit les cases**, pas
+  `toSave()` : celui-ci nomme des documents, et deux projets ont chacun un principal. Les noms ne
+  sont pas qualifiés par projet — la liste de Gaupol non plus. Un seul document modifié, quel que soit
+  l'onglet, pose la question simple, l'onglet amené au premier plan.
+- **`Save All` réutilise `saveDocument`**, qui ouvre déjà `Save As…` pour un document sans fichier. Un
+  abandon ou un échec arrête la boucle ; la boîte dit combien ont été écrits sur combien.
+- **L'étiquette d'un onglet porte une étoile** tant que l'un de ses documents est modifié, mise à jour
+  au même endroit que l'étoile de la fenêtre (`refreshActions`).
+
 Issues : [#432](https://github.com/Guyot-Bertrand/sub-edit/issues/432),
 [#438](https://github.com/Guyot-Bertrand/sub-edit/issues/438).
 
@@ -519,7 +537,9 @@ tranche restent `prévues` jusqu'à la décision de #435 ; si elle est négative
 | `GUI-PLAYER-04` | la réplique dessinée sur l'image est celle du document visé |
 | `GUI-APPEND-01` | ajouter un fichier décale de la fin du dernier sous-titre, dit ce que la conversion perd, et s'annule d'un coup |
 | `GUI-TABS-01` | plusieurs projets s'ouvrent en onglets, chacun avec son historique, sa sélection et sa vidéo |
-| `GUI-TABS-02` | enregistrer tout et fermer tout, avec une seule question pour tous les projets |
+| `GUI-TABS-02` | fermer tout, ou quitter, avec une seule question pour tous les projets |
+| `GUI-TABS-03` | l'étiquette d'un onglet dit que son projet est modifié |
+| `GUI-SAVE-04` | enregistrer tout écrit chaque document modifié, onglet par onglet, et s'arrête à un abandon en disant ce qui a été écrit |
 | `GUI-PSPLIT-01` | scinder un projet en deux, et l'ajout de la suite rend le projet de départ |
 | `GUI-SEARCH-04` | la recherche porte, au choix, sur tous les projets ouverts |
 

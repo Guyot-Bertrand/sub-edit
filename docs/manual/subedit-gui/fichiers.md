@@ -1,7 +1,7 @@
 # Ouvrir et enregistrer
 
 Le menu **File** porte les trois commandes, deux pour les onglets, et trois de
-plus pour la traduction.
+plus pour la traduction ; le menu **Projects** agit sur tous les onglets à la fois.
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
@@ -59,11 +59,48 @@ celle de cet onglet seul, les autres n'étant pas concernés. **Éteinte quand i
 n'y a qu'un onglet** : la fenêtre en garde toujours au moins un, et le fermer
 serait fermer la fenêtre — ce que fait déjà le bouton du système.
 
-**Fermer la fenêtre pose la question, onglet par onglet.** Chacun des projets
-modifiés est demandé à son tour, dans l'ordre où ils ont été ouverts ; le
-premier `Cancel` arrête tout, et aucun onglet n'est fermé. Une seule question
-pour tous les onglets à la fois n'est pas encore là — elle attend `Save All` et
-`Close All`.
+**Un onglet dit qu'il est modifié** : une étoile suit son nom, `premier.srt*`,
+tant que l'un de ses documents diffère de son fichier — comme le titre de la
+fenêtre le dit du projet qu'on regarde. Elle s'éteint à l'enregistrement.
+
+## Le menu Projects
+
+Deux commandes agissent sur tous les projets à la fois.
+
+| Commande | Raccourci | Ce qu'elle fait |
+| :------- | :-------- | :-------------- |
+| `Save All` | `Ctrl+Shift+L` | écrit chaque document modifié, onglet par onglet |
+| `Close All` | `Ctrl+Shift+W` | ferme tous les projets — c'est-à-dire la fenêtre |
+
+**`Save All` va dans l'ordre des onglets**, le principal avant la traduction.
+Un document qui a un fichier y est réécrit ; **un document qui n'en a pas ouvre
+`Save As…`, un à la fois**, sur son onglet. **Renoncer à un `Save As…`, ou un
+enregistrement qui échoue, arrête la suite** : les projets suivants ne sont pas
+touchés, et une boîte dit ce qui a été écrit.
+
+```text
+Save All stopped: 1 of 3 documents saved
+```
+
+Quand tout est écrit, la barre d'état le dit — `2 documents saved`, ou
+`Nothing to save` quand rien n'était modifié. La fenêtre revient à l'onglet où
+la commande a été lancée.
+
+**`Close All` et la croix de la fenêtre sont une seule chose** : la fenêtre
+garde toujours un projet, et les fermer tous, c'est la fermer. Elles posent
+donc **une seule question pour tous les projets**, la même qu'à
+[deux documents modifiés](#fermer-avec-deux-documents-modifiés), avec une case
+par document modifié de chaque onglet :
+
+![La question de fermeture posée sur trois documents de deux projets, palette
+claire.](captures/fermeture-projets.png)
+
+![La même question sous la palette sombre.](captures/fermeture-projets-sombre.png)
+
+**`Cancel` ne ferme rien**, et ne laisse rien d'écrit. Avec un seul document
+modifié sur l'ensemble des projets, c'est la question simple qu'on a toujours
+eue, posée sur son onglet. `Save All As…` n'existe pas : c'est une suite de
+`Save As…`, que `Save All` pose déjà, un à la fois, pour les documents sans nom.
 
 ## Ouvrir
 
@@ -421,8 +458,8 @@ principal, et ne change ni son fichier, ni son format, ni ses textes.
 
 ## Fermer avec deux documents modifiés
 
-Fermer la fenêtre, ou l'onglet courant, alors que **les deux documents** de cet
-onglet diffèrent de leurs fichiers pose **une seule question**, une case par
+Fermer l'onglet courant, ou la fenêtre, alors que **deux documents** ou plus
+diffèrent de leurs fichiers pose **une seule question**, une case par
 document :
 
 ![La question de fermeture avec deux documents modifiés : le principal et la

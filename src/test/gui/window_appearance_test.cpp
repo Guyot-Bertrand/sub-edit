@@ -67,6 +67,7 @@ TEST_CASE("the menus read in the order a user meets them", "[gui][appearance]") 
                                              QStringLiteral("&View"),
                                              QStringLiteral("&Video"),
                                              QStringLiteral("&Tools"),
+                                             QStringLiteral("&Projects"),
                                              QStringLiteral("&Help")});
 }
 

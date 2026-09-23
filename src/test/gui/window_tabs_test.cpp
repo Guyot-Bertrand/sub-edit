@@ -10,13 +10,19 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/video/video_player.hpp>
+#include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/subtitle_table.hpp>
+#include <subedit/gui/unsaved_documents_dialog.hpp>
 
 #include <QAbstractItemModel>
 #include <QAction>
+#include <QCheckBox>
+#include <QDialog>
 #include <QItemSelectionModel>
 #include <QKeySequence>
+#include <QPushButton>
+#include <QSpinBox>
 #include <QStatusBar>
 #include <QString>
 #include <QTabBar>
@@ -39,9 +45,12 @@ using subedit::core::InMemoryFileSystem;
 using subedit::core::OpenedFile;
 using subedit::core::openProject;
 using subedit::core::VideoPlayer;
+using subedit::gui::InsertDialog;
 using subedit::gui::MainWindow;
 using subedit::gui::PlayerFactory;
+using subedit::gui::SaveTarget;
 using subedit::gui::UnsavedChoice;
+using subedit::gui::UnsavedDocumentsDialog;
 using subedit::test::FakePrompts;
 using subedit::test::FakeVideoPlayer;
 
@@ -320,7 +329,91 @@ TEST_CASE("copying in one tab and pasting in another carries the text across",
     CHECK(textAt(window, 1) == "Un.");
 }
 
-TEST_CASE("closing the window asks about every modified tab, in turn", "[gui][GUI-TABS-01]") {
+TEST_CASE("a tab says it is modified, and stops saying so once saved", "[gui][GUI-TABS-03]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    CHECK(window.tabBar()->tabText(0).toStdString() == "premier.srt");
+
+    REQUIRE(edit(window, 0, "Un bis."));
+    CHECK(window.tabBar()->tabText(0).toStdString() == "premier.srt*");
+
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    // The other tab keeps saying what it said when it was left.
+    CHECK(window.tabBar()->tabText(0).toStdString() == "premier.srt*");
+    CHECK(window.tabBar()->tabText(1).toStdString() == "second.srt");
+
+    window.tabBar()->setCurrentIndex(0);
+    window.saveAction()->trigger();
+    CHECK(window.tabBar()->tabText(0).toStdString() == "premier.srt");
+}
+
+namespace {
+
+/// Three modified projects: `premier.srt`, a new one with no file, `second.srt`.
+void openThreeModified(MainWindow& window, FakePrompts& prompts) {
+    REQUIRE(edit(window, 0, "Un bis."));
+    window.newProjectAction()->trigger();
+    // A project with no file, made modified by giving it a subtitle.
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        dynamic_cast<InsertDialog&>(dialog).countBox()->setValue(1);
+    };
+    window.insertAction()->trigger();
+    REQUIRE(window.tabBar()->tabText(1).toStdString() == "untitled*");
+    prompts.nextRun = false;
+    prompts.fill = nullptr;
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    REQUIRE(edit(window, 0, "Trois bis."));
+    REQUIRE(window.tabBar()->count() == 3);
+}
+
+} // namespace
+
+TEST_CASE("Save All writes every modified project and asks a name for the one with none",
+          "[gui][GUI-SAVE-04]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    openThreeModified(window, prompts);
+    prompts.nextSaveTarget = SaveTarget{.path = "nouveau.srt"};
+
+    window.saveAllDocumentsAction()->trigger();
+
+    CHECK(files.contentOf("premier.srt").value_or("").find("Un bis.") != std::string::npos);
+    CHECK(files.contentOf("second.srt").value_or("").find("Trois bis.") != std::string::npos);
+    CHECK(files.contentOf("nouveau.srt").has_value());
+    CHECK(prompts.saveTargetAsked == 1);
+    // Back on the tab it was fired from.
+    CHECK(window.tabBar()->currentIndex() == 2);
+    CHECK(window.tabBar()->tabText(0).toStdString() == "premier.srt");
+    CHECK(window.tabBar()->tabText(1).toStdString() == "nouveau.srt");
+}
+
+TEST_CASE("Save All stops at a Save As that is given up, and says what was written",
+          "[gui][GUI-SAVE-04]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    openThreeModified(window, prompts);
+    prompts.nextSaveTarget.reset();
+
+    window.saveAllDocumentsAction()->trigger();
+
+    CHECK(files.contentOf("premier.srt").value_or("").find("Un bis.") != std::string::npos);
+    // The third project is after the one that was given up: not reached.
+    CHECK(files.contentOf("second.srt").value_or("") == kSecond);
+    REQUIRE(prompts.outcomes.size() == 1);
+    CHECK(prompts.outcomes.front().find("1 of 3") != std::string::npos);
+    CHECK(window.tabBar()->currentIndex() == 2);
+}
+
+TEST_CASE("closing the window asks once for every modified project", "[gui][GUI-TABS-02]") {
     InMemoryFileSystem files = withTwoFilms();
     FakePrompts prompts;
     MainWindow window{files, fileIn(files, "premier.srt"), prompts};
@@ -329,14 +422,24 @@ TEST_CASE("closing the window asks about every modified tab, in turn", "[gui][GU
     prompts.nextFileToOpen = "second.srt";
     window.openAction()->trigger();
     REQUIRE(edit(window, 0, "Trois bis."));
-    prompts.nextUnsavedChoice = UnsavedChoice::Discard;
+    std::size_t boxes = 0;
+    prompts.nextRun = true;
+    prompts.fill = [&](QDialog& dialog) {
+        if (auto* list = dynamic_cast<UnsavedDocumentsDialog*>(&dialog)) {
+            boxes = static_cast<std::size_t>(list->boxes().size());
+            list->discardButton()->click();
+        }
+    };
 
     CHECK(window.close());
 
-    CHECK(prompts.unsavedAsked == 2);
+    CHECK(prompts.runAsked == 1);
+    CHECK(prompts.unsavedAsked == 0);
+    CHECK(boxes == 2);
 }
 
-TEST_CASE("closing the window stops at the first tab that refuses", "[gui][GUI-TABS-01]") {
+TEST_CASE("closing all: saving the ticked documents writes those and only those",
+          "[gui][GUI-TABS-02]") {
     InMemoryFileSystem files = withTwoFilms();
     FakePrompts prompts;
     MainWindow window{files, fileIn(files, "premier.srt"), prompts};
@@ -345,12 +448,93 @@ TEST_CASE("closing the window stops at the first tab that refuses", "[gui][GUI-T
     prompts.nextFileToOpen = "second.srt";
     window.openAction()->trigger();
     REQUIRE(edit(window, 0, "Trois bis."));
+    prompts.nextRun = true;
+    prompts.fill = [&](QDialog& dialog) {
+        if (auto* list = dynamic_cast<UnsavedDocumentsDialog*>(&dialog)) {
+            list->boxes().at(0)->setChecked(false);
+            list->saveButton()->click();
+        }
+    };
+
+    window.closeAllProjectsAction()->trigger();
+
+    CHECK(files.contentOf("premier.srt").value_or("") == kFirst);
+    CHECK(files.contentOf("second.srt").value_or("").find("Trois bis.") != std::string::npos);
+    CHECK_FALSE(window.isVisible());
+}
+
+TEST_CASE("closing all without saving loses every project's changes and closes",
+          "[gui][GUI-TABS-02]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    REQUIRE(edit(window, 0, "Un bis."));
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    REQUIRE(edit(window, 0, "Trois bis."));
+    prompts.nextRun = true;
+    prompts.fill = [&](QDialog& dialog) {
+        if (auto* list = dynamic_cast<UnsavedDocumentsDialog*>(&dialog))
+            list->discardButton()->click();
+    };
+
+    window.closeAllProjectsAction()->trigger();
+
+    CHECK(files.contentOf("premier.srt").value_or("") == kFirst);
+    CHECK(files.contentOf("second.srt").value_or("") == kSecond);
+    CHECK_FALSE(window.isVisible());
+}
+
+TEST_CASE("cancelling the question of closing all leaves every project open",
+          "[gui][GUI-TABS-02]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    REQUIRE(edit(window, 0, "Un bis."));
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    REQUIRE(edit(window, 0, "Trois bis."));
+    prompts.nextRun = false;
+
+    window.closeAllProjectsAction()->trigger();
+
+    CHECK(window.isVisible());
+    CHECK(window.tabBar()->count() == 2);
+    CHECK(files.contentOf("premier.srt").value_or("") == kFirst);
+}
+
+TEST_CASE("one modified project among several asks the plain question, about its tab",
+          "[gui][GUI-TABS-02]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    window.tabBar()->setCurrentIndex(0);
+    REQUIRE(edit(window, 0, "Un bis."));
+    window.tabBar()->setCurrentIndex(1);
     prompts.nextUnsavedChoice = UnsavedChoice::Cancel;
 
     CHECK_FALSE(window.close());
 
-    // Stopped at the first tab asked — the window's own order, from the
-    // first opened.
     CHECK(prompts.unsavedAsked == 1);
-    CHECK(window.tabBar()->count() == 2);
+    CHECK(prompts.runAsked == 0);
+}
+
+TEST_CASE("discarding the one modified document closes the window without writing it",
+          "[gui][GUI-TABS-02]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    REQUIRE(edit(window, 0, "Un bis."));
+    prompts.nextUnsavedChoice = UnsavedChoice::Discard;
+
+    CHECK(window.close());
+
+    CHECK(prompts.unsavedAsked == 1);
+    CHECK(files.contentOf("premier.srt").value_or("") == kFirst);
 }
