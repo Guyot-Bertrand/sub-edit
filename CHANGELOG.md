@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Enregistrer tout et fermer tout, une seule question
+
+## 0.11.12 — 2026-09-22
+
+### Ajouts
+
 - **gui** — Plusieurs projets dans une fenêtre, en onglets
 
 ### Documentation
