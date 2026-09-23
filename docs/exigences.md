@@ -99,6 +99,7 @@ plus rien.
 | `GUI-OPEN-03` | les diagnostics de lecture sont montrés, avec leur ligne | 5 | implémentée |
 | `GUI-TABLE-01` | les cinq colonnes affichent numéro, début, fin, durée et texte | 5 | implémentée |
 | `GUI-TABLE-02` | les sous-titres en anomalie sont marqués et nommés | 5 | implémentée |
+| `GUI-TABLE-03` | les colonnes, sauf le texte, se masquent ; toutes se déplacent ; la table s'en souvient | 11 | implémentée |
 | `GUI-EDIT-01` | éditer une cellule de texte modifie le sous-titre et rien d'autre | 5 | implémentée |
 | `GUI-EDIT-02` | éditer un début ou une fin lit un horodatage permissif | 5 | implémentée |
 | `GUI-EDIT-03` | une validation qui ne change rien n'entre pas dans l'historique | 5 | implémentée |

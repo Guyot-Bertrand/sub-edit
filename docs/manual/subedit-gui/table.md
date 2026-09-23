@@ -21,6 +21,36 @@ claire.](captures/table.png)
 
 ![La même table sous la palette sombre.](captures/table-sombre.png)
 
+## Masquer et déplacer les colonnes
+
+**`View ▸ Columns`** porte une entrée à cocher par colonne, **sauf `Text`** :
+sans le texte principal, il n'y aurait plus rien à éditer.
+
+| Entrée | Colonne |
+| :----- | :------ |
+| `View ▸ Columns ▸ No.` | `#` |
+| `View ▸ Columns ▸ Start` | `Start` |
+| `View ▸ Columns ▸ End` | `End` |
+| `View ▸ Columns ▸ Duration` | `Duration` |
+| `View ▸ Columns ▸ Translation` | `Translation` — voir [La colonne de traduction](#la-colonne-de-traduction) |
+
+Décocher une entrée retire sa colonne, la recocher la remet, à la largeur
+qu'elle avait. **Le réglage vaut pour toute la fenêtre**, tous les onglets
+compris : il y a une seule table, dont le projet change avec l'onglet.
+
+**La cellule courante quitte la colonne qu'on retire** : elle passe dans `Text`,
+sur la même ligne, et la sélection ne bouge pas. Une cellule courante dans une
+colonne que personne ne voit serait une cellule qu'une frappe éditerait à
+l'aveugle.
+
+**Les colonnes se déplacent en glissant leur en-tête**, n'importe laquelle, `Text`
+comprise. La dernière colonne montrée prend la place que les autres laissent.
+
+**L'ordre et les colonnes retirées sont retenus d'une session à l'autre**, avec
+les largeurs, dans le [fichier de préférences](preferences.md) — `table.order`
+et `table.hidden`. La colonne de traduction n'y est pas : elle suit sa propre
+règle, et revient avec chaque traduction ouverte.
+
 **Le numéro n'est pas une donnée du fichier** mais le rang de la ligne. Une
 insertion ou une suppression renumérote donc tout ce qui suit, sans que rien ne
 soit réécrit.
@@ -121,7 +151,7 @@ une : voir [Ouvrir une traduction](fichiers.md#ouvrir-une-traduction).
 
 | Entrée | Ce qu'elle fait |
 | :----- | :-------------- |
-| `View ▸ Translation` | coche : la colonne est montrée ; décoche : elle est retirée |
+| `View ▸ Columns ▸ Translation` | coche : la colonne est montrée ; décoche : elle est retirée |
 
 L'entrée est **éteinte quand le projet n'a pas de traduction** — il n'y a rien à
 montrer — et cochée au démarrage. **Le choix de la retirer est celui de

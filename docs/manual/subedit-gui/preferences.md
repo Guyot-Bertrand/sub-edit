@@ -48,7 +48,9 @@ qui le pose est justement celle qui ne va pas.
 | :----- | :-------------- | :----- |
 | `window.geometry` | `x,y,largeur,hauteur`, en pixels ; largeur et hauteur non nulles | la fenêtre se dimensionne elle-même |
 | `window.maximised` | `true` ou `false` | `false` |
-| `table.columns` | quatre largeurs en pixels, séparées par des virgules | la table se dimensionne elle-même |
+| `table.columns` | quatre largeurs en pixels, séparées par des virgules — `#`, `Start`, `End`, `Duration`, même masquées | la table se dimensionne elle-même |
+| `table.order` | les six colonnes, **chacune une fois**, dans l'ordre où la table les montre : `number`, `start`, `end`, `duration`, `text`, `translation` | `number,start,end,duration,text,translation` |
+| `table.hidden` | les colonnes retirées, parmi `number`, `start`, `end` et `duration` ; vide, aucune | aucune |
 | `window.table-share` | la part de la hauteur donnée à la table, en pour cent, de 1 à 99 | la fenêtre partage comme elle l'a toujours fait |
 | `file.directory` | un chemin **absolu** de répertoire | aucun : `Open…` s'ouvre là où le programme a été lancé |
 | `general.theme` | `system`, `light` ou `dark` | `system` |
@@ -135,6 +137,8 @@ leur défaut sont écrites en commentaire :
 #window.geometry = 0,0,1280,800
 #window.maximised = false
 #table.columns = 60,110,110,110
+#table.order = number,start,end,duration,text,translation
+#table.hidden = start,end
 ```
 
 Ce n'est pas une coquetterie. Sans cela, une option jamais touchée resterait
@@ -146,10 +150,11 @@ exactement ce qu'un défaut doit faire.
 Pour surcharger une option : retirer le `#` et changer la valeur. Pour revenir
 au défaut : effacer la ligne, ou la remettre en commentaire.
 
-Les deux premières lignes ci-dessus montrent une **forme** et non une valeur en
-vigueur : le défaut de la géométrie et celui des colonnes sont « ce que la
-fenêtre choisit », qui ne s'écrit pas en nombres. L'en-tête du fichier le dit
-aussi.
+La géométrie, les largeurs et les colonnes retirées montrent une **forme** et
+non une valeur en vigueur : le défaut de la géométrie et celui des largeurs sont
+« ce que la fenêtre choisit », qui ne s'écrit pas en nombres, et celui de
+`table.hidden` est « aucune », qui ne se lit pas. L'en-tête du fichier le dit
+aussi. `table.order`, lui, montre bien l'ordre par défaut.
 
 ## Le répertoire retenu
 

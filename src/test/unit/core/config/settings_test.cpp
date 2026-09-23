@@ -322,6 +322,68 @@ TEST_CASE("a missing option is worth its default", "[config]") {
     CHECK(read.diagnostics.empty());
 }
 
+// ## The columns: their order and those taken away — issue #442
+
+TEST_CASE("an order of the columns is every column once, by name", "[config]") {
+    using subedit::core::TableColumn;
+
+    const SettingsRead read = readOf("table.order = text, number,start,end,duration,translation\n");
+
+    CHECK(read.diagnostics.empty());
+    CHECK(read.settings.columnOrder == std::vector<TableColumn>{TableColumn::Text,
+                                                                TableColumn::Number,
+                                                                TableColumn::Start,
+                                                                TableColumn::End,
+                                                                TableColumn::Duration,
+                                                                TableColumn::Translation});
+}
+
+TEST_CASE("an order that misses a column, repeats one or names none is refused", "[config]") {
+    CHECK(readOf("table.order = number,start,end,duration,text\n").diagnostics.size() == 1);
+    CHECK(
+        readOf("table.order = number,number,end,duration,text,translation\n").diagnostics.size() ==
+        1);
+    CHECK(readOf("table.order = number,start,end,duration,text,notes\n").diagnostics.size() == 1);
+    CHECK(readOf("table.order = number,start,end,duration,text,notes\n")
+              .settings.columnOrder.empty());
+}
+
+TEST_CASE("the hidden columns are among the four that may be hidden", "[config]") {
+    using subedit::core::TableColumn;
+
+    CHECK(readOf("table.hidden = start,duration\n").settings.hiddenColumns ==
+          std::vector<TableColumn>{TableColumn::Start, TableColumn::Duration});
+    CHECK(readOf("table.hidden =\n").settings.hiddenColumns.empty());
+    CHECK(readOf("table.hidden =\n").diagnostics.empty());
+    // The text can never be taken away, and the translation follows a rule of
+    // its own.
+    CHECK(readOf("table.hidden = text\n").diagnostics.size() == 1);
+    CHECK(readOf("table.hidden = translation\n").diagnostics.size() == 1);
+    CHECK(readOf("table.hidden = start,start\n").diagnostics.size() == 1);
+}
+
+TEST_CASE("the order and the hidden columns go round the file", "[config]") {
+    using subedit::core::TableColumn;
+    Settings settings;
+    settings.columnOrder = {TableColumn::Number,
+                            TableColumn::Text,
+                            TableColumn::Start,
+                            TableColumn::End,
+                            TableColumn::Duration,
+                            TableColumn::Translation};
+    settings.hiddenColumns = {TableColumn::Duration};
+
+    const std::string written = renderSettings(settings);
+    CHECK_THAT(written,
+               ContainsSubstring("\ntable.order = number,text,start,end,duration,translation\n"));
+    CHECK_THAT(written, ContainsSubstring("\ntable.hidden = duration\n"));
+
+    const SettingsRead read = readOf(written);
+    CHECK(read.diagnostics.empty());
+    CHECK(read.settings.columnOrder == settings.columnOrder);
+    CHECK(read.settings.hiddenColumns == settings.hiddenColumns);
+}
+
 // ## Option à son défaut : réécrite commentée
 
 TEST_CASE("an option at its default is written back commented out", "[config]") {
@@ -330,6 +392,9 @@ TEST_CASE("an option at its default is written back commented out", "[config]") 
     CHECK_THAT(written, ContainsSubstring("#window.geometry = "));
     CHECK_THAT(written, ContainsSubstring("#window.maximised = false"));
     CHECK_THAT(written, ContainsSubstring("#table.columns = "));
+    CHECK_THAT(written,
+               ContainsSubstring("#table.order = number,start,end,duration,text,translation"));
+    CHECK_THAT(written, ContainsSubstring("#table.hidden = "));
     CHECK_THAT(written, ContainsSubstring("#window.table-share = "));
     CHECK_THAT(written, ContainsSubstring("#file.directory = "));
     CHECK_THAT(written, ContainsSubstring("#general.theme = system"));
