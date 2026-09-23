@@ -465,6 +465,23 @@ chacun.
   plusieurs projets. `Replace All` y est **une entrée d'historique par projet touché**, si bien
   qu'annuler dans un onglet ne défait que ce que cet onglet a reçu.
 
+**Ce que #440 a livré.** Une case `All open projects` dans la boîte de recherche — pas un sélecteur à
+trois états : les deux portées d'avant, la sélection ou le document, ne se choisissent pas, elles se lisent
+sur la table, et la nouvelle est la seule qui demande un geste. **Éteinte avec un projet, décochée d'office
+quand il n'en reste qu'un** ; cochée, elle ignore la sélection et prend chaque projet en entier.
+
+- **L'algorithme est celui de la fenêtre, pas du noyau** : le noyau cherche dans un projet et boucle sur
+  lui-même, la fenêtre sait ce qu'est un onglet. Le projet montré d'abord ; si sa correspondance
+  suivante est en fait le tour du même projet, les autres onglets sont visités dans l'ordre (à l'envers en
+  remontant), chacun depuis son début ; le tour est dit `Search wrapped around` quand il repasse le bout.
+- **Une correspondance qu'un onglet garde de sa dernière visite ne sert à rien** : les autres projets sont
+  cherchés depuis leur début, jamais depuis leur ancienne correspondance, et un changement de motif ou
+  d'option les oublie toutes.
+- **`Replace All` passe par chaque page** : `switchToPage` puis `applyOperation`, comme `Save All`, ce qui
+  fait une entrée d'historique par projet touché sans rien inventer. Le compte, `replaced N matches in M
+  projects`, est `noticeOfReplaceAll(count, projects)`.
+- **Sur le document visé de chaque projet** : la colonne est celle de la table, une seule pour toute la fenêtre.
+
 **Deux choses que la décision ne disait pas, et que #433 a dû trancher.**
 
 - **La table reste dans la colonne où elle était.** `selectRows` posait la cellule courante en colonne 0

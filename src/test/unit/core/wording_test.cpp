@@ -505,6 +505,13 @@ TEST_CASE("appending a file has a name of its own in the history", "[wording][ap
     CHECK(nameOf(CommandKind::Append) == "appending a file");
 }
 
+TEST_CASE("replacing everywhere across projects counts the projects too", "[wording][search]") {
+    using subedit::core::noticeOfReplaceAll;
+
+    CHECK(noticeOfReplaceAll(4, 3) == "replaced 4 matches in 3 projects");
+    CHECK(noticeOfReplaceAll(1, 1) == "replaced 1 match in 1 project");
+}
+
 TEST_CASE("splitting a project has a name of its own in the history", "[wording][split-project]") {
     using subedit::core::CommandKind;
     using subedit::core::nameOf;

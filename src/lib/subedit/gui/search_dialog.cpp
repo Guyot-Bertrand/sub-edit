@@ -19,6 +19,7 @@ SearchDialog::SearchDialog(QWidget* parent)
       m_replacement(new QLineEdit{this}),
       m_regex(new QCheckBox{QStringLiteral("Regular expression"), this}),
       m_ignoreCase(new QCheckBox{QStringLiteral("Ignore case"), this}),
+      m_allProjects(new QCheckBox{QStringLiteral("All open projects"), this}),
       m_field(new QLabel{this}),
       m_status(new QLabel{this}),
       m_previous(new QPushButton{QStringLiteral("Find &Previous"), this}),
@@ -35,6 +36,9 @@ SearchDialog::SearchDialog(QWidget* parent)
     options->addWidget(m_regex);
     options->addWidget(m_ignoreCase);
     options->addStretch();
+
+    // One project has nothing to widen to; the window says when there are more.
+    m_allProjects->setEnabled(false);
 
     auto* gestures = new QHBoxLayout;
     gestures->addWidget(m_previous);
@@ -57,6 +61,7 @@ SearchDialog::SearchDialog(QWidget* parent)
     stack->addWidget(m_field);
     stack->addLayout(fields);
     stack->addLayout(options);
+    stack->addWidget(m_allProjects);
     stack->addLayout(gestures);
     stack->addWidget(m_status);
     stack->addWidget(close);
@@ -73,7 +78,7 @@ SearchDialog::SearchDialog(QWidget* parent)
         refreshButtons();
         emit searchChanged();
     });
-    for (QCheckBox* option : {m_regex, m_ignoreCase})
+    for (QCheckBox* option : {m_regex, m_ignoreCase, m_allProjects})
         connect(option, &QCheckBox::toggled, this, &SearchDialog::searchChanged);
 
     // **Born on the defaults, and not on Qt's.** A check box starts unchecked,
@@ -96,6 +101,16 @@ QString SearchDialog::replacement() const {
 core::SearchOptions SearchDialog::options() const {
     return core::SearchOptions{.regex = m_regex->isChecked(),
                                .ignoreCase = m_ignoreCase->isChecked()};
+}
+
+bool SearchDialog::allProjects() const {
+    return m_allProjects->isChecked();
+}
+
+void SearchDialog::setAllProjectsAvailable(bool available) {
+    m_allProjects->setEnabled(available);
+    if (!available)
+        m_allProjects->setChecked(false);
 }
 
 void SearchDialog::setOptions(core::SearchOptions options) {

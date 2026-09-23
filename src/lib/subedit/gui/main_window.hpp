@@ -671,11 +671,20 @@ private:
     /// buttons.
     void findInTarget(bool forward);
 
+    /// The search of `findInTarget` when the box « All open projects » is
+    /// ticked: the current project first, then the others in the order of
+    /// their tabs — `GUI-SEARCH-04`.
+    void findAcrossProjects(bool forward, const core::SearchPattern& pattern);
+
     /// Replaces the match last found, then finds the next one.
     void replaceCurrentMatch();
 
     /// Replaces every match of the search target, as one entry in the history.
     void replaceAllInTarget();
+
+    /// `Replace All` over every open project, one entry of history in each one
+    /// it touches.
+    void replaceAllAcrossProjects(const core::SearchPattern& pattern);
 
     /// Compiles what the dialog asks for, or shows why it cannot be.
     [[nodiscard]] std::optional<core::SearchPattern> searchPattern();

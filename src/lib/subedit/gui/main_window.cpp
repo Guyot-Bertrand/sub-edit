@@ -1649,6 +1649,9 @@ void MainWindow::refreshTabActions() {
     // project; closing the last would be closing the window, which is what
     // the title bar's own button already does.
     m_closeProject->setEnabled(m_pages.size() > 1);
+    // Opened and closed tabs change what « all » means.
+    if (m_search != nullptr)
+        m_search->setAllProjectsAvailable(m_pages.size() > 1);
 }
 
 void MainWindow::closeCurrentProject() {
@@ -1866,6 +1869,8 @@ void MainWindow::refreshTarget() {
 void MainWindow::refreshSearchField() {
     if (m_search == nullptr)
         return;
+
+    m_search->setAllProjectsAvailable(m_pages.size() > 1);
 
     // Two texts, and only then: the box of a window that never opens a
     // translation has nothing to choose between, and says nothing.
@@ -2311,7 +2316,10 @@ void MainWindow::openSearch() {
             m_search, &SearchDialog::replaceAllRequested, this, &MainWindow::replaceAllInTarget);
         connect(m_search, &SearchDialog::searchChanged, this, [this] {
             m_searchOptions = m_search->options();
-            m_page->match.reset();
+            // Every project's, not only the one shown: a match remembered by
+            // a tab that is not on screen is a match of another pattern.
+            for (const std::unique_ptr<ProjectPage>& page : m_pages)
+                page->match.reset();
             m_search->setStatus({});
         });
     }
@@ -2343,6 +2351,11 @@ void MainWindow::findInTarget(bool forward) {
     if (!pattern.has_value())
         return;
 
+    if (m_search->allProjects()) {
+        findAcrossProjects(forward, *pattern);
+        return;
+    }
+
     const core::Selection target = searchTarget();
     const std::optional<core::TextMatch> found =
         forward
@@ -2362,6 +2375,68 @@ void MainWindow::findInTarget(bool forward) {
 
     m_page->match = found;
     m_search->setStatus({});
+    const int row = static_cast<int>(found->index.value());
+    m_page->movingToMatch = true;
+    selectRows(row, row);
+    m_page->movingToMatch = false;
+}
+
+void MainWindow::findAcrossProjects(bool forward, const core::SearchPattern& pattern) {
+    const core::Document document = targetDocument();
+    const auto find = [&](const ProjectPage& page, const std::optional<core::TextMatch>& from) {
+        const core::Project& project = page.session->project();
+        const core::Selection whole = core::Selection::all(project);
+        return forward ? core::findNext(project, whole, document, pattern, from)
+                       : core::findPrevious(project, whole, document, pattern, from);
+    };
+    // Whether `match` comes on the far side of `from` in the direction of the
+    // search — what a match that wrapped round inside one project does not.
+    const auto beyond = [forward](const core::TextMatch& match, const core::TextMatch& from) {
+        if (match.index != from.index)
+            return forward ? match.index.value() > from.index.value()
+                           : match.index.value() < from.index.value();
+        return forward ? match.start > from.start : match.start < from.start;
+    };
+
+    const int projects = static_cast<int>(m_pages.size());
+    const int origin = m_currentPage;
+
+    // The project shown first: what follows its current match, or its first.
+    std::optional<core::TextMatch> found = find(*m_page, m_page->match);
+    bool wrapped =
+        found.has_value() && m_page->match.has_value() && !beyond(*found, *m_page->match);
+    int where = origin;
+
+    // Nothing more in this one — or only the wrapped round of it: the other
+    // projects are visited, in the order of the tabs, before coming back.
+    if (!found.has_value() || wrapped) {
+        for (int step = 1; step < projects; ++step) {
+            const int index =
+                forward ? (origin + step) % projects : (origin - step + projects) % projects;
+            const std::optional<core::TextMatch> other =
+                find(*m_pages[static_cast<std::size_t>(index)], std::nullopt);
+            if (!other.has_value())
+                continue;
+
+            found = other;
+            where = index;
+            // Past the last tab, or before the first, is the round coming
+            // back to where it began.
+            wrapped = forward ? index < origin : index > origin;
+            break;
+        }
+    }
+
+    if (!found.has_value()) {
+        m_page->match.reset();
+        m_search->setStatus(
+            QString::fromStdString(core::notFound(m_search->pattern().toStdString())));
+        return;
+    }
+
+    switchToPage(where);
+    m_page->match = found;
+    m_search->setStatus(wrapped ? QStringLiteral("Search wrapped around") : QString{});
     const int row = static_cast<int>(found->index.value());
     m_page->movingToMatch = true;
     selectRows(row, row);
@@ -2401,6 +2476,11 @@ void MainWindow::replaceAllInTarget() {
     if (!pattern.has_value())
         return;
 
+    if (m_search->allProjects()) {
+        replaceAllAcrossProjects(*pattern);
+        return;
+    }
+
     const core::Selection target = searchTarget();
     core::ReplacedAll replaced = core::replaceAll(m_page->session->project(),
                                                   target,
@@ -2422,6 +2502,44 @@ void MainWindow::replaceAllInTarget() {
     if (replaced.command != nullptr)
         applyOperation(std::move(replaced.command), target);
     m_search->setStatus(QString::fromStdString(core::noticeOfReplaceAll(replaced.count)));
+}
+
+void MainWindow::replaceAllAcrossProjects(const core::SearchPattern& pattern) {
+    const core::Document document = targetDocument();
+    const std::string replacement = m_search->replacement().toStdString();
+    const int origin = m_currentPage;
+
+    std::size_t matched = 0;
+    std::size_t replacedCount = 0;
+    std::size_t touched = 0;
+    for (std::size_t index = 0; index < m_pages.size(); ++index) {
+        const core::Project& project = m_pages[index]->session->project();
+        const core::Selection whole = core::Selection::all(project);
+        core::ReplacedAll replaced =
+            core::replaceAll(project, whole, document, pattern, replacement);
+        matched += replaced.matched;
+        if (replaced.count == 0 || replaced.command == nullptr)
+            continue;
+
+        // Its tab first: the command goes to the page the window shows, and
+        // that is also where the user sees what is happening.
+        switchToPage(static_cast<int>(index));
+        applyOperation(std::move(replaced.command), whole);
+        replacedCount += replaced.count;
+        ++touched;
+    }
+
+    switchToPage(origin);
+    for (const std::unique_ptr<ProjectPage>& page : m_pages)
+        page->match.reset();
+
+    if (replacedCount == 0) {
+        m_search->setStatus(
+            QString::fromStdString(matched == 0 ? core::notFound(m_search->pattern().toStdString())
+                                                : core::nothingToChange()));
+        return;
+    }
+    m_search->setStatus(QString::fromStdString(core::noticeOfReplaceAll(replacedCount, touched)));
 }
 
 void MainWindow::mergeSubtitles() {
