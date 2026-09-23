@@ -23,6 +23,7 @@ add_library(
     edit/duration_adjustment.cpp
     edit/search.cpp
     edit/shift_limits.cpp
+    edit/split_project.cpp
     edit/video_bounds.cpp
     edit/remove_command.cpp
     edit/rewrite_texts.cpp

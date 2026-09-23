@@ -1,7 +1,7 @@
 # Les opérations
 
-Le menu **Tools** porte quatorze opérations et une analyse. Chacune des
-quatorze s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
+Le menu **Tools** porte quinze opérations et une analyse. Chacune des
+quinze s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 
 | Entrée | Dialogue | Ce qu'elle fait |
 | :----- | :------- | :-------------- |
@@ -10,6 +10,7 @@ quatorze s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 | `Convert Frame Rate…` | oui | re-cale la cible d'une cadence vers une autre |
 | `Adjust Durations…` | oui | déplace les fins pour tenir une vitesse de lecture, des durées et un écart |
 | `Append File…` | un sélecteur de fichier | ajoute un fichier à la fin du projet |
+| `Split Project…` | oui | coupe le projet en deux, la suite passe dans un nouvel onglet |
 | `Italic` | **non** | met la cible en italique, ou l'en retire |
 | `Dialogue` | **non** | pose un tiret de dialogue en tête de chaque ligne, ou le retire |
 | `Case ▸ Title Case` | **non** | chaque mot prend une capitale |
@@ -57,7 +58,8 @@ dans ce manuel seul.
 
 **`Append File…` ignore aussi la sélection**, pour une autre raison : ce n'est
 pas une cible qu'elle réécrit, c'est une fin qu'elle recule. Voir sa
-[propre section](#append-file).
+[propre section](#append-file). **`Split Project…` de même** : elle coupe où on le
+lui dit. Voir [la sienne](#split-project).
 
 **Les deux opérations de grille ne parlent pas de la même chose que la grille.**
 Une opération porte sur la sélection ; l'analyse et la barre d'état parlent du
@@ -322,6 +324,43 @@ ajoutés : `Ctrl+Z` les retire tous d'un coup.
 
 **Un fichier déjà ouvert peut s'ajouter à lui-même** : rien ne l'interdit, comme
 chez Gaupol.
+
+## `Split Project…`
+
+Coupe le projet en deux : **l'inverse exact de `Append File…`**. Une boîte
+demande à partir de quel sous-titre couper — du deuxième au dernier, numérotés
+comme dans la table — et s'ouvre sur la ligne courante.
+
+![La boîte de `Split Project…`, palette claire.](captures/scinder.png)
+
+![La même boîte sous la palette sombre.](captures/scinder-sombre.png)
+
+**Éteinte sous deux sous-titres** : une coupure veut un sous-titre de chaque
+côté.
+
+**La suite est copiée dans un projet neuf, ouvert dans un nouvel onglet, et
+retirée du projet d'origine.** Le projet neuf est **décalé de moins la fin du
+dernier sous-titre resté** : scinder puis ajouter rend le projet de départ.
+Ses deux textes, principal et traduction, suivent leurs sous-titres, et il
+garde le format et l'encodage de l'origine — **sans chemin** : aucun fichier ne
+le tient encore. Son onglet s'écrit donc `untitled*` dès sa naissance, et le
+fermer sans l'enregistrer pose la question qu'on pose pour tout ce qui n'est
+pas écrit.
+
+**Une seule entrée d'historique**, dans le projet d'origine :
+`Undo: splitting the project` lui rend sa suite. Le projet neuf a un historique
+à lui, vide ; l'annulation n'y touche pas, et il reste ouvert.
+
+**Refusée quand aucun fichier ne saurait écrire le résultat.** Si les deux
+moitiés se chevauchent à la coupure, le décalage porterait un sous-titre avant
+le début de la vidéo — une position négative, qu'aucun format n'écrit. La boîte
+qui refuse **nomme le sous-titre** et propose de couper ailleurs :
+
+```text
+Cannot split at subtitle 3: subtitle 3 would fall before the start of the video. Cut somewhere else.
+```
+
+Arriver exactement au début est permis : zéro est une position.
 
 ## `Snap to Frame Rate…`
 

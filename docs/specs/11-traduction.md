@@ -369,6 +369,18 @@ fichier ne sait l'écrire — c'est `firstBeforeOrigin`. **La scission est donc 
 sous-titre qui tomberait avant l'origine, et propose de couper ailleurs** : la règle du décalage, pas
 une règle de plus.
 
+**Ce que #439 a livré.** `splitProject` rend un `std::expected<SplitProject, SplitRefusal>` : le
+projet neuf et une commande — un `RemoveCommand` sous un nouveau `CommandKind::SplitProject`, que l'ordre
+et le dépassement du film classent avec la suppression, rien n'y bouge à l'origine. La coupure est
+bornée du deuxième sous-titre au dernier (`std::out_of_range` sinon : la boîte ne l'offre pas).
+
+- **Le projet neuf hérite de la traduction quand l'origine en a une** — fichier de traduction sans chemin,
+  même format, même encodage —, sans quoi ses textes de traduction n'auraient ni colonne ni état modifié.
+- **Il naît modifié.** Aucun fichier ne le tient : le fermer sans demander perdrait les sous-titres.
+  `Session::markUnsaved` est le pendant de `markSaved`, et n'est appelé que là.
+- **Le refus nomme le sous-titre**, par `firstBeforeOrigin`, en numérotant comme la table.
+- **La boîte s'ouvre sur la ligne courante.** Gaupol ne le disait pas ; c'est « à partir d'ici ».
+
 Issues : [#434](https://github.com/Guyot-Bertrand/sub-edit/issues/434) pour l'ajout,
 [#439](https://github.com/Guyot-Bertrand/sub-edit/issues/439) pour la scission.
 

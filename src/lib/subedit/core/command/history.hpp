@@ -111,6 +111,12 @@ public:
         m_modificationCounts.at(static_cast<std::size_t>(document)) = 0;
     }
 
+    /// Records that `document` holds what no file does — a project born from
+    /// another one, that no command of its own has touched.
+    void markUnsaved(Document document) {
+        m_modificationCounts.at(static_cast<std::size_t>(document)) = 1;
+    }
+
     /// Forgets every command, leaving the project as it stands.
     void clear();
 

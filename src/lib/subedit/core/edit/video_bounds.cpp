@@ -54,6 +54,9 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::SetDuration:
     case CommandKind::Insert:
     case CommandKind::Remove:
+    // What stays is not moved: only the copy in the new project is, and it is
+    // not the project the film is open on.
+    case CommandKind::SplitProject:
     case CommandKind::Sort:
     case CommandKind::RemoveHearingImpaired:
     case CommandKind::Italicise:

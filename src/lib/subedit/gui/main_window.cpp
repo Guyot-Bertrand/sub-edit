@@ -18,6 +18,7 @@
 #include <subedit/core/edit/shift_command.hpp>
 #include <subedit/core/edit/shift_limits.hpp>
 #include <subedit/core/edit/snap_command.hpp>
+#include <subedit/core/edit/split_project.hpp>
 #include <subedit/core/edit/transform_command.hpp>
 #include <subedit/core/edit/translation.hpp>
 #include <subedit/core/format/degradation.hpp>
@@ -55,6 +56,7 @@
 #include <subedit/gui/search_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/snap_dialog.hpp>
+#include <subedit/gui/split_project_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 #include <subedit/gui/target.hpp>
@@ -302,6 +304,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
       m_adjustDurations(buildAction(this, QStringLiteral("Adjust Durations…"), {})),
       m_appendFile(buildAction(this, QStringLiteral("Append &File…"), {})),
+      m_splitProject(buildAction(this, QStringLiteral("Spli&t Project…"), {})),
       m_hearingImpaired(buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})),
       m_italic(buildAction(this, QStringLiteral("&Italic"), QStringLiteral("format-text-italic"))),
       m_dialogueDashes(buildAction(this, QStringLiteral("&Dialogue"), {})),
@@ -522,6 +525,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(m_frameRate, &QAction::triggered, this, &MainWindow::convertFrameRateOfTarget);
     connect(m_adjustDurations, &QAction::triggered, this, &MainWindow::adjustDurationsOfTarget);
     connect(m_appendFile, &QAction::triggered, this, &MainWindow::appendFileFromPrompt);
+    connect(m_splitProject, &QAction::triggered, this, &MainWindow::splitProjectFromPrompt);
     connect(
         m_hearingImpaired, &QAction::triggered, this, &MainWindow::removeHearingImpairedFromTarget);
 
@@ -660,6 +664,8 @@ MainWindow::MainWindow(core::FileSystem& files,
     // there — Gaupol's own placement, next to the position operations and
     // apart from the two that follow.
     tools->addAction(m_appendFile);
+    // Its inverse, beside it.
+    tools->addAction(m_splitProject);
     tools->addSeparator();
     // Those that rewrite a text rather than move a position, together.
     tools->addAction(m_italic);
@@ -1761,6 +1767,8 @@ void MainWindow::refreshActions() {
     // Nothing to shift from: an empty document has no last subtitle to offset
     // the appended file by.
     m_appendFile->setEnabled(anything);
+    // A cut needs a subtitle on each side of it.
+    m_splitProject->setEnabled(m_page->session->project().count() >= 2);
     m_findAndReplace->setEnabled(anything);
     // Nothing to analyse either: an empty document has no positions to read a
     // grid off, and the dialog would open on « too few subtitles ».
@@ -1971,6 +1979,40 @@ void MainWindow::appendFileFromPrompt() {
         return;
     }
     m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
+}
+
+void MainWindow::splitProjectFromPrompt() {
+    const core::Project& project = m_page->session->project();
+
+    // Opens on the current row, the natural place to cut: « from here ».
+    const int current = m_table->currentIndex().row();
+    SplitProjectDialog dialog{
+        project.count(), static_cast<std::size_t>(std::max(current, 0)) + 1, this};
+    if (!m_prompts->run(dialog))
+        return;
+
+    const core::SubtitleIndex from = core::SubtitleIndex::fromValue(dialog.firstOfTail());
+    std::expected<core::SplitProject, core::SplitRefusal> split = core::splitProject(project, from);
+    if (!split) {
+        m_prompts->reportFailure("Cannot split at subtitle " + std::to_string(from.value() + 1) +
+                                 ": subtitle " + std::to_string(split.error().before.value() + 1) +
+                                 " would fall before the start of the video. Cut somewhere else.");
+        return;
+    }
+
+    // The origin loses the tail in one entry of its own history; the new
+    // project begins another, and the two know nothing of each other.
+    const core::Selection tail =
+        core::Selection::range(from, core::SubtitleIndex::fromValue(project.count() - 1));
+    (void)applyOperationQuietly(std::move(split->command), tail);
+
+    openOn(std::move(split->tail), {});
+
+    // Born holding subtitles no file has: closing it must ask, as it does for
+    // any document that differs from what is on disk.
+    m_page->session->markUnsaved(core::Document::Main);
+    m_page->session->markUnsaved(core::Document::Translation);
+    refreshActions();
 }
 
 void MainWindow::removeHearingImpairedFromTarget() {

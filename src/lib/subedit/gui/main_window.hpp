@@ -217,6 +217,10 @@ public:
 
     [[nodiscard]] QAction* appendFileAction() const { return m_appendFile; }
 
+    /// `Tools ▸ Split Project…` — the inverse of appending, `GUI-PSPLIT-01`.
+    /// Out under two subtitles: a cut needs one on each side.
+    [[nodiscard]] QAction* splitProjectAction() const { return m_splitProject; }
+
     [[nodiscard]] QAction* hearingImpairedAction() const { return m_hearingImpaired; }
 
     /// The one button that puts a text in italics and takes them out again.
@@ -719,6 +723,10 @@ private:
     /// Asks for a file, and appends it to the end of the project — D6.
     void appendFileFromPrompt();
 
+    /// Asks where to cut, and moves the tail into a project of its own, in a
+    /// new tab — D6.
+    void splitProjectFromPrompt();
+
     void removeHearingImpairedFromTarget();
 
     /// Puts the target in italics, or takes its italics out.
@@ -806,6 +814,7 @@ private:
     QAction* m_frameRate = nullptr;
     QAction* m_adjustDurations = nullptr;
     QAction* m_appendFile = nullptr;
+    QAction* m_splitProject = nullptr;
     QAction* m_hearingImpaired = nullptr;
     QAction* m_italic = nullptr;
     std::array<QAction*, 4> m_case{};
