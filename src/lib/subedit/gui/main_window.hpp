@@ -37,6 +37,8 @@ class VideoPlayer;
 
 class QAction;
 class QCloseEvent;
+class QDragEnterEvent;
+class QDropEvent;
 class QLabel;
 class QShowEvent;
 class QSplitter;
@@ -301,6 +303,23 @@ public:
     /// nothing, it puts an entry out.
     void setManualPath(std::filesystem::path directory);
 
+    /// Opens what was dropped on the window — issue #453, `GUI-TABS-04`.
+    ///
+    /// **`Open…`'s road for each subtitle file**, in the order they came: a tab
+    /// each, and a file already open brings its tab forward instead of being
+    /// read again. **`Select Video…`'s for a film**, once the subtitles are open
+    /// — so given to the tab shown then, the last one this drop opened if it
+    /// opened any. A film is told apart by its extension alone, as the naming
+    /// convention tells it. Two films or more are left alone: a project watches
+    /// one.
+    ///
+    /// **A file that will not open does not stop the others**, and what could
+    /// not be done is said once, a line each.
+    ///
+    /// Public because `dropEvent` only unpacks the paths: the sorting is what a
+    /// test drives.
+    void openDropped(std::span<const std::filesystem::path> paths);
+
     /// The manual window, if it is open. For a test to read it.
     [[nodiscard]] ManualWindow* manualWindow() const { return m_manualWindow; }
 
@@ -343,6 +362,12 @@ protected:
     /// window a user has, and this is where that stops being a distinction
     /// without a difference.
     void showEvent(QShowEvent* event) override;
+
+    /// Takes a drag that carries files, and nothing else — issue #453.
+    void dragEnterEvent(QDragEnterEvent* event) override;
+
+    /// Hands the local files a drop carries to `openDropped`.
+    void dropEvent(QDropEvent* event) override;
 
 private:
     /// Shows the translation column, or takes it away, as the project and the
@@ -494,6 +519,11 @@ private:
     void openTranslationFromPrompt();
 
     void openFromPrompt();
+
+    /// Opens `path` in a tab of its own, or brings forward the one that already
+    /// holds it — what `Open…` and a drop share. Says why the file will not
+    /// open, or nothing when it opened or was already there.
+    [[nodiscard]] std::optional<std::string> openFile(const std::filesystem::path& path);
 
     /// Applies `command` over `target` and refreshes what the window shows.
     ///

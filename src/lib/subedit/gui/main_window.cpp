@@ -34,6 +34,7 @@
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/model/video_file.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
@@ -70,6 +71,8 @@
 #include <QCheckBox>
 #include <QClipboard>
 #include <QCloseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -81,6 +84,7 @@
 #include <QList>
 #include <QMenu>
 #include <QMenuBar>
+#include <QMimeData>
 #include <QModelIndex>
 #include <QModelIndexList>
 #include <QPushButton>
@@ -92,6 +96,7 @@
 #include <QTableView>
 #include <QTimer>
 #include <QToolBar>
+#include <QUrl>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -434,6 +439,11 @@ MainWindow::MainWindow(core::FileSystem& files,
     stack->addWidget(split);
     stack->addWidget(m_diagnostics);
     setCentralWidget(centre);
+
+    // **The whole window takes a dropped file** — issue #453. The table, the
+    // picture, the tabs and the bars all pass a drop they do not take on to
+    // it, so there is one place that sorts what arrives.
+    setAcceptDrops(true);
 
     // **Every binding the platform gives "redo", and not the first** — issue
     // #274.
@@ -1649,30 +1659,86 @@ void MainWindow::openFromPrompt() {
     if (!chosen.has_value())
         return;
 
+    if (const std::optional<std::string> failure = openFile(*chosen); failure.has_value())
+        m_prompts->reportFailure(*failure);
+}
+
+std::optional<std::string> MainWindow::openFile(const std::filesystem::path& path) {
     // Already open, in another tab or this one: the file a second choice of
     // it means is the one already there, and the window says so rather than
     // reading it a second time — Gaupol's own rule.
-    if (const std::optional<int> already = indexOfFile(*chosen); already.has_value()) {
+    if (const std::optional<int> already = indexOfFile(path); already.has_value()) {
         switchToPage(*already);
         statusBar()->showMessage(
-            QString::fromStdString(chosen->filename().string() + ": already open"),
+            QString::fromStdString(path.filename().string() + ": already open"),
             kOperationStatusTimeoutMs);
-        return;
+        return std::nullopt;
     }
 
-    std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(*m_files, *chosen);
-    if (!opened) {
-        m_prompts->reportFailure(chosen->string() + ": " +
-                                 std::string{core::reasonOf(opened.error())});
-        return;
-    }
+    std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(*m_files, path);
+    if (!opened)
+        return path.string() + ": " + std::string{core::reasonOf(opened.error())};
 
     // **Kept here and not at the asking**: what counts is where the user
     // works, not where they looked. A box dismissed, or a file that does not
     // open, therefore moves nothing.
-    rememberDirectoryOf(*chosen);
+    rememberDirectoryOf(path);
 
     openOn(std::move(opened->project), opened->diagnostics);
+    return std::nullopt;
+}
+
+void MainWindow::openDropped(std::span<const std::filesystem::path> paths) {
+    std::vector<std::filesystem::path> films;
+    std::vector<std::string> failures;
+
+    for (const std::filesystem::path& path : paths) {
+        if (core::isVideoFile(path)) {
+            films.push_back(path);
+            continue;
+        }
+        if (std::optional<std::string> failure = openFile(path); failure.has_value())
+            failures.push_back(std::move(*failure));
+    }
+
+    // After the subtitles, whatever order the drop listed them in: the film
+    // goes to the tab shown once they are open, which is the last one opened.
+    if (films.size() == 1) {
+        m_page->session->chooseVideo(films.front());
+        refreshVideo();
+    } else if (films.size() > 1) {
+        failures.push_back(std::to_string(films.size()) +
+                           " videos dropped at once: a project watches one film");
+    }
+
+    // One box and not one per file: a drop of ten unreadable files is one
+    // gesture, and ten boxes would be ten to dismiss.
+    if (failures.empty())
+        return;
+    std::string message;
+    for (const std::string& failure : failures) {
+        if (!message.empty())
+            message += '\n';
+        message += failure;
+    }
+    m_prompts->reportFailure(message);
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
+    if (event->mimeData()->hasUrls())
+        event->acceptProposedAction();
+}
+
+void MainWindow::dropEvent(QDropEvent* event) {
+    std::vector<std::filesystem::path> paths;
+    for (const QUrl& url : event->mimeData()->urls()) {
+        // A local file, and nothing else: a link dragged from a browser names
+        // nothing this window can read.
+        if (url.isLocalFile())
+            paths.emplace_back(url.toLocalFile().toStdString());
+    }
+    event->acceptProposedAction();
+    openDropped(paths);
 }
 
 void MainWindow::newProject() {

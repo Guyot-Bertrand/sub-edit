@@ -180,8 +180,14 @@ un fichier sur la fenêtre, et un menu `Projects` énumérant les onglets. Ni
 l'une ni l'autre n'est dans les critères de fin de #437 — seule la prose de
 Gaupol les nommait.
 
-**Le glisser-déposer a sa propre issue**, [#453](https://github.com/Guyot-Bertrand/sub-edit/issues/453) :
-un geste de plus, indépendant du reste, dont la portée précise reste à écrire.
+**Le glisser-déposer a eu sa propre issue**, [#453](https://github.com/Guyot-Bertrand/sub-edit/issues/453),
+et ses cinq questions ont été tranchées avant d'écrire. **Toute la fenêtre** accepte le dépôt. **Un
+sous-titre suit la route d'`Open…`** — un onglet chacun, un fichier déjà ouvert rend le focus à son onglet
+sans être relu : `openFile` est désormais ce que les deux gestes partagent. **Une vidéo va à l'onglet
+courant**, comme `Select Video…`, une fois les sous-titres du même dépôt ouverts. Plusieurs fichiers : le tri
+de Gaupol (`isVideoFile`, la liste fermée d'extensions), avec deux écarts — **deux vidéos ou plus sont
+refusées avec un message** plutôt qu'en silence, et **un fichier illisible n'arrête pas les autres** ; ce
+qui n'a pu se faire est dit dans une seule boîte, une ligne chacun.
 **Le menu `Projects` n'en a pas** : il double ce que la barre d'onglets fait
 déjà, et `Ctrl+PageUp`/`Ctrl+PageDown` couvrent le clavier — à reprendre si
 l'usage en montre le besoin, plutôt qu'un renvoi pour un geste redondant.
@@ -586,6 +592,7 @@ tranche restent `prévues` jusqu'à la décision de #435 ; si elle est négative
 | `GUI-TABS-01` | plusieurs projets s'ouvrent en onglets, chacun avec son historique, sa sélection et sa vidéo |
 | `GUI-TABS-02` | fermer tout, ou quitter, avec une seule question pour tous les projets |
 | `GUI-TABS-03` | l'étiquette d'un onglet dit que son projet est modifié |
+| `GUI-TABS-04` | glisser des fichiers sur la fenêtre les ouvre : un onglet par sous-titre, une vidéo à l'onglet courant |
 | `GUI-SAVE-04` | enregistrer tout écrit chaque document modifié, onglet par onglet, et s'arrête à un abandon en disant ce qui a été écrit |
 | `GUI-PSPLIT-01` | scinder un projet en deux, et l'ajout de la suite rend le projet de départ |
 | `GUI-SEARCH-04` | la recherche porte, au choix, sur tous les projets ouverts |
