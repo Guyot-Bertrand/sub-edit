@@ -144,6 +144,34 @@ Le message est précédé du chemin : `notes.txt: is in no format this tool know
 Ce sont les mots de la ligne de commande, et ce n'est pas un hasard — les deux
 surfaces lisent un fichier par la même recette.
 
+### Glisser des fichiers sur la fenêtre
+
+**Déposer des fichiers n'importe où sur la fenêtre les ouvre**, depuis le
+gestionnaire de fichiers.
+
+- **Chaque fichier de sous-titres ouvre son onglet**, dans l'ordre où ils ont
+  été déposés — exactement comme `Open…`. Un fichier **déjà ouvert** n'est pas
+  relu : son onglet passe devant, et la barre d'état le dit (`premier.srt:
+  already open`).
+- **Une vidéo déposée est associée à l'onglet courant**, comme par
+  `Select Video…`. Déposée avec des sous-titres, elle va au dernier onglet
+  qu'ils ont ouvert, quel que soit l'ordre du dépôt. Une vidéo se reconnaît à
+  son extension — la même liste que celle qui propose un film à côté du
+  fichier.
+- **Deux vidéos ou plus à la fois ne sont pas ouvertes** : un projet regarde un
+  seul film. Les sous-titres du même dépôt, eux, s'ouvrent.
+- **Un fichier qui ne s'ouvre pas n'arrête pas les autres.** Une seule boîte dit
+  ensuite ce qui n'a pas pu se faire, une ligne par fichier, avec les mots
+  d'`Open…` :
+
+  ```text
+  /films/notes.txt: is in no format this tool knows
+  /films/absent.srt: does not exist
+  ```
+
+Seuls des fichiers locaux sont pris : un lien glissé depuis un navigateur ne
+désigne rien que la fenêtre sache lire.
+
 Ouvrir depuis la ligne de commande fonctionne toujours : `subedit-gui film.srt`.
 Là, la même raison est écrite sur la sortie d'erreur, et la fenêtre s'ouvre
 vide — voir [Invocation](invocation.md#quand-louverture-échoue).

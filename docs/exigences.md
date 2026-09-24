@@ -192,6 +192,7 @@ plus rien.
 | `GUI-TABS-01` | plusieurs projets s'ouvrent en onglets, chacun avec son historique, sa sélection et sa vidéo | 11 | implémentée |
 | `GUI-TABS-02` | fermer tout, ou quitter, avec une seule question pour tous les projets | 11 | implémentée |
 | `GUI-TABS-03` | l'étiquette d'un onglet dit que son projet est modifié | 11 | implémentée |
+| `GUI-TABS-04` | glisser des fichiers sur la fenêtre les ouvre : un onglet par sous-titre, une vidéo à l'onglet courant | 11 | implémentée |
 | `GUI-SAVE-04` | enregistrer tout écrit chaque document modifié, onglet par onglet, et s'arrête à un abandon en disant ce qui a été écrit | 11 | implémentée |
 | `GUI-PSPLIT-01` | scinder un projet en deux, et l'ajout de la suite rend le projet de départ | 11 | implémentée |
 | `GUI-SEARCH-04` | la recherche porte, au choix, sur tous les projets ouverts | 11 | implémentée |
