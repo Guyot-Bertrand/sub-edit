@@ -73,8 +73,10 @@ Deux commandes agissent sur tous les projets à la fois.
 | `Close All` | `Ctrl+Shift+W` | ferme tous les projets — c'est-à-dire la fenêtre |
 
 **`Save All` va dans l'ordre des onglets**, le principal avant la traduction.
-Un document qui a un fichier y est réécrit ; **un document qui n'en a pas ouvre
-`Save As…`, un à la fois**, sur son onglet. **Renoncer à un `Save As…`, ou un
+Un document qui a un fichier y est réécrit **sans que son onglet passe devant** ;
+**un document qui n'en a pas ouvre `Save As…`, un à la fois**, sur son onglet —
+c'est le seul cas où `Save All` change d'onglet, pour que la boîte montre de
+quel projet il s'agit. **Renoncer à un `Save As…`, ou un
 enregistrement qui échoue, arrête la suite** : les projets suivants ne sont pas
 touchés, et une boîte dit ce qui a été écrit.
 
@@ -83,8 +85,9 @@ Save All stopped: 1 of 3 documents saved
 ```
 
 Quand tout est écrit, la barre d'état le dit — `2 documents saved`, ou
-`Nothing to save` quand rien n'était modifié. La fenêtre revient à l'onglet où
-la commande a été lancée.
+`Nothing to save` quand rien n'était modifié. Si un `Save As…` a fait passer
+un onglet devant, la fenêtre revient ensuite à celui où la commande a été
+lancée.
 
 **`Close All` et la croix de la fenêtre sont une seule chose** : la fenêtre
 garde toujours un projet, et les fermer tous, c'est la fermer. Elles posent
@@ -97,7 +100,9 @@ claire.](captures/fermeture-projets.png)
 
 ![La même question sous la palette sombre.](captures/fermeture-projets-sombre.png)
 
-**`Cancel` ne ferme rien**, et ne laisse rien d'écrit. Avec un seul document
+**`Cancel` ne ferme rien**, et ne laisse rien d'écrit. `Save` écrit les
+documents cochés comme `Save All` : derrière leur onglet, sauf un document sans
+nom, dont l'onglet passe devant pour son `Save As…`. Avec un seul document
 modifié sur l'ensemble des projets, c'est la question simple qu'on a toujours
 eue, posée sur son onglet. `Save All As…` n'existe pas : c'est une suite de
 `Save As…`, que `Save All` pose déjà, un à la fois, pour les documents sans nom.

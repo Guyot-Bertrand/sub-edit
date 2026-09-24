@@ -87,7 +87,9 @@ traduction, comme pour un seul projet.
   ```
 
   Un projet où le motif n'est pas n'est pas touché, et n'a rien à annuler.
-  L'onglet d'où le geste est parti est celui qui reste montré.
+  **Aucun onglet ne passe devant** : chaque projet reçoit ses remplacements
+  derrière son onglet, qui prend son astérisque, et l'onglet d'où le geste est
+  parti reste montré, avec son film.
 
 ### Dans quel texte
 
