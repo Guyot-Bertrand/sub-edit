@@ -126,10 +126,10 @@ MicroDVD, `.txt` est MPL2 et TMPlayer. C'est sans conséquence à l'ouverture,
 puisque c'est le contenu qui tranche ; à l'enregistrement, c'est le **nom** de
 l'entrée choisie qui dit le format, jamais son motif.
 
-**Un fichier illisible ne remplace rien.** Absent, refusé par le système, écrit
+**Un fichier illisible n'ouvre rien.** Absent, refusé par le système, écrit
 dans un encodage sous lequel ses octets ne se décodent pas, ou d'aucun format
-connu : une modale **nomme la cause**, et la fenêtre garde ce qu'elle avait,
-sous-titres, historique et modifications comprises.
+connu : une modale **nomme la cause**, aucun onglet n'est ouvert, et ceux qui
+l'étaient ne bougent pas.
 
 | Message | Ce qui s'est passé |
 | :------ | :----------------- |

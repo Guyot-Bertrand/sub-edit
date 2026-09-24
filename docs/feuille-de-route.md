@@ -921,6 +921,16 @@ onglets, et si le champ cherché suit la colonne visible.
 **Réserve levée par #435, le 2026-09-22.** Le modèle de données de la phase 1
 accueillait déjà le multi-projets sans l'engager ; la décision l'engage.
 
+**Livrée, relue par [#441](https://github.com/Guyot-Bertrand/sub-edit/issues/441).** Les trois tranches,
+et deux issues de plus : les colonnes masquables et réordonnables
+([#442](https://github.com/Guyot-Bertrand/sub-edit/issues/442)), qu'aucune phase ne portait, et le
+glisser-déposer ([#453](https://github.com/Guyot-Bertrand/sub-edit/issues/453)), que #437 avait laissé.
+**Les deux renvois ci-dessus sont tombés** : la réplique suit la colonne courante, sans réglage, et la
+recherche porte au choix sur tous les projets ouverts, dans le texte de la colonne courante — D8 de la
+spec. Ceux que la phase émet ont chacun leur destinataire : la ligne de commande de la traduction en
+phase 13, la détection d'une traduction décalée en phase 14. **La relecture a ouvert quatre issues, #460
+à #463**, qui tiennent la phase ouverte jusqu'à la clôture en 0.12.0.
+
 ## 12 — Moteur de correction complet
 
 Motifs déclaratifs par script, langue et pays — erreurs courantes classées
@@ -1063,6 +1073,14 @@ une fréquence d'entrée fausse, et le rationnel qui remettrait le fichier sur u
 grille normalisée se cherche. La spec de la phase 16 l'a nommé « le plus utile
 et le moins sûr » des trois mécanismes de correction ; ni jusqu'où chercher, ni
 comment dire sa confiance n'ont encore de réponse.
+
+**Un renvoi de la phase 11 atterrit ici : reconnaître une traduction décalée.**
+Une traduction calée deux secondes trop tard s'aligne sur les mauvais sous-titres
+sans que rien la distingue d'un rattachement juste — le cas `positions-decalees`
+de `src/test/data/paires/` le montre. Gaupol ne le détecte pas non plus. La phase
+11 rend le décalage **visible**, par le compte de l'ouverture (trois lignes sur
+quatre y font naître un sous-titre), pas **corrigeable** : c'est une question de
+synchronisation, et elle se pose ici.
 
 **Point difficile** — **précision de positionnement.** Caler un sous-titre exige
 un `seek` exact à l'image près ; la plupart des backends ne le garantissent qu'au

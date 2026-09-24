@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Relecture de fin de phase 11
+
+## 0.11.17 — 2026-09-24
+
 ### Ajouts
 
 - **gui** — Glisser des fichiers sur la fenêtre les ouvre

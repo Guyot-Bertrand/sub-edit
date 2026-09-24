@@ -100,11 +100,12 @@ s'ouvre à une autre taille, et une fenêtre s'ouvre souvent à une autre taille
 La part se rejoue partout. Elle est **ramenée à ce que la fenêtre accepte** si
 elle est trop petite — la bande du film a une hauteur minimale.
 
-**Quatre largeurs pour cinq colonnes**, et ce n'est pas un oubli : la dernière
-colonne montrée — `Text`, ou `Translation` quand le projet en a une — prend ce que
-les quatre autres laissent. Lui donner une largeur ne ferait rien. Le texte, lui,
-a une largeur qui ne se retient pas : elle ne sert que tant que la traduction est
-là.
+**Quatre largeurs pour six colonnes**, et ce n'est pas un oubli : ce sont celles
+de `#`, `Start`, `End` et `Duration`, dans cet ordre quel que soit celui de la
+table, et **une colonne masquée garde la sienne** — elle la retrouve quand on la
+remontre. La dernière colonne montrée prend ce que les autres laissent, et lui
+donner une largeur ne ferait rien ; celles du texte et de la traduction ne se
+retiennent donc pas.
 
 ## Ce qui arrive quand le fichier ne dit pas ce qu'on attend
 

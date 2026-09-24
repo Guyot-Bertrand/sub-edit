@@ -27,6 +27,7 @@ fichier ouvert puis enregistré sans modification ne bouge pas d'un octet.
 | retirer les mentions pour malentendants | [Les opérations](subedit-gui/operations.md#remove-hearing-impaired-mentions), ou [`hearing-impaired`](subedit-cli/hearing-impaired.md) |
 | allonger des sous-titres trop courts pour être lus | [`Adjust Durations…`](subedit-gui/operations.md#adjust-durations) |
 | chercher un mot et le remplacer, sans casser les balises | [Rechercher et remplacer](subedit-gui/recherche.md) |
+| traduire en regard du texte d'origine | [Ouvrir une traduction](subedit-gui/fichiers.md#ouvrir-une-traduction) |
 | mettre en italique, changer la casse, poser des tirets de dialogue | [Les opérations](subedit-gui/operations.md#italic) |
 | traiter cent fichiers d'un coup | [Invocation](subedit-cli/invocation.md) |
 
@@ -65,7 +66,9 @@ Ce qui diffère est ce que chaque surface peut faire :
 
 | | `subedit-gui` | `subedit-cli` |
 | :--- | :------------ | :------------ |
-| plusieurs fichiers d'un coup | non — une fenêtre, un document | oui |
+| plusieurs fichiers d'un coup | oui — un onglet par projet | oui |
+| une traduction en regard du principal | oui | non |
+| ajouter un fichier à la suite, scinder un projet | oui | non |
 | annuler | oui, mille entrées | sans objet — rien n'est modifié en place sans le demander |
 | éditer un texte ou une position à la main | oui | non |
 | insérer, supprimer, fusionner et scinder des lignes | oui | non |
