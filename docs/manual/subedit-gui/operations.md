@@ -25,7 +25,8 @@ quinze s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 **Ce qu'une opération a fait se dit dans une boîte d'information qu'il faut
 fermer, sauf pour `Italic`, `Case` et `Dialogue`** : ces trois-là n'ouvrent pas
 de dialogue, et leur compte rendu — « nothing to change » compris — s'affiche
-dans la barre d'état, sans rien à fermer. Les messages sont cités dans la
+dans la barre d'état, sans rien à fermer. `Split Project…` aussi dit le sien
+dans la barre d'état : son résultat est déjà sous les yeux, dans l'onglet neuf. Les messages sont cités dans la
 section de chaque opération.
 
 Insérer, supprimer, fusionner et scinder des lignes ne sont pas ici mais dans le
@@ -331,6 +332,9 @@ Coupe le projet en deux : **l'inverse exact de `Append File…`**. Une boîte
 demande à partir de quel sous-titre couper — du deuxième au dernier, numérotés
 comme dans la table — et s'ouvre sur la ligne courante.
 
+**La table montre où l'on coupe avant qu'on coupe** : chaque numéro que prend
+la boîte sélectionne sa ligne. `Cancel` rend la sélection d'avant.
+
 ![La boîte de `Split Project…`, palette claire.](captures/scinder.png)
 
 ![La même boîte sous la palette sombre.](captures/scinder-sombre.png)
@@ -346,6 +350,13 @@ garde le format et l'encodage de l'origine — **sans chemin** : aucun fichier n
 le tient encore. Son onglet s'écrit donc `untitled*` dès sa naissance, et le
 fermer sans l'enregistrer pose la question qu'on pose pour tout ce qui n'est
 pas écrit.
+
+**La barre d'état dit combien de sous-titres sont partis**, sans boîte à
+fermer — l'onglet neuf montre déjà le résultat :
+
+```text
+split 12 subtitles into a new project
+```
 
 **Une seule entrée d'historique**, dans le projet d'origine :
 `Undo: splitting the project` lui rend sa suite. Le projet neuf a un historique

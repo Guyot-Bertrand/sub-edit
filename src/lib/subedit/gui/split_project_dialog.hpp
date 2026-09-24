@@ -30,6 +30,11 @@ public:
     /// The field, for a test to set without clicking.
     [[nodiscard]] QSpinBox* subtitleBox() const { return m_subtitle; }
 
+signals:
+    /// The number in the box changed: `row` is the zero-based row it now
+    /// names, for the table to show where the cut falls — issue #462.
+    void rowChosen(int row);
+
 private:
     QSpinBox* m_subtitle;
 };

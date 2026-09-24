@@ -1790,8 +1790,20 @@ void MainWindow::splitProjectFromPrompt() {
     const int current = m_table->currentIndex().row();
     SplitProjectDialog dialog{
         project.count(), static_cast<std::size_t>(std::max(current, 0)) + 1, this};
-    if (!m_prompts->run(dialog))
+
+    // **Where the cut falls, shown before it is made**, as Gaupol does: each
+    // number the box takes selects its row. Cancelling gives the selection
+    // back — issue #462.
+    QItemSelectionModel& selection = *m_table->selectionModel();
+    const QItemSelection before = selection.selection();
+    const QModelIndex wasCurrent = selection.currentIndex();
+    connect(
+        &dialog, &SplitProjectDialog::rowChosen, this, [this](int row) { selectRows(row, row); });
+    if (!m_prompts->run(dialog)) {
+        selection.setCurrentIndex(wasCurrent, QItemSelectionModel::NoUpdate);
+        selection.select(before, QItemSelectionModel::ClearAndSelect);
         return;
+    }
 
     const core::SubtitleIndex from = core::SubtitleIndex::fromValue(dialog.firstOfTail());
     std::expected<core::SplitProject, core::SplitRefusal> split = core::splitProject(project, from);
@@ -1808,6 +1820,7 @@ void MainWindow::splitProjectFromPrompt() {
         core::Selection::range(from, core::SubtitleIndex::fromValue(project.count() - 1));
     (void)applyOperationQuietly(*m_page, std::move(split->command), tail);
 
+    const std::size_t moved = split->tail.count();
     openOn(std::move(split->tail), {});
 
     // Born holding subtitles no file has: closing it must ask, as it does for
@@ -1815,6 +1828,9 @@ void MainWindow::splitProjectFromPrompt() {
     m_page->session->markUnsaved(core::Document::Main);
     m_page->session->markUnsaved(core::Document::Translation);
     refreshActions();
+
+    statusBar()->showMessage(QString::fromStdString(core::noticeOfSplit(moved)),
+                             kOperationStatusTimeoutMs);
 }
 
 void MainWindow::removeHearingImpairedFromTarget() {

@@ -15,12 +15,15 @@
 #include <QAbstractItemModel>
 #include <QAction>
 #include <QDialog>
+#include <QItemSelectionModel>
 #include <QSpinBox>
+#include <QStatusBar>
 #include <QTabBar>
 #include <catch2/catch_test_macros.hpp>
 
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "fake_prompts.hpp"
 
@@ -70,6 +73,19 @@ constexpr const char* kOverlapping = "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n"
     return [number](QDialog& dialog) {
         dynamic_cast<SplitProjectDialog&>(dialog).subtitleBox()->setValue(number);
     };
+}
+
+[[nodiscard]] std::vector<int> selectedRows(const MainWindow& window) {
+    std::vector<int> rows;
+    for (const QModelIndex& index : window.table()->selectionModel()->selectedRows())
+        rows.push_back(index.row());
+    return rows;
+}
+
+void selectRow(const MainWindow& window, int row) {
+    window.table()->selectionModel()->setCurrentIndex(window.table()->model()->index(row, 0),
+                                                      QItemSelectionModel::ClearAndSelect |
+                                                          QItemSelectionModel::Rows);
 }
 
 } // namespace
@@ -189,4 +205,53 @@ TEST_CASE("cancelling the question splits nothing", "[gui][GUI-PSPLIT-01]") {
 
     CHECK(window.tabBar()->count() == 1);
     CHECK(window.table()->model()->rowCount() == 3);
+}
+
+TEST_CASE("splitting says in the status bar how many subtitles left", "[gui][GUI-PSPLIT-01]") {
+    InMemoryFileSystem files = filesystem();
+    FakePrompts prompts;
+    MainWindow window{files, mainOf(files), prompts};
+    window.show();
+    prompts.nextRun = true;
+    prompts.fill = cuttingAt(2);
+
+    window.splitProjectAction()->trigger();
+
+    CHECK(window.statusBar()->currentMessage().toStdString() ==
+          "split 2 subtitles into a new project");
+}
+
+TEST_CASE("the box selects the row it names, at each number it takes", "[gui][GUI-PSPLIT-01]") {
+    InMemoryFileSystem files = filesystem();
+    FakePrompts prompts;
+    MainWindow window{files, mainOf(files), prompts};
+    window.show();
+    std::vector<std::vector<int>> seen;
+    prompts.nextRun = false;
+    prompts.fill = [&](QDialog& dialog) {
+        QSpinBox& box = *dynamic_cast<SplitProjectDialog&>(dialog).subtitleBox();
+        box.setValue(3);
+        seen.push_back(selectedRows(window));
+        box.setValue(2);
+        seen.push_back(selectedRows(window));
+    };
+
+    window.splitProjectAction()->trigger();
+
+    CHECK(seen == std::vector<std::vector<int>>{{2}, {1}});
+}
+
+TEST_CASE("cancelling the box gives the selection back", "[gui][GUI-PSPLIT-01]") {
+    InMemoryFileSystem files = filesystem();
+    FakePrompts prompts;
+    MainWindow window{files, mainOf(files), prompts};
+    window.show();
+    selectRow(window, 0);
+    prompts.nextRun = false;
+    prompts.fill = cuttingAt(3);
+
+    window.splitProjectAction()->trigger();
+
+    CHECK(selectedRows(window) == std::vector<int>{0});
+    CHECK(window.table()->currentIndex().row() == 0);
 }
