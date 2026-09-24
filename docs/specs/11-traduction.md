@@ -680,6 +680,11 @@ Relecture de fin de phase, [#441](https://github.com/Guyot-Bertrand/sub-edit/iss
 | [#462](https://github.com/Guyot-Bertrand/sub-edit/issues/462) | `Split Project…` ne dit rien et ne montre pas où il coupe — le seul écart avec Gaupol que personne n'a voulu |
 | [#463](https://github.com/Guyot-Bertrand/sub-edit/issues/463) | le dépôt de fichiers **sur le film** — une fenêtre native que libmpv dessine — n'est vérifiable que sur un vrai bureau |
 
+> **#460 livrée**, [ADR 0034](../adr/0034-trois-collaborateurs-de-la-fenetre.md) : trois collaborateurs —
+> `TableColumns`, `ProjectSearch`, `ProjectFiles` — qui reçoivent la page qu'ils visent et se testent
+> sans fenêtre. `main_window.cpp` est passé de 2 968 à 2 319 lignes, sans qu'un test de la fenêtre soit
+> réécrit. Les gestes sur plusieurs projets changent encore d'onglet pour viser une page : c'est #461.
+
 **Écartés, avec leur raison.**
 
 - **Le nom d'un document — son fichier, ou `untitled` — est calculé à quatre endroits** (`titleFor`,

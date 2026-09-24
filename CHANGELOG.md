@@ -9,6 +9,16 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Remaniements
+
+- **gui** — Sortir les colonnes de la fenêtre dans TableColumns
+- **gui** — Sortir la recherche de la fenêtre dans ProjectSearch
+- **gui** — Sortir les fichiers de la fenêtre dans ProjectFiles
+- **gui** — Retirer de la fenêtre les includes devenus inutiles
+- **gui** — Ce que clang-tidy demande aux trois collaborateurs
+
+## 0.11.18 — 2026-09-24
+
 ### Documentation
 
 - **doc** — Relecture de fin de phase 11

@@ -2,10 +2,13 @@
 
 #include <subedit/core/model/selection.hpp>
 
+#include <QString>
+
 class QItemSelectionModel;
 
 namespace subedit::core {
 class Project;
+enum class Document;
 } // namespace subedit::core
 
 namespace subedit::gui {
@@ -30,5 +33,8 @@ namespace subedit::gui {
 /// the one thing they all need and none of them should decide differently.
 [[nodiscard]] core::Selection targetOf(const QItemSelectionModel& selection,
                                        const core::Project& project);
+
+/// What the window calls a text: the status bar and the search box both say it.
+[[nodiscard]] QString documentName(core::Document document);
 
 } // namespace subedit::gui

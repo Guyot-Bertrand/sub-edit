@@ -55,6 +55,9 @@ class Prompts;
 struct ProjectPage;
 struct ModifiedDocument;
 class SubtitleTableModel;
+class TableColumns;
+class ProjectSearch;
+class ProjectFiles;
 
 /// The window, and everything a project needs to be looked at.
 ///
@@ -194,7 +197,7 @@ public:
     [[nodiscard]] QAction* findAndReplaceAction() const { return m_findAndReplace; }
 
     /// The search dialog once it has been opened, and nothing before.
-    [[nodiscard]] SearchDialog* searchDialog() const { return m_search; }
+    [[nodiscard]] SearchDialog* searchDialog() const;
 
     /// The two edits of structure, for a test to read their state and trigger
     /// them.
@@ -269,7 +272,7 @@ public:
     /// The entry of the `View` menu that shows the translation column or takes
     /// it away — `GUI-TRANS-04`. Out for as long as the project has no
     /// translation: there is nothing to show.
-    [[nodiscard]] QAction* translationColumnAction() const { return m_translationColumn; }
+    [[nodiscard]] QAction* translationColumnAction() const;
 
     /// The entry of `View ▸ Columns` that shows `column` or takes it away —
     /// `GUI-TABLE-03`. The translation's is `translationColumnAction`; the text
@@ -370,18 +373,9 @@ protected:
     void dropEvent(QDropEvent* event) override;
 
 private:
-    /// Shows the translation column, or takes it away, as the project and the
-    /// entry of the `View` menu together say.
-    void refreshTranslationColumn();
-
-    /// Shows or hides every column as the entries of `View ▸ Columns` say, then
-    /// takes the current cell out of a column that has just gone — issue #442.
+    /// Shows or hides the columns as `View ▸ Columns` and the current project
+    /// say — `TableColumns::refresh` on the page shown.
     void refreshColumns();
-
-    /// Shows or hides one of the four position columns, keeping the width of
-    /// one that goes: a hidden section measures zero, and the settings would
-    /// write a width their reader refuses.
-    void setPositionColumnShown(int column, bool shown);
 
     /// The text an operation of text aims at: the translation when the current
     /// cell is in its column and the column is shown, the main text otherwise.
@@ -397,10 +391,6 @@ private:
     /// search, which forgets a match found in the other text and names the field
     /// its box looks in.
     void refreshTarget();
-
-    /// Tells the search box which text it looks in, or nothing when there is
-    /// one text only. Does nothing before the box exists.
-    void refreshSearchField();
 
     /// Works out afresh what the two edits of structure are allowed to do.
     ///
@@ -437,13 +427,6 @@ private:
     /// translation column, the target, the search box.
     void refreshForPage();
 
-    /// The index of the tab already showing `path`, or nothing.
-    ///
-    /// **However the path is spelled** — `film.srt`, `./film.srt` and
-    /// `../films/film.srt` name one file — compared without asking the disk,
-    /// the same rule `openTranslation` uses for the main document.
-    [[nodiscard]] std::optional<int> indexOfFile(const std::filesystem::path& path) const;
-
     /// `File ▸ New`: an empty project in a new tab.
     void newProject();
 
@@ -454,66 +437,9 @@ private:
     /// Whether `Close` may do anything — false with one tab left.
     void refreshTabActions();
 
-    /// Writes the document, asking where if it has never been anywhere.
-    ///
-    /// Returns whether it was written — « the user gave up » and « the disk
-    /// refused » are both `false`, and both must stop whatever asked.
-    [[nodiscard]] bool save();
-
-    [[nodiscard]] bool saveAs();
-
-    /// The same for the translation, which is a file of its own.
-    [[nodiscard]] bool saveTranslation();
-
-    [[nodiscard]] bool saveTranslationAs();
-
-    /// Writes one of the two documents, or asks where — what the four above
-    /// are, once the document is a parameter. **One body and not two**: the
-    /// dialog, the warning about a loss, the failure that leaves the document
-    /// where it was are the same for both, and they had been written once
-    /// already.
-    [[nodiscard]] bool saveDocument(core::Document document);
-
-    [[nodiscard]] bool saveDocumentAs(core::Document document);
-
-    /// Whether `document` differs from its file. **The translation only counts
-    /// while the project has one**: a translation that was undone away has no
-    /// file to differ from.
+    /// Whether `document` of the project on screen differs from its file —
+    /// `ProjectFiles::isModified`.
     [[nodiscard]] bool isModified(core::Document document) const;
-    [[nodiscard]] static bool isModified(const ProjectPage& page, core::Document document);
-
-    /// The documents a closing would lose, in the order the window shows them.
-    ///
-    /// **A file gone from the disk counts as modified**, and is marked as such:
-    /// what the window holds is then the only copy of it.
-    [[nodiscard]] std::vector<ModifiedDocument> modifiedDocuments() const;
-    [[nodiscard]] std::vector<ModifiedDocument> modifiedDocuments(const ProjectPage& page) const;
-
-    /// Returns whether whatever is about to lose the changes may go on.
-    ///
-    /// **One question however many documents are modified.** Nothing modified
-    /// goes on; one asks what it always asked; two ask through the list, with a
-    /// box each.
-    [[nodiscard]] bool mayDiscardChanges();
-
-    /// The same question for every project of the window at once.
-    ///
-    /// **Nothing modified goes on; one document asks the plain question; two or
-    /// more ask through the list**, whichever projects they belong to. Saving
-    /// brings each document's tab forward first.
-    [[nodiscard]] bool mayDiscardAllChanges();
-
-    /// The question itself, over `modified` — `owners[i]` being the tab that
-    /// `modified[i]` is in — shared by the two above.
-    [[nodiscard]] bool mayDiscard(const std::vector<ModifiedDocument>& modified,
-                                  const std::vector<int>& owners);
-
-    /// `Projects ▸ Save All`: every modified document, tab by tab.
-    void saveAllDocuments();
-
-    /// Returns whether a translation that is open may be replaced — asked
-    /// before the file is, as for the main document.
-    [[nodiscard]] bool mayReplaceTranslation();
 
     /// Asks which translation to open and how to align it, then opens it.
     void openTranslationFromPrompt();
@@ -611,7 +537,6 @@ private:
 
     /// Keeps the directory of `file` as the one the next "open" box will open
     /// in.
-    void rememberDirectoryOf(const std::filesystem::path& file);
 
     /// Asks which grid to lay the positions on, and lays them on it.
     void snapToFrameRate();
@@ -700,43 +625,9 @@ private:
     /// Rows laid down past the end, and tags a translation dropped, are said.
     void pasteTexts();
 
-    /// Opens the search dialog, or brings it back to the front.
-    ///
-    /// **The same dialog every time**, kept from one opening to the next with
-    /// what was typed in it: finding again is the common case.
+    /// Opens the search dialog, or brings it back to the front —
+    /// `ProjectSearch::open`.
     void openSearch();
-
-    /// Finds the next or the previous match in the search target, and moves
-    /// the table to it.
-    ///
-    /// **This one and the two after it answer the dialog's signals and nothing
-    /// else**, so the dialog exists whenever they run: `openSearch` makes it
-    /// before connecting them, and a test reaches them only by pressing its
-    /// buttons.
-    void findInTarget(bool forward);
-
-    /// The search of `findInTarget` when the box « All open projects » is
-    /// ticked: the current project first, then the others in the order of
-    /// their tabs — `GUI-SEARCH-04`.
-    void findAcrossProjects(bool forward, const core::SearchPattern& pattern);
-
-    /// Replaces the match last found, then finds the next one.
-    void replaceCurrentMatch();
-
-    /// Replaces every match of the search target, as one entry in the history.
-    void replaceAllInTarget();
-
-    /// `Replace All` over every open project, one entry of history in each one
-    /// it touches.
-    void replaceAllAcrossProjects(const core::SearchPattern& pattern);
-
-    /// Compiles what the dialog asks for, or shows why it cannot be.
-    [[nodiscard]] std::optional<core::SearchPattern> searchPattern();
-
-    /// What the search walks: the selection, or the whole document — captured
-    /// when a search starts, and kept while the search itself moves the
-    /// selection from match to match.
-    [[nodiscard]] core::Selection searchTarget();
 
     /// Merges the selected rows into one, and selects it.
     ///
@@ -872,12 +763,8 @@ private:
     QAction* m_italic = nullptr;
     std::array<QAction*, 4> m_case{};
 
-    /// The entries of `View ▸ Columns` for the number and the three positions,
-    /// in the order of the model.
-    std::array<QAction*, 4> m_columns{};
-
-    /// The width each of those four had when it was hidden.
-    std::array<int, 4> m_hiddenWidths{};
+    /// The columns of the table and the entries of `View ▸ Columns` — ADR 0034.
+    std::unique_ptr<TableColumns> m_columns;
     QAction* m_dialogueDashes = nullptr;
     QAction* m_analyseGrid = nullptr;
     QAction* m_snap = nullptr;
@@ -892,7 +779,6 @@ private:
     QLabel* m_gridStatus = nullptr;
     QLabel* m_encodingStatus = nullptr;
     QLabel* m_targetStatus = nullptr;
-    QAction* m_translationColumn = nullptr;
     QWidget* m_videoView = nullptr;
     QWidget* m_noVideo = nullptr;
     QSplitter* m_split = nullptr;
@@ -925,20 +811,19 @@ private:
     /// one. Gaupol's defaults until then.
     core::DurationAdjustmentSettings m_durationSettings;
 
-    /// The search dialog, made at its first opening and kept.
-    SearchDialog* m_search = nullptr;
+    /// What the search asks of the window, and the search itself — ADR 0034.
+    /// The first is declared before the second, which holds a reference to it.
+    class SearchSide;
+    std::unique_ptr<SearchSide> m_searchSide;
+    std::unique_ptr<ProjectSearch> m_search;
 
-    /// The two options of a search, which the preferences carry.
-    core::SearchOptions m_searchOptions;
+    /// What the files ask of the window, and the files themselves — ADR 0034.
+    class FilesSide;
+    std::unique_ptr<FilesSide> m_filesSide;
+    std::unique_ptr<ProjectFiles> m_projectFiles;
 
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;
-
-    /// The directory the "open" box will open in.
-    ///
-    /// That of the last file **opened or saved**, and not that of a box
-    /// dismissed: what counts is where the user works, not where they looked.
-    std::filesystem::path m_lastDirectory;
 
     /// Whether the window has been on screen once.
     ///

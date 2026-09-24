@@ -11,10 +11,12 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <span>
 #include <string>
 #include <vector>
 
 namespace subedit::core {
+class Project;
 class Session;
 } // namespace subedit::core
 
@@ -37,6 +39,14 @@ class SubtitleTableModel;
 struct ProjectPage {
     ProjectPage();
     ~ProjectPage();
+
+    /// A page for `project`, with its session, its model and its selection
+    /// model built — everything but the connections, which are the window's.
+    ///
+    /// **What lets a page exist without a window**, and so what lets the
+    /// window's collaborators be tested apart from it — ADR 0034.
+    [[nodiscard]] static std::unique_ptr<ProjectPage>
+    make(core::Project project, std::span<const core::Diagnostic> diagnostics = {});
 
     ProjectPage(const ProjectPage&) = delete;
     ProjectPage& operator=(const ProjectPage&) = delete;

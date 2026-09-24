@@ -1,3 +1,4 @@
+#include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
@@ -29,6 +30,11 @@ core::Selection selectionOf(const QItemSelectionModel& selection) {
 core::Selection targetOf(const QItemSelectionModel& selection, const core::Project& project) {
     const core::Selection selected = selectionOf(selection);
     return selected.isEmpty() ? core::Selection::all(project) : selected;
+}
+
+QString documentName(core::Document document) {
+    return document == core::Document::Translation ? QStringLiteral("Translation")
+                                                   : QStringLiteral("Main");
 }
 
 } // namespace subedit::gui

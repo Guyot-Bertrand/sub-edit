@@ -34,7 +34,6 @@
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
-#include <subedit/core/model/video_file.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
@@ -50,9 +49,10 @@
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
-#include <subedit/gui/open_translation_dialog.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
+#include <subedit/gui/project_files.hpp>
 #include <subedit/gui/project_page.hpp>
+#include <subedit/gui/project_search.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/search_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
@@ -60,15 +60,14 @@
 #include <subedit/gui/split_project_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
+#include <subedit/gui/table_columns.hpp>
 #include <subedit/gui/target.hpp>
 #include <subedit/gui/theme.hpp>
 #include <subedit/gui/transform_dialog.hpp>
-#include <subedit/gui/unsaved_documents_dialog.hpp>
 
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QAction>
-#include <QCheckBox>
 #include <QClipboard>
 #include <QCloseEvent>
 #include <QDragEnterEvent>
@@ -115,14 +114,6 @@
 #include <vector>
 
 namespace subedit::gui {
-
-// The file names the columns in the model's order, and the window converts by
-// that order alone.
-static_assert(static_cast<int>(core::TableColumn::Number) == SubtitleTableModel::Number);
-static_assert(static_cast<int>(core::TableColumn::Duration) == SubtitleTableModel::Duration);
-static_assert(static_cast<int>(core::TableColumn::Text) == SubtitleTableModel::Text);
-static_assert(static_cast<int>(core::TableColumn::Translation) == SubtitleTableModel::Translation);
-static_assert(core::kTableColumnCount == SubtitleTableModel::kColumnCount);
 
 namespace {
 
@@ -269,13 +260,91 @@ constexpr int kOperationStatusTimeoutMs = 5000;
     return given;
 }
 
-/// What the window calls a text: the status bar and the search box both say it.
-[[nodiscard]] QString documentName(core::Document document) {
-    return document == core::Document::Translation ? QStringLiteral("Translation")
-                                                   : QStringLiteral("Main");
-}
-
 } // namespace
+
+/// What the search asks of the window — ADR 0034. A class of its own rather
+/// than the window itself: `View::show(int)` would hide `QWidget::show()`.
+class MainWindow::SearchSide final : public ProjectSearch::View {
+
+public:
+    explicit SearchSide(MainWindow& window) : m_window(&window) {}
+
+    [[nodiscard]] int projectCount() const override {
+        return static_cast<int>(m_window->m_pages.size());
+    }
+
+    [[nodiscard]] ProjectPage& project(int index) override {
+        return *m_window->m_pages.at(static_cast<std::size_t>(index));
+    }
+
+    [[nodiscard]] int shownProject() const override { return m_window->m_currentPage; }
+
+    void show(int index) override { m_window->switchToPage(index); }
+
+    [[nodiscard]] core::Document targetDocument() const override {
+        return m_window->targetDocument();
+    }
+
+    [[nodiscard]] bool twoTexts() const override { return m_window->m_columns->translationShown(); }
+
+    [[nodiscard]] core::Selection selectionTarget() const override {
+        return targetOf(*m_window->m_table->selectionModel(), m_window->m_page->session->project());
+    }
+
+    void moveTo(int row) override {
+        m_window->m_page->movingToMatch = true;
+        m_window->selectRows(row, row);
+        m_window->m_page->movingToMatch = false;
+    }
+
+    void apply(std::unique_ptr<core::Command> command, const core::Selection& target) override {
+        m_window->applyOperation(std::move(command), target);
+    }
+
+private:
+    MainWindow* m_window;
+};
+
+/// What the files ask of the window — ADR 0034.
+class MainWindow::FilesSide final : public ProjectFiles::View {
+
+public:
+    explicit FilesSide(MainWindow& window) : m_window(&window) {}
+
+    [[nodiscard]] int projectCount() const override {
+        return static_cast<int>(m_window->m_pages.size());
+    }
+
+    [[nodiscard]] ProjectPage& project(int index) override {
+        return *m_window->m_pages.at(static_cast<std::size_t>(index));
+    }
+
+    [[nodiscard]] int shownProject() const override { return m_window->m_currentPage; }
+
+    void show(int index) override { m_window->switchToPage(index); }
+
+    void saved(ProjectPage& page, core::Document document, bool moved) override {
+        // The file answers to another name now: the title says it, and the
+        // convention has something new to say — D5 makes it safe to ask, a film
+        // the user chose is not replaced by one the convention finds. The film
+        // goes with the main document; the translation's name says nothing of it.
+        if (moved && document == core::Document::Main && &page == m_window->m_page) {
+            m_window->setWindowTitle(titleFor(page.session->project()));
+            m_window->proposeVideoBeside();
+        }
+        m_window->refreshActions();
+    }
+
+    void announce(const std::string& message) override {
+        m_window->statusBar()->showMessage(QString::fromStdString(message),
+                                           kOperationStatusTimeoutMs);
+    }
+
+    [[nodiscard]] QWidget* dialogParent() override { return m_window; }
+
+private:
+    MainWindow* m_window;
+};
 
 MainWindow::MainWindow(core::FileSystem& files,
                        core::OpenedFile opened,
@@ -375,12 +444,6 @@ MainWindow::MainWindow(core::FileSystem& files,
     // as the translation is there and that stretching ignores as long as it is
     // not.
     m_table->horizontalHeader()->setStretchLastSection(true);
-
-    // **The header's columns are dragged into another order** — issue #442.
-    // The order belongs to the one table, and so to every tab: a model does
-    // not change the number of columns the header counts, so `setModel` keeps
-    // it as it keeps the widths.
-    m_table->horizontalHeader()->setSectionsMovable(true);
 
     // **A window of the system, and that is the whole point of these two
     // attributes.** libmpv draws into a window the platform numbers; a plain Qt
@@ -482,7 +545,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_closeAllProjects->setEnabled(true);
     m_saveAllDocuments->setShortcut(QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_L});
     m_closeAllProjects->setShortcut(QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_W});
-    connect(m_saveAllDocuments, &QAction::triggered, this, &MainWindow::saveAllDocuments);
+    connect(m_saveAllDocuments, &QAction::triggered, this, [this] { m_projectFiles->saveAll(); });
     // **Closing every project is closing the window**: the window always holds
     // one, so there is no state in between. `closeEvent` asks the one question.
     connect(m_closeAllProjects, &QAction::triggered, this, &QWidget::close);
@@ -504,11 +567,19 @@ MainWindow::MainWindow(core::FileSystem& files,
     addAction(m_previousTab);
     // The returned value only serves whoever carries on afterwards; fired by
     // the action, it has nobody to inform.
-    connect(m_save, &QAction::triggered, this, [this] { (void)save(); });
-    connect(m_saveAs, &QAction::triggered, this, [this] { (void)saveAs(); });
+    connect(m_save, &QAction::triggered, this, [this] {
+        (void)m_projectFiles->save(*m_page, core::Document::Main);
+    });
+    connect(m_saveAs, &QAction::triggered, this, [this] {
+        (void)m_projectFiles->saveAs(*m_page, core::Document::Main);
+    });
     connect(m_openTranslation, &QAction::triggered, this, &MainWindow::openTranslationFromPrompt);
-    connect(m_saveTranslation, &QAction::triggered, this, [this] { (void)saveTranslation(); });
-    connect(m_saveTranslationAs, &QAction::triggered, this, [this] { (void)saveTranslationAs(); });
+    connect(m_saveTranslation, &QAction::triggered, this, [this] {
+        (void)m_projectFiles->save(*m_page, core::Document::Translation);
+    });
+    connect(m_saveTranslationAs, &QAction::triggered, this, [this] {
+        (void)m_projectFiles->saveAs(*m_page, core::Document::Translation);
+    });
 
     // **`Ins` and `Del`, and not Gaupol's letters.** It gives `I` and
     // `Delete`; a bare letter of window scope would be taken before the editor
@@ -580,33 +651,20 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_analyseGrid->setEnabled(false);
     connect(m_analyseGrid, &QAction::triggered, this, &MainWindow::analyseGrid);
 
-    // The four that may go, beside the translation. `No.` as Gaupol names it:
-    // the header's « # » reads badly as a menu entry.
-    const std::array<QString, 4> columnNames = {QStringLiteral("&No."),
-                                                QStringLiteral("&Start"),
-                                                QStringLiteral("&End"),
-                                                QStringLiteral("&Duration")};
-    for (std::size_t column = 0; column < m_columns.size(); ++column) {
-        m_columns.at(column) = new QAction{columnNames.at(column), this};
-        m_columns.at(column)->setCheckable(true);
-        m_columns.at(column)->setChecked(true);
-        connect(m_columns.at(column), &QAction::toggled, this, [this] {
+    // The columns and their entries are the collaborator's — ADR 0034. The
+    // column first, then the target: what a cell can be aiming at depends on
+    // whether the column is there.
+    m_columns = std::make_unique<TableColumns>(*m_table, this);
+    m_searchSide = std::make_unique<SearchSide>(*this);
+    m_search = std::make_unique<ProjectSearch>(*m_searchSide, this);
+    m_filesSide = std::make_unique<FilesSide>(*this);
+    m_projectFiles = std::make_unique<ProjectFiles>(*m_files, *m_prompts, *m_filesSide);
+    for (QAction* entry : m_columns->entries()) {
+        connect(entry, &QAction::toggled, this, [this] {
             refreshColumns();
             refreshTarget();
         });
     }
-
-    m_translationColumn = new QAction{QStringLiteral("&Translation"), this};
-    m_translationColumn->setCheckable(true);
-    m_translationColumn->setChecked(true);
-    m_translationColumn->setEnabled(false);
-    m_translationColumn->setToolTip(QStringLiteral("Show the translation next to the text"));
-    // The column first, then the target: what a cell can be aiming at depends on
-    // whether the column is there.
-    connect(m_translationColumn, &QAction::toggled, this, [this] {
-        refreshColumns();
-        refreshTarget();
-    });
 
     m_selectVideo->setEnabled(true);
     connect(m_selectVideo, &QAction::triggered, this, &MainWindow::selectVideo);
@@ -689,9 +747,8 @@ MainWindow::MainWindow(core::FileSystem& files,
     // A submenu, as Gaupol's `View ▸ Columns`: five entries loose in the menu
     // would be five entries for one question.
     QMenu* columns = view->addMenu(QStringLiteral("&Columns"));
-    for (QAction* column : m_columns)
-        columns->addAction(column);
-    columns->addAction(m_translationColumn);
+    for (QAction* entry : m_columns->entries())
+        columns->addAction(entry);
 
     QMenu* video = menuBar()->addMenu(QStringLiteral("&Video"));
     video->addAction(m_selectVideo);
@@ -789,16 +846,7 @@ MainWindow::MainWindow(core::FileSystem& files,
 }
 
 void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic> diagnostics) {
-    // A page of its own, and a session rebuilt rather than reset: a history
-    // carries what was done to one file, and it has nothing to say about the
-    // next. Everything else `ProjectPage` holds starts at its own default —
-    // no match, no target, no video associated, nothing placed — which is
-    // exactly right for a project nothing has touched yet.
-    auto page = std::make_unique<ProjectPage>();
-    page->session = std::make_unique<core::Session>(std::move(project));
-    page->model = std::make_unique<SubtitleTableModel>(*page->session);
-    page->tableSelection = std::make_unique<QItemSelectionModel>(page->model.get());
-    page->diagnostics.assign(diagnostics.begin(), diagnostics.end());
+    std::unique_ptr<ProjectPage> page = ProjectPage::make(std::move(project), diagnostics);
 
     // The model has carried a cell edit out as a command since issue #129, so
     // the window does not see them go by. This signal is how it learns of
@@ -1276,338 +1324,19 @@ void MainWindow::followPlayback() {
     m_table->scrollTo(followed);
 }
 
-bool MainWindow::save() {
-    return saveDocument(core::Document::Main);
-}
-
-bool MainWindow::saveAs() {
-    return saveDocumentAs(core::Document::Main);
-}
-
-bool MainWindow::saveTranslation() {
-    return saveDocument(core::Document::Translation);
-}
-
-bool MainWindow::saveTranslationAs() {
-    return saveDocumentAs(core::Document::Translation);
-}
-
-bool MainWindow::saveDocument(core::Document document) {
-    const core::SourceFile& source = m_page->session->project().sourceFile(document);
-    if (!source.path.has_value())
-        return saveDocumentAs(document);
-
-    const std::expected<void, core::SaveError> written = core::saveProject(
-        *m_files, m_page->session->project(), document, *source.path, source.format);
-    if (!written) {
-        m_prompts->reportFailure(source.path->string() + ": " +
-                                 std::string{core::reasonOf(written.error())});
-        return false;
-    }
-
-    rememberDirectoryOf(*source.path);
-    m_page->session->markSaved(document);
-    refreshActions();
-    return true;
-}
-
-bool MainWindow::saveDocumentAs(core::Document document) {
-    const core::SourceFile& source = m_page->session->project().sourceFile(document);
-
-    // **The encoding of the file wins over the setting**, and the setting
-    // serves the document with no file: rewriting a document one has just
-    // opened in another encoding, because a setting three weeks old says so,
-    // would be losing what the reading took care to keep.
-    const core::Encoding proposed =
-        source.path.has_value() ? source.encoding : m_page->writeEncoding.value_or(source.encoding);
-
-    const std::optional<SaveTarget> target = m_prompts->saveTarget(source, proposed);
-    if (!target.has_value())
-        return false;
-
-    // **What the arriving format will not carry, said before the writing.** The
-    // command line prints the same words afterwards, where they are a report;
-    // asked here they are a warning, and the difference is that the answer can
-    // still be « no ». ADR 0031: the tags are translated on the way, so the
-    // count of what fell is the count of a conversion that really happened.
-    const core::SourceFile before = m_page->session->project().sourceFile(document);
-    const std::span<const core::Subtitle> held = m_page->session->project().subtitles();
-    // **The document's own rate, and it is a real answer here.** A file counted
-    // in frames was read at it, `Convert Frame Rate…` moves it, and nothing
-    // else in this window can leave it unset — so the command line's third
-    // case, « no rate and no grid, refuse », cannot arise.
-    core::ConvertedProject converted =
-        core::convertProjectFor(m_page->session->project(),
-                                document,
-                                target->format,
-                                m_page->session->project().frameRate());
-
-    if (const std::string notice = core::noticeOf(converted.loss, before.format, target->format);
-        !notice.empty() && !m_prompts->aboutLoss(notice)) {
-        return false;
-    }
-
-    // What the document becomes, laid down before the writing: `saveProject`
-    // writes what the project carries, and what it carries is now what has just
-    // been chosen. One act and not two — a format and the texts that speak it —
-    // and not a command, for the reasons `Session::becomeFile` writes out.
-    const std::vector<core::Subtitle> heldBefore{held.begin(), held.end()};
-    core::SourceFile moved = before;
-    moved.path = target->path;
-    moved.format = target->format;
-    moved.encoding = target->encoding;
-    moved.newline = target->newline;
-    // What the file declares of itself follows the conversion, which is the one
-    // place that decides what crosses a format boundary — ADR 0030.
-    moved.extras = converted.extras;
-    moved.header = converted.header;
-    m_page->session->becomeFile(document, moved, std::move(converted.subtitles));
-
-    const std::expected<void, core::SaveError> written = core::saveProject(
-        *m_files, m_page->session->project(), document, target->path, target->format);
-    if (!written) {
-        // **And undone when the writing fails.** A document that was not
-        // written has not moved: without this step back it aims at a file that
-        // does not exist, the title still shows the old name — it is only taken
-        // up further down — and `Save` writes somewhere other than where anyone
-        // thinks. The case has been reachable since phase 8: a `ł` and a
-        // Latin-1 encoding are enough, and it does not even ask the disk to
-        // refuse.
-        m_page->session->becomeFile(document, before, heldBefore);
-        m_prompts->reportFailure(target->path.string() + ": " +
-                                 std::string{core::reasonOf(written.error())});
-        return false;
-    }
-
-    rememberDirectoryOf(target->path);
-
-    // Kept even if the document already had one: it is a choice that has just
-    // been made, and the next document with no file will open on it.
-    m_page->writeEncoding = target->encoding;
-
-    m_page->session->markSaved(document);
-
-    if (document == core::Document::Main) {
-        setWindowTitle(titleFor(m_page->session->project()));
-
-        // The file answers to another name now, so the convention has something
-        // new to say — and D5 makes it safe to ask: a film the user chose is
-        // not replaced by one the convention finds. The film goes with the main
-        // document, and the translation's name says nothing about it.
-        proposeVideoBeside();
-    }
-
-    // The format governs the decimal mark the table shows, and it is the main
-    // document's; a translation moved to another format rewrote its own texts.
-    // Either way everything on screen is to be read again.
-    m_page->model->refreshAll();
-    refreshActions();
-    return true;
-}
-
 bool MainWindow::isModified(core::Document document) const {
-    return isModified(*m_page, document);
-}
-
-bool MainWindow::isModified(const ProjectPage& page, core::Document document) {
-    // A translation counts only while there is one: undoing the opening of it
-    // takes its file away, and what is left has nothing to differ from.
-    if (document == core::Document::Translation &&
-        !page.session->project().translationFile().has_value())
-        return false;
-
-    return page.session->hasUnsavedChanges(document);
-}
-
-std::vector<ModifiedDocument> MainWindow::modifiedDocuments() const {
-    return modifiedDocuments(*m_page);
-}
-
-std::vector<ModifiedDocument> MainWindow::modifiedDocuments(const ProjectPage& page) const {
-    std::vector<ModifiedDocument> modified;
-
-    for (const core::Document document : {core::Document::Main, core::Document::Translation}) {
-        if (document == core::Document::Translation &&
-            !page.session->project().translationFile().has_value())
-            continue;
-
-        const core::SourceFile& source = page.session->project().sourceFile(document);
-        const bool missing = source.path.has_value() && !m_files->exists(*source.path);
-        if (!isModified(page, document) && !missing)
-            continue;
-
-        modified.push_back(ModifiedDocument{
-            .document = document,
-            .name = source.path.has_value() ? source.path->filename().string() : "untitled",
-            .missing = missing,
-        });
-    }
-
-    return modified;
-}
-
-bool MainWindow::mayDiscardChanges() {
-    const std::vector<ModifiedDocument> modified = modifiedDocuments();
-    return mayDiscard(modified, std::vector<int>(modified.size(), m_currentPage));
-}
-
-bool MainWindow::mayDiscardAllChanges() {
-    // Every modified document of every project, and the tab each one is in.
-    // Names are not qualified by project: the kind and the file's name say
-    // which document it is, and Gaupol's own list does no more.
-    std::vector<ModifiedDocument> modified;
-    std::vector<int> owners;
-    for (std::size_t index = 0; index < m_pages.size(); ++index) {
-        for (const ModifiedDocument& document : modifiedDocuments(*m_pages[index])) {
-            modified.push_back(document);
-            owners.push_back(static_cast<int>(index));
-        }
-    }
-
-    return mayDiscard(modified, owners);
-}
-
-bool MainWindow::mayDiscard(const std::vector<ModifiedDocument>& modified,
-                            const std::vector<int>& owners) {
-    if (modified.empty())
-        return true;
-
-    // One document is the question it always was, whichever tab it is in — and
-    // the tab is brought forward first, so that a `Save As…` opens over it.
-    if (modified.size() == 1) {
-        switchToPage(owners.front());
-        switch (m_prompts->aboutUnsavedChanges(modified.front())) {
-        case UnsavedChoice::Save:
-            return saveDocument(modified.front().document);
-        case UnsavedChoice::Discard:
-            return true;
-        case UnsavedChoice::Cancel:
-            return false;
-        }
-
-        std::unreachable();
-    }
-
-    UnsavedDocumentsDialog dialog{modified, this};
-    if (!m_prompts->run(dialog))
-        return false;
-
-    switch (dialog.choice()) {
-    case UnsavedChoice::Save:
-        // Read off the boxes and not off `toSave()`: that names documents, and
-        // two projects both have a main one.
-        for (std::size_t index = 0; index < modified.size(); ++index) {
-            if (!dialog.boxes().at(static_cast<qsizetype>(index))->isChecked())
-                continue;
-            switchToPage(owners.at(index));
-            if (!saveDocument(modified.at(index).document))
-                return false;
-        }
-        return true;
-    case UnsavedChoice::Discard:
-        return true;
-    case UnsavedChoice::Cancel:
-        return false;
-    }
-
-    std::unreachable();
-}
-
-void MainWindow::saveAllDocuments() {
-    const int origin = m_currentPage;
-    const int projects = static_cast<int>(m_pages.size());
-
-    int total = 0;
-    for (const std::unique_ptr<ProjectPage>& page : m_pages) {
-        for (const core::Document document : {core::Document::Main, core::Document::Translation})
-            total += isModified(*page, document) ? 1 : 0;
-    }
-
-    int written = 0;
-    bool stopped = false;
-    // In the order of the tabs. `saveDocument` asks for a name when a document
-    // has none, and a `Save As…` given up — or a write that fails — ends the
-    // series: what follows would be answering for someone who left.
-    for (int index = 0; index < projects && !stopped; ++index) {
-        switchToPage(index);
-        for (const core::Document document : {core::Document::Main, core::Document::Translation}) {
-            if (!isModified(document))
-                continue;
-            if (!saveDocument(document)) {
-                stopped = true;
-                break;
-            }
-            ++written;
-        }
-    }
-
-    switchToPage(origin);
-
-    const auto documents = [](int count) {
-        return std::to_string(count) + (count == 1 ? " document" : " documents");
-    };
-    if (stopped) {
-        m_prompts->reportOutcome("Save All stopped: " + std::to_string(written) + " of " +
-                                 documents(total) + " saved");
-        return;
-    }
-    statusBar()->showMessage(
-        QString::fromStdString(total == 0 ? "Nothing to save" : documents(written) + " saved"),
-        kOperationStatusTimeoutMs);
-}
-
-bool MainWindow::mayReplaceTranslation() {
-    if (!isModified(core::Document::Translation))
-        return true;
-
-    const core::SourceFile& source =
-        m_page->session->project().sourceFile(core::Document::Translation);
-    const ModifiedDocument modified{
-        .document = core::Document::Translation,
-        .name = source.path.has_value() ? source.path->filename().string() : "untitled",
-    };
-
-    switch (m_prompts->aboutUnsavedChanges(modified)) {
-    case UnsavedChoice::Save:
-        return saveTranslation();
-    case UnsavedChoice::Discard:
-        return true;
-    case UnsavedChoice::Cancel:
-        return false;
-    }
-
-    std::unreachable();
+    return ProjectFiles::isModified(*m_page, document);
 }
 
 void MainWindow::openTranslationFromPrompt() {
-    // Asked before asking what to open, for the reason the main document's is:
-    // giving up rather than losing one's work should not require choosing a
-    // file first.
-    if (!mayReplaceTranslation())
-        return;
-
-    const std::optional<std::filesystem::path> chosen = m_prompts->fileToOpen(m_lastDirectory);
+    std::optional<ProjectFiles::ChosenTranslation> chosen =
+        m_projectFiles->chooseTranslation(*m_page);
     if (!chosen.has_value())
         return;
-
-    // Read before the method is asked: a file that will not open, or that is the
-    // main document itself, is not worth a question about how to align it.
-    std::expected<core::TranslationFile, core::TranslationError> read =
-        core::openTranslation(*m_files, m_page->session->project(), *chosen);
-    if (!read) {
-        m_prompts->reportFailure(chosen->string() + ": " +
-                                 std::string{core::reasonOf(read.error())});
-        return;
-    }
-
-    OpenTranslationDialog dialog{QString::fromStdString(chosen->filename().string()), this};
-    if (!m_prompts->run(dialog))
-        return;
-
-    rememberDirectoryOf(*chosen);
+    const core::TranslationFile& read = chosen->read;
 
     core::AttachedTranslation attached = core::attachTranslation(
-        m_page->session->project(), read->lines, read->source, dialog.method());
+        m_page->session->project(), read.lines, read.source, chosen->method);
     const core::TranslationOutcome outcome = attached.outcome;
     const core::Selection whole = core::Selection::all(m_page->session->project());
     const std::string pastTheEnd = applyOperationQuietly(std::move(attached.command), whole);
@@ -1618,13 +1347,13 @@ void MainWindow::openTranslationFromPrompt() {
 
     // An act of the user's, as showing the column is: the choice of having taken
     // it away once does not outlast the opening of a translation.
-    m_translationColumn->setChecked(true);
+    m_columns->action(core::TableColumn::Translation)->setChecked(true);
     refreshActions();
 
     // What the reading ran into that is not about alignment — the panel of what
     // the last reading met.
-    if (!read->diagnostics.empty())
-        m_diagnostics->setDiagnostics(read->diagnostics);
+    if (!read.diagnostics.empty())
+        m_diagnostics->setDiagnostics(read.diagnostics);
 
     // **In the status bar when everything found its place, in a box to close
     // otherwise** — the rule #398 set for a gesture that has something to say.
@@ -1637,25 +1366,11 @@ void MainWindow::openTranslationFromPrompt() {
     m_prompts->reportOutcome(joinedNotices(notice, pastTheEnd));
 }
 
-std::optional<int> MainWindow::indexOfFile(const std::filesystem::path& path) const {
-    // **However the path is spelled** — `film.srt`, `./film.srt` and
-    // `../films/film.srt` name one file — the same rule `openTranslation`
-    // uses for the main document, compared without asking the disk.
-    const std::filesystem::path normalized = path.lexically_normal();
-    for (std::size_t index = 0; index < m_pages.size(); ++index) {
-        const std::optional<std::filesystem::path>& open =
-            m_pages[index]->session->project().sourceFile().path;
-        if (open.has_value() && open->lexically_normal() == normalized)
-            return static_cast<int>(index);
-    }
-    return std::nullopt;
-}
-
 void MainWindow::openFromPrompt() {
     // **Nothing to discard, and nothing asked.** Opening lands on a tab of
     // its own since #437 — ADR 0033 — and no longer replaces the one the
     // window was showing.
-    const std::optional<std::filesystem::path> chosen = m_prompts->fileToOpen(m_lastDirectory);
+    const std::optional<std::filesystem::path> chosen = m_projectFiles->askFileToOpen();
     if (!chosen.has_value())
         return;
 
@@ -1667,7 +1382,7 @@ std::optional<std::string> MainWindow::openFile(const std::filesystem::path& pat
     // Already open, in another tab or this one: the file a second choice of
     // it means is the one already there, and the window says so rather than
     // reading it a second time — Gaupol's own rule.
-    if (const std::optional<int> already = indexOfFile(path); already.has_value()) {
+    if (const std::optional<int> already = m_projectFiles->indexOf(path); already.has_value()) {
         switchToPage(*already);
         statusBar()->showMessage(
             QString::fromStdString(path.filename().string() + ": already open"),
@@ -1675,39 +1390,30 @@ std::optional<std::string> MainWindow::openFile(const std::filesystem::path& pat
         return std::nullopt;
     }
 
-    std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(*m_files, path);
+    std::expected<core::OpenedFile, std::string> opened = m_projectFiles->read(path);
     if (!opened)
-        return path.string() + ": " + std::string{core::reasonOf(opened.error())};
-
-    // **Kept here and not at the asking**: what counts is where the user
-    // works, not where they looked. A box dismissed, or a file that does not
-    // open, therefore moves nothing.
-    rememberDirectoryOf(path);
+        return std::move(opened.error());
 
     openOn(std::move(opened->project), opened->diagnostics);
     return std::nullopt;
 }
 
 void MainWindow::openDropped(std::span<const std::filesystem::path> paths) {
-    std::vector<std::filesystem::path> films;
+    const ProjectFiles::Dropped dropped = ProjectFiles::sort(paths);
     std::vector<std::string> failures;
 
-    for (const std::filesystem::path& path : paths) {
-        if (core::isVideoFile(path)) {
-            films.push_back(path);
-            continue;
-        }
+    for (const std::filesystem::path& path : dropped.subtitles) {
         if (std::optional<std::string> failure = openFile(path); failure.has_value())
             failures.push_back(std::move(*failure));
     }
 
     // After the subtitles, whatever order the drop listed them in: the film
     // goes to the tab shown once they are open, which is the last one opened.
-    if (films.size() == 1) {
-        m_page->session->chooseVideo(films.front());
+    if (dropped.films.size() == 1) {
+        m_page->session->chooseVideo(dropped.films.front());
         refreshVideo();
-    } else if (films.size() > 1) {
-        failures.push_back(std::to_string(films.size()) +
+    } else if (dropped.films.size() > 1) {
+        failures.push_back(std::to_string(dropped.films.size()) +
                            " videos dropped at once: a project watches one film");
     }
 
@@ -1751,14 +1457,13 @@ void MainWindow::refreshTabActions() {
     // the title bar's own button already does.
     m_closeProject->setEnabled(m_pages.size() > 1);
     // Opened and closed tabs change what « all » means.
-    if (m_search != nullptr)
-        m_search->setAllProjectsAvailable(m_pages.size() > 1);
+    m_search->refresh();
 }
 
 void MainWindow::closeCurrentProject() {
     if (m_pages.size() <= 1)
         return;
-    if (!mayDiscardChanges())
+    if (!m_projectFiles->mayDiscard(m_currentPage))
         return;
 
     const int closed = m_currentPage;
@@ -1789,11 +1494,6 @@ void MainWindow::closeCurrentProject() {
     switchToPage(next);
 }
 
-void MainWindow::rememberDirectoryOf(const std::filesystem::path& file) {
-    if (file.has_parent_path())
-        m_lastDirectory = file.parent_path();
-}
-
 void MainWindow::showEvent(QShowEvent* event) {
     QMainWindow::showEvent(event);
 
@@ -1815,7 +1515,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
     // **One question for every project**, `Close All` and the window's own
     // button alike — `GUI-TABS-02`. The first refusal stops the window closing
     // at all.
-    if (!mayDiscardAllChanges()) {
+    if (!m_projectFiles->mayDiscardAll()) {
         event->ignore();
         return;
     }
@@ -1910,69 +1610,25 @@ void MainWindow::refreshActions() {
 }
 
 QAction* MainWindow::columnAction(core::TableColumn column) const {
-    switch (column) {
-    case core::TableColumn::Number:
-    case core::TableColumn::Start:
-    case core::TableColumn::End:
-    case core::TableColumn::Duration:
-        return m_columns.at(static_cast<std::size_t>(column));
-    case core::TableColumn::Translation:
-        return m_translationColumn;
-    case core::TableColumn::Text:
-        return nullptr;
-    }
-    std::unreachable();
+    return m_columns->action(column);
 }
 
-void MainWindow::setPositionColumnShown(int column, bool shown) {
-    const auto at = static_cast<std::size_t>(column);
-    if (!shown && !m_table->isColumnHidden(column))
-        m_hiddenWidths.at(at) = m_table->columnWidth(column);
-    m_table->setColumnHidden(column, !shown);
+QAction* MainWindow::translationColumnAction() const {
+    return m_columns->action(core::TableColumn::Translation);
 }
 
 void MainWindow::refreshColumns() {
-    for (std::size_t column = 0; column < m_columns.size(); ++column)
-        setPositionColumnShown(static_cast<int>(column), m_columns.at(column)->isChecked());
-    refreshTranslationColumn();
-
-    // **The cell goes to the text of its row**, and the selection stays: a
-    // current cell in a column nobody can see is one a keystroke would edit
-    // blind — the rule `targetDocument` already applies to a hidden
-    // translation, made true of the cell itself.
-    const QModelIndex current = m_table->currentIndex();
-    if (current.isValid() && m_table->isColumnHidden(current.column()))
-        m_table->selectionModel()->setCurrentIndex(
-            m_page->model->index(current.row(), SubtitleTableModel::Text),
-            QItemSelectionModel::NoUpdate);
-}
-
-void MainWindow::refreshTranslationColumn() {
-    // **A translation is a fact of the project, and showing it is the user's
-    // choice**: the column is there when both hold. The entry says which of the
-    // two is missing — out when the project has nothing to show, unchecked when
-    // the user took it away.
-    const bool hasTranslation = m_page->session->project().translationFile().has_value();
-    m_translationColumn->setEnabled(hasTranslation);
-
-    const bool shown = hasTranslation && m_translationColumn->isChecked();
-    m_table->setColumnHidden(SubtitleTableModel::Translation, !shown);
+    m_columns->refresh(*m_page);
 }
 
 core::Document MainWindow::targetDocument() const {
-    // **A column one cannot see is not one a cell is current in**: the view
-    // keeps the current index where it was when the column goes, and an
-    // operation must not reach a text nobody is looking at.
-    const bool inTranslation =
-        m_table->currentIndex().column() == SubtitleTableModel::Translation &&
-        !m_table->isColumnHidden(SubtitleTableModel::Translation);
-    return inTranslation ? core::Document::Translation : core::Document::Main;
+    return m_columns->targetDocument();
 }
 
 void MainWindow::refreshTarget() {
     // Two texts, and only then: the label of a window that never opens a
     // translation says nothing, which is what keeps it from being noise.
-    const bool twoTexts = !m_table->isColumnHidden(SubtitleTableModel::Translation);
+    const bool twoTexts = m_columns->translationShown();
     if (twoTexts) {
         m_targetStatus->setText(QStringLiteral("Text: %1").arg(documentName(targetDocument())));
     } else {
@@ -1980,16 +1636,9 @@ void MainWindow::refreshTarget() {
     }
     m_targetStatus->setVisible(twoTexts);
 
-    // A match is a place in one text: another text, another search. Compared
-    // with the last one aimed at rather than forgotten at every call, because
-    // this runs after each operation and the match just written is the one the
-    // next `Find Next` starts from.
-    const core::Document aimed = targetDocument();
-    if (aimed != m_page->searchDocument) {
-        m_page->searchDocument = aimed;
-        m_page->match.reset();
-    }
-    refreshSearchField();
+    // The search forgets a match found in the other text, and names the field
+    // its box looks in.
+    m_search->refresh();
 
     // **Grey rather than gone for TMPlayer and LRC**: the two formats write no
     // style at all, and an entry that is there and out is what tells a user
@@ -2003,21 +1652,6 @@ void MainWindow::refreshTarget() {
     m_italic->setEnabled(
         anything &&
         core::abilitiesOf(m_page->session->project().sourceFile(targetDocument()).format).italic);
-}
-
-void MainWindow::refreshSearchField() {
-    if (m_search == nullptr)
-        return;
-
-    m_search->setAllProjectsAvailable(m_pages.size() > 1);
-
-    // Two texts, and only then: the box of a window that never opens a
-    // translation has nothing to choose between, and says nothing.
-    const bool twoTexts = !m_table->isColumnHidden(SubtitleTableModel::Translation);
-    const QString field =
-        twoTexts ? QStringLiteral("Searching in: %1").arg(documentName(targetDocument()))
-                 : QString{};
-    m_search->setField(field);
 }
 
 void MainWindow::refreshStructureActions() {
@@ -2078,18 +1712,15 @@ void MainWindow::adjustDurationsOfTarget() {
 }
 
 void MainWindow::appendFileFromPrompt() {
-    const std::optional<std::filesystem::path> chosen = m_prompts->fileToOpen(m_lastDirectory);
+    const std::optional<std::filesystem::path> chosen = m_projectFiles->askFileToOpen();
     if (!chosen.has_value())
         return;
 
-    std::expected<core::OpenedFile, core::OpenError> opened = core::openProject(*m_files, *chosen);
+    std::expected<core::OpenedFile, std::string> opened = m_projectFiles->read(*chosen);
     if (!opened) {
-        m_prompts->reportFailure(chosen->string() + ": " +
-                                 std::string{core::reasonOf(opened.error())});
+        m_prompts->reportFailure(opened.error());
         return;
     }
-
-    rememberDirectoryOf(*chosen);
 
     // What the reading ran into, whether or not there was anything to append —
     // the panel of what the last reading met, as an ordinary opening shows it.
@@ -2444,241 +2075,11 @@ void MainWindow::pasteTexts() {
 }
 
 void MainWindow::openSearch() {
-    if (m_search == nullptr) {
-        m_search = new SearchDialog{this};
-        m_search->setOptions(m_searchOptions);
-        connect(m_search, &SearchDialog::findNextRequested, this, [this] { findInTarget(true); });
-        connect(
-            m_search, &SearchDialog::findPreviousRequested, this, [this] { findInTarget(false); });
-        connect(m_search, &SearchDialog::replaceRequested, this, &MainWindow::replaceCurrentMatch);
-        connect(
-            m_search, &SearchDialog::replaceAllRequested, this, &MainWindow::replaceAllInTarget);
-        connect(m_search, &SearchDialog::searchChanged, this, [this] {
-            m_searchOptions = m_search->options();
-            // Every project's, not only the one shown: a match remembered by
-            // a tab that is not on screen is a match of another pattern.
-            for (const std::unique_ptr<ProjectPage>& page : m_pages)
-                page->match.reset();
-            m_search->setStatus({});
-        });
-    }
-
-    refreshSearchField();
-    m_search->show();
-    m_search->raise();
-    m_search->activateWindow();
+    m_search->open();
 }
 
-std::optional<core::SearchPattern> MainWindow::searchPattern() {
-    std::expected<core::SearchPattern, core::PatternError> compiled =
-        core::SearchPattern::compile(m_search->pattern().toStdString(), m_searchOptions);
-    if (!compiled.has_value()) {
-        m_search->setStatus(QString::fromStdString(core::reasonOf(compiled.error())));
-        return std::nullopt;
-    }
-    return std::move(*compiled);
-}
-
-core::Selection MainWindow::searchTarget() {
-    if (!m_page->searchTarget.has_value())
-        m_page->searchTarget = targetOf(*m_table->selectionModel(), m_page->session->project());
-    return *m_page->searchTarget;
-}
-
-void MainWindow::findInTarget(bool forward) {
-    const std::optional<core::SearchPattern> pattern = searchPattern();
-    if (!pattern.has_value())
-        return;
-
-    if (m_search->allProjects()) {
-        findAcrossProjects(forward, *pattern);
-        return;
-    }
-
-    const core::Selection target = searchTarget();
-    const std::optional<core::TextMatch> found =
-        forward
-            ? core::findNext(
-                  m_page->session->project(), target, targetDocument(), *pattern, m_page->match)
-            : core::findPrevious(
-                  m_page->session->project(), target, targetDocument(), *pattern, m_page->match);
-
-    // **A search that finds nothing says so, and touches nothing**: the
-    // selection stays where it was, and so does the target.
-    if (!found.has_value()) {
-        m_page->match.reset();
-        m_search->setStatus(
-            QString::fromStdString(core::notFound(m_search->pattern().toStdString())));
-        return;
-    }
-
-    m_page->match = found;
-    m_search->setStatus({});
-    const int row = static_cast<int>(found->index.value());
-    m_page->movingToMatch = true;
-    selectRows(row, row);
-    m_page->movingToMatch = false;
-}
-
-void MainWindow::findAcrossProjects(bool forward, const core::SearchPattern& pattern) {
-    const core::Document document = targetDocument();
-    const auto find = [&](const ProjectPage& page, const std::optional<core::TextMatch>& from) {
-        const core::Project& project = page.session->project();
-        const core::Selection whole = core::Selection::all(project);
-        return forward ? core::findNext(project, whole, document, pattern, from)
-                       : core::findPrevious(project, whole, document, pattern, from);
-    };
-    // Whether `match` comes on the far side of `from` in the direction of the
-    // search — what a match that wrapped round inside one project does not.
-    const auto beyond = [forward](const core::TextMatch& match, const core::TextMatch& from) {
-        if (match.index != from.index)
-            return forward ? match.index.value() > from.index.value()
-                           : match.index.value() < from.index.value();
-        return forward ? match.start > from.start : match.start < from.start;
-    };
-
-    const int projects = static_cast<int>(m_pages.size());
-    const int origin = m_currentPage;
-
-    // The project shown first: what follows its current match, or its first.
-    std::optional<core::TextMatch> found = find(*m_page, m_page->match);
-    bool wrapped =
-        found.has_value() && m_page->match.has_value() && !beyond(*found, *m_page->match);
-    int where = origin;
-
-    // Nothing more in this one — or only the wrapped round of it: the other
-    // projects are visited, in the order of the tabs, before coming back.
-    if (!found.has_value() || wrapped) {
-        for (int step = 1; step < projects; ++step) {
-            const int index =
-                forward ? (origin + step) % projects : (origin - step + projects) % projects;
-            const std::optional<core::TextMatch> other =
-                find(*m_pages[static_cast<std::size_t>(index)], std::nullopt);
-            if (!other.has_value())
-                continue;
-
-            found = other;
-            where = index;
-            // Past the last tab, or before the first, is the round coming
-            // back to where it began.
-            wrapped = forward ? index < origin : index > origin;
-            break;
-        }
-    }
-
-    if (!found.has_value()) {
-        m_page->match.reset();
-        m_search->setStatus(
-            QString::fromStdString(core::notFound(m_search->pattern().toStdString())));
-        return;
-    }
-
-    switchToPage(where);
-    m_page->match = found;
-    m_search->setStatus(wrapped ? QStringLiteral("Search wrapped around") : QString{});
-    const int row = static_cast<int>(found->index.value());
-    m_page->movingToMatch = true;
-    selectRows(row, row);
-    m_page->movingToMatch = false;
-}
-
-void MainWindow::replaceCurrentMatch() {
-    const std::optional<core::SearchPattern> pattern = searchPattern();
-    if (!pattern.has_value())
-        return;
-
-    // Nothing found yet, or the text moved under the match: find first, as
-    // Gaupol does, and let the next press replace what is then shown.
-    std::optional<core::ReplacedMatch> replaced;
-    if (m_page->match.has_value()) {
-        replaced = core::replaceMatch(m_page->session->project(),
-                                      targetDocument(),
-                                      *pattern,
-                                      *m_page->match,
-                                      m_search->replacement().toStdString());
-    }
-    if (!replaced.has_value()) {
-        findInTarget(true);
-        return;
-    }
-
-    if (replaced->command != nullptr) {
-        const core::SubtitleIndex index = replaced->written.index;
-        applyOperation(std::move(replaced->command), core::Selection::range(index, index));
-    }
-    m_page->match = replaced->written;
-    findInTarget(true);
-}
-
-void MainWindow::replaceAllInTarget() {
-    const std::optional<core::SearchPattern> pattern = searchPattern();
-    if (!pattern.has_value())
-        return;
-
-    if (m_search->allProjects()) {
-        replaceAllAcrossProjects(*pattern);
-        return;
-    }
-
-    const core::Selection target = searchTarget();
-    core::ReplacedAll replaced = core::replaceAll(m_page->session->project(),
-                                                  target,
-                                                  targetDocument(),
-                                                  *pattern,
-                                                  m_search->replacement().toStdString());
-    m_page->match.reset();
-
-    // **Not found is not the same as nothing to change**: a pattern that is in
-    // the document but is replaced by itself finds matches and writes nothing,
-    // and no history entry is made for it either way.
-    if (replaced.count == 0) {
-        m_search->setStatus(QString::fromStdString(
-            replaced.matched == 0 ? core::notFound(m_search->pattern().toStdString())
-                                  : core::nothingToChange()));
-        return;
-    }
-
-    if (replaced.command != nullptr)
-        applyOperation(std::move(replaced.command), target);
-    m_search->setStatus(QString::fromStdString(core::noticeOfReplaceAll(replaced.count)));
-}
-
-void MainWindow::replaceAllAcrossProjects(const core::SearchPattern& pattern) {
-    const core::Document document = targetDocument();
-    const std::string replacement = m_search->replacement().toStdString();
-    const int origin = m_currentPage;
-
-    std::size_t matched = 0;
-    std::size_t replacedCount = 0;
-    std::size_t touched = 0;
-    for (std::size_t index = 0; index < m_pages.size(); ++index) {
-        const core::Project& project = m_pages[index]->session->project();
-        const core::Selection whole = core::Selection::all(project);
-        core::ReplacedAll replaced =
-            core::replaceAll(project, whole, document, pattern, replacement);
-        matched += replaced.matched;
-        if (replaced.count == 0 || replaced.command == nullptr)
-            continue;
-
-        // Its tab first: the command goes to the page the window shows, and
-        // that is also where the user sees what is happening.
-        switchToPage(static_cast<int>(index));
-        applyOperation(std::move(replaced.command), whole);
-        replacedCount += replaced.count;
-        ++touched;
-    }
-
-    switchToPage(origin);
-    for (const std::unique_ptr<ProjectPage>& page : m_pages)
-        page->match.reset();
-
-    if (replacedCount == 0) {
-        m_search->setStatus(
-            QString::fromStdString(matched == 0 ? core::notFound(m_search->pattern().toStdString())
-                                                : core::nothingToChange()));
-        return;
-    }
-    m_search->setStatus(QString::fromStdString(core::noticeOfReplaceAll(replacedCount, touched)));
+SearchDialog* MainWindow::searchDialog() const {
+    return m_search->dialog();
 }
 
 void MainWindow::mergeSubtitles() {
@@ -2852,31 +2253,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
     if (settings.maximised)
         setWindowState(windowState() | Qt::WindowMaximized);
 
-    // The first four columns only: the last one shown takes what the others
-    // leave, and giving it a width would do nothing. The reader has already
-    // refused a different count, so arriving here with anything else would mean
-    // the two no longer speak of the same columns.
-    if (settings.columnWidths.size() == core::kColumnWidthCount) {
-        for (std::size_t column = 0; column < core::kColumnWidthCount; ++column)
-            m_table->setColumnWidth(static_cast<int>(column), settings.columnWidths[column]);
-    }
-
-    // **The order after the widths, the hidden columns after the order** — the
-    // widths are those of columns still shown, and a column hidden keeps the
-    // width it had when it went.
-    QHeaderView* header = m_table->horizontalHeader();
-    if (settings.columnOrder.size() == core::kTableColumnCount) {
-        for (std::size_t visual = 0; visual < core::kTableColumnCount; ++visual) {
-            const int logical = static_cast<int>(settings.columnOrder.at(visual));
-            header->moveSection(header->visualIndex(logical), static_cast<int>(visual));
-        }
-    }
-    for (std::size_t column = 0; column < m_columns.size(); ++column) {
-        const bool hidden =
-            std::ranges::find(settings.hiddenColumns, static_cast<core::TableColumn>(column)) !=
-            settings.hiddenColumns.end();
-        m_columns.at(column)->setChecked(!hidden);
-    }
+    m_columns->apply(settings);
 
     // The handle: a share and not heights, so it replays at any size of
     // window. The hidden children of the splitter count zero, so the band at
@@ -2893,16 +2270,14 @@ void MainWindow::applySettings(const core::Settings& settings) {
         m_split->setSizes({0, height - table, table});
     }
 
-    m_lastDirectory = settings.lastDirectory.value_or(std::filesystem::path{});
+    m_projectFiles->setLastDirectory(settings.lastDirectory.value_or(std::filesystem::path{}));
 
     m_theme = settings.theme;
     applyTheme(m_theme);
 
     m_insertPlacement = settings.insertPlacement;
-    m_searchOptions = settings.search;
     m_durationSettings = settings.durationAdjustment;
-    if (m_search != nullptr)
-        m_search->setOptions(m_searchOptions);
+    m_search->setOptions(settings.search);
     m_page->writeEncoding = settings.writeEncoding;
 }
 
@@ -2918,31 +2293,7 @@ core::Settings MainWindow::settings() const {
 
     settings.maximised = isMaximized();
 
-    settings.columnWidths.reserve(core::kColumnWidthCount);
-    for (std::size_t column = 0; column < core::kColumnWidthCount; ++column) {
-        const int logical = static_cast<int>(column);
-        settings.columnWidths.push_back(m_table->isColumnHidden(logical)
-                                            ? m_hiddenWidths.at(column)
-                                            : m_table->columnWidth(logical));
-    }
-
-    // Written only when it differs from the default order: a file that says
-    // the default in so many words would stop following it if it changed.
-    const QHeaderView* header = m_table->horizontalHeader();
-    std::vector<core::TableColumn> order;
-    bool moved = false;
-    for (int visual = 0; visual < SubtitleTableModel::kColumnCount; ++visual) {
-        const int logical = header->logicalIndex(visual);
-        moved = moved || logical != visual;
-        order.push_back(static_cast<core::TableColumn>(logical));
-    }
-    if (moved)
-        settings.columnOrder = std::move(order);
-
-    for (std::size_t column = 0; column < m_columns.size(); ++column) {
-        if (!m_columns.at(column)->isChecked())
-            settings.hiddenColumns.push_back(static_cast<core::TableColumn>(column));
-    }
+    m_columns->write(settings);
 
     if (m_split != nullptr) {
         const QList<int> sizes = m_split->sizes();
@@ -2953,12 +2304,12 @@ core::Settings MainWindow::settings() const {
                                              core::kLargestTableShare);
     }
 
-    if (!m_lastDirectory.empty())
-        settings.lastDirectory = m_lastDirectory;
+    if (!m_projectFiles->lastDirectory().empty())
+        settings.lastDirectory = m_projectFiles->lastDirectory();
 
     settings.theme = m_theme;
     settings.insertPlacement = m_insertPlacement;
-    settings.search = m_searchOptions;
+    settings.search = m_search->options();
     settings.durationAdjustment = m_durationSettings;
     settings.writeEncoding = m_page->writeEncoding;
 
