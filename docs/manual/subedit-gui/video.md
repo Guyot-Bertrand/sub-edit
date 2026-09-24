@@ -24,6 +24,13 @@ rien.
 Le fichier choisi est **ouvert aussitôt** : l'image apparaît dans la fenêtre, à
 l'arrêt sur son premier instant. Voir [Le lecteur](lecteur.md).
 
+**Glisser un fichier vidéo sur la fenêtre fait la même chose** — voir
+[Glisser des fichiers sur la fenêtre](fichiers.md#glisser-des-fichiers-sur-la-fenêtre).
+
+**La vidéo est celle du projet de l'onglet courant.** Chaque onglet garde la
+sienne ; changer d'onglet change le film, et la position de lecture ne survit pas
+au changement.
+
 ## La proposition automatique
 
 À l'ouverture d'un fichier de sous-titres, **si aucune vidéo n'a été choisie**,

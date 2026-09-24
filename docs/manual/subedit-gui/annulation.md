@@ -56,7 +56,13 @@ inactive** : son raccourci ne fait rien.
 ## La marque de modification
 
 Le titre de la fenêtre porte une marque tant que le fichier diffère de celui du
-disque — une astérisque, ou ce que la plateforme utilise à sa place.
+disque — une astérisque, ou ce que la plateforme utilise à sa place. **L'étiquette
+de l'onglet aussi**, `premier.srt*` : le titre ne parle que du projet qu'on
+regarde, l'étiquette dit ceux qu'on ne regarde pas.
+
+**Chaque onglet a son historique.** Annuler ne défait que ce qu'a reçu le projet
+de l'onglet courant — un `Replace All` fait sur tous les projets compris : il y
+laisse une entrée par projet touché.
 
 **Elle disparaît si on annule jusqu'au point de départ.** Ce n'est pas un
 détail d'affichage : le nombre de modifications est compté, pas noté par un

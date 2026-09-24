@@ -112,6 +112,10 @@ les cinq issues de la troisième tranche quittent `blocked` — #436, l'extracti
 décrit ici pour qu'on décide en le sachant.** [ADR 0033](../adr/0033-un-projet-est-une-page.md),
 proposée.
 
+> **Corrigé en relecture de fin de phase.** L'ADR 0033 est **acceptée** depuis #435, le 2026-09-22 —
+> D1 le dit, cette ligne ne le disait pas. Le paragraphe ci-dessous est resté au conditionnel du cadrage ;
+> ce que la séparation est devenue est écrit plus bas, par #436 et #437.
+
 `MainWindow` retient, dans un même objet, **deux sortes d'état** :
 
 | À la fenêtre | À un projet |
@@ -191,6 +195,11 @@ qui n'a pu se faire est dit dans une seule boîte, une ligne chacun.
 **Le menu `Projects` n'en a pas** : il double ce que la barre d'onglets fait
 déjà, et `Ctrl+PageUp`/`Ctrl+PageDown` couvrent le clavier — à reprendre si
 l'usage en montre le besoin, plutôt qu'un renvoi pour un geste redondant.
+
+> **Précisé en relecture de fin de phase.** « Le menu `Projects` » désigne ici **la liste des onglets**
+> que Gaupol y range, avec `Previous` et `Next`. Un menu `Projects` existe depuis #438, pour les deux
+> gestes qui portent sur tous les projets à la fois — `Save All` et `Close All` — et **sans** cette liste :
+> c'est elle, et elle seule, qui n'a pas de renvoi.
 
 ## D3 — Un document, un fichier
 
@@ -301,6 +310,10 @@ menu `View` que la fenêtre n'a pas** — elle a `File`, `Edit`, `Video`, `Tools
 avec elle**, comme chez Gaupol ; c'est aussi là que se rangerait, un jour, le reste des colonnes
 ([#442](https://github.com/Guyot-Bertrand/sub-edit/issues/442)). Ses cellules se saisissent comme celles
 du texte.
+
+> **Écrit en relecture de fin de phase.** Ce « un jour » est venu dans la phase même : #442 a été traitée
+> à la suite de la troisième tranche, et l'entrée de la traduction est passée dans un sous-menu,
+> `View ▸ Columns`, avec celles des quatre autres colonnes qui se masquent — voir la fin de cette section.
 
 **Le document visé est celui de la colonne courante** : la traduction si la cellule courante
 est dans sa colonne, le principal ailleurs. C'est la règle de Gaupol, à une différence près :
@@ -542,10 +555,9 @@ Chacun avec une phase ou une issue, parce qu'un renvoi sans destinataire finit p
 déjà passée.
 
 - **La ligne de commande de la traduction** — phase 13, D9.
-- **Masquer et réordonner les colonnes de la table.** Gaupol le permet ; aucune phase ne le portait.
-  [#442](https://github.com/Guyot-Bertrand/sub-edit/issues/442), sans milestone, à dessein : la phase
-  11 n'en livre que la colonne de traduction, et une phase qui porterait le reste serait une phase
-  inventée pour le ranger.
+- ~~**Masquer et réordonner les colonnes de la table.**~~ **Livré malgré tout, par
+  [#442](https://github.com/Guyot-Bertrand/sub-edit/issues/442)**, laissée sans milestone à dessein et
+  traitée à la suite de la troisième tranche, une fois ses trois questions tranchées — voir D5.
 - **`Save All As…`** — écarté, et pas renvoyé : D7.
 - **Chercher dans le principal et la traduction à la fois** — écarté, et pas renvoyé : D8.
 - **Les réglages par sous-titre d'une traduction** — un style ASS, une position WebVTT — **écartés** :
@@ -559,6 +571,11 @@ déjà passée.
 **Huit, chacun avec sa raison**, et la relecture de fin de phase vérifie que le réalisé les tient et
 qu'aucun autre ne s'est glissé.
 
+> **Complété en relecture de fin de phase.** Les huit sont tenus. **Neuf autres s'étaient glissés**,
+> tous dans la troisième tranche et dans les deux issues qui l'ont suivie, chacun dit dans sa section mais
+> aucun dans ce tableau ; ils sont ajoutés en dessous du trait. Un seul n'était voulu par personne —
+> la scission qui ne dit rien — et il devient une issue plutôt qu'un écart.
+
 | Ce que fait Gaupol | Ce que fait `subedit` | Pourquoi |
 | :----------------- | :-------------------- | :------- |
 | par numéro, une ligne en excédent fait naître un sous-titre aux **positions inventées** (3 s) | **les positions de la ligne**, quelle que soit la méthode | le fichier les énonce — D4 |
@@ -569,12 +586,26 @@ qu'aucun autre ne s'est glissé.
 | retirer les mentions retire le **sous-titre entier** quand le texte visé se vide, traduction comprise | **vide la traduction** et garde le sous-titre | le texte principal n'était pas visé — D5 |
 | `Save All As…`, chercher dans « les deux » textes | **non livrés** | D7, D8 |
 | `-t/--translation-file` | **phase 13** | D9 |
+| *ajoutés en relecture de fin de phase* | | |
+| `Close All` ferme les projets et **laisse la fenêtre vide** | `Close All` **ferme la fenêtre** | la fenêtre garde toujours un projet : fermer tous les projets et la fermer sont un seul acte — D7, #438 |
+| le menu `Projects` **liste les onglets** et porte `Previous`, `Next` | **sans la liste** ni ces deux entrées | la barre d'onglets et `Ctrl+PageUp`/`Ctrl+PageDown` le font déjà — D2 |
+| scinder **écrit** une position négative quand les moitiés se chevauchent | **refusé**, le sous-titre nommé | aucun fichier ne sait l'écrire : la règle de `firstBeforeOrigin` — D6, #439 |
+| le projet né d'une scission **n'hérite de rien** : format et encodage par défaut | il **hérite du format, de l'encodage et de la cadence**, sans chemin | l'inverse exact de l'ajout, qui convertit vers le format du projet — D6, #439 |
+| le projet né d'une scission a **une entrée d'historique**, l'insertion de ses sous-titres | **un historique vide**, et le projet **marqué modifié** | annuler cette insertion viderait le projet qu'on vient de créer ; ce qui compte est qu'il demande avant d'être perdu — #439 |
+| scinder **le dit** : `Split N subtitles to project "…"` | **ne dit rien** | **non voulu** — [#462](https://github.com/Guyot-Bertrand/sub-edit/issues/462) |
+| toutes les colonnes se masquent, `Text` comprise | **`Text` ne se masque pas** ; la visibilité de la traduction n'est pas retenue | sans texte principal il n'y a plus rien à éditer ; la traduction suit sa règle propre — D5, #442 |
+| déposer plusieurs vidéos : **toutes ignorées, sans un mot** | **ignorées avec un message** | dire plutôt que taire, l'ADR 0008 — D2, #453 |
+| déposer un fichier illisible **arrête** les suivants | **les autres s'ouvrent**, une seule boîte dit les échecs | un dépôt est un geste, et dix fichiers ne font pas dix boîtes — D2, #453 |
 
 ## Exigences
 
 **Quatorze, toutes `prévues`** — le registre s'alimente en début d'issue. Les cinq de la troisième
 tranche restent `prévues` jusqu'à la décision de #435 ; si elle est négative, elles sont
 `abandonnées` avec leur raison.
+
+> **Corrigé en relecture de fin de phase.** **Dix-huit, toutes `implémentées`.** Quatre sont nées en
+> cours de route : `GUI-TABS-03` et `GUI-SAVE-04` avec #438, `GUI-TABLE-03` avec #442, `GUI-TABS-04`
+> avec #453. `GUI-TABS-02` a été resserrée par #438 à la fermeture, `Save All` ayant reçu la sienne.
 
 | Identifiant | Ce qu'il promet |
 | :---------- | :-------------- |
@@ -623,6 +654,11 @@ dont la phase ne peut se passer, et que les deux autres tranches lui ajoutent.
 
 La phase se clôt sur [#441](https://github.com/Guyot-Bertrand/sub-edit/issues/441), la relecture de fin.
 
+> **Écrit en relecture de fin de phase.** Deux issues se sont ajoutées à ce tableau, après #440 :
+> [#442](https://github.com/Guyot-Bertrand/sub-edit/issues/442), les colonnes, sans milestone, et
+> [#453](https://github.com/Guyot-Bertrand/sub-edit/issues/453), le glisser-déposer que #437 avait laissé,
+> dans la phase. Et #437 a pris un patch de documentation à elle seule, #454, qui a créé #453.
+
 **#429 et #434 ne dépendent de rien** et peuvent se faire à tout moment ; #429 est placée en tête parce
 que trois issues l'attendent. **#432 est la plus grosse de la première tranche**, et pour deux raisons
 opposées : elle porte un dialogue d'ouverture à trois choix, un enregistrement à part, et la réponse
@@ -631,3 +667,35 @@ plus riche de la fermeture — qui sert aux trois tranches.
 **#436 est un refactoring sans comportement neuf**, et c'est ce qui la rend risquée : tous les tests de la
 fenêtre doivent passer sans qu'on en réécrive un. Si l'un d'eux doit changer, c'est que la séparation
 n'était pas celle qu'on croyait.
+
+## Les issues ouvertes par la relecture
+
+Relecture de fin de phase, [#441](https://github.com/Guyot-Bertrand/sub-edit/issues/441), le
+2026-09-24. **Quatre axes retenus**, chacun une issue de la milestone ; la phase se clôt après eux.
+
+| Issue | Ce qu'elle dit |
+| :---- | :------------- |
+| [#460](https://github.com/Guyot-Bertrand/sub-edit/issues/460) | `MainWindow` : 1 951 lignes à l'ouverture, 2 968 à la relecture. `ProjectPage` a rendu l'état, pas le comportement — tous les gestes de la troisième tranche se sont ajoutés à la fenêtre |
+| [#461](https://github.com/Guyot-Bertrand/sub-edit/issues/461) | les opérations visent la page de l'onglet courant ; `Save All`, la question de fermeture et `Replace All` sur tous les projets **changent donc d'onglet pour viser une page** — l'écran clignote et le lecteur change de film à chaque passage |
+| [#462](https://github.com/Guyot-Bertrand/sub-edit/issues/462) | `Split Project…` ne dit rien et ne montre pas où il coupe — le seul écart avec Gaupol que personne n'a voulu |
+| [#463](https://github.com/Guyot-Bertrand/sub-edit/issues/463) | le dépôt de fichiers **sur le film** — une fenêtre native que libmpv dessine — n'est vérifiable que sur un vrai bureau |
+
+**Écartés, avec leur raison.**
+
+- **Le nom d'un document — son fichier, ou `untitled` — est calculé à quatre endroits** (`titleFor`,
+  `tabLabelFor`, `modifiedDocuments`, `mayReplaceTranslation`). Quatre lignes chacun, qui ne divergent pas :
+  une fonction de plus ne rendrait rien de plus sûr. Si #460 découpe la fenêtre, la question se reposera
+  d'elle-même.
+- **La liste de fermeture ne dit pas à quel projet appartient un document** : deux `untitled` modifiés
+  s'y lisent pareil. La liste de Gaupol non plus ; et les cases restent justes, puisqu'elles sont lues dans
+  l'ordre de la liste et non par leur nom.
+- **`Document::Main` en dur** : il n'en reste aucun à tort. Dans la fenêtre, ce sont `Save`, les boucles
+  sur les deux documents et le défaut du document visé ; dans le noyau, les surcharges « principal » et
+  l'ajustement des durées, qui reste au principal à dessein (D3) ; dans la ligne de commande, les trois
+  que D9 laisse à la phase 13.
+
+**Le banc.** Deux relevés pour toute la phase, 0.11.1 et 0.11.7 : chaque version suivante a trouvé la
+machine au-dessus du seuil, et **la troisième tranche n'a aucune mesure**. La relecture ne l'a pas trouvée
+plus calme — charge 5 pour un seuil de 1,5. Le relevé est dû à la clôture ; issue
+[#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270).
+
