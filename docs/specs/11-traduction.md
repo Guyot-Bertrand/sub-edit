@@ -596,10 +596,15 @@ qu'aucun autre ne s'est glissé.
 | scinder **écrit** une position négative quand les moitiés se chevauchent | **refusé**, le sous-titre nommé | aucun fichier ne sait l'écrire : la règle de `firstBeforeOrigin` — D6, #439 |
 | le projet né d'une scission **n'hérite de rien** : format et encodage par défaut | il **hérite du format, de l'encodage et de la cadence**, sans chemin | l'inverse exact de l'ajout, qui convertit vers le format du projet — D6, #439 |
 | le projet né d'une scission a **une entrée d'historique**, l'insertion de ses sous-titres | **un historique vide**, et le projet **marqué modifié** | annuler cette insertion viderait le projet qu'on vient de créer ; ce qui compte est qu'il demande avant d'être perdu — #439 |
-| scinder **le dit** : `Split N subtitles to project "…"` | **ne dit rien** | **non voulu** — [#462](https://github.com/Guyot-Bertrand/sub-edit/issues/462) |
 | toutes les colonnes se masquent, `Text` comprise | **`Text` ne se masque pas** ; la visibilité de la traduction n'est pas retenue | sans texte principal il n'y a plus rien à éditer ; la traduction suit sa règle propre — D5, #442 |
 | déposer plusieurs vidéos : **toutes ignorées, sans un mot** | **ignorées avec un message** | dire plutôt que taire, l'ADR 0008 — D2, #453 |
 | déposer un fichier illisible **arrête** les suivants | **les autres s'ouvrent**, une seule boîte dit les échecs | un dépôt est un geste, et dix fichiers ne font pas dix boîtes — D2, #453 |
+
+> **Corrigé par [#462](https://github.com/Guyot-Bertrand/sub-edit/issues/462).** La ligne « scinder le
+> dit » a quitté le tableau : ce n'est plus un écart. La barre d'état dit `split N subtitles into a new
+> project` — sans le nom du projet, qui n'en a pas encore — et la boîte sélectionne la ligne qu'elle
+> désigne à chaque changement du nombre, comme Gaupol ; l'annuler rend la sélection d'avant, ce que
+> Gaupol ne fait pas.
 
 ## Exigences
 
