@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Glisser des fichiers sur la fenêtre les ouvre
+
+## 0.11.16 — 2026-09-23
+
+### Ajouts
+
 - **gui** — Masquer et réordonner les colonnes de la table
 
 ## 0.11.15 — 2026-09-23
