@@ -226,7 +226,7 @@ void ProjectSearch::replace() {
 
     if (replaced->command != nullptr) {
         const core::SubtitleIndex index = replaced->written.index;
-        m_view->apply(std::move(replaced->command), core::Selection::range(index, index));
+        m_view->apply(page, std::move(replaced->command), core::Selection::range(index, index));
     }
     page.match = replaced->written;
     find(true);
@@ -262,20 +262,20 @@ void ProjectSearch::replaceAll() {
     }
 
     if (replaced.command != nullptr)
-        m_view->apply(std::move(replaced.command), aimed);
+        m_view->apply(page, std::move(replaced.command), aimed);
     m_dialog->setStatus(QString::fromStdString(core::noticeOfReplaceAll(replaced.count)));
 }
 
 void ProjectSearch::replaceAllAcrossProjects(const core::SearchPattern& compiled) {
     const core::Document document = m_view->targetDocument();
     const std::string replacement = m_dialog->replacement().toStdString();
-    const int origin = m_view->shownProject();
 
     std::size_t matched = 0;
     std::size_t replacedCount = 0;
     std::size_t touched = 0;
     for (int index = 0; index < m_view->projectCount(); ++index) {
-        const core::Project& project = m_view->project(index).session->project();
+        ProjectPage& page = m_view->project(index);
+        const core::Project& project = page.session->project();
         const core::Selection whole = core::Selection::all(project);
         core::ReplacedAll replaced =
             core::replaceAll(project, whole, document, compiled, replacement);
@@ -283,15 +283,14 @@ void ProjectSearch::replaceAllAcrossProjects(const core::SearchPattern& compiled
         if (replaced.count == 0 || replaced.command == nullptr)
             continue;
 
-        // Its tab first: the command goes to the page the window shows, and
-        // that is also where the user sees what is happening.
-        m_view->show(index);
-        m_view->apply(std::move(replaced.command), whole);
+        // Given to its page, behind its tab: bringing each tab forward in
+        // turn would make the screen flicker and the player open every film
+        // on the way, for a gesture made from one tab — issue #461.
+        m_view->apply(page, std::move(replaced.command), whole);
         replacedCount += replaced.count;
         ++touched;
     }
 
-    m_view->show(origin);
     for (int index = 0; index < m_view->projectCount(); ++index)
         m_view->project(index).match.reset();
 

@@ -394,6 +394,33 @@ TEST_CASE("Save All writes every modified project and asks a name for the one wi
     CHECK(window.tabBar()->tabText(1).toStdString() == "nouveau.srt");
 }
 
+TEST_CASE("Save All writes every project behind its tab, and the player opens no film",
+          "[gui][GUI-SAVE-04]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(edit(window, 0, "Un bis."));
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    REQUIRE(edit(window, 0, "Trois bis."));
+    window.tabBar()->setCurrentIndex(0);
+    REQUIRE(booth.player != nullptr);
+    const std::vector<std::filesystem::path> before = booth.player->opened;
+    REQUIRE(before.back() == "premier.mkv");
+
+    window.saveAllDocumentsAction()->trigger();
+
+    CHECK(files.contentOf("second.srt").value_or("").find("Trois bis.") != std::string::npos);
+    // Issue #461: the second project was written without being shown, so the
+    // shared player was never sent to its film and back.
+    CHECK(booth.player->opened == before);
+    CHECK(window.tabBar()->currentIndex() == 0);
+    CHECK(window.tabBar()->tabText(0).toStdString() == "premier.srt");
+    CHECK(window.tabBar()->tabText(1).toStdString() == "second.srt");
+}
+
 TEST_CASE("Save All stops at a Save As that is given up, and says what was written",
           "[gui][GUI-SAVE-04]") {
     InMemoryFileSystem files = withTwoFilms();

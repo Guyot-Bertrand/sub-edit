@@ -72,5 +72,8 @@ lecteur, la barre d'état, le titre, et les opérations de `Tools` et d'`Edit`, 
   changer, les gestes sur plusieurs projets demandent encore à la fenêtre d'amener chaque page au premier
   plan. [#461](https://github.com/Guyot-Bertrand/sub-edit/issues/461) retirera ces passages, sauf devant
   un dialogue qui doit montrer son projet.
+
+  > **Fait en #461.** `View::apply` reçoit la page, `View::show` ne sert plus qu'avant un `Save As…`, la
+  > question d'un document unique et l'affichage d'une correspondance trouvée dans un autre projet.
 - Une interface de plus par collaborateur, à tenir à jour ; c'est le prix d'une frontière qu'on peut
   lire.

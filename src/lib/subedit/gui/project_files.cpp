@@ -70,6 +70,15 @@ bool ProjectFiles::save(ProjectPage& page, core::Document document) {
     return true;
 }
 
+bool ProjectFiles::saveIn(int index, core::Document document, bool& shown) {
+    ProjectPage& page = m_view->project(index);
+    if (!page.session->project().sourceFile(document).path.has_value()) {
+        m_view->show(index);
+        shown = true;
+    }
+    return save(page, document);
+}
+
 bool ProjectFiles::saveAs(ProjectPage& page, core::Document document) {
     const core::SourceFile& source = page.session->project().sourceFile(document);
 
@@ -230,17 +239,18 @@ bool ProjectFiles::mayDiscard(const std::vector<ModifiedDocument>& modified,
         return false;
 
     switch (dialog.choice()) {
-    case UnsavedChoice::Save:
+    case UnsavedChoice::Save: {
         // Read off the boxes and not off `toSave()`: that names documents, and
         // two projects both have a main one.
+        bool shown = false;
         for (std::size_t index = 0; index < modified.size(); ++index) {
             if (!dialog.boxes().at(static_cast<qsizetype>(index))->isChecked())
                 continue;
-            m_view->show(owners.at(index));
-            if (!save(m_view->project(owners.at(index)), modified.at(index).document))
+            if (!saveIn(owners.at(index), modified.at(index).document, shown))
                 return false;
         }
         return true;
+    }
     case UnsavedChoice::Discard:
         return true;
     case UnsavedChoice::Cancel:
@@ -262,16 +272,15 @@ void ProjectFiles::saveAll() {
 
     int written = 0;
     bool stopped = false;
+    bool shown = false;
     // In the order of the tabs. `save` asks for a name when a document has
     // none, and a `Save As…` given up — or a write that fails — ends the
     // series: what follows would be answering for someone who left.
     for (int index = 0; index < projects && !stopped; ++index) {
-        m_view->show(index);
-        ProjectPage& page = m_view->project(index);
         for (const core::Document document : kDocuments) {
-            if (!isModified(page, document))
+            if (!isModified(m_view->project(index), document))
                 continue;
-            if (!save(page, document)) {
+            if (!saveIn(index, document, shown)) {
                 stopped = true;
                 break;
             }
@@ -279,7 +288,8 @@ void ProjectFiles::saveAll() {
         }
     }
 
-    m_view->show(origin);
+    if (shown)
+        m_view->show(origin);
 
     const auto documents = [](int count) {
         return std::to_string(count) + (count == 1 ? " document" : " documents");

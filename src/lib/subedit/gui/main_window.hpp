@@ -409,6 +409,13 @@ private:
     /// would lie.
     void refreshActions();
 
+    /// Says in the tab of `page` its name, and whether it is modified.
+    ///
+    /// **Any page and not only the one shown**: `Replace All` over every
+    /// project and `Save All` reach pages that stay behind their tabs — issue
+    /// #461 — and each tab has to say what its own page now is.
+    void refreshTabOf(const ProjectPage& page);
+
     /// Opens `project` in a new tab, and switches to it — ADR 0033, `GUI-TABS-01`.
     void openOn(core::Project project, std::span<const core::Diagnostic> diagnostics);
 
@@ -451,7 +458,11 @@ private:
     /// open, or nothing when it opened or was already there.
     [[nodiscard]] std::optional<std::string> openFile(const std::filesystem::path& path);
 
-    /// Applies `command` over `target` and refreshes what the window shows.
+    /// Applies `command` to `page`, over `target`, and refreshes what the
+    /// window shows.
+    ///
+    /// **`page` need not be the one on screen** — issue #461: `Replace All`
+    /// over every project reaches each page without bringing its tab forward.
     ///
     /// The one road from a dialog to the history: every operation of this
     /// phase ends here, so neither the refresh nor the notice below can be
@@ -464,7 +475,9 @@ private:
     /// Says what it left past the end of the film in a box of its own. An
     /// operation that has something to say as well uses `applyOperationQuietly`
     /// and puts the two in one box — issue #418.
-    void applyOperation(std::unique_ptr<core::Command> command, const core::Selection& target);
+    void applyOperation(ProjectPage& page,
+                        std::unique_ptr<core::Command> command,
+                        const core::Selection& target);
 
     /// The same, and it says nothing: what the operation left past the end of
     /// the film comes back as the sentence to say, empty when there is none.
@@ -473,7 +486,8 @@ private:
     /// operation with an account of its own to give — what an adjustment could
     /// not satisfy, what an alignment left behind — used to open a second one
     /// straight after the first. One operation, one box.
-    [[nodiscard]] std::string applyOperationQuietly(std::unique_ptr<core::Command> command,
+    [[nodiscard]] std::string applyOperationQuietly(ProjectPage& page,
+                                                    std::unique_ptr<core::Command> command,
                                                     const core::Selection& target);
 
     /// What an operation left past the end of the film, said as a sentence, or
@@ -485,11 +499,13 @@ private:
     ///
     /// Empty without a film open: the length is what the player knows, and
     /// there is nothing to be past the end of.
-    [[nodiscard]] std::string whatPassesTheEnd(core::CommandKind kind,
+    [[nodiscard]] std::string whatPassesTheEnd(const ProjectPage& page,
+                                               core::CommandKind kind,
                                                const core::Selection& target) const;
 
-    /// How long the open film lasts, or nothing.
-    [[nodiscard]] std::optional<core::Duration> videoLength() const;
+    /// How long the film of `page` lasts, or nothing — nothing too for a page
+    /// whose film is not the one the shared player has open.
+    [[nodiscard]] std::optional<core::Duration> videoLength(const ProjectPage& page) const;
 
     /// Asks which film to watch the document against, and associates it.
     void selectVideo();

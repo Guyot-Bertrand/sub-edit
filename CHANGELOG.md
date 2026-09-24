@@ -9,6 +9,16 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **gui** — Les gestes multi-projets ne changent plus d'onglet
+
+### Remaniements
+
+- **gui** — Donner aux opérations la page qu'elles visent
+
+## 0.11.19 — 2026-09-24
+
 ### Remaniements
 
 - **gui** — Sortir les colonnes de la fenêtre dans TableColumns

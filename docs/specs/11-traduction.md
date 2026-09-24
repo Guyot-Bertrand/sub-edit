@@ -514,7 +514,11 @@ quand il n'en reste qu'un** ; cochée, elle ignore la sélection et prend chaque
   cherchés depuis leur début, jamais depuis leur ancienne correspondance, et un changement de motif ou
   d'option les oublie toutes.
 - **`Replace All` passe par chaque page** : `switchToPage` puis `applyOperation`, comme `Save All`, ce qui
-  fait une entrée d'historique par projet touché sans rien inventer. Le compte, `replaced N matches in M
+  fait une entrée d'historique par projet touché sans rien inventer.
+
+  > **Corrigé par #461.** `applyOperation` reçoit désormais la page qu'il vise : `Replace All` donne à
+  > chaque page sa commande derrière son onglet, sans `switchToPage` — une entrée d'historique par projet
+  > touché, toujours, mais ni clignotement ni film rechargé. Le compte, `replaced N matches in M
   projects`, est `noticeOfReplaceAll(count, projects)`.
 - **Sur le document visé de chaque projet** : la colonne est celle de la table, une seule pour toute la fenêtre.
 
@@ -684,6 +688,12 @@ Relecture de fin de phase, [#441](https://github.com/Guyot-Bertrand/sub-edit/iss
 > `TableColumns`, `ProjectSearch`, `ProjectFiles` — qui reçoivent la page qu'ils visent et se testent
 > sans fenêtre. `main_window.cpp` est passé de 2 968 à 2 319 lignes, sans qu'un test de la fenêtre soit
 > réécrit. Les gestes sur plusieurs projets changent encore d'onglet pour viser une page : c'est #461.
+>
+> **#461 livrée** : `applyOperation` et `ProjectSearch::View::apply` reçoivent la page visée, chaque page
+> tient son propre onglet à jour (`refreshTabOf`), et `Save All`, la question de fermeture et `Replace
+> All` n'amènent plus un onglet au premier plan que devant un `Save As…`. Deux tests de la fenêtre le
+> prouvent — l'onglet ne bouge pas, le lecteur n'ouvre aucun film — sans qu'un test existant de la
+> fenêtre soit réécrit.
 
 **Écartés, avec leur raison.**
 

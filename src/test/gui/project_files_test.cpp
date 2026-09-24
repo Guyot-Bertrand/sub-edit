@@ -190,7 +190,8 @@ TEST_CASE("two modified projects ask through the list, and save what is ticked",
 
     CHECK(files.contentOf("/films/un.srt").value_or("") == kOne);
     CHECK(files.contentOf("/films/deux.srt").value_or("").find("Deux bis.") != std::string::npos);
-    CHECK(desk.shows == std::vector<int>{1});
+    // A document with a file is written behind its tab — issue #461.
+    CHECK(desk.shows.empty());
 }
 
 TEST_CASE("the question about one project asks nothing of the others", "[gui][GUI-CLOSE-01]") {
@@ -208,7 +209,8 @@ TEST_CASE("the question about one project asks nothing of the others", "[gui][GU
     CHECK(prompts.runAsked == 0);
 }
 
-TEST_CASE("Save All writes tab by tab, comes back, and says how many", "[gui][GUI-SAVE-04]") {
+TEST_CASE("Save All writes tab by tab without showing them, and says how many",
+          "[gui][GUI-SAVE-04]") {
     InMemoryFileSystem files = filesystem();
     FakePrompts prompts;
     Desk desk;
@@ -222,6 +224,8 @@ TEST_CASE("Save All writes tab by tab, comes back, and says how many", "[gui][GU
     projectFiles.saveAll();
 
     CHECK(desk.announced == std::vector<std::string>{"2 documents saved"});
+    // Both have a file: no tab is brought forward — issue #461.
+    CHECK(desk.shows.empty());
     CHECK(desk.current == 1);
     CHECK(files.contentOf("/films/un.srt").value_or("").find("Un bis.") != std::string::npos);
 }
@@ -244,6 +248,9 @@ TEST_CASE("Save All stops at a Save As given up, and says what was written", "[g
     CHECK(prompts.outcomes.front() == "Save All stopped: 1 of 3 documents saved");
     CHECK(files.contentOf("/films/deux.srt").value_or("") == kTwo);
     CHECK(desk.announced.empty());
+    // Only the project asked for a name was shown, and the first one is shown
+    // again after it — issue #461.
+    CHECK(desk.shows == std::vector<int>{1, 0});
 }
 
 TEST_CASE("a file is found open however its path is spelled", "[gui][GUI-TABS-01]") {

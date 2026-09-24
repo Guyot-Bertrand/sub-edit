@@ -7,6 +7,7 @@
 
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/search_dialog.hpp>
 
@@ -21,19 +22,26 @@
 #include <QTabBar>
 #include <catch2/catch_test_macros.hpp>
 
+#include <cstdint>
+#include <filesystem>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "fake_prompts.hpp"
+#include "fake_video_player.hpp"
 
 namespace {
 
 using subedit::core::InMemoryFileSystem;
 using subedit::core::openProject;
+using subedit::core::VideoPlayer;
 using subedit::gui::MainWindow;
+using subedit::gui::PlayerFactory;
 using subedit::gui::SearchDialog;
 using subedit::test::FakePrompts;
+using subedit::test::FakeVideoPlayer;
 
 constexpr int kTextColumn = 4;
 
@@ -282,6 +290,38 @@ TEST_CASE("replace all touches every project, one entry of history each", "[gui]
     CHECK(window.undoAction()->text().toStdString() == "Undo: replacing all");
     window.tabBar()->setCurrentIndex(3);
     CHECK_FALSE(window.undoAction()->isEnabled());
+}
+
+TEST_CASE("replace all leaves the tab and the film shown where they were", "[gui][GUI-SEARCH-04]") {
+    InMemoryFileSystem files = filesystem();
+    files.addFile("premier.mkv", "");
+    files.addFile("second.mkv", "");
+    files.addFile("troisieme.mkv", "");
+    FakePrompts prompts;
+    FakeVideoPlayer* player = nullptr;
+    const PlayerFactory projecting = [&player](std::uintptr_t) -> std::unique_ptr<VideoPlayer> {
+        auto made = std::make_unique<FakeVideoPlayer>();
+        player = made.get();
+        return made;
+    };
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts, projecting};
+    window.show();
+    openThree(window, prompts);
+    REQUIRE(player != nullptr);
+    const std::vector<std::filesystem::path> before = player->opened;
+    REQUIRE(before.back() == "premier.mkv");
+    const SearchDialog& dialog = searchingAll(window, "marie");
+    dialog.replacementField()->setText(QStringLiteral("Sophie"));
+
+    dialog.replaceAllButton()->click();
+
+    REQUIRE(statusOf(dialog) == "replaced 4 matches in 3 projects");
+    // Issue #461: each project received its replacement behind its tab — the
+    // player was never sent to the other films, and each tab says it changed.
+    CHECK(player->opened == before);
+    CHECK(window.tabBar()->currentIndex() == 0);
+    CHECK(window.tabBar()->tabText(1).toStdString() == "second.srt*");
+    CHECK(window.tabBar()->tabText(2).toStdString() == "troisieme.srt*");
 }
 
 TEST_CASE("undoing in one project undoes only what that project received", "[gui][GUI-SEARCH-04]") {
