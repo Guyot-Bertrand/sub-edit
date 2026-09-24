@@ -63,8 +63,10 @@ public:
         /// as a new target.
         virtual void moveTo(int row) = 0;
 
-        /// Applies `command` to the project on screen, one entry of its history.
-        virtual void apply(std::unique_ptr<core::Command> command,
+        /// Applies `command` to `page`, one entry of its history — without
+        /// bringing its tab forward, `page` being on screen or not (#461).
+        virtual void apply(ProjectPage& page,
+                           std::unique_ptr<core::Command> command,
                            const core::Selection& target) = 0;
 
     protected:
@@ -134,7 +136,8 @@ private:
     void findAcrossProjects(bool forward, const core::SearchPattern& compiled);
 
     /// `Replace All` over every open project, one entry of history in each one
-    /// it touches.
+    /// it touches — **and no tab brought forward**: the project shown stays
+    /// shown, and so does its film (#461).
     void replaceAllAcrossProjects(const core::SearchPattern& compiled);
 
     [[nodiscard]] ProjectPage& shown();

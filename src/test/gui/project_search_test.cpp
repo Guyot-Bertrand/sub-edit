@@ -97,9 +97,9 @@ public:
 
     void moveTo(int row) override { moves.push_back(row); }
 
-    void apply(std::unique_ptr<subedit::core::Command> command,
+    void apply(ProjectPage& page,
+               std::unique_ptr<subedit::core::Command> command,
                const Selection& /*target*/) override {
-        ProjectPage& page = project(current);
         page.model->applied(page.session->apply(std::move(command)));
     }
 };
@@ -189,6 +189,8 @@ TEST_CASE("replace all across projects is one entry of history in each project t
     search.replaceAll();
 
     CHECK(statusOf(search) == "replaced 3 matches in 2 projects");
+    // No tab brought forward on the way — issue #461.
+    CHECK(desk.shows.empty());
     CHECK(desk.current == 1);
     CHECK(textOf(*desk.pages.at(0), 1) == "Sophie.");
     CHECK(textOf(*desk.pages.at(2), 0) == "Adieu Sophie.");

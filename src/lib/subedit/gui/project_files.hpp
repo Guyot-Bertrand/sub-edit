@@ -49,7 +49,8 @@ public:
         [[nodiscard]] virtual int shownProject() const = 0;
 
         /// Brings the tab of project `index` forward, so that a question about
-        /// one of its documents opens over it.
+        /// one of its documents opens over it — and only then: a document
+        /// with a file is written behind its tab (#461).
         virtual void show(int index) = 0;
 
         /// `document` of `page` has just been written; `moved` when it was
@@ -114,7 +115,9 @@ public:
     [[nodiscard]] bool mayDiscardAll();
 
     /// `Projects ▸ Save All`: every modified document, tab by tab, until one is
-    /// given up.
+    /// given up. **Only a document with no file brings its tab forward**, for
+    /// the box that asks its name; the tab shown at the start is shown again
+    /// at the end.
     void saveAll();
 
     /// Asks which translation to open for `page` and how to align it, having
@@ -149,6 +152,11 @@ private:
     /// Whether the translation of `page` may be replaced — asked before the
     /// file is, as for the main document.
     [[nodiscard]] bool mayReplaceTranslation(ProjectPage& page);
+
+    /// `save` for `document` of project `index`, the tab brought forward only
+    /// when a name has to be asked — the box then says which project it is.
+    /// Whether it did so goes in `shown`.
+    [[nodiscard]] bool saveIn(int index, core::Document document, bool& shown);
 
     void rememberDirectoryOf(const std::filesystem::path& file);
 

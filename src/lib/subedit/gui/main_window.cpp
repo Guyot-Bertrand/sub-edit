@@ -297,8 +297,10 @@ public:
         m_window->m_page->movingToMatch = false;
     }
 
-    void apply(std::unique_ptr<core::Command> command, const core::Selection& target) override {
-        m_window->applyOperation(std::move(command), target);
+    void apply(ProjectPage& page,
+               std::unique_ptr<core::Command> command,
+               const core::Selection& target) override {
+        m_window->applyOperation(page, std::move(command), target);
     }
 
 private:
@@ -332,7 +334,12 @@ public:
             m_window->setWindowTitle(titleFor(page.session->project()));
             m_window->proposeVideoBeside();
         }
-        m_window->refreshActions();
+        // A page saved behind its tab — issue #461 — has only its tab to say
+        // it: the actions are the shown page's, and are refreshed with it.
+        if (&page == m_window->m_page)
+            m_window->refreshActions();
+        else
+            m_window->refreshTabOf(page);
     }
 
     void announce(const std::string& message) override {
@@ -852,19 +859,26 @@ void MainWindow::openOn(core::Project project, std::span<const core::Diagnostic>
     // the window does not see them go by. This signal is how it learns of
     // one — including an edit that changed nothing. Made once, for the life
     // of this model: a page never gets another.
-    connect(
-        page->model.get(), &SubtitleTableModel::historyChanged, this, &MainWindow::refreshActions);
+    //
+    // **Any page's history, and not only the shown one's** — issue #461:
+    // `Replace All` over every project writes into pages that stay behind
+    // their tabs. Such a page has only its tab to say it changed; the actions
+    // and the title are the shown page's, and wait for it to be shown.
+    ProjectPage* const born = page.get();
+    connect(page->model.get(), &SubtitleTableModel::historyChanged, this, [this, born] {
+        if (born == m_page)
+            refreshActions();
+        else
+            refreshTabOf(*born);
+    });
     // A structural undo or redo resets the model rather than reporting which
     // rows changed — Qt then clears the selection without a
     // `selectionChanged`, which is otherwise what forgets a stale target. This
-    // catches that one case directly on Qt's own reset signal. `m_page` is
-    // read rather than `page`, on purpose: by the time this can fire, the
-    // page has been switched to, and reading the capture would still be
-    // right, but reading the current page is what every other handler here
-    // does, and one rule is easier to trust than two that happen to agree.
-    connect(page->model.get(), &QAbstractItemModel::modelReset, this, [this] {
-        m_page->searchTarget.reset();
-        m_page->match.reset();
+    // catches that one case directly on Qt's own reset signal — on the page
+    // whose model it is, which since #461 need not be the one on screen.
+    connect(page->model.get(), &QAbstractItemModel::modelReset, this, [born] {
+        born->searchTarget.reset();
+        born->match.reset();
     });
 
     // **This page's own selection model, connected once, for its whole
@@ -1044,6 +1058,7 @@ void MainWindow::snapToFrameRate() {
         return;
 
     const std::string pastTheEnd = applyOperationQuietly(
+        *m_page,
         std::make_unique<core::SnapCommand>(m_page->session->project(), target, dialog.rate()),
         target);
 
@@ -1085,7 +1100,7 @@ void MainWindow::shiftOntoGrid() {
         return;
     }
 
-    applyOperation(std::make_unique<core::ShiftCommand>(whole, *by), whole);
+    applyOperation(*m_page, std::make_unique<core::ShiftCommand>(whole, *by), whole);
 }
 
 void MainWindow::about() {
@@ -1339,7 +1354,8 @@ void MainWindow::openTranslationFromPrompt() {
         m_page->session->project(), read.lines, read.source, chosen->method);
     const core::TranslationOutcome outcome = attached.outcome;
     const core::Selection whole = core::Selection::all(m_page->session->project());
-    const std::string pastTheEnd = applyOperationQuietly(std::move(attached.command), whole);
+    const std::string pastTheEnd =
+        applyOperationQuietly(*m_page, std::move(attached.command), whole);
 
     // **What has just been read is what its file says**: nothing was typed, and
     // closing must not offer to save a translation back to the file it came from.
@@ -1522,6 +1538,18 @@ void MainWindow::closeEvent(QCloseEvent* event) {
     event->accept();
 }
 
+void MainWindow::refreshTabOf(const ProjectPage& page) {
+    // Every caller hands a page the window holds: one of its own models
+    // signalled, or one of its own projects was saved.
+    const auto found =
+        std::ranges::find_if(m_pages, [&page](const auto& held) { return held.get() == &page; });
+
+    const bool modified = ProjectFiles::isModified(page, core::Document::Main) ||
+                          ProjectFiles::isModified(page, core::Document::Translation);
+    m_tabBar->setTabText(static_cast<int>(found - m_pages.begin()),
+                         tabLabelFor(page.session->project(), modified));
+}
+
 void MainWindow::refreshActions() {
     const QString undo = undoLabel(m_page->session->nextUndoKind());
     const QString redo = redoLabel(m_page->session->nextRedoKind());
@@ -1540,10 +1568,8 @@ void MainWindow::refreshActions() {
     // Modified if either document is: the title has one asterisk for the two,
     // and so does the tab. Here rather than at each edit because every edit,
     // save and change of tab already passes through this function.
-    const bool modified =
-        isModified(core::Document::Main) || isModified(core::Document::Translation);
-    setWindowModified(modified);
-    m_tabBar->setTabText(m_currentPage, tabLabelFor(m_page->session->project(), modified));
+    setWindowModified(isModified(core::Document::Main) || isModified(core::Document::Translation));
+    refreshTabOf(*m_page);
 
     // Before `refreshTarget`, further down: a column that has come or gone
     // changes which text the current cell can be aiming at.
@@ -1706,7 +1732,7 @@ void MainWindow::adjustDurationsOfTarget() {
     // the film, and two modal boxes in a row was one too many — issue #418.
     std::string pastTheEnd;
     if (adjustment.command != nullptr)
-        pastTheEnd = applyOperationQuietly(std::move(adjustment.command), target);
+        pastTheEnd = applyOperationQuietly(*m_page, std::move(adjustment.command), target);
 
     m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
 }
@@ -1739,7 +1765,8 @@ void MainWindow::appendFileFromPrompt() {
         core::Selection::range(core::SubtitleIndex::fromValue(first),
                                core::SubtitleIndex::fromValue(first + appended.inserted - 1));
 
-    const std::string pastTheEnd = applyOperationQuietly(std::move(appended.command), target);
+    const std::string pastTheEnd =
+        applyOperationQuietly(*m_page, std::move(appended.command), target);
 
     // The rows the append just wrote: what a second append starts past, and
     // what selecting them shows was added.
@@ -1779,7 +1806,7 @@ void MainWindow::splitProjectFromPrompt() {
     // project begins another, and the two know nothing of each other.
     const core::Selection tail =
         core::Selection::range(from, core::SubtitleIndex::fromValue(project.count() - 1));
-    (void)applyOperationQuietly(std::move(split->command), tail);
+    (void)applyOperationQuietly(*m_page, std::move(split->command), tail);
 
     openOn(std::move(split->tail), {});
 
@@ -1809,7 +1836,7 @@ void MainWindow::removeHearingImpairedFromTarget() {
     }
 
     const core::HearingImpairedTally tally = core::tallyOf(*command);
-    applyOperation(std::move(command), target);
+    applyOperation(*m_page, std::move(command), target);
 
     m_prompts->reportOutcome(core::countOf(tally.cleaned, "subtitle") + " cleaned, " +
                              std::to_string(tally.removed) + " removed");
@@ -1844,7 +1871,7 @@ void MainWindow::toggleItalicsOnTarget() {
 
     // Read from the command before it goes, never by counting again after.
     const std::size_t rewritten = core::rewrittenCount(*command);
-    applyOperation(std::move(command), target);
+    applyOperation(*m_page, std::move(command), target);
     statusBar()->showMessage(QString::fromStdString(core::noticeOfItalics(rewritten, italic)),
                              kOperationStatusTimeoutMs);
 }
@@ -1869,7 +1896,7 @@ void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
     }
 
     const std::size_t rewritten = core::rewrittenCount(*command);
-    applyOperation(std::move(command), target);
+    applyOperation(*m_page, std::move(command), target);
     statusBar()->showMessage(QString::fromStdString(core::noticeOfRecase(rewritten)),
                              kOperationStatusTimeoutMs);
 }
@@ -1893,41 +1920,46 @@ void MainWindow::toggleDialogueDashesOnTarget() {
     }
 
     const std::size_t rewritten = core::rewrittenCount(*command);
-    applyOperation(std::move(command), target);
+    applyOperation(*m_page, std::move(command), target);
     statusBar()->showMessage(
         QString::fromStdString(core::noticeOfDialogueDashes(rewritten, dashed)),
         kOperationStatusTimeoutMs);
 }
 
-void MainWindow::applyOperation(std::unique_ptr<core::Command> command,
+void MainWindow::applyOperation(ProjectPage& page,
+                                std::unique_ptr<core::Command> command,
                                 const core::Selection& target) {
     // A notice and not a failure: nothing was prevented, and the sentence is
     // written to be read after the fact.
-    if (const std::string notice = applyOperationQuietly(std::move(command), target);
+    if (const std::string notice = applyOperationQuietly(page, std::move(command), target);
         !notice.empty())
         m_prompts->reportOutcome(notice);
 }
 
-std::string MainWindow::applyOperationQuietly(std::unique_ptr<core::Command> command,
+std::string MainWindow::applyOperationQuietly(ProjectPage& page,
+                                              std::unique_ptr<core::Command> command,
                                               const core::Selection& target) {
     // Read before the command goes: what it is, is what the notice names.
     const core::CommandKind kind = command->kind();
 
-    m_page->model->applied(m_page->session->apply(std::move(command)));
+    page.model->applied(page.session->apply(std::move(command)));
 
     // The row playback was placed at holds something else now — a shift moved
     // it, a removal may have taken it away. Forgetting it is what lets a click
     // on that same row send playback where the subtitle has gone.
-    m_page->placedAt = -1;
+    page.placedAt = -1;
 
-    return whatPassesTheEnd(kind, target);
+    return whatPassesTheEnd(page, kind, target);
 }
 
-std::optional<core::Duration> MainWindow::videoLength() const {
-    return m_page->watching ? m_player->duration() : std::nullopt;
+std::optional<core::Duration> MainWindow::videoLength(const ProjectPage& page) const {
+    // The player is shared: what it knows is the length of the film of the
+    // page it plays for, and of no other.
+    return page.watching && &page == m_playingPage ? m_player->duration() : std::nullopt;
 }
 
-std::string MainWindow::whatPassesTheEnd(core::CommandKind kind,
+std::string MainWindow::whatPassesTheEnd(const ProjectPage& page,
+                                         core::CommandKind kind,
                                          const core::Selection& target) const {
     // **Only the operations that move a position.** `beyondEnd` reads the state
     // an operation produced; on its own it cannot tell whether that operation
@@ -1938,7 +1970,7 @@ std::string MainWindow::whatPassesTheEnd(core::CommandKind kind,
         return {};
 
     const std::optional<core::BeyondEnd> beyond =
-        core::beyondEnd(m_page->session->project(), target, videoLength());
+        core::beyondEnd(page.session->project(), target, videoLength(page));
     return beyond.has_value() ? core::noticeOf(kind, *beyond) : std::string{};
 }
 
@@ -1976,6 +2008,7 @@ void MainWindow::insertSubtitles() {
         core::Selection::range(index, core::SubtitleIndex::fromValue(at + count - 1));
 
     applyOperation(
+        *m_page,
         std::make_unique<core::InsertCommand>(core::InsertCommand::blank(project, index, count)),
         inserted);
 
@@ -1996,7 +2029,7 @@ void MainWindow::removeSubtitles() {
     // leaves, and it has no name any more once the removal is done.
     const int emptied = static_cast<int>(target.ranges().front().first.value());
 
-    applyOperation(std::make_unique<core::RemoveCommand>(target), target);
+    applyOperation(*m_page, std::make_unique<core::RemoveCommand>(target), target);
 
     // The row that took that place, or the last one when the removal carried
     // off the end of the file. Without it, a second `Del` would find no
@@ -2032,7 +2065,7 @@ void MainWindow::cutTexts() {
         return;
 
     // A change of text and not of structure: the table keeps its selection.
-    applyOperation(std::move(command), target);
+    applyOperation(*m_page, std::move(command), target);
 }
 
 void MainWindow::pasteTexts() {
@@ -2060,7 +2093,7 @@ void MainWindow::pasteTexts() {
     if (pasted.command == nullptr)
         return;
 
-    applyOperation(std::move(pasted.command), target);
+    applyOperation(*m_page, std::move(pasted.command), target);
 
     // The rows written, which a paste past the end has just rebuilt the table
     // around: without them the selection would be gone, and a second paste
@@ -2097,7 +2130,7 @@ void MainWindow::mergeSubtitles() {
     if (command == nullptr)
         return;
 
-    applyOperation(std::move(command), target);
+    applyOperation(*m_page, std::move(command), target);
 
     const int merged = static_cast<int>(run.first.value());
     selectRows(merged, merged);
@@ -2111,7 +2144,7 @@ void MainWindow::splitSubtitle() {
         return;
 
     const core::SubtitleIndex index = target.ranges().front().first;
-    applyOperation(core::splitSubtitle(m_page->session->project(), index), target);
+    applyOperation(*m_page, core::splitSubtitle(m_page->session->project(), index), target);
 
     const int first = static_cast<int>(index.value());
     selectRows(first, first + 1);
@@ -2160,7 +2193,7 @@ void MainWindow::shiftTarget() {
         return;
     }
 
-    applyOperation(std::make_unique<core::ShiftCommand>(target, *by), target);
+    applyOperation(*m_page, std::make_unique<core::ShiftCommand>(target, *by), target);
 }
 
 void MainWindow::transformTarget() {
@@ -2191,7 +2224,7 @@ void MainWindow::transformTarget() {
         return;
     }
 
-    applyOperation(std::make_unique<core::TransformCommand>(std::move(*command)), target);
+    applyOperation(*m_page, std::make_unique<core::TransformCommand>(std::move(*command)), target);
 }
 
 void MainWindow::convertFrameRateOfTarget() {
@@ -2226,7 +2259,8 @@ void MainWindow::convertFrameRateOfTarget() {
     if (!m_prompts->run(dialog))
         return;
 
-    applyOperation(std::make_unique<core::ConvertFrameRateCommand>(
+    applyOperation(*m_page,
+                   std::make_unique<core::ConvertFrameRateCommand>(
                        m_page->session->project(), target, dialog.input(), dialog.output()),
                    target);
 }
