@@ -57,6 +57,7 @@ struct ModifiedDocument;
 class SubtitleTableModel;
 class TableColumns;
 class ProjectSearch;
+class ProjectFiles;
 
 /// The window, and everything a project needs to be looked at.
 ///
@@ -426,13 +427,6 @@ private:
     /// translation column, the target, the search box.
     void refreshForPage();
 
-    /// The index of the tab already showing `path`, or nothing.
-    ///
-    /// **However the path is spelled** — `film.srt`, `./film.srt` and
-    /// `../films/film.srt` name one file — compared without asking the disk,
-    /// the same rule `openTranslation` uses for the main document.
-    [[nodiscard]] std::optional<int> indexOfFile(const std::filesystem::path& path) const;
-
     /// `File ▸ New`: an empty project in a new tab.
     void newProject();
 
@@ -443,66 +437,9 @@ private:
     /// Whether `Close` may do anything — false with one tab left.
     void refreshTabActions();
 
-    /// Writes the document, asking where if it has never been anywhere.
-    ///
-    /// Returns whether it was written — « the user gave up » and « the disk
-    /// refused » are both `false`, and both must stop whatever asked.
-    [[nodiscard]] bool save();
-
-    [[nodiscard]] bool saveAs();
-
-    /// The same for the translation, which is a file of its own.
-    [[nodiscard]] bool saveTranslation();
-
-    [[nodiscard]] bool saveTranslationAs();
-
-    /// Writes one of the two documents, or asks where — what the four above
-    /// are, once the document is a parameter. **One body and not two**: the
-    /// dialog, the warning about a loss, the failure that leaves the document
-    /// where it was are the same for both, and they had been written once
-    /// already.
-    [[nodiscard]] bool saveDocument(core::Document document);
-
-    [[nodiscard]] bool saveDocumentAs(core::Document document);
-
-    /// Whether `document` differs from its file. **The translation only counts
-    /// while the project has one**: a translation that was undone away has no
-    /// file to differ from.
+    /// Whether `document` of the project on screen differs from its file —
+    /// `ProjectFiles::isModified`.
     [[nodiscard]] bool isModified(core::Document document) const;
-    [[nodiscard]] static bool isModified(const ProjectPage& page, core::Document document);
-
-    /// The documents a closing would lose, in the order the window shows them.
-    ///
-    /// **A file gone from the disk counts as modified**, and is marked as such:
-    /// what the window holds is then the only copy of it.
-    [[nodiscard]] std::vector<ModifiedDocument> modifiedDocuments() const;
-    [[nodiscard]] std::vector<ModifiedDocument> modifiedDocuments(const ProjectPage& page) const;
-
-    /// Returns whether whatever is about to lose the changes may go on.
-    ///
-    /// **One question however many documents are modified.** Nothing modified
-    /// goes on; one asks what it always asked; two ask through the list, with a
-    /// box each.
-    [[nodiscard]] bool mayDiscardChanges();
-
-    /// The same question for every project of the window at once.
-    ///
-    /// **Nothing modified goes on; one document asks the plain question; two or
-    /// more ask through the list**, whichever projects they belong to. Saving
-    /// brings each document's tab forward first.
-    [[nodiscard]] bool mayDiscardAllChanges();
-
-    /// The question itself, over `modified` — `owners[i]` being the tab that
-    /// `modified[i]` is in — shared by the two above.
-    [[nodiscard]] bool mayDiscard(const std::vector<ModifiedDocument>& modified,
-                                  const std::vector<int>& owners);
-
-    /// `Projects ▸ Save All`: every modified document, tab by tab.
-    void saveAllDocuments();
-
-    /// Returns whether a translation that is open may be replaced — asked
-    /// before the file is, as for the main document.
-    [[nodiscard]] bool mayReplaceTranslation();
 
     /// Asks which translation to open and how to align it, then opens it.
     void openTranslationFromPrompt();
@@ -600,7 +537,6 @@ private:
 
     /// Keeps the directory of `file` as the one the next "open" box will open
     /// in.
-    void rememberDirectoryOf(const std::filesystem::path& file);
 
     /// Asks which grid to lay the positions on, and lays them on it.
     void snapToFrameRate();
@@ -881,14 +817,13 @@ private:
     std::unique_ptr<SearchSide> m_searchSide;
     std::unique_ptr<ProjectSearch> m_search;
 
+    /// What the files ask of the window, and the files themselves — ADR 0034.
+    class FilesSide;
+    std::unique_ptr<FilesSide> m_filesSide;
+    std::unique_ptr<ProjectFiles> m_projectFiles;
+
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;
-
-    /// The directory the "open" box will open in.
-    ///
-    /// That of the last file **opened or saved**, and not that of a box
-    /// dismissed: what counts is where the user works, not where they looked.
-    std::filesystem::path m_lastDirectory;
 
     /// Whether the window has been on screen once.
     ///
