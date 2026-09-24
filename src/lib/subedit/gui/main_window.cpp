@@ -34,7 +34,6 @@
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
-#include <subedit/core/model/video_file.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
@@ -50,7 +49,6 @@
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
-#include <subedit/gui/open_translation_dialog.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/project_files.hpp>
 #include <subedit/gui/project_page.hpp>
@@ -66,12 +64,10 @@
 #include <subedit/gui/target.hpp>
 #include <subedit/gui/theme.hpp>
 #include <subedit/gui/transform_dialog.hpp>
-#include <subedit/gui/unsaved_documents_dialog.hpp>
 
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QAction>
-#include <QCheckBox>
 #include <QClipboard>
 #include <QCloseEvent>
 #include <QDragEnterEvent>
