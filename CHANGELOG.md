@@ -9,6 +9,16 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Corrections
+
+- **gui** — Split Project… dit ce qu'il a fait, et montre où il coupe
+
+### Documentation
+
+- **gui** — La scission dit son compte et montre où elle coupe
+
+## 0.11.20 — 2026-09-24
+
 ### Documentation
 
 - **gui** — Les gestes multi-projets ne changent plus d'onglet
