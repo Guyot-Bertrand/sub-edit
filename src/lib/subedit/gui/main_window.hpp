@@ -55,6 +55,7 @@ class Prompts;
 struct ProjectPage;
 struct ModifiedDocument;
 class SubtitleTableModel;
+class TableColumns;
 
 /// The window, and everything a project needs to be looked at.
 ///
@@ -269,7 +270,7 @@ public:
     /// The entry of the `View` menu that shows the translation column or takes
     /// it away — `GUI-TRANS-04`. Out for as long as the project has no
     /// translation: there is nothing to show.
-    [[nodiscard]] QAction* translationColumnAction() const { return m_translationColumn; }
+    [[nodiscard]] QAction* translationColumnAction() const;
 
     /// The entry of `View ▸ Columns` that shows `column` or takes it away —
     /// `GUI-TABLE-03`. The translation's is `translationColumnAction`; the text
@@ -370,18 +371,9 @@ protected:
     void dropEvent(QDropEvent* event) override;
 
 private:
-    /// Shows the translation column, or takes it away, as the project and the
-    /// entry of the `View` menu together say.
-    void refreshTranslationColumn();
-
-    /// Shows or hides every column as the entries of `View ▸ Columns` say, then
-    /// takes the current cell out of a column that has just gone — issue #442.
+    /// Shows or hides the columns as `View ▸ Columns` and the current project
+    /// say — `TableColumns::refresh` on the page shown.
     void refreshColumns();
-
-    /// Shows or hides one of the four position columns, keeping the width of
-    /// one that goes: a hidden section measures zero, and the settings would
-    /// write a width their reader refuses.
-    void setPositionColumnShown(int column, bool shown);
 
     /// The text an operation of text aims at: the translation when the current
     /// cell is in its column and the column is shown, the main text otherwise.
@@ -872,12 +864,8 @@ private:
     QAction* m_italic = nullptr;
     std::array<QAction*, 4> m_case{};
 
-    /// The entries of `View ▸ Columns` for the number and the three positions,
-    /// in the order of the model.
-    std::array<QAction*, 4> m_columns{};
-
-    /// The width each of those four had when it was hidden.
-    std::array<int, 4> m_hiddenWidths{};
+    /// The columns of the table and the entries of `View ▸ Columns` — ADR 0034.
+    std::unique_ptr<TableColumns> m_columns;
     QAction* m_dialogueDashes = nullptr;
     QAction* m_analyseGrid = nullptr;
     QAction* m_snap = nullptr;
@@ -892,7 +880,6 @@ private:
     QLabel* m_gridStatus = nullptr;
     QLabel* m_encodingStatus = nullptr;
     QLabel* m_targetStatus = nullptr;
-    QAction* m_translationColumn = nullptr;
     QWidget* m_videoView = nullptr;
     QWidget* m_noVideo = nullptr;
     QSplitter* m_split = nullptr;

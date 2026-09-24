@@ -14,7 +14,7 @@ add_executable(
     window_files_test.cpp
     window_formats_test.cpp qt_prompts_test.cpp target_test.cpp save_shape_test.cpp
     operation_dialogs_test.cpp window_operations_test.cpp
-    window_hearing_impaired_test.cpp window_italics_test.cpp window_text_test.cpp window_insert_test.cpp window_merge_test.cpp window_clipboard_test.cpp window_durations_test.cpp window_search_test.cpp window_search_projects_test.cpp anomaly_marking_test.cpp window_translation_test.cpp window_translation_files_test.cpp window_translation_search_test.cpp translation_dialogs_test.cpp window_append_test.cpp window_split_project_test.cpp window_tabs_test.cpp window_columns_test.cpp window_drop_test.cpp
+    window_hearing_impaired_test.cpp window_italics_test.cpp window_text_test.cpp window_insert_test.cpp window_merge_test.cpp window_clipboard_test.cpp window_durations_test.cpp window_search_test.cpp window_search_projects_test.cpp anomaly_marking_test.cpp window_translation_test.cpp window_translation_files_test.cpp window_translation_search_test.cpp translation_dialogs_test.cpp window_append_test.cpp window_split_project_test.cpp window_tabs_test.cpp window_columns_test.cpp window_drop_test.cpp table_columns_test.cpp
     manual_window_test.cpp real_manual_test.cpp
     main_window_test.cpp mpv_player_test.cpp window_video_test.cpp
     window_player_test.cpp player_factory_test.cpp invocation_test.cpp
