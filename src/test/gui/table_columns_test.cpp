@@ -77,7 +77,7 @@ void makeCurrent(Table& table, int row, int column) {
 } // namespace
 
 TEST_CASE("the columns offer an entry for every column but the text", "[gui][GUI-TABLE-03]") {
-    Table table;
+    const Table table;
 
     CHECK(table.columns.action(TableColumn::Text) == nullptr);
     CHECK(table.columns.entries().size() == 5);
@@ -87,7 +87,7 @@ TEST_CASE("the columns offer an entry for every column but the text", "[gui][GUI
 
 TEST_CASE("the translation column follows the project and the entry together",
           "[gui][GUI-TRANS-04]") {
-    Table without;
+    const Table without;
     CHECK_FALSE(without.columns.translationShown());
     CHECK_FALSE(without.columns.action(TableColumn::Translation)->isEnabled());
 
@@ -160,7 +160,7 @@ TEST_CASE("the settings written are the settings read back", "[gui][GUI-TABLE-03
 }
 
 TEST_CASE("the default order is written as no order at all", "[gui][GUI-TABLE-03]") {
-    Table table;
+    const Table table;
 
     Settings written;
     table.columns.write(written);

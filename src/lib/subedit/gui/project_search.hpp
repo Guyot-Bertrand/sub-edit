@@ -131,11 +131,11 @@ private:
     /// The search of `find` when « All open projects » is ticked: the project
     /// on screen first, then the others in the order of their tabs —
     /// `GUI-SEARCH-04`.
-    void findAcrossProjects(bool forward, const core::SearchPattern& pattern);
+    void findAcrossProjects(bool forward, const core::SearchPattern& compiled);
 
     /// `Replace All` over every open project, one entry of history in each one
     /// it touches.
-    void replaceAllAcrossProjects(const core::SearchPattern& pattern);
+    void replaceAllAcrossProjects(const core::SearchPattern& compiled);
 
     [[nodiscard]] ProjectPage& shown();
 

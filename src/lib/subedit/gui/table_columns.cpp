@@ -69,7 +69,7 @@ QAction* TableColumns::action(core::TableColumn column) const {
     std::unreachable();
 }
 
-std::array<QAction*, 5> TableColumns::entries() const {
+std::array<QAction*, TableColumns::kEntryCount> TableColumns::entries() const {
     return {
         m_positions.at(0), m_positions.at(1), m_positions.at(2), m_positions.at(3), m_translation};
 }

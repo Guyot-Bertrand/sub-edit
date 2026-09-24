@@ -182,7 +182,7 @@ TEST_CASE("replace all across projects is one entry of history in each project t
     desk.pages.push_back(pageOf({"Adieu Marie."}));
     desk.current = 1;
     ProjectSearch search{desk, &parent};
-    SearchDialog& dialog = typing(search, "marie");
+    const SearchDialog& dialog = typing(search, "marie");
     dialog.allProjectsCheck()->setChecked(true);
     dialog.replacementField()->setText(QStringLiteral("Sophie"));
 
@@ -221,7 +221,7 @@ TEST_CASE("changing the pattern forgets the match of every project", "[gui][GUI-
     desk.pages.push_back(pageOf({"Marie."}));
     desk.pages.push_back(pageOf({"Marie."}));
     ProjectSearch search{desk, &parent};
-    SearchDialog& dialog = typing(search, "marie");
+    const SearchDialog& dialog = typing(search, "marie");
     search.find(true);
     desk.pages.at(1)->match =
         subedit::core::TextMatch{.index = SubtitleIndex::fromValue(0), .start = 0, .end = 5};

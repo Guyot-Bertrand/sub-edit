@@ -34,8 +34,11 @@ public:
     /// which has none.
     [[nodiscard]] QAction* action(core::TableColumn column) const;
 
+    /// How many entries `View ▸ Columns` lists: every column but the text.
+    static constexpr std::size_t kEntryCount = 5;
+
     /// The entries in the order `View ▸ Columns` lists them.
-    [[nodiscard]] std::array<QAction*, 5> entries() const;
+    [[nodiscard]] std::array<QAction*, kEntryCount> entries() const;
 
     /// Shows or hides every column as the entries say and as `page` allows — the
     /// translation only while the project has one — then takes the current cell

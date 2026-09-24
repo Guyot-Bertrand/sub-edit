@@ -310,8 +310,10 @@ TEST_CASE("choosing a translation reads it and asks how to align it", "[gui][GUI
 
     const auto chosen = projectFiles.chooseTranslation(*desk.pages.front());
 
-    REQUIRE(chosen.has_value());
-    CHECK(chosen->read.lines.size() == 1);
+    // `value_or` rather than a dereference after `REQUIRE`: the static
+    // analysis does not read a Catch2 macro as a guard.
+    CHECK(chosen.has_value());
+    CHECK(chosen.transform([](const auto& one) { return one.read.lines.size(); }).value_or(0) == 1);
     CHECK(prompts.runAsked == 1);
     CHECK(projectFiles.lastDirectory() == "/films");
 }
