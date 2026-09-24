@@ -403,6 +403,9 @@ noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFormat to);
 /// they were.
 [[nodiscard]] std::string noticeOfReplaceAll(std::size_t count, std::size_t projects);
 
+/// What `Split Project…` did: how many subtitles left for the new project.
+[[nodiscard]] std::string noticeOfSplit(std::size_t count);
+
 [[nodiscard]] std::string noticeOfPaste(std::size_t inserted,
                                         const ConversionLoss& loss,
                                         std::optional<SubtitleFormat> from,

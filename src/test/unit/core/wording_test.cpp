@@ -512,6 +512,13 @@ TEST_CASE("replacing everywhere across projects counts the projects too", "[word
     CHECK(noticeOfReplaceAll(1, 1) == "replaced 1 match in 1 project");
 }
 
+TEST_CASE("splitting a project says how many subtitles left", "[wording][split-project]") {
+    using subedit::core::noticeOfSplit;
+
+    CHECK(noticeOfSplit(12) == "split 12 subtitles into a new project");
+    CHECK(noticeOfSplit(1) == "split 1 subtitle into a new project");
+}
+
 TEST_CASE("splitting a project has a name of its own in the history", "[wording][split-project]") {
     using subedit::core::CommandKind;
     using subedit::core::nameOf;

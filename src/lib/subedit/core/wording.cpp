@@ -573,6 +573,10 @@ std::string noticeOfReplaceAll(std::size_t count, std::size_t projects) {
            (projects == 1 ? " project" : " projects");
 }
 
+std::string noticeOfSplit(std::size_t count) {
+    return "split " + countOf(count, "subtitle") + " into a new project";
+}
+
 std::string noticeOfAdjustment(std::size_t adjusted, const SacrificedConstraints& sacrificed) {
     std::string notice = adjusted == 0
                              ? std::string{"no duration to adjust"}

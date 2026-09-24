@@ -27,6 +27,11 @@ SplitProjectDialog::SplitProjectDialog(std::size_t count, std::size_t initial, Q
     m_subtitle->setRange(kSmallestNumber, std::max(kSmallestNumber, largest));
     m_subtitle->setValue(std::clamp(static_cast<int>(initial), kSmallestNumber, largest));
 
+    // One subtitle number is one row of the table, counted from zero.
+    connect(m_subtitle, &QSpinBox::valueChanged, this, [this](int number) {
+        emit rowChosen(number - 1);
+    });
+
     auto* fields = new QFormLayout;
     fields->addRow(QStringLiteral("Split at subtitle"), m_subtitle);
 
