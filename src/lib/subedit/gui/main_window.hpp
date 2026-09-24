@@ -56,6 +56,7 @@ struct ProjectPage;
 struct ModifiedDocument;
 class SubtitleTableModel;
 class TableColumns;
+class ProjectSearch;
 
 /// The window, and everything a project needs to be looked at.
 ///
@@ -195,7 +196,7 @@ public:
     [[nodiscard]] QAction* findAndReplaceAction() const { return m_findAndReplace; }
 
     /// The search dialog once it has been opened, and nothing before.
-    [[nodiscard]] SearchDialog* searchDialog() const { return m_search; }
+    [[nodiscard]] SearchDialog* searchDialog() const;
 
     /// The two edits of structure, for a test to read their state and trigger
     /// them.
@@ -389,10 +390,6 @@ private:
     /// search, which forgets a match found in the other text and names the field
     /// its box looks in.
     void refreshTarget();
-
-    /// Tells the search box which text it looks in, or nothing when there is
-    /// one text only. Does nothing before the box exists.
-    void refreshSearchField();
 
     /// Works out afresh what the two edits of structure are allowed to do.
     ///
@@ -692,43 +689,9 @@ private:
     /// Rows laid down past the end, and tags a translation dropped, are said.
     void pasteTexts();
 
-    /// Opens the search dialog, or brings it back to the front.
-    ///
-    /// **The same dialog every time**, kept from one opening to the next with
-    /// what was typed in it: finding again is the common case.
+    /// Opens the search dialog, or brings it back to the front —
+    /// `ProjectSearch::open`.
     void openSearch();
-
-    /// Finds the next or the previous match in the search target, and moves
-    /// the table to it.
-    ///
-    /// **This one and the two after it answer the dialog's signals and nothing
-    /// else**, so the dialog exists whenever they run: `openSearch` makes it
-    /// before connecting them, and a test reaches them only by pressing its
-    /// buttons.
-    void findInTarget(bool forward);
-
-    /// The search of `findInTarget` when the box « All open projects » is
-    /// ticked: the current project first, then the others in the order of
-    /// their tabs — `GUI-SEARCH-04`.
-    void findAcrossProjects(bool forward, const core::SearchPattern& pattern);
-
-    /// Replaces the match last found, then finds the next one.
-    void replaceCurrentMatch();
-
-    /// Replaces every match of the search target, as one entry in the history.
-    void replaceAllInTarget();
-
-    /// `Replace All` over every open project, one entry of history in each one
-    /// it touches.
-    void replaceAllAcrossProjects(const core::SearchPattern& pattern);
-
-    /// Compiles what the dialog asks for, or shows why it cannot be.
-    [[nodiscard]] std::optional<core::SearchPattern> searchPattern();
-
-    /// What the search walks: the selection, or the whole document — captured
-    /// when a search starts, and kept while the search itself moves the
-    /// selection from match to match.
-    [[nodiscard]] core::Selection searchTarget();
 
     /// Merges the selected rows into one, and selects it.
     ///
@@ -912,11 +875,11 @@ private:
     /// one. Gaupol's defaults until then.
     core::DurationAdjustmentSettings m_durationSettings;
 
-    /// The search dialog, made at its first opening and kept.
-    SearchDialog* m_search = nullptr;
-
-    /// The two options of a search, which the preferences carry.
-    core::SearchOptions m_searchOptions;
+    /// What the search asks of the window, and the search itself — ADR 0034.
+    /// The first is declared before the second, which holds a reference to it.
+    class SearchSide;
+    std::unique_ptr<SearchSide> m_searchSide;
+    std::unique_ptr<ProjectSearch> m_search;
 
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;

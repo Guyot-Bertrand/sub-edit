@@ -53,6 +53,7 @@
 #include <subedit/gui/open_translation_dialog.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/project_page.hpp>
+#include <subedit/gui/project_search.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/search_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
@@ -262,13 +263,50 @@ constexpr int kOperationStatusTimeoutMs = 5000;
     return given;
 }
 
-/// What the window calls a text: the status bar and the search box both say it.
-[[nodiscard]] QString documentName(core::Document document) {
-    return document == core::Document::Translation ? QStringLiteral("Translation")
-                                                   : QStringLiteral("Main");
-}
-
 } // namespace
+
+/// What the search asks of the window — ADR 0034. A class of its own rather
+/// than the window itself: `View::show(int)` would hide `QWidget::show()`.
+class MainWindow::SearchSide final : public ProjectSearch::View {
+
+public:
+    explicit SearchSide(MainWindow& window) : m_window(&window) {}
+
+    [[nodiscard]] int projectCount() const override {
+        return static_cast<int>(m_window->m_pages.size());
+    }
+
+    [[nodiscard]] ProjectPage& project(int index) override {
+        return *m_window->m_pages.at(static_cast<std::size_t>(index));
+    }
+
+    [[nodiscard]] int shownProject() const override { return m_window->m_currentPage; }
+
+    void show(int index) override { m_window->switchToPage(index); }
+
+    [[nodiscard]] core::Document targetDocument() const override {
+        return m_window->targetDocument();
+    }
+
+    [[nodiscard]] bool twoTexts() const override { return m_window->m_columns->translationShown(); }
+
+    [[nodiscard]] core::Selection selectionTarget() const override {
+        return targetOf(*m_window->m_table->selectionModel(), m_window->m_page->session->project());
+    }
+
+    void moveTo(int row) override {
+        m_window->m_page->movingToMatch = true;
+        m_window->selectRows(row, row);
+        m_window->m_page->movingToMatch = false;
+    }
+
+    void apply(std::unique_ptr<core::Command> command, const core::Selection& target) override {
+        m_window->applyOperation(std::move(command), target);
+    }
+
+private:
+    MainWindow* m_window;
+};
 
 MainWindow::MainWindow(core::FileSystem& files,
                        core::OpenedFile opened,
@@ -571,6 +609,8 @@ MainWindow::MainWindow(core::FileSystem& files,
     // column first, then the target: what a cell can be aiming at depends on
     // whether the column is there.
     m_columns = std::make_unique<TableColumns>(*m_table, this);
+    m_searchSide = std::make_unique<SearchSide>(*this);
+    m_search = std::make_unique<ProjectSearch>(*m_searchSide, this);
     for (QAction* entry : m_columns->entries()) {
         connect(entry, &QAction::toggled, this, [this] {
             refreshColumns();
@@ -1711,8 +1751,7 @@ void MainWindow::refreshTabActions() {
     // the title bar's own button already does.
     m_closeProject->setEnabled(m_pages.size() > 1);
     // Opened and closed tabs change what « all » means.
-    if (m_search != nullptr)
-        m_search->setAllProjectsAvailable(m_pages.size() > 1);
+    m_search->refresh();
 }
 
 void MainWindow::closeCurrentProject() {
@@ -1896,16 +1935,9 @@ void MainWindow::refreshTarget() {
     }
     m_targetStatus->setVisible(twoTexts);
 
-    // A match is a place in one text: another text, another search. Compared
-    // with the last one aimed at rather than forgotten at every call, because
-    // this runs after each operation and the match just written is the one the
-    // next `Find Next` starts from.
-    const core::Document aimed = targetDocument();
-    if (aimed != m_page->searchDocument) {
-        m_page->searchDocument = aimed;
-        m_page->match.reset();
-    }
-    refreshSearchField();
+    // The search forgets a match found in the other text, and names the field
+    // its box looks in.
+    m_search->refresh();
 
     // **Grey rather than gone for TMPlayer and LRC**: the two formats write no
     // style at all, and an entry that is there and out is what tells a user
@@ -1919,21 +1951,6 @@ void MainWindow::refreshTarget() {
     m_italic->setEnabled(
         anything &&
         core::abilitiesOf(m_page->session->project().sourceFile(targetDocument()).format).italic);
-}
-
-void MainWindow::refreshSearchField() {
-    if (m_search == nullptr)
-        return;
-
-    m_search->setAllProjectsAvailable(m_pages.size() > 1);
-
-    // Two texts, and only then: the box of a window that never opens a
-    // translation has nothing to choose between, and says nothing.
-    const bool twoTexts = m_columns->translationShown();
-    const QString field =
-        twoTexts ? QStringLiteral("Searching in: %1").arg(documentName(targetDocument()))
-                 : QString{};
-    m_search->setField(field);
 }
 
 void MainWindow::refreshStructureActions() {
@@ -2360,241 +2377,11 @@ void MainWindow::pasteTexts() {
 }
 
 void MainWindow::openSearch() {
-    if (m_search == nullptr) {
-        m_search = new SearchDialog{this};
-        m_search->setOptions(m_searchOptions);
-        connect(m_search, &SearchDialog::findNextRequested, this, [this] { findInTarget(true); });
-        connect(
-            m_search, &SearchDialog::findPreviousRequested, this, [this] { findInTarget(false); });
-        connect(m_search, &SearchDialog::replaceRequested, this, &MainWindow::replaceCurrentMatch);
-        connect(
-            m_search, &SearchDialog::replaceAllRequested, this, &MainWindow::replaceAllInTarget);
-        connect(m_search, &SearchDialog::searchChanged, this, [this] {
-            m_searchOptions = m_search->options();
-            // Every project's, not only the one shown: a match remembered by
-            // a tab that is not on screen is a match of another pattern.
-            for (const std::unique_ptr<ProjectPage>& page : m_pages)
-                page->match.reset();
-            m_search->setStatus({});
-        });
-    }
-
-    refreshSearchField();
-    m_search->show();
-    m_search->raise();
-    m_search->activateWindow();
+    m_search->open();
 }
 
-std::optional<core::SearchPattern> MainWindow::searchPattern() {
-    std::expected<core::SearchPattern, core::PatternError> compiled =
-        core::SearchPattern::compile(m_search->pattern().toStdString(), m_searchOptions);
-    if (!compiled.has_value()) {
-        m_search->setStatus(QString::fromStdString(core::reasonOf(compiled.error())));
-        return std::nullopt;
-    }
-    return std::move(*compiled);
-}
-
-core::Selection MainWindow::searchTarget() {
-    if (!m_page->searchTarget.has_value())
-        m_page->searchTarget = targetOf(*m_table->selectionModel(), m_page->session->project());
-    return *m_page->searchTarget;
-}
-
-void MainWindow::findInTarget(bool forward) {
-    const std::optional<core::SearchPattern> pattern = searchPattern();
-    if (!pattern.has_value())
-        return;
-
-    if (m_search->allProjects()) {
-        findAcrossProjects(forward, *pattern);
-        return;
-    }
-
-    const core::Selection target = searchTarget();
-    const std::optional<core::TextMatch> found =
-        forward
-            ? core::findNext(
-                  m_page->session->project(), target, targetDocument(), *pattern, m_page->match)
-            : core::findPrevious(
-                  m_page->session->project(), target, targetDocument(), *pattern, m_page->match);
-
-    // **A search that finds nothing says so, and touches nothing**: the
-    // selection stays where it was, and so does the target.
-    if (!found.has_value()) {
-        m_page->match.reset();
-        m_search->setStatus(
-            QString::fromStdString(core::notFound(m_search->pattern().toStdString())));
-        return;
-    }
-
-    m_page->match = found;
-    m_search->setStatus({});
-    const int row = static_cast<int>(found->index.value());
-    m_page->movingToMatch = true;
-    selectRows(row, row);
-    m_page->movingToMatch = false;
-}
-
-void MainWindow::findAcrossProjects(bool forward, const core::SearchPattern& pattern) {
-    const core::Document document = targetDocument();
-    const auto find = [&](const ProjectPage& page, const std::optional<core::TextMatch>& from) {
-        const core::Project& project = page.session->project();
-        const core::Selection whole = core::Selection::all(project);
-        return forward ? core::findNext(project, whole, document, pattern, from)
-                       : core::findPrevious(project, whole, document, pattern, from);
-    };
-    // Whether `match` comes on the far side of `from` in the direction of the
-    // search — what a match that wrapped round inside one project does not.
-    const auto beyond = [forward](const core::TextMatch& match, const core::TextMatch& from) {
-        if (match.index != from.index)
-            return forward ? match.index.value() > from.index.value()
-                           : match.index.value() < from.index.value();
-        return forward ? match.start > from.start : match.start < from.start;
-    };
-
-    const int projects = static_cast<int>(m_pages.size());
-    const int origin = m_currentPage;
-
-    // The project shown first: what follows its current match, or its first.
-    std::optional<core::TextMatch> found = find(*m_page, m_page->match);
-    bool wrapped =
-        found.has_value() && m_page->match.has_value() && !beyond(*found, *m_page->match);
-    int where = origin;
-
-    // Nothing more in this one — or only the wrapped round of it: the other
-    // projects are visited, in the order of the tabs, before coming back.
-    if (!found.has_value() || wrapped) {
-        for (int step = 1; step < projects; ++step) {
-            const int index =
-                forward ? (origin + step) % projects : (origin - step + projects) % projects;
-            const std::optional<core::TextMatch> other =
-                find(*m_pages[static_cast<std::size_t>(index)], std::nullopt);
-            if (!other.has_value())
-                continue;
-
-            found = other;
-            where = index;
-            // Past the last tab, or before the first, is the round coming
-            // back to where it began.
-            wrapped = forward ? index < origin : index > origin;
-            break;
-        }
-    }
-
-    if (!found.has_value()) {
-        m_page->match.reset();
-        m_search->setStatus(
-            QString::fromStdString(core::notFound(m_search->pattern().toStdString())));
-        return;
-    }
-
-    switchToPage(where);
-    m_page->match = found;
-    m_search->setStatus(wrapped ? QStringLiteral("Search wrapped around") : QString{});
-    const int row = static_cast<int>(found->index.value());
-    m_page->movingToMatch = true;
-    selectRows(row, row);
-    m_page->movingToMatch = false;
-}
-
-void MainWindow::replaceCurrentMatch() {
-    const std::optional<core::SearchPattern> pattern = searchPattern();
-    if (!pattern.has_value())
-        return;
-
-    // Nothing found yet, or the text moved under the match: find first, as
-    // Gaupol does, and let the next press replace what is then shown.
-    std::optional<core::ReplacedMatch> replaced;
-    if (m_page->match.has_value()) {
-        replaced = core::replaceMatch(m_page->session->project(),
-                                      targetDocument(),
-                                      *pattern,
-                                      *m_page->match,
-                                      m_search->replacement().toStdString());
-    }
-    if (!replaced.has_value()) {
-        findInTarget(true);
-        return;
-    }
-
-    if (replaced->command != nullptr) {
-        const core::SubtitleIndex index = replaced->written.index;
-        applyOperation(std::move(replaced->command), core::Selection::range(index, index));
-    }
-    m_page->match = replaced->written;
-    findInTarget(true);
-}
-
-void MainWindow::replaceAllInTarget() {
-    const std::optional<core::SearchPattern> pattern = searchPattern();
-    if (!pattern.has_value())
-        return;
-
-    if (m_search->allProjects()) {
-        replaceAllAcrossProjects(*pattern);
-        return;
-    }
-
-    const core::Selection target = searchTarget();
-    core::ReplacedAll replaced = core::replaceAll(m_page->session->project(),
-                                                  target,
-                                                  targetDocument(),
-                                                  *pattern,
-                                                  m_search->replacement().toStdString());
-    m_page->match.reset();
-
-    // **Not found is not the same as nothing to change**: a pattern that is in
-    // the document but is replaced by itself finds matches and writes nothing,
-    // and no history entry is made for it either way.
-    if (replaced.count == 0) {
-        m_search->setStatus(QString::fromStdString(
-            replaced.matched == 0 ? core::notFound(m_search->pattern().toStdString())
-                                  : core::nothingToChange()));
-        return;
-    }
-
-    if (replaced.command != nullptr)
-        applyOperation(std::move(replaced.command), target);
-    m_search->setStatus(QString::fromStdString(core::noticeOfReplaceAll(replaced.count)));
-}
-
-void MainWindow::replaceAllAcrossProjects(const core::SearchPattern& pattern) {
-    const core::Document document = targetDocument();
-    const std::string replacement = m_search->replacement().toStdString();
-    const int origin = m_currentPage;
-
-    std::size_t matched = 0;
-    std::size_t replacedCount = 0;
-    std::size_t touched = 0;
-    for (std::size_t index = 0; index < m_pages.size(); ++index) {
-        const core::Project& project = m_pages[index]->session->project();
-        const core::Selection whole = core::Selection::all(project);
-        core::ReplacedAll replaced =
-            core::replaceAll(project, whole, document, pattern, replacement);
-        matched += replaced.matched;
-        if (replaced.count == 0 || replaced.command == nullptr)
-            continue;
-
-        // Its tab first: the command goes to the page the window shows, and
-        // that is also where the user sees what is happening.
-        switchToPage(static_cast<int>(index));
-        applyOperation(std::move(replaced.command), whole);
-        replacedCount += replaced.count;
-        ++touched;
-    }
-
-    switchToPage(origin);
-    for (const std::unique_ptr<ProjectPage>& page : m_pages)
-        page->match.reset();
-
-    if (replacedCount == 0) {
-        m_search->setStatus(
-            QString::fromStdString(matched == 0 ? core::notFound(m_search->pattern().toStdString())
-                                                : core::nothingToChange()));
-        return;
-    }
-    m_search->setStatus(QString::fromStdString(core::noticeOfReplaceAll(replacedCount, touched)));
+SearchDialog* MainWindow::searchDialog() const {
+    return m_search->dialog();
 }
 
 void MainWindow::mergeSubtitles() {
@@ -2791,10 +2578,8 @@ void MainWindow::applySettings(const core::Settings& settings) {
     applyTheme(m_theme);
 
     m_insertPlacement = settings.insertPlacement;
-    m_searchOptions = settings.search;
     m_durationSettings = settings.durationAdjustment;
-    if (m_search != nullptr)
-        m_search->setOptions(m_searchOptions);
+    m_search->setOptions(settings.search);
     m_page->writeEncoding = settings.writeEncoding;
 }
 
@@ -2826,7 +2611,7 @@ core::Settings MainWindow::settings() const {
 
     settings.theme = m_theme;
     settings.insertPlacement = m_insertPlacement;
-    settings.search = m_searchOptions;
+    settings.search = m_search->options();
     settings.durationAdjustment = m_durationSettings;
     settings.writeEncoding = m_page->writeEncoding;
 
