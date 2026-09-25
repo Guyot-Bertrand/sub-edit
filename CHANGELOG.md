@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Clore la phase 11 dans la feuille de route
+
+## 0.11.32 — 2026-09-25
+
 ### Remaniements
 
 - **gui** — Sortir les opérations de Tools de la fenêtre

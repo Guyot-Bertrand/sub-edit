@@ -931,6 +931,25 @@ spec. Ceux que la phase émet ont chacun leur destinataire : la ligne de command
 phase 13, la détection d'une traduction décalée en phase 14. **La relecture a ouvert quatre issues, #460
 à #463**, qui tiennent la phase ouverte jusqu'à la clôture en 0.12.0.
 
+**Close en 0.12.0, le 2026-09-26.** Après la relecture, deux vagues de plus, toutes deux fermées avant la
+clôture :
+
+- **les retours d'un usage sur un vrai bureau** — [#468](https://github.com/Guyot-Bertrand/sub-edit/issues/468)
+  à [#474](https://github.com/Guyot-Bertrand/sub-edit/issues/474) et
+  [#477](https://github.com/Guyot-Bertrand/sub-edit/issues/477) : un second film qui ne se chargeait pas,
+  une image à zéro pixel, des erreurs X11 en quittant, la position de lecture par onglet, la croix et le
+  « + » des onglets, la barre d'outils, le projet vierge remplacé à l'ouverture ;
+- **l'allègement de `MainWindow`**, demandé à la fusion de #460 et analysé avant la clôture :
+  [#483](https://github.com/Guyot-Bertrand/sub-edit/issues/483) à
+  [#486](https://github.com/Guyot-Bertrand/sub-edit/issues/486) sortent les actions et les menus
+  (`WindowActions`), la vidéo (`VideoPane`), la barre d'état (`StatusLine`) et les opérations de `Tools`
+  (`ProjectOperations`, [ADR 0035](adr/0035-les-operations-sortent-de-la-fenetre.md)). `main_window.cpp`
+  passe de 2 531 à 1 506 lignes, sans qu'un test de la fenêtre soit réécrit.
+
+**Le banc de la phase** reste maigre : **cinq relevés pour trente-deux versions** — 0.11.1, 0.11.7,
+0.11.21, 0.11.25 et 0.11.30 —, la machine ayant trouvé le seuil de charge dépassé toutes les autres fois.
+Le relevé de 0.12.0 est dû à la clôture — issue [#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270).
+
 ## 12 — Moteur de correction complet
 
 Motifs déclaratifs par script, langue et pays — erreurs courantes classées
