@@ -1,25 +1,12 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_correction.hpp>
-#include <subedit/core/config/duration_adjustment_settings.hpp>
-#include <subedit/core/edit/append.hpp>
 #include <subedit/core/edit/clipboard.hpp>
-#include <subedit/core/edit/convert_frame_rate_command.hpp>
-#include <subedit/core/edit/dialogue_dashes_command.hpp>
-#include <subedit/core/edit/duration_adjustment.hpp>
-#include <subedit/core/edit/hearing_impaired_removal.hpp>
 #include <subedit/core/edit/insert_command.hpp>
-#include <subedit/core/edit/italics_command.hpp>
-#include <subedit/core/edit/letter_case_command.hpp>
 #include <subedit/core/edit/merge_split_command.hpp>
 #include <subedit/core/edit/remove_command.hpp>
 #include <subedit/core/edit/rewrite_texts.hpp>
 #include <subedit/core/edit/search.hpp>
 #include <subedit/core/edit/session.hpp>
-#include <subedit/core/edit/shift_command.hpp>
-#include <subedit/core/edit/shift_limits.hpp>
-#include <subedit/core/edit/snap_command.hpp>
-#include <subedit/core/edit/split_project.hpp>
-#include <subedit/core/edit/transform_command.hpp>
 #include <subedit/core/edit/translation.hpp>
 #include <subedit/core/format/degradation.hpp>
 #include <subedit/core/format/diagnostic.hpp>
@@ -34,6 +21,7 @@
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/text/letter_case.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
@@ -42,29 +30,22 @@
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/command_label.hpp>
 #include <subedit/gui/diagnostics_panel.hpp>
-#include <subedit/gui/duration_adjust_dialog.hpp>
-#include <subedit/gui/frame_rate_dialog.hpp>
-#include <subedit/gui/grid_analysis_dialog.hpp>
-#include <subedit/gui/hearing_impaired_dialog.hpp>
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/project_files.hpp>
+#include <subedit/gui/project_operations.hpp>
 #include <subedit/gui/project_page.hpp>
 #include <subedit/gui/project_search.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/search_dialog.hpp>
-#include <subedit/gui/shift_dialog.hpp>
-#include <subedit/gui/snap_dialog.hpp>
-#include <subedit/gui/split_project_dialog.hpp>
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 #include <subedit/gui/table_columns.hpp>
 #include <subedit/gui/target.hpp>
 #include <subedit/gui/theme.hpp>
-#include <subedit/gui/transform_dialog.hpp>
 #include <subedit/gui/video_pane.hpp>
 #include <subedit/gui/window_actions.hpp>
 
@@ -174,16 +155,6 @@ constexpr int kInitialHeight = 800;
 /// the next gesture — Qt's own convention for a transient status.
 constexpr int kOperationStatusTimeoutMs = 5000;
 
-/// Two sentences for one box, one to a line, and whichever is empty left out.
-///
-/// What was done comes first and what it left past the end of the film after
-/// it: the second is a warning about the first, and is read as one.
-[[nodiscard]] std::string joinedNotices(const std::string& done, const std::string& warning) {
-    if (done.empty())
-        return warning;
-    return warning.empty() ? done : done + "\n" + warning;
-}
-
 /// Which row of a selection an insertion is placed against: the last, in table
 /// order.
 ///
@@ -255,7 +226,7 @@ public:
     void apply(ProjectPage& page,
                std::unique_ptr<core::Command> command,
                const core::Selection& target) override {
-        m_window->applyOperation(page, std::move(command), target);
+        m_window->m_operations->apply(page, std::move(command), target);
     }
 
 private:
@@ -303,6 +274,56 @@ public:
     }
 
     [[nodiscard]] QWidget* dialogParent() override { return m_window; }
+
+private:
+    MainWindow* m_window;
+};
+
+/// What the operations ask of the window — ADR 0035.
+class MainWindow::OperationsSide final : public ProjectOperations::View {
+
+public:
+    explicit OperationsSide(MainWindow& window) : m_window(&window) {}
+
+    [[nodiscard]] QWidget* dialogParent() override { return m_window; }
+
+    [[nodiscard]] core::Document targetDocument() const override {
+        return m_window->targetDocument();
+    }
+
+    [[nodiscard]] std::optional<core::Duration>
+    videoLength(const ProjectPage& page) const override {
+        return m_window->m_video->length(page);
+    }
+
+    void announce(const std::string& message) override {
+        m_window->statusBar()->showMessage(QString::fromStdString(message),
+                                           kOperationStatusTimeoutMs);
+    }
+
+    [[nodiscard]] std::optional<std::filesystem::path> fileToAppend() override {
+        return m_window->m_projectFiles->askFileToOpen();
+    }
+
+    [[nodiscard]] std::expected<core::OpenedFile, std::string>
+    read(const std::filesystem::path& path) override {
+        return m_window->m_projectFiles->read(path);
+    }
+
+    void showDiagnostics(std::span<const core::Diagnostic> diagnostics) override {
+        m_window->m_diagnostics->setDiagnostics(diagnostics);
+    }
+
+    void selectRows(int first, int last) override { m_window->selectRows(first, last); }
+
+    void openAside(core::Project project) override {
+        m_window->openOn(std::move(project), {});
+        // Born holding subtitles no file has: closing it must ask, as it does
+        // for any document that differs from what is on disk.
+        m_window->m_page->session->markUnsaved(core::Document::Main);
+        m_window->m_page->session->markUnsaved(core::Document::Translation);
+        m_window->refreshActions();
+    }
 
 private:
     MainWindow* m_window;
@@ -494,27 +515,48 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(act.findAndReplace, &QAction::triggered, this, &MainWindow::openSearch);
     connect(act.preferences, &QAction::triggered, this, &MainWindow::openPreferences);
 
-    connect(act.shift, &QAction::triggered, this, &MainWindow::shiftTarget);
-    connect(act.transform, &QAction::triggered, this, &MainWindow::transformTarget);
-    connect(act.frameRate, &QAction::triggered, this, &MainWindow::convertFrameRateOfTarget);
-    connect(act.adjustDurations, &QAction::triggered, this, &MainWindow::adjustDurationsOfTarget);
-    connect(act.appendFile, &QAction::triggered, this, &MainWindow::appendFileFromPrompt);
-    connect(act.splitProject, &QAction::triggered, this, &MainWindow::splitProjectFromPrompt);
+    // The operations of `Tools` are the collaborator's — ADR 0035. The three
+    // without a dialog commit an open cell first: see `commitCellEditor`.
+    const auto operate = [this](void (ProjectOperations::*operation)(ProjectPage&)) {
+        return [this, operation] { (m_operations.get()->*operation)(*m_page); };
+    };
+    const auto operateCommitted = [this](void (ProjectOperations::*operation)(ProjectPage&)) {
+        return [this, operation] {
+            commitCellEditor();
+            (m_operations.get()->*operation)(*m_page);
+        };
+    };
+    connect(act.shift, &QAction::triggered, this, operate(&ProjectOperations::shift));
+    connect(act.transform, &QAction::triggered, this, operate(&ProjectOperations::transform));
+    connect(
+        act.frameRate, &QAction::triggered, this, operate(&ProjectOperations::convertFrameRate));
+    connect(act.adjustDurations,
+            &QAction::triggered,
+            this,
+            operate(&ProjectOperations::adjustDurations));
+    connect(act.appendFile, &QAction::triggered, this, operate(&ProjectOperations::appendFile));
+    connect(act.splitProject, &QAction::triggered, this, operate(&ProjectOperations::splitProject));
     connect(act.hearingImpaired,
             &QAction::triggered,
             this,
-            &MainWindow::removeHearingImpairedFromTarget);
-    connect(act.italic, &QAction::triggered, this, &MainWindow::toggleItalicsOnTarget);
+            operate(&ProjectOperations::removeHearingImpaired));
     connect(
-        act.dialogueDashes, &QAction::triggered, this, &MainWindow::toggleDialogueDashesOnTarget);
+        act.italic, &QAction::triggered, this, operateCommitted(&ProjectOperations::toggleItalics));
+    connect(act.dialogueDashes,
+            &QAction::triggered,
+            this,
+            operateCommitted(&ProjectOperations::toggleDialogueDashes));
     for (const core::LetterCase wanted : core::kLetterCases) {
         connect(act.caseAction(wanted), &QAction::triggered, this, [this, wanted] {
-            changeCaseOfTarget(wanted);
+            commitCellEditor();
+            m_operations->changeCase(*m_page, wanted);
         });
     }
-    connect(act.snap, &QAction::triggered, this, &MainWindow::snapToFrameRate);
-    connect(act.shiftOntoGrid, &QAction::triggered, this, &MainWindow::shiftOntoGrid);
-    connect(act.analyseGrid, &QAction::triggered, this, &MainWindow::analyseGrid);
+    connect(act.snap, &QAction::triggered, this, operate(&ProjectOperations::snap));
+    connect(
+        act.shiftOntoGrid, &QAction::triggered, this, operate(&ProjectOperations::shiftOntoGrid));
+    connect(
+        act.analyseGrid, &QAction::triggered, this, [this] { m_operations->analyseGrid(*m_page); });
 
     connect(act.selectVideo, &QAction::triggered, this, &MainWindow::selectVideo);
     connect(act.playPause, &QAction::triggered, this, [this] { m_video->toggle(*m_page); });
@@ -530,6 +572,8 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_search = std::make_unique<ProjectSearch>(*m_searchSide, this);
     m_filesSide = std::make_unique<FilesSide>(*this);
     m_projectFiles = std::make_unique<ProjectFiles>(*m_files, *m_prompts, *m_filesSide);
+    m_operationsSide = std::make_unique<OperationsSide>(*this);
+    m_operations = std::make_unique<ProjectOperations>(*m_prompts, *m_operationsSide);
     for (QAction* entry : m_columns->entries()) {
         connect(entry, &QAction::toggled, this, [this] {
             refreshColumns();
@@ -687,63 +731,6 @@ void MainWindow::proposeVideoBeside() {
     refreshVideo();
 }
 
-void MainWindow::snapToFrameRate() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
-    const std::optional<core::AssociatedVideo>& associated = m_page->session->project().video();
-
-    SnapDialog dialog{target.count(),
-                      m_page->session->project().frameRate(),
-                      associated.has_value() ? associated->declared : std::nullopt,
-                      this};
-    if (!m_prompts->run(dialog))
-        return;
-
-    const std::string pastTheEnd = applyOperationQuietly(
-        *m_page,
-        std::make_unique<core::SnapCommand>(m_page->session->project(), target, dialog.rate()),
-        target);
-
-    // **What the table showed and the two grid surfaces did not** — issue #324.
-    // An operation takes the selection; the grid speaks of the document. Align
-    // five rows out of a hundred and seventy-six and the timestamps move under
-    // the user's eyes while the status bar and the analysis stay put, which
-    // reads as a refresh that failed. It is not one: they have nothing to say.
-    //
-    // Said here rather than in `applyOperation`, which knows a command and a
-    // target and not the rate that was asked for — and this is the only
-    // operation that asks for one.
-    //
-    // The same box as what the alignment left past the end of the film, when it
-    // left anything — issue #418.
-    const std::optional<core::PartialAlignment> partial =
-        core::partialAlignment(m_page->session->project(), target, dialog.rate());
-    const std::string behind = partial.has_value() ? core::noticeOf(*partial) : std::string{};
-    if (const std::string notice = joinedNotices(behind, pastTheEnd); !notice.empty())
-        m_prompts->reportOutcome(notice);
-}
-
-void MainWindow::shiftOntoGrid() {
-    const std::optional<core::Duration> by =
-        core::shiftOntoGrid(core::deduceFrameRate(m_page->session->project()));
-    if (!by.has_value())
-        return;
-
-    const core::Selection whole = core::Selection::all(m_page->session->project());
-
-    // The rule the core has held since #132, shared with the command line: a
-    // position before the origin is representable, and no subtitle file can
-    // hold one.
-    if (const std::optional<core::SubtitleIndex> refused =
-            core::firstBeforeOrigin(m_page->session->project(), whole, *by);
-        refused.has_value()) {
-        m_prompts->reportFailure("subtitle " + std::to_string(refused->number()) +
-                                 " would start before the origin, which no subtitle file can hold");
-        return;
-    }
-
-    applyOperation(*m_page, std::make_unique<core::ShiftCommand>(whole, *by), whole);
-}
-
 void MainWindow::about() {
     AboutDialog dialog{this};
     (void)m_prompts->run(dialog);
@@ -780,11 +767,6 @@ QStringList MainWindow::menuTitles() const {
     return titles;
 }
 
-void MainWindow::analyseGrid() {
-    GridAnalysisDialog dialog{core::deduceFrameRate(m_page->session->project()), this};
-    (void)m_prompts->run(dialog);
-}
-
 void MainWindow::refreshVideo() {
     // **In this order, and the other way round was issue #323.** It is
     // `VideoPane::watch` that reads the rate the film declares — one call to
@@ -816,7 +798,7 @@ void MainWindow::openTranslationFromPrompt() {
     const core::TranslationOutcome outcome = attached.outcome;
     const core::Selection whole = core::Selection::all(m_page->session->project());
     const std::string pastTheEnd =
-        applyOperationQuietly(*m_page, std::move(attached.command), whole);
+        m_operations->applyQuietly(*m_page, std::move(attached.command), whole);
 
     // **What has just been read is what its file says**: nothing was typed, and
     // closing must not offer to save a translation back to the file it came from.
@@ -1202,274 +1184,14 @@ void MainWindow::refreshStructureActions() {
     m_actions->splitSubtitle->setEnabled(oneRun && rows.count() == 1);
 }
 
-void MainWindow::adjustDurationsOfTarget() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
-
-    DurationAdjustDialog dialog{target.count(), m_durationSettings, this};
-    if (!m_prompts->run(dialog))
-        return;
-
-    // Kept even if nothing moves: it is what was asked, and the next dialog
-    // offers it again.
-    m_durationSettings = dialog.settings();
-
-    core::DurationAdjustment adjustment = core::adjustDurations(
-        m_page->session->project(), target, core::constraintsOf(m_durationSettings));
-    const std::string account =
-        core::noticeOfAdjustment(adjustment.adjusted, adjustment.sacrificed);
-
-    // One box for both: lengthening an end is exactly what can carry it past
-    // the film, and two modal boxes in a row was one too many — issue #418.
-    std::string pastTheEnd;
-    if (adjustment.command != nullptr)
-        pastTheEnd = applyOperationQuietly(*m_page, std::move(adjustment.command), target);
-
-    m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
-}
-
-void MainWindow::appendFileFromPrompt() {
-    const std::optional<std::filesystem::path> chosen = m_projectFiles->askFileToOpen();
-    if (!chosen.has_value())
-        return;
-
-    std::expected<core::OpenedFile, std::string> opened = m_projectFiles->read(*chosen);
-    if (!opened) {
-        m_prompts->reportFailure(opened.error());
-        return;
-    }
-
-    // What the reading ran into, whether or not there was anything to append —
-    // the panel of what the last reading met, as an ordinary opening shows it.
-    if (!opened->diagnostics.empty())
-        m_diagnostics->setDiagnostics(opened->diagnostics);
-
-    core::AppendedFile appended = core::appendFile(m_page->session->project(), opened->project);
-    if (appended.command == nullptr)
-        return;
-
-    // Read before the command goes: the project it names is about to grow.
-    const core::SubtitleFormat from = opened->project.sourceFile().format;
-    const core::SubtitleFormat to = m_page->session->project().sourceFile().format;
-    const std::size_t first = m_page->session->project().count();
-    const core::Selection target =
-        core::Selection::range(core::SubtitleIndex::fromValue(first),
-                               core::SubtitleIndex::fromValue(first + appended.inserted - 1));
-
-    const std::string pastTheEnd =
-        applyOperationQuietly(*m_page, std::move(appended.command), target);
-
-    // The rows the append just wrote: what a second append starts past, and
-    // what selecting them shows was added.
-    selectRows(static_cast<int>(first), static_cast<int>(first + appended.inserted - 1));
-
-    // **In the status bar when there was nothing else to say, in a box to
-    // close otherwise** — the rule #398 set for a gesture that has something
-    // to say.
-    const std::string account = core::noticeOfAppend(appended.inserted, appended.loss, from, to);
-    if (!appended.loss.isAny() && pastTheEnd.empty()) {
-        statusBar()->showMessage(QString::fromStdString(account), kOperationStatusTimeoutMs);
-        return;
-    }
-    m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
-}
-
-void MainWindow::splitProjectFromPrompt() {
-    const core::Project& project = m_page->session->project();
-
-    // Opens on the current row, the natural place to cut: « from here ».
-    const int current = m_table->currentIndex().row();
-    SplitProjectDialog dialog{
-        project.count(), static_cast<std::size_t>(std::max(current, 0)) + 1, this};
-
-    // **Where the cut falls, shown before it is made**, as Gaupol does: each
-    // number the box takes selects its row. Cancelling gives the selection
-    // back — issue #462.
-    QItemSelectionModel& selection = *m_table->selectionModel();
-    const QItemSelection before = selection.selection();
-    const QModelIndex wasCurrent = selection.currentIndex();
-    connect(
-        &dialog, &SplitProjectDialog::rowChosen, this, [this](int row) { selectRows(row, row); });
-    if (!m_prompts->run(dialog)) {
-        selection.setCurrentIndex(wasCurrent, QItemSelectionModel::NoUpdate);
-        selection.select(before, QItemSelectionModel::ClearAndSelect);
-        return;
-    }
-
-    const core::SubtitleIndex from = core::SubtitleIndex::fromValue(dialog.firstOfTail());
-    std::expected<core::SplitProject, core::SplitRefusal> split = core::splitProject(project, from);
-    if (!split) {
-        m_prompts->reportFailure("Cannot split at subtitle " + std::to_string(from.value() + 1) +
-                                 ": subtitle " + std::to_string(split.error().before.value() + 1) +
-                                 " would fall before the start of the video. Cut somewhere else.");
-        return;
-    }
-
-    // The origin loses the tail in one entry of its own history; the new
-    // project begins another, and the two know nothing of each other.
-    const core::Selection tail =
-        core::Selection::range(from, core::SubtitleIndex::fromValue(project.count() - 1));
-    (void)applyOperationQuietly(*m_page, std::move(split->command), tail);
-
-    const std::size_t moved = split->tail.count();
-    openOn(std::move(split->tail), {});
-
-    // Born holding subtitles no file has: closing it must ask, as it does for
-    // any document that differs from what is on disk.
-    m_page->session->markUnsaved(core::Document::Main);
-    m_page->session->markUnsaved(core::Document::Translation);
-    refreshActions();
-
-    statusBar()->showMessage(QString::fromStdString(core::noticeOfSplit(moved)),
-                             kOperationStatusTimeoutMs);
-}
-
-void MainWindow::removeHearingImpairedFromTarget() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
-
-    HearingImpairedDialog dialog{target.count(), this};
-    if (!m_prompts->run(dialog))
-        return;
-
-    // Built before being applied, and asked what it will do: the count is read
-    // from the command, never by counting again afterwards.
-    std::unique_ptr<core::Command> command =
-        core::removeHearingImpaired(m_page->session->project(), target, targetDocument());
-    if (!command) {
-        // Nothing bit. Say so, and put nothing in the history: an operation
-        // that changes nothing is not an operation to undo.
-        m_prompts->reportOutcome("no mention to remove");
-        return;
-    }
-
-    const core::HearingImpairedTally tally = core::tallyOf(*command);
-    applyOperation(*m_page, std::move(command), target);
-
-    m_prompts->reportOutcome(core::countOf(tally.cleaned, "subtitle") + " cleaned, " +
-                             std::to_string(tally.removed) + " removed");
-}
-
 void MainWindow::commitCellEditor() {
     // Why, and for which gestures: see the declaration — issue #397.
     if (m_table->isEditing())
         m_table->setFocus();
 }
 
-void MainWindow::toggleItalicsOnTarget() {
-    commitCellEditor();
-
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
-
-    // Asked before anything is built, and of the target rather than of the
-    // document: the button says what it will do to what is selected.
-    const core::Document document = targetDocument();
-    const bool italic = core::wouldItalicise(m_page->session->project(), target, document);
-
-    std::unique_ptr<core::Command> command =
-        core::setItalics(m_page->session->project(), target, document, italic);
-    if (!command) {
-        // Every text was already the way it was asked for. Say so, and put
-        // nothing in the history: an operation that changes nothing is not an
-        // operation to undo.
-        statusBar()->showMessage(QString::fromStdString(core::nothingToChange()),
-                                 kOperationStatusTimeoutMs);
-        return;
-    }
-
-    // Read from the command before it goes, never by counting again after.
-    const std::size_t rewritten = core::rewrittenCount(*command);
-    applyOperation(*m_page, std::move(command), target);
-    statusBar()->showMessage(QString::fromStdString(core::noticeOfItalics(rewritten, italic)),
-                             kOperationStatusTimeoutMs);
-}
-
 QAction* MainWindow::caseAction(core::LetterCase wanted) const {
     return m_actions->caseAction(wanted);
-}
-
-void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {
-    commitCellEditor();
-
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
-
-    std::unique_ptr<core::Command> command =
-        core::setLetterCase(m_page->session->project(), target, targetDocument(), wanted);
-    if (!command) {
-        statusBar()->showMessage(QString::fromStdString(core::nothingToChange()),
-                                 kOperationStatusTimeoutMs);
-        return;
-    }
-
-    const std::size_t rewritten = core::rewrittenCount(*command);
-    applyOperation(*m_page, std::move(command), target);
-    statusBar()->showMessage(QString::fromStdString(core::noticeOfRecase(rewritten)),
-                             kOperationStatusTimeoutMs);
-}
-
-void MainWindow::toggleDialogueDashesOnTarget() {
-    commitCellEditor();
-
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
-
-    // Asked of the target before anything is built: the entry says what it will
-    // do to what is selected.
-    const core::Document document = targetDocument();
-    const bool dashed = core::wouldAddDialogueDashes(m_page->session->project(), target, document);
-
-    std::unique_ptr<core::Command> command =
-        core::setDialogueDashes(m_page->session->project(), target, document, dashed);
-    if (!command) {
-        statusBar()->showMessage(QString::fromStdString(core::nothingToChange()),
-                                 kOperationStatusTimeoutMs);
-        return;
-    }
-
-    const std::size_t rewritten = core::rewrittenCount(*command);
-    applyOperation(*m_page, std::move(command), target);
-    statusBar()->showMessage(
-        QString::fromStdString(core::noticeOfDialogueDashes(rewritten, dashed)),
-        kOperationStatusTimeoutMs);
-}
-
-void MainWindow::applyOperation(ProjectPage& page,
-                                std::unique_ptr<core::Command> command,
-                                const core::Selection& target) {
-    // A notice and not a failure: nothing was prevented, and the sentence is
-    // written to be read after the fact.
-    if (const std::string notice = applyOperationQuietly(page, std::move(command), target);
-        !notice.empty())
-        m_prompts->reportOutcome(notice);
-}
-
-std::string MainWindow::applyOperationQuietly(ProjectPage& page,
-                                              std::unique_ptr<core::Command> command,
-                                              const core::Selection& target) {
-    // Read before the command goes: what it is, is what the notice names.
-    const core::CommandKind kind = command->kind();
-
-    page.model->applied(page.session->apply(std::move(command)));
-
-    // The row playback was placed at holds something else now — a shift moved
-    // it, a removal may have taken it away. Forgetting it is what lets a click
-    // on that same row send playback where the subtitle has gone.
-    page.placedAt = -1;
-
-    return whatPassesTheEnd(page, kind, target);
-}
-
-std::string MainWindow::whatPassesTheEnd(const ProjectPage& page,
-                                         core::CommandKind kind,
-                                         const core::Selection& target) const {
-    // **Only the operations that move a position.** `beyondEnd` reads the state
-    // an operation produced; on its own it cannot tell whether that operation
-    // put anything there. A subtitle already past the end because the film is
-    // the wrong one is nobody's doing, least of all that of a removal of
-    // hearing-impaired mentions.
-    if (!core::movesPositions(kind))
-        return {};
-
-    const std::optional<core::BeyondEnd> beyond =
-        core::beyondEnd(page.session->project(), target, m_video->length(page));
-    return beyond.has_value() ? core::noticeOf(kind, *beyond) : std::string{};
 }
 
 void MainWindow::insertSubtitles() {
@@ -1505,7 +1227,7 @@ void MainWindow::insertSubtitles() {
     const core::Selection inserted =
         core::Selection::range(index, core::SubtitleIndex::fromValue(at + count - 1));
 
-    applyOperation(
+    m_operations->apply(
         *m_page,
         std::make_unique<core::InsertCommand>(core::InsertCommand::blank(project, index, count)),
         inserted);
@@ -1527,7 +1249,7 @@ void MainWindow::removeSubtitles() {
     // leaves, and it has no name any more once the removal is done.
     const int emptied = static_cast<int>(target.ranges().front().first.value());
 
-    applyOperation(*m_page, std::make_unique<core::RemoveCommand>(target), target);
+    m_operations->apply(*m_page, std::make_unique<core::RemoveCommand>(target), target);
 
     // The row that took that place, or the last one when the removal carried
     // off the end of the file. Without it, a second `Del` would find no
@@ -1563,7 +1285,7 @@ void MainWindow::cutTexts() {
         return;
 
     // A change of text and not of structure: the table keeps its selection.
-    applyOperation(*m_page, std::move(command), target);
+    m_operations->apply(*m_page, std::move(command), target);
 }
 
 void MainWindow::pasteTexts() {
@@ -1591,7 +1313,7 @@ void MainWindow::pasteTexts() {
     if (pasted.command == nullptr)
         return;
 
-    applyOperation(*m_page, std::move(pasted.command), target);
+    m_operations->apply(*m_page, std::move(pasted.command), target);
 
     // The rows written, which a paste past the end has just rebuilt the table
     // around: without them the selection would be gone, and a second paste
@@ -1628,7 +1350,7 @@ void MainWindow::mergeSubtitles() {
     if (command == nullptr)
         return;
 
-    applyOperation(*m_page, std::move(command), target);
+    m_operations->apply(*m_page, std::move(command), target);
 
     const int merged = static_cast<int>(run.first.value());
     selectRows(merged, merged);
@@ -1642,7 +1364,7 @@ void MainWindow::splitSubtitle() {
         return;
 
     const core::SubtitleIndex index = target.ranges().front().first;
-    applyOperation(*m_page, core::splitSubtitle(m_page->session->project(), index), target);
+    m_operations->apply(*m_page, core::splitSubtitle(m_page->session->project(), index), target);
 
     const int first = static_cast<int>(index.value());
     selectRows(first, first + 1);
@@ -1666,101 +1388,6 @@ void MainWindow::selectRows(int first, int last) {
     m_table->selectionModel()->select(
         QItemSelection{from, to}, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     m_table->scrollTo(from);
-}
-
-void MainWindow::shiftTarget() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
-
-    ShiftDialog dialog{target.count(), this};
-    if (!m_prompts->run(dialog))
-        return;
-
-    const std::optional<core::Duration> by = dialog.shift();
-    if (!by.has_value())
-        return;
-
-    // A position before the origin is representable, but no subtitle file can
-    // hold one. The rule has lived in the core since #132, shared with the
-    // command line.
-    if (const std::optional<core::SubtitleIndex> refused =
-            core::firstBeforeOrigin(m_page->session->project(), target, *by);
-        refused.has_value()) {
-        m_prompts->reportFailure("subtitle " + std::to_string(refused->number()) +
-                                 " would start before the origin, which no subtitle file can "
-                                 "hold");
-        return;
-    }
-
-    applyOperation(*m_page, std::make_unique<core::ShiftCommand>(target, *by), target);
-}
-
-void MainWindow::transformTarget() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
-
-    TransformDialog dialog{target.count(), m_page->session->project().count(), this};
-    if (!m_prompts->run(dialog))
-        return;
-
-    const std::optional<TypedReference> first = dialog.first();
-    const std::optional<TypedReference> second = dialog.second();
-    if (!first.has_value() || !second.has_value())
-        return;
-
-    // What the dialog read becomes the core's own value here: it holds
-    // widgets, not the vocabulary of a command.
-    const auto referenceOf = [](const TypedReference& typed) {
-        return core::TransformReference{
-            .index = core::SubtitleIndex::fromNumber(static_cast<std::size_t>(typed.number)),
-            .target = typed.target,
-        };
-    };
-
-    std::optional<core::TransformCommand> command = core::TransformCommand::create(
-        m_page->session->project(), target, referenceOf(*first), referenceOf(*second));
-    if (!command.has_value()) {
-        m_prompts->reportFailure("the two references define no correction");
-        return;
-    }
-
-    applyOperation(*m_page, std::make_unique<core::TransformCommand>(std::move(*command)), target);
-}
-
-void MainWindow::convertFrameRateOfTarget() {
-    const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
-
-    // Pre-filled with the project's own, never guessed: the file does not
-    // carry it, and getting it wrong shifts everything without a word. What the
-    // film declares is handed over beside it, and the dialog decides what to do
-    // with it — proposed, never imposed (D6).
-    const std::optional<core::AssociatedVideo>& associated = m_page->session->project().video();
-    // **Only a clean grid pre-fills the field.** A partial one is evidence the
-    // deduction itself calls partial, and this field decides an operation on
-    // the whole file; the status bar and the analysis carry that case instead.
-    //
-    // **And a document counted in frames leaves it out entirely.** Its
-    // positions come from its frames at the rate it was read at, so the
-    // deduction can only find that rate again; what is offered instead is the
-    // rate itself, said for what it is.
-    const std::optional<core::FrameRate> read = rateReadInFrames(m_page->session->project());
-    const core::FrameRateDeduction grid = core::deduceFrameRate(m_page->session->project());
-    const std::optional<core::FrameRate> measured =
-        !read.has_value() && grid.verdict == core::GridVerdict::Clean
-            ? std::optional{grid.retained.rate}
-            : std::nullopt;
-
-    FrameRateDialog dialog{target.count(),
-                           m_page->session->project().frameRate(),
-                           associated.has_value() ? associated->declared : std::nullopt,
-                           measured,
-                           read,
-                           this};
-    if (!m_prompts->run(dialog))
-        return;
-
-    applyOperation(*m_page,
-                   std::make_unique<core::ConvertFrameRateCommand>(
-                       m_page->session->project(), target, dialog.input(), dialog.output()),
-                   target);
 }
 
 MainWindow::~MainWindow() = default;
@@ -1808,7 +1435,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
     applyTheme(m_theme);
 
     m_insertPlacement = settings.insertPlacement;
-    m_durationSettings = settings.durationAdjustment;
+    m_operations->setDurationSettings(settings.durationAdjustment);
     m_search->setOptions(settings.search);
     m_page->writeEncoding = settings.writeEncoding;
 }
@@ -1842,7 +1469,7 @@ core::Settings MainWindow::settings() const {
     settings.theme = m_theme;
     settings.insertPlacement = m_insertPlacement;
     settings.search = m_search->options();
-    settings.durationAdjustment = m_durationSettings;
+    settings.durationAdjustment = m_operations->durationSettings();
     settings.writeEncoding = m_page->writeEncoding;
 
     return settings;

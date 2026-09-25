@@ -47,6 +47,7 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0032](0032-un-document-un-fichier.md) | Retenir un fichier par document | acceptée |
 | [0033](0033-un-projet-est-une-page.md) | Faire d'un projet une page de la fenêtre | acceptée |
 | [0034](0034-trois-collaborateurs-de-la-fenetre.md) | Trois collaborateurs de la fenêtre, qui reçoivent la page qu'ils visent | acceptée |
+| [0035](0035-les-operations-sortent-de-la-fenetre.md) | Les opérations de `Tools` sortent de la fenêtre | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en

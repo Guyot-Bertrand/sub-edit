@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Remaniements
 
+- **gui** — Sortir les opérations de Tools de la fenêtre
+
+## 0.11.31 — 2026-09-25
+
+### Remaniements
+
 - **gui** — Sortir la barre d'état de la fenêtre
 
 ## 0.11.30 — 2026-09-25
