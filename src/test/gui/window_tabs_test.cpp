@@ -19,6 +19,7 @@
 #include <QAbstractItemModel>
 #include <QAction>
 #include <QCheckBox>
+#include <QCoreApplication>
 #include <QDialog>
 #include <QItemSelectionModel>
 #include <QKeySequence>
@@ -27,6 +28,7 @@
 #include <QStatusBar>
 #include <QString>
 #include <QTabBar>
+#include <QToolButton>
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstdint>
@@ -292,6 +294,97 @@ TEST_CASE("closing a tab with unsaved changes asks, and cancelling keeps it",
     CHECK(prompts.unsavedAsked == 1);
     CHECK(window.tabBar()->count() == 2);
     CHECK(textAt(window, 0) == "Trois bis.");
+}
+
+// Issue #472: a cross on each tab, under the rule of `Close` — none while one
+// project is left, since closing the last would be closing the window.
+TEST_CASE("the tabs carry a cross from two projects, and only then", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    CHECK_FALSE(window.tabBar()->tabsClosable());
+
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    CHECK(window.tabBar()->tabsClosable());
+
+    window.closeProjectAction()->trigger();
+    CHECK_FALSE(window.tabBar()->tabsClosable());
+}
+
+TEST_CASE("the cross of a tab behind closes that project, and the one shown stays",
+          "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    REQUIRE(window.tabBar()->currentIndex() == 1);
+
+    emit window.tabBar()->tabCloseRequested(0);
+
+    REQUIRE(window.tabBar()->count() == 1);
+    CHECK(window.tabBar()->currentIndex() == 0);
+    CHECK(window.tabBar()->tabText(0).toStdString() == "second.srt");
+    CHECK(textAt(window, 0) == "Trois.");
+}
+
+TEST_CASE("the cross of the tab shown closes it, and shows its neighbour", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+
+    emit window.tabBar()->tabCloseRequested(1);
+
+    REQUIRE(window.tabBar()->count() == 1);
+    CHECK(textAt(window, 0) == "Un.");
+}
+
+TEST_CASE("the cross of a modified tab asks first, and cancelling keeps it", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    REQUIRE(edit(window, 0, "Un bis."));
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    prompts.nextUnsavedChoice = UnsavedChoice::Cancel;
+
+    emit window.tabBar()->tabCloseRequested(0);
+
+    CHECK(prompts.unsavedAsked == 1);
+    CHECK(window.tabBar()->count() == 2);
+}
+
+// Issue #473: a new project is a gesture one has to find.
+TEST_CASE("the button after the tabs opens a new project in a tab of its own",
+          "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    REQUIRE(window.newTabButton() != nullptr);
+    CHECK(window.newTabButton()->isVisible());
+
+    window.newTabButton()->click();
+
+    REQUIRE(window.tabBar()->count() == 2);
+    CHECK(window.tabBar()->currentIndex() == 1);
+    CHECK(window.tabBar()->tabText(1).toStdString() == "untitled");
+}
+
+TEST_CASE("the entry of the menu says it makes a project", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    const MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+
+    CHECK(window.newProjectAction()->text().remove(QLatin1Char('&')).toStdString() ==
+          "New Project");
 }
 
 TEST_CASE("Ctrl+PageDown and Ctrl+PageUp move between tabs, and wrap around",
@@ -613,4 +706,24 @@ TEST_CASE("discarding the one modified document closes the window without writin
 
     CHECK(prompts.unsavedAsked == 1);
     CHECK(files.contentOf("premier.srt").value_or("") == kFirst);
+}
+
+// What the user saw on a real desktop: with one tab, the bar asked for the room
+// of its scroll arrows as its minimum, and the « + » stood away from the tab.
+TEST_CASE("the button stands right against the last tab", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, subedit::core::OpenedFile{}, prompts};
+    window.show();
+    QCoreApplication::processEvents();
+
+    const auto gap = [&window] {
+        const QTabBar& bar = *window.tabBar();
+        return window.newTabButton()->x() - (bar.x() + bar.tabRect(bar.count() - 1).right() + 1);
+    };
+    CHECK(gap() == 0);
+
+    window.newTabButton()->click();
+    QCoreApplication::processEvents();
+    CHECK(gap() == 0);
 }

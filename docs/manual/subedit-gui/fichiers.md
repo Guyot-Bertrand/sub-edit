@@ -5,7 +5,7 @@ plus pour la traduction ; le menu **Projects** agit sur tous les onglets à la f
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
-| `New` | `Ctrl+N` | un projet vide, dans un nouvel onglet |
+| `New Project` | `Ctrl+N` | un projet vide, dans un nouvel onglet — aussi le bouton `+` après le dernier onglet |
 | `Open…` | `Ctrl+O` | choisit un fichier et l'ouvre dans un nouvel onglet |
 | `Open Translation…` | — | choisit un fichier de traduction et l'aligne sur le principal de l'onglet courant |
 | `Save` | `Ctrl+S` | réécrit le fichier ouvert |
@@ -24,9 +24,11 @@ traduction, et la barre est celle de tout le monde.
 son étiquette est le nom du fichier, ou `untitled` pour un projet qui n'en a
 pas encore. Cliquer un onglet y bascule ; `Ctrl+PageDown` et `Ctrl+PageUp` font
 de même, sans la souris, et reviennent au premier onglet après le dernier.
+**Le bouton `+`, juste après le dernier onglet**, ouvre un projet vide dans un
+onglet neuf, comme `New Project`.
 
 ![Deux onglets, l'un sur un fichier ouvert, l'autre sur un projet vide né de
-`New`, palette claire.](captures/onglets.png)
+`New Project`, palette claire.](captures/onglets.png)
 
 ![La même fenêtre sous la palette sombre.](captures/onglets-sombre.png)
 
@@ -58,6 +60,12 @@ dans un onglet et coller dans un autre est ce pour quoi on en ouvre deux.
 celle de cet onglet seul, les autres n'étant pas concernés. **Éteinte quand il
 n'y a qu'un onglet** : la fenêtre en garde toujours au moins un, et le fermer
 serait fermer la fenêtre — ce que fait déjà le bouton du système.
+
+**Chaque onglet porte aussi une croix**, qui ferme **son** projet, avec la même
+question. La croix d'un onglet qui n'est pas le courant ferme celui-là, et
+l'onglet qu'on regarde reste affiché ; si ce projet a des modifications, son
+onglet passe devant le temps de la question. **Pas de croix quand il ne reste
+qu'un onglet**, pour la même raison que `Close` est éteinte.
 
 **Un onglet dit qu'il est modifié** : une étoile suit son nom, `premier.srt*`,
 tant que l'un de ses documents diffère de son fichier — comme le titre de la

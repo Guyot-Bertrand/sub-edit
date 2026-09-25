@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Une croix sur chaque onglet, et un bouton + après eux
+
+## 0.11.24 — 2026-09-25
+
+### Ajouts
+
 - **video** — Reprendre le film d'un onglet où on l'a laissé
 
 ### Documentation
