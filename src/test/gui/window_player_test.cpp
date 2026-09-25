@@ -8,6 +8,7 @@
 // decides: when a film is opened, where playback is placed, what the replica
 // says, which row follows it, and who gives way to whom.
 
+#include <subedit/core/config/settings.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/document.hpp>
@@ -22,6 +23,7 @@
 #include <subedit/gui/subtitle_table_model.hpp>
 
 #include <QAction>
+#include <QCoreApplication>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QModelIndex>
@@ -610,4 +612,42 @@ TEST_CASE("a subtitle with no translation draws nothing from the translation col
     playbackReaches(window, *booth.player, 1500);
 
     CHECK(booth.player->onScreen().empty());
+}
+
+// Issue #469: the share of the table a session left behind is laid down with
+// no film shown. The picture that comes afterwards must get room of its own,
+// and not a slot of no height with the table drawn over it.
+TEST_CASE("a film opened under a saved table share gets room of its own", "[gui][GUI-PLAYER-01]") {
+    InMemoryFileSystem files = directoryHolding({"autre.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.applySettings(subedit::core::Settings{.tableShare = 35});
+    window.show();
+    QCoreApplication::processEvents();
+
+    prompts.nextVideoToOpen = "/films/autre.mkv";
+    window.selectVideoAction()->trigger();
+    QCoreApplication::processEvents();
+
+    REQUIRE(showsPicture(window));
+    CHECK(window.videoView()->height() >= 180);
+    // Above the table, and not under it.
+    CHECK(window.videoView()->geometry().bottom() < window.table()->geometry().top());
+}
+
+TEST_CASE("the room of the picture goes back to the band when the film goes",
+          "[gui][GUI-PLAYER-01]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    booth.refusal = PlayerError{.reason = "unrecognized file format"};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.applySettings(subedit::core::Settings{.tableShare = 35});
+    window.show();
+    QCoreApplication::processEvents();
+
+    // The film would not open: the band is back, above the table.
+    REQUIRE_FALSE(showsPicture(window));
+    CHECK(window.noVideoBanner()->geometry().bottom() < window.table()->geometry().top());
 }

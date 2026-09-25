@@ -77,7 +77,11 @@ rien du tout. C'est la même commande que celle du menu `Video`, à portée de
 souris : une absence sur laquelle on ne peut pas agir se distingue mal d'un
 défaut.
 
-Le bouton disparaît dès qu'un film est ouvert, et l'image prend sa place.
+Le bouton disparaît dès qu'un film est ouvert, et l'image prend **toute** sa
+place : la hauteur que la table laisse au-dessus d'elle — celle que
+[`window.table-share`](preferences.md) a retenue d'une session à l'autre —, et
+jamais moins que la hauteur minimale de l'image, que la table cède au besoin.
+Quand le film s'en va, le bouton reprend la même place.
 
 **Le nom du fichier, jamais son chemin.** Un chemin de deux cents caractères
 chasserait tout le reste de la barre ; le chemin complet est celui que le
