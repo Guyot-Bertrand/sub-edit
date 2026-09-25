@@ -227,3 +227,21 @@ TEST_CASE("a file that will not open is named, and the others open all the same"
     CHECK(prompts.failures.front() == "/films/notes.txt: is in no format this tool knows\n"
                                       "/films/absent.srt: does not exist");
 }
+
+// Issue #477: a drop is an opening like any other.
+TEST_CASE("a file dropped on a blank project takes its tab", "[gui][GUI-TABS-04]") {
+    InMemoryFileSystem files = filesystem();
+    FakePrompts prompts;
+    MainWindow window{files, subedit::core::OpenedFile{}, prompts};
+    window.show();
+
+    const std::unique_ptr<QMimeData> data =
+        urlsOf({QUrl::fromLocalFile(QStringLiteral("/films/second.srt"))});
+    QDragEnterEvent entered{QPoint{10, 10}, Qt::CopyAction, data.get(), Qt::LeftButton, {}};
+    QCoreApplication::sendEvent(&window, &entered);
+    QDropEvent drop{QPointF{10, 10}, Qt::CopyAction, data.get(), Qt::LeftButton, {}};
+    QCoreApplication::sendEvent(&window, &drop);
+
+    REQUIRE(window.tabBar()->count() == 1);
+    CHECK(tabText(window, 0) == "second.srt");
+}

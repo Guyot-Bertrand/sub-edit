@@ -11,6 +11,16 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Un fichier ouvert prend la place d'un projet vierge
+
+### Documentation
+
+- **gui** — Le projet vierge cède sa place
+
+## 0.11.26 — 2026-09-25
+
+### Ajouts
+
 - **gui** — Une barre d'outils des gestes fréquents
 
 ### Documentation

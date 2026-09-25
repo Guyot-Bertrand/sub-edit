@@ -63,6 +63,13 @@ comportement neuf. Elle prouve la séparation avant qu'un second projet ne l'ép
 
 ## Conséquences
 
+> **Complété le 2026-09-25, [#477](https://github.com/Guyot-Bertrand/sub-edit/issues/477).** Garder toujours un
+> projet ouvert a un effet que la décision n'avait pas vu : lancée sans fichier, la fenêtre montre un projet
+> vierge, et un fichier ouvert s'y ajoutait dans un second onglet, à côté d'un projet inutile. Gaupol ne
+> rencontre pas le cas, puisqu'il démarre sans aucun projet. **Un projet vierge cède désormais sa place** au
+> fichier ouvert sur lui, dans le même onglet (`isBlank` dans `project_page.hpp`). Rien n'y est demandé,
+> puisqu'un projet vierge n'a rien à perdre.
+
 **Facile** : un projet de plus est une page de plus ; l'annulation est déjà par session, donc par onglet.
 
 **Difficile** : c'est **la plus grosse réécriture de la phase** — `main_window.cpp` en est traversé —, et le

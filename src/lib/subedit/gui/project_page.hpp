@@ -143,4 +143,10 @@ struct ProjectPage {
     std::vector<core::Diagnostic> diagnostics;
 };
 
+/// Whether `page` holds nothing anybody could lose — issue #477: no file, no
+/// translation file, no subtitle, no history either way, no film, nothing
+/// marked modified. What a window starts on, or what `New Project` makes; a
+/// file opened then takes its place rather than a tab of its own.
+[[nodiscard]] bool isBlank(const ProjectPage& page);
+
 } // namespace subedit::gui

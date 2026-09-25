@@ -313,6 +313,21 @@ TEST_CASE("the tabs carry a cross from two projects, and only then", "[gui][GUI-
     CHECK_FALSE(window.tabBar()->tabsClosable());
 }
 
+TEST_CASE("the last tab is not closed, whoever asks", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+
+    // No cross is shown on a lone tab, but the request may still come — from
+    // an event already queued when the other tab went.
+    emit window.tabBar()->tabCloseRequested(0);
+
+    CHECK(window.tabBar()->count() == 1);
+    CHECK(window.isVisible());
+    CHECK(prompts.unsavedAsked == 0);
+}
+
 TEST_CASE("the cross of a tab behind closes that project, and the one shown stays",
           "[gui][GUI-TABS-01]") {
     InMemoryFileSystem files = withTwoFilms();
@@ -385,6 +400,97 @@ TEST_CASE("the entry of the menu says it makes a project", "[gui][GUI-TABS-01]")
 
     CHECK(window.newProjectAction()->text().remove(QLatin1Char('&')).toStdString() ==
           "New Project");
+}
+
+// Issue #477: a blank project gives way to the file opened on it.
+TEST_CASE("a file opened on a blank project takes its tab", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, OpenedFile{}, prompts};
+    window.show();
+    REQUIRE(window.tabBar()->tabText(0).toStdString() == "untitled");
+
+    prompts.nextFileToOpen = "premier.srt";
+    window.openAction()->trigger();
+
+    REQUIRE(window.tabBar()->count() == 1);
+    CHECK(window.tabBar()->tabText(0).toStdString() == "premier.srt");
+    CHECK(textAt(window, 0) == "Un.");
+}
+
+TEST_CASE("New Project then Open is one tab, not two", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    window.newProjectAction()->trigger();
+    REQUIRE(window.tabBar()->count() == 2);
+
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+
+    REQUIRE(window.tabBar()->count() == 2);
+    CHECK(window.tabBar()->currentIndex() == 1);
+    CHECK(window.tabBar()->tabText(1).toStdString() == "second.srt");
+}
+
+TEST_CASE("the file takes the place of the blank tab, not the end of the bar",
+          "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    files.addFile("troisieme.srt", kFirst);
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    window.newProjectAction()->trigger();
+    window.tabBar()->setCurrentIndex(0);
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    window.tabBar()->setCurrentIndex(1);
+    REQUIRE(window.tabBar()->tabText(1).toStdString() == "untitled");
+
+    prompts.nextFileToOpen = "troisieme.srt";
+    window.openAction()->trigger();
+
+    REQUIRE(window.tabBar()->count() == 3);
+    CHECK(window.tabBar()->currentIndex() == 1);
+    CHECK(window.tabBar()->tabText(0).toStdString() == "premier.srt");
+    CHECK(window.tabBar()->tabText(1).toStdString() == "troisieme.srt");
+    CHECK(window.tabBar()->tabText(2).toStdString() == "second.srt");
+    CHECK(textAt(window, 0) == "Un.");
+}
+
+TEST_CASE("a blank project that is not the one shown is left alone", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.show();
+    window.newProjectAction()->trigger();
+    window.tabBar()->setCurrentIndex(0);
+
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+
+    REQUIRE(window.tabBar()->count() == 3);
+    CHECK(window.tabBar()->tabText(1).toStdString() == "untitled");
+}
+
+TEST_CASE("a project with something in it keeps its tab", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    MainWindow window{files, OpenedFile{}, prompts};
+    window.show();
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        dynamic_cast<InsertDialog&>(dialog).countBox()->setValue(1);
+    };
+    window.insertAction()->trigger();
+    prompts.nextRun = false;
+    prompts.fill = nullptr;
+
+    prompts.nextFileToOpen = "premier.srt";
+    window.openAction()->trigger();
+
+    CHECK(window.tabBar()->count() == 2);
 }
 
 TEST_CASE("Ctrl+PageDown and Ctrl+PageUp move between tabs, and wrap around",
@@ -717,6 +823,12 @@ TEST_CASE("the button stands right against the last tab", "[gui][GUI-TABS-01]") 
     window.show();
     QCoreApplication::processEvents();
 
+    // Two turns of the event loop: `QTabBar` takes a cross away at the next
+    // one, and the window tells the row of tabs at the one after.
+    const auto settle = [] {
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+    };
     const auto gap = [&window] {
         const QTabBar& bar = *window.tabBar();
         return window.newTabButton()->x() - (bar.x() + bar.tabRect(bar.count() - 1).right() + 1);
@@ -725,5 +837,21 @@ TEST_CASE("the button stands right against the last tab", "[gui][GUI-TABS-01]") 
 
     window.newTabButton()->click();
     QCoreApplication::processEvents();
+    CHECK(gap() == 0);
+
+    // Back to one tab: the bar gives back the room the second one took.
+    window.closeProjectAction()->trigger();
+    settle();
+    CHECK(gap() == 0);
+
+    // And a blank project given way to a file (#477), which the user saw leave
+    // the gap behind on a real desktop.
+    window.newTabButton()->click();
+    window.closeProjectAction()->trigger();
+    REQUIRE(window.tabBar()->count() == 1);
+    prompts.nextFileToOpen = "premier.srt";
+    window.openAction()->trigger();
+    settle();
+    REQUIRE(window.tabBar()->count() == 1);
     CHECK(gap() == 0);
 }

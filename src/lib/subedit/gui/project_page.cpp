@@ -1,4 +1,6 @@
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/model/document.hpp>
+#include <subedit/core/model/project.hpp>
 #include <subedit/gui/project_page.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
@@ -25,6 +27,15 @@ std::unique_ptr<ProjectPage> ProjectPage::make(core::Project project,
     page->tableSelection = std::make_unique<QItemSelectionModel>(page->model.get());
     page->diagnostics.assign(diagnostics.begin(), diagnostics.end());
     return page;
+}
+
+bool isBlank(const ProjectPage& page) {
+    const core::Session& session = *page.session;
+    const core::Project& project = session.project();
+    return !project.sourceFile().path.has_value() && !project.translationFile().has_value() &&
+           project.count() == 0 && !session.canUndo() && !session.canRedo() &&
+           !project.video().has_value() && !session.hasUnsavedChanges(core::Document::Main) &&
+           !session.hasUnsavedChanges(core::Document::Translation);
 }
 
 } // namespace subedit::gui
