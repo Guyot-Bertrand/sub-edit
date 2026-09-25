@@ -28,8 +28,9 @@ l'arrêt sur son premier instant. Voir [Le lecteur](lecteur.md).
 [Glisser des fichiers sur la fenêtre](fichiers.md#glisser-des-fichiers-sur-la-fenêtre).
 
 **La vidéo est celle du projet de l'onglet courant.** Chaque onglet garde la
-sienne ; changer d'onglet change le film, et la position de lecture ne survit pas
-au changement.
+sienne ; changer d'onglet change le film. **Revenir sur un onglet reprend son
+film où on l'avait laissé**, en pause, comme toute ouverture. Un autre film
+choisi pour ce projet entre-temps repart, lui, du début.
 
 ## La proposition automatique
 

@@ -9,6 +9,7 @@
 
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
@@ -44,6 +45,7 @@ namespace {
 using subedit::core::InMemoryFileSystem;
 using subedit::core::OpenedFile;
 using subedit::core::openProject;
+using subedit::core::Timestamp;
 using subedit::core::VideoPlayer;
 using subedit::gui::InsertDialog;
 using subedit::gui::MainWindow;
@@ -327,6 +329,53 @@ TEST_CASE("copying in one tab and pasting in another carries the text across",
     window.pasteAction()->trigger();
 
     CHECK(textAt(window, 1) == "Un.");
+}
+
+// Issue #471: the player is shared, and each tab keeps where its own film was.
+TEST_CASE("coming back to a tab takes its film back where it was left", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts, projecting(booth)};
+    window.show();
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    window.tabBar()->setCurrentIndex(0);
+    REQUIRE(booth.player != nullptr);
+    REQUIRE(booth.player->opened.back() == "premier.mkv");
+    booth.player->where = Timestamp::fromMilliseconds(83000);
+
+    window.tabBar()->setCurrentIndex(1);
+    REQUIRE(booth.player->opened.back() == "second.mkv");
+    CHECK(booth.player->position() == Timestamp::origin());
+    booth.player->where = Timestamp::fromMilliseconds(5000);
+
+    window.tabBar()->setCurrentIndex(0);
+    CHECK(booth.player->opened.back() == "premier.mkv");
+    CHECK(booth.player->position() == Timestamp::fromMilliseconds(83000));
+    CHECK_FALSE(booth.player->isPlaying());
+
+    window.tabBar()->setCurrentIndex(1);
+    CHECK(booth.player->position() == Timestamp::fromMilliseconds(5000));
+}
+
+TEST_CASE("another film chosen for a tab starts from its beginning", "[gui][GUI-TABS-01]") {
+    InMemoryFileSystem files = withTwoFilms();
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+    booth.player->where = Timestamp::fromMilliseconds(83000);
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    window.tabBar()->setCurrentIndex(0);
+
+    prompts.nextVideoToOpen = "second.mkv";
+    window.selectVideoAction()->trigger();
+
+    CHECK(booth.player->opened.back() == "second.mkv");
+    CHECK(booth.player->position() == Timestamp::origin());
 }
 
 TEST_CASE("a tab says it is modified, and stops saying so once saved", "[gui][GUI-TABS-03]") {

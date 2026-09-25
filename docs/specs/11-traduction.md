@@ -135,6 +135,12 @@ le film se change — `syncVideo` sait déjà le faire quand l'association chang
 dont **la position de lecture ne survit pas au changement d'onglet**. Le manuel le
 dit ; c'est le prix d'un seul processus mpv.
 
+> **Revu par [#471](https://github.com/Guyot-Bertrand/sub-edit/issues/471), à la demande de l'utilisateur.**
+> Le prix s'est révélé trop lourd à l'usage : chaque retour sur un onglet faisait repartir son film au début.
+> Le lecteur reste unique, mais **chaque page retient la position de son film** au départ de son onglet
+> (`ProjectPage::resumeAt`) et le lecteur y retourne au retour, en pause. Un autre film choisi entre-temps
+> repart du début.
+
 **Le presse-papiers reste à la fenêtre** : copier dans un projet et coller dans
 l'autre est ce pour quoi on en ouvre deux.
 
