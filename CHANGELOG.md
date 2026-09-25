@@ -11,6 +11,13 @@ ne pas l'éditer à la main.
 
 ### Corrections
 
+- **video** — Ne plus prendre la fin d'un film pour le refus du suivant
+- **gui** — Donner à l'image la place que la table laisse
+
+## 0.11.21 — 2026-09-24
+
+### Corrections
+
 - **gui** — Split Project… dit ce qu'il a fait, et montre où il coupe
 
 ### Documentation
