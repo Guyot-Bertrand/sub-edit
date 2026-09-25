@@ -732,6 +732,10 @@ Relecture de fin de phase, [#441](https://github.com/Guyot-Bertrand/sub-edit/iss
 > **#484 livrée**, ADR 0034 complétée : `VideoPane` possède le lecteur, la surface, la bande, le
 > minuteur et la page pour laquelle il joue, et reçoit la page visée. `main_window.cpp` passe de 2 216 à
 > 1 923 lignes, et aucun test de la fenêtre n'est réécrit.
+>
+> **#485 livrée**, ADR 0034 complétée : `StatusLine` possède les quatre étiquettes permanentes de la barre
+> d'état et se rafraîchit depuis le projet affiché. `main_window.cpp` passe de 1 923 à 1 851 lignes, et
+> aucun test de la fenêtre n'est réécrit.
 
 **Écartés, avec leur raison.**
 

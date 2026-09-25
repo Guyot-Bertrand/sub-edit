@@ -58,6 +58,7 @@
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/snap_dialog.hpp>
 #include <subedit/gui/split_project_dialog.hpp>
+#include <subedit/gui/status_line.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 #include <subedit/gui/table_columns.hpp>
@@ -335,10 +336,6 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_table(new SubtitleTable{this}),
       m_diagnostics(new DiagnosticsPanel{this}),
       m_actions(std::make_unique<WindowActions>(this)),
-      m_videoStatus(new QLabel{this}),
-      m_gridStatus(new QLabel{this}),
-      m_encodingStatus(new QLabel{this}),
-      m_targetStatus(new QLabel{this}),
       m_split(new QSplitter{Qt::Vertical, this}),
       m_tabBar(new TabBar{this}),
       m_newTab(new QToolButton{this}),
@@ -544,19 +541,8 @@ MainWindow::MainWindow(core::FileSystem& files,
 
     resize(kInitialWidth, kInitialHeight);
 
-    // **Permanent widgets and not `showMessage`.** What film a document
-    // accompanies and what grid its positions were written on are standing
-    // facts, not passing remarks, and a message can be pushed aside by the next
-    // one.
-    // The text an operation aims at first: it is the one that changes with a
-    // key press, and it is absent for most users. Then the encoding, being the
-    // only one of the other three that describes the file rather than what is
-    // deduced from it or associated with it.
-    statusBar()->addPermanentWidget(m_targetStatus);
-    m_targetStatus->hide();
-    statusBar()->addPermanentWidget(m_encodingStatus);
-    statusBar()->addPermanentWidget(m_gridStatus);
-    statusBar()->addPermanentWidget(m_videoStatus);
+    // The four standing facts — issue #485.
+    m_status = std::make_unique<StatusLine>(*statusBar());
 
     // The boxes sit over this window, and it is the window that says so: built
     // before it, prompts cannot know it, and leaving that to `main` is what let
@@ -701,49 +687,6 @@ void MainWindow::proposeVideoBeside() {
     refreshVideo();
 }
 
-void MainWindow::refreshEncodingStatus() {
-    // **What the document is, and not what its reading did** — issue #313. The
-    // window said the encoding in a diagnostic and nowhere else, so it said it
-    // only when the encoding had been guessed: a file that declares its own
-    // with a mark showed nothing at all, where `inspect` writes « UTF-16LE,
-    // from its byte order mark ». The command line had three answers, the
-    // window one and a half.
-    //
-    // Where the answer came from stays with the diagnostics panel, which exists
-    // to say what happened; this line says what is, permanently, as the grid's
-    // and the film's do.
-    m_encodingStatus->setText(QString::fromStdString(
-        core::encodingStatusOf(m_page->session->project().sourceFile().encoding)));
-}
-
-std::optional<core::FrameRate> MainWindow::rateReadInFrames() const {
-    const core::FileExtras& extras = m_page->session->project().sourceFile().extras;
-    if (const auto* frames = std::get_if<core::MicroDvdFile>(&extras))
-        return frames->rate;
-    return std::nullopt;
-}
-
-void MainWindow::refreshGridStatus() {
-    // **A document counted in frames gets its rate, not a grid.** Deducing one
-    // from positions that were computed *from* frames at that very rate would
-    // answer with the number it was given — the same choice `inspect` makes.
-    if (rateReadInFrames().has_value()) {
-        // **The document's rate and not the file's**, so that correcting it
-        // through `Convert Frame Rate…` shows: what the line says is what the
-        // positions are counted at now, and what writing MicroDVD back will use.
-        m_gridStatus->setText(
-            QString::fromStdString(core::framesStatusOf(m_page->session->project().frameRate())));
-        return;
-    }
-
-    const core::FrameRateDeduction grid = core::deduceFrameRate(m_page->session->project());
-    const std::optional<core::FrameRate> retained = grid.verdict == core::GridVerdict::Silent
-                                                        ? std::nullopt
-                                                        : std::optional{grid.retained.rate};
-
-    m_gridStatus->setText(QString::fromStdString(core::gridStatusOf(grid.verdict, retained)));
-}
-
 void MainWindow::snapToFrameRate() {
     const core::Selection target = targetOf(*m_table->selectionModel(), m_page->session->project());
     const std::optional<core::AssociatedVideo>& associated = m_page->session->project().video();
@@ -842,16 +785,6 @@ void MainWindow::analyseGrid() {
     (void)m_prompts->run(dialog);
 }
 
-void MainWindow::refreshVideoStatus() {
-    const std::optional<core::AssociatedVideo>& associated = m_page->session->project().video();
-    const std::optional<std::filesystem::path> path =
-        associated.has_value() ? std::optional{associated->path} : std::nullopt;
-    const std::optional<core::FrameRate> declared =
-        associated.has_value() ? associated->declared : std::nullopt;
-
-    m_videoStatus->setText(QString::fromStdString(core::videoStatusOf(path, declared)));
-}
-
 void MainWindow::refreshVideo() {
     // **In this order, and the other way round was issue #323.** It is
     // `VideoPane::watch` that reads the rate the film declares — one call to
@@ -860,7 +793,7 @@ void MainWindow::refreshVideo() {
     // and the line never carried a rate at all: it is written, worded and in
     // the manual, and it never reached the screen.
     m_video->watch(*m_page);
-    refreshVideoStatus();
+    m_status->refreshVideo(m_page->session->project());
 }
 
 void MainWindow::followPlayback() {
@@ -1085,7 +1018,7 @@ void MainWindow::showEvent(QShowEvent* event) {
     // this line, `subedit-gui film.srt` — the ordinary road — never showed the
     // rate.
     m_video->windowShown(*m_page);
-    refreshVideoStatus();
+    m_status->refreshVideo(m_page->session->project());
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
@@ -1140,14 +1073,14 @@ void MainWindow::refreshActions() {
     // Every change of the document may have moved a position, so the verdict is
     // taken again here rather than at the opening alone: an alignment that put
     // the file on another grid must not leave the status bar saying the old one.
-    refreshGridStatus();
+    m_status->refreshGrid(m_page->session->project());
 
     // **The encoding rides here although no edit can change it**, and that is
     // deliberate: the two places it does change — an opening, a « save as » that
     // moved the document — both pass through here already, and a third call
     // site is a third one to forget. Issue #323 is what that costs, on the line
     // beside this one. Building a short string is not a deduction.
-    refreshEncodingStatus();
+    m_status->refreshEncoding(m_page->session->project());
 
     // Nothing to shift, nothing to transform: an enabled action would open a
     // dialog that could apply to nothing.
@@ -1216,13 +1149,8 @@ core::Document MainWindow::targetDocument() const {
 void MainWindow::refreshTarget() {
     // Two texts, and only then: the label of a window that never opens a
     // translation says nothing, which is what keeps it from being noise.
-    const bool twoTexts = m_columns->translationShown();
-    if (twoTexts) {
-        m_targetStatus->setText(QStringLiteral("Text: %1").arg(documentName(targetDocument())));
-    } else {
-        m_targetStatus->clear();
-    }
-    m_targetStatus->setVisible(twoTexts);
+    m_status->showTarget(m_columns->translationShown() ? std::optional{targetDocument()}
+                                                       : std::nullopt);
 
     // The search forgets a match found in the other text, and names the field
     // its box looks in.
@@ -1813,7 +1741,7 @@ void MainWindow::convertFrameRateOfTarget() {
     // positions come from its frames at the rate it was read at, so the
     // deduction can only find that rate again; what is offered instead is the
     // rate itself, said for what it is.
-    const std::optional<core::FrameRate> read = rateReadInFrames();
+    const std::optional<core::FrameRate> read = rateReadInFrames(m_page->session->project());
     const core::FrameRateDeduction grid = core::deduceFrameRate(m_page->session->project());
     const std::optional<core::FrameRate> measured =
         !read.has_value() && grid.verdict == core::GridVerdict::Clean
