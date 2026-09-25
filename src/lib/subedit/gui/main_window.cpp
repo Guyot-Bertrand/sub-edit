@@ -64,6 +64,7 @@
 #include <subedit/gui/target.hpp>
 #include <subedit/gui/theme.hpp>
 #include <subedit/gui/transform_dialog.hpp>
+#include <subedit/gui/window_actions.hpp>
 
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
@@ -75,13 +76,10 @@
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QHeaderView>
-#include <QIcon>
 #include <QItemSelection>
 #include <QItemSelectionModel>
-#include <QKeySequence>
 #include <QLabel>
 #include <QList>
-#include <QMenu>
 #include <QMenuBar>
 #include <QMimeData>
 #include <QModelIndex>
@@ -95,14 +93,12 @@
 #include <QTabBar>
 #include <QTableView>
 #include <QTimer>
-#include <QToolBar>
 #include <QToolButton>
 #include <QUrl>
 #include <QVBoxLayout>
 #include <QWidget>
 
 #include <algorithm>
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
@@ -143,20 +139,6 @@ namespace {
                                           : QStringLiteral("untitled");
     // An asterisk by hand: the `[*]` Qt reads is for a window's title alone.
     return modified ? name + QStringLiteral("*") : name;
-}
-
-/// Builds one of the two actions, named for the toolbar and for the menu.
-///
-/// `text` is what the menu reads and it changes at every operation —
-/// « Undo: shifting ». `iconText` is what the toolbar button reads and it never
-/// changes: a button whose width followed the last operation would move under
-/// the pointer.
-[[nodiscard]] QAction*
-buildAction(QObject* parent, const QString& shortName, const QString& themeIcon) {
-    auto* action = new QAction{QIcon::fromTheme(themeIcon), shortName, parent};
-    action->setIconText(shortName);
-    action->setEnabled(false);
-    return action;
 }
 
 /// How wide the text column is while the translation column shares the table
@@ -240,27 +222,6 @@ constexpr int kOperationStatusTimeoutMs = 5000;
         return -1;
 
     return std::ranges::max(rows, {}, [](const QModelIndex& index) { return index.row(); }).row();
-}
-
-/// The shortcuts of `Save As…`, one of which the platform may not give.
-///
-/// **The platform theme gives `Ctrl+Shift+S` on every desktop** — measured
-/// under xcb, under wayland, and under `offscreen` as soon as a theme is laid
-/// down. With no theme, Qt gives none: its internal table defines `SaveAs` for
-/// macOS and Windows alone, and that is the table a test binary meets.
-///
-/// The conventional binding is therefore added when the platform says nothing —
-/// issue #274. This is not deciding in its stead: it is saying the same thing
-/// it does where it speaks, and not leaving a destructive command out of reach
-/// of the keyboard where it says nothing.
-[[nodiscard]] QList<QKeySequence> saveAsShortcuts() {
-    static const QKeySequence conventional{QStringLiteral("Ctrl+Shift+S")};
-
-    QList<QKeySequence> given = QKeySequence::keyBindings(QKeySequence::SaveAs);
-    if (!given.contains(conventional))
-        given.append(conventional);
-
-    return given;
 }
 
 /// The bar of tabs, never asking for more room than its tabs take.
@@ -383,45 +344,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_prompts(&prompts),
       m_table(new SubtitleTable{this}),
       m_diagnostics(new DiagnosticsPanel{this}),
-      m_undo(buildAction(this, QStringLiteral("Undo"), QStringLiteral("edit-undo"))),
-      m_redo(buildAction(this, QStringLiteral("Redo"), QStringLiteral("edit-redo"))),
-      m_open(buildAction(this, QStringLiteral("Open…"), QStringLiteral("document-open"))),
-      m_newProject(
-          buildAction(this, QStringLiteral("&New Project"), QStringLiteral("document-new"))),
-      m_closeProject(buildAction(this, QStringLiteral("&Close"), QStringLiteral("window-close"))),
-      m_saveAllDocuments(buildAction(this, QStringLiteral("&Save All"), {})),
-      m_closeAllProjects(buildAction(this, QStringLiteral("&Close All"), {})),
-      m_nextTab(new QAction{this}),
-      m_previousTab(new QAction{this}),
-      m_save(buildAction(this, QStringLiteral("Save"), QStringLiteral("document-save"))),
-      m_saveAs(buildAction(this, QStringLiteral("Save As…"), QStringLiteral("document-save-as"))),
-      m_openTranslation(buildAction(this, QStringLiteral("Open &Translation…"), {})),
-      m_saveTranslation(buildAction(this, QStringLiteral("Save Tr&anslation"), {})),
-      m_saveTranslationAs(buildAction(this, QStringLiteral("Save Translation As…"), {})),
-      m_cut(buildAction(this, QStringLiteral("Cu&t Texts"), QStringLiteral("edit-cut"))),
-      m_copy(buildAction(this, QStringLiteral("&Copy Texts"), QStringLiteral("edit-copy"))),
-      m_paste(buildAction(this, QStringLiteral("&Paste Texts"), QStringLiteral("edit-paste"))),
-      m_findAndReplace(buildAction(
-          this, QStringLiteral("&Find and Replace…"), QStringLiteral("edit-find-replace"))),
-      m_insert(buildAction(this, QStringLiteral("Insert Subtitles…"), QStringLiteral("list-add"))),
-      m_remove(
-          buildAction(this, QStringLiteral("Remove Subtitles"), QStringLiteral("list-remove"))),
-      m_mergeSubtitles(buildAction(this, QStringLiteral("&Merge Subtitles"), {})),
-      m_splitSubtitle(buildAction(this, QStringLiteral("S&plit Subtitle"), {})),
-      m_shift(buildAction(this, QStringLiteral("Shift Positions…"), {})),
-      m_transform(buildAction(this, QStringLiteral("Transform Positions…"), {})),
-      m_frameRate(buildAction(this, QStringLiteral("Convert Frame Rate…"), {})),
-      m_adjustDurations(buildAction(this, QStringLiteral("Adjust Durations…"), {})),
-      m_appendFile(buildAction(this, QStringLiteral("Append &File…"), {})),
-      m_splitProject(buildAction(this, QStringLiteral("Spli&t Project…"), {})),
-      m_hearingImpaired(buildAction(this, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})),
-      m_italic(buildAction(this, QStringLiteral("&Italic"), QStringLiteral("format-text-italic"))),
-      m_dialogueDashes(buildAction(this, QStringLiteral("&Dialogue"), {})),
-      m_snap(buildAction(this, QStringLiteral("Snap to Frame Rate…"), {})),
-      m_shiftOntoGrid(buildAction(this, shiftOntoGridLabel(std::nullopt), {})),
-      m_selectVideo(buildAction(this, QStringLiteral("Select Video…"), {})),
-      m_playPause(buildAction(
-          this, QStringLiteral("Play / Pause"), QStringLiteral("media-playback-start"))),
+      m_actions(std::make_unique<WindowActions>(this)),
       m_videoStatus(new QLabel{this}),
       m_gridStatus(new QLabel{this}),
       m_encodingStatus(new QLabel{this}),
@@ -529,7 +452,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_newTab->setText(QStringLiteral("+"));
     m_newTab->setAutoRaise(true);
     m_newTab->setToolTip(QStringLiteral("New project"));
-    connect(m_newTab, &QToolButton::clicked, m_newProject, &QAction::trigger);
+    connect(m_newTab, &QToolButton::clicked, m_actions->newProject, &QAction::trigger);
 
     // The tabs, the « + » against the last of them, and the rest of the row
     // empty: the button follows the tabs rather than sitting at the far end.
@@ -555,149 +478,86 @@ MainWindow::MainWindow(core::FileSystem& files,
     // it, so there is one place that sorts what arrives.
     setAcceptDrops(true);
 
-    // **Every binding the platform gives "redo", and not the first** — issue
-    // #274.
-    //
-    // What `QKeySequence` answers depends on the platform theme, and a test
-    // binary has none: under `offscreen`, Qt falls back on its internal table
-    // and puts `Ctrl+Y` at the head; under any desktop at all, the theme gives
-    // `Ctrl+Shift+Z` and nothing else. `setShortcut` keeps only the first, so
-    // one line of code laid down two different shortcuts depending on where it
-    // ran — and the test saw only the one the user does not have.
-    // `setShortcuts` takes them all: both work everywhere.
-    m_undo->setShortcut(QKeySequence::Undo);
-    m_redo->setShortcuts(QKeySequence::keyBindings(QKeySequence::Redo));
-    connect(m_undo, &QAction::triggered, this, [this] {
+    // The actions, their shortcuts, the menus and the toolbar are
+    // `WindowActions`' — issue #483. What each one does is the window's.
+    const WindowActions& act = *m_actions;
+    connect(act.undo, &QAction::triggered, this, [this] {
         commitCellEditor();
         m_page->model->applied(m_page->session->undo());
     });
-    connect(m_redo, &QAction::triggered, this, [this] {
+    connect(act.redo, &QAction::triggered, this, [this] {
         commitCellEditor();
         m_page->model->applied(m_page->session->redo());
     });
 
-    m_open->setShortcut(QKeySequence::Open);
-    m_newProject->setShortcut(QKeySequence::New);
-    m_closeProject->setShortcut(QKeySequence::Close);
-    m_save->setShortcut(QKeySequence::Save);
-    m_saveAs->setShortcuts(saveAsShortcuts());
-    m_open->setEnabled(true);
-    m_newProject->setEnabled(true);
-    m_save->setEnabled(true);
-    m_saveAs->setEnabled(true);
-    connect(m_open, &QAction::triggered, this, &MainWindow::openFromPrompt);
-    connect(m_newProject, &QAction::triggered, this, &MainWindow::newProject);
-    m_newProject->setToolTip(QStringLiteral("Open an empty project in a new tab"));
-    connect(m_closeProject, &QAction::triggered, this, &MainWindow::closeCurrentProject);
-    m_saveAllDocuments->setEnabled(true);
-    m_closeAllProjects->setEnabled(true);
-    m_saveAllDocuments->setShortcut(QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_L});
-    m_closeAllProjects->setShortcut(QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_W});
-    connect(m_saveAllDocuments, &QAction::triggered, this, [this] { m_projectFiles->saveAll(); });
+    connect(act.open, &QAction::triggered, this, &MainWindow::openFromPrompt);
+    connect(act.newProject, &QAction::triggered, this, &MainWindow::newProject);
+    connect(act.closeProject, &QAction::triggered, this, &MainWindow::closeCurrentProject);
+    connect(act.saveAllDocuments, &QAction::triggered, this, [this] { m_projectFiles->saveAll(); });
     // **Closing every project is closing the window**: the window always holds
     // one, so there is no state in between. `closeEvent` asks the one question.
-    connect(m_closeAllProjects, &QAction::triggered, this, &QWidget::close);
-    // **`Ctrl+PageDown` and `Ctrl+PageUp`**, the platform's own for moving
-    // between tabs — no `QKeySequence::StandardKey` names them, so they are
-    // written out, as Gaupol's own binding is. `addAction` and not a menu:
-    // the bar already offers a click, and this is for whoever would rather
-    // not reach for the mouse.
-    m_nextTab->setShortcut(QKeySequence{QStringLiteral("Ctrl+PgDown")});
-    connect(m_nextTab, &QAction::triggered, this, [this] {
+    connect(act.closeAllProjects, &QAction::triggered, this, &QWidget::close);
+    // Wrapping around at either end.
+    connect(act.nextTab, &QAction::triggered, this, [this] {
         switchToPage((m_currentPage + 1) % static_cast<int>(m_pages.size()));
     });
-    addAction(m_nextTab);
-    m_previousTab->setShortcut(QKeySequence{QStringLiteral("Ctrl+PgUp")});
-    connect(m_previousTab, &QAction::triggered, this, [this] {
+    connect(act.previousTab, &QAction::triggered, this, [this] {
         const int count = static_cast<int>(m_pages.size());
         switchToPage((m_currentPage - 1 + count) % count);
     });
-    addAction(m_previousTab);
     // The returned value only serves whoever carries on afterwards; fired by
     // the action, it has nobody to inform.
-    connect(m_save, &QAction::triggered, this, [this] {
+    connect(act.save, &QAction::triggered, this, [this] {
         (void)m_projectFiles->save(*m_page, core::Document::Main);
     });
-    connect(m_saveAs, &QAction::triggered, this, [this] {
+    connect(act.saveAs, &QAction::triggered, this, [this] {
         (void)m_projectFiles->saveAs(*m_page, core::Document::Main);
     });
-    connect(m_openTranslation, &QAction::triggered, this, &MainWindow::openTranslationFromPrompt);
-    connect(m_saveTranslation, &QAction::triggered, this, [this] {
+    connect(act.openTranslation, &QAction::triggered, this, &MainWindow::openTranslationFromPrompt);
+    connect(act.saveTranslation, &QAction::triggered, this, [this] {
         (void)m_projectFiles->save(*m_page, core::Document::Translation);
     });
-    connect(m_saveTranslationAs, &QAction::triggered, this, [this] {
+    connect(act.saveTranslationAs, &QAction::triggered, this, [this] {
         (void)m_projectFiles->saveAs(*m_page, core::Document::Translation);
     });
 
-    // **`Ins` and `Del`, and not Gaupol's letters.** It gives `I` and
-    // `Delete`; a bare letter of window scope would be taken before the editor
-    // of a cell saw it, which the `Ctrl+P` of the player already explains. The
-    // two editing keys, for their part, are claimed by Qt's input fields for as
-    // long as an editor is open: that is what lets `Del` erase a character
-    // rather than a subtitle.
-    m_insert->setShortcut(QKeySequence{Qt::Key_Insert});
-    m_remove->setShortcut(QKeySequence::Delete);
-    connect(m_insert, &QAction::triggered, this, &MainWindow::insertSubtitles);
-    connect(m_remove, &QAction::triggered, this, &MainWindow::removeSubtitles);
+    connect(act.insert, &QAction::triggered, this, &MainWindow::insertSubtitles);
+    connect(act.remove, &QAction::triggered, this, &MainWindow::removeSubtitles);
+    connect(act.mergeSubtitles, &QAction::triggered, this, &MainWindow::mergeSubtitles);
+    connect(act.splitSubtitle, &QAction::triggered, this, &MainWindow::splitSubtitle);
+    connect(act.cut, &QAction::triggered, this, &MainWindow::cutTexts);
+    connect(act.copy, &QAction::triggered, this, &MainWindow::copyTexts);
+    connect(act.paste, &QAction::triggered, this, &MainWindow::pasteTexts);
+    connect(act.findAndReplace, &QAction::triggered, this, &MainWindow::openSearch);
+    connect(act.preferences, &QAction::triggered, this, &MainWindow::openPreferences);
 
-    // **No shortcut, where Gaupol has `M` and `S`.** A bare letter of window
-    // scope would be taken before a cell editor saw it, and the `Ctrl` forms
-    // are spoken for: `Ctrl+S` saves. Two entries one reaches by the menu are
-    // better than a key that types a letter into the wrong place.
-    connect(m_mergeSubtitles, &QAction::triggered, this, &MainWindow::mergeSubtitles);
-
-    // **The platform's three, as Gaupol has them.** No conflict with a cell
-    // editor: a text field claims these sequences for as long as it has the
-    // focus, the way it claims `Del`, so inside an open cell they copy and
-    // paste characters rather than subtitles.
-    m_cut->setShortcut(QKeySequence::Cut);
-    m_copy->setShortcut(QKeySequence::Copy);
-    m_paste->setShortcut(QKeySequence::Paste);
-    connect(m_cut, &QAction::triggered, this, &MainWindow::cutTexts);
-    connect(m_copy, &QAction::triggered, this, &MainWindow::copyTexts);
-    connect(m_paste, &QAction::triggered, this, &MainWindow::pasteTexts);
-
-    // `Ctrl+F`, Gaupol's. A cell editor does not claim it, so it opens the
-    // dialog from inside an open cell too.
-    m_findAndReplace->setShortcut(QKeySequence::Find);
-    connect(m_findAndReplace, &QAction::triggered, this, &MainWindow::openSearch);
-    connect(m_splitSubtitle, &QAction::triggered, this, &MainWindow::splitSubtitle);
-
-    connect(m_shift, &QAction::triggered, this, &MainWindow::shiftTarget);
-    connect(m_transform, &QAction::triggered, this, &MainWindow::transformTarget);
-    connect(m_frameRate, &QAction::triggered, this, &MainWindow::convertFrameRateOfTarget);
-    connect(m_adjustDurations, &QAction::triggered, this, &MainWindow::adjustDurationsOfTarget);
-    connect(m_appendFile, &QAction::triggered, this, &MainWindow::appendFileFromPrompt);
-    connect(m_splitProject, &QAction::triggered, this, &MainWindow::splitProjectFromPrompt);
+    connect(act.shift, &QAction::triggered, this, &MainWindow::shiftTarget);
+    connect(act.transform, &QAction::triggered, this, &MainWindow::transformTarget);
+    connect(act.frameRate, &QAction::triggered, this, &MainWindow::convertFrameRateOfTarget);
+    connect(act.adjustDurations, &QAction::triggered, this, &MainWindow::adjustDurationsOfTarget);
+    connect(act.appendFile, &QAction::triggered, this, &MainWindow::appendFileFromPrompt);
+    connect(act.splitProject, &QAction::triggered, this, &MainWindow::splitProjectFromPrompt);
+    connect(act.hearingImpaired,
+            &QAction::triggered,
+            this,
+            &MainWindow::removeHearingImpairedFromTarget);
+    connect(act.italic, &QAction::triggered, this, &MainWindow::toggleItalicsOnTarget);
     connect(
-        m_hearingImpaired, &QAction::triggered, this, &MainWindow::removeHearingImpairedFromTarget);
-
-    // **`Ctrl+I` and not a bare `I`**, for the reason the player's `Ctrl+P`
-    // already carries: a one-letter shortcut of window scope is taken before
-    // the cell editor sees it, and this table has three columns one types in.
-    m_italic->setShortcut(QKeySequence{QStringLiteral("Ctrl+I")});
-    connect(m_italic, &QAction::triggered, this, &MainWindow::toggleItalicsOnTarget);
-
-    // **Gaupol's four, in Gaupol's order** — `Text ▸ Case` offers Title,
-    // Sentence, Upper, Lower, and a user who knows one knows the other.
-    static constexpr std::array<const char*, 4> kCaseLabels = {
-        "&Title Case", "&Sentence case", "&UPPER CASE", "&lower case"};
-    for (std::size_t which = 0; which < m_case.size(); ++which) {
-        const core::LetterCase wanted = core::kLetterCases[which];
-        m_case[which] = buildAction(this, QString::fromUtf8(kCaseLabels[which]), {});
-        connect(m_case[which], &QAction::triggered, this, [this, wanted] {
+        act.dialogueDashes, &QAction::triggered, this, &MainWindow::toggleDialogueDashesOnTarget);
+    for (const core::LetterCase wanted : core::kLetterCases) {
+        connect(act.caseAction(wanted), &QAction::triggered, this, [this, wanted] {
             changeCaseOfTarget(wanted);
         });
     }
+    connect(act.snap, &QAction::triggered, this, &MainWindow::snapToFrameRate);
+    connect(act.shiftOntoGrid, &QAction::triggered, this, &MainWindow::shiftOntoGrid);
+    connect(act.analyseGrid, &QAction::triggered, this, &MainWindow::analyseGrid);
 
-    connect(m_dialogueDashes, &QAction::triggered, this, &MainWindow::toggleDialogueDashesOnTarget);
+    connect(act.selectVideo, &QAction::triggered, this, &MainWindow::selectVideo);
+    connect(act.playPause, &QAction::triggered, this, &MainWindow::togglePlayback);
 
-    connect(m_snap, &QAction::triggered, this, &MainWindow::snapToFrameRate);
-    connect(m_shiftOntoGrid, &QAction::triggered, this, &MainWindow::shiftOntoGrid);
-
-    m_analyseGrid = new QAction{QStringLiteral("Frame Rate &Analysis…"), this};
-    m_analyseGrid->setEnabled(false);
-    connect(m_analyseGrid, &QAction::triggered, this, &MainWindow::analyseGrid);
+    connect(act.manual, &QAction::triggered, this, &MainWindow::openManual);
+    connect(act.about, &QAction::triggered, this, &MainWindow::about);
 
     // The columns and their entries are the collaborator's — ADR 0034. The
     // column first, then the target: what a cell can be aiming at depends on
@@ -714,141 +574,7 @@ MainWindow::MainWindow(core::FileSystem& files,
         });
     }
 
-    m_selectVideo->setEnabled(true);
-    connect(m_selectVideo, &QAction::triggered, this, &MainWindow::selectVideo);
-
-    // **`Ctrl+P` where Gaupol has a bare `P`**, and the difference is not
-    // taste. A one-letter shortcut of window scope is taken before the widget
-    // that has the focus sees it, so a `P` would be swallowed on its way into
-    // a cell editor — and this table has three columns one types in. Nothing
-    // prints here, so the sequence is free.
-    m_playPause->setShortcut(QKeySequence{QStringLiteral("Ctrl+P")});
-    connect(m_playPause, &QAction::triggered, this, &MainWindow::togglePlayback);
-
-    m_preferences = new QAction{QStringLiteral("&Preferences…"), this};
-    connect(m_preferences, &QAction::triggered, this, &MainWindow::openPreferences);
-
-    m_about = new QAction{QStringLiteral("&About subedit"), this};
-    connect(m_about, &QAction::triggered, this, &MainWindow::about);
-
-    // **Out for as long as nobody has said where the manual is**, which is the
-    // case of a binary run from the build tree: `main` calls `setManualPath`
-    // with what `installedManualPath()` resolved, and the entry lights up if
-    // the manual is there. An entry that opened emptiness would be worse than
-    // an entry saying it has nothing to open.
-    m_manual = new QAction{QStringLiteral("&Manual"), this};
-    m_manual->setEnabled(false);
-    m_manual->setShortcut(QKeySequence::HelpContents);
-    connect(m_manual, &QAction::triggered, this, &MainWindow::openManual);
-
-    // **The menu bar, in the order a user reads it**: the document, what one
-    // does to it, what accompanies it, what inspects it, what explains it.
-    // Reading order and not construction order — the two had drifted apart, and
-    // it is the first that a user meets.
-    QMenu* file = menuBar()->addMenu(QStringLiteral("&File"));
-    file->addAction(m_newProject);
-    file->addAction(m_open);
-    file->addAction(m_openTranslation);
-    file->addSeparator();
-    file->addAction(m_save);
-    file->addAction(m_saveAs);
-    // The translation is a file of its own, and so are the entries that write
-    // it: under the two of the main document, where a user looking for how to
-    // save will look first.
-    file->addSeparator();
-    file->addAction(m_saveTranslation);
-    file->addAction(m_saveTranslationAs);
-    // Below everything the document itself offers: closing is what one does
-    // to the tab, not to what it holds.
-    file->addSeparator();
-    file->addAction(m_closeProject);
-
-    QMenu* edition = menuBar()->addMenu(QStringLiteral("&Edit"));
-    edition->addAction(m_undo);
-    edition->addAction(m_redo);
-    edition->addSeparator();
-    // Where every program puts them, and above the edits of structure: they
-    // move texts, and never add or take away a row — save a paste that runs
-    // past the end.
-    edition->addAction(m_cut);
-    edition->addAction(m_copy);
-    edition->addAction(m_paste);
-    edition->addSeparator();
-    edition->addAction(m_findAndReplace);
-    edition->addSeparator();
-    // Under a separator: undoing is what one does *to* an edit; inserting and
-    // removing *are* edits.
-    edition->addAction(m_insert);
-    edition->addAction(m_remove);
-    // Beside them: merging and splitting change how many rows there are, as
-    // inserting and removing do, and Gaupol keeps the four together.
-    edition->addAction(m_mergeSubtitles);
-    edition->addAction(m_splitSubtitle);
-    edition->addSeparator();
-    // Under another: setting the theme is no edit at all.
-    edition->addAction(m_preferences);
-
-    // Born with the translation column, and where the other columns would sit
-    // one day — issue #442. After `Edit` and before `Video`: what one does to
-    // the document, then how one looks at it, then what accompanies it.
-    QMenu* view = menuBar()->addMenu(QStringLiteral("&View"));
-    // A submenu, as Gaupol's `View ▸ Columns`: five entries loose in the menu
-    // would be five entries for one question.
-    QMenu* columns = view->addMenu(QStringLiteral("&Columns"));
-    for (QAction* entry : m_columns->entries())
-        columns->addAction(entry);
-
-    QMenu* video = menuBar()->addMenu(QStringLiteral("&Video"));
-    video->addAction(m_selectVideo);
-    video->addSeparator();
-    video->addAction(m_playPause);
-
-    QMenu* tools = menuBar()->addMenu(QStringLiteral("&Tools"));
-    tools->addAction(m_shift);
-    tools->addAction(m_transform);
-    tools->addAction(m_frameRate);
-    // With the operations on positions: it moves ends, and nothing else.
-    tools->addAction(m_adjustDurations);
-    tools->addSeparator();
-    // On its own: it adds subtitles rather than editing the ones already
-    // there — Gaupol's own placement, next to the position operations and
-    // apart from the two that follow.
-    tools->addAction(m_appendFile);
-    // Its inverse, beside it.
-    tools->addAction(m_splitProject);
-    tools->addSeparator();
-    // Those that rewrite a text rather than move a position, together.
-    tools->addAction(m_italic);
-    tools->addAction(m_dialogueDashes);
-    // A submenu for the four, which is what Gaupol does: four entries side by
-    // side in a menu of nine would drown the rest.
-    QMenu* letterCase = tools->addMenu(QStringLiteral("Ca&se"));
-    for (QAction* one : m_case)
-        letterCase->addAction(one);
-    tools->addAction(m_hearingImpaired);
-    tools->addSeparator();
-    // The two of phase 16, together: one lays each position on the nearest
-    // frame, the other moves the whole file back onto its own grid. They read
-    // alike and are not alike, which is why they sit side by side rather than
-    // among the four above.
-    tools->addAction(m_snap);
-    tools->addAction(m_shiftOntoGrid);
-    tools->addSeparator();
-    // Below the separator because it changes nothing: the four above it act on
-    // the document, this one only reports on it.
-    tools->addAction(m_analyseGrid);
-
-    // What acts on every project at once. Gaupol's menu of the same name also
-    // lists the tabs and has `Save All As…`; the first is left to the tab bar
-    // and the second is a series of `Save As…` that `Save All` already asks.
-    QMenu* projects = menuBar()->addMenu(QStringLiteral("&Projects"));
-    projects->addAction(m_saveAllDocuments);
-    projects->addAction(m_closeAllProjects);
-
-    QMenu* help = menuBar()->addMenu(QStringLiteral("&Help"));
-    help->addAction(m_manual);
-    help->addSeparator();
-    help->addAction(m_about);
+    act.placeIn(*this, m_columns->entries());
 
     resize(kInitialWidth, kInitialHeight);
 
@@ -868,47 +594,6 @@ MainWindow::MainWindow(core::FileSystem& files,
     statusBar()->addPermanentWidget(m_encodingStatus);
     statusBar()->addPermanentWidget(m_gridStatus);
     statusBar()->addPermanentWidget(m_videoStatus);
-
-    // **The frequent gestures, in groups** — issue #474. Gaupol's bar carries
-    // opening, saving, undoing and redoing, and finding; its player gets a bar
-    // of its own. This one adds what the user reaches for most while editing —
-    // a new project, inserting, removing — and the player's one button, and
-    // keeps `Italic`, which was on it first. A gesture that opens a box is no
-    // reason to keep it off: the box is what the button leads to.
-    //
-    // Each button reads a short word of its own; the menus keep the whole
-    // entry. The table of what differs from Gaupol, and why, is in spec 11.
-    const std::array<std::pair<QAction*, QString>, 10> words{{
-        {m_newProject, QStringLiteral("New")},
-        {m_open, QStringLiteral("Open")},
-        {m_save, QStringLiteral("Save")},
-        {m_undo, QStringLiteral("Undo")},
-        {m_redo, QStringLiteral("Redo")},
-        {m_findAndReplace, QStringLiteral("Find")},
-        {m_insert, QStringLiteral("Insert")},
-        {m_remove, QStringLiteral("Remove")},
-        {m_italic, QStringLiteral("Italic")},
-        {m_playPause, QStringLiteral("Play")},
-    }};
-    for (const auto& [action, word] : words)
-        action->setIconText(word);
-
-    QToolBar* bar = addToolBar(QStringLiteral("Main"));
-    bar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    bar->addAction(m_newProject);
-    bar->addAction(m_open);
-    bar->addAction(m_save);
-    bar->addSeparator();
-    bar->addAction(m_undo);
-    bar->addAction(m_redo);
-    bar->addSeparator();
-    bar->addAction(m_findAndReplace);
-    bar->addSeparator();
-    bar->addAction(m_insert);
-    bar->addAction(m_remove);
-    bar->addAction(m_italic);
-    bar->addSeparator();
-    bar->addAction(m_playPause);
 
     // The boxes sit over this window, and it is the window that says so: built
     // before it, prompts cannot know it, and leaving that to `main` is what let
@@ -1187,10 +872,11 @@ void MainWindow::setManualPath(std::filesystem::path directory) {
 
     // The home page and not the directory: a directory that is there but empty
     // is a partial installation, and that is the case the scoping names.
-    m_manual->setEnabled(m_files->exists(m_manualDirectory / "index.md"));
-    m_manual->setToolTip(m_manual->isEnabled()
-                             ? QStringLiteral("Open the installed manual")
-                             : QStringLiteral("No manual is installed beside this program"));
+    m_actions->manual->setEnabled(m_files->exists(m_manualDirectory / "index.md"));
+    m_actions->manual->setToolTip(
+        m_actions->manual->isEnabled()
+            ? QStringLiteral("Open the installed manual")
+            : QStringLiteral("No manual is installed beside this program"));
 }
 
 void MainWindow::openManual() {
@@ -1330,7 +1016,7 @@ void MainWindow::watchAssociatedVideo() {
     // Exactly one of the two, always: a band that stayed under a playing film
     // would offer to choose the one already chosen.
     showPicture(m_page->watching);
-    m_playPause->setEnabled(m_page->watching);
+    m_actions->playPause->setEnabled(m_page->watching);
 
     if (m_page->watching) {
         m_ticker->start();
@@ -1587,7 +1273,7 @@ void MainWindow::refreshTabActions() {
     // **Out with one tab left.** The window always holds at least one
     // project; closing the last would be closing the window, which is what
     // the title bar's own button already does.
-    m_closeProject->setEnabled(m_pages.size() > 1);
+    m_actions->closeProject->setEnabled(m_pages.size() > 1);
     m_tabBar->setTabsClosable(m_pages.size() > 1);
     // Told to the row once the bar has settled. `QTabBar` takes a cross away
     // at the next turn of the event loop, and nothing tells the layout the
@@ -1697,7 +1383,7 @@ void MainWindow::releasePlayer() {
     m_playingPage = nullptr;
     m_player.reset();
     m_playerAsked = false;
-    m_playPause->setEnabled(false);
+    m_actions->playPause->setEnabled(false);
 }
 
 void MainWindow::refreshTabOf(const ProjectPage& page) {
@@ -1716,16 +1402,16 @@ void MainWindow::refreshActions() {
     const QString undo = undoLabel(m_page->session->nextUndoKind());
     const QString redo = redoLabel(m_page->session->nextRedoKind());
 
-    m_undo->setEnabled(m_page->session->canUndo());
-    m_undo->setText(undo);
+    m_actions->undo->setEnabled(m_page->session->canUndo());
+    m_actions->undo->setText(undo);
     // Set explicitly: without it, Qt makes the tooltip out of the `iconText`,
     // and the toolbar button would say « Undo » twice instead of naming what it
     // would defeat.
-    m_undo->setToolTip(undo);
+    m_actions->undo->setToolTip(undo);
 
-    m_redo->setEnabled(m_page->session->canRedo());
-    m_redo->setText(redo);
-    m_redo->setToolTip(redo);
+    m_actions->redo->setEnabled(m_page->session->canRedo());
+    m_actions->redo->setText(redo);
+    m_actions->redo->setToolTip(redo);
 
     // Modified if either document is: the title has one asterisk for the two,
     // and so does the tab. Here rather than at each edit because every edit,
@@ -1752,20 +1438,20 @@ void MainWindow::refreshActions() {
     // Nothing to shift, nothing to transform: an enabled action would open a
     // dialog that could apply to nothing.
     const bool anything = m_page->session->project().count() != 0;
-    m_shift->setEnabled(anything);
-    m_transform->setEnabled(anything);
-    m_frameRate->setEnabled(anything);
-    m_adjustDurations->setEnabled(anything);
+    m_actions->shift->setEnabled(anything);
+    m_actions->transform->setEnabled(anything);
+    m_actions->frameRate->setEnabled(anything);
+    m_actions->adjustDurations->setEnabled(anything);
     // Nothing to shift from: an empty document has no last subtitle to offset
     // the appended file by.
-    m_appendFile->setEnabled(anything);
+    m_actions->appendFile->setEnabled(anything);
     // A cut needs a subtitle on each side of it.
-    m_splitProject->setEnabled(m_page->session->project().count() >= 2);
-    m_findAndReplace->setEnabled(anything);
+    m_actions->splitProject->setEnabled(m_page->session->project().count() >= 2);
+    m_actions->findAndReplace->setEnabled(anything);
     // Nothing to analyse either: an empty document has no positions to read a
     // grid off, and the dialog would open on « too few subtitles ».
-    m_analyseGrid->setEnabled(anything);
-    m_snap->setEnabled(anything);
+    m_actions->analyseGrid->setEnabled(anything);
+    m_actions->snap->setEnabled(anything);
 
     // The amount is measured here rather than when the entry is chosen, so that
     // the menu can say what it will do — and the entry goes out when there is
@@ -1773,16 +1459,16 @@ void MainWindow::refreshActions() {
     const std::optional<core::Duration> onto =
         anything ? core::shiftOntoGrid(core::deduceFrameRate(m_page->session->project()))
                  : std::nullopt;
-    m_shiftOntoGrid->setEnabled(onto.has_value());
-    m_shiftOntoGrid->setText(shiftOntoGridLabel(onto));
-    m_hearingImpaired->setEnabled(anything);
+    m_actions->shiftOntoGrid->setEnabled(onto.has_value());
+    m_actions->shiftOntoGrid->setText(shiftOntoGridLabel(onto));
+    m_actions->hearingImpaired->setEnabled(anything);
 
     // Nothing to give a translation's lines to in an empty document, and nothing
     // to write without a translation.
-    m_openTranslation->setEnabled(anything);
+    m_actions->openTranslation->setEnabled(anything);
     const bool hasTranslation = m_page->session->project().translationFile().has_value();
-    m_saveTranslation->setEnabled(hasTranslation);
-    m_saveTranslationAs->setEnabled(hasTranslation);
+    m_actions->saveTranslation->setEnabled(hasTranslation);
+    m_actions->saveTranslationAs->setEnabled(hasTranslation);
 
     // The italic entry is the one whose state depends on the target: see
     // `refreshTarget`.
@@ -1790,8 +1476,8 @@ void MainWindow::refreshActions() {
 
     // **Nothing about a format decides these five**, unlike the italic: a case
     // and a dash are text, not style, and every format carries text.
-    m_dialogueDashes->setEnabled(anything);
-    for (QAction* one : m_case)
+    m_actions->dialogueDashes->setEnabled(anything);
+    for (QAction* one : m_actions->letterCase)
         one->setEnabled(anything);
 
     refreshStructureActions();
@@ -1837,7 +1523,7 @@ void MainWindow::refreshTarget() {
     // **Of the document aimed at**: a translation may be in a format that
     // writes no style while the main text is in one that does.
     const bool anything = m_page->session->project().count() != 0;
-    m_italic->setEnabled(
+    m_actions->italic->setEnabled(
         anything &&
         core::abilitiesOf(m_page->session->project().sourceFile(targetDocument()).format).italic);
 }
@@ -1850,28 +1536,28 @@ void MainWindow::refreshStructureActions() {
     // the only way to start a new file. As soon as it carries rows, one has to
     // say after which to insert: Gaupol sets the same condition, and it is the
     // one that keeps the index from being guessed.
-    m_insert->setEnabled(!anything || selected);
+    m_actions->insert->setEnabled(!anything || selected);
 
     // Nothing selected, nothing to remove. The action being out is what holds
     // the rule: without it, `Del` on a table with no selection would become
     // "the whole file", which is what `targetOf` answers and would be a
     // disaster here.
-    m_remove->setEnabled(selected);
+    m_actions->remove->setEnabled(selected);
 
     // **The selection, and never the whole file** — the rule `Remove Subtitles`
     // follows, and for the same reason: a `Ctrl+X` on a table with nothing
     // selected would empty every text of the document. A paste needs a row to
     // start from, and without a selection the row would be guessed.
-    m_cut->setEnabled(selected);
-    m_copy->setEnabled(selected);
-    m_paste->setEnabled(selected);
+    m_actions->cut->setEnabled(selected);
+    m_actions->copy->setEnabled(selected);
+    m_actions->paste->setEnabled(selected);
 
     // Read on the runs rather than the rows: one run is what contiguous means,
     // and its length says whether there is anything to merge or to split.
     const core::Selection rows = selectionOf(*m_table->selectionModel());
     const bool oneRun = rows.ranges().size() == 1;
-    m_mergeSubtitles->setEnabled(oneRun && rows.count() >= 2);
-    m_splitSubtitle->setEnabled(oneRun && rows.count() == 1);
+    m_actions->mergeSubtitles->setEnabled(oneRun && rows.count() >= 2);
+    m_actions->splitSubtitle->setEnabled(oneRun && rows.count() == 1);
 }
 
 void MainWindow::adjustDurationsOfTarget() {
@@ -2055,9 +1741,7 @@ void MainWindow::toggleItalicsOnTarget() {
 }
 
 QAction* MainWindow::caseAction(core::LetterCase wanted) const {
-    const auto* const found = std::ranges::find(core::kLetterCases, wanted);
-    return m_case.at(
-        static_cast<std::size_t>(std::distance(std::ranges::begin(core::kLetterCases), found)));
+    return m_actions->caseAction(wanted);
 }
 
 void MainWindow::changeCaseOfTarget(core::LetterCase wanted) {

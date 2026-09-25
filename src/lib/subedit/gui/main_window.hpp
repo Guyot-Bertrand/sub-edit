@@ -9,11 +9,11 @@
 #include <subedit/core/model/selection.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/subtitle_table.hpp>
+#include <subedit/gui/window_actions.hpp>
 
 #include <QMainWindow>
 #include <QStringList>
 
-#include <array>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
@@ -132,11 +132,11 @@ public:
     /// the authority — the command line of phase 3 depends on it too — and two
     /// sources of truth for one question would be one too many. These two only
     /// read it.
-    [[nodiscard]] QAction* undoAction() const { return m_undo; }
+    [[nodiscard]] QAction* undoAction() const { return m_actions->undo; }
 
-    [[nodiscard]] QAction* redoAction() const { return m_redo; }
+    [[nodiscard]] QAction* redoAction() const { return m_actions->redo; }
 
-    [[nodiscard]] QAction* openAction() const { return m_open; }
+    [[nodiscard]] QAction* openAction() const { return m_actions->open; }
 
     /// `File ▸ New` and `File ▸ Close` — a project of its own in a new tab,
     /// and the current tab taken away. `GUI-TABS-01`.
@@ -144,9 +144,9 @@ public:
     /// **`Close` is out with one tab left**: the window always holds at least
     /// one project, and closing the last would mean closing the window, which
     /// is what the title bar's own button already does.
-    [[nodiscard]] QAction* newProjectAction() const { return m_newProject; }
+    [[nodiscard]] QAction* newProjectAction() const { return m_actions->newProject; }
 
-    [[nodiscard]] QAction* closeProjectAction() const { return m_closeProject; }
+    [[nodiscard]] QAction* closeProjectAction() const { return m_actions->closeProject; }
 
     /// `Projects ▸ Save All` and `Projects ▸ Close All`. `GUI-SAVE-04`,
     /// `GUI-TABS-02`.
@@ -154,16 +154,16 @@ public:
     /// **`Close All` is the window's own close**: the window always holds one
     /// project, so closing all of them and closing the window are one act, and
     /// they ask one question.
-    [[nodiscard]] QAction* saveAllDocumentsAction() const { return m_saveAllDocuments; }
+    [[nodiscard]] QAction* saveAllDocumentsAction() const { return m_actions->saveAllDocuments; }
 
-    [[nodiscard]] QAction* closeAllProjectsAction() const { return m_closeAllProjects; }
+    [[nodiscard]] QAction* closeAllProjectsAction() const { return m_actions->closeAllProjects; }
 
     /// `Ctrl+PageDown` and `Ctrl+PageUp`, wrapping around at either end. No
     /// menu entry: the bar already offers a click, and these are for whoever
     /// would rather not reach for the mouse.
-    [[nodiscard]] QAction* nextTabAction() const { return m_nextTab; }
+    [[nodiscard]] QAction* nextTabAction() const { return m_actions->nextTab; }
 
-    [[nodiscard]] QAction* previousTabAction() const { return m_previousTab; }
+    [[nodiscard]] QAction* previousTabAction() const { return m_actions->previousTab; }
 
     /// One tab per open project, in the order they were opened. A test reads
     /// its count and its labels, and drives it the way a click would —
@@ -173,9 +173,9 @@ public:
     /// The « + » after the last tab, which opens a new project — issue #473.
     [[nodiscard]] QToolButton* newTabButton() const { return m_newTab; }
 
-    [[nodiscard]] QAction* saveAction() const { return m_save; }
+    [[nodiscard]] QAction* saveAction() const { return m_actions->save; }
 
-    [[nodiscard]] QAction* saveAsAction() const { return m_saveAs; }
+    [[nodiscard]] QAction* saveAsAction() const { return m_actions->saveAs; }
 
     /// The three entries of the translation — `File ▸ Open Translation…`,
     /// `Save Translation` and `Save Translation As…` — for a test to read their
@@ -184,73 +184,73 @@ public:
     /// **The last two are out while the project has no translation**: there is
     /// nothing to write. Opening one is out while there is nothing to align it
     /// to — an empty document has no subtitle to give its lines to.
-    [[nodiscard]] QAction* openTranslationAction() const { return m_openTranslation; }
+    [[nodiscard]] QAction* openTranslationAction() const { return m_actions->openTranslation; }
 
-    [[nodiscard]] QAction* saveTranslationAction() const { return m_saveTranslation; }
+    [[nodiscard]] QAction* saveTranslationAction() const { return m_actions->saveTranslation; }
 
-    [[nodiscard]] QAction* saveTranslationAsAction() const { return m_saveTranslationAs; }
+    [[nodiscard]] QAction* saveTranslationAsAction() const { return m_actions->saveTranslationAs; }
 
     /// The three clipboard entries, for a test to read their state and trigger
     /// them.
-    [[nodiscard]] QAction* cutAction() const { return m_cut; }
+    [[nodiscard]] QAction* cutAction() const { return m_actions->cut; }
 
-    [[nodiscard]] QAction* copyAction() const { return m_copy; }
+    [[nodiscard]] QAction* copyAction() const { return m_actions->copy; }
 
-    [[nodiscard]] QAction* pasteAction() const { return m_paste; }
+    [[nodiscard]] QAction* pasteAction() const { return m_actions->paste; }
 
-    [[nodiscard]] QAction* findAndReplaceAction() const { return m_findAndReplace; }
+    [[nodiscard]] QAction* findAndReplaceAction() const { return m_actions->findAndReplace; }
 
     /// The search dialog once it has been opened, and nothing before.
     [[nodiscard]] SearchDialog* searchDialog() const;
 
     /// The two edits of structure, for a test to read their state and trigger
     /// them.
-    [[nodiscard]] QAction* insertAction() const { return m_insert; }
+    [[nodiscard]] QAction* insertAction() const { return m_actions->insert; }
 
-    [[nodiscard]] QAction* removeAction() const { return m_remove; }
+    [[nodiscard]] QAction* removeAction() const { return m_actions->remove; }
 
-    [[nodiscard]] QAction* mergeAction() const { return m_mergeSubtitles; }
+    [[nodiscard]] QAction* mergeAction() const { return m_actions->mergeSubtitles; }
 
-    [[nodiscard]] QAction* splitAction() const { return m_splitSubtitle; }
+    [[nodiscard]] QAction* splitAction() const { return m_actions->splitSubtitle; }
 
     /// The panel of what the last reading ran into.
     [[nodiscard]] DiagnosticsPanel* diagnostics() const { return m_diagnostics; }
 
-    [[nodiscard]] QAction* shiftAction() const { return m_shift; }
+    [[nodiscard]] QAction* shiftAction() const { return m_actions->shift; }
 
-    [[nodiscard]] QAction* transformAction() const { return m_transform; }
+    [[nodiscard]] QAction* transformAction() const { return m_actions->transform; }
 
-    [[nodiscard]] QAction* frameRateAction() const { return m_frameRate; }
+    [[nodiscard]] QAction* frameRateAction() const { return m_actions->frameRate; }
 
-    [[nodiscard]] QAction* adjustDurationsAction() const { return m_adjustDurations; }
+    [[nodiscard]] QAction* adjustDurationsAction() const { return m_actions->adjustDurations; }
 
-    [[nodiscard]] QAction* appendFileAction() const { return m_appendFile; }
+    [[nodiscard]] QAction* appendFileAction() const { return m_actions->appendFile; }
 
     /// `Tools ▸ Split Project…` — the inverse of appending, `GUI-PSPLIT-01`.
     /// Out under two subtitles: a cut needs one on each side.
-    [[nodiscard]] QAction* splitProjectAction() const { return m_splitProject; }
+    [[nodiscard]] QAction* splitProjectAction() const { return m_actions->splitProject; }
 
-    [[nodiscard]] QAction* hearingImpairedAction() const { return m_hearingImpaired; }
+    [[nodiscard]] QAction* hearingImpairedAction() const { return m_actions->hearingImpaired; }
 
     /// The one button that puts a text in italics and takes them out again.
     ///
     /// **Out for a format that writes no style**, which is what says to a user
     /// of a `.lrc` that there is nothing to type — an entry that is there and
     /// grey answers « why can I not? », an entry that is gone does not.
-    [[nodiscard]] QAction* italicAction() const { return m_italic; }
+    [[nodiscard]] QAction* italicAction() const { return m_actions->italic; }
 
     /// The entry that puts the target in `wanted`, for a test to fire it.
     [[nodiscard]] QAction* caseAction(core::LetterCase wanted) const;
 
     /// The one entry that puts dialogue dashes on and takes them off.
-    [[nodiscard]] QAction* dialogueDashesAction() const { return m_dialogueDashes; }
+    [[nodiscard]] QAction* dialogueDashesAction() const { return m_actions->dialogueDashes; }
 
     /// The entry that opens the preferences, for a test to trigger it.
-    [[nodiscard]] QAction* preferencesAction() const { return m_preferences; }
+    [[nodiscard]] QAction* preferencesAction() const { return m_actions->preferences; }
 
-    [[nodiscard]] QAction* selectVideoAction() const { return m_selectVideo; }
+    [[nodiscard]] QAction* selectVideoAction() const { return m_actions->selectVideo; }
 
-    [[nodiscard]] QAction* playPauseAction() const { return m_playPause; }
+    [[nodiscard]] QAction* playPauseAction() const { return m_actions->playPause; }
 
     /// The surface the film is drawn on, for a test to read whether it is
     /// there at all. Hidden while no film is open, which is what « the table
@@ -288,14 +288,14 @@ public:
     /// sees.
     [[nodiscard]] QLabel* targetStatus() const { return m_targetStatus; }
 
-    [[nodiscard]] QAction* analyseGridAction() const { return m_analyseGrid; }
+    [[nodiscard]] QAction* analyseGridAction() const { return m_actions->analyseGrid; }
 
-    [[nodiscard]] QAction* snapAction() const { return m_snap; }
+    [[nodiscard]] QAction* snapAction() const { return m_actions->snap; }
 
-    [[nodiscard]] QAction* aboutAction() const { return m_about; }
+    [[nodiscard]] QAction* aboutAction() const { return m_actions->about; }
 
     /// Opens the installed manual. Out for as long as there is none.
-    [[nodiscard]] QAction* manualAction() const { return m_manual; }
+    [[nodiscard]] QAction* manualAction() const { return m_actions->manual; }
 
     /// Says where the installed manual is, and lights the entry if it is there.
     ///
@@ -335,7 +335,7 @@ public:
 
     /// Bringing the file back onto its own grid. Its text carries the measured
     /// amount, which is how `GUI-GRID-03` shows it before it is applied.
-    [[nodiscard]] QAction* shiftOntoGridAction() const { return m_shiftOntoGrid; }
+    [[nodiscard]] QAction* shiftOntoGridAction() const { return m_actions->shiftOntoGrid; }
 
     /// Reads where playback stands and puts the window in step with it.
     ///
@@ -774,50 +774,13 @@ private:
 
     SubtitleTable* m_table = nullptr;
     DiagnosticsPanel* m_diagnostics = nullptr;
-    QAction* m_undo = nullptr;
-    QAction* m_redo = nullptr;
-    QAction* m_open = nullptr;
-    QAction* m_newProject = nullptr;
-    QAction* m_closeProject = nullptr;
-    QAction* m_saveAllDocuments = nullptr;
-    QAction* m_closeAllProjects = nullptr;
-    QAction* m_nextTab = nullptr;
-    QAction* m_previousTab = nullptr;
-    QAction* m_save = nullptr;
-    QAction* m_saveAs = nullptr;
-    QAction* m_openTranslation = nullptr;
-    QAction* m_saveTranslation = nullptr;
-    QAction* m_saveTranslationAs = nullptr;
-    QAction* m_cut = nullptr;
-    QAction* m_copy = nullptr;
-    QAction* m_paste = nullptr;
-    QAction* m_findAndReplace = nullptr;
-    QAction* m_insert = nullptr;
-    QAction* m_remove = nullptr;
-    QAction* m_mergeSubtitles = nullptr;
-    QAction* m_splitSubtitle = nullptr;
-    QAction* m_shift = nullptr;
-    QAction* m_transform = nullptr;
-    QAction* m_frameRate = nullptr;
-    QAction* m_adjustDurations = nullptr;
-    QAction* m_appendFile = nullptr;
-    QAction* m_splitProject = nullptr;
-    QAction* m_hearingImpaired = nullptr;
-    QAction* m_italic = nullptr;
-    std::array<QAction*, 4> m_case{};
+
+    /// Every action, the menus and the toolbar — issue #483.
+    std::unique_ptr<WindowActions> m_actions;
 
     /// The columns of the table and the entries of `View ▸ Columns` — ADR 0034.
     std::unique_ptr<TableColumns> m_columns;
-    QAction* m_dialogueDashes = nullptr;
-    QAction* m_analyseGrid = nullptr;
-    QAction* m_snap = nullptr;
-    QAction* m_shiftOntoGrid = nullptr;
-    QAction* m_preferences = nullptr;
-    QAction* m_about = nullptr;
-    QAction* m_manual = nullptr;
     ManualWindow* m_manualWindow = nullptr;
-    QAction* m_selectVideo = nullptr;
-    QAction* m_playPause = nullptr;
     QLabel* m_videoStatus = nullptr;
     QLabel* m_gridStatus = nullptr;
     QLabel* m_encodingStatus = nullptr;

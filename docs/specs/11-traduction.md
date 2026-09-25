@@ -724,6 +724,10 @@ Relecture de fin de phase, [#441](https://github.com/Guyot-Bertrand/sub-edit/iss
 > All` n'amènent plus un onglet au premier plan que devant un `Save As…`. Deux tests de la fenêtre le
 > prouvent — l'onglet ne bouge pas, le lecteur n'ouvre aucun film — sans qu'un test existant de la
 > fenêtre soit réécrit.
+>
+> **#483 livrée**, ADR 0034 complétée : `WindowActions` construit les actions, leurs raccourcis, les
+> menus et la barre d'outils ; la fenêtre le garde comme un seul membre et connecte chaque action à son
+> slot. `main_window.cpp` passe de 2 531 à 2 216 lignes, et aucun test de la fenêtre n'est réécrit.
 
 **Écartés, avec leur raison.**
 

@@ -49,6 +49,18 @@ La fenêtre les implémente ; un test en passe un double.
 lecteur, la barre d'état, le titre, et les opérations de `Tools` et d'`Edit`, qui passent toutes par
 `applyOperation` et ne tiennent pas d'état à elles.
 
+> **Complété le 2026-09-25, [#483](https://github.com/Guyot-Bertrand/sub-edit/issues/483) : les actions
+> sortent à leur tour**, dans `WindowActions`. Il construit les trente-neuf actions, leurs raccourcis et
+> leur état de départ, et les pose dans les menus et la barre d'outils ; **il ne connecte rien** — ce
+> que fait chaque geste reste un slot de la fenêtre, qui le branche — et ne décide pas quand une action
+> s'éteint, ce que `refreshActions` recalcule après chaque opération. La frontière n'est donc pas celle
+> des trois collaborateurs ci-dessus : pas d'état propre, pas de page visée, pas d'interface `View`. Ce
+> qu'il porte est ce qui ne change plus une fois construit, et c'est ce qui se teste sans fenêtre — sur
+> une `QMainWindow` nue. Un agrégat de pointeurs lus par leur nom (`m_actions->undo`) plutôt qu'une
+> classe à accesseurs : les accesseurs de test de la fenêtre existent déjà et renvoient ces pointeurs,
+> aucun test de la fenêtre n'a été réécrit. Le constructeur de la fenêtre passe de 548 à 269 lignes,
+> `main_window.cpp` de 2 531 à 2 216, `main_window.hpp` de 908 à 872.
+
 ## Alternatives écartées
 
 - **Une interface unique pour les trois**, une « fenêtre vue d'un collaborateur ». Plus courte à écrire,
