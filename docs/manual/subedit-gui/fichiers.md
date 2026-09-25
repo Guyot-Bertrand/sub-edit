@@ -6,7 +6,7 @@ plus pour la traduction ; le menu **Projects** agit sur tous les onglets à la f
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
 | `New Project` | `Ctrl+N` | un projet vide, dans un nouvel onglet — aussi le bouton `+` après le dernier onglet |
-| `Open…` | `Ctrl+O` | choisit un fichier et l'ouvre dans un nouvel onglet |
+| `Open…` | `Ctrl+O` | choisit un fichier et l'ouvre dans un nouvel onglet — ou à la place d'un projet vierge |
 | `Open Translation…` | — | choisit un fichier de traduction et l'aligne sur le principal de l'onglet courant |
 | `Save` | `Ctrl+S` | réécrit le fichier ouvert |
 | `Save As…` | `Ctrl+Shift+S` | choisit un chemin et un format, puis écrit |
@@ -39,6 +39,15 @@ fenêtre montrait : il arrive dans un onglet neuf, à côté, et l'onglet qu'on
 regardait avant garde tout ce qu'il avait — son historique, sa sélection, sa
 vidéo associée. C'est aussi pourquoi ouvrir ne demande plus rien : il n'y a
 rien à perdre, puisqu'il n'y a rien à remplacer.
+
+**Une exception : le projet vierge cède sa place.** Lancée sans fichier, ou
+après `New Project`, la fenêtre montre un projet `untitled` où il n'y a rien.
+Un fichier ouvert — par `Open…` comme par un dépôt — **prend alors son onglet,
+à la même place dans la barre**, plutôt que d'en ouvrir un autre à côté d'un
+projet inutile. Est vierge un projet **sans fichier, sans sous-titre, sans
+rien à annuler ni à refaire, sans film, et jamais modifié** : il suffit d'une
+seule de ces choses pour qu'il garde son onglet. Un projet vierge qui n'est pas
+l'onglet courant n'est pas touché.
 
 **Un fichier déjà ouvert n'est pas ouvert une seconde fois.** `Open…` sur un
 fichier qu'un autre onglet tient déjà rend le focus à cet onglet, et le dit
