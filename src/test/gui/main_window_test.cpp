@@ -29,6 +29,7 @@
 #include <ranges>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "fake_prompts.hpp"
 
@@ -420,6 +421,38 @@ TEST_CASE("both actions are reachable from the menu and the toolbar", "[gui][GUI
 
     CHECK(window.undoAction()->shortcut() == QKeySequence::Undo);
     CHECK(window.redoAction()->shortcut() == QKeySequence::Redo);
+}
+
+// Issue #474: the bar, held whole — what it carries, in what order, and the
+// short word each button reads. A button added or lost has to change this
+// case, which is the point.
+TEST_CASE("the toolbar carries the frequent gestures, in groups", "[gui][GUI-OPEN-01]") {
+    const Windowed fixture;
+    const MainWindow& window = fixture.window();
+
+    const QList<QToolBar*> bars = window.findChildren<QToolBar*>();
+    REQUIRE(bars.size() == 1);
+    std::vector<std::string> buttons;
+    for (const QAction* action : bars.at(0)->actions())
+        buttons.push_back(action->isSeparator() ? "|" : action->iconText().toStdString());
+
+    CHECK(buttons == std::vector<std::string>{"New",
+                                              "Open",
+                                              "Save",
+                                              "|",
+                                              "Undo",
+                                              "Redo",
+                                              "|",
+                                              "Find",
+                                              "|",
+                                              "Insert",
+                                              "Remove",
+                                              "Italic",
+                                              "|",
+                                              "Play"});
+    // The bar gives the short word, the menu keeps the whole entry.
+    CHECK(window.findAndReplaceAction()->text().remove(QLatin1Char('&')).toStdString() ==
+          "Find and Replace…");
 }
 
 TEST_CASE("every shortcut a desktop gives to redo is live", "[gui][GUI-UNDO-01]") {

@@ -102,6 +102,7 @@
 #include <QWidget>
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
@@ -868,18 +869,46 @@ MainWindow::MainWindow(core::FileSystem& files,
     statusBar()->addPermanentWidget(m_gridStatus);
     statusBar()->addPermanentWidget(m_videoStatus);
 
-    QToolBar* bar = addToolBar(QStringLiteral("Edit"));
+    // **The frequent gestures, in groups** — issue #474. Gaupol's bar carries
+    // opening, saving, undoing and redoing, and finding; its player gets a bar
+    // of its own. This one adds what the user reaches for most while editing —
+    // a new project, inserting, removing — and the player's one button, and
+    // keeps `Italic`, which was on it first. A gesture that opens a box is no
+    // reason to keep it off: the box is what the button leads to.
+    //
+    // Each button reads a short word of its own; the menus keep the whole
+    // entry. The table of what differs from Gaupol, and why, is in spec 11.
+    const std::array<std::pair<QAction*, QString>, 10> words{{
+        {m_newProject, QStringLiteral("New")},
+        {m_open, QStringLiteral("Open")},
+        {m_save, QStringLiteral("Save")},
+        {m_undo, QStringLiteral("Undo")},
+        {m_redo, QStringLiteral("Redo")},
+        {m_findAndReplace, QStringLiteral("Find")},
+        {m_insert, QStringLiteral("Insert")},
+        {m_remove, QStringLiteral("Remove")},
+        {m_italic, QStringLiteral("Italic")},
+        {m_playPause, QStringLiteral("Play")},
+    }};
+    for (const auto& [action, word] : words)
+        action->setIconText(word);
+
+    QToolBar* bar = addToolBar(QStringLiteral("Main"));
     bar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    bar->addAction(m_newProject);
     bar->addAction(m_open);
     bar->addAction(m_save);
     bar->addSeparator();
     bar->addAction(m_undo);
     bar->addAction(m_redo);
     bar->addSeparator();
-    // **The one operation of the window that belongs on a bar.** It takes no
-    // option and no dialog, so a button applies it whole; the others open a box
-    // and would be a button that asks a question.
+    bar->addAction(m_findAndReplace);
+    bar->addSeparator();
+    bar->addAction(m_insert);
+    bar->addAction(m_remove);
     bar->addAction(m_italic);
+    bar->addSeparator();
+    bar->addAction(m_playPause);
 
     // The boxes sit over this window, and it is the window that says so: built
     // before it, prompts cannot know it, and leaving that to `main` is what let
