@@ -171,7 +171,13 @@ surfaces lisent un fichier par la même recette.
 ### Glisser des fichiers sur la fenêtre
 
 **Déposer des fichiers n'importe où sur la fenêtre les ouvre**, depuis le
-gestionnaire de fichiers.
+gestionnaire de fichiers : la table, la barre d'onglets, le bouton
+`Select Video…`, et **l'image du film elle-même**, en lecture comme à l'arrêt.
+L'image est une fenêtre à part que dessine le lecteur, et que rien ne garantissait
+de voir transmettre un dépôt ; cela a été vérifié à la main sur un vrai bureau,
+dans une session Wayland. `subedit-gui` s'y lance sous X11 pour pouvoir montrer
+le film, si bien que le dépôt emprunte le protocole de X11 — celui d'une session
+X11, où il n'a pas été essayé à part.
 
 - **Chaque fichier de sous-titres ouvre son onglet**, dans l'ordre où ils ont
   été déposés — exactement comme `Open…`. Un fichier **déjà ouvert** n'est pas

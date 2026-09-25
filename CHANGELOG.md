@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **gui** — Le dépôt sur l'image du film est pris, vérifié
+
+## 0.11.27 — 2026-09-25
+
 ### Ajouts
 
 - **gui** — Un fichier ouvert prend la place d'un projet vierge
