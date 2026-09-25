@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Corrections
 
+- **video** — Lâcher le lecteur avant que sa surface disparaisse
+
+## 0.11.22 — 2026-09-25
+
+### Corrections
+
 - **video** — Ne plus prendre la fin d'un film pour le refus du suivant
 - **gui** — Donner à l'image la place que la table laisse
 
