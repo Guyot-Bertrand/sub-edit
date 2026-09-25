@@ -9,6 +9,7 @@
 #include <subedit/core/model/selection.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/subtitle_table.hpp>
+#include <subedit/gui/video_pane.hpp>
 #include <subedit/gui/window_actions.hpp>
 
 #include <QMainWindow>
@@ -255,11 +256,11 @@ public:
     /// The surface the film is drawn on, for a test to read whether it is
     /// there at all. Hidden while no film is open, which is what « the table
     /// takes the whole window » means.
-    [[nodiscard]] QWidget* videoView() const { return m_videoView; }
+    [[nodiscard]] QWidget* videoView() const { return m_video->picture(); }
 
     /// What stands where the picture would be while there is no film: a way in,
     /// rather than an absence a user has to guess is one.
-    [[nodiscard]] QWidget* noVideoBanner() const { return m_noVideo; }
+    [[nodiscard]] QWidget* noVideoBanner() const { return m_video->banner(); }
 
     /// What the status bar says of the associated film — its name, or that
     /// there is none. This is what `GUI-VIDEO-01` promises the user sees.
@@ -518,10 +519,6 @@ private:
                                                core::CommandKind kind,
                                                const core::Selection& target) const;
 
-    /// How long the film of `page` lasts, or nothing — nothing too for a page
-    /// whose film is not the one the shared player has open.
-    [[nodiscard]] std::optional<core::Duration> videoLength(const ProjectPage& page) const;
-
     /// Asks which film to watch the document against, and associates it.
     void selectVideo();
 
@@ -584,44 +581,6 @@ private:
     /// Called wherever the association can have changed, and it is cheap to
     /// call when it has not: a film already open is not opened again.
     void refreshVideo();
-
-    /// Opens the associated film, or takes the view away.
-    ///
-    /// **A film that will not open is said, named, and then let go.** Nothing
-    /// else about the window changes: the document is still there, the
-    /// operations still work, and the association still stands — the user may
-    /// well want to see which file it is that the player refused.
-    void watchAssociatedVideo();
-
-    /// Shows the picture, or the band that invites one, in the room above the
-    /// table — exactly one of the two, and the room goes with it.
-    ///
-    /// **The splitter keeps a size for each child, shown or not**: swapping
-    /// which one is visible without moving the room left the picture with the
-    /// size the settings gave it while hidden, that is none — issue #469.
-    void showPicture(bool picture);
-
-    /// Lets the player go, with the film it holds — before the surface it
-    /// draws into is destroyed, never after (#470).
-    void releasePlayer();
-
-    /// Returns the player, building it the first time one is needed.
-    ///
-    /// Nothing, when no factory was given or when the factory declined. Asked
-    /// **once**: a libmpv that would not give a player will not give one on
-    /// the second film either, and asking again would report the same failure
-    /// at every attempt.
-    [[nodiscard]] core::VideoPlayer* player();
-
-    /// Plays, or holds where it is — the player is the one that knows which.
-    void togglePlayback();
-
-    /// Places playback at the start of the first selected subtitle.
-    ///
-    /// **Only when that first row changes**, and that is not a refinement:
-    /// extending a selection downwards over four thousand rows fires this at
-    /// every step, and a seek waits for the player to arrive.
-    void placePlaybackAtSelection();
 
     /// Asks how many blank rows, and where, then lays them down.
     ///
@@ -785,17 +744,17 @@ private:
     QLabel* m_gridStatus = nullptr;
     QLabel* m_encodingStatus = nullptr;
     QLabel* m_targetStatus = nullptr;
-    QWidget* m_videoView = nullptr;
-    QWidget* m_noVideo = nullptr;
     QSplitter* m_split = nullptr;
     QTabBar* m_tabBar = nullptr;
     QToolButton* m_newTab = nullptr;
-    QTimer* m_ticker = nullptr;
 
-    PlayerFactory m_buildPlayer{};
-    FrameRateReader m_readDeclaredRate{};
-    std::unique_ptr<core::VideoPlayer> m_player;
-    bool m_playerAsked = false;
+    /// What the video asks of the window, and the video itself — issue #484.
+    /// Declared after the table and the splitter it is built on, the side
+    /// before the pane that holds a reference to it — and the pane, which owns
+    /// the player, goes before the widgets the window owns: #470.
+    class VideoSide;
+    std::unique_ptr<VideoSide> m_videoSide;
+    std::unique_ptr<VideoPane> m_video;
 
     /// The theme asked for, to be handed back to the settings. Laid down, not
     /// deduced: the current palette does not say which of the three made it.
@@ -832,11 +791,6 @@ private:
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;
 
-    /// Whether the window has been on screen once.
-    ///
-    /// Nothing is handed to a player before it has: see `showEvent`.
-    bool m_wasShown = false;
-
     /// Every open project — ADR 0033, `GUI-TABS-01`. One tab, one entry, in
     /// the order they were opened; never empty, since a window with nothing
     /// left to show a blank one rather than none.
@@ -856,16 +810,6 @@ private:
     /// The index `m_page` sits at in `m_pages` — what `switchToPage` compares
     /// a request against to tell « already showing » from « switch ».
     int m_currentPage = -1;
-
-    /// The page whose film the shared player currently has open, or nothing.
-    ///
-    /// **Distinct from `m_page`.** `watchAssociatedVideo`'s own guard — « the
-    /// association has not changed, do nothing » — is right for one project
-    /// and wrong for several: switching to a page whose association has not
-    /// changed *since it was last shown* still means the player is showing
-    /// someone else's film. Comparing against this is what forces the reopen
-    /// a switch of tab needs, on top of that guard rather than instead of it.
-    ProjectPage* m_playingPage = nullptr;
 };
 
 } // namespace subedit::gui
