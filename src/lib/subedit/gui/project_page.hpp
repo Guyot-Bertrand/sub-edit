@@ -5,6 +5,7 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/selection.hpp>
+#include <subedit/core/time/timestamp.hpp>
 
 #include <QItemSelectionModel>
 
@@ -82,6 +83,12 @@ struct ProjectPage {
 
     /// Whether a film is open and being drawn for this project.
     bool watching = false;
+
+    /// Where this project's film stood when its tab was left, to take it back
+    /// there on the return — issue #471. The player is shared: without this,
+    /// every return to a tab started its film over. Nothing once another film
+    /// has been chosen for the project.
+    std::optional<core::Timestamp> resumeAt;
 
     /// The line the overlay currently carries for this project.
     ///

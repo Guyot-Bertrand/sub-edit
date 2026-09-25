@@ -940,6 +940,11 @@ void MainWindow::switchToPage(int index) {
     if (index == m_currentPage)
         return;
 
+    // Where the film of the tab being left stands, taken before the shared
+    // player is handed to another film — issue #471.
+    if (m_page != nullptr && m_page == m_playingPage && m_page->watching)
+        m_page->resumeAt = m_player->position();
+
     m_currentPage = index;
     m_page = m_pages[static_cast<std::size_t>(index)].get();
 
@@ -1196,6 +1201,12 @@ void MainWindow::watchAssociatedVideo() {
     if (wanted == m_page->associated && m_playingPage == m_page)
         return;
 
+    // The place a tab was left at belongs to the film it was left on: another
+    // film starts from its beginning.
+    const bool sameFilm = wanted == m_page->associated;
+    if (!sameFilm)
+        m_page->resumeAt.reset();
+
     m_playingPage = m_page;
     m_page->associated = wanted;
     m_page->watching = false;
@@ -1218,9 +1229,12 @@ void MainWindow::watchAssociatedVideo() {
 
     core::VideoPlayer* watching = wanted.empty() ? nullptr : player();
     if (watching != nullptr) {
-        if (const std::expected<void, core::PlayerError> opened = watching->open(wanted); opened)
+        if (const std::expected<void, core::PlayerError> opened = watching->open(wanted); opened) {
             m_page->watching = true;
-        else
+            // Back where the tab was left, paused as every opening is.
+            if (m_page->resumeAt.has_value())
+                watching->seek(*m_page->resumeAt);
+        } else
             m_prompts->reportFailure(wanted.string() + ": " + opened.error().reason);
     } else if (!wanted.empty() && m_buildPlayer) {
         // A film was named and there is no player to show it with. Said here
