@@ -8,6 +8,7 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/gui/player_factory.hpp>
+#include <subedit/gui/status_line.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/video_pane.hpp>
 #include <subedit/gui/window_actions.hpp>
@@ -264,15 +265,15 @@ public:
 
     /// What the status bar says of the associated film — its name, or that
     /// there is none. This is what `GUI-VIDEO-01` promises the user sees.
-    [[nodiscard]] QLabel* videoStatus() const { return m_videoStatus; }
+    [[nodiscard]] QLabel* videoStatus() const { return m_status->video(); }
 
     /// What the status bar says of the grid the positions were written on.
     /// This is what `GUI-GRID-01` promises the user sees.
-    [[nodiscard]] QLabel* gridStatus() const { return m_gridStatus; }
+    [[nodiscard]] QLabel* gridStatus() const { return m_status->grid(); }
 
     /// What the status bar says of the encoding the document was read in.
     /// This is what `GUI-ENC-01` promises the user sees.
-    [[nodiscard]] QLabel* encodingStatus() const { return m_encodingStatus; }
+    [[nodiscard]] QLabel* encodingStatus() const { return m_status->encoding(); }
 
     /// The entry of the `View` menu that shows the translation column or takes
     /// it away — `GUI-TRANS-04`. Out for as long as the project has no
@@ -287,7 +288,7 @@ public:
     /// What the status bar says of the text an operation aims at, and nothing
     /// while there is only one. This is what `GUI-TRANS-05` promises the user
     /// sees.
-    [[nodiscard]] QLabel* targetStatus() const { return m_targetStatus; }
+    [[nodiscard]] QLabel* targetStatus() const { return m_status->target(); }
 
     [[nodiscard]] QAction* analyseGridAction() const { return m_actions->analyseGrid; }
 
@@ -530,27 +531,6 @@ private:
     /// too often costs nothing but a look at a directory.
     void proposeVideoBeside();
 
-    /// Puts what the document is watched against into the status bar.
-    void refreshVideoStatus();
-
-    /// Recomputes the deduction and puts the status bar in step with it.
-    ///
-    /// **Recomputed rather than kept**, which is ADR 0021's choice: a stored
-    /// derived value is an invalidation to hold, and every edit of a position
-    /// would stale it. A pure function called again has no such problem, and it
-    /// costs a fraction of a millisecond on a full-length file.
-    void refreshGridStatus();
-
-    /// The rate a document counted in frames was read at, or nothing for the
-    /// eight formats of nine that count in time.
-    [[nodiscard]] std::optional<core::FrameRate> rateReadInFrames() const;
-
-    /// Puts the status bar in step with the encoding the document carries.
-    ///
-    /// Called wherever that encoding can have changed — an opening, and a
-    /// « save as » that moved the document onto another one.
-    void refreshEncodingStatus();
-
     /// Opens the analysis, which reports and changes nothing.
     void analyseGrid();
 
@@ -732,6 +712,9 @@ private:
     Prompts* m_prompts = nullptr;
 
     SubtitleTable* m_table = nullptr;
+
+    /// The four standing facts of the status bar — issue #485.
+    std::unique_ptr<StatusLine> m_status;
     DiagnosticsPanel* m_diagnostics = nullptr;
 
     /// Every action, the menus and the toolbar — issue #483.
@@ -740,10 +723,6 @@ private:
     /// The columns of the table and the entries of `View ▸ Columns` — ADR 0034.
     std::unique_ptr<TableColumns> m_columns;
     ManualWindow* m_manualWindow = nullptr;
-    QLabel* m_videoStatus = nullptr;
-    QLabel* m_gridStatus = nullptr;
-    QLabel* m_encodingStatus = nullptr;
-    QLabel* m_targetStatus = nullptr;
     QSplitter* m_split = nullptr;
     QTabBar* m_tabBar = nullptr;
     QToolButton* m_newTab = nullptr;
