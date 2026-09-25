@@ -14,7 +14,9 @@ plus pour la traduction ; le menu **Projects** agit sur tous les onglets à la f
 | `Save Translation As…` | — | choisit un chemin et un format pour la traduction, puis écrit |
 | `Close` | `Ctrl+W` | ferme l'onglet courant — éteinte s'il n'y en a qu'un |
 
-`Open…` et `Save` sont aussi dans la barre d'outils. **Les trois entrées de la
+`New Project`, `Open…` et `Save` sont aussi dans la
+[barre d'outils](index.md#la-barre-doutils), sous les mots `New`, `Open` et
+`Save`. **Les trois entrées de la
 traduction ne sont pas dans la barre** : elles ne servent qu'à ceux qui ont une
 traduction, et la barre est celle de tout le monde.
 

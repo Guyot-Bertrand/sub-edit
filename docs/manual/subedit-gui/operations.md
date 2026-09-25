@@ -460,7 +460,8 @@ elle s'annule d'un `Ctrl+Z` comme les autres.
 | :----- | :-------- | :--- |
 | `Italic` | `Ctrl+I` | menu **Tools**, barre d'outils |
 
-C'est la seule opération du menu qui ait un bouton dans la barre d'outils.
+C'est la seule opération du menu `Tools` qui ait un bouton dans la
+[barre d'outils](index.md#la-barre-doutils).
 
 ### Ce qu'elle écrit, format par format
 
