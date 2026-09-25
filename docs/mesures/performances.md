@@ -490,6 +490,50 @@ extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
 
+### 0.11.30 — 2026-09-25 — Release — charge 1.44 — allure ×1.02
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| la réplique en cours, sur 4000 sous-titres | 7.4 µs | 1.41 µs |
+| composer une réplique de deux lignes | 167 ns | 3.28 ns |
+| ouvrir une vidéo | 9.33 ms | 714 µs |
+| chercher une position | 575 µs | 136 µs |
+| construction du modèle sur 4000 sous-titres | 8.49 µs | 2.59 µs |
+| une fenêtre de 40 lignes, cinq colonnes | 17.4 µs | 3.39 µs |
+| rafraîchir après un décalage de 4000 sous-titres | 8.33 µs | 1.11 µs |
+| réinitialisation du modèle après une ligne retirée | 8.4 µs | 1.97 µs |
+| édition d'une cellule de texte | 382 ns | 37 ns |
+| édition d'une cellule de position | 10.7 µs | 415 ns |
+| versionString | 43 ns | 9.85 ns |
+| parse | 43.3 ns | 15.4 ns |
+| format | 37.7 ns | 1.82 ns |
+| position vers image | 6.64 ns | 0.0691 ns |
+| image vers position | 6.64 ns | 0.073 ns |
+| mise à l'échelle par un rationnel exact | 7.34 ns | 3.1 ns |
+| lecture de 4000 sous-titres | 2.25 ms | 145 µs |
+| écriture de 4000 sous-titres | 518 µs | 41.7 µs |
+| décalage de 4000 sous-titres | 6.82 µs | 2.44 µs |
+| décalage puis annulation | 13.5 µs | 3.81 µs |
+| transformation de 4000 sous-titres | 71 µs | 4.36 µs |
+| conversion de fréquence sur 4000 sous-titres | 68.9 µs | 8.02 µs |
+| alignement sur 4000 sous-titres | 129 µs | 17.1 µs |
+| tri de 4000 sous-titres à l'envers | 274 µs | 27.1 µs |
+| suppression d'un sous-titre sur deux | 159 µs | 17 µs |
+| suppression puis annulation | 253 µs | 63.1 µs |
+| insertion de 100 sous-titres vides au milieu | 52.9 µs | 14.2 µs |
+| modification d'un texte, à travers une session | 168 ns | 12.2 ns |
+| suppression des mentions sur 4000 sous-titres | 1.45 ms | 53.9 µs |
+| mise en italique de 4000 sous-titres | 913 µs | 48.4 µs |
+| remplacement d'un mot fréquent sur 4000 sous-titres, texte simple | 4.19 ms | 276 µs |
+| remplacement d'un mot fréquent sur 4000 sous-titres, expression régulière | 4.31 ms | 268 µs |
+| recherche sans résultat sur 4000 sous-titres | 2.91 ms | 179 µs |
+| ajustement des durées de 4000 sous-titres, quatre contraintes | 1.33 ms | 72.6 µs |
+| casse de titre sur 4000 sous-titres | 19.4 ms | 972 µs |
+| collage de 4000 textes | 1.07 ms | 75.5 µs |
+| alignement d'une traduction de 4000 lignes, par position | 856 µs | 56.4 µs |
+| alignement d'une traduction de 4000 lignes, par numéro | 883 µs | 85.8 µs |
+| déduction de fréquence sur 4000 sous-titres | 387 µs | 42.2 µs |
+
 ### 0.11.25 — 2026-09-25 — Release — charge 1.37 — allure ×1.19
 
 | Mesure | Moyenne | Écart-type |
