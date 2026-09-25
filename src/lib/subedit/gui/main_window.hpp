@@ -450,6 +450,11 @@ private:
     /// gives way to its neighbour.
     void closeProject(int index);
 
+    /// Takes the page at `index` and its tab away, asking nothing: whoever
+    /// calls has asked already, or knows there is nothing to lose. A current
+    /// page gives way to its neighbour; one behind leaves the shown one shown.
+    void removePage(int index);
+
     /// Whether `Close` and the crosses of the tabs may do anything — neither
     /// with one tab left.
     void refreshTabActions();

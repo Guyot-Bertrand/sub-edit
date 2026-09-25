@@ -1508,7 +1508,25 @@ std::optional<std::string> MainWindow::openFile(const std::filesystem::path& pat
     if (!opened)
         return std::move(opened.error());
 
+    // **A blank project gives way** — issue #477. The window always holds one,
+    // so a window started with no file, or a `New Project`, would otherwise
+    // leave an empty tab beside the file one came to open. The file takes the
+    // blank tab's place in the bar, and the blank page goes, with nothing to
+    // ask: there is nothing in it to lose.
+    const int blank = isBlank(*m_page) ? m_currentPage : -1;
+
     openOn(std::move(opened->project), opened->diagnostics);
+
+    if (blank >= 0) {
+        const int born = m_currentPage;
+        {
+            const QSignalBlocker blocker{m_tabBar};
+            m_tabBar->moveTab(born, blank);
+        }
+        std::rotate(m_pages.begin() + blank, m_pages.begin() + born, m_pages.begin() + born + 1);
+        m_currentPage = blank;
+        removePage(blank + 1);
+    }
     return std::nullopt;
 }
 
@@ -1571,6 +1589,12 @@ void MainWindow::refreshTabActions() {
     // the title bar's own button already does.
     m_closeProject->setEnabled(m_pages.size() > 1);
     m_tabBar->setTabsClosable(m_pages.size() > 1);
+    // Told to the row once the bar has settled. `QTabBar` takes a cross away
+    // at the next turn of the event loop, and nothing tells the layout the
+    // tab has shrunk then: the room of a cross stayed between a lone tab and
+    // the « + » once the others were gone (#477). A call made now would read
+    // the width with the cross still in it.
+    QTimer::singleShot(0, m_tabBar, [bar = m_tabBar] { bar->updateGeometry(); });
     // Opened and closed tabs change what « all » means.
     m_search->refresh();
 }
@@ -1585,7 +1609,10 @@ void MainWindow::closeProject(int index) {
     // May bring the tab forward, for the question to open over it.
     if (!m_projectFiles->mayDiscard(index))
         return;
+    removePage(index);
+}
 
+void MainWindow::removePage(int index) {
     const int closed = index;
     ProjectPage* const closing = m_pages.at(static_cast<std::size_t>(closed)).get();
     {
