@@ -11,6 +11,16 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Une barre d'outils des gestes fréquents
+
+### Documentation
+
+- **gui** — La barre d'outils, et ce qui la sépare de celle de Gaupol
+
+## 0.11.25 — 2026-09-25
+
+### Ajouts
+
 - **gui** — Une croix sur chaque onglet, et un bouton + après eux
 
 ## 0.11.24 — 2026-09-25
