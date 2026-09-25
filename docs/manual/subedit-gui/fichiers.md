@@ -49,8 +49,8 @@ historique, sa sélection, sa vidéo associée et ce que sa dernière lecture a
 rencontré ne sont montrés que quand cet onglet est le courant, et ne
 changent pas pendant qu'un autre l'est. **Une exception, et elle est dans l'ADR
 0033** : le lecteur vidéo est unique pour toute la fenêtre — un seul processus
-mpv — et son film change avec l'onglet ; **la position de lecture ne survit pas
-à un changement d'onglet**. Le presse-papiers, lui, est à la fenêtre : copier
+mpv — et son film change avec l'onglet ; **chaque onglet retient où son film en
+était**, et le reprend là, en pause, quand on y revient. Le presse-papiers, lui, est à la fenêtre : copier
 dans un onglet et coller dans un autre est ce pour quoi on en ouvre deux.
 
 **`Close` ferme l'onglet courant**, en posant s'il le faut

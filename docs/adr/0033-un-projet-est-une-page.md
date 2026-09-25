@@ -34,6 +34,12 @@ déjà faire — `syncVideo` compare l'association voulue à celle qui est ouver
 — sert donc à changer d'onglet. **La position de lecture ne survit pas au changement d'onglet**, et le manuel
 le dit.
 
+> **Amendé le 2026-09-25, [#471](https://github.com/Guyot-Bertrand/sub-edit/issues/471).** À l'usage, sur un
+> vrai bureau, l'utilisateur a jugé ce prix trop lourd. Le lecteur reste unique ; **la position, elle,
+> survit** : chaque page la retient au départ de son onglet (`ProjectPage::resumeAt`), et le lecteur y retourne
+> au retour, en pause. Elle appartient au film sur lequel l'onglet a été quitté : un autre film choisi entre-temps
+> repart du début.
+
 **Le presse-papiers reste à la fenêtre** : copier dans un projet et coller dans un autre est ce pour quoi
 on en ouvre deux.
 
@@ -53,7 +59,7 @@ comportement neuf. Elle prouve la séparation avant qu'un second projet ne l'ép
   placée, un film qu'on n'a pas changé.
 - **Un lecteur par page.** Un processus mpv par onglet : de la mémoire pour des films qu'on ne regarde pas, et
   deux sons possibles à la fois. Le prix d'un seul lecteur, la position perdue au changement d'onglet, est
-  plus faible.
+  plus faible. *(Ce prix a été levé par #471 : voir l'encadré plus haut.)*
 
 ## Conséquences
 
