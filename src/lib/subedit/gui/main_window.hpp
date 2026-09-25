@@ -43,6 +43,7 @@ class QLabel;
 class QShowEvent;
 class QSplitter;
 class QTabBar;
+class QToolButton;
 class QTimer;
 
 namespace subedit::gui {
@@ -168,6 +169,9 @@ public:
     /// its count and its labels, and drives it the way a click would —
     /// `setCurrentIndex` fires the same signal either way.
     [[nodiscard]] QTabBar* tabBar() const { return m_tabBar; }
+
+    /// The « + » after the last tab, which opens a new project — issue #473.
+    [[nodiscard]] QToolButton* newTabButton() const { return m_newTab; }
 
     [[nodiscard]] QAction* saveAction() const { return m_save; }
 
@@ -437,11 +441,17 @@ private:
     /// `File ▸ New`: an empty project in a new tab.
     void newProject();
 
-    /// `File ▸ Close`: asks about the current tab's modified documents, then
-    /// takes it away and switches to its neighbour.
+    /// `File ▸ Close`: `closeProject` on the current tab.
     void closeCurrentProject();
 
-    /// Whether `Close` may do anything — false with one tab left.
+    /// Asks about the modified documents of the project at `index`, then takes
+    /// its tab away — the current one or not: the cross of a tab behind closes
+    /// that tab, and the one shown stays shown (#472). A current tab closed
+    /// gives way to its neighbour.
+    void closeProject(int index);
+
+    /// Whether `Close` and the crosses of the tabs may do anything — neither
+    /// with one tab left.
     void refreshTabActions();
 
     /// Whether `document` of the project on screen differs from its file —
@@ -811,6 +821,7 @@ private:
     QWidget* m_noVideo = nullptr;
     QSplitter* m_split = nullptr;
     QTabBar* m_tabBar = nullptr;
+    QToolButton* m_newTab = nullptr;
     QTimer* m_ticker = nullptr;
 
     PlayerFactory m_buildPlayer{};

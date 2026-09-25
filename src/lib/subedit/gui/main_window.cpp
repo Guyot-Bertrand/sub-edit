@@ -88,6 +88,7 @@
 #include <QModelIndexList>
 #include <QPushButton>
 #include <QShowEvent>
+#include <QSize>
 #include <QSplitter>
 #include <QStatusBar>
 #include <QString>
@@ -95,6 +96,7 @@
 #include <QTableView>
 #include <QTimer>
 #include <QToolBar>
+#include <QToolButton>
 #include <QUrl>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -260,6 +262,22 @@ constexpr int kOperationStatusTimeoutMs = 5000;
     return given;
 }
 
+/// The bar of tabs, never asking for more room than its tabs take.
+///
+/// **`QTabBar` reserves the width of its scroll arrows as its minimum**, wider
+/// than a single tab, and a layout widens what a widget prefers to what it
+/// needs at least — so the « + » that follows the tabs stood away from a lone
+/// one (#473). The arrows still come when the tabs outgrow the window.
+class TabBar final : public QTabBar {
+
+public:
+    using QTabBar::QTabBar;
+
+    [[nodiscard]] QSize minimumSizeHint() const override {
+        return QTabBar::minimumSizeHint().boundedTo(sizeHint());
+    }
+};
+
 } // namespace
 
 /// What the search asks of the window — ADR 0034. A class of its own rather
@@ -367,7 +385,8 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_undo(buildAction(this, QStringLiteral("Undo"), QStringLiteral("edit-undo"))),
       m_redo(buildAction(this, QStringLiteral("Redo"), QStringLiteral("edit-redo"))),
       m_open(buildAction(this, QStringLiteral("Open…"), QStringLiteral("document-open"))),
-      m_newProject(buildAction(this, QStringLiteral("&New"), QStringLiteral("document-new"))),
+      m_newProject(
+          buildAction(this, QStringLiteral("&New Project"), QStringLiteral("document-new"))),
       m_closeProject(buildAction(this, QStringLiteral("&Close"), QStringLiteral("window-close"))),
       m_saveAllDocuments(buildAction(this, QStringLiteral("&Save All"), {})),
       m_closeAllProjects(buildAction(this, QStringLiteral("&Close All"), {})),
@@ -409,7 +428,8 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_videoView(new QWidget{this}),
       m_noVideo(new QWidget{this}),
       m_split(new QSplitter{Qt::Vertical, this}),
-      m_tabBar(new QTabBar{this}),
+      m_tabBar(new TabBar{this}),
+      m_newTab(new QToolButton{this}),
       m_ticker(new QTimer{this}),
       m_buildPlayer(std::move(buildPlayer)),
       m_readDeclaredRate(std::move(readDeclaredRate)) {
@@ -499,13 +519,32 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_tabBar->setExpanding(false);
     m_tabBar->setDocumentMode(true);
     connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::switchToPage);
+    // **A cross on each tab**, as Gaupol has — issue #472. It closes its own
+    // tab, which is not necessarily the one shown.
+    connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeProject);
+
+    // **And a « + » right after the last tab** — issue #473: a new project is
+    // a gesture one looks for on the bar of tabs, not in a menu.
+    m_newTab->setText(QStringLiteral("+"));
+    m_newTab->setAutoRaise(true);
+    m_newTab->setToolTip(QStringLiteral("New project"));
+    connect(m_newTab, &QToolButton::clicked, m_newProject, &QAction::trigger);
+
+    // The tabs, the « + » against the last of them, and the rest of the row
+    // empty: the button follows the tabs rather than sitting at the far end.
+    auto* tabRow = new QHBoxLayout;
+    tabRow->setContentsMargins(0, 0, 0, 0);
+    tabRow->setSpacing(0);
+    tabRow->addWidget(m_tabBar);
+    tabRow->addWidget(m_newTab);
+    tabRow->addStretch();
 
     // The table takes the room, the panel slips underneath and goes away when
     // it has nothing to say.
     auto* centre = new QWidget{this};
     auto* stack = new QVBoxLayout{centre};
     stack->setContentsMargins(0, 0, 0, 0);
-    stack->addWidget(m_tabBar);
+    stack->addLayout(tabRow);
     stack->addWidget(split);
     stack->addWidget(m_diagnostics);
     setCentralWidget(centre);
@@ -547,6 +586,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_saveAs->setEnabled(true);
     connect(m_open, &QAction::triggered, this, &MainWindow::openFromPrompt);
     connect(m_newProject, &QAction::triggered, this, &MainWindow::newProject);
+    m_newProject->setToolTip(QStringLiteral("Open an empty project in a new tab"));
     connect(m_closeProject, &QAction::triggered, this, &MainWindow::closeCurrentProject);
     m_saveAllDocuments->setEnabled(true);
     m_closeAllProjects->setEnabled(true);
@@ -1501,17 +1541,24 @@ void MainWindow::refreshTabActions() {
     // project; closing the last would be closing the window, which is what
     // the title bar's own button already does.
     m_closeProject->setEnabled(m_pages.size() > 1);
+    m_tabBar->setTabsClosable(m_pages.size() > 1);
     // Opened and closed tabs change what « all » means.
     m_search->refresh();
 }
 
 void MainWindow::closeCurrentProject() {
+    closeProject(m_currentPage);
+}
+
+void MainWindow::closeProject(int index) {
     if (m_pages.size() <= 1)
         return;
-    if (!m_projectFiles->mayDiscard(m_currentPage))
+    // May bring the tab forward, for the question to open over it.
+    if (!m_projectFiles->mayDiscard(index))
         return;
 
-    const int closed = m_currentPage;
+    const int closed = index;
+    ProjectPage* const closing = m_pages.at(static_cast<std::size_t>(closed)).get();
     {
         // Blocked: removing the current tab would otherwise make the bar pick
         // its own replacement and fire `currentChanged` before `m_pages` has
@@ -1525,9 +1572,18 @@ void MainWindow::closeCurrentProject() {
     // only ever compares this pointer, never dereferences it, but comparing
     // one that no longer points at anything is not a comparison this class
     // makes anywhere else, and it does not start here.
-    if (m_playingPage == m_page)
+    if (m_playingPage == closing)
         m_playingPage = nullptr;
     m_pages.erase(m_pages.begin() + closed);
+
+    // A tab behind: the one shown stays, one rank lower if the closed tab
+    // came before it.
+    if (closing != m_page) {
+        if (closed < m_currentPage)
+            --m_currentPage;
+        refreshTabActions();
+        return;
+    }
 
     // The tab that takes its place is the one now at the same rank, or the
     // last one if the closed tab was itself the last — never out of range,
