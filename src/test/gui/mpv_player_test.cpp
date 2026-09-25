@@ -61,6 +61,28 @@ TEST_CASE("opening a video tells how long it is", "[video][player]") {
     CHECK(opened.position() == Timestamp::origin());
 }
 
+// Issue #468: a second film opened on the same player. mpv first reports the
+// end of the one it replaces, and that end is not the refusal of the new one.
+TEST_CASE("a film opened over another one opens", "[video][player]") {
+    MpvPlayer opened = player();
+    REQUIRE(opened.open(fixture("videos/cadence-25.mp4")).has_value());
+
+    const std::expected<void, PlayerError> second =
+        opened.open(fixture("videos/cadence-23-976.mp4"));
+
+    REQUIRE(second.has_value());
+    CHECK(opened.duration() == Duration::fromMilliseconds(2002));
+}
+
+// What a return to a tab does: the same film, opened again.
+TEST_CASE("the same film opened twice opens twice", "[video][player]") {
+    MpvPlayer opened = player();
+    REQUIRE(opened.open(fixture("videos/cadence-25.mp4")).has_value());
+
+    CHECK(opened.open(fixture("videos/cadence-25.mp4")).has_value());
+    CHECK(opened.duration() == Duration::fromMilliseconds(2000));
+}
+
 // GUI-PLAYER-03 rests on this: the window says a video would not open, names
 // the file, and stays usable. What it says comes from here.
 TEST_CASE("a file that is not a video is refused, and says why", "[video][player]") {

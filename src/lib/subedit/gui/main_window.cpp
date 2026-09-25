@@ -1214,8 +1214,7 @@ void MainWindow::watchAssociatedVideo() {
     // window it is handed at that moment; one that is not on screen is adopted
     // and never mapped. Taken away again below if the film will not open, which
     // costs nothing anybody sees: nothing has been painted into it yet.
-    m_videoView->setVisible(!wanted.empty());
-    m_noVideo->setVisible(wanted.empty());
+    showPicture(!wanted.empty());
 
     core::VideoPlayer* watching = wanted.empty() ? nullptr : player();
     if (watching != nullptr) {
@@ -1245,10 +1244,9 @@ void MainWindow::watchAssociatedVideo() {
     if (!m_page->watching && m_page->model)
         m_page->model->setShowing(std::nullopt);
 
-    m_videoView->setVisible(m_page->watching);
     // Exactly one of the two, always: a band that stayed under a playing film
     // would offer to choose the one already chosen.
-    m_noVideo->setVisible(!m_page->watching);
+    showPicture(m_page->watching);
     m_playPause->setEnabled(m_page->watching);
 
     if (m_page->watching) {
@@ -1257,6 +1255,23 @@ void MainWindow::watchAssociatedVideo() {
     } else {
         m_ticker->stop();
     }
+}
+
+void MainWindow::showPicture(bool picture) {
+    QList<int> sizes = m_split->sizes();
+    const int total = std::accumulate(sizes.begin(), sizes.end(), 0);
+    // The room above the table is one, whichever child holds it; the picture
+    // is never given less than its minimum, the table pays for it.
+    const int above =
+        std::min(std::max(sizes.at(0) + sizes.at(1), picture ? kMinimumVideoHeight : 0), total);
+
+    m_videoView->setVisible(picture);
+    m_noVideo->setVisible(!picture);
+
+    sizes[0] = picture ? above : 0;
+    sizes[1] = picture ? 0 : above;
+    sizes[2] = total - above;
+    m_split->setSizes(sizes);
 }
 
 void MainWindow::togglePlayback() {

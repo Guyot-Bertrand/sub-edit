@@ -245,19 +245,34 @@ std::expected<void, core::PlayerError> MpvPlayer::open(const std::filesystem::pa
     const std::string path = video.string();
     std::array<const char*, 3> load{"loadfile", path.c_str(), nullptr};
     if (mpv_command(m_handle.get(), load.data()) >= 0) {
-        const mpv_event* event = waitFor(m_handle.get(), MPV_EVENT_FILE_LOADED);
-        if (event->event_id == MPV_EVENT_FILE_LOADED) {
-            m_open = true;
-            return {};
-        }
+        // **Only the end of the film just asked for is an answer** — issue
+        // #468. Loading over an open film first ends that one, and mpv says so
+        // with an `END_FILE` of its own; taken for the refusal of the new
+        // film, it made every second film, and every return to a tab, fail
+        // with « loading failed ». The new film is known by the playlist
+        // entry its `START_FILE` names.
+        std::optional<std::int64_t> entry;
+        bool answered = false;
+        for (int seen = 0; seen < kMaxEventsAwaited && !answered; ++seen) {
+            const mpv_event* event = mpv_wait_event(m_handle.get(), kEventTimeoutSeconds);
+            // Nothing within the timeout is an answer as well: no film came.
+            answered = event->event_id == MPV_EVENT_NONE;
 
-        if (event->event_id == MPV_EVENT_END_FILE) {
-            // **A directory makes mpv answer « success »** — nothing failed,
-            // and nothing played either. Reporting that word as the reason a
-            // video would not open is how a message stops meaning anything.
-            const int reported = static_cast<const mpv_event_end_file*>(event->data)->error;
-            if (reported < 0)
-                refusal = reported;
+            if (event->event_id == MPV_EVENT_START_FILE) {
+                entry = static_cast<const mpv_event_start_file*>(event->data)->playlist_entry_id;
+            } else if (event->event_id == MPV_EVENT_FILE_LOADED && entry.has_value()) {
+                m_open = true;
+                return {};
+            } else if (event->event_id == MPV_EVENT_END_FILE) {
+                const auto* ended = static_cast<const mpv_event_end_file*>(event->data);
+                // **A directory makes mpv answer « success »** — nothing
+                // failed, and nothing played either. Reporting that word as the
+                // reason a video would not open is how a message stops meaning
+                // anything.
+                answered = ended->playlist_entry_id == entry;
+                if (answered && ended->error < 0)
+                    refusal = ended->error;
+            }
         }
     }
 

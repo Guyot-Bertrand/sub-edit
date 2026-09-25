@@ -578,6 +578,14 @@ private:
     /// well want to see which file it is that the player refused.
     void watchAssociatedVideo();
 
+    /// Shows the picture, or the band that invites one, in the room above the
+    /// table — exactly one of the two, and the room goes with it.
+    ///
+    /// **The splitter keeps a size for each child, shown or not**: swapping
+    /// which one is visible without moving the room left the picture with the
+    /// size the settings gave it while hidden, that is none — issue #469.
+    void showPicture(bool picture);
+
     /// Returns the player, building it the first time one is needed.
     ///
     /// Nothing, when no factory was given or when the factory declined. Asked
