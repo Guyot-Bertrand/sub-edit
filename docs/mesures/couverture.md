@@ -364,9 +364,9 @@ déréférencement nul en cas d'erreur d'un lecteur à venir.
 
 ## Relevé
 
-    total : 67
+    total : 66
 
-Relevé sur la version 0.11.8, le 2026-09-22.
+Relevé sur la version 0.11.30, le 2026-09-25.
 
 | Lignes | Fichier |
 | -----: | :------ |
@@ -376,6 +376,6 @@ Relevé sur la version 0.11.8, le 2026-09-22.
 | 4 | `src/lib/subedit/gui/player_factory.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
-| 2 | `src/lib/subedit/gui/main_window.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
+| 1 | `src/lib/subedit/gui/main_window.cpp` |
 | 1 | `src/lib/subedit/gui/save_shape.cpp` |

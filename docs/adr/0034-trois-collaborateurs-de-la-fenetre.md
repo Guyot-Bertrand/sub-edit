@@ -61,6 +61,19 @@ lecteur, la barre d'état, le titre, et les opérations de `Tools` et d'`Edit`, 
 > aucun test de la fenêtre n'a été réécrit. Le constructeur de la fenêtre passe de 548 à 269 lignes,
 > `main_window.cpp` de 2 531 à 2 216, `main_window.hpp` de 908 à 872.
 
+> **Complété le 2026-09-25, [#484](https://github.com/Guyot-Bertrand/sub-edit/issues/484) : la vidéo
+> sort, et elle est bien de la famille des trois premiers.** `VideoPane` possède ce que la vidéo tient
+> en propre — le lecteur partagé, la surface native et la bande `Select Video…`, le minuteur, la page
+> pour laquelle le lecteur joue — et chaque geste reçoit la page qu'il vise. Il lit la table qu'on lui
+> donne (la sélection, la ligne courante, l'éditeur ouvert) et passe par `Prompts` pour ses boîtes ; son
+> interface `VideoPane::View` ne demande à la fenêtre que deux choses : le texte visé, que la réplique
+> montre, et d'allumer ou d'éteindre `Play / Pause`. La barre d'état reste à la fenêtre, qui la peint
+> après `watch` — l'ordre de #323 —, en attendant #485. Les correctifs #469, #470 et #471 ont suivi le
+> code sans changer : la place retenue d'un onglet (`leave`), la libération du lecteur avant la surface
+> (`release`, et le pane détruit avant les widgets de la fenêtre), la place de l'image dans le
+> séparateur (`showPicture`). `main_window.cpp` passe de 2 216 à 1 923 lignes, `main_window.hpp` de
+> 872 à 815, sans qu'un test de la fenêtre soit réécrit.
+
 ## Alternatives écartées
 
 - **Une interface unique pour les trois**, une « fenêtre vue d'un collaborateur ». Plus courte à écrire,

@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Remaniements
 
+- **gui** — Sortir la vidéo et le lecteur de la fenêtre
+
+## 0.11.29 — 2026-09-25
+
+### Remaniements
+
 - **gui** — Sortir les actions, les menus et la barre de la fenêtre
 
 ## 0.11.28 — 2026-09-25

@@ -728,6 +728,10 @@ Relecture de fin de phase, [#441](https://github.com/Guyot-Bertrand/sub-edit/iss
 > **#483 livrée**, ADR 0034 complétée : `WindowActions` construit les actions, leurs raccourcis, les
 > menus et la barre d'outils ; la fenêtre le garde comme un seul membre et connecte chaque action à son
 > slot. `main_window.cpp` passe de 2 531 à 2 216 lignes, et aucun test de la fenêtre n'est réécrit.
+>
+> **#484 livrée**, ADR 0034 complétée : `VideoPane` possède le lecteur, la surface, la bande, le
+> minuteur et la page pour laquelle il joue, et reçoit la page visée. `main_window.cpp` passe de 2 216 à
+> 1 923 lignes, et aucun test de la fenêtre n'est réécrit.
 
 **Écartés, avec leur raison.**
 
