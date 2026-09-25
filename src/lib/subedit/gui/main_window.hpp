@@ -586,6 +586,10 @@ private:
     /// size the settings gave it while hidden, that is none — issue #469.
     void showPicture(bool picture);
 
+    /// Lets the player go, with the film it holds — before the surface it
+    /// draws into is destroyed, never after (#470).
+    void releasePlayer();
+
     /// Returns the player, building it the first time one is needed.
     ///
     /// Nothing, when no factory was given or when the factory declined. Asked

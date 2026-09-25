@@ -1550,7 +1550,28 @@ void MainWindow::closeEvent(QCloseEvent* event) {
         event->ignore();
         return;
     }
+    releasePlayer();
     event->accept();
+}
+
+void MainWindow::releasePlayer() {
+    // **Here, while the surface libmpv draws into still exists** — issue
+    // #470. Quitting through the event loop takes the native window away
+    // before the members of this class are destroyed; libmpv, still holding
+    // it, then asked X to destroy a window that was already gone, and the
+    // default X error handler ended the process from libmpv's own thread —
+    // `BadWindow`, then Qt objects destroyed from the wrong thread, then an
+    // exit code of 1.
+    m_ticker->stop();
+    for (const std::unique_ptr<ProjectPage>& page : m_pages) {
+        page->watching = false;
+        // Forgotten, so that a window shown again opens the film anew.
+        page->associated.clear();
+    }
+    m_playingPage = nullptr;
+    m_player.reset();
+    m_playerAsked = false;
+    m_playPause->setEnabled(false);
 }
 
 void MainWindow::refreshTabOf(const ProjectPage& page) {

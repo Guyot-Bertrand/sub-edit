@@ -19,6 +19,7 @@
 
 #include <expected>
 #include <filesystem>
+#include <functional>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -66,6 +67,21 @@ public:
 
     /// Every line the overlay was handed, in order. An empty one clears it.
     std::vector<std::string> shown{};
+
+    /// Called when the player is destroyed, for a case to see when that
+    /// happens — issue #470.
+    std::function<void()> onDestroyed{};
+
+    FakeVideoPlayer() = default;
+    FakeVideoPlayer(const FakeVideoPlayer&) = delete;
+    FakeVideoPlayer& operator=(const FakeVideoPlayer&) = delete;
+    FakeVideoPlayer(FakeVideoPlayer&&) = delete;
+    FakeVideoPlayer& operator=(FakeVideoPlayer&&) = delete;
+
+    ~FakeVideoPlayer() override {
+        if (onDestroyed)
+            onDestroyed();
+    }
 
     [[nodiscard]] std::expected<void, core::PlayerError>
     open(const std::filesystem::path& video) override {

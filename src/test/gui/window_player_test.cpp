@@ -651,3 +651,32 @@ TEST_CASE("the room of the picture goes back to the band when the film goes",
     REQUIRE_FALSE(showsPicture(window));
     CHECK(window.noVideoBanner()->geometry().bottom() < window.table()->geometry().top());
 }
+
+// Issue #470: quitting through the event loop takes the native window away
+// before the window's members go. The player has to be let go first, while the
+// surface it draws into is still there — otherwise libmpv destroys a window X no
+// longer knows, and the default error handler ends the process.
+TEST_CASE("closing the window lets the player go while its surface still exists",
+          "[gui][GUI-PLAYER-01]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+    window.playPauseAction()->trigger();
+    REQUIRE(booth.player->isPlaying());
+
+    bool gone = false;
+    bool surfaceWhenGone = false;
+    booth.player->onDestroyed = [&] {
+        gone = true;
+        surfaceWhenGone = window.videoView()->internalWinId() != 0;
+    };
+
+    REQUIRE(window.close());
+
+    CHECK(gone);
+    CHECK(surfaceWhenGone);
+    CHECK_FALSE(window.playPauseAction()->isEnabled());
+}
