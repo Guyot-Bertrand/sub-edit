@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Remaniements
+
+- **gui** — Sortir les actions, les menus et la barre de la fenêtre
+
+## 0.11.28 — 2026-09-25
+
 ### Documentation
 
 - **gui** — Le dépôt sur l'image du film est pris, vérifié
