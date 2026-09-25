@@ -100,6 +100,10 @@ lecteur, la barre d'état, le titre, et les opérations de `Tools` et d'`Edit`, 
 - **Sortir aussi les opérations de `Tools`.** Elles sont déjà minces — un dialogue, une fonction du noyau,
   `applyOperation` —, et n'ont pas d'état : les déplacer ne rendrait rien de plus testable.
 
+  > **Revu le 2026-09-25, [ADR 0035](0035-les-operations-sortent-de-la-fenetre.md) (#486) :** depuis #461,
+  > une opération lit sa cible dans la page qu'on lui donne, et se teste donc sans fenêtre. Elles sortent
+  > dans `ProjectOperations`, avec `applyOperation`.
+
 ## Conséquences
 
 - **Les collaborateurs ont leurs tests, sans fenêtre** ; les tests de la fenêtre ne changent pas, et c'est

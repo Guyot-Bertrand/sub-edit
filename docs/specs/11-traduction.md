@@ -736,6 +736,11 @@ Relecture de fin de phase, [#441](https://github.com/Guyot-Bertrand/sub-edit/iss
 > **#485 livrée**, ADR 0034 complétée : `StatusLine` possède les quatre étiquettes permanentes de la barre
 > d'état et se rafraîchit depuis le projet affiché. `main_window.cpp` passe de 1 923 à 1 851 lignes, et
 > aucun test de la fenêtre n'est réécrit.
+>
+> **#486 livrée**, [ADR 0035](../adr/0035-les-operations-sortent-de-la-fenetre.md) : `ProjectOperations`
+> porte les treize opérations de `Tools` et la route unique vers l'historique ; chaque opération reçoit la
+> page et lit sa cible dans la sélection de celle-ci. `main_window.cpp` passe de 1 851 à 1 506 lignes, et
+> aucun test de la fenêtre n'est réécrit.
 
 **Écartés, avec leur raison.**
 

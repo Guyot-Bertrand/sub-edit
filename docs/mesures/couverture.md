@@ -285,6 +285,10 @@ La huitième est une garde défensive derrière une action désactivée. Qt ne
 déclenche pas une action désactivée, donc rien ne peut la parcourir ; la retirer
 ferait dépendre l'absence de plantage de l'état d'un widget.
 
+> **Couverte depuis [#484](https://github.com/Guyot-Bertrand/sub-edit/issues/484)**, le 2026-09-25 : la
+> garde a suivi la lecture dans `VideoPane`, qu'on appelle directement, sans action désactivée devant —
+> `video_pane_test.cpp` la parcourt en demandant la lecture avant qu'un film soit ouvert.
+
 **Ce qui a été couvert plutôt que compté.** La composition de la réplique — le
 passage d'un texte de sous-titre à l'événement ASS que l'incrustation dessine —
 est sortie de `showSubtitle` en fonction libre, `assEventOf`, pour la raison qui
@@ -362,11 +366,18 @@ relâché — romprait l'invariant par une corruption silencieuse plutôt que pa
 un « rien n'a été ajouté ». Une ligne non couverte reste moins chère qu'un
 déréférencement nul en cas d'erreur d'un lecteur à venir.
 
+> **Couverte depuis le 2026-09-26, [#486](https://github.com/Guyot-Bertrand/sub-edit/issues/486).** La
+> garde a suivi `Append File…` dans `ProjectOperations`, qui lit le fichier ajouté par son interface
+> `View` : un double de celle-ci rend un projet vide qu'aucun lecteur ne rendrait, et le cas qui
+> l'atteint est dans `project_operations_test.cpp`. Inatteignable depuis la fenêtre, elle ne l'est plus
+> depuis son collaborateur — le gain que l'[ADR 0035](../adr/0035-les-operations-sortent-de-la-fenetre.md)
+> attendait d'une opération testable sans fenêtre.
+
 ## Relevé
 
-    total : 66
+    total : 65
 
-Relevé sur la version 0.11.30, le 2026-09-25.
+Relevé sur la version 0.11.32, le 2026-09-26.
 
 | Lignes | Fichier |
 | -----: | :------ |
@@ -377,5 +388,4 @@ Relevé sur la version 0.11.30, le 2026-09-25.
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
-| 1 | `src/lib/subedit/gui/main_window.cpp` |
 | 1 | `src/lib/subedit/gui/save_shape.cpp` |

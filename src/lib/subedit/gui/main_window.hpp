@@ -61,6 +61,7 @@ class SubtitleTableModel;
 class TableColumns;
 class ProjectSearch;
 class ProjectFiles;
+class ProjectOperations;
 
 /// The window, and everything a project needs to be looked at.
 ///
@@ -475,51 +476,6 @@ private:
     /// open, or nothing when it opened or was already there.
     [[nodiscard]] std::optional<std::string> openFile(const std::filesystem::path& path);
 
-    /// Applies `command` to `page`, over `target`, and refreshes what the
-    /// window shows.
-    ///
-    /// **`page` need not be the one on screen** — issue #461: `Replace All`
-    /// over every project reaches each page without bringing its tab forward.
-    ///
-    /// The one road from a dialog to the history: every operation of this
-    /// phase ends here, so neither the refresh nor the notice below can be
-    /// forgotten in one of them.
-    ///
-    /// `target` is what the operation was applied to, and it is carried here
-    /// for one reason: what reaches past the end of the film is read over it,
-    /// after the fact, on the state the operation produced.
-    ///
-    /// Says what it left past the end of the film in a box of its own. An
-    /// operation that has something to say as well uses `applyOperationQuietly`
-    /// and puts the two in one box — issue #418.
-    void applyOperation(ProjectPage& page,
-                        std::unique_ptr<core::Command> command,
-                        const core::Selection& target);
-
-    /// The same, and it says nothing: what the operation left past the end of
-    /// the film comes back as the sentence to say, empty when there is none.
-    ///
-    /// **Why the box is not opened here**: `reportOutcome` is modal, and an
-    /// operation with an account of its own to give — what an adjustment could
-    /// not satisfy, what an alignment left behind — used to open a second one
-    /// straight after the first. One operation, one box.
-    [[nodiscard]] std::string applyOperationQuietly(ProjectPage& page,
-                                                    std::unique_ptr<core::Command> command,
-                                                    const core::Selection& target);
-
-    /// What an operation left past the end of the film, said as a sentence, or
-    /// nothing.
-    ///
-    /// **A notice, never a refusal** — decision D4. A subtitle landing after
-    /// the closing credits may be exactly what was meant; refusing wrongly
-    /// costs more than a warning that is ignored.
-    ///
-    /// Empty without a film open: the length is what the player knows, and
-    /// there is nothing to be past the end of.
-    [[nodiscard]] std::string whatPassesTheEnd(const ProjectPage& page,
-                                               core::CommandKind kind,
-                                               const core::Selection& target) const;
-
     /// Asks which film to watch the document against, and associates it.
     void selectVideo();
 
@@ -531,9 +487,6 @@ private:
     /// too often costs nothing but a look at a directory.
     void proposeVideoBeside();
 
-    /// Opens the analysis, which reports and changes nothing.
-    void analyseGrid();
-
     /// Says who this is and which version is running.
     void about();
 
@@ -542,18 +495,6 @@ private:
 
     /// Opens the preferences, and lays down what comes out of them.
     void openPreferences();
-
-    /// Keeps the directory of `file` as the one the next "open" box will open
-    /// in.
-
-    /// Asks which grid to lay the positions on, and lays them on it.
-    void snapToFrameRate();
-
-    /// Moves the whole file back onto the grid it was written on.
-    ///
-    /// No dialog: the operation takes no option, and the amount it will use is
-    /// already in the menu entry that opened it.
-    void shiftOntoGrid();
 
     /// Puts the window in step with the film the document is now associated
     /// with — the status bar, the picture, and whether there is one at all.
@@ -632,51 +573,6 @@ private:
     /// a second `Del` would find nothing left to work from.
     void selectRows(int first, int last);
 
-    void shiftTarget();
-
-    void transformTarget();
-
-    void convertFrameRateOfTarget();
-
-    /// Asks for the four constraints, applies them to the target, and says what
-    /// no end could satisfy.
-    ///
-    /// **Said even when nothing moved**: a target already at its gaps may still
-    /// hold subtitles too short for their minimum, and « nothing to adjust »
-    /// alone would let that pass for « everything is fine ».
-    void adjustDurationsOfTarget();
-
-    /// Asks for a file, and appends it to the end of the project — D6.
-    void appendFileFromPrompt();
-
-    /// Asks where to cut, and moves the tail into a project of its own, in a
-    /// new tab — D6.
-    void splitProjectFromPrompt();
-
-    void removeHearingImpairedFromTarget();
-
-    /// Puts the target in italics, or takes its italics out.
-    ///
-    /// **One entry and not two**, as in Gaupol: which of the two it does is
-    /// read from the target before anything is built, and a mixed selection
-    /// goes into italics whole.
-    ///
-    /// No dialog — the operation takes no option, and it enters the history
-    /// like the others, so `Ctrl+Z` undoes it.
-    void toggleItalicsOnTarget();
-
-    /// Puts the target in `wanted`.
-    ///
-    /// No dialog: the case takes no option beyond which of the four, and the
-    /// menu already said it.
-    void changeCaseOfTarget(core::LetterCase wanted);
-
-    /// Puts dialogue dashes on the target, or takes them off.
-    ///
-    /// **One entry and not two**, as for the italic: which of the two it does
-    /// is read from the target before anything is built.
-    void toggleDialogueDashesOnTarget();
-
     /// Commits and closes the cell editor open on the table, if any — the same
     /// validation a modal dialog already gets by taking the focus away.
     ///
@@ -752,10 +648,6 @@ private:
     /// the copy and that of the document differ.
     core::ClipboardTexts m_clipboard;
 
-    /// The form of the last adjustment of durations, offered again by the next
-    /// one. Gaupol's defaults until then.
-    core::DurationAdjustmentSettings m_durationSettings;
-
     /// What the search asks of the window, and the search itself — ADR 0034.
     /// The first is declared before the second, which holds a reference to it.
     class SearchSide;
@@ -766,6 +658,12 @@ private:
     class FilesSide;
     std::unique_ptr<FilesSide> m_filesSide;
     std::unique_ptr<ProjectFiles> m_projectFiles;
+
+    /// What the operations ask of the window, and the operations of `Tools`
+    /// themselves — ADR 0035.
+    class OperationsSide;
+    std::unique_ptr<OperationsSide> m_operationsSide;
+    std::unique_ptr<ProjectOperations> m_operations;
 
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;
