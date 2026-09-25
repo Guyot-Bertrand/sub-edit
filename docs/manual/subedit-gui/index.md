@@ -77,6 +77,30 @@ qu'aucun menu ne nomme garde son nom français : `Entrée`, `Échap`, `Maj`.
 [Le manuel dans la fenêtre](aide.md). `About subedit` dit la version et la
 licence.
 
+## La barre d'outils
+
+Sous les menus, une barre porte **les gestes les plus fréquents**, par groupes.
+Chaque bouton y lit un mot court ; le menu garde l'entrée entière, et le
+raccourci est le même.
+
+| Bouton | Entrée du menu | Raccourci |
+| :----- | :------------- | :-------- |
+| `New` | `File ▸ New Project` | `Ctrl+N` |
+| `Open` | `File ▸ Open…` | `Ctrl+O` |
+| `Save` | `File ▸ Save` | `Ctrl+S` |
+| `Undo` | `Edit ▸ Undo` | `Ctrl+Z` |
+| `Redo` | `Edit ▸ Redo` | `Ctrl+Shift+Z` |
+| `Find` | `Edit ▸ Find and Replace…` | `Ctrl+F` |
+| `Insert` | `Edit ▸ Insert Subtitles…` | `Ins` |
+| `Remove` | `Edit ▸ Remove Subtitles` | `Del` |
+| `Italic` | `Tools ▸ Italic` | `Ctrl+I` |
+| `Play` | `Video ▸ Play / Pause` | `Ctrl+P` |
+
+**Un bouton éteint l'est pour la même raison que son entrée** : `Undo` sans
+rien à annuler, `Remove` sans ligne choisie, `Play` sans film. Les entrées de la
+traduction et les opérations du menu `Tools`, sauf `Italic`, restent dans leurs
+menus : elles servent moins souvent, ou pas à tout le monde.
+
 ## Sections
 
 | Section | Contenu |

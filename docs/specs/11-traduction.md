@@ -612,6 +612,25 @@ qu'aucun autre ne s'est glissé.
 > désigne à chaque changement du nombre, comme Gaupol ; l'annuler rend la sélection d'avant, ce que
 > Gaupol ne fait pas.
 
+> **Ajouté par [#474](https://github.com/Guyot-Bertrand/sub-edit/issues/474) : la barre d'outils.** Elle ne
+> portait qu'`Open…`, `Save`, `Undo`, `Redo` et `Italic`, et l'utilisateur a lu « une seule opération, et pas
+> la plus fréquente » comme un oubli. Confrontée à la barre de Gaupol (`gaupol/application.py`,
+> `_init_header_bar`), elle porte désormais :
+>
+> | Gaupol | `subedit` | Pourquoi |
+> | :----- | :-------- | :------- |
+> | `Open` et un menu des fichiers récents | `Open` | `subedit` n'a pas de liste de fichiers récents : rien à y mettre |
+> | `Save` | `Save` | — |
+> | `Undo`, `Redo` | `Undo`, `Redo` | — |
+> | `Find and Replace` | `Find` | — |
+> | `Preview` : un lecteur **externe** à partir de la ligne choisie | `Play` : le lecteur **intégré** | le film se joue dans la fenêtre (ADR 0020) ; Gaupol donne en plus au sien une barre à part, montrée avec le film, et `subedit` n'en porte que le bouton qui sert le plus |
+> | — | `New` | ouvrir un projet est un geste qu'on cherche, #473 |
+> | — | `Insert`, `Remove` | les gestes les plus fréquents de l'édition, demandés par l'utilisateur ; ouvrir une boîte n'est pas une raison de rester hors de la barre |
+> | — | `Italic` | déjà sur la barre, la seule opération sans réglage ; l'en retirer aurait été une régression |
+>
+> Les boutons lisent un mot court (`iconText`), les menus gardent l'entrée entière. Un test fige le contenu et
+> l'ordre de la barre.
+
 ## Exigences
 
 **Quatorze, toutes `prévues`** — le registre s'alimente en début d'issue. Les cinq de la troisième
