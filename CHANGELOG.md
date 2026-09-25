@@ -9,6 +9,16 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **video** — Reprendre le film d'un onglet où on l'a laissé
+
+### Documentation
+
+- **video** — La position du film survit au changement d'onglet
+
+## 0.11.23 — 2026-09-25
+
 ### Corrections
 
 - **video** — Lâcher le lecteur avant que sa surface disparaisse
