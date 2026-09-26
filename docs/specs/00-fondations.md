@@ -347,9 +347,9 @@ Résolues par `find_package` sur les paquets système, à deux exceptions près.
 | Catch2 v3 | `FetchContent` | tests et micro-benchmarks |
 | Qt 6 | paquets système | sous-projet 5 |
 | libmpv | paquets système | phase 6 — le lecteur intégré, voir [l'ADR 0020](../adr/0020-libmpv-pour-le-lecteur-integre.md) |
-| PCRE2 ou RE2 | paquets système | phase 12 — choix à trancher |
+| ~~PCRE2 ou RE2~~ ICU | paquets système | phase 12 — **tranché pour ICU**, déjà présent : [ADR 0036](../adr/0036-icu-pour-les-motifs-de-correction.md) |
 | ICU | paquets système | encodages, phase 8 |
-| hunspell | paquets système | phase 12 |
+| ~~hunspell~~ Enchant 2 | paquets système | phase 12 — le correcteur, [spec 12](12-correction.md), D6 |
 
 Catch2 fait exception parce qu'il se compile en quelques secondes et que sa
 version doit être identique partout ; l'épingler évite qu'une mise à jour de
@@ -669,4 +669,6 @@ influenceront le code dès les premières lignes :
   [`../adr/README.md`](../adr/README.md) pour les réserves mesurées.
 - **Moteur d'expressions régulières** — PCRE2, compatible avec la syntaxe Python
   des motifs de Gaupol, ou RE2, nettement plus rapide mais sans références
-  arrière. À trancher dans la phase 12, après mesure.
+  arrière. À trancher dans la phase 12, après mesure. **Tranché par
+  l'[ADR 0036](../adr/0036-icu-pour-les-motifs-de-correction.md) : ni l'un ni
+  l'autre, ICU.**

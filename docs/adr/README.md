@@ -48,6 +48,8 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0033](0033-un-projet-est-une-page.md) | Faire d'un projet une page de la fenêtre | acceptée |
 | [0034](0034-trois-collaborateurs-de-la-fenetre.md) | Trois collaborateurs de la fenêtre, qui reçoivent la page qu'ils visent | acceptée |
 | [0035](0035-les-operations-sortent-de-la-fenetre.md) | Les opérations de `Tools` sortent de la fenêtre | acceptée |
+| [0036](0036-icu-pour-les-motifs-de-correction.md) | ICU pour appliquer les motifs de correction | acceptée |
+| [0037](0037-lire-les-motifs-de-gaupol-tels-quels.md) | Lire les fichiers de motifs de Gaupol tels quels | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
@@ -104,17 +106,4 @@ pas ce qu'un **sous-titre** porte.
 
 Points ouverts identifiés, qui feront l'objet d'une ADR le moment venu :
 
-- **Moteur d'expressions régulières** — PCRE2, compatible avec la syntaxe Python
-  des motifs de Gaupol, ou RE2, plus rapide mais sans références arrière, que
-  ces motifs utilisent. Phase 12, après mesure. La phase 4 s'en passe et dit
-  pourquoi — [0017](0017-analyseur-de-mentions-ecrit-a-la-main.md) — donc la
-  question reste entière, à trancher avec les critères de la phase 12 sous les
-  yeux plutôt qu'avec deux délimiteurs littéraux pour seul usage.
-
-  **Un troisième candidat est déjà dans l'arbre depuis la phase 10** : la
-  recherche de la fenêtre lit ses expressions avec `icu::RegexMatcher`, ICU étant
-  une dépendance depuis 0027. Ce choix n'a pas fait l'objet d'une ADR, parce
-  qu'une recherche tapée à la main n'est pas le banc de la phase 12 ; il n'en
-  reste pas moins un moteur en service, avec sa syntaxe de remplacement — `$1`
-  et non le `\1` de Python — qu'un motif de Gaupol ne comprendrait pas.
 - **Internationalisation** — Qt Linguist ou gettext. Phase 15.
