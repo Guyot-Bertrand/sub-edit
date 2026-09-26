@@ -957,6 +957,23 @@ Humain et OCR, remise en majuscule, mentions pour malentendants restantes —
 découpage de lignes et correcteur orthographique, avec la jonction et la
 scission de mots qu'il permet — renvoi de la phase 10.
 
+**Cadrée.** Voir [`specs/12-correction.md`](specs/12-correction.md), qui porte dix
+décisions, deux ADR — [0036](adr/0036-icu-pour-les-motifs-de-correction.md), **ICU**
+pour appliquer les motifs, et [0037](adr/0037-lire-les-motifs-de-gaupol-tels-quels.md),
+les fichiers de Gaupol **lus tels quels** — et le découpage en **quatre tranches** : le
+moteur, le découpage, l'assistant, le correcteur ([#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498) à [#509](https://github.com/Guyot-Bertrand/sub-edit/issues/509)).
+**Pas de porte** : aucune réserve n'est écrite sur le besoin, et le correcteur, le seul
+morceau qui ajoute une dépendance, vient en dernier.
+
+**La question du moteur, ci-dessous, est tranchée, et pas comme elle était posée.**
+Le candidat retenu n'est ni PCRE2 ni RE2 mais ICU, déjà au noyau et déjà moteur de la
+recherche. La mesure l'a mis à 0,13 s par film contre 0,05 s pour PCRE2 compilé à la
+volée — une différence que personne ne verra —, et elle a trouvé plus important que le
+temps : **ni l'un ni l'autre ne lit `\w` comme Python** dès qu'une lettre est
+décomposée, PCRE2 depuis sa 10.43. La réécriture de `\w` est due quel que soit le
+moteur, et l'argument de la compatibilité tombe avec elle. Le correcteur est **Enchant**,
+et non hunspell : la liste de mots personnelle d'un utilisateur de Gaupol est la même.
+
 **La phase 10 a laissé ici un parseur conscient des balises** —
 `core/text/markup_parser` — que la casse, les tirets, la recherche et
 l'ajustement des durées empruntent. Les motifs de correction s'appliqueront au

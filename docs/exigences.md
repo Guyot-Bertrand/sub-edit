@@ -196,3 +196,15 @@ plus rien.
 | `GUI-SAVE-04` | enregistrer tout écrit chaque document modifié, onglet par onglet, et s'arrête à un abandon en disant ce qui a été écrit | 11 | implémentée |
 | `GUI-PSPLIT-01` | scinder un projet en deux, et l'ajout de la suite rend le projet de départ | 11 | implémentée |
 | `GUI-SEARCH-04` | la recherche porte, au choix, sur tous les projets ouverts | 11 | implémentée |
+| `GUI-CORRECT-01` | l'assistant applique les tâches cochées à la cible choisie — sélection, projet, tous les projets — et au document choisi | 12 | prévue |
+| `GUI-CORRECT-02` | chaque texte changé se montre avec son original avant d'être appliqué, et s'accepte, se refuse ou se retouche | 12 | prévue |
+| `GUI-CORRECT-03` | appliquer fait une entrée d'historique par projet, et la barre d'état dit combien de sous-titres ont été modifiés et supprimés | 12 | prévue |
+| `GUI-CORRECT-04` | les motifs se cochent par nom, pour une écriture, une langue et un pays, et le choix est retenu | 12 | prévue |
+| `GUI-CORRECT-05` | décocher Humain ou OCR retire ces motifs de l'application | 12 | prévue |
+| `GUI-CORRECT-06` | un motif qui ne se lit pas, ne se traduit pas ou ne termine pas est nommé, et les autres s'appliquent | 12 | prévue |
+| `GUI-CORRECT-07` | les motifs déposés par l'utilisateur s'ajoutent aux motifs livrés | 12 | prévue |
+| `GUI-HEARING-03` | l'assistant retire les paroles entre dièses et le nom du locuteur, en plus des crochets et des parenthèses | 12 | prévue |
+| `GUI-BREAK-01` | le découpage tient la longueur et le nombre de lignes demandés, en caractères ou en ems, et saute les sous-titres qui les tiennent déjà | 12 | prévue |
+| `GUI-SPELL-01` | la vérification parcourt les mots inconnus : ignorer, tout ignorer, ajouter au dictionnaire, remplacer, tout remplacer, joindre au précédent ou au suivant | 12 | prévue |
+| `GUI-SPELL-02` | sans dictionnaire pour la langue choisie, les fonctions du correcteur sont grisées et disent pourquoi | 12 | prévue |
+| `GUI-SPELL-03` | l'assistant joint et scinde des mots selon le correcteur | 12 | prévue |
