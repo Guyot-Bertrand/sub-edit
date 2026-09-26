@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **text** — Lire les motifs de correction de Gaupol
+
+## 0.12.3 — 2026-09-26
+
 ### Documentation
 
 - **doc** — Cadrer la phase 12, moteur de correction
