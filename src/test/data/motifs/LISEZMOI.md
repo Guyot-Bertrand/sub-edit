@@ -16,23 +16,17 @@ leur accord.
 
 | Répertoire | Ce que c'est | Écrit par |
 | :--------- | :----------- | :-------- |
-| `gaupol/` | les douze fichiers de motifs de Gaupol et leurs douze `.conf` d'activation | copiés, jamais retouchés |
+| [`packaging/patterns/`](../../../../packaging/patterns/) | les douze fichiers de motifs de Gaupol et leurs douze `.conf` d'activation | copiés, jamais retouchés |
 | `entrees/` | les textes à éprouver, un fichier par type de motif | à la main |
-| `attendus/` | ce que Gaupol fait de chaque texte, au format des `.cas` | `src/scripts/pattern-oracle.py` |
+| `attendus/` | ce que Gaupol fait de chaque texte, au format des `.cas`, et **la cascade de chaque code** (`cascades.txt`) | `src/scripts/pattern-oracle.py` |
 
-## `gaupol/` — les motifs, tels que Gaupol les livre
+## `packaging/patterns/` — les motifs, tels que Gaupol les livre
 
-Copiés du dépôt de Gaupol à la révision `f433bae3d23ef3572411fa9adca3fbab5cb1b3f9`
-(2026-07-28), depuis le répertoire `aeidon/data/patterns` de celui-ci. **Gaupol est
-sous GPL-3, comme ce projet** : la copie est permise, et cette section en est
-l'attribution — les motifs sont l'œuvre des auteurs de Gaupol, pas de ce dépôt.
-
-**Ne jamais les retoucher à la main.** Ce sont eux que le moteur devra lire, et un
-motif « réparé » ici cesserait d'être celui de Gaupol. Une mise à jour se fait en
-recopiant l'ensemble depuis une révision plus récente de Gaupol, en changeant la
-révision ci-dessus, puis en relançant l'oracle : le diff des attendus dit alors ce
-que la mise à jour change.
-
+Ils ne vivent plus ici : le programme les installe et les lit, l'oracle et les
+tests avec lui, et il n'y a donc qu'une copie. Leur provenance, leur attribution
+et la règle de mise à jour sont dans
+[`packaging/patterns/LISEZMOI.md`](../../../../packaging/patterns/LISEZMOI.md).
+Issue [#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498).
 
 ## `entrees/` — les textes à éprouver
 
@@ -133,3 +127,11 @@ Deux comportements du découpeur valent d'être sus avant d'en écrire un :
 C'est **une observation, pas un contrôle** : elle demande Gaupol, et le dépôt ne le
 contient pas. Ce qui se rejoue partout, c'est l'oracle sur les copies versionnées,
 et c'est lui que la porte lance.
+
+## `cascades.txt` — les motifs que chaque code active
+
+Une ligne par type et par code : `<type> <code> | <code>:<rang>± …`, les
+enregistrements dans l'ordre où Gaupol les applique, `+` s'ils sont actifs par
+défaut et `-` sinon. C'est ce que `get_patterns` rend, et **ce que le lecteur du
+noyau rend à son tour** — le test `pattern_catalogue_test.cpp` les confronte, sans
+lancer Python. Issue [#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498).

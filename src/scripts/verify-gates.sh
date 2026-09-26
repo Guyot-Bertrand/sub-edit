@@ -1358,6 +1358,36 @@ BROKEN
 
 expect_installation_gate
 
+# Les règles d installation oublient les motifs de correction — #498.
+#
+# **Le manuel, lui, est installé** : c est ce qui distingue cette preuve de la
+# précédente, qui retire tout sauf les binaires et ne dirait donc rien du
+# contrôle des motifs — la porte échouerait déjà sur le manuel. Ici, le manuel
+# passe, et seul ce contrôle peut refuser.
+expect_installation_gate_without_patterns() {
+    printf '%s▸ des règles install() qui oublient les motifs de correction%s\n' "${BOLD}" "${RESET}"
+
+    cat > "${INSTALLATION_SOURCE}" <<'BROKEN'
+include(GNUInstallDirs)
+install(TARGETS subedit-cli subedit-gui RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+install(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/docs/manual/"
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/subedit/manual")
+BROKEN
+
+    if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
+        printf '  %s✗ la porte « install-check » a laissé passer les motifs absents%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    restore
+}
+
+expect_installation_gate_without_patterns
+
 # Un fichier de bureau que sa validation refuse — #244.
 #
 # **Une preuve distincte de la précédente, et pas une redite.** Celle-ci prouve
@@ -2147,7 +2177,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles soixante-quatre portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles soixante-cinq portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

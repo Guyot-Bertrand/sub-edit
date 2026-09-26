@@ -39,6 +39,15 @@ install(
     DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/docs/manual/"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/subedit/manual")
 
+# Les motifs de correction de Gaupol, tels quels — ADR 0037, issue #498.
+#
+# **Un répertoire, pour la raison du manuel** : une liste se périmerait à la
+# première langue ajoutée. Et **l'emplacement est celui que le programme lit à
+# partir de son exécutable** (`../share/subedit/patterns`), pour tout préfixe.
+install(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/packaging/patterns/"
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/subedit/patterns")
+
 # L'identifiant de l'application, écrit une fois. Les trois fichiers de bureau
 # le portent dans leur nom, et le `.desktop` le porte encore dans sa clé
 # `Icon=` : quatre endroits pour un seul nom, donc un seul endroit où le dire.
