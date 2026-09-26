@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Tests
+
+- **test** — Les motifs de Gaupol, avec ce que Gaupol en fait
+
+## 0.12.0 — 2026-09-25
+
 ### Documentation
 
 - **doc** — Clore la phase 11 dans la feuille de route
