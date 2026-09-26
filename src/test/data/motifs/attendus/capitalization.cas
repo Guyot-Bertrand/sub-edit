@@ -1,0 +1,21 @@
+# Engendré par src/scripts/pattern-oracle.py — ne pas éditer à la main.
+# Ce que Gaupol fait des motifs « capitalization » : voir ../LISEZMOI.md.
+
+Latn:1 corrige — après un point | "It is late. we go" | "It is late. We go"
+Latn:1 corrige — après un point d'exclamation | "Stop! wait" | "Stop! Wait"
+Latn:1 intact — déjà en majuscule | "It is late. We go" | =
+Latn:1 intact — le point d'une abréviation | "At 5 p.m. you go" | =
+Latn:1 intact — un nombre décimal | "It costs 3.50 now" | =
+Latn:1 corrige — d'un sous-titre au suivant [1/2] | "He left." | =
+Latn:1 corrige — d'un sous-titre au suivant [2/2] | "and so did she." | "And so did she."
+Latn:1 intact — une phrase qui continue [1/2] | "He left," | =
+Latn:1 intact — une phrase qui continue [2/2] | "and so did she." | =
+Latn:2 corrige — après des points de suspension | "Well... maybe" | "Well... Maybe"
+Latn:2 intact — collés au mot suivant | "Well...maybe" | =
+Latn:2 corrige — le premier sous-titre, d'office | "well...maybe" | "Well...maybe"
+Latn-en:1 corrige — le pronom i | "Yes, i do" | "Yes, I do"
+Latn-en:1 intact — un mot qui commence par i | "Yes, it is" | =
+cascade Latn-en corrige — phrase, pronom et sous-titre suivant [1/2] | "yes. i think so." | "Yes. I think so."
+cascade Latn-en corrige — phrase, pronom et sous-titre suivant [2/2] | "and you?" | "And you?"
+cascade Latn-en intact — un texte propre [1/2] | "Yes. I think so." | =
+cascade Latn-en intact — un texte propre [2/2] | "And you?" | =
