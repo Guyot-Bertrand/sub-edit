@@ -18,6 +18,9 @@
 #   2. **chaque page du manuel du dépôt se retrouve sous le préfixe** — la liste
 #      attendue est calculée depuis `docs/manual`, jamais recopiée : une liste
 #      écrite à la main se périme au premier chapitre ajouté, en silence ;
+#      **les motifs de correction, eux, se retrouvent sous `share/subedit/patterns`**
+#      — même règle, même calcul : sans eux le programme ne corrige plus rien
+#      sans que personne le voie — #498 ;
 #   3. le préfixe temporaire ne laisse rien derrière lui ;
 #   4. **les cinq fichiers de bureau sont là, et trois d'entre eux se
 #      valident** — le `.desktop`, les métadonnées AppStream et l'icône, celle-ci
@@ -113,6 +116,7 @@ set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 readonly MANUAL_DIR="${REPO_ROOT}/docs/manual"
+readonly PATTERNS_DIR="${REPO_ROOT}/packaging/patterns"
 
 # L'identifiant de l'application, celui que portent les trois fichiers de
 # bureau. Écrit ici comme dans `cmake/Installation.cmake` : ce contrôle existe
@@ -140,7 +144,7 @@ build_dir="${REPO_ROOT}/build/release"
 # seul, sans rien savoir des autres : l'installation dans le préfixe est faite
 # une fois pour tous, avant eux, et aucun ne dépend de ce qu'un autre a laissé.
 # C'est ce qui rend `--only` sûr.
-readonly CONTROLS=(binaires manuel bureau pages rendu destdir paquets)
+readonly CONTROLS=(binaires manuel motifs bureau pages rendu destdir paquets)
 
 usage() {
     cat >&2 <<'USAGE'
@@ -290,6 +294,44 @@ $(printf '    %s\n' "${missing[@]}")
 
 if wanted manuel; then
     check_manual
+fi
+
+# ## Chaque fichier de motifs se retrouve sous le préfixe
+#
+# **Même règle que le manuel, et pour la même raison : la liste est calculée.**
+# Un fichier de motifs manquant n'est pas une erreur que le programme dit, c'est
+# une langue dont on ne corrige plus rien — sans que personne le voie. L'emplacement
+# est celui que le programme lit à partir de son exécutable, `share/subedit/patterns`
+# (ADR 0037).
+check_patterns() {
+    local installed="${prefix}/share/subedit/patterns"
+
+    if [[ ! -d "${installed}" ]]; then
+        report_failure "les motifs de correction n'ont pas été installés dans share/subedit/patterns"
+        return
+    fi
+
+    local missing=()
+    local file
+    while IFS= read -r -d '' file; do
+        local relative="${file#"${PATTERNS_DIR}/"}"
+        [[ -f "${installed}/${relative}" ]] || missing+=("${relative}")
+    done < <(find "${PATTERNS_DIR}" -type f -print0)
+
+    if (( ${#missing[@]} > 0 )); then
+        report_failure "les motifs installés sont incomplets :
+$(printf '    %s\n' "${missing[@]}")
+    la règle install() de cmake/Installation.cmake ne copie pas tout"
+        return
+    fi
+
+    local count
+    count="$(find "${PATTERNS_DIR}" -type f | wc -l)"
+    report_success "les ${count} fichiers de motifs sont installés"
+}
+
+if wanted motifs; then
+    check_patterns
 fi
 
 # ## Les quatre fichiers de bureau

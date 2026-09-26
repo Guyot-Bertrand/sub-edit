@@ -25,6 +25,8 @@ add_executable(
     core/time/timestamp_parse_test.cpp
     core/text/break_marker_test.cpp
     core/text/hearing_impaired_test.cpp
+    core/text/pattern_catalogue_test.cpp
+    core/text/pattern_paths_test.cpp
     core/text/dialogue_dashes_test.cpp
     core/text/italics_test.cpp
     core/text/letter_case_test.cpp
@@ -135,6 +137,7 @@ target_include_directories(subedit_core_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
 target_compile_definitions(
     subedit_core_test
     PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
+            SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns"
             SUBEDIT_LOCAL_DATA_DIR="${CMAKE_SOURCE_DIR}/src/data"
             SUBEDIT_FAKE_PLAYER_BINARY="$<TARGET_FILE:subedit_fake_player>")
 

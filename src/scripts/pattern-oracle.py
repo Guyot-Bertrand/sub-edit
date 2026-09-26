@@ -2,7 +2,7 @@
 r"""Ce que Gaupol fait de ses motifs de correction — issue #494.
 
 **L'oracle des motifs, écrit en Python parce que les motifs le sont.** Les
-fichiers de `src/test/data/motifs/gaupol/` sont ceux de Gaupol, écrits pour le
+fichiers de `packaging/patterns/` sont ceux de Gaupol, écrits pour le
 module `re` ; aucun moteur C++ ne les lit tels quels, et celui que la phase 12
 choisira devra prouver qu'il corrige comme Gaupol corrige. Ce script écrit ce
 que Gaupol en fait, cas par cas, dans `attendus/` ; les tests C++ du moteur
@@ -53,7 +53,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 PATTERNS_ROOT = REPO_ROOT / "src" / "test" / "data" / "motifs"
-GAUPOL = PATTERNS_ROOT / "gaupol"
+GAUPOL = REPO_ROOT / "packaging" / "patterns"
 INPUTS = PATTERNS_ROOT / "entrees"
 EXPECTED = PATTERNS_ROOT / "attendus"
 
@@ -743,6 +743,33 @@ def expected_of(kind: str) -> tuple[str, list[str]]:
     return "\n".join(lines) + "\n", problems
 
 
+# Les codes demandés à la cascade : chacun des niveaux, un pays, une langue livrée
+# sans pays, et deux codes dont aucun fichier n'existe.
+CASCADE_REQUESTS = ("Latn", "Latn-en", "Latn-en-US", "Latn-fr", "Latn-fi", "Latn-de", "Cyrl")
+
+
+def expected_cascades() -> str:
+    """Ce que la cascade de chaque code rend, pour le lecteur du noyau — issue #498.
+
+    Une ligne par type et par code : les enregistrements dans l'ordre où
+    Gaupol les applique, `<code>:<rang>`, suivis de `+` s'ils sont actifs par
+    défaut et de `-` sinon. C'est ce que `get_patterns` rend, et ce que le
+    lecteur C++ doit rendre à son tour, sans jamais lancer Python.
+    """
+    lines = [
+        "# Engendré par src/scripts/pattern-oracle.py — ne pas éditer à la main.",
+        "# La cascade de chaque code : `<code>:<rang>`, `+` actif par défaut, `-` non.",
+        "# Voir ../LISEZMOI.md.",
+        "",
+    ]
+    for kind in TYPES:
+        by_code = read_patterns(kind)
+        for request in CASCADE_REQUESTS:
+            items = [f"{x.code}:{x.rank}{'+' if x.enabled else '-'}" for x in cascade(by_code, request)]
+            lines.append(f"{kind} {request} | {' '.join(items)}")
+    return "\n".join(lines) + "\n"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     mode = parser.add_mutually_exclusive_group(required=True)
@@ -769,6 +796,17 @@ def main() -> int:
                 f"{path.relative_to(REPO_ROOT)} n'est pas ce que l'oracle écrit : "
                 "relancer « src/scripts/pattern-oracle.py --write » et relire le diff"
             )
+
+    cascades = expected_cascades()
+    path = EXPECTED / "cascades.txt"
+    if arguments.write:
+        if not failures:
+            path.write_text(cascades, encoding="utf-8")
+    elif not path.exists() or path.read_text(encoding="utf-8") != cascades:
+        failures.append(
+            f"{path.relative_to(REPO_ROOT)} n'est pas ce que l'oracle écrit : "
+            "relancer « src/scripts/pattern-oracle.py --write » et relire le diff"
+        )
 
     if failures:
         for failure in failures:

@@ -1,0 +1,32 @@
+# Engendré par src/scripts/pattern-oracle.py — ne pas éditer à la main.
+# La cascade de chaque code : `<code>:<rang>`, `+` actif par défaut, `-` non.
+# Voir ../LISEZMOI.md.
+
+common-error Latn | Zyyy:1+ Zyyy:2+ Zyyy:3+ Zyyy:4+ Zyyy:5+ Zyyy:6+ Zyyy:7+ Zyyy:8- Zyyy:9- Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+ Latn:6+ Latn:7+ Latn:8+ Latn:9+ Latn:10+ Latn:11+ Latn:12+ Latn:13+ Latn:14+ Latn:15+ Latn:16+ Latn:17+ Latn:18+ Latn:19+ Latn:20+ Latn:21+ Latn:22+ Latn:23+ Latn:24+ Latn:25+ Latn:26+ Latn:27+ Latn:28+ Latn:29- Latn:30- Latn:31+ Latn:32+ Latn:33-
+common-error Latn-en | Zyyy:1+ Zyyy:2+ Zyyy:3+ Zyyy:4+ Zyyy:5+ Zyyy:6+ Zyyy:7+ Zyyy:8- Zyyy:9- Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+ Latn:6+ Latn:7+ Latn:8+ Latn:9+ Latn:10+ Latn:11+ Latn:12+ Latn-en:10+ Latn:13+ Latn:14+ Latn:15+ Latn:16+ Latn:17+ Latn:18+ Latn:19+ Latn:20+ Latn:21+ Latn:22+ Latn:23+ Latn:24+ Latn:25+ Latn:26+ Latn:27+ Latn:28+ Latn:29- Latn:30- Latn:31+ Latn:32+ Latn:33- Latn-en:1+ Latn-en:2+ Latn-en:3+ Latn-en:4+ Latn-en:5+ Latn-en:6+ Latn-en:7+ Latn-en:8+ Latn-en:9+ Latn-en:11+ Latn-en:12+ Latn-en:13+
+common-error Latn-en-US | Zyyy:1+ Zyyy:2+ Zyyy:3+ Zyyy:4+ Zyyy:5+ Zyyy:6+ Zyyy:7+ Zyyy:8- Zyyy:9- Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+ Latn:6+ Latn:7+ Latn:8+ Latn:9+ Latn:10+ Latn:11+ Latn:12+ Latn-en:10+ Latn:13+ Latn:14+ Latn:15+ Latn:16+ Latn:17+ Latn:18+ Latn:19+ Latn:20+ Latn:21+ Latn:22+ Latn:23+ Latn:24+ Latn:25+ Latn:26+ Latn:27+ Latn:28+ Latn:29- Latn:30- Latn:31+ Latn:32+ Latn:33- Latn-en:1+ Latn-en:2+ Latn-en:3+ Latn-en:4+ Latn-en:5+ Latn-en:6+ Latn-en:7+ Latn-en:8+ Latn-en:9+ Latn-en:11+ Latn-en:12+ Latn-en:13+ Latn-en-US:1+
+common-error Latn-fr | Zyyy:1+ Zyyy:2+ Zyyy:3+ Zyyy:4+ Zyyy:5+ Zyyy:6+ Zyyy:8- Zyyy:9- Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+ Latn:6+ Latn:7+ Latn:8+ Latn:9+ Latn:10+ Latn:11+ Latn:12+ Latn:13+ Latn:14+ Latn:15+ Latn:16+ Latn:17+ Latn:18+ Latn-fr:5+ Latn-fr:6+ Latn:20+ Latn:21+ Latn:22+ Latn:23+ Latn:24+ Latn:25+ Latn:26+ Latn:27+ Latn:28+ Latn:29- Latn:30- Latn:31+ Latn:32+ Latn:33- Latn-fr:1+ Latn-fr:2+ Latn-fr:3+ Latn-fr:4+
+common-error Latn-fi | Zyyy:1+ Zyyy:2+ Zyyy:3+ Zyyy:4+ Zyyy:5+ Zyyy:6+ Zyyy:7+ Zyyy:8- Zyyy:9- Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+ Latn:6+ Latn:7+ Latn:8+ Latn:9+ Latn:10+ Latn:11+ Latn:12+ Latn:13+ Latn:14+ Latn:15+ Latn:16+ Latn:17+ Latn:18+ Latn:19+ Latn-fi:1+ Latn:21+ Latn:22+ Latn:23+ Latn:24+ Latn:25+ Latn:26+ Latn:27+ Latn:28+ Latn:29- Latn:30- Latn:31+ Latn:32+ Latn:33-
+common-error Latn-de | Zyyy:1+ Zyyy:2+ Zyyy:3+ Zyyy:4+ Zyyy:5+ Zyyy:6+ Zyyy:7+ Zyyy:8- Zyyy:9- Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+ Latn:6+ Latn:7+ Latn:8+ Latn:9+ Latn:10+ Latn:11+ Latn:12+ Latn:13+ Latn:14+ Latn:15+ Latn:16+ Latn:17+ Latn:18+ Latn:19+ Latn:20+ Latn:21+ Latn:22+ Latn:23+ Latn:24+ Latn:25+ Latn:26+ Latn:27+ Latn:28+ Latn:29- Latn:30- Latn:31+ Latn:32+ Latn:33-
+common-error Cyrl | Zyyy:1+ Zyyy:2+ Zyyy:3+ Zyyy:4+ Zyyy:5+ Zyyy:6+ Zyyy:7+ Zyyy:8- Zyyy:9-
+capitalization Latn | Latn:1+ Latn:2-
+capitalization Latn-en | Latn:1+ Latn:2- Latn-en:1+
+capitalization Latn-en-US | Latn:1+ Latn:2- Latn-en:1+
+capitalization Latn-fr | Latn:1+ Latn:2-
+capitalization Latn-fi | Latn:1+ Latn:2-
+capitalization Latn-de | Latn:1+ Latn:2-
+capitalization Cyrl | 
+hearing-impaired Latn | Latn:1- Latn:2- Latn:3- Latn:4- Latn:5-
+hearing-impaired Latn-en | Latn:1- Latn:2- Latn:3- Latn:4- Latn:5- Latn-en:1-
+hearing-impaired Latn-en-US | Latn:1- Latn:2- Latn:3- Latn:4- Latn:5- Latn-en:1-
+hearing-impaired Latn-fr | Latn:1- Latn:2- Latn:3- Latn:4- Latn:5-
+hearing-impaired Latn-fi | Latn:1- Latn:2- Latn:3- Latn:4- Latn:5-
+hearing-impaired Latn-de | Latn:1- Latn:2- Latn:3- Latn:4- Latn:5-
+hearing-impaired Cyrl | 
+line-break Latn | Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+
+line-break Latn-en | Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+ Latn-en:1+ Latn-en:2+ Latn-en:3+ Latn-en:4+
+line-break Latn-en-US | Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+ Latn-en:1+ Latn-en:2+ Latn-en:3+ Latn-en:4+
+line-break Latn-fr | Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+
+line-break Latn-fi | Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+
+line-break Latn-de | Latn:1+ Latn:2+ Latn:3+ Latn:4+ Latn:5+
+line-break Cyrl | 
