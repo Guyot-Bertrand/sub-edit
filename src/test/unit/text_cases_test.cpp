@@ -176,12 +176,12 @@ TEST_CASE("the corpus of the mentions is well formed, whatever plays it", "[test
 
 TEST_CASE("what Gaupol does with its correction patterns reads as cases before any engine plays it",
           "[test][textcases]") {
-    // The expectations of issue #494 are written by src/scripts/pattern-oracle.py
+    // The expectations of issues #494 and #495 are written by src/scripts/pattern-oracle.py
     // and played by nothing yet: the engine of phase 12 does not exist. What is
     // checked here is that the day it does, they load — every case, under the
-    // name the oracle gave it, which starts with the pattern or the cascade it
-    // exercises.
-    for (const char* kind : {"common-error", "capitalization", "hearing-impaired"}) {
+    // name the oracle gave it, which starts with what it exercises: a pattern,
+    // a cascade, or for line breaks the test penalties or none at all.
+    for (const char* kind : {"common-error", "capitalization", "hearing-impaired", "line-break"}) {
         const std::vector<TextCase> expected =
             textCasesOf(std::string{"motifs/attendus/"} + kind + ".cas");
 
@@ -189,8 +189,9 @@ TEST_CASE("what Gaupol does with its correction patterns reads as cases before a
         CHECK_FALSE(expected.empty());
         for (const TextCase& one : expected) {
             INFO("cas ligne " << one.line);
-            const bool named =
-                one.name.starts_with("cascade ") || one.name.find(':') < one.name.find(' ');
+            const bool named = one.name.starts_with("cascade ") || one.name.starts_with("essai ") ||
+                               one.name.starts_with("aucune ") ||
+                               one.name.find(':') < one.name.find(' ');
             CHECK(named);
         }
     }

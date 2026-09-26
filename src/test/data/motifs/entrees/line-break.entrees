@@ -1,0 +1,58 @@
+# Le découpage de lignes — les entrées, écrites à la main. Issue #495.
+#
+# Même forme que `common-error.entrees`, à deux différences près :
+#
+# - **La cible porte les réglages** : `<sélection> <longueur>/<lignes>`, la
+#   longueur maximale d'une ligne en caractères et le nombre de lignes voulu.
+#   La sélection des pénalités est un enregistrement seul (`Latn-en:2`), une
+#   cascade (`cascade Latn-en`, telle que Gaupol l'active par défaut), `essai`
+#   — les trois pénalités de `aeidon/test/test_liner.py` —, ou `aucune`.
+# - **L'attente est `coupe` ou `intact`** : un découpage coupe, il ne corrige pas.
+#
+# **Chaque motif décide au moins un cas** : son découpage diffère de celui
+# qu'on obtient sans aucune pénalité, aux mêmes réglages. L'oracle le vérifie ;
+# sans cela, un moteur qui ignorerait un motif passerait quand même.
+#
+# **Unité caractère seulement.** La mesure en *ems* dépend de la police ; c'est
+# une décision du cadrage (#493), et des attendus qui en dépendraient
+# dépendraient de la machine.
+
+# --- Les cinq cas de test_liner.py, leurs réglages et leurs pénalités ------------
+#
+# Le Liner de ce test garde ses valeurs par défaut : 40 de long, 3 lignes.
+
+essai 40/3 | intact | un mot                        | "Hello."
+essai 40/3 | coupe  | un dialogue                   | "- Isn't he off on Saturdays? - Didn't he tell you?"
+essai 40/3 | coupe  | deux lignes                   | "Close by the king's castle lay a great dark forest."
+essai 40/3 | coupe  | trois lignes                  | "The king's child went out into the forest and sat down by the side of the cool fountain."
+essai 40/3 | coupe  | au-delà de trois, s'il le faut | "The king's child went out into the forest and sat down by the side of the cool fountain; and when she was bored she took a golden ball, and threw it up high and caught it; and this ball was her favorite plaything."
+
+# --- Sans pénalité : la longueur et le démérite seuls ----------------------------
+
+aucune 24/2 | coupe  | deux lignes équilibrées           | "The night was cold and the road was long"
+aucune 40/2 | intact | tient sur une ligne               | "The night was cold"
+aucune 40/2 | coupe  | un saut de ligne est une espace   | "The night\nwas cold and the road was long, so long"
+aucune 24/2 | coupe  | les espaces multiples se fondent  | "The night   was cold and the road was long"
+aucune 14/3 | intact | deux mots n'atteignent pas trois lignes : rien n'est coupé | "Unbelievable extraordinary"
+aucune 14/2 | coupe  | les mêmes, deux lignes permises   | "Unbelievable extraordinary"
+aucune 12/2 | coupe  | la longueur l'emporte sur les lignes | "The night was cold and the road was long"
+
+# --- Chaque motif, seul, là où il décide -----------------------------------------
+
+Latn:1 24/2    | coupe | le tiret de dialogue attire la coupure | "- Where did you put it? - Over there."
+Latn:1 30/2    | coupe | la même, sur une ligne plus large      | "- Are you coming with us? - No, I am not."
+Latn:2 9/2     | coupe | jamais entre le tiret et la réplique   | "Hello - goodbye"
+Latn:3 30/2    | coupe | après une fin de phrase                | "We stayed. Then the rain came down hard"
+Latn:4 24/2    | coupe | après une virgule                      | "When the rain stopped, we walked home"
+Latn:5 11/2    | coupe | jamais entre un nombre et son unité, quitte à passer trois lignes | "It is 40 cm longer than mine"
+Latn-en:1 24/2 | coupe | jamais après un titre                  | "I finally met Mr Smith at the station"
+Latn-en:2 16/2 | coupe | jamais après un article                | "She saw a ghost last night"
+Latn-en:3 24/2 | coupe | pas après une préposition              | "They waited outside the house for hours"
+Latn-en:4 24/2 | coupe | pas après un déterminant possessif     | "He finally sold his car to a neighbour"
+
+# --- Les cascades : toutes les pénalités ensemble --------------------------------
+
+cascade Latn-en 42/2 | coupe  | le dialogue avant la ponctuation     | "- Did you see Mr Smith today? - Yes, at the station."
+cascade Latn-en 24/3 | coupe  | quatre lignes quand trois ne tiennent pas | "When the rain stopped, we walked home under the dark sky of the old town."
+cascade Latn-en 42/2 | intact | tient sur une ligne                  | "We walked home."
+cascade Latn    24/2 | coupe  | sans l'anglais, l'article est libre  | "She saw a ghost last night"

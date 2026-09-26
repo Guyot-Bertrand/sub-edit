@@ -33,14 +33,11 @@ recopiant l'ensemble depuis une révision plus récente de Gaupol, en changeant 
 révision ci-dessus, puis en relançant l'oracle : le diff des attendus dit alors ce
 que la mise à jour change.
 
-Les `line-break` y sont aussi, bien que l'oracle ne les lise pas : le découpage de
-lignes a ses propres attendus, issue
-[#495](https://github.com/Guyot-Bertrand/sub-edit/issues/495).
 
 ## `entrees/` — les textes à éprouver
 
-Un fichier par type : `common-error`, `capitalization`, `hearing-impaired`. Une
-ligne par cas :
+Un fichier par type : `common-error`, `capitalization`, `hearing-impaired`,
+`line-break`. Une ligne par cas :
 
 ```
 cible | attente | libellé | "texte"
@@ -53,13 +50,27 @@ cible | attente | libellé | "texte"
 | `libellé` | ce que le cas montre, en français |
 | `"texte"` | le texte, entre guillemets ; plusieurs textes séparés par `;` sont des sous-titres consécutifs |
 
-Les échappements sont ceux des `.cas` : `\"`, `\\`, `\n`, `\t`.
+Les échappements sont ceux des `.cas` : `\"`, `\\`, `\n`, `\t`. Les espaces
+d'alignement d'une cible ne comptent pas.
 
 **L'oracle refuse un cas qui ne fait pas ce qu'il annonce** — un `corrige` qui ne
 change rien, un `intact` qui change —, **un enregistrement qui n'a pas un cas de
 chaque sorte**, et une langue livrée sans sa cascade. C'est ce qui garde ces
 entrées honnêtes : un cas `intact` se place **au bord** du motif, là où un moteur
 qui traduirait mal un lookbehind corrigerait trop.
+
+**Le découpage de lignes a sa propre cible et sa propre attente** — issue
+[#495](https://github.com/Guyot-Bertrand/sub-edit/issues/495) :
+
+- la cible finit par les réglages, `<longueur>/<lignes>` — `Latn-en:2 16/2`,
+  `cascade Latn-en 42/2` ; deux sélections de plus, `essai` pour les trois
+  pénalités de `aeidon/test/test_liner.py` et `aucune` ;
+- l'attente est `coupe` ou `intact` ;
+- **chaque motif décide au moins un cas** : son découpage diffère de celui
+  d'aucune pénalité aux mêmes réglages. L'oracle refuse un motif qui ne décide
+  rien, sans quoi un moteur qui l'ignorerait passerait ;
+- **en caractères seulement** : la mesure en *ems* dépend de la police, et c'est
+  au cadrage d'en décider (#493).
 
 **Aucun texte ne porte de balise.** Le parseur de Gaupol retire les balises et les
 remet autour des remplacements ; c'est le travail du parseur de balises de la
@@ -83,7 +94,8 @@ $ ./src/scripts/pattern-oracle.py --check   # ce que make fixtures lance
 
 L'oracle reproduit le chargement de Gaupol (lignes de commentaire, `\0` retiré,
 activation par les `.conf`), sa cascade des codes (`SkipIn`, `Policy=Replace`), sa
-recherche et ses trois opérations, **ligne à ligne**. Chacune est nommée dans le
+recherche, ses trois opérations sur le texte et son découpeur de lignes (`Liner`),
+**ligne à ligne**. Chacune est nommée dans le
 script à côté de ce qu'elle porte.
 
 **Gaupol ne remplace pas avec `re.sub`.** Il cherche chaque correspondance dans le
@@ -102,6 +114,21 @@ faite hors du dépôt, une fois sans fichier et une fois dans un projet SubRip �
 faire passer le parseur de balises. **Aucun désaccord.** La même confrontation,
 refaite avec un oracle réduit à `re.sub`, trouve les deux cas de la section
 précédente : elle sait voir une différence.
+
+**Le découpeur a été confronté de même**, au `Liner` de Gaupol aux mêmes réglages
+et aux mêmes pénalités : aucun désaccord, et les quatre découpages de
+`test_liner.py` y sont exactement ceux que ce test affirme. Trois oracles
+faussés — sans le terme de « pyramide », sans la variance des longueurs, sans la
+règle qui attend `max_lines` lignes avant de couper — en trouvent chacun.
+
+Deux comportements du découpeur valent d'être sus avant d'en écrire un :
+
+- **il dépasse `max_lines` quand la longueur l'exige** — « It is 40 cm longer than
+  mine » sort en trois lignes à 11 de large et deux lignes voulues, pour ne pas
+  séparer « 40 » de « cm » ;
+- **il ne coupe rien tant que le nombre de lignes essayé n'atteint pas
+  `max_lines`** : deux mots trop longs pour une ligne restent sur une seule ligne
+  quand on en permet trois, et se coupent quand on en permet deux.
 
 C'est **une observation, pas un contrôle** : elle demande Gaupol, et le dépôt ne le
 contient pas. Ce qui se rejoue partout, c'est l'oracle sur les copies versionnées,

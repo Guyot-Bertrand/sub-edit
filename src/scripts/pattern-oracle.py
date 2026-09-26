@@ -57,7 +57,7 @@ GAUPOL = PATTERNS_ROOT / "gaupol"
 INPUTS = PATTERNS_ROOT / "entrees"
 EXPECTED = PATTERNS_ROOT / "attendus"
 
-TYPES = ("common-error", "capitalization", "hearing-impaired")
+TYPES = ("common-error", "capitalization", "hearing-impaired", "line-break")
 
 # Les langues dont Gaupol livre des motifs : chacune a sa cascade, sans quoi
 # `SkipIn` et `Policy=Replace` ne seraient jamais éprouvés. Les mentions sont
@@ -66,6 +66,16 @@ REQUIRED_CASCADES = {
     "common-error": ("Latn-en", "Latn-en-US", "Latn-fr", "Latn-fi"),
     "capitalization": ("Latn-en",),
     "hearing-impaired": ("Latn-en tous",),
+    "line-break": ("Latn-en",),
+}
+
+# Ce que chaque type appelle un texte changé : un découpage coupe, il ne
+# corrige pas.
+CHANGED_WORD = {
+    "common-error": "corrige",
+    "capitalization": "corrige",
+    "hearing-impaired": "corrige",
+    "line-break": "coupe",
 }
 
 # Un texte d'entrée, ou le sous-titre retiré qu'un vidage laisse : `None`.
@@ -324,6 +334,246 @@ def remove_hearing_impaired(texts: list[str], patterns: list[Pattern]) -> Texts:
     return removed
 
 
+# --- Le découpage de lignes : aeidon/liner.py -----------------------------------
+
+# Les trois pénalités de `aeidon/test/test_liner.py`, que ses cinq cas utilisent :
+# l'intention de l'auteur, écrite par lui, à côté de celles que Gaupol livre.
+TEST_PENALTIES = (
+    (r"( )- ", re.DOTALL | re.MULTILINE, 1, -1000.0),
+    (r"[,.;:!?]( )", re.DOTALL | re.MULTILINE, 1, -100.0),
+    (r"\b(by|the|into|a)( )", re.DOTALL | re.MULTILINE, 2, 1000.0),
+)
+
+# Une pénalité : l'expression, le groupe qui tient l'espace, la valeur.
+Penalty = tuple[re.Pattern[str], int, float]
+
+
+def penalties_of(patterns: list[Pattern]) -> list[Penalty]:
+    """`_get_penalties` puis `Liner.set_penalties`."""
+    return [
+        (re.compile(x.fields["Pattern"], x.flags()), int(x.fields["Group"]), float(x.fields["Penalty"]))
+        for x in patterns
+    ]
+
+
+class Liner:
+    """`aeidon.Liner`, porté ligne à ligne, en unité caractère.
+
+    `_list_possible_breaks` est mémorisé chez Gaupol par l'identité de l'objet ;
+    ici par ses arguments, pour un seul découpage : les réglages ne changent
+    pas pendant un appel, et le résultat est le même.
+    """
+
+    def __init__(self, penalties: list[Penalty], max_length: int, max_lines: int) -> None:
+        self.penalties = penalties
+        self.max_length = max_length
+        self.max_lines = max_lines
+        self.memo: dict[tuple[tuple[str, ...], tuple[float, ...], int], list[int]] = {}
+
+    @staticmethod
+    def boxes_to_lines(boxes: list[str], breaks: list[int]) -> list[str]:
+        edges = [0] + [x + 1 for x in breaks] + [len(boxes)]
+        return [" ".join(boxes[edges[i] : edges[i + 1]]) for i in range(len(edges) - 1)]
+
+    def demerit(self, boxes: list[str], penalties: list[float], breaks: list[int]) -> float:
+        """`_calculate_demerit`, terme à terme."""
+        nlines = len(breaks) + 1
+        chosen = [penalties[i] for i in breaks]
+        lengths = [len(x) for x in self.boxes_to_lines(boxes, breaks)]
+        mean = sum(lengths) / len(lengths)
+        width = self.max_length
+        return (
+            sum(chosen)
+            + 50 * sum(((x - mean) / width) ** 2 for x in lengths)
+            + 50
+            * sum(
+                ((lengths[i] - lengths[i + 1]) / width) ** 2
+                for i in range(len(lengths) - 1)
+                if lengths[i] > lengths[i + 1]
+            )
+            + 100 * (nlines - 1) ** 3
+            + 1000 * max(0, nlines - self.max_lines) ** 3
+        )
+
+    def detect_penalties(self, finder: Finder, boxes: list[str]) -> list[float]:
+        """`_detect_penalties` : chaque espace reçoit la somme de ses pénalités."""
+        text = " ".join(boxes)
+        at_space = [0.0] * len(text)
+        for regex, group, value in self.penalties:
+            finder.pattern = regex
+            finder.pos = 0
+            while True:
+                try:
+                    finder.next()
+                except StopIteration:
+                    break
+                assert finder.match is not None
+                at_space[finder.match.span(group)[0]] += value
+        penalties = [0.0] * len(boxes)
+        pos = -1
+        for i in range(len(boxes) - 1):
+            pos = pos + 1 + len(boxes[i])
+            penalties[i] = at_space[pos]
+        return penalties
+
+    def possible_breaks(self, boxes: list[str], penalties: list[float], nlines: int) -> list[int]:
+        """`_list_possible_breaks`, triés par pénalité croissante."""
+        key = (tuple(boxes), tuple(penalties), nlines)
+        if key not in self.memo:
+            self.memo[key] = self._possible_breaks(boxes, penalties, nlines)
+        return self.memo[key]
+
+    def _possible_breaks(self, boxes: list[str], penalties: list[float], nlines: int) -> list[int]:
+        breaks = list(range(len(boxes) - (nlines - 1)))
+        breakpen = penalties[: len(breaks)]
+        if nlines == 1:
+            return []
+        keep = [False] * len(breaks)
+        if nlines == 2:
+            for i in range(len(breaks)):
+                keep[i] = max(len(x) for x in self.boxes_to_lines(boxes, [i])) <= self.max_length
+        else:
+            for i in range(len(breaks)):
+                if len(self.boxes_to_lines(boxes, [i])[0]) > self.max_length:
+                    break
+                keep[i] = bool(self.possible_breaks(boxes[i + 1 :], penalties[i + 1 :], nlines - 1))
+        kept = [(breakpen[i], breaks[i]) for i in range(len(breaks)) if keep[i]]
+        return [b for _, b in sorted(kept)]
+
+    def break_among(
+        self, boxes: list[str], penalties: list[float], nlines: int
+    ) -> tuple[list[int] | None, float]:
+        """`_break_lines` : les coupures et leur démérite, ou rien de valide."""
+        breaks = self.possible_breaks(boxes, penalties, nlines)
+        best: list[int] | None = None
+        best_demerit = float(sys.maxsize)
+        if len(" ".join(boxes)) <= self.max_length:
+            # Une ligne seule, valide, est l'étalon qu'il faut battre.
+            best = []
+            best_demerit = self.demerit(boxes, penalties, [])
+        if nlines == 1:
+            return best, best_demerit
+        if nlines == 2:
+            for i in breaks:
+                if penalties[i] > best_demerit:
+                    break
+                demerit = self.demerit(boxes, penalties, [i])
+                if demerit < best_demerit:
+                    best, best_demerit = [i], demerit
+            return best, best_demerit
+        for i in breaks:
+            negative = sorted(x for x in penalties[i + 1 :] if x < 0)
+            negative_sum = sum(negative[: min(len(negative), nlines - 2)])
+            if penalties[i] + negative_sum > best_demerit:
+                break
+            later, _ = self.break_among(boxes[i + 1 :], penalties[i + 1 :], nlines - 1)
+            if later is None:
+                continue
+            candidate = [i] + [i + 1 + x for x in later]
+            demerit = self.demerit(boxes, penalties, candidate)
+            if demerit < best_demerit:
+                best, best_demerit = candidate, demerit
+        return best, best_demerit
+
+    def break_lines(self, text: str) -> str:
+        """`set_text` puis `break_lines`.
+
+        **Rien n'est coupé tant que le nombre de lignes essayé n'atteint pas
+        `max_lines`** : un texte trop court en mots pour les atteindre est rendu
+        tel quel, qu'il tienne ou non dans la longueur.
+        """
+        finder = Finder(text.strip())
+        finder.text = finder.text.replace("\n", " ")
+        finder.set_regex(" {2,}")
+        finder.replacement = " "
+        finder.replace_all()
+        boxes = finder.text.split(" ")
+        if len(boxes) == 1:
+            return finder.text
+        penalties = self.detect_penalties(finder, boxes)
+        best: list[int] | None = None
+        best_demerit = float(sys.maxsize)
+        for nlines in range(min(2, self.max_lines), min(10, len(boxes)) + 1):
+            breaks, demerit = self.break_among(boxes, penalties, nlines)
+            if breaks is None:
+                continue
+            if demerit < best_demerit:
+                best, best_demerit = breaks, demerit
+            if nlines < self.max_lines:
+                continue
+            assert best is not None
+            result = finder.text
+            pos = -1
+            for i in range(len(boxes)):
+                pos = pos + 1 + len(boxes[i])
+                if i in best:
+                    result = result[:pos] + "\n" + result[pos + 1 :]
+            return result
+        return finder.text
+
+
+def line_break_settings(target: str, where: str) -> tuple[str, int, int]:
+    """`Latn-en:2 24/3`, `cascade Latn-en 24/3`, `essai 40/3`, `aucune 24/2`."""
+    selection, _, settings = target.rpartition(" ")
+    length, _, lines = settings.partition("/")
+    if not selection or not length.isdigit() or not lines.isdigit():
+        raise Refusal(f"{where} : une cible de découpage finit par « longueur/lignes »")
+    return selection, int(length), int(lines)
+
+
+def line_break_penalties(by_code: dict[str, list[Pattern]], selection: str, where: str) -> list[Penalty]:
+    if selection == "aucune":
+        return []
+    if selection == "essai":
+        return [(re.compile(p, f), g, v) for p, f, g, v in TEST_PENALTIES]
+    return penalties_of(patterns_of(by_code, selection, where))
+
+
+def expected_line_breaks() -> tuple[str, list[str]]:
+    """Le `.cas` des découpages, et ce qui ne va pas dans ses entrées.
+
+    **Chaque motif doit décider au moins un cas** : son découpage diffère de
+    celui qu'on obtient sans aucune pénalité, aux mêmes réglages. Sans quoi un
+    moteur qui l'ignorerait passerait quand même.
+    """
+    kind = "line-break"
+    by_code = read_patterns(kind)
+    lines = [
+        "# Engendré par src/scripts/pattern-oracle.py — ne pas éditer à la main.",
+        "# Ce que Gaupol fait des motifs « line-break » : voir ../LISEZMOI.md.",
+        "",
+    ]
+    decisive: set[str] = set()
+    cascades = set()
+    problems = []
+    for case in read_cases(kind):
+        selection, length, count = line_break_settings(case.target, case.where)
+        penalties = line_break_penalties(by_code, selection, case.where)
+        outputs = [Liner(penalties, length, count).break_lines(t) for t in case.texts]
+        changed = outputs != case.texts
+        if (case.expectation == "coupe") != changed:
+            what = "change" if changed else "ne change pas"
+            problems.append(f"{case.where} : annoncé « {case.expectation} », et le texte {what}")
+        if selection.startswith("cascade "):
+            cascades.add(selection.split(" ", 1)[1])
+        elif selection not in ("aucune", "essai"):
+            bare = [Liner([], length, count).break_lines(t) for t in case.texts]
+            if bare != outputs:
+                decisive.add(selection)
+        lines.extend(cas_lines(case, outputs))
+    for code, patterns in by_code.items():
+        for pattern in patterns:
+            if f"{code}:{pattern.rank}" not in decisive:
+                problems.append(
+                    f"{kind}.entrees : « {code}:{pattern.rank} » ({pattern.name()}) "
+                    "ne décide aucun cas — son découpage est celui d'aucune pénalité"
+                )
+    for request in REQUIRED_CASCADES[kind]:
+        if request not in cascades:
+            problems.append(f"{kind}.entrees : pas de cascade « {request} »")
+    return "\n".join(lines) + "\n", problems
+
+
 OPERATIONS: dict[str, Callable[[list[str], list[Pattern]], Texts]] = {
     "common-error": correct_common_errors,
     "capitalization": capitalize,
@@ -403,8 +653,10 @@ def read_cases(kind: str) -> list[Case]:
         if len(fields) != 4:
             raise Refusal(f"{where} : quatre champs — cible | attente | libellé | textes")
         target, expectation, label, texts = fields
-        if expectation not in ("corrige", "intact"):
-            raise Refusal(f"{where} : l'attente est « corrige » ou « intact »")
+        # Les espaces d'alignement ne font pas partie de la cible.
+        target = " ".join(target.split())
+        if expectation not in (CHANGED_WORD[kind], "intact"):
+            raise Refusal(f"{where} : l'attente est « {CHANGED_WORD[kind]} » ou « intact »")
         cases.append(Case(where, target, expectation, label, quoted_texts(texts, where)))
     return cases
 
@@ -430,8 +682,26 @@ def patterns_of(by_code: dict[str, list[Pattern]], target: str, where: str) -> l
     return [by_code[code][int(rank) - 1]]
 
 
+def cas_lines(case: "Case", outputs: Texts) -> list[str]:
+    """Les lignes `.cas` d'un cas : un texte d'une suite porte son rang."""
+    lines = []
+    for k, (given, output) in enumerate(zip(case.texts, outputs), 1):
+        rank = f" [{k}/{len(case.texts)}]" if len(case.texts) > 1 else ""
+        name = f"{case.target} {case.expectation} — {case.label}{rank}"
+        if output is None:
+            expected = "supprimé"
+        elif output == given:
+            expected = "="
+        else:
+            expected = f'"{escaped(output)}"'
+        lines.append(f'{name} | "{escaped(given)}" | {expected}')
+    return lines
+
+
 def expected_of(kind: str) -> tuple[str, list[str]]:
     """Le `.cas` de `kind`, et ce qui ne va pas dans ses entrées."""
+    if kind == "line-break":
+        return expected_line_breaks()
     by_code = read_patterns(kind)
     operation = OPERATIONS[kind]
     lines = [
@@ -453,16 +723,7 @@ def expected_of(kind: str) -> tuple[str, list[str]]:
             cascades.add(case.target.split(" ", 1)[1])
         else:
             covered.setdefault(case.target, set()).add(case.expectation)
-        for k, (given, output) in enumerate(zip(case.texts, outputs), 1):
-            rank = f" [{k}/{len(case.texts)}]" if len(case.texts) > 1 else ""
-            name = f"{case.target} {case.expectation} — {case.label}{rank}"
-            if output is None:
-                expected = "supprimé"
-            elif output == given:
-                expected = "="
-            else:
-                expected = f'"{escaped(output)}"'
-            lines.append(f'{name} | "{escaped(given)}" | {expected}')
+        lines.extend(cas_lines(case, outputs))
 
     # Chaque enregistrement a un cas qu'il corrige et un cas qu'il laisse, et
     # chaque langue livrée a sa cascade : sans quoi le fichier ne prouve pas ce

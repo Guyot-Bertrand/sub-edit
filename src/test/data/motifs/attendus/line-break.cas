@@ -1,0 +1,29 @@
+# Engendré par src/scripts/pattern-oracle.py — ne pas éditer à la main.
+# Ce que Gaupol fait des motifs « line-break » : voir ../LISEZMOI.md.
+
+essai 40/3 intact — un mot | "Hello." | =
+essai 40/3 coupe — un dialogue | "- Isn't he off on Saturdays? - Didn't he tell you?" | "- Isn't he off on Saturdays?\n- Didn't he tell you?"
+essai 40/3 coupe — deux lignes | "Close by the king's castle lay a great dark forest." | "Close by the king's castle\nlay a great dark forest."
+essai 40/3 coupe — trois lignes | "The king's child went out into the forest and sat down by the side of the cool fountain." | "The king's child went out\ninto the forest and sat down\nby the side of the cool fountain."
+essai 40/3 coupe — au-delà de trois, s'il le faut | "The king's child went out into the forest and sat down by the side of the cool fountain; and when she was bored she took a golden ball, and threw it up high and caught it; and this ball was her favorite plaything." | "The king's child went out\ninto the forest and sat down by the side\nof the cool fountain; and when she\nwas bored she took a golden ball,\nand threw it up high and caught it; and\nthis ball was her favorite plaything."
+aucune 24/2 coupe — deux lignes équilibrées | "The night was cold and the road was long" | "The night was cold\nand the road was long"
+aucune 40/2 intact — tient sur une ligne | "The night was cold" | =
+aucune 40/2 coupe — un saut de ligne est une espace | "The night\nwas cold and the road was long, so long" | "The night was cold and\nthe road was long, so long"
+aucune 24/2 coupe — les espaces multiples se fondent | "The night   was cold and the road was long" | "The night was cold\nand the road was long"
+aucune 14/3 intact — deux mots n'atteignent pas trois lignes : rien n'est coupé | "Unbelievable extraordinary" | =
+aucune 14/2 coupe — les mêmes, deux lignes permises | "Unbelievable extraordinary" | "Unbelievable\nextraordinary"
+aucune 12/2 coupe — la longueur l'emporte sur les lignes | "The night was cold and the road was long" | "The night\nwas cold\nand the road\nwas long"
+Latn:1 24/2 coupe — le tiret de dialogue attire la coupure | "- Where did you put it? - Over there." | "- Where did you put it?\n- Over there."
+Latn:1 30/2 coupe — la même, sur une ligne plus large | "- Are you coming with us? - No, I am not." | "- Are you coming with us?\n- No, I am not."
+Latn:2 9/2 coupe — jamais entre le tiret et la réplique | "Hello - goodbye" | "Hello\n- goodbye"
+Latn:3 30/2 coupe — après une fin de phrase | "We stayed. Then the rain came down hard" | "We stayed.\nThen the rain came down hard"
+Latn:4 24/2 coupe — après une virgule | "When the rain stopped, we walked home" | "When the rain stopped,\nwe walked home"
+Latn:5 11/2 coupe — jamais entre un nombre et son unité, quitte à passer trois lignes | "It is 40 cm longer than mine" | "It is 40 cm\nlonger\nthan mine"
+Latn-en:1 24/2 coupe — jamais après un titre | "I finally met Mr Smith at the station" | "I finally met\nMr Smith at the station"
+Latn-en:2 16/2 coupe — jamais après un article | "She saw a ghost last night" | "She saw a ghost\nlast night"
+Latn-en:3 24/2 coupe — pas après une préposition | "They waited outside the house for hours" | "They waited outside the\nhouse for hours"
+Latn-en:4 24/2 coupe — pas après un déterminant possessif | "He finally sold his car to a neighbour" | "He finally sold\nhis car to a neighbour"
+cascade Latn-en 42/2 coupe — le dialogue avant la ponctuation | "- Did you see Mr Smith today? - Yes, at the station." | "- Did you see Mr Smith today?\n- Yes, at the station."
+cascade Latn-en 24/3 coupe — quatre lignes quand trois ne tiennent pas | "When the rain stopped, we walked home under the dark sky of the old town." | "When the rain\nstopped, we walked\nhome under the dark\nsky of the old town."
+cascade Latn-en 42/2 intact — tient sur une ligne | "We walked home." | =
+cascade Latn 24/2 coupe — sans l'anglais, l'article est libre | "She saw a ghost last night" | "She saw a\nghost last night"
