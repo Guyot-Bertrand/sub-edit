@@ -1,0 +1,28 @@
+# La remise en majuscule — les entrées, écrites à la main.
+#
+# Même forme que `common-error.entrees`, et une chose de plus : **plusieurs
+# textes séparés par `;` sont des sous-titres consécutifs.** La remise en
+# majuscule porte un état de l'un à l'autre — une phrase finie en fin de
+# sous-titre met une majuscule au suivant —, et un cas d'un seul texte ne
+# pourrait pas le montrer.
+#
+# **Le premier sous-titre prend toujours une majuscule**, quel que soit le motif :
+# Gaupol capitalise l'indice 0 d'office. Un cas `intact` commence donc par une
+# capitale.
+
+Latn:1 | corrige | après un point                | "It is late. we go"
+Latn:1 | corrige | après un point d'exclamation  | "Stop! wait"
+Latn:1 | intact  | déjà en majuscule             | "It is late. We go"
+Latn:1 | intact  | le point d'une abréviation    | "At 5 p.m. you go"
+Latn:1 | intact  | un nombre décimal             | "It costs 3.50 now"
+Latn:1 | corrige | d'un sous-titre au suivant    | "He left." ; "and so did she."
+Latn:1 | intact  | une phrase qui continue       | "He left," ; "and so did she."
+Latn:2 | corrige | après des points de suspension | "Well... maybe"
+Latn:2 | intact  | collés au mot suivant          | "Well...maybe"
+Latn:2 | corrige | le premier sous-titre, d'office | "well...maybe"
+
+Latn-en:1 | corrige | le pronom i                 | "Yes, i do"
+Latn-en:1 | intact  | un mot qui commence par i   | "Yes, it is"
+
+cascade Latn-en | corrige | phrase, pronom et sous-titre suivant | "yes. i think so." ; "and you?"
+cascade Latn-en | intact  | un texte propre                      | "Yes. I think so." ; "And you?"

@@ -127,6 +127,7 @@ readonly RELEASE_PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-releases.sh"
 readonly RELEASE_TAG_CHECK="${REPO_ROOT}/src/scripts/check-release-tag.sh"
 readonly VIDEO_FIXTURE="${REPO_ROOT}/src/test/data/videos/cadence-25.mp4"
 readonly GRID_FIXTURE="${REPO_ROOT}/src/test/data/grilles/grille-25.srt"
+readonly PATTERN_EXPECTED="${REPO_ROOT}/src/test/data/motifs/attendus/common-error.cas"
 readonly DETECTION_JOURNAL="${REPO_ROOT}/docs/mesures/detection-d-encodage.md"
 readonly CONVERSION_JOURNAL="${REPO_ROOT}/docs/mesures/conversion.md"
 readonly FORMAT_JOURNAL="${REPO_ROOT}/docs/mesures/detection-de-format.md"
@@ -176,6 +177,7 @@ restore() {
     cp "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
     cp "${backup_dir}/cadence-25.mp4" "${VIDEO_FIXTURE}"
     cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
+    cp "${backup_dir}/common-error.cas" "${PATTERN_EXPECTED}"
     cp "${backup_dir}/detection-d-encodage.md" "${DETECTION_JOURNAL}"
     cp "${backup_dir}/conversion.md" "${CONVERSION_JOURNAL}"
     cp "${backup_dir}/detection-de-format.md" "${FORMAT_JOURNAL}"
@@ -210,6 +212,7 @@ cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
 cp "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
 cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
 cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
+cp "${PATTERN_EXPECTED}" "${backup_dir}/common-error.cas"
 cp "${DETECTION_JOURNAL}" "${backup_dir}/detection-d-encodage.md"
 cp "${CONVERSION_JOURNAL}" "${backup_dir}/conversion.md"
 cp "${FORMAT_JOURNAL}" "${backup_dir}/detection-de-format.md"
@@ -650,6 +653,18 @@ expect_gate_closes \
     "position de grille déplacée d une milliseconde" \
     "fixtures" \
     "${GRID_FIXTURE}" \
+    ''
+
+# Un attendu des motifs de correction faussé d une espace — issue #494. C est le
+# défaut que pattern-oracle.py existe pour attraper : un attendu retouché à la
+# main plutôt que réécrit par l oracle, et qui ne dirait plus ce que Gaupol fait.
+# Une espace, parce que c est le défaut qu un œil laisse passer.
+sed -i '0,/| "Hello, world"$/s//| "Hello,  world"/' "${PATTERN_EXPECTED}"
+
+expect_gate_closes \
+    "attendu des motifs faussé d une espace" \
+    "fixtures" \
+    "${PATTERN_EXPECTED}" \
     ''
 
 
@@ -2132,7 +2147,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles soixante-trois portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles soixante-quatre portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

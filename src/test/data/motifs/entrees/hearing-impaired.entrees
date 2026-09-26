@@ -1,0 +1,40 @@
+# Les mentions pour malentendants — les entrées, écrites à la main.
+#
+# Même forme que `common-error.entrees`. Deux choses à savoir en les lisant :
+#
+# - **Gaupol nettoie ce que les motifs ont changé, et seulement cela** : espaces
+#   de bord, espaces doubles, lignes vides, tirets de dialogue restés seuls. Un
+#   texte que les motifs laissent garde ses espaces doubles.
+# - **Un sous-titre vidé est retiré** — l'attendu le dit `supprimé`, comme les
+#   `.cas` de la phase 4 le font.
+#
+# Gaupol livre ces motifs **tous désactivés**, d'où la cascade `tous`.
+
+Latn:1 | corrige | un bruit entre crochets         | "[Door slams] Get out!"
+Latn:1 | corrige | un sous-titre entièrement bruit | "[Door slams]"
+Latn:1 | intact  | pas de crochets                 | "Get out!"
+Latn:2 | corrige | un soupir entre parenthèses     | "(Sighs) Fine."
+Latn:2 | intact  | pas de parenthèses              | "Fine."
+
+# **Les deux cas qui départagent la recherche de Gaupol d'un `re.sub`.** Le
+# nettoyage `^\W*$` emporte la ligne du guillemet seul ; chez Gaupol, chaque
+# recherche reprend dans le texte déjà raccourci, et les lignes vides partent
+# une à une. Un `re.sub` qui travaille sur le texte d'origine laisse le
+# guillemet collé au mot. Trouvés en comparant les deux, et gardés pour cela.
+Latn:2 | corrige | une ligne de ponctuation seule, emportée | "\"\n(sighs)\nGo!"
+Latn:1 | corrige | la même, après un crochet                | "\"\n[laughs]\nGo!"
+Latn:3 | corrige | des paroles entre dièses        | "# Happy birthday #"
+Latn:3 | corrige | sans dièse fermant, jusqu'au bout | "# Happy birthday\nto you"
+Latn:3 | intact  | pas de dièse                    | "No music here"
+Latn:4 | corrige | des paroles sur une ligne       | "# La la #\nBye"
+Latn:4 | intact  | pas de dièse                    | "Bye"
+Latn:5 | corrige | un locuteur avant les deux-points | "John: Hi"
+Latn:5 | corrige | deux locuteurs, un dialogue      | "John: Hi\nMary: Hello"
+Latn:5 | intact  | une heure                        | "Time 10:30"
+
+Latn-en:1 | corrige | un locuteur en capitales       | "JOHN: Hi\nMARY: Hello"
+Latn-en:1 | intact  | un locuteur en minuscules      | "John: Hi"
+
+cascade Latn-en tous | corrige | tout ensemble          | "JOHN: [laughs] Hi\n(sighs)"
+cascade Latn-en tous | corrige | un sous-titre vidé     | "# La la la #"
+cascade Latn-en tous | intact  | rien à retirer         | "Hello  there"

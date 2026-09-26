@@ -1,0 +1,23 @@
+# Engendré par src/scripts/pattern-oracle.py — ne pas éditer à la main.
+# Ce que Gaupol fait des motifs « hearing-impaired » : voir ../LISEZMOI.md.
+
+Latn:1 corrige — un bruit entre crochets | "[Door slams] Get out!" | "Get out!"
+Latn:1 corrige — un sous-titre entièrement bruit | "[Door slams]" | supprimé
+Latn:1 intact — pas de crochets | "Get out!" | =
+Latn:2 corrige — un soupir entre parenthèses | "(Sighs) Fine." | "Fine."
+Latn:2 intact — pas de parenthèses | "Fine." | =
+Latn:2 corrige — une ligne de ponctuation seule, emportée | "\"\n(sighs)\nGo!" | "Go!"
+Latn:1 corrige — la même, après un crochet | "\"\n[laughs]\nGo!" | "Go!"
+Latn:3 corrige — des paroles entre dièses | "# Happy birthday #" | supprimé
+Latn:3 corrige — sans dièse fermant, jusqu'au bout | "# Happy birthday\nto you" | supprimé
+Latn:3 intact — pas de dièse | "No music here" | =
+Latn:4 corrige — des paroles sur une ligne | "# La la #\nBye" | "Bye"
+Latn:4 intact — pas de dièse | "Bye" | =
+Latn:5 corrige — un locuteur avant les deux-points | "John: Hi" | "Hi"
+Latn:5 corrige — deux locuteurs, un dialogue | "John: Hi\nMary: Hello" | "- Hi\n- Hello"
+Latn:5 intact — une heure | "Time 10:30" | =
+Latn-en:1 corrige — un locuteur en capitales | "JOHN: Hi\nMARY: Hello" | "- Hi\n- Hello"
+Latn-en:1 intact — un locuteur en minuscules | "John: Hi" | =
+cascade Latn-en tous corrige — tout ensemble | "JOHN: [laughs] Hi\n(sighs)" | "Hi"
+cascade Latn-en tous corrige — un sous-titre vidé | "# La la la #" | supprimé
+cascade Latn-en tous intact — rien à retirer | "Hello  there" | =
