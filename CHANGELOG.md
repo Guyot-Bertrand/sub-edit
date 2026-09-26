@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Tests
 
+- **test** — Des découpages de lignes, avec ce que Gaupol en fait
+
+## 0.12.1 — 2026-09-26
+
+### Tests
+
 - **test** — Les motifs de Gaupol, avec ce que Gaupol en fait
 
 ## 0.12.0 — 2026-09-25
