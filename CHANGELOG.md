@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Cadrer la phase 12, moteur de correction
+
+## 0.12.2 — 2026-09-26
+
 ### Tests
 
 - **test** — Des découpages de lignes, avec ce que Gaupol en fait
