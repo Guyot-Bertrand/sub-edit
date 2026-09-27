@@ -197,6 +197,23 @@ pas celle de la typographie, c'est une unité où une lettre moyenne vaut 0,55.
 Les défauts de Gaupol — **24 de long, 3 lignes, en ems** — n'ont de sens que
 dans cette unité-là, et les garder demande de garder l'unité.
 
+> **Précisé par [#502](https://github.com/Guyot-Bertrand/sub-edit/issues/502).**
+> `LineMeasure` (le noyau) et `CharacterLineMeasure` (`get_char_length` :
+> points de code, `\n` compté comme n'importe quel caractère puisqu'un compte
+> de points de code ne voit pas la différence). `CachedLineMeasure` enveloppe
+> n'importe quel `LineMeasure` d'une table chaîne → longueur — **injectée**,
+> l'appelant décide de l'envelopper ou non, comme il choisit le moteur des
+> motifs. Le découpeur (`Liner` de Gaupol, porté ligne à ligne depuis l'oracle
+> déjà confronté au vrai Gaupol par #495) ne connaît que l'interface : les 26
+> cas de `line-break.cas` passent sans écart, `essai` compris. **Le cache ne
+> se voit pas au banc pour la mesure en caractères** — compter des points de
+> code est déjà trop bon marché pour qu'une table de hachage rembourse sa
+> propre lecture ; les deux chiffres sont dans la PR, et
+> `line_breaking_bench.cpp` explique pourquoi ils se ressemblent. C'est la
+> mesure en *ems* de #503, derrière `QFontMetricsF`, qui a une vraie raison
+> d'être mise en cache — la même interface la portera sans rien changer au
+> découpeur.
+
 **Ce qui se met en cache : la longueur d'une chaîne, le temps d'un découpage.**
 Le découpeur mesure chaque ligne de chaque candidat, et les mêmes lignes
 reviennent d'un candidat à l'autre. Une table chaîne → longueur, vivant le temps
