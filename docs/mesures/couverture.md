@@ -395,11 +395,41 @@ sert aussi `common_errors.cpp`, où un remplacement peut réellement nommer un
 groupe — la retirer d'ici casserait cette généralité pour économiser une
 ligne sur un appel qui n'en a pas l'usage.
 
+## Une ligne de plus dans `line_breaking.cpp`, en phase 12
+
+**#502 porte le `Liner` de Gaupol, et l'une de ses gardes ne peut pas être
+atteinte, par construction de l'algorithme lui-même — pas par ce qu'un
+appelant vérifie avant.** `breakAmong` cherche la meilleure coupure parmi
+les candidats que `possibleBreaksOf` lui donne ; pour plus de deux lignes,
+chaque candidat retenu par `possibleBreaksOf` l'est précisément parce que
+`possibleBreaksOf` a déjà vérifié, en descendant la même récursion, que le
+reste du texte admet au moins une coupure au nombre de lignes demandé. La
+garde `if (!later.breaks.has_value()) continue;` suppose l'échec de ce que
+`possibleBreaksOf` vient de garantir.
+
+**Une démonstration, pas une lecture.** Par récurrence sur `nlines` : à
+`nlines == 2`, `breakAmong` essaie toujours son premier candidat avant que
+son propre seuil d'arrêt ne puisse valoir moins que l'infini, donc il rend
+toujours une coupure dès que `possibleBreaksOf` lui en donne une. À
+`nlines == k`, le seuil d'arrêt ne peut devenir fini qu'après qu'un candidat
+ait réussi — donc aucun candidat antérieur à celui que l'hypothèse de
+récurrence garantit ne peut faire sortir la boucle avant de l'atteindre.
+Cette garantie vaut pour l'implémentation actuelle des deux fonctions ; un
+changement à l'une ou l'autre — l'ordre des candidats, le seuil d'élagage —
+la défait, et c'est pourquoi la garde reste écrite plutôt que retirée.
+
+**Gardée pour cette raison, et parce que Gaupol la porte aussi.**
+`aeidon.Liner._break_lines` a exactement le même `if value[0] is None:
+continue`, invisible à la couverture de tests d'un langage qui n'en mesure
+pas les branches de cette façon. La retirer ferait de `breakAmong` un code
+qui ne peut plus se relire seul — chaque appel récursif supposerait, sans le
+dire, ce que cette note démontre.
+
 ## Relevé
 
-    total : 66
+    total : 67
 
-Relevé sur la version 0.12.6, le 2026-09-27.
+Relevé sur la version 0.12.8, le 2026-09-28.
 
 | Lignes | Fichier |
 | -----: | :------ |
@@ -410,5 +440,6 @@ Relevé sur la version 0.12.6, le 2026-09-27.
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 1 | `src/lib/subedit/core/text/hearing_impaired_correction.cpp` |
+| 1 | `src/lib/subedit/core/text/line_breaking.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
 | 1 | `src/lib/subedit/gui/save_shape.cpp` |
