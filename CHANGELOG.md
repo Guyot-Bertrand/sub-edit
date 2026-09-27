@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **text** — Moteur de motifs ICU et erreurs courantes
+
+## 0.12.4 — 2026-09-26
+
+### Ajouts
+
 - **text** — Lire les motifs de correction de Gaupol
 
 ## 0.12.3 — 2026-09-26
