@@ -373,11 +373,33 @@ déréférencement nul en cas d'erreur d'un lecteur à venir.
 > depuis son collaborateur — le gain que l'[ADR 0035](../adr/0035-les-operations-sortent-de-la-fenetre.md)
 > attendait d'une opération testable sans fenêtre.
 
+## Une ligne de plus dans `hearing_impaired_correction.cpp`, en phase 12
+
+**#500 ajoute les sept nettoyages de Gaupol après les motifs de mentions du
+moteur**, chacun une expression et un remplacement écrits à la main —
+`\1`, `\1 \2`, ou rien. `ReplacementTemplate::parse` demande, pour tout
+remplacement, une fonction qui résout un groupe nommé — le `\g<nom>` que
+Python sait lire — et la seule qu'il y ait à lui donner ici en rend
+toujours l'absence : aucun des sept remplacements ne nomme de groupe, tous
+étant écrits `\1`, `\1 \2` ou vides.
+
+**La ligne non couverte est le corps de cette fonction.** Elle n'est
+appelée que si un remplacement contient un `\g<…>` — et lui en écrire un
+pour la seule raison de la faire s'exécuter changerait une expression
+fidèlement portée de Gaupol pour une raison qui ne lui doit rien. C'est la
+même famille que les gardes déjà comptées plus haut : rien ne l'atteint
+parce que ce qu'on lui donne ne le demande jamais.
+
+**Gardée plutôt que réécrite.** L'interface de `ReplacementTemplate::parse`
+sert aussi `common_errors.cpp`, où un remplacement peut réellement nommer un
+groupe — la retirer d'ici casserait cette généralité pour économiser une
+ligne sur un appel qui n'en a pas l'usage.
+
 ## Relevé
 
-    total : 65
+    total : 66
 
-Relevé sur la version 0.11.32, le 2026-09-26.
+Relevé sur la version 0.12.6, le 2026-09-27.
 
 | Lignes | Fichier |
 | -----: | :------ |
@@ -387,5 +409,6 @@ Relevé sur la version 0.11.32, le 2026-09-26.
 | 4 | `src/lib/subedit/gui/player_factory.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
+| 1 | `src/lib/subedit/core/text/hearing_impaired_correction.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
 | 1 | `src/lib/subedit/gui/save_shape.cpp` |

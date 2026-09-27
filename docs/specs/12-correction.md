@@ -287,6 +287,20 @@ geste court qu'elle était.
 **Ce que la phase 4 a déjà dit et qui reste vrai** : la règle vit derrière une
 fonction libre, `withoutHearingImpaired`, qu'aucune de ces décisions ne touche.
 
+> **Précisé par [#500](https://github.com/Guyot-Bertrand/sub-edit/issues/500).**
+> L'ordre retenu au noyau, `correctHearingImpaired` : le balayage d'abord, puis
+> les quatre motifs du moteur dans l'ordre de la cascade, chacun une seule fois
+> — `HearingImpairedFields` ne porte pas de `Repeat` —, puis les sept
+> nettoyages de Gaupol **si et seulement si un motif du moteur a changé le
+> texte** ; le balayage n'en a pas besoin, sa propre couture étant déjà locale.
+> **Deux cas de `hearing-impaired.cas` restent hors accord, sciemment** : une
+> ligne réduite à un guillemet seul, à côté d'une mention retirée par le
+> balayage. Les sept nettoyages de Gaupol la videraient (`^\W*$` puis la ligne
+> vide) ; le balayage, fidèle à sa couture locale, la laisse. C'est l'écart que
+> l'ADR 0017 avait annoncé, mesuré ici pour la première fois — `mentions.cas`
+> ne le montrait pas, faute d'un cas où la ligne touchée ne portait qu'une
+> ponctuation déjà sans rapport avec la mention.
+
 ## D8 — L'assistant, et ce que la ligne de commande en attend
 
 **Un assistant comme celui de Gaupol**, `Tools ▸ Correct Texts…`, dans le même

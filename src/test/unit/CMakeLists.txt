@@ -24,7 +24,9 @@ add_executable(
     core/time/timestamp_format_test.cpp
     core/time/timestamp_parse_test.cpp
     core/text/break_marker_test.cpp
+    core/text/capitalization_test.cpp
     core/text/hearing_impaired_test.cpp
+    core/text/hearing_impaired_correction_test.cpp
     core/text/common_errors_test.cpp
     core/text/icu_pattern_engine_test.cpp
     core/text/pattern_catalogue_test.cpp
