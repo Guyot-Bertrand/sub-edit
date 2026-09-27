@@ -13,6 +13,7 @@ add_executable(
     core/analysis/frame_rate_deduction_bench.cpp
     core/edit/operations_bench.cpp
     core/format/subtitle_file_bench.cpp
+    core/text/common_errors_bench.cpp
     core/time/timestamp_bench.cpp
     core/version_bench.cpp
     gui/subtitle_table_model_bench.cpp
@@ -30,7 +31,8 @@ target_include_directories(subedit_bench PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # Les fixtures vidéo de #163, pour la seule mesure qui ouvre un vrai fichier :
 # ce que coûtent l'ouverture et la recherche, c'est-à-dire ce qui se passe à
 # chaque changement de ligne.
-target_compile_definitions(subedit_bench
-                           PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
+target_compile_definitions(
+    subedit_bench PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
+                          SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns")
 
 subedit_set_warnings(subedit_bench)
