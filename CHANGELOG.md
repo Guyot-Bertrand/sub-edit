@@ -7,7 +7,7 @@ Les changements notables de subedit. Format inspiré de
 Ce fichier est généré par `make changelog` depuis l'historique des commits :
 ne pas l'éditer à la main.
 
-## Non publié
+## 0.12.5 — 2026-09-27
 
 ### Ajouts
 
