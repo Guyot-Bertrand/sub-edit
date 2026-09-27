@@ -120,6 +120,15 @@ TEST_CASE("hearing-impaired mentions are corrected as Gaupol corrects them",
         "Latn:1 corrige — la même, après un crochet",
     };
 
+    // **One more exception, this one decision D9's.** `MarkupParser::transform`
+    // keeps a tag it finds inside a match as far as the new text reaches,
+    // where Gaupol's own tag-aware parser pulls it back to where the match
+    // began — the rule phase 10 gave `transform`, and `recherche.cas` holds it
+    // to. The PR of #501 names it.
+    const std::vector<std::string> exceptedByD9{
+        "Latn:5 corrige — le nom du locuteur est balisé",
+    };
+
     for (const TextCase& one : cases) {
         const std::size_t verb =
             std::min(one.name.find(" corrige — "), one.name.find(" intact — "));
@@ -137,6 +146,8 @@ TEST_CASE("hearing-impaired mentions are corrected as Gaupol corrects them",
         CHECK(done.failures.empty());
         REQUIRE(done.texts.size() == 1);
         if (std::ranges::find(exceptedByAdr0017, one.name) != exceptedByAdr0017.end())
+            continue;
+        if (std::ranges::find(exceptedByD9, one.name) != exceptedByD9.end())
             continue;
         CHECK(done.texts.front() == one.expected);
     }

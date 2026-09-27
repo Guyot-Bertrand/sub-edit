@@ -7,6 +7,7 @@
 // never the case's.
 
 #include <subedit/core/io/real_file_system.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/capitalization.hpp>
 #include <subedit/core/text/correction_pattern.hpp>
 #include <subedit/core/text/icu_pattern_engine.hpp>
@@ -39,6 +40,7 @@ using subedit::core::PatternFlags;
 using subedit::core::PatternKind;
 using subedit::core::readPatternCatalogue;
 using subedit::core::RealFileSystem;
+using subedit::core::SubtitleFormat;
 using subedit::test::TextCase;
 using subedit::test::textCasesOf;
 
@@ -92,7 +94,7 @@ CorrectedTexts capitalizedBy(const std::vector<CorrectionPattern>& records,
     chosen.reserve(records.size());
     for (const CorrectionPattern& one : records)
         chosen.push_back(&one);
-    return correctCapitalization(IcuPatternEngine{}, chosen, texts);
+    return correctCapitalization(IcuPatternEngine{}, chosen, texts, SubtitleFormat::SubRip);
 }
 
 /// The `[k/m]` a case's name ends with, when it has one — several texts
@@ -131,6 +133,15 @@ TEST_CASE("capitalization is applied as Gaupol's capitalize does it", "[text][pa
     REQUIRE(cases.size() > 15);
     REQUIRE(shippedPatterns().diagnostics().empty());
 
+    // **One case is excepted, and the exception is written down, not silent.**
+    // Decision D9 of the spec: Gaupol's `SubRip.clean` moves a space that sits
+    // right after an opening tag to before it, cosmetic touch-up this engine
+    // does not port — `MarkupParser` leaves a tag exactly where a
+    // transformation put it. The PR of #501 names it.
+    const std::vector<std::string> exceptedByD9{
+        "Latn:1 corrige — le mot capitalisé est balisé",
+    };
+
     // Cases of the same run share a base name and are already in order — the
     // oracle wrote them that way. Grouping them back into one run is what
     // lets a single pass of the corpus play both the single-text cases and
@@ -165,7 +176,8 @@ TEST_CASE("capitalization is applied as Gaupol's capitalize does it", "[text][pa
         const std::vector<const CorrectionPattern*> chosen = patternsOf(target);
         REQUIRE_FALSE(chosen.empty());
 
-        const CorrectedTexts done = correctCapitalization(IcuPatternEngine{}, chosen, inputs);
+        const CorrectedTexts done =
+            correctCapitalization(IcuPatternEngine{}, chosen, inputs, SubtitleFormat::SubRip);
 
         INFO("cas ligne " << runLine << " : " << runName);
         CHECK(done.failures.empty());
@@ -174,6 +186,8 @@ TEST_CASE("capitalization is applied as Gaupol's capitalize does it", "[text][pa
             // Capitalization never removes a subtitle: `supprimé` is the
             // mentions'.
             CHECK(expecteds[k].has_value());
+            if (std::ranges::find(exceptedByD9, runName) != exceptedByD9.end())
+                continue;
             CHECK(done.texts[k] == expecteds[k].value_or(""));
         }
     }

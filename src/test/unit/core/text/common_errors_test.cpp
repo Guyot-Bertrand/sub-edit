@@ -6,6 +6,7 @@
 // and asks for the same text. A disagreement is this code's, never the case's.
 
 #include <subedit/core/io/real_file_system.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/common_errors.hpp>
 #include <subedit/core/text/correction_pattern.hpp>
 #include <subedit/core/text/icu_pattern_engine.hpp>
@@ -36,6 +37,7 @@ using subedit::core::PatternFlags;
 using subedit::core::PatternKind;
 using subedit::core::readPatternCatalogue;
 using subedit::core::RealFileSystem;
+using subedit::core::SubtitleFormat;
 
 const PatternCatalogue& shippedPatterns() {
     static const PatternCatalogue catalogue = [] {
@@ -90,7 +92,7 @@ CorrectedTexts correctedBy(const std::vector<CorrectionPattern>& records,
     chosen.reserve(records.size());
     for (const CorrectionPattern& one : records)
         chosen.push_back(&one);
-    return correctCommonErrors(IcuPatternEngine{}, chosen, texts);
+    return correctCommonErrors(IcuPatternEngine{}, chosen, texts, SubtitleFormat::SubRip);
 }
 
 } // namespace
@@ -100,6 +102,16 @@ TEST_CASE("the common errors are corrected as Gaupol corrects them", "[text][pat
         subedit::test::textCasesOf("motifs/attendus/common-error.cas");
     REQUIRE(cases.size() > 100);
     REQUIRE(shippedPatterns().diagnostics().empty());
+
+    // **One case is excepted, and the exception is written down, not silent.**
+    // Decision D9 of the spec: Gaupol's own tag-aware parser pulls a tag it
+    // finds inside a match back to the start of what the match removed;
+    // `MarkupParser::transform` keeps it as far as the new text reaches — the
+    // rule phase 10 gave it, and `recherche.cas` holds it to. The PR of #501
+    // names it.
+    const std::vector<std::string> exceptedByD9{
+        "Zyyy:3 corrige — balise à l'intérieur de la correspondance",
+    };
 
     for (const subedit::test::TextCase& one : cases) {
         // `<target> <corrige|intact> — <label>`, the target being a record or
@@ -113,13 +125,16 @@ TEST_CASE("the common errors are corrected as Gaupol corrects them", "[text][pat
         REQUIRE_FALSE(chosen.empty());
 
         const std::vector<std::string> given{one.input};
-        const CorrectedTexts done = correctCommonErrors(IcuPatternEngine{}, chosen, given);
+        const CorrectedTexts done =
+            correctCommonErrors(IcuPatternEngine{}, chosen, given, SubtitleFormat::SubRip);
 
         INFO("cas ligne " << one.line << " : " << one.name);
         CHECK(done.failures.empty());
         REQUIRE(done.texts.size() == 1);
         // A case of common errors is never a removal: `supprimé` is the mentions'.
         CHECK(one.expected.has_value());
+        if (std::ranges::find(exceptedByD9, one.name) != exceptedByD9.end())
+            continue;
         CHECK(done.texts.front() == one.expected.value_or(""));
     }
 }

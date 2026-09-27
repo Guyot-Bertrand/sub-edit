@@ -178,3 +178,16 @@ cascade Latn-fr    | corrige | SkipIn et Policy=Replace             | "Il a dit�
 cascade Latn-fr    | intact  | la typographie française             | "Vraiment ? Oui, « d'accord »."
 cascade Latn-fi    | corrige | Policy=Replace, sans les deux-points | "Moi,mitä ? Hei:moi"
 cascade Latn-fi    | intact  | déjà propre                          | "Moi, mitä kuuluu?"
+
+# --- Balises SubRip : issue #501, où une correction touche une balise -----------
+#
+# Ces textes-ci portent une balise, contrairement à toutes celles au-dessus.
+# L'oracle porte le parseur de balises de Gaupol (`aeidon/parser.py`) pour les
+# retirer, laisser les motifs corriger le texte visible, et les remettre en
+# place — `src/test/data/motifs/LISEZMOI.md`.
+
+Zyyy:1 | corrige | balise juste après les espaces retirées   | "  <i>Bonjour</i>"
+Zyyy:3 | corrige | balise à l'intérieur de la correspondance | "Bonjour<i> </i> Marie"
+Zyyy:3 | corrige | balise vidée par la correction             | "Bonjour <i>  </i>Marie"
+Zyyy:3 | intact  | une espace seule, à côté d'une balise      | "Bonjour <i>Marie</i>"
+Zyyy:1 | corrige | une marge : balise autour de chaque ligne  | "<i>  Bonjour</i>\n<i>  Marie</i>"

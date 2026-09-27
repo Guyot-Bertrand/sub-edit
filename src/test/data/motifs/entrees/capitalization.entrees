@@ -26,3 +26,7 @@ Latn-en:1 | intact  | un mot qui commence par i   | "Yes, it is"
 
 cascade Latn-en | corrige | phrase, pronom et sous-titre suivant | "yes. i think so." ; "and you?"
 cascade Latn-en | intact  | un texte propre                      | "Yes. I think so." ; "And you?"
+
+# --- Balises SubRip : issue #501 -------------------------------------------------
+
+Latn:1 | corrige | le mot capitalisé est balisé | "It is late. we<i> go</i>"

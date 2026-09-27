@@ -371,6 +371,38 @@ des cas balisés écrits à la main là où une correction touche une balise —
 comme écart avec sa raison. Le seul écart déjà voulu est celui d'une balise
 vidée : un `<i></i>` laissé dans un fichier n'est un progrès pour personne.
 
+> **Précisé par [#501](https://github.com/Guyot-Bertrand/sub-edit/issues/501).**
+> Six cas balisés, dans `common-error.entrees`, `capitalization.entrees` et
+> `hearing-impaired.entrees` : une balise juste après ce qu'une correction
+> retire, une balise à l'intérieur d'une correspondance, une correction qui la
+> vide, une balise autour de chaque ligne d'un texte à plusieurs lignes — une
+> marge, au sens du parseur de Gaupol —, et un mot capitalisé que la balise
+> touche. Trois désaccords, aucun corrigé dans `transform` :
+>
+> - **la balise à l'intérieur d'une correspondance** confirme l'écart que ce
+>   paragraphe annonçait déjà : Gaupol la ramène au début du morceau retiré,
+>   puis son nettoyage de balises retire la paire devenue vide ; `transform` la
+>   garde étirée sur tout le texte qui la remplace, la règle que la phase 10
+>   lui a donnée et que `recherche.cas` tient. Revenir dessus referait une
+>   règle éprouvée ailleurs pour un seul appelant ;
+> - **le nom du locuteur balisé**, dans les mentions, est le même écart : la
+>   balise `<b>` qui entourait le nom retiré survit, étirée sur le tiret de
+>   dialogue qui le remplace, là où Gaupol ne laisse rien ;
+> - **le mot capitalisé balisé** est un écart différent, pas celui annoncé plus
+>   haut : `SubRip.clean` déplace un espace collé à une balise avant de la
+>   rendre, un nettoyage cosmétique que rien dans `MarkupParser` ne porte. Une
+>   capitalisation ne déplace jamais une balise — elle ne réécrit qu'un point de
+>   code, jamais à l'intérieur d'une balise —, donc l'écart ne vient que de ce
+>   nettoyage absent, volontairement : retoucher l'espacement autour des
+>   balises n'est le travail d'aucune des trois corrections de cette tranche.
+>
+> Les trois sont nommés dans les tests qui les jouent
+> (`common_errors_test.cpp`, `capitalization_test.cpp`,
+> `hearing_impaired_correction_test.cpp`), pas seulement ici. La marge
+> (`<i>` autour de chaque ligne) et les deux autres cas ne montrent, eux,
+> aucun désaccord : la mécanique par balise de `transform` suffit à reproduire
+> ce que Gaupol range dans un cas spécial.
+
 ## D10 — Pas de porte
 
 L'issue demandait une porte, **comme #435 pour le multi-projets**, si une partie
@@ -417,6 +449,8 @@ par désigner une phase déjà passée.
 | la page de jonction et de scission **disparaît** sans correcteur | **grisée**, et dit pourquoi | dire plutôt que taire, l'ADR 0008 — D6 |
 | la liste de remplacements dans la configuration **de Gaupol** | dans **la nôtre** | un programme n'écrit pas chez un autre — D6 |
 | une balise vidée par une correction **reste** | **retirée** | D9 ; les autres placements se décident cas par cas |
+| une balise à l'intérieur d'une correspondance **se ramène au début du morceau retiré** | **reste étirée sur tout le texte qui le remplace** | D9, décidé par #501 : la règle que `transform` tient depuis la phase 10, sur laquelle `recherche.cas` fait foi |
+| `SubRip.clean` **retouche l'espacement autour des balises** après coup | **rien ne le fait** | D9, décidé par #501 : aucune des trois corrections ne déplace une balise, ce nettoyage cosmétique n'est le travail d'aucune |
 
 ## Exigences
 

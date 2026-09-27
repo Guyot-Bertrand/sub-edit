@@ -10,6 +10,7 @@
 // selection has a gap is its caller's to know, not this function's: it walks
 // only the run it is given, start to end.
 
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/common_errors.hpp>
 #include <subedit/core/text/correction_pattern.hpp>
 #include <subedit/core/text/pattern_engine.hpp>
@@ -28,9 +29,14 @@ namespace subedit::core {
 ///
 /// **A pattern that cannot be applied to a text leaves it as it was before
 /// it**, the same rule `correctCommonErrors` follows, and is reported.
+///
+/// **Capitalizing is a `MarkupParser::transform` too** — decision D9, the same
+/// rule `correctCommonErrors` follows, down to the single code point a
+/// capitalization ever rewrites.
 [[nodiscard]] CorrectedTexts
 correctCapitalization(const PatternEngine& engine,
                       std::span<const CorrectionPattern* const> patterns,
-                      std::span<const std::string> texts);
+                      std::span<const std::string> texts,
+                      SubtitleFormat format);
 
 } // namespace subedit::core

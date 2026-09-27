@@ -6,6 +6,7 @@
 // the corrected texts and what it could not do. It touches no project — the
 // assistant of the phase decides what to do with the answer (decision D8).
 
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/correction_pattern.hpp>
 #include <subedit/core/text/pattern_engine.hpp>
 
@@ -78,8 +79,15 @@ inline constexpr std::size_t kMaxTextBytes = 16384;
 ///
 /// **A pattern that cannot be applied leaves the text as it was before it**, a
 /// half-done replacement being worse than none, and is reported.
+///
+/// **A correction is a `MarkupParser::transform`, never a `replace`** —
+/// decision D9: a pattern searches and rewrites the text `format` shows, its
+/// tags kept where `transform` leaves them. Where that disagrees with what
+/// Gaupol's own tag-aware parser would have done, the spec's table of
+/// deviations says which, and why.
 [[nodiscard]] CorrectedTexts correctCommonErrors(const PatternEngine& engine,
                                                  std::span<const CorrectionPattern* const> patterns,
-                                                 std::span<const std::string> texts);
+                                                 std::span<const std::string> texts,
+                                                 SubtitleFormat format);
 
 } // namespace subedit::core
