@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **text** — Découpage de lignes en caractères
+
+## 0.12.7 — 2026-09-27
+
+### Ajouts
+
 - **text** — Corriger un texte balisé
 
 ## 0.12.6 — 2026-09-27
