@@ -178,10 +178,12 @@ TEST_CASE("what Gaupol does with its correction patterns reads as cases before a
           "[test][textcases]") {
     // The expectations of issues #494 and #495 are written by
     // src/scripts/pattern-oracle.py. The common errors are played by the engine
-    // now (common_errors_test.cpp, #499); the other three types wait for theirs.
-    // What is checked here is that they all load — every case, under the name
-    // the oracle gave it, which starts with what it exercises: a pattern, a
-    // cascade, or for line breaks the test penalties or none at all.
+    // (common_errors_test.cpp, #499), the capitalization and the hearing-impaired
+    // mentions too (capitalization_test.cpp, hearing_impaired_correction_test.cpp,
+    // #500); line breaks wait for theirs. What is checked here is that they all
+    // load — every case, under the name the oracle gave it, which starts with
+    // what it exercises: a pattern, a cascade, or for line breaks the test
+    // penalties or none at all.
     for (const char* kind : {"common-error", "capitalization", "hearing-impaired", "line-break"}) {
         const std::vector<TextCase> expected =
             textCasesOf(std::string{"motifs/attendus/"} + kind + ".cas");

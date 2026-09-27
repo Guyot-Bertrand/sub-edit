@@ -35,10 +35,12 @@ add_library(
     edit/set_duration_command.cpp
     edit/set_text_command.cpp
     edit/sort_command.cpp
+    text/capitalization.cpp
     text/common_errors.cpp
     text/correction_pattern.cpp
     text/icu_pattern_engine.cpp
     text/hearing_impaired.cpp
+    text/hearing_impaired_correction.cpp
     text/pattern_catalogue.cpp
     text/pattern_paths.cpp
     text/python_regex_syntax.cpp
