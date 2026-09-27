@@ -176,11 +176,12 @@ TEST_CASE("the corpus of the mentions is well formed, whatever plays it", "[test
 
 TEST_CASE("what Gaupol does with its correction patterns reads as cases before any engine plays it",
           "[test][textcases]") {
-    // The expectations of issues #494 and #495 are written by src/scripts/pattern-oracle.py
-    // and played by nothing yet: the engine of phase 12 does not exist. What is
-    // checked here is that the day it does, they load — every case, under the
-    // name the oracle gave it, which starts with what it exercises: a pattern,
-    // a cascade, or for line breaks the test penalties or none at all.
+    // The expectations of issues #494 and #495 are written by
+    // src/scripts/pattern-oracle.py. The common errors are played by the engine
+    // now (common_errors_test.cpp, #499); the other three types wait for theirs.
+    // What is checked here is that they all load — every case, under the name
+    // the oracle gave it, which starts with what it exercises: a pattern, a
+    // cascade, or for line breaks the test penalties or none at all.
     for (const char* kind : {"common-error", "capitalization", "hearing-impaired", "line-break"}) {
         const std::vector<TextCase> expected =
             textCasesOf(std::string{"motifs/attendus/"} + kind + ".cas");

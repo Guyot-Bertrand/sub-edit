@@ -25,8 +25,12 @@ add_executable(
     core/time/timestamp_parse_test.cpp
     core/text/break_marker_test.cpp
     core/text/hearing_impaired_test.cpp
+    core/text/common_errors_test.cpp
+    core/text/icu_pattern_engine_test.cpp
     core/text/pattern_catalogue_test.cpp
     core/text/pattern_paths_test.cpp
+    core/text/python_regex_syntax_test.cpp
+    core/text/replacement_template_test.cpp
     core/text/dialogue_dashes_test.cpp
     core/text/italics_test.cpp
     core/text/letter_case_test.cpp

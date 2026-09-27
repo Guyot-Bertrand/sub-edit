@@ -161,6 +161,16 @@ terminerait pas. Là où Gaupol boucle sans fin, `subedit` s'arrête. Une borne
 tient en plus le cas d'un motif qui oscille entre deux textes : **cent passes**,
 au-delà desquelles le motif est abandonné pour ce texte, et dit.
 
+> **Précisé par [#499](https://github.com/Guyot-Bertrand/sub-edit/issues/499).** Deux bornes
+> s'ajoutent aux cent passes, parce qu'un motif dont le remplacement double ce qu'il trouve, sous
+> `Repeat`, remplirait la mémoire avant la centième : **un texte ne dépasse pas 16 384 octets**
+> pendant qu'un motif y travaille, et **chaque recherche est bornée par le temps du moteur**
+> (`kSearchLimit`, quelques dixièmes de seconde sur un motif catastrophique). Un motif qui
+> dépasse l'une des trois laisse le texte **tel qu'il était avant lui** — un remplacement à
+> moitié fait vaut moins que pas de remplacement —, et le dit, en nommant le texte. Le moteur
+> lit en outre `\n` seul comme fin de ligne (`UREGEX_UNIX_LINES`), ce que `.`, `^` et `$` savent
+> de la ligne dans `re`.
+
 ## D4 — Humain et OCR : un vrai filtre
 
 **Décocher une classe retire ses motifs de l'application**, et pas seulement de
