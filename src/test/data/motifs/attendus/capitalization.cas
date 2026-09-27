@@ -19,3 +19,4 @@ cascade Latn-en corrige — phrase, pronom et sous-titre suivant [1/2] | "yes. i
 cascade Latn-en corrige — phrase, pronom et sous-titre suivant [2/2] | "and you?" | "And you?"
 cascade Latn-en intact — un texte propre [1/2] | "Yes. I think so." | =
 cascade Latn-en intact — un texte propre [2/2] | "And you?" | =
+Latn:1 corrige — le mot capitalisé est balisé | "It is late. we<i> go</i>" | "It is late. We <i>go</i>"

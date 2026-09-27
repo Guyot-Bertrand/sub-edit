@@ -73,10 +73,12 @@ TEST_CASE("correcting the common errors of a full-length file", "[bench][text]")
     const subedit::core::IcuPatternEngine engine;
 
     BENCHMARK("erreurs courantes du français sur 4000 sous-titres") {
-        return subedit::core::correctCommonErrors(engine, french, setup.texts);
+        return subedit::core::correctCommonErrors(
+            engine, french, setup.texts, subedit::core::SubtitleFormat::SubRip);
     };
 
     BENCHMARK("erreurs courantes de l'anglais sur 4000 sous-titres") {
-        return subedit::core::correctCommonErrors(engine, english, setup.texts);
+        return subedit::core::correctCommonErrors(
+            engine, english, setup.texts, subedit::core::SubtitleFormat::SubRip);
     };
 }

@@ -38,3 +38,7 @@ Latn-en:1 | intact  | un locuteur en minuscules      | "John: Hi"
 cascade Latn-en tous | corrige | tout ensemble          | "JOHN: [laughs] Hi\n(sighs)"
 cascade Latn-en tous | corrige | un sous-titre vidé     | "# La la la #"
 cascade Latn-en tous | intact  | rien à retirer         | "Hello  there"
+
+# --- Balises SubRip : issue #501 -------------------------------------------------
+
+Latn:5 | corrige | le nom du locuteur est balisé | "<b>John</b>: Hi"

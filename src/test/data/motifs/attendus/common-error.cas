@@ -147,3 +147,8 @@ cascade Latn-fr corrige — SkipIn et Policy=Replace | "Il a dit«oui»,puis 1 0
 cascade Latn-fr intact — la typographie française | "Vraiment ? Oui, « d'accord »." | =
 cascade Latn-fi corrige — Policy=Replace, sans les deux-points | "Moi,mitä ? Hei:moi" | "Moi, mitä? Hei:moi"
 cascade Latn-fi intact — déjà propre | "Moi, mitä kuuluu?" | =
+Zyyy:1 corrige — balise juste après les espaces retirées | "  <i>Bonjour</i>" | "<i>Bonjour</i>"
+Zyyy:3 corrige — balise à l'intérieur de la correspondance | "Bonjour<i> </i> Marie" | "Bonjour Marie"
+Zyyy:3 corrige — balise vidée par la correction | "Bonjour <i>  </i>Marie" | "Bonjour Marie"
+Zyyy:3 intact — une espace seule, à côté d'une balise | "Bonjour <i>Marie</i>" | =
+Zyyy:1 corrige — une marge : balise autour de chaque ligne | "<i>  Bonjour</i>\n<i>  Marie</i>" | "<i>Bonjour</i>\n<i>Marie</i>"

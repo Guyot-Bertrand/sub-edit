@@ -1,6 +1,7 @@
 #include <subedit/core/text/correction_pattern.hpp>
 #include <subedit/core/text/hearing_impaired.hpp>
 #include <subedit/core/text/hearing_impaired_correction.hpp>
+#include <subedit/core/text/markup_parser.hpp>
 #include <subedit/core/text/pattern_engine.hpp>
 #include <subedit/core/text/replacement_template.hpp>
 #include <subedit/core/text/utf8.hpp>
@@ -38,21 +39,21 @@ struct PassFailure {
     std::string detail;
 };
 
-struct PassOutcome {
-    std::string text;
-    bool changed = false;
-};
-
 /// One pass of `Finder.replace_all`, not repeated — `remove_hearing_impaired`
 /// of Gaupol never re-runs a pass, unlike `correct_common_errors`.
-[[nodiscard]] std::expected<PassOutcome, PassFailure>
-replaceOnce(PatternMatcher& matcher, const ReplacementTemplate& replacement, std::string text) {
+///
+/// **A `MarkupParser::transform`, as decision D9 asks** — `parser` is rewritten
+/// in place, so a caller that wants to keep a text as it was before a pass
+/// that failed reads from a fresh copy, the way `common_errors.cpp` does.
+[[nodiscard]] std::expected<bool, PassFailure>
+replaceOnce(PatternMatcher& matcher, const ReplacementTemplate& replacement, MarkupParser& parser) {
     std::size_t pos = 0;
     std::optional<MatchSpan> previous;
     bool changed = false;
 
     while (true) {
-        const std::expected<std::optional<Match>, SearchFailure> searched = matcher.find(text, pos);
+        const std::expected<std::optional<Match>, SearchFailure> searched =
+            matcher.find(parser.visible(), pos);
         if (!searched) {
             return std::unexpected{
                 PassFailure{.kind = FailureKind::TimedOut, .detail = "the search was given up"}};
@@ -63,26 +64,26 @@ replaceOnce(PatternMatcher& matcher, const ReplacementTemplate& replacement, std
         const Match& match = **searched;
         const MatchSpan span = match.whole();
         if (previous == span && span.start == pos && span.end == pos) {
-            if (pos >= text.size())
+            if (pos >= parser.visible().size())
                 break;
-            pos = nextCodePoint(text, pos);
+            pos = nextCodePoint(parser.visible(), pos);
             continue;
         }
 
-        const std::string written = replacement.expandedFor(text, match);
-        text.replace(span.start, span.end - span.start, written);
+        const std::string written = replacement.expandedFor(parser.visible(), match);
+        parser.transform(span.start, span.end - span.start, written);
         pos = span.start + written.size();
         previous = span;
         if (span.start == span.end)
             previous = MatchSpan{.start = pos, .end = pos};
         changed = true;
 
-        if (text.size() > kMaxTextBytes) {
+        if (parser.visible().size() > kMaxTextBytes) {
             return std::unexpected{
                 PassFailure{.kind = FailureKind::TooLong, .detail = "the text outgrew a subtitle"}};
         }
     }
-    return PassOutcome{.text = std::move(text), .changed = changed};
+    return changed;
 }
 
 struct Prepared {
@@ -204,29 +205,35 @@ HearingImpairedCorrection correctHearingImpaired(const PatternEngine& engine,
             continue;
         }
 
-        std::string current = *swept;
+        MarkupParser parser{*swept, format};
         bool cascadeChanged = false;
         for (const Prepared& one : prepared) {
-            std::expected<PassOutcome, PassFailure> outcome =
-                replaceOnce(*one.matcher, one.replacement, current);
+            // Reread from what was kept: `MarkupParser` cannot be copied, and a
+            // pass given up halfway leaves the text — and its tags — as they
+            // were before it, the same rule `common_errors.cpp` follows.
+            MarkupParser attempt{parser.text(), format};
+            const std::expected<bool, PassFailure> outcome =
+                replaceOnce(*one.matcher, one.replacement, attempt);
             if (!outcome) {
                 result.failures.push_back(
                     failureOf(outcome.error().kind, *one.pattern, index, outcome.error().detail));
                 continue;
             }
-            cascadeChanged = cascadeChanged || outcome->changed;
-            current = std::move(outcome->text);
+            cascadeChanged = cascadeChanged || *outcome;
+            parser = std::move(attempt);
         }
 
         if (cascadeChanged) {
             for (const BuiltIn& cleanup : cleanups) {
-                std::expected<PassOutcome, PassFailure> outcome =
-                    replaceOnce(*cleanup.matcher, cleanup.replacement, current);
+                MarkupParser attempt{parser.text(), format};
+                const std::expected<bool, PassFailure> outcome =
+                    replaceOnce(*cleanup.matcher, cleanup.replacement, attempt);
                 if (outcome)
-                    current = std::move(outcome->text);
+                    parser = std::move(attempt);
             }
         }
 
+        std::string current = parser.text();
         if (current.empty())
             result.texts.emplace_back(std::nullopt);
         else

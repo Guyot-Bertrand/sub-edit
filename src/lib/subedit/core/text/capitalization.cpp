@@ -1,5 +1,7 @@
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/capitalization.hpp>
 #include <subedit/core/text/correction_pattern.hpp>
+#include <subedit/core/text/markup_parser.hpp>
 #include <subedit/core/text/pattern_engine.hpp>
 #include <subedit/core/text/utf8.hpp>
 
@@ -97,7 +99,12 @@ namespace {
 /// Gaupol's `_capitalize_first`: the first alphanumeric character from `pos`,
 /// capitalized — skipping only non-word characters, and never one right
 /// after an ellipsis. Returns whether one was found.
-bool capitalizeFirstFrom(std::string& text, std::size_t pos) {
+///
+/// **A `MarkupParser::transform` of one code point** — decision D9: the one
+/// character it rewrites is visible text, so its tags are read from `parser`
+/// and left exactly where they were.
+bool capitalizeFirstFrom(MarkupParser& parser, std::size_t pos) {
+    const std::string_view text = parser.visible();
     std::size_t i = pos;
     while (i < text.size() && !isWordCodePoint(codePointAt(text, i)))
         i = nextCodePoint(text, i);
@@ -107,8 +114,8 @@ bool capitalizeFirstFrom(std::string& text, std::size_t pos) {
         return false;
 
     const std::size_t end = nextCodePoint(text, i);
-    const std::string titled = titledCodePoint(std::string_view{text}.substr(i, end - i));
-    text.replace(i, end - i, titled);
+    const std::string titled = titledCodePoint(text.substr(i, end - i));
+    parser.transform(i, end - i, titled);
     return true;
 }
 
@@ -119,12 +126,13 @@ bool capitalizeFirstFrom(std::string& text, std::size_t pos) {
 /// The zero-length dedupe is `Finder`'s: the same rule `common_errors.cpp`
 /// applies before a replacement, here before nothing is written at all.
 [[nodiscard]] std::optional<FailureKind>
-capitalizeMatches(PatternMatcher& matcher, CapitalizeAt at, std::string& text, bool& capNext) {
+capitalizeMatches(PatternMatcher& matcher, CapitalizeAt at, MarkupParser& parser, bool& capNext) {
     std::size_t pos = 0;
     std::optional<MatchSpan> previous;
 
     while (true) {
-        const std::expected<std::optional<Match>, SearchFailure> searched = matcher.find(text, pos);
+        const std::expected<std::optional<Match>, SearchFailure> searched =
+            matcher.find(parser.visible(), pos);
         if (!searched)
             return FailureKind::TimedOut;
         if (!searched->has_value())
@@ -133,16 +141,16 @@ capitalizeMatches(PatternMatcher& matcher, CapitalizeAt at, std::string& text, b
         const Match& match = **searched;
         const MatchSpan span = match.whole();
         if (previous == span && span.start == pos && span.end == pos) {
-            if (pos >= text.size())
+            if (pos >= parser.visible().size())
                 return std::nullopt;
-            pos = nextCodePoint(text, pos);
+            pos = nextCodePoint(parser.visible(), pos);
             continue;
         }
 
         if (at == CapitalizeAt::Start)
-            capitalizeFirstFrom(text, span.start);
+            capitalizeFirstFrom(parser, span.start);
         if (at == CapitalizeAt::After)
-            capNext = !capitalizeFirstFrom(text, span.end);
+            capNext = !capitalizeFirstFrom(parser, span.end);
 
         pos = span.end;
         previous = span;
@@ -187,34 +195,36 @@ struct Prepared {
 
 CorrectedTexts correctCapitalization(const PatternEngine& engine,
                                      std::span<const CorrectionPattern* const> patterns,
-                                     std::span<const std::string> texts) {
+                                     std::span<const std::string> texts,
+                                     SubtitleFormat format) {
     CorrectedTexts result;
     const std::vector<Prepared> prepared = prepare(engine, patterns, result.failures);
 
     result.texts.reserve(texts.size());
     bool capNext = false;
     for (std::size_t index = 0; index < texts.size(); ++index) {
-        std::string text = texts[index];
+        MarkupParser parser{texts[index], format};
         if (capNext || index == 0) {
-            capitalizeFirstFrom(text, 0);
+            capitalizeFirstFrom(parser, 0);
             capNext = false;
         }
 
         for (const Prepared& one : prepared) {
-            // On a copy: a pattern given up halfway leaves the text — and the
-            // state it would have handed the next text — as they were before it.
-            std::string attempt = text;
+            // Reread from what was kept: `MarkupParser` cannot be copied, and
+            // a pattern given up halfway leaves the text — and the state it
+            // would have handed the next text — as they were before it.
+            MarkupParser attempt{parser.text(), format};
             bool attemptCapNext = capNext;
             if (const std::optional<FailureKind> gaveUp =
                     capitalizeMatches(*one.matcher, one.at, attempt, attemptCapNext)) {
                 result.failures.push_back(
                     failureOf(*gaveUp, *one.pattern, index, "the search was given up"));
             } else {
-                text = std::move(attempt);
+                parser = std::move(attempt);
                 capNext = attemptCapNext;
             }
         }
-        result.texts.push_back(std::move(text));
+        result.texts.push_back(parser.text());
     }
     return result;
 }

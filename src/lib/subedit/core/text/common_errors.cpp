@@ -1,5 +1,7 @@
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/common_errors.hpp>
 #include <subedit/core/text/correction_pattern.hpp>
+#include <subedit/core/text/markup_parser.hpp>
 #include <subedit/core/text/pattern_engine.hpp>
 #include <subedit/core/text/replacement_template.hpp>
 
@@ -9,6 +11,7 @@
 #include <optional>
 #include <span>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -38,7 +41,7 @@ struct Prepared {
 }
 
 /// The offset of the character after the one at `at`.
-[[nodiscard]] std::size_t nextCharacter(const std::string& text, std::size_t at) {
+[[nodiscard]] std::size_t nextCharacter(std::string_view text, std::size_t at) {
     constexpr unsigned kContinuationMask = 0xC0U;
     constexpr unsigned kContinuation = 0x80U;
     ++at;
@@ -62,14 +65,14 @@ struct PassFailure {
 /// character is skipped, once, so that a pattern matching nothing does not find
 /// the same place for ever.
 [[nodiscard]] std::expected<std::size_t, PassFailure> replaceAll(const Prepared& one,
-                                                                 std::string& text) {
+                                                                 MarkupParser& parser) {
     std::size_t pos = 0;
     std::optional<MatchSpan> previous;
     std::size_t count = 0;
 
     while (true) {
         const std::expected<std::optional<Match>, SearchFailure> searched =
-            one.matcher->find(text, pos);
+            one.matcher->find(parser.visible(), pos);
         if (!searched) {
             // The one way a search fails — pattern_engine.hpp's SearchFailure.
             return std::unexpected{
@@ -81,21 +84,21 @@ struct PassFailure {
         const Match& match = **searched;
         const MatchSpan span = match.whole();
         if (previous == span && span.start == pos && span.end == pos) {
-            if (pos >= text.size())
+            if (pos >= parser.visible().size())
                 return count;
-            pos = nextCharacter(text, pos);
+            pos = nextCharacter(parser.visible(), pos);
             continue;
         }
 
-        const std::string written = one.replacement.expandedFor(text, match);
-        text.replace(span.start, span.end - span.start, written);
+        const std::string written = one.replacement.expandedFor(parser.visible(), match);
+        parser.transform(span.start, span.end - span.start, written);
         pos = span.start + written.size();
         previous = span;
         if (span.start == span.end)
             previous = MatchSpan{.start = pos, .end = pos};
         ++count;
 
-        if (text.size() > kMaxTextBytes) {
+        if (parser.visible().size() > kMaxTextBytes) {
             return std::unexpected{
                 PassFailure{.kind = FailureKind::TooLong, .detail = "the text outgrew a subtitle"}};
         }
@@ -103,17 +106,17 @@ struct PassFailure {
 }
 
 /// One pattern on one text: `Repeat` until the text no longer changes.
-[[nodiscard]] std::optional<PassFailure> applyPattern(const Prepared& one, std::string& text) {
-    std::expected<std::size_t, PassFailure> count = replaceAll(one, text);
+[[nodiscard]] std::optional<PassFailure> applyPattern(const Prepared& one, MarkupParser& parser) {
+    std::expected<std::size_t, PassFailure> count = replaceAll(one, parser);
     for (int passes = 1; one.repeat && count && *count > 0; ++passes) {
         if (passes > kMaxRepeatPasses) {
             return PassFailure{.kind = FailureKind::TooManyPasses,
                                .detail = "the text still changed after " +
                                          std::to_string(kMaxRepeatPasses) + " passes"};
         }
-        const std::string before = text;
-        count = replaceAll(one, text);
-        if (text == before)
+        const std::string before{parser.visible()};
+        count = replaceAll(one, parser);
+        if (parser.visible() == before)
             break;
     }
     if (!count)
@@ -168,24 +171,27 @@ struct PassFailure {
 
 CorrectedTexts correctCommonErrors(const PatternEngine& engine,
                                    std::span<const CorrectionPattern* const> patterns,
-                                   std::span<const std::string> texts) {
+                                   std::span<const std::string> texts,
+                                   SubtitleFormat format) {
     CorrectedTexts result;
     const std::vector<Prepared> prepared = prepare(engine, patterns, result.failures);
 
     result.texts.reserve(texts.size());
     for (std::size_t index = 0; index < texts.size(); ++index) {
-        std::string text = texts[index];
+        MarkupParser parser{texts[index], format};
         for (const Prepared& one : prepared) {
-            // On a copy: a pattern given up halfway leaves the text as it was.
-            std::string attempt = text;
+            // Reread from what was kept, tags and all: `MarkupParser` cannot be
+            // copied, and a pattern given up halfway must leave the text — and
+            // its tags — exactly as they were before it.
+            MarkupParser attempt{parser.text(), format};
             if (const std::optional<PassFailure> gaveUp = applyPattern(one, attempt)) {
                 result.failures.push_back(
                     failureOf(gaveUp->kind, *one.pattern, index, gaveUp->detail));
             } else {
-                text = std::move(attempt);
+                parser = std::move(attempt);
             }
         }
-        result.texts.push_back(std::move(text));
+        result.texts.push_back(parser.text());
     }
     return result;
 }

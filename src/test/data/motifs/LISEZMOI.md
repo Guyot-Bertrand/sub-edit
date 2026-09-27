@@ -66,9 +66,12 @@ qui traduirait mal un lookbehind corrigerait trop.
 - **en caractères seulement** : la mesure en *ems* dépend de la police, et c'est
   au cadrage d'en décider (#493).
 
-**Aucun texte ne porte de balise.** Le parseur de Gaupol retire les balises et les
-remet autour des remplacements ; c'est le travail du parseur de balises de la
-phase 10, éprouvé ailleurs.
+**La plupart des textes ne portent pas de balise.** Le parseur de Gaupol retire
+les balises et les remet autour des remplacements. Là où une correction touche
+une balise de SubRip, `entrees/` porte quelques cas de plus — issue
+[#501](https://github.com/Guyot-Bertrand/sub-edit/issues/501) —, et l'oracle
+porte le parseur de Gaupol (`aeidon/parser.py`) pour les produire ; c'est ce
+que le parseur de balises de la phase 10, éprouvé ailleurs, doit reproduire.
 
 ## `attendus/` — ce que Gaupol en fait
 

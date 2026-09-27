@@ -33,10 +33,12 @@ Ce que le script reproduit, lu dans Gaupol et nommé à chaque endroit :
 - les trois opérations (`aeidon/agents/text.py`) : `correct_common_errors`,
   `capitalize`, `remove_hearing_impaired` et ses nettoyages.
 
-**Les textes n'ont pas de balises.** Le parseur de Gaupol les retire, puis les
-remet en place autour des remplacements ; c'est le travail du parseur de balises
-de la phase 10, éprouvé ailleurs. Ici, un texte sans balise passe par le
-parseur sans y rien laisser.
+**La plupart des textes n'ont pas de balises**, et pour eux le parseur de
+Gaupol ne laisse rien : il retire ce qu'il n'a pas trouvé, et le remet à la
+même place. Là où une correction touche une balise, issue #501 porte le
+parseur de Gaupol (`aeidon/parser.py`) restreint aux balises de SubRip — le
+travail du parseur de balises de la phase 10, éprouvé ailleurs, est de faire
+aussi bien.
 
 Il ne lit **jamais** le clone de Gaupol : seulement les copies versionnées, ce
 qui le rend rejouable sur une machine qui ne l'a pas.
@@ -237,6 +239,135 @@ class Finder:
         return count
 
 
+# --- Le parseur de balises : aeidon/parser.py, restreint à SubRip — issue #501 --
+
+# `SubRip.tag` (aeidon/markups/subrip.py) : n'importe quelle balise entre
+# chevrons, casse ignorée. C'est la seule écriture que l'oracle porte — les
+# 184 cas de #494 n'en avaient aucune, et le cadrage de #501 restreint le
+# portage à SubRip.
+TAG = re.compile(r"<.*?>", re.DOTALL | re.MULTILINE | re.IGNORECASE)
+
+
+def subrip_clean(text: str) -> str:
+    """`SubRip.clean` : les quatre nettoyages de balises, dans son ordre."""
+    flags = re.DOTALL | re.MULTILINE | re.IGNORECASE
+    text = re.sub(r"<([a-z]+)[^<]*?>( *)</\1>", r"\2", text, flags=flags)
+    text = re.sub(r"</([a-z]+)>( *)<\1>", r"\2", text, flags=flags)
+    text = re.sub(r" ?(<(?!/)[^>]+?>) ", r" \1", text, flags=flags)
+    text = re.sub(r" (</[^>]+?>) ?", r"\1 ", text, flags=flags)
+    return text
+
+
+class Parser(Finder):
+    """`aeidon.Parser`, porté pour les balises de SubRip — issue #501.
+
+    Tient les balises à part du texte visible (`self.text`, hérité de
+    `Finder`) pendant qu'une correction le cherche et le remplace, puis les
+    remet en place. **Une marge** — une balise identique en tête et en queue
+    de chaque ligne, comme un `<i>` qui entoure chaque ligne d'un sous-titre —
+    se traite à part : elle enveloppe le texte entier plutôt que de suivre
+    chaque remplacement, exactement comme `_set_margins` le décide.
+    """
+
+    def __init__(self, text: str) -> None:
+        self._margins: list[str] = []
+        self._tags: list[list] = []
+        if "\n" in text:
+            self._set_margins(text)
+        if not self._margins:
+            self._set_tags(text)
+        super().__init__(TAG.sub("", text))
+
+    def _set_margins(self, text: str) -> None:
+        """`_set_margins` : une balise de tête et de queue communes à
+        chaque ligne, et rien d'autre entre les deux."""
+        lines = text.split("\n")
+        line = lines[0]
+        start_tag = ""
+        while True:
+            match = TAG.match(line)
+            if match is None:
+                break
+            a, z = match.span()
+            start_tag += line[a:z]
+            line = line[z:]
+        if not start_tag:
+            return
+        if not all(x.startswith(start_tag) for x in lines):
+            return
+        end_tag = ""
+        while True:
+            match = None
+            for match in TAG.finditer(line):
+                pass
+            if match is None:
+                break
+            a, z = match.span()
+            if z != len(line):
+                return
+            end_tag = line[a:z] + end_tag
+            line = line[:a]
+        if not all(x.endswith(end_tag) for x in lines):
+            return
+        for line in (x[len(start_tag) : -len(end_tag)] for x in lines):
+            if TAG.search(line) is not None:
+                return
+        self._margins = [start_tag, end_tag]
+
+    def _set_tags(self, text: str) -> None:
+        """`_set_tags` : chaque balise, sa position dans le texte visible."""
+        for match in TAG.finditer(text):
+            a, z = match.span()
+            self._tags.append([a, text[a:z]])
+
+    def _shift_tags(self, pos: int, shift: int, orig_text: str) -> None:
+        """`_shift_tags`, porté tel quel : décale les balises après `pos`."""
+        if not shift:
+            return
+        if not self._tags:
+            return
+        opening = True
+        if pos < len(orig_text):
+            if orig_text[pos].isspace():
+                opening = False
+        elif pos == len(orig_text):
+            opening = False
+        closing = not opening
+        pos_with_tags = pos
+        for tag_pos, tag in self._tags:
+            if shift > 0 and closing:
+                if tag_pos < pos_with_tags:
+                    pos_with_tags += len(tag)
+            elif tag_pos <= pos_with_tags:
+                pos_with_tags += len(tag)
+        between_length = 0
+        for i, (tag_pos, tag) in enumerate(self._tags):
+            orig_end = pos_with_tags - shift + between_length
+            if shift < 0 and pos_with_tags < tag_pos < orig_end:
+                self._tags[i][0] = pos_with_tags + between_length
+                between_length += len(tag)
+            elif tag_pos >= pos_with_tags:
+                self._tags[i][0] += shift
+
+    def replace(self) -> None:
+        """`Parser.replace` : celui de `Finder`, puis le décalage des balises."""
+        assert self.match_span is not None
+        a = self.match_span[0]
+        orig_text = self.text
+        super().replace()
+        self._shift_tags(a, len(self.text) - len(orig_text), orig_text)
+
+    def get_text(self) -> str:
+        """`get_text` : les balises remises, la marge s'il y en a une, nettoyé."""
+        text = self.text
+        for pos, tag in self._tags:
+            text = text[:pos] + tag + text[pos:]
+        if self._margins:
+            text = text.replace("\n", f"{self._margins[1]}\n{self._margins[0]}")
+            text = self._margins[0] + text + self._margins[1]
+        return subrip_clean(text)
+
+
 # --- Les trois opérations : aeidon/agents/text.py -------------------------------
 
 
@@ -244,14 +375,14 @@ def correct_common_errors(texts: list[str], patterns: list[Pattern]) -> Texts:
     """`correct_common_errors` : dans l'ordre, et `Repeat` reboucle."""
     corrected: Texts = []
     for text in texts:
-        finder = Finder(text)
+        finder = Parser(text)
         for pattern in patterns:
             finder.set_regex(pattern.fields["Pattern"], pattern.flags())
             finder.replacement = pattern.fields.get("Replacement", "")
             count = finder.replace_all()
             while pattern.fields.get("Repeat") == "True" and count:
                 count = finder.replace_all()
-        corrected.append(finder.text)
+        corrected.append(finder.get_text())
     return corrected
 
 
@@ -286,7 +417,7 @@ def capitalize(texts: list[str], patterns: list[Pattern]) -> Texts:
     capitalized: Texts = []
     cap_next = False
     for index, text in enumerate(texts):
-        finder = Finder(text)
+        finder = Parser(text)
         if cap_next or index == 0:
             capitalize_first(finder, 0)
             cap_next = False
@@ -294,7 +425,7 @@ def capitalize(texts: list[str], patterns: list[Pattern]) -> Texts:
             finder.set_regex(pattern.fields["Pattern"], pattern.flags())
             finder.pos = 0
             cap_next = capitalize_matches(finder, pattern, cap_next)
-        capitalized.append(finder.text)
+        capitalized.append(finder.get_text())
     return capitalized
 
 
@@ -314,23 +445,30 @@ def remove_hearing_impaired(texts: list[str], patterns: list[Pattern]) -> Texts:
 
     **Les nettoyages de `_remove_leftover_hi` ne touchent que les textes que les
     motifs ont changés** — un texte laissé intact garde ses espaces doubles.
+
+    **Deux analyseurs, comme `_remove_leftover_hi` en emploie un second** —
+    issue #501 : les nettoyages relisent le texte déjà recomposé par le
+    premier, balises remises, plutôt que de poursuivre sur le même. Sur un
+    texte sans balise, les deux reviennent au même.
     """
     removed: Texts = []
     for text in texts:
-        finder = Finder(text)
+        finder = Parser(text)
         for pattern in patterns:
             finder.set_regex(pattern.fields["Pattern"], pattern.flags())
             finder.replacement = pattern.fields.get("Replacement", "")
             finder.replace_all()
-        if finder.text == text:
+        corrected = finder.get_text()
+        if corrected == text:
             removed.append(text)
             continue
+        cleaner = Parser(corrected)
         for expression, replacement in LEFTOVERS:
-            finder.set_regex(expression)
-            finder.replacement = replacement
-            finder.replace_all()
+            cleaner.set_regex(expression)
+            cleaner.replacement = replacement
+            cleaner.replace_all()
         # `remove_blank`, que l'assistant coche par défaut.
-        removed.append(finder.text or None)
+        removed.append(cleaner.get_text() or None)
     return removed
 
 
