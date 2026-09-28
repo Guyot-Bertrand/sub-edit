@@ -8,7 +8,7 @@ set(CMAKE_AUTOMOC ON)
 add_library(
     subedit_gui STATIC subtitle_table_model.cpp cell_delegates.cpp command_label.cpp
                        invocation.cpp settings_path.cpp theme.cpp preferences_dialog.cpp
-                       manual_path.cpp manual_window.cpp
+                       manual_path.cpp patterns_path.cpp manual_window.cpp
                        diagnostics_panel.cpp qt_prompts.cpp target.cpp ems_line_measure.cpp
                        operation_dialog.cpp shift_dialog.cpp transform_dialog.cpp
                        insert_dialog.cpp split_project_dialog.cpp save_shape.cpp
