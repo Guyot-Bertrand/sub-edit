@@ -42,6 +42,7 @@ add_library(
     text/hearing_impaired.cpp
     text/hearing_impaired_correction.cpp
     text/correction_run.cpp
+    text/text_diff.cpp
     text/line_breaking.cpp
     text/line_measure.cpp
     text/pattern_catalogue.cpp

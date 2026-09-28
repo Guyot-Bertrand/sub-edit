@@ -29,6 +29,7 @@ add_executable(
     core/text/hearing_impaired_correction_test.cpp
     core/text/common_errors_test.cpp
     core/text/correction_run_test.cpp
+    core/text/text_diff_test.cpp
     core/text/line_breaking_test.cpp
     core/text/line_measure_test.cpp
     core/text/icu_pattern_engine_test.cpp
