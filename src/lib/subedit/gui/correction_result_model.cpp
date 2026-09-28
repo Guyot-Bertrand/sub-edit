@@ -83,7 +83,12 @@ bool CorrectionResultModel::setData(const QModelIndex& index, const QVariant& va
     }
     if (index.column() == Proposed && role == Qt::EditRole) {
         row.retouched = value.toString().toStdString();
-        emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+        // The Original column's diff is computed against the current
+        // Proposed text (proposedText()), so retouching this cell also
+        // moves where "changed" falls in Original — both columns need a
+        // repaint, not just the one edited.
+        emit dataChanged(
+            this->index(index.row(), Original), index, {Qt::DisplayRole, Qt::EditRole});
         return true;
     }
     return false;
