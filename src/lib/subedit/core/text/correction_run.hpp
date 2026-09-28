@@ -15,6 +15,7 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/text/common_errors.hpp> // for PatternFailure
 #include <subedit/core/text/line_measure.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/core/text/pattern_engine.hpp>
@@ -66,6 +67,14 @@ struct ProposedCorrection {
     std::optional<std::string> proposed;
 };
 
+/// What `proposeCorrections` answered: the changes it would make, and every
+/// pattern that could not do its part — named once each, however many texts
+/// or targets it was asked to work on (GUI-CORRECT-06).
+struct CorrectionProposal {
+    std::vector<ProposedCorrection> corrections;
+    std::vector<PatternFailure> failures;
+};
+
 /// Computes what `tasks` — read from `settings` — would do to `targets`,
 /// under `catalogue` and `engine`, measuring line breaks with `measure`.
 ///
@@ -77,12 +86,11 @@ struct ProposedCorrection {
 /// removed — the subtitle carries a main text nobody aimed at taking away,
 /// the same rule `removeHearingImpaired` already keeps for phase 4's direct
 /// command.
-[[nodiscard]] std::vector<ProposedCorrection>
-proposeCorrections(const PatternEngine& engine,
-                   const PatternCatalogue& catalogue,
-                   const CorrectionSettings& settings,
-                   const LineMeasure& measure,
-                   std::span<const CorrectionTarget> targets);
+[[nodiscard]] CorrectionProposal proposeCorrections(const PatternEngine& engine,
+                                                    const PatternCatalogue& catalogue,
+                                                    const CorrectionSettings& settings,
+                                                    const LineMeasure& measure,
+                                                    std::span<const CorrectionTarget> targets);
 
 /// One project's worth of what `applyCorrections` did to it.
 struct AppliedCorrection {
