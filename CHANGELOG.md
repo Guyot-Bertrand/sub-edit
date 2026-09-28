@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **core** — Calculer les corrections de l'assistant, au noyau
+
+## 0.12.9 — 2026-09-28
+
+### Ajouts
+
 - **gui** — Mesure en ems, par la police de la fenêtre
 
 ## 0.12.8 — 2026-09-27

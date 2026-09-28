@@ -65,6 +65,7 @@ enum class OrderPolicy {
     // It does only what the two above it do — rewrite texts, take subtitles
     // out. Not one position moves.
     case CommandKind::RemoveHearingImpaired:
+    case CommandKind::CorrectTexts:
     // They rewrite a text and nothing else — the tags go around what was
     // already there, and no position is read, let alone moved.
     case CommandKind::Italicise:

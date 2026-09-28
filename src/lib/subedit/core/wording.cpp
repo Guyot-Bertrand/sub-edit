@@ -383,11 +383,13 @@ std::string_view nameOf(CommandKind kind) {
         return "appending a file";
     case CommandKind::SplitProject:
         return "splitting the project";
+    case CommandKind::CorrectTexts:
+        return "correcting texts";
     }
 
-    // The twenty-four are handled and the compiler checks it. A `default` here would
-    // take an enumerator added without a name in silence, and the action would
-    // announce it as an empty string.
+    // Every one of `CommandKind` is handled and the compiler checks it. A
+    // `default` here would take an enumerator added without a name in
+    // silence, and the action would announce it as an empty string.
     std::unreachable();
 }
 
@@ -491,6 +493,11 @@ std::string noticeOf(PartialAlignment partial) {
     return std::to_string(partial.aligned) + " of " + countOf(partial.total, "subtitle") +
            " aligned to " + nameOf(partial.onto) + " fps; the document is still read on a " +
            nameOf(partial.retained) + " fps grid";
+}
+
+std::string noticeOfCorrection(std::size_t corrected, std::size_t removed) {
+    return "Edited " + std::to_string(corrected) + " and removed " + std::to_string(removed) +
+           " subtitles";
 }
 
 std::string countOf(std::size_t count, std::string_view noun) {

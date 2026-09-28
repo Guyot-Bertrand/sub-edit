@@ -53,6 +53,26 @@ constexpr std::string_view kDurationMaximumKey = "duration-adjust.maximum-ms";
 constexpr std::string_view kDurationGapEnabledKey = "duration-adjust.gap-enabled";
 constexpr std::string_view kDurationGapKey = "duration-adjust.gap-ms";
 
+// `Correct Texts…`, sixteen keys under one prefix — decision D8, issue #504.
+constexpr std::string_view kCorrectionPrefix = "correction.";
+constexpr std::string_view kCorrectionMentionsEnabledKey = "correction.mentions.enabled";
+constexpr std::string_view kCorrectionMentionsCodeKey = "correction.mentions.code";
+constexpr std::string_view kCorrectionCommonErrorsEnabledKey = "correction.common-errors.enabled";
+constexpr std::string_view kCorrectionCommonErrorsCodeKey = "correction.common-errors.code";
+constexpr std::string_view kCorrectionCapitalizationEnabledKey =
+    "correction.capitalization.enabled";
+constexpr std::string_view kCorrectionCapitalizationCodeKey = "correction.capitalization.code";
+constexpr std::string_view kCorrectionLineBreakEnabledKey = "correction.line-break.enabled";
+constexpr std::string_view kCorrectionLineBreakCodeKey = "correction.line-break.code";
+constexpr std::string_view kCorrectionHumanKey = "correction.human";
+constexpr std::string_view kCorrectionOcrKey = "correction.ocr";
+constexpr std::string_view kCorrectionSoundInBracketsKey = "correction.sound-in-brackets";
+constexpr std::string_view kCorrectionSoundInParenthesesKey = "correction.sound-in-parentheses";
+constexpr std::string_view kCorrectionLineBreakMaxLengthKey = "correction.line-break.max-length";
+constexpr std::string_view kCorrectionLineBreakMaxLinesKey = "correction.line-break.max-lines";
+constexpr std::string_view kCorrectionRemoveBlankKey = "correction.remove-blank";
+constexpr std::string_view kCorrectionActivationsKey = "correction.activations";
+
 // The three values of the theme, as the file carries them. Lower case, and
 // kept apart from `nameOf(Theme)`, which gives the labels of the dialog: this
 // is a format, that is prose.
@@ -69,6 +89,11 @@ constexpr std::string_view kBelowPlacement = "below";
 constexpr char kSeparator = '=';
 constexpr char kComment = '#';
 constexpr char kListSeparator = ',';
+
+// The four fields of one `correction.activations` entry — decision D2, by
+// kind, code and name. A colon rather than the list separator: one entry is
+// itself a list of four fields, inside a list of entries.
+constexpr char kActivationFieldSeparator = ':';
 
 [[nodiscard]] std::string_view trimmed(std::string_view text) {
     constexpr std::string_view kBlanks = " \t\r";
@@ -338,6 +363,122 @@ void keepOption(
         field = *std::move(parsed);
 }
 
+/// A code — `Script[-language[-COUNTRY]]` — or nothing for an empty value: a
+/// blank code names nothing a cascade could read.
+[[nodiscard]] std::optional<std::string> codeOf(std::string_view text) {
+    if (text.empty())
+        return std::nullopt;
+    return std::string{text};
+}
+
+/// The name a pattern's own file gives its kind — `fileExtensionOf`, read
+/// backwards.
+[[nodiscard]] std::optional<PatternKind> patternKindOf(std::string_view text) {
+    if (text == fileExtensionOf(PatternKind::CommonError))
+        return PatternKind::CommonError;
+    if (text == fileExtensionOf(PatternKind::Capitalization))
+        return PatternKind::Capitalization;
+    if (text == fileExtensionOf(PatternKind::HearingImpaired))
+        return PatternKind::HearingImpaired;
+    if (text == fileExtensionOf(PatternKind::LineBreak))
+        return PatternKind::LineBreak;
+    return std::nullopt;
+}
+
+/// One entry of `correction.activations` — `<kind>:<code>:<name>:<0|1>`, the
+/// last colon found from the end so that a name may hold anything but one.
+[[nodiscard]] std::optional<PatternActivation> activationOf(std::string_view entry) {
+    const std::size_t firstSep = entry.find(kActivationFieldSeparator);
+    if (firstSep == std::string_view::npos)
+        return std::nullopt;
+    const std::size_t secondSep = entry.find(kActivationFieldSeparator, firstSep + 1);
+    if (secondSep == std::string_view::npos)
+        return std::nullopt;
+    const std::size_t lastSep = entry.rfind(kActivationFieldSeparator);
+    if (lastSep <= secondSep)
+        return std::nullopt;
+
+    const std::optional<PatternKind> kind = patternKindOf(entry.substr(0, firstSep));
+    const std::string_view code = entry.substr(firstSep + 1, secondSep - firstSep - 1);
+    const std::string_view name = entry.substr(secondSep + 1, lastSep - secondSep - 1);
+    const std::optional<bool> enabled = booleanOf(entry.substr(lastSep + 1));
+    if (!kind.has_value() || code.empty() || name.empty() || !enabled.has_value())
+        return std::nullopt;
+
+    return PatternActivation{
+        .kind = *kind, .code = std::string{code}, .name = std::string{name}, .enabled = *enabled};
+}
+
+/// Every entry of `correction.activations`, or nothing if one of them could
+/// not be read — the same all-or-nothing rule `integersOf` already keeps for
+/// one option's own value.
+[[nodiscard]] std::optional<std::vector<PatternActivation>> activationsOf(std::string_view text) {
+    if (text.empty())
+        return std::vector<PatternActivation>{};
+
+    std::vector<PatternActivation> activations;
+    std::size_t start = 0;
+    while (start <= text.size()) {
+        const std::size_t next = text.find(kListSeparator, start);
+        const std::string_view entry =
+            text.substr(start, (next == std::string_view::npos ? text.size() : next) - start);
+        const std::optional<PatternActivation> parsed = activationOf(entry);
+        if (!parsed.has_value())
+            return std::nullopt;
+        activations.push_back(*parsed);
+
+        if (next == std::string_view::npos)
+            break;
+        start = next + 1;
+    }
+    return activations;
+}
+
+/// Keeps one of the sixteen options of the correction assistant.
+///
+/// **Apart from `applyOption`, which sends every `correction.` key here**, the
+/// same reason `applyDurationAdjustmentOption` is: this many branches would
+/// have taken it over the complexity threshold.
+void applyCorrectionOption(SettingsRead& read, std::string_view key, std::string_view value) {
+    const auto take = [&read, key, value](auto parsed, auto& field) {
+        keepOption(read, key, value, std::move(parsed), field);
+    };
+
+    CorrectionSettings& form = read.settings.correction;
+    if (key == kCorrectionMentionsEnabledKey)
+        take(booleanOf(value), form.mentions.enabled);
+    else if (key == kCorrectionMentionsCodeKey)
+        take(codeOf(value), form.mentions.code);
+    else if (key == kCorrectionCommonErrorsEnabledKey)
+        take(booleanOf(value), form.commonErrors.enabled);
+    else if (key == kCorrectionCommonErrorsCodeKey)
+        take(codeOf(value), form.commonErrors.code);
+    else if (key == kCorrectionCapitalizationEnabledKey)
+        take(booleanOf(value), form.capitalization.enabled);
+    else if (key == kCorrectionCapitalizationCodeKey)
+        take(codeOf(value), form.capitalization.code);
+    else if (key == kCorrectionLineBreakEnabledKey)
+        take(booleanOf(value), form.lineBreak.enabled);
+    else if (key == kCorrectionLineBreakCodeKey)
+        take(codeOf(value), form.lineBreak.code);
+    else if (key == kCorrectionHumanKey)
+        take(booleanOf(value), form.human);
+    else if (key == kCorrectionOcrKey)
+        take(booleanOf(value), form.ocr);
+    else if (key == kCorrectionSoundInBracketsKey)
+        take(booleanOf(value), form.soundInBrackets);
+    else if (key == kCorrectionSoundInParenthesesKey)
+        take(booleanOf(value), form.soundInParentheses);
+    else if (key == kCorrectionLineBreakMaxLengthKey)
+        take(decimalOf(value), form.lineBreakMaxLength);
+    else if (key == kCorrectionLineBreakMaxLinesKey)
+        take(integerOf(value), form.lineBreakMaxLines);
+    else if (key == kCorrectionRemoveBlankKey)
+        take(booleanOf(value), form.removeBlankSubtitles);
+    else if (key == kCorrectionActivationsKey)
+        take(activationsOf(value), form.patternActivations);
+}
+
 /// Keeps one of the nine options of the duration adjustment.
 ///
 /// **Apart from `applyOption`, which sends every `duration-adjust.` key here**:
@@ -424,6 +565,8 @@ void applyOption(SettingsRead& read,
         take(booleanOf(value), read.settings.search.ignoreCase);
     else if (key.starts_with(kDurationPrefix))
         applyDurationAdjustmentOption(read, key, value);
+    else if (key.starts_with(kCorrectionPrefix))
+        applyCorrectionOption(read, key, value);
 }
 
 /// An option, written bare when set, commented out when at its default.
@@ -480,6 +623,86 @@ void renderDurationAdjustment(std::string& out, const DurationAdjustmentSettings
                 kDurationGapKey,
                 std::to_string(form.gapMilliseconds),
                 form.gapMilliseconds == defaults.gapMilliseconds);
+}
+
+[[nodiscard]] std::string activationsText(const std::vector<PatternActivation>& activations) {
+    std::string out;
+    for (const PatternActivation& one : activations) {
+        if (!out.empty())
+            out += kListSeparator;
+        out += fileExtensionOf(one.kind);
+        out += kActivationFieldSeparator;
+        out += one.code;
+        out += kActivationFieldSeparator;
+        out += one.name;
+        out += kActivationFieldSeparator;
+        out += flagText(one.enabled);
+    }
+    return out;
+}
+
+/// The sixteen options of the correction assistant, each written bare when it
+/// differs from Gaupol's and commented out when it does not.
+void renderCorrectionSettings(std::string& out, const CorrectionSettings& form) {
+    const CorrectionSettings defaults;
+    writeOption(out,
+                kCorrectionMentionsEnabledKey,
+                flagText(form.mentions.enabled),
+                form.mentions.enabled == defaults.mentions.enabled);
+    writeOption(out,
+                kCorrectionMentionsCodeKey,
+                form.mentions.code,
+                form.mentions.code == defaults.mentions.code);
+    writeOption(out,
+                kCorrectionCommonErrorsEnabledKey,
+                flagText(form.commonErrors.enabled),
+                form.commonErrors.enabled == defaults.commonErrors.enabled);
+    writeOption(out,
+                kCorrectionCommonErrorsCodeKey,
+                form.commonErrors.code,
+                form.commonErrors.code == defaults.commonErrors.code);
+    writeOption(out,
+                kCorrectionCapitalizationEnabledKey,
+                flagText(form.capitalization.enabled),
+                form.capitalization.enabled == defaults.capitalization.enabled);
+    writeOption(out,
+                kCorrectionCapitalizationCodeKey,
+                form.capitalization.code,
+                form.capitalization.code == defaults.capitalization.code);
+    writeOption(out,
+                kCorrectionLineBreakEnabledKey,
+                flagText(form.lineBreak.enabled),
+                form.lineBreak.enabled == defaults.lineBreak.enabled);
+    writeOption(out,
+                kCorrectionLineBreakCodeKey,
+                form.lineBreak.code,
+                form.lineBreak.code == defaults.lineBreak.code);
+    writeOption(out, kCorrectionHumanKey, flagText(form.human), form.human == defaults.human);
+    writeOption(out, kCorrectionOcrKey, flagText(form.ocr), form.ocr == defaults.ocr);
+    writeOption(out,
+                kCorrectionSoundInBracketsKey,
+                flagText(form.soundInBrackets),
+                form.soundInBrackets == defaults.soundInBrackets);
+    writeOption(out,
+                kCorrectionSoundInParenthesesKey,
+                flagText(form.soundInParentheses),
+                form.soundInParentheses == defaults.soundInParentheses);
+    writeOption(out,
+                kCorrectionLineBreakMaxLengthKey,
+                std::format("{}", form.lineBreakMaxLength),
+                form.lineBreakMaxLength == defaults.lineBreakMaxLength);
+    writeOption(out,
+                kCorrectionLineBreakMaxLinesKey,
+                std::to_string(form.lineBreakMaxLines),
+                form.lineBreakMaxLines == defaults.lineBreakMaxLines);
+    writeOption(out,
+                kCorrectionRemoveBlankKey,
+                flagText(form.removeBlankSubtitles),
+                form.removeBlankSubtitles == defaults.removeBlankSubtitles);
+    writeOption(out,
+                kCorrectionActivationsKey,
+                activationsText(form.patternActivations),
+                form.patternActivations.empty());
 }
 
 } // namespace
@@ -609,6 +832,8 @@ std::string renderSettings(const Settings& settings) {
                 search.ignoreCase == defaults.ignoreCase);
 
     renderDurationAdjustment(out, settings.durationAdjustment);
+
+    renderCorrectionSettings(out, settings.correction);
 
     return out;
 }

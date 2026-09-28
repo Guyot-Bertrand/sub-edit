@@ -8,6 +8,7 @@
 
 // Apart, and after the headers above: as the first of them, this one makes moc
 // stop on a parse error inside `<concepts>` when a Qt header includes this file.
+#include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/config/duration_adjustment_settings.hpp>
 
 #include <cstddef>
@@ -160,6 +161,10 @@ struct Settings {
     /// the next and from one session to the next — issue #409, the same
     /// treatment as `search` just above.
     DurationAdjustmentSettings durationAdjustment{};
+
+    /// What `Correct Texts…` retains — decision D8 of the phase-12 spec,
+    /// issue #504, the same treatment as `durationAdjustment` just above.
+    CorrectionSettings correction{};
 
     friend bool operator==(const Settings&, const Settings&) = default;
 };

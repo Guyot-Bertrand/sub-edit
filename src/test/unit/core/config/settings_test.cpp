@@ -15,6 +15,7 @@
 // rather than traceability. The three promises are cited where the window is
 // put to the test, in `window_settings_test.cpp`.
 
+#include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/io/file_system.hpp>
@@ -33,12 +34,15 @@ namespace {
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::core::ByteOrderMark;
+using subedit::core::CorrectionSettings;
 using subedit::core::DurationAdjustmentSettings;
 using subedit::core::Encoding;
 using subedit::core::FileError;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::InsertPlacement;
+using subedit::core::PatternActivation;
+using subedit::core::PatternKind;
 using subedit::core::readSettings;
 using subedit::core::renderSettings;
 using subedit::core::Settings;
@@ -588,4 +592,139 @@ TEST_CASE("a duration of zero is a duration, and a speed above ninety-nine is re
     CHECK(read.settings.durationAdjustment.minimumMilliseconds == 0);
     CHECK(read.settings.durationAdjustment.charactersPerSecond == 120.0);
     CHECK(read.diagnostics.empty());
+}
+
+// ## `Correct Texts…` — issue #504, decision D8
+
+namespace {
+
+[[nodiscard]] CorrectionSettings chosenCorrection() {
+    return CorrectionSettings{
+        .mentions = {.enabled = true, .code = "Latn-en"},
+        .commonErrors = {.enabled = false, .code = "Latn-fr"},
+        .capitalization = {.enabled = false, .code = "Latn"},
+        .lineBreak = {.enabled = true, .code = "Latn-en-US"},
+        .human = false,
+        .ocr = false,
+        .soundInBrackets = true,
+        .soundInParentheses = true,
+        .patternActivations = {PatternActivation{.kind = PatternKind::CommonError,
+                                                 .code = "Latn-en",
+                                                 .name = "I majuscule",
+                                                 .enabled = false},
+                               PatternActivation{.kind = PatternKind::HearingImpaired,
+                                                 .code = "Latn-en",
+                                                 .name = "Speaker before a colon",
+                                                 .enabled = true},
+                               PatternActivation{.kind = PatternKind::Capitalization,
+                                                 .code = "Latn",
+                                                 .name = "Sentence start",
+                                                 .enabled = false},
+                               PatternActivation{.kind = PatternKind::LineBreak,
+                                                 .code = "Latn-en",
+                                                 .name = "Dialogue dash",
+                                                 .enabled = false}},
+        .lineBreakMaxLength = 32.5,
+        .lineBreakMaxLines = 2,
+        .removeBlankSubtitles = false,
+    };
+}
+
+} // namespace
+
+TEST_CASE("the correction assistant's settings are kept across sessions", "[config]") {
+    InMemoryFileSystem files;
+    const Settings written{.correction = chosenCorrection()};
+
+    REQUIRE(writeSettings(files, kPath, written).has_value());
+    const SettingsRead read = readSettings(files, kPath);
+
+    CHECK(read.settings.correction == chosenCorrection());
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("a file that does not mention the correction assistant gives its defaults", "[config]") {
+    const SettingsRead read = readOf("window.maximised = true\n");
+
+    CHECK(read.settings.correction == CorrectionSettings{});
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("an option of the correction assistant at its default is written back commented out",
+          "[config]") {
+    const std::string rendered = renderSettings(Settings{});
+
+    CHECK_THAT(rendered, ContainsSubstring("#correction.common-errors.enabled = true\n"));
+    CHECK_THAT(rendered, ContainsSubstring("#correction.human = true\n"));
+    CHECK_THAT(rendered, ContainsSubstring("#correction.activations = \n"));
+
+    CHECK_THAT(renderSettings(Settings{.correction = chosenCorrection()}),
+               ContainsSubstring("\ncorrection.human = false\n"));
+}
+
+TEST_CASE("a value of the correction assistant that cannot be read leaves its default",
+          "[config]") {
+    for (const char* line : {"correction.mentions.enabled = maybe\n",
+                             "correction.mentions.code = \n",
+                             "correction.human = perhaps\n",
+                             "correction.line-break.max-length = wide\n",
+                             "correction.line-break.max-lines = two\n"}) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.correction == CorrectionSettings{});
+        CHECK(read.diagnostics.size() == 1);
+    }
+}
+
+TEST_CASE("an activation naming a pattern that no longer exists changes nothing it could find",
+          "[config]") {
+    // Decision D2: a name a shipped file no longer carries is ignored, like
+    // every other setting ADR 0022 keeps — this settings layer does not read
+    // the catalogue at all, so there is nothing to compare against, and the
+    // entry is simply kept, unread by anything that would act on it.
+    const SettingsRead read =
+        readOf("correction.activations = common-error:Latn-xx:Gone now:false\n");
+
+    REQUIRE(read.settings.correction.patternActivations.size() == 1);
+    CHECK(read.settings.correction.patternActivations.front().name == "Gone now");
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("an activation entry short of its four fields is not read", "[config]") {
+    for (const char* entry :
+         {"common-error", "common-error:Latn-en", "common-error:Latn-en:Name"}) {
+        const SettingsRead read = readOf(std::string{"correction.activations = "} + entry + "\n");
+
+        CHECK(read.settings.correction.patternActivations.empty());
+        REQUIRE(read.diagnostics.size() == 1);
+        CHECK(read.diagnostics.front().key == "correction.activations");
+    }
+}
+
+TEST_CASE("an empty activation list reads as no activation at all", "[config]") {
+    const SettingsRead read = readOf("correction.activations = \n");
+
+    CHECK(read.settings.correction.patternActivations.empty());
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("one unreadable entry of the activation list refuses the whole list", "[config]") {
+    // The same all-or-nothing rule a column order already keeps: a list is
+    // one option, and a list half read is a list nobody asked for.
+    const SettingsRead read =
+        readOf("correction.activations = common-error:Latn-en:Ligature ff:true,not-a-kind:Zyyy:X:"
+               "true\n");
+
+    CHECK(read.settings.correction.patternActivations.empty());
+    REQUIRE(read.diagnostics.size() == 1);
+    CHECK(read.diagnostics.front().key == "correction.activations");
+}
+
+TEST_CASE("the activation list round-trips through the file, in order", "[config]") {
+    InMemoryFileSystem files;
+    const Settings written{.correction = chosenCorrection()};
+    REQUIRE(writeSettings(files, kPath, written).has_value());
+
+    CHECK(readSettings(files, kPath).settings.correction.patternActivations ==
+          chosenCorrection().patternActivations);
 }
