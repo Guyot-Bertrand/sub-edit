@@ -228,6 +228,24 @@ plateforme sans écran, `DejaVu Sans`. Ailleurs, ils éprouvent le découpeur av
 une mesure de test à largeurs fixes, qui dit ce que le calcul fait d'une
 longueur sans dépendre d'une police.
 
+> **Précisé par [#503](https://github.com/Guyot-Bertrand/sub-edit/issues/503).**
+> `EmsLineMeasure`, dans `gui`, reçoit sa police au constructeur — jamais
+> `QApplication::font()` d'elle-même, la même règle que `CachedLineMeasure` :
+> l'appelant passe la police de l'application quand c'est ce qu'il veut dire,
+> un test passe `DejaVu Sans`. Le calibrage mesure l'alphabet minuscule une
+> fois, `QFontMetricsF::horizontalAdvance`, rapporté à 0,55 × 26. Les tests
+> refusent de conclure sous une police de remplacement, comme
+> `subedit_screenshots` refuse de photographier — `iiii` et `MMMM` diffèrent
+> en ems, un `breakLines` sur les deux le montre.
+>
+> **Le banc a exigé une `QApplication` que `subedit_bench` n'avait pas** :
+> `QFontMetricsF` ne répond pas sans base de polices. Le binaire porte
+> désormais son propre `main`, sous `offscreen`, exactement le motif déjà
+> écrit pour `subedit_gui_test` — un seul binaire, comme le veut
+> `record-bench.sh`, et les deux bancs `gui/` déjà là, qui s'en passaient, y
+> gagnent sans rien perdre. Le cache s'y voit, cette fois : c'est ce que #502
+> avait annoncé.
+
 ## D6 — Le correcteur : Enchant, et une fonction qui s'éteint sans dictionnaire
 
 **Enchant 2**, la bibliothèque que Gaupol emploie à travers libspelling. Trois
