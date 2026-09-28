@@ -84,6 +84,7 @@ struct WindowActions final {
     /// In the order of `core::kLetterCases`, which is Gaupol's.
     std::array<QAction*, 4> letterCase{};
     QAction* hearingImpaired = nullptr;
+    QAction* correctTexts = nullptr;
     QAction* snap = nullptr;
     QAction* shiftOntoGrid = nullptr;
     QAction* analyseGrid = nullptr;

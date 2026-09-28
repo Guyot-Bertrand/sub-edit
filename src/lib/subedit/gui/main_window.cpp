@@ -29,6 +29,7 @@
 #include <subedit/gui/about_dialog.hpp>
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/command_label.hpp>
+#include <subedit/gui/correction_controller.hpp>
 #include <subedit/gui/diagnostics_panel.hpp>
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
@@ -52,10 +53,12 @@
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QAction>
+#include <QApplication>
 #include <QClipboard>
 #include <QCloseEvent>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QFont>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -329,6 +332,49 @@ private:
     MainWindow* m_window;
 };
 
+/// What the correction assistant asks of the window — issue #505.
+class MainWindow::CorrectionSide final : public CorrectionController::View {
+
+public:
+    explicit CorrectionSide(MainWindow& window) : m_window(&window) {}
+
+    [[nodiscard]] QWidget* dialogParent() override { return m_window; }
+
+    [[nodiscard]] std::span<const std::unique_ptr<ProjectPage>> pages() const override {
+        return m_window->m_pages;
+    }
+
+    [[nodiscard]] std::size_t shownProject() const override {
+        return static_cast<std::size_t>(m_window->m_currentPage);
+    }
+
+    [[nodiscard]] const core::PatternCatalogue& patternCatalogue() const override {
+        return m_window->m_patterns;
+    }
+
+    [[nodiscard]] QFont applicationFont() const override { return QApplication::font(); }
+
+    void announce(const std::string& message) override {
+        m_window->statusBar()->showMessage(QString::fromStdString(message),
+                                           kOperationStatusTimeoutMs);
+    }
+
+    void preview(const core::Project& project, core::SubtitleIndex index) override {
+        for (const std::unique_ptr<ProjectPage>& page : m_window->m_pages) {
+            if (&page->session->project() != &project)
+                continue;
+            page->tableSelection->select(page->model->index(static_cast<int>(index.value()), 0),
+                                         QItemSelectionModel::ClearAndSelect |
+                                             QItemSelectionModel::Rows);
+            m_window->m_video->placeAtSelection(*page);
+            return;
+        }
+    }
+
+private:
+    MainWindow* m_window;
+};
+
 /// What the video asks of the window — issue #484.
 class MainWindow::VideoSide final : public VideoPane::View {
 
@@ -574,6 +620,9 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_projectFiles = std::make_unique<ProjectFiles>(*m_files, *m_prompts, *m_filesSide);
     m_operationsSide = std::make_unique<OperationsSide>(*this);
     m_operations = std::make_unique<ProjectOperations>(*m_prompts, *m_operationsSide);
+    m_correctionSide = std::make_unique<CorrectionSide>(*this);
+    m_correction = std::make_unique<CorrectionController>(*m_prompts, *m_correctionSide);
+    connect(act.correctTexts, &QAction::triggered, this, [this] { m_correction->open(); });
     for (QAction* entry : m_columns->entries()) {
         connect(entry, &QAction::toggled, this, [this] {
             refreshColumns();
@@ -1091,6 +1140,7 @@ void MainWindow::refreshActions() {
     m_actions->shiftOntoGrid->setEnabled(onto.has_value());
     m_actions->shiftOntoGrid->setText(shiftOntoGridLabel(onto));
     m_actions->hearingImpaired->setEnabled(anything);
+    m_actions->correctTexts->setEnabled(anything);
 
     // Nothing to give a translation's lines to in an empty document, and nothing
     // to write without a translation.
@@ -1436,6 +1486,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
 
     m_insertPlacement = settings.insertPlacement;
     m_operations->setDurationSettings(settings.durationAdjustment);
+    m_correction->setSettings(settings.correction);
     m_search->setOptions(settings.search);
     m_page->writeEncoding = settings.writeEncoding;
 }
@@ -1470,6 +1521,7 @@ core::Settings MainWindow::settings() const {
     settings.insertPlacement = m_insertPlacement;
     settings.search = m_search->options();
     settings.durationAdjustment = m_operations->durationSettings();
+    settings.correction = m_correction->settings();
     settings.writeEncoding = m_page->writeEncoding;
 
     return settings;

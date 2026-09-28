@@ -7,6 +7,7 @@
 #include <subedit/core/edit/search.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/model/selection.hpp>
+#include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -62,6 +63,7 @@ class TableColumns;
 class ProjectSearch;
 class ProjectFiles;
 class ProjectOperations;
+class CorrectionController;
 
 /// The window, and everything a project needs to be looked at.
 ///
@@ -235,6 +237,9 @@ public:
 
     [[nodiscard]] QAction* hearingImpairedAction() const { return m_actions->hearingImpaired; }
 
+    /// `Tools ▸ Correct Texts…` — the assistant of issue #505, D8.
+    [[nodiscard]] QAction* correctTextsAction() const { return m_actions->correctTexts; }
+
     /// The one button that puts a text in italics and takes them out again.
     ///
     /// **Out for a format that writes no style**, which is what says to a user
@@ -312,6 +317,14 @@ public:
     /// It is what holds the promise of the scoping: a missing manual crashes
     /// nothing, it puts an entry out.
     void setManualPath(std::filesystem::path directory);
+
+    /// The patterns the assistant offers — resolved once, in `main.cpp`, the
+    /// same road `installedManualPath()`/`setManualPath` already take (ADR 0022).
+    /// Left empty by default: every existing test constructs a window without
+    /// calling this, and an empty catalogue simply offers no pattern to check.
+    void setPatternCatalogue(core::PatternCatalogue catalogue) {
+        m_patterns = std::move(catalogue);
+    }
 
     /// Opens what was dropped on the window — issue #453, `GUI-TABS-04`.
     ///
@@ -664,6 +677,17 @@ private:
     class OperationsSide;
     std::unique_ptr<OperationsSide> m_operationsSide;
     std::unique_ptr<ProjectOperations> m_operations;
+
+    /// What the correction assistant asks of the window, and the assistant
+    /// itself — issue #505.
+    class CorrectionSide;
+    std::unique_ptr<CorrectionSide> m_correctionSide;
+    std::unique_ptr<CorrectionController> m_correction;
+
+    /// The patterns the assistant offers — `setPatternCatalogue`'s own doc
+    /// comment. Empty by default, both vectors empty, the same graceful-empty
+    /// shape `CorrectionSettings{}` already has.
+    core::PatternCatalogue m_patterns;
 
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;

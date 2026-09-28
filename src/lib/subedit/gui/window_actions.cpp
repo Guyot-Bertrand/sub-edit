@@ -109,6 +109,7 @@ WindowActions::WindowActions(QObject* owner)
       italic(buildAction(owner, QStringLiteral("&Italic"), QStringLiteral("format-text-italic"))),
       dialogueDashes(buildAction(owner, QStringLiteral("&Dialogue"), {})),
       hearingImpaired(buildAction(owner, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})),
+      correctTexts(buildAction(owner, QStringLiteral("&Correct Texts…"), {})),
       snap(buildAction(owner, QStringLiteral("Snap to Frame Rate…"), {})),
       shiftOntoGrid(buildAction(owner, shiftOntoGridLabel(std::nullopt), {})),
       analyseGrid(buildAction(owner, QStringLiteral("Frame Rate &Analysis…"), {})),
@@ -296,6 +297,7 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     for (QAction* one : letterCase)
         caseMenu->addAction(one);
     tools->addAction(hearingImpaired);
+    tools->addAction(correctTexts);
     tools->addSeparator();
     // The two of phase 16, together: one lays each position on the nearest
     // frame, the other moves the whole file back onto its own grid. They read

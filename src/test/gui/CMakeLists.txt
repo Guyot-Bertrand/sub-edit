@@ -20,7 +20,7 @@ add_executable(
     pattern_code_selector_test.cpp pattern_list_test.cpp correction_task_page_test.cpp
     correction_target_page_test.cpp correction_progress_page_test.cpp
     correction_result_model_test.cpp correction_confirmation_page_test.cpp
-    correction_wizard_test.cpp correction_controller_test.cpp
+    correction_wizard_test.cpp correction_controller_test.cpp window_correction_test.cpp
     main_window_test.cpp mpv_player_test.cpp window_video_test.cpp
     window_player_test.cpp player_factory_test.cpp invocation_test.cpp
     window_video_bounds_test.cpp window_grid_test.cpp window_commit_edit_test.cpp
