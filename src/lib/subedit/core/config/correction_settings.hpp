@@ -71,4 +71,12 @@ struct CorrectionSettings {
     friend bool operator==(const CorrectionSettings&, const CorrectionSettings&) = default;
 };
 
+/// Whether `pattern` applies under `settings` — decision D2: an explicit
+/// override by kind, code and name, or the shipped `.conf` default when there
+/// is none. **Class filtering (D4) is not this function's**: it answers
+/// activation alone, the same split `correction_run.cpp`'s own `isEnabled`
+/// and `classesAllow` already keep apart.
+[[nodiscard]] bool patternEnabled(const CorrectionPattern& pattern,
+                                  const CorrectionSettings& settings);
+
 } // namespace subedit::core

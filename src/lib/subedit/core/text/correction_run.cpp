@@ -1,6 +1,7 @@
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/command/composite_command.hpp>
+#include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/edit/remove_command.hpp>
 #include <subedit/core/edit/set_text_command.hpp>
 #include <subedit/core/model/project.hpp>
@@ -20,17 +21,6 @@
 namespace subedit::core {
 
 namespace {
-
-/// The activation `settings` sets for `pattern`, on top of its shipped
-/// default — decision D2, by kind, code and name.
-[[nodiscard]] bool isEnabled(const CorrectionPattern& pattern, const CorrectionSettings& settings) {
-    for (const PatternActivation& activation : settings.patternActivations) {
-        if (activation.kind == pattern.kind() && activation.code == pattern.code &&
-            activation.name == pattern.name)
-            return activation.enabled;
-    }
-    return pattern.enabled;
-}
 
 /// Decision D4: a record of kind `CommonError` applies if one of its classes
 /// is checked; the other three kinds carry no class, and are never filtered
@@ -52,7 +42,7 @@ selectedPatterns(const PatternCatalogue& catalogue,
                  const CorrectionSettings& settings) {
     std::vector<const CorrectionPattern*> chosen;
     for (const CorrectionPattern* pattern : catalogue.cascade(kind, code)) {
-        if (!isEnabled(*pattern, settings))
+        if (!patternEnabled(*pattern, settings))
             continue;
         if (!classesAllow(*pattern, settings))
             continue;

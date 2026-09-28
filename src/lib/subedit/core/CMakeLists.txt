@@ -80,6 +80,7 @@ add_library(
     format/translation_file.cpp
     config/settings.cpp
     config/duration_adjustment_settings.cpp
+    config/correction_settings.cpp
     format/format_detection.cpp
     format/degradation.cpp
     format/sub_rip_reader.cpp
