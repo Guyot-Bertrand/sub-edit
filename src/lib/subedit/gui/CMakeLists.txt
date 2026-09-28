@@ -13,6 +13,7 @@ add_library(
                        correction_target.cpp pattern_code.cpp pattern_code_selector.cpp
                        pattern_list.cpp correction_task_page.cpp
                        correction_target_page.cpp
+                       correction_progress_page.cpp
                        correction_diff_view.cpp
                        operation_dialog.cpp shift_dialog.cpp transform_dialog.cpp
                        insert_dialog.cpp split_project_dialog.cpp save_shape.cpp
@@ -26,7 +27,7 @@ add_library(subedit::gui ALIAS subedit_gui)
 
 target_include_directories(subedit_gui PUBLIC "${CMAKE_SOURCE_DIR}/src/lib")
 
-target_link_libraries(subedit_gui PUBLIC subedit::core Qt6::Widgets)
+target_link_libraries(subedit_gui PUBLIC subedit::core Qt6::Widgets Qt6::Concurrent)
 
 # libmpv, derrière la couture `core::VideoPlayer` — voir docs/adr/0020.
 #
