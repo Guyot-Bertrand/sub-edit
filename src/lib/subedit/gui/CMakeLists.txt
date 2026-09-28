@@ -10,7 +10,7 @@ add_library(
                        invocation.cpp settings_path.cpp theme.cpp preferences_dialog.cpp
                        manual_path.cpp patterns_path.cpp manual_window.cpp
                        diagnostics_panel.cpp qt_prompts.cpp target.cpp ems_line_measure.cpp
-                       correction_target.cpp pattern_code.cpp
+                       correction_target.cpp pattern_code.cpp correction_diff_view.cpp
                        operation_dialog.cpp shift_dialog.cpp transform_dialog.cpp
                        insert_dialog.cpp split_project_dialog.cpp save_shape.cpp
                        frame_rate_box.cpp frame_rate_dialog.cpp hearing_impaired_dialog.cpp
