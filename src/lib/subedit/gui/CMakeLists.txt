@@ -18,6 +18,7 @@ add_library(
                        correction_result_model.cpp
                        correction_confirmation_page.cpp
                        correction_wizard.cpp
+                       correction_controller.cpp
                        operation_dialog.cpp shift_dialog.cpp transform_dialog.cpp
                        insert_dialog.cpp split_project_dialog.cpp save_shape.cpp
                        frame_rate_box.cpp frame_rate_dialog.cpp hearing_impaired_dialog.cpp
