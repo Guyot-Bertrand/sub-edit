@@ -73,6 +73,8 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::Paste:
     // The subtitles it gives birth to carry the positions their own file states.
     case CommandKind::AttachTranslation:
+    // A text rewritten or a subtitle removed touches no position at all.
+    case CommandKind::CorrectTexts:
         return false;
     }
 

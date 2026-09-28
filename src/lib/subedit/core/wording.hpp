@@ -304,6 +304,13 @@ namespace subedit::core {
 /// should have been — aligning part of a file is a thing one may mean to do.
 [[nodiscard]] std::string noticeOf(PartialAlignment partial);
 
+/// What applying accepted corrections did, across every project it touched —
+/// decision D8 of the phase-12 spec, Gaupol's own template
+/// (`gaupol/assistants.py`): "Edited N and removed M subtitles". `corrected`
+/// never counts a subtitle `removed` also counts: a text the assistant
+/// blanked is a removal, not an edit that happened to leave nothing.
+[[nodiscard]] std::string noticeOfCorrection(std::size_t corrected, std::size_t removed);
+
 /// What opening a translation did, in one sentence — decision D4 of the phase-11
 /// spec, and ADR 0008: said, and not left for the user to find out.
 ///

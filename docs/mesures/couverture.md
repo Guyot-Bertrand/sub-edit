@@ -425,11 +425,39 @@ pas les branches de cette façon. La retirer ferait de `breakAmong` un code
 qui ne peut plus se relire seul — chaque appel récursif supposerait, sans le
 dire, ce que cette note démontre.
 
+## Une ligne de plus dans `correction_run.cpp`, en phase 12
+
+**#504 ajoute `applyCorrections`, qui compose une commande par projet à partir
+de ce qui a été accepté.** Elle assemble `commands` de deux façons — une
+`SetTextCommand` poussée directement pour chaque texte remplacé ou vidé sans
+retrait, une `RemoveCommand` pour le groupe des sous-titres vidés qu'on retire
+— avant de refuser de composer quoi que ce soit si `commands` s'avère vide.
+
+**Une démonstration, pas une lecture.** `applyCorrections` ne construit un
+groupe que pour un projet qui a au moins une `ProposedCorrection` acceptée
+(`groups` n'accueille une entrée que quand `found->items.push_back` a quelque
+chose à y mettre), donc `group.items` n'est jamais vide. Pour chacun de ses
+éléments, la boucle prend l'une des trois branches : `item->proposed` a une
+valeur, et une `SetTextCommand` est poussée directement dans `commands` ; ou il
+n'en a pas et `removeBlankSubtitles` est vrai, et l'index rejoint `emptied` ;
+ou il n'en a pas et `removeBlankSubtitles` est faux, et une `SetTextCommand`
+vide est poussée directement. Le premier élément du groupe emprunte
+nécessairement l'une des trois, donc à la sortie de la boucle, soit `commands`
+tient déjà une entrée, soit `emptied` en tient une — et dans ce second cas,
+`if (!emptied.empty())` pousse la `RemoveCommand` qui manquait. `commands` ne
+peut donc jamais être vide quand la garde le lit.
+
+**Gardée plutôt que retirée**, pour la raison que ce fichier redit à chaque
+entrée de cette famille : l'alternative est de composer une `CompositeCommand`
+vide et de l'appliquer quand même, ce que rien n'empêcherait si un futur
+appelant relâchait l'invariant que cette lecture démontre. Une ligne non
+couverte reste moins chère qu'une commande d'historique qui ne change rien.
+
 ## Relevé
 
-    total : 67
+    total : 68
 
-Relevé sur la version 0.12.8, le 2026-09-28.
+Relevé sur la version 0.12.10, le 2026-09-28.
 
 | Lignes | Fichier |
 | -----: | :------ |
@@ -439,6 +467,7 @@ Relevé sur la version 0.12.8, le 2026-09-28.
 | 4 | `src/lib/subedit/gui/player_factory.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
+| 1 | `src/lib/subedit/core/text/correction_run.cpp` |
 | 1 | `src/lib/subedit/core/text/hearing_impaired_correction.cpp` |
 | 1 | `src/lib/subedit/core/text/line_breaking.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |

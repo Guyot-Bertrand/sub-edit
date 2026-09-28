@@ -525,3 +525,18 @@ TEST_CASE("splitting a project has a name of its own in the history", "[wording]
 
     CHECK(nameOf(CommandKind::SplitProject) == "splitting the project");
 }
+
+TEST_CASE("correcting texts has a name of its own in the history", "[wording][correction]") {
+    using subedit::core::CommandKind;
+    using subedit::core::nameOf;
+
+    CHECK(nameOf(CommandKind::CorrectTexts) == "correcting texts");
+}
+
+TEST_CASE("the correction assistant's notice counts what it edited and what it removed",
+          "[wording][correction]") {
+    using subedit::core::noticeOfCorrection;
+
+    CHECK(noticeOfCorrection(3, 1) == "Edited 3 and removed 1 subtitles");
+    CHECK(noticeOfCorrection(0, 0) == "Edited 0 and removed 0 subtitles");
+}

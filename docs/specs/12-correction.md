@@ -380,6 +380,52 @@ caractères. La confirmation, elle, n'a pas d'équivalent en ligne de commande ;
 la phase 13 dira si un mode qui écrit les changements proposés sans les
 appliquer la remplace.
 
+> **Précisé par [#504](https://github.com/Guyot-Bertrand/sub-edit/issues/504).**
+> Quatre tâches, pas cinq : `CorrectionTask` — mentions, erreurs courantes,
+> majuscules, découpage — sans jonction ni scission, absentes du noyau tant
+> qu'aucun correcteur n'existe pour les nourrir (D6, #508). L'ordre est celui
+> de Gaupol, et un sous-titre qu'une mention vide ne joue aucun rôle dans les
+> tâches qui suivent — les tâches qui suivent ne le voient jamais.
+>
+> **`proposeCorrections` ne résout pas la cible.** Elle prend une liste de
+> `CorrectionTarget{project, selection, document}`, déjà décidée — la
+> sélection, le projet courant ou tous les projets ouverts devenus une liste
+> concrète est le travail de qui appelle, une fenêtre plus tard (#505). Une
+> deuxième fonction, `applyCorrections`, prend un sous-ensemble accepté et
+> rend un `CompositeCommand` par projet, appliqué mais pas encore inscrit à
+> un historique — inscrire l'entrée reste au même appelant, qui tient les
+> historiques.
+>
+> **La règle de #431 sur les traductions traverse jusqu'ici** : une mention
+> qui viderait une traduction l'écrit vide plutôt que de retirer le
+> sous-titre — `removeHearingImpaired` (phase 4) le faisait déjà pour son
+> geste direct, `correctHearingImpaired` (l'assistant) ne le savait pas
+> encore, puisqu'elle ignore tout de `Document`. C'est `proposeCorrections`
+> qui porte cette règle désormais, une fois pour les deux commandes.
+>
+> **D4, mesuré et non supposé** : un enregistrement d'erreurs courantes
+> s'applique si l'une de ses classes est cochée, aucun des trois autres types
+> n'en porte. Les deux motifs de crochets et de parenthèses (D7) ne sont
+> commandés que par une seule case au noyau — l'une **ou** l'autre coche
+> suffit à lancer le balayage — plutôt que par deux, `withoutHearingImpaired`
+> ne sachant traiter les deux styles qu'ensemble ; les distinguer vraiment
+> resterait à faire si une issue le demandait.
+>
+> **Les réglages** (`CorrectionSettings`, dans les réglages de l'ADR 0022,
+> seizième bloc après celui du découpage de durées) : une tâche cochée et son
+> code par type, les deux classes, les deux cases du balayage, une liste
+> ouverte de dérogations d'activation — `<type>:<code>:<nom>:<0|1>`, dans une
+> seule clé à liste — les deux réglages du découpage et la case des
+> sous-titres vides. Une dérogation qui ne nomme plus rien n'est jamais lue,
+> ce qui suffit à l'ignorer sans code dédié — la table des motifs ne connaît
+> qu'elle-même.
+>
+> **`CommandKind::CorrectTexts`** rejoint l'énumération ; `noticeOfCorrection`
+> rejoint `core/wording.hpp`, le patron même de Gaupol — « Edited N and
+> removed M subtitles » — et compte les textes, jamais les correspondances,
+> par construction : une correspondance qui rend un texte inchangé ne franchit
+> jamais `proposeCorrections`.
+
 ## D9 — Les balises : le parseur de la phase 10, par `transform`
 
 La question du cadrage — le parseur tient-il les décalages que les motifs

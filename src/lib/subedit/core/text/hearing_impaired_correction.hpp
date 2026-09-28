@@ -39,10 +39,17 @@ struct HearingImpairedCorrection {
 /// **`Sound in brackets` and `Sound in parentheses` are the scan's alone**:
 /// giving them here would run their expression a second time, on text the
 /// scan already resolved, so they are skipped rather than compiled.
+///
+/// **`scanBracketsAndParentheses` is the assistant's, not the scan's own
+/// rule** — decision D7, precised by #504: the direct command of phase 4
+/// always wants the scan, and always gets it through `withoutHearingImpaired`
+/// directly; this function is the assistant's mentions task alone, where the
+/// two checkboxes named above may be unchecked like the other four.
 [[nodiscard]] HearingImpairedCorrection
 correctHearingImpaired(const PatternEngine& engine,
                        std::span<const CorrectionPattern* const> patterns,
                        std::span<const std::string> texts,
-                       SubtitleFormat format);
+                       SubtitleFormat format,
+                       bool scanBracketsAndParentheses);
 
 } // namespace subedit::core
