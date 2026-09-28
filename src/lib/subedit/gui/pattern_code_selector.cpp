@@ -75,15 +75,31 @@ std::string PatternCodeSelector::code() const {
 }
 
 void PatternCodeSelector::setCode(std::string_view code) {
+    // Each `setCurrentIndex` below would otherwise fire the connected
+    // `currentIndexChanged` lambda on its own, emitting `codeChanged()` up to
+    // three times with `code()` reading a transient, not-yet-cascaded value
+    // in between. Blocking the three combos for the whole cascade keeps the
+    // *contents* refreshed at each step — `refreshLanguages()`/
+    // `refreshCountries()` still run unguarded, same as always — while
+    // deferring the *signal* to a single emission once everything has
+    // settled.
     const PatternCodeParts parts = splitCode(code);
-    const int scriptIndex = m_script->findData(QString::fromStdString(parts.script));
-    m_script->setCurrentIndex(scriptIndex >= 0 ? scriptIndex : 0);
-    refreshLanguages();
-    const int languageIndex = m_language->findData(QString::fromStdString(parts.language));
-    m_language->setCurrentIndex(languageIndex >= 0 ? languageIndex : 0);
-    refreshCountries();
-    const int countryIndex = m_country->findData(QString::fromStdString(parts.country));
-    m_country->setCurrentIndex(countryIndex >= 0 ? countryIndex : 0);
+    {
+        const QSignalBlocker blockScript{m_script};
+        const int scriptIndex = m_script->findData(QString::fromStdString(parts.script));
+        m_script->setCurrentIndex(scriptIndex >= 0 ? scriptIndex : 0);
+        refreshLanguages();
+
+        const QSignalBlocker blockLanguage{m_language};
+        const int languageIndex = m_language->findData(QString::fromStdString(parts.language));
+        m_language->setCurrentIndex(languageIndex >= 0 ? languageIndex : 0);
+        refreshCountries();
+
+        const QSignalBlocker blockCountry{m_country};
+        const int countryIndex = m_country->findData(QString::fromStdString(parts.country));
+        m_country->setCurrentIndex(countryIndex >= 0 ? countryIndex : 0);
+    }
+    emit codeChanged();
 }
 
 } // namespace subedit::gui

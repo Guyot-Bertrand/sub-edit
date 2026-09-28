@@ -73,3 +73,17 @@ TEST_CASE("moving to a script with no languages resets to the bare code",
 
     CHECK(selector.code() == "Zyyy");
 }
+
+TEST_CASE("setCode emits codeChanged exactly once, after every combo has settled",
+          "[gui][pattern-code-selector]") {
+    const PatternCatalogue catalogue = smallCatalogue();
+    PatternCodeSelector selector{catalogue, PatternKind::CommonError};
+    std::vector<std::string> codesSeenDuringEmission;
+    QObject::connect(&selector, &PatternCodeSelector::codeChanged, [&] {
+        codesSeenDuringEmission.push_back(selector.code());
+    });
+
+    selector.setCode("Latn-en-US");
+
+    CHECK(codesSeenDuringEmission == std::vector<std::string>{"Latn-en-US"});
+}
