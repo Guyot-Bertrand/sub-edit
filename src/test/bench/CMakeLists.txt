@@ -9,6 +9,7 @@ set(CMAKE_AUTOMOC ON)
 
 add_executable(
     subedit_bench
+    main.cpp
     full_length_project.cpp
     core/analysis/frame_rate_deduction_bench.cpp
     core/edit/operations_bench.cpp
@@ -17,11 +18,14 @@ add_executable(
     core/text/line_breaking_bench.cpp
     core/time/timestamp_bench.cpp
     core/version_bench.cpp
+    gui/ems_line_breaking_bench.cpp
     gui/subtitle_table_model_bench.cpp
     gui/video_bench.cpp)
 
+# Catch2 sans son main — voir main.cpp : la QApplication doit vivre sur sa
+# pile, comme dans subedit_gui_test.
 target_link_libraries(
-    subedit_bench PRIVATE subedit::gui subedit::core Qt6::Widgets Catch2::Catch2WithMain)
+    subedit_bench PRIVATE subedit::gui subedit::core Qt6::Widgets Catch2::Catch2)
 
 # La fixture partagée vit à la racine de bench/, comme text_cases.hpp vit à
 # celle de unit/. Sans ce chemin d'inclusion, un benchmark rangé dans un
