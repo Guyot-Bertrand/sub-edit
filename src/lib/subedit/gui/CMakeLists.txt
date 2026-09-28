@@ -12,6 +12,7 @@ add_library(
                        diagnostics_panel.cpp qt_prompts.cpp target.cpp ems_line_measure.cpp
                        correction_target.cpp pattern_code.cpp pattern_code_selector.cpp
                        pattern_list.cpp correction_task_page.cpp
+                       correction_target_page.cpp
                        correction_diff_view.cpp
                        operation_dialog.cpp shift_dialog.cpp transform_dialog.cpp
                        insert_dialog.cpp split_project_dialog.cpp save_shape.cpp
