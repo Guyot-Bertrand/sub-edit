@@ -17,12 +17,23 @@ PatternList::PatternList(const core::PatternCatalogue& catalogue,
 }
 
 void PatternList::setCode(std::string_view code, const core::CorrectionSettings& settings) {
-    // Deleted right away, not with `deleteLater`: a box built for the
-    // previous code must be gone before this call returns, since
-    // `activations()` or a fresh `setCode` may run before the event loop
-    // ever spins again — a test harness never does.
-    for (const Entry& entry : m_entries)
-        delete entry.box;
+    // `setParent(nullptr)` first, then `deleteLater()`: a box built for the
+    // previous code must stop being this widget's child — invisible to
+    // `findChild`/`findChildren` and out of the layout — before this call
+    // returns, since `activations()` or a fresh `setCode` may run before the
+    // event loop ever spins again — a test harness never does. But the
+    // actual destruction stays deferred: `toggled` is connected to
+    // `changed()`, emitted synchronously from inside the box's own call
+    // stack, so a caller that ever wired `changed()` back into `setCode` on
+    // this same instance would reenter here mid-emission — plain `delete`
+    // would then free the very box still unwinding its signal, a
+    // use-after-free. `deleteLater()` keeps that reentrant call safe: the
+    // object outlives the emission, and is queued for deletion once Qt is
+    // done with it.
+    for (const Entry& entry : m_entries) {
+        entry.box->setParent(nullptr);
+        entry.box->deleteLater();
+    }
     m_entries.clear();
 
     for (const core::CorrectionPattern* record : m_catalogue->cascade(m_kind, code)) {
