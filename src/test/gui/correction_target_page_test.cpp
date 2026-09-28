@@ -1,3 +1,5 @@
+#include <subedit/core/text/correction_run.hpp>
+#include <subedit/gui/correction_target.hpp>
 #include <subedit/gui/correction_target_page.hpp>
 
 #include <catch2/catch_test_macros.hpp>

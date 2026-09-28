@@ -1,27 +1,25 @@
 #pragma once
 
-// moc (Qt 6.4.2) fails to parse libstdc++ 13's <concepts>, reached
-// transitively through <compare>, itself pulled in by subtitle_index.hpp —
-// which every one of the three headers below drags in. None of them are
-// needed for moc's own pass: every member below is a plain method, never a
-// signal or slot, so moc never has to resolve `CorrectionScope`,
-// `core::Document` or `core::CorrectionTask` — it only has to skip past the
-// declarations syntactically, which it already does without seeing them
-// defined (confirmed directly against moc's own output). `Q_MOC_RUN` is the
-// macro moc predefines for exactly this: real compilation never defines it,
-// so nothing here is hidden from the actual build.
-#ifndef Q_MOC_RUN
-#    include <subedit/core/model/document.hpp>
-#    include <subedit/core/text/correction_run.hpp>
-#    include <subedit/gui/correction_target.hpp>
-#endif
+#include <subedit/core/model/document.hpp>
 
 #include <QWizardPage>
 
 class QCheckBox;
 class QRadioButton;
 
+/// **Declared rather than included, deliberately** — the same reason and the
+/// same shape as `subtitle_table_model.hpp`: `moc` parses this header, and it
+/// chokes on the C++20 library headers `correction_run.hpp` drags in through
+/// `Selection` (its iterator pulls `<iterator>`, and `<concepts>` follows).
+/// Declaring what the signatures need keeps `moc` out of all that; the
+/// definitions come in the implementation file.
+namespace subedit::core {
+enum class CorrectionTask;
+} // namespace subedit::core
+
 namespace subedit::gui {
+
+enum class CorrectionScope;
 
 /// The first page of the assistant — which tasks, on which target, on which
 /// document (D8).
