@@ -48,7 +48,7 @@ enum class CorrectionTask {
 /// "every project open" into one of these is the caller's — a window's, once
 /// there is one — not this function's.
 struct CorrectionTarget {
-    Project* project = nullptr;
+    const Project* project = nullptr;
     Selection selection;
     Document document = Document::Main;
 };
@@ -60,7 +60,7 @@ struct CorrectionTarget {
 /// it earns no entry: decision D8 shows a confirmation page of changed texts,
 /// never a page a user has to read past to find the ones that matter.
 struct ProposedCorrection {
-    Project* project = nullptr;
+    const Project* project = nullptr;
     SubtitleIndex index;
     Document document = Document::Main;
     std::string original;
@@ -92,15 +92,19 @@ struct CorrectionProposal {
                                                     const LineMeasure& measure,
                                                     std::span<const CorrectionTarget> targets);
 
-/// One project's worth of what `applyCorrections` did to it.
+/// One project's worth of what `applyCorrections` composed for it.
 struct AppliedCorrection {
-    Project* project = nullptr;
+    const Project* project = nullptr;
     std::unique_ptr<Command> command;
 };
 
-/// Applies `accepted` — a subset of what `proposeCorrections` answered —
-/// **one composed command per project**, so that undoing it is one gesture
-/// per project, not one per subtitle.
+/// Composes `accepted` — a subset of what `proposeCorrections` answered —
+/// into **one `CompositeCommand` per project, not yet applied**: the caller
+/// runs it the ordinary way, `Session::apply(command)`, so undoing it is one
+/// gesture per project and the session's own history stays the only road to a
+/// change (`Session::project()`'s own rule). `tallyOf` below reads a composed
+/// command before it is applied — the same order every other tally in this
+/// codebase already uses.
 ///
 /// A removed subtitle is taken away when `removeBlankSubtitles`, and left
 /// holding its emptied text otherwise — Gaupol's own checkbox, cochée par

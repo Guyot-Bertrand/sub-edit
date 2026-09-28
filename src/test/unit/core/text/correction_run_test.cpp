@@ -141,38 +141,41 @@ TEST_CASE("proposing corrections touches no project", "[text][assistant]") {
     CHECK(proposed.corrections[1].proposed == std::optional<std::string>{"Au revoir"});
 }
 
-TEST_CASE("applying accepted corrections is one command per project, undone as one",
+TEST_CASE("applying accepted corrections composes one command per project, without applying it",
           "[text][assistant]") {
     Project first = projectOf({"Bonjour  Marie"});
     Project second = projectOf({"Au  revoir"});
-    const Project firstBefore = first;
-    const Project secondBefore = second;
 
     CorrectionSettings settings;
     settings.commonErrors = {.enabled = true, .code = "Zyyy"};
-
     const std::vector<CorrectionTarget> targets{wholeProject(first), wholeProject(second)};
     const CharacterLineMeasure measure;
     const CorrectionProposal proposed =
         proposeCorrections(IcuPatternEngine{}, shippedPatterns(), settings, measure, targets);
     REQUIRE(proposed.corrections.size() == 2);
 
-    const std::vector<AppliedCorrection> applied =
-        applyCorrections(proposed.corrections, /*removeBlankSubtitles=*/true);
-    REQUIRE(applied.size() == 2);
+    const std::vector<AppliedCorrection> composed = applyCorrections(proposed.corrections, true);
 
-    CHECK(textsOf(first) == std::vector<std::string>{"Bonjour Marie"});
-    CHECK(textsOf(second) == std::vector<std::string>{"Au revoir"});
+    REQUIRE(composed.size() == 2);
+    CHECK(composed[0].project == &first);
+    CHECK(composed[1].project == &second);
+    // Composed, not applied: the projects are exactly what they were.
+    CHECK(textsOf(first) == std::vector<std::string>{"Bonjour  Marie"});
+    CHECK(textsOf(second) == std::vector<std::string>{"Au  revoir"});
 
-    const CorrectionTally tally = tallyOf(applied);
+    // tallyOf reads the composed commands before anyone has applied them — the
+    // same order `ProjectOperations::removeHearingImpaired` already uses for
+    // its own tally.
+    const CorrectionTally tally = tallyOf(composed);
     CHECK(tally.corrected == 2);
     CHECK(tally.removed == 0);
 
-    for (const AppliedCorrection& one : applied)
-        one.command->revert(*one.project);
-
-    CHECK(sameSubtitles(first, firstBefore));
-    CHECK(sameSubtitles(second, secondBefore));
+    // Applying each command by hand does what it says — proof the command
+    // itself is complete and correct without `applyCorrections` having run it.
+    composed[0].command->apply(first);
+    composed[1].command->apply(second);
+    CHECK(textsOf(first) == std::vector<std::string>{"Bonjour Marie"});
+    CHECK(textsOf(second) == std::vector<std::string>{"Au revoir"});
 }
 
 TEST_CASE("a project with nothing accepted is absent from what was applied", "[text][assistant]") {
@@ -241,6 +244,7 @@ TEST_CASE("a mention that empties a translation blanks it rather than removing t
     const std::vector<AppliedCorrection> applied =
         applyCorrections(proposed.corrections, /*removeBlankSubtitles=*/true);
     REQUIRE(applied.size() == 1);
+    applied[0].command->apply(project);
     // The subtitle stays — only its translation went blank.
     REQUIRE(project.count() == 1);
     CHECK(project.subtitles().front().translationText.empty());
@@ -268,6 +272,7 @@ TEST_CASE("a mention that empties the main text is proposed as a removal, kept w
         const std::vector<AppliedCorrection> applied =
             applyCorrections(proposed.corrections, /*removeBlankSubtitles=*/true);
         REQUIRE(applied.size() == 1);
+        applied[0].command->apply(project);
         CHECK(textsOf(project) == std::vector<std::string>{"Hello there"});
         CHECK(tallyOf(applied).removed == 1);
     }
@@ -276,6 +281,7 @@ TEST_CASE("a mention that empties the main text is proposed as a removal, kept w
         const std::vector<AppliedCorrection> applied =
             applyCorrections(proposed.corrections, /*removeBlankSubtitles=*/false);
         REQUIRE(applied.size() == 1);
+        applied[0].command->apply(project);
         CHECK(textsOf(project) == std::vector<std::string>{"", "Hello there"});
         CHECK(tallyOf(applied).removed == 0);
     }

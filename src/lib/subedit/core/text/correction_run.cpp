@@ -207,7 +207,7 @@ CorrectionProposal proposeCorrections(const PatternEngine& engine,
 std::vector<AppliedCorrection> applyCorrections(std::span<const ProposedCorrection> accepted,
                                                 bool removeBlankSubtitles) {
     struct Group {
-        Project* project;
+        const Project* project;
         std::vector<const ProposedCorrection*> items;
     };
 
@@ -250,7 +250,6 @@ std::vector<AppliedCorrection> applyCorrections(std::span<const ProposedCorrecti
 
         std::unique_ptr<Command> composite =
             std::make_unique<CompositeCommand>(CommandKind::CorrectTexts, std::move(commands));
-        composite->apply(*group.project);
         result.push_back(
             AppliedCorrection{.project = group.project, .command = std::move(composite)});
     }
