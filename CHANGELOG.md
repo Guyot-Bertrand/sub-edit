@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Mesure en ems, par la police de la fenêtre
+
+## 0.12.8 — 2026-09-27
+
+### Ajouts
+
 - **text** — Découpage de lignes en caractères
 
 ## 0.12.7 — 2026-09-27
