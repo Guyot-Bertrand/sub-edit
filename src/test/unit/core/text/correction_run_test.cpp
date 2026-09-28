@@ -389,3 +389,33 @@ TEST_CASE("a pattern that will not compile is named, and the others still apply"
     CHECK(proposal.failures[0].kind == FailureKind::CompileError);
     CHECK(proposal.failures[0].name == "Broken");
 }
+
+TEST_CASE("a line-break pattern that will not compile is named, and the others still apply",
+          "[text][assistant]") {
+    InMemoryFileSystem files;
+    files.addFile("/patterns/Zyyy.line-break",
+                  "[Line Break Pattern]\nName=Broken\nPattern=(\nGroup=1\nPenalty=-1\n"
+                  "[Line Break Pattern]\nName=Force break\nPattern=( )\nGroup=1\nPenalty=-10000\n");
+    const PatternCatalogue catalogue = subedit::core::readPatternCatalogue(files, "/patterns", {});
+    REQUIRE(catalogue.diagnostics().empty()); // both records read fine; only compiling fails
+
+    // Short enough to fit one line under `lineBreakMaxLength` on its own — the
+    // one working pattern's very negative penalty is what forces the break;
+    // without it, `proposeCorrections` would leave the text untouched.
+    Project project = projectOf({"Hello there"});
+    CorrectionSettings settings;
+    settings.lineBreak = {.enabled = true, .code = "Zyyy"};
+    settings.lineBreakMaxLength = 40.0;
+    settings.lineBreakMaxLines = 2;
+
+    const std::vector<CorrectionTarget> targets{wholeProject(project)};
+    const CharacterLineMeasure measure;
+    const CorrectionProposal proposal =
+        proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets);
+
+    REQUIRE(proposal.corrections.size() == 1);
+    CHECK(proposal.corrections[0].proposed == std::optional<std::string>{"Hello\nthere"});
+    REQUIRE(proposal.failures.size() == 1);
+    CHECK(proposal.failures[0].kind == FailureKind::CompileError);
+    CHECK(proposal.failures[0].name == "Broken");
+}

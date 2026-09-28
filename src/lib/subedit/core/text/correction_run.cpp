@@ -145,6 +145,7 @@ void runTasks(const PatternEngine& engine,
                                             measure,
                                             settings.lineBreakMaxLength,
                                             settings.lineBreakMaxLines);
+        failures.insert(failures.end(), done.failures.begin(), done.failures.end());
         for (std::size_t k = 0; k < present.at.size(); ++k)
             texts[present.at[k]] = done.texts[k];
     }
