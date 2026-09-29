@@ -455,15 +455,13 @@ appliquer la remplace.
 > accorde à une recherche. `Back` pendant le calcul le laisse finir sans
 > l'attendre, et son résultat est écarté ; `Next` en relance un.
 >
-> **L'unité du découpage de lignes — caractères ou ems — ne se retient pas**
-> d'une session à l'autre, à la différence des deux bornes numériques
-> (`lineBreakMaxLength`, `lineBreakMaxLines`) : `CorrectionSettings` ne porte
-> aucun champ pour elle, et la page rouvre toujours sur `Characters`. **La
-> cible et le document ne se retiennent pas davantage** — D8 le disait, le
-> périmètre l'a resserré : la première page rouvre toujours sur `Current
-> Project` et `Text`. Ne se retient que ce que `CorrectionSettings` porte — les
-> tâches cochées et leurs codes, les classes, les dérogations d'activation,
-> les deux bornes du découpage, la case des sous-titres vides.
+> **La cible et le document ne se retiennent pas** d'une session à l'autre —
+> D8 le disait, le périmètre l'a resserré : la première page rouvre toujours
+> sur `Current Project` et `Text`. **L'unité du découpage, elle, ne se
+> retenait pas non plus, et #506 l'a ajoutée** — voir plus bas. Ne se retient
+> que ce que `CorrectionSettings` porte — les tâches cochées et leurs codes,
+> les classes, les dérogations d'activation, les réglages du découpage, la
+> case des sous-titres vides.
 >
 > **Une dérogation d'activation disparaît quand sa case revient au défaut**,
 > au lieu de rester écrite : pour chaque motif qu'une page montre, la
@@ -478,6 +476,27 @@ appliquer la remplace.
 > **Une page de tâche ne porte pas de case « active » qui lui soit propre** :
 > c'est celle de la première page, par tâche, qui décide seule si la tâche
 > tourne. Une seconde case ici aurait pu la contredire.
+
+> **Précisé par [#506](https://github.com/Guyot-Bertrand/sub-edit/issues/506).**
+> **Le saut de Gaupol a ses propres seuils**, et #502 les avait confondus avec
+> les limites visées : `max_skip_length` et `max_skip_lines` sont deux
+> réglages, chacun avec sa case (`use_skip_max_length`, `use_skip_max_lines`),
+> tous deux à `24` et `3` par défaut — d'où la confusion, invisible tant que
+> personne ne les change. `breakLines` prend désormais `std::optional<SkipLimits>` :
+> absent, aucun saut ; présent, une case décochée est un seuil infini, comme le
+> `32768` de Gaupol. `CorrectionSettings` porte les quatre réglages du saut, et
+> **`proposeCorrections` les branche** — un sous-titre de moins de `24`
+> laissé tel quel est désormais le comportement par défaut de l'assistant, ce
+> qu'il n'était pas avant cette issue.
+>
+> **L'unité se retient**, contrairement à ce que #505 avait resserré :
+> `lineBreakInEms`, `true` par défaut, l'unité de Gaupol — les défauts `24` et
+> `3` n'ont de sens qu'en ems (D5). Le noyau ne porte que le choix, jamais la
+> mesure : la fenêtre construit `EmsLineMeasure` ou `CharacterLineMeasure` à
+> chaque calcul, si bien qu'aucune longueur d'une mesure précédente ne survit
+> à un changement d'unité. Le seuil de saut en longueur suit l'unité, comme
+> chez Gaupol (`skip_unit_combo` et `unit_combo` lisent la même valeur). Les
+> réglages passent de seize à vingt et un.
 
 ## D9 — Les balises : le parseur de la phase 10, par `transform`
 

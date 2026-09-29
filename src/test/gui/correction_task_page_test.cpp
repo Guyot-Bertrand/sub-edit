@@ -22,6 +22,7 @@ using subedit::core::PatternCatalogue;
 using subedit::core::PatternKind;
 using subedit::core::readPatternCatalogue;
 using subedit::gui::CommonErrorsPage;
+using subedit::gui::LineBreakPage;
 using subedit::gui::MentionsPage;
 using subedit::gui::PatternCodeSelector;
 
@@ -208,4 +209,44 @@ TEST_CASE("a shipped override under a parent code survives a child code's untouc
                                                          .code = "Latn",
                                                          .name = "Space between number and unit",
                                                          .enabled = false}});
+}
+
+TEST_CASE("GUI-BREAK-01: a line-break page opens on Gaupol's defaults, in ems, skip gate on",
+          "[gui][correction-task-page][GUI-BREAK-01]") {
+    const PatternCatalogue catalogue = smallCatalogue();
+    LineBreakPage page{catalogue};
+
+    page.applySettings(CorrectionSettings{});
+
+    CHECK(page.maxLength() == 24.0);
+    CHECK(page.maxLines() == 3);
+    CHECK(page.useEms());
+    CHECK(page.skipOnLength());
+    CHECK(page.skipMaxLength() == 24.0);
+    CHECK(page.skipOnLines());
+    CHECK(page.skipMaxLines() == 3);
+}
+
+TEST_CASE("GUI-BREAK-01: a line-break page reads back what the settings gave it",
+          "[gui][correction-task-page][GUI-BREAK-01]") {
+    const PatternCatalogue catalogue = smallCatalogue();
+    LineBreakPage page{catalogue};
+    CorrectionSettings settings;
+    settings.lineBreakMaxLength = 30.5;
+    settings.lineBreakMaxLines = 2;
+    settings.lineBreakInEms = false;
+    settings.lineBreakSkipOnLength = false;
+    settings.lineBreakSkipMaxLength = 12.0;
+    settings.lineBreakSkipOnLines = false;
+    settings.lineBreakSkipMaxLines = 5;
+
+    page.applySettings(settings);
+
+    CHECK(page.maxLength() == 30.5);
+    CHECK(page.maxLines() == 2);
+    CHECK_FALSE(page.useEms());
+    CHECK_FALSE(page.skipOnLength());
+    CHECK(page.skipMaxLength() == 12.0);
+    CHECK_FALSE(page.skipOnLines());
+    CHECK(page.skipMaxLines() == 5);
 }

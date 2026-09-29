@@ -204,7 +204,7 @@ plus rien.
 | `GUI-CORRECT-06` | un motif qui ne se lit pas, ne se traduit pas ou ne termine pas est nommé, et les autres s'appliquent | 12 | implémentée |
 | `GUI-CORRECT-07` | les motifs déposés par l'utilisateur s'ajoutent aux motifs livrés | 12 | implémentée |
 | `GUI-HEARING-03` | l'assistant retire les paroles entre dièses et le nom du locuteur, en plus des crochets et des parenthèses | 12 | implémentée |
-| `GUI-BREAK-01` | le découpage tient la longueur et le nombre de lignes demandés, en caractères ou en ems, et saute les sous-titres qui les tiennent déjà | 12 | prévue |
+| `GUI-BREAK-01` | le découpage tient la longueur et le nombre de lignes demandés, en caractères ou en ems, et saute les sous-titres qui les tiennent déjà | 12 | implémentée |
 | `GUI-SPELL-01` | la vérification parcourt les mots inconnus : ignorer, tout ignorer, ajouter au dictionnaire, remplacer, tout remplacer, joindre au précédent ou au suivant | 12 | prévue |
 | `GUI-SPELL-02` | sans dictionnaire pour la langue choisie, les fonctions du correcteur sont grisées et disent pourquoi | 12 | prévue |
 | `GUI-SPELL-03` | l'assistant joint et scinde des mots selon le correcteur | 12 | prévue |

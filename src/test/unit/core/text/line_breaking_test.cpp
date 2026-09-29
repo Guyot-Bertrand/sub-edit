@@ -41,6 +41,7 @@ using subedit::core::PatternFlags;
 using subedit::core::PatternKind;
 using subedit::core::readPatternCatalogue;
 using subedit::core::RealFileSystem;
+using subedit::core::SkipLimits;
 
 const PatternCatalogue& shippedPatterns() {
     static const PatternCatalogue catalogue = [] {
@@ -162,7 +163,7 @@ BrokenTexts brokenBy(const std::vector<CorrectionPattern>& records,
                      const LineMeasure& measure,
                      double maxLength,
                      int maxLines,
-                     bool skip = false) {
+                     std::optional<SkipLimits> skip = std::nullopt) {
     std::vector<const CorrectionPattern*> chosen;
     chosen.reserve(records.size());
     for (const CorrectionPattern& one : records)
@@ -210,14 +211,19 @@ TEST_CASE("skip leaves a text that already fits alone, whitespace and all", "[te
     const CharacterLineMeasure measure;
     // Extra spaces a break-up would otherwise collapse: skip never even looks,
     // since the one line it makes already fits both limits.
-    const BrokenTexts done = brokenBy({}, {"Hello   there"}, measure, 40, 2, /*skip=*/true);
+    const BrokenTexts done =
+        brokenBy({}, {"Hello   there"}, measure, 40, 2, SkipLimits{.maxLength = 40, .maxLines = 2});
     CHECK(done.texts == std::vector<std::string>{"Hello   there"});
 }
 
 TEST_CASE("skip breaks a text that violates a limit", "[text][line-break]") {
     const CharacterLineMeasure measure;
-    const BrokenTexts done =
-        brokenBy({}, {"The night was cold and the road was long"}, measure, 24, 2, /*skip=*/true);
+    const BrokenTexts done = brokenBy({},
+                                      {"The night was cold and the road was long"},
+                                      measure,
+                                      24,
+                                      2,
+                                      SkipLimits{.maxLength = 24, .maxLines = 2});
     CHECK(done.texts == std::vector<std::string>{"The night was cold\nand the road was long"});
 }
 
@@ -225,8 +231,30 @@ TEST_CASE("skip leaves a text alone that breaking would not improve", "[text][li
     const CharacterLineMeasure measure;
     // A single, unbreakable word longer than the limit: no break-up helps it,
     // so skip's own rule — length down or lines down — leaves it as it came.
-    const BrokenTexts done = brokenBy({}, {"Unbelievable"}, measure, 5, 2, /*skip=*/true);
+    const BrokenTexts done =
+        brokenBy({}, {"Unbelievable"}, measure, 5, 2, SkipLimits{.maxLength = 5, .maxLines = 2});
     CHECK(done.texts == std::vector<std::string>{"Unbelievable"});
+}
+
+TEST_CASE("skip thresholds are their own, not the limits being broken to", "[text][line-break]") {
+    const CharacterLineMeasure measure;
+    const std::vector<std::string> text{"The night was cold and the road was long"}; // 40 wide
+    // Broken to 24 wide, but a skip threshold of 40 holds this text back...
+    CHECK(brokenBy({}, text, measure, 24, 2, SkipLimits{.maxLength = 40, .maxLines = 2}).texts ==
+          text);
+    // ...and one of 39 does not.
+    CHECK(brokenBy({}, text, measure, 24, 2, SkipLimits{.maxLength = 39, .maxLines = 2}).texts ==
+          std::vector<std::string>{"The night was cold\nand the road was long"});
+}
+
+TEST_CASE("a skip threshold left at its default never holds a text back", "[text][line-break]") {
+    const CharacterLineMeasure measure;
+    // Three lines, each short: only the line count can make this violate, and
+    // the length threshold — Gaupol's "skip on length" turned off — is absent.
+    const std::vector<std::string> text{"aa\nbb\ncc"};
+    CHECK(brokenBy({}, text, measure, 24, 2, SkipLimits{.maxLines = 2}).texts !=
+          brokenBy({}, text, measure, 24, 2, SkipLimits{.maxLines = 3}).texts);
+    CHECK(brokenBy({}, text, measure, 24, 2, SkipLimits{.maxLines = 3}).texts == text);
 }
 
 TEST_CASE("a line-break pattern that cannot be applied is named, and the others are",

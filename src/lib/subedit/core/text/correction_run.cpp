@@ -15,12 +15,26 @@
 #include <subedit/core/text/line_breaking.hpp>
 
 #include <algorithm>
+#include <optional>
 #include <tuple>
 #include <variant>
 
 namespace subedit::core {
 
 namespace {
+
+/// Gaupol's skip gate: on if either check is, and a check turned off is a
+/// threshold no text reaches.
+[[nodiscard]] std::optional<SkipLimits> skipLimitsOf(const CorrectionSettings& settings) {
+    if (!settings.lineBreakSkipOnLength && !settings.lineBreakSkipOnLines)
+        return std::nullopt;
+    SkipLimits skip;
+    if (settings.lineBreakSkipOnLength)
+        skip.maxLength = settings.lineBreakSkipMaxLength;
+    if (settings.lineBreakSkipOnLines)
+        skip.maxLines = settings.lineBreakSkipMaxLines;
+    return skip;
+}
 
 /// Decision D4: a record of kind `CommonError` applies if one of its classes
 /// is checked; the other three kinds carry no class, and are never filtered
@@ -134,7 +148,8 @@ void runTasks(const PatternEngine& engine,
                                             present.texts,
                                             measure,
                                             settings.lineBreakMaxLength,
-                                            settings.lineBreakMaxLines);
+                                            settings.lineBreakMaxLines,
+                                            skipLimitsOf(settings));
         failures.insert(failures.end(), done.failures.begin(), done.failures.end());
         for (std::size_t k = 0; k < present.at.size(); ++k)
             texts[present.at[k]] = done.texts[k];

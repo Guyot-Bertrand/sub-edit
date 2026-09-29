@@ -12,6 +12,8 @@
 #include <subedit/core/text/line_measure.hpp>
 #include <subedit/core/text/pattern_engine.hpp>
 
+#include <limits>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -23,6 +25,15 @@ struct BrokenTexts {
     /// apply — skipped, or nothing found worth cutting.
     std::vector<std::string> texts;
     std::vector<PatternFailure> failures;
+};
+
+/// The thresholds of Gaupol's skip gate — `max_skip_length` and
+/// `max_skip_lines`, each independent of the limits being broken to. A
+/// threshold left at its default never holds a text back: Gaupol's own 32768
+/// for a check the user turned off.
+struct SkipLimits {
+    double maxLength = std::numeric_limits<double>::infinity();
+    int maxLines = std::numeric_limits<int>::max();
 };
 
 /// Breaks each of `texts` to `maxLength` (in `measure`'s unit) and `maxLines`
@@ -41,9 +52,11 @@ struct BrokenTexts {
 /// its one line runs.
 ///
 /// **`skip` is Gaupol's own gate**, for a caller breaking a whole document: a
-/// text already within `maxLength` and `maxLines` is left alone, and so is one
-/// breaking would not bring closer to either — the length down, the line
-/// count down, or both. Off, the default, every text is broken and returned
+/// text already within `skip->maxLength` and `skip->maxLines` is left alone,
+/// and so is one breaking would not bring closer to either threshold it
+/// exceeds — the length down, the line count down, or both. The thresholds
+/// are the caller's, not `maxLength` and `maxLines`: Gaupol's defaults happen
+/// to make them equal. Absent, the default, every text is broken and returned
 /// broken, whether that changed anything or not.
 [[nodiscard]] BrokenTexts breakLines(const PatternEngine& engine,
                                      std::span<const CorrectionPattern* const> patterns,
@@ -51,6 +64,6 @@ struct BrokenTexts {
                                      const LineMeasure& measure,
                                      double maxLength,
                                      int maxLines,
-                                     bool skip = false);
+                                     std::optional<SkipLimits> skip = std::nullopt);
 
 } // namespace subedit::core

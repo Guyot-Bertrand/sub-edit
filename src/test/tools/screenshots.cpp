@@ -29,12 +29,15 @@
 #include <subedit/core/edit/translation.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/translation_file.hpp>
+#include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/text/correction_run.hpp>
+#include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/gui/correction_result_model.hpp>
+#include <subedit/gui/correction_task_page.hpp>
 #include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/insert_dialog.hpp>
@@ -754,6 +757,36 @@ int main(int argc, char** argv) {
         table.setItemDelegateForColumn(subedit::gui::CorrectionResultModel::Original, &delegate);
         table.setItemDelegateForColumn(subedit::gui::CorrectionResultModel::Proposed, &delegate);
         written = capture(table, table, directory, "correction-sombre") && written;
+    }
+
+    // The `Line Break` page of the correction assistant — issue #506, D5,
+    // GUI-BREAK-01: the limits, their unit, and Gaupol's skip gate, on their
+    // defaults. One small catalogue is enough for the list under them.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::core::InMemoryFileSystem patterns;
+        patterns.addFile("/patterns/Zyyy.line-break",
+                         "[Line Break Pattern]\nName=Dialogue dash\nPattern=( )- \nGroup=1\n"
+                         "Penalty=-100\n");
+        const subedit::core::PatternCatalogue catalogue =
+            subedit::core::readPatternCatalogue(patterns, "/patterns", {});
+        subedit::gui::LineBreakPage page{catalogue};
+        page.applySettings(subedit::core::CorrectionSettings{});
+        page.resize(560, 460);
+        written = capture(page, page, directory, "correction-decoupage") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::core::InMemoryFileSystem patterns;
+        patterns.addFile("/patterns/Zyyy.line-break",
+                         "[Line Break Pattern]\nName=Dialogue dash\nPattern=( )- \nGroup=1\n"
+                         "Penalty=-100\n");
+        const subedit::core::PatternCatalogue catalogue =
+            subedit::core::readPatternCatalogue(patterns, "/patterns", {});
+        subedit::gui::LineBreakPage page{catalogue};
+        page.applySettings(subedit::core::CorrectionSettings{});
+        page.resize(560, 460);
+        written = capture(page, page, directory, "correction-decoupage-sombre") && written;
     }
 
     return written ? 0 : 1;

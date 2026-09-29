@@ -626,6 +626,11 @@ namespace {
                                                  .enabled = false}},
         .lineBreakMaxLength = 32.5,
         .lineBreakMaxLines = 2,
+        .lineBreakInEms = false,
+        .lineBreakSkipOnLength = false,
+        .lineBreakSkipMaxLength = 30.5,
+        .lineBreakSkipOnLines = false,
+        .lineBreakSkipMaxLines = 4,
         .removeBlankSubtitles = false,
     };
 }
@@ -668,7 +673,10 @@ TEST_CASE("a value of the correction assistant that cannot be read leaves its de
                              "correction.mentions.code = \n",
                              "correction.human = perhaps\n",
                              "correction.line-break.max-length = wide\n",
-                             "correction.line-break.max-lines = two\n"}) {
+                             "correction.line-break.max-lines = two\n",
+                             "correction.line-break.in-ems = maybe\n",
+                             "correction.line-break.skip-max-length = wide\n",
+                             "correction.line-break.skip-max-lines = two\n"}) {
         const SettingsRead read = readOf(line);
 
         CHECK(read.settings.correction == CorrectionSettings{});
