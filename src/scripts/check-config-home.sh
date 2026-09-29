@@ -35,7 +35,13 @@ set -euo pipefail
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 readonly CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
-readonly WATCHED="${CONFIG_HOME}/subedit"
+# **Deux répertoires, et le second est celui d'un autre programme.** Enchant
+# tient la liste de mots personnelle dans `enchant/`, commune à tout ce qui s'en
+# sert — celle de Gaupol comprise, D6 de docs/specs/12-correction.md. Un test qui
+# ajouterait un mot au dictionnaire d'un correcteur réel écrirait chez
+# l'utilisateur, et chez d'autres logiciels que le nôtre : ils sont surveillés
+# ensemble, et les tests qui touchent Enchant déplacent `ENCHANT_CONFIG_DIR`.
+readonly WATCHED_DIRECTORIES=("${CONFIG_HOME}/subedit" "${CONFIG_HOME}/enchant")
 
 # Sous `build/`, qui est ignoré par git — comme le relevé de check-untracked.sh,
 # et pour la même raison : un relevé versionné serait un fichier de plus à ne
@@ -64,12 +70,15 @@ USAGE
 # plus courant, celui du répertoire qui n'existe pas, se distingue d'un
 # répertoire présent et vide.
 fingerprint() {
-    if [[ ! -e "${WATCHED}" ]]; then
-        printf 'absent\n'
-        return
-    fi
+    local directory
+    for directory in "${WATCHED_DIRECTORIES[@]}"; do
+        if [[ ! -e "${directory}" ]]; then
+            printf 'absent %s\n' "${directory}"
+            continue
+        fi
 
-    find "${WATCHED}" -printf '%y %s %T@ %p\n' | LC_ALL=C sort
+        find "${directory}" -printf '%y %s %T@ %p\n' | LC_ALL=C sort
+    done
 }
 
 record() {
@@ -93,7 +102,7 @@ compare() {
     if [[ -n "${difference}" ]]; then
         printf '%s✗ les tests ont touché la configuration de l'\''utilisateur :%s\n' \
             "${RED}" "${RESET}" >&2
-        printf '    %s\n' "${WATCHED}" >&2
+        printf '    %s\n' "${WATCHED_DIRECTORIES[@]}" >&2
         printf '%s\n' "${difference}" >&2
         printf '  un test ne résout jamais un emplacement de configuration : il en\n' >&2
         printf '  reçoit un, ou passe par le harnais qui déplace XDG_CONFIG_HOME\n' >&2

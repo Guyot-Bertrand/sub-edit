@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(
     subedit
-    VERSION 0.12.12
+    VERSION 0.12.13
     DESCRIPTION "Éditeur de sous-titres"
     HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
     LANGUAGES CXX)
@@ -81,6 +81,18 @@ pkg_check_modules(mpv REQUIRED IMPORTED_TARGET mpv)
 # la détection qui l'emploie, plutôt qu'annoncé d'avance — c'est ce que
 # Qt::Multimedia a coûté d'apprendre.
 find_package(ICU REQUIRED COMPONENTS uc i18n)
+
+# Enchant 2 — le correcteur orthographique, D6 de docs/specs/12-correction.md.
+#
+# **La seule dépendance de la phase 12**, et la deuxième du noyau, donc de
+# `subedit-cli` : le correcteur est au noyau, la phase 13 joindra et scindera
+# des mots en ligne de commande. Enchant tient la liste de mots personnelle
+# dans son propre répertoire, commun à toutes les applications qui s'en servent
+# — celle de Gaupol —, et trouve les dictionnaires du système, quel qu'en soit
+# le moteur.
+#
+# Par pkg-config, comme libmpv : Enchant ne fournit qu'un `enchant-2.pc`.
+pkg_check_modules(enchant REQUIRED IMPORTED_TARGET enchant-2)
 
 find_package(Git QUIET)
 if(GIT_FOUND)

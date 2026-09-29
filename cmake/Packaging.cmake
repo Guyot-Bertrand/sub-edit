@@ -63,7 +63,7 @@ set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
 # être faux sans que rien ne le montre à la construction — #266 l'a payé une
 # fois — et `make rpm-check` est ce qui l'attrape désormais, en installant le
 # `.rpm` sur une vraie Fedora.
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt6widgets6 (>= 6.4), libqt6gui6 (>= 6.4), libqt6core6 (>= 6.4), libmpv2 | libmpv1, libicu74")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt6widgets6 (>= 6.4), libqt6gui6 (>= 6.4), libqt6core6 (>= 6.4), libmpv2 | libmpv1, libicu74, libenchant-2-2")
 set(CPACK_DEBIAN_PACKAGE_SECTION "video")
 set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "ffmpeg")
 
@@ -81,10 +81,17 @@ set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "ffmpeg")
 # remplace serait deviner, sur une distribution que ce dépôt ne sait pas
 # éprouver. Le manuel dit ce que `ffmpeg` apporte ; c'est le bon endroit pour le
 # dire à qui n'a pas de gestionnaire de paquets pour l'apprendre.
-set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase-gui >= 6.4, mpv-libs, libicu")
+set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase-gui >= 6.4, mpv-libs, libicu, enchant2")
 set(CPACK_RPM_PACKAGE_LICENSE "GPL-3.0-or-later")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/Multimedia")
 
+# **Enchant 2 est entrée à la phase 12** — D6 de docs/specs/12-correction.md —,
+# et `subedit-cli` la tire aussi. Contrairement à ICU, son nom ne porte pas de
+# numéro de version majeure : `libenchant-2-2` chez Debian et Ubuntu, où le
+# premier `2` est l'API et le second le `SONAME`, `enchant2` chez Fedora. Les
+# dictionnaires, eux, ne sont pas une dépendance : le programme fonctionne sans,
+# et la fonction s'éteint en le disant.
+#
 # ## Le préfixe d'empaquetage, écrit plutôt que supposé
 #
 # `/usr` est le défaut des deux générateurs, et le laisser tacite avait un coût

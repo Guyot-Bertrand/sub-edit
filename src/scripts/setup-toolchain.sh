@@ -125,6 +125,7 @@ declare -A APT_TOOLS=(
 declare -A APT_LIBS=(
     [/usr/include/CLI/CLI.hpp]=libcli11-dev
     [/usr/include/unicode/ucnv.h]=libicu-dev
+    [/usr/include/enchant-2/enchant.h]=libenchant-2-dev
     [/usr/lib/x86_64-linux-gnu/cmake/Qt6/Qt6Config.cmake]=qt6-base-dev
     [/usr/lib/x86_64-linux-gnu/pkgconfig/mpv.pc]=libmpv-dev
     [/usr/lib/x86_64-linux-gnu/libblas.so.3]=libblas3

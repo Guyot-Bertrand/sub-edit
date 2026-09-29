@@ -295,6 +295,52 @@ l'installation dans la CI et dans `fedora.yml`. `subedit-cli` la tire, puisque l
 correcteur est au noyau et que la phase 13 joindra et scindera des mots en
 ligne de commande.
 
+> **Précisé par [#507](https://github.com/Guyot-Bertrand/sub-edit/issues/507).**
+> **Observé, non plus seulement lu** : sur cette machine, le `SpellChecker` de
+> Gaupol (1.11, par Gspell) écrit un mot ajouté dans `fr_FR.dic`, dans la
+> configuration d'Enchant, et `enchant-2` le tient aussitôt pour correct — pas
+> un seul répertoire de Gaupol, pas d'importation. Le dépôt amont passe par
+> libspelling, qui aboutit à `enchant_dict_add` de la même façon ; les deux
+> moteurs de Gaupol atteignent la même liste. L'observation a eu lieu dans un
+> répertoire de configuration temporaire, jamais dans celui de l'utilisateur.
+>
+> **Deux interfaces, et `SpellChecker` n'en est pas une.** `SpellDictionary`
+> (vérifier, suggérer, ajouter à la liste personnelle) et `SpellProvider`
+> (les langues, ouvrir un dictionnaire) sont abstraites ; `SpellChecker` est
+> une classe, ce que Gaupol pose par-dessus un dictionnaire — les heuristiques
+> anglaises, les deux suggestions d'OCR, la liste de remplacements, les mots
+> ignorés le temps de la session. Ce dessus est identique pour tout
+> dictionnaire et c'est lui que les tests visent : le double
+> (`WordListSpellProvider`, au noyau comme `InMemoryFileSystem`) est un
+> dictionnaire écrit dans le test, et `EnchantSpellProvider` l'implémentation
+> réelle, qui seule inclut `enchant.h`.
+>
+> **La réponse « pas de dictionnaire » est un `std::unexpected`** —
+> `NoDictionary{langue}` — et sa phrase, `noDictionaryFor`, vit dans
+> `core/wording.hpp` : « no dictionary for fr », que la fenêtre montrera.
+>
+> **Écarts de Gaupol, et ils sont dits** : une ligne d'un `.repl` sans barre
+> verticale est ignorée, là où Gaupol la lit comme un couple à un seul
+> élément qui échoue à la première suggestion ; les blancs d'une ligne sont
+> retirés à l'ASCII, non à Unicode. **Conservé tel quel, défaut compris** : la
+> classe `[0,4-9]` des ordinaux anglais contient une virgule que Gaupol n'a
+> sans doute pas voulue — le découpage en mots n'en livre jamais une, elle ne
+> compte que pour un appel direct. Le découpage en mots suit `\w` de Python par
+> `u_isalnum` et le tiret bas d'ICU ; les positions rendues sont des octets
+> UTF-8, non des points de code.
+>
+> **Le répertoire de configuration est un argument**, jamais résolu au noyau :
+> `spellReplacementFile(répertoire, langue)` rend
+> `spell-check/<langue>.repl`, et c'est l'appelant — la fenêtre, une issue plus
+> tard — qui sait où il est. Le seul test qui touche le vrai Enchant déplace
+> `ENCHANT_CONFIG_DIR` dans un répertoire à lui, et `check-config-home.sh`
+> surveille désormais `~/.config/enchant` avec `~/.config/subedit`.
+>
+> **La dépendance** : `pkg_check_modules(enchant)` au CMake, `libenchant-2-2`
+> au `.deb`, `enchant2` au `.rpm`, `libenchant-2-dev` dans la liste de
+> `setup-toolchain.sh` — que la CI et `fedora.yml` lisent, sans seconde liste —
+> et `check-installation.sh` vérifie que chacun des deux paquets la nomme.
+
 ## D7 — Les mentions de la phase 4 : le balayage reste, le moteur prend le reste
 
 **Le balayage écrit à la main garde les crochets et les parenthèses.** L'ADR

@@ -646,6 +646,21 @@ $(diff <(printf '%s\n' "${in_deb}") <(printf '%s\n' "${in_rpm}") | sed 's/^/    
         report_success "les deux paquets déclarent leurs dépendances, chacun dans les noms de sa famille"
     fi
 
+    # **Enchant, nommément** — D6 de docs/specs/12-correction.md, #507. Le
+    # contrôle précédent ne voit qu'une liste non vide : il laisserait passer un
+    # paquet qui ne tire pas la bibliothèque du correcteur, et qui s'installerait
+    # sans pouvoir se lancer. Les deux familles ne la nomment pas pareil.
+    if [[ "${deb_deps}" == *libenchant-2-2* ]]; then
+        report_success "le .deb tire Enchant (libenchant-2-2)"
+    else
+        report_failure "le .deb ne tire pas Enchant : libenchant-2-2 manque à ses dépendances"
+    fi
+    if grep -q '^enchant2\b' <<<"${rpm_deps}"; then
+        report_success "le .rpm tire Enchant (enchant2)"
+    else
+        report_failure "le .rpm ne tire pas Enchant : enchant2 manque à ses dépendances"
+    fi
+
     check_rpm_directories "${rpm}"
 }
 
