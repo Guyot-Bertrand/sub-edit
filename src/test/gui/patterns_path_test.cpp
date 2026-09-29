@@ -22,9 +22,10 @@ TEST_CASE("the user's patterns directory follows XDG_DATA_HOME when it is set", 
     // run in parallel with others must not do — `core::userPatternsPath` is a
     // pure function of the strings it is given, so this test reads the
     // process's actual variables through it without setting anything.
-    const std::string xdg =
-        std::getenv("XDG_DATA_HOME") != nullptr ? std::getenv("XDG_DATA_HOME") : "";
-    const std::string home = std::getenv("HOME") != nullptr ? std::getenv("HOME") : "";
+    const char* const xdgEnv = std::getenv("XDG_DATA_HOME");
+    const char* const homeEnv = std::getenv("HOME");
+    const std::string xdg = xdgEnv != nullptr ? xdgEnv : "";
+    const std::string home = homeEnv != nullptr ? homeEnv : "";
     const std::filesystem::path expected = subedit::core::userPatternsPath(xdg, home);
 
     CHECK(subedit::gui::resolvedUserPatternsPath() == expected);

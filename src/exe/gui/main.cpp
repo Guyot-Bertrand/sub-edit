@@ -7,11 +7,8 @@
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
-#include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/manual_path.hpp>
-#include <subedit/gui/patterns_path.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 
@@ -48,19 +45,10 @@ int main(int argc, char** argv) {
                                         prompts,
                                         subedit::gui::mpvPlayers(),
                                         subedit::gui::declaredFrameRates(files)};
-        // The preferences of ADR 0022: read before the window shows itself,
-        // written once it is closed.
-        window.applySettings(subedit::gui::readUserSettings(files, std::cerr));
-        // Decision D6: `Help ▸ Manual` opens the installed manual, whose
-        // location is resolved here and nowhere else — ADR 0022.
-        window.setManualPath(subedit::gui::installedManualPath());
-        // The patterns the assistant offers — Task 3's two resolvers, ADR 0022's
-        // own rule: resolved here, with the real executable and the real
-        // environment, and nowhere else.
-        window.setPatternCatalogue(
-            subedit::core::readPatternCatalogue(files,
-                                                subedit::gui::installedPatternsPath(),
-                                                subedit::gui::resolvedUserPatternsPath()));
+        // The settings, the manual and the pattern catalogue — ADR 0022's own
+        // rule, all three resolved here, with the real executable and the
+        // real environment, and nowhere else.
+        subedit::gui::configureFromEnvironment(window, files, std::cerr);
         window.show();
 
         const int code = QApplication::exec();

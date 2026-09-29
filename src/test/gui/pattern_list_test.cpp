@@ -187,6 +187,25 @@ TEST_CASE("a box shared by two records opens checked when either record is enabl
     CHECK(box->isChecked());
 }
 
+TEST_CASE("a box shared by two records opens checked even when the first one seen is off",
+          "[gui][pattern-list]") {
+    const PatternCatalogue catalogue = sharedNameAcrossCodes();
+    PatternList list{catalogue, PatternKind::CommonError};
+
+    CorrectionSettings settings;
+    // The less specific record — `Zyyy`, seen first in the cascade — is the
+    // one turned off this time: the shared box's `isChecked()` reads false
+    // going into the second record, so only *its* own default (still on) can
+    // decide the box, rather than short-circuiting on the first record's.
+    settings.patternActivations.push_back(subedit::core::PatternActivation{
+        .kind = PatternKind::CommonError, .code = "Zyyy", .name = "Repeated", .enabled = false});
+    list.setCode("Latn-en", settings);
+
+    auto* box = list.findChild<QCheckBox*>(QString::fromStdString("Repeated"));
+    REQUIRE(box != nullptr);
+    CHECK(box->isChecked());
+}
+
 TEST_CASE("setCode rebuilds the boxes for the newly requested cascade", "[gui][pattern-list]") {
     const PatternCatalogue catalogue = twoRecords();
     PatternList list{catalogue, PatternKind::CommonError};

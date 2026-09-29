@@ -81,7 +81,7 @@ int CorrectionWizard::nextId() const {
     // arithmetic, so there is nothing to form one before `begin()`.
     std::size_t start = 0;
     if (currentId() != TargetId) {
-        const auto it = std::ranges::find(kTaskPages, currentId());
+        const auto* const it = std::ranges::find(kTaskPages, currentId());
         start = static_cast<std::size_t>(it - kTaskPages.begin()) + 1;
     }
     for (std::size_t index = start; index < kTaskPages.size(); ++index) {

@@ -4,6 +4,8 @@
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/gui/pattern_code_selector.hpp>
 
+#include <QComboBox>
+#include <QSignalSpy>
 #include <catch2/catch_test_macros.hpp>
 
 #include <string>
@@ -15,6 +17,17 @@ using subedit::core::PatternCatalogue;
 using subedit::core::PatternKind;
 using subedit::core::readPatternCatalogue;
 using subedit::gui::PatternCodeSelector;
+
+/// The combo among the selector's three whose first item reads `firstItem` —
+/// `(every language)`/`(every country)` name the last two on their own; the
+/// script combo, which has no such placeholder, is found by elimination.
+[[nodiscard]] QComboBox* comboWithFirstItem(const QWidget& parent, const QString& firstItem) {
+    for (QComboBox* combo : parent.findChildren<QComboBox*>()) {
+        if (combo->itemText(0) == firstItem)
+            return combo;
+    }
+    return nullptr;
+}
 
 const std::filesystem::path kShipped = "/patterns";
 const std::filesystem::path kUser = "/user";
@@ -48,7 +61,7 @@ PatternCatalogue smallCatalogue() {
 TEST_CASE("it opens on the first script the catalogue carries, unfiltered below it",
           "[gui][pattern-code-selector]") {
     const PatternCatalogue catalogue = smallCatalogue();
-    PatternCodeSelector selector{catalogue, PatternKind::CommonError};
+    const PatternCodeSelector selector{catalogue, PatternKind::CommonError};
 
     CHECK(selector.code() == "Zyyy");
 }
@@ -86,4 +99,39 @@ TEST_CASE("setCode emits codeChanged exactly once, after every combo has settled
     selector.setCode("Latn-en-US");
 
     CHECK(codesSeenDuringEmission == std::vector<std::string>{"Latn-en-US"});
+}
+
+TEST_CASE("picking a script directly on its own combo cascades the languages under it",
+          "[gui][pattern-code-selector]") {
+    const PatternCatalogue catalogue = smallCatalogue();
+    const PatternCodeSelector selector{catalogue, PatternKind::CommonError};
+    const QSignalSpy spy{&selector, &PatternCodeSelector::codeChanged};
+
+    QComboBox* script = comboWithFirstItem(selector, QStringLiteral("Zyyy"));
+    REQUIRE(script != nullptr);
+    const int latn = script->findText(QStringLiteral("Latn"));
+    REQUIRE(latn >= 0);
+
+    script->setCurrentIndex(latn);
+
+    CHECK(selector.code() == "Latn");
+    CHECK(spy.count() == 1);
+}
+
+TEST_CASE("picking a language directly on its own combo cascades the countries under it",
+          "[gui][pattern-code-selector]") {
+    const PatternCatalogue catalogue = smallCatalogue();
+    PatternCodeSelector selector{catalogue, PatternKind::CommonError};
+    selector.setCode("Latn");
+    const QSignalSpy spy{&selector, &PatternCodeSelector::codeChanged};
+
+    QComboBox* language = comboWithFirstItem(selector, QStringLiteral("(every language)"));
+    REQUIRE(language != nullptr);
+    const int en = language->findText(QStringLiteral("en"));
+    REQUIRE(en >= 0);
+
+    language->setCurrentIndex(en);
+
+    CHECK(selector.code() == "Latn-en");
+    CHECK(spy.count() == 1);
 }

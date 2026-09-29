@@ -37,7 +37,8 @@ Checks: >
   -misc-include-cleaner,
   -bugprone-easily-swappable-parameters,
   -performance-enum-size,
-  -readability-redundant-member-init
+  -readability-redundant-member-init,
+  -readability-redundant-string-init
 
 # Justification des exclusions ci-dessus :
 #
@@ -71,6 +72,14 @@ Checks: >
 #   retirés, trois sites d'appel ont cessé de compiler. Les deux contrôles se
 #   contredisent, et c'est celui-ci qui a tort — l'autre dit une vraie chose,
 #   qu'un champ oublié dans une initialisation désignée est invisible.
+# readability-redundant-string-init
+#   Même défaut que `readability-redundant-member-init`, pour `std::string`
+#   seul : `PatternCodeParts{std::string script = "";}` (#505) est ce qui rend
+#   légal `PatternCodeParts{.script = "Latn"}` ailleurs dans le dépôt, et le
+#   retirer aurait la même conséquence — un champ manquant refusé par
+#   `clang-diagnostic-missing-designated-field-initializers`. Une variable
+#   locale `std::string x = "";` reste, elle, une vraie redondance ; le
+#   contrôle n'a pas cette distinction, et rien ne la lui donne.
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: 'src/.*\.hpp$'

@@ -49,7 +49,6 @@ using subedit::core::IcuPatternEngine;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::PatternActivation;
 using subedit::core::PatternCatalogue;
-using subedit::core::PatternFailure;
 using subedit::core::PatternKind;
 using subedit::core::Project;
 using subedit::core::proposeCorrections;
@@ -332,7 +331,7 @@ TEST_CASE("an activation override turns a normally-active pattern off", "[text][
 }
 
 TEST_CASE("a target with nothing selected proposes nothing", "[text][assistant]") {
-    Project project = projectOf({"Bonjour  Marie"});
+    const Project project = projectOf({"Bonjour  Marie"});
     CorrectionSettings settings;
     settings.commonErrors = {.enabled = true, .code = "Zyyy"};
 
@@ -423,5 +422,31 @@ TEST_CASE("a line-break pattern that will not compile is named, and the others s
     CHECK(proposal.corrections[0].proposed == std::optional<std::string>{"Hello\nthere"});
     REQUIRE(proposal.failures.size() == 1);
     CHECK(proposal.failures[0].kind == FailureKind::CompileError);
+    CHECK(proposal.failures[0].name == "Broken");
+}
+
+TEST_CASE("the same broken pattern named on two targets is reported once, not twice",
+          "[text][assistant]") {
+    // One broken pattern, asked to run on two separate targets — each of
+    // `runTasks`'s own calls reports the failure again, so `proposeCorrections`
+    // ends with two identical entries before it sorts and de-duplicates them.
+    InMemoryFileSystem files;
+    files.addFile("/patterns/Zyyy.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=Broken\nClasses=Human;OCR;\nPattern=(\n");
+    const PatternCatalogue catalogue = subedit::core::readPatternCatalogue(files, "/patterns", {});
+    REQUIRE(catalogue.diagnostics().empty());
+
+    Project first = projectOf({"Bonjour Marie"});
+    Project second = projectOf({"Au revoir"});
+    CorrectionSettings settings;
+    settings.commonErrors = {.enabled = true, .code = "Zyyy"};
+
+    const std::vector<CorrectionTarget> targets{wholeProject(first), wholeProject(second)};
+    const CharacterLineMeasure measure;
+    const CorrectionProposal proposal =
+        proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets);
+
+    REQUIRE(proposal.failures.size() == 1);
     CHECK(proposal.failures[0].name == "Broken");
 }

@@ -45,6 +45,11 @@ public:
                                    QObject* parent = nullptr);
     ~CorrectionResultModel() override;
 
+    CorrectionResultModel(const CorrectionResultModel&) = delete;
+    CorrectionResultModel& operator=(const CorrectionResultModel&) = delete;
+    CorrectionResultModel(CorrectionResultModel&&) = delete;
+    CorrectionResultModel& operator=(CorrectionResultModel&&) = delete;
+
     [[nodiscard]] int rowCount(const QModelIndex& parent = {}) const override;
     [[nodiscard]] int columnCount(const QModelIndex& parent = {}) const override;
     [[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;

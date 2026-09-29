@@ -4,13 +4,18 @@
 
 #include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/edit/translation.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/wording.hpp>
+#include <subedit/gui/correction_confirmation_page.hpp>
 #include <subedit/gui/correction_controller.hpp>
 #include <subedit/gui/correction_progress_page.hpp>
 #include <subedit/gui/correction_target_page.hpp>
@@ -18,9 +23,14 @@
 #include <subedit/gui/correction_wizard.hpp>
 #include <subedit/gui/project_page.hpp>
 
+#include <QCheckBox>
 #include <QDialog>
 #include <QFont>
+#include <QItemSelectionModel>
+#include <QPushButton>
+#include <QRadioButton>
 #include <QSignalSpy>
+#include <QTableView>
 #include <QWidget>
 #include <catch2/catch_test_macros.hpp>
 
@@ -35,6 +45,8 @@
 
 namespace {
 
+using subedit::core::AttachedTranslation;
+using subedit::core::attachTranslation;
 using subedit::core::CorrectionSettings;
 using subedit::core::CorrectionTask;
 using subedit::core::InMemoryFileSystem;
@@ -43,7 +55,11 @@ using subedit::core::openProject;
 using subedit::core::PatternCatalogue;
 using subedit::core::Project;
 using subedit::core::readPatternCatalogue;
+using subedit::core::SourceFile;
+using subedit::core::Subtitle;
 using subedit::core::SubtitleIndex;
+using subedit::core::Timestamp;
+using subedit::core::TranslationMethod;
 using subedit::gui::CorrectionController;
 using subedit::gui::CorrectionProgressPage;
 using subedit::gui::CorrectionWizard;
@@ -77,6 +93,35 @@ const std::filesystem::path kShipped = "/patterns";
     auto opened = openProject(files, "/film.srt");
     REQUIRE(opened.has_value());
     return ProjectPage::make(std::move(opened->project));
+}
+
+/// The same, with a translation already attached — enough that
+/// `translationFile()` answers, nothing more: a made-up line, matched or not,
+/// still leaves the project with a translation file of its own.
+[[nodiscard]] std::unique_ptr<ProjectPage> pageOnWithTranslation(const char* content) {
+    InMemoryFileSystem files;
+    files.addFile("/film.srt", content);
+    auto opened = openProject(files, "/film.srt");
+    REQUIRE(opened.has_value());
+    const std::vector<Subtitle> lines{Subtitle{.start = Timestamp::fromMilliseconds(1000),
+                                               .end = Timestamp::fromMilliseconds(2000),
+                                               .mainText = "Hello Marie"}};
+    const AttachedTranslation attached =
+        attachTranslation(opened->project, lines, SourceFile{}, TranslationMethod::Position);
+    attached.command->apply(opened->project);
+    return ProjectPage::make(std::move(opened->project));
+}
+
+/// The button of `Button` (`QPushButton`, `QCheckBox`, `QRadioButton`…) that
+/// carries `text` — the same idiom `window_correction_test.cpp` already uses
+/// to drive a wizard's widgets without an `objectName` of their own.
+template<typename Button>
+[[nodiscard]] Button* buttonNamed(const QWidget& parent, const QString& text) {
+    for (Button* button : parent.findChildren<Button*>()) {
+        if (button->text() == text)
+            return button;
+    }
+    return nullptr;
 }
 
 /// The window, as the controller sees it.
@@ -181,4 +226,89 @@ TEST_CASE("cancelling the wizard leaves every project and the settings untouched
     CHECK_FALSE(desk.pages_[0]->session->canUndo());
     CHECK(desk.announced.empty());
     CHECK(controller.settings() == before);
+}
+
+TEST_CASE("reopening with the same pattern toggled again replaces its own "
+          "activation rather than duplicating it",
+          "[gui][correction-controller]") {
+    auto uncheckDoubleSpace = [](QDialog& dialog) {
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        wizard.show();
+        wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, true);
+        wizard.targetPage().setTaskChecked(CorrectionTask::Capitalization, false);
+        wizard.next(); // target -> common errors
+        auto* box =
+            buttonNamed<QCheckBox>(wizard.commonErrorsPage(), QStringLiteral("Double space"));
+        REQUIRE(box != nullptr);
+        box->setChecked(false);
+        wizard.next(); // common errors -> progress
+        QSignalSpy spy{&wizard.progressPage(), &CorrectionProgressPage::completeChanged};
+        REQUIRE(spy.wait(2000));
+    };
+    Desk desk{smallCatalogue()};
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nBonjour Marie\n\n"));
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = uncheckDoubleSpace;
+    CorrectionController controller{prompts, desk};
+
+    controller.open(); // first run: adds the override
+    REQUIRE(controller.settings().patternActivations.size() == 1);
+
+    controller.open(); // second run: finds it again, and replaces it in place
+
+    CHECK(controller.settings().patternActivations.size() == 1);
+    CHECK_FALSE(controller.settings().patternActivations[0].enabled);
+}
+
+TEST_CASE("the translation document is offered once any open project carries one",
+          "[gui][correction-controller]") {
+    Desk desk{smallCatalogue()};
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nBonjour  Marie\n\n"));
+    desk.pages_.push_back(pageOnWithTranslation("1\n00:00:01,000 --> 00:00:02,000\nAutre\n\n"));
+    desk.shown = 0; // the shown project itself carries no translation
+
+    bool translationEnabled = false;
+    FakePrompts prompts;
+    prompts.nextRun = false; // Cancel: read on the target page is all this needs
+    prompts.fill = [&translationEnabled](QDialog& dialog) {
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        auto* translation =
+            buttonNamed<QRadioButton>(wizard.targetPage(), QStringLiteral("Translation"));
+        REQUIRE(translation != nullptr);
+        translationEnabled = translation->isEnabled();
+    };
+    CorrectionController controller{prompts, desk};
+
+    controller.open();
+
+    CHECK(translationEnabled);
+}
+
+TEST_CASE("Preview on the confirmation page reaches the view with the right "
+          "project and index",
+          "[gui][correction-controller]") {
+    Desk desk{smallCatalogue()};
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nBonjour  Marie\n\n"));
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        driveToConfirmation(dialog);
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        auto* table = wizard.confirmationPage().findChild<QTableView*>();
+        REQUIRE(table != nullptr);
+        table->selectionModel()->select(table->model()->index(0, 0),
+                                        QItemSelectionModel::Select | QItemSelectionModel::Rows);
+        auto* preview =
+            buttonNamed<QPushButton>(wizard.confirmationPage(), QStringLiteral("Preview"));
+        REQUIRE(preview != nullptr);
+        preview->click();
+    };
+    CorrectionController controller{prompts, desk};
+
+    controller.open();
+
+    REQUIRE(desk.previewed.size() == 1);
+    CHECK(desk.previewed[0].first == &desk.pages_[0]->session->project());
+    CHECK(desk.previewed[0].second == SubtitleIndex::fromValue(0));
 }

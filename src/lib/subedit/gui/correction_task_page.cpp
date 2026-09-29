@@ -11,6 +11,14 @@
 
 namespace subedit::gui {
 
+namespace {
+/// The bounds `LineBreakPage`'s two spin boxes offer — generous rather than
+/// exact, since neither Gaupol nor D5 names a real maximum: a subtitle line
+/// long enough to hit them is already wrong for other reasons.
+constexpr double kMaxLineBreakLength = 1000.0;
+constexpr int kMaxLineBreakLines = 100;
+} // namespace
+
 CorrectionTaskPage::CorrectionTaskPage(const QString& title,
                                        const core::PatternCatalogue& catalogue,
                                        core::PatternKind kind,
@@ -108,8 +116,8 @@ LineBreakPage::LineBreakPage(const core::PatternCatalogue& catalogue, QWidget* p
       m_maxLength(new QDoubleSpinBox{this}),
       m_maxLines(new QSpinBox{this}),
       m_unit(new QComboBox{this}) {
-    m_maxLength->setRange(1.0, 1000.0);
-    m_maxLines->setRange(1, 100);
+    m_maxLength->setRange(1.0, kMaxLineBreakLength);
+    m_maxLines->setRange(1, kMaxLineBreakLines);
     m_unit->addItem(QStringLiteral("Characters"));
     m_unit->addItem(QStringLiteral("Ems"));
 

@@ -27,12 +27,16 @@
 #include <QAbstractItemModel>
 #include <QAction>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDialog>
+#include <QItemSelectionModel>
 #include <QLabel>
+#include <QPushButton>
 #include <QRadioButton>
 #include <QSignalSpy>
 #include <QStatusBar>
 #include <QTabBar>
+#include <QTableView>
 #include <catch2/catch_test_macros.hpp>
 
 #include <filesystem>
@@ -90,6 +94,17 @@ template<class Button>
     for (Button* button : parent.findChildren<Button*>()) {
         if (button->text() == text)
             return button;
+    }
+    return nullptr;
+}
+
+/// The combo among a task page's several (the code selector's three, the
+/// line-break page's own) whose first item reads `text` — `Characters` names
+/// the unit combo, and none of the code selector's three ever holds it.
+[[nodiscard]] QComboBox* comboWithFirstItem(const QWidget& parent, const QString& text) {
+    for (QComboBox* combo : parent.findChildren<QComboBox*>()) {
+        if (combo->itemText(0) == text)
+            return combo;
     }
     return nullptr;
 }
@@ -226,7 +241,7 @@ TEST_CASE("GUI-CORRECT-01: choosing All Open Projects reaches every open project
         // buttons carry no `objectName`, only their own text, so this drives
         // the actual widget the way a click would, the same idiom already
         // used above for the pattern list's and the task pages' checkboxes.
-        QRadioButton* allProjects =
+        auto* allProjects =
             buttonNamed<QRadioButton>(wizard.targetPage(), QStringLiteral("All Open Projects"));
         REQUIRE(allProjects != nullptr);
         allProjects->setChecked(true);
@@ -304,7 +319,7 @@ TEST_CASE("GUI-CORRECT-04: a pattern turned off in the assistant stays off next 
     prompts.fill = [](QDialog& dialog) {
         auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
         wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, true);
-        QCheckBox* box =
+        auto* box =
             buttonNamed<QCheckBox>(wizard.commonErrorsPage(), QStringLiteral("Double space"));
         REQUIRE(box != nullptr);
         box->setChecked(false);
@@ -319,7 +334,7 @@ TEST_CASE("GUI-CORRECT-04: a pattern turned off in the assistant stays off next 
     prompts.nextRun = false; // Cancel: nothing left to drive
     prompts.fill = [&boxUncheckedOnReopen](QDialog& dialog) {
         auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
-        QCheckBox* box =
+        auto* box =
             buttonNamed<QCheckBox>(wizard.commonErrorsPage(), QStringLiteral("Double space"));
         REQUIRE(box != nullptr);
         boxUncheckedOnReopen = !box->isChecked();
@@ -337,8 +352,7 @@ TEST_CASE("GUI-CORRECT-05: unchecking a class leaves only the other class's own 
     prompts.fill = [](QDialog& dialog) {
         auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
         wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, true);
-        QCheckBox* ocrBox =
-            buttonNamed<QCheckBox>(wizard.commonErrorsPage(), QStringLiteral("OCR"));
+        auto* ocrBox = buttonNamed<QCheckBox>(wizard.commonErrorsPage(), QStringLiteral("OCR"));
         REQUIRE(ocrBox != nullptr);
         ocrBox->setChecked(false);
         advanceToConfirmation(wizard);
@@ -409,7 +423,7 @@ TEST_CASE("GUI-HEARING-03: the moteur-based mentions and the bracket scan fire f
     prompts.fill = [](QDialog& dialog) {
         auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
         wizard.targetPage().setTaskChecked(CorrectionTask::Mentions, true);
-        QCheckBox* box =
+        auto* box =
             buttonNamed<QCheckBox>(wizard.mentionsPage(), QStringLiteral("Sound in brackets"));
         REQUIRE(box != nullptr);
         box->setChecked(true);
@@ -423,4 +437,75 @@ TEST_CASE("GUI-HEARING-03: the moteur-based mentions and the bracket scan fire f
 
     CHECK(textAt(window, 0) == "Bonjour Marie"); // the moteur-based `#…#` pattern
     CHECK(textAt(window, 1) == "Salut Jean");    // the balayage-based bracket removal
+}
+
+TEST_CASE("Preview on the confirmation page selects the corrected row in the table",
+          "[gui][correction]") {
+    // Two tabs, the correction targeting the second — `preview()` walks every
+    // open page looking for the one that owns the corrected project, so a
+    // page opened before it (never matching) is what exercises that walk
+    // rather than a single page found on the first try.
+    InMemoryFileSystem files;
+    files.addFile("premier.srt", "1\n00:00:01,000 --> 00:00:02,000\nRien a corriger\n\n");
+    files.addFile("second.srt", kOneError);
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.setPatternCatalogue(doubleSpaceCatalogue());
+    window.show();
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    REQUIRE(window.tabBar()->count() == 2);
+    REQUIRE(window.tabBar()->currentIndex() == 1); // "second.srt" is the one shown
+
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, true);
+        advanceToConfirmation(wizard);
+
+        auto* table = wizard.confirmationPage().findChild<QTableView*>();
+        REQUIRE(table != nullptr);
+        table->selectionModel()->select(table->model()->index(0, 0),
+                                        QItemSelectionModel::Select | QItemSelectionModel::Rows);
+        auto* preview =
+            buttonNamed<QPushButton>(wizard.confirmationPage(), QStringLiteral("Preview"));
+        REQUIRE(preview != nullptr);
+        preview->click();
+    };
+    window.correctTextsAction()->trigger();
+
+    CHECK(window.table()->selectionModel()->isRowSelected(0, {}));
+}
+
+TEST_CASE("choosing Ems for the line-break unit reads the window's own application font",
+          "[gui][correction]") {
+    InMemoryFileSystem files =
+        withFile("1\n00:00:01,000 --> 00:00:02,000\nThe night was cold and long\n\n");
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, false);
+        wizard.targetPage().setTaskChecked(CorrectionTask::Capitalization, false);
+        wizard.targetPage().setTaskChecked(CorrectionTask::LineBreak, true);
+        wizard.show();
+        while (wizard.currentId() != CorrectionWizard::LineBreakId)
+            wizard.next();
+
+        auto* unit = comboWithFirstItem(wizard.lineBreakPage(), QStringLiteral("Characters"));
+        REQUIRE(unit != nullptr);
+        unit->setCurrentIndex(1); // Ems — reaches `applicationFont()` rather than a plain count
+
+        while (wizard.currentId() != CorrectionWizard::ProgressId)
+            wizard.next();
+        QSignalSpy spy{&wizard.progressPage(), &CorrectionProgressPage::completeChanged};
+        REQUIRE(spy.wait(2000));
+    };
+    MainWindow window{files, fileIn(files), prompts};
+    window.show();
+
+    // Reaching this point without incident is the proof: the ems measure is
+    // built from the real window's own font, read through `applicationFont()`,
+    // rather than a font that was never set.
+    window.correctTextsAction()->trigger();
 }

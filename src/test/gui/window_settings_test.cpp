@@ -405,3 +405,20 @@ TEST_CASE("a refused write says so, and nothing more", "[gui][config][GUI-CONFIG
 
     CHECK_THAT(errors.str(), ContainsSubstring("settings could not be written"));
 }
+
+// **`main.cpp`'s own three lines, composed in one call** — issue #505: moved
+// out of the entry point once a fourth setter would have sent it over the
+// budget `check-architecture.sh` holds it to. Nothing here reaches a real
+// location, for the same reason the round trip above does not: the file
+// system is in memory, so every resolved path is used as a key and nothing
+// else.
+TEST_CASE("configureFromEnvironment applies settings, the manual path and the "
+          "pattern catalogue in one call",
+          "[gui][config]") {
+    Windowed fixture;
+    std::ostringstream errors;
+
+    subedit::gui::configureFromEnvironment(fixture.window(), fixture.files(), errors);
+
+    CHECK(errors.str().empty());
+}

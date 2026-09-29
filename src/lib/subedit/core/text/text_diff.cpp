@@ -12,16 +12,26 @@ namespace {
 /// a multi-byte sequence in two. A malformed lead byte is read as one byte,
 /// the same width `decodeToUtf8` would already have refused upstream.
 [[nodiscard]] std::vector<std::string_view> codepointsOf(std::string_view text) {
+    // The UTF-8 lead byte announces how many bytes follow it, in its own
+    // high bits: `110xxxxx` for two, `1110xxxx` for three, `11110xxx` for
+    // four — the mask keeps exactly as many high bits as the pattern names.
+    constexpr unsigned kTwoByteMask = 0xE0U;
+    constexpr unsigned kTwoByteLead = 0xC0U;
+    constexpr unsigned kThreeByteMask = 0xF0U;
+    constexpr unsigned kThreeByteLead = 0xE0U;
+    constexpr unsigned kFourByteMask = 0xF8U;
+    constexpr unsigned kFourByteLead = 0xF0U;
+
     std::vector<std::string_view> points;
     std::size_t i = 0;
     while (i < text.size()) {
         const auto lead = static_cast<unsigned char>(text[i]);
         std::size_t length = 1;
-        if ((lead & 0xE0) == 0xC0)
+        if ((lead & kTwoByteMask) == kTwoByteLead)
             length = 2;
-        else if ((lead & 0xF0) == 0xE0)
+        else if ((lead & kThreeByteMask) == kThreeByteLead)
             length = 3;
-        else if ((lead & 0xF8) == 0xF0)
+        else if ((lead & kFourByteMask) == kFourByteLead)
             length = 4;
         length = std::min(length, text.size() - i);
         points.push_back(text.substr(i, length));

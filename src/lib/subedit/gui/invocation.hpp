@@ -12,6 +12,8 @@
 
 namespace subedit::gui {
 
+class MainWindow;
+
 /// Answers `--version` if that is what was asked, and says whether it was.
 ///
 /// **Here rather than in `main.cpp`**, which is the rule
@@ -93,5 +95,17 @@ void writeUserSettings(core::FileSystem& files,
 void writeUserSettings(core::FileSystem& files,
                        const core::Settings& settings,
                        std::ostream& errors);
+
+/// Sets on `window` everything `main.cpp` resolves from the real environment
+/// before showing it: the user's own settings, the installed manual, and the
+/// pattern catalogue the correction assistant offers.
+///
+/// **One call bundling three resolvers, for the reason this file exists**: a
+/// fourth setter written out in `main.cpp` would send the entry point over the
+/// budget `check-architecture.sh` holds it to, the same way a Qt platform
+/// choice and a frame-rate reader already have.
+void configureFromEnvironment(MainWindow& window,
+                              const core::FileSystem& files,
+                              std::ostream& errors);
 
 } // namespace subedit::gui

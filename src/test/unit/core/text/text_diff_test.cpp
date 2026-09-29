@@ -61,6 +61,21 @@ TEST_CASE("text removed from the end is its own changed span, on the original on
     CHECK(diff.proposed[0].text == "Bonjour");
 }
 
+TEST_CASE("three- and four-byte codepoints are kept whole, not split at a byte", "[text][diff]") {
+    // "…" is three UTF-8 bytes (U+2026), "🎬" is four (U+1F3AC) — the two
+    // widths `codepointsOf` decodes beyond the two-byte "é" the tests above
+    // already cover.
+    const auto ellipsis = diffTexts("Bonjour…", "Bonjour");
+    REQUIRE(ellipsis.original.size() == 2);
+    CHECK(ellipsis.original[1].changed);
+    CHECK(ellipsis.original[1].text == "…");
+
+    const auto emoji = diffTexts("Bonjour🎬", "Bonjour");
+    REQUIRE(emoji.original.size() == 2);
+    CHECK(emoji.original[1].changed);
+    CHECK(emoji.original[1].text == "🎬");
+}
+
 TEST_CASE("an empty text on one side answers as no spans on that side", "[text][diff]") {
     const auto diff = diffTexts("", "Bonjour");
 

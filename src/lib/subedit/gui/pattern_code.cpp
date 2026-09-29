@@ -50,7 +50,7 @@ distinctOf(const core::PatternCatalogue& catalogue, core::PatternKind kind, Read
     for (const core::CorrectionPattern& pattern : catalogue.patterns()) {
         if (pattern.kind() != kind)
             continue;
-        std::string value = read(splitCode(pattern.code));
+        const std::string value = read(splitCode(pattern.code));
         if (!value.empty() && !std::ranges::contains(found, value))
             found.push_back(value);
     }

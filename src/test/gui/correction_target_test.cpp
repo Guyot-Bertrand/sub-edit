@@ -95,3 +95,23 @@ TEST_CASE("a project with no translation is left out when the target is the tran
 
     CHECK(targets.empty());
 }
+
+TEST_CASE("the current-project scope answers nothing on the translation without one",
+          "[gui][correction]") {
+    std::vector<std::unique_ptr<ProjectPage>> pages;
+    pages.push_back(pageOn(kTwo)); // no translation file opened
+
+    const auto targets =
+        correctionTargetsOf(CorrectionScope::CurrentProject, Document::Translation, pages, 0);
+
+    CHECK(targets.empty());
+}
+
+TEST_CASE("the selection scope answers nothing with no row selected", "[gui][correction]") {
+    std::vector<std::unique_ptr<ProjectPage>> pages;
+    pages.push_back(pageOn(kTwo)); // nothing selected
+
+    const auto targets = correctionTargetsOf(CorrectionScope::Selection, Document::Main, pages, 0);
+
+    CHECK(targets.empty());
+}

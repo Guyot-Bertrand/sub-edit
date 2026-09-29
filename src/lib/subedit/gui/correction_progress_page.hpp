@@ -35,6 +35,11 @@ public:
     explicit CorrectionProgressPage(QWidget* parent = nullptr);
     ~CorrectionProgressPage() override;
 
+    CorrectionProgressPage(const CorrectionProgressPage&) = delete;
+    CorrectionProgressPage& operator=(const CorrectionProgressPage&) = delete;
+    CorrectionProgressPage(CorrectionProgressPage&&) = delete;
+    CorrectionProgressPage& operator=(CorrectionProgressPage&&) = delete;
+
     /// What to run once the page is shown — set before the wizard opens.
     void setComputation(std::function<core::CorrectionProposal()> compute);
 

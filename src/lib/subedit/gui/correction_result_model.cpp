@@ -12,6 +12,13 @@
 
 namespace subedit::gui {
 
+namespace {
+/// The width `sizeHint` lays a cell's text out at before a real column width
+/// is known — generous enough that the first measurement is not too tight,
+/// and revised the moment the view hands a real `option.rect`.
+constexpr int kFallbackTextWidth = 200;
+} // namespace
+
 /// One row: the correction itself, whether it is accepted, and what a user
 /// retouched it to, if anything.
 struct CorrectionResultModel::Row {
@@ -172,7 +179,7 @@ QSize CorrectionDiffDelegate::sizeHint(const QStyleOptionViewItem& option,
                                        const QModelIndex& index) const {
     QTextDocument document;
     document.setHtml(index.data(Qt::DisplayRole).toString());
-    document.setTextWidth(option.rect.width() > 0 ? option.rect.width() : 200);
+    document.setTextWidth(option.rect.width() > 0 ? option.rect.width() : kFallbackTextWidth);
     return QSize{static_cast<int>(document.idealWidth()),
                  static_cast<int>(document.size().height())};
 }

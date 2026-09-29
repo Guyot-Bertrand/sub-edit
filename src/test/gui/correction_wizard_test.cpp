@@ -16,7 +16,7 @@ using subedit::core::readPatternCatalogue;
 using subedit::gui::CorrectionWizard;
 
 PatternCatalogue emptyCatalogue() {
-    InMemoryFileSystem files;
+    const InMemoryFileSystem files;
     return readPatternCatalogue(files, "/patterns", {});
 }
 
