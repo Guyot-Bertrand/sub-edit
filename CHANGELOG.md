@@ -11,6 +11,49 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **core** — Report the patterns proposeCorrections could not apply
+- **core** — Ajouter une diff textuelle au niveau des points de code
+- **gui** — Resolve the installed and user pattern directories
+- **gui** — Résoudre la cible de la correction sur un ou tous les projets
+- **gui** — Décomposer les codes de motifs en script, langue et pays
+- **gui** — Rendu de la diff en texte riche pour la table de confirmation
+- **gui** — Ajouter le widget script/langue/pays d'une page de tâche
+- **gui** — Ajouter le widget de liste des motifs d'une page de tâche
+- **gui** — Ajouter les pages de tâche de l'assistant de correction
+- **gui** — Ajouter la page cible et tâches de l'assistant de correction
+- **gui** — Calculer les corrections en arrière-plan (page assistant)
+- **gui** — Modèle de confirmation des corrections et délégué diff
+- **gui** — Ajouter la page de confirmation de l'assistant de correction
+- **gui** — Assembler l'assistant de correction en un QWizard
+- **gui** — Ajouter le contrôleur de l'assistant de correction
+- **gui** — Wire Correct Texts… into the window
+
+### Corrections
+
+- **core** — Collecter aussi les échecs du découpage de lignes
+- **gui** — N'émettre codeChanged qu'une fois par setCode
+- **gui** — Éviter une réentrance dangereuse dans PatternList::setCode
+- **gui** — Remplacer Q_MOC_RUN par le patron de déclaration anticipée
+- **gui** — Rafraîchir Original quand Proposed est retouché
+- Satisfaire la porte complète — câblage, tidy, couverture
+
+### Documentation
+
+- **gui** — Ajouter Correct Texts… au manuel, sa capture et le registre
+
+### Remaniements
+
+- **core** — Compose corrections without applying them
+- **core** — Partager la règle d'activation d'un motif avec le gui
+
+### Tests
+
+- **gui** — Cover the All Open Projects scope in GUI-CORRECT-01
+
+## 0.12.10 — 2026-09-28
+
+### Ajouts
+
 - **core** — Calculer les corrections de l'assistant, au noyau
 
 ## 0.12.9 — 2026-09-28
