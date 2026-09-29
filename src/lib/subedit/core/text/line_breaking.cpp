@@ -570,7 +570,7 @@ BrokenTexts breakLines(const PatternEngine& engine,
                        const LineMeasure& measure,
                        double maxLength,
                        int maxLines,
-                       bool skip) {
+                       std::optional<SkipLimits> skip) {
     BrokenTexts result;
     const std::vector<Penalty> prepared = preparePenalties(engine, patterns, result.failures);
 
@@ -578,10 +578,10 @@ BrokenTexts breakLines(const PatternEngine& engine,
     for (std::size_t index = 0; index < texts.size(); ++index) {
         const std::string& original = texts[index];
 
-        if (skip) {
+        if (skip.has_value()) {
             const double length = longestLineOf(original, measure);
             const int lineCount = lineCountOf(original);
-            if (length <= maxLength && lineCount <= maxLines) {
+            if (length <= skip->maxLength && lineCount <= skip->maxLines) {
                 result.texts.push_back(original);
                 continue;
             }
@@ -589,8 +589,9 @@ BrokenTexts breakLines(const PatternEngine& engine,
             std::string broken = breakOneText(
                 prepared, original, measure, maxLength, maxLines, result.failures, index);
 
-            const bool lengthFixed = length > maxLength && longestLineOf(broken, measure) < length;
-            const bool linesFixed = lineCount > maxLines && lineCountOf(broken) < lineCount;
+            const bool lengthFixed =
+                length > skip->maxLength && longestLineOf(broken, measure) < length;
+            const bool linesFixed = lineCount > skip->maxLines && lineCountOf(broken) < lineCount;
             if (!lengthFixed && !linesFixed) {
                 result.texts.push_back(original);
                 continue;

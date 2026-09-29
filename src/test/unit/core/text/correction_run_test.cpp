@@ -364,6 +364,36 @@ TEST_CASE("the line-break task fits within a maximum length and line count", "[t
           std::optional<std::string>{"The night was cold\nand the road was long"});
 }
 
+TEST_CASE("the skip gate leaves a subtitle alone that is within its thresholds",
+          "[text][assistant]") {
+    InMemoryFileSystem files;
+    files.addFile("/patterns/Zyyy.line-break",
+                  "[Line Break Pattern]\nName=Force break\nPattern=( )\nGroup=1\nPenalty=-10000\n");
+    const PatternCatalogue catalogue = subedit::core::readPatternCatalogue(files, "/patterns", {});
+
+    Project project = projectOf({"Hello there"});
+    CorrectionSettings settings;
+    settings.lineBreak = {.enabled = true, .code = "Zyyy"};
+    settings.lineBreakMaxLength = 40.0;
+    settings.lineBreakMaxLines = 2;
+    const std::vector<CorrectionTarget> targets{wholeProject(project)};
+    const CharacterLineMeasure measure;
+
+    // Gaupol's defaults: skip what is within 24 wide and 3 lines already.
+    CHECK(proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets)
+              .corrections.empty());
+
+    // Thresholds of 5 wide: the 11-wide subtitle is above them, so it is broken.
+    settings.lineBreakSkipMaxLength = 5.0;
+    CHECK(proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets)
+              .corrections.size() == 1);
+
+    // The length check turned off: only the line count could hold it back.
+    settings.lineBreakSkipOnLength = false;
+    CHECK(proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets)
+              .corrections.empty());
+}
+
 TEST_CASE("a pattern that will not compile is named, and the others still apply",
           "[text][assistant]") {
     InMemoryFileSystem files;
@@ -412,6 +442,8 @@ TEST_CASE("a line-break pattern that will not compile is named, and the others s
     settings.lineBreak = {.enabled = true, .code = "Zyyy"};
     settings.lineBreakMaxLength = 40.0;
     settings.lineBreakMaxLines = 2;
+    settings.lineBreakSkipOnLength = false; // Gaupol's gate would leave a text this short alone
+    settings.lineBreakSkipOnLines = false;
 
     const std::vector<CorrectionTarget> targets{wholeProject(project)};
     const CharacterLineMeasure measure;

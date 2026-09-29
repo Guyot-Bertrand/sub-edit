@@ -132,9 +132,17 @@ LineBreakPage::LineBreakPage(const core::PatternCatalogue& catalogue, QWidget* p
           QStringLiteral("Line Break"), catalogue, core::PatternKind::LineBreak, parent),
       m_maxLength(new QDoubleSpinBox{this}),
       m_maxLines(new QSpinBox{this}),
-      m_unit(new QComboBox{this}) {
+      m_unit(new QComboBox{this}),
+      m_skipOnLength(new QCheckBox{this}),
+      m_skipMaxLength(new QDoubleSpinBox{this}),
+      m_skipOnLines(new QCheckBox{this}),
+      m_skipMaxLines(new QSpinBox{this}) {
     m_maxLength->setRange(1.0, kMaxLineBreakLength);
     m_maxLines->setRange(1, kMaxLineBreakLines);
+    m_skipOnLength->setText(QStringLiteral("Skip subtitles with maximum line length of"));
+    m_skipOnLines->setText(QStringLiteral("Skip subtitles with maximum line amount of"));
+    m_skipMaxLength->setRange(1.0, kMaxLineBreakLength);
+    m_skipMaxLines->setRange(1, kMaxLineBreakLines);
     m_unit->addItem(QStringLiteral("Characters"));
     m_unit->addItem(QStringLiteral("Ems"));
 
@@ -142,6 +150,8 @@ LineBreakPage::LineBreakPage(const core::PatternCatalogue& catalogue, QWidget* p
     form->addRow(QStringLiteral("Maximum length:"), m_maxLength);
     form->addRow(QStringLiteral("Maximum lines:"), m_maxLines);
     form->addRow(QStringLiteral("Unit:"), m_unit);
+    form->addRow(m_skipOnLength, m_skipMaxLength);
+    form->addRow(m_skipOnLines, m_skipMaxLines);
     extraLayout()->addLayout(form);
 }
 
@@ -149,6 +159,11 @@ void LineBreakPage::applySettings(const core::CorrectionSettings& settings) {
     applyBase(settings.lineBreak.code, settings);
     m_maxLength->setValue(settings.lineBreakMaxLength);
     m_maxLines->setValue(settings.lineBreakMaxLines);
+    m_unit->setCurrentIndex(settings.lineBreakInEms ? 1 : 0);
+    m_skipOnLength->setChecked(settings.lineBreakSkipOnLength);
+    m_skipMaxLength->setValue(settings.lineBreakSkipMaxLength);
+    m_skipOnLines->setChecked(settings.lineBreakSkipOnLines);
+    m_skipMaxLines->setValue(settings.lineBreakSkipMaxLines);
 }
 
 double LineBreakPage::maxLength() const {
@@ -161,6 +176,22 @@ int LineBreakPage::maxLines() const {
 
 bool LineBreakPage::useEms() const {
     return m_unit->currentIndex() == 1;
+}
+
+bool LineBreakPage::skipOnLength() const {
+    return m_skipOnLength->isChecked();
+}
+
+double LineBreakPage::skipMaxLength() const {
+    return m_skipMaxLength->value();
+}
+
+bool LineBreakPage::skipOnLines() const {
+    return m_skipOnLines->isChecked();
+}
+
+int LineBreakPage::skipMaxLines() const {
+    return m_skipMaxLines->value();
 }
 
 } // namespace subedit::gui

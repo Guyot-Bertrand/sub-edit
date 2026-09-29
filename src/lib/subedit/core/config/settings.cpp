@@ -53,7 +53,7 @@ constexpr std::string_view kDurationMaximumKey = "duration-adjust.maximum-ms";
 constexpr std::string_view kDurationGapEnabledKey = "duration-adjust.gap-enabled";
 constexpr std::string_view kDurationGapKey = "duration-adjust.gap-ms";
 
-// `Correct Texts…`, sixteen keys under one prefix — decision D8, issue #504.
+// `Correct Texts…`, twenty-one keys under one prefix — decision D8, issue #504.
 constexpr std::string_view kCorrectionPrefix = "correction.";
 constexpr std::string_view kCorrectionMentionsEnabledKey = "correction.mentions.enabled";
 constexpr std::string_view kCorrectionMentionsCodeKey = "correction.mentions.code";
@@ -70,6 +70,16 @@ constexpr std::string_view kCorrectionSoundInBracketsKey = "correction.sound-in-
 constexpr std::string_view kCorrectionSoundInParenthesesKey = "correction.sound-in-parentheses";
 constexpr std::string_view kCorrectionLineBreakMaxLengthKey = "correction.line-break.max-length";
 constexpr std::string_view kCorrectionLineBreakMaxLinesKey = "correction.line-break.max-lines";
+constexpr std::string_view kCorrectionLineBreakInEmsKey = "correction.line-break.in-ems";
+constexpr std::string_view kCorrectionLineBreakSkipOnLengthKey =
+    "correction.line-break.skip-on-length";
+constexpr std::string_view kCorrectionLineBreakSkipMaxLengthKey =
+    "correction.line-break.skip-max-length";
+constexpr std::string_view kCorrectionLineBreakSkipOnLinesKey =
+    "correction.line-break.skip-on-lines";
+constexpr std::string_view kCorrectionLineBreakSkipMaxLinesKey =
+    "correction.line-break.skip-max-lines";
+constexpr std::string_view kCorrectionLineBreakPrefix = "correction.line-break.";
 constexpr std::string_view kCorrectionRemoveBlankKey = "correction.remove-blank";
 constexpr std::string_view kCorrectionActivationsKey = "correction.activations";
 
@@ -434,7 +444,32 @@ void keepOption(
     return activations;
 }
 
-/// Keeps one of the sixteen options of the correction assistant.
+/// Keeps one of the seven line-break limits of the correction assistant —
+/// what it breaks to, its unit, and Gaupol's skip gate. Apart from
+/// `applyCorrectionOption` for the same reason that one is apart.
+void applyLineBreakLimitOption(SettingsRead& read, std::string_view key, std::string_view value) {
+    const auto take = [&read, key, value](auto parsed, auto& field) {
+        keepOption(read, key, value, std::move(parsed), field);
+    };
+
+    CorrectionSettings& form = read.settings.correction;
+    if (key == kCorrectionLineBreakMaxLengthKey)
+        take(decimalOf(value), form.lineBreakMaxLength);
+    else if (key == kCorrectionLineBreakMaxLinesKey)
+        take(integerOf(value), form.lineBreakMaxLines);
+    else if (key == kCorrectionLineBreakInEmsKey)
+        take(booleanOf(value), form.lineBreakInEms);
+    else if (key == kCorrectionLineBreakSkipOnLengthKey)
+        take(booleanOf(value), form.lineBreakSkipOnLength);
+    else if (key == kCorrectionLineBreakSkipMaxLengthKey)
+        take(decimalOf(value), form.lineBreakSkipMaxLength);
+    else if (key == kCorrectionLineBreakSkipOnLinesKey)
+        take(booleanOf(value), form.lineBreakSkipOnLines);
+    else if (key == kCorrectionLineBreakSkipMaxLinesKey)
+        take(integerOf(value), form.lineBreakSkipMaxLines);
+}
+
+/// Keeps one of the twenty-one options of the correction assistant.
 ///
 /// **Apart from `applyOption`, which sends every `correction.` key here**, the
 /// same reason `applyDurationAdjustmentOption` is: this many branches would
@@ -469,10 +504,8 @@ void applyCorrectionOption(SettingsRead& read, std::string_view key, std::string
         take(booleanOf(value), form.soundInBrackets);
     else if (key == kCorrectionSoundInParenthesesKey)
         take(booleanOf(value), form.soundInParentheses);
-    else if (key == kCorrectionLineBreakMaxLengthKey)
-        take(decimalOf(value), form.lineBreakMaxLength);
-    else if (key == kCorrectionLineBreakMaxLinesKey)
-        take(integerOf(value), form.lineBreakMaxLines);
+    else if (key.starts_with(kCorrectionLineBreakPrefix))
+        applyLineBreakLimitOption(read, key, value); // after `enabled` and `code`, above
     else if (key == kCorrectionRemoveBlankKey)
         take(booleanOf(value), form.removeBlankSubtitles);
     else if (key == kCorrectionActivationsKey)
@@ -641,7 +674,7 @@ void renderDurationAdjustment(std::string& out, const DurationAdjustmentSettings
     return out;
 }
 
-/// The sixteen options of the correction assistant, each written bare when it
+/// The twenty-one options of the correction assistant, each written bare when it
 /// differs from Gaupol's and commented out when it does not.
 void renderCorrectionSettings(std::string& out, const CorrectionSettings& form) {
     const CorrectionSettings defaults;
@@ -695,6 +728,26 @@ void renderCorrectionSettings(std::string& out, const CorrectionSettings& form) 
                 kCorrectionLineBreakMaxLinesKey,
                 std::to_string(form.lineBreakMaxLines),
                 form.lineBreakMaxLines == defaults.lineBreakMaxLines);
+    writeOption(out,
+                kCorrectionLineBreakInEmsKey,
+                flagText(form.lineBreakInEms),
+                form.lineBreakInEms == defaults.lineBreakInEms);
+    writeOption(out,
+                kCorrectionLineBreakSkipOnLengthKey,
+                flagText(form.lineBreakSkipOnLength),
+                form.lineBreakSkipOnLength == defaults.lineBreakSkipOnLength);
+    writeOption(out,
+                kCorrectionLineBreakSkipMaxLengthKey,
+                std::format("{}", form.lineBreakSkipMaxLength),
+                form.lineBreakSkipMaxLength == defaults.lineBreakSkipMaxLength);
+    writeOption(out,
+                kCorrectionLineBreakSkipOnLinesKey,
+                flagText(form.lineBreakSkipOnLines),
+                form.lineBreakSkipOnLines == defaults.lineBreakSkipOnLines);
+    writeOption(out,
+                kCorrectionLineBreakSkipMaxLinesKey,
+                std::to_string(form.lineBreakSkipMaxLines),
+                form.lineBreakSkipMaxLines == defaults.lineBreakSkipMaxLines);
     writeOption(out,
                 kCorrectionRemoveBlankKey,
                 flagText(form.removeBlankSubtitles),

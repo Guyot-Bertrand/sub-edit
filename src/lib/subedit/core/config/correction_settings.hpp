@@ -12,7 +12,7 @@
 
 namespace subedit::core {
 
-/// Gaupol's own default line-break limits, in characters — decision D5.
+/// Gaupol's own default line-break limits, in its own unit (ems) — decision D5.
 inline constexpr double kDefaultLineBreakMaxLength = 24.0;
 inline constexpr int kDefaultLineBreakMaxLines = 3;
 
@@ -66,6 +66,20 @@ struct CorrectionSettings {
 
     double lineBreakMaxLength = kDefaultLineBreakMaxLength;
     int lineBreakMaxLines = kDefaultLineBreakMaxLines;
+
+    /// The unit `lineBreakMaxLength` and the skip length are in — Gaupol's
+    /// default is ems. Which measure that names is the caller's: the core
+    /// only carries the choice (D5).
+    bool lineBreakInEms = true;
+
+    /// Gaupol's skip gate: a subtitle whose longest line is within
+    /// `lineBreakSkipMaxLength` and whose line count is within
+    /// `lineBreakSkipMaxLines` is left alone. Each check is its own box,
+    /// both on by default, and both in `lineBreakInEms`'s unit.
+    bool lineBreakSkipOnLength = true;
+    double lineBreakSkipMaxLength = kDefaultLineBreakMaxLength;
+    bool lineBreakSkipOnLines = true;
+    int lineBreakSkipMaxLines = kDefaultLineBreakMaxLines;
 
     bool removeBlankSubtitles = true;
 

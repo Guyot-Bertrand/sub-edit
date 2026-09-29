@@ -25,6 +25,7 @@
 #include <subedit/gui/project_page.hpp>
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDialog>
 #include <QFont>
 #include <QItemSelectionModel>
@@ -481,4 +482,95 @@ TEST_CASE("cancelling while the computation runs returns cleanly and changes not
     CHECK(desk.pages_[0]->session->project().subtitleAt(SubtitleIndex::fromValue(0)).mainText ==
           "Bonjour  Marie");
     CHECK(desk.announced.empty());
+}
+
+namespace {
+
+constexpr const char* kSixWords =
+    "1\n00:00:01,000 --> 00:00:02,000\niiii iiii iiii MMMM MMMM MMMM\n\n";
+
+/// Runs only the line-break task, choosing `ems` for its unit and nothing
+/// else on its page, then waits for the proposal.
+[[nodiscard]] auto breakingIn(bool ems) {
+    return [ems](QDialog& dialog) {
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        wizard.show();
+        wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, false);
+        wizard.targetPage().setTaskChecked(CorrectionTask::Capitalization, false);
+        wizard.targetPage().setTaskChecked(CorrectionTask::LineBreak, true);
+        wizard.next(); // target -> line break
+        QComboBox* unit = nullptr;
+        for (QComboBox* combo : wizard.lineBreakPage().findChildren<QComboBox*>()) {
+            if (combo->itemText(0) == QStringLiteral("Characters"))
+                unit = combo;
+        }
+        REQUIRE(unit != nullptr);
+        unit->setCurrentIndex(ems ? 1 : 0);
+        wizard.next(); // line break -> progress
+        QSignalSpy spy{&wizard.progressPage(), &CorrectionProgressPage::completeChanged};
+        REQUIRE(spy.wait(2000));
+    };
+}
+
+[[nodiscard]] std::string textOf(const Desk& desk, std::size_t page) {
+    return desk.pages_[page]->session->project().subtitleAt(SubtitleIndex::fromValue(0)).mainText;
+}
+
+} // namespace
+
+TEST_CASE("GUI-BREAK-01: the unit chosen changes the breaking proposed, and nothing of the "
+          "previous measure is kept",
+          "[gui][correction-controller][GUI-BREAK-01]") {
+    Desk desk{smallCatalogue()};
+    desk.pages_.push_back(pageOn(kSixWords));
+    desk.pages_.push_back(pageOn(kSixWords));
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    CorrectionController controller{prompts, desk};
+    CorrectionSettings settings;
+    settings.lineBreakMaxLength = 15.0;
+    settings.lineBreakMaxLines = 2;
+    controller.setSettings(settings);
+
+    // 29 characters: over Gaupol's gate of 24 as well as over 15, so it is broken.
+    desk.shown = 0;
+    prompts.fill = breakingIn(false);
+    controller.open();
+    CHECK(textOf(desk, 0).find('\n') != std::string::npos);
+
+    // The same text in ems is about 14 wide: within the gate of 24, left alone —
+    // a measure kept from the run above would have broken it.
+    desk.shown = 1;
+    prompts.fill = breakingIn(true);
+    controller.open();
+    CHECK(textOf(desk, 1) == "iiii iiii iiii MMMM MMMM MMMM");
+    CHECK(controller.settings().lineBreakInEms);
+}
+
+TEST_CASE("GUI-BREAK-01: the skip gate leaves a subtitle within its thresholds, and only "
+          "those the boxes leave on",
+          "[gui][correction-controller][GUI-BREAK-01]") {
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = breakingIn(false);
+
+    const auto runWith = [&prompts](bool skipOnLength, bool skipOnLines) {
+        Desk desk{smallCatalogue()};
+        desk.pages_.push_back(pageOn(kSixWords));
+        CorrectionController controller{prompts, desk};
+        CorrectionSettings settings;
+        settings.lineBreakMaxLength = 15.0;
+        settings.lineBreakMaxLines = 2;
+        settings.lineBreakSkipOnLength = skipOnLength;
+        settings.lineBreakSkipOnLines = skipOnLines;
+        settings.lineBreakSkipMaxLength = 40.0; // 29 characters sit within it
+        controller.setSettings(settings);
+        controller.open();
+        return textOf(desk, 0);
+    };
+
+    CHECK(runWith(true, true) == "iiii iiii iiii MMMM MMMM MMMM");  // within 40 and 3
+    CHECK(runWith(true, false) == "iiii iiii iiii MMMM MMMM MMMM"); // length check alone holds it
+    CHECK(runWith(false, true) == "iiii iiii iiii MMMM MMMM MMMM"); // one line, within 3
+    CHECK(runWith(false, false).find('\n') != std::string::npos);   // no gate at all
 }

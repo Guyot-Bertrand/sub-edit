@@ -51,6 +51,11 @@ namespace {
     settings.soundInParentheses = wizard.mentionsPage().soundInParentheses();
     settings.lineBreakMaxLength = wizard.lineBreakPage().maxLength();
     settings.lineBreakMaxLines = wizard.lineBreakPage().maxLines();
+    settings.lineBreakInEms = wizard.lineBreakPage().useEms();
+    settings.lineBreakSkipOnLength = wizard.lineBreakPage().skipOnLength();
+    settings.lineBreakSkipMaxLength = wizard.lineBreakPage().skipMaxLength();
+    settings.lineBreakSkipOnLines = wizard.lineBreakPage().skipOnLines();
+    settings.lineBreakSkipMaxLines = wizard.lineBreakPage().skipMaxLines();
     settings.removeBlankSubtitles = wizard.confirmationPage().removeBlankSubtitles();
     wizard.mentionsPage().mergeActivationsInto(settings.patternActivations);
     wizard.commonErrorsPage().mergeActivationsInto(settings.patternActivations);
@@ -111,7 +116,7 @@ void CorrectionController::open() {
                 correctionTargetsOf(scope, document, pages, shown);
 
             const std::shared_ptr<const core::LineMeasure> measure =
-                wizard.lineBreakPage().useEms()
+                current.lineBreakInEms
                     ? std::static_pointer_cast<const core::LineMeasure>(
                           std::make_shared<EmsLineMeasure>(m_view->applicationFont()))
                     : std::static_pointer_cast<const core::LineMeasure>(

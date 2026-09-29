@@ -113,7 +113,7 @@ public:
     void applySettings(const core::CorrectionSettings& settings) override;
 };
 
-/// D5: the line-break limits, in characters or in ems.
+/// D5: the line-break limits, in characters or in ems, and the skip gate.
 class LineBreakPage final : public CorrectionTaskPage {
 public:
     explicit LineBreakPage(const core::PatternCatalogue& catalogue, QWidget* parent = nullptr);
@@ -122,14 +122,24 @@ public:
 
     [[nodiscard]] double maxLength() const;
     [[nodiscard]] int maxLines() const;
-    /// True for ems, false for characters — the unit chosen, never carried by
-    /// `CorrectionSettings` itself (D5: the em measure is a `gui`-only type).
+    /// True for ems, false for characters — the unit chosen. `CorrectionSettings`
+    /// carries the choice as a flag; the measure it names is `gui`-only (D5).
     [[nodiscard]] bool useEms() const;
+
+    /// Gaupol's skip gate, each check its own box, both in the unit above.
+    [[nodiscard]] bool skipOnLength() const;
+    [[nodiscard]] double skipMaxLength() const;
+    [[nodiscard]] bool skipOnLines() const;
+    [[nodiscard]] int skipMaxLines() const;
 
 private:
     QDoubleSpinBox* m_maxLength;
     QSpinBox* m_maxLines;
     QComboBox* m_unit;
+    QCheckBox* m_skipOnLength;
+    QDoubleSpinBox* m_skipMaxLength;
+    QCheckBox* m_skipOnLines;
+    QSpinBox* m_skipMaxLines;
 };
 
 } // namespace subedit::gui

@@ -61,7 +61,7 @@ d'origine, et le choix retenu disparaît.
 | `Mentions` | deux cases, `Sound in brackets` et `Sound in parentheses`, non cochées par défaut |
 | `Common Errors` | deux cases, `Human` et `OCR`, cochées par défaut |
 | `Capitalization` | rien de plus |
-| `Line Break` | une longueur maximale (`24`, par défaut), un nombre de lignes maximal (`3`), une unité — `Characters` ou `Ems`, `Characters` par défaut |
+| `Line Break` | une longueur maximale (`24`, par défaut), un nombre de lignes maximal (`3`), une unité — `Characters` ou `Ems`, `Ems` par défaut —, et deux conditions de saut, décrites plus bas |
 
 **Les deux cases de `Mentions` ne nomment aucun motif compilé** : elles
 commandent un balayage du texte au noyau, celui que
@@ -72,9 +72,35 @@ fait déjà d'un geste direct. L'une **ou** l'autre cochée suffit à le lancer.
 s'applique dès que l'une des deux cases est cochée ; les trois autres pages ne
 connaissent pas cette distinction.
 
-**L'unité de `Line Break` ne se retient pas** d'une session à l'autre — seules
-les deux valeurs numériques le sont. Choisie en `Ems`, la longueur est mesurée
-avec la police de la fenêtre plutôt qu'en nombre de caractères.
+### Line Break — l'unité et le saut
+
+![La page Line Break : longueur, nombre de lignes, unité et conditions de
+saut, sur leurs valeurs par défaut.](captures/correction-decoupage.png)
+
+![La même page sous la palette sombre.](captures/correction-decoupage-sombre.png)
+
+| Réglage | Ce qu'il fait | Défaut |
+| :------ | :------------ | :----- |
+| `Maximum length` | la longueur d'une ligne, dans l'unité choisie ; de `1` à `1000` | `24` |
+| `Maximum lines` | le nombre de lignes visé ; de `1` à `100` | `3` |
+| `Unit` | `Characters` compte les caractères ; `Ems` mesure la largeur avec la police de la fenêtre, où une lettre minuscule moyenne vaut `0,55` — l'unité de Gaupol | `Ems` |
+| `Skip subtitles with maximum line length of` | laisse tel quel un sous-titre dont la ligne la plus longue tient dans cette longueur, dans l'unité choisie | cochée, `24` |
+| `Skip subtitles with maximum line amount of` | laisse tel quel un sous-titre dont le nombre de lignes tient dans ce nombre | cochée, `3` |
+
+**Le saut a ses propres seuils**, distincts des limites visées : c'est la
+règle de Gaupol. Un sous-titre est laissé tel quel s'il tient dans **tous les
+seuils dont la case est cochée** ; sinon il est découpé, et le découpage n'est
+gardé que s'il rapproche le sous-titre d'un seuil qu'il dépassait — moins de
+longueur, ou moins de lignes. Aucune case cochée : tout sous-titre est découpé,
+qu'il tienne déjà ou non.
+
+**Changer l'unité change ce qui est proposé** : la longueur de chaque ligne est
+mesurée à chaque calcul, dans l'unité de la page à ce moment-là, et rien ne
+subsiste d'une mesure précédente. Un texte de vingt-neuf caractères, dont
+la moitié en lettres étroites, dépasse `24` en `Characters` et le tient largement
+en `Ems`.
+
+**Les sept réglages se retiennent** d'une session à l'autre, unité comprise.
 
 ### Les motifs déposés
 
