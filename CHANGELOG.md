@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **core** — Le correcteur orthographique au noyau, par Enchant (#507)
+
+## 0.12.12 — 2026-09-29
+
+### Ajouts
+
 - **gui** — Le découpage de lignes dans l'assistant (#506)
 
 ## 0.12.11 — 2026-09-29
