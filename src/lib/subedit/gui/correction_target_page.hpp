@@ -46,6 +46,7 @@ private:
     QRadioButton* m_text;
     QRadioButton* m_translation;
     QCheckBox* m_mentions;
+    QCheckBox* m_joinSplit;
     QCheckBox* m_commonErrors;
     QCheckBox* m_capitalization;
     QCheckBox* m_lineBreak;

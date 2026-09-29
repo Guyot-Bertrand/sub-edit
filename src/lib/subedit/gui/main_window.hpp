@@ -8,6 +8,7 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/text/spell_dictionary.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -324,6 +325,17 @@ public:
     /// calling this, and an empty catalogue simply offers no pattern to check.
     void setPatternCatalogue(core::PatternCatalogue catalogue) {
         m_patterns = std::move(catalogue);
+    }
+
+    /// Where the assistant gets its dictionaries, and the directory the
+    /// per-language replacement lists live in — **received, not resolved**, as
+    /// the patterns are (ADR 0022): `configureFromEnvironment` builds the real
+    /// provider, a test gives a double or none. Absent by default: the
+    /// join-and-split task then says there is no dictionary.
+    void setSpellChecking(std::shared_ptr<const core::SpellProvider> provider,
+                          std::filesystem::path configDirectory) {
+        m_spellProvider = std::move(provider);
+        m_spellConfigDirectory = std::move(configDirectory);
     }
 
     /// Opens what was dropped on the window — issue #453, `GUI-TABS-04`.
@@ -688,6 +700,8 @@ private:
     /// comment. Empty by default, both vectors empty, the same graceful-empty
     /// shape `CorrectionSettings{}` already has.
     core::PatternCatalogue m_patterns;
+    std::shared_ptr<const core::SpellProvider> m_spellProvider;
+    std::filesystem::path m_spellConfigDirectory;
 
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;

@@ -37,6 +37,7 @@ add_library(
     edit/sort_command.cpp
     text/capitalization.cpp
     text/enchant_spell_provider.cpp
+    text/join_split_words.cpp
     text/spell_checker.cpp
     text/spell_replacements.cpp
     text/spell_tokenizer.cpp

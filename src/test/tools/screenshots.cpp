@@ -36,11 +36,13 @@
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/text/word_list_spell_provider.hpp>
 #include <subedit/gui/correction_result_model.hpp>
 #include <subedit/gui/correction_task_page.hpp>
 #include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/insert_dialog.hpp>
+#include <subedit/gui/join_split_page.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/open_translation_dialog.hpp>
@@ -787,6 +789,35 @@ int main(int argc, char** argv) {
         page.applySettings(subedit::core::CorrectionSettings{});
         page.resize(560, 460);
         written = capture(page, page, directory, "correction-decoupage-sombre") && written;
+    }
+
+    // The join-and-split page of the correction assistant — issue #508, D6,
+    // GUI-SPELL-02.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        // A provider with English alone, asked for French: what the page shows
+        // then is the case the section is about.
+        subedit::core::WordListSpellProvider provider;
+        provider.add("en", subedit::core::WordList{});
+        subedit::gui::JoinSplitPage page{&provider};
+        subedit::core::CorrectionSettings settings;
+        settings.spellLanguage = "fr";
+        page.applySettings(settings);
+        page.resize(420, 200);
+        written = capture(page, page, directory, "correction-jonction") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        // A provider with English alone, asked for French: what the page shows
+        // then is the case the section is about.
+        subedit::core::WordListSpellProvider provider;
+        provider.add("en", subedit::core::WordList{});
+        subedit::gui::JoinSplitPage page{&provider};
+        subedit::core::CorrectionSettings settings;
+        settings.spellLanguage = "fr";
+        page.applySettings(settings);
+        page.resize(420, 200);
+        written = capture(page, page, directory, "correction-jonction-sombre") && written;
     }
 
     return written ? 0 : 1;

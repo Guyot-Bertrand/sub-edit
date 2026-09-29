@@ -1,9 +1,12 @@
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/core/text/icu_pattern_engine.hpp>
 #include <subedit/core/text/line_measure.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/text/spell_checker.hpp>
+#include <subedit/core/text/spell_replacements.hpp>
 #include <subedit/core/wording.hpp>
 #include <subedit/gui/correction_confirmation_page.hpp>
 #include <subedit/gui/correction_controller.hpp>
@@ -14,6 +17,7 @@
 #include <subedit/gui/correction_task_page.hpp>
 #include <subedit/gui/correction_wizard.hpp>
 #include <subedit/gui/ems_line_measure.hpp>
+#include <subedit/gui/join_split_page.hpp>
 #include <subedit/gui/project_page.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
@@ -36,6 +40,11 @@ namespace {
     core::CorrectionSettings settings = previous;
     settings.mentions = {.enabled = wizard.targetPage().taskChecked(core::CorrectionTask::Mentions),
                          .code = wizard.mentionsPage().code()};
+    settings.joinSplitEnabled =
+        wizard.targetPage().taskChecked(core::CorrectionTask::JoinSplitWords);
+    settings.joinWords = wizard.joinSplitPage().join();
+    settings.splitWords = wizard.joinSplitPage().split();
+    settings.spellLanguage = wizard.joinSplitPage().language();
     settings.commonErrors = {
         .enabled = wizard.targetPage().taskChecked(core::CorrectionTask::CommonErrors),
         .code = wizard.commonErrorsPage().code()};
@@ -73,6 +82,20 @@ namespace {
     return nullptr;
 }
 
+/// The checker of `language`, with the replacements its file holds — or null
+/// if the dictionary vanished between the page asking and now.
+[[nodiscard]] std::shared_ptr<const core::SpellChecker>
+openedSpellChecker(const core::SpellProvider& provider,
+                   const std::string& language,
+                   const std::filesystem::path& configDirectory) {
+    const core::RealFileSystem files;
+    auto opened = core::openSpellChecker(
+        provider, language, files, core::spellReplacementFile(configDirectory, language));
+    if (!opened.has_value())
+        return nullptr;
+    return std::make_shared<const core::SpellChecker>(std::move(*opened));
+}
+
 } // namespace
 
 CorrectionController::CorrectionController(Prompts& prompts, View& view)
@@ -97,6 +120,7 @@ void CorrectionController::open() {
     // be there while it does.
     core::IcuPatternEngine engine;
     CorrectionWizard wizard{m_view->patternCatalogue(),
+                            m_view->spellProvider(),
                             m_settings,
                             selectionAvailable,
                             translationAvailable,
@@ -122,10 +146,23 @@ void CorrectionController::open() {
                     : std::static_pointer_cast<const core::LineMeasure>(
                           std::make_shared<core::CharacterLineMeasure>());
 
+            // Opened here, on this thread, and only when the task runs and the
+            // page found a dictionary: no dictionary is not a failure, the
+            // task just does not run. The computation owns it from here.
+            std::shared_ptr<const core::SpellChecker> spell;
+            if (current.joinSplitEnabled && wizard.joinSplitPage().available())
+                spell = openedSpellChecker(*m_view->spellProvider(),
+                                           current.spellLanguage,
+                                           m_view->spellConfigDirectory());
+
             wizard.progressPage().setComputation(
-                [this, &engine, current, targets = std::move(targets), measure] {
-                    return core::proposeCorrections(
-                        engine, m_view->patternCatalogue(), current, *measure, targets);
+                [this, &engine, current, targets = std::move(targets), measure, spell] {
+                    return core::proposeCorrections(engine,
+                                                    m_view->patternCatalogue(),
+                                                    current,
+                                                    *measure,
+                                                    targets,
+                                                    spell.get());
                 });
         });
 

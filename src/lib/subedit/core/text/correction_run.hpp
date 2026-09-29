@@ -31,12 +31,15 @@
 namespace subedit::core {
 
 class Project;
+class SpellChecker;
 
 /// The tasks the assistant computes, in Gaupol's own order — the one
-/// `proposeCorrections` applies them in. Joining and splitting words is
-/// absent without a correcteur (decision D6) and comes with #508.
+/// `proposeCorrections` applies them in. Joining and splitting words comes
+/// with #508, between the mentions and the common errors, and only runs given
+/// a spell-checker (decision D6).
 enum class CorrectionTask {
     Mentions,
+    JoinSplitWords,
     CommonErrors,
     Capitalization,
     LineBreak,
@@ -80,9 +83,9 @@ struct CorrectionProposal {
 /// Computes what `tasks` — read from `settings` — would do to `targets`,
 /// under `catalogue` and `engine`, measuring line breaks with `measure`.
 ///
-/// **The order is Gaupol's**: mentions, common errors, capitalization,
-/// line-break — each on the text the one before it left. A subtitle mentions
-/// empties plays no part in what follows: the tasks after it never see it.
+/// **The order is Gaupol's**: mentions, join and split of words, common
+/// errors, capitalization, line-break — each on the text the one before it left. A subtitle
+/// mentions empties plays no part in what follows: the tasks after it never see it.
 ///
 /// A mention that would empty a translation is written empty instead of
 /// removed — the subtitle carries a main text nobody aimed at taking away,
@@ -92,7 +95,8 @@ struct CorrectionProposal {
                                                     const PatternCatalogue& catalogue,
                                                     const CorrectionSettings& settings,
                                                     const LineMeasure& measure,
-                                                    std::span<const CorrectionTarget> targets);
+                                                    std::span<const CorrectionTarget> targets,
+                                                    const SpellChecker* spellChecker = nullptr);
 
 /// One project's worth of what `applyCorrections` composed for it.
 struct AppliedCorrection {

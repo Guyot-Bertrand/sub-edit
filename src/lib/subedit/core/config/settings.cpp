@@ -2,6 +2,7 @@
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/encoding.hpp>
+#include <subedit/core/text/spell_dictionary.hpp>
 #include <subedit/core/wording.hpp>
 
 #include <algorithm>
@@ -53,7 +54,7 @@ constexpr std::string_view kDurationMaximumKey = "duration-adjust.maximum-ms";
 constexpr std::string_view kDurationGapEnabledKey = "duration-adjust.gap-enabled";
 constexpr std::string_view kDurationGapKey = "duration-adjust.gap-ms";
 
-// `Correct Texts…`, twenty-one keys under one prefix — decision D8, issue #504.
+// `Correct Texts…`, twenty-five keys under one prefix — decision D8, issue #504.
 constexpr std::string_view kCorrectionPrefix = "correction.";
 constexpr std::string_view kCorrectionMentionsEnabledKey = "correction.mentions.enabled";
 constexpr std::string_view kCorrectionMentionsCodeKey = "correction.mentions.code";
@@ -80,6 +81,11 @@ constexpr std::string_view kCorrectionLineBreakSkipOnLinesKey =
 constexpr std::string_view kCorrectionLineBreakSkipMaxLinesKey =
     "correction.line-break.skip-max-lines";
 constexpr std::string_view kCorrectionLineBreakPrefix = "correction.line-break.";
+constexpr std::string_view kCorrectionJoinSplitPrefix = "correction.join-split.";
+constexpr std::string_view kCorrectionJoinSplitEnabledKey = "correction.join-split.enabled";
+constexpr std::string_view kCorrectionJoinSplitJoinKey = "correction.join-split.join";
+constexpr std::string_view kCorrectionJoinSplitSplitKey = "correction.join-split.split";
+constexpr std::string_view kCorrectionJoinSplitLanguageKey = "correction.join-split.language";
 constexpr std::string_view kCorrectionRemoveBlankKey = "correction.remove-blank";
 constexpr std::string_view kCorrectionActivationsKey = "correction.activations";
 
@@ -381,6 +387,14 @@ void keepOption(
     return std::string{text};
 }
 
+/// A locale code — `fr`, `en_US` — or nothing for anything else: a language
+/// no dictionary could be asked for.
+[[nodiscard]] std::optional<std::string> spellLanguageOf(std::string_view text) {
+    if (!isValidSpellLanguage(text))
+        return std::nullopt;
+    return std::string{text};
+}
+
 /// The name a pattern's own file gives its kind — `fileExtensionOf`, read
 /// backwards.
 [[nodiscard]] std::optional<PatternKind> patternKindOf(std::string_view text) {
@@ -469,7 +483,25 @@ void applyLineBreakLimitOption(SettingsRead& read, std::string_view key, std::st
         take(integerOf(value), form.lineBreakSkipMaxLines);
 }
 
-/// Keeps one of the twenty-one options of the correction assistant.
+/// Keeps one of the four join-and-split options of the correction assistant —
+/// whether it runs, joining, splitting, and the language it spells by.
+void applyJoinSplitOption(SettingsRead& read, std::string_view key, std::string_view value) {
+    const auto take = [&read, key, value](auto parsed, auto& field) {
+        keepOption(read, key, value, std::move(parsed), field);
+    };
+
+    CorrectionSettings& form = read.settings.correction;
+    if (key == kCorrectionJoinSplitEnabledKey)
+        take(booleanOf(value), form.joinSplitEnabled);
+    else if (key == kCorrectionJoinSplitJoinKey)
+        take(booleanOf(value), form.joinWords);
+    else if (key == kCorrectionJoinSplitSplitKey)
+        take(booleanOf(value), form.splitWords);
+    else if (key == kCorrectionJoinSplitLanguageKey)
+        take(spellLanguageOf(value), form.spellLanguage);
+}
+
+/// Keeps one of the twenty-five options of the correction assistant.
 ///
 /// **Apart from `applyOption`, which sends every `correction.` key here**, the
 /// same reason `applyDurationAdjustmentOption` is: this many branches would
@@ -506,6 +538,8 @@ void applyCorrectionOption(SettingsRead& read, std::string_view key, std::string
         take(booleanOf(value), form.soundInParentheses);
     else if (key.starts_with(kCorrectionLineBreakPrefix))
         applyLineBreakLimitOption(read, key, value); // after `enabled` and `code`, above
+    else if (key.starts_with(kCorrectionJoinSplitPrefix))
+        applyJoinSplitOption(read, key, value);
     else if (key == kCorrectionRemoveBlankKey)
         take(booleanOf(value), form.removeBlankSubtitles);
     else if (key == kCorrectionActivationsKey)
@@ -674,7 +708,7 @@ void renderDurationAdjustment(std::string& out, const DurationAdjustmentSettings
     return out;
 }
 
-/// The twenty-one options of the correction assistant, each written bare when it
+/// The twenty-five options of the correction assistant, each written bare when it
 /// differs from Gaupol's and commented out when it does not.
 void renderCorrectionSettings(std::string& out, const CorrectionSettings& form) {
     const CorrectionSettings defaults;
@@ -748,6 +782,22 @@ void renderCorrectionSettings(std::string& out, const CorrectionSettings& form) 
                 kCorrectionLineBreakSkipMaxLinesKey,
                 std::to_string(form.lineBreakSkipMaxLines),
                 form.lineBreakSkipMaxLines == defaults.lineBreakSkipMaxLines);
+    writeOption(out,
+                kCorrectionJoinSplitEnabledKey,
+                flagText(form.joinSplitEnabled),
+                form.joinSplitEnabled == defaults.joinSplitEnabled);
+    writeOption(out,
+                kCorrectionJoinSplitJoinKey,
+                flagText(form.joinWords),
+                form.joinWords == defaults.joinWords);
+    writeOption(out,
+                kCorrectionJoinSplitSplitKey,
+                flagText(form.splitWords),
+                form.splitWords == defaults.splitWords);
+    writeOption(out,
+                kCorrectionJoinSplitLanguageKey,
+                form.spellLanguage,
+                form.spellLanguage == defaults.spellLanguage);
     writeOption(out,
                 kCorrectionRemoveBlankKey,
                 flagText(form.removeBlankSubtitles),

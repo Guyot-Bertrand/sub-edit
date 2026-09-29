@@ -13,7 +13,7 @@ changements sans jamais les imposer.
 | :----- | :---- | :--------- |
 | `Target` | `Selection`, `Current Project`, `All Open Projects` | `Current Project` |
 | `Document` | `Text`, `Translation` | `Text` |
-| `Tasks` | `Mentions`, `Common Errors`, `Capitalization`, `Line Break` — à cocher, un ou plusieurs | `Common Errors` et `Capitalization` cochées, les deux autres non |
+| `Tasks` | `Mentions`, `Join or Split Words`, `Common Errors`, `Capitalization`, `Line Break` — à cocher, un ou plusieurs | `Common Errors` et `Capitalization` cochées, les trois autres non |
 
 `Selection` est éteinte sans ligne choisie dans l'onglet montré ; `Translation`
 est éteinte tant qu'aucun projet ouvert ne porte de traduction.
@@ -33,8 +33,8 @@ sur `Current Project` et `Text`. Les tâches cochées, elles, se retiennent.
 un projet qui n'en porte pas n'a rien à proposer dans une colonne vide, et
 l'assistant ne le compte pas.
 
-**Les pages de tâche suivent, dans l'ordre de Gaupol — `Mentions`, `Common
-Errors`, `Capitalization`, `Line Break` — jamais celui dans lequel les cases
+**Les pages de tâche suivent, dans l'ordre de Gaupol — `Mentions`, `Join or
+Split Words`, `Common Errors`, `Capitalization`, `Line Break` — jamais celui dans lequel les cases
 ont été cochées.** Une tâche non cochée n'a pas de page ; ses réglages
 retenus ne changent pas pour autant. **Aucune page de tâche ne porte sa propre
 case « active »** : c'est celle de cette première page, et elle seule, qui
@@ -42,7 +42,7 @@ décide si la tâche s'exécute.
 
 ## Les pages de tâche
 
-Chacune des quatre pages porte la même base : trois menus déroulants en
+Chacune des quatre pages de motifs — toutes sauf `Join or Split Words`, qui n'en a pas — porte la même base : trois menus déroulants en
 cascade — écriture, langue, pays — pour choisir le code des motifs à
 appliquer, puis la liste des motifs de ce code, un à cocher par nom. **Les
 trois menus ne proposent que ce que le catalogue de motifs porte
@@ -101,6 +101,49 @@ la moitié en lettres étroites, dépasse `24` en `Characters` et le tient large
 en `Ems`.
 
 **Les sept réglages se retiennent** d'une session à l'autre, unité comprise.
+
+### Join or Split Words — recoller et scinder d'après le correcteur
+
+![La page Join or Split Words, sans dictionnaire pour la langue : les cases
+sont grisées et la page dit pourquoi.](captures/correction-jonction.png)
+
+![La même page sous la palette sombre.](captures/correction-jonction-sombre.png)
+
+Une page à part, entre `Mentions` et `Common Errors`, pour réparer ce que les
+logiciels de reconnaissance de texte font aux espaces. Elle n'a pas de liste de
+motifs : elle s'appuie sur les dictionnaires du système, par Enchant.
+
+| Réglage | Ce qu'il fait | Défaut |
+| :------ | :------------ | :----- |
+| `Language` | la langue du dictionnaire ; les codes que le système propose, et celui déjà choisi | la langue du système, si elle y est |
+| `Join words` | recolle un mot mal orthographié au mot voisin | cochée |
+| `Split words` | coupe un mot mal orthographié en deux | non cochée |
+
+**Recoller** : un mot mal orthographié est joint au mot qui le précède ou qui
+le suit **si, et seulement si, une seule des deux directions donne un mot bien
+orthographié**. Quand les deux le donnent, ou qu'aucune, rien n'est fait.
+`bon jour` devient `bonjour` ; deux espaces d'affilée sont d'abord ramenés à
+un, mais un texte où rien n'est recollé est rendu tel qu'il était, espaces
+comprises.
+
+**Scinder** : un mot mal orthographié est coupé si, parmi les suggestions du
+correcteur, **une seule** est ce mot avec une espace dedans — les mêmes
+lettres, dans le même ordre. Deux suggestions de cette sorte, ou aucune : rien
+n'est fait. Un mot dont seule l'initiale est en capitale (`Bonjourtous`) n'est
+jamais scindé : c'est souvent un nom, et les dictionnaires n'en ont pas.
+
+**La liste de remplacements de l'utilisateur** (`spell-check/<langue>.repl`,
+dans le répertoire de configuration du programme) compte parmi les suggestions
+du correcteur ; l'assistant la lit et ne l'écrit pas.
+
+**Sans dictionnaire pour la langue choisie, la page reste et se grise** : les
+deux cases sont éteintes et la page dit `no dictionary for` suivi du code de
+la langue. La langue reste modifiable — un dictionnaire d'une autre peut être
+là — et la tâche, cochée ou non sur la première page, ne fait alors rien et ne
+signale aucune erreur.
+
+**La langue, les deux cases et la case de la première page se retiennent** d'une
+ouverture de l'assistant à l'autre.
 
 ### Les motifs déposés
 

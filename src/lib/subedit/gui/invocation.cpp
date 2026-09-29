@@ -1,6 +1,7 @@
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
+#include <subedit/core/text/enchant_spell_provider.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/core/version.hpp>
 #include <subedit/core/wording.hpp>
@@ -14,6 +15,7 @@
 #include <QStringList>
 
 #include <expected>
+#include <memory>
 #include <ostream>
 #include <string>
 #include <utility>
@@ -97,6 +99,8 @@ void configureFromEnvironment(MainWindow& window,
     window.setManualPath(installedManualPath());
     window.setPatternCatalogue(
         core::readPatternCatalogue(files, installedPatternsPath(), resolvedUserPatternsPath()));
+    window.setSpellChecking(std::make_shared<const core::EnchantSpellProvider>(),
+                            userSettingsPath().parent_path());
 }
 
 } // namespace subedit::gui

@@ -11,10 +11,12 @@
 // the shipped files, so a test asserting a specific pattern's behaviour never
 // drifts with them.
 
+#include <subedit/core/config/settings.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/text/word_list_spell_provider.hpp>
 #include <subedit/core/wording.hpp>
 #include <subedit/gui/correction_confirmation_page.hpp>
 #include <subedit/gui/correction_progress_page.hpp>
@@ -40,6 +42,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -508,4 +511,38 @@ TEST_CASE("choosing Ems for the line-break unit reads the window's own applicati
     // built from the real window's own font, read through `applicationFont()`,
     // rather than a font that was never set.
     window.correctTextsAction()->trigger();
+}
+
+TEST_CASE("GUI-SPELL-03: the window's own spell provider joins words through the assistant",
+          "[gui][GUI-SPELL-03]") {
+    InMemoryFileSystem files = withFile("1\n00:00:01,000 --> 00:00:02,000\nbon jour\n\n");
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        wizard.show();
+        wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, false);
+        wizard.targetPage().setTaskChecked(CorrectionTask::Capitalization, false);
+        wizard.targetPage().setTaskChecked(CorrectionTask::JoinSplitWords, true);
+        while (wizard.currentId() != CorrectionWizard::ProgressId)
+            wizard.next();
+        QSignalSpy spy{&wizard.progressPage(), &CorrectionProgressPage::completeChanged};
+        REQUIRE(spy.wait(2000));
+    };
+    MainWindow window{files, fileIn(files), prompts};
+    subedit::core::WordList list;
+    list.words = {"bonjour"};
+    auto provider = std::make_shared<subedit::core::WordListSpellProvider>();
+    provider->add("fr", std::move(list));
+    window.setSpellChecking(provider, "/nonexistent-config");
+    window.applySettings([] {
+        subedit::core::Settings settings;
+        settings.correction.spellLanguage = "fr";
+        return settings;
+    }());
+    window.show();
+
+    window.correctTextsAction()->trigger();
+
+    CHECK(textAt(window, 0) == "bonjour");
 }

@@ -544,6 +544,50 @@ appliquer la remplace.
 > chez Gaupol (`skip_unit_combo` et `unit_combo` lisent la même valeur). Les
 > réglages passent de seize à vingt et un.
 
+> **Précisé par [#508](https://github.com/Guyot-Bertrand/sub-edit/issues/508).**
+> **`joinWords` et `splitWords` sont au noyau**, deux fonctions de textes comme
+> les autres — un texte en sortie pour chaque texte en entrée, rendu tel quel
+> quand rien ne s'applique —, sur un `SpellChecker` et le navigateur de Gaupol
+> (`SpellCheckNavigator`), porté ligne à ligne. Les textes se prennent **bruts,
+> balises comprises**, comme chez Gaupol : le `font` d'une balise est un mot
+> pour le découpage.
+>
+> **Un écart, et il est voulu.** Gaupol compare le texte final à celui que le
+> navigateur avait **au dernier mot mal orthographié atteint** (`text =
+> navigator.text` dans la boucle) : une jonction suivie d'un mot mal
+> orthographié qu'on laisse en l'état n'est jamais enregistrée. Le nôtre
+> compare au texte de départ, espaces réduites ; le cas est un test. Pour le
+> reste, `istitle` de Python est reproduit par les propriétés de casse d'ICU
+> (`Don't` n'est pas un titre, `McDonald` non plus), et `\W+` du découpage des
+> voisins par le même `u_isalnum` et le tiret bas que le découpage en mots.
+>
+> **L'ordre est celui de Gaupol, plus un** : mentions, **jonction et scission**,
+> erreurs courantes, majuscules, découpage — jonction avant scission, chacune
+> sur le texte que l'autre a laissé. `CorrectionTask::JoinSplitWords` rejoint
+> l'énumération ; `proposeCorrections` prend un `const SpellChecker*` qui vaut
+> `nullptr` par défaut, et **la tâche ne fait rien sans lui** — un défaut de
+> dictionnaire n'est pas un échec de motif, la fenêtre dit pourquoi. Le
+> correcteur est ouvert par l'appelant, sur son fil, avec la liste de
+> remplacements de la langue (lue, jamais écrite : `replace` chez Gaupol y
+> ajoute, sans effet sur un mot déjà traité), et le calcul en devient le
+> propriétaire.
+>
+> **Les réglages** passent de vingt et un à vingt-cinq : la tâche cochée
+> (`correction.join-split.enabled`), la jonction (`join`, cochée), la scission
+> (`split`, non cochée) et la langue (`language`, un code de locale, vide
+> jusqu'à ce qu'on en choisisse une). Vide, la langue est celle du système —
+> code exact, puis langue seule parmi celles qu'Enchant propose, sinon le code
+> du système lui-même, que la page dira alors ne pas avoir de dictionnaire.
+>
+> **La page reste et se grise sans dictionnaire** (GUI-SPELL-02) : les deux
+> cases éteintes, la phrase `noDictionaryFor` dessous, la langue toujours
+> modifiable puisqu'un dictionnaire d'une autre peut être là. Le fournisseur
+> de dictionnaires et le répertoire de configuration des listes de
+> remplacements sont **reçus par la fenêtre**, comme les motifs — `setSpellChecking`
+> — et jamais résolus par le contrôleur ; `configureFromEnvironment` construit
+> le vrai `EnchantSpellProvider`, un test donne un double ou rien. **L'entrée
+> `Check Spelling…` reste à #509** : GUI-SPELL-02 y sera citée de nouveau.
+
 ## D9 — Les balises : le parseur de la phase 10, par `transform`
 
 La question du cadrage — le parseur tient-il les décalages que les motifs

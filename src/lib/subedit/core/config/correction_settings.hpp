@@ -81,6 +81,16 @@ struct CorrectionSettings {
     bool lineBreakSkipOnLines = true;
     int lineBreakSkipMaxLines = kDefaultLineBreakMaxLines;
 
+    /// The join-and-split task (D6, D8) — decision D8 of the phase-12 spec,
+    /// issue #508. **Off by default** with the two tasks that need a
+    /// dictionary; joining is on and splitting off once it is, Gaupol's own
+    /// defaults. `spellLanguage` is the code of the dictionary to check by,
+    /// empty until one was chosen — the window then takes the system's.
+    bool joinSplitEnabled = false;
+    bool joinWords = true;
+    bool splitWords = false;
+    std::string spellLanguage{};
+
     bool removeBlankSubtitles = true;
 
     friend bool operator==(const CorrectionSettings&, const CorrectionSettings&) = default;

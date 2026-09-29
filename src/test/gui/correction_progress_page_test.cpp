@@ -124,7 +124,7 @@ TEST_CASE("Back during the computation does not jump forward when it ends",
     const PatternCatalogue catalogue = emptyCatalogue();
     CorrectionSettings settings;
     settings.capitalization.enabled = false; // Common Errors alone, then progress
-    CorrectionWizard wizard{catalogue, settings, true, false};
+    CorrectionWizard wizard{catalogue, nullptr, settings, true, false};
     SlowComputation slow;
     wizard.progressPage().setComputation(slow.function());
     wizard.show();

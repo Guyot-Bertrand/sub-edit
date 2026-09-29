@@ -22,6 +22,11 @@ struct SpellWord {
     friend bool operator==(const SpellWord&, const SpellWord&) = default;
 };
 
+/// Python's `\w` on a `str`: a letter, a digit, or an underscore. What the
+/// tokenizer cuts words with, and what the join and split of words read
+/// their neighbours by.
+[[nodiscard]] bool isSpellWordCharacter(char32_t c);
+
 /// The words of `text`, in order: a run that starts with a letter or a digit
 /// and goes on to the next character that is neither a word character
 /// (letter, digit, underscore) nor an apostrophe, minus what non-word
