@@ -71,12 +71,13 @@ sources, ce que la section suivante décrit en entier.
 | Qt 6, module `Widgets` | la fenêtre | `qt6-base-dev` |
 | `libmpv` | le lecteur intégré | `libmpv-dev` |
 | ICU | la lecture des encodages | `libicu-dev` |
+| Enchant 2 | la bibliothèque du correcteur orthographique | `libenchant-2-dev` |
 
-**Les trois dernières sont exigées même pour ne construire que
+**Les quatre dernières sont exigées même pour ne construire que
 `subedit-cli`** : la configuration CMake les cherche pour tout le projet, et
-s'arrête si elles manquent. ICU, elle, l'est doublement — `subedit-cli` s'en
-sert pour convertir les encodages, et c'est la seule bibliothèque tierce qu'il
-charge à l'exécution.
+s'arrête si elles manquent. ICU et Enchant, elles, le sont doublement — l'exécutable les charge, l'une
+pour convertir les encodages, l'autre pour le correcteur orthographique — et
+ce sont les seules bibliothèques tierces qu'il charge à l'exécution.
 
 **Une connexion réseau au premier `cmake`** : la bibliothèque de tests Catch2
 est récupérée depuis GitHub à la configuration. Elle n'est plus retéléchargée

@@ -36,6 +36,11 @@ add_library(
     edit/set_text_command.cpp
     edit/sort_command.cpp
     text/capitalization.cpp
+    text/enchant_spell_provider.cpp
+    text/spell_checker.cpp
+    text/spell_replacements.cpp
+    text/spell_tokenizer.cpp
+    text/word_list_spell_provider.cpp
     text/common_errors.cpp
     text/correction_pattern.cpp
     text/icu_pattern_engine.cpp
@@ -127,6 +132,9 @@ target_compile_definitions(
 # ICU en privé : aucun en-tête du noyau ne montre `unicode/`, seuls deux
 # fichiers d'implémentation l'incluent. Ce qui dépend de subedit_core hérite
 # donc de l'édition de liens, et de rien d'autre.
-target_link_libraries(subedit_core PRIVATE ICU::uc ICU::i18n)
+#
+# Enchant de même : seul `enchant_spell_provider.cpp` l'inclut, et rien de son
+# en-tête ne montre `enchant.h`.
+target_link_libraries(subedit_core PRIVATE ICU::uc ICU::i18n PkgConfig::enchant)
 
 subedit_set_warnings(subedit_core)

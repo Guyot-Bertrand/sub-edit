@@ -500,6 +500,10 @@ std::string noticeOfCorrection(std::size_t corrected, std::size_t removed) {
            " subtitles";
 }
 
+std::string noDictionaryFor(std::string_view language) {
+    return "no dictionary for " + std::string{language};
+}
+
 std::string countOf(std::size_t count, std::string_view noun) {
     std::string text = std::to_string(count) + " " + std::string{noun};
     if (count != 1) {

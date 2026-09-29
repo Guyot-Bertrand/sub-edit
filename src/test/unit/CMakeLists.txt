@@ -32,6 +32,10 @@ add_executable(
     core/text/text_diff_test.cpp
     core/text/line_breaking_test.cpp
     core/text/line_measure_test.cpp
+    core/text/spell_checker_test.cpp
+    core/text/spell_replacements_test.cpp
+    core/text/spell_tokenizer_test.cpp
+    core/text/enchant_spell_provider_test.cpp
     core/text/icu_pattern_engine_test.cpp
     core/text/pattern_catalogue_test.cpp
     core/text/pattern_paths_test.cpp

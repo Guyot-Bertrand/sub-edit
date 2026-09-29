@@ -311,6 +311,11 @@ namespace subedit::core {
 /// blanked is a removal, not an edit that happened to leave nothing.
 [[nodiscard]] std::string noticeOfCorrection(std::size_t corrected, std::size_t removed);
 
+/// Why spell-checking is unavailable for `language` — decision D6 of the
+/// phase-12 spec: the program works and the function switches itself off, and
+/// says so in these words, where Gaupol drops the page without a word.
+[[nodiscard]] std::string noDictionaryFor(std::string_view language);
+
 /// What opening a translation did, in one sentence — decision D4 of the phase-11
 /// spec, and ADR 0008: said, and not left for the user to find out.
 ///
