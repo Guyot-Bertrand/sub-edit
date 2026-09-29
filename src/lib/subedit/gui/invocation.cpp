@@ -1,9 +1,13 @@
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
+#include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/core/version.hpp>
 #include <subedit/core/wording.hpp>
 #include <subedit/gui/invocation.hpp>
+#include <subedit/gui/main_window.hpp>
+#include <subedit/gui/manual_path.hpp>
+#include <subedit/gui/patterns_path.hpp>
 #include <subedit/gui/settings_path.hpp>
 
 #include <QString>
@@ -84,6 +88,15 @@ void writeUserSettings(core::FileSystem& files,
                        const core::Settings& settings,
                        std::ostream& errors) {
     writeUserSettings(files, userSettingsPath(), settings, errors);
+}
+
+void configureFromEnvironment(MainWindow& window,
+                              const core::FileSystem& files,
+                              std::ostream& errors) {
+    window.applySettings(readUserSettings(files, errors));
+    window.setManualPath(installedManualPath());
+    window.setPatternCatalogue(
+        core::readPatternCatalogue(files, installedPatternsPath(), resolvedUserPatternsPath()));
 }
 
 } // namespace subedit::gui

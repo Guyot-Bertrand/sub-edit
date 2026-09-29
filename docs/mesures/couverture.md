@@ -453,11 +453,40 @@ vide et de l'appliquer quand même, ce que rien n'empêcherait si un futur
 appelant relâchait l'invariant que cette lecture démontre. Une ligne non
 couverte reste moins chère qu'une commande d'historique qui ne change rien.
 
+## Cinq lignes de plus dans l'assistant, à la relecture de fin de phase 12 (#505)
+
+Le même geste que les deux entrées précédentes — un `switch` exhaustif rendu
+sûr par le compilateur, un risque accepté et déjà écrit ailleurs — appliqué à
+quatre points que la relecture de fin d'issue a mesurés plutôt que supposés.
+
+**Trois gardes de repli, un bloc chacune.** `CorrectionTargetPage::taskChecked`,
+`CorrectionConfirmationPage::reasonOf` et le `taskSettingsOf` local du
+constructeur de `CorrectionWizard` partagent la même forme : un `switch`
+qui couvre chaque valeur d'une énumération à quatre ou six membres, suivi d'un
+`return` que rien n'atteint tant que l'énumération n'en gagne pas un cinquième
+sans mettre à jour le `switch` — ce que le compilateur signale déjà par
+ailleurs (`-Wswitch`). Écrit en toutes lettres plutôt qu'en
+`std::unreachable()` pour rester lisible sans documentation à côté ; compté
+tout de même, puisque `gcovr` ne fait pas la différence.
+
+**Deux lignes dans `CorrectionController`, et le risque que #505 avait déjà
+nommé avant que la mesure ne le confirme.** `pageOwning` répond `nullptr`
+quand aucune page ouverte ne porte l'adresse du projet qu'une correction
+acceptée visait — la garde d'« abandonner referme la fenêtre pendant qu'un
+calcul tourne encore », et son pendant, le `continue` qui saute le projet
+correspondant dans la boucle d'application. Cette adresse n'est jamais
+déréférencée, seulement comparée : le risque tient tout entier dans le fait
+qu'elle peut nommer un projet déjà fermé, ce qui est précisément ce que la
+garde protège contre. La reproduire dans un test demanderait de fermer un
+projet pendant qu'une correction lui est encore promise — soit une vraie
+concurrence, soit une manipulation directe de la mémoire pour la simuler, les
+deux plus coûteuses et plus fragiles que la ligne qu'elles prouveraient.
+
 ## Relevé
 
-    total : 68
+    total : 73
 
-Relevé sur la version 0.12.10, le 2026-09-28.
+Relevé sur la version 0.12.11, le 2026-09-29.
 
 | Lignes | Fichier |
 | -----: | :------ |
@@ -467,8 +496,12 @@ Relevé sur la version 0.12.10, le 2026-09-28.
 | 4 | `src/lib/subedit/gui/player_factory.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
+| 2 | `src/lib/subedit/gui/correction_controller.cpp` |
 | 1 | `src/lib/subedit/core/text/correction_run.cpp` |
 | 1 | `src/lib/subedit/core/text/hearing_impaired_correction.cpp` |
 | 1 | `src/lib/subedit/core/text/line_breaking.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
+| 1 | `src/lib/subedit/gui/correction_confirmation_page.cpp` |
+| 1 | `src/lib/subedit/gui/correction_target_page.cpp` |
+| 1 | `src/lib/subedit/gui/correction_wizard.cpp` |
 | 1 | `src/lib/subedit/gui/save_shape.cpp` |

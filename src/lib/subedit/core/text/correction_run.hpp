@@ -7,14 +7,16 @@
 // takes the tasks and their settings, the projects and the target, and gives
 // back the changes it would make, **without touching a single project** —
 // Gaupol copies each project to do this; a correction being a function of
-// texts, there is nothing to copy. A second function applies an accepted
-// subset, one composed command per project.
+// texts, there is nothing to copy. A second function composes an accepted
+// subset into one command per project, **without applying it**: the caller
+// runs each through `Session::apply`, the only road to a change.
 
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/text/common_errors.hpp> // for PatternFailure
 #include <subedit/core/text/line_measure.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/core/text/pattern_engine.hpp>
@@ -47,7 +49,7 @@ enum class CorrectionTask {
 /// "every project open" into one of these is the caller's — a window's, once
 /// there is one — not this function's.
 struct CorrectionTarget {
-    Project* project = nullptr;
+    const Project* project = nullptr;
     Selection selection;
     Document document = Document::Main;
 };
@@ -59,11 +61,20 @@ struct CorrectionTarget {
 /// it earns no entry: decision D8 shows a confirmation page of changed texts,
 /// never a page a user has to read past to find the ones that matter.
 struct ProposedCorrection {
-    Project* project = nullptr;
+    const Project* project = nullptr;
     SubtitleIndex index;
     Document document = Document::Main;
     std::string original;
     std::optional<std::string> proposed;
+};
+
+/// What `proposeCorrections` answered: the changes it would make, and every
+/// pattern that could not do its part — named once each per reason, however
+/// many texts or targets it was asked to work on (GUI-CORRECT-06). A failure's
+/// `text` is then the first text it gave up on, within its own target.
+struct CorrectionProposal {
+    std::vector<ProposedCorrection> corrections;
+    std::vector<PatternFailure> failures;
 };
 
 /// Computes what `tasks` — read from `settings` — would do to `targets`,
@@ -77,22 +88,25 @@ struct ProposedCorrection {
 /// removed — the subtitle carries a main text nobody aimed at taking away,
 /// the same rule `removeHearingImpaired` already keeps for phase 4's direct
 /// command.
-[[nodiscard]] std::vector<ProposedCorrection>
-proposeCorrections(const PatternEngine& engine,
-                   const PatternCatalogue& catalogue,
-                   const CorrectionSettings& settings,
-                   const LineMeasure& measure,
-                   std::span<const CorrectionTarget> targets);
+[[nodiscard]] CorrectionProposal proposeCorrections(const PatternEngine& engine,
+                                                    const PatternCatalogue& catalogue,
+                                                    const CorrectionSettings& settings,
+                                                    const LineMeasure& measure,
+                                                    std::span<const CorrectionTarget> targets);
 
-/// One project's worth of what `applyCorrections` did to it.
+/// One project's worth of what `applyCorrections` composed for it.
 struct AppliedCorrection {
-    Project* project = nullptr;
+    const Project* project = nullptr;
     std::unique_ptr<Command> command;
 };
 
-/// Applies `accepted` — a subset of what `proposeCorrections` answered —
-/// **one composed command per project**, so that undoing it is one gesture
-/// per project, not one per subtitle.
+/// Composes `accepted` — a subset of what `proposeCorrections` answered —
+/// into **one `CompositeCommand` per project, not yet applied**: the caller
+/// runs it the ordinary way, `Session::apply(command)`, so undoing it is one
+/// gesture per project and the session's own history stays the only road to a
+/// change (`Session::project()`'s own rule). `tallyOf` below reads a composed
+/// command before it is applied — the same order every other tally in this
+/// codebase already uses.
 ///
 /// A removed subtitle is taken away when `removeBlankSubtitles`, and left
 /// holding its emptied text otherwise — Gaupol's own checkbox, cochée par
@@ -103,7 +117,8 @@ struct AppliedCorrection {
 [[nodiscard]] std::vector<AppliedCorrection>
 applyCorrections(std::span<const ProposedCorrection> accepted, bool removeBlankSubtitles);
 
-/// What `applyCorrections` did — decision D8's own count, never of matches.
+/// What the commands `applyCorrections` composed will do once the caller has
+/// applied them — decision D8's own count, never of matches.
 struct CorrectionTally {
     std::size_t corrected = 0;
     std::size_t removed = 0;
@@ -111,7 +126,7 @@ struct CorrectionTally {
     friend bool operator==(const CorrectionTally&, const CorrectionTally&) = default;
 };
 
-/// Reads what `applied` did from the commands themselves, the same rule
+/// Reads what `applied` will do from the composed commands themselves, the same rule
 /// `tallyOf(const Command&)` already follows for phase 4's removal.
 [[nodiscard]] CorrectionTally tallyOf(std::span<const AppliedCorrection> applied);
 

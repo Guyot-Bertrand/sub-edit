@@ -1,6 +1,7 @@
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/command/composite_command.hpp>
+#include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/edit/remove_command.hpp>
 #include <subedit/core/edit/set_text_command.hpp>
 #include <subedit/core/model/project.hpp>
@@ -14,22 +15,12 @@
 #include <subedit/core/text/line_breaking.hpp>
 
 #include <algorithm>
+#include <tuple>
 #include <variant>
 
 namespace subedit::core {
 
 namespace {
-
-/// The activation `settings` sets for `pattern`, on top of its shipped
-/// default — decision D2, by kind, code and name.
-[[nodiscard]] bool isEnabled(const CorrectionPattern& pattern, const CorrectionSettings& settings) {
-    for (const PatternActivation& activation : settings.patternActivations) {
-        if (activation.kind == pattern.kind() && activation.code == pattern.code &&
-            activation.name == pattern.name)
-            return activation.enabled;
-    }
-    return pattern.enabled;
-}
 
 /// Decision D4: a record of kind `CommonError` applies if one of its classes
 /// is checked; the other three kinds carry no class, and are never filtered
@@ -51,7 +42,7 @@ selectedPatterns(const PatternCatalogue& catalogue,
                  const CorrectionSettings& settings) {
     std::vector<const CorrectionPattern*> chosen;
     for (const CorrectionPattern* pattern : catalogue.cascade(kind, code)) {
-        if (!isEnabled(*pattern, settings))
+        if (!patternEnabled(*pattern, settings))
             continue;
         if (!classesAllow(*pattern, settings))
             continue;
@@ -90,7 +81,8 @@ void runTasks(const PatternEngine& engine,
               const LineMeasure& measure,
               const CorrectionTarget& target,
               SubtitleFormat format,
-              std::vector<std::optional<std::string>>& texts) {
+              std::vector<std::optional<std::string>>& texts,
+              std::vector<PatternFailure>& failures) {
     if (settings.mentions.enabled) {
         const Present present = presentOf(texts);
         const std::vector<const CorrectionPattern*> patterns = selectedPatterns(
@@ -101,6 +93,7 @@ void runTasks(const PatternEngine& engine,
                                    present.texts,
                                    format,
                                    settings.soundInBrackets || settings.soundInParentheses);
+        failures.insert(failures.end(), done.failures.begin(), done.failures.end());
         for (std::size_t k = 0; k < present.at.size(); ++k) {
             std::optional<std::string> corrected = done.texts[k];
             // A translation carries no timing of its own: emptying it takes
@@ -117,6 +110,7 @@ void runTasks(const PatternEngine& engine,
         const std::vector<const CorrectionPattern*> patterns = selectedPatterns(
             catalogue, PatternKind::CommonError, settings.commonErrors.code, settings);
         const CorrectedTexts done = correctCommonErrors(engine, patterns, present.texts, format);
+        failures.insert(failures.end(), done.failures.begin(), done.failures.end());
         for (std::size_t k = 0; k < present.at.size(); ++k)
             texts[present.at[k]] = done.texts[k];
     }
@@ -126,6 +120,7 @@ void runTasks(const PatternEngine& engine,
         const std::vector<const CorrectionPattern*> patterns = selectedPatterns(
             catalogue, PatternKind::Capitalization, settings.capitalization.code, settings);
         const CorrectedTexts done = correctCapitalization(engine, patterns, present.texts, format);
+        failures.insert(failures.end(), done.failures.begin(), done.failures.end());
         for (std::size_t k = 0; k < present.at.size(); ++k)
             texts[present.at[k]] = done.texts[k];
     }
@@ -140,6 +135,7 @@ void runTasks(const PatternEngine& engine,
                                             measure,
                                             settings.lineBreakMaxLength,
                                             settings.lineBreakMaxLines);
+        failures.insert(failures.end(), done.failures.begin(), done.failures.end());
         for (std::size_t k = 0; k < present.at.size(); ++k)
             texts[present.at[k]] = done.texts[k];
     }
@@ -147,12 +143,12 @@ void runTasks(const PatternEngine& engine,
 
 } // namespace
 
-std::vector<ProposedCorrection> proposeCorrections(const PatternEngine& engine,
-                                                   const PatternCatalogue& catalogue,
-                                                   const CorrectionSettings& settings,
-                                                   const LineMeasure& measure,
-                                                   std::span<const CorrectionTarget> targets) {
-    std::vector<ProposedCorrection> result;
+CorrectionProposal proposeCorrections(const PatternEngine& engine,
+                                      const PatternCatalogue& catalogue,
+                                      const CorrectionSettings& settings,
+                                      const LineMeasure& measure,
+                                      std::span<const CorrectionTarget> targets) {
+    CorrectionProposal proposal;
 
     for (const CorrectionTarget& target : targets) {
         std::vector<SubtitleIndex> indices;
@@ -169,25 +165,42 @@ std::vector<ProposedCorrection> proposeCorrections(const PatternEngine& engine,
             originals.push_back(target.project->subtitleAt(index).text(target.document));
 
         std::vector<std::optional<std::string>> texts(originals.begin(), originals.end());
-        runTasks(engine, catalogue, settings, measure, target, format, texts);
+        runTasks(engine, catalogue, settings, measure, target, format, texts, proposal.failures);
 
         for (std::size_t i = 0; i < indices.size(); ++i) {
             if (texts[i] == originals[i])
                 continue;
-            result.push_back(ProposedCorrection{.project = target.project,
-                                                .index = indices[i],
-                                                .document = target.document,
-                                                .original = originals[i],
-                                                .proposed = std::move(texts[i])});
+            proposal.corrections.push_back(ProposedCorrection{.project = target.project,
+                                                              .index = indices[i],
+                                                              .document = target.document,
+                                                              .original = originals[i],
+                                                              .proposed = std::move(texts[i])});
         }
     }
-    return result;
+
+    // De-duplicate by pattern and reason, never by text: the same pattern
+    // reports the same failure once per target it ran on — and a per-text
+    // one (time-out, passes, length) once per text — while the confirmation
+    // names it once. `text` is only an index into one target's own texts, so
+    // it could not tell two targets apart anyway; the stable sort keeps the
+    // first report's `text` and `detail`, and nothing downstream reads more.
+    const auto key = [](const PatternFailure& f) {
+        return std::tie(f.kind, f.code, f.rank, f.name);
+    };
+    std::ranges::stable_sort(proposal.failures, {}, key);
+    proposal.failures.erase(
+        std::ranges::unique(
+            proposal.failures,
+            [&key](const PatternFailure& a, const PatternFailure& b) { return key(a) == key(b); })
+            .begin(),
+        proposal.failures.end());
+    return proposal;
 }
 
 std::vector<AppliedCorrection> applyCorrections(std::span<const ProposedCorrection> accepted,
                                                 bool removeBlankSubtitles) {
     struct Group {
-        Project* project;
+        const Project* project;
         std::vector<const ProposedCorrection*> items;
     };
 
@@ -230,7 +243,6 @@ std::vector<AppliedCorrection> applyCorrections(std::span<const ProposedCorrecti
 
         std::unique_ptr<Command> composite =
             std::make_unique<CompositeCommand>(CommandKind::CorrectTexts, std::move(commands));
-        composite->apply(*group.project);
         result.push_back(
             AppliedCorrection{.project = group.project, .command = std::move(composite)});
     }

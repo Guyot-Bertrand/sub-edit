@@ -8,8 +8,17 @@ set(CMAKE_AUTOMOC ON)
 add_library(
     subedit_gui STATIC subtitle_table_model.cpp cell_delegates.cpp command_label.cpp
                        invocation.cpp settings_path.cpp theme.cpp preferences_dialog.cpp
-                       manual_path.cpp manual_window.cpp
+                       manual_path.cpp patterns_path.cpp manual_window.cpp
                        diagnostics_panel.cpp qt_prompts.cpp target.cpp ems_line_measure.cpp
+                       correction_target.cpp pattern_code.cpp pattern_code_selector.cpp
+                       pattern_list.cpp correction_task_page.cpp
+                       correction_target_page.cpp
+                       correction_progress_page.cpp
+                       correction_diff_view.cpp
+                       correction_result_model.cpp
+                       correction_confirmation_page.cpp
+                       correction_wizard.cpp
+                       correction_controller.cpp
                        operation_dialog.cpp shift_dialog.cpp transform_dialog.cpp
                        insert_dialog.cpp split_project_dialog.cpp save_shape.cpp
                        frame_rate_box.cpp frame_rate_dialog.cpp hearing_impaired_dialog.cpp
@@ -22,7 +31,7 @@ add_library(subedit::gui ALIAS subedit_gui)
 
 target_include_directories(subedit_gui PUBLIC "${CMAKE_SOURCE_DIR}/src/lib")
 
-target_link_libraries(subedit_gui PUBLIC subedit::core Qt6::Widgets)
+target_link_libraries(subedit_gui PUBLIC subedit::core Qt6::Widgets Qt6::Concurrent)
 
 # libmpv, derrière la couture `core::VideoPlayer` — voir docs/adr/0020.
 #

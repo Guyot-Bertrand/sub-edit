@@ -9,7 +9,6 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/manual_path.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 
@@ -46,12 +45,10 @@ int main(int argc, char** argv) {
                                         prompts,
                                         subedit::gui::mpvPlayers(),
                                         subedit::gui::declaredFrameRates(files)};
-        // The preferences of ADR 0022: read before the window shows itself,
-        // written once it is closed.
-        window.applySettings(subedit::gui::readUserSettings(files, std::cerr));
-        // Decision D6: `Help ▸ Manual` opens the installed manual, whose
-        // location is resolved here and nowhere else — ADR 0022.
-        window.setManualPath(subedit::gui::installedManualPath());
+        // The settings, the manual and the pattern catalogue — ADR 0022's own
+        // rule, all three resolved here, with the real executable and the
+        // real environment, and nowhere else.
+        subedit::gui::configureFromEnvironment(window, files, std::cerr);
         window.show();
 
         const int code = QApplication::exec();

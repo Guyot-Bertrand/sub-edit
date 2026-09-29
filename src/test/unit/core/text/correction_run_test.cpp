@@ -10,12 +10,14 @@
 
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/config/correction_settings.hpp>
+#include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/text/common_errors.hpp>
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/core/text/icu_pattern_engine.hpp>
 #include <subedit/core/text/line_measure.hpp>
@@ -37,11 +39,14 @@ namespace {
 using subedit::core::AppliedCorrection;
 using subedit::core::applyCorrections;
 using subedit::core::CharacterLineMeasure;
+using subedit::core::CorrectionProposal;
 using subedit::core::CorrectionSettings;
 using subedit::core::CorrectionTally;
 using subedit::core::CorrectionTarget;
 using subedit::core::Document;
+using subedit::core::FailureKind;
 using subedit::core::IcuPatternEngine;
+using subedit::core::InMemoryFileSystem;
 using subedit::core::PatternActivation;
 using subedit::core::PatternCatalogue;
 using subedit::core::PatternKind;
@@ -119,54 +124,57 @@ TEST_CASE("proposing corrections touches no project", "[text][assistant]") {
 
     const std::vector<CorrectionTarget> targets{wholeProject(first), wholeProject(second)};
     const CharacterLineMeasure measure;
-    const std::vector<ProposedCorrection> proposed =
+    const CorrectionProposal proposed =
         proposeCorrections(IcuPatternEngine{}, shippedPatterns(), settings, measure, targets);
 
     CHECK(sameSubtitles(first, firstBefore));
     CHECK(sameSubtitles(second, secondBefore));
 
     // Only the double space is a real change; each project contributes one.
-    REQUIRE(proposed.size() == 2);
-    CHECK(proposed[0].project == &first);
-    CHECK(proposed[0].original == "Bonjour  Marie");
-    CHECK(proposed[0].proposed == std::optional<std::string>{"Bonjour Marie"});
-    CHECK(proposed[1].project == &second);
-    CHECK(proposed[1].original == "Au  revoir");
-    CHECK(proposed[1].proposed == std::optional<std::string>{"Au revoir"});
+    REQUIRE(proposed.corrections.size() == 2);
+    CHECK(proposed.corrections[0].project == &first);
+    CHECK(proposed.corrections[0].original == "Bonjour  Marie");
+    CHECK(proposed.corrections[0].proposed == std::optional<std::string>{"Bonjour Marie"});
+    CHECK(proposed.corrections[1].project == &second);
+    CHECK(proposed.corrections[1].original == "Au  revoir");
+    CHECK(proposed.corrections[1].proposed == std::optional<std::string>{"Au revoir"});
 }
 
-TEST_CASE("applying accepted corrections is one command per project, undone as one",
+TEST_CASE("applying accepted corrections composes one command per project, without applying it",
           "[text][assistant]") {
     Project first = projectOf({"Bonjour  Marie"});
     Project second = projectOf({"Au  revoir"});
-    const Project firstBefore = first;
-    const Project secondBefore = second;
 
     CorrectionSettings settings;
     settings.commonErrors = {.enabled = true, .code = "Zyyy"};
-
     const std::vector<CorrectionTarget> targets{wholeProject(first), wholeProject(second)};
     const CharacterLineMeasure measure;
-    const std::vector<ProposedCorrection> proposed =
+    const CorrectionProposal proposed =
         proposeCorrections(IcuPatternEngine{}, shippedPatterns(), settings, measure, targets);
-    REQUIRE(proposed.size() == 2);
+    REQUIRE(proposed.corrections.size() == 2);
 
-    const std::vector<AppliedCorrection> applied =
-        applyCorrections(proposed, /*removeBlankSubtitles=*/true);
-    REQUIRE(applied.size() == 2);
+    const std::vector<AppliedCorrection> composed = applyCorrections(proposed.corrections, true);
 
-    CHECK(textsOf(first) == std::vector<std::string>{"Bonjour Marie"});
-    CHECK(textsOf(second) == std::vector<std::string>{"Au revoir"});
+    REQUIRE(composed.size() == 2);
+    CHECK(composed[0].project == &first);
+    CHECK(composed[1].project == &second);
+    // Composed, not applied: the projects are exactly what they were.
+    CHECK(textsOf(first) == std::vector<std::string>{"Bonjour  Marie"});
+    CHECK(textsOf(second) == std::vector<std::string>{"Au  revoir"});
 
-    const CorrectionTally tally = tallyOf(applied);
+    // tallyOf reads the composed commands before anyone has applied them — the
+    // same order `ProjectOperations::removeHearingImpaired` already uses for
+    // its own tally.
+    const CorrectionTally tally = tallyOf(composed);
     CHECK(tally.corrected == 2);
     CHECK(tally.removed == 0);
 
-    for (const AppliedCorrection& one : applied)
-        one.command->revert(*one.project);
-
-    CHECK(sameSubtitles(first, firstBefore));
-    CHECK(sameSubtitles(second, secondBefore));
+    // Applying each command by hand does what it says — proof the command
+    // itself is complete and correct without `applyCorrections` having run it.
+    composed[0].command->apply(first);
+    composed[1].command->apply(second);
+    CHECK(textsOf(first) == std::vector<std::string>{"Bonjour Marie"});
+    CHECK(textsOf(second) == std::vector<std::string>{"Au revoir"});
 }
 
 TEST_CASE("a project with nothing accepted is absent from what was applied", "[text][assistant]") {
@@ -190,11 +198,11 @@ TEST_CASE("a class unchecked corrects nothing of what it alone carries", "[text]
 
     const std::vector<CorrectionTarget> targets{wholeProject(project)};
     const CharacterLineMeasure measure;
-    const std::vector<ProposedCorrection> proposed =
+    const CorrectionProposal proposed =
         proposeCorrections(IcuPatternEngine{}, shippedPatterns(), settings, measure, targets);
 
-    REQUIRE(proposed.size() == 1);
-    CHECK(proposed.front().original == "♪ La la ♪");
+    REQUIRE(proposed.corrections.size() == 1);
+    CHECK(proposed.corrections.front().original == "♪ La la ♪");
 }
 
 TEST_CASE("a record of two classes applies if either is checked", "[text][assistant]") {
@@ -208,11 +216,11 @@ TEST_CASE("a record of two classes applies if either is checked", "[text][assist
 
     const std::vector<CorrectionTarget> targets{wholeProject(project)};
     const CharacterLineMeasure measure;
-    const std::vector<ProposedCorrection> proposed =
+    const CorrectionProposal proposed =
         proposeCorrections(IcuPatternEngine{}, shippedPatterns(), settings, measure, targets);
 
-    REQUIRE(proposed.size() == 1);
-    CHECK(proposed.front().proposed == std::optional<std::string>{"Bonjour Marie"});
+    REQUIRE(proposed.corrections.size() == 1);
+    CHECK(proposed.corrections.front().proposed == std::optional<std::string>{"Bonjour Marie"});
 }
 
 TEST_CASE("a mention that empties a translation blanks it rather than removing the subtitle",
@@ -226,15 +234,16 @@ TEST_CASE("a mention that empties a translation blanks it rather than removing t
 
     const std::vector<CorrectionTarget> targets{wholeProject(project, Document::Translation)};
     const CharacterLineMeasure measure;
-    const std::vector<ProposedCorrection> proposed =
+    const CorrectionProposal proposed =
         proposeCorrections(IcuPatternEngine{}, shippedPatterns(), settings, measure, targets);
 
-    REQUIRE(proposed.size() == 1);
-    CHECK(proposed.front().proposed == std::optional<std::string>{""});
+    REQUIRE(proposed.corrections.size() == 1);
+    CHECK(proposed.corrections.front().proposed == std::optional<std::string>{""});
 
     const std::vector<AppliedCorrection> applied =
-        applyCorrections(proposed, /*removeBlankSubtitles=*/true);
+        applyCorrections(proposed.corrections, /*removeBlankSubtitles=*/true);
     REQUIRE(applied.size() == 1);
+    applied[0].command->apply(project);
     // The subtitle stays — only its translation went blank.
     REQUIRE(project.count() == 1);
     CHECK(project.subtitles().front().translationText.empty());
@@ -252,24 +261,26 @@ TEST_CASE("a mention that empties the main text is proposed as a removal, kept w
 
     const std::vector<CorrectionTarget> targets{wholeProject(project)};
     const CharacterLineMeasure measure;
-    const std::vector<ProposedCorrection> proposed =
+    const CorrectionProposal proposed =
         proposeCorrections(IcuPatternEngine{}, shippedPatterns(), settings, measure, targets);
 
-    REQUIRE(proposed.size() == 1);
-    CHECK_FALSE(proposed.front().proposed.has_value());
+    REQUIRE(proposed.corrections.size() == 1);
+    CHECK_FALSE(proposed.corrections.front().proposed.has_value());
 
     SECTION("removed when the checkbox is on") {
         const std::vector<AppliedCorrection> applied =
-            applyCorrections(proposed, /*removeBlankSubtitles=*/true);
+            applyCorrections(proposed.corrections, /*removeBlankSubtitles=*/true);
         REQUIRE(applied.size() == 1);
+        applied[0].command->apply(project);
         CHECK(textsOf(project) == std::vector<std::string>{"Hello there"});
         CHECK(tallyOf(applied).removed == 1);
     }
 
     SECTION("left blank when the checkbox is off") {
         const std::vector<AppliedCorrection> applied =
-            applyCorrections(proposed, /*removeBlankSubtitles=*/false);
+            applyCorrections(proposed.corrections, /*removeBlankSubtitles=*/false);
         REQUIRE(applied.size() == 1);
+        applied[0].command->apply(project);
         CHECK(textsOf(project) == std::vector<std::string>{"", "Hello there"});
         CHECK(tallyOf(applied).removed == 0);
     }
@@ -290,12 +301,14 @@ TEST_CASE("a subtitle a mention removes plays no part in the tasks that follow i
 
     const std::vector<CorrectionTarget> targets{wholeProject(project)};
     const CharacterLineMeasure measure;
-    const std::vector<ProposedCorrection> proposed =
+    const CorrectionProposal proposed =
         proposeCorrections(IcuPatternEngine{}, shippedPatterns(), settings, measure, targets);
 
-    const auto forSecond = std::ranges::find_if(
-        proposed, [](const ProposedCorrection& one) { return one.original == "hello there"; });
-    REQUIRE(forSecond != proposed.end());
+    const auto forSecond =
+        std::ranges::find_if(proposed.corrections, [](const ProposedCorrection& one) {
+            return one.original == "hello there";
+        });
+    REQUIRE(forSecond != proposed.corrections.end());
     CHECK(forSecond->proposed == std::optional<std::string>{"Hello there"});
 }
 
@@ -311,14 +324,14 @@ TEST_CASE("an activation override turns a normally-active pattern off", "[text][
 
     const std::vector<CorrectionTarget> targets{wholeProject(project)};
     const CharacterLineMeasure measure;
-    const std::vector<ProposedCorrection> proposed =
+    const CorrectionProposal proposed =
         proposeCorrections(IcuPatternEngine{}, shippedPatterns(), settings, measure, targets);
 
-    CHECK(proposed.empty());
+    CHECK(proposed.corrections.empty());
 }
 
 TEST_CASE("a target with nothing selected proposes nothing", "[text][assistant]") {
-    Project project = projectOf({"Bonjour  Marie"});
+    const Project project = projectOf({"Bonjour  Marie"});
     CorrectionSettings settings;
     settings.commonErrors = {.enabled = true, .code = "Zyyy"};
 
@@ -327,10 +340,10 @@ TEST_CASE("a target with nothing selected proposes nothing", "[text][assistant]"
                          .selection = Selection::of(std::vector<subedit::core::SubtitleIndex>{}),
                          .document = Document::Main}};
     const CharacterLineMeasure measure;
-    const std::vector<ProposedCorrection> proposed =
+    const CorrectionProposal proposed =
         proposeCorrections(IcuPatternEngine{}, shippedPatterns(), settings, measure, targets);
 
-    CHECK(proposed.empty());
+    CHECK(proposed.corrections.empty());
 }
 
 TEST_CASE("the line-break task fits within a maximum length and line count", "[text][assistant]") {
@@ -343,10 +356,126 @@ TEST_CASE("the line-break task fits within a maximum length and line count", "[t
 
     const std::vector<CorrectionTarget> targets{wholeProject(project)};
     const CharacterLineMeasure measure;
-    const std::vector<ProposedCorrection> proposed =
+    const CorrectionProposal proposed =
         proposeCorrections(IcuPatternEngine{}, shippedPatterns(), settings, measure, targets);
 
-    REQUIRE(proposed.size() == 1);
-    CHECK(proposed.front().proposed ==
+    REQUIRE(proposed.corrections.size() == 1);
+    CHECK(proposed.corrections.front().proposed ==
           std::optional<std::string>{"The night was cold\nand the road was long"});
+}
+
+TEST_CASE("a pattern that will not compile is named, and the others still apply",
+          "[text][assistant]") {
+    InMemoryFileSystem files;
+    files.addFile("/patterns/Zyyy.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=Broken\nClasses=Human;OCR;\nPattern=(\n"
+                  "\n[Common Error Pattern]\nName=Double space\nClasses=Human;OCR;\n"
+                  // A trailing space alone in a value is stripped on reading
+                  // (`stripped()` in pattern_catalogue.cpp), so the
+                  // replacement is written as `\040`, the same guard the
+                  // shipped patterns use for a literal space.
+                  "Pattern=  +\nReplacement=\\040\n");
+    const PatternCatalogue catalogue = subedit::core::readPatternCatalogue(files, "/patterns", {});
+    REQUIRE(catalogue.diagnostics().empty()); // both records read fine; only compiling fails
+
+    Project project = projectOf({"Bonjour  Marie"});
+    CorrectionSettings settings;
+    settings.commonErrors = {.enabled = true, .code = "Zyyy"};
+
+    const std::vector<CorrectionTarget> targets{wholeProject(project)};
+    const CharacterLineMeasure measure;
+    const CorrectionProposal proposal =
+        proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets);
+
+    REQUIRE(proposal.corrections.size() == 1);
+    CHECK(proposal.corrections[0].proposed == std::optional<std::string>{"Bonjour Marie"});
+    REQUIRE(proposal.failures.size() == 1);
+    CHECK(proposal.failures[0].kind == FailureKind::CompileError);
+    CHECK(proposal.failures[0].name == "Broken");
+}
+
+TEST_CASE("a line-break pattern that will not compile is named, and the others still apply",
+          "[text][assistant]") {
+    InMemoryFileSystem files;
+    files.addFile("/patterns/Zyyy.line-break",
+                  "[Line Break Pattern]\nName=Broken\nPattern=(\nGroup=1\nPenalty=-1\n"
+                  "[Line Break Pattern]\nName=Force break\nPattern=( )\nGroup=1\nPenalty=-10000\n");
+    const PatternCatalogue catalogue = subedit::core::readPatternCatalogue(files, "/patterns", {});
+    REQUIRE(catalogue.diagnostics().empty()); // both records read fine; only compiling fails
+
+    // Short enough to fit one line under `lineBreakMaxLength` on its own — the
+    // one working pattern's very negative penalty is what forces the break;
+    // without it, `proposeCorrections` would leave the text untouched.
+    Project project = projectOf({"Hello there"});
+    CorrectionSettings settings;
+    settings.lineBreak = {.enabled = true, .code = "Zyyy"};
+    settings.lineBreakMaxLength = 40.0;
+    settings.lineBreakMaxLines = 2;
+
+    const std::vector<CorrectionTarget> targets{wholeProject(project)};
+    const CharacterLineMeasure measure;
+    const CorrectionProposal proposal =
+        proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets);
+
+    REQUIRE(proposal.corrections.size() == 1);
+    CHECK(proposal.corrections[0].proposed == std::optional<std::string>{"Hello\nthere"});
+    REQUIRE(proposal.failures.size() == 1);
+    CHECK(proposal.failures[0].kind == FailureKind::CompileError);
+    CHECK(proposal.failures[0].name == "Broken");
+}
+
+TEST_CASE("the same broken pattern named on two targets is reported once, not twice",
+          "[text][assistant]") {
+    // One broken pattern, asked to run on two separate targets — each of
+    // `runTasks`'s own calls reports the failure again, so `proposeCorrections`
+    // ends with two identical entries before it sorts and de-duplicates them.
+    InMemoryFileSystem files;
+    files.addFile("/patterns/Zyyy.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=Broken\nClasses=Human;OCR;\nPattern=(\n");
+    const PatternCatalogue catalogue = subedit::core::readPatternCatalogue(files, "/patterns", {});
+    REQUIRE(catalogue.diagnostics().empty());
+
+    Project first = projectOf({"Bonjour Marie"});
+    Project second = projectOf({"Au revoir"});
+    CorrectionSettings settings;
+    settings.commonErrors = {.enabled = true, .code = "Zyyy"};
+
+    const std::vector<CorrectionTarget> targets{wholeProject(first), wholeProject(second)};
+    const CharacterLineMeasure measure;
+    const CorrectionProposal proposal =
+        proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets);
+
+    REQUIRE(proposal.failures.size() == 1);
+    CHECK(proposal.failures[0].name == "Broken");
+}
+
+TEST_CASE("a pattern failing on several texts of several targets is reported once",
+          "[text][assistant]") {
+    // `ab` -> `aab` never settles: every text holding `ab` gives up after
+    // `kMaxRepeatPasses`, each report carrying its own text index. Two texts
+    // in each of two targets: four reports, one pattern, one reason — and the
+    // confirmation names it once (`CorrectionProposal`'s own promise).
+    InMemoryFileSystem files;
+    files.addFile("/patterns/Zyyy.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=Endless\nClasses=Human;OCR;\n"
+                  "Pattern=ab\nReplacement=aab\nRepeat=True\n");
+    const PatternCatalogue catalogue = subedit::core::readPatternCatalogue(files, "/patterns", {});
+    REQUIRE(catalogue.diagnostics().empty());
+
+    Project first = projectOf({"ab", "xab"});
+    Project second = projectOf({"abc", "ab ab"});
+    CorrectionSettings settings;
+    settings.commonErrors = {.enabled = true, .code = "Zyyy"};
+
+    const std::vector<CorrectionTarget> targets{wholeProject(first), wholeProject(second)};
+    const CharacterLineMeasure measure;
+    const CorrectionProposal proposal =
+        proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets);
+
+    REQUIRE(proposal.failures.size() == 1);
+    CHECK(proposal.failures[0].name == "Endless");
+    CHECK(proposal.failures[0].kind == FailureKind::TooManyPasses);
 }

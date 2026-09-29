@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(
     subedit
-    VERSION 0.12.10
+    VERSION 0.12.11
     DESCRIPTION "Éditeur de sous-titres"
     HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
     LANGUAGES CXX)
@@ -51,7 +51,7 @@ set(SUBEDIT_BUILD_DATE "")
 # faveur de libmpv, et personne ne l'a jamais lié. Une dépendance que rien
 # n'utilise n'est pas gratuite : elle est dans le cache de paquets de la CI, et
 # la ligne qui la déclarait annonçait un usage qui n'existera pas.
-find_package(Qt6 REQUIRED COMPONENTS Widgets Test)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Test Concurrent)
 
 # libmpv — le moteur du lecteur intégré, voir
 # docs/adr/0020-libmpv-pour-le-lecteur-integre.md.

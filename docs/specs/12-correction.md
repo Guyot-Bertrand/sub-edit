@@ -426,6 +426,59 @@ appliquer la remplace.
 > par construction : une correspondance qui rend un texte inchangé ne franchit
 > jamais `proposeCorrections`.
 
+> **Précisé par [#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505).**
+> Les trois menus d'une page de tâche — écriture, langue, pays — se peuplent de
+> ce que le catalogue de motifs porte réellement pour ce type, jamais d'un
+> registre de langues externe : `PatternCodeSelector` cascade sur `catalogue`,
+> pas sur une liste ISO.
+>
+> **La partie changée d'une diff se marque en gras, jamais en couleur** —
+> `correctionDiffHtml` pose `<b>` autour de chaque `DiffSpan` marqué changé.
+> Une teinte se serait mal comportée sous les deux palettes, et de toute façon
+> `QStyledItemDelegate` peint le `Qt::DisplayRole` d'une cellule, pas ses
+> couleurs de police par plage.
+>
+> **`applyCorrections` compose sans appliquer**, plutôt que d'ajouter à
+> `Session`/`History` une méthode qui enregistrerait une commande déjà
+> appliquée : elle rend un `CompositeCommand` par projet, et c'est l'appelant
+> — le contrôleur de la fenêtre — qui le fait passer par `Session::apply`,
+> comme toute autre opération. La raison tient en une règle : `Session::project()`
+> rend une référence `const`, et une commande appliquée hors de `Session::apply`
+> l'aurait contournée.
+>
+> **« Abandonner » est le bouton `Cancel` du wizard, sans mécanisme
+> d'interruption propre** : un calcul déjà lancé sur son fil d'arrière-plan
+> n'est jamais coupé, seulement jamais lu — **mais la page de progression
+> attend sa fin avant d'être détruite**. Ce que le calcul référence — le
+> moteur, le catalogue, les projets de ses cibles — n'a donc qu'à survivre à
+> la page, jamais au fil : l'annulation bloque, au plus le temps que le moteur
+> accorde à une recherche. `Back` pendant le calcul le laisse finir sans
+> l'attendre, et son résultat est écarté ; `Next` en relance un.
+>
+> **L'unité du découpage de lignes — caractères ou ems — ne se retient pas**
+> d'une session à l'autre, à la différence des deux bornes numériques
+> (`lineBreakMaxLength`, `lineBreakMaxLines`) : `CorrectionSettings` ne porte
+> aucun champ pour elle, et la page rouvre toujours sur `Characters`. **La
+> cible et le document ne se retiennent pas davantage** — D8 le disait, le
+> périmètre l'a resserré : la première page rouvre toujours sur `Current
+> Project` et `Text`. Ne se retient que ce que `CorrectionSettings` porte — les
+> tâches cochées et leurs codes, les classes, les dérogations d'activation,
+> les deux bornes du découpage, la case des sous-titres vides.
+>
+> **Une dérogation d'activation disparaît quand sa case revient au défaut**,
+> au lieu de rester écrite : pour chaque motif qu'une page montre, la
+> dérogation retenue est effacée avant que celles qui s'écartent encore du
+> défaut ne soient réécrites (`foldActivations`). Changer de code sur une page
+> y replie d'abord l'état des cases du code quitté.
+>
+> **GUI-CORRECT-06 couvre les trois cas** : un motif qui ne se traduit ou ne compile pas, ou
+> ne termine pas (`PatternFailure`), et une ligne de fichier qui ne se lit pas
+> (`PatternCatalogue::diagnostics()`), nommés sous la même table.
+>
+> **Une page de tâche ne porte pas de case « active » qui lui soit propre** :
+> c'est celle de la première page, par tâche, qui décide seule si la tâche
+> tourne. Une seconde case ici aurait pu la contredire.
+
 ## D9 — Les balises : le parseur de la phase 10, par `transform`
 
 La question du cadrage — le parseur tient-il les décalages que les motifs

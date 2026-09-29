@@ -16,10 +16,15 @@ add_executable(
     operation_dialogs_test.cpp window_operations_test.cpp
     window_hearing_impaired_test.cpp window_italics_test.cpp window_text_test.cpp window_insert_test.cpp window_merge_test.cpp window_clipboard_test.cpp window_durations_test.cpp window_search_test.cpp window_search_projects_test.cpp anomaly_marking_test.cpp window_translation_test.cpp window_translation_files_test.cpp window_translation_search_test.cpp translation_dialogs_test.cpp window_append_test.cpp window_split_project_test.cpp window_tabs_test.cpp window_columns_test.cpp window_drop_test.cpp table_columns_test.cpp project_search_test.cpp project_files_test.cpp project_page_test.cpp window_actions_test.cpp video_pane_test.cpp status_line_test.cpp project_operations_test.cpp
     manual_window_test.cpp real_manual_test.cpp ems_line_measure_test.cpp
+    correction_target_test.cpp correction_diff_view_test.cpp pattern_code_test.cpp
+    pattern_code_selector_test.cpp pattern_list_test.cpp correction_task_page_test.cpp
+    correction_target_page_test.cpp correction_progress_page_test.cpp
+    correction_result_model_test.cpp correction_confirmation_page_test.cpp
+    correction_wizard_test.cpp correction_controller_test.cpp window_correction_test.cpp
     main_window_test.cpp mpv_player_test.cpp window_video_test.cpp
     window_player_test.cpp player_factory_test.cpp invocation_test.cpp
     window_video_bounds_test.cpp window_grid_test.cpp window_commit_edit_test.cpp
-    window_appearance_test.cpp settings_path_test.cpp window_settings_test.cpp theme_test.cpp
+    window_appearance_test.cpp settings_path_test.cpp patterns_path_test.cpp window_settings_test.cpp theme_test.cpp
     ${CMAKE_SOURCE_DIR}/src/test/unit/grid_fixtures.cpp)
 
 target_link_libraries(
@@ -40,6 +45,13 @@ target_compile_definitions(subedit_gui_test
 # en intégration continue, et l'installé en est la copie page pour page.
 target_compile_definitions(subedit_gui_test
                            PRIVATE SUBEDIT_MANUAL_DIR="${CMAKE_SOURCE_DIR}/docs/manual")
+
+# Les motifs livrés, pour les tests d'assistant qui ont besoin du vrai catalogue
+# — deux enregistrements de codes différents qui partagent un nom n'existent
+# qu'en vrai, et c'est sur eux qu'une réécriture de réglages s'est trompée
+# (#505). Versionnés, donc présents partout, comme pour subedit_core_test.
+target_compile_definitions(subedit_gui_test
+                           PRIVATE SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns")
 
 # Les fixtures de grille, partagées avec les tests du noyau et ceux de la ligne
 # de commande : il n'y a qu'un jeu de fichiers, et qu'une façon de l'ouvrir.

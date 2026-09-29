@@ -11,13 +11,18 @@
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/gui/correction_task_page.hpp>
+#include <subedit/gui/correction_wizard.hpp>
 #include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
+#include <subedit/gui/manual_path.hpp>
+#include <subedit/gui/patterns_path.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/theme.hpp>
 
 #include <QAction>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialog>
 #include <QRect>
@@ -404,4 +409,66 @@ TEST_CASE("a refused write says so, and nothing more", "[gui][config][GUI-CONFIG
     subedit::gui::writeUserSettings(files, kPath, Settings{}, errors);
 
     CHECK_THAT(errors.str(), ContainsSubstring("settings could not be written"));
+}
+
+// **`main.cpp`'s own three lines, composed in one call** — issue #505: moved
+// out of the entry point once a fourth setter would have sent it over the
+// budget `check-architecture.sh` holds it to. Nothing here reaches a real
+// location, for the same reason the round trip above does not: the file
+// system is in memory, so every resolved path is used as a key and nothing
+// else — each of the three keys is computed here exactly as
+// `configureFromEnvironment` computes it itself, and something is placed
+// there beforehand, so each of its three effects is read back directly
+// rather than trusted on the word of an empty `errors`.
+TEST_CASE("configureFromEnvironment applies settings, the manual path and the "
+          "pattern catalogue in one call",
+          "[gui][config]") {
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    InMemoryFileSystem& files = fixture.files();
+
+    // The settings half: a theme distinct from the window's own starting
+    // default (`Theme::System`), written at the location the resolving
+    // overload of `readUserSettings` will look for it.
+    std::ostringstream setup;
+    subedit::gui::writeUserSettings(files, Settings{.theme = Theme::Dark}, setup);
+
+    // The manual half: `setManualPath` lights `manualAction()` the moment it
+    // finds an `index.md` beside the directory it was given — nothing lights
+    // it on its own, every action starts disabled (`buildAction`).
+    files.addFile(subedit::gui::installedManualPath() / "index.md", "# Manual\n");
+    REQUIRE_FALSE(window.manualAction()->isEnabled());
+
+    // The pattern-catalogue half: one real record, at the exact cascade
+    // `Common Errors` reads by default — `Zyyy`, `CorrectionSettings{}`'s own
+    // starting code.
+    files.addFile(subedit::gui::installedPatternsPath() / "Zyyy.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=Letter I\nClasses=Human;\nPattern=a\n");
+
+    std::ostringstream errors;
+    subedit::gui::configureFromEnvironment(window, files, errors);
+
+    CHECK(errors.str().empty());
+    CHECK(window.settings().theme == Theme::Dark);
+    CHECK(window.manualAction()->isEnabled());
+
+    // Read back through the real wizard rather than a catalogue accessor —
+    // `MainWindow` exposes none — the same way `window_correction_test.cpp`
+    // already drives the assistant to a task page and reads its pattern list.
+    window.show();
+    bool patternSeen = false;
+    FakePrompts& prompts = fixture.prompts();
+    prompts.nextRun = false; // Cancel: reading the task page is all this needs
+    prompts.fill = [&patternSeen](QDialog& dialog) {
+        auto& wizard = dynamic_cast<subedit::gui::CorrectionWizard&>(dialog);
+        wizard.show();
+        while (wizard.currentId() != subedit::gui::CorrectionWizard::CommonErrorsId)
+            wizard.next();
+        patternSeen =
+            wizard.commonErrorsPage().findChild<QCheckBox*>(QStringLiteral("Letter I")) != nullptr;
+    };
+    window.correctTextsAction()->trigger();
+
+    CHECK(patternSeen);
 }

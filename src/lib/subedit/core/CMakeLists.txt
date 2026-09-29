@@ -42,6 +42,7 @@ add_library(
     text/hearing_impaired.cpp
     text/hearing_impaired_correction.cpp
     text/correction_run.cpp
+    text/text_diff.cpp
     text/line_breaking.cpp
     text/line_measure.cpp
     text/pattern_catalogue.cpp
@@ -79,6 +80,7 @@ add_library(
     format/translation_file.cpp
     config/settings.cpp
     config/duration_adjustment_settings.cpp
+    config/correction_settings.cpp
     format/format_detection.cpp
     format/degradation.cpp
     format/sub_rip_reader.cpp
