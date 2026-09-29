@@ -18,6 +18,9 @@ changements sans jamais les imposer.
 `Selection` est éteinte sans ligne choisie dans l'onglet montré ; `Translation`
 est éteinte tant qu'aucun projet ouvert ne porte de traduction.
 
+**La cible et le document ne se retiennent pas** : l'assistant rouvre toujours
+sur `Current Project` et `Text`. Les tâches cochées, elles, se retiennent.
+
 **Ce que chaque cible désigne** :
 
 | Cible | Porte sur |
@@ -50,7 +53,8 @@ départ, ce qui donne les motifs valables partout.
 
 **Un motif décoché reste décoché tant qu'on ne le recoche pas**, y compris en
 changeant de code puis en y revenant, et ce choix est retenu d'une ouverture
-de l'assistant à l'autre.
+de l'assistant à l'autre. Recoché, il retrouve simplement son réglage
+d'origine, et le choix retenu disparaît.
 
 | Page | Ce qu'elle ajoute à la base |
 | :--- | :-------------------------- |
@@ -85,11 +89,14 @@ première page si aucune tâche ne l'est), l'assistant calcule les corrections
 proposées sur un fil d'arrière-plan, une barre de progression indéterminée à
 l'écran. Le calcul fini, la page de confirmation s'ouvre d'elle-même.
 
-**`Cancel` à cette étape est le seul geste d'abandon** : rien n'interrompt le
-calcul en cours, il n'est simplement jamais lu. Un calcul qui se termine juste
-après une annulation peut donc, dans une fenêtre de temps étroite, lire un
-projet que l'annulation vient de fermer — un risque accepté, jamais rencontré
-autrement qu'en théorie.
+**`Cancel` à cette étape abandonne le calcul sans l'interrompre** : rien
+n'est appliqué, mais l'assistant attend, pour se fermer, que le calcul en
+cours se termine — une attente bornée par la limite de temps que le moteur
+de motifs impose à chaque recherche.
+
+**`Back` à cette étape revient à la page précédente sans attendre** : le calcul
+se termine en arrière-plan et son résultat est écarté — l'assistant ne saute
+pas de lui-même à la confirmation. `Next` relance un calcul neuf.
 
 ## Confirmation — la dernière page
 
@@ -105,13 +112,13 @@ texte qu'une tâche a laissé tel quel.
 | :------ | :----------------- |
 | `Accept` | une case, cochée par défaut : la correction sera appliquée ou non |
 | `Original` | le texte tel qu'il est, sa partie qui changerait **en gras** |
-| `Proposed` | le texte proposé, sa partie changée en gras, **éditable** — le retoucher change ce qui sera écrit, sans changer la case `Accept` |
+| `Corrected Text` | le texte proposé, sa partie changée en gras, **éditable** — le retoucher change ce qui sera écrit, sans changer la case `Accept` |
 
 **Le changement est marqué en gras, jamais en couleur** : la même diff se lit
 dans les deux palettes sans dépendre d'aucune teinte.
 
 **Une ligne dont la proposition est une suppression** — le sous-titre n'aurait
-plus de texte — montre la colonne `Proposed` vide, et son `Original` entier en
+plus de texte — montre la colonne `Corrected Text` vide, et son `Original` entier en
 gras.
 
 | Bouton | Ce qu'il fait |
@@ -131,7 +138,30 @@ la raison :
 Not applied: some pattern (will not compile)
 ```
 
-Les autres motifs, ceux qui se sont bien appliqués, ne sont pas concernés.
+Un motif nommé ainsi l'est **une fois par raison**, quel que soit le nombre de
+textes ou de projets sur lesquels il a échoué.
+
+**Une ligne d'un fichier de motifs qui ne se lit pas est nommée au même
+endroit**, par son fichier, sa ligne et la raison — à chaque ouverture de
+l'assistant, puisque les motifs ne sont lus qu'une fois, au lancement :
+
+```text
+Could not be read: Zyyy.common-error, line 8 (malformed line)
+```
+
+| Raison | Ce qui la déclenche |
+| :----- | :------------------ |
+| `directory cannot be read` | le répertoire des motifs livrés n'a pas pu être parcouru |
+| `file cannot be read` | un fichier de motifs n'a pas pu être lu |
+| `malformed line` | une ligne qui n'est ni un en-tête, ni un commentaire, ni `Clé=Valeur` |
+| `field outside any pattern` | un `Clé=Valeur` avant le premier en-tête de motif |
+| `unknown field` | une clé dont ce type de motif n'a pas l'usage — le motif est gardé |
+| `missing field` | une clé sans laquelle ce type de motif ne peut rien — le motif est écarté |
+| `invalid value` | une valeur que la clé n'accepte pas — le motif est écarté |
+| `malformed activation` | un élément `<pattern>` d'un `.conf` qui ne nomme rien |
+
+Les autres motifs, ceux qui se sont bien lus et bien appliqués, ne sont pas
+concernés.
 
 ## Ce qu'annuler dit, et ce qu'`Cancel` ne fait jamais
 
