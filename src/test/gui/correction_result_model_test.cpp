@@ -4,6 +4,7 @@
 #include <QRect>
 #include <QSignalSpy>
 #include <QStyleOptionViewItem>
+#include <QTextDocument>
 #include <catch2/catch_test_macros.hpp>
 
 namespace {
@@ -149,15 +150,27 @@ TEST_CASE("the diff delegate's size hint falls back to a fixed width without a r
           "[gui][correction-result-model]") {
     const CorrectionResultModel model{twoRows()};
     const CorrectionDiffDelegate delegate;
-    QStyleOptionViewItem tight;
-    tight.rect = QRect{0, 0, 0, 30};
-    QStyleOptionViewItem wide;
-    wide.rect = QRect{0, 0, 400, 30};
-
     const QModelIndex cell = model.index(0, CorrectionResultModel::Original);
-    const QSize atFallback = delegate.sizeHint(tight, cell);
-    const QSize atRealWidth = delegate.sizeHint(wide, cell);
+    const QString html = model.data(cell, Qt::DisplayRole).toString();
 
-    CHECK(atFallback.height() > 0);
-    CHECK(atRealWidth.height() > 0);
+    // Computed independently at each width, the same way `sizeHint` itself
+    // lays the very same HTML out — so a fallback that silently reused
+    // `option.rect.width()`, or one whose constant drifted, would show up as
+    // a mismatch here rather than passing on `height() > 0` alone, which a
+    // deleted fallback would still satisfy.
+    const auto sizeAt = [&html](int textWidth) {
+        QTextDocument document;
+        document.setHtml(html);
+        document.setTextWidth(textWidth);
+        return QSize{static_cast<int>(document.idealWidth()),
+                     static_cast<int>(document.size().height())};
+    };
+
+    QStyleOptionViewItem tight;
+    tight.rect = QRect{0, 0, 0, 30}; // no real column width offered: falls back to 200
+    QStyleOptionViewItem wide;
+    wide.rect = QRect{0, 0, 400, 30}; // a real width, used as given
+
+    CHECK(delegate.sizeHint(tight, cell) == sizeAt(200));
+    CHECK(delegate.sizeHint(wide, cell) == sizeAt(400));
 }
