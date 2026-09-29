@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Le découpage de lignes dans l'assistant (#506)
+
+## 0.12.11 — 2026-09-29
+
+### Ajouts
+
 - **core** — Report the patterns proposeCorrections could not apply
 - **core** — Ajouter une diff textuelle au niveau des points de code
 - **gui** — Resolve the installed and user pattern directories
