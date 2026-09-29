@@ -33,18 +33,26 @@ public:
     /// Rebuilds the boxes for `code`'s cascade, each opened from `settings`.
     void setCode(std::string_view code, const core::CorrectionSettings& settings);
 
-    /// One `PatternActivation` per underlying record whose box now disagrees
-    /// with that record's shipped default — once per (kind, code, name), even
-    /// when two records of the same code share a name and so the same key.
+    /// One `PatternActivation` per underlying record of a *touched* box — one
+    /// whose state now differs from the one `setCode` opened it on — that
+    /// disagrees with that record's shipped default; once per (kind, code,
+    /// name), even when two records of the same code share a name and so the
+    /// same key. An untouched box reports nothing: the overrides it opened on
+    /// are left where they are rather than written again.
     [[nodiscard]] std::vector<core::PatternActivation> activations() const;
 
-    /// Every record a box currently stands for, agreeing with its default or
+    /// Every record a *touched* box stands for, agreeing with its default or
     /// not — what `core::foldActivations` erases before it adds
-    /// `activations()` back.
+    /// `activations()` back. An untouched box stands for none: a shared box
+    /// merely shown must not erase an override written for one of its records
+    /// under another code.
     [[nodiscard]] std::vector<const core::CorrectionPattern*> shownRecords() const;
 
     /// Folds what the boxes now say into `activations` — `core::foldActivations`
-    /// over `shownRecords()` and `activations()`.
+    /// over `shownRecords()` and `activations()`. Meant for the activations
+    /// `setCode` opened on, or a copy of them: after folding into those very
+    /// settings, reopen with `setCode` before folding again, or a box turned
+    /// back to its opened state would look untouched.
     void foldInto(std::vector<core::PatternActivation>& activations) const;
 
 signals:
@@ -55,7 +63,11 @@ private:
         std::string name;
         QCheckBox* box;
         std::vector<const core::CorrectionPattern*> records;
+        /// The state `setCode` opened the box on, before the user had a say.
+        bool openedChecked = false;
     };
+
+    [[nodiscard]] static bool touched(const Entry& entry);
 
     const core::PatternCatalogue* m_catalogue;
     core::PatternKind m_kind;

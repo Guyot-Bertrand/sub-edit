@@ -2,6 +2,7 @@
 
 #include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/gui/correction_task_page.hpp>
 #include <subedit/gui/pattern_code_selector.hpp>
@@ -10,6 +11,7 @@
 #include <QString>
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <filesystem>
 #include <vector>
 
@@ -156,4 +158,54 @@ TEST_CASE("re-checking a box an old run unchecked clears that run's override",
     page.mergeActivationsInto(activations);
 
     CHECK(activations.empty());
+}
+
+namespace {
+const PatternCatalogue& shippedPatterns() {
+    static const PatternCatalogue catalogue = [] {
+        const subedit::core::RealFileSystem files;
+        return readPatternCatalogue(files, SUBEDIT_PATTERNS_DIR, {});
+    }();
+    return catalogue;
+}
+} // namespace
+
+TEST_CASE("a shipped override under a parent code survives a child code's untouched shared box",
+          "[gui][correction-task-page]") {
+    // The shipped `Latn` and `Latn-en` files both hold a record named "Space
+    // between number and unit", neither with `Policy=Replace`: the cascade of
+    // `Latn-en` shows the two behind one box, checked as long as either is on.
+    const PatternCatalogue& catalogue = shippedPatterns();
+    const auto cascade = catalogue.cascade(PatternKind::CommonError, "Latn-en");
+    REQUIRE(std::ranges::count_if(cascade, [](const auto* record) {
+                return record->name == "Space between number and unit";
+            }) == 2);
+
+    CommonErrorsPage page{catalogue};
+    CorrectionSettings settings;
+    settings.commonErrors = {.enabled = true, .code = "Latn"};
+    page.applySettings(settings);
+    auto* selector = page.findChild<PatternCodeSelector*>();
+    REQUIRE(selector != nullptr);
+
+    QCheckBox* space = boxNamed(page, "Space between number and unit");
+    REQUIRE(space != nullptr);
+    REQUIRE(space->isChecked());
+    space->setChecked(false);
+
+    selector->setCode("Latn-en");
+    space = boxNamed(page, "Space between number and unit");
+    REQUIRE(space != nullptr);
+    REQUIRE(space->isChecked()); // the `Latn-en` record is still on: the shared box is too
+
+    // Left untouched under `Latn-en`, the box has no say over the `Latn`
+    // record's override written before the switch.
+    std::vector<subedit::core::PatternActivation> activations;
+    page.mergeActivationsInto(activations);
+
+    CHECK(activations ==
+          std::vector<subedit::core::PatternActivation>{{.kind = PatternKind::CommonError,
+                                                         .code = "Latn",
+                                                         .name = "Space between number and unit",
+                                                         .enabled = false}});
 }

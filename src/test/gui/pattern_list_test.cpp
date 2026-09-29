@@ -4,6 +4,7 @@
 
 #include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/gui/pattern_list.hpp>
 
@@ -113,7 +114,7 @@ TEST_CASE("toggling a box back to its default drops the activation again", "[gui
     CHECK(list.activations().empty());
 }
 
-TEST_CASE("an override in settings opens the box it names, and stays reported",
+TEST_CASE("an override in settings opens the box it names, and an untouched box leaves it be",
           "[gui][pattern-list]") {
     const PatternCatalogue catalogue = twoRecords();
     PatternList list{catalogue, PatternKind::CommonError};
@@ -121,21 +122,21 @@ TEST_CASE("an override in settings opens the box it names, and stays reported",
     CorrectionSettings settings;
     settings.patternActivations.push_back(subedit::core::PatternActivation{
         .kind = PatternKind::CommonError, .code = "Zyyy", .name = "Letter I", .enabled = false});
+    const auto opened = settings.patternActivations;
     list.setCode("Zyyy", settings);
 
     auto* box = list.findChild<QCheckBox*>(QString::fromStdString("Letter I"));
     REQUIRE(box != nullptr);
     CHECK_FALSE(box->isChecked());
 
-    // `activations()` compares against the record's *shipped* default, not
-    // against the settings `setCode` opened on — so a box left where an
-    // existing override put it still disagrees with the shipped default
-    // ("Letter I" is on by default) and is reported, unchanged.
-    const auto activations = list.activations();
-    REQUIRE(activations.size() == 1);
-    CHECK(activations[0].name == "Letter I");
-    CHECK(activations[0].code == "Zyyy");
-    CHECK_FALSE(activations[0].enabled);
+    // Left where the override put it, the box is not the user's word: it
+    // neither reports the override again nor erases it, so folding — any
+    // number of times — keeps exactly the one entry it opened on.
+    CHECK(list.activations().empty());
+    CHECK(list.shownRecords().empty());
+    list.foldInto(settings.patternActivations);
+    list.foldInto(settings.patternActivations);
+    CHECK(settings.patternActivations == opened);
 }
 
 TEST_CASE("a name shared by two records of different codes shows a single box",
@@ -243,11 +244,11 @@ TEST_CASE("a name shared by two records of the same code writes a single activat
     list.setCode("Zyyy", CorrectionSettings{});
 
     CHECK(list.findChildren<QCheckBox*>(QString::fromStdString("Repeated")).size() == 1);
-    CHECK(list.shownRecords().size() == 2); // both records stand behind the one box
 
     auto* box = list.findChild<QCheckBox*>(QString::fromStdString("Repeated"));
     REQUIRE(box != nullptr);
     box->toggle();
+    CHECK(list.shownRecords().size() == 2); // both records stand behind the one box
 
     // Both records carry the same key: one override covers both, and
     // folding it twice over does not pile up copies.
@@ -261,6 +262,14 @@ TEST_CASE("a name shared by two records of the same code writes a single activat
     list.foldInto(folded);
     CHECK(folded == activations);
 
+    // Reopened on what was folded, as a task page does after every fold, the
+    // box turned back to its default erases the one override again.
+    CorrectionSettings reopened;
+    reopened.patternActivations = folded;
+    list.setCode("Zyyy", reopened);
+    box = list.findChild<QCheckBox*>(QString::fromStdString("Repeated"));
+    REQUIRE(box != nullptr);
+    REQUIRE_FALSE(box->isChecked());
     box->toggle(); // back to its default
     list.foldInto(folded);
     CHECK(folded.empty());
@@ -284,4 +293,48 @@ TEST_CASE("folding a box turned back to its default erases the override it opene
     list.foldInto(settings.patternActivations);
 
     CHECK(settings.patternActivations.empty());
+}
+
+namespace {
+const PatternCatalogue& shippedPatterns() {
+    static const PatternCatalogue catalogue = [] {
+        const subedit::core::RealFileSystem files;
+        return readPatternCatalogue(files, SUBEDIT_PATTERNS_DIR, {});
+    }();
+    return catalogue;
+}
+} // namespace
+
+TEST_CASE("an untouched shared box leaves a parent code's override alone when folded",
+          "[gui][pattern-list]") {
+    // The shipped `Latn` and `Latn-en` both hold "Space between number and
+    // unit", neither replacing the other: under `Latn-en` one box stands for
+    // both records.
+    const PatternCatalogue& catalogue = shippedPatterns();
+    PatternList list{catalogue, PatternKind::CommonError};
+    CorrectionSettings settings;
+
+    list.setCode("Latn", settings);
+    auto* box = list.findChild<QCheckBox*>(QString::fromStdString("Space between number and unit"));
+    REQUIRE(box != nullptr);
+    REQUIRE(box->isChecked());
+    box->setChecked(false);
+    list.foldInto(settings.patternActivations);
+
+    const subedit::core::PatternActivation latnOff{.kind = PatternKind::CommonError,
+                                                   .code = "Latn",
+                                                   .name = "Space between number and unit",
+                                                   .enabled = false};
+    REQUIRE(settings.patternActivations == std::vector{latnOff});
+
+    list.setCode("Latn-en", settings);
+    REQUIRE(list.findChildren<QCheckBox*>(QString::fromStdString("Space between number and unit"))
+                .size() == 1);
+    box = list.findChild<QCheckBox*>(QString::fromStdString("Space between number and unit"));
+    REQUIRE(box != nullptr);
+    REQUIRE(box->isChecked()); // the `Latn-en` record is still on
+
+    list.foldInto(settings.patternActivations);
+
+    CHECK(settings.patternActivations == std::vector{latnOff});
 }

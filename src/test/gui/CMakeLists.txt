@@ -46,6 +46,13 @@ target_compile_definitions(subedit_gui_test
 target_compile_definitions(subedit_gui_test
                            PRIVATE SUBEDIT_MANUAL_DIR="${CMAKE_SOURCE_DIR}/docs/manual")
 
+# Les motifs livrés, pour les tests d'assistant qui ont besoin du vrai catalogue
+# — deux enregistrements de codes différents qui partagent un nom n'existent
+# qu'en vrai, et c'est sur eux qu'une réécriture de réglages s'est trompée
+# (#505). Versionnés, donc présents partout, comme pour subedit_core_test.
+target_compile_definitions(subedit_gui_test
+                           PRIVATE SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns")
+
 # Les fixtures de grille, partagées avec les tests du noyau et ceux de la ligne
 # de commande : il n'y a qu'un jeu de fichiers, et qu'une façon de l'ouvrir.
 target_include_directories(subedit_gui_test PRIVATE ${CMAKE_SOURCE_DIR}/src/test/unit)

@@ -42,22 +42,32 @@ void PatternList::setCode(std::string_view code, const core::CorrectionSettings&
             m_entries, [record](const Entry& entry) { return entry.name == record->name; });
         if (found != m_entries.end()) {
             found->records.push_back(record);
-            found->box->setChecked(found->box->isChecked() ||
-                                   core::patternEnabled(*record, settings));
+            found->openedChecked = found->openedChecked || core::patternEnabled(*record, settings);
+            found->box->setChecked(found->openedChecked);
             continue;
         }
         auto* box = new QCheckBox{QString::fromStdString(record->name), this};
         box->setObjectName(QString::fromStdString(record->name));
-        box->setChecked(core::patternEnabled(*record, settings));
+        const bool opened = core::patternEnabled(*record, settings);
+        box->setChecked(opened);
         connect(box, &QCheckBox::toggled, this, &PatternList::changed);
         m_layout->addWidget(box);
-        m_entries.push_back(Entry{.name = record->name, .box = box, .records = {record}});
+        m_entries.push_back(
+            Entry{.name = record->name, .box = box, .records = {record}, .openedChecked = opened});
     }
+}
+
+bool PatternList::touched(const Entry& entry) {
+    return entry.box->isChecked() != entry.openedChecked;
 }
 
 std::vector<core::PatternActivation> PatternList::activations() const {
     std::vector<core::PatternActivation> activations;
     for (const Entry& entry : m_entries) {
+        // Untouched: whatever the settings held for its records stays as is,
+        // since `shownRecords()` does not erase it either.
+        if (!touched(entry))
+            continue;
         for (const core::CorrectionPattern* record : entry.records) {
             if (record->enabled == entry.box->isChecked())
                 continue; // agrees with the shipped default: no override to write
@@ -76,8 +86,12 @@ std::vector<core::PatternActivation> PatternList::activations() const {
 
 std::vector<const core::CorrectionPattern*> PatternList::shownRecords() const {
     std::vector<const core::CorrectionPattern*> shown;
-    for (const Entry& entry : m_entries)
-        shown.insert(shown.end(), entry.records.begin(), entry.records.end());
+    for (const Entry& entry : m_entries) {
+        // A box merely shown is not the user's word on its records: a shared
+        // box checked under `Latn-en` must not erase a `Latn` override.
+        if (touched(entry))
+            shown.insert(shown.end(), entry.records.begin(), entry.records.end());
+    }
     return shown;
 }
 
