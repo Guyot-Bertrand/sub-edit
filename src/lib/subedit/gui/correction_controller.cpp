@@ -3,6 +3,7 @@
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/core/text/icu_pattern_engine.hpp>
 #include <subedit/core/text/line_measure.hpp>
+#include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/core/wording.hpp>
 #include <subedit/gui/correction_confirmation_page.hpp>
 #include <subedit/gui/correction_controller.hpp>
@@ -21,31 +22,12 @@
 #include <QDialog>
 #include <QObject>
 
-#include <algorithm>
 #include <memory>
 #include <utility>
 
 namespace subedit::gui {
 
 namespace {
-
-/// Merges `from` into `into` by (kind, code, name), replacing an existing
-/// entry or adding a new one — never clearing a stale entry for a code this
-/// wizard run never showed (a known limitation, see Task 9's own note on
-/// `PatternList`).
-void mergeActivations(std::vector<core::PatternActivation>& into,
-                      const std::vector<core::PatternActivation>& from) {
-    for (const core::PatternActivation& activation : from) {
-        const auto found = std::ranges::find_if(into, [&](const core::PatternActivation& existing) {
-            return existing.kind == activation.kind && existing.code == activation.code &&
-                   existing.name == activation.name;
-        });
-        if (found != into.end())
-            *found = activation;
-        else
-            into.push_back(activation);
-    }
-}
 
 /// Reads every page of `wizard` into `previous`'s shape — the settings to
 /// compute with while the wizard is open, and to persist once it finishes.
@@ -70,10 +52,10 @@ void mergeActivations(std::vector<core::PatternActivation>& into,
     settings.lineBreakMaxLength = wizard.lineBreakPage().maxLength();
     settings.lineBreakMaxLines = wizard.lineBreakPage().maxLines();
     settings.removeBlankSubtitles = wizard.confirmationPage().removeBlankSubtitles();
-    mergeActivations(settings.patternActivations, wizard.mentionsPage().activations());
-    mergeActivations(settings.patternActivations, wizard.commonErrorsPage().activations());
-    mergeActivations(settings.patternActivations, wizard.capitalizationPage().activations());
-    mergeActivations(settings.patternActivations, wizard.lineBreakPage().activations());
+    wizard.mentionsPage().mergeActivationsInto(settings.patternActivations);
+    wizard.commonErrorsPage().mergeActivationsInto(settings.patternActivations);
+    wizard.capitalizationPage().mergeActivationsInto(settings.patternActivations);
+    wizard.lineBreakPage().mergeActivationsInto(settings.patternActivations);
     return settings;
 }
 
@@ -104,13 +86,19 @@ void CorrectionController::open() {
         }
     }
 
+    // **Declared before the wizard, deliberately**: locals are destroyed in
+    // reverse order, and the wizard's progress page waits in its destructor
+    // for a computation still running on this engine — the engine must still
+    // be there while it does.
+    core::IcuPatternEngine engine;
     CorrectionWizard wizard{m_view->patternCatalogue(),
                             m_settings,
                             selectionAvailable,
                             translationAvailable,
                             m_view->dialogParent()};
 
-    core::IcuPatternEngine engine;
+    wizard.confirmationPage().setReadDiagnostics(m_view->patternCatalogue().diagnostics());
+
     QObject::connect(
         &wizard.progressPage(),
         &CorrectionProgressPage::aboutToCompute,

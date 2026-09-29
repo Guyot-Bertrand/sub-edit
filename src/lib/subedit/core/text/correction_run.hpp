@@ -7,8 +7,9 @@
 // takes the tasks and their settings, the projects and the target, and gives
 // back the changes it would make, **without touching a single project** —
 // Gaupol copies each project to do this; a correction being a function of
-// texts, there is nothing to copy. A second function applies an accepted
-// subset, one composed command per project.
+// texts, there is nothing to copy. A second function composes an accepted
+// subset into one command per project, **without applying it**: the caller
+// runs each through `Session::apply`, the only road to a change.
 
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/config/correction_settings.hpp>
@@ -68,8 +69,9 @@ struct ProposedCorrection {
 };
 
 /// What `proposeCorrections` answered: the changes it would make, and every
-/// pattern that could not do its part — named once each, however many texts
-/// or targets it was asked to work on (GUI-CORRECT-06).
+/// pattern that could not do its part — named once each per reason, however
+/// many texts or targets it was asked to work on (GUI-CORRECT-06). A failure's
+/// `text` is then the first text it gave up on, within its own target.
 struct CorrectionProposal {
     std::vector<ProposedCorrection> corrections;
     std::vector<PatternFailure> failures;
@@ -115,7 +117,8 @@ struct AppliedCorrection {
 [[nodiscard]] std::vector<AppliedCorrection>
 applyCorrections(std::span<const ProposedCorrection> accepted, bool removeBlankSubtitles);
 
-/// What `applyCorrections` did — decision D8's own count, never of matches.
+/// What the commands `applyCorrections` composed will do once the caller has
+/// applied them — decision D8's own count, never of matches.
 struct CorrectionTally {
     std::size_t corrected = 0;
     std::size_t removed = 0;
@@ -123,7 +126,7 @@ struct CorrectionTally {
     friend bool operator==(const CorrectionTally&, const CorrectionTally&) = default;
 };
 
-/// Reads what `applied` did from the commands themselves, the same rule
+/// Reads what `applied` will do from the composed commands themselves, the same rule
 /// `tallyOf(const Command&)` already follows for phase 4's removal.
 [[nodiscard]] CorrectionTally tallyOf(std::span<const AppliedCorrection> applied);
 

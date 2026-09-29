@@ -9,6 +9,8 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
+#include <utility>
+
 namespace subedit::gui {
 
 namespace {
@@ -24,7 +26,6 @@ CorrectionTaskPage::CorrectionTaskPage(const QString& title,
                                        core::PatternKind kind,
                                        QWidget* parent)
     : QWizardPage(parent),
-      m_catalogue(&catalogue),
       m_kind(kind),
       m_selector(new PatternCodeSelector{catalogue, kind, this}),
       m_extraLayout(new QVBoxLayout{}),
@@ -36,7 +37,11 @@ CorrectionTaskPage::CorrectionTaskPage(const QString& title,
     layout->addLayout(m_extraLayout);
     layout->addWidget(m_list);
 
+    // The list still shows the previous code's boxes when this fires: fold
+    // them into `m_settings` first, or what was toggled there would be
+    // forgotten the moment the list is rebuilt.
     connect(m_selector, &PatternCodeSelector::codeChanged, this, [this] {
+        m_list->foldInto(m_settings.patternActivations);
         m_list->setCode(code(), m_settings);
     });
 }
@@ -45,14 +50,26 @@ std::string CorrectionTaskPage::code() const {
     return m_selector->code();
 }
 
-std::vector<core::PatternActivation> CorrectionTaskPage::activations() const {
-    return m_list->activations();
+void CorrectionTaskPage::mergeActivationsInto(
+    std::vector<core::PatternActivation>& activations) const {
+    std::vector<core::PatternActivation> held = m_settings.patternActivations;
+    m_list->foldInto(held);
+
+    std::erase_if(activations,
+                  [this](const core::PatternActivation& one) { return one.kind == m_kind; });
+    for (core::PatternActivation& one : held) {
+        if (one.kind == m_kind)
+            activations.push_back(std::move(one));
+    }
 }
 
 void CorrectionTaskPage::applyBase(const std::string& code,
                                    const core::CorrectionSettings& settings) {
-    m_settings = settings;
+    // The selector first: its `codeChanged` folds whatever the list showed
+    // into the *previous* `m_settings`, which is then replaced wholesale —
+    // reopening on `settings` must not inherit a box from before.
     m_selector->setCode(code);
+    m_settings = settings;
     m_list->setCode(code, settings);
 }
 

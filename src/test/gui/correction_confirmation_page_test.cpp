@@ -1,4 +1,5 @@
 #include <subedit/core/text/correction_run.hpp>
+#include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/gui/correction_confirmation_page.hpp>
 #include <subedit/gui/correction_progress_page.hpp>
 #include <subedit/gui/correction_result_model.hpp>
@@ -7,8 +8,11 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSignalSpy>
+#include <QStyledItemDelegate>
 #include <QTableView>
 #include <catch2/catch_test_macros.hpp>
+
+#include <vector>
 
 namespace {
 using subedit::core::CorrectionProposal;
@@ -157,4 +161,95 @@ TEST_CASE("clicking Preview on a selected row asks to preview it",
 
     REQUIRE(requested.count() == 1);
     CHECK(requested.at(0).at(0).toInt() == 1);
+}
+
+TEST_CASE("re-entering the page reuses its one diff delegate",
+          "[gui][correction-confirmation-page]") {
+    CorrectionProgressPage progress;
+    progress.setComputation([] { return CorrectionProposal{}; });
+    QSignalSpy spy{&progress, &CorrectionProgressPage::completeChanged};
+    progress.initializePage();
+    REQUIRE(spy.wait(2000));
+
+    CorrectionConfirmationPage page;
+    page.setProgressPage(&progress);
+    page.initializePage();
+    auto* table = page.findChild<QTableView*>();
+    REQUIRE(table != nullptr);
+    // `CorrectionDiffDelegate` carries no `Q_OBJECT`, so `findChildren` can
+    // only count delegates in general — the view's own default among them.
+    // What matters is that entering again adds none.
+    const auto delegates = table->findChildren<QStyledItemDelegate*>().size();
+    const QAbstractItemDelegate* original =
+        table->itemDelegateForColumn(subedit::gui::CorrectionResultModel::Original);
+    REQUIRE(original != nullptr);
+
+    page.initializePage(); // Back, then Next again
+
+    CHECK(table->findChildren<QStyledItemDelegate*>().size() == delegates);
+    CHECK(table->itemDelegateForColumn(subedit::gui::CorrectionResultModel::Original) == original);
+}
+
+TEST_CASE("a reading problem with no line names its file alone",
+          "[gui][correction-confirmation-page]") {
+    CorrectionProgressPage progress;
+    progress.setComputation([] { return CorrectionProposal{}; });
+    QSignalSpy spy{&progress, &CorrectionProgressPage::completeChanged};
+    progress.initializePage();
+    REQUIRE(spy.wait(2000));
+
+    CorrectionConfirmationPage page;
+    page.setProgressPage(&progress);
+    page.setReadDiagnostics(
+        {subedit::core::PatternDiagnostic{.problem = subedit::core::PatternProblem::FileUnreadable,
+                                          .file = "/patterns/Latn-en.capitalization",
+                                          .line = 0,
+                                          .detail = "permission denied"}});
+    page.initializePage();
+
+    const QString text = page.findChild<QLabel*>(QStringLiteral("abandonedPatterns"))->text();
+    CHECK(text == QStringLiteral("Could not be read: Latn-en.capitalization "
+                                 "(file cannot be read: permission denied)"));
+}
+
+TEST_CASE("every reading problem names its own reason", "[gui][correction-confirmation-page]") {
+    using subedit::core::PatternDiagnostic;
+    using subedit::core::PatternProblem;
+    CorrectionProgressPage progress;
+    progress.setComputation([] { return CorrectionProposal{}; });
+    QSignalSpy spy{&progress, &CorrectionProgressPage::completeChanged};
+    progress.initializePage();
+    REQUIRE(spy.wait(2000));
+
+    CorrectionConfirmationPage page;
+    page.setProgressPage(&progress);
+    std::vector<PatternDiagnostic> diagnostics;
+    for (const PatternProblem problem : {PatternProblem::FileUnreadable,
+                                         PatternProblem::MalformedLine,
+                                         PatternProblem::FieldOutsideRecord,
+                                         PatternProblem::UnknownField,
+                                         PatternProblem::MissingField,
+                                         PatternProblem::InvalidValue,
+                                         PatternProblem::MalformedActivation}) {
+        diagnostics.push_back(PatternDiagnostic{
+            .problem = problem, .file = "/patterns/Zyyy.common-error", .line = 3, .detail = {}});
+    }
+    // A directory given with its trailing separator has no file name of its
+    // own: the whole path names it instead.
+    diagnostics.push_back(PatternDiagnostic{.problem = PatternProblem::DirectoryUnreadable,
+                                            .file = "/patterns/",
+                                            .line = 0,
+                                            .detail = {}});
+    page.setReadDiagnostics(diagnostics);
+    page.initializePage();
+
+    const QString text = page.findChild<QLabel*>(QStringLiteral("abandonedPatterns"))->text();
+    CHECK(text.contains(QStringLiteral("Zyyy.common-error, line 3 (file cannot be read)")));
+    CHECK(text.contains(QStringLiteral("(malformed line)")));
+    CHECK(text.contains(QStringLiteral("(field outside any pattern)")));
+    CHECK(text.contains(QStringLiteral("(unknown field)")));
+    CHECK(text.contains(QStringLiteral("(missing field)")));
+    CHECK(text.contains(QStringLiteral("(invalid value)")));
+    CHECK(text.contains(QStringLiteral("(malformed activation)")));
+    CHECK(text.contains(QStringLiteral("/patterns/ (directory cannot be read)")));
 }

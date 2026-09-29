@@ -21,12 +21,14 @@
 #include <subedit/gui/correction_target_page.hpp>
 #include <subedit/gui/correction_task_page.hpp>
 #include <subedit/gui/correction_wizard.hpp>
+#include <subedit/gui/pattern_code_selector.hpp>
 #include <subedit/gui/project_page.hpp>
 
 #include <QCheckBox>
 #include <QDialog>
 #include <QFont>
 #include <QItemSelectionModel>
+#include <QLabel>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QSignalSpy>
@@ -52,7 +54,9 @@ using subedit::core::CorrectionTask;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::noticeOfCorrection;
 using subedit::core::openProject;
+using subedit::core::PatternActivation;
 using subedit::core::PatternCatalogue;
+using subedit::core::PatternKind;
 using subedit::core::Project;
 using subedit::core::readPatternCatalogue;
 using subedit::core::SourceFile;
@@ -63,6 +67,7 @@ using subedit::core::TranslationMethod;
 using subedit::gui::CorrectionController;
 using subedit::gui::CorrectionProgressPage;
 using subedit::gui::CorrectionWizard;
+using subedit::gui::PatternCodeSelector;
 using subedit::gui::ProjectPage;
 using subedit::test::FakePrompts;
 
@@ -311,4 +316,169 @@ TEST_CASE("Preview on the confirmation page reaches the view with the right "
     REQUIRE(desk.previewed.size() == 1);
     CHECK(desk.previewed[0].first == &desk.pages_[0]->session->project());
     CHECK(desk.previewed[0].second == SubtitleIndex::fromValue(0));
+}
+
+namespace {
+
+/// Checks Common Errors alone, opens its page, sets "Double space" to
+/// `checked`, and runs to the confirmation page.
+[[nodiscard]] auto settingDoubleSpace(bool checked) {
+    return [checked](QDialog& dialog) {
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        wizard.show();
+        wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, true);
+        wizard.targetPage().setTaskChecked(CorrectionTask::Capitalization, false);
+        wizard.next(); // target -> common errors
+        auto* box =
+            buttonNamed<QCheckBox>(wizard.commonErrorsPage(), QStringLiteral("Double space"));
+        REQUIRE(box != nullptr);
+        box->setChecked(checked);
+        wizard.next(); // common errors -> progress
+        QSignalSpy spy{&wizard.progressPage(), &CorrectionProgressPage::completeChanged};
+        REQUIRE(spy.wait(2000));
+    };
+}
+
+/// One common-error record under each of two codes sharing nothing.
+[[nodiscard]] PatternCatalogue twoCodesCatalogue() {
+    InMemoryFileSystem files;
+    files.addFile(kShipped / "Latn-en.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=English rule\nClasses=Human;OCR;\nPattern=qqq\n");
+    files.addFile(kShipped / "Cyrl-ru.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=Russian rule\nClasses=Human;OCR;\nPattern=qqq\n");
+    return readPatternCatalogue(files, kShipped, {});
+}
+
+} // namespace
+
+TEST_CASE("re-enabling a pattern an earlier run disabled removes its override",
+          "[gui][correction-controller]") {
+    Desk desk{smallCatalogue()};
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nBonjour Marie\n\n"));
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = settingDoubleSpace(false);
+    CorrectionController controller{prompts, desk};
+
+    controller.open(); // first run: disables it
+    REQUIRE(controller.settings().patternActivations ==
+            std::vector<PatternActivation>{{.kind = PatternKind::CommonError,
+                                            .code = "Zyyy",
+                                            .name = "Double space",
+                                            .enabled = false}});
+
+    prompts.fill = settingDoubleSpace(true);
+    controller.open(); // second run: back to the shipped default
+
+    // Not merely "no new override": the old one is gone, so the pattern is
+    // enabled again the next time anything reads the settings.
+    CHECK(controller.settings().patternActivations.empty());
+}
+
+TEST_CASE("a pattern unchecked under one code survives a switch to another and back",
+          "[gui][correction-controller]") {
+    Desk desk{twoCodesCatalogue()};
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nBonjour Marie\n\n"));
+    bool stillUnchecked = false;
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = [&stillUnchecked](QDialog& dialog) {
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        wizard.show();
+        wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, true);
+        wizard.targetPage().setTaskChecked(CorrectionTask::Capitalization, false);
+        wizard.next(); // target -> common errors
+        auto* selector = wizard.commonErrorsPage().findChild<PatternCodeSelector*>();
+        REQUIRE(selector != nullptr);
+
+        selector->setCode("Latn-en");
+        auto* english =
+            buttonNamed<QCheckBox>(wizard.commonErrorsPage(), QStringLiteral("English rule"));
+        REQUIRE(english != nullptr);
+        english->setChecked(false);
+
+        selector->setCode("Cyrl-ru");
+        selector->setCode("Latn-en");
+        english = buttonNamed<QCheckBox>(wizard.commonErrorsPage(), QStringLiteral("English rule"));
+        REQUIRE(english != nullptr);
+        stillUnchecked = !english->isChecked();
+
+        selector->setCode("Cyrl-ru"); // finish on the other code
+        wizard.next();                // common errors -> progress
+        QSignalSpy spy{&wizard.progressPage(), &CorrectionProgressPage::completeChanged};
+        REQUIRE(spy.wait(2000));
+    };
+    CorrectionController controller{prompts, desk};
+
+    controller.open();
+
+    CHECK(stillUnchecked);
+    CHECK(controller.settings().commonErrors.code == "Cyrl-ru");
+    CHECK(controller.settings().patternActivations ==
+          std::vector<PatternActivation>{{.kind = PatternKind::CommonError,
+                                          .code = "Latn-en",
+                                          .name = "English rule",
+                                          .enabled = false}});
+}
+
+TEST_CASE("GUI-CORRECT-06: a pattern file line that cannot be read is named on the "
+          "confirmation page",
+          "[gui][correction-controller][GUI-CORRECT-06]") {
+    InMemoryFileSystem files;
+    files.addFile(kShipped / "Zyyy.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=Double space\nClasses=Human;OCR;\n"
+                  "Pattern= {2,}\nReplacement=\\040\n"
+                  "this line is neither a header, a comment nor a key and value\n");
+    PatternCatalogue catalogue = readPatternCatalogue(files, kShipped, {});
+    REQUIRE(catalogue.diagnostics().size() == 1);
+    REQUIRE(catalogue.diagnostics()[0].problem == subedit::core::PatternProblem::MalformedLine);
+
+    Desk desk{std::move(catalogue)};
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nBonjour  Marie\n\n"));
+    std::string abandoned;
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = [&abandoned](QDialog& dialog) {
+        driveToConfirmation(dialog);
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        const auto* label =
+            wizard.confirmationPage().findChild<QLabel*>(QStringLiteral("abandonedPatterns"));
+        REQUIRE(label != nullptr);
+        CHECK(label->isVisibleTo(&wizard));
+        abandoned = label->text().toStdString();
+    };
+    CorrectionController controller{prompts, desk};
+
+    controller.open();
+
+    CHECK(abandoned.find("Zyyy.common-error, line 8") != std::string::npos);
+    CHECK(abandoned.find("malformed line") != std::string::npos);
+    // ... and the pattern that did read still applied.
+    CHECK(desk.pages_[0]->session->project().subtitleAt(SubtitleIndex::fromValue(0)).mainText ==
+          "Bonjour Marie");
+}
+
+TEST_CASE("cancelling while the computation runs returns cleanly and changes nothing",
+          "[gui][correction-controller]") {
+    Desk desk{smallCatalogue()};
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nBonjour  Marie\n\n"));
+    FakePrompts prompts;
+    prompts.nextRun = false; // Cancel, the moment the progress page has started
+    prompts.fill = [](QDialog& dialog) {
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        wizard.show();
+        wizard.targetPage().setTaskChecked(CorrectionTask::Capitalization, false);
+        wizard.next(); // target -> common errors
+        wizard.next(); // common errors -> progress: the computation starts
+    };
+    CorrectionController controller{prompts, desk};
+
+    controller.open(); // the wizard, and the engine after it, are torn down here
+
+    CHECK(desk.pages_[0]->session->project().subtitleAt(SubtitleIndex::fromValue(0)).mainText ==
+          "Bonjour  Marie");
+    CHECK(desk.announced.empty());
 }

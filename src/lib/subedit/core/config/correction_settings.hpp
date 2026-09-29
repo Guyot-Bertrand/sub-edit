@@ -6,6 +6,7 @@
 
 #include <subedit/core/text/correction_pattern.hpp>
 
+#include <span>
 #include <string>
 #include <vector>
 
@@ -78,5 +79,20 @@ struct CorrectionSettings {
 /// and `classesAllow` already keep apart.
 [[nodiscard]] bool patternEnabled(const CorrectionPattern& pattern,
                                   const CorrectionSettings& settings);
+
+/// Folds what a page of the assistant shows into `activations` — issue #505.
+///
+/// **Erase, then add.** Every override on a record of `shown` is removed
+/// first, then `overrides` are appended: a record whose box has come back to
+/// its shipped default thereby loses the override an earlier run wrote,
+/// instead of keeping it forever. An override on a record `shown` does not
+/// name — another code's, another kind's — is left exactly as it was.
+///
+/// `overrides` is expected to name only records of `shown`, the ones whose
+/// box disagrees with their default; `shown` is every record the page gave a
+/// box to, agreeing or not.
+void foldActivations(std::vector<PatternActivation>& activations,
+                     std::span<const CorrectionPattern* const> shown,
+                     std::span<const PatternActivation> overrides);
 
 } // namespace subedit::core

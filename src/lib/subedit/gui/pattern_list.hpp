@@ -34,8 +34,18 @@ public:
     void setCode(std::string_view code, const core::CorrectionSettings& settings);
 
     /// One `PatternActivation` per underlying record whose box now disagrees
-    /// with that record's shipped default.
+    /// with that record's shipped default — once per (kind, code, name), even
+    /// when two records of the same code share a name and so the same key.
     [[nodiscard]] std::vector<core::PatternActivation> activations() const;
+
+    /// Every record a box currently stands for, agreeing with its default or
+    /// not — what `core::foldActivations` erases before it adds
+    /// `activations()` back.
+    [[nodiscard]] std::vector<const core::CorrectionPattern*> shownRecords() const;
+
+    /// Folds what the boxes now say into `activations` — `core::foldActivations`
+    /// over `shownRecords()` and `activations()`.
+    void foldInto(std::vector<core::PatternActivation>& activations) const;
 
 signals:
     void changed();

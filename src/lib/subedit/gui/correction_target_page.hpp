@@ -7,12 +7,13 @@
 class QCheckBox;
 class QRadioButton;
 
-/// **Declared rather than included, deliberately** — the same reason and the
-/// same shape as `subtitle_table_model.hpp`: `moc` parses this header, and it
-/// chokes on the C++20 library headers `correction_run.hpp` drags in through
-/// `Selection` (its iterator pulls `<iterator>`, and `<concepts>` follows).
-/// Declaring what the signatures need keeps `moc` out of all that; the
-/// definitions come in the implementation file.
+/// **Declared rather than included** — the shape `subtitle_table_model.hpp`
+/// adopted after `moc` once failed on `<concepts>` reached through
+/// `Selection`. That failure is **not a standing rule**: `main_window.hpp`,
+/// itself `Q_OBJECT`, includes `selection.hpp`, and today's `moc` parses
+/// `correction_run.hpp` cleanly with this project's include paths (checked
+/// for #505's final review). A declaration is kept because it is all this
+/// header needs, and it keeps `moc` and every includer out of the core headers.
 namespace subedit::core {
 enum class CorrectionTask;
 } // namespace subedit::core

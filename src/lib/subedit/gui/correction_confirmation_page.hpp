@@ -1,6 +1,13 @@
 #pragma once
 
+#include <QStringList>
 #include <QWizardPage>
+
+#include <vector>
+
+namespace subedit::core {
+struct PatternDiagnostic;
+} // namespace subedit::core
 
 class QCheckBox;
 class QLabel;
@@ -9,6 +16,7 @@ class QTableView;
 
 namespace subedit::gui {
 
+class CorrectionDiffDelegate;
 class CorrectionProgressPage;
 class CorrectionResultModel;
 
@@ -25,6 +33,12 @@ public:
     void setProgressPage(const CorrectionProgressPage* progress) { m_progress = progress; }
 
     void setRemoveBlankSubtitlesDefault(bool removeBlank);
+
+    /// What reading the pattern files ran into — GUI-CORRECT-06's first case,
+    /// "a pattern that cannot be read". Named on this page alongside the
+    /// patterns the run itself abandoned; fixed for the whole session, since
+    /// the catalogue is read once.
+    void setReadDiagnostics(const std::vector<core::PatternDiagnostic>& diagnostics);
 
     void initializePage() override;
 
@@ -45,6 +59,8 @@ private:
     QPushButton* m_preview;
     QCheckBox* m_removeBlank;
     QLabel* m_abandoned;
+    CorrectionDiffDelegate* m_delegate;
+    QStringList m_unreadable;
 };
 
 } // namespace subedit::gui

@@ -9,10 +9,13 @@
 
 #include <vector>
 
-/// **Declared rather than included, deliberately** — the same reason and the
-/// same shape as `correction_progress_page.hpp`: `moc` parses this header,
-/// and it chokes on the C++20 library headers `correction_run.hpp` drags in
-/// through `Selection`/`SubtitleIndex` (`<iterator>` pulls `<concepts>`).
+/// **Declared rather than included** — the shape `subtitle_table_model.hpp`
+/// adopted after `moc` once failed on `<concepts>` reached through
+/// `Selection`. That failure is **not a standing rule**: `main_window.hpp`,
+/// itself `Q_OBJECT`, includes `selection.hpp`, and today's `moc` parses
+/// `correction_run.hpp` cleanly with this project's include paths (checked
+/// for #505's final review). A declaration is kept because it is all this
+/// header needs, and it keeps `moc` and every includer out of the core headers.
 ///
 /// `Row` wraps a `core::ProposedCorrection` by value, so unlike the progress
 /// page's `std::function` target, it does need the type complete — which is

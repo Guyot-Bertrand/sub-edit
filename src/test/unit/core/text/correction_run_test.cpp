@@ -450,3 +450,32 @@ TEST_CASE("the same broken pattern named on two targets is reported once, not tw
     REQUIRE(proposal.failures.size() == 1);
     CHECK(proposal.failures[0].name == "Broken");
 }
+
+TEST_CASE("a pattern failing on several texts of several targets is reported once",
+          "[text][assistant]") {
+    // `ab` -> `aab` never settles: every text holding `ab` gives up after
+    // `kMaxRepeatPasses`, each report carrying its own text index. Two texts
+    // in each of two targets: four reports, one pattern, one reason — and the
+    // confirmation names it once (`CorrectionProposal`'s own promise).
+    InMemoryFileSystem files;
+    files.addFile("/patterns/Zyyy.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=Endless\nClasses=Human;OCR;\n"
+                  "Pattern=ab\nReplacement=aab\nRepeat=True\n");
+    const PatternCatalogue catalogue = subedit::core::readPatternCatalogue(files, "/patterns", {});
+    REQUIRE(catalogue.diagnostics().empty());
+
+    Project first = projectOf({"ab", "xab"});
+    Project second = projectOf({"abc", "ab ab"});
+    CorrectionSettings settings;
+    settings.commonErrors = {.enabled = true, .code = "Zyyy"};
+
+    const std::vector<CorrectionTarget> targets{wholeProject(first), wholeProject(second)};
+    const CharacterLineMeasure measure;
+    const CorrectionProposal proposal =
+        proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets);
+
+    REQUIRE(proposal.failures.size() == 1);
+    CHECK(proposal.failures[0].name == "Endless");
+    CHECK(proposal.failures[0].kind == FailureKind::TooManyPasses);
+}

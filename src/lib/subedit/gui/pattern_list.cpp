@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+#include <utility>
 
 namespace subedit::gui {
 
@@ -60,13 +61,28 @@ std::vector<core::PatternActivation> PatternList::activations() const {
         for (const core::CorrectionPattern* record : entry.records) {
             if (record->enabled == entry.box->isChecked())
                 continue; // agrees with the shipped default: no override to write
-            activations.push_back(core::PatternActivation{.kind = record->kind(),
-                                                          .code = record->code,
-                                                          .name = record->name,
-                                                          .enabled = entry.box->isChecked()});
+            core::PatternActivation activation{.kind = record->kind(),
+                                               .code = record->code,
+                                               .name = record->name,
+                                               .enabled = entry.box->isChecked()};
+            // Two records of the same code sharing a name share the same key:
+            // one override already covers both.
+            if (std::ranges::find(activations, activation) == activations.end())
+                activations.push_back(std::move(activation));
         }
     }
     return activations;
+}
+
+std::vector<const core::CorrectionPattern*> PatternList::shownRecords() const {
+    std::vector<const core::CorrectionPattern*> shown;
+    for (const Entry& entry : m_entries)
+        shown.insert(shown.end(), entry.records.begin(), entry.records.end());
+    return shown;
+}
+
+void PatternList::foldInto(std::vector<core::PatternActivation>& activations) const {
+    core::foldActivations(activations, shownRecords(), this->activations());
 }
 
 } // namespace subedit::gui

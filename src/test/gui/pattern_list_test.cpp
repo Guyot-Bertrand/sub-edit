@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -216,4 +217,71 @@ TEST_CASE("setCode rebuilds the boxes for the newly requested cascade", "[gui][p
 
     // Rebuilding did not duplicate the boxes.
     CHECK(list.findChildren<QCheckBox*>(QString::fromStdString("Letter I")).size() == 1);
+}
+
+namespace {
+
+/// Two records of the *same* code sharing a name — "Repeated", twice in
+/// `Zyyy`, neither `Policy=Replace`: adjacent ranks, one box, and one key
+/// (kind, code, name) between them.
+PatternCatalogue sharedNameSameCode() {
+    InMemoryFileSystem files;
+    files.addFile(kShipped / "Zyyy.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=Repeated\nClasses=OCR;\nPattern=a\n"
+                  "\n[Common Error Pattern]\nName=Repeated\nClasses=OCR;\nPattern=b\n");
+    return readPatternCatalogue(files, kShipped, {});
+}
+
+} // namespace
+
+TEST_CASE("a name shared by two records of the same code writes a single activation",
+          "[gui][pattern-list]") {
+    const PatternCatalogue catalogue = sharedNameSameCode();
+    REQUIRE(catalogue.cascade(PatternKind::CommonError, "Zyyy").size() == 2);
+    PatternList list{catalogue, PatternKind::CommonError};
+    list.setCode("Zyyy", CorrectionSettings{});
+
+    CHECK(list.findChildren<QCheckBox*>(QString::fromStdString("Repeated")).size() == 1);
+    CHECK(list.shownRecords().size() == 2); // both records stand behind the one box
+
+    auto* box = list.findChild<QCheckBox*>(QString::fromStdString("Repeated"));
+    REQUIRE(box != nullptr);
+    box->toggle();
+
+    // Both records carry the same key: one override covers both, and
+    // folding it twice over does not pile up copies.
+    const auto activations = list.activations();
+    REQUIRE(activations.size() == 1);
+    CHECK(activations[0].code == "Zyyy");
+    CHECK_FALSE(activations[0].enabled);
+
+    std::vector<subedit::core::PatternActivation> folded;
+    list.foldInto(folded);
+    list.foldInto(folded);
+    CHECK(folded == activations);
+
+    box->toggle(); // back to its default
+    list.foldInto(folded);
+    CHECK(folded.empty());
+}
+
+TEST_CASE("folding a box turned back to its default erases the override it opened on",
+          "[gui][pattern-list]") {
+    const PatternCatalogue catalogue = twoRecords();
+    PatternList list{catalogue, PatternKind::CommonError};
+
+    CorrectionSettings settings;
+    settings.patternActivations.push_back(subedit::core::PatternActivation{
+        .kind = PatternKind::CommonError, .code = "Zyyy", .name = "Letter I", .enabled = false});
+    list.setCode("Zyyy", settings);
+
+    auto* box = list.findChild<QCheckBox*>(QString::fromStdString("Letter I"));
+    REQUIRE(box != nullptr);
+    REQUIRE_FALSE(box->isChecked());
+    box->setChecked(true); // "Letter I" is on by default: this *is* its default again
+
+    list.foldInto(settings.patternActivations);
+
+    CHECK(settings.patternActivations.empty());
 }

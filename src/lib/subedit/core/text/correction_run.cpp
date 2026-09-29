@@ -178,17 +178,20 @@ CorrectionProposal proposeCorrections(const PatternEngine& engine,
         }
     }
 
-    // De-duplicate: the same pattern reports the same compile failure once per
-    // target it was asked to run on, and the confirmation names it once.
-    std::ranges::sort(proposal.failures, {}, [](const PatternFailure& f) {
-        return std::tuple{static_cast<int>(f.kind), f.code, f.rank, f.text.value_or(0)};
-    });
+    // De-duplicate by pattern and reason, never by text: the same pattern
+    // reports the same failure once per target it ran on — and a per-text
+    // one (time-out, passes, length) once per text — while the confirmation
+    // names it once. `text` is only an index into one target's own texts, so
+    // it could not tell two targets apart anyway; the stable sort keeps the
+    // first report's `text` and `detail`, and nothing downstream reads more.
+    const auto key = [](const PatternFailure& f) {
+        return std::tie(f.kind, f.code, f.rank, f.name);
+    };
+    std::ranges::stable_sort(proposal.failures, {}, key);
     proposal.failures.erase(
-        std::ranges::unique(proposal.failures,
-                            [](const PatternFailure& a, const PatternFailure& b) {
-                                return a.kind == b.kind && a.code == b.code && a.rank == b.rank &&
-                                       a.name == b.name && a.text == b.text;
-                            })
+        std::ranges::unique(
+            proposal.failures,
+            [&key](const PatternFailure& a, const PatternFailure& b) { return key(a) == key(b); })
             .begin(),
         proposal.failures.end());
     return proposal;

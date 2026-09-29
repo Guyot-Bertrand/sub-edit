@@ -42,7 +42,13 @@ public:
     virtual void applySettings(const core::CorrectionSettings& settings) = 0;
 
     [[nodiscard]] std::string code() const;
-    [[nodiscard]] std::vector<core::PatternActivation> activations() const;
+
+    /// Writes this page's pattern choices into `activations`: every entry of
+    /// this page's kind is replaced by what the page now holds — the settings
+    /// it opened on, with every code shown this run folded in
+    /// (`core::foldActivations`). Entries of the other three kinds are left
+    /// alone, each belonging to its own page.
+    void mergeActivationsInto(std::vector<core::PatternActivation>& activations) const;
 
 protected:
     /// Sets the shared widgets from `code`; a subclass calls this first from
@@ -57,10 +63,12 @@ protected:
     [[nodiscard]] QVBoxLayout* extraLayout() const { return m_extraLayout; }
 
 private:
-    const core::PatternCatalogue* m_catalogue;
     core::PatternKind m_kind;
-    core::CorrectionSettings
-        m_settings; // kept so a code change re-opens the pattern list correctly
+    /// The settings the page opened on, with the pattern list's state folded
+    /// in each time the code changes — so a box toggled under one code is
+    /// found as it was left when that code comes back, and still reaches
+    /// `mergeActivationsInto` if the run finishes on another.
+    core::CorrectionSettings m_settings;
     PatternCodeSelector* m_selector;
     QVBoxLayout* m_extraLayout;
     PatternList* m_list;
