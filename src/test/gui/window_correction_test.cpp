@@ -29,8 +29,10 @@
 #include <QCheckBox>
 #include <QDialog>
 #include <QLabel>
+#include <QRadioButton>
 #include <QSignalSpy>
 #include <QStatusBar>
+#include <QTabBar>
 #include <catch2/catch_test_macros.hpp>
 
 #include <filesystem>
@@ -77,15 +79,17 @@ const std::filesystem::path kUser = "/user";
         .toStdString();
 }
 
-/// A checkbox found by its own label — the pattern list gives each box that
-/// text and that `objectName` alike (`PatternList::setCode`, Task 8); the two
-/// D4/D7 checkboxes of a task page (`Human`/`OCR`, `Sound in brackets`/`Sound
-/// in parentheses`) carry no `objectName` at all, only their text — so
-/// matching on text covers both without two lookup strategies.
-[[nodiscard]] QCheckBox* checkBoxNamed(const QWidget& parent, const QString& text) {
-    for (QCheckBox* box : parent.findChildren<QCheckBox*>()) {
-        if (box->text() == text)
-            return box;
+/// A button found by its own label — the pattern list gives each checkbox
+/// that text and that `objectName` alike (`PatternList::setCode`, Task 8);
+/// the D4/D7 checkboxes (`Human`/`OCR`, `Sound in brackets`/`Sound in
+/// parentheses`) and the target page's radio buttons carry no `objectName` at
+/// all, only their text — so matching on text covers every case with one
+/// lookup, whichever kind of `QAbstractButton` is asked for.
+template<class Button>
+[[nodiscard]] Button* buttonNamed(const QWidget& parent, const QString& text) {
+    for (Button* button : parent.findChildren<Button*>()) {
+        if (button->text() == text)
+            return button;
     }
     return nullptr;
 }
@@ -194,6 +198,50 @@ TEST_CASE("GUI-CORRECT-01: the assistant applies checked tasks to the chosen tar
     CHECK(textAt(window, 0) == "Bonjour Marie");
 }
 
+TEST_CASE("GUI-CORRECT-01: choosing All Open Projects reaches every open project, not just "
+          "the one shown",
+          "[gui][GUI-CORRECT-01]") {
+    // The default target (current project) is exercised by the case above;
+    // this one drives the other end of the same choice — `CorrectionScope::AllProjects`
+    // — the only way to prove `wizard.targetPage().scope()` actually reaches
+    // `correctionTargetsOf` and the multi-project apply loop inside `open()`,
+    // rather than every case happening to agree with the default.
+    InMemoryFileSystem files;
+    files.addFile("premier.srt", "1\n00:00:01,000 --> 00:00:02,000\nBonjour  Marie\n\n");
+    files.addFile("second.srt", "1\n00:00:01,000 --> 00:00:02,000\nSalut  Jean\n\n");
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "premier.srt"), prompts};
+    window.setPatternCatalogue(doubleSpaceCatalogue());
+    window.show();
+    prompts.nextFileToOpen = "second.srt";
+    window.openAction()->trigger();
+    REQUIRE(window.tabBar()->count() == 2);
+    REQUIRE(window.tabBar()->currentIndex() == 1); // "second.srt" is the one shown
+
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, true);
+        // No setter for the scope on `CorrectionTargetPage` — the radio
+        // buttons carry no `objectName`, only their own text, so this drives
+        // the actual widget the way a click would, the same idiom already
+        // used above for the pattern list's and the task pages' checkboxes.
+        QRadioButton* allProjects =
+            buttonNamed<QRadioButton>(wizard.targetPage(), QStringLiteral("All Open Projects"));
+        REQUIRE(allProjects != nullptr);
+        allProjects->setChecked(true);
+        advanceToConfirmation(wizard);
+    };
+    window.correctTextsAction()->trigger();
+
+    // Both tabs corrected — the one shown when the assistant opened, and the
+    // other one, which `shownProject()` never named.
+    window.tabBar()->setCurrentIndex(0);
+    CHECK(textAt(window, 0) == "Bonjour Marie");
+    window.tabBar()->setCurrentIndex(1);
+    CHECK(textAt(window, 0) == "Salut Jean");
+}
+
 TEST_CASE(
     "GUI-CORRECT-02: a changed text shows its original, and is accepted, refused or retouched",
     "[gui][GUI-CORRECT-02]") {
@@ -256,7 +304,8 @@ TEST_CASE("GUI-CORRECT-04: a pattern turned off in the assistant stays off next 
     prompts.fill = [](QDialog& dialog) {
         auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
         wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, true);
-        QCheckBox* box = checkBoxNamed(wizard.commonErrorsPage(), QStringLiteral("Double space"));
+        QCheckBox* box =
+            buttonNamed<QCheckBox>(wizard.commonErrorsPage(), QStringLiteral("Double space"));
         REQUIRE(box != nullptr);
         box->setChecked(false);
         advanceToConfirmation(wizard);
@@ -270,7 +319,8 @@ TEST_CASE("GUI-CORRECT-04: a pattern turned off in the assistant stays off next 
     prompts.nextRun = false; // Cancel: nothing left to drive
     prompts.fill = [&boxUncheckedOnReopen](QDialog& dialog) {
         auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
-        QCheckBox* box = checkBoxNamed(wizard.commonErrorsPage(), QStringLiteral("Double space"));
+        QCheckBox* box =
+            buttonNamed<QCheckBox>(wizard.commonErrorsPage(), QStringLiteral("Double space"));
         REQUIRE(box != nullptr);
         boxUncheckedOnReopen = !box->isChecked();
     };
@@ -287,7 +337,8 @@ TEST_CASE("GUI-CORRECT-05: unchecking a class leaves only the other class's own 
     prompts.fill = [](QDialog& dialog) {
         auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
         wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, true);
-        QCheckBox* ocrBox = checkBoxNamed(wizard.commonErrorsPage(), QStringLiteral("OCR"));
+        QCheckBox* ocrBox =
+            buttonNamed<QCheckBox>(wizard.commonErrorsPage(), QStringLiteral("OCR"));
         REQUIRE(ocrBox != nullptr);
         ocrBox->setChecked(false);
         advanceToConfirmation(wizard);
@@ -358,7 +409,8 @@ TEST_CASE("GUI-HEARING-03: the moteur-based mentions and the bracket scan fire f
     prompts.fill = [](QDialog& dialog) {
         auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
         wizard.targetPage().setTaskChecked(CorrectionTask::Mentions, true);
-        QCheckBox* box = checkBoxNamed(wizard.mentionsPage(), QStringLiteral("Sound in brackets"));
+        QCheckBox* box =
+            buttonNamed<QCheckBox>(wizard.mentionsPage(), QStringLiteral("Sound in brackets"));
         REQUIRE(box != nullptr);
         box->setChecked(true);
         advanceToConfirmation(wizard);
