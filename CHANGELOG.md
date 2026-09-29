@@ -36,10 +36,14 @@ ne pas l'éditer à la main.
 - **gui** — Remplacer Q_MOC_RUN par le patron de déclaration anticipée
 - **gui** — Rafraîchir Original quand Proposed est retouché
 - Satisfaire la porte complète — câblage, tidy, couverture
+- **gui** — Relecture finale de #505 — dérogations, calcul, lecture
+- **gui** — Une case restée intacte ne réécrit pas les réglages
 
 ### Documentation
 
 - **gui** — Ajouter Correct Texts… au manuel, sa capture et le registre
+- **doc** — Régénérer le changelog
+- **doc** — Correct Texts… après la relecture finale de #505
 
 ### Remaniements
 
@@ -49,6 +53,7 @@ ne pas l'éditer à la main.
 ### Tests
 
 - **gui** — Cover the All Open Projects scope in GUI-CORRECT-01
+- **gui** — Prouver ce que deux tests de couverture promettaient
 
 ## 0.12.10 — 2026-09-28
 
