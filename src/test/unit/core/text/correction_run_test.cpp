@@ -22,6 +22,8 @@
 #include <subedit/core/text/icu_pattern_engine.hpp>
 #include <subedit/core/text/line_measure.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/text/spell_checker.hpp>
+#include <subedit/core/text/word_list_spell_provider.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -391,6 +393,42 @@ TEST_CASE("the skip gate leaves a subtitle alone that is within its thresholds",
     // The length check turned off: only the line count could hold it back.
     settings.lineBreakSkipOnLength = false;
     CHECK(proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets)
+              .corrections.empty());
+}
+
+TEST_CASE("the join-and-split task runs only when it is on and there is a checker",
+          "[text][assistant]") {
+    subedit::core::WordList list;
+    list.words = {"bonjour"};
+    subedit::core::WordListSpellProvider provider;
+    provider.add("fr", std::move(list));
+    const InMemoryFileSystem files;
+    const subedit::core::SpellChecker checker =
+        subedit::core::openSpellChecker(provider, "fr", files, "/none.repl").value();
+    const PatternCatalogue catalogue;
+    Project project = projectOf({"bon jour"});
+    const std::vector<CorrectionTarget> targets{wholeProject(project)};
+    const CharacterLineMeasure measure;
+    CorrectionSettings settings;
+    settings.commonErrors.enabled = false;
+    settings.capitalization.enabled = false;
+
+    // On, with a checker: joined, and only joining is on by default.
+    settings.joinSplitEnabled = true;
+    const CorrectionProposal on =
+        proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets, &checker);
+    REQUIRE(on.corrections.size() == 1);
+    CHECK(on.corrections[0].proposed == std::optional<std::string>{"bonjour"});
+
+    // On, but no checker: no dictionary is not a failure, the task just does not run.
+    const CorrectionProposal without =
+        proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets);
+    CHECK(without.corrections.empty());
+    CHECK(without.failures.empty());
+
+    // Off: nothing, checker or not.
+    settings.joinSplitEnabled = false;
+    CHECK(proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets, &checker)
               .corrections.empty());
 }
 

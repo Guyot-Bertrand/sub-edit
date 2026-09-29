@@ -37,11 +37,13 @@ CorrectionTargetPage::CorrectionTargetPage(bool selectionAvailable,
 
     auto* taskGroup = new QGroupBox{QStringLiteral("Tasks"), this};
     m_mentions = new QCheckBox{QStringLiteral("Mentions"), taskGroup};
+    m_joinSplit = new QCheckBox{QStringLiteral("Join or Split Words"), taskGroup};
     m_commonErrors = new QCheckBox{QStringLiteral("Common Errors"), taskGroup};
     m_capitalization = new QCheckBox{QStringLiteral("Capitalization"), taskGroup};
     m_lineBreak = new QCheckBox{QStringLiteral("Line Break"), taskGroup};
     auto* taskLayout = new QVBoxLayout{taskGroup};
     taskLayout->addWidget(m_mentions);
+    taskLayout->addWidget(m_joinSplit);
     taskLayout->addWidget(m_commonErrors);
     taskLayout->addWidget(m_capitalization);
     taskLayout->addWidget(m_lineBreak);
@@ -68,6 +70,8 @@ bool CorrectionTargetPage::taskChecked(core::CorrectionTask task) const {
     switch (task) {
     case core::CorrectionTask::Mentions:
         return m_mentions->isChecked();
+    case core::CorrectionTask::JoinSplitWords:
+        return m_joinSplit->isChecked();
     case core::CorrectionTask::CommonErrors:
         return m_commonErrors->isChecked();
     case core::CorrectionTask::Capitalization:
@@ -82,6 +86,9 @@ void CorrectionTargetPage::setTaskChecked(core::CorrectionTask task, bool checke
     switch (task) {
     case core::CorrectionTask::Mentions:
         m_mentions->setChecked(checked);
+        return;
+    case core::CorrectionTask::JoinSplitWords:
+        m_joinSplit->setChecked(checked);
         return;
     case core::CorrectionTask::CommonErrors:
         m_commonErrors->setChecked(checked);

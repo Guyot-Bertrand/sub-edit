@@ -352,6 +352,14 @@ public:
         return m_window->m_patterns;
     }
 
+    [[nodiscard]] const core::SpellProvider* spellProvider() const override {
+        return m_window->m_spellProvider.get();
+    }
+
+    [[nodiscard]] std::filesystem::path spellConfigDirectory() const override {
+        return m_window->m_spellConfigDirectory;
+    }
+
     [[nodiscard]] QFont applicationFont() const override { return QApplication::font(); }
 
     void announce(const std::string& message) override {

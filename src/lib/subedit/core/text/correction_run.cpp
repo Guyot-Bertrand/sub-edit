@@ -12,6 +12,7 @@
 #include <subedit/core/text/correction_pattern.hpp>
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/core/text/hearing_impaired_correction.hpp>
+#include <subedit/core/text/join_split_words.hpp>
 #include <subedit/core/text/line_breaking.hpp>
 
 #include <algorithm>
@@ -87,6 +88,55 @@ struct Present {
     return found;
 }
 
+/// The mentions task, on the subtitles not yet removed.
+void runMentions(const PatternEngine& engine,
+                 const PatternCatalogue& catalogue,
+                 const CorrectionSettings& settings,
+                 const CorrectionTarget& target,
+                 SubtitleFormat format,
+                 std::vector<std::optional<std::string>>& texts,
+                 std::vector<PatternFailure>& failures) {
+    const Present present = presentOf(texts);
+    const std::vector<const CorrectionPattern*> patterns =
+        selectedPatterns(catalogue, PatternKind::HearingImpaired, settings.mentions.code, settings);
+    const HearingImpairedCorrection done =
+        correctHearingImpaired(engine,
+                               patterns,
+                               present.texts,
+                               format,
+                               settings.soundInBrackets || settings.soundInParentheses);
+    failures.insert(failures.end(), done.failures.begin(), done.failures.end());
+    for (std::size_t k = 0; k < present.at.size(); ++k) {
+        std::optional<std::string> corrected = done.texts[k];
+        // A translation carries no timing of its own: emptying it takes
+        // nothing away from the subtitle, whose main text nobody aimed at
+        // removing — the rule `removeHearingImpaired` already keeps.
+        if (!corrected.has_value() && target.document == Document::Translation)
+            corrected = std::string{};
+        texts[present.at[k]] = std::move(corrected);
+    }
+}
+
+/// The join-and-split task: join first, then split, each on the text the
+/// other left, as Gaupol's page does. **Nothing without a checker** — no
+/// dictionary is not a failure, the window says why it is off.
+void runJoinSplit(const CorrectionSettings& settings,
+                  const SpellChecker& spellChecker,
+                  std::vector<std::optional<std::string>>& texts) {
+    if (settings.joinWords) {
+        const Present present = presentOf(texts);
+        const std::vector<std::string> done = joinWords(spellChecker, present.texts);
+        for (std::size_t k = 0; k < present.at.size(); ++k)
+            texts[present.at[k]] = done[k];
+    }
+    if (settings.splitWords) {
+        const Present present = presentOf(texts);
+        const std::vector<std::string> done = splitWords(spellChecker, present.texts);
+        for (std::size_t k = 0; k < present.at.size(); ++k)
+            texts[present.at[k]] = done[k];
+    }
+}
+
 /// Runs one target's tasks in Gaupol's order, cascading each on the text the
 /// one before it left.
 void runTasks(const PatternEngine& engine,
@@ -95,29 +145,14 @@ void runTasks(const PatternEngine& engine,
               const LineMeasure& measure,
               const CorrectionTarget& target,
               SubtitleFormat format,
+              const SpellChecker* spellChecker,
               std::vector<std::optional<std::string>>& texts,
               std::vector<PatternFailure>& failures) {
-    if (settings.mentions.enabled) {
-        const Present present = presentOf(texts);
-        const std::vector<const CorrectionPattern*> patterns = selectedPatterns(
-            catalogue, PatternKind::HearingImpaired, settings.mentions.code, settings);
-        const HearingImpairedCorrection done =
-            correctHearingImpaired(engine,
-                                   patterns,
-                                   present.texts,
-                                   format,
-                                   settings.soundInBrackets || settings.soundInParentheses);
-        failures.insert(failures.end(), done.failures.begin(), done.failures.end());
-        for (std::size_t k = 0; k < present.at.size(); ++k) {
-            std::optional<std::string> corrected = done.texts[k];
-            // A translation carries no timing of its own: emptying it takes
-            // nothing away from the subtitle, whose main text nobody aimed at
-            // removing — the rule `removeHearingImpaired` already keeps.
-            if (!corrected.has_value() && target.document == Document::Translation)
-                corrected = std::string{};
-            texts[present.at[k]] = std::move(corrected);
-        }
-    }
+    if (settings.mentions.enabled)
+        runMentions(engine, catalogue, settings, target, format, texts, failures);
+
+    if (settings.joinSplitEnabled && spellChecker != nullptr)
+        runJoinSplit(settings, *spellChecker, texts);
 
     if (settings.commonErrors.enabled) {
         const Present present = presentOf(texts);
@@ -162,7 +197,8 @@ CorrectionProposal proposeCorrections(const PatternEngine& engine,
                                       const PatternCatalogue& catalogue,
                                       const CorrectionSettings& settings,
                                       const LineMeasure& measure,
-                                      std::span<const CorrectionTarget> targets) {
+                                      std::span<const CorrectionTarget> targets,
+                                      const SpellChecker* spellChecker) {
     CorrectionProposal proposal;
 
     for (const CorrectionTarget& target : targets) {
@@ -180,7 +216,15 @@ CorrectionProposal proposeCorrections(const PatternEngine& engine,
             originals.push_back(target.project->subtitleAt(index).text(target.document));
 
         std::vector<std::optional<std::string>> texts(originals.begin(), originals.end());
-        runTasks(engine, catalogue, settings, measure, target, format, texts, proposal.failures);
+        runTasks(engine,
+                 catalogue,
+                 settings,
+                 measure,
+                 target,
+                 format,
+                 spellChecker,
+                 texts,
+                 proposal.failures);
 
         for (std::size_t i = 0; i < indices.size(); ++i) {
             if (texts[i] == originals[i])

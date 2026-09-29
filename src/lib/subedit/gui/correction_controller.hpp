@@ -7,6 +7,7 @@
 
 #include <QFont>
 
+#include <filesystem>
 #include <memory>
 #include <span>
 #include <string>
@@ -17,6 +18,7 @@ class QWidget;
 namespace subedit::core {
 class PatternCatalogue;
 class Project;
+class SpellProvider;
 } // namespace subedit::core
 
 namespace subedit::gui {
@@ -45,6 +47,15 @@ public:
         [[nodiscard]] virtual std::size_t shownProject() const = 0;
 
         [[nodiscard]] virtual const core::PatternCatalogue& patternCatalogue() const = 0;
+
+        /// Where dictionaries come from, or null for a window with no
+        /// spell-checking — the join-and-split task then says it has none.
+        [[nodiscard]] virtual const core::SpellProvider* spellProvider() const = 0;
+
+        /// The configuration directory the per-language replacement lists
+        /// live under (`spell-check/<language>.repl`) — **given**, never
+        /// resolved here (ADR 0022).
+        [[nodiscard]] virtual std::filesystem::path spellConfigDirectory() const = 0;
 
         /// The font the ems measure calibrates against — `QApplication::font()`
         /// in production, `DejaVu Sans` under a test (D5's own rule).

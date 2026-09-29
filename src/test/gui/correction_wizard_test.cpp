@@ -37,6 +37,7 @@ TEST_CASE("advancing past the target page goes straight to progress when no task
           "[gui][correction-wizard]") {
     const PatternCatalogue catalogue = emptyCatalogue();
     CorrectionWizard wizard{catalogue,
+                            /*spellProvider=*/nullptr,
                             noTaskChecked(),
                             /*selectionAvailable=*/true,
                             /*translationAvailable=*/false};
@@ -51,7 +52,7 @@ TEST_CASE("advancing past the target page goes straight to progress when no task
 TEST_CASE("advancing past the target page visits only the checked tasks, in order",
           "[gui][correction-wizard]") {
     const PatternCatalogue catalogue = emptyCatalogue();
-    CorrectionWizard wizard{catalogue, noTaskChecked(), true, false};
+    CorrectionWizard wizard{catalogue, nullptr, noTaskChecked(), true, false};
     wizard.show();
     wizard.targetPage().setTaskChecked(CorrectionTask::LineBreak, true);
     wizard.targetPage().setTaskChecked(CorrectionTask::Mentions, true);

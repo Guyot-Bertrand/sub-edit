@@ -13,6 +13,7 @@
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/text/word_list_spell_provider.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/wording.hpp>
 #include <subedit/gui/correction_confirmation_page.hpp>
@@ -21,6 +22,7 @@
 #include <subedit/gui/correction_target_page.hpp>
 #include <subedit/gui/correction_task_page.hpp>
 #include <subedit/gui/correction_wizard.hpp>
+#include <subedit/gui/join_split_page.hpp>
 #include <subedit/gui/pattern_code_selector.hpp>
 #include <subedit/gui/project_page.hpp>
 
@@ -38,6 +40,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <filesystem>
+#include <map>
 #include <memory>
 #include <span>
 #include <string>
@@ -61,6 +64,7 @@ using subedit::core::PatternKind;
 using subedit::core::Project;
 using subedit::core::readPatternCatalogue;
 using subedit::core::SourceFile;
+using subedit::core::SpellProvider;
 using subedit::core::Subtitle;
 using subedit::core::SubtitleIndex;
 using subedit::core::Timestamp;
@@ -137,6 +141,7 @@ public:
     PatternCatalogue catalogue;
     std::vector<std::unique_ptr<ProjectPage>> pages_;
     std::size_t shown = 0;
+    std::shared_ptr<const SpellProvider> spell; // none unless a test gives one
     std::vector<std::string> announced;
     std::vector<std::pair<const Project*, SubtitleIndex>> previewed;
 
@@ -151,6 +156,12 @@ public:
     [[nodiscard]] std::size_t shownProject() const override { return shown; }
 
     [[nodiscard]] const PatternCatalogue& patternCatalogue() const override { return catalogue; }
+
+    [[nodiscard]] const SpellProvider* spellProvider() const override { return spell.get(); }
+
+    [[nodiscard]] std::filesystem::path spellConfigDirectory() const override {
+        return "/nonexistent-config";
+    }
 
     [[nodiscard]] QFont applicationFont() const override { return QFont{}; }
 
@@ -573,4 +584,164 @@ TEST_CASE("GUI-BREAK-01: the skip gate leaves a subtitle within its thresholds, 
     CHECK(runWith(true, false) == "iiii iiii iiii MMMM MMMM MMMM"); // length check alone holds it
     CHECK(runWith(false, true) == "iiii iiii iiii MMMM MMMM MMMM"); // one line, within 3
     CHECK(runWith(false, false).find('\n') != std::string::npos);   // no gate at all
+}
+
+namespace {
+
+/// A desk whose spell provider has one French dictionary knowing `words`.
+[[nodiscard]] std::shared_ptr<const SpellProvider>
+frenchWith(std::initializer_list<const char*> words,
+           std::map<std::string, std::vector<std::string>> suggestions = {}) {
+    subedit::core::WordList list;
+    list.words.insert(words.begin(), words.end());
+    for (auto& [word, offered] : suggestions)
+        list.suggestions.emplace(word, std::move(offered));
+    auto provider = std::make_shared<subedit::core::WordListSpellProvider>();
+    provider->add("fr", std::move(list));
+    return provider;
+}
+
+/// Runs only the join-and-split task and waits for the proposal.
+void driveJoinSplitOnly(QDialog& dialog) {
+    auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+    wizard.show();
+    wizard.targetPage().setTaskChecked(CorrectionTask::CommonErrors, false);
+    wizard.targetPage().setTaskChecked(CorrectionTask::Capitalization, false);
+    wizard.targetPage().setTaskChecked(CorrectionTask::JoinSplitWords, true);
+    wizard.next(); // target -> join or split
+    REQUIRE(wizard.currentId() == CorrectionWizard::JoinSplitId);
+    wizard.next(); // join or split -> progress
+    QSignalSpy spy{&wizard.progressPage(), &CorrectionProgressPage::completeChanged};
+    REQUIRE(spy.wait(2000));
+}
+
+} // namespace
+
+TEST_CASE("GUI-SPELL-03: the assistant joins words by the spell-checker",
+          "[gui][correction-controller][GUI-SPELL-03]") {
+    Desk desk{smallCatalogue()};
+    desk.spell = frenchWith({"bonjour"});
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nbon jour\n\n"));
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = &driveJoinSplitOnly;
+    CorrectionController controller{prompts, desk};
+    CorrectionSettings settings;
+    settings.spellLanguage = "fr";
+    controller.setSettings(settings);
+
+    controller.open();
+
+    CHECK(textOf(desk, 0) == "bonjour");
+    CHECK(controller.settings().joinSplitEnabled);
+    CHECK(controller.settings().spellLanguage == "fr");
+}
+
+TEST_CASE("GUI-SPELL-03: the assistant splits words by the spell-checker, when asked to",
+          "[gui][correction-controller][GUI-SPELL-03]") {
+    Desk desk{smallCatalogue()};
+    desk.spell = frenchWith({}, {{"bonjourtous", {"bonjour tous"}}});
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nbonjourtous\n\n"));
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nbonjourtous\n\n"));
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = &driveJoinSplitOnly;
+    CorrectionController controller{prompts, desk};
+
+    // Splitting is off by default: nothing changes.
+    CorrectionSettings settings;
+    settings.spellLanguage = "fr";
+    controller.setSettings(settings);
+    desk.shown = 0;
+    controller.open();
+    CHECK(textOf(desk, 0) == "bonjourtous");
+
+    // Turned on: the second project is split.
+    settings.splitWords = true;
+    controller.setSettings(settings);
+    desk.shown = 1;
+    controller.open();
+    CHECK(textOf(desk, 1) == "bonjour tous");
+}
+
+TEST_CASE("GUI-SPELL-02: with no dictionary the task does not run, and nothing is broken by it",
+          "[gui][correction-controller][GUI-SPELL-02]") {
+    Desk desk{smallCatalogue()};
+    desk.spell = frenchWith({"bonjour"}); // French only; Spanish is asked for
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nbon jour\n\n"));
+    bool available = true;
+    QString reason;
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = [&available, &reason](QDialog& dialog) {
+        driveJoinSplitOnly(dialog);
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        available = wizard.joinSplitPage().available();
+        reason = wizard.joinSplitPage().unavailableReason();
+    };
+    CorrectionController controller{prompts, desk};
+    CorrectionSettings settings;
+    settings.spellLanguage = "es";
+    controller.setSettings(settings);
+
+    controller.open();
+
+    CHECK_FALSE(available);
+    CHECK(reason.toStdString() == "no dictionary for es");
+    CHECK(textOf(desk, 0) == "bon jour");
+}
+
+namespace {
+
+/// A provider whose dictionary can be taken away on demand — a dictionary
+/// removed while the wizard was open, after the page had looked for it.
+class VanishingProvider final : public subedit::core::SpellProvider {
+public:
+    [[nodiscard]] std::vector<std::string> languages() const override { return {"fr"}; }
+
+    [[nodiscard]] std::unique_ptr<subedit::core::SpellDictionary>
+    open(std::string_view language) const override {
+        return m_gone ? nullptr : m_inner.open(language);
+    }
+
+    void add(std::string language, subedit::core::WordList list) {
+        m_inner.add(std::move(language), std::move(list));
+    }
+
+    void vanish() { m_gone = true; }
+
+private:
+    subedit::core::WordListSpellProvider m_inner;
+    bool m_gone = false;
+};
+
+} // namespace
+
+TEST_CASE("a dictionary that vanishes while the wizard is open leaves the task undone",
+          "[gui][correction-controller]") {
+    auto provider = std::make_shared<VanishingProvider>();
+    subedit::core::WordList list;
+    list.words = {"bonjour"};
+    provider->add("fr", std::move(list));
+    Desk desk{smallCatalogue()};
+    desk.spell = provider;
+    desk.pages_.push_back(pageOn("1\n00:00:01,000 --> 00:00:02,000\nbon jour\n\n"));
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = [&provider](QDialog& dialog) {
+        auto& wizard = dynamic_cast<CorrectionWizard&>(dialog);
+        wizard.show();
+        // The page has looked, and found the dictionary: only now is it taken away.
+        REQUIRE(wizard.joinSplitPage().available());
+        provider->vanish();
+        driveJoinSplitOnly(dialog);
+    };
+    CorrectionController controller{prompts, desk};
+    CorrectionSettings settings;
+    settings.spellLanguage = "fr";
+    controller.setSettings(settings);
+
+    controller.open();
+
+    CHECK(textOf(desk, 0) == "bon jour"); // the page saw a dictionary, the run found none
 }

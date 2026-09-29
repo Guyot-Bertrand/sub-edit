@@ -13,11 +13,6 @@ namespace subedit::core {
 
 namespace {
 
-/// Python's `\w` on a `str`: alphanumeric, or an underscore.
-[[nodiscard]] bool isWordCharacter(char32_t c) {
-    return u_isalnum(static_cast<UChar32>(c)) || c == U'_';
-}
-
 [[nodiscard]] bool isDigitsOnly(std::string_view word) {
     for (std::size_t at = 0; at < word.size(); at = nextCodePoint(word, at)) {
         if (!u_isdigit(static_cast<UChar32>(codePointAt(word, at))))
@@ -39,7 +34,7 @@ namespace {
     std::size_t end = from;
     while (end < text.size()) {
         const char32_t c = codePointAt(text, end);
-        if (!isWordCharacter(c) && c != U'\'')
+        if (!isSpellWordCharacter(c) && c != U'\'')
             break;
         end = nextCodePoint(text, end);
     }
@@ -52,7 +47,7 @@ namespace {
 withoutTrailingNonWord(std::string_view text, std::size_t from, std::size_t end) {
     while (end > from) {
         const std::size_t before = previousCodePoint(text, end);
-        if (isWordCharacter(codePointAt(text, before)))
+        if (isSpellWordCharacter(codePointAt(text, before)))
             break;
         end = before;
     }
@@ -60,6 +55,10 @@ withoutTrailingNonWord(std::string_view text, std::size_t from, std::size_t end)
 }
 
 } // namespace
+
+bool isSpellWordCharacter(char32_t c) {
+    return u_isalnum(static_cast<UChar32>(c)) || c == U'_';
+}
 
 std::vector<SpellWord> tokenizeForSpelling(std::string_view text) {
     std::vector<SpellWord> words;

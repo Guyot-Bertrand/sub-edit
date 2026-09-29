@@ -631,6 +631,10 @@ namespace {
         .lineBreakSkipMaxLength = 30.5,
         .lineBreakSkipOnLines = false,
         .lineBreakSkipMaxLines = 4,
+        .joinSplitEnabled = true,
+        .joinWords = false,
+        .splitWords = true,
+        .spellLanguage = "fr_FR",
         .removeBlankSubtitles = false,
     };
 }
@@ -676,7 +680,9 @@ TEST_CASE("a value of the correction assistant that cannot be read leaves its de
                              "correction.line-break.max-lines = two\n",
                              "correction.line-break.in-ems = maybe\n",
                              "correction.line-break.skip-max-length = wide\n",
-                             "correction.line-break.skip-max-lines = two\n"}) {
+                             "correction.line-break.skip-max-lines = two\n",
+                             "correction.join-split.enabled = maybe\n",
+                             "correction.join-split.language = French\n"}) {
         const SettingsRead read = readOf(line);
 
         CHECK(read.settings.correction == CorrectionSettings{});

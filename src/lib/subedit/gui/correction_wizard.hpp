@@ -13,6 +13,7 @@
 /// header needs, and it keeps `moc` and every includer out of the core headers.
 namespace subedit::core {
 class PatternCatalogue;
+class SpellProvider;
 } // namespace subedit::core
 
 namespace subedit::gui {
@@ -22,6 +23,7 @@ class CommonErrorsPage;
 class CorrectionConfirmationPage;
 class CorrectionProgressPage;
 class CorrectionTargetPage;
+class JoinSplitPage;
 class LineBreakPage;
 class MentionsPage;
 
@@ -34,6 +36,7 @@ public:
     enum PageId {
         TargetId,
         MentionsId,
+        JoinSplitId,
         CommonErrorsId,
         CapitalizationId,
         LineBreakId,
@@ -41,7 +44,10 @@ public:
         ConfirmationId,
     };
 
+    /// `spellProvider` may be null: no spell-checking, and the join-and-split
+    /// page says there is no dictionary.
     CorrectionWizard(const core::PatternCatalogue& catalogue,
+                     const core::SpellProvider* spellProvider,
                      const core::CorrectionSettings& settings,
                      bool selectionAvailable,
                      bool translationAvailable,
@@ -52,6 +58,8 @@ public:
     [[nodiscard]] CorrectionTargetPage& targetPage() const { return *m_target; }
 
     [[nodiscard]] MentionsPage& mentionsPage() const { return *m_mentions; }
+
+    [[nodiscard]] JoinSplitPage& joinSplitPage() const { return *m_joinSplit; }
 
     [[nodiscard]] CommonErrorsPage& commonErrorsPage() const { return *m_commonErrors; }
 
@@ -66,6 +74,7 @@ public:
 private:
     CorrectionTargetPage* m_target;
     MentionsPage* m_mentions;
+    JoinSplitPage* m_joinSplit;
     CommonErrorsPage* m_commonErrors;
     CapitalizationPage* m_capitalization;
     LineBreakPage* m_lineBreak;
