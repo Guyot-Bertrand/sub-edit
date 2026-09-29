@@ -33,6 +33,8 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/text/correction_run.hpp>
+#include <subedit/gui/correction_result_model.hpp>
 #include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/insert_dialog.hpp>
@@ -65,6 +67,7 @@
 #include <QSplitter>
 #include <QString>
 #include <QStyleFactory>
+#include <QTableView>
 #include <QWidget>
 #include <QtGlobal>
 
@@ -691,6 +694,66 @@ int main(int argc, char** argv) {
         subedit::gui::GridAnalysisDialog dialog{subedit::core::deduceFrameRate(grid.project)};
         dialog.resize(kDialogWidth, kDialogHeight);
         written = capture(dialog, dialog, directory, "analyse-de-grille-sombre") && written;
+    }
+
+    // The confirmation page of the correction assistant, on its own — issue
+    // #505, D8, GUI-CORRECT-02/03. A bare `QTableView` on a `CorrectionResultModel`
+    // is enough: what the section shows is the diff rendering and the mix of
+    // accepted, refused and removed rows, not the wizard around it.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        const std::vector<subedit::core::ProposedCorrection> rows{
+            subedit::core::ProposedCorrection{.index = subedit::core::SubtitleIndex::fromValue(0),
+                                              .original = "Bonjour  Marie",
+                                              .proposed = std::string{"Bonjour Marie"}},
+            subedit::core::ProposedCorrection{.index = subedit::core::SubtitleIndex::fromValue(1),
+                                              .original = "[Bruit de pas]",
+                                              .proposed = std::nullopt},
+            subedit::core::ProposedCorrection{.index = subedit::core::SubtitleIndex::fromValue(2),
+                                              .original = "Elle etait la",
+                                              .proposed = std::string{"Elle était là"}},
+        };
+        subedit::gui::CorrectionResultModel model{rows};
+        model.setData(model.index(2, subedit::gui::CorrectionResultModel::Accept),
+                      Qt::Unchecked,
+                      Qt::CheckStateRole); // the third row shown refused
+        QTableView table;
+        table.setModel(&model);
+        // Stack-allocated rather than `new`: `setItemDelegateForColumn` never
+        // takes ownership, it only stores the pointer, so a delegate that
+        // outlives the call — constructed after `table` and so destroyed
+        // before it — needs nothing more.
+        subedit::gui::CorrectionDiffDelegate delegate{&table};
+        table.setItemDelegateForColumn(subedit::gui::CorrectionResultModel::Original, &delegate);
+        table.setItemDelegateForColumn(subedit::gui::CorrectionResultModel::Proposed, &delegate);
+        written = capture(table, table, directory, "correction") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        // Same construction again — `capture` needs a freshly-shown widget per
+        // theme, the same reason every dialog pair above constructs its own
+        // widget twice rather than reusing one across both captures.
+        const std::vector<subedit::core::ProposedCorrection> rows{
+            subedit::core::ProposedCorrection{.index = subedit::core::SubtitleIndex::fromValue(0),
+                                              .original = "Bonjour  Marie",
+                                              .proposed = std::string{"Bonjour Marie"}},
+            subedit::core::ProposedCorrection{.index = subedit::core::SubtitleIndex::fromValue(1),
+                                              .original = "[Bruit de pas]",
+                                              .proposed = std::nullopt},
+            subedit::core::ProposedCorrection{.index = subedit::core::SubtitleIndex::fromValue(2),
+                                              .original = "Elle etait la",
+                                              .proposed = std::string{"Elle était là"}},
+        };
+        subedit::gui::CorrectionResultModel model{rows};
+        model.setData(model.index(2, subedit::gui::CorrectionResultModel::Accept),
+                      Qt::Unchecked,
+                      Qt::CheckStateRole);
+        QTableView table;
+        table.setModel(&model);
+        subedit::gui::CorrectionDiffDelegate delegate{&table};
+        table.setItemDelegateForColumn(subedit::gui::CorrectionResultModel::Original, &delegate);
+        table.setItemDelegateForColumn(subedit::gui::CorrectionResultModel::Proposed, &delegate);
+        written = capture(table, table, directory, "correction-sombre") && written;
     }
 
     return written ? 0 : 1;

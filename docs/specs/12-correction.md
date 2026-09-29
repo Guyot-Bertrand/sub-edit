@@ -426,6 +426,42 @@ appliquer la remplace.
 > par construction : une correspondance qui rend un texte inchangé ne franchit
 > jamais `proposeCorrections`.
 
+> **Précisé par [#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505).**
+> Les trois menus d'une page de tâche — écriture, langue, pays — se peuplent de
+> ce que le catalogue de motifs porte réellement pour ce type, jamais d'un
+> registre de langues externe : `PatternCodeSelector` cascade sur `catalogue`,
+> pas sur une liste ISO.
+>
+> **La partie changée d'une diff se marque en gras, jamais en couleur** —
+> `correctionDiffHtml` pose `<b>` autour de chaque `DiffSpan` marqué changé.
+> Une teinte se serait mal comportée sous les deux palettes, et de toute façon
+> `QStyledItemDelegate` peint le `Qt::DisplayRole` d'une cellule, pas ses
+> couleurs de police par plage.
+>
+> **`applyCorrections` compose sans appliquer**, plutôt que d'ajouter à
+> `Session`/`History` une méthode qui enregistrerait une commande déjà
+> appliquée : elle rend un `CompositeCommand` par projet, et c'est l'appelant
+> — le contrôleur de la fenêtre — qui le fait passer par `Session::apply`,
+> comme toute autre opération. La raison tient en une règle : `Session::project()`
+> rend une référence `const`, et une commande appliquée hors de `Session::apply`
+> l'aurait contournée.
+>
+> **« Abandonner » est le bouton `Cancel` du wizard, sans mécanisme
+> d'interruption propre** : un calcul déjà lancé sur son fil d'arrière-plan
+> n'est jamais coupé, seulement jamais lu. Le risque que cela laisse est
+> accepté et étroit — un calcul qui finirait dans l'instant qui suit
+> l'annulation pourrait lire un projet que la fenêtre vient de fermer — jamais
+> rencontré autrement qu'en théorie.
+>
+> **L'unité du découpage de lignes — caractères ou ems — ne se retient pas**
+> d'une session à l'autre, à la différence des deux bornes numériques
+> (`lineBreakMaxLength`, `lineBreakMaxLines`) : `CorrectionSettings` ne porte
+> aucun champ pour elle, et la page rouvre toujours sur `Characters`.
+>
+> **Une page de tâche ne porte pas de case « active » qui lui soit propre** :
+> c'est celle de la première page, par tâche, qui décide seule si la tâche
+> tourne. Une seconde case ici aurait pu la contredire.
+
 ## D9 — Les balises : le parseur de la phase 10, par `transform`
 
 La question du cadrage — le parseur tient-il les décalages que les motifs

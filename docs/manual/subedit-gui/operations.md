@@ -1,7 +1,7 @@
 # Les opérations
 
-Le menu **Tools** porte quinze opérations et une analyse. Chacune des
-quinze s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
+Le menu **Tools** porte seize opérations et une analyse. Chacune des
+seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 
 | Entrée | Dialogue | Ce qu'elle fait |
 | :----- | :------- | :-------------- |
@@ -18,6 +18,7 @@ quinze s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 | `Case ▸ UPPER CASE` | **non** | tout en capitales |
 | `Case ▸ lower case` | **non** | tout en minuscules |
 | `Remove Hearing-Impaired Mentions…` | oui, sans réglage | retire les mentions pour malentendants |
+| `Correct Texts…` | oui, un assistant à plusieurs pages | propose des corrections — mentions, erreurs courantes, majuscules, découpage — et les applique une fois acceptées, voir [Correct Texts…](correct-texts.md) |
 | `Snap to Frame Rate…` | oui | repose chaque horodatage sur l'image la plus proche |
 | `Shift Whole File onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
 | `Frame Rate Analysis…` | oui, sans réglage | **ne modifie rien** — voir [La grille d'images](grille.md) |
@@ -61,6 +62,10 @@ dans ce manuel seul.
 pas une cible qu'elle réécrit, c'est une fin qu'elle recule. Voir sa
 [propre section](#append-file). **`Split Project…` de même** : elle coupe où on le
 lui dit. Voir [la sienne](#split-project).
+
+**`Correct Texts…` choisit sa cible sur sa propre page**, plutôt que de suivre
+la sélection en cours : la sélection, le projet courant ou tous les projets
+ouverts. Voir [Correct Texts…](correct-texts.md).
 
 **Les deux opérations de grille ne parlent pas de la même chose que la grille.**
 Une opération porte sur la sélection ; l'analyse et la barre d'état parlent du
