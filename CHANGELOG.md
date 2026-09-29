@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Joindre et scinder des mots selon le correcteur (#508)
+
+## 0.12.13 — 2026-09-29
+
+### Ajouts
+
 - **core** — Le correcteur orthographique au noyau, par Enchant (#507)
 
 ## 0.12.12 — 2026-09-29
