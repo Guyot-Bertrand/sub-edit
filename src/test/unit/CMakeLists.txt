@@ -36,6 +36,7 @@ add_executable(
     core/text/spell_check_navigator_test.cpp
     core/text/spell_check_walk_test.cpp
     core/text/spell_checker_test.cpp
+    core/text/spell_ranges_test.cpp
     core/text/spell_replacements_test.cpp
     core/text/spell_tokenizer_test.cpp
     core/text/enchant_spell_provider_test.cpp

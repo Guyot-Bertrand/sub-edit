@@ -94,6 +94,7 @@ constexpr std::string_view kSpellCheckPrefix = "spell-check.";
 constexpr std::string_view kSpellCheckLanguageKey = "spell-check.language";
 constexpr std::string_view kSpellCheckTargetKey = "spell-check.target";
 constexpr std::string_view kSpellCheckDocumentKey = "spell-check.document";
+constexpr std::string_view kSpellCheckInlineKey = "spell-check.inline";
 
 // The tokens of the spell check's target and document, as the file carries
 // them — a format, not the labels of the dialog.
@@ -555,8 +556,9 @@ void applyJoinSplitOption(SettingsRead& read, std::string_view key, std::string_
         take(spellLanguageOf(value), form.spellLanguage);
 }
 
-/// Keeps one of the three options of `Check Spelling…` — the language of the
-/// dictionary, which subtitles are walked, and which of their texts.
+/// Keeps one of the four options of `Check Spelling…` — the language of the
+/// dictionary, which subtitles are walked, which of their texts, and whether a
+/// word is underlined while typed (#525).
 void applySpellCheckOption(SettingsRead& read, std::string_view key, std::string_view value) {
     const auto take = [&read, key, value](auto parsed, auto& field) {
         keepOption(read, key, value, std::move(parsed), field);
@@ -569,6 +571,8 @@ void applySpellCheckOption(SettingsRead& read, std::string_view key, std::string
         take(spellCheckTargetOf(value), form.target);
     else if (key == kSpellCheckDocumentKey)
         take(spellCheckDocumentOf(value), form.document);
+    else if (key == kSpellCheckInlineKey)
+        take(booleanOf(value), form.inlineCheck);
 }
 
 /// Keeps one of the twenty-five options of the correction assistant.
@@ -880,7 +884,7 @@ void renderCorrectionSettings(std::string& out, const CorrectionSettings& form) 
                 form.patternActivations.empty());
 }
 
-/// The three options of `Check Spelling…`, each written bare when it differs
+/// The four options of `Check Spelling…`, each written bare when it differs
 /// from the default and commented out when it does not.
 void renderSpellCheckSettings(std::string& out, const SpellCheckSettings& form) {
     const SpellCheckSettings defaults;
@@ -893,6 +897,10 @@ void renderSpellCheckSettings(std::string& out, const SpellCheckSettings& form) 
                 kSpellCheckDocumentKey,
                 std::string{textOf(form.document)},
                 form.document == defaults.document);
+    writeOption(out,
+                kSpellCheckInlineKey,
+                std::string{flagText(form.inlineCheck)},
+                form.inlineCheck == defaults.inlineCheck);
 }
 
 } // namespace
