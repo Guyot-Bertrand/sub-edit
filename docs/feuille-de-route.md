@@ -1144,14 +1144,14 @@ de `src/test/data/paires/` le montre. Gaupol ne le détecte pas non plus. La pha
 quatre y font naître un sous-titre), pas **corrigeable** : c'est une question de
 synchronisation, et elle se pose ici.
 
-**Précisé par l'utilisateur, le 2026-09-30 : la table suit la lecture.** Pendant
-la lecture, le sous-titre courant est bien mis en évidence, mais **la vue de la
-table — sa barre de défilement — ne suit pas** : le sous-titre courant peut
-sortir de la zone visible sans que rien ne la ramène à lui. La phase 14 y
-pourvoit : la table fait défiler pour garder le sous-titre courant visible
-pendant la lecture. Le point à trancher au cadrage est le geste de l'utilisateur
-— un défilement à la main pendant la lecture ne doit pas être défait à chaque
-image, et il faut dire quand le suivi reprend.
+**Précisé par l'utilisateur, le 2026-09-30 : la table suit la lecture, mais ne
+se centre pas.** Le sous-titre courant est mis en évidence pendant la lecture, et
+la table défile bien jusqu'à lui — une première observation disait le contraire,
+corrigée depuis. Ce qui reste : **la table ne se centre pas sur le sous-titre
+courant**, elle le ramène seulement dans la zone visible. La phase 14 le centre.
+Le point à trancher au cadrage est le geste de l'utilisateur — un défilement à la
+main pendant la lecture ne doit pas être défait à chaque image, et il faut dire
+quand le suivi reprend.
 
 **Point difficile** — **précision de positionnement.** Caler un sous-titre exige
 un `seek` exact à l'image près ; la plupart des backends ne le garantissent qu'au
