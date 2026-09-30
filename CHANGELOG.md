@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Le cache de longueurs devant l'assistant (#527)
+
+## 0.12.19 — 2026-09-30
+
+### Ajouts
+
 - **core** — Longueur de chaque ligne et réglages de l'éditeur (#526)
 - **gui** — Longueur de chaque ligne dans la table et l'éditeur (#526)
 

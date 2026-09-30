@@ -289,6 +289,18 @@ longueur sans dépendre d'une police.
 > et une pour l'éditeur, **et ne résout rien lui-même** : la fenêtre répond « rien » quand le réglage est
 > faux, et le délégué peint alors comme avant. Enfin `SubtitleEditor`, sorti de `cell_delegates.cpp` pour
 > qu'un test le voie, porte le liseré (`showLengths`), redessiné à la frappe et au défilement.
+
+> **Précisé par [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527).** **Le cache est aussi posé
+> devant l'assistant.** `assistantLineMeasure(inEms, police)` fabrique la mesure du découpage : en *ems*, un
+> `CachedEmsLineMeasure`, qui possède ensemble l'`EmsLineMeasure` et sa table ; en caractères, le
+> `CharacterLineMeasure` nu, dont compter des points de code coûte moins qu'une table (le banc de #502).
+> **Une par calcul, jamais partagée** : la table d'un `CachedLineMeasure` ne se demande pas de deux fils, et
+> celle du calcul de l'assistant n'est interrogée que par le fil qui le porte — la table de la fenêtre
+> (`LengthMeasures`) est un autre objet, sur le fil de l'interface. `cachedCount()` dit combien de textes la
+> table retient, et c'est ce que le test lit pour distinguer cette mesure d'un `EmsLineMeasure` nu. Le banc
+> du découpage en *ems* construit désormais la mesure par cette même fonction : **il mesure le chemin que
+> le programme prend**. La version sans cache n'a toujours pas de relevé, et n'en aura pas : elle n'existe
+> plus dans le programme.
 >
 > **La cellule est peinte par le délégué** quand les longueurs sont montrées : le style peint le fond, la
 > teinte d'anomalie, la sélection et le focus, puis le délégué écrit chaque ligne et sa longueur, une police
@@ -947,7 +959,7 @@ s'il est retenu, et l'issue s'inscrit dans la colonne de droite.
 | la vérification au fil de la frappe | renvoi de la spec sans destinataire : il demande un surlignage dans le délégué de la table, que rien n'a | [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525), **livrée** (D6) |
 | la longueur des lignes dans les cellules | renvoi de la spec sans destinataire : une fonction d'édition qui emprunterait la mesure de D5 | [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526), **livrée** (D5) : `GUI-EDIT-04`, trois réglages `editor.*`, la longueur après chaque ligne d'une cellule et un liseré dans l'éditeur ; la mesure passe par `CachedLineMeasure`, bornée à la police |
 | crochets et parenthèses, deux cases pour un balayage | l'assistant les présente comme deux motifs de Gaupol ; au noyau, l'une ou l'autre lance le balayage qui retire les deux. **Et la page `Mentions` liste en plus, avec les autres motifs de `Latn`, deux cases du même nom** — `hearing_impaired_correction.cpp` (`isScanOnly`) les écarte par leur nom, si bien qu'on les coche sans effet (lu, non exécuté) | [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528) pour les cases sans effet ; la distinction crochets / parenthèses reste écartée : aucune issue ne la demande |
-| le cache de longueurs | `CachedLineMeasure` n'est branché nulle part dans le programme livré (`correction_controller.cpp`) ; le banc n'a pas la version sans cache en *ems* | [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527) |
+| le cache de longueurs | `CachedLineMeasure` n'est branché nulle part dans le programme livré (`correction_controller.cpp`) ; le banc n'a pas la version sans cache en *ems* | [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527), **livrée** (D5) : `assistantLineMeasure`, une table par calcul, et le banc qui la mesure |
 | les constats mineurs de #509 | les `Project*` du parcours, que rien ne protège si un projet se fermait pendant le dialogue ; `Save and Resume`, qui relit depuis le début du texte (`SpellCheckWalk::resumeWithText`) ; la liste de remplacements en mémoire, qui grossit à chaque application (`spell_checker.cpp`) ; un dossier de configuration vide, qui donnerait un chemin relatif (`spellReplacementFile`) | [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530) |
 | un nom de motif à virgule | `correction.activations` se lit en tout ou rien, la virgule étant son séparateur : un seul nom pareil fait perdre toutes les dérogations (`settings.cpp`) | [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529) |
 | `Closes #N` sans lien | la PR #522 portait la ligne et `closingIssuesReferences` est resté vide ; cause inconnue | [#531](https://github.com/Guyot-Bertrand/sub-edit/issues/531) |

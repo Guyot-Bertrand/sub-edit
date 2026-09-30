@@ -139,12 +139,10 @@ void CorrectionController::open() {
             std::vector<core::CorrectionTarget> targets =
                 correctionTargetsOf(scope, document, pages, shown);
 
+            // One measure, with its cache, for this computation alone: it is
+            // asked from the background thread and from nowhere else (D5).
             const std::shared_ptr<const core::LineMeasure> measure =
-                current.lineBreakInEms
-                    ? std::static_pointer_cast<const core::LineMeasure>(
-                          std::make_shared<EmsLineMeasure>(m_view->applicationFont()))
-                    : std::static_pointer_cast<const core::LineMeasure>(
-                          std::make_shared<core::CharacterLineMeasure>());
+                assistantLineMeasure(current.lineBreakInEms, m_view->applicationFont());
 
             // Opened here, on this thread, and only when the task runs and the
             // page found a dictionary: no dictionary is not a failure, the
