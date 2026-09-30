@@ -790,6 +790,6 @@ TEST_CASE("a value of the spell check that cannot be read leaves its default", "
 
         CHECK(read.settings.spellCheck == SpellCheckSettings{});
         REQUIRE(read.diagnostics.size() == 1);
-        CHECK(read.diagnostics.front().value.size() > 0);
+        CHECK_FALSE(read.diagnostics.front().value.empty());
     }
 }

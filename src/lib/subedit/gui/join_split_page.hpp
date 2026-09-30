@@ -30,6 +30,18 @@ namespace subedit::gui {
 [[nodiscard]] std::string spellLanguageFor(const std::vector<std::string>& offered,
                                            std::string_view systemLocale);
 
+/// Fills `combo` with the languages `provider` offers (none when it is null),
+/// adds `wanted` — the system's language when it is empty — if it is not among
+/// them, so that it can be said to have no dictionary, and selects it. Returns
+/// the code selected. Shared by every window that asks for a language.
+std::string populateSpellLanguages(QComboBox& combo,
+                                   const core::SpellProvider* provider,
+                                   const std::string& wanted);
+
+/// Whether `provider` has a dictionary for `language`.
+[[nodiscard]] bool hasSpellDictionary(const core::SpellProvider* provider,
+                                      const std::string& language);
+
 /// **Without a dictionary for the language the page stays, greyed, and says
 /// why** — D6: Gaupol drops the page without a word, and a user who wonders
 /// where it went has nothing to read. The language itself stays choosable: a
