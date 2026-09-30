@@ -13,11 +13,16 @@
 
 #include <QAbstractItemModel>
 #include <QAction>
+#include <QCheckBox>
+#include <QCoreApplication>
 #include <QDialog>
 #include <QMenu>
 #include <QMenuBar>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QTableView>
+#include <QTextBlock>
+#include <QTextLayout>
 #include <catch2/catch_test_macros.hpp>
 
 #include <chrono>
@@ -26,6 +31,7 @@
 #include <string>
 #include <system_error>
 #include <utility>
+#include <vector>
 
 #include "fake_prompts.hpp"
 
@@ -94,6 +100,37 @@ private:
 [[nodiscard]] subedit::core::Settings settingsIn(const char* language) {
     subedit::core::Settings settings;
     settings.spellCheck.language = language;
+    return settings;
+}
+
+/// The words of the editor open on the text cell of the first row that are
+/// underlined as misspelt, and whether there is such an editor at all.
+struct OpenEditor {
+    bool found = false;
+    std::vector<QString> underlined;
+};
+
+[[nodiscard]] OpenEditor openTextEditor(MainWindow& window) {
+    window.table()->edit(window.table()->model()->index(0, 4));
+    QCoreApplication::processEvents();
+    OpenEditor result;
+    const auto* field = window.table()->findChild<QPlainTextEdit*>();
+    if (field == nullptr)
+        return result;
+    result.found = true;
+    for (QTextBlock block = field->document()->firstBlock(); block.isValid();
+         block = block.next()) {
+        for (const QTextLayout::FormatRange& range : block.layout()->formats()) {
+            if (range.format.underlineStyle() == QTextCharFormat::SpellCheckUnderline)
+                result.underlined.push_back(block.text().mid(range.start, range.length));
+        }
+    }
+    return result;
+}
+
+[[nodiscard]] subedit::core::Settings inlineSettingsIn(const char* language, bool inlineCheck) {
+    subedit::core::Settings settings = settingsIn(language);
+    settings.spellCheck.inlineCheck = inlineCheck;
     return settings;
 }
 
@@ -202,4 +239,84 @@ TEST_CASE("GUI-SPELL-01: Check Spelling from the menu corrects the text of the w
               ->model()
               ->data(window.table()->model()->index(0, 4), Qt::DisplayRole)
               .toString() == QStringLiteral("ok salut"));
+}
+
+TEST_CASE("GUI-SPELL-04: with the setting on and a dictionary, the open editor underlines",
+          "[gui][spell-check-window][GUI-SPELL-04]") {
+    InMemoryFileSystem files = withFile();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files), prompts};
+    window.setSpellChecking(provider(), "/nonexistent-config");
+    window.applySettings(inlineSettingsIn("fr", true));
+    window.show();
+
+    const OpenEditor editor = openTextEditor(window);
+
+    REQUIRE(editor.found);
+    CHECK(editor.underlined == std::vector<QString>{QStringLiteral("qqq")});
+}
+
+TEST_CASE("GUI-SPELL-04: with the setting off nothing is underlined",
+          "[gui][spell-check-window][GUI-SPELL-04]") {
+    InMemoryFileSystem files = withFile();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files), prompts};
+    window.setSpellChecking(provider(), "/nonexistent-config");
+    window.applySettings(inlineSettingsIn("fr", false));
+    window.show();
+
+    const OpenEditor editor = openTextEditor(window);
+
+    REQUIRE(editor.found);
+    CHECK(editor.underlined.empty());
+}
+
+TEST_CASE("GUI-SPELL-04: without a dictionary for the language the editor is silent",
+          "[gui][spell-check-window][GUI-SPELL-04]") {
+    InMemoryFileSystem files = withFile();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files), prompts};
+    window.setSpellChecking(provider(), "/nonexistent-config");
+    window.applySettings(inlineSettingsIn("de", true));
+    window.show();
+
+    const OpenEditor editor = openTextEditor(window);
+
+    REQUIRE(editor.found);
+    CHECK(editor.underlined.empty());
+}
+
+TEST_CASE("GUI-SPELL-04: a window with no provider underlines nothing",
+          "[gui][spell-check-window][GUI-SPELL-04]") {
+    InMemoryFileSystem files = withFile();
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files), prompts};
+    window.applySettings(inlineSettingsIn("fr", true));
+    window.show();
+
+    const OpenEditor editor = openTextEditor(window);
+
+    REQUIRE(editor.found);
+    CHECK(editor.underlined.empty());
+}
+
+TEST_CASE("GUI-SPELL-04: the setting made in the dialog takes effect on the next editor",
+          "[gui][spell-check-window][GUI-SPELL-04]") {
+    InMemoryFileSystem files = withFile();
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        dynamic_cast<SpellCheckSettingsDialog&>(dialog).inlineCheckBox()->setChecked(true);
+    };
+    MainWindow window{files, fileIn(files), prompts};
+    window.setSpellChecking(provider(), "/nonexistent-config");
+    window.applySettings(inlineSettingsIn("fr", false));
+    window.show();
+
+    window.spellCheckSettingsAction()->trigger();
+
+    CHECK(window.settings().spellCheck.inlineCheck);
+    const OpenEditor editor = openTextEditor(window);
+    REQUIRE(editor.found);
+    CHECK(editor.underlined == std::vector<QString>{QStringLiteral("qqq")});
 }

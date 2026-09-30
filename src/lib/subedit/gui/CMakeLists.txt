@@ -18,7 +18,7 @@ add_library(
                        correction_result_model.cpp
                        correction_confirmation_page.cpp
                        correction_wizard.cpp
-                       join_split_page.cpp spell_check_settings_dialog.cpp spell_check_dialog.cpp
+                       join_split_page.cpp spell_highlighter.cpp spell_check_settings_dialog.cpp spell_check_dialog.cpp
                        correction_controller.cpp spell_check_controller.cpp
                        operation_dialog.cpp shift_dialog.cpp transform_dialog.cpp
                        insert_dialog.cpp split_project_dialog.cpp save_shape.cpp

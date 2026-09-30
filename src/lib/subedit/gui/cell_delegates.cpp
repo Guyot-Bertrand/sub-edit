@@ -1,4 +1,6 @@
+#include <subedit/core/text/spell_checker.hpp>
 #include <subedit/gui/cell_delegates.hpp>
+#include <subedit/gui/spell_highlighter.hpp>
 
 #include <QAbstractTextDocumentLayout>
 #include <QEvent>
@@ -18,6 +20,7 @@
 #include <QWidget>
 
 #include <algorithm>
+#include <utility>
 
 namespace subedit::gui {
 
@@ -128,6 +131,13 @@ QWidget* TextDelegate::createEditor(QWidget* parent,
     // Otherwise a tab would put a character in the text rather than move to
     // the next cell, which is not what anyone expects of a table.
     editor->setTabChangesFocus(true);
+
+    // Underlined as one types, when the window has a checker to give — the
+    // highlighter is a child of the document and goes with the editor.
+    if (m_spellChecker) {
+        if (auto checker = m_spellChecker(); checker != nullptr)
+            new SpellHighlighter{editor->document(), std::move(checker)};
+    }
 
     // **The editor grows with what is typed into it**, and that closes the one
     // case the row height cannot: the row is two lines tall, the editor with

@@ -15,6 +15,7 @@ namespace subedit::core {
 class SpellProvider;
 } // namespace subedit::core
 
+class QCheckBox;
 class QComboBox;
 class QDialogButtonBox;
 class QLabel;
@@ -46,6 +47,9 @@ public:
     [[nodiscard]] core::SpellCheckTarget target() const;
     [[nodiscard]] core::SpellCheckDocument document() const;
 
+    /// Whether unknown words are underlined while typed — issue #525.
+    [[nodiscard]] bool inlineCheck() const;
+
     /// Whether there is a dictionary for the language shown.
     [[nodiscard]] bool available() const { return m_available; }
 
@@ -64,6 +68,8 @@ public:
 
     [[nodiscard]] QRadioButton* translationRadio() const { return m_translation; }
 
+    [[nodiscard]] QCheckBox* inlineCheckBox() const { return m_inline; }
+
     [[nodiscard]] QDialogButtonBox* buttons() const { return m_buttons; }
 
 private:
@@ -77,6 +83,7 @@ private:
     QRadioButton* m_allProjects;
     QRadioButton* m_text;
     QRadioButton* m_translation;
+    QCheckBox* m_inline;
     QDialogButtonBox* m_buttons;
     bool m_available = false;
 };

@@ -3,6 +3,7 @@
 #include <subedit/gui/join_split_page.hpp>
 #include <subedit/gui/spell_check_settings_dialog.hpp>
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -21,6 +22,7 @@ SpellCheckSettingsDialog::SpellCheckSettingsDialog(const core::SpellProvider* pr
       m_provider(provider),
       m_language(new QComboBox{this}),
       m_reason(new QLabel{this}),
+      m_inline(new QCheckBox{QStringLiteral("Check spelling while editing"), this}),
       m_buttons(new QDialogButtonBox{QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this}) {
     setWindowTitle(QStringLiteral("Spell-Check Settings"));
 
@@ -52,6 +54,7 @@ SpellCheckSettingsDialog::SpellCheckSettingsDialog(const core::SpellProvider* pr
     layout->addWidget(m_reason);
     layout->addWidget(targetGroup);
     layout->addWidget(documentGroup);
+    layout->addWidget(m_inline);
     layout->addWidget(m_buttons);
 
     connect(m_language, &QComboBox::currentTextChanged, this, [this] { refresh(); });
@@ -76,11 +79,15 @@ void SpellCheckSettingsDialog::apply(const core::SpellCheckSettings& settings) {
         m_translation->setChecked(true);
     else
         m_text->setChecked(true);
+    m_inline->setChecked(settings.inlineCheck);
     refresh();
 }
 
 core::SpellCheckSettings SpellCheckSettingsDialog::settings() const {
-    return {.language = language(), .target = target(), .document = document()};
+    return {.language = language(),
+            .target = target(),
+            .document = document(),
+            .inlineCheck = inlineCheck()};
 }
 
 std::string SpellCheckSettingsDialog::language() const {
@@ -98,6 +105,10 @@ core::SpellCheckTarget SpellCheckSettingsDialog::target() const {
 core::SpellCheckDocument SpellCheckSettingsDialog::document() const {
     return m_translation->isChecked() ? core::SpellCheckDocument::Translation
                                       : core::SpellCheckDocument::Main;
+}
+
+bool SpellCheckSettingsDialog::inlineCheck() const {
+    return m_inline->isChecked();
 }
 
 QString SpellCheckSettingsDialog::unavailableReason() const {
