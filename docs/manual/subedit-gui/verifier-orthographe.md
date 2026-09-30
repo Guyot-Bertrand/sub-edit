@@ -9,8 +9,9 @@ Le libellé de la première s'écrit `Chec&k Spelling…` : `C` est déjà
 l'accélérateur de `Correct Texts…`, et `k` est libre dans le menu `Tools`.
 Aucune des deux n'a de raccourci.
 
-**Les deux sont éteintes sur un document vide.** `Check Spelling…` est en plus
-éteinte sans dictionnaire pour la langue réglée, voir
+**Les deux sont éteintes sur un document sans sous-titre**, comme
+[`Correct Texts…`](correct-texts.md) : il n'y a rien à vérifier. `Check Spelling…`
+est en plus éteinte sans dictionnaire pour la langue réglée, voir
 [Sans dictionnaire](#sans-dictionnaire).
 
 ## Spell-Check Settings…
@@ -32,8 +33,9 @@ retenu qui n'est plus disponible — une sélection vide, une traduction absente
 s'ouvre sur `Current Project` ou `Text`. `OK` garde les réglages, `Cancel` ne
 change rien.
 
-**Cette fenêtre reste toujours active** dès qu'un projet est ouvert : c'est elle
-qui permet de sortir d'une langue sans dictionnaire. La langue dont aucun
+**Cette fenêtre ne dépend pas du dictionnaire** : elle reste active tant que le
+document a des sous-titres, même sans dictionnaire pour la langue réglée, et c'est
+elle qui permet de sortir d'une langue qui n'en a pas. La langue dont aucun
 dictionnaire n'existe reste modifiable et se montre dans la liste, avec, sous
 elle, la phrase `no dictionary for` suivi de son code.
 
@@ -47,8 +49,9 @@ emplacement :
 | `spell-check.target` | `selection`, `current-project`, `all-projects` | `current-project` |
 | `spell-check.document` | `main`, `translation` | `main` |
 
-Une valeur que la clé n'accepte pas est ignorée, le défaut s'applique, et la
-ligne est nommée à l'ouverture.
+Une valeur que la clé n'accepte pas est ignorée, le défaut s'applique, et l'option
+est nommée sur la sortie d'erreur à l'ouverture de la fenêtre — voir
+[Les préférences](preferences.md#ce-qui-arrive-quand-le-fichier-ne-dit-pas-ce-quon-attend).
 
 ## Le parcours
 
@@ -75,7 +78,7 @@ case renouvelle la liste.
 | `Replace All` | fait de même pour ses autres occurrences ; éteint tant que la case est vide |
 | `Join with Previous` | recolle le mot au mot qui le précède ; éteint s'il n'y en a pas, ou s'ils ne sont pas séparés par une espace |
 | `Join with Next` | recolle le mot au mot qui le suit, sous les mêmes conditions |
-| `Save and Resume` | garde le texte tel que la zone de texte le porte, et reprend le parcours à son début |
+| `Save and Resume` | garde le texte tel que la zone de texte le porte, et reprend la lecture **de ce texte depuis son début** |
 | `Close` | ferme la fenêtre |
 
 **La zone de texte est éditable.** Dès qu'on y tape, seul `Save and Resume`

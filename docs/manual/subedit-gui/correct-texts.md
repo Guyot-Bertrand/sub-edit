@@ -49,7 +49,9 @@ trois menus ne proposent que ce que le catalogue de motifs porte
 effectivement** — ceux livrés avec le programme et ceux qu'un utilisateur y a
 déposés (voir [Les motifs déposés](#les-motifs-déposés)) — jamais une liste
 de langues ou de pays lue ailleurs. `Zyyy` (« toute écriture ») est le code de
-départ, ce qui donne les motifs valables partout.
+départ de `Common Errors`, ce qui donne les motifs valables partout. **Les trois
+autres types n'ont de motifs que sous une écriture** : leur page s'ouvre sur la
+première que le catalogue propose, `Latn` avec les motifs livrés, et non sur `Zyyy`.
 
 **Un motif décoché reste décoché tant qu'on ne le recoche pas**, y compris en
 changeant de code puis en y revenant, et ce choix est retenu d'une ouverture
@@ -151,6 +153,17 @@ Un motif qu'un utilisateur a déposé dans son propre répertoire de motifs
 s'ajoute à ceux livrés avec le programme, dans le même catalogue et sous les
 mêmes menus — rien ne les distingue une fois chargés.
 
+| Motifs | Où |
+| :----- | :- |
+| livrés | `<préfixe>/share/subedit/patterns`, à côté de `<préfixe>/bin` |
+| de l'utilisateur | `$XDG_DATA_HOME/subedit/patterns`, ou `~/.local/share/subedit/patterns` si la variable n'est pas posée ou n'est pas un chemin absolu |
+
+**Le format est celui de Gaupol, lu tel quel** : un fichier `<Code>.<type>` par écriture,
+langue et pays — `Latn-en.common-error` —, son `.conf` d'activation à côté. Les types
+sont `common-error`, `capitalization`, `hearing-impaired` et `line-break`. Les fichiers
+livrés servent de modèle. **Les motifs se lisent une fois, au lancement** : un fichier
+déposé pendant que la fenêtre est ouverte n'est vu qu'au lancement suivant.
+
 ## Progress
 
 Une fois `Next` pressé depuis la dernière page de tâche cochée (ou depuis la
@@ -208,7 +221,19 @@ Not applied: some pattern (will not compile)
 ```
 
 Un motif nommé ainsi l'est **une fois par raison**, quel que soit le nombre de
-textes ou de projets sur lesquels il a échoué.
+textes ou de projets sur lesquels il a échoué : l'écran ne dit pas lequel.
+
+| Raison | Ce qui la déclenche |
+| :----- | :------------------ |
+| `cannot be translated` | l'expression emploie ce que la traduction de la syntaxe de Python refuse |
+| `will not compile` | le moteur refuse l'expression |
+| `has an invalid replacement` | le remplacement ne se lit pas comme Python le lit |
+| `timed out` | une recherche a dépassé le temps que le moteur lui accorde sur un texte |
+| `never settled` | `Repeat` changeait encore le texte après cent passes |
+| `grew the text too long` | le texte a dépassé 16 384 octets pendant que le motif y travaillait |
+
+**Un motif qui échoue sur un texte le laisse tel qu'il était avant lui** : un remplacement
+à moitié fait vaut moins que pas de remplacement. Les autres motifs s'appliquent.
 
 **Une ligne d'un fichier de motifs qui ne se lit pas est nommée au même
 endroit**, par son fichier, sa ligne et la raison — à chaque ouverture de

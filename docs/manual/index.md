@@ -76,5 +76,6 @@ Ce qui diffère est ce que chaque surface peut faire :
 | insérer, supprimer, fusionner et scinder des lignes | oui | non |
 | rechercher et remplacer, couper, copier et coller des textes | oui | non |
 | ajuster les durées, l'italique, la casse, les tirets | oui | non |
+| corriger les textes par motifs, vérifier l'orthographe | oui — `Correct Texts…`, `Check Spelling…` | non |
 | regarder le film pendant qu'on cale | oui | non |
 | écrire par-dessus l'entrée | `Save` | `--in-place` |

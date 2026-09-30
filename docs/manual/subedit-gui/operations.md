@@ -18,7 +18,7 @@ seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien. `Check Spelling…` s'
 | `Case ▸ UPPER CASE` | **non** | tout en capitales |
 | `Case ▸ lower case` | **non** | tout en minuscules |
 | `Remove Hearing-Impaired Mentions…` | oui, sans réglage | retire les mentions pour malentendants |
-| `Correct Texts…` | oui, un assistant à plusieurs pages | propose des corrections — mentions, erreurs courantes, majuscules, découpage — et les applique une fois acceptées, voir [Correct Texts…](correct-texts.md) |
+| `Correct Texts…` | oui, un assistant à plusieurs pages | propose des corrections — mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage — et les applique une fois acceptées, voir [Correct Texts…](correct-texts.md) |
 | `Check Spelling…` | oui, un parcours mot à mot | parcourt les mots inconnus du dictionnaire et applique ce qu'on a corrigé, voir [Check Spelling…](verifier-orthographe.md) |
 | `Spell-Check Settings…` | oui | choisit la langue, la cible et le document de la vérification, voir [Check Spelling…](verifier-orthographe.md#spell-check-settings) |
 | `Snap to Frame Rate…` | oui | repose chaque horodatage sur l'image la plus proche |
@@ -67,7 +67,8 @@ lui dit. Voir [la sienne](#split-project).
 
 **`Correct Texts…` choisit sa cible sur sa propre page**, plutôt que de suivre
 la sélection en cours : la sélection, le projet courant ou tous les projets
-ouverts. Voir [Correct Texts…](correct-texts.md).
+ouverts. Voir [Correct Texts…](correct-texts.md). **`Check Spelling…` la choisit dans
+`Spell-Check Settings…`**, et la retient : voir [Check Spelling…](verifier-orthographe.md).
 
 **Les deux opérations de grille ne parlent pas de la même chose que la grille.**
 Une opération porte sur la sélection ; l'analyse et la barre d'état parlent du
@@ -591,7 +592,9 @@ change », sans rien poser dans l'historique.
 ## `Remove Hearing-Impaired Mentions…`
 
 Retire les mentions destinées aux spectateurs sourds ou malentendants — les
-descriptions de sons entre crochets ou entre parenthèses, les noms de locuteurs.
+descriptions de sons entre crochets ou entre parenthèses. **Rien d'autre** : les paroles
+de chanson entre dièses et le nom du locuteur avant deux-points ne se retirent que par
+[`Correct Texts…`](correct-texts.md), page `Mentions`.
 
 Le dialogue ne demande rien : l'opération n'a pas de réglage, et il ne sert qu'à
 confirmer et à rappeler sur quoi elle porte.
