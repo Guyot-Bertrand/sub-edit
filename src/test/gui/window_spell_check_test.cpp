@@ -20,6 +20,7 @@
 #include <QMenuBar>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QTabBar>
 #include <QTableView>
 #include <QTextBlock>
 #include <QTextLayout>
@@ -319,4 +320,30 @@ TEST_CASE("GUI-SPELL-04: the setting made in the dialog takes effect on the next
     const OpenEditor editor = openTextEditor(window);
     REQUIRE(editor.found);
     CHECK(editor.underlined == std::vector<QString>{QStringLiteral("qqq")});
+}
+
+TEST_CASE("GUI-SPELL-01: a word found in another tab brings that tab forward",
+          "[gui][spell-check-window][GUI-SPELL-01]") {
+    const ScratchDirectory scratch;
+    InMemoryFileSystem files;
+    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nok\n\n");
+    files.addFile("autre.srt", "1\n00:00:01,000 --> 00:00:02,000\nok qqq\n\n");
+    FakePrompts prompts;
+    prompts.nextFileToOpen = "autre.srt";
+    prompts.fill = [](QDialog& dialog) {
+        dynamic_cast<SpellCheckDialog&>(dialog).replaceButton()->click();
+    };
+    MainWindow window{files, fileIn(files), prompts};
+    window.setSpellChecking(provider(), scratch.path());
+    subedit::core::Settings settings = settingsIn("fr");
+    settings.spellCheck.target = subedit::core::SpellCheckTarget::AllProjects;
+    window.applySettings(settings);
+    window.show();
+    window.openAction()->trigger();
+    REQUIRE(window.tabBar()->count() == 2);
+    window.tabBar()->setCurrentIndex(0);
+
+    window.checkSpellingAction()->trigger();
+
+    CHECK(window.tabBar()->currentIndex() == 1);
 }

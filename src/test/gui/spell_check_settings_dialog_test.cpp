@@ -89,6 +89,18 @@ TEST_CASE("the target and document chosen are given back", "[gui][spell-check-se
     CHECK(dialog.document() == SpellCheckDocument::Main);
 }
 
+TEST_CASE("the selection target is kept when something is selected",
+          "[gui][spell-check-settings]") {
+    const WordListSpellProvider provider = providerOf({"en"});
+    SpellCheckSettingsDialog dialog{&provider, true, false};
+
+    dialog.apply({.language = "en", .target = SpellCheckTarget::Selection});
+
+    CHECK(dialog.selectionRadio()->isEnabled());
+    CHECK(dialog.selectionRadio()->isChecked());
+    CHECK(dialog.target() == SpellCheckTarget::Selection);
+}
+
 TEST_CASE("the selection is greyed when nothing is selected, and the translation without one",
           "[gui][spell-check-settings]") {
     const WordListSpellProvider provider = providerOf({"en"});

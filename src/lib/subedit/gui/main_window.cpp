@@ -1018,8 +1018,6 @@ void MainWindow::newProject() {
 }
 
 void MainWindow::refreshSpellCheckAction() {
-    if (m_spellCheck == nullptr || m_page == nullptr)
-        return;
     const bool anything = m_page->session->project().count() != 0;
     const QString reason = QString::fromStdString(m_spellCheck->unavailableReason());
     QAction* const entry = m_actions->checkSpelling;

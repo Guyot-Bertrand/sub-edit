@@ -29,6 +29,7 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -784,6 +785,33 @@ TEST_CASE("the spell check's options at their default are written back commented
 
     CHECK_THAT(renderSettings(Settings{.spellCheck = {.target = SpellCheckTarget::Selection}}),
                ContainsSubstring("\nspell-check.target = selection\n"));
+}
+
+TEST_CASE("every named value of the spell check's target is read", "[config]") {
+    const std::vector<std::pair<const char*, SpellCheckTarget>> targets = {
+        {"spell-check.target = selection\n", SpellCheckTarget::Selection},
+        {"spell-check.target = current-project\n", SpellCheckTarget::CurrentProject},
+        {"spell-check.target = all-projects\n", SpellCheckTarget::AllProjects},
+    };
+    for (const auto& [line, target] : targets) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.spellCheck.target == target);
+        CHECK(read.diagnostics.empty());
+    }
+}
+
+TEST_CASE("every named value of the spell check's document is read", "[config]") {
+    const std::vector<std::pair<const char*, SpellCheckDocument>> documents = {
+        {"spell-check.document = main\n", SpellCheckDocument::Main},
+        {"spell-check.document = translation\n", SpellCheckDocument::Translation},
+    };
+    for (const auto& [line, document] : documents) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.spellCheck.document == document);
+        CHECK(read.diagnostics.empty());
+    }
 }
 
 TEST_CASE("a value of the spell check that cannot be read leaves its default", "[config]") {
