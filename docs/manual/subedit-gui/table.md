@@ -21,6 +21,37 @@ claire.](captures/table.png)
 
 ![La même table sous la palette sombre.](captures/table-sombre.png)
 
+## La longueur des lignes
+
+![La table, palette claire : chaque ligne d'une cellule de texte est suivie de sa
+longueur entre crochets, ici en caractères.](captures/longueurs.png)
+
+![La même table sous la palette sombre.](captures/longueurs-sombre.png)
+
+**Chaque ligne d'une cellule de texte est suivie de sa longueur**, `[N]`, en plus
+petit et plus pâle — dans la colonne `Text` comme dans la colonne `Translation`.
+C'est ce que fait Gaupol.
+
+| Ce qui compte | Ce que la table fait |
+| :------------ | :------------------- |
+| **les balises** | ne comptent pas : `<i>Bonjour</i>` fait `[7]`, comme `Bonjour` |
+| **l'arrondi** | vers le bas : une ligne de 12,9 ems s'affiche `[12]` |
+| **une ligne vide** | n'a pas de longueur ; un texte vide non plus |
+| **l'unité** | *ems* par défaut, ou caractères — `Edit ▸ Preferences…` |
+| **une ligne trop longue pour la colonne** | est coupée par `…` **avant** le nombre, qui reste visible |
+
+**L'*em* est celle de Gaupol, non celle de la typographie** : l'alphabet minuscule
+vaut 0,55 em par lettre, sous la police de la table. Une longueur en *ems* dépend
+donc de la police ; une longueur en caractères compte les points de code, un
+accent pour un.
+
+**La table ne marque pas une ligne trop longue.** Elle montre le nombre, et c'est à
+l'œil de le comparer à la limite que l'on s'est fixée — comme Gaupol. Ce n'est pas
+la limite de l'assistant `Correct Texts…`, qui a son propre réglage.
+
+**Pour ne pas les voir :** décocher `Show line lengths in cells` dans
+`Edit ▸ Preferences…`. Voir [Les longueurs de lignes](preferences.md#les-longueurs-de-lignes).
+
 ## Masquer et déplacer les colonnes
 
 **`View ▸ Columns`** porte une entrée à cocher par colonne, **sauf `Text`** :

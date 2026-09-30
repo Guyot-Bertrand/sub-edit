@@ -260,6 +260,49 @@ longueur sans dépendre d'une police.
 > sans n'a pas de relevé —, si bien que le gain à attendre n'est pas chiffré. Axe soumis à la décision de
 > la relecture, voir la fin de ce document.
 
+> **Précisé par [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526).**
+> **La longueur des lignes dans la table** — la règle de `gaupol/ruler.py` et la marge de
+> `gaupol/view.py`, `GUI-EDIT-04`. **Ce que Gaupol fait, et que #526 reprend à l'identique :** trois réglages
+> (`editor.length_unit`, `editor.show_lengths_cell`, `editor.show_lengths_edit`) ; dans une **cellule de texte**,
+> chaque ligne suivie de sa longueur, `[N]`, en plus petit ; dans l'**éditeur** de la cellule, un liseré à
+> droite qui montre la longueur de chaque ligne, alignée sur elle et large comme le plus grand nombre. La
+> longueur est celle de la ligne **sans ses balises**, **arrondie vers le bas**, en *ems* (défaut) ou en
+> caractères ; en *ems*, c'est la mesure de #503, inchangée. **Une ligne vide n'a pas de longueur dans la
+> cellule** (Gaupol n'écrit pas `[0]` après rien), et **un texte vide n'en a pas dans le liseré**.
+>
+> **Ce que #526 décide.** Les réglages sont `editor.length-unit` (`em` ou `characters`, défaut `em`),
+> `editor.show-lengths-cell` et `editor.show-lengths-edit` (vrais par défaut), dans `EditorSettings`, lus et
+> écrits comme leurs voisins (défaut commenté, valeur illisible : défaut et diagnostic). Ils se règlent dans
+> `Edit ▸ Preferences…`, où Gaupol les range aussi ; **l'unité est grisée quand aucune des deux cases n'est
+> cochée**, et la fenêtre applique le choix en direct sur la table. **Ce n'est pas la limite de l'assistant** :
+> `editor.length-unit` et `correction.line-break.in-ems` sont deux réglages, comme `editor.length_unit` et
+> `text_assistant.length_unit` chez Gaupol.
+>
+> **Quatre pièces.** Au noyau, `lineLengths(mesure, texte, vocabulaire)` (`line_lengths.hpp`, sans Qt) rend la
+> longueur de chaque ligne : les balises sortent par `decodeAs` puis `plainTextOf`, **le lecteur que toute
+> l'application partage** et non un motif de plus, dans le vocabulaire du format du document dont la colonne
+> est le texte ; l'arrondi vers le bas est ici. Dans `gui`, `LengthMeasures` fabrique la mesure et son cache,
+> **bornés à la vie de la police et de l'unité** — changer l'une ou l'autre en construit une neuve, et une
+> mesure déjà remise à un délégué reste valable tant qu'il la tient — : c'est le cache de D5 enfin posé devant
+> `QFontMetricsF` dans le programme livré pour la table, les cellules étant repeintes en permanence.
+> `TextDelegate` reçoit deux sources (`LineLengthSource`, comme `SpellCheckerSource`), une pour les cellules
+> et une pour l'éditeur, **et ne résout rien lui-même** : la fenêtre répond « rien » quand le réglage est
+> faux, et le délégué peint alors comme avant. Enfin `SubtitleEditor`, sorti de `cell_delegates.cpp` pour
+> qu'un test le voie, porte le liseré (`showLengths`), redessiné à la frappe et au défilement.
+>
+> **La cellule est peinte par le délégué** quand les longueurs sont montrées : le style peint le fond, la
+> teinte d'anomalie, la sélection et le focus, puis le délégué écrit chaque ligne et sa longueur, une police
+> plus petite (0,8) et atténuée sur la même ligne de base. Une ligne trop longue pour la colonne est élidée
+> **avant** le nombre, qui reste toujours visible. Le `sizeHint` s'élargit de la place des nombres et ne
+> grandit jamais en hauteur.
+>
+> **Écarts :** le critère de l'issue disait « une ligne trop longue est marquée dans la cellule ». **Gaupol ne
+> marque rien** : il montre le nombre, et c'est à l'œil de le comparer à la limite ; #526 suit Gaupol, et
+> aucun marquage n'est ajouté. **La police de la mesure en *ems* est celle de la table**, la
+> même que celle des cellules et de l'éditeur ; Gaupol mesure avec celle d'un `Gtk.Label` à part.
+> **Le cache d'une mesure** grossit d'une entrée par ligne distincte jusqu'au prochain changement de police ou
+> d'unité — ce qui vaut aussi pour chaque frappe dans un éditeur ; il n'est pas borné en nombre.
+
 ## D6 — Le correcteur : Enchant, et une fonction qui s'éteint sans dictionnaire
 
 **Enchant 2**, la bibliothèque que Gaupol emploie à travers libspelling. Trois
@@ -815,10 +858,13 @@ par désigner une phase déjà passée.
 | la case du soulignement à la frappe est dans les **préférences** | dans **`Spell-Check Settings…`**, à côté de la langue | `subedit` n'a pas de fenêtre de préférences ; la langue du soulignement est celle de cette fenêtre |
 | le soulignement passe par le vérificateur d'Enchant **seul** : ni les cas de l'anglais familier, ni la liste de remplacements | il passe par **`SpellChecker::check`**, les cas de l'anglais compris | le soulignement et `Check Spelling…` s'accordent sur les mêmes mots — D6, #525 |
 | le menu contextuel de l'éditeur **propose des suggestions** | **il n'en propose pas** | lacune, non un choix : #525 livre le soulignement, non ses gestes |
+| *ajoutés par #526* | | |
+| une ligne trop longue est **marquée** dans la cellule (critère de l'issue) | **rien n'est marqué** : le nombre s'affiche, comme chez Gaupol | Gaupol montre `[N]` sans le comparer à une limite ; le critère de l'issue prêtait à Gaupol un marquage qu'il n'a pas |
+| les réglages `editor.*` sont dans les préférences, sous `Editor` | dans `Edit ▸ Preferences…`, **sous le thème**, sans onglet | `subedit` a une fenêtre de préférences d'une page ; l'unité y est grisée si aucune case n'est cochée |
 
 ## Exigences
 
-**Treize** — douze au cadrage, toutes `prévues`, et `GUI-SPELL-04`, née de [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525) ; le registre s'alimente en début d'issue.
+**Quatorze** — douze au cadrage, toutes `prévues`, `GUI-SPELL-04`, née de [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525), et `GUI-EDIT-04`, née de [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526) ; le registre s'alimente en début d'issue.
 
 > **Corrigé en relecture de fin de phase.** **Douze, toutes `implémentées`, et chacune citée par au moins un
 > test** — un tag Catch2, que `check-requirements.sh` confronte au registre : `GUI-CORRECT-01` par deux cas,
@@ -841,9 +887,14 @@ par désigner une phase déjà passée.
 | `GUI-SPELL-02` | sans dictionnaire pour la langue choisie, les fonctions du correcteur sont grisées et disent pourquoi |
 | `GUI-SPELL-03` | l'assistant joint et scinde des mots selon le correcteur |
 | `GUI-SPELL-04` | un mot inconnu est souligné pendant qu'on le tape dans l'éditeur d'une cellule de texte, quand le réglage est vrai et qu'un dictionnaire existe ; sans dictionnaire, rien n'est souligné et rien n'échoue |
+| `GUI-EDIT-04` | chaque ligne d'une cellule de texte et de son éditeur montre sa longueur, balises non comptées, en ems ou en caractères selon le réglage, et les réglages la retirent |
 
 > **Ajouté par #525.** `GUI-SPELL-04` porte le total à **treize** ; elle est `implémentée`, citée par
 > dix cas : le noyau (trois), la fenêtre de réglages (un), l'éditeur de la cellule (quatre) et la fenêtre (cinq).
+>
+> **Ajouté par #526.** `GUI-EDIT-04` porte le total à **quatorze** ; elle est `implémentée`, citée par
+> quinze cas : le délégué et la mesure (six), l'éditeur de la cellule (trois), les préférences (deux) et la
+> fenêtre (quatre). Le noyau (`lineLengths` et les réglages) n'a pas d'exigence propre : ses tests le tiennent.
 
 **Le noyau n'a pas d'exigence**, par la règle du registre : les cas de #494 et
 #495 le tiennent, et ce sont eux que ses tests liront.
@@ -894,7 +945,7 @@ s'il est retenu, et l'issue s'inscrit dans la colonne de droite.
 | Axe | Ce que la relecture a vu | Issue |
 | :-- | :----------------------- | :---- |
 | la vérification au fil de la frappe | renvoi de la spec sans destinataire : il demande un surlignage dans le délégué de la table, que rien n'a | [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525), **livrée** (D6) |
-| la longueur des lignes dans les cellules | renvoi de la spec sans destinataire : une fonction d'édition qui emprunterait la mesure de D5 | [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526) |
+| la longueur des lignes dans les cellules | renvoi de la spec sans destinataire : une fonction d'édition qui emprunterait la mesure de D5 | [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526), **livrée** (D5) : `GUI-EDIT-04`, trois réglages `editor.*`, la longueur après chaque ligne d'une cellule et un liseré dans l'éditeur ; la mesure passe par `CachedLineMeasure`, bornée à la police |
 | crochets et parenthèses, deux cases pour un balayage | l'assistant les présente comme deux motifs de Gaupol ; au noyau, l'une ou l'autre lance le balayage qui retire les deux. **Et la page `Mentions` liste en plus, avec les autres motifs de `Latn`, deux cases du même nom** — `hearing_impaired_correction.cpp` (`isScanOnly`) les écarte par leur nom, si bien qu'on les coche sans effet (lu, non exécuté) | [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528) pour les cases sans effet ; la distinction crochets / parenthèses reste écartée : aucune issue ne la demande |
 | le cache de longueurs | `CachedLineMeasure` n'est branché nulle part dans le programme livré (`correction_controller.cpp`) ; le banc n'a pas la version sans cache en *ems* | [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527) |
 | les constats mineurs de #509 | les `Project*` du parcours, que rien ne protège si un projet se fermait pendant le dialogue ; `Save and Resume`, qui relit depuis le début du texte (`SpellCheckWalk::resumeWithText`) ; la liste de remplacements en mémoire, qui grossit à chaque application (`spell_checker.cpp`) ; un dossier de configuration vide, qui donnerait un chemin relatif (`spellReplacementFile`) | [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530) |

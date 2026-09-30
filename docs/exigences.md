@@ -103,6 +103,7 @@ plus rien.
 | `GUI-EDIT-01` | éditer une cellule de texte modifie le sous-titre et rien d'autre | 5 | implémentée |
 | `GUI-EDIT-02` | éditer un début ou une fin lit un horodatage permissif | 5 | implémentée |
 | `GUI-EDIT-03` | une validation qui ne change rien n'entre pas dans l'historique | 5 | implémentée |
+| `GUI-EDIT-04` | chaque ligne d'une cellule de texte et de son éditeur montre sa longueur, balises non comptées, en ems ou en caractères selon le réglage, et les réglages la retirent | 12 | implémentée |
 | `GUI-UNDO-01` | annuler rétablit l'état précédent, l'action nomme l'opération | 5 | implémentée |
 | `GUI-UNDO-02` | rétablir refait ce qui vient d'être annulé | 5 | implémentée |
 | `GUI-SAVE-01` | enregistrer réécrit le fichier dans sa forme d'origine | 5 | implémentée |
