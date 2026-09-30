@@ -18,6 +18,7 @@
 #include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/config/settings.hpp>
+#include <subedit/core/config/spell_check_settings.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/encoding.hpp>
@@ -47,6 +48,9 @@ using subedit::core::readSettings;
 using subedit::core::renderSettings;
 using subedit::core::Settings;
 using subedit::core::SettingsRead;
+using subedit::core::SpellCheckDocument;
+using subedit::core::SpellCheckSettings;
+using subedit::core::SpellCheckTarget;
 using subedit::core::Theme;
 using subedit::core::WindowGeometry;
 using subedit::core::writeSettings;
@@ -741,4 +745,51 @@ TEST_CASE("the activation list round-trips through the file, in order", "[config
 
     CHECK(readSettings(files, kPath).settings.correction.patternActivations ==
           chosenCorrection().patternActivations);
+}
+
+// ## `Check Spelling…` — issue #509
+
+TEST_CASE("the spell check's settings are kept across sessions", "[config]") {
+    InMemoryFileSystem files;
+    const Settings written{.spellCheck = {.language = "fr_FR",
+                                          .target = SpellCheckTarget::AllProjects,
+                                          .document = SpellCheckDocument::Translation}};
+
+    REQUIRE(writeSettings(files, kPath, written).has_value());
+    const SettingsRead read = readSettings(files, kPath);
+
+    CHECK(read.settings.spellCheck == written.spellCheck);
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("a file that does not mention the spell check gives its defaults", "[config]") {
+    const SettingsRead read = readOf("window.maximised = true\n");
+
+    CHECK(read.settings.spellCheck == SpellCheckSettings{});
+    CHECK(read.settings.spellCheck.target == SpellCheckTarget::CurrentProject);
+    CHECK(read.settings.spellCheck.document == SpellCheckDocument::Main);
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("the spell check's options at their default are written back commented out", "[config]") {
+    const std::string rendered = renderSettings(Settings{});
+
+    CHECK_THAT(rendered, ContainsSubstring("#spell-check.language = \n"));
+    CHECK_THAT(rendered, ContainsSubstring("#spell-check.target = current-project\n"));
+    CHECK_THAT(rendered, ContainsSubstring("#spell-check.document = main\n"));
+
+    CHECK_THAT(renderSettings(Settings{.spellCheck = {.target = SpellCheckTarget::Selection}}),
+               ContainsSubstring("\nspell-check.target = selection\n"));
+}
+
+TEST_CASE("a value of the spell check that cannot be read leaves its default", "[config]") {
+    for (const char* line : {"spell-check.language = French\n",
+                             "spell-check.target = everything\n",
+                             "spell-check.document = notes\n"}) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.spellCheck == SpellCheckSettings{});
+        REQUIRE(read.diagnostics.size() == 1);
+        CHECK(read.diagnostics.front().value.size() > 0);
+    }
 }
