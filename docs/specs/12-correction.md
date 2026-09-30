@@ -851,11 +851,13 @@ s'il est retenu, et l'issue s'inscrit dans la colonne de droite.
 
 | Axe | Ce que la relecture a vu | Issue |
 | :-- | :----------------------- | :---- |
-| la vérification au fil de la frappe | renvoi de la spec sans destinataire : il demande un surlignage dans le délégué de la table, que rien n'a | à décider |
-| la longueur des lignes dans les cellules | renvoi de la spec sans destinataire : une fonction d'édition qui emprunterait la mesure de D5 | à décider |
-| crochets et parenthèses, deux cases pour un balayage | l'assistant les présente comme deux motifs de Gaupol ; au noyau, l'une ou l'autre lance le balayage qui retire les deux. **Et la page `Mentions` liste en plus, avec les autres motifs de `Latn`, deux cases du même nom** — `hearing_impaired_correction.cpp` (`isScanOnly`) les écarte par leur nom, si bien qu'on les coche sans effet (lu, non exécuté) | à décider |
-| le cache de longueurs | `CachedLineMeasure` n'est branché nulle part dans le programme livré (`correction_controller.cpp`) ; le banc n'a pas la version sans cache en *ems* | à décider |
-| les constats mineurs de #509 | les `Project*` du parcours, que rien ne protège si un projet se fermait pendant le dialogue ; `Save and Resume`, qui relit depuis le début du texte (`SpellCheckWalk::resumeWithText`) ; la liste de remplacements en mémoire, qui grossit à chaque application (`spell_checker.cpp`) ; un dossier de configuration vide, qui donnerait un chemin relatif (`spellReplacementFile`) | à décider |
+| la vérification au fil de la frappe | renvoi de la spec sans destinataire : il demande un surlignage dans le délégué de la table, que rien n'a | [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525) |
+| la longueur des lignes dans les cellules | renvoi de la spec sans destinataire : une fonction d'édition qui emprunterait la mesure de D5 | [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526) |
+| crochets et parenthèses, deux cases pour un balayage | l'assistant les présente comme deux motifs de Gaupol ; au noyau, l'une ou l'autre lance le balayage qui retire les deux. **Et la page `Mentions` liste en plus, avec les autres motifs de `Latn`, deux cases du même nom** — `hearing_impaired_correction.cpp` (`isScanOnly`) les écarte par leur nom, si bien qu'on les coche sans effet (lu, non exécuté) | [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528) pour les cases sans effet ; la distinction crochets / parenthèses reste écartée : aucune issue ne la demande |
+| le cache de longueurs | `CachedLineMeasure` n'est branché nulle part dans le programme livré (`correction_controller.cpp`) ; le banc n'a pas la version sans cache en *ems* | [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527) |
+| les constats mineurs de #509 | les `Project*` du parcours, que rien ne protège si un projet se fermait pendant le dialogue ; `Save and Resume`, qui relit depuis le début du texte (`SpellCheckWalk::resumeWithText`) ; la liste de remplacements en mémoire, qui grossit à chaque application (`spell_checker.cpp`) ; un dossier de configuration vide, qui donnerait un chemin relatif (`spellReplacementFile`) | [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530) |
+| un nom de motif à virgule | `correction.activations` se lit en tout ou rien, la virgule étant son séparateur : un seul nom pareil fait perdre toutes les dérogations (`settings.cpp`) | [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529) |
+| `Closes #N` sans lien | la PR #522 portait la ligne et `closingIssuesReferences` est resté vide ; cause inconnue | [#531](https://github.com/Guyot-Bertrand/sub-edit/issues/531) |
 
 **Écartés, avec leur raison.**
 
