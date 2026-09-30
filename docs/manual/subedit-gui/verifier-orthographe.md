@@ -130,11 +130,11 @@ vérifie rien.
 ## Les messages
 
 | Message | Où | Ce qui le déclenche |
-| :------ | :- | :------------------ |
-| `no dictionary for <langue>` | bulle et barre d'état | pas de dictionnaire pour la langue réglée |
+| :------ | :-- | :------------------ |
+| `no dictionary for fr` | bulle et barre d'état | pas de dictionnaire pour la langue réglée |
 | `Nothing to check.` | barre d'état | la cible ne désigne aucun texte — une sélection vide, par exemple |
 | `Edited N and removed M subtitles` | barre d'état | à la fin ou à la fermeture ; `M` reste à `0` |
-| `Could not save the replacements for <langue>: <raison>` | boîte d'erreur | la liste de remplacements ne s'est pas écrite |
+| `Could not save the replacements for fr: …` | boîte d'erreur | la liste de remplacements ne s'est pas écrite |
 
 ## Un exemple
 
