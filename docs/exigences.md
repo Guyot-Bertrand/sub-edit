@@ -15,7 +15,7 @@ est démontrée par un test**, ce qu'aucun taux de couverture ne sait dire.
 ## Identifiants
 
 `SURFACE-SUJET-NN`, en capitales, numéro sur deux chiffres — `CLI-VERSION-01`.
-`CLI` aujourd'hui, `GUI` le jour où la fenêtre existera.
+`CLI` pour la ligne de commande, `GUI` pour la fenêtre.
 
 Cette forme est ce qui permet de reconnaître un identifiant parmi les tags d'un
 test sans tenir de liste à jour : un tag ordinaire du projet — `[e2e]`,

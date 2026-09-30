@@ -171,6 +171,12 @@ au-delà desquelles le motif est abandonné pour ce texte, et dit.
 > lit en outre `\n` seul comme fin de ligne (`UREGEX_UNIX_LINES`), ce que `.`, `^` et `$` savent
 > de la ligne dans `re`.
 
+> **Précisé en relecture de fin de phase.** « Et le dit, en nommant le texte » est tenu **au noyau
+> seulement** : `PatternFailure::text` porte l'indice du texte abandonné. La page de confirmation, elle,
+> nomme le motif et la raison **une seule fois**, quel que soit le nombre de textes où il a échoué
+> (`correction_confirmation_page.cpp`) — le manuel le dit. Le texte fautif ne se lit donc nulle part à
+> l'écran ; la ligne de commande de la phase 13, qui n'a pas cette page, pourra le nommer.
+
 ## D4 — Humain et OCR : un vrai filtre
 
 **Décocher une classe retire ses motifs de l'application**, et pas seulement de
@@ -245,6 +251,14 @@ longueur sans dépendre d'une police.
 > `record-bench.sh`, et les deux bancs `gui/` déjà là, qui s'en passaient, y
 > gagnent sans rien perdre. Le cache s'y voit, cette fois : c'est ce que #502
 > avait annoncé.
+
+> **Écrit en relecture de fin de phase.** **Le cache n'est pas branché dans la fenêtre.**
+> `CachedLineMeasure` existe au noyau, éprouvée par ses tests et par les deux bancs, mais l'assistant
+> construit un `EmsLineMeasure` nu (`correction_controller.cpp`) : ce que D5 appelait « une table chaîne →
+> longueur, vivant le temps d'une opération » n'est jamais posé devant `QFontMetricsF` dans le programme
+> livré. Le banc mesure le découpage de 4 000 sous-titres en *ems* **avec** cache seulement — la version
+> sans n'a pas de relevé —, si bien que le gain à attendre n'est pas chiffré. Axe soumis à la décision de
+> la relecture, voir la fin de ce document.
 
 ## D6 — Le correcteur : Enchant, et une fonction qui s'éteint sans dictionnaire
 
@@ -367,6 +381,12 @@ ligne de commande.
 > n'annule pas les corrections. Chaque mot inconnu ramène l'onglet du projet et
 > sélectionne la ligne.
 >
+> **Corrigé en relecture de fin de phase.** « **Toujours active** dès qu'un projet est ouvert » était
+> plus large que le code : `Spell-Check Settings…` s'éteint sur un document **sans sous-titre**, comme
+> `Correct Texts…` et `Check Spelling…` (`main_window.cpp`, `refreshTabActions`). Ce qu'elle a de propre est
+> de **ne pas dépendre du dictionnaire** — c'est elle qui permet de quitter une langue qui n'en a pas —, et
+> non de rester active sur un projet vide, où il n'y a rien à vérifier.
+
 > **Le libellé `Chec&k Spelling…`** : `C` est déjà l'accélérateur de `&Correct
 > Texts…`, et deux entrées d'un même menu ne peuvent pas le partager ; `k`
 > est libre dans `Tools`. **GUI-SPELL-01 est implémentée** : ignorer, tout
@@ -711,7 +731,27 @@ par désigner une phase déjà passée.
   une fonction d'édition, pas de correction : **renvoyée à la relecture**, comme
   la précédente.
 
+> **Écrit en relecture de fin de phase.** **Ces deux renvois n'ont toujours pas de destinataire.** La
+> feuille de route ne les place dans aucune phase : `spell_check.inline` n'y figure pas, et `ruler.py` n'y
+> est cité que pour la mesure de D5, non pour l'affichage dans les cellules. L'inventaire de Gaupol
+> ([`gaupol-reference.md`](gaupol-reference.md), §6) les compte pourtant, l'un comme « soulignement à la
+> volée », l'autre comme « affichage de la longueur des lignes ». La relecture les soumet à décision — une
+> issue avec sa phase, ou un écart écrit avec sa raison — et la réponse s'inscrit ici.
+>
+> **Deux renvois de plus étaient restés sans nom**, tous deux dans les encadrés ci-dessus :
+> **distinguer les crochets des parenthèses** dans l'assistant (#504 : « resterait à faire si une issue le
+> demandait », alors que les deux cases de la page `Mentions` sont bien deux cases pour Gaupol), et
+> **brancher le cache de longueurs** dans la fenêtre (D5, ci-dessus).
+
 ## Écarts avec Gaupol
+
+> **Complété en relecture de fin de phase.** **Le tableau en portait onze, et onze sont tenus** : chacun se
+> retrouve dans le code et dans un test (le moteur réécrit `\w`, `Repeat` s'arrête à cent passes, la classe
+> décochée ne s'applique pas, la page de jonction se grise, les balises se placent comme #501 l'a décidé…).
+> **Dix autres s'étaient glissés**, chacun dit dans l'encadré de son issue mais aucun ici — le corps de
+> l'issue n'en comptait que deux de plus. **Vingt et un écarts, donc**, et un seul se lit comme une lacune
+> plutôt que comme un choix : la taille de la fenêtre de vérification, non retenue sans raison écrite. Les
+> dix sont ajoutés sous le trait.
 
 | Ce que fait Gaupol | Ce que fait `subedit` | Pourquoi |
 | :----------------- | :-------------------- | :------- |
@@ -726,10 +766,27 @@ par désigner une phase déjà passée.
 | une balise vidée par une correction **reste** | **retirée** | D9 ; les autres placements se décident cas par cas |
 | une balise à l'intérieur d'une correspondance **se ramène au début du morceau retiré** | **reste étirée sur tout le texte qui le remplace** | D9, décidé par #501 : la règle que `transform` tient depuis la phase 10, sur laquelle `recherche.cas` fait foi |
 | `SubRip.clean` **retouche l'espacement autour des balises** après coup | **rien ne le fait** | D9, décidé par #501 : aucune des trois corrections ne déplace une balise, ce nettoyage cosmétique n'est le travail d'aucune |
+| *ajoutés en relecture de fin de phase* | | |
+| aucune borne : un motif qui double ce qu'il trouve, sous `Repeat`, **remplit la mémoire** | **16 384 octets** par texte et une **limite de temps** par recherche ; le texte reste **tel qu'avant le motif**, et le motif est nommé | D3, #499 : un remplacement à moitié fait vaut moins que pas de remplacement |
+| une ligne réduite à un guillemet seul, à côté d'une mention retirée, **est vidée** par les sept nettoyages | **laissée** par le balayage | D7, #500 : la couture locale de l'ADR 0017 ; deux cas de `hearing-impaired.cas` restent hors accord, sciemment |
+| `Sound in brackets` et `Sound in parentheses` sont **deux motifs qu'on coche séparément** | **un seul balayage** : l'une ou l'autre case le lance, et il retire les deux | D8, #504 : `withoutHearingImpaired` ne sait traiter les deux styles qu'ensemble |
+| `Preview` lance **un lecteur externe** au sous-titre choisi | le **lecteur intégré**, quand le projet a une vidéo ; rien sinon | D8 : la réponse que la phase 11 avait déjà donnée à la barre d'outils |
+| l'assistant retient **la cible et le champ** (`text_assistant.target`, `.field`) | il **rouvre toujours** sur `Current Project` et `Text` | D8 le prévoyait (« ce que l'assistant retient : … la cible, le document ») ; #505 a resserré le périmètre, sans autre raison écrite |
+| une ligne de `.repl` **sans barre verticale** se lit comme un couple à un élément, qui échoue à la première suggestion | **ignorée** | #507 : la lecture de Gaupol échoue à la première suggestion |
+| les blancs d'une ligne de `.repl` se retirent **à l'Unicode** | **à l'ASCII** | #507 |
+| la jonction et la scission comparent le texte final à celui du **dernier mot mal orthographié atteint** : une jonction suivie d'un mot laissé en l'état n'est **jamais enregistrée** | comparent au **texte de départ**, espaces réduites ; le cas est un test | D8, #508 : écart voulu |
+| fermer `Check Spelling…` au milieu **perd le texte courant** | **applique** les textes quittés **et** les gestes déjà posés sur le texte courant | D6, #509 |
+| la taille de la fenêtre de vérification est **retenue** (`spell_check.size`) | **elle ne l'est pas** | #509 le dit, sans raison ; inscrit ici faute de l'avoir écrite |
 
 ## Exigences
 
 **Douze, toutes `prévues`** — le registre s'alimente en début d'issue.
+
+> **Corrigé en relecture de fin de phase.** **Douze, toutes `implémentées`, et chacune citée par au moins un
+> test** — un tag Catch2, que `check-requirements.sh` confronte au registre : `GUI-CORRECT-01` par deux cas,
+> `-02`, `-03`, `-04`, `-05` et `-07` par un chacun, `-06` par deux, `GUI-HEARING-03` par un, `GUI-BREAK-01`
+> par quatre, `GUI-SPELL-01` par treize, `-02` par huit, `-03` par trois. Aucune n'est née en cours de route,
+> aucune n'a été abandonnée : le tableau ci-dessous est celui du cadrage, à l'état près.
 
 | Identifiant | Ce qu'il promet |
 | :---------- | :-------------- |
@@ -778,3 +835,41 @@ rien** et peut se faire à tout moment ; elle est placée en tête de sa tranche
 parce que la dépendance qu'elle ajoute touche l'empaquetage, qu'il vaut mieux
 éprouver tôt que tard. **[#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505) est la plus grosse de la fenêtre** : un assistant
 de plusieurs pages, dont la confirmation est une table éditable à deux textes.
+
+> **Écrit en relecture de fin de phase.** Quinze versions, de `0.12.1` à `0.12.15`. Les douze issues du
+> tableau ont été livrées dans l'ordre où il les range, #498 à #509, une pull request chacune ; les deux
+> issues d'outillage, [#494](https://github.com/Guyot-Bertrand/sub-edit/issues/494) et
+> [#495](https://github.com/Guyot-Bertrand/sub-edit/issues/495), l'ont précédé, et le cadrage
+> ([#493](https://github.com/Guyot-Bertrand/sub-edit/issues/493)) est venu après elles.
+
+## Les issues ouvertes par la relecture
+
+Relecture de fin de phase, [#523](https://github.com/Guyot-Bertrand/sub-edit/issues/523), le 2026-09-30.
+**Deux sortes d'axes** : ceux qui demandent une décision — les renvois —, et ceux que le regard porté sur
+l'ensemble du code a trouvés. Aucun n'est corrigé par la relecture ; chacun devient une issue de la milestone
+s'il est retenu, et l'issue s'inscrit dans la colonne de droite.
+
+| Axe | Ce que la relecture a vu | Issue |
+| :-- | :----------------------- | :---- |
+| la vérification au fil de la frappe | renvoi de la spec sans destinataire : il demande un surlignage dans le délégué de la table, que rien n'a | [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525) |
+| la longueur des lignes dans les cellules | renvoi de la spec sans destinataire : une fonction d'édition qui emprunterait la mesure de D5 | [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526) |
+| crochets et parenthèses, deux cases pour un balayage | l'assistant les présente comme deux motifs de Gaupol ; au noyau, l'une ou l'autre lance le balayage qui retire les deux. **Et la page `Mentions` liste en plus, avec les autres motifs de `Latn`, deux cases du même nom** — `hearing_impaired_correction.cpp` (`isScanOnly`) les écarte par leur nom, si bien qu'on les coche sans effet (lu, non exécuté) | [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528) pour les cases sans effet ; la distinction crochets / parenthèses reste écartée : aucune issue ne la demande |
+| le cache de longueurs | `CachedLineMeasure` n'est branché nulle part dans le programme livré (`correction_controller.cpp`) ; le banc n'a pas la version sans cache en *ems* | [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527) |
+| les constats mineurs de #509 | les `Project*` du parcours, que rien ne protège si un projet se fermait pendant le dialogue ; `Save and Resume`, qui relit depuis le début du texte (`SpellCheckWalk::resumeWithText`) ; la liste de remplacements en mémoire, qui grossit à chaque application (`spell_checker.cpp`) ; un dossier de configuration vide, qui donnerait un chemin relatif (`spellReplacementFile`) | [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530) |
+| un nom de motif à virgule | `correction.activations` se lit en tout ou rien, la virgule étant son séparateur : un seul nom pareil fait perdre toutes les dérogations (`settings.cpp`) | [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529) |
+| `Closes #N` sans lien | la PR #522 portait la ligne et `closingIssuesReferences` est resté vide ; cause inconnue | [#531](https://github.com/Guyot-Bertrand/sub-edit/issues/531) |
+
+**Écartés, avec leur raison.**
+
+- **`MainWindow`** : 1 478 lignes à la clôture de la phase 11, **1 578** aujourd'hui (l'en-tête, de 692 à 747).
+  `CorrectionSide`, qui répond aux deux contrôleurs, en pèse soixante-quatre : la logique est dans
+  `CorrectionController` et `SpellCheckController`, la fenêtre n'a gardé que le câblage. Une extraction de
+  plus ne déplacerait que ces soixante-quatre lignes.
+- **Le cliquet de langue** a tenu : **plus une ligne de commentaire française dans le C++**, et
+  [#325](https://github.com/Guyot-Bertrand/sub-edit/issues/325) est fermée depuis le 2026-09-06. Les chiffres
+  de 1 161 lignes que `CLAUDE.md` et la feuille de route citent encore sont ceux de la relecture de la phase 8.
+- **La dépendance Enchant** est tirée par les paquets réels de `0.12.15` : `libenchant-2-2` au `.deb`,
+  `enchant2` et `libenchant-2.so.2` au `.rpm`. Que `dnf` la résolve est éprouvé par `fedora.yml`, chaque semaine.
+- **Le banc** : quatre relevés pour quinze versions — `0.12.7`, `0.12.8`, `0.12.9` et `0.12.12` —, plus celui
+  de `0.12.0` qui clôt la phase 11, la machine ayant été trouvée chargée le reste du temps ; le relevé de `0.13.0` est dû à la clôture
+  ([#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270)).

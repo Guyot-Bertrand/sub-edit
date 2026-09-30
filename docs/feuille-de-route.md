@@ -829,6 +829,10 @@ et 32,8 % — trois semaines d'anglais, puis les phases d'interface.
 (`check-comment-language.py`, appelé par la porte), et les 1 161 lignes qui
 restent sont l'issue [#325](https://github.com/Guyot-Bertrand/sub-edit/issues/325).
 
+> **Tenu, relu en fin de phase 12.** #325 a été fermée le 2026-09-06 et le cliquet n'a pas bougé depuis : le
+> C++ ne porte plus **aucune** ligne de commentaire française. Les 1 161 lignes ci-dessus sont celles du jour
+> de la relecture, non un reste à traduire.
+
 ## 9 — Formats complémentaires et balises riches
 
 SubViewer 2, Sub Station Alpha, Advanced SSA — les trois formats cités comme
@@ -1000,13 +1004,27 @@ pas encore par lui.
   toolkit. Chez nous, ce doit être une abstraction injectée : implémentation
   triviale par caractères pour la CLI et les tests, implémentation Qt pour
   l'interface.
-- Correcteur orthographique : hunspell, nuspell, ou service système.
+- Correcteur orthographique : hunspell, nuspell, ou service système. **Tranché par la spec : Enchant**,
+  dont la liste de mots personnelle est celle de Gaupol — D6.
 
 **Point difficile** — le découpage de lignes est une variante de Knuth–Plass
 avec boîtes, pénalités et démérites, où les pénalités viennent des motifs
 `line-break` par langue. Coûteux, subjectif, et central dans la qualité perçue.
 Appliquer des dizaines de motifs à des milliers de sous-titres est **le**
 benchmark de référence du projet.
+
+**Livrée, relue par [#523](https://github.com/Guyot-Bertrand/sub-edit/issues/523).** Douze issues, #498 à
+#509, en quinze versions : les motifs de Gaupol lus tels quels et appliqués par ICU, les erreurs courantes, la
+remise en majuscule, les mentions restantes, le découpage de lignes en caractères et en *ems*, l'assistant
+`Correct Texts…` et sa confirmation, la jonction et la scission de mots, et `Check Spelling…`. **Les quatre
+renvois qu'elle recevait sont tombés** : les trois motifs de mentions et le choix du moteur, de la phase 4 ;
+PCRE2 ou RE2 et hunspell, de la phase 0 ; la jonction, la scission et les erreurs courantes, de la phase 10 ;
+le parseur conscient des balises, que la phase 10 avait écrit pour cela. **Douze exigences, toutes
+`implémentées` et citées** ; **vingt et un écarts avec Gaupol**, dont dix que le tableau de la spec ne portait
+pas. Ceux que la phase émet ont chacun leur destinataire : la ligne de commande de la correction en
+phase 13, la traduction des noms de motifs en phase 15. **Deux renvois restent sans phase** — la vérification
+orthographique au fil de la frappe, et la longueur des lignes affichée dans les cellules — et la relecture les
+soumet à décision. La spec en tient le compte, à la fin.
 
 ## 13 — CLI complète
 
@@ -1043,6 +1061,14 @@ les donne à celle-ci : **rien de ce que la phase 11 écrit n'est propre à la
 fenêtre** — l'ouverture d'une traduction, son alignement et la phrase du compte
 rendu vivent au noyau et dans `core/wording.hpp` —, et il ne reste ici qu'une
 grammaire à écrire.
+
+**Un renvoi de la phase 12 atterrit ici : la correction en ligne de commande.** Le calcul des changements, les
+motifs, le correcteur et les phrases du compte rendu vivent au noyau ([`specs/12-correction.md`](specs/12-correction.md),
+D8) ; il ne reste qu'une grammaire — `correct`, avec ses tâches, sa langue et ses réglages de découpage **en
+caractères**, la mesure en *ems* étant celle de la fenêtre. La jonction et la scission de mots s'y joignent, le
+correcteur étant au noyau et la dépendance à Enchant déjà tirée par `subedit-cli`. **La confirmation n'a pas
+d'équivalent** : la spec laisse à cette phase de dire si un mode qui écrit les changements proposés sans les
+appliquer la remplace.
 
 ## 14 — Calage fin
 
@@ -1132,3 +1158,9 @@ Les 20 locales de Gaupol sont sous GPL, donc réutilisables.
 **Question ouverte** — Qt Linguist ou gettext ? La conversion `.po` vers `.ts`
 n'est fidèle que si les chaînes correspondent, ce qui ne sera pas le cas
 partout. Évaluer le gain réel avant de s'engager.
+
+**Un renvoi de la phase 12 atterrit ici : les noms et les descriptions des motifs de correction.** Gaupol les
+traduit par gettext ; les fichiers de motifs sont lus tels quels
+([ADR 0037](adr/0037-lire-les-motifs-de-gaupol-tels-quels.md)) et leurs intitulés restent en anglais tant que
+l'interface l'est. Ils passent avec le reste de l'interface, et la question de la conversion `.po` vers `.ts`
+s'y pose pour eux aussi.

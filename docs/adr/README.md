@@ -102,6 +102,13 @@ optionnel pour LRC et TMPlayer, et les positions ne deviennent pas des images
 pour MicroDVD. Ce qui bouge est ce qu'un **document** retient de son fichier,
 pas ce qu'un **sous-titre** porte.
 
+[0036](0036-icu-pour-les-motifs-de-correction.md) **rouvre** puis **maintient**
+[0017](0017-analyseur-de-mentions-ecrit-a-la-main.md) : le déclencheur que 0017 s'était
+donné — le troisième motif demandé — a joué à la phase 12, et le balayage écrit à la main
+garde pourtant les crochets et les parenthèses, pour la raison qu'elle donnait. Les quatre
+autres motifs de mentions passent par le moteur ; 0017 n'est pas remplacée.
+[0037](0037-lire-les-motifs-de-gaupol-tels-quels.md) fixe, elle, ce que ce moteur lit.
+
 ## Décisions attendues
 
 Points ouverts identifiés, qui feront l'objet d'une ADR le moment venu :

@@ -23,6 +23,7 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, et parentes
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | l'entrée de menu, l'icône, les métadonnées de logithèque | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | ce manuel, en Markdown | `/usr/share/subedit/manual` |
+| les motifs de correction de Gaupol | `/usr/share/subedit/patterns` |
 | les pages de manuel de `subedit-cli` et `subedit-gui` | `/usr/share/man/man1` |
 
 `ffmpeg` est **recommandé et non requis** par les deux paquets : sans lui, la
@@ -133,9 +134,10 @@ choisi :
 | l'icône | `<préfixe>/share/icons/hicolor/scalable/apps` |
 | les métadonnées de logithèque | `<préfixe>/share/metainfo` |
 | ce manuel, en Markdown | `<préfixe>/share/subedit/manual` |
+| les motifs de correction de Gaupol | `<préfixe>/share/subedit/patterns` |
 | les pages de manuel des deux binaires | `<préfixe>/share/man/man1` |
 
-**Ce sont les six mêmes fichiers que les paquets déposent** : ils en sortent,
+**Ce sont les mêmes fichiers que les paquets déposent** : ils en sortent,
 plutôt que d'être décrits une seconde fois.
 
 Avec `--prefix ~/.local`, les deux binaires atterrissent dans `~/.local/bin`,

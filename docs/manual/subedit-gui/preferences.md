@@ -26,6 +26,12 @@ non. Voir [`Adjust Durations…`](operations.md#adjust-durations).
 **Et le dernier encodage choisi dans `Save As…`**, avec sa marque d'ordre des
 octets. Voir [le fichier](#le-fichier).
 
+**Et ce que l'assistant `Correct Texts…` et `Spell-Check Settings…` règlent** : les
+tâches cochées et leur code, les cases de motifs, les réglages du découpage, la langue
+et la cible de la vérification. Voir [Correct Texts…](correct-texts.md) et
+[Check Spelling…](verifier-orthographe.md#spell-check-settings). **La cible et le
+document de `Correct Texts…` ne sont pas retenus.**
+
 **Ce qui n'est pas retenu :** le dernier fichier ouvert — voir
 [Le répertoire retenu](#le-répertoire-retenu).
 
@@ -68,6 +74,23 @@ qui le pose est justement celle qui ne va pas.
 | `duration-adjust.maximum-ms` | la durée maximale, en millisecondes, entière et non négative | `6000` |
 | `duration-adjust.gap-enabled` | `true` ou `false` — l'écart au sous-titre suivant est demandé | `true` |
 | `duration-adjust.gap-ms` | l'écart, en millisecondes, entier et non négatif | `0` |
+| `correction.mentions.enabled`, `correction.common-errors.enabled`, `correction.capitalization.enabled`, `correction.line-break.enabled` | `true` ou `false` — la tâche est cochée sur la première page de `Correct Texts…` | `false`, `true`, `true`, `false` |
+| `correction.mentions.code`, `correction.common-errors.code`, `correction.capitalization.code`, `correction.line-break.code` | le code des motifs de la tâche : `Zyyy`, ou `Écriture[-langue[-PAYS]]` — `Latn-en-US` ; non vide | `Zyyy` |
+| `correction.human`, `correction.ocr` | `true` ou `false` — les classes des erreurs courantes | `true`, `true` |
+| `correction.sound-in-brackets`, `correction.sound-in-parentheses` | `true` ou `false` — les deux cases de la page `Mentions` | `false`, `false` |
+| `correction.line-break.max-length` | la longueur maximale d'une ligne, décimale ; le dialogue la borne de 1 à 1000 | `24` |
+| `correction.line-break.max-lines` | le nombre de lignes maximal, entier ; le dialogue le borne de 1 à 100 | `3` |
+| `correction.line-break.in-ems` | `true` : la longueur se mesure en *ems* ; `false` : en caractères | `true` |
+| `correction.line-break.skip-on-length`, `correction.line-break.skip-on-lines` | `true` ou `false` — les deux conditions de saut sont demandées | `true`, `true` |
+| `correction.line-break.skip-max-length`, `correction.line-break.skip-max-lines` | les deux seuils du saut, dans l'unité choisie | `24`, `3` |
+| `correction.join-split.enabled` | `true` ou `false` — la tâche `Join or Split Words` est cochée | `false` |
+| `correction.join-split.join`, `correction.join-split.split` | `true` ou `false` — recoller, scinder | `true`, `false` |
+| `correction.join-split.language` | un code de locale — `fr`, `en_US`, `sr@Latn` — ; vide : la langue du système | vide |
+| `correction.remove-blank` | `true` ou `false` — `Remove all blank subtitles` | `true` |
+| `correction.activations` | les cases de motifs que l'utilisateur a changées, `<type>:<code>:<nom>:<0\|1>`, séparées par des virgules ; **un nom de motif qui contient une virgule ne s'y range pas** | vide |
+| `spell-check.language` | un code de locale, tel que `fr_FR` ; vide : la langue du système | vide |
+| `spell-check.target` | `selection`, `current-project` ou `all-projects` | `current-project` |
+| `spell-check.document` | `main` ou `translation` | `main` |
 
 **Le fichier accepte plus large que le dialogue.** Le lecteur prend toute vitesse
 strictement positive et toute durée non négative ; le dialogue d'`Adjust
@@ -196,8 +219,9 @@ du texte sur chacune des teintes est vérifié par un test, sur les deux fonds.
 
 ## Ce qui ne se règle pas
 
-**Six réglages retenus se choisissent dans un dialogue**, et chacun dans celui où
-il sert : le thème, ici ; le côté d'une insertion, dans le dialogue d'insertion ;
+**Six réglages retenus se choisissent dans un dialogue** — sans compter ceux de
+l'assistant de correction et de la vérification orthographique, qui ont chacun le
+leur —, et chacun dans celui où il sert : le thème, ici ; le côté d'une insertion, dans le dialogue d'insertion ;
 les deux options de la recherche, dans le dialogue de recherche ; l'encodage et
 la marque d'ordre des octets, dans `Save As…` ; la vitesse de lecture, les durées
 et l'écart de l'ajustement des durées, dans son propre dialogue. Il n'y en a pas
