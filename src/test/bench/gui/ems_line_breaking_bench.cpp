@@ -23,6 +23,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <full_length_project.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -67,14 +68,16 @@ TEST_CASE("breaking the lines of a full-length file, in ems", "[bench][text]") {
     const Setup setup = setupFor(project);
     const std::vector<const subedit::core::CorrectionPattern*> patterns = activeFor(setup);
     const subedit::core::IcuPatternEngine engine;
-    const subedit::gui::EmsLineMeasure ems{font};
-    const subedit::core::CachedLineMeasure cached{ems};
+    // The measure the assistant itself builds (#527): the bench times the
+    // road the program takes, not a copy of it.
+    const std::shared_ptr<const subedit::core::LineMeasure> measure =
+        subedit::gui::assistantLineMeasure(true, font);
     // Gaupol's own defaults for the ems unit — D5.
     constexpr double kMaxLength = 24.0;
     constexpr int kMaxLines = 3;
 
     BENCHMARK("découpage de 4000 sous-titres, en ems, avec cache de longueurs") {
         return subedit::core::breakLines(
-            engine, patterns, setup.texts, cached, kMaxLength, kMaxLines);
+            engine, patterns, setup.texts, *measure, kMaxLength, kMaxLines);
     };
 }

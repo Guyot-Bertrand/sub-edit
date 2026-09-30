@@ -10,6 +10,7 @@
 // never which one it was given: swapping units is swapping the object passed
 // in, nothing in the algorithm changes.
 
+#include <cstddef>
 #include <functional>
 #include <string>
 #include <string_view>
@@ -81,6 +82,10 @@ public:
     explicit CachedLineMeasure(const LineMeasure& underlying);
 
     [[nodiscard]] double lengthOf(std::string_view text) const override;
+
+    /// How many distinct texts it remembers — what a test reads to see that a
+    /// caller really goes through the cache.
+    [[nodiscard]] std::size_t cachedCount() const { return m_cache.size(); }
 
 private:
     const LineMeasure* m_underlying;

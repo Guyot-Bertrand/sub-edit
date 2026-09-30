@@ -2,6 +2,7 @@
 
 #include <QString>
 
+#include <memory>
 #include <string_view>
 
 namespace subedit::gui {
@@ -27,6 +28,14 @@ EmsLineMeasure::EmsLineMeasure(const QFont& font)
 
 double EmsLineMeasure::lengthOf(std::string_view text) const {
     return m_metrics.horizontalAdvance(toQString(text)) / m_emLength;
+}
+
+CachedEmsLineMeasure::CachedEmsLineMeasure(const QFont& font) : m_ems(font), m_cached(m_ems) {}
+
+std::shared_ptr<const core::LineMeasure> assistantLineMeasure(bool inEms, const QFont& font) {
+    if (inEms)
+        return std::make_shared<CachedEmsLineMeasure>(font);
+    return std::make_shared<core::CharacterLineMeasure>();
 }
 
 } // namespace subedit::gui
