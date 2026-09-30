@@ -2,7 +2,7 @@
 
 `Tools ▸ Check Spelling…` parcourt les mots que le dictionnaire ne connaît pas,
 un à la fois, sur le modèle du correcteur de Gaupol. Elle a une compagne,
-`Tools ▸ Spell-Check Settings…`, qui règle la langue, la cible et le document.
+`Tools ▸ Spell-Check Settings…`, qui règle la langue, la cible et le document, et le soulignement à la frappe.
 Les deux s'appuient sur les dictionnaires du système, par Enchant.
 
 Le libellé de la première s'écrit `Chec&k Spelling…` : `C` est déjà
@@ -26,6 +26,7 @@ phrase sous la langue dit pourquoi.](captures/orthographe-reglages.png)
 | `Language` | les codes de langue que le système propose, et celui déjà choisi | la langue du système, si elle y est |
 | `Target` | `Selection`, `Current Project`, `All Open Projects` | `Current Project` |
 | `Document` | `Text`, `Translation` | `Text` |
+| `Check spelling while editing` | une case à cocher, voir [Souligner en tapant](#souligner-en-tapant) | décochée |
 
 `Selection` est éteinte sans ligne choisie dans l'onglet montré ; `Translation`
 est éteinte tant qu'aucun projet ouvert ne porte de traduction. Un réglage
@@ -39,7 +40,7 @@ elle qui permet de sortir d'une langue qui n'en a pas. La langue dont aucun
 dictionnaire n'existe reste modifiable et se montre dans la liste, avec, sous
 elle, la phrase `no dictionary for` suivi de son code.
 
-**Les trois réglages se retiennent** d'une session à l'autre, dans le fichier
+**Les quatre réglages se retiennent** d'une session à l'autre, dans le fichier
 de réglages de `subedit` — voir [Les préférences](preferences.md) pour son
 emplacement :
 
@@ -48,10 +49,35 @@ emplacement :
 | `spell-check.language` | un code de langue, tel que `fr_FR` ; vide : la langue du système | vide |
 | `spell-check.target` | `selection`, `current-project`, `all-projects` | `current-project` |
 | `spell-check.document` | `main`, `translation` | `main` |
+| `spell-check.inline` | `true` ou `false` — souligner les mots inconnus dans l'éditeur d'une cellule | `false` |
 
 Une valeur que la clé n'accepte pas est ignorée, le défaut s'applique, et l'option
 est nommée sur la sortie d'erreur à l'ouverture de la fenêtre — voir
 [Les préférences](preferences.md#ce-qui-arrive-quand-le-fichier-ne-dit-pas-ce-quon-attend).
+
+## Souligner en tapant
+
+![L'éditeur de la cellule de texte, le mot mal tapé souligné en ondulé
+rouge.](captures/edition-orthographe.png)
+
+![Le même éditeur sous la palette sombre.](captures/edition-orthographe-sombre.png)
+
+La case `Check spelling while editing` de `Spell-Check Settings…` fait souligner,
+**en ondulé rouge et pendant qu'on tape**, chaque mot inconnu dans l'éditeur d'une
+cellule de texte — celui de la colonne `Text` comme celui de la colonne
+`Translation`. Le soulignement suit la frappe : il apparaît, se déplace et
+disparaît avec le mot. **Elle est décochée par défaut**, comme dans Gaupol : sans
+elle, rien ne change dans l'éditeur.
+
+**La langue est celle de `Language:`**, dans la même fenêtre, et les mots inconnus
+sont ceux que `Check Spelling…` trouverait : mêmes cas de l'anglais familier
+(`goin'`, `we'd`, `1st`), même découpage en mots. Un mot souligné ne se corrige pas
+par un menu : la case ne fait que le montrer.
+
+**Sans dictionnaire pour la langue réglée, l'éditeur se tait** : rien n'est
+souligné et rien n'échoue, et la phrase `no dictionary for` de la fenêtre dit
+pourquoi. La case s'applique aux éditeurs ouverts après elle ; un éditeur déjà
+ouvert garde ce qu'il avait.
 
 ## Le parcours
 

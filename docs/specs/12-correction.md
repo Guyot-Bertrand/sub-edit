@@ -393,6 +393,39 @@ ligne de commande.
 > ignorer, ajouter, remplacer, tout remplacer et joindre sont tenus sur le
 > double `WordListSpellProvider`, jamais sur les dictionnaires de la machine.
 
+> **Précisé par [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525).**
+> **L'orthographe au fil de la frappe** — le `spell_check.inline` de Gaupol. **Le
+> réglage** est `spell-check.inline` (`SpellCheckSettings::inlineCheck`), **faux
+> par défaut, comme Gaupol**, lu et écrit comme ses trois voisins ; une valeur
+> illisible rend le défaut et un diagnostic. **La case** `Check spelling while
+> editing` est dans `Spell-Check Settings…` — Gaupol la range dans ses
+> préférences, mais la langue qu'elle utilise est celle de cette fenêtre, et
+> `subedit` n'a pas de fenêtre de préférences (voir le tableau des écarts).
+> **Quand elle est cochée et qu'un dictionnaire existe** pour la langue
+> réglée, un mot inconnu est **souligné en ondulé rouge pendant qu'on tape**, dans
+> l'éditeur des deux colonnes de texte, `Text` et `Translation` ; **sans
+> dictionnaire, ou sans fournisseur, l'éditeur se tait**, sans échec.
+>
+> **Trois pièces.** Au noyau, `misspelledSpellRanges` (`spell_ranges.hpp`, sans
+> Qt) rend les intervalles, en octets d'UTF-8, des mots que `SpellChecker::check`
+> refuse avec leur caractère précédent et suivant : **la règle de
+> `SpellCheckNavigator::next`**, pour que le soulignement et le parcours de
+> `Check Spelling…` s'accordent — un test le vérifie en les faisant marcher sur le
+> même texte. Dans l'interface, `SpellHighlighter` (un `QSyntaxHighlighter`)
+> convertit ces octets en unités UTF-16 et pose `SpellCheckUnderline` ; il reprend
+> chaque bloc qui change, donc le soulignement suit la frappe. **Le délégué ne
+> résout ni chemin ni langue** (ADR 0022) : `TextDelegate` reçoit de la fenêtre
+> une source de correcteur (`SpellCheckerSource`), qu'il interroge à chaque
+> éditeur ouvert. **La fenêtre** ouvre le correcteur de la langue réglée
+> (`resolvedLanguage`, `openSpellChecker`, la liste de remplacements en lecture),
+> le renouvelle quand le fournisseur ou les réglages changent, et le rend
+> partagé : un éditeur déjà ouvert garde le sien jusqu'à sa fermeture.
+>
+> **Ce que la case ne fait pas** : elle ne s'applique qu'aux éditeurs ouverts
+> après elle, et le menu contextuel de l'éditeur ne propose pas de suggestions.
+> **GUI-SPELL-04 est implémentée** : noyau, réglages, fenêtre de réglages, éditeur
+> et fenêtre de bout en bout, sur le double `WordListSpellProvider`.
+
 ## D7 — Les mentions de la phase 4 : le balayage reste, le moteur prend le reste
 
 **Le balayage écrit à la main garde les crochets et les parenthèses.** L'ADR
@@ -723,8 +756,9 @@ par désigner une phase déjà passée.
   phase 15, avec le reste de l'interface.
 - **La vérification orthographique au fil de la frappe** — Gaupol l'offre dans
   sa cellule d'édition (`spell_check.inline`). Elle demande un surlignage dans
-  le délégué de la table, que rien n'a encore : **renvoyée à la relecture de fin
-  de phase**, qui dira si elle devient une issue.
+  le délégué de la table, que rien n'avait : **renvoyée à la relecture de fin
+  de phase**, qui l'a retenue — **livrée par
+  [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525)**, voir D6.
 - **Un éditeur de motifs** — Gaupol n'en a pas ; on dépose un fichier.
 - **La longueur des lignes affichée dans les cellules** — la règle de Gaupol
   (`gaupol/ruler.py`, sa marge) ; elle emprunterait la mesure de D5, mais c'est
@@ -777,10 +811,14 @@ par désigner une phase déjà passée.
 | la jonction et la scission comparent le texte final à celui du **dernier mot mal orthographié atteint** : une jonction suivie d'un mot laissé en l'état n'est **jamais enregistrée** | comparent au **texte de départ**, espaces réduites ; le cas est un test | D8, #508 : écart voulu |
 | fermer `Check Spelling…` au milieu **perd le texte courant** | **applique** les textes quittés **et** les gestes déjà posés sur le texte courant | D6, #509 |
 | la taille de la fenêtre de vérification est **retenue** (`spell_check.size`) | **elle ne l'est pas** | #509 le dit, sans raison ; inscrit ici faute de l'avoir écrite |
+| *ajoutés par #525* | | |
+| la case du soulignement à la frappe est dans les **préférences** | dans **`Spell-Check Settings…`**, à côté de la langue | `subedit` n'a pas de fenêtre de préférences ; la langue du soulignement est celle de cette fenêtre |
+| le soulignement passe par le vérificateur d'Enchant **seul** : ni les cas de l'anglais familier, ni la liste de remplacements | il passe par **`SpellChecker::check`**, les cas de l'anglais compris | le soulignement et `Check Spelling…` s'accordent sur les mêmes mots — D6, #525 |
+| le menu contextuel de l'éditeur **propose des suggestions** | **il n'en propose pas** | lacune, non un choix : #525 livre le soulignement, non ses gestes |
 
 ## Exigences
 
-**Douze, toutes `prévues`** — le registre s'alimente en début d'issue.
+**Treize** — douze au cadrage, toutes `prévues`, et `GUI-SPELL-04`, née de [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525) ; le registre s'alimente en début d'issue.
 
 > **Corrigé en relecture de fin de phase.** **Douze, toutes `implémentées`, et chacune citée par au moins un
 > test** — un tag Catch2, que `check-requirements.sh` confronte au registre : `GUI-CORRECT-01` par deux cas,
@@ -802,6 +840,10 @@ par désigner une phase déjà passée.
 | `GUI-SPELL-01` | la vérification parcourt les mots inconnus : ignorer, tout ignorer, ajouter au dictionnaire, remplacer, tout remplacer, joindre au précédent ou au suivant |
 | `GUI-SPELL-02` | sans dictionnaire pour la langue choisie, les fonctions du correcteur sont grisées et disent pourquoi |
 | `GUI-SPELL-03` | l'assistant joint et scinde des mots selon le correcteur |
+| `GUI-SPELL-04` | un mot inconnu est souligné pendant qu'on le tape dans l'éditeur d'une cellule de texte, quand le réglage est vrai et qu'un dictionnaire existe ; sans dictionnaire, rien n'est souligné et rien n'échoue |
+
+> **Ajouté par #525.** `GUI-SPELL-04` porte le total à **treize** ; elle est `implémentée`, citée par
+> dix cas : le noyau (trois), la fenêtre de réglages (un), l'éditeur de la cellule (quatre) et la fenêtre (cinq).
 
 **Le noyau n'a pas d'exigence**, par la règle du registre : les cas de #494 et
 #495 le tiennent, et ce sont eux que ses tests liront.
@@ -851,7 +893,7 @@ s'il est retenu, et l'issue s'inscrit dans la colonne de droite.
 
 | Axe | Ce que la relecture a vu | Issue |
 | :-- | :----------------------- | :---- |
-| la vérification au fil de la frappe | renvoi de la spec sans destinataire : il demande un surlignage dans le délégué de la table, que rien n'a | [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525) |
+| la vérification au fil de la frappe | renvoi de la spec sans destinataire : il demande un surlignage dans le délégué de la table, que rien n'a | [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525), **livrée** (D6) |
 | la longueur des lignes dans les cellules | renvoi de la spec sans destinataire : une fonction d'édition qui emprunterait la mesure de D5 | [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526) |
 | crochets et parenthèses, deux cases pour un balayage | l'assistant les présente comme deux motifs de Gaupol ; au noyau, l'une ou l'autre lance le balayage qui retire les deux. **Et la page `Mentions` liste en plus, avec les autres motifs de `Latn`, deux cases du même nom** — `hearing_impaired_correction.cpp` (`isScanOnly`) les écarte par leur nom, si bien qu'on les coche sans effet (lu, non exécuté) | [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528) pour les cases sans effet ; la distinction crochets / parenthèses reste écartée : aucune issue ne la demande |
 | le cache de longueurs | `CachedLineMeasure` n'est branché nulle part dans le programme livré (`correction_controller.cpp`) ; le banc n'a pas la version sans cache en *ems* | [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527) |

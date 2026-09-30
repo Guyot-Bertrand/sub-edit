@@ -27,8 +27,8 @@ non. Voir [`Adjust Durations…`](operations.md#adjust-durations).
 octets. Voir [le fichier](#le-fichier).
 
 **Et ce que l'assistant `Correct Texts…` et `Spell-Check Settings…` règlent** : les
-tâches cochées et leur code, les cases de motifs, les réglages du découpage, la langue
-et la cible de la vérification. Voir [Correct Texts…](correct-texts.md) et
+tâches cochées et leur code, les cases de motifs, les réglages du découpage, la langue,
+la cible de la vérification et le soulignement à la frappe. Voir [Correct Texts…](correct-texts.md) et
 [Check Spelling…](verifier-orthographe.md#spell-check-settings). **La cible et le
 document de `Correct Texts…` ne sont pas retenus.**
 
@@ -91,6 +91,7 @@ qui le pose est justement celle qui ne va pas.
 | `spell-check.language` | un code de locale, tel que `fr_FR` ; vide : la langue du système | vide |
 | `spell-check.target` | `selection`, `current-project` ou `all-projects` | `current-project` |
 | `spell-check.document` | `main` ou `translation` | `main` |
+| `spell-check.inline` | `true` ou `false` — souligner les mots inconnus pendant qu'on tape dans l'éditeur d'une cellule | `false` |
 
 **Le fichier accepte plus large que le dialogue.** Le lecteur prend toute vitesse
 strictement positive et toute durée non négative ; le dialogue d'`Adjust
