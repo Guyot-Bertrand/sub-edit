@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <poll.h>
 #include <spawn.h>
 #include <sstream>
@@ -13,6 +14,7 @@
 #include <sys/wait.h>
 #include <system_error>
 #include <unistd.h>
+#include <utility>
 #include <vector>
 
 // unistd.h already declares `environ` (with _GNU_SOURCE / _DEFAULT_SOURCE, on
@@ -347,6 +349,84 @@ std::string contentOf(const std::filesystem::path& path) {
     std::ostringstream all;
     all << file.rdbuf();
     return all.str();
+}
+
+namespace {
+
+/// Removes the first line of `text` and returns it, terminator included.
+[[nodiscard]] std::string_view takeLine(std::string_view& text) {
+    const std::size_t end = text.find('\n');
+    const std::size_t length = end == std::string_view::npos ? text.size() : end + 1;
+    const std::string_view line = text.substr(0, length);
+    text.remove_prefix(length);
+    return line;
+}
+
+/// `line` in double quotes, with what is invisible spelled out.
+[[nodiscard]] std::string visible(std::string_view line) {
+    constexpr std::string_view byteOrderMark = "\xEF\xBB\xBF";
+    constexpr std::string_view digits = "0123456789ABCDEF";
+
+    std::string shown = "\"";
+    while (!line.empty()) {
+        if (line.starts_with(byteOrderMark)) {
+            shown += "\\xEF\\xBB\\xBF";
+            line.remove_prefix(byteOrderMark.size());
+            continue;
+        }
+        const auto byte = static_cast<unsigned char>(line.front());
+        line.remove_prefix(1);
+        if (byte == '\r')
+            shown += "\\r";
+        else if (byte == '\n')
+            shown += "\\n";
+        else if (byte == '\t')
+            shown += "\\t";
+        else if (byte == '"' || byte == '\\')
+            shown += {'\\', static_cast<char>(byte)};
+        else if (byte < 0x20 || byte == 0x7F)
+            shown += {'\\', 'x', digits[byte >> 4], digits[byte & 0xF]};
+        else
+            shown += static_cast<char>(byte);
+    }
+    return shown + "\"";
+}
+
+} // namespace
+
+std::optional<std::string> firstDifference(std::string_view actual, std::string_view expected) {
+    if (actual == expected)
+        return std::nullopt;
+
+    for (std::size_t number = 1;; ++number) {
+        const bool actualEnded = actual.empty();
+        const bool expectedEnded = expected.empty();
+        const std::string_view got = takeLine(actual);
+        const std::string_view wanted = takeLine(expected);
+        if (got == wanted)
+            continue;
+
+        return "line " + std::to_string(number) + " differs\n  expected: " +
+               (expectedEnded ? std::string{"<end of text>"} : visible(wanted)) +
+               "\n  actual:   " + (actualEnded ? std::string{"<end of text>"} : visible(got));
+    }
+}
+
+MatchesFile::MatchesFile(std::filesystem::path expected) : m_expected(std::move(expected)) {}
+
+bool MatchesFile::match(const std::string& actual) const {
+    std::error_code error;
+    if (!std::filesystem::is_regular_file(m_expected, error)) {
+        m_difference = "expected file not found: " + m_expected.string();
+        return false;
+    }
+    const std::optional<std::string> difference = firstDifference(actual, contentOf(m_expected));
+    m_difference = difference.value_or(std::string{});
+    return !difference.has_value();
+}
+
+std::string MatchesFile::describe() const {
+    return "is the content of " + m_expected.string() + "\n" + m_difference;
 }
 
 Scratch::Scratch() {

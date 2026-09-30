@@ -6,8 +6,12 @@
 // they start the binary a user would start, and read what a user would see.
 // Nothing here knows what subedit-cli does — only how to run it.
 
+#include <catch2/matchers/catch_matchers_templated.hpp>
+
 #include <filesystem>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace subedit::e2e {
@@ -87,6 +91,47 @@ CliRun invokeGui(const std::vector<std::string>& args);
 /// Opened in binary: these tests compare line endings and byte order marks,
 /// which a text-mode read would be free to touch.
 [[nodiscard]] std::string contentOf(const std::filesystem::path& path);
+
+/// Where two texts first part ways, worded for a person, or nothing if they are
+/// the same bytes.
+///
+/// Texts are cut into lines **keeping their terminators**, and the first pair
+/// that is not byte-for-byte equal is reported with its 1-based number, the
+/// expected line and the actual one. Because the terminator belongs to the line,
+/// "a\r\n" against "a\n" is a difference on line 1, and a text that is the
+/// prefix of the other differs at the first line one of them lacks. Control
+/// characters, line ends and the UTF-8 byte order mark are printed as escapes
+/// (`\r`, `\n`, `\xEF\xBB\xBF`), so that what differs can be seen.
+[[nodiscard]] std::optional<std::string> firstDifference(std::string_view actual,
+                                                         std::string_view expected);
+
+/// Catch2 matcher: the string is byte-for-byte the content of a file.
+///
+/// ```
+/// CHECK_THAT(contentOf(out), MatchesFile(corpus("attendus/mentions-sans-mentions.srt")));
+/// ```
+///
+/// On failure Catch prints `firstDifference`, not two walls of text.
+///
+/// **An expected file is never produced by the program under test.** That is
+/// the lesson of #338: a file the tool wrote and a test then reads back proves
+/// that the tool agrees with itself, and stays green through every regression
+/// it introduces. An expected file is written by hand from what the input and
+/// the rule say, or observed on another tool, and says which in a comment or in
+/// the README of its directory. Looking at the real output to *check* one's own
+/// expectation is fine; copying it in is not.
+class MatchesFile final : public Catch::Matchers::MatcherGenericBase {
+public:
+    explicit MatchesFile(std::filesystem::path expected);
+
+    [[nodiscard]] bool match(const std::string& actual) const;
+
+    [[nodiscard]] std::string describe() const override;
+
+private:
+    std::filesystem::path m_expected;
+    mutable std::string m_difference;
+};
 
 /// A directory of its own, removed with everything in it.
 ///
