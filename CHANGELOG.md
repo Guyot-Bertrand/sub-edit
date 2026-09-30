@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Corrections
 
+- **core** — La liste de remplacements ne grossit plus (#530)
+
+## 0.12.22 — 2026-09-30
+
+### Corrections
+
 - **core** — Un nom de motif à virgule ne perd plus les réglages (#529)
 
 ## 0.12.21 — 2026-09-30
