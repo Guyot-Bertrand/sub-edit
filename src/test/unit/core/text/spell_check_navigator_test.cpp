@@ -103,6 +103,9 @@ TEST_CASE("replace all reaches later words and later texts", "[text][spell][navi
     REQUIRE(again.has_value());
     CHECK(wordOf(again) == "zzzz");
     CHECK(nav.text() == "salut zzzz");
+
+    // Three applications of one "replace all", one pair remembered (#530).
+    CHECK(nav.checker().replacements().size() == 1);
 }
 
 TEST_CASE("ignore all silences the word for the rest of the session", "[text][spell][navigator]") {

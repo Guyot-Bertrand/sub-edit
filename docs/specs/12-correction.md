@@ -481,6 +481,20 @@ ligne de commande.
 > **GUI-SPELL-04 est implémentée** : noyau, réglages, fenêtre de réglages, éditeur
 > et fenêtre de bout en bout, sur le double `WordListSpellProvider`.
 
+> **Précisé par [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530).** **Quatre constats de la relecture
+> de #509, deux corrigés et deux écartés.** *Corrigé* : **la liste de remplacements ne grossit plus à chaque
+> application silencieuse** d'un « Replace All » — `addReplacement` ramène une paire déjà connue en fin de
+> liste au lieu de la répéter, ce que le fichier faisait déjà à l'écriture ; **un dossier de configuration vide
+> ne donne plus un chemin relatif** — `spellReplacementFile` rend alors un chemin vide, qui ne se lit ni ne
+> s'écrit, là où `spell-check/<langue>.repl` serait tombé dans le répertoire courant. *Écarté* : **`Save and
+> Resume` relit depuis le début du texte**, et un mot simplement ignoré se signale de nouveau — c'est ce que
+> fait Gaupol, dont `reset(texte)` remet la position à zéro et dont `ignore` n'est pas retenu (seul
+> `ignore_all` l'est, et il survit) ; le manuel le dit déjà (« reprend le parcours à son début »). *Écarté* :
+> **les `Project*` du parcours que rien ne protège** — le dialogue est modal, aucun geste de l'utilisateur ne
+> peut fermer un projet pendant qu'il tourne, et le programme n'en ferme aucun de lui-même ; une garde de plus
+> protégerait un état qu'aucun chemin n'atteint, et la fermeture **après** le dialogue, elle, est déjà tenue
+> (`pageOwning`, et son test).
+
 ## D7 — Les mentions de la phase 4 : le balayage reste, le moteur prend le reste
 
 **Le balayage écrit à la main garde les crochets et les parenthèses.** L'ADR
@@ -980,7 +994,7 @@ s'il est retenu, et l'issue s'inscrit dans la colonne de droite.
 | la longueur des lignes dans les cellules | renvoi de la spec sans destinataire : une fonction d'édition qui emprunterait la mesure de D5 | [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526), **livrée** (D5) : `GUI-EDIT-04`, trois réglages `editor.*`, la longueur après chaque ligne d'une cellule et un liseré dans l'éditeur ; la mesure passe par `CachedLineMeasure`, bornée à la police |
 | crochets et parenthèses, deux cases pour un balayage | l'assistant les présente comme deux motifs de Gaupol ; au noyau, l'une ou l'autre lance le balayage qui retire les deux. **Et la page `Mentions` liste en plus, avec les autres motifs de `Latn`, deux cases du même nom** — `hearing_impaired_correction.cpp` (`isScanOnly`) les écarte par leur nom, si bien qu'on les coche sans effet (lu, puis **reproduit** par un test rouge) | [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528), **livrée** (D7) : la liste ne les offre plus ; la distinction crochets / parenthèses reste écartée : aucune issue ne la demande |
 | le cache de longueurs | `CachedLineMeasure` n'est branché nulle part dans le programme livré (`correction_controller.cpp`) ; le banc n'a pas la version sans cache en *ems* | [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527), **livrée** (D5) : `assistantLineMeasure`, une table par calcul, et le banc qui la mesure |
-| les constats mineurs de #509 | les `Project*` du parcours, que rien ne protège si un projet se fermait pendant le dialogue ; `Save and Resume`, qui relit depuis le début du texte (`SpellCheckWalk::resumeWithText`) ; la liste de remplacements en mémoire, qui grossit à chaque application (`spell_checker.cpp`) ; un dossier de configuration vide, qui donnerait un chemin relatif (`spellReplacementFile`) | [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530) |
+| les constats mineurs de #509 | les `Project*` du parcours, que rien ne protège si un projet se fermait pendant le dialogue ; `Save and Resume`, qui relit depuis le début du texte (`SpellCheckWalk::resumeWithText`) ; la liste de remplacements en mémoire, qui grossit à chaque application (`spell_checker.cpp`) ; un dossier de configuration vide, qui donnerait un chemin relatif (`spellReplacementFile`) | [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530), **livrée** : deux corrigés, deux écartés avec leur raison, voir l'encart de D6 |
 | un nom de motif à virgule | `correction.activations` se lit en tout ou rien, la virgule étant son séparateur : un seul nom pareil fait perdre toutes les dérogations (`settings.cpp`) | [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529), **livrée** : la virgule et la barre oblique inverse s'échappent, une entrée illisible ne coûte que son réglage |
 | `Closes #N` sans lien | la PR #522 portait la ligne et `closingIssuesReferences` est resté vide ; cause inconnue | [#531](https://github.com/Guyot-Bertrand/sub-edit/issues/531) |
 
