@@ -96,6 +96,16 @@ constexpr std::string_view kSpellCheckTargetKey = "spell-check.target";
 constexpr std::string_view kSpellCheckDocumentKey = "spell-check.document";
 constexpr std::string_view kSpellCheckInlineKey = "spell-check.inline";
 
+// What the table shows of a line's length — issue #526.
+constexpr std::string_view kEditorPrefix = "editor.";
+constexpr std::string_view kEditorLengthUnitKey = "editor.length-unit";
+constexpr std::string_view kEditorShowLengthsCellKey = "editor.show-lengths-cell";
+constexpr std::string_view kEditorShowLengthsEditKey = "editor.show-lengths-edit";
+
+// The two units of a length, as the file carries them.
+constexpr std::string_view kEmsUnit = "em";
+constexpr std::string_view kCharactersUnit = "characters";
+
 // The tokens of the spell check's target and document, as the file carries
 // them — a format, not the labels of the dialog.
 constexpr std::string_view kSelectionTarget = "selection";
@@ -230,6 +240,24 @@ constexpr char kActivationFieldSeparator = ':';
         return kAbovePlacement;
     case InsertPlacement::Below:
         return kBelowPlacement;
+    }
+    std::unreachable();
+}
+
+[[nodiscard]] std::optional<LengthUnit> lengthUnitOf(std::string_view text) {
+    if (text == kEmsUnit)
+        return LengthUnit::Ems;
+    if (text == kCharactersUnit)
+        return LengthUnit::Characters;
+    return std::nullopt;
+}
+
+[[nodiscard]] std::string_view textOf(LengthUnit unit) {
+    switch (unit) {
+    case LengthUnit::Ems:
+        return kEmsUnit;
+    case LengthUnit::Characters:
+        return kCharactersUnit;
     }
     std::unreachable();
 }
@@ -575,6 +603,22 @@ void applySpellCheckOption(SettingsRead& read, std::string_view key, std::string
         take(booleanOf(value), form.inlineCheck);
 }
 
+/// Keeps one of the three options of the editor: the unit lengths are shown in,
+/// and whether the cells and the cell editor show them.
+void applyEditorOption(SettingsRead& read, std::string_view key, std::string_view value) {
+    const auto take = [&read, key, value](auto parsed, auto& field) {
+        keepOption(read, key, value, std::move(parsed), field);
+    };
+
+    EditorSettings& form = read.settings.editor;
+    if (key == kEditorLengthUnitKey)
+        take(lengthUnitOf(value), form.lengthUnit);
+    else if (key == kEditorShowLengthsCellKey)
+        take(booleanOf(value), form.showLengthsInCells);
+    else if (key == kEditorShowLengthsEditKey)
+        take(booleanOf(value), form.showLengthsInEditor);
+}
+
 /// Keeps one of the twenty-five options of the correction assistant.
 ///
 /// **Apart from `applyOption`, which sends every `correction.` key here**, the
@@ -710,6 +754,8 @@ void applyOption(SettingsRead& read,
         applyCorrectionOption(read, key, value);
     else if (key.starts_with(kSpellCheckPrefix))
         applySpellCheckOption(read, key, value);
+    else if (key.starts_with(kEditorPrefix))
+        applyEditorOption(read, key, value);
 }
 
 /// An option, written bare when set, commented out when at its default.
@@ -903,6 +949,24 @@ void renderSpellCheckSettings(std::string& out, const SpellCheckSettings& form) 
                 form.inlineCheck == defaults.inlineCheck);
 }
 
+/// The three options of the editor, each written bare when it differs from the
+/// default and commented out when it does not.
+void renderEditorSettings(std::string& out, const EditorSettings& form) {
+    const EditorSettings defaults;
+    writeOption(out,
+                kEditorLengthUnitKey,
+                std::string{textOf(form.lengthUnit)},
+                form.lengthUnit == defaults.lengthUnit);
+    writeOption(out,
+                kEditorShowLengthsCellKey,
+                std::string{flagText(form.showLengthsInCells)},
+                form.showLengthsInCells == defaults.showLengthsInCells);
+    writeOption(out,
+                kEditorShowLengthsEditKey,
+                std::string{flagText(form.showLengthsInEditor)},
+                form.showLengthsInEditor == defaults.showLengthsInEditor);
+}
+
 } // namespace
 
 SettingsRead readSettings(const FileSystem& files, const std::filesystem::path& path) {
@@ -1034,6 +1098,8 @@ std::string renderSettings(const Settings& settings) {
     renderCorrectionSettings(out, settings.correction);
 
     renderSpellCheckSettings(out, settings.spellCheck);
+
+    renderEditorSettings(out, settings.editor);
 
     return out;
 }

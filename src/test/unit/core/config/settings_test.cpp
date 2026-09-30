@@ -38,11 +38,13 @@ using Catch::Matchers::ContainsSubstring;
 using subedit::core::ByteOrderMark;
 using subedit::core::CorrectionSettings;
 using subedit::core::DurationAdjustmentSettings;
+using subedit::core::EditorSettings;
 using subedit::core::Encoding;
 using subedit::core::FileError;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::InsertPlacement;
+using subedit::core::LengthUnit;
 using subedit::core::PatternActivation;
 using subedit::core::PatternKind;
 using subedit::core::readSettings;
@@ -822,6 +824,56 @@ TEST_CASE("a value of the spell check that cannot be read leaves its default", "
         const SettingsRead read = readOf(line);
 
         CHECK(read.settings.spellCheck == SpellCheckSettings{});
+        REQUIRE(read.diagnostics.size() == 1);
+        CHECK_FALSE(read.diagnostics.front().value.empty());
+    }
+}
+
+// ## What the table shows of a line's length — issue #526
+
+TEST_CASE("the editor's settings are kept across sessions", "[config]") {
+    InMemoryFileSystem files;
+    const Settings written{.editor = {.lengthUnit = LengthUnit::Characters,
+                                      .showLengthsInCells = false,
+                                      .showLengthsInEditor = false}};
+
+    REQUIRE(writeSettings(files, kPath, written).has_value());
+    const SettingsRead read = readSettings(files, kPath);
+
+    CHECK(read.settings.editor == written.editor);
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("a file that does not mention the editor gives Gaupol's defaults", "[config]") {
+    const SettingsRead read = readOf("window.maximised = true\n");
+
+    CHECK(read.settings.editor == EditorSettings{});
+    CHECK(read.settings.editor.lengthUnit == LengthUnit::Ems);
+    CHECK(read.settings.editor.showLengthsInCells);
+    CHECK(read.settings.editor.showLengthsInEditor);
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("the editor's options at their default are written back commented out", "[config]") {
+    const std::string rendered = renderSettings(Settings{});
+
+    CHECK_THAT(rendered, ContainsSubstring("#editor.length-unit = em\n"));
+    CHECK_THAT(rendered, ContainsSubstring("#editor.show-lengths-cell = true\n"));
+    CHECK_THAT(rendered, ContainsSubstring("#editor.show-lengths-edit = true\n"));
+
+    CHECK_THAT(renderSettings(Settings{.editor = {.lengthUnit = LengthUnit::Characters}}),
+               ContainsSubstring("\neditor.length-unit = characters\n"));
+    CHECK_THAT(renderSettings(Settings{.editor = {.showLengthsInCells = false}}),
+               ContainsSubstring("\neditor.show-lengths-cell = false\n"));
+}
+
+TEST_CASE("a value of the editor that cannot be read leaves its default", "[config]") {
+    for (const char* line : {"editor.length-unit = pixels\n",
+                             "editor.show-lengths-cell = maybe\n",
+                             "editor.show-lengths-edit = 1\n"}) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.editor == EditorSettings{});
         REQUIRE(read.diagnostics.size() == 1);
         CHECK_FALSE(read.diagnostics.front().value.empty());
     }

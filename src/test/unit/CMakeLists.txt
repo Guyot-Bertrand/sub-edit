@@ -31,6 +31,7 @@ add_executable(
     core/text/correction_run_test.cpp
     core/text/text_diff_test.cpp
     core/text/line_breaking_test.cpp
+    core/text/line_lengths_test.cpp
     core/text/line_measure_test.cpp
     core/text/join_split_words_test.cpp
     core/text/spell_check_navigator_test.cpp
