@@ -68,7 +68,7 @@ d'origine, et le choix retenu disparaît.
 **Les deux cases de `Mentions` ne nomment aucun motif compilé** : elles
 commandent un balayage du texte au noyau, celui que
 [`Remove Hearing-Impaired Mentions…`](operations.md#remove-hearing-impaired-mentions)
-fait déjà d'un geste direct. L'une **ou** l'autre cochée suffit à le lancer.
+fait déjà d'un geste direct. L'une **ou** l'autre cochée suffit à le lancer. **La liste des motifs de la page ne les répète pas** : ces deux noms n'y figurent qu'une fois, sous forme de case.
 
 **`Common Errors` filtre par classe** : un motif qui porte les deux classes
 s'applique dès que l'une des deux cases est cochée ; les trois autres pages ne

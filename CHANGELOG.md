@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Corrections
+
+- **gui** — Plus de cases sans effet dans la liste des motifs (#528)
+
+## 0.12.20 — 2026-09-30
+
 ### Ajouts
 
 - **gui** — Le cache de longueurs devant l'assistant (#527)

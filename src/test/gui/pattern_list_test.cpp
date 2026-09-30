@@ -338,3 +338,41 @@ TEST_CASE("an untouched shared box leaves a parent code's override alone when fo
 
     CHECK(settings.patternActivations == std::vector{latnOff});
 }
+
+TEST_CASE("the two records only the scan plays are not offered as boxes", "[gui][pattern-list]") {
+    // "Sound in brackets" and "Sound in parentheses" are played by the scan
+    // of ADR 0017 and have their own two boxes on the page; the engine
+    // ignores the records by name, so a box for each in the list would be a
+    // tick that does nothing (issue #528).
+    InMemoryFileSystem files;
+    files.addFile(
+        kShipped / "Latn.hearing-impaired",
+        "# -*- conf -*-\n"
+        "\n[Hearing Impaired Pattern]\nName=Sound in brackets\nPattern=a\nReplacement=\\0\n"
+        "\n[Hearing Impaired Pattern]\nName=Sound in parentheses\nPattern=b\nReplacement=\\0\n"
+        "\n[Hearing Impaired Pattern]\nName=Speaker before a colon\nPattern=c\nReplacement=\\0\n");
+    const PatternCatalogue catalogue = readPatternCatalogue(files, kShipped, {});
+    PatternList list{catalogue, PatternKind::HearingImpaired};
+
+    list.setCode("Latn", CorrectionSettings{});
+
+    CHECK(list.findChild<QCheckBox*>(QString::fromStdString("Sound in brackets")) == nullptr);
+    CHECK(list.findChild<QCheckBox*>(QString::fromStdString("Sound in parentheses")) == nullptr);
+    CHECK(list.findChild<QCheckBox*>(QString::fromStdString("Speaker before a colon")) != nullptr);
+}
+
+TEST_CASE("a common error named like a scan-only record stays an ordinary box",
+          "[gui][pattern-list]") {
+    // The exemption is the hearing-impaired kind's alone: a common error that
+    // happens to share the name is an ordinary record.
+    InMemoryFileSystem files;
+    files.addFile(kShipped / "Zyyy.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=Sound in brackets\nClasses=OCR;\nPattern=a\n");
+    const PatternCatalogue catalogue = readPatternCatalogue(files, kShipped, {});
+    PatternList list{catalogue, PatternKind::CommonError};
+
+    list.setCode("Zyyy", CorrectionSettings{});
+
+    CHECK(list.findChild<QCheckBox*>(QString::fromStdString("Sound in brackets")) != nullptr);
+}

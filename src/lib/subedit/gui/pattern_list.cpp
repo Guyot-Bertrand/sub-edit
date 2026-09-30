@@ -1,3 +1,4 @@
+#include <subedit/core/text/hearing_impaired_correction.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/gui/pattern_list.hpp>
 
@@ -38,6 +39,10 @@ void PatternList::setCode(std::string_view code, const core::CorrectionSettings&
     m_entries.clear();
 
     for (const core::CorrectionPattern* record : m_catalogue->cascade(m_kind, code)) {
+        // The page has its own two boxes for these, and the engine ignores the
+        // records by name: a box here would be a tick that does nothing (#528).
+        if (core::isScanOnlyPattern(*record))
+            continue;
         const auto found = std::ranges::find_if(
             m_entries, [record](const Entry& entry) { return entry.name == record->name; });
         if (found != m_entries.end()) {
