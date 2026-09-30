@@ -3,13 +3,27 @@
 #include <QSize>
 #include <QStyledItemDelegate>
 
+#include <functional>
+#include <memory>
+#include <utility>
+
 class QEvent;
 class QModelIndex;
 class QObject;
 class QStyleOptionViewItem;
 class QWidget;
 
+namespace subedit::core {
+class SpellChecker;
+} // namespace subedit::core
+
 namespace subedit::gui {
+
+/// Where an editor gets the checker it underlines by, asked each time one
+/// opens. It answers null when there is none — no dictionary, or the setting
+/// off — and the editor then underlines nothing. **The window decides which
+/// language, which dictionary** (ADR 0022); a delegate never resolves either.
+using SpellCheckerSource = std::function<std::shared_ptr<const core::SpellChecker>()>;
 
 /// The editor a text cell opens: a multiline field, and the height it needs.
 ///
@@ -26,6 +40,10 @@ class TextDelegate final : public QStyledItemDelegate {
 
 public:
     using QStyledItemDelegate::QStyledItemDelegate;
+
+    /// The checker the editors opened from now on underline by — issue #525,
+    /// `GUI-SPELL-04`. None by default: nothing is underlined.
+    void setSpellCheckerSource(SpellCheckerSource source) { m_spellChecker = std::move(source); }
 
     [[nodiscard]] QWidget* createEditor(QWidget* parent,
                                         const QStyleOptionViewItem& option,
@@ -50,6 +68,9 @@ public:
                                  const QModelIndex& index) const override;
 
     bool eventFilter(QObject* object, QEvent* event) override;
+
+private:
+    SpellCheckerSource m_spellChecker;
 };
 
 /// The editor a position cell opens: a constrained one-line field.

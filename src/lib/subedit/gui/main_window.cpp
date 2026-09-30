@@ -14,6 +14,7 @@
 #include <subedit/core/format/translation_file.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/find_video.hpp>
+#include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/associated_video.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/file_extras.hpp>
@@ -23,6 +24,8 @@
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/text/letter_case.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
+#include <subedit/core/text/spell_checker.hpp>
+#include <subedit/core/text/spell_replacements.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/core/wording.hpp>
@@ -444,8 +447,14 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_table->setItemDelegateForColumn(SubtitleTableModel::Start, new PositionDelegate{this});
     m_table->setItemDelegateForColumn(SubtitleTableModel::End, new PositionDelegate{this});
     m_table->setItemDelegateForColumn(SubtitleTableModel::Duration, new DurationDelegate{this});
-    m_table->setItemDelegateForColumn(SubtitleTableModel::Text, new TextDelegate{this});
-    m_table->setItemDelegateForColumn(SubtitleTableModel::Translation, new TextDelegate{this});
+    // Both text columns underline unknown words while they are edited — issue
+    // #525. The delegates ask the window for the checker each time an editor
+    // opens, and never decide a language themselves.
+    for (const int column : {SubtitleTableModel::Text, SubtitleTableModel::Translation}) {
+        auto* delegate = new TextDelegate{this};
+        delegate->setSpellCheckerSource([this] { return m_inlineSpellChecker; });
+        m_table->setItemDelegateForColumn(column, delegate);
+    }
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->verticalHeader()->setVisible(false);
 
@@ -652,6 +661,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(act.spellCheckSettings, &QAction::triggered, this, [this] {
         m_spellCheck->configure();
         refreshSpellCheckAction();
+        refreshInlineSpellChecker();
     });
     for (QAction* entry : m_columns->entries()) {
         connect(entry, &QAction::toggled, this, [this] {
@@ -1008,8 +1018,6 @@ void MainWindow::newProject() {
 }
 
 void MainWindow::refreshSpellCheckAction() {
-    if (m_spellCheck == nullptr || m_page == nullptr)
-        return;
     const bool anything = m_page->session->project().count() != 0;
     const QString reason = QString::fromStdString(m_spellCheck->unavailableReason());
     QAction* const entry = m_actions->checkSpelling;
@@ -1018,6 +1026,22 @@ void MainWindow::refreshSpellCheckAction() {
     // the hover, and the status bar while it is highlighted.
     entry->setToolTip(reason);
     entry->setStatusTip(reason);
+}
+
+void MainWindow::refreshInlineSpellChecker() {
+    m_inlineSpellChecker.reset();
+    if (m_spellCheck == nullptr || m_spellProvider == nullptr ||
+        !m_spellCheck->settings().inlineCheck)
+        return;
+    const std::string language = m_spellCheck->resolvedLanguage();
+    const core::RealFileSystem files;
+    auto opened =
+        core::openSpellChecker(*m_spellProvider,
+                               language,
+                               files,
+                               core::spellReplacementFile(m_spellConfigDirectory, language));
+    if (opened.has_value())
+        m_inlineSpellChecker = std::make_shared<const core::SpellChecker>(std::move(*opened));
 }
 
 void MainWindow::refreshTabActions() {
@@ -1534,6 +1558,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
     m_correction->setSettings(settings.correction);
     m_spellCheck->setSettings(settings.spellCheck);
     refreshSpellCheckAction();
+    refreshInlineSpellChecker();
     m_search->setOptions(settings.search);
     m_page->writeEncoding = settings.writeEncoding;
 }

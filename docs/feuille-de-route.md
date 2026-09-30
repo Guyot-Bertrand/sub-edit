@@ -1020,11 +1020,9 @@ remise en majuscule, les mentions restantes, le découpage de lignes en caractè
 renvois qu'elle recevait sont tombés** : les trois motifs de mentions et le choix du moteur, de la phase 4 ;
 PCRE2 ou RE2 et hunspell, de la phase 0 ; la jonction, la scission et les erreurs courantes, de la phase 10 ;
 le parseur conscient des balises, que la phase 10 avait écrit pour cela. **Douze exigences, toutes
-`implémentées` et citées** ; **vingt et un écarts avec Gaupol**, dont dix que le tableau de la spec ne portait
+`implémentées` et citées** (treize avec #525) ; **vingt et un écarts avec Gaupol**, dont dix que le tableau de la spec ne portait
 pas. Ceux que la phase émet ont chacun leur destinataire : la ligne de commande de la correction en
-phase 13, la traduction des noms de motifs en phase 15. **Deux renvois restent sans phase** — la vérification
-orthographique au fil de la frappe, et la longueur des lignes affichée dans les cellules — et la relecture les
-soumet à décision. La spec en tient le compte, à la fin.
+phase 13, la traduction des noms de motifs en phase 15. **Deux renvois restaient sans phase** ; la relecture les a soumis à décision, et ils sont livrés dans la phase : la vérification orthographique au fil de la frappe par [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525) (`GUI-SPELL-04`, treizième exigence), la longueur des lignes affichée dans les cellules par [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526). La spec en tient le compte, à la fin.
 
 ## 13 — CLI complète
 

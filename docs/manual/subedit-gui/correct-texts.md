@@ -154,7 +154,7 @@ s'ajoute à ceux livrés avec le programme, dans le même catalogue et sous les
 mêmes menus — rien ne les distingue une fois chargés.
 
 | Motifs | Où |
-| :----- | :- |
+| :----- | :-- |
 | livrés | `<préfixe>/share/subedit/patterns`, à côté de `<préfixe>/bin` |
 | de l'utilisateur | `$XDG_DATA_HOME/subedit/patterns`, ou `~/.local/share/subedit/patterns` si la variable n'est pas posée ou n'est pas un chemin absolu |
 

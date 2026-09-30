@@ -29,6 +29,7 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -753,12 +754,14 @@ TEST_CASE("the spell check's settings are kept across sessions", "[config]") {
     InMemoryFileSystem files;
     const Settings written{.spellCheck = {.language = "fr_FR",
                                           .target = SpellCheckTarget::AllProjects,
-                                          .document = SpellCheckDocument::Translation}};
+                                          .document = SpellCheckDocument::Translation,
+                                          .inlineCheck = true}};
 
     REQUIRE(writeSettings(files, kPath, written).has_value());
     const SettingsRead read = readSettings(files, kPath);
 
     CHECK(read.settings.spellCheck == written.spellCheck);
+    CHECK(read.settings.spellCheck.inlineCheck);
     CHECK(read.diagnostics.empty());
 }
 
@@ -768,6 +771,7 @@ TEST_CASE("a file that does not mention the spell check gives its defaults", "[c
     CHECK(read.settings.spellCheck == SpellCheckSettings{});
     CHECK(read.settings.spellCheck.target == SpellCheckTarget::CurrentProject);
     CHECK(read.settings.spellCheck.document == SpellCheckDocument::Main);
+    CHECK_FALSE(read.settings.spellCheck.inlineCheck); // GUI-SPELL-04: off, as in Gaupol
     CHECK(read.diagnostics.empty());
 }
 
@@ -777,15 +781,44 @@ TEST_CASE("the spell check's options at their default are written back commented
     CHECK_THAT(rendered, ContainsSubstring("#spell-check.language = \n"));
     CHECK_THAT(rendered, ContainsSubstring("#spell-check.target = current-project\n"));
     CHECK_THAT(rendered, ContainsSubstring("#spell-check.document = main\n"));
+    CHECK_THAT(rendered, ContainsSubstring("#spell-check.inline = false\n"));
 
     CHECK_THAT(renderSettings(Settings{.spellCheck = {.target = SpellCheckTarget::Selection}}),
                ContainsSubstring("\nspell-check.target = selection\n"));
 }
 
+TEST_CASE("every named value of the spell check's target is read", "[config]") {
+    const std::vector<std::pair<const char*, SpellCheckTarget>> targets = {
+        {"spell-check.target = selection\n", SpellCheckTarget::Selection},
+        {"spell-check.target = current-project\n", SpellCheckTarget::CurrentProject},
+        {"spell-check.target = all-projects\n", SpellCheckTarget::AllProjects},
+    };
+    for (const auto& [line, target] : targets) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.spellCheck.target == target);
+        CHECK(read.diagnostics.empty());
+    }
+}
+
+TEST_CASE("every named value of the spell check's document is read", "[config]") {
+    const std::vector<std::pair<const char*, SpellCheckDocument>> documents = {
+        {"spell-check.document = main\n", SpellCheckDocument::Main},
+        {"spell-check.document = translation\n", SpellCheckDocument::Translation},
+    };
+    for (const auto& [line, document] : documents) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.spellCheck.document == document);
+        CHECK(read.diagnostics.empty());
+    }
+}
+
 TEST_CASE("a value of the spell check that cannot be read leaves its default", "[config]") {
     for (const char* line : {"spell-check.language = French\n",
                              "spell-check.target = everything\n",
-                             "spell-check.document = notes\n"}) {
+                             "spell-check.document = notes\n",
+                             "spell-check.inline = maybe\n"}) {
         const SettingsRead read = readOf(line);
 
         CHECK(read.settings.spellCheck == SpellCheckSettings{});

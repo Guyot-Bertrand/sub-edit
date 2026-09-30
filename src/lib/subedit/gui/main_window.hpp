@@ -27,6 +27,7 @@
 #include <vector>
 
 namespace subedit::core {
+class SpellChecker;
 class Command;
 enum class CommandKind;
 enum class Document;
@@ -345,6 +346,7 @@ public:
         m_spellProvider = std::move(provider);
         m_spellConfigDirectory = std::move(configDirectory);
         refreshSpellCheckAction();
+        refreshInlineSpellChecker();
     }
 
     /// Opens what was dropped on the window — issue #453, `GUI-TABS-04`.
@@ -500,6 +502,12 @@ private:
     /// when the language the settings name has no dictionary, or there is no
     /// project. `Spell-Check Settings…` is never greyed by the dictionary.
     void refreshSpellCheckAction();
+
+    /// Opens, or drops, the checker the cell editors underline by — issue
+    /// #525, `GUI-SPELL-04`. Null without `spell-check.inline`, without a
+    /// provider, or when the language has no dictionary: the editors then
+    /// underline nothing, silently.
+    void refreshInlineSpellChecker();
 
     /// Whether `document` of the project on screen differs from its file —
     /// `ProjectFiles::isModified`.
@@ -719,6 +727,9 @@ private:
     core::PatternCatalogue m_patterns;
     std::shared_ptr<const core::SpellProvider> m_spellProvider;
     std::filesystem::path m_spellConfigDirectory;
+    /// What `TextDelegate` hands to the editors it opens. Shared, so that an
+    /// editor still open when it is replaced keeps the one it was given.
+    std::shared_ptr<const core::SpellChecker> m_inlineSpellChecker;
 
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;

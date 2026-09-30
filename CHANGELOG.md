@@ -9,9 +9,26 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **core** — Réglage spell-check.inline et intervalles des mots inconnus
+- **gui** — Souligner les mots inconnus dans l'éditeur des cellules
+
+### Documentation
+
+- **doc** — Orthographe au fil de la frappe, GUI-SPELL-04 (#525)
+- **doc** — Tableau du manuel et feuille de route après #525
+
+### Tests
+
+- **gui** — Couvrir les lignes ajoutées par #509 et #525
+
+## 0.12.17 — 2026-09-30
+
 ### Documentation
 
 - **doc** — Précisions sur les phases 14 et 15
+- **doc** — La table défile déjà, elle ne se centre pas (phase 14)
 
 ## 0.12.16 — 2026-09-30
 

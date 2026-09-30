@@ -41,6 +41,7 @@ add_library(
     text/spell_check_navigator.cpp
     text/spell_check_walk.cpp
     text/spell_checker.cpp
+    text/spell_ranges.cpp
     text/spell_replacements.cpp
     text/spell_tokenizer.cpp
     text/word_list_spell_provider.cpp

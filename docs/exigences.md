@@ -208,3 +208,4 @@ plus rien.
 | `GUI-SPELL-01` | la vérification parcourt les mots inconnus : ignorer, tout ignorer, ajouter au dictionnaire, remplacer, tout remplacer, joindre au précédent ou au suivant | 12 | implémentée |
 | `GUI-SPELL-02` | sans dictionnaire pour la langue choisie, les fonctions du correcteur sont grisées et disent pourquoi | 12 | implémentée |
 | `GUI-SPELL-03` | l'assistant joint et scinde des mots selon le correcteur | 12 | implémentée |
+| `GUI-SPELL-04` | un mot inconnu est souligné pendant qu'on le tape dans l'éditeur d'une cellule de texte, quand le réglage est vrai et qu'un dictionnaire existe ; sans dictionnaire, rien n'est souligné et rien n'échoue | 12 | implémentée |

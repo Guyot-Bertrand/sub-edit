@@ -5,6 +5,7 @@
 #include <subedit/core/wording.hpp>
 #include <subedit/gui/spell_check_settings_dialog.hpp>
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QPushButton>
@@ -88,6 +89,18 @@ TEST_CASE("the target and document chosen are given back", "[gui][spell-check-se
     CHECK(dialog.document() == SpellCheckDocument::Main);
 }
 
+TEST_CASE("the selection target is kept when something is selected",
+          "[gui][spell-check-settings]") {
+    const WordListSpellProvider provider = providerOf({"en"});
+    SpellCheckSettingsDialog dialog{&provider, true, false};
+
+    dialog.apply({.language = "en", .target = SpellCheckTarget::Selection});
+
+    CHECK(dialog.selectionRadio()->isEnabled());
+    CHECK(dialog.selectionRadio()->isChecked());
+    CHECK(dialog.target() == SpellCheckTarget::Selection);
+}
+
 TEST_CASE("the selection is greyed when nothing is selected, and the translation without one",
           "[gui][spell-check-settings]") {
     const WordListSpellProvider provider = providerOf({"en"});
@@ -111,4 +124,22 @@ TEST_CASE("a dialog without a provider says there is no dictionary",
 
     CHECK_FALSE(dialog.available());
     CHECK(dialog.language() == "en");
+}
+
+TEST_CASE("GUI-SPELL-04: the dialog offers the inline check, off by default",
+          "[gui][spell-check-settings][GUI-SPELL-04]") {
+    const WordListSpellProvider provider = providerOf({"en"});
+    SpellCheckSettingsDialog dialog{&provider, true, true};
+
+    dialog.apply({.language = "en"});
+    CHECK(dialog.inlineCheckBox()->text() == QStringLiteral("Check spelling while editing"));
+    CHECK_FALSE(dialog.inlineCheck());
+    CHECK_FALSE(dialog.settings().inlineCheck);
+
+    dialog.apply({.language = "en", .inlineCheck = true});
+    CHECK(dialog.inlineCheckBox()->isChecked());
+    CHECK(dialog.settings().inlineCheck);
+
+    dialog.inlineCheckBox()->setChecked(false);
+    CHECK_FALSE(dialog.settings().inlineCheck);
 }

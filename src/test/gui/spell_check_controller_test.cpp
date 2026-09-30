@@ -25,11 +25,13 @@
 #include <QComboBox>
 #include <QItemSelectionModel>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QWidget>
 #include <catch2/catch_test_macros.hpp>
 
 #include <chrono>
 #include <filesystem>
+#include <fstream>
 #include <memory>
 #include <span>
 #include <string>
@@ -405,4 +407,103 @@ TEST_CASE("the settings window keeps what it was given only when accepted",
     controller.configure();
     CHECK(controller.settings().language == "fr");
     CHECK(controller.settings().target == SpellCheckTarget::AllProjects);
+}
+
+TEST_CASE("the settings window offers the translation when any project carries one",
+          "[gui][spell-check-controller]") {
+    Desk desk;
+    desk.pages_.push_back(pageOf({"qqq"}));
+    desk.pages_.push_back(pageWithTranslation("qqq", "qqq"));
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        auto& settings = dynamic_cast<SpellCheckSettingsDialog&>(dialog);
+        CHECK(settings.translationRadio()->isEnabled());
+        settings.translationRadio()->setChecked(true);
+    };
+    SpellCheckController controller{prompts, desk};
+
+    controller.configure();
+
+    CHECK(controller.settings().document == SpellCheckDocument::Translation);
+}
+
+TEST_CASE("a window with no dictionary provider says so and opens nothing",
+          "[gui][spell-check-controller]") {
+    Desk desk;
+    desk.provider = nullptr;
+    desk.pages_.push_back(pageOf({"qqq"}));
+    FakePrompts prompts;
+    SpellCheckController controller{prompts, desk};
+    controller.setSettings(kFrench);
+
+    controller.openCheck();
+
+    CHECK(prompts.runAsked == 0);
+    REQUIRE(desk.announced.size() == 1);
+    CHECK(desk.announced[0] == noDictionaryFor("fr"));
+}
+
+TEST_CASE("a language the provider does not offer says so and opens nothing",
+          "[gui][spell-check-controller]") {
+    Desk desk;
+    desk.pages_.push_back(pageOf({"qqq"}));
+    FakePrompts prompts;
+    SpellCheckController controller{prompts, desk};
+    controller.setSettings({.language = "de"});
+
+    controller.openCheck();
+
+    CHECK(prompts.runAsked == 0);
+    REQUIRE(desk.announced.size() == 1);
+    CHECK(desk.announced[0] == noDictionaryFor("de"));
+}
+
+TEST_CASE("a project closed while the window was open is left out of what is applied",
+          "[gui][spell-check-controller]") {
+    const ScratchDirectory scratch;
+    Desk desk;
+    desk.configDirectory = scratch.path();
+    desk.pages_.push_back(pageOf({"qqq"}));
+    desk.pages_.push_back(pageOf({"qqq"}));
+    std::unique_ptr<ProjectPage> closed; // kept alive: the walk still points at it
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = [&](QDialog& dialog) {
+        auto& window = dynamic_cast<SpellCheckDialog&>(dialog);
+        window.replaceButton()->click();
+        window.replaceButton()->click();
+        closed = std::move(desk.pages_[0]);
+        desk.pages_.erase(desk.pages_.begin());
+    };
+    SpellCheckController controller{prompts, desk};
+    controller.setSettings({.language = "fr", .target = SpellCheckTarget::AllProjects});
+
+    controller.openCheck();
+
+    REQUIRE(desk.pages_.size() == 1);
+    CHECK(mainTextOf(*desk.pages_[0], 0) == "salut");
+    CHECK(mainTextOf(*closed, 0) == "qqq");
+    CHECK(desk.pages_[0]->session->canUndo());
+}
+
+TEST_CASE("a replacement list that cannot be written is reported, and the text still applied",
+          "[gui][spell-check-controller]") {
+    const ScratchDirectory scratch;
+    // A regular file where the directory should be: nothing can be created under it.
+    const std::filesystem::path blocker = scratch.path() / "config";
+    { std::ofstream{blocker} << "not a directory"; }
+    Desk desk;
+    desk.configDirectory = blocker;
+    desk.pages_.push_back(pageOf({"qqq"}));
+    FakePrompts prompts;
+    prompts.fill = replacing(1);
+    SpellCheckController controller{prompts, desk};
+    controller.setSettings(kFrench);
+
+    controller.openCheck();
+
+    CHECK(mainTextOf(*desk.pages_[0], 0) == "salut");
+    REQUIRE(prompts.failures.size() == 1);
+    CHECK(prompts.failures[0].starts_with("Could not save the replacements for fr: "));
 }

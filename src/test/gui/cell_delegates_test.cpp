@@ -6,8 +6,11 @@
 // columns is another question, and it is in `main_window_test.cpp`.
 
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/text/spell_checker.hpp>
+#include <subedit/core/text/word_list_spell_provider.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
@@ -19,19 +22,28 @@
 #include <QScrollBar>
 #include <QSignalSpy>
 #include <QStyleOptionViewItem>
+#include <QTextBlock>
+#include <QTextLayout>
 #include <QValidator>
 #include <QWidget>
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstdint>
 #include <memory>
+#include <utility>
+#include <vector>
 
 namespace {
 
+using subedit::core::InMemoryFileSystem;
+using subedit::core::openSpellChecker;
 using subedit::core::Project;
 using subedit::core::Session;
+using subedit::core::SpellChecker;
 using subedit::core::Subtitle;
 using subedit::core::Timestamp;
+using subedit::core::WordList;
+using subedit::core::WordListSpellProvider;
 using subedit::gui::DurationDelegate;
 using subedit::gui::PositionDelegate;
 using subedit::gui::SubtitleTableModel;
@@ -78,6 +90,29 @@ constexpr int kTallEnough = 400;
 /// The keystroke a delegate receives, assembled by hand.
 [[nodiscard]] QKeyEvent pressing(int key, Qt::KeyboardModifiers modifiers = Qt::NoModifier) {
     return QKeyEvent{QEvent::KeyPress, key, modifiers};
+}
+
+/// A checker that knows `un` and `bon`, and nothing else.
+[[nodiscard]] std::shared_ptr<const SpellChecker> smallChecker() {
+    WordList list;
+    list.words = {"un", "bon"};
+    WordListSpellProvider provider;
+    provider.add("fr", std::move(list));
+    const InMemoryFileSystem files;
+    return std::make_shared<const SpellChecker>(
+        openSpellChecker(provider, "fr", files, "/none.repl").value());
+}
+
+/// The words a text edit underlines as misspelt, in order.
+[[nodiscard]] std::vector<QString> underlinedIn(const QPlainTextEdit& field) {
+    std::vector<QString> words;
+    for (QTextBlock block = field.document()->firstBlock(); block.isValid(); block = block.next()) {
+        for (const QTextLayout::FormatRange& range : block.layout()->formats()) {
+            if (range.format.underlineStyle() == QTextCharFormat::SpellCheckUnderline)
+                words.push_back(block.text().mid(range.start, range.length));
+        }
+    }
+    return words;
 }
 
 } // namespace
@@ -343,4 +378,92 @@ TEST_CASE("the duration field refuses a sign at the keyboard", "[gui][GUI-DURATI
     CHECK(judge("0:02.5") == QValidator::Acceptable);
     CHECK(judge("-0:01,000") == QValidator::Invalid);
     CHECK(judge("longtemps") == QValidator::Invalid);
+}
+
+TEST_CASE("GUI-SPELL-04: an unknown word is underlined in the editor, a known one is not",
+          "[gui][GUI-SPELL-04]") {
+    Session session{oneSubtitle()};
+    const SubtitleTableModel model{session};
+    TextDelegate delegate;
+    delegate.setSpellCheckerSource([] { return smallChecker(); });
+    QWidget parent;
+    const std::unique_ptr<QWidget> editor{
+        delegate.createEditor(&parent, QStyleOptionViewItem{}, model.index(0, 4))};
+    auto* field = qobject_cast<QPlainTextEdit*>(editor.get());
+    REQUIRE(field != nullptr);
+
+    field->setPlainText(QStringLiteral("un bon xyzzy"));
+    QCoreApplication::processEvents();
+
+    CHECK(underlinedIn(*field) == std::vector<QString>{QStringLiteral("xyzzy")});
+}
+
+TEST_CASE("GUI-SPELL-04: the underline counts UTF-16 units, not bytes", "[gui][GUI-SPELL-04]") {
+    Session session{oneSubtitle()};
+    const SubtitleTableModel model{session};
+    TextDelegate delegate;
+    delegate.setSpellCheckerSource([] { return smallChecker(); });
+    QWidget parent;
+    const std::unique_ptr<QWidget> editor{
+        delegate.createEditor(&parent, QStyleOptionViewItem{}, model.index(0, 4))};
+    auto* field = qobject_cast<QPlainTextEdit*>(editor.get());
+    REQUIRE(field != nullptr);
+
+    field->setPlainText(QStringLiteral("un été bon\nun bonn"));
+    QCoreApplication::processEvents();
+
+    CHECK(underlinedIn(*field) ==
+          std::vector<QString>{QStringLiteral("été"), QStringLiteral("bonn")});
+}
+
+TEST_CASE("GUI-SPELL-04: the underline follows the typing", "[gui][GUI-SPELL-04]") {
+    Session session{oneSubtitle()};
+    const SubtitleTableModel model{session};
+    TextDelegate delegate;
+    delegate.setSpellCheckerSource([] { return smallChecker(); });
+    QWidget parent;
+    const std::unique_ptr<QWidget> editor{
+        delegate.createEditor(&parent, QStyleOptionViewItem{}, model.index(0, 4))};
+    auto* field = qobject_cast<QPlainTextEdit*>(editor.get());
+    REQUIRE(field != nullptr);
+
+    field->setPlainText(QStringLiteral("un bo"));
+    CHECK(underlinedIn(*field) == std::vector<QString>{QStringLiteral("bo")});
+
+    field->moveCursor(QTextCursor::End);
+    field->insertPlainText(QStringLiteral("n"));
+    CHECK(underlinedIn(*field).empty());
+
+    field->insertPlainText(QStringLiteral("x"));
+    CHECK(underlinedIn(*field) == std::vector<QString>{QStringLiteral("bonx")});
+}
+
+TEST_CASE("GUI-SPELL-04: without a checker the editor underlines nothing and does not fail",
+          "[gui][GUI-SPELL-04]") {
+    Session session{oneSubtitle()};
+    const SubtitleTableModel model{session};
+    QWidget parent;
+
+    SECTION("no source at all") {
+        const TextDelegate delegate;
+        const std::unique_ptr<QWidget> editor{
+            delegate.createEditor(&parent, QStyleOptionViewItem{}, model.index(0, 4))};
+        auto* field = qobject_cast<QPlainTextEdit*>(editor.get());
+        REQUIRE(field != nullptr);
+        field->setPlainText(QStringLiteral("xyzzy"));
+        QCoreApplication::processEvents();
+        CHECK(underlinedIn(*field).empty());
+    }
+
+    SECTION("a source that answers null") {
+        TextDelegate delegate;
+        delegate.setSpellCheckerSource([] { return std::shared_ptr<const SpellChecker>{}; });
+        const std::unique_ptr<QWidget> editor{
+            delegate.createEditor(&parent, QStyleOptionViewItem{}, model.index(0, 4))};
+        auto* field = qobject_cast<QPlainTextEdit*>(editor.get());
+        REQUIRE(field != nullptr);
+        field->setPlainText(QStringLiteral("xyzzy"));
+        QCoreApplication::processEvents();
+        CHECK(underlinedIn(*field).empty());
+    }
 }

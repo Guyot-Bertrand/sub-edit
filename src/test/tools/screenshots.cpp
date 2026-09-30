@@ -25,6 +25,7 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/config/insert_placement.hpp>
+#include <subedit/core/config/settings.hpp>
 #include <subedit/core/config/theme.hpp>
 #include <subedit/core/edit/translation.hpp>
 #include <subedit/core/format/project_file.hpp>
@@ -75,6 +76,7 @@
 #include <QMessageLogContext>
 #include <QModelIndex>
 #include <QPixmap>
+#include <QPlainTextEdit>
 #include <QRect>
 #include <QSplitter>
 #include <QString>
@@ -499,6 +501,54 @@ int main(int argc, char** argv) {
         QApplication::processEvents();
 
         written = capture(window, *window.table(), directory, "edition-sombre") && written;
+
+        window.table()->closePersistentEditor(edited);
+    }
+
+    // The same cell, with the inline spell check on — issue #525,
+    // `GUI-SPELL-04`. The dictionary is written here, never a machine's: it
+    // knows every word of the row, and a typo has just been typed into it.
+    for (const bool dark : {false, true}) {
+        subedit::gui::applyTheme(dark ? subedit::core::Theme::Dark : subedit::core::Theme::Light);
+        subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
+
+        subedit::core::WordList words;
+        words.words = {"Tu",
+                       "es",
+                       "sûr",
+                       "que",
+                       "c'est",
+                       "ce",
+                       "quai",
+                       "Le",
+                       "quatorze",
+                       "Il",
+                       "l'a",
+                       "répété",
+                       "deux",
+                       "fois"};
+        auto provider = std::make_shared<subedit::core::WordListSpellProvider>();
+        provider->add("fr", std::move(words));
+        window.setSpellChecking(std::move(provider), "/nonexistent-config");
+        subedit::core::Settings settings;
+        settings.spellCheck.language = "fr";
+        settings.spellCheck.inlineCheck = true;
+        window.applySettings(settings);
+        showWithTheTableFitted(window);
+
+        const QModelIndex edited = window.table()->model()->index(kEditedRow, kTextColumn);
+        window.table()->openPersistentEditor(edited);
+        auto* field = window.table()->findChild<QPlainTextEdit*>();
+        if (field == nullptr)
+            return 1;
+        field->setPlainText(QStringLiteral(
+            "— Tu es sûr que c'est ce quai ?\n— Le quatorse. Il l'a répété deux fois."));
+        QApplication::processEvents();
+
+        // The names stay literal: `check-screenshots.py` reads them from here.
+        written = (dark ? capture(window, *window.table(), directory, "edition-orthographe-sombre")
+                        : capture(window, *window.table(), directory, "edition-orthographe")) &&
+                  written;
 
         window.table()->closePersistentEditor(edited);
     }
