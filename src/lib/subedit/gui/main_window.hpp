@@ -9,6 +9,7 @@
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/core/text/spell_dictionary.hpp>
+#include <subedit/gui/line_length_display.hpp>
 #include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -22,6 +23,7 @@
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -543,6 +545,15 @@ private:
     /// Opens the preferences, and lays down what comes out of them.
     void openPreferences();
 
+    /// How the delegates measure a line of `document`'s text, or nothing when
+    /// `shown` is false or no page is open — issue #526.
+    [[nodiscard]] std::optional<LineLengthDisplay> lengthDisplay(core::Document document,
+                                                                 bool shown);
+
+    /// Repaints the cells, and has the rows measured again for the room the
+    /// lengths take.
+    void refreshLengths();
+
     /// Puts the window in step with the film the document is now associated
     /// with — the status bar, the picture, and whether there is one at all.
     ///
@@ -730,6 +741,11 @@ private:
     /// What `TextDelegate` hands to the editors it opens. Shared, so that an
     /// editor still open when it is replaced keeps the one it was given.
     std::shared_ptr<const core::SpellChecker> m_inlineSpellChecker;
+
+    /// The unit lengths are shown in, and whether the cells and the editors
+    /// show them — issue #526, `GUI-EDIT-04`.
+    core::EditorSettings m_editor;
+    LengthMeasures m_lengthMeasures;
 
     /// The root of the installed manual, or nothing.
     std::filesystem::path m_manualDirectory;

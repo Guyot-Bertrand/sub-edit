@@ -8,6 +8,7 @@
 // Nothing here touches a real location: the file is in memory, and its path is
 // given. It is the seam of ADR 0022 and the harness of #238.
 
+#include <subedit/core/config/editor_settings.hpp>
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
@@ -18,14 +19,19 @@
 #include <subedit/gui/manual_path.hpp>
 #include <subedit/gui/patterns_path.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
+#include <subedit/gui/subtitle_editor.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/theme.hpp>
 
 #include <QAction>
+#include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QCoreApplication>
 #include <QDialog>
+#include <QImage>
 #include <QRect>
+#include <QTest>
 #include <Qt>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
@@ -35,14 +41,17 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "fake_prompts.hpp"
 
 namespace {
 
 using Catch::Matchers::ContainsSubstring;
+using subedit::core::EditorSettings;
 using subedit::core::FileErrorKind;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::LengthUnit;
 using subedit::core::openProject;
 using subedit::core::Settings;
 using subedit::core::Theme;
@@ -471,4 +480,125 @@ TEST_CASE("configureFromEnvironment applies settings, the manual path and the "
     window.correctTextsAction()->trigger();
 
     CHECK(patternSeen);
+}
+
+// ## The length of each line — issue #526
+
+TEST_CASE("GUI-EDIT-04: the preferences offer the unit and the two switches",
+          "[gui][config][GUI-EDIT-04]") {
+    const subedit::gui::PreferencesDialog defaults{Theme::System};
+    CHECK(defaults.editor() == EditorSettings{});
+    CHECK(defaults.lengthUnitBox()->currentIndex() == 0);
+    CHECK(defaults.showLengthsInCellsBox()->isChecked());
+    CHECK(defaults.showLengthsInEditorBox()->isChecked());
+
+    const subedit::gui::PreferencesDialog chosen{Theme::System,
+                                                 {.lengthUnit = LengthUnit::Characters,
+                                                  .showLengthsInCells = false,
+                                                  .showLengthsInEditor = true}};
+    CHECK(chosen.lengthUnitBox()->currentIndex() == 1);
+    CHECK(chosen.editor().lengthUnit == LengthUnit::Characters);
+    CHECK_FALSE(chosen.editor().showLengthsInCells);
+    CHECK(chosen.editor().showLengthsInEditor);
+}
+
+TEST_CASE("GUI-EDIT-04: the unit is greyed when no length is shown", "[gui][config][GUI-EDIT-04]") {
+    const subedit::gui::PreferencesDialog dialog{Theme::System};
+    CHECK(dialog.lengthUnitBox()->isEnabled());
+
+    dialog.showLengthsInCellsBox()->setChecked(false);
+    CHECK(dialog.lengthUnitBox()->isEnabled()); // the editor still shows them
+
+    dialog.showLengthsInEditorBox()->setChecked(false);
+    CHECK_FALSE(dialog.lengthUnitBox()->isEnabled());
+
+    dialog.showLengthsInCellsBox()->setChecked(true);
+    CHECK(dialog.lengthUnitBox()->isEnabled());
+}
+
+TEST_CASE("GUI-EDIT-04: accepted preferences set the editor's settings, cancelled ones do not",
+          "[gui][config][GUI-EDIT-04]") {
+    Windowed fixture;
+    const MainWindow& window = fixture.window();
+    CHECK(window.settings().editor == EditorSettings{});
+
+    fixture.prompts().fill = [](QDialog& dialog) {
+        auto* preferences = dynamic_cast<subedit::gui::PreferencesDialog*>(&dialog);
+        if (preferences == nullptr)
+            return;
+        preferences->lengthUnitBox()->setCurrentIndex(1);
+        preferences->showLengthsInEditorBox()->setChecked(false);
+    };
+
+    fixture.prompts().nextRun = false;
+    window.preferencesAction()->trigger();
+    CHECK(window.settings().editor == EditorSettings{});
+
+    fixture.prompts().nextRun = true;
+    window.preferencesAction()->trigger();
+    CHECK(window.settings().editor == EditorSettings{.lengthUnit = LengthUnit::Characters,
+                                                     .showLengthsInCells = true,
+                                                     .showLengthsInEditor = false});
+}
+
+TEST_CASE("GUI-EDIT-04: the settings of the editor are the ones the window reopens with",
+          "[gui][config][GUI-EDIT-04]") {
+    Windowed fixture;
+    const EditorSettings kept{.lengthUnit = LengthUnit::Characters,
+                              .showLengthsInCells = false,
+                              .showLengthsInEditor = false};
+
+    fixture.window().applySettings(Settings{.editor = kept});
+
+    CHECK(fixture.window().settings().editor == kept);
+}
+
+TEST_CASE("GUI-EDIT-04: changing the setting repaints the cells", "[gui][config][GUI-EDIT-04]") {
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    window.show();
+    QCoreApplication::processEvents();
+
+    const QImage shown = window.table()->viewport()->grab().toImage();
+
+    window.applySettings(Settings{.editor = {.showLengthsInCells = false}});
+    QCoreApplication::processEvents();
+    const QImage hidden = window.table()->viewport()->grab().toImage();
+    CHECK(shown != hidden);
+
+    window.applySettings(Settings{});
+    QCoreApplication::processEvents();
+    CHECK(window.table()->viewport()->grab().toImage() == shown);
+}
+
+TEST_CASE("GUI-EDIT-04: the editor the window opens carries the margin when the setting is on",
+          "[gui][config][GUI-EDIT-04]") {
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    window.show();
+    window.activateWindow();
+    QApplication::setActiveWindow(&window);
+    REQUIRE(QTest::qWaitForWindowActive(&window));
+
+    const QModelIndex cell = window.table()->model()->index(0, 4);
+
+    SECTION("on") {
+        // In characters: a length in ems depends on the font of the machine.
+        window.applySettings(Settings{.editor = {.lengthUnit = LengthUnit::Characters}});
+        window.table()->setCurrentIndex(cell);
+        window.table()->edit(cell);
+        auto* editor = window.table()->findChild<subedit::gui::SubtitleEditor*>();
+        REQUIRE(editor != nullptr);
+        CHECK(editor->gutterLengths() == std::vector<int>{3}); // "Un."
+        CHECK(editor->gutterWidth() > 0);
+    }
+
+    SECTION("off") {
+        window.applySettings(Settings{.editor = {.showLengthsInEditor = false}});
+        window.table()->setCurrentIndex(cell);
+        window.table()->edit(cell);
+        auto* editor = window.table()->findChild<subedit::gui::SubtitleEditor*>();
+        REQUIRE(editor != nullptr);
+        CHECK(editor->gutterWidth() == 0);
+    }
 }

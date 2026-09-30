@@ -237,7 +237,7 @@ TEST_CASE("Ctrl+I while a cell is being edited commits the edit first", "[gui][G
     REQUIRE(window.table()->isEditing());
 
     // The delegate's editor is a `QPlainTextEdit` (an internal subclass of it,
-    // `SubtitleEditor` — see `cell_delegates.cpp`), found the same way
+    // `SubtitleEditor` — see `subtitle_editor.hpp`), found the same way
     // `main_window_test.cpp` already does for the ordinary typing case, since
     // that internal type is not reachable from a test.
     auto* editor = window.table()->findChild<QPlainTextEdit*>();
