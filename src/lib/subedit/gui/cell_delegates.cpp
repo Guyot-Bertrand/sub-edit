@@ -1,26 +1,36 @@
+#include <subedit/core/text/line_lengths.hpp>
 #include <subedit/core/text/spell_checker.hpp>
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/spell_highlighter.hpp>
+#include <subedit/gui/subtitle_editor.hpp>
 
 #include <QAbstractTextDocumentLayout>
+#include <QApplication>
 #include <QEvent>
+#include <QFontMetrics>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QModelIndex>
 #include <QObject>
+#include <QPainter>
+#include <QPalette>
 #include <QPlainTextEdit>
+#include <QRect>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QSize>
 #include <QSizeF>
 #include <QString>
+#include <QStringList>
 #include <QStyle>
 #include <QStyleOptionViewItem>
 #include <QTextDocument>
 #include <QWidget>
 
 #include <algorithm>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace subedit::gui {
 
@@ -50,74 +60,6 @@ constexpr auto kDurationPattern = R"(\s*\d{1,2}:\d{1,2}(:\d{1,2})?([.,]\d{1,3})?
     return editor;
 }
 
-/// The margin a `QTextDocument` keeps on each side of its text.
-///
-/// **Read from a document rather than written here.** Qt's default is four
-/// pixels today, and a four copied into this file would be a second truth that
-/// nothing would keep in agreement. Read once and kept: a `QTextDocument` is
-/// not free, and this is asked once per row of the table.
-[[nodiscard]] int documentMargin() {
-    static const int margin = static_cast<int>(QTextDocument{}.documentMargin());
-    return margin;
-}
-
-/// The pixel the frame and the margin do not account for.
-///
-/// **Measured, and it is the same under both styles the window serves.** An
-/// editor of `lines × spacing + 2 × (frame + margin)` keeps a vertical
-/// scrollbar with two arrows and almost no travel, and hides the very line the
-/// height was meant to show; one pixel more and it has nowhere to go. Where it
-/// comes from inside `QPlainTextEdit` is not written here, because guessing at
-/// it would be worse than measuring it — `cell_delegates_test.cpp` opens an
-/// editor on one, two and three lines and asks its scrollbar the only question
-/// that settles this.
-constexpr int kRoundingPixel = 1;
-
-/// What a `QPlainTextEdit` adds around its lines, top and bottom together.
-///
-/// The frame counts twice, the margin of its document counts twice, and the
-/// pixel above once. The style is asked rather than a number written down: the
-/// window serves two, and the frame is one pixel under Fusion and two under
-/// Windows — eleven pixels here, thirteen there, and both are exactly what an
-/// editor needs to lose its scrollbar.
-[[nodiscard]] int roomAroundTheLines(const QWidget* widget) {
-    const QStyle* style = widget != nullptr ? widget->style() : nullptr;
-    const int frame =
-        style == nullptr ? 0 : style->pixelMetric(QStyle::PM_DefaultFrameWidth, nullptr, widget);
-    return (2 * (frame + documentMargin())) + kRoundingPixel;
-}
-
-/// The multiline field a text cell opens, and the height it asks for.
-///
-/// **A `QPlainTextEdit` asks for the same height whatever it holds** — a
-/// default of several lines, meant for a field of its own — and a table sizing
-/// a row around a persistent editor takes it at its word: a two-line subtitle
-/// opened a cell two hundred pixels tall. What this one asks for is the height
-/// of its document, which is the height its row already has.
-///
-/// No `Q_OBJECT`: it declares neither signal nor slot, and a macro that buys
-/// nothing costs a generated file. `SubtitleTable` is here for the same reason.
-class SubtitleEditor final : public QPlainTextEdit {
-
-public:
-    using QPlainTextEdit::QPlainTextEdit;
-
-    [[nodiscard]] QSize sizeHint() const override {
-        return {QPlainTextEdit::sizeHint().width(), heightOfItsLines()};
-    }
-
-    /// What its lines take, room around them included.
-    ///
-    /// **`QPlainTextDocumentLayout` measures its document in lines**, not in
-    /// pixels — the one place in Qt where the height of a `QSizeF` is a count.
-    /// That is what is wanted here: a line the editor wrapped for want of width
-    /// counts as much as one the user broke.
-    [[nodiscard]] int heightOfItsLines() const {
-        const auto lines = static_cast<int>(document()->documentLayout()->documentSize().height());
-        return (std::max(1, lines) * fontMetrics().lineSpacing()) + roomAroundTheLines(this);
-    }
-};
-
 } // namespace
 
 QWidget* TextDelegate::createEditor(QWidget* parent,
@@ -131,6 +73,10 @@ QWidget* TextDelegate::createEditor(QWidget* parent,
     // Otherwise a tab would put a character in the text rather than move to
     // the next cell, which is not what anyone expects of a table.
     editor->setTabChangesFocus(true);
+
+    // The lengths of the lines, when the window says they are to be shown.
+    if (m_editorLengths)
+        editor->showLengths(m_editorLengths());
 
     // Underlined as one types, when the window has a checker to give — the
     // highlighter is a child of the document and goes with the editor.
@@ -158,10 +104,150 @@ QWidget* TextDelegate::createEditor(QWidget* parent,
     return editor;
 }
 
+namespace {
+
+/// Between the end of a line and the length that follows it.
+constexpr int kGapBeforeLength = 4;
+
+/// The opacity of a length beside the line it belongs to, out of 255.
+constexpr int kDimmedAlpha = 150;
+
+/// What a line of a cell carries: its text, and its length once it has one.
+///
+/// **Gaupol writes no length after an empty line** (`_text_to_markup`), and
+/// neither does this: a bare `[0]` in the middle of a blank row says nothing.
+struct CellLine {
+    QString text;
+    QString length; // "[12]", or empty
+};
+
+[[nodiscard]] std::vector<CellLine> cellLinesOf(const QString& text,
+                                                const LineLengthDisplay& display) {
+    const std::vector<int> lengths =
+        core::lineLengths(*display.measure, text.toStdString(), display.vocabulary);
+    const QStringList lines = text.split(QLatin1Char('\n'));
+
+    std::vector<CellLine> cells;
+    for (qsizetype at = 0; at < lines.size(); ++at) {
+        const auto position = static_cast<std::size_t>(at);
+        const bool measured = !lines[at].isEmpty() && position < lengths.size();
+        cells.push_back(
+            {lines[at], measured ? QStringLiteral("[%1]").arg(lengths[position]) : QString{}});
+    }
+    return cells;
+}
+
+/// How wide a cell has to be to hold its lines and their lengths.
+[[nodiscard]] int widthOfLines(const std::vector<CellLine>& lines,
+                               const QFontMetrics& metrics,
+                               const QFontMetrics& small) {
+    int widest = 0;
+    for (const CellLine& line : lines) {
+        int width = metrics.horizontalAdvance(line.text);
+        if (!line.length.isEmpty())
+            width += kGapBeforeLength + small.horizontalAdvance(line.length);
+        widest = std::max(widest, width);
+    }
+    return widest;
+}
+
+/// Which set of colours a cell is painted with, by what its state says.
+[[nodiscard]] QPalette::ColorGroup colorGroupOf(QStyle::State state) {
+    if (!state.testFlag(QStyle::State_Enabled))
+        return QPalette::Disabled;
+    return state.testFlag(QStyle::State_Active) ? QPalette::Active : QPalette::Inactive;
+}
+
+} // namespace
+
 QSize TextDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const {
     QSize size = QStyledItemDelegate::sizeHint(option, index);
     size.rheight() += roomAroundTheLines(option.widget);
+
+    // **The lengths widen the cell and never make it taller**: they are set in
+    // a smaller type on the baseline of their line. Only the width the style
+    // measured for the bare text is replaced by the one that includes them.
+    const auto display = m_cellLengths ? m_cellLengths() : std::nullopt;
+    if (display.has_value()) {
+        QStyleOptionViewItem filled = option;
+        initStyleOption(&filled, index);
+        const std::vector<CellLine> lines =
+            cellLinesOf(index.data(Qt::DisplayRole).toString(), *display);
+        const QFontMetrics metrics{filled.font};
+        const QFontMetrics small{smallerFont(filled.font)};
+        int bare = 0;
+        for (const CellLine& line : lines)
+            bare = std::max(bare, metrics.horizontalAdvance(line.text));
+        size.rwidth() += widthOfLines(lines, metrics, small) - bare;
+    }
     return size;
+}
+
+void TextDelegate::paint(QPainter* painter,
+                         const QStyleOptionViewItem& option,
+                         const QModelIndex& index) const {
+    const auto display = m_cellLengths ? m_cellLengths() : std::nullopt;
+    if (!display.has_value()) {
+        QStyledItemDelegate::paint(painter, option, index);
+        return;
+    }
+
+    // **The style paints everything but the text** — the background, the
+    // tint of an anomaly, the selection, the focus — and this paints the text,
+    // because a style writes one string in one font and the lengths are in
+    // another.
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+    // **The model's own text, and not `opt.text`**: `displayText` has turned its
+    // line breaks into U+2028 by the time the style is given it.
+    const QString text = index.data(Qt::DisplayRole).toString();
+    const QWidget* widget = opt.widget;
+    const QStyle* style = widget != nullptr ? widget->style() : QApplication::style();
+    const int margin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, &opt, widget) + 1;
+    // **The cell, less the margin the style keeps on each side** — and not
+    // `SE_ItemViewItemText`, which answers the rectangle the text *takes* and so
+    // hugs it. A text cell has neither icon nor check box to make room for.
+    const QRect area = opt.rect.adjusted(margin, 0, -margin, 0);
+
+    opt.text.clear();
+    style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, widget);
+
+    const QColor ink = opt.palette.color(
+        colorGroupOf(opt.state),
+        opt.state.testFlag(QStyle::State_Selected) ? QPalette::HighlightedText : QPalette::Text);
+
+    const std::vector<CellLine> lines = cellLinesOf(text, *display);
+    const QFontMetrics metrics{opt.font};
+    const QFont smaller = smallerFont(opt.font);
+    const QFontMetrics small{smaller};
+
+    painter->save();
+    painter->setClipRect(area);
+    const int used = static_cast<int>(lines.size()) * metrics.lineSpacing();
+    const int spare = std::max(0, (area.height() - used) / 2);
+    int baseline = area.top() + spare + metrics.ascent();
+    for (const CellLine& line : lines) {
+        const int lengthWidth =
+            line.length.isEmpty() ? 0 : kGapBeforeLength + small.horizontalAdvance(line.length);
+        const QString shown =
+            metrics.elidedText(line.text, Qt::ElideRight, area.width() - lengthWidth);
+
+        painter->setFont(opt.font);
+        painter->setPen(ink);
+        painter->drawText(QPoint{area.left(), baseline}, shown);
+
+        if (!line.length.isEmpty()) {
+            QColor dimmed = ink;
+            dimmed.setAlpha(kDimmedAlpha);
+            painter->setFont(smaller);
+            painter->setPen(dimmed);
+            painter->drawText(
+                QPoint{area.left() + metrics.horizontalAdvance(shown) + kGapBeforeLength, baseline},
+                line.length);
+        }
+        baseline += metrics.lineSpacing();
+    }
+    painter->restore();
 }
 
 bool TextDelegate::eventFilter(QObject* object, QEvent* event) {

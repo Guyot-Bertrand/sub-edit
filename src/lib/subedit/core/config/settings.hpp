@@ -10,6 +10,7 @@
 // stop on a parse error inside `<concepts>` when a Qt header includes this file.
 #include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/config/duration_adjustment_settings.hpp>
+#include <subedit/core/config/editor_settings.hpp>
 #include <subedit/core/config/spell_check_settings.hpp>
 
 #include <cstddef>
@@ -170,6 +171,9 @@ struct Settings {
     /// What `Check Spelling…` retains — issue #509: language, target and
     /// which text, kept from one session to the next.
     SpellCheckSettings spellCheck{};
+
+    /// What the table and its editor show of a line's length — issue #526.
+    EditorSettings editor{};
 
     friend bool operator==(const Settings&, const Settings&) = default;
 };

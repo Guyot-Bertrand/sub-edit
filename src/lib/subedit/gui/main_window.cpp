@@ -450,9 +450,16 @@ MainWindow::MainWindow(core::FileSystem& files,
     // Both text columns underline unknown words while they are edited — issue
     // #525. The delegates ask the window for the checker each time an editor
     // opens, and never decide a language themselves.
+    // And show the length of each line, in the cell and in the editor — issue
+    // #526. The window makes the measures, and the delegates only ask.
     for (const int column : {SubtitleTableModel::Text, SubtitleTableModel::Translation}) {
         auto* delegate = new TextDelegate{this};
         delegate->setSpellCheckerSource([this] { return m_inlineSpellChecker; });
+        const core::Document document =
+            column == SubtitleTableModel::Text ? core::Document::Main : core::Document::Translation;
+        delegate->setLengthSources(
+            [this, document] { return lengthDisplay(document, m_editor.showLengthsInCells); },
+            [this, document] { return lengthDisplay(document, m_editor.showLengthsInEditor); });
         m_table->setItemDelegateForColumn(column, delegate);
     }
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -1511,8 +1518,20 @@ void MainWindow::selectRows(int first, int last) {
 
 MainWindow::~MainWindow() = default;
 
+std::optional<LineLengthDisplay> MainWindow::lengthDisplay(core::Document document, bool shown) {
+    if (!shown || m_page == nullptr)
+        return std::nullopt;
+
+    // Under the font of the table, the one its cells are drawn in: a length in
+    // ems is a width, and a width belongs to a font. The measure is handed back
+    // as long as the font and the unit stay the same.
+    return LineLengthDisplay{
+        .measure = m_lengthMeasures.measureFor(m_editor.lengthUnit, m_table->font()),
+        .vocabulary = core::vocabularyOf(m_page->session->project().sourceFile(document).format)};
+}
+
 void MainWindow::openPreferences() {
-    PreferencesDialog dialog{m_theme, this};
+    PreferencesDialog dialog{m_theme, m_editor, this};
     if (!m_prompts->run(dialog))
         return;
 
@@ -1520,6 +1539,17 @@ void MainWindow::openPreferences() {
     // like a preference that was not taken.
     m_theme = dialog.theme();
     applyTheme(m_theme);
+
+    // The cells are repainted with what the dialog chose, and the editors that
+    // open next follow it. The dialog took the focus, so an editor that was
+    // open has closed already.
+    m_editor = dialog.editor();
+    refreshLengths();
+}
+
+void MainWindow::refreshLengths() {
+    m_table->viewport()->update();
+    m_table->doItemsLayout();
 }
 
 void MainWindow::applySettings(const core::Settings& settings) {
@@ -1552,6 +1582,9 @@ void MainWindow::applySettings(const core::Settings& settings) {
 
     m_theme = settings.theme;
     applyTheme(m_theme);
+
+    m_editor = settings.editor;
+    refreshLengths();
 
     m_insertPlacement = settings.insertPlacement;
     m_operations->setDurationSettings(settings.durationAdjustment);
@@ -1590,6 +1623,7 @@ core::Settings MainWindow::settings() const {
         settings.lastDirectory = m_projectFiles->lastDirectory();
 
     settings.theme = m_theme;
+    settings.editor = m_editor;
     settings.insertPlacement = m_insertPlacement;
     settings.search = m_search->options();
     settings.durationAdjustment = m_operations->durationSettings();

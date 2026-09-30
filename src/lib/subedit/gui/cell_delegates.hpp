@@ -1,5 +1,7 @@
 #pragma once
 
+#include <subedit/gui/line_length_display.hpp>
+
 #include <QSize>
 #include <QStyledItemDelegate>
 
@@ -9,6 +11,7 @@
 
 class QEvent;
 class QModelIndex;
+class QPainter;
 class QObject;
 class QStyleOptionViewItem;
 class QWidget;
@@ -45,9 +48,25 @@ public:
     /// `GUI-SPELL-04`. None by default: nothing is underlined.
     void setSpellCheckerSource(SpellCheckerSource source) { m_spellChecker = std::move(source); }
 
+    /// What the cells and the editors open from now on show of the length of
+    /// each line — issue #526, `GUI-EDIT-04`. None by default: nothing is
+    /// shown. **The window decides the unit and whether either shows**; a
+    /// delegate never resolves either.
+    void setLengthSources(LineLengthSource cells, LineLengthSource editor) {
+        m_cellLengths = std::move(cells);
+        m_editorLengths = std::move(editor);
+    }
+
     [[nodiscard]] QWidget* createEditor(QWidget* parent,
                                         const QStyleOptionViewItem& option,
                                         const QModelIndex& index) const override;
+
+    /// Draws the text of the cell — each line followed by its length in a
+    /// smaller type — when the window says lengths are shown, and leaves the
+    /// drawing to the style otherwise.
+    void paint(QPainter* painter,
+               const QStyleOptionViewItem& option,
+               const QModelIndex& index) const override;
 
     /// What the style asks for this text, plus the room its editor needs.
     ///
@@ -71,6 +90,8 @@ public:
 
 private:
     SpellCheckerSource m_spellChecker;
+    LineLengthSource m_cellLengths;
+    LineLengthSource m_editorLengths;
 };
 
 /// The editor a position cell opens: a constrained one-line field.

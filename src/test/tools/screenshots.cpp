@@ -52,6 +52,7 @@
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/open_translation_dialog.hpp>
+#include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 #include <subedit/gui/save_shape.hpp>
@@ -551,6 +552,42 @@ int main(int argc, char** argv) {
                   written;
 
         window.table()->closePersistentEditor(edited);
+    }
+
+    // The length of each line — issue #526, `GUI-EDIT-04`. In characters, so
+    // that the number can be checked against the text with the eye and does not
+    // depend on the font: the table alone, then a cell open on two lines.
+    for (const bool dark : {false, true}) {
+        subedit::gui::applyTheme(dark ? subedit::core::Theme::Dark : subedit::core::Theme::Light);
+        subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
+        subedit::core::Settings settings;
+        settings.editor.lengthUnit = subedit::core::LengthUnit::Characters;
+        window.applySettings(settings);
+        showWithTheTableFitted(window);
+
+        // The names stay literal: `check-screenshots.py` reads them from here.
+        written = (dark ? capture(window, *window.table(), directory, "longueurs-sombre")
+                        : capture(window, *window.table(), directory, "longueurs")) &&
+                  written;
+
+        const QModelIndex edited = window.table()->model()->index(kEditedRow, kTextColumn);
+        window.table()->openPersistentEditor(edited);
+        QApplication::processEvents();
+
+        written = (dark ? capture(window, *window.table(), directory, "longueurs-edition-sombre")
+                        : capture(window, *window.table(), directory, "longueurs-edition")) &&
+                  written;
+
+        window.table()->closePersistentEditor(edited);
+    }
+
+    // The preferences, with the three settings of the editor.
+    for (const bool dark : {false, true}) {
+        subedit::gui::applyTheme(dark ? subedit::core::Theme::Dark : subedit::core::Theme::Light);
+        subedit::gui::PreferencesDialog dialog{subedit::core::Theme::System};
+        written = (dark ? capture(dialog, dialog, directory, "preferences-sombre")
+                        : capture(dialog, dialog, directory, "preferences")) &&
+                  written;
     }
 
     {

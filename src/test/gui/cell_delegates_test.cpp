@@ -9,15 +9,21 @@
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/text/line_measure.hpp>
 #include <subedit/core/text/spell_checker.hpp>
 #include <subedit/core/text/word_list_spell_provider.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/cell_delegates.hpp>
+#include <subedit/gui/line_length_display.hpp>
+#include <subedit/gui/subtitle_editor.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
 #include <QCoreApplication>
+#include <QFontMetrics>
+#include <QImage>
 #include <QKeyEvent>
 #include <QLineEdit>
+#include <QPainter>
 #include <QPlainTextEdit>
 #include <QScrollBar>
 #include <QSignalSpy>
@@ -26,16 +32,20 @@
 #include <QTextLayout>
 #include <QValidator>
 #include <QWidget>
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
 namespace {
 
+using subedit::core::CharacterLineMeasure;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::MarkupVocabulary;
 using subedit::core::openSpellChecker;
 using subedit::core::Project;
 using subedit::core::Session;
@@ -45,7 +55,11 @@ using subedit::core::Timestamp;
 using subedit::core::WordList;
 using subedit::core::WordListSpellProvider;
 using subedit::gui::DurationDelegate;
+using subedit::gui::LengthMeasures;
+using subedit::gui::LineLengthDisplay;
 using subedit::gui::PositionDelegate;
+using subedit::gui::smallerFont;
+using subedit::gui::SubtitleEditor;
 using subedit::gui::SubtitleTableModel;
 using subedit::gui::TextDelegate;
 
@@ -113,6 +127,58 @@ constexpr int kTallEnough = 400;
         }
     }
     return words;
+}
+
+/// Every text is as long as 7, whatever it says — so that a number on screen
+/// can only have come from this measure.
+class SevenMeasure final : public subedit::core::LineMeasure {
+
+public:
+    [[nodiscard]] double lengthOf(std::string_view /*text*/) const override { return 7.0; }
+};
+
+[[nodiscard]] LineLengthDisplay characters() {
+    return {.measure = std::make_shared<const CharacterLineMeasure>(),
+            .vocabulary = MarkupVocabulary::Html};
+}
+
+[[nodiscard]] LineLengthDisplay sevens() {
+    return {.measure = std::make_shared<const SevenMeasure>(),
+            .vocabulary = MarkupVocabulary::Html};
+}
+
+/// A project with one subtitle of this text.
+[[nodiscard]] Project projectOf(const char* text) {
+    Project project;
+    project.setSubtitles({at(1000, 2500, text)});
+    return project;
+}
+
+constexpr int kCellWidth = 300;
+constexpr int kCellHeight = 60;
+
+/// What a delegate paints for a cell, on white.
+[[nodiscard]] QImage
+paintedCell(const TextDelegate& delegate, const QWidget& widget, const QModelIndex& cell) {
+    QImage image{kCellWidth, kCellHeight, QImage::Format_RGB32};
+    image.fill(Qt::white);
+    QStyleOptionViewItem option = viewedFrom(widget);
+    option.rect = QRect{0, 0, kCellWidth, kCellHeight};
+    QPainter painter{&image};
+    delegate.paint(&painter, option, cell);
+    painter.end();
+    return image;
+}
+
+/// The rightmost column that holds ink, or -1.
+[[nodiscard]] int inkReach(const QImage& image) {
+    for (int x = image.width() - 1; x >= 0; --x) {
+        for (int y = 0; y < image.height(); ++y) {
+            if (image.pixel(x, y) != qRgb(255, 255, 255))
+                return x;
+        }
+    }
+    return -1;
 }
 
 } // namespace
@@ -466,4 +532,304 @@ TEST_CASE("GUI-SPELL-04: without a checker the editor underlines nothing and doe
         QCoreApplication::processEvents();
         CHECK(underlinedIn(*field).empty());
     }
+}
+
+// ## The length of each line — issue #526, GUI-EDIT-04
+
+TEST_CASE("GUI-EDIT-04: a cell shows the length after each line, and only when asked",
+          "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("Bonjour")};
+    const SubtitleTableModel model{session};
+    const QWidget widget;
+    const QModelIndex cell = model.index(0, 4);
+
+    const TextDelegate bare;
+    TextDelegate measured;
+    measured.setLengthSources([] { return std::optional{sevens()}; }, {});
+    TextDelegate off;
+    off.setLengthSources([] { return std::optional<LineLengthDisplay>{}; }, {});
+
+    const QImage without = paintedCell(bare, widget, cell);
+    const QImage with = paintedCell(measured, widget, cell);
+
+    // The number sits to the right of the text, where nothing was drawn.
+    CHECK(inkReach(with) > inkReach(without));
+    // A source that answers nothing paints the cell as no source does.
+    CHECK(paintedCell(off, widget, cell) == without);
+}
+
+TEST_CASE("GUI-EDIT-04: each line of a cell is drawn on its own row, with its own length",
+          "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("Un\nDeux")};
+    const SubtitleTableModel model{session};
+    const QWidget widget;
+    const QModelIndex cell = model.index(0, 4);
+    TextDelegate measured;
+    measured.setLengthSources([] { return std::optional{sevens()}; }, {});
+
+    const QImage image = paintedCell(measured, widget, cell);
+
+    // The lowest ink is more than a line spacing down: the second line has a
+    // row of its own.
+    int lowest = 0;
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            if (image.pixel(x, y) != qRgb(255, 255, 255))
+                lowest = y;
+        }
+    }
+    CHECK(lowest > QFontMetrics{widget.font()}.lineSpacing());
+}
+
+TEST_CASE("GUI-EDIT-04: the cell is as wide as its line and its length", "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("Bonjour")};
+    const SubtitleTableModel model{session};
+    const QWidget widget;
+    const QStyleOptionViewItem option = viewedFrom(widget);
+    const QModelIndex cell = model.index(0, 4);
+
+    const TextDelegate bare;
+    TextDelegate measured;
+    measured.setLengthSources([] { return std::optional{sevens()}; }, {});
+
+    const QSize plain = bare.sizeHint(option, cell);
+    const QSize longer = measured.sizeHint(option, cell);
+
+    // Four pixels and "[7]" in the smaller type — and not a pixel of height.
+    const QFontMetrics small{smallerFont(option.font)};
+    CHECK(longer.width() - plain.width() == 4 + small.horizontalAdvance(QStringLiteral("[7]")));
+    CHECK(longer.height() == plain.height());
+}
+
+TEST_CASE("GUI-EDIT-04: the length is the one the measure gives, tags not counted",
+          "[gui][GUI-EDIT-04]") {
+    const QWidget widget;
+    const QStyleOptionViewItem option = viewedFrom(widget);
+    const QFontMetrics small{smallerFont(option.font)};
+
+    // The width the length adds is the width of its own digits, so it tells
+    // which number was written: "[2]" for the text without its tags, "[9]"
+    // for the same text read as if a bracket were a letter.
+    Session tagged{projectOf("<i>ab</i>")};
+    const SubtitleTableModel taggedModel{tagged};
+    Session plainText{projectOf("<i>ab</i>")};
+    const SubtitleTableModel plainModel{plainText};
+
+    TextDelegate chars;
+    chars.setLengthSources([] { return std::optional{characters()}; }, {});
+    TextDelegate untagged;
+    untagged.setLengthSources(
+        [] {
+            return std::optional{
+                LineLengthDisplay{.measure = std::make_shared<const CharacterLineMeasure>(),
+                                  .vocabulary = MarkupVocabulary::None}};
+        },
+        {});
+
+    const TextDelegate bare;
+    const int base = bare.sizeHint(option, taggedModel.index(0, 4)).width();
+    // "<i>ab</i>" in HTML is two characters; with no vocabulary, nine.
+    CHECK(chars.sizeHint(option, taggedModel.index(0, 4)).width() - base ==
+          4 + small.horizontalAdvance(QStringLiteral("[2]")));
+    CHECK(untagged.sizeHint(option, plainModel.index(0, 4)).width() - base ==
+          4 + small.horizontalAdvance(QStringLiteral("[9]")));
+}
+
+TEST_CASE("GUI-EDIT-04: a blank line and an empty cell carry no length", "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("")};
+    const SubtitleTableModel model{session};
+    const QWidget widget;
+    const QStyleOptionViewItem option = viewedFrom(widget);
+    const QModelIndex cell = model.index(0, 4);
+
+    const TextDelegate bare;
+    TextDelegate measured;
+    measured.setLengthSources([] { return std::optional{sevens()}; }, {});
+
+    CHECK(measured.sizeHint(option, cell) == bare.sizeHint(option, cell));
+    CHECK(paintedCell(measured, widget, cell) == paintedCell(bare, widget, cell));
+}
+
+TEST_CASE("GUI-EDIT-04: the two units measure differently, and the cache follows the font",
+          "[gui][GUI-EDIT-04]") {
+    LengthMeasures measures;
+    const QFont font;
+
+    const auto characterMeasure = measures.measureFor(subedit::core::LengthUnit::Characters, font);
+    CHECK(characterMeasure->lengthOf("café") == 4.0);
+    // The same object as long as nothing changed: this is what the cache is
+    // bounded to.
+    CHECK(measures.measureFor(subedit::core::LengthUnit::Characters, font) == characterMeasure);
+
+    const auto ems = measures.measureFor(subedit::core::LengthUnit::Ems, font);
+    CHECK(ems != characterMeasure);
+    CHECK(ems->lengthOf("abcdefghijklmnopqrstuvwxyz") == Catch::Approx(26 * 0.55));
+
+    QFont bigger = font;
+    bigger.setPointSizeF(font.pointSizeF() + 6);
+    CHECK(measures.measureFor(subedit::core::LengthUnit::Ems, bigger) != ems);
+    // A measure handed out earlier is still good.
+    CHECK(ems->lengthOf("abcdefghijklmnopqrstuvwxyz") == Catch::Approx(26 * 0.55));
+}
+
+TEST_CASE("GUI-EDIT-04: the editor's margin has a length for each line", "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("Bonjour\n\nà toi")};
+    const SubtitleTableModel model{session};
+    TextDelegate delegate;
+    delegate.setLengthSources({}, [] { return std::optional{characters()}; });
+    QWidget parent;
+    parent.resize(kWideEnough, kTallEnough);
+    parent.show();
+    const QModelIndex cell = model.index(0, 4);
+
+    const std::unique_ptr<QWidget> editor{delegate.createEditor(&parent, viewedFrom(parent), cell)};
+    delegate.setEditorData(editor.get(), cell);
+    auto* field = dynamic_cast<SubtitleEditor*>(editor.get());
+    REQUIRE(field != nullptr);
+
+    // One per line, the empty one included, accents counted once.
+    CHECK(field->gutterLengths() == std::vector<int>{7, 0, 5});
+    CHECK(field->gutterWidth() > 0);
+}
+
+TEST_CASE("GUI-EDIT-04: the margin follows the typing and is as wide as its largest number",
+          "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("a")};
+    const SubtitleTableModel model{session};
+    TextDelegate delegate;
+    delegate.setLengthSources({}, [] { return std::optional{characters()}; });
+    QWidget parent;
+    const QModelIndex cell = model.index(0, 4);
+    const std::unique_ptr<QWidget> editor{delegate.createEditor(&parent, viewedFrom(parent), cell)};
+    auto* field = dynamic_cast<SubtitleEditor*>(editor.get());
+    REQUIRE(field != nullptr);
+
+    field->setPlainText(QStringLiteral("abc"));
+    CHECK(field->gutterLengths() == std::vector<int>{3});
+    const int oneDigit = field->gutterWidth();
+
+    field->setPlainText(QStringLiteral("abc\n<i>défghijklm</i>"));
+    CHECK(field->gutterLengths() == std::vector<int>{3, 10});
+    CHECK(field->gutterWidth() > oneDigit);
+
+    // An empty text draws nothing, as Gaupol's does.
+    field->setPlainText(QString{});
+    CHECK(field->gutterLengths().empty());
+}
+
+TEST_CASE("GUI-EDIT-04: an editor with no source has no margin", "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("abc")};
+    const SubtitleTableModel model{session};
+    QWidget parent;
+    const QModelIndex cell = model.index(0, 4);
+
+    SECTION("no source") {
+        const TextDelegate delegate;
+        const std::unique_ptr<QWidget> editor{
+            delegate.createEditor(&parent, viewedFrom(parent), cell)};
+        delegate.setEditorData(editor.get(), cell);
+        auto* field = dynamic_cast<SubtitleEditor*>(editor.get());
+        REQUIRE(field != nullptr);
+        CHECK(field->gutterWidth() == 0);
+        CHECK(field->gutterLengths().empty());
+    }
+
+    SECTION("a source that answers nothing") {
+        TextDelegate delegate;
+        delegate.setLengthSources({}, [] { return std::optional<LineLengthDisplay>{}; });
+        const std::unique_ptr<QWidget> editor{
+            delegate.createEditor(&parent, viewedFrom(parent), cell)};
+        delegate.setEditorData(editor.get(), cell);
+        auto* field = dynamic_cast<SubtitleEditor*>(editor.get());
+        REQUIRE(field != nullptr);
+        CHECK(field->gutterWidth() == 0);
+    }
+}
+
+TEST_CASE("GUI-EDIT-04: the smaller font follows a size given in pixels", "[gui][GUI-EDIT-04]") {
+    QFont font;
+    font.setPixelSize(20);
+
+    const QFont smaller = smallerFont(font);
+
+    CHECK(smaller.pixelSize() > 0);
+    CHECK(smaller.pixelSize() < 20);
+
+    // Never down to nothing.
+    font.setPixelSize(1);
+    CHECK(smallerFont(font).pixelSize() == 1);
+}
+
+TEST_CASE("GUI-EDIT-04: a disabled cell is painted, and so is one shorter than its lines",
+          "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("Un\nDeux\nTrois")};
+    const SubtitleTableModel model{session};
+    const QWidget widget;
+    const QModelIndex cell = model.index(0, 4);
+    TextDelegate measured;
+    measured.setLengthSources([] { return std::optional{sevens()}; }, {});
+
+    QImage image{kCellWidth, 10, QImage::Format_RGB32};
+    image.fill(Qt::white);
+    QStyleOptionViewItem option = viewedFrom(widget);
+    option.rect = QRect{0, 0, kCellWidth, 10};
+    option.state &= ~QStyle::State_Enabled;
+    QPainter painter{&image};
+    measured.paint(&painter, option, cell);
+    painter.end();
+
+    CHECK(inkReach(image) >= 0);
+}
+
+TEST_CASE("GUI-EDIT-04: the margin follows the scrolling and goes when lengths are cut",
+          "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("a")};
+    const SubtitleTableModel model{session};
+    TextDelegate delegate;
+    delegate.setLengthSources({}, [] { return std::optional{characters()}; });
+    QWidget parent;
+    parent.resize(kWideEnough, kTallEnough);
+    parent.show();
+    const QModelIndex cell = model.index(0, 4);
+    const std::unique_ptr<QWidget> editor{delegate.createEditor(&parent, viewedFrom(parent), cell)};
+    auto* field = dynamic_cast<SubtitleEditor*>(editor.get());
+    REQUIRE(field != nullptr);
+
+    // Enough lines, in a field too short for them, for the view to scroll.
+    field->setPlainText(
+        QStringLiteral("1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20"));
+    field->show();
+    field->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    field->resize(kWideEnough, 60);
+    QCoreApplication::processEvents();
+    field->verticalScrollBar()->setValue(field->verticalScrollBar()->maximum());
+    QCoreApplication::processEvents();
+    CHECK(field->verticalScrollBar()->value() > 0);
+
+    // Cutting the lengths takes the margin away, and a repaint after that
+    // finds nothing to draw on.
+    field->showLengths(std::nullopt);
+    CHECK(field->gutterWidth() == 0);
+    field->verticalScrollBar()->setValue(0);
+    QCoreApplication::processEvents();
+    CHECK(field->gutterWidth() == 0);
+}
+
+TEST_CASE("GUI-EDIT-04: a margin with no line to measure is painted empty", "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("")};
+    const SubtitleTableModel model{session};
+    TextDelegate delegate;
+    delegate.setLengthSources({}, [] { return std::optional{characters()}; });
+    QWidget parent;
+    parent.resize(kWideEnough, kTallEnough);
+    parent.show();
+    const QModelIndex cell = model.index(0, 4);
+    const std::unique_ptr<QWidget> editor{delegate.createEditor(&parent, viewedFrom(parent), cell)};
+    auto* field = dynamic_cast<SubtitleEditor*>(editor.get());
+    REQUIRE(field != nullptr);
+    field->setPlainText(QString{});
+
+    // Grabbing the field paints every child of it, the margin included.
+    CHECK_FALSE(field->grab().isNull());
+    CHECK(field->gutterLengths().empty());
 }

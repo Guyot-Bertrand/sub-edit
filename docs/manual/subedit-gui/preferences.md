@@ -6,9 +6,11 @@ poignée** entre le film et la table — et de **là où l'on travaille**, pour 
 `Open…` s'ouvre au bon endroit. Rien de tout cela ne se règle par un dialogue :
 on déplace, on tire, et c'est retenu.
 
-**Une seule préférence a un dialogue à elle**, `Edit ▸ Preferences…`, et c'est le
+**Quatre préférences ont un dialogue à elles**, `Edit ▸ Preferences…`, et c'est le
 critère : une préférence qui a déjà un geste n'a pas besoin d'un champ. Le
-thème n'en a aucun.
+thème n'en a aucun, ni l'unité des longueurs de lignes, ni les deux cases qui
+les montrent. Voir [Le thème](#le-thème) et
+[Les longueurs de lignes](#les-longueurs-de-lignes).
 
 **Une autre se règle là où elle sert** : le côté où `Insert Subtitles…` pose ses
 lignes est un champ de ce dialogue-là, et le dernier choix est retenu. Voir
@@ -92,6 +94,9 @@ qui le pose est justement celle qui ne va pas.
 | `spell-check.target` | `selection`, `current-project` ou `all-projects` | `current-project` |
 | `spell-check.document` | `main` ou `translation` | `main` |
 | `spell-check.inline` | `true` ou `false` — souligner les mots inconnus pendant qu'on tape dans l'éditeur d'une cellule | `false` |
+| `editor.length-unit` | `em` ou `characters` — l'unité des longueurs de lignes montrées par la table et l'éditeur | `em` |
+| `editor.show-lengths-cell` | `true` ou `false` — chaque ligne d'une cellule de texte est suivie de sa longueur | `true` |
+| `editor.show-lengths-edit` | `true` ou `false` — l'éditeur d'une cellule montre la longueur de chaque ligne dans une marge | `true` |
 
 **Le fichier accepte plus large que le dialogue.** Le lecteur prend toute vitesse
 strictement positive et toute durée non négative ; le dialogue d'`Adjust
@@ -193,7 +198,8 @@ rouvrir au lancement un document que personne n'a demandé. Retenir un répertoi
 
 ## Le thème
 
-`Edit ▸ Preferences…` ouvre la seule préférence qui n'a pas de geste.
+`Edit ▸ Preferences…` ouvre le thème, préférence sans geste, au-dessus des
+[longueurs de lignes](#les-longueurs-de-lignes).
 
 | Valeur | Ce qu'elle fait |
 | :----- | :-------------- |
@@ -218,11 +224,39 @@ outre, quel que soit le bureau.
 [La table](table.md#les-anomalies). Ce n'est pas une supposition : le contraste
 du texte sur chacune des teintes est vérifié par un test, sur les deux fonds.
 
+## Les longueurs de lignes
+
+![Le dialogue des préférences, palette claire : le thème, l'unité des longueurs et
+les deux cases qui les montrent.](captures/preferences.png)
+
+![Le même dialogue sous la palette sombre.](captures/preferences-sombre.png)
+
+`Edit ▸ Preferences…` règle aussi **ce que la table et l'éditeur montrent de la
+longueur des lignes** — la règle et la marge de Gaupol.
+
+| Champ | Ce qu'il fait | Défaut |
+| :---- | :------------ | :----- |
+| `Length unit` | l'unité des longueurs : `Ems` ou `Characters` | `Ems` |
+| `Show line lengths in cells` | chaque ligne d'une cellule de texte est suivie de sa longueur | coché |
+| `Show line lengths in the editor` | l'éditeur d'une cellule montre la longueur de chaque ligne dans une marge à droite | coché |
+
+**`Length unit` est grisé quand aucune des deux cases n'est cochée** : sans
+longueur à montrer, l'unité ne règle rien. Le choix s'applique **aussitôt** à la
+table, et les éditeurs qui s'ouvrent ensuite le suivent. Les trois valeurs sont
+retenues d'une session à l'autre : `editor.length-unit`, `editor.show-lengths-cell`
+et `editor.show-lengths-edit`, dans le tableau [du fichier](#le-fichier). Voir
+[La longueur des lignes](table.md#la-longueur-des-lignes) et
+[dans l'éditeur](edition.md#la-longueur-des-lignes).
+
+**Ce n'est pas la limite de l'assistant.** L'unité de `Correct Texts…` — la
+longueur à laquelle il coupe les lignes — est un réglage à part, dans son
+assistant : on peut lire des ems dans la table et couper en caractères.
+
 ## Ce qui ne se règle pas
 
-**Six réglages retenus se choisissent dans un dialogue** — sans compter ceux de
+**Neuf réglages retenus se choisissent dans un dialogue** — sans compter ceux de
 l'assistant de correction et de la vérification orthographique, qui ont chacun le
-leur —, et chacun dans celui où il sert : le thème, ici ; le côté d'une insertion, dans le dialogue d'insertion ;
+leur —, et chacun dans celui où il sert : le thème et les trois réglages des longueurs de lignes, ici ; le côté d'une insertion, dans le dialogue d'insertion ;
 les deux options de la recherche, dans le dialogue de recherche ; l'encodage et
 la marque d'ordre des octets, dans `Save As…` ; la vitesse de lecture, les durées
 et l'écart de l'ajustement des durées, dans son propre dialogue. Il n'y en a pas

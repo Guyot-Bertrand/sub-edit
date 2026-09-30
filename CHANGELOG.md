@@ -11,6 +11,21 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **core** — Longueur de chaque ligne et réglages de l'éditeur (#526)
+- **gui** — Longueur de chaque ligne dans la table et l'éditeur (#526)
+
+### Documentation
+
+- **doc** — Longueur des lignes, préférences et captures (#526)
+
+### Tests
+
+- **gui** — Couvrir les lignes ajoutées par #526
+
+## 0.12.18 — 2026-09-30
+
+### Ajouts
+
 - **core** — Réglage spell-check.inline et intervalles des mots inconnus
 - **gui** — Souligner les mots inconnus dans l'éditeur des cellules
 

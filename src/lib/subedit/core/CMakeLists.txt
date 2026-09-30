@@ -53,6 +53,7 @@ add_library(
     text/correction_run.cpp
     text/text_diff.cpp
     text/line_breaking.cpp
+    text/line_lengths.cpp
     text/line_measure.cpp
     text/pattern_catalogue.cpp
     text/pattern_paths.cpp
