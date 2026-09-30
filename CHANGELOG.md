@@ -9,6 +9,13 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Relecture de fin de phase 12 (#523)
+- **doc** — Issues ouvertes par la relecture de phase 12 (#523)
+
+## 0.12.15 — 2026-09-30
+
 ### Ajouts
 
 - **core** — Navigateur de correction orthographique (#509)
