@@ -39,6 +39,7 @@ add_library(
     text/enchant_spell_provider.cpp
     text/join_split_words.cpp
     text/spell_check_navigator.cpp
+    text/spell_check_walk.cpp
     text/spell_checker.cpp
     text/spell_replacements.cpp
     text/spell_tokenizer.cpp
