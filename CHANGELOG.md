@@ -11,6 +11,22 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **core** — Navigateur de correction orthographique (#509)
+- **core** — Parcours orthographique sur plusieurs projets (#509)
+- **core** — Les réglages de la vérification orthographique (#509)
+- **gui** — La fenêtre des réglages de l'orthographe (#509)
+- **gui** — La fenêtre de vérification orthographique (#509)
+- **gui** — Le contrôleur de la vérification orthographique (#509)
+- **gui** — Check Spelling… et ses réglages dans le menu Tools (#509)
+
+### Documentation
+
+- **doc** — Spec D6, manuel et captures de Check Spelling… (#509)
+
+## 0.12.14 — 2026-09-29
+
+### Ajouts
+
 - **gui** — Joindre et scinder des mots selon le correcteur (#508)
 
 ## 0.12.13 — 2026-09-29

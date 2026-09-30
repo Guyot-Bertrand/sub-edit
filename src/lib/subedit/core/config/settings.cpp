@@ -89,6 +89,20 @@ constexpr std::string_view kCorrectionJoinSplitLanguageKey = "correction.join-sp
 constexpr std::string_view kCorrectionRemoveBlankKey = "correction.remove-blank";
 constexpr std::string_view kCorrectionActivationsKey = "correction.activations";
 
+// `Check Spelling…`, three keys under one prefix — issue #509.
+constexpr std::string_view kSpellCheckPrefix = "spell-check.";
+constexpr std::string_view kSpellCheckLanguageKey = "spell-check.language";
+constexpr std::string_view kSpellCheckTargetKey = "spell-check.target";
+constexpr std::string_view kSpellCheckDocumentKey = "spell-check.document";
+
+// The tokens of the spell check's target and document, as the file carries
+// them — a format, not the labels of the dialog.
+constexpr std::string_view kSelectionTarget = "selection";
+constexpr std::string_view kCurrentProjectTarget = "current-project";
+constexpr std::string_view kAllProjectsTarget = "all-projects";
+constexpr std::string_view kMainDocument = "main";
+constexpr std::string_view kTranslationDocument = "translation";
+
 // The three values of the theme, as the file carries them. Lower case, and
 // kept apart from `nameOf(Theme)`, which gives the labels of the dialog: this
 // is a format, that is prose.
@@ -215,6 +229,46 @@ constexpr char kActivationFieldSeparator = ':';
         return kAbovePlacement;
     case InsertPlacement::Below:
         return kBelowPlacement;
+    }
+    std::unreachable();
+}
+
+[[nodiscard]] std::optional<SpellCheckTarget> spellCheckTargetOf(std::string_view text) {
+    if (text == kSelectionTarget)
+        return SpellCheckTarget::Selection;
+    if (text == kCurrentProjectTarget)
+        return SpellCheckTarget::CurrentProject;
+    if (text == kAllProjectsTarget)
+        return SpellCheckTarget::AllProjects;
+    return std::nullopt;
+}
+
+[[nodiscard]] std::string_view textOf(SpellCheckTarget target) {
+    switch (target) {
+    case SpellCheckTarget::Selection:
+        return kSelectionTarget;
+    case SpellCheckTarget::CurrentProject:
+        return kCurrentProjectTarget;
+    case SpellCheckTarget::AllProjects:
+        return kAllProjectsTarget;
+    }
+    std::unreachable();
+}
+
+[[nodiscard]] std::optional<SpellCheckDocument> spellCheckDocumentOf(std::string_view text) {
+    if (text == kMainDocument)
+        return SpellCheckDocument::Main;
+    if (text == kTranslationDocument)
+        return SpellCheckDocument::Translation;
+    return std::nullopt;
+}
+
+[[nodiscard]] std::string_view textOf(SpellCheckDocument document) {
+    switch (document) {
+    case SpellCheckDocument::Main:
+        return kMainDocument;
+    case SpellCheckDocument::Translation:
+        return kTranslationDocument;
     }
     std::unreachable();
 }
@@ -501,6 +555,22 @@ void applyJoinSplitOption(SettingsRead& read, std::string_view key, std::string_
         take(spellLanguageOf(value), form.spellLanguage);
 }
 
+/// Keeps one of the three options of `Check Spelling…` — the language of the
+/// dictionary, which subtitles are walked, and which of their texts.
+void applySpellCheckOption(SettingsRead& read, std::string_view key, std::string_view value) {
+    const auto take = [&read, key, value](auto parsed, auto& field) {
+        keepOption(read, key, value, std::move(parsed), field);
+    };
+
+    SpellCheckSettings& form = read.settings.spellCheck;
+    if (key == kSpellCheckLanguageKey)
+        take(spellLanguageOf(value), form.language);
+    else if (key == kSpellCheckTargetKey)
+        take(spellCheckTargetOf(value), form.target);
+    else if (key == kSpellCheckDocumentKey)
+        take(spellCheckDocumentOf(value), form.document);
+}
+
 /// Keeps one of the twenty-five options of the correction assistant.
 ///
 /// **Apart from `applyOption`, which sends every `correction.` key here**, the
@@ -634,6 +704,8 @@ void applyOption(SettingsRead& read,
         applyDurationAdjustmentOption(read, key, value);
     else if (key.starts_with(kCorrectionPrefix))
         applyCorrectionOption(read, key, value);
+    else if (key.starts_with(kSpellCheckPrefix))
+        applySpellCheckOption(read, key, value);
 }
 
 /// An option, written bare when set, commented out when at its default.
@@ -808,6 +880,21 @@ void renderCorrectionSettings(std::string& out, const CorrectionSettings& form) 
                 form.patternActivations.empty());
 }
 
+/// The three options of `Check Spelling…`, each written bare when it differs
+/// from the default and commented out when it does not.
+void renderSpellCheckSettings(std::string& out, const SpellCheckSettings& form) {
+    const SpellCheckSettings defaults;
+    writeOption(out, kSpellCheckLanguageKey, form.language, form.language == defaults.language);
+    writeOption(out,
+                kSpellCheckTargetKey,
+                std::string{textOf(form.target)},
+                form.target == defaults.target);
+    writeOption(out,
+                kSpellCheckDocumentKey,
+                std::string{textOf(form.document)},
+                form.document == defaults.document);
+}
+
 } // namespace
 
 SettingsRead readSettings(const FileSystem& files, const std::filesystem::path& path) {
@@ -937,6 +1024,8 @@ std::string renderSettings(const Settings& settings) {
     renderDurationAdjustment(out, settings.durationAdjustment);
 
     renderCorrectionSettings(out, settings.correction);
+
+    renderSpellCheckSettings(out, settings.spellCheck);
 
     return out;
 }

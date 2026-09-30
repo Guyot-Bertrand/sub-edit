@@ -8,6 +8,7 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLocale>
+#include <QSignalBlocker>
 #include <QVBoxLayout>
 
 #include <algorithm>
@@ -53,21 +54,31 @@ JoinSplitPage::JoinSplitPage(const core::SpellProvider* provider, QWidget* paren
     connect(m_language, &QComboBox::currentTextChanged, this, [this] { refresh(); });
 }
 
-void JoinSplitPage::applySettings(const core::CorrectionSettings& settings) {
+std::string populateSpellLanguages(QComboBox& combo,
+                                   const core::SpellProvider* provider,
+                                   const std::string& wanted) {
     std::vector<std::string> offered;
-    if (m_provider != nullptr)
-        offered = core::availableSpellLanguages(*m_provider);
-    const std::string wanted =
-        settings.spellLanguage.empty()
-            ? spellLanguageFor(offered, QLocale::system().name().toStdString())
-            : settings.spellLanguage;
-    if (std::ranges::find(offered, wanted) == offered.end())
-        offered.push_back(wanted); // shown even without a dictionary: that is what is said
+    if (provider != nullptr)
+        offered = core::availableSpellLanguages(*provider);
+    const std::string chosen =
+        wanted.empty() ? spellLanguageFor(offered, QLocale::system().name().toStdString()) : wanted;
+    if (std::ranges::find(offered, chosen) == offered.end())
+        offered.push_back(chosen); // shown even without a dictionary: that is what is said
 
-    m_language->clear();
+    const QSignalBlocker blocker{&combo};
+    combo.clear();
     for (const std::string& code : offered)
-        m_language->addItem(QString::fromStdString(code));
-    m_language->setCurrentText(QString::fromStdString(wanted));
+        combo.addItem(QString::fromStdString(code));
+    combo.setCurrentText(QString::fromStdString(chosen));
+    return chosen;
+}
+
+bool hasSpellDictionary(const core::SpellProvider* provider, const std::string& language) {
+    return provider != nullptr && !language.empty() && provider->open(language) != nullptr;
+}
+
+void JoinSplitPage::applySettings(const core::CorrectionSettings& settings) {
+    populateSpellLanguages(*m_language, m_provider, settings.spellLanguage);
 
     m_join->setChecked(settings.joinWords);
     m_split->setChecked(settings.splitWords);
@@ -92,7 +103,7 @@ QString JoinSplitPage::unavailableReason() const {
 
 void JoinSplitPage::refresh() {
     const std::string chosen = language();
-    m_available = m_provider != nullptr && !chosen.empty() && m_provider->open(chosen) != nullptr;
+    m_available = hasSpellDictionary(m_provider, chosen);
     m_join->setEnabled(m_available);
     m_split->setEnabled(m_available);
     m_reason->setText(m_available ? QString{}

@@ -33,6 +33,8 @@ add_executable(
     core/text/line_breaking_test.cpp
     core/text/line_measure_test.cpp
     core/text/join_split_words_test.cpp
+    core/text/spell_check_navigator_test.cpp
+    core/text/spell_check_walk_test.cpp
     core/text/spell_checker_test.cpp
     core/text/spell_replacements_test.cpp
     core/text/spell_tokenizer_test.cpp

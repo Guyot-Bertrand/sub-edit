@@ -341,6 +341,38 @@ ligne de commande.
 > `setup-toolchain.sh` — que la CI et `fedora.yml` lisent, sans seconde liste —
 > et `check-installation.sh` vérifie que chacun des deux paquets la nomme.
 
+> **Précisé par [#509](https://github.com/Guyot-Bertrand/sub-edit/issues/509).**
+> **Deux fenêtres, comme Gaupol** : `Tools ▸ Check Spelling…`, le parcours des
+> mots inconnus, et `Tools ▸ Spell-Check Settings…`, la langue, la cible et le
+> document — le `LanguageDialog` de Gaupol. **La seconde est toujours active**
+> dès qu'un projet est ouvert : c'est elle qui sort d'une langue sans
+> dictionnaire, sans quoi la première, grisée, serait une impasse. Sans
+> dictionnaire, `Check Spelling…` est éteinte et sa bulle comme sa ligne d'état
+> disent `no dictionary for` suivi du code (GUI-SPELL-02, citée une seconde fois
+> ici). Les trois réglages se retiennent sous `spell-check.language`,
+> `spell-check.target` et `spell-check.document` (Gaupol : `language`,
+> `target`, `field`) ; une valeur inconnue rend le défaut et un diagnostic, comme
+> pour `correction.*`. La taille de la fenêtre n'est pas retenue.
+>
+> **Fermer au milieu applique ce qui a été fait — et c'est un écart de
+> Gaupol.** Sont gardés les textes déjà quittés **et** les gestes (remplacer,
+> tout remplacer, joindre) déjà posés sur le texte courant ; Gaupol, lui, perd
+> le texte courant. Ne comptent pas les retouches tapées dans la zone de texte
+> et non validées par `Save and Resume`, ni le reste du parcours, jamais
+> atteint. Le parcours (`SpellCheckWalk`, sans Qt) ne touche aucun projet : il
+> rend des `ProposedCorrection`, et le contrôleur les fait passer par
+> `applyCorrections`, donc **une entrée d'historique par projet**, sans nouvelle
+> commande. La liste de remplacements est écrite à la fermeture, sous le
+> répertoire reçu de la fenêtre (ADR 0022) ; un échec d'écriture est dit, il
+> n'annule pas les corrections. Chaque mot inconnu ramène l'onglet du projet et
+> sélectionne la ligne.
+>
+> **Le libellé `Chec&k Spelling…`** : `C` est déjà l'accélérateur de `&Correct
+> Texts…`, et deux entrées d'un même menu ne peuvent pas le partager ; `k`
+> est libre dans `Tools`. **GUI-SPELL-01 est implémentée** : ignorer, tout
+> ignorer, ajouter, remplacer, tout remplacer et joindre sont tenus sur le
+> double `WordListSpellProvider`, jamais sur les dictionnaires de la machine.
+
 ## D7 — Les mentions de la phase 4 : le balayage reste, le moteur prend le reste
 
 **Le balayage écrit à la main garde les crochets et les parenthèses.** L'ADR

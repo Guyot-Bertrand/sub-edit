@@ -41,6 +41,7 @@
 #include <subedit/gui/project_search.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/search_dialog.hpp>
+#include <subedit/gui/spell_check_controller.hpp>
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
@@ -333,7 +334,8 @@ private:
 };
 
 /// What the correction assistant asks of the window — issue #505.
-class MainWindow::CorrectionSide final : public CorrectionController::View {
+class MainWindow::CorrectionSide final : public CorrectionController::View,
+                                         public SpellCheckController::View {
 
 public:
     explicit CorrectionSide(MainWindow& window) : m_window(&window) {}
@@ -375,6 +377,20 @@ public:
                                          QItemSelectionModel::ClearAndSelect |
                                              QItemSelectionModel::Rows);
             m_window->m_video->placeAtSelection(*page);
+            return;
+        }
+    }
+
+    /// The spell check's: shows the tab and selects the row, with no film to
+    /// place (`movingToMatch`, as a search does).
+    void reveal(const core::Project& project, core::SubtitleIndex index) override {
+        for (std::size_t at = 0; at < m_window->m_pages.size(); ++at) {
+            if (&m_window->m_pages[at]->session->project() != &project)
+                continue;
+            m_window->switchToPage(static_cast<int>(at));
+            m_window->m_page->movingToMatch = true;
+            m_window->selectRows(static_cast<int>(index.value()), static_cast<int>(index.value()));
+            m_window->m_page->movingToMatch = false;
             return;
         }
     }
@@ -631,6 +647,12 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_correctionSide = std::make_unique<CorrectionSide>(*this);
     m_correction = std::make_unique<CorrectionController>(*m_prompts, *m_correctionSide);
     connect(act.correctTexts, &QAction::triggered, this, [this] { m_correction->open(); });
+    m_spellCheck = std::make_unique<SpellCheckController>(*m_prompts, *m_correctionSide);
+    connect(act.checkSpelling, &QAction::triggered, this, [this] { m_spellCheck->openCheck(); });
+    connect(act.spellCheckSettings, &QAction::triggered, this, [this] {
+        m_spellCheck->configure();
+        refreshSpellCheckAction();
+    });
     for (QAction* entry : m_columns->entries()) {
         connect(entry, &QAction::toggled, this, [this] {
             refreshColumns();
@@ -985,6 +1007,19 @@ void MainWindow::newProject() {
     openOn(core::Project{}, {});
 }
 
+void MainWindow::refreshSpellCheckAction() {
+    if (m_spellCheck == nullptr || m_page == nullptr)
+        return;
+    const bool anything = m_page->session->project().count() != 0;
+    const QString reason = QString::fromStdString(m_spellCheck->unavailableReason());
+    QAction* const entry = m_actions->checkSpelling;
+    entry->setEnabled(anything && reason.isEmpty());
+    // The reason is worth reading in both places a greyed entry is looked at:
+    // the hover, and the status bar while it is highlighted.
+    entry->setToolTip(reason);
+    entry->setStatusTip(reason);
+}
+
 void MainWindow::refreshTabActions() {
     // **Out with one tab left.** The window always holds at least one
     // project; closing the last would be closing the window, which is what
@@ -1149,6 +1184,8 @@ void MainWindow::refreshActions() {
     m_actions->shiftOntoGrid->setText(shiftOntoGridLabel(onto));
     m_actions->hearingImpaired->setEnabled(anything);
     m_actions->correctTexts->setEnabled(anything);
+    m_actions->spellCheckSettings->setEnabled(anything);
+    refreshSpellCheckAction();
 
     // Nothing to give a translation's lines to in an empty document, and nothing
     // to write without a translation.
@@ -1495,6 +1532,8 @@ void MainWindow::applySettings(const core::Settings& settings) {
     m_insertPlacement = settings.insertPlacement;
     m_operations->setDurationSettings(settings.durationAdjustment);
     m_correction->setSettings(settings.correction);
+    m_spellCheck->setSettings(settings.spellCheck);
+    refreshSpellCheckAction();
     m_search->setOptions(settings.search);
     m_page->writeEncoding = settings.writeEncoding;
 }
@@ -1530,6 +1569,7 @@ core::Settings MainWindow::settings() const {
     settings.search = m_search->options();
     settings.durationAdjustment = m_operations->durationSettings();
     settings.correction = m_correction->settings();
+    settings.spellCheck = m_spellCheck->settings();
     settings.writeEncoding = m_page->writeEncoding;
 
     return settings;
