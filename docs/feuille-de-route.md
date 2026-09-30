@@ -1020,9 +1020,28 @@ remise en majuscule, les mentions restantes, le découpage de lignes en caractè
 renvois qu'elle recevait sont tombés** : les trois motifs de mentions et le choix du moteur, de la phase 4 ;
 PCRE2 ou RE2 et hunspell, de la phase 0 ; la jonction, la scission et les erreurs courantes, de la phase 10 ;
 le parseur conscient des balises, que la phase 10 avait écrit pour cela. **Douze exigences, toutes
-`implémentées` et citées** (treize avec #525) ; **vingt et un écarts avec Gaupol**, dont dix que le tableau de la spec ne portait
+`implémentées` et citées** — quatorze à la clôture, avec `GUI-SPELL-04` et `GUI-EDIT-04` ; **vingt et un écarts avec Gaupol**, dont dix que le tableau de la spec ne portait
 pas. Ceux que la phase émet ont chacun leur destinataire : la ligne de commande de la correction en
 phase 13, la traduction des noms de motifs en phase 15. **Deux renvois restaient sans phase** ; la relecture les a soumis à décision, et ils sont livrés dans la phase : la vérification orthographique au fil de la frappe par [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525) (`GUI-SPELL-04`, treizième exigence), la longueur des lignes affichée dans les cellules par [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526). La spec en tient le compte, à la fin.
+
+**Close en 0.13.0, le 2026-10-01.** La relecture a ouvert sept issues, toutes fermées avant la clôture :
+
+- **les deux fonctions de Gaupol qu'elle avait renvoyées** — [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525),
+  l'orthographe au fil de la frappe dans l'éditeur de cellule, et
+  [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526), la longueur de chaque ligne dans les cellules et
+  dans un liseré de l'éditeur (trois réglages `editor.*`, dans `Preferences…`) ;
+- **les défauts qu'elle avait vus dans le code** — [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527),
+  le cache de longueurs enfin posé devant l'assistant ;
+  [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528), deux cases de la liste des motifs qui ne faisaient
+  rien ; [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529), un nom de motif à virgule qui faisait perdre
+  toutes les dérogations ; [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530), deux des quatre constats
+  de robustesse de #509, les deux autres écartés avec leur raison ;
+- **un défaut de GitHub, non du dépôt** — [#531](https://github.com/Guyot-Bertrand/sub-edit/issues/531) : des
+  pull requests du 30 septembre n'ont pas lié leur `Closes #N`, puis cela a cessé sans qu'aucune différence de
+  forme ait été trouvée. Fermée sans contrôle ajouté.
+
+**Le banc de la phase**, comme celui de la précédente, est resté maigre : la machine a trouvé le seuil de
+charge dépassé presque chaque fois. Le relevé de 0.13.0, pris au calme à la clôture, est versé au journal.
 
 ## 13 — CLI complète
 
