@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Corrections
 
+- **core** — Un nom de motif à virgule ne perd plus les réglages (#529)
+
+## 0.12.21 — 2026-09-30
+
+### Corrections
+
 - **gui** — Plus de cases sans effet dans la liste des motifs (#528)
 
 ## 0.12.20 — 2026-09-30
