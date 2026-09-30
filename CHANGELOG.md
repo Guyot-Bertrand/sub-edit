@@ -11,8 +11,15 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **doc** — Précisions sur les phases 14 et 15
+
+## 0.12.16 — 2026-09-30
+
+### Documentation
+
 - **doc** — Relecture de fin de phase 12 (#523)
 - **doc** — Issues ouvertes par la relecture de phase 12 (#523)
+- **doc** — Retirer les captures .new.png commitées par erreur (#523)
 
 ## 0.12.15 — 2026-09-30
 

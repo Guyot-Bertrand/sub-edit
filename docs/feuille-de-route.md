@@ -1144,6 +1144,15 @@ de `src/test/data/paires/` le montre. Gaupol ne le détecte pas non plus. La pha
 quatre y font naître un sous-titre), pas **corrigeable** : c'est une question de
 synchronisation, et elle se pose ici.
 
+**Précisé par l'utilisateur, le 2026-09-30 : la table suit la lecture, mais ne
+se centre pas.** Le sous-titre courant est mis en évidence pendant la lecture, et
+la table défile bien jusqu'à lui — une première observation disait le contraire,
+corrigée depuis. Ce qui reste : **la table ne se centre pas sur le sous-titre
+courant**, elle le ramène seulement dans la zone visible. La phase 14 le centre.
+Le point à trancher au cadrage est le geste de l'utilisateur — un défilement à la
+main pendant la lecture ne doit pas être défait à chaque image, et il faut dire
+quand le suivi reprend.
+
 **Point difficile** — **précision de positionnement.** Caler un sous-titre exige
 un `seek` exact à l'image près ; la plupart des backends ne le garantissent qu'au
 mot-clé le plus proche. C'est la fonctionnalité la plus exigeante de tout le
@@ -1164,3 +1173,23 @@ traduit par gettext ; les fichiers de motifs sont lus tels quels
 ([ADR 0037](adr/0037-lire-les-motifs-de-gaupol-tels-quels.md)) et leurs intitulés restent en anglais tant que
 l'interface l'est. Ils passent avec le reste de l'interface, et la question de la conversion `.po` vers `.ts`
 s'y pose pour eux aussi.
+
+**Précisé par l'utilisateur, le 2026-09-30 : la documentation embarquée passe ici,
+internationalisée.** Deux livrables, tous deux dans les langues de l'interface :
+
+- **La page d'aide de la fenêtre.** Le manuel que `Help` ouvre aujourd'hui
+  (`docs/manual/`, en français) devient une aide **internationalisée** : elle
+  explique les diverses fonctions que le programme offre, et suit la langue
+  choisie comme le reste de l'interface. Ce que le manuel dit déjà en est la
+  matière ; ce que la phase change est qu'il se traduit avec l'interface, et non
+  après elle.
+- **Des pages de manuel (`man`) pour la ligne de commande**, elles aussi
+  internationalisées : une page pour `subedit-cli` et une pour chaque
+  sous-commande dont l'usage l'exige, installées avec les paquets (`.deb`,
+  `.rpm`) là où `man` les cherche.
+
+Au cadrage : d'où viennent les pages (une source unique, le manuel actuel, dont
+on tire l'aide de la fenêtre et les pages `man`, ou deux sources), comment leur
+traduction se tient à jour quand le manuel bouge, et si les captures du manuel se
+prennent par langue. **Une seule source** est la voie qui évite que deux textes
+divergent ; c'est aussi la plus coûteuse à outiller.
