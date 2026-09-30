@@ -85,6 +85,8 @@ struct WindowActions final {
     std::array<QAction*, 4> letterCase{};
     QAction* hearingImpaired = nullptr;
     QAction* correctTexts = nullptr;
+    QAction* checkSpelling = nullptr;
+    QAction* spellCheckSettings = nullptr;
     QAction* snap = nullptr;
     QAction* shiftOntoGrid = nullptr;
     QAction* analyseGrid = nullptr;

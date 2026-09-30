@@ -65,6 +65,7 @@ class ProjectSearch;
 class ProjectFiles;
 class ProjectOperations;
 class CorrectionController;
+class SpellCheckController;
 
 /// The window, and everything a project needs to be looked at.
 ///
@@ -241,6 +242,13 @@ public:
     /// `Tools ▸ Correct Texts…` — the assistant of issue #505, D8.
     [[nodiscard]] QAction* correctTextsAction() const { return m_actions->correctTexts; }
 
+    /// `Tools ▸ Check Spelling…` and `Tools ▸ Spell-Check Settings…` — issue #509.
+    [[nodiscard]] QAction* checkSpellingAction() const { return m_actions->checkSpelling; }
+
+    [[nodiscard]] QAction* spellCheckSettingsAction() const {
+        return m_actions->spellCheckSettings;
+    }
+
     /// The one button that puts a text in italics and takes them out again.
     ///
     /// **Out for a format that writes no style**, which is what says to a user
@@ -336,6 +344,7 @@ public:
                           std::filesystem::path configDirectory) {
         m_spellProvider = std::move(provider);
         m_spellConfigDirectory = std::move(configDirectory);
+        refreshSpellCheckAction();
     }
 
     /// Opens what was dropped on the window — issue #453, `GUI-TABS-04`.
@@ -486,6 +495,11 @@ private:
     /// Whether `Close` and the crosses of the tabs may do anything — neither
     /// with one tab left.
     void refreshTabActions();
+
+    /// Greys `Check Spelling…` — and says why in its tooltip and status tip —
+    /// when the language the settings name has no dictionary, or there is no
+    /// project. `Spell-Check Settings…` is never greyed by the dictionary.
+    void refreshSpellCheckAction();
 
     /// Whether `document` of the project on screen differs from its file —
     /// `ProjectFiles::isModified`.
@@ -695,6 +709,9 @@ private:
     class CorrectionSide;
     std::unique_ptr<CorrectionSide> m_correctionSide;
     std::unique_ptr<CorrectionController> m_correction;
+    /// `Tools ▸ Check Spelling…` — issue #509; asks the window through the
+    /// same `CorrectionSide`, which answers both views.
+    std::unique_ptr<SpellCheckController> m_spellCheck;
 
     /// The patterns the assistant offers — `setPatternCatalogue`'s own doc
     /// comment. Empty by default, both vectors empty, the same graceful-empty
