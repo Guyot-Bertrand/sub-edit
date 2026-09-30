@@ -745,3 +745,91 @@ TEST_CASE("GUI-EDIT-04: an editor with no source has no margin", "[gui][GUI-EDIT
         CHECK(field->gutterWidth() == 0);
     }
 }
+
+TEST_CASE("GUI-EDIT-04: the smaller font follows a size given in pixels", "[gui][GUI-EDIT-04]") {
+    QFont font;
+    font.setPixelSize(20);
+
+    const QFont smaller = smallerFont(font);
+
+    CHECK(smaller.pixelSize() > 0);
+    CHECK(smaller.pixelSize() < 20);
+
+    // Never down to nothing.
+    font.setPixelSize(1);
+    CHECK(smallerFont(font).pixelSize() == 1);
+}
+
+TEST_CASE("GUI-EDIT-04: a disabled cell is painted, and so is one shorter than its lines",
+          "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("Un\nDeux\nTrois")};
+    const SubtitleTableModel model{session};
+    const QWidget widget;
+    const QModelIndex cell = model.index(0, 4);
+    TextDelegate measured;
+    measured.setLengthSources([] { return std::optional{sevens()}; }, {});
+
+    QImage image{kCellWidth, 10, QImage::Format_RGB32};
+    image.fill(Qt::white);
+    QStyleOptionViewItem option = viewedFrom(widget);
+    option.rect = QRect{0, 0, kCellWidth, 10};
+    option.state &= ~QStyle::State_Enabled;
+    QPainter painter{&image};
+    measured.paint(&painter, option, cell);
+    painter.end();
+
+    CHECK(inkReach(image) >= 0);
+}
+
+TEST_CASE("GUI-EDIT-04: the margin follows the scrolling and goes when lengths are cut",
+          "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("a")};
+    const SubtitleTableModel model{session};
+    TextDelegate delegate;
+    delegate.setLengthSources({}, [] { return std::optional{characters()}; });
+    QWidget parent;
+    parent.resize(kWideEnough, kTallEnough);
+    parent.show();
+    const QModelIndex cell = model.index(0, 4);
+    const std::unique_ptr<QWidget> editor{delegate.createEditor(&parent, viewedFrom(parent), cell)};
+    auto* field = dynamic_cast<SubtitleEditor*>(editor.get());
+    REQUIRE(field != nullptr);
+
+    // Enough lines, in a field too short for them, for the view to scroll.
+    field->setPlainText(
+        QStringLiteral("1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20"));
+    field->show();
+    field->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    field->resize(kWideEnough, 60);
+    QCoreApplication::processEvents();
+    field->verticalScrollBar()->setValue(field->verticalScrollBar()->maximum());
+    QCoreApplication::processEvents();
+    CHECK(field->verticalScrollBar()->value() > 0);
+
+    // Cutting the lengths takes the margin away, and a repaint after that
+    // finds nothing to draw on.
+    field->showLengths(std::nullopt);
+    CHECK(field->gutterWidth() == 0);
+    field->verticalScrollBar()->setValue(0);
+    QCoreApplication::processEvents();
+    CHECK(field->gutterWidth() == 0);
+}
+
+TEST_CASE("GUI-EDIT-04: a margin with no line to measure is painted empty", "[gui][GUI-EDIT-04]") {
+    Session session{projectOf("")};
+    const SubtitleTableModel model{session};
+    TextDelegate delegate;
+    delegate.setLengthSources({}, [] { return std::optional{characters()}; });
+    QWidget parent;
+    parent.resize(kWideEnough, kTallEnough);
+    parent.show();
+    const QModelIndex cell = model.index(0, 4);
+    const std::unique_ptr<QWidget> editor{delegate.createEditor(&parent, viewedFrom(parent), cell)};
+    auto* field = dynamic_cast<SubtitleEditor*>(editor.get());
+    REQUIRE(field != nullptr);
+    field->setPlainText(QString{});
+
+    // Grabbing the field paints every child of it, the margin included.
+    CHECK_FALSE(field->grab().isNull());
+    CHECK(field->gutterLengths().empty());
+}

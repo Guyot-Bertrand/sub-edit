@@ -223,11 +223,9 @@ void TextDelegate::paint(QPainter* painter,
 
     painter->save();
     painter->setClipRect(area);
-    int baseline =
-        area.top() +
-        std::max(0,
-                 (area.height() - (static_cast<int>(lines.size()) * metrics.lineSpacing())) / 2) +
-        metrics.ascent();
+    const int used = static_cast<int>(lines.size()) * metrics.lineSpacing();
+    const int spare = std::max(0, (area.height() - used) / 2);
+    int baseline = area.top() + spare + metrics.ascent();
     for (const CellLine& line : lines) {
         const int lengthWidth =
             line.length.isEmpty() ? 0 : kGapBeforeLength + small.horizontalAdvance(line.length);

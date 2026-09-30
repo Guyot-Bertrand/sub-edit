@@ -878,3 +878,10 @@ TEST_CASE("a value of the editor that cannot be read leaves its default", "[conf
         CHECK_FALSE(read.diagnostics.front().value.empty());
     }
 }
+
+TEST_CASE("the unit of the editor's lengths reads in ems when written so", "[config]") {
+    const SettingsRead read = readOf("editor.length-unit = em\n");
+
+    CHECK(read.settings.editor.lengthUnit == LengthUnit::Ems);
+    CHECK(read.diagnostics.empty());
+}
