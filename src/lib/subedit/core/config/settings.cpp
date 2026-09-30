@@ -131,6 +131,9 @@ constexpr char kSeparator = '=';
 constexpr char kComment = '#';
 constexpr char kListSeparator = ',';
 
+// Escapes a list separator or itself inside one entry of `correction.activations`.
+constexpr char kEscape = '\\';
+
 // The four fields of one `correction.activations` entry — decision D2, by
 // kind, code and name. A colon rather than the list separator: one entry is
 // itself a list of four fields, inside a list of entries.
@@ -516,29 +519,60 @@ void keepOption(
         .kind = *kind, .code = std::string{code}, .name = std::string{name}, .enabled = *enabled};
 }
 
-/// Every entry of `correction.activations`, or nothing if one of them could
-/// not be read — the same all-or-nothing rule `integersOf` already keeps for
-/// one option's own value.
-[[nodiscard]] std::optional<std::vector<PatternActivation>> activationsOf(std::string_view text) {
-    if (text.empty())
-        return std::vector<PatternActivation>{};
-
-    std::vector<PatternActivation> activations;
-    std::size_t start = 0;
-    while (start <= text.size()) {
-        const std::size_t next = text.find(kListSeparator, start);
-        const std::string_view entry =
-            text.substr(start, (next == std::string_view::npos ? text.size() : next) - start);
-        const std::optional<PatternActivation> parsed = activationOf(entry);
-        if (!parsed.has_value())
-            return std::nullopt;
-        activations.push_back(*parsed);
-
-        if (next == std::string_view::npos)
-            break;
-        start = next + 1;
+/// `text` cut at each list separator that is not escaped, every piece
+/// unescaped: `\,` is a comma and `\\` a backslash, and a backslash before
+/// anything else stays as it is, so an older file that never escaped anything
+/// reads as it always did. A name may hold a comma — the format of Gaupol's
+/// patterns lets it — and the list is comma-separated (issue #529).
+[[nodiscard]] std::vector<std::string> unescapedEntries(std::string_view text) {
+    std::vector<std::string> entries(1);
+    for (std::size_t at = 0; at < text.size(); ++at) {
+        const char c = text[at];
+        if (c == kListSeparator) {
+            entries.emplace_back();
+        } else if (c == kEscape && at + 1 < text.size() &&
+                   (text[at + 1] == kListSeparator || text[at + 1] == kEscape)) {
+            entries.back() += text[++at];
+        } else {
+            entries.back() += c;
+        }
     }
-    return activations;
+    return entries;
+}
+
+/// The inverse of the unescaping above, for one entry.
+[[nodiscard]] std::string escapedEntry(std::string_view entry) {
+    std::string out;
+    for (const char c : entry) {
+        if (c == kListSeparator || c == kEscape)
+            out += kEscape;
+        out += c;
+    }
+    return out;
+}
+
+/// What `correction.activations` held: the entries that could be read, and
+/// the text of each one that could not.
+struct ReadActivations {
+    std::vector<PatternActivation> activations;
+    std::vector<std::string> unreadable;
+};
+
+/// Every entry of `correction.activations`. **One entry at a time**: the
+/// entries are independent overrides, each naming its own pattern, so one
+/// that cannot be read costs that override and no other (issue #529).
+[[nodiscard]] ReadActivations activationsOf(std::string_view text) {
+    ReadActivations read;
+    if (text.empty())
+        return read;
+
+    for (const std::string& entry : unescapedEntries(text)) {
+        if (const std::optional<PatternActivation> parsed = activationOf(entry); parsed.has_value())
+            read.activations.push_back(*parsed);
+        else
+            read.unreadable.push_back(entry);
+    }
+    return read;
 }
 
 /// Keeps one of the seven line-break limits of the correction assistant —
@@ -660,8 +694,12 @@ void applyCorrectionOption(SettingsRead& read, std::string_view key, std::string
         applyJoinSplitOption(read, key, value);
     else if (key == kCorrectionRemoveBlankKey)
         take(booleanOf(value), form.removeBlankSubtitles);
-    else if (key == kCorrectionActivationsKey)
-        take(activationsOf(value), form.patternActivations);
+    else if (key == kCorrectionActivationsKey) {
+        ReadActivations kept = activationsOf(value);
+        form.patternActivations = std::move(kept.activations);
+        for (std::string& entry : kept.unreadable)
+            read.diagnostics.push_back({.key = std::string{key}, .value = std::move(entry)});
+    }
 }
 
 /// Keeps one of the nine options of the duration adjustment.
@@ -821,9 +859,9 @@ void renderDurationAdjustment(std::string& out, const DurationAdjustmentSettings
             out += kListSeparator;
         out += fileExtensionOf(one.kind);
         out += kActivationFieldSeparator;
-        out += one.code;
+        out += escapedEntry(one.code);
         out += kActivationFieldSeparator;
-        out += one.name;
+        out += escapedEntry(one.name);
         out += kActivationFieldSeparator;
         out += flagText(one.enabled);
     }

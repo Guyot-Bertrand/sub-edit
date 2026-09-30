@@ -729,16 +729,50 @@ TEST_CASE("an empty activation list reads as no activation at all", "[config]") 
     CHECK(read.diagnostics.empty());
 }
 
-TEST_CASE("one unreadable entry of the activation list refuses the whole list", "[config]") {
-    // The same all-or-nothing rule a column order already keeps: a list is
-    // one option, and a list half read is a list nobody asked for.
+TEST_CASE("one unreadable entry of the activation list costs that entry and no other", "[config]") {
+    // Issue #529. Unlike a column order, which is one permutation, the
+    // entries here are independent overrides, each naming its own pattern: a
+    // typo in one must not silently drop every choice the user made.
     const SettingsRead read =
         readOf("correction.activations = common-error:Latn-en:Ligature ff:true,not-a-kind:Zyyy:X:"
-               "true\n");
+               "true,capitalization:Zyyy:Names:false\n");
 
-    CHECK(read.settings.correction.patternActivations.empty());
+    REQUIRE(read.settings.correction.patternActivations.size() == 2);
+    CHECK(read.settings.correction.patternActivations[0].name == "Ligature ff");
+    CHECK(read.settings.correction.patternActivations[1].name == "Names");
     REQUIRE(read.diagnostics.size() == 1);
     CHECK(read.diagnostics.front().key == "correction.activations");
+    CHECK(read.diagnostics.front().value == "not-a-kind:Zyyy:X:true");
+}
+
+TEST_CASE("a pattern name holding a comma or a backslash round-trips", "[config]") {
+    // Issue #529: Gaupol's pattern format lets a name hold a comma, and the
+    // list is comma-separated — the name is escaped, not split.
+    InMemoryFileSystem files;
+    Settings written;
+    written.correction.patternActivations = {
+        {.kind = PatternKind::CommonError,
+         .code = "Latn",
+         .name = "Dr., Mr. and Mrs.",
+         .enabled = false},
+        {.kind = PatternKind::CommonError, .code = "Latn", .name = "Back\\slash", .enabled = true},
+        {.kind = PatternKind::LineBreak, .code = "Zyyy", .name = "Plain", .enabled = false}};
+    REQUIRE(writeSettings(files, kPath, written).has_value());
+
+    const SettingsRead read = readSettings(files, kPath);
+
+    CHECK(read.diagnostics.empty());
+    CHECK(read.settings.correction.patternActivations == written.correction.patternActivations);
+}
+
+TEST_CASE("a file written before names were escaped reads as it always did", "[config]") {
+    // A backslash followed by anything but a comma or a backslash is just a
+    // backslash: nothing that was written before is reinterpreted.
+    const SettingsRead read = readOf("correction.activations = common-error:Latn:A\\nB:true\n");
+
+    REQUIRE(read.settings.correction.patternActivations.size() == 1);
+    CHECK(read.settings.correction.patternActivations.front().name == "A\\nB");
+    CHECK(read.diagnostics.empty());
 }
 
 TEST_CASE("the activation list round-trips through the file, in order", "[config]") {

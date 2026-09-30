@@ -89,7 +89,7 @@ qui le pose est justement celle qui ne va pas.
 | `correction.join-split.join`, `correction.join-split.split` | `true` ou `false` — recoller, scinder | `true`, `false` |
 | `correction.join-split.language` | un code de locale — `fr`, `en_US`, `sr@Latn` — ; vide : la langue du système | vide |
 | `correction.remove-blank` | `true` ou `false` — `Remove all blank subtitles` | `true` |
-| `correction.activations` | les cases de motifs que l'utilisateur a changées, `<type>:<code>:<nom>:<0\|1>`, séparées par des virgules ; **un nom de motif qui contient une virgule ne s'y range pas** | vide |
+| `correction.activations` | les cases de motifs que l'utilisateur a changées, `<type>:<code>:<nom>:<0\|1>`, séparées par des virgules ; **une virgule ou une barre oblique inverse dans un nom s'écrit précédée d'une barre oblique inverse** (`\,` et `\\`), et une entrée illisible ne fait perdre que son propre réglage — elle est signalée, les autres sont gardées | vide |
 | `spell-check.language` | un code de locale, tel que `fr_FR` ; vide : la langue du système | vide |
 | `spell-check.target` | `selection`, `current-project` ou `all-projects` | `current-project` |
 | `spell-check.document` | `main` ou `translation` | `main` |

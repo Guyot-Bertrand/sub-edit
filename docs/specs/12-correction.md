@@ -532,6 +532,16 @@ fonction libre, `withoutHearingImpaired`, qu'aucune de ces décisions ne touche.
 > motif d'une autre sorte qui porterait le même nom reste une case ordinaire. La distinction crochets /
 > parenthèses, deux cases pour un seul balayage, n'est pas reprise : aucune issue ne la demande.
 
+> **Précisé par [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529).** **Un nom de motif à virgule ne
+> fait plus perdre les autres réglages.** Le format des motifs de Gaupol permet une virgule dans un nom, et
+> `correction.activations` est une liste séparée par des virgules, lue en tout ou rien : un seul nom pareil
+> faisait tout refuser, avec un diagnostic, et toutes les dérogations s'en allaient. La virgule et la barre
+> oblique inverse s'écrivent désormais précédées d'une barre oblique inverse dans une entrée ; une barre
+> suivie d'autre chose reste une barre, si bien qu'un fichier écrit avant ne se relit pas autrement. **Et la
+> règle du tout ou rien tombe pour cette option seule** : les entrées sont des dérogations indépendantes, chacune
+> nommant son motif, et une entrée illisible ne coûte que la sienne — le diagnostic en porte le texte. Elle
+> reste celle des ordres de colonnes, qui sont une permutation et non une liste de choix.
+
 ## D8 — L'assistant, et ce que la ligne de commande en attend
 
 **Un assistant comme celui de Gaupol**, `Tools ▸ Correct Texts…`, dans le même
@@ -971,7 +981,7 @@ s'il est retenu, et l'issue s'inscrit dans la colonne de droite.
 | crochets et parenthèses, deux cases pour un balayage | l'assistant les présente comme deux motifs de Gaupol ; au noyau, l'une ou l'autre lance le balayage qui retire les deux. **Et la page `Mentions` liste en plus, avec les autres motifs de `Latn`, deux cases du même nom** — `hearing_impaired_correction.cpp` (`isScanOnly`) les écarte par leur nom, si bien qu'on les coche sans effet (lu, puis **reproduit** par un test rouge) | [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528), **livrée** (D7) : la liste ne les offre plus ; la distinction crochets / parenthèses reste écartée : aucune issue ne la demande |
 | le cache de longueurs | `CachedLineMeasure` n'est branché nulle part dans le programme livré (`correction_controller.cpp`) ; le banc n'a pas la version sans cache en *ems* | [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527), **livrée** (D5) : `assistantLineMeasure`, une table par calcul, et le banc qui la mesure |
 | les constats mineurs de #509 | les `Project*` du parcours, que rien ne protège si un projet se fermait pendant le dialogue ; `Save and Resume`, qui relit depuis le début du texte (`SpellCheckWalk::resumeWithText`) ; la liste de remplacements en mémoire, qui grossit à chaque application (`spell_checker.cpp`) ; un dossier de configuration vide, qui donnerait un chemin relatif (`spellReplacementFile`) | [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530) |
-| un nom de motif à virgule | `correction.activations` se lit en tout ou rien, la virgule étant son séparateur : un seul nom pareil fait perdre toutes les dérogations (`settings.cpp`) | [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529) |
+| un nom de motif à virgule | `correction.activations` se lit en tout ou rien, la virgule étant son séparateur : un seul nom pareil fait perdre toutes les dérogations (`settings.cpp`) | [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529), **livrée** : la virgule et la barre oblique inverse s'échappent, une entrée illisible ne coûte que son réglage |
 | `Closes #N` sans lien | la PR #522 portait la ligne et `closingIssuesReferences` est resté vide ; cause inconnue | [#531](https://github.com/Guyot-Bertrand/sub-edit/issues/531) |
 
 **Écartés, avec leur raison.**
