@@ -99,7 +99,7 @@ TEST_CASE("the assistant measures in ems through a cache, in characters without 
     CHECK(first == again);
     CHECK_THAT(first, Catch::Matchers::WithinAbs(5.3672, 0.01));
 
-    ems->lengthOf("Another line");
+    CHECK(ems->lengthOf("Another line") > 0.0);
     CHECK(cached->cachedCount() == 2);
 
     const std::shared_ptr<const subedit::core::LineMeasure> characters =
