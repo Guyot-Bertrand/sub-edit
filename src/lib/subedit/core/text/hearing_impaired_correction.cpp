@@ -92,20 +92,13 @@ struct Prepared {
     ReplacementTemplate replacement;
 };
 
-/// The names of the two records the scan of ADR 0017 alone plays — giving
-/// them to the engine here would run their expression a second time, on text
-/// the scan already resolved.
-[[nodiscard]] bool isScanOnly(const CorrectionPattern& pattern) {
-    return pattern.name == "Sound in brackets" || pattern.name == "Sound in parentheses";
-}
-
 [[nodiscard]] std::vector<Prepared> prepare(const PatternEngine& engine,
                                             std::span<const CorrectionPattern* const> patterns,
                                             std::vector<PatternFailure>& failures) {
     std::vector<Prepared> prepared;
     for (const CorrectionPattern* pattern : patterns) {
         const auto* fields = std::get_if<HearingImpairedFields>(&pattern->fields);
-        if (fields == nullptr || isScanOnly(*pattern))
+        if (fields == nullptr || isScanOnlyPattern(*pattern))
             continue;
 
         std::expected<std::unique_ptr<PatternMatcher>, CompileError> matcher =
@@ -188,6 +181,11 @@ struct BuiltIn {
 }
 
 } // namespace
+
+bool isScanOnlyPattern(const CorrectionPattern& pattern) {
+    return pattern.kind() == PatternKind::HearingImpaired &&
+           (pattern.name == "Sound in brackets" || pattern.name == "Sound in parentheses");
+}
 
 HearingImpairedCorrection correctHearingImpaired(const PatternEngine& engine,
                                                  std::span<const CorrectionPattern* const> patterns,

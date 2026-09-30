@@ -52,4 +52,12 @@ correctHearingImpaired(const PatternEngine& engine,
                        SubtitleFormat format,
                        bool scanBracketsAndParentheses);
 
+/// Whether `pattern` is one of the two records the scan of ADR 0017 alone
+/// plays — "Sound in brackets" and "Sound in parentheses", under the
+/// hearing-impaired kind. The engine leaves them out, since running their
+/// expression would be a second pass over text the scan already resolved, and
+/// so does the window's list of boxes: a tick for either would do nothing
+/// (issue #528). One definition, for both.
+[[nodiscard]] bool isScanOnlyPattern(const CorrectionPattern& pattern);
+
 } // namespace subedit::core

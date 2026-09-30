@@ -522,6 +522,16 @@ fonction libre, `withoutHearingImpaired`, qu'aucune de ces décisions ne touche.
 > ne le montrait pas, faute d'un cas où la ligne touchée ne portait qu'une
 > ponctuation déjà sans rapport avec la mention.
 
+> **Précisé par [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528).** **Les deux cases sans effet
+> n'existent plus.** La relecture de fin de phase l'avait lu dans le code, un test rouge l'a confirmé : la
+> liste des motifs de `Latn` sur la page `Mentions` offrait, avec les autres, une case `Sound in brackets` et
+> une case `Sound in parentheses` — les deux enregistrements du fichier de Gaupol, que le moteur écarte par leur
+> nom puisque le balayage les joue seul. On pouvait les cocher sans rien changer, à côté des deux vraies cases
+> de la page. `isScanOnlyPattern` (noyau, `hearing_impaired_correction.hpp`) est désormais **l'unique
+> définition** de ces deux enregistrements, lue par le moteur et par la liste, qui ne les propose plus. Un
+> motif d'une autre sorte qui porterait le même nom reste une case ordinaire. La distinction crochets /
+> parenthèses, deux cases pour un seul balayage, n'est pas reprise : aucune issue ne la demande.
+
 ## D8 — L'assistant, et ce que la ligne de commande en attend
 
 **Un assistant comme celui de Gaupol**, `Tools ▸ Correct Texts…`, dans le même
@@ -958,7 +968,7 @@ s'il est retenu, et l'issue s'inscrit dans la colonne de droite.
 | :-- | :----------------------- | :---- |
 | la vérification au fil de la frappe | renvoi de la spec sans destinataire : il demande un surlignage dans le délégué de la table, que rien n'a | [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525), **livrée** (D6) |
 | la longueur des lignes dans les cellules | renvoi de la spec sans destinataire : une fonction d'édition qui emprunterait la mesure de D5 | [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526), **livrée** (D5) : `GUI-EDIT-04`, trois réglages `editor.*`, la longueur après chaque ligne d'une cellule et un liseré dans l'éditeur ; la mesure passe par `CachedLineMeasure`, bornée à la police |
-| crochets et parenthèses, deux cases pour un balayage | l'assistant les présente comme deux motifs de Gaupol ; au noyau, l'une ou l'autre lance le balayage qui retire les deux. **Et la page `Mentions` liste en plus, avec les autres motifs de `Latn`, deux cases du même nom** — `hearing_impaired_correction.cpp` (`isScanOnly`) les écarte par leur nom, si bien qu'on les coche sans effet (lu, non exécuté) | [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528) pour les cases sans effet ; la distinction crochets / parenthèses reste écartée : aucune issue ne la demande |
+| crochets et parenthèses, deux cases pour un balayage | l'assistant les présente comme deux motifs de Gaupol ; au noyau, l'une ou l'autre lance le balayage qui retire les deux. **Et la page `Mentions` liste en plus, avec les autres motifs de `Latn`, deux cases du même nom** — `hearing_impaired_correction.cpp` (`isScanOnly`) les écarte par leur nom, si bien qu'on les coche sans effet (lu, puis **reproduit** par un test rouge) | [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528), **livrée** (D7) : la liste ne les offre plus ; la distinction crochets / parenthèses reste écartée : aucune issue ne la demande |
 | le cache de longueurs | `CachedLineMeasure` n'est branché nulle part dans le programme livré (`correction_controller.cpp`) ; le banc n'a pas la version sans cache en *ems* | [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527), **livrée** (D5) : `assistantLineMeasure`, une table par calcul, et le banc qui la mesure |
 | les constats mineurs de #509 | les `Project*` du parcours, que rien ne protège si un projet se fermait pendant le dialogue ; `Save and Resume`, qui relit depuis le début du texte (`SpellCheckWalk::resumeWithText`) ; la liste de remplacements en mémoire, qui grossit à chaque application (`spell_checker.cpp`) ; un dossier de configuration vide, qui donnerait un chemin relatif (`spellReplacementFile`) | [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530) |
 | un nom de motif à virgule | `correction.activations` se lit en tout ou rien, la virgule étant son séparateur : un seul nom pareil fait perdre toutes les dérogations (`settings.cpp`) | [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529) |
