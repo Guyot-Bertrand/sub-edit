@@ -13,12 +13,12 @@ table. Pour l'autre programme et pour savoir par où commencer, voir
 > copie et colle** des textes, et **cherche et remplace** dans le texte visible
 > sans casser les balises, dans un projet ou dans tous. Elle **ouvre une traduction
 > en regard du principal**, alignée par position ou par numéro, dans une colonne
-> de plus, et l'enregistre à part. Le menu `Tools` porte seize opérations —
+> de plus, et l'enregistre à part. Le menu `Tools` porte seize opérations et deux entrées d'orthographe —
 > décaler, transformer, convertir la fréquence d'image, ajuster les durées,
 > **ajouter un fichier à la suite, scinder le projet en deux**, mettre en
 > italique, poser les tirets de dialogue, changer la casse de quatre façons,
 > retirer les mentions pour malentendants, **corriger des textes par un
-> assistant à plusieurs pages**, aligner sur une cadence, ramener sur
+> assistant à plusieurs pages**, **vérifier l'orthographe mot à mot**, aligner sur une cadence, ramener sur
 > la grille — et l'analyse de grille, qui ne modifie rien. Le menu `Projects`
 > **enregistre et ferme tout** d'un geste. Elle **associe une vidéo
 > au document**, choisie ou devinée, et la **joue dans la fenêtre**, la réplique
@@ -118,6 +118,7 @@ menus : elles servent moins souvent, ou pas à tout le monde.
 | [La grille d'images](grille.md) | la cadence déduite des positions, et l'analyse |
 | [Les opérations](operations.md) | décaler, transformer, convertir, ajuster les durées, ajouter un fichier, scinder le projet, mettre en italique, la casse, les tirets, retirer les mentions, aligner, ramener sur la grille, et ce qui dépasse la fin du film |
 | [Correct Texts…](correct-texts.md) | l'assistant de correction : la cible et les tâches, chaque page de tâche, la progression, la confirmation |
+| [Check Spelling…](verifier-orthographe.md) | la vérification orthographique : ses réglages, le parcours, la fermeture au milieu, l'absence de dictionnaire |
 | [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la barre d'état, `ffmpeg` |
 | [Le lecteur](lecteur.md) | la vue vidéo, jouer, la ligne qui suit, la réplique dessinée |
 | [Les préférences](preferences.md) | le thème, le fichier de préférences, ses options, et ce qu'il advient d'une valeur illisible |

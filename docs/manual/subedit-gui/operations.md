@@ -1,7 +1,7 @@
 # Les opérations
 
-Le menu **Tools** porte seize opérations et une analyse. Chacune des
-seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
+Le menu **Tools** porte seize opérations, une analyse et deux entrées d'orthographe. Chacune des
+seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien. `Check Spelling…` s'annule aussi, et `Spell-Check Settings…` ne touche à aucun texte.
 
 | Entrée | Dialogue | Ce qu'elle fait |
 | :----- | :------- | :-------------- |
@@ -19,6 +19,8 @@ seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien.
 | `Case ▸ lower case` | **non** | tout en minuscules |
 | `Remove Hearing-Impaired Mentions…` | oui, sans réglage | retire les mentions pour malentendants |
 | `Correct Texts…` | oui, un assistant à plusieurs pages | propose des corrections — mentions, erreurs courantes, majuscules, découpage — et les applique une fois acceptées, voir [Correct Texts…](correct-texts.md) |
+| `Check Spelling…` | oui, un parcours mot à mot | parcourt les mots inconnus du dictionnaire et applique ce qu'on a corrigé, voir [Check Spelling…](verifier-orthographe.md) |
+| `Spell-Check Settings…` | oui | choisit la langue, la cible et le document de la vérification, voir [Check Spelling…](verifier-orthographe.md#spell-check-settings) |
 | `Snap to Frame Rate…` | oui | repose chaque horodatage sur l'image la plus proche |
 | `Shift Whole File onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
 | `Frame Rate Analysis…` | oui, sans réglage | **ne modifie rien** — voir [La grille d'images](grille.md) |

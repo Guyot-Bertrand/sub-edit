@@ -33,10 +33,15 @@
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/text/spell_check_walk.hpp>
+#include <subedit/core/text/spell_checker.hpp>
 #include <subedit/core/text/word_list_spell_provider.hpp>
+#include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/correction_result_model.hpp>
 #include <subedit/gui/correction_task_page.hpp>
 #include <subedit/gui/duration_adjust_dialog.hpp>
@@ -51,6 +56,8 @@
 #include <subedit/gui/save_shape.hpp>
 #include <subedit/gui/search_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
+#include <subedit/gui/spell_check_dialog.hpp>
+#include <subedit/gui/spell_check_settings_dialog.hpp>
 #include <subedit/gui/split_project_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/theme.hpp>
@@ -818,6 +825,61 @@ int main(int argc, char** argv) {
         page.applySettings(settings);
         page.resize(420, 200);
         written = capture(page, page, directory, "correction-jonction-sombre") && written;
+    }
+
+    // `Tools > Check Spelling…` and its settings — issue #509, D6, GUI-SPELL-01
+    // and GUI-SPELL-02. Built on the test double, never on a dictionary of the
+    // machine: the words and the suggestions are written here.
+    for (const bool dark : {false, true}) {
+        subedit::gui::applyTheme(dark ? subedit::core::Theme::Dark : subedit::core::Theme::Light);
+
+        subedit::core::Project project;
+        project.setSubtitles({{.start = subedit::core::Timestamp::fromMilliseconds(0),
+                               .end = subedit::core::Timestamp::fromMilliseconds(900),
+                               .mainText = "Bonjour tout le monde"},
+                              {.start = subedit::core::Timestamp::fromMilliseconds(1000),
+                               .end = subedit::core::Timestamp::fromMilliseconds(1900),
+                               .mainText = "Elle est partie hier soir avec sa valse"}});
+        subedit::core::WordList words;
+        words.words = {"Bonjour",
+                       "tout",
+                       "le",
+                       "monde",
+                       "Elle",
+                       "est",
+                       "partie",
+                       "hier",
+                       "soir",
+                       "avec",
+                       "sa",
+                       "valise"};
+        words.suggestions = {{"valse", {"valise", "valve"}}};
+        subedit::core::WordListSpellProvider provider;
+        provider.add("fr", std::move(words));
+        const subedit::core::InMemoryFileSystem noFiles;
+        subedit::core::SpellCheckWalk walk{
+            subedit::core::openSpellChecker(provider, "fr", noFiles, "/none.repl").value(),
+            {{.project = &project,
+              .selection = subedit::core::Selection::all(project),
+              .document = subedit::core::Document::Main}}};
+        subedit::gui::SpellCheckDialog dialog{walk};
+        dialog.resize(560, 420);
+        dialog.start();
+        // The names stay literal: `check-screenshots.py` reads them from here.
+        written = (dark ? capture(dialog, dialog, directory, "orthographe-sombre")
+                        : capture(dialog, dialog, directory, "orthographe")) &&
+                  written;
+
+        // English alone, French asked for: the case the section is about.
+        subedit::core::WordListSpellProvider english;
+        english.add("en", subedit::core::WordList{});
+        subedit::gui::SpellCheckSettingsDialog settings{&english, true, false};
+        subedit::core::SpellCheckSettings shown;
+        shown.language = "fr";
+        settings.apply(shown);
+        written = (dark ? capture(settings, settings, directory, "orthographe-reglages-sombre")
+                        : capture(settings, settings, directory, "orthographe-reglages")) &&
+                  written;
     }
 
     return written ? 0 : 1;
