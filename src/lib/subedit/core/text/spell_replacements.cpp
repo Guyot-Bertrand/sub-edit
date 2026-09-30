@@ -44,6 +44,10 @@ namespace {
 
 std::filesystem::path spellReplacementFile(const std::filesystem::path& configDirectory,
                                            std::string_view language) {
+    // An empty directory is no directory: a relative `spell-check/<language>.repl`
+    // would land in whatever the working directory is (issue #530).
+    if (configDirectory.empty())
+        return {};
     return configDirectory / "spell-check" / (std::string{language} + ".repl");
 }
 

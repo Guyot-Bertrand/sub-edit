@@ -100,3 +100,21 @@ TEST_CASE("an unreadable replacement file leaves no replacement", "[text][spell]
     REQUIRE(checker.has_value());
     CHECK(checker->replacements().empty());
 }
+
+TEST_CASE("an empty configuration directory gives no file, which reads and writes nothing",
+          "[text][spell]") {
+    // Issue #530: a relative `spell-check/en.repl` would be written wherever
+    // the working directory happens to be.
+    CHECK(spellReplacementFile({}, "en").empty());
+
+    InMemoryFileSystem files;
+    WordListSpellProvider provider;
+    provider.add("en", WordList{});
+    auto checker = openSpellChecker(provider, "en", files, spellReplacementFile({}, "en"));
+    REQUIRE(checker.has_value());
+    CHECK(checker->replacements().empty());
+
+    checker->addReplacement("teh", "the");
+    CHECK(saveSpellReplacements(*checker, files, spellReplacementFile({}, "en")).has_value());
+    CHECK(files.readFile("spell-check/en.repl").has_value() == false);
+}

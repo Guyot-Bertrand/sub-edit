@@ -27,7 +27,10 @@ inline constexpr std::size_t kMaxSpellReplacements = 10000;
 
 /// The file of `language` under `configDirectory`: `spell-check/<language>.repl`.
 /// **The directory is given**, never resolved here: a test that resolved a
-/// configuration location would write to whoever runs it.
+/// configuration location would write to whoever runs it. **No directory, no
+/// file**: an empty one gives an empty path, which reads nothing and writes
+/// nothing, rather than a relative path that would land in the working
+/// directory.
 [[nodiscard]] std::filesystem::path
 spellReplacementFile(const std::filesystem::path& configDirectory, std::string_view language);
 

@@ -22,6 +22,7 @@ using subedit::core::NoDictionary;
 using subedit::core::noDictionaryFor;
 using subedit::core::openSpellChecker;
 using subedit::core::SpellChecker;
+using subedit::core::SpellReplacement;
 using subedit::core::WordList;
 using subedit::core::WordListSpellProvider;
 
@@ -155,6 +156,19 @@ TEST_CASE("suggestions carry no duplicate", "[text][spell]") {
     checker.addReplacement("mot", "mots");
 
     CHECK(checker.suggest("mot") == std::vector<std::string>{"mots", "mot"});
+}
+
+TEST_CASE("a replacement made again is held once, as the latest", "[text][spell]") {
+    // Issue #530: a "replace all" applies silently to every later occurrence,
+    // each time calling for the same pair to be remembered.
+    SpellChecker checker = checkerOver("fr", {});
+    checker.addReplacement("mot", "mots");
+    checker.addReplacement("autre", "autres");
+    checker.addReplacement("mot", "mots");
+
+    const std::vector<SpellReplacement> held{checker.replacements().begin(),
+                                             checker.replacements().end()};
+    CHECK(held == std::vector<SpellReplacement>{{"autre", "autres"}, {"mot", "mots"}});
 }
 
 TEST_CASE("all and any of a few words", "[text][spell]") {

@@ -222,7 +222,13 @@ void SpellChecker::addToSession(std::string_view word) {
 }
 
 void SpellChecker::addReplacement(std::string_view word, std::string_view replacement) {
-    m_replacements.push_back({.word = std::string{word}, .replacement = std::string{replacement}});
+    // A pair already held moves to the end instead of being added again: a
+    // "replace all" applies silently to every later occurrence, and each
+    // application would otherwise grow the list by one (issue #530). The file
+    // keeps the last of each pair anyway, so this changes nothing it writes.
+    SpellReplacement added{.word = std::string{word}, .replacement = std::string{replacement}};
+    std::erase(m_replacements, added);
+    m_replacements.push_back(std::move(added));
 }
 
 std::expected<SpellChecker, NoDictionary>
@@ -235,14 +241,19 @@ openSpellChecker(const SpellProvider& provider,
         return std::unexpected{NoDictionary{.language = std::string{language}}};
 
     std::vector<SpellReplacement> replacements;
-    if (const auto text = files.readFile(replacementFile); text.has_value())
-        replacements = parseSpellReplacements(*text);
+    if (!replacementFile.empty()) {
+        if (const auto text = files.readFile(replacementFile); text.has_value())
+            replacements = parseSpellReplacements(*text);
+    }
     return SpellChecker{std::move(dictionary), std::string{language}, std::move(replacements)};
 }
 
 std::expected<void, FileError> saveSpellReplacements(const SpellChecker& checker,
                                                      FileSystem& files,
                                                      const std::filesystem::path& replacementFile) {
+    // No file: there was no configuration directory to put one in (issue #530).
+    if (replacementFile.empty())
+        return {};
     const std::string text = renderSpellReplacements(checker.replacements());
     if (text.empty())
         return {};
