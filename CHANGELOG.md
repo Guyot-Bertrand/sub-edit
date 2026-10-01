@@ -9,6 +9,17 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Ce que le lot ne fait pas, constaté par les e2e (#544)
+
+### Tests
+
+- **cli** — Engendrer un lot de fichiers dans le Scratch (#544)
+- **cli** — Fixer le comportement d'un lot qui écrit (#544)
+
+## 0.13.1 — 2026-10-01
+
 ### Tests
 
 - **cli** — Comparer une sortie à un fichier attendu, octet pour octet
