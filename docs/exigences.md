@@ -210,3 +210,69 @@ plus rien.
 | `GUI-SPELL-02` | sans dictionnaire pour la langue choisie, les fonctions du correcteur sont grisées et disent pourquoi | 12 | implémentée |
 | `GUI-SPELL-03` | l'assistant joint et scinde des mots selon le correcteur | 12 | implémentée |
 | `GUI-SPELL-04` | un mot inconnu est souligné pendant qu'on le tape dans l'éditeur d'une cellule de texte, quand le réglage est vrai et qu'un dictionnaire existe ; sans dictionnaire, rien n'est souligné et rien n'échoue | 12 | implémentée |
+| `CLI-JSON-01` | `--format json` écrit sur la sortie standard un objet JSON par ligne ; `text` est le défaut et ne change pas | 13 | prévue |
+| `CLI-JSON-02` | chaque entrée donne **exactement un** objet, échec compris, dans l'ordre des entrées | 13 | prévue |
+| `CLI-JSON-03` | chaque objet porte `schema`, `command`, `file` et `ok` ; un échec porte `error.kind` et `error.message` | 13 | prévue |
+| `CLI-JSON-04` | la verbosité n'agit pas sur la sortie standard en `json` ; la narration reste du texte sur la sortie d'erreur | 13 | prévue |
+| `CLI-JSON-05` | les diagnostics de lecture sont dans `warnings`, à tous les niveaux | 13 | prévue |
+| `CLI-JSON-06` | aucun nombre à virgule : positions en millisecondes entières, cadences en chaînes | 13 | prévue |
+| `CLI-JSON-07` | une erreur d'usage n'écrit rien sur la sortie standard, en `json` comme en `text` | 13 | prévue |
+| `CLI-JSON-08` | `inspect` décrit le fichier : format, encodage, marque, fins de ligne, nombre, étendue, grille ou cadence, anomalies | 13 | prévue |
+| `CLI-JSON-09` | chaque sous-commande qui écrit dit sa destination et ses comptes | 13 | prévue |
+| `CLI-JSON-10` | mêmes entrées et mêmes arguments donnent les octets des attendus versionnés | 13 | prévue |
+| `CLI-DRYRUN-01` | `--dry-run` n'écrit aucun fichier et ne crée aucun dossier, et le code est celui d'un vrai lancement | 13 | prévue |
+| `CLI-DRYRUN-02` | `--dry-run` n'exige aucune destination | 13 | prévue |
+| `CLI-DRYRUN-03` | une destination donnée avec `--dry-run` est vérifiée comme sans lui | 13 | prévue |
+| `CLI-DRYRUN-04` | sur une sous-commande de texte, la sortie standard porte, par sous-titre changé, son numéro, le texte d'avant et le texte d'après | 13 | prévue |
+| `CLI-DRYRUN-05` | en `json`, `changes` porte les mêmes changements, `after` valant `null` pour une suppression | 13 | prévue |
+| `CLI-DRYRUN-06` | la narration d'un `--dry-run` dit que rien n'a été écrit | 13 | prévue |
+| `CLI-BATCH-03` | deux entrées de même destination sont refusées avant tout écrit, code `1`, les deux nommées | 13 | prévue |
+| `CLI-BATCH-04` | une destination qui est une entrée est refusée sans `--in-place` | 13 | prévue |
+| `CLI-BATCH-05` | le dossier de sortie absent est créé | 13 | prévue |
+| `CLI-BATCH-06` | une écriture qui échoue dit « written », jamais « read » | 13 | prévue |
+| `CLI-BATCH-07` | une destination existante est écrasée par écriture atomique | 13 | prévue |
+| `CLI-BATCH-08` | un répertoire en entrée sans `--recursive` est refusé, code `1` | 13 | prévue |
+| `CLI-BATCH-09` | `--recursive` parcourt dans l'ordre des noms, sans suivre de lien, les extensions des formats connus, `.txt` exclu | 13 | prévue |
+| `CLI-BATCH-10` | l'arborescence relative au répertoire donné est conservée sous `--output-dir` | 13 | prévue |
+| `CLI-BATCH-11` | le dossier de sortie compris dans l'arbre parcouru est exclu du parcours | 13 | prévue |
+| `CLI-BATCH-12` | un fichier nommé sur la ligne de commande n'est jamais filtré par son extension | 13 | prévue |
+| `CLI-RANGE-01` | `--range N-M` limite l'opération aux sous-titres N à M, bornes comprises ; `N-` va jusqu'à la fin | 13 | prévue |
+| `CLI-RANGE-02` | une plage hors bornes est refusée en nommant la borne, avant tout traitement | 13 | prévue |
+| `CLI-ADJUST-01` | `adjust` sans option applique les quatre contraintes de Gaupol, dans leur ordre | 13 | prévue |
+| `CLI-ADJUST-02` | chaque contrainte se règle et s'éteint (`off`) ; `--maximum` l'allume | 13 | prévue |
+| `CLI-ADJUST-03` | sans aucune contrainte active, `adjust` est refusé | 13 | prévue |
+| `CLI-ADJUST-04` | le compte rendu dit ce qui a été ajusté et ce qui a été sacrifié, contrainte par contrainte | 13 | prévue |
+| `CLI-ADJUST-05` | en `json`, `counts` porte `adjusted` et `sacrificed.{speed,minimum,gap}`, et `constraints` les contraintes employées | 13 | prévue |
+| `CLI-ADJUST-06` | les comptes sacrifiés s'accordent avec ceux que le script de mesure prédit sur les fixtures versionnées | 13 | prévue |
+| `CLI-CORRECT-01` | `--tasks` est requis et nomme les tâches ; aucune n'est cochée d'avance | 13 | prévue |
+| `CLI-CORRECT-02` | `--code` est requis dès qu'une tâche lit des motifs | 13 | prévue |
+| `CLI-CORRECT-03` | le compte rendu dit les textes changés et supprimés, jamais les correspondances | 13 | prévue |
+| `CLI-CORRECT-04` | `--classes` retire de l'application les motifs de la classe décochée | 13 | prévue |
+| `CLI-CORRECT-05` | `--enable` / `--disable` règlent un motif par son nom ; un nom inconnu ou ambigu est refusé | 13 | prévue |
+| `CLI-CORRECT-06` | une tâche de motifs sans aucun motif actif est refusée | 13 | prévue |
+| `CLI-CORRECT-07` | les motifs de l'utilisateur s'ajoutent aux motifs livrés | 13 | prévue |
+| `CLI-CORRECT-08` | un motif qui ne se lit pas, ne se traduit pas ou ne termine pas est nommé avec le sous-titre, et les autres s'appliquent | 13 | prévue |
+| `CLI-CORRECT-09` | `line-break` mesure en caractères ; `--max-length` est requis ; les bornes du saut suivent, et s'éteignent | 13 | prévue |
+| `CLI-CORRECT-10` | `join-words` et `split-words` joignent et scindent selon le dictionnaire de `--language` | 13 | prévue |
+| `CLI-CORRECT-11` | sans dictionnaire pour `--language`, `correct` est refusé avec la phrase de la fenêtre, avant tout traitement | 13 | prévue |
+| `CLI-CORRECT-12` | les sous-titres vidés sont retirés, sauf `--keep-blank-subtitles` | 13 | prévue |
+| `CLI-CORRECT-13` | `correct` ne lit aucun réglage de l'utilisateur ni sa liste de remplacements | 13 | prévue |
+| `CLI-REPLACE-01` | `replace` cherche dans le texte visible et remplace dans le texte source, sans casser une balise | 13 | prévue |
+| `CLI-REPLACE-02` | `--regex` lit une expression ; une expression illisible est refusée avant tout traitement, avec la raison | 13 | prévue |
+| `CLI-REPLACE-03` | les majuscules sont ignorées par défaut, `--case-sensitive` les distingue | 13 | prévue |
+| `CLI-REPLACE-04` | le compte rendu dit les textes changés, ou que rien n'a été trouvé | 13 | prévue |
+| `CLI-CASE-01` | `case` applique les quatre casses sans toucher aux balises | 13 | prévue |
+| `CLI-ITALIC-01` | `italics --on` / `--off` pose et retire l'italique dans les balises du format du fichier | 13 | prévue |
+| `CLI-ITALIC-02` | un format qui ne porte aucun style refuse, fichier par fichier, avec la raison | 13 | prévue |
+| `CLI-DASH-01` | `dialogue-dashes --add` / `--remove` pose et retire les tirets de dialogue | 13 | prévue |
+| `CLI-SORT-01` | `sort` met les sous-titres dans l'ordre de leur début, de façon stable | 13 | prévue |
+| `CLI-SORT-02` | `sort` dit combien de sous-titres ont bougé, et écrit le fichier même s'il est déjà en ordre | 13 | prévue |
+| `CLI-TRANS-01` | `inspect -t` rapporte lignes rattachées, sous-titres nés, sans traduction et hors d'ordre | 13 | prévue |
+| `CLI-TRANS-02` | `--document translation` exige `-t`, et `-t` exige `--document translation` sur une sous-commande de texte | 13 | prévue |
+| `CLI-TRANS-03` | `-t` n'a de sens que pour une seule entrée ; avec un lot, il est refusé | 13 | prévue |
+| `CLI-TRANS-04` | seul le document visé est écrit, à son propre chemin et dans son propre format | 13 | prévue |
+| `CLI-TRANS-05` | `--align-method` choisit entre position (défaut) et numéro | 13 | prévue |
+| `CLI-LISTENC-01` | `--list-encodings` écrit les encodages qu'ICU sait convertir, un par ligne, et s'arrête | 13 | prévue |
+| `CLI-APPEND-01` | `append` ajoute les fichiers à la suite du premier, décalés de la fin du dernier sous-titre, dans une seule sortie | 13 | prévue |
+| `CLI-PSPLIT-01` | `split-file --at N` écrit les deux moitiés, la seconde ramenée à l'origine, ou refuse en nommant le sous-titre | 13 | prévue |
+| `CLI-PAIR-01` | `pair` écrit la traduction recalée sur les positions du principal, et dit l'alignement | 13 | prévue |
