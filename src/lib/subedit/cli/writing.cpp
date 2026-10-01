@@ -23,7 +23,8 @@ std::expected<std::size_t, std::string> writeSubtitlesTo(core::FileSystem& files
     if (const std::expected<void, core::FileError> saved =
             core::writeAtomically(files, out, *written);
         !saved)
-        return std::unexpected(out.string() + ": " + std::string{reasonOf(saved.error().kind)});
+        return std::unexpected(out.string() + ": " +
+                               std::string{reasonOfWriting(saved.error().kind)});
 
     return written->size();
 }

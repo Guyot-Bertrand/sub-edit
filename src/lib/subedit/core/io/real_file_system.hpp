@@ -27,6 +27,11 @@ class RealFileSystem final : public FileSystem {
 public:
     [[nodiscard]] bool exists(const std::filesystem::path& path) const override;
 
+    /// `std::filesystem::equivalent`: the same device and the same file, which
+    /// follows links and sees through the spelling.
+    [[nodiscard]] bool equivalent(const std::filesystem::path& first,
+                                  const std::filesystem::path& second) const override;
+
     /// Answers « this file carries an execute bit », not « this user may run
     /// it ».
     ///

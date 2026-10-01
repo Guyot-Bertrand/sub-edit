@@ -292,6 +292,26 @@ TEST_CASE("the one reason a writing can fail has a sentence", "[cli][wording][fo
           "holds a character the chosen encoding cannot write");
 }
 
+TEST_CASE("a refused write says it cannot be written, never that it cannot be read",
+          "[cli][wording][format][CLI-BATCH-06]") {
+    using subedit::core::FileErrorKind;
+    using subedit::core::reasonOf;
+    using subedit::core::reasonOfCreating;
+    using subedit::core::reasonOfWriting;
+
+    CHECK(reasonOfWriting(FileErrorKind::PermissionDenied) ==
+          "cannot be written: permission denied");
+    CHECK(reasonOfWriting(FileErrorKind::Io) == "cannot be written");
+    CHECK(reasonOfWriting(FileErrorKind::NotFound) == "cannot be written");
+    CHECK(reasonOfCreating(FileErrorKind::PermissionDenied) ==
+          "cannot be created: permission denied");
+    CHECK(reasonOfCreating(FileErrorKind::Io) == "cannot be created");
+
+    // The reading keeps its own words.
+    CHECK(reasonOf(FileErrorKind::Io) == "cannot be read");
+    CHECK(reasonOf(FileErrorKind::PermissionDenied) == "cannot be opened: permission denied");
+}
+
 TEST_CASE("a conversion that lost nothing has nothing to say", "[cli][wording][format]") {
     // **The silence is half the design.** A line printed on every conversion is
     // a line nobody reads, and the ones that matter would go by among them.

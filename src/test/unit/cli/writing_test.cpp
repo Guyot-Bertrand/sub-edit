@@ -89,5 +89,5 @@ TEST_CASE("a disk that refuses the bytes says so, and names the destination", "[
         files, "out.srt", SubtitleFormat::SubRip, WriteRequest{.subtitles = oneSaying("Un café.")});
 
     REQUIRE_FALSE(written.has_value());
-    CHECK(written.error() == "out.srt: cannot be opened: permission denied");
+    CHECK(written.error() == "out.srt: cannot be written: permission denied");
 }

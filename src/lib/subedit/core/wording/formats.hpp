@@ -118,8 +118,22 @@ namespace subedit::core {
 /// starting with its path.
 [[nodiscard]] std::string_view reasonOf(ReadErrorKind kind);
 
-/// Why the file system refused, in the same shape.
+/// Why the file system refused to **read**, in the same shape.
+///
+/// Reading only: a refusal to write is `reasonOfWriting`. They used to be one
+/// function, and a disk that refused a write was reported as "cannot be read".
 [[nodiscard]] std::string_view reasonOf(FileErrorKind kind);
+
+/// Why the file system refused to **write**, in the same shape.
+///
+/// `cannot be written: permission denied`, or `cannot be written` for the rest.
+/// A missing directory says no more than the rest: the output directory is
+/// created before anything is written, so a write that finds none is not the
+/// ordinary case.
+[[nodiscard]] std::string_view reasonOfWriting(FileErrorKind kind);
+
+/// Why a directory could not be made, in the same shape.
+[[nodiscard]] std::string_view reasonOfCreating(FileErrorKind kind);
 
 /// Why a file could not be opened, whichever of the two steps failed.
 ///

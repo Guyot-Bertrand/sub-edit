@@ -53,6 +53,14 @@ bool RealFileSystem::exists(const std::filesystem::path& path) const {
     return std::filesystem::exists(path, code) && !code;
 }
 
+bool RealFileSystem::equivalent(const std::filesystem::path& first,
+                                const std::filesystem::path& second) const {
+    std::error_code code;
+    // It reports an error when either side is absent; here that is "not the
+    // same file", which is the answer asked for.
+    return std::filesystem::equivalent(first, second, code) && !code;
+}
+
 // `status` rather than `symlink_status`: it follows symbolic links, and
 // `/usr/bin/ffprobe` is one on most distributions.
 bool RealFileSystem::isExecutable(const std::filesystem::path& path) const {

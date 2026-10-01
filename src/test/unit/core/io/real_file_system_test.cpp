@@ -105,6 +105,20 @@ TEST_CASE("existence, renaming and removal follow the disk", "[format][filesyste
     CHECK_FALSE(files.exists(other));
 }
 
+TEST_CASE("two names of one file are equivalent, and a missing file is nobody's",
+          "[format][filesystem][disk]") {
+    const ScratchDirectory scratch;
+    RealFileSystem files;
+    const std::filesystem::path path = scratch.file("un.srt");
+    REQUIRE(files.writeFile(path, "contenu").has_value());
+    std::filesystem::create_directory_symlink(scratch.file("."), scratch.file("lien"));
+
+    CHECK(files.equivalent(path, scratch.file("lien/un.srt")));
+    CHECK(files.equivalent(path, path));
+    CHECK_FALSE(files.equivalent(path, scratch.file("absent.srt")));
+    CHECK_FALSE(files.equivalent(scratch.file("absent.srt"), scratch.file("absent.srt")));
+}
+
 TEST_CASE("renaming a file that is not on disk fails", "[format][filesystem][disk]") {
     const ScratchDirectory scratch;
     RealFileSystem files;

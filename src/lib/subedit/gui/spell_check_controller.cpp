@@ -153,7 +153,7 @@ void SpellCheckController::openCheck() {
     const auto saved = core::saveSpellReplacements(walk.checker(), files, replacementFile);
     if (!saved.has_value())
         m_prompts->reportFailure("Could not save the replacements for " + language + ": " +
-                                 std::string{core::reasonOf(saved.error().kind)});
+                                 std::string{core::reasonOfWriting(saved.error().kind)});
 
     m_view->announce(core::noticeOfCorrection(tally.corrected, tally.removed));
 }

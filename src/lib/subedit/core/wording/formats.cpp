@@ -159,6 +159,28 @@ std::string_view reasonOf(FileErrorKind kind) {
     std::unreachable();
 }
 
+std::string_view reasonOfWriting(FileErrorKind kind) {
+    switch (kind) {
+    case FileErrorKind::PermissionDenied:
+        return "cannot be written: permission denied";
+    case FileErrorKind::NotFound:
+    case FileErrorKind::Io:
+        return "cannot be written";
+    }
+    std::unreachable();
+}
+
+std::string_view reasonOfCreating(FileErrorKind kind) {
+    switch (kind) {
+    case FileErrorKind::PermissionDenied:
+        return "cannot be created: permission denied";
+    case FileErrorKind::NotFound:
+    case FileErrorKind::Io:
+        return "cannot be created";
+    }
+    std::unreachable();
+}
+
 std::string_view reasonOf(WriteErrorKind kind) {
     switch (kind) {
     case WriteErrorKind::Unencodable:
@@ -172,7 +194,10 @@ std::string_view reasonOf(const OpenError& error) {
 }
 
 std::string_view reasonOf(const SaveError& error) {
-    return std::visit([](const auto& one) { return reasonOf(one.kind); }, error);
+    // The second step of a save is a write: its refusal is worded as one.
+    if (const auto* refused = std::get_if<FileError>(&error))
+        return reasonOfWriting(refused->kind);
+    return reasonOf(std::get<WriteError>(error).kind);
 }
 
 } // namespace subedit::core

@@ -62,12 +62,12 @@ frameRateForFrames(const core::Project& project,
 }
 
 bool convertFile(core::FileSystem& files,
-                 const std::string& path,
+                 const Job& job,
                  const core::ReadingChoices& reading,
                  SubtitleFormat target,
                  const WriteShape& shape,
-                 const Destination& destination,
                  const Reporter& reporter) {
+    const std::string& path = job.input;
     const std::expected<core::OpenedFile, core::OpenError> opened =
         core::openProject(files, path, reading);
     if (!opened) {
@@ -130,7 +130,7 @@ bool convertFile(core::FileSystem& files,
         .header = converted.header,
         .extras = converted.extras,
     };
-    const std::filesystem::path out = destination.pathFor(path, extensionOf(target));
+    const std::filesystem::path& out = job.output;
     const std::expected<std::size_t, std::string> written =
         writeSubtitlesTo(files, out, target, request);
     if (!written) {
@@ -178,9 +178,15 @@ ExitCode convertAll(core::FileSystem& files,
                     const WriteShape& shape,
                     const Destination& destination,
                     const Reporter& reporter) {
+    const std::expected<std::vector<Job>, ExitCode> jobs =
+        arrange(files, destination, paths, extensionOf(target), reporter);
+    if (!jobs) {
+        return jobs.error();
+    }
+
     std::size_t done = 0;
-    for (const std::string& path : paths) {
-        if (convertFile(files, path, reading, target, shape, destination, reporter)) {
+    for (const Job& job : *jobs) {
+        if (convertFile(files, job, reading, target, shape, reporter)) {
             ++done;
         }
     }

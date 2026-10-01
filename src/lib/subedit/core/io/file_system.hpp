@@ -56,6 +56,18 @@ public:
 
     [[nodiscard]] virtual bool exists(const std::filesystem::path& path) const = 0;
 
+    /// Tells whether `first` and `second` name the same file.
+    ///
+    /// **Not the same question as comparing two spellings**: `out/../a.srt` and
+    /// `a.srt`, a symbolic link and its target, and on a case-insensitive
+    /// system `A.SRT` and `a.srt` are one file under several names. A caller
+    /// about to write over something asks this before it does.
+    ///
+    /// False when either does not exist — nothing can be the same file as a
+    /// file that is not there.
+    [[nodiscard]] virtual bool equivalent(const std::filesystem::path& first,
+                                          const std::filesystem::path& second) const = 0;
+
     /// Tells whether `path` is a file the system would agree to run.
     ///
     /// Here rather than beside the caller because looking for an external

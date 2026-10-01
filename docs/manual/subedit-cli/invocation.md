@@ -109,7 +109,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.7
+subedit 0.13.8
 ```
 
 ## Sous-commandes
@@ -137,6 +137,12 @@ Les six sous-commandes qui écrivent — [`convert`](convert.md),
 destination de la même façon. [`inspect`](inspect.md) n'écrit aucun fichier et
 n'accepte aucune de ces options.
 
+**Une destination qui existe déjà est écrasée**, sans question ni option pour
+l'éviter : l'écriture est atomique — le fichier n'est jamais écrit à moitié, et
+une écriture interrompue laisse l'ancien intact —, mais le contenu d'avant est
+perdu. Ce n'est pas un défaut qu'on garde : c'est la règle, et rejouer une
+commande sur le même dossier de sortie la rejoue par-dessus elle-même.
+
 **Rien n'est jamais écrit sans destination explicite.** Les trois façons de la
 donner s'excluent, et il en faut une : sans elle, rien n'est écrit et le code de
 retour est `1`.
@@ -155,16 +161,28 @@ fichier.
 les précédents. Avec un lot, `--output-dir` est le seul des trois qui ait un
 sens, avec `--in-place`.
 
-**Trois choses que l'outil ne fait pas, et qu'il vaut mieux savoir** :
+**Le dossier de sortie est créé** s'il manque, parents compris — pour
+`--output-dir`, et pour le dossier où `--output` écrit. C'est fait une fois la
+ligne de commande validée et **avant le premier fichier**. S'il ne peut pas
+l'être, c'est dit une fois, aucun fichier n'est lu, et le code de retour est
+`2`.
 
-- **une destination qui existe déjà est écrasée**, sans question ni option pour
-  l'éviter — l'écriture est atomique, mais le contenu d'avant est perdu ;
-- **deux entrées de même nom de base** — `a/film.srt` et `b/film.srt` — **écrivent
-  au même endroit** avec `--output-dir` : le code de retour est `0`, chaque entrée
-  annonce sa destination, et la seconde écrase la première, sans avertissement ;
-- **le dossier de `--output-dir` n'est pas créé** : s'il manque, aucune entrée n'est
-  écrite, chacune est nommée en échec (`cannot be read`) et le code de retour est
-  `2`.
+**Le lot est jugé en entier avant d'écrire.** La destination de chaque entrée
+est calculée d'abord, et deux refus en découlent — des erreurs d'usage, code
+`1`, **aucun fichier écrit** et aucun dossier créé :
+
+- **deux entrées qui aboutiraient au même fichier** — `a/film.srt` et
+  `b/film.srt` avec `--output-dir`, ou `a/film.srt` et `b/film.vtt` converties
+  toutes deux en WebVTT, dont la destination finale a changé d'extension. Le
+  message nomme la destination et les deux entrées ; renommer la seconde ou
+  laisser la dernière gagner perdrait un fichier sans le dire, et le refuser
+  coûte une ligne ;
+- **une destination qui est l'une des entrées**, sans `--in-place` — y compris
+  par `--output-dir .`, par `--output` ou par un lien symbolique. Écrire par-dessus
+  son entrée est un geste qu'on nomme.
+
+Deux chemins désignent le même fichier quand le système le dit, non quand ils
+s'écrivent pareil : `in/../in/film.srt` et `in/film.srt` sont un seul fichier.
 
 **L'extension suit le format écrit.** Elle ne change que pour
 [`convert`](convert.md), seule sous-commande qui change de format ; les cinq
@@ -175,7 +193,10 @@ autres conservent celui du fichier lu, donc son extension.
 | aucune destination | `no destination given: use --output, --output-dir or --in-place` |
 | deux destinations | `--output, --output-dir and --in-place exclude one another` |
 | `--output` sur un lot | `--output names one file but several were given: use --output-dir instead` |
-| destination non inscriptible | `<chemin>: <destination>: cannot be opened: permission denied` |
+| deux entrées, une destination | `<destination>: would be written by both <entrée> and <entrée>` |
+| une entrée serait écrasée | `<destination>: written for <entrée>, but is itself the input <entrée>: use --in-place to write over the inputs` |
+| dossier de sortie impossible à créer | `<dossier>: cannot be created: permission denied`, ou `: cannot be created` |
+| destination non inscriptible | `<chemin>: <destination>: cannot be written: permission denied`, ou `: cannot be written` |
 | caractère absent de l'encodage écrit | `<chemin>: holds a character the chosen encoding cannot write` |
 
 **Le dernier mérite une phrase.** Un fichier est réécrit dans **l'encodage où il

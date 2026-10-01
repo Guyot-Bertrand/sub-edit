@@ -48,6 +48,13 @@ The six subcommands that write take one of
 or
 .BR \-\-in\-place ,
 and refuse to run without one.
+.PP
+An existing destination is overwritten, atomically: the file is never written
+by halves. The output directory is created if it is missing, parents included.
+The whole batch is judged before the first write: two inputs that end at the
+same destination, or a destination that is one of the inputs without
+.BR \-\-in\-place ,
+are usage errors (exit status 1) and nothing is written.
 .SH SUBCOMMANDS
 .TP
 .B inspect

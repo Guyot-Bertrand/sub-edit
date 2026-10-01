@@ -273,3 +273,22 @@ TEST_CASE("a correction that would cross the origin is refused", "[cli][shifting
     CHECK_THAT(errors.str(), ContainsSubstring("would start before the origin"));
     CHECK_FALSE(files.contentOf("out/a.srt").has_value());
 }
+
+TEST_CASE("a batch whose destinations collide is refused whole, and writes nothing",
+          "[cli][shifting][CLI-BATCH-03]") {
+    InMemoryFileSystem files;
+    files.addFile("a/film.srt", kTwo);
+    files.addFile("b/film.srt", kTwo);
+    std::ostringstream errors;
+
+    const ExitCode code = shiftAll(files,
+                                   {"a/film.srt", "b/film.srt"},
+                                   std::nullopt,
+                                   Duration::fromMilliseconds(1'000),
+                                   Destination::from("", "out", false, 2).value(),
+                                   Reporter{errors, 1});
+
+    CHECK(code == ExitCode::Usage);
+    CHECK_THAT(errors.str(), ContainsSubstring("out/film.srt: would be written by both"));
+    CHECK_FALSE(files.contentOf("out/film.srt").has_value());
+}

@@ -145,3 +145,21 @@ voie ; un appelant qui veut un motif de noms ou `--no-clobber` ; un système de 
 insensible à la casse qui ferait collisionner deux noms que la comparaison d'octets
 distingue (la règle 1 s'appuie sur `equivalent` quand le fichier existe, et non sur la
 chaîne, pour cela).
+
+## Mise en œuvre de la première moitié (#554)
+
+Relue à l'implémentation ; **aucune décision n'est changée**, trois précisions que
+l'ADR ne disait pas :
+
+- **Une écriture qui trouve son dossier absent dit « cannot be written »**, comme
+  les autres refus d'écriture hors permission : le dossier de sortie est créé avant
+  tout écrit, ce cas n'est plus l'ordinaire. La création qui échoue a sa propre phrase,
+  `cannot be created` (`reasonOfCreating`).
+- **La séparation lecture/écriture vaut aussi pour la fenêtre** : `reasonOf(SaveError)`
+  et l'enregistrement des remplacements du correcteur disent « written » eux aussi.
+  Les deux surfaces gardaient la même phrase fausse ; elles gardent maintenant la même
+  phrase juste.
+- **L'identité de deux chemins** se juge par l'orthographe absolue normalisée, puis par
+  `FileSystem::equivalent` (nouveau, vrai quand les deux existent) — avec un tamis sur
+  le nom de fichier, sans casse, pour que la comparaison reste linéaire dans la taille
+  du lot.

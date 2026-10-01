@@ -194,7 +194,7 @@ TEST_CASE("each cause of a failed save has its own sentence", "[format][save]") 
 
     REQUIRE_FALSE(refused.has_value());
     REQUIRE_FALSE(unwritable.has_value());
-    CHECK(subedit::core::reasonOf(refused.error()) == "cannot be opened: permission denied");
+    CHECK(subedit::core::reasonOf(refused.error()) == "cannot be written: permission denied");
     CHECK(subedit::core::reasonOf(unwritable.error()) ==
           "holds a character the chosen encoding cannot write");
 }
