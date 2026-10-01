@@ -56,7 +56,7 @@ dépendances à Qt que la phase rencontre sont :
   sont dans `gui/patterns_path.cpp` et appellent `QCoreApplication::applicationDirPath()` et
   `qgetenv`. Le noyau en fournit la partie pure (`shippedPatternsPath`, `userPatternsPath`) ;
   **il manque l'appel côté ligne de commande**, sans Qt. C'est une issue de la tranche de la
-  correction (I14).
+  correction ([#566](https://github.com/Guyot-Bertrand/sub-edit/issues/566)).
 
 **Tout le reste est au noyau et se branche tel quel** : `proposeCorrections` et
 `applyCorrections`, `readPatternCatalogue`, `openSpellChecker` et `EnchantSpellProvider`
@@ -71,7 +71,7 @@ tableau d'`invocation.md`, deux listes de la page `subedit-cli(1)`, exigences `C
 une chaîne de `if (…->parsed())`, pas de table. **À dix-sept, ce fichier ferait de l'ordre de
 mille quatre cents lignes** (quatre-vingts par sous-commande) — l'histoire de `MainWindow`, qui avait demandé quatre issues
 pour être allégée après coup (ADR 0034, 0035). L'extraction passe avant la première
-sous-commande neuve (I1).
+sous-commande neuve ([#553](https://github.com/Guyot-Bertrand/sub-edit/issues/553)).
 
 **`Operation` rend une phrase, et un compte ne se retrouve pas dans une phrase.** `rewriteAll`
 prend un `std::function<std::expected<std::string, std::string>(Session&)>` : « 4000
@@ -128,7 +128,7 @@ pas un.
 | tirets de dialogue | **retenue** | **`dialogue-dashes`** — D9 |
 | tri des sous-titres | **retenue** | **`sort`** — D9. Le noyau ne trie jamais de lui-même (ADR 0012) : `sort` est le geste qu'on fait **exprès**, et qu'un lot de fichiers désordonnés réclame |
 | traduction | **retenue, comme options** | `-t/--translation-file`, `--document`, `--align-method` sur `inspect` et les sous-commandes de texte — D10 |
-| liste des encodages | **retenue** | `--list-encodings`, iso-fonctionnel avec Gaupol ; ICU les énumère (I12) |
+| liste des encodages | **retenue** | `--list-encodings`, iso-fonctionnel avec Gaupol ; ICU les énumère ([#564](https://github.com/Guyot-Bertrand/sub-edit/issues/564)) |
 | ajout d'un fichier à la suite d'un autre | **retenue, derrière une porte** | **`append`** — D12. L'usage est réel (un film en deux parties), l'arité ne l'est pas : N entrées, une sortie |
 | scission d'un projet | **retenue, derrière une porte** | **`split-file`** — D12 : l'inverse exact de `append` |
 | une traduction recalée sur le principal | **retenue, derrière une porte** | **`pair`** — D10, D12 : la seule chose que l'appariement fait et qu'un fichier seul ne fait pas |
@@ -682,58 +682,57 @@ dépendance** — le noyau prêt avant la traduction, la traduction avant la cor
 branche, la porte à la fin. **Les issues d'outillage de l'initialisation
 (#543 à #546) sont livrées et passent avant ; aucune issue ci-dessous ne les attend.**
 
-**Les numéros I1 à I21 sont provisoires** : ils sont remplacés par ceux des issues à leur
-création, et la liste détaillée — titres, labels, corps, critères — est celle que le
-coordinateur ouvre.
+**Les issues sont ouvertes** : [#553](https://github.com/Guyot-Bertrand/sub-edit/issues/553) à
+[#573](https://github.com/Guyot-Bertrand/sub-edit/issues/573), dans le milestone 13 ; les trois de la tranche 5 ([#570](https://github.com/Guyot-Bertrand/sub-edit/issues/570) à [#572](https://github.com/Guyot-Bertrand/sub-edit/issues/572)) portent `blocked` et `needs-decision` — la porte de D12.
 
 | Tranche | Issue | Ce qu'elle livre | Dépend de | Taille |
 | :------ | :---- | :--------------- | :-------- | :----- |
-| 1 — les fondations | I1 | **découper `application.cpp`** : un fichier par sous-commande, une table d'enregistrement ; aucun comportement ne change | — | M |
-| | I2 | **le lot sûr** : collisions et entrées écrasées refusées avant tout écrit, dossier créé, libellé d'écriture, manuel de la destination ; ADR 0039 | — | M |
-| | I3 | **`--recursive`** : répertoires en entrée, parcours trié, arborescence conservée ; le banc du lot | I2 | M |
-| | I4 | **`--format json`** : l'objet de résultat à la place de la phrase, l'écrivain JSON Lines, **`inspect`**, les attendus et le script de validité ; ADR 0038 | I1 | L |
-| | I5 | **`--format json` des sous-commandes qui écrivent, et `--dry-run`** uniforme ; ADR 0040 | I4, I2 | L |
-| | I6 | **`--range`** : la grammaire et son passage à l'opération | I1 | S |
-| 2 — le noyau est prêt | I7 | **`adjust`** | I5, I6 | M |
-| | I8 | **le recoupement de #407** : les fixtures, le script qui écrit l'union, la comparaison | I7 | M |
-| | I9 | **`replace`** | I5, I6 | M |
-| | I10 | **`case`, `italics`, `dialogue-dashes`**, et `--dry-run` de `hearing-impaired` | I5, I6 | M |
-| | I11 | **`sort`** | I5 | S |
-| | I12 | **`--list-encodings`** | I1 | S |
-| 3 — la traduction | I13 | **`-t`, `--document`, `--align-method`** : `inspect` et les sous-commandes de texte | I4, I9, I10 | L |
-| 4 — la correction | I14 | **les motifs et le terrain de la correction, hors de Qt** : l'emplacement des motifs livrés et de l'utilisateur, le harnais qui déplace `XDG_DATA_HOME`, l'arbre de construction qui reproduit l'installation | I1 | M |
-| | I15 | **`correct` : mentions, erreurs courantes, majuscules** — `--tasks`, `--code`, `--classes`, `--enable`/`--disable`, le compte, les motifs nommés, `--dry-run` | I5, I6, I13, I14 | L |
-| | I16 | **`correct --tasks line-break`**, en caractères | I15 | M |
-| | I17 | **`correct --tasks join-words,split-words`** : `--language`, le dictionnaire, son absence | I15 | M |
-| 5 — la porte, D12 | I18 | **`append`** | I5 | M |
-| | I19 | **`split-file`** | I5, I18 | M |
-| | I20 | **`pair`** | I13 | M |
-| | I21 | **relecture de fin de phase** | tout | M |
+| 1 — les fondations | [#553](https://github.com/Guyot-Bertrand/sub-edit/issues/553) | **découper `application.cpp`** : un fichier par sous-commande, une table d'enregistrement ; aucun comportement ne change | — | M |
+| | [#554](https://github.com/Guyot-Bertrand/sub-edit/issues/554) | **le lot sûr** : collisions et entrées écrasées refusées avant tout écrit, dossier créé, libellé d'écriture, manuel de la destination ; ADR 0039 | — | M |
+| | [#555](https://github.com/Guyot-Bertrand/sub-edit/issues/555) | **`--recursive`** : répertoires en entrée, parcours trié, arborescence conservée ; le banc du lot | [#554](https://github.com/Guyot-Bertrand/sub-edit/issues/554) | M |
+| | [#556](https://github.com/Guyot-Bertrand/sub-edit/issues/556) | **`--format json`** : l'objet de résultat à la place de la phrase, l'écrivain JSON Lines, **`inspect`**, les attendus et le script de validité ; ADR 0038 | [#553](https://github.com/Guyot-Bertrand/sub-edit/issues/553) | L |
+| | [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557) | **`--format json` des sous-commandes qui écrivent, et `--dry-run`** uniforme ; ADR 0040 | [#556](https://github.com/Guyot-Bertrand/sub-edit/issues/556), [#554](https://github.com/Guyot-Bertrand/sub-edit/issues/554) | L |
+| | [#558](https://github.com/Guyot-Bertrand/sub-edit/issues/558) | **`--range`** : la grammaire et son passage à l'opération | [#553](https://github.com/Guyot-Bertrand/sub-edit/issues/553) | S |
+| 2 — le noyau est prêt | [#559](https://github.com/Guyot-Bertrand/sub-edit/issues/559) | **`adjust`** | [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557), [#558](https://github.com/Guyot-Bertrand/sub-edit/issues/558) | M |
+| | [#560](https://github.com/Guyot-Bertrand/sub-edit/issues/560) | **le recoupement de #407** : les fixtures, le script qui écrit l'union, la comparaison | [#559](https://github.com/Guyot-Bertrand/sub-edit/issues/559) | M |
+| | [#561](https://github.com/Guyot-Bertrand/sub-edit/issues/561) | **`replace`** | [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557), [#558](https://github.com/Guyot-Bertrand/sub-edit/issues/558) | M |
+| | [#562](https://github.com/Guyot-Bertrand/sub-edit/issues/562) | **`case`, `italics`, `dialogue-dashes`**, et `--dry-run` de `hearing-impaired` | [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557), [#558](https://github.com/Guyot-Bertrand/sub-edit/issues/558) | M |
+| | [#563](https://github.com/Guyot-Bertrand/sub-edit/issues/563) | **`sort`** | [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557) | S |
+| | [#564](https://github.com/Guyot-Bertrand/sub-edit/issues/564) | **`--list-encodings`** | [#553](https://github.com/Guyot-Bertrand/sub-edit/issues/553) | S |
+| 3 — la traduction | [#565](https://github.com/Guyot-Bertrand/sub-edit/issues/565) | **`-t`, `--document`, `--align-method`** : `inspect` et les sous-commandes de texte | [#556](https://github.com/Guyot-Bertrand/sub-edit/issues/556), [#561](https://github.com/Guyot-Bertrand/sub-edit/issues/561), [#562](https://github.com/Guyot-Bertrand/sub-edit/issues/562) | L |
+| 4 — la correction | [#566](https://github.com/Guyot-Bertrand/sub-edit/issues/566) | **les motifs et le terrain de la correction, hors de Qt** : l'emplacement des motifs livrés et de l'utilisateur, le harnais qui déplace `XDG_DATA_HOME`, l'arbre de construction qui reproduit l'installation | [#553](https://github.com/Guyot-Bertrand/sub-edit/issues/553) | M |
+| | [#567](https://github.com/Guyot-Bertrand/sub-edit/issues/567) | **`correct` : mentions, erreurs courantes, majuscules** — `--tasks`, `--code`, `--classes`, `--enable`/`--disable`, le compte, les motifs nommés, `--dry-run` | [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557), [#558](https://github.com/Guyot-Bertrand/sub-edit/issues/558), [#565](https://github.com/Guyot-Bertrand/sub-edit/issues/565), [#566](https://github.com/Guyot-Bertrand/sub-edit/issues/566) | L |
+| | [#568](https://github.com/Guyot-Bertrand/sub-edit/issues/568) | **`correct --tasks line-break`**, en caractères | [#567](https://github.com/Guyot-Bertrand/sub-edit/issues/567) | M |
+| | [#569](https://github.com/Guyot-Bertrand/sub-edit/issues/569) | **`correct --tasks join-words,split-words`** : `--language`, le dictionnaire, son absence | [#567](https://github.com/Guyot-Bertrand/sub-edit/issues/567) | M |
+| 5 — la porte, D12 | [#570](https://github.com/Guyot-Bertrand/sub-edit/issues/570) | **`append`** | [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557) | M |
+| | [#571](https://github.com/Guyot-Bertrand/sub-edit/issues/571) | **`split-file`** | [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557), [#570](https://github.com/Guyot-Bertrand/sub-edit/issues/570) | M |
+| | [#572](https://github.com/Guyot-Bertrand/sub-edit/issues/572) | **`pair`** | [#565](https://github.com/Guyot-Bertrand/sub-edit/issues/565) | M |
+| | [#573](https://github.com/Guyot-Bertrand/sub-edit/issues/573) | **relecture de fin de phase** | tout | M |
 
-**I4 est la pierre d'angle de la phase**, et la plus risquée : c'est elle qui change ce que
+**[#556](https://github.com/Guyot-Bertrand/sub-edit/issues/556) est la pierre d'angle de la phase**, et la plus risquée : c'est elle qui change ce que
 `rewriteAll` rend, donc ce que **chaque** sous-commande doit produire, et qui engage le format
-que des scripts liront. **I15 est la plus grosse de la correction** : c'est elle qui exerce
-ensemble le catalogue, les réglages, le moteur et les phrases du noyau. **I1 est la plus
+que des scripts liront. **[#567](https://github.com/Guyot-Bertrand/sub-edit/issues/567) est la plus grosse de la correction** : c'est elle qui exerce
+ensemble le catalogue, les réglages, le moteur et les phrases du noyau. **[#553](https://github.com/Guyot-Bertrand/sub-edit/issues/553) est la plus
 ingrate et la moins négociable** : la phase doublerait un fichier qui a déjà 575 lignes.
 
-**Ce qui peut avancer en parallèle** : I2 et I3 avec I4 et I5 (le lot et le format ne se
-touchent que dans l'objet « liste des entrées », que I2 pose) ; I12 à tout moment après I1 ;
-I14 dès I1, et **tôt**, parce qu'il touche l'empaquetage et le harnais — ce qui s'éprouve tôt.
+**Ce qui peut avancer en parallèle** : [#554](https://github.com/Guyot-Bertrand/sub-edit/issues/554) et [#555](https://github.com/Guyot-Bertrand/sub-edit/issues/555) avec [#556](https://github.com/Guyot-Bertrand/sub-edit/issues/556) et [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557) (le lot et le format ne se
+touchent que dans l'objet « liste des entrées », que [#554](https://github.com/Guyot-Bertrand/sub-edit/issues/554) pose) ; [#564](https://github.com/Guyot-Bertrand/sub-edit/issues/564) à tout moment après [#553](https://github.com/Guyot-Bertrand/sub-edit/issues/553) ;
+[#566](https://github.com/Guyot-Bertrand/sub-edit/issues/566) dès [#553](https://github.com/Guyot-Bertrand/sub-edit/issues/553), et **tôt**, parce qu'il touche l'empaquetage et le harnais — ce qui s'éprouve tôt.
 
 ## Points ouverts
 
-Ce que le cadrage ne peut pas trancher seul, **chacun avec ce qui est supposé en attendant**.
+**Quatre sont tranchés par l'utilisateur le 2026-10-01** (1, 5, 7 et 11 : la supposition devient la décision), et **la porte de la tranche 5 est gardée** (point 2) : `append`, `split-file` et `pair` se décident à l'entrée de la tranche 5, la fusion et la scission d'un sous-titre restent écartées avec leur déclencheur. Ce que le cadrage ne peut pas trancher seul, **chacun avec ce qui est supposé en attendant**.
 
 | N° | Point | Supposé | Qui, quand |
 | :- | :---- | :------ | :--------- |
-| 1 | **la racine des sorties d'un parcours** : relative au répertoire donné (`out/a/x.srt`) ou y compris son nom (`out/films/a/x.srt`) | relative, sans le nom (ADR 0039) | l'utilisateur, avant I3 |
+| 1 | **la racine des sorties d'un parcours** : relative au répertoire donné (`out/a/x.srt`) ou y compris son nom (`out/films/a/x.srt`) | relative, sans le nom (ADR 0039) | **tranché le 2026-10-01** : la supposition est retenue |
 | 2 | **la porte de la tranche 5** : `append`, `split-file`, `pair` sont-ils voulus, et sous quelle grammaire (`split-file` écrit deux fichiers, `append` en lit N pour en écrire un) | non construits tant que personne ne répond ; les tranches 1 à 4 se tiennent seules | l'utilisateur, à l'entrée de la tranche 5 |
 | 3 | **l'appariement des traductions dans un lot** : `-t` n'a de sens que pour une entrée ; un `--translation-dir`, un suffixe (`film.srt` ↔ `film.fr.srt`), ou rien | rien : on passe les deux fichiers, ou une invocation par paire | la relecture, sur demande réelle |
-| 4 | **la forme texte de `--dry-run`** : des blocs « sous-titre N / avant / après », ou autre chose | des blocs, un préfixe par ligne ; **la forme JSON, elle, est engagée par l'ADR 0038** | I5, au vu de ce que rend un texte à plusieurs lignes |
-| 5 | **`--code` requis, ou `Zyyy` par défaut** : le choix de D8 est de refuser un défaut qui appliquerait moins qu'attendu | requis | l'utilisateur, avant I15 |
+| 4 | **la forme texte de `--dry-run`** : des blocs « sous-titre N / avant / après », ou autre chose | des blocs, un préfixe par ligne ; **la forme JSON, elle, est engagée par l'ADR 0038** | [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557), au vu de ce que rend un texte à plusieurs lignes |
+| 5 | **`--code` requis, ou `Zyyy` par défaut** : le choix de D8 est de refuser un défaut qui appliquerait moins qu'attendu | requis | **tranché le 2026-10-01** : la supposition est retenue |
 | 6 | **`--range` sur les sept sous-commandes existantes** (`shift` sur une plage, `hearing-impaired` sur une plage) | non, dans cette phase | la relecture |
-| 7 | **le parent de `--output FICHIER`** est créé comme le dossier de `--output-dir` (ADR 0039) | oui, même règle | l'utilisateur, en lisant l'ADR |
-| 8 | **un chemin qui n'est pas de l'UTF-8** en JSON : U+FFFD et l'avertissement `path-not-utf8` | oui, la fidélité n'est pas promise pour eux | I4 |
-| 9 | **si les comptes divergent** (D7) et qu'aucune plage ne localise le désaccord : faut-il que le noyau rende **quels** sous-titres sont sacrifiés, non seulement combien ? | non, tant que les comptes s'accordent | I8 |
+| 7 | **le parent de `--output FICHIER`** est créé comme le dossier de `--output-dir` (ADR 0039) | oui, même règle | **tranché le 2026-10-01** : la supposition est retenue |
+| 8 | **un chemin qui n'est pas de l'UTF-8** en JSON : U+FFFD et l'avertissement `path-not-utf8` | oui, la fidélité n'est pas promise pour eux | [#556](https://github.com/Guyot-Bertrand/sub-edit/issues/556) |
+| 9 | **si les comptes divergent** (D7) et qu'aucune plage ne localise le désaccord : faut-il que le noyau rende **quels** sous-titres sont sacrifiés, non seulement combien ? | non, tant que les comptes s'accordent | [#560](https://github.com/Guyot-Bertrand/sub-edit/issues/560) |
 | 10 | **`--include`** : un motif de noms pour le parcours, plus de grammaire pour le cas où l'extension ne suffit pas | non | la relecture, sur demande réelle |
-| 11 | **`--list-encodings`** : retenu comme iso-fonctionnel avec Gaupol et pour son coût ; l'est-il vraiment ? | oui, issue I12 | l'utilisateur |
+| 11 | **`--list-encodings`** : retenu comme iso-fonctionnel avec Gaupol et pour son coût ; l'est-il vraiment ? | oui, issue [#564](https://github.com/Guyot-Bertrand/sub-edit/issues/564) | **tranché le 2026-10-01** : la supposition est retenue |
