@@ -34,9 +34,7 @@ ExitCode shiftAll(core::FileSystem& files,
         if (const std::optional<core::SubtitleIndex> refused =
                 core::firstBeforeOrigin(session.project(), whole, by);
             refused.has_value()) {
-            return std::unexpected{"subtitle " + std::to_string(refused->number()) +
-                                   " would start before the origin, which no subtitle "
-                                   "file can hold"};
+            return std::unexpected{core::shiftBeforeTheOrigin(refused->number())};
         }
 
         session.apply(std::make_unique<core::ShiftCommand>(whole, by));
@@ -65,9 +63,7 @@ ExitCode shiftOntoGridAll(core::FileSystem& files,
         if (const std::optional<core::SubtitleIndex> refused =
                 core::firstBeforeOrigin(session.project(), whole, *by);
             refused.has_value()) {
-            return std::unexpected{"subtitle " + std::to_string(refused->number()) +
-                                   " would start before the origin, which no subtitle "
-                                   "file can hold"};
+            return std::unexpected{core::shiftBeforeTheOrigin(refused->number())};
         }
 
         session.apply(std::make_unique<core::ShiftCommand>(whole, *by));

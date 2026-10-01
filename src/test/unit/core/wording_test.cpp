@@ -540,3 +540,18 @@ TEST_CASE("the correction assistant's notice counts what it edited and what it r
     CHECK(noticeOfCorrection(3, 1) == "Edited 3 and removed 1 subtitles");
     CHECK(noticeOfCorrection(0, 0) == "Edited 0 and removed 0 subtitles");
 }
+
+TEST_CASE("the hearing-impaired removal and the refused shift are said once, here",
+          "[wording][hearing-impaired][shift]") {
+    // Issue #545: the window and the command line said these two in the same
+    // words, each from its own copy.
+    using subedit::core::noMentionToRemove;
+    using subedit::core::noticeOfMentionsRemoved;
+    using subedit::core::shiftBeforeTheOrigin;
+
+    CHECK(noMentionToRemove() == "no mention to remove");
+    CHECK(noticeOfMentionsRemoved(3, 1) == "3 subtitles cleaned, 1 removed");
+    CHECK(noticeOfMentionsRemoved(1, 0) == "1 subtitle cleaned, 0 removed");
+    CHECK(shiftBeforeTheOrigin(4) ==
+          "subtitle 4 would start before the origin, which no subtitle file can hold");
+}

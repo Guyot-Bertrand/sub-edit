@@ -71,8 +71,7 @@ refusalOfShift(const core::Project& project, const core::Selection& target, core
     const std::optional<core::SubtitleIndex> refused = core::firstBeforeOrigin(project, target, by);
     if (!refused.has_value())
         return std::nullopt;
-    return "subtitle " + std::to_string(refused->number()) +
-           " would start before the origin, which no subtitle file can hold";
+    return core::shiftBeforeTheOrigin(refused->number());
 }
 
 } // namespace
@@ -346,15 +345,14 @@ void ProjectOperations::removeHearingImpaired(ProjectPage& page) {
     if (!command) {
         // Nothing bit. Say so, and put nothing in the history: an operation
         // that changes nothing is not an operation to undo.
-        m_prompts->reportOutcome("no mention to remove");
+        m_prompts->reportOutcome(core::noMentionToRemove());
         return;
     }
 
     const core::HearingImpairedTally tally = core::tallyOf(*command);
     apply(page, std::move(command), target);
 
-    m_prompts->reportOutcome(core::countOf(tally.cleaned, "subtitle") + " cleaned, " +
-                             std::to_string(tally.removed) + " removed");
+    m_prompts->reportOutcome(core::noticeOfMentionsRemoved(tally.cleaned, tally.removed));
 }
 
 void ProjectOperations::toggleItalics(ProjectPage& page) {

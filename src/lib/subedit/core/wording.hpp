@@ -311,6 +311,21 @@ namespace subedit::core {
 /// blanked is a removal, not an edit that happened to leave nothing.
 [[nodiscard]] std::string noticeOfCorrection(std::size_t corrected, std::size_t removed);
 
+/// That removing the hearing-impaired mentions found none — the window says it
+/// in a box and the command line on its error stream, in these words: said,
+/// and nothing put in the history (issue #545).
+[[nodiscard]] std::string noMentionToRemove();
+
+/// What removing the hearing-impaired mentions did: how many subtitles it
+/// rewrote and how many it took out. `cleaned` never counts a subtitle
+/// `removed` also counts.
+[[nodiscard]] std::string noticeOfMentionsRemoved(std::size_t cleaned, std::size_t removed);
+
+/// Why a shift is refused when a subtitle would start before the origin, which
+/// no subtitle file can hold. **The rule** is `firstBeforeOrigin`, shared since
+/// #132; this is its sentence, and `number` is the first subtitle it names.
+[[nodiscard]] std::string shiftBeforeTheOrigin(std::size_t number);
+
 /// Why spell-checking is unavailable for `language` — decision D6 of the
 /// phase-12 spec: the program works and the function switches itself off, and
 /// says so in these words, where Gaupol drops the page without a word.

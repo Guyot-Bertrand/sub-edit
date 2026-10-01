@@ -31,13 +31,12 @@ ExitCode removeHearingImpairedIn(core::FileSystem& files,
         std::unique_ptr<core::Command> command = core::removeHearingImpaired(
             session.project(), core::Selection::all(session.project()), core::Document::Main);
         if (!command)
-            return std::string{"no mention to remove"};
+            return core::noMentionToRemove();
 
         const core::HearingImpairedTally tally = core::tallyOf(*command);
         session.apply(std::move(command));
 
-        return core::countOf(tally.cleaned, "subtitle") + " cleaned, " +
-               std::to_string(tally.removed) + " removed";
+        return core::noticeOfMentionsRemoved(tally.cleaned, tally.removed);
     };
 
     return rewriteAll(files, paths, reading, destination, reporter, "cleaned", clean);
