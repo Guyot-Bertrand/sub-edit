@@ -1,5 +1,5 @@
 #include <subedit/core/command/command_kind.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/analysis.hpp>
 #include <subedit/gui/command_label.hpp>
 
 #include <QString>

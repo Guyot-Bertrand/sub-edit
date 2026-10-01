@@ -1,6 +1,6 @@
 #include <subedit/cli/encoding_grammar.hpp>
 #include <subedit/core/model/encoding.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/formats.hpp>
 
 #include <expected>
 #include <string>

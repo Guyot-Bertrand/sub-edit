@@ -12,7 +12,8 @@
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/analysis.hpp>
+#include <subedit/core/wording/formats.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
 #include <QBrush>

@@ -2,7 +2,7 @@
 
 #include <subedit/core/config/spell_check_settings.hpp>
 #include <subedit/core/text/word_list_spell_provider.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
 #include <subedit/gui/spell_check_settings_dialog.hpp>
 
 #include <QCheckBox>

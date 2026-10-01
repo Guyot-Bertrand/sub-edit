@@ -1,12 +1,35 @@
+#include <subedit/core/analysis/anomaly.hpp>
+#include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_verdict.hpp>
 #include <subedit/core/command/command_kind.hpp>
+#include <subedit/core/config/insert_placement.hpp>
+#include <subedit/core/config/theme.hpp>
+#include <subedit/core/edit/duration_adjustment.hpp>
+#include <subedit/core/edit/search.hpp>
 #include <subedit/core/edit/translation.hpp>
+#include <subedit/core/edit/video_bounds.hpp>
+#include <subedit/core/format/degradation.hpp>
 #include <subedit/core/format/diagnostic.hpp>
+#include <subedit/core/format/open_error.hpp>
+#include <subedit/core/format/read_error.hpp>
+#include <subedit/core/format/save_error.hpp>
 #include <subedit/core/format/translation_file.hpp>
 #include <subedit/core/format/write_error.hpp>
+#include <subedit/core/io/file_system.hpp>
+#include <subedit/core/model/encoding.hpp>
+#include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/wording/analysis.hpp>
+#include <subedit/core/wording/conversion.hpp>
+#include <subedit/core/wording/counts.hpp>
+#include <subedit/core/wording/editing.hpp>
+#include <subedit/core/wording/formats.hpp>
+#include <subedit/core/wording/settings.hpp>
+#include <subedit/core/wording/translation.hpp>
+#include <subedit/core/wording/video.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

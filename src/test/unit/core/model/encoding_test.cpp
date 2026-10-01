@@ -179,7 +179,7 @@ TEST_CASE("an encoding answers its charset and its mark, and nothing worded", "[
     // **Issue #315.** The type used to answer `name()` — the charset with
     // `-sig` glued on when a mark was there. `UTF-8-sig` is Python's spelling;
     // `UTF-16LE-sig` is nobody's, Python having no name for that pair. Naming a
-    // value for a reader is `wording.hpp`'s work, and the mark is said in words
+    // value for a reader is `core/wording/formats.hpp`'s work, and the mark is said in words
     // there rather than invented here.
     CHECK(Encoding::utf16Le(ByteOrderMark::Present).charset() == "UTF-16LE");
     CHECK(Encoding::utf16Le(ByteOrderMark::Present).byteOrderMark() == ByteOrderMark::Present);

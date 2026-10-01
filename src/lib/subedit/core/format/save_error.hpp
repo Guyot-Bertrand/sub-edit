@@ -16,7 +16,7 @@ namespace subedit::core {
 /// holding a character the encoding cannot write are not the same problem, and
 /// only one of the two is theirs to fix by choosing something else.
 ///
-/// `reasonOf` in `core/wording.hpp` puts words on it, once, for both surfaces.
+/// `reasonOf` in `core/wording/formats.hpp` puts words on it, once, for both surfaces.
 using SaveError = std::variant<WriteError, FileError>;
 
 } // namespace subedit::core

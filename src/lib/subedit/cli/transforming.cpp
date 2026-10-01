@@ -6,7 +6,7 @@
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
 
 #include <cstddef>
 #include <expected>

@@ -26,7 +26,7 @@ namespace subedit::core {
 /// list would mean maintaining a mapping in both directions and would break the
 /// rule both enumerations follow: every one of their values is produced by
 /// something. Here nothing is produced that was not already; only the choice is
-/// new. `reasonOf` in `core/wording.hpp` puts words on it.
+/// new. `reasonOf` in `core/wording/formats.hpp` puts words on it.
 using OpenError = std::variant<FileError, ReadError>;
 
 } // namespace subedit::core

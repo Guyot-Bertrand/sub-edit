@@ -120,7 +120,7 @@ public:
     // **No `name()` here, and that is issue #315.** It used to answer the
     // charset with `-sig` glued on when a mark was there — Python's spelling
     // for UTF-8, and nobody's for `UTF-16LE-sig`. Naming a value for a reader
-    // is `wording.hpp`'s work, and it is where `nameOf(const Encoding&)` lives
+    // is `core/wording/formats.hpp`'s work, and it is where `nameOf(const Encoding&)` lives
     // now; what this type answers is `charset()` and `byteOrderMark()`, which
     // are what it knows.
 

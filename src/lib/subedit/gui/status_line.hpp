@@ -28,7 +28,7 @@ namespace subedit::gui {
 /// not passing remarks, and a message can be pushed aside by the next one. The
 /// passing remarks stay the window's.
 ///
-/// **Every line is worded in `core/wording.hpp`**, where the command line reads
+/// **Every line is worded in `core/wording/`**, where the command line reads
 /// the same words; this only puts them on screen. It keeps nothing of a
 /// project: each refresh is given the one on screen.
 class StatusLine final {

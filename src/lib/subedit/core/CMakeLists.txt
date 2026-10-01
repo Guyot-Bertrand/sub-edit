@@ -120,7 +120,14 @@ add_library(
     process/start_process.cpp
     time/timestamp.cpp
     version.cpp
-    wording.cpp)
+    wording/analysis.cpp
+    wording/conversion.cpp
+    wording/counts.cpp
+    wording/editing.cpp
+    wording/formats.cpp
+    wording/settings.cpp
+    wording/translation.cpp
+    wording/video.cpp)
 add_library(subedit::core ALIAS subedit_core)
 
 # La racine d'inclusion est src/lib/, d'où des inclusions toujours qualifiées :

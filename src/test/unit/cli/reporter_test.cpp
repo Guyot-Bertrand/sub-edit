@@ -1,5 +1,5 @@
 #include <subedit/cli/reporter.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

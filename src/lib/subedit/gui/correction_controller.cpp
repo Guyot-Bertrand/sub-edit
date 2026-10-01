@@ -7,7 +7,7 @@
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/core/text/spell_checker.hpp>
 #include <subedit/core/text/spell_replacements.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
 #include <subedit/gui/correction_confirmation_page.hpp>
 #include <subedit/gui/correction_controller.hpp>
 #include <subedit/gui/correction_progress_page.hpp>

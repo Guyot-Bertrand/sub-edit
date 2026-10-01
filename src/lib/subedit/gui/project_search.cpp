@@ -4,7 +4,8 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
+#include <subedit/core/wording/editing.hpp>
 #include <subedit/gui/project_page.hpp>
 #include <subedit/gui/project_search.hpp>
 #include <subedit/gui/search_dialog.hpp>

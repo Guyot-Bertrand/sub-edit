@@ -17,7 +17,7 @@
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/core/text/word_list_spell_provider.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
 #include <subedit/gui/correction_confirmation_page.hpp>
 #include <subedit/gui/correction_progress_page.hpp>
 #include <subedit/gui/correction_result_model.hpp>

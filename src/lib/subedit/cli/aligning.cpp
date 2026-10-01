@@ -5,7 +5,8 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/analysis.hpp>
+#include <subedit/core/wording/counts.hpp>
 
 #include <algorithm>
 #include <cstddef>

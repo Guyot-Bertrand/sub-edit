@@ -7,7 +7,7 @@
 
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/markup_conversion.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/formats.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

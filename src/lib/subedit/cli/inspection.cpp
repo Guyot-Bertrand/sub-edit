@@ -17,7 +17,9 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/analysis.hpp>
+#include <subedit/core/wording/counts.hpp>
+#include <subedit/core/wording/formats.hpp>
 
 #include <algorithm>
 #include <ostream>

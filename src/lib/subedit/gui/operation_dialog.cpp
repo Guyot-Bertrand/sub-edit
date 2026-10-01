@@ -1,4 +1,4 @@
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
 #include <subedit/gui/operation_dialog.hpp>
 
 #include <QDialogButtonBox>

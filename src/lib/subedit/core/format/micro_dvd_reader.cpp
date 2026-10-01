@@ -9,7 +9,7 @@
 #include <subedit/core/text/break_marker.hpp>
 #include <subedit/core/text/lines.hpp>
 #include <subedit/core/time/timestamp.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/analysis.hpp>
 
 #include <expected>
 #include <optional>

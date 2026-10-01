@@ -7,7 +7,7 @@
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/formats.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

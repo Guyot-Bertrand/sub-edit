@@ -4,7 +4,7 @@
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/text/spell_checker.hpp>
 #include <subedit/core/text/word_list_spell_provider.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

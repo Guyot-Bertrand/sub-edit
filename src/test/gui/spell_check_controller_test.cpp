@@ -15,7 +15,7 @@
 #include <subedit/core/text/spell_replacements.hpp>
 #include <subedit/core/text/word_list_spell_provider.hpp>
 #include <subedit/core/time/timestamp.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
 #include <subedit/gui/project_page.hpp>
 #include <subedit/gui/spell_check_controller.hpp>
 #include <subedit/gui/spell_check_dialog.hpp>

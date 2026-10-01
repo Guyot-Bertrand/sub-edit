@@ -1,5 +1,5 @@
 #include <subedit/core/format/diagnostic.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/analysis.hpp>
 #include <subedit/gui/diagnostics_panel.hpp>
 
 #include <QListWidget>
