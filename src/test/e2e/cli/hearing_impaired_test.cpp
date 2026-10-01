@@ -18,6 +18,7 @@ using subedit::e2e::CliRun;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
+using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 
 TEST_CASE("mentions between brackets and parentheses are removed", "[e2e][CLI-HEARING-01]") {
@@ -30,6 +31,18 @@ TEST_CASE("mentions between brackets and parentheses are removed", "[e2e][CLI-HE
     CHECK(run.exitCode == 0);
     CHECK_THAT(contentOf(out), ContainsSubstring("Attends Marie."));
     CHECK_THAT(contentOf(out), !ContainsSubstring("il tousse"));
+}
+
+TEST_CASE("the file written is the expected one, byte for byte", "[e2e][CLI-HEARING-01]") {
+    // The expected file was written by hand from the input and the rule — see
+    // `attendus/LISEZMOI.md` — and never taken from the program's own output.
+    const Scratch scratch;
+    const std::string out = scratch.of("attendu.srt");
+
+    CHECK(invoke({"--quiet", "hearing-impaired", "--output", out, corpus("valides/mentions.srt")})
+              .exitCode == 0);
+
+    CHECK_THAT(contentOf(out), MatchesFile(corpus("attendus/mentions.hearing-impaired.srt")));
 }
 
 TEST_CASE("a subtitle the removal empties leaves the file", "[e2e][CLI-HEARING-02]") {
