@@ -157,8 +157,11 @@ avec un objectif d'iso-fonctionnalité.
   standard, sortie d'erreur, en-têtes de colonne, libellés de menu, messages de
   dialogue. **Ce que les deux surfaces peuvent dire toutes les deux** — le nom
   d'un format, un compte rendu d'opération, une raison d'échec — vit dans
-  [`core/wording.hpp`](src/lib/subedit/core/wording.hpp), l'unique endroit où
-  c'est écrit ; **un libellé de menu ou de dialogue, propre à la fenêtre et
+  [`core/wording/`](src/lib/subedit/core/wording/), l'unique endroit où c'est
+  écrit — **un en-tête par famille** (`formats`, `settings`, `analysis`,
+  `counts`, `translation`, `conversion`, `editing`, `video`), qu'on inclut pour
+  ce qu'on dit et non en bloc : modifier une famille ne recompile que ses
+  lecteurs (#549) ; **un libellé de menu ou de dialogue, propre à la fenêtre et
   sans équivalent en ligne de commande, reste dans le fichier de la fenêtre**
   — la règle porte sur les mots partagés, pas sur la surface qui les affiche.
   La traduction est une phase à elle seule ; d'ici là, une seule langue.
