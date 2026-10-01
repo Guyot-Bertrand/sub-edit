@@ -61,3 +61,4 @@ fi
 
 "${REPO_ROOT}/src/scripts/check-screenshots.py"
 "${REPO_ROOT}/src/scripts/check-manual-links.py"
+"${REPO_ROOT}/src/scripts/check-cli-manual.py" --binary "${REPO_ROOT}/build/dev/bin/subedit-cli"

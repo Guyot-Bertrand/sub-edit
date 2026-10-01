@@ -244,7 +244,7 @@ fait.
 | Partie | Ce qu'elle dit |
 | :----- | :------------- |
 | `line N` | où, compté à partir de 1, comme un éditeur l'affiche ; **absent** pour ce qui porte sur le fichier entier |
-| la phrase | ce qui a été rencontré, parmi les neuf catégories ci-dessous |
+| la phrase | ce qui a été rencontré, parmi les douze catégories ci-dessous |
 | `("…")` | le texte fautif du fichier, quand la catégorie ne suffit pas ; tronqué à 80 octets |
 | la fin | ce qui en a été fait : `settled by the reader`, ou `left as it stands` |
 
