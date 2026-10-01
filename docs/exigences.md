@@ -231,10 +231,10 @@ plus rien.
 | `CLI-BATCH-05` | le dossier de sortie absent est créé | 13 | implémentée |
 | `CLI-BATCH-06` | une écriture qui échoue dit « written », jamais « read » | 13 | implémentée |
 | `CLI-BATCH-07` | une destination existante est écrasée par écriture atomique | 13 | implémentée |
-| `CLI-BATCH-08` | un répertoire en entrée sans `--recursive` est refusé, code `1` | 13 | prévue |
-| `CLI-BATCH-09` | `--recursive` parcourt dans l'ordre des noms, sans suivre de lien, les extensions des formats connus, `.txt` exclu | 13 | prévue |
-| `CLI-BATCH-10` | l'arborescence relative au répertoire donné est conservée sous `--output-dir` | 13 | prévue |
-| `CLI-BATCH-11` | le dossier de sortie compris dans l'arbre parcouru est exclu du parcours | 13 | prévue |
+| `CLI-BATCH-08` | un répertoire en entrée sans `--recursive` est refusé, code `1` | 13 | implémentée |
+| `CLI-BATCH-09` | `--recursive` parcourt dans l'ordre des noms, sans suivre de lien, les extensions des formats connus, `.txt` exclu | 13 | implémentée |
+| `CLI-BATCH-10` | l'arborescence relative au répertoire donné est conservée sous `--output-dir` | 13 | implémentée |
+| `CLI-BATCH-11` | le dossier de sortie compris dans l'arbre parcouru est exclu du parcours | 13 | implémentée |
 | `CLI-BATCH-12` | un fichier nommé sur la ligne de commande n'est jamais filtré par son extension | 13 | implémentée |
 | `CLI-RANGE-01` | `--range N-M` limite l'opération aux sous-titres N à M, bornes comprises ; `N-` va jusqu'à la fin | 13 | prévue |
 | `CLI-RANGE-02` | une plage hors bornes est refusée en nommant la borne, avant tout traitement | 13 | prévue |

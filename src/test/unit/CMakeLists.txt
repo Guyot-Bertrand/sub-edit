@@ -181,6 +181,7 @@ add_executable(
     cli/batch_test.cpp
     cli/conversion_test.cpp
     cli/destination_test.cpp
+    cli/expansion_test.cpp
     cli/encoding_grammar_test.cpp
     cli/diagnostics_test.cpp
     cli/digits_test.cpp

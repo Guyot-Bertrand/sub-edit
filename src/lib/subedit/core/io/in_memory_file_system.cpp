@@ -1,6 +1,7 @@
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 
+#include <algorithm>
 #include <expected>
 #include <filesystem>
 #include <optional>
@@ -43,6 +44,14 @@ std::optional<std::string> InMemoryFileSystem::contentOf(const std::filesystem::
     if (found == m_files.end())
         return std::nullopt;
     return found->second;
+}
+
+void InMemoryFileSystem::addLink(const std::filesystem::path& path) {
+    m_links.insert(path);
+}
+
+void InMemoryFileSystem::failEntriesOf(const std::filesystem::path& directory, FileErrorKind kind) {
+    m_entriesFailures[directory] = kind;
 }
 
 void InMemoryFileSystem::failNextRead(FileErrorKind kind) {
@@ -91,6 +100,53 @@ InMemoryFileSystem::filesIn(const std::filesystem::path& directory) const {
     if (found.empty())
         return failure(FileErrorKind::NotFound, directory);
     return found;
+}
+
+namespace {
+
+/// The first component of `path` below `directory`, or empty if it is not below.
+[[nodiscard]] std::filesystem::path childOf(const std::filesystem::path& directory,
+                                            const std::filesystem::path& path) {
+    const std::filesystem::path relative = path.lexically_relative(directory);
+    if (relative.empty() || *relative.begin() == ".." || *relative.begin() == ".")
+        return {};
+    return directory / *relative.begin();
+}
+
+} // namespace
+
+std::expected<std::vector<DirectoryEntry>, FileError>
+InMemoryFileSystem::entriesIn(const std::filesystem::path& directory) const {
+    if (const auto refused = m_entriesFailures.find(directory); refused != m_entriesFailures.end())
+        return failure(refused->second, directory);
+
+    std::map<std::string, DirectoryEntry> byName;
+    for (const std::filesystem::path& link : m_links)
+        if (link.parent_path() == directory)
+            byName.try_emplace(link.filename().string(),
+                               DirectoryEntry{.path = link, .kind = EntryKind::Link});
+    for (const auto& [path, content] : m_files) {
+        const std::filesystem::path child = childOf(directory, path);
+        if (child.empty())
+            continue;
+        const EntryKind kind = child == path ? EntryKind::File : EntryKind::Directory;
+        byName.try_emplace(child.filename().string(), DirectoryEntry{.path = child, .kind = kind});
+    }
+
+    // A directory exists here exactly as long as a file names it — see `filesIn`.
+    if (byName.empty())
+        return failure(FileErrorKind::NotFound, directory);
+
+    std::vector<DirectoryEntry> entries;
+    entries.reserve(byName.size());
+    for (auto& [name, entry] : byName)
+        entries.push_back(std::move(entry));
+    return entries;
+}
+
+bool InMemoryFileSystem::isDirectory(const std::filesystem::path& path) const {
+    return std::ranges::any_of(
+        m_files, [&](const auto& file) { return !childOf(path, file.first).empty(); });
 }
 
 std::expected<std::string, FileError>

@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <system_error>
 #include <unordered_map>
+#include <utility>
 
 namespace subedit::cli {
 
@@ -16,12 +17,6 @@ namespace {
     std::error_code code;
     const std::filesystem::path absolute = std::filesystem::absolute(path, code);
     return (code ? path : absolute).lexically_normal();
-}
-
-[[nodiscard]] bool sameFile(const core::FileSystem& files,
-                            const std::filesystem::path& first,
-                            const std::filesystem::path& second) {
-    return spelledAbsolute(first) == spelledAbsolute(second) || files.equivalent(first, second);
 }
 
 /// What two names of one file have in common even on a case-insensitive system.
@@ -37,6 +32,12 @@ namespace {
 }
 
 } // namespace
+
+bool sameFile(const core::FileSystem& files,
+              const std::filesystem::path& first,
+              const std::filesystem::path& second) {
+    return spelledAbsolute(first) == spelledAbsolute(second) || files.equivalent(first, second);
+}
 
 std::expected<Destination, std::string> Destination::from(std::string_view output,
                                                           std::string_view outputDir,
@@ -65,6 +66,12 @@ std::expected<Destination, std::string> Destination::from(std::string_view outpu
     return destination;
 }
 
+Destination Destination::withRoots(std::vector<std::filesystem::path> roots) const {
+    Destination destination = *this;
+    destination.m_roots = std::move(roots);
+    return destination;
+}
+
 std::filesystem::path Destination::pathFor(const std::filesystem::path& input,
                                            std::string_view extension) const {
     if (m_inPlace) {
@@ -74,12 +81,19 @@ std::filesystem::path Destination::pathFor(const std::filesystem::path& input,
         return m_output;
     }
 
-    std::filesystem::path name = input.filename();
-    if (!extension.empty()) {
-        name = input.stem();
-        name += extension;
+    // Below a root, the path from it; anywhere else, the name alone.
+    std::filesystem::path relative = input.filename();
+    for (const std::filesystem::path& root : m_roots) {
+        const std::filesystem::path below = input.lexically_relative(root);
+        if (!below.empty() && *below.begin() != ".." && *below.begin() != ".") {
+            relative = below;
+            break;
+        }
     }
-    return m_outputDir / name;
+    if (!extension.empty()) {
+        relative.replace_extension(extension);
+    }
+    return m_outputDir / relative;
 }
 
 std::expected<std::vector<Job>, std::string>

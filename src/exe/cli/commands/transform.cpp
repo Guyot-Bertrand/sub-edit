@@ -14,6 +14,7 @@ namespace {
 /// What `transform` was asked for.
 struct TransformOptions {
     std::vector<std::string> files;
+    bool recursive = false;
     std::string first;
     std::string last;
     DestinationOptions destination;
@@ -23,6 +24,7 @@ CLI::App* describeTransform(CLI::App& app, std::string_view name, TransformOptio
     CLI::App* transform = app.add_subcommand(
         std::string{name}, "Correct every position from two points known to be right");
     transform->add_option("files", options.files, "Subtitle files to transform")->required();
+    describeRecursive(transform, options.recursive);
     transform
         ->add_option(
             "--first", options.first, "Earlier reference, as <index>=<time>: 1=00:00:01.000")
@@ -54,13 +56,19 @@ ExitCode runTransform(const TransformOptions& options,
         return refuse(transform.error());
     }
 
+    const std::expected<Inputs, std::string> inputs = expandInputs(
+        files, options.files, options.recursive, options.destination.outputDir, reporter);
+    if (!inputs) {
+        return refuse(inputs.error());
+    }
+
     const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, options.files.size());
+        destinationOf(options.destination, *inputs);
     if (!destination) {
         return refuse(destination.error());
     }
 
-    return transformAll(files, options.files, reading, *transform, *destination, reporter);
+    return transformAll(files, inputs->paths, reading, *transform, *destination, reporter);
 }
 
 } // namespace

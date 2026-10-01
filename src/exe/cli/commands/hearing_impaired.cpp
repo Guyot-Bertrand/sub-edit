@@ -17,6 +17,7 @@ namespace {
 /// adjustable is written in its spec, not guessed at here.
 struct HearingImpairedOptions {
     std::vector<std::string> files;
+    bool recursive = false;
     DestinationOptions destination;
 };
 
@@ -25,6 +26,7 @@ describeHearingImpaired(CLI::App& app, std::string_view name, HearingImpairedOpt
     CLI::App* hearing = app.add_subcommand(
         std::string{name}, "Remove the sounds described between brackets or parentheses");
     hearing->add_option("files", options.files, "Subtitle files to clean")->required();
+    describeRecursive(hearing, options.recursive);
 
     describeDestination(hearing, options.destination);
     return hearing;
@@ -34,13 +36,19 @@ ExitCode runHearingImpaired(const HearingImpairedOptions& options,
                             core::FileSystem& files,
                             const std::optional<core::Encoding>& reading,
                             const Reporter& reporter) {
+    const std::expected<Inputs, std::string> inputs = expandInputs(
+        files, options.files, options.recursive, options.destination.outputDir, reporter);
+    if (!inputs) {
+        return refuse(inputs.error());
+    }
+
     const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, options.files.size());
+        destinationOf(options.destination, *inputs);
     if (!destination) {
         return refuse(destination.error());
     }
 
-    return removeHearingImpairedIn(files, options.files, reading, *destination, reporter);
+    return removeHearingImpairedIn(files, inputs->paths, reading, *destination, reporter);
 }
 
 } // namespace

@@ -14,6 +14,7 @@ namespace {
 /// What `framerate` was asked for.
 struct FrameRateOptions {
     std::vector<std::string> files;
+    bool recursive = false;
     std::string from;
     std::string to;
     DestinationOptions destination;
@@ -23,6 +24,7 @@ CLI::App* describeFrameRate(CLI::App& app, std::string_view name, FrameRateOptio
     CLI::App* framerate = app.add_subcommand(
         std::string{name}, "Re-time a file mastered at one frame rate for another");
     framerate->add_option("files", options.files, "Subtitle files to re-time")->required();
+    describeRecursive(framerate, options.recursive);
     framerate->add_option("--from", options.from, "Frame rate the file is timed at: 25, 23.976")
         ->required();
     framerate->add_option("--to", options.to, "Frame rate to time it for: 24, 29.97")->required();
@@ -45,13 +47,19 @@ ExitCode runFrameRate(const FrameRateOptions& options,
         return refuse(to.error());
     }
 
+    const std::expected<Inputs, std::string> inputs = expandInputs(
+        files, options.files, options.recursive, options.destination.outputDir, reporter);
+    if (!inputs) {
+        return refuse(inputs.error());
+    }
+
     const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, options.files.size());
+        destinationOf(options.destination, *inputs);
     if (!destination) {
         return refuse(destination.error());
     }
 
-    return convertFrameRateAll(files, options.files, reading, *from, *to, *destination, reporter);
+    return convertFrameRateAll(files, inputs->paths, reading, *from, *to, *destination, reporter);
 }
 
 } // namespace

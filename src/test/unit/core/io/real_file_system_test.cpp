@@ -119,6 +119,36 @@ TEST_CASE("two names of one file are equivalent, and a missing file is nobody's"
     CHECK_FALSE(files.equivalent(scratch.file("absent.srt"), scratch.file("absent.srt")));
 }
 
+TEST_CASE("a directory is listed with what each entry is, links not followed, by name",
+          "[format][filesystem][disk]") {
+    const ScratchDirectory scratch;
+    RealFileSystem files;
+    REQUIRE(files.writeFile(scratch.file("b.srt"), "x").has_value());
+    REQUIRE(files.writeFile(scratch.file("B.srt"), "x").has_value());
+    REQUIRE(files.createDirectories(scratch.file("dir")).has_value());
+    std::filesystem::create_directory_symlink(scratch.file("dir"), scratch.file("link"));
+
+    const auto entries = files.entriesIn(scratch.file("."));
+
+    REQUIRE(entries.has_value());
+    // Bytes of the names: ".", "B.srt", "b.srt", "dir", "link" — and "." itself is no entry.
+    REQUIRE(entries->size() == 4);
+    CHECK((*entries)[0].path.filename() == "B.srt");
+    CHECK((*entries)[0].kind == subedit::core::EntryKind::File);
+    CHECK((*entries)[1].path.filename() == "b.srt");
+    CHECK((*entries)[2].path.filename() == "dir");
+    CHECK((*entries)[2].kind == subedit::core::EntryKind::Directory);
+    CHECK((*entries)[3].path.filename() == "link");
+    CHECK((*entries)[3].kind == subedit::core::EntryKind::Link);
+
+    // A link to a directory is a directory for a name given on a command line.
+    CHECK(files.isDirectory(scratch.file("link")));
+    CHECK(files.isDirectory(scratch.file("dir")));
+    CHECK_FALSE(files.isDirectory(scratch.file("b.srt")));
+    CHECK_FALSE(files.isDirectory(scratch.file("absent")));
+    CHECK_FALSE(files.entriesIn(scratch.file("absent")).has_value());
+}
+
 TEST_CASE("renaming a file that is not on disk fails", "[format][filesystem][disk]") {
     const ScratchDirectory scratch;
     RealFileSystem files;

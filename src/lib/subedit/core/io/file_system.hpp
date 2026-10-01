@@ -39,6 +39,20 @@ struct FileError {
     return FileErrorKind::Io;
 }
 
+/// What an entry of a directory is, **without following a link**.
+enum class EntryKind {
+    File,
+    Directory,
+    Link,  ///< a symbolic link, whatever it points to
+    Other, ///< a socket, a device, a pipe
+};
+
+/// One entry of a directory, with what it is.
+struct DirectoryEntry {
+    std::filesystem::path path;
+    EntryKind kind;
+};
+
 /// The primitive operations on files, and nothing more.
 ///
 /// One of the five points where the project knows the variation is real: a
@@ -94,6 +108,22 @@ public:
     /// A symbolic link to a file is a file, as everywhere else here.
     [[nodiscard]] virtual std::expected<std::vector<std::filesystem::path>, FileError>
     filesIn(const std::filesystem::path& directory) const = 0;
+
+    /// Returns everything lying directly in `directory`, sorted by name.
+    ///
+    /// **What `filesIn` does not say, and a walk needs**: directories, and links
+    /// told from what they point to. A link is reported as `Link` and never
+    /// followed — a tree that contains a link to one of its own parents has no
+    /// end, and a walk that follows it is a defect found in production.
+    ///
+    /// **Sorted by the bytes of the name**, not by the locale: the order a walk
+    /// writes in is then the same on every machine.
+    [[nodiscard]] virtual std::expected<std::vector<DirectoryEntry>, FileError>
+    entriesIn(const std::filesystem::path& directory) const = 0;
+
+    /// Tells whether `path` is a directory, following links, as a name given
+    /// on a command line is understood.
+    [[nodiscard]] virtual bool isDirectory(const std::filesystem::path& path) const = 0;
 
     [[nodiscard]] virtual std::expected<std::string, FileError>
     readFile(const std::filesystem::path& path) const = 0;

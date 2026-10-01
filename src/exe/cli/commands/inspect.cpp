@@ -14,6 +14,7 @@ namespace {
 /// What `inspect` was asked for.
 struct InspectOptions {
     std::vector<std::string> files;
+    bool recursive = false;
     std::string frameRate;
 };
 
@@ -21,6 +22,7 @@ CLI::App* describeInspect(CLI::App& app, std::string_view name, InspectOptions& 
     CLI::App* inspect =
         app.add_subcommand(std::string{name}, "Report what a subtitle file is made of");
     inspect->add_option("files", options.files, "Subtitle files to report on")->required();
+    describeRecursive(inspect, options.recursive);
     // **Reading, here, and writing too on `convert`** — one rate, one option,
     // spelled the same on both. It is not global as `--encoding` is, because a
     // global option has to come before the subcommand: `--frame-rate` would
@@ -49,7 +51,13 @@ ExitCode runInspect(const InspectOptions& options,
         return refuse(choices.error());
     }
 
-    return inspectAll(files, options.files, *choices, std::cout, reporter);
+    const std::expected<Inputs, std::string> inputs =
+        expandInputs(files, options.files, options.recursive, "", reporter);
+    if (!inputs) {
+        return refuse(inputs.error());
+    }
+
+    return inspectAll(files, inputs->paths, *choices, std::cout, reporter);
 }
 
 } // namespace

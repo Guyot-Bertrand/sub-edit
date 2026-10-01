@@ -10,6 +10,7 @@
 ```
 subedit-cli framerate --from <fps> --to <fps>
                       (--output FICHIER | --output-dir DOSSIER | --in-place)
+                      [--recursive]
                       <fichier>...
 ```
 
@@ -32,6 +33,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
+  -r,--recursive              Take directories as inputs, and every subtitle file in them
   --from TEXT REQUIRED        Frame rate the file is timed at: 25, 23.976
   --to TEXT REQUIRED          Frame rate to time it for: 24, 29.97
   --output TEXT               File to write, for a single input
@@ -44,6 +46,7 @@ Options:
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--from` | **oui** | une cadence, voir ci-dessous | — |
 | `--to` | **oui** | une cadence, voir ci-dessous | — |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |
