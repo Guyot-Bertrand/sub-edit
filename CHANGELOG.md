@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Remaniements
+
+- **cli** — Un fichier par sous-commande, et une table (#553)
+
+## 0.13.6 — 2026-10-01
+
 ### Documentation
 
 - **doc** — ADR 0038 à 0040, sortie JSON, lot sûr et --dry-run (#542)
