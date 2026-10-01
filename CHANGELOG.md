@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — --recursive, un arbre en entrée et en sortie (#555)
+
+## 0.13.8 — 2026-10-01
+
+### Ajouts
+
 - **cli** — Le lot sûr, collisions refusées et dossier créé (#554)
 
 ## 0.13.7 — 2026-10-01
