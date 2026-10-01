@@ -53,7 +53,21 @@ public:
     /// Makes the next rename fail, and only the next one.
     void failNextRename(FileErrorKind kind);
 
+    /// Makes the next creation of a directory fail, and only the next one.
+    void failNextCreateDirectories(FileErrorKind kind);
+
+    /// The directories asked for, in order — this file system makes none, so
+    /// that a test can still see that one was requested.
+    [[nodiscard]] const std::vector<std::filesystem::path>& directoriesAsked() const {
+        return m_directoriesAsked;
+    }
+
     [[nodiscard]] bool exists(const std::filesystem::path& path) const override;
+
+    /// Two spellings of one path, both present: this file system has no links
+    /// and no case folding, so a normalised path is a file's whole identity.
+    [[nodiscard]] bool equivalent(const std::filesystem::path& first,
+                                  const std::filesystem::path& second) const override;
 
     [[nodiscard]] bool isExecutable(const std::filesystem::path& path) const override;
 
@@ -66,7 +80,7 @@ public:
     [[nodiscard]] std::expected<void, FileError> writeFile(const std::filesystem::path& path,
                                                            std::string_view content) override;
 
-    /// **Always a success, and it creates nothing.** This file system has no
+    /// **A success unless told otherwise, and it creates nothing.** This file system has no
     /// directories: a path is a key, and its parent exists as soon as a file
     /// names it. Refusing here would force every test that writes to build a
     /// tree that does not exist.
@@ -90,6 +104,8 @@ private:
     mutable std::optional<FileErrorKind> m_pendingReadFailure;
     std::optional<FileErrorKind> m_pendingWriteFailure;
     std::optional<FileErrorKind> m_pendingRenameFailure;
+    std::optional<FileErrorKind> m_pendingCreateFailure;
+    std::vector<std::filesystem::path> m_directoriesAsked;
 };
 
 } // namespace subedit::core

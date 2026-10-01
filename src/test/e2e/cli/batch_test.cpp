@@ -14,6 +14,7 @@ using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
 using subedit::e2e::Scratch;
+using subedit::e2e::srtText;
 using subedit::e2e::writeFile;
 using subedit::e2e::writeSrt;
 using subedit::e2e::writeUnreadable;
@@ -72,52 +73,155 @@ TEST_CASE("a usage error stops before any file is touched", "[e2e][CLI-USAGE-03]
     CHECK(run.output.empty());
 }
 
-// The four cases below are about a batch that WRITES, on `shift` which stands
-// for every subcommand that does. **They record what the tool does today; they
-// decide nothing.** Whether a collision should be refused, whether the output
-// directory should be created, whether an existing destination should be
-// overwritten: those are the framing's to settle (#542). Each case is named for
-// what it observes, so that changing the behaviour is a visible diff here.
+// The cases below are about a batch that WRITES, on `shift` which stands for
+// every subcommand that does. ADR 0039 settled what the first four of them only
+// recorded (#544): a collision is refused, an input is not written over without
+// `--in-place`, the output directory is created, and an existing destination is
+// overwritten. Each case is named for what it observes.
 
-TEST_CASE("two inputs of one base name in --output-dir: the last one overwrites the first",
-          "[e2e][CLI-BATCH-01]") {
+TEST_CASE("two inputs of one base name in --output-dir are refused, and nothing is written",
+          "[e2e][CLI-BATCH-03]") {
     const Scratch scratch;
     const std::string first = writeSrt(scratch, "a/film.srt", 1);
     const std::string second = writeSrt(scratch, "b/film.srt", 2);
-    std::filesystem::create_directories(scratch.of("out"));
 
     const CliRun run =
         invoke({"shift", "--by", "1", "--output-dir", scratch.of("out"), first, second});
 
-    // Both are reported as written, to the same path; no warning, code 0.
-    CHECK(run.exitCode == 0);
-    CHECK_THAT(run.errors, ContainsSubstring("2 of 2 files shifted\n"));
-    CHECK_THAT(run.errors, !ContainsSubstring("overwrit"));
-    // Only the second survives, shifted by one second, as written by hand.
-    CHECK(contentOf(scratch.of("out/film.srt")) ==
-          "1\n00:00:02,000 --> 00:00:02,500\nb/film.srt 1\n\n"
-          "2\n00:00:03,000 --> 00:00:03,500\nb/film.srt 2\n\n");
-}
-
-TEST_CASE("an output directory that does not exist is not created: nothing is written, code 2",
-          "[e2e][CLI-BATCH-02]") {
-    const Scratch scratch;
-    const std::string input = writeSrt(scratch, "in/film.srt");
-    const std::string missing = scratch.of("absent/deeper");
-
-    const CliRun run = invoke({"shift", "--by", "1", "--output-dir", missing, input});
-
-    // The directory is not created. The failure is worded as "cannot be read",
-    // which is the wording of an input that cannot be opened, not of an output.
-    CHECK(run.exitCode == 2);
-    CHECK_THAT(run.errors, ContainsSubstring(missing + "/film.srt: cannot be read"));
-    // A single input has no summary line: the failure line is all there is.
+    // A usage error, code 1, naming the destination and both inputs.
+    CHECK(run.exitCode == 1);
+    CHECK_THAT(run.errors,
+               ContainsSubstring(scratch.of("out/film.srt") + ": would be written by both " +
+                                 first + " and " + second));
     CHECK_THAT(run.errors, !ContainsSubstring("files shifted"));
-    CHECK(!std::filesystem::exists(scratch.of("absent")));
+    // Not one file, and not even the directory: it is made after the validation.
+    CHECK(!std::filesystem::exists(scratch.of("out")));
 }
 
-TEST_CASE("an existing destination is overwritten, without a question or an option",
-          "[e2e][CLI-BATCH-01]") {
+TEST_CASE("a collision is judged on the extension the destination ends up with",
+          "[e2e][CLI-BATCH-03]") {
+    const Scratch scratch;
+    const std::string srt = writeSrt(scratch, "a/film.srt", 1);
+    const std::string vtt =
+        writeFile(scratch, "b/film.vtt", "WEBVTT\n\n00:01.000 --> 00:02.000\nhi\n");
+
+    // Both become out/film.vtt: neither input name says so.
+    const CliRun run =
+        invoke({"convert", "--to", "vtt", "--output-dir", scratch.of("out"), srt, vtt});
+
+    CHECK(run.exitCode == 1);
+    CHECK_THAT(run.errors,
+               ContainsSubstring(scratch.of("out/film.vtt") + ": would be written by both"));
+    CHECK(!std::filesystem::exists(scratch.of("out")));
+}
+
+TEST_CASE("an input is not written over without --in-place, however the destination is spelled",
+          "[e2e][CLI-BATCH-04]") {
+    const Scratch scratch;
+    const std::string input = writeSrt(scratch, "in/film.srt", 1);
+    const std::string before = contentOf(input);
+
+    // The directory the input lies in, then the file itself.
+    const CliRun directory =
+        invoke({"shift", "--by", "1", "--output-dir", scratch.of("in"), input});
+    const CliRun file = invoke({"shift", "--by", "1", "--output", input, input});
+    // The same file under another spelling.
+    const CliRun spelled =
+        invoke({"shift", "--by", "1", "--output-dir", scratch.of("in/../in"), input});
+
+    for (const CliRun* run : {&directory, &file, &spelled}) {
+        CHECK(run->exitCode == 1);
+        CHECK_THAT(run->errors, ContainsSubstring("is itself the input " + input));
+        CHECK_THAT(run->errors, ContainsSubstring("use --in-place"));
+    }
+    CHECK(contentOf(input) == before);
+}
+
+TEST_CASE("a symbolic link to the input's directory does not hide that it is the input",
+          "[e2e][CLI-BATCH-04]") {
+    const Scratch scratch;
+    const std::string input = writeSrt(scratch, "in/film.srt", 1);
+    const std::string before = contentOf(input);
+    std::filesystem::create_directory_symlink(scratch.of("in"), scratch.of("link"));
+
+    const CliRun run = invoke({"shift", "--by", "1", "--output-dir", scratch.of("link"), input});
+
+    // The two spellings differ, the file does not: only the system can say so.
+    CHECK(run.exitCode == 1);
+    CHECK_THAT(run.errors, ContainsSubstring("is itself the input " + input));
+    CHECK(contentOf(input) == before);
+}
+
+TEST_CASE("a file named on the command line is never filtered by its extension",
+          "[e2e][CLI-BATCH-12]") {
+    const Scratch scratch;
+    // SubRip under a name no format uses, and a notes file nobody would walk into.
+    const std::string odd = writeFile(scratch, "in/film.dat", srtText("odd", 1));
+    const std::string notes = writeFile(scratch, "in/notes.txt", srtText("notes", 1));
+
+    const CliRun run =
+        invoke({"shift", "--by", "1", "--output-dir", scratch.of("out"), odd, notes});
+
+    CHECK(run.exitCode == 0);
+    CHECK(contentOf(scratch.of("out/film.dat")) == "1\n00:00:02,000 --> 00:00:02,500\nodd 1\n\n");
+    CHECK(contentOf(scratch.of("out/notes.txt")) ==
+          "1\n00:00:02,000 --> 00:00:02,500\nnotes 1\n\n");
+}
+
+TEST_CASE("writing in place overwrites the input, and nothing refuses it", "[e2e][CLI-BATCH-04]") {
+    const Scratch scratch;
+    const std::string input = writeSrt(scratch, "in/film.srt", 1);
+
+    const CliRun run = invoke({"shift", "--by", "1", "--in-place", input});
+
+    CHECK(run.exitCode == 0);
+    CHECK(contentOf(input) == "1\n00:00:02,000 --> 00:00:02,500\nin/film.srt 1\n\n");
+}
+
+TEST_CASE("an output directory that does not exist is created, parents included",
+          "[e2e][CLI-BATCH-05]") {
+    const Scratch scratch;
+    const std::string input = writeSrt(scratch, "in/film.srt", 1);
+
+    const CliRun run =
+        invoke({"shift", "--by", "1", "--output-dir", scratch.of("absent/deeper"), input});
+
+    CHECK(run.exitCode == 0);
+    CHECK(contentOf(scratch.of("absent/deeper/film.srt")) ==
+          "1\n00:00:02,000 --> 00:00:02,500\nin/film.srt 1\n\n");
+}
+
+TEST_CASE("the directory --output writes into is created too", "[e2e][CLI-BATCH-05]") {
+    const Scratch scratch;
+    const std::string input = writeSrt(scratch, "in/film.srt", 1);
+
+    const CliRun run =
+        invoke({"shift", "--by", "1", "--output", scratch.of("x/y/renamed.srt"), input});
+
+    CHECK(run.exitCode == 0);
+    CHECK(std::filesystem::exists(scratch.of("x/y/renamed.srt")));
+}
+
+TEST_CASE("an output directory that cannot be made is said once, and no file is read",
+          "[e2e][CLI-BATCH-05]") {
+    const Scratch scratch;
+    const std::string first = writeSrt(scratch, "in/one.srt", 1);
+    const std::string second = writeSrt(scratch, "in/two.srt", 1);
+    // A file where the directory should go: it cannot be made.
+    const std::string blocker = writeFile(scratch, "blocker", "not a directory");
+
+    const CliRun run =
+        invoke({"shift", "--by", "1", "--output-dir", blocker + "/out", first, second});
+
+    CHECK(run.exitCode == 2);
+    CHECK_THAT(run.errors, ContainsSubstring(blocker + "/out: cannot be created"));
+    // Once, whatever the number of inputs, and before any of them is touched.
+    CHECK(run.errors.find("cannot be created") == run.errors.rfind("cannot be created"));
+    CHECK_THAT(run.errors, !ContainsSubstring(first));
+    CHECK_THAT(run.errors, !ContainsSubstring("files shifted"));
+}
+
+TEST_CASE("an existing destination is overwritten, and the manual says so", "[e2e][CLI-BATCH-07]") {
     const Scratch scratch;
     const std::string input = writeSrt(scratch, "in/film.srt", 1);
     const std::string destination = writeFile(scratch, "out/film.srt", "precious\n");
@@ -126,6 +230,33 @@ TEST_CASE("an existing destination is overwritten, without a question or an opti
 
     CHECK(run.exitCode == 0);
     CHECK(contentOf(destination) == "1\n00:00:02,000 --> 00:00:02,500\nin/film.srt 1\n\n");
+    // Atomically: the temporary the write goes through is gone.
+    CHECK(!std::filesystem::exists(destination + ".subedit-tmp"));
+}
+
+TEST_CASE("a write that fails in the middle of a batch is worded as a write, and is code 3",
+          "[e2e][CLI-BATCH-02][CLI-BATCH-06]") {
+    const Scratch scratch;
+    const std::string before = writeSrt(scratch, "in/before.srt", 1);
+    const std::string middle = writeSrt(scratch, "in/middle.srt", 1);
+    const std::string after = writeSrt(scratch, "in/after.srt", 1);
+    // A directory where the destination of the second should be: the system
+    // refuses to put a file over it.
+    std::filesystem::create_directories(scratch.of("out/middle.srt/inside"));
+
+    const CliRun run =
+        invoke({"shift", "--by", "1", "--output-dir", scratch.of("out"), before, middle, after});
+
+    CHECK(run.exitCode == 3);
+    CHECK_THAT(
+        run.errors,
+        ContainsSubstring(middle + ": " + scratch.of("out/middle.srt") + ": cannot be written"));
+    CHECK_THAT(run.errors, !ContainsSubstring("cannot be read"));
+    CHECK_THAT(run.errors, ContainsSubstring("2 of 3 files shifted, 1 failed\n"));
+    CHECK(std::filesystem::exists(scratch.of("out/before.srt")));
+    CHECK(std::filesystem::exists(scratch.of("out/after.srt")));
+    // And nothing was left next to the refused destination.
+    CHECK(!std::filesystem::exists(scratch.of("out/middle.srt.subedit-tmp")));
 }
 
 TEST_CASE(

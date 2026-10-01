@@ -57,8 +57,17 @@ void InMemoryFileSystem::failNextRename(FileErrorKind kind) {
     m_pendingRenameFailure = kind;
 }
 
+void InMemoryFileSystem::failNextCreateDirectories(FileErrorKind kind) {
+    m_pendingCreateFailure = kind;
+}
+
 bool InMemoryFileSystem::exists(const std::filesystem::path& path) const {
     return m_files.contains(path);
+}
+
+bool InMemoryFileSystem::equivalent(const std::filesystem::path& first,
+                                    const std::filesystem::path& second) const {
+    return exists(first) && exists(second) && first.lexically_normal() == second.lexically_normal();
 }
 
 bool InMemoryFileSystem::isExecutable(const std::filesystem::path& path) const {
@@ -105,7 +114,10 @@ std::expected<void, FileError> InMemoryFileSystem::writeFile(const std::filesyst
 }
 
 std::expected<void, FileError>
-InMemoryFileSystem::createDirectories(const std::filesystem::path& /*directory*/) {
+InMemoryFileSystem::createDirectories(const std::filesystem::path& directory) {
+    m_directoriesAsked.push_back(directory);
+    if (const std::optional<FileErrorKind> kind = take(m_pendingCreateFailure); kind.has_value())
+        return failure(*kind, directory);
     return {};
 }
 

@@ -24,11 +24,11 @@ namespace {
 
 /// Reads, operates, writes. Returns true when the file was written.
 bool rewriteFile(core::FileSystem& files,
-                 const std::string& path,
+                 const Job& job,
                  const std::optional<core::Encoding>& reading,
-                 const Destination& destination,
                  const Reporter& reporter,
                  const Operation& operation) {
+    const std::string& path = job.input;
     std::expected<core::OpenedFile, core::OpenError> opened =
         reading ? core::openProject(files, path, *reading) : core::openProject(files, path);
     if (!opened) {
@@ -52,8 +52,7 @@ bool rewriteFile(core::FileSystem& files,
         .encoding = source.encoding,
         .header = source.header,
     };
-    // The extension is left alone: the format has not changed.
-    const std::filesystem::path out = destination.pathFor(path, "");
+    const std::filesystem::path& out = job.output;
     const std::expected<std::size_t, std::string> written =
         writeSubtitlesTo(files, out, source.format, request);
     if (!written) {
@@ -81,9 +80,16 @@ ExitCode rewriteAll(core::FileSystem& files,
                     const Reporter& reporter,
                     std::string_view verb,
                     const Operation& operation) {
+    // The extension is left alone: the format has not changed.
+    const std::expected<std::vector<Job>, ExitCode> jobs =
+        arrange(files, destination, paths, "", reporter);
+    if (!jobs) {
+        return jobs.error();
+    }
+
     std::size_t done = 0;
-    for (const std::string& path : paths) {
-        if (rewriteFile(files, path, reading, destination, reporter, operation)) {
+    for (const Job& job : *jobs) {
+        if (rewriteFile(files, job, reading, reporter, operation)) {
             ++done;
         }
     }

@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **cli** — Le lot sûr, collisions refusées et dossier créé (#554)
+
+## 0.13.7 — 2026-10-01
+
 ### Remaniements
 
 - **cli** — Un fichier par sous-commande, et une table (#553)

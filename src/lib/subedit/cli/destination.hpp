@@ -7,8 +7,23 @@
 #include <filesystem>
 #include <string>
 #include <string_view>
+#include <vector>
+
+namespace subedit::core {
+class FileSystem;
+}
 
 namespace subedit::cli {
+
+/// One input of a batch and the path it is written to, **computed once**.
+///
+/// The validation reads `output` to refuse collisions, the creation of the
+/// output directory reads it, and the writing reads it again: three readers of
+/// one decision, none of them recomputing it.
+struct Job {
+    std::string input;
+    std::filesystem::path output;
+};
 
 /// The destination three mutually exclusive options describe.
 ///
@@ -39,6 +54,26 @@ public:
     /// Ignored when the caller named the output file: they named it.
     [[nodiscard]] std::filesystem::path pathFor(const std::filesystem::path& input,
                                                 std::string_view extension) const;
+
+    /// Every input with its destination, or why the batch must not start.
+    ///
+    /// **Judged whole, before the first write** — the rule of `CLI-USAGE-03`: a
+    /// usage error never leaves a batch half written. Two refusals:
+    ///
+    /// - two inputs that end up at the same destination, **extension
+    ///   included**: `convert` changes it, so `a/film.srt` and `b/film.vtt`
+    ///   converted to WebVTT both become `out/film.vtt`, which comparing the
+    ///   inputs' names would not see. The last would silently erase the first;
+    /// - without `--in-place`, a destination that is one of the inputs: writing
+    ///   over one's own input is a gesture one names, including through
+    ///   `--output-dir .`.
+    ///
+    /// Two paths are the same file by `FileSystem::equivalent` when they exist,
+    /// and by their normalised absolute spelling when they do not yet.
+    [[nodiscard]] std::expected<std::vector<Job>, std::string>
+    plan(const core::FileSystem& files,
+         const std::vector<std::string>& inputs,
+         std::string_view extension) const;
 
     /// Whether the inputs are written back over themselves.
     [[nodiscard]] bool isInPlace() const { return m_inPlace; }

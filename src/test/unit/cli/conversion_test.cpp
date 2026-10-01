@@ -253,6 +253,26 @@ TEST_CASE("a file that cannot be read is named and the others go on", "[cli][con
     CHECK_THAT(errors.str(), ContainsSubstring("absent.srt"));
 }
 
+TEST_CASE("two inputs converted onto one destination are refused whole",
+          "[cli][conversion][CLI-BATCH-03]") {
+    InMemoryFileSystem files;
+    files.addFile("a/film.srt", kSubRip);
+    files.addFile("b/film.srt", kSubRip);
+    std::ostringstream errors;
+
+    const ExitCode code = convertAll(files,
+                                     {"a/film.srt", "b/film.srt"},
+                                     subedit::core::ReadingChoices{},
+                                     SubtitleFormat::WebVtt,
+                                     {},
+                                     Destination::from("", "out", false, 2).value(),
+                                     Reporter{errors, 1});
+
+    CHECK(code == ExitCode::Usage);
+    CHECK_THAT(errors.str(), ContainsSubstring("out/film.vtt: would be written by both"));
+    CHECK_FALSE(files.contentOf("out/film.vtt").has_value());
+}
+
 TEST_CASE("a write that fails is reported and counted", "[cli][conversion]") {
     InMemoryFileSystem files;
     files.addFile("a.srt", kSubRip);
