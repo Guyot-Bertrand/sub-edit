@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **scripts** — Le manuel de subedit-cli et son --help concordent (#546)
+
+## 0.13.3 — 2026-10-01
+
 ### Remaniements
 
 - **core** — Les phrases des mentions et du refus dans wording (#545)

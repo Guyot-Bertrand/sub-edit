@@ -1326,6 +1326,80 @@ expect_manual_link_gate() {
 
 expect_manual_link_gate
 
+# Le manuel de `subedit-cli` et son `--help` — #546.
+#
+# **Quatre preuves, une par défaut que le contrôle promet de voir**, et une pour
+# le vert : une sous-commande sans page, une option de l'aide qu'aucun tableau ne
+# porte, une option d'un tableau que l'aide ne connaît pas, et une option
+# globale que la page `subedit-cli(1)` oublie. Chaque injection porte sur **une
+# copie** du manuel, dans un répertoire jetable : le contrôle accepte le manuel
+# et la page de manuel en arguments, si bien que rien du dépôt n'est touché et
+# que `restore` n'a rien à rétablir.
+expect_cli_manual_gate() {
+    local script="${REPO_ROOT}/src/scripts/check-cli-manual.py"
+    local binary="${REPO_ROOT}/build/dev/bin/subedit-cli"
+    local real_manual="${REPO_ROOT}/docs/manual/subedit-cli"
+    local real_man_page="${REPO_ROOT}/packaging/subedit-cli.1.in"
+    local root
+    root="$(mktemp -d)"
+
+    printf '%s▸ le manuel de subedit-cli, tel qu il est%s\n' "${BOLD}" "${RESET}"
+    if "${script}" --binary "${binary}" >/dev/null 2>&1; then
+        printf '  %s✓ « check-cli-manual.py » a laissé passer le manuel intact, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ le contrôle refuse le manuel intact%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    expect_cli_manual_refused() {
+        local label="$1" expected="$2"
+        local output
+        if output="$("${script}" --binary "${binary}" --manual "${root}/manual" \
+            --man-page "${root}/subedit-cli.1.in" 2>&1)"; then
+            printf '  %s✗ le contrôle a laissé passer : %s%s\n' "${RED}" "${label}" "${RESET}"
+            failures=$((failures + 1))
+        elif [[ "${output}" == *"${expected}"* && "${output}" == *"1 écart(s)"* ]]; then
+            printf '  %s✓ « check-cli-manual.py » a refusé, et nommé seul cet écart : %s%s\n' \
+                "${GREEN}" "${label}" "${RESET}"
+        else
+            printf '  %s✗ le contrôle a refusé, mais pas pour la bonne raison : %s%s\n' \
+                "${RED}" "${label}" "${RESET}"
+            failures=$((failures + 1))
+        fi
+    }
+    fresh_copy() {
+        rm -rf "${root}/manual" "${root}/subedit-cli.1.in"
+        cp -r "${real_manual}" "${root}/manual"
+        cp "${real_man_page}" "${root}/subedit-cli.1.in"
+    }
+
+    printf '%s▸ une sous-commande sans page de manuel%s\n' "${BOLD}" "${RESET}"
+    fresh_copy
+    rm "${root}/manual/shift.md"
+    expect_cli_manual_refused "shift sans page" "PAGE ABSENTE"
+
+    printf '%s▸ une option de l aide qu aucun tableau ne porte%s\n' "${BOLD}" "${RESET}"
+    fresh_copy
+    sed -i 's/| `--by` |/| (retirée) |/' "${root}/manual/shift.md"
+    expect_cli_manual_refused "--by retirée des tableaux" "OPTION NON DOCUMENTÉE"
+
+    printf '%s▸ une option d un tableau que l aide ne connaît pas%s\n' "${BOLD}" "${RESET}"
+    fresh_copy
+    printf '\n| Option | Requis |\n| :----- | :----- |\n| `--inventee` | non |\n' \
+        >> "${root}/manual/shift.md"
+    expect_cli_manual_refused "--inventee" "OPTION INCONNUE"
+
+    printf '%s▸ une option globale que la page de manuel oublie%s\n' "${BOLD}" "${RESET}"
+    fresh_copy
+    sed -i 's/\\-\\-encoding/\\-\\-oubliee/' "${root}/subedit-cli.1.in"
+    expect_cli_manual_refused "--encoding absente de la page de manuel" "OPTION GLOBALE ABSENTE"
+
+    rm -rf "${root}"
+}
+
+expect_cli_manual_gate
+
 # Les règles d installation oublient un fichier de données — #239.
 #
 # **L injection réduit les règles aux seuls binaires**, plutôt que d ajouter du
