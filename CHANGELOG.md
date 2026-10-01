@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Remaniements
+
+- **core** — Les phrases des mentions et du refus dans wording (#545)
+
+## 0.13.2 — 2026-10-01
+
 ### Documentation
 
 - **doc** — Ce que le lot ne fait pas, constaté par les e2e (#544)
