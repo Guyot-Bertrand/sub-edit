@@ -450,6 +450,49 @@ std::string Scratch::path() const {
     return m_path.string();
 }
 
+std::string srtText(const std::string& tag, int cues) {
+    std::string text;
+    for (int cue = 1; cue <= cues; ++cue) {
+        const std::string second = std::to_string(cue);
+        const std::string stamp = "00:00:0" + second;
+        text += second;
+        text += '\n';
+        text += stamp;
+        text += ",000 --> ";
+        text += stamp;
+        text += ",500\n";
+        text += tag;
+        text += ' ';
+        text += second;
+        text += "\n\n";
+    }
+    return text;
+}
+
+std::string writeFile(const Scratch& scratch, const std::string& name, const std::string& text) {
+    const std::string path = scratch.of(name);
+    std::filesystem::create_directories(std::filesystem::path{path}.parent_path());
+    std::ofstream file{path, std::ios::binary};
+    file << text;
+    return path;
+}
+
+std::string writeSrt(const Scratch& scratch, const std::string& name, int cues) {
+    return writeFile(scratch, name, srtText(name, cues));
+}
+
+std::vector<std::string>
+writeSrtBatch(const Scratch& scratch, int count, const std::string& directory) {
+    std::vector<std::string> paths;
+    for (int index = 1; index <= count; ++index)
+        paths.push_back(writeSrt(scratch, directory + "/file-" + std::to_string(index) + ".srt"));
+    return paths;
+}
+
+std::string writeUnreadable(const Scratch& scratch, const std::string& name) {
+    return writeFile(scratch, name, contentOf(corpus("malformes/vide.srt")));
+}
+
 CliRun invoke(const std::vector<std::string>& args) {
     return run(SUBEDIT_CLI_BINARY, args);
 }
