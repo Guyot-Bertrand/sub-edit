@@ -210,16 +210,16 @@ plus rien.
 | `GUI-SPELL-02` | sans dictionnaire pour la langue choisie, les fonctions du correcteur sont grisées et disent pourquoi | 12 | implémentée |
 | `GUI-SPELL-03` | l'assistant joint et scinde des mots selon le correcteur | 12 | implémentée |
 | `GUI-SPELL-04` | un mot inconnu est souligné pendant qu'on le tape dans l'éditeur d'une cellule de texte, quand le réglage est vrai et qu'un dictionnaire existe ; sans dictionnaire, rien n'est souligné et rien n'échoue | 12 | implémentée |
-| `CLI-JSON-01` | `--format json` écrit sur la sortie standard un objet JSON par ligne ; `text` est le défaut et ne change pas | 13 | prévue |
-| `CLI-JSON-02` | chaque entrée donne **exactement un** objet, échec compris, dans l'ordre des entrées | 13 | prévue |
-| `CLI-JSON-03` | chaque objet porte `schema`, `command`, `file` et `ok` ; un échec porte `error.kind` et `error.message` | 13 | prévue |
-| `CLI-JSON-04` | la verbosité n'agit pas sur la sortie standard en `json` ; la narration reste du texte sur la sortie d'erreur | 13 | prévue |
-| `CLI-JSON-05` | les diagnostics de lecture sont dans `warnings`, à tous les niveaux | 13 | prévue |
-| `CLI-JSON-06` | aucun nombre à virgule : positions en millisecondes entières, cadences en chaînes | 13 | prévue |
-| `CLI-JSON-07` | une erreur d'usage n'écrit rien sur la sortie standard, en `json` comme en `text` | 13 | prévue |
-| `CLI-JSON-08` | `inspect` décrit le fichier : format, encodage, marque, fins de ligne, nombre, étendue, grille ou cadence, anomalies | 13 | prévue |
-| `CLI-JSON-09` | chaque sous-commande qui écrit dit sa destination et ses comptes | 13 | prévue |
-| `CLI-JSON-10` | mêmes entrées et mêmes arguments donnent les octets des attendus versionnés | 13 | prévue |
+| `CLI-JSON-01` | `--format json` écrit sur la sortie standard un objet JSON par ligne ; `text` est le défaut et ne change pas | 13 | implémentée |
+| `CLI-JSON-02` | chaque entrée donne **exactement un** objet, échec compris, dans l'ordre des entrées | 13 | implémentée |
+| `CLI-JSON-03` | chaque objet porte `schema`, `command`, `file` et `ok` ; un échec porte `error.kind` et `error.message` | 13 | implémentée |
+| `CLI-JSON-04` | la verbosité n'agit pas sur la sortie standard en `json` ; la narration reste du texte sur la sortie d'erreur | 13 | implémentée |
+| `CLI-JSON-05` | les diagnostics de lecture sont dans `warnings`, à tous les niveaux | 13 | implémentée |
+| `CLI-JSON-06` | aucun nombre à virgule : positions en millisecondes entières, cadences en chaînes | 13 | implémentée |
+| `CLI-JSON-07` | une erreur d'usage n'écrit rien sur la sortie standard, en `json` comme en `text` | 13 | implémentée |
+| `CLI-JSON-08` | `inspect` décrit le fichier : format, encodage, marque, fins de ligne, nombre, étendue, grille ou cadence, anomalies | 13 | implémentée |
+| `CLI-JSON-09` | chaque sous-commande qui écrit dit sa destination et ses comptes | 13 | implémentée |
+| `CLI-JSON-10` | mêmes entrées et mêmes arguments donnent les octets des attendus versionnés | 13 | implémentée |
 | `CLI-DRYRUN-01` | `--dry-run` n'écrit aucun fichier et ne crée aucun dossier, et le code est celui d'un vrai lancement | 13 | prévue |
 | `CLI-DRYRUN-02` | `--dry-run` n'exige aucune destination | 13 | prévue |
 | `CLI-DRYRUN-03` | une destination donnée avec `--dry-run` est vérifiée comme sans lui | 13 | prévue |

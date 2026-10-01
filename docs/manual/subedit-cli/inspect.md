@@ -237,6 +237,36 @@ lecture a rencontré et pointent une **ligne du fichier** ; les anomalies disent
 ce que le document *est* et pointent un **sous-titre**. Un fichier dont l'ordre
 est rompu n'est pas malformé pour autant : la lecture n'a rien à en dire.
 
+## En JSON
+
+Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), `inspect` écrit **un
+objet par fichier** au lieu des blocs ci-dessus ; la narration reste sur la sortie d'erreur.
+Les clés décrivent ce que le texte dit, et **aucune n'est à relire dans une phrase** :
+
+| Clé | Contenu |
+| :-- | :------ |
+| `format` | l'identifiant du format, celui que `convert --to` accepte : `srt`, `vtt`… |
+| `encoding` | `{"charset", "origin", "byte_order_mark"}` — `origin` vaut `byte-order-mark`, `asked` ou `detected` |
+| `line_endings` | `{"kind", "mixed_from_line"}` — `lf`, `crlf` ou `cr` ; la ligne où une seconde sorte apparaît, ou `null` |
+| `subtitles` | le nombre de sous-titres |
+| `span_ms` | `{"start", "end"}` — le premier début et la dernière fin, en millisecondes |
+| `frame_rate` | pour un fichier compté en images : `{"rate", "origin"}` (`asked` ou `assumed`) ; sinon `null` |
+| `grid` | pour les autres : la grille déduite, ou `null` pour un fichier compté en images |
+| `anomalies` | un tableau de `{"subtitle", "kind"}` — `end-before-start`, `overlapping-subtitles`, `out-of-order` |
+| `warnings` | ce que la lecture a rencontré, à tous les niveaux |
+
+`grid` porte `verdict` (`clean`, `partial` ou `silent`), `enough_starts`, `rate` (une chaîne,
+ou `null` quand rien n'est nommé), `concentration_permille` (millièmes, `null` sans assez de
+débuts), `offset_ms`, `also_fits` (la cadence dont celle-ci est un diviseur entier, ou
+`null`), `not_separated` (les cadences qu'une étendue trop courte ne sépare pas), `strays`
+(les débuts hors grille) et `starts`.
+
+<!-- exemple: printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json inspect --frame-rate 25 f.sub 2>/dev/null -->
+```console
+$ printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json inspect --frame-rate 25 f.sub 2>/dev/null
+{"schema":1,"command":"inspect","file":"f.sub","ok":true,"format":"microdvd","encoding":{"charset":"UTF-8","origin":"detected","byte_order_mark":false},"line_endings":{"kind":"lf","mixed_from_line":null},"subtitles":2,"span_ms":{"start":1000,"end":4000},"frame_rate":{"rate":"25","origin":"asked"},"grid":null,"anomalies":[],"warnings":[]}
+```
+
 ## Narration
 
 Sur la sortie d'erreur, selon le niveau demandé :

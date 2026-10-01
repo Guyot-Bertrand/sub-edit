@@ -32,16 +32,17 @@ bool rewriteFile(core::FileSystem& files,
     std::expected<core::OpenedFile, core::OpenError> opened =
         reading ? core::openProject(files, path, *reading) : core::openProject(files, path);
     if (!opened) {
-        reporter.failed(path + ": " + std::string{reasonOf(opened.error())});
+        reportFailure(
+            reporter, path, Failure{idOf(opened.error()), std::string{reasonOf(opened.error())}});
         return false;
     }
 
     const core::SourceFile source = opened->project.sourceFile();
     core::Session session{std::move(opened->project)};
 
-    const std::expected<std::string, std::string> done = operation(session);
+    const OperationOutcome done = operation(session);
     if (!done) {
-        reporter.failed(path + ": " + done.error());
+        reportFailure(reporter, path, done.error());
         return false;
     }
 
@@ -53,10 +54,10 @@ bool rewriteFile(core::FileSystem& files,
         .header = source.header,
     };
     const std::filesystem::path& out = job.output;
-    const std::expected<std::size_t, std::string> written =
+    const std::expected<std::size_t, Failure> written =
         writeSubtitlesTo(files, out, source.format, request);
     if (!written) {
-        reporter.failed(path + ": " + written.error());
+        reportFailure(reporter, path, written.error());
         return false;
     }
 
@@ -67,7 +68,11 @@ bool rewriteFile(core::FileSystem& files,
     reporter.say(2,
                  path + ": " + std::string{nameOf(source.format)} + ", " + nameOf(source.encoding) +
                      ", " + std::string{nameOf(source.newline)} + " line endings kept");
-    reporter.say(1, path + ": " + *done + " -> " + out.string());
+    reporter.say(1, path + ": " + done->sentence + " -> " + out.string());
+    // The diagnostics are data: they go into the record at every level, where the
+    // narration keeps them for the third.
+    reporter.record(writtenRecord(
+        reporter.command(), path, out, done->counts, warningsOf(opened->diagnostics)));
     return true;
 }
 

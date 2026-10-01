@@ -15,6 +15,7 @@ add_library(
     subedit_cli STATIC
     aligning.cpp
     batch.cpp
+    json.cpp
     destination.cpp
     expansion.cpp
     encoding_grammar.cpp
@@ -25,6 +26,7 @@ add_library(
     inspection.cpp
     conversion.cpp
     index_grammar.cpp
+    records.cpp
     reporter.cpp
     rewriting.cpp
     writing.cpp

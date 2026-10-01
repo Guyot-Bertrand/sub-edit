@@ -182,3 +182,31 @@ coûte rien ; retirer l'une d'elles coûte un incrément et la patience de qui l
 après un incrément (le sélecteur de version) ; un format de plus que demanderait un
 appelant réel ; ou la preuve que l'ordre des objets ne suffit pas à un lot parallèle, si
 le lot le devient (ADR 0039).
+
+## Mise en œuvre (#556)
+
+Relue à l'implémentation ; **aucune décision n'est changée**, six précisions que l'ADR ne
+disait pas — la forme y gagne des clés, elle n'en perd aucune :
+
+- **Les identifiants `kind` des erreurs** sont ceux que le manuel énumère : `not-found`,
+  `permission-denied`, `io` (le système) ; `unknown-format`, `no-subtitle-found`,
+  `undecodable` (la lecture) ; `unencodable` (l'écriture) ; `no-byte-order-mark`,
+  `no-frame-rate` (`convert`) ; `before-the-origin`, `beyond-the-end`, `no-transform`,
+  `no-grid` (les opérations) ; `refused` pour tout autre refus.
+- **`settled` n'est écrit que lorsqu'il est vrai** — la lecture a tranché quelque chose —,
+  comme `line` n'est écrit que pour un diagnostic qui a une ligne et `detail` quand il a
+  quelque chose à dire.
+- **`concentration_permille` va de 0 à 1000** : la concentration du noyau va de 0 à 100, et
+  le millième est celui du tout — une grille parfaite vaut 1000.
+- **Un échec porte `warnings` dans un seul cas** : le chemin n'est pas de l'UTF-8. La table
+  de la décision réserve `warnings` aux succès ; l'avertissement `path-not-utf8` est la
+  seule chose qu'un échec a à dire de plus, et le taire aurait écrit un objet qui ne se
+  décrit pas lui-même.
+- **`inspect` décrit le fichier** par des clés que le manuel énumère : `format` (l'identifiant
+  de `convert --to`), `encoding`, `line_endings`, `subtitles`, `span_ms`, `frame_rate` ou
+  `grid` (l'un des deux est `null`), `anomalies`.
+- **Le texte et le JSON viennent du même objet** : `cli::OperationResult` porte les comptes
+  et la phrase, que l'opération construit des mêmes valeurs. La phrase n'a pas changé d'un
+  mot — c'est le critère — mais elle n'est plus écrite par `core/wording/` : celle de la
+  fenêtre et celle de la ligne de commande ne se recouvrent pas.
+

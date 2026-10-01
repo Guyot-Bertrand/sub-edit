@@ -14,6 +14,7 @@
 
 namespace {
 
+using subedit::cli::Failure;
 using subedit::cli::writeSubtitlesTo;
 using subedit::core::ByteOrderMark;
 using subedit::core::Encoding;
@@ -48,7 +49,7 @@ TEST_CASE("writing puts the bytes on disk and says how many", "[cli][writing]") 
     InMemoryFileSystem files;
     const std::vector<Subtitle> subtitles = oneSaying("Un café.");
 
-    const std::expected<std::size_t, std::string> written =
+    const std::expected<std::size_t, Failure> written =
         writeSubtitlesTo(files,
                          "out.srt",
                          SubtitleFormat::SubRip,
@@ -67,14 +68,15 @@ TEST_CASE("a character the encoding cannot write stops the writing", "[cli][writ
     InMemoryFileSystem files;
     const std::vector<Subtitle> subtitles = oneSaying("Przyszedł późno.");
 
-    const std::expected<std::size_t, std::string> written =
+    const std::expected<std::size_t, Failure> written =
         writeSubtitlesTo(files,
                          "out.srt",
                          SubtitleFormat::SubRip,
                          WriteRequest{.subtitles = subtitles, .encoding = named("iso-8859-1")});
 
     REQUIRE_FALSE(written.has_value());
-    CHECK(written.error() == "holds a character the chosen encoding cannot write");
+    CHECK(written.error().message == "holds a character the chosen encoding cannot write");
+    CHECK(written.error().kind == "unencodable");
     CHECK_FALSE(files.contentOf("out.srt").has_value());
 }
 
@@ -85,9 +87,10 @@ TEST_CASE("a disk that refuses the bytes says so, and names the destination", "[
     InMemoryFileSystem files;
     files.failNextWrite(FileErrorKind::PermissionDenied);
 
-    const std::expected<std::size_t, std::string> written = writeSubtitlesTo(
+    const std::expected<std::size_t, Failure> written = writeSubtitlesTo(
         files, "out.srt", SubtitleFormat::SubRip, WriteRequest{.subtitles = oneSaying("Un café.")});
 
     REQUIRE_FALSE(written.has_value());
-    CHECK(written.error() == "out.srt: cannot be written: permission denied");
+    CHECK(written.error().message == "out.srt: cannot be written: permission denied");
+    CHECK(written.error().kind == "permission-denied");
 }

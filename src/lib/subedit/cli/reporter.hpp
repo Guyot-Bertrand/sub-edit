@@ -3,9 +3,12 @@
 // Telling the user what is happening, at the level of detail they asked for.
 
 #include <iosfwd>
+#include <string>
 #include <string_view>
 
 namespace subedit::cli {
+
+class Json;
 
 /// The four levels of narration, and the stream they go to.
 ///
@@ -35,9 +38,30 @@ public:
 
     [[nodiscard]] int level() const { return m_level; }
 
+    /// The same reporter, also writing one record per file to `out`.
+    ///
+    /// **Records are the result, narration is the account** — the split the
+    /// class keeps for a human holds for a script: `out` is standard output, and
+    /// what `say` writes stays on standard error whatever the level, unchanged.
+    [[nodiscard]] Reporter withRecords(std::ostream& out) const;
+
+    /// The same reporter, knowing which subcommand is speaking.
+    [[nodiscard]] Reporter forCommand(std::string command) const;
+
+    /// Whether a record is wanted for each file (`--format json`).
+    [[nodiscard]] bool recording() const { return m_records != nullptr; }
+
+    /// The name the records are written under.
+    [[nodiscard]] const std::string& command() const { return m_command; }
+
+    /// Writes `record` as one line, when records are wanted.
+    void record(const Json& record) const;
+
 private:
     std::ostream* m_errors;
     int m_level;
+    std::ostream* m_records = nullptr;
+    std::string m_command;
 };
 
 } // namespace subedit::cli

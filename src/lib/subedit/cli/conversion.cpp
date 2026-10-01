@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <filesystem>
 #include <optional>
@@ -41,7 +42,7 @@ using core::SubtitleFormat;
 /// time-based file was timed at *is* its grid, and deducing it is the one place
 /// that measurement decides something rather than informing. Then nothing: the
 /// only move left would be to invent a number that displaces every subtitle.
-[[nodiscard]] std::expected<core::FrameRate, std::string>
+[[nodiscard]] std::expected<core::FrameRate, Failure>
 frameRateForFrames(const core::Project& project,
                    const std::optional<core::FrameRate>& asked,
                    const std::string& path,
@@ -51,14 +52,30 @@ frameRateForFrames(const core::Project& project,
 
     const core::FrameRateDeduction deduced = core::deduceFrameRate(project);
     if (deduced.verdict == core::GridVerdict::Silent) {
-        return std::unexpected(path + ": writing frames needs a frame rate, and the positions "
-                                      "fall on no grid to take one from — give --frame-rate");
+        return std::unexpected(Failure{"no-frame-rate",
+                                       "writing frames needs a frame rate, and the positions "
+                                       "fall on no grid to take one from — give --frame-rate"});
     }
 
     reporter.say(2,
                  path + ": counted in frames at " + core::nameOf(deduced.retained.rate) +
                      ", the grid the positions fall on");
     return deduced.retained.rate;
+}
+
+/// What a conversion counts: the subtitles, and each post of what it lost.
+///
+/// The posts are the ones `noticeOf` words, each as an integer — a flag is 0 or
+/// 1 — so that the sentence and the record come from the one `ConversionLoss`.
+[[nodiscard]] std::vector<Count> countsOfConversion(const core::ConvertedProject& converted) {
+    const core::ConversionLoss& loss = converted.loss;
+    return {{"subtitles", static_cast<std::int64_t>(converted.subtitles.size())},
+            {"lost_ends", loss.ends ? 1 : 0},
+            {"joined_lines", static_cast<std::int64_t>(loss.joined)},
+            {"lost_tags", static_cast<std::int64_t>(loss.tags)},
+            {"lost_header", loss.header ? 1 : 0},
+            {"lost_fields", static_cast<std::int64_t>(loss.fields)},
+            {"furthest_ms", loss.precision}};
 }
 
 bool convertFile(core::FileSystem& files,
@@ -71,7 +88,8 @@ bool convertFile(core::FileSystem& files,
     const std::expected<core::OpenedFile, core::OpenError> opened =
         core::openProject(files, path, reading);
     if (!opened) {
-        reporter.failed(path + ": " + std::string{reasonOf(opened.error())});
+        reportFailure(
+            reporter, path, Failure{idOf(opened.error()), std::string{reasonOf(opened.error())}});
         return false;
     }
 
@@ -91,8 +109,11 @@ bool convertFile(core::FileSystem& files,
     // Writing the file without it would answer a question the user did ask.
     if (encoding.byteOrderMark() == core::ByteOrderMark::Present &&
         encoding.byteOrderMarkBytes().empty()) {
-        reporter.failed(path + ": " + std::string{encoding.charset()} +
-                        " has no byte order mark to write");
+        reportFailure(
+            reporter,
+            path,
+            Failure{"no-byte-order-mark",
+                    std::string{encoding.charset()} + " has no byte order mark to write"});
         return false;
     }
 
@@ -107,10 +128,10 @@ bool convertFile(core::FileSystem& files,
     } else if (target == SubtitleFormat::MicroDvd) {
         // **The one thing this surface answers for itself**, because it can
         // refuse: the window always has a rate to offer, a batch may have none.
-        const std::expected<core::FrameRate, std::string> settled =
+        const std::expected<core::FrameRate, Failure> settled =
             frameRateForFrames(opened->project, reading.frameRate, path, reporter);
         if (!settled.has_value()) {
-            reporter.failed(settled.error());
+            reportFailure(reporter, path, settled.error());
             return false;
         }
         rate = *settled;
@@ -131,10 +152,10 @@ bool convertFile(core::FileSystem& files,
         .extras = converted.extras,
     };
     const std::filesystem::path& out = job.output;
-    const std::expected<std::size_t, std::string> written =
+    const std::expected<std::size_t, Failure> written =
         writeSubtitlesTo(files, out, target, request);
     if (!written) {
-        reporter.failed(path + ": " + written.error());
+        reportFailure(reporter, path, written.error());
         return false;
     }
 
@@ -155,6 +176,11 @@ bool convertFile(core::FileSystem& files,
     if (const std::string notice = core::noticeOf(converted.loss, source.format, target);
         !notice.empty())
         reporter.say(1, path + ": " + notice);
+    reporter.record(writtenRecord(reporter.command(),
+                                  path,
+                                  out,
+                                  countsOfConversion(converted),
+                                  warningsOf(opened->diagnostics)));
     return true;
 }
 

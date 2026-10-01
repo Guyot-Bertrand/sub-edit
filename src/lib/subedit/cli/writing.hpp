@@ -2,6 +2,7 @@
 
 // Turning subtitles into a file, and saying which step refused.
 
+#include <subedit/cli/records.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 
@@ -30,7 +31,7 @@ namespace subedit::cli {
 /// The failure is the **second half of a sentence** whose first half is the
 /// path the caller is working on — the shape every message of this surface
 /// takes.
-[[nodiscard]] std::expected<std::size_t, std::string>
+[[nodiscard]] std::expected<std::size_t, Failure>
 writeSubtitlesTo(subedit::core::FileSystem& files,
                  const std::filesystem::path& out,
                  subedit::core::SubtitleFormat format,

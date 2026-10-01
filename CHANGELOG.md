@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — --format json, un objet JSON Lines par entrée (#556)
+
+## 0.13.9 — 2026-10-01
+
+### Ajouts
+
 - **cli** — --recursive, un arbre en entrée et en sortie (#555)
 
 ## 0.13.8 — 2026-10-01

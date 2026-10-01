@@ -1,0 +1,5 @@
+{"schema":1,"command":"transform","file":"<scratch>/in/a.srt","ok":true,"dry_run":false,"destination":"<scratch>/out/a.srt","counts":{"subtitles":2},"warnings":[]}
+{"schema":1,"command":"framerate","file":"<scratch>/in/a.srt","ok":true,"dry_run":false,"destination":"<scratch>/out/a.srt","counts":{"subtitles":2},"warnings":[]}
+{"schema":1,"command":"snap","file":"<scratch>/in/a.srt","ok":true,"dry_run":false,"destination":"<scratch>/out/a.srt","counts":{"subtitles":2,"moved":0,"furthest_ms":0},"warnings":[]}
+{"schema":1,"command":"hearing-impaired","file":"<scratch>/in/a.srt","ok":true,"dry_run":false,"destination":"<scratch>/out/a.srt","counts":{"cleaned":0,"removed":0},"warnings":[]}
+{"schema":1,"command":"convert","file":"<scratch>/in/a.srt","ok":true,"dry_run":false,"destination":"<scratch>/out/a.vtt","counts":{"subtitles":2,"lost_ends":0,"joined_lines":0,"lost_tags":0,"lost_header":0,"lost_fields":0,"furthest_ms":0},"warnings":[]}

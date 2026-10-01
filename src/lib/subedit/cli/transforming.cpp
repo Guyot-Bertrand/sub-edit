@@ -9,6 +9,7 @@
 #include <subedit/core/wording/counts.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <memory>
 #include <optional>
@@ -72,14 +73,13 @@ ExitCode transformAll(core::FileSystem& files,
                       const Transform& transform,
                       const Destination& destination,
                       const Reporter& reporter) {
-    const Operation retime =
-        [&transform](core::Session& session) -> std::expected<std::string, std::string> {
+    const Operation retime = [&transform](core::Session& session) -> OperationOutcome {
         const std::size_t count = session.project().subtitles().size();
         if (const std::optional<std::string> beyond = beyondOf(transform.first(), count)) {
-            return std::unexpected{*beyond};
+            return std::unexpected{Failure{"beyond-the-end", *beyond}};
         }
         if (const std::optional<std::string> beyond = beyondOf(transform.last(), count)) {
-            return std::unexpected{*beyond};
+            return std::unexpected{Failure{"beyond-the-end", *beyond}};
         }
 
         std::optional<core::TransformCommand> command = core::TransformCommand::create(
@@ -92,9 +92,11 @@ ExitCode transformAll(core::FileSystem& files,
                                          core::SubtitleIndex::fromNumber(transform.last().number),
                                      .target = transform.last().target});
         if (!command.has_value()) {
-            return std::unexpected{"subtitles " + std::to_string(transform.first().number) +
-                                   " and " + std::to_string(transform.last().number) +
-                                   " start at the same moment, so they define no transform"};
+            return std::unexpected{
+                Failure{"no-transform",
+                        "subtitles " + std::to_string(transform.first().number) + " and " +
+                            std::to_string(transform.last().number) +
+                            " start at the same moment, so they define no transform"}};
         }
 
         session.apply(std::make_unique<core::TransformCommand>(std::move(*command)));
@@ -103,10 +105,13 @@ ExitCode transformAll(core::FileSystem& files,
         // leaves the session as it found it, whatever the caller does next.
         if (const std::optional<std::string> refused = beforeOriginOf(session.project())) {
             session.undo();
-            return std::unexpected{*refused};
+            return std::unexpected{Failure{"before-the-origin", *refused}};
         }
-        return core::countOf(session.project().count(), "subtitle") + " transformed onto " +
-               wordedOf(transform.first()) + " and " + wordedOf(transform.last());
+        const std::size_t total = session.project().count();
+        return OperationResult{.sentence = core::countOf(total, "subtitle") + " transformed onto " +
+                                           wordedOf(transform.first()) + " and " +
+                                           wordedOf(transform.last()),
+                               .counts = {{"subtitles", static_cast<std::int64_t>(total)}}};
     };
 
     return rewriteAll(files, paths, reading, destination, reporter, "transformed", retime);

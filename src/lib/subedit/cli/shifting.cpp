@@ -12,6 +12,7 @@
 #include <subedit/core/wording/counts.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <memory>
 #include <optional>
@@ -26,8 +27,7 @@ ExitCode shiftAll(core::FileSystem& files,
                   core::Duration by,
                   const Destination& destination,
                   const Reporter& reporter) {
-    const Operation shift =
-        [by](core::Session& session) -> std::expected<std::string, std::string> {
+    const Operation shift = [by](core::Session& session) -> OperationOutcome {
         const core::Selection whole = core::Selection::all(session.project());
 
         // The rule has lived in the core since issue #132: the window asks for
@@ -35,12 +35,16 @@ ExitCode shiftAll(core::FileSystem& files,
         if (const std::optional<core::SubtitleIndex> refused =
                 core::firstBeforeOrigin(session.project(), whole, by);
             refused.has_value()) {
-            return std::unexpected{core::shiftBeforeTheOrigin(refused->number())};
+            return std::unexpected{
+                Failure{"before-the-origin", core::shiftBeforeTheOrigin(refused->number())}};
         }
 
         session.apply(std::make_unique<core::ShiftCommand>(whole, by));
-        return core::countOf(session.project().count(), "subtitle") + " shifted by " +
-               core::secondsOf(by);
+        const std::size_t count = session.project().count();
+        return OperationResult{.sentence = core::countOf(count, "subtitle") + " shifted by " +
+                                           core::secondsOf(by),
+                               .counts = {{"subtitles", static_cast<std::int64_t>(count)},
+                                          {"shifted_by_ms", by.milliseconds()}}};
     };
 
     return rewriteAll(files, paths, reading, destination, reporter, "shifted", shift);
@@ -51,25 +55,31 @@ ExitCode shiftOntoGridAll(core::FileSystem& files,
                           const std::optional<core::Encoding>& reading,
                           const Destination& destination,
                           const Reporter& reporter) {
-    const Operation onto = [](core::Session& session) -> std::expected<std::string, std::string> {
+    const Operation onto = [](core::Session& session) -> OperationOutcome {
         const core::FrameRateDeduction grid = core::deduceFrameRate(session.project());
         const std::optional<core::Duration> by = core::shiftOntoGrid(grid);
         if (!by.has_value()) {
             return std::unexpected{
-                std::string{"no frame rate grid was found in these positions, so there is "
-                            "nothing to bring them back onto"}};
+                Failure{"no-grid",
+                        "no frame rate grid was found in these positions, so there is "
+                        "nothing to bring them back onto"}};
         }
 
         const core::Selection whole = core::Selection::all(session.project());
         if (const std::optional<core::SubtitleIndex> refused =
                 core::firstBeforeOrigin(session.project(), whole, *by);
             refused.has_value()) {
-            return std::unexpected{core::shiftBeforeTheOrigin(refused->number())};
+            return std::unexpected{
+                Failure{"before-the-origin", core::shiftBeforeTheOrigin(refused->number())}};
         }
 
         session.apply(std::make_unique<core::ShiftCommand>(whole, *by));
-        return core::countOf(session.project().count(), "subtitle") + " shifted by " +
-               core::secondsOf(*by) + " onto their " + nameOf(grid.retained.rate) + " fps grid";
+        const std::size_t count = session.project().count();
+        return OperationResult{.sentence = core::countOf(count, "subtitle") + " shifted by " +
+                                           core::secondsOf(*by) + " onto their " +
+                                           nameOf(grid.retained.rate) + " fps grid",
+                               .counts = {{"subtitles", static_cast<std::int64_t>(count)},
+                                          {"shifted_by_ms", by->milliseconds()}}};
     };
 
     return rewriteAll(files, paths, reading, destination, reporter, "shifted", onto);

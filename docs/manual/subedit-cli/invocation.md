@@ -18,6 +18,7 @@ Options:
   -v                          Say more: -v is the default, -vv details, -vvv debugs
   -q,--quiet                  Say nothing but errors
   --encoding NAME             Encoding to read the files in; detected by default
+  --format text|json          Form of the result on standard output: text or json
 
 Subcommands:
   inspect                     Report what a subtitle file is made of
@@ -57,6 +58,7 @@ relecture de fin de phase 8, en essayant plutôt qu'en relisant.
 | `-q`, `--quiet` | niveau 0 — plus aucune narration |
 | `-v`, `-vv`, `-vvv` | niveaux 1 à 3 ; le niveau 1 est celui par défaut |
 | `--encoding NOM` | lit les fichiers dans cet encodage, au lieu de le deviner |
+| `--format text\|json` | forme du résultat sur la sortie standard : le texte, ou un objet JSON par fichier — voir [Sortie lisible par un script](#sortie-lisible-par-un-script) |
 
 `--quiet` et `-v` dans la même invocation sont refusés : deux intentions
 opposées ne sont pas arbitrées au profit de la dernière écrite.
@@ -109,7 +111,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.9
+subedit 0.13.10
 ```
 
 ## Sous-commandes
@@ -209,7 +211,7 @@ par un `?` serait perdre du texte sous les yeux de qui vient de l'écrire.
 
 | Sortie | Ce qu'elle porte |
 | :----- | :--------------- |
-| standard | **le résultat, et lui seul** — le rapport d'`inspect` |
+| standard | **le résultat, et lui seul** — le rapport d'`inspect` ; avec `--format json`, un objet par fichier, de toutes les sous-commandes |
 | erreur | **tout le reste** — la narration, les avertissements, les erreurs |
 
 C'est ce partage qui permet de rediriger le résultat sans y récupérer le récit :
@@ -219,6 +221,109 @@ $ subedit-cli inspect *.srt > rapport.txt
 ```
 
 Le rapport part dans le fichier, la narration reste à l'écran.
+
+## Sortie lisible par un script
+
+**`--format json`** remplace le texte de la sortie standard par **un objet JSON par
+fichier d'entrée**, au format JSON Lines : un objet compact par ligne, en UTF-8 sans
+marque, la fin de ligne est `\n`. `text` est le défaut et ne change pas. C'est une
+option globale, qui s'écrit donc avant la sous-commande ; une valeur autre que
+`text` et `json` est une erreur d'usage, code `1`.
+
+<!-- exemple: printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?"
+a.srt: 1 subtitle shifted by 1.000 s -> sortie/a.srt
+{"schema":1,"command":"shift","file":"a.srt","ok":true,"dry_run":false,"destination":"sortie/a.srt","counts":{"subtitles":1,"shifted_by_ms":1000},"warnings":[]}
+absent.srt: does not exist
+{"schema":1,"command":"shift","file":"absent.srt","ok":false,"error":{"kind":"not-found","message":"absent.srt: does not exist"}}
+1 of 2 files shifted, 1 failed
+code=3
+```
+
+**Un objet par entrée, jamais zéro, jamais deux**, que l'entrée ait réussi ou non, dans
+l'ordre où les entrées ont été données — ou trouvées, avec [`--recursive`](lots.md). On
+compte les lignes, on retrouve ses fichiers. **Les sous-commandes qui réécrivent écrivent
+donc aussi sur la sortie standard**, ce que leur contrat ne faisait pas en texte : leur
+fichier reste leur résultat, et l'objet en est le compte rendu.
+
+**La narration ne change pas.** `-q`, `-v`, `-vv` et `-vvv` agissent sur la sortie
+d'erreur, en texte, comme sans `--format` ; **la sortie standard ne varie pas avec eux**.
+Les diagnostics de lecture, que le texte range au niveau 3, sont des données et sont
+**toujours** dans `warnings`. Une erreur d'usage n'écrit aucun objet : elle est détectée
+avant de toucher un fichier, il n'y a donc rien à quoi l'attacher ; elle va sur la sortie
+d'erreur avec le code `1`, et la sortie standard reste vide.
+
+### La forme
+
+| Clé | Contenu | Présente |
+| :-- | :------ | :------- |
+| `schema` | entier, la version de cette forme — `1` | toujours |
+| `command` | le nom de la sous-commande | toujours |
+| `file` | le chemin **tel que donné**, ou tel que le parcours d'un répertoire l'a composé | toujours |
+| `ok` | booléen | toujours |
+| `error` | `{"kind", "message"}` | si `ok` est faux |
+| `destination` | le chemin écrit | si `ok` est vrai, sur une sous-commande qui écrit |
+| `dry_run` | booléen, toujours faux pour l'instant | idem |
+| `counts` | un objet d'**entiers**, propre à la sous-commande | idem |
+| `warnings` | un tableau de `{"kind", "line"?, "detail"?, "settled"?}` | si `ok` est vrai |
+
+`line` est absent d'un diagnostic qui parle du fichier entier ; `detail` l'est quand il n'y
+a rien à ajouter ; `settled` vaut `true` quand la lecture a **tranché** quelque chose — une
+numérotation régénérée —, et est absent quand elle a laissé tel quel.
+
+**Aucun nombre à virgule, nulle part.** Une position ou une durée est un entier de
+**millisecondes** (`…_ms`) ; un compte est un entier ; une cadence est une **chaîne**
+(`"25"`, `"24000/1001"`) parce qu'elle est exacte, un rationnel que la virgule flottante ne
+tient pas ; une concentration de grille est un entier en **millièmes** — `1000` est une
+grille parfaite. Deux sorties se comparent alors octet pour octet, sans arrondi.
+
+**Un chemin qui n'est pas de l'UTF-8** — Linux le permet — ne se représente pas en JSON : il
+est écrit avec U+FFFD à la place des octets invalides, et l'objet porte l'avertissement
+`path-not-utf8`. La fidélité d'un tel chemin n'est pas promise, et c'est dit.
+
+### Ce que chaque sous-commande met dans `counts`
+
+| Sous-commande | Clés de `counts` |
+| :------------ | :--------------- |
+| [`shift`](shift.md) | `subtitles`, `shifted_by_ms` (signé) |
+| [`transform`](transform.md) | `subtitles` |
+| [`framerate`](framerate.md) | `subtitles` |
+| [`snap`](snap.md) | `subtitles`, `moved` (positions déplacées), `furthest_ms` (le plus grand déplacement) |
+| [`hearing-impaired`](hearing-impaired.md) | `cleaned` (textes réécrits), `removed` (sous-titres supprimés) |
+| [`convert`](convert.md) | `subtitles`, puis ce que la conversion a perdu : `lost_ends` et `lost_header` (0 ou 1), `joined_lines`, `lost_tags`, `lost_fields`, `furthest_ms` |
+| [`inspect`](inspect.md) | pas de `counts` : la description du fichier, voir sa page |
+
+### Les identifiants d'erreur
+
+Un `error.kind` est l'un de ceux-ci ; **un lecteur traite un identifiant inconnu comme
+« autre »**.
+
+| `kind` | Ce que c'est |
+| :----- | :----------- |
+| `not-found`, `permission-denied`, `io` | le système a refusé de lire — ou d'écrire — le fichier |
+| `unknown-format`, `no-subtitle-found`, `undecodable` | le fichier est lu et ne se laisse pas lire |
+| `unencodable` | un caractère que l'encodage choisi ne sait pas écrire |
+| `no-byte-order-mark`, `no-frame-rate` | ce que `convert` ne peut pas écrire sans qu'on le précise |
+| `before-the-origin`, `beyond-the-end`, `no-transform`, `no-grid` | une opération qui ne peut pas s'appliquer à ce fichier |
+| `refused` | tout autre refus d'une opération |
+
+### Ce qui est promis, et ce qui ne l'est pas
+
+**Promis tant que `schema` vaut `1`** : les noms des clés, leur type et leur unité ; le sens
+de `ok`, de `file` et de `destination` ; **un objet par entrée, dans l'ordre des entrées** ;
+les identifiants `kind` qui existent ; le déterminisme — mêmes entrées, mêmes arguments,
+mêmes octets.
+
+**Pas promis** : le **texte des messages** (`message`, `detail`), de l'anglais pour un humain
+qu'on corrige quand il le faut — un script qui le compare est cassé d'avance ; l'**ordre des
+clés** dans un objet, fixe mais que JSON ne garantit pas ; la présence de **clés qu'on n'a pas
+encore ajoutées**.
+
+**Un lecteur ignore donc une clé inconnue**, et traite un `kind` inconnu comme « autre » :
+ajouter une clé ou un identifiant ne change pas `schema`. Retirer ou renommer une clé,
+changer un type ou une unité, retirer un identifiant l'incrémentent — c'est une rupture,
+annoncée au CHANGELOG et ici.
 
 ## Niveaux de narration
 
