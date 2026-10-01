@@ -7,6 +7,13 @@ Les changements notables de subedit. Format inspiré de
 Ce fichier est généré par `make changelog` depuis l'historique des commits :
 ne pas l'éditer à la main.
 
+## Non publié
+
+### Tests
+
+- **cli** — Comparer une sortie à un fichier attendu, octet pour octet
+- **cli** — Comparer la sortie de hearing-impaired à un attendu (#543)
+
 ## 0.12.23 — 2026-09-30
 
 ### Corrections
