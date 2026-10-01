@@ -155,6 +155,17 @@ fichier.
 les précédents. Avec un lot, `--output-dir` est le seul des trois qui ait un
 sens, avec `--in-place`.
 
+**Trois choses que l'outil ne fait pas, et qu'il vaut mieux savoir** :
+
+- **une destination qui existe déjà est écrasée**, sans question ni option pour
+  l'éviter — l'écriture est atomique, mais le contenu d'avant est perdu ;
+- **deux entrées de même nom de base** — `a/film.srt` et `b/film.srt` — **écrivent
+  au même endroit** avec `--output-dir` : le code de retour est `0`, chaque entrée
+  annonce sa destination, et la seconde écrase la première, sans avertissement ;
+- **le dossier de `--output-dir` n'est pas créé** : s'il manque, aucune entrée n'est
+  écrite, chacune est nommée en échec (`cannot be read`) et le code de retour est
+  `2`.
+
 **L'extension suit le format écrit.** Elle ne change que pour
 [`convert`](convert.md), seule sous-commande qui change de format ; les cinq
 autres conservent celui du fichier lu, donc son extension.
