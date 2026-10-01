@@ -18,44 +18,53 @@ using subedit::e2e::firstDifference;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 
+namespace {
+
+/// The message for two texts that must differ — an empty string when they do
+/// not, which no message is, so that the comparison below fails with a plain
+/// mismatch rather than reading an absent value.
+std::string messageFor(const std::string& actual, const std::string& expected) {
+    return firstDifference(actual, expected).value_or(std::string{});
+}
+
+} // namespace
+
 TEST_CASE("equal texts have no difference", "[e2e][harness]") {
     CHECK(!firstDifference("a\nb\n", "a\nb\n").has_value());
     CHECK(!firstDifference("", "").has_value());
 }
 
 TEST_CASE("the first differing line is named, and only that one", "[e2e][harness]") {
-    const auto difference = firstDifference("a\nB\nc\nD\n", "a\nb\nc\nd\n");
-
-    REQUIRE(difference.has_value());
-    CHECK(*difference == "line 2 differs\n  expected: \"b\\n\"\n  actual:   \"B\\n\"");
+    CHECK(messageFor("a\nB\nc\nD\n", "a\nb\nc\nd\n") ==
+          "line 2 differs\n  expected: \"b\\n\"\n  actual:   \"B\\n\"");
 }
 
 TEST_CASE("a text that is the prefix of the other differs where it stops", "[e2e][harness]") {
-    CHECK(*firstDifference("a\n", "a\nb\n") ==
+    CHECK(messageFor("a\n", "a\nb\n") ==
           "line 2 differs\n  expected: \"b\\n\"\n  actual:   <end of text>");
-    CHECK(*firstDifference("a\nb\n", "a\n") ==
+    CHECK(messageFor("a\nb\n", "a\n") ==
           "line 2 differs\n  expected: <end of text>\n  actual:   \"b\\n\"");
 }
 
 TEST_CASE("a missing final line end is a difference on that line", "[e2e][harness]") {
-    CHECK(*firstDifference("a\nb", "a\nb\n") ==
+    CHECK(messageFor("a\nb", "a\nb\n") ==
           "line 2 differs\n  expected: \"b\\n\"\n  actual:   \"b\"");
 }
 
 TEST_CASE("different line endings are shown as such", "[e2e][harness]") {
-    CHECK(*firstDifference("a\r\nb\r\n", "a\nb\n") ==
+    CHECK(messageFor("a\r\nb\r\n", "a\nb\n") ==
           "line 1 differs\n  expected: \"a\\n\"\n  actual:   \"a\\r\\n\"");
 }
 
 TEST_CASE("a byte order mark is shown as such", "[e2e][harness]") {
-    CHECK(*firstDifference("\xEF\xBB\xBF"
-                           "1\n",
-                           "1\n") ==
+    CHECK(messageFor("\xEF\xBB\xBF"
+                     "1\n",
+                     "1\n") ==
           "line 1 differs\n  expected: \"1\\n\"\n  actual:   \"\\xEF\\xBB\\xBF1\\n\"");
 }
 
 TEST_CASE("other control characters and quotes are escaped", "[e2e][harness]") {
-    CHECK(*firstDifference(std::string{"a\0\"\t", 4}, "a") ==
+    CHECK(messageFor(std::string{"a\0\"\t", 4}, "a") ==
           "line 1 differs\n  expected: \"a\"\n  actual:   \"a\\x00\\\"\\t\"");
 }
 

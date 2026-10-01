@@ -108,7 +108,7 @@ CliRun invokeGui(const std::vector<std::string>& args);
 /// Catch2 matcher: the string is byte-for-byte the content of a file.
 ///
 /// ```
-/// CHECK_THAT(contentOf(out), MatchesFile(corpus("attendus/mentions-sans-mentions.srt")));
+/// CHECK_THAT(contentOf(out), MatchesFile(corpus("attendus/mentions.hearing-impaired.srt")));
 /// ```
 ///
 /// On failure Catch prints `firstDifference`, not two walls of text.

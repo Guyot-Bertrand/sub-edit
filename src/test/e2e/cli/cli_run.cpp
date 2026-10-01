@@ -364,14 +364,14 @@ namespace {
 
 /// `line` in double quotes, with what is invisible spelled out.
 [[nodiscard]] std::string visible(std::string_view line) {
-    constexpr std::string_view byteOrderMark = "\xEF\xBB\xBF";
-    constexpr std::string_view digits = "0123456789ABCDEF";
+    constexpr std::string_view kByteOrderMark = "\xEF\xBB\xBF";
+    constexpr std::string_view kDigits = "0123456789ABCDEF";
 
     std::string shown = "\"";
     while (!line.empty()) {
-        if (line.starts_with(byteOrderMark)) {
-            shown += "\\xEF\\xBB\\xBF";
-            line.remove_prefix(byteOrderMark.size());
+        if (line.starts_with(kByteOrderMark)) {
+            shown += R"(\xEF\xBB\xBF)";
+            line.remove_prefix(kByteOrderMark.size());
             continue;
         }
         const auto byte = static_cast<unsigned char>(line.front());
@@ -385,7 +385,7 @@ namespace {
         else if (byte == '"' || byte == '\\')
             shown += {'\\', static_cast<char>(byte)};
         else if (byte < 0x20 || byte == 0x7F)
-            shown += {'\\', 'x', digits[byte >> 4], digits[byte & 0xF]};
+            shown += {'\\', 'x', kDigits[byte >> 4], kDigits[byte & 0xF]};
         else
             shown += static_cast<char>(byte);
     }
