@@ -1087,6 +1087,45 @@ correcteur étant au noyau et la dépendance à Enchant déjà tirée par `subed
 d'équivalent** : la spec laisse à cette phase de dire si un mode qui écrit les changements proposés sans les
 appliquer la remplace.
 
+**Cadrée par [#542](https://github.com/Guyot-Bertrand/sub-edit/issues/542)** — la spec est
+[`specs/13-cli.md`](specs/13-cli.md), et trois ADR en portent les décisions coûteuses à défaire :
+[0038](adr/0038-sortie-json-lines-versionnee.md) (la sortie lisible par un script),
+[0039](adr/0039-le-lot-collisions-dossiers-et-arborescence.md) (le lot) et
+[0040](adr/0040-correct-ecrit-directement-dry-run-propose.md) (écrire directement, proposer par
+`--dry-run`). Ce que le cadrage a tranché, et que la spec développe :
+
+- **Une sortie lisible par un script : `--format json`**, opt-in, option globale. Sur la sortie standard,
+  **un objet JSON par fichier d'entrée** (JSON Lines), échec compris, versionné par un champ `schema` ; le
+  texte reste le défaut, la narration reste sur la sortie d'erreur. Elle se prouve par des **attendus
+  versionnés**, écrits à la main, que `MatchesFile` (#543) compare octet pour octet. Aucun nombre à
+  virgule : millisecondes entières, cadences en chaînes.
+- **Un lot sûr.** Deux entrées de même destination, ou une destination qui est une entrée, sont **refusées
+  avant tout écrit** (code `1`) ; le dossier de sortie est **créé** ; une destination existante reste
+  **écrasée** — et le manuel le dit ; **`--recursive`** prend des répertoires et **conserve l'arborescence**
+  sous `--output-dir`. Le libellé « cannot be read » d'une écriture qui échoue est corrigé.
+- **`correct` écrit directement ; `--dry-run` propose.** Il n'écrit rien et imprime le texte avant et après,
+  par sous-titre ; il est accepté par **toute** sous-commande qui écrit. C'est le « mode qui propose sans
+  appliquer » que la phase 12 laissait ici : il **remplace** la page de confirmation.
+- **Sept sous-commandes de plus** : `adjust`, `correct` (tâches nommées, découpage **en caractères**, jonction
+  et scission de mots), `replace`, `case`, `italics`, `dialogue-dashes`, `sort` ; plus `--list-encodings` et
+  la traduction comme options (`-t`, `--document`, `--align-method`). **Trois autres — `append`,
+  `split-file`, `pair` — sont derrière une porte**, comme le multi-projets l'était en phase 11 : l'usage est
+  réel, aucun appelant n'est connu. **Écartés, avec leur raison** : la fusion et la scission d'un
+  sous-titre, le presse-papiers, l'édition à la main, la vérification orthographique interactive.
+- **Une invocation se suffit** : aucun réglage n'est lu, ni la langue du système ; la langue, le code des
+  motifs et la longueur des lignes **se nomment**. Seuls se lisent les motifs livrés, ceux de l'utilisateur
+  et le dictionnaire d'Enchant.
+- **Le renvoi de #407** est précisé : `sacrificed.minimum` se compare à « minimum contre écart »,
+  `sacrificed.speed` à **l'union** de « vitesse contre écart » et de « vitesse contre maximum »,
+  `sacrificed.gap` aux places négatives ; `adjust --format json --dry-run` expose les comptes et les
+  contraintes employées pour que la comparaison se fasse, sur des fixtures versionnées d'abord.
+
+**Vingt et une issues, en cinq tranches** — les fondations (le lot, le format, `--dry-run`, `--range`), les
+sous-commandes dont le noyau est prêt, la traduction, la correction, la porte —, la relecture de fin de
+phase comprise. **Un constat de l'analyse** : la résolution des emplacements des motifs, que l'ADR 0037
+disait hors de `gui`, y est restée et appelle Qt ; la correction en ligne de commande commence par la
+réécrire sans lui.
+
 ## 14 — Calage fin
 
 **Réduite, mais pas vidée.** Le lecteur lui-même est passé en phase 6, qui l'a

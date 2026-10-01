@@ -50,6 +50,9 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0035](0035-les-operations-sortent-de-la-fenetre.md) | Les opérations de `Tools` sortent de la fenêtre | acceptée |
 | [0036](0036-icu-pour-les-motifs-de-correction.md) | ICU pour appliquer les motifs de correction | acceptée |
 | [0037](0037-lire-les-motifs-de-gaupol-tels-quels.md) | Lire les fichiers de motifs de Gaupol tels quels | acceptée |
+| [0038](0038-sortie-json-lines-versionnee.md) | Offrir une sortie lisible par un script : JSON Lines, versionnée | acceptée |
+| [0039](0039-le-lot-collisions-dossiers-et-arborescence.md) | Un lot sûr : collisions refusées, dossier créé, arborescence conservée | acceptée |
+| [0040](0040-correct-ecrit-directement-dry-run-propose.md) | Écrire directement, et proposer par `--dry-run` | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
@@ -108,6 +111,16 @@ donné — le troisième motif demandé — a joué à la phase 12, et le balaya
 garde pourtant les crochets et les parenthèses, pour la raison qu'elle donnait. Les quatre
 autres motifs de mentions passent par le moteur ; 0017 n'est pas remplacée.
 [0037](0037-lire-les-motifs-de-gaupol-tels-quels.md) fixe, elle, ce que ce moteur lit.
+
+[0038](0038-sortie-json-lines-versionnee.md) **lève** le point ouvert de la
+[spec de la phase 3](../specs/03-cli.md) — « forme d'une sortie lisible par une
+machine » — et complète [0008](0008-lecture-au-mieux-avec-diagnostics.md) : les diagnostics
+de lecture, que le texte range au niveau 3, sont des données et vont toujours dans
+`warnings`. [0039](0039-le-lot-collisions-dossiers-et-arborescence.md) tient pour le lot ce
+que la phase 3 ne tenait que pour un fichier — une erreur d'usage ne laisse jamais un lot à
+moitié écrit —, et [0040](0040-correct-ecrit-directement-dry-run-propose.md) répond à la
+confirmation que [0036](0036-icu-pour-les-motifs-de-correction.md) et la phase 12 avaient
+laissée à la ligne de commande.
 
 ## Décisions attendues
 
