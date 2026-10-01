@@ -1,6 +1,6 @@
 // The four standing facts of the status bar, without the window — issue #485.
 //
-// `StatusLine` puts on screen what `core/wording.hpp` says; these cases give it
+// `StatusLine` puts on screen what `core/wording/` says; these cases give it
 // a bare status bar and a project, and hold each line to the words the command
 // line reads too. What the window does around it — when it refreshes, which
 // text it aims at — is proved by the window's own cases, unchanged.
@@ -12,7 +12,9 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/time/frame_rate.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/analysis.hpp>
+#include <subedit/core/wording/formats.hpp>
+#include <subedit/core/wording/video.hpp>
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/target.hpp>
 

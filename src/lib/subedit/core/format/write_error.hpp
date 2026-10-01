@@ -18,7 +18,7 @@ namespace subedit::core {
 /// the surfaces offer a reason nobody can be given.
 ///
 /// An enumeration rather than a bare struct, for the reason `ReadErrorKind`
-/// gives: the words live in `core/wording.hpp`, keyed by a category a test can
+/// gives: the words live in `core/wording/formats.hpp`, keyed by a category a test can
 /// assert on without comparing prose.
 enum class WriteErrorKind {
     Unencodable, ///< a character the chosen encoding cannot write

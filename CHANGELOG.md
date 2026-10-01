@@ -9,6 +9,17 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Wording.hpp devient core/wording/ (#549)
+- **doc** — La règle des phrases partagées dit où, par famille (#549)
+
+### Remaniements
+
+- **core** — Découper wording.hpp par famille (#549)
+
+## 0.13.4 — 2026-10-01
+
 ### Ajouts
 
 - **scripts** — Le manuel de subedit-cli et son --help concordent (#546)

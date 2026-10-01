@@ -13,7 +13,7 @@
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/formats.hpp>
 
 #include <cstddef>
 #include <filesystem>

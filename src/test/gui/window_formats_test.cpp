@@ -15,7 +15,7 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/formats.hpp>
 #include <subedit/gui/diagnostics_panel.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/prompts.hpp>

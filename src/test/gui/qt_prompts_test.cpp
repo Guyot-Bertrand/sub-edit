@@ -9,7 +9,7 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/model/video_file.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/formats.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 

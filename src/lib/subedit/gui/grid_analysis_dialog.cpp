@@ -1,5 +1,5 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/analysis.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 
 #include <QDialogButtonBox>

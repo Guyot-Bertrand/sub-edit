@@ -1,5 +1,5 @@
 #include <subedit/core/time/frame_rate.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/analysis.hpp>
 #include <subedit/gui/frame_rate_box.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
 

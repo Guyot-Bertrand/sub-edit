@@ -8,7 +8,7 @@
 #include <subedit/core/text/markup.hpp>
 #include <subedit/core/text/markup_codec.hpp>
 #include <subedit/core/text/markup_vocabulary.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/formats.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

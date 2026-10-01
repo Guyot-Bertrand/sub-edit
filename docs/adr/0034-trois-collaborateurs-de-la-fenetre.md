@@ -79,7 +79,7 @@ lecteur, la barre d'état, le titre, et les opérations de `Tools` et d'`Edit`, 
 > encodage, grille, film — et les pose sur la barre ; chaque rafraîchissement reçoit le `core::Project`
 > affiché, ou le texte visé (`showTarget`). Il ne demande rien à la fenêtre et ne garde rien d'un projet,
 > comme `TableColumns` ; il ne décide pas non plus **quand** rafraîchir, ce qui reste à `refreshActions`,
-> `refreshVideo` et `refreshTarget`. Les mots viennent de `core/wording.hpp`, où la ligne de commande les
+> `refreshVideo` et `refreshTarget`. Les mots viennent de `core/wording/`, où la ligne de commande les
 > lit aussi, et c'est à eux que ses tests le confrontent. Les messages passagers (`showMessage`) restent à
 > la fenêtre. `rateReadInFrames` devient une fonction libre, puisque `Convert Frame Rate…` la lit aussi.
 > `main_window.cpp` passe de 1 923 à 1 851 lignes, `main_window.hpp` de 815 à 794, sans qu'un test de la

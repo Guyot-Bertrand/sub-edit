@@ -1,5 +1,5 @@
 #include <subedit/core/config/insert_placement.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/settings.hpp>
 #include <subedit/gui/insert_dialog.hpp>
 
 #include <QButtonGroup>

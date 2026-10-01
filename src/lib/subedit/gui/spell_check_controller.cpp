@@ -6,7 +6,8 @@
 #include <subedit/core/text/spell_checker.hpp>
 #include <subedit/core/text/spell_dictionary.hpp>
 #include <subedit/core/text/spell_replacements.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
+#include <subedit/core/wording/formats.hpp>
 #include <subedit/gui/correction_target.hpp>
 #include <subedit/gui/join_split_page.hpp>
 #include <subedit/gui/project_page.hpp>

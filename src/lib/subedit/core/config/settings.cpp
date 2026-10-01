@@ -3,7 +3,7 @@
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/text/spell_dictionary.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/settings.hpp>
 
 #include <algorithm>
 #include <array>
@@ -25,7 +25,7 @@ namespace subedit::core {
 namespace {
 
 // The keys of the file. **This is a format, and not prose**: they do not go
-// through `core/wording.hpp` for the reason `WEBVTT` does not — what a human
+// through `core/wording/settings.hpp` for the reason `WEBVTT` does not — what a human
 // reader reads here are the comments, and those do come from it.
 constexpr std::string_view kGeometryKey = "window.geometry";
 constexpr std::string_view kMaximisedKey = "window.maximised";

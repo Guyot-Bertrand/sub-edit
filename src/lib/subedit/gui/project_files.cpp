@@ -9,7 +9,9 @@
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/video_file.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/conversion.hpp>
+#include <subedit/core/wording/formats.hpp>
+#include <subedit/core/wording/translation.hpp>
 #include <subedit/gui/open_translation_dialog.hpp>
 #include <subedit/gui/project_files.hpp>
 #include <subedit/gui/project_page.hpp>

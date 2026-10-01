@@ -21,7 +21,9 @@
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/conversion.hpp>
+#include <subedit/core/wording/counts.hpp>
+#include <subedit/core/wording/editing.hpp>
 #include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>

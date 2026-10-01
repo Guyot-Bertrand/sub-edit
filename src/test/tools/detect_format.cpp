@@ -30,7 +30,7 @@
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/real_file_system.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/formats.hpp>
 
 #include <expected>
 #include <iostream>

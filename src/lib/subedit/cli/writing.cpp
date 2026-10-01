@@ -3,7 +3,7 @@
 #include <subedit/core/format/write_error.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/formats.hpp>
 
 #include <expected>
 #include <string>

@@ -6,7 +6,7 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/text/word_list_spell_provider.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/spell_check_dialog.hpp>
 #include <subedit/gui/spell_check_settings_dialog.hpp>

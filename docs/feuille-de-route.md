@@ -1076,7 +1076,7 @@ comparent fait partie du travail. Issue
 Le cadrage de la phase 11 ([`specs/11-traduction.md`](specs/11-traduction.md), D9)
 les donne à celle-ci : **rien de ce que la phase 11 écrit n'est propre à la
 fenêtre** — l'ouverture d'une traduction, son alignement et la phrase du compte
-rendu vivent au noyau et dans `core/wording.hpp` —, et il ne reste ici qu'une
+rendu vivent au noyau et dans `core/wording/` —, et il ne reste ici qu'une
 grammaire à écrire.
 
 **Un renvoi de la phase 12 atterrit ici : la correction en ligne de commande.** Le calcul des changements, les

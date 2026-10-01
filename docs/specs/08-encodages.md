@@ -136,7 +136,7 @@ Conséquence, et elle suit l'ADR 0008 :
 `ReadErrorKind::InvalidUtf8` rend « is not valid UTF-8 ». Avec plusieurs
 encodages, ce message change de sens : ce n'est plus « ce fichier est cassé »
 mais « je ne sais pas le lire dans l'encodage que j'ai choisi ». Les mots vivent
-dans `core/wording.hpp`, seul endroit où ils s'écrivent.
+dans `core/wording/formats.hpp`, seul endroit où ils s'écrivent.
 
 Un fichier qu'aucun encodage ne décode reste une erreur ; un fichier décodé sous
 un encodage deviné est une réussite avec un diagnostic.

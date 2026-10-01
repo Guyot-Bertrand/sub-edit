@@ -1,5 +1,5 @@
 #include <subedit/core/config/theme.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/settings.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 
 #include <QCheckBox>

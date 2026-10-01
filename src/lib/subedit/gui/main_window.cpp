@@ -28,7 +28,8 @@
 #include <subedit/core/text/spell_replacements.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/conversion.hpp>
+#include <subedit/core/wording/translation.hpp>
 #include <subedit/gui/about_dialog.hpp>
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/command_label.hpp>

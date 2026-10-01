@@ -277,7 +277,7 @@ suivantes par numéro, alors que par position une seule reste sans traduction.
 - **L'ouverture dit ce qui s'est passé.** ADR 0008 : dire plutôt que taire. Le compte est
   celui de `TranslationOutcome` — lignes rattachées à leur sous-titre, lignes qui ont fait
   naître un sous-titre, sous-titres restés sans traduction, lignes hors d'ordre — et la
-  phrase qui le dit vit dans `core/wording.hpp`, l'endroit des mots que la ligne de commande
+  phrase qui le dit vit dans `core/wording/translation.hpp`, l'endroit des mots que la ligne de commande
   reprendra. **Dans la barre d'état quand tout s'est rattaché et que rien n'est resté seul,
   dans une boîte à fermer sinon** : la règle de #398, pour un geste qui a quelque chose à
   dire.
@@ -555,7 +555,7 @@ et le renvoi change de destinataire : la phase 13, celle de la ligne de commande
 
 Ce qui rend le renvoi honnête : **rien de ce que cette phase écrit n'est propre à la fenêtre.**
 L'ouverture d'une traduction, son alignement et le compte qu'elle rend vivent au noyau ; la phrase qui le
-dit vit dans `core/wording.hpp`, l'endroit des mots partagés. La phase 13 n'aura qu'une grammaire à
+dit vit dans `core/wording/translation.hpp`, l'endroit des mots partagés. La phase 13 n'aura qu'une grammaire à
 écrire. Et `Document::Translation` n'apparaît toujours nulle part dans `src/lib/subedit/cli` — une option
 `--document` serait de la grammaire morte, jusqu'à ce qu'il y ait quelque chose à viser.
 

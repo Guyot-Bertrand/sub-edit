@@ -12,7 +12,10 @@
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/file_extras.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/analysis.hpp>
+#include <subedit/core/wording/conversion.hpp>
+#include <subedit/core/wording/counts.hpp>
+#include <subedit/core/wording/formats.hpp>
 
 #include <algorithm>
 #include <cctype>

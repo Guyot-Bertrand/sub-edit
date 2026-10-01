@@ -19,7 +19,7 @@
 #include <subedit/core/text/letter_case.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
-#include <subedit/core/wording.hpp>
+#include <subedit/core/wording/counts.hpp>
 #include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/project_operations.hpp>
 #include <subedit/gui/project_page.hpp>
