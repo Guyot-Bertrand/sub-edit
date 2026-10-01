@@ -2247,11 +2247,70 @@ expect_installation_refuses_unknown_control() {
 
 expect_installation_refuses_unknown_control
 
+# Les attendus de `--format json` — #556.
+#
+# **Quatre preuves, sur un dossier jetable écrit à la main** : un nombre à
+# virgule, une ligne qui n'est pas du JSON, une enveloppe incomplète, et le vert.
+# Le contrôle accepte le dossier en argument, si bien que rien du dépôt n'est
+# touché : un attendu volontairement faux ne peut pas rester derrière.
+expect_json_fixture_gate() {
+    local script="${REPO_ROOT}/src/scripts/check-json-fixtures.py"
+    local root
+    root="$(mktemp -d)"
+
+    printf '%s▸ un attendu JSON qui contient un nombre à virgule%s\n' "${BOLD}" "${RESET}"
+    printf '{"schema":1,"command":"inspect","file":"a.srt","ok":true,"ratio":1.5,"warnings":[]}\n' \
+        > "${root}/bad.jsonl"
+    if "${script}" --dir "${root}" >/dev/null 2>&1; then
+        printf '  %s✗ le contrôle a laissé passer 1.5%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « check-json-fixtures.py » a refusé, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    fi
+
+    printf '%s▸ une ligne qui n est pas du JSON%s\n' "${BOLD}" "${RESET}"
+    printf '{"schema":1,"command":\n' > "${root}/bad.jsonl"
+    if "${script}" --dir "${root}" >/dev/null 2>&1; then
+        printf '  %s✗ le contrôle a laissé passer une ligne tronquée%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « check-json-fixtures.py » a refusé, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    fi
+
+    printf '%s▸ une enveloppe incomplète : pas de « file »%s\n' "${BOLD}" "${RESET}"
+    printf '{"schema":1,"command":"inspect","ok":true,"warnings":[]}\n' > "${root}/bad.jsonl"
+    if "${script}" --dir "${root}" >/dev/null 2>&1; then
+        printf '  %s✗ le contrôle a laissé passer l enveloppe sans « file »%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « check-json-fixtures.py » a refusé, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    fi
+
+    printf '%s▸ un attendu juste, pour le vert%s\n' "${BOLD}" "${RESET}"
+    printf '{"schema":1,"command":"inspect","file":"a.srt","ok":true,"warnings":[]}\n' \
+        > "${root}/bad.jsonl"
+    if "${script}" --dir "${root}" >/dev/null 2>&1; then
+        printf '  %s✓ « check-json-fixtures.py » a laissé passer un attendu juste%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ le contrôle a refusé un attendu juste%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_json_fixture_gate
+
 if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles soixante-cinq portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles soixante-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

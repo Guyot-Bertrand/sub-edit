@@ -42,8 +42,7 @@ ExitCode alignAll(core::FileSystem& files,
     // No refusal of its own: any rate the grammar accepted defines a grid, and
     // every position has a nearest frame on it. Like the conversion, this is an
     // operation that cannot fail on the contents of a file.
-    const Operation align =
-        [rate](core::Session& session) -> std::expected<std::string, std::string> {
+    const Operation align = [rate](core::Session& session) -> OperationOutcome {
         const std::vector<std::int64_t> before = boundsOf(session.project());
 
         session.apply(std::make_unique<core::SnapCommand>(
@@ -62,9 +61,14 @@ ExitCode alignAll(core::FileSystem& files,
         // **The two numbers are the point of the line.** A user who meant
         // `framerate` and typed this reads « moved by at most 20 ms » where
         // they expected seconds, and knows at once.
-        return core::countOf(session.project().count(), "subtitle") + " aligned on " +
-               nameOf(rate) + " fps, " + core::countOf(moved, "position") + " moved, by at most " +
-               std::to_string(furthest) + " ms";
+        const std::size_t total = session.project().count();
+        return OperationResult{.sentence = core::countOf(total, "subtitle") + " aligned on " +
+                                           nameOf(rate) + " fps, " +
+                                           core::countOf(moved, "position") +
+                                           " moved, by at most " + std::to_string(furthest) + " ms",
+                               .counts = {{"subtitles", static_cast<std::int64_t>(total)},
+                                          {"moved", static_cast<std::int64_t>(moved)},
+                                          {"furthest_ms", furthest}}};
     };
 
     return rewriteAll(files, paths, reading, destination, reporter, "aligned", align);

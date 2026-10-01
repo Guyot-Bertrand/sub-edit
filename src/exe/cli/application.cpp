@@ -43,6 +43,15 @@ ExitCode run(int argc, char** argv) {
     app.add_option("--encoding", reading, "Encoding to read the files in; detected by default")
         ->option_text("NAME");
 
+    // **What goes to standard output**: the text a human reads, or one JSON
+    // object per input for a script (ADR 0038). Global, like the others, and for
+    // the same reason: it is about the run, not about one subcommand. A value that
+    // is neither is a usage error, answered before any file is touched.
+    std::string format = "text";
+    app.add_option("--format", format, "Form of the result on standard output: text or json")
+        ->check(CLI::IsMember({"text", "json"}))
+        ->option_text("text|json");
+
     std::vector<Declared> declared;
     for (const Command& command : commands()) {
         declared.push_back(command.declare(app, command.name));
@@ -81,11 +90,14 @@ ExitCode run(int argc, char** argv) {
     }
 
     core::RealFileSystem files;
-    const Reporter reporter{std::cerr, *level};
+    Reporter reporter{std::cerr, *level};
+    if (format == "json") {
+        reporter = reporter.withRecords(std::cout);
+    }
 
     for (const Declared& command : declared) {
         if (command.app->parsed()) {
-            return command.run(files, encoding, reporter);
+            return command.run(files, encoding, reporter.forCommand(command.app->get_name()));
         }
     }
     return ExitCode::Success;

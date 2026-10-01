@@ -181,6 +181,24 @@ $(printf '    %s\n' "${offenders}")
     fi
 }
 
+# Les attendus de `--format json` sont du JSON, portent l'enveloppe et n'ont aucun
+# nombre à virgule — ADR 0038, issue #556.
+#
+# **Un second regard, indépendant de l'écrivain** : le C++ n'a pas de lecteur
+# JSON, et ses tests comparent la sortie à ces fichiers. Si l'écrivain et un
+# attendu s'accordaient sur une erreur, seul un parseur qui n'est pas le nôtre
+# la verrait. Le script vit à part (`check-json-fixtures.py`) ; `verify-gates.sh`
+# prouve qu'il refuse un attendu volontairement faux.
+check_json_fixtures_are_valid() {
+    local output
+    if output="$("${REPO_ROOT}/src/scripts/check-json-fixtures.py" 2>&1)"; then
+        report_success "les attendus JSON sont valides, sans nombre à virgule"
+    else
+        report_failure "les attendus JSON ne sont pas valides :
+$(printf '%s\n' "${output}" | sed 's/^/    /')"
+    fi
+}
+
 # Invariant 4 — un tag de version sur HEAD correspond à la version déclarée.
 #
 # Le tag et project(VERSION) sont deux écritures du même numéro, et rien ne les
@@ -364,6 +382,7 @@ check_test_names_are_not_options
 check_test_titles_are_english
 check_nothing_reads_the_reference
 check_model_depends_on_no_operation
+check_json_fixtures_are_valid
 
 if (( failures > 0 )); then
     printf '\n%s%d invariant(s) d architecture violé(s)%s\n' "${RED}" "${failures}" "${RESET}" >&2

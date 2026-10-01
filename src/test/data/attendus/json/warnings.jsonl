@@ -1,0 +1,1 @@
+{"schema":1,"command":"shift","file":"<scratch>/in/unnumbered.srt","ok":true,"dry_run":false,"destination":"<scratch>/out/unnumbered.srt","counts":{"subtitles":2,"shifted_by_ms":1000},"warnings":[{"kind":"missing-numbering","line":1,"settled":true},{"kind":"missing-numbering","line":4,"settled":true}]}

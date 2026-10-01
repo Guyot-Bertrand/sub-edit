@@ -182,6 +182,7 @@ add_executable(
     cli/conversion_test.cpp
     cli/destination_test.cpp
     cli/expansion_test.cpp
+    cli/json_test.cpp
     cli/encoding_grammar_test.cpp
     cli/diagnostics_test.cpp
     cli/digits_test.cpp
@@ -190,6 +191,8 @@ add_executable(
     cli/hearing_impaired_test.cpp
     cli/index_grammar_test.cpp
     cli/inspection_test.cpp
+    cli/inspection_json_test.cpp
+    cli/records_test.cpp
     cli/reporter_test.cpp
     cli/shifting_test.cpp
     cli/time_grammar_test.cpp

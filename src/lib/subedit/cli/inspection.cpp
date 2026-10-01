@@ -1,8 +1,12 @@
 #include <subedit/cli/batch.hpp>
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/inspection.hpp>
+#include <subedit/cli/json.hpp>
+#include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/analysis/grid_verdict.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
@@ -22,6 +26,8 @@
 #include <subedit/core/wording/formats.hpp>
 
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <ostream>
 #include <span>
 #include <string>
@@ -173,6 +179,157 @@ std::string anomalies(const core::Project& project) {
     return text;
 }
 
+std::string_view idOf(core::Newline newline) {
+    switch (newline) {
+    case core::Newline::Lf:
+        return "lf";
+    case core::Newline::CrLf:
+        return "crlf";
+    case core::Newline::Cr:
+        return "cr";
+    }
+    std::unreachable();
+}
+
+std::string_view idOf(core::AnomalyKind kind) {
+    switch (kind) {
+    case core::AnomalyKind::EndBeforeStart:
+        return "end-before-start";
+    case core::AnomalyKind::OverlappingSubtitles:
+        return "overlapping-subtitles";
+    case core::AnomalyKind::OutOfOrder:
+        return "out-of-order";
+    }
+    std::unreachable();
+}
+
+std::string_view idOf(core::GridVerdict verdict) {
+    switch (verdict) {
+    case core::GridVerdict::Clean:
+        return "clean";
+    case core::GridVerdict::Partial:
+        return "partial";
+    case core::GridVerdict::Silent:
+        return "silent";
+    }
+    std::unreachable();
+}
+
+/// A concentration runs from 0 to 100; the record gives it in thousandths of the
+/// whole, so that a perfect grid is 1000 and no number carries a decimal point.
+[[nodiscard]] std::int64_t permilleOf(double concentration) {
+    constexpr double kThousandthsPerPoint = 10.0;
+    return std::llround(concentration * kThousandthsPerPoint);
+}
+
+/// Where a file's encoding came from, as an identifier.
+[[nodiscard]] std::string_view originOf(const core::Encoding& read, bool asked) {
+    if (read.byteOrderMark() == core::ByteOrderMark::Present)
+        return "byte-order-mark";
+    return asked ? "asked" : "detected";
+}
+
+/// What the positions say about the grid, as an object — the same facts as
+/// `sayGrid`, **none of them left for a script to read out of a sentence**.
+///
+/// Rates are strings (a rate is a ratio, and a ratio is not a floating point
+/// number) and a concentration is an integer in thousandths.
+[[nodiscard]] Json gridOf(const core::Project& project) {
+    const core::FrameRateDeduction grid = core::deduceFrameRate(project);
+    const bool named = grid.enoughStarts && grid.verdict != core::GridVerdict::Silent;
+
+    Json object = Json::object();
+    object.set("verdict", idOf(grid.verdict));
+    object.set("enough_starts", grid.enoughStarts);
+    object.set("rate", named ? Json{core::nameOf(grid.retained.rate)} : Json{});
+    if (!grid.enoughStarts) {
+        object.set("concentration_permille", Json{});
+    } else {
+        // Silent names no rate, and its best candidate is still worth the number.
+        const double concentration = grid.verdict == core::GridVerdict::Silent
+                                         ? grid.ranked.front().concentration
+                                         : grid.retained.concentration;
+        object.set("concentration_permille", permilleOf(concentration));
+    }
+    object.set("offset_ms", named ? Json{grid.retained.phase.milliseconds()} : Json{});
+    object.set("also_fits",
+               named && grid.harmonic.has_value() ? Json{core::nameOf(*grid.harmonic)} : Json{});
+    Json separated = Json::array();
+    if (named) {
+        for (const core::FrameRate other : grid.notSeparated)
+            separated.push(core::nameOf(other));
+    }
+    object.set("not_separated", std::move(separated));
+    object.set("strays", named ? Json{grid.strays.size()} : Json{});
+    object.set("starts", grid.starts);
+    return object;
+}
+
+/// The description of one file, for `--format json`: what `inspect` prints,
+/// as keys.
+[[nodiscard]] Json descriptionOf(std::string_view command,
+                                 const std::string& path,
+                                 const core::OpenedFile& opened,
+                                 bool encodingAsked) {
+    const core::Project& project = opened.project;
+    const core::SourceFile& source = project.sourceFile();
+
+    Json warnings = warningsOf(opened.diagnostics);
+    Json record = recordOf(command, path, true, warnings);
+
+    record.set("format", core::optionNameOf(source.format));
+    record.set("encoding",
+               Json::object()
+                   .set("charset", std::string{source.encoding.charset()})
+                   .set("origin", originOf(source.encoding, encodingAsked))
+                   .set("byte_order_mark",
+                        source.encoding.byteOrderMark() == core::ByteOrderMark::Present));
+
+    const auto mixed = std::ranges::find_if(opened.diagnostics, [](const core::Diagnostic& d) {
+        return d.kind == DiagnosticKind::MixedNewlines;
+    });
+    record.set("line_endings",
+               Json::object()
+                   .set("kind", idOf(source.newline))
+                   .set("mixed_from_line",
+                        mixed != opened.diagnostics.end() ? Json{mixed->line} : Json{}));
+
+    record.set("subtitles", project.subtitles().size());
+
+    core::Timestamp first = project.subtitles().front().start;
+    core::Timestamp last = project.subtitles().front().end;
+    for (const core::Subtitle& subtitle : project.subtitles()) {
+        first = std::min(first, subtitle.start);
+        last = std::max(last, subtitle.end);
+    }
+    record.set("span_ms",
+               Json::object().set("start", first.milliseconds()).set("end", last.milliseconds()));
+
+    // A file counted in frames has a rate and no grid, as in the text.
+    if (const auto* frames = std::get_if<core::MicroDvdFile>(&source.extras)) {
+        const bool assumed = std::ranges::any_of(opened.diagnostics, [](const core::Diagnostic& d) {
+            return d.kind == DiagnosticKind::AssumedFrameRate;
+        });
+        record.set("frame_rate",
+                   Json::object()
+                       .set("rate", core::nameOf(frames->rate))
+                       .set("origin", assumed ? "assumed" : "asked"));
+        record.set("grid", Json{});
+    } else {
+        record.set("frame_rate", Json{});
+        record.set("grid", gridOf(project));
+    }
+
+    Json anomalies = Json::array();
+    for (const core::Anomaly& anomaly : core::scanAnomalies(project)) {
+        anomalies.push(
+            Json::object().set("subtitle", anomaly.index.number()).set("kind", idOf(anomaly.kind)));
+    }
+    record.set("anomalies", std::move(anomalies));
+    record.set("warnings", std::move(warnings));
+    return record;
+}
+
 } // namespace
 
 bool inspectFile(const core::FileSystem& files,
@@ -183,7 +340,8 @@ bool inspectFile(const core::FileSystem& files,
     const std::expected<core::OpenedFile, core::OpenError> opened =
         core::openProject(files, path, reading);
     if (!opened) {
-        reporter.failed(path + ": " + std::string{reasonOf(opened.error())});
+        reportFailure(
+            reporter, path, Failure{idOf(opened.error()), std::string{reasonOf(opened.error())}});
         return false;
     }
 
@@ -201,6 +359,14 @@ bool inspectFile(const core::FileSystem& files,
                  path + ": " + std::string{nameOf(source.format)} + ", " + nameOf(source.encoding) +
                      ", " + std::string{nameOf(source.newline)} + " line endings");
     reporter.say(1, path + ": " + core::countOf(project.subtitles().size(), "subtitle"));
+
+    // The description as a record, and not as lines: what the text says for a
+    // human, the record says as keys, and the two never both go to the output.
+    if (reporter.recording()) {
+        reporter.record(
+            descriptionOf(reporter.command(), path, *opened, reading.encoding.has_value()));
+        return true;
+    }
 
     out << path << '\n';
     out << "  format: " << nameOf(source.format) << '\n';
