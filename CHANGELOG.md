@@ -11,6 +11,15 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **doc** — ADR 0038 à 0040, sortie JSON, lot sûr et --dry-run (#542)
+- **doc** — Spec de la phase 13, CLI complète, et ses exigences (#542)
+- **doc** — Feuille de route, ce que le cadrage de la phase 13 tranche
+- **doc** — Phase 13, issues ouvertes et points tranchés (#542)
+
+## 0.13.5 — 2026-10-01
+
+### Documentation
+
 - **doc** — Wording.hpp devient core/wording/ (#549)
 - **doc** — La règle des phrases partagées dit où, par famille (#549)
 
