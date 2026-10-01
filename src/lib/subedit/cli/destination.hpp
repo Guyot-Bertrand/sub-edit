@@ -15,6 +15,12 @@ class FileSystem;
 
 namespace subedit::cli {
 
+/// Whether two paths name one file: by their absolute normalised spelling, and
+/// by what the system says when they exist (`FileSystem::equivalent`).
+[[nodiscard]] bool sameFile(const core::FileSystem& files,
+                            const std::filesystem::path& first,
+                            const std::filesystem::path& second);
+
 /// One input of a batch and the path it is written to, **computed once**.
 ///
 /// The validation reads `output` to refuse collisions, the creation of the
@@ -43,6 +49,16 @@ public:
     /// previous ones is the outcome this refuses.
     [[nodiscard]] static std::expected<Destination, std::string>
     from(std::string_view output, std::string_view outputDir, bool inPlace, std::size_t inputCount);
+
+    /// The same destination, knowing which inputs were found by walking the
+    /// directories `roots`.
+    ///
+    /// **A file found under a root is written at the path it has relative to
+    /// that root**, below `--output-dir`: `films/a/x.srt`, `films` being given,
+    /// becomes `out/a/x.srt`. The name of the root is not part of it — the
+    /// meaning of a trailing slash for `rsync`, not that of `cp -r`: the
+    /// caller names the destination and adds the level they want.
+    [[nodiscard]] Destination withRoots(std::vector<std::filesystem::path> roots) const;
 
     /// The path `input` is written to.
     ///
@@ -83,6 +99,7 @@ private:
 
     std::filesystem::path m_output{};
     std::filesystem::path m_outputDir{};
+    std::vector<std::filesystem::path> m_roots{};
     bool m_inPlace = false;
 };
 

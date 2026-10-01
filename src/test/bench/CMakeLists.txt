@@ -11,6 +11,7 @@ add_executable(
     subedit_bench
     main.cpp
     full_length_project.cpp
+    cli/batch_bench.cpp
     core/analysis/frame_rate_deduction_bench.cpp
     core/edit/operations_bench.cpp
     core/format/subtitle_file_bench.cpp
@@ -25,7 +26,7 @@ add_executable(
 # Catch2 sans son main — voir main.cpp : la QApplication doit vivre sur sa
 # pile, comme dans subedit_gui_test.
 target_link_libraries(
-    subedit_bench PRIVATE subedit::gui subedit::core Qt6::Widgets Catch2::Catch2)
+    subedit_bench PRIVATE subedit::gui subedit::cli subedit::core Qt6::Widgets Catch2::Catch2)
 
 # La fixture partagée vit à la racine de bench/, comme text_cases.hpp vit à
 # celle de unit/. Sans ce chemin d'inclusion, un benchmark rangé dans un

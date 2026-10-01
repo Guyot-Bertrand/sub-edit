@@ -17,6 +17,7 @@ l'autre programme et pour savoir par où commencer, voir
 | :------ | :------ |
 | [Installation](installation.md) | construire et installer l'outil |
 | [Invocation](invocation.md) | options globales, sorties, codes de retour |
+| [Traiter un arbre](lots.md) | plusieurs fichiers, un répertoire entier, `--recursive` |
 | [`inspect`](inspect.md) | rapporter ce qu'un fichier contient |
 | [`convert`](convert.md) | écrire un fichier dans un autre format ou une autre forme |
 | [`shift`](shift.md) | décaler toutes les positions d'une même durée |

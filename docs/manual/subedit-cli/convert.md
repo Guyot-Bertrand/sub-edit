@@ -5,6 +5,7 @@ subedit-cli convert --to <format>
                     [--line-endings unix|windows|mac] [--to-encoding NOM]
                     [--bom | --no-bom]
                     (--output FICHIER | --output-dir DOSSIER | --in-place)
+                    [--recursive]
                     <fichier>...
 ```
 
@@ -22,6 +23,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
+  -r,--recursive              Take directories as inputs, and every subtitle file in them
   --to TEXT:{srt,vtt,subviewer2,ssa,ass,mpl2,microdvd,tmplayer,lrc} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
@@ -40,6 +42,7 @@ Options:
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--to` | **oui** | un nom de la table ci-dessous, et rien d'autre | — |
 | `--line-endings` | non | `unix`, `windows` ou `mac` | celles du fichier lu |
 | `--to-encoding` | non | tout encodage qu'ICU sait écrire, sauf ceux qui écrivent leur propre marque | celui du fichier lu |

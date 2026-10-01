@@ -14,8 +14,18 @@ void describeDestination(CLI::App* command, DestinationOptions& options) {
 }
 
 std::expected<Destination, std::string> destinationOf(const DestinationOptions& options,
-                                                      std::size_t inputCount) {
-    return Destination::from(options.output, options.outputDir, options.inPlace, inputCount);
+                                                      const Inputs& inputs) {
+    const std::expected<Destination, std::string> destination =
+        Destination::from(options.output, options.outputDir, options.inPlace, inputs.paths.size());
+    if (!destination) {
+        return destination;
+    }
+    return destination->withRoots(inputs.roots);
+}
+
+void describeRecursive(CLI::App* command, bool& recursive) {
+    command->add_flag(
+        "-r,--recursive", recursive, "Take directories as inputs, and every subtitle file in them");
 }
 
 ExitCode refuse(std::string_view why) {

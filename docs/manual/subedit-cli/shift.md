@@ -3,6 +3,7 @@
 ```
 subedit-cli shift (--by <temps> | --to-grid)
                   (--output FICHIER | --output-dir DOSSIER | --in-place)
+                  [--recursive]
                   <fichier>...
 ```
 
@@ -21,6 +22,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
+  -r,--recursive              Take directories as inputs, and every subtitle file in them
   --by TEXT                   Amount to move by: 2.999, -7.001, or 00:00:07.001
   --to-grid                   Move by the amount that puts the positions back on their frame grid
   --output TEXT               File to write, for a single input
@@ -33,6 +35,7 @@ Options:
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--by` | **l'une des deux** | une durée signée, voir ci-dessous | — |
 | `--to-grid` | **l'une des deux** | drapeau : le montant est mesuré, voir ci-dessous | — |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |

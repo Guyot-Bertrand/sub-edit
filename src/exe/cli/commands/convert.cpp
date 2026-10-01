@@ -19,6 +19,7 @@ namespace {
 /// mean deciding before the command line has been read whole.
 struct ConvertOptions {
     std::vector<std::string> files;
+    bool recursive = false;
     std::string target;
     std::string frameRate;
     std::string lineEndings;
@@ -32,6 +33,7 @@ CLI::App* describeConvert(CLI::App& app, std::string_view name, ConvertOptions& 
     CLI::App* convert = app.add_subcommand(std::string{name},
                                            "Write a subtitle file out in another format or shape");
     convert->add_option("files", options.files, "Subtitle files to convert")->required();
+    describeRecursive(convert, options.recursive);
     convert->add_option("--to", options.target, "Format to write")
         ->required()
         // **One value per format that can be written**, and the list grew by
@@ -113,10 +115,16 @@ ExitCode runConvert(const ConvertOptions& options,
         return refuse(choices.error());
     }
 
+    const std::expected<Inputs, std::string> inputs = expandInputs(
+        files, options.files, options.recursive, options.destination.outputDir, reporter);
+    if (!inputs) {
+        return refuse(inputs.error());
+    }
+
     // Refused rather than obeyed: in place there is no second name to carry the
     // new format, and the file would be left under an extension its content no
     // longer justifies.
-    if (options.destination.inPlace && wouldMisname(options.files, target)) {
+    if (options.destination.inPlace && wouldMisname(inputs->paths, target)) {
         return refuse("--in-place cannot change the format: the file would keep a name "
                       "its content no longer matches");
     }
@@ -127,12 +135,12 @@ ExitCode runConvert(const ConvertOptions& options,
     }
 
     const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, options.files.size());
+        destinationOf(options.destination, *inputs);
     if (!destination) {
         return refuse(destination.error());
     }
 
-    return convertAll(files, options.files, *choices, target, *shape, *destination, reporter);
+    return convertAll(files, inputs->paths, *choices, target, *shape, *destination, reporter);
 }
 
 } // namespace

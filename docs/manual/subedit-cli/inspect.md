@@ -1,7 +1,7 @@
 # `inspect`
 
 ```
-subedit-cli inspect [--frame-rate RATE] <fichier>...
+subedit-cli inspect [--frame-rate RATE] [--recursive] <fichier>...
 ```
 
 Rapporte ce que chaque fichier contient. **Ne modifie rien et n'écrit aucun
@@ -18,6 +18,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
+  -r,--recursive              Take directories as inputs, and every subtitle file in them
   --frame-rate RATE           Frame rate of a file counted in frames: 25, 23.976
 ```
 
@@ -26,6 +27,7 @@ Options:
 | Argument | Requis | Valeur | Défaut |
 | :------- | :----- | :----- | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins de fichiers de sous-titres | — |
+| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 
 Aucun chemin n'est une erreur d'usage, donc le code `1`.
 

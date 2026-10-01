@@ -106,6 +106,45 @@ RealFileSystem::filesIn(const std::filesystem::path& directory) const {
     return files;
 }
 
+std::expected<std::vector<DirectoryEntry>, FileError>
+RealFileSystem::entriesIn(const std::filesystem::path& directory) const {
+    const std::filesystem::path target = directory.empty() ? std::filesystem::path{"."} : directory;
+
+    std::error_code code;
+    std::filesystem::directory_iterator iterator{target, code};
+
+    std::vector<DirectoryEntry> entries;
+    // One check after the loop answers for the opening and for each step: a
+    // directory taken away while it is read is a refusal like any other.
+    while (!code && iterator != std::filesystem::directory_iterator{}) {
+        // `symlink_status`: the link itself, never what it points to.
+        std::error_code entryCode;
+        const std::filesystem::file_status status = iterator->symlink_status(entryCode);
+        EntryKind kind = EntryKind::Other;
+        if (std::filesystem::is_symlink(status))
+            kind = EntryKind::Link;
+        else if (std::filesystem::is_directory(status))
+            kind = EntryKind::Directory;
+        else if (std::filesystem::is_regular_file(status))
+            kind = EntryKind::File;
+        entries.push_back(DirectoryEntry{.path = iterator->path(), .kind = kind});
+
+        iterator.increment(code);
+    }
+    if (code)
+        return failure(code, target);
+
+    std::ranges::sort(entries, [](const DirectoryEntry& first, const DirectoryEntry& second) {
+        return first.path.filename().string() < second.path.filename().string();
+    });
+    return entries;
+}
+
+bool RealFileSystem::isDirectory(const std::filesystem::path& path) const {
+    std::error_code code;
+    return std::filesystem::is_directory(path, code) && !code;
+}
+
 std::expected<std::string, FileError>
 RealFileSystem::readFile(const std::filesystem::path& path) const {
     std::ifstream file{path, std::ios::binary};

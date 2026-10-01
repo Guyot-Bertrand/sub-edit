@@ -3,6 +3,7 @@
 ```
 subedit-cli snap --rate <cadence>
                  (--output FICHIER | --output-dir DOSSIER | --in-place)
+                 [--recursive]
                  <fichier>...
 ```
 
@@ -44,6 +45,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
+  -r,--recursive              Take directories as inputs, and every subtitle file in them
   --rate TEXT REQUIRED        Frame rate to align on: 25, 23.976
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
@@ -55,6 +57,7 @@ Options:
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--rate` | **oui** | une cadence en images par seconde, écrite comme pour [`framerate`](framerate.md#écrire-une-cadence) | — |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |
 

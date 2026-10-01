@@ -55,6 +55,17 @@ The whole batch is judged before the first write: two inputs that end at the
 same destination, or a destination that is one of the inputs without
 .BR \-\-in\-place ,
 are usage errors (exit status 1) and nothing is written.
+.PP
+.B \-r
+or
+.B \-\-recursive
+takes directories as inputs: every file in them with the extension of a known
+format (not
+.BR .txt ),
+in the order of the names, without following symbolic links or reading hidden
+files. The tree below each given directory is kept under
+.BR \-\-output\-dir .
+Without it a directory is a usage error.
 .SH SUBCOMMANDS
 .TP
 .B inspect

@@ -109,7 +109,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.8
+subedit 0.13.9
 ```
 
 ## Sous-commandes
@@ -316,6 +316,20 @@ position sur un MicroDVD — le fichier n'en portait rien.
 Toutes les sous-commandes acceptent plusieurs chemins. Chacun est traité
 indépendamment : l'échec de l'un n'interrompt pas les autres, et les échecs
 sont rapportés en nommant le fichier et la raison.
+
+**Un répertoire vaut les fichiers qu'il contient, avec `--recursive` (`-r`)** :
+sans cette option, en donner un est une erreur d'usage, code `1`, et rien n'est
+traité — le refuser vaut mieux que de n'en traiter rien et de rendre `0` :
+
+<!-- exemple: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
+```console
+$ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
+films: is a directory: use --recursive
+code=1
+```
+
+Le parcours, l'arborescence conservée sous `--output-dir` et ce qui est laissé
+de côté sont décrits dans [Traiter un arbre](lots.md).
 
 ## La page de manuel
 

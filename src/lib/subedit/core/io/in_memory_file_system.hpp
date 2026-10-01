@@ -56,6 +56,13 @@ public:
     /// Makes the next creation of a directory fail, and only the next one.
     void failNextCreateDirectories(FileErrorKind kind);
 
+    /// Puts a symbolic link there, to nothing worth following: it is listed as a
+    /// `Link` by `entriesIn`, which is all a walk needs to be told to skip it.
+    void addLink(const std::filesystem::path& path);
+
+    /// Makes listing `directory` fail, every time.
+    void failEntriesOf(const std::filesystem::path& directory, FileErrorKind kind);
+
     /// The directories asked for, in order — this file system makes none, so
     /// that a test can still see that one was requested.
     [[nodiscard]] const std::vector<std::filesystem::path>& directoriesAsked() const {
@@ -73,6 +80,12 @@ public:
 
     [[nodiscard]] std::expected<std::vector<std::filesystem::path>, FileError>
     filesIn(const std::filesystem::path& directory) const override;
+
+    /// Files and the directories the files imply; no links, no other kinds.
+    [[nodiscard]] std::expected<std::vector<DirectoryEntry>, FileError>
+    entriesIn(const std::filesystem::path& directory) const override;
+
+    [[nodiscard]] bool isDirectory(const std::filesystem::path& path) const override;
 
     [[nodiscard]] std::expected<std::string, FileError>
     readFile(const std::filesystem::path& path) const override;
@@ -106,6 +119,8 @@ private:
     std::optional<FileErrorKind> m_pendingRenameFailure;
     std::optional<FileErrorKind> m_pendingCreateFailure;
     std::vector<std::filesystem::path> m_directoriesAsked;
+    std::set<std::filesystem::path> m_links;
+    std::map<std::filesystem::path, FileErrorKind> m_entriesFailures;
 };
 
 } // namespace subedit::core

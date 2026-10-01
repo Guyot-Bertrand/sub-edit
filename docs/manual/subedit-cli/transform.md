@@ -3,6 +3,7 @@
 ```
 subedit-cli transform --first <indice>=<temps> --last <indice>=<temps>
                       (--output FICHIER | --output-dir DOSSIER | --in-place)
+                      [--recursive]
                       <fichier>...
 ```
 
@@ -25,6 +26,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
+  -r,--recursive              Take directories as inputs, and every subtitle file in them
   --first TEXT REQUIRED       Earlier reference, as <index>=<time>: 1=00:00:01.000
   --last TEXT REQUIRED        Later reference, as <index>=<time>: 3=00:00:10.000
   --output TEXT               File to write, for a single input
@@ -37,6 +39,7 @@ Options:
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--first` | **oui** | un repère, `<indice>=<temps>` | — |
 | `--last` | **oui** | un repère, `<indice>=<temps>` | — |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |

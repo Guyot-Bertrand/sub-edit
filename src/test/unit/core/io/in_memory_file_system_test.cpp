@@ -189,3 +189,28 @@ TEST_CASE("files added under no directory are the current one", "[filesystem][vi
     REQUIRE(listed.has_value());
     CHECK(*listed == std::vector<std::filesystem::path>{"film.mkv"});
 }
+
+TEST_CASE("the entries of a directory are its files and the directories its files imply",
+          "[format][filesystem]") {
+    using subedit::core::EntryKind;
+    InMemoryFileSystem files;
+    files.addFile("d/b.srt", "x");
+    files.addFile("d/a/deep/c.srt", "x");
+    files.addFile("d/a/d.srt", "x");
+    files.addFile("other/e.srt", "x");
+
+    const auto entries = files.entriesIn("d");
+
+    REQUIRE(entries.has_value());
+    REQUIRE(entries->size() == 2);
+    CHECK((*entries)[0].path == "d/a");
+    CHECK((*entries)[0].kind == EntryKind::Directory);
+    CHECK((*entries)[1].path == "d/b.srt");
+    CHECK((*entries)[1].kind == EntryKind::File);
+
+    CHECK(files.isDirectory("d"));
+    CHECK(files.isDirectory("d/a/deep"));
+    CHECK_FALSE(files.isDirectory("d/b.srt"));
+    CHECK_FALSE(files.isDirectory("absent"));
+    CHECK_FALSE(files.entriesIn("absent").has_value());
+}

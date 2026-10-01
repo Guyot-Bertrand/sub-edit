@@ -19,6 +19,7 @@ namespace {
 /// usage.
 struct ShiftOptions {
     std::vector<std::string> files;
+    bool recursive = false;
     std::string by;
     bool toGrid = false;
     DestinationOptions destination;
@@ -28,6 +29,7 @@ CLI::App* describeShift(CLI::App& app, std::string_view name, ShiftOptions& opti
     CLI::App* shift =
         app.add_subcommand(std::string{name}, "Move every position of a file by a fixed amount");
     shift->add_option("files", options.files, "Subtitle files to shift")->required();
+    describeRecursive(shift, options.recursive);
     shift->add_option("--by", options.by, "Amount to move by: 2.999, -7.001, or 00:00:07.001");
     shift->add_flag("--to-grid",
                     options.toGrid,
@@ -41,8 +43,14 @@ ExitCode runShift(const ShiftOptions& options,
                   core::FileSystem& files,
                   const std::optional<core::Encoding>& reading,
                   const Reporter& reporter) {
+    const std::expected<Inputs, std::string> inputs = expandInputs(
+        files, options.files, options.recursive, options.destination.outputDir, reporter);
+    if (!inputs) {
+        return refuse(inputs.error());
+    }
+
     const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, options.files.size());
+        destinationOf(options.destination, *inputs);
     if (!destination) {
         return refuse(destination.error());
     }
@@ -54,7 +62,7 @@ ExitCode runShift(const ShiftOptions& options,
     // Measured rather than given, and file by file: two files shifted off the
     // same grid by different amounts come back by different amounts.
     if (options.toGrid) {
-        return shiftOntoGridAll(files, options.files, reading, *destination, reporter);
+        return shiftOntoGridAll(files, inputs->paths, reading, *destination, reporter);
     }
 
     if (options.by.empty()) {
@@ -66,7 +74,7 @@ ExitCode runShift(const ShiftOptions& options,
         return refuse(by.error());
     }
 
-    return shiftAll(files, options.files, reading, *by, *destination, reporter);
+    return shiftAll(files, inputs->paths, reading, *by, *destination, reporter);
 }
 
 } // namespace

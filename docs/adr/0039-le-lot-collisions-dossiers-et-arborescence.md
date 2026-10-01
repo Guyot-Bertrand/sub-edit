@@ -163,3 +163,19 @@ l'ADR ne disait pas :
   `FileSystem::equivalent` (nouveau, vrai quand les deux existent) — avec un tamis sur
   le nom de fichier, sans casse, pour que la comparaison reste linéaire dans la taille
   du lot.
+
+## Mise en œuvre de la seconde moitié (#555)
+
+Relue à l'implémentation ; **aucune décision n'est changée**, quatre précisions :
+
+- **Le parcours passe par `FileSystem`** — `entriesIn` (entrées typées, liens non suivis,
+  triées par octets) et `isDirectory` — et non par `std::filesystem` : il se teste sans
+  disque, et l'ordre est celui du contrat, non celui du système.
+- **« Laissé de côté » ne compte que les fichiers d'une extension inconnue** (dont
+  `.txt`) : les entrées cachées et les liens sont ignorés sans bruit, parce que les
+  compter ferait un chiffre que personne n'a demandé.
+- **Un répertoire sans rien à parcourir est dit au niveau 1 et n'est pas une erreur** :
+  le lot de zéro fichier réussit, comme tout lot vide.
+- **L'arborescence passe par `Destination::withRoots`** plutôt que par un type de liste
+  d'entrées : les fonctions du lot gardent leurs signatures, et une entrée trouvée sous
+  une racine garde son chemin relatif tandis qu'une entrée nommée n'en garde que le nom.

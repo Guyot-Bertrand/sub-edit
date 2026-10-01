@@ -3,6 +3,7 @@
 ```
 subedit-cli hearing-impaired
                   (--output FICHIER | --output-dir DOSSIER | --in-place)
+                  [--recursive]
                   <fichier>...
 ```
 
@@ -27,6 +28,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
+  -r,--recursive              Take directories as inputs, and every subtitle file in them
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
   --in-place                  Write back over the inputs
@@ -37,6 +39,7 @@ Options:
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |
 
 Le format du fichier lu est **conservé** : changer de format est le travail de

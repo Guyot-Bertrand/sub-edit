@@ -5,6 +5,7 @@
 
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/exit_code.hpp>
+#include <subedit/cli/expansion.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/file_system.hpp>
@@ -71,8 +72,18 @@ struct DestinationOptions {
 void describeDestination(CLI::App* command, DestinationOptions& options);
 
 /// The destination those options describe, or why they cannot be honoured.
+///
+/// Told about the inputs because two things depend on them: whether `--output`
+/// is a mistake, and which of them came from walking a directory — those keep
+/// their place in the tree under `--output-dir`.
 [[nodiscard]] std::expected<Destination, std::string>
-destinationOf(const DestinationOptions& options, std::size_t inputCount);
+destinationOf(const DestinationOptions& options, const Inputs& inputs);
+
+/// Declares `--recursive` / `-r` on `command`: directories as inputs.
+///
+/// On every subcommand that takes files — `inspect` included, which reads a
+/// tree as readily as it writes one.
+void describeRecursive(CLI::App* command, bool& recursive);
 
 /// Writes a refusal and gives the code that goes with it.
 ///
