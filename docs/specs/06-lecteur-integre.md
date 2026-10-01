@@ -299,7 +299,7 @@ Trois lectures que le calcul assume, et qu'un test fixe :
 | opération hors bornes | l'avertissement déjà en place pour les autres notices, après l'opération |
 
 **Tout ce que l'utilisateur lit est en anglais**, et les mots vivent dans
-`core/wording.hpp`.
+`core/wording/`.
 
 ## Tests
 

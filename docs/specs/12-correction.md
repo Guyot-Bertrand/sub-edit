@@ -386,7 +386,7 @@ ligne de commande.
 >
 > **La réponse « pas de dictionnaire » est un `std::unexpected`** —
 > `NoDictionary{langue}` — et sa phrase, `noDictionaryFor`, vit dans
-> `core/wording.hpp` : « no dictionary for fr », que la fenêtre montrera.
+> `core/wording/counts.hpp` : « no dictionary for fr », que la fenêtre montrera.
 >
 > **Écarts de Gaupol, et ils sont dits** : une ligne d'un `.repl` sans barre
 > verticale est ignorée, là où Gaupol la lit comme un couple à un seul
@@ -585,7 +585,7 @@ ici : un assistant de plusieurs pages ne se lance pas « depuis une colonne ».
 
 **Le compte rendu compte des textes changés**, jamais des correspondances : #492
 l'a montré, `'[Il][Il]\b` → `'ll` correspond à un texte juste et le rend tel
-quel. La phrase vit dans `core/wording.hpp`, puisque la phase 13 dira la même.
+quel. La phrase vit dans `core/wording/counts.hpp`, puisque la phase 13 dira la même.
 
 **Ce que l'assistant retient** : les tâches cochées, la cible, le document,
 l'écriture, la langue et le pays de chaque type, les classes, les réglages du
@@ -641,7 +641,7 @@ appliquer la remplace.
 > qu'elle-même.
 >
 > **`CommandKind::CorrectTexts`** rejoint l'énumération ; `noticeOfCorrection`
-> rejoint `core/wording.hpp`, le patron même de Gaupol — « Edited N and
+> rejoint `core/wording/counts.hpp`, le patron même de Gaupol — « Edited N and
 > removed M subtitles » — et compte les textes, jamais les correspondances,
 > par construction : une correspondance qui rend un texte inchangé ne franchit
 > jamais `proposeCorrections`.

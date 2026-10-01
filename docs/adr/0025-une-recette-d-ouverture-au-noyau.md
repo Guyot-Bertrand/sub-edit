@@ -75,7 +75,7 @@ correspondance dans les deux sens, et d'y ajouter, à chaque cause nouvelle d'un
 côté, une valeur de l'autre. La somme ne produit rien de neuf : elle exprime le
 choix, et rien que le choix.
 
-**Les mots existaient déjà.** `core/wording.hpp` savait dire les sept ; seule la
+**Les mots existaient déjà.** `core/wording/formats.hpp` savait dire les sept ; seule la
 fenêtre ne pouvait pas les atteindre. Un `reasonOf(const OpenError&)` de trois
 lignes suffit, et c'est tout ce que la moitié visible du ticket a coûté.
 
