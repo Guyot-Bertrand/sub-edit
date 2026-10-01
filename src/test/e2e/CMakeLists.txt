@@ -10,6 +10,7 @@ add_executable(
     cli/cli_run.cpp
     cli/config_home_test.cpp
     cli/expected_file_test.cpp
+    cli/generated_batch_test.cpp
     cli/usage_test.cpp
     cli/inspect_test.cpp
     cli/narration_test.cpp

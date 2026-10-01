@@ -167,4 +167,35 @@ private:
     std::filesystem::path m_path;
 };
 
+/// The text of a valid SubRip file of `cues` cues, at most 9, built by hand.
+///
+/// Cue `i` (1-based) runs from `i` s to `i` s + 500 ms and says `"<tag> <i>"`,
+/// so that a file written by this helper is told apart from another by its
+/// content, and a test can write the expected result of an operation as a
+/// literal rather than reading it back from the program. Line ends are `\n`.
+[[nodiscard]] std::string srtText(const std::string& tag, int cues);
+
+/// Writes a valid SubRip file of `cues` cues (see `srtText`) at `name` inside
+/// the scratch directory, creating the directories on the way, and returns its
+/// full path. The tag is `name` itself.
+///
+/// Two names with the same base name in two directories (`"a/film.srt"`,
+/// `"b/film.srt"`) give two different files of the same name, which is what an
+/// `--output-dir` collision needs.
+std::string writeSrt(const Scratch& scratch, const std::string& name, int cues = 2);
+
+/// Writes `count` valid files `<directory>/file-1.srt` … `file-<count>.srt`
+/// and returns their paths in order.
+std::vector<std::string>
+writeSrtBatch(const Scratch& scratch, int count, const std::string& directory = "in");
+
+/// Copies a file that no format claims (`malformes/vide.srt`, versioned) to
+/// `name` inside the scratch directory and returns its full path. Put it in the
+/// middle of a list of valid ones to test a batch that fails halfway.
+std::string writeUnreadable(const Scratch& scratch, const std::string& name);
+
+/// Writes `text` verbatim at `name` inside the scratch directory, creating the
+/// directories on the way — for a destination that exists before the run.
+std::string writeFile(const Scratch& scratch, const std::string& name, const std::string& text);
+
 } // namespace subedit::e2e
