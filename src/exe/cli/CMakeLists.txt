@@ -1,4 +1,15 @@
-add_executable(subedit-cli main.cpp application.cpp)
+add_executable(subedit-cli
+    main.cpp
+    application.cpp
+    commands/command.cpp
+    commands/convert.cpp
+    commands/framerate.cpp
+    commands/hearing_impaired.cpp
+    commands/inspect.cpp
+    commands/shift.cpp
+    commands/snap.cpp
+    commands/table.cpp
+    commands/transform.cpp)
 
 # CLI11 est résolue par le paquet de la distribution, comme le veut l'ADR 0004,
 # et n'entre que dans l'exécutable : le noyau reste sans dépendance — voir
