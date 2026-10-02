@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Installer un paquet par dnf, et ce qu'exige ICU 74
+
+## 0.13.10 — 2026-10-01
+
 ### Ajouts
 
 - **cli** — --format json, un objet JSON Lines par entrée (#556)
