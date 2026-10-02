@@ -30,6 +30,51 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, et parentes
 fenêtre cesse seulement de proposer la cadence que le film déclare — voir
 [ce que `ffmpeg` change](../subedit-gui/video.md#ffmpeg-nest-pas-requis).
 
+### Ce que les paquets exigent de la distribution
+
+**Installer avec `apt` ou `dnf`, jamais avec `dpkg -i` ni `rpm -i`.** Ces deux
+commandes posent le paquet sans résoudre ses dépendances : elles se contentent
+de lister celles qui manquent, et s'arrêtent. C'est ce que `rpm -i` répond sur
+une Fedora qui a pourtant ce qu'il faut à portée de `dnf` :
+
+```console
+$ rpm -i subedit-0.13.0-1.x86_64.rpm
+erreur : Dépendances requises :
+        libicui18n.so.74()(64bit) est nécessaire pour subedit-0.13.0-1.x86_64
+        libicuuc.so.74()(64bit) est nécessaire pour subedit-0.13.0-1.x86_64
+```
+
+`sudo dnf install ./subedit-<version>.x86_64.rpm` va chercher ces bibliothèques,
+là où elles existent.
+
+| Dépendance | `.deb` | `.rpm` | Contrainte |
+| :--------- | :----- | :----- | :--------- |
+| Qt 6 : `Widgets`, `Gui`, `Core` | `libqt6widgets6`, `libqt6gui6`, `libqt6core6` | `qt6-qtbase-gui` | **≥ 6.4**, pour la fenêtre |
+| libmpv | `libmpv2` ou `libmpv1` | `mpv-libs` | le binaire lie `libmpv.so.2` |
+| Enchant 2 | `libenchant-2-2` | `enchant2` | le correcteur orthographique |
+| **ICU** | **`libicu74`** | `libicu`, soit **`libicuuc.so.74`** et **`libicui18n.so.74`** | **la version 74, exactement** — voir ci-dessous |
+| glibc et libstdc++ | — | — | **assez récentes** : celles d'Ubuntu 24.04, où les paquets sont construits (glibc 2.38 au moins, libstdc++ de GCC 13 ou plus) |
+
+**ICU est la contrainte qui compte, et elle n'est pas assouplissable en
+changeant une ligne du paquet.** Les symboles d'ICU portent le numéro de sa
+version majeure (`u_strToUTF8_74`) : un binaire construit contre ICU 74 ne
+sait pas se lier à ICU 76 ou 77. Une dépendance écrite plus large ferait
+installer le paquet, puis échouer au lancement — la déclarer exacte est ce qui
+reste honnête.
+
+| Distribution | Ce que cela donne |
+| :----------- | :---------------- |
+| Ubuntu 24.04 | le `.deb` s'installe : ICU y est en version 74 |
+| Fedora 41 | le `.rpm` s'installe : ICU y est en version 74 |
+| Fedora 42, 43 | le `.rpm` s'installe **par `dnf`**, qui ajoute le paquet de compatibilité `libicu74` que Fedora y maintient à côté de son ICU courant (76, 77) |
+| Fedora rawhide (la prochaine), les autres distributions à `.rpm` | **non** : aucun `libicu74` n'y est proposé (vérifié sur rawhide le 2 octobre 2026) — construire depuis les sources |
+| toute distribution Debian ou Ubuntu dont ICU n'est pas en version 74 | **non** : le `.deb` exige `libicu74` — construire depuis les sources |
+
+**La construction depuis les sources est le repli, et elle n'a pas cette
+contrainte** : elle se lie à l'ICU de la machine, quelle que soit sa version.
+C'est aussi ce qu'il faut sur une distribution dont la glibc est plus ancienne
+que celle des paquets.
+
 ### Ce qui est éprouvé de chacun, et ce qui ne l'est pas
 
 **Les deux ne sont pas vérifiés aussi loin, et il vaut mieux le dire que laisser
@@ -44,6 +89,12 @@ Fedora en conteneur, une fois par semaine.
 | que les noms de dépendances existent dans la distribution | oui, ce sont ceux d'Ubuntu | **oui**, résolus par `dnf` |
 | que le paquet s'installe | non — cela demande les droits de l'administrateur | **oui**, sur une Fedora en conteneur |
 | que les binaires installés se lancent | oui, depuis un préfixe temporaire | **oui**, depuis le paquet installé |
+
+**Le contrôle Fedora dit que le paquet s'installe sur Fedora 42, pas sur la
+suivante.** Cette image n'a pas ICU 74 en propre : le paquet s'y installe
+parce que Fedora garde un `libicu74` de compatibilité, et le contrôle serait
+vert tant que ce paquet existe — il l'est resté jusqu'ici. Voir
+[ce que les paquets exigent](#ce-que-les-paquets-exigent-de-la-distribution).
 
 **La confrontation des deux listes est le contrôle qui compte le plus.** Les
 deux paquets sortent de la même installation : un écart entre eux serait un
@@ -69,7 +120,8 @@ sources, ce que la section suivante décrit en entier.
 | CMake ≥ 3.28 | la construction | `cmake` |
 | un compilateur C++23 — GCC 13 convient | — | `g++` |
 | `make`, `pkg-config` | la construction | `make`, `pkg-config` |
-| Qt 6, module `Widgets` | la fenêtre | `qt6-base-dev` |
+| CLI11 | la lecture de la ligne de commande | `libcli11-dev` |
+| Qt 6 ≥ 6.4, module `Widgets` | la fenêtre | `qt6-base-dev` |
 | `libmpv` | le lecteur intégré | `libmpv-dev` |
 | ICU | la lecture des encodages | `libicu-dev` |
 | Enchant 2 | la bibliothèque du correcteur orthographique | `libenchant-2-dev` |
@@ -184,3 +236,20 @@ CXX=g++ make build                                                # contourner
 
 La configuration CMake détecte ce cas et s'arrête avec ce message plutôt que de
 laisser l'édition des liens échouer.
+
+### Si l'installation du paquet se plaint de `libicu`
+
+```console
+erreur : Dépendances requises :
+        libicuuc.so.74()(64bit) est nécessaire pour subedit-<version>.x86_64
+```
+
+Deux causes, qui se distinguent par la commande tapée :
+
+- **`rpm -i`** : il ne résout rien. Réessayer avec
+  `sudo dnf install ./subedit-<version>.x86_64.rpm`, qui installe le `libicu74`
+  de compatibilité là où il existe (Fedora 42 et 43) ;
+- **`dnf` échoue aussi** (`aucune correspondance` pour `libicu74`) : la distribution
+  n'a plus cette version d'ICU. Aucun paquet de ce dépôt ne s'y installera ;
+  [construire depuis les sources](#construire-depuis-les-sources).
+
