@@ -3,6 +3,7 @@
 ```
 subedit-cli transform --first <indice>=<temps> --last <indice>=<temps>
                       (--output FICHIER | --output-dir DOSSIER | --in-place)
+                      [--dry-run]
                       [--recursive]
                       <fichier>...
 ```
@@ -32,6 +33,7 @@ Options:
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
   --in-place                  Write back over the inputs
+  --dry-run                   Work out and say what would be written, and write nothing
 ```
 
 ## Arguments et options
@@ -42,7 +44,8 @@ Options:
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--first` | **oui** | un repère, `<indice>=<temps>` | — |
 | `--last` | **oui** | un repère, `<indice>=<temps>` | — |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |
+| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
+| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 
 Il n'y a pas de forme courte : ces deux options ne s'écrivent qu'en toutes
 lettres.
@@ -157,7 +160,7 @@ le premier repère** et que l'échelle le repousse au-delà de zéro. Rien n'est
 
 ## Sortie
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, rien non plus : il n'y a pas de fichier, et la ligne de narration le dit — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire).
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |

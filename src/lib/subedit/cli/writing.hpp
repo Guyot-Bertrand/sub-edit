@@ -28,6 +28,10 @@ namespace subedit::cli {
 /// five operations chained the same three calls, and the day one of them
 /// learned to say why it had failed, the other would not have.
 ///
+/// With `dryRun` the subtitles are still turned into bytes and the size is still
+/// the answer, but the system is not asked to take them: a character the
+/// encoding cannot carry fails a dry run as it fails a run, and no file is made.
+///
 /// The failure is the **second half of a sentence** whose first half is the
 /// path the caller is working on — the shape every message of this surface
 /// takes.
@@ -35,6 +39,7 @@ namespace subedit::cli {
 writeSubtitlesTo(subedit::core::FileSystem& files,
                  const std::filesystem::path& out,
                  subedit::core::SubtitleFormat format,
-                 const subedit::core::WriteRequest& request);
+                 const subedit::core::WriteRequest& request,
+                 bool dryRun = false);
 
 } // namespace subedit::cli

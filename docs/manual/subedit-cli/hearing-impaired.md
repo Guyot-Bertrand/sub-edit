@@ -3,6 +3,7 @@
 ```
 subedit-cli hearing-impaired
                   (--output FICHIER | --output-dir DOSSIER | --in-place)
+                  [--dry-run]
                   [--recursive]
                   <fichier>...
 ```
@@ -32,6 +33,7 @@ Options:
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
   --in-place                  Write back over the inputs
+  --dry-run                   Work out and say what would be written, and write nothing
 ```
 
 ## Arguments et options
@@ -40,7 +42,8 @@ Options:
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |
+| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
+| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 
 Le format du fichier lu est **conservé** : changer de format est le travail de
 [`convert`](convert.md).
@@ -139,7 +142,7 @@ a.srt: no mention to remove -> b.srt
 
 ## Sortie
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Sortie standard** — rien : le résultat est le fichier écrit. **Avec `--dry-run`, ce sont les changements proposés** : pour chaque sous-titre dont le texte changerait, son numéro, le texte d'avant et le texte d'après — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire).
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |

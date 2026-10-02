@@ -53,7 +53,8 @@ declareWith(CLI::App& app, std::string_view name, Describe describe, Run run) {
                     }};
 }
 
-/// Where a subcommand writes, as the three options that say it.
+/// Where a subcommand writes, as the three options that say it, and `--dry-run`,
+/// which says it writes nowhere.
 ///
 /// A type of its own rather than three fields repeated in four structs: they
 /// always travel together, they are always declared the same way, and they are
@@ -63,9 +64,10 @@ struct DestinationOptions {
     std::string output;
     std::string outputDir;
     bool inPlace = false;
+    bool dryRun = false;
 };
 
-/// Declares the three options on `command`.
+/// Declares the options on `command`.
 ///
 /// Called last by every `describe…`, so that a subcommand lists its own options
 /// before those it shares — the order the help shows and the manual quotes.

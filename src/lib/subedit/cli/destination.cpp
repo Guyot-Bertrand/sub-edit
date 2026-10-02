@@ -42,11 +42,12 @@ bool sameFile(const core::FileSystem& files,
 std::expected<Destination, std::string> Destination::from(std::string_view output,
                                                           std::string_view outputDir,
                                                           bool inPlace,
-                                                          std::size_t inputCount) {
+                                                          std::size_t inputCount,
+                                                          bool dryRun) {
     const int given = static_cast<int>(!output.empty()) + static_cast<int>(!outputDir.empty()) +
                       static_cast<int>(inPlace);
 
-    if (given == 0) {
+    if (given == 0 && !dryRun) {
         return std::unexpected{
             std::string{"no destination given: use --output, --output-dir or --in-place"}};
     }
@@ -63,6 +64,7 @@ std::expected<Destination, std::string> Destination::from(std::string_view outpu
     destination.m_output = output;
     destination.m_outputDir = outputDir;
     destination.m_inPlace = inPlace;
+    destination.m_dryRun = dryRun;
     return destination;
 }
 
@@ -76,6 +78,9 @@ std::filesystem::path Destination::pathFor(const std::filesystem::path& input,
                                            std::string_view extension) const {
     if (m_inPlace) {
         return input;
+    }
+    if (!hasTarget()) {
+        return {};
     }
     if (!m_output.empty()) {
         return m_output;
@@ -104,6 +109,10 @@ Destination::plan(const core::FileSystem& files,
     jobs.reserve(inputs.size());
     for (const std::string& input : inputs) {
         jobs.push_back(Job{.input = input, .output = pathFor(input, extension)});
+    }
+    // Nothing is written, so nothing can collide.
+    if (!hasTarget()) {
+        return jobs;
     }
 
     // Destinations seen so far, then every input, by `bucketOf` their name.

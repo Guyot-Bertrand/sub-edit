@@ -126,3 +126,22 @@ TEST_CASE("a directory that cannot be made stops the batch with code 2, said onc
     CHECK(jobs.error() == ExitCode::AllFailed);
     CHECK(errors.str() == "out: cannot be created: permission denied\n");
 }
+
+TEST_CASE("arranging a dry run makes no directory, and a refused plan is refused",
+          "[cli][batch][CLI-DRYRUN-01][CLI-DRYRUN-03]") {
+    InMemoryFileSystem files;
+    std::ostringstream errors;
+    const Reporter reporter{errors, 1};
+
+    const Destination given = Destination::from("", "out/deep", false, 2, true).value();
+    CHECK(arrange(files, given, {"a/one.srt", "b/two.srt"}, "", reporter).has_value());
+    CHECK(files.directoriesAsked().empty());
+
+    const Destination none = Destination::from("", "", false, 2, true).value();
+    CHECK(arrange(files, none, {"a/one.srt", "b/two.srt"}, "", reporter).has_value());
+    CHECK(files.directoriesAsked().empty());
+
+    const auto refused = arrange(files, given, {"a/film.srt", "b/film.srt"}, "", reporter);
+    REQUIRE_FALSE(refused.has_value());
+    CHECK(refused.error() == ExitCode::Usage);
+}

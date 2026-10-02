@@ -119,3 +119,71 @@ TEST_CASE("a file that cannot be read is named, and the code says so", "[cli][he
     CHECK(code == ExitCode::AllFailed);
     CHECK_THAT(errors.str(), ContainsSubstring("absent.srt"));
 }
+
+namespace {
+
+struct DryRun {
+    ExitCode code = ExitCode::Success;
+    std::string out;
+    std::string errors;
+    bool wroteAnything = false;
+};
+
+DryRun dryClean(const std::string& content, const Destination& destination, bool json = false) {
+    InMemoryFileSystem files;
+    files.addFile("a.srt", content);
+    std::ostringstream errors;
+    std::ostringstream out;
+    Reporter reporter = Reporter{errors, 1}.withTextOutput(out).forCommand("hearing-impaired");
+    if (json) {
+        reporter = reporter.withRecords(out);
+    }
+
+    const ExitCode code =
+        removeHearingImpairedIn(files, {"a.srt"}, std::nullopt, destination, reporter);
+    return {.code = code,
+            .out = out.str(),
+            .errors = errors.str(),
+            .wroteAnything =
+                files.contentOf("out/a.srt").has_value() || !files.directoriesAsked().empty()};
+}
+
+} // namespace
+
+TEST_CASE("a dry run proposes the changes and writes nothing", "[cli][hearing][CLI-DRYRUN-04]") {
+    // With a destination given, which is judged and not written.
+    const DryRun run = dryClean(kMentions, Destination::from("", "out", false, 1, true).value());
+
+    CHECK(run.code == ExitCode::Success);
+    CHECK_FALSE(run.wroteAnything);
+    // The subtitles are those of the file as it was: the third is a reference
+    // and stays, the first goes, and the one after it is told by its old number.
+    CHECK(run.out == "a.srt: subtitle 1 (removed)\n"
+                     "- [Bruit de pas]\n"
+                     "a.srt: subtitle 2\n"
+                     "- Attends [il tousse] Marie.\n"
+                     "+ Attends Marie.\n");
+    CHECK_THAT(run.errors,
+               ContainsSubstring("1 subtitle cleaned, 1 removed (dry run, nothing written)"));
+}
+
+TEST_CASE("a dry run in json carries the changes and no destination",
+          "[cli][hearing][CLI-DRYRUN-05]") {
+    const DryRun run = dryClean(kMentions, Destination::from("", "", false, 1, true).value(), true);
+
+    CHECK(run.out ==
+          "{\"schema\":1,\"command\":\"hearing-impaired\",\"file\":\"a.srt\",\"ok\":true,"
+          "\"dry_run\":true,\"destination\":null,\"counts\":{\"cleaned\":1,\"removed\":1},"
+          "\"changes\":[{\"subtitle\":1,\"document\":\"main\",\"before\":\"[Bruit de pas]\","
+          "\"after\":null},{\"subtitle\":2,\"document\":\"main\",\"before\":\"Attends [il tousse] "
+          "Marie.\",\"after\":\"Attends Marie.\"}],\"warnings\":[]}\n");
+}
+
+TEST_CASE("a dry run over a file with nothing to clean proposes nothing",
+          "[cli][hearing][CLI-DRYRUN-04]") {
+    const DryRun run = dryClean(kNothingToClean, Destination::from("", "", false, 1, true).value());
+
+    CHECK(run.code == ExitCode::Success);
+    CHECK(run.out.empty());
+    CHECK_THAT(run.errors, ContainsSubstring("no mention to remove (dry run, nothing written)"));
+}

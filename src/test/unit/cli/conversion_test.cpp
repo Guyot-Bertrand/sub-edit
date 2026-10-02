@@ -503,3 +503,27 @@ TEST_CASE("a file rewritten in its own format keeps the rate it was read at",
     CHECK(files.readFile("out/a.sub").value_or("") == frames);
     CHECK_FALSE(errors.str().contains("dropped"));
 }
+
+TEST_CASE("a conversion run dry writes nothing and says so", "[cli][conversion][CLI-DRYRUN-01]") {
+    InMemoryFileSystem files;
+    files.addFile("in/a.srt", "1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n");
+    std::ostringstream errors;
+    std::ostringstream records;
+    const Reporter reporter = Reporter{errors, 3}.withRecords(records).forCommand("convert");
+
+    const ExitCode code = convertAll(files,
+                                     {"in/a.srt"},
+                                     subedit::core::ReadingChoices{},
+                                     SubtitleFormat::WebVtt,
+                                     {},
+                                     Destination::from("", "out/deep", false, 1, true).value(),
+                                     reporter);
+
+    CHECK(code == ExitCode::Success);
+    CHECK_FALSE(files.contentOf("out/deep/a.vtt").has_value());
+    CHECK(files.directoriesAsked().empty());
+    CHECK_THAT(errors.str(),
+               ContainsSubstring("1 subtitle converted to WebVTT (dry run, nothing written)"));
+    CHECK_THAT(errors.str(), ContainsSubstring("would be written"));
+    CHECK_THAT(records.str(), ContainsSubstring("\"dry_run\":true,\"destination\":null"));
+}

@@ -1,0 +1,14 @@
+<corpus>/valides/mentions.srt: subtitle 1 (removed)
+- [Bruit de pas]
+<corpus>/valides/mentions.srt: subtitle 2
+- Attends [il tousse] Marie.
++ Attends Marie.
+<corpus>/valides/mentions.srt: subtitle 4
+- - [Grincement]
+- - Qui est là ?
++ Qui est là ?
+<corpus>/valides/mentions.srt: subtitle 5
+- Reculez ! [Il
+- hurle] Tout de suite !
++ Reculez !
++ Tout de suite !

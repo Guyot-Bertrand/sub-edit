@@ -292,3 +292,20 @@ TEST_CASE("a batch whose destinations collide is refused whole, and writes nothi
     CHECK_THAT(errors.str(), ContainsSubstring("out/film.srt: would be written by both"));
     CHECK_FALSE(files.contentOf("out/film.srt").has_value());
 }
+
+TEST_CASE("a shift run dry writes nothing and says so", "[cli][shifting][CLI-DRYRUN-01]") {
+    InMemoryFileSystem files;
+    files.addFile("a.srt", kTwo);
+    std::ostringstream errors;
+
+    const ExitCode code = shiftAll(files,
+                                   {"a.srt"},
+                                   std::nullopt,
+                                   Duration::fromMilliseconds(1'000),
+                                   Destination::from("", "", false, 1, true).value(),
+                                   Reporter{errors, 1});
+
+    CHECK(code == ExitCode::Success);
+    CHECK_THAT(errors.str(), ContainsSubstring("shifted by 1.000 s (dry run, nothing written)"));
+    CHECK(files.directoriesAsked().empty());
+}

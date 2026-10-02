@@ -45,6 +45,17 @@ public:
     /// what `say` writes stays on standard error whatever the level, unchanged.
     [[nodiscard]] Reporter withRecords(std::ostream& out) const;
 
+    /// The same reporter, also able to write the text of a result to `out`.
+    ///
+    /// Standard output when the surface is a terminal, and used for the one
+    /// thing a text run puts there: what `--dry-run` would change. A reporter
+    /// that records writes none of it — the records are the result then.
+    [[nodiscard]] Reporter withTextOutput(std::ostream& out) const;
+
+    /// Writes `text` as the result, when the form is text. `text` carries its
+    /// own line ends; nothing is added.
+    void result(std::string_view text) const;
+
     /// The same reporter, knowing which subcommand is speaking.
     [[nodiscard]] Reporter forCommand(std::string command) const;
 
@@ -61,6 +72,7 @@ private:
     std::ostream* m_errors;
     int m_level;
     std::ostream* m_records = nullptr;
+    std::ostream* m_text = nullptr;
     std::string m_command;
 };
 

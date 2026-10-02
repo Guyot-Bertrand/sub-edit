@@ -3,6 +3,7 @@
 ```
 subedit-cli snap --rate <cadence>
                  (--output FICHIER | --output-dir DOSSIER | --in-place)
+                 [--dry-run]
                  [--recursive]
                  <fichier>...
 ```
@@ -50,6 +51,7 @@ Options:
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
   --in-place                  Write back over the inputs
+  --dry-run                   Work out and say what would be written, and write nothing
 ```
 
 ## Arguments et options
@@ -59,7 +61,8 @@ Options:
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--rate` | **oui** | une cadence en images par seconde, écrite comme pour [`framerate`](framerate.md#écrire-une-cadence) | — |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois** | voir [Invocation](invocation.md#la-destination) | — |
+| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
+| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 
 `--rate` accepte **n'importe quelle cadence valide**, et pas seulement les huit
 normalisées : c'est le choix de l'utilisateur, comme pour `framerate`. Une
@@ -70,7 +73,7 @@ Le format du fichier lu est **conservé** : changer de format est le travail de
 
 ## Sortie
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, rien non plus : il n'y a pas de fichier, et la ligne de narration le dit — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire).
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |

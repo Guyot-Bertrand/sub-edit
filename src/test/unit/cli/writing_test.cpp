@@ -94,3 +94,31 @@ TEST_CASE("a disk that refuses the bytes says so, and names the destination", "[
     CHECK(written.error().message == "out.srt: cannot be written: permission denied");
     CHECK(written.error().kind == "permission-denied");
 }
+
+TEST_CASE("a dry run makes the bytes and takes none to the disk", "[cli][writing][CLI-DRYRUN-01]") {
+    InMemoryFileSystem files;
+    const std::vector<Subtitle> subtitles = oneSaying("Un café.");
+    const WriteRequest request{.subtitles = subtitles, .encoding = named("iso-8859-1")};
+
+    const auto dry = writeSubtitlesTo(files, "out.srt", SubtitleFormat::SubRip, request, true);
+    const auto real = writeSubtitlesTo(files, "real.srt", SubtitleFormat::SubRip, request);
+
+    REQUIRE(dry.has_value());
+    CHECK(*dry == *real);
+    CHECK_FALSE(files.contentOf("out.srt").has_value());
+}
+
+TEST_CASE("a dry run still fails where a run fails", "[cli][writing][CLI-DRYRUN-01]") {
+    InMemoryFileSystem files;
+    const std::vector<Subtitle> subtitles = oneSaying("Przyszedł późno.");
+
+    const auto dry =
+        writeSubtitlesTo(files,
+                         "out.srt",
+                         SubtitleFormat::SubRip,
+                         WriteRequest{.subtitles = subtitles, .encoding = named("iso-8859-1")},
+                         true);
+
+    REQUIRE_FALSE(dry.has_value());
+    CHECK(dry.error().kind == "unencodable");
+}

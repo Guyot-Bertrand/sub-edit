@@ -15,6 +15,7 @@ add_library(
     subedit_cli STATIC
     aligning.cpp
     batch.cpp
+    changes.cpp
     json.cpp
     destination.cpp
     expansion.cpp

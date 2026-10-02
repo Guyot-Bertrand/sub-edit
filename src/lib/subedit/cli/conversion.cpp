@@ -83,6 +83,7 @@ bool convertFile(core::FileSystem& files,
                  const core::ReadingChoices& reading,
                  SubtitleFormat target,
                  const WriteShape& shape,
+                 bool dryRun,
                  const Reporter& reporter) {
     const std::string& path = job.input;
     const std::expected<core::OpenedFile, core::OpenError> opened =
@@ -153,7 +154,7 @@ bool convertFile(core::FileSystem& files,
     };
     const std::filesystem::path& out = job.output;
     const std::expected<std::size_t, Failure> written =
-        writeSubtitlesTo(files, out, target, request);
+        writeSubtitlesTo(files, out, target, request, dryRun);
     if (!written) {
         reportFailure(reporter, path, written.error());
         return false;
@@ -161,26 +162,36 @@ bool convertFile(core::FileSystem& files,
 
     reporter.say(3,
                  path + ": " + std::to_string(opened->bytes) + " bytes read, " +
-                     std::to_string(*written) + " written");
+                     std::to_string(*written) + (dryRun ? " would be written" : " written"));
     sayDiagnostics(reporter, path, opened->diagnostics);
     reporter.say(2,
                  path + ": " + std::string{nameOf(source.format)} + " -> " +
                      std::string{nameOf(target)} + ", " + nameOf(encoding) + ", " +
                      std::string{nameOf(newline)} + " line endings");
+    const std::string made = path + ": " + core::countOf(converted.subtitles.size(), "subtitle");
     reporter.say(1,
-                 path + ": " + core::countOf(converted.subtitles.size(), "subtitle") +
-                     " written as " + std::string{nameOf(target)} + " -> " + out.string());
+                 dryRun
+                     ? made + " converted to " + std::string{nameOf(target)} +
+                           " (dry run, nothing written)"
+                     : made + " written as " + std::string{nameOf(target)} + " -> " + out.string());
     // **Said last, and only when there is something to say.** A conversion that
     // loses nothing is silent, which is what makes the line worth reading when
     // it does appear.
     if (const std::string notice = core::noticeOf(converted.loss, source.format, target);
         !notice.empty())
         reporter.say(1, path + ": " + notice);
-    reporter.record(writtenRecord(reporter.command(),
-                                  path,
-                                  out,
-                                  countsOfConversion(converted),
-                                  warningsOf(opened->diagnostics)));
+    if (dryRun) {
+        reporter.record(dryRunRecord(reporter.command(),
+                                     path,
+                                     countsOfConversion(converted),
+                                     warningsOf(opened->diagnostics)));
+    } else {
+        reporter.record(writtenRecord(reporter.command(),
+                                      path,
+                                      out,
+                                      countsOfConversion(converted),
+                                      warningsOf(opened->diagnostics)));
+    }
     return true;
 }
 
@@ -212,7 +223,7 @@ ExitCode convertAll(core::FileSystem& files,
 
     std::size_t done = 0;
     for (const Job& job : *jobs) {
-        if (convertFile(files, job, reading, target, shape, reporter)) {
+        if (convertFile(files, job, reading, target, shape, destination.isDryRun(), reporter)) {
             ++done;
         }
     }

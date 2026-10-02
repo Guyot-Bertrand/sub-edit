@@ -2,6 +2,7 @@
 
 // Reading a file, changing what it holds, writing it back as it was found.
 
+#include <subedit/cli/changes.hpp>
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/core/model/encoding.hpp>
@@ -36,6 +37,12 @@ class Reporter;
 struct OperationResult {
     std::string sentence;
     std::vector<Count> counts;
+
+    /// What it changed in the texts, subtitle by subtitle — for the operations
+    /// that change texts, and only when it was asked (`Wants`). Nothing means
+    /// this operation does not list its changes, which an empty list does not:
+    /// that one says there were none.
+    std::optional<std::vector<TextChange>> changes{};
 };
 
 /// What an operation comes to on one file: a result, or why it cannot.
@@ -51,6 +58,15 @@ using OperationOutcome = std::expected<OperationResult, Failure>;
 /// **It words its own result**: only the operation knows how many subtitles a
 /// removal rewrote and how many it took away.
 using Operation = std::function<OperationOutcome(subedit::core::Session&)>;
+
+/// An operation that can list what it changes, when it is asked to.
+///
+/// **Asked, because the list costs**: a copy of each text that changes, for a
+/// file of thousands of subtitles. The loop of the batch says whether anyone
+/// reads it — `--dry-run` or `--format json` — and the operation builds it only
+/// then. How it builds it is its own business: the core knows which texts, and
+/// the operation is the one that holds the command.
+using ChangingOperation = std::function<OperationOutcome(subedit::core::Session&, Wants)>;
 
 /// Applies `operation` to every path and writes each result back.
 ///
@@ -68,5 +84,19 @@ using Operation = std::function<OperationOutcome(subedit::core::Session&)>;
                                   const Reporter& reporter,
                                   std::string_view verb,
                                   const Operation& operation);
+
+/// The same, for an operation that lists its changes.
+///
+/// **`--dry-run` is the one thing this loop does that the operations do not**:
+/// the file is read, the operation runs, the bytes are made — so that a
+/// character the encoding cannot carry fails here as it fails there — and the
+/// write is skipped. No operation has a line about it (ADR 0040).
+[[nodiscard]] ExitCode rewriteAll(subedit::core::FileSystem& files,
+                                  const std::vector<std::string>& paths,
+                                  const std::optional<subedit::core::Encoding>& reading,
+                                  const Destination& destination,
+                                  const Reporter& reporter,
+                                  std::string_view verb,
+                                  const ChangingOperation& operation);
 
 } // namespace subedit::cli

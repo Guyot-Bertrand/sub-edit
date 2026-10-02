@@ -5,6 +5,7 @@ subedit-cli convert --to <format>
                     [--line-endings unix|windows|mac] [--to-encoding NOM]
                     [--bom | --no-bom]
                     (--output FICHIER | --output-dir DOSSIER | --in-place)
+                    [--dry-run]
                     [--recursive]
                     <fichier>...
 ```
@@ -35,6 +36,7 @@ Options:
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
   --in-place                  Write back over the inputs
+  --dry-run                   Work out and say what would be written, and write nothing
 ```
 
 ## Arguments et options
@@ -47,7 +49,8 @@ Options:
 | `--line-endings` | non | `unix`, `windows` ou `mac` | celles du fichier lu |
 | `--to-encoding` | non | tout encodage qu'ICU sait écrire, sauf ceux qui écrivent leur propre marque | celui du fichier lu |
 | `--bom` / `--no-bom` | non | drapeaux, exclusifs l'un de l'autre | ce que portait le fichier lu |
-| `--output` / `--output-dir` / `--in-place` | l'une des trois | voir [Invocation](invocation.md#la-destination) | — |
+| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
+| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 
 `mac` désigne le retour chariot seul (`\r`), la fin de ligne du Mac OS classique.
 
@@ -272,7 +275,7 @@ Bonjour.
 
 ## Sortie
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, rien non plus : il n'y a pas de fichier, et la ligne de narration le dit — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire).
 
 Sur la sortie d'erreur, selon le niveau :
 
