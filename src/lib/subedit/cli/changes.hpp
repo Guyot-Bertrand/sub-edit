@@ -29,15 +29,6 @@ struct TextChange {
     std::optional<std::string> after{};
 };
 
-/// What a run was asked to compute besides its counts.
-///
-/// **A list of changes costs a copy of every text that changes**, and a batch of
-/// thousands of subtitles should not build one for nothing: an operation makes it
-/// only when this says someone reads it.
-struct Wants {
-    bool changes = false;
-};
-
 /// The `changes` of a record: an array of `{subtitle, document, before, after}`,
 /// `after` being `null` for a subtitle that is removed.
 [[nodiscard]] Json changesOf(const std::vector<TextChange>& changes);

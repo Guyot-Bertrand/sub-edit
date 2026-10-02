@@ -75,4 +75,54 @@ std::expected<Reference, std::string> parseReference(std::string_view text) {
                      .target = core::Timestamp::fromMilliseconds(target->milliseconds())};
 }
 
+std::expected<Range, std::string> parseRange(std::string_view text) {
+    const auto shape = [text](std::string_view why) {
+        return std::unexpected{"\"" + std::string{text} + "\" is not a range: " + std::string{why}};
+    };
+    constexpr std::string_view kWrite =
+        "write it N-M, or N- to go to the end, counted from 1 and inclusive";
+
+    const std::size_t dash = text.find('-');
+    if (dash == std::string_view::npos) {
+        return shape(kWrite);
+    }
+
+    // The two halves are subtitle numbers, with the refusals of that grammar: a
+    // sign, a zero or a decimal point is said there, in its own words.
+    const std::expected<std::size_t, std::string> first = parseSubtitleNumber(text.substr(0, dash));
+    if (!first) {
+        return std::unexpected{first.error()};
+    }
+
+    const std::string_view rest = text.substr(dash + 1);
+    if (rest.empty()) {
+        return Range{.first = *first, .last = std::nullopt};
+    }
+
+    const std::expected<std::size_t, std::string> last = parseSubtitleNumber(rest);
+    if (!last) {
+        return std::unexpected{last.error()};
+    }
+    if (*last < *first) {
+        return shape("it ends before it starts");
+    }
+    return Range{.first = *first, .last = *last};
+}
+
+std::expected<core::Selection, std::string> selectionOf(const Range& range, std::size_t count) {
+    const std::string written =
+        std::to_string(range.first) + "-" + (range.last ? std::to_string(*range.last) : "");
+    const std::string held = "the file has " + std::to_string(count);
+
+    if (range.first > count) {
+        return std::unexpected{"range " + written + " starts after the last subtitle: " + held};
+    }
+    if (range.last && *range.last > count) {
+        return std::unexpected{"range " + written + " ends after the last subtitle: " + held};
+    }
+
+    return core::Selection::range(core::SubtitleIndex::fromNumber(range.first),
+                                  core::SubtitleIndex::fromNumber(range.last.value_or(count)));
+}
+
 } // namespace subedit::cli
