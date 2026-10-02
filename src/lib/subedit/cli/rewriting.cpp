@@ -28,6 +28,7 @@ bool rewriteFile(core::FileSystem& files,
                  const Job& job,
                  const std::optional<core::Encoding>& reading,
                  bool dryRun,
+                 const std::optional<Range>& range,
                  const Reporter& reporter,
                  const ChangingOperation& operation) {
     const std::string& path = job.input;
@@ -42,9 +43,23 @@ bool rewriteFile(core::FileSystem& files,
     const core::SourceFile source = opened->project.sourceFile();
     core::Session session{std::move(opened->project)};
 
+    // **Before the operation, and before anything is changed**: a range the file
+    // does not hold is a mistake about the file, said while it is untouched.
+    core::Selection selection = core::Selection::all(session.project());
+    if (range) {
+        std::expected<core::Selection, std::string> chosen =
+            selectionOf(*range, session.project().count());
+        if (!chosen) {
+            reportFailure(reporter, path, Failure{"range-out-of-bounds", chosen.error()});
+            return false;
+        }
+        selection = *std::move(chosen);
+    }
+
     // The list is read by the dry run's text and by every JSON record.
-    const OperationOutcome done =
-        operation(session, Wants{.changes = dryRun || reporter.recording()});
+    const OperationOutcome done = operation(
+        session,
+        Request{.changes = dryRun || reporter.recording(), .selection = std::move(selection)});
     if (!done) {
         reportFailure(reporter, path, done.error());
         return false;
@@ -105,7 +120,8 @@ ExitCode rewriteAll(core::FileSystem& files,
                     const Destination& destination,
                     const Reporter& reporter,
                     std::string_view verb,
-                    const ChangingOperation& operation) {
+                    const ChangingOperation& operation,
+                    const std::optional<Range>& range) {
     // The extension is left alone: the format has not changed.
     const std::expected<std::vector<Job>, ExitCode> jobs =
         arrange(files, destination, paths, "", reporter);
@@ -115,7 +131,7 @@ ExitCode rewriteAll(core::FileSystem& files,
 
     std::size_t done = 0;
     for (const Job& job : *jobs) {
-        if (rewriteFile(files, job, reading, destination.isDryRun(), reporter, operation)) {
+        if (rewriteFile(files, job, reading, destination.isDryRun(), range, reporter, operation)) {
             ++done;
         }
     }
@@ -130,7 +146,7 @@ ExitCode rewriteAll(core::FileSystem& files,
                     std::string_view verb,
                     const Operation& operation) {
     // An operation that lists nothing is asked for nothing.
-    const ChangingOperation changing = [&operation](core::Session& session, Wants) {
+    const ChangingOperation changing = [&operation](core::Session& session, const Request&) {
         return operation(session);
     };
     return rewriteAll(files, paths, reading, destination, reporter, verb, changing);

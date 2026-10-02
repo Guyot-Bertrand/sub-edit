@@ -4,8 +4,10 @@
 
 #include <subedit/cli/changes.hpp>
 #include <subedit/cli/exit_code.hpp>
+#include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/core/model/encoding.hpp>
+#include <subedit/core/model/selection.hpp>
 
 #include <expected>
 #include <functional>
@@ -39,7 +41,7 @@ struct OperationResult {
     std::vector<Count> counts;
 
     /// What it changed in the texts, subtitle by subtitle — for the operations
-    /// that change texts, and only when it was asked (`Wants`). Nothing means
+    /// that change texts, and only when it was asked (`Request`). Nothing means
     /// this operation does not list its changes, which an empty list does not:
     /// that one says there were none.
     std::optional<std::vector<TextChange>> changes{};
@@ -59,14 +61,32 @@ using OperationOutcome = std::expected<OperationResult, Failure>;
 /// removal rewrote and how many it took away.
 using Operation = std::function<OperationOutcome(subedit::core::Session&)>;
 
-/// An operation that can list what it changes, when it is asked to.
+/// What the loop of the batch asks of an operation on one file.
+struct Request {
+    /// Whether anyone reads the list of changes — `--dry-run` or `--format json`.
+    ///
+    /// **Asked, because the list costs**: a copy of each text that changes, for a
+    /// file of thousands of subtitles. The operation builds it only then. How it
+    /// builds it is its own business: the core knows which texts, and the
+    /// operation is the one that holds the command.
+    bool changes = false;
+
+    /// The subtitles to act on: the whole file, or what `--range` names in it.
+    ///
+    /// **Resolved against this file, before the operation runs** — the bounds a
+    /// range is judged by are the file's own, so a range that fits the first
+    /// file of a batch and not the third fails the third, and only it.
+    subedit::core::Selection selection;
+};
+
+/// An operation that can list what it changes, and acts on a selection.
 ///
-/// **Asked, because the list costs**: a copy of each text that changes, for a
-/// file of thousands of subtitles. The loop of the batch says whether anyone
-/// reads it — `--dry-run` or `--format json` — and the operation builds it only
-/// then. How it builds it is its own business: the core knows which texts, and
-/// the operation is the one that holds the command.
-using ChangingOperation = std::function<OperationOutcome(subedit::core::Session&, Wants)>;
+/// It receives the selection **rather than choosing one**: the command line
+/// drives the commands the window drives, and the window passes what is
+/// selected. No subcommand takes `--range` yet — the ones that will (`adjust`,
+/// `replace`, `case`, `italics`, `dialogue-dashes`, `correct`) say so in their
+/// manual page when they do; until then every operation is handed the whole file.
+using ChangingOperation = std::function<OperationOutcome(subedit::core::Session&, const Request&)>;
 
 /// Applies `operation` to every path and writes each result back.
 ///
@@ -85,7 +105,12 @@ using ChangingOperation = std::function<OperationOutcome(subedit::core::Session&
                                   std::string_view verb,
                                   const Operation& operation);
 
-/// The same, for an operation that lists its changes.
+/// The same, for an operation that lists its changes and takes a selection.
+///
+/// `range` limits the operation to those subtitles, **for every file of the
+/// batch**: it is read once and resolved for each file against that file's own
+/// count. A file it does not fit fails with `range-out-of-bounds`, before the
+/// operation touches it and without writing it; the others go on.
 ///
 /// **`--dry-run` is the one thing this loop does that the operations do not**:
 /// the file is read, the operation runs, the bytes are made — so that a
@@ -97,6 +122,7 @@ using ChangingOperation = std::function<OperationOutcome(subedit::core::Session&
                                   const Destination& destination,
                                   const Reporter& reporter,
                                   std::string_view verb,
-                                  const ChangingOperation& operation);
+                                  const ChangingOperation& operation,
+                                  const std::optional<Range>& range = std::nullopt);
 
 } // namespace subedit::cli

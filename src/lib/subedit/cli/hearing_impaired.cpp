@@ -76,24 +76,26 @@ ExitCode removeHearingImpairedIn(core::FileSystem& files,
                                  const std::optional<core::Encoding>& reading,
                                  const Destination& destination,
                                  const Reporter& reporter) {
-    const ChangingOperation clean = [](core::Session& session, Wants wants) -> OperationOutcome {
+    const ChangingOperation clean = [](core::Session& session,
+                                       const Request& request) -> OperationOutcome {
         // The texts as they are, set aside only when someone reads the list.
         std::vector<std::string> before;
-        if (wants.changes) {
+        if (request.changes) {
             before.reserve(session.project().count());
             for (const core::Subtitle& subtitle : session.project().subtitles())
                 before.push_back(subtitle.text(core::Document::Main));
         }
 
-        // The whole file: the selection reached the core with the window, and
-        // a command line has none.
-        std::unique_ptr<core::Command> command = core::removeHearingImpaired(
-            session.project(), core::Selection::all(session.project()), core::Document::Main);
+        // What the loop hands over: the whole file, as this subcommand takes no
+        // `--range` yet.
+        std::unique_ptr<core::Command> command =
+            core::removeHearingImpaired(session.project(), request.selection, core::Document::Main);
         if (!command)
-            return OperationResult{
-                .sentence = core::noMentionToRemove(),
-                .counts = {{"cleaned", 0}, {"removed", 0}},
-                .changes = wants.changes ? std::optional{std::vector<TextChange>{}} : std::nullopt};
+            return OperationResult{.sentence = core::noMentionToRemove(),
+                                   .counts = {{"cleaned", 0}, {"removed", 0}},
+                                   .changes = request.changes
+                                                  ? std::optional{std::vector<TextChange>{}}
+                                                  : std::nullopt};
 
         const core::HearingImpairedTally tally = core::tallyOf(*command);
         const std::vector<core::Change> described = command->describe();
@@ -103,7 +105,7 @@ ExitCode removeHearingImpairedIn(core::FileSystem& files,
             .sentence = core::noticeOfMentionsRemoved(tally.cleaned, tally.removed),
             .counts = {{"cleaned", static_cast<std::int64_t>(tally.cleaned)},
                        {"removed", static_cast<std::int64_t>(tally.removed)}},
-            .changes = wants.changes
+            .changes = request.changes
                            ? std::optional{changesOfRemoval(session.project(), before, described)}
                            : std::nullopt};
     };

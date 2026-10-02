@@ -194,6 +194,7 @@ add_executable(
     cli/inspection_test.cpp
     cli/inspection_json_test.cpp
     cli/records_test.cpp
+    cli/rewriting_test.cpp
     cli/reporter_test.cpp
     cli/shifting_test.cpp
     cli/time_grammar_test.cpp
