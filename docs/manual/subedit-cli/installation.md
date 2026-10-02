@@ -38,36 +38,41 @@ de lister celles qui manquent, et s'arrêtent. C'est ce que `rpm -i` répond sur
 une Fedora qui a pourtant ce qu'il faut à portée de `dnf` :
 
 ```console
-$ rpm -i subedit-0.13.0-1.x86_64.rpm
+$ rpm -i subedit-0.13.0-1.fc43.x86_64.rpm
 erreur : Dépendances requises :
-        libicui18n.so.74()(64bit) est nécessaire pour subedit-0.13.0-1.x86_64
-        libicuuc.so.74()(64bit) est nécessaire pour subedit-0.13.0-1.x86_64
+        libicui18n.so.77()(64bit) est nécessaire pour subedit-0.13.0-1.fc43.x86_64
+        libicuuc.so.77()(64bit) est nécessaire pour subedit-0.13.0-1.fc43.x86_64
 ```
 
-`sudo dnf install ./subedit-<version>.x86_64.rpm` va chercher ces bibliothèques,
-là où elles existent.
+`sudo dnf install ./subedit-<version>-1.fc43.x86_64.rpm` va chercher ces
+bibliothèques, là où elles existent.
+
+**Le `.rpm` à prendre est celui de sa Fedora** : le nom du fichier porte la
+version, `fc42`, `fc43`, `fc44`. Chacun est construit sur cette Fedora, contre
+son ICU — `cat /etc/fedora-release` dit lequel prendre. Un `.rpm` d'une autre
+Fedora demande un ICU que la vôtre n'a pas.
 
 | Dépendance | `.deb` | `.rpm` | Contrainte |
 | :--------- | :----- | :----- | :--------- |
 | Qt 6 : `Widgets`, `Gui`, `Core` | `libqt6widgets6`, `libqt6gui6`, `libqt6core6` | `qt6-qtbase-gui` | **≥ 6.4**, pour la fenêtre |
 | libmpv | `libmpv2` ou `libmpv1` | `mpv-libs` | le binaire lie `libmpv.so.2` |
 | Enchant 2 | `libenchant-2-2` | `enchant2` | le correcteur orthographique |
-| **ICU** | **`libicu74`** | `libicu`, soit **`libicuuc.so.74`** et **`libicui18n.so.74`** | **la version 74, exactement** — voir ci-dessous |
-| glibc et libstdc++ | — | — | **assez récentes** : celles d'Ubuntu 24.04, où les paquets sont construits (glibc 2.38 au moins, libstdc++ de GCC 13 ou plus) |
+| **ICU** | **`libicu74`** | `libicu`, soit les `libicuuc.so.N` et `libicui18n.so.N` **de la Fedora qui l'a construit** | **la version qu'a la Fedora du `.rpm`**, exactement — voir ci-dessous |
+| glibc et libstdc++ | — | — | **assez récentes** : celles d'Ubuntu 24.04 pour le `.deb`, celles de la Fedora du `.rpm` pour celui-ci |
 
 **ICU est la contrainte qui compte, et elle n'est pas assouplissable en
 changeant une ligne du paquet.** Les symboles d'ICU portent le numéro de sa
 version majeure (`u_strToUTF8_74`) : un binaire construit contre ICU 74 ne
 sait pas se lier à ICU 76 ou 77. Une dépendance écrite plus large ferait
 installer le paquet, puis échouer au lancement — la déclarer exacte est ce qui
-reste honnête.
+reste honnête. **C'est pourquoi le `.rpm` n'est pas construit une fois, mais sur
+chaque Fedora publiée**, contre son ICU ; le `.deb`, lui, l'est sur Ubuntu 24.04.
 
 | Distribution | Ce que cela donne |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | le `.deb` s'installe : ICU y est en version 74 |
-| Fedora 41 | le `.rpm` s'installe : ICU y est en version 74 |
-| Fedora 42, 43 | le `.rpm` s'installe **par `dnf`**, qui ajoute le paquet de compatibilité `libicu74` que Fedora y maintient à côté de son ICU courant (76, 77) |
-| Fedora rawhide (la prochaine), les autres distributions à `.rpm` | **non** : aucun `libicu74` n'y est proposé (vérifié sur rawhide le 2 octobre 2026) — construire depuis les sources |
+| Fedora 42, 43, 44 | le `.rpm` de sa version (`…fc42…`, `…fc43…`, `…fc44…`) s'installe **par `dnf`**, construit contre l'ICU de cette Fedora |
+| Fedora rawhide (la prochaine), les autres distributions à `.rpm` | **non** : aucun `.rpm` n'est construit pour elles — construire depuis les sources |
 | toute distribution Debian ou Ubuntu dont ICU n'est pas en version 74 | **non** : le `.deb` exige `libicu74` — construire depuis les sources |
 
 **La construction depuis les sources est le repli, et elle n'a pas cette
@@ -90,10 +95,11 @@ Fedora en conteneur, une fois par semaine.
 | que le paquet s'installe | non — cela demande les droits de l'administrateur | **oui**, sur une Fedora en conteneur |
 | que les binaires installés se lancent | oui, depuis un préfixe temporaire | **oui**, depuis le paquet installé |
 
-**Le contrôle Fedora dit que le paquet s'installe sur Fedora 42, pas sur la
-suivante.** Cette image n'a pas ICU 74 en propre : le paquet s'y installe
-parce que Fedora garde un `libicu74` de compatibilité, et le contrôle serait
-vert tant que ce paquet existe — il l'est resté jusqu'ici. Voir
+**Le contrôle Fedora éprouve le `.rpm` construit sur Ubuntu, pas ceux qu'on
+publie.** Cette image n'a pas ICU 74 en propre : le paquet s'y installe parce que
+Fedora garde un `libicu74` de compatibilité, et le contrôle serait vert tant que
+ce paquet existe. Les `.rpm` publiés sont construits sur leur propre Fedora, et ne
+dépendent plus de cette compatibilité. Voir
 [ce que les paquets exigent](#ce-que-les-paquets-exigent-de-la-distribution).
 
 **La confrontation des deux listes est le contrôle qui compte le plus.** Les
@@ -244,12 +250,14 @@ erreur : Dépendances requises :
         libicuuc.so.74()(64bit) est nécessaire pour subedit-<version>.x86_64
 ```
 
-Deux causes, qui se distinguent par la commande tapée :
+Trois causes, qui se distinguent par la commande tapée et par le nom du fichier :
 
 - **`rpm -i`** : il ne résout rien. Réessayer avec
-  `sudo dnf install ./subedit-<version>.x86_64.rpm`, qui installe le `libicu74`
-  de compatibilité là où il existe (Fedora 42 et 43) ;
-- **`dnf` échoue aussi** (`aucune correspondance` pour `libicu74`) : la distribution
-  n'a plus cette version d'ICU. Aucun paquet de ce dépôt ne s'y installera ;
+  `sudo dnf install ./subedit-<version>.fcNN.x86_64.rpm` ;
+- **un `.rpm` sans `fcNN` dans son nom**, ou d'une autre Fedora que la vôtre :
+  il demande l'ICU de la machine qui l'a construit. Prendre celui dont `fcNN`
+  est la sortie de `cat /etc/fedora-release` ;
+- **aucun `.rpm` pour votre version** : Fedora rawhide ou une autre distribution.
+  Aucun paquet de ce dépôt ne s'y installera ;
   [construire depuis les sources](#construire-depuis-les-sources).
 

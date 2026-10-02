@@ -241,3 +241,19 @@ règles que l'autre et vérifié moins loin.
 
 **Le jour où Flatpak est repris, rien de ceci n'est perdu.** Un manifeste se
 sert des règles `install()`, comme celui de Gaupol se sert de son `Makefile`.
+
+## Révision : le `.rpm` se construit sur chaque Fedora publiée
+
+Constatée en v0.13.11 : un `.rpm` construit sur Ubuntu demande `libicuuc.so.74`, et
+une Fedora qui n'a ni ICU 74 ni son paquet de compatibilité refuse de l'installer. La
+décision d'origine — **un seul `.rpm`, construit là où l'on développe** — supposait
+que les dépendances se résolvent partout ; ICU, dont les symboles portent la version
+majeure, montre que non.
+
+**Le `.rpm` publié est désormais construit sur Fedora, contre son ICU, une fois par
+version publiée** (42, 43 et 44) : `src/scripts/build-rpm.sh`, lancé par le travail
+`rpm` de `release.yml` dans l'image `fedora:N`. Le nom du fichier porte la
+distribution (`…-1.fc43.x86_64.rpm`). Le `.deb` ne change pas. **Le coût** : un
+`.rpm` par Fedora et une construction de plus par version ; une Fedora absente de la
+matrice se construit depuis les sources. `make rpm-check` éprouve toujours le `.rpm`
+construit sur Ubuntu, et ne dit donc plus rien des paquets publiés.

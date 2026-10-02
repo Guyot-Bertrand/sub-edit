@@ -82,6 +82,10 @@ set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "ffmpeg")
 # éprouver. Le manuel dit ce que `ffmpeg` apporte ; c'est le bon endroit pour le
 # dire à qui n'a pas de gestionnaire de paquets pour l'apprendre.
 set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase-gui >= 6.4, mpv-libs, libicu, enchant2")
+# **La distribution est dans le nom du fichier** : `subedit-X.Y.Z-1.fc43.x86_64.rpm`.
+# Le `.rpm` publié est construit sur chaque Fedora, contre son ICU, et deux
+# d'entre eux ne s'échangent pas — `src/scripts/build-rpm.sh`.
+set(CPACK_RPM_PACKAGE_RELEASE_DIST ON)
 set(CPACK_RPM_PACKAGE_LICENSE "GPL-3.0-or-later")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/Multimedia")
 

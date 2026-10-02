@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Corrections
+
+- **ci** — Construire le .rpm sur chaque Fedora publiée
+
+## 0.13.12 — 2026-10-02
+
 ### Ajouts
 
 - **cli** — --dry-run uniforme et changes en JSON
