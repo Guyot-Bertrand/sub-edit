@@ -101,7 +101,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           shopt -s failglob
-          paquets=(build/release/subedit*.deb build/release/subedit*.rpm)
+          # Le `.deb` seul : le `.rpm` construit ici l'est contre l'ICU d'Ubuntu, et
+          # ne s'installerait sur aucune Fedora. Ceux qu'on publie sont construits
+          # par le travail `rpm`, un par Fedora.
+          paquets=(build/release/subedit*.deb)
           if gh release view "${TAG}" >/dev/null 2>&1; then
               gh release upload "${TAG}" "${paquets[@]}" --clobber
               gh release edit "${TAG}" --notes-file "${RUNNER_TEMP}/notes.md"
@@ -119,3 +122,41 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: ./src/scripts/prune-releases.sh
+
+  # Le `.rpm`, construit **sur chaque Fedora publiée**, contre son ICU.
+  #
+  # Les symboles d'ICU portent le numéro de sa version majeure : un `.rpm` fait
+  # sur Ubuntu (ICU 74) demande `libicuuc.so.74`, qu'une Fedora récente n'a pas
+  # et ne propose pas. Le paquet n'est donc pas portable d'une Fedora à l'autre,
+  # et le nom du fichier le dit : `subedit-X.Y.Z-1.fc43.x86_64.rpm`.
+  #
+  # Après le travail `release`, qui crée la release : celui-ci n'y ajoute que
+  # son fichier. Une Fedora qui échoue n'empêche pas les autres.
+  rpm:
+    name: rpm fedora ${{ matrix.fedora }}
+    needs: release
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        fedora: ['42', '43', '44']
+    container: fedora:${{ matrix.fedora }}
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: git et gh
+        run: dnf install -y git gh
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Le .rpm
+        run: JOBS=$(nproc) ./src/scripts/build-rpm.sh
+
+      - name: Publier
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+          gh release upload "${TAG}" build/release/subedit*.rpm --clobber
