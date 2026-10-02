@@ -15,7 +15,9 @@ Ce qui est vérifié, **sur chaque ligne de chaque fichier `.jsonl`** :
   (booléen) ;
 - un échec (`ok` faux) porte `error.kind` et `error.message`, des textes ;
 - un succès porte `warnings`, un tableau ; une sous-commande qui écrit y ajoute
-  `destination` et `counts`, un objet d'**entiers** ;
+  `dry_run`, `destination` — un chemin, ou `null` quand le lancement est à blanc
+  — et `counts`, un objet d'**entiers** ; `changes`, quand il est là, est la liste
+  des textes changés ;
 - **aucun nombre à virgule**, nulle part dans l'objet — `1.5`, `1e3` ou `-0.0` :
   une position est un entier de millisecondes, une cadence une chaîne. C'est ce
   qui rend deux sorties comparables octet pour octet.
@@ -58,6 +60,25 @@ def refuse_constant(text: str) -> float:
     raise FloatFound(text)
 
 
+def problems_of_changes(changes: object) -> list[str]:
+    """Ce qui ne va pas dans `changes` : `{subtitle, document, before, after}`, `after` pouvant valoir null."""
+    if not isinstance(changes, list):
+        return ["« changes » est un tableau"]
+    for change in changes:
+        if not isinstance(change, dict) or set(change) != {"subtitle", "document", "before", "after"}:
+            return ["un changement porte subtitle, document, before et after, et rien d'autre"]
+        number = change["subtitle"]
+        if not isinstance(number, int) or isinstance(number, bool) or number < 1:
+            return ["« subtitle » est un numéro entier, à partir de un"]
+        if change["document"] not in ("main", "translation"):
+            return ["« document » vaut main ou translation"]
+        if not isinstance(change["before"], str) or not (
+            change["after"] is None or isinstance(change["after"], str)
+        ):
+            return ["« before » est un texte, « after » un texte ou null"]
+    return []
+
+
 def problems_of_line(line: str) -> list[str]:
     """Ce qui ne va pas dans une ligne, ou rien."""
     try:
@@ -91,8 +112,17 @@ def problems_of_line(line: str) -> list[str]:
     if not isinstance(record.get("warnings"), list):
         problems.append("un succès porte « warnings », un tableau")
     if record["command"] in WRITERS:
-        if not isinstance(record.get("destination"), str):
+        # Un lancement à blanc n'écrit nulle part : il le dit par `null`, et un
+        # vrai lancement par un chemin — jamais l'un pour l'autre (ADR 0040).
+        dry_run = record.get("dry_run")
+        if not isinstance(dry_run, bool):
+            problems.append("une sous-commande qui écrit dit « dry_run », un booléen")
+        elif dry_run and record.get("destination") is not None:
+            problems.append("un lancement à blanc n'a pas de « destination » : null")
+        elif not dry_run and not isinstance(record.get("destination"), str):
             problems.append("une sous-commande qui écrit dit sa « destination »")
+        if "changes" in record:
+            problems.extend(problems_of_changes(record["changes"]))
         counts = record.get("counts")
         if not isinstance(counts, dict) or not all(
             isinstance(value, int) and not isinstance(value, bool) for value in counts.values()

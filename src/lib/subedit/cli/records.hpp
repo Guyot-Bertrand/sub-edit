@@ -6,6 +6,7 @@
 // succeeded or not (ADR 0038). This file is where that object is shaped; the
 // loops of the batch only say what happened.
 
+#include <subedit/cli/changes.hpp>
 #include <subedit/cli/json.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/open_error.hpp>
@@ -15,6 +16,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -79,11 +81,25 @@ struct Count {
                                  std::string_view kind);
 
 /// The record of a file that was written.
+///
+/// `changes` is there when the operation lists what it changed (the subcommands
+/// of text); the others have none, and the key is not written for them.
 [[nodiscard]] Json writtenRecord(std::string_view command,
                                  std::string_view file,
                                  const std::filesystem::path& destination,
                                  const std::vector<Count>& counts,
-                                 Json warnings);
+                                 Json warnings,
+                                 const std::optional<std::vector<TextChange>>& changes = {});
+
+/// The record of a file that was worked out and not written (`--dry-run`).
+///
+/// **The same object as a written file's**, `dry_run` and `destination` aside:
+/// what was computed is what the next run, without the option, will write.
+[[nodiscard]] Json dryRunRecord(std::string_view command,
+                                std::string_view file,
+                                const std::vector<Count>& counts,
+                                Json warnings,
+                                const std::optional<std::vector<TextChange>>& changes = {});
 
 /// The start of the record of a file that was read: the envelope, up to `ok`.
 ///

@@ -1,0 +1,6 @@
+<scratch>/in/a.srt: 2 subtitles transformed onto 1=00:00:01.000 and 2=00:00:02.000 (dry run, nothing written)
+<scratch>/in/a.srt: 2 subtitles retimed from 25 to 24 fps (dry run, nothing written)
+<scratch>/in/a.srt: 2 subtitles aligned on 10 fps, 0 positions moved, by at most 0 ms (dry run, nothing written)
+<scratch>/in/a.srt: no mention to remove (dry run, nothing written)
+<scratch>/in/a.srt: 2 subtitles converted to WebVTT (dry run, nothing written)
+<scratch>/in/a.srt: 2 subtitles shifted by 1.000 s (dry run, nothing written)

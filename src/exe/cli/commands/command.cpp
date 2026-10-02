@@ -11,12 +11,14 @@ void describeDestination(CLI::App* command, DestinationOptions& options) {
     command->add_option("--output", options.output, "File to write, for a single input");
     command->add_option("--output-dir", options.outputDir, "Directory to write into");
     command->add_flag("--in-place", options.inPlace, "Write back over the inputs");
+    command->add_flag(
+        "--dry-run", options.dryRun, "Work out and say what would be written, and write nothing");
 }
 
 std::expected<Destination, std::string> destinationOf(const DestinationOptions& options,
                                                       const Inputs& inputs) {
-    const std::expected<Destination, std::string> destination =
-        Destination::from(options.output, options.outputDir, options.inPlace, inputs.paths.size());
+    const std::expected<Destination, std::string> destination = Destination::from(
+        options.output, options.outputDir, options.inPlace, inputs.paths.size(), options.dryRun);
     if (!destination) {
         return destination;
     }

@@ -2249,8 +2249,9 @@ expect_installation_refuses_unknown_control
 
 # Les attendus de `--format json` — #556.
 #
-# **Quatre preuves, sur un dossier jetable écrit à la main** : un nombre à
-# virgule, une ligne qui n'est pas du JSON, une enveloppe incomplète, et le vert.
+# **Six preuves, sur un dossier jetable écrit à la main** : un nombre à
+# virgule, une ligne qui n'est pas du JSON, une enveloppe incomplète, un lancement
+# à blanc qui dit une destination, un changement sans « after », et le vert.
 # Le contrôle accepte le dossier en argument, si bien que rien du dépôt n'est
 # touché : un attendu volontairement faux ne peut pas rester derrière.
 expect_json_fixture_gate() {
@@ -2283,6 +2284,30 @@ expect_json_fixture_gate() {
     printf '{"schema":1,"command":"inspect","ok":true,"warnings":[]}\n' > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
         printf '  %s✗ le contrôle a laissé passer l enveloppe sans « file »%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « check-json-fixtures.py » a refusé, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    fi
+
+    printf '%s▸ un lancement à blanc qui dit pourtant une destination%s\n' "${BOLD}" "${RESET}"
+    printf '{"schema":1,"command":"shift","file":"a.srt","ok":true,"dry_run":true,"destination":"o.srt","counts":{},"warnings":[]}\n' \
+        > "${root}/bad.jsonl"
+    if "${script}" --dir "${root}" >/dev/null 2>&1; then
+        printf '  %s✗ le contrôle a laissé passer une destination à blanc%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « check-json-fixtures.py » a refusé, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    fi
+
+    printf '%s▸ un changement sans « after »%s\n' "${BOLD}" "${RESET}"
+    printf '{"schema":1,"command":"hearing-impaired","file":"a.srt","ok":true,"dry_run":true,"destination":null,"counts":{},"changes":[{"subtitle":1,"document":"main","before":"x"}],"warnings":[]}\n' \
+        > "${root}/bad.jsonl"
+    if "${script}" --dir "${root}" >/dev/null 2>&1; then
+        printf '  %s✗ le contrôle a laissé passer un changement sans « after »%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else

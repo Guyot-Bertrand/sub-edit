@@ -14,12 +14,16 @@ namespace subedit::cli {
 std::expected<std::size_t, Failure> writeSubtitlesTo(core::FileSystem& files,
                                                      const std::filesystem::path& out,
                                                      core::SubtitleFormat format,
-                                                     const core::WriteRequest& request) {
+                                                     const core::WriteRequest& request,
+                                                     bool dryRun) {
     const std::expected<std::string, core::WriteError> written =
         core::writeSubtitles(format, request);
     if (!written)
         return std::unexpected(
             Failure{idOf(written.error().kind), std::string{reasonOf(written.error().kind)}});
+
+    if (dryRun)
+        return written->size();
 
     if (const std::expected<void, core::FileError> saved =
             core::writeAtomically(files, out, *written);

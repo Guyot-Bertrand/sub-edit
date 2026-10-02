@@ -29,7 +29,8 @@ class Reporter;
 /// 1. `Destination::plan` judges the destinations; a collision, or an input
 ///    that would be written over, is said once and gives `Usage`;
 /// 2. the directory each destination lies in is created, parents included —
-///    unless the batch is `--in-place`, where they all exist. If that fails it
+///    unless the batch is `--in-place`, where they all exist, or `--dry-run`,
+///    which creates nothing (CLI-DRYRUN-01). If that fails it
 ///    is said once, no file is read, and the code is `AllFailed`.
 ///
 /// On success, the jobs, in the order the inputs were given.

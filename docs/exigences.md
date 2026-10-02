@@ -220,12 +220,12 @@ plus rien.
 | `CLI-JSON-08` | `inspect` décrit le fichier : format, encodage, marque, fins de ligne, nombre, étendue, grille ou cadence, anomalies | 13 | implémentée |
 | `CLI-JSON-09` | chaque sous-commande qui écrit dit sa destination et ses comptes | 13 | implémentée |
 | `CLI-JSON-10` | mêmes entrées et mêmes arguments donnent les octets des attendus versionnés | 13 | implémentée |
-| `CLI-DRYRUN-01` | `--dry-run` n'écrit aucun fichier et ne crée aucun dossier, et le code est celui d'un vrai lancement | 13 | prévue |
-| `CLI-DRYRUN-02` | `--dry-run` n'exige aucune destination | 13 | prévue |
-| `CLI-DRYRUN-03` | une destination donnée avec `--dry-run` est vérifiée comme sans lui | 13 | prévue |
-| `CLI-DRYRUN-04` | sur une sous-commande de texte, la sortie standard porte, par sous-titre changé, son numéro, le texte d'avant et le texte d'après | 13 | prévue |
-| `CLI-DRYRUN-05` | en `json`, `changes` porte les mêmes changements, `after` valant `null` pour une suppression | 13 | prévue |
-| `CLI-DRYRUN-06` | la narration d'un `--dry-run` dit que rien n'a été écrit | 13 | prévue |
+| `CLI-DRYRUN-01` | `--dry-run` n'écrit aucun fichier et ne crée aucun dossier, et le code est celui d'un vrai lancement | 13 | implémentée |
+| `CLI-DRYRUN-02` | `--dry-run` n'exige aucune destination | 13 | implémentée |
+| `CLI-DRYRUN-03` | une destination donnée avec `--dry-run` est vérifiée comme sans lui | 13 | implémentée |
+| `CLI-DRYRUN-04` | sur une sous-commande de texte, la sortie standard porte, par sous-titre changé, son numéro, le texte d'avant et le texte d'après | 13 | implémentée |
+| `CLI-DRYRUN-05` | en `json`, `changes` porte les mêmes changements, `after` valant `null` pour une suppression | 13 | implémentée |
+| `CLI-DRYRUN-06` | la narration d'un `--dry-run` dit que rien n'a été écrit | 13 | implémentée |
 | `CLI-BATCH-03` | deux entrées de même destination sont refusées avant tout écrit, code `1`, les deux nommées | 13 | implémentée |
 | `CLI-BATCH-04` | une destination qui est une entrée est refusée sans `--in-place` | 13 | implémentée |
 | `CLI-BATCH-05` | le dossier de sortie absent est créé | 13 | implémentée |

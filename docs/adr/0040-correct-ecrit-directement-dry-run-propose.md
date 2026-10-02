@@ -97,3 +97,21 @@ déposé par l'utilisateur entre les deux n'a pas changé. C'est l'ordre normal 
 **Ce qui justifierait de rouvrir** : un appelant qui veut appliquer *une partie* des
 changements proposés (le noyau sait composer un sous-ensemble : `applyCorrections` le prend
 déjà), ce qui demanderait un format de changements qui se relit, donc un second schéma.
+
+## Précisions de l'implémentation
+
+Posées par [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557), qui construit le
+mécanisme ; elles ne changent pas la décision.
+
+- **La forme texte des changements** — le point ouvert 4 de la spec — est un bloc par sous-titre
+  : `<chemin>: subtitle N`, puis chaque ligne du texte d'avant précédée de `- `, chaque ligne
+  du texte d'après précédée de `+ `. Une suppression l'écrit sur la première ligne,
+  `(removed)`, et n'a pas de lignes `+`. Le chemin en tête de bloc fait d'un lot une sortie qu'on
+  filtre par fichier.
+- **`destination` vaut `null` en JSON pour tout `--dry-run`, même quand une destination a été
+  donnée** : elle a été vérifiée, elle n'a pas été écrite, et l'objet dit ce qui a eu lieu.
+- **Le lancement à blanc fabrique les octets et ne les confie pas au système** : un caractère que
+  l'encodage ne sait pas écrire fait échouer un `--dry-run` comme un vrai lancement, ce qui rend
+  vrai « le code est celui d'un vrai lancement ». Seul un refus du disque lui échappe.
+- **`changes` figure dans l'objet d'une sous-commande de texte aussi pour un vrai lancement en
+  `--format json`**, vide quand rien ne change ; les autres n'ont pas la clé.

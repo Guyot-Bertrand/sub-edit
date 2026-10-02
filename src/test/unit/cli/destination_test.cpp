@@ -4,6 +4,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -142,4 +143,46 @@ TEST_CASE("writing in place is the one gesture that writes over an input",
 
     REQUIRE(jobs.has_value());
     CHECK((*jobs)[1].output == "in/b.srt");
+}
+
+TEST_CASE("a dry run needs no destination, and has none to speak of",
+          "[cli][destination][CLI-DRYRUN-02]") {
+    const auto destination = Destination::from("", "", false, 2, true);
+
+    REQUIRE(destination.has_value());
+    CHECK(destination->isDryRun());
+    CHECK_FALSE(destination->hasTarget());
+    CHECK(destination->pathFor("films/a.srt", ".vtt").empty());
+}
+
+TEST_CASE("a destination is no more a mistake for being given to a dry run",
+          "[cli][destination][CLI-DRYRUN-03]") {
+    // Whatever is refused without the option is refused with it.
+    CHECK_FALSE(Destination::from("a.vtt", "out", false, 1, true).has_value());
+    CHECK_FALSE(Destination::from("a.vtt", "", false, 2, true).has_value());
+
+    const auto given = Destination::from("", "out", false, 1, true);
+    REQUIRE(given.has_value());
+    CHECK(given->hasTarget());
+    CHECK(given->pathFor("a.srt", "") == std::filesystem::path{"out/a.srt"});
+}
+
+TEST_CASE("a plan with no destination has nothing to collide",
+          "[cli][destination][CLI-DRYRUN-02]") {
+    const InMemoryFileSystem files;
+    const Destination destination = Destination::from("", "", false, 2, true).value();
+
+    const auto jobs = destination.plan(files, {"a/film.srt", "b/film.srt"}, "");
+
+    REQUIRE(jobs.has_value());
+    CHECK(jobs->size() == 2);
+    CHECK(jobs->front().output.empty());
+}
+
+TEST_CASE("a plan with a destination judges a dry run as it judges a run",
+          "[cli][destination][CLI-DRYRUN-03]") {
+    const InMemoryFileSystem files;
+    const Destination destination = Destination::from("", "out", false, 2, true).value();
+
+    CHECK_FALSE(destination.plan(files, {"a/film.srt", "b/film.srt"}, "").has_value());
 }

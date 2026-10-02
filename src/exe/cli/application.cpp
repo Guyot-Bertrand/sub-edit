@@ -91,6 +91,7 @@ ExitCode run(int argc, char** argv) {
 
     core::RealFileSystem files;
     Reporter reporter{std::cerr, *level};
+    reporter = reporter.withTextOutput(std::cout);
     if (format == "json") {
         reporter = reporter.withRecords(std::cout);
     }

@@ -111,7 +111,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.11
+subedit 0.13.12
 ```
 
 ## Sous-commandes
@@ -147,7 +147,8 @@ commande sur le même dossier de sortie la rejoue par-dessus elle-même.
 
 **Rien n'est jamais écrit sans destination explicite.** Les trois façons de la
 donner s'excluent, et il en faut une : sans elle, rien n'est écrit et le code de
-retour est `1`.
+retour est `1` — sauf avec [`--dry-run`](#voir-avant-décrire), qui n'écrit rien
+et n'en exige donc aucune.
 
 | Option | Où va le résultat |
 | :----- | :---------------- |
@@ -192,7 +193,7 @@ autres conservent celui du fichier lu, donc son extension.
 
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |
-| aucune destination | `no destination given: use --output, --output-dir or --in-place` |
+| aucune destination, sans `--dry-run` | `no destination given: use --output, --output-dir or --in-place` |
 | deux destinations | `--output, --output-dir and --in-place exclude one another` |
 | `--output` sur un lot | `--output names one file but several were given: use --output-dir instead` |
 | deux entrées, une destination | `<destination>: would be written by both <entrée> and <entrée>` |
@@ -207,11 +208,87 @@ modification y a introduit un caractère que cet encodage ne connaît pas — un
 `ł` dans du Latin-1 —, l'écriture échoue et **rien n'est écrit**. Le remplacer
 par un `?` serait perdre du texte sous les yeux de qui vient de l'écrire.
 
+## Voir avant d'écrire
+
+**`--dry-run`** est accepté par chacune des six sous-commandes qui écrivent, et dit la même
+chose partout : **lire, calculer, rendre compte, n'écrire aucun fichier**. On l'ajoute à la
+ligne qu'on s'apprêtait à lancer ; appliquer, c'est relancer la même ligne sans lui. Le calcul est
+déterministe : ce qu'un `--dry-run` a montré est ce que le lancement suivant écrira, tant que le
+fichier n'a pas changé.
+
+- **Il n'écrit aucun fichier et ne crée aucun dossier**, `--in-place` compris : le fichier
+  d'entrée reste tel qu'il était.
+- **Il n'exige aucune destination.** On peut en donner une, et **elle est alors vérifiée comme sans
+  `--dry-run`** : deux entrées pour une même destination, une entrée qui serait écrasée,
+  `--output` sur un lot, deux façons de dire où — une ligne de commande refusée sans `--dry-run`
+  l'est avec, par la même phrase et le même code `1`.
+- **Le code de retour est celui d'un vrai lancement** : `0` quand tout s'est calculé, `2` ou `3`
+  quand des fichiers n'ont pas pu être lus ou traités, `1` pour l'usage. Un caractère que
+  l'encodage du fichier ne saurait pas écrire fait échouer un lancement à blanc comme un vrai.
+  **Que des changements existent ne change pas le code** : les quatre codes disent si l'outil a
+  réussi, non si le fichier est conforme.
+- **La narration le dit.** Là où un vrai lancement écrit `-> <destination>`, un lancement à
+  blanc écrit `(dry run, nothing written)`.
+
+<!-- exemple: printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt -->
+```console
+$ printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt
+a.srt: 1 subtitle shifted by 1.000 s (dry run, nothing written)
+a.srt
+```
+
+**Sur une sous-commande qui change des textes** — aujourd'hui
+[`hearing-impaired`](hearing-impaired.md) —, **la sortie standard porte les changements
+proposés**. Un bloc par sous-titre changé, dans l'ordre du fichier :
+
+```
+<chemin>: subtitle <numéro>
+- <le texte d'avant, une ligne par ligne>
++ <le texte d'après, une ligne par ligne>
+```
+
+- le **numéro** est celui que le sous-titre a dans le fichier lu, compté depuis un ;
+- chaque ligne du texte d'avant porte `- ` devant, chaque ligne du texte d'après `+ ` : un texte
+  de plusieurs lignes se lit tel quel, et une ligne qui commence elle-même par un tiret de
+  dialogue donne `- - ` ;
+- **un sous-titre que l'opération supprimerait** le dit sur sa première ligne,
+  `<chemin>: subtitle <numéro> (removed)`, et n'a pas de lignes `+` ;
+- un sous-titre de la traduction s'annoncerait `(translation)` à la même place ;
+- la première ligne de chaque bloc commence par le chemin, de sorte que `grep '^film.srt: '`
+  retrouve les blocs d'un fichier dans un lot ;
+- **aucun bloc** quand rien ne changerait.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt
+mentions.srt: 2 subtitles cleaned, 1 removed (dry run, nothing written)
+mentions.srt: subtitle 1 (removed)
+- [Bruit de pas]
+mentions.srt: subtitle 2
+- Attends [il tousse] Marie.
++ Attends Marie.
+mentions.srt: subtitle 3
+- - [Grincement]
+- - Qui est là ?
++ Qui est là ?
+```
+
+**La liste est la même en JSON** : l'objet du fichier porte un tableau `changes`, voir
+[la forme](#la-forme), avec `after` valant `null` pour un sous-titre supprimé. **Elle n'est
+calculée que quand `--dry-run` ou `--format json` la demande** : un lot de milliers de
+sous-titres ne la construit pas pour rien.
+
+Sur **les autres sous-commandes** — [`convert`](convert.md), [`shift`](shift.md),
+[`transform`](transform.md), [`framerate`](framerate.md), [`snap`](snap.md) —, la sortie
+standard porte ce que porterait celle d'un vrai lancement, c'est-à-dire rien en texte ; en
+JSON, l'objet de chaque fichier avec `"dry_run":true`, `"destination":null` et les mêmes
+`counts`.
+
 ## Deux sorties, deux rôles
 
 | Sortie | Ce qu'elle porte |
 | :----- | :--------------- |
-| standard | **le résultat, et lui seul** — le rapport d'`inspect` ; avec `--format json`, un objet par fichier, de toutes les sous-commandes |
+| standard | **le résultat, et lui seul** — le rapport d'`inspect`, les changements proposés d'un [`--dry-run`](#voir-avant-décrire) de texte ; avec `--format json`, un objet par fichier, de toutes les sous-commandes |
 | erreur | **tout le reste** — la narration, les avertissements, les erreurs |
 
 C'est ce partage qui permet de rediriger le résultat sans y récupérer le récit :
@@ -263,14 +340,23 @@ d'erreur avec le code `1`, et la sortie standard reste vide.
 | `file` | le chemin **tel que donné**, ou tel que le parcours d'un répertoire l'a composé | toujours |
 | `ok` | booléen | toujours |
 | `error` | `{"kind", "message"}` | si `ok` est faux |
-| `destination` | le chemin écrit | si `ok` est vrai, sur une sous-commande qui écrit |
-| `dry_run` | booléen, toujours faux pour l'instant | idem |
+| `dry_run` | booléen : vrai pour un [`--dry-run`](#voir-avant-décrire) | si `ok` est vrai, sur une sous-commande qui écrit |
+| `destination` | le chemin écrit, ou `null` quand `dry_run` est vrai : rien n'a été écrit | idem |
 | `counts` | un objet d'**entiers**, propre à la sous-commande | idem |
+| `changes` | un tableau de `{"subtitle", "document", "before", "after"}` : les textes changés, voir ci-dessous | sur une sous-commande qui change des textes |
 | `warnings` | un tableau de `{"kind", "line"?, "detail"?, "settled"?}` | si `ok` est vrai |
 
 `line` est absent d'un diagnostic qui parle du fichier entier ; `detail` l'est quand il n'y
 a rien à ajouter ; `settled` vaut `true` quand la lecture a **tranché** quelque chose — une
 numérotation régénérée —, et est absent quand elle a laissé tel quel.
+
+**`changes`** liste, dans l'ordre du fichier, chaque sous-titre dont le texte change :
+`subtitle` est son numéro dans le fichier lu, compté depuis un ; `document` vaut `"main"`
+ou `"translation"` ; `before` est le texte d'avant ; `after` celui d'après, ou **`null` quand
+le sous-titre est supprimé**. Les retours à la ligne d'un texte y sont des `\n`. Elle est
+écrite pour un vrai lancement comme pour un [`--dry-run`](#voir-avant-décrire), et **vide
+(`[]`) quand rien ne change** : sa présence dit que la sous-commande liste ses changements,
+son absence qu'elle n'en a pas.
 
 **Aucun nombre à virgule, nulle part.** Une position ou une durée est un entier de
 **millisecondes** (`…_ms`) ; un compte est un entier ; une cadence est une **chaîne**

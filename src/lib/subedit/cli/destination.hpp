@@ -47,8 +47,16 @@ public:
     /// `output` and `outputDir` are empty when not given. `inputCount` is what
     /// makes `--output` a mistake on a batch: writing the last input over the
     /// previous ones is the outcome this refuses.
-    [[nodiscard]] static std::expected<Destination, std::string>
-    from(std::string_view output, std::string_view outputDir, bool inPlace, std::size_t inputCount);
+    ///
+    /// **`dryRun` makes the destination optional, and nothing else**: none
+    /// given is then not a mistake — the run writes nothing, so it has nowhere
+    /// to write to — while one that is given is judged exactly as it is without
+    /// it (ADR 0040). A command line refused without `--dry-run` is refused with.
+    [[nodiscard]] static std::expected<Destination, std::string> from(std::string_view output,
+                                                                      std::string_view outputDir,
+                                                                      bool inPlace,
+                                                                      std::size_t inputCount,
+                                                                      bool dryRun = false);
 
     /// The same destination, knowing which inputs were found by walking the
     /// directories `roots`.
@@ -67,7 +75,8 @@ public:
     /// `.srt` would produce a file that lies about itself, and every other tool
     /// would trip on it.
     ///
-    /// Ignored when the caller named the output file: they named it.
+    /// Ignored when the caller named the output file: they named it. Empty when
+    /// there is no destination to speak of (a dry run that was given none).
     [[nodiscard]] std::filesystem::path pathFor(const std::filesystem::path& input,
                                                 std::string_view extension) const;
 
@@ -94,6 +103,15 @@ public:
     /// Whether the inputs are written back over themselves.
     [[nodiscard]] bool isInPlace() const { return m_inPlace; }
 
+    /// Whether the run computes and says what it would write, and writes nothing.
+    [[nodiscard]] bool isDryRun() const { return m_dryRun; }
+
+    /// Whether the caller said where to write: always, but for a dry run that
+    /// was given none.
+    [[nodiscard]] bool hasTarget() const {
+        return m_inPlace || !m_output.empty() || !m_outputDir.empty();
+    }
+
 private:
     Destination() = default;
 
@@ -101,6 +119,7 @@ private:
     std::filesystem::path m_outputDir{};
     std::vector<std::filesystem::path> m_roots{};
     bool m_inPlace = false;
+    bool m_dryRun = false;
 };
 
 } // namespace subedit::cli

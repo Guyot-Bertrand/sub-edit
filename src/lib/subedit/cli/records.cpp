@@ -130,17 +130,45 @@ Json failureRecord(std::string_view command,
     return record;
 }
 
+namespace {
+
+/// What a file that was read and did not fail says, written or not.
+Json resultRecord(std::string_view command,
+                  std::string_view file,
+                  bool dryRun,
+                  Json destination,
+                  const std::vector<Count>& counts,
+                  Json warnings,
+                  const std::optional<std::vector<TextChange>>& changes) {
+    Json record = recordOf(command, file, true, warnings);
+    record.set("dry_run", dryRun);
+    record.set("destination", std::move(destination));
+    record.set("counts", countsOf(counts));
+    if (changes) {
+        record.set("changes", changesOf(*changes));
+    }
+    record.set("warnings", std::move(warnings));
+    return record;
+}
+
+} // namespace
+
 Json writtenRecord(std::string_view command,
                    std::string_view file,
                    const std::filesystem::path& destination,
                    const std::vector<Count>& counts,
-                   Json warnings) {
-    Json record = recordOf(command, file, true, warnings);
-    record.set("dry_run", false);
-    record.set("destination", destination.string());
-    record.set("counts", countsOf(counts));
-    record.set("warnings", std::move(warnings));
-    return record;
+                   Json warnings,
+                   const std::optional<std::vector<TextChange>>& changes) {
+    return resultRecord(
+        command, file, false, Json{destination.string()}, counts, std::move(warnings), changes);
+}
+
+Json dryRunRecord(std::string_view command,
+                  std::string_view file,
+                  const std::vector<Count>& counts,
+                  Json warnings,
+                  const std::optional<std::vector<TextChange>>& changes) {
+    return resultRecord(command, file, true, Json{}, counts, std::move(warnings), changes);
 }
 
 void reportFailure(const Reporter& reporter, std::string_view file, const Failure& failure) {

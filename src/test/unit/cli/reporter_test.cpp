@@ -73,3 +73,33 @@ TEST_CASE("a count agrees with its noun", "[cli][wording]") {
     CHECK(subedit::core::countOf(1, "subtitle") == "1 subtitle");
     CHECK(subedit::core::countOf(2, "subtitle") == "2 subtitles");
 }
+
+TEST_CASE("a result goes to the text output, as it is", "[cli][reporter][CLI-DRYRUN-04]") {
+    std::ostringstream errors;
+    std::ostringstream out;
+    const Reporter reporter = Reporter{errors, 1}.withTextOutput(out);
+
+    reporter.result("a: subtitle 1\n- x\n");
+
+    CHECK(out.str() == "a: subtitle 1\n- x\n");
+    CHECK(errors.str().empty());
+}
+
+TEST_CASE("a reporter with nowhere to put a result drops it", "[cli][reporter][CLI-DRYRUN-04]") {
+    std::ostringstream errors;
+
+    Reporter{errors, 1}.result("text");
+
+    CHECK(errors.str().empty());
+}
+
+TEST_CASE("the records are the result when they are wanted, and the text is not written",
+          "[cli][reporter][CLI-DRYRUN-05]") {
+    std::ostringstream errors;
+    std::ostringstream out;
+    const Reporter reporter = Reporter{errors, 1}.withTextOutput(out).withRecords(out);
+
+    reporter.result("text\n");
+
+    CHECK(out.str().empty());
+}

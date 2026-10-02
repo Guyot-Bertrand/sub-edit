@@ -21,7 +21,8 @@ std::expected<std::vector<Job>, ExitCode> arrange(core::FileSystem& files,
         return std::unexpected{ExitCode::Usage};
     }
 
-    if (destination.isInPlace()) {
+    // A dry run creates nothing, and an in-place batch has every directory.
+    if (destination.isInPlace() || destination.isDryRun()) {
         return *std::move(planned);
     }
 

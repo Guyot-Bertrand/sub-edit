@@ -18,6 +18,18 @@ Reporter Reporter::withRecords(std::ostream& out) const {
     return copy;
 }
 
+Reporter Reporter::withTextOutput(std::ostream& out) const {
+    Reporter copy = *this;
+    copy.m_text = &out;
+    return copy;
+}
+
+void Reporter::result(std::string_view text) const {
+    if (m_text != nullptr && m_records == nullptr) {
+        *m_text << text;
+    }
+}
+
 Reporter Reporter::forCommand(std::string command) const {
     Reporter copy = *this;
     copy.m_command = std::move(command);
