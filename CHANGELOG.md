@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **cli** — --dry-run uniforme et changes en JSON
+
+## 0.13.11 — 2026-10-02
+
 ### Documentation
 
 - **doc** — Installer un paquet par dnf, et ce qu'exige ICU 74
