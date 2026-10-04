@@ -19,6 +19,7 @@ Options:
   -q,--quiet                  Say nothing but errors
   --encoding NAME             Encoding to read the files in; detected by default
   --format text|json          Form of the result on standard output: text or json
+  --list-encodings            Write the encodings that can be read and written, one a line, and stop
 
 Subcommands:
   inspect                     Report what a subtitle file is made of
@@ -64,10 +65,39 @@ relecture de fin de phase 8, en essayant plutôt qu'en relisant.
 | `-q`, `--quiet` | niveau 0 — plus aucune narration |
 | `-v`, `-vv`, `-vvv` | niveaux 1 à 3 ; le niveau 1 est celui par défaut |
 | `--encoding NOM` | lit les fichiers dans cet encodage, au lieu de le deviner |
+| `--list-encodings` | écrit les encodages que l'outil sait lire et écrire, un par ligne, et **s'arrête** (code `0`) — voir [`--list-encodings`](#--list-encodings) |
 | `--format text\|json` | forme du résultat sur la sortie standard : le texte, ou un objet JSON par fichier — voir [Sortie lisible par un script](#sortie-lisible-par-un-script) |
 
 `--quiet` et `-v` dans la même invocation sont refusés : deux intentions
 opposées ne sont pas arbitrées au profit de la dernière écrite.
+
+### `--list-encodings`
+
+**Les encodages que l'outil sait lire et écrire, un par ligne, triés par nom**, sur la sortie standard —
+puis l'outil s'arrête, avec le code `0`, comme `--version` : c'est la réponse, non une étape. Une
+sous-commande donnée en plus n'est pas exécutée.
+
+<!-- exemple: subedit-cli --list-encodings | grep '^UTF' | head -4 -->
+```console
+$ subedit-cli --list-encodings | grep '^UTF' | head -4
+UTF-16BE
+UTF-16LE
+UTF-32BE
+UTF-32LE
+```
+
+- **Ce sont les noms que `--encoding` accepte**, canoniques ; ses alias (`cp1252`) y sont acceptés aussi,
+  sans y figurer.
+- **Le nombre dépend de l'ICU installée**, et aucun nom n'est promis hors de ceux que toute ICU a
+  (`UTF-8`, `UTF-16LE`, `windows-1252`…). Le manuel ne donne donc pas de nombre.
+- **`UTF-16` et `UTF-32` n'y sont pas** : ICU les connaît, mais leur convertisseur écrit sa propre marque,
+  et le modèle les refuse — voir plus bas. Une liste où l'on choisit ne propose pas ce que le champ suivant
+  refuserait.
+- **Avec `--format json`**, **un objet par encodage** :
+  `{"schema":1,"command":"list-encodings","name":"UTF-8"}`. Ce n'est pas le compte rendu d'un fichier : ces
+  objets **ne portent ni `file` ni `ok`**, la seule exception à l'enveloppe de
+  [la forme](#la-forme). Ils restent un objet par ligne, un par entrée.
+- **Le niveau de narration n'y change rien** : une liste est un résultat, et `-q` ne l'enlève pas.
 
 ### `--encoding`, et ce qu'il ne peut pas forcer
 
@@ -76,10 +106,10 @@ dont l'encodage est mal deviné l'est quoi qu'on lui fasse, et une option que
 seul `inspect` porterait laisserait un décalage sans recours.
 
 **Le nom est celui d'ICU, et tous ses alias sont acceptés** : `cp1252`,
-`windows-1252` et `WINDOWS 1252` désignent le même encodage. Il n'y a pas
-d'ensemble fermé à énumérer — ICU en connaît quatre-vingt-dix-sept et plus — et
-un nom qu'elle ne sait pas convertir est refusé avant qu'un seul fichier soit
-lu :
+`windows-1252` et `WINDOWS 1252` désignent le même encodage. L'ensemble n'est
+écrit nulle part : c'est celui que l'ICU de la machine sait convertir, et
+[`--list-encodings`](#--list-encodings) l'énumère. Un nom qu'elle ne sait pas
+convertir est refusé avant qu'un seul fichier soit lu :
 
 ```console
 $ subedit-cli --encoding klingon-1 inspect film.srt
@@ -117,7 +147,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.19
+subedit 0.13.20
 ```
 
 ## Sous-commandes

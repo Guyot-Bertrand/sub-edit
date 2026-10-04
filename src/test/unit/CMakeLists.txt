@@ -186,6 +186,7 @@ add_executable(
     cli/expansion_test.cpp
     cli/json_test.cpp
     cli/encoding_grammar_test.cpp
+    cli/encoding_listing_test.cpp
     cli/diagnostics_test.cpp
     cli/digits_test.cpp
     cli/frame_rate_conversion_test.cpp

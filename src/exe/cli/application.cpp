@@ -1,6 +1,7 @@
 #include "application.hpp"
 
 #include <subedit/cli/encoding_grammar.hpp>
+#include <subedit/cli/encoding_listing.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/verbosity.hpp>
 #include <subedit/core/io/real_file_system.hpp>
@@ -52,6 +53,14 @@ ExitCode run(int argc, char** argv) {
         ->check(CLI::IsMember({"text", "json"}))
         ->option_text("text|json");
 
+    // **The encodings the tool can read and write**, one a line, and the tool
+    // stops — as `--version` does, and for the same reason: it is the answer, not a
+    // step. Global because the question is about the tool, not about a subcommand.
+    bool listEncodings = false;
+    app.add_flag("--list-encodings",
+                 listEncodings,
+                 "Write the encodings that can be read and written, one a line, and stop");
+
     std::vector<Declared> declared;
     for (const Command& command : commands()) {
         declared.push_back(command.declare(app, command.name));
@@ -69,6 +78,13 @@ ExitCode run(int argc, char** argv) {
     const std::expected<int, std::string> level = levelFrom(quiet, verboseCount);
     if (!level) {
         return refuse(level.error());
+    }
+
+    // Before the help and before any subcommand: the list is the whole answer, and
+    // it does not depend on `-q` — a result is not narration.
+    if (listEncodings) {
+        (void)subedit::cli::listEncodings(std::cout, format == "json");
+        return ExitCode::Success;
     }
 
     // No subcommand: show what the tool can be asked to do. On standard

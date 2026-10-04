@@ -133,6 +133,13 @@ Say nothing but errors.
 Form of the result on the standard output: the text, or one JSON object per input
 file (JSON Lines). The narration on the standard error does not change.
 .TP
+.B \-\-list\-encodings
+Write the encodings that can be read and written, sorted by name, one a line, and stop.
+With
+.BR \-\-format " json"
+each is one object. The set is the one the installed ICU converts; \fBUTF\-16\fR and
+\fBUTF\-32\fR are not in it, their converter writing a byte order mark of its own.
+.TP
 .BI \-\-encoding " NAME"
 Read the files in that encoding instead of detecting one. Any name ICU knows is
 accepted, aliases included \(em

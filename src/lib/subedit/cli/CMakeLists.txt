@@ -21,6 +21,7 @@ add_library(
     destination.cpp
     expansion.cpp
     encoding_grammar.cpp
+    encoding_listing.cpp
     diagnostics.cpp
     digits.cpp
     frame_rate_conversion.cpp
