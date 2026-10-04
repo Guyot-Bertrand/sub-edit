@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Recouper adjust avec le script de mesure
+
+## 0.13.15 — 2026-10-04
+
+### Ajouts
+
 - **cli** — Sous-commande adjust, durées et vitesse de lecture
 
 ## 0.13.14 — 2026-10-02

@@ -11,3 +11,5 @@ step "fixtures d encodage"
 "${REPO_ROOT}/src/scripts/encoding-fixtures.py" --check
 step "motifs de correction"
 "${REPO_ROOT}/src/scripts/pattern-oracle.py" --check
+step "recoupement de adjust : le script contre les comptes écrits à la main"
+"${REPO_ROOT}/src/scripts/measure-duration-constraints.py" --check-fixtures

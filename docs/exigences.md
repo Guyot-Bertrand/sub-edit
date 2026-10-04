@@ -243,7 +243,7 @@ plus rien.
 | `CLI-ADJUST-03` | sans aucune contrainte active, `adjust` est refusé | 13 | implémentée |
 | `CLI-ADJUST-04` | le compte rendu dit ce qui a été ajusté et ce qui a été sacrifié, contrainte par contrainte | 13 | implémentée |
 | `CLI-ADJUST-05` | en `json`, `counts` porte `adjusted` et `sacrificed.{speed,minimum,gap}`, et `constraints` les contraintes employées | 13 | implémentée |
-| `CLI-ADJUST-06` | les comptes sacrifiés s'accordent avec ceux que le script de mesure prédit sur les fixtures versionnées | 13 | prévue |
+| `CLI-ADJUST-06` | les comptes sacrifiés s'accordent avec ceux que le script de mesure prédit sur les fixtures versionnées | 13 | implémentée |
 | `CLI-CORRECT-01` | `--tasks` est requis et nomme les tâches ; aucune n'est cochée d'avance | 13 | prévue |
 | `CLI-CORRECT-02` | `--code` est requis dès qu'une tâche lit des motifs | 13 | prévue |
 | `CLI-CORRECT-03` | le compte rendu dit les textes changés et supprimés, jamais les correspondances | 13 | prévue |
