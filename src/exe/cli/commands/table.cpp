@@ -13,6 +13,7 @@
 #include "replace.hpp"
 #include "shift.hpp"
 #include "snap.hpp"
+#include "sort.hpp"
 #include "transform.hpp"
 
 namespace subedit::cli {
@@ -31,6 +32,7 @@ std::span<const Command> commands() {
         Command{.name = "case", .declare = declareCase},
         Command{.name = "italics", .declare = declareItalics},
         Command{.name = "dialogue-dashes", .declare = declareDialogueDashes},
+        Command{.name = "sort", .declare = declareSort},
     };
     return kTable;
 }

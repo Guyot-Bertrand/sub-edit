@@ -25,6 +25,7 @@ add_executable(
     cli/hearing_impaired_test.cpp
     cli/shift_test.cpp
     cli/snap_test.cpp
+    cli/sort_test.cpp
     cli/text_rewriting_test.cpp
     cli/transform_test.cpp
     cli/framerate_test.cpp

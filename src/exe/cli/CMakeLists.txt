@@ -13,6 +13,7 @@ add_executable(subedit-cli
     commands/replace.cpp
     commands/shift.cpp
     commands/snap.cpp
+    commands/sort.cpp
     commands/table.cpp
     commands/transform.cpp)
 
