@@ -249,3 +249,44 @@ TEST_CASE("a dry run counts and writes nothing, without a destination",
     CHECK_THAT(run.errors, ContainsSubstring("(dry run, nothing written)"));
     CHECK(contentOf(input) == kInput);
 }
+
+TEST_CASE("what adjust sacrifices on the fixtures is what was worked out by hand",
+          "[e2e][CLI-ADJUST-06]") {
+    // Nine small files, one for each pair of constraints and each overlap — see
+    // `data/durees/LISEZMOI.md`. The expected counts were calculated from the
+    // definitions, on paper; the script that predicts them
+    // (`measure-duration-constraints.py --check-fixtures`) is held to the same
+    // files, so that if the two ever disagree one of them is wrong, and which one.
+    const std::vector<std::string> names{"arrondi.srt",
+                                         "balises.srt",
+                                         "deux-lignes.srt",
+                                         "ecart.srt",
+                                         "lecture.vtt",
+                                         "minimum-contre-ecart.srt",
+                                         "union.srt",
+                                         "vitesse-contre-ecart.srt",
+                                         "vitesse-contre-maximum.srt"};
+    const std::string root = corpus("").substr(0, corpus("").find_last_not_of('/') + 1);
+
+    struct Setting {
+        std::vector<std::string> options;
+        std::string expected;
+    };
+
+    for (const Setting& setting : std::vector<Setting>{
+             {.options = {"--maximum", "6"}, .expected = "attendus/json/recoupement-defaut.jsonl"},
+             {.options = {"--maximum", "6", "--gap", "0.5"},
+              .expected = "attendus/json/recoupement-ecart.jsonl"}}) {
+        std::vector<std::string> line{"--format", "json", "adjust", "--dry-run"};
+        line.insert(line.end(), setting.options.begin(), setting.options.end());
+        for (const std::string& name : names) {
+            line.push_back(corpus("durees/" + name));
+        }
+
+        const CliRun run = invoke(line);
+
+        INFO(setting.expected);
+        CHECK(run.exitCode == 0);
+        CHECK_THAT(anonymised(run.output, root, "<corpus>"), MatchesFile(corpus(setting.expected)));
+    }
+}

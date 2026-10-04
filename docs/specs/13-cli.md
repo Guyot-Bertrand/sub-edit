@@ -318,17 +318,37 @@ deux :
 | un **maximum posé à 6 s**, qui est une information même quand personne ne s'en sert | **pas de maximum par défaut** |
 | ne lit que `.srt` et `.vtt` | lit les neuf formats |
 
-**Les comptes qui se comparent, à établir par l'issue en relisant `adjustDurations`** :
+**Les comptes qui se comparent** — relus dans `adjustDurations` et dans le script par
+[#560](https://github.com/Guyot-Bertrand/sub-edit/issues/560), qui a corrigé ce que le cadrage
+supposait :
+
+```
+place = suivant.début − début − écart               (millisecondes entières)
+
+sacrificed.minimum  ↔  place < minimum   ou   maximum < minimum
+sacrificed.speed    ↔  place < besoin    OU   besoin > maximum        (l'union)
+sacrificed.gap      ↔  place < 0
+besoin = longueur × 1000 / vitesse, arrondi à la milliseconde
+```
 
 - `sacrificed.minimum` ↔ « minimum contre écart » — plus le cas d'un minimum supérieur au
-  maximum, que le noyau compte comme un minimum et que le script ne voit pas : **les deux
-  coïncident quand le maximum est éteint ou au moins égal au minimum** ;
+  maximum, que le noyau compte comme un minimum : **les deux coïncident quand le maximum est
+  éteint ou au moins égal au minimum** ;
 - `sacrificed.speed` ↔ **l'union** de « vitesse contre écart » et de « vitesse contre
   maximum » — **pas la somme** : un sous-titre dans les deux compte une fois pour le noyau.
-  **Le script n'imprime pas cette union aujourd'hui** (il imprime chaque paire, et l'union
-  des trois) : il faut la lui faire écrire ;
-- `sacrificed.gap` ↔ les sous-titres dont la place est **négative** (la fin bornée au
-  début) : le script les classe « hors sujet », et le noyau les compte ;
+  Le script **l'écrit désormais**, sous « sacrifié (prédit) » ;
+- `sacrificed.gap` ↔ les sous-titres dont la place est **négative** (la fin bornée au début).
+  **Le cadrage disait que le script les classait « hors sujet » : c'était faux** — son « hors
+  sujet » est « fin avant le début », une autre chose, et la place négative n'avait aucune
+  colonne. Elle en a une ;
+- **le besoin est arrondi à la milliseconde, comme le noyau l'arrondit** (`readingTimeOf`). Le
+  script comparait en flottants : « Hi » à 15 caractères par seconde demande 133,33 ms, et une
+  place de 133 ms passait pour insuffisante. **C'était le script qui avait tort**, et la
+  fixture (`arrondi.srt`) le montre : sans l'arrondi, son contrôle échoue ;
+- **la place ne dépend pas de la durée écrite** : un sous-titre dont la fin précède le début
+  compte pour ce qu'il est, le noyau le traitant comme les autres ;
+- **« suivant » est le suivant dans le fichier**, des deux côtés — le noyau ne trie pas à la
+  lecture ;
 - **le maximum** : le noyau ne le compte pas, le script oui ; le recoupement le pose des deux
   côtés (`--maximum 6`) pour que les deux calculs portent sur la même question, et ne compare
   que les trois comptes ci-dessus.
@@ -353,6 +373,8 @@ propre contrôle. **Rejouer ensuite sur le corpus privé est une observation** :
 comptes s'accordent sur les fichiers `.srt` et `.vtt` » ou « ils divergent sur tant de
 fichiers, pour telle raison » ; **aucun fichier n'est nommé et aucun chiffre ne lui est
 attribué**. S'ils divergent, l'un des deux a tort, et l'issue dit lequel et le corrige.
+
+**Ce qui a été fait** ([#560](https://github.com/Guyot-Bertrand/sub-edit/issues/560)) : la fixture est `src/test/data/durees/` (neuf fichiers, SubRip et WebVTT, un par paire de contraintes et par recouvrement), ses attendus à la main sont `attendus/json/recoupement-defaut.jsonl` et `recoupement-ecart.jsonl` (deux réglages, dont un écart de 0,5 s qui rend la place négative possible). Le noyau y est confronté par un cas de bout en bout (`CLI-ADJUST-06`), le script par `--check-fixtures`, qui tourne dans `make check-local`. La confrontation au corpus privé est `--crosscheck`.
 
 ## D8 — `correct`
 

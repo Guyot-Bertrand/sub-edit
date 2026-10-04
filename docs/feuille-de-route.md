@@ -1070,6 +1070,20 @@ compte, par contrainte, ceux où elle reste violée : dire quels comptes se
 comparent fait partie du travail. Issue
 [#407](https://github.com/Guyot-Bertrand/sub-edit/issues/407).
 
+**Ce renvoi est tenu** ([#560](https://github.com/Guyot-Bertrand/sub-edit/issues/560)). Les
+comptes se comparent comme la spec D7 le dit désormais : `sacrificed.minimum` à « minimum contre
+écart », `sacrificed.speed` à **l'union** de « vitesse contre écart » et de « vitesse contre
+maximum », `sacrificed.gap` aux places négatives. La relecture a trouvé **deux erreurs du côté du
+script, aucune du côté du noyau** : il comparait le besoin de lecture en flottants là où le noyau
+l'arrondit à la milliseconde, et la place négative n'avait aucune colonne (le cadrage supposait à
+tort qu'elle était « hors sujet »). La preuve est une fixture versionnée (`src/test/data/durees/`,
+neuf fichiers) dont les comptes sont écrits à la main, et à laquelle le noyau (cas de bout en bout)
+et le script (`--check-fixtures`, dans `make check-local`) sont confrontés. **Observation sur le
+corpus privé**, rejouée avec `--crosscheck` : **les deux comptes s'accordent sur les soixante et onze
+fichiers SubRip et WebVTT, sous quatre réglages différents** (les défauts de Gaupol avec un maximum
+de 6 s, puis trois variantes de l'écart, du minimum, de la vitesse et du maximum). Rien n'a divergé,
+donc le point ouvert 9 de la spec — savoir *quels* sous-titres sont sacrifiés — reste fermé.
+
 **Un renvoi de la phase 11 atterrit ici : la traduction en ligne de commande.**
 `-t/--translation-file` existe chez Gaupol, et la spec de la phase 4 avait renvoyé
 à la phase 11 « nettoyer le document de traduction depuis la ligne de commande ».

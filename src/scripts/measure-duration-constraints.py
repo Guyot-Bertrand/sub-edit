@@ -44,24 +44,66 @@ lecteur du projet, fichier par fichier :
 
     ./src/scripts/measure-duration-constraints.py --against ./build/dev/bin/subedit-cli
 
-**Ce qu'il ne fait pas**, et c'est délibéré : appliquer l'ajustement, puis
-compter ce qu'il a sacrifié. L'ajustement existe depuis la phase 10, dans le
-noyau et dans la fenêtre, et `adjustDurations` compte lui-même ce qu'il
-sacrifie ; mais la ligne de commande ne l'expose pas avant la phase 13. Un
-script Python ne peut pas appeler le noyau, et un outil lié au noyau ne
-servirait qu'à ce seul recoupement : le second mode qu'annonçait l'issue #371
-n'est donc pas écrit, et l'issue #407 en a inscrit l'abandon ici. Le tableau
-prédit vaut parce qu'il ne réimplémente pas l'ajustement : s'il le faisait, il
-cesserait d'être un témoin indépendant de celui du noyau.
+**Ce qu'il ne fait pas**, et c'est délibéré : appliquer l'ajustement. Le tableau
+prédit vaut parce qu'il ne réimplémente pas `adjustDurations` : il compte ce que
+les **définitions** disent, sur les positions écrites, et ne sait pas dans quel
+ordre le noyau résout. S'il le faisait, il cesserait d'être un témoin
+indépendant de celui du noyau.
 
-**Le recoupement lui-même reste à faire** : deux comptes, celui que ce script
-prédit et celui que `adjustDurations` déclare sacrifié ; s'ils diffèrent, l'un
-des deux a tort. Il se fera par la ligne de commande, une fois l'ajustement
-exposé, et il est inscrit comme travail de la phase 13 dans
-`docs/feuille-de-route.md`.
+## Le recoupement avec `subedit-cli adjust` — issue #560, qui tient le renvoi de #407
+
+Le noyau déclare ce qu'il sacrifie (`counts.sacrificed.{speed,minimum,gap}`) ;
+ce script **prédit** les mêmes trois comptes depuis les définitions. S'ils
+diffèrent, l'un des deux a tort. La correspondance, établie en relisant
+`adjustDurations` et ce parcours :
+
+    place = suivant.début − début − écart            (millisecondes entières)
+
+    sacrificed.minimum  ↔  place < minimum           (suivant existant)
+                           ou maximum < minimum      (le noyau le compte ici)
+    sacrificed.speed    ↔  place < besoin   OU   besoin > maximum
+                           — l'UNION des deux paires, jamais leur somme : un
+                           sous-titre dans les deux compte une fois
+    sacrificed.gap      ↔  place < 0
+
+    besoin = longueur × 1000 / vitesse, ARRONDI à la milliseconde
+
+- **Le besoin est arrondi, comme le noyau l'arrondit** (`readingTimeOf`) : sans
+  cela, « Hi » à 15 caractères par seconde a besoin de 133,33 ms et une place de
+  133 ms passerait pour insuffisante ici, suffisante là-bas. C'est la première
+  divergence que la fixture a montrée, et c'était ce script qui avait tort.
+- **« Suivant » est le suivant dans le fichier**, des deux côtés : le noyau ne
+  trie pas à la lecture. Un sous-titre sans suivant n'a ni place ni écart à tenir.
+- **La place ne dépend pas de la durée écrite.** Un sous-titre dont la fin
+  précède le début (« hors sujet » pour les durées *telles quelles*) compte quand
+  même pour ce qu'il est : le noyau le traite comme les autres.
+- **Le maximum** est posé des deux côtés (`--maximum 6`) : le noyau ne l'allume
+  pas par défaut et le compte ne le nomme pas — il tient toujours — mais il
+  décide du compte de la vitesse. Les comptes coïncident si le maximum est éteint
+  ou au moins égal au minimum ; sinon le noyau compte un minimum que le script
+  voit aussi, et la correspondance ci-dessus le dit.
+- **Une réserve, sur un cas qu'aucun fichier sain ne produit** : si le minimum et
+  la vitesse sont éteints et qu'une fin précède son début *et* que la place est
+  négative, le noyau ne compte pas l'écart, parce que la fin n'a pas été relevée.
+  Avec le minimum actif — le défaut — la fin est toujours relevée au début.
+
+Deux contrôles, qui sont les deux moitiés de la preuve :
+
+    # le script, contre les comptes écrits à la main (aucun binaire requis)
+    ./src/scripts/measure-duration-constraints.py --check-fixtures
+
+    # le noyau, contre le script, sur un corpus
+    ./src/scripts/measure-duration-constraints.py [répertoire] --crosscheck ./build/dev/bin/subedit-cli
+
+Le premier tourne dans `make check-local` ; le noyau, lui, est confronté aux
+mêmes attendus par un cas de bout en bout (`CLI-ADJUST-06`). Le second est une
+observation : il dit **globalement** si les deux comptes s'accordent sur un
+corpus, et un corpus privé ne se nomme jamais.
 """
 
 import argparse
+import json
+import math
 import re
 import subprocess
 import sys
@@ -167,6 +209,9 @@ class Tally:
         "speed_against_maximum",
         "contradicted",
         "not_ordered",
+        "sacrificed_speed",
+        "sacrificed_minimum",
+        "sacrificed_gap",
     )
 
     def __init__(self) -> None:
@@ -178,46 +223,90 @@ class Tally:
             setattr(self, field, getattr(self, field) + getattr(other, field))
 
 
+def rounded(value: float) -> int:
+    """Au plus proche, les moitiés s'éloignant de zéro : `llround` du noyau.
+
+    `round()` de Python arrondit les moitiés au pair, ce qui n'est pas la même
+    fonction et n'a aucune raison d'être celle d'un instrument de recoupement."""
+    return int(math.floor(value + 0.5)) if value >= 0 else -int(math.floor(-value + 0.5))
+
+
+def milliseconds_of(seconds: float) -> int | None:
+    """Une borne en secondes, en millisecondes — rien quand elle est à zéro, la
+    convention de ce script pour « ne pas l'appliquer »."""
+    return rounded(seconds * 1000) if seconds else None
+
+
+def needed_of(length: int, speed: float) -> int | None:
+    """La durée que `length` caractères demandent, à la milliseconde.
+
+    **Arrondie comme le noyau l'arrondit** (`readingTimeOf`) : la comparer en
+    flottants dirait « trop court » d'une place de 133 ms pour un besoin de
+    133,33 ms que le noyau tient pour 133."""
+    if not speed or not length:
+        return None
+    return rounded(length * 1000 / speed)
+
+
 def census(cues: list[tuple[int, int, int]], limits: argparse.Namespace) -> Tally:
     """Le recensement d'un fichier.
 
     Une contrainte posée à zéro ne s'applique pas — c'est la convention de ce
     script, et c'est aussi ce que Gaupol fait par accident pour les deux
-    durées : son `minimum and …` est faux quand le minimum vaut zéro."""
+    durées : son `minimum and …` est faux quand le minimum vaut zéro.
+
+    Tout est en millisecondes entières : ce sont celles du noyau, et un compte
+    qui dépend d'un arrondi flottant n'est pas comparable au sien."""
     tally = Tally()
+    minimum = milliseconds_of(limits.minimum)
+    maximum = milliseconds_of(limits.maximum)
+    gap = rounded(limits.gap * 1000)
 
     for position, (start, end, length) in enumerate(cues):
         tally.subtitles += 1
 
-        duration = (end - start) / 1000.0
+        needed = needed_of(length, limits.speed)
+        following = cues[position + 1][0] if position + 1 < len(cues) else None
+        room = following - start - gap if following is not None else None
+
+        # **Ce que l'ajustement sacrifierait**, depuis les définitions seules. La
+        # place ne dépend pas de la durée écrite : ces trois comptes se font avant
+        # le tri de ce qui est « hors sujet » pour les durées telles quelles.
+        if minimum is not None and ((room is not None and room < minimum)
+                                    or (maximum is not None and maximum < minimum)):
+            tally.sacrificed_minimum += 1
+        if needed is not None and ((room is not None and room < needed)
+                                   or (maximum is not None and needed > maximum)):
+            tally.sacrificed_speed += 1
+        if room is not None and room < 0:
+            tally.sacrificed_gap += 1
+
+        duration = end - start
         if duration <= 0:
             # Une fin avant son début n'a pas de durée à comparer, et compter
             # une durée négative comme « trop courte » noierait le vrai chiffre.
             tally.not_ordered += 1
             continue
 
-        wanted = length / limits.speed if limits.speed else 0.0
-
-        if limits.minimum and duration < limits.minimum:
+        if minimum is not None and duration < minimum:
             tally.too_short += 1
-        if limits.maximum and duration > limits.maximum:
+        if maximum is not None and duration > maximum:
             tally.too_long += 1
-        if wanted and duration < wanted:
+        if needed is not None and duration < needed:
             tally.too_fast += 1
 
         contradicted = False
-        if limits.maximum and wanted > limits.maximum:
+        if needed is not None and maximum is not None and needed > maximum:
             tally.speed_against_maximum += 1
             contradicted = True
 
-        if position + 1 < len(cues):
-            room = (cues[position + 1][0] - start) / 1000.0 - limits.gap
-            if (cues[position + 1][0] - end) / 1000.0 < limits.gap:
+        if following is not None:
+            if following - end < gap:
                 tally.gap_too_small += 1
-            if limits.minimum and room < limits.minimum:
+            if minimum is not None and room < minimum:
                 tally.minimum_against_gap += 1
                 contradicted = True
-            if wanted and room < wanted:
+            if needed is not None and room < needed:
                 tally.speed_against_gap += 1
                 contradicted = True
 
@@ -273,6 +362,133 @@ def confront(files: list[Path], binary: str) -> int:
     return diverging
 
 
+def sacrificed_of(tally: Tally) -> tuple[int, int, int]:
+    """Les trois comptes que `adjust` déclare, dans l'ordre de son objet."""
+    return (tally.sacrificed_speed, tally.sacrificed_minimum, tally.sacrificed_gap)
+
+
+FIXTURES = REPO_ROOT / "src" / "test" / "data" / "durees"
+EXPECTED = REPO_ROOT / "src" / "test" / "data" / "attendus" / "json"
+
+
+def limits_of(constraints: dict) -> argparse.Namespace:
+    """Les réglages qu'une ligne attendue déclare, comme ce script les lit.
+
+    **L'attendu porte ses propres réglages** (`constraints`), si bien qu'une
+    ligne ne peut pas être confrontée à d'autres que ceux pour lesquels elle a
+    été écrite. Une contrainte éteinte (`null`) est une borne à zéro ici."""
+    speed = constraints["speed"]
+    return argparse.Namespace(
+        speed=float(speed["cps"]) if speed else 0.0,
+        minimum=(constraints["minimum_ms"] or 0) / 1000.0,
+        maximum=(constraints["maximum_ms"] or 0) / 1000.0,
+        gap=(constraints["gap_ms"] or 0) / 1000.0)
+
+
+def check_fixtures() -> int:
+    """Confronte ce script aux comptes **écrits à la main** pour la fixture.
+
+    C'est la moitié de la preuve qui n'exige aucun binaire : les attendus de
+    `src/test/data/attendus/json/recoupement-*.jsonl` sont calculés sur le papier
+    à partir des définitions, et le même test de bout en bout les confronte au
+    noyau. Que les deux outils s'accordent avec eux, c'est qu'ils s'accordent."""
+    expectations = sorted(EXPECTED.glob("recoupement-*.jsonl"))
+    if not expectations:
+        print(f"aucun attendu de recoupement sous {EXPECTED}", file=sys.stderr)
+        return 1
+
+    wrong = 0
+    checked = 0
+    for expectation in expectations:
+        for number, line in enumerate(expectation.read_text(encoding="utf-8").splitlines(), 1):
+            record = json.loads(line)
+            path = FIXTURES / Path(record["file"]).name
+            cues = cues_of(path)
+            tally = census(cues, limits_of(record["constraints"]))
+            counts = record["counts"]
+            expected = (counts["sacrificed"]["speed"], counts["sacrificed"]["minimum"],
+                        counts["sacrificed"]["gap"])
+            checked += 1
+            if sacrificed_of(tally) != expected or tally.subtitles != counts["subtitles"]:
+                wrong += 1
+                print(f"  {expectation.name}:{number} {path.name}\n"
+                      f"    attendu à la main {expected}\n"
+                      f"    prédit ici        {sacrificed_of(tally)}", file=sys.stderr)
+
+    if wrong:
+        print(f"{wrong} compte(s) sur {checked} diffèrent de ceux écrits à la main",
+              file=sys.stderr)
+        return 1
+    print(f"{checked} fichiers de la fixture, prédits comme les comptes écrits à la main")
+    return 0
+
+
+def arguments_of(limits: argparse.Namespace) -> list[str]:
+    """Les réglages de ce script, dits à `subedit-cli adjust`.
+
+    Zéro éteint ici une borne, et `off` fait de même là-bas ; le maximum, lui,
+    n'a pas de `off` : ne pas le donner l'éteint."""
+    flags = ["--speed", f"{limits.speed:g}" if limits.speed else "off",
+             "--minimum", f"{limits.minimum:g}" if limits.minimum else "off",
+             "--gap", f"{limits.gap:g}"]
+    if limits.maximum:
+        flags += ["--maximum", f"{limits.maximum:g}"]
+    return flags
+
+
+def crosscheck(files: list[Path], binary: str, limits: argparse.Namespace) -> int:
+    """Confronte les trois comptes prédits à ceux que le noyau déclare.
+
+    Un fichier à la fois, `--dry-run` : rien n'est écrit. **Le résultat se dit
+    globalement** — combien de fichiers s'accordent, combien divergent, et la
+    somme de chaque compte des deux côtés — parce qu'un corpus privé ne se nomme
+    pas. Les divergences sont détaillées fichier par fichier sur la sortie
+    d'erreur, pour qui cherche lequel des deux a tort : c'est un instrument, et
+    sa sortie n'est pas un document."""
+    agree = 0
+    diverge: list[tuple[Path, tuple[int, int, int], tuple[int, int, int]]] = []
+    refused = 0
+    predicted_total = [0, 0, 0]
+    core_total = [0, 0, 0]
+
+    for path in files:
+        cues = cues_of(path)
+        if not cues:
+            continue
+        mine = sacrificed_of(census(cues, limits))
+        run = subprocess.run([binary, "--format", "json", "adjust", "--dry-run",
+                              *arguments_of(limits), str(path)],
+                             capture_output=True, text=True, check=False)
+        try:
+            record = json.loads(run.stdout.splitlines()[0])
+        except (IndexError, json.JSONDecodeError):
+            record = {"ok": False}
+        if not record.get("ok"):
+            refused += 1
+            continue
+
+        sacrificed = record["counts"]["sacrificed"]
+        theirs = (sacrificed["speed"], sacrificed["minimum"], sacrificed["gap"])
+        for rank in range(3):
+            predicted_total[rank] += mine[rank]
+            core_total[rank] += theirs[rank]
+        if mine == theirs:
+            agree += 1
+        else:
+            diverge.append((path, mine, theirs))
+
+    names = ("vitesse", "minimum", "écart")
+    print(f"{agree + len(diverge)} fichiers comparés"
+          f" — {agree} s'accordent, {len(diverge)} divergent, {refused} refusé(s) par le noyau")
+    print("  somme des comptes     " + "  ".join(f"{name:>8}" for name in names))
+    print("  prédite par le script " + "  ".join(f"{count:8d}" for count in predicted_total))
+    print("  déclarée par le noyau " + "  ".join(f"{count:8d}" for count in core_total))
+
+    for path, mine, theirs in diverge:
+        print(f"  {path}\n    script {mine}\n    noyau  {theirs}", file=sys.stderr)
+    return 1 if diverge else 0
+
+
 def share(part: int, whole: int) -> str:
     return f"{100 * part / whole:.1f} %" if whole else "—"
 
@@ -297,6 +513,12 @@ def report(total: Tally, per_file: list[tuple[str, Tally]], limits: argparse.Nam
     line("vitesse contre maximum", total.speed_against_maximum, counted)
     line("au moins une des trois", total.contradicted, counted)
 
+    print()
+    print(f"{BOLD}sacrifié (prédit){RESET}   — ce que `adjust` déclarerait, depuis les définitions")
+    line("vitesse (l'union des deux paires)", total.sacrificed_speed, total.subtitles)
+    line("minimum", total.sacrificed_minimum, total.subtitles)
+    line("écart (place négative)", total.sacrificed_gap, total.subtitles)
+
     if total.not_ordered:
         print()
         print(f"{BOLD}hors sujet{RESET}")
@@ -305,8 +527,8 @@ def report(total: Tally, per_file: list[tuple[str, Tally]], limits: argparse.Nam
     print()
     print("Une contradiction n'est pas un cas de bord : c'est un sous-titre pour lequel")
     print("toute fin viole au moins une contrainte. Ce que l'ajustement sacrifie, il le")
-    print("compte lui-même ; le recoupement avec ce tableau n'est pas fait ici (voir")
-    print("l'en-tête de ce script).")
+    print("compte lui-même ; `--crosscheck` confronte ses trois comptes à ceux qui sont")
+    print("prédits ci-dessus (voir l'en-tête de ce script).")
 
     print()
     print("  contredits   sous-titres   fichier")
@@ -334,7 +556,16 @@ def main() -> int:
     parser.add_argument("--against", metavar="SUBEDIT_CLI",
                         help="confronte le parcours de ce script au lecteur du projet, "
                              "et ne mesure rien")
+    parser.add_argument("--check-fixtures", action="store_true",
+                        help="confronte ce script aux comptes écrits à la main pour la fixture "
+                             "versionnée, et ne mesure rien")
+    parser.add_argument("--crosscheck", metavar="SUBEDIT_CLI",
+                        help="confronte les trois comptes prédits à ceux que `subedit-cli "
+                             "adjust --dry-run` déclare, fichier par fichier")
     limits = parser.parse_args()
+
+    if limits.check_fixtures:
+        return check_fixtures()
 
     root = Path(limits.corpus)
     if not root.is_dir():
@@ -352,6 +583,9 @@ def main() -> int:
 
     if limits.against:
         return 1 if confront(read, limits.against) else 0
+
+    if limits.crosscheck:
+        return crosscheck(read, limits.crosscheck, limits)
 
     total = Tally()
     per_file: list[tuple[str, Tally]] = []
