@@ -1,6 +1,5 @@
 #include "replace.hpp"
 
-#include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/replacing.hpp>
 
 #include <CLI/CLI.hpp>
@@ -37,8 +36,7 @@ CLI::App* describeReplace(CLI::App& app, std::string_view name, ReplaceOptions& 
         "--regex", options.regex, "Read the text to look for as a regular expression");
     replace->add_flag(
         "--case-sensitive", options.caseSensitive, "Tell capitals from small letters");
-    replace->add_option("--range", options.range, "Change only subtitles N to M, or N to the end")
-        ->option_text("N-M|N-");
+    describeRange(replace, options.range);
 
     describeDestination(replace, options.destination);
     return replace;
@@ -56,13 +54,9 @@ ExitCode runReplace(const ReplaceOptions& options,
         return refuse(pattern.error());
     }
 
-    std::optional<Range> range;
-    if (!options.range.empty()) {
-        const std::expected<Range, std::string> read = parseRange(options.range);
-        if (!read) {
-            return refuse("--range: " + read.error());
-        }
-        range = *read;
+    const std::expected<std::optional<Range>, std::string> range = rangeOf(options.range);
+    if (!range) {
+        return refuse(range.error());
     }
 
     const std::expected<Inputs, std::string> inputs = expandInputs(
@@ -83,7 +77,7 @@ ExitCode runReplace(const ReplaceOptions& options,
                      *pattern,
                      options.pattern,
                      options.replacement,
-                     range,
+                     *range,
                      *destination,
                      reporter);
 }

@@ -62,7 +62,7 @@ Options:
   --minimum TIME|off          Shortest duration, or off (default 1.5)
   --maximum TIME              Longest duration (default: none)
   --gap TIME|off              Least time left before the next subtitle, or off (default 0)
-  --range N-M|N-              Adjust only subtitles N to M, or N to the end
+  --range N-M|N-              Act only on subtitles N to M, or N to the end
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
   --in-place                  Write back over the inputs

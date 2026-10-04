@@ -30,6 +30,9 @@ Subcommands:
   hearing-impaired            Remove the sounds described between brackets or parentheses
   adjust                      Bring the duration of every subtitle within a reading speed and limits
   replace                     Replace a text in the subtitles, without breaking a tag
+  case                        Put the texts in title, sentence, upper or lower case, tags intact
+  italics                     Put the texts in italics, or take their italics out
+  dialogue-dashes             Put dialogue dashes on the lines, or take them off
 ```
 
 ## La ligne de commande est en anglais
@@ -113,7 +116,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.17
+subedit 0.13.18
 ```
 
 ## Sous-commandes
@@ -129,18 +132,22 @@ subedit 0.13.17
 | [`hearing-impaired`](hearing-impaired.md) | retire les mentions pour malentendants | oui |
 | [`adjust`](adjust.md) | ajuste les durées à une vitesse de lecture et à des bornes | oui |
 | [`replace`](replace.md) | remplace un texte dans les sous-titres, sans casser une balise | oui |
+| [`case`](case.md) | met les textes en casse de titre, de phrase, en capitales ou en minuscules | oui |
+| [`italics`](italics.md) | met les textes en italique, ou retire leur italique | oui |
+| [`dialogue-dashes`](dialogue-dashes.md) | pose ou retire les tirets de dialogue | oui |
 
-Les neuf sont là ; l'aide de l'outil les énumère dans le même ordre.
+Les douze sont là ; l'aide de l'outil les énumère dans le même ordre.
 
 **Une seule ne touche à rien**, et c'est la colonne de droite : `inspect` lit et
-rapporte. Les huit autres écrivent, et ce qui suit vaut pour elles huit.
+rapporte. Les onze autres écrivent, et ce qui suit vaut pour elles onze.
 
 ## La destination
 
-Les huit sous-commandes qui écrivent — [`convert`](convert.md),
+Les onze sous-commandes qui écrivent — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
-[`replace`](replace.md) — prennent leur
+[`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
+[`dialogue-dashes`](dialogue-dashes.md) — prennent leur
 destination de la même façon. [`inspect`](inspect.md) n'écrit aucun fichier et
 n'accepte aucune de ces options.
 
@@ -215,7 +222,7 @@ par un `?` serait perdre du texte sous les yeux de qui vient de l'écrire.
 
 ## Voir avant d'écrire
 
-**`--dry-run`** est accepté par chacune des huit sous-commandes qui écrivent, et dit la même
+**`--dry-run`** est accepté par chacune des onze sous-commandes qui écrivent, et dit la même
 chose partout : **lire, calculer, rendre compte, n'écrire aucun fichier**. On l'ajoute à la
 ligne qu'on s'apprêtait à lancer ; appliquer, c'est relancer la même ligne sans lui. Le calcul est
 déterministe : ce qu'un `--dry-run` a montré est ce que le lancement suivant écrira, tant que le
@@ -243,7 +250,8 @@ a.srt
 ```
 
 **Sur une sous-commande qui change des textes** —
-[`hearing-impaired`](hearing-impaired.md) et [`replace`](replace.md) —, **la sortie standard porte les changements
+[`hearing-impaired`](hearing-impaired.md), [`replace`](replace.md), [`case`](case.md),
+[`italics`](italics.md) et [`dialogue-dashes`](dialogue-dashes.md) —, **la sortie standard porte les changements
 proposés**. Un bloc par sous-titre changé, dans l'ordre du fichier :
 
 ```
@@ -384,6 +392,7 @@ est écrit avec U+FFFD à la place des octets invalides, et l'objet porte l'aver
 | [`snap`](snap.md) | `subtitles`, `moved` (positions déplacées), `furthest_ms` (le plus grand déplacement) |
 | [`hearing-impaired`](hearing-impaired.md) | `cleaned` (textes réécrits), `removed` (sous-titres supprimés) |
 | [`replace`](replace.md) | `replaced` (correspondances remplacées dans les sous-titres changés), `matched` (correspondances trouvées) |
+| [`case`](case.md), [`italics`](italics.md), [`dialogue-dashes`](dialogue-dashes.md) | `changed` (sous-titres dont le texte a changé) |
 | [`adjust`](adjust.md) | `subtitles` (les sous-titres visés), `adjusted` (ceux dont la fin a bougé), puis le groupe `sacrificed` : `speed`, `minimum`, `gap` ; et, hors de `counts`, `constraints` — les réglages employés |
 | [`convert`](convert.md) | `subtitles`, puis ce que la conversion a perdu : `lost_ends` et `lost_header` (0 ou 1), `joined_lines`, `lost_tags`, `lost_fields`, `furthest_ms` |
 | [`inspect`](inspect.md) | pas de `counts` : la description du fichier, voir sa page |
@@ -401,6 +410,7 @@ Un `error.kind` est l'un de ceux-ci ; **un lecteur traite un identifiant inconnu
 | `no-byte-order-mark`, `no-frame-rate` | ce que `convert` ne peut pas écrire sans qu'on le précise |
 | `before-the-origin`, `beyond-the-end`, `no-transform`, `no-grid` | une opération qui ne peut pas s'appliquer à ce fichier |
 | `range-out-of-bounds` | une plage `--range` que ce fichier ne contient pas |
+| `no-style` | un format qui n'écrit aucun style (TMPlayer, LRC), pour `italics` |
 | `refused` | tout autre refus d'une opération |
 
 ### Ce qui est promis, et ce qui ne l'est pas
@@ -451,7 +461,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Les neuf sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
+Les douze sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
 un fichier lu au mieux puis réécrit a subi les mêmes décisions, et les taire
 laisserait croire que rien ne s'est passé.
 

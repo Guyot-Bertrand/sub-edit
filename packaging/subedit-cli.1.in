@@ -94,6 +94,15 @@ Bring the duration of every subtitle within a reading speed and limits.
 .TP
 .B replace
 Replace a text in the subtitles, without breaking a tag.
+.TP
+.B case
+Put the texts in title, sentence, upper or lower case, tags intact.
+.TP
+.B italics
+Put the texts in italics, or take their italics out.
+.TP
+.B dialogue-dashes
+Put dialogue dashes on the lines, or take them off.
 .PP
 .BR framerate " and " snap
 take the same arguments and do opposite things: the first re\-times a file

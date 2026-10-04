@@ -1,7 +1,6 @@
 #include "adjust.hpp"
 
 #include <subedit/cli/adjusting.hpp>
-#include <subedit/cli/index_grammar.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -48,8 +47,7 @@ CLI::App* describeAdjust(CLI::App& app, std::string_view name, AdjustCommandOpti
                      options.constraints.gap,
                      "Least time left before the next subtitle, or off (default 0)")
         ->option_text("TIME|off");
-    adjust->add_option("--range", options.range, "Adjust only subtitles N to M, or N to the end")
-        ->option_text("N-M|N-");
+    describeRange(adjust, options.range);
 
     describeDestination(adjust, options.destination);
     return adjust;
@@ -65,13 +63,9 @@ ExitCode runAdjust(const AdjustCommandOptions& options,
         return refuse(constraints.error());
     }
 
-    std::optional<Range> range;
-    if (!options.range.empty()) {
-        const std::expected<Range, std::string> read = parseRange(options.range);
-        if (!read) {
-            return refuse("--range: " + read.error());
-        }
-        range = *read;
+    const std::expected<std::optional<Range>, std::string> range = rangeOf(options.range);
+    if (!range) {
+        return refuse(range.error());
     }
 
     const std::expected<Inputs, std::string> inputs = expandInputs(
@@ -86,7 +80,7 @@ ExitCode runAdjust(const AdjustCommandOptions& options,
         return refuse(destination.error());
     }
 
-    return adjustAll(files, inputs->paths, reading, *constraints, range, *destination, reporter);
+    return adjustAll(files, inputs->paths, reading, *constraints, *range, *destination, reporter);
 }
 
 } // namespace

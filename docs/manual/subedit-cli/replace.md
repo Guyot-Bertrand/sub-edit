@@ -38,7 +38,7 @@ Options:
   -r,--recursive              Take directories as inputs, and every subtitle file in them
   --regex                     Read the text to look for as a regular expression
   --case-sensitive            Tell capitals from small letters
-  --range N-M|N-              Change only subtitles N to M, or N to the end
+  --range N-M|N-              Act only on subtitles N to M, or N to the end
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
   --in-place                  Write back over the inputs

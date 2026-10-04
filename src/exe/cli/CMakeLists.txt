@@ -4,9 +4,12 @@ add_executable(subedit-cli
     commands/adjust.cpp
     commands/command.cpp
     commands/convert.cpp
+    commands/dialogue_dashes.cpp
     commands/framerate.cpp
     commands/hearing_impaired.cpp
     commands/inspect.cpp
+    commands/italics.cpp
+    commands/letter_case.cpp
     commands/replace.cpp
     commands/shift.cpp
     commands/snap.cpp

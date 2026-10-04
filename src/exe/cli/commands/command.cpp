@@ -30,6 +30,22 @@ void describeRecursive(CLI::App* command, bool& recursive) {
         "-r,--recursive", recursive, "Take directories as inputs, and every subtitle file in them");
 }
 
+void describeRange(CLI::App* command, std::string& range) {
+    command->add_option("--range", range, "Act only on subtitles N to M, or N to the end")
+        ->option_text("N-M|N-");
+}
+
+std::expected<std::optional<Range>, std::string> rangeOf(const std::string& range) {
+    if (range.empty()) {
+        return std::optional<Range>{};
+    }
+    const std::expected<Range, std::string> read = parseRange(range);
+    if (!read) {
+        return std::unexpected{"--range: " + read.error()};
+    }
+    return std::optional{*read};
+}
+
 ExitCode refuse(std::string_view why) {
     std::cerr << why << '\n';
     return ExitCode::Usage;

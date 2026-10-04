@@ -199,6 +199,7 @@ add_executable(
     cli/rewriting_test.cpp
     cli/reporter_test.cpp
     cli/shifting_test.cpp
+    cli/text_rewriting_test.cpp
     cli/time_grammar_test.cpp
     cli/transforming_test.cpp
     cli/verbosity_test.cpp
