@@ -214,7 +214,7 @@ Trois choses peuvent clocher dans un document, et chacune se répare autrement :
 | :--------------- | :------------------ |
 | `subtitle N ends before it starts` | la fin précède le début |
 | `subtitle N starts before the previous one ends` | il chevauche celui d'avant |
-| `subtitle N starts before the previous one starts` | il rompt l'ordre du fichier |
+| `subtitle N starts before the previous one starts` | il rompt l'ordre du fichier — [`sort`](sort.md) le remet |
 
 **Un même sous-titre peut apparaître deux fois**, et c'est voulu : celui qui
 commence avant que le précédent ait commencé commence aussi avant qu'il ait
@@ -296,7 +296,7 @@ valeur puisse être fautive, et n'écrit rien qui puisse être refusé.
 | format non reconnu | `<chemin>: is in no format this tool knows` |
 | rien qui ressemble à un sous-titre | `<chemin>: holds nothing recognisable as a subtitle` |
 
-Ce sont les mêmes messages pour les douze sous-commandes : la recette d'ouverture
+Ce sont les mêmes messages pour les treize sous-commandes : la recette d'ouverture
 est écrite une fois, au noyau.
 
 ## Un exemple qui échoue

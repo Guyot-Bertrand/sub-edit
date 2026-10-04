@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Sous-commande sort, tri stable par début
+
+## 0.13.18 — 2026-10-04
+
+### Ajouts
+
 - **cli** — Sous-commandes case, italics et dialogue-dashes
 
 ## 0.13.17 — 2026-10-04

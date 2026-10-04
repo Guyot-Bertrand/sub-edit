@@ -63,6 +63,17 @@ italique déjà là n'est pas doublé. Les entrées sont écrites par `src/test/
 | `texte/tirets-add.srt` | `dialogue-dashes --add` sur cinq textes, dont un déjà tiré et une balise ouvrante | à la main, règles de `tirets.cas` |
 | `json/texte-dry-run.jsonl` | les trois sous-commandes en `--dry-run --format json` : `counts.changed` et `changes` | à la main |
 
+## `sort/` — ce que `sort` écrit
+
+Écrits à la main : trier les débuts, garder les égalités dans l'ordre du fichier. Les entrées sont écrites
+par `src/test/e2e/cli/sort_test.cpp`.
+
+| Fichier | Cas | Provenance |
+| :------ | :-- | :--------- |
+| `sort/desordre.srt` | trois sous-titres dont le premier du fichier commence le dernier | à la main : un, trois, cinq, renumérotés |
+| `sort/egalite.srt` | deux sous-titres qui commencent ensemble : le tri est stable | à la main : `a`, puis `b-first` avant `b-second`, dans l'ordre du fichier |
+| `json/sort.jsonl` | un lot de trois : désordre (3 places changées), égalité (2), déjà en ordre (0) | à la main |
+
 ## `dry-run/` — la sortie de `--dry-run`
 
 Comparée par `dry_run_test.cpp`, **après avoir remplacé le dossier temporaire du test par

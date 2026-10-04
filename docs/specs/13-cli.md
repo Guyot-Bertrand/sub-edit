@@ -227,7 +227,7 @@ sont du JSON valide, qu'ils portent l'enveloppe et ne contiennent aucun nombre �
 | `correct` | `corrected`, `removed` ; `failures` en avertissements — D8 |
 | `replace` | `replaced` (correspondances remplacées dans les sous-titres dont le texte a changé — le nombre que dit la phrase), `matched` (correspondances trouvées, que le texte ait changé ou non : ce qui distingue « rien trouvé » de « rien à changer ») |
 | `case`, `italics`, `dialogue-dashes` | `changed` |
-| `sort` | `moved` |
+| `sort` | `subtitles`, `moved` (les places qui ont changé de sous-titre) |
 
 ## D4 — Le lot : sûr, créé, arborescent
 

@@ -28,6 +28,7 @@ fichier ouvert puis enregistré sans modification ne bouge pas d'un octet.
 | corriger des mentions, des erreurs courantes, la casse et le découpage des lignes en un seul passage | [`Correct Texts…`](subedit-gui/correct-texts.md) |
 | vérifier l'orthographe mot à mot, avec les dictionnaires du système | [`Check Spelling…`](subedit-gui/verifier-orthographe.md) |
 | allonger des sous-titres trop courts pour être lus | [`Adjust Durations…`](subedit-gui/operations.md#adjust-durations), ou [`adjust`](subedit-cli/adjust.md) |
+| remettre dans l'ordre un fichier dont les sous-titres ne le sont pas | [`sort`](subedit-cli/sort.md) |
 | changer la casse, l'italique ou les tirets de dialogue de tout un fichier | [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | chercher un mot et le remplacer, sans casser les balises | [Rechercher et remplacer](subedit-gui/recherche.md), ou [`replace`](subedit-cli/replace.md) |
 | traduire en regard du texte d'origine | [Ouvrir une traduction](subedit-gui/fichiers.md#ouvrir-une-traduction) |
