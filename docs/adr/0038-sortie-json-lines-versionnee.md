@@ -29,6 +29,17 @@ Le dépôt a déjà l'outil qui rend la promesse **prouvable** : `MatchesFile`
 ([#543](https://github.com/Guyot-Bertrand/sub-edit/issues/543)), un comparateur d'octets
 contre un fichier attendu versionné, qui montre la première ligne divergente.
 
+## Précision : `--list-encodings` est une exception à l'enveloppe
+
+Écrite par [#564](https://github.com/Guyot-Bertrand/sub-edit/issues/564). `--list-encodings` n'a pas
+de fichier d'entrée, et son résultat est un ensemble, non le compte rendu d'un fichier. **Avec
+`--format json`, il écrit un objet par encodage** — `{"schema":1,"command":"list-encodings","name":"UTF-8"}` —,
+ce qui garde la propriété qui compte : un objet par entrée, un par ligne, que le flux se coupe et se
+concatène comme les autres. **Il ne porte ni `file` ni `ok`** : l'enveloppe des objets de fichier
+(`schema`, `command`, `file`, `ok`) n'a pas de sens pour un nom d'encodage, et lui en inventer un aurait
+été écrire `"file": null` pour que la forme paraisse uniforme. `schema` et `command` y sont, parce que
+chaque ligne doit rester lisible seule.
+
 ## Décision
 
 **`--format json`, option globale, opt-in.** `text` reste le défaut et ne change pas.
