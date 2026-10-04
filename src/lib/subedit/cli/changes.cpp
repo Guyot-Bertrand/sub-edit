@@ -1,5 +1,9 @@
 #include <subedit/cli/changes.hpp>
+#include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/model/subtitle_index.hpp>
 
+#include <iterator>
+#include <set>
 #include <utility>
 
 namespace subedit::cli {
@@ -26,6 +30,48 @@ void appendLines(std::string& out, std::string_view prefix, std::string_view tex
 }
 
 } // namespace
+
+std::vector<std::string> mainTextsOf(const core::Project& project) {
+    std::vector<std::string> texts;
+    texts.reserve(project.count());
+    for (const core::Subtitle& subtitle : project.subtitles())
+        texts.push_back(subtitle.text(core::Document::Main));
+    return texts;
+}
+
+std::vector<TextChange> changesOfCommand(const core::Project& after,
+                                         const std::vector<std::string>& before,
+                                         const std::vector<core::Change>& described) {
+    std::set<std::size_t> removed;
+    std::set<std::size_t> rewritten;
+    for (const core::Change& change : described) {
+        std::set<std::size_t>& into =
+            change.kind == core::ChangeKind::Removal ? removed : rewritten;
+        for (const core::SubtitleIndex index : change.subtitles.indices())
+            into.insert(index.value());
+    }
+
+    std::vector<TextChange> changes;
+    changes.reserve(removed.size() + rewritten.size());
+    // Ascending, whichever of the two a subtitle is: it is the order of the file.
+    for (std::size_t at = 0; at < before.size(); ++at) {
+        const bool taken = removed.contains(at);
+        if (!taken && !rewritten.contains(at))
+            continue;
+
+        TextChange change{
+            .subtitle = at + 1, .document = core::Document::Main, .before = before[at]};
+        if (!taken) {
+            const std::size_t now =
+                at -
+                static_cast<std::size_t>(std::distance(removed.begin(), removed.lower_bound(at)));
+            change.after =
+                after.subtitleAt(core::SubtitleIndex::fromValue(now)).text(core::Document::Main);
+        }
+        changes.push_back(std::move(change));
+    }
+    return changes;
+}
 
 Json changesOf(const std::vector<TextChange>& changes) {
     Json array = Json::array();

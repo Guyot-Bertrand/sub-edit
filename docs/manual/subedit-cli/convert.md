@@ -237,7 +237,7 @@ lecture comme pour l'écriture : `--encoding UTF-16` reçoit la même réponse.
 
 ## La destination
 
-Les trois options et leurs règles sont communes aux sept sous-commandes qui
+Les trois options et leurs règles sont communes aux huit sous-commandes qui
 écrivent : voir [Invocation](invocation.md#la-destination). Rien n'est écrit
 sans l'une d'elles.
 

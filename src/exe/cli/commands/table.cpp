@@ -7,6 +7,7 @@
 #include "framerate.hpp"
 #include "hearing_impaired.hpp"
 #include "inspect.hpp"
+#include "replace.hpp"
 #include "shift.hpp"
 #include "snap.hpp"
 #include "transform.hpp"
@@ -23,6 +24,7 @@ std::span<const Command> commands() {
         Command{.name = "snap", .declare = declareSnap},
         Command{.name = "hearing-impaired", .declare = declareHearingImpaired},
         Command{.name = "adjust", .declare = declareAdjust},
+        Command{.name = "replace", .declare = declareReplace},
     };
     return kTable;
 }

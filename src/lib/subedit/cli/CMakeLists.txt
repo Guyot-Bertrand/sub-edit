@@ -29,6 +29,7 @@ add_library(
     conversion.cpp
     index_grammar.cpp
     records.cpp
+    replacing.cpp
     reporter.cpp
     rewriting.cpp
     writing.cpp

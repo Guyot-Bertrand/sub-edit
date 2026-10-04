@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Sous-commande replace, sans casser une balise
+
+## 0.13.16 — 2026-10-04
+
+### Ajouts
+
 - **cli** — Recouper adjust avec le script de mesure
 
 ## 0.13.15 — 2026-10-04

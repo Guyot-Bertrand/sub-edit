@@ -7,6 +7,7 @@ add_executable(subedit-cli
     commands/framerate.cpp
     commands/hearing_impaired.cpp
     commands/inspect.cpp
+    commands/replace.cpp
     commands/shift.cpp
     commands/snap.cpp
     commands/table.cpp
