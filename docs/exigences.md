@@ -261,10 +261,10 @@ plus rien.
 | `CLI-REPLACE-02` | `--regex` lit une expression ; une expression illisible est refusée avant tout traitement, avec la raison | 13 | implémentée |
 | `CLI-REPLACE-03` | les majuscules sont ignorées par défaut, `--case-sensitive` les distingue | 13 | implémentée |
 | `CLI-REPLACE-04` | le compte rendu dit les textes changés, ou que rien n'a été trouvé | 13 | implémentée |
-| `CLI-CASE-01` | `case` applique les quatre casses sans toucher aux balises | 13 | prévue |
-| `CLI-ITALIC-01` | `italics --on` / `--off` pose et retire l'italique dans les balises du format du fichier | 13 | prévue |
-| `CLI-ITALIC-02` | un format qui ne porte aucun style refuse, fichier par fichier, avec la raison | 13 | prévue |
-| `CLI-DASH-01` | `dialogue-dashes --add` / `--remove` pose et retire les tirets de dialogue | 13 | prévue |
+| `CLI-CASE-01` | `case` applique les quatre casses sans toucher aux balises | 13 | implémentée |
+| `CLI-ITALIC-01` | `italics --on` / `--off` pose et retire l'italique dans les balises du format du fichier | 13 | implémentée |
+| `CLI-ITALIC-02` | un format qui ne porte aucun style refuse, fichier par fichier, avec la raison | 13 | implémentée |
+| `CLI-DASH-01` | `dialogue-dashes --add` / `--remove` pose et retire les tirets de dialogue | 13 | implémentée |
 | `CLI-SORT-01` | `sort` met les sous-titres dans l'ordre de leur début, de façon stable | 13 | prévue |
 | `CLI-SORT-02` | `sort` dit combien de sous-titres ont bougé, et écrit le fichier même s'il est déjà en ordre | 13 | prévue |
 | `CLI-TRANS-01` | `inspect -t` rapporte lignes rattachées, sous-titres nés, sans traduction et hors d'ordre | 13 | prévue |

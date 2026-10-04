@@ -35,6 +35,7 @@ add_library(
     writing.cpp
     hearing_impaired.cpp
     shifting.cpp
+    text_rewriting.cpp
     time_grammar.cpp
     transforming.cpp
     verbosity.cpp)

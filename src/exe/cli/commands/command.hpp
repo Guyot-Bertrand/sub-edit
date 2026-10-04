@@ -6,6 +6,7 @@
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/cli/expansion.hpp>
+#include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/file_system.hpp>
@@ -86,6 +87,14 @@ destinationOf(const DestinationOptions& options, const Inputs& inputs);
 /// On every subcommand that takes files — `inspect` included, which reads a
 /// tree as readily as it writes one.
 void describeRecursive(CLI::App* command, bool& recursive);
+
+/// Declares `--range` on `command`, for the subcommands that act on a selection.
+void describeRange(CLI::App* command, std::string& range);
+
+/// The range that option says, **nothing when it was not given**, or why it
+/// cannot be honoured. The refusal names the option, so that it reads the same
+/// from every subcommand.
+[[nodiscard]] std::expected<std::optional<Range>, std::string> rangeOf(const std::string& range);
 
 /// Writes a refusal and gives the code that goes with it.
 ///

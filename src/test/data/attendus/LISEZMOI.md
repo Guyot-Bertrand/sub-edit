@@ -50,6 +50,19 @@ pourquoi chaque sous-titre est là.
 | `replace/dry-run.txt` | la sortie standard de `replace --dry-run Bonjour Salut` : les sous-titres 2 et 3, avant et après | à la main : un bloc par sous-titre changé |
 | `json/replace-dry-run.jsonl` | les mêmes changements en JSON, avec `counts.replaced` et `counts.matched` | à la main |
 
+## `texte/` — ce que `case`, `italics` et `dialogue-dashes` écrivent
+
+Écrits à la main, **d'après les corpus de règles de `textes/`** (`casse-titre.cas`, `tirets.cas`…) et la
+documentation de `italics` : la balise garde sa casse et sa place, un tiret de tête n'est pas touché, un
+italique déjà là n'est pas doublé. Les entrées sont écrites par `src/test/e2e/cli/text_rewriting_test.cpp`.
+
+| Fichier | Cas | Provenance |
+| :------ | :-- | :--------- |
+| `texte/casse-titre.srt` | `case --to title` sur six textes : un ordinaire, un crié, une balise en capitales, une balise qui coupe un mot, deux lignes, un texte déjà conforme | à la main, règles de `casse-titre.cas` |
+| `texte/italiques-on.srt` | `italics --on` sur quatre textes, dont un italique coupé et un texte déjà en italique | à la main |
+| `texte/tirets-add.srt` | `dialogue-dashes --add` sur cinq textes, dont un déjà tiré et une balise ouvrante | à la main, règles de `tirets.cas` |
+| `json/texte-dry-run.jsonl` | les trois sous-commandes en `--dry-run --format json` : `counts.changed` et `changes` | à la main |
+
 ## `dry-run/` — la sortie de `--dry-run`
 
 Comparée par `dry_run_test.cpp`, **après avoir remplacé le dossier temporaire du test par
