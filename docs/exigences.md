@@ -236,13 +236,13 @@ plus rien.
 | `CLI-BATCH-10` | l'arborescence relative au répertoire donné est conservée sous `--output-dir` | 13 | implémentée |
 | `CLI-BATCH-11` | le dossier de sortie compris dans l'arbre parcouru est exclu du parcours | 13 | implémentée |
 | `CLI-BATCH-12` | un fichier nommé sur la ligne de commande n'est jamais filtré par son extension | 13 | implémentée |
-| `CLI-RANGE-01` | `--range N-M` limite l'opération aux sous-titres N à M, bornes comprises ; `N-` va jusqu'à la fin | 13 | prévue |
-| `CLI-RANGE-02` | une plage hors bornes est refusée en nommant la borne, avant tout traitement | 13 | prévue |
-| `CLI-ADJUST-01` | `adjust` sans option applique les quatre contraintes de Gaupol, dans leur ordre | 13 | prévue |
-| `CLI-ADJUST-02` | chaque contrainte se règle et s'éteint (`off`) ; `--maximum` l'allume | 13 | prévue |
-| `CLI-ADJUST-03` | sans aucune contrainte active, `adjust` est refusé | 13 | prévue |
-| `CLI-ADJUST-04` | le compte rendu dit ce qui a été ajusté et ce qui a été sacrifié, contrainte par contrainte | 13 | prévue |
-| `CLI-ADJUST-05` | en `json`, `counts` porte `adjusted` et `sacrificed.{speed,minimum,gap}`, et `constraints` les contraintes employées | 13 | prévue |
+| `CLI-RANGE-01` | `--range N-M` limite l'opération aux sous-titres N à M, bornes comprises ; `N-` va jusqu'à la fin | 13 | implémentée |
+| `CLI-RANGE-02` | une plage hors bornes est refusée en nommant la borne, avant tout traitement | 13 | implémentée |
+| `CLI-ADJUST-01` | `adjust` sans option applique les quatre contraintes de Gaupol, dans leur ordre | 13 | implémentée |
+| `CLI-ADJUST-02` | chaque contrainte se règle et s'éteint (`off`) ; `--maximum` l'allume | 13 | implémentée |
+| `CLI-ADJUST-03` | sans aucune contrainte active, `adjust` est refusé | 13 | implémentée |
+| `CLI-ADJUST-04` | le compte rendu dit ce qui a été ajusté et ce qui a été sacrifié, contrainte par contrainte | 13 | implémentée |
+| `CLI-ADJUST-05` | en `json`, `counts` porte `adjusted` et `sacrificed.{speed,minimum,gap}`, et `constraints` les contraintes employées | 13 | implémentée |
 | `CLI-ADJUST-06` | les comptes sacrifiés s'accordent avec ceux que le script de mesure prédit sur les fixtures versionnées | 13 | prévue |
 | `CLI-CORRECT-01` | `--tasks` est requis et nomme les tâches ; aucune n'est cochée d'avance | 13 | prévue |
 | `CLI-CORRECT-02` | `--code` est requis dès qu'une tâche lit des motifs | 13 | prévue |

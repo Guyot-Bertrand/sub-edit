@@ -96,7 +96,8 @@ bool rewriteFile(core::FileSystem& files,
                                      path,
                                      done->counts,
                                      warningsOf(opened->diagnostics),
-                                     done->changes));
+                                     done->changes,
+                                     done->fields));
         return true;
     }
 
@@ -108,7 +109,8 @@ bool rewriteFile(core::FileSystem& files,
                                   out,
                                   done->counts,
                                   warningsOf(opened->diagnostics),
-                                  done->changes));
+                                  done->changes,
+                                  done->fields));
     return true;
 }
 

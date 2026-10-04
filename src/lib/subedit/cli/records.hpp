@@ -50,12 +50,26 @@ struct Failure {
 ///
 /// **The sentence of narration and the counts of the record come from the same
 /// object**, so that the text and the JSON cannot say two things.
+///
+/// **A count may be a group of counts** — `sacrificed.{speed, minimum, gap}` — which
+/// the record writes as an object of its own. One level is all the shapes
+/// need, and every leaf is an integer.
 struct Count {
     Count(std::string name, std::int64_t number) : key{std::move(name)}, value{number} {}
 
+    Count(std::string name, std::vector<Count> parts)
+        : key{std::move(name)}, value{0}, members{std::move(parts)} {}
+
     std::string key;
     std::int64_t value;
+
+    /// Not empty for a group, whose `value` is then unused.
+    std::vector<Count> members{};
 };
+
+/// Keys an operation adds to the record of its file, after `counts` — what it
+/// employed, when the counts alone would not say (`adjust`'s constraints).
+using Fields = std::vector<std::pair<std::string, Json>>;
 
 /// The identifiers of the failures and warnings, which are promised.
 [[nodiscard]] std::string_view idOf(core::DiagnosticKind kind);
@@ -89,7 +103,8 @@ struct Count {
                                  const std::filesystem::path& destination,
                                  const std::vector<Count>& counts,
                                  Json warnings,
-                                 const std::optional<std::vector<TextChange>>& changes = {});
+                                 const std::optional<std::vector<TextChange>>& changes = {},
+                                 const Fields& fields = {});
 
 /// The record of a file that was worked out and not written (`--dry-run`).
 ///
@@ -99,7 +114,8 @@ struct Count {
                                 std::string_view file,
                                 const std::vector<Count>& counts,
                                 Json warnings,
-                                const std::optional<std::vector<TextChange>>& changes = {});
+                                const std::optional<std::vector<TextChange>>& changes = {},
+                                const Fields& fields = {});
 
 /// The start of the record of a file that was read: the envelope, up to `ok`.
 ///

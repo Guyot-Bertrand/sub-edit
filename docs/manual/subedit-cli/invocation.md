@@ -28,6 +28,7 @@ Subcommands:
   framerate                   Re-time a file mastered at one frame rate for another
   snap                        Move every position onto the nearest frame of a frame rate (see framerate)
   hearing-impaired            Remove the sounds described between brackets or parentheses
+  adjust                      Bring the duration of every subtitle within a reading speed and limits
 ```
 
 ## La ligne de commande est en anglais
@@ -111,7 +112,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.14
+subedit 0.13.15
 ```
 
 ## Sous-commandes
@@ -125,17 +126,18 @@ subedit 0.13.14
 | [`framerate`](framerate.md) | recale un fichier d'une cadence d'images vers une autre | oui |
 | [`snap`](snap.md) | repose chaque horodatage sur l'image la plus proche | oui |
 | [`hearing-impaired`](hearing-impaired.md) | retire les mentions pour malentendants | oui |
+| [`adjust`](adjust.md) | ajuste les durées à une vitesse de lecture et à des bornes | oui |
 
-Les sept sont là ; l'aide de l'outil les énumère dans le même ordre.
+Les huit sont là ; l'aide de l'outil les énumère dans le même ordre.
 
 **Une seule ne touche à rien**, et c'est la colonne de droite : `inspect` lit et
-rapporte. Les six autres écrivent, et ce qui suit vaut pour elles six.
+rapporte. Les sept autres écrivent, et ce qui suit vaut pour elles sept.
 
 ## La destination
 
-Les six sous-commandes qui écrivent — [`convert`](convert.md),
+Les sept sous-commandes qui écrivent — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
-[`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md) — prennent leur
+[`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md) — prennent leur
 destination de la même façon. [`inspect`](inspect.md) n'écrit aucun fichier et
 n'accepte aucune de ces options.
 
@@ -210,7 +212,7 @@ par un `?` serait perdre du texte sous les yeux de qui vient de l'écrire.
 
 ## Voir avant d'écrire
 
-**`--dry-run`** est accepté par chacune des six sous-commandes qui écrivent, et dit la même
+**`--dry-run`** est accepté par chacune des sept sous-commandes qui écrivent, et dit la même
 chose partout : **lire, calculer, rendre compte, n'écrire aucun fichier**. On l'ajoute à la
 ligne qu'on s'apprêtait à lancer ; appliquer, c'est relancer la même ligne sans lui. Le calcul est
 déterministe : ce qu'un `--dry-run` a montré est ce que le lancement suivant écrira, tant que le
@@ -377,6 +379,7 @@ est écrit avec U+FFFD à la place des octets invalides, et l'objet porte l'aver
 | [`framerate`](framerate.md) | `subtitles` |
 | [`snap`](snap.md) | `subtitles`, `moved` (positions déplacées), `furthest_ms` (le plus grand déplacement) |
 | [`hearing-impaired`](hearing-impaired.md) | `cleaned` (textes réécrits), `removed` (sous-titres supprimés) |
+| [`adjust`](adjust.md) | `subtitles` (les sous-titres visés), `adjusted` (ceux dont la fin a bougé), puis le groupe `sacrificed` : `speed`, `minimum`, `gap` ; et, hors de `counts`, `constraints` — les réglages employés |
 | [`convert`](convert.md) | `subtitles`, puis ce que la conversion a perdu : `lost_ends` et `lost_header` (0 ou 1), `joined_lines`, `lost_tags`, `lost_fields`, `furthest_ms` |
 | [`inspect`](inspect.md) | pas de `counts` : la description du fichier, voir sa page |
 
@@ -392,6 +395,7 @@ Un `error.kind` est l'un de ceux-ci ; **un lecteur traite un identifiant inconnu
 | `unencodable` | un caractère que l'encodage choisi ne sait pas écrire |
 | `no-byte-order-mark`, `no-frame-rate` | ce que `convert` ne peut pas écrire sans qu'on le précise |
 | `before-the-origin`, `beyond-the-end`, `no-transform`, `no-grid` | une opération qui ne peut pas s'appliquer à ce fichier |
+| `range-out-of-bounds` | une plage `--range` que ce fichier ne contient pas |
 | `refused` | tout autre refus d'une opération |
 
 ### Ce qui est promis, et ce qui ne l'est pas
@@ -442,7 +446,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Les sept sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
+Les huit sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
 un fichier lu au mieux puis réécrit a subi les mêmes décisions, et les taire
 laisserait croire que rien ne s'est passé.
 

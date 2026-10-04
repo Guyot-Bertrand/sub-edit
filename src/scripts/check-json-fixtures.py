@@ -44,7 +44,7 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 DEFAULT_DIR = REPO_ROOT / "src" / "test" / "data" / "attendus" / "json"
 
 # Les sous-commandes qui écrivent un fichier, et dont l'objet dit où.
-WRITERS = {"convert", "shift", "transform", "framerate", "snap", "hearing-impaired"}
+WRITERS = {"convert", "shift", "transform", "framerate", "snap", "hearing-impaired", "adjust"}
 
 
 class FloatFound(Exception):
@@ -58,6 +58,11 @@ def refuse_float(text: str) -> float:
 def refuse_constant(text: str) -> float:
     # NaN et Infinity ne sont pas du JSON ; Python les accepte quand même.
     raise FloatFound(text)
+
+
+def is_integer(value: object) -> bool:
+    """Un entier, et non un booléen — que Python tient pourtant pour un `int`."""
+    return isinstance(value, int) and not isinstance(value, bool)
 
 
 def problems_of_changes(changes: object) -> list[str]:
@@ -125,9 +130,12 @@ def problems_of_line(line: str) -> list[str]:
             problems.extend(problems_of_changes(record["changes"]))
         counts = record.get("counts")
         if not isinstance(counts, dict) or not all(
-            isinstance(value, int) and not isinstance(value, bool) for value in counts.values()
+            is_integer(value)
+            # Un groupe de comptes (`sacrificed`) : un objet d'entiers, sur un niveau.
+            or (isinstance(value, dict) and value and all(is_integer(one) for one in value.values()))
+            for value in counts.values()
         ):
-            problems.append("« counts » est un objet d'entiers")
+            problems.append("« counts » est un objet d'entiers, ou de groupes d'entiers")
     return problems
 
 
