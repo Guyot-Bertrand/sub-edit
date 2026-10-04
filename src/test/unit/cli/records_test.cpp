@@ -23,6 +23,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <vector>
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::cli::alignAll;
@@ -315,4 +316,13 @@ TEST_CASE("a reporter without records writes none, and says nothing different", 
     recording.record(subedit::cli::Json::object().set("a", 1));
     CHECK(records.str() == "{\"a\":1}\n");
     CHECK(errors.str().empty());
+}
+
+TEST_CASE("a group of counts is an object of its own", "[cli][records][CLI-ADJUST-05]") {
+    const std::vector<subedit::cli::Count> counts{
+        {"subtitles", 4},
+        {"sacrificed", std::vector<subedit::cli::Count>{{"speed", 1}, {"gap", 0}}}};
+
+    CHECK(subedit::cli::countsOf(counts).dump() ==
+          R"({"subtitles":4,"sacrificed":{"speed":1,"gap":0}})");
 }

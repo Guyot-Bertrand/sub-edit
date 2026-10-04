@@ -2,6 +2,7 @@
 
 #include <array>
 
+#include "adjust.hpp"
 #include "convert.hpp"
 #include "framerate.hpp"
 #include "hearing_impaired.hpp"
@@ -21,6 +22,7 @@ std::span<const Command> commands() {
         Command{.name = "framerate", .declare = declareFrameRate},
         Command{.name = "snap", .declare = declareSnap},
         Command{.name = "hearing-impaired", .declare = declareHearingImpaired},
+        Command{.name = "adjust", .declare = declareAdjust},
     };
     return kTable;
 }

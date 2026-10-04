@@ -27,7 +27,7 @@ fichier ouvert puis enregistré sans modification ne bouge pas d'un octet.
 | retirer les mentions pour malentendants | [Les opérations](subedit-gui/operations.md#remove-hearing-impaired-mentions), ou [`hearing-impaired`](subedit-cli/hearing-impaired.md) |
 | corriger des mentions, des erreurs courantes, la casse et le découpage des lignes en un seul passage | [`Correct Texts…`](subedit-gui/correct-texts.md) |
 | vérifier l'orthographe mot à mot, avec les dictionnaires du système | [`Check Spelling…`](subedit-gui/verifier-orthographe.md) |
-| allonger des sous-titres trop courts pour être lus | [`Adjust Durations…`](subedit-gui/operations.md#adjust-durations) |
+| allonger des sous-titres trop courts pour être lus | [`Adjust Durations…`](subedit-gui/operations.md#adjust-durations), ou [`adjust`](subedit-cli/adjust.md) |
 | chercher un mot et le remplacer, sans casser les balises | [Rechercher et remplacer](subedit-gui/recherche.md) |
 | traduire en regard du texte d'origine | [Ouvrir une traduction](subedit-gui/fichiers.md#ouvrir-une-traduction) |
 | mettre en italique, changer la casse, poser des tirets de dialogue | [Les opérations](subedit-gui/operations.md#italic) |

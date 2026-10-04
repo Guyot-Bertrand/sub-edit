@@ -88,6 +88,9 @@ Move every position onto the nearest frame of a frame rate.
 .TP
 .B hearing-impaired
 Remove the sounds described between brackets or parentheses.
+.TP
+.B adjust
+Bring the duration of every subtitle within a reading speed and limits.
 .PP
 .BR framerate " and " snap
 take the same arguments and do opposite things: the first re\-times a file

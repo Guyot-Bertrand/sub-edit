@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Sous-commande adjust, durées et vitesse de lecture
+
+## 0.13.14 — 2026-10-02
+
+### Ajouts
+
 - **cli** — Grammaire de --range et sélection par fichier
 
 ## 0.13.13 — 2026-10-02

@@ -45,6 +45,9 @@ struct OperationResult {
     /// this operation does not list its changes, which an empty list does not:
     /// that one says there were none.
     std::optional<std::vector<TextChange>> changes{};
+
+    /// What the operation employed, for the record only.
+    Fields fields{};
 };
 
 /// What an operation comes to on one file: a result, or why it cannot.

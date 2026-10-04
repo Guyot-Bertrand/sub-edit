@@ -76,7 +76,11 @@ std::string_view idOf(const core::OpenError& error) {
 Json countsOf(const std::vector<Count>& counts) {
     Json object = Json::object();
     for (const Count& count : counts) {
-        object.set(count.key, count.value);
+        if (count.members.empty()) {
+            object.set(count.key, count.value);
+        } else {
+            object.set(count.key, countsOf(count.members));
+        }
     }
     return object;
 }
@@ -139,11 +143,15 @@ Json resultRecord(std::string_view command,
                   Json destination,
                   const std::vector<Count>& counts,
                   Json warnings,
-                  const std::optional<std::vector<TextChange>>& changes) {
+                  const std::optional<std::vector<TextChange>>& changes,
+                  const Fields& fields) {
     Json record = recordOf(command, file, true, warnings);
     record.set("dry_run", dryRun);
     record.set("destination", std::move(destination));
     record.set("counts", countsOf(counts));
+    for (const auto& [key, value] : fields) {
+        record.set(key, value);
+    }
     if (changes) {
         record.set("changes", changesOf(*changes));
     }
@@ -158,17 +166,25 @@ Json writtenRecord(std::string_view command,
                    const std::filesystem::path& destination,
                    const std::vector<Count>& counts,
                    Json warnings,
-                   const std::optional<std::vector<TextChange>>& changes) {
-    return resultRecord(
-        command, file, false, Json{destination.string()}, counts, std::move(warnings), changes);
+                   const std::optional<std::vector<TextChange>>& changes,
+                   const Fields& fields) {
+    return resultRecord(command,
+                        file,
+                        false,
+                        Json{destination.string()},
+                        counts,
+                        std::move(warnings),
+                        changes,
+                        fields);
 }
 
 Json dryRunRecord(std::string_view command,
                   std::string_view file,
                   const std::vector<Count>& counts,
                   Json warnings,
-                  const std::optional<std::vector<TextChange>>& changes) {
-    return resultRecord(command, file, true, Json{}, counts, std::move(warnings), changes);
+                  const std::optional<std::vector<TextChange>>& changes,
+                  const Fields& fields) {
+    return resultRecord(command, file, true, Json{}, counts, std::move(warnings), changes, fields);
 }
 
 void reportFailure(const Reporter& reporter, std::string_view file, const Failure& failure) {

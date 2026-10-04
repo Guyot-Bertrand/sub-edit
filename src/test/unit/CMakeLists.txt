@@ -177,6 +177,7 @@ catch_discover_tests(subedit_core_test PROPERTIES SKIP_RETURN_CODE 4)
 add_executable(
     subedit_cli_test
     grid_fixtures.cpp
+    cli/adjusting_test.cpp
     cli/aligning_test.cpp
     cli/batch_test.cpp
     cli/changes_test.cpp

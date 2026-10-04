@@ -1,6 +1,7 @@
 add_executable(subedit-cli
     main.cpp
     application.cpp
+    commands/adjust.cpp
     commands/command.cpp
     commands/convert.cpp
     commands/framerate.cpp
