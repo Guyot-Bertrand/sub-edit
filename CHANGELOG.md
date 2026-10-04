@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Sous-commandes case, italics et dialogue-dashes
+
+## 0.13.17 — 2026-10-04
+
+### Ajouts
+
 - **cli** — Sous-commande replace, sans casser une balise
 
 ## 0.13.16 — 2026-10-04
