@@ -296,7 +296,7 @@ valeur puisse être fautive, et n'écrit rien qui puisse être refusé.
 | format non reconnu | `<chemin>: is in no format this tool knows` |
 | rien qui ressemble à un sous-titre | `<chemin>: holds nothing recognisable as a subtitle` |
 
-Ce sont les mêmes messages pour les huit sous-commandes : la recette d'ouverture
+Ce sont les mêmes messages pour les neuf sous-commandes : la recette d'ouverture
 est écrite une fois, au noyau.
 
 ## Un exemple qui échoue

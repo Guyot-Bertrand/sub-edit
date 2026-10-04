@@ -37,6 +37,19 @@ nôtre : JSON valide, enveloppe, aucun nombre à virgule.
 | `json/dry-run-writers.jsonl` | les six sous-commandes qui écrivent, en `--dry-run` et sans destination | à la main : `dry_run` vrai, `destination` nul, les comptes de `writers.jsonl` ; `changes` vide pour `hearing-impaired`, qui liste ses changements |
 | `json/dry-run-hearing-impaired.jsonl` | `hearing-impaired --dry-run` sur `valides/mentions.srt` | à la main, d'après l'entrée et la règle (voir `mentions.hearing-impaired.srt`) : les sous-titres 1 (supprimé, `after` nul), 2, 4 et 5 changent, numérotés comme dans le fichier lu ; le 3, une référence, reste |
 
+## `replace/` — ce que `replace` écrit
+
+Écrits à la main, **d'après les règles de `textes/recherche.cas`** — la balise qui coupe le mot cherché
+l'englobe, ce que la correspondance ne touche pas ne bouge pas — et jamais lus dans la sortie du programme.
+L'entrée est écrite par `src/test/e2e/cli/replace_test.cpp`, dont c'est le commentaire de tête qui dit
+pourquoi chaque sous-titre est là.
+
+| Fichier | Cas | Provenance |
+| :------ | :-- | :--------- |
+| `replace/bonjour-salut.srt` | le fichier écrit par `replace Bonjour Salut` : une balise coupait le mot dans le sous-titre 2, un style suit la correspondance dans le 3 | à la main, règles 2 et 4 de `recherche.cas` |
+| `replace/dry-run.txt` | la sortie standard de `replace --dry-run Bonjour Salut` : les sous-titres 2 et 3, avant et après | à la main : un bloc par sous-titre changé |
+| `json/replace-dry-run.jsonl` | les mêmes changements en JSON, avec `counts.replaced` et `counts.matched` | à la main |
+
 ## `dry-run/` — la sortie de `--dry-run`
 
 Comparée par `dry_run_test.cpp`, **après avoir remplacé le dossier temporaire du test par

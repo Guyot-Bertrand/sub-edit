@@ -225,7 +225,7 @@ sont du JSON valide, qu'ils portent l'enveloppe et ne contiennent aucun nombre �
 | `hearing-impaired` | `cleaned`, `removed` |
 | `adjust` | `subtitles`, `adjusted`, `sacrificed.{speed,minimum,gap}` — **et les contraintes employées**, D7 |
 | `correct` | `corrected`, `removed` ; `failures` en avertissements — D8 |
-| `replace` | `replaced` (textes changés), `matched` (correspondances) |
+| `replace` | `replaced` (correspondances remplacées dans les sous-titres dont le texte a changé — le nombre que dit la phrase), `matched` (correspondances trouvées, que le texte ait changé ou non : ce qui distingue « rien trouvé » de « rien à changer ») |
 | `case`, `italics`, `dialogue-dashes` | `changed` |
 | `sort` | `moved` |
 

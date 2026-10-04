@@ -91,6 +91,9 @@ Remove the sounds described between brackets or parentheses.
 .TP
 .B adjust
 Bring the duration of every subtitle within a reading speed and limits.
+.TP
+.B replace
+Replace a text in the subtitles, without breaking a tag.
 .PP
 .BR framerate " and " snap
 take the same arguments and do opposite things: the first re\-times a file

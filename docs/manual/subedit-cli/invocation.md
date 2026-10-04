@@ -29,6 +29,7 @@ Subcommands:
   snap                        Move every position onto the nearest frame of a frame rate (see framerate)
   hearing-impaired            Remove the sounds described between brackets or parentheses
   adjust                      Bring the duration of every subtitle within a reading speed and limits
+  replace                     Replace a text in the subtitles, without breaking a tag
 ```
 
 ## La ligne de commande est en anglais
@@ -112,7 +113,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.16
+subedit 0.13.17
 ```
 
 ## Sous-commandes
@@ -127,17 +128,19 @@ subedit 0.13.16
 | [`snap`](snap.md) | repose chaque horodatage sur l'image la plus proche | oui |
 | [`hearing-impaired`](hearing-impaired.md) | retire les mentions pour malentendants | oui |
 | [`adjust`](adjust.md) | ajuste les durées à une vitesse de lecture et à des bornes | oui |
+| [`replace`](replace.md) | remplace un texte dans les sous-titres, sans casser une balise | oui |
 
-Les huit sont là ; l'aide de l'outil les énumère dans le même ordre.
+Les neuf sont là ; l'aide de l'outil les énumère dans le même ordre.
 
 **Une seule ne touche à rien**, et c'est la colonne de droite : `inspect` lit et
-rapporte. Les sept autres écrivent, et ce qui suit vaut pour elles sept.
+rapporte. Les huit autres écrivent, et ce qui suit vaut pour elles huit.
 
 ## La destination
 
-Les sept sous-commandes qui écrivent — [`convert`](convert.md),
+Les huit sous-commandes qui écrivent — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
-[`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md) — prennent leur
+[`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
+[`replace`](replace.md) — prennent leur
 destination de la même façon. [`inspect`](inspect.md) n'écrit aucun fichier et
 n'accepte aucune de ces options.
 
@@ -212,7 +215,7 @@ par un `?` serait perdre du texte sous les yeux de qui vient de l'écrire.
 
 ## Voir avant d'écrire
 
-**`--dry-run`** est accepté par chacune des sept sous-commandes qui écrivent, et dit la même
+**`--dry-run`** est accepté par chacune des huit sous-commandes qui écrivent, et dit la même
 chose partout : **lire, calculer, rendre compte, n'écrire aucun fichier**. On l'ajoute à la
 ligne qu'on s'apprêtait à lancer ; appliquer, c'est relancer la même ligne sans lui. Le calcul est
 déterministe : ce qu'un `--dry-run` a montré est ce que le lancement suivant écrira, tant que le
@@ -239,8 +242,8 @@ a.srt: 1 subtitle shifted by 1.000 s (dry run, nothing written)
 a.srt
 ```
 
-**Sur une sous-commande qui change des textes** — aujourd'hui
-[`hearing-impaired`](hearing-impaired.md) —, **la sortie standard porte les changements
+**Sur une sous-commande qui change des textes** —
+[`hearing-impaired`](hearing-impaired.md) et [`replace`](replace.md) —, **la sortie standard porte les changements
 proposés**. Un bloc par sous-titre changé, dans l'ordre du fichier :
 
 ```
@@ -281,7 +284,8 @@ calculée que quand `--dry-run` ou `--format json` la demande** : un lot de mill
 sous-titres ne la construit pas pour rien.
 
 Sur **les autres sous-commandes** — [`convert`](convert.md), [`shift`](shift.md),
-[`transform`](transform.md), [`framerate`](framerate.md), [`snap`](snap.md) —, la sortie
+[`transform`](transform.md), [`framerate`](framerate.md), [`snap`](snap.md),
+[`adjust`](adjust.md) —, la sortie
 standard porte ce que porterait celle d'un vrai lancement, c'est-à-dire rien en texte ; en
 JSON, l'objet de chaque fichier avec `"dry_run":true`, `"destination":null` et les mêmes
 `counts`.
@@ -379,6 +383,7 @@ est écrit avec U+FFFD à la place des octets invalides, et l'objet porte l'aver
 | [`framerate`](framerate.md) | `subtitles` |
 | [`snap`](snap.md) | `subtitles`, `moved` (positions déplacées), `furthest_ms` (le plus grand déplacement) |
 | [`hearing-impaired`](hearing-impaired.md) | `cleaned` (textes réécrits), `removed` (sous-titres supprimés) |
+| [`replace`](replace.md) | `replaced` (correspondances remplacées dans les sous-titres changés), `matched` (correspondances trouvées) |
 | [`adjust`](adjust.md) | `subtitles` (les sous-titres visés), `adjusted` (ceux dont la fin a bougé), puis le groupe `sacrificed` : `speed`, `minimum`, `gap` ; et, hors de `counts`, `constraints` — les réglages employés |
 | [`convert`](convert.md) | `subtitles`, puis ce que la conversion a perdu : `lost_ends` et `lost_header` (0 ou 1), `joined_lines`, `lost_tags`, `lost_fields`, `furthest_ms` |
 | [`inspect`](inspect.md) | pas de `counts` : la description du fichier, voir sa page |
@@ -446,7 +451,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Les huit sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
+Les neuf sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
 un fichier lu au mieux puis réécrit a subi les mêmes décisions, et les taire
 laisserait croire que rien ne s'est passé.
 

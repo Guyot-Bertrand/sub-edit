@@ -5,10 +5,10 @@ sans interface graphique, en traitement par lot ou depuis un script. Pour
 l'autre programme et pour savoir par où commencer, voir
 [le manuel](../index.md).
 
-> **État actuel.** Les huit sous-commandes de `subedit-cli` existent :
+> **État actuel.** Les neuf sous-commandes de `subedit-cli` existent :
 > inspecter, convertir, décaler, transformer, recaler la cadence, aligner sur
-> une grille d'images, retirer les mentions pour malentendants et ajuster les
-> durées. Ce manuel
+> une grille d'images, retirer les mentions pour malentendants, ajuster les
+> durées et remplacer un texte. Ce manuel
 > décrit ce qui existe, jamais ce qui est prévu ; ce qui vient ensuite est dans
 > la [feuille de route](../../feuille-de-route.md).
 
@@ -27,3 +27,4 @@ l'autre programme et pour savoir par où commencer, voir
 | [`snap`](snap.md) | reposer les horodatages sur les images d'une cadence |
 | [`hearing-impaired`](hearing-impaired.md) | retirer les mentions pour malentendants |
 | [`adjust`](adjust.md) | ajuster les durées à une vitesse de lecture et à des bornes |
+| [`replace`](replace.md) | remplacer un texte sans casser une balise |

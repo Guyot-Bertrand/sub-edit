@@ -12,6 +12,7 @@ add_executable(
     cli/expected_file_test.cpp
     cli/generated_batch_test.cpp
     cli/recursive_test.cpp
+    cli/replace_test.cpp
     cli/json_test.cpp
     cli/dry_run_test.cpp
     cli/usage_test.cpp

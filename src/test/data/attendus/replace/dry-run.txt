@@ -1,0 +1,6 @@
+<scratch>/in/r.srt: subtitle 2
+- <i>Bon</i>jour tout le monde
++ <i>Salut</i> tout le monde
+<scratch>/in/r.srt: subtitle 3
+- Bonjour <i>Marie</i>, ca va
++ Salut <i>Marie</i>, ca va

@@ -7,7 +7,9 @@
 // (ADR 0040).
 
 #include <subedit/cli/json.hpp>
+#include <subedit/core/command/change.hpp>
 #include <subedit/core/model/document.hpp>
+#include <subedit/core/model/project.hpp>
 
 #include <cstddef>
 #include <optional>
@@ -28,6 +30,24 @@ struct TextChange {
     /// What the text becomes; nothing when the subtitle is removed.
     std::optional<std::string> after{};
 };
+
+/// The main text of every subtitle, in order — set aside **before** a command
+/// runs, so that what it changed can be told afterwards.
+[[nodiscard]] std::vector<std::string> mainTextsOf(const subedit::core::Project& project);
+
+/// What a command did to the texts, subtitle by subtitle.
+///
+/// Read from the command rather than found by comparing: `describe()` names the
+/// subtitles rewritten and the ones taken away, and `before` — from
+/// `mainTextsOf`, taken before the command ran — gives the text each had.
+/// **The indices are those of the project before the command ran**: the
+/// rewrites move none, and a removal names the ones it takes — so a text that
+/// stays is read back from `after` as many places up as subtitles went before
+/// it. The main text only, until the translation reaches the command line.
+[[nodiscard]] std::vector<TextChange>
+changesOfCommand(const subedit::core::Project& after,
+                 const std::vector<std::string>& before,
+                 const std::vector<subedit::core::Change>& described);
 
 /// The `changes` of a record: an array of `{subtitle, document, before, after}`,
 /// `after` being `null` for a subtitle that is removed.
