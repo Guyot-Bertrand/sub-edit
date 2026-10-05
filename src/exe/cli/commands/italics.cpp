@@ -21,6 +21,7 @@ struct ItalicsOptions {
     bool on = false;
     bool off = false;
     std::string range;
+    TranslationOptions translation;
     DestinationOptions destination;
 };
 
@@ -32,6 +33,7 @@ CLI::App* describeItalics(CLI::App& app, std::string_view name, ItalicsOptions& 
     italics->add_flag("--on", options.on, "Put the texts in italics");
     italics->add_flag("--off", options.off, "Take the italics out");
     describeRange(italics, options.range);
+    describeDocument(italics, options.translation);
 
     describeDestination(italics, options.destination);
     return italics;
@@ -57,13 +59,20 @@ ExitCode runItalics(const ItalicsOptions& options,
         return refuse(inputs.error());
     }
 
+    const std::expected<std::optional<Pairing>, std::string> pairing =
+        pairingOf(options.translation, true, *inputs);
+    if (!pairing) {
+        return refuse(pairing.error());
+    }
+
     const std::expected<Destination, std::string> destination =
         destinationOf(options.destination, *inputs);
     if (!destination) {
         return refuse(destination.error());
     }
 
-    return italicsIn(files, inputs->paths, reading, options.on, *range, *destination, reporter);
+    return italicsIn(
+        files, inputs->paths, reading, options.on, *range, *destination, reporter, *pairing);
 }
 
 } // namespace

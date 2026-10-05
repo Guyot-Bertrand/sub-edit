@@ -5,6 +5,7 @@
 #include <subedit/cli/changes.hpp>
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/cli/index_grammar.hpp>
+#include <subedit/cli/pairing.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/selection.hpp>
@@ -80,6 +81,10 @@ struct Request {
     /// range is judged by are the file's own, so a range that fits the first
     /// file of a batch and not the third fails the third, and only it.
     subedit::core::Selection selection;
+
+    /// The text the operation acts on: the translation when the file is
+    /// paired (`--document translation`), the main one otherwise.
+    subedit::core::Document document = subedit::core::Document::Main;
 };
 
 /// An operation that can list what it changes, and acts on a selection.
@@ -119,6 +124,13 @@ using ChangingOperation = std::function<OperationOutcome(subedit::core::Session&
 /// the file is read, the operation runs, the bytes are made — so that a
 /// character the encoding cannot carry fails here as it fails there — and the
 /// write is skipped. No operation has a line about it (ADR 0040).
+///
+/// **With a `pairing`, `paths` is the one main file, and what is written is the
+/// translation** (ADR 0032): the translation is read, laid over the main file by
+/// the method asked for, and the operation acts on it. It is written to its own
+/// path and in its own format, and the main file is not touched — `--output`
+/// names the translation, `--output-dir` takes its base name, `--in-place`
+/// rewrites it. A paired run is **one file**: the caller refuses a batch.
 [[nodiscard]] ExitCode rewriteAll(subedit::core::FileSystem& files,
                                   const std::vector<std::string>& paths,
                                   const std::optional<subedit::core::Encoding>& reading,
@@ -126,6 +138,7 @@ using ChangingOperation = std::function<OperationOutcome(subedit::core::Session&
                                   const Reporter& reporter,
                                   std::string_view verb,
                                   const ChangingOperation& operation,
-                                  const std::optional<Range>& range = std::nullopt);
+                                  const std::optional<Range>& range = std::nullopt,
+                                  const std::optional<Pairing>& pairing = std::nullopt);
 
 } // namespace subedit::cli

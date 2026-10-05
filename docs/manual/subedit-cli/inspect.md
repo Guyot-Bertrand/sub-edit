@@ -1,7 +1,8 @@
 # `inspect`
 
 ```
-subedit-cli inspect [--frame-rate RATE] [--recursive] <fichier>...
+subedit-cli inspect [--frame-rate RATE] [--recursive]
+                   [-t FICHIER] [--align-method position|number] <fichier>...
 ```
 
 Rapporte ce que chaque fichier contient. **Ne modifie rien et n'écrit aucun
@@ -20,6 +21,9 @@ Options:
   -h,--help                   Print this help message and exit
   -r,--recursive              Take directories as inputs, and every subtitle file in them
   --frame-rate RATE           Frame rate of a file counted in frames: 25, 23.976
+  -t,--translation-file FILE  Translation file to lay over the subtitle file, for a single input
+  --align-method position|number
+                              How the lines of the translation find their subtitles
 ```
 
 ## Arguments
@@ -54,6 +58,44 @@ $ subedit-cli inspect --frame-rate douze film.sub; echo $?
 
 C'est la même option que sur [`convert`](convert.md), au mot près, parce que
 c'est la même fréquence. `convert` s'en sert en plus pour **écrire**.
+
+## Une traduction : `-t`
+
+| Option | Requise | Valeur | Défaut |
+| :----- | :------ | :----- | :----- |
+| `-t`, `--translation-file` | non | un fichier de traduction, pour **une seule** entrée | — |
+| `--align-method` | non, et seulement avec `-t` | `position` ou `number` | `position` |
+
+Avec `-t`, la traduction est posée sur le fichier **comme la fenêtre le fait à l'ouverture** — voir
+[Une traduction](invocation.md#une-traduction) — et le rapport dit **comment ses lignes ont trouvé leur
+sous-titre**. Un script sait ainsi si une traduction est alignée avant de la corriger.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour.\n\n' > film.fr.srt; subedit-cli --quiet inspect -t film.fr.srt film.srt | tail -3 -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour.\n\n' > film.fr.srt; subedit-cli --quiet inspect -t film.fr.srt film.srt | tail -3
+  anomalies: none
+  translation file: film.fr.srt, matched by position
+  translation: 1 line attached; 1 subtitle left without a translation
+```
+
+La première ligne ajoutée nomme le fichier et la méthode ; la seconde est **la phrase que la fenêtre
+dit** quand elle ouvre une traduction, chaque partie seulement quand elle n'est pas nulle :
+
+| Partie | Ce qu'elle compte |
+| :----- | :---------------- |
+| `N lines attached` | les lignes de la traduction qui ont trouvé un sous-titre du principal |
+| `N subtitles born of a line` | les lignes qui n'en ont trouvé aucun et ont donné naissance au leur, à leurs propres positions |
+| `N subtitles left without a translation` | les sous-titres du principal qu'aucune ligne n'a atteint |
+| `N lines out of order` | les lignes venues après une plus tardive dans le fichier |
+
+Une traduction qui ne porte aucune ligne dit `translation: the file holds no line`. **Le rapport du
+fichier lui-même reste celui du fichier seul** : un sous-titre né d'une ligne n'est pas compté dans
+`subtitles`.
+
+Les erreurs de `-t` sont celles d'une lecture, dites avec le chemin de la traduction, et celle-ci :
+`<traduction>: the file is already open as the main document`, quand le fichier donné est le principal.
+`--align-method` sans `-t` est une erreur d'usage, et `-t` avec plusieurs entrées aussi — voir
+[Une traduction](invocation.md#une-traduction).
 
 ## Sortie
 
@@ -253,6 +295,7 @@ Les clés décrivent ce que le texte dit, et **aucune n'est à relire dans une p
 | `frame_rate` | pour un fichier compté en images : `{"rate", "origin"}` (`asked` ou `assumed`) ; sinon `null` |
 | `grid` | pour les autres : la grille déduite, ou `null` pour un fichier compté en images |
 | `anomalies` | un tableau de `{"subtitle", "kind"}` — `end-before-start`, `overlapping-subtitles`, `out-of-order` |
+| `translation` | **seulement avec `-t`** : `{"file", "method", "attached", "born", "untranslated", "out_of_order"}` — `method` vaut `position` ou `number`, et les quatre comptes sont ceux de la phrase ci-dessus |
 | `warnings` | ce que la lecture a rencontré, à tous les niveaux |
 
 `grid` porte `verdict` (`clean`, `partial` ou `silent`), `enough_starts`, `rate` (une chaîne,
@@ -284,8 +327,8 @@ certains seulement, `1` sur une erreur d'usage.
 
 ## Erreurs
 
-Celles d'une lecture, et elles seules : `inspect` ne prend aucune option dont la
-valeur puisse être fautive, et n'écrit rien qui puisse être refusé.
+Celles d'une lecture — celle du fichier, et celle de la traduction quand `-t` est donné —, et
+celles de `-t` : voir plus haut. `inspect` n'écrit rien qui puisse être refusé.
 
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |

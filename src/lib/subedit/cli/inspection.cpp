@@ -2,11 +2,14 @@
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/json.hpp>
+#include <subedit/cli/pairing.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_verdict.hpp>
+#include <subedit/core/edit/session.hpp>
+#include <subedit/core/edit/translation.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
@@ -24,10 +27,12 @@
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/formats.hpp>
+#include <subedit/core/wording/translation.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <optional>
 #include <ostream>
 #include <span>
 #include <string>
@@ -270,7 +275,9 @@ std::string_view idOf(core::GridVerdict verdict) {
 [[nodiscard]] Json descriptionOf(std::string_view command,
                                  const std::string& path,
                                  const core::OpenedFile& opened,
-                                 bool encodingAsked) {
+                                 bool encodingAsked,
+                                 const std::optional<Pairing>& pairing,
+                                 const std::optional<core::TranslationOutcome>& alignment) {
     const core::Project& project = opened.project;
     const core::SourceFile& source = project.sourceFile();
 
@@ -326,6 +333,11 @@ std::string_view idOf(core::GridVerdict verdict) {
             Json::object().set("subtitle", anomaly.index.number()).set("kind", idOf(anomaly.kind)));
     }
     record.set("anomalies", std::move(anomalies));
+    // **Only when a translation was asked for**: a file read alone has no
+    // alignment to report, and the key is not written for it.
+    if (pairing && alignment) {
+        record.set("translation", alignmentOf(*pairing, *alignment));
+    }
     record.set("warnings", std::move(warnings));
     return record;
 }
@@ -336,13 +348,36 @@ bool inspectFile(const core::FileSystem& files,
                  const std::string& path,
                  const core::ReadingChoices& reading,
                  std::ostream& out,
-                 const Reporter& reporter) {
-    const std::expected<core::OpenedFile, core::OpenError> opened =
+                 const Reporter& reporter,
+                 const std::optional<Pairing>& pairing) {
+    std::expected<core::OpenedFile, core::OpenError> opened =
         core::openProject(files, path, reading);
     if (!opened) {
         reportFailure(
             reporter, path, Failure{idOf(opened.error()), std::string{reasonOf(opened.error())}});
         return false;
+    }
+
+    // The translation is laid over a copy: the report of the main file below is
+    // of the file as it was read, and an attachment born of a line would change
+    // its count.
+    std::optional<core::TranslationOutcome> alignment;
+    if (pairing) {
+        core::Session session{opened->project};
+        const std::expected<Paired, Failure> paired = pair(files, session, *pairing, reading);
+        if (!paired) {
+            // The file working on is the main one, and the failure is the
+            // translation's: it names it.
+            reportFailure(
+                reporter,
+                path,
+                Failure{paired.error().kind, pairing->translation + ": " + paired.error().message});
+            return false;
+        }
+        alignment = paired->outcome;
+        // What reading the translation decided is said with the rest.
+        opened->diagnostics.insert(
+            opened->diagnostics.end(), paired->diagnostics.begin(), paired->diagnostics.end());
     }
 
     const core::Project& project = opened->project;
@@ -359,12 +394,15 @@ bool inspectFile(const core::FileSystem& files,
                  path + ": " + std::string{nameOf(source.format)} + ", " + nameOf(source.encoding) +
                      ", " + std::string{nameOf(source.newline)} + " line endings");
     reporter.say(1, path + ": " + core::countOf(project.subtitles().size(), "subtitle"));
+    if (alignment) {
+        reporter.say(1, path + ": " + core::noticeOf(*alignment));
+    }
 
     // The description as a record, and not as lines: what the text says for a
     // human, the record says as keys, and the two never both go to the output.
     if (reporter.recording()) {
-        reporter.record(
-            descriptionOf(reporter.command(), path, *opened, reading.encoding.has_value()));
+        reporter.record(descriptionOf(
+            reporter.command(), path, *opened, reading.encoding.has_value(), pairing, alignment));
         return true;
     }
 
@@ -386,6 +424,12 @@ bool inspectFile(const core::FileSystem& files,
         sayGrid(out, project);
     }
     out << "  anomalies: " << anomalies(project) << '\n';
+    if (alignment && pairing) {
+        out << "  translation file: " << pairing->translation << ", matched by "
+            << (pairing->method == core::TranslationMethod::Position ? "position" : "number")
+            << '\n';
+        out << "  " << core::noticeOf(*alignment) << '\n';
+    }
 
     return true;
 }
@@ -394,10 +438,11 @@ ExitCode inspectAll(const core::FileSystem& files,
                     const std::vector<std::string>& paths,
                     const core::ReadingChoices& reading,
                     std::ostream& out,
-                    const Reporter& reporter) {
+                    const Reporter& reporter,
+                    const std::optional<Pairing>& pairing) {
     std::size_t done = 0;
     for (const std::string& path : paths) {
-        if (inspectFile(files, path, reading, out, reporter)) {
+        if (inspectFile(files, path, reading, out, reporter, pairing)) {
             ++done;
         }
     }

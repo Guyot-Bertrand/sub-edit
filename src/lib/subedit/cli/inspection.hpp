@@ -3,9 +3,11 @@
 // Reporting what a subtitle file is made of, without changing it.
 
 #include <subedit/cli/exit_code.hpp>
+#include <subedit/cli/pairing.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 
 #include <iosfwd>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -26,11 +28,17 @@ class Reporter;
 /// Returns true when the file could be read. What went wrong, when it could
 /// not, goes through `reporter` — never mixed into the report, so that a
 /// caller piping the result never receives a complaint where it expected data.
+///
+/// With a `pairing` the translation is laid over the file and the report says
+/// how its lines found their subtitles — the sentence the window says when it
+/// opens one, and the four counts as keys. **The report of the file itself is
+/// of the file alone**: a subtitle born of a line is not counted in it.
 [[nodiscard]] bool inspectFile(const subedit::core::FileSystem& files,
                                const std::string& path,
                                const subedit::core::ReadingChoices& reading,
                                std::ostream& out,
-                               const Reporter& reporter);
+                               const Reporter& reporter,
+                               const std::optional<Pairing>& pairing = std::nullopt);
 
 /// Reports on every path, and says how it went.
 ///
@@ -42,6 +50,7 @@ class Reporter;
                                   const std::vector<std::string>& paths,
                                   const subedit::core::ReadingChoices& reading,
                                   std::ostream& out,
-                                  const Reporter& reporter);
+                                  const Reporter& reporter,
+                                  const std::optional<Pairing>& pairing = std::nullopt);
 
 } // namespace subedit::cli

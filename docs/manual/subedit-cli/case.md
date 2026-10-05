@@ -5,6 +5,7 @@ subedit-cli case --to title|sentence|upper|lower [--range N-M|N-]
                  (--output FICHIER | --output-dir DOSSIER | --in-place)
                  [--dry-run]
                  [--recursive]
+                 [--document main|translation] [-t FICHIER] [--align-method position|number]
                  <fichier>...
 ```
 
@@ -40,6 +41,10 @@ Options:
   --to title|sentence|upper|lower
                               The case to put the texts in
   --range N-M|N-              Act only on subtitles N to M, or N to the end
+  --document main|translation The document to change: the main one, or the translation given by -t
+  -t,--translation-file FILE  Translation file to lay over the subtitle file, for a single input
+  --align-method position|number
+                              How the lines of the translation find their subtitles
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
   --in-place                  Write back over the inputs
@@ -54,11 +59,14 @@ Options:
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--to` | **oui** | `title`, `sentence`, `upper`, `lower` | — |
 | `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir [`adjust`](adjust.md#--range) | tout le fichier |
+| `--document` | non | `main` ou `translation` — voir [Une traduction](invocation.md#une-traduction) | `main` |
+| `-t`, `--translation-file` | avec `--document translation` | un fichier de traduction, pour **une seule** entrée | — |
+| `--align-method` | non, et seulement avec `-t` | `position` ou `number` | `position` |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 
-**Le texte principal, et lui seul.** Un document de traduction n'est pas touché, la ligne de commande
-n'ayant à ce jour aucun moyen d'en désigner un.
+**Le texte principal par défaut ; la traduction avec `--document translation -t FICHIER`.** C'est alors
+la traduction qui est changée et écrite, et elle seule — voir [Une traduction](invocation.md#une-traduction).
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt -->
 ```console

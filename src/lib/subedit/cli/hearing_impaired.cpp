@@ -29,18 +29,19 @@ ExitCode removeHearingImpairedIn(core::FileSystem& files,
                                  const std::vector<std::string>& paths,
                                  const std::optional<core::Encoding>& reading,
                                  const Destination& destination,
-                                 const Reporter& reporter) {
+                                 const Reporter& reporter,
+                                 const std::optional<Pairing>& pairing) {
     const ChangingOperation clean = [](core::Session& session,
                                        const Request& request) -> OperationOutcome {
         // The texts as they are, set aside only when someone reads the list.
         std::vector<std::string> before;
         if (request.changes)
-            before = mainTextsOf(session.project());
+            before = textsOf(session.project(), request.document);
 
         // What the loop hands over: the whole file, as this subcommand takes no
-        // `--range` yet.
+        // `--range` yet, and the document it was asked to clean.
         std::unique_ptr<core::Command> command =
-            core::removeHearingImpaired(session.project(), request.selection, core::Document::Main);
+            core::removeHearingImpaired(session.project(), request.selection, request.document);
         if (!command)
             return OperationResult{.sentence = core::noMentionToRemove(),
                                    .counts = {{"cleaned", 0}, {"removed", 0}},
@@ -57,11 +58,13 @@ ExitCode removeHearingImpairedIn(core::FileSystem& files,
             .counts = {{"cleaned", static_cast<std::int64_t>(tally.cleaned)},
                        {"removed", static_cast<std::int64_t>(tally.removed)}},
             .changes = request.changes
-                           ? std::optional{changesOfCommand(session.project(), before, described)}
+                           ? std::optional{changesOfCommand(
+                                 session.project(), before, described, request.document)}
                            : std::nullopt};
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "cleaned", clean);
+    return rewriteAll(
+        files, paths, reading, destination, reporter, "cleaned", clean, std::nullopt, pairing);
 }
 
 } // namespace subedit::cli

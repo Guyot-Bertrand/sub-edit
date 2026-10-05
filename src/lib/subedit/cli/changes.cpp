@@ -31,17 +31,18 @@ void appendLines(std::string& out, std::string_view prefix, std::string_view tex
 
 } // namespace
 
-std::vector<std::string> mainTextsOf(const core::Project& project) {
+std::vector<std::string> textsOf(const core::Project& project, core::Document document) {
     std::vector<std::string> texts;
     texts.reserve(project.count());
     for (const core::Subtitle& subtitle : project.subtitles())
-        texts.push_back(subtitle.text(core::Document::Main));
+        texts.push_back(subtitle.text(document));
     return texts;
 }
 
 std::vector<TextChange> changesOfCommand(const core::Project& after,
                                          const std::vector<std::string>& before,
-                                         const std::vector<core::Change>& described) {
+                                         const std::vector<core::Change>& described,
+                                         core::Document document) {
     std::set<std::size_t> removed;
     std::set<std::size_t> rewritten;
     for (const core::Change& change : described) {
@@ -59,14 +60,12 @@ std::vector<TextChange> changesOfCommand(const core::Project& after,
         if (!taken && !rewritten.contains(at))
             continue;
 
-        TextChange change{
-            .subtitle = at + 1, .document = core::Document::Main, .before = before[at]};
+        TextChange change{.subtitle = at + 1, .document = document, .before = before[at]};
         if (!taken) {
             const std::size_t now =
                 at -
                 static_cast<std::size_t>(std::distance(removed.begin(), removed.lower_bound(at)));
-            change.after =
-                after.subtitleAt(core::SubtitleIndex::fromValue(now)).text(core::Document::Main);
+            change.after = after.subtitleAt(core::SubtitleIndex::fromValue(now)).text(document);
         }
         changes.push_back(std::move(change));
     }

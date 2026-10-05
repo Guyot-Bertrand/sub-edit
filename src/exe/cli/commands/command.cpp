@@ -46,6 +46,60 @@ std::expected<std::optional<Range>, std::string> rangeOf(const std::string& rang
     return std::optional{*read};
 }
 
+void describeTranslation(CLI::App* command, TranslationOptions& options) {
+    command
+        ->add_option("-t,--translation-file",
+                     options.file,
+                     "Translation file to lay over the subtitle file, for a single input")
+        ->option_text("FILE");
+    command
+        ->add_option("--align-method",
+                     options.alignMethod,
+                     "How the lines of the translation find their subtitles")
+        ->check(CLI::IsMember({"position", "number"}))
+        ->option_text("position|number")
+        ->default_str("position");
+}
+
+void describeDocument(CLI::App* command, TranslationOptions& options) {
+    command
+        ->add_option("--document",
+                     options.document,
+                     "The document to change: the main one, or the translation given by -t")
+        ->check(CLI::IsMember({"main", "translation"}))
+        ->option_text("main|translation")
+        ->default_str("main");
+    describeTranslation(command, options);
+}
+
+std::expected<std::optional<Pairing>, std::string>
+pairingOf(const TranslationOptions& options, bool withDocument, const Inputs& inputs) {
+    const bool translation = options.document == "translation";
+    const bool given = !options.file.empty();
+
+    if (withDocument && translation && !given) {
+        return std::unexpected{"--document translation needs the translation file: use -t"};
+    }
+    if (withDocument && given && !translation) {
+        return std::unexpected{"-t names a translation to change: use --document translation"};
+    }
+    if (!given) {
+        if (!options.alignMethod.empty()) {
+            return std::unexpected{"--align-method needs a translation file: use -t"};
+        }
+        return std::optional<Pairing>{};
+    }
+    if (inputs.paths.size() > 1 || !inputs.roots.empty()) {
+        return std::unexpected{
+            "-t names one file but several inputs were given: use one invocation per pair"};
+    }
+
+    return std::optional{Pairing{.translation = options.file,
+                                 .method = options.alignMethod == "number"
+                                               ? core::TranslationMethod::Number
+                                               : core::TranslationMethod::Position}};
+}
+
 ExitCode refuse(std::string_view why) {
     std::cerr << why << '\n';
     return ExitCode::Usage;

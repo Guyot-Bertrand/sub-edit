@@ -16,6 +16,7 @@ struct InspectOptions {
     std::vector<std::string> files;
     bool recursive = false;
     std::string frameRate;
+    TranslationOptions translation;
 };
 
 CLI::App* describeInspect(CLI::App& app, std::string_view name, InspectOptions& options) {
@@ -32,6 +33,8 @@ CLI::App* describeInspect(CLI::App& app, std::string_view name, InspectOptions& 
         ->add_option(
             "--frame-rate", options.frameRate, "Frame rate of a file counted in frames: 25, 23.976")
         ->option_text("RATE");
+
+    describeTranslation(inspect, options.translation);
 
     // `--order-report` lived here, offering both readings of disorder while
     // real files settled the question. They did not — none of the corpus is out
@@ -57,7 +60,13 @@ ExitCode runInspect(const InspectOptions& options,
         return refuse(inputs.error());
     }
 
-    return inspectAll(files, inputs->paths, *choices, std::cout, reporter);
+    const std::expected<std::optional<Pairing>, std::string> pairing =
+        pairingOf(options.translation, false, *inputs);
+    if (!pairing) {
+        return refuse(pairing.error());
+    }
+
+    return inspectAll(files, inputs->paths, *choices, std::cout, reporter, *pairing);
 }
 
 } // namespace

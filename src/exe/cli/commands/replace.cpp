@@ -20,6 +20,7 @@ struct ReplaceOptions {
     bool regex = false;
     bool caseSensitive = false;
     std::string range;
+    TranslationOptions translation;
     DestinationOptions destination;
 };
 
@@ -37,6 +38,7 @@ CLI::App* describeReplace(CLI::App& app, std::string_view name, ReplaceOptions& 
     replace->add_flag(
         "--case-sensitive", options.caseSensitive, "Tell capitals from small letters");
     describeRange(replace, options.range);
+    describeDocument(replace, options.translation);
 
     describeDestination(replace, options.destination);
     return replace;
@@ -65,6 +67,12 @@ ExitCode runReplace(const ReplaceOptions& options,
         return refuse(inputs.error());
     }
 
+    const std::expected<std::optional<Pairing>, std::string> pairing =
+        pairingOf(options.translation, true, *inputs);
+    if (!pairing) {
+        return refuse(pairing.error());
+    }
+
     const std::expected<Destination, std::string> destination =
         destinationOf(options.destination, *inputs);
     if (!destination) {
@@ -79,7 +87,8 @@ ExitCode runReplace(const ReplaceOptions& options,
                      options.replacement,
                      *range,
                      *destination,
-                     reporter);
+                     reporter,
+                     *pairing);
 }
 
 } // namespace
