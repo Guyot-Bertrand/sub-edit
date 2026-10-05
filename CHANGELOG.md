@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Motifs et terrain de la correction hors de Qt
+
+## 0.13.21 — 2026-10-05
+
+### Ajouts
+
 - **cli** — -t, --document et --align-method
 
 ## 0.13.20 — 2026-10-04
