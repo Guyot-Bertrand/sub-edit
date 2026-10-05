@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Correct --tasks line-break, en caractères
+
+## 0.13.23 — 2026-10-05
+
+### Ajouts
+
 - **cli** — Sous-commande correct, tâches de motifs
 
 ## 0.13.22 — 2026-10-05
