@@ -30,6 +30,7 @@ add_executable(
     cli/text_rewriting_test.cpp
     cli/transform_test.cpp
     cli/translation_test.cpp
+    cli/pattern_catalogue_test.cpp
     cli/framerate_test.cpp
     gui/version_test.cpp)
 
@@ -43,11 +44,12 @@ target_link_libraries(subedit_e2e_test PRIVATE subedit::core Catch2::Catch2WithM
 target_compile_definitions(
     subedit_e2e_test PRIVATE SUBEDIT_CLI_BINARY="$<TARGET_FILE:subedit-cli>"
                              SUBEDIT_GUI_BINARY="$<TARGET_FILE:subedit-gui>"
+                             SUBEDIT_PATTERN_CATALOGUE_BINARY="$<TARGET_FILE:subedit_pattern_catalogue>"
                              SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
 
 # $<TARGET_FILE:…> donne un chemin, pas un ordre de construction. Sans cette
 # ligne, rien ne garantit que le binaire existe quand le test le lance.
-add_dependencies(subedit_e2e_test subedit-cli subedit-gui)
+add_dependencies(subedit_e2e_test subedit-cli subedit-gui subedit_pattern_catalogue)
 
 subedit_set_warnings(subedit_e2e_test)
 

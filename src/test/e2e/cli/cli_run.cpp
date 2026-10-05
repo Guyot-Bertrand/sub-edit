@@ -189,12 +189,20 @@ namespace {
 /// calls it, and a launched binary never calls it.
 constexpr std::string_view kConfigHomeVariable = "XDG_CONFIG_HOME=";
 
-/// A configuration home of this process's own, removed when it ends.
+/// The two others the command line reads, and only reads: the patterns a user
+/// drops in `$XDG_DATA_HOME/subedit/patterns` (ADR 0037), and the personal word
+/// list Enchant keeps in `$ENCHANT_CONFIG_DIR`. A test never resolves them — it
+/// is given a directory of its own, empty, exactly as it is for the settings.
+constexpr std::string_view kDataHomeVariable = "XDG_DATA_HOME=";
+constexpr std::string_view kEnchantHomeVariable = "ENCHANT_CONFIG_DIR=";
+
+/// A directory of this process's own, removed when it ends: the configuration
+/// home, the data home, the Enchant home — one each, named after what it is for.
 class PrivateConfigHome {
 public:
-    PrivateConfigHome() {
+    explicit PrivateConfigHome(const std::string& purpose) {
         m_path = std::filesystem::temp_directory_path() /
-                 ("subedit-e2e-config-" + std::to_string(::getpid()));
+                 ("subedit-e2e-" + purpose + "-" + std::to_string(::getpid()));
         std::filesystem::remove_all(m_path);
         std::filesystem::create_directories(m_path);
     }
@@ -219,7 +227,17 @@ private:
 /// Made on first use and destroyed when the process ends, which is what removes
 /// the directory.
 const PrivateConfigHome& privateConfigHome() {
-    static const PrivateConfigHome home;
+    static const PrivateConfigHome home{"config"};
+    return home;
+}
+
+const PrivateConfigHome& privateDataHome() {
+    static const PrivateConfigHome home{"data"};
+    return home;
+}
+
+const PrivateConfigHome& privateEnchantHome() {
+    static const PrivateConfigHome home{"enchant"};
     return home;
 }
 
@@ -322,6 +340,14 @@ std::string configHome() {
     return privateConfigHome().path().string();
 }
 
+std::string dataHome() {
+    return privateDataHome().path().string();
+}
+
+std::string enchantHome() {
+    return privateEnchantHome().path().string();
+}
+
 std::vector<std::string> childEnvironment() {
     std::vector<std::string> variables;
 
@@ -330,13 +356,16 @@ std::vector<std::string> childEnvironment() {
         // Dropped rather than left in place: `posix_spawn` hands the array over
         // as it is, and which of two definitions of the same name wins is the
         // child's business, not ours.
-        if (variable.starts_with(kConfigHomeVariable))
+        if (variable.starts_with(kConfigHomeVariable) || variable.starts_with(kDataHomeVariable) ||
+            variable.starts_with(kEnchantHomeVariable))
             continue;
 
         variables.emplace_back(variable);
     }
 
     variables.emplace_back(std::string{kConfigHomeVariable} + configHome());
+    variables.emplace_back(std::string{kDataHomeVariable} + dataHome());
+    variables.emplace_back(std::string{kEnchantHomeVariable} + enchantHome());
     return variables;
 }
 
@@ -495,6 +524,10 @@ std::string writeUnreadable(const Scratch& scratch, const std::string& name) {
 
 CliRun invoke(const std::vector<std::string>& args) {
     return run(SUBEDIT_CLI_BINARY, args);
+}
+
+CliRun invokePatternCatalogue() {
+    return run(SUBEDIT_PATTERN_CATALOGUE_BINARY, {});
 }
 
 CliRun invokeGui(const std::vector<std::string>& args) {

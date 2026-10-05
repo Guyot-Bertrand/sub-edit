@@ -17,11 +17,11 @@
 #include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_path.hpp>
-#include <subedit/gui/patterns_path.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/subtitle_editor.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/theme.hpp>
+#include <subedit/platform/locations.hpp>
 
 #include <QAction>
 #include <QApplication>
@@ -451,7 +451,7 @@ TEST_CASE("configureFromEnvironment applies settings, the manual path and the "
     // The pattern-catalogue half: one real record, at the exact cascade
     // `Common Errors` reads by default — `Zyyy`, `CorrectionSettings{}`'s own
     // starting code.
-    files.addFile(subedit::gui::installedPatternsPath() / "Zyyy.common-error",
+    files.addFile(subedit::platform::installedPatternsPath() / "Zyyy.common-error",
                   "# -*- conf -*-\n"
                   "\n[Common Error Pattern]\nName=Letter I\nClasses=Human;\nPattern=a\n");
 

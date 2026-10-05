@@ -4,5 +4,6 @@
 # vit ici : les exécutables de src/exe ne font que du câblage.
 
 add_subdirectory(subedit/core)
+add_subdirectory(subedit/platform)
 add_subdirectory(subedit/cli)
 add_subdirectory(subedit/gui)

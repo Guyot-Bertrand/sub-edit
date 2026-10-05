@@ -52,11 +52,11 @@ dépendances à Qt que la phase rencontre sont :
   feuille de route le dit : ce n'est pas un compromis, c'est la seule mesure qui existe sans
   police.
 - **la résolution des emplacements des motifs**, que l'ADR 0037 avait promise « hors de
-  `gui` » et qui **n'y est pas** : `installedPatternsPath()` et `resolvedUserPatternsPath()`
-  sont dans `gui/patterns_path.cpp` et appellent `QCoreApplication::applicationDirPath()` et
+  `gui` » et qui **n'y était pas** : `installedPatternsPath()` et `resolvedUserPatternsPath()`
+  étaient dans `gui/patterns_path.cpp` et appelaient `QCoreApplication::applicationDirPath()` et
   `qgetenv`. Le noyau en fournit la partie pure (`shippedPatternsPath`, `userPatternsPath`) ;
-  **il manque l'appel côté ligne de commande**, sans Qt. C'est une issue de la tranche de la
-  correction ([#566](https://github.com/Guyot-Bertrand/sub-edit/issues/566)).
+  **l'appel, sans Qt, vit depuis [#566](https://github.com/Guyot-Bertrand/sub-edit/issues/566)
+  dans `subedit::platform`**, que la fenêtre et la ligne de commande lient toutes deux.
 
 **Tout le reste est au noyau et se branche tel quel** : `proposeCorrections` et
 `applyCorrections`, `readPatternCatalogue`, `openSpellChecker` et `EnchantSpellProvider`

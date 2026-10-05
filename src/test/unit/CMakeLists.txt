@@ -196,6 +196,7 @@ add_executable(
     cli/inspection_test.cpp
     cli/inspection_json_test.cpp
     cli/pairing_test.cpp
+    platform/locations_test.cpp
     cli/records_test.cpp
     cli/replacing_test.cpp
     cli/rewriting_test.cpp

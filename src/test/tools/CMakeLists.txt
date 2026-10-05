@@ -48,3 +48,15 @@ add_executable(subedit_detect_format detect_format.cpp)
 target_link_libraries(subedit_detect_format PRIVATE subedit::core)
 
 subedit_set_warnings(subedit_detect_format)
+
+# Le catalogue de motifs, tel que la ligne de commande le lira — #566.
+#
+# Rien de ce qui est livré ne lit encore le catalogue : cette sonde résout les
+# deux répertoires **comme la ligne de commande le fera** (depuis son exécutable
+# et l'environnement, par `subedit::platform`, sans Qt) et les lit. C'est
+# l'option de mise au point que l'issue autorise, hors du binaire livré.
+add_executable(subedit_pattern_catalogue pattern_catalogue.cpp)
+
+target_link_libraries(subedit_pattern_catalogue PRIVATE subedit::platform subedit::core)
+
+subedit_set_warnings(subedit_pattern_catalogue)

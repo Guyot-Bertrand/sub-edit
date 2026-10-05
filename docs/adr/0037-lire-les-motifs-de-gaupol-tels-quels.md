@@ -121,6 +121,15 @@ l'un ni l'autre** : il reçoit ses répertoires. Le premier emplacement étant
 propre à l'exécutable, et la ligne de commande devant corriger en phase 13, sa
 résolution vit hors de `gui`.
 
+**Où, depuis #566** : `subedit::platform` (`src/lib/subedit/platform/`), une
+bibliothèque sans Qt que la fenêtre et la ligne de commande lient toutes deux. Le
+noyau garde ses deux fonctions pures et ne lit toujours aucune variable ; la
+bibliothèque est ce qui leur donne leurs arguments — le répertoire de l'exécutable
+(`/proc/self/exe` sous Linux, la porte ouverte ailleurs, ADR 0003), `XDG_DATA_HOME` et
+`HOME`. L'arbre de construction reproduit l'installation, par un lien que CMake pose
+(`build/<preset>/share/subedit/patterns`), si bien qu'un binaire lancé depuis lui
+trouve ses motifs comme un binaire installé, sans option de mise au point.
+
 **Ce qui justifierait de rouvrir** : Gaupol qui change de format, ou un besoin
 que son format ne sait pas porter — un motif propre à `subedit`, par exemple.
 Ce jour-là, un fichier à nous s'ajouterait à côté des siens plutôt que de les
