@@ -18,6 +18,7 @@ struct DialogueDashesOptions {
     bool add = false;
     bool remove = false;
     std::string range;
+    TranslationOptions translation;
     DestinationOptions destination;
 };
 
@@ -30,6 +31,7 @@ describeDialogueDashes(CLI::App& app, std::string_view name, DialogueDashesOptio
     dashes->add_flag("--add", options.add, "Put a dialogue dash at the head of the lines");
     dashes->add_flag("--remove", options.remove, "Take the dialogue dashes off");
     describeRange(dashes, options.range);
+    describeDocument(dashes, options.translation);
 
     describeDestination(dashes, options.destination);
     return dashes;
@@ -55,6 +57,12 @@ ExitCode runDialogueDashes(const DialogueDashesOptions& options,
         return refuse(inputs.error());
     }
 
+    const std::expected<std::optional<Pairing>, std::string> pairing =
+        pairingOf(options.translation, true, *inputs);
+    if (!pairing) {
+        return refuse(pairing.error());
+    }
+
     const std::expected<Destination, std::string> destination =
         destinationOf(options.destination, *inputs);
     if (!destination) {
@@ -62,7 +70,7 @@ ExitCode runDialogueDashes(const DialogueDashesOptions& options,
     }
 
     return dialogueDashesIn(
-        files, inputs->paths, reading, options.add, *range, *destination, reporter);
+        files, inputs->paths, reading, options.add, *range, *destination, reporter, *pairing);
 }
 
 } // namespace

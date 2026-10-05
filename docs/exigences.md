@@ -267,11 +267,11 @@ plus rien.
 | `CLI-DASH-01` | `dialogue-dashes --add` / `--remove` pose et retire les tirets de dialogue | 13 | implémentée |
 | `CLI-SORT-01` | `sort` met les sous-titres dans l'ordre de leur début, de façon stable | 13 | implémentée |
 | `CLI-SORT-02` | `sort` dit combien de sous-titres ont bougé, et écrit le fichier même s'il est déjà en ordre | 13 | implémentée |
-| `CLI-TRANS-01` | `inspect -t` rapporte lignes rattachées, sous-titres nés, sans traduction et hors d'ordre | 13 | prévue |
-| `CLI-TRANS-02` | `--document translation` exige `-t`, et `-t` exige `--document translation` sur une sous-commande de texte | 13 | prévue |
-| `CLI-TRANS-03` | `-t` n'a de sens que pour une seule entrée ; avec un lot, il est refusé | 13 | prévue |
-| `CLI-TRANS-04` | seul le document visé est écrit, à son propre chemin et dans son propre format | 13 | prévue |
-| `CLI-TRANS-05` | `--align-method` choisit entre position (défaut) et numéro | 13 | prévue |
+| `CLI-TRANS-01` | `inspect -t` rapporte lignes rattachées, sous-titres nés, sans traduction et hors d'ordre | 13 | implémentée |
+| `CLI-TRANS-02` | `--document translation` exige `-t`, et `-t` exige `--document translation` sur une sous-commande de texte | 13 | implémentée |
+| `CLI-TRANS-03` | `-t` n'a de sens que pour une seule entrée ; avec un lot, il est refusé | 13 | implémentée |
+| `CLI-TRANS-04` | seul le document visé est écrit, à son propre chemin et dans son propre format | 13 | implémentée |
+| `CLI-TRANS-05` | `--align-method` choisit entre position (défaut) et numéro | 13 | implémentée |
 | `CLI-LISTENC-01` | `--list-encodings` écrit les encodages qu'ICU sait convertir, un par ligne, et s'arrête | 13 | implémentée |
 | `CLI-APPEND-01` | `append` ajoute les fichiers à la suite du premier, décalés de la fin du dernier sous-titre, dans une seule sortie | 13 | prévue |
 | `CLI-PSPLIT-01` | `split-file --at N` écrit les deux moitiés, la seconde ramenée à l'origine, ou refuse en nommant le sous-titre | 13 | prévue |

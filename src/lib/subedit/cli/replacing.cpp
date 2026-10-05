@@ -33,7 +33,8 @@ ExitCode replaceIn(core::FileSystem& files,
                    std::string_view replacement,
                    const std::optional<Range>& range,
                    const Destination& destination,
-                   const Reporter& reporter) {
+                   const Reporter& reporter,
+                   const std::optional<Pairing>& pairing) {
     // The compiled pattern is read, never changed, and outlives the batch; the
     // operation is copied into a `std::function` and borrows it.
     const ChangingOperation replace =
@@ -41,11 +42,11 @@ ExitCode replaceIn(core::FileSystem& files,
             core::Session& session, const Request& request) -> OperationOutcome {
         std::vector<std::string> before;
         if (request.changes) {
-            before = mainTextsOf(session.project());
+            before = textsOf(session.project(), request.document);
         }
 
-        core::ReplacedAll replaced = core::replaceAll(
-            session.project(), request.selection, core::Document::Main, pattern, with);
+        core::ReplacedAll replaced =
+            core::replaceAll(session.project(), request.selection, request.document, pattern, with);
 
         const auto count = [](std::size_t number) { return static_cast<std::int64_t>(number); };
         std::vector<Count> counts{{"replaced", count(replaced.count)},
@@ -68,11 +69,13 @@ ExitCode replaceIn(core::FileSystem& files,
             .sentence = core::noticeOfReplaceAll(replaced.count),
             .counts = std::move(counts),
             .changes = request.changes
-                           ? std::optional{changesOfCommand(session.project(), before, described)}
+                           ? std::optional{changesOfCommand(
+                                 session.project(), before, described, request.document)}
                            : std::nullopt};
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "replaced", replace, range);
+    return rewriteAll(
+        files, paths, reading, destination, reporter, "replaced", replace, range, pairing);
 }
 
 } // namespace subedit::cli

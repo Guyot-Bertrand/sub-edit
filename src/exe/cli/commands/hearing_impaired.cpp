@@ -18,6 +18,7 @@ namespace {
 struct HearingImpairedOptions {
     std::vector<std::string> files;
     bool recursive = false;
+    TranslationOptions translation;
     DestinationOptions destination;
 };
 
@@ -27,6 +28,7 @@ describeHearingImpaired(CLI::App& app, std::string_view name, HearingImpairedOpt
         std::string{name}, "Remove the sounds described between brackets or parentheses");
     hearing->add_option("files", options.files, "Subtitle files to clean")->required();
     describeRecursive(hearing, options.recursive);
+    describeDocument(hearing, options.translation);
 
     describeDestination(hearing, options.destination);
     return hearing;
@@ -42,13 +44,19 @@ ExitCode runHearingImpaired(const HearingImpairedOptions& options,
         return refuse(inputs.error());
     }
 
+    const std::expected<std::optional<Pairing>, std::string> pairing =
+        pairingOf(options.translation, true, *inputs);
+    if (!pairing) {
+        return refuse(pairing.error());
+    }
+
     const std::expected<Destination, std::string> destination =
         destinationOf(options.destination, *inputs);
     if (!destination) {
         return refuse(destination.error());
     }
 
-    return removeHearingImpairedIn(files, inputs->paths, reading, *destination, reporter);
+    return removeHearingImpairedIn(files, inputs->paths, reading, *destination, reporter, *pairing);
 }
 
 } // namespace

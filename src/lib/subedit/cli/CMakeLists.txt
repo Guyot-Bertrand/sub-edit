@@ -27,6 +27,7 @@ add_library(
     frame_rate_conversion.cpp
     frame_rate_grammar.cpp
     inspection.cpp
+    pairing.cpp
     conversion.cpp
     index_grammar.cpp
     records.cpp

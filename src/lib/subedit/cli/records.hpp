@@ -11,6 +11,7 @@
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/read_error.hpp>
+#include <subedit/core/format/translation_file.hpp>
 #include <subedit/core/format/write_error.hpp>
 #include <subedit/core/io/file_system.hpp>
 
@@ -77,6 +78,7 @@ using Fields = std::vector<std::pair<std::string, Json>>;
 [[nodiscard]] std::string_view idOf(core::ReadErrorKind kind);
 [[nodiscard]] std::string_view idOf(core::WriteErrorKind kind);
 [[nodiscard]] std::string_view idOf(const core::OpenError& error);
+[[nodiscard]] std::string_view idOf(const core::TranslationError& error);
 
 /// An object of integers, in the order given.
 [[nodiscard]] Json countsOf(const std::vector<Count>& counts);

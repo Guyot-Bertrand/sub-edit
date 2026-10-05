@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — -t, --document et --align-method
+
+## 0.13.20 — 2026-10-04
+
+### Ajouts
+
 - **cli** — Option globale --list-encodings
 
 ## 0.13.19 — 2026-10-04

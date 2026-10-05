@@ -29,12 +29,13 @@ namespace {
 /// What differs between the three: the command they build, the sentence for
 /// what it did, and what, if anything, makes a file unfit for it.
 struct TextRewrite {
-    std::function<std::unique_ptr<core::Command>(const core::Project&, const core::Selection&)>
+    std::function<std::unique_ptr<core::Command>(
+        const core::Project&, const core::Selection&, core::Document)>
         build;
     std::function<std::string(std::size_t)> notice;
 
     /// Why this file cannot be asked, or nothing.
-    std::function<std::optional<Failure>(const core::Project&)> refusal{};
+    std::function<std::optional<Failure>(const core::Project&, core::Document)> refusal{};
 };
 
 /// The loop they share: set the texts aside when someone reads the list, build
@@ -50,22 +51,24 @@ struct TextRewrite {
                                     const TextRewrite& rewrite,
                                     const std::optional<Range>& range,
                                     const Destination& destination,
-                                    const Reporter& reporter) {
+                                    const Reporter& reporter,
+                                    const std::optional<Pairing>& pairing) {
     const ChangingOperation operation = [&rewrite](core::Session& session,
                                                    const Request& request) -> OperationOutcome {
         if (rewrite.refusal) {
-            if (std::optional<Failure> refused = rewrite.refusal(session.project())) {
+            if (std::optional<Failure> refused =
+                    rewrite.refusal(session.project(), request.document)) {
                 return std::unexpected{*std::move(refused)};
             }
         }
 
         std::vector<std::string> before;
         if (request.changes) {
-            before = mainTextsOf(session.project());
+            before = textsOf(session.project(), request.document);
         }
 
         std::unique_ptr<core::Command> command =
-            rewrite.build(session.project(), request.selection);
+            rewrite.build(session.project(), request.selection, request.document);
         if (!command) {
             // Every text was already the way it was asked for: nothing is applied,
             // and nothing would be in the history.
@@ -84,11 +87,13 @@ struct TextRewrite {
             .sentence = rewrite.notice(rewritten),
             .counts = {{"changed", static_cast<std::int64_t>(rewritten)}},
             .changes = request.changes
-                           ? std::optional{changesOfCommand(session.project(), before, described)}
+                           ? std::optional{changesOfCommand(
+                                 session.project(), before, described, request.document)}
                            : std::nullopt};
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, verb, operation, range);
+    return rewriteAll(
+        files, paths, reading, destination, reporter, verb, operation, range, pairing);
 }
 
 } // namespace
@@ -99,14 +104,18 @@ ExitCode recaseIn(core::FileSystem& files,
                   core::LetterCase wanted,
                   const std::optional<Range>& range,
                   const Destination& destination,
-                  const Reporter& reporter) {
+                  const Reporter& reporter,
+                  const std::optional<Pairing>& pairing) {
     const TextRewrite rewrite{
         .build =
-            [wanted](const core::Project& project, const core::Selection& selection) {
-                return core::setLetterCase(project, selection, core::Document::Main, wanted);
+            [wanted](const core::Project& project,
+                     const core::Selection& selection,
+                     core::Document document) {
+                return core::setLetterCase(project, selection, document, wanted);
             },
         .notice = [](std::size_t count) { return core::noticeOfRecase(count); }};
-    return rewriteTexts(files, paths, reading, "recased", rewrite, range, destination, reporter);
+    return rewriteTexts(
+        files, paths, reading, "recased", rewrite, range, destination, reporter, pairing);
 }
 
 ExitCode italicsIn(core::FileSystem& files,
@@ -115,17 +124,21 @@ ExitCode italicsIn(core::FileSystem& files,
                    bool italic,
                    const std::optional<Range>& range,
                    const Destination& destination,
-                   const Reporter& reporter) {
+                   const Reporter& reporter,
+                   const std::optional<Pairing>& pairing) {
     const TextRewrite rewrite{
         .build =
-            [italic](const core::Project& project, const core::Selection& selection) {
-                return core::setItalics(project, selection, core::Document::Main, italic);
+            [italic](const core::Project& project,
+                     const core::Selection& selection,
+                     core::Document document) {
+                return core::setItalics(project, selection, document, italic);
             },
         .notice = [italic](std::size_t count) { return core::noticeOfItalics(count, italic); },
-        .refusal = [italic](const core::Project& project) -> std::optional<Failure> {
+        .refusal = [italic](const core::Project& project,
+                            core::Document document) -> std::optional<Failure> {
             // What the format can carry is the question, and not how it spells it:
             // TMPlayer and LRC write no style at all.
-            const core::SubtitleFormat format = project.sourceFile(core::Document::Main).format;
+            const core::SubtitleFormat format = project.sourceFile(document).format;
             if (core::abilitiesOf(format).italic) {
                 return std::nullopt;
             }
@@ -133,7 +146,8 @@ ExitCode italicsIn(core::FileSystem& files,
                            std::string{core::nameOf(format)} + " writes no style: there are no " +
                                "italics to " + (italic ? "put on" : "take out")};
         }};
-    return rewriteTexts(files, paths, reading, "changed", rewrite, range, destination, reporter);
+    return rewriteTexts(
+        files, paths, reading, "changed", rewrite, range, destination, reporter, pairing);
 }
 
 ExitCode dialogueDashesIn(core::FileSystem& files,
@@ -142,15 +156,19 @@ ExitCode dialogueDashesIn(core::FileSystem& files,
                           bool dashed,
                           const std::optional<Range>& range,
                           const Destination& destination,
-                          const Reporter& reporter) {
+                          const Reporter& reporter,
+                          const std::optional<Pairing>& pairing) {
     const TextRewrite rewrite{
         .build =
-            [dashed](const core::Project& project, const core::Selection& selection) {
-                return core::setDialogueDashes(project, selection, core::Document::Main, dashed);
+            [dashed](const core::Project& project,
+                     const core::Selection& selection,
+                     core::Document document) {
+                return core::setDialogueDashes(project, selection, document, dashed);
             },
         .notice =
             [dashed](std::size_t count) { return core::noticeOfDialogueDashes(count, dashed); }};
-    return rewriteTexts(files, paths, reading, "changed", rewrite, range, destination, reporter);
+    return rewriteTexts(
+        files, paths, reading, "changed", rewrite, range, destination, reporter, pairing);
 }
 
 } // namespace subedit::cli

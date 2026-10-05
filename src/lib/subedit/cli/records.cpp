@@ -1,6 +1,7 @@
 #include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
 
+#include <type_traits>
 #include <utility>
 #include <variant>
 
@@ -71,6 +72,18 @@ std::string_view idOf(core::WriteErrorKind kind) {
 
 std::string_view idOf(const core::OpenError& error) {
     return std::visit([](const auto& one) { return idOf(one.kind); }, error);
+}
+
+std::string_view idOf(const core::TranslationError& error) {
+    return std::visit(
+        [](const auto& one) -> std::string_view {
+            if constexpr (std::is_same_v<std::decay_t<decltype(one)>, core::SameFileAsMain>) {
+                return "same-file-as-main";
+            } else {
+                return idOf(one.kind);
+            }
+        },
+        error);
 }
 
 Json countsOf(const std::vector<Count>& counts) {

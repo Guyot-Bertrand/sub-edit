@@ -17,6 +17,7 @@ struct CaseOptions {
     bool recursive = false;
     std::string to;
     std::string range;
+    TranslationOptions translation;
     DestinationOptions destination;
 };
 
@@ -45,6 +46,7 @@ CLI::App* describeCase(CLI::App& app, std::string_view name, CaseOptions& option
         ->check(CLI::IsMember({"title", "sentence", "upper", "lower"}))
         ->option_text("title|sentence|upper|lower");
     describeRange(recase, options.range);
+    describeDocument(recase, options.translation);
 
     describeDestination(recase, options.destination);
     return recase;
@@ -65,14 +67,26 @@ ExitCode runCase(const CaseOptions& options,
         return refuse(inputs.error());
     }
 
+    const std::expected<std::optional<Pairing>, std::string> pairing =
+        pairingOf(options.translation, true, *inputs);
+    if (!pairing) {
+        return refuse(pairing.error());
+    }
+
     const std::expected<Destination, std::string> destination =
         destinationOf(options.destination, *inputs);
     if (!destination) {
         return refuse(destination.error());
     }
 
-    return recaseIn(
-        files, inputs->paths, reading, caseNamed(options.to), *range, *destination, reporter);
+    return recaseIn(files,
+                    inputs->paths,
+                    reading,
+                    caseNamed(options.to),
+                    *range,
+                    *destination,
+                    reporter,
+                    *pairing);
 }
 
 } // namespace

@@ -5,6 +5,7 @@
 
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/cli/index_grammar.hpp>
+#include <subedit/cli/pairing.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/text/letter_case.hpp>
 
@@ -24,7 +25,9 @@ class Reporter;
 /// Puts the texts of every path in `wanted` case, tags left where they were, and
 /// says how it went.
 ///
-/// `range` limits the subtitles changed, in every file. A file where nothing
+/// `range` limits the subtitles changed, in every file. With a `pairing`, what
+/// is recased — and written — is the translation (`rewriteAll`), in this
+/// function and in the two below. A file where nothing
 /// changes — every text already in that case — is written all the same and says
 /// `nothing to change`: a destination given is a destination written.
 [[nodiscard]] ExitCode recaseIn(subedit::core::FileSystem& files,
@@ -33,7 +36,8 @@ class Reporter;
                                 subedit::core::LetterCase wanted,
                                 const std::optional<Range>& range,
                                 const Destination& destination,
-                                const Reporter& reporter);
+                                const Reporter& reporter,
+                                const std::optional<Pairing>& pairing = std::nullopt);
 
 /// Puts the texts in italics (`italic`), or takes their italics out.
 ///
@@ -47,7 +51,8 @@ class Reporter;
                                  bool italic,
                                  const std::optional<Range>& range,
                                  const Destination& destination,
-                                 const Reporter& reporter);
+                                 const Reporter& reporter,
+                                 const std::optional<Pairing>& pairing = std::nullopt);
 
 /// Puts a dialogue dash at the head of the lines (`dashed`), or takes them off.
 [[nodiscard]] ExitCode dialogueDashesIn(subedit::core::FileSystem& files,
@@ -56,6 +61,7 @@ class Reporter;
                                         bool dashed,
                                         const std::optional<Range>& range,
                                         const Destination& destination,
-                                        const Reporter& reporter);
+                                        const Reporter& reporter,
+                                        const std::optional<Pairing>& pairing = std::nullopt);
 
 } // namespace subedit::cli

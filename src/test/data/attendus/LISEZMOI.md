@@ -83,3 +83,13 @@ Comparée par `dry_run_test.cpp`, **après avoir remplacé le dossier temporaire
 | :------ | :-- | :--------- |
 | `dry-run/narration.txt` | la sortie d'erreur des six sous-commandes qui écrivent, en `--dry-run` | à la main : la phrase de chaque opération, puis `(dry run, nothing written)` à la place de `-> <destination>` |
 | `dry-run/hearing-impaired.txt` | la sortie standard de `hearing-impaired --dry-run` sur `valides/mentions.srt` | à la main : un bloc par sous-titre changé, `- ` devant le texte d'avant, `+ ` devant celui d'après, `(removed)` pour le sous-titre vidé ; le tiret de dialogue de l'avant donne `- - ` |
+
+## `translation/` — ce qu'un fichier de traduction écrit
+
+Écrit à la main, **d'après la règle du retrait des mentions** (voir `mentions.hearing-impaired.srt`) appliquée
+au texte de la traduction, et jamais lu dans la sortie du programme. L'entrée est écrite par
+`src/test/e2e/cli/translation_test.cpp`, posée sur les quatre sous-titres de `paires/temoin/principal.srt`.
+
+| Fichier | Cas | Provenance |
+| :------ | :-- | :--------- |
+| `translation/mentions.hearing-impaired.traduction.srt` | le fichier écrit par `hearing-impaired --document translation -t` : la mention du premier sous-titre est tout son texte, qui **s'écrit vide et garde le sous-titre** ; celle du deuxième emporte l'espace qui l'entoure ; la référence `[1]` du troisième reste | à la main : quatre blocs en entrée, quatre en sortie, **le seul écrivain de la traduction étant celui du principal** — un bloc sans texte se lit et revient à l'octet, comme `paires/LISEZMOI.md` le dit |

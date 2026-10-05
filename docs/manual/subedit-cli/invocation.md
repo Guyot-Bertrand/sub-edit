@@ -147,7 +147,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.20
+subedit 0.13.21
 ```
 
 ## Sous-commandes
@@ -298,7 +298,8 @@ proposés**. Un bloc par sous-titre changé, dans l'ordre du fichier :
   dialogue donne `- - ` ;
 - **un sous-titre que l'opération supprimerait** le dit sur sa première ligne,
   `<chemin>: subtitle <numéro> (removed)`, et n'a pas de lignes `+` ;
-- un sous-titre de la traduction s'annoncerait `(translation)` à la même place ;
+- un sous-titre de la traduction, avec `--document translation`, s'annonce `(translation)` à la même
+  place — voir [Une traduction](#une-traduction) ;
 - la première ligne de chaque bloc commence par le chemin, de sorte que `grep '^film.srt: '`
   retrouve les blocs d'un fichier dans un lot ;
 - **aucun bloc** quand rien ne changerait.
@@ -554,6 +555,63 @@ trois-là ne parlent pas d'une ligne mais du fichier entier : elles disent qu'un
 valeur affichée n'a pas été lue. Une colonne `End` remplie sur un LRC, une
 position sur un MicroDVD — le fichier n'en portait rien.
 
+## Une traduction
+
+Un fichier de traduction se traite **comme un fichier de sous-titres quelconque** : `subedit-cli
+case --to sentence film.fr.srt` le change sans rien de nouveau. Ce que l'appariement ajoute, et ce que
+trois options disent, est étroit : **savoir comment les lignes d'une traduction tombent sur les
+sous-titres du principal** — c'est `inspect -t` —, et **changer la traduction pendant qu'on la tient
+posée sur son principal**, avec les mêmes règles que la fenêtre.
+
+| Option | Où | Valeur | Défaut |
+| :----- | :---- | :----- | :----- |
+| `-t`, `--translation-file` | `inspect`, `hearing-impaired`, `replace`, `case`, `italics`, `dialogue-dashes` | le fichier de traduction | — |
+| `--document` | les cinq sous-commandes de texte, pas `inspect` | `main` ou `translation` | `main` |
+| `--align-method` | comme `-t` | `position` ou `number` | `position` |
+
+- **`position`** compare le milieu de chaque ligne aux bornes des sous-titres : une ligne qui manque ne
+  décale pas celles qui suivent. **`number`** envoie la ligne *n* au sous-titre *n*, sans regarder les
+  positions. La position est le défaut, pour la raison que la fenêtre a : une ligne manquante au
+  milieu fait glisser tout le reste d'une traduction appariée par numéro.
+- **`--document translation` exige `-t`, et `-t` exige `--document translation`** sur une sous-commande
+  de texte — l'un sans l'autre est une erreur d'usage, code `1`, parce qu'un fichier lu qu'aucun geste
+  n'emploie est une omission et non une préférence. `-t` sur `inspect` n'a pas de `--document` : il
+  rapporte. **`--align-method` sans `-t` est aussi une erreur d'usage.**
+- **`-t` nomme un fichier, et n'a donc de sens que pour une seule entrée** : avec plusieurs entrées, ou
+  avec un répertoire pris par `--recursive`, il est refusé comme `--output`, **avant qu'un fichier soit
+  lu**. Pour un lot, on passe une invocation par paire.
+- **Un fichier de traduction identique au principal est refusé** — quelle que soit la façon dont son
+  chemin est écrit : `<traduction>: the file is already open as the main document`, code `2`.
+- **Seul le document visé est écrit**, à **son propre chemin et dans son propre format** : le format,
+  l'encodage et les fins de ligne du fichier de traduction. `--output` nomme le fichier de la
+  traduction, `--output-dir` y met son nom de base, `--in-place` la réécrit ; **le fichier principal
+  n'est jamais touché**. Les chemins du rapport sont ceux de la traduction.
+- **Les sous-titres que l'appariement fait naître** — une ligne que rien n'a atteint — sont écrits dans
+  la traduction avec **leurs propres positions**, quelle que soit la méthode ; **un sous-titre que
+  personne n'a traduit s'écrit comme un bloc sans texte**, qui se lit sans anomalie.
+- **`--encoding` et `--frame-rate` valent pour les deux fichiers.**
+- Les sous-commandes de **position** — `shift`, `transform`, `framerate`, `snap`, `adjust` — n'ont pas
+  ces options : on leur donne les deux fichiers, comme à un lot, `subedit-cli shift --by 2 film.srt
+  film.fr.srt --output-dir out/`.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt
+film.fr.srt: 1 subtitle cleaned, 0 removed -> propre.fr.srt
+1
+00:00:01,000 --> 00:00:02,000
+Bonjour.
+
+2
+00:00:03,000 --> 00:00:04,000
+Au revoir.
+```
+
+Avec `--format json`, l'objet de chaque fichier porte en plus la clé `alignment`, qui dit comment la
+traduction a été posée — `{"file", "method", "attached", "born", "untranslated", "out_of_order"}`, comme
+la clé `translation` de [`inspect`](inspect.md#en-json) — et, **avec `--dry-run`**, `changes` liste
+les sous-titres de la traduction, chacun avec `"document":"translation"`.
+
 ## Plusieurs fichiers
 
 Toutes les sous-commandes acceptent plusieurs chemins. Chacun est traité
@@ -615,3 +673,8 @@ jamais un lot à moitié traité.
 | octets qui ne se décodent pas | `<chemin>: cannot be decoded in the chosen encoding` |
 | format non reconnu | `<chemin>: is in no format this tool knows` |
 | rien qui ressemble à un sous-titre | `<chemin>: holds nothing recognisable as a subtitle` |
+| `--document translation` sans `-t` | `--document translation needs the translation file: use -t` |
+| `-t` sans `--document translation` | `-t names a translation to change: use --document translation` |
+| `--align-method` sans `-t` | `--align-method needs a translation file: use -t` |
+| `-t` avec plusieurs entrées, ou un répertoire | `-t names one file but several inputs were given: use one invocation per pair` |
+| traduction identique au principal | `<traduction>: the file is already open as the main document` |

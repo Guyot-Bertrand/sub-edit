@@ -7,6 +7,7 @@
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/cli/expansion.hpp>
 #include <subedit/cli/index_grammar.hpp>
+#include <subedit/cli/pairing.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/file_system.hpp>
@@ -95,6 +96,34 @@ void describeRange(CLI::App* command, std::string& range);
 /// cannot be honoured. The refusal names the option, so that it reads the same
 /// from every subcommand.
 [[nodiscard]] std::expected<std::optional<Range>, std::string> rangeOf(const std::string& range);
+
+/// The translation a subcommand is given: `-t`, `--align-method`, and — for
+/// the subcommands that change texts — `--document`.
+struct TranslationOptions {
+    std::string file;
+    std::string document;
+    std::string alignMethod;
+};
+
+/// Declares `-t/--translation-file` and `--align-method` on `command`: what
+/// `inspect` takes to report how a translation lines up.
+void describeTranslation(CLI::App* command, TranslationOptions& options);
+
+/// Declares those two and `--document main|translation` too, for the
+/// subcommands that change the texts of one of the two documents.
+void describeDocument(CLI::App* command, TranslationOptions& options);
+
+/// The pairing these options ask for, **nothing when the main document is the
+/// target**, or why they cannot be honoured. Read before any file is.
+///
+/// `withDocument` says whether `--document` was declared. When it was,
+/// `--document translation` demands `-t` and `-t` demands `--document
+/// translation`: a file read that no gesture uses is an omission, not a
+/// preference. Either way, `-t` names one file and so goes with **one input**
+/// that was given by name: a batch, or a directory walked, is refused as
+/// `--output` is.
+[[nodiscard]] std::expected<std::optional<Pairing>, std::string>
+pairingOf(const TranslationOptions& options, bool withDocument, const Inputs& inputs);
 
 /// Writes a refusal and gives the code that goes with it.
 ///

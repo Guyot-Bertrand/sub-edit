@@ -195,6 +195,7 @@ add_executable(
     cli/index_grammar_test.cpp
     cli/inspection_test.cpp
     cli/inspection_json_test.cpp
+    cli/pairing_test.cpp
     cli/records_test.cpp
     cli/replacing_test.cpp
     cli/rewriting_test.cpp

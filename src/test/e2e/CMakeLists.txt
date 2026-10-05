@@ -29,6 +29,7 @@ add_executable(
     cli/sort_test.cpp
     cli/text_rewriting_test.cpp
     cli/transform_test.cpp
+    cli/translation_test.cpp
     cli/framerate_test.cpp
     gui/version_test.cpp)
 

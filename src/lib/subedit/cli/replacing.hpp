@@ -4,6 +4,7 @@
 
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/cli/index_grammar.hpp>
+#include <subedit/cli/pairing.hpp>
 #include <subedit/core/config/search_options.hpp>
 #include <subedit/core/edit/search.hpp>
 #include <subedit/core/model/encoding.hpp>
@@ -38,6 +39,8 @@ compilePattern(std::string_view pattern, subedit::core::SearchOptions options);
 /// **It looks in the visible text and writes into the stored one, without
 /// breaking a tag** — the rule of the phase-10 search, that the window applies
 /// to the same command. `range` limits the subtitles looked in, in every file.
+/// With a `pairing` it is the translation that is looked in and written
+/// (`rewriteAll`).
 ///
 /// A file where nothing matched is written all the same — a destination given
 /// is a destination written — and says `"…" not found`; one where every match is
@@ -50,6 +53,7 @@ compilePattern(std::string_view pattern, subedit::core::SearchOptions options);
                                  std::string_view replacement,
                                  const std::optional<Range>& range,
                                  const Destination& destination,
-                                 const Reporter& reporter);
+                                 const Reporter& reporter,
+                                 const std::optional<Pairing>& pairing = std::nullopt);
 
 } // namespace subedit::cli

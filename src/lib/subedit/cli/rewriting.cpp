@@ -14,9 +14,13 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/wording/formats.hpp>
+#include <subedit/core/wording/translation.hpp>
 
 #include <cstddef>
 #include <filesystem>
+#include <iterator>
+#include <optional>
+#include <vector>
 
 namespace subedit::cli {
 
@@ -30,18 +34,44 @@ bool rewriteFile(core::FileSystem& files,
                  bool dryRun,
                  const std::optional<Range>& range,
                  const Reporter& reporter,
-                 const ChangingOperation& operation) {
+                 const ChangingOperation& operation,
+                 const std::string& mainPath,
+                 const std::optional<Pairing>& pairing) {
+    // What is reported is the file that is written: the translation when there
+    // is one, which is also the input the destination was planned from.
     const std::string& path = job.input;
     std::expected<core::OpenedFile, core::OpenError> opened =
-        reading ? core::openProject(files, path, *reading) : core::openProject(files, path);
+        reading ? core::openProject(files, mainPath, *reading) : core::openProject(files, mainPath);
     if (!opened) {
-        reportFailure(
-            reporter, path, Failure{idOf(opened.error()), std::string{reasonOf(opened.error())}});
+        reportFailure(reporter,
+                      mainPath,
+                      Failure{idOf(opened.error()), std::string{reasonOf(opened.error())}});
         return false;
     }
 
-    const core::SourceFile source = opened->project.sourceFile();
     core::Session session{std::move(opened->project)};
+
+    const core::Document document = targetOf(pairing);
+    std::vector<core::Diagnostic> diagnostics = std::move(opened->diagnostics);
+    std::optional<core::TranslationOutcome> alignment;
+    if (pairing) {
+        core::ReadingChoices choices;
+        if (reading) {
+            choices.encoding = *reading;
+        }
+        std::expected<Paired, Failure> paired = pair(files, session, *pairing, choices);
+        if (!paired) {
+            reportFailure(reporter, path, paired.error());
+            return false;
+        }
+        alignment = paired->outcome;
+        diagnostics.insert(diagnostics.end(),
+                           std::make_move_iterator(paired->diagnostics.begin()),
+                           std::make_move_iterator(paired->diagnostics.end()));
+    }
+    // **Of the document that is written**, after the pairing: the translation's
+    // own file is only known once it is attached.
+    const core::SourceFile source = session.project().sourceFile(document);
 
     // **Before the operation, and before anything is changed**: a range the file
     // does not hold is a mistake about the file, said while it is untouched.
@@ -57,9 +87,13 @@ bool rewriteFile(core::FileSystem& files,
     }
 
     // The list is read by the dry run's text and by every JSON record.
-    const OperationOutcome done = operation(
-        session,
-        Request{.changes = dryRun || reporter.recording(), .selection = std::move(selection)});
+    OperationOutcome done = operation(session,
+                                      Request{.changes = dryRun || reporter.recording(),
+                                              .selection = std::move(selection),
+                                              .document = document});
+    if (done && pairing && alignment) {
+        done->fields.emplace_back("alignment", alignmentOf(*pairing, *alignment));
+    }
     if (!done) {
         reportFailure(reporter, path, done.error());
         return false;
@@ -67,7 +101,7 @@ bool rewriteFile(core::FileSystem& files,
 
     const core::WriteRequest request{
         .subtitles = session.project().subtitles(),
-        .document = core::Document::Main,
+        .document = document,
         .newline = source.newline,
         .encoding = source.encoding,
         .header = source.header,
@@ -83,10 +117,13 @@ bool rewriteFile(core::FileSystem& files,
     reporter.say(3,
                  path + ": " + std::to_string(opened->bytes) + " bytes read, " +
                      std::to_string(*written) + (dryRun ? " would be written" : " written"));
-    sayDiagnostics(reporter, path, opened->diagnostics);
+    sayDiagnostics(reporter, path, diagnostics);
     reporter.say(2,
                  path + ": " + std::string{nameOf(source.format)} + ", " + nameOf(source.encoding) +
                      ", " + std::string{nameOf(source.newline)} + " line endings kept");
+    if (alignment) {
+        reporter.say(2, path + ": " + core::noticeOf(*alignment));
+    }
     if (dryRun) {
         reporter.say(1, path + ": " + done->sentence + " (dry run, nothing written)");
         if (done->changes) {
@@ -95,7 +132,7 @@ bool rewriteFile(core::FileSystem& files,
         reporter.record(dryRunRecord(reporter.command(),
                                      path,
                                      done->counts,
-                                     warningsOf(opened->diagnostics),
+                                     warningsOf(diagnostics),
                                      done->changes,
                                      done->fields));
         return true;
@@ -108,7 +145,7 @@ bool rewriteFile(core::FileSystem& files,
                                   path,
                                   out,
                                   done->counts,
-                                  warningsOf(opened->diagnostics),
+                                  warningsOf(diagnostics),
                                   done->changes,
                                   done->fields));
     return true;
@@ -123,17 +160,31 @@ ExitCode rewriteAll(core::FileSystem& files,
                     const Reporter& reporter,
                     std::string_view verb,
                     const ChangingOperation& operation,
-                    const std::optional<Range>& range) {
-    // The extension is left alone: the format has not changed.
+                    const std::optional<Range>& range,
+                    const std::optional<Pairing>& pairing) {
+    // The extension is left alone: the format has not changed. A paired run
+    // writes the translation, so it is the translation the destination is
+    // planned for.
+    const std::vector<std::string> written =
+        pairing ? std::vector<std::string>{pairing->translation} : paths;
     const std::expected<std::vector<Job>, ExitCode> jobs =
-        arrange(files, destination, paths, "", reporter);
+        arrange(files, destination, written, "", reporter);
     if (!jobs) {
         return jobs.error();
     }
 
     std::size_t done = 0;
-    for (const Job& job : *jobs) {
-        if (rewriteFile(files, job, reading, destination.isDryRun(), range, reporter, operation)) {
+    for (std::size_t at = 0; at < jobs->size(); ++at) {
+        const Job& job = (*jobs)[at];
+        if (rewriteFile(files,
+                        job,
+                        reading,
+                        destination.isDryRun(),
+                        range,
+                        reporter,
+                        operation,
+                        paths[at],
+                        pairing)) {
             ++done;
         }
     }
