@@ -1,0 +1,29 @@
+# -*- conf -*-
+# Les trois pénalités de `aeidon/test/test_liner.py`, que les cas « essai » de
+# `attendus/line-break.cas` demandent : l'intention de l'auteur du découpeur,
+# écrite par lui, à côté de celles que Gaupol livre. Sous un code que nul fichier
+# livré ne porte (`Zzzz-xl`), elles sont les seules du lancement.
+
+[Line Break Pattern]
+Name=Dialogue of the test
+Description=Break before a dialogue dash
+Pattern=( )- 
+Flags=DOTALL;MULTILINE;
+Group=1
+Penalty=-1000
+
+[Line Break Pattern]
+Name=Punctuation of the test
+Description=Break after a punctuation mark
+Pattern=[,.;:!?]( )
+Flags=DOTALL;MULTILINE;
+Group=1
+Penalty=-100
+
+[Line Break Pattern]
+Name=Words of the test
+Description=Never break after these words
+Pattern=\b(by|the|into|a)( )
+Flags=DOTALL;MULTILINE;
+Group=2
+Penalty=1000

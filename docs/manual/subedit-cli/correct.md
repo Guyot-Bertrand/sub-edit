@@ -4,6 +4,8 @@
 subedit-cli correct --tasks LISTE --code CODE
                     [--classes human|ocr|human,ocr]
                     [--enable NOM]... [--disable NOM]...
+                    [--max-length N] [--max-lines N]
+                    [--skip-length N|off] [--skip-lines N|off]
                     [--keep-blank-subtitles] [--range N-M|N-]
                     [--document main|translation] [-t FICHIER] [--align-method position|number]
                     (--output FICHIER | --output-dir DOSSIER | --in-place)
@@ -14,10 +16,10 @@ subedit-cli correct --tasks LISTE --code CODE
 
 Corrige les textes avec les **motifs de Gaupol**, comme l'assistant
 [`Correct Texts…`](../subedit-gui/correct-texts.md) de la fenêtre — mêmes motifs,
-même moteur, mêmes comptes. Trois tâches existent ici : les **mentions pour
-malentendants**, les **erreurs courantes** et les **majuscules**. Ce que la page
-ne décrit pas — le découpage de lignes, la jonction et la scission de mots — n'est pas
-offert par cette sous-commande.
+même moteur, mêmes comptes. Quatre tâches existent ici : les **mentions pour
+malentendants**, les **erreurs courantes**, les **majuscules** et le **découpage de
+lignes**. La jonction et la scission de mots ne sont pas offertes par cette
+sous-commande.
 
 <!-- exemple: subedit-cli correct --help -->
 ```console
@@ -37,6 +39,10 @@ Options:
                               The classes of common errors to apply: both by default
   --enable NAME               Switch a pattern on, by its English name or type:name; repeatable
   --disable NAME              Switch a pattern off, by its English name or type:name; repeatable
+  --max-length N              Longest line of line-break, in characters; no default, Gaupol's is in ems
+  --max-lines N               Most lines of line-break: 3, as Gaupol's
+  --skip-length N|off         Leave alone a subtitle whose longest line is within this, or off: --max-length
+  --skip-lines N|off          Leave alone a subtitle whose line count is within this, or off: --max-lines
   --keep-blank-subtitles      Leave the subtitles the correction empties, empty, instead of removing them
   --range N-M|N-              Act only on subtitles N to M, or N to the end
   --document main|translation The document to change: the main one, or the translation given by -t
@@ -61,10 +67,13 @@ lues, et rien n'est écrit de ce côté.
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--tasks` | **oui** | une liste séparée par des virgules : `mentions`, `common-errors`, `capitalization` | aucune tâche |
+| `--tasks` | **oui** | une liste séparée par des virgules : `mentions`, `common-errors`, `capitalization`, `line-break` | aucune tâche |
 | `--code` | **oui**, une tâche de motifs étant donnée | `Écriture[-langue[-PAYS]]` : `Zyyy`, `Latn`, `Latn-en`, `Latn-en-US` | — |
 | `--classes` | non | `human`, `ocr` ou `human,ocr` | les deux |
 | `--enable`, `--disable` | non, répétables | le nom anglais d'un motif, ou `type:nom` | les `.conf` livrés |
+| `--max-length` | **oui** avec `line-break` | un nombre de **caractères** supérieur à zéro | **aucun** — voir plus bas |
+| `--max-lines` | non | un nombre entier de lignes, supérieur à zéro | 3 |
+| `--skip-length`, `--skip-lines` | non | un nombre, ou `off` | les mêmes bornes que `--max-length` et `--max-lines` |
 | `--keep-blank-subtitles` | non | un drapeau | les sous-titres vidés sont retirés |
 | `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir [`adjust`](adjust.md#--range) | tout le fichier |
 | `--document` | non | `main` ou `translation` — voir [Une traduction](invocation.md#une-traduction) | `main` |
@@ -77,7 +86,7 @@ lues, et rien n'est écrit de ce côté.
 ### Les tâches
 
 **L'ordre de la liste n'y change rien** : les tâches s'appliquent dans l'ordre de
-Gaupol — les mentions, puis les erreurs courantes, puis les majuscules —, chacune sur le
+Gaupol — les mentions, puis les erreurs courantes, puis les majuscules, puis le découpage —, chacune sur le
 texte que la précédente a laissé. Un sous-titre que les mentions ont vidé ne joue aucun
 rôle dans ce qui suit.
 
@@ -86,6 +95,7 @@ rôle dans ce qui suit.
 | `mentions` | retire les bruits entre crochets et parenthèses (le balayage de [`hearing-impaired`](hearing-impaired.md)), puis les motifs de paroles et de locuteurs |
 | `common-errors` | corrige les erreurs courantes : espaces, ponctuation, ligatures, erreurs d'OCR |
 | `capitalization` | met la majuscule où la langue la veut |
+| `line-break` | recoupe les lignes d'un sous-titre pour qu'aucune ne dépasse `--max-length`, en pesant les motifs de coupure du code |
 
 ### Le code des motifs
 
@@ -107,6 +117,47 @@ Les motifs que l'utilisateur dépose dans `$XDG_DATA_HOME/subedit/patterns` (ou
 `~/.local/share/subedit/patterns`) **s'ajoutent aux motifs livrés**, comme dans la
 fenêtre, et un motif livré qui ne se lit pas est dit au niveau 1 : `patterns: <fichier>, line N (<raison>)`.
 
+### Le découpage de lignes
+
+**Il se mesure en caractères, et c'est l'écart avec la fenêtre.** La fenêtre mesure en *ems* —
+une largeur calibrée sur la police, à 0,55 em par lettre —, et son 24 par défaut est une valeur
+en ems. Une ligne de commande n'a pas de police : elle compte des caractères, ceux du
+texte. **Recopier le 24 en caractères couperait presque tout, sans
+le dire** ; il n'y a donc **aucune longueur par défaut**, et `--max-length` est requis avec
+`line-break` :
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nUn texte\n\n' > a.srt; subedit-cli correct --tasks line-break --code Latn-en --output b.srt a.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:03,000\nUn texte\n\n' > a.srt; subedit-cli correct --tasks line-break --code Latn-en --output b.srt a.srt; echo "code=$?"
+--max-length is required by the task line-break: Gaupol's 24 is a width in ems, and has no value in characters
+code=1
+```
+
+**`--max-lines` vaut 3**, la valeur de Gaupol, que l'unité ne change pas ; le découpage en prend
+une de plus quand trois ne suffisent pas. **Le saut** — un sous-titre déjà dans les limites est
+laissé tel quel — reprend par défaut **les mêmes bornes** (`--skip-length` = `--max-length`,
+`--skip-lines` = `--max-lines`), comme Gaupol ; `--skip-length off` et `--skip-lines off`
+l'éteignent, et le texte est alors relu comme un seul et recoupé :
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt
+a.srt: Edited 1 and removed 0 subtitles -> b.srt
+1
+00:00:01,000 --> 00:00:03,000
+When the rain
+stopped, we walked
+home under the dark
+sky of the old town.
+```
+
+Les motifs de coupure sont ceux du code : `Latn` ne coupe pas entre un nombre et son unité ni
+après un tiret de dialogue, `Latn-en` ne coupe pas après un article, une préposition, un titre
+ou un déterminant possessif. **Sous `Zyyy`, aucun motif de coupure n'existe** : les lignes sont
+seulement équilibrées. **Cette tâche n'est jamais refusée faute de motif actif** : ses motifs
+pèsent où couper, la coupure se fait sans eux. Les quatre options n'ont de sens qu'avec
+`line-break` ; données sans lui, elles sont une erreur d'usage.
+
 ### Les classes, et l'activation par le nom
 
 **`--classes` filtre les erreurs courantes pour de bon** : décocher `ocr` retire ses
@@ -126,7 +177,7 @@ Trois choses sont des **erreurs d'usage**, code `1`, dites avant qu'un fichier s
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |
 | un nom qui ne désigne aucun motif des tâches données, sous le code donné | `--enable: "<nom>" names no pattern of the tasks given, under the code <code>` |
-| un nom qui désigne des motifs de deux types — il s'écrit alors `type:nom`, le type étant `common-error`, `capitalization` ou `hearing-impaired` | `--enable: "<nom>" names patterns of several types: write type:name, …` |
+| un nom qui désigne des motifs de deux types — il s'écrit alors `type:nom`, le type étant `common-error`, `capitalization`, `hearing-impaired` ou `line-break` | `--enable: "<nom>" names patterns of several types: write type:name, …` |
 | un nom donné à `--enable` et à `--disable` | `"<nom>" is given to --enable and to --disable: choose one` |
 
 **Une faute de frappe est bruyante** : la fenêtre ignore un réglage périmé parce qu'un
@@ -225,9 +276,14 @@ seulement, `1` sur une erreur d'usage.
 | Ce qui la déclenche | Ce qui est écrit, sur la sortie d'erreur |
 | :------------------ | :--------------------------------------- |
 | `--tasks` absent | `--tasks is required`, suivi d'un renvoi à `--help` |
-| une tâche inconnue | `--tasks: "<nom>" is not a task: expected mentions, common-errors or capitalization` |
+| une tâche inconnue | `--tasks: "<nom>" is not a task: expected mentions, common-errors, capitalization or line-break` |
 | `--code` absent | `--code is required by the tasks that read patterns: <tâches>` |
 | un code mal écrit | `--code: "<code>" is not a pattern code: expected Script[-language[-COUNTRY]], like Zyyy, Latn or Latn-en-US` |
+| `--max-length` absent avec `line-break` | `--max-length is required by the task line-break: Gaupol's 24 is a width in ems, and has no value in characters` |
+| `--max-length` qui n'est pas un nombre supérieur à zéro | `--max-length: "<valeur>" is not a length: expected a number of characters greater than zero` |
+| `--max-lines`, `--skip-lines` qui ne sont pas un nombre entier de lignes | `--max-lines: "<valeur>" is not a number of lines: expected a whole number greater than zero` |
+| `--skip-length` ou `--skip-lines` illisible | `--skip-length: "<valeur>" is not a bound: expected a number greater than zero, or off` |
+| l'une des quatre options sans `line-break` | `--max-length is for the task line-break, which was not asked for` |
 | une classe inconnue | `--classes: "<nom>" is not a class: expected human, ocr or human,ocr` |
 | un nom de motif fautif | voir la table plus haut |
 | une tâche sans motif actif | `<tâche>: no pattern is active under the code <code>; switch one on with --enable` |

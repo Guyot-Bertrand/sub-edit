@@ -148,7 +148,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.23
+subedit 0.13.24
 ```
 
 ## Sous-commandes
@@ -168,7 +168,7 @@ subedit 0.13.23
 | [`italics`](italics.md) | met les textes en italique, ou retire leur italique | oui |
 | [`dialogue-dashes`](dialogue-dashes.md) | pose ou retire les tirets de dialogue | oui |
 | [`sort`](sort.md) | remet les sous-titres dans l'ordre de leur début | oui |
-| [`correct`](correct.md) | corrige les textes avec les motifs de Gaupol : mentions, erreurs courantes, majuscules | oui |
+| [`correct`](correct.md) | corrige les textes avec les motifs de Gaupol : mentions, erreurs courantes, majuscules, découpage de lignes | oui |
 
 Les quatorze sont là ; l'aide de l'outil les énumère dans le même ordre.
 
