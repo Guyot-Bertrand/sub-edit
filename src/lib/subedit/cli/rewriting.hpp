@@ -7,6 +7,7 @@
 #include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/pairing.hpp>
 #include <subedit/cli/records.hpp>
+#include <subedit/core/edit/translation.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/selection.hpp>
 
@@ -97,6 +98,11 @@ struct Request {
     /// The text the operation acts on: the translation when the file is
     /// paired (`--document translation`), the main one otherwise.
     subedit::core::Document document = subedit::core::Document::Main;
+
+    /// How the lines of the translation found their subtitles, when the run is
+    /// paired — what an operation whose result **is** the alignment has to say.
+    /// Nothing without a pairing.
+    std::optional<subedit::core::TranslationOutcome> alignment{};
 };
 
 /// An operation that can list what it changes, and acts on a selection.

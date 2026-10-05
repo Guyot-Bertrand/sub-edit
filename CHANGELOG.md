@@ -11,6 +11,16 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Sous-commande pair, la traduction recalée sur son principal
+
+### Documentation
+
+- **doc** — Feuille de route, phases 17 à 24 au-delà de Gaupol
+
+## 0.13.27 — 2026-10-05
+
+### Ajouts
+
 - **cli** — Sous-commande split-file, une tête et une queue
 
 ## 0.13.26 — 2026-10-05

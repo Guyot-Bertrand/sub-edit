@@ -12,6 +12,7 @@
 #include "inspect.hpp"
 #include "italics.hpp"
 #include "letter_case.hpp"
+#include "pair.hpp"
 #include "replace.hpp"
 #include "shift.hpp"
 #include "snap.hpp"
@@ -39,6 +40,7 @@ std::span<const Command> commands() {
         Command{.name = "correct", .declare = declareCorrect},
         Command{.name = "append", .declare = declareAppend},
         Command{.name = "split-file", .declare = declareSplitFile},
+        Command{.name = "pair", .declare = declarePair},
     };
     return kTable;
 }

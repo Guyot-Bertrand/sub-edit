@@ -1,0 +1,1 @@
+{"schema":1,"command":"pair","file":"<scratch>/in/traduction.srt","ok":true,"dry_run":false,"destination":"<scratch>/out/fr.srt","counts":{"subtitles":4},"alignment":{"file":"<scratch>/in/traduction.srt","method":"position","attached":4,"born":0,"untranslated":0,"out_of_order":0},"warnings":[]}

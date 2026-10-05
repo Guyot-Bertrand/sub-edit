@@ -45,7 +45,7 @@ DEFAULT_DIR = REPO_ROOT / "src" / "test" / "data" / "attendus" / "json"
 
 # Les sous-commandes qui écrivent un fichier, et dont l'objet dit où.
 WRITERS = {"convert", "shift", "transform", "framerate", "snap", "hearing-impaired", "adjust",
-           "replace", "case", "italics", "dialogue-dashes", "sort", "append", "split-file"}
+           "replace", "case", "italics", "dialogue-dashes", "sort", "append", "split-file", "pair"}
 
 
 class FloatFound(Exception):

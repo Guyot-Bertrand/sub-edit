@@ -90,7 +90,8 @@ bool rewriteFile(core::FileSystem& files,
     OperationOutcome done = operation(session,
                                       Request{.changes = dryRun || reporter.recording(),
                                               .selection = std::move(selection),
-                                              .document = document});
+                                              .document = document,
+                                              .alignment = alignment});
     if (done && pairing && alignment) {
         done->fields.emplace_back("alignment", alignmentOf(*pairing, *alignment));
     }
@@ -121,7 +122,9 @@ bool rewriteFile(core::FileSystem& files,
     reporter.say(2,
                  path + ": " + std::string{nameOf(source.format)} + ", " + nameOf(source.encoding) +
                      ", " + std::string{nameOf(source.newline)} + " line endings kept");
-    if (alignment) {
+    // Said once: an operation whose sentence already is the alignment (`pair`)
+    // has said it at level one.
+    if (alignment && done->sentence != core::noticeOf(*alignment)) {
         reporter.say(2, path + ": " + core::noticeOf(*alignment));
     }
     // What the operation went on without is data: said at level 1 whatever the
