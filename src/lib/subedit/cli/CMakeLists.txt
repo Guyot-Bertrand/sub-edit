@@ -47,6 +47,6 @@ add_library(subedit::cli ALIAS subedit_cli)
 
 target_include_directories(subedit_cli PUBLIC "${CMAKE_SOURCE_DIR}/src/lib")
 
-target_link_libraries(subedit_cli PUBLIC subedit::core)
+target_link_libraries(subedit_cli PUBLIC subedit::core subedit::platform)
 
 subedit_set_warnings(subedit_cli)

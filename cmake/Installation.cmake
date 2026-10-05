@@ -48,6 +48,22 @@ install(
     DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/packaging/patterns/"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/subedit/patterns")
 
+# **L'arbre de construction reproduit l'installation** — issue #566. Le binaire
+# cherche ses motifs à `../share/subedit/patterns` de son exécutable ; un binaire
+# lancé depuis `build/<preset>/bin` les trouve donc pareillement, par un lien
+# que CMake pose, plutôt que par une option de mise au point que la livraison ne
+# contiendrait pas. C'est un lien et non une copie : les motifs sont ceux du
+# dépôt, et une modification s'y voit sans reconfigurer.
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/share/subedit")
+file(
+    CREATE_LINK "${CMAKE_CURRENT_SOURCE_DIR}/packaging/patterns"
+    "${CMAKE_BINARY_DIR}/share/subedit/patterns"
+    RESULT patterns_link_result
+    COPY_ON_ERROR SYMBOLIC)
+if(NOT patterns_link_result STREQUAL "0")
+    message(WARNING "les motifs ne sont pas visibles depuis l'arbre de construction : ${patterns_link_result}")
+endif()
+
 # L'identifiant de l'application, écrit une fois. Les trois fichiers de bureau
 # le portent dans leur nom, et le `.desktop` le porte encore dans sa clé
 # `Icon=` : quatre endroits pour un seul nom, donc un seul endroit où le dire.

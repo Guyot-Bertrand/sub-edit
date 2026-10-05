@@ -72,8 +72,22 @@ CliRun invokeGui(const std::vector<std::string>& args);
 /// test binaries never share one, and removed when the process ends.
 [[nodiscard]] std::string configHome();
 
+/// Runs the probe that resolves the pattern directories as the command line will
+/// and reads the catalogue (`tools/pattern_catalogue.cpp`), under the same
+/// harness as the two binaries: its own configuration, data and Enchant homes.
+[[nodiscard]] CliRun invokePatternCatalogue();
+
+/// The data home and the Enchant home every launched binary is given: where the
+/// patterns a user drops in `$XDG_DATA_HOME/subedit/patterns` would be, and where
+/// Enchant keeps its personal word list. **Empty, and the test's own** — the
+/// command line reads both, and a run that read the developer's would pass for
+/// the one who has no patterns and fail for the one who has. Created as
+/// `configHome()` is, and removed with it.
+[[nodiscard]] std::string dataHome();
+[[nodiscard]] std::string enchantHome();
+
 /// The environment a launched binary receives: this process's own, with the
-/// configuration home replaced by the above.
+/// configuration home, the data home and the Enchant home replaced by the above.
 ///
 /// Exported so that the substitution can be asserted on rather than trusted —
 /// it happens in the one place a binary is started, and a harness nobody

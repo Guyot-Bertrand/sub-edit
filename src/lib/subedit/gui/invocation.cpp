@@ -9,8 +9,8 @@
 #include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_path.hpp>
-#include <subedit/gui/patterns_path.hpp>
 #include <subedit/gui/settings_path.hpp>
+#include <subedit/platform/locations.hpp>
 
 #include <QString>
 #include <QStringList>
@@ -98,8 +98,8 @@ void configureFromEnvironment(MainWindow& window,
                               std::ostream& errors) {
     window.applySettings(readUserSettings(files, errors));
     window.setManualPath(installedManualPath());
-    window.setPatternCatalogue(
-        core::readPatternCatalogue(files, installedPatternsPath(), resolvedUserPatternsPath()));
+    window.setPatternCatalogue(core::readPatternCatalogue(
+        files, platform::installedPatternsPath(), platform::resolvedUserPatternsPath()));
     window.setSpellChecking(std::make_shared<const core::EnchantSpellProvider>(),
                             userSettingsPath().parent_path());
 }

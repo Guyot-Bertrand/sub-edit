@@ -57,6 +57,22 @@ TEST_CASE("a launched binary is given that home, and it is set once", "[e2e][har
     CHECK(std::ranges::count(environment, "XDG_CONFIG_HOME=" + subedit::e2e::configHome()) == 1);
 }
 
+TEST_CASE("the data home and the Enchant home are the harness's own, and set once",
+          "[e2e][harness]") {
+    const std::vector<std::string> environment = subedit::e2e::childEnvironment();
+
+    CHECK(std::filesystem::is_empty(subedit::e2e::dataHome()));
+    CHECK(std::filesystem::is_empty(subedit::e2e::enchantHome()));
+    CHECK(subedit::e2e::dataHome() != subedit::e2e::enchantHome());
+    CHECK(std::ranges::count(environment, "XDG_DATA_HOME=" + subedit::e2e::dataHome()) == 1);
+    CHECK(std::ranges::count(environment, "ENCHANT_CONFIG_DIR=" + subedit::e2e::enchantHome()) ==
+          1);
+    CHECK(std::ranges::count_if(environment, [](const std::string& variable) {
+              return variable.starts_with("XDG_DATA_HOME=") ||
+                     variable.starts_with("ENCHANT_CONFIG_DIR=");
+          }) == 2);
+}
+
 // The demonstration asked for by #238. Nothing is written and nothing is
 // launched: what is shown is that the value the harness replaces is the real
 // one, so that removing the substitution would point a running binary straight

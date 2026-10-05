@@ -41,7 +41,13 @@ readonly CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
 # ajouterait un mot au dictionnaire d'un correcteur réel écrirait chez
 # l'utilisateur, et chez d'autres logiciels que le nôtre : ils sont surveillés
 # ensemble, et les tests qui touchent Enchant déplacent `ENCHANT_CONFIG_DIR`.
-readonly WATCHED_DIRECTORIES=("${CONFIG_HOME}/subedit" "${CONFIG_HOME}/enchant")
+#
+# **Un troisième, depuis #566 : `$XDG_DATA_HOME/subedit`**, où l'utilisateur dépose
+# ses motifs de correction (ADR 0037). La ligne de commande les *lit* — ce que le
+# contrôle ne voit pas — et un test qui y écrirait un motif de test le ferait
+# lire à toute exécution suivante, la sienne comprise.
+readonly DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
+readonly WATCHED_DIRECTORIES=("${CONFIG_HOME}/subedit" "${CONFIG_HOME}/enchant" "${DATA_HOME}/subedit")
 
 # Sous `build/`, qui est ignoré par git — comme le relevé de check-untracked.sh,
 # et pour la même raison : un relevé versionné serait un fichier de plus à ne
