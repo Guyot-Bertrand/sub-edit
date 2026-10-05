@@ -11,6 +11,7 @@
 #include <subedit/core/text/hearing_impaired_correction.hpp>
 #include <subedit/core/text/icu_pattern_engine.hpp>
 #include <subedit/core/text/line_measure.hpp>
+#include <subedit/core/text/spell_dictionary.hpp>
 #include <subedit/core/wording/correction.hpp>
 #include <subedit/core/wording/counts.hpp>
 
@@ -20,6 +21,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <memory>
 #include <span>
 #include <string_view>
@@ -35,9 +37,13 @@ struct TaskName {
     std::string_view name;
     core::CorrectionTask task;
     core::PatternKind kind;
+
+    /// Whether the task plays patterns. **Joining and splitting words do not**: they
+    /// ask the spell-checker, and have no cascade, no code and no name to switch.
+    bool readsPatterns = true;
 };
 
-constexpr std::array<TaskName, 4> kTasks{
+constexpr std::array<TaskName, 6> kTasks{
     TaskName{.name = "mentions",
              .task = core::CorrectionTask::Mentions,
              .kind = core::PatternKind::HearingImpaired},
@@ -50,6 +56,15 @@ constexpr std::array<TaskName, 4> kTasks{
     TaskName{.name = "line-break",
              .task = core::CorrectionTask::LineBreak,
              .kind = core::PatternKind::LineBreak},
+    // The kind is not read: these two have no patterns.
+    TaskName{.name = "join-words",
+             .task = core::CorrectionTask::JoinSplitWords,
+             .kind = core::PatternKind::CommonError,
+             .readsPatterns = false},
+    TaskName{.name = "split-words",
+             .task = core::CorrectionTask::JoinSplitWords,
+             .kind = core::PatternKind::CommonError,
+             .readsPatterns = false},
 };
 
 /// `text` cut at each `separator`, the empty pieces kept.
@@ -235,8 +250,8 @@ tasksOf(const std::string& list) {
         const TaskName* task = taskNamed(name);
         if (task == nullptr) {
             return std::unexpected{"--tasks: \"" + std::string{name} +
-                                   "\" is not a task: expected mentions, common-errors, "
-                                   "capitalization or line-break"};
+                                   "\" is not a task: expected mentions, join-words, split-words, "
+                                   "common-errors, capitalization or line-break"};
         }
         if (std::ranges::find(tasks, task) == tasks.end()) {
             tasks.push_back(task);
@@ -245,8 +260,16 @@ tasksOf(const std::string& list) {
     return tasks;
 }
 
-/// Why `--code` cannot be honoured, or nothing.
-[[nodiscard]] std::optional<std::string> codeRefusal(const CorrectionOptions& options) {
+/// Why `--code` cannot be honoured, or nothing. It is required as soon as a task
+/// reads patterns, and is a mistake when none does.
+[[nodiscard]] std::optional<std::string> codeRefusal(const CorrectionOptions& options,
+                                                     bool readsPatterns) {
+    if (!readsPatterns) {
+        return options.code.empty()
+                   ? std::nullopt
+                   : std::optional<std::string>{
+                         "--code is for the tasks that read patterns, and none was asked for"};
+    }
     if (options.code.empty()) {
         return std::string{"--code is required by the tasks that read patterns: "} + options.tasks;
     }
@@ -281,6 +304,41 @@ tasksOf(const std::string& list) {
 
 /// More lines than a subtitle can hold on a screen: a typo, not a wish.
 constexpr double kMostLines = 1000.0;
+
+/// Reads the dictionary's language and the two tasks that need it into `settings`,
+/// or says why `--language` cannot be honoured. **Required with a task that
+/// checks words**, and a mistake without one: a language nothing uses is an
+/// omission, not a preference.
+[[nodiscard]] std::optional<std::string> languageInto(const CorrectionOptions& options,
+                                                      const std::vector<const TaskName*>& tasks,
+                                                      core::CorrectionSettings& settings) {
+    bool join = false;
+    bool split = false;
+    for (const TaskName* task : tasks) {
+        join = join || task->name == "join-words";
+        split = split || task->name == "split-words";
+    }
+    if (!join && !split) {
+        return options.language.empty()
+                   ? std::nullopt
+                   : std::optional<std::string>{
+                         "--language is for the tasks join-words and split-words, which were not "
+                         "asked for"};
+    }
+    if (options.language.empty()) {
+        return std::string{"--language is required by the tasks that check words: "} +
+               options.tasks;
+    }
+    if (!core::isValidSpellLanguage(options.language)) {
+        return "--language: \"" + options.language +
+               "\" is not a language: expected a locale code, like fr, en_US or sr@Latn";
+    }
+    settings.joinSplitEnabled = true;
+    settings.joinWords = join;
+    settings.splitWords = split;
+    settings.spellLanguage = options.language;
+    return std::nullopt;
+}
 
 /// A number greater than zero, written as digits with an optional fraction.
 [[nodiscard]] std::optional<double> positiveNumber(const std::string& text) {
@@ -429,33 +487,41 @@ correctionSettingsOf(const CorrectionOptions& options, const core::PatternCatalo
     settings.commonErrors.enabled = false;
     settings.capitalization.enabled = false;
 
-    const std::expected<std::vector<const TaskName*>, std::string> tasks = tasksOf(options.tasks);
-    if (!tasks) {
-        return std::unexpected{tasks.error()};
+    const std::expected<std::vector<const TaskName*>, std::string> asked = tasksOf(options.tasks);
+    if (!asked) {
+        return std::unexpected{asked.error()};
     }
-    if (std::optional<std::string> refused = codeRefusal(options)) {
+    // The tasks that play patterns, which is where a code, a name and a limit apply.
+    std::vector<const TaskName*> tasks;
+    std::ranges::copy_if(*asked, std::back_inserter(tasks), [](const TaskName* task) {
+        return task->readsPatterns;
+    });
+    if (std::optional<std::string> refused = codeRefusal(options, !tasks.empty())) {
+        return std::unexpected{*std::move(refused)};
+    }
+    if (std::optional<std::string> refused = languageInto(options, *asked, settings)) {
         return std::unexpected{*std::move(refused)};
     }
     if (std::optional<std::string> refused = classesInto(options.classes, settings)) {
         return std::unexpected{*std::move(refused)};
     }
     const bool breaks = std::ranges::any_of(
-        *tasks, [](const TaskName* task) { return task->task == core::CorrectionTask::LineBreak; });
+        tasks, [](const TaskName* task) { return task->task == core::CorrectionTask::LineBreak; });
     if (std::optional<std::string> refused = lineBreakInto(options, breaks, settings)) {
         return std::unexpected{*std::move(refused)};
     }
 
-    for (const TaskName* task : *tasks) {
+    for (const TaskName* task : tasks) {
         core::TaskSettings& chosen = settingsOfTask(settings, task->task);
         chosen.enabled = true;
         chosen.code = options.code;
     }
 
-    if (std::optional<std::string> refused = switchesInto(options, *tasks, catalogue, settings)) {
+    if (std::optional<std::string> refused = switchesInto(options, tasks, catalogue, settings)) {
         return std::unexpected{*std::move(refused)};
     }
 
-    for (const TaskName* task : *tasks) {
+    for (const TaskName* task : tasks) {
         if (!hasWork(*task, catalogue, settings, options.code)) {
             return std::unexpected{std::string{task->name} +
                                    ": no pattern is active under the code " + options.code +
@@ -475,19 +541,20 @@ ExitCode correctIn(core::FileSystem& files,
                    const std::optional<Range>& range,
                    const Destination& destination,
                    const Reporter& reporter,
-                   const std::optional<Pairing>& pairing) {
+                   const std::optional<Pairing>& pairing,
+                   const core::SpellChecker* spellChecker) {
     // One engine for the whole run: it is read, never changed.
     const auto engine = std::make_shared<const core::IcuPatternEngine>();
     const core::CharacterLineMeasure measure;
 
-    const ChangingOperation correct =
-        [&catalogue, &settings, &measure, engine](core::Session& session,
-                                                  const Request& request) -> OperationOutcome {
+    const ChangingOperation correct = [&catalogue, &settings, &measure, engine, spellChecker](
+                                          core::Session& session,
+                                          const Request& request) -> OperationOutcome {
         const core::CorrectionTarget target{.project = &session.project(),
                                             .selection = request.selection,
                                             .document = request.document};
-        core::CorrectionProposal proposal =
-            core::proposeCorrections(*engine, catalogue, settings, measure, std::span{&target, 1});
+        core::CorrectionProposal proposal = core::proposeCorrections(
+            *engine, catalogue, settings, measure, std::span{&target, 1}, spellChecker);
 
         // The subtitles looked at, in the order a failure's `text` counts them.
         std::vector<std::size_t> subtitles;

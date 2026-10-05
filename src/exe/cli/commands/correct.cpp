@@ -2,13 +2,19 @@
 
 #include <subedit/cli/correcting.hpp>
 #include <subedit/core/io/real_file_system.hpp>
+#include <subedit/core/text/enchant_spell_provider.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/text/spell_checker.hpp>
+#include <subedit/core/text/spell_replacements.hpp>
 #include <subedit/core/wording/correction.hpp>
+#include <subedit/core/wording/counts.hpp>
 #include <subedit/platform/locations.hpp>
 
 #include <CLI/CLI.hpp>
+#include <expected>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace subedit::cli {
@@ -56,6 +62,11 @@ CLI::App* describeCorrect(CLI::App& app, std::string_view name, CorrectOptions& 
                      options.correction.disable,
                      "Switch a pattern off, by its English name or type:name; repeatable")
         ->option_text("NAME");
+    correct
+        ->add_option("--language",
+                     options.correction.language,
+                     "The dictionary join-words and split-words read: fr_FR, en_US, en...")
+        ->option_text("CODE");
     correct
         ->add_option("--max-length",
                      options.correction.maxLength,
@@ -108,6 +119,26 @@ ExitCode runCorrect(const CorrectOptions& options,
         return refuse(settings.error());
     }
 
+    // **The dictionary is opened once, and before anything is read**: a language
+    // nobody has is a mistake about the command line, said in the words of the
+    // window, which greys the function out and says so. The replacement list the
+    // window keeps is neither read nor written (decision D2): no configuration
+    // directory is given, so `spellReplacementFile` names none.
+    std::optional<core::EnchantSpellProvider> provider;
+    std::optional<core::SpellChecker> spellChecker;
+    if (settings->joinSplitEnabled) {
+        provider.emplace();
+        std::expected<core::SpellChecker, core::NoDictionary> opened =
+            core::openSpellChecker(*provider,
+                                   settings->spellLanguage,
+                                   files,
+                                   core::spellReplacementFile({}, settings->spellLanguage));
+        if (!opened) {
+            return refuse(core::noDictionaryFor(opened.error().language));
+        }
+        spellChecker.emplace(std::move(*opened));
+    }
+
     const std::expected<std::optional<Range>, std::string> range = rangeOf(options.range);
     if (!range) {
         return refuse(range.error());
@@ -139,7 +170,8 @@ ExitCode runCorrect(const CorrectOptions& options,
                      *range,
                      *destination,
                      reporter,
-                     *pairing);
+                     *pairing,
+                     spellChecker ? &*spellChecker : nullptr);
 }
 
 } // namespace

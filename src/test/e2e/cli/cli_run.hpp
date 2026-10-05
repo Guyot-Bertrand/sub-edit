@@ -95,6 +95,22 @@ public:
     ~UserPatterns();
 };
 
+/// The test dictionary `zz` (`data/dictionnaires/`), put where Enchant's Hunspell
+/// engine finds it — `$ENCHANT_CONFIG_DIR/hunspell/` of the harness — and taken away
+/// again when this goes out of scope. **No test depends on a dictionary the machine
+/// has**: this one is the test's own, six words of a language nobody speaks.
+class TestDictionary {
+public:
+    TestDictionary();
+
+    TestDictionary(const TestDictionary&) = delete;
+    TestDictionary& operator=(const TestDictionary&) = delete;
+    TestDictionary(TestDictionary&&) = delete;
+    TestDictionary& operator=(TestDictionary&&) = delete;
+
+    ~TestDictionary();
+};
+
 /// The data home and the Enchant home every launched binary is given: where the
 /// patterns a user drops in `$XDG_DATA_HOME/subedit/patterns` would be, and where
 /// Enchant keeps its personal word list. **Empty, and the test's own** — the

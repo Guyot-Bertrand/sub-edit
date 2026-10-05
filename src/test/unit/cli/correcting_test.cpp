@@ -11,6 +11,8 @@
 #include <subedit/cli/reporter.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/text/spell_checker.hpp>
+#include <subedit/core/text/word_list_spell_provider.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
@@ -418,4 +420,87 @@ TEST_CASE("a text is broken in characters, and the skip gate leaves one that fit
 
     // Within its bounds: ten characters in one line.
     CHECK(correct(options, srt("one two")).written == srt("one two"));
+}
+
+TEST_CASE("the tasks that check words need a language, and no code", "[cli][correct]") {
+    CorrectionOptions options;
+    options.tasks = "join-words";
+    CHECK_THAT(
+        refusalOf(options),
+        ContainsSubstring("--language is required by the tasks that check words: join-words"));
+
+    options.language = "French";
+    CHECK_THAT(refusalOf(options), ContainsSubstring("\"French\" is not a language"));
+
+    options.language = "fr_FR";
+    const auto joining = correctionSettingsOf(options, catalogue());
+    REQUIRE(joining.has_value());
+    CHECK(joining->joinSplitEnabled);
+    CHECK(joining->joinWords);
+    CHECK_FALSE(joining->splitWords);
+    CHECK(joining->spellLanguage == "fr_FR");
+    CHECK_FALSE(joining->commonErrors.enabled);
+
+    options.tasks = "split-words";
+    const auto splitting = correctionSettingsOf(options, catalogue());
+    REQUIRE(splitting.has_value());
+    CHECK_FALSE(splitting->joinWords);
+    CHECK(splitting->splitWords);
+
+    options.tasks = "join-words,split-words";
+    const auto both = correctionSettingsOf(options, catalogue());
+    CHECK((both->joinWords && both->splitWords));
+
+    // A pattern task beside them still wants its code, and the words do not need it.
+    options.tasks = "join-words,common-errors";
+    CHECK_THAT(refusalOf(options), ContainsSubstring("--code is required"));
+    options.code = "Latn";
+    CHECK(refusalOf(options).empty());
+}
+
+TEST_CASE("a language or a code nothing uses is a mistake", "[cli][correct]") {
+    CorrectionOptions options = optionsFor("common-errors");
+    options.language = "fr";
+    CHECK_THAT(refusalOf(options),
+               ContainsSubstring("--language is for the tasks join-words and split-words"));
+
+    options = CorrectionOptions{};
+    options.tasks = "join-words";
+    options.language = "fr";
+    options.code = "Latn";
+    CHECK_THAT(refusalOf(options), ContainsSubstring("--code is for the tasks that read patterns"));
+}
+
+TEST_CASE("words are joined and split with the checker the caller opened", "[cli][correct]") {
+    subedit::core::WordList list;
+    list.words = {"hello", "there", "world"};
+    list.suggestions = {{"hellothere", {"hello there"}}};
+    subedit::core::WordListSpellProvider provider;
+    provider.add("zz", std::move(list));
+    const InMemoryFileSystem none;
+    const auto checker = subedit::core::openSpellChecker(provider, "zz", none, "/none.repl");
+    REQUIRE(checker.has_value());
+
+    CorrectionOptions options;
+    options.tasks = "join-words,split-words";
+    options.language = "zz";
+    const auto settings = correctionSettingsOf(options, catalogue());
+    REQUIRE(settings.has_value());
+
+    InMemoryFileSystem files;
+    files.addFile("a.srt", srt("hel lo hellothere"));
+    std::ostringstream errors;
+    const ExitCode code = correctIn(files,
+                                    {"a.srt"},
+                                    std::nullopt,
+                                    catalogue(),
+                                    *settings,
+                                    std::nullopt,
+                                    Destination::from("", "out", false, 1).value(),
+                                    Reporter{errors, 1},
+                                    std::nullopt,
+                                    &*checker);
+
+    CHECK(code == ExitCode::Success);
+    CHECK(files.contentOf("out/a.srt").value_or("") == srt("hello hello there"));
 }

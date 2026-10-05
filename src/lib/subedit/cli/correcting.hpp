@@ -8,6 +8,7 @@
 #include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/text/spell_checker.hpp>
 
 #include <expected>
 #include <optional>
@@ -42,6 +43,10 @@ struct CorrectionOptions {
 
     /// Leave the subtitles the correction empties, empty, instead of removing them.
     bool keepBlankSubtitles = false;
+
+    /// The dictionary the tasks that check words read: `fr_FR`, `en`… **Required
+    /// with `join-words` or `split-words`**, and nothing else's.
+    std::string language;
 
     /// What `line-break` breaks to, as written, empty when not given. **In
     /// characters**: the 24 of Gaupol is a width in ems, a unit this program has
@@ -83,7 +88,9 @@ correctionSettingsOf(const CorrectionOptions& options,
 /// named, with the subtitle it gave up on, and is not a failure of the file**:
 /// the file is written, and the code is that of a file that was. `range` limits
 /// the subtitles looked at; with a `pairing` it is the translation that is
-/// corrected and written (`rewriteAll`).
+/// corrected and written (`rewriteAll`). `spellChecker` is what joining and
+/// splitting words ask, opened once by the caller for the whole run; the
+/// dictionary was checked to exist before anything was read.
 [[nodiscard]] ExitCode correctIn(subedit::core::FileSystem& files,
                                  const std::vector<std::string>& paths,
                                  const std::optional<subedit::core::Encoding>& reading,
@@ -92,6 +99,7 @@ correctionSettingsOf(const CorrectionOptions& options,
                                  const std::optional<Range>& range,
                                  const Destination& destination,
                                  const Reporter& reporter,
-                                 const std::optional<Pairing>& pairing = std::nullopt);
+                                 const std::optional<Pairing>& pairing = std::nullopt,
+                                 const subedit::core::SpellChecker* spellChecker = nullptr);
 
 } // namespace subedit::cli
