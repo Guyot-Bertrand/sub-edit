@@ -205,6 +205,7 @@ add_executable(
     cli/reporter_test.cpp
     cli/shifting_test.cpp
     cli/sorting_test.cpp
+    cli/splitting_test.cpp
     cli/text_rewriting_test.cpp
     cli/time_grammar_test.cpp
     cli/transforming_test.cpp

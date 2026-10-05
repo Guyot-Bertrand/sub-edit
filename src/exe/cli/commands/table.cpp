@@ -16,6 +16,7 @@
 #include "shift.hpp"
 #include "snap.hpp"
 #include "sort.hpp"
+#include "split_file.hpp"
 #include "transform.hpp"
 
 namespace subedit::cli {
@@ -37,6 +38,7 @@ std::span<const Command> commands() {
         Command{.name = "sort", .declare = declareSort},
         Command{.name = "correct", .declare = declareCorrect},
         Command{.name = "append", .declare = declareAppend},
+        Command{.name = "split-file", .declare = declareSplitFile},
     };
     return kTable;
 }

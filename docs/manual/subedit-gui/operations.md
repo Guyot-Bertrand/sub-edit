@@ -384,6 +384,9 @@ Cannot split at subtitle 3: subtitle 3 would fall before the start of the video.
 
 Arriver exactement au début est permis : zéro est une position.
 
+**En ligne de commande**, [`split-file`](../subedit-cli/split-file.md) coupe un fichier de la même façon, en deux
+fichiers nommés.
+
 ## `Snap to Frame Rate…`
 
 Pose **chaque horodatage** — début et fin — sur l'image la plus proche de la

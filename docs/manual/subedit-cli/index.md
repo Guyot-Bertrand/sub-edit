@@ -5,10 +5,10 @@ sans interface graphique, en traitement par lot ou depuis un script. Pour
 l'autre programme et pour savoir par où commencer, voir
 [le manuel](../index.md).
 
-> **État actuel.** Les quinze sous-commandes de `subedit-cli` existent :
+> **État actuel.** Les seize sous-commandes de `subedit-cli` existent :
 > inspecter, convertir, décaler, transformer, recaler la cadence, aligner sur
 > une grille d'images, retirer les mentions pour malentendants, ajuster les
-> durées, remplacer un texte, changer la casse, l'italique et les tirets de dialogue, remettre les sous-titres dans l'ordre, corriger les textes avec les motifs de Gaupol, et mettre des fichiers à la suite l'un de l'autre. Ce manuel
+> durées, remplacer un texte, changer la casse, l'italique et les tirets de dialogue, remettre les sous-titres dans l'ordre, corriger les textes avec les motifs de Gaupol, mettre des fichiers à la suite l'un de l'autre, et couper un fichier en deux. Ce manuel
 > décrit ce qui existe, jamais ce qui est prévu ; ce qui vient ensuite est dans
 > la [feuille de route](../../feuille-de-route.md).
 
@@ -34,3 +34,4 @@ l'autre programme et pour savoir par où commencer, voir
 | [`sort`](sort.md) | remettre les sous-titres dans l'ordre de leur début |
 | [`correct`](correct.md) | corriger les textes avec les motifs de Gaupol : mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage de lignes |
 | [`append`](append.md) | mettre des fichiers à la suite du premier, dans un seul fichier |
+| [`split-file`](split-file.md) | couper un fichier en deux, la queue ramenée à l'origine |

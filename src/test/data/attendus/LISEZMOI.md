@@ -105,3 +105,15 @@ sont écrites par `src/test/e2e/cli/append_test.cpp`.
 | `append/deux-fichiers.srt` | deux sous-titres, puis un qui commence à 0,5 s : il commence à 4,5 s | à la main : 0,5 + 4,0, la balise d'italique gardée |
 | `append/trois-fichiers.srt` | les mêmes, puis un fichier WebVTT : il suit la fin du troisième (5,5 s) | à la main : 1,0 + 5,5 = 6,5 s |
 | `json/append.jsonl` | trois fichiers, le dernier en Advanced SSA : l'objet dit ce que chacun a coûté | à la main : une balise `{\pos}` et l'en-tête perdus |
+
+## `split/` — ce que `split-file` écrit
+
+Écrits à la main : la queue est ramenée à l'origine de la fin du dernier sous-titre resté (4 s), et
+les deux moitiés sont renumérotées à partir de 1. L'entrée est écrite par
+`src/test/e2e/cli/split_file_test.cpp` : quatre sous-titres, terminant à 2, 4, 7 et 9 s, coupés au troisième.
+
+| Fichier | Cas | Provenance |
+| :------ | :-- | :--------- |
+| `split/coupe-tete.srt` | les deux premiers sous-titres, tels quels | à la main |
+| `split/coupe-queue.srt` | les deux derniers : 6→2 s, 7→3 s, 8→4 s, 9→5 s | à la main : moins 4 s |
+| `json/split-file.jsonl` | la coupe au troisième : `destination` est la tête, `tail` la queue | à la main |

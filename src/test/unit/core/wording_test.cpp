@@ -561,6 +561,9 @@ TEST_CASE("splitting a project says how many subtitles left", "[wording][split-p
 
     CHECK(noticeOfSplit(12) == "split 12 subtitles into a new project");
     CHECK(noticeOfSplit(1) == "split 1 subtitle into a new project");
+    CHECK(subedit::core::refusalOfSplit(3, 3) ==
+          "Cannot split at subtitle 3: subtitle 3 would fall before the start of the video. "
+          "Cut somewhere else.");
 }
 
 TEST_CASE("splitting a project has a name of its own in the history", "[wording][split-project]") {

@@ -316,9 +316,8 @@ void ProjectOperations::splitProject(ProjectPage& page) {
     const core::SubtitleIndex from = core::SubtitleIndex::fromValue(dialog.firstOfTail());
     std::expected<core::SplitProject, core::SplitRefusal> split = core::splitProject(project, from);
     if (!split) {
-        m_prompts->reportFailure("Cannot split at subtitle " + std::to_string(from.value() + 1) +
-                                 ": subtitle " + std::to_string(split.error().before.value() + 1) +
-                                 " would fall before the start of the video. Cut somewhere else.");
+        m_prompts->reportFailure(
+            core::refusalOfSplit(from.value() + 1, split.error().before.value() + 1));
         return;
     }
 
