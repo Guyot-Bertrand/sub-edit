@@ -244,19 +244,19 @@ plus rien.
 | `CLI-ADJUST-04` | le compte rendu dit ce qui a été ajusté et ce qui a été sacrifié, contrainte par contrainte | 13 | implémentée |
 | `CLI-ADJUST-05` | en `json`, `counts` porte `adjusted` et `sacrificed.{speed,minimum,gap}`, et `constraints` les contraintes employées | 13 | implémentée |
 | `CLI-ADJUST-06` | les comptes sacrifiés s'accordent avec ceux que le script de mesure prédit sur les fixtures versionnées | 13 | implémentée |
-| `CLI-CORRECT-01` | `--tasks` est requis et nomme les tâches ; aucune n'est cochée d'avance | 13 | prévue |
-| `CLI-CORRECT-02` | `--code` est requis dès qu'une tâche lit des motifs | 13 | prévue |
-| `CLI-CORRECT-03` | le compte rendu dit les textes changés et supprimés, jamais les correspondances | 13 | prévue |
-| `CLI-CORRECT-04` | `--classes` retire de l'application les motifs de la classe décochée | 13 | prévue |
-| `CLI-CORRECT-05` | `--enable` / `--disable` règlent un motif par son nom ; un nom inconnu ou ambigu est refusé | 13 | prévue |
-| `CLI-CORRECT-06` | une tâche de motifs sans aucun motif actif est refusée | 13 | prévue |
-| `CLI-CORRECT-07` | les motifs de l'utilisateur s'ajoutent aux motifs livrés | 13 | prévue |
-| `CLI-CORRECT-08` | un motif qui ne se lit pas, ne se traduit pas ou ne termine pas est nommé avec le sous-titre, et les autres s'appliquent | 13 | prévue |
+| `CLI-CORRECT-01` | `--tasks` est requis et nomme les tâches ; aucune n'est cochée d'avance | 13 | implémentée |
+| `CLI-CORRECT-02` | `--code` est requis dès qu'une tâche lit des motifs | 13 | implémentée |
+| `CLI-CORRECT-03` | le compte rendu dit les textes changés et supprimés, jamais les correspondances | 13 | implémentée |
+| `CLI-CORRECT-04` | `--classes` retire de l'application les motifs de la classe décochée | 13 | implémentée |
+| `CLI-CORRECT-05` | `--enable` / `--disable` règlent un motif par son nom ; un nom inconnu ou ambigu est refusé | 13 | implémentée |
+| `CLI-CORRECT-06` | une tâche de motifs sans aucun motif actif est refusée | 13 | implémentée |
+| `CLI-CORRECT-07` | les motifs de l'utilisateur s'ajoutent aux motifs livrés | 13 | implémentée |
+| `CLI-CORRECT-08` | un motif qui ne se lit pas, ne se traduit pas ou ne termine pas est nommé avec le sous-titre, et les autres s'appliquent | 13 | implémentée |
 | `CLI-CORRECT-09` | `line-break` mesure en caractères ; `--max-length` est requis ; les bornes du saut suivent, et s'éteignent | 13 | prévue |
 | `CLI-CORRECT-10` | `join-words` et `split-words` joignent et scindent selon le dictionnaire de `--language` | 13 | prévue |
 | `CLI-CORRECT-11` | sans dictionnaire pour `--language`, `correct` est refusé avec la phrase de la fenêtre, avant tout traitement | 13 | prévue |
-| `CLI-CORRECT-12` | les sous-titres vidés sont retirés, sauf `--keep-blank-subtitles` | 13 | prévue |
-| `CLI-CORRECT-13` | `correct` ne lit aucun réglage de l'utilisateur ni sa liste de remplacements | 13 | prévue |
+| `CLI-CORRECT-12` | les sous-titres vidés sont retirés, sauf `--keep-blank-subtitles` | 13 | implémentée |
+| `CLI-CORRECT-13` | `correct` ne lit aucun réglage de l'utilisateur ni sa liste de remplacements | 13 | implémentée |
 | `CLI-REPLACE-01` | `replace` cherche dans le texte visible et remplace dans le texte source, sans casser une balise | 13 | implémentée |
 | `CLI-REPLACE-02` | `--regex` lit une expression ; une expression illisible est refusée avant tout traitement, avec la raison | 13 | implémentée |
 | `CLI-REPLACE-03` | les majuscules sont ignorées par défaut, `--case-sensitive` les distingue | 13 | implémentée |

@@ -339,7 +339,7 @@ celles de `-t` : voir plus haut. `inspect` n'écrit rien qui puisse être refus�
 | format non reconnu | `<chemin>: is in no format this tool knows` |
 | rien qui ressemble à un sous-titre | `<chemin>: holds nothing recognisable as a subtitle` |
 
-Ce sont les mêmes messages pour les treize sous-commandes : la recette d'ouverture
+Ce sont les mêmes messages pour les quatorze sous-commandes : la recette d'ouverture
 est écrite une fois, au noyau.
 
 ## Un exemple qui échoue

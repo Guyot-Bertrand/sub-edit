@@ -29,6 +29,7 @@ add_library(
     inspection.cpp
     pairing.cpp
     conversion.cpp
+    correcting.cpp
     index_grammar.cpp
     records.cpp
     replacing.cpp

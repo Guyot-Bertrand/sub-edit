@@ -1,0 +1,21 @@
+# -*- conf -*-
+# Un motif intraduisible : un nom de groupe avec un tiret bas, que Python
+# accepte et qu'ICU refuse. Le second motif, lui, s'applique.
+
+[Common Error Pattern]
+Name=Group name with an underscore
+Description=A group name ICU cannot read
+Classes=OCR;
+Pattern=(?P<no_underscore>a)
+Flags=DOTALL;MULTILINE;
+Replacement=b
+Repeat=False
+
+[Common Error Pattern]
+Name=Three z become three y
+Description=Replace zzz with yyy
+Classes=OCR;
+Pattern=zzz
+Flags=DOTALL;MULTILINE;
+Replacement=yyy
+Repeat=False

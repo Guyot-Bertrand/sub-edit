@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Sous-commande correct, tâches de motifs
+
+## 0.13.22 — 2026-10-05
+
+### Ajouts
+
 - **cli** — Motifs et terrain de la correction hors de Qt
 
 ## 0.13.21 — 2026-10-05

@@ -48,24 +48,6 @@ namespace {
     return (fields->classes.human && settings.human) || (fields->classes.ocr && settings.ocr);
 }
 
-/// The patterns of `kind` the cascade of `code` gives, activation and D4's
-/// classes both applied.
-[[nodiscard]] std::vector<const CorrectionPattern*>
-selectedPatterns(const PatternCatalogue& catalogue,
-                 PatternKind kind,
-                 const std::string& code,
-                 const CorrectionSettings& settings) {
-    std::vector<const CorrectionPattern*> chosen;
-    for (const CorrectionPattern* pattern : catalogue.cascade(kind, code)) {
-        if (!patternEnabled(*pattern, settings))
-            continue;
-        if (!classesAllow(*pattern, settings))
-            continue;
-        chosen.push_back(pattern);
-    }
-    return chosen;
-}
-
 /// The subtitles a task has not yet removed: their positions in `texts`, and
 /// their texts, dense — what a task reads.
 ///
@@ -88,6 +70,23 @@ struct Present {
     return found;
 }
 
+/// What a task reports, placed where its text really is.
+///
+/// A task reads the subtitles not yet removed, **densely**: the index a failure
+/// carries is a position in that list. What `PatternFailure::text` promises is a
+/// position in the target's own texts — the one `Selection::indices()` walks —
+/// and the two agree only until a task has removed something. Translated here,
+/// once, so that no caller has to know the tasks before it.
+void appendFailures(std::vector<PatternFailure>& into,
+                    const std::vector<PatternFailure>& reported,
+                    const Present& present) {
+    for (PatternFailure failure : reported) {
+        if (failure.text.has_value())
+            failure.text = present.at[*failure.text];
+        into.push_back(std::move(failure));
+    }
+}
+
 /// The mentions task, on the subtitles not yet removed.
 void runMentions(const PatternEngine& engine,
                  const PatternCatalogue& catalogue,
@@ -98,14 +97,14 @@ void runMentions(const PatternEngine& engine,
                  std::vector<PatternFailure>& failures) {
     const Present present = presentOf(texts);
     const std::vector<const CorrectionPattern*> patterns =
-        selectedPatterns(catalogue, PatternKind::HearingImpaired, settings.mentions.code, settings);
+        activePatterns(catalogue, PatternKind::HearingImpaired, settings.mentions.code, settings);
     const HearingImpairedCorrection done =
         correctHearingImpaired(engine,
                                patterns,
                                present.texts,
                                format,
                                settings.soundInBrackets || settings.soundInParentheses);
-    failures.insert(failures.end(), done.failures.begin(), done.failures.end());
+    appendFailures(failures, done.failures, present);
     for (std::size_t k = 0; k < present.at.size(); ++k) {
         std::optional<std::string> corrected = done.texts[k];
         // A translation carries no timing of its own: emptying it takes
@@ -156,20 +155,20 @@ void runTasks(const PatternEngine& engine,
 
     if (settings.commonErrors.enabled) {
         const Present present = presentOf(texts);
-        const std::vector<const CorrectionPattern*> patterns = selectedPatterns(
+        const std::vector<const CorrectionPattern*> patterns = activePatterns(
             catalogue, PatternKind::CommonError, settings.commonErrors.code, settings);
         const CorrectedTexts done = correctCommonErrors(engine, patterns, present.texts, format);
-        failures.insert(failures.end(), done.failures.begin(), done.failures.end());
+        appendFailures(failures, done.failures, present);
         for (std::size_t k = 0; k < present.at.size(); ++k)
             texts[present.at[k]] = done.texts[k];
     }
 
     if (settings.capitalization.enabled) {
         const Present present = presentOf(texts);
-        const std::vector<const CorrectionPattern*> patterns = selectedPatterns(
+        const std::vector<const CorrectionPattern*> patterns = activePatterns(
             catalogue, PatternKind::Capitalization, settings.capitalization.code, settings);
         const CorrectedTexts done = correctCapitalization(engine, patterns, present.texts, format);
-        failures.insert(failures.end(), done.failures.begin(), done.failures.end());
+        appendFailures(failures, done.failures, present);
         for (std::size_t k = 0; k < present.at.size(); ++k)
             texts[present.at[k]] = done.texts[k];
     }
@@ -177,7 +176,7 @@ void runTasks(const PatternEngine& engine,
     if (settings.lineBreak.enabled) {
         const Present present = presentOf(texts);
         const std::vector<const CorrectionPattern*> patterns =
-            selectedPatterns(catalogue, PatternKind::LineBreak, settings.lineBreak.code, settings);
+            activePatterns(catalogue, PatternKind::LineBreak, settings.lineBreak.code, settings);
         const BrokenTexts done = breakLines(engine,
                                             patterns,
                                             present.texts,
@@ -185,13 +184,28 @@ void runTasks(const PatternEngine& engine,
                                             settings.lineBreakMaxLength,
                                             settings.lineBreakMaxLines,
                                             skipLimitsOf(settings));
-        failures.insert(failures.end(), done.failures.begin(), done.failures.end());
+        appendFailures(failures, done.failures, present);
         for (std::size_t k = 0; k < present.at.size(); ++k)
             texts[present.at[k]] = done.texts[k];
     }
 }
 
 } // namespace
+
+std::vector<const CorrectionPattern*> activePatterns(const PatternCatalogue& catalogue,
+                                                     PatternKind kind,
+                                                     const std::string& code,
+                                                     const CorrectionSettings& settings) {
+    std::vector<const CorrectionPattern*> chosen;
+    for (const CorrectionPattern* pattern : catalogue.cascade(kind, code)) {
+        if (!patternEnabled(*pattern, settings))
+            continue;
+        if (!classesAllow(*pattern, settings))
+            continue;
+        chosen.push_back(pattern);
+    }
+    return chosen;
+}
 
 CorrectionProposal proposeCorrections(const PatternEngine& engine,
                                       const PatternCatalogue& catalogue,

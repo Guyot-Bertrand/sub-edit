@@ -35,6 +35,7 @@ Subcommands:
   italics                     Put the texts in italics, or take their italics out
   dialogue-dashes             Put dialogue dashes on the lines, or take them off
   sort                        Put the subtitles in the order of their start, keeping ties as they are
+  correct                     Correct the texts with the patterns of the correction assistant
 ```
 
 ## La ligne de commande est en anglais
@@ -147,7 +148,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.22
+subedit 0.13.23
 ```
 
 ## Sous-commandes
@@ -167,19 +168,20 @@ subedit 0.13.22
 | [`italics`](italics.md) | met les textes en italique, ou retire leur italique | oui |
 | [`dialogue-dashes`](dialogue-dashes.md) | pose ou retire les tirets de dialogue | oui |
 | [`sort`](sort.md) | remet les sous-titres dans l'ordre de leur début | oui |
+| [`correct`](correct.md) | corrige les textes avec les motifs de Gaupol : mentions, erreurs courantes, majuscules | oui |
 
-Les treize sont là ; l'aide de l'outil les énumère dans le même ordre.
+Les quatorze sont là ; l'aide de l'outil les énumère dans le même ordre.
 
 **Une seule ne touche à rien**, et c'est la colonne de droite : `inspect` lit et
-rapporte. Les douze autres écrivent, et ce qui suit vaut pour elles douze.
+rapporte. Les treize autres écrivent, et ce qui suit vaut pour elles treize.
 
 ## La destination
 
-Les douze sous-commandes qui écrivent — [`convert`](convert.md),
+Les treize sous-commandes qui écrivent — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
-[`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md) — prennent leur
+[`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`correct`](correct.md) — prennent leur
 destination de la même façon. [`inspect`](inspect.md) n'écrit aucun fichier et
 n'accepte aucune de ces options.
 
@@ -254,7 +256,7 @@ par un `?` serait perdre du texte sous les yeux de qui vient de l'écrire.
 
 ## Voir avant d'écrire
 
-**`--dry-run`** est accepté par chacune des douze sous-commandes qui écrivent, et dit la même
+**`--dry-run`** est accepté par chacune des treize sous-commandes qui écrivent, et dit la même
 chose partout : **lire, calculer, rendre compte, n'écrire aucun fichier**. On l'ajoute à la
 ligne qu'on s'apprêtait à lancer ; appliquer, c'est relancer la même ligne sans lui. Le calcul est
 déterministe : ce qu'un `--dry-run` a montré est ce que le lancement suivant écrira, tant que le
@@ -283,7 +285,7 @@ a.srt
 
 **Sur une sous-commande qui change des textes** —
 [`hearing-impaired`](hearing-impaired.md), [`replace`](replace.md), [`case`](case.md),
-[`italics`](italics.md) et [`dialogue-dashes`](dialogue-dashes.md) —, **la sortie standard porte les changements
+[`italics`](italics.md), [`dialogue-dashes`](dialogue-dashes.md) et [`correct`](correct.md) —, **la sortie standard porte les changements
 proposés**. Un bloc par sous-titre changé, dans l'ordre du fichier :
 
 ```
@@ -426,6 +428,7 @@ est écrit avec U+FFFD à la place des octets invalides, et l'objet porte l'aver
 | [`hearing-impaired`](hearing-impaired.md) | `cleaned` (textes réécrits), `removed` (sous-titres supprimés) |
 | [`replace`](replace.md) | `replaced` (correspondances remplacées dans les sous-titres changés), `matched` (correspondances trouvées) |
 | [`case`](case.md), [`italics`](italics.md), [`dialogue-dashes`](dialogue-dashes.md) | `changed` (sous-titres dont le texte a changé) |
+| [`correct`](correct.md) | `corrected` (textes changés), `removed` (sous-titres supprimés) — jamais des correspondances |
 | [`sort`](sort.md) | `subtitles`, `moved` (les places qui ont changé de sous-titre) |
 | [`adjust`](adjust.md) | `subtitles` (les sous-titres visés), `adjusted` (ceux dont la fin a bougé), puis le groupe `sacrificed` : `speed`, `minimum`, `gap` ; et, hors de `counts`, `constraints` — les réglages employés |
 | [`convert`](convert.md) | `subtitles`, puis ce que la conversion a perdu : `lost_ends` et `lost_header` (0 ou 1), `joined_lines`, `lost_tags`, `lost_fields`, `furthest_ms` |
@@ -495,7 +498,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Les treize sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
+Les quatorze sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
 un fichier lu au mieux puis réécrit a subi les mêmes décisions, et les taire
 laisserait croire que rien ne s'est passé.
 
@@ -554,6 +557,11 @@ rapportent sur elles-mêmes.
 trois-là ne parlent pas d'une ligne mais du fichier entier : elles disent qu'une
 valeur affichée n'a pas été lue. Une colonne `End` remplie sur un LRC, une
 position sur un MicroDVD — le fichier n'en portait rien.
+
+**Une opération peut ajouter le sien**, qui n'est pas un diagnostic de lecture :
+[`correct`](correct.md#un-motif-qui-ne-peut-pas-sappliquer) dit, avec le sous-titre, le motif
+qui a renoncé. Il est dit au niveau 1 et porte, dans l'objet du fichier, l'identifiant
+`pattern-failed` — jamais un échec du fichier.
 
 ## Une traduction
 

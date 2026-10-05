@@ -1,0 +1,9 @@
+# -*- conf -*-
+# Voir Latn-xa.common-error : le même nom, d'un autre type.
+
+[Capitalization Pattern]
+Name=Shared name
+Description=Capitalize after a semicolon
+Capitalize=After
+Pattern=;( |$)
+Flags=DOTALL;MULTILINE;

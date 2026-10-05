@@ -344,6 +344,20 @@ std::string dataHome() {
     return privateDataHome().path().string();
 }
 
+UserPatterns::UserPatterns(const std::string& name, const std::string& text) {
+    const std::filesystem::path directory =
+        std::filesystem::path{dataHome()} / "subedit" / "patterns";
+    std::filesystem::create_directories(directory);
+    std::ofstream{directory / name} << text;
+}
+
+UserPatterns::~UserPatterns() {
+    // **Never throws**, for the reason `Scratch`'s destructor does not. The
+    // whole `subedit` directory goes: it held nothing before this case.
+    std::error_code ignored;
+    std::filesystem::remove_all(std::filesystem::path{dataHome()} / "subedit", ignored);
+}
+
 std::string enchantHome() {
     return privateEnchantHome().path().string();
 }

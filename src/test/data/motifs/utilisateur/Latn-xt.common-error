@@ -1,0 +1,21 @@
+# -*- conf -*-
+# Un motif qui ne termine pas : « (a+)+$ » revient sur ses pas sans fin sur
+# quarante « a » suivis d'un « b ». Le second motif, lui, s'applique.
+
+[Common Error Pattern]
+Name=Catastrophic backtracking
+Description=Backtracks without end on a long run of letters
+Classes=OCR;
+Pattern=(a+)+$
+Flags=DOTALL;MULTILINE;
+Replacement=x
+Repeat=False
+
+[Common Error Pattern]
+Name=Three z become three y
+Description=Replace zzz with yyy
+Classes=OCR;
+Pattern=zzz
+Flags=DOTALL;MULTILINE;
+Replacement=yyy
+Repeat=False

@@ -4,6 +4,7 @@ add_executable(subedit-cli
     commands/adjust.cpp
     commands/command.cpp
     commands/convert.cpp
+    commands/correct.cpp
     commands/dialogue_dashes.cpp
     commands/framerate.cpp
     commands/hearing_impaired.cpp

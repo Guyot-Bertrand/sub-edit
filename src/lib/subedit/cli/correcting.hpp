@@ -1,0 +1,84 @@
+#pragma once
+
+// Correcting the texts of a file with the patterns of the assistant.
+
+#include <subedit/cli/exit_code.hpp>
+#include <subedit/cli/index_grammar.hpp>
+#include <subedit/cli/pairing.hpp>
+#include <subedit/core/config/correction_settings.hpp>
+#include <subedit/core/model/encoding.hpp>
+#include <subedit/core/text/pattern_catalogue.hpp>
+
+#include <expected>
+#include <optional>
+#include <string>
+#include <vector>
+
+namespace subedit::core {
+class FileSystem;
+}
+
+namespace subedit::cli {
+
+class Destination;
+class Reporter;
+
+/// What `correct` was given, as it was written.
+struct CorrectionOptions {
+    /// The tasks, comma separated: `mentions`, `common-errors`, `capitalization`.
+    std::string tasks;
+
+    /// The cascade of patterns every task of the run reads: `Zyyy`, `Latn`,
+    /// `Latn-en`, `Latn-en-US`.
+    std::string code;
+
+    /// `human`, `ocr` or `human,ocr`; empty means both, as the window opens.
+    std::string classes;
+
+    /// Patterns, by their English name or `type:name`, switched on or off.
+    std::vector<std::string> enable;
+    std::vector<std::string> disable;
+
+    /// Leave the subtitles the correction empties, empty, instead of removing them.
+    bool keepBlankSubtitles = false;
+};
+
+/// The settings of the assistant these options come to, or why they cannot be
+/// honoured — **read before any file is**: a mistake about the command line is
+/// not a mistake about a file.
+///
+/// **Nothing is read from the user's settings** (decision D2 of the spec of the
+/// phase): not their activations, not their last choices. The run starts from
+/// what the shipped `.conf` files say and is adjusted by `enable` and `disable`
+/// alone, so that the result depends on the arguments, the files, and what the
+/// installation provides. The three refusals that matter, each a usage error:
+///
+/// - `code` is required, since no task here reads without one;
+/// - a name that designates no pattern of the tasks given — or two, of two
+///   types, without a `type:` in front — is refused, because a misspelling must
+///   be loud: an invocation has no stale setting to forgive;
+/// - a task with no active pattern is refused: « nothing to do » is an answer
+///   that is said, not a silent success.
+[[nodiscard]] std::expected<subedit::core::CorrectionSettings, std::string>
+correctionSettingsOf(const CorrectionOptions& options,
+                     const subedit::core::PatternCatalogue& catalogue);
+
+/// Corrects the texts of every path under `settings`, and says how it went.
+///
+/// The count is the window's, by `noticeOfCorrection`: texts changed and
+/// subtitles removed, never matches. **A pattern that cannot be applied is
+/// named, with the subtitle it gave up on, and is not a failure of the file**:
+/// the file is written, and the code is that of a file that was. `range` limits
+/// the subtitles looked at; with a `pairing` it is the translation that is
+/// corrected and written (`rewriteAll`).
+[[nodiscard]] ExitCode correctIn(subedit::core::FileSystem& files,
+                                 const std::vector<std::string>& paths,
+                                 const std::optional<subedit::core::Encoding>& reading,
+                                 const subedit::core::PatternCatalogue& catalogue,
+                                 const subedit::core::CorrectionSettings& settings,
+                                 const std::optional<Range>& range,
+                                 const Destination& destination,
+                                 const Reporter& reporter,
+                                 const std::optional<Pairing>& pairing = std::nullopt);
+
+} // namespace subedit::cli

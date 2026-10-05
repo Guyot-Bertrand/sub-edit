@@ -1,5 +1,6 @@
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/wording/correction.hpp>
 #include <subedit/gui/correction_confirmation_page.hpp>
 #include <subedit/gui/correction_progress_page.hpp>
 #include <subedit/gui/correction_result_model.hpp>
@@ -17,67 +18,14 @@ namespace subedit::gui {
 
 namespace {
 
-[[nodiscard]] QString reasonOf(core::FailureKind kind) {
-    switch (kind) {
-    case core::FailureKind::Untranslatable:
-        return QStringLiteral("cannot be translated");
-    case core::FailureKind::CompileError:
-        return QStringLiteral("will not compile");
-    case core::FailureKind::InvalidReplacement:
-        return QStringLiteral("has an invalid replacement");
-    case core::FailureKind::TimedOut:
-        return QStringLiteral("timed out");
-    case core::FailureKind::TooManyPasses:
-        return QStringLiteral("never settled");
-    case core::FailureKind::TooLong:
-        return QStringLiteral("grew the text too long");
-    }
-    return {}; // unreachable: every enumerator is handled above
-}
-
-[[nodiscard]] QString reasonOf(core::PatternProblem problem) {
-    switch (problem) {
-    case core::PatternProblem::DirectoryUnreadable:
-        return QStringLiteral("directory cannot be read");
-    case core::PatternProblem::FileUnreadable:
-        return QStringLiteral("file cannot be read");
-    case core::PatternProblem::MalformedLine:
-        return QStringLiteral("malformed line");
-    case core::PatternProblem::FieldOutsideRecord:
-        return QStringLiteral("field outside any pattern");
-    case core::PatternProblem::UnknownField:
-        return QStringLiteral("unknown field");
-    case core::PatternProblem::MissingField:
-        return QStringLiteral("missing field");
-    case core::PatternProblem::InvalidValue:
-        return QStringLiteral("invalid value");
-    case core::PatternProblem::MalformedActivation:
-        break; // answered below, so that no unreachable line is left after the switch
-    }
-    return QStringLiteral("malformed activation");
-}
-
-/// `Zyyy.common-error, line 4 (malformed line: detail)` — the file by its own
-/// name, the line when there is one, the detail when the reading gave one.
-[[nodiscard]] QString describe(const core::PatternDiagnostic& diagnostic) {
-    QString text = QString::fromStdString(diagnostic.file.filename().string());
-    if (text.isEmpty())
-        text = QString::fromStdString(diagnostic.file.string());
-    if (diagnostic.line > 0)
-        text += QStringLiteral(", line ") + QString::number(diagnostic.line);
-    text += QStringLiteral(" (") + reasonOf(diagnostic.problem);
-    if (!diagnostic.detail.empty())
-        text += QStringLiteral(": ") + QString::fromStdString(diagnostic.detail);
-    return text + QStringLiteral(")");
-}
-
 [[nodiscard]] QString abandonedText(const std::vector<core::PatternFailure>& failures,
                                     const QStringList& unreadable) {
     QStringList paragraphs;
     if (!failures.empty()) {
         QStringList lines;
         for (const core::PatternFailure& failure : failures)
-            lines << QString::fromStdString(failure.name) + " (" + reasonOf(failure.kind) + ")";
+            lines << QString::fromStdString(failure.name) + " (" +
+                         QString::fromUtf8(core::reasonOf(failure.kind).data()) + ")";
         paragraphs << QStringLiteral("Not applied: ") + lines.join(QStringLiteral(", "));
     }
     if (!unreadable.isEmpty())
@@ -134,7 +82,7 @@ void CorrectionConfirmationPage::setReadDiagnostics(
     const std::vector<core::PatternDiagnostic>& diagnostics) {
     m_unreadable.clear();
     for (const core::PatternDiagnostic& diagnostic : diagnostics)
-        m_unreadable << describe(diagnostic);
+        m_unreadable << QString::fromStdString(core::describe(diagnostic));
 }
 
 void CorrectionConfirmationPage::initializePage() {
