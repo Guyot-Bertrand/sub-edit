@@ -117,3 +117,13 @@ les deux moitiés sont renumérotées à partir de 1. L'entrée est écrite par
 | `split/coupe-tete.srt` | les deux premiers sous-titres, tels quels | à la main |
 | `split/coupe-queue.srt` | les deux derniers : 6→2 s, 7→3 s, 8→4 s, 9→5 s | à la main : moins 4 s |
 | `json/split-file.jsonl` | la coupe au troisième : `destination` est la tête, `tail` la queue | à la main |
+
+## `pair` — ce que `pair` écrit
+
+**Pas de fichier propre** : `pair` écrit la traduction de chacun des huit cas de `paires/`, et ses attendus
+sont **ceux de ce répertoire** — `attendu-position.traduction.srt` et `attendu-numero.traduction.srt`, écrits à la
+main d'après la lecture de Gaupol avant que rien n'aligne quoi que ce soit. `pair_test.cpp` les compare un à un.
+
+| Fichier | Cas | Provenance |
+| :------ | :-- | :--------- |
+| `json/pair.jsonl` | la paire `temoin` : quatre lignes rattachées, par position | à la main |

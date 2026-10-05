@@ -12,6 +12,7 @@ add_executable(subedit-cli
     commands/inspect.cpp
     commands/italics.cpp
     commands/letter_case.cpp
+    commands/pair.cpp
     commands/replace.cpp
     commands/shift.cpp
     commands/snap.cpp

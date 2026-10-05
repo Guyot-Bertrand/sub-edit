@@ -44,6 +44,7 @@ add_library(
     text_rewriting.cpp
     time_grammar.cpp
     transforming.cpp
+    translation_writing.cpp
     verbosity.cpp)
 
 add_library(subedit::cli ALIAS subedit_cli)

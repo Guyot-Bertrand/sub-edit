@@ -208,6 +208,7 @@ add_executable(
     cli/splitting_test.cpp
     cli/text_rewriting_test.cpp
     cli/time_grammar_test.cpp
+    cli/translation_writing_test.cpp
     cli/transforming_test.cpp
     cli/verbosity_test.cpp
     cli/writing_test.cpp)

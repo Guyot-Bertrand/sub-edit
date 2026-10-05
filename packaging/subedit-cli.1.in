@@ -115,6 +115,9 @@ Put subtitle files one after another into a single file.
 .TP
 .B split-file
 Cut a subtitle file in two, a head and a tail.
+.TP
+.B pair
+Write a translation at the positions of its main file, and say how it lined up.
 .PP
 .BR framerate " and " snap
 take the same arguments and do opposite things: the first re\-times a file
