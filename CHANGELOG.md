@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Sous-commande split-file, une tête et une queue
+
+## 0.13.26 — 2026-10-05
+
+### Ajouts
+
 - **cli** — Sous-commande append, N fichiers en un seul
 
 ## 0.13.25 — 2026-10-05
