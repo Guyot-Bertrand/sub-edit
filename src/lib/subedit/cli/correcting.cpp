@@ -16,11 +16,14 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <span>
 #include <string_view>
+#include <system_error>
 #include <utility>
 
 namespace subedit::cli {
@@ -34,7 +37,7 @@ struct TaskName {
     core::PatternKind kind;
 };
 
-constexpr std::array<TaskName, 3> kTasks{
+constexpr std::array<TaskName, 4> kTasks{
     TaskName{.name = "mentions",
              .task = core::CorrectionTask::Mentions,
              .kind = core::PatternKind::HearingImpaired},
@@ -44,6 +47,9 @@ constexpr std::array<TaskName, 3> kTasks{
     TaskName{.name = "capitalization",
              .task = core::CorrectionTask::Capitalization,
              .kind = core::PatternKind::Capitalization},
+    TaskName{.name = "line-break",
+             .task = core::CorrectionTask::LineBreak,
+             .kind = core::PatternKind::LineBreak},
 };
 
 /// `text` cut at each `separator`, the empty pieces kept.
@@ -76,6 +82,8 @@ constexpr std::array<TaskName, 3> kTasks{
         return settings.mentions;
     case core::CorrectionTask::CommonErrors:
         return settings.commonErrors;
+    case core::CorrectionTask::LineBreak:
+        return settings.lineBreak;
     default:
         return settings.capitalization;
     }
@@ -113,7 +121,8 @@ struct NameWritten {
         const std::string_view type = std::string_view{written}.substr(0, colon);
         for (const core::PatternKind kind : {core::PatternKind::CommonError,
                                              core::PatternKind::Capitalization,
-                                             core::PatternKind::HearingImpaired}) {
+                                             core::PatternKind::HearingImpaired,
+                                             core::PatternKind::LineBreak}) {
             if (core::fileExtensionOf(kind) == type) {
                 return {.kind = kind, .name = written.substr(colon + 1)};
             }
@@ -159,7 +168,8 @@ switchPattern(const std::string& written,
         if (one.kind != found.front().kind) {
             return std::unexpected{quoted +
                                    " names patterns of several types: write type:name, with the "
-                                   "type one of common-error, capitalization, hearing-impaired"};
+                                   "type one of common-error, capitalization, hearing-impaired, "
+                                   "line-break"};
         }
     }
 
@@ -184,10 +194,18 @@ switchPattern(const std::string& written,
 }
 
 /// Whether the task plays anything under `settings`.
+///
+/// **The line-break always does**: its patterns only weigh where to cut, and
+/// the cut is made, balanced, with none — which is what `Zyyy` gives, the cascade
+/// that holds no line-break pattern. « Nothing to do » is for the tasks whose
+/// patterns *are* the correction.
 [[nodiscard]] bool hasWork(const TaskName& task,
                            const core::PatternCatalogue& catalogue,
                            const core::CorrectionSettings& settings,
                            const std::string& code) {
+    if (task.task == core::CorrectionTask::LineBreak) {
+        return true;
+    }
     if (task.task == core::CorrectionTask::Mentions &&
         (settings.soundInBrackets || settings.soundInParentheses)) {
         return true;
@@ -217,8 +235,8 @@ tasksOf(const std::string& list) {
         const TaskName* task = taskNamed(name);
         if (task == nullptr) {
             return std::unexpected{"--tasks: \"" + std::string{name} +
-                                   "\" is not a task: expected mentions, common-errors or "
-                                   "capitalization"};
+                                   "\" is not a task: expected mentions, common-errors, "
+                                   "capitalization or line-break"};
         }
         if (std::ranges::find(tasks, task) == tasks.end()) {
             tasks.push_back(task);
@@ -258,6 +276,107 @@ tasksOf(const std::string& list) {
                    "\" is not a class: expected human, ocr or human,ocr";
         }
     }
+    return std::nullopt;
+}
+
+/// More lines than a subtitle can hold on a screen: a typo, not a wish.
+constexpr double kMostLines = 1000.0;
+
+/// A number greater than zero, written as digits with an optional fraction.
+[[nodiscard]] std::optional<double> positiveNumber(const std::string& text) {
+    double value = 0;
+    const char* const end = text.data() + text.size();
+    const auto [stopped, error] = std::from_chars(text.data(), end, value);
+    if (text.empty() || error != std::errc{} || stopped != end || !(value > 0.0) ||
+        !std::isfinite(value)) {
+        return std::nullopt;
+    }
+    return value;
+}
+
+/// One bound of the skip gate: a number, or `off`, or nothing — the default, which
+/// is the bound of the break itself.
+struct SkipBound {
+    bool on = true;
+    double value = 0;
+};
+
+[[nodiscard]] std::expected<SkipBound, std::string>
+skipBoundOf(const std::string& written, std::string_view option, double fallback) {
+    if (written.empty()) {
+        return SkipBound{.on = true, .value = fallback};
+    }
+    if (written == "off") {
+        return SkipBound{.on = false, .value = fallback};
+    }
+    const std::optional<double> value = positiveNumber(written);
+    if (!value) {
+        return std::unexpected{std::string{option} + ": \"" + written +
+                               "\" is not a bound: expected a number greater than zero, or off"};
+    }
+    return SkipBound{.on = true, .value = *value};
+}
+
+/// Reads the four options of the line break into `settings`, or says which cannot
+/// be honoured. **In characters, and without a default length**: the 24 of Gaupol
+/// is in ems, and copied as letters it would cut nearly everything, silently.
+[[nodiscard]] std::optional<std::string>
+lineBreakInto(const CorrectionOptions& options, bool asked, core::CorrectionSettings& settings) {
+    const std::array<std::pair<std::string_view, const std::string*>, 4> given{{
+        {"--max-length", &options.maxLength},
+        {"--max-lines", &options.maxLines},
+        {"--skip-length", &options.skipLength},
+        {"--skip-lines", &options.skipLines},
+    }};
+    if (!asked) {
+        for (const auto& [name, written] : given) {
+            if (!written->empty()) {
+                return std::string{name} + " is for the task line-break, which was not asked for";
+            }
+        }
+        return std::nullopt;
+    }
+
+    if (options.maxLength.empty()) {
+        return std::string{"--max-length is required by the task line-break: Gaupol's 24 is a "
+                           "width in ems, and has no value in characters"};
+    }
+    const std::optional<double> length = positiveNumber(options.maxLength);
+    if (!length) {
+        return "--max-length: \"" + options.maxLength +
+               "\" is not a length: expected a number of characters greater than zero";
+    }
+    int lines = core::kDefaultLineBreakMaxLines;
+    if (!options.maxLines.empty()) {
+        const std::optional<double> written = positiveNumber(options.maxLines);
+        if (!written || *written != std::floor(*written) || *written > kMostLines) {
+            return "--max-lines: \"" + options.maxLines +
+                   "\" is not a number of lines: expected a whole number greater than zero";
+        }
+        lines = static_cast<int>(*written);
+    }
+    const std::expected<SkipBound, std::string> skipLength =
+        skipBoundOf(options.skipLength, "--skip-length", *length);
+    if (!skipLength) {
+        return skipLength.error();
+    }
+    const std::expected<SkipBound, std::string> skipLines =
+        skipBoundOf(options.skipLines, "--skip-lines", lines);
+    if (!skipLines) {
+        return skipLines.error();
+    }
+    if (skipLines->value != std::floor(skipLines->value)) {
+        return "--skip-lines: \"" + options.skipLines +
+               "\" is not a number of lines: expected a whole number greater than zero, or off";
+    }
+
+    settings.lineBreakMaxLength = *length;
+    settings.lineBreakMaxLines = lines;
+    settings.lineBreakInEms = false;
+    settings.lineBreakSkipOnLength = skipLength->on;
+    settings.lineBreakSkipMaxLength = skipLength->value;
+    settings.lineBreakSkipOnLines = skipLines->on;
+    settings.lineBreakSkipMaxLines = static_cast<int>(skipLines->value);
     return std::nullopt;
 }
 
@@ -318,6 +437,11 @@ correctionSettingsOf(const CorrectionOptions& options, const core::PatternCatalo
         return std::unexpected{*std::move(refused)};
     }
     if (std::optional<std::string> refused = classesInto(options.classes, settings)) {
+        return std::unexpected{*std::move(refused)};
+    }
+    const bool breaks = std::ranges::any_of(
+        *tasks, [](const TaskName* task) { return task->task == core::CorrectionTask::LineBreak; });
+    if (std::optional<std::string> refused = lineBreakInto(options, breaks, settings)) {
         return std::unexpected{*std::move(refused)};
     }
 

@@ -19,7 +19,7 @@ leur accord.
 | [`packaging/patterns/`](../../../../packaging/patterns/) | les douze fichiers de motifs de Gaupol et leurs douze `.conf` d'activation | copiés, jamais retouchés |
 | `entrees/` | les textes à éprouver, un fichier par type de motif | à la main |
 | `attendus/` | ce que Gaupol fait de chaque texte, au format des `.cas`, et **la cascade de chaque code** (`cascades.txt`) | `src/scripts/pattern-oracle.py` |
-| `utilisateur/` | des fichiers de motifs **que l'utilisateur dépose** dans `$XDG_DATA_HOME/subedit/patterns` : deux qui échouent (`Latn-xt`, un motif qui ne termine pas ; `Latn-xu`, un motif intraduisible), deux qui partagent un nom entre deux types (`Latn-xa`), un qui s'ajoute aux motifs livrés (`Latn-xb`) | à la main, pour les cas de bout en bout de `correct` (`src/test/e2e/cli/correct_test.cpp`), qui les dépose dans le répertoire que le harnais a déplacé |
+| `utilisateur/` | des fichiers de motifs **que l'utilisateur dépose** dans `$XDG_DATA_HOME/subedit/patterns` : deux qui échouent (`Latn-xt`, un motif qui ne termine pas ; `Latn-xu`, un motif intraduisible), deux qui partagent un nom entre deux types (`Latn-xa`), un qui s'ajoute aux motifs livrés (`Latn-xb`), et les trois pénalités du test du découpeur de Gaupol (`Zzzz-xl`, ce que les cas `essai` de `line-break.cas` demandent) | à la main, pour les cas de bout en bout de `correct` (`src/test/e2e/cli/correct_test.cpp`), qui les dépose dans le répertoire que le harnais a déplacé |
 
 ## `packaging/patterns/` — les motifs, tels que Gaupol les livre
 

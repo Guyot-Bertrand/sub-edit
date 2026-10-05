@@ -7,9 +7,10 @@ changements sans jamais les imposer.
 
 **Éteinte sur un document vide** : il n'y a rien à corriger.
 
-**La ligne de commande fait la même chose** pour les mentions, les erreurs courantes et les
-majuscules : [`subedit-cli correct`](../subedit-cli/correct.md), avec les mêmes motifs et les mêmes
-comptes, mais sans rien lire des réglages de cette fenêtre.
+**La ligne de commande fait la même chose** pour les mentions, les erreurs courantes, les
+majuscules et le découpage de lignes : [`subedit-cli correct`](../subedit-cli/correct.md), avec les
+mêmes motifs et les mêmes comptes, mais sans rien lire des réglages de cette fenêtre — et en
+caractères là où la fenêtre mesure en ems.
 
 ## Tasks and Target — la première page
 

@@ -28,6 +28,7 @@ using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
 using subedit::e2e::Scratch;
+using subedit::e2e::UserPatterns;
 using subedit::e2e::writeFile;
 
 namespace {
@@ -220,4 +221,137 @@ TEST_CASE("the capitalization cascades behave as the oracle says", "[e2e][patter
 TEST_CASE("the hearing-impaired cascades, all ticked, behave as the oracle says",
           "[e2e][patterns]") {
     confront("motifs/attendus/hearing-impaired.cas", "mentions", "hearing-impaired");
+}
+
+namespace {
+
+/// One line of `line-break.cas`: a selection of patterns, the limits, what it says.
+struct BreakCase {
+    std::string selection; // `aucune`, `essai`, `cascade <code>`, `<code>:<rank>`
+    std::string length;
+    std::string lines;
+    std::string label;
+    std::string input;
+    std::string expected;
+    bool unchanged = false;
+    int line = 0;
+};
+
+[[nodiscard]] std::vector<BreakCase> breakCasesOf() {
+    std::vector<BreakCase> cases;
+    std::istringstream lines{contentOf(corpus("motifs/attendus/line-break.cas"))};
+    std::string text;
+    int number = 0;
+    while (std::getline(lines, text)) {
+        ++number;
+        const std::size_t dash = text.find(" — ");
+        if (text.empty() || text.front() == '#' || dash == std::string::npos) {
+            continue;
+        }
+        // « <selection> <length>/<lines> <coupe|intact> » before the dash.
+        std::string head = text.substr(0, dash);
+        head.erase(head.rfind(' '));
+        const std::size_t limits = head.rfind(' ');
+        const std::string limit = head.substr(limits + 1);
+        const std::size_t slash = limit.find('/');
+
+        const std::string tail = text.substr(dash + std::string{" — "}.size());
+        const std::size_t first = tail.find(" | ");
+        const std::size_t second = tail.find(" | ", first + 1);
+        BreakCase one;
+        one.selection = head.substr(0, limits);
+        one.length = limit.substr(0, slash);
+        one.lines = limit.substr(slash + 1);
+        one.label = tail.substr(0, first);
+        one.input = unquoted(tail.substr(first + 3, second - first - 3));
+        const std::string expected = tail.substr(second + 3);
+        one.unchanged = expected == "=";
+        one.expected = one.unchanged ? one.input : unquoted(expected);
+        one.line = number;
+        cases.push_back(std::move(one));
+    }
+    return cases;
+}
+
+/// The names of the records of `<code>.line-break`, in the order of the file.
+[[nodiscard]] std::vector<std::string> recordNames(const std::string& code) {
+    std::vector<std::string> names;
+    std::string path{SUBEDIT_PATTERNS_DIR};
+    path += '/';
+    path += code;
+    path += ".line-break";
+    std::ifstream file{path};
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.starts_with("Name=")) {
+            names.push_back(line.substr(5));
+        }
+    }
+    return names;
+}
+
+} // namespace
+
+TEST_CASE("the line breaks of the oracle are made by the command line, in characters",
+          "[e2e][patterns][CLI-CORRECT-09]") {
+    const std::vector<BreakCase> cases = breakCasesOf();
+    // The twenty-six of `line-break.cas`: none is left out because the command line
+    // has no way to ask for it.
+    REQUIRE(cases.size() == 26);
+
+    // The three penalties of the test of Gaupol's own liner, which `essai` names.
+    const UserPatterns trial{"Zzzz-xl.line-break",
+                             contentOf(corpus("motifs/utilisateur/Zzzz-xl.line-break"))};
+
+    const Scratch scratch;
+    for (const BreakCase& one : cases) {
+        INFO("line-break.cas:" << one.line << " " << one.selection << " " << one.label);
+        std::string code;
+        std::vector<std::string> disabled;
+        if (one.selection == "aucune") {
+            code = "Zyyy"; // no line-break pattern is shipped for every script
+        } else if (one.selection == "essai") {
+            code = "Zzzz-xl";
+        } else if (one.selection.starts_with("cascade ")) {
+            code = one.selection.substr(std::string{"cascade "}.size());
+        } else {
+            // One record alone: its name on, and every other name of the cascade off.
+            const std::size_t colon = one.selection.find(':');
+            code = one.selection.substr(0, colon);
+            const std::vector<std::string> own = recordNames(code);
+            const std::string wanted = own.at(std::stoul(one.selection.substr(colon + 1)) - 1);
+            for (const std::string& name : namesOf("line-break", code)) {
+                if (name != wanted) {
+                    disabled.push_back(name);
+                }
+            }
+        }
+
+        const std::string in = writeFile(scratch, "in.srt", srt({one.input}));
+        const std::string out = scratch.of("out.srt");
+        // Gaupol's liner has no skip gate: that one is the assistant's own, and
+        // would leave a text that already fits as it is.
+        std::vector<std::string> args{"--quiet",
+                                      "correct",
+                                      "--tasks",
+                                      "line-break",
+                                      "--code",
+                                      code,
+                                      "--max-length",
+                                      one.length,
+                                      "--max-lines",
+                                      one.lines,
+                                      "--skip-length",
+                                      "off",
+                                      "--skip-lines",
+                                      "off"};
+        for (const std::string& name : disabled) {
+            args.emplace_back("--disable");
+            args.push_back(name);
+        }
+        args.insert(args.end(), {"--output", out, in});
+
+        REQUIRE(invoke(args).exitCode == 0);
+        CHECK(textsOf(contentOf(out)) == std::vector<std::string>{one.expected});
+    }
 }

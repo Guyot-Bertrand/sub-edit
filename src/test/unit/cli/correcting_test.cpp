@@ -18,6 +18,8 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <utility>
+#include <vector>
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::cli::correctIn;
@@ -330,4 +332,90 @@ TEST_CASE("the changes a record carries name the subtitle, and a removal has no 
                                  "\"after\":\"fin\"}]"));
     // Kept: the subtitle is there, with no text.
     CHECK_THAT(changesOf(*kept), ContainsSubstring("\"before\":\"# la #\",\"after\":\"\"}"));
+}
+
+TEST_CASE("the line break is in characters, has no default length, and its skip follows its bounds",
+          "[cli][correct]") {
+    CorrectionOptions options = optionsFor("line-break");
+    CHECK_THAT(refusalOf(options),
+               ContainsSubstring("--max-length is required by the task line-break"));
+
+    options.maxLength = "30";
+    const auto settings = correctionSettingsOf(options, catalogue());
+    REQUIRE(settings.has_value());
+    CHECK(settings->lineBreak.enabled);
+    CHECK(settings->lineBreak.code == "Latn");
+    CHECK(settings->lineBreakMaxLength == 30.0);
+    CHECK(settings->lineBreakMaxLines == 3);
+    CHECK_FALSE(settings->lineBreakInEms);
+    // The bounds of the skip are those of the break, unless said otherwise.
+    CHECK(settings->lineBreakSkipOnLength);
+    CHECK(settings->lineBreakSkipMaxLength == 30.0);
+    CHECK(settings->lineBreakSkipOnLines);
+    CHECK(settings->lineBreakSkipMaxLines == 3);
+
+    options.maxLines = "2";
+    options.skipLength = "off";
+    options.skipLines = "1";
+    const auto given = correctionSettingsOf(options, catalogue());
+    REQUIRE(given.has_value());
+    CHECK(given->lineBreakMaxLines == 2);
+    CHECK_FALSE(given->lineBreakSkipOnLength);
+    CHECK(given->lineBreakSkipOnLines);
+    CHECK(given->lineBreakSkipMaxLines == 1);
+
+    options.maxLength = "12.5";
+    CHECK(correctionSettingsOf(options, catalogue())->lineBreakMaxLength == 12.5);
+}
+
+TEST_CASE("the options of the line break are refused when they cannot be read, or are stray",
+          "[cli][correct]") {
+    CorrectionOptions options = optionsFor("line-break");
+    for (const char* bad : {"", "wide", "0", "-3", "1e999", "nan", "12x"}) {
+        options.maxLength = bad;
+        CHECK_FALSE(refusalOf(options).empty());
+    }
+    options.maxLength = "20";
+    options.maxLines = "2.5";
+    CHECK_THAT(refusalOf(options),
+               ContainsSubstring("--max-lines: \"2.5\" is not a number of lines"));
+    options.maxLines = "";
+    options.skipLength = "soon";
+    CHECK_THAT(refusalOf(options), ContainsSubstring("--skip-length: \"soon\" is not a bound"));
+    options.skipLength = "";
+    options.skipLines = "soon";
+    CHECK_THAT(refusalOf(options), ContainsSubstring("--skip-lines: \"soon\" is not a bound"));
+    options.skipLines = "1.5";
+    CHECK_THAT(refusalOf(options),
+               ContainsSubstring("--skip-lines: \"1.5\" is not a number of lines"));
+
+    // Given without the task, each is a mistake.
+    using Member = std::string CorrectionOptions::*;
+    const std::vector<std::pair<std::string, Member>> strays{
+        {"--max-length", &CorrectionOptions::maxLength},
+        {"--max-lines", &CorrectionOptions::maxLines},
+        {"--skip-length", &CorrectionOptions::skipLength},
+        {"--skip-lines", &CorrectionOptions::skipLines},
+    };
+    for (const auto& [name, member] : strays) {
+        CorrectionOptions stray = optionsFor("common-errors");
+        stray.*member = "5";
+        CHECK_THAT(refusalOf(stray), ContainsSubstring(name + " is for the task line-break"));
+    }
+}
+
+TEST_CASE("a text is broken in characters, and the skip gate leaves one that fits",
+          "[cli][correct]") {
+    CorrectionOptions options = optionsFor("line-break");
+    options.maxLength = "10";
+    options.maxLines = "3";
+    const std::string text = "one two three four";
+
+    const Run broken = correct(options, srt(text));
+    CHECK(broken.code == ExitCode::Success);
+    CHECK_THAT(broken.errors, ContainsSubstring("Edited 1 and removed 0 subtitles"));
+    CHECK(broken.written == srt("one two\nthree four"));
+
+    // Within its bounds: ten characters in one line.
+    CHECK(correct(options, srt("one two")).written == srt("one two"));
 }

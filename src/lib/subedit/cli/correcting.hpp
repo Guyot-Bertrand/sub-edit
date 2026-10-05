@@ -25,7 +25,8 @@ class Reporter;
 
 /// What `correct` was given, as it was written.
 struct CorrectionOptions {
-    /// The tasks, comma separated: `mentions`, `common-errors`, `capitalization`.
+    /// The tasks, comma separated: `mentions`, `common-errors`, `capitalization`,
+    /// `line-break`.
     std::string tasks;
 
     /// The cascade of patterns every task of the run reads: `Zyyy`, `Latn`,
@@ -41,6 +42,18 @@ struct CorrectionOptions {
 
     /// Leave the subtitles the correction empties, empty, instead of removing them.
     bool keepBlankSubtitles = false;
+
+    /// What `line-break` breaks to, as written, empty when not given. **In
+    /// characters**: the 24 of Gaupol is a width in ems, a unit this program has
+    /// no font for, and its number means nothing in letters — so the length has no
+    /// default. The lines default to Gaupol's own, 3, which the unit does not change.
+    std::string maxLength;
+    std::string maxLines;
+
+    /// The skip gate, as written: a number, or `off`. Empty means the same limits
+    /// as `maxLength` and `maxLines`, as Gaupol's own defaults do.
+    std::string skipLength;
+    std::string skipLines;
 };
 
 /// The settings of the assistant these options come to, or why they cannot be

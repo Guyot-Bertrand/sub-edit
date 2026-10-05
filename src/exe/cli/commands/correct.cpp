@@ -56,6 +56,26 @@ CLI::App* describeCorrect(CLI::App& app, std::string_view name, CorrectOptions& 
                      options.correction.disable,
                      "Switch a pattern off, by its English name or type:name; repeatable")
         ->option_text("NAME");
+    correct
+        ->add_option("--max-length",
+                     options.correction.maxLength,
+                     "Longest line of line-break, in characters; no default, Gaupol's is in ems")
+        ->option_text("N");
+    correct
+        ->add_option(
+            "--max-lines", options.correction.maxLines, "Most lines of line-break: 3, as Gaupol's")
+        ->option_text("N");
+    correct
+        ->add_option(
+            "--skip-length",
+            options.correction.skipLength,
+            "Leave alone a subtitle whose longest line is within this, or off: --max-length")
+        ->option_text("N|off");
+    correct
+        ->add_option("--skip-lines",
+                     options.correction.skipLines,
+                     "Leave alone a subtitle whose line count is within this, or off: --max-lines")
+        ->option_text("N|off");
     correct->add_flag(
         "--keep-blank-subtitles",
         options.correction.keepBlankSubtitles,
