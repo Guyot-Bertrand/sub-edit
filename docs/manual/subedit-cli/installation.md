@@ -56,7 +56,7 @@ Fedora demande un ICU que la vôtre n'a pas.
 | :--------- | :----- | :----- | :--------- |
 | Qt 6 : `Widgets`, `Gui`, `Core` | `libqt6widgets6`, `libqt6gui6`, `libqt6core6` | `qt6-qtbase-gui` | **≥ 6.4**, pour la fenêtre |
 | libmpv | `libmpv2` ou `libmpv1` | `mpv-libs` | le binaire lie `libmpv.so.2` |
-| Enchant 2 | `libenchant-2-2` | `enchant2` | le correcteur orthographique |
+| Enchant 2 | `libenchant-2-2` | `enchant2` | le correcteur orthographique, et les tâches `join-words` et `split-words` de [`correct`](correct.md) |
 | **ICU** | **`libicu74`** | `libicu`, soit les `libicuuc.so.N` et `libicui18n.so.N` **de la Fedora qui l'a construit** | **la version qu'a la Fedora du `.rpm`**, exactement — voir ci-dessous |
 | glibc et libstdc++ | — | — | **assez récentes** : celles d'Ubuntu 24.04 pour le `.deb`, celles de la Fedora du `.rpm` pour celui-ci |
 

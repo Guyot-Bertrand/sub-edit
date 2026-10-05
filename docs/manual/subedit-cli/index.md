@@ -32,4 +32,4 @@ l'autre programme et pour savoir par où commencer, voir
 | [`italics`](italics.md) | mettre les textes en italique, ou retirer leur italique |
 | [`dialogue-dashes`](dialogue-dashes.md) | poser ou retirer les tirets de dialogue |
 | [`sort`](sort.md) | remettre les sous-titres dans l'ordre de leur début |
-| [`correct`](correct.md) | corriger les textes avec les motifs de Gaupol : mentions, erreurs courantes, majuscules, découpage de lignes |
+| [`correct`](correct.md) | corriger les textes avec les motifs de Gaupol : mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage de lignes |

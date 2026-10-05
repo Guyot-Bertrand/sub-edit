@@ -23,9 +23,11 @@ using subedit::e2e::CliRun;
 using subedit::e2e::configHome;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
+using subedit::e2e::enchantHome;
 using subedit::e2e::invoke;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
+using subedit::e2e::TestDictionary;
 using subedit::e2e::UserPatterns;
 using subedit::e2e::writeFile;
 
@@ -775,4 +777,175 @@ TEST_CASE("the line break is made in characters, and its lines default to Gaupol
     // as Gaupol's own does: the lines are the three of its default, a measure and not a wall.
     CHECK(contentOf(out) ==
           srt({"When the rain\nstopped, we walked\nhome under the dark\nsky of the old town."}));
+}
+
+TEST_CASE("a word cut in two is joined by the dictionary, and only when one direction spells",
+          "[e2e][CLI-CORRECT-10]") {
+    // The dictionary is the test's own — `data/dictionnaires/zz.*`, six words —, and
+    // the machine's is not asked: Enchant is pointed at the harness's directory.
+    const TestDictionary dictionary;
+    const Scratch scratch;
+    // « hel lo » is « hello » and only that way round; « hello world » is already right.
+    const std::string in = writeFile(scratch, "a.srt", srt({"hel lo world", "hello world"}));
+    const std::string out = scratch.of("o.srt");
+
+    const CliRun run =
+        invoke({"correct", "--tasks", "join-words", "--language", "zz", "--output", out, in});
+
+    INFO(run.errors << " — a machine whose Enchant has no Hunspell engine cannot open the "
+                       "dictionary of the test");
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.errors, ContainsSubstring("a.srt: Edited 1 and removed 0 subtitles -> "));
+    CHECK(contentOf(out) == srt({"hello world", "hello world"}));
+}
+
+TEST_CASE(
+    "a word run together is split by the dictionary, when exactly one suggestion is it spaced",
+    "[e2e][CLI-CORRECT-10]") {
+    const TestDictionary dictionary;
+    const Scratch scratch;
+    const std::string in = writeFile(scratch, "a.srt", srt({"hellothere world"}));
+    const std::string out = scratch.of("o.srt");
+
+    const CliRun run =
+        invoke({"correct", "--tasks", "split-words", "--language", "zz", "--output", out, in});
+
+    INFO(run.errors);
+    CHECK(run.exitCode == 0);
+    CHECK(contentOf(out) == srt({"hello there world"}));
+}
+
+TEST_CASE("joining and splitting are two tasks, run in Gaupol's place among the others",
+          "[e2e][CLI-CORRECT-10]") {
+    const TestDictionary dictionary;
+    const Scratch scratch;
+    // The join first, then the split, then the capital: « hel lo » → « hello »,
+    // « hellothere » → « hello there », and the first letter of the document.
+    const std::string in = writeFile(scratch, "a.srt", srt({"hel lo world", "hellothere"}));
+    const std::string out = scratch.of("o.srt");
+
+    const CliRun run = invoke({"--quiet",
+                               "correct",
+                               "--tasks",
+                               "capitalization,split-words,join-words",
+                               "--language",
+                               "zz",
+                               "--code",
+                               "Latn",
+                               "--output",
+                               out,
+                               in});
+
+    INFO(run.errors);
+    CHECK(run.exitCode == 0);
+    // The capital is the one of the first subtitle, which a task of patterns gives it.
+    CHECK(contentOf(out) == srt({"Hello world", "hello there"}));
+}
+
+TEST_CASE("the replacement list of the window is neither read nor written",
+          "[e2e][CLI-CORRECT-10]") {
+    const TestDictionary dictionary;
+    const Scratch scratch;
+    const std::string in = writeFile(scratch, "a.srt", srt({"hel lo"}));
+
+    CHECK(invoke({"--quiet",
+                  "correct",
+                  "--tasks",
+                  "join-words,split-words",
+                  "--language",
+                  "zz",
+                  "--output",
+                  scratch.of("o.srt"),
+                  in})
+              .exitCode == 0);
+
+    // No `spell-check/<language>.repl` anywhere, and the configuration home stays
+    // empty. Enchant itself leaves its own empty personal files beside the
+    // dictionary it was asked for: they are its business, in the directory the
+    // harness gave it, and not the replacement list of the window.
+    CHECK(std::filesystem::is_empty(configHome()));
+    for (const std::string& home : {enchantHome(), subedit::e2e::dataHome()}) {
+        for (const auto& entry : std::filesystem::recursive_directory_iterator{home}) {
+            INFO(entry.path().string());
+            CHECK(entry.path().extension() != ".repl");
+            CHECK(entry.path().filename() != "spell-check");
+        }
+    }
+}
+
+TEST_CASE("a language nobody has is refused, with the window's sentence, and nothing is written",
+          "[e2e][CLI-CORRECT-11]") {
+    // Not one of the dictionaries of the machine, whichever it has.
+    const Scratch scratch;
+    const std::string in = writeFile(scratch, "a.srt", srt({"hel lo"}));
+    const std::string out = scratch.of("o.srt");
+
+    const CliRun run =
+        invoke({"correct", "--tasks", "join-words", "--language", "qq_QQ", "--output", out, in});
+
+    CHECK(run.exitCode == 1);
+    CHECK(run.errors == "no dictionary for qq_QQ\n");
+    CHECK(run.output.empty());
+    CHECK_FALSE(std::filesystem::exists(out));
+
+    // The tasks of patterns, which need no dictionary, are not asked for one.
+    CHECK(invoke({"--quiet",
+                  "correct",
+                  "--tasks",
+                  "common-errors",
+                  "--code",
+                  "Latn",
+                  "--output",
+                  out,
+                  in})
+              .exitCode == 0);
+}
+
+TEST_CASE("a language is needed by the tasks that check words, and by no other",
+          "[e2e][CLI-CORRECT-11]") {
+    const Scratch scratch;
+    const std::string in = writeFile(scratch, "a.srt", srt({"hel lo"}));
+    const std::string out = scratch.of("o.srt");
+
+    const CliRun missing = invoke({"correct", "--tasks", "split-words", "--output", out, in});
+    CHECK(missing.exitCode == 1);
+    CHECK_THAT(
+        missing.errors,
+        ContainsSubstring("--language is required by the tasks that check words: split-words"));
+
+    const CliRun malformed =
+        invoke({"correct", "--tasks", "join-words", "--language", "French", "--output", out, in});
+    CHECK(malformed.exitCode == 1);
+    CHECK_THAT(malformed.errors, ContainsSubstring("--language: \"French\" is not a language"));
+
+    const CliRun stray = invoke({"correct",
+                                 "--tasks",
+                                 "common-errors",
+                                 "--code",
+                                 "Latn",
+                                 "--language",
+                                 "zz",
+                                 "--output",
+                                 out,
+                                 in});
+    CHECK(stray.exitCode == 1);
+    CHECK_THAT(stray.errors,
+               ContainsSubstring("--language is for the tasks join-words and split-words"));
+
+    // A code, with tasks that read no pattern, is a mistake as well.
+    const CliRun code = invoke({"correct",
+                                "--tasks",
+                                "join-words",
+                                "--language",
+                                "zz",
+                                "--code",
+                                "Latn",
+                                "--output",
+                                out,
+                                in});
+    CHECK(code.exitCode == 1);
+    CHECK_THAT(
+        code.errors,
+        ContainsSubstring("--code is for the tasks that read patterns, and none was asked for"));
+    CHECK_FALSE(std::filesystem::exists(out));
 }

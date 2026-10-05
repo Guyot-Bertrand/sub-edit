@@ -358,6 +358,20 @@ UserPatterns::~UserPatterns() {
     std::filesystem::remove_all(std::filesystem::path{dataHome()} / "subedit", ignored);
 }
 
+TestDictionary::TestDictionary() {
+    const std::filesystem::path directory = std::filesystem::path{enchantHome()} / "hunspell";
+    std::filesystem::create_directories(directory);
+    for (const char* name : {"zz.aff", "zz.dic"}) {
+        std::ofstream{directory / name} << contentOf(corpus(std::string{"dictionnaires/"} + name));
+    }
+}
+
+TestDictionary::~TestDictionary() {
+    // **Never throws**, for the reason `Scratch`'s destructor does not.
+    std::error_code ignored;
+    std::filesystem::remove_all(std::filesystem::path{enchantHome()} / "hunspell", ignored);
+}
+
 std::string enchantHome() {
     return privateEnchantHome().path().string();
 }

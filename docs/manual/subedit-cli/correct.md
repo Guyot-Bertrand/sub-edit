@@ -4,6 +4,7 @@
 subedit-cli correct --tasks LISTE --code CODE
                     [--classes human|ocr|human,ocr]
                     [--enable NOM]... [--disable NOM]...
+                    [--language CODE]
                     [--max-length N] [--max-lines N]
                     [--skip-length N|off] [--skip-lines N|off]
                     [--keep-blank-subtitles] [--range N-M|N-]
@@ -16,10 +17,9 @@ subedit-cli correct --tasks LISTE --code CODE
 
 Corrige les textes avec les **motifs de Gaupol**, comme l'assistant
 [`Correct Texts…`](../subedit-gui/correct-texts.md) de la fenêtre — mêmes motifs,
-même moteur, mêmes comptes. Quatre tâches existent ici : les **mentions pour
-malentendants**, les **erreurs courantes**, les **majuscules** et le **découpage de
-lignes**. La jonction et la scission de mots ne sont pas offertes par cette
-sous-commande.
+même moteur, mêmes comptes. Six tâches existent ici : les **mentions pour
+malentendants**, la **jonction** et la **scission de mots**, les **erreurs courantes**, les
+**majuscules** et le **découpage de lignes**.
 
 <!-- exemple: subedit-cli correct --help -->
 ```console
@@ -39,6 +39,7 @@ Options:
                               The classes of common errors to apply: both by default
   --enable NAME               Switch a pattern on, by its English name or type:name; repeatable
   --disable NAME              Switch a pattern off, by its English name or type:name; repeatable
+  --language CODE             The dictionary join-words and split-words read: fr_FR, en_US, en...
   --max-length N              Longest line of line-break, in characters; no default, Gaupol's is in ems
   --max-lines N               Most lines of line-break: 3, as Gaupol's
   --skip-length N|off         Leave alone a subtitle whose longest line is within this, or off: --max-length
@@ -67,8 +68,9 @@ lues, et rien n'est écrit de ce côté.
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--tasks` | **oui** | une liste séparée par des virgules : `mentions`, `common-errors`, `capitalization`, `line-break` | aucune tâche |
-| `--code` | **oui**, une tâche de motifs étant donnée | `Écriture[-langue[-PAYS]]` : `Zyyy`, `Latn`, `Latn-en`, `Latn-en-US` | — |
+| `--tasks` | **oui** | une liste séparée par des virgules : `mentions`, `join-words`, `split-words`, `common-errors`, `capitalization`, `line-break` | aucune tâche |
+| `--code` | **oui** avec une tâche de motifs, et **sans objet** autrement | `Écriture[-langue[-PAYS]]` : `Zyyy`, `Latn`, `Latn-en`, `Latn-en-US` | — |
+| `--language` | **oui** avec `join-words` ou `split-words`, et **sans objet** autrement | un code de langue : `fr`, `fr_FR`, `en_US` | — |
 | `--classes` | non | `human`, `ocr` ou `human,ocr` | les deux |
 | `--enable`, `--disable` | non, répétables | le nom anglais d'un motif, ou `type:nom` | les `.conf` livrés |
 | `--max-length` | **oui** avec `line-break` | un nombre de **caractères** supérieur à zéro | **aucun** — voir plus bas |
@@ -86,13 +88,15 @@ lues, et rien n'est écrit de ce côté.
 ### Les tâches
 
 **L'ordre de la liste n'y change rien** : les tâches s'appliquent dans l'ordre de
-Gaupol — les mentions, puis les erreurs courantes, puis les majuscules, puis le découpage —, chacune sur le
+Gaupol — les mentions, puis la jonction et la scission de mots, puis les erreurs courantes, puis les majuscules, puis le découpage —, chacune sur le
 texte que la précédente a laissé. Un sous-titre que les mentions ont vidé ne joue aucun
 rôle dans ce qui suit.
 
 | Tâche | Ce qu'elle fait |
 | :---- | :-------------- |
 | `mentions` | retire les bruits entre crochets et parenthèses (le balayage de [`hearing-impaired`](hearing-impaired.md)), puis les motifs de paroles et de locuteurs |
+| `join-words` | recolle un mot coupé en deux, d'après le dictionnaire de `--language` |
+| `split-words` | scinde deux mots collés, d'après le même dictionnaire |
 | `common-errors` | corrige les erreurs courantes : espaces, ponctuation, ligatures, erreurs d'OCR |
 | `capitalization` | met la majuscule où la langue la veut |
 | `line-break` | recoupe les lignes d'un sous-titre pour qu'aucune ne dépasse `--max-length`, en pesant les motifs de coupure du code |
@@ -116,6 +120,36 @@ code=1
 Les motifs que l'utilisateur dépose dans `$XDG_DATA_HOME/subedit/patterns` (ou
 `~/.local/share/subedit/patterns`) **s'ajoutent aux motifs livrés**, comme dans la
 fenêtre, et un motif livré qui ne se lit pas est dit au niveau 1 : `patterns: <fichier>, line N (<raison>)`.
+
+### La jonction et la scission de mots, et le dictionnaire
+
+**Ces deux tâches ne lisent aucun motif** : elles interrogent le **dictionnaire du système, par
+Enchant** — une dépendance des paquets (`libenchant-2-2` chez Debian et Ubuntu, `enchant2` chez
+Fedora), que `subedit-cli` partage avec la fenêtre. Elles n'ont donc ni code, ni nom à régler :
+`--code` n'a pas de sens sans une tâche de motifs, et `--language` n'en a pas sans l'une de ces deux-là
+— l'un donné sans l'autre est une erreur d'usage, code `1`.
+
+- **`join-words`** recolle un mot que le dictionnaire ne connaît pas à celui qui le précède ou le
+  suit, **quand une seule direction donne un mot connu** : `hel lo` devient `hello` ; deux directions
+  possibles, ou aucune, ne décident rien.
+- **`split-words`** scinde un mot que le dictionnaire ne connaît pas **quand exactement une de ses
+  propositions est ce mot avec une espace** : `hellothere` devient `hello there`. Un mot à capitale
+  initiale suivie de minuscules est laissé : c'est le plus souvent un nom.
+
+**Sans dictionnaire pour la langue, le lancement est refusé**, code `1`, **avant qu'un fichier soit
+lu** et dans les mots de la fenêtre, qui grise la fonction et le dit — ici la ligne de commande
+refuse et le dit, plutôt que de se taire :
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nhel lo\n\n' > a.srt; subedit-cli correct --tasks join-words --language qq_QQ --output b.srt a.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\nhel lo\n\n' > a.srt; subedit-cli correct --tasks join-words --language qq_QQ --output b.srt a.srt; echo "code=$?"
+no dictionary for qq_QQ
+code=1
+```
+
+**La liste de remplacements de la fenêtre n'est ni lue ni écrite.** Elle se *remplit* par les
+choix de l'utilisateur dans la vérification d'orthographe ; une ligne de commande n'a pas ce
+choix, et lire la liste ferait dépendre un script de ce que son auteur y a mis un jour.
 
 ### Le découpage de lignes
 
@@ -276,8 +310,13 @@ seulement, `1` sur une erreur d'usage.
 | Ce qui la déclenche | Ce qui est écrit, sur la sortie d'erreur |
 | :------------------ | :--------------------------------------- |
 | `--tasks` absent | `--tasks is required`, suivi d'un renvoi à `--help` |
-| une tâche inconnue | `--tasks: "<nom>" is not a task: expected mentions, common-errors, capitalization or line-break` |
+| une tâche inconnue | `--tasks: "<nom>" is not a task: expected mentions, join-words, split-words, common-errors, capitalization or line-break` |
 | `--code` absent | `--code is required by the tasks that read patterns: <tâches>` |
+| `--code` sans tâche de motifs | `--code is for the tasks that read patterns, and none was asked for` |
+| `--language` absent avec `join-words` ou `split-words` | `--language is required by the tasks that check words: <tâches>` |
+| `--language` qui n'est pas un code de langue | `--language: "<valeur>" is not a language: expected a locale code, like fr, en_US or sr@Latn` |
+| `--language` sans l'une de ces deux tâches | `--language is for the tasks join-words and split-words, which were not asked for` |
+| une langue sans dictionnaire | `no dictionary for <langue>` |
 | un code mal écrit | `--code: "<code>" is not a pattern code: expected Script[-language[-COUNTRY]], like Zyyy, Latn or Latn-en-US` |
 | `--max-length` absent avec `line-break` | `--max-length is required by the task line-break: Gaupol's 24 is a width in ems, and has no value in characters` |
 | `--max-length` qui n'est pas un nombre supérieur à zéro | `--max-length: "<valeur>" is not a length: expected a number of characters greater than zero` |
