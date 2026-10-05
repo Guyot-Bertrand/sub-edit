@@ -27,6 +27,7 @@ add_executable(
     cli/list_encodings_test.cpp
     cli/shift_test.cpp
     cli/snap_test.cpp
+    cli/split_file_test.cpp
     cli/sort_test.cpp
     cli/text_rewriting_test.cpp
     cli/transform_test.cpp

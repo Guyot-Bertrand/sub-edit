@@ -72,4 +72,9 @@ namespace subedit::core {
 /// What `Split Project…` did: how many subtitles left for the new project.
 [[nodiscard]] std::string noticeOfSplit(std::size_t count);
 
+/// Why `Split Project…` refused a cut: the two halves overlap, so the shift
+/// would carry a subtitle before the start of the video. Both numbers are the
+/// ones the table shows, counted from 1.
+[[nodiscard]] std::string refusalOfSplit(std::size_t cutAt, std::size_t before);
+
 } // namespace subedit::core

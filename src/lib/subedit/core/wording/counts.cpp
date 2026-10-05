@@ -70,4 +70,10 @@ std::string noticeOfSplit(std::size_t count) {
     return "split " + countOf(count, "subtitle") + " into a new project";
 }
 
+std::string refusalOfSplit(std::size_t cutAt, std::size_t before) {
+    return "Cannot split at subtitle " + std::to_string(cutAt) + ": subtitle " +
+           std::to_string(before) +
+           " would fall before the start of the video. Cut somewhere else.";
+}
+
 } // namespace subedit::core

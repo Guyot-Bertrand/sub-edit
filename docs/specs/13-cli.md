@@ -130,7 +130,7 @@ pas un.
 | traduction | **retenue, comme options** | `-t/--translation-file`, `--document`, `--align-method` sur `inspect` et les sous-commandes de texte — D10 |
 | liste des encodages | **retenue** | `--list-encodings`, iso-fonctionnel avec Gaupol ; ICU les énumère ([#564](https://github.com/Guyot-Bertrand/sub-edit/issues/564)) |
 | ajout d'un fichier à la suite d'un autre | **retenue, porte franchie** (#570) | **`append`** — D12. L'usage est réel (un film en deux parties), l'arité ne l'est pas : N entrées, une sortie |
-| scission d'un projet | **retenue, derrière une porte** | **`split-file`** — D12 : l'inverse exact de `append` |
+| scission d'un projet | **retenue, porte franchie** (#571) | **`split-file`** — D12 : l'inverse exact de `append` |
 | une traduction recalée sur le principal | **retenue, derrière une porte** | **`pair`** — D10, D12 : la seule chose que l'appariement fait et qu'un fichier seul ne fait pas |
 | fusion de sous-titres | **écartée** | une plage de numéros qu'on lit dans une table ; la ligne de commande n'a pas de table où la voir, et un script ne sait pas quelle ligne fusionner. Déclencheur : un appelant qui sait quelle ligne |
 | scission d'un sous-titre en deux | **écartée** | la seconde moitié naît **vide** : l'opération attend qu'on y tape un texte, et la ligne de commande n'a pas d'« ensuite ». Même déclencheur |
@@ -228,6 +228,7 @@ sont du JSON valide, qu'ils portent l'enveloppe et ne contiennent aucun nombre �
 | `replace` | `replaced` (correspondances remplacées dans les sous-titres dont le texte a changé — le nombre que dit la phrase), `matched` (correspondances trouvées, que le texte ait changé ou non : ce qui distingue « rien trouvé » de « rien à changer ») |
 | `case`, `italics`, `dialogue-dashes` | `changed` |
 | `sort` | `subtitles`, `moved` (les places qui ont changé de sous-titre) |
+| `split-file` | `subtitles`, `head`, `tail` ; `destination` est la tête, et `tail` — hors de `counts` — la queue |
 | `append` | `files`, `subtitles`, `appended`, puis les pertes de `convert` sommées ; hors de `counts`, `inputs` : un élément par fichier ajouté, avec ses propres comptes |
 
 ## D4 — Le lot : sûr, créé, arborescent
@@ -565,6 +566,10 @@ sans sous-titre, donc un fichier vide n'existe pas côté ligne de commande. Il 
 fichier qui ne se lit pas : le lancement s'arrête, code `2`, rien n'est écrit. Le cas « rien à ajouter » du
 noyau reste celui de la fenêtre.
 
+**Porte franchie pour `split-file` le 5 octobre 2026** (#571), sur la même demande ; `pair` (#572) reste
+derrière la sienne. La grammaire des deux sorties : `--head` et `--tail`, requis tous deux hors `--dry-run`,
+ni l'entrée ni un même fichier ; en JSON, `destination` est la tête et `tail` la queue.
+
 ## Comment la phase se prouve
 
 - **Chaque sous-commande a ses cas de bout en bout** — le vrai binaire, les deux sorties
@@ -702,7 +707,7 @@ n'était déjà pris** — les sujets neufs sont `JSON`, `DRYRUN`, `RANGE`, `ADJ
 | `CLI-TRANS-05` | `--align-method` choisit entre position (défaut) et numéro |
 | `CLI-LISTENC-01` | `--list-encodings` écrit les encodages qu'ICU sait convertir, un par ligne, et s'arrête |
 | `CLI-APPEND-01` | `append` ajoute les fichiers à la suite du premier, décalés de la fin du dernier sous-titre, dans une seule sortie *(porte franchie, D12 — #570)* |
-| `CLI-PSPLIT-01` | `split-file --at N` écrit les deux moitiés, la seconde ramenée à l'origine, ou refuse en nommant le sous-titre *(derrière la porte)* |
+| `CLI-PSPLIT-01` | `split-file --at N` écrit les deux moitiés, la seconde ramenée à l'origine, ou refuse en nommant le sous-titre *(porte franchie, D12 — #571)* |
 | `CLI-PAIR-01` | `pair` écrit la traduction recalée sur les positions du principal, et dit l'alignement *(derrière la porte)* |
 
 ## Découpage

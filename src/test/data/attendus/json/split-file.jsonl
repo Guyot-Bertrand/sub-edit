@@ -1,0 +1,1 @@
+{"schema":1,"command":"split-file","file":"<scratch>/in/film.srt","ok":true,"dry_run":false,"destination":"<scratch>/out/head.srt","counts":{"subtitles":4,"head":2,"tail":2},"tail":"<scratch>/out/tail.srt","warnings":[]}
