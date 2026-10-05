@@ -1,8 +1,11 @@
 # Feuille de route
 
-Dix-sept phases, chacune associée à un milestone GitHub. Neuf mènent à un
+Vingt-cinq phases, chacune associée à un milestone GitHub. Neuf mènent à un
 **MVP livrable** — les huit premières, plus la [16](#16--fréquences-dimage--déduction-et-correction)
-intercalée avant la 7 ; les autres complètent l'iso-fonctionnalité avec Gaupol.
+intercalée avant la 7 ; les suivantes, jusqu'à la 15, complètent
+l'iso-fonctionnalité avec Gaupol ; les huit dernières, de la
+[17](#17--formats-texte-complémentaires) à la [24](#24--workflow-et-intégrations),
+vont [au-delà de Gaupol](#troisième-partie--au-delà-de-gaupol).
 
 **Le numéro d'une phase l'identifie, il ne dit pas son rang.** L'ordre est celui
 de ce document, et lui seul. Une phase ajoutée en cours de route prend le
@@ -33,7 +36,8 @@ Les priorités viennent de l'utilisateur final, transmises le 2026-08-05 :
 Les phases 1 à 7 sont donc **restreintes à ce contour**, interface comprise.
 Elles ne changent ni d'identité ni d'ordre : elles couvrent moins de terrain.
 La [16](#16--fréquences-dimage--déduction-et-correction), elle, l'élargit — la
-seule à le faire, et la seule à dépasser l'iso-fonctionnalité avec Gaupol.
+seule à le faire, et la seule à dépasser l'iso-fonctionnalité avec Gaupol avant
+la troisième partie.
 
 Trois conséquences qui ne se lisent pas directement dans la liste :
 
@@ -1263,3 +1267,167 @@ on tire l'aide de la fenêtre et les pages `man`, ou deux sources), comment leur
 traduction se tient à jour quand le manuel bouge, et si les captures du manuel se
 prennent par langue. **Une seule source** est la voie qui évite que deux textes
 divergent ; c'est aussi la plus coûteuse à outiller.
+
+# Troisième partie — au-delà de Gaupol
+
+Ces phases ne sont plus de l'iso-fonctionnalité : elles ajoutent ce que Gaupol
+ne fait pas. Elles sont nées d'un échange de cadrage, le 2026-10-06, et **leur
+ordre est celui que l'utilisateur a choisi** ; il ne tient pas à une prévision
+d'effort.
+
+**Public visé : des amateurs de séries et de films qui cherchent à automatiser
+leur workflow.** La ligne de commande est donc de rang égal à l'interface, et
+« je lance une commande et le sous-titre tombe juste » est le critère à tenir.
+
+**Ces phases sont des brouillons.** Chacune sera affinée à son cadrage — c'est
+là que se tranchent le périmètre exact, les exigences et le découpage en
+issues. Ce qui suit fixe l'ordre, l'intention et les décisions à prévoir, rien
+de plus.
+
+```
+17 ─► 18 ─► 19 ─► 20 ─► 21
+                   │
+                   └────────► 22 ─► 23 ─► 24
+```
+
+**Ce que les phases se transmettent.** La 19 pose le mécanisme de sous-processus
+et de détection d'un outil externe, que 21, 22 et 24 réutilisent. La 20 pose
+l'OCR, que la 21 branche sur les conteneurs. La 22 pose le moteur audio, que la
+23 réutilise pour aligner.
+
+**Une règle pour tous les outils externes** (`mkvmerge`, `ffmpeg`, Tesseract,
+whisper.cpp), dans le prolongement de la tolérance à l'absence de `ffprobe` :
+**leur absence ne casse rien.** La fonction qui en dépend se désactive avec un
+message clair, ou l'utilisateur fournit la donnée lui-même. Aucun de ces outils
+n'est livré avec les paquets.
+
+## 17 — Formats texte complémentaires
+
+Les formats de sous-titres texte que ni Gaupol ni les phases 1 et 9 ne
+couvrent. La liste est à établir au cadrage, selon l'usage réel du public visé.
+
+Chaque format déplace les trois mesures habituelles de la phase 9 : une ligne de
+la table de promesses, le score de détection, la matrice de conversion.
+
+## 18 — Formats texte avancés
+
+Styles nommés, positionnement, karaoké : lecture, écriture et conversion entre
+les formats qui les portent (ASS, TTML, WebVTT…).
+
+**C'est la phase qui touche le plus de code existant.** Le modèle d'entrée est
+aujourd'hui du texte balisé ; il doit accueillir des styles, une position par
+entrée et des segments minutés. Cela traverse le noyau et chaque format déjà
+écrit, et appelle un ADR.
+
+**À trancher au cadrage :**
+
+- la forme du modèle de style et de position, et sa place dans le noyau ;
+- ce que devient une information que le format cible ne porte pas : perte
+  signalée, refus, ou repli — dans le prolongement de la matrice de conversion ;
+- ce que l'interface en montre et en permet d'éditer, ou si cette phase se
+  limite d'abord à la bibliothèque et à la ligne de commande.
+
+**Phase lourde, à scinder au cadrage** si la mesure le demande.
+
+## 19 — Pistes texte embarquées
+
+Lister, extraire et injecter des pistes de sous-titres texte dans les
+conteneurs MKV et MP4, avec leurs métadonnées : langue, drapeaux « forcé » et
+« malentendants », piste par défaut.
+
+**À trancher au cadrage — et la décision vaut pour les phases 21, 22 et 24 :**
+lier une bibliothèque (libavformat) ou appeler `mkvmerge` / `ffmpeg` en
+sous-processus. **Le sous-processus est la pente attendue** : il garde les
+exécutables minimaux et laisse l'utilisateur maître de ses outils. Il suppose
+la détection de la présence de l'outil, et sa tolérance à l'absence.
+
+Autres questions : ouvrir directement un conteneur depuis la fenêtre et la
+ligne de commande, ou seulement extraire ; réécrire le conteneur (remux) ou
+exporter à côté.
+
+## 20 — Formats image et OCR
+
+Lire les sous-titres image — **VobSub** (`.idx` / `.sub`), **PGS** (`.sup`,
+Blu-ray) et **DVB-sub** (flux TV, `.ts` enregistrés) —, les passer à
+l'OCR, et produire des sous-titres texte.
+
+**Deux parties, qui ne vont pas du même pas :** la lecture des formats image,
+qui est de l'analyse binaire et se teste sur fixtures, et l'OCR proprement dit.
+
+**À trancher au cadrage :**
+
+- le moteur d'OCR — Tesseract en bibliothèque ou en exécutable — et la
+  provenance de ses données de langue, que l'utilisateur télécharge ;
+- **l'interface de correction humaine**, qui n'est pas un détail : un OCR se
+  relit. Elle s'appuie sur les motifs « OCR » du moteur de correction de la
+  [phase 12](#12--moteur-de-correction-complet) ;
+- la version en ligne de commande : OCR sans relecture, avec un compte rendu
+  des entrées douteuses.
+
+**Phase lourde, à scinder au cadrage** : lecture des formats d'un côté, OCR et
+interface de relecture de l'autre.
+
+## 21 — Pistes image embarquées
+
+Extraire les pistes image des conteneurs et les chaîner à l'OCR de la phase 20,
+de bout en bout : du fichier vidéo aux sous-titres texte.
+
+Elle n'ajoute presque rien de neuf — c'est la jonction de la 19 et de la 20 —, et
+c'est précisément ce qui la rend courte.
+
+## 22 — Transcription audio
+
+Produire des sous-titres, avec leurs positions, à partir de l'audio d'une vidéo.
+
+**Moteur pressenti : whisper.cpp**, qui s'exécute sur un processeur ordinaire,
+sans carte graphique ; celle-ci n'accélère que le traitement. Les modèles pèsent
+de quelques centaines de Mo à plusieurs Go : **ils ne sont pas livrés**, et
+l'utilisateur les récupère, par une commande dédiée ou un chemin à renseigner.
+
+**À trancher au cadrage :**
+
+- exécutable en sous-processus ou bibliothèque — même pente que pour la
+  phase 19 : l'exécutable, qui laisse le choix de la variante matérielle ;
+- le build livré dans les paquets : processeur seul par défaut ;
+- la sortie : phrases minutées, ou mots minutés, que la phase 23 réutilise ;
+- la détection de la langue de l'audio.
+
+## 23 — Alignement automatique
+
+Recaler un sous-titre existant sur l'audio : à partir du texte et de la voix,
+retrouver où chaque phrase est réellement prononcée. C'est le cas du `.srt`
+récupéré en ligne, décalé au début et en fin, que la correction par deux points
+ne rattrape pas.
+
+**Elle dépend de la phase 22**, dont elle réutilise le moteur et les mots
+minutés, et reste optionnelle comme elle. Elle est livrée en ligne de commande
+et dans l'interface.
+
+**À trancher au cadrage :** le comportement quand l'alignement est douteux
+(entrées non retrouvées, dérive progressive) et la façon de le rendre à
+l'utilisateur.
+
+## 24 — Workflow et intégrations
+
+Ce qui permet d'enchaîner les phases précédentes sans les rejouer à la main :
+traitement par lots, dossier surveillé, chaînage de commandes, sortie JSON
+stable pour les scripts.
+
+**Phase à cadrer en dernier**, parce qu'elle automatise ce que les autres
+livrent : son périmètre exact dépend de ce que l'usage aura montré pendant les
+phases 17 à 23. Le `--recursive` de la [phase 13](#13--cli-complète) en est le
+point de départ.
+
+## Pour une v3
+
+Retenu mais écarté pour l'instant, le 2026-10-06 :
+
+- **le mode serveur** (`subedit serve`) ;
+- **la forme d'onde interactive** — le dessin du son sous la vidéo, avec des
+  blocs de sous-titres qu'on tire à la souris pour les caler. L'alignement
+  automatique de la phase 23 couvre l'essentiel du besoin sans elle ;
+- **les sous-titres incrustés dans l'image** (« hardsubs »), par OCR sur la
+  vidéo ;
+- **la traduction automatique** et la **qualité** : conformité aux normes de
+  diffuseurs, mémoire de traduction, fusion de versions ;
+- **la détection de coupures de plan.**
