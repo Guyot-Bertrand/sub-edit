@@ -182,6 +182,7 @@ add_executable(
     cli/batch_test.cpp
     cli/changes_test.cpp
     cli/conversion_test.cpp
+    cli/correcting_test.cpp
     cli/destination_test.cpp
     cli/expansion_test.cpp
     cli/json_test.cpp

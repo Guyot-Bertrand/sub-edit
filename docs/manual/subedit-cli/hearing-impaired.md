@@ -16,8 +16,8 @@ Ce qu'elle ne fait pas : les paroles de chanson entre dièses, le nom du locuteu
 avant deux-points, la remise en majuscule, la correction d'erreurs d'OCR. Ces
 motifs-là sont ceux de l'assistant
 [`Correct Texts…`](../subedit-gui/correct-texts.md) de la fenêtre, que la ligne de
-commande n'a pas ; et rien ici ne se règle : la transformation est décidée, pas
-configurable.
+commande offre sous le nom de [`correct`](correct.md) ; et rien ici ne se règle : la
+transformation est décidée, pas configurable.
 
 <!-- exemple: subedit-cli hearing-impaired --help -->
 ```console

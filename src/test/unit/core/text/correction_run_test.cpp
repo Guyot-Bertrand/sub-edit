@@ -549,3 +549,58 @@ TEST_CASE("a pattern failing on several texts of several targets is reported onc
     CHECK(proposal.failures[0].name == "Endless");
     CHECK(proposal.failures[0].kind == FailureKind::TooManyPasses);
 }
+
+TEST_CASE("a failure names its text by its place in the target, whatever a task removed before",
+          "[text][assistant]") {
+    InMemoryFileSystem files;
+    files.addFile("/patterns/Zyyy.common-error",
+                  "# -*- conf -*-\n"
+                  "\n[Common Error Pattern]\nName=Endless\nClasses=Human;OCR;\n"
+                  "Pattern=(a+)+$\nReplacement=x\n");
+    files.addFile("/patterns/Zyyy.hearing-impaired",
+                  "# -*- conf -*-\n"
+                  "\n[Hearing Impaired Pattern]\nName=Sound in brackets\n"
+                  "Pattern=\\[[^\\]]*\\]\nReplacement=\n");
+    const PatternCatalogue catalogue = subedit::core::readPatternCatalogue(files, "/patterns", {});
+
+    // The first subtitle is only a mention, and goes; the endless pattern gives
+    // up on the third, which the tasks after the first see as the second.
+    Project project = projectOf({"[Door]", "Hello", std::string(40, 'a') + "b"});
+    CorrectionSettings settings;
+    settings.mentions = {.enabled = true, .code = "Zyyy"};
+    settings.soundInBrackets = true;
+    settings.commonErrors = {.enabled = true, .code = "Zyyy"};
+
+    const std::vector<CorrectionTarget> targets{wholeProject(project)};
+    const CharacterLineMeasure measure;
+    const CorrectionProposal proposal =
+        proposeCorrections(IcuPatternEngine{}, catalogue, settings, measure, targets);
+
+    REQUIRE(proposal.failures.size() == 1);
+    CHECK(proposal.failures[0].kind == FailureKind::TimedOut);
+    CHECK(proposal.failures[0].text == std::optional<std::size_t>{2});
+}
+
+TEST_CASE("the active patterns are the cascade's, by activation and by class",
+          "[text][assistant]") {
+    CorrectionSettings settings;
+    const std::string code = "Latn";
+
+    const std::size_t both =
+        subedit::core::activePatterns(shippedPatterns(), PatternKind::CommonError, code, settings)
+            .size();
+    CHECK(both > 0);
+
+    settings.ocr = false;
+    const std::size_t human =
+        subedit::core::activePatterns(shippedPatterns(), PatternKind::CommonError, code, settings)
+            .size();
+    CHECK(human < both);
+
+    // A record switched off by an activation is out of the answer.
+    settings.ocr = true;
+    settings.patternActivations.push_back(
+        {.kind = PatternKind::CommonError, .code = "Latn", .name = "Ligatures", .enabled = false});
+    CHECK(subedit::core::activePatterns(shippedPatterns(), PatternKind::CommonError, code, settings)
+              .size() < both);
+}

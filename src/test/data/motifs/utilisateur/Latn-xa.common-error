@@ -1,0 +1,13 @@
+# -*- conf -*-
+# Deux fichiers, deux types, un seul nom : « Shared name » désigne un motif
+# d'erreur courante et un motif de majuscules, et ne se désigne seul d'aucun
+# des deux (`common-error:Shared name`, `capitalization:Shared name`).
+
+[Common Error Pattern]
+Name=Shared name
+Description=An error of the user's own
+Classes=Human;
+Pattern=colour
+Flags=DOTALL;MULTILINE;
+Replacement=color
+Repeat=False

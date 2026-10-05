@@ -74,7 +74,9 @@ struct ProposedCorrection {
 /// What `proposeCorrections` answered: the changes it would make, and every
 /// pattern that could not do its part — named once each per reason, however
 /// many texts or targets it was asked to work on (GUI-CORRECT-06). A failure's
-/// `text` is then the first text it gave up on, within its own target.
+/// `text` is then the first text it gave up on, **as a position in its own
+/// target's texts** — the order `Selection::indices()` walks, whatever the tasks
+/// before it removed.
 struct CorrectionProposal {
     std::vector<ProposedCorrection> corrections;
     std::vector<PatternFailure> failures;
@@ -97,6 +99,19 @@ struct CorrectionProposal {
                                                     const LineMeasure& measure,
                                                     std::span<const CorrectionTarget> targets,
                                                     const SpellChecker* spellChecker = nullptr);
+
+/// The patterns of `kind` the cascade of `code` gives, activation and D4's
+/// classes both applied — **the ones a task would play**, which is what a caller
+/// that must say « nothing to do » needs to know before it runs one.
+///
+/// The two scan-only mentions (`isScanOnlyPattern`) are among them when their
+/// activation says so, though the engine leaves them out: whether the scan runs
+/// is `soundInBrackets || soundInParentheses`, and the caller reads that itself.
+[[nodiscard]] std::vector<const CorrectionPattern*>
+activePatterns(const PatternCatalogue& catalogue,
+               PatternKind kind,
+               const std::string& code,
+               const CorrectionSettings& settings);
 
 /// One project's worth of what `applyCorrections` composed for it.
 struct AppliedCorrection {

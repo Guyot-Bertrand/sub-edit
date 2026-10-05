@@ -1,0 +1,11 @@
+# -*- conf -*-
+# Un motif déposé par l'utilisateur, seul : il s'ajoute aux motifs livrés.
+
+[Common Error Pattern]
+Name=Colour becomes color
+Description=Replace colour with color
+Classes=Human;
+Pattern=colour
+Flags=DOTALL;MULTILINE;
+Replacement=color
+Repeat=False

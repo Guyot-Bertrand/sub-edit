@@ -5,10 +5,10 @@ sans interface graphique, en traitement par lot ou depuis un script. Pour
 l'autre programme et pour savoir par où commencer, voir
 [le manuel](../index.md).
 
-> **État actuel.** Les treize sous-commandes de `subedit-cli` existent :
+> **État actuel.** Les quatorze sous-commandes de `subedit-cli` existent :
 > inspecter, convertir, décaler, transformer, recaler la cadence, aligner sur
 > une grille d'images, retirer les mentions pour malentendants, ajuster les
-> durées, remplacer un texte, changer la casse, l'italique et les tirets de dialogue, et remettre les sous-titres dans l'ordre. Ce manuel
+> durées, remplacer un texte, changer la casse, l'italique et les tirets de dialogue, remettre les sous-titres dans l'ordre, et corriger les textes avec les motifs de Gaupol. Ce manuel
 > décrit ce qui existe, jamais ce qui est prévu ; ce qui vient ensuite est dans
 > la [feuille de route](../../feuille-de-route.md).
 
@@ -32,3 +32,4 @@ l'autre programme et pour savoir par où commencer, voir
 | [`italics`](italics.md) | mettre les textes en italique, ou retirer leur italique |
 | [`dialogue-dashes`](dialogue-dashes.md) | poser ou retirer les tirets de dialogue |
 | [`sort`](sort.md) | remettre les sous-titres dans l'ordre de leur début |
+| [`correct`](correct.md) | corriger les textes avec les motifs de Gaupol : mentions, erreurs courantes, majuscules |

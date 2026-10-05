@@ -4,6 +4,7 @@
 
 #include "adjust.hpp"
 #include "convert.hpp"
+#include "correct.hpp"
 #include "dialogue_dashes.hpp"
 #include "framerate.hpp"
 #include "hearing_impaired.hpp"
@@ -33,6 +34,7 @@ std::span<const Command> commands() {
         Command{.name = "italics", .declare = declareItalics},
         Command{.name = "dialogue-dashes", .declare = declareDialogueDashes},
         Command{.name = "sort", .declare = declareSort},
+        Command{.name = "correct", .declare = declareCorrect},
     };
     return kTable;
 }

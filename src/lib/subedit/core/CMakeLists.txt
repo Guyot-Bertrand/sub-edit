@@ -122,6 +122,7 @@ add_library(
     version.cpp
     wording/analysis.cpp
     wording/conversion.cpp
+    wording/correction.cpp
     wording/counts.cpp
     wording/editing.cpp
     wording/formats.cpp

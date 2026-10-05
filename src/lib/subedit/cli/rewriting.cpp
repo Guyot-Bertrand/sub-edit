@@ -124,6 +124,13 @@ bool rewriteFile(core::FileSystem& files,
     if (alignment) {
         reporter.say(2, path + ": " + core::noticeOf(*alignment));
     }
+    // What the operation went on without is data: said at level 1 whatever the
+    // rest, and in every record.
+    Json warnings = warningsOf(diagnostics);
+    for (const Warning& warning : done->warnings) {
+        reporter.say(1, path + ": " + warning.detail);
+        warnings.push(Json::object().set("kind", warning.kind).set("detail", warning.detail));
+    }
     if (dryRun) {
         reporter.say(1, path + ": " + done->sentence + " (dry run, nothing written)");
         if (done->changes) {
@@ -132,7 +139,7 @@ bool rewriteFile(core::FileSystem& files,
         reporter.record(dryRunRecord(reporter.command(),
                                      path,
                                      done->counts,
-                                     warningsOf(diagnostics),
+                                     std::move(warnings),
                                      done->changes,
                                      done->fields));
         return true;
@@ -145,7 +152,7 @@ bool rewriteFile(core::FileSystem& files,
                                   path,
                                   out,
                                   done->counts,
-                                  warningsOf(diagnostics),
+                                  std::move(warnings),
                                   done->changes,
                                   done->fields));
     return true;

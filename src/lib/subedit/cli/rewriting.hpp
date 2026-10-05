@@ -27,6 +27,12 @@ namespace subedit::cli {
 class Destination;
 class Reporter;
 
+/// One thing an operation went on without: a stable identifier, and the words.
+struct Warning {
+    std::string kind;
+    std::string detail;
+};
+
 /// What an operation did to one file: its counts, and the sentence they make.
 ///
 /// **One object for the two readers.** The sentence is the narration of the
@@ -49,6 +55,12 @@ struct OperationResult {
 
     /// What the operation employed, for the record only.
     Fields fields{};
+
+    /// What it could not do in full and went on without — a pattern that gave up
+    /// on a text. **Not a failure of the file**: it is written, and the exit code
+    /// is that of a file that was. Said at level 1, and a `warnings` entry of the
+    /// record (`kind` is promised, `detail` is the words).
+    std::vector<Warning> warnings{};
 };
 
 /// What an operation comes to on one file: a result, or why it cannot.

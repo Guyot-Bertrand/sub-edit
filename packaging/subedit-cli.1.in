@@ -106,6 +106,9 @@ Put dialogue dashes on the lines, or take them off.
 .TP
 .B sort
 Put the subtitles in the order of their start, keeping ties as they are.
+.TP
+.B correct
+Correct the texts with the patterns of the correction assistant.
 .PP
 .BR framerate " and " snap
 take the same arguments and do opposite things: the first re\-times a file

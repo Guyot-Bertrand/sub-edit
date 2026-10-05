@@ -77,6 +77,24 @@ CliRun invokeGui(const std::vector<std::string>& args);
 /// harness as the two binaries: its own configuration, data and Enchant homes.
 [[nodiscard]] CliRun invokePatternCatalogue();
 
+/// A file of patterns dropped in the user's patterns directory — the one the
+/// harness moved — and taken away again when this goes out of scope.
+///
+/// **What a test drops must not outlive it**, or the next case would read it:
+/// the directory is the process's own, shared by every case. The file is named
+/// as the command line reads it, `<code>.<type>` (`Latn-xb.common-error`).
+class UserPatterns {
+public:
+    UserPatterns(const std::string& name, const std::string& text);
+
+    UserPatterns(const UserPatterns&) = delete;
+    UserPatterns& operator=(const UserPatterns&) = delete;
+    UserPatterns(UserPatterns&&) = delete;
+    UserPatterns& operator=(UserPatterns&&) = delete;
+
+    ~UserPatterns();
+};
+
 /// The data home and the Enchant home every launched binary is given: where the
 /// patterns a user drops in `$XDG_DATA_HOME/subedit/patterns` would be, and where
 /// Enchant keeps its personal word list. **Empty, and the test's own** — the

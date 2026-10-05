@@ -24,6 +24,7 @@
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/core/wording/conversion.hpp>
+#include <subedit/core/wording/correction.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/editing.hpp>
 #include <subedit/core/wording/formats.hpp>
@@ -597,4 +598,42 @@ TEST_CASE("the hearing-impaired removal and the refused shift are said once, her
     CHECK(noticeOfMentionsRemoved(1, 0) == "1 subtitle cleaned, 0 removed");
     CHECK(shiftBeforeTheOrigin(4) ==
           "subtitle 4 would start before the origin, which no subtitle file can hold");
+}
+
+TEST_CASE("every reason a pattern can give up has its sentence", "[cli][wording][correction]") {
+    using subedit::core::FailureKind;
+    using subedit::core::reasonOf;
+    CHECK(reasonOf(FailureKind::Untranslatable) == "cannot be translated");
+    CHECK(reasonOf(FailureKind::CompileError) == "will not compile");
+    CHECK(reasonOf(FailureKind::InvalidReplacement) == "has an invalid replacement");
+    CHECK(reasonOf(FailureKind::TimedOut) == "timed out");
+    CHECK(reasonOf(FailureKind::TooManyPasses) == "never settled");
+    CHECK(reasonOf(FailureKind::TooLong) == "grew the text too long");
+}
+
+TEST_CASE("a reading of the patterns that ran into something says where, and why",
+          "[cli][wording][correction]") {
+    using subedit::core::describe;
+    using subedit::core::PatternDiagnostic;
+    using subedit::core::PatternProblem;
+    using subedit::core::reasonOf;
+
+    CHECK(reasonOf(PatternProblem::DirectoryUnreadable) == "directory cannot be read");
+    CHECK(reasonOf(PatternProblem::FileUnreadable) == "file cannot be read");
+    CHECK(reasonOf(PatternProblem::FieldOutsideRecord) == "field outside any pattern");
+    CHECK(reasonOf(PatternProblem::UnknownField) == "unknown field");
+    CHECK(reasonOf(PatternProblem::MissingField) == "missing field");
+    CHECK(reasonOf(PatternProblem::InvalidValue) == "invalid value");
+    CHECK(reasonOf(PatternProblem::MalformedActivation) == "malformed activation");
+
+    // The file by its own name, the line when there is one, the detail when given.
+    CHECK(describe(PatternDiagnostic{.problem = PatternProblem::MalformedLine,
+                                     .file = "/share/patterns/Zyyy.common-error",
+                                     .line = 4,
+                                     .detail = "no equal sign"}) ==
+          "Zyyy.common-error, line 4 (malformed line: no equal sign)");
+    CHECK(describe(PatternDiagnostic{.problem = PatternProblem::DirectoryUnreadable,
+                                     .file = "/share/patterns",
+                                     .line = 0,
+                                     .detail = {}}) == "patterns (directory cannot be read)");
 }

@@ -9,7 +9,6 @@
 #include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <filesystem>
-#include <fstream>
 #include <string>
 
 #include "cli_run.hpp"
@@ -18,33 +17,9 @@ using Catch::Matchers::ContainsSubstring;
 using subedit::e2e::CliRun;
 using subedit::e2e::dataHome;
 using subedit::e2e::invokePatternCatalogue;
+using subedit::e2e::UserPatterns;
 
 namespace {
-
-/// A directory removed when it goes out of scope, and the file in it: what a
-/// test drops in the user's patterns must not outlive the test, or the next
-/// case would read it.
-class DroppedPatterns {
-public:
-    DroppedPatterns(const std::string& name, const std::string& text)
-        : m_directory{std::filesystem::path{dataHome()} / "subedit" / "patterns"} {
-        std::filesystem::create_directories(m_directory);
-        std::ofstream{m_directory / name} << text;
-    }
-
-    DroppedPatterns(const DroppedPatterns&) = delete;
-    DroppedPatterns& operator=(const DroppedPatterns&) = delete;
-    DroppedPatterns(DroppedPatterns&&) = delete;
-    DroppedPatterns& operator=(DroppedPatterns&&) = delete;
-
-    ~DroppedPatterns() {
-        std::error_code ignored;
-        std::filesystem::remove_all(std::filesystem::path{dataHome()} / "subedit", ignored);
-    }
-
-private:
-    std::filesystem::path m_directory;
-};
 
 [[nodiscard]] int patternsIn(const std::string& output) {
     const std::string key = "patterns: ";
@@ -80,15 +55,15 @@ TEST_CASE("a file of patterns dropped in the user's directory is added to the ca
           "[e2e][patterns]") {
     const int shipped = patternsIn(invokePatternCatalogue().output);
 
-    const DroppedPatterns dropped{"Latn-xx.common-error",
-                                  "[Common Error Pattern]\n"
-                                  "Name=A pattern of the test\n"
-                                  "Description=Dropped by the harness\n"
-                                  "Classes=OCR;\n"
-                                  "Pattern=zzz\n"
-                                  "Flags=DOTALL;MULTILINE;\n"
-                                  "Replacement=yyy\n"
-                                  "Repeat=False\n"};
+    const UserPatterns dropped{"Latn-xx.common-error",
+                               "[Common Error Pattern]\n"
+                               "Name=A pattern of the test\n"
+                               "Description=Dropped by the harness\n"
+                               "Classes=OCR;\n"
+                               "Pattern=zzz\n"
+                               "Flags=DOTALL;MULTILINE;\n"
+                               "Replacement=yyy\n"
+                               "Repeat=False\n"};
     const CliRun run = invokePatternCatalogue();
 
     REQUIRE(run.exitCode == 0);
