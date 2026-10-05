@@ -22,6 +22,7 @@ add_executable(
     cli/batch_test.cpp
     cli/convert_test.cpp
     cli/formats_test.cpp
+    cli/append_test.cpp
     cli/hearing_impaired_test.cpp
     cli/list_encodings_test.cpp
     cli/shift_test.cpp

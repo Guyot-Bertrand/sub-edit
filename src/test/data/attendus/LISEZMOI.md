@@ -93,3 +93,15 @@ au texte de la traduction, et jamais lu dans la sortie du programme. L'entrée e
 | Fichier | Cas | Provenance |
 | :------ | :-- | :--------- |
 | `translation/mentions.hearing-impaired.traduction.srt` | le fichier écrit par `hearing-impaired --document translation -t` : la mention du premier sous-titre est tout son texte, qui **s'écrit vide et garde le sous-titre** ; celle du deuxième emporte l'espace qui l'entoure ; la référence `[1]` du troisième reste | à la main : quatre blocs en entrée, quatre en sortie, **le seul écrivain de la traduction étant celui du principal** — un bloc sans texte se lit et revient à l'octet, comme `paires/LISEZMOI.md` le dit |
+
+## `append/` — ce que `append` écrit
+
+Écrits à la main : la fin du dernier sous-titre de ce qui précède est le décalage de ce qui suit
+(quatre secondes, puis cinq et demie), et les sous-titres sont renumérotés à partir de 1. Les entrées
+sont écrites par `src/test/e2e/cli/append_test.cpp`.
+
+| Fichier | Cas | Provenance |
+| :------ | :-- | :--------- |
+| `append/deux-fichiers.srt` | deux sous-titres, puis un qui commence à 0,5 s : il commence à 4,5 s | à la main : 0,5 + 4,0, la balise d'italique gardée |
+| `append/trois-fichiers.srt` | les mêmes, puis un fichier WebVTT : il suit la fin du troisième (5,5 s) | à la main : 1,0 + 5,5 = 6,5 s |
+| `json/append.jsonl` | trois fichiers, le dernier en Advanced SSA : l'objet dit ce que chacun a coûté | à la main : une balise `{\pos}` et l'en-tête perdus |

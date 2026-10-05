@@ -334,6 +334,9 @@ ajoutés : `Ctrl+Z` les retire tous d'un coup.
 **Un fichier déjà ouvert peut s'ajouter à lui-même** : rien ne l'interdit, comme
 chez Gaupol.
 
+**En ligne de commande**, [`append`](../subedit-cli/append.md) fait la même chose pour plusieurs fichiers à
+la fois, dans un seul résultat.
+
 ## `Split Project…`
 
 Coupe le projet en deux : **l'inverse exact de `Append File…`**. Une boîte

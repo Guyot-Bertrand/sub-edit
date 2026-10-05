@@ -2,6 +2,7 @@ add_executable(subedit-cli
     main.cpp
     application.cpp
     commands/adjust.cpp
+    commands/append.cpp
     commands/command.cpp
     commands/convert.cpp
     commands/correct.cpp
