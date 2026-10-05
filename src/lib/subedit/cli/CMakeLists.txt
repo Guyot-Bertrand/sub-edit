@@ -14,6 +14,7 @@
 add_library(
     subedit_cli STATIC
     adjusting.cpp
+    appending.cpp
     aligning.cpp
     batch.cpp
     changes.cpp

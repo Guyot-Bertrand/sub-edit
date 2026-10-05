@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Sous-commande append, N fichiers en un seul
+
+## 0.13.25 — 2026-10-05
+
+### Ajouts
+
 - **cli** — Correct --tasks join-words,split-words
 
 ## 0.13.24 — 2026-10-05

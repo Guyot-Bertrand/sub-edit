@@ -109,6 +109,9 @@ Put the subtitles in the order of their start, keeping ties as they are.
 .TP
 .B correct
 Correct the texts with the patterns of the correction assistant.
+.TP
+.B append
+Put subtitle files one after another into a single file.
 .PP
 .BR framerate " and " snap
 take the same arguments and do opposite things: the first re\-times a file

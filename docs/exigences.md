@@ -273,6 +273,6 @@ plus rien.
 | `CLI-TRANS-04` | seul le document visé est écrit, à son propre chemin et dans son propre format | 13 | implémentée |
 | `CLI-TRANS-05` | `--align-method` choisit entre position (défaut) et numéro | 13 | implémentée |
 | `CLI-LISTENC-01` | `--list-encodings` écrit les encodages qu'ICU sait convertir, un par ligne, et s'arrête | 13 | implémentée |
-| `CLI-APPEND-01` | `append` ajoute les fichiers à la suite du premier, décalés de la fin du dernier sous-titre, dans une seule sortie | 13 | prévue |
+| `CLI-APPEND-01` | `append` ajoute les fichiers à la suite du premier, décalés de la fin du dernier sous-titre, dans une seule sortie | 13 | implémentée |
 | `CLI-PSPLIT-01` | `split-file --at N` écrit les deux moitiés, la seconde ramenée à l'origine, ou refuse en nommant le sous-titre | 13 | prévue |
 | `CLI-PAIR-01` | `pair` écrit la traduction recalée sur les positions du principal, et dit l'alignement | 13 | prévue |

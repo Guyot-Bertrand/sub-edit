@@ -3,6 +3,7 @@
 #include <array>
 
 #include "adjust.hpp"
+#include "append.hpp"
 #include "convert.hpp"
 #include "correct.hpp"
 #include "dialogue_dashes.hpp"
@@ -35,6 +36,7 @@ std::span<const Command> commands() {
         Command{.name = "dialogue-dashes", .declare = declareDialogueDashes},
         Command{.name = "sort", .declare = declareSort},
         Command{.name = "correct", .declare = declareCorrect},
+        Command{.name = "append", .declare = declareAppend},
     };
     return kTable;
 }
