@@ -56,37 +56,26 @@ ExitCode runCase(const CaseOptions& options,
                  core::FileSystem& files,
                  const std::optional<core::Encoding>& reading,
                  const Reporter& reporter) {
-    const std::expected<std::optional<Range>, std::string> range = rangeOf(options.range);
-    if (!range) {
-        return refuse(range.error());
-    }
-
-    const std::expected<Inputs, std::string> inputs = expandInputs(
-        files, options.files, options.recursive, options.destination.outputDir, reporter);
-    if (!inputs) {
-        return refuse(inputs.error());
-    }
-
-    const std::expected<std::optional<Pairing>, std::string> pairing =
-        pairingOf(options.translation, true, *inputs);
-    if (!pairing) {
-        return refuse(pairing.error());
-    }
-
-    const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, *inputs);
-    if (!destination) {
-        return refuse(destination.error());
+    const std::expected<PreparedWriting, std::string> prepared =
+        prepareWriting(files,
+                       reporter,
+                       {.files = options.files,
+                        .recursive = options.recursive,
+                        .range = &options.range,
+                        .translation = &options.translation},
+                       options.destination);
+    if (!prepared) {
+        return refuse(prepared.error());
     }
 
     return recaseIn(files,
-                    inputs->paths,
+                    prepared->inputs.paths,
                     reading,
                     caseNamed(options.to),
-                    *range,
-                    *destination,
+                    prepared->range,
+                    prepared->destination,
                     reporter,
-                    *pairing);
+                    prepared->pairing);
 }
 
 } // namespace

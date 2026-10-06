@@ -40,19 +40,16 @@ ExitCode runSnap(const SnapOptions& options,
         return refuse(rate.error());
     }
 
-    const std::expected<Inputs, std::string> inputs = expandInputs(
-        files, options.files, options.recursive, options.destination.outputDir, reporter);
-    if (!inputs) {
-        return refuse(inputs.error());
+    const std::expected<PreparedWriting, std::string> prepared =
+        prepareWriting(files,
+                       reporter,
+                       {.files = options.files, .recursive = options.recursive},
+                       options.destination);
+    if (!prepared) {
+        return refuse(prepared.error());
     }
 
-    const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, *inputs);
-    if (!destination) {
-        return refuse(destination.error());
-    }
-
-    return alignAll(files, inputs->paths, reading, *rate, *destination, reporter);
+    return alignAll(files, prepared->inputs.paths, reading, *rate, prepared->destination, reporter);
 }
 
 } // namespace

@@ -115,16 +115,19 @@ ExitCode runConvert(const ConvertOptions& options,
         return refuse(choices.error());
     }
 
-    const std::expected<Inputs, std::string> inputs = expandInputs(
-        files, options.files, options.recursive, options.destination.outputDir, reporter);
-    if (!inputs) {
-        return refuse(inputs.error());
+    const std::expected<PreparedWriting, std::string> prepared =
+        prepareWriting(files,
+                       reporter,
+                       {.files = options.files, .recursive = options.recursive},
+                       options.destination);
+    if (!prepared) {
+        return refuse(prepared.error());
     }
 
     // Refused rather than obeyed: in place there is no second name to carry the
     // new format, and the file would be left under an extension its content no
     // longer justifies.
-    if (options.destination.inPlace && wouldMisname(inputs->paths, target)) {
+    if (options.destination.inPlace && wouldMisname(prepared->inputs.paths, target)) {
         return refuse("--in-place cannot change the format: the file would keep a name "
                       "its content no longer matches");
     }
@@ -134,13 +137,8 @@ ExitCode runConvert(const ConvertOptions& options,
         return refuse(shape.error());
     }
 
-    const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, *inputs);
-    if (!destination) {
-        return refuse(destination.error());
-    }
-
-    return convertAll(files, inputs->paths, *choices, target, *shape, *destination, reporter);
+    return convertAll(
+        files, prepared->inputs.paths, *choices, target, *shape, prepared->destination, reporter);
 }
 
 } // namespace

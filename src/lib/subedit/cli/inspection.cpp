@@ -2,6 +2,7 @@
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/json.hpp>
+#include <subedit/cli/opening.hpp>
 #include <subedit/cli/pairing.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
@@ -350,11 +351,8 @@ bool inspectFile(const core::FileSystem& files,
                  std::ostream& out,
                  const Reporter& reporter,
                  const std::optional<Pairing>& pairing) {
-    std::expected<core::OpenedFile, core::OpenError> opened =
-        core::openProject(files, path, reading);
+    std::optional<core::OpenedFile> opened = openReporting(files, path, reading, reporter);
     if (!opened) {
-        reportFailure(
-            reporter, path, Failure{idOf(opened.error()), std::string{reasonOf(opened.error())}});
         return false;
     }
 

@@ -43,16 +43,13 @@ ExitCode runShift(const ShiftOptions& options,
                   core::FileSystem& files,
                   const std::optional<core::Encoding>& reading,
                   const Reporter& reporter) {
-    const std::expected<Inputs, std::string> inputs = expandInputs(
-        files, options.files, options.recursive, options.destination.outputDir, reporter);
-    if (!inputs) {
-        return refuse(inputs.error());
-    }
-
-    const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, *inputs);
-    if (!destination) {
-        return refuse(destination.error());
+    const std::expected<PreparedWriting, std::string> prepared =
+        prepareWriting(files,
+                       reporter,
+                       {.files = options.files, .recursive = options.recursive},
+                       options.destination);
+    if (!prepared) {
+        return refuse(prepared.error());
     }
 
     if (options.toGrid && !options.by.empty()) {
@@ -62,7 +59,8 @@ ExitCode runShift(const ShiftOptions& options,
     // Measured rather than given, and file by file: two files shifted off the
     // same grid by different amounts come back by different amounts.
     if (options.toGrid) {
-        return shiftOntoGridAll(files, inputs->paths, reading, *destination, reporter);
+        return shiftOntoGridAll(
+            files, prepared->inputs.paths, reading, prepared->destination, reporter);
     }
 
     if (options.by.empty()) {
@@ -74,7 +72,7 @@ ExitCode runShift(const ShiftOptions& options,
         return refuse(by.error());
     }
 
-    return shiftAll(files, inputs->paths, reading, *by, *destination, reporter);
+    return shiftAll(files, prepared->inputs.paths, reading, *by, prepared->destination, reporter);
 }
 
 } // namespace

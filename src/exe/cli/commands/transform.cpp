@@ -56,19 +56,17 @@ ExitCode runTransform(const TransformOptions& options,
         return refuse(transform.error());
     }
 
-    const std::expected<Inputs, std::string> inputs = expandInputs(
-        files, options.files, options.recursive, options.destination.outputDir, reporter);
-    if (!inputs) {
-        return refuse(inputs.error());
+    const std::expected<PreparedWriting, std::string> prepared =
+        prepareWriting(files,
+                       reporter,
+                       {.files = options.files, .recursive = options.recursive},
+                       options.destination);
+    if (!prepared) {
+        return refuse(prepared.error());
     }
 
-    const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, *inputs);
-    if (!destination) {
-        return refuse(destination.error());
-    }
-
-    return transformAll(files, inputs->paths, reading, *transform, *destination, reporter);
+    return transformAll(
+        files, prepared->inputs.paths, reading, *transform, prepared->destination, reporter);
 }
 
 } // namespace

@@ -54,19 +54,19 @@ ExitCode runInspect(const InspectOptions& options,
         return refuse(choices.error());
     }
 
-    const std::expected<Inputs, std::string> inputs =
-        expandInputs(files, options.files, options.recursive, "", reporter);
-    if (!inputs) {
-        return refuse(inputs.error());
+    const std::expected<Prepared, std::string> prepared =
+        prepare(files,
+                reporter,
+                {.files = options.files,
+                 .recursive = options.recursive,
+                 .translation = &options.translation,
+                 .withDocument = false});
+    if (!prepared) {
+        return refuse(prepared.error());
     }
 
-    const std::expected<std::optional<Pairing>, std::string> pairing =
-        pairingOf(options.translation, false, *inputs);
-    if (!pairing) {
-        return refuse(pairing.error());
-    }
-
-    return inspectAll(files, inputs->paths, *choices, std::cout, reporter, *pairing);
+    return inspectAll(
+        files, prepared->inputs.paths, *choices, std::cout, reporter, prepared->pairing);
 }
 
 } // namespace

@@ -148,7 +148,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.29
+subedit 0.13.30
 ```
 
 ## Sous-commandes
@@ -249,7 +249,7 @@ autres conservent celui du fichier lu, donc son extension.
 | deux destinations | `--output, --output-dir and --in-place exclude one another` |
 | `--output` sur un lot | `--output names one file but several were given: use --output-dir instead` |
 | deux entrées, une destination | `<destination>: would be written by both <entrée> and <entrée>` |
-| une entrée serait écrasée | `<destination>: written for <entrée>, but is itself the input <entrée>: use --in-place to write over the inputs` |
+| une entrée serait écrasée | `<destination>: would be written over the input <entrée>` — la même phrase pour [`append`](append.md) et [`split-file`](split-file.md) |
 | dossier de sortie impossible à créer | `<dossier>: cannot be created: permission denied`, ou `: cannot be created` |
 | destination non inscriptible | `<chemin>: <destination>: cannot be written: permission denied`, ou `: cannot be written` |
 | caractère absent de l'encodage écrit | `<chemin>: holds a character the chosen encoding cannot write` |

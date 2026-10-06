@@ -23,6 +23,7 @@ add_library(
     expansion.cpp
     encoding_grammar.cpp
     encoding_listing.cpp
+    opening.cpp
     diagnostics.cpp
     digits.cpp
     frame_rate_conversion.cpp

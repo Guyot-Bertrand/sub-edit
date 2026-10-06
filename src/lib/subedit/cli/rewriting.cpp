@@ -1,6 +1,7 @@
 #include <subedit/cli/batch.hpp>
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/diagnostics.hpp>
+#include <subedit/cli/opening.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/cli/writing.hpp>
@@ -40,12 +41,8 @@ bool rewriteFile(core::FileSystem& files,
     // What is reported is the file that is written: the translation when there
     // is one, which is also the input the destination was planned from.
     const std::string& path = job.input;
-    std::expected<core::OpenedFile, core::OpenError> opened =
-        reading ? core::openProject(files, mainPath, *reading) : core::openProject(files, mainPath);
+    std::optional<core::OpenedFile> opened = openReporting(files, mainPath, reading, reporter);
     if (!opened) {
-        reportFailure(reporter,
-                      mainPath,
-                      Failure{idOf(opened.error()), std::string{reasonOf(opened.error())}});
         return false;
     }
 
@@ -100,13 +97,8 @@ bool rewriteFile(core::FileSystem& files,
         return false;
     }
 
-    const core::WriteRequest request{
-        .subtitles = session.project().subtitles(),
-        .document = document,
-        .newline = source.newline,
-        .encoding = source.encoding,
-        .header = source.header,
-    };
+    const core::WriteRequest request =
+        writeRequestOf(session.project().subtitles(), document, source);
     const std::filesystem::path& out = job.output;
     const std::expected<std::size_t, Failure> written =
         writeSubtitlesTo(files, out, source.format, request, dryRun);
@@ -115,13 +107,8 @@ bool rewriteFile(core::FileSystem& files,
         return false;
     }
 
-    reporter.say(3,
-                 path + ": " + std::to_string(opened->bytes) + " bytes read, " +
-                     std::to_string(*written) + (dryRun ? " would be written" : " written"));
-    sayDiagnostics(reporter, path, diagnostics);
-    reporter.say(2,
-                 path + ": " + std::string{nameOf(source.format)} + ", " + nameOf(source.encoding) +
-                     ", " + std::string{nameOf(source.newline)} + " line endings kept");
+    narrateKept(
+        reporter, path, opened->bytes, std::to_string(*written), dryRun, source, diagnostics);
     // Said once: an operation whose sentence already is the alignment (`pair`)
     // has said it at level one.
     if (alignment && done->sentence != core::noticeOf(*alignment)) {

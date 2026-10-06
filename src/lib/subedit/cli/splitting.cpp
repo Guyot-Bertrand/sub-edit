@@ -1,5 +1,7 @@
+#include <subedit/cli/batch.hpp>
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/diagnostics.hpp>
+#include <subedit/cli/opening.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/splitting.hpp>
@@ -33,13 +35,8 @@ namespace {
                                                             const core::Project& half,
                                                             bool dryRun) {
     const core::SourceFile& source = half.sourceFile();
-    const core::WriteRequest request{
-        .subtitles = half.subtitles(),
-        .document = core::Document::Main,
-        .newline = source.newline,
-        .encoding = source.encoding,
-        .header = source.header,
-    };
+    const core::WriteRequest request =
+        writeRequestOf(half.subtitles(), core::Document::Main, source);
     return writeSubtitlesTo(files, out, source.format, request, dryRun);
 }
 
@@ -61,17 +58,17 @@ ExitCode splitFile(core::FileSystem& files,
         return ExitCode::Usage;
     }
     for (const std::filesystem::path& out : std::array{head, tail}) {
-        if (!out.empty() && sameFile(files, out, path)) {
-            reporter.failed(out.string() + ": would be written over the input " + path);
-            return ExitCode::Usage;
+        if (!out.empty()) {
+            if (const std::optional<std::string> refused =
+                    overwrittenInput(files, out, std::span{&path, 1})) {
+                reporter.failed(*refused);
+                return ExitCode::Usage;
+            }
         }
     }
 
-    std::expected<core::OpenedFile, core::OpenError> opened =
-        reading ? core::openProject(files, path, *reading) : core::openProject(files, path);
+    std::optional<core::OpenedFile> opened = openReporting(files, path, reading, reporter);
     if (!opened) {
-        reportFailure(
-            reporter, path, Failure{idOf(opened.error()), std::string{reasonOf(opened.error())}});
         return ExitCode::AllFailed;
     }
 
@@ -115,17 +112,14 @@ ExitCode splitFile(core::FileSystem& files,
 
     std::array<Half, 2> halves{Half{.out = head, .project = stays},
                                Half{.out = tail, .project = split->tail}};
-    for (Half& half : halves) {
-        const std::filesystem::path directory = half.out.parent_path();
-        if (!dryRun && !directory.empty()) {
-            if (const std::expected<void, core::FileError> made =
-                    files.createDirectories(directory);
-                !made) {
-                reporter.failed(directory.string() + ": " +
-                                std::string{core::reasonOfCreating(made.error().kind)});
-                return ExitCode::AllFailed;
-            }
+    // Both directories are made before either file is written.
+    if (!dryRun) {
+        const std::array<std::filesystem::path, 2> outputs{head, tail};
+        if (const std::optional<ExitCode> failed = createDirectoriesFor(files, outputs, reporter)) {
+            return *failed;
         }
+    }
+    for (Half& half : halves) {
         const std::expected<std::size_t, Failure> written =
             writeHalf(files, half.out, half.project, dryRun);
         if (!written) {
@@ -136,14 +130,13 @@ ExitCode splitFile(core::FileSystem& files,
     }
 
     const core::SourceFile& source = stays.sourceFile();
-    reporter.say(3,
-                 path + ": " + std::to_string(opened->bytes) + " bytes read, " +
-                     std::to_string(halves[0].bytes) + " and " + std::to_string(halves[1].bytes) +
-                     (dryRun ? " would be written" : " written"));
-    sayDiagnostics(reporter, path, opened->diagnostics);
-    reporter.say(2,
-                 path + ": " + std::string{nameOf(source.format)} + ", " + nameOf(source.encoding) +
-                     ", " + std::string{nameOf(source.newline)} + " line endings kept");
+    narrateKept(reporter,
+                path,
+                opened->bytes,
+                std::to_string(halves[0].bytes) + " and " + std::to_string(halves[1].bytes),
+                dryRun,
+                source,
+                opened->diagnostics);
 
     const std::size_t kept = stays.count();
     const std::size_t moved = split->tail.count();

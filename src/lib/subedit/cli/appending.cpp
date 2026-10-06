@@ -2,6 +2,7 @@
 #include <subedit/cli/batch.hpp>
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/diagnostics.hpp>
+#include <subedit/cli/opening.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/writing.hpp>
@@ -66,11 +67,9 @@ ExitCode appendAll(core::FileSystem& files,
     // the command line alone, and `arrange` below only knows the base.
     const std::filesystem::path out = destination.pathFor(basePath, "");
     if (!out.empty()) {
-        for (const std::string& path : paths) {
-            if (sameFile(files, out, path)) {
-                reporter.failed(out.string() + ": would be written over the input " + path);
-                return ExitCode::Usage;
-            }
+        if (const std::optional<std::string> refused = overwrittenInput(files, out, paths)) {
+            reporter.failed(*refused);
+            return ExitCode::Usage;
         }
     }
     if (const std::expected<std::vector<Job>, ExitCode> jobs =
@@ -79,17 +78,9 @@ ExitCode appendAll(core::FileSystem& files,
         return jobs.error();
     }
 
-    const auto open = [&](const std::string& path) {
-        return reading ? core::openProject(files, path, *reading) : core::openProject(files, path);
-    };
-    const auto fail = [&](const std::string& path, const core::OpenError& error) {
-        reportFailure(reporter, path, Failure{idOf(error), std::string{reasonOf(error)}});
-        return ExitCode::AllFailed;
-    };
-
-    std::expected<core::OpenedFile, core::OpenError> opened = open(basePath);
+    std::optional<core::OpenedFile> opened = openReporting(files, basePath, reading, reporter);
     if (!opened) {
-        return fail(basePath, opened.error());
+        return ExitCode::AllFailed;
     }
     std::size_t bytesRead = opened->bytes;
     std::vector<core::Diagnostic> diagnostics = std::move(opened->diagnostics);
@@ -100,9 +91,9 @@ ExitCode appendAll(core::FileSystem& files,
     core::ConversionLoss loss{};
     Json inputs = Json::array();
     for (const std::string& path : std::span{paths}.subspan(1)) {
-        std::expected<core::OpenedFile, core::OpenError> next = open(path);
+        std::optional<core::OpenedFile> next = openReporting(files, path, reading, reporter);
         if (!next) {
-            return fail(path, next.error());
+            return ExitCode::AllFailed;
         }
         bytesRead += next->bytes;
         sayDiagnostics(reporter, path, next->diagnostics);
@@ -134,13 +125,8 @@ ExitCode appendAll(core::FileSystem& files,
         inputs.push(Json::object().set("file", path).set("counts", countsOf(counts)));
     }
 
-    const core::WriteRequest request{
-        .subtitles = session.project().subtitles(),
-        .document = core::Document::Main,
-        .newline = source.newline,
-        .encoding = source.encoding,
-        .header = source.header,
-    };
+    const core::WriteRequest request =
+        writeRequestOf(session.project().subtitles(), core::Document::Main, source);
     const std::expected<std::size_t, Failure> written =
         writeSubtitlesTo(files, out, source.format, request, dryRun);
     if (!written) {
@@ -148,14 +134,8 @@ ExitCode appendAll(core::FileSystem& files,
         return ExitCode::AllFailed;
     }
 
-    reporter.say(3,
-                 basePath + ": " + std::to_string(bytesRead) + " bytes read, " +
-                     std::to_string(*written) + (dryRun ? " would be written" : " written"));
-    sayDiagnostics(reporter, basePath, diagnostics);
-    reporter.say(2,
-                 basePath + ": " + std::string{nameOf(source.format)} + ", " +
-                     nameOf(source.encoding) + ", " + std::string{nameOf(source.newline)} +
-                     " line endings kept");
+    narrateKept(
+        reporter, basePath, bytesRead, std::to_string(*written), dryRun, source, diagnostics);
 
     const std::size_t total = session.project().count();
     const std::string made = basePath + ": " + core::countOf(total, "subtitle") + " from " +

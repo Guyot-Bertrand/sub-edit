@@ -26,11 +26,25 @@ std::expected<std::vector<Job>, ExitCode> arrange(core::FileSystem& files,
         return *std::move(planned);
     }
 
-    std::set<std::filesystem::path> made;
+    std::vector<std::filesystem::path> outputs;
+    outputs.reserve(planned->size());
     for (const Job& job : *planned) {
-        const std::filesystem::path directory = job.output.parent_path();
+        outputs.push_back(job.output);
+    }
+    if (const std::optional<ExitCode> failed = createDirectoriesFor(files, outputs, reporter)) {
+        return std::unexpected{*failed};
+    }
+    return *std::move(planned);
+}
+
+std::optional<ExitCode> createDirectoriesFor(core::FileSystem& files,
+                                             std::span<const std::filesystem::path> outputs,
+                                             const Reporter& reporter) {
+    std::set<std::filesystem::path> made;
+    for (const std::filesystem::path& output : outputs) {
+        const std::filesystem::path directory = output.parent_path();
         // Empty is the current directory, which is there; and a directory
-        // already made for an earlier job is not asked for twice.
+        // already made for an earlier output is not asked for twice.
         if (directory.empty() || !made.insert(directory).second) {
             continue;
         }
@@ -38,10 +52,10 @@ std::expected<std::vector<Job>, ExitCode> arrange(core::FileSystem& files,
             !created) {
             reporter.failed(directory.string() + ": " +
                             std::string{core::reasonOfCreating(created.error().kind)});
-            return std::unexpected{ExitCode::AllFailed};
+            return ExitCode::AllFailed;
         }
     }
-    return *std::move(planned);
+    return std::nullopt;
 }
 
 ExitCode outcomeOf(std::size_t done, std::size_t total) {

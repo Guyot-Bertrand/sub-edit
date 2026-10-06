@@ -39,6 +39,21 @@ bool sameFile(const core::FileSystem& files,
     return spelledAbsolute(first) == spelledAbsolute(second) || files.equivalent(first, second);
 }
 
+std::string refusalOverInput(const std::filesystem::path& output, const std::string& input) {
+    return output.string() + ": would be written over the input " + input;
+}
+
+std::optional<std::string> overwrittenInput(const core::FileSystem& files,
+                                            const std::filesystem::path& output,
+                                            std::span<const std::string> inputs) {
+    for (const std::string& input : inputs) {
+        if (sameFile(files, output, input)) {
+            return refusalOverInput(output, input);
+        }
+    }
+    return std::nullopt;
+}
+
 std::expected<Destination, std::string> Destination::from(std::string_view output,
                                                           std::string_view outputDir,
                                                           bool inPlace,
@@ -139,9 +154,7 @@ Destination::plan(const core::FileSystem& files,
         }
         for (const std::size_t other : sources[bucket]) {
             if (sameFile(files, jobs[other].input, job.output)) {
-                return std::unexpected{job.output.string() + ": written for " + job.input +
-                                       ", but is itself the input " + jobs[other].input +
-                                       ": use --in-place to write over the inputs"};
+                return std::unexpected{refusalOverInput(job.output, jobs[other].input)};
             }
         }
     }

@@ -63,24 +63,22 @@ ExitCode runAdjust(const AdjustCommandOptions& options,
         return refuse(constraints.error());
     }
 
-    const std::expected<std::optional<Range>, std::string> range = rangeOf(options.range);
-    if (!range) {
-        return refuse(range.error());
+    const std::expected<PreparedWriting, std::string> prepared = prepareWriting(
+        files,
+        reporter,
+        {.files = options.files, .recursive = options.recursive, .range = &options.range},
+        options.destination);
+    if (!prepared) {
+        return refuse(prepared.error());
     }
 
-    const std::expected<Inputs, std::string> inputs = expandInputs(
-        files, options.files, options.recursive, options.destination.outputDir, reporter);
-    if (!inputs) {
-        return refuse(inputs.error());
-    }
-
-    const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, *inputs);
-    if (!destination) {
-        return refuse(destination.error());
-    }
-
-    return adjustAll(files, inputs->paths, reading, *constraints, *range, *destination, reporter);
+    return adjustAll(files,
+                     prepared->inputs.paths,
+                     reading,
+                     *constraints,
+                     prepared->range,
+                     prepared->destination,
+                     reporter);
 }
 
 } // namespace
