@@ -1181,7 +1181,26 @@ charge dépassé. **Ce qui manque** : un banc propre à `append`, `split-file` e
 sur des opérations du noyau déjà mesurées, et `make bench` ne mesure que le lot (parcours de deux cents fichiers,
 décalage d'un fichier de quatre mille sous-titres). Rejouer `make bench` au calme reste dû.
 
-**Reste, pour clore :** les trois issues ci-dessus, puis la clôture du milestone en 0.14.0.
+**Close en 0.14.0, le 2026-10-06.** Les trois issues de la relecture ont été livrées, une de plus avec elles, et le
+milestone — trente-deux issues, de #541 à #605 — se ferme sans rien d'ouvert :
+
+- **#598** (0.13.30) : une seule préparation des options, `prepare` et `prepareWriting` ; l'ouverture d'un fichier,
+  la narration d'un fichier réécrit et la garde « destination = entrée » ne sont plus écrites cinq, quatre et deux
+  fois ; **un seul libellé** pour la destination qui est une entrée, qui ne renvoie plus à une option que `append`
+  et `split-file` n'ont pas ;
+- **#599** (0.13.31) : ce que `src/exe/cli` décidait seul — les options partagées et la règle de `-t`, la préparation
+  de `correct`, la forme d'une conversion, le montant d'un décalage, la liste des formats de `--to`, dérivée du noyau
+  — vit dans `subedit/cli`, où des tests unitaires l'atteignent ;
+- **#600** (0.13.32) : `--dry-run` éprouvé pour les seize sous-commandes qui écrivent et non six, et les tests qui
+  promettaient « rien n'est écrit » l'observent ;
+- **#605** (0.13.33), **ouverte par un retour d'usage** et non par la relecture : le panneau des diagnostics de
+  lecture, qui prenait une rangée de la fenêtre pour une information rare, devient un bouton de la barre d'état et
+  une liste flottante. En retirant la rangée, un test a montré un défaut ancien — la part de la table, lue et posée
+  en arrondissant vers le bas, redescendait d'un point à chaque relecture —, corrigé et prouvé sur huit hauteurs.
+
+**Le banc de la phase** n'a pas de relevé pour 0.14.0 : la machine a trouvé le seuil de charge dépassé, et la
+mesure de la clôture n'a pas été reprise. Le dernier relevé versé est celui de 0.13.33. **Ce qui reste dû** est
+dit plus haut : un banc propre à `append`, `split-file` et `pair`, et un `make bench` au calme.
 
 ## 14 — Calage fin
 
