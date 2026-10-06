@@ -4,6 +4,7 @@
 #include <subedit/gui/mpv_player.hpp>
 
 #include <mpv/client.h>
+#include <mpv/render.h>
 
 #include <algorithm>
 #include <array>
@@ -14,7 +15,11 @@
 #include <cstring>
 #include <expected>
 #include <filesystem>
+#include <functional>
+#include <memory>
+#include <mutex>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -24,7 +29,7 @@ namespace subedit::gui {
 
 namespace {
 
-/// What every player is built with, whatever it draws into.
+/// What every player is built with.
 ///
 /// None of the four is decoration. `config=no` keeps a developer's own
 /// `~/.config/mpv` from deciding whether the gate passes; `terminal=no` keeps
@@ -45,31 +50,26 @@ namespace {
 /// unavailable ». Measured: one `frame-step` past the last frame and the film was
 /// gone. Kept open, the film stays on its last frame, held, and everything asked
 /// of it afterwards still has an answer; `isPlaying` says it stopped.
-constexpr std::array<std::pair<const char*, const char*>, 5> kEveryPlayer{{
+constexpr std::array<std::pair<const char*, const char*>, 6> kEveryPlayer{{
     {"config", "no"},
     {"terminal", "no"},
     {"pause", "yes"},
     {"sub-auto", "no"},
     {"keep-open", "yes"},
+    {"vo", "libmpv"},
 }};
 
-/// What a player with nowhere to draw is built with — the shape of every test.
+/// What a player that makes no sound is built with — the shape of every test.
 ///
-/// **`vo=null` is what makes this work without a screen, and it was measured
-/// rather than taken on promise.** With `vo=auto` and no display, the very
-/// same sequence loads nothing: mpv answers `end-file`, and the duration comes
-/// back « property unavailable ». `ao=null` follows it for the same reason a
-/// runner has no sound device — and a player nobody can see is not one anybody
-/// should hear.
+/// `ao=null` is what a runner without a sound device needs, and a player nobody can see
+/// is not one anybody should hear. **`vo=libmpv` is in `kEveryPlayer`**, and it is what
+/// lets the same player run with no screen — measured: it opens, seeks and answers
+/// without a window or a display, where `vo=auto` loaded nothing — ADR 0041.
 ///
-/// A player that *is* given a window is left mpv's own defaults for both.
-/// Checking that a subtitle lands on the right line is done as much by ear as
-/// by eye, and a `subedit` that played films silently would have made that
-/// harder for the sake of one shared constant.
-constexpr std::array<std::pair<const char*, const char*>, 2> kNowhereToDraw{{
-    {"vo", "null"},
-    {"ao", "null"},
-}};
+/// A player that is heard is left mpv's own audio output. Checking that a subtitle lands
+/// on the right line is done as much by ear as by eye, and a `subedit` that played films
+/// silently would have made that harder for the sake of one shared constant.
+constexpr std::pair<const char*, const char*> kSilent{"ao", "null"};
 
 /// How long one wait for an event may take.
 ///
@@ -101,12 +101,6 @@ constexpr std::size_t kOverlayCommandWords = 10;
 /// Where the replica sits: centred, at the foot of the picture, which is where
 /// a viewer's eye already goes looking for it.
 constexpr const char* kBottomCentre = "{\\an2}";
-
-/// Which of libmpv's GPU contexts draws into a window we hand over.
-///
-/// EGL on X11, and named rather than probed — see where it is set for what
-/// probing did instead.
-constexpr const char* kX11Context = "x11egl";
 
 /// What a player that could not be built answers.
 constexpr const char* kNotStarted = "the video player could not be started";
@@ -195,6 +189,9 @@ void seekTo(mpv_handle* player, double target) {
     return audio ? std::optional{std::move(track)} : std::nullopt;
 }
 
+/// How many parameters a software render takes, the closing invalid one counted.
+constexpr std::size_t kRenderParameters = 6;
+
 /// Lifts the stop `playUntil` set, so that it belongs to that call alone.
 void clearStop(mpv_handle* player) {
     mpv_set_property_string(player, "end", "none");
@@ -220,6 +217,10 @@ void clearStop(mpv_handle* player) {
 
 void MpvPlayer::TerminateAndDestroy::operator()(mpv_handle* player) const noexcept {
     mpv_terminate_destroy(player);
+}
+
+void MpvPlayer::FreeRenderContext::operator()(mpv_render_context* context) const noexcept {
+    mpv_render_context_free(context);
 }
 
 std::string assEventOf(std::string_view line) {
@@ -256,7 +257,7 @@ std::string assEventOf(std::string_view line) {
     return event;
 }
 
-std::expected<MpvPlayer, core::PlayerError> MpvPlayer::create(std::uintptr_t window) {
+std::expected<MpvPlayer, core::PlayerError> MpvPlayer::create(Sound sound) {
     // **libmpv refuses to start unless `LC_NUMERIC` is « C », and Qt sets it to
     // the user's.** `QApplication` calls `setlocale(LC_ALL, "")` when it is
     // built, which in a French session makes the decimal mark a comma; libmpv
@@ -284,37 +285,39 @@ std::expected<MpvPlayer, core::PlayerError> MpvPlayer::create(std::uintptr_t win
     for (const auto& [name, value] : kEveryPlayer)
         ready = ready && mpv_set_option_string(handle.get(), name, value) >= 0;
 
-    if (window == 0) {
-        for (const auto& [name, value] : kNowhereToDraw)
-            ready = ready && mpv_set_option_string(handle.get(), name, value) >= 0;
-    } else {
-        // Set before `mpv_initialize` because that is the only moment libmpv
-        // reads it — measured, and the reason a player belongs to one surface
-        // for its whole life.
-        ready = ready &&
-                mpv_set_option_string(handle.get(), "wid", std::to_string(window).c_str()) >= 0;
-
-        // **And the context is named rather than probed, which was a defect
-        // before it was a line.** Adopting a native window is an X11
-        // mechanism; left to choose, mpv picks by what the session offers, and
-        // on a machine where `WAYLAND_DISPLAY` is set it picks Wayland — where
-        // `wid` means nothing. Measured, with the window handed over and the
-        // context left free: mpv opened **a window of its own**, beside ours,
-        // and the picture appeared everywhere except where it had been asked
-        // for. Named, the very same run draws inside our window.
-        //
-        // Which is also why `mpvPlayers` hands a window over on the `xcb`
-        // platform and on no other: a number that is not an X window would
-        // send this straight into an X error.
-        ready = ready && mpv_set_option_string(handle.get(), "gpu-context", kX11Context) >= 0;
-    }
+    if (sound == Sound::Off)
+        ready = ready && mpv_set_option_string(handle.get(), kSilent.first, kSilent.second) >= 0;
 
     ready = ready && mpv_initialize(handle.get()) >= 0;
+
+    // **The render context is made before any film is loaded** — with `vo=libmpv` the
+    // output waits for it — and it is the one thing here that depends on a built handle.
+    // `sw` is the software API: pixels in a buffer the caller provides.
+    mpv_render_context* context = nullptr;
+    if (ready) {
+        std::array<mpv_render_param, 2> parameters{
+            mpv_render_param{MPV_RENDER_PARAM_API_TYPE,
+                             const_cast<char*>(MPV_RENDER_API_TYPE_SW)}, // NOLINT
+            mpv_render_param{MPV_RENDER_PARAM_INVALID, nullptr}};
+        ready = mpv_render_context_create(&context, handle.get(), parameters.data()) >= 0;
+    }
+    RenderContext render{context};
 
     if (!ready)
         return std::unexpected(core::PlayerError{.reason = kNotStarted});
 
-    return MpvPlayer{std::move(handle)};
+    auto notifier = std::make_unique<Notifier>();
+    mpv_render_context_set_update_callback(
+        render.get(),
+        [](void* target) {
+            auto* notified = static_cast<Notifier*>(target);
+            const std::scoped_lock hold{notified->lock};
+            if (notified->notify)
+                notified->notify();
+        },
+        notifier.get());
+
+    return MpvPlayer{std::move(handle), std::move(notifier), std::move(render)};
 }
 
 std::expected<void, core::PlayerError> MpvPlayer::open(const std::filesystem::path& video) {
@@ -386,13 +389,46 @@ std::optional<core::Timestamp> MpvPlayer::position() const {
     });
 }
 
+void MpvPlayer::onFrameReady(std::function<void()> notify) {
+    // Under the lock the callback takes: when this returns, no notification is running
+    // and none will start — the widget that asked may be destroyed.
+    const std::scoped_lock hold{m_notifier->lock};
+    m_notifier->notify = std::move(notify);
+}
+
+bool MpvPlayer::render(std::span<unsigned char> pixels, int width, int height, std::size_t stride) {
+    constexpr std::size_t kRow = Picture::kBytesAPixel;
+    if (!m_open || width <= 0 || height <= 0 || stride < static_cast<std::size_t>(width) * kRow ||
+        pixels.size() < stride * static_cast<std::size_t>(height))
+        return false;
+
+    // libmpv wants to be told each update has been taken before it raises the next.
+    (void)mpv_render_context_update(m_render.get());
+
+    std::array<int, 2> size{width, height};
+    int noWait = 0;
+    std::size_t rowBytes = stride;
+    std::array<mpv_render_param, kRenderParameters> parameters{
+        mpv_render_param{MPV_RENDER_PARAM_SW_SIZE, size.data()},
+        mpv_render_param{MPV_RENDER_PARAM_SW_FORMAT, const_cast<char*>("bgr0")}, // NOLINT
+        mpv_render_param{MPV_RENDER_PARAM_SW_STRIDE, &rowBytes},
+        mpv_render_param{MPV_RENDER_PARAM_SW_POINTER, pixels.data()},
+        // **Drawn now, not at the time the frame is due**: the window paints when a
+        // frame is announced, and a render that waited for its target time would hold
+        // the window's own thread.
+        mpv_render_param{MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME, &noWait},
+        mpv_render_param{MPV_RENDER_PARAM_INVALID, nullptr}};
+    return mpv_render_context_render(m_render.get(), parameters.data()) >= 0;
+}
+
 std::optional<Picture> MpvPlayer::picture() const {
     if (!m_open)
         return std::nullopt;
 
     // `screenshot-raw` answers a node: the size, the row stride, the pixel
-    // format and the bytes. It works with `vo=null` — measured, issue #610 —
-    // which is what lets a test read a picture where there is no screen.
+    // format and the bytes. It works where there is no screen — measured, issue
+    // #610 — which is what lets a test read a picture; `render` is the road the
+    // window's own picture takes, and has its cases beside this one's.
     std::array<const char*, 3> command{"screenshot-raw", "video", nullptr};
     mpv_node answer{};
     const bool answered = mpv_command_ret(m_handle.get(), command.data(), &answer) >= 0;

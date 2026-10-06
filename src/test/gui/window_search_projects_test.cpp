@@ -299,7 +299,7 @@ TEST_CASE("replace all leaves the tab and the film shown where they were", "[gui
     files.addFile("troisieme.mkv", "");
     FakePrompts prompts;
     FakeVideoPlayer* player = nullptr;
-    const PlayerFactory projecting = [&player](std::uintptr_t) -> std::unique_ptr<VideoPlayer> {
+    const PlayerFactory projecting = [&player]() -> std::unique_ptr<VideoPlayer> {
         auto made = std::make_unique<FakeVideoPlayer>();
         player = made.get();
         return made;

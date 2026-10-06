@@ -484,24 +484,25 @@ deux plus coûteuses et plus fragiles que la ligne qu'elles prouveraient.
 
 ## Relevé
 
-    total : 73
+    total : 69
 
-Relevé sur la version 0.12.11, le 2026-09-29.
+Relevé sur la version 0.14.4, le 2026-10-06.
 
 | Lignes | Fichier |
 | -----: | :------ |
 | 46 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 4 | `src/lib/subedit/core/process/start_process.cpp` |
-| 4 | `src/lib/subedit/gui/mpv_player.cpp` |
-| 4 | `src/lib/subedit/gui/player_factory.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 2 | `src/lib/subedit/gui/correction_controller.cpp` |
+| 2 | `src/lib/subedit/gui/mpv_player.cpp` |
 | 1 | `src/lib/subedit/core/text/correction_run.cpp` |
 | 1 | `src/lib/subedit/core/text/hearing_impaired_correction.cpp` |
 | 1 | `src/lib/subedit/core/text/line_breaking.cpp` |
 | 1 | `src/lib/subedit/core/time/ratio.hpp` |
-| 1 | `src/lib/subedit/gui/correction_confirmation_page.cpp` |
+| 1 | `src/lib/subedit/core/wording/correction.cpp` |
 | 1 | `src/lib/subedit/gui/correction_target_page.cpp` |
 | 1 | `src/lib/subedit/gui/correction_wizard.cpp` |
+| 1 | `src/lib/subedit/gui/player_factory.cpp` |
 | 1 | `src/lib/subedit/gui/save_shape.cpp` |
+| 1 | `src/lib/subedit/gui/video_surface.cpp` |

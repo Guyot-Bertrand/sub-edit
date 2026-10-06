@@ -2,9 +2,9 @@
 //
 // **The player behind the window is a double here, and that is not a shortcut.**
 // The real one is proved on the fixtures of #163, in `mpv_player_test.cpp`; it
-// cannot also be proved through the window, because a libmpv handed the surface
-// of an offscreen Qt platform draws nowhere and refuses the file — which is the
-// measurement `vo=null` came out of. What belongs here is everything the window
+// cannot also be proved through the window without decoding a film in every case,
+// and the picture it paints has its own cases (`video_surface_test.cpp`). What
+// belongs here is everything the window
 // decides: when a film is opened, where playback is placed, what the replica
 // says, which row follows it, and who gives way to whom.
 
@@ -88,15 +88,13 @@ struct Projectionist {
 
     /// What came out, and what it was built for.
     FakeVideoPlayer* player = nullptr;
-    std::uintptr_t surface = 0;
     int built = 0;
 };
 
 /// The factory `booth` answers, which must outlive the window taking it.
 [[nodiscard]] PlayerFactory projecting(Projectionist& booth) {
-    return [&booth](std::uintptr_t given) -> std::unique_ptr<VideoPlayer> {
+    return [&booth]() -> std::unique_ptr<VideoPlayer> {
         ++booth.built;
-        booth.surface = given;
         if (!booth.gives)
             return nullptr;
 
@@ -182,9 +180,8 @@ TEST_CASE("the film beside the document opens in the window", "[gui][GUI-PLAYER-
     CHECK(window.playPauseAction()->isEnabled());
 }
 
-// The number is what libmpv is given, and the whole reason the player is built
-// by the window rather than handed to it.
-TEST_CASE("the player is built for the surface of the window", "[gui][GUI-PLAYER-01]") {
+// Built by the window, when a film first needs one — and once.
+TEST_CASE("the player is built once, when the first film is shown", "[gui][GUI-PLAYER-01]") {
     InMemoryFileSystem files = directoryHolding({"film.mkv"});
     FakePrompts prompts;
     Projectionist booth;
@@ -192,7 +189,6 @@ TEST_CASE("the player is built for the surface of the window", "[gui][GUI-PLAYER
     window.show();
 
     CHECK(booth.built == 1);
-    CHECK(booth.surface == static_cast<std::uintptr_t>(window.videoView()->winId()));
 }
 
 TEST_CASE("a document with no film has no picture and nothing to play", "[gui][GUI-PLAYER-01]") {
@@ -502,8 +498,8 @@ TEST_CASE("choosing another film opens that one", "[gui][GUI-PLAYER-01]") {
 
     CHECK(booth.player->opened.size() == 2U);
     CHECK(booth.player->opened.back() == std::filesystem::path{"/ailleurs/le-bon-montage.mkv"});
-    // One player for the life of the window: the surface it draws into cannot
-    // change, and neither can the player that adopted it.
+    // One player for the life of the window: the surface it is painted on does
+    // not change, and the player has no reason to.
     CHECK(booth.built == 1);
 }
 
@@ -652,11 +648,11 @@ TEST_CASE("the room of the picture goes back to the band when the film goes",
     CHECK(window.noVideoBanner()->geometry().bottom() < window.table()->geometry().top());
 }
 
-// Issue #470: quitting through the event loop takes the native window away
-// before the window's members go. The player has to be let go first, while the
-// surface it draws into is still there — otherwise libmpv destroys a window X no
-// longer knows, and the default error handler ends the process.
-TEST_CASE("closing the window lets the player go while its surface still exists",
+// Issue #470, and its lesson kept under ADR 0041: the surface and the player call each
+// other — one paints what the other draws, the other announces from a thread of its own
+// — and neither may outlive the other. The player is let go while the window is still
+// there, with the surface let go of it first.
+TEST_CASE("closing the window lets the player go while the window still exists",
           "[gui][GUI-PLAYER-01]") {
     InMemoryFileSystem files = directoryHolding({"film.mkv"});
     FakePrompts prompts;
@@ -668,15 +664,15 @@ TEST_CASE("closing the window lets the player go while its surface still exists"
     REQUIRE(booth.player->isPlaying());
 
     bool gone = false;
-    bool surfaceWhenGone = false;
+    bool windowWhenGone = false;
     booth.player->onDestroyed = [&] {
         gone = true;
-        surfaceWhenGone = window.videoView()->internalWinId() != 0;
+        windowWhenGone = window.videoView() != nullptr;
     };
 
     REQUIRE(window.close());
 
     CHECK(gone);
-    CHECK(surfaceWhenGone);
+    CHECK(windowWhenGone);
     CHECK_FALSE(window.playPauseAction()->isEnabled());
 }

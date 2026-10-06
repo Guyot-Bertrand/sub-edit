@@ -21,11 +21,6 @@
 
 int main(int argc, char** argv) {
     try {
-        // Before the `QApplication`, which is the only moment Qt reads the
-        // platform — and what makes the film appear in the window rather than
-        // nowhere on a Wayland session.
-        subedit::gui::preferEmbeddablePlatform();
-
         const QApplication application{argc, argv};
 
         const QStringList arguments = QApplication::arguments();
@@ -38,8 +33,7 @@ int main(int argc, char** argv) {
 
         subedit::gui::QtPrompts prompts;
 
-        // The player of ADR 0020, made where the window can hand over the
-        // surface it draws into — libmpv reads that only while it initialises.
+        // The player of ADR 0020, drawn by the window itself — ADR 0041.
         subedit::gui::MainWindow window{files,
                                         std::move(opened),
                                         prompts,

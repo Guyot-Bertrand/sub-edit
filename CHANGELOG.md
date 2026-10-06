@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **video** — L'image est rendue par libmpv et peinte par un widget Qt
+
+## 0.14.3 — 2026-10-06
+
+### Ajouts
+
 - **video** — Le lecteur gagne le pas, le volume, les pistes et playUntil
 
 ## 0.14.2 — 2026-10-06

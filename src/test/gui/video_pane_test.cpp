@@ -91,7 +91,7 @@ struct Booth {
         files.addFile("/films/film.srt", kThree);
         files.addFile("/films/other.srt", kThree);
 
-        PlayerFactory factory = [this](std::uintptr_t /*surface*/) -> std::unique_ptr<VideoPlayer> {
+        PlayerFactory factory = [this]() -> std::unique_ptr<VideoPlayer> {
             ++built;
             auto made = std::make_unique<FakeVideoPlayer>();
             made->refusal = refusal;

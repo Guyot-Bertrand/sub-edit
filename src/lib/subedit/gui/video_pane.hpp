@@ -23,11 +23,12 @@ namespace subedit::gui {
 class Prompts;
 struct ProjectPage;
 class SubtitleTable;
+class VideoSurface;
 
 /// The film, the player and the picture — ADR 0034, issue #484.
 ///
 /// **It owns what the video is made of**: the shared player, built the first
-/// time a film needs one; the native surface it draws into and the band that
+/// time a film needs one; the surface that paints its picture and the band that
 /// stands in for it while there is no film; the ticker that keeps the window in
 /// step with playback; and which page the player currently plays for. Every
 /// gesture receives the page it is about — the one on screen, in practice,
@@ -83,8 +84,8 @@ public:
     VideoPane(VideoPane&&) = delete;
     VideoPane& operator=(VideoPane&&) = delete;
 
-    /// The surface the film is drawn on. Hidden while no film is open.
-    [[nodiscard]] QWidget* picture() const { return m_picture; }
+    /// The surface the film is painted on. Hidden while no film is open.
+    [[nodiscard]] QWidget* picture() const;
 
     /// What stands where the picture would be while there is no film.
     [[nodiscard]] QWidget* banner() const { return m_banner; }
@@ -115,10 +116,11 @@ public:
 
     /// The window is on screen for the first time: opens the film of `page`.
     ///
-    /// **The film waits for this, and it is not a refinement.** libmpv adopts
-    /// the window it is handed at the moment it loads a file; handed one that
-    /// is not on screen yet, it adopts it and never maps its own — measured,
-    /// mpv's window stays `IsUnMapped` for the life of the process.
+    /// **The film waits for this**, so that nothing is handed to a player before
+    /// the window has its real size. It used to be a necessity — libmpv adopted a
+    /// native window and never mapped its own if that one was not on screen yet —
+    /// and it stopped being one with ADR 0041; the single entry it gives the film
+    /// stayed.
     void windowShown(ProjectPage& page);
 
     /// `page` is about to leave the screen: where its film stands is kept, to
@@ -179,7 +181,7 @@ private:
     PlayerFactory m_buildPlayer;
     FrameRateReader m_readDeclaredRate;
 
-    QWidget* m_picture = nullptr;
+    VideoSurface* m_picture = nullptr;
     QWidget* m_banner = nullptr;
     QAbstractButton* m_invite = nullptr;
     QTimer* m_ticker = nullptr;

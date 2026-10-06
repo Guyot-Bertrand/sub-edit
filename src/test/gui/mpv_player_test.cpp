@@ -9,6 +9,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <expected>
@@ -670,4 +671,118 @@ TEST_CASE("playing up to a position with nothing open does nothing", "[video][pl
     idle.playUntil(Timestamp::fromMilliseconds(1000));
 
     CHECK_FALSE(idle.isPlaying());
+}
+
+// ## The picture drawn through the render API — ADR 0041, issue #613
+
+// What a widget paints is what `render` draws, and it is read here as the widget would
+// get it: pixels in a buffer, no window and no screen anywhere.
+TEST_CASE("the picture rendered into a buffer is the frame the player stands on",
+          "[video][player][numbered][render][GUI-SURFACE-02]") {
+    MpvPlayer drawing = player();
+    REQUIRE(drawing.open(fixture("videos/images-25.mp4")).has_value());
+
+    for (const int frame : {0, 1, 37, 100, 249}) {
+        INFO("frame " << frame);
+        drawing.seek(Timestamp::fromMilliseconds(subedit::test::startOf(frame, 25, 1)));
+
+        const subedit::gui::Picture picture = subedit::test::renderedAt(drawing, 128, 64);
+
+        REQUIRE(picture.width == 128);
+        CHECK(subedit::test::frameNumberOf(picture) == frame);
+    }
+}
+
+// The size is the widget's, not the film's: the picture is scaled to the buffer, and the
+// number is still there to read at any of them.
+TEST_CASE("the picture is drawn at the size of the buffer", "[video][player][numbered][render]") {
+    MpvPlayer drawing = player();
+    REQUIRE(drawing.open(fixture("videos/images-25.mp4")).has_value());
+    drawing.seek(Timestamp::fromMilliseconds(subedit::test::startOf(100, 25, 1)));
+
+    for (const auto& [width, height] :
+         {std::pair{256, 128}, std::pair{640, 360}, std::pair{64, 32}}) {
+        INFO(width << "x" << height);
+        const subedit::gui::Picture picture = subedit::test::renderedAt(drawing, width, height);
+
+        REQUIRE(picture.width == width);
+        CHECK(subedit::test::frameNumberOf(picture) == 100);
+    }
+}
+
+// GUI-SURFACE-01: the aspect ratio of the film is kept, the rest is black. A 2:1 film in
+// a square buffer is drawn across the middle, with a band above and below.
+TEST_CASE("the aspect ratio of the film is kept, and the rest is black",
+          "[video][player][numbered][render][GUI-SURFACE-01]") {
+    MpvPlayer drawing = player();
+    REQUIRE(drawing.open(fixture("videos/images-25.mp4")).has_value());
+    // Frame 255 would be all bars light; frame 1 has a single light bar at the left.
+    drawing.seek(Timestamp::fromMilliseconds(subedit::test::startOf(1, 25, 1)));
+
+    const subedit::gui::Picture picture = subedit::test::renderedAt(drawing, 128, 128);
+
+    REQUIRE(picture.width == 128);
+    // The bars are drawn across the middle half of the height, and read at the middle.
+    CHECK(subedit::test::frameNumberOf(picture) == 1);
+    // Above and below the film: black, whatever the bar.
+    constexpr int kBlack = 40;
+    for (const int x : {4, 20, 60, 100, 124}) {
+        CHECK(picture.greenAt(x, 4) < kBlack);
+        CHECK(picture.greenAt(x, 123) < kBlack);
+    }
+}
+
+TEST_CASE("nothing is drawn with no film open, or into a buffer that is too small",
+          "[video][player][render]") {
+    MpvPlayer idle = player();
+    CHECK(subedit::test::renderedAt(idle, 128, 64).pixels.empty());
+
+    MpvPlayer drawing = player();
+    REQUIRE(drawing.open(fixture("videos/images-25.mp4")).has_value());
+    std::vector<unsigned char> small(10);
+    CHECK_FALSE(drawing.render(small, 128, 64, 512U));
+    CHECK_FALSE(drawing.render(small, 0, 64, 0));
+    // A stride shorter than a row is no buffer either (128 x 64 pixels, four bytes each).
+    std::vector<unsigned char> whole(32768U);
+    CHECK_FALSE(drawing.render(whole, 128, 64, 100));
+}
+
+// The replica is drawn by libmpv's overlay, and it is part of what `render` draws — which
+// is what puts the subtitle on the picture the window shows.
+TEST_CASE("the replica is drawn on the picture", "[video][player][numbered][render]") {
+    MpvPlayer drawing = player();
+    REQUIRE(drawing.open(fixture("videos/images-25.mp4")).has_value());
+    drawing.seek(Timestamp::fromMilliseconds(subedit::test::startOf(100, 25, 1)));
+    const subedit::gui::Picture bare = subedit::test::renderedAt(drawing, 640, 320);
+
+    drawing.showSubtitle("A line of dialogue.");
+    const subedit::gui::Picture drawn = subedit::test::renderedAt(drawing, 640, 320);
+
+    REQUIRE(bare.pixels.size() == drawn.pixels.size());
+    CHECK(bare.pixels != drawn.pixels);
+    // And cleared, the picture is the bare one again.
+    drawing.showSubtitle({});
+    CHECK(subedit::test::renderedAt(drawing, 640, 320).pixels == bare.pixels);
+}
+
+// The announcement comes from a thread of the player, and is what makes a widget draw.
+TEST_CASE("a new picture is announced, and the announcement can be withdrawn",
+          "[video][player][render]") {
+    MpvPlayer announcing = player();
+    REQUIRE(announcing.open(fixture("videos/images-25.mp4")).has_value());
+
+    std::atomic<int> announced = 0;
+    announcing.onFrameReady([&announced] { ++announced; });
+    announcing.seek(Timestamp::fromMilliseconds(1000));
+
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds{5};
+    while (announced == 0 && std::chrono::steady_clock::now() < deadline)
+        std::this_thread::sleep_for(std::chrono::milliseconds{5});
+    CHECK(announced > 0);
+
+    announcing.onFrameReady({});
+    const int before = announced;
+    announcing.seek(Timestamp::fromMilliseconds(2000));
+    std::this_thread::sleep_for(std::chrono::milliseconds{100});
+    CHECK(announced == before);
 }

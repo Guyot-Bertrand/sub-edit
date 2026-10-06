@@ -7,11 +7,13 @@
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
+#include <subedit/gui/frame_source.hpp>
 #include <subedit/gui/project_page.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 #include <subedit/gui/video_pane.hpp>
+#include <subedit/gui/video_surface.hpp>
 
 #include <QHBoxLayout>
 #include <QItemSelectionModel>
@@ -26,7 +28,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <cstdint>
 #include <expected>
 #include <filesystem>
 #include <memory>
@@ -84,17 +85,10 @@ VideoPane::VideoPane(core::FileSystem& files,
       m_split(&split),
       m_buildPlayer(std::move(buildPlayer)),
       m_readDeclaredRate(std::move(readDeclaredRate)),
-      m_picture(new QWidget{owner}),
+      m_picture(new VideoSurface{owner}),
       m_banner(new QWidget{owner}),
       m_invite(new QPushButton{QStringLiteral("Select Video…"), m_banner}),
       m_ticker(new QTimer{owner}) {
-    // **A window of the system, and that is the whole point of these two
-    // attributes.** libmpv draws into a window the platform numbers; a plain Qt
-    // widget shares its parent's, and there would be nothing of its own to hand
-    // over. `WA_DontCreateNativeAncestors` keeps the demand from spreading
-    // upwards and turning the table into a native window as well.
-    m_picture->setAttribute(Qt::WA_NativeWindow);
-    m_picture->setAttribute(Qt::WA_DontCreateNativeAncestors);
     m_picture->setMinimumHeight(kMinimumVideoHeight);
     m_picture->hide();
 
@@ -123,7 +117,15 @@ VideoPane::VideoPane(core::FileSystem& files,
     });
 }
 
-VideoPane::~VideoPane() = default;
+VideoPane::~VideoPane() {
+    // The surface outlives this, as a child of the window, and must not be left holding
+    // a player that goes with it.
+    m_picture->attach(nullptr);
+}
+
+QWidget* VideoPane::picture() const {
+    return m_picture;
+}
 
 bool VideoPane::choose(ProjectPage& page) {
     const std::optional<std::filesystem::path>& source = page.session->project().sourceFile().path;
@@ -155,10 +157,13 @@ void VideoPane::proposeBeside(ProjectPage& page) {
 core::VideoPlayer* VideoPane::player() {
     if (!m_playerAsked && m_buildPlayer) {
         m_playerAsked = true;
-        // Asked here and not in the constructor, so that the surface is native
-        // before its number is read — and so that a window nobody shows a film
-        // to never builds a player at all.
-        m_player = m_buildPlayer(static_cast<std::uintptr_t>(m_picture->winId()));
+        // Asked here and not in the constructor, so that a window nobody shows a
+        // film to never builds a player at all.
+        m_player = m_buildPlayer();
+
+        // **A player that can be drawn is drawn**; the double of the tests cannot
+        // and the surface stays black, which is all a test of the window needs.
+        m_picture->attach(dynamic_cast<FrameSource*>(m_player.get()));
     }
 
     return m_player.get();
@@ -212,10 +217,9 @@ void VideoPane::watch(ProjectPage& page) {
     page.session->setDeclaredFrameRate(
         !wanted.empty() && m_readDeclaredRate ? m_readDeclaredRate(wanted) : std::nullopt);
 
-    // **Shown before the film is opened, and not after.** libmpv adopts the
-    // window it is handed at that moment; one that is not on screen is adopted
-    // and never mapped. Taken away again below if the film will not open, which
-    // costs nothing anybody sees: nothing has been painted into it yet.
+    // Shown before the film is opened, so that the surface has its size when the
+    // first picture is announced. Taken away again below if the film will not open,
+    // which costs nothing anybody sees: nothing has been painted into it yet.
     showPicture(!wanted.empty());
 
     core::VideoPlayer* watching = wanted.empty() ? nullptr : player();
@@ -231,9 +235,8 @@ void VideoPane::watch(ProjectPage& page) {
         // A film was named and there is no player to show it with. Said here
         // and not when the program started, because that is where it matters
         // and where it is not a remark about something nobody asked for yet.
-        // Why there is none — a session whose windows libmpv cannot adopt, a
-        // libmpv that would not start — is one sentence in the manual rather
-        // than a taxonomy in a dialog.
+        // Why there is none — a libmpv that would not start — is one sentence in
+        // the manual rather than a taxonomy in a dialog.
         m_prompts->reportFailure(wanted.string() + ": no video player is available");
     }
 
@@ -296,14 +299,12 @@ void VideoPane::forget(const ProjectPage& page) {
 }
 
 void VideoPane::release(std::span<const std::unique_ptr<ProjectPage>> pages) {
-    // **Here, while the surface libmpv draws into still exists** — issue
-    // #470. Quitting through the event loop takes the native window away
-    // before the members of the window are destroyed; libmpv, still holding
-    // it, then asked X to destroy a window that was already gone, and the
-    // default X error handler ended the process from libmpv's own thread —
-    // `BadWindow`, then Qt objects destroyed from the wrong thread, then an
-    // exit code of 1.
+    // **Here, and the surface lets go of the player first.** The player calls the
+    // surface back from a thread of its own, and the surface reads the player when
+    // it paints: neither may outlive the other. (Issue #470 was the same lesson
+    // with a native window libmpv held after Qt had taken it away.)
     m_ticker->stop();
+    m_picture->attach(nullptr);
     for (const std::unique_ptr<ProjectPage>& page : pages) {
         page->watching = false;
         // Forgotten, so that a window shown again opens the film anew.

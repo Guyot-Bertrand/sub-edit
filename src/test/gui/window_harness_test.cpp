@@ -14,10 +14,12 @@
 //
 // **A window test shows its window.** The rule is written here because this is
 // where somebody reading the harness will look for it, and it was paid for:
-// libmpv adopts the window it is handed at the moment it loads a file, and a
-// window that is not on screen is adopted and never mapped. The whole of
+// libmpv used to adopt the window it was handed at the moment it loaded a file,
+// and a window that was not on screen was adopted and never mapped. The whole of
 // phase 5 and most of phase 6 drove windows nobody had ever shown, so no test
 // could see it — the video panel stayed empty until a human ran the program.
+// ADR 0041 took that mechanism away; the rule stays, for the same reason it
+// always held for everything else.
 //
 // A window that was never shown is not a window a user has. Everything Qt only
 // does on display — `showEvent`, the real geometry, a layout that has actually

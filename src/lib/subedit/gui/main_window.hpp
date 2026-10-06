@@ -402,13 +402,11 @@ protected:
 
     /// Opens the associated film, the first time the window is on screen.
     ///
-    /// **The film waits for this, and it is not a refinement.** libmpv adopts
-    /// the window it is handed at the moment it loads a file; handed one that
-    /// is not on screen yet, it adopts it and never maps its own — measured,
-    /// mpv's window stays `IsUnMapped` for the life of the process and the
-    /// panel stays empty for ever. A window built and never shown is not a
-    /// window a user has, and this is where that stops being a distinction
-    /// without a difference.
+    /// **The film waits for this**, so that nothing is handed to a player before
+    /// the window has its real size. It used to be a necessity — libmpv adopted
+    /// a native window and never mapped its own if that one was not on screen —
+    /// and ADR 0041 took the mechanism away. A window built and never shown is
+    /// still not a window a user has.
     void showEvent(QShowEvent* event) override;
 
     /// Takes a drag that carries files, and nothing else — issue #453.
