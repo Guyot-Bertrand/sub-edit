@@ -102,41 +102,16 @@ ExitCode runCorrect(const CorrectOptions& options,
                     core::FileSystem& files,
                     const std::optional<core::Encoding>& reading,
                     const Reporter& reporter) {
-    // Everything that can be refused is, before a file is read — and the patterns
-    // are read once, from where the executable and the environment say they are
-    // (ADR 0037): the shipped ones, and those a user dropped.
-    const core::PatternCatalogue catalogue = core::readPatternCatalogue(
-        files, platform::installedPatternsPath(), platform::resolvedUserPatternsPath());
-    // An installation without its patterns says so, and the run that follows
-    // cannot find a pattern to play and says that as well.
-    for (const core::PatternDiagnostic& diagnostic : catalogue.diagnostics()) {
-        reporter.say(1, "patterns: " + core::describe(diagnostic));
-    }
-
-    const std::expected<core::CorrectionSettings, std::string> settings =
-        correctionSettingsOf(options.correction, catalogue);
-    if (!settings) {
-        return refuse(settings.error());
-    }
-
-    // **The dictionary is opened once, and before anything is read**: a language
-    // nobody has is a mistake about the command line, said in the words of the
-    // window, which greys the function out and says so. The replacement list the
-    // window keeps is neither read nor written (decision D2): no configuration
-    // directory is given, so `spellReplacementFile` names none.
-    std::optional<core::EnchantSpellProvider> provider;
-    std::optional<core::SpellChecker> spellChecker;
-    if (settings->joinSplitEnabled) {
-        provider.emplace();
-        std::expected<core::SpellChecker, core::NoDictionary> opened =
-            core::openSpellChecker(*provider,
-                                   settings->spellLanguage,
-                                   files,
-                                   core::spellReplacementFile({}, settings->spellLanguage));
-        if (!opened) {
-            return refuse(core::noDictionaryFor(opened.error().language));
-        }
-        spellChecker.emplace(std::move(*opened));
+    // Everything that can be refused is, before a file is read.
+    std::expected<CorrectionRun, std::string> run =
+        prepareCorrection(files,
+                          reporter,
+                          options.correction,
+                          platform::installedPatternsPath(),
+                          platform::resolvedUserPatternsPath(),
+                          [] { return std::make_unique<core::EnchantSpellProvider>(); });
+    if (!run) {
+        return refuse(run.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -154,13 +129,13 @@ ExitCode runCorrect(const CorrectOptions& options,
     return correctIn(files,
                      prepared->inputs.paths,
                      reading,
-                     catalogue,
-                     *settings,
+                     run->catalogue,
+                     run->settings,
                      prepared->range,
                      prepared->destination,
                      reporter,
                      prepared->pairing,
-                     spellChecker ? &*spellChecker : nullptr);
+                     run->spellChecker ? &*run->spellChecker : nullptr);
 }
 
 } // namespace

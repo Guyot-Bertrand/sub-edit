@@ -13,10 +13,12 @@
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/core/text/spell_checker.hpp>
 #include <subedit/core/text/word_list_spell_provider.hpp>
+#include <subedit/core/wording/counts.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <memory>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -503,4 +505,73 @@ TEST_CASE("words are joined and split with the checker the caller opened", "[cli
 
     CHECK(code == ExitCode::Success);
     CHECK(files.contentOf("out/a.srt").value_or("") == srt("hello hello there"));
+}
+
+namespace {
+
+/// A provider of one dictionary, `en`, whose words are those of the test.
+subedit::cli::SpellProviderFactory englishOnly(int& opened) {
+    return [&opened] {
+        ++opened;
+        auto provider = std::make_unique<subedit::core::WordListSpellProvider>();
+        subedit::core::WordList list;
+        list.words = {"hello", "world"};
+        provider->add("en", std::move(list));
+        return provider;
+    };
+}
+
+} // namespace
+
+TEST_CASE("a run that joins words opens its dictionary before anything is read",
+          "[cli][correct][CLI-CORRECT-01]") {
+    InMemoryFileSystem files;
+    std::ostringstream errors;
+    int opened = 0;
+    CorrectionOptions options;
+    options.tasks = "join-words";
+    options.language = "en";
+
+    const auto run = subedit::cli::prepareCorrection(
+        files, Reporter{errors, 1}, options, "/shipped", "/user", englishOnly(opened));
+
+    REQUIRE(run.has_value());
+    CHECK(opened == 1);
+    CHECK(run->settings.joinWords);
+    REQUIRE(run->provider != nullptr);
+    CHECK(run->spellChecker.has_value());
+    // No patterns under the paths given: said, at level one, and the run goes on.
+    CHECK_THAT(errors.str(), ContainsSubstring("patterns: "));
+}
+
+TEST_CASE("a language nobody has is refused in the words of the window",
+          "[cli][correct][CLI-CORRECT-01]") {
+    InMemoryFileSystem files;
+    std::ostringstream errors;
+    int opened = 0;
+    CorrectionOptions options;
+    options.tasks = "split-words";
+    options.language = "fr";
+
+    const auto run = subedit::cli::prepareCorrection(
+        files, Reporter{errors, 1}, options, "/shipped", "/user", englishOnly(opened));
+
+    REQUIRE_FALSE(run.has_value());
+    CHECK(run.error() == subedit::core::noDictionaryFor("fr"));
+}
+
+TEST_CASE("a run that checks no words asks for no provider, and a bad option is refused first",
+          "[cli][correct][CLI-CORRECT-01]") {
+    InMemoryFileSystem files;
+    std::ostringstream errors;
+    int opened = 0;
+    CorrectionOptions options;
+    options.tasks = "common-errors";
+
+    // No code: refused before a dictionary is thought of.
+    const auto refused = subedit::cli::prepareCorrection(
+        files, Reporter{errors, 1}, options, "/shipped", "/user", englishOnly(opened));
+    REQUIRE_FALSE(refused.has_value());
+    CHECK_THAT(refused.error(), ContainsSubstring("--code is required"));
+    CHECK(opened == 0);
 }

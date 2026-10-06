@@ -2,6 +2,7 @@
 #include <subedit/cli/conversion.hpp>
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/diagnostics.hpp>
+#include <subedit/cli/encoding_grammar.hpp>
 #include <subedit/cli/opening.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/writing.hpp>
@@ -193,7 +194,51 @@ bool convertFile(core::FileSystem& files,
     return true;
 }
 
+/// The line ending a word names; the three are the closed set `--line-endings` accepts.
+[[nodiscard]] core::Newline newlineNamed(const std::string& name) {
+    if (name == "windows") {
+        return core::Newline::CrLf;
+    }
+    return name == "mac" ? core::Newline::Cr : core::Newline::Lf;
+}
+
 } // namespace
+
+std::expected<WriteShape, std::string>
+writeShapeOf(const std::string& lineEndings, const std::string& encoding, bool bom, bool noBom) {
+    if (bom && noBom) {
+        return std::unexpected{
+            std::string{"--bom and --no-bom ask for opposite things; give one or the other"}};
+    }
+
+    WriteShape shape;
+    if (!lineEndings.empty()) {
+        shape.newline = newlineNamed(lineEndings);
+    }
+    if (!encoding.empty()) {
+        const std::expected<core::Encoding, std::string> named = encodingNamed(encoding);
+        if (!named) {
+            return std::unexpected(named.error());
+        }
+        shape.encoding = *named;
+    }
+    if (bom) {
+        shape.bom = core::ByteOrderMark::Present;
+    }
+    if (noBom) {
+        shape.bom = core::ByteOrderMark::Absent;
+    }
+    return shape;
+}
+
+std::optional<std::string>
+refusalOfInPlaceRename(bool inPlace, const std::vector<std::string>& paths, SubtitleFormat target) {
+    if (inPlace && wouldMisname(paths, target)) {
+        return std::string{"--in-place cannot change the format: the file would keep a name "
+                           "its content no longer matches"};
+    }
+    return std::nullopt;
+}
 
 bool wouldMisname(const std::vector<std::string>& paths, SubtitleFormat target) {
     const std::string_view wanted = extensionOf(target);

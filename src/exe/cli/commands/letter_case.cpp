@@ -21,21 +21,6 @@ struct CaseOptions {
     DestinationOptions destination;
 };
 
-/// The case a word names. The four are the closed set `--to` accepts, checked
-/// before this is called.
-[[nodiscard]] core::LetterCase caseNamed(const std::string& name) {
-    if (name == "title") {
-        return core::LetterCase::Title;
-    }
-    if (name == "sentence") {
-        return core::LetterCase::Sentence;
-    }
-    if (name == "upper") {
-        return core::LetterCase::Upper;
-    }
-    return core::LetterCase::Lower;
-}
-
 CLI::App* describeCase(CLI::App& app, std::string_view name, CaseOptions& options) {
     CLI::App* recase = app.add_subcommand(
         std::string{name}, "Put the texts in title, sentence, upper or lower case, tags intact");
@@ -71,7 +56,7 @@ ExitCode runCase(const CaseOptions& options,
     return recaseIn(files,
                     prepared->inputs.paths,
                     reading,
-                    caseNamed(options.to),
+                    letterCaseNamed(options.to),
                     prepared->range,
                     prepared->destination,
                     reporter,

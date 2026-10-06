@@ -52,27 +52,17 @@ ExitCode runShift(const ShiftOptions& options,
         return refuse(prepared.error());
     }
 
-    if (options.toGrid && !options.by.empty()) {
-        return refuse("--by and --to-grid both say by how much to move; give one or the other");
+    const std::expected<std::optional<core::Duration>, std::string> by =
+        shiftAmountOf(options.toGrid, options.by);
+    if (!by) {
+        return refuse(by.error());
     }
-
-    // Measured rather than given, and file by file: two files shifted off the
-    // same grid by different amounts come back by different amounts.
-    if (options.toGrid) {
+    if (!by->has_value()) {
         return shiftOntoGridAll(
             files, prepared->inputs.paths, reading, prepared->destination, reporter);
     }
 
-    if (options.by.empty()) {
-        return refuse("shift needs --by, or --to-grid to work the amount out from the positions");
-    }
-
-    const std::expected<core::Duration, std::string> by = parseTime(options.by);
-    if (!by) {
-        return refuse(by.error());
-    }
-
-    return shiftAll(files, prepared->inputs.paths, reading, *by, prepared->destination, reporter);
+    return shiftAll(files, prepared->inputs.paths, reading, **by, prepared->destination, reporter);
 }
 
 } // namespace

@@ -9,8 +9,12 @@
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/core/text/spell_checker.hpp>
+#include <subedit/core/text/spell_dictionary.hpp>
 
 #include <expected>
+#include <filesystem>
+#include <functional>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -80,6 +84,41 @@ struct CorrectionOptions {
 [[nodiscard]] std::expected<subedit::core::CorrectionSettings, std::string>
 correctionSettingsOf(const CorrectionOptions& options,
                      const subedit::core::PatternCatalogue& catalogue);
+
+/// What a run of `correct` reads **before any file**: the patterns, the settings its
+/// options come to, and — when words are to be joined or split — the dictionary.
+struct CorrectionRun {
+    subedit::core::PatternCatalogue catalogue;
+    subedit::core::CorrectionSettings settings;
+
+    /// Null unless the run joins or splits words. **Kept beside the checker**, which
+    /// looks words up in a dictionary this provider opened.
+    std::unique_ptr<subedit::core::SpellProvider> provider{};
+    std::optional<subedit::core::SpellChecker> spellChecker{};
+};
+
+/// Makes the provider of dictionaries, when — and only when — a run needs one.
+using SpellProviderFactory = std::function<std::unique_ptr<subedit::core::SpellProvider>()>;
+
+/// Everything `correct` settles before it touches a file, or why it cannot go on.
+///
+/// The patterns are read once, from the two places the executable and the environment
+/// give (ADR 0037): the shipped ones, and those a user dropped. An installation without
+/// its patterns says so, at level one, and the run that follows cannot find a pattern to
+/// play and says that as well. Then the settings (`correctionSettingsOf`), and last the
+/// dictionary: **opened once, and before anything is read**, since a language nobody has
+/// is a mistake about the command line, said in the words of the window, which greys the
+/// function out and says so.
+///
+/// **The replacement list the window keeps is neither read nor written** (decision D2): no
+/// configuration directory is given, so `spellReplacementFile` names none.
+[[nodiscard]] std::expected<CorrectionRun, std::string>
+prepareCorrection(subedit::core::FileSystem& files,
+                  const Reporter& reporter,
+                  const CorrectionOptions& options,
+                  const std::filesystem::path& installedPatterns,
+                  const std::filesystem::path& userPatterns,
+                  const SpellProviderFactory& makeProvider);
 
 /// Corrects the texts of every path under `settings`, and says how it went.
 ///

@@ -43,9 +43,9 @@ ExitCode runItalics(const ItalicsOptions& options,
                     core::FileSystem& files,
                     const std::optional<core::Encoding>& reading,
                     const Reporter& reporter) {
-    if (options.on == options.off) {
-        return refuse(options.on ? "--on and --off say opposite things; give one of them"
-                                 : "italics needs --on to put the texts in italics, or --off");
+    const std::expected<bool, std::string> italic = italicsDirectionOf(options.on, options.off);
+    if (!italic) {
+        return refuse(italic.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -63,7 +63,7 @@ ExitCode runItalics(const ItalicsOptions& options,
     return italicsIn(files,
                      prepared->inputs.paths,
                      reading,
-                     options.on,
+                     *italic,
                      prepared->range,
                      prepared->destination,
                      reporter,

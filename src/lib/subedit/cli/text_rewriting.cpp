@@ -98,6 +98,38 @@ struct TextRewrite {
 
 } // namespace
 
+core::LetterCase letterCaseNamed(const std::string& name) {
+    if (name == "title") {
+        return core::LetterCase::Title;
+    }
+    if (name == "sentence") {
+        return core::LetterCase::Sentence;
+    }
+    if (name == "upper") {
+        return core::LetterCase::Upper;
+    }
+    return core::LetterCase::Lower;
+}
+
+std::expected<bool, std::string> italicsDirectionOf(bool on, bool off) {
+    if (on == off) {
+        return std::unexpected{
+            on ? std::string{"--on and --off say opposite things; give one of them"}
+               : std::string{"italics needs --on to put the texts in italics, or "
+                             "--off"}};
+    }
+    return on;
+}
+
+std::expected<bool, std::string> dashesDirectionOf(bool add, bool remove) {
+    if (add == remove) {
+        return std::unexpected{
+            add ? std::string{"--add and --remove say opposite things; give one of them"}
+                : std::string{"dialogue-dashes needs --add to put dashes on, or --remove"}};
+    }
+    return add;
+}
+
 ExitCode recaseIn(core::FileSystem& files,
                   const std::vector<std::string>& paths,
                   const std::optional<core::Encoding>& reading,

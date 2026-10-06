@@ -8,6 +8,7 @@
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 
+#include <expected>
 #include <optional>
 #include <string>
 #include <vector>
@@ -39,6 +40,22 @@ struct WriteShape {
     /// written in its place.
     std::optional<subedit::core::Encoding> encoding{};
 };
+
+/// The shape a conversion is asked to write in, from the options as they were written:
+/// the line endings (`unix`, `windows`, `mac`), the encoding, and `--bom` / `--no-bom`.
+/// Empty strings and absent flags mean « as the source had it ».
+///
+/// Refused, naming the options, when `--bom` and `--no-bom` are both given and when the
+/// encoding names nothing — a mistake about the command line, said before a file is read.
+[[nodiscard]] std::expected<WriteShape, std::string>
+writeShapeOf(const std::string& lineEndings, const std::string& encoding, bool bom, bool noBom);
+
+/// The refusal of `--in-place` when it would leave a file misnamed, and nothing when it
+/// would not. **Refused rather than obeyed**: in place there is no second name to carry the
+/// new format, and the file would be left under an extension its content no longer
+/// justifies.
+[[nodiscard]] std::optional<std::string> refusalOfInPlaceRename(
+    bool inPlace, const std::vector<std::string>& paths, subedit::core::SubtitleFormat target);
 
 /// Whether writing `target` back over these paths would leave a file misnamed.
 ///

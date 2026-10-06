@@ -1,5 +1,6 @@
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/cli/shifting.hpp>
+#include <subedit/cli/time_grammar.hpp>
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_correction.hpp>
 #include <subedit/core/edit/session.hpp>
@@ -47,6 +48,29 @@ shiftWhole(core::Session& session, core::Duration by, const std::string& suffix)
 }
 
 } // namespace
+
+std::expected<std::optional<core::Duration>, std::string> shiftAmountOf(bool toGrid,
+                                                                        const std::string& by) {
+    if (toGrid && !by.empty()) {
+        return std::unexpected{
+            std::string{"--by and --to-grid both say by how much to move; give one or the other"}};
+    }
+    // Measured rather than given, and file by file: two files shifted off the same
+    // grid by different amounts come back by different amounts.
+    if (toGrid) {
+        return std::optional<core::Duration>{};
+    }
+    if (by.empty()) {
+        return std::unexpected{std::string{
+            "shift needs --by, or --to-grid to work the amount out from the positions"}};
+    }
+
+    const std::expected<core::Duration, std::string> parsed = parseTime(by);
+    if (!parsed) {
+        return std::unexpected{parsed.error()};
+    }
+    return std::optional{*parsed};
+}
 
 ExitCode shiftAll(core::FileSystem& files,
                   const std::vector<std::string>& paths,

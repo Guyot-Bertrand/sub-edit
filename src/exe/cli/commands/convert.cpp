@@ -29,6 +29,16 @@ struct ConvertOptions {
     DestinationOptions destination;
 };
 
+/// The `--to` values: the short name of every format, in the core's order.
+[[nodiscard]] std::vector<std::string> formatOptionNames() {
+    std::vector<std::string> names;
+    names.reserve(core::kSubtitleFormats.size());
+    for (const core::SubtitleFormat format : core::kSubtitleFormats) {
+        names.emplace_back(core::optionNameOf(format));
+    }
+    return names;
+}
+
 CLI::App* describeConvert(CLI::App& app, std::string_view name, ConvertOptions& options) {
     CLI::App* convert = app.add_subcommand(std::string{name},
                                            "Write a subtitle file out in another format or shape");
@@ -36,12 +46,10 @@ CLI::App* describeConvert(CLI::App& app, std::string_view name, ConvertOptions& 
     describeRecursive(convert, options.recursive);
     convert->add_option("--to", options.target, "Format to write")
         ->required()
-        // **One value per format that can be written**, and the list grew by
-        // one with each format of phase 9 until it held all nine. It is written
-        // here rather than derived, so that offering a format the library
-        // cannot write is a line someone had to add.
-        ->check(CLI::IsMember(
-            {"srt", "vtt", "subviewer2", "ssa", "ass", "mpl2", "microdvd", "tmplayer", "lrc"}));
+        // **One value per format the library handles**, derived from the list the core
+        // walks: a tenth format is offered here by being added there, and is refused
+        // by `writeSubtitles` if it cannot be written.
+        ->check(CLI::IsMember(formatOptionNames()));
 
     // Left empty on purpose: empty means "as the source had it", and the model
     // of phase 1 kept both so that a conversion would not throw them away.
@@ -65,39 +73,6 @@ CLI::App* describeConvert(CLI::App& app, std::string_view name, ConvertOptions& 
 
     describeDestination(convert, options.destination);
     return convert;
-}
-
-core::Newline newlineNamed(const std::string& name) {
-    if (name == "windows") {
-        return core::Newline::CrLf;
-    }
-    return name == "mac" ? core::Newline::Cr : core::Newline::Lf;
-}
-
-std::expected<WriteShape, std::string> shapeOf(const ConvertOptions& options) {
-    if (options.bom && options.noBom) {
-        return std::unexpected{
-            std::string{"--bom and --no-bom ask for opposite things; give one or the other"}};
-    }
-
-    WriteShape shape;
-    if (!options.lineEndings.empty()) {
-        shape.newline = newlineNamed(options.lineEndings);
-    }
-    if (!options.encoding.empty()) {
-        const std::expected<core::Encoding, std::string> named = encodingNamed(options.encoding);
-        if (!named) {
-            return std::unexpected(named.error());
-        }
-        shape.encoding = *named;
-    }
-    if (options.bom) {
-        shape.bom = core::ByteOrderMark::Present;
-    }
-    if (options.noBom) {
-        shape.bom = core::ByteOrderMark::Absent;
-    }
-    return shape;
 }
 
 ExitCode runConvert(const ConvertOptions& options,
@@ -127,12 +102,13 @@ ExitCode runConvert(const ConvertOptions& options,
     // Refused rather than obeyed: in place there is no second name to carry the
     // new format, and the file would be left under an extension its content no
     // longer justifies.
-    if (options.destination.inPlace && wouldMisname(prepared->inputs.paths, target)) {
-        return refuse("--in-place cannot change the format: the file would keep a name "
-                      "its content no longer matches");
+    if (const std::optional<std::string> refused =
+            refusalOfInPlaceRename(options.destination.inPlace, prepared->inputs.paths, target)) {
+        return refuse(*refused);
     }
 
-    const std::expected<WriteShape, std::string> shape = shapeOf(options);
+    const std::expected<WriteShape, std::string> shape =
+        writeShapeOf(options.lineEndings, options.encoding, options.bom, options.noBom);
     if (!shape) {
         return refuse(shape.error());
     }
