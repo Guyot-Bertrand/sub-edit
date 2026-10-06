@@ -10,6 +10,7 @@
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::cli::Destination;
+using subedit::cli::refusalOverInput;
 using subedit::core::InMemoryFileSystem;
 
 TEST_CASE("no destination at all is refused", "[cli][destination]") {
@@ -121,8 +122,9 @@ TEST_CASE("a destination that is an input is refused without --in-place",
     const auto refused = here.plan(files, {"in/film.srt"}, "");
 
     REQUIRE_FALSE(refused.has_value());
-    CHECK_THAT(refused.error(), ContainsSubstring("is itself the input in/film.srt"));
-    CHECK_THAT(refused.error(), ContainsSubstring("use --in-place"));
+    // One sentence for every subcommand that writes, `append` and `split-file` too.
+    CHECK(refused.error() == refusalOverInput("in/film.srt", "in/film.srt"));
+    CHECK_THAT(refused.error(), ContainsSubstring("would be written over the input in/film.srt"));
 
     // Another spelling of the same place, and the other input of the pair.
     CHECK_FALSE(here.plan(files, {"in/../in/film.srt"}, "").has_value());

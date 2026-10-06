@@ -34,19 +34,16 @@ ExitCode runSort(const SortOptions& options,
                  core::FileSystem& files,
                  const std::optional<core::Encoding>& reading,
                  const Reporter& reporter) {
-    const std::expected<Inputs, std::string> inputs = expandInputs(
-        files, options.files, options.recursive, options.destination.outputDir, reporter);
-    if (!inputs) {
-        return refuse(inputs.error());
+    const std::expected<PreparedWriting, std::string> prepared =
+        prepareWriting(files,
+                       reporter,
+                       {.files = options.files, .recursive = options.recursive},
+                       options.destination);
+    if (!prepared) {
+        return refuse(prepared.error());
     }
 
-    const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, *inputs);
-    if (!destination) {
-        return refuse(destination.error());
-    }
-
-    return sortAll(files, inputs->paths, reading, *destination, reporter);
+    return sortAll(files, prepared->inputs.paths, reading, prepared->destination, reporter);
 }
 
 } // namespace

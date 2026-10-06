@@ -5,6 +5,8 @@
 #include <cstddef>
 #include <expected>
 #include <filesystem>
+#include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -20,6 +22,19 @@ namespace subedit::cli {
 [[nodiscard]] bool sameFile(const core::FileSystem& files,
                             const std::filesystem::path& first,
                             const std::filesystem::path& second);
+
+/// The refusal that `output` would be written over `input` — **said once, for every
+/// subcommand that writes**, so that a script and the manual know one sentence.
+[[nodiscard]] std::string refusalOverInput(const std::filesystem::path& output,
+                                           const std::string& input);
+
+/// The refusal, if `output` is one of `inputs`, and nothing if it is not.
+///
+/// For the subcommands that name their own outputs and so plan nothing — `append`
+/// and `split-file` — what `Destination::plan` does for a batch.
+[[nodiscard]] std::optional<std::string> overwrittenInput(const core::FileSystem& files,
+                                                          const std::filesystem::path& output,
+                                                          std::span<const std::string> inputs);
 
 /// One input of a batch and the path it is written to, **computed once**.
 ///

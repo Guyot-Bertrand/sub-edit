@@ -38,25 +38,19 @@ ExitCode runHearingImpaired(const HearingImpairedOptions& options,
                             core::FileSystem& files,
                             const std::optional<core::Encoding>& reading,
                             const Reporter& reporter) {
-    const std::expected<Inputs, std::string> inputs = expandInputs(
-        files, options.files, options.recursive, options.destination.outputDir, reporter);
-    if (!inputs) {
-        return refuse(inputs.error());
+    const std::expected<PreparedWriting, std::string> prepared =
+        prepareWriting(files,
+                       reporter,
+                       {.files = options.files,
+                        .recursive = options.recursive,
+                        .translation = &options.translation},
+                       options.destination);
+    if (!prepared) {
+        return refuse(prepared.error());
     }
 
-    const std::expected<std::optional<Pairing>, std::string> pairing =
-        pairingOf(options.translation, true, *inputs);
-    if (!pairing) {
-        return refuse(pairing.error());
-    }
-
-    const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, *inputs);
-    if (!destination) {
-        return refuse(destination.error());
-    }
-
-    return removeHearingImpairedIn(files, inputs->paths, reading, *destination, reporter, *pairing);
+    return removeHearingImpairedIn(
+        files, prepared->inputs.paths, reading, prepared->destination, reporter, prepared->pairing);
 }
 
 } // namespace

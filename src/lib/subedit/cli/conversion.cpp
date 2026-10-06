@@ -2,6 +2,7 @@
 #include <subedit/cli/conversion.hpp>
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/diagnostics.hpp>
+#include <subedit/cli/opening.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/writing.hpp>
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
@@ -86,11 +87,8 @@ bool convertFile(core::FileSystem& files,
                  bool dryRun,
                  const Reporter& reporter) {
     const std::string& path = job.input;
-    const std::expected<core::OpenedFile, core::OpenError> opened =
-        core::openProject(files, path, reading);
+    const std::optional<core::OpenedFile> opened = openReporting(files, path, reading, reporter);
     if (!opened) {
-        reportFailure(
-            reporter, path, Failure{idOf(opened.error()), std::string{reasonOf(opened.error())}});
         return false;
     }
 

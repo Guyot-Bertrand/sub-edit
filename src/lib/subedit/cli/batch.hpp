@@ -7,6 +7,9 @@
 
 #include <cstddef>
 #include <expected>
+#include <filesystem>
+#include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -40,6 +43,17 @@ arrange(core::FileSystem& files,
         const std::vector<std::string>& inputs,
         std::string_view extension,
         const Reporter& reporter);
+
+/// Makes the directories `outputs` are to be written into, parents included, each
+/// once. **Nothing when all of them are there**, and when one cannot be made: it
+/// is said once, nothing is written, and the code is `AllFailed`.
+///
+/// The step `arrange` takes for a batch, for the subcommands that name their own
+/// outputs (`split-file`).
+[[nodiscard]] std::optional<ExitCode>
+createDirectoriesFor(subedit::core::FileSystem& files,
+                     std::span<const std::filesystem::path> outputs,
+                     const Reporter& reporter);
 
 /// How a run over `total` files ended, `done` of them having succeeded.
 ///

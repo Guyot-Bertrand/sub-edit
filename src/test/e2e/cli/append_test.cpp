@@ -170,7 +170,7 @@ TEST_CASE("a missing file stops the run with the code of a file that failed",
 }
 
 TEST_CASE("a destination that is one of the inputs is refused before anything is read",
-          "[e2e][CLI-APPEND-01]") {
+          "[e2e][CLI-APPEND-01][CLI-BATCH-04]") {
     const Scratch scratch;
     const std::string first = writeFile(scratch, "in/a.srt", kFirst);
     const std::string second = writeFile(scratch, "in/b.srt", kSecond);

@@ -131,8 +131,7 @@ TEST_CASE("an input is not written over without --in-place, however the destinat
 
     for (const CliRun* run : {&directory, &file, &spelled}) {
         CHECK(run->exitCode == 1);
-        CHECK_THAT(run->errors, ContainsSubstring("is itself the input " + input));
-        CHECK_THAT(run->errors, ContainsSubstring("use --in-place"));
+        CHECK_THAT(run->errors, ContainsSubstring("would be written over the input " + input));
     }
     CHECK(contentOf(input) == before);
 }
@@ -148,7 +147,7 @@ TEST_CASE("a symbolic link to the input's directory does not hide that it is the
 
     // The two spellings differ, the file does not: only the system can say so.
     CHECK(run.exitCode == 1);
-    CHECK_THAT(run.errors, ContainsSubstring("is itself the input " + input));
+    CHECK_THAT(run.errors, ContainsSubstring("would be written over the input " + input));
     CHECK(contentOf(input) == before);
 }
 
@@ -286,4 +285,39 @@ TEST_CASE(
         invoke({"shift", "--by", "1", "--output-dir", scratch.of("out"), broken, other});
     CHECK(none.exitCode == 2);
     CHECK_THAT(none.errors, ContainsSubstring("0 of 2 files shifted, 2 failed\n"));
+}
+
+TEST_CASE("when several things are wrong the same one is said first, whatever the subcommand",
+          "[e2e][CLI-USAGE-03]") {
+    // One command line with four mistakes, mended one at a time: the range, then the
+    // inputs, then the translation, then the destination — the order `prepare` reads
+    // them in for every subcommand, and not the one each subcommand once chose.
+    const Scratch scratch;
+    const std::string directory = scratch.of("films");
+    std::filesystem::create_directories(directory);
+    const std::string file =
+        writeFile(scratch, "films/a.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n");
+
+    const CliRun range = invoke({"replace", "--range", "5-2", "-t", file, "a", "b", directory});
+    const CliRun inputs = invoke({"replace", "--range", "1-2", "-t", file, "a", "b", directory});
+    const CliRun pairing = invoke({"replace", "--range", "1-2", "-t", file, "a", "b", file});
+    const CliRun destination = invoke({"replace",
+                                       "--range",
+                                       "1-2",
+                                       "-t",
+                                       file,
+                                       "--document",
+                                       "translation",
+                                       "a",
+                                       "b",
+                                       scratch.of("films/b.srt")});
+
+    for (const CliRun* run : {&range, &inputs, &pairing, &destination}) {
+        CHECK(run->exitCode == 1);
+        CHECK(run->output.empty());
+    }
+    CHECK_THAT(range.errors, ContainsSubstring("--range"));
+    CHECK_THAT(inputs.errors, ContainsSubstring("is a directory"));
+    CHECK_THAT(pairing.errors, ContainsSubstring("use --document translation"));
+    CHECK_THAT(destination.errors, ContainsSubstring("no destination given"));
 }

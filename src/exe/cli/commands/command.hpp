@@ -125,6 +125,58 @@ void describeDocument(CLI::App* command, TranslationOptions& options);
 [[nodiscard]] std::expected<std::optional<Pairing>, std::string>
 pairingOf(const TranslationOptions& options, bool withDocument, const Inputs& inputs);
 
+/// What a subcommand's options come to once they have been read, **in the one
+/// order every subcommand reads them**.
+struct Prepared {
+    Inputs inputs;
+
+    /// Nothing when the subcommand has no `--range`, or none was given.
+    std::optional<Range> range;
+
+    /// Nothing when no translation was given (`-t`), or the subcommand takes none.
+    std::optional<Pairing> pairing;
+};
+
+/// The same, for a subcommand that writes: with the destination it settled.
+struct PreparedWriting {
+    Inputs inputs;
+    std::optional<Range> range;
+    std::optional<Pairing> pairing;
+    Destination destination;
+};
+
+/// Which of the shared options a subcommand has — the ones `prepare` reads.
+///
+/// Pointers, so that a subcommand without `--range` or without `-t` says so by
+/// leaving them null, and the options stay where CLI11 filled them.
+struct Preparation {
+    const std::vector<std::string>& files;
+    bool recursive = false;
+    const std::string* range = nullptr;
+    const TranslationOptions* translation = nullptr;
+
+    /// Whether `--document` was declared next to `-t`: `pairingOf`'s second argument.
+    bool withDocument = true;
+};
+
+/// Reads the range, expands the inputs and reads the translation — **in that order,
+/// and the first refusal wins**. For the subcommand that writes no file (`inspect`).
+///
+/// The order was decided seventeen times, once by each subcommand, and was not the
+/// same in all of them; it is decided here. What depends on the command line alone
+/// (`--on` against `--off`, a pattern that does not compile) is a subcommand's own and
+/// comes before: it needs no file, and `prepare` touches the file system.
+[[nodiscard]] std::expected<Prepared, std::string>
+prepare(const core::FileSystem& files, const Reporter& reporter, const Preparation& wanted);
+
+/// `prepare`, then the destination `options` describe — **last**, since it is judged
+/// against the inputs. A subcommand that writes has no other way to get one.
+[[nodiscard]] std::expected<PreparedWriting, std::string>
+prepareWriting(const core::FileSystem& files,
+               const Reporter& reporter,
+               const Preparation& wanted,
+               const DestinationOptions& options);
+
 /// Writes a refusal and gives the code that goes with it.
 ///
 /// Every value the subcommands read can be refused, and each refusal was written

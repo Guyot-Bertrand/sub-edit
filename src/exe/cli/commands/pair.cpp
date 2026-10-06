@@ -40,31 +40,24 @@ ExitCode runPair(const PairOptions& options,
         return refuse("pair needs the translation file to lay over the main one: use -t");
     }
 
-    const std::expected<Inputs, std::string> inputs =
-        expandInputs(files, {options.main}, false, options.destination.outputDir, reporter);
-    if (!inputs) {
-        return refuse(inputs.error());
-    }
-
     // -t is given, so there is a pairing; `--document` does not exist here.
-    const std::expected<std::optional<Pairing>, std::string> pairing =
-        pairingOf(options.translation, false, *inputs);
-    if (!pairing) {
-        return refuse(pairing.error());
+    const std::vector<std::string> mains{options.main};
+    const std::expected<PreparedWriting, std::string> prepared =
+        prepareWriting(files,
+                       reporter,
+                       {.files = mains, .translation = &options.translation, .withDocument = false},
+                       options.destination);
+    if (!prepared) {
+        return refuse(prepared.error());
     }
 
-    const std::expected<Destination, std::string> destination =
-        destinationOf(options.destination, *inputs);
-    if (!destination) {
-        return refuse(destination.error());
-    }
-
-    return writeTranslationAt(files,
-                              options.main,
-                              reading,
-                              *destination,
-                              reporter,
-                              pairing->value_or(Pairing{.translation = options.translation.file}));
+    return writeTranslationAt(
+        files,
+        options.main,
+        reading,
+        prepared->destination,
+        reporter,
+        prepared->pairing.value_or(Pairing{.translation = options.translation.file}));
 }
 
 } // namespace

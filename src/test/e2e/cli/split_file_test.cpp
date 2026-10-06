@@ -172,7 +172,7 @@ TEST_CASE("a dry run says the cut and writes nothing", "[e2e][CLI-PSPLIT-01][CLI
 }
 
 TEST_CASE("the two outputs are asked for, and are neither the input nor one another",
-          "[e2e][CLI-PSPLIT-01]") {
+          "[e2e][CLI-PSPLIT-01][CLI-BATCH-04]") {
     const Scratch scratch;
     const std::string input = writeFile(scratch, "in/film.srt", kFilm);
     const std::string head = scratch.of("out/head.srt");
