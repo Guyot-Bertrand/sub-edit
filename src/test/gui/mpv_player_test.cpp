@@ -9,16 +9,21 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
+#include <chrono>
+#include <cstdint>
 #include <expected>
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <thread>
 #include <utility>
+#include <vector>
 
 #include "numbered_frames.hpp"
 
 namespace {
 
+using subedit::core::AudioTrack;
 using subedit::core::Duration;
 using subedit::core::PlayerError;
 using subedit::core::Timestamp;
@@ -35,6 +40,22 @@ using subedit::gui::MpvPlayer;
     std::expected<MpvPlayer, PlayerError> built = MpvPlayer::create();
     REQUIRE(built.has_value());
     return std::move(*built);
+}
+
+/// Waits for the player to hold playback, which it does by itself — a bounded wait, since
+/// a player that never stopped is a failing case and not a hang.
+[[nodiscard]] bool stopsWithin(const MpvPlayer& watching, std::chrono::seconds limit) {
+    const auto deadline = std::chrono::steady_clock::now() + limit;
+    while (watching.isPlaying() && std::chrono::steady_clock::now() < deadline)
+        std::this_thread::sleep_for(std::chrono::milliseconds{10});
+    return !watching.isPlaying();
+}
+
+/// The number the frame on screen carries.
+[[nodiscard]] int shownFrame(const MpvPlayer& watching) {
+    const subedit::gui::Picture picture = watching.picture().value_or(subedit::gui::Picture{});
+    REQUIRE(picture.width > 0);
+    return subedit::test::frameNumberOf(picture);
 }
 
 } // namespace
@@ -354,4 +375,299 @@ TEST_CASE("a player with nothing open has no picture", "[video][player][numbered
     const MpvPlayer idle = player();
 
     CHECK_FALSE(idle.picture().has_value());
+}
+
+// ## Stepping, the volume, the tracks and playing up to a position — issue #614
+
+TEST_CASE("a step forward shows the next frame", "[video][player][numbered][step]") {
+    MpvPlayer stepping = player();
+    REQUIRE(stepping.open(fixture("videos/images-25.mp4")).has_value());
+
+    stepping.stepFrames(1);
+
+    CHECK(shownFrame(stepping) == 1);
+    CHECK(stepping.position() == Timestamp::fromMilliseconds(40));
+}
+
+TEST_CASE("a step back shows the previous frame", "[video][player][numbered][step]") {
+    MpvPlayer stepping = player();
+    REQUIRE(stepping.open(fixture("videos/images-25.mp4")).has_value());
+    stepping.seek(Timestamp::fromMilliseconds(subedit::test::startOf(100, 25, 1)));
+
+    stepping.stepFrames(-1);
+
+    CHECK(shownFrame(stepping) == 99);
+    CHECK(stepping.position() == Timestamp::fromMilliseconds(subedit::test::startOf(99, 25, 1)));
+}
+
+TEST_CASE("a step by several frames lands that many frames away",
+          "[video][player][numbered][step]") {
+    MpvPlayer stepping = player();
+    REQUIRE(stepping.open(fixture("videos/images-25.mp4")).has_value());
+    stepping.seek(Timestamp::fromMilliseconds(subedit::test::startOf(50, 25, 1)));
+
+    stepping.stepFrames(7);
+    CHECK(shownFrame(stepping) == 57);
+
+    stepping.stepFrames(-30);
+    CHECK(shownFrame(stepping) == 27);
+
+    stepping.stepFrames(0);
+    CHECK(shownFrame(stepping) == 27);
+}
+
+TEST_CASE("stepping back from the first frame stays on it", "[video][player][numbered][step]") {
+    MpvPlayer stepping = player();
+    REQUIRE(stepping.open(fixture("videos/images-25.mp4")).has_value());
+
+    stepping.stepFrames(-1);
+    CHECK(shownFrame(stepping) == 0);
+    CHECK(stepping.position() == Timestamp::origin());
+
+    stepping.stepFrames(-100);
+    CHECK(shownFrame(stepping) == 0);
+}
+
+TEST_CASE("stepping forward from the last frame stays on it", "[video][player][numbered][step]") {
+    MpvPlayer stepping = player();
+    REQUIRE(stepping.open(fixture("videos/images-25.mp4")).has_value());
+    stepping.seek(Timestamp::fromMilliseconds(subedit::test::startOf(249, 25, 1)));
+
+    stepping.stepFrames(1);
+    CHECK(shownFrame(stepping) == 249);
+
+    // And a step that would overshoot by far ends on the last frame, not past it.
+    stepping.seek(Timestamp::origin());
+    stepping.stepFrames(1000);
+    CHECK(shownFrame(stepping) == 249);
+    CHECK(stepping.duration() == Duration::fromMilliseconds(10000));
+
+    // The film is still there: it can be stepped back from the end.
+    stepping.stepFrames(-1);
+    CHECK(shownFrame(stepping) == 248);
+}
+
+// What a mark rests on (D4): a step lands on whole frames at 23.976 as well, where a
+// frame starts at a fraction of a millisecond and a step that added a rounded 42 ms
+// would drift.
+TEST_CASE("steps at 23.976 images a second keep to whole frames, forward and back",
+          "[video][player][numbered][step]") {
+    MpvPlayer stepping = player();
+    REQUIRE(stepping.open(fixture("videos/images-23-976.mp4")).has_value());
+    stepping.seek(Timestamp::fromMilliseconds(subedit::test::startOf(10, 24000, 1001)));
+
+    stepping.stepFrames(1);
+    CHECK(shownFrame(stepping) == 11);
+    CHECK(stepping.position() == Timestamp::fromMilliseconds(459));
+
+    stepping.stepFrames(-1);
+    CHECK(shownFrame(stepping) == 10);
+    CHECK(stepping.position() == Timestamp::fromMilliseconds(417));
+
+    // Forty frames on, and forty back: no drift.
+    for (int round = 0; round < 3; ++round) {
+        stepping.stepFrames(40);
+        stepping.stepFrames(-40);
+    }
+    CHECK(shownFrame(stepping) == 10);
+
+    // The last frame of the second fixture is 239.
+    stepping.stepFrames(10000);
+    CHECK(shownFrame(stepping) == 239);
+}
+
+TEST_CASE("a step holds playback", "[video][player][step]") {
+    MpvPlayer stepping = player();
+    REQUIRE(stepping.open(fixture("videos/images-25.mp4")).has_value());
+    stepping.play();
+    REQUIRE(stepping.isPlaying());
+
+    stepping.stepFrames(1);
+
+    CHECK_FALSE(stepping.isPlaying());
+}
+
+// No picture, so no frame rate and nothing to step by: the order is a no-op, not an error.
+TEST_CASE("a film with no picture has no frame to step to", "[video][player][step]") {
+    MpvPlayer listening = player();
+    REQUIRE(listening.open(fixture("videos/sound-only.mkv")).has_value());
+    listening.seek(Timestamp::fromMilliseconds(1000));
+
+    listening.stepFrames(1);
+    listening.stepFrames(-1);
+
+    CHECK(listening.position() == Timestamp::fromMilliseconds(1000));
+}
+
+TEST_CASE("a step with nothing open does nothing", "[video][player][step]") {
+    MpvPlayer idle = player();
+
+    idle.stepFrames(1);
+    idle.stepFrames(-1);
+
+    CHECK_FALSE(idle.position().has_value());
+}
+
+TEST_CASE("the volume is set, read back, and held between 0 and 100", "[video][player][volume]") {
+    MpvPlayer listening = player();
+
+    listening.setVolume(40);
+    CHECK(listening.volume() == 40);
+
+    listening.setVolume(0);
+    CHECK(listening.volume() == 0);
+
+    listening.setVolume(150);
+    CHECK(listening.volume() == 100);
+
+    listening.setVolume(-20);
+    CHECK(listening.volume() == 0);
+}
+
+TEST_CASE("the volume survives opening a film", "[video][player][volume]") {
+    MpvPlayer listening = player();
+    listening.setVolume(35);
+
+    REQUIRE(listening.open(fixture("videos/audio-1.mkv")).has_value());
+
+    CHECK(listening.volume() == 35);
+}
+
+TEST_CASE("a video with two audio tracks lists both, the first playing", "[video][player][audio]") {
+    MpvPlayer listening = player();
+    REQUIRE(listening.open(fixture("videos/audio-2.mkv")).has_value());
+
+    const std::vector<AudioTrack> tracks = listening.audioTracks();
+
+    REQUIRE(tracks.size() == 2);
+    CHECK(tracks[0].language == "fra");
+    CHECK(tracks[0].title == "Original");
+    CHECK(tracks[0].selected);
+    CHECK(tracks[1].language == "eng");
+    CHECK(tracks[1].title == "Commentary");
+    CHECK_FALSE(tracks[1].selected);
+    CHECK(tracks[0].id != tracks[1].id);
+}
+
+TEST_CASE("selecting an audio track moves the mark to it", "[video][player][audio]") {
+    MpvPlayer listening = player();
+    REQUIRE(listening.open(fixture("videos/audio-2.mkv")).has_value());
+    const int second = listening.audioTracks().at(1).id;
+
+    listening.selectAudioTrack(second);
+
+    const std::vector<AudioTrack> tracks = listening.audioTracks();
+    REQUIRE(tracks.size() == 2);
+    CHECK_FALSE(tracks[0].selected);
+    CHECK(tracks[1].selected);
+}
+
+TEST_CASE("selecting a track the video does not have changes nothing", "[video][player][audio]") {
+    MpvPlayer listening = player();
+    REQUIRE(listening.open(fixture("videos/audio-2.mkv")).has_value());
+    const std::vector<AudioTrack> before = listening.audioTracks();
+
+    listening.selectAudioTrack(99);
+
+    CHECK(listening.audioTracks() == before);
+}
+
+TEST_CASE("a video with one audio track lists it", "[video][player][audio]") {
+    MpvPlayer listening = player();
+    REQUIRE(listening.open(fixture("videos/audio-1.mkv")).has_value());
+
+    const std::vector<AudioTrack> tracks = listening.audioTracks();
+
+    REQUIRE(tracks.size() == 1);
+    CHECK(tracks[0].language == "fra");
+    CHECK(tracks[0].selected);
+}
+
+TEST_CASE("a video without sound has no audio track, and nothing breaks",
+          "[video][player][audio]") {
+    MpvPlayer silent = player();
+    REQUIRE(silent.open(fixture("videos/cadence-25.mp4")).has_value());
+
+    CHECK(silent.audioTracks().empty());
+
+    silent.selectAudioTrack(1);
+    silent.setVolume(50);
+    silent.seek(Timestamp::fromMilliseconds(480));
+
+    CHECK(silent.audioTracks().empty());
+    CHECK(silent.position() == Timestamp::fromMilliseconds(480));
+}
+
+TEST_CASE("with nothing open there are no audio tracks", "[video][player][audio]") {
+    MpvPlayer idle = player();
+
+    CHECK(idle.audioTracks().empty());
+    idle.selectAudioTrack(1);
+    CHECK(idle.audioTracks().empty());
+}
+
+TEST_CASE("playing up to a position holds playback on the last frame before it",
+          "[video][player][numbered][until]") {
+    MpvPlayer playing = player();
+    REQUIRE(playing.open(fixture("videos/images-25.mp4")).has_value());
+    playing.seek(Timestamp::fromMilliseconds(1000));
+
+    playing.playUntil(Timestamp::fromMilliseconds(1500));
+    CHECK(playing.isPlaying());
+    REQUIRE(stopsWithin(playing, std::chrono::seconds{5}));
+
+    // Frame 37 starts at 1480 ms and is the last that starts before 1500.
+    CHECK(playing.position() == Timestamp::fromMilliseconds(1480));
+    CHECK(shownFrame(playing) == 37);
+}
+
+TEST_CASE("the stop of playing up to a position is not kept for the next play",
+          "[video][player][until]") {
+    MpvPlayer playing = player();
+    REQUIRE(playing.open(fixture("videos/images-25.mp4")).has_value());
+    playing.seek(Timestamp::fromMilliseconds(1000));
+    playing.playUntil(Timestamp::fromMilliseconds(1200));
+    REQUIRE(stopsWithin(playing, std::chrono::seconds{5}));
+    REQUIRE(playing.position() == Timestamp::fromMilliseconds(1160));
+
+    playing.play();
+    std::this_thread::sleep_for(std::chrono::milliseconds{300});
+
+    CHECK(playing.isPlaying());
+    CHECK(playing.position().value_or(Timestamp::origin()) > Timestamp::fromMilliseconds(1200));
+}
+
+TEST_CASE("playing up to a position already reached plays nothing", "[video][player][until]") {
+    MpvPlayer playing = player();
+    REQUIRE(playing.open(fixture("videos/images-25.mp4")).has_value());
+    playing.seek(Timestamp::fromMilliseconds(1000));
+
+    playing.playUntil(Timestamp::fromMilliseconds(1000));
+    CHECK_FALSE(playing.isPlaying());
+
+    playing.playUntil(Timestamp::fromMilliseconds(500));
+    CHECK_FALSE(playing.isPlaying());
+    CHECK(playing.position() == Timestamp::fromMilliseconds(1000));
+}
+
+TEST_CASE("playing up to a position past the end stops on the last frame",
+          "[video][player][numbered][until]") {
+    MpvPlayer playing = player();
+    REQUIRE(playing.open(fixture("videos/images-25.mp4")).has_value());
+    playing.seek(Timestamp::fromMilliseconds(subedit::test::startOf(245, 25, 1)));
+
+    playing.playUntil(Timestamp::fromMilliseconds(60000));
+
+    REQUIRE(stopsWithin(playing, std::chrono::seconds{5}));
+    CHECK(shownFrame(playing) == 249);
+    // The film is still open once it has ended.
+    CHECK(playing.duration() == Duration::fromMilliseconds(10000));
+}
+
+TEST_CASE("playing up to a position with nothing open does nothing", "[video][player][until]") {
+    MpvPlayer idle = player();
+
+    idle.playUntil(Timestamp::fromMilliseconds(1000));
+
+    CHECK_FALSE(idle.isPlaying());
 }

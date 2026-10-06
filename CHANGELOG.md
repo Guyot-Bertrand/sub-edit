@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **video** — Le lecteur gagne le pas, le volume, les pistes et playUntil
+
+## 0.14.2 — 2026-10-06
+
 ### Documentation
 
 - **doc** — Cadrage de la phase 14, calage fin

@@ -8,6 +8,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace subedit::core {
 
@@ -30,6 +31,28 @@ struct PlayerError {
     friend bool operator==(const PlayerError&, const PlayerError&) = default;
 };
 
+/// One audio track of a video, as the file declares it.
+///
+/// **The identifier is the file's own and means nothing outside it** — the
+/// first track of one film is not the first of another, which is why a choice
+/// of track is not carried from one video to the next. Language and title are
+/// whatever the container wrote, empty when it wrote nothing: the menu shows
+/// what there is and never invents a label.
+struct AudioTrack {
+    /// What `VideoPlayer::selectAudioTrack` takes.
+    int id = 0;
+
+    /// An ISO 639 code as the file spells it (`fra`, `eng`), or empty.
+    std::string language{};
+
+    std::string title{};
+
+    /// Whether this is the track playing now.
+    bool selected = false;
+
+    friend bool operator==(const AudioTrack&, const AudioTrack&) = default;
+};
+
 /// A video player, seen from the core.
 ///
 /// One of the five points where this project knows the variation is real — the
@@ -43,12 +66,12 @@ struct PlayerError {
 /// one. `check-architecture.sh` has held the Qt half of that line since
 /// phase 0; the rest is this file being the only one here that names a player.
 ///
-/// What it exposes is what phase 6 needs and not one thing more. Frame
-/// stepping and marking a position belong to phase 14, which is all that is
-/// left of it — with one exception, made on purpose: **seeking is exact from
-/// the first day.** It is phase 14 that will depend on it, but
+/// What it exposes is what the window needs and not one thing more: opening,
+/// placing, playing, the replica of a subtitle — and, with phase 14, stepping
+/// by frames, the volume, the audio tracks, and playing up to a position.
+/// **Seeking was exact from the first day**, ahead of what depended on it:
 /// `seek … absolute+exact` costs no more than an approximate seek, and writing
-/// it now makes it something a test can hold years before anything rests on it.
+/// it early made it something a test could hold before anything rested on it.
 ///
 /// **One thread.** A player is opened, asked and driven from the thread that
 /// built it. Nothing here is guarded, because nothing needs to be: the window
@@ -103,8 +126,32 @@ public:
     /// film is an ordinary thing to do, not a mistake to report.
     virtual void seek(Timestamp position) = 0;
 
-    /// Starts playback. Does nothing when no video is open.
+    /// Moves playback by `frames` pictures — forward when positive, back when
+    /// negative — and waits until the picture is there. Zero does nothing.
+    ///
+    /// **It stops at the ends rather than going past them**: stepping back from
+    /// the first frame stays on it, and stepping forward from the last stays
+    /// on the last. A step is a gesture repeated by a held key, and one that
+    /// ran off the film would end it. Playback is held afterwards, like every
+    /// step of a player — a caller that was playing is not playing any more.
+    ///
+    /// Does nothing when no video is open.
+    virtual void stepFrames(int frames) = 0;
+
+    /// Starts playback, and lets it run to the end of the film.
+    /// Does nothing when no video is open.
     virtual void play() = 0;
+
+    /// Starts playback and holds it again at `end`, **to the frame** — a
+    /// follower that stopped playback every 100 ms would let it run on by up to
+    /// three frames. Does not wait: playback runs by itself, and the caller
+    /// reads `isPlaying()` and `position()` as it does for `play()`.
+    ///
+    /// The stop belongs to this call alone: a later `play()` runs on past
+    /// `end`. An `end` that playback has already reached plays nothing.
+    ///
+    /// Does nothing when no video is open.
+    virtual void playUntil(Timestamp end) = 0;
 
     /// Holds playback where it is. Does nothing when no video is open.
     virtual void pause() = 0;
@@ -129,6 +176,24 @@ public:
     /// beside the player's would have two, and they would part company the
     /// first time playback stopped on its own at the end of the film.
     [[nodiscard]] virtual bool isPlaying() const = 0;
+
+    /// The volume, from 0 (silence) to 100. The player's own, not the
+    /// system's — and still answered with nothing open, since it is the
+    /// player's and not the film's.
+    [[nodiscard]] virtual int volume() const = 0;
+
+    /// Sets the volume. A value outside 0 to 100 is brought back to the
+    /// nearest bound, so that a caller adding a step never has to clamp first.
+    virtual void setVolume(int volume) = 0;
+
+    /// The audio tracks of the open video, in the file's order — none when no
+    /// video is open, and none for a video without sound. **Neither is an
+    /// error**: the menu shows an empty list.
+    [[nodiscard]] virtual std::vector<AudioTrack> audioTracks() const = 0;
+
+    /// Plays the track `id` of `audioTracks()`. An identifier the video does
+    /// not have changes nothing.
+    virtual void selectAudioTrack(int id) = 0;
 
 protected:
     VideoPlayer() = default;

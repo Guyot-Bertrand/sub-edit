@@ -90,6 +90,27 @@ readonly NUMBERED=(
     "images-23-976.mp4|24000/1001|240|1|24576"
 )
 
+# Les fixtures **à pistes audio** (#614). Elles montrent un écran noir, comme celles de
+# cadence : ce qu'on y lit, c'est le nombre de pistes sonores, leur langue et leur titre,
+# que le lecteur rend au menu `Audio`. Une seule piste, et deux — le cas où il y a un choix.
+# Une vidéo **sans** piste est `cadence-25.mp4`, qui n'en a jamais eu.
+#
+# Le son est un la à 440 Hz : le contenu n'importe pas, une piste existe ou non.
+#
+# **Matroska, et non MP4** — l'inverse du choix des autres : le MP4 n'a pas de titre de piste
+# (ffmpeg y écrit `handler_name`), et c'est précisément ce que ces fixtures doivent porter.
+# Ici les horodatages arrondis ne gênent pas : on n'y lit aucune image.
+#
+# nom | pistes (langue:titre, séparées par des virgules) | taille maximale admise
+readonly AUDIO=(
+    "audio-1.mkv|fra:Original|12288"
+    "audio-2.mkv|fra:Original,eng:Commentary|20480"
+)
+
+# Et **un film sans image** (#614) : du son seul, sans piste vidéo. Il n'a pas de fréquence d'image,
+# donc rien à avancer d'un pas — le cas où `stepFrames` ne sait pas quoi faire et le dit en ne faisant rien.
+readonly SOUND_ONLY=("sound-only.mkv|12288")
+
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
 readonly BOLD=$'\033[1m'
@@ -142,6 +163,38 @@ generate_numbered_one() {
         "${target}"
 }
 
+# Une piste par entrée de `tracks`, chacune avec sa langue et son titre. Le même la à 440 Hz
+# partout : ce qui distingue les pistes est leur étiquette, que le lecteur rend telle quelle.
+generate_sound_only_one() {
+    local target="$1"
+    ffmpeg -v error -y \
+        -f lavfi -i "sine=frequency=440:duration=${FIXTURE_SECONDS}" \
+        -c:a aac -b:a 16k -ac 1 -ar 8000 \
+        -fflags +bitexact -flags:a +bitexact -map_metadata -1 \
+        "${target}"
+}
+
+generate_audio_one() {
+    local target="$1" tracks="$2" track language title index=0
+    local -a inputs=() maps=() tags=()
+    IFS=',' read -r -a list <<<"${tracks}"
+    for track in "${list[@]}"; do
+        language="${track%%:*}"
+        title="${track#*:}"
+        inputs+=(-f lavfi -i "sine=frequency=440:duration=${FIXTURE_SECONDS}")
+        maps+=(-map "$((index + 1)):a")
+        tags+=("-metadata:s:a:${index}" "language=${language}" "-metadata:s:a:${index}" "title=${title}")
+        index=$((index + 1))
+    done
+    ffmpeg -v error -y \
+        -f lavfi -i "color=c=black:s=${FIXTURE_WIDTH}x${FIXTURE_HEIGHT}:r=25:d=${FIXTURE_SECONDS}" \
+        "${inputs[@]}" -map 0:v "${maps[@]}" \
+        -c:v mpeg4 -qscale:v 31 -pix_fmt yuv420p -c:a aac -b:a 16k -ac 1 -ar 8000 \
+        "${tags[@]}" \
+        -fflags +bitexact -flags:v +bitexact -flags:a +bitexact -map_metadata -1 \
+        "${target}"
+}
+
 # Le numéro que porte l'image `frame` d'un fichier, lu **par ffmpeg** : l'image décodée en
 # niveaux de gris, puis les huit barres, au milieu de la rangée du milieu.
 number_of() {
@@ -177,6 +230,17 @@ generate() {
         IFS='|' read -r name rate _ _ _ <<<"${entry}"
         generate_numbered_one "${FIXTURE_DIR}/${name}" "${rate}"
         ok "${name} — ${rate}, images numérotées, $(stat -c %s "${FIXTURE_DIR}/${name}") octets"
+    done
+    local tracks
+    for entry in "${AUDIO[@]}"; do
+        IFS='|' read -r name tracks _ <<<"${entry}"
+        generate_audio_one "${FIXTURE_DIR}/${name}" "${tracks}"
+        ok "${name} — pistes ${tracks}, $(stat -c %s "${FIXTURE_DIR}/${name}") octets"
+    done
+    for entry in "${SOUND_ONLY[@]}"; do
+        IFS='|' read -r name _ <<<"${entry}"
+        generate_sound_only_one "${FIXTURE_DIR}/${name}"
+        ok "${name} — du son seul, $(stat -c %s "${FIXTURE_DIR}/${name}") octets"
     done
 }
 
@@ -229,6 +293,58 @@ check_numbered() {
     done
 }
 
+check_audio() {
+    local entry name tracks maximum path size actual expected before
+    for entry in "${AUDIO[@]}"; do
+        IFS='|' read -r name tracks maximum <<<"${entry}"
+        path="${FIXTURE_DIR}/${name}"
+        before="${failures}"
+
+        if [[ ! -f "${path}" ]]; then
+            ko "${name} — absente ; ./src/scripts/video-fixtures.sh --generate"
+            continue
+        fi
+
+        # Langue et titre de chaque piste sonore, dans l'ordre, au format de la table.
+        actual="$(ffprobe -v error -select_streams a \
+            -show_entries stream_tags=language,title -of csv=p=0 "${path}" 2>/dev/null \
+            | awk -F, '{ printf "%s%s:%s", (NR > 1 ? "," : ""), $1, $2 }' || true)"
+        expected="${tracks}"
+        [[ "${actual}" == "${expected}" ]] \
+            || ko "${name} — pistes ${actual:-illisibles}, attendues ${expected}"
+
+        size="$(stat -c %s "${path}")"
+        (( size <= maximum )) \
+            || ko "${name} — ${size} octets, maximum ${maximum}"
+
+        [[ "${failures}" == "${before}" ]] \
+            && ok "${name} — pistes ${tracks}, ${size} octets"
+    done
+}
+
+check_sound_only() {
+    local entry name maximum path size video before
+    for entry in "${SOUND_ONLY[@]}"; do
+        IFS='|' read -r name maximum <<<"${entry}"
+        path="${FIXTURE_DIR}/${name}"
+        before="${failures}"
+
+        if [[ ! -f "${path}" ]]; then
+            ko "${name} — absente ; ./src/scripts/video-fixtures.sh --generate"
+            continue
+        fi
+
+        video="$(ffprobe -v error -select_streams v -show_entries stream=index \
+            -of csv=p=0 "${path}" 2>/dev/null | wc -l || true)"
+        [[ "${video}" == "0" ]] || ko "${name} — ${video} piste(s) vidéo, attendues aucune"
+
+        size="$(stat -c %s "${path}")"
+        (( size <= maximum )) || ko "${name} — ${size} octets, maximum ${maximum}"
+
+        [[ "${failures}" == "${before}" ]] && ok "${name} — du son seul, ${size} octets"
+    done
+}
+
 check() {
     require ffprobe
     local entry name rate duration maximum path size actual before
@@ -266,6 +382,8 @@ check() {
     done
 
     check_numbered
+    check_audio
+    check_sound_only
 
     (( failures == 0 )) || die "${failures} écart(s) entre les fixtures et la table."
     printf '  poids total : %s octets\n' "$(weight)"
@@ -273,7 +391,7 @@ check() {
 
 weight() {
     local entry name total=0
-    for entry in "${FIXTURES[@]}" "${NUMBERED[@]}"; do
+    for entry in "${FIXTURES[@]}" "${NUMBERED[@]}" "${AUDIO[@]}" "${SOUND_ONLY[@]}"; do
         IFS='|' read -r name _ <<<"${entry}"
         [[ -f "${FIXTURE_DIR}/${name}" ]] || continue
         total=$((total + $(stat -c %s "${FIXTURE_DIR}/${name}")))

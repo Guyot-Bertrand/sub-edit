@@ -111,13 +111,25 @@ public:
 
     void seek(core::Timestamp position) override;
 
+    void stepFrames(int frames) override;
+
     void play() override;
+
+    void playUntil(core::Timestamp end) override;
 
     void pause() override;
 
     void showSubtitle(std::string_view line) override;
 
     [[nodiscard]] bool isPlaying() const override;
+
+    [[nodiscard]] int volume() const override;
+
+    void setVolume(int volume) override;
+
+    [[nodiscard]] std::vector<core::AudioTrack> audioTracks() const override;
+
+    void selectAudioTrack(int id) override;
 
     /// The picture on screen now, or nothing when no video is open or libmpv
     /// would not give one. **Not an order of the seam**: `VideoPlayer` stays
