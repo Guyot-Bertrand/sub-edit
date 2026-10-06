@@ -13,6 +13,10 @@ ne pas l'éditer à la main.
 
 - **gui** — Les diagnostics de lecture sortent de la mise en page
 
+### Documentation
+
+- **doc** — Clôture de la phase 13
+
 ## 0.13.32 — 2026-10-06
 
 ### Tests
