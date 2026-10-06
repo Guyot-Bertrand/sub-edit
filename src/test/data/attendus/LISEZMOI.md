@@ -127,3 +127,9 @@ main d'après la lecture de Gaupol avant que rien n'aligne quoi que ce soit. `pa
 | Fichier | Cas | Provenance |
 | :------ | :-- | :--------- |
 | `json/pair.jsonl` | la paire `temoin` : quatre lignes rattachées, par position | à la main |
+
+## `correct/` — ce que `correct --dry-run` dit
+
+| Fichier | Cas | Provenance |
+| :------ | :-- | :--------- |
+| `correct/dry-run.txt` | la sortie standard de `correct --tasks mentions,common-errors --dry-run` sur `[Door]` et `eﬀet` (la ligature) : le sous-titre 1 supprimé, le 2 recomposé — le dossier temporaire du test y est écrit `<scratch>` | à la main : un bloc par sous-titre changé, `- ` devant le texte d'avant, `+ ` devant celui d'après, aucune ligne `+` pour une suppression |

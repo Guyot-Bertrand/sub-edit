@@ -85,11 +85,18 @@ TEST_CASE("two inputs of one base name in --output-dir are refused, and nothing 
     const std::string first = writeSrt(scratch, "a/film.srt", 1);
     const std::string second = writeSrt(scratch, "b/film.srt", 2);
 
+    const std::string firstBefore = contentOf(first);
+    const std::string secondBefore = contentOf(second);
+
     const CliRun run =
         invoke({"shift", "--by", "1", "--output-dir", scratch.of("out"), first, second});
 
-    // A usage error, code 1, naming the destination and both inputs.
+    // A usage error, code 1, naming the destination and both inputs; nothing on
+    // standard output, and the inputs as they were.
     CHECK(run.exitCode == 1);
+    CHECK(run.output.empty());
+    CHECK(contentOf(first) == firstBefore);
+    CHECK(contentOf(second) == secondBefore);
     CHECK_THAT(run.errors,
                ContainsSubstring(scratch.of("out/film.srt") + ": would be written by both " +
                                  first + " and " + second));
@@ -105,14 +112,20 @@ TEST_CASE("a collision is judged on the extension the destination ends up with",
     const std::string vtt =
         writeFile(scratch, "b/film.vtt", "WEBVTT\n\n00:01.000 --> 00:02.000\nhi\n");
 
+    const std::string srtBefore = contentOf(srt);
+    const std::string vttBefore = contentOf(vtt);
+
     // Both become out/film.vtt: neither input name says so.
     const CliRun run =
         invoke({"convert", "--to", "vtt", "--output-dir", scratch.of("out"), srt, vtt});
 
     CHECK(run.exitCode == 1);
+    CHECK(run.output.empty());
     CHECK_THAT(run.errors,
                ContainsSubstring(scratch.of("out/film.vtt") + ": would be written by both"));
     CHECK(!std::filesystem::exists(scratch.of("out")));
+    CHECK(contentOf(srt) == srtBefore);
+    CHECK(contentOf(vtt) == vttBefore);
 }
 
 TEST_CASE("an input is not written over without --in-place, however the destination is spelled",

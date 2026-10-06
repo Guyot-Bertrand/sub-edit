@@ -290,11 +290,13 @@ TEST_CASE("a dry run of each proposes number, text before and text after, in jso
     const std::string italic = writeFile(scratch, "in/i.srt", srt(kItalics));
     const std::string dashed = writeFile(scratch, "in/d.srt", srt(kDashes));
 
+    // A destination is given, so that the absence of a file is something observed.
+    const std::string out = scratch.of("out");
     std::string all;
-    for (const std::vector<std::string>& line :
-         std::vector<std::vector<std::string>>{{"case", "--to", "title", "--dry-run", cased},
-                                               {"italics", "--on", "--dry-run", italic},
-                                               {"dialogue-dashes", "--add", "--dry-run", dashed}}) {
+    for (const std::vector<std::string>& line : std::vector<std::vector<std::string>>{
+             {"case", "--to", "title", "--dry-run", "--output-dir", out, cased},
+             {"italics", "--on", "--dry-run", "--output-dir", out, italic},
+             {"dialogue-dashes", "--add", "--dry-run", "--output-dir", out, dashed}}) {
         std::vector<std::string> command{"--format", "json"};
         command.insert(command.end(), line.begin(), line.end());
         const CliRun run = invoke(command);
@@ -304,6 +306,10 @@ TEST_CASE("a dry run of each proposes number, text before and text after, in jso
     }
 
     CHECK_THAT(all, MatchesFile(corpus("attendus/json/texte-dry-run.jsonl")));
-    // Dry: nothing was written, and the inputs are as they were.
+    // Dry: nothing was written, not even the directory, and all three inputs are as
+    // they were.
+    CHECK_FALSE(std::filesystem::exists(out));
     CHECK(contentOf(cased) == srt(kCase));
+    CHECK(contentOf(italic) == srt(kItalics));
+    CHECK(contentOf(dashed) == srt(kDashes));
 }
