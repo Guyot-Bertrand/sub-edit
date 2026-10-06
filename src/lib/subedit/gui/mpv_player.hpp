@@ -3,13 +3,17 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/video_player.hpp>
+#include <subedit/gui/frame_source.hpp>
 
 #include <cstddef>
 #include <cstdint>
 #include <expected>
 #include <filesystem>
+#include <functional>
 #include <memory>
+#include <mutex>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -18,6 +22,7 @@
 // player owns a handle, and a header the window includes has no business
 // dragging <mpv/client.h> along with it.
 struct mpv_handle;
+struct mpv_render_context;
 
 namespace subedit::gui {
 
@@ -45,62 +50,41 @@ struct Picture {
     static constexpr std::size_t kBytesAPixel = 4;
 };
 
+/// Whether a player makes a sound. Every test builds one that does not: a player nobody
+/// can see should not be heard, and a runner has no sound device anyway.
+enum class Sound : unsigned char { Off, On };
+
 /// The player of ADR 0020: libmpv, behind `core::VideoPlayer`.
 ///
 /// **Here rather than in the core, though nothing in it knows Qt.** A player
-/// is a thing of the interface — it exists for the window, it takes its window
-/// from it, and nothing else will ever build one. What the core keeps is the
-/// interface alone, which names neither libmpv nor Qt; letting the
-/// implementation in with it would have given the domain a dependency on a
-/// media library for the convenience of a lighter test harness, and
-/// convenience is not an architecture.
+/// is a thing of the interface — it exists for the window, and nothing else
+/// will ever build one. What the core keeps is the interface alone, which names
+/// neither libmpv nor Qt; letting the implementation in with it would have given
+/// the domain a dependency on a media library for the convenience of a lighter
+/// test harness, and convenience is not an architecture.
 ///
-/// **It draws into the window it is given, and the window is a number.**
-/// libmpv adopts a native window handed to it as the `wid` option; the
-/// rendering was decided between that and an OpenGL context Qt would provide,
-/// and adopting the native window is the shorter of the two. It leaves the
-/// subtitle to libmpv's own overlay, drawn from the model, which is what D2
-/// asks for.
-///
-/// A number and not a widget, though this class lives beside the window: it
-/// is all libmpv wants, and taking a `QWidget` would put Qt in a header that
-/// has no other use for it.
-///
-/// **And that window has to be an X11 one**, which is what adopting a native
-/// window means — libmpv's own header says « X11, win32, and OSX only ». So a
-/// player given a window asks for an X11 context rather than letting libmpv
-/// probe, and `mpvPlayers` is what keeps a window of any other kind from ever
-/// reaching here.
-///
-/// **A player given no window draws nowhere and makes no sound**, and that is
-/// the shape every test uses: `vo=null` is what lets one run where there is no
-/// screen, measured rather than promised — with `vo=auto` and no display, mpv
-/// does not even open the file.
+/// **It draws into a buffer it is handed, and that is all it knows of a window**
+/// — ADR 0041. libmpv's software render API (`vo=libmpv`) needs no native window, no
+/// graphic context and no X11: `render` fills the pixels the widget gives, and the
+/// widget paints them. The same code runs on X11, Wayland and with no screen at all,
+/// which is what lets a test read the picture the player shows. It leaves the subtitle
+/// to libmpv's own overlay, drawn from the model, which is what D2 asks for.
 ///
 /// **A handle is a resource**, in the sense of the project's second design
 /// principle: libmpv gives one out, and it has to be given back. It is held by
 /// a `unique_ptr` with a deleter of its own, so that a player which fails
 /// halfway through being built, or which is moved from, gives it back exactly
-/// once.
-class MpvPlayer final : public core::VideoPlayer {
+/// once. **The render context is freed before the handle, always** — it is declared
+/// after it, which is what makes the order not a matter of vigilance.
+class MpvPlayer final : public core::VideoPlayer, public FrameSource {
 
 public:
-    /// Builds a player drawing into `window`, or says why libmpv would not
-    /// give one.
+    /// Builds a player, or says why libmpv would not give one.
     ///
     /// A factory and not a constructor: building one can fail, and a
     /// constructor that fails has only exceptions to say so with.
-    ///
-    /// **`window` is settled here and never again.** libmpv reads `wid` while
-    /// it initialises and ignores it afterwards — measured: set after
-    /// `mpv_initialize`, the property answers « success » and the value does
-    /// not stick. A player therefore belongs to one surface for its whole
-    /// life, which is why the window builds one once its own is native and
-    /// hands the number over.
-    ///
-    /// Zero means nowhere, which is what every test uses.
     [[nodiscard]] static std::expected<MpvPlayer, core::PlayerError>
-    create(std::uintptr_t window = 0);
+    create(Sound sound = Sound::Off);
 
     [[nodiscard]] std::expected<void, core::PlayerError>
     open(const std::filesystem::path& video) override;
@@ -131,6 +115,11 @@ public:
 
     void selectAudioTrack(int id) override;
 
+    void onFrameReady(std::function<void()> notify) override;
+
+    [[nodiscard]] bool
+    render(std::span<unsigned char> pixels, int width, int height, std::size_t stride) override;
+
     /// The picture on screen now, or nothing when no video is open or libmpv
     /// would not give one. **Not an order of the seam**: `VideoPlayer` stays
     /// free of pixels, and what reads this is a test, and — when ADR 0041 puts
@@ -143,15 +132,36 @@ private:
         void operator()(mpv_handle* player) const noexcept;
     };
 
-    using Handle = std::unique_ptr<mpv_handle, TerminateAndDestroy>;
+    /// Gives the render context back to libmpv, once.
+    struct FreeRenderContext {
+        void operator()(mpv_render_context* context) const noexcept;
+    };
 
-    explicit MpvPlayer(Handle handle) : m_handle(std::move(handle)) {}
+    /// What libmpv's update callback reaches: the function to call, and the lock that
+    /// keeps `onFrameReady` from returning while it runs. On the heap, so that its
+    /// address — which libmpv holds — survives a move of the player.
+    struct Notifier {
+        std::mutex lock;
+        std::function<void()> notify;
+    };
+
+    using Handle = std::unique_ptr<mpv_handle, TerminateAndDestroy>;
+    using RenderContext = std::unique_ptr<mpv_render_context, FreeRenderContext>;
+
+    MpvPlayer(Handle handle, std::unique_ptr<Notifier> notifier, RenderContext render)
+        : m_handle(std::move(handle)),
+          m_notifier(std::move(notifier)),
+          m_render(std::move(render)) {}
 
     /// Whether a video is loaded. Every question below answers « nothing » and
     /// every order does nothing while this is false.
     bool m_open = false;
 
+    // **The order is the contract**: members are destroyed last to first, so the render
+    // context goes before the notifier it calls and before the handle it draws from.
     Handle m_handle;
+    std::unique_ptr<Notifier> m_notifier;
+    RenderContext m_render;
 };
 
 /// Turns a subtitle's text into the ASS event libmpv's overlay draws.

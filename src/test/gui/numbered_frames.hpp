@@ -10,9 +10,24 @@
 
 #include <subedit/gui/mpv_player.hpp>
 
+#include <cstddef>
 #include <cstdint>
+#include <vector>
 
 namespace subedit::test {
+
+/// The picture `player` draws through its render API at `width` by `height`, or an empty
+/// one when it draws nothing — what a widget would paint (ADR 0041).
+[[nodiscard]] inline subedit::gui::Picture
+renderedAt(subedit::gui::MpvPlayer& player, int width, int height) {
+    subedit::gui::Picture picture{.width = width, .height = height};
+    const std::size_t stride =
+        static_cast<std::size_t>(width) * subedit::gui::Picture::kBytesAPixel;
+    picture.pixels.assign(stride * static_cast<std::size_t>(height), 0);
+    if (!player.render(picture.pixels, width, height, stride))
+        return {};
+    return picture;
+}
 
 /// The number the picture carries, 0 to 255.
 [[nodiscard]] inline int frameNumberOf(const subedit::gui::Picture& picture) {

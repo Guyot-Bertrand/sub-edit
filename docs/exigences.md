@@ -276,9 +276,9 @@ plus rien.
 | `CLI-APPEND-01` | `append` ajoute les fichiers à la suite du premier, décalés de la fin du dernier sous-titre, dans une seule sortie | 13 | implémentée |
 | `CLI-PSPLIT-01` | `split-file --at N` écrit les deux moitiés, la seconde ramenée à l'origine, ou refuse en nommant le sous-titre | 13 | implémentée |
 | `CLI-PAIR-01` | `pair` écrit la traduction recalée sur les positions du principal, et dit l'alignement | 13 | implémentée |
-| `GUI-SURFACE-01` | l'image de la vidéo est dessinée dans la fenêtre, redimensionnable, son rapport d'aspect conservé | 14 | prévue |
-| `GUI-SURFACE-02` | après un saut, l'image affichée est celle de la position demandée, la plus proche | 14 | prévue |
-| `GUI-SURFACE-03` | la fenêtre n'adopte aucune fenêtre native et n'exige pas X11 | 14 | prévue |
+| `GUI-SURFACE-01` | l'image de la vidéo est dessinée dans la fenêtre, redimensionnable, son rapport d'aspect conservé | 14 | implémentée |
+| `GUI-SURFACE-02` | après un saut, l'image affichée est celle de la position demandée, la plus proche | 14 | implémentée |
+| `GUI-SURFACE-03` | la fenêtre n'adopte aucune fenêtre native et n'exige pas X11 | 14 | implémentée |
 | `GUI-STEP-01` | avancer d'une image affiche l'image suivante | 14 | prévue |
 | `GUI-STEP-02` | reculer d'une image affiche l'image précédente | 14 | prévue |
 | `GUI-STEP-03` | la durée d'une image vient de la vidéo, à défaut du document, à défaut de la grille ; sans aucune, le geste refuse en le disant | 14 | prévue |

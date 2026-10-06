@@ -52,6 +52,7 @@
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/open_translation_dialog.hpp>
+#include <subedit/gui/player_factory.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/qt_prompts.hpp>
@@ -64,14 +65,17 @@
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/theme.hpp>
 #include <subedit/gui/unsaved_documents_dialog.hpp>
+#include <subedit/gui/video_surface.hpp>
 
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QByteArray>
+#include <QEventLoop>
 #include <QFileDialog>
 #include <QFont>
 #include <QFontInfo>
 #include <QHeaderView>
+#include <QImage>
 #include <QItemSelectionModel>
 #include <QLineEdit>
 #include <QMessageLogContext>
@@ -79,6 +83,7 @@
 #include <QPixmap>
 #include <QPlainTextEdit>
 #include <QRect>
+#include <QRgb>
 #include <QSplitter>
 #include <QString>
 #include <QStyleFactory>
@@ -87,6 +92,7 @@
 #include <QtGlobal>
 
 #include <array>
+#include <chrono>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -104,6 +110,20 @@ namespace {
 /// naming none.
 constexpr const char* kFontFamily = "DejaVu Sans";
 constexpr int kFontPointSize = 10;
+
+/// How light a pixel has to be for the picture to count as drawn: the film of the manual
+/// is bars on a grey ground, and the surface starts black.
+constexpr int kPictureThreshold = 20;
+
+/// The step of the scan that looks for the picture, in pixels.
+constexpr int kScanStep = 8;
+
+/// How long the window is let settle once the picture is there, in milliseconds.
+constexpr int kSettleMilliseconds = 200;
+
+/// The row selected in the shot of the film: the first subtitle, which seeks the film to
+/// its start and draws it over the picture.
+constexpr int kFilmRow = 0;
 
 /// The size of the window that is photographed.
 ///
@@ -302,6 +322,46 @@ writeShot(const QPixmap& shot, const std::filesystem::path& directory, const std
     return subedit::gui::MainWindow{files, std::move(opened), prompts, {}, {}};
 }
 
+/// A window opened on the fixture named, with a film associated — and the real player behind
+/// it, which is what ADR 0041 made possible to photograph: the picture is in the window.
+[[nodiscard]] subedit::gui::MainWindow windowOnFilm(subedit::core::FileSystem& files,
+                                                    subedit::gui::Prompts& prompts,
+                                                    const std::string& fixture,
+                                                    const std::string& film) {
+    subedit::core::OpenedFile opened = subedit::core::openProject(files, corpus(fixture)).value();
+    opened.project.chooseVideo(corpus(film));
+    return subedit::gui::MainWindow{
+        files, std::move(opened), prompts, subedit::gui::mpvPlayers(), {}};
+}
+
+/// Whether the surface has painted something other than black yet.
+[[nodiscard]] bool showsAPicture(const subedit::gui::VideoSurface& surface) {
+    const QImage& image = surface.image();
+    // Every few pixels: the bars are wide, and a scan of the whole buffer at every turn of
+    // the loop would be the slowest thing in this program.
+    for (int y = 0; y < image.height(); y += kScanStep) {
+        for (int x = 0; x < image.width(); x += kScanStep) {
+            if (qGray(image.pixel(x, y)) > kPictureThreshold)
+                return true;
+        }
+    }
+    return false;
+}
+
+/// Lets the event loop run until the picture is there, a few seconds at most: libmpv
+/// announces a frame from a thread of its own, and the surface draws it on the next turn.
+void waitForThePicture(const subedit::gui::MainWindow& window) {
+    // `dynamic_cast` and not `findChild`: the surface has no meta-object of its own, and
+    // `findChild` would hand back the first widget of the window.
+    const auto* surface = dynamic_cast<const subedit::gui::VideoSurface*>(window.videoView());
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds{5};
+    while (surface != nullptr && !showsAPicture(*surface) &&
+           std::chrono::steady_clock::now() < deadline)
+        QApplication::processEvents(QEventLoop::AllEvents, 20);
+    // And a moment more, for the subtitle the follower draws at its next tick.
+    QApplication::processEvents(QEventLoop::AllEvents, kSettleMilliseconds);
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -378,6 +438,29 @@ int main(int argc, char** argv) {
         subedit::gui::MainWindow window = windowOn(files, prompts, "manuel/scene.srt");
         window.resize(kWindowWidth, kWindowHeight);
         written = capture(window, window, directory, "fenetre-sombre") && written;
+    }
+
+    // The film in the window — ADR 0041, `GUI-SURFACE-01`. The first subtitle is selected,
+    // which places the film at its start and draws the line over the picture.
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Light);
+        subedit::gui::MainWindow window =
+            windowOnFilm(files, prompts, "manuel/scene.srt", "videos/images-25.mp4");
+        window.resize(kWindowWidth, kWindowHeight);
+        window.show();
+        window.table()->selectRow(kFilmRow);
+        waitForThePicture(window);
+        written = capture(window, window, directory, "lecteur") && written;
+    }
+    {
+        subedit::gui::applyTheme(subedit::core::Theme::Dark);
+        subedit::gui::MainWindow window =
+            windowOnFilm(files, prompts, "manuel/scene.srt", "videos/images-25.mp4");
+        window.resize(kWindowWidth, kWindowHeight);
+        window.show();
+        window.table()->selectRow(kFilmRow);
+        waitForThePicture(window);
+        written = capture(window, window, directory, "lecteur-sombre") && written;
     }
 
     // Two tabs — issue #437, `GUI-TABS-01`. `New` rather than a second real

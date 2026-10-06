@@ -1,7 +1,7 @@
 # 0020 — libmpv pour le lecteur intégré
 
 **Date :** 2026-08-22
-**Statut :** acceptée
+**Statut :** acceptée — **complétée par [0041](0041-afficher-la-video-par-le-rendu-logiciel.md)** pour la façon dont l'image arrive dans la fenêtre : la fenêtre native adoptée par `wid`, que cette décision retenait, a cédé la place au rendu logiciel de libmpv, peint par un widget Qt.
 
 ## Contexte
 

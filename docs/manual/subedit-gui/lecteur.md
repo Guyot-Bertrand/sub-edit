@@ -15,6 +15,11 @@ page décrit ce qui se passe une fois qu'il l'est.
 | aucune vidéo associée | pas d'image, la table occupe toute la fenêtre |
 | la vidéo ne s'ouvre pas | pas d'image, un message, et la fenêtre reste utilisable |
 
+![La fenêtre avec une vidéo associée : l'image occupe le haut, la réplique
+courante est dessinée dessus, la table est dessous.](captures/lecteur.png)
+
+![La même fenêtre sous la palette sombre.](captures/lecteur-sombre.png)
+
 La séparation entre l'image et la table **se déplace à la souris**. L'image ne
 descend pas sous 180 pixels de haut. Agrandir la fenêtre donne la place gagnée
 à la table, pas à l'image : ce dont on manque en éditant, ce sont des lignes.
@@ -112,23 +117,18 @@ Dans les deux cas, **la vidéo reste associée** — il faut bien voir de quel
 fichier il s'agit pour en choisir un autre — et **la fenêtre reste utilisable** :
 le document est ouvert, les opérations fonctionnent, l'enregistrement aussi.
 
-**Le lecteur intégré s'appuie sur l'adoption d'une fenêtre native, qui est un
-mécanisme X11.** Sous une session Wayland, la fenêtre que Qt fournit par défaut
-n'en est pas une. `subedit-gui` s'en occupe : il demande la plateforme `xcb`
-avant de construire son application, ce qui le fait passer par XWayland, et le
-film s'affiche dans la fenêtre.
+**L'image est dessinée dans la fenêtre elle-même** : `libmpv` remplit un tampon à la
+taille de la vue, en pixels réels, et la fenêtre le peint. Rien n'en dépend de la
+plateforme graphique — la même image sous X11, sous Wayland et sans écran — et elle
+suit le redimensionnement : le rapport d'aspect du film est conservé, le reste de la
+vue est noir.
 
-Il ne le fait **que si personne n'a choisi**. Un `QT_QPA_PLATFORM` déjà posé est
-respecté tel quel :
+Le second message n'apparaît donc que si la bibliothèque `libmpv` refuse de démarrer,
+alors qu'elle est requise à la compilation.
 
-```console
-$ QT_QPA_PLATFORM=wayland subedit-gui film.fr.srt   # pas d'image, et c'est voulu
-```
-
-Restent deux cas où le second message apparaît, et ils sont rares : une session
-Wayland **sans serveur X du tout**, où il n'y a rien de mieux à demander ; et une
-bibliothèque `libmpv` qui refuse de démarrer, alors qu'elle est requise à la
-compilation.
+Le rendu passe par le processeur : le décodage matériel sans copie n'est pas
+disponible. Sur un éditeur de sous-titres, une image coûte quelques millisecondes, et
+la lecture tient le temps réel.
 
 ## Ce qui n'y est pas
 

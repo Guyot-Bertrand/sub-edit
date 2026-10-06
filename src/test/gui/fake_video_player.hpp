@@ -5,9 +5,9 @@
 // **This is what the seam of `core::VideoPlayer` was for**, and the spec of
 // phase 6 said so before it existed: the real player is proved on the fixtures
 // of #163, in `mpv_player_test.cpp`, and the window is proved against this
-// one. The two halves cannot be tested together — a real libmpv handed the
-// window of an offscreen Qt platform draws nowhere and refuses the file, which
-// is the very measurement `vo=null` came out of.
+// one. The picture the window paints has its own cases, with a real player, in
+// `video_surface_test.cpp` (ADR 0041); what belongs here is everything else the
+// window decides, and deciding it does not need a film decoded every time.
 //
 // It answers what the interface promises and remembers what it was asked, so
 // that a case can read « the window opened this film », « it placed playback

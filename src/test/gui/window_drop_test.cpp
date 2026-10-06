@@ -70,7 +70,7 @@ struct Projectionist {
 };
 
 [[nodiscard]] PlayerFactory projecting(Projectionist& booth) {
-    return [&booth](std::uintptr_t) -> std::unique_ptr<VideoPlayer> {
+    return [&booth]() -> std::unique_ptr<VideoPlayer> {
         auto made = std::make_unique<FakeVideoPlayer>();
         booth.player = made.get();
         return made;
