@@ -201,6 +201,7 @@ add_executable(
     cli/records_test.cpp
     cli/replacing_test.cpp
     cli/appending_test.cpp
+    cli/options_test.cpp
     cli/rewriting_test.cpp
     cli/reporter_test.cpp
     cli/shifting_test.cpp

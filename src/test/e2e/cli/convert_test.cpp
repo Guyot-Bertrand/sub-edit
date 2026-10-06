@@ -1,5 +1,8 @@
 // Converting between the two formats of the MVP, through the real binary.
 
+#include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/wording/formats.hpp>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
@@ -17,6 +20,7 @@ using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
 using subedit::e2e::Scratch;
+using subedit::e2e::writeFile;
 
 TEST_CASE("converting writes the format asked for", "[e2e][CLI-CONVERT-01]") {
     const Scratch scratch;
@@ -255,4 +259,21 @@ TEST_CASE("a batch converts what it can and counts the rest", "[e2e][CLI-BATCH-0
 
     CHECK(run.exitCode == 3);
     CHECK(std::filesystem::exists(scratch.of("minimal.vtt")));
+}
+
+TEST_CASE("the target format accepts the short name of every format the library handles",
+          "[e2e][CLI-CONVERT-01]") {
+    // The values of `--to` are derived from the list the core walks, so a format that is
+    // added there is offered here — and this is what says it can also be written.
+    const Scratch scratch;
+    const std::string input =
+        writeFile(scratch, "in/a.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n");
+
+    for (const subedit::core::SubtitleFormat format : subedit::core::kSubtitleFormats) {
+        const std::string name{subedit::core::optionNameOf(format)};
+        INFO(name);
+        CHECK(invoke({"--quiet", "convert", "--to", name, "--frame-rate", "25", "--dry-run", input})
+                  .exitCode == 0);
+    }
+    CHECK(invoke({"convert", "--to", "docx", "--dry-run", input}).exitCode == 1);
 }

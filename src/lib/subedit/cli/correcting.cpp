@@ -1,5 +1,6 @@
 #include <subedit/cli/changes.hpp>
 #include <subedit/cli/correcting.hpp>
+#include <subedit/cli/reporter.hpp>
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/edit/session.hpp>
@@ -12,6 +13,7 @@
 #include <subedit/core/text/icu_pattern_engine.hpp>
 #include <subedit/core/text/line_measure.hpp>
 #include <subedit/core/text/spell_dictionary.hpp>
+#include <subedit/core/text/spell_replacements.hpp>
 #include <subedit/core/wording/correction.hpp>
 #include <subedit/core/wording/counts.hpp>
 
@@ -597,6 +599,41 @@ ExitCode correctIn(core::FileSystem& files,
 
     return rewriteAll(
         files, paths, reading, destination, reporter, "corrected", correct, range, pairing);
+}
+
+std::expected<CorrectionRun, std::string>
+prepareCorrection(core::FileSystem& files,
+                  const Reporter& reporter,
+                  const CorrectionOptions& options,
+                  const std::filesystem::path& installedPatterns,
+                  const std::filesystem::path& userPatterns,
+                  const SpellProviderFactory& makeProvider) {
+    core::PatternCatalogue catalogue =
+        core::readPatternCatalogue(files, installedPatterns, userPatterns);
+    for (const core::PatternDiagnostic& diagnostic : catalogue.diagnostics()) {
+        reporter.say(1, "patterns: " + core::describe(diagnostic));
+    }
+
+    std::expected<core::CorrectionSettings, std::string> settings =
+        correctionSettingsOf(options, catalogue);
+    if (!settings) {
+        return std::unexpected{settings.error()};
+    }
+
+    CorrectionRun run{.catalogue = std::move(catalogue), .settings = *std::move(settings)};
+    if (run.settings.joinSplitEnabled) {
+        run.provider = makeProvider();
+        std::expected<core::SpellChecker, core::NoDictionary> opened =
+            core::openSpellChecker(*run.provider,
+                                   run.settings.spellLanguage,
+                                   files,
+                                   core::spellReplacementFile({}, run.settings.spellLanguage));
+        if (!opened) {
+            return std::unexpected{core::noDictionaryFor(opened.error().language)};
+        }
+        run.spellChecker.emplace(std::move(*opened));
+    }
+    return run;
 }
 
 } // namespace subedit::cli

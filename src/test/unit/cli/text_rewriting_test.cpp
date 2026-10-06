@@ -163,3 +163,22 @@ TEST_CASE("a dry run lists the changes and writes nothing",
     CHECK_THAT(done.errors, ContainsSubstring("(dry run, nothing written)"));
     CHECK_THAT(done.records, ContainsSubstring("\"changes\":[{\"subtitle\":1,"));
 }
+
+TEST_CASE("the words of the text subcommands name one way, and two are refused",
+          "[cli][text-rewriting][CLI-ITALIC-01][CLI-DASH-01]") {
+    CHECK(subedit::cli::letterCaseNamed("title") == subedit::core::LetterCase::Title);
+    CHECK(subedit::cli::letterCaseNamed("sentence") == subedit::core::LetterCase::Sentence);
+    CHECK(subedit::cli::letterCaseNamed("upper") == subedit::core::LetterCase::Upper);
+    CHECK(subedit::cli::letterCaseNamed("lower") == subedit::core::LetterCase::Lower);
+
+    CHECK(subedit::cli::italicsDirectionOf(true, false).value());
+    CHECK_FALSE(subedit::cli::italicsDirectionOf(false, true).value());
+    CHECK_FALSE(subedit::cli::italicsDirectionOf(true, true).has_value());
+    CHECK_FALSE(subedit::cli::italicsDirectionOf(false, false).has_value());
+
+    CHECK(subedit::cli::dashesDirectionOf(true, false).value());
+    CHECK_FALSE(subedit::cli::dashesDirectionOf(false, true).value());
+    CHECK_FALSE(subedit::cli::dashesDirectionOf(true, true).has_value());
+    CHECK(subedit::cli::dashesDirectionOf(false, false).error().find("needs --add") !=
+          std::string::npos);
+}

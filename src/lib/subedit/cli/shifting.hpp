@@ -6,6 +6,7 @@
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/time/duration.hpp>
 
+#include <expected>
 #include <optional>
 #include <string>
 #include <vector>
@@ -18,6 +19,14 @@ namespace subedit::cli {
 
 class Destination;
 class Reporter;
+
+/// By how much `shift` is asked to move, as `--by` and `--to-grid` were written: a
+/// duration, or **nothing when the amount is to be measured** (`--to-grid`).
+///
+/// Refused, naming the options, when both are given — they each say by how much to
+/// move — and when neither is; and when `--by` does not read as a duration.
+[[nodiscard]] std::expected<std::optional<subedit::core::Duration>, std::string>
+shiftAmountOf(bool toGrid, const std::string& by);
 
 /// Shifts every path by `by`, and says how it went.
 ///

@@ -9,6 +9,7 @@
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/text/letter_case.hpp>
 
+#include <expected>
 #include <optional>
 #include <string>
 #include <vector>
@@ -21,6 +22,19 @@ namespace subedit::cli {
 
 class Destination;
 class Reporter;
+
+/// The case a word names: `title`, `sentence`, `upper` or `lower`. The four are the closed
+/// set `--to` accepts, checked by the option before this is called; anything else reads as
+/// `lower`.
+[[nodiscard]] subedit::core::LetterCase letterCaseNamed(const std::string& name);
+
+/// Which way `italics` is asked to go, from `--on` and `--off`: true to put the texts in
+/// italics. **Two words and not a toggle**: refused, naming them, when both are given and
+/// when neither is — the decision stays with whoever is typing.
+[[nodiscard]] std::expected<bool, std::string> italicsDirectionOf(bool on, bool off);
+
+/// The same for `dialogue-dashes`, from `--add` and `--remove`: true to put the dashes on.
+[[nodiscard]] std::expected<bool, std::string> dashesDirectionOf(bool add, bool remove);
 
 /// Puts the texts of every path in `wanted` case, tags left where they were, and
 /// says how it went.

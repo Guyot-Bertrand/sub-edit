@@ -24,6 +24,7 @@ add_library(
     encoding_grammar.cpp
     encoding_listing.cpp
     opening.cpp
+    options.cpp
     diagnostics.cpp
     digits.cpp
     frame_rate_conversion.cpp

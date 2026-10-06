@@ -309,3 +309,18 @@ TEST_CASE("a shift run dry writes nothing and says so", "[cli][shifting][CLI-DRY
     CHECK_THAT(errors.str(), ContainsSubstring("shifted by 1.000 s (dry run, nothing written)"));
     CHECK(files.directoriesAsked().empty());
 }
+
+TEST_CASE("the amount of a shift is given or measured, never both and never neither",
+          "[cli][shifting][CLI-SHIFT-01]") {
+    const auto given = subedit::cli::shiftAmountOf(false, "1.5");
+    REQUIRE(given.has_value());
+    CHECK(given->value_or(subedit::core::Duration::zero()).milliseconds() == 1500);
+
+    const auto measured = subedit::cli::shiftAmountOf(true, "");
+    REQUIRE(measured.has_value());
+    CHECK_FALSE(measured->has_value());
+
+    CHECK_FALSE(subedit::cli::shiftAmountOf(true, "1").has_value());
+    CHECK_FALSE(subedit::cli::shiftAmountOf(false, "").has_value());
+    CHECK_FALSE(subedit::cli::shiftAmountOf(false, "banana").has_value());
+}

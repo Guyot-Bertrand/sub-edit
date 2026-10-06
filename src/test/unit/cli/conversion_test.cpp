@@ -527,3 +527,42 @@ TEST_CASE("a conversion run dry writes nothing and says so", "[cli][conversion][
     CHECK_THAT(errors.str(), ContainsSubstring("would be written"));
     CHECK_THAT(records.str(), ContainsSubstring("\"dry_run\":true,\"destination\":null"));
 }
+
+TEST_CASE("the shape asked for is the options as written, and two opposite marks are refused",
+          "[cli][conversion][CLI-CONVERT-01]") {
+    const auto none = subedit::cli::writeShapeOf("", "", false, false);
+    REQUIRE(none.has_value());
+    CHECK_FALSE(none->newline.has_value());
+    CHECK_FALSE(none->encoding.has_value());
+    CHECK_FALSE(none->bom.has_value());
+
+    const auto windows = subedit::cli::writeShapeOf("windows", "", false, true);
+    REQUIRE(windows.has_value());
+    CHECK(windows->newline == subedit::core::Newline::CrLf);
+    CHECK(windows->bom == subedit::core::ByteOrderMark::Absent);
+    CHECK(subedit::cli::writeShapeOf("mac", "", true, false)->newline ==
+          subedit::core::Newline::Cr);
+    CHECK(subedit::cli::writeShapeOf("unix", "", true, false)->bom ==
+          subedit::core::ByteOrderMark::Present);
+
+    const auto latin = subedit::cli::writeShapeOf("", "ISO-8859-1", false, false);
+    REQUIRE(latin.has_value());
+    CHECK(latin->encoding.has_value());
+
+    const auto opposite = subedit::cli::writeShapeOf("", "", true, true);
+    REQUIRE_FALSE(opposite.has_value());
+    CHECK(opposite.error().find("--bom and --no-bom") != std::string::npos);
+    CHECK_FALSE(subedit::cli::writeShapeOf("", "no-such-encoding", false, false).has_value());
+}
+
+TEST_CASE("an in-place conversion is refused only when it would leave a file misnamed",
+          "[cli][conversion][CLI-CONVERT-01]") {
+    using subedit::core::SubtitleFormat;
+    const std::vector<std::string> paths{"a.srt"};
+
+    CHECK(subedit::cli::refusalOfInPlaceRename(true, paths, SubtitleFormat::WebVtt).has_value());
+    CHECK_FALSE(
+        subedit::cli::refusalOfInPlaceRename(true, paths, SubtitleFormat::SubRip).has_value());
+    CHECK_FALSE(
+        subedit::cli::refusalOfInPlaceRename(false, paths, SubtitleFormat::WebVtt).has_value());
+}

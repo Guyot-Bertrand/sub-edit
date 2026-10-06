@@ -41,9 +41,9 @@ ExitCode runDialogueDashes(const DialogueDashesOptions& options,
                            core::FileSystem& files,
                            const std::optional<core::Encoding>& reading,
                            const Reporter& reporter) {
-    if (options.add == options.remove) {
-        return refuse(options.add ? "--add and --remove say opposite things; give one of them"
-                                  : "dialogue-dashes needs --add to put dashes on, or --remove");
+    const std::expected<bool, std::string> dashed = dashesDirectionOf(options.add, options.remove);
+    if (!dashed) {
+        return refuse(dashed.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -61,7 +61,7 @@ ExitCode runDialogueDashes(const DialogueDashesOptions& options,
     return dialogueDashesIn(files,
                             prepared->inputs.paths,
                             reading,
-                            options.add,
+                            *dashed,
                             prepared->range,
                             prepared->destination,
                             reporter,
