@@ -276,6 +276,10 @@ d'ouvert. **Les diagnostics de lecture sont montrés** dans un panneau repliable
 c'est le premier endroit du projet où ils atteignent un utilisateur autrement que
 par `-vvv`.
 
+*Remplacé à la relecture de la phase 13 ([#605](https://github.com/Guyot-Bertrand/sub-edit/issues/605)) : le panneau
+replié prenait une rangée de la fenêtre pour une information rare, lue une fois. Ce sont maintenant un bouton de
+la barre d'état et une liste flottante ; `GUI-OPEN-03` ne change pas.*
+
 ### Enregistrer, enregistrer sous
 
 Enregistrer réécrit dans le format, les fins de ligne, le BOM et l'en-tête

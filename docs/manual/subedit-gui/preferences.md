@@ -260,7 +260,7 @@ leur —, et chacun dans celui où il sert : le thème et les trois réglages de
 les deux options de la recherche, dans le dialogue de recherche ; l'encodage et
 la marque d'ordre des octets, dans `Save As…` ; la vitesse de lecture, les durées
 et l'écart de l'ajustement des durées, dans son propre dialogue. Il n'y en a pas
-d'autre : rien ne se règle pour le panneau de diagnostics, le volume du lecteur,
+d'autre : rien ne se règle pour les diagnostics, le volume du lecteur,
 ni le format d'enregistrement par défaut — celui-ci vient du fichier ouvert.
 
 Et **aucun nombre qui appartient à un document n'est gardé d'une session à

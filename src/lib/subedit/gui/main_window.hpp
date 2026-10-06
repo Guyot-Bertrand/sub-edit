@@ -57,7 +57,7 @@ namespace subedit::gui {
 
 class SearchDialog;
 
-class DiagnosticsPanel;
+class DiagnosticsButton;
 class ManualWindow;
 class Prompts;
 struct ProjectPage;
@@ -224,7 +224,7 @@ public:
     [[nodiscard]] QAction* splitAction() const { return m_actions->splitSubtitle; }
 
     /// The panel of what the last reading ran into.
-    [[nodiscard]] DiagnosticsPanel* diagnostics() const { return m_diagnostics; }
+    [[nodiscard]] DiagnosticsButton* diagnostics() const { return m_diagnostics; }
 
     [[nodiscard]] QAction* shiftAction() const { return m_actions->shift; }
 
@@ -669,7 +669,7 @@ private:
 
     /// The four standing facts of the status bar — issue #485.
     std::unique_ptr<StatusLine> m_status;
-    DiagnosticsPanel* m_diagnostics = nullptr;
+    DiagnosticsButton* m_diagnostics = nullptr;
 
     /// Every action, the menus and the toolbar — issue #483.
     std::unique_ptr<WindowActions> m_actions;

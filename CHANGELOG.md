@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **gui** — Les diagnostics de lecture sortent de la mise en page
+
+## 0.13.32 — 2026-10-06
+
 ### Tests
 
 - **cli** — Les tests disent ce qu'ils prouvent

@@ -12,7 +12,7 @@
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/wording/translation.hpp>
-#include <subedit/gui/diagnostics_panel.hpp>
+#include <subedit/gui/diagnostics_button.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/open_translation_dialog.hpp>
 #include <subedit/gui/prompts.hpp>
