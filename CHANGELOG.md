@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Tests
+
+- **video** — Un banc du saut et du pas, et un seek qui ne cale plus
+
+## 0.14.4 — 2026-10-06
+
 ### Ajouts
 
 - **video** — L'image est rendue par libmpv et peinte par un widget Qt

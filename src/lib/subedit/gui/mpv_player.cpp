@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <clocale>
 #include <cmath>
 #include <cstddef>
@@ -105,15 +106,67 @@ constexpr const char* kBottomCentre = "{\\an2}";
 /// What a player that could not be built answers.
 constexpr const char* kNotStarted = "the video player could not be started";
 
+/// How many parameters a software render takes, the closing invalid one counted.
+constexpr std::size_t kRenderParameters = 6;
+
+/// How long one slice of a wait lasts, in seconds: between two slices the render context
+/// is serviced. Short enough that a frame announced during a wait is taken at once.
+constexpr double kPumpSeconds = 0.005;
+
+/// A buffer of one pixel, which is all a frame needs to be taken when nobody wants to
+/// see it.
+constexpr int kScratchSide = 1;
+
+/// Takes the picture libmpv has announced, drawing it nowhere that matters.
+///
+/// **A caller that waits holds the thread the window paints on**, and with `vo=libmpv`
+/// the output waits for each picture to be rendered — measured, issue #611: up to 200 ms
+/// a picture, so a seek that waited for the first one stalled 400 ms, whatever the
+/// distance. Taking the frame here, into one pixel, is what lets the output go on; the
+/// widget draws the real picture at its own size when the wait is over and the event
+/// loop runs again.
+void serviceRender(mpv_render_context* render) {
+    if (render == nullptr || (mpv_render_context_update(render) & MPV_RENDER_UPDATE_FRAME) == 0U)
+        return;
+
+    std::array<int, 2> size{kScratchSide, kScratchSide};
+    std::array<unsigned char, Picture::kBytesAPixel> pixel{};
+    std::size_t stride = pixel.size();
+    int noWait = 0;
+    std::array<mpv_render_param, kRenderParameters> parameters{
+        mpv_render_param{MPV_RENDER_PARAM_SW_SIZE, size.data()},
+        mpv_render_param{MPV_RENDER_PARAM_SW_FORMAT, const_cast<char*>("bgr0")}, // NOLINT
+        mpv_render_param{MPV_RENDER_PARAM_SW_STRIDE, &stride},
+        mpv_render_param{MPV_RENDER_PARAM_SW_POINTER, pixel.data()},
+        mpv_render_param{MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME, &noWait},
+        mpv_render_param{MPV_RENDER_PARAM_INVALID, nullptr}};
+    (void)mpv_render_context_render(render, parameters.data());
+}
+
+/// The next event, waiting up to `kEventTimeoutSeconds` for one — and servicing the render
+/// context while it waits. Hands back the `MPV_EVENT_NONE` of the last slice when nothing
+/// came.
+[[nodiscard]] const mpv_event* nextEvent(mpv_handle* player, mpv_render_context* render) {
+    const auto deadline =
+        std::chrono::steady_clock::now() + std::chrono::duration<double>(kEventTimeoutSeconds);
+    const mpv_event* event = nullptr;
+    do {
+        serviceRender(render);
+        event = mpv_wait_event(player, kPumpSeconds);
+    } while (event->event_id == MPV_EVENT_NONE && std::chrono::steady_clock::now() < deadline);
+    return event;
+}
+
 /// Waits for `wanted`, and stops early on an answer that is not it.
 ///
 /// `MPV_EVENT_END_FILE` means the player gave up on the file, and
 /// `MPV_EVENT_NONE` that nothing came within the timeout. Both are answers,
 /// and the caller reads which one it got from the event it is handed back.
-[[nodiscard]] const mpv_event* waitFor(mpv_handle* player, mpv_event_id wanted) {
+[[nodiscard]] const mpv_event*
+waitFor(mpv_handle* player, mpv_render_context* render, mpv_event_id wanted) {
     const mpv_event* event = nullptr;
     for (int seen = 0; seen < kMaxEventsAwaited; ++seen) {
-        event = mpv_wait_event(player, kEventTimeoutSeconds);
+        event = nextEvent(player, render);
         if (event->event_id == wanted || event->event_id == MPV_EVENT_END_FILE ||
             event->event_id == MPV_EVENT_NONE)
             break;
@@ -150,7 +203,7 @@ constexpr int kMaxVolume = 100;
 /// so no test can tell the two apart, and none pretends to. What the word buys is
 /// that stepping by frames rests on something this file asks for, and not on a
 /// default that may be revisited upstream.
-void seekTo(mpv_handle* player, double target) {
+void seekTo(mpv_handle* player, mpv_render_context* render, double target) {
     const std::string where = std::to_string(target);
     std::array<const char*, 4> command{"seek", where.c_str(), "absolute+exact", nullptr};
     // Nothing from before this order may be taken for its answer.
@@ -160,7 +213,7 @@ void seekTo(mpv_handle* player, double target) {
     // `seek` would act on. A command refused is not waited for at all, which
     // is what keeps a mistaken order from holding the caller five seconds.
     if (mpv_command(player, command.data()) >= 0) [[maybe_unused]]
-        const mpv_event* restarted = waitFor(player, MPV_EVENT_PLAYBACK_RESTART);
+        const mpv_event* restarted = waitFor(player, render, MPV_EVENT_PLAYBACK_RESTART);
 }
 
 /// Reads one entry of libmpv's `track-list` as an audio track, or nothing when the entry
@@ -188,9 +241,6 @@ void seekTo(mpv_handle* player, double target) {
     }
     return audio ? std::optional{std::move(track)} : std::nullopt;
 }
-
-/// How many parameters a software render takes, the closing invalid one counted.
-constexpr std::size_t kRenderParameters = 6;
 
 /// Lifts the stop `playUntil` set, so that it belongs to that call alone.
 void clearStop(mpv_handle* player) {
@@ -341,7 +391,7 @@ std::expected<void, core::PlayerError> MpvPlayer::open(const std::filesystem::pa
         std::optional<std::int64_t> entry;
         bool answered = false;
         for (int seen = 0; seen < kMaxEventsAwaited && !answered; ++seen) {
-            const mpv_event* event = mpv_wait_event(m_handle.get(), kEventTimeoutSeconds);
+            const mpv_event* event = nextEvent(m_handle.get(), m_render.get());
             // Nothing within the timeout is an answer as well: no film came.
             answered = event->event_id == MPV_EVENT_NONE;
 
@@ -353,7 +403,7 @@ std::expected<void, core::PlayerError> MpvPlayer::open(const std::filesystem::pa
                 // the picture, and until this restart there is none — and left
                 // unread, it would be taken by the first `seek` for its own.
                 [[maybe_unused]] const mpv_event* first =
-                    waitFor(m_handle.get(), MPV_EVENT_PLAYBACK_RESTART);
+                    waitFor(m_handle.get(), m_render.get(), MPV_EVENT_PLAYBACK_RESTART);
                 return {};
             } else if (event->event_id == MPV_EVENT_END_FILE) {
                 const auto* ended = static_cast<const mpv_event_end_file*>(event->data);
@@ -480,7 +530,9 @@ void MpvPlayer::seek(core::Timestamp position) {
         return;
 
     clearStop(m_handle.get());
-    seekTo(m_handle.get(), static_cast<double>(position.milliseconds()) / kMillisecondsPerSecond);
+    seekTo(m_handle.get(),
+           m_render.get(),
+           static_cast<double>(position.milliseconds()) / kMillisecondsPerSecond);
 }
 
 void MpvPlayer::stepFrames(int frames) {
@@ -510,7 +562,7 @@ void MpvPlayer::stepFrames(int frames) {
 
     pause();
     clearStop(m_handle.get());
-    seekTo(m_handle.get(), target);
+    seekTo(m_handle.get(), m_render.get(), target);
 }
 
 void MpvPlayer::play() {

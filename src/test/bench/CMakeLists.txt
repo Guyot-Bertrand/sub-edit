@@ -34,6 +34,11 @@ target_link_libraries(
 # chaque déplacement de fichier.
 target_include_directories(subedit_bench PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
+# La lecture de l'image numérotée, partagée avec les tests d'interface (#610) : le banc du
+# saut et du pas vérifie le geste qu'il mesure avec le même oracle que les tests, et non avec
+# une seconde lecture qui pourrait en différer.
+target_include_directories(subedit_bench PRIVATE ${CMAKE_SOURCE_DIR}/src/test/gui)
+
 # Les fixtures vidéo de #163, pour la seule mesure qui ouvre un vrai fichier :
 # ce que coûtent l'ouverture et la recherche, c'est-à-dire ce qui se passe à
 # chaque changement de ligne.
