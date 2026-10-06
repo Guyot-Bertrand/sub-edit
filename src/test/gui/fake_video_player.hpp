@@ -17,6 +17,8 @@
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/video_player.hpp>
 
+#include <algorithm>
+#include <cstdint>
 #include <expected>
 #include <filesystem>
 #include <functional>
@@ -65,6 +67,22 @@ public:
 
     bool playing = false;
 
+    /// How long a frame lasts for `stepFrames`. The real player reads it from
+    /// the video; here a case that steps says it.
+    core::Duration frame = core::Duration::fromMilliseconds(40);
+
+    /// Every count of frames playback was stepped by, in order.
+    std::vector<int> steps{};
+
+    /// Every position `playUntil` was asked to stop at, in order.
+    std::vector<core::Timestamp> stops{};
+
+    int level = 100;
+
+    /// What the open video offers. The track playing is the one marked
+    /// `selected`; a case that wants none leaves it empty.
+    std::vector<core::AudioTrack> tracks{};
+
     /// Every line the overlay was handed, in order. An empty one clears it.
     std::vector<std::string> shown{};
 
@@ -111,7 +129,26 @@ public:
         where = position;
     }
 
+    void stepFrames(int frames) override {
+        if (!m_open || frames == 0)
+            return;
+
+        steps.push_back(frames);
+        const std::int64_t at = where.milliseconds() + (frames * frame.milliseconds());
+        where = core::Timestamp::fromMilliseconds(
+            std::clamp<std::int64_t>(at, 0, length.milliseconds()));
+        playing = false;
+    }
+
     void play() override { playing = m_open; }
+
+    void playUntil(core::Timestamp end) override {
+        if (!m_open)
+            return;
+
+        stops.push_back(end);
+        playing = true;
+    }
 
     void pause() override { playing = false; }
 
@@ -121,6 +158,24 @@ public:
     }
 
     [[nodiscard]] bool isPlaying() const override { return playing; }
+
+    [[nodiscard]] int volume() const override { return level; }
+
+    void setVolume(int volume) override { level = std::clamp(volume, 0, 100); }
+
+    [[nodiscard]] std::vector<core::AudioTrack> audioTracks() const override {
+        return m_open ? tracks : std::vector<core::AudioTrack>{};
+    }
+
+    void selectAudioTrack(int id) override {
+        const bool known =
+            std::ranges::any_of(tracks, [id](const core::AudioTrack& t) { return t.id == id; });
+        if (!m_open || !known)
+            return;
+
+        for (core::AudioTrack& track : tracks)
+            track.selected = track.id == id;
+    }
 
     /// The line the picture carries now, or nothing drawn yet.
     [[nodiscard]] std::string onScreen() const {

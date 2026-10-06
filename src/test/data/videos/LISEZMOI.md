@@ -52,3 +52,24 @@ que **`seek` place la lecture sur l'image la plus proche**, non sur celle qui es
 `--check` vérifie, pour chacune, la fréquence, le nombre d'images, **le nombre d'images-clés**, la taille, et que
 **la première image, la deuxième, celle du milieu et la dernière portent leur numéro — lu par ffmpeg**, sans libmpv : ce
 qu'un test lira dans l'image ne vaut que si la fixture qu'il lit est honnête.
+
+## Les pistes audio — #614
+
+Deux fixtures encore, qui ne montrent rien (un écran noir de 16×16, deux secondes) et **portent du son** : ce qu'on y
+lit, c'est la liste des pistes que le lecteur rend au menu `Audio`.
+
+| Fichier | Pistes (langue : titre) | Poids |
+| :------ | :---------------------- | ----: |
+| `audio-1.mkv` | `fra` : « Original » | 6 124 o |
+| `audio-2.mkv` | `fra` : « Original », `eng` : « Commentary » | 10 900 o |
+
+**Une vidéo sans piste** est `cadence-25.mp4`, qui n'en a jamais eu : c'est le cas « ne casse rien » du lecteur.
+
+`sound-only.mkv` (5 072 o) est l'inverse : **du son et aucune image**. Il n'a pas de fréquence d'image, donc rien à avancer
+d'un pas — le cas où `stepFrames` ne fait rien plutôt que de se tromper.
+
+**En Matroska, et non en MP4 comme les autres** : le MP4 n'a pas de titre de piste — ffmpeg y écrit un `handler_name` —,
+et le titre est précisément ce que ces fixtures doivent porter. Les horodatages que Matroska arrondit à la milliseconde
+ne gênent pas ici : aucune image n'y est lue.
+
+`--check` vérifie, pour chacune, la langue et le titre de chaque piste, dans l'ordre, et la taille.

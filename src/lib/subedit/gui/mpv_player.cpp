@@ -5,6 +5,7 @@
 
 #include <mpv/client.h>
 
+#include <algorithm>
 #include <array>
 #include <clocale>
 #include <cmath>
@@ -37,11 +38,19 @@ namespace {
 /// the two parting company at the first keystroke, and the replica this player
 /// draws would land on top of a stale one. The overlay is the only subtitle
 /// this player is ever to know.
-constexpr std::array<std::pair<const char*, const char*>, 4> kEveryPlayer{{
+///
+/// **`keep-open=yes` is what lets a film end without being lost** — issue #614.
+/// By default mpv unloads the file when playback reaches its end, and the next
+/// question — the position, the duration, a step back — is answered « property
+/// unavailable ». Measured: one `frame-step` past the last frame and the film was
+/// gone. Kept open, the film stays on its last frame, held, and everything asked
+/// of it afterwards still has an answer; `isPlaying` says it stopped.
+constexpr std::array<std::pair<const char*, const char*>, 5> kEveryPlayer{{
     {"config", "no"},
     {"terminal", "no"},
     {"pause", "yes"},
     {"sub-auto", "no"},
+    {"keep-open", "yes"},
 }};
 
 /// What a player with nowhere to draw is built with — the shape of every test.
@@ -131,6 +140,64 @@ constexpr const char* kNotStarted = "the video player could not be started";
 void discardPendingEvents(mpv_handle* player) {
     while (mpv_wait_event(player, 0.0)->event_id != MPV_EVENT_NONE) {
     }
+}
+
+/// The loudest the player is ever set to. mpv goes to 130, past what the
+/// recording holds; a window offering a slider offers the part that is not
+/// distortion.
+constexpr int kMaxVolume = 100;
+
+/// Places playback at `target` seconds and waits until it is there.
+///
+/// `absolute+exact` asks for the frame itself rather than the keyframe before it.
+///
+/// **It is written rather than relied upon.** Measured: mpv already lands exactly
+/// here without it, its `hr-seek` defaulting to precise seeks for absolute positions —
+/// so no test can tell the two apart, and none pretends to. What the word buys is
+/// that stepping by frames rests on something this file asks for, and not on a
+/// default that may be revisited upstream.
+void seekTo(mpv_handle* player, double target) {
+    const std::string where = std::to_string(target);
+    std::array<const char*, 4> command{"seek", where.c_str(), "absolute+exact", nullptr};
+    // Nothing from before this order may be taken for its answer.
+    discardPendingEvents(player);
+    // The event is waited for and not read: what it says is « playback has
+    // resumed », and there is nothing else it could say that a caller of
+    // `seek` would act on. A command refused is not waited for at all, which
+    // is what keeps a mistaken order from holding the caller five seconds.
+    if (mpv_command(player, command.data()) >= 0) [[maybe_unused]]
+        const mpv_event* restarted = waitFor(player, MPV_EVENT_PLAYBACK_RESTART);
+}
+
+/// Reads one entry of libmpv's `track-list` as an audio track, or nothing when the entry
+/// is a video or a subtitle track — or is not a map at all.
+[[nodiscard]] std::optional<core::AudioTrack> audioTrackOf(const mpv_node& entry) {
+    // Written as a bound rather than an early return: an entry that is not a map has no
+    // field to read and is therefore not an audio track — one answer, not a mishap.
+    const int fields = entry.format == MPV_FORMAT_NODE_MAP ? entry.u.list->num : 0;
+
+    bool audio = false;
+    core::AudioTrack track;
+    for (int field = 0; field < fields; ++field) {
+        const std::string_view key = entry.u.list->keys[field];
+        const mpv_node& value = entry.u.list->values[field];
+        if (key == "type" && value.format == MPV_FORMAT_STRING)
+            audio = std::string_view{value.u.string} == "audio";
+        else if (key == "id" && value.format == MPV_FORMAT_INT64)
+            track.id = static_cast<int>(value.u.int64);
+        else if (key == "lang" && value.format == MPV_FORMAT_STRING)
+            track.language = value.u.string;
+        else if (key == "title" && value.format == MPV_FORMAT_STRING)
+            track.title = value.u.string;
+        else if (key == "selected" && value.format == MPV_FORMAT_FLAG)
+            track.selected = value.u.flag != 0;
+    }
+    return audio ? std::optional{std::move(track)} : std::nullopt;
+}
+
+/// Lifts the stop `playUntil` set, so that it belongs to that call alone.
+void clearStop(mpv_handle* player) {
+    mpv_set_property_string(player, "end", "none");
 }
 
 /// Reads a property mpv answers with a number, or nothing if it has none.
@@ -376,31 +443,67 @@ void MpvPlayer::seek(core::Timestamp position) {
     if (!m_open)
         return;
 
-    const std::string target =
-        std::to_string(static_cast<double>(position.milliseconds()) / kMillisecondsPerSecond);
+    clearStop(m_handle.get());
+    seekTo(m_handle.get(), static_cast<double>(position.milliseconds()) / kMillisecondsPerSecond);
+}
 
-    // `absolute+exact` asks for the frame itself rather than the keyframe
-    // before it.
+void MpvPlayer::stepFrames(int frames) {
+    if (!m_open || frames == 0)
+        return;
+
+    // **A step is a seek by whole frames, and not mpv's `frame-step`.** Measured,
+    // issue #614: `frame-step` raises no event when its frame is on screen, so there
+    // is nothing to wait for and the position read right after is the one before;
+    // `frame-step <n>` is refused by the libmpv of 0.36; and `frame-back-step` is a
+    // seek anyway. Written as a seek, a step waits like every other order here.
     //
-    // **It is written rather than relied upon.** Measured: mpv already lands
-    // exactly here without it, its `hr-seek` defaulting to precise seeks for
-    // absolute positions — so no test can tell the two apart, and none
-    // pretends to. What the word buys is that phase 14 rests on something this
-    // file asks for, and not on a default that may be revisited upstream.
-    std::array<const char*, 4> command{"seek", target.c_str(), "absolute+exact", nullptr};
-    // Nothing from before this order may be taken for its answer.
-    discardPendingEvents(m_handle.get());
-    // The event is waited for and not read: what it says is « playback has
-    // resumed », and there is nothing else it could say that a caller of
-    // `seek` would act on. A command refused is not waited for at all, which
-    // is what keeps a mistaken order from holding the caller five seconds.
-    if (mpv_command(m_handle.get(), command.data()) >= 0) [[maybe_unused]]
-        const mpv_event* restarted = waitFor(m_handle.get(), MPV_EVENT_PLAYBACK_RESTART);
+    // It lands where it should because `time-pos` is the start of the frame on
+    // screen — D4 — and a position that is a whole number of frames from it is
+    // the start of another frame, however far from the nearest millisecond.
+    const std::optional<double> rate = seconds(m_handle.get(), "container-fps");
+    const std::optional<double> here = seconds(m_handle.get(), "time-pos");
+    const std::optional<double> length = seconds(m_handle.get(), "duration");
+    if (!rate.has_value() || !here.has_value() || !length.has_value() || *rate <= 0.0)
+        return;
+
+    const double frame = 1.0 / *rate;
+    // The last frame starts one frame before the end — and stepping stops there,
+    // rather than at the end, where there is no frame.
+    const double last = std::max(0.0, *length - frame);
+    const double target = std::clamp(*here + (static_cast<double>(frames) * frame), 0.0, last);
+
+    pause();
+    clearStop(m_handle.get());
+    seekTo(m_handle.get(), target);
 }
 
 void MpvPlayer::play() {
-    if (m_open)
-        mpv_set_property_string(m_handle.get(), "pause", "no");
+    if (!m_open)
+        return;
+
+    clearStop(m_handle.get());
+    mpv_set_property_string(m_handle.get(), "pause", "no");
+}
+
+void MpvPlayer::playUntil(core::Timestamp end) {
+    if (!m_open)
+        return;
+
+    // Already there, or past: nothing to play. Setting `end` behind the position
+    // would let mpv play on to the end of the film before noticing.
+    const std::optional<core::Timestamp> here = position();
+    if (!here.has_value() || end <= *here)
+        return;
+
+    // **mpv's own `end`, which stops on the frame** — measured: with `end` at
+    // 1.5 s on a film of 25 images a second, playback holds on the frame that
+    // starts at 1.48 s, the last one that starts before it, and `time-pos` stays
+    // there. A follower polling every 100 ms would have gone on for up to three
+    // frames before it noticed.
+    const std::string stop =
+        std::to_string(static_cast<double>(end.milliseconds()) / kMillisecondsPerSecond);
+    mpv_set_property_string(m_handle.get(), "end", stop.c_str());
+    mpv_set_property_string(m_handle.get(), "pause", "no");
 }
 
 void MpvPlayer::pause() {
@@ -441,6 +544,48 @@ bool MpvPlayer::isPlaying() const {
     int paused = 1;
     return m_open && mpv_get_property(m_handle.get(), "pause", MPV_FORMAT_FLAG, &paused) >= 0 &&
            paused == 0;
+}
+
+int MpvPlayer::volume() const {
+    // Answered with nothing open as well: the volume is the player's, not the film's.
+    return static_cast<int>(std::llround(seconds(m_handle.get(), "volume").value_or(0.0)));
+}
+
+void MpvPlayer::setVolume(int volume) {
+    // A double, which is what mpv's property is: set from a string it would be
+    // read through the locale.
+    double level = static_cast<double>(std::clamp(volume, 0, kMaxVolume));
+    mpv_set_property(m_handle.get(), "volume", MPV_FORMAT_DOUBLE, &level);
+}
+
+std::vector<core::AudioTrack> MpvPlayer::audioTracks() const {
+    std::vector<core::AudioTrack> tracks;
+    if (!m_open)
+        return tracks;
+
+    mpv_node list{};
+    if (mpv_get_property(m_handle.get(), "track-list", MPV_FORMAT_NODE, &list) >= 0 &&
+        list.format == MPV_FORMAT_NODE_ARRAY) {
+        for (int at = 0; at < list.u.list->num; ++at) {
+            if (std::optional<core::AudioTrack> track = audioTrackOf(list.u.list->values[at]))
+                tracks.push_back(std::move(*track));
+        }
+    }
+    mpv_free_node_contents(&list);
+    return tracks;
+}
+
+void MpvPlayer::selectAudioTrack(int id) {
+    // An identifier the video does not have would make mpv switch the sound off,
+    // which is a choice and not a mistake the caller should be able to make by typo.
+    const std::vector<core::AudioTrack> tracks = audioTracks();
+    const bool known =
+        std::ranges::any_of(tracks, [id](const core::AudioTrack& t) { return t.id == id; });
+    if (!known)
+        return;
+
+    auto chosen = static_cast<std::int64_t>(id);
+    mpv_set_property(m_handle.get(), "aid", MPV_FORMAT_INT64, &chosen);
 }
 
 } // namespace subedit::gui
