@@ -62,7 +62,7 @@ Ouvrir vide plutôt que refuser de démarrer : l'outil sert encore à quelque
 chose, et l'échec d'un argument n'est pas une raison de ne pas se lancer.
 
 **Un fichier mal formé mais lisible s'ouvre**, et ce que la lecture a rattrapé
-en chemin s'affiche sous la table — voir
+en chemin se lit dans un bouton de la barre d'état — voir
 [les diagnostics d'une lecture](fichiers.md#les-diagnostics-dune-lecture).
 
 ## Codes de retour

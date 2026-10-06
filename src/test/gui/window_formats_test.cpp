@@ -16,7 +16,7 @@
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/wording/formats.hpp>
-#include <subedit/gui/diagnostics_panel.hpp>
+#include <subedit/gui/diagnostics_button.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/prompts.hpp>
 
@@ -88,7 +88,7 @@ constexpr std::array<Rendering, 9> kNine = {
     return std::move(*opened);
 }
 
-/// Whatever the diagnostics panel is showing, as one string.
+/// Whatever the diagnostics button holds, as one string.
 [[nodiscard]] std::string panelText(const MainWindow& window) {
     std::string text;
     for (int row = 0; row < window.diagnostics()->count(); ++row)

@@ -8,7 +8,7 @@
 
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
-#include <subedit/gui/diagnostics_panel.hpp>
+#include <subedit/gui/diagnostics_button.hpp>
 #include <subedit/gui/main_window.hpp>
 
 #include <QAbstractItemModel>

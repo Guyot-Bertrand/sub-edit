@@ -55,7 +55,7 @@ fréquence-là ; en déduire une grille rendrait ce nombre, c'est-à-dire une do
 habillée en mesure.
 
 **D'où elle vient est dit une fois**, par la lecture, dans le
-[panneau des diagnostics](fichiers.md#les-diagnostics-dune-lecture) :
+[liste des diagnostics](fichiers.md#les-diagnostics-dune-lecture) :
 `counts in frames and states no rate; it was read at ("24000/1001")`. La ligne
 de la barre d'état, elle, dit ce qui est, en permanence.
 

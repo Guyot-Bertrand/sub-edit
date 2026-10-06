@@ -59,7 +59,7 @@ void StatusLine::refreshEncoding(const core::Project& project) {
     // from its byte order mark ». The command line had three answers, the
     // window one and a half.
     //
-    // Where the answer came from stays with the diagnostics panel, which exists
+    // Where the answer came from stays with the diagnostics button, which exists
     // to say what happened; this line says what is, permanently, as the grid's
     // and the film's do.
     m_encoding->setText(

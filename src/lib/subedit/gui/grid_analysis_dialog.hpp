@@ -8,7 +8,7 @@ class QTableWidget;
 
 namespace subedit::core {
 // Declared rather than included: `moc` parses this header, and the chain the
-// deduction pulls in is more than it can read. `DiagnosticsPanel` does the same
+// deduction pulls in is more than it can read. `DiagnosticsButton` does the same
 // with `Diagnostic`, for the same reason.
 struct FrameRateDeduction;
 } // namespace subedit::core

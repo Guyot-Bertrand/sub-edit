@@ -210,8 +210,11 @@ vide — voir [Invocation](invocation.md#quand-louverture-échoue).
 
 Un fichier réel est rarement parfait, et la lecture s'en remet plutôt que
 d'abandonner : un numéro absent, une ligne qui ne va nulle part, des fins de
-ligne mélangées. **Ce qu'elle a rencontré s'affiche sous la table**, dans un
-panneau replié qui s'ouvre d'un clic.
+ligne mélangées. **Ce qu'elle a rencontré tient dans un bouton de la barre d'état**
+— `2 diagnostics`, à gauche de ce que la barre dit déjà du document —, et **la liste s'ouvre d'un clic
+dans une fenêtre flottante** au-dessus du bouton. Aucune ligne de la fenêtre n'est prise pour cela :
+la table garde toute sa hauteur, que la lecture ait eu quelque chose à dire ou non. La liste se
+ferme d'un clic ailleurs ou d'`Echap`.
 
 ```
 line 5: a SubRip block without its number, settled by the reader
@@ -231,11 +234,12 @@ an encoding nothing declared ("windows-1252"), settled by the reader
 
 Elle ne s'affiche que lorsque l'encodage a été **deviné et n'est pas de
 l'UTF-8** — un fichier UTF-8 lu comme tel n'est pas un événement, et le dire à
-chaque ouverture mettrait un panneau sous la table de tous les documents
+chaque ouverture mettrait un bouton dans la barre d'état de tous les documents
 ordinaires. Un fichier qui porte une marque d'ordre des octets ne la déclenche
 pas non plus : il a déclaré son encodage, rien n'a été deviné.
 
-Le panneau **n'apparaît pas** quand la lecture n'a rien à signaler.
+Le bouton **n'apparaît pas** quand la lecture n'a rien à signaler, et **il suit l'onglet** : chaque
+projet garde les diagnostics de sa propre lecture, et le bouton montre ceux du projet affiché.
 
 ## L'encodage dans la barre d'état
 
@@ -258,7 +262,7 @@ lequel la lecture n'a rien à raconter.
 
 **La provenance de la réponse n'y figure pas.** `inspect` la donne — `detected`,
 `from its byte order mark`, `as asked for` — parce qu'un rapport a la place de
-la dire ; une ligne de barre d'état, non, et le panneau la porte déjà quand elle
+la dire ; une ligne de barre d'état, non, et la liste des diagnostics la porte déjà quand elle
 compte.
 
 ## Enregistrer
@@ -482,7 +486,7 @@ Le message est précédé du chemin, et **rien ne change** : la fenêtre garde s
 historique et ses modifications.
 
 **Les problèmes que la lecture a rencontrés**, s'il y en a — une ligne réparée,
-un champ ignoré —, vont dans le panneau des diagnostics, celui de
+un champ ignoré —, vont dans la liste des diagnostics, celle de
 [la dernière lecture](#les-diagnostics-dune-lecture).
 
 **Ce que la traduction ne garde pas** : les réglages **par sous-titre** de son

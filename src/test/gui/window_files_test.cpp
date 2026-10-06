@@ -13,7 +13,7 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
-#include <subedit/gui/diagnostics_panel.hpp>
+#include <subedit/gui/diagnostics_button.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/prompts.hpp>
 
@@ -21,6 +21,8 @@
 #include <QAction>
 #include <QLabel>
 #include <QListWidget>
+#include <QPoint>
+#include <QStatusBar>
 #include <QString>
 #include <QTabBar>
 #include <QTableView>
@@ -47,6 +49,7 @@ using subedit::core::Newline;
 using subedit::core::OpenedFile;
 using subedit::core::openProject;
 using subedit::core::SubtitleFormat;
+using subedit::gui::DiagnosticsButton;
 using subedit::gui::MainWindow;
 using subedit::gui::SaveTarget;
 using subedit::gui::UnsavedChoice;
@@ -534,26 +537,69 @@ TEST_CASE("a diagnostic that quotes the file quotes it, and bounds it", "[gui][G
     CHECK(line.size() < absurd.size() + 60);
 }
 
-TEST_CASE("the diagnostics panel folds and unfolds", "[gui][GUI-OPEN-03]") {
-    // Folded to start with: what a reading recovered from deserves to be
-    // available, not to stand between the user and their table.
+TEST_CASE("the diagnostics are a button of the status bar, and no row of the layout",
+          "[gui][GUI-OPEN-03]") {
+    // Issue #605: a strip under the table, folded or not, took a row of the window
+    // for something rare, read once. The button sits among the standing facts of
+    // the status bar, and the table's column holds nothing but the table.
     InMemoryFileSystem files = withFile("bancal.srt", kNumberless);
     FakePrompts prompts;
     MainWindow window{files, fileIn(files, "bancal.srt"), prompts};
     window.show();
 
-    auto* toggle = window.diagnostics()->findChild<QToolButton*>();
-    REQUIRE(toggle != nullptr);
-    auto* lines = window.diagnostics()->findChild<QListWidget*>();
+    DiagnosticsButton* button = window.diagnostics();
+    REQUIRE(button != nullptr);
+    CHECK(button->isVisibleTo(&window));
+    CHECK(window.statusBar()->isAncestorOf(button));
+    CHECK_FALSE(window.centralWidget()->isAncestorOf(button));
+    CHECK(button->text().toStdString() == "1 diagnostic");
+}
+
+TEST_CASE("the list of diagnostics opens in a floating frame and goes away at a click elsewhere",
+          "[gui][GUI-OPEN-03]") {
+    InMemoryFileSystem files = withFile("bancal.srt", kNumberless);
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "bancal.srt"), prompts};
+    window.show();
+
+    DiagnosticsButton* button = window.diagnostics();
+    auto* lines = button->popup()->findChild<QListWidget*>();
     REQUIRE(lines != nullptr);
 
-    CHECK_FALSE(lines->isVisibleTo(window.diagnostics()));
+    // Closed to start with: what a reading recovered from is there for the asking.
+    CHECK_FALSE(button->popup()->isVisible());
 
-    toggle->setChecked(true);
-    CHECK(lines->isVisibleTo(window.diagnostics()));
+    button->click();
 
-    toggle->setChecked(false);
-    CHECK_FALSE(lines->isVisibleTo(window.diagnostics()));
+    // A window of its own, of the `Popup` kind, above the button and not in the layout.
+    CHECK(button->popup()->isVisible());
+    CHECK(button->popup()->isWindow());
+    CHECK((button->popup()->windowFlags() & Qt::Popup) == Qt::Popup);
+    CHECK(lines->count() == 1);
+    CHECK(lines->item(0)->text().toStdString().starts_with("line 5:"));
+    const int bottom = button->popup()->mapToGlobal(QPoint{0, button->popup()->height()}).y();
+    CHECK(bottom <= button->mapToGlobal(QPoint{0, 0}).y() + 3);
+
+    // A click elsewhere closes it, as does `Esc`: what `Qt::Popup` is for.
+    button->popup()->close();
+    CHECK_FALSE(button->popup()->isVisible());
+}
+
+TEST_CASE("another reading replaces what the button holds, and closes an open list",
+          "[gui][GUI-OPEN-03]") {
+    InMemoryFileSystem files = withFile("bancal.srt", kNumberless);
+    FakePrompts prompts;
+    MainWindow window{files, fileIn(files, "bancal.srt"), prompts};
+    window.show();
+    DiagnosticsButton* button = window.diagnostics();
+    button->click();
+    REQUIRE(button->popup()->isVisible());
+
+    button->setDiagnostics({});
+
+    CHECK_FALSE(button->popup()->isVisible());
+    CHECK_FALSE(button->isVisibleTo(&window));
+    CHECK(button->count() == 0);
 }
 
 TEST_CASE("a save-as that cannot be written says so and moves nothing", "[gui][GUI-SAVE-02]") {

@@ -212,6 +212,30 @@ TEST_CASE("the share given to the table is set and read back", "[gui][config][GU
     CHECK(window.settings().tableShare == once.tableShare);
 }
 
+TEST_CASE("a share read back and laid down again does not creep, whatever the height",
+          "[gui][config][GUI-CONFIG-01]") {
+    // Reading rounds down, so laying down at the pixel below made the share come back
+    // one per cent lower unless the height happened to be a multiple of a hundred:
+    // the handle crept up the window at every launch, and the test above passed only
+    // for heights where it could not. Any height must hold.
+    for (const int height : {700, 713, 727, 741, 768, 777, 803, 839}) {
+        INFO("height " << height);
+        Windowed fixture;
+        MainWindow& window = fixture.window();
+        window.setGeometry(0, 0, 1000, height);
+        window.show();
+
+        window.applySettings(Settings{.tableShare = 45});
+        const Settings once = window.settings();
+        window.applySettings(once);
+        const Settings twice = window.settings();
+        window.applySettings(twice);
+
+        CHECK(twice.tableShare == once.tableShare);
+        CHECK(window.settings().tableShare == once.tableShare);
+    }
+}
+
 TEST_CASE("a larger share gives a taller table", "[gui][config][GUI-CONFIG-01]") {
     // The other half: a stable share that meant nothing would be stable for
     // nothing.

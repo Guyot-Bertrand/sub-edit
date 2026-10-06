@@ -34,7 +34,7 @@
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/command_label.hpp>
 #include <subedit/gui/correction_controller.hpp>
-#include <subedit/gui/diagnostics_panel.hpp>
+#include <subedit/gui/diagnostics_button.hpp>
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
@@ -429,7 +429,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_files(&files),
       m_prompts(&prompts),
       m_table(new SubtitleTable{this}),
-      m_diagnostics(new DiagnosticsPanel{this}),
+      m_diagnostics(new DiagnosticsButton{this}),
       m_actions(std::make_unique<WindowActions>(this)),
       m_split(new QSplitter{Qt::Vertical, this}),
       m_tabBar(new TabBar{this}),
@@ -534,14 +534,13 @@ MainWindow::MainWindow(core::FileSystem& files,
     tabRow->addWidget(m_newTab);
     tabRow->addStretch();
 
-    // The table takes the room, the panel slips underneath and goes away when
-    // it has nothing to say.
+    // The table takes the room: nothing slips underneath it. What a reading ran
+    // into is a button of the status bar — issue #605.
     auto* centre = new QWidget{this};
     auto* stack = new QVBoxLayout{centre};
     stack->setContentsMargins(0, 0, 0, 0);
     stack->addLayout(tabRow);
     stack->addWidget(split);
-    stack->addWidget(m_diagnostics);
     setCentralWidget(centre);
 
     // **The whole window takes a dropped file** — issue #453. The table, the
@@ -682,7 +681,12 @@ MainWindow::MainWindow(core::FileSystem& files,
 
     resize(kInitialWidth, kInitialHeight);
 
-    // The four standing facts — issue #485.
+    // What the reading ran into, first of the permanent widgets so that it does not
+    // move when the film's name or the grid's wording changes length; then the four
+    // standing facts — issue #485.
+    statusBar()->addPermanentWidget(m_diagnostics);
+    // `addPermanentWidget` shows what it is given: nothing to report yet.
+    m_diagnostics->hide();
     m_status = std::make_unique<StatusLine>(*statusBar());
 
     // The boxes sit over this window, and it is the window that says so: built
@@ -1575,7 +1579,12 @@ void MainWindow::applySettings(const core::Settings& settings) {
         const QList<int> sizes = m_split->sizes();
         const int total = std::accumulate(sizes.begin(), sizes.end(), 0);
         const int height = total > 0 ? total : kInitialHeight;
-        const int table = height * *settings.tableShare / kPerCent;
+        // **Rounded up**, because reading rounds down: a share laid down at the pixel
+        // below and read again comes back one per cent lower — unless the height is a
+        // multiple of a hundred — and the handle would creep up the window by a point
+        // at every launch. Up, the pixel read back is at most one short of the next
+        // per cent, so the share reads back as it was given.
+        const int table = (height * *settings.tableShare + kPerCent - 1) / kPerCent;
         m_split->setSizes({0, height - table, table});
     }
 

@@ -9,7 +9,7 @@ add_library(
     subedit_gui STATIC subtitle_table_model.cpp cell_delegates.cpp subtitle_editor.cpp line_length_display.cpp command_label.cpp
                        invocation.cpp settings_path.cpp theme.cpp preferences_dialog.cpp
                        manual_path.cpp manual_window.cpp
-                       diagnostics_panel.cpp qt_prompts.cpp target.cpp ems_line_measure.cpp
+                       diagnostics_button.cpp qt_prompts.cpp target.cpp ems_line_measure.cpp
                        correction_target.cpp pattern_code.cpp pattern_code_selector.cpp
                        pattern_list.cpp correction_task_page.cpp
                        correction_target_page.cpp
