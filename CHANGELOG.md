@@ -13,6 +13,10 @@ ne pas l'éditer à la main.
 
 - **doc** — Relecture de fin de phase 13
 
+### Remaniements
+
+- **cli** — Une seule préparation des options des sous-commandes
+
 ## 0.13.28 — 2026-10-05
 
 ### Ajouts
