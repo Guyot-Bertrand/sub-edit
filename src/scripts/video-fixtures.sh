@@ -11,6 +11,8 @@
 #   --check       (défaut) confronte chaque fixture à la table ci-dessous
 #   --generate    refabrique les fixtures depuis la table
 #   --weight      écrit le poids total, en octets
+#   --film CHEMIN fabrique, **hors du dépôt**, la vidéo numérotée à la taille d'un film du
+#                 banc du saut et du pas (#611), et vérifie qu'elle est honnête
 #
 # **Deux familles.** Les fixtures de cadence ne montrent rien : on n'y lit que
 # la fréquence et la durée. Les fixtures **à images numérotées** (#610) sont
@@ -156,8 +158,15 @@ generate_one() {
 # sombre (16) sinon, la chrominance neutre. Le filtre `geq` calcule cela image par image.
 generate_numbered_one() {
     local target="$1" rate="$2"
+    generate_numbered "${target}" "${rate}" "${NUMBERED_WIDTH}" "${NUMBERED_HEIGHT}" "${NUMBERED_BAR}" \
+        "${NUMBERED_SECONDS}"
+}
+
+# La fabrication, à n'importe quelle taille : la barre est le huitième de la largeur.
+generate_numbered() {
+    local target="$1" rate="$2" width="$3" height="$4" bar="$5" seconds="$6"
     ffmpeg -v error -y \
-        -f lavfi -i "color=c=gray:s=${NUMBERED_WIDTH}x${NUMBERED_HEIGHT}:r=${rate}:d=${NUMBERED_SECONDS},geq=lum='if(gte(mod(floor(N/pow(2\,floor(X/${NUMBERED_BAR})))\,2)\,1)\,235\,16)':cb=128:cr=128" \
+        -f lavfi -i "color=c=gray:s=${width}x${height}:r=${rate}:d=${seconds},geq=lum='if(gte(mod(floor(N/pow(2\,floor(X/${bar})))\,2)\,1)\,235\,16)':cb=128:cr=128" \
         -c:v mpeg4 -q:v 2 -g 250 -keyint_min 250 -sc_threshold 1000000000 -bf 0 -pix_fmt yuv420p -an \
         -fflags +bitexact -flags:v +bitexact -map_metadata -1 \
         "${target}"
@@ -198,12 +207,17 @@ generate_audio_one() {
 # Le numéro que porte l'image `frame` d'un fichier, lu **par ffmpeg** : l'image décodée en
 # niveaux de gris, puis les huit barres, au milieu de la rangée du milieu.
 number_of() {
-    local file="$1" frame="$2" raw bit value number=0
+    local file="$1" frame="$2"
+    number_in "${file}" "${frame}" "${NUMBERED_WIDTH}" "${NUMBERED_HEIGHT}" "${NUMBERED_BAR}"
+}
+
+number_in() {
+    local file="$1" frame="$2" width="$3" height="$4" bar="$5" raw bit value number=0
     raw="$(mktemp)"
     ffmpeg -v error -y -i "${file}" -vf "select=eq(n\,${frame})" -frames:v 1 \
         -f rawvideo -pix_fmt gray "${raw}" 2>/dev/null || true
     for bit in 0 1 2 3 4 5 6 7; do
-        value="$(od -An -tu1 -j $(( (NUMBERED_HEIGHT / 2) * NUMBERED_WIDTH + bit * NUMBERED_BAR + NUMBERED_BAR / 2 )) -N1 "${raw}" 2>/dev/null | tr -d ' ')"
+        value="$(od -An -tu1 -j $(( (height / 2) * width + bit * bar + bar / 2 )) -N1 "${raw}" 2>/dev/null | tr -d ' ')"
         (( ${value:-0} > 128 )) && number=$(( number + (1 << bit) ))
     done
     rm -f "${raw}"
@@ -399,9 +413,63 @@ weight() {
     printf '%s\n' "${total}"
 }
 
+# La vidéo du banc du saut et du pas (#611) : 1280×720, 250 images à 25 par seconde, **une
+# seule image-clé** — celle d'un film, où la dernière image se décode depuis la première.
+#
+# **Hors du dépôt, et c'est tout le propos** : la fixture versionnée de 13 ko ne donne que des
+# coûts de quelques millisecondes, qu'on ne peut comparer à rien, et une vidéo de la taille d'un
+# film n'a pas sa place dans un dépôt. `make bench` la fabrique dans l'arbre de construction et
+# la donne au banc ; sans ffmpeg, le banc le dit et s'abstient.
+#
+# 720p, la taille que l'initialisation de la phase avait mesurée (#608) : assez pour que le
+# décodage d'une image coûte des dizaines de millisecondes, et assez peu pour que le banc tienne
+# dans une minute ou deux. `mpeg4`, comme les autres : n'importe quelle construction d'ffmpeg le
+# sait, ce qui n'est pas le cas de libx264. **Un film réel (H.264, HEVC) peut coûter autre chose**, et le dire est
+# l'affaire du journal, non de cette fabrication.
+readonly FILM_WIDTH=1280
+readonly FILM_HEIGHT=720
+readonly FILM_BAR=160
+readonly FILM_SECONDS=10
+readonly FILM_RATE="25/1"
+readonly FILM_FRAMES=250
+
+film() {
+    require ffmpeg
+    require ffprobe
+    local target="${1:?usage : $(basename "$0") --film CHEMIN}"
+
+    mkdir -p "$(dirname "${target}")"
+    # Déjà fabriquée et honnête : on ne la refait pas, `make bench` la demande à chaque fois.
+    if [[ ! -f "${target}" ]] || ! film_is_honest "${target}"; then
+        generate_numbered "${target}" "${FILM_RATE}" "${FILM_WIDTH}" "${FILM_HEIGHT}" "${FILM_BAR}" \
+            "${FILM_SECONDS}"
+    fi
+
+    film_is_honest "${target}" || die "$(basename "${target}") — la vidéo fabriquée n'est pas celle qu'on attend"
+    ok "$(basename "${target}") — ${FILM_WIDTH}x${FILM_HEIGHT}, ${FILM_FRAMES} images, 1 image-clé, $(stat -c %s "${target}") octets"
+}
+
+# Sa taille, sa fréquence, son nombre d'images, **une seule image-clé**, et que la première, une du
+# milieu et la dernière portent leur numéro — lu par ffmpeg, comme pour les fixtures versionnées.
+film_is_honest() {
+    local file="$1" actual frame keyframes
+    actual="$(probe "${file}" stream=width,height | tr '\n' 'x' | sed 's/x$//' || true)"
+    [[ "${actual}" == "${FILM_WIDTH}x${FILM_HEIGHT}" ]] || return 1
+    [[ "$(probe "${file}" stream=r_frame_rate || true)" == "${FILM_RATE}" ]] || return 1
+    [[ "$(probe "${file}" stream=nb_frames || true)" == "${FILM_FRAMES}" ]] || return 1
+    keyframes="$(ffprobe -v error -select_streams v:0 -show_entries packet=flags \
+        -of csv=p=0 "${file}" 2>/dev/null | grep -c K || true)"
+    [[ "${keyframes}" == "1" ]] || return 1
+    for frame in 0 $(( FILM_FRAMES / 2 )) $(( FILM_FRAMES - 1 )); do
+        [[ "$(number_in "${file}" "${frame}" "${FILM_WIDTH}" "${FILM_HEIGHT}" "${FILM_BAR}")" == "${frame}" ]] \
+            || return 1
+    done
+}
+
 case "${1:---check}" in
     --check) check ;;
     --generate) generate ;;
     --weight) weight ;;
-    *) die "usage : $(basename "$0") [--check|--generate|--weight]" ;;
+    --film) film "${2:-}" ;;
+    *) die "usage : $(basename "$0") [--check|--generate|--weight|--film CHEMIN]" ;;
 esac

@@ -55,8 +55,10 @@ machine de développement. **Des observations, pas un banc** : #610 et #611 les 
   pas le défaut.
 - **Le coût du saut croît avec la distance à l'image-clé** (≈ 7 ms à 0, ≈ 100 ms à 249 images, 720p), **et le pas
   arrière ne coûte pas plus que le pas avant** (≈ 40 ms l'un et l'autre) : l'hypothèse « reculer est beaucoup plus
-  cher » ne se vérifie pas pour ce codec. #611 mesure sur une vidéo à la taille d'un film.
-- **`frame-step` n'émet aucun événement** : un pas se mesure en observant `estimated-frame-number`.
+  cher » ne se vérifie pas pour ce codec. #611 le rejoue sur une vidéo à la taille d'un film — voir plus bas.
+- **`frame-step` n'émet aucun événement** : on ne sait pas quand l'image est affichée. #614 en tire que **le pas est
+  un `seek` d'un nombre entier d'images**, qui attend comme tous les autres ordres ; c'est ce que le banc de #611
+  mesure, et il vérifie l'image obtenue par l'oracle de #610.
 - **Le rendu logiciel de libmpv tient le temps réel** : 2,2 à 3,4 ms par image pour du H.264 1080p, dans un
   tampon de 640×360 à 1920×1080 ([ADR 0041](../adr/0041-afficher-la-video-par-le-rendu-logiciel.md)).
 - **L'encodeur `mpeg4` ignore `-g`** quand le contenu change à chaque image : une image-clé toutes les 32 images
@@ -65,6 +67,34 @@ machine de développement. **Des observations, pas un banc** : #610 et #611 les 
   à la main, et un seul cas paie l'horloge.
 - **Le corpus privé ne contient aucune vidéo** : aucune mesure sur un vrai film n'est faite ici, et c'est celle que
   l'utilisateur fait avec le sien.
+
+### Ce que #611 a mesuré
+
+`make bench` fabrique, dans l'arbre de construction, **une vidéo de 1280×720, 250 images, une seule image-clé**
+(`video-fixtures.sh --film`) et la donne au banc ; sans ffmpeg, le banc le dit et s'abstient. Chaque geste est vérifié
+contre le numéro que porte l'image avant d'être chronométré. Observations d'une machine de développement, `mpeg4`,
+au calme relatif — **le relevé au journal est celui qui fait foi** :
+
+| Geste | Image visée | Coût moyen |
+| :---- | ----------: | ---------: |
+| `seek` | 0 (l'image-clé) | ≈ 8 ms |
+| `seek` | 100 | ≈ 45 ms |
+| `seek` | 249 | ≈ 107 ms |
+| pas avant | 100 | ≈ 51 ms |
+| pas avant | 249 | ≈ 106 ms |
+| pas arrière | 99 | ≈ 46 ms |
+| pas arrière | 248 | ≈ 95 ms |
+
+- **Le pas arrière ne coûte pas plus que le pas avant**, à la même distance de l'image-clé : l'hypothèse « reculer est
+  beaucoup plus cher » est écartée pour ce codec, et **le coût ne dépend que de la distance à l'image-clé**, du geste
+  non. Un film réel (H.264, HEVC, 1080p) peut dire autre chose ; la mesure sur le sien est celle de l'utilisateur.
+- **Ce que cela change au geste (D6)** : à 25 images par seconde, une image dure 40 ms, et une touche maintenue répète
+  plus vite que 100 ms. **Loin de l'image-clé, le pas ne suit donc pas la répétition** : celle-ci ne doit pas
+  s'empiler — c'est déjà la règle du geste, « un pas à la fois » — et #618 le tient, en ne gardant que le dernier pas
+  demandé pendant qu'un pas s'exécute. Le coût de la dernière image d'une vidéo à une seule image-clé est le pire cas.
+- **Le banc a trouvé un défaut de #613** : avec `vo=libmpv`, la sortie attend que chaque image soit rendue, jusqu'à
+  200 ms, et un `seek` qui attendait sur le fil de la fenêtre calait 400 ms quelle que soit la distance. Le lecteur
+  prend désormais lui-même les images pendant qu'il attend ; un cas de `mpv_player_test.cpp` le tient.
 
 ## D1 — Le périmètre : ce que Gaupol fait, ce qu'il ne fait pas, et ce qui a un sens ici
 
@@ -170,16 +200,22 @@ que la cellule pour la même valeur. **Une entrée d'historique par geste.**
 
 **Le gain sur Gaupol : l'image par image.**
 
-- **Avancer et reculer d'une image**, deux gestes qui s'enchaînent sous une touche maintenue. Un pas à la fois : la
-  répétition ne s'empile pas.
-- **Décaler le début ou la fin du sous-titre sélectionné d'une image**, pour régler fin au clavier : une commande
-  annulable, qui dit le chevauchement et l'ordre comme la saisie.
+- **Avancer et reculer d'un pas**, deux gestes qui s'enchaînent sous une touche maintenue. **Le pas est un nombre
+  d'images, et son minimum est une image** : c'est l'image par image, ce qui permet de placer un sous-titre à l'image
+  près. Le pas se règle **vers le haut**, en nombre entier d'images, pour des sauts plus importants (5, 10, 24…) ; il ne
+  descend pas sous un, et il n'est jamais en millisecondes. Un pas à la fois : la répétition ne s'empile pas.
+- **Décaler le début ou la fin du sous-titre sélectionné d'un pas**, pour régler fin au clavier : une commande
+  annulable, qui dit le chevauchement et l'ordre comme la saisie. **Le même pas** que celui du lecteur, donc une
+  image par défaut.
 - **La durée d'une image** vient, dans cet ordre, de **la fréquence que la vidéo déclare**, de **celle du document
   quand il est compté en images**, de **la grille déduite** (phase 16) — **et sans aucune, le geste refuse en le disant**,
   comme `shift --to-grid` : choisir une fréquence au hasard déplacerait tout le fichier.
 
-**Les incréments sont d'une image**, et pas des millisecondes réglables : une image est ce que le lecteur sait
-montrer, et un millième de seconde ne se voit pas. Un réglage de millisecondes est un déclencheur, non une promesse.
+**Le pas est compté en images, jamais en millisecondes** : une image est ce que le lecteur sait montrer, et un millième
+de seconde ne se voit pas. **Ce qu'il vaut en temps est la durée d'une image de cette vidéo** — 40 ms à 25 images par
+seconde, 41,7 ms à 23,976 —, de sorte qu'un pas de N images est toujours N images, quelle que soit la fréquence. C'est ce
+qui garde le geste juste pour le calage fin, où l'on pose un bord sur une image et non sur un instant. Un réglage en
+millisecondes est un déclencheur, non une promesse.
 
 ## D7 — Le suivi de la table
 
@@ -250,10 +286,12 @@ d'un lecteur capable de **montrer le résultat à l'image près**. Les trois que
 
 ## D12 — Les réglages
 
-Trois réglages, dans `Preferences…`, sous [ADR 0022](../adr/0022-configuration-au-noyau-et-tolerance-par-option.md)
+Quatre réglages, dans `Preferences…`, sous [ADR 0022](../adr/0022-configuration-au-noyau-et-tolerance-par-option.md)
 — tolérants option par option, une valeur absurde ne casse pas l'ouverture : **le pas des sauts** (30 s, comme
-Gaupol), **l'avance avant une sélection** (1 s, comme Gaupol) et **le volume**. **Rien d'autre ne se retient** : ni la
+Gaupol), **le pas d'image** (1 image, de 1 à une borne raisonnable ; D6), **l'avance avant une sélection** (1 s, comme
+Gaupol) et **le volume**. **Rien d'autre ne se retient** : ni la
 piste audio, ni le suivi, ni le mode en images (un réglage de fenêtre, non d'un document — il suit `View`).
+
 
 ## D13 — Le manuel et les captures
 
@@ -325,6 +363,7 @@ continue de `GUI-FRAMES-01`.
 | `GUI-STEP-01` | avancer d'une image affiche l'image suivante |
 | `GUI-STEP-02` | reculer d'une image affiche l'image précédente |
 | `GUI-STEP-03` | la durée d'une image vient de la vidéo, à défaut du document, à défaut de la grille ; sans aucune, le geste refuse en le disant |
+| `GUI-STEP-04` | le pas se règle en nombre d'images, au minimum une ; une valeur absurde ne casse pas l'ouverture |
 | `GUI-NUDGE-01` | décaler le début ou la fin d'un sous-titre d'une image est annulable en une entrée |
 | `GUI-SEEK-01` | le curseur de position se lit et se déplace |
 | `GUI-SEEK-02` | reculer et avancer d'un pas réglable |

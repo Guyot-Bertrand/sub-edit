@@ -66,6 +66,19 @@ load="$("${REPO_ROOT}/src/scripts/await-quiet.sh" --below "${BENCH_MAX_LOAD}")" 
 cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
 cmake --build --preset release -j "${JOBS}" --target subedit_bench
 
+# **La vidéo du banc du saut et du pas** (#611), fabriquée dans l'arbre de construction et
+# donnée au banc par l'environnement. Sans ffmpeg, ou si la fabrication échoue, elle manque : le
+# banc le dit et s'abstient pour ces mesures-là — ce n'est pas un échec, c'est une machine qui n'a
+# pas de quoi les prendre.
+film="${REPO_ROOT}/build/release/bench-film.mp4"
+if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1 \
+    && "${REPO_ROOT}/src/scripts/video-fixtures.sh" --film "${film}"; then
+    export SUBEDIT_BENCH_FILM="${film}"
+else
+    printf '%s⚠%s pas de vidéo à la taille d'\''un film (ffmpeg manque ?) — le banc du saut et du pas s'\''abstient.\n' \
+        "${YELLOW}" "${RESET}" >&2
+fi
+
 "${REPO_ROOT}/build/release/bin/subedit_bench" \
     --reporter console \
     --reporter "xml::out=${XML}"

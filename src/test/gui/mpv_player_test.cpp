@@ -786,3 +786,20 @@ TEST_CASE("a new picture is announced, and the announcement can be withdrawn",
     std::this_thread::sleep_for(std::chrono::milliseconds{100});
     CHECK(announced == before);
 }
+
+// Found by the benchmark of #611, which a seek at 400 ms gave away: with `vo=libmpv` the
+// output waits for each picture to be rendered — up to 200 ms — and a caller that waits
+// holds the thread the window paints on. The player takes the frames itself while it waits.
+// Ten seeks on a small film take milliseconds; stalled, they took four seconds.
+TEST_CASE("a seek does not wait for a window to paint", "[video][player][render]") {
+    MpvPlayer seeking = player();
+    REQUIRE(seeking.open(fixture("videos/images-25.mp4")).has_value());
+
+    const auto begin = std::chrono::steady_clock::now();
+    for (int frame = 0; frame < 10; ++frame)
+        seeking.seek(Timestamp::fromMilliseconds(subedit::test::startOf(frame * 20, 25, 1)));
+    const auto elapsed = std::chrono::steady_clock::now() - begin;
+
+    CHECK(elapsed < std::chrono::milliseconds{1500});
+    CHECK(seeking.position() == Timestamp::fromMilliseconds(subedit::test::startOf(180, 25, 1)));
+}

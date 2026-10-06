@@ -73,3 +73,11 @@ et le titre est précisément ce que ces fixtures doivent porter. Les horodatage
 ne gênent pas ici : aucune image n'y est lue.
 
 `--check` vérifie, pour chacune, la langue et le titre de chaque piste, dans l'ordre, et la taille.
+
+## La vidéo du banc — #611
+
+**Une dernière vidéo, qui n'est pas dans ce répertoire** : `make bench` la fabrique dans l'arbre de construction
+(`build/release/bench-film.mp4`, `video-fixtures.sh --film`), parce qu'un film de cette taille n'a pas sa place dans un
+dépôt. Elle suit la logique des images numérotées : **1280×720, 250 images à 25 par seconde, une seule image-clé**,
+chaque image portant son numéro (huit barres de 160 pixels). `--film` vérifie qu'elle est honnête comme `--check` le fait
+des autres, et ne la refait pas si elle l'est déjà. Sans ffmpeg, le banc du saut et du pas le dit et s'abstient.

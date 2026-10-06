@@ -282,6 +282,7 @@ plus rien.
 | `GUI-STEP-01` | avancer d'une image affiche l'image suivante | 14 | prévue |
 | `GUI-STEP-02` | reculer d'une image affiche l'image précédente | 14 | prévue |
 | `GUI-STEP-03` | la durée d'une image vient de la vidéo, à défaut du document, à défaut de la grille ; sans aucune, le geste refuse en le disant | 14 | prévue |
+| `GUI-STEP-04` | le pas se règle en nombre d'images, au minimum une ; une valeur absurde ne casse pas l'ouverture | 14 | prévue |
 | `GUI-NUDGE-01` | décaler le début ou la fin d'un sous-titre d'une image est annulable en une entrée | 14 | prévue |
 | `GUI-SEEK-01` | le curseur de position se lit et se déplace | 14 | prévue |
 | `GUI-SEEK-02` | reculer et avancer d'un pas réglable | 14 | prévue |
