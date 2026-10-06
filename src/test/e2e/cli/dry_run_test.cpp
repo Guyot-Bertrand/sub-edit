@@ -43,14 +43,51 @@ std::string anonymised(const std::string& text, const Scratch& scratch) {
                       "<corpus>");
 }
 
-/// What each subcommand that writes is asked, minus the file and the destination.
-const std::vector<std::vector<std::string>> kWriters{
+/// What each subcommand that writes into a directory is asked, minus the file and the
+/// destination — **all of them**, so that no regression writing in a dry run stays green.
+/// `translation` is a second subtitle file, the one `pair` lays over the main one.
+std::vector<std::vector<std::string>> writers(const std::string& translation) {
+    return {{"transform", "--first", "1=1.000", "--last", "2=2.000"},
+            {"framerate", "--from", "25", "--to", "24"},
+            {"snap", "--rate", "10"},
+            {"hearing-impaired"},
+            {"convert", "--to", "vtt"},
+            {"shift", "--by", "1"},
+            {"adjust"},
+            {"sort"},
+            {"replace", "un", "deux"},
+            {"case", "--to", "title"},
+            {"italics", "--on"},
+            {"dialogue-dashes", "--add"},
+            {"correct", "--tasks", "mentions", "--code", "Latn", "--enable", "Sound in brackets"},
+            {"pair", "-t", translation}};
+}
+
+/// The six the narration and the JSON of a dry run are compared for, byte for byte, in
+/// hand-written files (`attendus/dry-run/narration.txt`, `attendus/json/dry-run-writers.jsonl`).
+const std::vector<std::vector<std::string>> kSixWriters{
     {"transform", "--first", "1=1.000", "--last", "2=2.000"},
     {"framerate", "--from", "25", "--to", "24"},
     {"snap", "--rate", "10"},
     {"hearing-impaired"},
     {"convert", "--to", "vtt"},
     {"shift", "--by", "1"}};
+
+/// The two that name their own outputs and so take none of the three destination options:
+/// each with its dry-run command line, written under `directory`.
+std::vector<std::vector<std::string>>
+namedOutputs(const std::string& input, const std::string& second, const std::string& directory) {
+    return {{"append", "--dry-run", input, second, "--output", directory + "/all.srt"},
+            {"split-file",
+             "--dry-run",
+             input,
+             "--at",
+             "2",
+             "--head",
+             directory + "/head.srt",
+             "--tail",
+             directory + "/tail.srt"}};
+}
 
 std::vector<std::string> with(std::vector<std::string> command,
                               const std::vector<std::string>& more) {
@@ -75,13 +112,23 @@ std::string failuresOf(const std::string& errors) {
 TEST_CASE("a dry run writes no file and creates no directory", "[e2e][CLI-DRYRUN-01]") {
     const Scratch scratch;
     const std::string input = writeSrt(scratch, "in/a.srt", 2);
+    const std::string second = writeSrt(scratch, "in/b.srt", 2);
 
-    for (const std::vector<std::string>& writer : kWriters) {
+    for (const std::vector<std::string>& writer : writers(second)) {
+        INFO(writer.front());
         const CliRun run =
             invoke(with(writer, {"--dry-run", "--output-dir", scratch.of("out/deep"), input}));
 
         CHECK(run.exitCode == 0);
         // Neither the directory the destination lies in, nor the file.
+        CHECK_FALSE(std::filesystem::exists(scratch.of("out")));
+    }
+
+    // The two that name their outputs, whose directory a real run would create.
+    for (const std::vector<std::string>& named :
+         namedOutputs(input, second, scratch.of("out/deep"))) {
+        INFO(named.front());
+        CHECK(invoke(named).exitCode == 0);
         CHECK_FALSE(std::filesystem::exists(scratch.of("out")));
     }
 
@@ -94,11 +141,21 @@ TEST_CASE("a dry run writes no file and creates no directory", "[e2e][CLI-DRYRUN
 TEST_CASE("a dry run over --in-place leaves the input as it was", "[e2e][CLI-DRYRUN-01]") {
     const Scratch scratch;
     const std::string input = writeSrt(scratch, "in/a.srt", 2);
+    const std::string second = writeSrt(scratch, "in/b.srt", 2);
     const std::string before = contentOf(input);
+    const std::string translationBefore = contentOf(second);
 
-    CHECK(invoke({"shift", "--by", "5", "--dry-run", "--in-place", input}).exitCode == 0);
+    // Every subcommand that can write over its input — `pair` over its translation.
+    for (const std::vector<std::string>& writer : writers(second)) {
+        INFO(writer.front());
+        // `convert --to vtt` over an `.srt` is refused with or without `--dry-run`: a
+        // dry run is judged as the real run is (ADR 0040), and the input stays.
+        const int expected = writer.front() == "convert" ? 1 : 0;
+        CHECK(invoke(with(writer, {"--dry-run", "--in-place", input})).exitCode == expected);
 
-    CHECK(contentOf(input) == before);
+        CHECK(contentOf(input) == before);
+        CHECK(contentOf(second) == translationBefore);
+    }
 }
 
 TEST_CASE("a dry run ends with the code of the real run", "[e2e][CLI-DRYRUN-01]") {
@@ -119,6 +176,18 @@ TEST_CASE("a dry run ends with the code of the real run", "[e2e][CLI-DRYRUN-01]"
         // is not different. What differs is the line of a file that came out.
         CHECK(failuresOf(dry.errors) ==
               failuresOf(anonymised(real.errors, scratch.of("b"), scratch.of("a"))));
+    }
+
+    // And for every other subcommand, on one file that reads and one that does not.
+    for (const std::vector<std::string>& writer : writers(good)) {
+        for (const std::string& input : {good, broken}) {
+            INFO(writer.front() << " " << input);
+            const CliRun dry =
+                invoke(with(writer, {"--dry-run", "--output-dir", scratch.of("c"), input}));
+            const CliRun real = invoke(with(writer, {"--output-dir", scratch.of("d"), input}));
+
+            CHECK(dry.exitCode == real.exitCode);
+        }
     }
 }
 
@@ -168,7 +237,7 @@ TEST_CASE("a dry run says on standard error that nothing was written", "[e2e][CL
     const std::string input = writeSrt(scratch, "in/a.srt", 2);
 
     std::string narration;
-    for (const std::vector<std::string>& writer : kWriters) {
+    for (const std::vector<std::string>& writer : kSixWriters) {
         const CliRun run = invoke(with(writer, {"--dry-run", input}));
         REQUIRE(run.exitCode == 0);
         // Standard output is the changes of a subcommand of text, and this file
@@ -185,7 +254,7 @@ TEST_CASE("a dry run in json says it and has no destination", "[e2e][CLI-JSON-09
     const std::string input = writeSrt(scratch, "in/a.srt", 2);
 
     std::string all;
-    for (const std::vector<std::string>& writer : kWriters) {
+    for (const std::vector<std::string>& writer : kSixWriters) {
         const CliRun run = invoke(with({"--format", "json"}, with(writer, {"--dry-run", input})));
         REQUIRE(run.exitCode == 0);
         all += anonymised(run.output, scratch);
@@ -245,7 +314,9 @@ TEST_CASE("what a dry run showed is what the next run writes", "[e2e][CLI-DRYRUN
     REQUIRE(invoke({"--quiet", "hearing-impaired", "--output", out, corpus("valides/mentions.srt")})
                 .exitCode == 0);
 
-    // Each proposed text is in the file written, and the removed one is not.
+    // The file written is the expected one, byte for byte, written by hand...
+    CHECK_THAT(contentOf(out), MatchesFile(corpus("attendus/mentions.hearing-impaired.srt")));
+    // ...and every text the dry run proposed is in it, the removed one is not.
     CHECK_THAT(dry.output, ContainsSubstring("+ Attends Marie."));
     CHECK_THAT(contentOf(out), ContainsSubstring("Attends Marie."));
     CHECK_THAT(dry.output, ContainsSubstring("(removed)"));

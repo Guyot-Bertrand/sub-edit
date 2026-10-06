@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Tests
+
+- **cli** — Les tests disent ce qu'ils prouvent
+
+## 0.13.31 — 2026-10-06
+
 ### Remaniements
 
 - **cli** — La logique de décision monte dans la bibliothèque

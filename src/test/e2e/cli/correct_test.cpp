@@ -519,10 +519,17 @@ TEST_CASE("a dry run lists the texts before and after, and a removal has no afte
                                in});
 
     CHECK(run.exitCode == 0);
-    CHECK_THAT(run.output, ContainsSubstring(in + ": subtitle 1 (removed)\n- [Door]\n"));
-    CHECK_THAT(run.output, ContainsSubstring(in + ": subtitle 2\n- eﬀet\n+ effet\n"));
+    // The whole of what it proposes, byte for byte, and nothing else on standard output.
+    std::string proposed = run.output;
+    for (std::size_t at = proposed.find(scratch.path()); at != std::string::npos;
+         at = proposed.find(scratch.path(), at + 9)) {
+        proposed.replace(at, scratch.path().size(), "<scratch>");
+    }
+    CHECK_THAT(proposed, MatchesFile(corpus("attendus/correct/dry-run.txt")));
     CHECK_THAT(run.errors,
                ContainsSubstring("Edited 1 and removed 1 subtitles (dry run, nothing written)"));
+    // And the input is as it was: nothing was written over it.
+    CHECK(contentOf(in) == srt({"[Door]", "eﬀet"}));
 }
 
 TEST_CASE("a translation a mention would empty stays, empty, and only it is written",

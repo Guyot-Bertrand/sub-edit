@@ -1,0 +1,5 @@
+<scratch>/a.srt: subtitle 1 (removed)
+- [Door]
+<scratch>/a.srt: subtitle 2
+- eﬀet
++ effet
