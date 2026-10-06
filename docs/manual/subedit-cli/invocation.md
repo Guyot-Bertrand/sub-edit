@@ -59,9 +59,6 @@ produite — ces blocs sont engendrés par `make manual`, jamais recopiés.
 --help` est accepté parce que chaque sous-commande porte le sien, et c'est celui
 de la sous-commande qu'il écrit, pas celui de l'outil.
 
-Ce manuel a promis l'indifférence de la place depuis la phase 3 ; corrigé à la
-relecture de fin de phase 8, en essayant plutôt qu'en relisant.
-
 | Option | Effet |
 | :----- | :---- |
 | `-h`, `--help` | écrit l'aide et s'arrête ; celle de la sous-commande si l'on en nomme une |
@@ -151,7 +148,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.13.28
+subedit 0.13.29
 ```
 
 ## Sous-commandes
@@ -185,12 +182,13 @@ rapporte. Les seize autres écrivent, et ce qui suit vaut pour quatorze d'entre 
 
 ## La destination
 
-Les treize sous-commandes qui écrivent — [`convert`](convert.md),
+Les quatorze sous-commandes qui écrivent — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
-[`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`correct`](correct.md) — prennent leur
-destination de la même façon. [`inspect`](inspect.md) n'écrit aucun fichier et
+[`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`correct`](correct.md),
+[`pair`](pair.md) — prennent leur destination de la même façon. ([`append`](append.md) et
+[`split-file`](split-file.md) ont la leur, sur leur page.) [`inspect`](inspect.md) n'écrit aucun fichier et
 n'accepte aucune de ces options.
 
 **Une destination qui existe déjà est écrasée**, sans question ni option pour
@@ -242,7 +240,7 @@ Deux chemins désignent le même fichier quand le système le dit, non quand ils
 s'écrivent pareil : `in/../in/film.srt` et `in/film.srt` sont un seul fichier.
 
 **L'extension suit le format écrit.** Elle ne change que pour
-[`convert`](convert.md), seule sous-commande qui change de format ; les cinq
+[`convert`](convert.md), seule sous-commande qui change de format ; les
 autres conservent celui du fichier lu, donc son extension.
 
 | Ce qui la déclenche | Message |
@@ -345,7 +343,7 @@ JSON, l'objet de chaque fichier avec `"dry_run":true`, `"destination":null` et l
 
 | Sortie | Ce qu'elle porte |
 | :----- | :--------------- |
-| standard | **le résultat, et lui seul** — le rapport d'`inspect`, les changements proposés d'un [`--dry-run`](#voir-avant-décrire) de texte ; avec `--format json`, un objet par fichier, de toutes les sous-commandes |
+| standard | **le résultat, et lui seul** — le rapport d'`inspect`, les changements proposés d'un [`--dry-run`](#voir-avant-décrire) de texte ; avec `--format json`, un objet par fichier — un par lancement pour [`append`](append.md), [`split-file`](split-file.md) et [`pair`](pair.md) |
 | erreur | **tout le reste** — la narration, les avertissements, les erreurs |
 
 C'est ce partage qui permet de rediriger le résultat sans y récupérer le récit :
@@ -377,7 +375,10 @@ code=3
 
 **Un objet par entrée, jamais zéro, jamais deux**, que l'entrée ait réussi ou non, dans
 l'ordre où les entrées ont été données — ou trouvées, avec [`--recursive`](lots.md). On
-compte les lignes, on retrouve ses fichiers. **Les sous-commandes qui réécrivent écrivent
+compte les lignes, on retrouve ses fichiers. **Trois sous-commandes font exception, parce que leur
+arité n'est pas celle d'un lot : [`append`](append.md) (N entrées, une sortie), [`split-file`](split-file.md)
+(une entrée, deux sorties) et [`pair`](pair.md) (deux fichiers, une sortie) écrivent **un objet pour tout le
+lancement**, qui nomme le fichier que leur page dit.** **Les sous-commandes qui réécrivent écrivent
 donc aussi sur la sortie standard**, ce que leur contrat ne faisait pas en texte : leur
 fichier reste leur résultat, et l'objet en est le compte rendu.
 
@@ -402,6 +403,9 @@ d'erreur avec le code `1`, et la sortie standard reste vide.
 | `counts` | un objet d'**entiers**, propre à la sous-commande | idem |
 | `changes` | un tableau de `{"subtitle", "document", "before", "after"}` : les textes changés, voir ci-dessous | sur une sous-commande qui change des textes |
 | `warnings` | un tableau de `{"kind", "line"?, "detail"?, "settled"?}` | si `ok` est vrai |
+| `alignment` | comment une traduction a été posée, voir [Une traduction](#une-traduction) | avec `-t`, et pour `pair` |
+| `constraints` | les réglages employés | `adjust` |
+| `inputs`, `tail` | un élément par fichier ajouté ; le chemin de la queue | `append` ; `split-file` |
 
 `line` est absent d'un diagnostic qui parle du fichier entier ; `detail` l'est quand il n'y
 a rien à ajouter ; `settled` vaut `true` quand la lecture a **tranché** quelque chose — une
@@ -440,6 +444,9 @@ est écrit avec U+FFFD à la place des octets invalides, et l'objet porte l'aver
 | [`sort`](sort.md) | `subtitles`, `moved` (les places qui ont changé de sous-titre) |
 | [`adjust`](adjust.md) | `subtitles` (les sous-titres visés), `adjusted` (ceux dont la fin a bougé), puis le groupe `sacrificed` : `speed`, `minimum`, `gap` ; et, hors de `counts`, `constraints` — les réglages employés |
 | [`convert`](convert.md) | `subtitles`, puis ce que la conversion a perdu : `lost_ends` et `lost_header` (0 ou 1), `joined_lines`, `lost_tags`, `lost_fields`, `furthest_ms` |
+| [`append`](append.md) | `files`, `subtitles`, `appended`, puis `lost_ends`, `lost_header`, `joined_lines`, `lost_tags`, `lost_fields`, `furthest_ms` sommés ; et, hors de `counts`, `inputs` — un élément par fichier ajouté |
+| [`split-file`](split-file.md) | `subtitles`, `head`, `tail` ; et, hors de `counts`, `tail` — le chemin de la queue (`destination` est la tête) |
+| [`pair`](pair.md) | `subtitles` (ceux du fichier écrit) ; et, hors de `counts`, `alignment` |
 | [`inspect`](inspect.md) | pas de `counts` : la description du fichier, voir sa page |
 
 ### Les identifiants d'erreur
@@ -461,7 +468,7 @@ Un `error.kind` est l'un de ceux-ci ; **un lecteur traite un identifiant inconnu
 ### Ce qui est promis, et ce qui ne l'est pas
 
 **Promis tant que `schema` vaut `1`** : les noms des clés, leur type et leur unité ; le sens
-de `ok`, de `file` et de `destination` ; **un objet par entrée, dans l'ordre des entrées** ;
+de `ok`, de `file` et de `destination` ; **un objet par entrée, dans l'ordre des entrées** — un par lancement pour les trois sous-commandes à arité propre ;
 les identifiants `kind` qui existent ; le déterminisme — mêmes entrées, mêmes arguments,
 mêmes octets.
 
@@ -581,8 +588,8 @@ posée sur son principal**, avec les mêmes règles que la fenêtre.
 
 | Option | Où | Valeur | Défaut |
 | :----- | :---- | :----- | :----- |
-| `-t`, `--translation-file` | `inspect`, `hearing-impaired`, `replace`, `case`, `italics`, `dialogue-dashes`, `pair` | le fichier de traduction | — |
-| `--document` | les cinq sous-commandes de texte, pas `inspect` | `main` ou `translation` | `main` |
+| `-t`, `--translation-file` | `inspect`, `hearing-impaired`, `replace`, `case`, `italics`, `dialogue-dashes`, `correct`, `pair` | le fichier de traduction | — |
+| `--document` | les six sous-commandes de texte, pas `inspect` ni `pair` | `main` ou `translation` | `main` |
 | `--align-method` | comme `-t` | `position` ou `number` | `position` |
 
 - **`position`** compare le milieu de chaque ligne aux bornes des sous-titres : une ligne qui manque ne
@@ -632,7 +639,8 @@ les sous-titres de la traduction, chacun avec `"document":"translation"`.
 
 ## Plusieurs fichiers
 
-Toutes les sous-commandes acceptent plusieurs chemins. Chacun est traité
+Toutes les sous-commandes acceptent plusieurs chemins, sauf [`append`](append.md), [`split-file`](split-file.md) et
+[`pair`](pair.md), dont l'arité est celle de leur page. Chacun est traité
 indépendamment : l'échec de l'un n'interrompt pas les autres, et les échecs
 sont rapportés en nommant le fichier et la raison.
 

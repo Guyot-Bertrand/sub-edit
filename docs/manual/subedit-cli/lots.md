@@ -4,8 +4,9 @@
 subedit-cli <sous-commande> --recursive [options] <dossier>...
 ```
 
-Toutes les sous-commandes qui lisent des fichiers — les sept, `inspect` compris —
-acceptent un **répertoire** à la place d'un fichier, avec `--recursive` (`-r`).
+Toutes les sous-commandes qui lisent un lot de fichiers — `inspect` comprise, et non
+[`append`](append.md), [`split-file`](split-file.md) ni [`pair`](pair.md), dont l'arité est celle d'une paire ou
+d'un film — acceptent un **répertoire** à la place d'un fichier, avec `--recursive` (`-r`).
 Cette page dit ce que le parcours prend, dans quel ordre, et où il écrit.
 
 **Rien de ce qui suit ne change ce qui est fait à un fichier** : chacun est lu,

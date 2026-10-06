@@ -202,7 +202,10 @@ L'ADR dit les alternatives et ce qui est promis stable.
 **Trois propriétés tiennent la promesse**, et chacune est une exigence :
 
 1. **Un objet par entrée, jamais zéro, jamais deux**, échec compris : le lecteur compte les
-   lignes et retrouve ses fichiers.
+   lignes et retrouve ses fichiers. **Les trois sous-commandes à arité propre font un objet par
+   lancement** — `append` lit N fichiers pour une sortie, `split-file` en lit un pour deux, `pair` en lit
+   deux pour une — et leur objet, échec compris, dit le fichier qui la nomme : la base, le fichier coupé,
+   la traduction.
 2. **La verbosité n'agit pas sur la sortie standard.** Les diagnostics de lecture, que le
    texte range au niveau 3, sont des données et sont toujours dans `warnings`.
 3. **Aucun nombre à virgule.** Millisecondes entières, comptes entiers, cadences et
@@ -518,7 +521,7 @@ donnent **les deux fichiers**, comme n'importe quel lot : `subedit-cli shift --b
 principal.srt traduction.srt --output-dir out/`.
 
 **La chose que seul l'appariement fait** est écrire la traduction recalée sur les positions
-du principal — **`pair`** (D12, derrière sa porte) : `pair PRINCIPAL -t TRADUCTION --output
+du principal — **`pair`** (D12, porte franchie) : `pair PRINCIPAL -t TRADUCTION --output
 FICHIER`. L'alignement a un résultat que rien d'autre ne produit, et c'est précisément
 pourquoi il est séparé de `-t`.
 
@@ -605,8 +608,11 @@ phase déjà passée.
   calibration de Gaupol, et personne ne l'a demandée.
 - **La traduction des noms et descriptions des motifs** — phase 15, avec le reste.
 - **L'appariement d'une traduction par fichier dans un lot** (`--translation-dir`, un
-  suffixe, un motif de noms) — **point ouvert 3**, décidé à la relecture de fin de phase.
-- **`--range` sur les sept sous-commandes existantes** — point ouvert 6.
+  suffixe, un motif de noms) — **point ouvert 3, tranché à la relecture : rien**. Déclencheur : un appelant
+  qui a un lot de paires et le dit.
+- **`--range` sur les sept sous-commandes existantes** — **point ouvert 6, tranché à la relecture : non**.
+  Les six sous-commandes de texte et `adjust` l'ont ; `shift`, `transform`, `framerate`, `snap`, `convert`,
+  `inspect` et `hearing-impaired` n'en ont pas. Déclencheur : un appelant qui décale une plage.
 - **Un parcours parallèle**, `--include`, `--no-clobber` — **candidats**, et leur
   déclencheur est écrit dans l'ADR 0039 : un lot qui se voit au banc, un appelant qui le
   demande.
@@ -634,10 +640,13 @@ options que les deux ont.
 | la langue du correcteur vient de la locale quand rien n'est choisi | **toujours nommée** (`--language`) | D2 : pas de langue ambiante |
 | un nom de motif périmé dans une dérogation est **ignoré** | **une erreur d'usage** | D8 : une invocation n'a pas de survivant |
 | `-v/--video-file`, `+NUM` | **non repris** | fenêtre |
+| `--list-encodings` écrit **sur une ligne, séparés par des virgules**, les encodages du tableau d'`aeidon`, précédés de `auto` quand `chardet` est là | écrit **ceux qu'ICU sait convertir**, **un par ligne**, triés par nom ; `--format json` en fait un objet par ligne | D1 : iso-fonctionnel par l'intention, non par la liste — l'ensemble est celui d'ICU, et une ligne par nom se lit par un script |
+| ajouter un fichier à la suite (`Append File…`), scinder un projet (`Split Project…`), ouvrir une traduction : des gestes **de la fenêtre** | **`append`**, **`split-file`**, **`pair`** : des sous-commandes, **à arité propre** (N entrées une sortie ; une entrée deux sorties) | D12 : la fenêtre n'a pas de lot, et la ligne de commande n'a pas de « projet ouvert » à scinder |
 
 ## Exigences
 
-**Soixante-six**, toutes `prévues` — dont trois derrière la porte de D12 —, **inscrites au
+**Soixante-six**, toutes `implémentées` et citées par un test — la porte de D12 s'est ouverte pour les trois
+qu'elle gardait (`CLI-APPEND-01`, `CLI-PSPLIT-01`, `CLI-PAIR-01`), et aucune n'est `abandonnée` —, **inscrites au
 registre avec cette spec** : `check-requirements.sh` confronte la table d'une spec de phase au
 registre dans les deux sens, et une spec dont les identifiants manquent au registre ne franchit
 pas `check-local`. Chaque issue en **relit** les siennes avant son code — l'état passe à
@@ -724,7 +733,7 @@ branche, la porte à la fin. **Les issues d'outillage de l'initialisation
 (#543 à #546) sont livrées et passent avant ; aucune issue ci-dessous ne les attend.**
 
 **Les issues sont ouvertes** : [#553](https://github.com/Guyot-Bertrand/sub-edit/issues/553) à
-[#573](https://github.com/Guyot-Bertrand/sub-edit/issues/573), dans le milestone 13 ; les trois de la tranche 5 ([#570](https://github.com/Guyot-Bertrand/sub-edit/issues/570) à [#572](https://github.com/Guyot-Bertrand/sub-edit/issues/572)) portent `blocked` et `needs-decision` — la porte de D12.
+[#573](https://github.com/Guyot-Bertrand/sub-edit/issues/573), dans le milestone 13 ; les trois de la tranche 5 ([#570](https://github.com/Guyot-Bertrand/sub-edit/issues/570) à [#572](https://github.com/Guyot-Bertrand/sub-edit/issues/572)) portaient `blocked` et `needs-decision` — la porte de D12, **franchie le 5 octobre 2026** et les labels retirés à chaque fusion.
 
 | Tranche | Issue | Ce qu'elle livre | Dépend de | Taille |
 | :------ | :---- | :--------------- | :-------- | :----- |
@@ -762,18 +771,18 @@ touchent que dans l'objet « liste des entrées », que [#554](https://github.co
 
 ## Points ouverts
 
-**Quatre sont tranchés par l'utilisateur le 2026-10-01** (1, 5, 7 et 11 : la supposition devient la décision), et **la porte de la tranche 5 est gardée** (point 2) : `append`, `split-file` et `pair` se décident à l'entrée de la tranche 5, la fusion et la scission d'un sous-titre restent écartées avec leur déclencheur. Ce que le cadrage ne peut pas trancher seul, **chacun avec ce qui est supposé en attendant**.
+**Les onze sont tranchés.** Quatre par l'utilisateur le 2026-10-01 (1, 5, 7 et 11 : la supposition devient la décision) ; la porte de la tranche 5 (point 2), par l'utilisateur le 2026-10-05 ; le point 4 en #557, les points 8 et 9 en #556 et #560 ; **les points 3, 6 et 10 à la relecture de fin de phase** ([#573](https://github.com/Guyot-Bertrand/sub-edit/issues/573)), chacun gardant sa supposition et son déclencheur. La fusion et la scission d'un sous-titre restent écartées, avec le leur. La table garde **ce qui était supposé en attendant** et dit ce qui est advenu.
 
 | N° | Point | Supposé | Qui, quand |
 | :- | :---- | :------ | :--------- |
 | 1 | **la racine des sorties d'un parcours** : relative au répertoire donné (`out/a/x.srt`) ou y compris son nom (`out/films/a/x.srt`) | relative, sans le nom (ADR 0039) | **tranché le 2026-10-01** : la supposition est retenue |
-| 2 | **la porte de la tranche 5** : `append`, `split-file`, `pair` sont-ils voulus, et sous quelle grammaire (`split-file` écrit deux fichiers, `append` en lit N pour en écrire un) | non construits tant que personne ne répond ; les tranches 1 à 4 se tiennent seules | l'utilisateur, à l'entrée de la tranche 5 |
-| 3 | **l'appariement des traductions dans un lot** : `-t` n'a de sens que pour une entrée ; un `--translation-dir`, un suffixe (`film.srt` ↔ `film.fr.srt`), ou rien | rien : on passe les deux fichiers, ou une invocation par paire | la relecture, sur demande réelle |
+| 2 | **la porte de la tranche 5** : `append`, `split-file`, `pair` sont-ils voulus, et sous quelle grammaire (`split-file` écrit deux fichiers, `append` en lit N pour en écrire un) | non construits tant que personne ne répond ; les tranches 1 à 4 se tiennent seules | **tranché le 2026-10-05** par l'utilisateur, à l'entrée de la tranche 5 : **les trois sont construits** — `append` ([#570](https://github.com/Guyot-Bertrand/sub-edit/issues/570)), `split-file` ([#571](https://github.com/Guyot-Bertrand/sub-edit/issues/571)), `pair` ([#572](https://github.com/Guyot-Bertrand/sub-edit/issues/572)), chacun avec la grammaire de destination que son arité demande |
+| 3 | **l'appariement des traductions dans un lot** : `-t` n'a de sens que pour une entrée ; un `--translation-dir`, un suffixe (`film.srt` ↔ `film.fr.srt`), ou rien | rien : on passe les deux fichiers, ou une invocation par paire | **tranché à la relecture ([#573](https://github.com/Guyot-Bertrand/sub-edit/issues/573)) : la supposition est retenue** — personne n'a un lot de paires à traiter, et `pair` a été écrit pour une paire. Déclencheur : un appelant qui le demande |
 | 4 | **la forme texte de `--dry-run`** : des blocs « sous-titre N / avant / après », ou autre chose | des blocs, un préfixe par ligne ; **la forme JSON, elle, est engagée par l'ADR 0038** | **tranché en [#557](https://github.com/Guyot-Bertrand/sub-edit/issues/557)** : des blocs — `<chemin>: subtitle N` (suivi de `(translation)` et de `(removed)` quand ils s'appliquent), puis `- ` devant chaque ligne d'avant et `+ ` devant chaque ligne d'après ; une suppression n'a pas de lignes `+`. Un texte de plusieurs lignes tient dans son bloc, ce qu'un diff ligne à ligne ou une forme sur une ligne ne permettait pas |
 | 5 | **`--code` requis, ou `Zyyy` par défaut** : le choix de D8 est de refuser un défaut qui appliquerait moins qu'attendu | requis | **tranché le 2026-10-01** : la supposition est retenue |
-| 6 | **`--range` sur les sept sous-commandes existantes** (`shift` sur une plage, `hearing-impaired` sur une plage) | non, dans cette phase | la relecture |
+| 6 | **`--range` sur les sept sous-commandes existantes** (`shift` sur une plage, `hearing-impaired` sur une plage) | non, dans cette phase | **tranché à la relecture : la supposition est retenue** — six sous-commandes de texte et `adjust` ont `--range`, les sept d'origine non. Déclencheur : un appelant qui veut décaler ou nettoyer une plage |
 | 7 | **le parent de `--output FICHIER`** est créé comme le dossier de `--output-dir` (ADR 0039) | oui, même règle | **tranché le 2026-10-01** : la supposition est retenue |
-| 8 | **un chemin qui n'est pas de l'UTF-8** en JSON : U+FFFD et l'avertissement `path-not-utf8` | oui, la fidélité n'est pas promise pour eux | [#556](https://github.com/Guyot-Bertrand/sub-edit/issues/556) |
-| 9 | **si les comptes divergent** (D7) et qu'aucune plage ne localise le désaccord : faut-il que le noyau rende **quels** sous-titres sont sacrifiés, non seulement combien ? | non, tant que les comptes s'accordent | [#560](https://github.com/Guyot-Bertrand/sub-edit/issues/560) |
-| 10 | **`--include`** : un motif de noms pour le parcours, plus de grammaire pour le cas où l'extension ne suffit pas | non | la relecture, sur demande réelle |
+| 8 | **un chemin qui n'est pas de l'UTF-8** en JSON : U+FFFD et l'avertissement `path-not-utf8` | oui, la fidélité n'est pas promise pour eux | **tranché en [#556](https://github.com/Guyot-Bertrand/sub-edit/issues/556)** : la supposition est retenue, l'avertissement est `path-not-utf8` |
+| 9 | **si les comptes divergent** (D7) et qu'aucune plage ne localise le désaccord : faut-il que le noyau rende **quels** sous-titres sont sacrifiés, non seulement combien ? | non, tant que les comptes s'accordent | **tranché en [#560](https://github.com/Guyot-Bertrand/sub-edit/issues/560) : les comptes s'accordent**, sur les soixante et onze fichiers du corpus privé et les fixtures versionnées, la question reste fermée |
+| 10 | **`--include`** : un motif de noms pour le parcours, plus de grammaire pour le cas où l'extension ne suffit pas | non | **tranché à la relecture : la supposition est retenue** — le suffixe de l'extension suffit aux appelants connus, et le déclencheur est écrit dans l'ADR 0039 |
 | 11 | **`--list-encodings`** : retenu comme iso-fonctionnel avec Gaupol et pour son coût ; l'est-il vraiment ? | oui, issue [#564](https://github.com/Guyot-Bertrand/sub-edit/issues/564) | **tranché le 2026-10-01** : la supposition est retenue |

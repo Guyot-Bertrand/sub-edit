@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Relecture de fin de phase 13
+
+## 0.13.28 — 2026-10-05
+
 ### Ajouts
 
 - **cli** — Sous-commande pair, la traduction recalée sur son principal

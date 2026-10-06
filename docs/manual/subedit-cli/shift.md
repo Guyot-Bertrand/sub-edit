@@ -139,6 +139,10 @@ code=2
 | 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
 | 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
+### En JSON
+
+Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.subtitles` (tous les sous-titres du fichier) et `counts.shifted_by_ms` (le décalage, en millisecondes entières, **signé**). Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
+
 ## Codes de retour
 
 Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` si
