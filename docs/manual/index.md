@@ -25,17 +25,16 @@ fichier ouvert puis enregistré sans modification ne bouge pas d'un octet.
 | recaler un fichier écrit pour une autre cadence d'images | [`framerate`](subedit-cli/framerate.md), et [`snap`](subedit-cli/snap.md) si le minutage est déjà juste |
 | savoir contre quelle cadence un fichier a été écrit | [La grille d'images](subedit-gui/grille.md), ou [`inspect`](subedit-cli/inspect.md) |
 | retirer les mentions pour malentendants | [Les opérations](subedit-gui/operations.md#remove-hearing-impaired-mentions), ou [`hearing-impaired`](subedit-cli/hearing-impaired.md) |
-| corriger des mentions, des erreurs courantes, la casse et le découpage des lignes en un seul passage | [`Correct Texts…`](subedit-gui/correct-texts.md) |
+| corriger des mentions, des erreurs courantes, la casse et le découpage des lignes en un seul passage | [`Correct Texts…`](subedit-gui/correct-texts.md), ou [`correct`](subedit-cli/correct.md) |
 | vérifier l'orthographe mot à mot, avec les dictionnaires du système | [`Check Spelling…`](subedit-gui/verifier-orthographe.md) |
 | allonger des sous-titres trop courts pour être lus | [`Adjust Durations…`](subedit-gui/operations.md#adjust-durations), ou [`adjust`](subedit-cli/adjust.md) |
 | remettre dans l'ordre un fichier dont les sous-titres ne le sont pas | [`sort`](subedit-cli/sort.md) |
 | mettre bout à bout les deux parties d'un film | [`Append File…`](subedit-gui/operations.md#append-file), ou [`append`](subedit-cli/append.md) |
 | couper un film en deux parties | [`Split Project…`](subedit-gui/operations.md#split-project), ou [`split-file`](subedit-cli/split-file.md) |
-| changer la casse, l'italique ou les tirets de dialogue de tout un fichier | [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
+| changer la casse, l'italique ou les tirets de dialogue de tout un fichier | [Les opérations](subedit-gui/operations.md#italic), ou [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | chercher un mot et le remplacer, sans casser les balises | [Rechercher et remplacer](subedit-gui/recherche.md), ou [`replace`](subedit-cli/replace.md) |
 | traduire en regard du texte d'origine | [Ouvrir une traduction](subedit-gui/fichiers.md#ouvrir-une-traduction), ou [`pair`](subedit-cli/pair.md) pour la recaler sur le principal |
-| mettre en italique, changer la casse, poser des tirets de dialogue | [Les opérations](subedit-gui/operations.md#italic) |
-| traiter cent fichiers d'un coup | [Invocation](subedit-cli/invocation.md) |
+| traiter cent fichiers d'un coup | [Traiter un arbre](subedit-cli/lots.md), puis [Invocation](subedit-cli/invocation.md) |
 
 **Entre `framerate` et `snap`, on se trompe sans que rien ne le signale.** Si
 vous hésitez, [`snap`](subedit-cli/snap.md#snap-nest-pas-framerate-et-sen-tromper-ne-se-voit-pas)
@@ -73,13 +72,15 @@ Ce qui diffère est ce que chaque surface peut faire :
 | | `subedit-gui` | `subedit-cli` |
 | :--- | :------------ | :------------ |
 | plusieurs fichiers d'un coup | oui — un onglet par projet | oui |
-| une traduction en regard du principal | oui | non |
-| ajouter un fichier à la suite, scinder un projet | oui | non |
+| une traduction en regard du principal | oui | oui — `-t` sur les sous-commandes de texte, et [`pair`](subedit-cli/pair.md) pour la recaler |
+| ajouter un fichier à la suite, scinder un projet | oui | oui — [`append`](subedit-cli/append.md), [`split-file`](subedit-cli/split-file.md) |
 | annuler | oui, mille entrées | sans objet — rien n'est modifié en place sans le demander |
 | éditer un texte ou une position à la main | oui | non |
 | insérer, supprimer, fusionner et scinder des lignes | oui | non |
-| rechercher et remplacer, couper, copier et coller des textes | oui | non |
-| ajuster les durées, l'italique, la casse, les tirets | oui | non |
-| corriger les textes par motifs, vérifier l'orthographe | oui — `Correct Texts…`, `Check Spelling…` | non |
+| rechercher et remplacer | oui | oui — [`replace`](subedit-cli/replace.md) |
+| couper, copier et coller des textes | oui | non |
+| ajuster les durées, l'italique, la casse, les tirets | oui | oui — [`adjust`](subedit-cli/adjust.md), [`italics`](subedit-cli/italics.md), [`case`](subedit-cli/case.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
+| corriger les textes par motifs | oui — `Correct Texts…` | oui — [`correct`](subedit-cli/correct.md) |
+| vérifier l'orthographe mot à mot | oui — `Check Spelling…` | non |
 | regarder le film pendant qu'on cale | oui | non |
 | écrire par-dessus l'entrée | `Save` | `--in-place` |

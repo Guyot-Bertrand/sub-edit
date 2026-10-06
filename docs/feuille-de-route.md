@@ -1144,6 +1144,45 @@ phase comprise. **Un constat de l'analyse** : la résolution des emplacements de
 disait hors de `gui`, y est restée et appelle Qt ; la correction en ligne de commande commence par la
 réécrire sans lui.
 
+**Livrée, relue par [#573](https://github.com/Guyot-Bertrand/sub-edit/issues/573).** Vingt issues, #553 à #572, en
+vingt-huit versions, de 0.13.1 à 0.13.28 : **dix-sept sous-commandes** — les sept de départ, plus `adjust`,
+`replace`, `case`, `italics`, `dialogue-dashes`, `sort`, `correct` et, derrière la porte, `append`, `split-file`
+et `pair` —, le lot sûr et `--recursive`, `--format json`, `--dry-run` sur toute sous-commande qui écrit,
+`--range`, `-t`, `--document`, `--align-method` et `--list-encodings`. **Soixante-six exigences `CLI-*`, toutes
+`implémentées` et citées par un test**, aucune `abandonnée` ; trois ADR ([0038](adr/0038-sortie-json-lines-versionnee.md),
+[0039](adr/0039-le-lot-collisions-dossiers-et-arborescence.md),
+[0040](adr/0040-correct-ecrit-directement-dry-run-propose.md)) ; **onze écarts avec Gaupol**, dont deux de plus qu'au
+cadrage (`--list-encodings`, et les trois gestes de la fenêtre devenus sous-commandes). **La porte de D12 s'est ouverte
+le 5 octobre 2026, pour les trois** : l'utilisateur les a voulues, une issue chacune, et chacune avec la grammaire que son
+arité demande — N entrées une sortie, une entrée deux sorties, deux entrées une sortie. **Les onze points ouverts de la
+spec sont tous tranchés**, trois d'entre eux à cette relecture (l'appariement dans un lot, `--range` sur les sept
+d'origine, `--include`), chacun avec son déclencheur. **Le renvoi de #407 est tenu** (#560) : les deux comptes
+s'accordent.
+
+**La relecture n'a pas trouvé de défaut de fond, et a corrigé le manuel.** Le tableau de ce que la ligne de commande
+ne fait pas disait « non » à cinq lignes de choses qu'elle fait ; `invocation.md` donnait trois valeurs pour le nombre des
+sous-commandes qui écrivent et ne disait ni les `counts` d'`append`, de `split-file` et de `pair`, ni que ces trois
+écrivent **un objet par lancement** et non par entrée ; six pages n'avaient pas de section JSON ; `lots.md` et la page
+des plusieurs fichiers disaient « toutes ». **Le regard critique sur le code** a ouvert trois issues, dans le
+milestone, rien n'ayant été corrigé dans la relecture :
+[#598](https://github.com/Guyot-Bertrand/sub-edit/issues/598), une seule préparation des options pour dix-sept
+sous-commandes (la validation y est écrite dix-sept fois, l'ouverture d'un fichier cinq fois, la garde « destination =
+entrée » en deux libellés) ;
+[#599](https://github.com/Guyot-Bertrand/sub-edit/issues/599), de la logique de décision restée dans `src/exe/cli`
+(`pairingOf`, la préparation de `correct`, la liste des formats de `convert` qui double le noyau) ;
+[#600](https://github.com/Guyot-Bertrand/sub-edit/issues/600), des tests qui promettent plus qu'ils ne prouvent
+(`--dry-run` n'est éprouvé avec une destination à créer que pour six sous-commandes sur dix-sept). **`application.cpp` est
+resté mince.** **La parité des phrases tient** : aucune phrase de `core/wording/` n'est recopiée dans `cli/`, et la phrase
+de refus d'une coupure, que la fenêtre écrivait en dur, y est passée (#571).
+
+**Le banc de la phase** est resté maigre, comme celui des deux précédentes : des relevés en 0.13.0, 0.13.10, 0.13.13,
+0.13.14, 0.13.21, 0.13.25 et 0.13.27, et **aucun pour 0.13.28 ni pour la relecture** — la machine a trouvé le seuil de
+charge dépassé. **Ce qui manque** : un banc propre à `append`, `split-file` et `pair`, qui n'en ont pas — ils reposent
+sur des opérations du noyau déjà mesurées, et `make bench` ne mesure que le lot (parcours de deux cents fichiers,
+décalage d'un fichier de quatre mille sous-titres). Rejouer `make bench` au calme reste dû.
+
+**Reste, pour clore :** les trois issues ci-dessus, puis la clôture du milestone en 0.14.0.
+
 ## 14 — Calage fin
 
 **Réduite, mais pas vidée.** Le lecteur lui-même est passé en phase 6, qui l'a

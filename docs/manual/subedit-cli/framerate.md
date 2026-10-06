@@ -4,7 +4,7 @@
 > l'échelle** : elle sert quand le minutage est faux et dérive de plusieurs
 > secondes en fin de film. `snap` repose les horodatages sur la grille la plus
 > proche sans re-miner quoi que ce soit, et sert quand le minutage est déjà
-> juste. Les deux prennent les mêmes arguments, et se tromper ne provoque
+> juste. Les deux ont la même forme, une cadence ou deux, et se tromper ne provoque
 > aucune erreur.
 
 ```
@@ -90,7 +90,7 @@ désigne la même cadence que `23.976`.
 Toute autre décimale est prise au pied de la lettre — `23.9` n'est le standard
 de personne, il n'y a rien à y lire. C'est aussi ce qui rend la table ci-dessus
 nécessaire : sans elle, `23.976` vaudrait `23976/1000`, et la ligne de commande
-dirait autre chose que la fenêtre à venir pour les mêmes mots.
+dirait autre chose que la fenêtre pour les mêmes mots.
 
 ## Ce que les positions deviennent
 
@@ -139,6 +139,10 @@ Un.
 `23.976` sur cette ligne rapporterait une conversion qui n'a pas eu lieu ; c'est
 le seul endroit où l'on voit laquelle des deux a servi. Une cadence qu'une
 décimale écrit exactement s'y affiche en décimale, les autres en fraction.
+
+### En JSON
+
+Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.subtitles` (tous les sous-titres du fichier). Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
 
 ## Codes de retour
 

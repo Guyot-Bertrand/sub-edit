@@ -14,7 +14,7 @@ plus.
 
 ## `snap` n'est pas `framerate`, et s'en tromper ne se voit pas
 
-Les deux commandes prennent les mêmes arguments et font des choses opposées.
+Les deux commandes ont la même forme — des fichiers, une destination, une cadence — et font des choses opposées.
 
 | | [`framerate`](framerate.md) | `snap` |
 | :--- | :-------------------------- | :----- |
@@ -110,6 +110,10 @@ monotone, donc deux débuts distants d'au moins une image le restent. Plus
 proches, ils peuvent se confondre — ce qui est une anomalie que
 [`inspect`](inspect.md#ce-que-anomalies-rapporte) sait nommer, et non une
 inversion.
+
+### En JSON
+
+Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.subtitles`, `counts.moved` (les positions déplacées) et `counts.furthest_ms` (le plus grand déplacement, en millisecondes). Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
 
 ## Codes de retour
 

@@ -165,6 +165,10 @@ a.srt: no mention to remove -> b.srt
 `N` compte les sous-titres dont le texte a changé, `M` ceux que le retrait a
 entièrement vidés et qui ont donc quitté le fichier.
 
+### En JSON
+
+Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.cleaned` (les textes réécrits) et `counts.removed` (les sous-titres supprimés) ; **avec `--dry-run`**, la clé `changes` liste en plus les sous-titres changés, comme la sortie standard de la forme texte. Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
+
 ## Codes de retour
 
 Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` si

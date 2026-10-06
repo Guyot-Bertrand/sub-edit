@@ -237,7 +237,7 @@ lecture comme pour l'écriture : `--encoding UTF-16` reçoit la même réponse.
 
 ## La destination
 
-Les trois options et leurs règles sont communes aux douze sous-commandes qui
+Les trois options et leurs règles sont communes aux sous-commandes qui
 écrivent : voir [Invocation](invocation.md#la-destination). Rien n'est écrit
 sans l'une d'elles.
 
@@ -284,6 +284,10 @@ Sur la sortie d'erreur, selon le niveau :
 | 1 | `<chemin>: N subtitles written as WebVTT -> <destination>` |
 | 2 | `<chemin>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — l'encodage nommé est celui qui est écrit |
 | 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+
+### En JSON
+
+Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.subtitles`, puis ce que la conversion a perdu : `lost_ends` et `lost_header` (`0` ou `1`), `joined_lines`, `lost_tags`, `lost_fields` et `furthest_ms` — les postes de [la phrase de perte](#ce-que-la-conversion-dit-quelle-a-perdu). Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
 
 ## Codes de retour
 

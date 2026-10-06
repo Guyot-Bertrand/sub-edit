@@ -170,6 +170,10 @@ le premier repère** et que l'échelle le repousse au-delà de zéro. Rien n'est
 
 Les repères sont réécrits avec le point décimal, tels qu'ils ont pu être tapés.
 
+### En JSON
+
+Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.subtitles` (tous les sous-titres du fichier). Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
+
 ## Codes de retour
 
 Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` si
