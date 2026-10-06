@@ -53,6 +53,7 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0038](0038-sortie-json-lines-versionnee.md) | Offrir une sortie lisible par un script : JSON Lines, versionnée | acceptée |
 | [0039](0039-le-lot-collisions-dossiers-et-arborescence.md) | Un lot sûr : collisions refusées, dossier créé, arborescence conservée | acceptée |
 | [0040](0040-correct-ecrit-directement-dry-run-propose.md) | Écrire directement, et proposer par `--dry-run` | acceptée |
+| [0041](0041-afficher-la-video-par-le-rendu-logiciel.md) | Afficher la vidéo par le rendu logiciel de libmpv | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en

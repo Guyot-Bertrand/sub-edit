@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Cadrage de la phase 14, calage fin
+
+## 0.14.0 — 2026-10-06
+
 ### Ajouts
 
 - **gui** — Les diagnostics de lecture sortent de la mise en page

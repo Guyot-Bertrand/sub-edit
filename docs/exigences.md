@@ -276,3 +276,31 @@ plus rien.
 | `CLI-APPEND-01` | `append` ajoute les fichiers à la suite du premier, décalés de la fin du dernier sous-titre, dans une seule sortie | 13 | implémentée |
 | `CLI-PSPLIT-01` | `split-file --at N` écrit les deux moitiés, la seconde ramenée à l'origine, ou refuse en nommant le sous-titre | 13 | implémentée |
 | `CLI-PAIR-01` | `pair` écrit la traduction recalée sur les positions du principal, et dit l'alignement | 13 | implémentée |
+| `GUI-SURFACE-01` | l'image de la vidéo est dessinée dans la fenêtre, redimensionnable, son rapport d'aspect conservé | 14 | prévue |
+| `GUI-SURFACE-02` | après un saut, l'image affichée est celle de la position demandée, la plus proche | 14 | prévue |
+| `GUI-SURFACE-03` | la fenêtre n'adopte aucune fenêtre native et n'exige pas X11 | 14 | prévue |
+| `GUI-STEP-01` | avancer d'une image affiche l'image suivante | 14 | prévue |
+| `GUI-STEP-02` | reculer d'une image affiche l'image précédente | 14 | prévue |
+| `GUI-STEP-03` | la durée d'une image vient de la vidéo, à défaut du document, à défaut de la grille ; sans aucune, le geste refuse en le disant | 14 | prévue |
+| `GUI-NUDGE-01` | décaler le début ou la fin d'un sous-titre d'une image est annulable en une entrée | 14 | prévue |
+| `GUI-SEEK-01` | le curseur de position se lit et se déplace | 14 | prévue |
+| `GUI-SEEK-02` | reculer et avancer d'un pas réglable | 14 | prévue |
+| `GUI-SEEK-03` | le sous-titre précédent et le suivant placent la lecture à leur début | 14 | prévue |
+| `GUI-SEEK-04` | le début et la fin de la sélection placent la lecture, avec l'avance réglée | 14 | prévue |
+| `GUI-SEEK-05` | jouer la sélection s'arrête à sa fin | 14 | prévue |
+| `GUI-VOLUME-01` | le volume se règle et se retient d'une session à l'autre | 14 | prévue |
+| `GUI-TIMECODE-01` | le timecode est incrusté sur l'image | 14 | prévue |
+| `GUI-AUDIO-01` | la piste audio se choisit parmi celles de la vidéo | 14 | prévue |
+| `GUI-MARK-01` | poser le début d'un sous-titre depuis la position de la vidéo, en une entrée d'historique | 14 | prévue |
+| `GUI-MARK-02` | poser sa fin depuis la position de la vidéo | 14 | prévue |
+| `GUI-MARK-03` | insérer un sous-titre à la position de la vidéo | 14 | prévue |
+| `GUI-MARK-04` | sélectionner le sous-titre précédent ou suivant depuis la position de la vidéo | 14 | prévue |
+| `GUI-FOLLOW-01` | la table centre le sous-titre courant pendant la lecture | 14 | prévue |
+| `GUI-FOLLOW-02` | un défilement à la main suspend le suivi | 14 | prévue |
+| `GUI-FOLLOW-03` | le suivi reprend sur un geste du lecteur ou à la demande | 14 | prévue |
+| `GUI-REPLICA-01` | la réplique dessinée sur l'image n'a plus de balises brutes | 14 | prévue |
+| `GUI-FRAMES-02` | les positions s'affichent et se saisissent en numéros d'image, la fréquence dite | 14 | prévue |
+| `GUI-DRIFT-01` | l'ouverture d'une traduction dit qu'un décalage constant la rattacherait mieux, sans le dire d'une dérive | 14 | prévue |
+| `GUI-DRIFT-02` | rouvrir décalée rattache selon le décalage proposé, en une entrée d'historique | 14 | prévue |
+| `GUI-REPAIR-01` | la modale d'analyse propose la conversion de fréquence qui remet le fichier sur une grille, ou rien quand deux se valent | 14 | prévue |
+| `GUI-REPAIR-02` | `Convert Frame Rate…` s'ouvre préremplie par cette proposition | 14 | prévue |
