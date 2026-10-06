@@ -12,6 +12,15 @@
 #   --generate    refabrique les fixtures depuis la table
 #   --weight      écrit le poids total, en octets
 #
+# **Deux familles.** Les fixtures de cadence ne montrent rien : on n'y lit que
+# la fréquence et la durée. Les fixtures **à images numérotées** (#610) sont
+# l'inverse : chaque image y porte son propre numéro, huit barres de 16 pixels
+# claires ou sombres lues comme des bits, de sorte qu'un test lit **l'image que
+# le lecteur affiche** et la compare à celle qu'il devait afficher — un oracle qui
+# ne repose pas sur ce que le lecteur dit de lui-même. `--check` vérifie qu'elles
+# portent bien leur numéro **sans libmpv**, par ffmpeg : l'oracle d'un test ne vaut
+# que si la fixture qu'il lit est honnête.
+#
 # **Ce script exige ffprobe, et le binaire non.** La distinction est celle de
 # tout le reste de la chaîne d'outils : `make check` exige déjà clang-tidy et
 # gcovr d'une machine de développement. `subedit`, lui, tolère l'absence de
@@ -58,6 +67,29 @@ readonly FIXTURES=(
     "cadence-23-976.mp4|24000/1001|2.002000|4096"
 )
 
+# Les fixtures à images numérotées. 128×64, huit barres de 16 pixels : un octet de
+# numéro d'image, de 0 à 255, et dix secondes à 25 images par seconde en tiennent 250.
+#
+# **Une seule image-clé, au début** : c'est le cas difficile — la position 249 se décode
+# depuis la 0 — et celui qu'un film réel connaît. L'encodeur `mpeg4` n'en donne pas
+# l'unique par défaut : malgré `-g 250` il place une image-clé toutes les 32 images quand
+# le contenu change à chaque image (huit sur 250, mesuré), d'où `-keyint_min`,
+# `-sc_threshold` et `-bf 0` ci-dessous.
+#
+# nom | fréquence déclarée | nombre d'images | images-clés | taille maximale admise
+#
+# La seconde est à 24000/1001 : le rapport du millième n'est pas celui des images, et un
+# cas à 23,976 le dit — l'image 10 y occupe 417,08 à 458,79 ms, que la milliseconde
+# entière n'écrit pas.
+readonly NUMBERED_WIDTH=128
+readonly NUMBERED_HEIGHT=64
+readonly NUMBERED_BAR=16
+readonly NUMBERED_SECONDS=10
+readonly NUMBERED=(
+    "images-25.mp4|25/1|250|1|24576"
+    "images-23-976.mp4|24000/1001|240|1|24576"
+)
+
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
 readonly BOLD=$'\033[1m'
@@ -99,6 +131,32 @@ generate_one() {
         "${target}"
 }
 
+# Chaque image porte son numéro N : la barre X est claire (235) si le bit X de N vaut 1,
+# sombre (16) sinon, la chrominance neutre. Le filtre `geq` calcule cela image par image.
+generate_numbered_one() {
+    local target="$1" rate="$2"
+    ffmpeg -v error -y \
+        -f lavfi -i "color=c=gray:s=${NUMBERED_WIDTH}x${NUMBERED_HEIGHT}:r=${rate}:d=${NUMBERED_SECONDS},geq=lum='if(gte(mod(floor(N/pow(2\,floor(X/${NUMBERED_BAR})))\,2)\,1)\,235\,16)':cb=128:cr=128" \
+        -c:v mpeg4 -q:v 2 -g 250 -keyint_min 250 -sc_threshold 1000000000 -bf 0 -pix_fmt yuv420p -an \
+        -fflags +bitexact -flags:v +bitexact -map_metadata -1 \
+        "${target}"
+}
+
+# Le numéro que porte l'image `frame` d'un fichier, lu **par ffmpeg** : l'image décodée en
+# niveaux de gris, puis les huit barres, au milieu de la rangée du milieu.
+number_of() {
+    local file="$1" frame="$2" raw bit value number=0
+    raw="$(mktemp)"
+    ffmpeg -v error -y -i "${file}" -vf "select=eq(n\,${frame})" -frames:v 1 \
+        -f rawvideo -pix_fmt gray "${raw}" 2>/dev/null || true
+    for bit in 0 1 2 3 4 5 6 7; do
+        value="$(od -An -tu1 -j $(( (NUMBERED_HEIGHT / 2) * NUMBERED_WIDTH + bit * NUMBERED_BAR + NUMBERED_BAR / 2 )) -N1 "${raw}" 2>/dev/null | tr -d ' ')"
+        (( ${value:-0} > 128 )) && number=$(( number + (1 << bit) ))
+    done
+    rm -f "${raw}"
+    printf '%s\n' "${number}"
+}
+
 probe() {
     local file="$1" entries="$2"
     ffprobe -v error -select_streams v:0 -show_entries "${entries}" \
@@ -114,6 +172,60 @@ generate() {
         IFS='|' read -r name rate _ _ <<<"${entry}"
         generate_one "${FIXTURE_DIR}/${name}" "${rate}"
         ok "${name} — ${rate}, ${FIXTURE_SECONDS} s, $(stat -c %s "${FIXTURE_DIR}/${name}") octets"
+    done
+    for entry in "${NUMBERED[@]}"; do
+        IFS='|' read -r name rate _ _ _ <<<"${entry}"
+        generate_numbered_one "${FIXTURE_DIR}/${name}" "${rate}"
+        ok "${name} — ${rate}, images numérotées, $(stat -c %s "${FIXTURE_DIR}/${name}") octets"
+    done
+}
+
+check_numbered() {
+    local entry name rate frames keyframes maximum path size actual before last
+    for entry in "${NUMBERED[@]}"; do
+        IFS='|' read -r name rate frames keyframes maximum <<<"${entry}"
+        path="${FIXTURE_DIR}/${name}"
+        before="${failures}"
+
+        if [[ ! -f "${path}" ]]; then
+            ko "${name} — absente ; ./src/scripts/video-fixtures.sh --generate"
+            continue
+        fi
+
+        actual="$(probe "${path}" stream=r_frame_rate || true)"
+        [[ "${actual}" == "${rate}" ]] \
+            || ko "${name} — fréquence ${actual:-illisible}, attendue ${rate}"
+
+        actual="$(probe "${path}" stream=nb_frames || true)"
+        [[ "${actual}" == "${frames}" ]] \
+            || ko "${name} — ${actual:-illisible} images, attendues ${frames}"
+
+        actual="$(probe "${path}" stream=width,height | tr '\n' 'x' | sed 's/x$//' || true)"
+        [[ "${actual}" == "${NUMBERED_WIDTH}x${NUMBERED_HEIGHT}" ]] \
+            || ko "${name} — taille ${actual:-illisible}, attendue ${NUMBERED_WIDTH}x${NUMBERED_HEIGHT}"
+
+        # Le nombre d'images-clés : **une** — c'est ce qui fait de la dernière image un saut
+        # de toute la durée. Compté sur les paquets, qui portent le drapeau `K`.
+        actual="$(ffprobe -v error -select_streams v:0 -show_entries packet=flags \
+            -of csv=p=0 "${path}" 2>/dev/null | grep -c K || true)"
+        [[ "${actual}" == "${keyframes}" ]] \
+            || ko "${name} — ${actual} image(s)-clé, attendues ${keyframes}"
+
+        size="$(stat -c %s "${path}")"
+        (( size <= maximum )) \
+            || ko "${name} — ${size} octets, maximum ${maximum}"
+
+        # **Honnêtes** : la première, une du milieu et la dernière portent leur numéro, lu
+        # par ffmpeg et non par le lecteur dont un test se sert de ces fichiers.
+        last=$(( frames - 1 ))
+        for frame in 0 1 $(( frames / 2 )) "${last}"; do
+            actual="$(number_of "${path}" "${frame}")"
+            [[ "${actual}" == "${frame}" ]] \
+                || ko "${name} — l'image ${frame} porte le numéro ${actual}"
+        done
+
+        [[ "${failures}" == "${before}" ]] \
+            && ok "${name} — ${rate}, ${frames} images, ${keyframes} image-clé, ${size} octets"
     done
 }
 
@@ -153,14 +265,16 @@ check() {
             && ok "${name} — ${rate}, ${duration} s, ${size} octets"
     done
 
+    check_numbered
+
     (( failures == 0 )) || die "${failures} écart(s) entre les fixtures et la table."
     printf '  poids total : %s octets\n' "$(weight)"
 }
 
 weight() {
     local entry name total=0
-    for entry in "${FIXTURES[@]}"; do
-        IFS='|' read -r name _ _ _ <<<"${entry}"
+    for entry in "${FIXTURES[@]}" "${NUMBERED[@]}"; do
+        IFS='|' read -r name _ <<<"${entry}"
         [[ -f "${FIXTURE_DIR}/${name}" ]] || continue
         total=$((total + $(stat -c %s "${FIXTURE_DIR}/${name}")))
     done

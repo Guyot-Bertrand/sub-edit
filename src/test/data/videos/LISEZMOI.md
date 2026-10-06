@@ -24,3 +24,31 @@ $ ./src/scripts/video-fixtures.sh --generate   # les refabriquer
 
 `--check` tourne dans `make check-local`. C'est là qu'est la garantie : un
 conteneur est illisible dans un diff, et personne ne relira ces 3 Ko.
+
+## Les images numérotées — #610
+
+Deux autres fixtures, d'un autre usage : **chaque image y porte son propre numéro**, et c'est ce qu'on lit.
+
+| Fichier | Fréquence | Images | Image-clé | Poids |
+| :------ | :-------- | -----: | :-------- | ----: |
+| `images-25.mp4` | `25/1` | 250 | **une seule, au début** | 13 275 o |
+| `images-23-976.mp4` | `24000/1001` | 240 | **une seule, au début** | 13 062 o |
+
+128×64, dix secondes. **Le numéro est écrit en huit barres de 16 pixels**, chacune claire pour un bit à 1
+et sombre pour un bit à 0, le bit de poids faible à gauche : de 0 à 255. Un test qui a placé la lecture à une
+image **lit l'image que le lecteur affiche** (`MpvPlayer::picture()`) et compare le numéro à celui qu'il avait demandé —
+un oracle qui ne repose pas sur ce que le lecteur dit de lui-même, car sa position et son compteur d'images
+viennent du même endroit que l'image, et un lecteur qui montrerait la mauvaise image en annonçant la bonne heure les
+satisferait.
+
+**Une seule image-clé** : c'est le cas difficile, celui d'un film réel — la position 249 se décode depuis la 0.
+L'encodeur `mpeg4` n'en donne pas une seule par défaut : malgré `-g 250` il en place une toutes les 32 images quand
+le contenu change à chaque image (huit sur 250, mesuré), d'où `-keyint_min 250 -sc_threshold 1000000000 -bf 0`.
+
+**La seconde est à 24000/1001** : l'image 10 y occupe 417,08 à 458,79 ms, que la milliseconde entière n'écrit pas.
+C'est ce qui montre que la finesse du `Timestamp` n'est pas le défaut — toutes les images démarrent juste — et
+que **`seek` place la lecture sur l'image la plus proche**, non sur celle qui est affichée à cet instant.
+
+`--check` vérifie, pour chacune, la fréquence, le nombre d'images, **le nombre d'images-clés**, la taille, et que
+**la première image, la deuxième, celle du milieu et la dernière portent leur numéro — lu par ffmpeg**, sans libmpv : ce
+qu'un test lira dans l'image ne vaut que si la fixture qu'il lit est honnête.

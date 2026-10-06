@@ -75,12 +75,26 @@ public:
     [[nodiscard]] virtual std::optional<Duration> duration() const = 0;
 
     /// Where playback stands — nothing when no video is open.
+    ///
+    /// **The start of the picture on screen**, to the millisecond, and not what
+    /// was last asked for: after `seek(437)` on the video above, 459. A mark set from
+    /// this position is therefore always the start of a frame, and seeking back to it
+    /// shows the same frame.
     [[nodiscard]] virtual std::optional<Timestamp> position() const = 0;
 
     /// Places playback at `position`, **exactly**, and waits until it is there.
     ///
-    /// Exactly means the frame asked for, not the keyframe before it: what
-    /// a subtitle is checked against is the picture at its own start.
+    /// Exactly means a frame and not a keyframe: the player decodes from the
+    /// keyframe before it, so that what is on screen is a picture of the film and
+    /// not the nearest place the file could be entered.
+    ///
+    /// **And the frame is the nearest one to `position`**, which is not always
+    /// the frame on screen at that instant — measured on a 23.976 video, issue #610:
+    /// the first half of the interval a frame occupies lands on that frame, the
+    /// second half on the next. A position asked at 437 ms, inside the frame that
+    /// spans 417.08 to 458.79 ms, shows the frame that starts at 458.79 ms, and
+    /// `position()` then answers 459. Whole milliseconds are not the cause: every
+    /// frame of that video lands on itself when asked at the millisecond it starts.
     ///
     /// It waits for the same reason `open` does — the core has no event loop
     /// of its own, and a caller told to ask again later would have to grow one.

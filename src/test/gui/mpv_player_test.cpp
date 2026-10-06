@@ -15,6 +15,8 @@
 #include <string>
 #include <utility>
 
+#include "numbered_frames.hpp"
+
 namespace {
 
 using subedit::core::Duration;
@@ -126,6 +128,11 @@ TEST_CASE("a file that is not there is refused", "[video][player]") {
 // a line: mpv lands exactly here without it, its `hr-seek` defaulting to
 // precise seeks for absolute positions. Asking anyway is what keeps phase 14
 // resting on something the player is told rather than on a default.
+//
+// **Nor does it hold which picture is on screen.** `position()` is what mpv says of
+// itself, so a player that showed the wrong frame while announcing 1000 ms would
+// pass — and the fixture is two seconds, a keyframe every ten frames. The cases below
+// the numbered videos (#610) read the picture itself, from a keyframe 249 frames away.
 TEST_CASE("seeking lands exactly where it was asked", "[video][player]") {
     MpvPlayer seeking = player();
     REQUIRE(seeking.open(fixture("videos/cadence-25.mp4")).has_value());
@@ -247,4 +254,104 @@ TEST_CASE("braces in a replica are escaped", "[video][player]") {
 // well enough to remove it is what phase 9 is for.
 TEST_CASE("a tag of the format is drawn as it stands", "[video][player]") {
     CHECK(assEventOf("<i>Un.</i>") == "{\\an2}<i>Un.</i>");
+}
+
+// ## The picture is the oracle — issue #610
+
+// The fixtures carry their frame numbers in the picture, so that these cases do not
+// rest on what the player says of itself. One keyframe, at the start: the last frame
+// is a decode of the whole film.
+TEST_CASE("a numbered video shows the number of the frame the player stands on",
+          "[video][player][numbered]") {
+    MpvPlayer reading = player();
+    REQUIRE(reading.open(fixture("videos/images-25.mp4")).has_value());
+
+    const subedit::gui::Picture picture = reading.picture().value_or(subedit::gui::Picture{});
+
+    REQUIRE(picture.width > 0);
+    CHECK(picture.width == 128);
+    CHECK(picture.height == 64);
+    CHECK(subedit::test::frameNumberOf(picture) == 0);
+}
+
+TEST_CASE("seeking lands on the frame asked, however far the keyframe is",
+          "[video][player][numbered]") {
+    MpvPlayer seeking = player();
+    REQUIRE(seeking.open(fixture("videos/images-25.mp4")).has_value());
+
+    // From the first frame to the last, 249 frames from the only keyframe.
+    for (const int frame : {0, 1, 37, 100, 199, 200, 249}) {
+        INFO("frame " << frame);
+        seeking.seek(Timestamp::fromMilliseconds(subedit::test::startOf(frame, 25, 1)));
+
+        const subedit::gui::Picture picture = seeking.picture().value_or(subedit::gui::Picture{});
+        REQUIRE(picture.width > 0);
+        CHECK(subedit::test::frameNumberOf(picture) == frame);
+        CHECK(seeking.position() ==
+              Timestamp::fromMilliseconds(subedit::test::startOf(frame, 25, 1)));
+    }
+}
+
+TEST_CASE("at 23.976 images a second, every frame lands on itself at the millisecond it starts",
+          "[video][player][numbered]") {
+    // The frame rate is 24000/1001 and a frame starts at a fraction of a millisecond:
+    // frame 10 at 417.08 ms. Whole milliseconds are not the defect — asked at the
+    // millisecond below, the nearest, or the one above, every frame shows itself.
+    MpvPlayer seeking = player();
+    REQUIRE(seeking.open(fixture("videos/images-23-976.mp4")).has_value());
+
+    for (const int frame : {1,  2,  3,  5,  7,  11, 13, 17, 19,  23,  24,  29,
+                            31, 37, 41, 47, 53, 59, 61, 71, 100, 143, 200, 233}) {
+        const std::int64_t near = subedit::test::startOf(frame, 24000, 1001);
+        for (const std::int64_t asked : {near - 1, near, near + 1}) {
+            INFO("frame " << frame << " asked at " << asked << " ms");
+            seeking.seek(Timestamp::fromMilliseconds(asked));
+
+            const subedit::gui::Picture picture =
+                seeking.picture().value_or(subedit::gui::Picture{});
+            REQUIRE(picture.width > 0);
+            CHECK(subedit::test::frameNumberOf(picture) == frame);
+        }
+    }
+}
+
+// What « the frame at a position » means, written as it was measured and not as the
+// comment of `seek` once said: **the nearest frame**, which is not always the one on
+// screen at that instant, and `position()` then says where that frame starts.
+TEST_CASE("a position inside a frame lands on the nearest frame, and says where it starts",
+          "[video][player][numbered]") {
+    MpvPlayer seeking = player();
+    REQUIRE(seeking.open(fixture("videos/images-23-976.mp4")).has_value());
+
+    // Frame 10 spans 417.08 to 458.79 ms. The first half of that is frame 10, the second
+    // half is frame 11 — which starts at 458.79 ms, said as 459.
+    struct Ask {
+        std::int64_t milliseconds;
+        int frame;
+        std::int64_t startsAt;
+    };
+
+    for (const Ask& ask : {Ask{.milliseconds = 417, .frame = 10, .startsAt = 417},
+                           Ask{.milliseconds = 421, .frame = 10, .startsAt = 417},
+                           Ask{.milliseconds = 437, .frame = 11, .startsAt = 459},
+                           Ask{.milliseconds = 454, .frame = 11, .startsAt = 459},
+                           Ask{.milliseconds = 458, .frame = 11, .startsAt = 459},
+                           // Frame 50 spans 2085.42 to 2127.12 ms.
+                           Ask{.milliseconds = 2089, .frame = 50, .startsAt = 2085},
+                           Ask{.milliseconds = 2106, .frame = 51, .startsAt = 2127},
+                           Ask{.milliseconds = 2126, .frame = 51, .startsAt = 2127}}) {
+        INFO("asked at " << ask.milliseconds << " ms");
+        seeking.seek(Timestamp::fromMilliseconds(ask.milliseconds));
+
+        const subedit::gui::Picture picture = seeking.picture().value_or(subedit::gui::Picture{});
+        REQUIRE(picture.width > 0);
+        CHECK(subedit::test::frameNumberOf(picture) == ask.frame);
+        CHECK(seeking.position() == Timestamp::fromMilliseconds(ask.startsAt));
+    }
+}
+
+TEST_CASE("a player with nothing open has no picture", "[video][player][numbered]") {
+    const MpvPlayer idle = player();
+
+    CHECK_FALSE(idle.picture().has_value());
 }
