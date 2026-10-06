@@ -1292,6 +1292,33 @@ projet, et celle qui décide de la qualité de l'outil pour le travail de timing
 La phase 6 pose déjà la recherche exacte, ce qui la rend éprouvable avant
 d'arriver ici.
 
+**Cadrée par [#609](https://github.com/Guyot-Bertrand/sub-edit/issues/609)** — la spec est
+[`specs/14-calage-fin.md`](specs/14-calage-fin.md), et l'[ADR 0041](adr/0041-afficher-la-video-par-le-rendu-logiciel.md)
+porte la décision coûteuse à défaire. Ce que le cadrage a tranché, et que la spec développe :
+
+- **L'image est rendue par l'API logicielle de libmpv, dans la fenêtre Qt** — décidé par l'utilisateur le 2026-10-06,
+  et ce qui ferme [#190](https://github.com/Guyot-Bertrand/sub-edit/issues/190). Mesuré : 2 à 3,4 ms par image pour du
+  H.264 1080p, sans image perdue ; Wayland et X11 sans distinction, **l'image devient photographiable et lisible sans
+  écran**. Le décodage matériel sans copie n'existe plus, et l'ADR dit son déclencheur.
+- **L'exactitude du `seek` est mesurée, et dite** : mpv place le saut sur **l'image la plus proche** d'une position, et
+  `position()` est **le début de l'image affichée** — un repère posé depuis la vidéo sur une image y revient. La finesse
+  de la milliseconde n'est pas en cause : les 24 images essayées à 23,976 démarrent juste.
+- **L'interface du lecteur gagne cinq ordres** (pas d'image, volume, pistes, `playUntil`), **pas de notification** : le
+  suivi reste une sonde de 100 ms, que les tests pilotent à la main.
+- **Le calage rejoue les cinq gestes de repère de Gaupol sur des commandes qui existent**, et ajoute ce que Gaupol n'a
+  pas : l'image par image et le décalage d'un bord d'une image, dont la durée vient de la vidéo, puis du document, puis
+  de la grille — et sans aucune, le geste refuse.
+- **La table se centre et se suspend à un défilement à la main** ; elle reprend sur un geste du lecteur, **sans minuterie**.
+- **Deux détections, proposées et jamais appliquées**, toutes deux dans la phase — décidé par l'utilisateur : une
+  traduction décalée d'une valeur constante, **jugée par ce que le rattachement dirait après**, et la paire d'une conversion
+  à la mauvaise fréquence, **dans l'ensemble fermé des cinquante-six paires** et jugée par la déduction de la phase 16.
+  Elles se taisent quand deux candidats se valent, quand l'écart n'est pas constant, ou quand le fichier est propre.
+
+**Quatorze issues** — trois d'outillage (#610 à #612), dix d'implémentation (#613 à #622), la relecture de fin de phase
+(#623) —, avec #386 et #408, plus anciennes. **Vingt-huit exigences `GUI-*`**, toutes `prévues`. **Un constat de
+l'analyse** : `VideoPlayer` ne dit nulle part que `seek` rend l'image la plus proche ; l'en-tête disait « l'image à son
+propre début ».
+
 ## 15 — Internationalisation
 
 Les 20 locales de Gaupol sont sous GPL, donc réutilisables.
