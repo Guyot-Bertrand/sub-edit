@@ -4,6 +4,7 @@
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/video_player.hpp>
 
+#include <cstddef>
 #include <cstdint>
 #include <expected>
 #include <filesystem>
@@ -11,6 +12,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 // The one type of libmpv that appears here, and it appears only as a name: a
 // player owns a handle, and a header the window includes has no business
@@ -18,6 +20,30 @@
 struct mpv_handle;
 
 namespace subedit::gui {
+
+/// A picture the player shows: the pixels of the frame on screen, as libmpv
+/// hands them over — four bytes a pixel, blue, green, red and one unused, rows
+/// back to back.
+///
+/// **What a test reads to know which frame the player shows**, rather than what
+/// the player says of itself: its position and its frame counter come from the
+/// same place as the picture, and a player that showed the wrong frame while
+/// announcing the right time would pass any check made on them. Issue #610.
+struct Picture {
+    int width = 0;
+    int height = 0;
+    std::vector<unsigned char> pixels{};
+
+    /// The green channel at (`x`, `y`) — the brightness, for a grey picture.
+    [[nodiscard]] unsigned char greenAt(int x, int y) const {
+        return pixels[(((static_cast<std::size_t>(y) * static_cast<std::size_t>(width)) +
+                        static_cast<std::size_t>(x)) *
+                       kBytesAPixel) +
+                      1U];
+    }
+
+    static constexpr std::size_t kBytesAPixel = 4;
+};
 
 /// The player of ADR 0020: libmpv, behind `core::VideoPlayer`.
 ///
@@ -92,6 +118,12 @@ public:
     void showSubtitle(std::string_view line) override;
 
     [[nodiscard]] bool isPlaying() const override;
+
+    /// The picture on screen now, or nothing when no video is open or libmpv
+    /// would not give one. **Not an order of the seam**: `VideoPlayer` stays
+    /// free of pixels, and what reads this is a test, and — when ADR 0041 puts
+    /// the picture in the window — whatever paints it.
+    [[nodiscard]] std::optional<Picture> picture() const;
 
 private:
     /// Gives the handle back to libmpv, once.

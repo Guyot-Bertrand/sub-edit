@@ -10,12 +10,14 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <expected>
 #include <filesystem>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace subedit::gui {
 
@@ -114,6 +116,21 @@ constexpr const char* kNotStarted = "the video player could not be started";
             break;
     }
     return event;
+}
+
+/// Throws away every event already waiting, so that the next wait is for what
+/// happens after it and not for what happened before.
+///
+/// **Issue #610 found why this exists.** Opening a film ends at `FILE_LOADED`, and
+/// the `PLAYBACK_RESTART` that follows it — the first frame being ready — was left in
+/// the queue. A `seek` that waited for « a restart » took that one and returned before
+/// its own jump was done, and the restart of that jump stayed behind for the next seek:
+/// from then on every seek returned one jump early, and the picture on screen was always
+/// the previous one. `position()` did not show it, because `time-pos` answers the target
+/// at once.
+void discardPendingEvents(mpv_handle* player) {
+    while (mpv_wait_event(player, 0.0)->event_id != MPV_EVENT_NONE) {
+    }
 }
 
 /// Reads a property mpv answers with a number, or nothing if it has none.
@@ -262,6 +279,11 @@ std::expected<void, core::PlayerError> MpvPlayer::open(const std::filesystem::pa
                 entry = static_cast<const mpv_event_start_file*>(event->data)->playlist_entry_id;
             } else if (event->event_id == MPV_EVENT_FILE_LOADED && entry.has_value()) {
                 m_open = true;
+                // **The first frame is part of being open**: what is asked next may be
+                // the picture, and until this restart there is none — and left
+                // unread, it would be taken by the first `seek` for its own.
+                [[maybe_unused]] const mpv_event* first =
+                    waitFor(m_handle.get(), MPV_EVENT_PLAYBACK_RESTART);
                 return {};
             } else if (event->event_id == MPV_EVENT_END_FILE) {
                 const auto* ended = static_cast<const mpv_event_end_file*>(event->data);
@@ -297,6 +319,59 @@ std::optional<core::Timestamp> MpvPlayer::position() const {
     });
 }
 
+std::optional<Picture> MpvPlayer::picture() const {
+    if (!m_open)
+        return std::nullopt;
+
+    // `screenshot-raw` answers a node: the size, the row stride, the pixel
+    // format and the bytes. It works with `vo=null` — measured, issue #610 —
+    // which is what lets a test read a picture where there is no screen.
+    std::array<const char*, 3> command{"screenshot-raw", "video", nullptr};
+    mpv_node answer{};
+    const bool answered = mpv_command_ret(m_handle.get(), command.data(), &answer) >= 0;
+
+    // A refusal — no picture yet, a film with none — is one answer with the others
+    // that are not a picture: nothing.
+    std::optional<Picture> picture;
+    if (answered && answer.format == MPV_FORMAT_NODE_MAP) {
+        int width = 0;
+        int height = 0;
+        std::size_t stride = 0;
+        std::string format;
+        const mpv_byte_array* bytes = nullptr;
+        for (int at = 0; at < answer.u.list->num; ++at) {
+            const std::string_view key = answer.u.list->keys[at];
+            const mpv_node& value = answer.u.list->values[at];
+            if (key == "w")
+                width = static_cast<int>(value.u.int64);
+            else if (key == "h")
+                height = static_cast<int>(value.u.int64);
+            else if (key == "stride")
+                stride = static_cast<std::size_t>(value.u.int64);
+            else if (key == "format")
+                format = value.u.string;
+            else if (key == "data")
+                bytes = value.u.ba;
+        }
+
+        // Only the layout the readers expect: anything else is not guessed at.
+        const std::size_t row = static_cast<std::size_t>(width) * Picture::kBytesAPixel;
+        if (format == "bgr0" && bytes != nullptr && width > 0 && height > 0 && stride >= row &&
+            bytes->size >= stride * static_cast<std::size_t>(height)) {
+            Picture found{.width = width, .height = height};
+            found.pixels.resize(row * static_cast<std::size_t>(height));
+            const auto* source = static_cast<const unsigned char*>(bytes->data);
+            for (int y = 0; y < height; ++y)
+                std::memcpy(found.pixels.data() + (static_cast<std::size_t>(y) * row),
+                            source + (static_cast<std::size_t>(y) * stride),
+                            row);
+            picture = std::move(found);
+        }
+    }
+    mpv_free_node_contents(&answer);
+    return picture;
+}
+
 void MpvPlayer::seek(core::Timestamp position) {
     if (!m_open)
         return;
@@ -313,6 +388,8 @@ void MpvPlayer::seek(core::Timestamp position) {
     // pretends to. What the word buys is that phase 14 rests on something this
     // file asks for, and not on a default that may be revisited upstream.
     std::array<const char*, 4> command{"seek", target.c_str(), "absolute+exact", nullptr};
+    // Nothing from before this order may be taken for its answer.
+    discardPendingEvents(m_handle.get());
     // The event is waited for and not read: what it says is « playback has
     // resumed », and there is nothing else it could say that a caller of
     // `seek` would act on. A command refused is not waited for at all, which

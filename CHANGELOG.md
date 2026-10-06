@@ -13,6 +13,10 @@ ne pas l'éditer à la main.
 
 - **doc** — Cadrage de la phase 14, calage fin
 
+### Tests
+
+- **video** — Des images qui portent leur numéro, et leur lecture
+
 ## 0.14.0 — 2026-10-06
 
 ### Ajouts
