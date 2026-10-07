@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **video** — Barre de lecture, gestes de Gaupol, volume et timecode
+
+## 0.14.9 — 2026-10-07
+
+### Ajouts
+
 - **video** — La réplique dessinée comprend ses balises
 
 ### Corrections
