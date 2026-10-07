@@ -25,18 +25,29 @@
 #include <subedit/gui/video_surface.hpp>
 
 #include <QAbstractButton>
+#include <QAbstractSlider>
+#include <QApplication>
+#include <QIcon>
+#include <QImage>
+#include <QItemSelection>
 #include <QItemSelectionModel>
 #include <QLabel>
+#include <QPoint>
+#include <QScrollBar>
+#include <QSize>
 #include <QSlider>
 #include <QSplitter>
 #include <QString>
 #include <QTest>
 #include <QToolButton>
+#include <QWheelEvent>
 #include <QWidget>
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstdint>
+#include <cstdlib>
 #include <filesystem>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <span>
@@ -536,16 +547,28 @@ TEST_CASE("the bar and the timecode are empty with no film", "[gui][GUI-TIMECODE
     CHECK(booth.pane->bar()->positionSlider()->value() == 0);
 }
 
+namespace {
+
+/// The size an icon of the bar is looked at in.
+constexpr QSize kIconSize{24, 24};
+
+} // namespace
+
 TEST_CASE("the play button plays and holds, and says which it will do", "[gui][GUI-SEEK-01]") {
     Booth booth;
     ProjectPage& page = watched(booth);
     booth.pane->follow(page);
-    CHECK(booth.pane->bar()->playButton()->text() == QStringLiteral("Play"));
+    CHECK(booth.pane->bar()->playButton()->toolTip() == QStringLiteral("Play"));
+    const QImage playIcon = booth.pane->bar()->playButton()->icon().pixmap(kIconSize).toImage();
 
     booth.pane->bar()->playButton()->click();
     booth.pane->follow(page);
     CHECK(booth.player->isPlaying());
-    CHECK(booth.pane->bar()->playButton()->text() == QStringLiteral("Pause"));
+    CHECK(booth.pane->bar()->playButton()->toolTip() == QStringLiteral("Pause"));
+    // An icon and no text, and not the same icon: the button says what it will do.
+    CHECK(booth.pane->bar()->playButton()->text().isEmpty());
+    CHECK_FALSE(booth.pane->bar()->playButton()->icon().isNull());
+    CHECK(booth.pane->bar()->playButton()->icon().pixmap(kIconSize).toImage() != playIcon);
 
     booth.pane->bar()->playButton()->click();
     CHECK_FALSE(booth.player->isPlaying());
@@ -707,4 +730,230 @@ TEST_CASE("a page whose film is not open has no audio tracks", "[gui][GUI-AUDIO-
     CHECK(booth.pane->audioTracks().empty());
     booth.pane->selectAudioTrack(2);
     CHECK(booth.player->tracks.at(0).selected);
+}
+
+// ## The table follows the film — issue #619
+
+namespace {
+
+/// A document of `count` subtitles, one a second, each lasting 800 milliseconds: the subtitle of
+/// row `r` shows from `r` seconds to `r` seconds and 800 milliseconds.
+[[nodiscard]] std::string longFile(int count) {
+    std::string text;
+    for (int row = 0; row < count; ++row) {
+        const auto second = [](int s) {
+            return std::string{"00:"} + (s / 60 < 10 ? "0" : "") + std::to_string(s / 60) + ":" +
+                   (s % 60 < 10 ? "0" : "") + std::to_string(s % 60);
+        };
+        text += std::to_string(row + 1) + "\n" + second(row) + ",000 --> " + second(row) +
+                ",800\nLine " + std::to_string(row) + ".\n\n";
+    }
+    return text;
+}
+
+/// A pane on a long document, a film open, and a table tall enough to scroll.
+struct Following {
+    Booth booth;
+    ProjectPage* page;
+
+    Following() : page{&openLong(booth)} {
+        booth.pane->proposeBeside(*page);
+        booth.owner.resize(kWidth, kHeight);
+        booth.split.setGeometry(0, 0, kWidth, kHeight);
+        booth.owner.show();
+        booth.pane->windowShown(*page);
+        REQUIRE(booth.player != nullptr);
+        REQUIRE(page->watching);
+        QCoreApplication::processEvents();
+    }
+
+    static constexpr int kWidth = 700;
+    static constexpr int kHeight = 500;
+
+    /// The long document and its film, put in the booth and opened.
+    static ProjectPage& openLong(Booth& in) {
+        in.files.addFile("/films/long.mkv", "");
+        in.files.addFile("/films/long.srt", longFile(300));
+        return in.open("/films/long.srt");
+    }
+
+    /// Playback stands in the subtitle of `row`, and the follower runs.
+    void at(int row) const {
+        booth.player->where = Timestamp::fromMilliseconds((row * 1000) + 100);
+        booth.pane->follow(*page);
+    }
+
+    [[nodiscard]] int currentRow() const { return booth.table.currentIndex().row(); }
+
+    [[nodiscard]] int top() const { return booth.table.verticalScrollBar()->value(); }
+
+    [[nodiscard]] bool following() const { return booth.pane->bar()->followButton()->isChecked(); }
+
+    /// Whether `row` sits in the middle third of the room the table shows. A table that scrolls by
+    /// rows cannot put a row exactly on the middle, and the property that matters is not being at
+    /// an edge, where the row would be brought into view and no further.
+    [[nodiscard]] bool centered(int row) const {
+        const QRect rect = booth.table.visualRect(booth.table.model()->index(row, 0));
+        const int middle = booth.table.viewport()->height() / 2;
+        return rect.isValid() && std::abs(rect.center().y() - middle) <= middle / 3;
+    }
+
+    /// A turn of the wheel, as the person's hand makes it.
+    void turnTheWheel() const {
+        QWheelEvent wheel{QPointF{50, 50},
+                          QPointF{50, 50},
+                          QPoint{},
+                          QPoint{0, -120},
+                          Qt::NoButton,
+                          Qt::NoModifier,
+                          Qt::NoScrollPhase,
+                          false};
+        QApplication::sendEvent(booth.table.viewport(), &wheel);
+    }
+};
+
+} // namespace
+
+TEST_CASE("the table centers the row that is playing", "[gui][GUI-FOLLOW-01]") {
+    const Following film;
+
+    film.at(120);
+
+    CHECK(film.currentRow() == 120);
+    CHECK(film.centered(120));
+    // Not merely brought into view: that would leave it at an edge.
+    CHECK(film.top() > 0);
+}
+
+TEST_CASE("the row is centered when it changes, not at every tick", "[gui][GUI-FOLLOW-01]") {
+    const Following film;
+    film.at(120);
+    QScrollBar* bar = film.booth.table.verticalScrollBar();
+
+    // Moved a little by the program, as a layout would: the follower does not put it back while the
+    // row is the same.
+    bar->setValue(bar->value() + 3);
+    const int moved = film.top();
+    for (int tick = 0; tick < 10; ++tick)
+        film.at(120);
+    CHECK(film.top() == moved);
+
+    film.at(121);
+    CHECK(film.currentRow() == 121);
+    CHECK(film.centered(121));
+}
+
+TEST_CASE("a turn of the wheel suspends the following, and the button says so",
+          "[gui][GUI-FOLLOW-02]") {
+    const Following film;
+    film.at(120);
+    REQUIRE(film.following());
+
+    film.turnTheWheel();
+    const int scrolled = film.top();
+    film.at(150);
+
+    CHECK_FALSE(film.following());
+    CHECK(film.top() == scrolled);
+    CHECK(film.currentRow() == 120);
+}
+
+TEST_CASE("the scroll bar suspends the following", "[gui][GUI-FOLLOW-02]") {
+    const Following film;
+    film.at(120);
+
+    film.booth.table.verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepAdd);
+    const int scrolled = film.top();
+    film.at(150);
+
+    CHECK_FALSE(film.following());
+    CHECK(film.top() == scrolled);
+}
+
+TEST_CASE("a click in the table suspends the following, and is not centered under the pointer",
+          "[gui][GUI-FOLLOW-02]") {
+    const Following film;
+    film.at(120);
+    const QModelIndex clicked = film.booth.table.model()->index(118, 1);
+    const int before = film.top();
+
+    QTest::mouseClick(film.booth.table.viewport(),
+                      Qt::LeftButton,
+                      Qt::NoModifier,
+                      film.booth.table.visualRect(clicked).center());
+    film.at(150);
+
+    CHECK_FALSE(film.following());
+    CHECK(film.currentRow() == 118);
+    CHECK(film.top() == before);
+}
+
+TEST_CASE("every gesture of the player takes the following up again", "[gui][GUI-FOLLOW-03]") {
+    using Gesture = std::function<void(const Following&)>;
+    const std::vector<std::pair<const char*, Gesture>> gestures{
+        {"play",
+         [](const Following& f) {
+             f.booth.pane->toggle(*f.page);
+             // The next tick of the follower, which is what carries a film that plays.
+             f.booth.pane->follow(*f.page);
+         }},
+        {"jump", [](const Following& f) { f.booth.pane->seekBy(*f.page, 1); }},
+        {"neighbour", [](const Following& f) { f.booth.pane->seekToNeighbour(*f.page, true); }},
+        {"step", [](const Following& f) { f.booth.pane->step(*f.page, 1); }},
+        {"bar",
+         [](const Following& f) {
+             emit f.booth.pane->bar()->seekRequested(Timestamp::fromMilliseconds(170100));
+         }},
+        {"mark",
+         [](const Following& f) {
+             f.booth.table.selectionModel()->select(f.booth.table.model()->index(0, 0),
+                                                    QItemSelectionModel::ClearAndSelect |
+                                                        QItemSelectionModel::Rows);
+             f.booth.pane->markEdge(*f.page, subedit::core::Boundary::Start);
+         }},
+        {"insert", [](const Following& f) { f.booth.pane->insertAtPosition(*f.page); }},
+        {"selection", [](const Following& f) {
+             f.booth.table.selectionModel()->select(f.booth.table.model()->index(100, 0),
+                                                    QItemSelectionModel::ClearAndSelect |
+                                                        QItemSelectionModel::Rows);
+             f.booth.pane->playSelection(*f.page);
+         }}};
+
+    for (const auto& [name, gesture] : gestures) {
+        INFO(name);
+        const Following film;
+        film.at(120);
+        film.turnTheWheel();
+        film.at(150);
+        REQUIRE_FALSE(film.following());
+
+        gesture(film);
+
+        CHECK(film.following());
+        // The row playing is the row the table points at, centered.
+        // The subtitle inserted at the position starts there and shows over the one that was
+        // playing, so it is the one the row points at.
+        const int playing = static_cast<int>(film.booth.player->where.milliseconds() / 1000) +
+                            (std::string{name} == "insert" ? 1 : 0);
+        CHECK(film.currentRow() == playing);
+        CHECK(film.centered(playing));
+    }
+}
+
+TEST_CASE("the button says whether the table follows, and puts it right", "[gui][GUI-FOLLOW-03]") {
+    const Following film;
+    film.at(120);
+    QToolButton* button = film.booth.pane->bar()->followButton();
+    CHECK(button->isChecked());
+
+    button->click();
+    CHECK_FALSE(film.following());
+    film.at(150);
+    CHECK(film.currentRow() == 120);
+
+    // Pressed again: the table follows from now, and is already where playback is.
+    button->click();
+    CHECK(film.following());
+    CHECK(film.currentRow() == 150);
+    CHECK(film.centered(150));
 }

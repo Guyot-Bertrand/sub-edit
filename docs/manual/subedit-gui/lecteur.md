@@ -44,16 +44,17 @@ s'imprime ici, la combinaison est libre.
 
 ## La barre de lecture
 
-Sous l'image, de gauche à droite :
+Sous l'image, de gauche à droite — les trois boutons sont des **icônes**, celles du thème du bureau quand il en a, celles du style de Qt sinon :
 
 | Élément | Ce qu'il fait |
 | :------ | :------------ |
-| `|◀` et `▶|` | reculent, avancent le film **d'un pas d'image** — voir [Image par image](calage.md#image-par-image) |
-| `Play` / `Pause` | joue ou arrête — le bouton dit **ce qu'il fera**, comme `Ctrl+P` |
+| les deux boutons de pas | reculent, avancent le film **d'un pas d'image** — voir [Image par image](calage.md#image-par-image) |
+| lecture / pause | joue ou arrête, comme `Ctrl+P` — le bouton montre **ce qu'il fera** : un triangle à l'arrêt, deux barres en lecture ; l'infobulle le dit en toutes lettres |
 | la position | `HH:MM:SS,mmm`, écrite comme la table écrit une position |
 | le curseur | **se lit et se déplace** : on tire la poignée, on clique dans la rainure, on utilise les flèches |
 | la durée | celle que la vidéo déclare |
 | le volume | de 0 à 100, voir [Le volume](#le-volume) |
+| `Follow` | coché tant que la table suit la lecture, et la remet sur la ligne qui joue quand on le coche — voir [La table suit la lecture](#la-table-suit-la-lecture) |
 
 **Le curseur ne rend pas la main à chaque pixel.** Tirer la poignée demande des dizaines de
 positions par seconde, et chacune coûte une image décodée : la première position part tout de
@@ -124,7 +125,7 @@ Les deux vont dans les deux sens.
 | :------------ | :-------------- |
 | sélectionner une ligne | la lecture se place **au début de ce sous-titre** |
 | étendre la sélection vers le bas | rien de plus : c'est la première ligne de la sélection qui compte |
-| la lecture avance | la **ligne courante** suit le sous-titre à l'écran, **teintée**, et la table défile pour la garder en vue |
+| la lecture avance | la **ligne courante** suit le sous-titre à l'écran, **teintée**, et la table la **centre** — voir [La table suit la lecture](#la-table-suit-la-lecture) |
 
 La ligne courante et la sélection sont deux choses distinctes. La lecture
 déplace la première et **ne touche jamais la seconde** : la sélection est ce à
@@ -135,6 +136,24 @@ La teinte suit cette même règle : c'est un repère, pas une sélection. **Une
 anomalie l'emporte sur elle** — une ligne qui porte les deux garde la couleur de
 son défaut, un défaut étant là pour être réparé quand une ligne montrée l'est le
 temps d'une réplique. Voir [La table](table.md).
+
+### La table suit la lecture
+
+**La table centre la ligne qui joue** — au milieu de ce qu'elle montre, et non au bord où il suffirait de
+la rendre visible. Elle le fait **quand la ligne change**, non à chaque tick du suivi : une réplique dure
+des secondes, et un recentrage toutes les dixièmes de seconde serait un défilement sans objet.
+
+**Un défilement à la main suspend le suivi.** La molette, la barre de défilement et un clic dans la table
+le suspendent : la table reste où on l'a mise, pendant que la ligne courante, la réplique et la barre
+continuent de suivre le film. Le bouton **`Follow`**, à droite de la barre de lecture, **est coché tant que
+la table suit** et se décoche alors.
+
+**Le suivi reprend sur un geste du lecteur** : la lecture lancée, un saut, un pas, un repère posé, une
+insertion à la position, ou un déplacement de la barre — la table se centre alors tout de suite sur la
+ligne qui joue, même si c'était déjà la même. **Ou à la demande** : cocher `Follow` le rétablit, et le
+décocher le suspend. Il n'y a pas de minuterie : ce qui reprend le suivi est toujours un geste.
+
+Passer à un autre onglet reprend le suivi sur le film de cet onglet.
 
 **Une édition en cours n'est pas interrompue.** Tant qu'un éditeur de cellule
 est ouvert, la ligne courante reste où elle est ; la réplique dessinée sur

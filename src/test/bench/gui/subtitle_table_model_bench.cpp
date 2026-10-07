@@ -10,8 +10,10 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
+#include <QAbstractItemView>
 #include <QLatin1Char>
 #include <QModelIndex>
 #include <QString>
@@ -38,6 +40,10 @@ using subedit::test::fullLengthProject;
 /// What a window shows at once, roughly: Qt asks `data()` only for the visible
 /// cells, and that is what makes the adapter tenable.
 constexpr int kVisibleRows = 40;
+
+/// The room the table is given when it is centered on a row.
+constexpr int kTableWidth = 800;
+constexpr int kTableHeight = 600;
 
 } // namespace
 
@@ -146,5 +152,27 @@ TEST_CASE("carrying a cell edit out", "[benchmark]") {
                           Qt::EditRole);
             return session.undoableCount();
         });
+    };
+}
+
+TEST_CASE("centering a row of a table of thousands", "[benchmark]") {
+    // What the follower does when the row playing changes, issue #619: a line lasts seconds on
+    // average, so this is paid once a few seconds and not at every tick of a tenth of a second —
+    // and a resume pays it once too. Two rows far apart, so that every call really scrolls.
+    Session session{fullLengthProject()};
+    SubtitleTableModel model{session};
+    subedit::gui::SubtitleTable table;
+    table.setModel(&model);
+    table.resize(kTableWidth, kTableHeight);
+    table.show();
+
+    constexpr int kFirst = 500;
+    constexpr int kSecond = 3500;
+    bool toggle = false;
+    BENCHMARK("centrer une ligne sur 4000 sous-titres") {
+        toggle = !toggle;
+        table.scrollTo(model.index(toggle ? kFirst : kSecond, 0),
+                       QAbstractItemView::PositionAtCenter);
+        return toggle;
     };
 }

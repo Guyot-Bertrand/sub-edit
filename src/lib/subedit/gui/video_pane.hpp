@@ -268,6 +268,15 @@ private:
     /// Hands the player the position last asked, if one is waiting, and closes the gate again.
     void flushSeek();
 
+    /// The table stops following playback: somebody moved it by hand — issue #619. The button of
+    /// the bar says so.
+    void suspendFollowing();
+
+    /// The table follows playback again, and **centers on the row playing at the next `follow`**
+    /// even if it is the row it already pointed at. Called by every gesture of the player: a play,
+    /// a jump, a mark, a step.
+    void resumeFollowing();
+
     /// Makes the step that waited for the gate, if one did, and closes the gate again.
     void flushStep();
 
@@ -294,6 +303,12 @@ private:
     /// Closes for a moment after a seek asked from the bar. See `requestSeek`.
     QTimer* m_seekGate = nullptr;
     std::optional<core::Timestamp> m_pendingSeek{};
+
+    /// Whether the table follows playback, and the row it was last centered on — a row is centered
+    /// when it **changes**, and not at every tick. Minus one forgets it, which is what makes a
+    /// resume center the row even if it is the same.
+    bool m_following = true;
+    int m_centeredRow = -1;
 
     /// Closes for a moment after a step. See `step`.
     QTimer* m_stepGate = nullptr;

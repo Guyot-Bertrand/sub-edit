@@ -232,6 +232,7 @@ Précisé par l'utilisateur le 2026-09-30 : **la table se centre sur le sous-tit
 - **Le suivi reprend sur un geste du lecteur** : la lecture lancée, un saut, une marque, un pas — **ou à la demande**.
   **Pas de minuterie** : ce qui reprend le suivi est un geste, donc un test le pilote sans horloge.
 - **Un bouton de la bande vidéo**, coché quand la table suit, dit l'état et le rétablit.
+- **Livré (#619)** : le bouton `Follow` est à droite de la barre de lecture. Le recentrage coûte 1,3 µs sur une table de 4 000 lignes (`make bench`, `centrer une ligne sur 4000 sous-titres`, hors peinture) : il est payé à chaque changement de ligne, jamais à chaque tick.
 
 ## D8 — Les positions en images
 

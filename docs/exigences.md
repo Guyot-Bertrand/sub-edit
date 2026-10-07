@@ -296,9 +296,9 @@ plus rien.
 | `GUI-MARK-02` | poser sa fin depuis la position de la vidéo | 14 | implémentée |
 | `GUI-MARK-03` | insérer un sous-titre à la position de la vidéo | 14 | implémentée |
 | `GUI-MARK-04` | sélectionner le sous-titre précédent ou suivant depuis la position de la vidéo | 14 | implémentée |
-| `GUI-FOLLOW-01` | la table centre le sous-titre courant pendant la lecture | 14 | prévue |
-| `GUI-FOLLOW-02` | un défilement à la main suspend le suivi | 14 | prévue |
-| `GUI-FOLLOW-03` | le suivi reprend sur un geste du lecteur ou à la demande | 14 | prévue |
+| `GUI-FOLLOW-01` | la table centre le sous-titre courant pendant la lecture | 14 | implémentée |
+| `GUI-FOLLOW-02` | un défilement à la main suspend le suivi | 14 | implémentée |
+| `GUI-FOLLOW-03` | le suivi reprend sur un geste du lecteur ou à la demande | 14 | implémentée |
 | `GUI-REPLICA-01` | la réplique dessinée sur l'image n'a plus de balises brutes | 14 | implémentée |
 | `GUI-FRAMES-02` | les positions s'affichent et se saisissent en numéros d'image, la fréquence dite | 14 | prévue |
 | `GUI-DRIFT-01` | l'ouverture d'une traduction dit qu'un décalage constant la rattacherait mieux, sans le dire d'une dérive | 14 | prévue |

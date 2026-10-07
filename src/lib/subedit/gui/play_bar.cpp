@@ -3,7 +3,9 @@
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/play_bar.hpp>
 
+#include <QAction>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPoint>
@@ -87,6 +89,14 @@ private:
     }
 };
 
+/// An icon of the theme the desktop gives, and the style's own where the theme has none — which is
+/// the case of a machine with no icon theme and of the window that is photographed for the manual,
+/// whose pictures must not depend on what is installed.
+[[nodiscard]] QIcon
+iconOf(const QWidget& widget, const char* themed, QStyle::StandardPixmap fallback) {
+    return QIcon::fromTheme(QString::fromLatin1(themed), widget.style()->standardIcon(fallback));
+}
+
 /// How many steps a click on the groove, or a page key, moves the volume.
 constexpr int kVolumePage = 10;
 
@@ -103,9 +113,16 @@ PlayBar::PlayBar(QWidget* parent)
       m_positionText(new QLabel{this}),
       m_position(new JumpSlider{Qt::Horizontal, this}),
       m_lengthText(new QLabel{this}),
-      m_volume(new JumpSlider{Qt::Horizontal, this}) {
-    m_play->setText(QStringLiteral("Play"));
-    m_play->setToolTip(QStringLiteral("Play / Pause"));
+      m_volume(new JumpSlider{Qt::Horizontal, this}),
+      m_follow(new QToolButton{this}) {
+    // **Icons and no text**: a transport reads as the symbols everybody knows, and they say what
+    // the button will do — the triangle when stopped, the bars when playing. The tooltip says it in
+    // words, for whoever hovers and for a screen reader.
+    for (QToolButton* button : {m_stepBack, m_play, m_stepForward})
+        button->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    m_stepBack->setIcon(iconOf(*this, "media-skip-backward", QStyle::SP_MediaSkipBackward));
+    m_stepForward->setIcon(iconOf(*this, "media-skip-forward", QStyle::SP_MediaSkipForward));
+    showPlaying(false);
     m_play->setAutoRaise(true);
     // A held button repeats, as a held key does: the same action each time, one step at a time.
     for (QToolButton* step : {m_stepBack, m_stepForward}) {
@@ -137,6 +154,19 @@ PlayBar::PlayBar(QWidget* parent)
     row->addWidget(m_position, 1);
     row->addWidget(m_lengthText);
     row->addWidget(m_volume);
+    row->addWidget(m_follow);
+
+    // **Text and not an icon**: it is not a transport control but the state of the table, and a
+    // word says that better than a symbol would. Checked while the table follows playback.
+    m_follow->setText(QStringLiteral("Follow"));
+    m_follow->setToolTip(QStringLiteral("Keep the table on the subtitle that is showing"));
+    m_follow->setCheckable(true);
+    m_follow->setChecked(true);
+    m_follow->setAutoRaise(true);
+    connect(m_follow, &QToolButton::toggled, this, [this](bool following) {
+        if (!m_updating)
+            emit followToggled(following);
+    });
 
     connect(m_play, &QToolButton::clicked, this, &PlayBar::playToggled);
 
@@ -162,8 +192,20 @@ PlayBar::PlayBar(QWidget* parent)
 }
 
 void PlayBar::setStepActions(QAction* back, QAction* forward) {
-    m_stepBack->setDefaultAction(back);
-    m_stepForward->setDefaultAction(forward);
+    // **Not as the default action of the button**: that would take the icon from the action, which
+    // has none — the menu shows the step in words — and give the button a blank face at the first
+    // change of the action. The button runs the action and follows what the action says.
+    const auto follow = [](QToolButton* button, QAction* action) {
+        connect(button, &QToolButton::clicked, action, &QAction::trigger);
+        const auto mirror = [button, action] {
+            button->setEnabled(action->isEnabled());
+            button->setToolTip(action->toolTip());
+        };
+        connect(action, &QAction::changed, button, mirror);
+        mirror();
+    };
+    follow(m_stepBack, back);
+    follow(m_stepForward, forward);
 }
 
 void PlayBar::showPosition(std::optional<core::Timestamp> position,
@@ -192,8 +234,16 @@ void PlayBar::showVolume(int volume) {
     m_updating = false;
 }
 
+void PlayBar::showFollowing(bool following) {
+    m_updating = true;
+    m_follow->setChecked(following);
+    m_updating = false;
+}
+
 void PlayBar::showPlaying(bool playing) {
-    m_play->setText(playing ? QStringLiteral("Pause") : QStringLiteral("Play"));
+    m_play->setIcon(playing ? iconOf(*this, "media-playback-pause", QStyle::SP_MediaPause)
+                            : iconOf(*this, "media-playback-start", QStyle::SP_MediaPlay));
+    m_play->setToolTip(playing ? QStringLiteral("Pause") : QStringLiteral("Play"));
 }
 
 } // namespace subedit::gui

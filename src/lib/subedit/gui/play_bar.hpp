@@ -45,6 +45,13 @@ public:
     /// Shows whether the film is playing: the button offers the other of the two.
     void showPlaying(bool playing);
 
+    /// Shows whether the table follows playback, without announcing it as a gesture — issue #619.
+    void showFollowing(bool following);
+
+    /// The button that says whether the table follows playback, and puts it right: checked while it
+    /// does.
+    [[nodiscard]] QToolButton* followButton() const { return m_follow; }
+
     [[nodiscard]] QSlider* positionSlider() const { return m_position; }
 
     [[nodiscard]] QSlider* volumeSlider() const { return m_volume; }
@@ -79,6 +86,10 @@ signals:
     /// The person pressed the play button.
     void playToggled();
 
+    /// The person pressed the button that says whether the table follows: checked, it is asked to
+    /// follow from now on, and unchecked, to stop.
+    void followToggled(bool following);
+
     /// The person moved the volume.
     void volumeRequested(int volume);
 
@@ -90,6 +101,7 @@ private:
     QSlider* m_position;
     QLabel* m_lengthText;
     QSlider* m_volume;
+    QToolButton* m_follow;
 
     /// Set while the bar moves a control itself, so that the change is not heard as a gesture.
     bool m_updating = false;

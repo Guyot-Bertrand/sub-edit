@@ -11,6 +11,13 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Des icônes pour les boutons de la barre de lecture
+- **video** — La table suit la lecture et se centre
+
+## 0.14.13 — 2026-10-07
+
+### Ajouts
+
 - **video** — Image par image et décalage d'un bord
 
 ## 0.14.12 — 2026-10-07

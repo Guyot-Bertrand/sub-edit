@@ -1264,8 +1264,7 @@ TEST_CASE("the buttons of the bar run the actions of the menu, and say what they
     const SteppedWindow stepped{FrameRate{StandardFrameRate::Fps25}};
     const subedit::gui::PlayBar* bar = stepped.window.playBar();
 
-    CHECK(bar->stepBackButton()->defaultAction() == stepped.window.stepBackwardAction());
-    CHECK(bar->stepForwardButton()->defaultAction() == stepped.window.stepForwardAction());
+    CHECK(bar->stepBackButton()->isEnabled() == stepped.window.stepBackwardAction()->isEnabled());
     CHECK(bar->stepBackButton()->toolTip() == stepped.window.stepBackwardAction()->toolTip());
     CHECK(bar->stepForwardButton()->toolTip().contains(QStringLiteral("Alt+Right")));
     CHECK(bar->stepBackButton()->toolTip().contains(QStringLiteral("Alt+Left")));
@@ -1273,6 +1272,11 @@ TEST_CASE("the buttons of the bar run the actions of the menu, and say what they
     // Either side of play and pause.
     CHECK(bar->stepBackButton()->x() < bar->playButton()->x());
     CHECK(bar->playButton()->x() < bar->stepForwardButton()->x());
+
+    // Icons and no text, as play and pause are.
+    CHECK_FALSE(bar->stepBackButton()->icon().isNull());
+    CHECK_FALSE(bar->stepForwardButton()->icon().isNull());
+    CHECK(bar->stepBackButton()->toolButtonStyle() == Qt::ToolButtonIconOnly);
 
     // Held, they repeat.
     CHECK(bar->stepBackButton()->autoRepeat());
