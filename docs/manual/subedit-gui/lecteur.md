@@ -50,9 +50,9 @@ Sous l'image, de gauche à droite — les trois boutons sont des **icônes**, ce
 | :------ | :------------ |
 | les deux boutons de pas | reculent, avancent le film **d'un pas d'image** — voir [Image par image](calage.md#image-par-image) |
 | lecture / pause | joue ou arrête, comme `Ctrl+P` — le bouton montre **ce qu'il fera** : un triangle à l'arrêt, deux barres en lecture ; l'infobulle le dit en toutes lettres |
-| la position | `HH:MM:SS,mmm`, écrite comme la table écrit une position |
+| la position | `HH:MM:SS,mmm`, écrite comme la table écrit une position — **en numéro d'image** quand [`View ▸ Positions in Frames`](table.md#les-positions-en-images) est coché |
 | le curseur | **se lit et se déplace** : on tire la poignée, on clique dans la rainure, on utilise les flèches |
-| la durée | celle que la vidéo déclare |
+| la durée | celle que la vidéo déclare, écrite comme la position |
 | le volume | de 0 à 100, voir [Le volume](#le-volume) |
 | suivi de la table | enfoncé tant que la table suit la lecture, et la remet sur la ligne qui joue quand on l'enfonce — voir [La table suit la lecture](#la-table-suit-la-lecture) |
 

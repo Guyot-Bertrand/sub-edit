@@ -1,5 +1,6 @@
 #include <subedit/core/config/video_settings.hpp>
 #include <subedit/core/time/duration.hpp>
+#include <subedit/core/time/frame.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/play_bar.hpp>
 
@@ -292,7 +293,8 @@ PlayBar::PlayBar(QWidget* parent)
         // The position says where the handle is while it is held: the follower leaves the bar
         // alone then, and a label that waited for the player would trail the hand.
         const core::Timestamp position = core::Timestamp::fromMilliseconds(value);
-        m_positionText->setText(textOf(position));
+        m_lastPosition = position;
+        m_positionText->setText(written(position));
         emit seekRequested(position);
     });
     connect(m_position, &QSlider::sliderReleased, this, &PlayBar::seekFinished);
@@ -354,9 +356,28 @@ void PlayBar::showPosition(std::optional<core::Timestamp> position,
     m_position->setValue(static_cast<int>(where));
     m_updating = false;
 
-    m_positionText->setText(textOf(position.value_or(core::Timestamp::origin())));
-    m_lengthText->setText(
-        textOf(core::Timestamp::fromMilliseconds(length.has_value() ? length->milliseconds() : 0)));
+    m_lastPosition = position;
+    m_lastLength = length;
+    m_positionText->setText(written(position.value_or(core::Timestamp::origin())));
+    m_lengthText->setText(written(
+        core::Timestamp::fromMilliseconds(length.has_value() ? length->milliseconds() : 0)));
+}
+
+QString PlayBar::written(core::Timestamp position) const {
+    // The number of the frame the position falls in, rounded once: what the columns of the table
+    // write for the same position.
+    return m_frameRate.has_value() ? QString::number(position.toFrame(*m_frameRate).number())
+                                   : textOf(position);
+}
+
+void PlayBar::setFrameRate(std::optional<core::FrameRate> rate) {
+    if (rate == m_frameRate)
+        return;
+
+    m_frameRate = rate;
+    m_positionText->setText(written(m_lastPosition.value_or(core::Timestamp::origin())));
+    m_lengthText->setText(written(core::Timestamp::fromMilliseconds(
+        m_lastLength.has_value() ? m_lastLength->milliseconds() : 0)));
 }
 
 void PlayBar::showVolume(int volume) {

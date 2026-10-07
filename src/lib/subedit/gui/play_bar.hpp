@@ -1,6 +1,7 @@
 #pragma once
 
 #include <subedit/core/time/duration.hpp>
+#include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
 #include <QIcon>
@@ -40,6 +41,11 @@ public:
     /// handle out of the hand that holds it.
     void showPosition(std::optional<core::Timestamp> position,
                       std::optional<core::Duration> length);
+
+    /// Counts the position and the length in frames at `rate`, or goes back to timestamps with
+    /// nothing — issue #620: the same setting as the columns of the table, told by the window, so
+    /// that the bar and the table say a position the same way. What is shown now is shown again.
+    void setFrameRate(std::optional<core::FrameRate> rate);
 
     /// Shows the volume, 0 to 100, without announcing it as a gesture.
     void showVolume(int volume);
@@ -123,6 +129,15 @@ private:
     QIcon m_playIcon;
     QIcon m_pauseIcon;
     bool m_playing = false;
+
+    /// How the position and the length are written, and what they were last told — kept so that a
+    /// change of rate writes them again without waiting for the next tick of the follower.
+    std::optional<core::FrameRate> m_frameRate;
+    std::optional<core::Timestamp> m_lastPosition;
+    std::optional<core::Duration> m_lastLength;
+
+    /// A position or a length as the bar writes it: a timestamp, or the number of the frame.
+    [[nodiscard]] QString written(core::Timestamp position) const;
 };
 
 } // namespace subedit::gui

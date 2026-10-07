@@ -1420,9 +1420,15 @@ void MainWindow::refreshFrames() {
 
     // **Only the model is told**, and with it the columns: the document is not touched, nothing
     // goes through the history, and what the file writes is what it wrote.
-    m_page->model->setFrameRate(m_framesRequested && rate.has_value()
-                                    ? std::optional<core::FrameRate>{rate->rate}
-                                    : std::nullopt);
+    const std::optional<core::FrameRate> counted = m_framesRequested && rate.has_value()
+                                                       ? std::optional<core::FrameRate>{rate->rate}
+                                                       : std::nullopt;
+    m_page->model->setFrameRate(counted);
+
+    // **The same setting for the bar** under the picture: its position and its length are the
+    // positions of the film, and a bar that said timestamps over a table that said frames would
+    // say two things about one moment.
+    m_video->bar()->setFrameRate(counted);
 }
 
 void MainWindow::refreshAudioTracks() {

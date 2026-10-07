@@ -8,14 +8,17 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/time/frame_rate.hpp>
+#include <subedit/core/video/video_player.hpp>
 #include <subedit/core/wording/video.hpp>
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/main_window.hpp>
+#include <subedit/gui/play_bar.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
 #include <QAbstractItemModel>
 #include <QAction>
+#include <QLabel>
 #include <QLineEdit>
 #include <QModelIndex>
 #include <QStyleOptionViewItem>
@@ -29,6 +32,7 @@
 #include <utility>
 
 #include "fake_prompts.hpp"
+#include "fake_video_player.hpp"
 
 namespace {
 
@@ -206,4 +210,38 @@ TEST_CASE("the editor of a position cell takes numbers in frames and timestamps 
     CHECK(accepts("37"));
     CHECK(accepts("-12"));
     CHECK_FALSE(accepts("00:00:01,000"));
+}
+
+// The setting is the window's, and the bar under the picture is a part of the window: its position
+// and its length say what the columns say, for the film's own position.
+TEST_CASE("the same setting counts the bar's position and length in frames",
+          "[gui][GUI-FRAMES-02]") {
+    InMemoryFileSystem files = Framed::filesWith("film.srt", kSrt, true);
+    FakePrompts prompts;
+    subedit::test::FakeVideoPlayer* player = nullptr;
+    MainWindow window{
+        files,
+        Framed::open(files, "film.srt"),
+        prompts,
+        [&player]() -> std::unique_ptr<subedit::core::VideoPlayer> {
+            auto made = std::make_unique<subedit::test::FakeVideoPlayer>();
+            player = made.get();
+            return made;
+        },
+        [](const std::filesystem::path&) { return FrameRate{StandardFrameRate::Fps25}; }};
+    window.show();
+    REQUIRE(player != nullptr);
+    player->where = subedit::core::Timestamp::fromMilliseconds(2000);
+    window.followPlayback();
+    CHECK(window.playBar()->positionLabel()->text() == QStringLiteral("00:00:02,000"));
+
+    window.framePositionsAction()->setChecked(true);
+
+    // 2000 ms at 25 images a second, and the ten minutes of the fake film.
+    CHECK(window.playBar()->positionLabel()->text() == QStringLiteral("50"));
+    CHECK(window.playBar()->lengthLabel()->text() == QStringLiteral("15000"));
+
+    window.framePositionsAction()->setChecked(false);
+    CHECK(window.playBar()->positionLabel()->text() == QStringLiteral("00:00:02,000"));
+    CHECK(window.playBar()->lengthLabel()->text() == QStringLiteral("00:10:00,000"));
 }
