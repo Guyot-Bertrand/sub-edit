@@ -11,6 +11,11 @@
 
 namespace subedit::core {
 
+/// What a nudge of an edge says when there is no frame rate to count a frame by — issue #618: the
+/// video declares none, the document is not counted in frames, and its positions show no grid.
+/// Written so that it says what to do about it, as `shift --to-grid` does for its own refusal.
+[[nodiscard]] std::string noFrameToCountBy();
+
 /// What the window says of the film a document is watched against.
 ///
 /// Its name, or that there is none — and its name alone, not its path: the

@@ -129,6 +129,14 @@ WindowActions::WindowActions(QObject* owner)
       seekForward(buildAction(owner, QStringLiteral("Seek &Forward"), {})),
       seekSelectionStart(buildAction(owner, QStringLiteral("S&eek Selection Start"), {})),
       seekSelectionEnd(buildAction(owner, QStringLiteral("See&k Selection End"), {})),
+      // **The step and the nudge** — issue #618 — which Gaupol does not have: a frame at a time,
+      // and an edge moved by the same count of frames.
+      stepBackward(buildAction(owner, QStringLiteral("Step Backward"), {})),
+      stepForward(buildAction(owner, QStringLiteral("Step Forward"), {})),
+      nudgeStartEarlier(buildAction(owner, QStringLiteral("Nudge Start Earlier"), {})),
+      nudgeStartLater(buildAction(owner, QStringLiteral("Nudge Start Later"), {})),
+      nudgeEndEarlier(buildAction(owner, QStringLiteral("Nudge End Earlier"), {})),
+      nudgeEndLater(buildAction(owner, QStringLiteral("Nudge End Later"), {})),
       // **The five marks of Gaupol** — issue #617 — under its names, `Video Position` and all.
       setStartFromVideo(buildAction(owner, QStringLiteral("Set S&tart from Video Position"), {})),
       setEndFromVideo(buildAction(owner, QStringLiteral("Set En&d from Video Position"), {})),
@@ -257,6 +265,25 @@ WindowActions::WindowActions(QObject* owner)
     insertAtVideo->setShortcut(QKeySequence{QStringLiteral("Alt+J")});
     selectPreviousFromVideo->setShortcut(QKeySequence{QStringLiteral("Alt+Up")});
     selectNextFromVideo->setShortcut(QKeySequence{QStringLiteral("Alt+Down")});
+    // **The step**, `Alt` and the arrows, the pair that `Alt+Up` and `Alt+Down` complete for the
+    // neighbours. **The nudge**, `Alt+Q` and `Alt+W` for the start — Gaupol's own letters for
+    // starting earlier and later, with `Alt` for the reason given above — and `Alt+Shift` for the
+    // end, where Gaupol has `E` and `R`: `Alt+E` is the mnemonic of `Edit`.
+    stepBackward->setShortcut(QKeySequence{QStringLiteral("Alt+Left")});
+    stepForward->setShortcut(QKeySequence{QStringLiteral("Alt+Right")});
+    nudgeStartEarlier->setShortcut(QKeySequence{QStringLiteral("Alt+Q")});
+    nudgeStartLater->setShortcut(QKeySequence{QStringLiteral("Alt+W")});
+    nudgeEndEarlier->setShortcut(QKeySequence{QStringLiteral("Alt+Shift+Q")});
+    nudgeEndLater->setShortcut(QKeySequence{QStringLiteral("Alt+Shift+W")});
+
+    // The step buttons of the play bar read a glyph and show what the menu shows: the name of the
+    // action and its shortcut, written once here.
+    stepBackward->setIconText(QStringLiteral("|\u25C0"));
+    stepForward->setIconText(QStringLiteral("\u25B6|"));
+    for (QAction* step : {stepBackward, stepForward}) {
+        step->setToolTip(QStringLiteral("%1 (%2)").arg(
+            step->text(), step->shortcut().toString(QKeySequence::NativeText)));
+    }
     // Both spellings of the plus: on a keyboard where it takes a shift, the key that gives it is
     // the one of the equals sign.
     volumeDown->setShortcut(QKeySequence{QStringLiteral("Ctrl+-")});
@@ -354,12 +381,20 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     video->addAction(seekBackward);
     video->addAction(seekForward);
     video->addSeparator();
+    video->addAction(stepBackward);
+    video->addAction(stepForward);
+    video->addSeparator();
     video->addAction(seekSelectionStart);
     video->addAction(seekSelectionEnd);
     video->addSeparator();
     video->addAction(setStartFromVideo);
     video->addAction(setEndFromVideo);
     video->addAction(insertAtVideo);
+    video->addSeparator();
+    video->addAction(nudgeStartEarlier);
+    video->addAction(nudgeStartLater);
+    video->addAction(nudgeEndEarlier);
+    video->addAction(nudgeEndLater);
     video->addSeparator();
     video->addAction(selectPreviousFromVideo);
     video->addAction(selectNextFromVideo);

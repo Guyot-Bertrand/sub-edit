@@ -7,6 +7,7 @@
 
 #include <optional>
 
+class QAction;
 class QLabel;
 class QSlider;
 class QToolButton;
@@ -50,6 +51,19 @@ public:
 
     [[nodiscard]] QToolButton* playButton() const { return m_play; }
 
+    /// The two buttons either side of play and pause, which step the film by the frame step —
+    /// issue #618.
+    [[nodiscard]] QToolButton* stepBackButton() const { return m_stepBack; }
+
+    [[nodiscard]] QToolButton* stepForwardButton() const { return m_stepForward; }
+
+    /// Gives the two step buttons the actions of the menu to run. **The buttons trigger the same
+    /// actions, and say what they say**: the same step, out for the same reasons — a button on its
+    /// own would be a second way of stepping that the menu does not know about — and the same
+    /// tooltip, whose shortcut is the action's. A button held **repeats**, as a held key does, and
+    /// `VideoPane` is what keeps the repeats from piling up.
+    void setStepActions(QAction* back, QAction* forward);
+
     [[nodiscard]] QLabel* positionLabel() const { return m_positionText; }
 
     [[nodiscard]] QLabel* lengthLabel() const { return m_lengthText; }
@@ -69,7 +83,9 @@ signals:
     void volumeRequested(int volume);
 
 private:
+    QToolButton* m_stepBack;
     QToolButton* m_play;
+    QToolButton* m_stepForward;
     QLabel* m_positionText;
     QSlider* m_position;
     QLabel* m_lengthText;

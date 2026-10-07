@@ -39,6 +39,7 @@
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
+#include <subedit/gui/play_bar.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/project_files.hpp>
 #include <subedit/gui/project_operations.hpp>
@@ -91,6 +92,7 @@
 #include <QWidget>
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
@@ -100,6 +102,7 @@
 #include <optional>
 #include <span>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -669,6 +672,24 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(act.seekSelectionEnd, &QAction::triggered, this, [this] {
         m_video->seekToSelection(*m_page, true);
     });
+    // The step, which moves the film; and the nudge, which is an edit, so a cell being typed in is
+    // closed first as before every other.
+    connect(act.stepBackward, &QAction::triggered, this, [this] { m_video->step(*m_page, -1); });
+    connect(act.stepForward, &QAction::triggered, this, [this] { m_video->step(*m_page, 1); });
+    const auto nudges = std::to_array<std::tuple<QAction*, core::Boundary, int>>(
+        {{act.nudgeStartEarlier, core::Boundary::Start, -1},
+         {act.nudgeStartLater, core::Boundary::Start, 1},
+         {act.nudgeEndEarlier, core::Boundary::End, -1},
+         {act.nudgeEndLater, core::Boundary::End, 1}});
+    for (const auto& [action, boundary, direction] : nudges) {
+        connect(action, &QAction::triggered, this, [this, boundary, direction] {
+            commitCellEditor();
+            m_video->nudge(*m_page, boundary, direction);
+        });
+    }
+    // The buttons of the bar run the same two actions.
+    m_video->bar()->setStepActions(act.stepBackward, act.stepForward);
+
     // The marks, which are edits: a cell being typed in is closed first, as every edit does.
     connect(act.setStartFromVideo, &QAction::triggered, this, [this] {
         commitCellEditor();
@@ -1343,7 +1364,9 @@ void MainWindow::refreshVideoGestures() {
     // something selected, since it is the selection they act on.
     const bool selected =
         m_table != nullptr && !m_table->selectionModel()->selectedRows().isEmpty();
-    for (QAction* gesture : {m_actions->insertAtVideo,
+    for (QAction* gesture : {m_actions->stepBackward,
+                             m_actions->stepForward,
+                             m_actions->insertAtVideo,
                              m_actions->selectPreviousFromVideo,
                              m_actions->selectNextFromVideo,
                              m_actions->seekPrevious,
@@ -1359,6 +1382,13 @@ void MainWindow::refreshVideoGestures() {
                              m_actions->setStartFromVideo,
                              m_actions->setEndFromVideo})
         gesture->setEnabled(m_playable && selected);
+    // **The nudge needs a selection and no film**: what it counts a frame by is the film's rate
+    // when there is one, and the document's or the grid's when there is not.
+    for (QAction* gesture : {m_actions->nudgeStartEarlier,
+                             m_actions->nudgeStartLater,
+                             m_actions->nudgeEndEarlier,
+                             m_actions->nudgeEndLater})
+        gesture->setEnabled(selected);
 }
 
 void MainWindow::refreshAudioTracks() {

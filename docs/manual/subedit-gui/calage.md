@@ -48,7 +48,51 @@ Les deux suivent l'ordre du fichier, pas la sélection en cours. **Sans voisin d
 sélection va au dernier sous-titre du fichier pour `Select Next…`, au premier pour
 `Select Previous…` — le comportement de Gaupol. Ces deux gestes ne déplacent pas le film.
 
-## Ce qui n'est pas là
+## Image par image
 
-Avancer ou reculer **image par image**, et décaler un bord d'une image, ne sont pas encore dans la
-fenêtre.
+Avancer et reculer **d'une image** — ou de N, voir plus bas —, pour poser un bord **à l'image près**.
+Deux gestes, et deux boutons dans la barre de lecture, de part et d'autre de `Play` :
+
+| Commande | Raccourci | Ce qu'elle fait |
+| :------- | :-------- | :-------------- |
+| `Video ▸ Step Backward` | `Alt+Left` | recule le film du pas d'image |
+| `Video ▸ Step Forward` | `Alt+Right` | l'avance du pas d'image |
+
+- **Le pas est un nombre d'images, une au moins** : c'est le réglage `Frame step` des
+  [préférences](preferences.md#le-lecteur). Un pas de N images montre l'image **N plus loin**, à 25 images par
+  seconde comme à 23,976 ; il ne s'exprime **jamais en millisecondes**.
+- **Le film s'arrête à ses bornes** : reculer depuis la première image la laisse, avancer depuis la dernière
+  aussi. La lecture est arrêtée après un pas.
+- **Les boutons de la barre** — `|◀` et `▶|` — **déclenchent les mêmes actions que le menu** : même pas, éteints
+  sans vidéo comme les entrées du menu, et la même infobulle, qui dit le raccourci. **Un doigt qui reste sur un
+  bouton, ou sur la touche, enchaîne les pas.**
+- **Un pas à la fois.** Une touche tenue répète plus vite qu'un pas ne se fait : la première répétition part tout
+  de suite, celles qui arrivent pendant que le pas se fait **ne s'empilent pas** — elles se partagent une place, la
+  dernière, qui part ensuite. Lâcher la touche arrête donc l'image là où l'on est, et ne laisse pas le film
+  continuer sur sa lancée.
+
+## Décaler un bord d'une image
+
+Pour régler un bord au clavier : **le début ou la fin du sous-titre sélectionné**, d'un pas, plus tôt ou plus tard.
+
+| Commande | Raccourci | Ce qu'elle fait |
+| :------- | :-------- | :-------------- |
+| `Video ▸ Nudge Start Earlier` | `Alt+Q` | le sous-titre **commence un pas plus tôt** |
+| `Video ▸ Nudge Start Later` | `Alt+W` | il **commence un pas plus tard** |
+| `Video ▸ Nudge End Earlier` | `Alt+Shift+Q` | il **finit un pas plus tôt** |
+| `Video ▸ Nudge End Later` | `Alt+Shift+W` | il **finit un pas plus tard** |
+
+`Q` et `W` sont ceux de Gaupol pour *plus tôt* et *plus tard*, avec `Alt` pour la raison donnée plus haut ; la fin
+prend `Alt+Shift`, parce que le `E` de Gaupol est ici la lettre de `Edit`.
+
+- **Une entrée d'historique par décalage**, annulable. Le sous-titre voisin et le chevauchement se disent
+  **comme à la saisie** : le bord est posé, et la table marque ce qui ne tient plus — voir
+  [Les anomalies](table.md#les-anomalies).
+- **Le même pas que le lecteur**, donc une image par défaut. **Ce que vaut une image** est lu, dans cet ordre,
+  dans **la fréquence que la vidéo déclare**, celle du **document quand il est compté en images** (MicroDVD), puis
+  **la grille que les positions dessinent**. **Sans aucune des trois, le geste refuse et le dit** : choisir une
+  fréquence au hasard décalerait tout bord de ce qui n'est pas une image.
+- **Il n'exige pas de vidéo**, seulement une sélection : on s'en sert aussi sur un fichier compté en images, sans
+  film. Quand un film est ouvert, **la lecture se place sur la nouvelle position**, pour voir l'image que le bord
+  vient de prendre.
+- Un bord ne passe pas avant l'origine : reculer d'un pas depuis moins d'une image le met à zéro.

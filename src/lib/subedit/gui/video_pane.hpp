@@ -179,6 +179,24 @@ public:
     /// frames later. Nothing without a selection.
     void playSelection(ProjectPage& page);
 
+    /// Moves playback by the frame step — back when `direction` is negative, forward otherwise.
+    /// The step is a count of frames (`VideoSettings::stepFrames`, one at least), so that a step
+    /// of N shows the picture N frames away at 25 as at 23.976; playback stops at the ends of the
+    /// film, and is held afterwards.
+    ///
+    /// **One step at a time**: the first request goes at once, and those that follow within
+    /// `kStepGateMs` — a held key repeats faster than a step is made — **keep one place between
+    /// them**, the last, which goes when the gate opens. They do not queue: a key held for two
+    /// seconds on a slow step would otherwise go on stepping for as long again after it was let go.
+    void step(ProjectPage& page, int direction);
+
+    /// Moves the start, or the end, of the first selected subtitle by the frame step, earlier
+    /// when `direction` is negative — the same step as `step`, in the same frames, **counted by
+    /// the rate of the film, else of the document, else of the grid**. One command, so one undo;
+    /// the order and the overlap are said by the table as for a cell. **Without any rate it
+    /// refuses, and says so.** The film, when there is one, is placed on the new position.
+    void nudge(ProjectPage& page, core::Boundary boundary, int direction);
+
     /// Sets the start, or the end, of the first selected subtitle to where playback stands —
     /// Gaupol's `Set Start from Video Position` and `Set End from Video Position`. **The same
     /// command as typing the position in the cell**, so the same rules: an end before its start
@@ -250,6 +268,9 @@ private:
     /// Hands the player the position last asked, if one is waiting, and closes the gate again.
     void flushSeek();
 
+    /// Makes the step that waited for the gate, if one did, and closes the gate again.
+    void flushStep();
+
     /// Puts the volume at `volume` — the player, the bar and the memory of it.
     void applyVolume(int volume);
 
@@ -273,6 +294,10 @@ private:
     /// Closes for a moment after a seek asked from the bar. See `requestSeek`.
     QTimer* m_seekGate = nullptr;
     std::optional<core::Timestamp> m_pendingSeek{};
+
+    /// Closes for a moment after a step. See `step`.
+    QTimer* m_stepGate = nullptr;
+    int m_pendingStep = 0;
 
     core::VideoSettings m_settings{};
 

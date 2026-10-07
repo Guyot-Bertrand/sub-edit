@@ -925,8 +925,10 @@ TEST_CASE("the unit of the editor's lengths reads in ems when written so", "[con
 
 TEST_CASE("the video settings are kept across sessions", "[config]") {
     InMemoryFileSystem files;
-    const Settings written{
-        .video = {.seekLengthSeconds = 10, .contextLengthMilliseconds = 250, .volume = 35}};
+    const Settings written{.video = {.seekLengthSeconds = 10,
+                                     .contextLengthMilliseconds = 250,
+                                     .stepFrames = 24,
+                                     .volume = 35}};
 
     REQUIRE(writeSettings(files, kPath, written).has_value());
     const SettingsRead read = readSettings(files, kPath);
@@ -941,6 +943,7 @@ TEST_CASE("a file that does not mention the video gives Gaupol's defaults", "[co
     CHECK(read.settings.video == VideoSettings{});
     CHECK(read.settings.video.seekLengthSeconds == 30);
     CHECK(read.settings.video.contextLengthMilliseconds == 1000);
+    CHECK(read.settings.video.stepFrames == 1);
     CHECK(read.settings.video.volume == 100);
     CHECK(read.diagnostics.empty());
 }
@@ -950,6 +953,7 @@ TEST_CASE("the video options at their default are written back commented out", "
 
     CHECK_THAT(rendered, ContainsSubstring("#video.seek-length = 30\n"));
     CHECK_THAT(rendered, ContainsSubstring("#video.context-length-ms = 1000\n"));
+    CHECK_THAT(rendered, ContainsSubstring("#video.step-frames = 1\n"));
     CHECK_THAT(rendered, ContainsSubstring("#video.volume = 100\n"));
 
     CHECK_THAT(renderSettings(Settings{.video = {.volume = 40}}),
@@ -963,6 +967,9 @@ TEST_CASE("a video value that cannot be read leaves its default", "[config]") {
                              "video.seek-length = soon\n",
                              "video.seek-length = 99999\n",
                              "video.context-length-ms = -1\n",
+                             "video.step-frames = 0\n",
+                             "video.step-frames = 1001\n",
+                             "video.step-frames = a few\n",
                              "video.volume = 101\n",
                              "video.volume = loud\n"}) {
         INFO(line);
@@ -971,6 +978,26 @@ TEST_CASE("a video value that cannot be read leaves its default", "[config]") {
         CHECK(read.settings.video == VideoSettings{});
         REQUIRE(read.diagnostics.size() == 1);
         CHECK_FALSE(read.diagnostics.front().value.empty());
+    }
+}
+
+// A step is a count of frames, one at least — issue #618. A value that cannot be one leaves the
+// default, one step, and the file still opens.
+TEST_CASE("the frame step is a count of frames, from one to a thousand", "[config][GUI-STEP-04]") {
+    CHECK(readOf("video.step-frames = 1\n").settings.video.stepFrames == 1);
+    CHECK(readOf("video.step-frames = 24\n").settings.video.stepFrames == 24);
+    CHECK(readOf("video.step-frames = 1000\n").settings.video.stepFrames == 1000);
+
+    for (const char* line : {"video.step-frames = 0\n",
+                             "video.step-frames = -3\n",
+                             "video.step-frames = 1001\n",
+                             "video.step-frames = 0.5\n",
+                             "video.step-frames = 40ms\n"}) {
+        INFO(line);
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.video.stepFrames == 1);
+        CHECK(read.diagnostics.size() == 1);
     }
 }
 

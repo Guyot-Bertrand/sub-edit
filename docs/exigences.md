@@ -279,11 +279,11 @@ plus rien.
 | `GUI-SURFACE-01` | l'image de la vidéo est dessinée dans la fenêtre, redimensionnable, son rapport d'aspect conservé | 14 | implémentée |
 | `GUI-SURFACE-02` | après un saut, l'image affichée est celle de la position demandée, la plus proche | 14 | implémentée |
 | `GUI-SURFACE-03` | la fenêtre n'adopte aucune fenêtre native et n'exige pas X11 | 14 | implémentée |
-| `GUI-STEP-01` | avancer d'une image affiche l'image suivante | 14 | prévue |
-| `GUI-STEP-02` | reculer d'une image affiche l'image précédente | 14 | prévue |
-| `GUI-STEP-03` | la durée d'une image vient de la vidéo, à défaut du document, à défaut de la grille ; sans aucune, le geste refuse en le disant | 14 | prévue |
-| `GUI-STEP-04` | le pas se règle en nombre d'images, au minimum une ; une valeur absurde ne casse pas l'ouverture | 14 | prévue |
-| `GUI-NUDGE-01` | décaler le début ou la fin d'un sous-titre d'une image est annulable en une entrée | 14 | prévue |
+| `GUI-STEP-01` | avancer d'une image affiche l'image suivante | 14 | implémentée |
+| `GUI-STEP-02` | reculer d'une image affiche l'image précédente | 14 | implémentée |
+| `GUI-STEP-03` | la durée d'une image vient de la vidéo, à défaut du document, à défaut de la grille ; sans aucune, le geste refuse en le disant | 14 | implémentée |
+| `GUI-STEP-04` | le pas se règle en nombre d'images, au minimum une ; une valeur absurde ne casse pas l'ouverture | 14 | implémentée |
+| `GUI-NUDGE-01` | décaler le début ou la fin d'un sous-titre d'une image est annulable en une entrée | 14 | implémentée |
 | `GUI-SEEK-01` | le curseur de position se lit et se déplace | 14 | implémentée |
 | `GUI-SEEK-02` | reculer et avancer d'un pas réglable | 14 | implémentée |
 | `GUI-SEEK-03` | le sous-titre précédent et le suivant placent la lecture à leur début | 14 | implémentée |

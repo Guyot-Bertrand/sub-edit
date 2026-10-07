@@ -50,7 +50,8 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
       m_showInCells(new QCheckBox{QStringLiteral("Show line lengths in cells"), this}),
       m_showInEditor(new QCheckBox{QStringLiteral("Show line lengths in the editor"), this}),
       m_seekLength(new QSpinBox{this}),
-      m_contextLength(new QDoubleSpinBox{this}) {
+      m_contextLength(new QDoubleSpinBox{this}),
+      m_stepFrames(new QSpinBox{this}) {
     setWindowTitle(QStringLiteral("Preferences"));
 
     for (const core::Theme one : kThemes)
@@ -83,6 +84,10 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
     m_contextLength->setSingleStep(kContextStepSeconds);
     m_contextLength->setSuffix(QStringLiteral(" s"));
     m_contextLength->setValue(video.contextLengthMilliseconds / kMillisecondsPerSecond);
+    // Frames and never milliseconds: a step of N is N pictures, whatever the rate of the film.
+    m_stepFrames->setRange(core::kSmallestStepFrames, core::kLargestStepFrames);
+    m_stepFrames->setSuffix(QStringLiteral(" frames"));
+    m_stepFrames->setValue(video.stepFrames);
 
     auto* fields = new QFormLayout;
     fields->addRow(QStringLiteral("Theme"), m_theme);
@@ -91,6 +96,7 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
     fields->addRow(m_showInEditor);
     fields->addRow(QStringLiteral("Seek length"), m_seekLength);
     fields->addRow(QStringLiteral("Context length"), m_contextLength);
+    fields->addRow(QStringLiteral("Frame step"), m_stepFrames);
 
     // What "system" does, said where it is read: without this line, a reader
     // who picks "System" and sees nothing change believes it broken.
@@ -123,7 +129,8 @@ core::EditorSettings PreferencesDialog::editor() const {
 core::VideoSettings PreferencesDialog::video() const {
     return {.seekLengthSeconds = m_seekLength->value(),
             .contextLengthMilliseconds =
-                static_cast<int>(std::lround(m_contextLength->value() * kMillisecondsPerSecond))};
+                static_cast<int>(std::lround(m_contextLength->value() * kMillisecondsPerSecond)),
+            .stepFrames = m_stepFrames->value()};
 }
 
 core::Theme PreferencesDialog::theme() const {

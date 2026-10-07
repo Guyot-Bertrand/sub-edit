@@ -89,6 +89,12 @@ struct WindowActions final {
     QAction* seekForward = nullptr;
     QAction* seekSelectionStart = nullptr;
     QAction* seekSelectionEnd = nullptr;
+    QAction* stepBackward = nullptr;
+    QAction* stepForward = nullptr;
+    QAction* nudgeStartEarlier = nullptr;
+    QAction* nudgeStartLater = nullptr;
+    QAction* nudgeEndEarlier = nullptr;
+    QAction* nudgeEndLater = nullptr;
     QAction* setStartFromVideo = nullptr;
     QAction* setEndFromVideo = nullptr;
     QAction* insertAtVideo = nullptr;
