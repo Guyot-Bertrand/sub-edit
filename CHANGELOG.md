@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **video** — Choisir la piste audio depuis le menu Video
+
+## 0.14.10 — 2026-10-07
+
+### Ajouts
+
 - **video** — Barre de lecture, gestes de Gaupol, volume et timecode
 
 ### Corrections
