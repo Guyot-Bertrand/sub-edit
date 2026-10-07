@@ -655,3 +655,56 @@ TEST_CASE("the follower leaves the handle alone while it is held", "[gui][GUI-SE
     booth.pane->follow(page);
     CHECK(slider->value() == 9000);
 }
+
+// ## The audio tracks — issue #616
+
+// GUI-AUDIO-01: the pane gives the tracks of the film that is open, and no other.
+TEST_CASE("the pane lists the audio tracks of the open film and plays the one chosen",
+          "[gui][GUI-AUDIO-01]") {
+    Booth booth;
+    CHECK(booth.pane->audioTracks().empty());
+
+    watched(booth);
+    booth.player->tracks = {{.id = 1, .language = "fra", .title = "Original", .selected = true},
+                            {.id = 2, .language = "eng", .title = "Commentary", .selected = false}};
+
+    const std::vector<subedit::core::AudioTrack> tracks = booth.pane->audioTracks();
+    REQUIRE(tracks.size() == 2U);
+    CHECK(tracks.at(0).selected);
+
+    booth.pane->selectAudioTrack(2);
+
+    CHECK(booth.pane->audioTracks().at(1).selected);
+    CHECK_FALSE(booth.pane->audioTracks().at(0).selected);
+}
+
+// A track that is not the film's changes nothing: the player ignores it.
+TEST_CASE("choosing a track the film does not have changes nothing", "[gui][GUI-AUDIO-01]") {
+    Booth booth;
+    watched(booth);
+    booth.player->tracks = {{.id = 1, .language = "fra", .title = "", .selected = true}};
+
+    booth.pane->selectAudioTrack(9);
+
+    CHECK(booth.pane->audioTracks().at(0).selected);
+}
+
+// The player is shared, and what it holds is the film of one page: a page whose film is not open
+// has no tracks to list, and no track to choose.
+TEST_CASE("a page whose film is not open has no audio tracks", "[gui][GUI-AUDIO-01]") {
+    Booth booth;
+    ProjectPage& page = watched(booth);
+    booth.player->tracks = {{.id = 1, .language = "fra", .title = "", .selected = true},
+                            {.id = 2, .language = "eng", .title = "", .selected = false}};
+    ProjectPage& other = booth.open("/films/other.srt");
+
+    // The window is on the other page, which has no film of its own yet.
+    booth.pane->leave(page);
+    booth.show(other);
+    booth.pane->watch(other);
+    REQUIRE_FALSE(other.watching);
+
+    CHECK(booth.pane->audioTracks().empty());
+    booth.pane->selectAudioTrack(2);
+    CHECK(booth.player->tracks.at(0).selected);
+}

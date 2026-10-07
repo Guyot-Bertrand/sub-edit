@@ -131,6 +131,7 @@ WindowActions::WindowActions(QObject* owner)
       seekSelectionEnd(buildAction(owner, QStringLiteral("See&k Selection End"), {})),
       volumeDown(buildAction(owner, QStringLiteral("Volume &Down"), {})),
       volumeUp(buildAction(owner, QStringLiteral("Volume &Up"), {})),
+      audioLanguage(std::make_unique<QMenu>(QStringLiteral("&Language"))),
       shift(buildAction(owner, QStringLiteral("Shift Positions…"), {})),
       transform(buildAction(owner, QStringLiteral("Transform Positions…"), {})),
       frameRate(buildAction(owner, QStringLiteral("Convert Frame Rate…"), {})),
@@ -258,6 +259,8 @@ QAction* WindowActions::caseAction(core::LetterCase wanted) const {
         static_cast<std::size_t>(std::distance(std::ranges::begin(core::kLetterCases), found)));
 }
 
+WindowActions::~WindowActions() = default;
+
 void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> columns) const {
     // `addAction` on the window and not a menu: the bar of tabs already offers
     // a click, and these are for whoever would rather not reach for the mouse.
@@ -338,6 +341,8 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     video->addSeparator();
     // A submenu, as Gaupol's: the languages of the soundtrack will come beside the volume.
     QMenu* audio = video->addMenu(QStringLiteral("&Audio"));
+    audio->addMenu(audioLanguage.get());
+    audio->addSeparator();
     audio->addAction(volumeDown);
     audio->addAction(volumeUp);
 

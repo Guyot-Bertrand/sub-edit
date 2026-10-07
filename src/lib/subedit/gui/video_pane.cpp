@@ -507,6 +507,19 @@ void VideoPane::follow(ProjectPage& page) {
     m_table->scrollTo(followed);
 }
 
+std::vector<core::AudioTrack> VideoPane::audioTracks() const {
+    // Only the film of the page on screen: the player is shared, and what it knows is the tracks
+    // of whichever film it holds.
+    return m_player != nullptr && m_playingPage != nullptr && m_playingPage->watching
+               ? m_player->audioTracks()
+               : std::vector<core::AudioTrack>{};
+}
+
+void VideoPane::selectAudioTrack(int id) {
+    if (m_player != nullptr && m_playingPage != nullptr && m_playingPage->watching)
+        m_player->selectAudioTrack(id);
+}
+
 core::VideoSettings VideoPane::settings() const {
     return m_settings;
 }
