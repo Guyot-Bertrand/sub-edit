@@ -26,13 +26,18 @@
 #include <subedit/gui/video_surface.hpp>
 
 #include <QAbstractItemModel>
+#include <QAbstractItemView>
+#include <QAbstractSlider>
+#include <QEvent>
 #include <QHBoxLayout>
 #include <QItemSelection>
 #include <QItemSelectionModel>
 #include <QList>
 #include <QModelIndex>
 #include <QModelIndexList>
+#include <QObject>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QSignalBlocker>
 #include <QSplitter>
 #include <QString>
@@ -44,6 +49,7 @@
 #include <cstddef>
 #include <expected>
 #include <filesystem>
+#include <functional>
 #include <memory>
 #include <numeric>
 #include <optional>
@@ -69,6 +75,29 @@ constexpr int kFollowIntervalMs = 100;
 /// the far end of a film — measured, issue #611, a tenth of a second at 720p. A shorter gate
 /// would hand the player positions it cannot keep up with.
 constexpr int kSeekGateMs = 50;
+
+/// Tells when a hand reaches for the table: a press of the mouse, or the wheel.
+///
+/// **Before the view has handled it**, which is the point: a click on a row selects it, the
+/// selection places playback there, and the follower runs right after — it must find the table
+/// already released, or the row just clicked is centered under the pointer. The scroll bar is the
+/// one other way in, and it says so itself (`actionTriggered`).
+class HandFilter final : public QObject {
+
+public:
+    HandFilter(std::function<void()> touched, QObject* parent)
+        : QObject{parent}, m_touched(std::move(touched)) {}
+
+protected:
+    bool eventFilter(QObject* /*watched*/, QEvent* event) override {
+        if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::Wheel)
+            m_touched();
+        return false;
+    }
+
+private:
+    std::function<void()> m_touched;
+};
 
 /// How long the gate of a step stays closed, in milliseconds.
 ///
@@ -194,6 +223,24 @@ VideoPane::VideoPane(core::FileSystem& files,
     m_seekGate->setInterval(kSeekGateMs);
     QObject::connect(m_seekGate, &QTimer::timeout, m_seekGate, [this] { flushSeek(); });
 
+    // **The table follows playback until somebody moves it by hand** — issue #619: the wheel, the
+    // scroll bar, a click. A programmatic scroll is not an action of the bar, so the follower's own
+    // does not suspend itself.
+    m_table->viewport()->installEventFilter(new HandFilter{[this] { suspendFollowing(); }, owner});
+    QObject::connect(m_table->verticalScrollBar(),
+                     &QAbstractSlider::actionTriggered,
+                     m_table->verticalScrollBar(),
+                     [this] { suspendFollowing(); });
+    QObject::connect(m_bar, &PlayBar::followToggled, m_bar, [this](bool following) {
+        if (!following) {
+            suspendFollowing();
+            return;
+        }
+        resumeFollowing();
+        if (m_playingPage != nullptr)
+            follow(*m_playingPage);
+    });
+
     m_stepGate->setSingleShot(true);
     m_stepGate->setInterval(kStepGateMs);
     QObject::connect(m_stepGate, &QTimer::timeout, m_stepGate, [this] { flushStep(); });
@@ -304,6 +351,9 @@ void VideoPane::watch(ProjectPage& page) {
     // was watching, not this one.
     if (wanted == page.associated && m_playingPage == &page)
         return;
+
+    // Another page, another film: the table follows from the start.
+    resumeFollowing();
 
     // The place a tab was left at belongs to the film it was left on: another
     // film starts from its beginning.
@@ -437,10 +487,13 @@ void VideoPane::toggle(const ProjectPage& page) {
     if (!page.watching)
         return;
 
-    if (m_player->isPlaying())
+    if (m_player->isPlaying()) {
         m_player->pause();
-    else
+    } else {
+        // A film that starts is a gesture of the player: the table comes back to it.
+        resumeFollowing();
         m_player->play();
+    }
 }
 
 void VideoPane::placeAtSelection(ProjectPage& page) {
@@ -514,9 +567,16 @@ void VideoPane::follow(ProjectPage& page) {
     if (m_table->isEditing())
         return;
 
+    // And whoever scrolled by hand: the highlight above still moves, the table does not.
+    if (!m_following)
+        return;
+
+    // **Centered when the row changes, and not at every tick**: a line lasts seconds on average,
+    // and a recentering at each tick of the follower would be a scroll with no purpose. Forgotten
+    // by a resume, which is what makes the row center again though it is the same one.
     const QModelIndex current = m_table->currentIndex();
     const int row = static_cast<int>(showing->value());
-    if (current.isValid() && current.row() == row)
+    if (current.isValid() && current.row() == row && row == m_centeredRow)
         return;
 
     // `NoUpdate` is what keeps the selection out of this. The selection is what
@@ -525,7 +585,19 @@ void VideoPane::follow(ProjectPage& page) {
     // what keeps this from firing the seek that watches the selection.
     const QModelIndex followed = page.model->index(row, current.isValid() ? current.column() : 0);
     m_table->selectionModel()->setCurrentIndex(followed, QItemSelectionModel::NoUpdate);
-    m_table->scrollTo(followed);
+    m_table->scrollTo(followed, QAbstractItemView::PositionAtCenter);
+    m_centeredRow = row;
+}
+
+void VideoPane::suspendFollowing() {
+    m_following = false;
+    m_bar->showFollowing(false);
+}
+
+void VideoPane::resumeFollowing() {
+    m_following = true;
+    m_centeredRow = -1;
+    m_bar->showFollowing(true);
 }
 
 std::vector<core::AudioTrack> VideoPane::audioTracks() const {
@@ -580,6 +652,7 @@ void VideoPane::flushSeek() {
 
     const core::Timestamp position = *m_pendingSeek;
     m_pendingSeek.reset();
+    resumeFollowing();
     m_player->seek(position);
     follow(*m_playingPage);
     m_seekGate->start();
@@ -602,6 +675,7 @@ void VideoPane::flushStep() {
 
     const int frames = m_pendingStep * m_settings.stepFrames;
     m_pendingStep = 0;
+    resumeFollowing();
     m_player->stepFrames(frames);
     follow(*m_playingPage);
     m_stepGate->start();
@@ -633,6 +707,7 @@ void VideoPane::nudge(ProjectPage& page, core::Boundary boundary, int direction)
 
     // The edge is where the film is shown, so that what was set can be seen.
     if (page.watching) {
+        resumeFollowing();
         m_player->seek(moved);
         follow(page);
     }
@@ -651,6 +726,7 @@ void VideoPane::seekBy(ProjectPage& page, int direction) {
         static_cast<std::int64_t>(m_settings.seekLengthSeconds) * kMillisecondsPerSecond;
     const std::int64_t target = std::clamp<std::int64_t>(
         where->milliseconds() + (direction < 0 ? -jump : jump), 0, length->milliseconds());
+    resumeFollowing();
     m_player->seek(core::Timestamp::fromMilliseconds(target));
     follow(page);
 }
@@ -680,6 +756,7 @@ void VideoPane::seekToNeighbour(ProjectPage& page, bool next) {
     if (!found.has_value())
         return;
 
+    resumeFollowing();
     m_player->seek(*found);
     follow(page);
 }
@@ -696,6 +773,7 @@ void VideoPane::seekToSelection(ProjectPage& page, bool end) {
     const core::Timestamp edge =
         end ? project.subtitleAt(core::SubtitleIndex::fromValue(span->last)).end
             : project.subtitleAt(core::SubtitleIndex::fromValue(span->first)).start;
+    resumeFollowing();
     m_player->seek(core::Timestamp::fromMilliseconds(
         std::max<std::int64_t>(edge.milliseconds() - m_settings.contextLengthMilliseconds, 0)));
     follow(page);
@@ -712,6 +790,7 @@ void VideoPane::playSelection(ProjectPage& page) {
     const core::Project& project = page.session->project();
     const core::Timestamp start =
         project.subtitleAt(core::SubtitleIndex::fromValue(span->first)).start;
+    resumeFollowing();
     m_player->seek(core::Timestamp::fromMilliseconds(
         std::max<std::int64_t>(start.milliseconds() - m_settings.contextLengthMilliseconds, 0)));
     // Up to the end of the last subtitle of the selection, and not up to the end of the
@@ -736,6 +815,7 @@ void VideoPane::markEdge(ProjectPage& page, core::Boundary boundary) {
     page.model->applied(page.session->apply(std::make_unique<core::SetPositionCommand>(
         page.session->project(), row, boundary, *where)));
     page.placedAt = -1;
+    resumeFollowing();
     follow(page);
 }
 
@@ -761,6 +841,7 @@ void VideoPane::insertAtPosition(ProjectPage& page) {
         at, std::vector<core::Subtitle>{core::Subtitle{.start = *where, .end = end}})));
     page.placedAt = -1;
     selectRow(static_cast<int>(before));
+    resumeFollowing();
     follow(page);
 }
 

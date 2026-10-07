@@ -484,9 +484,9 @@ deux plus coûteuses et plus fragiles que la ligne qu'elles prouveraient.
 
 ## Relevé
 
-    total : 69
+    total : 68
 
-Relevé sur la version 0.14.4, le 2026-10-06.
+Relevé sur la version 0.14.14, le 2026-10-07.
 
 | Lignes | Fichier |
 | -----: | :------ |
@@ -505,4 +505,3 @@ Relevé sur la version 0.14.4, le 2026-10-06.
 | 1 | `src/lib/subedit/gui/correction_wizard.cpp` |
 | 1 | `src/lib/subedit/gui/player_factory.cpp` |
 | 1 | `src/lib/subedit/gui/save_shape.cpp` |
-| 1 | `src/lib/subedit/gui/video_surface.cpp` |

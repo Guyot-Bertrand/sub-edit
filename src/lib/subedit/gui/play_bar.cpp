@@ -113,7 +113,8 @@ PlayBar::PlayBar(QWidget* parent)
       m_positionText(new QLabel{this}),
       m_position(new JumpSlider{Qt::Horizontal, this}),
       m_lengthText(new QLabel{this}),
-      m_volume(new JumpSlider{Qt::Horizontal, this}) {
+      m_volume(new JumpSlider{Qt::Horizontal, this}),
+      m_follow(new QToolButton{this}) {
     // **Icons and no text**: a transport reads as the symbols everybody knows, and they say what
     // the button will do — the triangle when stopped, the bars when playing. The tooltip says it in
     // words, for whoever hovers and for a screen reader.
@@ -153,6 +154,19 @@ PlayBar::PlayBar(QWidget* parent)
     row->addWidget(m_position, 1);
     row->addWidget(m_lengthText);
     row->addWidget(m_volume);
+    row->addWidget(m_follow);
+
+    // **Text and not an icon**: it is not a transport control but the state of the table, and a
+    // word says that better than a symbol would. Checked while the table follows playback.
+    m_follow->setText(QStringLiteral("Follow"));
+    m_follow->setToolTip(QStringLiteral("Keep the table on the subtitle that is showing"));
+    m_follow->setCheckable(true);
+    m_follow->setChecked(true);
+    m_follow->setAutoRaise(true);
+    connect(m_follow, &QToolButton::toggled, this, [this](bool following) {
+        if (!m_updating)
+            emit followToggled(following);
+    });
 
     connect(m_play, &QToolButton::clicked, this, &PlayBar::playToggled);
 
@@ -217,6 +231,12 @@ void PlayBar::showPosition(std::optional<core::Timestamp> position,
 void PlayBar::showVolume(int volume) {
     m_updating = true;
     m_volume->setValue(volume);
+    m_updating = false;
+}
+
+void PlayBar::showFollowing(bool following) {
+    m_updating = true;
+    m_follow->setChecked(following);
     m_updating = false;
 }
 
