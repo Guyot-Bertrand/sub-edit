@@ -4,7 +4,9 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/video/replica.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/frame_source.hpp>
@@ -364,8 +366,13 @@ void VideoPane::follow(ProjectPage& page) {
     //
     // **The text of the document aimed at**, the rule of the whole window: the
     // column of the current cell says which, and there is no setting.
+    //
+    // **Through the pivot** — issue #408: the text is held as its file wrote it, and what the
+    // overlay is handed is that text with its tags understood, in the vocabulary it draws.
+    const core::Document document = m_view->targetDocument();
     const std::string line = showing.has_value()
-                                 ? project.subtitleAt(*showing).text(m_view->targetDocument())
+                                 ? core::replicaOf(project.subtitleAt(*showing).text(document),
+                                                   project.sourceFile(document).format)
                                  : std::string{};
     if (line != page.shown) {
         m_player->showSubtitle(line);

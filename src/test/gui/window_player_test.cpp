@@ -362,6 +362,52 @@ TEST_CASE("the replica drawn is the subtitle showing now", "[gui][GUI-PLAYER-01]
     CHECK(booth.player->onScreen().empty());
 }
 
+// Issue #408, GUI-REPLICA-01: a subtitle is held as its file wrote it, and the picture used to
+// draw its tags as letters. What the player is handed is the text with them understood.
+TEST_CASE("the replica handed to the player has its tags understood", "[gui][GUI-REPLICA-01]") {
+    InMemoryFileSystem files;
+    files.addFile("/films/film.mkv", "");
+    files.addFile("/films/film.fr.srt",
+                  "1\n00:00:01,000 --> 00:00:02,000\n<i>Un</i> {mot}.\n\n"
+                  "2\n00:00:03,000 --> 00:00:04,000\n<font size=\"3\">Deux.</font>\n\n");
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+
+    playbackReaches(window, *booth.player, 1500);
+    // The italic is a block of the overlay, and the braces of the visible text are escaped.
+    CHECK(booth.player->onScreen() == "{\\i1}Un{\\i0} \\{mot\\}.");
+
+    // A size is not one the overlay can honour: the tag is gone, the text is not.
+    playbackReaches(window, *booth.player, 3500);
+    CHECK(booth.player->onScreen() == "Deux.");
+}
+
+// The translation is held in the format of its own file, not of the main one: the vocabulary
+// that reads it is the one that file was written in.
+TEST_CASE("a translation is read in the format of its own file", "[gui][GUI-REPLICA-01]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    OpenedFile opened = translatedIn(files, "/films/film.fr.srt");
+    std::vector<Subtitle> subtitles{opened.project.subtitles().begin(),
+                                    opened.project.subtitles().end()};
+    subtitles[0].translationText = "{\\i1}One{\\i0}.";
+    opened.project.setSubtitles(std::move(subtitles));
+    opened.project.setSourceFile(Document::Translation,
+                                 SourceFile{.format = SubtitleFormat::AdvancedSubStationAlpha});
+    MainWindow window{files, std::move(opened), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+
+    currentAt(window, 0, SubtitleTableModel::Translation);
+    playbackReaches(window, *booth.player, 1500);
+
+    CHECK(booth.player->onScreen() == "{\\i1}One{\\i0}.");
+}
+
 // Decision D2, and the whole reason the replica is not a file: what is on the
 // picture is what was just typed, with nothing written to a disk in between.
 TEST_CASE("an edited text reaches the picture", "[gui][GUI-PLAYER-01]") {

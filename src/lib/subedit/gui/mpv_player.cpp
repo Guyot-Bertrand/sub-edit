@@ -290,14 +290,6 @@ std::string assEventOf(std::string_view line) {
             // Never drawn: a text read from a file with Windows endings would
             // otherwise carry one before every break.
             break;
-        case '{':
-        case '}':
-            // What would open and close an override block. Escaped, so that a
-            // subtitle saying « {laughs} » says it rather than disappearing
-            // into a tag libass does not recognise.
-            event += '\\';
-            event += character;
-            break;
         default:
             event += character;
             break;

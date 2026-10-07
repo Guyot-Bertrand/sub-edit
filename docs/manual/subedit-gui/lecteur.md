@@ -85,15 +85,25 @@ Un sous-titre que la traduction n'a pas encore rejoint ne montre **rien** tant
 que la colonne courante est la traduction : ce n'est pas le texte principal qui
 prend sa place.
 
-Deux conséquences à connaître :
+**Les balises du format sont comprises, jamais dessinées telles quelles.** Le modèle porte le
+texte comme le fichier l'écrit, et c'est le pivot de balises — celui de la conversion de
+format — qui le lit avant de le donner à l'image :
 
-- **les balises du format s'affichent telles quelles** — un `<i>` est dessiné
-  comme un `<i>`. Le modèle porte le texte tel que le fichier l'écrit, et la
-  réplique dessinée ne les interprète pas ;
-- **le fichier de sous-titres voisin n'est pas chargé** par le lecteur, même
-  s'il porte le nom du film. Il serait celui qu'on est en train d'éditer, et
-  l'image montrerait alors l'état du disque pendant que la table montre autre
-  chose.
+| Dans le fichier | Sur l'image |
+| :-------------- | :---------- |
+| gras, italique, souligné | appliqués : `<i>non</i>` s'affiche *non*, sans ses balises |
+| couleur | appliquée |
+| police, taille | retirées, le texte reste |
+| position, alignement, locuteur, tout ce qui n'a pas d'équivalent à l'écran | retirés, le texte reste |
+| `{` et `}` dans le texte | dessinés : « {rires} » s'affiche « {rires} » |
+
+Un fichier Advanced SSA est lu de la même façon : ses `{\i1}` s'appliquent, et son
+`{\an8}` est retiré — la réplique reste au bas de l'image. Chaque texte est lu **dans le format
+de son propre fichier**, la traduction comme le texte principal.
+
+**Le fichier de sous-titres voisin n'est pas chargé** par le lecteur, même s'il porte le nom du
+film. Il serait celui qu'on est en train d'éditer, et l'image montrerait alors l'état du disque
+pendant que la table montre autre chose.
 
 ## Prévisualiser un changement
 

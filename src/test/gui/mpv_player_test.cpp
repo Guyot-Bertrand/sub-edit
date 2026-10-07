@@ -265,17 +265,34 @@ TEST_CASE("a carriage return is not drawn", "[video][player]") {
     CHECK(assEventOf("Un.\r\nDeux.") == "{\\an2}Un.\\NDeux.");
 }
 
-// A brace opens an override block in ASS. Unescaped, a subtitle saying
-// « {rires} » would disappear into a tag libass does not recognise.
-TEST_CASE("braces in a replica are escaped", "[video][player]") {
-    CHECK(assEventOf("{rires}") == "{\\an2}\\{rires\\}");
+// **The braces are no longer this function's business** — issue #408. The replica it is handed is
+// already in the Sub Station Alpha vocabulary: `core::replicaOf` writes the styles as override
+// blocks and escapes the braces of the visible text, so a block here is a style libass applies.
+TEST_CASE("an override block is handed to libass as it stands", "[video][player]") {
+    CHECK(assEventOf("{\\i1}Un.{\\i0}") == "{\\an2}{\\i1}Un.{\\i0}");
+    CHECK(assEventOf("\\{rires\\}") == "{\\an2}\\{rires\\}");
 }
 
-// ADR 0009: the model holds the text as the file wrote it, tags included, and
-// this draws what the model holds. Gaupol strips them; understanding a tag
-// well enough to remove it is what phase 9 is for.
-TEST_CASE("a tag of the format is drawn as it stands", "[video][player]") {
+// What the player makes of a tag of the file is nothing: understanding one is the pivot's, and
+// it happens before the text gets here. An HTML tag that reached this far would be drawn.
+TEST_CASE("a tag that was not translated is drawn as it stands", "[video][player]") {
     CHECK(assEventOf("<i>Un.</i>") == "{\\an2}<i>Un.</i>");
+}
+
+// Italic is drawn: the picture of a replica with a style is not the picture of the same
+// replica without it — read from the render, which is where the overlay lands.
+TEST_CASE("a style of the replica changes the picture", "[video][player][render]") {
+    MpvPlayer drawing = player();
+    REQUIRE(drawing.open(fixture("videos/images-25.mp4")).has_value());
+    drawing.seek(Timestamp::fromMilliseconds(subedit::test::startOf(100, 25, 1)));
+
+    drawing.showSubtitle("Un mot");
+    const subedit::gui::Picture plain = subedit::test::renderedAt(drawing, 640, 320);
+    drawing.showSubtitle("{\\i1}Un mot{\\i0}");
+    const subedit::gui::Picture italic = subedit::test::renderedAt(drawing, 640, 320);
+
+    REQUIRE(plain.pixels.size() == italic.pixels.size());
+    CHECK(plain.pixels != italic.pixels);
 }
 
 // ## The picture is the oracle — issue #610

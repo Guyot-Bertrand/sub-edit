@@ -164,7 +164,7 @@ private:
     RenderContext m_render;
 };
 
-/// Turns a subtitle's text into the ASS event libmpv's overlay draws.
+/// Turns the replica handed to the player into the ASS event libmpv's overlay draws.
 ///
 /// **Exposed for the one reason `videoFilters` is**: it is a thing this file
 /// can get wrong on its own, and nothing that reaches libmpv can be read back
@@ -173,14 +173,14 @@ private:
 /// cases.
 ///
 /// What it does, and the whole of it: line breaks become the `\N` of ASS, and
-/// the braces that would open an override block are escaped so that a subtitle
-/// saying `{` says `{`. Empty in, empty out — that is how the window clears
-/// the overlay.
+/// the foot-of-picture alignment is put in front. Empty in, empty out — that is
+/// how the window clears the overlay.
 ///
-/// **The text is drawn as the file holds it**, tags included (ADR 0009).
-/// Gaupol strips them before drawing; understanding a tag well enough to
-/// remove it is what phase 9 is for, and inventing a stripper here would be a
-/// second answer to a question this project has not answered yet.
+/// **The text is already in the Sub Station Alpha vocabulary** — issue #408. It is what
+/// `core::replicaOf` writes: styles are override blocks libass applies, the braces of the
+/// visible text are escaped, and tags with no equivalent on screen are gone. Escaping
+/// them here as well would draw the styles as text, which is what this used to do with
+/// every tag a subtitle carried.
 [[nodiscard]] std::string assEventOf(std::string_view line);
 
 } // namespace subedit::gui
