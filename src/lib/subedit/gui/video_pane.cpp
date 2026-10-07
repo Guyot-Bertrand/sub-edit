@@ -11,9 +11,11 @@
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/video/frame_step.hpp>
 #include <subedit/core/video/replica.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
+#include <subedit/core/wording/video.hpp>
 #include <subedit/gui/frame_source.hpp>
 #include <subedit/gui/play_bar.hpp>
 #include <subedit/gui/project_page.hpp>
@@ -67,6 +69,13 @@ constexpr int kFollowIntervalMs = 100;
 /// the far end of a film — measured, issue #611, a tenth of a second at 720p. A shorter gate
 /// would hand the player positions it cannot keep up with.
 constexpr int kSeekGateMs = 50;
+
+/// How long the gate of a step stays closed, in milliseconds.
+///
+/// A little under the period of a held key, which repeats some thirty times a second: a step that
+/// is quick goes at the pace of the key, and one that is slow keeps no backlog, since what comes in
+/// while the gate is shut takes one place.
+constexpr int kStepGateMs = 20;
 
 /// How much a gesture of volume moves it, in per cent — Gaupol's five.
 constexpr int kVolumeStep = 5;
@@ -142,7 +151,8 @@ VideoPane::VideoPane(core::FileSystem& files,
       m_banner(new QWidget{owner}),
       m_invite(new QPushButton{QStringLiteral("Select Video…"), m_banner}),
       m_ticker(new QTimer{owner}),
-      m_seekGate(new QTimer{owner}) {
+      m_seekGate(new QTimer{owner}),
+      m_stepGate(new QTimer{owner}) {
     m_picture->setMinimumHeight(kMinimumVideoHeight);
 
     // The picture above, the bar under it, nothing between them and nothing around them.
@@ -183,6 +193,10 @@ VideoPane::VideoPane(core::FileSystem& files,
     m_seekGate->setSingleShot(true);
     m_seekGate->setInterval(kSeekGateMs);
     QObject::connect(m_seekGate, &QTimer::timeout, m_seekGate, [this] { flushSeek(); });
+
+    m_stepGate->setSingleShot(true);
+    m_stepGate->setInterval(kStepGateMs);
+    QObject::connect(m_stepGate, &QTimer::timeout, m_stepGate, [this] { flushStep(); });
 
     QObject::connect(m_bar, &PlayBar::seekRequested, m_bar, [this](core::Timestamp position) {
         requestSeek(position);
@@ -569,6 +583,59 @@ void VideoPane::flushSeek() {
     m_player->seek(position);
     follow(*m_playingPage);
     m_seekGate->start();
+}
+
+void VideoPane::step(ProjectPage& /*page*/, int direction) {
+    // Nothing to check of the page: `flushStep` asks the one the player plays for, and lets a step
+    // go that has nothing to move.
+    m_pendingStep = direction < 0 ? -1 : 1;
+    // The gate open: this one goes at once. Closed: it takes the one place there is.
+    if (!m_stepGate->isActive())
+        flushStep();
+}
+
+void VideoPane::flushStep() {
+    if (m_pendingStep == 0 || m_playingPage == nullptr || !m_playingPage->watching) {
+        m_pendingStep = 0;
+        return;
+    }
+
+    const int frames = m_pendingStep * m_settings.stepFrames;
+    m_pendingStep = 0;
+    m_player->stepFrames(frames);
+    follow(*m_playingPage);
+    m_stepGate->start();
+}
+
+void VideoPane::nudge(ProjectPage& page, core::Boundary boundary, int direction) {
+    const std::optional<SelectedSpan> span = selectedSpan(*m_table->selectionModel());
+    if (!span.has_value())
+        return;
+
+    const std::optional<core::CountedFrameRate> counted =
+        core::countedFrameRateOf(page.session->project());
+    if (!counted.has_value()) {
+        m_prompts->reportFailure(core::noFrameToCountBy());
+        return;
+    }
+
+    const core::SubtitleIndex row = core::SubtitleIndex::fromValue(span->first);
+    const core::Timestamp moved =
+        core::movedByFrames(page.session->project().subtitleAt(row).position(boundary),
+                            counted->rate,
+                            (direction < 0 ? -1 : 1) * m_settings.stepFrames);
+    if (page.session->project().subtitleAt(row).position(boundary) == moved)
+        return;
+
+    page.model->applied(page.session->apply(
+        std::make_unique<core::SetPositionCommand>(page.session->project(), row, boundary, moved)));
+    page.placedAt = -1;
+
+    // The edge is where the film is shown, so that what was set can be seen.
+    if (page.watching) {
+        m_player->seek(moved);
+        follow(page);
+    }
 }
 
 void VideoPane::seekBy(ProjectPage& page, int direction) {

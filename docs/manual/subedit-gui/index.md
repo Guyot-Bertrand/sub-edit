@@ -23,7 +23,7 @@ table. Pour l'autre programme et pour savoir par où commencer, voir
 > **enregistre et ferme tout** d'un geste. Elle **associe une vidéo
 > au document**, choisie ou devinée, et la **joue dans la fenêtre**, la réplique
 > courante dessinée sur l'image ; **pose un début, une fin ou un
-> sous-titre depuis la position du film**. Elle **retient sa géométrie, l'ordre, la largeur et la présence de ses
+> sous-titre depuis la position du film**, **avance image par image** et **décale un bord d'une image**. Elle **retient sa géométrie, l'ordre, la largeur et la présence de ses
 > colonnes, et ses réglages** d'une
 > session à l'autre, et se porte **claire ou sombre** au choix. `Help ▸ Manual`
 > ouvre **ce manuel** dans une fenêtre. Ce manuel décrit ce qui existe, jamais
@@ -119,7 +119,7 @@ menus : elles servent moins souvent, ou pas à tout le monde.
 | [Correct Texts…](correct-texts.md) | l'assistant de correction : la cible et les tâches, chaque page de tâche, la progression, la confirmation |
 | [Check Spelling…](verifier-orthographe.md) | la vérification orthographique : ses réglages, le parcours, la fermeture au milieu, l'absence de dictionnaire |
 | [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la barre d'état, `ffmpeg` |
-| [Caler depuis la vidéo](calage.md) | poser le début ou la fin d'un sous-titre, insérer, sélectionner depuis la position du film |
+| [Caler depuis la vidéo](calage.md) | poser le début ou la fin d'un sous-titre, insérer, sélectionner depuis la position du film, avancer image par image, décaler un bord |
 | [Le lecteur](lecteur.md) | la vue vidéo, jouer, la ligne qui suit, la réplique dessinée |
 | [Les préférences](preferences.md) | le thème, le fichier de préférences, ses options, et ce qu'il advient d'une valeur illisible |
 | [Le manuel dans la fenêtre](aide.md) | `Help ▸ Manual`, ce qu'il ouvre et comment y naviguer |

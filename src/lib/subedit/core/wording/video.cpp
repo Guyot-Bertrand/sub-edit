@@ -6,6 +6,11 @@
 
 namespace subedit::core {
 
+std::string noFrameToCountBy() {
+    return "no frame rate to count a frame by: the video declares none, the file is not counted in "
+           "frames, and its positions fall on no grid. Associate a video that declares one.";
+}
+
 std::string videoStatusOf(const std::optional<std::filesystem::path>& video,
                           std::optional<FrameRate> declared) {
     if (!video.has_value())

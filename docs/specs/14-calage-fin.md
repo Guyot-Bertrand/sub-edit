@@ -183,7 +183,7 @@ raccourci que la fenêtre a déjà (le contrôle d'unicité tranche) :
 - **le volume**, par deux gestes et un curseur ;
 - **un sous-menu `Audio`**, qui liste les pistes et marque celle qui joue.
 
-**Une barre de lecture sous l'image** : le curseur de position, la position et la durée, lecture/pause, le volume.
+**Une barre de lecture sous l'image** : le curseur de position, la position et la durée, lecture/pause **encadrée de deux boutons de pas** (reculer, avancer d'une image — #618), le volume.
 **Le curseur ne rend pas la main à chaque pixel** : la recherche est limitée en fréquence, et **la dernière position
 demandée est toujours celle qu'on atteint**.
 
@@ -198,7 +198,9 @@ Sélectionner le voisin : un déplacement de sélection. **Les mêmes règles et
 cellule** — l'ordre strict, une fin avant son début — parce qu'un geste qui aurait ses propres règles dirait autre chose
 que la cellule pour la même valeur. **Une entrée d'historique par geste.**
 
-**Les raccourcis** (#617) : `Alt+U` le début, `Alt+K` la fin, `Alt+J` l'insertion — les `U`, `K` et `J` de Gaupol, que la fenêtre prendrait avant une cellule en cours d'édition — et `Alt+Haut`, `Alt+Bas` pour le voisin. Le `Ctrl+Y` de Gaupol est un *rétablir* sur certains systèmes.
+**Les boutons de pas de la barre déclenchent les actions du menu** : même pas, même extinction sans film, même infobulle (avec le raccourci), et un bouton tenu enchaîne les pas, un à la fois.
+
+**Les raccourcis** (#617, #618) : `Alt+Gauche` et `Alt+Droite` pour le pas ; `Alt+Q`, `Alt+W` pour le début plus tôt, plus tard, `Alt+Maj+Q`, `Alt+Maj+W` pour la fin — le `E` de Gaupol est la lettre de `Edit` ; pour les repères, `Alt+U` le début, `Alt+K` la fin, `Alt+J` l'insertion — les `U`, `K` et `J` de Gaupol, que la fenêtre prendrait avant une cellule en cours d'édition — et `Alt+Haut`, `Alt+Bas` pour le voisin. Le `Ctrl+Y` de Gaupol est un *rétablir* sur certains systèmes.
 
 **Le gain sur Gaupol : l'image par image.**
 

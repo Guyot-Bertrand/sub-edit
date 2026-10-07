@@ -48,6 +48,7 @@ Sous l'image, de gauche à droite :
 
 | Élément | Ce qu'il fait |
 | :------ | :------------ |
+| `|◀` et `▶|` | reculent, avancent le film **d'un pas d'image** — voir [Image par image](calage.md#image-par-image) |
 | `Play` / `Pause` | joue ou arrête — le bouton dit **ce qu'il fera**, comme `Ctrl+P` |
 | la position | `HH:MM:SS,mmm`, écrite comme la table écrit une position |
 | le curseur | **se lit et se déplace** : on tire la poignée, on clique dans la rainure, on utilise les flèches |

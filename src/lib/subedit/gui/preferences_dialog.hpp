@@ -61,6 +61,8 @@ public:
 
     [[nodiscard]] QDoubleSpinBox* contextLengthBox() const { return m_contextLength; }
 
+    [[nodiscard]] QSpinBox* stepFramesBox() const { return m_stepFrames; }
+
     [[nodiscard]] QCheckBox* showLengthsInCellsBox() const { return m_showInCells; }
 
     [[nodiscard]] QCheckBox* showLengthsInEditorBox() const { return m_showInEditor; }
@@ -76,6 +78,7 @@ private:
     QCheckBox* m_showInEditor;
     QSpinBox* m_seekLength;
     QDoubleSpinBox* m_contextLength;
+    QSpinBox* m_stepFrames;
 };
 
 } // namespace subedit::gui

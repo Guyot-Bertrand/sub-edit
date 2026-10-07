@@ -291,6 +291,19 @@ public:
 
     [[nodiscard]] QAction* seekSelectionEndAction() const { return m_actions->seekSelectionEnd; }
 
+    /// The step and the nudge, for a test to trigger them — issue #618.
+    [[nodiscard]] QAction* stepBackwardAction() const { return m_actions->stepBackward; }
+
+    [[nodiscard]] QAction* stepForwardAction() const { return m_actions->stepForward; }
+
+    [[nodiscard]] QAction* nudgeStartEarlierAction() const { return m_actions->nudgeStartEarlier; }
+
+    [[nodiscard]] QAction* nudgeStartLaterAction() const { return m_actions->nudgeStartLater; }
+
+    [[nodiscard]] QAction* nudgeEndEarlierAction() const { return m_actions->nudgeEndEarlier; }
+
+    [[nodiscard]] QAction* nudgeEndLaterAction() const { return m_actions->nudgeEndLater; }
+
     /// The marks taken from the position of the film, for a test to trigger them — issue #617.
     [[nodiscard]] QAction* setStartFromVideoAction() const { return m_actions->setStartFromVideo; }
 

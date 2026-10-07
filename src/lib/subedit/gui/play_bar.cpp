@@ -97,7 +97,9 @@ constexpr int kVolumeWidth = 90;
 
 PlayBar::PlayBar(QWidget* parent)
     : QWidget{parent},
+      m_stepBack(new QToolButton{this}),
       m_play(new QToolButton{this}),
+      m_stepForward(new QToolButton{this}),
       m_positionText(new QLabel{this}),
       m_position(new JumpSlider{Qt::Horizontal, this}),
       m_lengthText(new QLabel{this}),
@@ -105,6 +107,11 @@ PlayBar::PlayBar(QWidget* parent)
     m_play->setText(QStringLiteral("Play"));
     m_play->setToolTip(QStringLiteral("Play / Pause"));
     m_play->setAutoRaise(true);
+    // A held button repeats, as a held key does: the same action each time, one step at a time.
+    for (QToolButton* step : {m_stepBack, m_stepForward}) {
+        step->setAutoRaise(true);
+        step->setAutoRepeat(true);
+    }
 
     m_positionText->setText(textOf(core::Timestamp::origin()));
     m_lengthText->setText(textOf(core::Timestamp::origin()));
@@ -123,7 +130,9 @@ PlayBar::PlayBar(QWidget* parent)
 
     auto* row = new QHBoxLayout{this};
     row->setContentsMargins(4, 2, 4, 2);
+    row->addWidget(m_stepBack);
     row->addWidget(m_play);
+    row->addWidget(m_stepForward);
     row->addWidget(m_positionText);
     row->addWidget(m_position, 1);
     row->addWidget(m_lengthText);
@@ -150,6 +159,11 @@ PlayBar::PlayBar(QWidget* parent)
         if (!m_updating)
             emit volumeRequested(value);
     });
+}
+
+void PlayBar::setStepActions(QAction* back, QAction* forward) {
+    m_stepBack->setDefaultAction(back);
+    m_stepForward->setDefaultAction(forward);
 }
 
 void PlayBar::showPosition(std::optional<core::Timestamp> position,

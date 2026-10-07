@@ -100,6 +100,7 @@ constexpr std::string_view kSpellCheckInlineKey = "spell-check.inline";
 constexpr std::string_view kVideoPrefix = "video.";
 constexpr std::string_view kVideoSeekLengthKey = "video.seek-length";
 constexpr std::string_view kVideoContextLengthKey = "video.context-length-ms";
+constexpr std::string_view kVideoStepFramesKey = "video.step-frames";
 constexpr std::string_view kVideoVolumeKey = "video.volume";
 constexpr std::string_view kEditorPrefix = "editor.";
 constexpr std::string_view kEditorLengthUnitKey = "editor.length-unit";
@@ -652,7 +653,8 @@ void applySpellCheckOption(SettingsRead& read, std::string_view key, std::string
         take(booleanOf(value), form.inlineCheck);
 }
 
-/// Keeps one of the three options of the video player: the jump, the lead-in and the volume.
+/// Keeps one of the four options of the video player: the jump, the lead-in, the frame step and the
+/// volume.
 void applyVideoOption(SettingsRead& read, std::string_view key, std::string_view value) {
     const auto take = [&read, key, value](auto parsed, auto& field) {
         keepOption(read, key, value, std::move(parsed), field);
@@ -665,6 +667,8 @@ void applyVideoOption(SettingsRead& read, std::string_view key, std::string_view
     else if (key == kVideoContextLengthKey)
         take(boundedIntegerOf(value, 0, kLargestContextLengthMilliseconds),
              form.contextLengthMilliseconds);
+    else if (key == kVideoStepFramesKey)
+        take(boundedIntegerOf(value, kSmallestStepFrames, kLargestStepFrames), form.stepFrames);
     else if (key == kVideoVolumeKey)
         take(boundedIntegerOf(value, 0, kLargestVolume), form.volume);
 }
@@ -1039,7 +1043,7 @@ void renderEditorSettings(std::string& out, const EditorSettings& form) {
                 form.showLengthsInEditor == defaults.showLengthsInEditor);
 }
 
-/// The three options of the video player, each written bare when it differs from the default and
+/// The four options of the video player, each written bare when it differs from the default and
 /// commented out when it does not.
 void renderVideoSettings(std::string& out, const VideoSettings& form) {
     const VideoSettings defaults;
@@ -1051,6 +1055,10 @@ void renderVideoSettings(std::string& out, const VideoSettings& form) {
                 kVideoContextLengthKey,
                 std::to_string(form.contextLengthMilliseconds),
                 form.contextLengthMilliseconds == defaults.contextLengthMilliseconds);
+    writeOption(out,
+                kVideoStepFramesKey,
+                std::to_string(form.stepFrames),
+                form.stepFrames == defaults.stepFrames);
     writeOption(out, kVideoVolumeKey, std::to_string(form.volume), form.volume == defaults.volume);
 }
 

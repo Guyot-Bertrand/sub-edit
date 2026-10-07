@@ -94,6 +94,7 @@ add_executable(
     core/io/find_executable_test.cpp
     core/io/find_video_test.cpp
     core/video/declared_frame_rate_test.cpp
+    core/video/frame_step_test.cpp
     core/video/replica_test.cpp
     core/video/showing_test.cpp
     core/io/real_file_system_test.cpp

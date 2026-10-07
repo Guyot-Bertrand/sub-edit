@@ -16,8 +16,10 @@
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/video_player.hpp>
+#include <subedit/core/wording/video.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/play_bar.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -32,6 +34,7 @@
 #include <QModelIndex>
 #include <QStringList>
 #include <QTest>
+#include <QToolButton>
 #include <catch2/catch_test_macros.hpp>
 
 #include <array>
@@ -51,11 +54,15 @@ namespace {
 
 using subedit::core::AudioTrack;
 using subedit::core::Document;
+using subedit::core::FrameRate;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::noFrameToCountBy;
 using subedit::core::OpenedFile;
 using subedit::core::openProject;
 using subedit::core::PlayerError;
+using subedit::core::Settings;
 using subedit::core::SourceFile;
+using subedit::core::StandardFrameRate;
 using subedit::core::Subtitle;
 using subedit::core::SubtitleFormat;
 using subedit::core::Timestamp;
@@ -375,8 +382,9 @@ TEST_CASE("the replica drawn is the subtitle showing now", "[gui][GUI-PLAYER-01]
 
 namespace {
 
-/// The gestures, in the order the menu lists them — the nine of #615, then the five of #617.
-[[nodiscard]] std::array<QAction*, 14> gestures(const MainWindow& window) {
+/// The gestures, in the order the menu lists them — the nine of #615, the five of #617, the six of
+/// #618.
+[[nodiscard]] std::array<QAction*, 20> gestures(const MainWindow& window) {
     return {window.playSelectionAction(),
             window.seekPreviousAction(),
             window.seekNextAction(),
@@ -390,7 +398,13 @@ namespace {
             window.setEndFromVideoAction(),
             window.insertAtVideoAction(),
             window.selectPreviousFromVideoAction(),
-            window.selectNextFromVideoAction()};
+            window.selectNextFromVideoAction(),
+            window.stepBackwardAction(),
+            window.stepForwardAction(),
+            window.nudgeStartEarlierAction(),
+            window.nudgeStartLaterAction(),
+            window.nudgeEndEarlierAction(),
+            window.nudgeEndLaterAction()};
 }
 
 void selectRows(const MainWindow& window, int first, int last) {
@@ -1161,4 +1175,219 @@ TEST_CASE("the marks do nothing without a position", "[gui][GUI-MARK-01]") {
     CHECK_FALSE(marked.window.undoAction()->isEnabled());
     CHECK(marked.window.table()->model()->rowCount({}) == 3);
     CHECK(selectedRow(marked.window) == 0);
+}
+
+// ## The step, the nudge and the buttons of the bar — issue #618
+
+namespace {
+
+/// A window on the three subtitles with a film that declares `declared`, and a frame step of
+/// `stepFrames` frames.
+struct SteppedWindow {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window;
+
+    explicit SteppedWindow(std::optional<FrameRate> declared, int stepFrames = 1)
+        : window{files,
+                 fileIn(files, "/films/film.fr.srt"),
+                 prompts,
+                 projecting(booth),
+                 [declared](const std::filesystem::path&) { return declared; }} {
+        window.applySettings(Settings{.video = {.stepFrames = stepFrames}});
+        window.show();
+        REQUIRE(booth.player != nullptr);
+    }
+};
+
+/// Waits until the player has been stepped `count` times: a step asked while the gate of the one
+/// before is shut is made when it opens, which on a loaded machine is later than a fixed pause.
+[[nodiscard]] bool stepsReach(const FakeVideoPlayer& player, std::size_t count) {
+    constexpr int kTries = 150;
+    constexpr int kPauseMs = 20;
+    for (int attempt = 0; attempt < kTries && player.steps.size() < count; ++attempt)
+        QTest::qWait(kPauseMs);
+    return player.steps.size() == count;
+}
+
+} // namespace
+
+TEST_CASE("stepping moves playback by one frame, either way", "[gui][GUI-STEP-01][GUI-STEP-02]") {
+    const SteppedWindow stepped{FrameRate{StandardFrameRate::Fps25}};
+
+    stepped.window.stepForwardAction()->trigger();
+    stepped.window.stepBackwardAction()->trigger();
+
+    CHECK(stepsReach(*stepped.booth.player, 2));
+    CHECK(stepped.booth.player->steps == std::vector<int>{1, -1});
+}
+
+TEST_CASE("the step is the frame step of the settings, in frames", "[gui][GUI-STEP-04]") {
+    const SteppedWindow stepped{FrameRate{StandardFrameRate::Fps25}, 5};
+
+    stepped.window.stepForwardAction()->trigger();
+    stepped.window.stepBackwardAction()->trigger();
+
+    CHECK(stepsReach(*stepped.booth.player, 2));
+    CHECK(stepped.booth.player->steps == std::vector<int>{5, -5});
+}
+
+// A held key repeats faster than a step is made; what comes in while the gate is shut takes one
+// place, and does not queue.
+TEST_CASE("a key held down steps one frame at a time and does not pile up", "[gui][GUI-STEP-01]") {
+    const SteppedWindow stepped{FrameRate{StandardFrameRate::Fps25}};
+
+    for (int repeat = 0; repeat < 40; ++repeat)
+        stepped.window.stepForwardAction()->trigger();
+
+    // The first went at once; the thirty-nine others wait for one place.
+    CHECK(stepped.booth.player->steps.size() == 1U);
+
+    CHECK(stepsReach(*stepped.booth.player, 2));
+    // And nothing more comes after: the thirty-eight others were not queued.
+    QTest::qWait(200);
+    CHECK(stepped.booth.player->steps == std::vector<int>{1, 1});
+}
+
+TEST_CASE("the step of a window with no selection still needs only the film",
+          "[gui][GUI-STEP-01]") {
+    const SteppedWindow stepped{FrameRate{StandardFrameRate::Fps25}};
+    stepped.window.table()->selectionModel()->clearSelection();
+
+    CHECK(stepped.window.stepForwardAction()->isEnabled());
+    CHECK(stepped.window.stepBackwardAction()->isEnabled());
+}
+
+TEST_CASE("the buttons of the bar run the actions of the menu, and say what they say",
+          "[gui][GUI-STEP-01]") {
+    const SteppedWindow stepped{FrameRate{StandardFrameRate::Fps25}};
+    const subedit::gui::PlayBar* bar = stepped.window.playBar();
+
+    CHECK(bar->stepBackButton()->defaultAction() == stepped.window.stepBackwardAction());
+    CHECK(bar->stepForwardButton()->defaultAction() == stepped.window.stepForwardAction());
+    CHECK(bar->stepBackButton()->toolTip() == stepped.window.stepBackwardAction()->toolTip());
+    CHECK(bar->stepForwardButton()->toolTip().contains(QStringLiteral("Alt+Right")));
+    CHECK(bar->stepBackButton()->toolTip().contains(QStringLiteral("Alt+Left")));
+
+    // Either side of play and pause.
+    CHECK(bar->stepBackButton()->x() < bar->playButton()->x());
+    CHECK(bar->playButton()->x() < bar->stepForwardButton()->x());
+
+    // Held, they repeat.
+    CHECK(bar->stepBackButton()->autoRepeat());
+    CHECK(bar->stepForwardButton()->autoRepeat());
+
+    bar->stepForwardButton()->click();
+    CHECK(stepped.booth.player->steps == std::vector<int>{1});
+}
+
+TEST_CASE("the buttons of the bar are out without a film, as the menu is", "[gui][GUI-STEP-01]") {
+    InMemoryFileSystem files;
+    files.addFile("/films/seul.srt", kThree);
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/seul.srt"), prompts, projecting(booth)};
+    window.show();
+
+    CHECK_FALSE(window.playBar()->stepBackButton()->isEnabled());
+    CHECK_FALSE(window.playBar()->stepForwardButton()->isEnabled());
+}
+
+TEST_CASE("a nudge moves an edge by the frame step, counted by the rate of the film",
+          "[gui][GUI-NUDGE-01]") {
+    const SteppedWindow stepped{FrameRate{StandardFrameRate::Fps25}};
+    selectRows(stepped.window, 0, 0);
+
+    stepped.window.nudgeStartLaterAction()->trigger();
+    CHECK(start(stepped.window, 0) == "00:00:01,040");
+    CHECK(end(stepped.window, 0) == "00:00:02,000");
+
+    stepped.window.nudgeEndEarlierAction()->trigger();
+    CHECK(end(stepped.window, 0) == "00:00:01,960");
+
+    stepped.window.nudgeStartEarlierAction()->trigger();
+    stepped.window.nudgeEndLaterAction()->trigger();
+    CHECK(start(stepped.window, 0) == "00:00:01,000");
+    CHECK(end(stepped.window, 0) == "00:00:02,000");
+}
+
+TEST_CASE("a nudge is one entry of the history, and the film shows the edge",
+          "[gui][GUI-NUDGE-01]") {
+    const SteppedWindow stepped{FrameRate{StandardFrameRate::Fps25}, 5};
+    selectRows(stepped.window, 0, 0);
+
+    stepped.window.nudgeStartLaterAction()->trigger();
+
+    // The same step as the film's: five frames of 25 images a second.
+    CHECK(start(stepped.window, 0) == "00:00:01,200");
+    CHECK(stepped.booth.player->seeks.back() == Timestamp::fromMilliseconds(1200));
+
+    stepped.window.undoAction()->trigger();
+    CHECK(start(stepped.window, 0) == "00:00:01,000");
+    CHECK_FALSE(stepped.window.undoAction()->isEnabled());
+}
+
+// What a cell says of a position that crosses its neighbour: nothing, and the table flags it.
+TEST_CASE("a nudge that crosses the neighbour is flagged as the cell's would be",
+          "[gui][GUI-NUDGE-01]") {
+    const SteppedWindow stepped{FrameRate{StandardFrameRate::Fps25}, 13};
+    selectRows(stepped.window, 0, 0);
+    const QAbstractItemModel* model = stepped.window.table()->model();
+    REQUIRE_FALSE(model->data(model->index(1, 1), Qt::BackgroundRole).isValid());
+
+    // 13 frames of 40 ms: the end of the first goes from 2000 to 2520, past the start of the
+    // second at 2500.
+    stepped.window.nudgeEndLaterAction()->trigger();
+
+    CHECK(end(stepped.window, 0) == "00:00:02,520");
+    CHECK(model->data(model->index(1, 1), Qt::BackgroundRole).isValid());
+}
+
+TEST_CASE("a nudge with no rate to count a frame by refuses and says so", "[gui][GUI-STEP-03]") {
+    const SteppedWindow stepped{std::nullopt};
+    selectRows(stepped.window, 0, 0);
+
+    stepped.window.nudgeStartLaterAction()->trigger();
+
+    REQUIRE(stepped.prompts.failures.size() == 1U);
+    CHECK(stepped.prompts.failures.front() == noFrameToCountBy());
+    CHECK(start(stepped.window, 0) == "00:00:01,000");
+    CHECK_FALSE(stepped.window.undoAction()->isEnabled());
+}
+
+TEST_CASE("the nudge needs a selection and no film", "[gui][GUI-NUDGE-01]") {
+    InMemoryFileSystem files;
+    files.addFile("/films/seul.srt", kThree);
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/seul.srt"), prompts, projecting(booth)};
+    window.show();
+    window.table()->selectionModel()->clearSelection();
+
+    CHECK_FALSE(window.nudgeStartLaterAction()->isEnabled());
+    CHECK_FALSE(window.nudgeEndEarlierAction()->isEnabled());
+
+    selectRows(window, 0, 0);
+    CHECK(window.nudgeStartEarlierAction()->isEnabled());
+    CHECK(window.nudgeEndLaterAction()->isEnabled());
+}
+
+// Brought to the origin and no further: the edge is where it can go, and one more nudge finds
+// nothing to do.
+TEST_CASE("a nudge back stops at the origin and adds nothing to the history once there",
+          "[gui][GUI-NUDGE-01]") {
+    const SteppedWindow stepped{FrameRate{StandardFrameRate::Fps25}, 1000};
+    selectRows(stepped.window, 0, 0);
+
+    stepped.window.nudgeStartEarlierAction()->trigger();
+    CHECK(start(stepped.window, 0) == "00:00:00,000");
+
+    stepped.window.nudgeStartEarlierAction()->trigger();
+    CHECK(start(stepped.window, 0) == "00:00:00,000");
+
+    // One entry, and not two.
+    stepped.window.undoAction()->trigger();
+    CHECK(start(stepped.window, 0) == "00:00:01,000");
+    CHECK_FALSE(stepped.window.undoAction()->isEnabled());
 }

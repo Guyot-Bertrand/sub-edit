@@ -676,6 +676,38 @@ TEST_CASE("GUI-SEEK-02: accepted preferences set the jump and keep the volume as
     CHECK(window.settings().video.volume == 40);
 }
 
+TEST_CASE("GUI-STEP-04: the preferences offer the frame step, in frames, from one",
+          "[gui][config][GUI-STEP-04]") {
+    const subedit::gui::PreferencesDialog defaults{Theme::System};
+    CHECK(defaults.stepFramesBox()->value() == 1);
+    CHECK(defaults.stepFramesBox()->minimum() == 1);
+    CHECK(defaults.stepFramesBox()->suffix().contains(QStringLiteral("frame")));
+    CHECK(defaults.video().stepFrames == 1);
+
+    const subedit::gui::PreferencesDialog chosen{Theme::System, {}, {.stepFrames = 24}};
+    CHECK(chosen.stepFramesBox()->value() == 24);
+    CHECK(chosen.video().stepFrames == 24);
+}
+
+TEST_CASE("GUI-STEP-04: an accepted frame step reaches the window and the settings it keeps",
+          "[gui][config][GUI-STEP-04]") {
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    window.applySettings(Settings{.video = {.stepFrames = 10, .volume = 40}});
+    CHECK(window.settings().video.stepFrames == 10);
+
+    fixture.prompts().fill = [](QDialog& dialog) {
+        auto* preferences = dynamic_cast<subedit::gui::PreferencesDialog*>(&dialog);
+        if (preferences != nullptr)
+            preferences->stepFramesBox()->setValue(5);
+    };
+    fixture.prompts().nextRun = true;
+    window.preferencesAction()->trigger();
+
+    CHECK(window.settings().video.stepFrames == 5);
+    CHECK(window.settings().video.volume == 40);
+}
+
 TEST_CASE("GUI-VOLUME-01: the settings the window reopens with carry the volume",
           "[gui][config][GUI-VOLUME-01]") {
     Windowed fixture;
