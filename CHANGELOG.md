@@ -13,6 +13,10 @@ ne pas l'éditer à la main.
 
 - **video** — Barre de lecture, gestes de Gaupol, volume et timecode
 
+### Corrections
+
+- **gui** — Un clic dans la barre de lecture va où on a cliqué
+
 ## 0.14.9 — 2026-10-07
 
 ### Ajouts
