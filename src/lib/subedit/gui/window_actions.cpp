@@ -129,6 +129,14 @@ WindowActions::WindowActions(QObject* owner)
       seekForward(buildAction(owner, QStringLiteral("Seek &Forward"), {})),
       seekSelectionStart(buildAction(owner, QStringLiteral("S&eek Selection Start"), {})),
       seekSelectionEnd(buildAction(owner, QStringLiteral("See&k Selection End"), {})),
+      // **The five marks of Gaupol** — issue #617 — under its names, `Video Position` and all.
+      setStartFromVideo(buildAction(owner, QStringLiteral("Set S&tart from Video Position"), {})),
+      setEndFromVideo(buildAction(owner, QStringLiteral("Set En&d from Video Position"), {})),
+      insertAtVideo(buildAction(owner, QStringLiteral("&Insert Subtitle at Video Position"), {})),
+      selectPreviousFromVideo(
+          buildAction(owner, QStringLiteral("Select Previous from Video Position"), {})),
+      selectNextFromVideo(
+          buildAction(owner, QStringLiteral("Select Next from Video Position"), {})),
       volumeDown(buildAction(owner, QStringLiteral("Volume &Down"), {})),
       volumeUp(buildAction(owner, QStringLiteral("Volume &Up"), {})),
       audioLanguage(std::make_unique<QMenu>(QStringLiteral("&Language"))),
@@ -239,6 +247,16 @@ WindowActions::WindowActions(QObject* owner)
     seekForward->setShortcut(QKeySequence{QStringLiteral("Ctrl+Shift+Right")});
     seekSelectionStart->setShortcut(QKeySequence{QStringLiteral("Ctrl+Up")});
     seekSelectionEnd->setShortcut(QKeySequence{QStringLiteral("Ctrl+Down")});
+    // **Gaupol's `U`, `K` and `J`, with `Alt`**: a bare letter is a letter in a cell editor, as
+    // for `P` above. `Alt` and a letter is the menu bar's mnemonic only for a letter a menu
+    // takes, and none of the seven menus is named by one of these three. Gaupol's own `Ctrl+Y`
+    // and `Ctrl+U` for the neighbours are not kept: `Ctrl+Y` is a redo on some platforms, and
+    // the arrows of `Alt` say *previous* and *next* better than two letters do.
+    setStartFromVideo->setShortcut(QKeySequence{QStringLiteral("Alt+U")});
+    setEndFromVideo->setShortcut(QKeySequence{QStringLiteral("Alt+K")});
+    insertAtVideo->setShortcut(QKeySequence{QStringLiteral("Alt+J")});
+    selectPreviousFromVideo->setShortcut(QKeySequence{QStringLiteral("Alt+Up")});
+    selectNextFromVideo->setShortcut(QKeySequence{QStringLiteral("Alt+Down")});
     // Both spellings of the plus: on a keyboard where it takes a shift, the key that gives it is
     // the one of the equals sign.
     volumeDown->setShortcut(QKeySequence{QStringLiteral("Ctrl+-")});
@@ -338,6 +356,13 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     video->addSeparator();
     video->addAction(seekSelectionStart);
     video->addAction(seekSelectionEnd);
+    video->addSeparator();
+    video->addAction(setStartFromVideo);
+    video->addAction(setEndFromVideo);
+    video->addAction(insertAtVideo);
+    video->addSeparator();
+    video->addAction(selectPreviousFromVideo);
+    video->addAction(selectNextFromVideo);
     video->addSeparator();
     // A submenu, as Gaupol's: the languages of the soundtrack will come beside the volume.
     QMenu* audio = video->addMenu(QStringLiteral("&Audio"));

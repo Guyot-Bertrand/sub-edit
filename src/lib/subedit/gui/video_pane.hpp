@@ -1,6 +1,7 @@
 #pragma once
 
 #include <subedit/core/config/video_settings.hpp>
+#include <subedit/core/model/boundary.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/video_player.hpp>
@@ -178,6 +179,23 @@ public:
     /// frames later. Nothing without a selection.
     void playSelection(ProjectPage& page);
 
+    /// Sets the start, or the end, of the first selected subtitle to where playback stands —
+    /// Gaupol's `Set Start from Video Position` and `Set End from Video Position`. **The same
+    /// command as typing the position in the cell**, so the same rules: an end before its start
+    /// is let stand and flagged, and one undo takes it back. Nothing without a selection.
+    void markEdge(ProjectPage& page, core::Boundary boundary);
+
+    /// Inserts a subtitle that starts where playback stands, three seconds long or up to the
+    /// next one when that comes sooner, and selects it — Gaupol's `Insert Subtitle at Video
+    /// Position`. It goes where the order puts it: after every subtitle that starts at or before
+    /// the position.
+    void insertAtPosition(ProjectPage& page);
+
+    /// Selects the subtitle that starts after where playback stands, or the last that started
+    /// before it — Gaupol's `Select Next` and `Select Previous from Video Position`. When there
+    /// is none on that side, the subtitle at the end of the file that way, as Gaupol does.
+    void selectFromPosition(ProjectPage& page, bool next);
+
     /// Moves the volume by `delta` per cent, within 0 to 100. Gaupol's `Volume Down` and
     /// `Volume Up` are five.
     void changeVolume(int delta);
@@ -205,6 +223,9 @@ public:
     [[nodiscard]] std::optional<core::Duration> length(const ProjectPage& page) const;
 
 private:
+    /// Selects `row` alone, keeping the column of the current cell, and shows it.
+    void selectRow(int row);
+
     /// Returns the player, building it the first time one is needed.
     ///
     /// Nothing, when no factory was given or when the factory declined. Asked

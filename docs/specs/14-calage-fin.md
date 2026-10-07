@@ -198,6 +198,8 @@ Sélectionner le voisin : un déplacement de sélection. **Les mêmes règles et
 cellule** — l'ordre strict, une fin avant son début — parce qu'un geste qui aurait ses propres règles dirait autre chose
 que la cellule pour la même valeur. **Une entrée d'historique par geste.**
 
+**Les raccourcis** (#617) : `Alt+U` le début, `Alt+K` la fin, `Alt+J` l'insertion — les `U`, `K` et `J` de Gaupol, que la fenêtre prendrait avant une cellule en cours d'édition — et `Alt+Haut`, `Alt+Bas` pour le voisin. Le `Ctrl+Y` de Gaupol est un *rétablir* sur certains systèmes.
+
 **Le gain sur Gaupol : l'image par image.**
 
 - **Avancer et reculer d'un pas**, deux gestes qui s'enchaînent sous une touche maintenue. **Le pas est un nombre
