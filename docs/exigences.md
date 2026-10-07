@@ -292,10 +292,10 @@ plus rien.
 | `GUI-VOLUME-01` | le volume se règle et se retient d'une session à l'autre | 14 | implémentée |
 | `GUI-TIMECODE-01` | le timecode est incrusté sur l'image | 14 | implémentée |
 | `GUI-AUDIO-01` | la piste audio se choisit parmi celles de la vidéo | 14 | implémentée |
-| `GUI-MARK-01` | poser le début d'un sous-titre depuis la position de la vidéo, en une entrée d'historique | 14 | prévue |
-| `GUI-MARK-02` | poser sa fin depuis la position de la vidéo | 14 | prévue |
-| `GUI-MARK-03` | insérer un sous-titre à la position de la vidéo | 14 | prévue |
-| `GUI-MARK-04` | sélectionner le sous-titre précédent ou suivant depuis la position de la vidéo | 14 | prévue |
+| `GUI-MARK-01` | poser le début d'un sous-titre depuis la position de la vidéo, en une entrée d'historique | 14 | implémentée |
+| `GUI-MARK-02` | poser sa fin depuis la position de la vidéo | 14 | implémentée |
+| `GUI-MARK-03` | insérer un sous-titre à la position de la vidéo | 14 | implémentée |
+| `GUI-MARK-04` | sélectionner le sous-titre précédent ou suivant depuis la position de la vidéo | 14 | implémentée |
 | `GUI-FOLLOW-01` | la table centre le sous-titre courant pendant la lecture | 14 | prévue |
 | `GUI-FOLLOW-02` | un défilement à la main suspend le suivi | 14 | prévue |
 | `GUI-FOLLOW-03` | le suivi reprend sur un geste du lecteur ou à la demande | 14 | prévue |

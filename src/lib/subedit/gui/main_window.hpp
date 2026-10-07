@@ -291,6 +291,21 @@ public:
 
     [[nodiscard]] QAction* seekSelectionEndAction() const { return m_actions->seekSelectionEnd; }
 
+    /// The marks taken from the position of the film, for a test to trigger them — issue #617.
+    [[nodiscard]] QAction* setStartFromVideoAction() const { return m_actions->setStartFromVideo; }
+
+    [[nodiscard]] QAction* setEndFromVideoAction() const { return m_actions->setEndFromVideo; }
+
+    [[nodiscard]] QAction* insertAtVideoAction() const { return m_actions->insertAtVideo; }
+
+    [[nodiscard]] QAction* selectPreviousFromVideoAction() const {
+        return m_actions->selectPreviousFromVideo;
+    }
+
+    [[nodiscard]] QAction* selectNextFromVideoAction() const {
+        return m_actions->selectNextFromVideo;
+    }
+
     [[nodiscard]] QAction* volumeDownAction() const { return m_actions->volumeDown; }
 
     [[nodiscard]] QAction* volumeUpAction() const { return m_actions->volumeUp; }

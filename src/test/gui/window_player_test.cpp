@@ -23,6 +23,7 @@
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
+#include <QAbstractItemModel>
 #include <QAction>
 #include <QCoreApplication>
 #include <QItemSelectionModel>
@@ -374,8 +375,8 @@ TEST_CASE("the replica drawn is the subtitle showing now", "[gui][GUI-PLAYER-01]
 
 namespace {
 
-/// The nine gestures, in the order the menu lists them.
-[[nodiscard]] std::array<QAction*, 9> gestures(const MainWindow& window) {
+/// The gestures, in the order the menu lists them — the nine of #615, then the five of #617.
+[[nodiscard]] std::array<QAction*, 14> gestures(const MainWindow& window) {
     return {window.playSelectionAction(),
             window.seekPreviousAction(),
             window.seekNextAction(),
@@ -384,7 +385,12 @@ namespace {
             window.seekSelectionStartAction(),
             window.seekSelectionEndAction(),
             window.volumeDownAction(),
-            window.volumeUpAction()};
+            window.volumeUpAction(),
+            window.setStartFromVideoAction(),
+            window.setEndFromVideoAction(),
+            window.insertAtVideoAction(),
+            window.selectPreviousFromVideoAction(),
+            window.selectNextFromVideoAction()};
 }
 
 void selectRows(const MainWindow& window, int first, int last) {
@@ -957,4 +963,202 @@ TEST_CASE("closing the window lets the player go while the window still exists",
     CHECK(gone);
     CHECK(windowWhenGone);
     CHECK_FALSE(window.playPauseAction()->isEnabled());
+}
+
+// ## Marks taken from the position of the film — issue #617
+
+namespace {
+
+/// What a cell holds, seen from the window.
+[[nodiscard]] std::string cell(const MainWindow& window, int row, int column) {
+    return window.table()
+        ->model()
+        ->data(window.table()->model()->index(row, column), Qt::DisplayRole)
+        .toString()
+        .toStdString();
+}
+
+/// A window on the three subtitles, with a film whose position is `at` milliseconds.
+struct MarkedWindow {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window;
+
+    /// Where the film stands: said after a selection, which places playback at its first row.
+    void at(int milliseconds) const {
+        booth.player->where = Timestamp::fromMilliseconds(milliseconds);
+    }
+
+    explicit MarkedWindow(int at)
+        : window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)} {
+        window.show();
+        REQUIRE(booth.player != nullptr);
+        this->at(at);
+    }
+};
+
+[[nodiscard]] std::string start(const MainWindow& window, int row) {
+    return cell(window, row, 1);
+}
+
+[[nodiscard]] std::string end(const MainWindow& window, int row) {
+    return cell(window, row, 2);
+}
+
+[[nodiscard]] int selectedRow(const MainWindow& window) {
+    const QModelIndexList rows = window.table()->selectionModel()->selectedRows();
+    return rows.size() == 1 ? rows.front().row() : -1;
+}
+
+} // namespace
+
+TEST_CASE("the marks that need a selection wait for one, the others need only a film",
+          "[gui][GUI-MARK-01]") {
+    const MarkedWindow marked{1200};
+    marked.window.table()->selectionModel()->clearSelection();
+
+    CHECK(marked.window.insertAtVideoAction()->isEnabled());
+    CHECK(marked.window.selectPreviousFromVideoAction()->isEnabled());
+    CHECK(marked.window.selectNextFromVideoAction()->isEnabled());
+    CHECK_FALSE(marked.window.setStartFromVideoAction()->isEnabled());
+    CHECK_FALSE(marked.window.setEndFromVideoAction()->isEnabled());
+
+    selectRows(marked.window, 0, 0);
+    marked.at(1200);
+    CHECK(marked.window.setStartFromVideoAction()->isEnabled());
+    CHECK(marked.window.setEndFromVideoAction()->isEnabled());
+}
+
+TEST_CASE("setting the start from the position is one entry of the history", "[gui][GUI-MARK-01]") {
+    const MarkedWindow marked{1200};
+    selectRows(marked.window, 0, 0);
+    marked.at(1200);
+
+    marked.window.setStartFromVideoAction()->trigger();
+
+    CHECK(start(marked.window, 0) == "00:00:01,200");
+    CHECK(end(marked.window, 0) == "00:00:02,000");
+
+    marked.window.undoAction()->trigger();
+    CHECK(start(marked.window, 0) == "00:00:01,000");
+    CHECK_FALSE(marked.window.undoAction()->isEnabled());
+}
+
+TEST_CASE("setting the end from the position is one entry of the history", "[gui][GUI-MARK-02]") {
+    const MarkedWindow marked{1800};
+    selectRows(marked.window, 0, 0);
+    marked.at(1800);
+
+    marked.window.setEndFromVideoAction()->trigger();
+
+    CHECK(start(marked.window, 0) == "00:00:01,000");
+    CHECK(end(marked.window, 0) == "00:00:01,800");
+
+    marked.window.undoAction()->trigger();
+    CHECK(end(marked.window, 0) == "00:00:02,000");
+    CHECK_FALSE(marked.window.undoAction()->isEnabled());
+}
+
+// What the cell does with a start typed after the end: it lets it stand, and the table flags
+// the subtitle. The gesture is the same command, so it says the same.
+TEST_CASE("a start set after the end stands and is flagged as the cell's would be",
+          "[gui][GUI-MARK-01]") {
+    const MarkedWindow marked{4000};
+    QAbstractItemModel* model = marked.window.table()->model();
+    REQUIRE(model->setData(model->index(1, 1), QStringLiteral("00:00:04,000"), Qt::EditRole));
+    const auto flagged = [&](int row) {
+        return marked.window.table()->model()->data(marked.window.table()->model()->index(row, 1),
+                                                    Qt::BackgroundRole);
+    };
+    const QVariant byTyping = flagged(1);
+
+    selectRows(marked.window, 0, 0);
+    marked.at(4000);
+    marked.window.setStartFromVideoAction()->trigger();
+
+    CHECK(start(marked.window, 0) == "00:00:04,000");
+    CHECK(end(marked.window, 0) == "00:00:02,000");
+    // Flagged, in the way the cell flagged a start past its own end.
+    CHECK(flagged(0).isValid());
+    CHECK(flagged(0) == byTyping);
+}
+
+TEST_CASE("setting a mark does nothing when the position already is that mark",
+          "[gui][GUI-MARK-01]") {
+    const MarkedWindow marked{1000};
+    selectRows(marked.window, 0, 0);
+    marked.at(1000);
+
+    marked.window.setStartFromVideoAction()->trigger();
+
+    CHECK_FALSE(marked.window.undoAction()->isEnabled());
+}
+
+TEST_CASE("a subtitle is inserted at the position, three seconds long, and selected",
+          "[gui][GUI-MARK-03]") {
+    const MarkedWindow marked{3600};
+
+    marked.window.insertAtVideoAction()->trigger();
+
+    // After the two that start before 3600 ms, and before the one at 5000 ms.
+    REQUIRE(marked.window.table()->model()->rowCount({}) == 4);
+    CHECK(start(marked.window, 2) == "00:00:03,600");
+    CHECK(end(marked.window, 2) == "00:00:05,000");
+    CHECK(start(marked.window, 3) == "00:00:05,000");
+    CHECK(selectedRow(marked.window) == 2);
+
+    marked.window.undoAction()->trigger();
+    CHECK(marked.window.table()->model()->rowCount({}) == 3);
+    CHECK_FALSE(marked.window.undoAction()->isEnabled());
+}
+
+TEST_CASE("an inserted subtitle lasts three seconds when nothing comes sooner",
+          "[gui][GUI-MARK-03]") {
+    const MarkedWindow marked{7000};
+
+    marked.window.insertAtVideoAction()->trigger();
+
+    REQUIRE(marked.window.table()->model()->rowCount({}) == 4);
+    CHECK(start(marked.window, 3) == "00:00:07,000");
+    CHECK(end(marked.window, 3) == "00:00:10,000");
+    CHECK(selectedRow(marked.window) == 3);
+}
+
+TEST_CASE("the neighbours are the first to start after the position and the last before it",
+          "[gui][GUI-MARK-04]") {
+    // The subtitles start at 1000, 2500 and 5000 ms.
+    const MarkedWindow marked{3000};
+
+    marked.window.selectNextFromVideoAction()->trigger();
+    CHECK(selectedRow(marked.window) == 2);
+
+    marked.window.selectPreviousFromVideoAction()->trigger();
+    CHECK(selectedRow(marked.window) == 1);
+}
+
+TEST_CASE("with no neighbour on that side, the end of the file that way is selected",
+          "[gui][GUI-MARK-04]") {
+    const MarkedWindow marked{9000};
+    marked.window.selectNextFromVideoAction()->trigger();
+    CHECK(selectedRow(marked.window) == 2);
+
+    marked.booth.player->where = Timestamp::fromMilliseconds(100);
+    marked.window.selectPreviousFromVideoAction()->trigger();
+    CHECK(selectedRow(marked.window) == 0);
+}
+
+TEST_CASE("the marks do nothing without a position", "[gui][GUI-MARK-01]") {
+    const MarkedWindow marked{1200};
+    marked.booth.player->unload();
+    selectRows(marked.window, 0, 0);
+    marked.at(1200);
+
+    marked.window.setStartFromVideoAction()->trigger();
+    marked.window.insertAtVideoAction()->trigger();
+    marked.window.selectNextFromVideoAction()->trigger();
+
+    CHECK_FALSE(marked.window.undoAction()->isEnabled());
+    CHECK(marked.window.table()->model()->rowCount({}) == 3);
+    CHECK(selectedRow(marked.window) == 0);
 }

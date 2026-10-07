@@ -1,4 +1,6 @@
+#include <subedit/core/edit/insert_command.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/edit/set_position_command.hpp>
 #include <subedit/core/io/find_video.hpp>
 #include <subedit/core/model/associated_video.hpp>
 #include <subedit/core/model/document.hpp>
@@ -21,7 +23,9 @@
 #include <subedit/gui/video_pane.hpp>
 #include <subedit/gui/video_surface.hpp>
 
+#include <QAbstractItemModel>
 #include <QHBoxLayout>
+#include <QItemSelection>
 #include <QItemSelectionModel>
 #include <QList>
 #include <QModelIndex>
@@ -108,6 +112,9 @@ struct SelectedSpan {
     return SelectedSpan{.first = static_cast<std::size_t>(lowest.row()),
                         .last = static_cast<std::size_t>(highest.row())};
 }
+
+/// How long a subtitle inserted at the position lasts, at most: Gaupol's three seconds.
+constexpr std::int64_t kInsertedLengthMilliseconds = 3000;
 
 /// A second, in milliseconds.
 constexpr std::int64_t kMillisecondsPerSecond = 1000;
@@ -644,6 +651,87 @@ void VideoPane::playSelection(ProjectPage& page) {
     // film: `playUntil` stops on the frame.
     m_player->playUntil(project.subtitleAt(core::SubtitleIndex::fromValue(span->last)).end);
     follow(page);
+}
+
+void VideoPane::markEdge(ProjectPage& page, core::Boundary boundary) {
+    if (!page.watching)
+        return;
+
+    const std::optional<SelectedSpan> span = selectedSpan(*m_table->selectionModel());
+    const std::optional<core::Timestamp> where = m_player->position();
+    if (!span.has_value() || !where.has_value())
+        return;
+
+    const core::SubtitleIndex row = core::SubtitleIndex::fromValue(span->first);
+    if (page.session->project().subtitleAt(row).position(boundary) == *where)
+        return;
+
+    page.model->applied(page.session->apply(std::make_unique<core::SetPositionCommand>(
+        page.session->project(), row, boundary, *where)));
+    page.placedAt = -1;
+    follow(page);
+}
+
+void VideoPane::insertAtPosition(ProjectPage& page) {
+    if (!page.watching)
+        return;
+
+    const std::optional<core::Timestamp> where = m_player->position();
+    if (!where.has_value())
+        return;
+
+    // Counted and not searched, as the neighbours are: a project may be out of order.
+    const std::span<const core::Subtitle> subtitles = page.session->project().subtitles();
+    const auto before = static_cast<std::size_t>(std::ranges::count_if(
+        subtitles, [&](const core::Subtitle& subtitle) { return subtitle.start <= *where; }));
+
+    core::Timestamp end = *where + core::Duration::fromMilliseconds(kInsertedLengthMilliseconds);
+    if (before < subtitles.size() && subtitles[before].start < end)
+        end = subtitles[before].start;
+
+    const core::SubtitleIndex at = core::SubtitleIndex::fromValue(before);
+    page.model->applied(page.session->apply(std::make_unique<core::InsertCommand>(
+        at, std::vector<core::Subtitle>{core::Subtitle{.start = *where, .end = end}})));
+    page.placedAt = -1;
+    selectRow(static_cast<int>(before));
+    follow(page);
+}
+
+void VideoPane::selectFromPosition(ProjectPage& page, bool next) {
+    if (!page.watching)
+        return;
+
+    const std::span<const core::Subtitle> subtitles = page.session->project().subtitles();
+    const std::optional<core::Timestamp> where = m_player->position();
+    if (subtitles.empty() || !where.has_value())
+        return;
+
+    // The first that starts after, or the last that started before — by the order of the file,
+    // as Gaupol reads it — and the end of the file on that side when there is none.
+    std::size_t found = next ? subtitles.size() - 1 : 0;
+    for (std::size_t at = 0; at < subtitles.size(); ++at) {
+        // Walked from the front for the next, from the back for the previous.
+        const std::size_t row = next ? at : subtitles.size() - 1 - at;
+        if (next ? subtitles[row].start > *where : subtitles[row].start < *where) {
+            found = row;
+            break;
+        }
+    }
+    selectRow(static_cast<int>(found));
+}
+
+void VideoPane::selectRow(int row) {
+    // The column of the current cell stays, as `MainWindow::selectRows` keeps it: it says which
+    // text an operation aims at.
+    const QModelIndex current = m_table->currentIndex();
+    const int column = current.isValid() ? current.column() : 0;
+    QAbstractItemModel* model = m_table->model();
+    const QModelIndex from = model->index(row, column);
+    const QModelIndex to = model->index(row, model->columnCount() - 1);
+    m_table->selectionModel()->setCurrentIndex(from, QItemSelectionModel::NoUpdate);
+    m_table->selectionModel()->select(
+        QItemSelection{from, to}, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    m_table->scrollTo(from);
 }
 
 std::optional<core::Duration> VideoPane::length(const ProjectPage& page) const {

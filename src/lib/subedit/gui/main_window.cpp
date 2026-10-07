@@ -669,6 +669,25 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(act.seekSelectionEnd, &QAction::triggered, this, [this] {
         m_video->seekToSelection(*m_page, true);
     });
+    // The marks, which are edits: a cell being typed in is closed first, as every edit does.
+    connect(act.setStartFromVideo, &QAction::triggered, this, [this] {
+        commitCellEditor();
+        m_video->markEdge(*m_page, core::Boundary::Start);
+    });
+    connect(act.setEndFromVideo, &QAction::triggered, this, [this] {
+        commitCellEditor();
+        m_video->markEdge(*m_page, core::Boundary::End);
+    });
+    connect(act.insertAtVideo, &QAction::triggered, this, [this] {
+        commitCellEditor();
+        m_video->insertAtPosition(*m_page);
+    });
+    connect(act.selectPreviousFromVideo, &QAction::triggered, this, [this] {
+        m_video->selectFromPosition(*m_page, false);
+    });
+    connect(act.selectNextFromVideo, &QAction::triggered, this, [this] {
+        m_video->selectFromPosition(*m_page, true);
+    });
     connect(act.volumeDown, &QAction::triggered, this, [this] { m_video->changeVolume(-1); });
     connect(act.volumeUp, &QAction::triggered, this, [this] { m_video->changeVolume(1); });
 
@@ -1324,15 +1343,21 @@ void MainWindow::refreshVideoGestures() {
     // something selected, since it is the selection they act on.
     const bool selected =
         m_table != nullptr && !m_table->selectionModel()->selectedRows().isEmpty();
-    for (QAction* gesture : {m_actions->seekPrevious,
+    for (QAction* gesture : {m_actions->insertAtVideo,
+                             m_actions->selectPreviousFromVideo,
+                             m_actions->selectNextFromVideo,
+                             m_actions->seekPrevious,
                              m_actions->seekNext,
                              m_actions->seekBackward,
                              m_actions->seekForward,
                              m_actions->volumeDown,
                              m_actions->volumeUp})
         gesture->setEnabled(m_playable);
-    for (QAction* gesture :
-         {m_actions->playSelection, m_actions->seekSelectionStart, m_actions->seekSelectionEnd})
+    for (QAction* gesture : {m_actions->playSelection,
+                             m_actions->seekSelectionStart,
+                             m_actions->seekSelectionEnd,
+                             m_actions->setStartFromVideo,
+                             m_actions->setEndFromVideo})
         gesture->setEnabled(m_playable && selected);
 }
 

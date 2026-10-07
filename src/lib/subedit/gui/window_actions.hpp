@@ -89,6 +89,11 @@ struct WindowActions final {
     QAction* seekForward = nullptr;
     QAction* seekSelectionStart = nullptr;
     QAction* seekSelectionEnd = nullptr;
+    QAction* setStartFromVideo = nullptr;
+    QAction* setEndFromVideo = nullptr;
+    QAction* insertAtVideo = nullptr;
+    QAction* selectPreviousFromVideo = nullptr;
+    QAction* selectNextFromVideo = nullptr;
 
     // `Video ▸ Audio`.
     QAction* volumeDown = nullptr;
