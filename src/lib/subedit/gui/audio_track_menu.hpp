@@ -26,9 +26,9 @@ namespace subedit::gui {
 ///
 /// **It is rebuilt, never edited**: a track number belongs to its file and nothing here is kept
 /// from one film to the next — the entries of the film just left are gone before those of the new
-/// one are made. The menu is **out with fewer than two tracks**, since a choice among none or among
-/// one is not a choice, and the entry that opens it is the one put out, so that the volume beside
-/// it stays within reach.
+/// one are made. The menu is **out with no track**, and **in with one**: the choice is a single
+/// entry, but it says the language of the film. The entry that opens it is the one put out, so that
+/// the volume beside it stays within reach.
 class AudioTrackMenu final : public QObject {
     Q_OBJECT
 

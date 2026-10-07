@@ -72,8 +72,7 @@ TEST_CASE("the menu lists a track per entry and marks the one that plays", "[gui
     CHECK_FALSE(menu.actions().at(1)->isChecked());
 }
 
-TEST_CASE("the menu is out with no track and with one, in with two or more",
-          "[gui][GUI-AUDIO-01]") {
+TEST_CASE("the menu is out with no track, in with one or more", "[gui][GUI-AUDIO-01]") {
     QMenu menu;
     AudioTrackMenu entries{menu, nullptr};
 
@@ -81,8 +80,8 @@ TEST_CASE("the menu is out with no track and with one, in with two or more",
     CHECK_FALSE(menu.menuAction()->isEnabled());
 
     entries.refresh(std::vector<AudioTrack>{track(1, "fra", "", true)});
-    CHECK_FALSE(menu.menuAction()->isEnabled());
-    // The one track is listed all the same: the menu says what the film has.
+    CHECK(menu.menuAction()->isEnabled());
+    // The one track is the whole menu: it says what the film has.
     CHECK(menu.actions().size() == 1);
 
     entries.refresh(std::vector<AudioTrack>{track(1, "fra", "", true), track(2, "eng", "", false)});

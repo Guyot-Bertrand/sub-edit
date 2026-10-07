@@ -556,7 +556,7 @@ TEST_CASE("choosing a language plays that track, and the mark follows", "[gui][G
     CHECK_FALSE(window.audioLanguageMenu()->actions().at(0)->isChecked());
 }
 
-TEST_CASE("the menu of languages is out with no film and with a single track",
+TEST_CASE("the menu of languages is out with no film and in with a single track",
           "[gui][GUI-AUDIO-01]") {
     {
         InMemoryFileSystem files;
@@ -578,7 +578,8 @@ TEST_CASE("the menu of languages is out with no film and with a single track",
         window.show();
         REQUIRE(booth.player != nullptr);
 
-        CHECK_FALSE(window.audioLanguageMenu()->menuAction()->isEnabled());
+        CHECK(window.audioLanguageMenu()->menuAction()->isEnabled());
+        CHECK(window.audioLanguageMenu()->actions().size() == 1);
     }
 }
 

@@ -7,17 +7,11 @@
 #include <QMenu>
 #include <QString>
 
-#include <cstddef>
 #include <span>
 
 namespace subedit::gui {
 
-namespace {
-
-/// A track needs two to be a choice.
-constexpr std::size_t kFewestTracksToChoose = 2;
-
-} // namespace
+namespace {} // namespace
 
 QString audioTrackLabel(const core::AudioTrack& track, int number) {
     const QString language = QString::fromStdString(track.language);
@@ -62,7 +56,7 @@ void AudioTrackMenu::refresh(std::span<const core::AudioTrack> tracks) {
         m_menu->addAction(entry);
     }
 
-    m_menu->menuAction()->setEnabled(tracks.size() >= kFewestTracksToChoose);
+    m_menu->menuAction()->setEnabled(!tracks.empty());
 }
 
 } // namespace subedit::gui

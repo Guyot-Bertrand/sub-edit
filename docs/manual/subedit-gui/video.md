@@ -30,8 +30,9 @@ peuvent dire `eng`, et un fichier muet sur ses étiquettes a tout de même une p
 **Choisir une entrée joue cette piste.** La marque est la réponse du lecteur, non le clic : elle dit la
 piste qui joue.
 
-- **Le sous-menu est éteint** sans vidéo, et avec une seule piste : il n'y a rien à choisir. Les deux
-  gestes du volume, qui sont à côté, restent actifs : voir [Le volume](lecteur.md#le-volume).
+- **Le sous-menu est éteint** sans vidéo ou sans piste audio. Avec une seule piste, il reste actif et
+  la montre, cochée : il dit la langue du film. Les deux gestes du volume, qui sont à côté, restent
+  actifs quoi qu'il en soit : voir [Le volume](lecteur.md#le-volume).
 - **La piste n'est pas retenue** d'une vidéo à l'autre, ni d'une session à l'autre : un numéro de piste est
   celui de son fichier, et le reporter sur le film suivant choisirait ce qui porte ce numéro là-bas.
   Revenir sur un onglet rouvre son film sur la piste que le lecteur choisit de lui-même.
