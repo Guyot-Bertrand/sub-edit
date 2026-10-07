@@ -19,6 +19,7 @@
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/main_window.hpp>
+#include <subedit/gui/play_bar.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
@@ -360,6 +361,141 @@ TEST_CASE("the replica drawn is the subtitle showing now", "[gui][GUI-PLAYER-01]
     // Between two subtitles the picture carries nothing.
     playbackReaches(window, *booth.player, 4000);
     CHECK(booth.player->onScreen().empty());
+}
+
+// ## Driving the film from the menu — issue #615
+
+namespace {
+
+/// The nine gestures, in the order the menu lists them.
+[[nodiscard]] std::array<QAction*, 9> gestures(const MainWindow& window) {
+    return {window.playSelectionAction(),
+            window.seekPreviousAction(),
+            window.seekNextAction(),
+            window.seekBackwardAction(),
+            window.seekForwardAction(),
+            window.seekSelectionStartAction(),
+            window.seekSelectionEndAction(),
+            window.volumeDownAction(),
+            window.volumeUpAction()};
+}
+
+void selectRows(const MainWindow& window, int first, int last) {
+    window.table()->selectionModel()->clearSelection();
+    for (int row = first; row <= last; ++row)
+        window.table()->selectionModel()->select(window.table()->model()->index(row, 0),
+                                                 QItemSelectionModel::Select |
+                                                     QItemSelectionModel::Rows);
+}
+
+} // namespace
+
+// Out without a film, as playing is: a gesture on nothing does nothing.
+TEST_CASE("the gestures that drive the film are out without one", "[gui][GUI-SEEK-02]") {
+    InMemoryFileSystem files;
+    files.addFile("/films/seul.srt", kThree);
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/seul.srt"), prompts, projecting(booth)};
+    window.show();
+
+    for (const QAction* gesture : gestures(window))
+        CHECK_FALSE(gesture->isEnabled());
+}
+
+TEST_CASE("with a film, the gestures are in, and three of them wait for a selection",
+          "[gui][GUI-SEEK-02]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+    window.table()->selectionModel()->clearSelection();
+
+    CHECK(window.seekBackwardAction()->isEnabled());
+    CHECK(window.seekForwardAction()->isEnabled());
+    CHECK(window.seekPreviousAction()->isEnabled());
+    CHECK(window.seekNextAction()->isEnabled());
+    CHECK(window.volumeDownAction()->isEnabled());
+    CHECK(window.volumeUpAction()->isEnabled());
+    // The three that act on the selection have nothing to act on.
+    CHECK_FALSE(window.playSelectionAction()->isEnabled());
+    CHECK_FALSE(window.seekSelectionStartAction()->isEnabled());
+    CHECK_FALSE(window.seekSelectionEndAction()->isEnabled());
+
+    selectRows(window, 0, 1);
+    CHECK(window.playSelectionAction()->isEnabled());
+    CHECK(window.seekSelectionStartAction()->isEnabled());
+    CHECK(window.seekSelectionEndAction()->isEnabled());
+}
+
+TEST_CASE("the gestures of the menu drive the film", "[gui][GUI-SEEK-02][GUI-SEEK-05]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+    booth.player->where = Timestamp::fromMilliseconds(100000);
+
+    window.seekForwardAction()->trigger();
+    CHECK(booth.player->seeks.back() == Timestamp::fromMilliseconds(130000));
+
+    window.seekBackwardAction()->trigger();
+    CHECK(booth.player->seeks.back() == Timestamp::fromMilliseconds(100000));
+
+    // The three subtitles of the file: 1000, 2500 and 5000 ms.
+    booth.player->where = Timestamp::fromMilliseconds(1200);
+    window.seekNextAction()->trigger();
+    CHECK(booth.player->seeks.back() == Timestamp::fromMilliseconds(2500));
+
+    // The previous one is the last to have ended before the position: 2500 is the start of the
+    // second, so the first, which ended at 2000, is the one.
+    window.seekPreviousAction()->trigger();
+    CHECK(booth.player->seeks.back() == Timestamp::fromMilliseconds(1000));
+
+    selectRows(window, 1, 2);
+    booth.player->seeks.clear();
+    window.seekSelectionStartAction()->trigger();
+    CHECK(booth.player->seeks.back() == Timestamp::fromMilliseconds(1500));
+    window.seekSelectionEndAction()->trigger();
+    CHECK(booth.player->seeks.back() == Timestamp::fromMilliseconds(5000));
+
+    window.playSelectionAction()->trigger();
+    CHECK(booth.player->stops.back() == Timestamp::fromMilliseconds(6000));
+}
+
+TEST_CASE("the gestures of the volume move it from five to five", "[gui][GUI-VOLUME-01]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.applySettings(subedit::core::Settings{.video = {.volume = 50}});
+    window.show();
+    REQUIRE(booth.player != nullptr);
+    CHECK(booth.player->volume() == 50);
+
+    window.volumeDownAction()->trigger();
+    CHECK(booth.player->volume() == 45);
+
+    window.volumeUpAction()->trigger();
+    window.volumeUpAction()->trigger();
+    CHECK(booth.player->volume() == 55);
+    CHECK(window.settings().video.volume == 55);
+}
+
+// The bar is under the picture, in the room above the table, and shown with it.
+TEST_CASE("the bar is shown with the picture and hidden with it", "[gui][GUI-SEEK-01]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
+
+    REQUIRE(window.playBar() != nullptr);
+    CHECK_FALSE(window.playBar()->isHidden());
+    CHECK(window.playBar()->parentWidget() == window.videoView()->parentWidget());
 }
 
 // Issue #408, GUI-REPLICA-01: a subtitle is held as its file wrote it, and the picture used to

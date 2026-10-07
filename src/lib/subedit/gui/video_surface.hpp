@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QImage>
+#include <QString>
 #include <QWidget>
 
 class QPaintEvent;
@@ -45,6 +46,17 @@ public:
     /// not want to wait for the announcement.
     void refresh();
 
+    /// Shows `text` over the picture, at the top left, or nothing when it is empty — issue #615.
+    ///
+    /// **Drawn by Qt, on top of what libmpv drew**, and that is what ADR 0041 made possible: the
+    /// picture is in this widget, so the timecode needs nothing from the player but the
+    /// position it already gives. It is in the window's own font and carries its own backing,
+    /// so it reads over any frame.
+    void setTimecode(const QString& text);
+
+    /// The timecode as last given, empty when there is none.
+    [[nodiscard]] const QString& timecode() const { return m_timecode; }
+
     /// The buffer as last drawn — what a test reads to know what the widget shows.
     [[nodiscard]] const QImage& image() const { return m_image; }
 
@@ -55,6 +67,7 @@ protected:
 private:
     FrameSource* m_source = nullptr;
     QImage m_image;
+    QString m_timecode;
 };
 
 } // namespace subedit::gui

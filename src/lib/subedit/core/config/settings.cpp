@@ -97,6 +97,10 @@ constexpr std::string_view kSpellCheckDocumentKey = "spell-check.document";
 constexpr std::string_view kSpellCheckInlineKey = "spell-check.inline";
 
 // What the table shows of a line's length — issue #526.
+constexpr std::string_view kVideoPrefix = "video.";
+constexpr std::string_view kVideoSeekLengthKey = "video.seek-length";
+constexpr std::string_view kVideoContextLengthKey = "video.context-length-ms";
+constexpr std::string_view kVideoVolumeKey = "video.volume";
 constexpr std::string_view kEditorPrefix = "editor.";
 constexpr std::string_view kEditorLengthUnitKey = "editor.length-unit";
 constexpr std::string_view kEditorShowLengthsCellKey = "editor.show-lengths-cell";
@@ -333,6 +337,17 @@ constexpr char kActivationFieldSeparator = ':';
     if (milliseconds.has_value() && *milliseconds < 0)
         milliseconds.reset();
     return milliseconds;
+}
+
+/// A whole number from `smallest` to `largest`, or nothing: the jump of a seek, the lead-in and the
+/// volume are numbers somebody typed, and one outside what the player can honour is a value that
+/// could not be read — not one to clamp on a hunch.
+[[nodiscard]] std::optional<int>
+boundedIntegerOf(std::string_view text, int smallest, int largest) {
+    std::optional<int> number = integerOf(text);
+    if (number.has_value() && (*number < smallest || *number > largest))
+        number.reset();
+    return number;
 }
 
 /// A directory, if it is absolute.
@@ -637,6 +652,23 @@ void applySpellCheckOption(SettingsRead& read, std::string_view key, std::string
         take(booleanOf(value), form.inlineCheck);
 }
 
+/// Keeps one of the three options of the video player: the jump, the lead-in and the volume.
+void applyVideoOption(SettingsRead& read, std::string_view key, std::string_view value) {
+    const auto take = [&read, key, value](auto parsed, auto& field) {
+        keepOption(read, key, value, std::move(parsed), field);
+    };
+
+    VideoSettings& form = read.settings.video;
+    if (key == kVideoSeekLengthKey)
+        take(boundedIntegerOf(value, kSmallestSeekLengthSeconds, kLargestSeekLengthSeconds),
+             form.seekLengthSeconds);
+    else if (key == kVideoContextLengthKey)
+        take(boundedIntegerOf(value, 0, kLargestContextLengthMilliseconds),
+             form.contextLengthMilliseconds);
+    else if (key == kVideoVolumeKey)
+        take(boundedIntegerOf(value, 0, kLargestVolume), form.volume);
+}
+
 /// Keeps one of the three options of the editor: the unit lengths are shown in,
 /// and whether the cells and the cell editor show them.
 void applyEditorOption(SettingsRead& read, std::string_view key, std::string_view value) {
@@ -794,6 +826,8 @@ void applyOption(SettingsRead& read,
         applySpellCheckOption(read, key, value);
     else if (key.starts_with(kEditorPrefix))
         applyEditorOption(read, key, value);
+    else if (key.starts_with(kVideoPrefix))
+        applyVideoOption(read, key, value);
 }
 
 /// An option, written bare when set, commented out when at its default.
@@ -1005,6 +1039,21 @@ void renderEditorSettings(std::string& out, const EditorSettings& form) {
                 form.showLengthsInEditor == defaults.showLengthsInEditor);
 }
 
+/// The three options of the video player, each written bare when it differs from the default and
+/// commented out when it does not.
+void renderVideoSettings(std::string& out, const VideoSettings& form) {
+    const VideoSettings defaults;
+    writeOption(out,
+                kVideoSeekLengthKey,
+                std::to_string(form.seekLengthSeconds),
+                form.seekLengthSeconds == defaults.seekLengthSeconds);
+    writeOption(out,
+                kVideoContextLengthKey,
+                std::to_string(form.contextLengthMilliseconds),
+                form.contextLengthMilliseconds == defaults.contextLengthMilliseconds);
+    writeOption(out, kVideoVolumeKey, std::to_string(form.volume), form.volume == defaults.volume);
+}
+
 } // namespace
 
 SettingsRead readSettings(const FileSystem& files, const std::filesystem::path& path) {
@@ -1138,6 +1187,8 @@ std::string renderSettings(const Settings& settings) {
     renderSpellCheckSettings(out, settings.spellCheck);
 
     renderEditorSettings(out, settings.editor);
+
+    renderVideoSettings(out, settings.video);
 
     return out;
 }

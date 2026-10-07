@@ -71,6 +71,17 @@ struct WindowActions final {
     // `Video`.
     QAction* selectVideo = nullptr;
     QAction* playPause = nullptr;
+    QAction* playSelection = nullptr;
+    QAction* seekPrevious = nullptr;
+    QAction* seekNext = nullptr;
+    QAction* seekBackward = nullptr;
+    QAction* seekForward = nullptr;
+    QAction* seekSelectionStart = nullptr;
+    QAction* seekSelectionEnd = nullptr;
+
+    // `Video ▸ Audio`.
+    QAction* volumeDown = nullptr;
+    QAction* volumeUp = nullptr;
 
     // `Tools`.
     QAction* shift = nullptr;

@@ -59,6 +59,7 @@ class SearchDialog;
 
 class DiagnosticsButton;
 class ManualWindow;
+class PlayBar;
 class Prompts;
 struct ProjectPage;
 struct ModifiedDocument;
@@ -272,6 +273,30 @@ public:
 
     [[nodiscard]] QAction* playPauseAction() const { return m_actions->playPause; }
 
+    /// The gestures that drive the film, for a test to trigger them — issue #615.
+    [[nodiscard]] QAction* playSelectionAction() const { return m_actions->playSelection; }
+
+    [[nodiscard]] QAction* seekPreviousAction() const { return m_actions->seekPrevious; }
+
+    [[nodiscard]] QAction* seekNextAction() const { return m_actions->seekNext; }
+
+    [[nodiscard]] QAction* seekBackwardAction() const { return m_actions->seekBackward; }
+
+    [[nodiscard]] QAction* seekForwardAction() const { return m_actions->seekForward; }
+
+    [[nodiscard]] QAction* seekSelectionStartAction() const {
+        return m_actions->seekSelectionStart;
+    }
+
+    [[nodiscard]] QAction* seekSelectionEndAction() const { return m_actions->seekSelectionEnd; }
+
+    [[nodiscard]] QAction* volumeDownAction() const { return m_actions->volumeDown; }
+
+    [[nodiscard]] QAction* volumeUpAction() const { return m_actions->volumeUp; }
+
+    /// The bar under the picture, for a test to read what it says and to move its controls.
+    [[nodiscard]] PlayBar* playBar() const;
+
     /// The surface the film is drawn on, for a test to read whether it is
     /// there at all. Hidden while no film is open, which is what « the table
     /// takes the whole window » means.
@@ -443,6 +468,10 @@ private:
     /// the selection would pay for the deduction at every row of a drag over
     /// four thousand of them.
     void refreshStructureActions();
+
+    /// Lights or puts out the gestures that drive the film: out without one, and three of them
+    /// also out without a selection.
+    void refreshVideoGestures();
 
     /// Recomputes what the two actions may do and what they read.
     ///
@@ -696,6 +725,9 @@ private:
     /// Kept from one call to the next, and handed back to the settings: one
     /// does not insert once but ten times in a row, always on the same side.
     core::InsertPlacement m_insertPlacement = core::InsertPlacement::Below;
+
+    /// Whether a film is open and can be driven — what `VideoSide::playable` was last told.
+    bool m_playable = false;
 
     /// The texts last copied or cut in this window, with their format.
     ///

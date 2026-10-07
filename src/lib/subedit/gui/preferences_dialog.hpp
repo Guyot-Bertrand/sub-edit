@@ -2,11 +2,14 @@
 
 #include <subedit/core/config/editor_settings.hpp>
 #include <subedit/core/config/theme.hpp>
+#include <subedit/core/config/video_settings.hpp>
 
 #include <QDialog>
 
 class QCheckBox;
 class QComboBox;
+class QDoubleSpinBox;
+class QSpinBox;
 class QWidget;
 
 namespace subedit::gui {
@@ -32,6 +35,7 @@ class PreferencesDialog final : public QDialog {
 public:
     explicit PreferencesDialog(core::Theme theme,
                                const core::EditorSettings& editor = {},
+                               const core::VideoSettings& video = {},
                                QWidget* parent = nullptr);
 
     /// The theme chosen, whether or not it was accepted — the caller looks at
@@ -45,8 +49,17 @@ public:
     /// not it was accepted.
     [[nodiscard]] core::EditorSettings editor() const;
 
+    /// The two settings of the video player the dialog holds, as they stand in it: the jump and the
+    /// lead-in. **The volume is not here** — the bar and the gestures set it — and comes back as
+    /// the default, for the caller to put its own.
+    [[nodiscard]] core::VideoSettings video() const;
+
     /// The controls, so that a test sets them without clicking.
     [[nodiscard]] QComboBox* lengthUnitBox() const { return m_lengthUnit; }
+
+    [[nodiscard]] QSpinBox* seekLengthBox() const { return m_seekLength; }
+
+    [[nodiscard]] QDoubleSpinBox* contextLengthBox() const { return m_contextLength; }
 
     [[nodiscard]] QCheckBox* showLengthsInCellsBox() const { return m_showInCells; }
 
@@ -61,6 +74,8 @@ private:
     QComboBox* m_lengthUnit;
     QCheckBox* m_showInCells;
     QCheckBox* m_showInEditor;
+    QSpinBox* m_seekLength;
+    QDoubleSpinBox* m_contextLength;
 };
 
 } // namespace subedit::gui

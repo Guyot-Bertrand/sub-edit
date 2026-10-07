@@ -284,13 +284,13 @@ plus rien.
 | `GUI-STEP-03` | la durée d'une image vient de la vidéo, à défaut du document, à défaut de la grille ; sans aucune, le geste refuse en le disant | 14 | prévue |
 | `GUI-STEP-04` | le pas se règle en nombre d'images, au minimum une ; une valeur absurde ne casse pas l'ouverture | 14 | prévue |
 | `GUI-NUDGE-01` | décaler le début ou la fin d'un sous-titre d'une image est annulable en une entrée | 14 | prévue |
-| `GUI-SEEK-01` | le curseur de position se lit et se déplace | 14 | prévue |
-| `GUI-SEEK-02` | reculer et avancer d'un pas réglable | 14 | prévue |
-| `GUI-SEEK-03` | le sous-titre précédent et le suivant placent la lecture à leur début | 14 | prévue |
-| `GUI-SEEK-04` | le début et la fin de la sélection placent la lecture, avec l'avance réglée | 14 | prévue |
-| `GUI-SEEK-05` | jouer la sélection s'arrête à sa fin | 14 | prévue |
-| `GUI-VOLUME-01` | le volume se règle et se retient d'une session à l'autre | 14 | prévue |
-| `GUI-TIMECODE-01` | le timecode est incrusté sur l'image | 14 | prévue |
+| `GUI-SEEK-01` | le curseur de position se lit et se déplace | 14 | implémentée |
+| `GUI-SEEK-02` | reculer et avancer d'un pas réglable | 14 | implémentée |
+| `GUI-SEEK-03` | le sous-titre précédent et le suivant placent la lecture à leur début | 14 | implémentée |
+| `GUI-SEEK-04` | le début et la fin de la sélection placent la lecture, avec l'avance réglée | 14 | implémentée |
+| `GUI-SEEK-05` | jouer la sélection s'arrête à sa fin | 14 | implémentée |
+| `GUI-VOLUME-01` | le volume se règle et se retient d'une session à l'autre | 14 | implémentée |
+| `GUI-TIMECODE-01` | le timecode est incrusté sur l'image | 14 | implémentée |
 | `GUI-AUDIO-01` | la piste audio se choisit parmi celles de la vidéo | 14 | prévue |
 | `GUI-MARK-01` | poser le début d'un sous-titre depuis la position de la vidéo, en une entrée d'historique | 14 | prévue |
 | `GUI-MARK-02` | poser sa fin depuis la position de la vidéo | 14 | prévue |

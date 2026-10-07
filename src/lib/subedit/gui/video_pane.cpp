@@ -4,12 +4,16 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/time/duration.hpp>
+#include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/replica.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/frame_source.hpp>
+#include <subedit/gui/play_bar.hpp>
 #include <subedit/gui/project_page.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -23,9 +27,11 @@
 #include <QModelIndex>
 #include <QModelIndexList>
 #include <QPushButton>
+#include <QSignalBlocker>
 #include <QSplitter>
 #include <QString>
 #include <QTimer>
+#include <QVBoxLayout>
 #include <QWidget>
 
 #include <algorithm>
@@ -51,6 +57,21 @@ namespace {
 /// hundred is the same promise at a tenth of the price.
 constexpr int kFollowIntervalMs = 100;
 
+/// How long the gate of a seek asked from the bar stays closed, in milliseconds.
+///
+/// Twenty a second: under what the eye follows as a succession, and about what a seek costs at
+/// the far end of a film — measured, issue #611, a tenth of a second at 720p. A shorter gate
+/// would hand the player positions it cannot keep up with.
+constexpr int kSeekGateMs = 50;
+
+/// How much a gesture of volume moves it, in per cent — Gaupol's five.
+constexpr int kVolumeStep = 5;
+
+/// How close to the position a subtitle must start, or have ended, to count as ahead of it or
+/// behind it: Gaupol's millisecond, so that the neighbour of a position that is exactly a start
+/// is not that very subtitle.
+constexpr std::int64_t kNeighbourMargin = 1;
+
 /// How tall the picture may not go under, in pixels.
 ///
 /// A splitter with nothing to stop it lets a child be dragged to nothing, and
@@ -70,6 +91,27 @@ constexpr int kMinimumVideoHeight = 180;
     return std::ranges::min(rows, {}, [](const QModelIndex& index) { return index.row(); }).row();
 }
 
+/// The first and the last row of a selection, in table order.
+struct SelectedSpan {
+    std::size_t first = 0;
+    std::size_t last = 0;
+};
+
+/// Nothing for an empty selection.
+[[nodiscard]] std::optional<SelectedSpan> selectedSpan(const QItemSelectionModel& selection) {
+    const QModelIndexList rows = selection.selectedRows();
+    if (rows.isEmpty())
+        return std::nullopt;
+
+    const auto [lowest, highest] =
+        std::ranges::minmax(rows, {}, [](const QModelIndex& index) { return index.row(); });
+    return SelectedSpan{.first = static_cast<std::size_t>(lowest.row()),
+                        .last = static_cast<std::size_t>(highest.row())};
+}
+
+/// A second, in milliseconds.
+constexpr std::int64_t kMillisecondsPerSecond = 1000;
+
 } // namespace
 
 VideoPane::VideoPane(core::FileSystem& files,
@@ -87,12 +129,26 @@ VideoPane::VideoPane(core::FileSystem& files,
       m_split(&split),
       m_buildPlayer(std::move(buildPlayer)),
       m_readDeclaredRate(std::move(readDeclaredRate)),
-      m_picture(new VideoSurface{owner}),
+      m_videoBox(new QWidget{owner}),
+      m_picture(new VideoSurface{m_videoBox}),
+      m_bar(new PlayBar{m_videoBox}),
       m_banner(new QWidget{owner}),
       m_invite(new QPushButton{QStringLiteral("Select Video…"), m_banner}),
-      m_ticker(new QTimer{owner}) {
+      m_ticker(new QTimer{owner}),
+      m_seekGate(new QTimer{owner}) {
     m_picture->setMinimumHeight(kMinimumVideoHeight);
+
+    // The picture above, the bar under it, nothing between them and nothing around them.
+    auto* stack = new QVBoxLayout{m_videoBox};
+    stack->setContentsMargins(0, 0, 0, 0);
+    stack->setSpacing(0);
+    stack->addWidget(m_picture, 1);
+    stack->addWidget(m_bar);
+    // Hidden three times, the box and what is in it: a test asks `isHidden` of the picture, and a
+    // child is only « not hidden » of itself, whatever its parent shows.
+    m_videoBox->hide();
     m_picture->hide();
+    m_bar->hide();
 
     // **An absence a user cannot act on is worse than an empty pane.** Hiding
     // the picture when there is no film left nothing at all where one would go,
@@ -109,8 +165,33 @@ VideoPane::VideoPane(core::FileSystem& files,
 
     // The picture on top; the window puts the table under it, and the line
     // between them is draggable.
-    split.addWidget(m_picture);
+    split.addWidget(m_videoBox);
     split.addWidget(m_banner);
+
+    // The volume the bar shows before anything has set it: the player's own, which is the full
+    // volume. Without this the handle waits at zero for the first gesture, and says silence over a
+    // film that is not silent.
+    m_bar->showVolume(m_settings.volume);
+
+    m_seekGate->setSingleShot(true);
+    m_seekGate->setInterval(kSeekGateMs);
+    QObject::connect(m_seekGate, &QTimer::timeout, m_seekGate, [this] { flushSeek(); });
+
+    QObject::connect(m_bar, &PlayBar::seekRequested, m_bar, [this](core::Timestamp position) {
+        requestSeek(position);
+    });
+    // The handle is let go: whatever was asked last is reached now, and not at the next tick of
+    // a gate nobody is waiting on.
+    QObject::connect(m_bar, &PlayBar::seekFinished, m_bar, [this] {
+        m_seekGate->stop();
+        flushSeek();
+    });
+    QObject::connect(m_bar, &PlayBar::playToggled, m_bar, [this] {
+        if (m_playingPage != nullptr)
+            toggle(*m_playingPage);
+    });
+    QObject::connect(
+        m_bar, &PlayBar::volumeRequested, m_bar, [this](int volume) { applyVolume(volume); });
 
     m_ticker->setInterval(kFollowIntervalMs);
     QObject::connect(m_ticker, &QTimer::timeout, m_ticker, [this] {
@@ -166,6 +247,10 @@ core::VideoPlayer* VideoPane::player() {
         // **A player that can be drawn is drawn**; the double of the tests cannot
         // and the surface stays black, which is all a test of the window needs.
         m_picture->attach(dynamic_cast<FrameSource*>(m_player.get()));
+
+        // What the volume was left at, from the settings or the last gesture.
+        if (m_player != nullptr)
+            m_player->setVolume(m_settings.volume);
     }
 
     return m_player.get();
@@ -249,6 +334,13 @@ void VideoPane::watch(ProjectPage& page) {
         m_player->showSubtitle({});
     }
 
+    // The bar and the timecode go with the film too: a position over a picture that is not there.
+    if (!page.watching) {
+        m_bar->showPosition(std::nullopt, std::nullopt);
+        m_bar->showPlaying(false);
+        m_picture->setTimecode({});
+    }
+
     // The mark goes with the film: a row left green under a document that no
     // longer shows anything would name a moment nobody is at.
     if (!page.watching && page.model)
@@ -275,7 +367,9 @@ void VideoPane::showPicture(bool picture) {
     const int above =
         std::min(std::max(sizes.at(0) + sizes.at(1), picture ? kMinimumVideoHeight : 0), total);
 
+    m_videoBox->setVisible(picture);
     m_picture->setVisible(picture);
+    m_bar->setVisible(picture);
     m_banner->setVisible(!picture);
 
     sizes[0] = picture ? above : 0;
@@ -357,6 +451,16 @@ void VideoPane::follow(ProjectPage& page) {
     // place as a moment between two subtitles — nothing drawn, and the row
     // left where it was.
     const std::optional<core::Timestamp> where = m_player->position();
+
+    // The bar and the timecode say the same position the replica is chosen by. **Read once**, so
+    // that the three agree: a bar a tick ahead of its replica would be a defect nobody could
+    // trace.
+    m_bar->showPosition(where, m_player->duration());
+    m_bar->showPlaying(m_player->isPlaying());
+    m_picture->setTimecode(where.has_value()
+                               ? QString::fromStdString(where->format(core::DecimalMark::Comma))
+                               : QString{});
+
     const std::optional<core::SubtitleIndex> showing =
         where.has_value() ? core::showingAt(project, *where) : std::nullopt;
 
@@ -401,6 +505,132 @@ void VideoPane::follow(ProjectPage& page) {
     const QModelIndex followed = page.model->index(row, current.isValid() ? current.column() : 0);
     m_table->selectionModel()->setCurrentIndex(followed, QItemSelectionModel::NoUpdate);
     m_table->scrollTo(followed);
+}
+
+core::VideoSettings VideoPane::settings() const {
+    return m_settings;
+}
+
+void VideoPane::setSettings(const core::VideoSettings& settings) {
+    m_settings = settings;
+    applyVolume(settings.volume);
+}
+
+void VideoPane::applyVolume(int volume) {
+    m_settings.volume = std::clamp(volume, 0, core::kLargestVolume);
+    if (m_player != nullptr)
+        m_player->setVolume(m_settings.volume);
+    m_bar->showVolume(m_settings.volume);
+}
+
+void VideoPane::changeVolume(int delta) {
+    applyVolume(m_settings.volume + (delta < 0 ? -kVolumeStep : kVolumeStep));
+}
+
+void VideoPane::requestSeek(core::Timestamp position) {
+    if (m_playingPage == nullptr || !m_playingPage->watching)
+        return;
+
+    m_pendingSeek = position;
+    // The gate open: this one goes at once, which is what makes a click on the groove feel
+    // immediate. Closed: it waits, and replaces whatever waited before it.
+    if (!m_seekGate->isActive())
+        flushSeek();
+}
+
+void VideoPane::flushSeek() {
+    if (!m_pendingSeek.has_value() || m_playingPage == nullptr || !m_playingPage->watching) {
+        m_pendingSeek.reset();
+        return;
+    }
+
+    const core::Timestamp position = *m_pendingSeek;
+    m_pendingSeek.reset();
+    m_player->seek(position);
+    follow(*m_playingPage);
+    m_seekGate->start();
+}
+
+void VideoPane::seekBy(ProjectPage& page, int direction) {
+    if (!page.watching)
+        return;
+
+    const std::optional<core::Timestamp> where = m_player->position();
+    const std::optional<core::Duration> length = m_player->duration();
+    if (!where.has_value() || !length.has_value())
+        return;
+
+    const std::int64_t jump =
+        static_cast<std::int64_t>(m_settings.seekLengthSeconds) * kMillisecondsPerSecond;
+    const std::int64_t target = std::clamp<std::int64_t>(
+        where->milliseconds() + (direction < 0 ? -jump : jump), 0, length->milliseconds());
+    m_player->seek(core::Timestamp::fromMilliseconds(target));
+    follow(page);
+}
+
+void VideoPane::seekToNeighbour(ProjectPage& page, bool next) {
+    if (!page.watching)
+        return;
+
+    const std::optional<core::Timestamp> where = m_player->position();
+    if (!where.has_value())
+        return;
+
+    // The subtitles are walked and not searched: a project may be out of order (ADR 0008), and
+    // « the first that starts after » means the smallest start, not the first one met.
+    std::optional<core::Timestamp> found;
+    for (const core::Subtitle& subtitle : page.session->project().subtitles()) {
+        if (next && subtitle.start.milliseconds() > where->milliseconds() + kNeighbourMargin) {
+            if (!found.has_value() || subtitle.start < *found)
+                found = subtitle.start;
+        } else if (!next &&
+                   subtitle.end.milliseconds() < where->milliseconds() - kNeighbourMargin) {
+            if (!found.has_value() || subtitle.start > *found)
+                found = subtitle.start;
+        }
+    }
+
+    if (!found.has_value())
+        return;
+
+    m_player->seek(*found);
+    follow(page);
+}
+
+void VideoPane::seekToSelection(ProjectPage& page, bool end) {
+    if (!page.watching)
+        return;
+
+    const std::optional<SelectedSpan> span = selectedSpan(*m_table->selectionModel());
+    if (!span.has_value())
+        return;
+
+    const core::Project& project = page.session->project();
+    const core::Timestamp edge =
+        end ? project.subtitleAt(core::SubtitleIndex::fromValue(span->last)).end
+            : project.subtitleAt(core::SubtitleIndex::fromValue(span->first)).start;
+    m_player->seek(core::Timestamp::fromMilliseconds(
+        std::max<std::int64_t>(edge.milliseconds() - m_settings.contextLengthMilliseconds, 0)));
+    follow(page);
+}
+
+void VideoPane::playSelection(ProjectPage& page) {
+    if (!page.watching)
+        return;
+
+    const std::optional<SelectedSpan> span = selectedSpan(*m_table->selectionModel());
+    if (!span.has_value())
+        return;
+
+    const core::Project& project = page.session->project();
+    const core::Timestamp start =
+        project.subtitleAt(core::SubtitleIndex::fromValue(span->first)).start;
+    m_player->seek(core::Timestamp::fromMilliseconds(
+        std::max<std::int64_t>(start.milliseconds() - m_settings.contextLengthMilliseconds, 0)));
+    // Up to the end of the last subtitle of the selection, and not up to the end of the
+    // film: `playUntil` stops on the frame.
+    m_player->playUntil(project.subtitleAt(core::SubtitleIndex::fromValue(span->last)).end);
+    follow(page);
 }
 
 std::optional<core::Duration> VideoPane::length(const ProjectPage& page) const {

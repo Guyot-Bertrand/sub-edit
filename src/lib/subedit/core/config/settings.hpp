@@ -12,6 +12,7 @@
 #include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/config/editor_settings.hpp>
 #include <subedit/core/config/spell_check_settings.hpp>
+#include <subedit/core/config/video_settings.hpp>
 
 #include <cstddef>
 #include <expected>
@@ -174,6 +175,9 @@ struct Settings {
 
     /// What the table and its editor show of a line's length — issue #526.
     EditorSettings editor{};
+
+    /// How the video player is driven — issue #615.
+    VideoSettings video{};
 
     friend bool operator==(const Settings&, const Settings&) = default;
 };

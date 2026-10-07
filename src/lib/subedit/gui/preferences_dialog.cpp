@@ -5,12 +5,16 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QDoubleSpinBox>
 #include <QFormLayout>
 #include <QLabel>
+#include <QLocale>
+#include <QSpinBox>
 #include <QString>
 #include <QVBoxLayout>
 
 #include <array>
+#include <cmath>
 #include <cstddef>
 
 namespace subedit::gui {
@@ -30,16 +34,23 @@ constexpr std::array<core::LengthUnit, 2> kUnits = {core::LengthUnit::Ems,
     return unit == core::LengthUnit::Ems ? QStringLiteral("Ems") : QStringLiteral("Characters");
 }
 
+/// A second, in milliseconds, and the step of the lead-in's field in seconds.
+constexpr double kMillisecondsPerSecond = 1000.0;
+constexpr double kContextStepSeconds = 0.5;
+
 } // namespace
 
 PreferencesDialog::PreferencesDialog(core::Theme theme,
                                      const core::EditorSettings& editor,
+                                     const core::VideoSettings& video,
                                      QWidget* parent)
     : QDialog(parent),
       m_theme(new QComboBox{this}),
       m_lengthUnit(new QComboBox{this}),
       m_showInCells(new QCheckBox{QStringLiteral("Show line lengths in cells"), this}),
-      m_showInEditor(new QCheckBox{QStringLiteral("Show line lengths in the editor"), this}) {
+      m_showInEditor(new QCheckBox{QStringLiteral("Show line lengths in the editor"), this}),
+      m_seekLength(new QSpinBox{this}),
+      m_contextLength(new QDoubleSpinBox{this}) {
     setWindowTitle(QStringLiteral("Preferences"));
 
     for (const core::Theme one : kThemes)
@@ -56,11 +67,30 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
     connect(m_showInEditor, &QCheckBox::toggled, this, [this] { refreshLengthUnitState(); });
     refreshLengthUnitState();
 
+    // The jump of `Seek Backward` and `Seek Forward`, and the lead-in of the gestures on the
+    // selection — Gaupol's Preferences ▸ Video. Whole seconds for the jump, and tenths for the
+    // lead-in: one second is a lead-in, and so is a half.
+    m_seekLength->setRange(core::kSmallestSeekLengthSeconds, core::kLargestSeekLengthSeconds);
+    m_seekLength->setSuffix(QStringLiteral(" s"));
+    m_seekLength->setValue(video.seekLengthSeconds);
+    m_contextLength->setRange(0.0,
+                              core::kLargestContextLengthMilliseconds / kMillisecondsPerSecond);
+    // **The same decimal mark everywhere**: the interface is in English, and a spin box that
+    // follows the machine's locale writes « 1,0 s » on one and « 1.0 s » on the next — which would
+    // make the picture of this dialog in the manual a different one on every machine.
+    m_contextLength->setLocale(QLocale::c());
+    m_contextLength->setDecimals(1);
+    m_contextLength->setSingleStep(kContextStepSeconds);
+    m_contextLength->setSuffix(QStringLiteral(" s"));
+    m_contextLength->setValue(video.contextLengthMilliseconds / kMillisecondsPerSecond);
+
     auto* fields = new QFormLayout;
     fields->addRow(QStringLiteral("Theme"), m_theme);
     fields->addRow(QStringLiteral("Length unit"), m_lengthUnit);
     fields->addRow(m_showInCells);
     fields->addRow(m_showInEditor);
+    fields->addRow(QStringLiteral("Seek length"), m_seekLength);
+    fields->addRow(QStringLiteral("Context length"), m_contextLength);
 
     // What "system" does, said where it is read: without this line, a reader
     // who picks "System" and sees nothing change believes it broken.
@@ -88,6 +118,12 @@ core::EditorSettings PreferencesDialog::editor() const {
     return {.lengthUnit = kUnits.at(static_cast<std::size_t>(m_lengthUnit->currentIndex())),
             .showLengthsInCells = m_showInCells->isChecked(),
             .showLengthsInEditor = m_showInEditor->isChecked()};
+}
+
+core::VideoSettings PreferencesDialog::video() const {
+    return {.seekLengthSeconds = m_seekLength->value(),
+            .contextLengthMilliseconds =
+                static_cast<int>(std::lround(m_contextLength->value() * kMillisecondsPerSecond))};
 }
 
 core::Theme PreferencesDialog::theme() const {

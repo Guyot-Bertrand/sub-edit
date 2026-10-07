@@ -29,8 +29,10 @@
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QDialog>
+#include <QDoubleSpinBox>
 #include <QImage>
 #include <QRect>
+#include <QSpinBox>
 #include <QTest>
 #include <Qt>
 #include <catch2/catch_test_macros.hpp>
@@ -625,4 +627,61 @@ TEST_CASE("GUI-EDIT-04: the editor the window opens carries the margin when the 
         REQUIRE(editor != nullptr);
         CHECK(editor->gutterWidth() == 0);
     }
+}
+
+// ## How the video is driven — issue #615
+
+TEST_CASE("GUI-SEEK-02: the preferences offer the jump and the lead-in",
+          "[gui][config][GUI-SEEK-02]") {
+    const subedit::gui::PreferencesDialog defaults{Theme::System};
+    CHECK(defaults.seekLengthBox()->value() == 30);
+    CHECK(defaults.contextLengthBox()->value() == 1.0);
+    CHECK(defaults.video().seekLengthSeconds == 30);
+    CHECK(defaults.video().contextLengthMilliseconds == 1000);
+
+    const subedit::gui::PreferencesDialog chosen{
+        Theme::System,
+        {},
+        {.seekLengthSeconds = 10, .contextLengthMilliseconds = 2500, .volume = 40}};
+    CHECK(chosen.seekLengthBox()->value() == 10);
+    CHECK(chosen.contextLengthBox()->value() == 2.5);
+    CHECK(chosen.video().seekLengthSeconds == 10);
+    CHECK(chosen.video().contextLengthMilliseconds == 2500);
+}
+
+TEST_CASE("GUI-SEEK-02: accepted preferences set the jump and keep the volume as it stands",
+          "[gui][config][GUI-SEEK-02]") {
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    window.applySettings(Settings{.video = {.volume = 40}});
+
+    fixture.prompts().fill = [](QDialog& dialog) {
+        auto* preferences = dynamic_cast<subedit::gui::PreferencesDialog*>(&dialog);
+        if (preferences == nullptr)
+            return;
+        preferences->seekLengthBox()->setValue(12);
+        preferences->contextLengthBox()->setValue(0.5);
+    };
+
+    fixture.prompts().nextRun = false;
+    window.preferencesAction()->trigger();
+    CHECK(window.settings().video.seekLengthSeconds == 30);
+
+    fixture.prompts().nextRun = true;
+    window.preferencesAction()->trigger();
+
+    CHECK(window.settings().video.seekLengthSeconds == 12);
+    CHECK(window.settings().video.contextLengthMilliseconds == 500);
+    // The dialog does not hold the volume: the bar and the gestures set it, and it stays.
+    CHECK(window.settings().video.volume == 40);
+}
+
+TEST_CASE("GUI-VOLUME-01: the settings the window reopens with carry the volume",
+          "[gui][config][GUI-VOLUME-01]") {
+    Windowed fixture;
+
+    fixture.window().applySettings(Settings{.video = {.seekLengthSeconds = 20, .volume = 35}});
+
+    CHECK(fixture.window().settings().video.volume == 35);
+    CHECK(fixture.window().settings().video.seekLengthSeconds == 20);
 }

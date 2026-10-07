@@ -1,6 +1,8 @@
 #pragma once
 
+#include <subedit/core/config/video_settings.hpp>
 #include <subedit/core/time/duration.hpp>
+#include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/player_factory.hpp>
 
 #include <memory>
@@ -20,6 +22,7 @@ class VideoPlayer;
 
 namespace subedit::gui {
 
+class PlayBar;
 class Prompts;
 struct ProjectPage;
 class SubtitleTable;
@@ -153,6 +156,40 @@ public:
     /// the replica still follows.
     void follow(ProjectPage& page);
 
+    /// Moves playback by one jump, back when `direction` is negative and forward otherwise — the
+    /// length of the jump is `VideoSettings::seekLengthSeconds`, and playback stays between the
+    /// start of the film and its end. Gaupol's `Seek Backward` and `Seek Forward`.
+    void seekBy(ProjectPage& page, int direction);
+
+    /// Places playback at the start of the next subtitle, or of the previous one — Gaupol's
+    /// `Seek Next` and `Seek Previous`, read the way Gaupol reads them: *next* is the first that
+    /// starts after the position, *previous* is the last that has ended before it. Nothing when
+    /// there is none.
+    void seekToNeighbour(ProjectPage& page, bool next);
+
+    /// Places playback at the start of the selection, or at its end, the lead-in before it —
+    /// Gaupol's `Seek Selection Start` and `Seek Selection End`. Nothing without a selection.
+    void seekToSelection(ProjectPage& page, bool end);
+
+    /// Plays the selection: from its start, the lead-in before it, and **up to the end of the
+    /// last subtitle selected** — `playUntil`, so that it stops on the frame and not up to three
+    /// frames later. Nothing without a selection.
+    void playSelection(ProjectPage& page);
+
+    /// Moves the volume by `delta` per cent, within 0 to 100. Gaupol's `Volume Down` and
+    /// `Volume Up` are five.
+    void changeVolume(int delta);
+
+    /// How the player is driven — what the window keeps from one session to the next. The volume
+    /// is the one the bar and the gestures last set.
+    [[nodiscard]] core::VideoSettings settings() const;
+
+    /// Lays `settings` down: the jump and the lead-in for the next gestures, the volume at once.
+    void setSettings(const core::VideoSettings& settings);
+
+    /// The bar under the picture.
+    [[nodiscard]] PlayBar* bar() const { return m_bar; }
+
     /// How long the film of `page` lasts, or nothing — nothing too for a page
     /// whose film is not the one the shared player has open.
     [[nodiscard]] std::optional<core::Duration> length(const ProjectPage& page) const;
@@ -173,6 +210,18 @@ private:
     /// size the settings gave it while hidden, that is none — issue #469.
     void showPicture(bool picture);
 
+    /// Asks for a position from the bar: **the first at once, then at most one every
+    /// `kSeekGateMs`, and the last one asked is always reached.** A seek waits for the picture,
+    /// and a drag is dozens of positions a second — handing every one to the player would queue
+    /// the frames of a path nobody is looking at, and leave the picture behind the handle.
+    void requestSeek(core::Timestamp position);
+
+    /// Hands the player the position last asked, if one is waiting, and closes the gate again.
+    void flushSeek();
+
+    /// Puts the volume at `volume` — the player, the bar and the memory of it.
+    void applyVolume(int volume);
+
     core::FileSystem* m_files;
     Prompts* m_prompts;
     View* m_view;
@@ -181,10 +230,20 @@ private:
     PlayerFactory m_buildPlayer;
     FrameRateReader m_readDeclaredRate;
 
+    /// The picture and the bar under it, which are the child of the splitter that is not the
+    /// band: the room above the table is one, and holds both.
+    QWidget* m_videoBox = nullptr;
     VideoSurface* m_picture = nullptr;
+    PlayBar* m_bar = nullptr;
     QWidget* m_banner = nullptr;
     QAbstractButton* m_invite = nullptr;
     QTimer* m_ticker = nullptr;
+
+    /// Closes for a moment after a seek asked from the bar. See `requestSeek`.
+    QTimer* m_seekGate = nullptr;
+    std::optional<core::Timestamp> m_pendingSeek{};
+
+    core::VideoSettings m_settings{};
 
     std::unique_ptr<core::VideoPlayer> m_player;
     bool m_playerAsked = false;

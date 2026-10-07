@@ -55,6 +55,7 @@ using subedit::core::SpellCheckDocument;
 using subedit::core::SpellCheckSettings;
 using subedit::core::SpellCheckTarget;
 using subedit::core::Theme;
+using subedit::core::VideoSettings;
 using subedit::core::WindowGeometry;
 using subedit::core::writeSettings;
 
@@ -917,5 +918,67 @@ TEST_CASE("the unit of the editor's lengths reads in ems when written so", "[con
     const SettingsRead read = readOf("editor.length-unit = em\n");
 
     CHECK(read.settings.editor.lengthUnit == LengthUnit::Ems);
+    CHECK(read.diagnostics.empty());
+}
+
+// ## How the video player is driven — issue #615
+
+TEST_CASE("the video settings are kept across sessions", "[config]") {
+    InMemoryFileSystem files;
+    const Settings written{
+        .video = {.seekLengthSeconds = 10, .contextLengthMilliseconds = 250, .volume = 35}};
+
+    REQUIRE(writeSettings(files, kPath, written).has_value());
+    const SettingsRead read = readSettings(files, kPath);
+
+    CHECK(read.settings.video == written.video);
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("a file that does not mention the video gives Gaupol's defaults", "[config]") {
+    const SettingsRead read = readOf("window.maximised = true\n");
+
+    CHECK(read.settings.video == VideoSettings{});
+    CHECK(read.settings.video.seekLengthSeconds == 30);
+    CHECK(read.settings.video.contextLengthMilliseconds == 1000);
+    CHECK(read.settings.video.volume == 100);
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("the video options at their default are written back commented out", "[config]") {
+    const std::string rendered = renderSettings(Settings{});
+
+    CHECK_THAT(rendered, ContainsSubstring("#video.seek-length = 30\n"));
+    CHECK_THAT(rendered, ContainsSubstring("#video.context-length-ms = 1000\n"));
+    CHECK_THAT(rendered, ContainsSubstring("#video.volume = 100\n"));
+
+    CHECK_THAT(renderSettings(Settings{.video = {.volume = 40}}),
+               ContainsSubstring("\nvideo.volume = 40\n"));
+}
+
+// A value somebody typed and the player cannot honour is a value that could not be read: the
+// default stays, and the diagnostic names it. The file still opens.
+TEST_CASE("a video value that cannot be read leaves its default", "[config]") {
+    for (const char* line : {"video.seek-length = 0\n",
+                             "video.seek-length = soon\n",
+                             "video.seek-length = 99999\n",
+                             "video.context-length-ms = -1\n",
+                             "video.volume = 101\n",
+                             "video.volume = loud\n"}) {
+        INFO(line);
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.video == VideoSettings{});
+        REQUIRE(read.diagnostics.size() == 1);
+        CHECK_FALSE(read.diagnostics.front().value.empty());
+    }
+}
+
+TEST_CASE("the edges of the video bounds are accepted", "[config]") {
+    const SettingsRead read =
+        readOf("video.seek-length = 1\nvideo.context-length-ms = 0\nvideo.volume = 0\n");
+
+    CHECK(read.settings.video ==
+          VideoSettings{.seekLengthSeconds = 1, .contextLengthMilliseconds = 0, .volume = 0});
     CHECK(read.diagnostics.empty());
 }
