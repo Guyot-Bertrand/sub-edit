@@ -35,6 +35,11 @@ SHELL := /bin/bash
 # `ctest` ne parallélise que sur `-j` explicite, et le lui donner ferait
 # fusionner les `.gcda` de plusieurs exécutions concurrentes, donc un taux de
 # couverture faux sans autre signe qu'un avertissement noyé dans la sortie.
+#
+# **`JOBS` borne les processus, pas les fils** — #630. libmpv en crée à chaque lecteur et ffmpeg
+# en crée à chaque encodage : un cas de test de lecteur occupait plus de cinq cœurs. Tout `ctest`
+# de la porte passe donc par src/scripts/limit-cores.sh, qui pose l'affinité sur `$(JOBS)` cœurs ;
+# `make parallelism` refuse un `ctest` qui n'y passe pas.
 JOBS ?= 2
 
 # **`JOBS` et `BENCH_MAX_LOAD` sont exportés, et lus par les étapes.**
@@ -149,7 +154,7 @@ test: ## Compile et exécute les tests (hors bout en bout — voir make asan)
 	$(call step,"tests (dev)")
 	@cmake --preset dev
 	@cmake --build --preset dev -j $(JOBS)
-	@ctest --preset dev
+	@./src/scripts/limit-cores.sh ctest --preset dev
 
 .PHONY: bench
 bench: ## Exécute les benchmarks en release et verse les chiffres au journal
@@ -350,7 +355,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@./src/scripts/gate.sh check-local
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (soixante-quatorze preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (soixante-seize preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog

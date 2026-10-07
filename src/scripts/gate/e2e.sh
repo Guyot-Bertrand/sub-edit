@@ -10,4 +10,4 @@ source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 step "tests de bout en bout (release)"
 cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
 cmake --build --preset release -j "${JOBS}" --target subedit_e2e_test
-ctest --preset release -L e2e
+"${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset release -L e2e

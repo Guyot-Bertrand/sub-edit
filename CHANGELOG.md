@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Corrections
+
+- **scripts** — La porte tient ses deux cœurs, fils de libmpv compris
+
+## 0.14.6 — 2026-10-07
+
 ### Tests
 
 - **gui** — Un contrôle que le manuel dit les raccourcis de la fenêtre

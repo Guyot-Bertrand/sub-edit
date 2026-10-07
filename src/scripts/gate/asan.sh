@@ -7,4 +7,4 @@ source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 step "tests sous sanitizers"
 cmake --preset asan
 cmake --build --preset asan -j "${JOBS}"
-ctest --preset asan
+"${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset asan

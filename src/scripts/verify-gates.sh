@@ -678,6 +678,22 @@ expect_gate_stays_open \
     "${PLAIN_SCRIPT_SOURCE}" \
     'cmake --build . # exemple : -j 4 pour aller plus vite'
 
+# Les deux preuves de la borne des fils — issue #630. `JOBS` borne les processus, pas les fils que
+# libmpv et ffmpeg créent : un `ctest` lancé nu, c'est la porte qui dépasse ses deux cœurs sans
+# que rien ne le dise. La seconde est la preuve de non-signalement : la même commande, passée par
+# `limit-cores.sh`, ne doit pas être refusée.
+expect_gate_closes \
+    "ctest lancé sans limit-cores.sh" \
+    "parallelism" \
+    "${PLAIN_SCRIPT_SOURCE}" \
+    'ctest --preset dev'
+
+expect_gate_stays_open \
+    "ctest lancé par limit-cores.sh" \
+    "parallelism" \
+    "${PLAIN_SCRIPT_SOURCE}" \
+    './src/scripts/limit-cores.sh ctest --preset dev'
+
 # Les trois preuves de l analyse statique — issue #269.
 #
 # **Elles ont changé de nature avec le mécanisme.** Il y en avait une, et elle
