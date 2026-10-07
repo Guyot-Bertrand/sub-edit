@@ -112,7 +112,8 @@ la barre, ou par deux gestes, au sous-menu `Video ▸ Audio`, de cinq en cinq :
 
 **Il est retenu d'une session à l'autre**, et donné à chaque vidéo qu'on ouvre. Une valeur hors de
 0 à 100 dans le fichier de réglages ne casse pas l'ouverture : elle est ignorée, et la fenêtre le dit.
-**La piste audio, elle, n'est pas retenue** — un numéro de piste est celui de son fichier.
+**La piste audio, elle, n'est pas retenue** — un numéro de piste est celui de son fichier ; voir
+[La piste audio](video.md#la-piste-audio).
 
 ## Sélection et lecture
 
@@ -218,7 +219,6 @@ la lecture tient le temps réel.
 inutile de chercher :
 
 - avance image par image, poser un repère depuis la position courante ;
-- choix de la piste audio ;
 - forme d'onde.
 
 Ce manuel décrit ce qui existe : ce qui viendra, et dans quel ordre, est dans la

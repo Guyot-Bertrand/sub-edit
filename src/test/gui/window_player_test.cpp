@@ -27,7 +27,9 @@
 #include <QCoreApplication>
 #include <QItemSelectionModel>
 #include <QLabel>
+#include <QMenu>
 #include <QModelIndex>
+#include <QStringList>
 #include <QTest>
 #include <catch2/catch_test_macros.hpp>
 
@@ -46,6 +48,7 @@
 
 namespace {
 
+using subedit::core::AudioTrack;
 using subedit::core::Document;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::OpenedFile;
@@ -87,6 +90,9 @@ struct Projectionist {
     /// Why the film the next player is given will not open, if it will not.
     std::optional<PlayerError> refusal;
 
+    /// The audio tracks of the film the next player is given — none for a film without sound.
+    std::vector<AudioTrack> tracks;
+
     /// What came out, and what it was built for.
     FakeVideoPlayer* player = nullptr;
     int built = 0;
@@ -101,6 +107,7 @@ struct Projectionist {
 
         auto made = std::make_unique<FakeVideoPlayer>();
         made->refusal = booth.refusal;
+        made->tracks = booth.tracks;
         booth.player = made.get();
         return made;
     };
@@ -496,6 +503,99 @@ TEST_CASE("the bar is shown with the picture and hidden with it", "[gui][GUI-SEE
     REQUIRE(window.playBar() != nullptr);
     CHECK_FALSE(window.playBar()->isHidden());
     CHECK(window.playBar()->parentWidget() == window.videoView()->parentWidget());
+}
+
+// ## The audio tracks, in the menu — issue #616, GUI-AUDIO-01
+
+namespace {
+
+/// The labels of the entries of the menu of languages.
+[[nodiscard]] QStringList entriesOf(const MainWindow& window) {
+    QStringList labels;
+    for (const QAction* entry : window.audioLanguageMenu()->actions())
+        labels << entry->text();
+    return labels;
+}
+
+} // namespace
+
+TEST_CASE("the menu of languages lists the tracks of the film and marks the one that plays",
+          "[gui][GUI-AUDIO-01]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    booth.tracks = {{.id = 1, .language = "fra", .title = "Original", .selected = true},
+                    {.id = 2, .language = "eng", .title = "Commentary", .selected = false}};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+
+    CHECK(window.audioLanguageMenu()->menuAction()->isEnabled());
+    CHECK(entriesOf(window) ==
+          QStringList{QStringLiteral("1: fra — Original"), QStringLiteral("2: eng — Commentary")});
+    CHECK(window.audioLanguageMenu()->actions().at(0)->isChecked());
+    CHECK_FALSE(window.audioLanguageMenu()->actions().at(1)->isChecked());
+}
+
+TEST_CASE("choosing a language plays that track, and the mark follows", "[gui][GUI-AUDIO-01]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    booth.tracks = {{.id = 1, .language = "fra", .title = "", .selected = true},
+                    {.id = 2, .language = "eng", .title = "", .selected = false}};
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+
+    window.audioLanguageMenu()->actions().at(1)->trigger();
+
+    // The player is the one that says which plays, and the menu shows its answer.
+    CHECK(booth.player->tracks.at(1).selected);
+    CHECK_FALSE(booth.player->tracks.at(0).selected);
+    CHECK(window.audioLanguageMenu()->actions().at(1)->isChecked());
+    CHECK_FALSE(window.audioLanguageMenu()->actions().at(0)->isChecked());
+}
+
+TEST_CASE("the menu of languages is out with no film and in with a single track",
+          "[gui][GUI-AUDIO-01]") {
+    {
+        InMemoryFileSystem files;
+        files.addFile("/films/seul.srt", kThree);
+        FakePrompts prompts;
+        Projectionist booth;
+        MainWindow window{files, fileIn(files, "/films/seul.srt"), prompts, projecting(booth)};
+        window.show();
+
+        CHECK_FALSE(window.audioLanguageMenu()->menuAction()->isEnabled());
+        CHECK(window.audioLanguageMenu()->actions().isEmpty());
+    }
+    {
+        InMemoryFileSystem files = directoryHolding({"film.mkv"});
+        FakePrompts prompts;
+        Projectionist booth;
+        booth.tracks = {{.id = 1, .language = "fra", .title = "", .selected = true}};
+        MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+        window.show();
+        REQUIRE(booth.player != nullptr);
+
+        CHECK(window.audioLanguageMenu()->menuAction()->isEnabled());
+        CHECK(window.audioLanguageMenu()->actions().size() == 1);
+    }
+}
+
+// The volume is in the same menu, and it must stay within reach when there is no choice of
+// language to make: the gestures work whatever the track menu says.
+TEST_CASE("the volume stays within reach when the languages are out", "[gui][GUI-AUDIO-01]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.show();
+    REQUIRE(booth.player != nullptr);
+
+    CHECK_FALSE(window.audioLanguageMenu()->menuAction()->isEnabled());
+    CHECK(window.volumeDownAction()->isEnabled());
+    CHECK(window.volumeUpAction()->isEnabled());
 }
 
 // Issue #408, GUI-REPLICA-01: a subtitle is held as its file wrote it, and the picture used to

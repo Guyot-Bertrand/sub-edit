@@ -22,7 +22,7 @@ add_executable(
     correction_result_model_test.cpp correction_confirmation_page_test.cpp
     correction_wizard_test.cpp correction_controller_test.cpp window_correction_test.cpp
     main_window_test.cpp mpv_player_test.cpp window_video_test.cpp
-    window_player_test.cpp player_factory_test.cpp video_surface_test.cpp play_bar_test.cpp invocation_test.cpp
+    window_player_test.cpp player_factory_test.cpp video_surface_test.cpp play_bar_test.cpp audio_track_menu_test.cpp invocation_test.cpp
     window_video_bounds_test.cpp window_grid_test.cpp window_commit_edit_test.cpp
     window_appearance_test.cpp settings_path_test.cpp window_settings_test.cpp theme_test.cpp
     ${CMAKE_SOURCE_DIR}/src/test/unit/grid_fixtures.cpp)

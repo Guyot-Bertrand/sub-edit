@@ -31,6 +31,7 @@
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/translation.hpp>
 #include <subedit/gui/about_dialog.hpp>
+#include <subedit/gui/audio_track_menu.hpp>
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/command_label.hpp>
 #include <subedit/gui/correction_controller.hpp>
@@ -417,6 +418,7 @@ public:
         m_window->m_playable = playable;
         m_window->m_actions->playPause->setEnabled(playable);
         m_window->refreshVideoGestures();
+        m_window->refreshAudioTracks();
     }
 
 private:
@@ -701,6 +703,16 @@ MainWindow::MainWindow(core::FileSystem& files,
     }
 
     act.placeIn(*this, m_columns->entries());
+
+    // The entries of the tracks: laid on the menu `placeIn` made, and chosen through the pane that
+    // holds the player. The choice is followed by a fresh listing, since what marks the track that
+    // plays is the player's answer and not the entry the person clicked.
+    m_audioTracks = new AudioTrackMenu{*act.audioLanguage, this};
+    connect(m_audioTracks, &AudioTrackMenu::chosen, this, [this](int id) {
+        m_video->selectAudioTrack(id);
+        refreshAudioTracks();
+    });
+    refreshAudioTracks();
 
     resize(kInitialWidth, kInitialHeight);
 
@@ -1322,6 +1334,11 @@ void MainWindow::refreshVideoGestures() {
     for (QAction* gesture :
          {m_actions->playSelection, m_actions->seekSelectionStart, m_actions->seekSelectionEnd})
         gesture->setEnabled(m_playable && selected);
+}
+
+void MainWindow::refreshAudioTracks() {
+    const std::vector<core::AudioTrack> tracks = m_video->audioTracks();
+    m_audioTracks->refresh(tracks);
 }
 
 PlayBar* MainWindow::playBar() const {

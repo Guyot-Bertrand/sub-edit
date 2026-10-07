@@ -3,11 +3,13 @@
 #include <subedit/core/config/video_settings.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/player_factory.hpp>
 
 #include <memory>
 #include <optional>
 #include <span>
+#include <vector>
 
 class QAbstractButton;
 class QSplitter;
@@ -186,6 +188,14 @@ public:
 
     /// Lays `settings` down: the jump and the lead-in for the next gestures, the volume at once.
     void setSettings(const core::VideoSettings& settings);
+
+    /// The audio tracks of the film the player has open, or none — for the menu that lists them.
+    /// None as well while no film is open, as for a page whose film the shared player does not
+    /// hold.
+    [[nodiscard]] std::vector<core::AudioTrack> audioTracks() const;
+
+    /// Plays the track `id` of the film, which `audioTracks` named. Nothing when no film is open.
+    void selectAudioTrack(int id);
 
     /// The bar under the picture.
     [[nodiscard]] PlayBar* bar() const { return m_bar; }

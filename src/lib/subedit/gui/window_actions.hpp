@@ -1,10 +1,12 @@
 #pragma once
 
 #include <array>
+#include <memory>
 #include <span>
 
 class QAction;
 class QMainWindow;
+class QMenu;
 class QObject;
 
 namespace subedit::core {
@@ -33,6 +35,15 @@ struct WindowActions final {
     /// preferences, `About`, and moving between tabs. The window lights the rest
     /// on its first refresh.
     explicit WindowActions(QObject* owner);
+
+    /// Out of line, where `QMenu` is complete: a `unique_ptr` of an incomplete type would make
+    /// every file that destroys one include it.
+    ~WindowActions();
+
+    WindowActions(const WindowActions&) = delete;
+    WindowActions& operator=(const WindowActions&) = delete;
+    WindowActions(WindowActions&&) = delete;
+    WindowActions& operator=(WindowActions&&) = delete;
 
     /// Lays the menu bar, the toolbar and the two tab shortcuts on `window`.
     ///
@@ -82,6 +93,11 @@ struct WindowActions final {
     // `Video ▸ Audio`.
     QAction* volumeDown = nullptr;
     QAction* volumeUp = nullptr;
+
+    /// `Video ▸ Audio ▸ Language`, whose entries are the tracks of the film — issue #616. Held
+    /// here and not parented to the window, which a menu cannot be to a plain `QObject`; it goes
+    /// before the menu bar that shows it does, and takes its entry with it.
+    std::unique_ptr<QMenu> audioLanguage;
 
     // `Tools`.
     QAction* shift = nullptr;

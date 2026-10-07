@@ -12,6 +12,32 @@ La vidéo associée est **une propriété du document ouvert**, pas un réglage 
 l'application : ouvrir un autre fichier de sous-titres repart de zéro. Elle
 n'est écrite dans aucun fichier et disparaît avec la fenêtre.
 
+## La piste audio
+
+Un film peut porter plusieurs pistes sonores — la version originale, un doublage, un commentaire. Le
+sous-menu **`Video ▸ Audio ▸ Language`** les liste, **une entrée par piste**, et **marque celle qui joue** :
+
+| Ce que le fichier donne | Ce que l'entrée dit |
+| :---------------------- | :------------------ |
+| une langue et un titre | `1: fra — Original` |
+| une langue seule | `2: eng` |
+| un titre seul | `3: Commentary` |
+| ni l'un ni l'autre | `1` |
+
+Le numéro est **la place de la piste dans le film**, de un en un, dans l'ordre du fichier : deux pistes
+peuvent dire `eng`, et un fichier muet sur ses étiquettes a tout de même une première et une seconde.
+
+**Choisir une entrée joue cette piste.** La marque est la réponse du lecteur, non le clic : elle dit la
+piste qui joue.
+
+- **Le sous-menu est éteint** sans vidéo ou sans piste audio. Avec une seule piste, il reste actif et
+  la montre, cochée : il dit la langue du film. Les deux gestes du volume, qui sont à côté, restent
+  actifs quoi qu'il en soit : voir [Le volume](lecteur.md#le-volume).
+- **La piste n'est pas retenue** d'une vidéo à l'autre, ni d'une session à l'autre : un numéro de piste est
+  celui de son fichier, et le reporter sur le film suivant choisirait ce qui porte ce numéro là-bas.
+  Revenir sur un onglet rouvre son film sur la piste que le lecteur choisit de lui-même.
+- Aucun raccourci : on change de langue rarement, et le menu suffit.
+
 ## Choisir une vidéo
 
 Le dialogue s'ouvre sur le répertoire du fichier de sous-titres et filtre sur

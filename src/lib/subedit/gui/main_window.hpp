@@ -59,6 +59,7 @@ class SearchDialog;
 
 class DiagnosticsButton;
 class ManualWindow;
+class AudioTrackMenu;
 class PlayBar;
 class Prompts;
 struct ProjectPage;
@@ -294,6 +295,10 @@ public:
 
     [[nodiscard]] QAction* volumeUpAction() const { return m_actions->volumeUp; }
 
+    /// `Video ▸ Audio ▸ Language`, whose entries are the audio tracks of the film — for a test to
+    /// read what it lists and to choose among it.
+    [[nodiscard]] QMenu* audioLanguageMenu() const { return m_actions->audioLanguage.get(); }
+
     /// The bar under the picture, for a test to read what it says and to move its controls.
     [[nodiscard]] PlayBar* playBar() const;
 
@@ -472,6 +477,9 @@ private:
     /// Lights or puts out the gestures that drive the film: out without one, and three of them
     /// also out without a selection.
     void refreshVideoGestures();
+
+    /// Lists the audio tracks of the film that is open, in `Video ▸ Audio ▸ Language`.
+    void refreshAudioTracks();
 
     /// Recomputes what the two actions may do and what they read.
     ///
@@ -715,6 +723,9 @@ private:
     class VideoSide;
     std::unique_ptr<VideoSide> m_videoSide;
     std::unique_ptr<VideoPane> m_video;
+
+    /// The entries of `Video ▸ Audio ▸ Language`, rebuilt for every film — issue #616.
+    AudioTrackMenu* m_audioTracks = nullptr;
 
     /// The theme asked for, to be handed back to the settings. Laid down, not
     /// deduced: the current palette does not say which of the three made it.
