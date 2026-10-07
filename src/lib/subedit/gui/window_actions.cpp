@@ -68,6 +68,26 @@ buildLitAction(QObject* parent, const QString& shortName, const QString& themeIc
     return given;
 }
 
+/// The shortcuts of `Close`, `Ctrl+W` among them wherever the platform does not give it.
+///
+/// **The same defect as `Save As…`, found by `check-gui-manual.py` — issue #612.** What
+/// `QKeySequence::Close` answers depends on the platform theme: a desktop gives `Ctrl+W`,
+/// and Qt's own table, which a test binary meets, gives `Ctrl+F4` alone. The manual says
+/// `Ctrl+W`, which is Gaupol's and every Linux desktop's, so it is added when the platform
+/// leaves it out — and `Ctrl+F4` is kept where the platform gives it.
+[[nodiscard]] QList<QKeySequence> closeShortcuts() {
+    static const QKeySequence conventional{QStringLiteral("Ctrl+W")};
+
+    // Written without a branch, on purpose: whether the platform already gives `Ctrl+W` depends
+    // on where this runs, and a line only one of the two answers walks would be covered on one
+    // machine and not on the next. Taken out and put first, it is there either way.
+    QList<QKeySequence> shortcuts = QKeySequence::keyBindings(QKeySequence::Close);
+    shortcuts.removeAll(conventional);
+    shortcuts.prepend(conventional);
+
+    return shortcuts;
+}
+
 /// How many buttons the toolbar carries.
 constexpr std::size_t kToolbarWords = 10;
 
@@ -143,7 +163,7 @@ WindowActions::WindowActions(QObject* owner)
 
     open->setShortcut(QKeySequence::Open);
     newProject->setShortcut(QKeySequence::New);
-    closeProject->setShortcut(QKeySequence::Close);
+    closeProject->setShortcuts(closeShortcuts());
     save->setShortcut(QKeySequence::Save);
     saveAs->setShortcuts(saveAsShortcuts());
     saveAllDocuments->setShortcut(QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_L});

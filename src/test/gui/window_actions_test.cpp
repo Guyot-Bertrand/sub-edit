@@ -119,6 +119,8 @@ TEST_CASE("the shortcuts are the platform's, and the conventional ones where it 
     const WindowActions actions{&owner};
 
     CHECK(actions.saveAs->shortcuts().contains(QKeySequence{QStringLiteral("Ctrl+Shift+S")}));
+    // Issue #612: Qt's own table gives `Ctrl+F4` alone, and the manual says `Ctrl+W`.
+    CHECK(actions.closeProject->shortcuts().contains(QKeySequence{QStringLiteral("Ctrl+W")}));
     CHECK(actions.redo->shortcuts() == QKeySequence::keyBindings(QKeySequence::Redo));
     CHECK(actions.insert->shortcut() == QKeySequence{Qt::Key_Insert});
     CHECK(actions.italic->shortcut() == QKeySequence{QStringLiteral("Ctrl+I")});

@@ -365,6 +365,11 @@ avec un objectif d'iso-fonctionnalité.
   | codes de retour | chacun, avec sa signification |
   | erreurs | ce qui les déclenche et le message correspondant |
 
+  **Les raccourcis de la fenêtre s'écrivent dans un tableau à colonne « Raccourci »**, le raccourci
+  entre apostrophes inverses (`Ctrl+P`), « aucun » quand il n'y en a pas, et l'action nommée comme le
+  menu la libelle — `check-gui-manual.py` (dans `manual-check`) les confronte aux actions de la
+  fenêtre : #612. Une touche citée en prose n'est pas contrôlée, et ne doit pas être celle d'une action.
+
   Un exemple d'appel réel accompagne chaque commande. **Le manuel décrit ce qui
   existe, jamais ce qui est prévu** — le prévu va dans la feuille de route.
 
