@@ -72,7 +72,8 @@ cmake --build --preset release -j "${JOBS}" --target subedit_bench
 # pas de quoi les prendre.
 film="${REPO_ROOT}/build/release/bench-film.mp4"
 if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1 \
-    && "${REPO_ROOT}/src/scripts/video-fixtures.sh" --film "${film}"; then
+    && "${REPO_ROOT}/src/scripts/limit-cores.sh" \
+        "${REPO_ROOT}/src/scripts/video-fixtures.sh" --film "${film}"; then
     export SUBEDIT_BENCH_FILM="${film}"
 else
     printf '%s⚠%s pas de vidéo à la taille d'\''un film (ffmpeg manque ?) — le banc du saut et du pas s'\''abstient.\n' \

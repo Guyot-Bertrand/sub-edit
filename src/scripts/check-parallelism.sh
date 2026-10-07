@@ -393,9 +393,60 @@ $(printf '    %s\n' "${offenders[@]}")"
     fi
 }
 
+# Invariant 4 — toute exécution de tests passe par `limit-cores.sh`, issue #630.
+#
+# **`JOBS` borne les processus, pas les fils**, et libmpv comme ffmpeg en créent de leur
+# propre chef : un cas de test de lecteur de trois dixièmes de seconde occupait plus de cinq
+# cœurs. Les trois invariants précédents lisent ce qu'on écrit ; celui-ci lit ce qu'un
+# processus fait de lui-même, et la seule borne que ses fils héritent est l'affinité que
+# `limit-cores.sh` pose sur la commande qu'il lance.
+#
+# Le contrôle est une forme : une ligne qui lance `ctest` — recette du Makefile ou script —
+# sans nommer `limit-cores.sh`. Il ne dit rien d'un binaire de test lancé à la main, et ne
+# prétend pas le faire.
+invokes_ctest() {
+    [[ "$1" =~ (^|[^[:alnum:]_.-])ctest([^[:alnum:]_.-]|$) ]]
+}
+
+check_tests() {
+    local -a offenders=()
+    local line trimmed without_comment script relative
+
+    local makefile="${REPO_ROOT}/Makefile"
+    if [[ -f "${makefile}" ]]; then
+        while IFS= read -r line; do
+            [[ "${line}" == $'\t'* ]] || continue
+            without_comment="$(strip_trailing_comment "${line}")"
+            if invokes_ctest "${without_comment}" && [[ "${without_comment}" != *limit-cores.sh* ]]; then
+                offenders+=("Makefile : tests hors de limit-cores.sh : ${line#$'\t'}")
+            fi
+        done < "${makefile}"
+    fi
+
+    while IFS= read -r -d '' script; do
+        relative="${script#"${REPO_ROOT}"/}"
+        while IFS= read -r line; do
+            trimmed="${line#"${line%%[![:space:]]*}"}"
+            [[ -z "${trimmed}" || "${trimmed}" == '#'* ]] && continue
+            without_comment="$(strip_trailing_comment "${line}")"
+            if invokes_ctest "${without_comment}" && [[ "${without_comment}" != *limit-cores.sh* ]]; then
+                offenders+=("${relative} : tests hors de limit-cores.sh : ${trimmed}")
+            fi
+        done < "${script}"
+    done < <(collect_scripts)
+
+    if (( ${#offenders[@]} > 0 )); then
+        report_failure "tests lancés sans borner leurs fils :
+$(printf '    %s\n' "${offenders[@]}")"
+    else
+        report_success "tests : toute exécution passe par limit-cores.sh"
+    fi
+}
+
 check_makefile
 check_scripts
 check_cmake
+check_tests
 
 if (( failures > 0 )); then
     printf '\n%s%d contournement(s) de $(JOBS)%s\n' "${RED}" "${failures}" "${RESET}" >&2

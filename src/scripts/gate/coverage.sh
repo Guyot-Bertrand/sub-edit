@@ -33,7 +33,7 @@ cmake --build --preset coverage -j "${JOBS}"
 
 find "${REPO_ROOT}/build/coverage" -name '*.gcda' -delete
 
-ctest --preset coverage
+"${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset coverage
 
 mkdir -p "${REPORT}"
 gcovr --root "${REPO_ROOT}" "${REPO_ROOT}/build/coverage/src" \
