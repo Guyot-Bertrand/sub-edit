@@ -51,7 +51,7 @@ sélection va au dernier sous-titre du fichier pour `Select Next…`, au premier
 ## Image par image
 
 Avancer et reculer **d'une image** — ou de N, voir plus bas —, pour poser un bord **à l'image près**.
-Deux gestes, et deux boutons dans la barre de lecture, de part et d'autre de `Play` :
+Deux gestes, et deux boutons dans la barre de lecture, de part et d'autre du bouton de lecture :
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
@@ -63,7 +63,7 @@ Deux gestes, et deux boutons dans la barre de lecture, de part et d'autre de `Pl
   seconde comme à 23,976 ; il ne s'exprime **jamais en millisecondes**.
 - **Le film s'arrête à ses bornes** : reculer depuis la première image la laisse, avancer depuis la dernière
   aussi. La lecture est arrêtée après un pas.
-- **Les boutons de la barre** — `|◀` et `▶|` — **déclenchent les mêmes actions que le menu** : même pas, éteints
+- **Les boutons de la barre** — deux icônes, de part et d'autre de lecture/pause — **déclenchent les mêmes actions que le menu** : même pas, éteints
   sans vidéo comme les entrées du menu, et la même infobulle, qui dit le raccourci. **Un doigt qui reste sur un
   bouton, ou sur la touche, enchaîne les pas.**
 - **Un pas à la fois.** Une touche tenue répète plus vite qu'un pas ne se fait : la première répétition part tout

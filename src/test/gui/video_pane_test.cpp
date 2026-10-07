@@ -25,8 +25,11 @@
 #include <subedit/gui/video_surface.hpp>
 
 #include <QAbstractButton>
+#include <QIcon>
+#include <QImage>
 #include <QItemSelectionModel>
 #include <QLabel>
+#include <QSize>
 #include <QSlider>
 #include <QSplitter>
 #include <QString>
@@ -536,16 +539,28 @@ TEST_CASE("the bar and the timecode are empty with no film", "[gui][GUI-TIMECODE
     CHECK(booth.pane->bar()->positionSlider()->value() == 0);
 }
 
+namespace {
+
+/// The size an icon of the bar is looked at in.
+constexpr QSize kIconSize{24, 24};
+
+} // namespace
+
 TEST_CASE("the play button plays and holds, and says which it will do", "[gui][GUI-SEEK-01]") {
     Booth booth;
     ProjectPage& page = watched(booth);
     booth.pane->follow(page);
-    CHECK(booth.pane->bar()->playButton()->text() == QStringLiteral("Play"));
+    CHECK(booth.pane->bar()->playButton()->toolTip() == QStringLiteral("Play"));
+    const QImage playIcon = booth.pane->bar()->playButton()->icon().pixmap(kIconSize).toImage();
 
     booth.pane->bar()->playButton()->click();
     booth.pane->follow(page);
     CHECK(booth.player->isPlaying());
-    CHECK(booth.pane->bar()->playButton()->text() == QStringLiteral("Pause"));
+    CHECK(booth.pane->bar()->playButton()->toolTip() == QStringLiteral("Pause"));
+    // An icon and no text, and not the same icon: the button says what it will do.
+    CHECK(booth.pane->bar()->playButton()->text().isEmpty());
+    CHECK_FALSE(booth.pane->bar()->playButton()->icon().isNull());
+    CHECK(booth.pane->bar()->playButton()->icon().pixmap(kIconSize).toImage() != playIcon);
 
     booth.pane->bar()->playButton()->click();
     CHECK_FALSE(booth.player->isPlaying());

@@ -44,12 +44,12 @@ s'imprime ici, la combinaison est libre.
 
 ## La barre de lecture
 
-Sous l'image, de gauche à droite :
+Sous l'image, de gauche à droite — les trois boutons sont des **icônes**, celles du thème du bureau quand il en a, celles du style de Qt sinon :
 
 | Élément | Ce qu'il fait |
 | :------ | :------------ |
-| `|◀` et `▶|` | reculent, avancent le film **d'un pas d'image** — voir [Image par image](calage.md#image-par-image) |
-| `Play` / `Pause` | joue ou arrête — le bouton dit **ce qu'il fera**, comme `Ctrl+P` |
+| les deux boutons de pas | reculent, avancent le film **d'un pas d'image** — voir [Image par image](calage.md#image-par-image) |
+| lecture / pause | joue ou arrête, comme `Ctrl+P` — le bouton montre **ce qu'il fera** : un triangle à l'arrêt, deux barres en lecture ; l'infobulle le dit en toutes lettres |
 | la position | `HH:MM:SS,mmm`, écrite comme la table écrit une position |
 | le curseur | **se lit et se déplace** : on tire la poignée, on clique dans la rainure, on utilise les flèches |
 | la durée | celle que la vidéo déclare |

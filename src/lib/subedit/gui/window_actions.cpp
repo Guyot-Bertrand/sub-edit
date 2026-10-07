@@ -276,10 +276,8 @@ WindowActions::WindowActions(QObject* owner)
     nudgeEndEarlier->setShortcut(QKeySequence{QStringLiteral("Alt+Shift+Q")});
     nudgeEndLater->setShortcut(QKeySequence{QStringLiteral("Alt+Shift+W")});
 
-    // The step buttons of the play bar read a glyph and show what the menu shows: the name of the
-    // action and its shortcut, written once here.
-    stepBackward->setIconText(QStringLiteral("|\u25C0"));
-    stepForward->setIconText(QStringLiteral("\u25B6|"));
+    // The step buttons of the play bar show what the menu shows: the name of the action and its
+    // shortcut, written once here.
     for (QAction* step : {stepBackward, stepForward}) {
         step->setToolTip(QStringLiteral("%1 (%2)").arg(
             step->text(), step->shortcut().toString(QKeySequence::NativeText)));
