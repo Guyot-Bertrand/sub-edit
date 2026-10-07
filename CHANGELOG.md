@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **video** — Image par image et décalage d'un bord
+
+## 0.14.12 — 2026-10-07
+
+### Ajouts
+
 - **video** — Poser un repère depuis la position de la vidéo
 
 ## 0.14.11 — 2026-10-07
