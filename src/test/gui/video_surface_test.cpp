@@ -192,3 +192,33 @@ TEST_CASE("a widget destroyed before its player, and a player after its widget, 
 
     CHECK(playing.position() == Timestamp::fromMilliseconds(2000));
 }
+
+// Issue #632, found on a Wayland session: libmpv leaves the fourth byte of every pixel at zero
+// (`bgr0`), Qt takes that byte of a `Format_RGB32` image for an alpha, and the compositor drew a
+// picture full of holes with translucent subtitles. X11 drops the byte and shows nothing, which
+// is why no capture made under it ever saw the defect — so what is read here is the byte.
+TEST_CASE("every pixel of the picture is opaque", "[gui][video][render][GUI-SURFACE-01]") {
+    MpvPlayer playing = player();
+    REQUIRE(playing.open(fixture("videos/images-25.mp4")).has_value());
+    playing.seek(Timestamp::fromMilliseconds(subedit::test::startOf(100, 25, 1)));
+
+    VideoSurface surface;
+    surface.resize(256, 128);
+    surface.show();
+    surface.attach(&playing);
+
+    // A replica too: its antialiasing is where a translucent edge would be seen first.
+    playing.showSubtitle("{\\an2}Un mot");
+    surface.refresh();
+
+    const QImage& image = surface.image();
+    REQUIRE(image.width() == 256);
+    std::size_t translucent = 0;
+    for (int y = 0; y < image.height(); ++y) {
+        const unsigned char* line = image.constScanLine(y);
+        for (int x = 0; x < image.width(); ++x)
+            translucent +=
+                line[(static_cast<std::size_t>(x) * Picture::kBytesAPixel) + 3U] != 0xffU ? 1U : 0U;
+    }
+    CHECK(translucent == 0);
+}

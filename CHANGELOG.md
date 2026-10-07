@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Corrections
 
 - **scripts** — La porte tient ses deux cœurs, fils de libmpv compris
+- **gui** — L'image n'est plus translucide sous Wayland
 
 ## 0.14.6 — 2026-10-07
 
