@@ -243,6 +243,8 @@ celle de la vidéo, sinon la grille déduite ; **sans aucune, le réglage est é
 des colonnes : **elle ne touche pas au modèle**, et ce que le fichier écrit ne change pas. Un numéro saisi est converti
 par la mise à l'échelle exacte ([ADR 0013](../adr/0013-mise-a-l-echelle-exacte-des-positions.md)), arrondi une fois.
 
+**Livré (#620)** : `View ▸ Positions in Frames`, une entrée à cocher dont l'infobulle dit la fréquence retenue et sa source, ou pourquoi elle est éteinte. Seules `Start` et `End` changent, `Duration` reste un temps ; le réglage n'est pas retenu (D12). Le modèle de la table reçoit la fréquence et le projet n'est pas touché.
+
 ## D9 — La réplique et le timecode
 
 - **La réplique sans balises brutes** ([#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408)) : `showSubtitle`

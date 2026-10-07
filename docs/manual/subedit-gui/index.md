@@ -57,7 +57,8 @@ l'accompagne, ce qui l'examine, ce qui vaut pour tous les projets ouverts, ce qu
 l'explique.
 
 `View` porte un sous-menu, `Columns`, une entrée à cocher par colonne sauf `Text`
-— voir [La table](table.md#masquer-et-déplacer-les-colonnes).
+— voir [La table](table.md#masquer-et-déplacer-les-colonnes) — et un réglage, `Positions in Frames`, qui montre
+`Start` et `End` en numéros d'image — voir [Les positions en images](table.md#les-positions-en-images).
 
 `Projects` porte deux entrées, `Save All` et `Close All` — voir
 [Le menu Projects](fichiers.md#le-menu-projects).
@@ -108,7 +109,7 @@ menus : elles servent moins souvent, ou pas à tout le monde.
 | [Installation](../subedit-cli/installation.md) | construire et installer — la page vaut pour les deux programmes |
 | [Invocation](invocation.md) | lancer la fenêtre, arguments, codes de retour |
 | [Ouvrir et enregistrer](fichiers.md) | les commandes, les onglets, le menu `Projects`, glisser des fichiers, la traduction, les diagnostics, l'encodage dans la barre d'état, l'aller-retour, la fermeture |
-| [La table](table.md) | ce que chaque colonne montre, les masquer et les déplacer, la colonne de traduction et le texte que les opérations visent |
+| [La table](table.md) | ce que chaque colonne montre, les masquer et les déplacer, les positions en images, la colonne de traduction et le texte que les opérations visent |
 | [Éditer une cellule](edition.md) | quelles cellules s'éditent, et comment |
 | [Couper, copier et coller des textes](presse-papiers.md) | les trois entrées, ce qui voyage, les lignes ajoutées, les balises traduites |
 | [Rechercher et remplacer](recherche.md) | le dialogue, les quatre gestes, les deux options, sur quoi porte la recherche, dans tous les projets ouverts |

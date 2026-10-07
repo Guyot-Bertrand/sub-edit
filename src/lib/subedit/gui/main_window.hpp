@@ -291,6 +291,9 @@ public:
 
     [[nodiscard]] QAction* seekSelectionEndAction() const { return m_actions->seekSelectionEnd; }
 
+    /// `View ▸ Positions in Frames`, for a test to trigger and read — issue #620.
+    [[nodiscard]] QAction* framePositionsAction() const { return m_actions->framePositions; }
+
     /// The step and the nudge, for a test to trigger them — issue #618.
     [[nodiscard]] QAction* stepBackwardAction() const { return m_actions->stepBackward; }
 
@@ -505,6 +508,11 @@ private:
     /// Lights or puts out the gestures that drive the film: out without one, and three of them
     /// also out without a selection.
     void refreshVideoGestures();
+
+    /// Shows the positions of the page on screen as timestamps or as frame numbers, as the setting
+    /// says and as there is a rate to count by — issue #620. Puts the setting out, with its reason,
+    /// when there is none.
+    void refreshFrames();
 
     /// Lists the audio tracks of the film that is open, in `Video ▸ Audio ▸ Language`.
     void refreshAudioTracks();
@@ -766,6 +774,10 @@ private:
     core::InsertPlacement m_insertPlacement = core::InsertPlacement::Below;
 
     /// Whether a film is open and can be driven — what `VideoSide::playable` was last told.
+    /// Whether the positions are asked to be shown in frames: a setting of the window, one for all
+    /// the pages, and not kept from one session to the next (D12).
+    bool m_framesRequested = false;
+
     bool m_playable = false;
 
     /// The texts last copied or cut in this window, with their format.

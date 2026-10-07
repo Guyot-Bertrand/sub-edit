@@ -34,6 +34,18 @@ struct CountedFrameRate {
 /// The grid is last because it is a deduction, and a verdict that is silent is no rate at all.
 [[nodiscard]] std::optional<CountedFrameRate> countedFrameRateOf(const Project& project);
 
+/// Returns the rate the **positions are counted in frames** at, **in this order**: the document's
+/// own when it is counted in frames, then the one the video declares, then the grid deduced from
+/// the positions — issue #620, decision D8.
+///
+/// **The document first, where `countedFrameRateOf` puts the video first**, and the reason is the
+/// question asked. A step of N frames is a distance on the film, which only the film can measure.
+/// The number a MicroDVD file writes is a number *of its own*, at the rate it was read with, and
+/// showing anything else would show digits the file does not contain.
+///
+/// Nothing when there is none: the setting is then out, and says why.
+[[nodiscard]] std::optional<CountedFrameRate> numberingFrameRateOf(const Project& project);
+
 /// Returns `position` moved by `frames` frames of `rate`, earlier when negative — **rounded once**,
 /// from the exact rational, so that a step of N is N frames to within the millisecond whatever the
 /// rate, and never fewer than the origin.

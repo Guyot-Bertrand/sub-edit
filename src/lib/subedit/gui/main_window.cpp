@@ -26,10 +26,12 @@
 #include <subedit/core/text/markup_vocabulary.hpp>
 #include <subedit/core/text/spell_checker.hpp>
 #include <subedit/core/text/spell_replacements.hpp>
+#include <subedit/core/video/frame_step.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/translation.hpp>
+#include <subedit/core/wording/video.hpp>
 #include <subedit/gui/about_dialog.hpp>
 #include <subedit/gui/audio_track_menu.hpp>
 #include <subedit/gui/cell_delegates.hpp>
@@ -672,6 +674,11 @@ MainWindow::MainWindow(core::FileSystem& files,
     connect(act.seekSelectionEnd, &QAction::triggered, this, [this] {
         m_video->seekToSelection(*m_page, true);
     });
+    connect(act.framePositions, &QAction::toggled, this, [this](bool shown) {
+        m_framesRequested = shown;
+        refreshFrames();
+    });
+
     // The step, which moves the film; and the nudge, which is an edit, so a cell being typed in is
     // closed first as before every other.
     connect(act.stepBackward, &QAction::triggered, this, [this] { m_video->step(*m_page, -1); });
@@ -952,6 +959,9 @@ void MainWindow::refreshVideo() {
     // the manual, and it never reached the screen.
     m_video->watch(*m_page);
     m_status->refreshVideo(m_page->session->project());
+
+    // What the film declares is read by `watch`, and is one of the rates positions are counted at.
+    refreshFrames();
 }
 
 void MainWindow::followPlayback() {
@@ -1204,6 +1214,7 @@ void MainWindow::showEvent(QShowEvent* event) {
     // rate.
     m_video->windowShown(*m_page);
     m_status->refreshVideo(m_page->session->project());
+    refreshFrames();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
@@ -1356,6 +1367,10 @@ void MainWindow::refreshTarget() {
     m_actions->italic->setEnabled(
         anything &&
         core::abilitiesOf(m_page->session->project().sourceFile(targetDocument()).format).italic);
+
+    // The rate positions are counted at follows the document and its film, and either may have
+    // changed since the last call.
+    refreshFrames();
 }
 
 void MainWindow::refreshVideoGestures() {
@@ -1389,6 +1404,25 @@ void MainWindow::refreshVideoGestures() {
                              m_actions->nudgeEndEarlier,
                              m_actions->nudgeEndLater})
         gesture->setEnabled(selected);
+}
+
+void MainWindow::refreshFrames() {
+    // The document's rate, then the film's, then the grid: what is counted is the file's own
+    // numbers for a MicroDVD, and the film's frames otherwise.
+    const std::optional<core::CountedFrameRate> rate =
+        core::numberingFrameRateOf(m_page->session->project());
+
+    QAction* setting = m_actions->framePositions;
+    setting->setEnabled(rate.has_value());
+    setting->setToolTip(QString::fromStdString(rate.has_value() ? core::framesShownAt(*rate)
+                                                                : core::noFrameRateToShow()));
+    setting->setStatusTip(setting->toolTip());
+
+    // **Only the model is told**, and with it the columns: the document is not touched, nothing
+    // goes through the history, and what the file writes is what it wrote.
+    m_page->model->setFrameRate(m_framesRequested && rate.has_value()
+                                    ? std::optional<core::FrameRate>{rate->rate}
+                                    : std::nullopt);
 }
 
 void MainWindow::refreshAudioTracks() {

@@ -4,6 +4,7 @@
 // wording of `core/wording/`; see `formats.hpp` for why it lives in the core.
 
 #include <subedit/core/time/frame_rate.hpp>
+#include <subedit/core/video/frame_step.hpp>
 
 #include <filesystem>
 #include <optional>
@@ -15,6 +16,14 @@ namespace subedit::core {
 /// video declares none, the document is not counted in frames, and its positions show no grid.
 /// Written so that it says what to do about it, as `shift --to-grid` does for its own refusal.
 [[nodiscard]] std::string noFrameToCountBy();
+
+/// Why the positions cannot be shown in frames — issue #620: the file is not counted in frames, the
+/// video declares no rate, and the positions fall on no grid.
+[[nodiscard]] std::string noFrameRateToShow();
+
+/// What the setting that shows positions in frames says when it is on: the rate, and where it came
+/// from — the file, the video, or the positions themselves.
+[[nodiscard]] std::string framesShownAt(const CountedFrameRate& counted);
 
 /// What the window says of the film a document is watched against.
 ///

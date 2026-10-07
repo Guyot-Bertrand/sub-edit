@@ -22,6 +22,7 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/video/frame_step.hpp>
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/correction.hpp>
@@ -244,6 +245,26 @@ TEST_CASE("the status line names the film and the rate it declares", "[wording]"
     // from the positions, which is another fact entirely.
     CHECK(videoStatusOf(film, FrameRate{StandardFrameRate::Fps23976}) ==
           "Video: le-canot.mkv, 24000/1001 fps");
+}
+
+TEST_CASE("the frames setting says the rate it counts at, and where it came from, or why it is out",
+          "[wording][GUI-FRAMES-02]") {
+    using subedit::core::CountedFrameRate;
+    using subedit::core::FrameRate;
+    using subedit::core::FrameRateSource;
+    using subedit::core::framesShownAt;
+    using subedit::core::noFrameRateToShow;
+    using subedit::core::StandardFrameRate;
+
+    const FrameRate pal{StandardFrameRate::Fps25};
+
+    CHECK(framesShownAt(CountedFrameRate{.rate = pal, .source = FrameRateSource::Document}) ==
+          "Positions are frame numbers, counted at 25 fps, the rate of the file");
+    CHECK(framesShownAt(CountedFrameRate{.rate = pal, .source = FrameRateSource::Video}) ==
+          "Positions are frame numbers, counted at 25 fps, the rate the video declares");
+    CHECK(framesShownAt(CountedFrameRate{.rate = pal, .source = FrameRateSource::Grid}) ==
+          "Positions are frame numbers, counted at 25 fps, the grid the positions fall on");
+    CHECK(noFrameRateToShow().find("not counted in frames") != std::string::npos);
 }
 
 TEST_CASE("every format has a name, and it is the one the outside world knows",

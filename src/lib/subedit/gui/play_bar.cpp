@@ -121,7 +121,7 @@ constexpr int kIconSide = 64;
     constexpr int kFar = kIconSide - kInset;
     constexpr int kMiddle = kIconSide / 2;
     constexpr int kBar = 12;
-    constexpr int kSkipTriangle = 28;
+    constexpr int kSkipTriangle = 34;
 
     switch (symbol) {
     case Symbol::Play:
@@ -135,12 +135,12 @@ constexpr int kIconSide = 64;
     case Symbol::SkipBack:
         painter.drawRect(QRect{kInset, kInset, kBar / 2, kFar - kInset});
         painter.drawPolygon(QPolygon{
-            {QPoint{kFar, kInset}, QPoint{kFar - kSkipTriangle - 6, kMiddle}, QPoint{kFar, kFar}}});
+            {QPoint{kFar, kInset}, QPoint{kFar - kSkipTriangle, kMiddle}, QPoint{kFar, kFar}}});
         break;
     case Symbol::SkipForward:
         painter.drawRect(QRect{kFar - (kBar / 2), kInset, kBar / 2, kFar - kInset});
         painter.drawPolygon(QPolygon{{QPoint{kInset, kInset},
-                                      QPoint{kInset + kSkipTriangle + 6, kMiddle},
+                                      QPoint{kInset + kSkipTriangle, kMiddle},
                                       QPoint{kInset, kFar}}});
         break;
     }
@@ -178,6 +178,9 @@ constexpr int kIconSide = 64;
     constexpr int kRadius = 3;
     constexpr int kDimmed = 150;
     constexpr int kSwell = 2;
+    constexpr int kArrowHalf = 11;
+    constexpr int kArrowMargin = 2;
+    constexpr int kArrowGap = 4;
 
     QColor plain = palette.color(QPalette::ButtonText);
     plain.setAlpha(following ? kDimmed : kDimmed / 2);
@@ -197,8 +200,9 @@ constexpr int kIconSide = 64;
         if (marked) {
             // The arrow, in the accent color, pointing at the line that is held.
             const int middle = y + (kBarHeight / 2);
-            painter.drawPolygon(QPolygon{
-                {QPoint{2, middle - 11}, QPoint{kLeft - 4, middle}, QPoint{2, middle + 11}}});
+            painter.drawPolygon(QPolygon{{QPoint{kArrowMargin, middle - kArrowHalf},
+                                          QPoint{kLeft - kArrowGap, middle},
+                                          QPoint{kArrowMargin, middle + kArrowHalf}}});
         }
     }
     return pixmap;

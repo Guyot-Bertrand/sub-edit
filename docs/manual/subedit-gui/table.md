@@ -122,6 +122,37 @@ montre en entier ; ouvrir la cellule aussi. Les lignes du texte ne sont jamais
 repliées : seul un vrai saut de ligne fait une ligne, si bien que la hauteur
 d'une ligne de la table ne change pas quand on tire le bord d'une colonne.
 
+## Les positions en images
+
+**`View ▸ Positions in Frames`** — une entrée à cocher, un seul réglage pour la fenêtre — montre les colonnes
+`Start` et `End` **en numéros d'image** au lieu de timestamps, et **accepte un numéro d'image à la saisie**. Les
+en-têtes le disent : `Start (frames)` et `End (frames)`.
+
+| Ce qui change | Ce qui ne change pas |
+| :------------ | :------------------- |
+| ce que `Start` et `End` écrivent, et ce qu'ils acceptent | la colonne `Duration`, qui reste un temps |
+| les en-têtes de ces deux colonnes | le document : rien n'est modifié, l'historique n'a pas de nouvelle entrée, et **ce que le fichier écrit est ce qu'il écrivait** |
+
+**La fréquence qui compte les images** est, dans cet ordre :
+
+1. **celle du fichier**, quand il est compté en images — MicroDVD, qui porte des numéros et pas de
+   fréquence : **la fenêtre montre alors les chiffres de son fichier**, quelle que soit la vidéo ;
+2. **celle que la vidéo associée déclare** ;
+3. **la grille que les positions dessinent**, quand elles en dessinent une.
+
+L'infobulle de l'entrée dit laquelle a été retenue : *Positions are frame numbers, counted at 25 fps, the rate the
+video declares*. **Sans aucune des trois, l'entrée est éteinte, et son infobulle dit pourquoi** : le fichier n'est
+pas compté en images, la vidéo ne déclare pas de fréquence, et les positions ne tombent sur aucune grille.
+
+- **Un numéro est le numéro de l'image où tombe la position**, arrondi à l'image la plus proche. **Saisi, il
+  donne l'instant où cette image commence**, arrondi **une seule fois** depuis le rapport exact
+  ([ADR 0013](../../adr/0013-mise-a-l-echelle-exacte-des-positions.md)) : l'image 37 à 23,976 images par seconde
+  commence à 1 543,04 ms, soit `00:00:01,543`.
+- **Seuls les nombres entiers sont acceptés** — avec le signe moins, un début pouvant précéder le film. Un
+  timestamp saisi en mode images, ou un nombre qui n'en est pas un, laisse la cellule comme elle était.
+- **Ce réglage n'est pas retenu** d'une session à l'autre : c'est un réglage de la fenêtre, non d'un
+  document, et il se rallume d'un geste.
+
 ## Les anomalies
 
 Un sous-titre dont les positions ne tiennent pas debout est **teinté sur ses
