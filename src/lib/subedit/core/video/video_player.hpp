@@ -164,8 +164,11 @@ public:
     /// every keystroke. What is drawn comes from the same `Project` the table
     /// shows, so what is on the picture is what was just typed.
     ///
-    /// The text is the subtitle's own, tags of its format included — see
-    /// ADR 0009. What a player makes of them is its business.
+    /// **The text is in the Sub Station Alpha vocabulary** — issue #408 —: what
+    /// `replicaOf` writes from the subtitle's own text, its tags understood
+    /// (ADR 0009 keeps the model's text raw; ADR 0031 is the pivot). Italics, bold,
+    /// underline and colour are override blocks, the braces of the visible text
+    /// are escaped, and what has no equivalent on screen is already gone.
     ///
     /// Does nothing when no video is open, like every other order here.
     virtual void showSubtitle(std::string_view line) = 0;

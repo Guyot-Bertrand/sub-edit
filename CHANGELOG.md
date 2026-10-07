@@ -9,6 +9,10 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **video** — La réplique dessinée comprend ses balises
+
 ### Corrections
 
 - **scripts** — La porte tient ses deux cœurs, fils de libmpv compris

@@ -10,7 +10,9 @@
 // happens at every change of row, so they are the one path the user feels.
 
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/video/replica.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/mpv_player.hpp>
@@ -56,6 +58,17 @@ TEST_CASE("finding the subtitle showing at a position", "[benchmark]") {
 
     BENCHMARK("la réplique en cours, sur 4000 sous-titres") {
         return showingAt(project, when);
+    };
+}
+
+// What the follower pays at every tick a subtitle is on screen — issue #408: the text through the
+// pivot, tags understood and written for the overlay, before it is compared with what is drawn.
+TEST_CASE("translating a tagged text for the overlay", "[benchmark]") {
+    const std::string line =
+        "<i>Il n'y a pas de quoi</i> en faire une <b>histoire</b>,\net tu le sais.";
+
+    BENCHMARK("traduire une réplique balisée pour l'image") {
+        return subedit::core::replicaOf(line, subedit::core::SubtitleFormat::SubRip);
     };
 }
 
