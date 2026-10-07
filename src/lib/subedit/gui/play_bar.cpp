@@ -5,8 +5,13 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMouseEvent>
+#include <QPoint>
+#include <QRect>
 #include <QSlider>
 #include <QString>
+#include <QStyle>
+#include <QStyleOptionSlider>
 #include <QToolButton>
 #include <Qt>
 
@@ -29,6 +34,59 @@ namespace {
 /// than `int` holds — twenty-four days, which is not a limit anyone meets.
 constexpr std::int64_t kLargestRange = std::numeric_limits<int>::max();
 
+/// A slider that goes where it is clicked.
+///
+/// **Qt's does not, and it is not a defect of Qt**: a click on the groove of a `QSlider` moves the
+/// handle by a page, toward the click — the convention of scroll bars, which is what a slider
+/// inherits. On a bar of ten minutes counted in milliseconds a page is ten of them, so a click
+/// moved the film by nothing a person could see (issue #615, seen on a real window). A seek bar is
+/// a ruler and not a scroll bar: the click is a position.
+///
+/// The handle is put under the click and the press then goes on as a drag of it, so that a click
+/// that does not let go keeps moving the film.
+class JumpSlider final : public QSlider {
+
+public:
+    using QSlider::QSlider;
+
+protected:
+    void mousePressEvent(QMouseEvent* event) override {
+        if (event->button() == Qt::LeftButton && !isOnHandle(event->position().toPoint()))
+            setValue(valueAt(event->position().toPoint()));
+
+        QSlider::mousePressEvent(event);
+    }
+
+private:
+    [[nodiscard]] QStyleOptionSlider options() const {
+        QStyleOptionSlider option;
+        initStyleOption(&option);
+        return option;
+    }
+
+    [[nodiscard]] bool isOnHandle(const QPoint& at) const {
+        const QStyleOptionSlider option = options();
+        return style()
+            ->subControlRect(QStyle::CC_Slider, &option, QStyle::SC_SliderHandle, this)
+            .contains(at);
+    }
+
+    /// The value the handle takes when its centre is at `at`.
+    [[nodiscard]] int valueAt(const QPoint& at) const {
+        const QStyleOptionSlider option = options();
+        const QRect groove =
+            style()->subControlRect(QStyle::CC_Slider, &option, QStyle::SC_SliderGroove, this);
+        const QRect handle =
+            style()->subControlRect(QStyle::CC_Slider, &option, QStyle::SC_SliderHandle, this);
+
+        // Horizontal, both of them: the bar has no slider that stands up.
+        const int span = groove.width() - handle.width();
+        const int position = at.x() - groove.x() - (handle.width() / 2);
+        return QStyle::sliderValueFromPosition(
+            minimum(), maximum(), position, span, option.upsideDown);
+    }
+};
+
 /// How many steps a click on the groove, or a page key, moves the volume.
 constexpr int kVolumePage = 10;
 
@@ -41,9 +99,9 @@ PlayBar::PlayBar(QWidget* parent)
     : QWidget{parent},
       m_play(new QToolButton{this}),
       m_positionText(new QLabel{this}),
-      m_position(new QSlider{Qt::Horizontal, this}),
+      m_position(new JumpSlider{Qt::Horizontal, this}),
       m_lengthText(new QLabel{this}),
-      m_volume(new QSlider{Qt::Horizontal, this}) {
+      m_volume(new JumpSlider{Qt::Horizontal, this}) {
     m_play->setText(QStringLiteral("Play"));
     m_play->setToolTip(QStringLiteral("Play / Pause"));
     m_play->setAutoRaise(true);

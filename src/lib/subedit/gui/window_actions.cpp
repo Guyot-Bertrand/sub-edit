@@ -89,7 +89,7 @@ buildLitAction(QObject* parent, const QString& shortName, const QString& themeIc
 }
 
 /// How many buttons the toolbar carries.
-constexpr std::size_t kToolbarWords = 10;
+constexpr std::size_t kToolbarWords = 9;
 
 } // namespace
 
@@ -410,7 +410,6 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
         {insert, QStringLiteral("Insert")},
         {remove, QStringLiteral("Remove")},
         {italic, QStringLiteral("Italic")},
-        {playPause, QStringLiteral("Play")},
     }};
     for (const auto& [action, word] : words)
         action->setIconText(word);
@@ -429,8 +428,9 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     bar->addAction(insert);
     bar->addAction(remove);
     bar->addAction(italic);
-    bar->addSeparator();
-    bar->addAction(playPause);
+    // **No `Play` here since the bar under the picture has one** — issue #615: a button that
+    // does what another one, a few centimetres below, does too, and that is lit and put out for
+    // the same reason. `Video ▸ Play / Pause` and `Ctrl+P` are unchanged.
 }
 
 } // namespace subedit::gui

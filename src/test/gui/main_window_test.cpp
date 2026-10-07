@@ -447,9 +447,9 @@ TEST_CASE("the toolbar carries the frequent gestures, in groups", "[gui][GUI-OPE
                                               "|",
                                               "Insert",
                                               "Remove",
-                                              "Italic",
-                                              "|",
-                                              "Play"});
+                                              "Italic"});
+    // Play and pause are not here: the bar under the picture has them, and the menu and
+    // `Ctrl+P` are still there for the keyboard — issue #615.
     // The bar gives the short word, the menu keeps the whole entry.
     CHECK(window.findAndReplaceAction()->text().remove(QLatin1Char('&')).toStdString() ==
           "Find and Replace…");
