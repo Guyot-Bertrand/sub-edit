@@ -11,7 +11,14 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **video** — Poser un repère depuis la position de la vidéo
+
+## 0.14.11 — 2026-10-07
+
+### Ajouts
+
 - **video** — Choisir la piste audio depuis le menu Video
+- **video** — Le menu Language reste actif avec une seule piste
 
 ## 0.14.10 — 2026-10-07
 
