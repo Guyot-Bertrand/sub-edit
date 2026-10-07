@@ -89,7 +89,7 @@ buildLitAction(QObject* parent, const QString& shortName, const QString& themeIc
 }
 
 /// How many buttons the toolbar carries.
-constexpr std::size_t kToolbarWords = 10;
+constexpr std::size_t kToolbarWords = 9;
 
 } // namespace
 
@@ -120,6 +120,17 @@ WindowActions::WindowActions(QObject* owner)
       selectVideo(buildLitAction(owner, QStringLiteral("Select Video…"), {})),
       playPause(buildAction(
           owner, QStringLiteral("Play / Pause"), QStringLiteral("media-playback-start"))),
+      // **Gaupol's seven gestures, under Gaupol's names** — issue #615: the menu `Video` is where
+      // somebody who knows one looks for the others.
+      playSelection(buildAction(owner, QStringLiteral("Play &Selection"), {})),
+      seekPrevious(buildAction(owner, QStringLiteral("Seek &Previous"), {})),
+      seekNext(buildAction(owner, QStringLiteral("Seek &Next"), {})),
+      seekBackward(buildAction(owner, QStringLiteral("Seek &Backward"), {})),
+      seekForward(buildAction(owner, QStringLiteral("Seek &Forward"), {})),
+      seekSelectionStart(buildAction(owner, QStringLiteral("S&eek Selection Start"), {})),
+      seekSelectionEnd(buildAction(owner, QStringLiteral("See&k Selection End"), {})),
+      volumeDown(buildAction(owner, QStringLiteral("Volume &Down"), {})),
+      volumeUp(buildAction(owner, QStringLiteral("Volume &Up"), {})),
       shift(buildAction(owner, QStringLiteral("Shift Positions…"), {})),
       transform(buildAction(owner, QStringLiteral("Transform Positions…"), {})),
       frameRate(buildAction(owner, QStringLiteral("Convert Frame Rate…"), {})),
@@ -214,6 +225,25 @@ WindowActions::WindowActions(QObject* owner)
     // prints here, so the sequence is free.
     playPause->setShortcut(QKeySequence{QStringLiteral("Ctrl+P")});
 
+    // **Gaupol's bindings, except where a window has taken them** — issue #615. `P` and `O` are
+    // single letters, which a window-wide shortcut takes before the widget that has the focus
+    // sees them: a letter typed in a cell editor would play the film. `Ctrl+P` is the answer
+    // for play, and `Ctrl+Shift+P` is its neighbour for the selection. The arrows are Gaupol's
+    // own; a cell editor keeps `Ctrl+Left` and `Ctrl+Right` for itself, since a text field
+    // answers a shortcut-override for the keys it uses.
+    playSelection->setShortcut(QKeySequence{QStringLiteral("Ctrl+Shift+P")});
+    seekPrevious->setShortcut(QKeySequence{QStringLiteral("Ctrl+Left")});
+    seekNext->setShortcut(QKeySequence{QStringLiteral("Ctrl+Right")});
+    seekBackward->setShortcut(QKeySequence{QStringLiteral("Ctrl+Shift+Left")});
+    seekForward->setShortcut(QKeySequence{QStringLiteral("Ctrl+Shift+Right")});
+    seekSelectionStart->setShortcut(QKeySequence{QStringLiteral("Ctrl+Up")});
+    seekSelectionEnd->setShortcut(QKeySequence{QStringLiteral("Ctrl+Down")});
+    // Both spellings of the plus: on a keyboard where it takes a shift, the key that gives it is
+    // the one of the equals sign.
+    volumeDown->setShortcut(QKeySequence{QStringLiteral("Ctrl+-")});
+    volumeUp->setShortcuts(
+        {QKeySequence{QStringLiteral("Ctrl++")}, QKeySequence{QStringLiteral("Ctrl+=")}});
+
     // **Out for as long as nobody has said where the manual is**, which is the
     // case of a binary run from the build tree: `main` calls `setManualPath`
     // with what `installedManualPath()` resolved, and the entry lights up if
@@ -295,6 +325,21 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     video->addAction(selectVideo);
     video->addSeparator();
     video->addAction(playPause);
+    video->addAction(playSelection);
+    video->addSeparator();
+    video->addAction(seekPrevious);
+    video->addAction(seekNext);
+    video->addSeparator();
+    video->addAction(seekBackward);
+    video->addAction(seekForward);
+    video->addSeparator();
+    video->addAction(seekSelectionStart);
+    video->addAction(seekSelectionEnd);
+    video->addSeparator();
+    // A submenu, as Gaupol's: the languages of the soundtrack will come beside the volume.
+    QMenu* audio = video->addMenu(QStringLiteral("&Audio"));
+    audio->addAction(volumeDown);
+    audio->addAction(volumeUp);
 
     QMenu* tools = window.menuBar()->addMenu(QStringLiteral("&Tools"));
     tools->addAction(shift);
@@ -365,7 +410,6 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
         {insert, QStringLiteral("Insert")},
         {remove, QStringLiteral("Remove")},
         {italic, QStringLiteral("Italic")},
-        {playPause, QStringLiteral("Play")},
     }};
     for (const auto& [action, word] : words)
         action->setIconText(word);
@@ -384,8 +428,9 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     bar->addAction(insert);
     bar->addAction(remove);
     bar->addAction(italic);
-    bar->addSeparator();
-    bar->addAction(playPause);
+    // **No `Play` here since the bar under the picture has one** — issue #615: a button that
+    // does what another one, a few centimetres below, does too, and that is lit and put out for
+    // the same reason. `Video ▸ Play / Pause` and `Ctrl+P` are unchanged.
 }
 
 } // namespace subedit::gui

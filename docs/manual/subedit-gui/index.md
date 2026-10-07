@@ -95,10 +95,9 @@ raccourci est le même.
 | `Insert` | `Edit ▸ Insert Subtitles…` | `Ins` |
 | `Remove` | `Edit ▸ Remove Subtitles` | `Del` |
 | `Italic` | `Tools ▸ Italic` | `Ctrl+I` |
-| `Play` | `Video ▸ Play / Pause` | `Ctrl+P` |
 
 **Un bouton éteint l'est pour la même raison que son entrée** : `Undo` sans
-rien à annuler, `Remove` sans ligne choisie, `Play` sans film. Les entrées de la
+rien à annuler, `Remove` sans ligne choisie. Les entrées de la
 traduction et les opérations du menu `Tools`, sauf `Italic`, restent dans leurs
 menus : elles servent moins souvent, ou pas à tout le monde.
 

@@ -223,5 +223,4 @@ TEST_CASE("the toolbar reads short words, and the menus the whole entry", "[gui]
     CHECK(bars.at(0)->toolButtonStyle() == Qt::ToolButtonTextBesideIcon);
     CHECK(actions.newProject->iconText() == QStringLiteral("New"));
     CHECK(actions.newProject->text() == QStringLiteral("&New Project"));
-    CHECK(actions.playPause->iconText() == QStringLiteral("Play"));
 }

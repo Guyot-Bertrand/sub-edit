@@ -69,13 +69,17 @@ NO_SHORTCUT = {"", "—", "-", "aucun", "aucune"}
 
 # Un raccourci écrit comme du code : `Ctrl+Shift+S`, `F1`, `Del`.
 CODE_SPAN = re.compile(r"`([^`]+)`")
-# Une séquence de touches : une ou plusieurs touches liées par `+`.
-SEQUENCE = re.compile(r"^(?:[A-Za-z0-9]+\+)*[A-Za-z0-9]+$")
+# Une séquence de touches : une ou plusieurs touches liées par `+`. **La dernière peut être `+` ou
+# `-`** : le volume de Gaupol est `Ctrl++` et `Ctrl+-`, et un contrôle qui ne les lisait pas les
+# aurait laissés écrits sans les confronter à rien.
+SEQUENCE = re.compile(r"^(?:[A-Za-z0-9]+\+)*(?:[A-Za-z0-9]+|\+|-)$")
+# Les touches d'une séquence, le `+` final étant une touche et non un séparateur.
+KEYS = re.compile(r"[^+]+|\+$")
 
 
 def canonical(sequence: str) -> str:
     """La forme commune d'une séquence : les noms de touches longs, les modificateurs tels quels."""
-    return "+".join(KEY_NAMES.get(part, part) for part in sequence.strip().split("+"))
+    return "+".join(KEY_NAMES.get(part, part) for part in KEYS.findall(sequence.strip()))
 
 
 def declared(binary: pathlib.Path) -> tuple[dict[str, set[str]], set[str]]:

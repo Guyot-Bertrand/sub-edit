@@ -6,11 +6,13 @@ poignée** entre le film et la table — et de **là où l'on travaille**, pour 
 `Open…` s'ouvre au bon endroit. Rien de tout cela ne se règle par un dialogue :
 on déplace, on tire, et c'est retenu.
 
-**Quatre préférences ont un dialogue à elles**, `Edit ▸ Preferences…`, et c'est le
+**Six préférences ont un dialogue à elles**, `Edit ▸ Preferences…`, et c'est le
 critère : une préférence qui a déjà un geste n'a pas besoin d'un champ. Le
 thème n'en a aucun, ni l'unité des longueurs de lignes, ni les deux cases qui
-les montrent. Voir [Le thème](#le-thème) et
-[Les longueurs de lignes](#les-longueurs-de-lignes).
+les montrent, ni le saut et l'avance du lecteur. Voir [Le thème](#le-thème),
+[Les longueurs de lignes](#les-longueurs-de-lignes) et [Le lecteur](#le-lecteur).
+
+**Le volume n'en a pas** : la barre sous l'image et deux gestes le règlent, et il est retenu.
 
 **Une autre se règle là où elle sert** : le côté où `Insert Subtitles…` pose ses
 lignes est un champ de ce dialogue-là, et le dernier choix est retenu. Voir
@@ -36,6 +38,21 @@ document de `Correct Texts…` ne sont pas retenus.**
 
 **Ce qui n'est pas retenu :** le dernier fichier ouvert — voir
 [Le répertoire retenu](#le-répertoire-retenu).
+
+## Le lecteur
+
+Deux champs, **Seek length** et **Context length**, qui sont ceux de Gaupol et ont ses valeurs :
+
+| Champ | Ce qu'il règle | Par défaut | Bornes |
+| :---- | :------------- | ---------: | :----- |
+| `Seek length` | le saut de `Seek Backward` et `Seek Forward` | 30 s | de 1 s à une heure |
+| `Context length` | l'avance avant la sélection, pour `Seek Selection Start`, `Seek Selection End` et `Play Selection` | 1 s | de 0 à 60 s, au dixième |
+
+Ils s'appliquent **à l'instant**, sans attendre un redémarrage, et sont retenus d'une session à l'autre
+sous `video.seek-length` (en secondes) et `video.context-length-ms` (en millisecondes).
+**Une valeur hors des bornes, ou qui n'est pas un nombre**, n'empêche pas la fenêtre de s'ouvrir : elle
+est ignorée, le défaut reste, et la fenêtre le dit à l'ouverture. Le volume est retenu à `video.volume`,
+de 0 à 100, avec la même tolérance.
 
 ## Le fichier
 

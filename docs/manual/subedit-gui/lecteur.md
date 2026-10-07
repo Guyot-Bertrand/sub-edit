@@ -24,8 +24,8 @@ La séparation entre l'image et la table **se déplace à la souris**. L'image n
 descend pas sous 180 pixels de haut. Agrandir la fenêtre donne la place gagnée
 à la table, pas à l'image : ce dont on manque en éditant, ce sont des lignes.
 
-Le son est celui de la vidéo, tel que le système le règle. La fenêtre n'a pas de
-commande de volume.
+Sous l'image, **une barre de lecture** : où en est le film, combien il dure,
+lecture et pause, et le volume. Voir [La barre de lecture](#la-barre-de-lecture).
 
 ## Jouer et arrêter
 
@@ -41,6 +41,78 @@ regarder.
 l'échelle de la fenêtre est pris avant que le widget qui a le focus le voie,
 donc un `P` serait avalé sur le chemin d'un éditeur de cellule. Rien ne
 s'imprime ici, la combinaison est libre.
+
+## La barre de lecture
+
+Sous l'image, de gauche à droite :
+
+| Élément | Ce qu'il fait |
+| :------ | :------------ |
+| `Play` / `Pause` | joue ou arrête — le bouton dit **ce qu'il fera**, comme `Ctrl+P` |
+| la position | `HH:MM:SS,mmm`, écrite comme la table écrit une position |
+| le curseur | **se lit et se déplace** : on tire la poignée, on clique dans la rainure, on utilise les flèches |
+| la durée | celle que la vidéo déclare |
+| le volume | de 0 à 100, voir [Le volume](#le-volume) |
+
+**Le curseur ne rend pas la main à chaque pixel.** Tirer la poignée demande des dizaines de
+positions par seconde, et chacune coûte une image décodée : la première position part tout de
+suite, les suivantes attendent un vingtième de seconde, et **la dernière position demandée est
+toujours celle qu'on atteint** — au plus tard quand on lâche la poignée. L'image ne reste donc
+pas derrière la main, et ne se met pas à dessiner un chemin que personne ne regarde.
+
+**Le curseur avance de lui-même pendant la lecture**, et cela ne compte pas pour un geste :
+seul ce qu'on fait déplace le film. Pendant qu'on tient la poignée, la lecture ne la reprend pas.
+
+## Le timecode
+
+**La position est écrite sur l'image**, en haut à gauche, sur un fond translucide qui la rend
+lisible sur n'importe quelle scène. Elle est dessinée par la fenêtre, dans sa police, et ne
+demande rien au lecteur que la position qu'il donne déjà ; elle se met à jour avec chaque geste,
+sans attendre le tour suivant du suivi.
+
+## Se déplacer dans le film
+
+Au menu **Video**, **les gestes de Gaupol**, sous ses noms. Tous sont **éteints sans vidéo**, comme
+la lecture ; les trois qui agissent sur la sélection le sont aussi tant que rien n'est sélectionné.
+
+| Commande | Raccourci | Ce qu'elle fait |
+| :------- | :-------- | :-------------- |
+| `Video ▸ Play Selection` | `Ctrl+Shift+P` | joue de **un peu avant le début** de la sélection **jusqu'à la fin de son dernier sous-titre**, et s'arrête sur l'image |
+| `Video ▸ Seek Previous` | `Ctrl+Left` | place la lecture au début du dernier sous-titre **terminé** avant la position |
+| `Video ▸ Seek Next` | `Ctrl+Right` | place la lecture au début du premier sous-titre qui **commence** après la position |
+| `Video ▸ Seek Backward` | `Ctrl+Shift+Left` | recule d'un saut — trente secondes par défaut |
+| `Video ▸ Seek Forward` | `Ctrl+Shift+Right` | avance d'un saut |
+| `Video ▸ Seek Selection Start` | `Ctrl+Up` | place la lecture au début de la sélection, **l'avance avant lui** |
+| `Video ▸ Seek Selection End` | `Ctrl+Down` | place la lecture à la fin de la sélection, **l'avance avant elle** |
+
+**Les raccourcis sont ceux de Gaupol**, sauf un : `Play Selection` est `O` chez lui, et une
+lettre seule est prise par la fenêtre avant que la cellule en cours d'édition la voie — taper un
+`o` dans un texte lancerait le film. `Ctrl+P` est la réponse de la lecture, `Ctrl+Shift+P` celle de
+la sélection. Les flèches du clavier restent à l'éditeur de cellule quand il est
+ouvert : `Ctrl+Left` y déplace le curseur d'un mot, et non la lecture.
+
+- **Le saut** est de 30 secondes, et se règle de 1 seconde à une heure — voir
+  [Les préférences](preferences.md#le-lecteur). Il ne dépasse ni le début du film ni sa fin.
+- **L'avance** est d'une seconde : on regarde un peu **avant** le sous-titre, pour le voir arriver.
+  Elle se règle de 0 à 60 secondes, et la lecture ne descend pas sous zéro.
+- **Un voisin qui n'existe pas** — rien avant le premier sous-titre, rien après le dernier — ne fait
+  rien, et ne dit rien : la lecture reste où elle est.
+- **Chaque geste se montre tout de suite** : la barre, le timecode et la réplique dessinée sont à
+  jour quand il se termine, sans attendre le tour suivant.
+
+## Le volume
+
+Le volume est celui du **lecteur**, de 0 à 100, et non celui du système. Il se règle au curseur de
+la barre, ou par deux gestes, au sous-menu `Video ▸ Audio`, de cinq en cinq :
+
+| Commande | Raccourci | Ce qu'elle fait |
+| :------- | :-------- | :-------------- |
+| `Video ▸ Audio ▸ Volume Down` | `Ctrl+-` | baisse le volume de cinq |
+| `Video ▸ Audio ▸ Volume Up` | `Ctrl++` ou `Ctrl+=` | le monte de cinq — le second pour les claviers où le plus demande la touche majuscule |
+
+**Il est retenu d'une session à l'autre**, et donné à chaque vidéo qu'on ouvre. Une valeur hors de
+0 à 100 dans le fichier de réglages ne casse pas l'ouverture : elle est ignorée, et la fenêtre le dit.
+**La piste audio, elle, n'est pas retenue** — un numéro de piste est celui de son fichier.
 
 ## Sélection et lecture
 
@@ -142,16 +214,11 @@ la lecture tient le temps réel.
 
 ## Ce qui n'y est pas
 
-**Le pilotage se limite à jouer et arrêter.** Ce qui n'existe pas, et qu'il est
+**Le pilotage va jusqu'aux sauts, à la sélection et au volume.** Ce qui n'existe pas, et qu'il est
 inutile de chercher :
 
-- barre de position, saut avant et arrière ;
-- saut au sous-titre précédent ou suivant, au début ou à la fin de la
-  sélection ;
-- jouer la seule sélection ;
-- réglage du volume ;
 - avance image par image, poser un repère depuis la position courante ;
-- incrustation du timecode, choix de la piste audio ;
+- choix de la piste audio ;
 - forme d'onde.
 
 Ce manuel décrit ce qui existe : ce qui viendra, et dans quel ordre, est dans la

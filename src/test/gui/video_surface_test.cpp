@@ -222,3 +222,62 @@ TEST_CASE("every pixel of the picture is opaque", "[gui][video][render][GUI-SURF
     }
     CHECK(translucent == 0);
 }
+
+// ## The timecode over the picture — issue #615, GUI-TIMECODE-01
+
+namespace {
+
+/// How many pixels of `image` are not black.
+[[nodiscard]] int litPixels(const QImage& image) {
+    int lit = 0;
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x)
+            lit += qGray(image.pixel(x, y)) > 20 ? 1 : 0;
+    }
+    return lit;
+}
+
+} // namespace
+
+// Drawn by Qt over what libmpv drew, which is what the picture being in the widget made
+// possible: the timecode is read here from what the widget paints, and nothing of it reaches
+// the player.
+TEST_CASE("the timecode is drawn over the picture, and cleared with it",
+          "[gui][video][GUI-TIMECODE-01]") {
+    VideoSurface surface;
+    surface.resize(320, 160);
+    surface.show();
+
+    // No picture, no timecode: black all over.
+    CHECK(litPixels(surface.grab().toImage()) == 0);
+
+    surface.setTimecode(QStringLiteral("00:00:12,480"));
+    const QImage drawn = surface.grab().toImage();
+    CHECK(litPixels(drawn) > 0);
+    // At the top left, where a timecode is looked for — and not at the foot of the picture,
+    // where the replica is.
+    CHECK(litPixels(drawn.copy(0, drawn.height() / 2, drawn.width(), drawn.height() / 2)) == 0);
+
+    surface.setTimecode({});
+    CHECK(litPixels(surface.grab().toImage()) == 0);
+}
+
+TEST_CASE("the timecode is drawn over a picture too", "[gui][video][numbered][GUI-TIMECODE-01]") {
+    MpvPlayer playing = player();
+    REQUIRE(playing.open(fixture("videos/images-25.mp4")).has_value());
+    playing.seek(Timestamp::fromMilliseconds(subedit::test::startOf(100, 25, 1)));
+
+    VideoSurface surface;
+    surface.resize(256, 128);
+    surface.show();
+    surface.attach(&playing);
+    const QImage without = surface.grab().toImage();
+
+    surface.setTimecode(QStringLiteral("00:00:04,000"));
+    const QImage with = surface.grab().toImage();
+
+    // The picture is still the film: the number it carries is read from the right place, and the
+    // corner now differs.
+    CHECK(subedit::test::frameNumberOf(pictureOf(with)) == 100);
+    CHECK(with != without);
+}

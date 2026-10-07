@@ -413,7 +413,11 @@ public:
         return m_window->targetDocument();
     }
 
-    void playable(bool playable) override { m_window->m_actions->playPause->setEnabled(playable); }
+    void playable(bool playable) override {
+        m_window->m_playable = playable;
+        m_window->m_actions->playPause->setEnabled(playable);
+        m_window->refreshVideoGestures();
+    }
 
 private:
     MainWindow* m_window;
@@ -646,6 +650,25 @@ MainWindow::MainWindow(core::FileSystem& files,
 
     connect(act.selectVideo, &QAction::triggered, this, &MainWindow::selectVideo);
     connect(act.playPause, &QAction::triggered, this, [this] { m_video->toggle(*m_page); });
+    // Gaupol's seven, and the two of the volume — issue #615.
+    connect(
+        act.playSelection, &QAction::triggered, this, [this] { m_video->playSelection(*m_page); });
+    connect(act.seekPrevious, &QAction::triggered, this, [this] {
+        m_video->seekToNeighbour(*m_page, false);
+    });
+    connect(act.seekNext, &QAction::triggered, this, [this] {
+        m_video->seekToNeighbour(*m_page, true);
+    });
+    connect(act.seekBackward, &QAction::triggered, this, [this] { m_video->seekBy(*m_page, -1); });
+    connect(act.seekForward, &QAction::triggered, this, [this] { m_video->seekBy(*m_page, 1); });
+    connect(act.seekSelectionStart, &QAction::triggered, this, [this] {
+        m_video->seekToSelection(*m_page, false);
+    });
+    connect(act.seekSelectionEnd, &QAction::triggered, this, [this] {
+        m_video->seekToSelection(*m_page, true);
+    });
+    connect(act.volumeDown, &QAction::triggered, this, [this] { m_video->changeVolume(-1); });
+    connect(act.volumeUp, &QAction::triggered, this, [this] { m_video->changeVolume(1); });
 
     connect(act.manual, &QAction::triggered, this, &MainWindow::openManual);
     connect(act.about, &QAction::triggered, this, &MainWindow::about);
@@ -1283,9 +1306,33 @@ void MainWindow::refreshTarget() {
         core::abilitiesOf(m_page->session->project().sourceFile(targetDocument()).format).italic);
 }
 
+void MainWindow::refreshVideoGestures() {
+    // Out without a film, as playing is: a gesture on nothing is a gesture that does nothing, and
+    // an entry that is there to be tried is one that teaches nothing. Three of them need
+    // something selected, since it is the selection they act on.
+    const bool selected =
+        m_table != nullptr && !m_table->selectionModel()->selectedRows().isEmpty();
+    for (QAction* gesture : {m_actions->seekPrevious,
+                             m_actions->seekNext,
+                             m_actions->seekBackward,
+                             m_actions->seekForward,
+                             m_actions->volumeDown,
+                             m_actions->volumeUp})
+        gesture->setEnabled(m_playable);
+    for (QAction* gesture :
+         {m_actions->playSelection, m_actions->seekSelectionStart, m_actions->seekSelectionEnd})
+        gesture->setEnabled(m_playable && selected);
+}
+
+PlayBar* MainWindow::playBar() const {
+    return m_video->bar();
+}
+
 void MainWindow::refreshStructureActions() {
     const bool anything = m_page->session->project().count() != 0;
     const bool selected = !m_table->selectionModel()->selectedRows().isEmpty();
+
+    refreshVideoGestures();
 
     // **An empty document takes an insertion with no selection**, and it is
     // the only way to start a new file. As soon as it carries rows, one has to
@@ -1536,7 +1583,7 @@ std::optional<LineLengthDisplay> MainWindow::lengthDisplay(core::Document docume
 }
 
 void MainWindow::openPreferences() {
-    PreferencesDialog dialog{m_theme, m_editor, this};
+    PreferencesDialog dialog{m_theme, m_editor, m_video->settings(), this};
     if (!m_prompts->run(dialog))
         return;
 
@@ -1550,6 +1597,12 @@ void MainWindow::openPreferences() {
     // open has closed already.
     m_editor = dialog.editor();
     refreshLengths();
+
+    // The jump and the lead-in come from the dialog; the volume is not in it — the bar and the
+    // gestures set it — and is kept as it stands.
+    core::VideoSettings video = dialog.video();
+    video.volume = m_video->settings().volume;
+    m_video->setSettings(video);
 }
 
 void MainWindow::refreshLengths() {
@@ -1604,6 +1657,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
     refreshInlineSpellChecker();
     m_search->setOptions(settings.search);
     m_page->writeEncoding = settings.writeEncoding;
+    m_video->setSettings(settings.video);
 }
 
 core::Settings MainWindow::settings() const {
@@ -1640,6 +1694,7 @@ core::Settings MainWindow::settings() const {
     settings.correction = m_correction->settings();
     settings.spellCheck = m_spellCheck->settings();
     settings.writeEncoding = m_page->writeEncoding;
+    settings.video = m_video->settings();
 
     return settings;
 }

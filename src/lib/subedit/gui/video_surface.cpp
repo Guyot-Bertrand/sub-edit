@@ -2,12 +2,15 @@
 #include <subedit/gui/video_surface.hpp>
 
 #include <QColor>
+#include <QFont>
 #include <QImage>
 #include <QMetaObject>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QRect>
 #include <QResizeEvent>
 #include <QSize>
+#include <QString>
 #include <QWidget>
 #include <Qt>
 
@@ -19,6 +22,11 @@
 namespace subedit::gui {
 
 namespace {
+
+/// The timecode: its distance from the corner, its padding and the opacity of its backing.
+constexpr int kTimecodeMargin = 8;
+constexpr int kTimecodePadding = 6;
+constexpr int kTimecodeBackingAlpha = 150;
 
 /// How many bytes a pixel takes, and which of them libmpv leaves unused (`bgr0`: the fourth).
 constexpr std::size_t kBytesAPixel = 4;
@@ -105,11 +113,38 @@ void VideoSurface::refresh() {
     update();
 }
 
+void VideoSurface::setTimecode(const QString& text) {
+    if (text == m_timecode)
+        return;
+
+    m_timecode = text;
+    update();
+}
+
 void VideoSurface::paintEvent(QPaintEvent* /*event*/) {
     QPainter painter{this};
     painter.fillRect(rect(), Qt::black);
     if (!m_image.isNull())
         painter.drawImage(0, 0, m_image);
+
+    if (m_timecode.isEmpty())
+        return;
+
+    // The window's font, a little bold, on a backing that is not opaque: it reads over a light
+    // frame as well as over a dark one, and it lets what is under it show.
+    QFont font = painter.font();
+    font.setBold(true);
+    painter.setFont(font);
+
+    const QRect text = painter.fontMetrics().boundingRect(m_timecode);
+    const QRect backing =
+        text.adjusted(
+                -kTimecodePadding, -kTimecodePadding / 2, kTimecodePadding, kTimecodePadding / 2)
+            .translated(kTimecodeMargin - text.left() + kTimecodePadding,
+                        kTimecodeMargin - text.top() + (kTimecodePadding / 2));
+    painter.fillRect(backing, QColor{0, 0, 0, kTimecodeBackingAlpha});
+    painter.setPen(Qt::white);
+    painter.drawText(backing, Qt::AlignCenter, m_timecode);
 }
 
 void VideoSurface::resizeEvent(QResizeEvent* /*event*/) {

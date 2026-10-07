@@ -113,6 +113,11 @@ public:
         return {};
     }
 
+    /// What a player does when the film goes from under it — the file moved, the share dropped: it
+    /// answers « nothing » to where it stands and how long it lasts, as it does with no film
+    /// open. The window may still believe the film is there.
+    void unload() { m_open = false; }
+
     [[nodiscard]] std::optional<core::Duration> duration() const override {
         return m_open ? std::optional{length} : std::nullopt;
     }
