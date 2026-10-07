@@ -3,11 +3,13 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
+#include <QIcon>
 #include <QWidget>
 
 #include <optional>
 
 class QAction;
+class QEvent;
 class QLabel;
 class QSlider;
 class QToolButton;
@@ -75,6 +77,12 @@ public:
 
     [[nodiscard]] QLabel* lengthLabel() const { return m_lengthText; }
 
+protected:
+    /// The icon of the follow button is drawn in the colors of the palette, and drawn again when
+    /// the palette changes — the window goes from the light palette to the dark one at the press of
+    /// a menu entry.
+    void changeEvent(QEvent* event) override;
+
 signals:
     /// The person asked for this position: a drag, a click on the groove, a key. Many of these
     /// follow one another while a handle moves; `VideoPane` is what keeps up with them.
@@ -103,8 +111,18 @@ private:
     QSlider* m_volume;
     QToolButton* m_follow;
 
+    /// Draws the icons of the bar for the current palette: those of the theme where it has them,
+    /// the drawn symbols where it has not, and the one of the follow button always.
+    void drawIcons();
+
     /// Set while the bar moves a control itself, so that the change is not heard as a gesture.
     bool m_updating = false;
+
+    /// What the play button offers, and whether the film is playing: kept, so that a change of
+    /// palette draws them again without asking the player.
+    QIcon m_playIcon;
+    QIcon m_pauseIcon;
+    bool m_playing = false;
 };
 
 } // namespace subedit::gui

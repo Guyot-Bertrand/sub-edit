@@ -22,6 +22,7 @@ using subedit::core::FrameRate;
 using subedit::core::FrameRateSource;
 using subedit::core::MicroDvdFile;
 using subedit::core::movedByFrames;
+using subedit::core::numberingFrameRateOf;
 using subedit::core::Project;
 using subedit::core::SourceFile;
 using subedit::core::StandardFrameRate;
@@ -113,4 +114,40 @@ TEST_CASE("a step back never goes before the origin", "[video][frame-step][GUI-N
 
     CHECK(movedByFrames(Timestamp::fromMilliseconds(30), pal, -1).milliseconds() == 0);
     CHECK(movedByFrames(Timestamp::fromMilliseconds(0), pal, -100).milliseconds() == 0);
+}
+
+// What a MicroDVD file shows is the numbers it contains, at the rate it was read with: the film
+// does not get to say otherwise, where for a step it is the only one that can measure.
+TEST_CASE("to show frames, the document's own rate counts before the video's",
+          "[video][frame-step][GUI-FRAMES-02]") {
+    Project project = onTheGridOf25();
+    SourceFile counted;
+    counted.format = SubtitleFormat::MicroDvd;
+    counted.extras = MicroDvdFile{.rate = FrameRate{StandardFrameRate::Fps24}};
+    project.setSourceFile(counted);
+    project.chooseVideo("/films/film.mkv");
+    project.setDeclaredFrameRate(FrameRate{StandardFrameRate::Fps23976});
+
+    const auto shown = numberingFrameRateOf(project);
+
+    CHECK((shown.has_value() && shown->source == FrameRateSource::Document));
+    CHECK((shown.has_value() && shown->rate == FrameRate{StandardFrameRate::Fps24}));
+    // And the step still asks the film first.
+    const auto stepped = countedFrameRateOf(project);
+    CHECK((stepped.has_value() && stepped->source == FrameRateSource::Video));
+}
+
+TEST_CASE("to show frames, then the video's rate, then the grid, then nothing",
+          "[video][frame-step][GUI-FRAMES-02]") {
+    Project project = onTheGridOf25();
+    const auto grid = numberingFrameRateOf(project);
+    CHECK((grid.has_value() && grid->source == FrameRateSource::Grid));
+
+    project.chooseVideo("/films/film.mkv");
+    project.setDeclaredFrameRate(FrameRate{StandardFrameRate::Fps24});
+    const auto video = numberingFrameRateOf(project);
+    CHECK((video.has_value() && video->source == FrameRateSource::Video));
+    CHECK((video.has_value() && video->rate == FrameRate{StandardFrameRate::Fps24}));
+
+    CHECK_FALSE(numberingFrameRateOf(Project{}).has_value());
 }

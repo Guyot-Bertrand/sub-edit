@@ -11,6 +11,8 @@
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/duration.hpp>
+#include <subedit/core/time/frame.hpp>
+#include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/core/wording/formats.hpp>
@@ -118,6 +120,34 @@ constexpr QColor kShowingTint{40, 160, 90, kWash};
     return QString::fromStdString(position.format(mark));
 }
 
+/// A position as the column shows it: the number of the frame it falls in when positions are
+/// counted in frames — **rounded once** from the exact rational, which is what `toFrame` does and
+/// what a MicroDVD file writes — and its timestamp otherwise.
+[[nodiscard]] QString
+shown(core::Timestamp position, DecimalMark mark, const std::optional<core::FrameRate>& rate) {
+    return rate.has_value() ? QString::number(position.toFrame(*rate).number())
+                            : written(position, mark);
+}
+
+/// What was typed in a position cell, read as the column shows positions.
+///
+/// In frames, **a whole number**, with the sign a start may have before the film — anything else is
+/// unreadable, as a timestamp that does not read is, and the cell stays as it was. The number goes
+/// to a position by the exact scaling of ADR 0013, rounded once.
+[[nodiscard]] std::optional<core::Timestamp>
+readPosition(const std::string& typed, const std::optional<core::FrameRate>& rate) {
+    if (!rate.has_value())
+        return core::Timestamp::parse(typed);
+
+    const QString text = QString::fromStdString(typed).trimmed();
+    bool whole = false;
+    const qlonglong number = text.toLongLong(&whole);
+    if (!whole)
+        return std::nullopt;
+
+    return core::Timestamp::fromFrame(core::Frame::fromNumber(number), *rate);
+}
+
 } // namespace
 
 SubtitleTableModel::SubtitleTableModel(core::Session& session, QObject* parent)
@@ -166,6 +196,17 @@ int SubtitleTableModel::columnCount(const QModelIndex& parent) const {
     return parent.isValid() ? 0 : kColumnCount;
 }
 
+void SubtitleTableModel::setFrameRate(std::optional<core::FrameRate> rate) {
+    if (rate == m_frameRate)
+        return;
+
+    m_frameRate = rate;
+    // The two columns and their headers: the rows are the same, and so is the project.
+    emit headerDataChanged(Qt::Horizontal, Start, End);
+    if (rowCount({}) != 0)
+        emit dataChanged(index(0, Start), index(rowCount({}) - 1, End));
+}
+
 QVariant SubtitleTableModel::data(const QModelIndex& index, int role) const {
     if (!index.isValid())
         return {};
@@ -207,9 +248,9 @@ QVariant SubtitleTableModel::data(const QModelIndex& index, int role) const {
         // line after it.
         return QString::number(position.number());
     case Start:
-        return written(subtitle.start, mark);
+        return shown(subtitle.start, mark, m_frameRate);
     case End:
-        return written(subtitle.end, mark);
+        return shown(subtitle.end, mark, m_frameRate);
     case Duration:
         // Derived from the two positions and never stored. It is written as a
         // position past the origin, which is also the shape it is typed in.
@@ -307,7 +348,7 @@ bool SubtitleTableModel::setData(const QModelIndex& index, const QVariant& value
     case Start:
     case End: {
         const bool start = index.column() == Start;
-        const std::optional<core::Timestamp> wanted = core::Timestamp::parse(typed);
+        const std::optional<core::Timestamp> wanted = readPosition(typed, m_frameRate);
 
         // **Unreadable leaves the cell as it was** rather than inventing a
         // position. Getting a position wrong is silent: nothing on screen tells
@@ -363,9 +404,9 @@ QVariant SubtitleTableModel::headerData(int section, Qt::Orientation orientation
     case Number:
         return QStringLiteral("#");
     case Start:
-        return QStringLiteral("Start");
+        return m_frameRate.has_value() ? QStringLiteral("Start (frames)") : QStringLiteral("Start");
     case End:
-        return QStringLiteral("End");
+        return m_frameRate.has_value() ? QStringLiteral("End (frames)") : QStringLiteral("End");
     case Duration:
         return QStringLiteral("Duration");
     case Text:

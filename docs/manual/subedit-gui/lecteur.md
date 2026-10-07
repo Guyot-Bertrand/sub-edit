@@ -54,7 +54,7 @@ Sous l'image, de gauche à droite — les trois boutons sont des **icônes**, ce
 | le curseur | **se lit et se déplace** : on tire la poignée, on clique dans la rainure, on utilise les flèches |
 | la durée | celle que la vidéo déclare |
 | le volume | de 0 à 100, voir [Le volume](#le-volume) |
-| `Follow` | coché tant que la table suit la lecture, et la remet sur la ligne qui joue quand on le coche — voir [La table suit la lecture](#la-table-suit-la-lecture) |
+| suivi de la table | enfoncé tant que la table suit la lecture, et la remet sur la ligne qui joue quand on l'enfonce — voir [La table suit la lecture](#la-table-suit-la-lecture) |
 
 **Le curseur ne rend pas la main à chaque pixel.** Tirer la poignée demande des dizaines de
 positions par seconde, et chacune coûte une image décodée : la première position part tout de
@@ -145,13 +145,13 @@ des secondes, et un recentrage toutes les dixièmes de seconde serait un défile
 
 **Un défilement à la main suspend le suivi.** La molette, la barre de défilement et un clic dans la table
 le suspendent : la table reste où on l'a mise, pendant que la ligne courante, la réplique et la barre
-continuent de suivre le film. Le bouton **`Follow`**, à droite de la barre de lecture, **est coché tant que
-la table suit** et se décoche alors.
+continuent de suivre le film. Le bouton de suivi — **l'icône des lignes d'une table, l'une marquée d'une flèche**, à droite de la barre de
+lecture ; son infobulle dit « Follow playback » — **est enfoncé tant que la table suit** et se relève alors.
 
 **Le suivi reprend sur un geste du lecteur** : la lecture lancée, un saut, un pas, un repère posé, une
 insertion à la position, ou un déplacement de la barre — la table se centre alors tout de suite sur la
-ligne qui joue, même si c'était déjà la même. **Ou à la demande** : cocher `Follow` le rétablit, et le
-décocher le suspend. Il n'y a pas de minuterie : ce qui reprend le suivi est toujours un geste.
+ligne qui joue, même si c'était déjà la même. **Ou à la demande** : enfoncer le bouton le rétablit, et le
+relever le suspend. Il n'y a pas de minuterie : ce qui reprend le suivi est toujours un geste.
 
 Passer à un autre onglet reprend le suivi sur le film de cet onglet.
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <subedit/core/time/frame_rate.hpp>
+
 #include <QAbstractTableModel>
 #include <QVariant>
 
@@ -123,6 +125,18 @@ public:
     /// a second later.
     void setShowing(std::optional<core::SubtitleIndex> shown);
 
+    /// Counts the positions in frames at `rate`, or goes back to timestamps with nothing — issue
+    /// #620.
+    ///
+    /// **The columns are redrawn and the project is not touched**: nothing about the document
+    /// moves, what the file writes does not change, and no command goes through the history.
+    /// `Start` and `End` then **show the number of the frame** a position falls in, and **take a
+    /// number when they are edited**, converted by the exact scaling of ADR 0013 and rounded once.
+    void setFrameRate(std::optional<core::FrameRate> rate);
+
+    /// The rate the positions are counted at, or nothing when they are shown as timestamps.
+    [[nodiscard]] const std::optional<core::FrameRate>& frameRate() const { return m_frameRate; }
+
     /// Says that everything on screen is stale.
     ///
     /// What a change of format calls for: the decimal separator every position
@@ -166,6 +180,9 @@ private:
 
     /// The row a playing film shows, or -1.
     int m_showing = -1;
+
+    /// The rate the positions are shown at, or nothing for timestamps.
+    std::optional<core::FrameRate> m_frameRate;
 
     /// The anomalies of one row, most telling first, or empty.
     [[nodiscard]] std::span<const core::AnomalyKind> anomaliesAt(int row) const;

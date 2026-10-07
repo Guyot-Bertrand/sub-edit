@@ -79,6 +79,9 @@ struct WindowActions final {
     QAction* splitSubtitle = nullptr;
     QAction* preferences = nullptr;
 
+    // `View`.
+    QAction* framePositions = nullptr;
+
     // `Video`.
     QAction* selectVideo = nullptr;
     QAction* playPause = nullptr;

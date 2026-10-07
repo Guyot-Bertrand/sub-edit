@@ -3,6 +3,7 @@
 #include <subedit/gui/cell_delegates.hpp>
 #include <subedit/gui/spell_highlighter.hpp>
 #include <subedit/gui/subtitle_editor.hpp>
+#include <subedit/gui/subtitle_table_model.hpp>
 
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
@@ -51,6 +52,11 @@ constexpr auto kPositionPattern = R"(\s*-?\d{1,2}:\d{1,2}(:\d{1,2})?([.,]\d{1,3}
 
 /// The shape of a position with no sign: what a duration may be typed in.
 constexpr auto kDurationPattern = R"(\s*\d{1,2}:\d{1,2}(:\d{1,2})?([.,]\d{1,3})?\s*)";
+
+/// The shape of a position counted in frames: a whole number, and the sign a start may have before
+/// the film. Nine digits is more than any film has, and keeps a number of a size `toLongLong`
+/// reads.
+constexpr auto kFramePattern = R"(\s*-?\d{1,9}\s*)";
 
 /// A one-line field that accepts `pattern`, and nothing more.
 [[nodiscard]] QWidget* constrainedField(QWidget* parent, const char* pattern) {
@@ -282,8 +288,12 @@ bool TextDelegate::eventFilter(QObject* object, QEvent* event) {
 
 QWidget* PositionDelegate::createEditor(QWidget* parent,
                                         const QStyleOptionViewItem& /*option*/,
-                                        const QModelIndex& /*index*/) const {
-    return constrainedField(parent, kPositionPattern);
+                                        const QModelIndex& index) const {
+    // **The shape follows what the column shows**: when positions are frame numbers, a number is
+    // what the cell takes, and a colon in it would be a timestamp the reading refuses.
+    const auto* model = qobject_cast<const SubtitleTableModel*>(index.model());
+    const bool frames = model != nullptr && model->frameRate().has_value();
+    return constrainedField(parent, frames ? kFramePattern : kPositionPattern);
 }
 
 QWidget* DurationDelegate::createEditor(QWidget* parent,

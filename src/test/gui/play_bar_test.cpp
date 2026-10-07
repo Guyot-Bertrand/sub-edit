@@ -7,12 +7,19 @@
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/play_bar.hpp>
 
+#include <QColor>
+#include <QIcon>
+#include <QImage>
+#include <QPalette>
 #include <QPoint>
+#include <QSize>
 #include <QSlider>
 #include <QTest>
+#include <QToolButton>
 #include <Qt>
 #include <catch2/catch_test_macros.hpp>
 
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <vector>
@@ -130,4 +137,31 @@ TEST_CASE("a click on the volume goes where it was clicked", "[gui][GUI-VOLUME-0
     REQUIRE_FALSE(volumes.empty());
     CHECK(volumes.back() < 45);
     CHECK(volumes.back() > 5);
+}
+
+// The icons are drawn from the palette: the window goes from the light one to the dark one at the
+// press of a menu entry, and an icon that kept the colors of the first would be unreadable on the
+// second.
+TEST_CASE("the icons are drawn again when the palette changes", "[gui][GUI-FOLLOW-03]") {
+    constexpr QSize kLooked{32, 32};
+    PlayBar bar;
+    const auto drawn = [&] {
+        return std::vector<QImage>{
+            bar.followButton()->icon().pixmap(kLooked, QIcon::Normal, QIcon::On).toImage(),
+            bar.followButton()->icon().pixmap(kLooked, QIcon::Normal, QIcon::Off).toImage(),
+            bar.playButton()->icon().pixmap(kLooked).toImage(),
+            bar.stepBackButton()->icon().pixmap(kLooked).toImage(),
+            bar.stepForwardButton()->icon().pixmap(kLooked).toImage()};
+    };
+    const std::vector<QImage> before = drawn();
+
+    QPalette other = bar.palette();
+    other.setColor(QPalette::ButtonText, QColor{Qt::red});
+    other.setColor(QPalette::Highlight, QColor{Qt::green});
+    bar.setPalette(other);
+
+    const std::vector<QImage> after = drawn();
+    REQUIRE(after.size() == before.size());
+    for (std::size_t icon = 0; icon < before.size(); ++icon)
+        CHECK(after.at(icon) != before.at(icon));
 }

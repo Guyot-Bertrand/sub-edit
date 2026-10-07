@@ -117,6 +117,8 @@ WindowActions::WindowActions(QObject* owner)
       mergeSubtitles(buildAction(owner, QStringLiteral("&Merge Subtitles"), {})),
       splitSubtitle(buildAction(owner, QStringLiteral("S&plit Subtitle"), {})),
       preferences(new QAction{QStringLiteral("&Preferences…"), owner}),
+      // Out until a window says there is a rate to count frames at.
+      framePositions(buildAction(owner, QStringLiteral("Positions in &Frames"), {})),
       selectVideo(buildLitAction(owner, QStringLiteral("Select Video…"), {})),
       playPause(buildAction(
           owner, QStringLiteral("Play / Pause"), QStringLiteral("media-playback-start"))),
@@ -366,6 +368,12 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     QMenu* columnMenu = view->addMenu(QStringLiteral("&Columns"));
     for (QAction* entry : columns)
         columnMenu->addAction(entry);
+    view->addSeparator();
+    // A setting of the window, as the columns are, and checkable. **Its tooltip is where it says
+    // why it is out** — no frame rate to count by — so the menu shows tooltips.
+    framePositions->setCheckable(true);
+    view->setToolTipsVisible(true);
+    view->addAction(framePositions);
 
     QMenu* video = window.menuBar()->addMenu(QStringLiteral("&Video"));
     video->addAction(selectVideo);
