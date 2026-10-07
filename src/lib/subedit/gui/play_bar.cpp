@@ -4,11 +4,17 @@
 #include <subedit/gui/play_bar.hpp>
 
 #include <QAction>
+#include <QColor>
+#include <QEvent>
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QLabel>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QPalette>
+#include <QPixmap>
 #include <QPoint>
+#include <QPolygon>
 #include <QRect>
 #include <QSlider>
 #include <QString>
@@ -89,12 +95,113 @@ private:
     }
 };
 
-/// An icon of the theme the desktop gives, and the style's own where the theme has none — which is
-/// the case of a machine with no icon theme and of the window that is photographed for the manual,
-/// whose pictures must not depend on what is installed.
-[[nodiscard]] QIcon
-iconOf(const QWidget& widget, const char* themed, QStyle::StandardPixmap fallback) {
-    return QIcon::fromTheme(QString::fromLatin1(themed), widget.style()->standardIcon(fallback));
+/// The symbols of a transport, drawn.
+enum class Symbol { Play, Pause, SkipBack, SkipForward };
+
+/// The side of the pixmaps the icons are drawn on, in pixels: scaled down by Qt to whatever a
+/// button shows, which a drawing in plain shapes does without harm.
+constexpr int kIconSide = 64;
+
+/// A symbol of the transport in the color the palette gives to text on a button.
+///
+/// **The fallback of the theme's icon, and the only one**: the style's own (`SP_MediaPlay` and the
+/// others) are fixed pixmaps of a dark grey that read as disabled on the dark palette. These are
+/// drawn from the palette, so they read on both — which is also what the manual's captures need,
+/// taken with no icon theme at all.
+[[nodiscard]] QPixmap symbolPixmap(const QPalette& palette, Symbol symbol) {
+    QPixmap pixmap{kIconSide, kIconSide};
+    pixmap.fill(Qt::transparent);
+
+    QPainter painter{&pixmap};
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(palette.color(QPalette::ButtonText));
+
+    constexpr int kInset = 12;
+    constexpr int kFar = kIconSide - kInset;
+    constexpr int kMiddle = kIconSide / 2;
+    constexpr int kBar = 12;
+    constexpr int kSkipTriangle = 28;
+
+    switch (symbol) {
+    case Symbol::Play:
+        painter.drawPolygon(QPolygon{
+            {QPoint{kInset + 4, kInset}, QPoint{kFar, kMiddle}, QPoint{kInset + 4, kFar}}});
+        break;
+    case Symbol::Pause:
+        painter.drawRect(QRect{kInset + 2, kInset, kBar, kFar - kInset});
+        painter.drawRect(QRect{kFar - 2 - kBar, kInset, kBar, kFar - kInset});
+        break;
+    case Symbol::SkipBack:
+        painter.drawRect(QRect{kInset, kInset, kBar / 2, kFar - kInset});
+        painter.drawPolygon(QPolygon{
+            {QPoint{kFar, kInset}, QPoint{kFar - kSkipTriangle - 6, kMiddle}, QPoint{kFar, kFar}}});
+        break;
+    case Symbol::SkipForward:
+        painter.drawRect(QRect{kFar - (kBar / 2), kInset, kBar / 2, kFar - kInset});
+        painter.drawPolygon(QPolygon{{QPoint{kInset, kInset},
+                                      QPoint{kInset + kSkipTriangle + 6, kMiddle},
+                                      QPoint{kInset, kFar}}});
+        break;
+    }
+    return pixmap;
+}
+
+/// The icon of the theme the desktop gives, and the drawn symbol where the theme has none.
+[[nodiscard]] QIcon iconOf(const QPalette& palette, const char* themed, Symbol symbol) {
+    return QIcon::fromTheme(QString::fromLatin1(themed), QIcon{symbolPixmap(palette, symbol)});
+}
+
+/// The icon of the follow button: the lines of a table, one of them marked and held in the middle.
+///
+/// **Drawn and not taken from the theme**, for two reasons. No theme has an icon that says *the
+/// table follows the film* — `go-jump` and the like say another thing — and the one that comes
+/// closest would differ from one desktop to the next, where the button has to read the same. And
+/// the manual's captures are taken with no theme at all.
+///
+/// Two states: **on**, the marked line in the accent color with an arrow pointing at it, and
+/// **off**, the same lines all alike and dimmed — the table has been let go.
+[[nodiscard]] QPixmap followPixmap(const QPalette& palette, bool following) {
+    QPixmap pixmap{kIconSide, kIconSide};
+    pixmap.fill(Qt::transparent);
+
+    QPainter painter{&pixmap};
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(Qt::NoPen);
+
+    constexpr int kBars = 5;
+    constexpr int kMarked = 2;
+    constexpr int kBarHeight = 7;
+    constexpr int kGap = 5;
+    constexpr int kTop = 4;
+    constexpr int kLeft = 22;
+    constexpr int kRadius = 3;
+    constexpr int kDimmed = 150;
+    constexpr int kSwell = 2;
+
+    QColor plain = palette.color(QPalette::ButtonText);
+    plain.setAlpha(following ? kDimmed : kDimmed / 2);
+    const QColor accent = palette.color(QPalette::Highlight);
+
+    for (int bar = 0; bar < kBars; ++bar) {
+        const bool marked = following && bar == kMarked;
+        const int y = kTop + (bar * (kBarHeight + kGap));
+        // The marked line is a little taller than the others, so that it holds at 16 pixels.
+        const int swell = marked ? kSwell : 0;
+        painter.setBrush(marked ? accent : plain);
+        painter.drawRoundedRect(
+            QRect{kLeft, y - swell, kIconSide - kLeft - 3, kBarHeight + (2 * swell)},
+            kRadius,
+            kRadius);
+
+        if (marked) {
+            // The arrow, in the accent color, pointing at the line that is held.
+            const int middle = y + (kBarHeight / 2);
+            painter.drawPolygon(QPolygon{
+                {QPoint{2, middle - 11}, QPoint{kLeft - 4, middle}, QPoint{2, middle + 11}}});
+        }
+    }
+    return pixmap;
 }
 
 /// How many steps a click on the groove, or a page key, moves the volume.
@@ -120,8 +227,7 @@ PlayBar::PlayBar(QWidget* parent)
     // words, for whoever hovers and for a screen reader.
     for (QToolButton* button : {m_stepBack, m_play, m_stepForward})
         button->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    m_stepBack->setIcon(iconOf(*this, "media-skip-backward", QStyle::SP_MediaSkipBackward));
-    m_stepForward->setIcon(iconOf(*this, "media-skip-forward", QStyle::SP_MediaSkipForward));
+    drawIcons();
     showPlaying(false);
     m_play->setAutoRaise(true);
     // A held button repeats, as a held key does: the same action each time, one step at a time.
@@ -158,8 +264,10 @@ PlayBar::PlayBar(QWidget* parent)
 
     // **Text and not an icon**: it is not a transport control but the state of the table, and a
     // word says that better than a symbol would. Checked while the table follows playback.
-    m_follow->setText(QStringLiteral("Follow"));
-    m_follow->setToolTip(QStringLiteral("Keep the table on the subtitle that is showing"));
+    m_follow->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    m_follow->setToolTip(
+        QStringLiteral("Follow playback: keep the table on the subtitle that is showing"));
+    m_follow->setAccessibleName(QStringLiteral("Follow"));
     m_follow->setCheckable(true);
     m_follow->setChecked(true);
     m_follow->setAutoRaise(true);
@@ -189,6 +297,25 @@ PlayBar::PlayBar(QWidget* parent)
         if (!m_updating)
             emit volumeRequested(value);
     });
+}
+
+void PlayBar::drawIcons() {
+    m_stepBack->setIcon(iconOf(palette(), "media-skip-backward", Symbol::SkipBack));
+    m_stepForward->setIcon(iconOf(palette(), "media-skip-forward", Symbol::SkipForward));
+    m_playIcon = iconOf(palette(), "media-playback-start", Symbol::Play);
+    m_pauseIcon = iconOf(palette(), "media-playback-pause", Symbol::Pause);
+    m_play->setIcon(m_playing ? m_pauseIcon : m_playIcon);
+
+    QIcon following;
+    following.addPixmap(followPixmap(palette(), true), QIcon::Normal, QIcon::On);
+    following.addPixmap(followPixmap(palette(), false), QIcon::Normal, QIcon::Off);
+    m_follow->setIcon(following);
+}
+
+void PlayBar::changeEvent(QEvent* event) {
+    QWidget::changeEvent(event);
+    if (event->type() == QEvent::PaletteChange)
+        drawIcons();
 }
 
 void PlayBar::setStepActions(QAction* back, QAction* forward) {
@@ -241,8 +368,8 @@ void PlayBar::showFollowing(bool following) {
 }
 
 void PlayBar::showPlaying(bool playing) {
-    m_play->setIcon(playing ? iconOf(*this, "media-playback-pause", QStyle::SP_MediaPause)
-                            : iconOf(*this, "media-playback-start", QStyle::SP_MediaPlay));
+    m_playing = playing;
+    m_play->setIcon(playing ? m_pauseIcon : m_playIcon);
     m_play->setToolTip(playing ? QStringLiteral("Pause") : QStringLiteral("Play"));
 }
 
