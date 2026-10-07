@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Tests
 
+- **gui** — Un contrôle que le manuel dit les raccourcis de la fenêtre
+
+## 0.14.5 — 2026-10-06
+
+### Tests
+
 - **video** — Un banc du saut et du pas, et un seek qui ne cale plus
 
 ## 0.14.4 — 2026-10-06
