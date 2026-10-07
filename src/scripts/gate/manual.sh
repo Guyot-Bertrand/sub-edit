@@ -41,7 +41,7 @@ done
 step "exemples du manuel"
 
 cmake --preset dev >/dev/null
-cmake --build --preset dev -j "${JOBS}" --target subedit-cli subedit_screenshots
+cmake --build --preset dev -j "${JOBS}" --target subedit-cli subedit_screenshots subedit_list_shortcuts
 
 if ((check)); then
     "${REPO_ROOT}/src/scripts/generate-manual.sh" --check
@@ -62,3 +62,4 @@ fi
 "${REPO_ROOT}/src/scripts/check-screenshots.py"
 "${REPO_ROOT}/src/scripts/check-manual-links.py"
 "${REPO_ROOT}/src/scripts/check-cli-manual.py" --binary "${REPO_ROOT}/build/dev/bin/subedit-cli"
+"${REPO_ROOT}/src/scripts/check-gui-manual.py" --binary "${REPO_ROOT}/build/dev/bin/subedit_list_shortcuts"

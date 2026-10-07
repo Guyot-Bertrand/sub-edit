@@ -1400,6 +1400,83 @@ expect_cli_manual_gate() {
 
 expect_cli_manual_gate
 
+# Le manuel de `subedit-gui` et les raccourcis de la fenêtre — #612.
+#
+# **Cinq preuves, une par défaut que le contrôle promet de voir**, et une pour le vert : une
+# ligne de tableau qui nomme une action que la fenêtre n'a pas, un raccourci écrit que l'action
+# ne répond pas, un « aucun » écrit d'une action qui en a un, et **une action dont le raccourci
+# n'est écrit nulle part**. Comme pour le manuel de la ligne de commande, chaque injection porte
+# sur **une copie** du manuel : le contrôle accepte le manuel en argument, si bien que rien du
+# dépôt n'est touché. La dernière injecte du côté de la fenêtre — un faux programme qui ajoute
+# une action à la vraie liste —, parce que le défaut est de ne rien écrire, et qu'on ne retire
+# pas d'un manuel ce qui n'y était pas.
+expect_gui_manual_gate() {
+    local script="${REPO_ROOT}/src/scripts/check-gui-manual.py"
+    local binary="${REPO_ROOT}/build/dev/bin/subedit_list_shortcuts"
+    local real_manual="${REPO_ROOT}/docs/manual/subedit-gui"
+    local root
+    root="$(mktemp -d)"
+
+    printf '%s▸ le manuel de subedit-gui, tel qu il est%s\n' "${BOLD}" "${RESET}"
+    if "${script}" --binary "${binary}" >/dev/null 2>&1; then
+        printf '  %s✓ « check-gui-manual.py » a laissé passer le manuel intact, comme attendu%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ le contrôle refuse le manuel intact%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    expect_gui_manual_refused() {
+        local label="$1" expected="$2" with_binary="${3:-${binary}}"
+        local output
+        if output="$("${script}" --binary "${with_binary}" --manual "${root}/manual" 2>&1)"; then
+            printf '  %s✗ le contrôle a laissé passer : %s%s\n' "${RED}" "${label}" "${RESET}"
+            failures=$((failures + 1))
+        elif [[ "${output}" == *"${expected}"* && "${output}" == *"1 écart(s)"* ]]; then
+            printf '  %s✓ « check-gui-manual.py » a refusé, et nommé seul cet écart : %s%s\n' \
+                "${GREEN}" "${label}" "${RESET}"
+        else
+            printf '  %s✗ le contrôle a refusé, mais pas pour la bonne raison : %s%s\n' \
+                "${RED}" "${label}" "${RESET}"
+            failures=$((failures + 1))
+        fi
+    }
+    fresh_manual() {
+        rm -rf "${root}/manual"
+        cp -r "${real_manual}" "${root}/manual"
+    }
+
+    printf '%s▸ une ligne de tableau qui nomme une action que la fenêtre n a pas%s\n' "${BOLD}" "${RESET}"
+    fresh_manual
+    printf '\n| Commande | Raccourci |\n| :------- | :-------- |\n| `Inexistante` | `Ctrl+Q` |\n' \
+        >> "${root}/manual/video.md"
+    expect_gui_manual_refused "une action inventée" "ACTION INCONNUE"
+
+    printf '%s▸ un raccourci écrit que l action ne répond pas%s\n' "${BOLD}" "${RESET}"
+    fresh_manual
+    sed -i 's/| `Ctrl+P` | joue si/| `Ctrl+Q` | joue si/' "${root}/manual/lecteur.md"
+    expect_gui_manual_refused "Ctrl+Q pour Play / Pause" "RACCOURCI INCONNU"
+
+    printf '%s▸ un « aucun » écrit d une action qui a un raccourci%s\n' "${BOLD}" "${RESET}"
+    fresh_manual
+    sed -i 's/| `Ctrl+P` | joue si/| aucun | joue si/' "${root}/manual/lecteur.md"
+    expect_gui_manual_refused "aucun pour Play / Pause" "RACCOURCI OUBLIÉ"
+
+    printf '%s▸ une action dont le raccourci n est écrit nulle part%s\n' "${BOLD}" "${RESET}"
+    fresh_manual
+    cat > "${root}/faux-programme" <<FAKE
+#!/usr/bin/env bash
+"${binary}"
+printf 'Nouvelle action\tCtrl+Alt+Q\n'
+FAKE
+    chmod +x "${root}/faux-programme"
+    expect_gui_manual_refused "Ctrl+Alt+Q" "RACCOURCI NON DOCUMENTÉ" "${root}/faux-programme"
+
+    rm -rf "${root}"
+}
+
+expect_gui_manual_gate
+
 # Les règles d installation oublient un fichier de données — #239.
 #
 # **L injection réduit les règles aux seuls binaires**, plutôt que d ajouter du

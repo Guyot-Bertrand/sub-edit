@@ -27,6 +27,14 @@ target_compile_definitions(
 
 subedit_set_warnings(subedit_screenshots)
 
+# Les raccourcis de la fenêtre, écrits un par ligne — #612. Ni un test ni un livrable : ce que
+# `check-gui-manual.py` confronte au manuel, du côté de la fenêtre.
+add_executable(subedit_list_shortcuts list_shortcuts.cpp)
+
+target_link_libraries(subedit_list_shortcuts PRIVATE subedit::gui subedit::core Qt6::Widgets)
+
+subedit_set_warnings(subedit_list_shortcuts)
+
 # La détection d'encodage, sur la ligne de commande — #296.
 #
 # Ni un test ni un livrable : ce qui permet à `score-encoding-detection.py` de
