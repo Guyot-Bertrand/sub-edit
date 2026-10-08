@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — La barre de lecture compte aussi en images
+
+## 0.14.15 — 2026-10-07
+
+### Ajouts
+
 - **gui** — Une icône pour le bouton de suivi de la table
 - **gui** — Afficher les positions en images
 

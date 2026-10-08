@@ -150,6 +150,10 @@ pas compté en images, la vidéo ne déclare pas de fréquence, et les positions
   commence à 1 543,04 ms, soit `00:00:01,543`.
 - **Seuls les nombres entiers sont acceptés** — avec le signe moins, un début pouvant précéder le film. Un
   timestamp saisi en mode images, ou un nombre qui n'en est pas un, laisse la cellule comme elle était.
+- **La barre de lecture suit le même réglage** : la position et la durée de part et d'autre du curseur
+  s'écrivent en numéros d'image comme `Start` et `End`, au même instant — voir
+  [La barre de lecture](lecteur.md#la-barre-de-lecture). Le chrono dessiné en haut de l'image reste un
+  timestamp.
 - **Ce réglage n'est pas retenu** d'une session à l'autre : c'est un réglage de la fenêtre, non d'un
   document, et il se rallume d'un geste.
 

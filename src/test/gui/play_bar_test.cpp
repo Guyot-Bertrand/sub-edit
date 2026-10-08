@@ -4,12 +4,14 @@
 // player are in `video_pane_test.cpp`; these have none, and read the signals the bar sends.
 
 #include <subedit/core/time/duration.hpp>
+#include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/play_bar.hpp>
 
 #include <QColor>
 #include <QIcon>
 #include <QImage>
+#include <QLabel>
 #include <QPalette>
 #include <QPoint>
 #include <QSize>
@@ -164,4 +166,32 @@ TEST_CASE("the icons are drawn again when the palette changes", "[gui][GUI-FOLLO
     REQUIRE(after.size() == before.size());
     for (std::size_t icon = 0; icon < before.size(); ++icon)
         CHECK(after.at(icon) != before.at(icon));
+}
+
+// The setting that counts the columns of the table in frames counts the bar's position and length
+// too — issue #620: one moment, said the same way twice.
+TEST_CASE("the position and the length are counted in frames when the setting says so",
+          "[gui][GUI-FRAMES-02]") {
+    PlayBar bar;
+    bar.showPosition(Timestamp::fromMilliseconds(1000), Duration::fromMilliseconds(10000));
+    CHECK(bar.positionLabel()->text() == QStringLiteral("00:00:01,000"));
+    CHECK(bar.lengthLabel()->text() == QStringLiteral("00:00:10,000"));
+
+    bar.setFrameRate(subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps25});
+
+    // At once, from what the bar was last told, and not at the next tick.
+    CHECK(bar.positionLabel()->text() == QStringLiteral("25"));
+    CHECK(bar.lengthLabel()->text() == QStringLiteral("250"));
+
+    // And the next positions are written so.
+    bar.showPosition(Timestamp::fromMilliseconds(2000), Duration::fromMilliseconds(10000));
+    CHECK(bar.positionLabel()->text() == QStringLiteral("50"));
+
+    // A drag too: the label under the hand says what the bar will say once the film is there.
+    bar.positionSlider()->setValue(4000);
+    CHECK(bar.positionLabel()->text() == QStringLiteral("100"));
+
+    bar.setFrameRate(std::nullopt);
+    CHECK(bar.positionLabel()->text() == QStringLiteral("00:00:04,000"));
+    CHECK(bar.lengthLabel()->text() == QStringLiteral("00:00:10,000"));
 }
