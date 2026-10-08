@@ -482,15 +482,29 @@ projet pendant qu'une correction lui est encore promise — soit une vraie
 concurrence, soit une manipulation directe de la mémoire pour la simuler, les
 deux plus coûteuses et plus fragiles que la ligne qu'elles prouveraient.
 
+## Six lignes de plus dans `qt_prompts.cpp`, en phase 14 (#621)
+
+`Prompts::proposeShiftedReopening` est la question que la fenêtre pose quand une traduction
+s'est révélée décalée de façon constante : rouvrir décalée, oui ou non. Sa réalisation de
+production est **une boîte modale** — `QMessageBox::question` — dont `exec()` ne se teste
+pas, exactement comme `aboutLoss` et `aboutUnsavedChanges` à côté d'elle ; les six lignes
+(l'en-tête, le texte, les réponses, l'appel, le retour, l'accolade) rejoignent les quarante-six
+des autres méthodes de ce fichier, qui ne bougent pas.
+
+**Ce qui est couvert plutôt que compté**, dans le même diff : tout le reste de #621, la
+recherche du décalage, la coupe à huit candidats et le refus quand deux décalages se valent —
+un cas construit pour que chacun nettoie l'ouverture à lui seul, ce qui est ce qui fait du
+refus le bon —, et la fenêtre, qui répond à la question par le double `FakePrompts`.
+
 ## Relevé
 
-    total : 68
+    total : 74
 
-Relevé sur la version 0.14.14, le 2026-10-07.
+Relevé sur la version 0.14.17, le 2026-10-08.
 
 | Lignes | Fichier |
 | -----: | :------ |
-| 46 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 52 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 4 | `src/lib/subedit/core/process/start_process.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |

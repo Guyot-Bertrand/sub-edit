@@ -53,6 +53,14 @@ struct AttachedTranslation {
     TranslationOutcome outcome{};
 };
 
+/// What opening `lines` by `method` would say, without planning the command.
+///
+/// **The same matching `attachTranslation` goes through**, so the counts are the ones
+/// the opening would report — a judgement and never an estimate.
+[[nodiscard]] TranslationOutcome previewTranslation(const Project& project,
+                                                    std::span<const Subtitle> lines,
+                                                    TranslationMethod method);
+
 /// Plans the attachment of `lines` — the subtitles read from a translation
 /// file, positions and text — to the main document of `project`, by `method`.
 ///

@@ -118,6 +118,14 @@ public:
     /// lost » teaches a user to dismiss the one that matters.
     [[nodiscard]] virtual bool aboutLoss(const std::string& notice) = 0;
 
+    /// Whether to open a translation again, moved by the constant shift it was found to sit
+    /// at — issue #621. `message` is what the opening said, then the sentence about the shift.
+    ///
+    /// **Asked after the opening, which is already done and can be undone**: « no » leaves it
+    /// as it is, and « yes » takes it back and does it again, moved. The default is « no »,
+    /// since nothing has gone wrong that the user did not already see.
+    [[nodiscard]] virtual bool proposeShiftedReopening(const std::string& message) = 0;
+
     /// Shows `dialog` and says whether it was accepted.
     ///
     /// **One method for every dialog this project writes itself**, and that is

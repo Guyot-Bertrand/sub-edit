@@ -20,6 +20,7 @@ add_library(
     edit/merge_split_command.cpp
     edit/clipboard.cpp
     edit/translation.cpp
+    edit/translation_drift.cpp
     edit/duration_adjustment.cpp
     edit/search.cpp
     edit/shift_limits.cpp

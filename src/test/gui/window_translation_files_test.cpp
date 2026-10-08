@@ -65,8 +65,21 @@ constexpr const char* kFull = "1\n00:00:01,000 --> 00:00:02,000\nOne.\n\n"
 constexpr const char* kMissingMiddle = "1\n00:00:01,000 --> 00:00:02,000\nOne.\n\n"
                                        "2\n00:00:05,000 --> 00:00:06,000\nThree.\n\n";
 
+/// Four subtitles four seconds apart, and the four lines of their translation two seconds late:
+/// each falls in the gap after its subtitle, and none finds one.
+constexpr const char* kSpaced = "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n"
+                                "2\n00:00:05,000 --> 00:00:06,000\nDeux.\n\n"
+                                "3\n00:00:09,000 --> 00:00:10,000\nTrois.\n\n"
+                                "4\n00:00:13,000 --> 00:00:14,000\nQuatre.\n\n";
+constexpr const char* kLate = "1\n00:00:03,000 --> 00:00:04,000\nOne.\n\n"
+                              "2\n00:00:07,000 --> 00:00:08,000\nTwo.\n\n"
+                              "3\n00:00:11,000 --> 00:00:12,000\nThree.\n\n"
+                              "4\n00:00:15,000 --> 00:00:16,000\nFour.\n\n";
+
 [[nodiscard]] InMemoryFileSystem filesystem() {
     InMemoryFileSystem files;
+    files.addFile("espace.srt", kSpaced);
+    files.addFile("espace.en.srt", kLate);
     files.addFile("film.srt", kMain);
     files.addFile("film.en.srt", kFull);
     files.addFile("manquante.srt", kMissingMiddle);
@@ -721,4 +734,81 @@ TEST_CASE("what the reading of the translation ran into goes to the panel", "[gu
 
     CHECK(window.diagnostics()->count() > 0);
     CHECK(cellAt(window, 0, kTranslationColumn) == "One.");
+}
+
+TEST_CASE("a translation laid two seconds late is offered to be opened again, moved",
+          "[gui][GUI-DRIFT-01]") {
+    InMemoryFileSystem files = filesystem();
+    FakePrompts prompts;
+    auto opened = openProject(files, "espace.srt");
+    REQUIRE(opened.has_value());
+    MainWindow late{files, std::move(*opened), prompts};
+    late.show();
+
+    openTranslation(late, prompts, "espace.en.srt");
+
+    // The opening is said once, with the sentence about the shift after it, in the one question.
+    REQUIRE(prompts.shiftedReopenings.size() == 1);
+    CHECK(prompts.outcomes.empty());
+    CHECK(prompts.shiftedReopenings.front().find("4 subtitles born of a line") !=
+          std::string::npos);
+    CHECK(prompts.shiftedReopenings.front().find(
+              "the lines sit 2.000 s later than the subtitles; moved back, 4 lines would attach "
+              "instead of 0") != std::string::npos);
+
+    // Declined: the opening stays as it was done.
+    CHECK(late.table()->model()->rowCount() == 8);
+    CHECK(late.undoAction()->text().toStdString() == "Undo: opening a translation");
+}
+
+TEST_CASE("opening it again, moved, attaches every line and is still one entry of the history",
+          "[gui][GUI-DRIFT-02]") {
+    InMemoryFileSystem files = filesystem();
+    FakePrompts prompts;
+    auto opened = openProject(files, "espace.srt");
+    REQUIRE(opened.has_value());
+    MainWindow window{files, std::move(*opened), prompts};
+    window.show();
+    prompts.nextShiftedReopeningAccepted = true;
+
+    openTranslation(window, prompts, "espace.en.srt");
+
+    REQUIRE(window.table()->model()->rowCount() == 4);
+    CHECK(cellAt(window, 0, kTranslationColumn) == "One.");
+    CHECK(cellAt(window, 3, kTranslationColumn) == "Four.");
+    CHECK(prompts.outcomes.empty());
+    CHECK(window.statusBar()->currentMessage().toStdString() ==
+          subedit::core::noticeOf(subedit::core::TranslationOutcome{.attached = 4}));
+
+    // **One undo gives everything back**, the first opening included.
+    window.undoAction()->trigger();
+    CHECK(cellAt(window, 0, kTranslationColumn).empty());
+    CHECK(window.table()->model()->rowCount() == 4);
+    CHECK_FALSE(window.undoAction()->isEnabled());
+}
+
+TEST_CASE("an opening that no shift would mend offers none", "[gui][GUI-DRIFT-01]") {
+    InMemoryFileSystem files = filesystem();
+    FakePrompts prompts;
+    MainWindow window{files, mainOf(files), prompts};
+    window.show();
+
+    openTranslation(window, prompts, "manquante.srt");
+
+    CHECK(prompts.shiftedReopenings.empty());
+    CHECK(prompts.outcomes.size() == 1);
+}
+
+TEST_CASE("opening by number offers no shift, since positions are not looked at",
+          "[gui][GUI-DRIFT-01]") {
+    InMemoryFileSystem files = filesystem();
+    FakePrompts prompts;
+    auto opened = openProject(files, "espace.srt");
+    REQUIRE(opened.has_value());
+    MainWindow window{files, std::move(*opened), prompts};
+    window.show();
+
+    openTranslation(window, prompts, "espace.en.srt", TranslationMethod::Number);
+
+    CHECK(prompts.shiftedReopenings.empty());
 }

@@ -8,6 +8,7 @@
 #include <subedit/core/edit/search.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/translation.hpp>
+#include <subedit/core/edit/translation_drift.hpp>
 #include <subedit/core/format/degradation.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
@@ -979,11 +980,53 @@ void MainWindow::openTranslationFromPrompt() {
         return;
     const core::TranslationFile& read = chosen->read;
 
-    core::AttachedTranslation attached = core::attachTranslation(
-        m_page->session->project(), read.lines, read.source, chosen->method);
+    // **Looked for before the opening, on the project as it stands**: afterwards it holds the
+    // subtitles the lines gave birth to, and the lines would find them. Only by position — by
+    // number, positions are not looked at and no shift can matter.
+    const std::optional<core::ConstantShift> shift =
+        chosen->method == core::TranslationMethod::Position
+            ? core::findConstantShift(m_page->session->project(), read.lines)
+            : std::nullopt;
+
+    Opened opened = attachLines(read.lines, read.source, chosen->method);
+
+    // What the reading ran into that is not about alignment — the panel of what
+    // the last reading met.
+    if (!read.diagnostics.empty())
+        m_diagnostics->setDiagnostics(read.diagnostics);
+
+    // **A translation laid a constant time away** is told apart from one that is just
+    // incomplete, and the opening can be taken back and done again moved — issue #621.
+    if (shift.has_value() && !(opened.outcome.isClean() && opened.pastTheEnd.empty())) {
+        const std::string said = joinedNotices(core::noticeOf(opened.outcome), opened.pastTheEnd);
+        if (!m_prompts->proposeShiftedReopening(said + "\n" + core::shiftNoticeOf(*shift)))
+            return;
+
+        // One entry in the history: the first opening is undone, and the second takes its place.
+        commitCellEditor();
+        m_page->model->applied(m_page->session->undo());
+        opened =
+            attachLines(core::shiftedBack(read.lines, shift->lateBy), read.source, chosen->method);
+    }
+
+    // **In the status bar when everything found its place, in a box to close
+    // otherwise** — the rule #398 set for a gesture that has something to say.
+    const std::string notice = core::noticeOf(opened.outcome);
+    if (opened.outcome.isClean() && opened.pastTheEnd.empty()) {
+        statusBar()->showMessage(QString::fromStdString(notice), kOperationStatusTimeoutMs);
+        return;
+    }
+    m_prompts->reportOutcome(joinedNotices(notice, opened.pastTheEnd));
+}
+
+MainWindow::Opened MainWindow::attachLines(std::span<const core::Subtitle> lines,
+                                           const core::SourceFile& source,
+                                           core::TranslationMethod method) {
+    core::AttachedTranslation attached =
+        core::attachTranslation(m_page->session->project(), lines, source, method);
     const core::TranslationOutcome outcome = attached.outcome;
     const core::Selection whole = core::Selection::all(m_page->session->project());
-    const std::string pastTheEnd =
+    std::string pastTheEnd =
         m_operations->applyQuietly(*m_page, std::move(attached.command), whole);
 
     // **What has just been read is what its file says**: nothing was typed, and
@@ -994,21 +1037,7 @@ void MainWindow::openTranslationFromPrompt() {
     // it away once does not outlast the opening of a translation.
     m_columns->action(core::TableColumn::Translation)->setChecked(true);
     refreshActions();
-
-    // What the reading ran into that is not about alignment — the panel of what
-    // the last reading met.
-    if (!read.diagnostics.empty())
-        m_diagnostics->setDiagnostics(read.diagnostics);
-
-    // **In the status bar when everything found its place, in a box to close
-    // otherwise** — the rule #398 set for a gesture that has something to say.
-    const std::string notice = core::noticeOf(outcome);
-    if (outcome.isClean() && pastTheEnd.empty()) {
-        statusBar()->showMessage(QString::fromStdString(notice), kOperationStatusTimeoutMs);
-        return;
-    }
-
-    m_prompts->reportOutcome(joinedNotices(notice, pastTheEnd));
+    return Opened{.outcome = outcome, .pastTheEnd = std::move(pastTheEnd)};
 }
 
 void MainWindow::openFromPrompt() {

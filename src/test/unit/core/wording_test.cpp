@@ -7,6 +7,7 @@
 #include <subedit/core/edit/duration_adjustment.hpp>
 #include <subedit/core/edit/search.hpp>
 #include <subedit/core/edit/translation.hpp>
+#include <subedit/core/edit/translation_drift.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
 #include <subedit/core/format/degradation.hpp>
 #include <subedit/core/format/diagnostic.hpp>
@@ -207,6 +208,28 @@ TEST_CASE("a single subtitle past the end is said in the singular", "[wording]")
     CHECK(noticeOf(CommandKind::Shift,
                    BeyondEnd{.count = 1, .overshoot = Duration::fromMilliseconds(500)}) ==
           "shifting leaves 1 subtitle past the end of the video, by 0.500 s at most");
+}
+
+TEST_CASE("a shift says which way the lines sit and what moving them would give",
+          "[wording][GUI-DRIFT-01]") {
+    using subedit::core::ConstantShift;
+    using subedit::core::Duration;
+    using subedit::core::shiftNoticeOf;
+    using subedit::core::TranslationOutcome;
+
+    const TranslationOutcome before{.attached = 1, .born = 3, .untranslated = 3};
+    const TranslationOutcome after{.attached = 4};
+
+    CHECK(shiftNoticeOf(ConstantShift{.lateBy = Duration::fromMilliseconds(2000),
+                                      .asOpened = before,
+                                      .ifShifted = after}) ==
+          "the lines sit 2.000 s later than the subtitles; moved back, 4 lines would attach "
+          "instead of 1");
+    CHECK(shiftNoticeOf(ConstantShift{.lateBy = Duration::fromMilliseconds(-1500),
+                                      .asOpened = before,
+                                      .ifShifted = after}) ==
+          "the lines sit 1.500 s earlier than the subtitles; moved forward, 4 lines would attach "
+          "instead of 1");
 }
 
 TEST_CASE("every grid verdict has a word of its own", "[wording]") {
