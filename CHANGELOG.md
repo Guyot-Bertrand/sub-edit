@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Proposer la conversion qui remet sur une grille
+
+## 0.14.17 — 2026-10-08
+
+### Ajouts
+
 - **gui** — Rouvrir décalée une traduction décalée
 
 ## 0.14.16 — 2026-10-08
