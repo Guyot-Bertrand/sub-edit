@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Rouvrir décalée une traduction décalée
+
+## 0.14.16 — 2026-10-08
+
+### Ajouts
+
 - **gui** — La barre de lecture compte aussi en images
 
 ## 0.14.15 — 2026-10-07
