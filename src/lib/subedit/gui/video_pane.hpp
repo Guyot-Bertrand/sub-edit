@@ -280,6 +280,16 @@ private:
     /// Makes the step that waited for the gate, if one did, and closes the gate again.
     void flushStep();
 
+    /// Takes the film to `position` and has the table follow it again — **the one road of every
+    /// gesture that moves the film**: a jump, a neighbour, a selection, a drag of the bar, an edge
+    /// that was moved. Written once because the gesture that forgot to take the following up again
+    /// was the defect issue #619 repaired, and the next variant would have written it again.
+    ///
+    /// With `playUntil`, the film plays from there and stops on that frame.
+    void goTo(ProjectPage& page,
+              core::Timestamp position,
+              std::optional<core::Timestamp> playUntil = std::nullopt);
+
     /// Puts the volume at `volume` — the player, the bar and the memory of it.
     void applyVolume(int volume);
 

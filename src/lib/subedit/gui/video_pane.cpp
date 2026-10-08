@@ -147,6 +147,19 @@ struct SelectedSpan {
                         .last = static_cast<std::size_t>(highest.row())};
 }
 
+/// Sets the `boundary` of `row` to `to`, as one entry of the history, and says whether it did:
+/// **nothing is done, and nothing recorded, when the edge already stands there.**
+[[nodiscard]] bool
+setEdge(ProjectPage& page, core::SubtitleIndex row, core::Boundary boundary, core::Timestamp to) {
+    if (page.session->project().subtitleAt(row).position(boundary) == to)
+        return false;
+
+    page.model->applied(page.session->apply(
+        std::make_unique<core::SetPositionCommand>(page.session->project(), row, boundary, to)));
+    page.placedAt = -1;
+    return true;
+}
+
 } // namespace
 
 VideoPane::VideoPane(core::FileSystem& files,
@@ -642,10 +655,18 @@ void VideoPane::flushSeek() {
 
     const core::Timestamp position = *m_pendingSeek;
     m_pendingSeek.reset();
+    goTo(*m_playingPage, position);
+    m_seekGate->start();
+}
+
+void VideoPane::goTo(ProjectPage& page,
+                     core::Timestamp position,
+                     std::optional<core::Timestamp> playUntil) {
     resumeFollowing();
     m_player->seek(position);
-    follow(*m_playingPage);
-    m_seekGate->start();
+    if (playUntil.has_value())
+        m_player->playUntil(*playUntil);
+    follow(page);
 }
 
 void VideoPane::step(ProjectPage& /*page*/, int direction) {
@@ -688,19 +709,12 @@ void VideoPane::nudge(ProjectPage& page, core::Boundary boundary, int direction)
         core::movedByFrames(page.session->project().subtitleAt(row).position(boundary),
                             counted->rate,
                             (direction < 0 ? -1 : 1) * m_settings.stepFrames);
-    if (page.session->project().subtitleAt(row).position(boundary) == moved)
+    if (!setEdge(page, row, boundary, moved))
         return;
 
-    page.model->applied(page.session->apply(
-        std::make_unique<core::SetPositionCommand>(page.session->project(), row, boundary, moved)));
-    page.placedAt = -1;
-
     // The edge is where the film is shown, so that what was set can be seen.
-    if (page.watching) {
-        resumeFollowing();
-        m_player->seek(moved);
-        follow(page);
-    }
+    if (page.watching)
+        goTo(page, moved);
 }
 
 void VideoPane::seekBy(ProjectPage& page, int direction) {
@@ -712,9 +726,7 @@ void VideoPane::seekBy(ProjectPage& page, int direction) {
     if (!where.has_value() || !length.has_value())
         return;
 
-    resumeFollowing();
-    m_player->seek(core::jumpedBy(*where, *length, m_settings.seekLengthSeconds, direction));
-    follow(page);
+    goTo(page, core::jumpedBy(*where, *length, m_settings.seekLengthSeconds, direction));
 }
 
 void VideoPane::seekToNeighbour(ProjectPage& page, bool next) {
@@ -730,9 +742,7 @@ void VideoPane::seekToNeighbour(ProjectPage& page, bool next) {
     if (!found.has_value())
         return;
 
-    resumeFollowing();
-    m_player->seek(*found);
-    follow(page);
+    goTo(page, *found);
 }
 
 void VideoPane::seekToSelection(ProjectPage& page, bool end) {
@@ -747,9 +757,7 @@ void VideoPane::seekToSelection(ProjectPage& page, bool end) {
     const core::Timestamp edge =
         end ? project.subtitleAt(core::SubtitleIndex::fromValue(span->last)).end
             : project.subtitleAt(core::SubtitleIndex::fromValue(span->first)).start;
-    resumeFollowing();
-    m_player->seek(core::withLeadIn(edge, m_settings.contextLengthMilliseconds));
-    follow(page);
+    goTo(page, core::withLeadIn(edge, m_settings.contextLengthMilliseconds));
 }
 
 void VideoPane::playSelection(ProjectPage& page) {
@@ -763,12 +771,11 @@ void VideoPane::playSelection(ProjectPage& page) {
     const core::Project& project = page.session->project();
     const core::Timestamp start =
         project.subtitleAt(core::SubtitleIndex::fromValue(span->first)).start;
-    resumeFollowing();
-    m_player->seek(core::withLeadIn(start, m_settings.contextLengthMilliseconds));
     // Up to the end of the last subtitle of the selection, and not up to the end of the
     // film: `playUntil` stops on the frame.
-    m_player->playUntil(project.subtitleAt(core::SubtitleIndex::fromValue(span->last)).end);
-    follow(page);
+    goTo(page,
+         core::withLeadIn(start, m_settings.contextLengthMilliseconds),
+         project.subtitleAt(core::SubtitleIndex::fromValue(span->last)).end);
 }
 
 void VideoPane::markEdge(ProjectPage& page, core::Boundary boundary) {
@@ -780,13 +787,10 @@ void VideoPane::markEdge(ProjectPage& page, core::Boundary boundary) {
     if (!span.has_value() || !where.has_value())
         return;
 
-    const core::SubtitleIndex row = core::SubtitleIndex::fromValue(span->first);
-    if (page.session->project().subtitleAt(row).position(boundary) == *where)
+    if (!setEdge(page, core::SubtitleIndex::fromValue(span->first), boundary, *where))
         return;
 
-    page.model->applied(page.session->apply(std::make_unique<core::SetPositionCommand>(
-        page.session->project(), row, boundary, *where)));
-    page.placedAt = -1;
+    // The film is already there: only the table has to come to it.
     resumeFollowing();
     follow(page);
 }

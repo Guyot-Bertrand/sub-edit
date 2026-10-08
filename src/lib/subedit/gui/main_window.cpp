@@ -997,7 +997,8 @@ void MainWindow::openTranslationFromPrompt() {
 
     // **A translation laid a constant time away** is told apart from one that is just
     // incomplete, and the opening can be taken back and done again moved — issue #621.
-    if (shift.has_value() && !(opened.outcome.isClean() && opened.pastTheEnd.empty())) {
+    // A shift is only found for an opening that is not clean, so one found is the reason to ask.
+    if (shift.has_value()) {
         const std::string said = joinedNotices(core::noticeOf(opened.outcome), opened.pastTheEnd);
         if (!m_prompts->proposeShiftedReopening(said + "\n" + core::shiftNoticeOf(*shift)))
             return;
