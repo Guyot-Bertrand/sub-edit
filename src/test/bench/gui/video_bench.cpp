@@ -224,3 +224,56 @@ TEST_CASE("seeking and stepping on a film-sized video", "[benchmark][film]") {
         };
     }
 }
+
+// ## A real film — the relecture of phase 14, ADR 0041
+//
+// **The decision of ADR 0041 was taken on 1080p H.264, and what it did not measure was the rest**:
+// 4K, a heavy codec, ten bits. This is the measure that was missing, taken on **the user's own
+// film**, given by `SUBEDIT_BENCH_REAL_FILM` and never versioned: the repository has no film of
+// that size, and none is made, because a synthetic one is as easy to decode as a test card and
+// says nothing of the grain of a real one.
+//
+// What is timed is what the user does with the film — a seek, then one step and the painting of the
+// picture it lands on at 1080p — **at a fixed distance from the keyframe**, as the benchmark of
+// the film-sized video above does it: the cost of a step grows with that distance, and a loop of
+// steps would measure a distance that grows with the loop. **The figure to compare it to is the
+// length of a frame** — 40 ms at 25 images a second: a step that costs more is felt under a
+// finger. Without the variable the benchmark says so and abstains.
+TEST_CASE("seeking and stepping on a real film", "[benchmark][realfilm]") {
+    const char* named = std::getenv("SUBEDIT_BENCH_REAL_FILM");
+    if (named == nullptr || !std::filesystem::exists(named))
+        SKIP("no real film: SUBEDIT_BENCH_REAL_FILM is unset or points at nothing");
+
+    std::expected<MpvPlayer, PlayerError> built = MpvPlayer::create();
+    MpvPlayer player = std::move(built.value());
+    REQUIRE(player.open(std::filesystem::path{named}).has_value());
+
+    constexpr std::size_t kBytesAPixel = 4;
+    constexpr std::size_t kWidth = 1920;
+    constexpr int kHeight = 1080;
+    std::vector<unsigned char> buffer(kWidth * kHeight * kBytesAPixel);
+    constexpr std::int64_t kFrameRate = 25;
+    const auto startOf = [](int frame) {
+        return Timestamp::fromMilliseconds(subedit::test::startOf(frame, kFrameRate, 1));
+    };
+
+    // The distance to the keyframe, in frames: a short one, and one near the far end of ten
+    // seconds.
+    for (const int frame : {25, 100, 225}) {
+        BENCHMARK("chercher l'image " + std::to_string(frame) + " et la rendre (vrai film)") {
+            player.seek(startOf(frame));
+            return player.render(buffer, static_cast<int>(kWidth), kHeight, kWidth * kBytesAPixel);
+        };
+
+        BENCHMARK_ADVANCED("pas avant vers l'image " + std::to_string(frame) +
+                           " et son rendu (vrai film)")
+        (Catch::Benchmark::Chronometer meter) {
+            player.seek(startOf(frame - 1));
+            meter.measure([&] {
+                player.stepFrames(1);
+                return player.render(
+                    buffer, static_cast<int>(kWidth), kHeight, kWidth * kBytesAPixel);
+            });
+        };
+    }
+}

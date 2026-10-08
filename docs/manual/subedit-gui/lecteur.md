@@ -230,16 +230,20 @@ Le second message n'apparaît donc que si la bibliothèque `libmpv` refuse de d�
 alors qu'elle est requise à la compilation.
 
 Le rendu passe par le processeur : le décodage matériel sans copie n'est pas
-disponible. Sur un éditeur de sous-titres, une image coûte quelques millisecondes, et
-la lecture tient le temps réel.
+disponible. Sur un film de 1080p en H.264, la lecture tient le temps réel avec de la marge. **Un film 4K
+en HEVC peut ne pas le tenir** : mesuré sur deux cœurs, un 4K lourd se décode à 0,6 fois le temps
+réel, et avancer d'une image y prend plusieurs secondes quand l'image-clé est loin. Le décodage
+matériel y est la réponse, et il n'est pas encore branché.
 
 ## Ce qui n'y est pas
 
-**Le pilotage va jusqu'aux sauts, à la sélection et au volume.** Ce qui n'existe pas, et qu'il est
-inutile de chercher :
+**Poser un repère, avancer image par image et décaler un bord d'une image** sont dans
+[Caler depuis la vidéo](calage.md), pas ici. Ce qui n'existe pas, et qu'il est inutile de chercher :
 
-- avance image par image, poser un repère depuis la position courante ;
-- forme d'onde.
+- une forme d'onde ;
+- la lecture automatique à l'ouverture d'un film ;
+- le style de la réplique (police, couleur, position, fond) : elle garde celui de la fenêtre ;
+- le décodage matériel : voir « Quand l'image n'apparaît pas » plus haut.
 
 Ce manuel décrit ce qui existe : ce qui viendra, et dans quel ordre, est dans la
 [feuille de route](../../feuille-de-route.md).

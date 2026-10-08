@@ -23,7 +23,11 @@ table. Pour l'autre programme et pour savoir par où commencer, voir
 > **enregistre et ferme tout** d'un geste. Elle **associe une vidéo
 > au document**, choisie ou devinée, et la **joue dans la fenêtre**, la réplique
 > courante dessinée sur l'image ; **pose un début, une fin ou un
-> sous-titre depuis la position du film**, **avance image par image** et **décale un bord d'une image**. Elle **retient sa géométrie, l'ordre, la largeur et la présence de ses
+> sous-titre depuis la position du film**, **avance image par image** et **décale un bord d'une image**. La barre de lecture **saute, règle le
+> volume et la position**, la table **suit la lecture** sans défaire un défilement à la main, les positions
+> peuvent se montrer **en images**, et le menu `Video` **choisit la piste audio**. Deux détections
+> **proposent sans jamais appliquer** : une traduction décalée d'une valeur constante, qu'on peut **rouvrir
+> décalée**, et la conversion de fréquence qui remet un fichier sur une grille. Elle **retient sa géométrie, l'ordre, la largeur et la présence de ses
 > colonnes, et ses réglages** d'une
 > session à l'autre, et se porte **claire ou sombre** au choix. `Help ▸ Manual`
 > ouvre **ce manuel** dans une fenêtre. Ce manuel décrit ce qui existe, jamais
@@ -108,19 +112,19 @@ menus : elles servent moins souvent, ou pas à tout le monde.
 | :------ | :------ |
 | [Installation](../subedit-cli/installation.md) | construire et installer — la page vaut pour les deux programmes |
 | [Invocation](invocation.md) | lancer la fenêtre, arguments, codes de retour |
-| [Ouvrir et enregistrer](fichiers.md) | les commandes, les onglets, le menu `Projects`, glisser des fichiers, la traduction, les diagnostics, l'encodage dans la barre d'état, l'aller-retour, la fermeture |
+| [Ouvrir et enregistrer](fichiers.md) | les commandes, les onglets, le menu `Projects`, glisser des fichiers, la traduction et la rouvrir décalée, les diagnostics, l'encodage dans la barre d'état, l'aller-retour, la fermeture |
 | [La table](table.md) | ce que chaque colonne montre, les masquer et les déplacer, les positions en images, la colonne de traduction et le texte que les opérations visent |
 | [Éditer une cellule](edition.md) | quelles cellules s'éditent, et comment |
 | [Couper, copier et coller des textes](presse-papiers.md) | les trois entrées, ce qui voyage, les lignes ajoutées, les balises traduites |
 | [Rechercher et remplacer](recherche.md) | le dialogue, les quatre gestes, les deux options, sur quoi porte la recherche, dans tous les projets ouverts |
 | [Insérer, supprimer, fusionner et scinder des lignes](lignes.md) | les quatre entrées, leurs raccourcis, où vont les lignes neuves |
 | [Annuler et rétablir](annulation.md) | l'historique, les deux actions, la marque de modification |
-| [La grille d'images](grille.md) | la cadence déduite des positions, et l'analyse |
+| [La grille d'images](grille.md) | la cadence déduite des positions, l'analyse, et la conversion qui remet un fichier sur une grille |
 | [Les opérations](operations.md) | décaler, transformer, convertir, ajuster les durées, ajouter un fichier, scinder le projet, mettre en italique, la casse, les tirets, retirer les mentions, aligner, ramener sur la grille, et ce qui dépasse la fin du film |
 | [Correct Texts…](correct-texts.md) | l'assistant de correction : la cible et les tâches, chaque page de tâche, la progression, la confirmation |
 | [Check Spelling…](verifier-orthographe.md) | la vérification orthographique : ses réglages, le parcours, la fermeture au milieu, l'absence de dictionnaire |
-| [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la barre d'état, `ffmpeg` |
+| [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la piste audio, la barre d'état, `ffmpeg` |
+| [Le lecteur](lecteur.md) | la vue vidéo, la barre de lecture, jouer, se déplacer, le volume, la table qui suit, la réplique dessinée |
 | [Caler depuis la vidéo](calage.md) | poser le début ou la fin d'un sous-titre, insérer, sélectionner depuis la position du film, avancer image par image, décaler un bord |
-| [Le lecteur](lecteur.md) | la vue vidéo, jouer, la ligne qui suit, la réplique dessinée |
 | [Les préférences](preferences.md) | le thème, le fichier de préférences, ses options, et ce qu'il advient d'une valeur illisible |
 | [Le manuel dans la fenêtre](aide.md) | `Help ▸ Manual`, ce qu'il ouvre et comment y naviguer |

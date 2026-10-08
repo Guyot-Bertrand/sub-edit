@@ -80,7 +80,10 @@ else
         "${YELLOW}" "${RESET}" >&2
 fi
 
-"${REPO_ROOT}/build/release/bin/subedit_bench" \
+# **Sous `limit-cores.sh`, comme les tests** : libmpv crée ses fils de lui-même, et le banc du lecteur
+# en occupait bien plus que les deux cœurs que la porte se donne — la borne que ces fils héritent est
+# l'affinité, posée sur le processus qui les lance.
+"${REPO_ROOT}/src/scripts/limit-cores.sh" "${REPO_ROOT}/build/release/bin/subedit_bench" \
     --reporter console \
     --reporter "xml::out=${XML}"
 

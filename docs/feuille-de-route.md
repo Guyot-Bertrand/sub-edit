@@ -1319,6 +1319,45 @@ porte la décision coûteuse à défaire. Ce que le cadrage a tranché, et que l
 l'analyse** : `VideoPlayer` ne dit nulle part que `seek` rend l'image la plus proche ; l'en-tête disait « l'image à son
 propre début ».
 
+**Livrée, relue par [#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623).** Quinze issues, #610 à #622 avec
+#386 et #408, en dix-huit versions, de 0.14.1 à 0.14.18 : le rendu logiciel de libmpv dans la fenêtre
+([ADR 0041](adr/0041-afficher-la-video-par-le-rendu-logiciel.md), ce qui ferme #190), l'interface du lecteur et sa barre
+de lecture, la piste audio, les repères, l'image par image et le décalage d'un bord d'une image, la table qui suit la
+lecture, la réplique sans balises brutes, les positions en images — dans la table et sur la barre —, et les deux
+détections. **Vingt-huit exigences `GUI-*`, toutes `implémentées` et citées par un test**, aucune `abandonnée` ; **les
+neuf points ouverts de la spec sont tous tranchés**, quatre d'entre eux à cette relecture (la reprise du suivi, la dérive,
+le 4K et le décodage matériel) ; **dix écarts avec Gaupol**, dont deux de plus qu'au cadrage, nés de demandes de l'utilisateur
+(un bouton `Follow`, les positions en images sur la barre).
+
+**Deux choses que la spec n'avait pas prévues.** La conversion qui remet un fichier sur une grille (#622, #386) n'a
+presque jamais une réparation unique : sur les 320 combinaisons d'une grille et d'un rapport faux, 28 seulement, et
+l'égalité — dite avec ses deux paires, sans rien proposer — est le cas ordinaire. Et **le banc ne respectait pas la limite
+de deux cœurs de la porte** : `gate/bench.sh` lançait `subedit_bench` nu, et les fils de libmpv la dépassaient.
+`limit-cores.sh` le borne désormais, et `check-parallelism.sh` refuse un lancement nu, avec deux preuves de plus. **Les
+relevés du banc ne se comparent donc plus tout à fait à ceux d'avant 0.14.19** : les entrées du lecteur y sont de 1,2 à
+1,9 fois plus lentes. **La cause probable est l'affinité**, mais elle n'est pas vérifiée : la même mesure sans limite n'a pas
+été rejouée, et la dire une régression de code ou pas serait la deviner.
+
+**La relecture a corrigé le manuel et ouvert quatre issues.** `lecteur.md` disait encore que l'image par image et les
+repères n'existent pas ; l'ordre des pages plaçait le calage avant le lecteur qu'il suppose ; l'« état actuel » ignorait
+la barre de lecture, la piste audio et les deux détections. **Le regard critique sur le code**, rien n'étant corrigé dans
+la relecture : [#644](https://github.com/Guyot-Bertrand/sub-edit/issues/644), des règles de position qui vivent dans
+`video_pane.cpp` et `mpv_player.cpp` et ne se testent pas sans fenêtre, dont une seconde arithmétique d'images à virgule
+flottante à côté de la rationnelle ; [#645](https://github.com/Guyot-Bertrand/sub-edit/issues/645), la séquence « reprendre
+le suivi, déplacer, suivre » écrite cinq fois, et le test « every gesture » qui omet `nudge` et `seekToSelection` ;
+[#646](https://github.com/Guyot-Bertrand/sub-edit/issues/646), des attentes par horloge et cinq écritures de la même
+attente. **Le lecteur sur un vrai film** est mesuré, sous la limite de deux cœurs : le H.264 1080p tient le temps réel à
+2,5 fois, **un 4K HEVC lourd ne le tient pas** (0,62 fois en 8 bits, 0,92 en 10 bits) et son pas d'une image coûte de 0,4 à
+5 s ; le décodage matériel de la machine le ramène à 2,1 fois, d'où
+[#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647). Le HDR, AV1 et la lecture suivie avec comptage d'images
+perdues restent non mesurés.
+
+**Le banc** a un relevé pour 0.14.19 (charge 1,35), le premier depuis 0.14.7 ; trois mesures neuves — centrer une ligne,
+la recherche de conversion (environ 2,4 ms pour 4000 sous-titres) et la traduction d'une réplique balisée — entreront
+au premier relevé calme suivant. Le banc `seeking and stepping on a real film` s'abstient sans `SUBEDIT_BENCH_REAL_FILM`.
+
+**Reste, pour clore :** les quatre issues ci-dessus, puis la clôture du milestone en 0.15.0.
+
 ## 15 — Internationalisation
 
 Les 20 locales de Gaupol sont sous GPL, donc réutilisables.

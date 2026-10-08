@@ -694,6 +694,21 @@ expect_gate_stays_open \
     "${PLAIN_SCRIPT_SOURCE}" \
     './src/scripts/limit-cores.sh ctest --preset dev'
 
+# **Le banc, qui ouvre des lecteurs, est dans le même cas que `ctest`** — relecture de la phase 14 :
+# `gate/bench.sh` lançait `subedit_bench` nu, et ses fils libmpv dépassaient les deux cœurs de la
+# porte. La seconde preuve est celle de non-signalement.
+expect_gate_closes \
+    "le banc lancé sans limit-cores.sh" \
+    "parallelism" \
+    "${PLAIN_SCRIPT_SOURCE}" \
+    '"${REPO_ROOT}/build/release/bin/subedit_bench" --reporter console'
+
+expect_gate_stays_open \
+    "le banc lancé par limit-cores.sh" \
+    "parallelism" \
+    "${PLAIN_SCRIPT_SOURCE}" \
+    '"${REPO_ROOT}/src/scripts/limit-cores.sh" "${REPO_ROOT}/build/release/bin/subedit_bench" --reporter console'
+
 # Les trois preuves de l analyse statique — issue #269.
 #
 # **Elles ont changé de nature avec le mécanisme.** Il y en avait une, et elle
