@@ -31,17 +31,18 @@
 
 #include "fake_prompts.hpp"
 #include "fake_video_player.hpp"
+#include "player_harness.hpp"
 
 namespace {
 
 using subedit::core::InMemoryFileSystem;
-using subedit::core::openProject;
 using subedit::core::VideoPlayer;
 using subedit::gui::MainWindow;
 using subedit::gui::PlayerFactory;
 using subedit::gui::SearchDialog;
 using subedit::test::FakePrompts;
 using subedit::test::FakeVideoPlayer;
+using subedit::test::fileIn;
 
 constexpr int kTextColumn = 4;
 
@@ -65,12 +66,6 @@ constexpr const char* kNone = "1\n00:00:01,000 --> 00:00:02,000\nRien.\n\n";
     files.addFile("troisieme.srt", kThird);
     files.addFile("aucun.srt", kNone);
     return files;
-}
-
-[[nodiscard]] subedit::core::OpenedFile fileIn(const InMemoryFileSystem& files, const char* path) {
-    auto opened = openProject(files, path);
-    REQUIRE(opened.has_value());
-    return std::move(*opened);
 }
 
 /// The window on the first project, the two others open after it, and the

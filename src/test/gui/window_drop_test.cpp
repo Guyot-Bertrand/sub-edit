@@ -30,16 +30,16 @@
 
 #include "fake_prompts.hpp"
 #include "fake_video_player.hpp"
+#include "player_harness.hpp"
 
 namespace {
 
 using subedit::core::InMemoryFileSystem;
-using subedit::core::openProject;
-using subedit::core::VideoPlayer;
 using subedit::gui::MainWindow;
-using subedit::gui::PlayerFactory;
 using subedit::test::FakePrompts;
-using subedit::test::FakeVideoPlayer;
+using subedit::test::fileIn;
+using subedit::test::projecting;
+using subedit::test::Projectionist;
 
 using Paths = std::vector<std::filesystem::path>;
 
@@ -56,25 +56,6 @@ constexpr const char* kThird = "1\n00:00:01,000 --> 00:00:02,000\nTrois.\n\n";
     files.addFile("/films/film.mkv", "");
     files.addFile("/films/autre.mp4", "");
     return files;
-}
-
-[[nodiscard]] subedit::core::OpenedFile fileIn(const InMemoryFileSystem& files, const char* path) {
-    auto opened = openProject(files, path);
-    REQUIRE(opened.has_value());
-    return std::move(*opened);
-}
-
-/// The double of the player, as `window_tabs_test.cpp` has it.
-struct Projectionist {
-    FakeVideoPlayer* player = nullptr;
-};
-
-[[nodiscard]] PlayerFactory projecting(Projectionist& booth) {
-    return [&booth]() -> std::unique_ptr<VideoPlayer> {
-        auto made = std::make_unique<FakeVideoPlayer>();
-        booth.player = made.get();
-        return made;
-    };
 }
 
 [[nodiscard]] std::string tabText(const MainWindow& window, int index) {

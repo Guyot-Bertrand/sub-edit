@@ -57,6 +57,7 @@
 
 #include "fake_prompts.hpp"
 #include "fake_video_player.hpp"
+#include "waiting.hpp"
 
 namespace {
 
@@ -70,6 +71,7 @@ using subedit::gui::ProjectPage;
 using subedit::gui::VideoPane;
 using subedit::test::FakePrompts;
 using subedit::test::FakeVideoPlayer;
+using subedit::test::waitUntil;
 
 constexpr const char* kThree = "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n"
                                "2\n00:00:02,500 --> 00:00:03,500\nDeux.\n\n"
@@ -609,7 +611,7 @@ TEST_CASE("a drag asks for the first position at once and always reaches the las
     CHECK(booth.player->seeks.size() == 1U);
 
     // The gate opens: the last of them goes, and the ones between never did.
-    QTest::qWait(200);
+    REQUIRE(waitUntil([&booth] { return booth.player->seeks.size() >= 2U; }));
     REQUIRE(booth.player->seeks.size() == 2U);
     CHECK(booth.player->seeks.back() == Timestamp::fromMilliseconds(5000));
 }
@@ -640,7 +642,10 @@ TEST_CASE("a request from the bar with no film open is not handed to anyone",
     QSlider* slider = booth.pane->bar()->positionSlider();
     slider->setRange(0, 10000);
     slider->setValue(4000);
-    QTest::qWait(100);
+    // The second value waits for the gate, and letting the handle go is what reaches it at once:
+    // everything the bar could ask has been asked, with no pause to wait out.
+    slider->setValue(5000);
+    Q_EMIT slider->sliderReleased();
 
     CHECK(booth.player == nullptr);
 }

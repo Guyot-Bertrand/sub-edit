@@ -24,6 +24,7 @@
 #include <utility>
 
 #include "numbered_frames.hpp"
+#include "waiting.hpp"
 
 namespace {
 
@@ -32,6 +33,7 @@ using subedit::core::Timestamp;
 using subedit::gui::MpvPlayer;
 using subedit::gui::Picture;
 using subedit::gui::VideoSurface;
+using subedit::test::waitUntil;
 
 [[nodiscard]] std::filesystem::path fixture(const std::string& name) {
     return std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / name;
@@ -53,15 +55,6 @@ using subedit::gui::VideoSurface;
         picture.pixels.insert(picture.pixels.end(), line, line + row);
     }
     return picture;
-}
-
-/// Lets the event loop run until `done`, for a few seconds at most. The announcement of a
-/// new picture is queued from another thread, so what a case waits for is events.
-[[nodiscard]] bool pumpUntil(const std::function<bool()>& done) {
-    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds{5};
-    while (!done() && std::chrono::steady_clock::now() < deadline)
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 20);
-    return done();
 }
 
 [[nodiscard]] int numberShown(const VideoSurface& surface) {
@@ -105,7 +98,7 @@ TEST_CASE("after a jump the widget shows the frame asked, on its own",
         INFO("frame " << frame);
         playing.seek(Timestamp::fromMilliseconds(subedit::test::startOf(frame, 25, 1)));
 
-        CHECK(pumpUntil([&] { return numberShown(surface) == frame; }));
+        CHECK(waitUntil([&] { return numberShown(surface) == frame; }));
     }
 }
 
@@ -121,10 +114,10 @@ TEST_CASE("a step is shown by the widget", "[gui][video][numbered][GUI-SURFACE-0
     surface.attach(&playing);
 
     playing.stepFrames(1);
-    CHECK(pumpUntil([&] { return numberShown(surface) == 51; }));
+    CHECK(waitUntil([&] { return numberShown(surface) == 51; }));
 
     playing.stepFrames(-2);
-    CHECK(pumpUntil([&] { return numberShown(surface) == 49; }));
+    CHECK(waitUntil([&] { return numberShown(surface) == 49; }));
 }
 
 // GUI-SURFACE-01: resizable, here at the 2:1 of the film so that the number can be read
