@@ -341,7 +341,8 @@ manuel d'un bloc.
   qu'on retrouve ; et **par le silence** — une dérive, deux candidats égaux, un fichier propre ne proposent rien.
 - **Le suivi se prouve sans horloge** : le suiveur est piloté à la main, un seul cas paie le minuteur.
 - **Un cas sur un vrai film** est celui de la relecture de fin de phase, sur ce que l'utilisateur regarde : le corpus
-  privé n'a aucune vidéo, et aucun chiffre ne lui est attribué.
+  privé n'a aucune vidéo, et aucun chiffre ne lui est attribué. Le banc `seeking and stepping on a real film` prend le
+  film par `SUBEDIT_BENCH_REAL_FILM` et s'abstient sans ; il tourne sous `limit-cores.sh` comme tout le banc.
 
 ## Ce que la phase ne livre pas
 
@@ -349,7 +350,7 @@ Chacun avec un destinataire.
 
 - **Le décodage matériel sans copie** — **écarté par l'ADR 0041**, avec son déclencheur : un utilisateur dont la lecture
   perd des images à une taille et un codec ordinaires. La réponse serait l'API OpenGL **derrière la même surface**.
-- **Le 4K, le HDR, un codec lourd** : **non mesurés**. La relecture de fin de phase le dit.
+- **Le 4K, le HDR, un codec lourd** : **mesurés en partie à la relecture** — le 4K HEVC lourd ne tient pas le temps réel sur deux cœurs, le décodage matériel est la réponse ([#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647)) ; le HDR et AV1 restent non mesurés.
 - **Le style de la réplique et du timecode** (police, couleur, position, fond) — **écarté**, déclencheur : une demande.
 - **La lecture automatique à l'ouverture** — **écartée**, même déclencheur.
 - **Une ligne de commande du lecteur ou des détections** — **écartée** : D10 et D1.
@@ -372,10 +373,12 @@ Chacun avec un destinataire.
 | aucune détection de décalage | **deux détections, proposées et jamais appliquées** | D10, D11 |
 | le suivi de la lecture ramène la ligne à l'écran | **la table se centre, et se suspend à un défilement à la main** | D7, demande de l'utilisateur |
 | `Set Audio Language` : un choix de langue | **un sous-menu des pistes**, par langue, titre ou numéro | une piste n'a pas toujours de langue |
+| aucun moyen de suspendre ou de reprendre le suivi à la main | **un bouton `Follow`**, qui montre l'état du suivi et le reprend | demande de l'utilisateur, #619 |
+| les positions de la table peuvent se montrer en images ; la barre de lecture, non | **la barre montre aussi ses deux positions en images**, par le même réglage | demande de l'utilisateur, #620 |
 
 ## Exigences
 
-**Vingt-huit**, toutes `prévues`, **inscrites au registre avec cette spec** : `check-requirements.sh` confronte la
+**Vingt-huit**, toutes `implémentées` et citées par un test à la relecture de fin de phase — aucune `abandonnée` —, **inscrites au registre avec cette spec** : `check-requirements.sh` confronte la
 table d'une spec de phase au registre dans les deux sens. Chaque issue en **relit** les siennes avant son code — l'état
 passe à `implémentée` quand un test les cite, jamais avant. **Douze sujets neufs**, dont aucun identifiant n'était pris :
 `SURFACE`, `STEP`, `NUDGE`, `SEEK`, `VOLUME`, `TIMECODE`, `AUDIO`, `MARK`, `FOLLOW`, `REPLICA`, `DRIFT`, `REPAIR` ; `FRAMES`
@@ -441,6 +444,12 @@ et [#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408), plus anciennes
 | | [#622](https://github.com/Guyot-Bertrand/sub-edit/issues/622) | **proposer la conversion qui remet un fichier sur une grille** (#386) | #613, #615 | L |
 | | [#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623) | **relecture de fin de phase** | tout | M |
 
+**La relecture de fin de phase ([#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623)) a ouvert quatre issues**,
+rien n'étant corrigé dans la relecture : [#644](https://github.com/Guyot-Bertrand/sub-edit/issues/644) (les règles de
+position du lecteur, hors du noyau), [#645](https://github.com/Guyot-Bertrand/sub-edit/issues/645) (un seul chemin pour
+les gestes du lecteur, et le test qui le tient), [#646](https://github.com/Guyot-Bertrand/sub-edit/issues/646) (les tests
+du lecteur sans horloge) et [#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647) (le décodage matériel avec copie).
+
 **#613 est la pierre d'angle de la phase, et la plus risquée** : elle change la façon dont l'image arrive, donc
 ce que chaque issue du lecteur touche, et c'est elle qui engage l'ADR 0041. **#614 est la plus étroite et la plus
 bloquante** : tout ce que l'on pose ou pilote passe par `VideoPlayer`.
@@ -457,10 +466,10 @@ seul, **chacun avec ce qui est supposé en attendant**.
 | :- | :---- | :------ | :--------- |
 | 1 | **la voie d'affichage** : fenêtre native, rendu OpenGL, rendu logiciel | le rendu logiciel (ADR 0041) | **tranché le 2026-10-06** : la supposition est retenue |
 | 2 | **les deux détections** : dans la phase, ou renvoyées | les deux dans la phase (D10, D11) | **tranché le 2026-10-06** : dans la phase, contre la supposition du cadrage, qui renvoyait #386 |
-| 3 | **ce qu'une image « est »** : la plus proche d'une position, ou celle qui est affichée à cet instant | la plus proche, ce que mpv fait (D4) | #614 ; une décision contraire demanderait de corriger la position demandée avant le `seek` |
-| 4 | **le pas des sauts** : 30 s, comme Gaupol | 30 s | #615, sur demande réelle |
-| 5 | **la reprise du suivi** : un geste du lecteur, ou aussi un délai | un geste seulement, pas de minuterie (D7) | la relecture, sur usage |
-| 6 | **un décalage de traduction proposé pour une dérive** | non (D10) | la relecture, sur demande réelle |
-| 7 | **la forme de « rouvrir décalée »** : un bouton de la boîte de l'ouverture, ou une action de menu | un bouton de la boîte, qui existe déjà quand l'ouverture n'est pas propre | #621 |
-| 8 | **le 4K, le HDR, HEVC** sous le rendu logiciel | non mesurés ; l'ADR dit son déclencheur | la relecture de fin de phase, sur ce que l'utilisateur regarde |
-| 9 | **le décodage matériel** : `hwdec-copy` sous le rendu logiciel | non | #613, si la mesure le justifie |
+| 3 | **ce qu'une image « est »** : la plus proche d'une position, ou celle qui est affichée à cet instant | la plus proche, ce que mpv fait (D4) | **tranché en #614 : la supposition est retenue**, et prouvée sur des vidéos qui portent le numéro de leurs images (23,976 et 25 images par seconde) ; une décision contraire demanderait de corriger la position demandée avant le `seek` |
+| 4 | **le pas des sauts** : 30 s, comme Gaupol | 30 s | **tranché en #615 : 30 s, et un réglage de `Preferences…`** (`video.seek-length`) |
+| 5 | **la reprise du suivi** : un geste du lecteur, ou aussi un délai | un geste seulement, pas de minuterie (D7) | **tranché à la relecture : la supposition est retenue** — le suivi reprend sur un geste du lecteur ou sur le bouton `Follow`, jamais sur un délai, et aucun usage n'a demandé le contraire. Déclencheur : un utilisateur qui perd le suivi sans savoir pourquoi |
+| 6 | **un décalage de traduction proposé pour une dérive** | non (D10) | **tranché à la relecture : non** — une dérive linéaire est une conversion de fréquence, et D11 la traite ; les fixtures `derive` et `partiel` prouvent que rien n'est proposé. Déclencheur : une demande réelle |
+| 7 | **la forme de « rouvrir décalée »** : un bouton de la boîte de l'ouverture, ou une action de menu | un bouton de la boîte, qui existe déjà quand l'ouverture n'est pas propre | **tranché en #621 : la boîte du compte devient une question `Yes` / `No`** quand un décalage répare l'ouverture — le compte, puis la phrase du décalage, `No` par défaut ; sans décalage, elle reste la boîte à fermer |
+| 8 | **le 4K, le HDR, HEVC** sous le rendu logiciel | non mesurés ; l'ADR dit son déclencheur | **mesuré à la relecture de fin de phase** (ADR 0041, addendum) : le 1080p H.264 tient le temps réel à 2,5 ×, un 4K HEVC lourd ne le tient pas sur deux cœurs (0,62 × en 8 bits, 0,92 × en 10 bits). Le HDR, AV1 et la lecture suivie avec comptage d'images perdues restent non mesurés |
+| 9 | **le décodage matériel** : `hwdec-copy` sous le rendu logiciel | non | **tranché à la relecture : oui, la mesure le justifie** — VAAPI ramène le 4K à 2,1 × le temps réel. [#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647) |

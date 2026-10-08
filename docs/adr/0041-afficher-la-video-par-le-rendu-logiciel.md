@@ -42,3 +42,19 @@ L'interface `VideoPlayer` ne change pas pour cela : elle ne sait toujours ni lib
 **Un coût à défaire modeste** : la surface est un widget derrière `MpvPlayer`. Passer à OpenGL plus tard remplacerait le tampon par un contexte, sans toucher à l'interface ni aux appelants.
 
 **Déclencheur pour reconsidérer :** un utilisateur dont la lecture perd des images à une taille et un codec ordinaires — la relecture de fin de phase mesure sur ce qu'on regarde vraiment —, ou le besoin d'un format que le rendu logiciel traite mal (HDR, 10 bits). La réponse est alors l'API OpenGL **derrière la même surface**.
+
+## Mesuré à la relecture de fin de phase 14 ([#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623))
+
+**La décision tient pour ce qu'elle a mesuré, et une limite est maintenant chiffrée.** Trois films de dix secondes, 25 images par seconde, du bruit ajouté pour qu'ils pèsent comme de vrais films, **décodés sous la limite de deux cœurs de la porte** (`limit-cores.sh`) :
+
+| Film | Débit | Décodage de 10 s de film | Vitesse |
+| :--- | ----: | -----------------------: | ------: |
+| H.264 1080p | 69 Mb/s | 4,0 s | 2,5 × le temps réel |
+| HEVC 4K, 8 bits | 117 Mb/s | 16,1 s | **0,62 ×** |
+| HEVC 4K, 10 bits | 70 Mb/s | 10,9 s | **0,92 ×** |
+| HEVC 4K, 8 bits, VAAPI (ffmpeg) | 117 Mb/s | 4,7 s | 2,1 × |
+
+- **Le 1080p H.264 tient le temps réel avec de la marge**, comme l'ADR l'avait mesuré. Le rendu lui-même — la mise à l'échelle et la conversion dans le tampon — ne dépend pas du film.
+- **Le 4K HEVC lourd ne le tient pas sur deux cœurs**, en 8 comme en 10 bits. Le pas d'une image, qui est une recherche exacte et décode depuis l'image-clé, coûte de 0,4 s (25 images de l'image-clé) à 5 s (225 images) sur ces films, qui n'ont qu'une image-clé ; un vrai film en a une toutes les deux à dix secondes.
+- **Le décodage matériel de cette machine** ramène le 4K à plus de deux fois le temps réel — mesuré par ffmpeg, pas à travers libmpv. Le déclencheur ci-dessus est atteint pour qui regarde du 4K sur une machine modeste, et **la réponse est `hwdec=auto-copy` sous la même surface, pas l'API OpenGL** : [#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647).
+- **Ce qui n'est pas mesuré** : le décodage matériel à travers libmpv, la lecture suivie avec comptage des images perdues, le HDR, AV1, une machine sans carte graphique. Les films ne sont pas versionnés ; le banc `seeking and stepping on a real film` les prend par `SUBEDIT_BENCH_REAL_FILM` et s'abstient sans.

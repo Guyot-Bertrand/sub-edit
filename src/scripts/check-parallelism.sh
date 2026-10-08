@@ -393,7 +393,7 @@ $(printf '    %s\n' "${offenders[@]}")"
     fi
 }
 
-# Invariant 4 — toute exécution de tests passe par `limit-cores.sh`, issue #630.
+# Invariant 4 — toute exécution de tests, et du banc, passe par `limit-cores.sh`, issue #630.
 #
 # **`JOBS` borne les processus, pas les fils**, et libmpv comme ffmpeg en créent de leur
 # propre chef : un cas de test de lecteur de trois dixièmes de seconde occupait plus de cinq
@@ -402,10 +402,14 @@ $(printf '    %s\n' "${offenders[@]}")"
 # `limit-cores.sh` pose sur la commande qu'il lance.
 #
 # Le contrôle est une forme : une ligne qui lance `ctest` — recette du Makefile ou script —
-# sans nommer `limit-cores.sh`. Il ne dit rien d'un binaire de test lancé à la main, et ne
-# prétend pas le faire.
+# sans nommer `limit-cores.sh`. **Le binaire du banc est dans le même cas**, relevé à la
+# relecture de la phase 14 : `subedit_bench` ouvre des lecteurs, donc des fils libmpv, et
+# `gate/bench.sh` le lançait nu. Il se reconnaît à son chemin, `bin/subedit_bench` : un
+# `--target subedit_bench` le construit, il ne le lance pas. Le contrôle ne dit rien d'un
+# binaire lancé à la main, et ne prétend pas le faire.
 invokes_ctest() {
-    [[ "$1" =~ (^|[^[:alnum:]_.-])ctest([^[:alnum:]_.-]|$) ]]
+    [[ "$1" =~ (^|[^[:alnum:]_.-])ctest([^[:alnum:]_.-]|$) ]] ||
+        [[ "$1" =~ bin/subedit_bench([^[:alnum:]_.-]|$) ]]
 }
 
 check_tests() {

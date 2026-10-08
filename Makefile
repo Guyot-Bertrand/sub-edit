@@ -355,7 +355,7 @@ check-local: ## Unique commande locale à lancer avant une pull request
 	@./src/scripts/gate.sh check-local
 
 .PHONY: verify-gates
-verify-gates: ## Prouve que chaque porte se referme sur son défaut (soixante-seize preuves)
+verify-gates: ## Prouve que chaque porte se referme sur son défaut (soixante-dix-huit preuves)
 	@./src/scripts/verify-gates.sh
 
 .PHONY: changelog
