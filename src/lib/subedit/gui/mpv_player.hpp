@@ -111,6 +111,8 @@ public:
 
     void setVolume(int volume) override;
 
+    void setHardwareDecoding(bool allowed) override;
+
     [[nodiscard]] std::vector<core::AudioTrack> audioTracks() const override;
 
     void selectAudioTrack(int id) override;

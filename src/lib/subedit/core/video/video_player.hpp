@@ -189,6 +189,12 @@ public:
     /// nearest bound, so that a caller adding a step never has to clamp first.
     virtual void setVolume(int volume) = 0;
 
+    /// Chooses whether decoding may go to the graphics card (`true`) or stays on the processor.
+    /// Where the machine has no card the player decodes in software either way, and says
+    /// nothing: the choice is a permission and not a demand. Takes effect for the film being
+    /// played at its next seek, and for the films opened afterwards.
+    virtual void setHardwareDecoding(bool allowed) = 0;
+
     /// The audio tracks of the open video, in the file's order — none when no
     /// video is open, and none for a video without sound. **Neither is an
     /// error**: the menu shows an empty list.

@@ -63,6 +63,8 @@ public:
 
     [[nodiscard]] QSpinBox* stepFramesBox() const { return m_stepFrames; }
 
+    [[nodiscard]] QCheckBox* hardwareDecodingBox() const { return m_hardwareDecoding; }
+
     [[nodiscard]] QCheckBox* showLengthsInCellsBox() const { return m_showInCells; }
 
     [[nodiscard]] QCheckBox* showLengthsInEditorBox() const { return m_showInEditor; }
@@ -79,6 +81,7 @@ private:
     QSpinBox* m_seekLength;
     QDoubleSpinBox* m_contextLength;
     QSpinBox* m_stepFrames;
+    QCheckBox* m_hardwareDecoding;
 };
 
 } // namespace subedit::gui

@@ -955,6 +955,7 @@ TEST_CASE("the video options at their default are written back commented out", "
     CHECK_THAT(rendered, ContainsSubstring("#video.context-length-ms = 1000\n"));
     CHECK_THAT(rendered, ContainsSubstring("#video.step-frames = 1\n"));
     CHECK_THAT(rendered, ContainsSubstring("#video.volume = 100\n"));
+    CHECK_THAT(rendered, ContainsSubstring("#video.hardware-decoding = true\n"));
 
     CHECK_THAT(renderSettings(Settings{.video = {.volume = 40}}),
                ContainsSubstring("\nvideo.volume = 40\n"));
@@ -1008,4 +1009,18 @@ TEST_CASE("the edges of the video bounds are accepted", "[config]") {
     CHECK(read.settings.video ==
           VideoSettings{.seekLengthSeconds = 1, .contextLengthMilliseconds = 0, .volume = 0});
     CHECK(read.diagnostics.empty());
+}
+
+// Issue #647: the card decodes unless somebody says otherwise, and the choice is kept.
+TEST_CASE("hardware decoding is on by default and can be turned off", "[config]") {
+    CHECK(readOf("").settings.video.hardwareDecoding);
+    CHECK_FALSE(readOf("video.hardware-decoding = false\n").settings.video.hardwareDecoding);
+    CHECK(readOf("video.hardware-decoding = true\n").settings.video.hardwareDecoding);
+
+    CHECK_THAT(renderSettings(Settings{.video = {.hardwareDecoding = false}}),
+               ContainsSubstring("\nvideo.hardware-decoding = false\n"));
+
+    const SettingsRead unreadable = readOf("video.hardware-decoding = maybe\n");
+    CHECK(unreadable.settings.video.hardwareDecoding);
+    CHECK(unreadable.diagnostics.size() == 1);
 }

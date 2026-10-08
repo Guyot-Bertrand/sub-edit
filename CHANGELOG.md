@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **video** — Décodage matériel avec copie, et un réglage pour le couper
+
+## 0.14.22 — 2026-10-08
+
 ### Tests
 
 - **gui** — Le lecteur sans horloge, des aides de test partagées

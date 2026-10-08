@@ -229,11 +229,15 @@ vue est noir.
 Le second message n'apparaît donc que si la bibliothèque `libmpv` refuse de démarrer,
 alors qu'elle est requise à la compilation.
 
-Le rendu passe par le processeur : le décodage matériel sans copie n'est pas
-disponible. Sur un film de 1080p en H.264, la lecture tient le temps réel avec de la marge. **Un film 4K
-en HEVC peut ne pas le tenir** : mesuré sur deux cœurs, un 4K lourd se décode à 0,6 fois le temps
-réel, et avancer d'une image y prend plusieurs secondes quand l'image-clé est loin. Le décodage
-matériel y est la réponse, et il n'est pas encore branché.
+Le rendu passe par le processeur, mais **le décodage peut se faire sur la carte graphique** : elle
+décode, l'image est recopiée en mémoire, puis dessinée comme avant. Une machine sans carte
+utilisable décode sur le processeur, sans message. Sur un film de 1080p en H.264, la lecture tient le
+temps réel avec de la marge. **Un film 4K en HEVC lourd peut ne pas le tenir** : mesuré sur deux
+cœurs, il se décode à 0,6 fois le temps réel sans la carte, et avancer d'une image y prend plusieurs
+secondes quand l'image-clé est loin. La carte réduit ce temps — d'un tiers à deux tiers selon le film
+— sans le supprimer. **Elle ne change pas l'image affichée** : un pas ou une recherche tombent sur la
+même image avec et sans. Pour la couper, décochez `Decode on the graphics card` dans
+[`Preferences…`](preferences.md#le-lecteur).
 
 ## Ce qui n'y est pas
 
@@ -243,7 +247,7 @@ matériel y est la réponse, et il n'est pas encore branché.
 - une forme d'onde ;
 - la lecture automatique à l'ouverture d'un film ;
 - le style de la réplique (police, couleur, position, fond) : elle garde celui de la fenêtre ;
-- le décodage matériel : voir « Quand l'image n'apparaît pas » plus haut.
+- le décodage matériel sans copie : voir « Quand l'image n'apparaît pas » plus haut.
 
 Ce manuel décrit ce qui existe : ce qui viendra, et dans quel ordre, est dans la
 [feuille de route](../../feuille-de-route.md).

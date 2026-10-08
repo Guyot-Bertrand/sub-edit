@@ -78,6 +78,7 @@ public:
     std::vector<core::Timestamp> stops{};
 
     int level = 100;
+    bool hardwareDecoding = true;
 
     /// What the open video offers. The track playing is the one marked
     /// `selected`; a case that wants none leaves it empty.
@@ -167,6 +168,8 @@ public:
     [[nodiscard]] int volume() const override { return level; }
 
     void setVolume(int volume) override { level = std::clamp(volume, 0, 100); }
+
+    void setHardwareDecoding(bool allowed) override { hardwareDecoding = allowed; }
 
     [[nodiscard]] std::vector<core::AudioTrack> audioTracks() const override {
         return m_open ? tracks : std::vector<core::AudioTrack>{};

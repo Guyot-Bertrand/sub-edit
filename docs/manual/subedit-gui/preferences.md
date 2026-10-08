@@ -41,16 +41,17 @@ document de `Correct Texts…` ne sont pas retenus.**
 
 ## Le lecteur
 
-Trois champs. **Seek length** et **Context length** sont ceux de Gaupol et ont ses valeurs ; **Frame step** est propre à subedit :
+Quatre champs. **Seek length** et **Context length** sont ceux de Gaupol et ont ses valeurs ; **Frame step** et **Decode on the graphics card** sont propres à subedit :
 
 | Champ | Ce qu'il règle | Par défaut | Bornes |
 | :---- | :------------- | ---------: | :----- |
 | `Seek length` | le saut de `Seek Backward` et `Seek Forward` | 30 s | de 1 s à une heure |
 | `Context length` | l'avance avant la sélection, pour `Seek Selection Start`, `Seek Selection End` et `Play Selection` | 1 s | de 0 à 60 s, au dixième |
 | `Frame step` | le pas, **en images**, de `Step Backward` et `Step Forward`, et du décalage d'un bord | 1 image | de 1 à 1000 images |
+| `Decode on the graphics card` | laisse la carte graphique décoder le film quand la machine en a une ; sans carte, rien ne change | coché | coché ou non |
 
 Ils s'appliquent **à l'instant**, sans attendre un redémarrage, et sont retenus d'une session à l'autre
-sous `video.seek-length` (en secondes), `video.context-length-ms` (en millisecondes) et `video.step-frames` (en images).
+sous `video.seek-length` (en secondes), `video.context-length-ms` (en millisecondes) `video.step-frames` (en images) et `video.hardware-decoding` (`true` ou `false`).
 **Une valeur hors des bornes, ou qui n'est pas un nombre**, n'empêche pas la fenêtre de s'ouvrir : elle
 est ignorée, le défaut reste, et la fenêtre le dit à l'ouverture. **Le pas d'image n'est jamais en millisecondes** : un pas de N images est toujours N images, quelle que soit la fréquence du film — voir [Caler depuis la vidéo](calage.md#image-par-image). Le volume est retenu à `video.volume`,
 de 0 à 100, avec la même tolérance.
