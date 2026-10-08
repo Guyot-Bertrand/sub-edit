@@ -144,7 +144,7 @@ TEST_CASE("a click on the volume goes where it was clicked", "[gui][GUI-VOLUME-0
 // The icons are drawn from the palette: the window goes from the light one to the dark one at the
 // press of a menu entry, and an icon that kept the colors of the first would be unreadable on the
 // second.
-TEST_CASE("the icons are drawn again when the palette changes", "[gui][GUI-FOLLOW-03]") {
+TEST_CASE("the icons are drawn again when the palette changes", "[gui][GUI-THEME-02]") {
     constexpr QSize kLooked{32, 32};
     PlayBar bar;
     const auto drawn = [&] {

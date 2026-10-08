@@ -890,36 +890,84 @@ TEST_CASE("a click in the table suspends the following, and is not centered unde
 
 TEST_CASE("every gesture of the player takes the following up again", "[gui][GUI-FOLLOW-03]") {
     using Gesture = std::function<void(const Following&)>;
-    const std::vector<std::pair<const char*, Gesture>> gestures{
-        {"play",
-         [](const Following& f) {
-             f.booth.pane->toggle(*f.page);
-             // The next tick of the follower, which is what carries a film that plays.
-             f.booth.pane->follow(*f.page);
-         }},
-        {"jump", [](const Following& f) { f.booth.pane->seekBy(*f.page, 1); }},
-        {"neighbour", [](const Following& f) { f.booth.pane->seekToNeighbour(*f.page, true); }},
-        {"step", [](const Following& f) { f.booth.pane->step(*f.page, 1); }},
-        {"bar",
-         [](const Following& f) {
-             emit f.booth.pane->bar()->seekRequested(Timestamp::fromMilliseconds(170100));
-         }},
-        {"mark",
-         [](const Following& f) {
-             f.booth.table.selectionModel()->select(f.booth.table.model()->index(0, 0),
-                                                    QItemSelectionModel::ClearAndSelect |
-                                                        QItemSelectionModel::Rows);
-             f.booth.pane->markEdge(*f.page, subedit::core::Boundary::Start);
-         }},
-        {"insert", [](const Following& f) { f.booth.pane->insertAtPosition(*f.page); }},
-        {"selection", [](const Following& f) {
-             f.booth.table.selectionModel()->select(f.booth.table.model()->index(100, 0),
-                                                    QItemSelectionModel::ClearAndSelect |
-                                                        QItemSelectionModel::Rows);
-             f.booth.pane->playSelection(*f.page);
-         }}};
 
-    for (const auto& [name, gesture] : gestures) {
+    /// What a gesture does, and **the row the table must point at afterwards**, said as data. It
+    /// is the row the film is playing, except where the gesture leaves the film on a position no
+    /// subtitle shows over, or puts a subtitle there: those say their row.
+    struct Case {
+        const char* name;
+        Gesture gesture;
+        std::optional<int> row = std::nullopt;
+    };
+
+    constexpr int kNudged = 100;
+
+    /// Row 100 selected, as a hand on the table would leave it.
+    const auto selecting = [](const Following& f) {
+        f.booth.table.selectionModel()->select(f.booth.table.model()->index(100, 0),
+                                               QItemSelectionModel::ClearAndSelect |
+                                                   QItemSelectionModel::Rows);
+    };
+    const auto nudging = [selecting](subedit::core::Boundary boundary, int direction) {
+        return [selecting, boundary, direction](const Following& f) {
+            selecting(f);
+            f.booth.pane->nudge(*f.page, boundary, direction);
+        };
+    };
+    const auto seeking = [selecting](bool end) {
+        return [selecting, end](const Following& f) {
+            selecting(f);
+            f.booth.pane->seekToSelection(*f.page, end);
+        };
+    };
+
+    const std::vector<Case> cases{
+        {.name = "play",
+         .gesture =
+             [](const Following& f) {
+                 f.booth.pane->toggle(*f.page);
+                 // The next tick of the follower, which is what carries a film that plays.
+                 f.booth.pane->follow(*f.page);
+             }},
+        {.name = "jump", .gesture = [](const Following& f) { f.booth.pane->seekBy(*f.page, 1); }},
+        {.name = "neighbour",
+         .gesture = [](const Following& f) { f.booth.pane->seekToNeighbour(*f.page, true); }},
+        {.name = "step", .gesture = [](const Following& f) { f.booth.pane->step(*f.page, 1); }},
+        {.name = "bar",
+         .gesture =
+             [](const Following& f) {
+                 emit f.booth.pane->bar()->seekRequested(Timestamp::fromMilliseconds(170100));
+             }},
+        {.name = "mark",
+         .gesture =
+             [](const Following& f) {
+                 f.booth.table.selectionModel()->select(f.booth.table.model()->index(0, 0),
+                                                        QItemSelectionModel::ClearAndSelect |
+                                                            QItemSelectionModel::Rows);
+                 f.booth.pane->markEdge(*f.page, subedit::core::Boundary::Start);
+             }},
+        {.name = "insert",
+         .gesture = [](const Following& f) { f.booth.pane->insertAtPosition(*f.page); },
+         .row = 151},
+        {.name = "play selection",
+         .gesture =
+             [selecting](const Following& f) {
+                 selecting(f);
+                 f.booth.pane->playSelection(*f.page);
+             }},
+        {.name = "start of the selection", .gesture = seeking(false)},
+        {.name = "end of the selection", .gesture = seeking(true)},
+        // 40 ms before row 100 starts, in the gap after row 99: no subtitle shows there, and the
+        // table stays on the row that was moved.
+        {.name = "start earlier",
+         .gesture = nudging(subedit::core::Boundary::Start, -1),
+         .row = kNudged},
+        {.name = "start later", .gesture = nudging(subedit::core::Boundary::Start, 1)},
+        {.name = "end earlier", .gesture = nudging(subedit::core::Boundary::End, -1)},
+        {.name = "end later", .gesture = nudging(subedit::core::Boundary::End, 1)},
+    };
+
+    for (const auto& [name, gesture, row] : cases) {
         INFO(name);
         const Following film;
         film.at(120);
@@ -931,10 +979,8 @@ TEST_CASE("every gesture of the player takes the following up again", "[gui][GUI
 
         CHECK(film.following());
         // The row playing is the row the table points at, centered.
-        // The subtitle inserted at the position starts there and shows over the one that was
-        // playing, so it is the one the row points at.
-        const int playing = static_cast<int>(film.booth.player->where.milliseconds() / 1000) +
-                            (std::string{name} == "insert" ? 1 : 0);
+        const int playing =
+            row.value_or(static_cast<int>(film.booth.player->where.milliseconds() / 1000));
         CHECK(film.currentRow() == playing);
         CHECK(film.centered(playing));
     }

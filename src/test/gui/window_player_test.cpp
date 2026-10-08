@@ -1109,7 +1109,7 @@ TEST_CASE("setting a mark does nothing when the position already is that mark",
     CHECK_FALSE(marked.window.undoAction()->isEnabled());
 }
 
-TEST_CASE("a subtitle is inserted at the position, three seconds long, and selected",
+TEST_CASE("a subtitle is inserted at the position, before the next one, and selected",
           "[gui][GUI-MARK-03]") {
     const MarkedWindow marked{3600};
 
