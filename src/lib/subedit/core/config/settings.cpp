@@ -102,6 +102,7 @@ constexpr std::string_view kVideoSeekLengthKey = "video.seek-length";
 constexpr std::string_view kVideoContextLengthKey = "video.context-length-ms";
 constexpr std::string_view kVideoStepFramesKey = "video.step-frames";
 constexpr std::string_view kVideoVolumeKey = "video.volume";
+constexpr std::string_view kVideoHardwareDecodingKey = "video.hardware-decoding";
 constexpr std::string_view kEditorPrefix = "editor.";
 constexpr std::string_view kEditorLengthUnitKey = "editor.length-unit";
 constexpr std::string_view kEditorShowLengthsCellKey = "editor.show-lengths-cell";
@@ -653,8 +654,8 @@ void applySpellCheckOption(SettingsRead& read, std::string_view key, std::string
         take(booleanOf(value), form.inlineCheck);
 }
 
-/// Keeps one of the four options of the video player: the jump, the lead-in, the frame step and the
-/// volume.
+/// Keeps one of the five options of the video player: the jump, the lead-in, the frame step, the
+/// volume and the hardware decoding.
 void applyVideoOption(SettingsRead& read, std::string_view key, std::string_view value) {
     const auto take = [&read, key, value](auto parsed, auto& field) {
         keepOption(read, key, value, std::move(parsed), field);
@@ -671,6 +672,8 @@ void applyVideoOption(SettingsRead& read, std::string_view key, std::string_view
         take(boundedIntegerOf(value, kSmallestStepFrames, kLargestStepFrames), form.stepFrames);
     else if (key == kVideoVolumeKey)
         take(boundedIntegerOf(value, 0, kLargestVolume), form.volume);
+    else if (key == kVideoHardwareDecodingKey)
+        take(booleanOf(value), form.hardwareDecoding);
 }
 
 /// Keeps one of the three options of the editor: the unit lengths are shown in,
@@ -1043,7 +1046,7 @@ void renderEditorSettings(std::string& out, const EditorSettings& form) {
                 form.showLengthsInEditor == defaults.showLengthsInEditor);
 }
 
-/// The four options of the video player, each written bare when it differs from the default and
+/// The five options of the video player, each written bare when it differs from the default and
 /// commented out when it does not.
 void renderVideoSettings(std::string& out, const VideoSettings& form) {
     const VideoSettings defaults;
@@ -1060,6 +1063,10 @@ void renderVideoSettings(std::string& out, const VideoSettings& form) {
                 std::to_string(form.stepFrames),
                 form.stepFrames == defaults.stepFrames);
     writeOption(out, kVideoVolumeKey, std::to_string(form.volume), form.volume == defaults.volume);
+    writeOption(out,
+                kVideoHardwareDecodingKey,
+                std::string{flagText(form.hardwareDecoding)},
+                form.hardwareDecoding == defaults.hardwareDecoding);
 }
 
 } // namespace

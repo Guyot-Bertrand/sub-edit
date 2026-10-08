@@ -46,19 +46,25 @@ namespace {
 /// draws would land on top of a stale one. The overlay is the only subtitle
 /// this player is ever to know.
 ///
+/// **`hwdec=auto-copy` is issue #647**: the card decodes and the picture is copied back, which
+/// the software render accepts where it refuses the zero-copy kind. A machine without a card
+/// decodes on the processor all the same; `Preferences…` can turn it off through
+/// `setHardwareDecoding`.
+///
 /// **`keep-open=yes` is what lets a film end without being lost** — issue #614.
 /// By default mpv unloads the file when playback reaches its end, and the next
 /// question — the position, the duration, a step back — is answered « property
 /// unavailable ». Measured: one `frame-step` past the last frame and the film was
 /// gone. Kept open, the film stays on its last frame, held, and everything asked
 /// of it afterwards still has an answer; `isPlaying` says it stopped.
-constexpr std::array<std::pair<const char*, const char*>, 6> kEveryPlayer{{
+constexpr std::array<std::pair<const char*, const char*>, 7> kEveryPlayer{{
     {"config", "no"},
     {"terminal", "no"},
     {"pause", "yes"},
     {"sub-auto", "no"},
     {"keep-open", "yes"},
     {"vo", "libmpv"},
+    {"hwdec", "auto-copy"},
 }};
 
 /// What a player that makes no sound is built with — the shape of every test.
@@ -629,6 +635,12 @@ bool MpvPlayer::isPlaying() const {
 int MpvPlayer::volume() const {
     // Answered with nothing open as well: the volume is the player's, not the film's.
     return static_cast<int>(std::llround(seconds(m_handle.get(), "volume").value_or(0.0)));
+}
+
+void MpvPlayer::setHardwareDecoding(bool allowed) {
+    // `auto-copy` decodes on the card and copies the picture back, which is what the software
+    // render needs (ADR 0041); mpv falls back to the processor by itself when no card answers.
+    mpv_set_property_string(m_handle.get(), "hwdec", allowed ? "auto-copy" : "no");
 }
 
 void MpvPlayer::setVolume(int volume) {

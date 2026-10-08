@@ -717,3 +717,14 @@ TEST_CASE("GUI-VOLUME-01: the settings the window reopens with carry the volume"
     CHECK(fixture.window().settings().video.volume == 35);
     CHECK(fixture.window().settings().video.seekLengthSeconds == 20);
 }
+
+TEST_CASE("the preferences offer hardware decoding, on, and the player follows the choice",
+          "[gui][config][video]") {
+    const subedit::gui::PreferencesDialog defaults{Theme::System};
+    CHECK(defaults.hardwareDecodingBox()->isChecked());
+    CHECK(defaults.video().hardwareDecoding);
+
+    const subedit::gui::PreferencesDialog off{Theme::System, {}, {.hardwareDecoding = false}};
+    CHECK_FALSE(off.hardwareDecodingBox()->isChecked());
+    CHECK_FALSE(off.video().hardwareDecoding);
+}

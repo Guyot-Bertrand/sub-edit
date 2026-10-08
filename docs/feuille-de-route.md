@@ -1349,7 +1349,8 @@ le suivi, déplacer, suivre » écrite cinq fois, et le test « every gesture »
 attente. **Le lecteur sur un vrai film** est mesuré, sous la limite de deux cœurs : le H.264 1080p tient le temps réel à
 2,5 fois, **un 4K HEVC lourd ne le tient pas** (0,62 fois en 8 bits, 0,92 en 10 bits) et son pas d'une image coûte de 0,4 à
 5 s ; le décodage matériel de la machine le ramène à 2,1 fois, d'où
-[#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647). Le HDR, AV1 et la lecture suivie avec comptage d'images
+[#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647), **livré** : `hwdec=auto-copy` et un réglage pour le couper,
+pour un gain de 1,1 à 3,2 fois à travers libmpv (ADR 0041, addendum). Le HDR, AV1 et la lecture suivie avec comptage d'images
 perdues restent non mesurés.
 
 **Le banc** a un relevé pour 0.14.19 (charge 1,35), le premier depuis 0.14.7 ; trois mesures neuves — centrer une ligne,

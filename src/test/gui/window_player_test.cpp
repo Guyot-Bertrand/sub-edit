@@ -475,6 +475,21 @@ TEST_CASE("the gestures of the volume move it from five to five", "[gui][GUI-VOL
     CHECK(window.settings().video.volume == 55);
 }
 
+// Issue #647: the permission reaches the player when it is built, and again when it changes.
+TEST_CASE("the hardware decoding setting reaches the player", "[gui][video]") {
+    InMemoryFileSystem files = directoryHolding({"film.mkv"});
+    FakePrompts prompts;
+    Projectionist booth;
+    MainWindow window{files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth)};
+    window.applySettings(subedit::core::Settings{.video = {.hardwareDecoding = false}});
+    window.show();
+    REQUIRE(booth.player != nullptr);
+    CHECK_FALSE(booth.player->hardwareDecoding);
+
+    window.applySettings(subedit::core::Settings{.video = {.hardwareDecoding = true}});
+    CHECK(booth.player->hardwareDecoding);
+}
+
 // The bar is under the picture, in the room above the table, and shown with it.
 TEST_CASE("the bar is shown with the picture and hidden with it", "[gui][GUI-SEEK-01]") {
     InMemoryFileSystem files = directoryHolding({"film.mkv"});

@@ -401,6 +401,26 @@ TEST_CASE("a step forward shows the next frame", "[video][player][numbered][step
     CHECK(stepping.position() == Timestamp::fromMilliseconds(40));
 }
 
+// Issue #647: the exactness is the same whether the card decodes or not. Where the machine has
+// none, both runs are in software and the case says no more than the one above; where it has one,
+// it proves the copy back is the frame that was asked for.
+TEST_CASE("seeking and stepping are exact with and without hardware decoding",
+          "[video][player][numbered][step]") {
+    const bool allowed = GENERATE(true, false);
+    MpvPlayer stepping = player();
+    stepping.setHardwareDecoding(allowed);
+    REQUIRE(stepping.open(fixture("videos/images-25.mp4")).has_value());
+
+    stepping.seek(Timestamp::fromMilliseconds(subedit::test::startOf(100, 25, 1)));
+    CHECK(shownFrame(stepping) == 100);
+
+    stepping.stepFrames(1);
+    CHECK(shownFrame(stepping) == 101);
+
+    stepping.stepFrames(-2);
+    CHECK(shownFrame(stepping) == 99);
+}
+
 TEST_CASE("a step back shows the previous frame", "[video][player][numbered][step]") {
     MpvPlayer stepping = player();
     REQUIRE(stepping.open(fixture("videos/images-25.mp4")).has_value());

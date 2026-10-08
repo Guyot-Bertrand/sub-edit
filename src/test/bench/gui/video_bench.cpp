@@ -27,6 +27,7 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -239,6 +240,10 @@ TEST_CASE("seeking and stepping on a film-sized video", "[benchmark][film]") {
 // steps would measure a distance that grows with the loop. **The figure to compare it to is the
 // length of a frame** — 40 ms at 25 images a second: a step that costs more is felt under a
 // finger. Without the variable the benchmark says so and abstains.
+//
+// **It is played by hand, once in a while, and never by `make bench`**: at the default hundred
+// samples a film of 4K takes an hour a series. `--benchmark-samples 10` gives the order of
+// magnitude in a few minutes, and `SUBEDIT_BENCH_HWDEC=no` is the series without the card.
 TEST_CASE("seeking and stepping on a real film", "[benchmark][realfilm]") {
     const char* named = std::getenv("SUBEDIT_BENCH_REAL_FILM");
     if (named == nullptr || !std::filesystem::exists(named))
@@ -246,6 +251,10 @@ TEST_CASE("seeking and stepping on a real film", "[benchmark][realfilm]") {
 
     std::expected<MpvPlayer, PlayerError> built = MpvPlayer::create();
     MpvPlayer player = std::move(built.value());
+    // `SUBEDIT_BENCH_HWDEC=no` is the series without the card — issue #647 — so that the two are
+    // taken on the same film by the same binary.
+    const char* hardware = std::getenv("SUBEDIT_BENCH_HWDEC");
+    player.setHardwareDecoding(hardware == nullptr || std::string_view{hardware} != "no");
     REQUIRE(player.open(std::filesystem::path{named}).has_value());
 
     constexpr std::size_t kBytesAPixel = 4;

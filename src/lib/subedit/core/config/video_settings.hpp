@@ -53,6 +53,12 @@ struct VideoSettings {
     /// The volume, 0 to 100.
     int volume = kLargestVolume;
 
+    /// Whether the player decodes on the graphics card where the machine has one — issue #647.
+    /// **On by default**: a heavy 4K film does not keep real time on two cores, and the card
+    /// does. The player falls back to software by itself where there is no card, so the box
+    /// only has to be cleared by somebody whose card decodes badly.
+    bool hardwareDecoding = true;
+
     friend bool operator==(const VideoSettings&, const VideoSettings&) = default;
 };
 

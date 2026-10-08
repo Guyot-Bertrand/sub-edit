@@ -320,8 +320,10 @@ core::VideoPlayer* VideoPane::player() {
         m_picture->attach(dynamic_cast<FrameSource*>(m_player.get()));
 
         // What the volume was left at, from the settings or the last gesture.
-        if (m_player != nullptr)
+        if (m_player != nullptr) {
             m_player->setVolume(m_settings.volume);
+            m_player->setHardwareDecoding(m_settings.hardwareDecoding);
+        }
     }
 
     return m_player.get();
@@ -623,6 +625,8 @@ core::VideoSettings VideoPane::settings() const {
 void VideoPane::setSettings(const core::VideoSettings& settings) {
     m_settings = settings;
     applyVolume(settings.volume);
+    if (m_player != nullptr)
+        m_player->setHardwareDecoding(settings.hardwareDecoding);
 }
 
 void VideoPane::applyVolume(int volume) {
