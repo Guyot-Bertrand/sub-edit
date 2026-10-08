@@ -183,7 +183,7 @@ TEST_CASE("Two shifts that both mend the opening leave none to offer",
     constexpr int kHalf = 3;
     const auto stamp = [](int milliseconds) {
         const std::string seconds = std::to_string(milliseconds / 1000);
-        const std::string thousandths = std::to_string(1000 + milliseconds % 1000).substr(1);
+        const std::string thousandths = std::to_string(1000 + (milliseconds % 1000)).substr(1);
         return "00:00:" + std::string(seconds.size() < 2 ? "0" : "") + seconds + "," + thousandths;
     };
     std::string main;

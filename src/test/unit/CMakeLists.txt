@@ -10,6 +10,7 @@ add_executable(
     core/analysis/anomaly_test.cpp
     core/analysis/frame_rate_deduction_test.cpp
     core/analysis/grid_correction_test.cpp
+    core/analysis/grid_repair_test.cpp
     core/version_test.cpp
     core/wording_test.cpp
     core/edit/shift_limits_test.cpp

@@ -93,6 +93,45 @@ recalée, ou un fichier assemblé à partir de deux autres.
 convient à 25 à cent pour cent et à 50 à cent pour cent dit quelque chose qu'un
 verdict seul cacherait.
 
+## Quand la conversion était fausse
+
+Un fichier qui ne tombe sur aucune grille est parfois un fichier qu'on a **converti à la mauvaise
+fréquence** : il est alors sur une grille bien réelle, mais décalée d'un rapport qui n'est celui
+d'aucune des huit. Quand la déduction rend `none` ou `partial`, l'analyse cherche **parmi les
+cinquante-six paires ordonnées des huit fréquences normalisées** — c'est l'ensemble, fermé — celle
+dont la conversion remet les positions sur une grille. Chaque rapport est appliqué aux positions, et
+**c'est la déduction elle-même qui juge le résultat** : la confiance est ce qu'elle dirait, jamais un
+nombre inventé. Deux paires qui font le même rapport, comme 30 vers 25 et 60 vers 50, sont une seule
+conversion.
+
+La phrase s'ajoute au résumé :
+
+```text
+converting from 24 to 25 fps puts the positions on a 24 fps grid: 99.9%, against 11.8% as they are and 14.9% for the next best conversion
+```
+
+Elle donne la conversion, la grille où les positions tomberaient et à quel point elles y tombent,
+**puis l'écart avec les positions telles qu'elles sont et avec la meilleure des autres
+conversions.** Un bouton `Convert Frame Rate…` ferme l'analyse et ouvre [le dialogue de
+conversion](operations.md#convert-frame-rate) **rempli avec la paire trouvée** — rien n'est appliqué
+tant que le dialogue n'est pas accepté, et l'annulation suffit à revenir. La vidéo, ouverte à côté,
+permet de juger à l'image si la réponse est la bonne.
+
+**Quand deux paires se valent, aucune n'est proposée, et la phrase le dit :**
+
+```text
+converting from 30 to 25 fps and converting from 25 to 24 fps fit equally well (99.7% and 99.6%), so none is proposed
+```
+
+C'est le cas ordinaire plutôt que l'exception : une grille à 28,8 images par seconde se remet aussi
+bien sur 24 que sur 30, et un fichier dont tous les temps sont doublés reste sur la grille de 25.
+Le geste qui a une seule réparation est de convertir un fichier **déjà** à la fréquence visée. Pour
+une égalité, la vidéo tranche : on ouvre `Convert Frame Rate…` soi-même sur l'une des deux paires.
+
+**Rien n'est dit** d'un fichier déjà sur une grille, d'un fichier trop court pour qu'un verdict
+vaille, ni d'un fichier qu'aucune conversion de l'ensemble ne remet sur une grille — une dérive, un
+rapport hors des huit fréquences, des positions sans structure.
+
 ## Ce que la table ne montre pas
 
 **Aucune ligne de la table n'est marquée à cause de la grille**, jamais.

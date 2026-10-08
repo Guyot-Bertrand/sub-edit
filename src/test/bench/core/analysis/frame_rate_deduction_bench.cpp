@@ -19,17 +19,22 @@
 // call, and the figure stays the one they pay.
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/analysis/grid_repair.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/core/time/ratio.hpp>
+#include <subedit/core/time/timestamp.hpp>
 
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include <full_length_project.hpp>
+#include <vector>
 
 namespace {
 
 using subedit::core::deduceFrameRate;
+using subedit::core::findGridRepair;
 using subedit::core::Project;
 
 } // namespace
@@ -39,5 +44,25 @@ TEST_CASE("deducing the frame rate of a full-length file", "[bench][analysis]") 
 
     BENCHMARK("déduction de fréquence sur 4000 sous-titres") {
         return deduceFrameRate(project);
+    };
+}
+
+// **The worst case of the search for a conversion — issue #386.** It deduces the grid of the
+// positions once as they are, then once for each of the conversions of the closed set (forty
+// distinct ratios out of fifty-six pairs), so a file that no conversion mends costs about forty
+// deductions. A file that is on a grid already costs one, and never gets here: the fixture is
+// moved off its grid first, by a ratio that is not among the forty, and this is the cost of the
+// longest road the search can take.
+TEST_CASE("searching the conversion of a full-length file", "[bench][analysis]") {
+    const Project project = subedit::test::fullLengthProject();
+    const subedit::core::Ratio off =
+        subedit::core::Ratio::create(21, 20).value_or(subedit::core::Ratio::one());
+    std::vector<subedit::core::Timestamp> starts;
+    starts.reserve(project.count());
+    for (const auto& subtitle : project.subtitles())
+        starts.push_back(subtitle.start.scaledBy(off));
+
+    BENCHMARK("recherche de conversion sur 4000 sous-titres") {
+        return findGridRepair(starts);
     };
 }

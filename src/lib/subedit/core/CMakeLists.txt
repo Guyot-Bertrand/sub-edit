@@ -8,6 +8,7 @@ add_library(
     analysis/anomaly.cpp
     analysis/frame_rate_deduction.cpp
     analysis/grid_correction.cpp
+    analysis/grid_repair.cpp
     command/composite_command.cpp
     command/history.cpp
     edit/append.cpp

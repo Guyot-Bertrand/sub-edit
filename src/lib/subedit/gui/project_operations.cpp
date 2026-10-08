@@ -181,6 +181,11 @@ void ProjectOperations::transform(ProjectPage& page) {
 }
 
 void ProjectOperations::convertFrameRate(ProjectPage& page) {
+    convertFrameRateFrom(page, std::nullopt);
+}
+
+void ProjectOperations::convertFrameRateFrom(ProjectPage& page,
+                                             const std::optional<core::RateConversion>& proposed) {
     const core::Selection target = targetIn(page);
     const core::Project& project = page.session->project();
 
@@ -210,6 +215,9 @@ void ProjectOperations::convertFrameRate(ProjectPage& page) {
                            measured,
                            read,
                            m_view->dialogParent()};
+    // **Filled and not applied**: the analysis found these two, and the dialog still asks.
+    if (proposed.has_value())
+        dialog.setRates(proposed->input, proposed->output);
     if (!m_prompts->run(dialog))
         return;
 
@@ -467,10 +475,18 @@ void ProjectOperations::shiftOntoGrid(ProjectPage& page) {
     apply(page, std::make_unique<core::ShiftCommand>(whole, *by), whole);
 }
 
-void ProjectOperations::analyseGrid(const ProjectPage& page) {
-    GridAnalysisDialog dialog{core::deduceFrameRate(page.session->project()),
-                              m_view->dialogParent()};
-    (void)m_prompts->run(dialog);
+void ProjectOperations::analyseGrid(ProjectPage& page) {
+    const core::Project& project = page.session->project();
+    GridAnalysisDialog dialog{
+        core::deduceFrameRate(project), core::findGridRepair(project), m_view->dialogParent()};
+    if (!m_prompts->run(dialog))
+        return;
+
+    // The button was pressed: the conversion found is handed to the dialog that asks.
+    const std::optional<core::FrameRate> input = dialog.requestedInput();
+    const std::optional<core::FrameRate> output = dialog.requestedOutput();
+    if (input.has_value() && output.has_value())
+        convertFrameRateFrom(page, core::RateConversion{.input = *input, .output = *output});
 }
 
 } // namespace subedit::gui

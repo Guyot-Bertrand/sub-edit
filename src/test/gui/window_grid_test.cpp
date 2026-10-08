@@ -24,6 +24,7 @@
 #include <QDialog>
 #include <QItemSelectionModel>
 #include <QLabel>
+#include <QPushButton>
 #include <QTableView>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
@@ -42,9 +43,12 @@ namespace {
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::core::deduceFrameRate;
+using subedit::core::FrameRate;
 using subedit::core::FrameRateDeduction;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::openProject;
+using subedit::core::StandardFrameRate;
+using subedit::gui::FrameRateDialog;
 using subedit::gui::GridAnalysisDialog;
 using subedit::gui::MainWindow;
 using subedit::test::FakePrompts;
@@ -437,4 +441,137 @@ TEST_CASE("a correction that would cross the origin is refused", "[gui][GUI-GRID
     REQUIRE(prompts.failures.size() == 1);
     CHECK_THAT(prompts.failures.front(), ContainsSubstring("before the origin"));
     CHECK_FALSE(window.undoAction()->isEnabled());
+}
+
+namespace {
+
+/// A window on a file converted at the wrong rate.
+[[nodiscard]] MainWindow
+windowOnWrongRate(std::string_view name, InMemoryFileSystem& files, FakePrompts& prompts) {
+    files.addFile("a.srt", subedit::test::wrongRateBytes(name));
+    return MainWindow{files, openProject(files, "a.srt").value(), prompts, {}, {}};
+}
+
+} // namespace
+
+TEST_CASE("the analysis names the conversion that puts the file back on a grid",
+          "[gui][GUI-REPAIR-01]") {
+    InMemoryFileSystem files;
+    FakePrompts prompts;
+    MainWindow window = windowOnWrongRate("faux-25-vers-24", files, prompts);
+    window.show();
+    REQUIRE(window.gridStatus()->text().toStdString() == "No grid");
+
+    QString summary;
+    bool offered = false;
+    prompts.fill = [&](QDialog& dialog) {
+        if (const auto* analysis = dynamic_cast<GridAnalysisDialog*>(&dialog)) {
+            summary = analysis->summary();
+            offered = analysis->convertButton() != nullptr;
+        }
+    };
+    window.analyseGridAction()->trigger();
+
+    CHECK_THAT(
+        summary.toStdString(),
+        ContainsSubstring("converting from 24 to 25 fps puts the positions on a 24 fps grid"));
+    CHECK(offered);
+    // Looked at, not asked for: no second dialog, and the file is as it was.
+    CHECK(prompts.runAsked == 1);
+    CHECK(window.gridStatus()->text().toStdString() == "No grid");
+}
+
+TEST_CASE("asking for the conversion opens Convert Frame Rate filled with it, and applies nothing",
+          "[gui][GUI-REPAIR-02]") {
+    InMemoryFileSystem files;
+    FakePrompts prompts;
+    MainWindow window = windowOnWrongRate("faux-25-vers-24", files, prompts);
+    window.show();
+
+    std::optional<FrameRate> input;
+    std::optional<FrameRate> output;
+    prompts.nextRun = true;
+    prompts.fill = [&](QDialog& dialog) {
+        if (auto* analysis = dynamic_cast<GridAnalysisDialog*>(&dialog))
+            analysis->convertButton()->click();
+        if (const auto* conversion = dynamic_cast<FrameRateDialog*>(&dialog)) {
+            input = conversion->input();
+            output = conversion->output();
+        }
+    };
+    window.analyseGridAction()->trigger();
+
+    // The analysis, then the conversion dialog, **filled** with the pair that was found.
+    CHECK(prompts.runAsked == 2);
+    CHECK((input.has_value() && *input == FrameRate{StandardFrameRate::Fps24}));
+    CHECK((output.has_value() && *output == FrameRate{StandardFrameRate::Fps25}));
+
+    // The user accepted the dialog, so the conversion was applied: the file is back on its grid,
+    // and one undo gives it back as it was.
+    CHECK(window.gridStatus()->text().toStdString() == "Grid: 24 fps");
+    window.undoAction()->trigger();
+    CHECK(window.gridStatus()->text().toStdString() == "No grid");
+}
+
+TEST_CASE("declining the filled conversion applies nothing", "[gui][GUI-REPAIR-02]") {
+    InMemoryFileSystem files;
+    FakePrompts prompts;
+    MainWindow window = windowOnWrongRate("faux-25-vers-24", files, prompts);
+    window.show();
+
+    prompts.nextRun = true;
+    prompts.fill = [&prompts](QDialog& dialog) {
+        if (auto* analysis = dynamic_cast<GridAnalysisDialog*>(&dialog))
+            analysis->convertButton()->click();
+        else
+            prompts.nextRun = false;
+    };
+    window.analyseGridAction()->trigger();
+
+    CHECK(prompts.runAsked == 2);
+    CHECK(window.gridStatus()->text().toStdString() == "No grid");
+    CHECK_FALSE(window.undoAction()->isEnabled());
+}
+
+TEST_CASE("two conversions that fit equally are named, and no button offers either",
+          "[gui][GUI-REPAIR-01]") {
+    InMemoryFileSystem files;
+    FakePrompts prompts;
+    MainWindow window = windowOnWrongRate("egalite-28-8", files, prompts);
+    window.show();
+
+    QString summary;
+    bool offered = true;
+    prompts.fill = [&](QDialog& dialog) {
+        if (const auto* analysis = dynamic_cast<GridAnalysisDialog*>(&dialog)) {
+            summary = analysis->summary();
+            offered = analysis->convertButton() != nullptr;
+        }
+    };
+    window.analyseGridAction()->trigger();
+
+    CHECK_THAT(summary.toStdString(), ContainsSubstring("fit equally well"));
+    CHECK_THAT(summary.toStdString(), ContainsSubstring("so none is proposed"));
+    CHECK_FALSE(offered);
+}
+
+TEST_CASE("a file on a grid is offered nothing, and the analysis says nothing of conversions",
+          "[gui][GUI-REPAIR-01]") {
+    InMemoryFileSystem files;
+    FakePrompts prompts;
+    MainWindow window = windowOn("grille-24.srt", files, prompts);
+    window.show();
+
+    QString summary;
+    bool offered = true;
+    prompts.fill = [&](QDialog& dialog) {
+        if (const auto* analysis = dynamic_cast<GridAnalysisDialog*>(&dialog)) {
+            summary = analysis->summary();
+            offered = analysis->convertButton() != nullptr;
+        }
+    };
+    window.analyseGridAction()->trigger();
+
+    CHECK_THAT(summary.toStdString(), !ContainsSubstring("converting"));
+    CHECK_FALSE(offered);
 }

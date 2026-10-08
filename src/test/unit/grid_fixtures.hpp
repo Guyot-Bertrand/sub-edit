@@ -24,6 +24,10 @@ namespace subedit::test {
 /// of its own rather than to the one built in.
 [[nodiscard]] std::string gridBytes(std::string_view name);
 
+/// The bytes of a file of `src/test/data/conversions-fausses/`: a file on a grid, converted at
+/// the wrong rate — issue #386.
+[[nodiscard]] std::string wrongRateBytes(std::string_view name);
+
 /// Opens a grid fixture as a project, timed at `rate`.
 ///
 /// Fails the running test case rather than returning something empty: a fixture

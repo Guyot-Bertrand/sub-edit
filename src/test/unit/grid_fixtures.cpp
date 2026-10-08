@@ -37,6 +37,18 @@ std::string gridBytes(std::string_view name) {
     return bytes.value_or(std::string{});
 }
 
+std::string wrongRateBytes(std::string_view name) {
+    const std::filesystem::path path =
+        std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / "conversions-fausses" / name / "fichier.srt";
+
+    const core::RealFileSystem files;
+    const std::expected<std::string, core::FileError> bytes = files.readFile(path);
+    if (!bytes.has_value())
+        FAIL("fixture de conversion fausse introuvable : " + path.string());
+
+    return bytes.value_or(std::string{});
+}
+
 core::Project gridProject(std::string_view name, core::FrameRate rate) {
     core::Project project;
     project.setSubtitles(openOrFail(name).subtitles);

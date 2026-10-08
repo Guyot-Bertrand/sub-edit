@@ -1,4 +1,6 @@
+#include <subedit/core/analysis/grid_repair.hpp>
 #include <subedit/core/format/degradation.hpp>
+#include <subedit/core/wording/analysis.hpp>
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/formats.hpp>
@@ -88,6 +90,32 @@ std::string noticeOfAppend(std::size_t inserted,
         notice += post;
     }
     return notice;
+}
+
+namespace {
+
+[[nodiscard]] std::string namedConversion(const RateConversion& conversion) {
+    return "converting from " + nameOf(conversion.input) + " to " + nameOf(conversion.output) +
+           " fps";
+}
+
+} // namespace
+
+std::string repairNoticeOf(const GridRepair& repair) {
+    if (repair.outcome == RepairOutcome::Found && repair.conversion.has_value() &&
+        repair.onto.has_value()) {
+        return namedConversion(*repair.conversion) + " puts the positions on a " +
+               nameOf(*repair.onto) + " fps grid: " + percentOf(repair.concentration) +
+               ", against " + percentOf(repair.asIs) + " as they are and " +
+               percentOf(repair.runnerUp) + " for the next best conversion";
+    }
+    if (repair.outcome == RepairOutcome::Tied && repair.conversion.has_value() &&
+        repair.rival.has_value()) {
+        return namedConversion(*repair.conversion) + " and " + namedConversion(*repair.rival) +
+               " fit equally well (" + percentOf(repair.concentration) + " and " +
+               percentOf(repair.runnerUp) + "), so none is proposed";
+    }
+    return {};
 }
 
 } // namespace subedit::core
