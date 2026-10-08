@@ -5,6 +5,7 @@
 #include <subedit/core/edit/clipboard.hpp>
 #include <subedit/core/edit/duration_adjustment.hpp>
 #include <subedit/core/edit/search.hpp>
+#include <subedit/core/edit/translation.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
@@ -588,6 +589,19 @@ private:
 
     /// Asks which translation to open and how to align it, then opens it.
     void openTranslationFromPrompt();
+
+    /// What attaching lines to the project said: the counts, and what the operation left past
+    /// the end of the film.
+    struct Opened {
+        core::TranslationOutcome outcome{};
+        std::string pastTheEnd{};
+    };
+
+    /// Attaches `lines` to the project on screen by `method`, as one entry of the history, and
+    /// leaves the window as an opening leaves it: saved, the column shown.
+    [[nodiscard]] Opened attachLines(std::span<const core::Subtitle> lines,
+                                     const core::SourceFile& source,
+                                     core::TranslationMethod method);
 
     void openFromPrompt();
 

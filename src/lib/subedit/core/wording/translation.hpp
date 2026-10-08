@@ -11,6 +11,7 @@
 namespace subedit::core {
 
 struct TranslationOutcome;
+struct ConstantShift;
 
 /// What opening a translation did, in one sentence — decision D4 of the phase-11
 /// spec, and ADR 0008: said, and not left for the user to find out.
@@ -24,6 +25,11 @@ struct TranslationOutcome;
 /// in a box or in the status bar, and the command line will say it in the same
 /// words when the translation reaches it.
 [[nodiscard]] std::string noticeOf(const TranslationOutcome& outcome);
+
+/// The sentence that says a translation sits a constant time away from the main document,
+/// with the counts the opening would give moved: "the lines sit 2.000 s later than the
+/// subtitles; moved back, 4 lines would attach instead of 1" — issue #621.
+[[nodiscard]] std::string shiftNoticeOf(const ConstantShift& shift);
 
 /// Why a translation could not be opened, in the words of the file it names —
 /// or, when it is the main file itself, in a sentence of its own.

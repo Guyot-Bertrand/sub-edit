@@ -91,6 +91,8 @@ public:
 
     [[nodiscard]] bool aboutLoss(const std::string& notice) override;
 
+    [[nodiscard]] bool proposeShiftedReopening(const std::string& message) override;
+
     [[nodiscard]] bool run(QDialog& dialog) override;
 
     void reportFailure(const std::string& message) override;

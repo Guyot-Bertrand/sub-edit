@@ -155,6 +155,15 @@ bool QtPrompts::aboutLoss(const std::string& notice) {
                                 QMessageBox::Cancel) == QMessageBox::Save;
 }
 
+bool QtPrompts::proposeShiftedReopening(const std::string& message) {
+    const QString text =
+        QString::fromStdString(message) + QStringLiteral("\n\nOpen it again, moved?");
+    const auto answers = QMessageBox::Yes | QMessageBox::No;
+    const auto chosen =
+        QMessageBox::question(m_owner, QStringLiteral("subedit"), text, answers, QMessageBox::No);
+    return chosen == QMessageBox::Yes;
+}
+
 bool QtPrompts::run(QDialog& dialog) {
     return dialog.exec() == QDialog::Accepted;
 }

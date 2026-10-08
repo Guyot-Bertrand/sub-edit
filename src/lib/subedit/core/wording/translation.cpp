@@ -1,4 +1,6 @@
 #include <subedit/core/edit/translation.hpp>
+#include <subedit/core/edit/translation_drift.hpp>
+#include <subedit/core/wording/analysis.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/formats.hpp>
 #include <subedit/core/wording/translation.hpp>
@@ -35,6 +37,16 @@ std::string noticeOf(const TranslationOutcome& outcome) {
     for (std::size_t rank = 0; rank < clauses.size(); ++rank)
         notice += (rank == 0 ? "" : "; ") + clauses[rank];
     return notice;
+}
+
+std::string shiftNoticeOf(const ConstantShift& shift) {
+    const bool late = shift.lateBy.milliseconds() > 0;
+    const Duration length =
+        late ? shift.lateBy : Duration::fromMilliseconds(-shift.lateBy.milliseconds());
+    return "the lines sit " + secondsOf(length) + (late ? " later" : " earlier") +
+           " than the subtitles; moved " + (late ? "back" : "forward") + ", " +
+           countOf(shift.ifShifted.attached, "line") + " would attach instead of " +
+           std::to_string(shift.asOpened.attached);
 }
 
 std::string_view reasonOf(const TranslationError& error) {

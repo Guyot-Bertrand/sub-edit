@@ -274,6 +274,14 @@ s'aligne sur les mauvais sous-titres sans que rien la distingue d'un rattachemen
 - **Les huit paires de `src/test/data/paires/`** servent de garde : aucune ne se voit proposer un décalage qu'elle n'a
   pas. L'éprouver demande un **générateur de paires avec leur vérité**, écrit avec la détection.
 
+**Livré (#621).** Les candidats sont les écarts au sous-titre qui commence juste avant la ligne et à celui qui commence
+juste après : le plus proche seul se trompe quand deux sous-titres sont également proches. Un écart que deux lignes au
+moins ne montrent pas est du bruit, et huit candidats au plus sont jugés. Le décalage rendu est la **médiane** des écarts
+de son groupe, donc exact au millième quand il est constant. La fenêtre le cherche **avant** d'appliquer l'ouverture —
+après, le projet porte les sous-titres nés des lignes. Le générateur est `src/scripts/shifted-pairs.py`
+(`src/test/data/decalages/`, six cas : aucun décalage, trois constants, une dérive, un décalage partiel), tenu par la
+porte comme les autres fixtures engendrées.
+
 ## D11 — Retrouver la paire d'une conversion à la mauvaise fréquence
 
 **Décidé par l'utilisateur le 2026-10-06 : elle est de cette phase** ([#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386)),

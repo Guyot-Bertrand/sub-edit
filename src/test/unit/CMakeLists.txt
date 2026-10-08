@@ -69,6 +69,7 @@ add_executable(
     core/edit/italics_command_test.cpp
     core/edit/document_dialect_test.cpp
     core/edit/translation_test.cpp
+    core/edit/translation_drift_test.cpp
     core/edit/rewrite_texts_test.cpp
     core/edit/text_commands_test.cpp
     core/edit/insert_command_test.cpp

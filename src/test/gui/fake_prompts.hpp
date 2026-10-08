@@ -55,6 +55,15 @@ public:
         return nextLossAccepted;
     }
 
+    /// What each proposal to reopen a translation moved said, and whether the next is accepted.
+    std::vector<std::string> shiftedReopenings;
+    bool nextShiftedReopeningAccepted = false;
+
+    [[nodiscard]] bool proposeShiftedReopening(const std::string& message) override {
+        shiftedReopenings.push_back(message);
+        return nextShiftedReopeningAccepted;
+    }
+
     [[nodiscard]] std::optional<std::filesystem::path>
     fileToOpen(const std::filesystem::path& directory) override {
         ++openAsked;

@@ -464,6 +464,29 @@ d'ordre. Un fichier sans aucune ligne le dit
 (`translation: the file holds no line`) plutôt que d'en faire le grief des
 sous-titres.
 
+**Une traduction décalée se reconnaît, et se rouvre décalée.** Une traduction calée deux
+secondes trop tard s'aligne sur les mauvais sous-titres sans que rien la distingue d'un
+rattachement juste. Quand l'ouverture **par position** n'est pas propre, la fenêtre cherche
+**un décalage constant** : les écarts entre le début de chaque ligne et celui des sous-titres
+qui l'encadrent donnent des candidats, regroupés à la dizaine de millisecondes, et **chacun
+est jugé par le rattachement même de l'ouverture**. Si un seul décalage rend l'ouverture
+propre, la boîte le dit après son compte et **propose de rouvrir décalée** :
+
+```text
+translation: 4 subtitles born of a line; 4 subtitles left without a translation
+the lines sit 2.000 s later than the subtitles; moved back, 4 lines would attach instead of 0
+```
+
+`Yes` annule l'ouverture et la refait avec les lignes ramenées de ce décalage ; `No`, la
+réponse par défaut, laisse l'ouverture comme elle est. **Le résultat est une seule entrée
+d'historique** : l'annuler rend tout, comme pour toute ouverture.
+
+**Rien n'est proposé quand le décalage n'est pas constant** — une dérive, un décalage qui ne
+touche qu'une partie du fichier —, quand deux décalages rendraient l'ouverture propre
+également, ou quand aucun ne la rend propre : la phrase ne dit alors pas qu'il y en a un. Ni
+par numéro, où les positions ne sont pas regardées. Il n'y a **aucune ligne de commande** pour
+cela.
+
 **Ouvrir une traduction est une seule entrée d'historique**, `Undo: opening a
 translation`, et l'annuler rend tout : les textes, les sous-titres nés retirés,
 le fichier de la traduction détaché — la colonne s'en va avec. Pour l'ouvrir par

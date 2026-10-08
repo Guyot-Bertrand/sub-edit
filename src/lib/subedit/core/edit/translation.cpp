@@ -160,22 +160,41 @@ struct Matching {
     return matching;
 }
 
+/// What the matching says, line for line: the counts the opening is judged by.
+[[nodiscard]] TranslationOutcome outcomeOf(const Matching& matching,
+                                           std::span<const Subtitle> lines) {
+    TranslationOutcome outcome;
+    outcome.outOfOrder = linesOutOfOrder(lines);
+    outcome.born = matching.born.size();
+    for (const std::optional<std::size_t>& line : matching.lineOf)
+        ++(line.has_value() ? outcome.attached : outcome.untranslated);
+    return outcome;
+}
+
+[[nodiscard]] Matching
+matchingOf(const Project& project, std::span<const Subtitle> lines, TranslationMethod method) {
+    const std::vector<std::size_t> order = inTimeOrder(lines);
+    return method == TranslationMethod::Number ? byNumber(project.count(), order)
+                                               : byPosition(project.subtitles(), lines, order);
+}
+
 } // namespace
+
+TranslationOutcome previewTranslation(const Project& project,
+                                      std::span<const Subtitle> lines,
+                                      TranslationMethod method) {
+    return outcomeOf(matchingOf(project, lines, method), lines);
+}
 
 AttachedTranslation attachTranslation(const Project& project,
                                       std::span<const Subtitle> lines,
                                       const SourceFile& source,
                                       TranslationMethod method) {
     const std::size_t count = project.count();
-    const std::vector<std::size_t> order = inTimeOrder(lines);
-
-    const Matching matching = method == TranslationMethod::Number
-                                  ? byNumber(count, order)
-                                  : byPosition(project.subtitles(), lines, order);
+    const Matching matching = matchingOf(project, lines, method);
 
     AttachedTranslation result;
-    result.outcome.outOfOrder = linesOutOfOrder(lines);
-    result.outcome.born = matching.born.size();
+    result.outcome = outcomeOf(matching, lines);
 
     // Every command is built **before** any is applied, as a group is: each one
     // captures the state it undoes when it is built, and the indices of the
@@ -188,11 +207,6 @@ AttachedTranslation attachTranslation(const Project& project,
     for (std::size_t rank = 0; rank < count; ++rank) {
         const SubtitleIndex index = SubtitleIndex::fromValue(rank);
         const std::optional<std::size_t>& line = matching.lineOf[rank];
-        if (line.has_value())
-            ++result.outcome.attached;
-        else
-            ++result.outcome.untranslated;
-
         const std::string wanted = line.has_value() ? lines[*line].mainText : std::string{};
         if (wanted != project.subtitleAt(index).translationText)
             commands.push_back(
