@@ -21,6 +21,11 @@ namespace subedit::core {
 /// video declares no rate, and the positions fall on no grid.
 [[nodiscard]] std::string noFrameRateToShow();
 
+/// The number of the frame `position` falls in at `rate`, as the table and the bar of the player
+/// write it — **rounded once**, from the exact rational, which is what `toFrame` does and what a
+/// MicroDVD file writes. One function for both, so that the same moment is said the same way.
+[[nodiscard]] std::string frameNumberText(Timestamp position, FrameRate rate);
+
 /// What the setting that shows positions in frames says when it is on: the rate, and where it came
 /// from — the file, the video, or the positions themselves.
 [[nodiscard]] std::string framesShownAt(const CountedFrameRate& counted);

@@ -8,6 +8,10 @@
 
 namespace subedit::core {
 
+std::string frameNumberText(Timestamp position, FrameRate rate) {
+    return std::to_string(position.toFrame(rate).number());
+}
+
 std::string noFrameRateToShow() {
     return "positions cannot be shown in frames: the file is not counted in frames, the video "
            "declares no frame rate, and the positions fall on no grid";

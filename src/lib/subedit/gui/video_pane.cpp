@@ -13,6 +13,7 @@
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/frame_step.hpp>
 #include <subedit/core/video/replica.hpp>
+#include <subedit/core/video/seeking.hpp>
 #include <subedit/core/video/showing.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/core/wording/video.hpp>
@@ -109,11 +110,6 @@ constexpr int kStepGateMs = 20;
 /// How much a gesture of volume moves it, in per cent — Gaupol's five.
 constexpr int kVolumeStep = 5;
 
-/// How close to the position a subtitle must start, or have ended, to count as ahead of it or
-/// behind it: Gaupol's millisecond, so that the neighbour of a position that is exactly a start
-/// is not that very subtitle.
-constexpr std::int64_t kNeighbourMargin = 1;
-
 /// How tall the picture may not go under, in pixels.
 ///
 /// A splitter with nothing to stop it lets a child be dragged to nothing, and
@@ -150,12 +146,6 @@ struct SelectedSpan {
     return SelectedSpan{.first = static_cast<std::size_t>(lowest.row()),
                         .last = static_cast<std::size_t>(highest.row())};
 }
-
-/// How long a subtitle inserted at the position lasts, at most: Gaupol's three seconds.
-constexpr std::int64_t kInsertedLengthMilliseconds = 3000;
-
-/// A second, in milliseconds.
-constexpr std::int64_t kMillisecondsPerSecond = 1000;
 
 } // namespace
 
@@ -722,12 +712,8 @@ void VideoPane::seekBy(ProjectPage& page, int direction) {
     if (!where.has_value() || !length.has_value())
         return;
 
-    const std::int64_t jump =
-        static_cast<std::int64_t>(m_settings.seekLengthSeconds) * kMillisecondsPerSecond;
-    const std::int64_t target = std::clamp<std::int64_t>(
-        where->milliseconds() + (direction < 0 ? -jump : jump), 0, length->milliseconds());
     resumeFollowing();
-    m_player->seek(core::Timestamp::fromMilliseconds(target));
+    m_player->seek(core::jumpedBy(*where, *length, m_settings.seekLengthSeconds, direction));
     follow(page);
 }
 
@@ -739,20 +725,8 @@ void VideoPane::seekToNeighbour(ProjectPage& page, bool next) {
     if (!where.has_value())
         return;
 
-    // The subtitles are walked and not searched: a project may be out of order (ADR 0008), and
-    // « the first that starts after » means the smallest start, not the first one met.
-    std::optional<core::Timestamp> found;
-    for (const core::Subtitle& subtitle : page.session->project().subtitles()) {
-        if (next && subtitle.start.milliseconds() > where->milliseconds() + kNeighbourMargin) {
-            if (!found.has_value() || subtitle.start < *found)
-                found = subtitle.start;
-        } else if (!next &&
-                   subtitle.end.milliseconds() < where->milliseconds() - kNeighbourMargin) {
-            if (!found.has_value() || subtitle.start > *found)
-                found = subtitle.start;
-        }
-    }
-
+    const std::optional<core::Timestamp> found =
+        core::neighbourStart(page.session->project().subtitles(), *where, next);
     if (!found.has_value())
         return;
 
@@ -774,8 +748,7 @@ void VideoPane::seekToSelection(ProjectPage& page, bool end) {
         end ? project.subtitleAt(core::SubtitleIndex::fromValue(span->last)).end
             : project.subtitleAt(core::SubtitleIndex::fromValue(span->first)).start;
     resumeFollowing();
-    m_player->seek(core::Timestamp::fromMilliseconds(
-        std::max<std::int64_t>(edge.milliseconds() - m_settings.contextLengthMilliseconds, 0)));
+    m_player->seek(core::withLeadIn(edge, m_settings.contextLengthMilliseconds));
     follow(page);
 }
 
@@ -791,8 +764,7 @@ void VideoPane::playSelection(ProjectPage& page) {
     const core::Timestamp start =
         project.subtitleAt(core::SubtitleIndex::fromValue(span->first)).start;
     resumeFollowing();
-    m_player->seek(core::Timestamp::fromMilliseconds(
-        std::max<std::int64_t>(start.milliseconds() - m_settings.contextLengthMilliseconds, 0)));
+    m_player->seek(core::withLeadIn(start, m_settings.contextLengthMilliseconds));
     // Up to the end of the last subtitle of the selection, and not up to the end of the
     // film: `playUntil` stops on the frame.
     m_player->playUntil(project.subtitleAt(core::SubtitleIndex::fromValue(span->last)).end);
@@ -827,20 +799,13 @@ void VideoPane::insertAtPosition(ProjectPage& page) {
     if (!where.has_value())
         return;
 
-    // Counted and not searched, as the neighbours are: a project may be out of order.
-    const std::span<const core::Subtitle> subtitles = page.session->project().subtitles();
-    const auto before = static_cast<std::size_t>(std::ranges::count_if(
-        subtitles, [&](const core::Subtitle& subtitle) { return subtitle.start <= *where; }));
-
-    core::Timestamp end = *where + core::Duration::fromMilliseconds(kInsertedLengthMilliseconds);
-    if (before < subtitles.size() && subtitles[before].start < end)
-        end = subtitles[before].start;
-
-    const core::SubtitleIndex at = core::SubtitleIndex::fromValue(before);
+    const core::Insertion insertion =
+        core::insertionAt(page.session->project().subtitles(), *where);
+    const core::SubtitleIndex at = core::SubtitleIndex::fromValue(insertion.rank);
     page.model->applied(page.session->apply(std::make_unique<core::InsertCommand>(
-        at, std::vector<core::Subtitle>{core::Subtitle{.start = *where, .end = end}})));
+        at, std::vector<core::Subtitle>{core::Subtitle{.start = *where, .end = insertion.end}})));
     page.placedAt = -1;
-    selectRow(static_cast<int>(before));
+    selectRow(static_cast<int>(insertion.rank));
     resumeFollowing();
     follow(page);
 }
@@ -849,23 +814,14 @@ void VideoPane::selectFromPosition(ProjectPage& page, bool next) {
     if (!page.watching)
         return;
 
-    const std::span<const core::Subtitle> subtitles = page.session->project().subtitles();
     const std::optional<core::Timestamp> where = m_player->position();
-    if (subtitles.empty() || !where.has_value())
+    if (!where.has_value())
         return;
 
-    // The first that starts after, or the last that started before — by the order of the file,
-    // as Gaupol reads it — and the end of the file on that side when there is none.
-    std::size_t found = next ? subtitles.size() - 1 : 0;
-    for (std::size_t at = 0; at < subtitles.size(); ++at) {
-        // Walked from the front for the next, from the back for the previous.
-        const std::size_t row = next ? at : subtitles.size() - 1 - at;
-        if (next ? subtitles[row].start > *where : subtitles[row].start < *where) {
-            found = row;
-            break;
-        }
-    }
-    selectRow(static_cast<int>(found));
+    if (const std::optional<std::size_t> found =
+            core::rowFrom(page.session->project().subtitles(), *where, next);
+        found.has_value())
+        selectRow(static_cast<int>(*found));
 }
 
 void VideoPane::selectRow(int row) {

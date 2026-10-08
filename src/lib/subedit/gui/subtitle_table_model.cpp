@@ -16,6 +16,7 @@
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/core/wording/formats.hpp>
+#include <subedit/core/wording/video.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
 #include <QBrush>
@@ -125,7 +126,7 @@ constexpr QColor kShowingTint{40, 160, 90, kWash};
 /// what a MicroDVD file writes — and its timestamp otherwise.
 [[nodiscard]] QString
 shown(core::Timestamp position, DecimalMark mark, const std::optional<core::FrameRate>& rate) {
-    return rate.has_value() ? QString::number(position.toFrame(*rate).number())
+    return rate.has_value() ? QString::fromStdString(core::frameNumberText(position, *rate))
                             : written(position, mark);
 }
 

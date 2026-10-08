@@ -98,6 +98,7 @@ add_executable(
     core/video/declared_frame_rate_test.cpp
     core/video/frame_step_test.cpp
     core/video/replica_test.cpp
+    core/video/seeking_test.cpp
     core/video/showing_test.cpp
     core/io/real_file_system_test.cpp
     core/process/start_process_test.cpp
