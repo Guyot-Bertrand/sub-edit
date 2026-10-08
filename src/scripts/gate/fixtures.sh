@@ -15,3 +15,5 @@ step "recoupement de adjust : le script contre les comptes écrits à la main"
 "${REPO_ROOT}/src/scripts/measure-duration-constraints.py" --check-fixtures
 step "paires décalées"
 "${REPO_ROOT}/src/scripts/shifted-pairs.py" --check
+step "conversions fausses"
+"${REPO_ROOT}/src/scripts/wrong-rate-pairs.py" --check

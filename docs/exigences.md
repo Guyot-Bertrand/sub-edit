@@ -303,5 +303,5 @@ plus rien.
 | `GUI-FRAMES-02` | les positions s'affichent et se saisissent en numéros d'image, la fréquence dite | 14 | implémentée |
 | `GUI-DRIFT-01` | l'ouverture d'une traduction dit qu'un décalage constant la rattacherait mieux, sans le dire d'une dérive | 14 | implémentée |
 | `GUI-DRIFT-02` | rouvrir décalée rattache selon le décalage proposé, en une entrée d'historique | 14 | implémentée |
-| `GUI-REPAIR-01` | la modale d'analyse propose la conversion de fréquence qui remet le fichier sur une grille, ou rien quand deux se valent | 14 | prévue |
-| `GUI-REPAIR-02` | `Convert Frame Rate…` s'ouvre préremplie par cette proposition | 14 | prévue |
+| `GUI-REPAIR-01` | la modale d'analyse propose la conversion de fréquence qui remet le fichier sur une grille, ou rien quand deux se valent | 14 | implémentée |
+| `GUI-REPAIR-02` | `Convert Frame Rate…` s'ouvre préremplie par cette proposition | 14 | implémentée |

@@ -12,6 +12,7 @@
 namespace subedit::core {
 
 struct ConversionLoss;
+struct GridRepair;
 
 /// What a conversion cost, post by post, or nothing when it cost nothing.
 ///
@@ -26,6 +27,16 @@ struct ConversionLoss;
 /// far the positions moved. Each appears only when it is not zero.
 [[nodiscard]] std::string
 noticeOf(const ConversionLoss& loss, SubtitleFormat from, SubtitleFormat to);
+
+/// What the search for the conversion that puts a file back on a grid found, or nothing.
+///
+/// **Said when there is something to choose or to refuse**: the conversion found, with how well
+/// it fits, how well the positions fit as they are and how well the next best conversion
+/// fits — the deduction's own measure, three times —, or the two conversions that fit equally
+/// well, which is why none is proposed. A file that is on a grid already, or that no
+/// conversion of the closed set mends, gets an empty string: nothing is proposed, and nothing
+/// is said of it — issue #386.
+[[nodiscard]] std::string repairNoticeOf(const GridRepair& repair);
 
 /// What a paste did that the table does not show by itself, or nothing.
 ///

@@ -1,10 +1,13 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
+#include <subedit/core/analysis/grid_repair.hpp>
 #include <subedit/core/wording/analysis.hpp>
+#include <subedit/core/wording/conversion.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 
 #include <QDialogButtonBox>
 #include <QHeaderView>
 #include <QLabel>
+#include <QPushButton>
 #include <QStringList>
 #include <QTableWidget>
 #include <QVBoxLayout>
@@ -69,11 +72,21 @@ namespace {
 } // namespace
 
 GridAnalysisDialog::GridAnalysisDialog(const core::FrameRateDeduction& deduction, QWidget* parent)
+    : GridAnalysisDialog(deduction, core::GridRepair{}, parent) {}
+
+GridAnalysisDialog::GridAnalysisDialog(const core::FrameRateDeduction& deduction,
+                                       const core::GridRepair& repair,
+                                       QWidget* parent)
     : QDialog(parent),
       m_summary(new QLabel{summaryOf(deduction), this}),
       m_ranking(new QTableWidget{static_cast<int>(deduction.ranked.size()), 2, this}) {
     setWindowTitle(QStringLiteral("Frame Rate Analysis"));
 
+    // What the search for a conversion found goes under the deduction's own account, in the
+    // words the command line will use.
+    if (const std::string repairing = core::repairNoticeOf(repair); !repairing.empty())
+        m_summary->setText(m_summary->text() + QStringLiteral("\n") +
+                           QString::fromStdString(repairing));
     m_summary->setWordWrap(true);
 
     m_ranking->setHorizontalHeaderLabels(
@@ -98,6 +111,20 @@ GridAnalysisDialog::GridAnalysisDialog(const core::FrameRateDeduction& deduction
 
     auto* buttons = new QDialogButtonBox{QDialogButtonBox::Close, this};
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    // **Only for a conversion that stands alone**: two that fit equally are named above, and
+    // choosing between them is not for a button.
+    if (repair.outcome == core::RepairOutcome::Found && repair.conversion.has_value()) {
+        m_proposedInput = repair.conversion->input;
+        m_proposedOutput = repair.conversion->output;
+        m_convert =
+            buttons->addButton(QStringLiteral("Convert Frame Rate…"), QDialogButtonBox::AcceptRole);
+        connect(m_convert, &QPushButton::clicked, this, [this] {
+            m_input = m_proposedInput;
+            m_output = m_proposedOutput;
+            accept();
+        });
+    }
 
     auto* layout = new QVBoxLayout{this};
     layout->addWidget(m_summary);

@@ -299,6 +299,17 @@ d'un lecteur capable de **montrer le résultat à l'image près**. Les trois que
   **`Convert Frame Rate…` s'ouvre préremplie** ; **rien n'est appliqué sans geste**, l'annulation suffit à revenir, et
   la vidéo permet de juger à l'image.
 
+**Livré (#622, qui reprend #386).** Les cinquante-six paires font **quarante rapports distincts** : 30 vers 25 et
+60 vers 50 déplacent chaque position pareillement et ne sont qu'une conversion, dont on garde la paire dont la sortie
+est la grille où les positions tombent. Le juge est la déduction : une conversion convient quand elle rend `Clean`, et
+**deux qui conviennent sont une égalité** — sans seuil de plus, puisque la déduction n'en a qu'un. Ce que l'énumération
+des trois cent vingt combinaisons (grille × rapport faux) a montré, et que la spec n'avait pas prévu : **une seule
+réparation est l'exception**. Une grille à 28,8 images par seconde se remet sur 24 et sur 30, et un fichier aux temps
+doublés reste sur la grille de 25 ; seule la conversion d'un fichier déjà à la fréquence visée, le geste le plus
+courant, a une réparation unique. L'égalité est donc dite avec ses deux paires, et le bouton n'est offert qu'à une
+conversion seule. Le générateur est `src/scripts/wrong-rate-pairs.py` (`src/test/data/conversions-fausses/`, dix cas) ;
+le coût du pire chemin, quarante déductions sur quatre mille sous-titres, est de l'ordre de deux millisecondes.
+
 ## D12 — Les réglages
 
 Quatre réglages, dans `Preferences…`, sous [ADR 0022](../adr/0022-configuration-au-noyau-et-tolerance-par-option.md)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/analysis/grid_repair.hpp>
 #include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/time/duration.hpp>
@@ -176,8 +177,10 @@ public:
     /// already in the menu entry that opened it.
     void shiftOntoGrid(ProjectPage& page);
 
-    /// Opens the analysis, which reports and changes nothing.
-    void analyseGrid(const ProjectPage& page);
+    /// Opens the analysis. It changes nothing itself; when it found the conversion that would put
+    /// the file back on a grid and the user asks for it, `Convert Frame Rate…` opens on it — and
+    /// still asks.
+    void analyseGrid(ProjectPage& page);
 
     /// The form of the last adjustment of durations — Gaupol's defaults until
     /// one is made or the settings give one.
@@ -190,6 +193,10 @@ public:
     }
 
 private:
+    /// `Convert Frame Rate…`, its fields filled with `proposed` when there is one.
+    void convertFrameRateFrom(ProjectPage& page,
+                              const std::optional<core::RateConversion>& proposed);
+
     /// What an operation left past the end of the film, said as a sentence, or
     /// nothing.
     ///
