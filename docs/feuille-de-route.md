@@ -1357,7 +1357,21 @@ perdues restent non mesurés.
 la recherche de conversion (environ 2,4 ms pour 4000 sous-titres) et la traduction d'une réplique balisée — entreront
 au premier relevé calme suivant. Le banc `seeking and stepping on a real film` s'abstient sans `SUBEDIT_BENCH_REAL_FILM`.
 
-**Reste, pour clore :** les quatre issues ci-dessus, puis la clôture du milestone en 0.15.0.
+**Close en 0.15.0, le 2026-10-09.** Les quatre issues de la relecture ont été livrées, et le milestone — vingt-cinq
+issues, de #190 à #647 — se ferme sans rien d'ouvert :
+
+- **#644** (0.14.20) : les règles de position du lecteur — voisin, saut, entrée en matière, pas d'image, fréquence
+  proche — vivent dans `core/video/seeking`, en arithmétique rationnelle, et se testent sans fenêtre ;
+- **#645** (0.14.21) : un seul chemin, `goTo`, pour les gestes du lecteur, et un test de tous les gestes qui n'en omet
+  plus ;
+- **#646** (0.14.22) : les tests du lecteur n'attendent plus d'horloge — `waitUntil` et le projecteur sont partagés ;
+- **#647** (0.14.23) : `hwdec=auto-copy` et son réglage ; de 1,1 à 3,2 fois plus vite à travers libmpv selon le film,
+  moins que les 2,1 fois de ffmpeg seul, et un 4K lourd loin de l'image-clé reste lent.
+
+**Le banc de la phase** a son relevé pour 0.15.0 (charge 1,26), qui reçoit les trois mesures neuves : centrer une ligne,
+la recherche de conversion (364 µs pour 4000 sous-titres) et l'alignement d'une traduction. Le banc sur vrai film reste
+une mesure à la main. **Ce qui reste non mesuré** : le HDR, AV1, la lecture suivie avec comptage d'images perdues, une
+machine sans carte graphique.
 
 ## 15 — Internationalisation
 
