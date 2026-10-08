@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Remaniements
 
+- **video** — Un seul chemin pour les gestes du lecteur
+
+## 0.14.20 — 2026-10-08
+
+### Remaniements
+
 - **video** — Sortir du noyau les règles de position
 
 ## 0.14.19 — 2026-10-08
