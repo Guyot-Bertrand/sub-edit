@@ -2,6 +2,7 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/wording/video.hpp>
 #include <subedit/gui/play_bar.hpp>
 
 #include <QAction>
@@ -364,10 +365,11 @@ void PlayBar::showPosition(std::optional<core::Timestamp> position,
 }
 
 QString PlayBar::written(core::Timestamp position) const {
-    // The number of the frame the position falls in, rounded once: what the columns of the table
-    // write for the same position.
-    return m_frameRate.has_value() ? QString::number(position.toFrame(*m_frameRate).number())
-                                   : textOf(position);
+    // The number of the frame the position falls in, said by the same function as the columns of
+    // the table: the same moment, said the same way.
+    return m_frameRate.has_value()
+               ? QString::fromStdString(core::frameNumberText(position, *m_frameRate))
+               : textOf(position);
 }
 
 void PlayBar::setFrameRate(std::optional<core::FrameRate> rate) {

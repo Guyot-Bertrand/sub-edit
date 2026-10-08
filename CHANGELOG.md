@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Remaniements
+
+- **video** — Sortir du noyau les règles de position
+
+## 0.14.19 — 2026-10-08
+
 ### Documentation
 
 - **doc** — Relecture de fin de phase 14

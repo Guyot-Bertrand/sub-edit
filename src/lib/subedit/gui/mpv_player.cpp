@@ -1,5 +1,6 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/video/seeking.hpp>
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/gui/mpv_player.hpp>
 
@@ -540,21 +541,20 @@ void MpvPlayer::stepFrames(int frames) {
     // It lands where it should because `time-pos` is the start of the frame on
     // screen — D4 — and a position that is a whole number of frames from it is
     // the start of another frame, however far from the nearest millisecond.
-    const std::optional<double> rate = seconds(m_handle.get(), "container-fps");
-    const std::optional<double> here = seconds(m_handle.get(), "time-pos");
-    const std::optional<double> length = seconds(m_handle.get(), "duration");
-    if (!rate.has_value() || !here.has_value() || !length.has_value() || *rate <= 0.0)
+    //
+    // **The arithmetic is the core's** — issue #644: a rational one, rounded once, that stops at
+    // the last frame, which starts one frame before the end. What is read here is the rate mpv
+    // reports, turned into a rate before anything is counted with it.
+    const std::optional<double> reported = seconds(m_handle.get(), "container-fps");
+    const std::optional<core::FrameRate> rate =
+        reported.has_value() ? core::frameRateNear(*reported) : std::nullopt;
+    const std::optional<core::Timestamp> here = position();
+    const std::optional<core::Duration> length = duration();
+    if (!rate.has_value() || !here.has_value() || !length.has_value())
         return;
 
-    const double frame = 1.0 / *rate;
-    // The last frame starts one frame before the end — and stepping stops there,
-    // rather than at the end, where there is no frame.
-    const double last = std::max(0.0, *length - frame);
-    const double target = std::clamp(*here + (static_cast<double>(frames) * frame), 0.0, last);
-
     pause();
-    clearStop(m_handle.get());
-    seekTo(m_handle.get(), m_render.get(), target);
+    seek(core::steppedTo(*here, *length, *rate, frames));
 }
 
 void MpvPlayer::play() {

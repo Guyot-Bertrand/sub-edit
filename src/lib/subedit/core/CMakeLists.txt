@@ -72,6 +72,7 @@ add_library(
     video/declared_frame_rate.cpp
     video/frame_step.cpp
     video/replica.cpp
+    video/seeking.cpp
     video/showing.cpp
     io/in_memory_file_system.cpp
     text/encoding.cpp
