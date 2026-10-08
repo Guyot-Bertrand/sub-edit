@@ -9,6 +9,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cstdint>
@@ -21,6 +22,7 @@
 #include <vector>
 
 #include "numbered_frames.hpp"
+#include "waiting.hpp"
 
 namespace {
 
@@ -31,6 +33,7 @@ using subedit::core::Timestamp;
 using subedit::core::VideoPlayer;
 using subedit::gui::assEventOf;
 using subedit::gui::MpvPlayer;
+using subedit::test::waitUntil;
 
 [[nodiscard]] std::filesystem::path fixture(const std::string& name) {
     return std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / name;
@@ -41,15 +44,6 @@ using subedit::gui::MpvPlayer;
     std::expected<MpvPlayer, PlayerError> built = MpvPlayer::create();
     REQUIRE(built.has_value());
     return std::move(*built);
-}
-
-/// Waits for the player to hold playback, which it does by itself — a bounded wait, since
-/// a player that never stopped is a failing case and not a hang.
-[[nodiscard]] bool stopsWithin(const MpvPlayer& watching, std::chrono::seconds limit) {
-    const auto deadline = std::chrono::steady_clock::now() + limit;
-    while (watching.isPlaying() && std::chrono::steady_clock::now() < deadline)
-        std::this_thread::sleep_for(std::chrono::milliseconds{10});
-    return !watching.isPlaying();
 }
 
 /// The number the frame on screen carries.
@@ -632,7 +626,7 @@ TEST_CASE("playing up to a position holds playback on the last frame before it",
 
     playing.playUntil(Timestamp::fromMilliseconds(1500));
     CHECK(playing.isPlaying());
-    REQUIRE(stopsWithin(playing, std::chrono::seconds{5}));
+    REQUIRE(waitUntil([&playing] { return !playing.isPlaying(); }));
 
     // Frame 37 starts at 1480 ms and is the last that starts before 1500.
     CHECK(playing.position() == Timestamp::fromMilliseconds(1480));
@@ -645,14 +639,15 @@ TEST_CASE("the stop of playing up to a position is not kept for the next play",
     REQUIRE(playing.open(fixture("videos/images-25.mp4")).has_value());
     playing.seek(Timestamp::fromMilliseconds(1000));
     playing.playUntil(Timestamp::fromMilliseconds(1200));
-    REQUIRE(stopsWithin(playing, std::chrono::seconds{5}));
+    REQUIRE(waitUntil([&playing] { return !playing.isPlaying(); }));
     REQUIRE(playing.position() == Timestamp::fromMilliseconds(1160));
 
+    // Played again, it goes past the stop it had — which is the thing to wait for, not a pause.
     playing.play();
-    std::this_thread::sleep_for(std::chrono::milliseconds{300});
-
+    CHECK(waitUntil([&playing] {
+        return playing.position().value_or(Timestamp::origin()) > Timestamp::fromMilliseconds(1200);
+    }));
     CHECK(playing.isPlaying());
-    CHECK(playing.position().value_or(Timestamp::origin()) > Timestamp::fromMilliseconds(1200));
 }
 
 TEST_CASE("playing up to a position already reached plays nothing", "[video][player][until]") {
@@ -676,7 +671,7 @@ TEST_CASE("playing up to a position past the end stops on the last frame",
 
     playing.playUntil(Timestamp::fromMilliseconds(60000));
 
-    REQUIRE(stopsWithin(playing, std::chrono::seconds{5}));
+    REQUIRE(waitUntil([&playing] { return !playing.isPlaying(); }));
     CHECK(shownFrame(playing) == 249);
     // The film is still open once it has ended.
     CHECK(playing.duration() == Duration::fromMilliseconds(10000));
@@ -792,15 +787,19 @@ TEST_CASE("a new picture is announced, and the announcement can be withdrawn",
     announcing.onFrameReady([&announced] { ++announced; });
     announcing.seek(Timestamp::fromMilliseconds(1000));
 
-    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds{5};
-    while (announced == 0 && std::chrono::steady_clock::now() < deadline)
-        std::this_thread::sleep_for(std::chrono::milliseconds{5});
-    CHECK(announced > 0);
+    CHECK(waitUntil([&announced] { return announced > 0; }));
 
     announcing.onFrameReady({});
     const int before = announced;
     announcing.seek(Timestamp::fromMilliseconds(2000));
-    std::this_thread::sleep_for(std::chrono::milliseconds{100});
+
+    // Withdrawn, the first callback is not called again. That is an absence, so it is read after
+    // something that is not: a second callback, put in its place, hears the next seek — and by
+    // then the thread that announces has gone through everything the first seek queued.
+    std::atomic<int> heard = 0;
+    announcing.onFrameReady([&heard] { ++heard; });
+    announcing.seek(Timestamp::fromMilliseconds(3000));
+    CHECK(waitUntil([&heard] { return heard > 0; }));
     CHECK(announced == before);
 }
 
@@ -812,11 +811,20 @@ TEST_CASE("a seek does not wait for a window to paint", "[video][player][render]
     MpvPlayer seeking = player();
     REQUIRE(seeking.open(fixture("videos/images-25.mp4")).has_value());
 
-    const auto begin = std::chrono::steady_clock::now();
-    for (int frame = 0; frame < 10; ++frame)
+    // Each seek is timed, and the **median** is what is held to account. A player that stalls waits
+    // for each picture — 200 ms a seek — so all ten are slow and the median with them; a machine
+    // that is merely loaded, or a sanitizer, slows a few and leaves the median where it was.
+    constexpr int kSeeks = 10;
+    constexpr std::chrono::milliseconds kStall{200};
+    std::vector<std::chrono::steady_clock::duration> took;
+    for (int frame = 0; frame < kSeeks; ++frame) {
+        const auto begin = std::chrono::steady_clock::now();
         seeking.seek(Timestamp::fromMilliseconds(subedit::test::startOf(frame * 20, 25, 1)));
-    const auto elapsed = std::chrono::steady_clock::now() - begin;
+        took.push_back(std::chrono::steady_clock::now() - begin);
+    }
+    std::ranges::sort(took);
+    const auto median = took[took.size() / 2];
 
-    CHECK(elapsed < std::chrono::milliseconds{1500});
+    CHECK(median < kStall / 2);
     CHECK(seeking.position() == Timestamp::fromMilliseconds(subedit::test::startOf(180, 25, 1)));
 }

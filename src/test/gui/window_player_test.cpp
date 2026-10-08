@@ -49,16 +49,16 @@
 
 #include "fake_prompts.hpp"
 #include "fake_video_player.hpp"
+#include "player_harness.hpp"
+#include "waiting.hpp"
 
 namespace {
 
-using subedit::core::AudioTrack;
 using subedit::core::Document;
 using subedit::core::FrameRate;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::noFrameToCountBy;
 using subedit::core::OpenedFile;
-using subedit::core::openProject;
 using subedit::core::PlayerError;
 using subedit::core::Settings;
 using subedit::core::SourceFile;
@@ -66,12 +66,14 @@ using subedit::core::StandardFrameRate;
 using subedit::core::Subtitle;
 using subedit::core::SubtitleFormat;
 using subedit::core::Timestamp;
-using subedit::core::VideoPlayer;
 using subedit::gui::MainWindow;
-using subedit::gui::PlayerFactory;
 using subedit::gui::SubtitleTableModel;
 using subedit::test::FakePrompts;
 using subedit::test::FakeVideoPlayer;
+using subedit::test::fileIn;
+using subedit::test::projecting;
+using subedit::test::Projectionist;
+using subedit::test::waitUntil;
 
 constexpr const char* kThree = "1\n"
                                "00:00:01,000 --> 00:00:02,000\n"
@@ -88,39 +90,6 @@ constexpr const char* kThree = "1\n"
 
 /// What a case says about the players to come, and what came out.
 ///
-/// The window owns its player, so a case cannot hand one in and keep it. It
-/// hands in a factory instead and reads this afterwards — which is also how
-/// « the window never asked for a player » becomes something to assert.
-struct Projectionist {
-    /// Whether libmpv would give a player at all.
-    bool gives = true;
-
-    /// Why the film the next player is given will not open, if it will not.
-    std::optional<PlayerError> refusal;
-
-    /// The audio tracks of the film the next player is given — none for a film without sound.
-    std::vector<AudioTrack> tracks;
-
-    /// What came out, and what it was built for.
-    FakeVideoPlayer* player = nullptr;
-    int built = 0;
-};
-
-/// The factory `booth` answers, which must outlive the window taking it.
-[[nodiscard]] PlayerFactory projecting(Projectionist& booth) {
-    return [&booth]() -> std::unique_ptr<VideoPlayer> {
-        ++booth.built;
-        if (!booth.gives)
-            return nullptr;
-
-        auto made = std::make_unique<FakeVideoPlayer>();
-        made->refusal = booth.refusal;
-        made->tracks = booth.tracks;
-        booth.player = made.get();
-        return made;
-    };
-}
-
 /// A directory holding a subtitle file, and whatever else the case needs.
 [[nodiscard]] InMemoryFileSystem directoryHolding(std::initializer_list<const char*> names) {
     InMemoryFileSystem files;
@@ -128,12 +97,6 @@ struct Projectionist {
         files.addFile(std::filesystem::path{"/films"} / name, "");
     files.addFile("/films/film.fr.srt", kThree);
     return files;
-}
-
-[[nodiscard]] OpenedFile fileIn(const InMemoryFileSystem& files, const char* path) {
-    auto opened = openProject(files, path);
-    REQUIRE(opened.has_value());
-    return std::move(*opened);
 }
 
 /// The same file, with a translation of each of its three subtitles.
@@ -835,9 +798,8 @@ TEST_CASE("the window follows playback on its own", "[gui][GUI-PLAYER-01]") {
     REQUIRE(booth.player != nullptr);
 
     booth.player->where = Timestamp::fromMilliseconds(5500);
-    QTest::qWait(300);
-
-    CHECK(booth.player->onScreen() == "Trois.");
+    // The ticker is what shows the line, so the case waits for the line and not for its period.
+    CHECK(waitUntil([&booth] { return booth.player->onScreen() == "Trois."; }));
     CHECK(currentRow(window) == 2);
 }
 
@@ -1204,13 +1166,9 @@ struct SteppedWindow {
 /// Waits until the player has been stepped `count` times: a step asked while the gate of the one
 /// before is shut is made when it opens, which on a loaded machine is later than a fixed pause.
 [[nodiscard]] bool stepsReach(const FakeVideoPlayer& player, std::size_t count) {
-    constexpr int kTries = 150;
-    constexpr int kPauseMs = 20;
-    for (int attempt = 0; attempt < kTries && player.steps.size() < count; ++attempt)
-        QTest::qWait(kPauseMs);
-    return player.steps.size() == count;
+    return waitUntil([&player, count] { return player.steps.size() >= count; }) &&
+           player.steps.size() == count;
 }
-
 } // namespace
 
 TEST_CASE("stepping moves playback by one frame, either way", "[gui][GUI-STEP-01][GUI-STEP-02]") {
@@ -1245,9 +1203,13 @@ TEST_CASE("a key held down steps one frame at a time and does not pile up", "[gu
     CHECK(stepped.booth.player->steps.size() == 1U);
 
     CHECK(stepsReach(*stepped.booth.player, 2));
-    // And nothing more comes after: the thirty-eight others were not queued.
-    QTest::qWait(200);
-    CHECK(stepped.booth.player->steps == std::vector<int>{1, 1});
+
+    // And nothing more comes after: the thirty-eight others were not queued. Seen by what comes
+    // next and not by waiting for nothing — a step the other way takes the one place there is, and
+    // if the others had queued up they would have gone before it.
+    stepped.window.stepBackwardAction()->trigger();
+    CHECK(stepsReach(*stepped.booth.player, 3));
+    CHECK(stepped.booth.player->steps == std::vector<int>{1, 1, -1});
 }
 
 TEST_CASE("the step of a window with no selection still needs only the film",

@@ -40,6 +40,7 @@
 
 #include "fake_prompts.hpp"
 #include "fake_video_player.hpp"
+#include "player_harness.hpp"
 
 namespace {
 
@@ -48,18 +49,16 @@ using subedit::core::Duration;
 using subedit::core::FrameRate;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::OpenedFile;
-using subedit::core::openProject;
 using subedit::core::StandardFrameRate;
-using subedit::core::VideoPlayer;
 using subedit::gui::DurationAdjustDialog;
 using subedit::gui::FrameRateDialog;
 using subedit::gui::FrameRateReader;
 using subedit::gui::MainWindow;
-using subedit::gui::PlayerFactory;
 using subedit::gui::ShiftDialog;
 using subedit::gui::SnapDialog;
 using subedit::test::FakePrompts;
-using subedit::test::FakeVideoPlayer;
+using subedit::test::projecting;
+using subedit::test::Projectionist;
 
 /// Two subtitles, the second ending at four seconds.
 constexpr const char* kTwo = "1\n"
@@ -70,19 +69,6 @@ constexpr const char* kTwo = "1\n"
                              "00:00:03,000 --> 00:00:04,000\n"
                              "Deux.\n"
                              "\n";
-
-/// A player kept hold of, as `window_player_test.cpp` does.
-struct Projectionist {
-    FakeVideoPlayer* player = nullptr;
-};
-
-[[nodiscard]] PlayerFactory projecting(Projectionist& booth) {
-    return [&booth]() -> std::unique_ptr<VideoPlayer> {
-        auto made = std::make_unique<FakeVideoPlayer>();
-        booth.player = made.get();
-        return made;
-    };
-}
 
 /// What a film declares, and how many times it was asked.
 struct Container {
@@ -106,9 +92,7 @@ struct Container {
 }
 
 [[nodiscard]] OpenedFile fileIn(const InMemoryFileSystem& files) {
-    auto opened = openProject(files, "/films/film.fr.srt");
-    REQUIRE(opened.has_value());
-    return std::move(*opened);
+    return subedit::test::fileIn(files, "/films/film.fr.srt");
 }
 
 /// What a frame rate dialog showed, read while it was still alive.

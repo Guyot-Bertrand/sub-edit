@@ -32,6 +32,7 @@
 
 #include "fake_prompts.hpp"
 #include "numbered_frames.hpp"
+#include "waiting.hpp"
 
 namespace {
 
@@ -89,22 +90,14 @@ struct RealFilm {
     }
 };
 
-/// Whether the film comes to show frame `expected` within a few seconds.
+/// Whether the film comes to show frame `expected`.
 ///
 /// **Waited for and not read at once**: a step asked while the gate of the one before is still
 /// shut takes the one place there is, and is made when the gate opens — which on a loaded machine,
 /// under a sanitizer, is later than a fixed pause guesses. The picture it reaches is the same.
 [[nodiscard]] bool reaches(const RealFilm& film, int expected) {
-    constexpr int kTries = 150;
-    constexpr int kPauseMs = 20;
-    for (int attempt = 0; attempt < kTries; ++attempt) {
-        if (film.shown() == expected)
-            return true;
-        QTest::qWait(kPauseMs);
-    }
-    return false;
+    return subedit::test::waitUntil([&film, expected] { return film.shown() == expected; });
 }
-
 } // namespace
 
 TEST_CASE("a start set from the position takes the player back to the same frame",
@@ -175,13 +168,17 @@ TEST_CASE("a step stops at the ends of the film rather than going past them",
     film.window->stepBackwardAction()->trigger();
     CHECK(reaches(film, first));
 
-    QTest::qWait(100);
+    // The step before this one closed the gate: this one waits for it to open, and the case waits
+    // for the picture it reaches. The step is the size of the whole film, so it lands on the last
+    // frame.
     film.window->stepForwardAction()->trigger();
+    CHECK(subedit::test::waitUntil([&film, first] { return film.shown() > first; }));
     const int last = film.shown();
-    CHECK(last > first);
 
-    // Let the gate of that step open, so that the next one is not held back by it, and see that
-    // a step from the last frame stays on it.
+    // A step from the last frame stays on it. There is **nothing to wait for** — the picture does
+    // not change, so no event says the step was made — and the case looks after the gate has had
+    // more than its time to open. A step that went past the end would show a black frame, and this
+    // can fail; it cannot fail for being too early.
     QTest::qWait(100);
     film.window->stepForwardAction()->trigger();
     QTest::qWait(100);

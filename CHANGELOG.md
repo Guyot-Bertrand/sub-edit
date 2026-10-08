@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Tests
+
+- **gui** — Le lecteur sans horloge, des aides de test partagées
+
+## 0.14.21 — 2026-10-08
+
 ### Remaniements
 
 - **video** — Un seul chemin pour les gestes du lecteur

@@ -41,22 +41,22 @@
 
 #include "fake_prompts.hpp"
 #include "fake_video_player.hpp"
+#include "player_harness.hpp"
 
 namespace {
 
 using subedit::core::InMemoryFileSystem;
 using subedit::core::OpenedFile;
-using subedit::core::openProject;
 using subedit::core::Timestamp;
-using subedit::core::VideoPlayer;
 using subedit::gui::InsertDialog;
 using subedit::gui::MainWindow;
-using subedit::gui::PlayerFactory;
 using subedit::gui::SaveTarget;
 using subedit::gui::UnsavedChoice;
 using subedit::gui::UnsavedDocumentsDialog;
 using subedit::test::FakePrompts;
-using subedit::test::FakeVideoPlayer;
+using subedit::test::fileIn;
+using subedit::test::projecting;
+using subedit::test::Projectionist;
 
 constexpr int kTextColumn = 4;
 
@@ -66,22 +66,6 @@ constexpr const char* kFirst = "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n"
 constexpr const char* kSecond = "1\n00:00:05,000 --> 00:00:06,000\nTrois.\n\n"
                                 "2\n00:00:07,000 --> 00:00:08,000\nQuatre.\n\n";
 
-/// What a case says about the players to come, and what came out — the same
-/// double `window_player_test.cpp` uses.
-struct Projectionist {
-    FakeVideoPlayer* player = nullptr;
-    int built = 0;
-};
-
-[[nodiscard]] PlayerFactory projecting(Projectionist& booth) {
-    return [&booth]() -> std::unique_ptr<VideoPlayer> {
-        ++booth.built;
-        auto made = std::make_unique<FakeVideoPlayer>();
-        booth.player = made.get();
-        return made;
-    };
-}
-
 [[nodiscard]] InMemoryFileSystem withTwoFilms() {
     InMemoryFileSystem files;
     files.addFile("premier.srt", kFirst);
@@ -89,12 +73,6 @@ struct Projectionist {
     files.addFile("premier.mkv", "");
     files.addFile("second.mkv", "");
     return files;
-}
-
-[[nodiscard]] OpenedFile fileIn(const InMemoryFileSystem& files, const char* path) {
-    auto opened = openProject(files, path);
-    REQUIRE(opened.has_value());
-    return std::move(*opened);
 }
 
 [[nodiscard]] std::string textAt(const MainWindow& window, int row) {
