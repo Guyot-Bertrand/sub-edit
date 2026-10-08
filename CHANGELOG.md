@@ -9,9 +9,19 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Relecture de fin de phase 14
+
+## 0.14.18 — 2026-10-08
+
 ### Ajouts
 
 - **gui** — Proposer la conversion qui remet sur une grille
+
+### Documentation
+
+- **cli** — L'exemple --version cite 0.14.18
 
 ## 0.14.17 — 2026-10-08
 
