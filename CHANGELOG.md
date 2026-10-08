@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Clôture de la phase 14
+
+## 0.14.23 — 2026-10-08
+
 ### Ajouts
 
 - **video** — Décodage matériel avec copie, et un réglage pour le couper
