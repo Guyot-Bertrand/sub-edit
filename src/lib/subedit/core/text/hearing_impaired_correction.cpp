@@ -191,16 +191,16 @@ HearingImpairedCorrection correctHearingImpaired(const PatternEngine& engine,
                                                  std::span<const CorrectionPattern* const> patterns,
                                                  std::span<const std::string> texts,
                                                  SubtitleFormat format,
-                                                 bool scanBracketsAndParentheses) {
+                                                 MentionBrackets scan) {
     HearingImpairedCorrection result;
     const std::vector<Prepared> prepared = prepare(engine, patterns, result.failures);
     const std::vector<BuiltIn> cleanups = builtInCleanups(engine);
 
     result.texts.reserve(texts.size());
     for (std::size_t index = 0; index < texts.size(); ++index) {
-        const std::optional<std::string> swept = scanBracketsAndParentheses
-                                                     ? withoutHearingImpaired(texts[index], format)
-                                                     : std::optional<std::string>{texts[index]};
+        const std::optional<std::string> swept =
+            scan.square || scan.round ? withoutHearingImpaired(texts[index], format, scan)
+                                      : std::optional<std::string>{texts[index]};
         if (!swept) {
             result.texts.emplace_back(std::nullopt);
             continue;

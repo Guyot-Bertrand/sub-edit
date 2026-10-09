@@ -96,11 +96,8 @@ HearingImpairedCorrection correctedBy(const std::vector<CorrectionPattern>& reco
     chosen.reserve(records.size());
     for (const CorrectionPattern& one : records)
         chosen.push_back(&one);
-    return correctHearingImpaired(IcuPatternEngine{},
-                                  chosen,
-                                  texts,
-                                  SubtitleFormat::SubRip,
-                                  /*scanBracketsAndParentheses=*/true);
+    return correctHearingImpaired(
+        IcuPatternEngine{}, chosen, texts, SubtitleFormat::SubRip, {.square = true, .round = true});
 }
 
 } // namespace
@@ -148,7 +145,7 @@ TEST_CASE("hearing-impaired mentions are corrected as Gaupol corrects them",
                                    chosen,
                                    given,
                                    SubtitleFormat::SubRip,
-                                   /*scanBracketsAndParentheses=*/true);
+                                   {.square = true, .round = true});
 
         INFO("cas ligne " << one.line << " : " << one.name);
         CHECK(done.failures.empty());

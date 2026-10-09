@@ -598,7 +598,9 @@ change », sans rien poser dans l'historique.
 ## `Remove Hearing-Impaired Mentions…`
 
 Retire les mentions destinées aux spectateurs sourds ou malentendants — les
-descriptions de sons entre crochets ou entre parenthèses. **Rien d'autre** : les paroles
+descriptions de sons entre crochets. **Les parenthèses restent** : elles servent aussi à des
+répliques chuchotées, et c'est `Correct Texts…` qui les retire, par sa case `Sound in parentheses`.
+**Rien d'autre** : les paroles
 de chanson entre dièses et le nom du locuteur avant deux-points ne se retirent que par
 [`Correct Texts…`](correct-texts.md), page `Mentions`.
 

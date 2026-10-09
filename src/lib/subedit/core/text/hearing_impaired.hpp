@@ -8,8 +8,18 @@
 
 namespace subedit::core {
 
+/// Which delimiters make a mention. **Square brackets only, by default** (issue #691): parentheses
+/// are as often a whispered line as a described sound, and a scan that removes them by default
+/// deletes real dialogue. Asking for them is the exception, and it is explicit.
+struct MentionBrackets {
+    bool square = true;
+    bool round = false;
+
+    friend bool operator==(const MentionBrackets&, const MentionBrackets&) = default;
+};
+
 /// Removes the hearing-impaired mentions of `text` — sounds described between
-/// square brackets or between parentheses.
+/// square brackets, and between parentheses when `brackets` says so.
 ///
 /// Returns the cleaned text, or nothing when the subtitle does not survive the
 /// removal. An empty string would not say that: a subtitle with no text is not
@@ -23,7 +33,7 @@ namespace subedit::core {
 /// The rule this implements is written case by case in
 /// `src/test/data/textes/mentions.cas`, which came before the code. Where the
 /// two disagree, the corpus is right.
-[[nodiscard]] std::optional<std::string> withoutHearingImpaired(std::string_view text,
-                                                                SubtitleFormat format);
+[[nodiscard]] std::optional<std::string>
+withoutHearingImpaired(std::string_view text, SubtitleFormat format, MentionBrackets brackets = {});
 
 } // namespace subedit::core

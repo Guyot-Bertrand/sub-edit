@@ -317,12 +317,13 @@ Nouvelles entrées au registre, à l'état `prévue` jusqu'à ce qu'un test les 
 
 | ID | Exigence |
 | :- | :------- |
-| `CLI-HEARING-01` | `hearing-impaired` retire les mentions entre crochets et entre parenthèses |
+| `CLI-HEARING-01` | `hearing-impaired` retire les mentions entre crochets, et laisse les parenthèses par défaut |
 | `CLI-HEARING-02` | un sous-titre que le retrait vide est supprimé du fichier écrit |
 | `CLI-HEARING-03` | une référence purement numérique est laissée telle quelle |
 | `CLI-HEARING-04` | le rapport nomme le nombre de sous-titres changés et supprimés |
 | `CLI-HEARING-05` | un fichier sans aucune mention est écrit inchangé, code `0` |
 | `CLI-HEARING-06` | sans destination explicite, rien n'est écrit et le code est `1` |
+| `CLI-HEARING-07` | `--parentheses` retire aussi les mentions entre parenthèses |
 
 ## Découpage en issues
 

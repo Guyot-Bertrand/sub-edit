@@ -32,6 +32,22 @@ TEST_CASE("removing hearing impaired mentions follows the corpus of cases", "[te
                                   });
 }
 
+TEST_CASE("removing mentions in parentheses is asked for, and follows its own corpus", "[text]") {
+    // #691: the default keeps parentheses (whispered lines); this plays the corpus of what they
+    // are worth once someone asks for them.
+    subedit::test::checkTextCases(
+        subedit::test::textCasesOf("textes/mentions-parentheses.cas"), [](const std::string& text) {
+            return withoutHearingImpaired(
+                text, SubtitleFormat::SubRip, {.square = true, .round = true});
+        });
+}
+
+TEST_CASE("parentheses alone can be asked for, brackets then stay", "[text]") {
+    const subedit::core::MentionBrackets roundOnly{.square = false, .round = true};
+    CHECK(withoutHearingImpaired("[a] (b) c", SubtitleFormat::SubRip, roundOnly)
+              .value_or("<absent>") == "[a] c");
+}
+
 TEST_CASE("a subtitle left with only the tags of its format goes", "[text]") {
     // Issue #403: the analyser knew `<…>` alone, whatever the format, so an
     // Advanced SSA subtitle that held nothing but a mention kept its two braces

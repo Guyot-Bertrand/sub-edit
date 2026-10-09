@@ -95,3 +95,12 @@ réécriture est fidèle.
 de la phase 12 un par un, jusqu'à écrire un moteur d'expressions rationnelles
 sans l'avoir décidé. Le déclencheur est écrit : le troisième motif demandé, quel
 qu'il soit, rouvre cette ADR.
+
+## Mise à jour — #691 : les crochets seuls, par défaut
+
+Le cadrage disait « ce qui vaut entre crochets vaut entre parenthèses », et le balayage retirait les deux. **Une
+parenthèse est aussi souvent une réplique chuchotée qu'un bruit décrit**, et retirer les deux par défaut effaçait du
+dialogue. Le balayage prend désormais ses délimiteurs en paramètre (`MentionBrackets`) : **les crochets seuls par
+défaut**, les parenthèses à la demande — `--parentheses` pour `hearing-impaired`, la case `Sound in parentheses` pour
+l'assistant, dont chaque case commande maintenant son propre délimiteur. Le reste de l'ADR — l'analyseur écrit à la
+main, la règle de couture — est inchangé, et les cas des parenthèses vivent dans `mentions-parentheses.cas`.
