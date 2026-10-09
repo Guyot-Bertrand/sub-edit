@@ -90,6 +90,10 @@ add_library(
     text/dialogue_dashes.cpp
     text/letter_case.cpp
     text/utf8.cpp
+    i18n/catalogue.cpp
+    i18n/language.cpp
+    i18n/messages.cpp
+    i18n/plural_expression.cpp
     format/subtitle_file.cpp
     format/project_file.cpp
     format/translation_file.cpp

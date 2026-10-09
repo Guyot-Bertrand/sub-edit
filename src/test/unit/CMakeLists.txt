@@ -13,6 +13,10 @@ add_executable(
     core/analysis/grid_repair_test.cpp
     core/version_test.cpp
     core/wording_test.cpp
+    core/i18n/catalogue_test.cpp
+    core/i18n/language_test.cpp
+    core/i18n/messages_test.cpp
+    core/i18n/plural_expression_test.cpp
     core/edit/shift_limits_test.cpp
     core/edit/video_bounds_test.cpp
     core/time/duration_test.cpp
@@ -163,8 +167,36 @@ target_compile_definitions(
     subedit_core_test
     PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
             SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns"
+            SUBEDIT_COMPILED_I18N_DIR="${CMAKE_CURRENT_BINARY_DIR}/i18n"
             SUBEDIT_LOCAL_DATA_DIR="${CMAKE_SOURCE_DIR}/src/data"
             SUBEDIT_FAKE_PLAYER_BINARY="$<TARGET_FILE:subedit_fake_player>")
+
+# Les catalogues de fixture (#658) : les .po sont versionnés, les .mo se compilent à la
+# construction par msgfmt, exactement comme le feront les traductions livrées. Un test du lecteur
+# lit donc ce que l'outil des traducteurs produit, et non un binaire écrit à la main.
+find_program(SUBEDIT_MSGFMT msgfmt)
+if(NOT SUBEDIT_MSGFMT)
+    message(
+        FATAL_ERROR
+        "msgfmt est introuvable, et les tests du catalogue de messages en ont besoin.\n"
+        "  l'installer avec : ./src/scripts/setup-toolchain.sh")
+endif()
+set(subedit_i18n_fixtures fr ru bad-plural)
+set(subedit_i18n_catalogues "")
+foreach(language IN LISTS subedit_i18n_fixtures)
+    set(po "${CMAKE_SOURCE_DIR}/src/test/data/i18n/${language}.po")
+    set(mo "${CMAKE_CURRENT_BINARY_DIR}/i18n/${language}.mo")
+    add_custom_command(
+        OUTPUT "${mo}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/i18n"
+        COMMAND "${SUBEDIT_MSGFMT}" --output-file "${mo}" "${po}"
+        DEPENDS "${po}"
+        COMMENT "msgfmt ${language}.po"
+        VERBATIM)
+    list(APPEND subedit_i18n_catalogues "${mo}")
+endforeach()
+add_custom_target(subedit_i18n_fixtures DEPENDS ${subedit_i18n_catalogues})
+add_dependencies(subedit_core_test subedit_i18n_fixtures)
 
 # $<TARGET_FILE:…> donne un chemin, pas un ordre de construction. Sans cette
 # ligne, rien ne garantit que le faux lecteur existe quand un test le lance.
