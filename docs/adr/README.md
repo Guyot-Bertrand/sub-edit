@@ -54,6 +54,9 @@ dit *ce qui* a été fait ; l'ADR dit *pourquoi les autres options ont été
 | [0039](0039-le-lot-collisions-dossiers-et-arborescence.md) | Un lot sûr : collisions refusées, dossier créé, arborescence conservée | acceptée |
 | [0040](0040-correct-ecrit-directement-dry-run-propose.md) | Écrire directement, et proposer par `--dry-run` | acceptée |
 | [0041](0041-afficher-la-video-par-le-rendu-logiciel.md) | Afficher la vidéo par le rendu logiciel de libmpv | acceptée |
+| [0042](0042-gettext-catalogues-read-by-our-own-reader.md) | Keep messages in gettext catalogues, read by our own reader | acceptée |
+| [0043](0043-english-is-the-language-of-the-repository.md) | Write the whole repository in English; French is a locale | acceptée |
+| [0044](0044-one-manual-feeds-the-help-and-the-man-pages.md) | One manual feeds the window's help and the man pages | acceptée |
 
 [0011](0011-numero-d-image-en-type-fort.md) complète
 [0006](0006-positions-en-millisecondes.md) : elle donne un type à la « vue en
@@ -122,9 +125,3 @@ que la phase 3 ne tenait que pour un fichier — une erreur d'usage ne laisse ja
 moitié écrit —, et [0040](0040-correct-ecrit-directement-dry-run-propose.md) répond à la
 confirmation que [0036](0036-icu-pour-les-motifs-de-correction.md) et la phase 12 avaient
 laissée à la ligne de commande.
-
-## Décisions attendues
-
-Points ouverts identifiés, qui feront l'objet d'une ADR le moment venu :
-
-- **Internationalisation** — Qt Linguist ou gettext. Phase 15.
