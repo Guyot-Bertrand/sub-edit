@@ -21,5 +21,13 @@ set(SUBEDIT_LTO_JOBS
 
 if(CMAKE_INTERPROCEDURAL_OPTIMIZATION AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_link_options("-flto=${SUBEDIT_LTO_JOBS}")
+
+    # **Un seul lien à la fois.** `-flto=N` plafonne les processus d'UN lien ; avec `-j2`, Ninja en
+    # lance deux de front, et la machine voit 2 × (1 + N) processus `lto1` — quatre à six pour
+    # `N = 2`, ce qu'un utilisateur a constaté. Un pool d'un lien ramène le pic à `N` (plus la
+    # compilation voisine). Sans effet avec le générateur Makefile, qui ne connaît pas les pools :
+    # le preset `release` est Ninja.
+    set_property(GLOBAL APPEND PROPERTY JOB_POOLS subedit_link=1)
+    set(CMAKE_JOB_POOL_LINK subedit_link)
     message(STATUS "  LTO         : ${SUBEDIT_LTO_JOBS} processus")
 endif()
