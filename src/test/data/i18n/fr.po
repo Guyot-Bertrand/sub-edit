@@ -1,0 +1,35 @@
+# French fixture of the message catalogue's tests (#658): two plural forms, `n > 1`.
+msgid ""
+msgstr ""
+"Project-Id-Version: fixture\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Save As…"
+msgstr "Enregistrer sous…"
+
+# Untranslated: the .mo does not carry it.
+msgid "Close"
+msgstr ""
+
+msgctxt "verb"
+msgid "Open"
+msgstr "Ouvrir"
+
+msgctxt "adjective"
+msgid "Open"
+msgstr "Ouvert"
+
+msgid "%1 subtitle"
+msgid_plural "%1 subtitles"
+msgstr[0] "%1 sous-titre"
+msgstr[1] "%1 sous-titres"
+
+msgid "Moved %1 to %2"
+msgstr "Déplacé vers %2 depuis %1"

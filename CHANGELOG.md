@@ -22,6 +22,7 @@ ne pas l'éditer à la main.
 ### Performance
 
 - **scripts** — Verify-gates assez rapide pour chaque PR de code
+- **scripts** — Preuves tidy ciblées, redondances retirées
 
 ## 0.15.0 — 2026-10-08
 
