@@ -10,7 +10,7 @@ juste.
 
 Ce qui est confronté :
 
-    ce que le manuel POINTE      docs/manual/**/*.md, liens Markdown relatifs
+    ce que le manuel POINTE      docs/manual/**/*.md et docs/i18n/*/manual/**/*.md, liens relatifs
     ce qui EXISTE                le fichier visé, et l'ancre visée dans ce fichier
 
 Erreurs (code 1)
@@ -31,6 +31,9 @@ import sys
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 MANUAL = REPO_ROOT / "docs/manual"
+# Les manuels traduits (ADR 0043) : leurs renvois se vérifient comme ceux de la source, et leurs ancres sont
+# celles de leurs titres traduits.
+TRANSLATED = sorted((REPO_ROOT / "docs/i18n").glob("*/manual"))
 
 # [texte](cible) — en excluant les images, qui commencent par « ! ».
 LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)\s]+)\)")
@@ -66,7 +69,7 @@ def main() -> int:
     errors: list[str] = []
     checked = 0
 
-    for page in sorted(MANUAL.rglob("*.md")):
+    for page in sorted(page for root in (MANUAL, *TRANSLATED) for page in root.rglob("*.md")):
         here = page.relative_to(REPO_ROOT)
         for target in LINK.findall(page.read_text(encoding="utf-8")):
             if target.startswith(("http:", "https:", "mailto:", "#")):

@@ -1357,6 +1357,48 @@ expect_manual_link_gate() {
 
 expect_manual_link_gate
 
+# The structure of a translated manual — #656.
+#
+# Two proofs: the faithful fixture passes (the check does not cry wolf), and one drift, a code
+# block that is no longer the source's, is refused and named alone. The drift is injected into a
+# copy of the versioned fixtures in a scratch directory, so nothing of the repository is touched.
+# The other drifts (pages, headings, tables, links, images, inline code, list items) are replayed
+# by `--check-fixtures`, which is a step of the fixtures gate.
+expect_translation_structure_gate() {
+    local script="${REPO_ROOT}/src/scripts/check-translation-structure.py"
+    local root output
+    root="$(mktemp -d)"
+    cp -r "${REPO_ROOT}/src/test/data/traductions/docs" "${root}/docs"
+
+    printf '%s▸ a faithful translation of the manual%s\n' "${BOLD}" "${RESET}"
+    if "${script}" --source "${root}/docs/manual" --translation "${root}/docs/i18n/es/manual" \
+        >/dev/null 2>&1; then
+        printf '  %s✓ « check-translation-structure.py » accepted the faithful translation%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refuses a faithful translation%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    printf '%s▸ a translation whose code block differs from the source%s\n' "${BOLD}" "${RESET}"
+    sed -i 's/^done$/hecho/' "${root}/docs/i18n/es/manual/sub/page.md"
+    if output="$("${script}" --source "${root}/docs/manual" \
+        --translation "${root}/docs/i18n/es/manual" 2>&1)"; then
+        printf '  %s✗ the check let a changed code block through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"CODE BLOCK"*"sub/page.md"* && "${output}" == *"1 difference(s)"* ]]; then
+        printf '  %s✓ « check-translation-structure.py » refused and named the code block%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refused, but not for the right reason%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_translation_structure_gate
+
 # Le manuel de `subedit-cli` et son `--help` — #546.
 #
 # **Quatre preuves, une par défaut que le contrôle promet de voir**, et une pour

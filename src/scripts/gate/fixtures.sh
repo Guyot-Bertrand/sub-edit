@@ -17,3 +17,5 @@ step "paires décalées"
 "${REPO_ROOT}/src/scripts/shifted-pairs.py" --check
 step "conversions fausses"
 "${REPO_ROOT}/src/scripts/wrong-rate-pairs.py" --check
+step "translated manual structure"
+"${REPO_ROOT}/src/scripts/check-translation-structure.py" --check-fixtures
