@@ -9,6 +9,10 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **doc** — Vérifier la structure d'un manuel traduit
+
 ### Documentation
 
 - **doc** — Cadrage de la phase 15, internationalisation
