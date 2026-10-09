@@ -1407,6 +1407,15 @@ traduction se tient à jour quand le manuel bouge, et si les captures du manuel 
 prennent par langue. **Une seule source** est la voie qui évite que deux textes
 divergent ; c'est aussi la plus coûteuse à outiller.
 
+**Cadrée le 2026-10-09** ([#655](https://github.com/Guyot-Bertrand/sub-edit/issues/655), spec
+[15-internationalisation.md](specs/15-internationalisation.md), ADR 0042 à 0044) : gettext, lu par un lecteur de `.mo` à nous
+dans le noyau (le noyau n'a pas Qt, et les catalogues de Gaupol sont du `.po`) ; **l'anglais devient la langue du dépôt entier** et
+le français une langue parmi d'autres ; **tout le dépôt est traduit** (environ 220 000 mots), à la main de Claude et relu par
+le mainteneur ; une source unique pour le manuel, l'aide de la fenêtre et les pages `man`. La phase livre deux langues,
+l'anglais et le français, et l'outillage pour les vingt de Gaupol, dont les autres restent des graines non installées. Vingt-sept
+issues, [#658](https://github.com/Guyot-Bertrand/sub-edit/issues/658) à
+[#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684), rédigées en anglais ; clôture en 0.16.0.
+
 # Troisième partie — au-delà de Gaupol
 
 Ces phases ne sont plus de l'iso-fonctionnalité : elles ajoutent ce que Gaupol
