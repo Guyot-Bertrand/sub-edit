@@ -120,6 +120,9 @@ readonly MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-cli/invocation.md"
 readonly HOOK_SOURCE="${REPO_ROOT}/src/scripts/hooks/pre-commit"
 readonly PLAIN_SCRIPT_SOURCE="${REPO_ROOT}/src/scripts/install-hooks.sh"
 readonly NESTED_CMAKE_SOURCE="${REPO_ROOT}/src/lib/CMakeLists.txt"
+# Un en-tête à peu de dépendants : la preuve de l'analyse des en-têtes ne doit pas
+# réanalyser la moitié de l'arbre pour établir qu'un diagnostic d'en-tête remonte.
+readonly LEAF_HEADER="${REPO_ROOT}/src/lib/subedit/core/format/lrc_writer.hpp"
 readonly MODEL_SOURCE="${REPO_ROOT}/src/lib/subedit/core/model/subtitle_index.hpp"
 readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
@@ -216,6 +219,7 @@ restore() {
     cp "${backup_dir}/install-hooks.sh" "${PLAIN_SCRIPT_SOURCE}"
     cp "${backup_dir}/lib-CMakeLists.txt" "${NESTED_CMAKE_SOURCE}"
     cp "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
+    cp "${backup_dir}/lrc_writer.hpp" "${LEAF_HEADER}"
     cp "${backup_dir}/cadence-25.mp4" "${VIDEO_FIXTURE}"
     cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
     cp "${backup_dir}/common-error.cas" "${PATTERN_EXPECTED}"
@@ -251,6 +255,7 @@ cp "${HOOK_SOURCE}" "${backup_dir}/pre-commit"
 cp "${PLAIN_SCRIPT_SOURCE}" "${backup_dir}/install-hooks.sh"
 cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
 cp "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
+cp "${LEAF_HEADER}" "${backup_dir}/lrc_writer.hpp"
 cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
 cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
 cp "${PATTERN_EXPECTED}" "${backup_dir}/common-error.cas"
@@ -773,7 +778,7 @@ expect_gate_stays_open \
 # analysé. Ce script-là n existe plus : clang-tidy est accroché à la règle de
 # compilation de chaque source, et git n entre plus dans le calcul.
 #
-# Restent trois choses à prouver, une par entrée que le système de construction
+# Restent deux choses à prouver ici, plus une conditionnelle, une par entrée que le système de construction
 # doit voir : la source, ses en-têtes, et la clé qui porte le reste.
 #
 # La première invocation construit l arbre `build/tidy` en entier, ce qui coûte
@@ -797,12 +802,9 @@ expect_tidy_closes() {
     restore
 }
 
-# 1 — un défaut dans une source non commitée. C est le cas que l ancien
-# mécanisme ratait, et il ne peut plus se poser : rien ne consulte git.
-expect_tidy_closes \
-    "défaut dans une source non commitée" \
-    "${LIB_SOURCE}" \
-    'namespace { int probeForTheProof() { int value = 1; return value; } }'
+# 1 — un défaut dans une source non commitée : c'est déjà la preuve « motif rejeté par
+# clang-tidy », plus haut — même injection dans une source non commitée, même cible `tidy`, et
+# rien dans le mécanisme ne consulte git. La rejouer ici coûtait une analyse de plus (#686).
 
 # 2 — **un défaut dans un en-tête**, et c est la preuve qui n existait pas.
 #
@@ -812,8 +814,8 @@ expect_tidy_closes \
 # compilateur a écrit qui décide, donc les unités qui incluent celui-ci sont
 # réanalysées, et elles seules.
 expect_tidy_closes \
-    "défaut dans un en-tête, atteint par ses dépendants" \
-    "${MODEL_SOURCE}" \
+    "défaut dans un en-tête, remonté par ses dépendants" \
+    "${LEAF_HEADER}" \
     'namespace subedit::core { inline int probeForTheProof() { int value = 1; return value; } }'
 
 # 3 — **la configuration change, et l analyse le voit.**
@@ -826,11 +828,26 @@ expect_tidy_closes \
 #
 # L injection se fait en fin de fichier, ce qui exige que la liste CheckOptions
 # soit la dernière chose de `.clang-tidy` — c est écrit dans ce fichier.
-expect_tidy_closes \
-    "configuration durcie, analyse rejouée" \
-    "${TIDY_CONFIG}" \
-    '  - key: readability-identifier-naming.ParameterCase
-    value: UPPER_CASE'
+# **Pas à chaque exécution** (#686) : elle éprouve `cmake/Tidy.cmake`, qui ne bouge presque jamais, et
+# elle coûte une réanalyse complète de l'arbre — deux fois, puisque la clé repasse à sa valeur
+# d'origine à la restauration. Elle tourne quand `.clang-tidy` ou `cmake/Tidy.cmake` diffèrent de
+# `main`, ou sur demande : `VERIFY_GATES_FULL=1`.
+tidy_config_changed() {
+    [[ -n "${VERIFY_GATES_FULL:-}" ]] && return 0
+    local base
+    base="$(git -C "${REPO_ROOT}" merge-base HEAD main 2>/dev/null)" || return 0
+    ! git -C "${REPO_ROOT}" diff --quiet "${base}" -- .clang-tidy cmake/Tidy.cmake
+}
+
+if tidy_config_changed; then
+    expect_tidy_closes \
+        "configuration durcie, analyse rejouée" \
+        "${TIDY_CONFIG}" \
+        '  - key: readability-identifier-naming.ParameterCase
+        value: UPPER_CASE'
+else
+    printf '%s▸ configuration durcie, analyse rejouée%s — ignorée, .clang-tidy et cmake/Tidy.cmake inchangés (VERIFY_GATES_FULL=1 la joue)\n' "${BOLD}" "${RESET}"
+fi
 
 # Un fichier engendré déposé sous src/. Il passerait les quatre portes qui
 # filtrent sur src/ — format, analyse statique, couverture, périmètre — parce
@@ -2604,7 +2621,7 @@ if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles soixante-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \
