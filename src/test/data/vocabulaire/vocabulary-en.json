@@ -1,0 +1,9 @@
+{
+  "en": {
+    "shortcut_header": "Shortcut",
+    "label_headers": ["Command", "Entry", "Action", "Menu entry"],
+    "no_shortcut_words": ["none"],
+    "option_header": "Option",
+    "subcommand_header": "Subcommand"
+  }
+}

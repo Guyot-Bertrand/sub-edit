@@ -12,6 +12,7 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **doc** — Vérifier la structure d'un manuel traduit
+- **scripts** — Un vocabulaire par langue pour les contrôles du manuel
 
 ### Documentation
 

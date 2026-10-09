@@ -16,7 +16,7 @@ Ce qui est confronté :
     ce que le manuel ÉCRIT      docs/manual/subedit-gui/*.md
 
 **La forme que le manuel doit avoir**, pour que la confrontation ne soit pas un `grep` : un
-tableau dont **une colonne s'intitule « Raccourci »** et dont une autre — « Commande »,
+tableau dont **une colonne s'intitule « Raccourci »** (dans la langue de la page : `doc_vocabulary.py`) et dont une autre — « Commande »,
 « Entrée », « Action » ou « Entrée du menu » — nomme l'action telle que le menu la libelle,
 éventuellement précédée de son menu (`Video ▸ Play / Pause`). Le raccourci est écrit entre
 apostrophes inverses (`Ctrl+P`) ; « aucun » ou « — » dit qu'il n'y en a pas. Le contrôle lit
@@ -29,6 +29,8 @@ Erreurs (code 1), chacune nommée :
     RACCOURCI INCONNU      une ligne de tableau écrit un raccourci que son action ne répond pas.
     RACCOURCI OUBLIÉ       une ligne de tableau dit « aucun », ou n'écrit rien, d'une action
                            qui en a un.
+    LANGUE SANS VOCABULAIRE   une page est dans une langue qui n'a pas de table (`doc_vocabulary.py`) :
+                           elle ne serait pas lue, et le contrôle ne dirait rien.
     RACCOURCI NON DOCUMENTÉ   une action répond à un raccourci, et aucun de ses raccourcis
                            n'est écrit nulle part dans le manuel de la fenêtre.
 
@@ -49,11 +51,12 @@ import re
 import subprocess
 import sys
 
+import doc_vocabulary
+
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 
-# Les en-têtes de la colonne qui nomme l'action.
-LABEL_HEADERS = ("Commande", "Entrée", "Action", "Entrée du menu")
-SHORTCUT_HEADER = "Raccourci"
+# Les mots d'en-tête et de cellule vivent dans `doc_vocabulary.py`, une table par langue (#657) :
+# la logique ci-dessous n'écrit aucun mot de page.
 
 # Ce que Qt écrit et ce que le manuel écrit pour la même touche : les deux se ramènent à une forme.
 KEY_NAMES = {
@@ -65,7 +68,8 @@ KEY_NAMES = {
     "Return": "Enter",
 }
 
-NO_SHORTCUT = {"", "—", "-", "aucun", "aucune"}
+# Ce qu'une cellule peut dire pour « pas de raccourci », quelle que soit la langue.
+NO_SHORTCUT = {"", "—", "-"}
 
 # Un raccourci écrit comme du code : `Ctrl+Shift+S`, `F1`, `Del`.
 CODE_SPAN = re.compile(r"`([^`]+)`")
@@ -116,12 +120,13 @@ def cells(line: str) -> list[str]:
     return [cell.strip() for cell in line.strip().strip("|").split("|")]
 
 
-def written_shortcuts(cell: str) -> set[str] | None:
+def written_shortcuts(cell: str, vocabulary: dict) -> set[str] | None:
     """Les raccourcis d'une cellule, ou `None` quand elle dit qu'il n'y en a pas."""
     keys = {canonical(span) for span in code_spans(cell) if SEQUENCE.match(span.strip())}
     if keys:
         return keys
-    return None if cell.strip().strip("`*").lower() in NO_SHORTCUT else set()
+    none = NO_SHORTCUT | set(vocabulary["no_shortcut_words"])
+    return None if cell.strip().strip("`*").lower() in none else set()
 
 
 def action_label(cell: str) -> str:
@@ -129,19 +134,20 @@ def action_label(cell: str) -> str:
     return cell.replace("`", "").split("▸")[-1].strip()
 
 
-def tables(markdown: str):
-    """Les lignes des tableaux à colonne « Raccourci » : (numéro de ligne, libellé, cellule)."""
+def tables(markdown: str, vocabulary: dict):
+    """Les lignes des tableaux à colonne des raccourcis : (numéro de ligne, libellé, cellule)."""
+    shortcut_header = vocabulary["shortcut_header"]
     lines = markdown.splitlines()
     index = 0
     while index < len(lines):
         header = lines[index]
-        if not header.lstrip().startswith("|") or SHORTCUT_HEADER not in cells(header):
+        if not header.lstrip().startswith("|") or shortcut_header not in cells(header):
             index += 1
             continue
 
         names = cells(header)
-        shortcut_column = names.index(SHORTCUT_HEADER)
-        label_column = next((names.index(h) for h in LABEL_HEADERS if h in names), None)
+        shortcut_column = names.index(shortcut_header)
+        label_column = next((names.index(h) for h in vocabulary["label_headers"] if h in names), None)
         index += 2  # l'en-tête et sa ligne de séparation
         while index < len(lines) and lines[index].lstrip().startswith("|"):
             row = cells(lines[index])
@@ -150,24 +156,31 @@ def tables(markdown: str):
             index += 1
 
 
-def check(binary: pathlib.Path, manual: pathlib.Path) -> list[str]:
+def check(binary: pathlib.Path, manual: pathlib.Path, vocabularies: dict[str, dict]) -> list[str]:
     by_label, every = declared(binary)
     failures: list[str] = []
     pages = sorted(manual.glob("*.md"))
     all_text = ""
+    unread: dict[str, list[str]] = {}
 
     for page in pages:
         text = page.read_text(encoding="utf-8")
         all_text += text + "\n"
 
-        for number, label, cell in tables(text):
+        language = doc_vocabulary.language_of(page, text)
+        if language not in vocabularies:
+            unread.setdefault(language, []).append(page.name)
+            continue
+        vocabulary = vocabularies[language]
+
+        for number, label, cell in tables(text, vocabulary):
             where = f"{page.name}:{number}"
             if label not in by_label:
                 failures.append(f"ACTION INCONNUE : {where} nomme `{label}`, que la fenêtre n'a pas")
                 continue
 
             actual = by_label[label]
-            written = written_shortcuts(cell)
+            written = written_shortcuts(cell, vocabulary)
             if written is None:
                 if actual:
                     failures.append(
@@ -182,6 +195,8 @@ def check(binary: pathlib.Path, manual: pathlib.Path) -> list[str]:
                     f"RACCOURCI INCONNU : {where} écrit `{key}` pour `{label}`, "
                     f"qui répond à {', '.join(sorted(actual)) or 'aucun'}"
                 )
+
+    failures.extend(doc_vocabulary.missing_table(vocabularies, unread))
 
     # Chaque action qui répond à un raccourci le voit écrit quelque part — sous une des formes de la touche.
     spans = {canonical(span) for span in code_spans(all_text) if SEQUENCE.match(span.strip())}
@@ -205,13 +220,15 @@ def main() -> int:
                         default=REPO_ROOT / "build/dev/bin/subedit_list_shortcuts")
     parser.add_argument("--manual", type=pathlib.Path,
                         default=REPO_ROOT / "docs/manual/subedit-gui")
+    parser.add_argument("--vocabulary", type=pathlib.Path,
+                        help="un fichier JSON {langue: table} qui complète les tables livrées")
     arguments = parser.parse_args()
 
     if not arguments.binary.is_file():
         print(f"binaire introuvable : {arguments.binary}", file=sys.stderr)
         return 2
 
-    failures = check(arguments.binary, arguments.manual)
+    failures = check(arguments.binary, arguments.manual, doc_vocabulary.load_tables(arguments.vocabulary))
     if failures:
         for failure in failures:
             print(failure, file=sys.stderr)
