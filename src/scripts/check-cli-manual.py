@@ -23,6 +23,8 @@ Erreurs (code 1), chacune nommée :
                         dans l'aide de la sous-commande.
     SOUS-COMMANDE NON LISTÉE / INCONNUE   le tableau d'`invocation.md` et le binaire
                         ne nomment pas les mêmes sous-commandes.
+    LANGUE SANS VOCABULAIRE  une page est dans une langue qui n'a pas de table (`doc_vocabulary.py`) :
+                        elle ne serait pas lue, et le contrôle ne dirait rien.
     OPTION GLOBALE ABSENTE   une option globale du binaire n'est écrite ni dans
                         `invocation.md` ni dans la page `subedit-cli(1)`.
 
@@ -39,6 +41,8 @@ import pathlib
 import re
 import subprocess
 import sys
+
+import doc_vocabulary
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 
@@ -107,8 +111,8 @@ def documented_options(markdown: str) -> set[str]:
     return found
 
 
-def option_column(markdown: str) -> set[str]:
-    """Les options de la première colonne des tableaux dont l'en-tête est « Option »."""
+def option_column(markdown: str, option_header: str) -> set[str]:
+    """Les options de la première colonne des tableaux dont l'en-tête est celui des options."""
     found: set[str] = set()
     inside = False
     for line in markdown.splitlines():
@@ -117,7 +121,7 @@ def option_column(markdown: str) -> set[str]:
             inside = False
             continue
         cells = [cell.strip() for cell in stripped.strip("|").split("|")]
-        if cells and cells[0] == "Option":
+        if cells and cells[0] == option_header:
             inside = True
             continue
         if inside and cells:
@@ -125,8 +129,10 @@ def option_column(markdown: str) -> set[str]:
     return found
 
 
-def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path) -> list[str]:
+def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path,
+          vocabularies: dict[str, dict]) -> list[str]:
     failures: list[str] = []
+    unread: dict[str, list[str]] = {}
     top_help = run_help(binary)
     names = subcommands(top_help)
     if not names:
@@ -138,6 +144,10 @@ def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path) ->
             failures.append(f"PAGE ABSENTE : la sous-commande `{name}` n'a pas de {page.name}")
             continue
         text = page.read_text(encoding="utf-8")
+        language = doc_vocabulary.language_of(page, text)
+        if language not in vocabularies:
+            unread.setdefault(language, []).append(page.name)
+            continue
         from_help = long_options(run_help(binary, name))
         written = documented_options(text)
         for option in sorted(from_help - written):
@@ -145,7 +155,7 @@ def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path) ->
                 f"OPTION NON DOCUMENTÉE : `{name} {option}` est dans l'aide, "
                 f"pas dans un tableau de {page.name}"
             )
-        for option in sorted(option_column(text) - from_help):
+        for option in sorted(option_column(text, vocabularies[language]["option_header"]) - from_help):
             failures.append(
                 f"OPTION INCONNUE : {page.name} documente `{option}`, "
                 f"que l'aide de `{name}` ne connaît pas"
@@ -155,8 +165,14 @@ def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path) ->
     invocation_text = invocation.read_text(encoding="utf-8") if invocation.is_file() else ""
     listed: set[str] = set()
     inside = False
+    invocation_language = doc_vocabulary.language_of(invocation, invocation_text)
+    if invocation_language not in vocabularies:
+        unread.setdefault(invocation_language, []).append(invocation.name)
+        subcommand_header = None
+    else:
+        subcommand_header = vocabularies[invocation_language]["subcommand_header"]
     for line in invocation_text.splitlines():
-        if line.startswith("| Sous-commande"):
+        if subcommand_header is not None and line.startswith(f"| {subcommand_header}"):
             inside = True
             continue
         if inside:
@@ -165,10 +181,12 @@ def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path) ->
                 listed.add(match.group(1))
             elif not line.startswith("|"):
                 inside = False
-    for name in sorted(set(names) - listed):
-        failures.append(f"SOUS-COMMANDE NON LISTÉE : `{name}` n'est pas dans le tableau d'{invocation.name}")
-    for name in sorted(listed - set(names)):
-        failures.append(f"SOUS-COMMANDE INCONNUE : {invocation.name} liste `{name}`, que le binaire ne connaît pas")
+    failures.extend(doc_vocabulary.missing_table(vocabularies, unread))
+    if subcommand_header is not None:
+        for name in sorted(set(names) - listed):
+            failures.append(f"SOUS-COMMANDE NON LISTÉE : `{name}` n'est pas dans le tableau d'{invocation.name}")
+        for name in sorted(listed - set(names)):
+            failures.append(f"SOUS-COMMANDE INCONNUE : {invocation.name} liste `{name}`, que le binaire ne connaît pas")
 
     man_text = man_page.read_text(encoding="utf-8") if man_page.is_file() else ""
     for option in sorted(long_options(top_help)):
@@ -187,13 +205,16 @@ def main() -> int:
                         default=REPO_ROOT / "docs/manual/subedit-cli")
     parser.add_argument("--man-page", type=pathlib.Path,
                         default=REPO_ROOT / "packaging/subedit-cli.1.in")
+    parser.add_argument("--vocabulary", type=pathlib.Path,
+                        help="un fichier JSON {langue: table} qui complète les tables livrées")
     arguments = parser.parse_args()
 
     if not arguments.binary.is_file():
         print(f"binaire introuvable : {arguments.binary}", file=sys.stderr)
         return 2
 
-    failures = check(arguments.binary, arguments.manual, arguments.man_page)
+    failures = check(arguments.binary, arguments.manual, arguments.man_page,
+                     doc_vocabulary.load_tables(arguments.vocabulary))
     if failures:
         for failure in failures:
             print(failure, file=sys.stderr)

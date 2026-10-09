@@ -1550,6 +1550,68 @@ FAKE
 
 expect_gui_manual_gate
 
+# Les contrôles du manuel lisent le vocabulaire de la langue de la page — #657.
+#
+# **Deux preuves par contrôle, et la même page pour les deux** : une page anglaise de quelques
+# lignes, sous `docs/i18n/en/manual/`, est acceptée quand une table anglaise est fournie, et
+# **refusée, en le disant, quand elle ne l'est pas**. Le défaut est le silence : un contrôle qui
+# cherche « Raccourci » sur une page qui écrit « Shortcut » ne trouve aucun tableau, et se tait.
+# Les deux programmes sont de faux binaires qui déclarent juste de quoi faire concorder la page,
+# pour qu'aucun autre écart ne se mêle au seul qu'on cherche.
+expect_vocabulary_gate() {
+    local fixture="${REPO_ROOT}/src/test/data/vocabulaire"
+    local root
+    root="$(mktemp -d)"
+
+    cat > "${root}/fake-gui" <<'FAKE'
+#!/usr/bin/env bash
+printf 'Play / Pause\tCtrl+P\n'
+FAKE
+    cat > "${root}/fake-cli" <<'FAKE'
+#!/usr/bin/env bash
+case "$*" in
+--help) printf 'Fake.\nUsage: fake\n\nOptions:\n  -h,--help  Print\n\nSubcommands:\n  shift  Move\n' ;;
+"shift --help") printf 'Move.\nUsage: fake shift\n\nOptions:\n  -h,--help  Print\n  --by TEXT  Amount\n' ;;
+esac
+FAKE
+    chmod +x "${root}/fake-gui" "${root}/fake-cli"
+
+    local tree="${fixture}/docs/i18n/en/manual" table="${fixture}/vocabulary-en.json"
+    local name script manual binary output
+    local -a extra
+    for name in gui cli; do
+        script="${REPO_ROOT}/src/scripts/check-${name}-manual.py"
+        manual="${tree}/subedit-${name}"
+        binary="${root}/fake-${name}"
+        extra=()
+        [[ "${name}" == cli ]] && extra=(--man-page "${root}/absent.1.in")
+
+        printf '%s▸ une page anglaise, avec sa table de vocabulaire (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
+        if "${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" --vocabulary "${table}" >/dev/null 2>&1; then
+            printf '  %s✓ « check-%s-manual.py » a lu la page anglaise, comme attendu%s\n' "${GREEN}" "${name}" "${RESET}"
+        else
+            printf '  %s✗ le contrôle refuse une page anglaise munie de sa table%s\n' "${RED}" "${RESET}"
+            failures=$((failures + 1))
+        fi
+
+        printf '%s▸ la même page, sans table de vocabulaire (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
+        if output="$("${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" 2>&1)"; then
+            printf '  %s✗ le contrôle a laissé passer une page dont il ne connaît pas la langue%s\n' "${RED}" "${RESET}"
+            failures=$((failures + 1))
+        elif [[ "${output}" == *"LANGUE SANS VOCABULAIRE"* && "${output}" == *"1 écart(s)"* ]]; then
+            printf '  %s✓ « check-%s-manual.py » a refusé, et nommé seul cet écart : la langue sans table%s\n' \
+                "${GREEN}" "${name}" "${RESET}"
+        else
+            printf '  %s✗ le contrôle a refusé, mais pas pour la bonne raison%s\n' "${RED}" "${RESET}"
+            failures=$((failures + 1))
+        fi
+    done
+
+    rm -rf "${root}"
+}
+
+expect_vocabulary_gate
+
 # Les règles d installation oublient un fichier de données — #239.
 #
 # **L injection réduit les règles aux seuls binaires**, plutôt que d ajouter du
