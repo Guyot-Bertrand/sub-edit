@@ -140,12 +140,15 @@ add_library(subedit::core ALIAS subedit_core)
 # #include <subedit/core/version.hpp>
 target_include_directories(subedit_core PUBLIC "${CMAKE_SOURCE_DIR}/src/lib")
 
-target_compile_definitions(
-    subedit_core
-    PRIVATE SUBEDIT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
-            SUBEDIT_VERSION_MINOR=${PROJECT_VERSION_MINOR}
-            SUBEDIT_VERSION_PATCH=${PROJECT_VERSION_PATCH}
-            SUBEDIT_BUILD_DATE="${SUBEDIT_BUILD_DATE}")
+# **Sur `version.cpp` seul, et non sur la cible** (#686). Une définition de cible entre dans la ligne
+# de compilation de chacune de ses sources : le bump de patch de chaque pull request, et la date du
+# commit à chaque commit, changeaient donc la commande des quelque trois cents fichiers du noyau, et
+# Ninja les recompilait tous — dans chaque arbre, `tidy` compris, dont l'analyse est accrochée à
+# cette commande. Seul `version.cpp` lit ces macros ; elles ne vivent plus que là.
+set_source_files_properties(
+    version.cpp
+    PROPERTIES COMPILE_DEFINITIONS
+               "SUBEDIT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR};SUBEDIT_VERSION_MINOR=${PROJECT_VERSION_MINOR};SUBEDIT_VERSION_PATCH=${PROJECT_VERSION_PATCH};SUBEDIT_BUILD_DATE=\"${SUBEDIT_BUILD_DATE}\"")
 
 # ICU en privé : aucun en-tête du noyau ne montre `unicode/`, seuls deux
 # fichiers d'implémentation l'incluent. Ce qui dépend de subedit_core hérite

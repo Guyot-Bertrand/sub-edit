@@ -167,6 +167,13 @@ fi
 suite="$1"
 shift
 
+# Une porte réduite à quelques tests ne se lance pas par mégarde (voir gate/asan.sh).
+if [[ -n "${GATE_PROOF_TESTS:-}" && ( "${suite}" == check || "${suite}" == check-local ) ]]; then
+    printf '%s✗ GATE_PROOF_TESTS est réservée à verify-gates.sh, et réduirait %s à quelques tests%s\n' \
+        "${RED}" "${suite}" "${RESET}" >&2
+    exit 2
+fi
+
 case "${suite}" in
 check) steps=("${CHECK_STEPS[@]}") ;;
 check-local) steps=("${LOCAL_STEPS[@]}") ;;
@@ -225,8 +232,29 @@ fi
 
 printf '%s%s — %d étape(s)%s\n' "${BOLD}" "${suite}" "${#selected[@]}" "${RESET}"
 
+# **Le temps de chaque étape**, écrit à la sortie — même sur un échec : la dernière ligne est alors
+# l'étape qui a échoué, avec ce qu'elle a coûté. C'est le chiffre qui manquait pour décider quoi
+# alléger (#686) : sans lui, « la porte est longue » ne désigne rien.
+durations=()
+report_durations() {
+    local status=$?
+    ((${#durations[@]} == 0)) || {
+        printf '\n%sdurée des étapes de %s%s\n' "${BOLD}" "${suite}" "${RESET}"
+        local entry
+        for entry in "${durations[@]}"; do
+            printf '%7d s  %s\n' "${entry%% *}" "${entry#* }"
+        done
+    }
+    return "${status}"
+}
+trap report_durations EXIT
+
 for one in "${selected[@]}"; do
-    run_step "${one}"
+    started=${SECONDS}
+    status=0
+    run_step "${one}" || status=$?
+    durations+=("$((SECONDS - started)) ${one}")
+    ((status == 0)) || exit "${status}"
 done
 
 printf '%s✓ %s franchie%s\n' "${GREEN}" "${suite}" "${RESET}"

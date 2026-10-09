@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Le vocabulaire que les contrôles du manuel cherchent, une table par langue.
 
 **Un contrôle qui cherche un mot français et n'en trouve pas sur une page anglaise ne
