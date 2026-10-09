@@ -117,6 +117,7 @@ set -euo pipefail
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 readonly MANUAL_DIR="${REPO_ROOT}/docs/manual"
 readonly PATTERNS_DIR="${REPO_ROOT}/packaging/patterns"
+readonly LINGUAS="${REPO_ROOT}/src/po/LINGUAS"
 
 # L'identifiant de l'application, celui que portent les trois fichiers de
 # bureau. Écrit ici comme dans `cmake/Installation.cmake` : ce contrôle existe
@@ -144,7 +145,7 @@ build_dir="${REPO_ROOT}/build/release"
 # seul, sans rien savoir des autres : l'installation dans le préfixe est faite
 # une fois pour tous, avant eux, et aucun ne dépend de ce qu'un autre a laissé.
 # C'est ce qui rend `--only` sûr.
-readonly CONTROLS=(binaires manuel motifs bureau pages rendu destdir paquets)
+readonly CONTROLS=(binaires manuel motifs catalogues bureau pages rendu destdir paquets)
 
 usage() {
     cat >&2 <<'USAGE'
@@ -332,6 +333,47 @@ $(printf '    %s\n' "${missing[@]}")
 
 if wanted motifs; then
     check_patterns
+fi
+
+# ## Le catalogue de chaque langue installée se retrouve sous le préfixe
+#
+# **La liste est calculée, de `src/po/LINGUAS`** et non écrite ici, pour la raison du manuel et des
+# motifs. Un catalogue qui manque n'est pas une erreur que le programme dit : l'interface repasse
+# en anglais sans rien signaler, et personne ne le voit avant qu'un utilisateur ne s'en plaigne.
+# L'emplacement est celui que le lecteur de `core/i18n/` cherche (issue #659) ; le fichier doit en
+# plus être un `.mo` — un fichier vide installé au bon endroit est le défaut qu'une présence ne voit pas.
+installed_languages() {
+    grep -v '^[[:space:]]*\(#\|$\)' "${LINGUAS}" || true
+}
+
+check_catalogues() {
+    local root="${prefix}/share/subedit/locale"
+    local language checked=0
+
+    while IFS= read -r language; do
+        local mo="${root}/${language}/LC_MESSAGES/subedit.mo"
+        if [[ ! -f "${mo}" ]]; then
+            report_failure "le catalogue « ${language} » n'a pas été installé : ${mo#"${prefix}/"} manque
+    la règle install() de cmake/Translations.cmake ne le dépose pas"
+            continue
+        fi
+        # Le nombre magique d'un `.mo`, dans l'un ou l'autre ordre d'octets.
+        local magic
+        magic="$(od -An -tx1 -N4 "${mo}" | tr -d ' \n')"
+        if [[ "${magic}" != "de120495" && "${magic}" != "950412de" ]]; then
+            report_failure "${mo#"${prefix}/"} n'est pas un catalogue compilé (nombre magique « ${magic} »)"
+            continue
+        fi
+        checked=$((checked + 1))
+    done < <(installed_languages)
+
+    if (( checked > 0 )) && (( failures == 0 )); then
+        report_success "les ${checked} catalogue(s) de langue sont installés sous share/subedit/locale"
+    fi
+}
+
+if wanted catalogues; then
+    check_catalogues
 fi
 
 # ## Les quatre fichiers de bureau
@@ -630,6 +672,19 @@ $(diff <(printf '%s\n' "${in_deb}") <(printf '%s\n' "${in_rpm}") | sed 's/^/    
     fi
 
     report_success "le .deb et le .rpm portent les mêmes $(printf '%s\n' "${in_deb}" | wc -l) fichiers"
+
+    # **Les catalogues des langues installées, nommément** (#659) : la comparaison ci-dessus ne
+    # voit qu'un écart entre les deux paquets, et deux paquets sans catalogue coïncident.
+    local language
+    while IFS= read -r language; do
+        local wanted_path="/usr/share/subedit/locale/${language}/LC_MESSAGES/subedit.mo"
+        if ! grep -qxF "${wanted_path}" <<<"${in_deb}"; then
+            report_failure "le .deb ne porte pas le catalogue « ${language} » (${wanted_path})"
+        fi
+        if ! grep -qxF "${wanted_path}" <<<"${in_rpm}"; then
+            report_failure "le .rpm ne porte pas le catalogue « ${language} » (${wanted_path})"
+        fi
+    done < <(installed_languages)
 
     # **Les dépendances, elles, ne coïncident pas et ne le doivent pas** : les
     # mêmes bibliothèques s'appellent autrement chez Debian et chez Fedora. Ce
