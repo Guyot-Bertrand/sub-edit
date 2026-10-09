@@ -120,6 +120,9 @@ readonly MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-cli/invocation.md"
 readonly HOOK_SOURCE="${REPO_ROOT}/src/scripts/hooks/pre-commit"
 readonly PLAIN_SCRIPT_SOURCE="${REPO_ROOT}/src/scripts/install-hooks.sh"
 readonly NESTED_CMAKE_SOURCE="${REPO_ROOT}/src/lib/CMakeLists.txt"
+# Un en-tête à peu de dépendants : la preuve de l'analyse des en-têtes ne doit pas
+# réanalyser la moitié de l'arbre pour établir qu'un diagnostic d'en-tête remonte.
+readonly LEAF_HEADER="${REPO_ROOT}/src/lib/subedit/core/format/lrc_writer.hpp"
 readonly MODEL_SOURCE="${REPO_ROOT}/src/lib/subedit/core/model/subtitle_index.hpp"
 readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
@@ -162,6 +165,47 @@ readonly RESET=$'\033[0m'
 backup_dir="$(mktemp -d)"
 failures=0
 
+# **Le temps de chaque preuve** — #686. `verify-gates` dépassait l'heure sans qu'on sache où : chaque
+# en-tête de preuve passe par `proof_header`, qui ferme la mesure de la précédente, et le compte
+# rendu final classe les plus longues. Rien n'est écrit dans le dépôt : la durée est un constat de
+# l'exécution, à reporter dans la pull request qui la change, pas un fichier à tenir.
+proof_names=()
+proof_seconds=()
+current_proof=""
+proof_started=${SECONDS}
+
+end_proof() {
+    if [[ -n "${current_proof}" ]]; then
+        proof_names+=("${current_proof}")
+        proof_seconds+=("$((SECONDS - proof_started))")
+    fi
+    current_proof=""
+}
+
+proof_header() {
+    end_proof
+    printf "$@"
+    local line
+    printf -v line "$@"
+    line="${line//${BOLD}/}"
+    line="${line//${RESET}/}"
+    current_proof="${line//$'\n'/}"
+    current_proof="${current_proof#▸ }"
+    proof_started=${SECONDS}
+}
+
+report_durations() {
+    end_proof
+    local total=0 index
+    for index in "${!proof_seconds[@]}"; do
+        total=$((total + proof_seconds[index]))
+    done
+    printf '\n%sdurée des preuves : %d s en tout, les plus longues d abord%s\n' "${BOLD}" "${total}" "${RESET}"
+    for index in "${!proof_seconds[@]}"; do
+        printf '%6d s  %s\n' "${proof_seconds[index]}" "${proof_names[index]}"
+    done | sort -rn | head -"${VERIFY_GATES_TOP:-15}"
+}
+
 restore() {
     cp "${backup_dir}/version.cpp" "${LIB_SOURCE}"
     cp "${backup_dir}/version_test.cpp" "${TEST_SOURCE}"
@@ -175,6 +219,7 @@ restore() {
     cp "${backup_dir}/install-hooks.sh" "${PLAIN_SCRIPT_SOURCE}"
     cp "${backup_dir}/lib-CMakeLists.txt" "${NESTED_CMAKE_SOURCE}"
     cp "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
+    cp "${backup_dir}/lrc_writer.hpp" "${LEAF_HEADER}"
     cp "${backup_dir}/cadence-25.mp4" "${VIDEO_FIXTURE}"
     cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
     cp "${backup_dir}/common-error.cas" "${PATTERN_EXPECTED}"
@@ -210,6 +255,7 @@ cp "${HOOK_SOURCE}" "${backup_dir}/pre-commit"
 cp "${PLAIN_SCRIPT_SOURCE}" "${backup_dir}/install-hooks.sh"
 cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
 cp "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
+cp "${LEAF_HEADER}" "${backup_dir}/lrc_writer.hpp"
 cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
 cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
 cp "${PATTERN_EXPECTED}" "${backup_dir}/common-error.cas"
@@ -237,15 +283,25 @@ expect_gate_closes() {
     local target="$2"
     local file="$3"
     local snippet="$4"
+    # Facultatif : un texte que la sortie de la porte doit contenir. Une porte qui échoue pour une
+    # autre raison que le défaut injecté ne le prouve pas ; ce paramètre le dit pour les preuves
+    # qui ne jouent qu'un test (#686), où l'échec le plus probable d'une faute est de n'en jouer aucun.
+    local expected="${5:-}"
+    local output status=0
 
-    printf '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
     # Un extrait vide veut dire que l'injection a déjà été faite par l'appelant,
     # parce qu'elle ne consiste pas à ajouter du texte en fin de fichier —
     # modifier un bloc existant, par exemple.
     [[ -z "${snippet}" ]] || printf '%s\n' "${snippet}" >> "${file}"
 
-    if make -C "${REPO_ROOT}" --no-print-directory "${target}" >/dev/null 2>&1; then
+    output="$(make -C "${REPO_ROOT}" --no-print-directory "${target}" 2>&1)" || status=$?
+
+    if ((status == 0)); then
         printf '  %s✗ la porte « %s » a laissé passer le défaut%s\n' "${RED}" "${target}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ -n "${expected}" && "${output}" != *"${expected}"* ]]; then
+        printf '  %s✗ « make %s » a échoué, mais sans citer « %s »%s\n' "${RED}" "${target}" "${expected}" "${RESET}"
         failures=$((failures + 1))
     else
         printf '  %s✓ « make %s » a échoué, comme attendu%s\n' "${GREEN}" "${target}" "${RESET}"
@@ -267,7 +323,7 @@ expect_pr_check_closes() {
     local control="$2"
     shift 2
 
-    printf '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
 
     if env "$@" "${PR_CHECK}" "${control}" >/dev/null 2>&1; then
         printf '  %s✗ le contrôle « %s » a laissé passer le défaut%s\n' "${RED}" "${control}" "${RESET}"
@@ -292,7 +348,7 @@ expect_gate_stays_open() {
     local file="$3"
     local snippet="$4"
 
-    printf '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
     printf '%s\n' "${snippet}" >> "${file}"
 
     if make -C "${REPO_ROOT}" --no-print-directory "${target}" >/dev/null 2>&1; then
@@ -336,7 +392,9 @@ int* injectedOwningPointer() {
 } // namespace subedit::core'
 
 # Usage après libération : invisible pour l'analyse statique, détecté par ASan.
-expect_gate_closes \
+# **Un seul test est joué** (`GATE_PROOF_TESTS`, voir gate/asan.sh) et la sortie doit nommer
+# l'erreur : l'échec vient donc du défaut injecté, pas d'ailleurs — #686.
+GATE_PROOF_TESTS="injected use after free" expect_gate_closes \
     "erreur mémoire à l'exécution" \
     "asan" \
     "${TEST_SOURCE}" \
@@ -347,7 +405,8 @@ TEST_CASE("injected use after free", "[injected]") {
     const std::string* observer = owned.get();
     owned.reset();
     CHECK(observer->size() == 7);
-}'
+}' \
+    "AddressSanitizer"
 
 # Débordement d'entier signé : invisible pour l'analyse statique et pour ASan,
 # détecté par UBSan. Sa propre preuve, distincte de celle d'ASan, parce que les
@@ -356,7 +415,7 @@ TEST_CASE("injected use after free", "[injected]") {
 # -fno-sanitize-recover=undefined. Sans cette option il signalait le défaut et
 # laissait le test passer, ce qu'un vrai débordement de la grammaire du temps a
 # démontré à la relecture de la phase 3.
-expect_gate_closes \
+GATE_PROOF_TESTS="injected signed overflow" expect_gate_closes \
     "comportement indéfini à l'exécution" \
     "asan" \
     "${TEST_SOURCE}" \
@@ -369,7 +428,8 @@ TEST_CASE("injected signed overflow", "[injected]") {
     std::int64_t largest = std::numeric_limits<std::int64_t>::max();
     const std::int64_t& read = largest;
     CHECK(read + 1 > 0);
-}'
+}' \
+    "signed integer overflow"
 
 # Code non exercé par les tests : fait grimper le nombre de lignes non
 # couvertes au-delà du cliquet.
@@ -718,7 +778,7 @@ expect_gate_stays_open \
 # analysé. Ce script-là n existe plus : clang-tidy est accroché à la règle de
 # compilation de chaque source, et git n entre plus dans le calcul.
 #
-# Restent trois choses à prouver, une par entrée que le système de construction
+# Restent deux choses à prouver ici, plus une conditionnelle, une par entrée que le système de construction
 # doit voir : la source, ses en-têtes, et la clé qui porte le reste.
 #
 # La première invocation construit l arbre `build/tidy` en entier, ce qui coûte
@@ -729,7 +789,7 @@ expect_tidy_closes() {
     local file="$2"
     local snippet="$3"
 
-    printf '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
     printf '%s\n' "${snippet}" >> "${file}"
 
     if make -C "${REPO_ROOT}" --no-print-directory tidy >/dev/null 2>&1; then
@@ -742,12 +802,9 @@ expect_tidy_closes() {
     restore
 }
 
-# 1 — un défaut dans une source non commitée. C est le cas que l ancien
-# mécanisme ratait, et il ne peut plus se poser : rien ne consulte git.
-expect_tidy_closes \
-    "défaut dans une source non commitée" \
-    "${LIB_SOURCE}" \
-    'namespace { int probeForTheProof() { int value = 1; return value; } }'
+# 1 — un défaut dans une source non commitée : c'est déjà la preuve « motif rejeté par
+# clang-tidy », plus haut — même injection dans une source non commitée, même cible `tidy`, et
+# rien dans le mécanisme ne consulte git. La rejouer ici coûtait une analyse de plus (#686).
 
 # 2 — **un défaut dans un en-tête**, et c est la preuve qui n existait pas.
 #
@@ -757,8 +814,8 @@ expect_tidy_closes \
 # compilateur a écrit qui décide, donc les unités qui incluent celui-ci sont
 # réanalysées, et elles seules.
 expect_tidy_closes \
-    "défaut dans un en-tête, atteint par ses dépendants" \
-    "${MODEL_SOURCE}" \
+    "défaut dans un en-tête, remonté par ses dépendants" \
+    "${LEAF_HEADER}" \
     'namespace subedit::core { inline int probeForTheProof() { int value = 1; return value; } }'
 
 # 3 — **la configuration change, et l analyse le voit.**
@@ -771,11 +828,26 @@ expect_tidy_closes \
 #
 # L injection se fait en fin de fichier, ce qui exige que la liste CheckOptions
 # soit la dernière chose de `.clang-tidy` — c est écrit dans ce fichier.
-expect_tidy_closes \
-    "configuration durcie, analyse rejouée" \
-    "${TIDY_CONFIG}" \
-    '  - key: readability-identifier-naming.ParameterCase
-    value: UPPER_CASE'
+# **Pas à chaque exécution** (#686) : elle éprouve `cmake/Tidy.cmake`, qui ne bouge presque jamais, et
+# elle coûte une réanalyse complète de l'arbre — deux fois, puisque la clé repasse à sa valeur
+# d'origine à la restauration. Elle tourne quand `.clang-tidy` ou `cmake/Tidy.cmake` diffèrent de
+# `main`, ou sur demande : `VERIFY_GATES_FULL=1`.
+tidy_config_changed() {
+    [[ -n "${VERIFY_GATES_FULL:-}" ]] && return 0
+    local base
+    base="$(git -C "${REPO_ROOT}" merge-base HEAD main 2>/dev/null)" || return 0
+    ! git -C "${REPO_ROOT}" diff --quiet "${base}" -- .clang-tidy cmake/Tidy.cmake
+}
+
+if tidy_config_changed; then
+    expect_tidy_closes \
+        "configuration durcie, analyse rejouée" \
+        "${TIDY_CONFIG}" \
+        '  - key: readability-identifier-naming.ParameterCase
+        value: UPPER_CASE'
+else
+    printf '%s▸ configuration durcie, analyse rejouée%s — ignorée, .clang-tidy et cmake/Tidy.cmake inchangés (VERIFY_GATES_FULL=1 la joue)\n' "${BOLD}" "${RESET}"
+fi
 
 # Un fichier engendré déposé sous src/. Il passerait les quatre portes qui
 # filtrent sur src/ — format, analyse statique, couverture, périmètre — parce
@@ -788,7 +860,7 @@ expect_generated_source_closes() {
     local marker="All changes made in this file"
     local victim="${REPO_ROOT}/src/lib/subedit/core/moc_probe.cpp"
 
-    printf '%s▸ %s%s\n' "${BOLD}" "fichier engendré déposé sous src/" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "fichier engendré déposé sous src/" "${RESET}"
     printf '/**** %s will be lost! ****/\n' "${marker}" > "${victim}"
 
     if make -C "${REPO_ROOT}" --no-print-directory arch >/dev/null 2>&1; then
@@ -822,7 +894,7 @@ expect_french_test_title_closes() {
 
     for one in "un décalage négatif remonte les positions" \
                "un fichier absent ne fait dire mot"; do
-        printf '%s▸ %s%s\n' "${BOLD}" "un intitulé de test en français : « ${one} »" "${RESET}"
+        proof_header '%s▸ %s%s\n' "${BOLD}" "un intitulé de test en français : « ${one} »" "${RESET}"
 
         printf '\nTEST_CASE("%s", "[version]") {\n    CHECK(true);\n}\n' "${one}" \
             >> "${TEST_SOURCE}"
@@ -840,7 +912,7 @@ expect_french_test_title_closes() {
     # Et le pendant : un intitulé anglais qui cite une donnée française ne doit
     # pas être signalé. C est la seule exemption du contrôle, et une exemption
     # qu on ne vérifie pas est une exemption qui se périme.
-    printf '%s▸ %s%s\n' "${BOLD}" "un intitulé anglais citant une donnée française" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "un intitulé anglais citant une donnée française" "${RESET}"
     if make -C "${REPO_ROOT}" --no-print-directory arch >/dev/null 2>&1; then
         printf '  %s✓ « make arch » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
     else
@@ -865,7 +937,7 @@ expect_french_test_title_closes
 expect_untracked_gate() {
     local script="${REPO_ROOT}/src/scripts/check-untracked.sh"
 
-    printf '%s▸ un test qui laisse un fichier derrière lui%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un test qui laisse un fichier derrière lui%s\n' "${BOLD}" "${RESET}"
     "${script}" --record >/dev/null
     : > "${STRAY_FILE}"
     if make -C "${REPO_ROOT}" --no-print-directory untracked >/dev/null 2>&1; then
@@ -876,7 +948,7 @@ expect_untracked_gate() {
     fi
     rm -f "${STRAY_FILE}"
 
-    printf '%s▸ un fichier non suivi déjà là avant le relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un fichier non suivi déjà là avant le relevé%s\n' "${BOLD}" "${RESET}"
     : > "${STRAY_FILE}"
     "${script}" --record >/dev/null
     if make -C "${REPO_ROOT}" --no-print-directory untracked >/dev/null 2>&1; then
@@ -908,7 +980,7 @@ expect_untracked_gate
 expect_encoding_fixture_gate() {
     local victim="${REPO_ROOT}/src/test/data/encodages/cp1252.srt"
 
-    printf '%s▸ une fixture d encodage altérée d un octet%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une fixture d encodage altérée d un octet%s\n' "${BOLD}" "${RESET}"
 
     cp "${victim}" "${backup_dir}/cp1252.srt"
     python3 - "${victim}" <<'PYTHON'
@@ -956,7 +1028,7 @@ expect_detection_score_gates() {
     local right="${recorded% *}"
     local total="${recorded#* }"
 
-    printf '%s▸ un score de détection en dessous de son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un score de détection en dessous de son relevé%s\n' "${BOLD}" "${RESET}"
 
     sed -i "s|^ *corpus étiqueté *:.*$|    corpus étiqueté : ${total}/${total}|" \
         "${DETECTION_JOURNAL}"
@@ -970,7 +1042,7 @@ expect_detection_score_gates() {
 
     restore
 
-    printf '%s▸ un score de détection au dessus de son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un score de détection au dessus de son relevé%s\n' "${BOLD}" "${RESET}"
 
     sed -i "s|^ *corpus étiqueté *:.*$|    corpus étiqueté : $((right - 1))/${total}|" \
         "${DETECTION_JOURNAL}"
@@ -1006,7 +1078,7 @@ expect_conversion_loss_gates() {
     local kept="${recorded% *}"
     local total="${recorded#* }"
 
-    printf '%s▸ une perte de conversion plus grande que son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une perte de conversion plus grande que son relevé%s\n' "${BOLD}" "${RESET}"
 
     sed -i "s|^ *aller-retour intacts *:.*$|    aller-retour intacts : ${total}/${total}|" \
         "${CONVERSION_JOURNAL}"
@@ -1020,7 +1092,7 @@ expect_conversion_loss_gates() {
 
     restore
 
-    printf '%s▸ une perte de conversion plus petite que son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une perte de conversion plus petite que son relevé%s\n' "${BOLD}" "${RESET}"
 
     sed -i "s|^ *aller-retour intacts *:.*$|    aller-retour intacts : $((kept - 1))/${total}|" \
         "${CONVERSION_JOURNAL}"
@@ -1062,7 +1134,7 @@ expect_format_score_gates() {
     local right="${recorded% *}"
     local total="${recorded#* }"
 
-    printf '%s▸ un score de détection de format en dessous de son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un score de détection de format en dessous de son relevé%s\n' "${BOLD}" "${RESET}"
 
     printf 'pas un sous-titre\n' > "${FORMAT_STRAY}"
 
@@ -1075,7 +1147,7 @@ expect_format_score_gates() {
 
     restore
 
-    printf '%s▸ un score de détection de format au dessus de son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un score de détection de format au dessus de son relevé%s\n' "${BOLD}" "${RESET}"
 
     sed -i "s|^ *formats reconnus *:.*$|    formats reconnus : $((right - 1))/${total}|" \
         "${FORMAT_JOURNAL}"
@@ -1115,7 +1187,7 @@ expect_scorer_never_names_a_file() {
     work="$(mktemp -d)"
     chatty="${work}/bavard.sh"
 
-    printf '%s▸ un détecteur qui recrache un chemin%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un détecteur qui recrache un chemin%s\n' "${BOLD}" "${RESET}"
 
     printf '#!/bin/sh\necho "cannot open %s"\n' \
         "/aucun/fichier/reel/ne porte ce nom.srt" > "${chatty}"
@@ -1155,7 +1227,7 @@ expect_config_home_gate() {
     local fake
     fake="$(mktemp -d)"
 
-    printf '%s▸ un test qui écrit dans la configuration de l utilisateur%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un test qui écrit dans la configuration de l utilisateur%s\n' "${BOLD}" "${RESET}"
     XDG_CONFIG_HOME="${fake}" "${script}" --record >/dev/null
     mkdir -p "${fake}/subedit"
     printf 'theme = dark\n' > "${fake}/subedit/settings.conf"
@@ -1167,7 +1239,7 @@ expect_config_home_gate() {
         printf '  %s✓ « make config-home » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
     fi
 
-    printf '%s▸ une configuration déjà là que rien n a touchée%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une configuration déjà là que rien n a touchée%s\n' "${BOLD}" "${RESET}"
     XDG_CONFIG_HOME="${fake}" "${script}" --record >/dev/null
     if XDG_CONFIG_HOME="${fake}" make -C "${REPO_ROOT}" --no-print-directory config-home \
         >/dev/null 2>&1; then
@@ -1196,7 +1268,7 @@ expect_config_home_gate
 # sur le disque — et c est la seule pièce qui puisse attraper une image que plus
 # rien ne réengendre.
 expect_screenshot_gates() {
-    printf '%s▸ une capture qui ne correspond plus à la fenêtre%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une capture qui ne correspond plus à la fenêtre%s\n' "${BOLD}" "${RESET}"
     # Une autre capture du même dépôt, aux dimensions différentes : le défaut
     # est injecté sans fabriquer d image, et sans qu il faille en décrire une.
     cp "${OTHER_CAPTURE}" "${CAPTURE_REFERENCE}"
@@ -1210,7 +1282,7 @@ expect_screenshot_gates() {
     fi
     restore
 
-    printf '%s▸ une image que le manuel montre et que rien n engendre%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une image que le manuel montre et que rien n engendre%s\n' "${BOLD}" "${RESET}"
     printf '\n![Une image que personne n engendre.](captures/inexistante.png)\n' \
         >> "${GUI_MANUAL_SOURCE}"
     if "${REPO_ROOT}/src/scripts/check-screenshots.py" >/dev/null 2>&1; then
@@ -1268,7 +1340,7 @@ expect_screenshot_pairs() {
         '![Seul.](captures/seul.png)' > "${page}"
     touch "${captures}/ecran.png" "${captures}/ecran-sombre.png" "${captures}/seul.png"
 
-    printf '%s▸ une capture claire dont la sombre manque%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une capture claire dont la sombre manque%s\n' "${BOLD}" "${RESET}"
     if output="$("${script}" --root "${root}" 2>&1)"; then
         printf '  %s✗ le garde-fou a laissé passer la paire manquante%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
@@ -1280,7 +1352,7 @@ expect_screenshot_pairs() {
             "${GREEN}" "${RESET}"
     fi
 
-    printf '%s▸ un écran exempté, avec sa raison%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un écran exempté, avec sa raison%s\n' "${BOLD}" "${RESET}"
     if python3 - "${script}" "${root}" >/dev/null 2>&1 <<'PY'
 import importlib.util
 import sys
@@ -1298,7 +1370,7 @@ PY
         failures=$((failures + 1))
     fi
 
-    printf '%s▸ un jeu où chaque capture a sa paire%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un jeu où chaque capture a sa paire%s\n' "${BOLD}" "${RESET}"
     printf '%s\n' 'capture(w, w, d, "seul-sombre");' >> "${tool}"
     printf '%s\n' '![Seul, sombre.](captures/seul-sombre.png)' >> "${page}"
     touch "${captures}/seul-sombre.png"
@@ -1313,7 +1385,7 @@ PY
 
     # Le jeu complet, dont la page ne montre plus la sombre de `seul` : le
     # programme l engendre et le fichier existe, mais le lecteur ne la voit pas.
-    printf '%s▸ une sombre engendrée que le manuel ne montre pas%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une sombre engendrée que le manuel ne montre pas%s\n' "${BOLD}" "${RESET}"
     printf '%s\n' \
         '![Clair.](captures/ecran.png)' \
         '![Sombre.](captures/ecran-sombre.png)' \
@@ -1342,7 +1414,7 @@ expect_screenshot_pairs
 # — il ne compare pas deux relevés, il résout des chemins et des ancres, et le
 # vert du dépôt intact est déjà la preuve qu il ne crie pas au loup.
 expect_manual_link_gate() {
-    printf '%s▸ un renvoi du manuel qui ne mène nulle part%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un renvoi du manuel qui ne mène nulle part%s\n' "${BOLD}" "${RESET}"
     printf '\n[Un renvoi vers rien](table.md#une-section-qui-nexiste-pas)\n' \
         >> "${GUI_MANUAL_SOURCE}"
     if "${REPO_ROOT}/src/scripts/check-manual-links.py" >/dev/null 2>&1; then
@@ -1370,7 +1442,7 @@ expect_translation_structure_gate() {
     root="$(mktemp -d)"
     cp -r "${REPO_ROOT}/src/test/data/traductions/docs" "${root}/docs"
 
-    printf '%s▸ a faithful translation of the manual%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a faithful translation of the manual%s\n' "${BOLD}" "${RESET}"
     if "${script}" --source "${root}/docs/manual" --translation "${root}/docs/i18n/es/manual" \
         >/dev/null 2>&1; then
         printf '  %s✓ « check-translation-structure.py » accepted the faithful translation%s\n' \
@@ -1380,7 +1452,7 @@ expect_translation_structure_gate() {
         failures=$((failures + 1))
     fi
 
-    printf '%s▸ a translation whose code block differs from the source%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a translation whose code block differs from the source%s\n' "${BOLD}" "${RESET}"
     sed -i 's/^done$/hecho/' "${root}/docs/i18n/es/manual/sub/page.md"
     if output="$("${script}" --source "${root}/docs/manual" \
         --translation "${root}/docs/i18n/es/manual" 2>&1)"; then
@@ -1416,7 +1488,7 @@ expect_cli_manual_gate() {
     local root
     root="$(mktemp -d)"
 
-    printf '%s▸ le manuel de subedit-cli, tel qu il est%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ le manuel de subedit-cli, tel qu il est%s\n' "${BOLD}" "${RESET}"
     if "${script}" --binary "${binary}" >/dev/null 2>&1; then
         printf '  %s✓ « check-cli-manual.py » a laissé passer le manuel intact, comme attendu%s\n' \
             "${GREEN}" "${RESET}"
@@ -1447,23 +1519,23 @@ expect_cli_manual_gate() {
         cp "${real_man_page}" "${root}/subedit-cli.1.in"
     }
 
-    printf '%s▸ une sous-commande sans page de manuel%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une sous-commande sans page de manuel%s\n' "${BOLD}" "${RESET}"
     fresh_copy
     rm "${root}/manual/shift.md"
     expect_cli_manual_refused "shift sans page" "PAGE ABSENTE"
 
-    printf '%s▸ une option de l aide qu aucun tableau ne porte%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une option de l aide qu aucun tableau ne porte%s\n' "${BOLD}" "${RESET}"
     fresh_copy
     sed -i 's/| `--by` |/| (retirée) |/' "${root}/manual/shift.md"
     expect_cli_manual_refused "--by retirée des tableaux" "OPTION NON DOCUMENTÉE"
 
-    printf '%s▸ une option d un tableau que l aide ne connaît pas%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une option d un tableau que l aide ne connaît pas%s\n' "${BOLD}" "${RESET}"
     fresh_copy
     printf '\n| Option | Requis |\n| :----- | :----- |\n| `--inventee` | non |\n' \
         >> "${root}/manual/shift.md"
     expect_cli_manual_refused "--inventee" "OPTION INCONNUE"
 
-    printf '%s▸ une option globale que la page de manuel oublie%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une option globale que la page de manuel oublie%s\n' "${BOLD}" "${RESET}"
     fresh_copy
     sed -i 's/\\-\\-encoding/\\-\\-oubliee/' "${root}/subedit-cli.1.in"
     expect_cli_manual_refused "--encoding absente de la page de manuel" "OPTION GLOBALE ABSENTE"
@@ -1490,7 +1562,7 @@ expect_gui_manual_gate() {
     local root
     root="$(mktemp -d)"
 
-    printf '%s▸ le manuel de subedit-gui, tel qu il est%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ le manuel de subedit-gui, tel qu il est%s\n' "${BOLD}" "${RESET}"
     if "${script}" --binary "${binary}" >/dev/null 2>&1; then
         printf '  %s✓ « check-gui-manual.py » a laissé passer le manuel intact, comme attendu%s\n' \
             "${GREEN}" "${RESET}"
@@ -1519,23 +1591,23 @@ expect_gui_manual_gate() {
         cp -r "${real_manual}" "${root}/manual"
     }
 
-    printf '%s▸ une ligne de tableau qui nomme une action que la fenêtre n a pas%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une ligne de tableau qui nomme une action que la fenêtre n a pas%s\n' "${BOLD}" "${RESET}"
     fresh_manual
     printf '\n| Commande | Raccourci |\n| :------- | :-------- |\n| `Inexistante` | `Ctrl+Q` |\n' \
         >> "${root}/manual/video.md"
     expect_gui_manual_refused "une action inventée" "ACTION INCONNUE"
 
-    printf '%s▸ un raccourci écrit que l action ne répond pas%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un raccourci écrit que l action ne répond pas%s\n' "${BOLD}" "${RESET}"
     fresh_manual
     sed -i 's/| `Ctrl+P` | joue si/| `Ctrl+Q` | joue si/' "${root}/manual/lecteur.md"
     expect_gui_manual_refused "Ctrl+Q pour Play / Pause" "RACCOURCI INCONNU"
 
-    printf '%s▸ un « aucun » écrit d une action qui a un raccourci%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un « aucun » écrit d une action qui a un raccourci%s\n' "${BOLD}" "${RESET}"
     fresh_manual
     sed -i 's/| `Ctrl+P` | joue si/| aucun | joue si/' "${root}/manual/lecteur.md"
     expect_gui_manual_refused "aucun pour Play / Pause" "RACCOURCI OUBLIÉ"
 
-    printf '%s▸ une action dont le raccourci n est écrit nulle part%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une action dont le raccourci n est écrit nulle part%s\n' "${BOLD}" "${RESET}"
     fresh_manual
     cat > "${root}/faux-programme" <<FAKE
 #!/usr/bin/env bash
@@ -1586,7 +1658,7 @@ FAKE
         extra=()
         [[ "${name}" == cli ]] && extra=(--man-page "${root}/absent.1.in")
 
-        printf '%s▸ une page anglaise, avec sa table de vocabulaire (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
+        proof_header '%s▸ une page anglaise, avec sa table de vocabulaire (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
         if "${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" --vocabulary "${table}" >/dev/null 2>&1; then
             printf '  %s✓ « check-%s-manual.py » a lu la page anglaise, comme attendu%s\n' "${GREEN}" "${name}" "${RESET}"
         else
@@ -1594,7 +1666,7 @@ FAKE
             failures=$((failures + 1))
         fi
 
-        printf '%s▸ la même page, sans table de vocabulaire (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
+        proof_header '%s▸ la même page, sans table de vocabulaire (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
         if output="$("${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" 2>&1)"; then
             printf '  %s✗ le contrôle a laissé passer une page dont il ne connaît pas la langue%s\n' "${RED}" "${RESET}"
             failures=$((failures + 1))
@@ -1624,7 +1696,7 @@ expect_vocabulary_gate
 # signale rien qui préexiste — il installe dans un préfixe neuf à chaque
 # exécution, donc il ne peut pas crier au loup sur l état de la machine.
 expect_installation_gate() {
-    printf '%s▸ des règles install() qui oublient le manuel%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ des règles install() qui oublient le manuel%s\n' "${BOLD}" "${RESET}"
 
     cat > "${INSTALLATION_SOURCE}" <<'BROKEN'
 include(GNUInstallDirs)
@@ -1651,7 +1723,7 @@ expect_installation_gate
 # contrôle des motifs — la porte échouerait déjà sur le manuel. Ici, le manuel
 # passe, et seul ce contrôle peut refuser.
 expect_installation_gate_without_patterns() {
-    printf '%s▸ des règles install() qui oublient les motifs de correction%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ des règles install() qui oublient les motifs de correction%s\n' "${BOLD}" "${RESET}"
 
     cat > "${INSTALLATION_SOURCE}" <<'BROKEN'
 include(GNUInstallDirs)
@@ -1685,7 +1757,7 @@ expect_installation_gate_without_patterns
 # `Categories=` dont une valeur n existe pas. Le fichier reste lisible, le
 # bureau l affiche, et `desktop-file-validate` est la seule chose qui le dise.
 expect_desktop_validation_gate() {
-    printf '%s▸ un fichier .desktop que sa validation refuse%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un fichier .desktop que sa validation refuse%s\n' "${BOLD}" "${RESET}"
 
     printf 'Categories=UneCategorieQuiNExistePas;\n' >> "${DESKTOP_SOURCE}"
 
@@ -1714,7 +1786,7 @@ expect_desktop_validation_gate
 # pas sur un fond sombre. La seconde est celle qu on oublie, parce qu elle ne
 # ressemble pas à une panne.
 expect_icon_gates() {
-    printf '%s▸ une icône que gdk-pixbuf ne reconnaît pas%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une icône que gdk-pixbuf ne reconnaît pas%s\n' "${BOLD}" "${RESET}"
 
     # Trois cents caractères devant la racine : au-delà de la fenêtre de 256.
     {
@@ -1734,7 +1806,7 @@ expect_icon_gates() {
 
     restore
 
-    printf '%s▸ une icône qui ne se voit pas sur un fond sombre%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une icône qui ne se voit pas sur un fond sombre%s\n' "${BOLD}" "${RESET}"
 
     cat > "${ICON_SOURCE}" <<'INVISIBLE'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1770,7 +1842,7 @@ expect_icon_gates
 # vraie Fedora refuse la transaction — pendant tout ce temps, la ligne était
 # là, et la seule chose qu on aurait pu vérifier est ce que ce contrôle vérifie.
 expect_rpm_directory_gate() {
-    printf '%s▸ un .rpm qui revendique les répertoires de la distribution%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un .rpm qui revendique les répertoires de la distribution%s\n' "${BOLD}" "${RESET}"
 
     sed -i 's|"${CPACK_PACKAGING_INSTALL_PREFIX}/|"|g' "${PACKAGING_SOURCE}"
 
@@ -1818,7 +1890,7 @@ expect_prune_selection_holds() {
     local expected="1 2 3 4 5 99"
     local actual
 
-    printf '%s▸ %s%s\n' "${BOLD}" "choix des exécutions à supprimer" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "choix des exécutions à supprimer" "${RESET}"
 
     fixture="$(mktemp)"
     local index
@@ -1872,7 +1944,7 @@ expect_prune_selection_holds
 # Le second passage pousse une mineure plus haute, v0.11.0 : c'est l'événement
 # qui fait basculer les patchs de 0.10 dans le passé.
 expect_release_prune_selection_holds() {
-    printf '%s▸ %s%s\n' "${BOLD}" "choix des releases à supprimer" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "choix des releases à supprimer" "${RESET}"
 
     local fixture
     fixture="$(mktemp)"
@@ -2031,7 +2103,7 @@ report_release_prune_case() {
 # une mineure et ne doit jamais être tentée, et aucun appel ne porte
 # `--cleanup-tag`, qui emporterait le tag avec la release.
 expect_release_prune_fails_on_refusal() {
-    printf '%s▸ %s%s\n' "${BOLD}" "élagage de releases dont une suppression est refusée" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "élagage de releases dont une suppression est refusée" "${RESET}"
 
     local sandbox problems=""
     sandbox="$(mktemp -d)"
@@ -2062,7 +2134,7 @@ expect_release_prune_fails_on_refusal
 # paquet. Le brouillon `v0.9.5`, lui, est un patch passé : il ne doit pas être
 # supprimé non plus, puisqu'il n'est pas une release.
 expect_release_prune_ignores_drafts() {
-    printf '%s▸ %s%s\n' "${BOLD}" "élagage de releases en présence de brouillons" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "élagage de releases en présence de brouillons" "${RESET}"
 
     local sandbox problems=""
     sandbox="$(mktemp -d)"
@@ -2088,7 +2160,7 @@ expect_release_prune_ignores_drafts
 # close, la publication recrée la release et l'élagage la supprimerait dans le
 # même travail. Le jeu est celui du premier cas, où trois patchs partiraient.
 expect_release_prune_skips_manual_rebuild() {
-    printf '%s▸ %s%s\n' "${BOLD}" "élagage de releases lors d'une reconstruction à la demande" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "élagage de releases lors d'une reconstruction à la demande" "${RESET}"
 
     local sandbox problems=""
     sandbox="$(mktemp -d)"
@@ -2114,7 +2186,7 @@ expect_release_prune_skips_manual_rebuild
 # aucun commit. Le troisième — une version en désaccord avec son CMakeLists —
 # exigerait de poser un tag dans le dépôt, ce qu une preuve n a pas à faire.
 expect_release_tag_check_refuses() {
-    printf '%s▸ %s%s\n' "${BOLD}" "tag de release refusé" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "tag de release refusé" "${RESET}"
 
     local tag
     for tag in 0.10.9 v0.10 v999.999.999; do
@@ -2146,7 +2218,7 @@ expect_stale_coverage_is_cleared() {
     local build
     local script="${REPO_ROOT}/src/scripts/clean-stale-coverage.sh"
 
-    printf '%s▸ %s%s\n' "${BOLD}" "arbre de couverture périmé par un déplacement" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "arbre de couverture périmé par un déplacement" "${RESET}"
 
     build="$(mktemp -d)"
     touch "${build}/temoin.gcno"
@@ -2209,7 +2281,7 @@ expect_bench_extremes_hold() {
     local journal
     local status=0
 
-    printf '%s▸ %s%s\n' "${BOLD}" "choix des extrêmes du journal des mesures" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "choix des extrêmes du journal des mesures" "${RESET}"
 
     work="$(mktemp -d)"
     journal="${work}/performances.md"
@@ -2370,7 +2442,7 @@ expect_await_quiet_decides() {
     local load
     local status
 
-    printf '%s▸ %s%s\n' "${BOLD}" "la décision de mesurer ou non" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "la décision de mesurer ou non" "${RESET}"
 
     # Le script a une échappatoire pour une machine sans /proc/loadavg — il rend
     # « inconnue » et zéro. Cette preuve-là n a alors rien à démontrer, et le
@@ -2423,7 +2495,7 @@ expect_orchestrator_refuses() {
     local label="$1"
     shift
 
-    printf '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
 
     if "${REPO_ROOT}/src/scripts/gate.sh" "$@" >/dev/null 2>&1; then
         printf '  %s✗ gate.sh a accepté « %s »%s\n' "${RED}" "$*" "${RESET}"
@@ -2447,7 +2519,7 @@ expect_orchestrator_refuses "filtres qui ne retiennent aucune étape" check --on
 # La preuve ne coûte rien : le refus a lieu avant que le premier contrôle ne
 # tourne, donc rien n est installé, rien n est empaqueté.
 expect_installation_refuses_unknown_control() {
-    printf '%s▸ %s%s\n' "${BOLD}" "contrôle inconnu passé à --only" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "contrôle inconnu passé à --only" "${RESET}"
 
     if "${REPO_ROOT}/src/scripts/check-installation.sh" --only paqets >/dev/null 2>&1; then
         printf '  %s✗ check-installation.sh a accepté « paqets »%s\n' "${RED}" "${RESET}"
@@ -2471,7 +2543,7 @@ expect_json_fixture_gate() {
     local root
     root="$(mktemp -d)"
 
-    printf '%s▸ un attendu JSON qui contient un nombre à virgule%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un attendu JSON qui contient un nombre à virgule%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":"inspect","file":"a.srt","ok":true,"ratio":1.5,"warnings":[]}\n' \
         > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
@@ -2482,7 +2554,7 @@ expect_json_fixture_gate() {
             "${GREEN}" "${RESET}"
     fi
 
-    printf '%s▸ une ligne qui n est pas du JSON%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une ligne qui n est pas du JSON%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":\n' > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
         printf '  %s✗ le contrôle a laissé passer une ligne tronquée%s\n' "${RED}" "${RESET}"
@@ -2492,7 +2564,7 @@ expect_json_fixture_gate() {
             "${GREEN}" "${RESET}"
     fi
 
-    printf '%s▸ une enveloppe incomplète : pas de « file »%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ une enveloppe incomplète : pas de « file »%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":"inspect","ok":true,"warnings":[]}\n' > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
         printf '  %s✗ le contrôle a laissé passer l enveloppe sans « file »%s\n' \
@@ -2503,7 +2575,7 @@ expect_json_fixture_gate() {
             "${GREEN}" "${RESET}"
     fi
 
-    printf '%s▸ un lancement à blanc qui dit pourtant une destination%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un lancement à blanc qui dit pourtant une destination%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":"shift","file":"a.srt","ok":true,"dry_run":true,"destination":"o.srt","counts":{},"warnings":[]}\n' \
         > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
@@ -2515,7 +2587,7 @@ expect_json_fixture_gate() {
             "${GREEN}" "${RESET}"
     fi
 
-    printf '%s▸ un changement sans « after »%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un changement sans « after »%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":"hearing-impaired","file":"a.srt","ok":true,"dry_run":true,"destination":null,"counts":{},"changes":[{"subtitle":1,"document":"main","before":"x"}],"warnings":[]}\n' \
         > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
@@ -2527,7 +2599,7 @@ expect_json_fixture_gate() {
             "${GREEN}" "${RESET}"
     fi
 
-    printf '%s▸ un attendu juste, pour le vert%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ un attendu juste, pour le vert%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":"inspect","file":"a.srt","ok":true,"warnings":[]}\n' \
         > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
@@ -2543,11 +2615,13 @@ expect_json_fixture_gate() {
 
 expect_json_fixture_gate
 
+report_durations
+
 if (( failures > 0 )); then
     printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles soixante-neuf portes se referment%s\n' "${GREEN}" "${RESET}"
+printf '%sles portes se referment%s\n' "${GREEN}" "${RESET}"
 printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
     "${GREEN}" "${RESET}"
 printf '%set l élagueur choisit les exécutions attendues%s\n' \

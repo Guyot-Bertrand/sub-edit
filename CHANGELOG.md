@@ -17,6 +17,11 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — Cadrage de la phase 15, internationalisation
+- **doc** — Numéro de version de l'exemple --version
+
+### Performance
+
+- **scripts** — Verify-gates assez rapide pour chaque PR de code
 
 ## 0.15.0 — 2026-10-08
 
