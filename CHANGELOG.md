@@ -11,6 +11,12 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **doc** — Cadrage de la phase 15, internationalisation
+
+## 0.15.0 — 2026-10-08
+
+### Documentation
+
 - **doc** — Clôture de la phase 14
 
 ## 0.14.23 — 2026-10-08
