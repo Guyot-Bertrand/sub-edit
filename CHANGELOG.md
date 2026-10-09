@@ -7,12 +7,13 @@ Les changements notables de subedit. Format inspiré de
 Ce fichier est généré par `make changelog` depuis l'historique des commits :
 ne pas l'éditer à la main.
 
-## Non publié
+## 0.15.5 — 2026-10-09
 
 ### Ajouts
 
 - **doc** — Vérifier la structure d'un manuel traduit
 - **scripts** — Un vocabulaire par langue pour les contrôles du manuel
+- **core** — Catalogue de messages gettext, lecteur .mo et pluriels
 
 ### Documentation
 

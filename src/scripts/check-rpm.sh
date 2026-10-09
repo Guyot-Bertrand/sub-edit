@@ -146,9 +146,14 @@ printf 'image   : %s   (%s)\n\n' "${image}" "${engine}"
 # **`Z` sur le montage**, pour SELinux : sans lui, un podman sans privilèges sur
 # Fedora ne lit pas le répertoire monté. Docker l'accepte et l'ignore là où
 # SELinux n'est pas là, donc il ne coûte rien à celui qui n'en a pas besoin.
+# Les langues installées, calculées de src/po/LINGUAS : le conteneur ne voit pas le dépôt, on lui
+# passe la liste (#659).
+languages="$(grep -v '^[[:space:]]*\(#\|$\)' "${REPO_ROOT}/src/po/LINGUAS" | tr '\n' ' ')"
+
 "${engine}" run --rm -i \
     -v "${staging}:/pkg:ro,Z" \
     -e "ATTENDU=${VERSION}" \
+    -e "LANGUES=${languages}" \
     "${image}" \
     /usr/bin/bash -s <<'INNER'
 set -uo pipefail
@@ -282,6 +287,19 @@ elif [[ ! -r "${named}/index.md" ]]; then
 else
     report_success "le manuel est lisible sous ${named} ($(find "${named}" -type f | wc -l) fichiers)"
 fi
+
+## 6. Le catalogue de chaque langue installée est déposé
+#
+# Le paquet les annonce déjà (contrôle 2) ; celui-ci confronte à la liste du dépôt, parce qu'un
+# paquet sans catalogue s'annonce complet. Le chemin est celui que le lecteur de `core/i18n/` cherche.
+for language in ${LANGUES}; do
+    mo="/usr/share/subedit/locale/${language}/LC_MESSAGES/subedit.mo"
+    if [[ ! -s "${mo}" ]]; then
+        report_failure "le catalogue « ${language} » n'est pas déposé : ${mo}"
+    else
+        report_success "le catalogue « ${language} » est déposé sous ${mo%/LC_MESSAGES/*}"
+    fi
+done
 
 if ((failures > 0)); then
     printf '\n%s%d contrôle(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2

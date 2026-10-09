@@ -137,6 +137,7 @@ readonly FORMAT_JOURNAL="${REPO_ROOT}/docs/mesures/detection-de-format.md"
 readonly GUI_MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-gui/table.md"
 readonly CAPTURE_REFERENCE="${REPO_ROOT}/docs/manual/subedit-gui/captures/table.png"
 readonly INSTALLATION_SOURCE="${REPO_ROOT}/cmake/Installation.cmake"
+readonly TRANSLATIONS_SOURCE="${REPO_ROOT}/cmake/Translations.cmake"
 readonly DESKTOP_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.desktop"
 readonly ICON_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.svg"
 readonly PACKAGING_SOURCE="${REPO_ROOT}/cmake/Packaging.cmake"
@@ -232,6 +233,7 @@ restore() {
     cp "${backup_dir}/subedit.desktop" "${DESKTOP_SOURCE}"
     cp "${backup_dir}/subedit.svg" "${ICON_SOURCE}"
     cp "${backup_dir}/Packaging.cmake" "${PACKAGING_SOURCE}"
+    cp "${backup_dir}/Translations.cmake" "${TRANSLATIONS_SOURCE}"
     cp "${backup_dir}/03-cli.md" "${SPEC_SOURCE}"
     cp "${backup_dir}/clang-tidy" "${TIDY_CONFIG}"
     rm -f "${STRAY_FILE}"
@@ -268,6 +270,7 @@ cp "${INSTALLATION_SOURCE}" "${backup_dir}/Installation.cmake"
 cp "${DESKTOP_SOURCE}" "${backup_dir}/subedit.desktop"
 cp "${ICON_SOURCE}" "${backup_dir}/subedit.svg"
 cp "${PACKAGING_SOURCE}" "${backup_dir}/Packaging.cmake"
+cp "${TRANSLATIONS_SOURCE}" "${backup_dir}/Translations.cmake"
 cp "${SPEC_SOURCE}" "${backup_dir}/03-cli.md"
 cp "${TIDY_CONFIG}" "${backup_dir}/clang-tidy"
 trap cleanup EXIT
@@ -1745,6 +1748,46 @@ BROKEN
 }
 
 expect_installation_gate_without_patterns
+
+# Les catalogues de langue qu'aucune règle n'installe — #659.
+#
+# **Ils vivent dans `cmake/Translations.cmake` et non dans `Installation.cmake`**, si bien que
+# les preuves précédentes, qui réécrivent ce dernier, ne les touchent pas — et qu'aucune ne dit
+# rien d'un catalogue. Ici l'installation reste intacte (manuel, motifs), et seul le contrôle des
+# catalogues peut refuser. Le défaut retire la règle `install()` du `.mo`, ce que ferait une
+# langue ajoutée à `LINGUAS` par quelqu'un qui compile sans installer.
+expect_installation_gate_without_catalogues() {
+    proof_header '%s▸ des règles install() qui oublient les catalogues de langue%s\n' "${BOLD}" "${RESET}"
+
+    sed -i '/^    install(FILES "\${mo}"/,+1d' "${TRANSLATIONS_SOURCE}"
+    if cmp -s "${TRANSLATIONS_SOURCE}" "${backup_dir}/Translations.cmake"; then
+        printf '  %s✗ l injection n a rien retiré : la règle install() a changé de forme%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+        restore
+        return
+    fi
+
+    if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
+        printf '  %s✗ la porte « install-check » a laissé passer les catalogues absents%s\n' \
+            "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    else
+        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+    fi
+
+    restore
+}
+
+expect_installation_gate_without_catalogues
+
+# Un gabarit des messages qui n'est plus ce que le code produit — #659. Un littéral neuf passé à
+# `translate` et un gabarit qu'on n'a pas réécrit : c'est la ligne que le traducteur ne verrait jamais.
+expect_gate_closes \
+    "gabarit des messages périmé" \
+    "pot-check" \
+    "${LIB_SOURCE}" \
+    'namespace subedit::core { const char* probeForTheProof() { return translate("injected message").data(); } }' \
+    "périmé"
 
 # Un fichier de bureau que sa validation refuse — #244.
 #

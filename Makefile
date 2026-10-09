@@ -182,6 +182,20 @@ parallelism: ## Vérifie qu'aucun parallélisme ne contourne $(JOBS)
 	$(call step,"parallélisme maîtrisé")
 	@./src/scripts/check-parallelism.sh
 
+# Les catalogues de messages — issue #659. `pot` réécrit le gabarit d'après le code, `po` le fusionne
+# dans chaque langue de src/po/LINGUAS, `pot-check` (dans `check-local`) refuse un gabarit périmé.
+.PHONY: pot
+pot: ## Réécrit src/po/subedit.pot d'après le code
+	@./src/scripts/update-pot.sh
+
+.PHONY: po
+po: ## Fusionne le gabarit dans les catalogues de src/po/LINGUAS
+	@./src/scripts/update-po.sh
+
+.PHONY: pot-check
+pot-check: ## Vérifie que src/po/subedit.pot est ce que le code produit
+	@./src/scripts/gate.sh pot-check
+
 .PHONY: fixtures
 fixtures: ## Vérifie que les fixtures engendrées sont ce que leur table dit
 	@./src/scripts/gate.sh fixtures

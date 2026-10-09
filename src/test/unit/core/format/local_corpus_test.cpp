@@ -30,6 +30,14 @@ using subedit::core::RealFileSystem;
 using subedit::core::WriteRequest;
 using subedit::core::writeSubtitles;
 
+/// The directory also holds what its owner drops in to show a problem — screenshots — and those
+/// are not subtitle files; reading one as such would fail the gate on a machine that has one.
+[[nodiscard]] bool isImage(const std::filesystem::path& path) {
+    const std::string extension = path.extension().string();
+    return extension == ".png" || extension == ".jpg" || extension == ".jpeg" ||
+           extension == ".gif" || extension == ".webp";
+}
+
 [[nodiscard]] std::vector<std::filesystem::path> localFiles() {
     const std::filesystem::path directory{SUBEDIT_LOCAL_DATA_DIR};
     std::error_code ignored;
@@ -38,7 +46,7 @@ using subedit::core::writeSubtitles;
 
     std::vector<std::filesystem::path> files;
     for (const auto& entry : std::filesystem::directory_iterator{directory, ignored})
-        if (entry.is_regular_file())
+        if (entry.is_regular_file() && !isImage(entry.path()))
             files.push_back(entry.path());
     return files;
 }

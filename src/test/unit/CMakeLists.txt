@@ -174,13 +174,7 @@ target_compile_definitions(
 # Les catalogues de fixture (#658) : les .po sont versionnés, les .mo se compilent à la
 # construction par msgfmt, exactement comme le feront les traductions livrées. Un test du lecteur
 # lit donc ce que l'outil des traducteurs produit, et non un binaire écrit à la main.
-find_program(SUBEDIT_MSGFMT msgfmt)
-if(NOT SUBEDIT_MSGFMT)
-    message(
-        FATAL_ERROR
-        "msgfmt est introuvable, et les tests du catalogue de messages en ont besoin.\n"
-        "  l'installer avec : ./src/scripts/setup-toolchain.sh")
-endif()
+# `SUBEDIT_MSGFMT` vient de `cmake/Translations.cmake`, qui exige l'outil.
 set(subedit_i18n_fixtures fr ru bad-plural)
 set(subedit_i18n_catalogues "")
 foreach(language IN LISTS subedit_i18n_fixtures)
