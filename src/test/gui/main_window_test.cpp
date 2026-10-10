@@ -216,7 +216,7 @@ TEST_CASE("the table wraps on nothing but a real line break", "[gui][GUI-OPEN-01
 
     CHECK_FALSE(table.wordWrap());
     CHECK(table.verticalScrollMode() == QAbstractItemView::ScrollPerPixel);
-    CHECK(table.verticalHeader()->sectionResizeMode(0) == QHeaderView::ResizeToContents);
+    CHECK(table.verticalHeader()->sectionResizeMode(0) == QHeaderView::Fixed);
 }
 
 TEST_CASE("a row grows when its subtitle gains a line", "[gui][GUI-EDIT-01]") {

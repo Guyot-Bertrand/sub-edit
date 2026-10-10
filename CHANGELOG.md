@@ -9,6 +9,12 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Corrections
+
+- **gui** — La table pose elle-même la hauteur de ses lignes
+
+## 0.15.10 — 2026-10-10
+
 ### Ajouts
 
 - **gui** — Tri des sous-titres, proposé et listé avec les défauts
@@ -20,6 +26,7 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **doc** — Journal des changements
 - **doc** — Journal des changements
 - **doc** — Journal des changements
 

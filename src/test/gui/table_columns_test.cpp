@@ -11,6 +11,7 @@
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/project_page.hpp>
+#include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 #include <subedit/gui/table_columns.hpp>
 
@@ -18,7 +19,6 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QObject>
-#include <QTableView>
 #include <catch2/catch_test_macros.hpp>
 
 #include <filesystem>
@@ -63,7 +63,7 @@ struct Table {
     }
 
     QObject owner;
-    QTableView view;
+    subedit::gui::SubtitleTable view;
     std::unique_ptr<ProjectPage> page;
     TableColumns columns;
 };
