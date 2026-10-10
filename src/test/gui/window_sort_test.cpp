@@ -10,8 +10,11 @@
 #include <QAbstractItemModel>
 #include <QAction>
 #include <QDialog>
+#include <QEvent>
 #include <QItemSelectionModel>
 #include <QListWidget>
+#include <QObject>
+#include <QProgressBar>
 #include <QStatusBar>
 #include <QString>
 #include <QTableView>
@@ -19,6 +22,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "fake_prompts.hpp"
 
@@ -163,14 +167,14 @@ TEST_CASE("the diagnostics list the subtitles that are out of order", "[gui][GUI
     MainWindow window{files, read(files, "film.srt"), prompts};
     window.show();
 
-    // Subtitle 3 starts before the one above it ends and starts: two statements,
-    // the same words as the report of the command line.
+    // Subtitle 3 starts before the one above it ends and starts: two kinds, each
+    // counted, in the same words as the report of the command line.
     REQUIRE(window.diagnostics()->isVisible());
     CHECK(window.diagnostics()->count() == 2);
     CHECK(window.diagnostics()->lineAt(0).toStdString() ==
-          "subtitle 3 starts before the previous one ends");
+          "subtitle starts before the previous one ends: 1");
     CHECK(window.diagnostics()->lineAt(1).toStdString() ==
-          "subtitle 3 starts before the previous one starts");
+          "subtitle starts before the previous one starts: 1");
 }
 
 TEST_CASE("choosing an anomaly in the list goes to its subtitle", "[gui][GUI-SORT-03]") {
@@ -216,4 +220,65 @@ TEST_CASE("the list follows the corrections, and goes when nothing is left", "[g
     window.undoAction()->trigger();
     CHECK(window.diagnostics()->isVisible());
     CHECK(window.diagnostics()->count() == 2);
+}
+
+TEST_CASE("the list counts what repeats instead of listing it", "[gui][GUI-SORT-03]") {
+    // Two subtitles out of place, the first at row 1 and the second at row 3.
+    InMemoryFileSystem files;
+    files.addFile("film.srt",
+                  "1\n00:00:09,000 --> 00:00:10,000\nA.\n\n"
+                  "2\n00:00:01,000 --> 00:00:02,000\nB.\n\n"
+                  "3\n00:00:11,000 --> 00:00:12,000\nC.\n\n"
+                  "4\n00:00:03,000 --> 00:00:04,000\nD.\n\n");
+    FakePrompts prompts;
+    MainWindow window{files, read(files, "film.srt"), prompts};
+    window.show();
+
+    REQUIRE(window.diagnostics()->count() == 2);
+    CHECK(window.diagnostics()->lineAt(0).toStdString() ==
+          "subtitle starts before the previous one ends: 2");
+
+    // A click goes to the first subtitle with that kind.
+    window.diagnostics()->chooseLine(0);
+    REQUIRE(window.table()->selectionModel()->selectedRows().size() == 1);
+    CHECK(window.table()->selectionModel()->selectedRows().front().row() == 1);
+}
+
+namespace {
+
+/// Notes when a widget is shown and hidden, in order.
+class VisibilityLog final : public QObject {
+
+public:
+    std::vector<bool> changes;
+
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override {
+        if (event->type() == QEvent::Show)
+            changes.push_back(true);
+        else if (event->type() == QEvent::Hide)
+            changes.push_back(false);
+        return QObject::eventFilter(watched, event);
+    }
+};
+
+} // namespace
+
+TEST_CASE("a bar says the sort is under way, and goes with it", "[gui][GUI-SORT-04]") {
+    InMemoryFileSystem files;
+    files.addFile("film.srt", kUnsorted);
+    FakePrompts prompts;
+    MainWindow window{files, read(files, "film.srt"), prompts};
+    window.show();
+    REQUIRE(window.busyBar() != nullptr);
+    CHECK_FALSE(window.busyBar()->isVisible());
+    VisibilityLog log;
+    window.busyBar()->installEventFilter(&log);
+
+    window.sortAction()->trigger();
+
+    CHECK(log.changes == std::vector<bool>{true, false});
+    CHECK_FALSE(window.busyBar()->isVisible());
+    // An indeterminate bar: the sort reports no fraction.
+    CHECK(window.busyBar()->maximum() == 0);
 }

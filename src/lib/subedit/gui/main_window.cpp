@@ -68,8 +68,10 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QCloseEvent>
+#include <QCoreApplication>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QEventLoop>
 #include <QFont>
 #include <QGuiApplication>
 #include <QHBoxLayout>
@@ -82,6 +84,7 @@
 #include <QMimeData>
 #include <QModelIndex>
 #include <QModelIndexList>
+#include <QProgressBar>
 #include <QPushButton>
 #include <QShowEvent>
 #include <QSize>
@@ -171,6 +174,10 @@ constexpr int kInitialHeight = 800;
 /// Long enough to be read without a click, short enough not to survive past
 /// the next gesture — Qt's own convention for a transient status.
 constexpr int kOperationStatusTimeoutMs = 5000;
+
+/// Wide enough to be seen at the corner of the status bar, narrow enough to take
+/// nothing from what it says.
+constexpr int kBusyBarWidth = 120;
 
 /// Which row of a selection an insertion is placed against: the last, in table
 /// order.
@@ -318,6 +325,15 @@ public:
                                            kOperationStatusTimeoutMs);
     }
 
+    void setBusy(bool busy) override {
+        m_window->m_busy->setVisible(busy);
+        // The operation that follows holds the thread: let the bar be painted
+        // first. Input is left alone, so that nothing is clicked into a
+        // half-done operation.
+        if (busy)
+            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    }
+
     [[nodiscard]] std::optional<std::filesystem::path> fileToAppend() override {
         return m_window->m_projectFiles->askFileToOpen();
     }
@@ -444,6 +460,7 @@ MainWindow::MainWindow(core::FileSystem& files,
       m_prompts(&prompts),
       m_table(new SubtitleTable{this}),
       m_diagnostics(new DiagnosticsButton{this}),
+      m_busy(new QProgressBar{this}),
       m_actions(std::make_unique<WindowActions>(this)),
       m_split(new QSplitter{Qt::Vertical, this}),
       m_tabBar(new TabBar{this}),
@@ -773,6 +790,13 @@ MainWindow::MainWindow(core::FileSystem& files,
     // What the reading ran into, first of the permanent widgets so that it does not
     // move when the film's name or the grid's wording changes length; then the four
     // standing facts — issue #485.
+    // The bar of an operation under way goes first: it is gone as soon as the
+    // operation is, and nothing else may shift when it comes and goes.
+    m_busy->setRange(0, 0);
+    m_busy->setMaximumWidth(kBusyBarWidth);
+    m_busy->setTextVisible(false);
+    statusBar()->addPermanentWidget(m_busy);
+    m_busy->hide();
     statusBar()->addPermanentWidget(m_diagnostics);
     // `addPermanentWidget` shows what it is given: nothing to report yet.
     m_diagnostics->hide();

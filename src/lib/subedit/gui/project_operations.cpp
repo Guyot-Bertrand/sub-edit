@@ -131,6 +131,23 @@ refusalOfShift(const core::Project& project, const core::Selection& target, core
     return core::shiftBeforeTheOrigin(refused->number());
 }
 
+/// Shows the bar of the window for as long as it lives.
+class BusyScope final {
+
+public:
+    explicit BusyScope(ProjectOperations::View& view) : m_view(&view) { m_view->setBusy(true); }
+
+    ~BusyScope() { m_view->setBusy(false); }
+
+    BusyScope(const BusyScope&) = delete;
+    BusyScope& operator=(const BusyScope&) = delete;
+    BusyScope(BusyScope&&) = delete;
+    BusyScope& operator=(BusyScope&&) = delete;
+
+private:
+    ProjectOperations::View* m_view;
+};
+
 } // namespace
 
 std::string joinedNotices(const std::string& done, const std::string& warning) {
@@ -375,6 +392,10 @@ void ProjectOperations::sortSubtitles(ProjectPage& page) {
         return;
     }
 
+    // **The bar is for the file of two thousand lines**, where the window would
+    // otherwise sit still for as long as it takes to move them and to tell the
+    // table so, and a user cannot tell that from a window that has hung.
+    const BusyScope busy{*m_view};
     const std::vector<core::Change> changes =
         page.session->apply(std::make_unique<core::SortCommand>());
     page.model->applied(changes);

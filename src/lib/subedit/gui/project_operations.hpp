@@ -74,6 +74,11 @@ public:
         /// to say — the rule #398 set.
         virtual void announce(const std::string& message) = 0;
 
+        /// Shows, or takes away, a bar that says something is under way — for
+        /// an operation the window cannot repaint during. Indeterminate: the
+        /// operation reports no fraction.
+        virtual void setBusy(bool busy) = 0;
+
         /// Asks which file to append, from the remembered directory.
         [[nodiscard]] virtual std::optional<std::filesystem::path> fileToAppend() = 0;
 

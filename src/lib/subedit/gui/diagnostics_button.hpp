@@ -31,11 +31,11 @@ namespace subedit::gui {
 /// the document, and the list opens in a floating frame above it: no row of the
 /// layout is spent, and the frame goes away at a click elsewhere or on `Esc`.
 ///
-/// **It also lists what is wrong with the subtitles themselves** — an overlap, an
-/// end before its start, a start before the one above it. The table tints those
-/// rows, but a tint has to be scrolled to, and one is easily missed in a file of
-/// two thousand lines; here they are all together, and a click on one goes to its
-/// row.
+/// **It also counts what is wrong with the subtitles themselves** — an overlap,
+/// an end before its start, a start before the one above it. The table tints
+/// those rows, but a tint has to be scrolled to, and one is easily missed in a
+/// file of two thousand lines; here the kinds are all together, **each with how
+/// many there are**, and a click on one goes to the first row that has it.
 ///
 /// It hides itself when there is nothing to report: a button that said
 /// « 0 diagnostics » would say there is something to read.
@@ -66,12 +66,12 @@ public:
     /// Opens the list above the button — what a click does.
     void openList();
 
-    /// Chooses the line at `row` of the list, as a click does: an anomaly sends
-    /// the window to its subtitle, a reading diagnostic goes nowhere.
+    /// Chooses the line at `row` of the list, as a click does: a kind of anomaly
+    /// sends the window to its first subtitle, a reading diagnostic goes nowhere.
     void chooseLine(int row);
 
 signals:
-    /// The zero-based row of the subtitle an anomaly is about.
+    /// The zero-based row of the first subtitle a kind of anomaly is about.
     void rowChosen(int row);
 
 private:
@@ -83,20 +83,18 @@ private:
     /// which `moc` has to parse.
     QStringList m_diagnosticLines;
     QStringList m_anomalyLines;
-    /// The subtitle row of each anomaly line, in the same order.
+    /// The first subtitle row of each anomaly line, in the same order.
     std::vector<int> m_anomalyRows;
 };
 
-/// One diagnostic, as the list writes it: where, what, and what was done.
+/// What a reading ran into, **counted by kind and severity** and not listed:
 ///
 /// ```
-/// line 5: a SubRip block without its number, recovered
+/// a SubRip block without its number, recovered: 5
 /// ```
 ///
-/// The detail comes from the file and is therefore **quoted and bounded**:
-/// unquoted, a line ending in a comma would read as part of the sentence, and
-/// unbounded, one absurd line would push the list off the screen. Neither is
-/// ours to trust.
-[[nodiscard]] QString lineOf(const core::Diagnostic& diagnostic);
+/// A badly made file runs into hundreds, and how many of each is what a user
+/// can act on; the line of each is what `-vvv` of the command line is for.
+[[nodiscard]] QStringList summaryLinesOf(std::span<const core::Diagnostic> diagnostics);
 
 } // namespace subedit::gui

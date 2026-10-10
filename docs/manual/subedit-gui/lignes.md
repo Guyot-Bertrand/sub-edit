@@ -156,6 +156,11 @@ sélection : un ordre est une propriété du document, et trier la moitié d'un
 fichier ne veut rien dire. Le tri est **stable** : deux sous-titres qui
 commencent ensemble gardent l'ordre que le fichier leur donnait.
 
+**Une barre de progression passe dans la barre d'état pendant le tri** : sur un
+long fichier, la fenêtre reste un moment sans répondre, et sans elle on ne sait
+pas si quelque chose est en cours. Elle n'indique pas de fraction — le tri n'en
+rend pas — et s'en va avec lui.
+
 La barre d'état dit combien de lignes ont changé de place — `3 subtitles moved`
 — ou, quand tout était en ordre, `already in order`. **Un projet déjà en ordre
 n'entre pas dans l'historique** : une opération qui ne change rien n'est pas
@@ -165,7 +170,7 @@ Un fichier **hors d'ordre à l'ouverture** le propose de lui-même : une boîte
 dit combien de sous-titres sont mal placés et demande `Sort` ou `Keep as is`.
 **Rien n'est trié sans un oui**, et le tri se défait. Un fichier en ordre n'est
 l'objet d'aucune question. Ceux qui sont mal placés sont aussi
-[listés avec les diagnostics](fichiers.md#les-diagnostics-dune-lecture), pour
+[comptés avec les diagnostics](fichiers.md#les-diagnostics-dune-lecture), pour
 qu'on les trouve sans faire défiler la table.
 
 En ligne de commande, [`sort`](../subedit-cli/sort.md) fait de même sur des

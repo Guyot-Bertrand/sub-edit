@@ -136,3 +136,25 @@ TEST_CASE("a subtitle that recovers the order breaks nothing", "[model][anomaly]
 
     CHECK(disorderedIn(project) == std::vector<std::size_t>{1});
 }
+
+TEST_CASE("anomalies are counted by kind, with where the first is", "[model][anomaly]") {
+    using subedit::core::AnomalyCount;
+    using subedit::core::countAnomalies;
+
+    const std::vector<Anomaly> found{at(AnomalyKind::OutOfOrder, 4),
+                                     at(AnomalyKind::OverlappingSubtitles, 2),
+                                     at(AnomalyKind::OutOfOrder, 6),
+                                     at(AnomalyKind::OverlappingSubtitles, 4)};
+
+    // The order the kinds are declared in, whatever the order found; a kind
+    // with none is left out.
+    const std::vector<AnomalyCount> counts = countAnomalies(found);
+    REQUIRE(counts.size() == 2);
+    CHECK(counts[0] ==
+          AnomalyCount{AnomalyKind::OverlappingSubtitles, 2, SubtitleIndex::fromValue(2)});
+    const AnomalyCount disorder{
+        .kind = AnomalyKind::OutOfOrder, .count = 2, .first = SubtitleIndex::fromValue(4)};
+    CHECK(counts[1] == disorder);
+
+    CHECK(countAnomalies({}).empty());
+}

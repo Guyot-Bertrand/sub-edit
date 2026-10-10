@@ -500,12 +500,13 @@ Inscrites à l'état `prévue`, comme la règle l'exige, avant le code.
 | `GUI-PREVIEW-01` | un dialogue d'opération montre, avant d'appliquer, les premiers sous-titres qu'il changerait |
 | `GUI-SORT-01` | `Sort Subtitles` met le projet dans l'ordre des débuts, annulablement, et dit combien de sous-titres ont changé de place |
 | `GUI-SORT-02` | un fichier ouvert hors d'ordre propose d'être trié, et ne l'est que sur un oui |
-| `GUI-SORT-03` | la liste des diagnostics porte aussi les anomalies des sous-titres, suit les corrections, et mène à la ligne choisie |
+| `GUI-SORT-03` | la liste des diagnostics compte par sorte, lectures comme anomalies des sous-titres, suit les corrections, et mène au premier sous-titre concerné |
+| `GUI-SORT-04` | une barre indéterminée de la barre d'état dit qu'un tri est en cours, et s'en va avec lui |
 | `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible |
 | `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier |
 | `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique |
 | `CLI-INSPECT-04` | les anomalies d'un document sont rapportées par numéro de sous-titre |
-| `CLI-INSPECT-08` | `inspect` rapporte les anomalies une par ligne, et garde `none` sur la ligne de `anomalies` quand il n'y en a pas |
+| `CLI-INSPECT-08` | `inspect` compte les anomalies par sorte, une par ligne avec `--detail`, et garde `none` sur la ligne de `anomalies` quand il n'y en a pas |
 
 `GUI-VERSION-01` a été ajoutée à cette table à la relecture : elle est née avec
 le harnais de #119, avant que cette liste ne soit écrite, et le registre la

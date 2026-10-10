@@ -162,7 +162,8 @@ void sayGrid(std::ostream& out, const core::Project& project) {
             << core::countOf(core::runsOfStrays(grid), "run") << "\n";
 }
 
-/// What is wrong with the document, subtitle by subtitle — **one per line**.
+/// What is wrong with the document: **how many of each kind** by default, and
+/// with `detailed` every subtitle, **one per line**.
 ///
 /// **By subtitle number and not by line**, which is the distinction ADR 0018
 /// draws: a line only exists while a file is being read, and this report
@@ -170,16 +171,24 @@ void sayGrid(std::ostream& out, const core::Project& project) {
 /// before the previous one ends and before it starts are two statements, fixed
 /// two different ways.
 ///
-/// **A list and not a sentence**, since a badly made file carries hundreds of
-/// them, and a hundred comma-joined statements on one line cannot be read nor
-/// searched. A document with nothing wrong keeps its single line, `none`, which
-/// is what a script looks for.
-std::string anomalies(const core::Project& project) {
+/// **A count first**, since a badly made file carries hundreds of statements,
+/// and which kinds it carries is what tells the user what to run. The detail is
+/// asked for, and stays a list and not a sentence: a hundred comma-joined
+/// statements on one line can be neither read nor searched. A document with
+/// nothing wrong keeps its single line, `none`, which is what a script looks
+/// for.
+std::string anomalies(const core::Project& project, bool detailed) {
     const std::vector<core::Anomaly> found = core::scanAnomalies(project);
     if (found.empty())
         return " none\n";
 
     std::string text = "\n";
+    if (!detailed) {
+        for (const core::AnomalyCount& count : core::countAnomalies(found))
+            text += "    " + summaryOf(count.kind, count.count) + "\n";
+        return text;
+    }
+
     for (const core::Anomaly& anomaly : found) {
         text += "    " + statementOf(anomaly) + "\n";
     }
@@ -352,7 +361,8 @@ bool inspectFile(const core::FileSystem& files,
                  const core::ReadingChoices& reading,
                  std::ostream& out,
                  const Reporter& reporter,
-                 const std::optional<Pairing>& pairing) {
+                 const std::optional<Pairing>& pairing,
+                 bool detailed) {
     std::optional<core::OpenedFile> opened = openReporting(files, path, reading, reporter);
     if (!opened) {
         return false;
@@ -423,7 +433,7 @@ bool inspectFile(const core::FileSystem& files,
     } else {
         sayGrid(out, project);
     }
-    out << "  anomalies:" << anomalies(project);
+    out << "  anomalies:" << anomalies(project, detailed);
     if (alignment && pairing) {
         out << "  translation file: " << pairing->translation << ", matched by "
             << (pairing->method == core::TranslationMethod::Position ? "position" : "number")
@@ -439,10 +449,11 @@ ExitCode inspectAll(const core::FileSystem& files,
                     const core::ReadingChoices& reading,
                     std::ostream& out,
                     const Reporter& reporter,
-                    const std::optional<Pairing>& pairing) {
+                    const std::optional<Pairing>& pairing,
+                    bool detailed) {
     std::size_t done = 0;
     for (const std::string& path : paths) {
-        if (inspectFile(files, path, reading, out, reporter, pairing)) {
+        if (inspectFile(files, path, reading, out, reporter, pairing, detailed)) {
             ++done;
         }
     }

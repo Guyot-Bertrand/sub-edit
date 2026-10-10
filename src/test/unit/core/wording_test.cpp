@@ -704,3 +704,11 @@ TEST_CASE("an anomaly is said as a sentence about its subtitle", "[wording]") {
               Anomaly{.kind = AnomalyKind::OutOfOrder, .index = SubtitleIndex::fromNumber(12)}) ==
           "subtitle 12 starts before the previous one starts");
 }
+
+TEST_CASE("a kind of anomaly is counted as a line of a summary", "[wording]") {
+    using subedit::core::AnomalyKind;
+    using subedit::core::summaryOf;
+
+    CHECK(summaryOf(AnomalyKind::OverlappingSubtitles, 12) ==
+          "subtitle starts before the previous one ends: 12");
+}

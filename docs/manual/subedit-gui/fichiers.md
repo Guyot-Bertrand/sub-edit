@@ -217,19 +217,20 @@ la table garde toute sa hauteur, que la lecture ait eu quelque chose à dire ou 
 ferme d'un clic ailleurs ou d'`Echap`.
 
 ```
-line 5: a SubRip block without its number, settled by the reader
+a SubRip block without its number, settled by the reader: 5
 ```
 
-Chaque ligne porte **le numéro de ligne du fichier** — celui qu'un éditeur de
-texte montrerait —, ce qui a été rencontré, et ce qui en a été fait. Un extrait
-du fichier suit entre guillemets quand il apporte quelque chose ; il est tronqué
-au-delà de quatre-vingts caractères.
+**Chaque ligne compte** : ce qui a été rencontré, ce qui en a été fait, et
+combien de fois. Un fichier mal fait en rencontre des centaines, et savoir
+combien de chaque sorte est ce qui permet d'agir ; le numéro de chaque ligne du
+fichier, lui, se lit en ligne de commande, au niveau de bavardage `-vvv`. Le
+bouton compte ces lignes — une par sorte —, non les occurrences.
 
-**Une seule ligne n'a pas de numéro**, celle de l'encodage : il a été proposé en
-pesant les octets, avant qu'une seule ligne du fichier existe.
+**L'encodage deviné y paraît aussi**, une fois : il a été proposé en pesant les
+octets, avant qu'une seule ligne du fichier existe.
 
 ```
-an encoding nothing declared ("windows-1252"), settled by the reader
+an encoding nothing declared, settled by the reader: 1
 ```
 
 Elle ne s'affiche que lorsque l'encodage a été **deviné et n'est pas de
@@ -238,23 +239,24 @@ chaque ouverture mettrait un bouton dans la barre d'état de tous les documents
 ordinaires. Un fichier qui porte une marque d'ordre des octets ne la déclenche
 pas non plus : il a déclaré son encodage, rien n'a été deviné.
 
-**La même liste porte aussi ce qui cloche dans les sous-titres eux-mêmes** : un
+**La même liste compte aussi ce qui cloche dans les sous-titres eux-mêmes** : un
 sous-titre qui commence avant que le précédent ait fini, une fin avant son
 début, un début avant celui du sous-titre du dessus. La table les teinte, mais
 une teinte se trouve en faisant défiler, et dans un fichier de deux mille lignes
-on en manque facilement une ; ici elles sont toutes ensemble, **une par ligne**,
-dans les mots du rapport de `inspect` :
+on en manque facilement une ; ici les sortes sont toutes ensemble, **une par
+ligne et avec leur nombre**, dans les mots du rapport de `inspect` :
 
 ```
-subtitle 3 starts before the previous one ends
-subtitle 3 starts before the previous one starts
+subtitle starts before the previous one ends: 12
+subtitle starts before the previous one starts: 3
 ```
 
-**Un clic sur l'une mène à son sous-titre**, sélectionné dans la table. Ces
-lignes **suivent les corrections** — trier ou corriger une durée en retire —,
-sans refermer la liste que l'on est en train de lire. Un sous-titre peut y
-paraître deux fois : commencer avant la fin du précédent et avant son début sont
-deux constats, qui se corrigent de deux façons.
+**Un clic sur l'une mène au premier sous-titre concerné**, sélectionné dans la
+table. Ces lignes **suivent les corrections** — trier ou corriger une durée en
+retire, ou en baisse le nombre —, sans refermer la liste que l'on est en train
+de lire. Un sous-titre peut être compté deux fois : commencer avant la fin du
+précédent et avant son début sont deux constats, qui se corrigent de deux
+façons. Pour les nommer un par un, `subedit-cli inspect --detail`.
 
 Le bouton **n'apparaît pas** quand il n'y a rien à signaler, ni à la lecture ni
 dans les sous-titres, et **il suit l'onglet** : chaque projet garde les

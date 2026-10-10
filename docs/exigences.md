@@ -116,12 +116,13 @@ plus rien.
 | `GUI-PREVIEW-01` | un dialogue d'opération montre, avant d'appliquer, les premiers sous-titres qu'il changerait | 5 | implémentée |
 | `GUI-SORT-01` | `Sort Subtitles` met le projet dans l'ordre des débuts, annulablement, et dit combien de sous-titres ont changé de place | 5 | implémentée |
 | `GUI-SORT-02` | un fichier ouvert hors d'ordre propose d'être trié, et ne l'est que sur un oui | 5 | implémentée |
-| `GUI-SORT-03` | la liste des diagnostics porte aussi les anomalies des sous-titres, suit les corrections, et mène à la ligne choisie | 5 | implémentée |
+| `GUI-SORT-03` | la liste des diagnostics compte par sorte, lectures comme anomalies des sous-titres, suit les corrections, et mène au premier sous-titre concerné | 5 | implémentée |
+| `GUI-SORT-04` | une barre indéterminée de la barre d'état dit qu'un tri est en cours, et s'en va avec lui | 5 | implémentée |
 | `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible | 5 | implémentée |
 | `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier | 5 | implémentée |
 | `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique | 5 | implémentée |
 | `CLI-INSPECT-04` | les anomalies d'un document sont rapportées par numéro de sous-titre | 5 | implémentée |
-| `CLI-INSPECT-08` | `inspect` rapporte les anomalies une par ligne, et garde `none` sur la ligne de `anomalies` quand il n'y en a pas | 5 | implémentée |
+| `CLI-INSPECT-08` | `inspect` compte les anomalies par sorte, une par ligne avec `--detail`, et garde `none` sur la ligne de `anomalies` quand il n'y en a pas | 5 | implémentée |
 | `CLI-INSPECT-05` | `inspect` écrit la grille déduite, sa concentration et le verdict | 16 | implémentée |
 | `CLI-INSPECT-06` | un fichier sans grille le dit, et ne nomme aucune fréquence | 16 | implémentée |
 | `CLI-INSPECT-07` | une ambiguïté harmonique est nommée, et la plus basse est retenue | 16 | implémentée |

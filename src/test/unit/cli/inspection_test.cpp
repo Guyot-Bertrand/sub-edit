@@ -95,13 +95,27 @@ TEST_CASE("the span runs from the earliest start to the latest end", "[cli][insp
     CHECK_THAT(out.str(), ContainsSubstring("  span: 00:00:01.000 -> 00:00:07.000\n"));
 }
 
-TEST_CASE("the report names the subtitle that breaks the order",
-          "[cli][inspection][CLI-INSPECT-08]") {
+TEST_CASE("the report counts the anomalies by kind", "[cli][inspection][CLI-INSPECT-08]") {
     const InMemoryFileSystem files = withFile("a.srt", kOutOfOrder);
     std::ostringstream out;
     std::ostringstream errors;
 
     CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
+
+    CHECK_THAT(out.str(),
+               ContainsSubstring("  anomalies:\n"
+                                 "    subtitle starts before the previous one ends: 1\n"
+                                 "    subtitle starts before the previous one starts: 1\n"));
+    CHECK_THAT(out.str(), !ContainsSubstring("subtitle 2 starts"));
+}
+
+TEST_CASE("the report names the subtitle that breaks the order, when asked",
+          "[cli][inspection][CLI-INSPECT-08]") {
+    const InMemoryFileSystem files = withFile("a.srt", kOutOfOrder);
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}, std::nullopt, true));
 
     // By subtitle number, not by line — ADR 0018. The overlap comes with it:
     // a subtitle that starts before the previous one started also starts before
@@ -274,7 +288,7 @@ TEST_CASE("the report names every subtitle out of place", "[cli][inspection]") {
     std::ostringstream out;
     std::ostringstream errors;
 
-    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
+    CHECK(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}, std::nullopt, true));
 
     // Counted from one, as the report shows them. **Only the third is named as
     // breaking the order** — the fourth follows the third, so there is nothing

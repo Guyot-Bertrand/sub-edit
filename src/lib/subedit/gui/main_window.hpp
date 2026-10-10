@@ -48,6 +48,7 @@ class QCloseEvent;
 class QDragEnterEvent;
 class QDropEvent;
 class QLabel;
+class QProgressBar;
 class QShowEvent;
 class QSplitter;
 class QTabBar;
@@ -230,6 +231,9 @@ public:
 
     /// The panel of what the last reading ran into.
     [[nodiscard]] DiagnosticsButton* diagnostics() const { return m_diagnostics; }
+
+    /// The bar of the status bar that says an operation is under way.
+    [[nodiscard]] QProgressBar* busyBar() const { return m_busy; }
 
     [[nodiscard]] QAction* shiftAction() const { return m_actions->shift; }
 
@@ -761,6 +765,7 @@ private:
     /// The four standing facts of the status bar — issue #485.
     std::unique_ptr<StatusLine> m_status;
     DiagnosticsButton* m_diagnostics = nullptr;
+    QProgressBar* m_busy = nullptr;
 
     /// Every action, the menus and the toolbar — issue #483.
     std::unique_ptr<WindowActions> m_actions;

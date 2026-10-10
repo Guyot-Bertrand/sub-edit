@@ -2,6 +2,7 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle.hpp>
 
+#include <array>
 #include <cstddef>
 #include <span>
 #include <vector>
@@ -34,6 +35,27 @@ std::vector<Anomaly> scanAnomalies(const Project& project) {
     }
 
     return found;
+}
+
+std::vector<AnomalyCount> countAnomalies(std::span<const Anomaly> anomalies) {
+    constexpr std::array kAllKinds{
+        AnomalyKind::EndBeforeStart, AnomalyKind::OverlappingSubtitles, AnomalyKind::OutOfOrder};
+
+    std::vector<AnomalyCount> counts;
+    for (const AnomalyKind kind : kAllKinds) {
+        std::size_t count = 0;
+        SubtitleIndex first = SubtitleIndex::fromValue(0);
+        for (const Anomaly& anomaly : anomalies) {
+            if (anomaly.kind != kind)
+                continue;
+            if (count == 0)
+                first = anomaly.index;
+            ++count;
+        }
+        if (count != 0)
+            counts.push_back(AnomalyCount{.kind = kind, .count = count, .first = first});
+    }
+    return counts;
 }
 
 } // namespace subedit::core

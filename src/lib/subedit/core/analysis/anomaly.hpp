@@ -2,6 +2,8 @@
 
 #include <subedit/core/model/subtitle_index.hpp>
 
+#include <cstddef>
+#include <span>
 #include <vector>
 
 namespace subedit::core {
@@ -54,5 +56,22 @@ struct Anomaly {
 /// Equal starts are not disorder — neither precedes the other — though they
 /// may well overlap, which is reported as such.
 [[nodiscard]] std::vector<Anomaly> scanAnomalies(const Project& project);
+
+/// How many anomalies of one kind a document carries, and where the first is.
+struct AnomalyCount {
+    AnomalyKind kind;
+    std::size_t count;
+    /// The first subtitle carrying one — where a click on the total goes.
+    SubtitleIndex first;
+
+    [[nodiscard]] friend bool operator==(const AnomalyCount&, const AnomalyCount&) = default;
+};
+
+/// Sums `anomalies` by kind, in the order the kinds are declared.
+///
+/// **A summary and not a list**: a badly made file carries hundreds of
+/// anomalies, and how many of each kind is what tells the user which repair to
+/// reach for. A kind with none is left out.
+[[nodiscard]] std::vector<AnomalyCount> countAnomalies(std::span<const Anomaly> anomalies);
 
 } // namespace subedit::core

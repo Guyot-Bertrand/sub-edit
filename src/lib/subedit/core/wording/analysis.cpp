@@ -32,6 +32,10 @@ std::string statementOf(const Anomaly& anomaly) {
            std::string{nameOf(anomaly.kind)};
 }
 
+std::string summaryOf(AnomalyKind kind, std::size_t count) {
+    return "subtitle " + std::string{nameOf(kind)} + ": " + std::to_string(count);
+}
+
 std::string_view nameOf(DiagnosticKind kind) {
     switch (kind) {
     case DiagnosticKind::IgnoredLine:

@@ -12,6 +12,7 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 
+#include <cstddef>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -37,6 +38,13 @@ namespace subedit::core {
 /// report of the command line and the list of the window, which say the same
 /// thing in the same words.
 [[nodiscard]] std::string statementOf(const Anomaly& anomaly);
+
+/// How many subtitles carry one kind of anomaly, as a line of a summary:
+/// « subtitle starts before the previous one ends: 3 ».
+///
+/// The summary is what both surfaces show first; the sentences of
+/// `statementOf` are the detail behind it.
+[[nodiscard]] std::string summaryOf(AnomalyKind kind, std::size_t count);
 
 /// What was done about an anomaly, as a report writes it.
 ///

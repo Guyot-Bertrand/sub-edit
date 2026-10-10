@@ -16,16 +16,15 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <ranges>
 #include <span>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace subedit::gui {
 
 namespace {
-
-/// How much of a detail is worth reading before it stops being context.
-constexpr int kLongestDetail = 80;
 
 /// The list: wide enough for a line and its excerpt, and never taller than this.
 constexpr int kListWidth = 460;
@@ -36,26 +35,36 @@ constexpr int kMostRows = 10;
 /// has none.
 constexpr int kRowRole = Qt::UserRole;
 
-[[nodiscard]] QString boundedOf(const std::string& detail) {
-    const QString text = QString::fromStdString(detail);
-    return text.size() <= kLongestDetail ? text : text.left(kLongestDetail) + QStringLiteral("…");
-}
-
 } // namespace
 
-QString lineOf(const core::Diagnostic& diagnostic) {
-    // A diagnostic about the whole file has no line to name, and "line 0"
-    // would name a place that is not there — see `kWholeFile`.
-    QString line = diagnostic.line == core::kWholeFile
-                       ? QString::fromUtf8(core::nameOf(diagnostic.kind))
-                       : QStringLiteral("line %1: %2")
-                             .arg(diagnostic.line)
-                             .arg(QString::fromUtf8(core::nameOf(diagnostic.kind)));
+QStringList summaryLinesOf(std::span<const core::Diagnostic> diagnostics) {
+    struct Group {
+        core::DiagnosticKind kind;
+        core::Severity severity;
+        int count;
+    };
 
-    if (!diagnostic.detail.empty())
-        line += QStringLiteral(" (\"%1\")").arg(boundedOf(diagnostic.detail));
+    // In the order each pair first appears: the reading met them in that order.
+    std::vector<Group> groups;
+    for (const core::Diagnostic& diagnostic : diagnostics) {
+        const auto same = [&diagnostic](const Group& group) {
+            return group.kind == diagnostic.kind && group.severity == diagnostic.severity;
+        };
+        if (auto found = std::ranges::find_if(groups, same); found != groups.end())
+            ++found->count;
+        else
+            groups.push_back(
+                Group{.kind = diagnostic.kind, .severity = diagnostic.severity, .count = 1});
+    }
 
-    return line + QStringLiteral(", ") + QString::fromUtf8(core::nameOf(diagnostic.severity));
+    QStringList lines;
+    for (const Group& group : groups) {
+        lines.push_back(QStringLiteral("%1, %2: %3")
+                            .arg(QString::fromUtf8(core::nameOf(group.kind)),
+                                 QString::fromUtf8(core::nameOf(group.severity)))
+                            .arg(group.count));
+    }
+    return lines;
 }
 
 DiagnosticsButton::DiagnosticsButton(QWidget* parent)
@@ -89,18 +98,16 @@ DiagnosticsButton::DiagnosticsButton(QWidget* parent)
 
 void DiagnosticsButton::setDiagnostics(std::span<const core::Diagnostic> diagnostics) {
     m_popup->hide();
-    m_diagnosticLines.clear();
-    for (const core::Diagnostic& diagnostic : diagnostics)
-        m_diagnosticLines.push_back(lineOf(diagnostic));
+    m_diagnosticLines = summaryLinesOf(diagnostics);
     rebuild();
 }
 
 void DiagnosticsButton::setAnomalies(std::span<const core::Anomaly> anomalies) {
     QStringList lines;
     std::vector<int> rows;
-    for (const core::Anomaly& anomaly : anomalies) {
-        lines.push_back(QString::fromStdString(core::statementOf(anomaly)));
-        rows.push_back(static_cast<int>(anomaly.index.value()));
+    for (const core::AnomalyCount& count : core::countAnomalies(anomalies)) {
+        lines.push_back(QString::fromStdString(core::summaryOf(count.kind, count.count)));
+        rows.push_back(static_cast<int>(count.first.value()));
     }
 
     // Asked after every operation, and almost always for the same answer: a list

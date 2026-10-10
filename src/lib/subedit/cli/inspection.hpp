@@ -33,12 +33,16 @@ class Reporter;
 /// how its lines found their subtitles — the sentence the window says when it
 /// opens one, and the four counts as keys. **The report of the file itself is
 /// of the file alone**: a subtitle born of a line is not counted in it.
+///
+/// **Anomalies are counted by kind**, and listed subtitle by subtitle only with
+/// `detailed`. The JSON record always lists them: a script reads the detail.
 [[nodiscard]] bool inspectFile(const subedit::core::FileSystem& files,
                                const std::string& path,
                                const subedit::core::ReadingChoices& reading,
                                std::ostream& out,
                                const Reporter& reporter,
-                               const std::optional<Pairing>& pairing = std::nullopt);
+                               const std::optional<Pairing>& pairing = std::nullopt,
+                               bool detailed = false);
 
 /// Reports on every path, and says how it went.
 ///
@@ -51,6 +55,7 @@ class Reporter;
                                   const subedit::core::ReadingChoices& reading,
                                   std::ostream& out,
                                   const Reporter& reporter,
-                                  const std::optional<Pairing>& pairing = std::nullopt);
+                                  const std::optional<Pairing>& pairing = std::nullopt,
+                                  bool detailed = false);
 
 } // namespace subedit::cli
