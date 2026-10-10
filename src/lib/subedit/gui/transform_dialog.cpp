@@ -74,20 +74,28 @@ TransformDialog::TransformDialog(std::size_t targetCount,
     };
     const auto add = [this](const Row& row) {
         fields()->addRow(QStringLiteral("Subtitle"), row.number);
-        fields()->addRow(QStringLiteral("Starts now at"), row.current);
-        fields()->addRow(QStringLiteral("Really starts at"), row.target);
+        fields()->addRow(QStringLiteral("Now starts"), row.current);
+        fields()->addRow(QStringLiteral("Should start"), row.target);
         fields()->addRow(QStringLiteral("Text"), row.text);
     };
-    heading(QStringLiteral("First reference"));
+    auto* explanation =
+        new QLabel{QStringLiteral("Pick two subtitles and say when each one should start.\n"
+                                  "All the other subtitles are moved and stretched to match."),
+                   this};
+    explanation->setWordWrap(true);
+    fields()->addRow(explanation);
+
+    heading(QStringLiteral("Reference 1"));
     add(m_first);
-    heading(QStringLiteral("Second reference"));
+    heading(QStringLiteral("Reference 2"));
     add(m_second);
     finish();
 }
 
 TransformDialog::Row TransformDialog::makeRow(std::size_t subtitleCount) {
-    auto* current = new QLineEdit{this};
-    current->setReadOnly(true);
+    // A label, not a read-only field: a greyed field still looks like one to
+    // type in, and only the new start is the user's to change.
+    auto* current = new QLabel{this};
 
     auto* text = new QLabel{this};
     text->setWordWrap(true);

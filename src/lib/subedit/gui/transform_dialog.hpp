@@ -118,7 +118,7 @@ private:
     /// One reference: what is typed, and what the number stands for.
     struct Row {
         QSpinBox* number;
-        QLineEdit* current;
+        QLabel* current;
         QLineEdit* target;
         QLabel* text;
     };
