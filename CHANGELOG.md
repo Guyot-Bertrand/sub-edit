@@ -11,7 +11,17 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Tri des sous-titres, proposé et listé avec les défauts
+
+## 0.15.9 — 2026-10-10
+
+### Ajouts
+
 - **gui** — Portée et aperçu dans les dialogues d'opération
+
+### Documentation
+
+- **doc** — Journal des changements
 
 ## 0.15.8 — 2026-10-10
 
