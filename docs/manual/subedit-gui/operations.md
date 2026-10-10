@@ -133,9 +133,23 @@ La correction d'un fichier calé sur un autre montage. On dit où **deux**
 sous-titres commencent réellement, et tout le reste suit, proportionnellement.
 
 Le dialogue demande deux fois la même chose : un numéro de sous-titre, et la
-position où son début appartient. Le second est pré-rempli sur le dernier
+position où son début appartient. Pour chaque repère, il montre **ce que ce
+numéro désigne** — son texte (`Text`) et l'heure à laquelle il commence
+**maintenant** (`Now starts`), en simples étiquettes — et ils suivent le numéro
+à mesure qu'on le change. **Un seul champ est à saisir par repère : `Should
+start`**, l'heure où ce sous-titre doit commencer. Il n'y a pas à chercher dans le tableau quelle ligne est la `980`.
+
+`Should start` est **proposé à la valeur actuelle** : tant qu'on n'y
+touche pas, le repère dit « ce sous-titre est déjà où il doit être ». On ne
+change que ce qu'on veut changer. Le second repère est pré-rempli sur le dernier
 sous-titre du fichier — deux repères éloignés donnent une correction plus sûre
 que deux repères voisins.
+
+![Le dialogue de transformation, palette claire : pour chaque repère, le
+numéro, le texte, l'heure actuelle et l'heure à saisir du
+sous-titre.](captures/transformation.png)
+
+![Le même dialogue sous la palette sombre.](captures/transformation-sombre.png)
 
 **Les deux repères atterrissent exactement où on les a demandés.** Ce n'est pas
 une approximation : le calcul est fait pour que ce soit vrai.

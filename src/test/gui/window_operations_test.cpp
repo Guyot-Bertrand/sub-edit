@@ -256,6 +256,26 @@ TEST_CASE("an operation on an empty file is not offered", "[gui][GUI-SHIFT-01]")
     CHECK_FALSE(window.frameRateAction()->isEnabled());
 }
 
+TEST_CASE("the transform dialog shows the subtitles its numbers name", "[gui][GUI-TRANSFORM-01]") {
+    InMemoryFileSystem files = withFour();
+    FakePrompts prompts;
+    prompts.nextRun = false;
+    std::string shown;
+    prompts.fill = [&shown](QDialog& dialog) {
+        auto& transform = dynamic_cast<TransformDialog&>(dialog);
+        shown = transform.firstCurrent().toStdString() + "|" + transform.firstText().toStdString() +
+                "|" + transform.secondCurrent().toStdString() + "|" +
+                transform.secondText().toStdString();
+    };
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
+
+    window.transformAction()->trigger();
+
+    // The first and the last subtitle of the file, as the table reads them.
+    CHECK(shown == "00:00:01,000|Un.|00:00:07,000|Quatre.");
+}
+
 TEST_CASE("giving up on the transform dialog applies nothing", "[gui][GUI-TRANSFORM-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;

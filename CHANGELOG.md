@@ -7,6 +7,22 @@ Les changements notables de subedit. Format inspiré de
 Ce fichier est généré par `make changelog` depuis l'historique des commits :
 ne pas l'éditer à la main.
 
+## Non publié
+
+### Ajouts
+
+- **gui** — Transform Positions montre l'heure et le texte des repères
+
+### Corrections
+
+- **gui** — Libellés de Transform Positions plus clairs
+
+## 0.15.7 — 2026-10-10
+
+### Ajouts
+
+- **text** — Mentions entre crochets seuls par défaut
+
 ## 0.15.6 — 2026-10-09
 
 ### Ajouts

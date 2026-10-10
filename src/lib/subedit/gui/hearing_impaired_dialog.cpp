@@ -12,9 +12,10 @@ HearingImpairedDialog::HearingImpairedDialog(std::size_t targetCount, QWidget* p
     : OperationDialog(targetCount, parent) {
     setWindowTitle(QStringLiteral("Remove hearing-impaired mentions"));
 
-    fields()->addRow(new QLabel{QStringLiteral("Bracketed and parenthesised mentions are removed.\n"
-                                               "A subtitle left with nothing is taken away."),
-                                this});
+    fields()->addRow(
+        new QLabel{QStringLiteral("Mentions in square brackets are removed; parentheses are kept.\n"
+                                  "A subtitle left with nothing is taken away."),
+                   this});
     finish();
 }
 

@@ -20,7 +20,9 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/source_file.hpp>
+#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/editing.hpp>
@@ -43,6 +45,7 @@
 #include <QItemSelectionModel>
 #include <QModelIndex>
 #include <QObject>
+#include <QString>
 
 #include <algorithm>
 #include <cstddef>
@@ -152,7 +155,18 @@ void ProjectOperations::shift(ProjectPage& page) {
 void ProjectOperations::transform(ProjectPage& page) {
     const core::Selection target = targetIn(page);
 
-    TransformDialog dialog{target.count(), page.session->project().count(), m_view->dialogParent()};
+    const core::Project& project = page.session->project();
+
+    // What a number stands for, said where the user types it: the start the
+    // subtitle has now, and its text — the two things they would otherwise
+    // look up in the table.
+    // What a number stands for, said where the user types it: the start the
+    // subtitle has now, and its text — the two things they would otherwise
+    // look up in the table.
+    AnchorLookup lookup = [&project](int number) { return anchorIn(project, number); };
+
+    TransformDialog dialog{
+        target.count(), project.count(), std::move(lookup), m_view->dialogParent()};
     if (!m_prompts->run(dialog))
         return;
 
