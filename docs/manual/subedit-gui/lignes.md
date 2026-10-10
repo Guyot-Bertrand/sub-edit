@@ -156,10 +156,11 @@ sélection : un ordre est une propriété du document, et trier la moitié d'un
 fichier ne veut rien dire. Le tri est **stable** : deux sous-titres qui
 commencent ensemble gardent l'ordre que le fichier leur donnait.
 
-**Une barre de progression passe dans la barre d'état pendant le tri** : sur un
-long fichier, la fenêtre reste un moment sans répondre, et sans elle on ne sait
-pas si quelque chose est en cours. Elle n'indique pas de fraction — le tri n'en
-rend pas — et s'en va avec lui.
+**Une barre passe dans la barre d'état pendant le tri, et le curseur devient un
+sablier** : sur un long fichier, la fenêtre reste un moment sans répondre — la
+table se recompose ligne par ligne —, et sans cela on ne sait pas si quelque
+chose est en cours. La barre n'indique pas de fraction, le tri n'en rend pas,
+et elle s'en va avec lui.
 
 La barre d'état dit combien de lignes ont changé de place — `3 subtitles moved`
 — ou, quand tout était en ordre, `already in order`. **Un projet déjà en ordre

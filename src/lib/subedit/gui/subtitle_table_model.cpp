@@ -471,6 +471,14 @@ void SubtitleTableModel::applied(std::span<const Change> changes) {
 
     for (const Change& change : changes) {
         const auto [first, last] = columnsFor(change.kind);
+        if (change.kind == ChangeKind::Reordering) {
+            const std::span<const core::IndexRange> runs = change.subtitles.ranges();
+            if (!runs.empty()) {
+                emit dataChanged(index(static_cast<int>(runs.front().first.value()), first),
+                                 index(static_cast<int>(runs.back().last.value()), last));
+            }
+            continue;
+        }
         for (const core::IndexRange& run : change.subtitles.ranges()) {
             emit dataChanged(index(static_cast<int>(run.first.value()), first),
                              index(static_cast<int>(run.last.value()), last));

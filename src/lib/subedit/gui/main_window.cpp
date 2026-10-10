@@ -79,6 +79,7 @@
 #include <QItemSelection>
 #include <QItemSelectionModel>
 #include <QLabel>
+#include <QLayout>
 #include <QList>
 #include <QMenuBar>
 #include <QMimeData>
@@ -326,12 +327,22 @@ public:
     }
 
     void setBusy(bool busy) override {
-        m_window->m_busy->setVisible(busy);
-        // The operation that follows holds the thread: let the bar be painted
-        // first. Input is left alone, so that nothing is clicked into a
-        // half-done operation.
-        if (busy)
-            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        if (!busy) {
+            m_window->m_busy->hide();
+            QApplication::restoreOverrideCursor();
+            return;
+        }
+
+        // The operation that follows holds the thread, so nothing is painted
+        // while it runs: the bar and the cursor have to be on screen *before*
+        // it starts. `show` only asks for a paint, which the event loop would
+        // do once the operation was over — so the layout is settled and the bar
+        // painted by hand, and the cursor flushed to the display.
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        m_window->m_busy->show();
+        m_window->statusBar()->layout()->activate();
+        m_window->m_busy->repaint();
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
 
     [[nodiscard]] std::optional<std::filesystem::path> fileToAppend() override {

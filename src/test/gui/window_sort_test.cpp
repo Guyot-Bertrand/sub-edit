@@ -251,6 +251,7 @@ class VisibilityLog final : public QObject {
 
 public:
     std::vector<bool> changes;
+    int paints = 0;
 
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override {
@@ -258,6 +259,8 @@ protected:
             changes.push_back(true);
         else if (event->type() == QEvent::Hide)
             changes.push_back(false);
+        else if (event->type() == QEvent::Paint)
+            ++paints;
         return QObject::eventFilter(watched, event);
     }
 };
@@ -278,6 +281,9 @@ TEST_CASE("a bar says the sort is under way, and goes with it", "[gui][GUI-SORT-
     window.sortAction()->trigger();
 
     CHECK(log.changes == std::vector<bool>{true, false});
+    // Painted before the sort began: the thread is held from then on, and a bar
+    // that waited for the event loop would appear when it was already gone.
+    CHECK(log.paints >= 1);
     CHECK_FALSE(window.busyBar()->isVisible());
     // An indeterminate bar: the sort reports no fraction.
     CHECK(window.busyBar()->maximum() == 0);
