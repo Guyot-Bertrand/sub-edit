@@ -14,8 +14,13 @@ ne pas l'éditer à la main.
 - **gui** — Tri des sous-titres, proposé et listé avec les défauts
 - **gui** — Comptes par sorte, barre de tri, inspect --detail
 
+### Corrections
+
+- **gui** — La barre du tri est peinte avant le blocage du fil
+
 ### Documentation
 
+- **doc** — Journal des changements
 - **doc** — Journal des changements
 
 ## 0.15.9 — 2026-10-10
