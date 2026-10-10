@@ -3,6 +3,7 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/gui/project_page.hpp>
+#include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 #include <subedit/gui/table_columns.hpp>
 
@@ -10,7 +11,6 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QString>
-#include <QTableView>
 
 #include <algorithm>
 #include <array>
@@ -28,7 +28,7 @@ static_assert(static_cast<int>(core::TableColumn::Text) == SubtitleTableModel::T
 static_assert(static_cast<int>(core::TableColumn::Translation) == SubtitleTableModel::Translation);
 static_assert(core::kTableColumnCount == SubtitleTableModel::kColumnCount);
 
-TableColumns::TableColumns(QTableView& table, QObject* owner) : m_table(&table) {
+TableColumns::TableColumns(SubtitleTable& table, QObject* owner) : m_table(&table) {
     // The four that may go, beside the translation. `No.` as Gaupol names it:
     // the header's « # » reads badly as a menu entry.
     const std::array<QString, 4> names = {QStringLiteral("&No."),
@@ -93,6 +93,8 @@ void TableColumns::refresh(const ProjectPage& page) {
     m_translation->setEnabled(hasTranslation);
     m_table->setColumnHidden(SubtitleTableModel::Translation,
                              !(hasTranslation && m_translation->isChecked()));
+    // Which text the rows are as tall as just changed with it.
+    m_table->refreshRowHeights();
 
     // **The cell goes to the text of its row**, and the selection stays: a
     // current cell in a column nobody can see is one a keystroke would edit

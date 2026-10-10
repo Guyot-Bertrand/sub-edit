@@ -7,13 +7,14 @@
 
 class QAction;
 class QObject;
-class QTableView;
 
 namespace subedit::core {
 enum class Document;
 } // namespace subedit::core
 
 namespace subedit::gui {
+
+class SubtitleTable;
 
 struct ProjectPage;
 
@@ -28,7 +29,7 @@ class TableColumns final {
 public:
     /// Builds the five entries, owned by `owner` for their lifetime, for
     /// `table`, which must outlive this.
-    TableColumns(QTableView& table, QObject* owner);
+    TableColumns(SubtitleTable& table, QObject* owner);
 
     /// The entry that shows `column` or takes it away, or nothing for the text,
     /// which has none.
@@ -65,7 +66,7 @@ private:
     /// write a width their reader refuses.
     void setPositionColumnShown(int column, bool shown);
 
-    QTableView* m_table;
+    SubtitleTable* m_table;
 
     /// The number and the three positions, in the order of the model.
     std::array<QAction*, 4> m_positions{};

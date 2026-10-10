@@ -526,7 +526,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     // moves by item make the film jump by a subtitle and the bar sit where no
     // one put it. By pixel, the travel matches what is shown.
     m_table->setWordWrap(false);
-    m_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    m_table->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     m_table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
     // The last column that is shown takes what the positions leave: it is the
