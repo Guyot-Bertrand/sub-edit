@@ -61,10 +61,10 @@ constexpr double kMillisecondsPerSecond = 1000.0;
 
 } // namespace
 
-DurationAdjustDialog::DurationAdjustDialog(std::size_t targetCount,
+DurationAdjustDialog::DurationAdjustDialog(OperationScope scope,
                                            const core::DurationAdjustmentSettings& initial,
                                            QWidget* parent)
-    : OperationDialog(targetCount, parent),
+    : OperationDialog(scope, parent),
       m_speed(decimalBox(this)),
       m_lengthen(new QCheckBox{QStringLiteral("Lengthen durations to match it"), this}),
       m_shorten(new QCheckBox{QStringLiteral("Shorten durations to match it"), this}),

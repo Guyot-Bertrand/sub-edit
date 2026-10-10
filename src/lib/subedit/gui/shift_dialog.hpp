@@ -20,7 +20,7 @@ class ShiftDialog final : public OperationDialog {
     Q_OBJECT
 
 public:
-    explicit ShiftDialog(std::size_t targetCount, QWidget* parent = nullptr);
+    explicit ShiftDialog(OperationScope scope, QWidget* parent = nullptr);
 
     /// How much to move by, or nothing if what was typed is not a duration.
     [[nodiscard]] std::optional<core::Duration> shift() const;

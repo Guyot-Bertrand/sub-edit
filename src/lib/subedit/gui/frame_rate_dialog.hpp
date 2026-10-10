@@ -60,7 +60,7 @@ public:
     /// `declared` is what the associated film says of itself, `deduced` what
     /// the positions say, `read` the rate a document counted in frames was read
     /// at — any of them possibly nothing.
-    FrameRateDialog(std::size_t targetCount,
+    FrameRateDialog(OperationScope scope,
                     core::FrameRate current,
                     std::optional<core::FrameRate> declared = {},
                     std::optional<core::FrameRate> deduced = {},

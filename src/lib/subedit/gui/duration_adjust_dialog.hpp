@@ -33,7 +33,7 @@ class DurationAdjustDialog final : public OperationDialog {
 public:
     /// Opens on `initial`, which is what the last adjustment of this window
     /// asked for, or Gaupol's defaults.
-    DurationAdjustDialog(std::size_t targetCount,
+    DurationAdjustDialog(OperationScope scope,
                          const core::DurationAdjustmentSettings& initial,
                          QWidget* parent = nullptr);
 

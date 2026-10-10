@@ -496,6 +496,8 @@ Inscrites à l'état `prévue`, comme la règle l'exige, avant le code.
 | `GUI-SAVE-03` | fermer avec des modifications non enregistrées demande confirmation |
 | `GUI-SHIFT-01` | le dialogue de décalage décale la cible |
 | `GUI-TRANSFORM-01` | le dialogue de transformation corrige par deux repères |
+| `GUI-SCOPE-01` | un dialogue d'opération offre le choix entre la sélection et tout le projet quand une partie seulement est sélectionnée |
+| `GUI-PREVIEW-01` | un dialogue d'opération montre, avant d'appliquer, les premiers sous-titres qu'il changerait |
 | `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible |
 | `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier |
 | `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique |

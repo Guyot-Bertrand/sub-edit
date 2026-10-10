@@ -9,11 +9,11 @@
 
 namespace subedit::gui {
 
-SnapDialog::SnapDialog(std::size_t targetCount,
+SnapDialog::SnapDialog(OperationScope scope,
                        core::FrameRate current,
                        std::optional<core::FrameRate> declared,
                        QWidget* parent)
-    : OperationDialog(targetCount, parent), m_rate(new FrameRateBox{this}) {
+    : OperationDialog(scope, parent), m_rate(new FrameRateBox{this}) {
     setWindowTitle(QStringLiteral("Snap to frame rate"));
 
     // In two steps, because the second may find nothing — see `FrameRateBox`,

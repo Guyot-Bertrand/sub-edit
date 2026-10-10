@@ -11,11 +11,21 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Portée et aperçu dans les dialogues d'opération
+
+## 0.15.8 — 2026-10-10
+
+### Ajouts
+
 - **gui** — Transform Positions montre l'heure et le texte des repères
 
 ### Corrections
 
 - **gui** — Libellés de Transform Positions plus clairs
+
+### Documentation
+
+- **doc** — Journal des changements
 
 ## 0.15.7 — 2026-10-10
 

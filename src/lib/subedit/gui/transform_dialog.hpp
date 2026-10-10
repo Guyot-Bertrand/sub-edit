@@ -75,24 +75,17 @@ class TransformDialog final : public OperationDialog {
     Q_OBJECT
 
 public:
-    /// Two counts, and they are not the same one.
-    ///
-    /// `targetCount` is what the operation would touch — the selection, or the
+    /// `scope` says what the operation could touch — the selection, or the
     /// whole file — and it is what the dialog says it applies to.
-    /// `subtitleCount` bounds the two indices, and it is the file: a reference
-    /// is a subtitle number, so it may name a line the selection leaves out,
-    /// and one outside the file corrects nothing.
     ///
-    /// They were one parameter until the review of the phase, which is how the
-    /// label came to name the file while the operation touched the selection.
+    /// **The whole file also bounds the two numbers**, and that is why they are
+    /// not one: a reference is a subtitle number, so it may name a line the
+    /// selection leaves out, and one outside the file corrects nothing.
     ///
     /// `lookup` is what lets the dialog say which subtitle a number is: its
     /// current start, and its text. Without it the two rows stay empty, which
     /// is the dialog a test builds when it only cares about what was typed.
-    TransformDialog(std::size_t targetCount,
-                    std::size_t subtitleCount,
-                    AnchorLookup lookup = {},
-                    QWidget* parent = nullptr);
+    TransformDialog(OperationScope scope, AnchorLookup lookup = {}, QWidget* parent = nullptr);
 
     /// The current start shown for the first, or second, reference.
     [[nodiscard]] QString firstCurrent() const;

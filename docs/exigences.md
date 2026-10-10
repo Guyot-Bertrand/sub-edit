@@ -112,6 +112,8 @@ plus rien.
 | `GUI-SAVE-03` | fermer avec des modifications non enregistrées demande confirmation | 5 | implémentée |
 | `GUI-SHIFT-01` | le dialogue de décalage décale la cible | 5 | implémentée |
 | `GUI-TRANSFORM-01` | le dialogue de transformation corrige par deux repères | 5 | implémentée |
+| `GUI-SCOPE-01` | un dialogue d'opération offre le choix entre la sélection et tout le projet quand une partie seulement est sélectionnée | 5 | implémentée |
+| `GUI-PREVIEW-01` | un dialogue d'opération montre, avant d'appliquer, les premiers sous-titres qu'il changerait | 5 | implémentée |
 | `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible | 5 | implémentée |
 | `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier | 5 | implémentée |
 | `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique | 5 | implémentée |

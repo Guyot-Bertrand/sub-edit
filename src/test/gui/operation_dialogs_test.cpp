@@ -4,6 +4,8 @@
 // a test builds one, fills its fields and reads what it makes of them. Only the
 // modal loop stays out of reach, and it is behind `Prompts::run`.
 
+#include <subedit/core/command/command.hpp>
+#include <subedit/core/edit/command_preview.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
@@ -15,7 +17,13 @@
 #include <subedit/gui/snap_dialog.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
+#include <QDialog>
+#include <QHeaderView>
+#include <QLabel>
 #include <QLineEdit>
+#include <QPushButton>
+#include <QTableWidget>
+#include <QTableWidgetItem>
 #include <catch2/catch_test_macros.hpp>
 
 #include <optional>
@@ -31,6 +39,9 @@ using subedit::gui::anchorIn;
 using subedit::gui::AnchorLookup;
 using subedit::gui::AnchorView;
 using subedit::gui::FrameRateDialog;
+using subedit::gui::OperationPreview;
+using subedit::gui::OperationScope;
+using subedit::gui::PreviewRow;
 using subedit::gui::ShiftDialog;
 using subedit::gui::SnapDialog;
 using subedit::gui::TransformDialog;
@@ -70,7 +81,7 @@ TEST_CASE("the shift dialog says what it is about to touch", "[gui][GUI-SHIFT-01
 }
 
 TEST_CASE("the transform dialog reads two references", "[gui][GUI-TRANSFORM-01]") {
-    const TransformDialog dialog{4, 4};
+    const TransformDialog dialog{4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("00:00:09,000"));
 
@@ -88,7 +99,7 @@ TEST_CASE("two references on the same subtitle define no transform", "[gui][GUI-
     // The core already refuses it — `TransformCommand::create` returns
     // `nullopt` on a zero denominator. The dialog says so beforehand, rather
     // than letting the user validate for nothing.
-    const TransformDialog dialog{4, 4};
+    const TransformDialog dialog{4};
 
     dialog.setTyped(2, QStringLiteral("00:00:01,000"), 2, QStringLiteral("00:00:09,000"));
 
@@ -99,7 +110,7 @@ TEST_CASE("a reference outside the file cannot be asked for", "[gui][GUI-TRANSFO
     // Not refused afterwards, but impossible to type: the field is bounded by
     // the number of subtitles. A ninth reference in a file of four falls back
     // to the fourth.
-    const TransformDialog dialog{4, 4};
+    const TransformDialog dialog{4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 9, QStringLiteral("00:00:09,000"));
 
@@ -112,7 +123,7 @@ TEST_CASE("the transform dialog counts its target apart from its bounds",
     // Two counts, and they do not say the same thing. The operation applies to
     // two subtitles; a reference is still a subtitle number, so it goes up to
     // the last of the file, selected or not.
-    const TransformDialog dialog{2, 4};
+    const TransformDialog dialog{OperationScope{4, 2}};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("00:00:09,000"));
 
@@ -122,7 +133,7 @@ TEST_CASE("the transform dialog counts its target apart from its bounds",
 }
 
 TEST_CASE("an unreadable reference position is refused", "[gui][GUI-TRANSFORM-01]") {
-    const TransformDialog dialog{4, 4};
+    const TransformDialog dialog{4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("plus tard"));
 
@@ -344,7 +355,7 @@ TEST_CASE("the transform dialog shows what each number stands for", "[gui][GUI-T
         return AnchorView{.start = QStringLiteral("00:00:0%1,000").arg(number),
                           .text = QStringLiteral("line %1").arg(number)};
     };
-    const TransformDialog dialog{4, 4, lookup};
+    const TransformDialog dialog{4, lookup};
 
     // Both rows are filled on opening: the first on subtitle 1, the second on
     // the last.
@@ -368,7 +379,7 @@ TEST_CASE("the transform dialog proposes the current start as the new one",
     const AnchorLookup lookup = [](int number) -> std::optional<AnchorView> {
         return AnchorView{.start = QStringLiteral("00:00:0%1,500").arg(number), .text = {}};
     };
-    const TransformDialog dialog{4, 4, lookup};
+    const TransformDialog dialog{4, lookup};
 
     // Untouched, the dialog already describes the identity: nothing moves
     // until the user changes a time.
@@ -382,7 +393,7 @@ TEST_CASE("the transform dialog proposes the current start as the new one",
 TEST_CASE("a number with nothing behind it leaves the typed time alone",
           "[gui][GUI-TRANSFORM-01]") {
     const AnchorLookup lookup = [](int) { return std::optional<AnchorView>{}; };
-    const TransformDialog dialog{4, 4, lookup};
+    const TransformDialog dialog{4, lookup};
 
     dialog.setTyped(1, QStringLiteral("00:00:02,000"), 4, QStringLiteral("00:00:09,000"));
 
@@ -406,4 +417,101 @@ TEST_CASE("a number outside the file names no subtitle", "[gui][GUI-TRANSFORM-01
     CHECK_FALSE(anchorIn(project, 0).has_value());
     CHECK_FALSE(anchorIn(project, 2).has_value());
     CHECK_FALSE(anchorIn(project, -3).has_value());
+}
+
+TEST_CASE("a partial selection leaves the choice of the target to the user",
+          "[gui][GUI-SCOPE-01]") {
+    ShiftDialog dialog{OperationScope{4, 2}};
+
+    // The selection is the default, as it was before the choice existed.
+    CHECK_FALSE(dialog.wholeProject());
+    CHECK(dialog.targetLabel().toStdString() == "2 subtitles");
+
+    dialog.chooseWholeProject(true);
+    CHECK(dialog.wholeProject());
+    CHECK(dialog.targetLabel().toStdString() == "4 subtitles");
+
+    dialog.chooseWholeProject(false);
+    CHECK_FALSE(dialog.wholeProject());
+}
+
+TEST_CASE("with nothing to choose between, the target is the whole project",
+          "[gui][GUI-SCOPE-01]") {
+    // Nothing selected, or everything selected: one target only, and no
+    // question asked.
+    for (const OperationScope scope : {OperationScope{4, 0}, OperationScope{4, 4}}) {
+        ShiftDialog dialog{scope};
+
+        CHECK(dialog.wholeProject());
+        CHECK(dialog.targetLabel().toStdString() == "4 subtitles");
+
+        // Choosing is a no-op where there is nothing to choose.
+        dialog.chooseWholeProject(false);
+        CHECK(dialog.wholeProject());
+    }
+}
+
+TEST_CASE("a preview shows the changes the owner computes", "[gui][GUI-PREVIEW-01]") {
+    ShiftDialog dialog{4};
+    dialog.offerPreview([] {
+        return OperationPreview{
+            .rows = {PreviewRow{.number = QStringLiteral("2"),
+                                .before = QStringLiteral("00:00:01,000 → 00:00:02,000"),
+                                .after = QStringLiteral("00:00:02,000 → 00:00:03,000"),
+                                .text = QStringLiteral("Hello")}},
+            .changed = 5};
+    });
+
+    auto* button = dialog.findChild<QPushButton*>(QStringLiteral("preview-button"));
+    REQUIRE(button != nullptr);
+    button->click();
+
+    auto* box = dialog.findChild<QDialog*>(QStringLiteral("preview"));
+    REQUIRE(box != nullptr);
+    const auto* table = box->findChild<QTableWidget*>();
+    REQUIRE(table != nullptr);
+    CHECK(table->rowCount() == 1);
+    CHECK(table->item(0, 0)->text().toStdString() == "2");
+    CHECK(table->item(0, 2)->text().toStdString() == "00:00:02,000 → 00:00:03,000");
+    CHECK(table->item(0, 3)->text().toStdString() == "Hello");
+    CHECK(box->findChild<QLabel*>()->text().toStdString() == "5 subtitles would change.");
+
+    // Opens wide enough for every column, and stays resizable: the first
+    // version showed the start of a column and made the user scroll.
+    CHECK(box->sizeHint().width() >= table->horizontalHeader()->length());
+    CHECK(box->isSizeGripEnabled());
+    box->close();
+}
+
+TEST_CASE("a preview of nothing says so", "[gui][GUI-PREVIEW-01]") {
+    ShiftDialog dialog{4};
+    dialog.offerPreview([] { return OperationPreview{}; });
+
+    dialog.findChild<QPushButton*>(QStringLiteral("preview-button"))->click();
+
+    const auto* box = dialog.findChild<QDialog*>(QStringLiteral("preview"));
+    REQUIRE(box != nullptr);
+    CHECK(box->findChild<QLabel*>()->text().toStdString() == "Nothing would change.");
+    CHECK(box->findChild<QTableWidget*>()->rowCount() == 0);
+}
+
+TEST_CASE("the preview lists what the core says would change", "[gui][GUI-PREVIEW-01]") {
+    subedit::core::CommandPreview computed;
+    computed.changed = 1;
+    computed.shown.push_back(subedit::core::PreviewedChange{
+        .index = subedit::core::SubtitleIndex::fromValue(2),
+        .before = subedit::core::Subtitle{.start = Timestamp::fromMilliseconds(1000),
+                                          .end = Timestamp::fromMilliseconds(2000),
+                                          .mainText = "First line\nSecond line"},
+        .after = subedit::core::Subtitle{.start = Timestamp::fromMilliseconds(1500),
+                                         .end = Timestamp::fromMilliseconds(2500)}});
+
+    const OperationPreview described = subedit::gui::describedPreview(computed);
+
+    CHECK(described.changed == 1);
+    REQUIRE(described.rows.size() == 1);
+    CHECK(described.rows.front().number.toStdString() == "3");
+    CHECK(described.rows.front().before.toStdString() == "00:00:01,000 → 00:00:02,000");
+    CHECK(described.rows.front().after.toStdString() == "00:00:01,500 → 00:00:02,500");
+    CHECK(described.rows.front().text.toStdString() == "First line");
 }
