@@ -26,7 +26,7 @@ class SnapDialog final : public OperationDialog {
     Q_OBJECT
 
 public:
-    SnapDialog(std::size_t targetCount,
+    SnapDialog(OperationScope scope,
                core::FrameRate current,
                std::optional<core::FrameRate> declared = {},
                QWidget* parent = nullptr);

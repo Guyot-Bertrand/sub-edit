@@ -48,6 +48,49 @@ Applies to: 4 subtitles
 
 Sélectionner toutes les lignes revient au même que n'en sélectionner aucune.
 
+**Quand une partie seulement des lignes est sélectionnée, le dialogue demande
+sur quoi porter.** Deux choix s'affichent, avec leur compte, et **la sélection
+est celui qui est coché** :
+
+```
+(•) Selected: 2 subtitles
+( ) Whole project: 4 subtitles
+```
+
+Cocher `Whole project` élargit l'opération à tout le fichier sans qu'il faille
+d'abord changer la sélection. Quand il n'y a rien à choisir — rien de
+sélectionné, ou tout —, la ligne `Applies to:` ci-dessus reste seule.
+
+Les dialogues de `Shift Positions…`, `Transform Positions…`, `Convert Frame
+Rate…`, `Adjust Durations…`, `Snap to Frame Rate…` et `Remove Hearing-Impaired
+Mentions…` offrent ce choix.
+
+### Voir avant d'appliquer
+
+`Shift Positions…`, `Transform Positions…`, `Convert Frame Rate…`, `Adjust
+Durations…` et `Snap to Frame Rate…` portent un bouton **`Preview changes…`**.
+Il ouvre une petite fenêtre qui dit combien de sous-titres l'opération
+changerait **avec ce qui est saisi à ce moment-là, sur la cible cochée**, et en
+liste les douze premiers : leur numéro, leur position avant, leur position
+après, et la première ligne de leur texte. **Rien n'est appliqué** : fermer la
+fenêtre ramène au dialogue, où l'on peut changer une valeur et regarder de
+nouveau.
+
+![La fenêtre d'aperçu, palette claire : numéro, position avant, position après
+et début du texte de chaque sous-titre changé.](captures/apercu.png)
+
+![La même fenêtre sous la palette sombre.](captures/apercu-sombre.png)
+
+Elle s'ouvre assez grande pour montrer toutes les colonnes, et se redimensionne
+à la main.
+
+Si l'opération ne changerait rien, la fenêtre le dit (`Nothing would change.`).
+Tant que ce qui est saisi ne définit pas d'opération — une durée illisible, deux
+repères sur le même sous-titre —, l'aperçu est vide pour la même raison que le
+bouton `OK` est grisé. `Remove Hearing-Impaired Mentions…` n'a pas d'aperçu : ce
+qu'elle change est du texte, et le compte rendu qu'elle donne après coup le
+dit.
+
 **Avec une traduction, quel texte ?** Les opérations de position et de structure
 portent sur le sous-titre entier — ses deux textes suivent. Celles qui
 réécrivent un texte — `Italic`, `Case`, `Dialogue`, `Remove Hearing-Impaired
@@ -112,8 +155,9 @@ longtemps qu'avant.
 La durée s'écrit **comme un horodatage, signe compris** — `00:00:02,500` avance,
 `-0:01,250` recule. Les formes acceptées sont celles d'une cellule de position.
 
-![Le dialogue de décalage, palette claire : la durée à appliquer, et le rappel
-de ce sur quoi elle portera.](captures/decalage.png)
+![Le dialogue de décalage, palette claire, avec trois lignes sélectionnées sur
+neuf cent quatre-vingts : la durée à appliquer, le choix de la cible, et le
+bouton d'aperçu.](captures/decalage.png)
 
 ![Le même dialogue sous la palette sombre.](captures/decalage-sombre.png)
 

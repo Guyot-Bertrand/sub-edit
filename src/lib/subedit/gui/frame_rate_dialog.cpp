@@ -13,13 +13,13 @@
 
 namespace subedit::gui {
 
-FrameRateDialog::FrameRateDialog(std::size_t targetCount,
+FrameRateDialog::FrameRateDialog(OperationScope scope,
                                  core::FrameRate current,
                                  std::optional<core::FrameRate> declared,
                                  std::optional<core::FrameRate> deduced,
                                  std::optional<core::FrameRate> read,
                                  QWidget* parent)
-    : OperationDialog(targetCount, parent),
+    : OperationDialog(scope, parent),
       m_input(new FrameRateBox{this}),
       m_output(new FrameRateBox{this}) {
     setWindowTitle(QStringLiteral("Convert frame rate"));

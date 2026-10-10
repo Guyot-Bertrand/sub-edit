@@ -41,14 +41,11 @@ std::optional<AnchorView> anchorIn(const core::Project& project, int number) {
     };
 }
 
-TransformDialog::TransformDialog(std::size_t targetCount,
-                                 std::size_t subtitleCount,
-                                 AnchorLookup lookup,
-                                 QWidget* parent)
-    : OperationDialog(targetCount, parent),
+TransformDialog::TransformDialog(OperationScope scope, AnchorLookup lookup, QWidget* parent)
+    : OperationDialog(scope, parent),
       m_lookup(std::move(lookup)),
-      m_first(makeRow(subtitleCount)),
-      m_second(makeRow(subtitleCount)) {
+      m_first(makeRow(scope.whole)),
+      m_second(makeRow(scope.whole)) {
     setWindowTitle(QStringLiteral("Transform positions"));
 
     // The second reference defaults to the last subtitle: two distant

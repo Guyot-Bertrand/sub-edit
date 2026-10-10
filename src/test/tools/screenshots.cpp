@@ -71,6 +71,7 @@
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QByteArray>
+#include <QDialog>
 #include <QEventLoop>
 #include <QFileDialog>
 #include <QFont>
@@ -83,6 +84,7 @@
 #include <QModelIndex>
 #include <QPixmap>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QRect>
 #include <QRgb>
 #include <QSplitter>
@@ -676,13 +678,42 @@ int main(int argc, char** argv) {
 
     {
         subedit::gui::applyTheme(subedit::core::Theme::Light);
-        subedit::gui::ShiftDialog dialog{3};
+        subedit::gui::ShiftDialog dialog{subedit::gui::OperationScope{980, 3}};
+        dialog.offerPreview([] { return subedit::gui::OperationPreview{}; });
         written = capture(dialog, dialog, directory, "decalage") && written;
     }
     {
         subedit::gui::applyTheme(subedit::core::Theme::Dark);
-        subedit::gui::ShiftDialog dialog{3};
+        subedit::gui::ShiftDialog dialog{subedit::gui::OperationScope{980, 3}};
+        dialog.offerPreview([] { return subedit::gui::OperationPreview{}; });
         written = capture(dialog, dialog, directory, "decalage-sombre") && written;
+    }
+
+    // The preview a dialog opens, on three changes: it must open wide enough for
+    // every column, which is what the capture is there to keep.
+    for (const bool dark : {false, true}) {
+        subedit::gui::applyTheme(dark ? subedit::core::Theme::Dark : subedit::core::Theme::Light);
+        subedit::gui::ShiftDialog dialog{subedit::gui::OperationScope{980, 3}};
+        dialog.offerPreview([] {
+            subedit::gui::OperationPreview preview;
+            preview.changed = 3;
+            for (int number = 1; number <= 3; ++number) {
+                preview.rows.push_back(subedit::gui::PreviewRow{
+                    .number = QString::number(number),
+                    .before = QStringLiteral("00:00:0%1,000 → 00:00:0%1,800").arg(number),
+                    .after =
+                        QStringLiteral("00:00:0%1,500 → 00:00:0%2,300").arg(number).arg(number + 1),
+                    .text = QStringLiteral("Where were you?")});
+            }
+            return preview;
+        });
+        dialog.show();
+        dialog.findChild<QPushButton*>(QStringLiteral("preview-button"))->click();
+        auto* box = dialog.findChild<QDialog*>(QStringLiteral("preview"));
+        written = (dark ? capture(*box, *box, directory, "apercu-sombre")
+                        : capture(*box, *box, directory, "apercu")) &&
+                  written;
+        box->close();
     }
 
     // The transform dialog, on a file whose numbers stand for something: the
@@ -697,7 +728,7 @@ int main(int argc, char** argv) {
             return subedit::gui::AnchorView{.start = QStringLiteral("01:47:53,583"),
                                             .text = QStringLiteral("What do we do now?")};
         };
-        subedit::gui::TransformDialog dialog{980, 980, std::move(lookup)};
+        subedit::gui::TransformDialog dialog{980, std::move(lookup)};
         written = (dark ? capture(dialog, dialog, directory, "transformation-sombre")
                         : capture(dialog, dialog, directory, "transformation")) &&
                   written;

@@ -7,17 +7,24 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/time/frame_rate.hpp>
+#include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/operation_dialog.hpp>
 #include <subedit/gui/shift_dialog.hpp>
+#include <subedit/gui/snap_dialog.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
 #include <QAbstractItemModel>
 #include <QAction>
+#include <QDialog>
 #include <QItemSelectionModel>
+#include <QLabel>
+#include <QPushButton>
 #include <QString>
 #include <QTableView>
+#include <QTableWidget>
+#include <QTableWidgetItem>
 #include <catch2/catch_test_macros.hpp>
 
 #include <string>
@@ -32,10 +39,12 @@ using subedit::core::InMemoryFileSystem;
 using subedit::core::OpenedFile;
 using subedit::core::openProject;
 using subedit::core::StandardFrameRate;
+using subedit::gui::DurationAdjustDialog;
 using subedit::gui::FrameRateDialog;
 using subedit::gui::MainWindow;
 using subedit::gui::OperationDialog;
 using subedit::gui::ShiftDialog;
+using subedit::gui::SnapDialog;
 using subedit::gui::TransformDialog;
 using subedit::test::FakePrompts;
 
@@ -107,6 +116,151 @@ TEST_CASE("shifting a selection moves only it", "[gui][GUI-SHIFT-01]") {
     CHECK(startAt(window, 0) == "00:00:01,000");
     CHECK(startAt(window, 1) == "00:00:04,000");
     CHECK(startAt(window, 2) == "00:00:05,000");
+}
+
+TEST_CASE("a partial selection can be widened to the whole project from the dialog",
+          "[gui][GUI-SCOPE-01]") {
+    InMemoryFileSystem files = withFour();
+    FakePrompts prompts;
+    prompts.nextRun = true;
+    prompts.fill = [](QDialog& dialog) {
+        auto& shift = dynamic_cast<ShiftDialog&>(dialog);
+        shift.chooseWholeProject(true);
+        shift.setTyped(QStringLiteral("00:00:01,000"));
+    };
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
+    selectRow(window, 1);
+
+    window.shiftAction()->trigger();
+
+    // The selection was one row; the dialog widened it to the four.
+    CHECK(startAt(window, 0) == "00:00:02,000");
+    CHECK(startAt(window, 3) == "00:00:08,000");
+}
+
+TEST_CASE("the shift dialog previews the change of the target it is on", "[gui][GUI-PREVIEW-01]") {
+    InMemoryFileSystem files = withFour();
+    FakePrompts prompts;
+    prompts.nextRun = false;
+    std::string seen;
+    prompts.fill = [&seen](QDialog& dialog) {
+        auto& shift = dynamic_cast<ShiftDialog&>(dialog);
+        shift.setTyped(QStringLiteral("00:00:01,000"));
+        shift.findChild<QPushButton*>(QStringLiteral("preview-button"))->click();
+
+        const auto* table =
+            shift.findChild<QDialog*>(QStringLiteral("preview"))->findChild<QTableWidget*>();
+        seen = std::to_string(table->rowCount()) + "|" + table->item(0, 1)->text().toStdString() +
+               "|" + table->item(0, 2)->text().toStdString();
+    };
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
+    selectRow(window, 1);
+
+    window.shiftAction()->trigger();
+
+    // One row selected: one row previewed, from where it is to where it goes.
+    CHECK(seen == "1|00:00:03,000 → 00:00:04,000|00:00:04,000 → 00:00:05,000");
+    // And nothing moved: a preview applies nothing.
+    CHECK(startAt(window, 1) == "00:00:03,000");
+}
+
+namespace {
+
+/// What the preview of `dialog` says on its first line, after the button was
+/// pressed — the dialog being the one the window opened.
+[[nodiscard]] std::string previewSaid(QDialog& dialog) {
+    auto* button = dialog.findChild<QPushButton*>(QStringLiteral("preview-button"));
+    REQUIRE(button != nullptr);
+    button->click();
+    return dialog.findChild<QDialog*>(QStringLiteral("preview"))
+        ->findChild<QLabel*>()
+        ->text()
+        .toStdString();
+}
+
+} // namespace
+
+TEST_CASE("every dialog that offers a preview says what it would do", "[gui][GUI-PREVIEW-01]") {
+    InMemoryFileSystem files = withFour();
+    FakePrompts prompts;
+    prompts.nextRun = false;
+    std::string said;
+    MainWindow window{files, fourIn(files), prompts};
+    window.show();
+
+    SECTION("shift, once a duration is typed") {
+        prompts.fill = [&said](QDialog& dialog) {
+            dynamic_cast<ShiftDialog&>(dialog).setTyped(QStringLiteral("00:00:01,000"));
+            said = previewSaid(dialog);
+        };
+        window.shiftAction()->trigger();
+        CHECK(said == "4 subtitles would change.");
+    }
+
+    SECTION("shift, while the duration cannot be read") {
+        prompts.fill = [&said](QDialog& dialog) { said = previewSaid(dialog); };
+        window.shiftAction()->trigger();
+        CHECK(said == "Nothing would change.");
+    }
+
+    SECTION("transform, from two references that move something") {
+        prompts.fill = [&said](QDialog& dialog) {
+            dynamic_cast<TransformDialog&>(dialog).setTyped(
+                1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("00:00:13,000"));
+            said = previewSaid(dialog);
+        };
+        window.transformAction()->trigger();
+        CHECK(said == "4 subtitles would change.");
+    }
+
+    SECTION("transform, from two references that define nothing") {
+        prompts.fill = [&said](QDialog& dialog) {
+            dynamic_cast<TransformDialog&>(dialog).setTyped(
+                2, QStringLiteral("00:00:03,000"), 2, QStringLiteral("00:00:09,000"));
+            said = previewSaid(dialog);
+        };
+        window.transformAction()->trigger();
+        CHECK(said == "Nothing would change.");
+    }
+
+    SECTION("transform, while a reference cannot be read") {
+        prompts.fill = [&said](QDialog& dialog) {
+            dynamic_cast<TransformDialog&>(dialog).setTyped(
+                1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("plus tard"));
+            said = previewSaid(dialog);
+        };
+        window.transformAction()->trigger();
+        CHECK(said == "Nothing would change.");
+    }
+
+    SECTION("frame rate conversion") {
+        prompts.fill = [&said](QDialog& dialog) {
+            auto& rates = dynamic_cast<FrameRateDialog&>(dialog);
+            rates.setRates(subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps23976},
+                           subedit::core::FrameRate{subedit::core::StandardFrameRate::Fps25});
+            said = previewSaid(dialog);
+        };
+        window.frameRateAction()->trigger();
+        CHECK(said.find("would change") != std::string::npos);
+    }
+
+    SECTION("duration adjustment") {
+        prompts.fill = [&said](QDialog& dialog) {
+            said = previewSaid(dynamic_cast<DurationAdjustDialog&>(dialog));
+        };
+        window.adjustDurationsAction()->trigger();
+        CHECK_FALSE(said.empty());
+    }
+
+    SECTION("snap to a frame rate") {
+        prompts.fill = [&said](QDialog& dialog) {
+            said = previewSaid(dynamic_cast<SnapDialog&>(dialog));
+        };
+        window.snapAction()->trigger();
+        CHECK_FALSE(said.empty());
+    }
 }
 
 TEST_CASE("a dialog names the selection, and not the file", "[gui][GUI-SHIFT-01]") {

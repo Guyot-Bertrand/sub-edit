@@ -36,6 +36,7 @@ add_library(
     edit/set_position_command.cpp
     edit/set_duration_command.cpp
     edit/set_text_command.cpp
+    edit/command_preview.cpp
     edit/sort_command.cpp
     text/capitalization.cpp
     text/enchant_spell_provider.cpp

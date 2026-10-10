@@ -11,8 +11,8 @@
 
 namespace subedit::gui {
 
-ShiftDialog::ShiftDialog(std::size_t targetCount, QWidget* parent)
-    : OperationDialog(targetCount, parent), m_by(new QLineEdit{this}) {
+ShiftDialog::ShiftDialog(OperationScope scope, QWidget* parent)
+    : OperationDialog(scope, parent), m_by(new QLineEdit{this}) {
     setWindowTitle(QStringLiteral("Shift positions"));
 
     m_by->setPlaceholderText(QStringLiteral("00:00:02,500"));

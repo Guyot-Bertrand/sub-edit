@@ -8,8 +8,8 @@
 
 namespace subedit::gui {
 
-HearingImpairedDialog::HearingImpairedDialog(std::size_t targetCount, QWidget* parent)
-    : OperationDialog(targetCount, parent) {
+HearingImpairedDialog::HearingImpairedDialog(OperationScope scope, QWidget* parent)
+    : OperationDialog(scope, parent) {
     setWindowTitle(QStringLiteral("Remove hearing-impaired mentions"));
 
     fields()->addRow(

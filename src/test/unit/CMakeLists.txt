@@ -89,6 +89,7 @@ add_executable(
     core/edit/set_position_command_test.cpp
     core/edit/set_duration_command_test.cpp
     core/edit/snap_command_test.cpp
+    core/edit/command_preview_test.cpp
     core/edit/sort_command_test.cpp
     core/edit/order_policy_test.cpp
     core/command/change_test.cpp

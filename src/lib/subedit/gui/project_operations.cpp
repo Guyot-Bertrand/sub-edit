@@ -1,6 +1,7 @@
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_correction.hpp>
 #include <subedit/core/edit/append.hpp>
+#include <subedit/core/edit/command_preview.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/dialogue_dashes_command.hpp>
 #include <subedit/core/edit/duration_adjustment.hpp>
@@ -51,6 +52,7 @@
 #include <cstddef>
 #include <expected>
 #include <filesystem>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -64,6 +66,55 @@ namespace {
 /// whole file when none is.
 [[nodiscard]] core::Selection targetIn(const ProjectPage& page) {
     return targetOf(*page.tableSelection, page.session->project());
+}
+
+/// What an operation of `page` could apply to, for the dialog to offer the choice.
+[[nodiscard]] OperationScope scopeOf(const ProjectPage& page) {
+    return OperationScope{page.session->project().count(),
+                          selectionOf(*page.tableSelection).count()};
+}
+
+/// What `dialog` says to apply to: every subtitle, or the rows selected.
+///
+/// Read once the dialog is accepted — or at each preview — since the choice is
+/// the user's and may have changed since the dialog opened.
+[[nodiscard]] core::Selection chosenIn(const ProjectPage& page, const OperationDialog& dialog) {
+    return dialog.wholeProject() ? core::Selection::all(page.session->project())
+                                 : selectionOf(*page.tableSelection);
+}
+
+/// How many changes a preview lists: a glance, and the rest is counted.
+constexpr std::size_t kPreviewRows = 12;
+
+/// Builds the command a dialog is about to ask for, over a target — or nothing
+/// while what was typed makes none.
+using CommandMaker = std::function<std::unique_ptr<core::Command>(const core::Selection& target)>;
+
+/// Gives `dialog` its preview: what `make` would do, shown before it is done.
+void offerPreviewOf(OperationDialog& dialog, const ProjectPage& page, CommandMaker make) {
+    dialog.offerPreview([&dialog, &page, make = std::move(make)] {
+        std::unique_ptr<core::Command> command = make(chosenIn(page, dialog));
+        if (!command)
+            return OperationPreview{};
+        return describedPreview(core::previewOf(page.session->project(), *command, kPreviewRows));
+    });
+}
+
+/// The transform two typed references define, over `target`.
+///
+/// What the dialog read becomes the core's own value here: it holds widgets,
+/// not the vocabulary of a command.
+[[nodiscard]] std::optional<core::TransformCommand> transformOf(const core::Project& project,
+                                                                const core::Selection& target,
+                                                                const TypedReference& first,
+                                                                const TypedReference& second) {
+    const auto referenceOf = [](const TypedReference& typed) {
+        return core::TransformReference{
+            .index = core::SubtitleIndex::fromNumber(static_cast<std::size_t>(typed.number)),
+            .target = typed.target,
+        };
+    };
+    return core::TransformCommand::create(project, target, referenceOf(first), referenceOf(second));
 }
 
 /// Why a shift of `target` by `by` is refused, or nothing.
@@ -132,11 +183,15 @@ std::string ProjectOperations::whatPassesTheEnd(const ProjectPage& page,
 }
 
 void ProjectOperations::shift(ProjectPage& page) {
-    const core::Selection target = targetIn(page);
-
-    ShiftDialog dialog{target.count(), m_view->dialogParent()};
+    ShiftDialog dialog{scopeOf(page), m_view->dialogParent()};
+    offerPreviewOf(dialog, page, [&dialog](const core::Selection& target) {
+        const std::optional<core::Duration> by = dialog.shift();
+        return by.has_value() ? std::make_unique<core::ShiftCommand>(target, *by)
+                              : std::unique_ptr<core::ShiftCommand>{};
+    });
     if (!m_prompts->run(dialog))
         return;
+    const core::Selection target = chosenIn(page, dialog);
 
     const std::optional<core::Duration> by = dialog.shift();
     if (!by.has_value())
@@ -153,20 +208,23 @@ void ProjectOperations::shift(ProjectPage& page) {
 }
 
 void ProjectOperations::transform(ProjectPage& page) {
-    const core::Selection target = targetIn(page);
-
     const core::Project& project = page.session->project();
 
     // What a number stands for, said where the user types it: the start the
     // subtitle has now, and its text — the two things they would otherwise
     // look up in the table.
-    // What a number stands for, said where the user types it: the start the
-    // subtitle has now, and its text — the two things they would otherwise
-    // look up in the table.
     AnchorLookup lookup = [&project](int number) { return anchorIn(project, number); };
 
-    TransformDialog dialog{
-        target.count(), project.count(), std::move(lookup), m_view->dialogParent()};
+    TransformDialog dialog{scopeOf(page), std::move(lookup), m_view->dialogParent()};
+    offerPreviewOf(dialog, page, [&dialog, &project](const core::Selection& target) {
+        const std::optional<TypedReference> first = dialog.first();
+        const std::optional<TypedReference> second = dialog.second();
+        std::optional<core::TransformCommand> command =
+            first.has_value() && second.has_value() ? transformOf(project, target, *first, *second)
+                                                    : std::nullopt;
+        return command.has_value() ? std::make_unique<core::TransformCommand>(std::move(*command))
+                                   : std::unique_ptr<core::TransformCommand>{};
+    });
     if (!m_prompts->run(dialog))
         return;
 
@@ -175,17 +233,8 @@ void ProjectOperations::transform(ProjectPage& page) {
     if (!first.has_value() || !second.has_value())
         return;
 
-    // What the dialog read becomes the core's own value here: it holds
-    // widgets, not the vocabulary of a command.
-    const auto referenceOf = [](const TypedReference& typed) {
-        return core::TransformReference{
-            .index = core::SubtitleIndex::fromNumber(static_cast<std::size_t>(typed.number)),
-            .target = typed.target,
-        };
-    };
-
-    std::optional<core::TransformCommand> command = core::TransformCommand::create(
-        page.session->project(), target, referenceOf(*first), referenceOf(*second));
+    const core::Selection target = chosenIn(page, dialog);
+    std::optional<core::TransformCommand> command = transformOf(project, target, *first, *second);
     if (!command.has_value()) {
         m_prompts->reportFailure("the two references define no correction");
         return;
@@ -200,7 +249,6 @@ void ProjectOperations::convertFrameRate(ProjectPage& page) {
 
 void ProjectOperations::convertFrameRateFrom(ProjectPage& page,
                                              const std::optional<core::RateConversion>& proposed) {
-    const core::Selection target = targetIn(page);
     const core::Project& project = page.session->project();
 
     // Pre-filled with the project's own, never guessed: the file does not
@@ -223,7 +271,7 @@ void ProjectOperations::convertFrameRateFrom(ProjectPage& page,
             ? std::optional{grid.retained.rate}
             : std::nullopt;
 
-    FrameRateDialog dialog{target.count(),
+    FrameRateDialog dialog{scopeOf(page),
                            project.frameRate(),
                            associated.has_value() ? associated->declared : std::nullopt,
                            measured,
@@ -232,9 +280,14 @@ void ProjectOperations::convertFrameRateFrom(ProjectPage& page,
     // **Filled and not applied**: the analysis found these two, and the dialog still asks.
     if (proposed.has_value())
         dialog.setRates(proposed->input, proposed->output);
+    offerPreviewOf(dialog, page, [&dialog, &project](const core::Selection& target) {
+        return std::make_unique<core::ConvertFrameRateCommand>(
+            project, target, dialog.input(), dialog.output());
+    });
     if (!m_prompts->run(dialog))
         return;
 
+    const core::Selection target = chosenIn(page, dialog);
     apply(page,
           std::make_unique<core::ConvertFrameRateCommand>(
               project, target, dialog.input(), dialog.output()),
@@ -242,11 +295,15 @@ void ProjectOperations::convertFrameRateFrom(ProjectPage& page,
 }
 
 void ProjectOperations::adjustDurations(ProjectPage& page) {
-    const core::Selection target = targetIn(page);
-
-    DurationAdjustDialog dialog{target.count(), m_durationSettings, m_view->dialogParent()};
+    DurationAdjustDialog dialog{scopeOf(page), m_durationSettings, m_view->dialogParent()};
+    offerPreviewOf(dialog, page, [&dialog, &page](const core::Selection& target) {
+        return core::adjustDurations(
+                   page.session->project(), target, core::constraintsOf(dialog.settings()))
+            .command;
+    });
     if (!m_prompts->run(dialog))
         return;
+    const core::Selection target = chosenIn(page, dialog);
 
     // Kept even if nothing moves: it is what was asked, and the next dialog
     // offers it again.
@@ -355,11 +412,10 @@ void ProjectOperations::splitProject(ProjectPage& page) {
 }
 
 void ProjectOperations::removeHearingImpaired(ProjectPage& page) {
-    const core::Selection target = targetIn(page);
-
-    HearingImpairedDialog dialog{target.count(), m_view->dialogParent()};
+    HearingImpairedDialog dialog{scopeOf(page), m_view->dialogParent()};
     if (!m_prompts->run(dialog))
         return;
+    const core::Selection target = chosenIn(page, dialog);
 
     // Built before being applied, and asked what it will do: the count is read
     // from the command, never by counting again afterwards.
@@ -438,15 +494,18 @@ void ProjectOperations::toggleDialogueDashes(ProjectPage& page) {
 }
 
 void ProjectOperations::snap(ProjectPage& page) {
-    const core::Selection target = targetIn(page);
     const std::optional<core::AssociatedVideo>& associated = page.session->project().video();
 
-    SnapDialog dialog{target.count(),
+    SnapDialog dialog{scopeOf(page),
                       page.session->project().frameRate(),
                       associated.has_value() ? associated->declared : std::nullopt,
                       m_view->dialogParent()};
+    offerPreviewOf(dialog, page, [&dialog, &page](const core::Selection& target) {
+        return std::make_unique<core::SnapCommand>(page.session->project(), target, dialog.rate());
+    });
     if (!m_prompts->run(dialog))
         return;
+    const core::Selection target = chosenIn(page, dialog);
 
     const std::string pastTheEnd = applyQuietly(
         page,

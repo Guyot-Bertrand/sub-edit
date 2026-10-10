@@ -18,7 +18,7 @@ class HearingImpairedDialog final : public OperationDialog {
     Q_OBJECT
 
 public:
-    explicit HearingImpairedDialog(std::size_t targetCount, QWidget* parent = nullptr);
+    explicit HearingImpairedDialog(OperationScope scope, QWidget* parent = nullptr);
 
     /// Always: there is nothing to type, so there is nothing to get wrong.
     [[nodiscard]] bool isComplete() const override { return true; }
