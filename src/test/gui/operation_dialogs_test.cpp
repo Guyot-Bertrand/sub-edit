@@ -4,6 +4,8 @@
 // a test builds one, fills its fields and reads what it makes of them. Only the
 // modal loop stays out of reach, and it is behind `Prompts::run`.
 
+#include <subedit/core/model/project.hpp>
+#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
@@ -25,6 +27,9 @@ using subedit::core::FrameRate;
 using subedit::core::kStandardFrameRates;
 using subedit::core::StandardFrameRate;
 using subedit::core::Timestamp;
+using subedit::gui::anchorIn;
+using subedit::gui::AnchorLookup;
+using subedit::gui::AnchorView;
 using subedit::gui::FrameRateDialog;
 using subedit::gui::ShiftDialog;
 using subedit::gui::SnapDialog;
@@ -65,7 +70,7 @@ TEST_CASE("the shift dialog says what it is about to touch", "[gui][GUI-SHIFT-01
 }
 
 TEST_CASE("the transform dialog reads two references", "[gui][GUI-TRANSFORM-01]") {
-    TransformDialog dialog{4, 4};
+    const TransformDialog dialog{4, 4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("00:00:09,000"));
 
@@ -83,7 +88,7 @@ TEST_CASE("two references on the same subtitle define no transform", "[gui][GUI-
     // The core already refuses it — `TransformCommand::create` returns
     // `nullopt` on a zero denominator. The dialog says so beforehand, rather
     // than letting the user validate for nothing.
-    TransformDialog dialog{4, 4};
+    const TransformDialog dialog{4, 4};
 
     dialog.setTyped(2, QStringLiteral("00:00:01,000"), 2, QStringLiteral("00:00:09,000"));
 
@@ -94,7 +99,7 @@ TEST_CASE("a reference outside the file cannot be asked for", "[gui][GUI-TRANSFO
     // Not refused afterwards, but impossible to type: the field is bounded by
     // the number of subtitles. A ninth reference in a file of four falls back
     // to the fourth.
-    TransformDialog dialog{4, 4};
+    const TransformDialog dialog{4, 4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 9, QStringLiteral("00:00:09,000"));
 
@@ -107,7 +112,7 @@ TEST_CASE("the transform dialog counts its target apart from its bounds",
     // Two counts, and they do not say the same thing. The operation applies to
     // two subtitles; a reference is still a subtitle number, so it goes up to
     // the last of the file, selected or not.
-    TransformDialog dialog{2, 4};
+    const TransformDialog dialog{2, 4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("00:00:09,000"));
 
@@ -117,7 +122,7 @@ TEST_CASE("the transform dialog counts its target apart from its bounds",
 }
 
 TEST_CASE("an unreadable reference position is refused", "[gui][GUI-TRANSFORM-01]") {
-    TransformDialog dialog{4, 4};
+    const TransformDialog dialog{4, 4};
 
     dialog.setTyped(1, QStringLiteral("00:00:01,000"), 4, QStringLiteral("plus tard"));
 
@@ -330,4 +335,75 @@ TEST_CASE("a document counted in time has no such row", "[gui][GUI-FRAMES-01]") 
     const FrameRateDialog dialog{4, FrameRate{StandardFrameRate::Fps25}};
 
     CHECK(dialog.readLabel().isEmpty());
+}
+
+TEST_CASE("the transform dialog shows what each number stands for", "[gui][GUI-TRANSFORM-01]") {
+    // The current start and the text of the subtitle a number names, so the
+    // user need not look the line up in the table before typing a time.
+    const AnchorLookup lookup = [](int number) -> std::optional<AnchorView> {
+        return AnchorView{.start = QStringLiteral("00:00:0%1,000").arg(number),
+                          .text = QStringLiteral("line %1").arg(number)};
+    };
+    const TransformDialog dialog{4, 4, lookup};
+
+    // Both rows are filled on opening: the first on subtitle 1, the second on
+    // the last.
+    CHECK(dialog.firstCurrent().toStdString() == "00:00:01,000");
+    CHECK(dialog.firstText().toStdString() == "line 1");
+    CHECK(dialog.secondCurrent().toStdString() == "00:00:04,000");
+    CHECK(dialog.secondText().toStdString() == "line 4");
+
+    // And they follow the number, the proposed new start with them.
+    dialog.setTyped(3, QStringLiteral("00:00:09,000"), 2, QStringLiteral("00:00:08,000"));
+    CHECK(dialog.firstCurrent().toStdString() == "00:00:03,000");
+    CHECK(dialog.firstText().toStdString() == "line 3");
+    CHECK(dialog.secondCurrent().toStdString() == "00:00:02,000");
+    CHECK(dialog.secondText().toStdString() == "line 2");
+    CHECK(dialog.first() ==
+          TypedReference{.number = 3, .target = Timestamp::fromMilliseconds(9000)});
+}
+
+TEST_CASE("the transform dialog proposes the current start as the new one",
+          "[gui][GUI-TRANSFORM-01]") {
+    const AnchorLookup lookup = [](int number) -> std::optional<AnchorView> {
+        return AnchorView{.start = QStringLiteral("00:00:0%1,500").arg(number), .text = {}};
+    };
+    const TransformDialog dialog{4, 4, lookup};
+
+    // Untouched, the dialog already describes the identity: nothing moves
+    // until the user changes a time.
+    CHECK(dialog.first() ==
+          TypedReference{.number = 1, .target = Timestamp::fromMilliseconds(1500)});
+    CHECK(dialog.second() ==
+          TypedReference{.number = 4, .target = Timestamp::fromMilliseconds(4500)});
+    CHECK(dialog.isComplete());
+}
+
+TEST_CASE("a number with nothing behind it leaves the typed time alone",
+          "[gui][GUI-TRANSFORM-01]") {
+    const AnchorLookup lookup = [](int) { return std::optional<AnchorView>{}; };
+    const TransformDialog dialog{4, 4, lookup};
+
+    dialog.setTyped(1, QStringLiteral("00:00:02,000"), 4, QStringLiteral("00:00:09,000"));
+
+    CHECK(dialog.firstCurrent().isEmpty());
+    CHECK(dialog.firstText().isEmpty());
+    CHECK(dialog.first() ==
+          TypedReference{.number = 1, .target = Timestamp::fromMilliseconds(2000)});
+}
+
+TEST_CASE("a number outside the file names no subtitle", "[gui][GUI-TRANSFORM-01]") {
+    subedit::core::Project project;
+    project.setSubtitles({subedit::core::Subtitle{.start = Timestamp::fromMilliseconds(1500),
+                                                  .end = Timestamp::fromMilliseconds(2500),
+                                                  .mainText = "Only."}});
+
+    const std::optional<AnchorView> inside = anchorIn(project, 1);
+    const AnchorView shown = inside.value_or(AnchorView{});
+    CHECK(shown.start.toStdString() == "00:00:01,500");
+    CHECK(shown.text.toStdString() == "Only.");
+
+    CHECK_FALSE(anchorIn(project, 0).has_value());
+    CHECK_FALSE(anchorIn(project, 2).has_value());
+    CHECK_FALSE(anchorIn(project, -3).has_value());
 }

@@ -133,9 +133,22 @@ La correction d'un fichier calé sur un autre montage. On dit où **deux**
 sous-titres commencent réellement, et tout le reste suit, proportionnellement.
 
 Le dialogue demande deux fois la même chose : un numéro de sous-titre, et la
-position où son début appartient. Le second est pré-rempli sur le dernier
+position où son début appartient. Pour chaque repère, il montre **ce que ce
+numéro désigne** — l'heure à laquelle le sous-titre commence **maintenant**
+(lecture seule) et son texte — et ils suivent le numéro à mesure qu'on le
+change. Il n'y a pas à chercher dans le tableau quelle ligne est la `980`.
+
+La position à saisir est **proposée à la valeur actuelle** : tant qu'on n'y
+touche pas, le repère dit « ce sous-titre est déjà où il doit être ». On ne
+change que ce qu'on veut changer. Le second repère est pré-rempli sur le dernier
 sous-titre du fichier — deux repères éloignés donnent une correction plus sûre
 que deux repères voisins.
+
+![Le dialogue de transformation, palette claire : pour chaque repère, le
+numéro, l'heure actuelle, la nouvelle heure et le texte du
+sous-titre.](captures/transformation.png)
+
+![Le même dialogue sous la palette sombre.](captures/transformation-sombre.png)
 
 **Les deux repères atterrissent exactement où on les a demandés.** Ce n'est pas
 une approximation : le calcul est fait pour que ce soit vrai.

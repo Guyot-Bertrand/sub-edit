@@ -1,14 +1,19 @@
+#include <subedit/core/model/project.hpp>
+#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
+#include <QFont>
 #include <QFormLayout>
+#include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QString>
 
 #include <cstddef>
 #include <optional>
+#include <utility>
 
 namespace subedit::gui {
 
@@ -24,51 +29,101 @@ namespace {
 
 } // namespace
 
+std::optional<AnchorView> anchorIn(const core::Project& project, int number) {
+    if (number < 1 || static_cast<std::size_t>(number) > project.count())
+        return std::nullopt;
+
+    const core::Subtitle& subtitle =
+        project.subtitleAt(core::SubtitleIndex::fromNumber(static_cast<std::size_t>(number)));
+    return AnchorView{
+        .start = QString::fromStdString(subtitle.start.format(core::DecimalMark::Comma)),
+        .text = QString::fromStdString(subtitle.mainText),
+    };
+}
+
 TransformDialog::TransformDialog(std::size_t targetCount,
                                  std::size_t subtitleCount,
+                                 AnchorLookup lookup,
                                  QWidget* parent)
     : OperationDialog(targetCount, parent),
-      m_firstNumber(numberField(this, subtitleCount)),
-      m_firstTarget(new QLineEdit{this}),
-      m_secondNumber(numberField(this, subtitleCount)),
-      m_secondTarget(new QLineEdit{this}) {
+      m_lookup(std::move(lookup)),
+      m_first(makeRow(subtitleCount)),
+      m_second(makeRow(subtitleCount)) {
     setWindowTitle(QStringLiteral("Transform positions"));
 
     // The second reference defaults to the last subtitle: two distant
     // references give a surer correction than two neighbouring ones, and that
     // is what the user wants nine times out of ten.
-    m_secondNumber->setValue(m_secondNumber->maximum());
+    m_second.number->setValue(m_second.number->maximum());
 
-    for (QLineEdit* target : {m_firstTarget, m_secondTarget}) {
-        target->setPlaceholderText(QStringLiteral("00:00:01,000"));
-        connect(target, &QLineEdit::textChanged, this, [this] { revalidate(); });
+    for (const Row* row : {&m_first, &m_second}) {
+        connect(row->target, &QLineEdit::textChanged, this, [this] { revalidate(); });
+        connect(row->number, &QSpinBox::valueChanged, this, [this, row](int) {
+            refresh(*row);
+            revalidate();
+        });
+        refresh(*row);
     }
-    for (QSpinBox* number : {m_firstNumber, m_secondNumber})
-        connect(number, &QSpinBox::valueChanged, this, [this] { revalidate(); });
 
-    fields()->addRow(QStringLiteral("Subtitle"), m_firstNumber);
-    fields()->addRow(QStringLiteral("really starts at"), m_firstTarget);
-    fields()->addRow(QStringLiteral("Subtitle"), m_secondNumber);
-    fields()->addRow(QStringLiteral("really starts at"), m_secondTarget);
+    const auto heading = [this](const QString& title) {
+        auto* label = new QLabel{title, this};
+        QFont bold = label->font();
+        bold.setBold(true);
+        label->setFont(bold);
+        fields()->addRow(label);
+    };
+    const auto add = [this](const Row& row) {
+        fields()->addRow(QStringLiteral("Subtitle"), row.number);
+        fields()->addRow(QStringLiteral("Starts now at"), row.current);
+        fields()->addRow(QStringLiteral("Really starts at"), row.target);
+        fields()->addRow(QStringLiteral("Text"), row.text);
+    };
+    heading(QStringLiteral("First reference"));
+    add(m_first);
+    heading(QStringLiteral("Second reference"));
+    add(m_second);
     finish();
 }
 
-std::optional<TypedReference> TransformDialog::referenceOf(const QSpinBox& number,
-                                                           const QLineEdit& target) {
+TransformDialog::Row TransformDialog::makeRow(std::size_t subtitleCount) {
+    auto* current = new QLineEdit{this};
+    current->setReadOnly(true);
+
+    auto* text = new QLabel{this};
+    text->setWordWrap(true);
+
+    auto* number = numberField(this, subtitleCount);
+    auto* target = new QLineEdit{this};
+
+    return Row{.number = number, .current = current, .target = target, .text = text};
+}
+
+void TransformDialog::refresh(const Row& row) {
+    const std::optional<AnchorView> view = m_lookup ? m_lookup(row.number->value()) : std::nullopt;
+    row.current->setText(view ? view->start : QString{});
+    row.text->setText(view ? view->text : QString{});
+
+    // Offered, not imposed: the field is the user's to overwrite, and a number
+    // with nothing behind it leaves what was typed alone.
+    if (view.has_value())
+        row.target->setText(view->start);
+}
+
+std::optional<TypedReference> TransformDialog::referenceOf(const Row& row) {
     const std::optional<core::Timestamp> position =
-        core::Timestamp::parse(target.text().toStdString());
+        core::Timestamp::parse(row.target->text().toStdString());
     if (!position.has_value())
         return std::nullopt;
 
-    return TypedReference{.number = number.value(), .target = *position};
+    return TypedReference{.number = row.number->value(), .target = *position};
 }
 
 std::optional<TypedReference> TransformDialog::first() const {
-    return referenceOf(*m_firstNumber, *m_firstTarget);
+    return referenceOf(m_first);
 }
 
 std::optional<TypedReference> TransformDialog::second() const {
-    return referenceOf(*m_secondNumber, *m_secondTarget);
+    return referenceOf(m_second);
 }
 
 bool TransformDialog::isComplete() const {
@@ -86,11 +141,27 @@ bool TransformDialog::isComplete() const {
 void TransformDialog::setTyped(int firstNumber,
                                const QString& firstTarget,
                                int secondNumber,
-                               const QString& secondTarget) {
-    m_firstNumber->setValue(firstNumber);
-    m_firstTarget->setText(firstTarget);
-    m_secondNumber->setValue(secondNumber);
-    m_secondTarget->setText(secondTarget);
+                               const QString& secondTarget) const {
+    m_first.number->setValue(firstNumber);
+    m_first.target->setText(firstTarget);
+    m_second.number->setValue(secondNumber);
+    m_second.target->setText(secondTarget);
+}
+
+QString TransformDialog::firstCurrent() const {
+    return m_first.current->text();
+}
+
+QString TransformDialog::secondCurrent() const {
+    return m_second.current->text();
+}
+
+QString TransformDialog::firstText() const {
+    return m_first.text->text();
+}
+
+QString TransformDialog::secondText() const {
+    return m_second.text->text();
 }
 
 } // namespace subedit::gui

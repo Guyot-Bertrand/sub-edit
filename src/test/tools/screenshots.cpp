@@ -64,6 +64,7 @@
 #include <subedit/gui/split_project_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/theme.hpp>
+#include <subedit/gui/transform_dialog.hpp>
 #include <subedit/gui/unsaved_documents_dialog.hpp>
 #include <subedit/gui/video_surface.hpp>
 
@@ -682,6 +683,24 @@ int main(int argc, char** argv) {
         subedit::gui::applyTheme(subedit::core::Theme::Dark);
         subedit::gui::ShiftDialog dialog{3};
         written = capture(dialog, dialog, directory, "decalage-sombre") && written;
+    }
+
+    // The transform dialog, on a file whose numbers stand for something: the
+    // lookup is what the window builds from the project.
+    for (const bool dark : {false, true}) {
+        subedit::gui::applyTheme(dark ? subedit::core::Theme::Dark : subedit::core::Theme::Light);
+        subedit::gui::AnchorLookup lookup =
+            [](int number) -> std::optional<subedit::gui::AnchorView> {
+            if (number == 1)
+                return subedit::gui::AnchorView{.start = QStringLiteral("00:00:01,000"),
+                                                .text = QStringLiteral("Where were you?")};
+            return subedit::gui::AnchorView{.start = QStringLiteral("01:47:53,583"),
+                                            .text = QStringLiteral("What do we do now?")};
+        };
+        subedit::gui::TransformDialog dialog{980, 980, std::move(lookup)};
+        written = (dark ? capture(dialog, dialog, directory, "transformation-sombre")
+                        : capture(dialog, dialog, directory, "transformation")) &&
+                  written;
     }
 
     // The insertion dialog, on a document that carries rows: that is the state
