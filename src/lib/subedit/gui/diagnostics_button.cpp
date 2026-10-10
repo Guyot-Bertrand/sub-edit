@@ -1,3 +1,4 @@
+#include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/gui/diagnostics_button.hpp>
@@ -5,6 +6,7 @@
 #include <QAbstractItemView>
 #include <QFrame>
 #include <QListWidget>
+#include <QListWidgetItem>
 #include <QPoint>
 #include <QRect>
 #include <QScreen>
@@ -14,41 +16,55 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <ranges>
 #include <span>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace subedit::gui {
 
 namespace {
-
-/// How much of a detail is worth reading before it stops being context.
-constexpr int kLongestDetail = 80;
 
 /// The list: wide enough for a line and its excerpt, and never taller than this.
 constexpr int kListWidth = 460;
 constexpr int kListHeight = 240;
 constexpr int kMostRows = 10;
 
-[[nodiscard]] QString boundedOf(const std::string& detail) {
-    const QString text = QString::fromStdString(detail);
-    return text.size() <= kLongestDetail ? text : text.left(kLongestDetail) + QStringLiteral("…");
-}
+/// Where an anomaly's line keeps the row of its subtitle; a reading diagnostic
+/// has none.
+constexpr int kRowRole = Qt::UserRole;
 
 } // namespace
 
-QString lineOf(const core::Diagnostic& diagnostic) {
-    // A diagnostic about the whole file has no line to name, and "line 0"
-    // would name a place that is not there — see `kWholeFile`.
-    QString line = diagnostic.line == core::kWholeFile
-                       ? QString::fromUtf8(core::nameOf(diagnostic.kind))
-                       : QStringLiteral("line %1: %2")
-                             .arg(diagnostic.line)
-                             .arg(QString::fromUtf8(core::nameOf(diagnostic.kind)));
+QStringList summaryLinesOf(std::span<const core::Diagnostic> diagnostics) {
+    struct Group {
+        core::DiagnosticKind kind;
+        core::Severity severity;
+        int count;
+    };
 
-    if (!diagnostic.detail.empty())
-        line += QStringLiteral(" (\"%1\")").arg(boundedOf(diagnostic.detail));
+    // In the order each pair first appears: the reading met them in that order.
+    std::vector<Group> groups;
+    for (const core::Diagnostic& diagnostic : diagnostics) {
+        const auto same = [&diagnostic](const Group& group) {
+            return group.kind == diagnostic.kind && group.severity == diagnostic.severity;
+        };
+        if (auto found = std::ranges::find_if(groups, same); found != groups.end())
+            ++found->count;
+        else
+            groups.push_back(
+                Group{.kind = diagnostic.kind, .severity = diagnostic.severity, .count = 1});
+    }
 
-    return line + QStringLiteral(", ") + QString::fromUtf8(core::nameOf(diagnostic.severity));
+    QStringList lines;
+    for (const Group& group : groups) {
+        lines.push_back(QStringLiteral("%1, %2: %3")
+                            .arg(QString::fromUtf8(core::nameOf(group.kind)),
+                                 QString::fromUtf8(core::nameOf(group.severity)))
+                            .arg(group.count));
+    }
+    return lines;
 }
 
 DiagnosticsButton::DiagnosticsButton(QWidget* parent)
@@ -60,7 +76,8 @@ DiagnosticsButton::DiagnosticsButton(QWidget* parent)
     setAutoRaise(true);
     setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     setIcon(style()->standardIcon(QStyle::SP_MessageBoxWarning));
-    setToolTip(QStringLiteral("What the reading ran into — click for the list"));
+    setToolTip(QStringLiteral("What the reading ran into, and what is wrong with the "
+                              "subtitles — click for the list"));
 
     m_popup->setFrameShape(QFrame::StyledPanel);
     auto* stack = new QVBoxLayout{m_popup};
@@ -72,20 +89,63 @@ DiagnosticsButton::DiagnosticsButton(QWidget* parent)
     m_lines->setTextElideMode(Qt::ElideRight);
 
     connect(this, &QToolButton::clicked, this, &DiagnosticsButton::openList);
+    connect(m_lines, &QListWidget::itemClicked, this, [this](const QListWidgetItem* item) {
+        chooseLine(m_lines->row(item));
+    });
 
     setVisible(false);
 }
 
 void DiagnosticsButton::setDiagnostics(std::span<const core::Diagnostic> diagnostics) {
     m_popup->hide();
+    m_diagnosticLines = summaryLinesOf(diagnostics);
+    rebuild();
+}
+
+void DiagnosticsButton::setAnomalies(std::span<const core::Anomaly> anomalies) {
+    QStringList lines;
+    std::vector<int> rows;
+    for (const core::AnomalyCount& count : core::countAnomalies(anomalies)) {
+        lines.push_back(QString::fromStdString(core::summaryOf(count.kind, count.count)));
+        rows.push_back(static_cast<int>(count.first.value()));
+    }
+
+    // Asked after every operation, and almost always for the same answer: a list
+    // rebuilt for nothing would lose the scroll position of the one being read.
+    if (lines == m_anomalyLines && rows == m_anomalyRows)
+        return;
+
+    m_anomalyLines = std::move(lines);
+    m_anomalyRows = std::move(rows);
+    rebuild();
+}
+
+void DiagnosticsButton::rebuild() {
     m_lines->clear();
-    for (const core::Diagnostic& diagnostic : diagnostics)
-        m_lines->addItem(lineOf(diagnostic));
+    m_lines->addItems(m_diagnosticLines);
 
-    setText(diagnostics.size() == 1 ? QStringLiteral("1 diagnostic")
-                                    : QStringLiteral("%1 diagnostics").arg(diagnostics.size()));
+    for (qsizetype position = 0; position < m_anomalyLines.size(); ++position) {
+        auto* item = new QListWidgetItem{m_anomalyLines.at(position)};
+        item->setData(kRowRole, m_anomalyRows.at(static_cast<std::size_t>(position)));
+        m_lines->addItem(item);
+    }
 
-    setVisible(!diagnostics.empty());
+    const int total = m_lines->count();
+    setText(total == 1 ? QStringLiteral("1 diagnostic")
+                       : QStringLiteral("%1 diagnostics").arg(total));
+
+    // A list with nothing left to show goes with its button.
+    if (total == 0)
+        m_popup->hide();
+    setVisible(total != 0);
+}
+
+void DiagnosticsButton::chooseLine(int row) {
+    const QListWidgetItem* item = m_lines->item(row);
+    if (item == nullptr || !item->data(kRowRole).isValid())
+        return;
+
+    emit rowChosen(item->data(kRowRole).toInt());
 }
 
 void DiagnosticsButton::openList() {

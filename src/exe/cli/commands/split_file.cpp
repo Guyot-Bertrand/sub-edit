@@ -21,6 +21,7 @@ struct SplitFileOptions {
     std::string head;
     std::string tail;
     bool dryRun = false;
+    bool sort = false;
 };
 
 CLI::App* describeSplitFile(CLI::App& app, std::string_view name, SplitFileOptions& options) {
@@ -39,6 +40,10 @@ CLI::App* describeSplitFile(CLI::App& app, std::string_view name, SplitFileOptio
         ->option_text("FILE");
     split->add_flag(
         "--dry-run", options.dryRun, "Work out and say what would be written, and write nothing");
+    split->add_flag("--sort",
+                    options.sort,
+                    "Put the subtitles in order of their start before cutting; --at counts in "
+                    "that order");
     return split;
 }
 
@@ -58,7 +63,8 @@ ExitCode runSplitFile(const SplitFileOptions& options,
                                   .at = options.at,
                                   .head = options.head,
                                   .tail = options.tail,
-                                  .dryRun = options.dryRun},
+                                  .dryRun = options.dryRun,
+                                  .sort = options.sort},
                      reading,
                      reporter);
 }

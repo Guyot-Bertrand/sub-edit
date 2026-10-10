@@ -566,3 +566,73 @@ TEST_CASE("an in-place conversion is refused only when it would leave a file mis
     CHECK_FALSE(
         subedit::cli::refusalOfInPlaceRename(false, paths, SubtitleFormat::WebVtt).has_value());
 }
+
+TEST_CASE(
+    "sorting on request writes the subtitles in order of their start, and says how many moved",
+    "[cli][conversion][CLI-SORT-03]") {
+    const std::string disordered = "1\n00:00:05,000 --> 00:00:06,000\nlate\n\n"
+                                   "2\n00:00:01,000 --> 00:00:02,000\nearly\n\n";
+    InMemoryFileSystem files;
+    files.addFile("in/a.srt", disordered);
+    std::ostringstream errors;
+    std::ostringstream records;
+
+    const ExitCode code = convertAll(files,
+                                     {"in/a.srt"},
+                                     subedit::core::ReadingChoices{},
+                                     SubtitleFormat::SubRip,
+                                     {},
+                                     Destination::from("", "out", false, 1).value(),
+                                     Reporter{errors, 1}.withRecords(records).forCommand("convert"),
+                                     true);
+
+    CHECK(code == ExitCode::Success);
+    CHECK(files.contentOf("out/a.srt").value_or("") ==
+          "1\n00:00:01,000 --> 00:00:02,000\nearly\n\n"
+          "2\n00:00:05,000 --> 00:00:06,000\nlate\n\n");
+    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: 2 subtitles moved"));
+    CHECK_THAT(records.str(), ContainsSubstring("\"moved\":2"));
+}
+
+TEST_CASE("without --sort the order of the file is kept, and the record has no count of moves",
+          "[cli][conversion][CLI-SORT-03]") {
+    const std::string disordered = "1\n00:00:05,000 --> 00:00:06,000\nlate\n\n"
+                                   "2\n00:00:01,000 --> 00:00:02,000\nearly\n\n";
+    InMemoryFileSystem files;
+    files.addFile("in/a.srt", disordered);
+    std::ostringstream errors;
+    std::ostringstream records;
+
+    const ExitCode code =
+        convertAll(files,
+                   {"in/a.srt"},
+                   subedit::core::ReadingChoices{},
+                   SubtitleFormat::SubRip,
+                   {},
+                   Destination::from("", "out", false, 1).value(),
+                   Reporter{errors, 1}.withRecords(records).forCommand("convert"));
+
+    CHECK(code == ExitCode::Success);
+    CHECK(files.contentOf("out/a.srt").value_or("") == disordered);
+    CHECK_THAT(records.str(), !ContainsSubstring("moved"));
+}
+
+TEST_CASE("sorting on request a file already in order says so and changes nothing",
+          "[cli][conversion][CLI-SORT-03]") {
+    InMemoryFileSystem files;
+    files.addFile("in/a.srt", kSubRip);
+    std::ostringstream errors;
+
+    const ExitCode code = convertAll(files,
+                                     {"in/a.srt"},
+                                     subedit::core::ReadingChoices{},
+                                     SubtitleFormat::SubRip,
+                                     {},
+                                     Destination::from("", "out", false, 1).value(),
+                                     Reporter{errors, 1},
+                                     true);
+
+    CHECK(code == ExitCode::Success);
+    CHECK(files.contentOf("out/a.srt").value_or("") == kSubRip);
+    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: already in order"));
+}

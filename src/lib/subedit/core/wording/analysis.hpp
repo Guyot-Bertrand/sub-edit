@@ -12,6 +12,7 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 
+#include <cstddef>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -30,6 +31,20 @@ namespace subedit::core {
 /// clause starts with its verb. An anomaly names a subtitle where a diagnostic
 /// names a line, which is the whole of the distinction ADR 0018 draws.
 [[nodiscard]] std::string_view nameOf(AnomalyKind kind);
+
+/// One anomaly as a sentence: « subtitle 12 starts before the previous one ends ».
+///
+/// The number is the one the table shows, counted from 1. Shared by the
+/// report of the command line and the list of the window, which say the same
+/// thing in the same words.
+[[nodiscard]] std::string statementOf(const Anomaly& anomaly);
+
+/// How many subtitles carry one kind of anomaly, as a line of a summary:
+/// « subtitle starts before the previous one ends: 3 ».
+///
+/// The summary is what both surfaces show first; the sentences of
+/// `statementOf` are the detail behind it.
+[[nodiscard]] std::string summaryOf(AnomalyKind kind, std::size_t count);
 
 /// What was done about an anomaly, as a report writes it.
 ///

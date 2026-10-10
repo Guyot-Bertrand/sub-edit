@@ -5,6 +5,7 @@
 #include <subedit/cli/opening.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/cli/sorting.hpp>
 #include <subedit/cli/writing.hpp>
 #include <subedit/core/edit/append.hpp>
 #include <subedit/core/edit/session.hpp>
@@ -59,7 +60,8 @@ ExitCode appendAll(core::FileSystem& files,
                    const std::vector<std::string>& paths,
                    const std::optional<core::Encoding>& reading,
                    const Destination& destination,
-                   const Reporter& reporter) {
+                   const Reporter& reporter,
+                   bool sort) {
     const std::string& basePath = paths.front();
     const bool dryRun = destination.isDryRun();
 
@@ -125,6 +127,15 @@ ExitCode appendAll(core::FileSystem& files,
         inputs.push(Json::object().set("file", path).set("counts", countsOf(counts)));
     }
 
+    // **After the last file, over the whole**: each is shifted from the end of the
+    // one before, so the order that can break is the files' own. One sort, one
+    // history entry, whatever the number of inputs.
+    std::size_t moved = 0;
+    if (sort) {
+        moved = sortedIn(session);
+        reporter.say(1, narrationOfSort(basePath, moved));
+    }
+
     const core::WriteRequest request =
         writeRequestOf(session.project().subtitles(), core::Document::Main, source);
     const std::expected<std::size_t, Failure> written =
@@ -146,6 +157,10 @@ ExitCode appendAll(core::FileSystem& files,
     for (Count& count : countsOfLoss(loss)) {
         counts.push_back(std::move(count));
     }
+    // Only with `--sort`: a field nobody asked for would change the shape of the
+    // record for every existing script.
+    if (sort)
+        counts.emplace_back("moved", static_cast<std::int64_t>(moved));
     Fields fields;
     fields.emplace_back("inputs", std::move(inputs));
 

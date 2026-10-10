@@ -6,6 +6,7 @@
 // « no ».
 
 #include <subedit/core/config/settings.hpp>
+#include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/document.hpp>
@@ -34,6 +35,7 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "fake_prompts.hpp"
 
@@ -477,8 +479,9 @@ TEST_CASE("the diagnostics of a reading are shown", "[gui][GUI-OPEN-03]") {
 
     REQUIRE(window.diagnostics() != nullptr);
     CHECK(window.diagnostics()->count() == 1);
-    // The line of the file, which only the reading knows.
-    CHECK(window.diagnostics()->lineAt(0).toStdString().starts_with("line 5:"));
+    // Counted by kind, not listed by line: the line is what `-vvv` is for.
+    CHECK(window.diagnostics()->lineAt(0).toStdString() ==
+          "a SubRip block without its number, settled by the reader: 1");
 }
 
 TEST_CASE("the encoding a reading had to guess is shown, without a line", "[gui][GUI-ENC-01]") {
@@ -495,6 +498,7 @@ TEST_CASE("the encoding a reading had to guess is shown, without a line", "[gui]
     const std::string line = window.diagnostics()->lineAt(0).toStdString();
     CHECK_FALSE(line.starts_with("line "));
     CHECK(line.starts_with("an encoding nothing declared"));
+    CHECK(line.ends_with(": 1"));
 }
 
 TEST_CASE("a reading with nothing to report shows no panel", "[gui][GUI-OPEN-03]") {
@@ -506,35 +510,6 @@ TEST_CASE("a reading with nothing to report shows no panel", "[gui][GUI-OPEN-03]
 
     CHECK(window.diagnostics()->count() == 0);
     CHECK_FALSE(window.diagnostics()->isVisibleTo(&window));
-}
-
-TEST_CASE("a diagnostic that quotes the file quotes it, and bounds it", "[gui][GUI-OPEN-03]") {
-    // The excerpt comes from the file: quoted, or a line ending in a comma
-    // would read as the rest of the sentence; bounded, or one absurd line would
-    // push the panel off the screen. Neither is ours to trust.
-    //
-    // An unreadable timing line, and an outsized one: the reader reports it by
-    // quoting it, which is exactly the case to bound.
-    const std::string absurd(120, 'z');
-    InMemoryFileSystem files = withFile("bancal.srt",
-                                        "1\n"
-                                        "00:00:01,000 --> 00:00:02,000\n"
-                                        "Un.\n"
-                                        "\n"
-                                        "2\n"
-                                        "00:00:03,000 --> " +
-                                            absurd +
-                                            "\n"
-                                            "Deux.\n");
-    FakePrompts prompts;
-    MainWindow window{files, fileIn(files, "bancal.srt"), prompts};
-    window.show();
-
-    REQUIRE(window.diagnostics()->count() >= 1);
-    const std::string line = window.diagnostics()->lineAt(0).toStdString();
-    CHECK(line.find('"') != std::string::npos);
-    CHECK(line.find("…") != std::string::npos);
-    CHECK(line.size() < absurd.size() + 60);
 }
 
 TEST_CASE("the diagnostics are a button of the status bar, and no row of the layout",
@@ -576,7 +551,7 @@ TEST_CASE("the list of diagnostics opens in a floating frame and goes away at a 
     CHECK(button->popup()->isWindow());
     CHECK((button->popup()->windowFlags() & Qt::Popup) == Qt::Popup);
     CHECK(lines->count() == 1);
-    CHECK(lines->item(0)->text().toStdString().starts_with("line 5:"));
+    CHECK(lines->item(0)->text().toStdString().starts_with("a SubRip block"));
     const int bottom = button->popup()->mapToGlobal(QPoint{0, button->popup()->height()}).y();
     CHECK(bottom <= button->mapToGlobal(QPoint{0, 0}).y() + 3);
 
@@ -629,4 +604,30 @@ TEST_CASE("giving up on the file dialog opens nothing", "[gui][GUI-OPEN-01]") {
     CHECK(prompts.openAsked == 1);
     CHECK(prompts.failures.empty());
     CHECK(textAt(window, 0) == "Un.");
+}
+
+TEST_CASE("diagnostics of one kind are counted in one line", "[gui][GUI-OPEN-03]") {
+    using subedit::core::Diagnostic;
+    using subedit::core::DiagnosticKind;
+    using subedit::core::Severity;
+
+    const std::vector<Diagnostic> found{Diagnostic{.severity = Severity::Warning,
+                                                   .line = 3,
+                                                   .kind = DiagnosticKind::IgnoredLine,
+                                                   .detail = {}},
+                                        Diagnostic{.severity = Severity::Warning,
+                                                   .line = 5,
+                                                   .kind = DiagnosticKind::MissingNumbering,
+                                                   .detail = {}},
+                                        Diagnostic{.severity = Severity::Warning,
+                                                   .line = 9,
+                                                   .kind = DiagnosticKind::IgnoredLine,
+                                                   .detail = {}}};
+    subedit::gui::DiagnosticsButton button;
+
+    button.setDiagnostics(found);
+
+    REQUIRE(button.count() == 2);
+    CHECK(button.lineAt(0).toStdString() == "a line that fits nowhere, left as it stands: 2");
+    CHECK(button.lineAt(1).toStdString().ends_with(": 1"));
 }

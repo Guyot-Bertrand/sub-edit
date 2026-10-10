@@ -3,7 +3,7 @@
 ```
 subedit-cli convert --to <format>
                     [--line-endings unix|windows|mac] [--to-encoding NOM]
-                    [--bom | --no-bom]
+                    [--bom | --no-bom] [--sort]
                     (--output FICHIER | --output-dir DOSSIER | --in-place)
                     [--dry-run]
                     [--recursive]
@@ -33,6 +33,7 @@ Options:
   --frame-rate RATE           Frame rate of a file counted in frames: 25, 23.976
   --bom                       Write a byte order mark
   --no-bom                    Write no byte order mark
+  --sort                      Put the subtitles in order of their start before writing
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
   --in-place                  Write back over the inputs
@@ -49,6 +50,7 @@ Options:
 | `--line-endings` | non | `unix`, `windows` ou `mac` | celles du fichier lu |
 | `--to-encoding` | non | tout encodage qu'ICU sait écrire, sauf ceux qui écrivent leur propre marque | celui du fichier lu |
 | `--bom` / `--no-bom` | non | drapeaux, exclusifs l'un de l'autre | ce que portait le fichier lu |
+| `--sort` | non | un drapeau : met les sous-titres dans l'ordre de leur début **avant d'écrire**, voir [Trier à l'écriture](#trier-à-lécriture) | désactivé |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 
@@ -272,6 +274,15 @@ WEBVTT
 00:01.000 --> 00:03.000
 Bonjour.
 ```
+
+## Trier à l'écriture
+
+`--sort` écrit le fichier **dans l'ordre des débuts**, quel que soit le format d'arrivée. Le tri est fait **sur une copie** : le fichier lu n'est
+pas touché, et ce qui est écrit est ce que [`sort`](sort.md) en aurait fait — stable, deux sous-titres qui commencent ensemble gardent leur ordre.
+
+**Jamais par défaut** : l'ordre d'un fichier est celui de son auteur tant qu'on ne demande pas autre chose. Avec l'option, chaque fichier le dit, au
+premier niveau de narration, `<chemin>: N subtitles moved` ou `<chemin>: already in order`, et l'enregistrement `--format json` porte un compte
+`moved` — **absent sans l'option**, pour ne pas changer la forme de ce que lisent les scripts existants.
 
 ## Sortie
 

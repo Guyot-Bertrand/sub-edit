@@ -114,6 +114,7 @@ WindowActions::WindowActions(QObject* owner)
           owner, QStringLiteral("&Find and Replace…"), QStringLiteral("edit-find-replace"))),
       insert(buildAction(owner, QStringLiteral("Insert Subtitles…"), QStringLiteral("list-add"))),
       remove(buildAction(owner, QStringLiteral("Remove Subtitles"), QStringLiteral("list-remove"))),
+      sortSubtitles(buildAction(owner, QStringLiteral("S&ort Subtitles"), {})),
       mergeSubtitles(buildAction(owner, QStringLiteral("&Merge Subtitles"), {})),
       splitSubtitle(buildAction(owner, QStringLiteral("S&plit Subtitle"), {})),
       preferences(new QAction{QStringLiteral("&Preferences…"), owner}),
@@ -355,6 +356,9 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     // inserting and removing do, and Gaupol keeps the four together.
     edition->addAction(mergeSubtitles);
     edition->addAction(splitSubtitle);
+    // Beside them as well: it changes where the rows are, not what they say, and
+    // acts on the whole document.
+    edition->addAction(sortSubtitles);
     edition->addSeparator();
     // Under another: setting the theme is no edit at all.
     edition->addAction(preferences);

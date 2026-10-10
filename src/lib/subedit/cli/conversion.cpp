@@ -5,6 +5,7 @@
 #include <subedit/cli/encoding_grammar.hpp>
 #include <subedit/cli/opening.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/cli/sorting.hpp>
 #include <subedit/cli/writing.hpp>
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/format/degradation.hpp>
@@ -69,15 +70,22 @@ frameRateForFrames(const core::Project& project,
 ///
 /// The posts are the ones `noticeOf` words, each as an integer — a flag is 0 or
 /// 1 — so that the sentence and the record come from the one `ConversionLoss`.
-[[nodiscard]] std::vector<Count> countsOfConversion(const core::ConvertedProject& converted) {
+[[nodiscard]] std::vector<Count> countsOfConversion(const core::ConvertedProject& converted,
+                                                    const std::optional<std::size_t>& moved) {
     const core::ConversionLoss& loss = converted.loss;
-    return {{"subtitles", static_cast<std::int64_t>(converted.subtitles.size())},
-            {"lost_ends", loss.ends ? 1 : 0},
-            {"joined_lines", static_cast<std::int64_t>(loss.joined)},
-            {"lost_tags", static_cast<std::int64_t>(loss.tags)},
-            {"lost_header", loss.header ? 1 : 0},
-            {"lost_fields", static_cast<std::int64_t>(loss.fields)},
-            {"furthest_ms", loss.precision}};
+    std::vector<Count> counts = {
+        {"subtitles", static_cast<std::int64_t>(converted.subtitles.size())},
+        {"lost_ends", loss.ends ? 1 : 0},
+        {"joined_lines", static_cast<std::int64_t>(loss.joined)},
+        {"lost_tags", static_cast<std::int64_t>(loss.tags)},
+        {"lost_header", loss.header ? 1 : 0},
+        {"lost_fields", static_cast<std::int64_t>(loss.fields)},
+        {"furthest_ms", loss.precision}};
+    // Only with `--sort`: a record that grew a field nobody asked for would change
+    // the shape of every existing script's input.
+    if (moved.has_value())
+        counts.emplace_back("moved", static_cast<std::int64_t>(*moved));
+    return counts;
 }
 
 bool convertFile(core::FileSystem& files,
@@ -85,6 +93,7 @@ bool convertFile(core::FileSystem& files,
                  const core::ReadingChoices& reading,
                  SubtitleFormat target,
                  const WriteShape& shape,
+                 bool sort,
                  bool dryRun,
                  const Reporter& reporter) {
     const std::string& path = job.input;
@@ -141,7 +150,16 @@ bool convertFile(core::FileSystem& files,
     // markup is carried into the arriving vocabulary — ADR 0031 — the header and
     // the declared fields cross only into their own format, and the same walk
     // counts what that format will not be able to hold.
-    const core::ConvertedProject converted = core::convertProjectFor(opened->project, target, rate);
+    // **Sorted on a copy, when asked**: the file read is left as it was, and what is
+    // written is what `--sort` made of it. A project in order is not copied.
+    std::optional<core::Project> sorted;
+    std::size_t moved = 0;
+    if (sort && !opened->project.isInOrder()) {
+        sorted = opened->project;
+        moved = sortedInPlace(*sorted);
+    }
+    const core::ConvertedProject converted =
+        core::convertProjectFor(sorted.has_value() ? *sorted : opened->project, target, rate);
 
     const core::WriteRequest request{
         .subtitles = converted.subtitles,
@@ -163,6 +181,8 @@ bool convertFile(core::FileSystem& files,
                  path + ": " + std::to_string(opened->bytes) + " bytes read, " +
                      std::to_string(*written) + (dryRun ? " would be written" : " written"));
     sayDiagnostics(reporter, path, opened->diagnostics);
+    if (sort)
+        reporter.say(1, narrationOfSort(path, moved));
     reporter.say(2,
                  path + ": " + std::string{nameOf(source.format)} + " -> " +
                      std::string{nameOf(target)} + ", " + nameOf(encoding) + ", " +
@@ -180,16 +200,18 @@ bool convertFile(core::FileSystem& files,
         !notice.empty())
         reporter.say(1, path + ": " + notice);
     if (dryRun) {
-        reporter.record(dryRunRecord(reporter.command(),
-                                     path,
-                                     countsOfConversion(converted),
-                                     warningsOf(opened->diagnostics)));
+        reporter.record(
+            dryRunRecord(reporter.command(),
+                         path,
+                         countsOfConversion(converted, sort ? std::optional{moved} : std::nullopt),
+                         warningsOf(opened->diagnostics)));
     } else {
-        reporter.record(writtenRecord(reporter.command(),
-                                      path,
-                                      out,
-                                      countsOfConversion(converted),
-                                      warningsOf(opened->diagnostics)));
+        reporter.record(
+            writtenRecord(reporter.command(),
+                          path,
+                          out,
+                          countsOfConversion(converted, sort ? std::optional{moved} : std::nullopt),
+                          warningsOf(opened->diagnostics)));
     }
     return true;
 }
@@ -257,7 +279,8 @@ ExitCode convertAll(core::FileSystem& files,
                     SubtitleFormat target,
                     const WriteShape& shape,
                     const Destination& destination,
-                    const Reporter& reporter) {
+                    const Reporter& reporter,
+                    bool sort) {
     const std::expected<std::vector<Job>, ExitCode> jobs =
         arrange(files, destination, paths, extensionOf(target), reporter);
     if (!jobs) {
@@ -266,7 +289,8 @@ ExitCode convertAll(core::FileSystem& files,
 
     std::size_t done = 0;
     for (const Job& job : *jobs) {
-        if (convertFile(files, job, reading, target, shape, destination.isDryRun(), reporter)) {
+        if (convertFile(
+                files, job, reading, target, shape, sort, destination.isDryRun(), reporter)) {
             ++done;
         }
     }

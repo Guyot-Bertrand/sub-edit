@@ -69,12 +69,18 @@ writeShapeOf(const std::string& lineEndings, const std::string& encoding, bool b
 /// Converts every path into `target`, and says how it went.
 ///
 /// Each file is independent: the failure of one does not stop the others.
+///
+/// **`sort` puts the subtitles in order of their start before writing**, on a copy:
+/// what is written is in order whatever the format, and the file read is untouched.
+/// Opt-in and never a default — the order of a file is its author's until asked —
+/// and it says how many subtitles moved.
 [[nodiscard]] ExitCode convertAll(subedit::core::FileSystem& files,
                                   const std::vector<std::string>& paths,
                                   const subedit::core::ReadingChoices& reading,
                                   subedit::core::SubtitleFormat target,
                                   const WriteShape& shape,
                                   const Destination& destination,
-                                  const Reporter& reporter);
+                                  const Reporter& reporter,
+                                  bool sort = false);
 
 } // namespace subedit::cli

@@ -2,7 +2,7 @@
 
 ```
 subedit-cli split-file --at N --head FICHIER --tail FICHIER
-                       [--dry-run]
+                       [--dry-run] [--sort]
                        <fichier>
 ```
 
@@ -36,6 +36,7 @@ Options:
   --head FILE                 File to write the subtitles before the cut to
   --tail FILE                 File to write the subtitles from the cut on to
   --dry-run                   Work out and say what would be written, and write nothing
+  --sort                      Put the subtitles in order of their start before cutting; --at counts in that order
 ```
 
 ## Arguments et options
@@ -46,6 +47,7 @@ Options:
 | `--at` | oui | un entier, de 2 au nombre de sous-titres du fichier | — |
 | `--head`, `--tail` | **oui tous les deux**, sauf avec `--dry-run` | des chemins de fichier ; leur dossier est créé s'il manque | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `--sort` | non | un drapeau : met les sous-titres dans l'ordre de leur début **avant de couper** ; `--at` compte dans cet ordre | désactivé |
 
 **Avec `--dry-run`, aucune destination n'est exigée** : on peut n'en donner aucune, mais pas une seule des deux —
 `--head` et `--tail` vont ensemble. Celles qu'on donne sont jugées comme sans `--dry-run`.
@@ -68,6 +70,15 @@ quatre
 
 Le deuxième sous-titre, resté dans la tête, finit à 4 s : la queue recule de 4 s, et le troisième sous-titre,
 qui commençait à 6 s, commence à 2 s.
+
+## Couper dans l'ordre du temps
+
+`--at` numérote les sous-titres **tels que le fichier les donne**. Sur un fichier dont l'ordre est rompu, la tête n'est donc pas la moitié la plus
+tôt dans le temps. `--sort` met les sous-titres dans l'ordre de leurs débuts **avant de juger la coupure** — stable, comme [`sort`](sort.md) —, et
+`--at` compte alors dans cet ordre.
+
+Jamais par défaut. Avec l'option, le fichier dit au premier niveau de narration combien de sous-titres ont bougé (`<chemin>: N subtitles moved`
+ou `<chemin>: already in order`), et l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option**.
 
 ## Quand la coupure est refusée
 

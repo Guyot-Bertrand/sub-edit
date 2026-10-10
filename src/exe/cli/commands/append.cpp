@@ -20,6 +20,7 @@ struct AppendOptions {
     std::vector<std::string> files;
     std::string output;
     bool dryRun = false;
+    bool sort = false;
 };
 
 CLI::App* describeAppend(CLI::App& app, std::string_view name, AppendOptions& options) {
@@ -33,6 +34,8 @@ CLI::App* describeAppend(CLI::App& app, std::string_view name, AppendOptions& op
     append->add_option("--output", options.output, "File to write")->option_text("FILE");
     append->add_flag(
         "--dry-run", options.dryRun, "Work out and say what would be written, and write nothing");
+    append->add_flag(
+        "--sort", options.sort, "Put the subtitles in order of their start before writing");
     return append;
 }
 
@@ -52,7 +55,7 @@ ExitCode runAppend(const AppendOptions& options,
     if (!destination) {
         return refuse(destination.error());
     }
-    return appendAll(files, options.files, reading, *destination, reporter);
+    return appendAll(files, options.files, reading, *destination, reporter, options.sort);
 }
 
 } // namespace

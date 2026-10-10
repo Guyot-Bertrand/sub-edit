@@ -15,6 +15,7 @@ namespace {
 struct InspectOptions {
     std::vector<std::string> files;
     bool recursive = false;
+    bool detail = false;
     std::string frameRate;
     TranslationOptions translation;
 };
@@ -24,6 +25,9 @@ CLI::App* describeInspect(CLI::App& app, std::string_view name, InspectOptions& 
         app.add_subcommand(std::string{name}, "Report what a subtitle file is made of");
     inspect->add_option("files", options.files, "Subtitle files to report on")->required();
     describeRecursive(inspect, options.recursive);
+    inspect->add_flag("--detail",
+                      options.detail,
+                      "List every anomaly, subtitle by subtitle, instead of counting them");
     // **Reading, here, and writing too on `convert`** — one rate, one option,
     // spelled the same on both. It is not global as `--encoding` is, because a
     // global option has to come before the subcommand: `--frame-rate` would
@@ -65,8 +69,13 @@ ExitCode runInspect(const InspectOptions& options,
         return refuse(prepared.error());
     }
 
-    return inspectAll(
-        files, prepared->inputs.paths, *choices, std::cout, reporter, prepared->pairing);
+    return inspectAll(files,
+                      prepared->inputs.paths,
+                      *choices,
+                      std::cout,
+                      reporter,
+                      prepared->pairing,
+                      options.detail);
 }
 
 } // namespace

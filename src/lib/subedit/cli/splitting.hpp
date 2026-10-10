@@ -31,6 +31,11 @@ struct SplitRequest {
     std::string tail;
 
     bool dryRun = false;
+
+    /// Puts the subtitles in order of their start before cutting, so that the cut
+    /// falls on the time order and `at` counts in it. Opt-in, and it says how many
+    /// subtitles moved.
+    bool sort = false;
 };
 
 /// Cuts `request.input` at `request.at` and writes the two halves.

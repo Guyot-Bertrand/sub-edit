@@ -48,6 +48,7 @@ class QCloseEvent;
 class QDragEnterEvent;
 class QDropEvent;
 class QLabel;
+class QProgressBar;
 class QShowEvent;
 class QSplitter;
 class QTabBar;
@@ -222,12 +223,17 @@ public:
 
     [[nodiscard]] QAction* removeAction() const { return m_actions->remove; }
 
+    [[nodiscard]] QAction* sortAction() const { return m_actions->sortSubtitles; }
+
     [[nodiscard]] QAction* mergeAction() const { return m_actions->mergeSubtitles; }
 
     [[nodiscard]] QAction* splitAction() const { return m_actions->splitSubtitle; }
 
     /// The panel of what the last reading ran into.
     [[nodiscard]] DiagnosticsButton* diagnostics() const { return m_diagnostics; }
+
+    /// The bar of the status bar that says an operation is under way.
+    [[nodiscard]] QProgressBar* busyBar() const { return m_busy; }
 
     [[nodiscard]] QAction* shiftAction() const { return m_actions->shift; }
 
@@ -610,6 +616,10 @@ private:
     /// open, or nothing when it opened or was already there.
     [[nodiscard]] std::optional<std::string> openFile(const std::filesystem::path& path);
 
+    /// Offers to sort the file just opened when it is not in order of start, and
+    /// does it on a yes — undoably. Nothing is asked of a file in order.
+    void proposeSorting();
+
     /// Asks which film to watch the document against, and associates it.
     void selectVideo();
 
@@ -755,6 +765,7 @@ private:
     /// The four standing facts of the status bar — issue #485.
     std::unique_ptr<StatusLine> m_status;
     DiagnosticsButton* m_diagnostics = nullptr;
+    QProgressBar* m_busy = nullptr;
 
     /// Every action, the menus and the toolbar — issue #483.
     std::unique_ptr<WindowActions> m_actions;

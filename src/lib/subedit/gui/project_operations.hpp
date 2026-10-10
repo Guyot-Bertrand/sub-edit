@@ -74,6 +74,11 @@ public:
         /// to say — the rule #398 set.
         virtual void announce(const std::string& message) = 0;
 
+        /// Shows, or takes away, a bar that says something is under way — for
+        /// an operation the window cannot repaint during. Indeterminate: the
+        /// operation reports no fraction.
+        virtual void setBusy(bool busy) = 0;
+
         /// Asks which file to append, from the remembered directory.
         [[nodiscard]] virtual std::optional<std::filesystem::path> fileToAppend() = 0;
 
@@ -150,6 +155,15 @@ public:
     /// Asks where to cut, and moves the tail into a project of its own, in a
     /// new tab — D6.
     void splitProject(ProjectPage& page);
+
+    /// Puts the subtitles back in order of their start, undoably, and says in
+    /// the status bar how many changed place.
+    ///
+    /// **Over the whole project, and never the selection**: an order is a
+    /// property of the document, and sorting half of it is not a thing that
+    /// means anything. A project already in order says so and records nothing:
+    /// an operation that changes nothing is not one to undo.
+    void sortSubtitles(ProjectPage& page);
 
     /// `Remove Hearing-Impaired Mentions…`.
     void removeHearingImpaired(ProjectPage& page);

@@ -13,6 +13,7 @@
 #include <subedit/core/edit/shift_command.hpp>
 #include <subedit/core/edit/shift_limits.hpp>
 #include <subedit/core/edit/snap_command.hpp>
+#include <subedit/core/edit/sort_command.hpp>
 #include <subedit/core/edit/split_project.hpp>
 #include <subedit/core/edit/transform_command.hpp>
 #include <subedit/core/format/diagnostic.hpp>
@@ -129,6 +130,23 @@ refusalOfShift(const core::Project& project, const core::Selection& target, core
         return std::nullopt;
     return core::shiftBeforeTheOrigin(refused->number());
 }
+
+/// Shows the bar of the window for as long as it lives.
+class BusyScope final {
+
+public:
+    explicit BusyScope(ProjectOperations::View& view) : m_view(&view) { m_view->setBusy(true); }
+
+    ~BusyScope() { m_view->setBusy(false); }
+
+    BusyScope(const BusyScope&) = delete;
+    BusyScope& operator=(const BusyScope&) = delete;
+    BusyScope(BusyScope&&) = delete;
+    BusyScope& operator=(BusyScope&&) = delete;
+
+private:
+    ProjectOperations::View* m_view;
+};
 
 } // namespace
 
@@ -366,6 +384,28 @@ void ProjectOperations::appendFile(ProjectPage& page) {
         return;
     }
     m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
+}
+
+void ProjectOperations::sortSubtitles(ProjectPage& page) {
+    if (page.session->project().isInOrder()) {
+        m_view->announce(core::noticeOfSort(0));
+        return;
+    }
+
+    // **The bar is for the file of two thousand lines**, where the window would
+    // otherwise sit still for as long as it takes to move them and to tell the
+    // table so, and a user cannot tell that from a window that has hung.
+    const BusyScope busy{*m_view};
+    const std::vector<core::Change> changes =
+        page.session->apply(std::make_unique<core::SortCommand>());
+    page.model->applied(changes);
+    // Playback was placed on a row that holds another subtitle now.
+    page.placedAt = -1;
+
+    std::size_t moved = 0;
+    for (const core::Change& change : changes)
+        moved += change.subtitles.count();
+    m_view->announce(core::noticeOfSort(moved));
 }
 
 void ProjectOperations::splitProject(ProjectPage& page) {

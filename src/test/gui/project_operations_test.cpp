@@ -78,6 +78,9 @@ public:
     std::vector<Project> aside;
     std::size_t diagnosticsShown = 0;
 
+    /// Every time the bar was shown (`true`) or taken away (`false`).
+    std::vector<bool> busyChanges;
+
     /// Answers every reading with an empty project, as no reader would.
     bool readsNothing = false;
 
@@ -90,6 +93,8 @@ public:
     }
 
     void announce(const std::string& message) override { announced.push_back(message); }
+
+    void setBusy(bool busy) override { busyChanges.push_back(busy); }
 
     [[nodiscard]] std::optional<std::filesystem::path> fileToAppend() override { return toAppend; }
 

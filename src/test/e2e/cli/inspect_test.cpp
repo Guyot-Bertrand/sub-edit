@@ -181,16 +181,28 @@ TEST_CASE("inspect writes its report even when asked for silence", "[e2e][CLI-OU
     CHECK(run.errors.empty());
 }
 
-TEST_CASE("the report names the subtitles out of place", "[e2e][CLI-INSPECT-04]") {
+TEST_CASE("the report counts the anomalies by kind", "[e2e][CLI-INSPECT-04][CLI-INSPECT-08]") {
     const CliRun run = invoke({"inspect", corpus("malformes/desordre.srt")});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.output,
+               ContainsSubstring("  anomalies:\n"
+                                 "    subtitle starts before the previous one ends: 1\n"
+                                 "    subtitle starts before the previous one starts: 1\n"));
+}
+
+TEST_CASE("the report names the subtitles out of place with --detail",
+          "[e2e][CLI-INSPECT-04][CLI-INSPECT-08]") {
+    const CliRun run = invoke({"inspect", "--detail", corpus("malformes/desordre.srt")});
 
     CHECK(run.exitCode == 0);
     // **By subtitle number, not by line** — ADR 0018. The overlap comes with the
     // disorder: a subtitle that starts before the previous one started also
     // starts before it ended, and the two are fixed differently.
     CHECK_THAT(run.output,
-               ContainsSubstring("  anomalies: subtitle 2 starts before the previous one ends, "
-                                 "subtitle 2 starts before the previous one starts\n"));
+               ContainsSubstring("  anomalies:\n"
+                                 "    subtitle 2 starts before the previous one ends\n"
+                                 "    subtitle 2 starts before the previous one starts\n"));
 }
 
 TEST_CASE("a sound file has no anomaly to report", "[e2e][CLI-INSPECT-04]") {

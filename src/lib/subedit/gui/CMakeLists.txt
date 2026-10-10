@@ -23,7 +23,7 @@ add_library(
                        operation_dialog.cpp shift_dialog.cpp transform_dialog.cpp
                        insert_dialog.cpp split_project_dialog.cpp save_shape.cpp
                        frame_rate_box.cpp frame_rate_dialog.cpp hearing_impaired_dialog.cpp
-                       grid_analysis_dialog.cpp snap_dialog.cpp
+                       grid_analysis_dialog.cpp snap_dialog.cpp sort_proposal_dialog.cpp
     duration_adjust_dialog.cpp
     search_dialog.cpp about_dialog.cpp
     open_translation_dialog.cpp unsaved_documents_dialog.cpp

@@ -715,6 +715,7 @@ n'était déjà pris** — les sujets neufs sont `JSON`, `DRYRUN`, `RANGE`, `ADJ
 | `CLI-DASH-01` | `dialogue-dashes --add` / `--remove` pose et retire les tirets de dialogue |
 | `CLI-SORT-01` | `sort` met les sous-titres dans l'ordre de leur début, de façon stable |
 | `CLI-SORT-02` | `sort` dit combien de sous-titres ont bougé, et écrit le fichier même s'il est déjà en ordre |
+| `CLI-SORT-03` | `convert`, `append` et `split-file` acceptent `--sort`, qui met les sous-titres dans l'ordre de leur début avant d'écrire et dit combien ont bougé |
 | `CLI-TRANS-01` | `inspect -t` rapporte lignes rattachées, sous-titres nés, sans traduction et hors d'ordre |
 | `CLI-TRANS-02` | `--document translation` exige `-t`, et `-t` exige `--document translation` sur une sous-commande de texte |
 | `CLI-TRANS-03` | `-t` n'a de sens que pour une seule entrée ; avec un lot, il est refusé |

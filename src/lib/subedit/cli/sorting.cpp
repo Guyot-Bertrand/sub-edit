@@ -13,6 +13,30 @@
 
 namespace subedit::cli {
 
+std::size_t sortedIn(core::Session& session) {
+    // Read from what the command reports, never counted again after.
+    std::size_t moved = 0;
+    for (const core::Change& change : session.apply(std::make_unique<core::SortCommand>())) {
+        if (change.kind == core::ChangeKind::Reordering)
+            moved += change.subtitles.count();
+    }
+    return moved;
+}
+
+std::size_t sortedInPlace(core::Project& project) {
+    core::SortCommand command;
+    command.apply(project);
+
+    std::size_t moved = 0;
+    for (const core::Change& change : command.describe())
+        moved += change.subtitles.count();
+    return moved;
+}
+
+std::string narrationOfSort(const std::string& path, std::size_t moved) {
+    return path + ": " + core::noticeOfSort(moved);
+}
+
 ExitCode sortAll(core::FileSystem& files,
                  const std::vector<std::string>& paths,
                  const std::optional<core::Encoding>& reading,
@@ -21,17 +45,9 @@ ExitCode sortAll(core::FileSystem& files,
     const Operation sort = [](core::Session& session) -> OperationOutcome {
         const std::size_t total = session.project().count();
 
-        // Read from what the command reports, never counted again after: a sort
-        // that moved nothing reports nothing.
-        std::size_t moved = 0;
-        for (const core::Change& change : session.apply(std::make_unique<core::SortCommand>())) {
-            if (change.kind == core::ChangeKind::Reordering) {
-                moved += change.subtitles.count();
-            }
-        }
+        const std::size_t moved = sortedIn(session);
 
-        return OperationResult{.sentence = moved == 0 ? std::string{"already in order"}
-                                                      : core::countOf(moved, "subtitle") + " moved",
+        return OperationResult{.sentence = core::noticeOfSort(moved),
                                .counts = {{"subtitles", static_cast<std::int64_t>(total)},
                                           {"moved", static_cast<std::int64_t>(moved)}}};
     };
