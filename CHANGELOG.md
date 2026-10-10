@@ -12,6 +12,11 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **gui** — Tri des sous-titres, proposé et listé avec les défauts
+- **gui** — Comptes par sorte, barre de tri, inspect --detail
+
+### Documentation
+
+- **doc** — Journal des changements
 
 ## 0.15.9 — 2026-10-10
 
