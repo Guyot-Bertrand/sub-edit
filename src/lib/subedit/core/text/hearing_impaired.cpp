@@ -101,9 +101,11 @@ restOfLineShowsNothing(std::string_view text, std::size_t at, MarkupVocabulary v
 /// delimiter is never closed, or what it holds is a reference. An unclosed
 /// delimiter is not a decision — it is what a scan does when it does not find
 /// its end, and no real file has ever produced one.
-[[nodiscard]] std::size_t mentionEnd(std::string_view text, std::size_t at) {
+[[nodiscard]] std::size_t
+mentionEnd(std::string_view text, std::size_t at, MentionBrackets brackets) {
     const char opening = text[at];
-    if (opening != '[' && opening != '(')
+    const bool wanted = (opening == '[' && brackets.square) || (opening == '(' && brackets.round);
+    if (!wanted)
         return kNowhere;
 
     const std::size_t closing = text.find(opening == '[' ? ']' : ')', at + 1);
@@ -181,7 +183,8 @@ private:
 };
 
 /// Removes every mention, and says on which lines it removed one.
-[[nodiscard]] std::vector<Line> scanned(std::string_view text, MarkupVocabulary vocabulary) {
+[[nodiscard]] std::vector<Line>
+scanned(std::string_view text, MarkupVocabulary vocabulary, MentionBrackets brackets) {
     std::vector<Line> lines{Line{}};
     bool seamPending = false;
     bool seamIsLineBreak = false;
@@ -207,7 +210,7 @@ private:
 
         // A tag is copied whole, and nothing inside it is a mention.
         const std::size_t tag = tags.endOfTagAt(index);
-        const std::size_t mention = tag == kNowhere ? mentionEnd(text, index) : kNowhere;
+        const std::size_t mention = tag == kNowhere ? mentionEnd(text, index, brackets) : kNowhere;
         if (mention != kNowhere) {
             trimTrailingBlanks(lines.back().text);
             lines.back().touched = true;
@@ -246,9 +249,10 @@ private:
 
 } // namespace
 
-std::optional<std::string> withoutHearingImpaired(std::string_view text, SubtitleFormat format) {
+std::optional<std::string>
+withoutHearingImpaired(std::string_view text, SubtitleFormat format, MentionBrackets brackets) {
     const MarkupVocabulary vocabulary = vocabularyOf(format);
-    std::vector<Line> lines = scanned(text, vocabulary);
+    std::vector<Line> lines = scanned(text, vocabulary, brackets);
 
     // Nothing bit, so nothing is decided: the text goes back out as it came,
     // whatever it holds. Judging the emptiness of a text no mention touched

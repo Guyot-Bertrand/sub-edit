@@ -4,13 +4,15 @@
 subedit-cli hearing-impaired
                   (--output FICHIER | --output-dir DOSSIER | --in-place)
                   [--dry-run]
-                  [--recursive]
+                  [--recursive] [--parentheses]
                   [--document main|translation] [-t FICHIER] [--align-method position|number]
                   <fichier>...
 ```
 
-Retire les **mentions pour malentendants** — les bruits décrits entre crochets
-ou entre parenthèses — de tout le fichier.
+Retire les **mentions pour malentendants** — les bruits décrits entre crochets — de tout
+le fichier. **Les parenthèses restent par défaut** : elles servent aussi souvent à une réplique
+chuchotée qu'à un bruit décrit, et les retirer effacerait du dialogue. `--parentheses` les retire
+aussi, pour un fichier qui y décrit ses sons.
 
 Ce qu'elle ne fait pas : les paroles de chanson entre dièses, le nom du locuteur
 avant deux-points, la remise en majuscule, la correction d'erreurs d'OCR. Ces
@@ -22,7 +24,7 @@ transformation est décidée, pas configurable.
 <!-- exemple: subedit-cli hearing-impaired --help -->
 ```console
 $ subedit-cli hearing-impaired --help
-Remove the sounds described between brackets or parentheses
+Remove the sounds described between square brackets
 Usage: subedit-cli hearing-impaired [OPTIONS] files...
 
 Positionals:
@@ -30,6 +32,7 @@ Positionals:
 
 Options:
   -h,--help                   Print this help message and exit
+  --parentheses               Also remove the sounds between parentheses, often whispered lines
   -r,--recursive              Take directories as inputs, and every subtitle file in them
   --document main|translation The document to change: the main one, or the translation given by -t
   -t,--translation-file FILE  Translation file to lay over the subtitle file, for a single input
@@ -46,6 +49,7 @@ Options:
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
 | `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `--parentheses` | non | un drapeau : retire aussi les mentions entre parenthèses | désactivé |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--document` | non | `main` ou `translation` — voir [Une traduction](invocation.md#une-traduction) | `main` |
 | `-t`, `--translation-file` | avec `--document translation` | un fichier de traduction, pour **une seule** entrée | — |
@@ -65,7 +69,7 @@ ci-dessous.
 
 ## Ce qui est retiré, et ce qui reste
 
-Une mention est un crochet ou une parenthèse, avec ce qu'elle enferme, **saut de
+Une mention est un crochet — ou une parenthèse, avec `--parentheses` — et ce qu'elle enferme, **saut de
 ligne compris** : dans de vrais fichiers, une mention est souvent coupée par la
 fin de ligne.
 
@@ -99,6 +103,7 @@ Tout de suite !
 | Cas | Ce qui se passe |
 | :-- | :-------------- |
 | contenu purement numérique — `[1]`, `(12)`, `[ 156478 ]` | gardé tel quel, délimiteurs compris : une référence n'a jamais désigné un bruit |
+| une parenthèse et ce qu'elle enferme, sans `--parentheses` | gardée telle quelle : `Venez (chut) ici` ne change pas |
 | crochet ou parenthèse que rien ne referme | laissé tel quel |
 | une balise de format — `<i>`, `</i>` | jamais retirée |
 

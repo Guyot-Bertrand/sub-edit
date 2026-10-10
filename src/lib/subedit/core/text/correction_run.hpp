@@ -105,8 +105,9 @@ struct CorrectionProposal {
 /// that must say « nothing to do » needs to know before it runs one.
 ///
 /// The two scan-only mentions (`isScanOnlyPattern`) are among them when their
-/// activation says so, though the engine leaves them out: whether the scan runs
-/// is `soundInBrackets || soundInParentheses`, and the caller reads that itself.
+/// activation says so, though the engine leaves them out: which delimiters the
+/// scan removes is `soundInBrackets` and `soundInParentheses`, one each, and the caller reads that
+/// itself.
 [[nodiscard]] std::vector<const CorrectionPattern*>
 activePatterns(const PatternCatalogue& catalogue,
                PatternKind kind,

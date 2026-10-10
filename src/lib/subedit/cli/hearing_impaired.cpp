@@ -30,9 +30,10 @@ ExitCode removeHearingImpairedIn(core::FileSystem& files,
                                  const std::optional<core::Encoding>& reading,
                                  const Destination& destination,
                                  const Reporter& reporter,
-                                 const std::optional<Pairing>& pairing) {
-    const ChangingOperation clean = [](core::Session& session,
-                                       const Request& request) -> OperationOutcome {
+                                 const std::optional<Pairing>& pairing,
+                                 core::MentionBrackets brackets) {
+    const ChangingOperation clean = [brackets](core::Session& session,
+                                               const Request& request) -> OperationOutcome {
         // The texts as they are, set aside only when someone reads the list.
         std::vector<std::string> before;
         if (request.changes)
@@ -40,8 +41,8 @@ ExitCode removeHearingImpairedIn(core::FileSystem& files,
 
         // What the loop hands over: the whole file, as this subcommand takes no
         // `--range` yet, and the document it was asked to clean.
-        std::unique_ptr<core::Command> command =
-            core::removeHearingImpaired(session.project(), request.selection, request.document);
+        std::unique_ptr<core::Command> command = core::removeHearingImpaired(
+            session.project(), request.selection, request.document, brackets);
         if (!command)
             return OperationResult{.sentence = core::noMentionToRemove(),
                                    .counts = {{"cleaned", 0}, {"removed", 0}},

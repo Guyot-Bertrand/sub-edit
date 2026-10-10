@@ -21,7 +21,7 @@ using subedit::e2e::invoke;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 
-TEST_CASE("mentions between brackets and parentheses are removed", "[e2e][CLI-HEARING-01]") {
+TEST_CASE("mentions between brackets are removed", "[e2e][CLI-HEARING-01]") {
     const Scratch scratch;
     const std::string out = scratch.of("propre.srt");
 
@@ -112,4 +112,37 @@ TEST_CASE("without a destination nothing is written", "[e2e][CLI-HEARING-06]") {
 
     CHECK(run.exitCode == 1);
     CHECK(run.output.empty());
+}
+
+TEST_CASE("parentheses are kept by default, a whispered line among them", "[e2e][CLI-HEARING-01]") {
+    // #691: parentheses are as often whispered dialogue as a described sound.
+    const Scratch scratch;
+    const std::string out = scratch.of("chuchote.srt");
+
+    CHECK(invoke({"--quiet", "hearing-impaired", "--output", out, corpus("valides/chuchote.srt")})
+              .exitCode == 0);
+
+    CHECK_THAT(contentOf(out), !ContainsSubstring("Bruit de pas"));
+    CHECK_THAT(contentOf(out), ContainsSubstring("Venez (chut) par ici."));
+    CHECK_THAT(contentOf(out), ContainsSubstring("(Il tousse) Merci."));
+}
+
+TEST_CASE("asking for parentheses also removes the mentions between them",
+          "[e2e][CLI-HEARING-07]") {
+    const Scratch scratch;
+    const std::string out = scratch.of("tout.srt");
+
+    CHECK(invoke({"--quiet",
+                  "hearing-impaired",
+                  "--parentheses",
+                  "--output",
+                  out,
+                  corpus("valides/chuchote.srt")})
+              .exitCode == 0);
+
+    CHECK_THAT(contentOf(out), !ContainsSubstring("Bruit de pas"));
+    CHECK_THAT(contentOf(out), ContainsSubstring("Venez par ici."));
+    CHECK_THAT(contentOf(out), ContainsSubstring("Merci."));
+    CHECK_THAT(contentOf(out), !ContainsSubstring("chut"));
+    CHECK_THAT(contentOf(out), !ContainsSubstring("Il tousse"));
 }

@@ -431,7 +431,7 @@ pas le sujet de ce ticket.
 | composer une réplique de deux lignes | 136 ns | 0.15.5 — 2026-10-09 | 284 ns | 0.13.33 — 2026-10-06 |
 | ouvrir une vidéo | 8.82 ms | 0.13.33 — 2026-10-06 | 223 ms | 0.15.0 — 2026-10-09 |
 | chercher une position | 538 µs | 0.6.13 — 2026-08-27 | 5.64 ms | 0.14.19 — 2026-10-08 |
-| déduction de fréquence sur 4000 sous-titres | 366 µs | 0.7.15 — 2026-08-30 | 455 µs | 0.9.18 — 2026-09-08 |
+| déduction de fréquence sur 4000 sous-titres | 366 µs | 0.7.15 — 2026-08-30 | 459 µs | 0.15.7 — 2026-10-09 |
 | alignement sur 4000 sous-titres | 123 µs | 0.13.25 — 2026-10-05 | 156 µs | 0.10.1 — 2026-09-11 |
 | mise en italique de 4000 sous-titres | 885 µs | 0.12.8 — 2026-09-27 | 1.39 ms | 0.10.10 — 2026-09-13 |
 | remplacement d'un mot fréquent sur 4000 sous-titres, texte simple | 3.85 ms | 0.10.17 — 2026-09-19 | 4.78 ms | 0.12.19 — 2026-09-30 |
@@ -453,7 +453,7 @@ pas le sujet de ce ticket.
 | rendre une image de 640×360 | 208 µs | 0.14.5 — 2026-10-06 | 378 µs | 0.15.0 — 2026-10-09 |
 | rendre une image de 1280×720 | 724 µs | 0.14.7 — 2026-10-07 | 1.35 ms | 0.14.19 — 2026-10-08 |
 | rendre une image de 1920×1080 | 1.41 ms | 0.14.7 — 2026-10-07 | 2.66 ms | 0.15.0 — 2026-10-09 |
-| chercher l'image 0 (vidéo 720p) | 6.2 ms | 0.15.5 — 2026-10-09 | 7.81 ms | 0.14.19 — 2026-10-08 |
+| chercher l'image 0 (vidéo 720p) | 6.19 ms | 0.15.7 — 2026-10-09 | 7.81 ms | 0.14.19 — 2026-10-08 |
 | chercher l'image 100 (vidéo 720p) | 38.6 ms | 0.14.7 — 2026-10-07 | 53.2 ms | 0.14.19 — 2026-10-08 |
 | chercher l'image 249 (vidéo 720p) | 82.5 ms | 0.14.5 — 2026-10-06 | 125 ms | 0.14.19 — 2026-10-08 |
 | pas avant vers l'image 100 (vidéo 720p) | 40 ms | 0.14.7 — 2026-10-07 | 52.4 ms | 0.14.19 — 2026-10-08 |
@@ -462,7 +462,7 @@ pas le sujet de ce ticket.
 | pas arrière vers l'image 248 (vidéo 720p) | 82.4 ms | 0.14.5 — 2026-10-06 | 114 ms | 0.14.19 — 2026-10-08 |
 | traduire une réplique balisée pour l'image | 815 ns | 0.15.5 — 2026-10-09 | 1.17 µs | 0.14.19 — 2026-10-08 |
 | centrer une ligne sur 4000 sous-titres | 1.06 µs | 0.15.5 — 2026-10-09 | 1.3 µs | 0.14.19 — 2026-10-08 |
-| recherche de conversion sur 4000 sous-titres | 361 µs | 0.15.5 — 2026-10-09 | 414 µs | 0.14.19 — 2026-10-08 |
+| recherche de conversion sur 4000 sous-titres | 361 µs | 0.15.5 — 2026-10-09 | 448 µs | 0.15.7 — 2026-10-09 |
 
 <!-- versionString min=29.1524 max=55.1 -->
 <!-- parse min=29.9 max=67.348 -->
@@ -492,7 +492,7 @@ pas le sujet de ce ticket.
 <!-- composer une réplique de deux lignes min=136.144 max=284.466 -->
 <!-- ouvrir une vidéo min=8822490.0 max=222615000.0 -->
 <!-- chercher une position min=537819.0 max=5643350.0 -->
-<!-- déduction de fréquence sur 4000 sous-titres min=366479.0 max=455304.0 -->
+<!-- déduction de fréquence sur 4000 sous-titres min=366479.0 max=458920.0 -->
 <!-- alignement sur 4000 sous-titres min=122556.0 max=156274.0 -->
 <!-- mise en italique de 4000 sous-titres min=885492.0 max=1386260.0 -->
 <!-- remplacement d'un mot fréquent sur 4000 sous-titres, texte simple min=3852960.0 max=4776230.0 -->
@@ -514,7 +514,7 @@ pas le sujet de ce ticket.
 <!-- rendre une image de 640×360 min=208485.0 max=378356.0 -->
 <!-- rendre une image de 1280×720 min=723665.0 max=1349710.0 -->
 <!-- rendre une image de 1920×1080 min=1406670.0 max=2658770.0 -->
-<!-- chercher l'image 0 (vidéo 720p) min=6201990.0 max=7811380.0 -->
+<!-- chercher l'image 0 (vidéo 720p) min=6193330.0 max=7811380.0 -->
 <!-- chercher l'image 100 (vidéo 720p) min=38618500.0 max=53241100.0 -->
 <!-- chercher l'image 249 (vidéo 720p) min=82494800.0 max=124818000.0 -->
 <!-- pas avant vers l'image 100 (vidéo 720p) min=39987500.0 max=52446900.0 -->
@@ -523,7 +523,7 @@ pas le sujet de ce ticket.
 <!-- pas arrière vers l'image 248 (vidéo 720p) min=82354100.0 max=114464000.0 -->
 <!-- traduire une réplique balisée pour l'image min=815.476 max=1172.95 -->
 <!-- centrer une ligne sur 4000 sous-titres min=1064.1 max=1300.8 -->
-<!-- recherche de conversion sur 4000 sous-titres min=361110.0 max=414071.0 -->
+<!-- recherche de conversion sur 4000 sous-titres min=361110.0 max=447822.0 -->
 
 ## Relevés
 
@@ -531,6 +531,71 @@ Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
 extrêmes survivent dans la table ci-dessus.
 
 <!-- relevés -->
+
+### 0.15.7 — 2026-10-09 — Release — charge 1.48 — allure ×0.98
+
+| Mesure | Moyenne | Écart-type |
+| :----- | ------: | ---------: |
+| la réplique en cours, sur 4000 sous-titres | 5.69 µs | 499 ns |
+| traduire une réplique balisée pour l'image | 990 ns | 104 ns |
+| composer une réplique de deux lignes | 126 ns | 3.45 ns |
+| ouvrir une vidéo | 219 ms | 1.74 ms |
+| chercher une position | 5.4 ms | 92.3 µs |
+| rendre une image de 640×360 | 310 µs | 26.3 µs |
+| rendre une image de 1280×720 | 942 µs | 35.8 µs |
+| rendre une image de 1920×1080 | 2.06 ms | 120 µs |
+| chercher l'image 0 (vidéo 720p) | 6.19 ms | 153 µs |
+| chercher l'image 100 (vidéo 720p) | 47.8 ms | 2.2 ms |
+| chercher l'image 249 (vidéo 720p) | 117 ms | 14.2 ms |
+| pas avant vers l'image 100 (vidéo 720p) | 47.9 ms | 3.36 ms |
+| pas avant vers l'image 249 (vidéo 720p) | 111 ms | 2.67 ms |
+| pas arrière vers l'image 99 (vidéo 720p) | 47.3 ms | 3.22 ms |
+| pas arrière vers l'image 248 (vidéo 720p) | 112 ms | 6.03 ms |
+| construction du modèle sur 4000 sous-titres | 8.06 µs | 685 ns |
+| une fenêtre de 40 lignes, cinq colonnes | 20.1 µs | 1.09 µs |
+| rafraîchir après un décalage de 4000 sous-titres | 8.09 µs | 1.19 µs |
+| réinitialisation du modèle après une ligne retirée | 8.54 µs | 1.86 µs |
+| édition d'une cellule de texte | 395 ns | 102 ns |
+| édition d'une cellule de position | 9.27 µs | 1.46 µs |
+| centrer une ligne sur 4000 sous-titres | 1.11 µs | 481 ns |
+| découpage de 4000 sous-titres, en ems, avec cache de longueurs | 185 ms | 9.33 ms |
+| versionString | 39.2 ns | 0.482 ns |
+| parse | 41.8 ns | 3.68 ns |
+| format | 36.1 ns | 0.486 ns |
+| position vers image | 6.64 ns | 0.0706 ns |
+| image vers position | 8.76 ns | 3.58 ns |
+| mise à l'échelle par un rationnel exact | 6.86 ns | 0.0543 ns |
+| découpage de 4000 sous-titres, sans cache de longueurs | 114 ms | 6.09 ms |
+| découpage de 4000 sous-titres, avec cache de longueurs | 117 ms | 6.71 ms |
+| erreurs courantes du français sur 4000 sous-titres | 164 ms | 8.62 ms |
+| erreurs courantes de l'anglais sur 4000 sous-titres | 184 ms | 9.75 ms |
+| lecture de 4000 sous-titres | 2.05 ms | 125 µs |
+| écriture de 4000 sous-titres | 598 µs | 32.6 µs |
+| décalage de 4000 sous-titres | 7.96 µs | 2.87 µs |
+| décalage puis annulation | 16.2 µs | 5.24 µs |
+| transformation de 4000 sous-titres | 84.4 µs | 3.64 µs |
+| conversion de fréquence sur 4000 sous-titres | 81.5 µs | 6.63 µs |
+| alignement sur 4000 sous-titres | 152 µs | 10.6 µs |
+| tri de 4000 sous-titres à l'envers | 270 µs | 19.6 µs |
+| suppression d'un sous-titre sur deux | 163 µs | 26.8 µs |
+| suppression puis annulation | 282 µs | 34.3 µs |
+| insertion de 100 sous-titres vides au milieu | 60.5 µs | 13.6 µs |
+| modification d'un texte, à travers une session | 199 ns | 21.5 ns |
+| suppression des mentions sur 4000 sous-titres | 1.29 ms | 96.4 µs |
+| mise en italique de 4000 sous-titres | 1.09 ms | 90.1 µs |
+| remplacement d'un mot fréquent sur 4000 sous-titres, texte simple | 4.36 ms | 287 µs |
+| remplacement d'un mot fréquent sur 4000 sous-titres, expression régulière | 5.26 ms | 719 µs |
+| recherche sans résultat sur 4000 sous-titres | 2.82 ms | 325 µs |
+| ajustement des durées de 4000 sous-titres, quatre contraintes | 1.86 ms | 503 µs |
+| casse de titre sur 4000 sous-titres | 22.1 ms | 1.71 ms |
+| collage de 4000 textes | 1.2 ms | 62.9 µs |
+| alignement d'une traduction de 4000 lignes, par position | 1.02 ms | 98.8 µs |
+| alignement d'une traduction de 4000 lignes, par numéro | 1.03 ms | 188 µs |
+| déduction de fréquence sur 4000 sous-titres | 459 µs | 15.6 µs |
+| recherche de conversion sur 4000 sous-titres | 448 µs | 12.6 µs |
+| walk of 200 files in a tree of depth 3 | 705 µs | 62.8 µs |
+| shift of 200 files of 20 subtitles | 36.7 ms | 1.32 ms |
+| shift of one file of 4000 subtitles | 3.35 ms | 108 µs |
 
 ### 0.15.5 — 2026-10-09 — Release — charge 1.42 — allure ×0.91
 

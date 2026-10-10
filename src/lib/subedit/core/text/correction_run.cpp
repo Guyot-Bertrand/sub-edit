@@ -98,12 +98,12 @@ void runMentions(const PatternEngine& engine,
     const Present present = presentOf(texts);
     const std::vector<const CorrectionPattern*> patterns =
         activePatterns(catalogue, PatternKind::HearingImpaired, settings.mentions.code, settings);
-    const HearingImpairedCorrection done =
-        correctHearingImpaired(engine,
-                               patterns,
-                               present.texts,
-                               format,
-                               settings.soundInBrackets || settings.soundInParentheses);
+    const HearingImpairedCorrection done = correctHearingImpaired(
+        engine,
+        patterns,
+        present.texts,
+        format,
+        {.square = settings.soundInBrackets, .round = settings.soundInParentheses});
     appendFailures(failures, done.failures, present);
     for (std::size_t k = 0; k < present.at.size(); ++k) {
         std::optional<std::string> corrected = done.texts[k];

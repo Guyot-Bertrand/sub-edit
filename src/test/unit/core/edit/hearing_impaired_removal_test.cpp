@@ -81,6 +81,24 @@ TEST_CASE("removing hearing impaired mentions rewrites what bites", "[edit]") {
           std::vector<std::string>{"Bonjour.", "Attends Marie", "Voir [1] la note"});
 }
 
+TEST_CASE("parentheses stay unless the removal is asked to take them", "[edit]") {
+    // #691: whispered lines are written between parentheses.
+    Project project;
+    project.setSubtitles({saying("Bonjour.", 0), saying("(chut) Venez", 2000)});
+
+    // By default there is nothing to do.
+    CHECK(removeHearingImpaired(project, Selection::all(project), Document::Main) == nullptr);
+
+    const std::unique_ptr<Command> command =
+        removeHearingImpaired(project,
+                              Selection::all(project),
+                              Document::Main,
+                              subedit::core::MentionBrackets{.square = true, .round = true});
+    REQUIRE(command != nullptr);
+    command->apply(project);
+    CHECK(textsOf(project) == std::vector<std::string>{"Bonjour.", "Venez"});
+}
+
 TEST_CASE("the removal names itself in the history", "[edit]") {
     const Project project = fourSubtitles();
 
@@ -123,7 +141,7 @@ TEST_CASE("a discontinuous removal puts every subtitle back where it was", "[edi
     Project before;
     before.setSubtitles({saying("[Musique]", 0),
                          saying("Bonjour.", 2000),
-                         saying("(soupir)", 4000),
+                         saying("[soupir]", 4000),
                          saying("Adieu.", 6000)});
     Project project = before;
 
@@ -328,7 +346,7 @@ TEST_CASE("the tally counts subtitles taken away, not removals", "[edit][hearing
     Project project;
     project.setSubtitles({saying("[Musique]", 0),
                           saying("Attends [il tousse] Marie", 2000),
-                          saying("(bruit de moteur)", 4000)});
+                          saying("[bruit de moteur]", 4000)});
 
     const std::unique_ptr<Command> command =
         removeHearingImpaired(project, Selection::all(project), Document::Main);

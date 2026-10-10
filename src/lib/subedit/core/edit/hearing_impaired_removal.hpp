@@ -2,6 +2,7 @@
 
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/model/document.hpp>
+#include <subedit/core/text/hearing_impaired.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -27,8 +28,10 @@ class Selection;
 /// Returns **nothing when no text bites**. An empty group would apply without
 /// doing anything and still push an entry the user would meet in « undo »
 /// without understanding it.
-[[nodiscard]] std::unique_ptr<Command>
-removeHearingImpaired(const Project& project, const Selection& selection, Document document);
+[[nodiscard]] std::unique_ptr<Command> removeHearingImpaired(const Project& project,
+                                                             const Selection& selection,
+                                                             Document document,
+                                                             MentionBrackets brackets = {});
 
 /// What a removal did: how many subtitles it rewrote, how many it took away.
 struct HearingImpairedTally {

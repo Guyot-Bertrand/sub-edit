@@ -28,7 +28,7 @@ Subcommands:
   transform                   Correct every position from two points known to be right
   framerate                   Re-time a file mastered at one frame rate for another
   snap                        Move every position onto the nearest frame of a frame rate (see framerate)
-  hearing-impaired            Remove the sounds described between brackets or parentheses
+  hearing-impaired            Remove the sounds described between square brackets
   adjust                      Bring the duration of every subtitle within a reading speed and limits
   replace                     Replace a text in the subtitles, without breaking a tag
   case                        Put the texts in title, sentence, upper or lower case, tags intact
@@ -148,7 +148,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.15.6
+subedit 0.15.7
 ```
 
 ## Sous-commandes

@@ -1,0 +1,14 @@
+# Les mentions entre parenthèses — ce que le balayage retire quand on le lui demande.
+#
+# **Hors du défaut** (#691) : `mentions.cas` joue le balayage sur les crochets seuls, et garde les
+# parenthèses. Ce fichier-ci le joue avec les deux délimiteurs, et fait apparaître ce qui vaut
+# alors des parenthèses : la même règle que pour les crochets, y compris la référence numérique
+# gardée (un chiffre est un chiffre) et la balise qui ne borde pas la mention.
+
+une référence entre parenthèses est gardée   | "Voir (1) la note"          | =
+des espaces au bord ne changent rien non plus | "Voir ( 156478 ) la note"  | =
+une lettre en fait une mention, ici aussi    | "Voir (1a) la note"         | "Voir la note"
+des parenthèses vides s'en vont              | "Voir () la note"           | "Voir la note"
+vides et seules, elles emportent le sous-titre | "()"                      | supprimé
+une balise ouvrante ne borde pas la mention  | "<i>(Guild navigator) We have" | "<i>We have"
+crochets et parenthèses partent ensemble     | "[soupir] (bas) Bonjour"     | "Bonjour"

@@ -7,6 +7,16 @@ Les changements notables de subedit. Format inspiré de
 Ce fichier est généré par `make changelog` depuis l'historique des commits :
 ne pas l'éditer à la main.
 
+## 0.15.6 — 2026-10-09
+
+### Ajouts
+
+- **build** — Chaîne gettext, installation et paquets des catalogues
+
+### Corrections
+
+- **build** — Un seul lien LTO à la fois, et le corpus local sans images
+
 ## 0.15.5 — 2026-10-09
 
 ### Ajouts

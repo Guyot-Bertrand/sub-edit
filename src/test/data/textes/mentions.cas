@@ -102,19 +102,20 @@ vides et seuls, ils emportent le sous-titre  | "[]"                        | sup
 # que fait une expression rationnelle qui ne trouve pas sa fin. Rien ne justifie
 # d'écrire du code pour un cas qu'aucun fichier n'a produit.
 
-# --- Les deux délimiteurs sont symétriques ------------------------------------
+# --- Les crochets seuls, par défaut -------------------------------------------
 #
-# Décidé au cadrage : ce qui vaut entre crochets vaut entre parenthèses. Un
-# chiffre est un chiffre, et deux règles à retenir là où une suffit se paient à
-# chaque relecture. Le corpus ne montre aucune référence numérique, d'aucun des
-# deux genres ; l'asymétrie n'aurait donc même pas eu de fichier pour la
-# justifier.
+# Décidé en #691, et cela renverse le cadrage qui disait « ce qui vaut entre crochets vaut entre
+# parenthèses » : une parenthèse est aussi souvent une réplique chuchotée qu'un bruit décrit, et un
+# balayage qui les retire par défaut efface du dialogue. **Les parenthèses restent donc, à moins
+# qu'on ne les demande** — ce qui se vérifie dans `mentions-parentheses.cas`, joué avec les deux
+# délimiteurs.
 
-une référence entre parenthèses est gardée   | "Voir (1) la note"          | =
-des espaces au bord ne changent rien non plus | "Voir ( 156478 ) la note"  | =
-une lettre en fait une mention, ici aussi    | "Voir (1a) la note"         | "Voir la note"
-des parenthèses vides s'en vont              | "Voir () la note"           | "Voir la note"
-vides et seules, elles emportent le sous-titre | "()"                      | supprimé
+une réplique chuchotée entre parenthèses est gardée | "Venez (chut) ici"          | =
+même une lettre n'en fait pas une mention         | "Voir (1a) la note"          | =
+des parenthèses vides sont gardées aussi          | "Voir () la note"            | =
+seules, elles n'emportent pas le sous-titre      | "()"                         | =
+les crochets partent, les parenthèses restent     | "[soupir] (bas) Bonjour"     | "(bas) Bonjour"
+des parenthèses dans une balise ouvrante restent  | "<i>(Guild navigator) We have" | =
 
 # --- Une balise n'est pas du texte -------------------------------------------
 #
@@ -132,7 +133,6 @@ vides et seules, elles emportent le sous-titre | "()"                      | sup
 
 un texte réduit à ses balises est vide       | "<i>[PEOPLE SCREAMING]</i>" | supprimé
 une ligne réduite à ses balises disparaît    | "Bonjour\n<i>[soupir]</i>"  | "Bonjour"
-une balise ouvrante ne borde pas la mention  | "<i>(Guild navigator) We have" | "<i>We have"
 la balise reste, elle n'est pas retirée      | "<i>[soupir] Bonjour</i>"   | "<i>Bonjour</i>"
 
 # --- Ce à quoi on ne touche pas ----------------------------------------------

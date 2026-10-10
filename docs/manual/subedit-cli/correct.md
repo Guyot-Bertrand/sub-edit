@@ -94,7 +94,7 @@ rôle dans ce qui suit.
 
 | Tâche | Ce qu'elle fait |
 | :---- | :-------------- |
-| `mentions` | retire les bruits entre crochets et parenthèses (le balayage de [`hearing-impaired`](hearing-impaired.md)), puis les motifs de paroles et de locuteurs |
+| `mentions` | retire les bruits entre crochets, et entre parenthèses quand `Sound in parentheses` est activé (le balayage de [`hearing-impaired`](hearing-impaired.md)), puis les motifs de paroles et de locuteurs |
 | `join-words` | recolle un mot coupé en deux, d'après le dictionnaire de `--language` |
 | `split-words` | scinde deux mots collés, d'après le même dictionnaire |
 | `common-errors` | corrige les erreurs courantes : espaces, ponctuation, ligatures, erreurs d'OCR |
@@ -203,8 +203,8 @@ ne portent pas de classe.
 case. C'est nécessaire, et c'est ce qui écarte les valeurs par défaut de la fenêtre : **les
 `.conf` livrés désactivent les motifs de mentions**, si bien que `--tasks mentions` seul
 n'appliquerait rien. Les deux motifs « Sound in brackets » et « Sound in parentheses »
-commandent le balayage des crochets et des parenthèses, et se règlent par les mêmes
-options.
+commandent chacun son délimiteur — les crochets, les parenthèses — et se règlent par les mêmes
+options : activer l'un seul ne retire pas l'autre.
 
 Trois choses sont des **erreurs d'usage**, code `1`, dites avant qu'un fichier soit lu :
 

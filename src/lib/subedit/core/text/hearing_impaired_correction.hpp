@@ -14,6 +14,7 @@
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/common_errors.hpp>
 #include <subedit/core/text/correction_pattern.hpp>
+#include <subedit/core/text/hearing_impaired.hpp>
 #include <subedit/core/text/pattern_engine.hpp>
 
 #include <optional>
@@ -40,17 +41,17 @@ struct HearingImpairedCorrection {
 /// giving them here would run their expression a second time, on text the
 /// scan already resolved, so they are skipped rather than compiled.
 ///
-/// **`scanBracketsAndParentheses` is the assistant's, not the scan's own
-/// rule** — decision D7, precised by #504: the direct command of phase 4
-/// always wants the scan, and always gets it through `withoutHearingImpaired`
-/// directly; this function is the assistant's mentions task alone, where the
-/// two checkboxes named above may be unchecked like the other four.
+/// **`scan` is the assistant's, not the scan's own rule** — decision D7,
+/// precised by #504 and #691: each of the two checkboxes named above commands
+/// its own delimiter, so unticking `Sound in parentheses` leaves the
+/// parentheses alone while the brackets go. With both unticked there is no
+/// scan at all.
 [[nodiscard]] HearingImpairedCorrection
 correctHearingImpaired(const PatternEngine& engine,
                        std::span<const CorrectionPattern* const> patterns,
                        std::span<const std::string> texts,
                        SubtitleFormat format,
-                       bool scanBracketsAndParentheses);
+                       MentionBrackets scan);
 
 /// Whether `pattern` is one of the two records the scan of ADR 0017 alone
 /// plays — "Sound in brackets" and "Sound in parentheses", under the

@@ -5,6 +5,7 @@
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/cli/pairing.hpp>
 #include <subedit/core/model/encoding.hpp>
+#include <subedit/core/text/hearing_impaired.hpp>
 
 #include <optional>
 #include <string>
@@ -26,6 +27,9 @@ class Reporter;
 /// would empty a translation leaves it empty and keeps the subtitle, as the
 /// window does.
 ///
+/// **Square brackets only, unless `brackets` says otherwise**: parentheses are often a whispered
+/// line (issue #691), and `--parentheses` is how a user whose files describe sounds with them asks.
+///
 /// A file where nothing bites is written all the same, as `shift` writes one it
 /// moved by zero: a subcommand given a destination writes to it, and making
 /// this the exception would force a script to know which subcommands sometimes
@@ -36,6 +40,7 @@ removeHearingImpairedIn(subedit::core::FileSystem& files,
                         const std::optional<subedit::core::Encoding>& reading,
                         const Destination& destination,
                         const Reporter& reporter,
-                        const std::optional<Pairing>& pairing = std::nullopt);
+                        const std::optional<Pairing>& pairing = std::nullopt,
+                        subedit::core::MentionBrackets brackets = {});
 
 } // namespace subedit::cli
