@@ -72,6 +72,10 @@ namespace subedit::core {
 /// What `Split Project…` did: how many subtitles left for the new project.
 [[nodiscard]] std::string noticeOfSplit(std::size_t count);
 
+/// What sorting by start did: how many subtitles changed place, or that the
+/// order was already right. One sentence for the window and the command line.
+[[nodiscard]] std::string noticeOfSort(std::size_t moved);
+
 /// Why `Split Project…` refused a cut: the two halves overlap, so the shift
 /// would carry a subtitle before the start of the video. Both numbers are the
 /// ones the table shows, counted from 1.

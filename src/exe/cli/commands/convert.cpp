@@ -26,6 +26,7 @@ struct ConvertOptions {
     std::string encoding;
     bool bom = false;
     bool noBom = false;
+    bool sort = false;
     DestinationOptions destination;
 };
 
@@ -70,6 +71,8 @@ CLI::App* describeConvert(CLI::App& app, std::string_view name, ConvertOptions& 
         ->option_text("RATE");
     convert->add_flag("--bom", options.bom, "Write a byte order mark");
     convert->add_flag("--no-bom", options.noBom, "Write no byte order mark");
+    convert->add_flag(
+        "--sort", options.sort, "Put the subtitles in order of their start before writing");
 
     describeDestination(convert, options.destination);
     return convert;
@@ -113,8 +116,14 @@ ExitCode runConvert(const ConvertOptions& options,
         return refuse(shape.error());
     }
 
-    return convertAll(
-        files, prepared->inputs.paths, *choices, target, *shape, prepared->destination, reporter);
+    return convertAll(files,
+                      prepared->inputs.paths,
+                      *choices,
+                      target,
+                      *shape,
+                      prepared->destination,
+                      reporter,
+                      options.sort);
 }
 
 } // namespace

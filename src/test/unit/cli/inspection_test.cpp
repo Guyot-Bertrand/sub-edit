@@ -95,7 +95,8 @@ TEST_CASE("the span runs from the earliest start to the latest end", "[cli][insp
     CHECK_THAT(out.str(), ContainsSubstring("  span: 00:00:01.000 -> 00:00:07.000\n"));
 }
 
-TEST_CASE("the report names the subtitle that breaks the order", "[cli][inspection]") {
+TEST_CASE("the report names the subtitle that breaks the order",
+          "[cli][inspection][CLI-INSPECT-08]") {
     const InMemoryFileSystem files = withFile("a.srt", kOutOfOrder);
     std::ostringstream out;
     std::ostringstream errors;
@@ -106,8 +107,9 @@ TEST_CASE("the report names the subtitle that breaks the order", "[cli][inspecti
     // a subtitle that starts before the previous one started also starts before
     // it ended, and the two are fixed differently.
     CHECK_THAT(out.str(),
-               ContainsSubstring("  anomalies: subtitle 2 starts before the previous one ends, "
-                                 "subtitle 2 starts before the previous one starts\n"));
+               ContainsSubstring("  anomalies:\n"
+                                 "    subtitle 2 starts before the previous one ends\n"
+                                 "    subtitle 2 starts before the previous one starts\n"));
 }
 
 TEST_CASE("a byte order mark and Windows endings are seen", "[cli][inspection]") {

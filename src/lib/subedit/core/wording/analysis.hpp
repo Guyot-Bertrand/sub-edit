@@ -31,6 +31,13 @@ namespace subedit::core {
 /// names a line, which is the whole of the distinction ADR 0018 draws.
 [[nodiscard]] std::string_view nameOf(AnomalyKind kind);
 
+/// One anomaly as a sentence: « subtitle 12 starts before the previous one ends ».
+///
+/// The number is the one the table shows, counted from 1. Shared by the
+/// report of the command line and the list of the window, which say the same
+/// thing in the same words.
+[[nodiscard]] std::string statementOf(const Anomaly& anomaly);
+
 /// What was done about an anomaly, as a report writes it.
 ///
 /// The distinction the core draws, said out loud: one of the two was settled

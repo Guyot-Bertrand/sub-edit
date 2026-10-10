@@ -27,6 +27,11 @@ std::string_view nameOf(AnomalyKind kind) {
     std::unreachable();
 }
 
+std::string statementOf(const Anomaly& anomaly) {
+    return "subtitle " + std::to_string(anomaly.index.number()) + " " +
+           std::string{nameOf(anomaly.kind)};
+}
+
 std::string_view nameOf(DiagnosticKind kind) {
     switch (kind) {
     case DiagnosticKind::IgnoredLine:

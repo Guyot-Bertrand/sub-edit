@@ -75,6 +75,7 @@ struct WindowActions final {
     QAction* findAndReplace = nullptr;
     QAction* insert = nullptr;
     QAction* remove = nullptr;
+    QAction* sortSubtitles = nullptr;
     QAction* mergeSubtitles = nullptr;
     QAction* splitSubtitle = nullptr;
     QAction* preferences = nullptr;

@@ -4,6 +4,7 @@
 #include <subedit/cli/opening.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/cli/sorting.hpp>
 #include <subedit/cli/splitting.hpp>
 #include <subedit/cli/writing.hpp>
 #include <subedit/core/edit/session.hpp>
@@ -75,6 +76,12 @@ ExitCode splitFile(core::FileSystem& files,
     // **A cut needs a subtitle on each side**: from the second to the last, as
     // the box of the window offers them.
     core::Session session{std::move(opened->project)};
+    // **Before the cut is judged**: `--at` counts in the order that is cut.
+    std::size_t reordered = 0;
+    if (request.sort) {
+        reordered = sortedIn(session);
+        reporter.say(1, narrationOfSort(path, reordered));
+    }
     const std::size_t total = session.project().count();
     if (request.at < 2 || request.at > total) {
         reportFailure(
@@ -143,9 +150,12 @@ ExitCode splitFile(core::FileSystem& files,
     const std::string made = path + ": split at subtitle " + std::to_string(request.at) + ": " +
                              core::countOf(kept, "subtitle") + " in the head, " +
                              core::countOf(moved, "subtitle") + " in the tail";
-    const std::vector<Count> counts{{"subtitles", static_cast<std::int64_t>(total)},
-                                    {"head", static_cast<std::int64_t>(kept)},
-                                    {"tail", static_cast<std::int64_t>(moved)}};
+    std::vector<Count> counts{{"subtitles", static_cast<std::int64_t>(total)},
+                              {"head", static_cast<std::int64_t>(kept)},
+                              {"tail", static_cast<std::int64_t>(moved)}};
+    // Only with `--sort`: a field nobody asked for would change the record.
+    if (request.sort)
+        counts.emplace_back("moved", static_cast<std::int64_t>(reordered));
     if (dryRun) {
         reporter.say(1, made + " (dry run, nothing written)");
         reporter.record(dryRunRecord(reporter.command(),

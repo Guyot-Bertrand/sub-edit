@@ -127,7 +127,7 @@ exemple.srt
 | `span` | du début le plus tôt à la fin la plus tardive, `HH:MM:SS.mmm` |
 | `frame rate grid` | la fréquence d'image sur laquelle les positions ont été calculées, **déduite** — voir ci-dessous |
 | `frame rate` | pour un fichier compté en images, la fréquence à laquelle il a été lu et **d'où elle vient** — remplace la ligne précédente, voir ci-dessous |
-| `anomalies` | `none`, ou ce qui cloche, sous-titre par sous-titre |
+| `anomalies` | `none` sur la même ligne, ou ce qui cloche : **une anomalie par ligne**, sous-titre par sous-titre, en retrait sous `anomalies:` |
 
 **`span` n'est pas « du premier au dernier »** mais du plus tôt au plus tard :
 sur un fichier dont l'ordre est rompu, les deux diffèrent, et seul le second dit
@@ -268,11 +268,18 @@ l'est. Sur des débuts à `0`, `4 s`, `2 s`, `3 s` : le troisième rompt l'ordre
 quatrième suit pourtant le troisième et n'est donc pas nommé — il n'y a rien à
 faire de lui.
 
-<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -1 -->
+<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -3 -->
 ```console
-$ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -1
-  anomalies: subtitle 3 starts before the previous one ends, subtitle 3 starts before the previous one starts
+$ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -3
+  anomalies:
+    subtitle 3 starts before the previous one ends
+    subtitle 3 starts before the previous one starts
 ```
+
+**Une ligne par anomalie**, parce qu'un fichier mal fait en porte des centaines
+et qu'une centaine de constats collés sur une ligne ne se lit ni ne se cherche.
+Un document sans défaut garde sa ligne unique, `anomalies: none`, que cherche un
+script.
 
 **Ce n'est pas un diagnostic de lecture.** Les diagnostics disent ce que la
 lecture a rencontré et pointent une **ligne du fichier** ; les anomalies disent

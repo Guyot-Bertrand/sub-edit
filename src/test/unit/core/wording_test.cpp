@@ -20,6 +20,7 @@
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
+#include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
@@ -683,4 +684,23 @@ TEST_CASE("a reading of the patterns that ran into something says where, and why
                                      .file = "/share/patterns",
                                      .line = 0,
                                      .detail = {}}) == "patterns (directory cannot be read)");
+}
+
+TEST_CASE("sorting says how many subtitles moved, or that nothing had to", "[wording]") {
+    using subedit::core::noticeOfSort;
+
+    CHECK(noticeOfSort(0) == "already in order");
+    CHECK(noticeOfSort(1) == "1 subtitle moved");
+    CHECK(noticeOfSort(12) == "12 subtitles moved");
+}
+
+TEST_CASE("an anomaly is said as a sentence about its subtitle", "[wording]") {
+    using subedit::core::Anomaly;
+    using subedit::core::AnomalyKind;
+    using subedit::core::statementOf;
+    using subedit::core::SubtitleIndex;
+
+    CHECK(statementOf(
+              Anomaly{.kind = AnomalyKind::OutOfOrder, .index = SubtitleIndex::fromNumber(12)}) ==
+          "subtitle 12 starts before the previous one starts");
 }

@@ -162,24 +162,26 @@ void sayGrid(std::ostream& out, const core::Project& project) {
             << core::countOf(core::runsOfStrays(grid), "run") << "\n";
 }
 
-/// What is wrong with the document, subtitle by subtitle.
+/// What is wrong with the document, subtitle by subtitle — **one per line**.
 ///
 /// **By subtitle number and not by line**, which is the distinction ADR 0018
 /// draws: a line only exists while a file is being read, and this report
 /// describes what the document holds. One subtitle may appear twice — starting
 /// before the previous one ends and before it starts are two statements, fixed
 /// two different ways.
+///
+/// **A list and not a sentence**, since a badly made file carries hundreds of
+/// them, and a hundred comma-joined statements on one line cannot be read nor
+/// searched. A document with nothing wrong keeps its single line, `none`, which
+/// is what a script looks for.
 std::string anomalies(const core::Project& project) {
     const std::vector<core::Anomaly> found = core::scanAnomalies(project);
     if (found.empty())
-        return "none";
+        return " none\n";
 
-    std::string text;
+    std::string text = "\n";
     for (const core::Anomaly& anomaly : found) {
-        if (!text.empty())
-            text += ", ";
-        text += "subtitle " + std::to_string(anomaly.index.number()) + " " +
-                std::string{nameOf(anomaly.kind)};
+        text += "    " + statementOf(anomaly) + "\n";
     }
 
     return text;
@@ -421,7 +423,7 @@ bool inspectFile(const core::FileSystem& files,
     } else {
         sayGrid(out, project);
     }
-    out << "  anomalies: " << anomalies(project) << '\n';
+    out << "  anomalies:" << anomalies(project);
     if (alignment && pairing) {
         out << "  translation file: " << pairing->translation << ", matched by "
             << (pairing->method == core::TranslationMethod::Position ? "position" : "number")

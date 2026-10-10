@@ -1,8 +1,9 @@
-# Insérer, supprimer, fusionner et scinder des lignes
+# Insérer, supprimer, fusionner, scinder et trier des lignes
 
-Quatre entrées du menu `Edit`, sous un séparateur qui les sépare de
-`Find and Replace…`. Elles ont en commun de changer le nombre de lignes, là où
-couper, copier et coller, plus haut, déplacent des textes.
+Cinq entrées du menu `Edit`, sous un séparateur qui les sépare de
+`Find and Replace…`. Quatre ont en commun de changer le nombre de lignes, là où
+couper, copier et coller, plus haut, déplacent des textes ; la cinquième, `Sort
+Subtitles`, ne change que **l'ordre** des lignes.
 
 | Entrée | Raccourci | Ce qu'elle fait |
 | :----- | :-------- | :-------------- |
@@ -10,8 +11,9 @@ couper, copier et coller, plus haut, déplacent des textes.
 | `Remove Subtitles` | `Del` | retire la sélection, sans rien demander |
 | `Merge Subtitles` | aucun | fait une seule ligne d'un bloc de lignes voisines |
 | `Split Subtitle` | aucun | coupe une ligne en deux au milieu de sa durée |
+| `Sort Subtitles` | aucun | remet les lignes dans l'ordre de leur début, sur tout le projet |
 
-Les quatre entrent dans l'historique : `Ctrl+Z` les défait comme le reste.
+Les cinq entrent dans l'historique : `Ctrl+Z` les défait comme le reste.
 
 ## Insérer
 
@@ -146,6 +148,31 @@ ligne**. Rien de sélectionné ne veut pas dire « tout le fichier » ici.
 Après la scission, **les deux moitiés sont sélectionnées** — c'est ce que Gaupol
 fait après toute insertion, et `Merge Subtitles` est alors prêt à défaire le
 geste.
+
+## Trier
+
+`Sort Subtitles` remet **tout le projet** dans l'ordre des débuts. Jamais la
+sélection : un ordre est une propriété du document, et trier la moitié d'un
+fichier ne veut rien dire. Le tri est **stable** : deux sous-titres qui
+commencent ensemble gardent l'ordre que le fichier leur donnait.
+
+La barre d'état dit combien de lignes ont changé de place — `3 subtitles moved`
+— ou, quand tout était en ordre, `already in order`. **Un projet déjà en ordre
+n'entre pas dans l'historique** : une opération qui ne change rien n'est pas
+une opération à défaire. L'entrée est éteinte pour un projet d'un sous-titre.
+
+Un fichier **hors d'ordre à l'ouverture** le propose de lui-même : une boîte
+dit combien de sous-titres sont mal placés et demande `Sort` ou `Keep as is`.
+**Rien n'est trié sans un oui**, et le tri se défait. Un fichier en ordre n'est
+l'objet d'aucune question. Ceux qui sont mal placés sont aussi
+[listés avec les diagnostics](fichiers.md#les-diagnostics-dune-lecture), pour
+qu'on les trouve sans faire défiler la table.
+
+En ligne de commande, [`sort`](../subedit-cli/sort.md) fait de même sur des
+fichiers, et `--sort` le fait au passage sur
+[`convert`](../subedit-cli/convert.md#trier-à-lécriture),
+[`append`](../subedit-cli/append.md#trier-le-résultat) et
+[`split-file`](../subedit-cli/split-file.md#couper-dans-lordre-du-temps).
 
 ### Pourquoi pas les raccourcis de Gaupol
 

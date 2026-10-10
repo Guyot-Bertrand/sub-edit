@@ -136,3 +136,30 @@ TEST_CASE("two halves that overlap are refused, and nothing is written",
                ContainsSubstring("Cannot split at subtitle 3: subtitle 3 would fall"));
     CHECK_FALSE(files.contentOf("out/h.srt").has_value());
 }
+
+TEST_CASE("sorting on request cuts on the time order, and the cut counts in it",
+          "[cli][splitting][CLI-SORT-03]") {
+    InMemoryFileSystem files;
+    files.addFile("a.srt",
+                  "1\n00:00:05,000 --> 00:00:06,000\nlast\n\n"
+                  "2\n00:00:01,000 --> 00:00:02,000\nfirst\n\n"
+                  "3\n00:00:03,000 --> 00:00:04,000\nsecond\n\n");
+    std::ostringstream errors;
+    std::ostringstream records;
+    SplitRequest request = cutAt(3);
+    request.sort = true;
+
+    const ExitCode code =
+        splitFile(files,
+                  request,
+                  std::nullopt,
+                  Reporter{errors, 1}.withRecords(records).forCommand("split-file"));
+
+    CHECK(code == ExitCode::Success);
+    // In time order the head is « first » and « second », the tail « last ».
+    CHECK_THAT(files.contentOf("out/h.srt").value_or(""), ContainsSubstring("first"));
+    CHECK_THAT(files.contentOf("out/h.srt").value_or(""), ContainsSubstring("second"));
+    CHECK_THAT(files.contentOf("out/t.srt").value_or(""), ContainsSubstring("last"));
+    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: 3 subtitles moved"));
+    CHECK_THAT(records.str(), ContainsSubstring("\"moved\":3"));
+}

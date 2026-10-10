@@ -5,13 +5,16 @@
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/core/model/encoding.hpp>
 
+#include <cstddef>
 #include <optional>
 #include <string>
 #include <vector>
 
 namespace subedit::core {
 class FileSystem;
-}
+class Project;
+class Session;
+} // namespace subedit::core
 
 namespace subedit::cli {
 
@@ -35,5 +38,21 @@ class Reporter;
                                const std::optional<subedit::core::Encoding>& reading,
                                const Destination& destination,
                                const Reporter& reporter);
+
+/// Puts the project of `session` in order of start, **through the history**, and
+/// says how many subtitles changed place — nothing when it was already in order.
+///
+/// What `--sort` does on the commands that carry the option: the gesture of
+/// `sort`, made on the way to something else.
+[[nodiscard]] std::size_t sortedIn(subedit::core::Session& session);
+
+/// The same, on a bare project that has no history: for a command that reads,
+/// converts and writes without ever opening a session.
+[[nodiscard]] std::size_t sortedInPlace(subedit::core::Project& project);
+
+/// What `--sort` says about one file: how many subtitles moved, or that the
+/// order was right. One line, at the first level, for every command that has
+/// the option.
+[[nodiscard]] std::string narrationOfSort(const std::string& path, std::size_t moved);
 
 } // namespace subedit::cli

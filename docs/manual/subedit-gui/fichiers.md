@@ -238,8 +238,27 @@ chaque ouverture mettrait un bouton dans la barre d'état de tous les documents
 ordinaires. Un fichier qui porte une marque d'ordre des octets ne la déclenche
 pas non plus : il a déclaré son encodage, rien n'a été deviné.
 
-Le bouton **n'apparaît pas** quand la lecture n'a rien à signaler, et **il suit l'onglet** : chaque
-projet garde les diagnostics de sa propre lecture, et le bouton montre ceux du projet affiché.
+**La même liste porte aussi ce qui cloche dans les sous-titres eux-mêmes** : un
+sous-titre qui commence avant que le précédent ait fini, une fin avant son
+début, un début avant celui du sous-titre du dessus. La table les teinte, mais
+une teinte se trouve en faisant défiler, et dans un fichier de deux mille lignes
+on en manque facilement une ; ici elles sont toutes ensemble, **une par ligne**,
+dans les mots du rapport de `inspect` :
+
+```
+subtitle 3 starts before the previous one ends
+subtitle 3 starts before the previous one starts
+```
+
+**Un clic sur l'une mène à son sous-titre**, sélectionné dans la table. Ces
+lignes **suivent les corrections** — trier ou corriger une durée en retire —,
+sans refermer la liste que l'on est en train de lire. Un sous-titre peut y
+paraître deux fois : commencer avant la fin du précédent et avant son début sont
+deux constats, qui se corrigent de deux façons.
+
+Le bouton **n'apparaît pas** quand il n'y a rien à signaler, ni à la lecture ni
+dans les sous-titres, et **il suit l'onglet** : chaque projet garde les
+diagnostics de sa propre lecture, et le bouton montre ceux du projet affiché.
 
 ## L'encodage dans la barre d'état
 

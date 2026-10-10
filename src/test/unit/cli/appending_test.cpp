@@ -153,3 +153,29 @@ TEST_CASE("a base that cannot be read, a directory that cannot be made and a dis
                     Reporter{errors, 1}) == ExitCode::AllFailed);
     CHECK_FALSE(noDisk.contentOf("all.srt").has_value());
 }
+
+TEST_CASE("sorting on request puts the appended subtitles in order, and says how many moved",
+          "[cli][appending][CLI-SORT-03]") {
+    // The base itself is out of order: appending shifts each file from the end of
+    // what precedes it, so the files' own order is the one that can break.
+    InMemoryFileSystem files;
+    files.addFile("a.srt",
+                  "1\n00:00:05,000 --> 00:00:06,000\nlate\n\n"
+                  "2\n00:00:01,000 --> 00:00:02,000\nearly\n\n");
+    files.addFile("b.srt", kOne);
+    std::ostringstream errors;
+    std::ostringstream records;
+
+    const ExitCode code = appendAll(files,
+                                    {"a.srt", "b.srt"},
+                                    std::nullopt,
+                                    Destination::from("all.srt", "", false, 1).value(),
+                                    Reporter{errors, 1}.withRecords(records).forCommand("append"),
+                                    true);
+
+    CHECK(code == ExitCode::Success);
+    CHECK_THAT(files.contentOf("all.srt").value_or(""),
+               ContainsSubstring("00:00:01,000 --> 00:00:02,000\nearly"));
+    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: 3 subtitles moved"));
+    CHECK_THAT(records.str(), ContainsSubstring("\"moved\":3"));
+}

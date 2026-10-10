@@ -1,3 +1,4 @@
+#include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_correction.hpp>
 #include <subedit/core/edit/clipboard.hpp>
@@ -50,6 +51,7 @@
 #include <subedit/gui/project_search.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/search_dialog.hpp>
+#include <subedit/gui/sort_proposal_dialog.hpp>
 #include <subedit/gui/spell_check_controller.hpp>
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -638,6 +640,10 @@ MainWindow::MainWindow(core::FileSystem& files,
             &QAction::triggered,
             this,
             operate(&ProjectOperations::removeHearingImpaired));
+    connect(act.sortSubtitles,
+            &QAction::triggered,
+            this,
+            operateCommitted(&ProjectOperations::sortSubtitles));
     connect(
         act.italic, &QAction::triggered, this, operateCommitted(&ProjectOperations::toggleItalics));
     connect(act.dialogueDashes,
@@ -770,6 +776,10 @@ MainWindow::MainWindow(core::FileSystem& files,
     statusBar()->addPermanentWidget(m_diagnostics);
     // `addPermanentWidget` shows what it is given: nothing to report yet.
     m_diagnostics->hide();
+    // An anomaly in the list takes the table to its subtitle.
+    connect(m_diagnostics, &DiagnosticsButton::rowChosen, this, [this](int row) {
+        selectRows(row, row);
+    });
     m_status = std::make_unique<StatusLine>(*statusBar());
 
     // The boxes sit over this window, and it is the window that says so: built
@@ -1088,7 +1098,25 @@ std::optional<std::string> MainWindow::openFile(const std::filesystem::path& pat
         m_currentPage = blank;
         removePage(blank + 1);
     }
+
+    proposeSorting();
     return std::nullopt;
+}
+
+void MainWindow::proposeSorting() {
+    // The subtitles that start before the one above them: what a sort would
+    // move, and what the table tints. A file in order is not asked about.
+    std::size_t outOfOrder = 0;
+    for (const core::Anomaly& anomaly : core::scanAnomalies(m_page->session->project())) {
+        if (anomaly.kind == core::AnomalyKind::OutOfOrder)
+            ++outOfOrder;
+    }
+    if (outOfOrder == 0)
+        return;
+
+    SortProposalDialog dialog{outOfOrder, this};
+    if (m_prompts->run(dialog))
+        m_operations->sortSubtitles(*m_page);
 }
 
 void MainWindow::openDropped(std::span<const std::filesystem::path> paths) {
@@ -1272,6 +1300,11 @@ void MainWindow::refreshTabOf(const ProjectPage& page) {
 }
 
 void MainWindow::refreshActions() {
+    // What is wrong with the subtitles, listed with what the reading ran into —
+    // asked again after every change, since a correction takes some away.
+    const std::vector<core::Anomaly> anomalies = core::scanAnomalies(m_page->session->project());
+    m_diagnostics->setAnomalies(anomalies);
+
     const QString undo = undoLabel(m_page->session->nextUndoKind());
     const QString redo = redoLabel(m_page->session->nextRedoKind());
 
@@ -1501,6 +1534,10 @@ void MainWindow::refreshStructureActions() {
     const core::Selection rows = selectionOf(*m_table->selectionModel());
     const bool oneRun = rows.ranges().size() == 1;
     m_actions->mergeSubtitles->setEnabled(oneRun && rows.count() >= 2);
+
+    // Whatever the selection: an order belongs to the document. One subtitle
+    // is always in order, and nothing is there to sort.
+    m_actions->sortSubtitles->setEnabled(m_page->session->project().count() >= 2);
     m_actions->splitSubtitle->setEnabled(oneRun && rows.count() == 1);
 }
 

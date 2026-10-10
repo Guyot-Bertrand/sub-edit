@@ -1,3 +1,4 @@
+#include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/gui/diagnostics_button.hpp>
@@ -5,6 +6,7 @@
 #include <QAbstractItemView>
 #include <QFrame>
 #include <QListWidget>
+#include <QListWidgetItem>
 #include <QPoint>
 #include <QRect>
 #include <QScreen>
@@ -16,6 +18,7 @@
 #include <cstddef>
 #include <span>
 #include <string>
+#include <utility>
 
 namespace subedit::gui {
 
@@ -28,6 +31,10 @@ constexpr int kLongestDetail = 80;
 constexpr int kListWidth = 460;
 constexpr int kListHeight = 240;
 constexpr int kMostRows = 10;
+
+/// Where an anomaly's line keeps the row of its subtitle; a reading diagnostic
+/// has none.
+constexpr int kRowRole = Qt::UserRole;
 
 [[nodiscard]] QString boundedOf(const std::string& detail) {
     const QString text = QString::fromStdString(detail);
@@ -60,7 +67,8 @@ DiagnosticsButton::DiagnosticsButton(QWidget* parent)
     setAutoRaise(true);
     setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     setIcon(style()->standardIcon(QStyle::SP_MessageBoxWarning));
-    setToolTip(QStringLiteral("What the reading ran into — click for the list"));
+    setToolTip(QStringLiteral("What the reading ran into, and what is wrong with the "
+                              "subtitles — click for the list"));
 
     m_popup->setFrameShape(QFrame::StyledPanel);
     auto* stack = new QVBoxLayout{m_popup};
@@ -72,20 +80,65 @@ DiagnosticsButton::DiagnosticsButton(QWidget* parent)
     m_lines->setTextElideMode(Qt::ElideRight);
 
     connect(this, &QToolButton::clicked, this, &DiagnosticsButton::openList);
+    connect(m_lines, &QListWidget::itemClicked, this, [this](const QListWidgetItem* item) {
+        chooseLine(m_lines->row(item));
+    });
 
     setVisible(false);
 }
 
 void DiagnosticsButton::setDiagnostics(std::span<const core::Diagnostic> diagnostics) {
     m_popup->hide();
-    m_lines->clear();
+    m_diagnosticLines.clear();
     for (const core::Diagnostic& diagnostic : diagnostics)
-        m_lines->addItem(lineOf(diagnostic));
+        m_diagnosticLines.push_back(lineOf(diagnostic));
+    rebuild();
+}
 
-    setText(diagnostics.size() == 1 ? QStringLiteral("1 diagnostic")
-                                    : QStringLiteral("%1 diagnostics").arg(diagnostics.size()));
+void DiagnosticsButton::setAnomalies(std::span<const core::Anomaly> anomalies) {
+    QStringList lines;
+    std::vector<int> rows;
+    for (const core::Anomaly& anomaly : anomalies) {
+        lines.push_back(QString::fromStdString(core::statementOf(anomaly)));
+        rows.push_back(static_cast<int>(anomaly.index.value()));
+    }
 
-    setVisible(!diagnostics.empty());
+    // Asked after every operation, and almost always for the same answer: a list
+    // rebuilt for nothing would lose the scroll position of the one being read.
+    if (lines == m_anomalyLines && rows == m_anomalyRows)
+        return;
+
+    m_anomalyLines = std::move(lines);
+    m_anomalyRows = std::move(rows);
+    rebuild();
+}
+
+void DiagnosticsButton::rebuild() {
+    m_lines->clear();
+    m_lines->addItems(m_diagnosticLines);
+
+    for (qsizetype position = 0; position < m_anomalyLines.size(); ++position) {
+        auto* item = new QListWidgetItem{m_anomalyLines.at(position)};
+        item->setData(kRowRole, m_anomalyRows.at(static_cast<std::size_t>(position)));
+        m_lines->addItem(item);
+    }
+
+    const int total = m_lines->count();
+    setText(total == 1 ? QStringLiteral("1 diagnostic")
+                       : QStringLiteral("%1 diagnostics").arg(total));
+
+    // A list with nothing left to show goes with its button.
+    if (total == 0)
+        m_popup->hide();
+    setVisible(total != 0);
+}
+
+void DiagnosticsButton::chooseLine(int row) {
+    const QListWidgetItem* item = m_lines->item(row);
+    if (item == nullptr || !item->data(kRowRole).isValid())
+        return;
+
+    emit rowChosen(item->data(kRowRole).toInt());
 }
 
 void DiagnosticsButton::openList() {

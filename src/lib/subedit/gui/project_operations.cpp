@@ -13,6 +13,7 @@
 #include <subedit/core/edit/shift_command.hpp>
 #include <subedit/core/edit/shift_limits.hpp>
 #include <subedit/core/edit/snap_command.hpp>
+#include <subedit/core/edit/sort_command.hpp>
 #include <subedit/core/edit/split_project.hpp>
 #include <subedit/core/edit/transform_command.hpp>
 #include <subedit/core/format/diagnostic.hpp>
@@ -366,6 +367,24 @@ void ProjectOperations::appendFile(ProjectPage& page) {
         return;
     }
     m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
+}
+
+void ProjectOperations::sortSubtitles(ProjectPage& page) {
+    if (page.session->project().isInOrder()) {
+        m_view->announce(core::noticeOfSort(0));
+        return;
+    }
+
+    const std::vector<core::Change> changes =
+        page.session->apply(std::make_unique<core::SortCommand>());
+    page.model->applied(changes);
+    // Playback was placed on a row that holds another subtitle now.
+    page.placedAt = -1;
+
+    std::size_t moved = 0;
+    for (const core::Change& change : changes)
+        moved += change.subtitles.count();
+    m_view->announce(core::noticeOfSort(moved));
 }
 
 void ProjectOperations::splitProject(ProjectPage& page) {

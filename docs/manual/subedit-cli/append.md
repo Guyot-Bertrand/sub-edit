@@ -2,7 +2,7 @@
 
 ```
 subedit-cli append --output FICHIER
-                   [--dry-run]
+                   [--dry-run] [--sort]
                    <base> <fichier>...
 ```
 
@@ -43,6 +43,7 @@ Options:
   -h,--help                   Print this help message and exit
   --output FILE               File to write
   --dry-run                   Work out and say what would be written, and write nothing
+  --sort                      Put the subtitles in order of their start before writing
 ```
 
 ## Arguments et options
@@ -52,6 +53,7 @@ Options:
 | `<base> <fichier>...` | oui, **deux au moins** | des chemins : la base, puis ce qu'on met à sa suite, dans l'ordre | — |
 | `--output` | **oui**, sauf avec `--dry-run` | un chemin de fichier ; son dossier est créé s'il manque | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `--sort` | non | un drapeau : met l'ensemble dans l'ordre de ses débuts **une fois tout ajouté**, voir [Trier le résultat](#trier-le-résultat) | désactivé |
 
 **La destination ne peut être aucune des entrées**, la base comprise : écrire par-dessus un fichier qu'on est
 en train de lire est refusé avant que rien soit lu, code `1`. `--output` existant et distinct des entrées est
@@ -77,6 +79,15 @@ trois
 
 Le dernier sous-titre de `partie1.srt` finit à 4 s ; celui de `partie2.srt`, qui commençait à 0,5 s, commence à
 4,5 s.
+
+## Trier le résultat
+
+Chaque fichier est décalé **à partir de la fin de ce qui le précède** : l'ordre qui peut se rompre est donc celui des fichiers eux-mêmes. `--sort`
+met le résultat dans l'ordre des débuts, **en une fois, après le dernier ajout**, comme le ferait [`sort`](sort.md) — stable, et sans rien changer
+au contenu.
+
+Jamais par défaut. Avec l'option, la base le dit au premier niveau de narration, `<base>: N subtitles moved` ou `<base>: already in order`, et
+l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option**.
 
 ## Quand les formats diffèrent
 

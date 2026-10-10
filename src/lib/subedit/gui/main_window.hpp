@@ -222,6 +222,8 @@ public:
 
     [[nodiscard]] QAction* removeAction() const { return m_actions->remove; }
 
+    [[nodiscard]] QAction* sortAction() const { return m_actions->sortSubtitles; }
+
     [[nodiscard]] QAction* mergeAction() const { return m_actions->mergeSubtitles; }
 
     [[nodiscard]] QAction* splitAction() const { return m_actions->splitSubtitle; }
@@ -609,6 +611,10 @@ private:
     /// holds it — what `Open…` and a drop share. Says why the file will not
     /// open, or nothing when it opened or was already there.
     [[nodiscard]] std::optional<std::string> openFile(const std::filesystem::path& path);
+
+    /// Offers to sort the file just opened when it is not in order of start, and
+    /// does it on a yes — undoably. Nothing is asked of a file in order.
+    void proposeSorting();
 
     /// Asks which film to watch the document against, and associates it.
     void selectVideo();

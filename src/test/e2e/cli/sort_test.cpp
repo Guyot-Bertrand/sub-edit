@@ -137,3 +137,54 @@ TEST_CASE("sort needs a destination like every subcommand that writes", "[e2e][C
     CHECK(run.exitCode == 1);
     CHECK(contentOf(input) == kDisorder);
 }
+
+TEST_CASE("convert, append and split-file sort on request", "[e2e][CLI-SORT-03]") {
+    const Scratch scratch;
+    const std::string input = writeFile(scratch, "in/a.srt", kDisorder);
+
+    SECTION("convert writes in order, and says how many moved") {
+        const std::string out = scratch.of("out/a.vtt");
+
+        const CliRun run = invoke({"convert", "--to", "vtt", "--sort", "--output", out, input});
+
+        CHECK(run.exitCode == 0);
+        CHECK_THAT(run.errors, ContainsSubstring("3 subtitles moved"));
+        const std::string written = contentOf(out);
+        CHECK(written.find("un") < written.find("trois"));
+        CHECK(written.find("trois") < written.find("cinq"));
+    }
+
+    SECTION("convert without the option keeps the order of the file") {
+        const std::string out = scratch.of("out/a.vtt");
+
+        REQUIRE(invoke({"convert", "--to", "vtt", "--output", out, input}).exitCode == 0);
+
+        const std::string written = contentOf(out);
+        CHECK(written.find("cinq") < written.find("un"));
+    }
+
+    SECTION("append writes the result in order") {
+        const std::string other = writeFile(scratch, "in/b.srt", kOrdered);
+        const std::string out = scratch.of("out/all.srt");
+
+        const CliRun run = invoke({"append", "--sort", "--output", out, input, other});
+
+        CHECK(run.exitCode == 0);
+        CHECK_THAT(run.errors, ContainsSubstring("subtitles moved"));
+        const std::string written = contentOf(out);
+        CHECK(written.find("un") < written.find("cinq"));
+    }
+
+    SECTION("split-file cuts in the time order") {
+        const std::string head = scratch.of("out/head.srt");
+        const std::string tail = scratch.of("out/tail.srt");
+
+        const CliRun run =
+            invoke({"split-file", "--sort", "--at", "3", "--head", head, "--tail", tail, input});
+
+        CHECK(run.exitCode == 0);
+        // In time order the head holds the two earliest subtitles, the tail the latest.
+        CHECK_THAT(contentOf(head), ContainsSubstring("trois"));
+        CHECK_THAT(contentOf(tail), ContainsSubstring("cinq"));
+    }
+}

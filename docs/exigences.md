@@ -114,10 +114,14 @@ plus rien.
 | `GUI-TRANSFORM-01` | le dialogue de transformation corrige par deux repères | 5 | implémentée |
 | `GUI-SCOPE-01` | un dialogue d'opération offre le choix entre la sélection et tout le projet quand une partie seulement est sélectionnée | 5 | implémentée |
 | `GUI-PREVIEW-01` | un dialogue d'opération montre, avant d'appliquer, les premiers sous-titres qu'il changerait | 5 | implémentée |
+| `GUI-SORT-01` | `Sort Subtitles` met le projet dans l'ordre des débuts, annulablement, et dit combien de sous-titres ont changé de place | 5 | implémentée |
+| `GUI-SORT-02` | un fichier ouvert hors d'ordre propose d'être trié, et ne l'est que sur un oui | 5 | implémentée |
+| `GUI-SORT-03` | la liste des diagnostics porte aussi les anomalies des sous-titres, suit les corrections, et mène à la ligne choisie | 5 | implémentée |
 | `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible | 5 | implémentée |
 | `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier | 5 | implémentée |
 | `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique | 5 | implémentée |
 | `CLI-INSPECT-04` | les anomalies d'un document sont rapportées par numéro de sous-titre | 5 | implémentée |
+| `CLI-INSPECT-08` | `inspect` rapporte les anomalies une par ligne, et garde `none` sur la ligne de `anomalies` quand il n'y en a pas | 5 | implémentée |
 | `CLI-INSPECT-05` | `inspect` écrit la grille déduite, sa concentration et le verdict | 16 | implémentée |
 | `CLI-INSPECT-06` | un fichier sans grille le dit, et ne nomme aucune fréquence | 16 | implémentée |
 | `CLI-INSPECT-07` | une ambiguïté harmonique est nommée, et la plus basse est retenue | 16 | implémentée |
@@ -270,6 +274,7 @@ plus rien.
 | `CLI-DASH-01` | `dialogue-dashes --add` / `--remove` pose et retire les tirets de dialogue | 13 | implémentée |
 | `CLI-SORT-01` | `sort` met les sous-titres dans l'ordre de leur début, de façon stable | 13 | implémentée |
 | `CLI-SORT-02` | `sort` dit combien de sous-titres ont bougé, et écrit le fichier même s'il est déjà en ordre | 13 | implémentée |
+| `CLI-SORT-03` | `convert`, `append` et `split-file` acceptent `--sort`, qui met les sous-titres dans l'ordre de leur début avant d'écrire et dit combien ont bougé | 13 | implémentée |
 | `CLI-TRANS-01` | `inspect -t` rapporte lignes rattachées, sous-titres nés, sans traduction et hors d'ordre | 13 | implémentée |
 | `CLI-TRANS-02` | `--document translation` exige `-t`, et `-t` exige `--document translation` sur une sous-commande de texte | 13 | implémentée |
 | `CLI-TRANS-03` | `-t` n'a de sens que pour une seule entrée ; avec un lot, il est refusé | 13 | implémentée |

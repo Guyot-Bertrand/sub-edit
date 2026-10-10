@@ -38,6 +38,7 @@ class Reporter;
                                  const std::vector<std::string>& paths,
                                  const std::optional<subedit::core::Encoding>& reading,
                                  const Destination& destination,
-                                 const Reporter& reporter);
+                                 const Reporter& reporter,
+                                 bool sort = false);
 
 } // namespace subedit::cli

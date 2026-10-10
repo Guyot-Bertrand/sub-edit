@@ -151,6 +151,15 @@ public:
     /// new tab — D6.
     void splitProject(ProjectPage& page);
 
+    /// Puts the subtitles back in order of their start, undoably, and says in
+    /// the status bar how many changed place.
+    ///
+    /// **Over the whole project, and never the selection**: an order is a
+    /// property of the document, and sorting half of it is not a thing that
+    /// means anything. A project already in order says so and records nothing:
+    /// an operation that changes nothing is not one to undo.
+    void sortSubtitles(ProjectPage& page);
+
     /// `Remove Hearing-Impaired Mentions…`.
     void removeHearingImpaired(ProjectPage& page);
 
