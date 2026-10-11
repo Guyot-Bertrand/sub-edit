@@ -31,6 +31,7 @@ add_library(
     frame_rate_grammar.cpp
     inspection.cpp
     pairing.cpp
+    configuring.cpp
     conversion.cpp
     correcting.cpp
     index_grammar.cpp
