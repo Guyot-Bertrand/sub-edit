@@ -14,7 +14,7 @@ const std::filesystem::path kUser = "/u/subedit/settings.conf";
 const std::filesystem::path kOther = "/o/other.conf";
 } // namespace
 
-TEST_CASE("--no-config reads nothing and keeps the core defaults", "[shared-settings]") {
+TEST_CASE("With --no-config nothing is read and the core defaults hold", "[shared-settings]") {
     InMemoryFileSystem files;
     REQUIRE(files.writeFile(kUser, "duration-adjust.speed = 12\n").has_value());
     const SharedSettings shared = loadSharedSettings(files, {.disabled = true, .userPath = kUser});
@@ -33,7 +33,7 @@ TEST_CASE("By default the user's file is read", "[shared-settings]") {
     CHECK(shared.values.durationAdjustment.charactersPerSecond == 12.0);
 }
 
-TEST_CASE("--config names another file and wins over the user's", "[shared-settings]") {
+TEST_CASE("A file named by --config wins over the user's", "[shared-settings]") {
     InMemoryFileSystem files;
     REQUIRE(files.writeFile(kUser, "duration-adjust.speed = 12\n").has_value());
     REQUIRE(files.writeFile(kOther, "duration-adjust.speed = 20\n").has_value());

@@ -181,10 +181,80 @@ TEST_CASE("the file's directions, maximum and gap are its own until an option sa
 }
 
 TEST_CASE("default settings give exactly the old behaviour", "[cli][adjusting][settings]") {
-    CHECK(constraintsOf(AdjustOptions{}, DurationAdjustmentSettings{}) ==
-          constraintsOf(AdjustOptions{}));
-    CHECK(constraintsOf(AdjustOptions{.shorten = true}, DurationAdjustmentSettings{}) ==
-          constraintsOf(AdjustOptions{.shorten = true}));
+    // Worked out by hand: Gaupol's four constraints, as before the file was read.
+    DurationConstraints expected;
+    expected.speed = ReadingSpeed::create(15.0, true, false);
+    expected.minimum = Duration::fromMilliseconds(1500);
+    expected.maximum.reset();
+    expected.gap = Duration::fromMilliseconds(0);
+
+    const auto constraints = constraintsOf(AdjustOptions{}, DurationAdjustmentSettings{});
+    REQUIRE(constraints.has_value());
+    CHECK(*constraints == expected);
+}
+
+TEST_CASE("each option given replaces the file's value, one by one", "[cli][adjusting][settings]") {
+    DurationAdjustmentSettings file;
+    file.charactersPerSecond = 12;
+    file.minimumMilliseconds = 2000;
+    file.maximumEnabled = true;
+    file.maximumMilliseconds = 4000;
+    file.gapMilliseconds = 300;
+
+    const auto given =
+        constraintsOf(AdjustOptions{.minimum = "1", .maximum = "6", .gap = "0.5"}, file);
+    REQUIRE(given.has_value());
+    CHECK(given->speed == ReadingSpeed::create(12.0, true, false));
+    CHECK(given->minimum == Duration::fromMilliseconds(1000));
+    CHECK(given->maximum == Duration::fromMilliseconds(6000));
+    CHECK(given->gap == Duration::fromMilliseconds(500));
+}
+
+TEST_CASE("a gap disabled in the file is no gap", "[cli][adjusting][settings]") {
+    DurationAdjustmentSettings file;
+    file.gapEnabled = false;
+    file.gapMilliseconds = 300;
+
+    const auto constraints = constraintsOf(AdjustOptions{}, file);
+    REQUIRE(constraints.has_value());
+    CHECK_FALSE(constraints->gap.has_value());
+}
+
+TEST_CASE("the direction options act on the file's directions", "[cli][adjusting][settings]") {
+    // An active file speed that only lengthens, plus --shorten: both ways.
+    DurationAdjustmentSettings lengthening;
+    lengthening.charactersPerSecond = 12;
+    CHECK(constraintsOf(AdjustOptions{.shorten = true}, lengthening)->speed ==
+          ReadingSpeed::create(12.0, true, true));
+
+    // A file speed switched off, plus --no-lengthen: the directions start from
+    // the default (lengthen only), and --no-lengthen takes that away. What is
+    // left is a speed that moves no end, which constrains nothing; the minimum
+    // and the gap of the file keep the request alive.
+    DurationAdjustmentSettings off;
+    off.lengthen = false;
+    off.shorten = false;
+    const auto noLengthen = constraintsOf(AdjustOptions{.noLengthen = true}, off);
+    REQUIRE(noLengthen.has_value());
+    CHECK(noLengthen->speed == ReadingSpeed::create(15.0, false, false));
+    CHECK(noLengthen->minimum == Duration::fromMilliseconds(1500));
+}
+
+TEST_CASE("a speed given replaces a hand-edited speed of zero", "[cli][adjusting][settings]") {
+    DurationAdjustmentSettings file;
+    file.charactersPerSecond = 0;
+    CHECK(constraintsOf(AdjustOptions{.speed = "12"}, file)->speed ==
+          ReadingSpeed::create(12.0, true, false));
+}
+
+TEST_CASE("the directions with the speed switched off are refused, whatever the file says",
+          "[cli][adjusting][settings]") {
+    DurationAdjustmentSettings file;
+    file.charactersPerSecond = 12;
+    file.shorten = true;
+    const auto refused = constraintsOf(AdjustOptions{.speed = "off", .shorten = true}, file);
+    REQUIRE_FALSE(refused.has_value());
+    CHECK_THAT(refused.error(), ContainsSubstring("--speed off switches the reading speed off"));
 }
 
 TEST_CASE("the speed switched off by option beats a speed in the file",
@@ -242,7 +312,6 @@ TEST_CASE("adjusting writes the ends and counts what gave way", "[cli][adjusting
                                  "\"sacrificed\":{\"speed\":0,\"minimum\":0,\"gap\":0}}"));
     CHECK_THAT(records.str(), ContainsSubstring("\"constraints\":{\"speed\":{\"cps\":\"15\""));
     // No settings file read: the record says so rather than leave the field out.
-    CHECK_THAT(records.str(), ContainsSubstring("\"settings\":null"));
     CHECK_THAT(records.str(), ContainsSubstring("\"settings\":null"));
 }
 

@@ -386,6 +386,9 @@ TEST_CASE("a note names the settings file read, at the default verbosity",
     CHECK_THAT(run.errors,
                ContainsSubstring("settings: duration-adjust.minimum-ms: cannot read 'soon', "
                                  "default kept\n"));
+    // The minimum kept at its default: case A.
+    CHECK(endsOf(contentOf(scratch.of("out/d.srt"))) ==
+          std::vector<std::string>{"00:00:02,000", "00:00:14,000", "00:00:15,000", "00:00:16,500"});
 
     // --quiet silences the note with the rest.
     const CliRun quiet =
