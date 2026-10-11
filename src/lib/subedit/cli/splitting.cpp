@@ -1,6 +1,7 @@
 #include <subedit/cli/batch.hpp>
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/diagnostics.hpp>
+#include <subedit/cli/disjoining.hpp>
 #include <subedit/cli/opening.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
@@ -41,6 +42,36 @@ namespace {
     return writeSubtitlesTo(files, out, source.format, request, dryRun);
 }
 
+/// What the options that come before the cut made of the project.
+struct Arranged {
+    std::size_t reordered = 0;
+    std::optional<core::DisjointReport> cut;
+};
+
+/// Puts the project in order when asked, then makes its ranges disjoint when
+/// asked, saying so. Nothing when the ranges were asked for on a project out of
+/// order: the refusal has been reported.
+[[nodiscard]] std::optional<Arranged> arrangedBy(core::Session& session,
+                                                 const SplitRequest& request,
+                                                 const std::string& path,
+                                                 const Reporter& reporter) {
+    Arranged arranged;
+    if (request.sort) {
+        arranged.reordered = sortedIn(session);
+        reporter.say(1, narrationOfSort(path, arranged.reordered));
+    }
+    if (request.disjoint) {
+        const std::expected<core::DisjointReport, Failure> made = disjointedIn(session);
+        if (!made.has_value()) {
+            reportFailure(reporter, path, made.error());
+            return std::nullopt;
+        }
+        arranged.cut = *made;
+        reporter.say(1, narrationOfDisjoint(path, *made));
+    }
+    return arranged;
+}
+
 } // namespace
 
 ExitCode splitFile(core::FileSystem& files,
@@ -77,11 +108,12 @@ ExitCode splitFile(core::FileSystem& files,
     // the box of the window offers them.
     core::Session session{std::move(opened->project)};
     // **Before the cut is judged**: `--at` counts in the order that is cut.
-    std::size_t reordered = 0;
-    if (request.sort) {
-        reordered = sortedIn(session);
-        reporter.say(1, narrationOfSort(path, reordered));
+    const std::optional<Arranged> arranged = arrangedBy(session, request, path, reporter);
+    if (!arranged.has_value()) {
+        return ExitCode::AllFailed;
     }
+    const std::size_t reordered = arranged->reordered;
+    const std::optional<core::DisjointReport>& cut = arranged->cut;
     const std::size_t total = session.project().count();
     if (request.at < 2 || request.at > total) {
         reportFailure(
@@ -156,6 +188,7 @@ ExitCode splitFile(core::FileSystem& files,
     // Only with `--sort`: a field nobody asked for would change the record.
     if (request.sort)
         counts.emplace_back("moved", static_cast<std::int64_t>(reordered));
+    addCountsOfDisjoint(counts, cut);
     if (dryRun) {
         reporter.say(1, made + " (dry run, nothing written)");
         reporter.record(dryRunRecord(reporter.command(),

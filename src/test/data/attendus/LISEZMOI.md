@@ -133,3 +133,28 @@ main d'après la lecture de Gaupol avant que rien n'aligne quoi que ce soit. `pa
 | Fichier | Cas | Provenance |
 | :------ | :-- | :--------- |
 | `correct/dry-run.txt` | la sortie standard de `correct --tasks mentions,common-errors --dry-run` sur `[Door]` et `eﬀet` (la ligature) : le sous-titre 1 supprimé, le 2 recomposé — le dossier temporaire du test y est écrit `<scratch>` | à la main : un bloc par sous-titre changé, `- ` devant le texte d'avant, `+ ` devant celui d'après, aucune ligne `+` pour une suppression |
+
+## `disjoint/` — ce que `disjoint` écrit
+
+Écrit à la main, **d'après la règle de l'issue #698** : couper la ligne de temps à chaque début et chaque fin d'un
+groupe qui se chevauche, fusionner ligne à ligne ce qui s'affiche ensemble (le plus tôt d'abord), ne répéter aucune
+ligne, laisser un intervalle de moins de 80 ms à son voisin, présenter par fenêtres de deux lignes ce qui en aurait
+trois. L'entrée est `malformes/superpositions.srt`, de la forme d'un fichier mal fusionné : trois groupes et un
+sous-titre isolé.
+
+| Fichier | Cas | Provenance |
+| :------ | :-- | :--------- |
+| `disjoint/superpositions.srt` | trois sous-titres qui se chevauchent (le troisième est au milieu des deux premiers : trois lignes, donc deux fenêtres), un sous-titre qui en contient un autre et dont la fin est mordue de 40 ms (l'intervalle est repris par le plus long voisin), deux sous-titres de même texte (une seule ligne, un seul sous-titre), un sous-titre qui ne chevauche rien | à la main, renumérotés |
+
+## `join/` et `repair/` — ce que `join-repeats` et `repair` écrivent
+
+Écrits à la main, **d'après la règle de l'issue #698** : un même texte (mêmes traduction et réglages de cue) découpé en
+sous-titres qui se suivent ou se recouvrent redevient un seul sous-titre, de son plus petit début à sa plus grande fin, avant
+tout tri et tout découpage. L'entrée est `malformes/segments-repetes.vtt`, **de la forme d'un fichier réel mal segmenté,
+avec des textes inventés** : un texte en trois morceaux chaînés, et un autre texte, à une autre position, sur toute la plage,
+donné hors d'ordre.
+
+| Fichier | Cas | Provenance |
+| :------ | :-- | :--------- |
+| `join/segments-repetes.vtt` | `join-repeats` : les trois morceaux deviennent un sous-titre de 1:47,240 à 1:52,000 ; l'autre texte est inchangé et l'ordre est celui du fichier | à la main |
+| `repair/segments-repetes.vtt` | `repair` : après la fusion, rien à trier, et les deux textes qui occupent la même plage deviennent un sous-titre à deux lignes, le plus tôt d'abord, avec les réglages du premier | à la main |

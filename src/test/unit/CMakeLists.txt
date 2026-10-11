@@ -90,6 +90,8 @@ add_executable(
     core/edit/set_duration_command_test.cpp
     core/edit/snap_command_test.cpp
     core/edit/command_preview_test.cpp
+    core/edit/disjoint_ranges_test.cpp
+    core/edit/join_repeats_test.cpp
     core/edit/sort_command_test.cpp
     core/edit/order_policy_test.cpp
     core/command/change_test.cpp
@@ -238,6 +240,8 @@ add_executable(
     cli/reporter_test.cpp
     cli/shifting_test.cpp
     cli/sorting_test.cpp
+    cli/disjoining_test.cpp
+    cli/joining_test.cpp
     cli/splitting_test.cpp
     cli/text_rewriting_test.cpp
     cli/time_grammar_test.cpp

@@ -114,7 +114,9 @@ WindowActions::WindowActions(QObject* owner)
           owner, QStringLiteral("&Find and Replace…"), QStringLiteral("edit-find-replace"))),
       insert(buildAction(owner, QStringLiteral("Insert Subtitles…"), QStringLiteral("list-add"))),
       remove(buildAction(owner, QStringLiteral("Remove Subtitles"), QStringLiteral("list-remove"))),
+      joinRepeats(buildAction(owner, QStringLiteral("&Join Repeated Subtitles"), {})),
       sortSubtitles(buildAction(owner, QStringLiteral("S&ort Subtitles"), {})),
+      makeDisjoint(buildAction(owner, QStringLiteral("Make Ranges &Disjoint…"), {})),
       mergeSubtitles(buildAction(owner, QStringLiteral("&Merge Subtitles"), {})),
       splitSubtitle(buildAction(owner, QStringLiteral("S&plit Subtitle"), {})),
       preferences(new QAction{QStringLiteral("&Preferences…"), owner}),
@@ -358,7 +360,9 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     edition->addAction(splitSubtitle);
     // Beside them as well: it changes where the rows are, not what they say, and
     // acts on the whole document.
+    edition->addAction(joinRepeats);
     edition->addAction(sortSubtitles);
+    edition->addAction(makeDisjoint);
     edition->addSeparator();
     // Under another: setting the theme is no edit at all.
     edition->addAction(preferences);

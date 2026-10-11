@@ -35,6 +35,9 @@ Subcommands:
   italics                     Put the texts in italics, or take their italics out
   dialogue-dashes             Put dialogue dashes on the lines, or take them off
   sort                        Put the subtitles in the order of their start, keeping ties as they are
+  join-repeats                Join the subtitles that repeat each other, one after the other, into one
+  disjoint                    Cut overlapping subtitles so that no range overlaps another, merging what overlaps
+  repair                      Join the repeated subtitles, put them in order, then make the ranges disjoint
   correct                     Correct the texts with the patterns of the correction assistant
   append                      Put subtitle files one after another into a single file
   split-file                  Cut a subtitle file in two, a head and a tail
@@ -148,7 +151,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.15.11
+subedit 0.15.12
 ```
 
 ## Sous-commandes
@@ -168,26 +171,29 @@ subedit 0.15.11
 | [`italics`](italics.md) | met les textes en italique, ou retire leur italique | oui |
 | [`dialogue-dashes`](dialogue-dashes.md) | pose ou retire les tirets de dialogue | oui |
 | [`sort`](sort.md) | remet les sous-titres dans l'ordre de leur début | oui |
+| [`join-repeats`](join-repeats.md) | fait un seul sous-titre des morceaux d'un même texte qui se suivent | oui |
+| [`disjoint`](disjoint.md) | découpe les sous-titres qui se chevauchent pour que plus aucune plage n'en chevauche une autre | oui |
+| [`repair`](repair.md) | enchaîne `join-repeats`, `sort` et `disjoint` | oui |
 | [`correct`](correct.md) | corrige les textes avec les motifs de Gaupol : mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage de lignes | oui |
 | [`append`](append.md) | met des fichiers à la suite du premier, dans **un seul** fichier | oui |
 | [`split-file`](split-file.md) | coupe un fichier en **deux** : une tête et une queue | oui |
 | [`pair`](pair.md) | écrit une traduction aux positions de son principal, et dit comment ses lignes se sont posées | oui |
 
-Les dix-sept sont là ; l'aide de l'outil les énumère dans le même ordre.
+Les vingt sont là ; l'aide de l'outil les énumère dans le même ordre.
 
 **Une seule ne touche à rien**, et c'est la colonne de droite : `inspect` lit et
-rapporte. Les seize autres écrivent, et ce qui suit vaut pour quatorze d'entre elles :
+rapporte. Les dix-neuf autres écrivent, et ce qui suit vaut pour dix-sept d'entre elles :
 [`append`](append.md) et [`split-file`](split-file.md) ont chacune une arité à elles — N fichiers pour
 **un** résultat, un fichier pour **deux** — et donc leur propre destination, qu'elles décrivent sur leur page.
 
 ## La destination
 
-Les quatorze sous-commandes qui écrivent — [`convert`](convert.md),
+Les dix-sept sous-commandes qui écrivent — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
-[`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`correct`](correct.md),
-[`pair`](pair.md) — prennent leur destination de la même façon. ([`append`](append.md) et
+[`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — prennent leur destination de la même façon. ([`append`](append.md) et
 [`split-file`](split-file.md) ont la leur, sur leur page.) [`inspect`](inspect.md) n'écrit aucun fichier et
 n'accepte aucune de ces options.
 

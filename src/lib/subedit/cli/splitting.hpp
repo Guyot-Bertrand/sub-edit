@@ -36,6 +36,10 @@ struct SplitRequest {
     /// falls on the time order and `at` counts in it. Opt-in, and it says how many
     /// subtitles moved.
     bool sort = false;
+
+    /// Makes the ranges disjoint before cutting, after the sort: `at` counts in
+    /// what that leaves. A file out of order is refused unless `sort` is given.
+    bool disjoint = false;
 };
 
 /// Cuts `request.input` at `request.at` and writes the two halves.

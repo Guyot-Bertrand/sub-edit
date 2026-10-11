@@ -74,6 +74,10 @@ writeShapeOf(const std::string& lineEndings, const std::string& encoding, bool b
 /// what is written is in order whatever the format, and the file read is untouched.
 /// Opt-in and never a default — the order of a file is its author's until asked —
 /// and it says how many subtitles moved.
+///
+/// **`disjoint` makes the ranges disjoint** after that, with the defaults of the
+/// `disjoint` command, on the same copy; a file out of order is refused unless
+/// `sort` puts it right. Opt-in as well.
 [[nodiscard]] ExitCode convertAll(subedit::core::FileSystem& files,
                                   const std::vector<std::string>& paths,
                                   const subedit::core::ReadingChoices& reading,
@@ -81,6 +85,7 @@ writeShapeOf(const std::string& lineEndings, const std::string& encoding, bool b
                                   const WriteShape& shape,
                                   const Destination& destination,
                                   const Reporter& reporter,
-                                  bool sort = false);
+                                  bool sort = false,
+                                  bool disjoint = false);
 
 } // namespace subedit::cli

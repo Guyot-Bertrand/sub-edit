@@ -7,12 +7,15 @@
 #include "convert.hpp"
 #include "correct.hpp"
 #include "dialogue_dashes.hpp"
+#include "disjoint.hpp"
 #include "framerate.hpp"
 #include "hearing_impaired.hpp"
 #include "inspect.hpp"
 #include "italics.hpp"
+#include "join_repeats.hpp"
 #include "letter_case.hpp"
 #include "pair.hpp"
+#include "repair.hpp"
 #include "replace.hpp"
 #include "shift.hpp"
 #include "snap.hpp"
@@ -37,6 +40,9 @@ std::span<const Command> commands() {
         Command{.name = "italics", .declare = declareItalics},
         Command{.name = "dialogue-dashes", .declare = declareDialogueDashes},
         Command{.name = "sort", .declare = declareSort},
+        Command{.name = "join-repeats", .declare = declareJoinRepeats},
+        Command{.name = "disjoint", .declare = declareDisjoint},
+        Command{.name = "repair", .declare = declareRepair},
         Command{.name = "correct", .declare = declareCorrect},
         Command{.name = "append", .declare = declareAppend},
         Command{.name = "split-file", .declare = declareSplitFile},

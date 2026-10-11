@@ -56,4 +56,48 @@ std::string noticeOfAdjustment(std::size_t adjusted, const SacrificedConstraints
     return notice;
 }
 
+std::string noticeOfDisjoint(const DisjointReport& report) {
+    if (report.groups == 0 && report.endingBeforeStart == 0)
+        return "already disjoint";
+
+    std::string notice =
+        countOf(report.split, "subtitle") + " split, " + std::to_string(report.merged) + " merged";
+
+    // What was not done in full, after what was.
+    std::vector<std::string> clauses;
+    if (report.windowed > 0)
+        clauses.push_back(std::to_string(report.windowed) +
+                          " shown in windows for holding too many lines");
+    if (report.absorbed > 0)
+        clauses.push_back(std::to_string(report.absorbed) +
+                          " very short taken over by a neighbour");
+    if (report.tooShort > 0)
+        clauses.push_back(countOf(report.tooShort, "subtitle") +
+                          " shorter than the limit left whole");
+    if (report.extrasDropped > 0)
+        clauses.push_back(std::to_string(report.extrasDropped) +
+                          " merged with styles or positions that differ, the first kept");
+    if (report.endingBeforeStart > 0)
+        clauses.push_back(countOf(report.endingBeforeStart, "subtitle") +
+                          " ending before the start left alone");
+
+    for (std::size_t rank = 0; rank < clauses.size(); ++rank)
+        notice += (rank == 0 ? "; " : ", ") + clauses[rank];
+    return notice;
+}
+
+std::string noticeOfJoin(const JoinReport& report) {
+    if (report.joined == 0)
+        return "no repeated subtitles";
+    return countOf(report.joined, "repeated subtitle") + " joined";
+}
+
+std::string refusalOfDisjoint(DisjointRefusal refusal) {
+    switch (refusal) {
+    case DisjointRefusal::NotInOrder:
+        return "The subtitles are not in the order of their start: sort them first.";
+    }
+    std::unreachable();
+}
+
 } // namespace subedit::core

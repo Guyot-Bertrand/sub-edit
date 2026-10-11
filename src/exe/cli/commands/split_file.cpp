@@ -22,6 +22,7 @@ struct SplitFileOptions {
     std::string tail;
     bool dryRun = false;
     bool sort = false;
+    bool disjoint = false;
 };
 
 CLI::App* describeSplitFile(CLI::App& app, std::string_view name, SplitFileOptions& options) {
@@ -44,6 +45,9 @@ CLI::App* describeSplitFile(CLI::App& app, std::string_view name, SplitFileOptio
                     options.sort,
                     "Put the subtitles in order of their start before cutting; --at counts in "
                     "that order");
+    split->add_flag("--disjoint",
+                    options.disjoint,
+                    "Cut overlapping subtitles so that no range overlaps another, before cutting");
     return split;
 }
 
@@ -64,7 +68,8 @@ ExitCode runSplitFile(const SplitFileOptions& options,
                                   .head = options.head,
                                   .tail = options.tail,
                                   .dryRun = options.dryRun,
-                                  .sort = options.sort},
+                                  .sort = options.sort,
+                                  .disjoint = options.disjoint},
                      reading,
                      reporter);
 }

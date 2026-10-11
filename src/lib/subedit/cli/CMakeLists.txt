@@ -43,6 +43,8 @@ add_library(
     shifting.cpp
     splitting.cpp
     sorting.cpp
+    disjoining.cpp
+    joining.cpp
     text_rewriting.cpp
     time_grammar.cpp
     transforming.cpp

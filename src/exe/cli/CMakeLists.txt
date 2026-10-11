@@ -7,12 +7,15 @@ add_executable(subedit-cli
     commands/convert.cpp
     commands/correct.cpp
     commands/dialogue_dashes.cpp
+    commands/disjoint.cpp
     commands/framerate.cpp
     commands/hearing_impaired.cpp
     commands/inspect.cpp
     commands/italics.cpp
+    commands/join_repeats.cpp
     commands/letter_case.cpp
     commands/pair.cpp
+    commands/repair.cpp
     commands/replace.cpp
     commands/shift.cpp
     commands/snap.cpp

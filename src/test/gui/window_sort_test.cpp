@@ -4,8 +4,8 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/gui/diagnostics_button.hpp>
+#include <subedit/gui/fixes_proposal_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
-#include <subedit/gui/sort_proposal_dialog.hpp>
 
 #include <QAbstractItemModel>
 #include <QAction>
@@ -31,8 +31,8 @@ namespace {
 using subedit::core::InMemoryFileSystem;
 using subedit::core::OpenedFile;
 using subedit::core::openProject;
+using subedit::gui::FixesProposalDialog;
 using subedit::gui::MainWindow;
-using subedit::gui::SortProposalDialog;
 using subedit::test::FakePrompts;
 
 /// Three subtitles, the last of which starts before the other two.
@@ -153,11 +153,13 @@ TEST_CASE("a file opened out of order offers to be sorted", "[gui][GUI-SORT-02]"
 }
 
 TEST_CASE("the proposal counts what is out of place", "[gui][GUI-SORT-02]") {
-    const SortProposalDialog one{1};
-    const SortProposalDialog several{3};
+    const FixesProposalDialog one{0, 1, 0};
+    const FixesProposalDialog several{0, 3, 0};
 
     CHECK(one.message().toStdString().find("1 subtitle out of place") != std::string::npos);
     CHECK(several.message().toStdString().find("3 subtitles out of place") != std::string::npos);
+    // A problem not found is not a line.
+    CHECK(one.disjointCheck() == nullptr);
 }
 
 TEST_CASE("the diagnostics list the subtitles that are out of order", "[gui][GUI-SORT-03]") {

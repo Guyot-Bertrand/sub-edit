@@ -3,11 +3,13 @@
 #include <subedit/core/analysis/grid_correction.hpp>
 #include <subedit/core/edit/clipboard.hpp>
 #include <subedit/core/edit/insert_command.hpp>
+#include <subedit/core/edit/join_repeats.hpp>
 #include <subedit/core/edit/merge_split_command.hpp>
 #include <subedit/core/edit/remove_command.hpp>
 #include <subedit/core/edit/rewrite_texts.hpp>
 #include <subedit/core/edit/search.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/edit/sort_command.hpp>
 #include <subedit/core/edit/translation.hpp>
 #include <subedit/core/edit/translation_drift.hpp>
 #include <subedit/core/format/degradation.hpp>
@@ -40,6 +42,7 @@
 #include <subedit/gui/command_label.hpp>
 #include <subedit/gui/correction_controller.hpp>
 #include <subedit/gui/diagnostics_button.hpp>
+#include <subedit/gui/fixes_proposal_dialog.hpp>
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
@@ -51,7 +54,6 @@
 #include <subedit/gui/project_search.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/search_dialog.hpp>
-#include <subedit/gui/sort_proposal_dialog.hpp>
 #include <subedit/gui/spell_check_controller.hpp>
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -668,10 +670,18 @@ MainWindow::MainWindow(core::FileSystem& files,
             &QAction::triggered,
             this,
             operate(&ProjectOperations::removeHearingImpaired));
+    connect(act.joinRepeats,
+            &QAction::triggered,
+            this,
+            operateCommitted(&ProjectOperations::joinRepeats));
     connect(act.sortSubtitles,
             &QAction::triggered,
             this,
             operateCommitted(&ProjectOperations::sortSubtitles));
+    connect(act.makeDisjoint,
+            &QAction::triggered,
+            this,
+            operateCommitted(&ProjectOperations::makeDisjoint));
     connect(
         act.italic, &QAction::triggered, this, operateCommitted(&ProjectOperations::toggleItalics));
     connect(act.dialogueDashes,
@@ -1134,24 +1144,45 @@ std::optional<std::string> MainWindow::openFile(const std::filesystem::path& pat
         removePage(blank + 1);
     }
 
-    proposeSorting();
+    proposeFixes();
     return std::nullopt;
 }
 
-void MainWindow::proposeSorting() {
-    // The subtitles that start before the one above them: what a sort would
-    // move, and what the table tints. A file in order is not asked about.
+void MainWindow::proposeFixes() {
+    // **Each problem is counted where it is corrected**: on a copy that the
+    // corrections above it have already been made to. A text cut in pieces is
+    // the cause of some disorder and of some overlaps, and joining it first may
+    // leave neither — a box that offered the three on the file as it came would
+    // offer what the first alone puts right.
+    core::Project work = m_page->session->project();
+
+    core::JoinedRepeats joined = core::joinRepeats(work);
+    const std::size_t repeated = joined.report.joined;
+    if (joined.command != nullptr)
+        joined.command->apply(work);
+
     std::size_t outOfOrder = 0;
-    for (const core::Anomaly& anomaly : core::scanAnomalies(m_page->session->project())) {
+    for (const core::Anomaly& anomaly : core::scanAnomalies(work)) {
         if (anomaly.kind == core::AnomalyKind::OutOfOrder)
             ++outOfOrder;
     }
-    if (outOfOrder == 0)
+    if (outOfOrder > 0)
+        core::SortCommand{}.apply(work);
+
+    std::size_t overlapping = 0;
+    for (const core::Anomaly& anomaly : core::scanAnomalies(work)) {
+        if (anomaly.kind == core::AnomalyKind::OverlappingSubtitles)
+            ++overlapping;
+    }
+    if (repeated == 0 && outOfOrder == 0 && overlapping == 0)
         return;
 
-    SortProposalDialog dialog{outOfOrder, this};
-    if (m_prompts->run(dialog))
-        m_operations->sortSubtitles(*m_page);
+    // **One box for everything found**, not one per problem.
+    FixesProposalDialog dialog{repeated, outOfOrder, overlapping, this};
+    if (m_prompts->run(dialog)) {
+        m_operations->fixAtOpening(
+            *m_page, dialog.joinChosen(), dialog.sortChosen(), dialog.disjointChosen());
+    }
 }
 
 void MainWindow::openDropped(std::span<const std::filesystem::path> paths) {
@@ -1572,7 +1603,9 @@ void MainWindow::refreshStructureActions() {
 
     // Whatever the selection: an order belongs to the document. One subtitle
     // is always in order, and nothing is there to sort.
+    m_actions->joinRepeats->setEnabled(m_page->session->project().count() >= 2);
     m_actions->sortSubtitles->setEnabled(m_page->session->project().count() >= 2);
+    m_actions->makeDisjoint->setEnabled(m_page->session->project().count() >= 2);
     m_actions->splitSubtitle->setEnabled(oneRun && rows.count() == 1);
 }
 

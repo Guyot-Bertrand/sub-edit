@@ -39,6 +39,7 @@ class Reporter;
                                  const std::optional<subedit::core::Encoding>& reading,
                                  const Destination& destination,
                                  const Reporter& reporter,
-                                 bool sort = false);
+                                 bool sort = false,
+                                 bool disjoint = false);
 
 } // namespace subedit::cli

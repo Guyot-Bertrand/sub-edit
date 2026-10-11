@@ -2,6 +2,7 @@
 #include <subedit/cli/conversion.hpp>
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/diagnostics.hpp>
+#include <subedit/cli/disjoining.hpp>
 #include <subedit/cli/encoding_grammar.hpp>
 #include <subedit/cli/opening.hpp>
 #include <subedit/cli/reporter.hpp>
@@ -70,8 +71,10 @@ frameRateForFrames(const core::Project& project,
 ///
 /// The posts are the ones `noticeOf` words, each as an integer — a flag is 0 or
 /// 1 — so that the sentence and the record come from the one `ConversionLoss`.
-[[nodiscard]] std::vector<Count> countsOfConversion(const core::ConvertedProject& converted,
-                                                    const std::optional<std::size_t>& moved) {
+[[nodiscard]] std::vector<Count>
+countsOfConversion(const core::ConvertedProject& converted,
+                   const std::optional<std::size_t>& moved,
+                   const std::optional<core::DisjointReport>& cut) {
     const core::ConversionLoss& loss = converted.loss;
     std::vector<Count> counts = {
         {"subtitles", static_cast<std::int64_t>(converted.subtitles.size())},
@@ -85,7 +88,37 @@ frameRateForFrames(const core::Project& project,
     // the shape of every existing script's input.
     if (moved.has_value())
         counts.emplace_back("moved", static_cast<std::int64_t>(*moved));
+    addCountsOfDisjoint(counts, cut);
     return counts;
+}
+
+/// What `--sort` and `--disjoint` made of a project: a copy when either did
+/// anything, and what they report.
+struct Arranged {
+    std::optional<core::Project> copy;
+    std::size_t moved = 0;
+    std::optional<core::DisjointReport> cut;
+};
+
+/// Applies the options to a copy of `source`: the sort, then the ranges made
+/// disjoint — the groups are runs of neighbours, so the order comes first. A
+/// project in order that asks for nothing is not copied.
+[[nodiscard]] std::expected<Arranged, Failure>
+arrangedFor(const core::Project& source, bool sort, bool disjoint) {
+    Arranged arranged;
+    if ((sort && !source.isInOrder()) || disjoint) {
+        arranged.copy = source;
+        if (sort)
+            arranged.moved = sortedInPlace(*arranged.copy);
+    }
+    if (disjoint) {
+        const std::expected<core::DisjointReport, Failure> made = disjointedInPlace(*arranged.copy);
+        if (!made.has_value()) {
+            return std::unexpected{made.error()};
+        }
+        arranged.cut = *made;
+    }
+    return arranged;
 }
 
 bool convertFile(core::FileSystem& files,
@@ -94,6 +127,7 @@ bool convertFile(core::FileSystem& files,
                  SubtitleFormat target,
                  const WriteShape& shape,
                  bool sort,
+                 bool disjoint,
                  bool dryRun,
                  const Reporter& reporter) {
     const std::string& path = job.input;
@@ -150,16 +184,18 @@ bool convertFile(core::FileSystem& files,
     // markup is carried into the arriving vocabulary — ADR 0031 — the header and
     // the declared fields cross only into their own format, and the same walk
     // counts what that format will not be able to hold.
-    // **Sorted on a copy, when asked**: the file read is left as it was, and what is
-    // written is what `--sort` made of it. A project in order is not copied.
-    std::optional<core::Project> sorted;
-    std::size_t moved = 0;
-    if (sort && !opened->project.isInOrder()) {
-        sorted = opened->project;
-        moved = sortedInPlace(*sorted);
+    // **Sorted and made disjoint on one copy, when asked**: the file read is left
+    // as it was, and a file out of order is refused with the option that would
+    // have put it right.
+    std::expected<Arranged, Failure> arranged = arrangedFor(opened->project, sort, disjoint);
+    if (!arranged.has_value()) {
+        reportFailure(reporter, path, arranged.error());
+        return false;
     }
-    const core::ConvertedProject converted =
-        core::convertProjectFor(sorted.has_value() ? *sorted : opened->project, target, rate);
+    const std::size_t moved = arranged->moved;
+    const std::optional<core::DisjointReport>& cut = arranged->cut;
+    const core::ConvertedProject converted = core::convertProjectFor(
+        arranged->copy.has_value() ? *arranged->copy : opened->project, target, rate);
 
     const core::WriteRequest request{
         .subtitles = converted.subtitles,
@@ -183,6 +219,8 @@ bool convertFile(core::FileSystem& files,
     sayDiagnostics(reporter, path, opened->diagnostics);
     if (sort)
         reporter.say(1, narrationOfSort(path, moved));
+    if (cut.has_value())
+        reporter.say(1, narrationOfDisjoint(path, *cut));
     reporter.say(2,
                  path + ": " + std::string{nameOf(source.format)} + " -> " +
                      std::string{nameOf(target)} + ", " + nameOf(encoding) + ", " +
@@ -200,18 +238,18 @@ bool convertFile(core::FileSystem& files,
         !notice.empty())
         reporter.say(1, path + ": " + notice);
     if (dryRun) {
-        reporter.record(
-            dryRunRecord(reporter.command(),
-                         path,
-                         countsOfConversion(converted, sort ? std::optional{moved} : std::nullopt),
-                         warningsOf(opened->diagnostics)));
+        reporter.record(dryRunRecord(
+            reporter.command(),
+            path,
+            countsOfConversion(converted, sort ? std::optional{moved} : std::nullopt, cut),
+            warningsOf(opened->diagnostics)));
     } else {
-        reporter.record(
-            writtenRecord(reporter.command(),
-                          path,
-                          out,
-                          countsOfConversion(converted, sort ? std::optional{moved} : std::nullopt),
-                          warningsOf(opened->diagnostics)));
+        reporter.record(writtenRecord(
+            reporter.command(),
+            path,
+            out,
+            countsOfConversion(converted, sort ? std::optional{moved} : std::nullopt, cut),
+            warningsOf(opened->diagnostics)));
     }
     return true;
 }
@@ -280,7 +318,8 @@ ExitCode convertAll(core::FileSystem& files,
                     const WriteShape& shape,
                     const Destination& destination,
                     const Reporter& reporter,
-                    bool sort) {
+                    bool sort,
+                    bool disjoint) {
     const std::expected<std::vector<Job>, ExitCode> jobs =
         arrange(files, destination, paths, extensionOf(target), reporter);
     if (!jobs) {
@@ -289,8 +328,15 @@ ExitCode convertAll(core::FileSystem& files,
 
     std::size_t done = 0;
     for (const Job& job : *jobs) {
-        if (convertFile(
-                files, job, reading, target, shape, sort, destination.isDryRun(), reporter)) {
+        if (convertFile(files,
+                        job,
+                        reading,
+                        target,
+                        shape,
+                        sort,
+                        disjoint,
+                        destination.isDryRun(),
+                        reporter)) {
             ++done;
         }
     }

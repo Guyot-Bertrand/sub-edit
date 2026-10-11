@@ -15,6 +15,7 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
+#include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/text/letter_case.hpp>
 #include <subedit/core/time/duration.hpp>
@@ -341,4 +342,35 @@ TEST_CASE("two notices share one box, one to a line", "[gui][GUI-ADJUST-01]") {
     CHECK(joinedNotices("", "past") == "past");
     CHECK(joinedNotices("done", "") == "done");
     CHECK(joinedNotices("", "").empty());
+}
+
+TEST_CASE("the corrections offered at opening say nothing of what they could not do",
+          "[gui][GUI-DISJOINT-02]") {
+    Bench bench;
+
+    // The sort asked for on a project that is in order: nothing moves.
+    bench.operations.fixAtOpening(*bench.page, false, true, false);
+    REQUIRE(bench.desk.announced.size() == 1);
+    CHECK(bench.desk.announced.back() == subedit::core::noticeOfSort(0));
+
+    // The cut asked for on a project that is not in order is refused by the
+    // core, and there is nothing to say.
+    subedit::core::Project unordered;
+    unordered.setSubtitles({subedit::core::Subtitle{.start = Timestamp::fromMilliseconds(5000),
+                                                    .end = Timestamp::fromMilliseconds(6000),
+                                                    .mainText = "b"},
+                            subedit::core::Subtitle{.start = Timestamp::fromMilliseconds(0),
+                                                    .end = Timestamp::fromMilliseconds(1000),
+                                                    .mainText = "a"}});
+    const std::unique_ptr<ProjectPage> page = ProjectPage::make(std::move(unordered));
+    bench.desk.announced.clear();
+
+    bench.operations.fixAtOpening(*page, false, false, true);
+
+    CHECK(bench.desk.announced.empty());
+    CHECK_FALSE(page->session->canUndo());
+
+    // And asked for nothing at all, nothing happens.
+    bench.operations.fixAtOpening(*page, false, false, false);
+    CHECK(bench.desk.announced.empty());
 }

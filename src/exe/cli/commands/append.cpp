@@ -21,6 +21,7 @@ struct AppendOptions {
     std::string output;
     bool dryRun = false;
     bool sort = false;
+    bool disjoint = false;
 };
 
 CLI::App* describeAppend(CLI::App& app, std::string_view name, AppendOptions& options) {
@@ -36,6 +37,9 @@ CLI::App* describeAppend(CLI::App& app, std::string_view name, AppendOptions& op
         "--dry-run", options.dryRun, "Work out and say what would be written, and write nothing");
     append->add_flag(
         "--sort", options.sort, "Put the subtitles in order of their start before writing");
+    append->add_flag("--disjoint",
+                     options.disjoint,
+                     "Cut overlapping subtitles so that no range overlaps another, before writing");
     return append;
 }
 
@@ -55,7 +59,8 @@ ExitCode runAppend(const AppendOptions& options,
     if (!destination) {
         return refuse(destination.error());
     }
-    return appendAll(files, options.files, reading, *destination, reporter, options.sort);
+    return appendAll(
+        files, options.files, reading, *destination, reporter, options.sort, options.disjoint);
 }
 
 } // namespace

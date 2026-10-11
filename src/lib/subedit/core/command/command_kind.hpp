@@ -37,6 +37,8 @@ enum class CommandKind {
     Append,
     SplitProject,
     CorrectTexts,
+    MakeDisjoint,
+    JoinRepeats,
 };
 
 } // namespace subedit::core

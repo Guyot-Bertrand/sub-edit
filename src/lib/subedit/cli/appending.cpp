@@ -2,6 +2,7 @@
 #include <subedit/cli/batch.hpp>
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/diagnostics.hpp>
+#include <subedit/cli/disjoining.hpp>
 #include <subedit/cli/opening.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
@@ -61,7 +62,8 @@ ExitCode appendAll(core::FileSystem& files,
                    const std::optional<core::Encoding>& reading,
                    const Destination& destination,
                    const Reporter& reporter,
-                   bool sort) {
+                   bool sort,
+                   bool disjoint) {
     const std::string& basePath = paths.front();
     const bool dryRun = destination.isDryRun();
 
@@ -135,6 +137,17 @@ ExitCode appendAll(core::FileSystem& files,
         moved = sortedIn(session);
         reporter.say(1, narrationOfSort(basePath, moved));
     }
+    // After the sort: the groups are runs of neighbours.
+    std::optional<core::DisjointReport> cut;
+    if (disjoint) {
+        const std::expected<core::DisjointReport, Failure> made = disjointedIn(session);
+        if (!made.has_value()) {
+            reportFailure(reporter, basePath, made.error());
+            return ExitCode::AllFailed;
+        }
+        cut = *made;
+        reporter.say(1, narrationOfDisjoint(basePath, *cut));
+    }
 
     const core::WriteRequest request =
         writeRequestOf(session.project().subtitles(), core::Document::Main, source);
@@ -161,6 +174,7 @@ ExitCode appendAll(core::FileSystem& files,
     // record for every existing script.
     if (sort)
         counts.emplace_back("moved", static_cast<std::int64_t>(moved));
+    addCountsOfDisjoint(counts, cut);
     Fields fields;
     fields.emplace_back("inputs", std::move(inputs));
 
