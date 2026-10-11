@@ -20,6 +20,7 @@ using subedit::cli::ExitCode;
 using subedit::cli::listSettingKeys;
 using subedit::cli::Reporter;
 using subedit::cli::setSetting;
+using subedit::cli::showDefaultSettings;
 using subedit::cli::showSettings;
 using subedit::cli::unsetSetting;
 using subedit::core::FileErrorKind;
@@ -133,6 +134,37 @@ TEST_CASE("config show in json writes the file first, then one record per key", 
     CHECK_THAT(text,
                ContainsSubstring(R"("key":"duration-adjust.gap-ms","value":"0",)"
                                  R"("source":"default","default":"0",)"));
+}
+
+TEST_CASE("config show with no file shows the defaults and says why", "[config]") {
+    std::ostringstream out;
+    std::ostringstream err;
+    const Reporter reporter = Reporter{err, 1}.withTextOutput(out);
+
+    CHECK(showDefaultSettings(reporter) == ExitCode::Success);
+
+    const std::string text = out.str();
+    CHECK(text.starts_with("File: none (--no-config)\n"));
+    CHECK_THAT(text, ContainsSubstring("\nduration-adjust.speed = 15   [default]\n"));
+    CHECK_THAT(text, !ContainsSubstring("[file]"));
+    CHECK(err.str().empty());
+}
+
+TEST_CASE("config show with no file in json says the file is null", "[config]") {
+    std::ostringstream records;
+    std::ostringstream err;
+    const Reporter reporter = Reporter{err, 1}.withRecords(records).forCommand("config");
+
+    CHECK(showDefaultSettings(reporter) == ExitCode::Success);
+
+    const std::string text = records.str();
+    CHECK(text.starts_with(R"({"schema":1,"command":"config","file":null,"exists":false})"
+                           "\n"));
+    CHECK(static_cast<std::size_t>(std::ranges::count(text, '\n')) ==
+          subedit::core::operationKeys().size() + 1);
+    CHECK_THAT(text,
+               ContainsSubstring(R"("key":"duration-adjust.speed","value":"15",)"
+                                 R"("source":"default",)"));
 }
 
 TEST_CASE("config set writes the value and keeps the display preferences", "[config]") {

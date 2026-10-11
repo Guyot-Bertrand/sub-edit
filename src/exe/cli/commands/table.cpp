@@ -4,6 +4,7 @@
 
 #include "adjust.hpp"
 #include "append.hpp"
+#include "config.hpp"
 #include "convert.hpp"
 #include "correct.hpp"
 #include "dialogue_dashes.hpp"
@@ -47,6 +48,7 @@ std::span<const Command> commands() {
         Command{.name = "append", .declare = declareAppend},
         Command{.name = "split-file", .declare = declareSplitFile},
         Command{.name = "pair", .declare = declarePair},
+        Command{.name = "config", .declare = declareConfig},
     };
     return kTable;
 }

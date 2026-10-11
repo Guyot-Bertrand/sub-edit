@@ -73,6 +73,25 @@ template<typename Change>
     return defaultOf(core::describeOperationSettings(settings), key);
 }
 
+/// Every operation key of `settings` with its value, source and default: one
+/// record each, and the text of them returned.
+[[nodiscard]] std::string entriesOf(const core::Settings& settings, const Reporter& reporter) {
+    std::string text;
+    for (const core::SettingEntry& entry : core::describeOperationSettings(settings)) {
+        reporter.record(recordOf(reporter)
+                            .set("key", entry.key->key)
+                            .set("value", entry.value)
+                            .set("source", entry.fromFile ? "file" : "default")
+                            .set("default", entry.defaultValue)
+                            .set("used_by", entry.key->usedBy)
+                            .set("surface", surfaceName(entry.key->surface)));
+        text += std::string{entry.key->key} + " = " + entry.value;
+        text += entry.fromFile ? "   [file]   (default " + entry.defaultValue + ")\n"
+                               : std::string{"   [default]\n"};
+    }
+    return text;
+}
+
 } // namespace
 
 ExitCode listSettingKeys(const Reporter& reporter) {
@@ -113,20 +132,13 @@ showSettings(core::FileSystem& files, const std::filesystem::path& path, const R
         text += read.found ? " (found)\n" : " (not found)\n";
     }
     reporter.record(recordOf(reporter).set("file", path.string()).set("exists", exists));
+    reporter.result(text + entriesOf(read.settings, reporter));
+    return ExitCode::Success;
+}
 
-    for (const core::SettingEntry& entry : core::describeOperationSettings(read.settings)) {
-        reporter.record(recordOf(reporter)
-                            .set("key", entry.key->key)
-                            .set("value", entry.value)
-                            .set("source", entry.fromFile ? "file" : "default")
-                            .set("default", entry.defaultValue)
-                            .set("used_by", entry.key->usedBy)
-                            .set("surface", surfaceName(entry.key->surface)));
-        text += std::string{entry.key->key} + " = " + entry.value;
-        text += entry.fromFile ? "   [file]   (default " + entry.defaultValue + ")\n"
-                               : std::string{"   [default]\n"};
-    }
-    reporter.result(text);
+ExitCode showDefaultSettings(const Reporter& reporter) {
+    reporter.record(recordOf(reporter).set("file", nullptr).set("exists", false));
+    reporter.result("File: none (--no-config)\n" + entriesOf(core::Settings{}, reporter));
     return ExitCode::Success;
 }
 

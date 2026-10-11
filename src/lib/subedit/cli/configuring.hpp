@@ -24,6 +24,10 @@ namespace subedit::cli {
 [[nodiscard]] ExitCode
 showSettings(core::FileSystem& files, const std::filesystem::path& path, const Reporter& reporter);
 
+/// `config show --no-config`: no file, so every key at its default, under
+/// `File: none (--no-config)` — and `"file": null` in JSON.
+[[nodiscard]] ExitCode showDefaultSettings(const Reporter& reporter);
+
 /// `config set`: rewrite the file atomically with `key` at `value`, keeping
 /// every other setting. A refused key or value writes nothing.
 [[nodiscard]] ExitCode setSetting(core::FileSystem& files,
