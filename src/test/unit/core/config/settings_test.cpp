@@ -1059,3 +1059,15 @@ TEST_CASE("A file written before the split is read unchanged", "[settings]") {
     CHECK(read.settings.durationAdjustment.charactersPerSecond == 12.0);
     CHECK(read.diagnostics.empty());
 }
+
+TEST_CASE("settings are written to a bare file name without making a directory", "[config]") {
+    InMemoryFileSystem files;
+    const std::filesystem::path bare = "settings.conf";
+
+    REQUIRE(writeSettings(files, bare, Settings{}).has_value());
+
+    // A bare name has an empty parent, which no file system can create.
+    CHECK(files.directoriesAsked().empty());
+    CHECK(files.contentOf(bare).has_value());
+    CHECK(readSettings(files, bare).diagnostics.empty());
+}

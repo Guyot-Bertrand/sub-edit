@@ -100,6 +100,14 @@ public:
         }
     }
 
+    /// The child starts in `directory` rather than in ours.
+    void changeDirectory(const std::string& directory) {
+        const int status = posix_spawn_file_actions_addchdir_np(&m_actions, directory.c_str());
+        if (status != 0) {
+            fail(status, "posix_spawn_file_actions_addchdir_np");
+        }
+    }
+
     posix_spawn_file_actions_t* get() { return &m_actions; }
 
 private:
@@ -243,11 +251,15 @@ const PrivateConfigHome& privateEnchantHome() {
 
 /// Starts `binary` with `args` and waits for it. The only difference between
 /// the two exported runners is which path lands in argv[0].
-CliRun run(const char* binary, const std::vector<std::string>& args) {
+CliRun run(const char* binary,
+           const std::vector<std::string>& args,
+           const std::optional<std::string>& workingDirectory = std::nullopt) {
     Channel out = makeChannel();
     Channel err = makeChannel();
 
     SpawnActions actions;
+    if (workingDirectory.has_value())
+        actions.changeDirectory(*workingDirectory);
     actions.redirect(out.writeEnd.get(), STDOUT_FILENO);
     actions.redirect(err.writeEnd.get(), STDERR_FILENO);
     // The child must not inherit the reading ends: while it holds them, the
@@ -550,8 +562,9 @@ std::string writeUnreadable(const Scratch& scratch, const std::string& name) {
     return writeFile(scratch, name, contentOf(corpus("malformes/vide.srt")));
 }
 
-CliRun invoke(const std::vector<std::string>& args) {
-    return run(SUBEDIT_CLI_BINARY, args);
+CliRun invoke(const std::vector<std::string>& args,
+              const std::optional<std::string>& workingDirectory) {
+    return run(SUBEDIT_CLI_BINARY, args, workingDirectory);
 }
 
 CliRun invokePatternCatalogue() {

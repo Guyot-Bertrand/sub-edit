@@ -1251,10 +1251,13 @@ applySettingText(Settings& settings, std::string_view key, std::string_view valu
 
 std::expected<void, FileError>
 writeSettings(FileSystem& files, const std::filesystem::path& path, const Settings& settings) {
-    // The directory first: at the first launch, nobody has made it.
-    if (const std::expected<void, FileError> made = files.createDirectories(path.parent_path());
-        !made)
-        return made;
+    // The directory first: at the first launch, nobody has made it. A bare file
+    // name has an empty parent, which is the working directory: nothing to make,
+    // and creating "" fails on a real file system.
+    if (const std::filesystem::path parent = path.parent_path(); !parent.empty()) {
+        if (const std::expected<void, FileError> made = files.createDirectories(parent); !made)
+            return made;
+    }
 
     return writeAtomically(files, path, renderSettings(settings));
 }

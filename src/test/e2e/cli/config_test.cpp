@@ -398,3 +398,19 @@ TEST_CASE("a value set by config set reaches adjust", "[e2e][config][adjust]") {
     CHECK(endsOf(contentOf(scratch.of("out/d.srt"))) ==
           std::vector<std::string>{"00:00:01,500", "00:00:14,000", "00:00:15,000", "00:00:16,500"});
 }
+
+TEST_CASE("config set and unset write a bare file name in the working directory", "[e2e][config]") {
+    const Scratch scratch;
+
+    // The parent of "s.conf" is empty: no directory is to be made for it.
+    const CliRun set = invoke(
+        {"--config", "s.conf", "config", "set", "duration-adjust.speed", "12"}, scratch.path());
+    INFO(set.errors);
+    REQUIRE(set.exitCode == 0);
+    CHECK_THAT(contentOf(scratch.of("s.conf")), ContainsSubstring("12"));
+
+    const CliRun unset =
+        invoke({"--config", "s.conf", "config", "unset", "duration-adjust.speed"}, scratch.path());
+    INFO(unset.errors);
+    CHECK(unset.exitCode == 0);
+}

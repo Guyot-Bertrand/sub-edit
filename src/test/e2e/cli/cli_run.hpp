@@ -41,7 +41,11 @@ struct CliRun {
 ///
 /// Throws `std::system_error` when the process cannot be started or its output
 /// cannot be read. A test that cannot run the binary has nothing to assert.
-CliRun invoke(const std::vector<std::string>& args);
+///
+/// With `workingDirectory`, the process starts there rather than in the test's
+/// own directory: what a relative path means is the point of some tests.
+CliRun invoke(const std::vector<std::string>& args,
+              const std::optional<std::string>& workingDirectory = std::nullopt);
 
 /// The same, for the window binary.
 ///
