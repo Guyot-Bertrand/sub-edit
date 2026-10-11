@@ -12,6 +12,11 @@ ne pas l'éditer à la main.
 ### Ajouts
 
 - **gui** — Plages disjointes, fusion des répétés et commande repair
+- **gui** — Repair et fusion des répétés sur convert et dans le menu Edit
+
+### Documentation
+
+- **doc** — Journal des changements
 
 ## 0.15.11 — 2026-10-10
 
