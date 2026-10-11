@@ -1,3 +1,4 @@
+#include <subedit/core/config/settings_location.hpp>
 #include <subedit/core/text/pattern_paths.hpp>
 #include <subedit/platform/locations.hpp>
 
@@ -34,6 +35,10 @@ std::filesystem::path installedPatternsPath() {
 
 std::filesystem::path resolvedUserPatternsPath() {
     return core::userPatternsPath(variable("XDG_DATA_HOME"), variable("HOME"));
+}
+
+std::filesystem::path resolvedUserSettingsPath() {
+    return core::userSettingsLocation(variable("XDG_CONFIG_HOME"), variable("HOME"));
 }
 
 } // namespace subedit::platform

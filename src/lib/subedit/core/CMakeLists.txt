@@ -101,6 +101,7 @@ add_library(
     format/project_file.cpp
     format/translation_file.cpp
     config/settings.cpp
+    config/settings_location.cpp
     config/duration_adjustment_settings.cpp
     config/correction_settings.cpp
     format/format_detection.cpp
