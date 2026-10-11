@@ -240,6 +240,7 @@ add_executable(
     cli/options_test.cpp
     cli/rewriting_test.cpp
     cli/reporter_test.cpp
+    cli/shared_settings_test.cpp
     cli/shifting_test.cpp
     cli/sorting_test.cpp
     cli/disjoining_test.cpp

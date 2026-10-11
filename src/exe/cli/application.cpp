@@ -3,9 +3,11 @@
 #include <subedit/cli/encoding_grammar.hpp>
 #include <subedit/cli/encoding_listing.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/cli/shared_settings.hpp>
 #include <subedit/cli/verbosity.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/version.hpp>
+#include <subedit/platform/locations.hpp>
 
 #include <CLI/CLI.hpp>
 #include <expected>
@@ -52,6 +54,18 @@ ExitCode run(int argc, char** argv) {
     app.add_option("--format", format, "Form of the result on standard output: text or json")
         ->check(CLI::IsMember({"text", "json"}))
         ->option_text("text|json");
+
+    // **Global, because every command that has a parameter in the file reads it
+    // the same way** (ADR 0045). The two exclude each other.
+    std::string configFile;
+    bool noConfig = false;
+    CLI::Option* configOption =
+        app.add_option("--config",
+                       configFile,
+                       "Read the operation settings from FILE instead of the user's settings file")
+            ->option_text("FILE");
+    app.add_flag("--no-config", noConfig, "Ignore any settings file: use the built-in defaults")
+        ->excludes(configOption);
 
     // **The encodings the tool can read and write**, one a line, and the tool
     // stops — as `--version` does, and for the same reason: it is the answer, not a
@@ -112,9 +126,18 @@ ExitCode run(int argc, char** argv) {
         reporter = reporter.withRecords(std::cout);
     }
 
+    // Loaded once for every command, and announced by those that use it: a
+    // command with nothing in the file says nothing about it.
+    const SharedSettings shared =
+        loadSharedSettings(files,
+                           {.disabled = noConfig,
+                            .explicitPath = configFile,
+                            .userPath = platform::resolvedUserSettingsPath()});
+
     for (const Declared& command : declared) {
         if (command.app->parsed()) {
-            return command.run(files, encoding, reporter.forCommand(command.app->get_name()));
+            return command.run(
+                files, encoding, reporter.forCommand(command.app->get_name()), shared);
         }
     }
     return ExitCode::Success;

@@ -40,6 +40,7 @@ add_library(
     rewriting.cpp
     writing.cpp
     hearing_impaired.cpp
+    shared_settings.cpp
     shifting.cpp
     splitting.cpp
     sorting.cpp

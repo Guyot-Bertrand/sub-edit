@@ -10,6 +10,7 @@
 #include <subedit/cli/options.hpp>
 #include <subedit/cli/pairing.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/cli/shared_settings.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
 #include <subedit/core/io/file_system.hpp>
 
@@ -21,6 +22,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 namespace subedit::cli {
 
@@ -32,7 +34,8 @@ struct Declared {
     const CLI::App* app = nullptr;
     std::function<ExitCode(core::FileSystem& files,
                            const std::optional<core::Encoding>& reading,
-                           const Reporter& reporter)>
+                           const Reporter& reporter,
+                           const SharedSettings& shared)>
         run;
 };
 
@@ -43,6 +46,9 @@ using Declare = Declared (*)(CLI::App& app, std::string_view name);
 ///
 /// The seven subcommands all had the same four lines: make the options, describe
 /// them, keep them alive, run with them. Here once.
+///
+/// The shared settings reach only a `run` that takes them: the commands with no
+/// parameter in the file keep their four arguments, and cannot read it.
 template<typename Options, typename Describe, typename Run>
 [[nodiscard]] Declared
 declareWith(CLI::App& app, std::string_view name, Describe describe, Run run) {
@@ -51,8 +57,18 @@ declareWith(CLI::App& app, std::string_view name, Describe describe, Run run) {
     return Declared{command,
                     [options, run](core::FileSystem& files,
                                    const std::optional<core::Encoding>& reading,
-                                   const Reporter& reporter) {
-                        return run(*options, files, reading, reporter);
+                                   const Reporter& reporter,
+                                   const SharedSettings& shared) {
+                        if constexpr (std::is_invocable_v<Run,
+                                                          Options&,
+                                                          core::FileSystem&,
+                                                          const std::optional<core::Encoding>&,
+                                                          const Reporter&,
+                                                          const SharedSettings&>) {
+                            return run(*options, files, reading, reporter, shared);
+                        } else {
+                            return run(*options, files, reading, reporter);
+                        }
                     }};
 }
 
