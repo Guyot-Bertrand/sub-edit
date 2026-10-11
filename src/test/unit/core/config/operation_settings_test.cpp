@@ -11,10 +11,12 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <filesystem>
+#include <map>
 #include <set>
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <vector>
 
 using namespace subedit::core;
 
@@ -193,9 +195,106 @@ TEST_CASE("set names a display preference as one, and an unknown key as unknown"
     const auto unknown = setOperationOption(settings, "no.such.key", "1");
     REQUIRE_FALSE(unknown.has_value());
     CHECK(unknown.error().find("unknown") != std::string::npos);
-    const auto activations = unsetOperationOption(settings, "correction.activations");
-    REQUIRE_FALSE(activations.has_value());
     CHECK(settings == Settings{});
+}
+
+TEST_CASE("The activations list is refused as the window's, not as unknown",
+          "[operation-settings]") {
+    Settings settings;
+    for (const auto& refused : {setOperationOption(settings, "correction.activations", "x"),
+                                unsetOperationOption(settings, "correction.activations")}) {
+        REQUIRE_FALSE(refused.has_value());
+        CHECK(refused.error().find("managed by the window") != std::string::npos);
+        CHECK(refused.error().find("unknown") == std::string::npos);
+    }
+    CHECK(settings == Settings{});
+}
+
+TEST_CASE("The catalogue lists the keys in the order the file writes them",
+          "[operation-settings]") {
+    std::vector<std::string> rendered;
+    std::istringstream in{renderOperationSettings(Settings{})};
+    for (std::string line; std::getline(in, line);) {
+        if (!line.empty() && line.front() == '#')
+            line.erase(0, 1);
+        if (const std::size_t eq = line.find(" = "); eq != std::string::npos)
+            rendered.push_back(line.substr(0, eq));
+    }
+    std::erase(rendered, "correction.activations");
+
+    std::vector<std::string> catalogued;
+    for (const SettingKey& one : operationKeys())
+        catalogued.emplace_back(one.key);
+    CHECK(catalogued == rendered);
+}
+
+TEST_CASE("Every key can be set away from its default and unset back to it",
+          "[operation-settings]") {
+    // A valid value other than the default, for every catalogue key. A key
+    // missing here fails the test below rather than going unchecked.
+    const std::map<std::string_view, std::string_view> nonDefault{
+        {"duration-adjust.speed", "12.5"},
+        {"duration-adjust.lengthen", "false"},
+        {"duration-adjust.shorten", "true"},
+        {"duration-adjust.minimum-enabled", "false"},
+        {"duration-adjust.minimum-ms", "1234"},
+        {"duration-adjust.maximum-enabled", "true"},
+        {"duration-adjust.maximum-ms", "4321"},
+        {"duration-adjust.gap-enabled", "false"},
+        {"duration-adjust.gap-ms", "50"},
+        {"correction.mentions.enabled", "true"},
+        {"correction.mentions.code", "Latn-en"},
+        {"correction.common-errors.enabled", "false"},
+        {"correction.common-errors.code", "Latn-en"},
+        {"correction.capitalization.enabled", "false"},
+        {"correction.capitalization.code", "Latn-en"},
+        {"correction.line-break.enabled", "true"},
+        {"correction.line-break.code", "Latn-en"},
+        {"correction.human", "false"},
+        {"correction.ocr", "false"},
+        {"correction.sound-in-brackets", "true"},
+        {"correction.sound-in-parentheses", "true"},
+        {"correction.line-break.max-length", "30.5"},
+        {"correction.line-break.max-lines", "2"},
+        {"correction.line-break.in-ems", "false"},
+        {"correction.line-break.skip-on-length", "false"},
+        {"correction.line-break.skip-max-length", "20"},
+        {"correction.line-break.skip-on-lines", "false"},
+        {"correction.line-break.skip-max-lines", "1"},
+        {"correction.join-split.enabled", "true"},
+        {"correction.join-split.join", "false"},
+        {"correction.join-split.split", "true"},
+        {"correction.join-split.language", "fr_FR"},
+        {"correction.remove-blank", "false"},
+    };
+
+    // A display preference and an activation, which neither command may touch.
+    Settings base;
+    base.maximised = true;
+    base.correction.patternActivations.push_back(
+        {.kind = PatternKind::CommonError, .code = "Zyyy", .name = "One", .enabled = false});
+
+    for (const SettingKey& one : operationKeys()) {
+        INFO(one.key);
+        const auto value = nonDefault.find(one.key);
+        REQUIRE(value != nonDefault.end());
+
+        Settings settings = base;
+        REQUIRE(setOperationOption(settings, one.key, value->second).has_value());
+        CHECK(settings != base);
+        for (const SettingEntry& entry : describeOperationSettings(settings)) {
+            if (entry.key->key == one.key) {
+                CHECK(entry.fromFile);
+                CHECK(entry.value == value->second);
+            } else {
+                CHECK_FALSE(entry.fromFile);
+            }
+        }
+
+        REQUIRE(unsetOperationOption(settings, one.key).has_value());
+        CHECK(settings == base);
+    }
+    CHECK(nonDefault.size() == operationKeys().size());
 }
 
 TEST_CASE("set keeps the display preferences already in the settings", "[operation-settings]") {

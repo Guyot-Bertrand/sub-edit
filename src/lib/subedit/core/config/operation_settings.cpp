@@ -205,8 +205,7 @@ constexpr std::array kCatalogue{
                kWindowTasks,
                kWindow},
     SettingKey{"correction.join-split.language",
-               "Dictionary the window's join/split-words task checks words by; empty takes the "
-               "system's.",
+               "Dictionary the window's join/split-words task checks words by.",
                "a locale code, two lower-case letters, then optionally _ and two upper-case, "
                "then optionally @ and a script: fr, en_US, sr@Latn",
                kWindowLanguage,
@@ -217,6 +216,10 @@ constexpr std::array kCatalogue{
                kCorrect,
                kBoth},
 };
+
+// A key of the file, in the correction family, that is not in the catalogue:
+// the window manages the list, and `correct` has its own flags for it.
+constexpr std::string_view kActivationsKey = "correction.activations";
 
 constexpr std::string_view kOptionSeparator = " = ";
 constexpr char kComment = '#';
@@ -257,6 +260,9 @@ renderedOptionsOf(std::string_view text) {
 [[nodiscard]] std::expected<void, std::string> checkOperationKey(std::string_view key) {
     if (findOperationKey(key) != nullptr)
         return {};
+    if (key == kActivationsKey)
+        return std::unexpected{std::string{key} +
+                               " is managed by the window; use --enable/--disable on correct"};
     if (renderedOptionsOf(renderSettings(Settings{})).contains(key))
         return std::unexpected{std::string{key} + " is a display preference; set it in the window"};
     return std::unexpected{"unknown setting " + std::string{key} +
