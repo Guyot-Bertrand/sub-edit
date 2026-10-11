@@ -208,6 +208,9 @@ struct SettingsRead {
     /// none — every setting is at its default. An absent file leaves it empty,
     /// since a first launch is not a failure.
     std::optional<FileError> unreadable{};
+
+    /// True when the file existed and was read. An absent file leaves it false.
+    bool found = false;
 };
 
 /// Reads the settings written at `path`, and never fails.
@@ -238,5 +241,10 @@ writeSettings(FileSystem& files, const std::filesystem::path& path, const Settin
 
 /// The text `writeSettings` would write. Exposed for the tests that read it.
 [[nodiscard]] std::string renderSettings(const Settings& settings);
+
+/// The operation block of `renderSettings` alone: its option lines, with no
+/// header and no banner, `#`-commented when at default. A banner never
+/// contains `" = "`, so a reader of this text can skip it.
+[[nodiscard]] std::string renderOperationSettings(const Settings& settings);
 
 } // namespace subedit::core

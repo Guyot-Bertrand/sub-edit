@@ -1088,6 +1088,7 @@ SettingsRead readSettings(const FileSystem& files, const std::filesystem::path& 
             read.unreadable = std::move(content.error());
         return read;
     }
+    read.found = true;
 
     std::size_t start = 0;
     while (start < content->size()) {
@@ -1124,10 +1125,22 @@ SettingsRead readSettings(const FileSystem& files, const std::filesystem::path& 
     return read;
 }
 
-std::string renderSettings(const Settings& settings) {
-    std::string out{settingsFileHeader()};
-    out += '\n';
+namespace {
 
+// Banners of the two blocks. A banner never contains the separator of an
+// option, so a reader of the rendered text can tell it from an option.
+constexpr std::string_view kOperationBanner =
+    "# Operation settings: shared by the window and the command line (subedit-cli reads these).";
+constexpr std::string_view kDisplayBanner =
+    "# Display preferences: the window's own, the command line never reads them.";
+
+void renderOperationBlock(std::string& out, const Settings& settings) {
+    renderDurationAdjustment(out, settings.durationAdjustment);
+
+    renderCorrectionSettings(out, settings.correction);
+}
+
+void renderDisplayBlock(std::string& out, const Settings& settings) {
     const WindowGeometry geometry = settings.geometry.value_or(WindowGeometry{});
     writeOption(out,
                 kGeometryKey,
@@ -1195,16 +1208,31 @@ std::string renderSettings(const Settings& settings) {
                 search.ignoreCase ? "true" : "false",
                 search.ignoreCase == defaults.ignoreCase);
 
-    renderDurationAdjustment(out, settings.durationAdjustment);
-
-    renderCorrectionSettings(out, settings.correction);
-
     renderSpellCheckSettings(out, settings.spellCheck);
 
     renderEditorSettings(out, settings.editor);
 
     renderVideoSettings(out, settings.video);
+}
 
+} // namespace
+
+std::string renderSettings(const Settings& settings) {
+    std::string out{settingsFileHeader()};
+    out += '\n';
+    out += kOperationBanner;
+    out += '\n';
+    renderOperationBlock(out, settings);
+    out += '\n';
+    out += kDisplayBanner;
+    out += '\n';
+    renderDisplayBlock(out, settings);
+    return out;
+}
+
+std::string renderOperationSettings(const Settings& settings) {
+    std::string out;
+    renderOperationBlock(out, settings);
     return out;
 }
 
