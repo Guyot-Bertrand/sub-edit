@@ -503,6 +503,53 @@ TEST_CASE("the subtitles the correction empties are removed, or kept when asked"
     CHECK(contentOf(kept) == srt({"", "Hello"}));
 }
 
+TEST_CASE("the settings file can keep the emptied subtitles, and --no-config ignores it",
+          "[e2e][CLI-CORRECT-12][settings]") {
+    const Scratch scratch;
+    const std::string in = writeFile(scratch, "a.srt", srt({"[Door]", "Hello"}));
+    const std::string config =
+        writeFile(scratch, "settings.conf", "correction.remove-blank = false\n");
+    const std::string kept = scratch.of("kept.srt");
+    const std::string removed = scratch.of("removed.srt");
+
+    const CliRun run = invoke({"--format",
+                               "json",
+                               "--config",
+                               config,
+                               "correct",
+                               "--tasks",
+                               "mentions",
+                               "--code",
+                               "Latn",
+                               "--enable",
+                               "Sound in brackets",
+                               "--output",
+                               kept,
+                               in});
+    CHECK(run.exitCode == 0);
+    CHECK(contentOf(kept) == srt({"", "Hello"}));
+    CHECK_THAT(run.errors, ContainsSubstring("settings: read " + config + "\n"));
+    CHECK_THAT(run.output, ContainsSubstring("\"settings\":\"" + config + "\""));
+
+    const CliRun ignored = invoke({"--format",
+                                   "json",
+                                   "--no-config",
+                                   "correct",
+                                   "--tasks",
+                                   "mentions",
+                                   "--code",
+                                   "Latn",
+                                   "--enable",
+                                   "Sound in brackets",
+                                   "--output",
+                                   removed,
+                                   in});
+    CHECK(ignored.exitCode == 0);
+    CHECK(contentOf(removed) == "1\n00:00:03,000 --> 00:00:04,000\nHello\n\n");
+    CHECK_THAT(ignored.output, ContainsSubstring("\"settings\":null"));
+    CHECK_THAT(ignored.errors, !ContainsSubstring("settings:"));
+}
+
 TEST_CASE("a dry run lists the texts before and after, and a removal has no after",
           "[e2e][CLI-CORRECT-03]") {
     const Scratch scratch;
@@ -572,7 +619,8 @@ TEST_CASE("a translation a mention would empty stays, empty, and only it is writ
 TEST_CASE("correct reads no setting of the user", "[e2e][CLI-CORRECT-13]") {
     // The window's activations would switch « Ellipses » on, and a script would
     // then depend on what its author once ticked. Written here as the window
-    // writes it, and not read.
+    // writes it: the file is read for its three values (spec 17, D8), never for
+    // the activations.
     const std::filesystem::path settings =
         std::filesystem::path{configHome()} / "subedit" / "settings.conf";
     std::filesystem::create_directories(settings.parent_path());
@@ -891,7 +939,10 @@ TEST_CASE("a language nobody has is refused, with the window's sentence, and not
         invoke({"correct", "--tasks", "join-words", "--language", "qq_QQ", "--output", out, in});
 
     CHECK(run.exitCode == 1);
-    CHECK(run.errors == "no dictionary for qq_QQ\n");
+    // The note before it says no settings file was found (spec 17, D6).
+    CHECK(run.errors == "settings: " + configHome() +
+                            "/subedit/settings.conf not found, defaults used\n"
+                            "no dictionary for qq_QQ\n");
     CHECK(run.output.empty());
     CHECK_FALSE(std::filesystem::exists(out));
 

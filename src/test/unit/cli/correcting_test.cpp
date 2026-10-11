@@ -575,3 +575,111 @@ TEST_CASE("a run that checks no words asks for no provider, and a bad option is 
     CHECK_THAT(refused.error(), ContainsSubstring("--code is required"));
     CHECK(opened == 0);
 }
+
+TEST_CASE("correct takes classes, blank removal and max lines from the file",
+          "[cli][correct][settings]") {
+    subedit::core::CorrectionSettings file;
+    file.human = false;
+    file.removeBlankSubtitles = false;
+    file.lineBreakMaxLines = 2;
+
+    const auto settings = correctionSettingsOf(optionsFor("common-errors"), catalogue(), file);
+    REQUIRE(settings.has_value());
+    CHECK_FALSE(settings->human);
+    CHECK(settings->ocr);
+    CHECK_FALSE(settings->removeBlankSubtitles);
+
+    // The lines of the break, and the skip gate that follows them by default.
+    CorrectionOptions breaking = optionsFor("line-break");
+    breaking.maxLength = "30";
+    const auto broken = correctionSettingsOf(breaking, catalogue(), file);
+    REQUIRE(broken.has_value());
+    CHECK(broken->lineBreakMaxLines == 2);
+    CHECK(broken->lineBreakSkipOnLines);
+    CHECK(broken->lineBreakSkipMaxLines == 2);
+}
+
+TEST_CASE("an option beats the file for classes, blank removal and max lines",
+          "[cli][correct][settings]") {
+    subedit::core::CorrectionSettings file;
+    file.human = false;
+    file.removeBlankSubtitles = true;
+    file.lineBreakMaxLines = 2;
+
+    CorrectionOptions options = optionsFor("common-errors");
+    options.classes = "human,ocr";
+    options.keepBlankSubtitles = true;
+    const auto settings = correctionSettingsOf(options, catalogue(), file);
+    REQUIRE(settings.has_value());
+    CHECK(settings->human);
+    CHECK(settings->ocr);
+    CHECK_FALSE(settings->removeBlankSubtitles);
+
+    CorrectionOptions breaking = optionsFor("line-break");
+    breaking.maxLength = "30";
+    breaking.maxLines = "4";
+    const auto broken = correctionSettingsOf(breaking, catalogue(), file);
+    REQUIRE(broken.has_value());
+    CHECK(broken->lineBreakMaxLines == 4);
+    CHECK(broken->lineBreakSkipMaxLines == 4);
+}
+
+TEST_CASE("the file never turns a task on, nor sets a code, a length or a language",
+          "[cli][correct][settings]") {
+    subedit::core::CorrectionSettings file;
+    file.lineBreak.enabled = true;
+    file.lineBreak.code = "Latn-fr";
+    file.mentions.enabled = true;
+    file.capitalization.enabled = true;
+    file.joinSplitEnabled = true;
+    file.joinWords = true;
+    file.spellLanguage = "fr";
+    file.lineBreakMaxLength = 12.0;
+
+    const auto settings = correctionSettingsOf(optionsFor("common-errors"), catalogue(), file);
+    REQUIRE(settings.has_value());
+    CHECK(settings->commonErrors.enabled);
+    CHECK_FALSE(settings->lineBreak.enabled);
+    CHECK(settings->lineBreak.code == subedit::core::CorrectionSettings{}.lineBreak.code);
+    CHECK_FALSE(settings->mentions.enabled);
+    CHECK_FALSE(settings->capitalization.enabled);
+    CHECK_FALSE(settings->joinSplitEnabled);
+    CHECK(settings->spellLanguage.empty());
+
+    // The length stays required by the task, whatever the file says.
+    CHECK_THAT(correctionSettingsOf(optionsFor("line-break"), catalogue(), file).error(),
+               ContainsSubstring("--max-length is required by the task line-break"));
+}
+
+TEST_CASE("a number of lines below one in the file is ignored, and said",
+          "[cli][correct][settings]") {
+    InMemoryFileSystem files;
+    int opened = 0;
+    subedit::core::CorrectionSettings file;
+    CorrectionOptions options;
+    options.tasks = "line-break";
+    options.code = "Latn";
+    options.maxLength = "30";
+
+    for (const int nonsense : {0, -2}) {
+        file.lineBreakMaxLines = nonsense;
+        std::ostringstream errors;
+        const auto run = subedit::cli::prepareCorrection(
+            files, Reporter{errors, 1}, options, "/shipped", "/user", englishOnly(opened), file);
+        REQUIRE(run.has_value());
+        CHECK(run->settings.lineBreakMaxLines == 3);
+        CHECK(run->settings.lineBreakSkipMaxLines == 3);
+        CHECK_THAT(errors.str(),
+                   ContainsSubstring("settings: correction.line-break.max-lines " +
+                                     std::to_string(nonsense) + " ignored, must be 1 or more"));
+    }
+
+    // Given on the command line, the file's value plays no part, and nothing is said.
+    options.maxLines = "2";
+    std::ostringstream errors;
+    const auto given = subedit::cli::prepareCorrection(
+        files, Reporter{errors, 1}, options, "/shipped", "/user", englishOnly(opened), file);
+    REQUIRE(given.has_value());
+    CHECK(given->settings.lineBreakMaxLines == 2);
+    CHECK_THAT(errors.str(), !ContainsSubstring("max-lines"));
+}

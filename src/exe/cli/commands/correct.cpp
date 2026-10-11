@@ -1,6 +1,7 @@
 #include "correct.hpp"
 
 #include <subedit/cli/correcting.hpp>
+#include <subedit/cli/shared_settings.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/text/enchant_spell_provider.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
@@ -101,15 +102,19 @@ CLI::App* describeCorrect(CLI::App& app, std::string_view name, CorrectOptions& 
 ExitCode runCorrect(const CorrectOptions& options,
                     core::FileSystem& files,
                     const std::optional<core::Encoding>& reading,
-                    const Reporter& reporter) {
-    // Everything that can be refused is, before a file is read.
-    std::expected<CorrectionRun, std::string> run =
-        prepareCorrection(files,
-                          reporter,
-                          options.correction,
-                          platform::installedPatternsPath(),
-                          platform::resolvedUserPatternsPath(),
-                          [] { return std::make_unique<core::EnchantSpellProvider>(); });
+                    const Reporter& reporter,
+                    const SharedSettings& shared) {
+    announceSettings(reporter, shared);
+    // Everything that can be refused is, before a file is read. The file gives
+    // three things only; an option beats it (spec 17, D8).
+    std::expected<CorrectionRun, std::string> run = prepareCorrection(
+        files,
+        reporter,
+        options.correction,
+        platform::installedPatternsPath(),
+        platform::resolvedUserPatternsPath(),
+        [] { return std::make_unique<core::EnchantSpellProvider>(); },
+        shared.values.correction);
     if (!run) {
         return refuse(run.error());
     }
@@ -135,7 +140,8 @@ ExitCode runCorrect(const CorrectOptions& options,
                      prepared->destination,
                      reporter,
                      prepared->pairing,
-                     run->spellChecker ? &*run->spellChecker : nullptr);
+                     run->spellChecker ? &*run->spellChecker : nullptr,
+                     settingsRecord(shared));
 }
 
 } // namespace

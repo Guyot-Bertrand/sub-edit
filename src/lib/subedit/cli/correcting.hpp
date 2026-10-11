@@ -4,6 +4,7 @@
 
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/cli/index_grammar.hpp>
+#include <subedit/cli/json.hpp>
 #include <subedit/cli/pairing.hpp>
 #include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/model/encoding.hpp>
@@ -85,6 +86,23 @@ struct CorrectionOptions {
 correctionSettingsOf(const CorrectionOptions& options,
                      const subedit::core::PatternCatalogue& catalogue);
 
+/// The same, with the three things the settings file gives `correct` (spec 17,
+/// D8) taken from `shared` — **an option beats the file, which beats the default**:
+///
+/// - the classes, `human` and `ocr`, when `classes` is empty;
+/// - the removal of the subtitles a correction empties, which
+///   `keepBlankSubtitles` still forces off;
+/// - the lines of the break, when `maxLines` is empty — and with them the skip
+///   gate's, when `skipLines` is empty. A number below one, which only a file
+///   edited by hand holds, is ignored for Gaupol's 3 (`prepareCorrection` says so).
+///
+/// Nothing else of `shared` is read: tasks, codes, activations, length, language
+/// and the skip gate stay on the command line.
+[[nodiscard]] std::expected<subedit::core::CorrectionSettings, std::string>
+correctionSettingsOf(const CorrectionOptions& options,
+                     const subedit::core::PatternCatalogue& catalogue,
+                     const subedit::core::CorrectionSettings& shared);
+
 /// What a run of `correct` reads **before any file**: the patterns, the settings its
 /// options come to, and — when words are to be joined or split — the dictionary.
 struct CorrectionRun {
@@ -120,6 +138,18 @@ prepareCorrection(subedit::core::FileSystem& files,
                   const std::filesystem::path& userPatterns,
                   const SpellProviderFactory& makeProvider);
 
+/// The same, with the settings file's three values for `correct`
+/// (`correctionSettingsOf`). A number of lines below one in the file, when the
+/// line break runs without `--max-lines`, is said at level one and ignored.
+[[nodiscard]] std::expected<CorrectionRun, std::string>
+prepareCorrection(subedit::core::FileSystem& files,
+                  const Reporter& reporter,
+                  const CorrectionOptions& options,
+                  const std::filesystem::path& installedPatterns,
+                  const std::filesystem::path& userPatterns,
+                  const SpellProviderFactory& makeProvider,
+                  const subedit::core::CorrectionSettings& shared);
+
 /// Corrects the texts of every path under `settings`, and says how it went.
 ///
 /// The count is the window's, by `noticeOfCorrection`: texts changed and
@@ -129,7 +159,9 @@ prepareCorrection(subedit::core::FileSystem& files,
 /// the subtitles looked at; with a `pairing` it is the translation that is
 /// corrected and written (`rewriteAll`). `spellChecker` is what joining and
 /// splitting words ask, opened once by the caller for the whole run; the
-/// dictionary was checked to exist before anything was read.
+/// dictionary was checked to exist before anything was read. `settingsFile` is
+/// the settings file read, as the record carries it: a path, or `null` when none
+/// was (spec 17, D6).
 [[nodiscard]] ExitCode correctIn(subedit::core::FileSystem& files,
                                  const std::vector<std::string>& paths,
                                  const std::optional<subedit::core::Encoding>& reading,
@@ -139,6 +171,7 @@ prepareCorrection(subedit::core::FileSystem& files,
                                  const Destination& destination,
                                  const Reporter& reporter,
                                  const std::optional<Pairing>& pairing = std::nullopt,
-                                 const subedit::core::SpellChecker* spellChecker = nullptr);
+                                 const subedit::core::SpellChecker* spellChecker = nullptr,
+                                 const Json& settingsFile = Json{});
 
 } // namespace subedit::cli
