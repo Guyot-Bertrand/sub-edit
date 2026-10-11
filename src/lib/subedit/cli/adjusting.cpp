@@ -85,7 +85,13 @@ parseLimit(std::string_view option, std::string_view text, bool allowZero) {
 } // namespace
 
 std::expected<core::DurationConstraints, std::string> constraintsOf(const AdjustOptions& options) {
-    core::DurationConstraints constraints;
+    return constraintsOf(options, core::DurationAdjustmentSettings{});
+}
+
+std::expected<core::DurationConstraints, std::string>
+constraintsOf(const AdjustOptions& options, const core::DurationAdjustmentSettings& base) {
+    // The file's constraints, which each option given then replaces.
+    core::DurationConstraints constraints = core::constraintsOf(base);
 
     // The reading speed, whose two directions are options of their own.
     if (options.speed == kOff) {
@@ -96,15 +102,23 @@ std::expected<core::DurationConstraints, std::string> constraintsOf(const Adjust
         }
         constraints.speed.reset();
     } else {
-        double speed = core::kDefaultReadingSpeed;
-        if (!options.speed.empty()) {
-            const std::expected<double, std::string> read = parseSpeed(options.speed);
-            if (!read) {
-                return std::unexpected{read.error()};
+        const bool active = base.lengthen || base.shorten;
+        if (active || !options.speed.empty() || options.shorten || options.noLengthen) {
+            double speed = base.charactersPerSecond;
+            if (!options.speed.empty()) {
+                const std::expected<double, std::string> read = parseSpeed(options.speed);
+                if (!read) {
+                    return std::unexpected{read.error()};
+                }
+                speed = *read;
             }
-            speed = *read;
+            const bool lengthen = (active ? base.lengthen : true) && !options.noLengthen;
+            const bool shorten = (active && base.shorten) || options.shorten;
+            // A speed of zero edited into the file is no speed: switched off,
+            // not refused (ADR 0022).
+            constraints.speed =
+                speed > 0.0 ? core::ReadingSpeed::create(speed, lengthen, shorten) : std::nullopt;
         }
-        constraints.speed = core::ReadingSpeed::create(speed, !options.noLengthen, options.shorten);
     }
 
     if (options.minimum == kOff) {
@@ -162,11 +176,13 @@ ExitCode adjustAll(core::FileSystem& files,
                    const std::vector<std::string>& paths,
                    const std::optional<core::Encoding>& reading,
                    const core::DurationConstraints& constraints,
+                   const Json& settings,
                    const std::optional<Range>& range,
                    const Destination& destination,
                    const Reporter& reporter) {
-    const ChangingOperation adjust = [constraints](core::Session& session,
-                                                   const Request& request) -> OperationOutcome {
+    const ChangingOperation adjust = [constraints,
+                                      settings](core::Session& session,
+                                                const Request& request) -> OperationOutcome {
         core::DurationAdjustment adjustment =
             core::adjustDurations(session.project(), request.selection, constraints);
         const std::size_t target = request.selection.count();
@@ -188,7 +204,7 @@ ExitCode adjustAll(core::FileSystem& files,
                         std::vector<Count>{{"speed", count(sacrificed.speed)},
                                            {"minimum", count(sacrificed.minimum)},
                                            {"gap", count(sacrificed.gap)}}}},
-            .fields = {{"constraints", constraintsRecord(constraints)}}};
+            .fields = {{"constraints", constraintsRecord(constraints)}, {"settings", settings}}};
     };
 
     return rewriteAll(files, paths, reading, destination, reporter, "adjusted", adjust, range);

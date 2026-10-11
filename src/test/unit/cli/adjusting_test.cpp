@@ -4,6 +4,7 @@
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -15,13 +16,16 @@
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::cli::adjustAll;
+using subedit::cli::AdjustOptions;
 using subedit::cli::constraintsOf;
 using subedit::cli::constraintsRecord;
 using subedit::cli::Destination;
 using subedit::cli::ExitCode;
+using subedit::cli::Json;
 using subedit::cli::Range;
 using subedit::cli::Reporter;
 using subedit::core::Duration;
+using subedit::core::DurationAdjustmentSettings;
 using subedit::core::DurationConstraints;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::ReadingSpeed;
@@ -131,6 +135,88 @@ TEST_CASE("the constraints are recorded in whole milliseconds and a speed as tex
     CHECK(constraintsRecord(other).dump().starts_with(R"({"speed":null,)"));
 }
 
+TEST_CASE("an option beats the file, which beats the default", "[cli][adjusting][settings]") {
+    DurationAdjustmentSettings file;
+    file.charactersPerSecond = 12;
+    file.minimumMilliseconds = 2000;
+
+    // File over default: nothing on the command line.
+    const auto fromFile = constraintsOf(AdjustOptions{}, file);
+    REQUIRE(fromFile.has_value());
+    REQUIRE(fromFile->speed.has_value());
+    CHECK(fromFile->speed->charactersPerSecond() == 12.0);
+    CHECK(fromFile->minimum == Duration::fromMilliseconds(2000));
+
+    // Option over file.
+    const auto overridden = constraintsOf(AdjustOptions{.speed = "20", .minimum = "off"}, file);
+    REQUIRE(overridden.has_value());
+    REQUIRE(overridden->speed.has_value());
+    CHECK(overridden->speed->charactersPerSecond() == 20.0);
+    CHECK_FALSE(overridden->minimum.has_value());
+}
+
+TEST_CASE("the file's directions, maximum and gap are its own until an option says otherwise",
+          "[cli][adjusting][settings]") {
+    DurationAdjustmentSettings file;
+    file.lengthen = false;
+    file.shorten = true;
+    file.minimumEnabled = false;
+    file.maximumEnabled = true;
+    file.maximumMilliseconds = 4000;
+    file.gapMilliseconds = 300;
+
+    const auto read = constraintsOf(AdjustOptions{}, file);
+    REQUIRE(read.has_value());
+    CHECK(read->speed == ReadingSpeed::create(15.0, false, true));
+    CHECK_FALSE(read->minimum.has_value());
+    CHECK(read->maximum == Duration::fromMilliseconds(4000));
+    CHECK(read->gap == Duration::fromMilliseconds(300));
+
+    const auto overridden =
+        constraintsOf(AdjustOptions{.maximum = "5", .gap = "off", .noLengthen = true}, file);
+    REQUIRE(overridden.has_value());
+    CHECK(overridden->speed == ReadingSpeed::create(15.0, false, true));
+    CHECK(overridden->maximum == Duration::fromMilliseconds(5000));
+    CHECK_FALSE(overridden->gap.has_value());
+}
+
+TEST_CASE("default settings give exactly the old behaviour", "[cli][adjusting][settings]") {
+    CHECK(constraintsOf(AdjustOptions{}, DurationAdjustmentSettings{}) ==
+          constraintsOf(AdjustOptions{}));
+    CHECK(constraintsOf(AdjustOptions{.shorten = true}, DurationAdjustmentSettings{}) ==
+          constraintsOf(AdjustOptions{.shorten = true}));
+}
+
+TEST_CASE("the speed switched off by option beats a speed in the file",
+          "[cli][adjusting][settings]") {
+    DurationAdjustmentSettings file;
+    file.charactersPerSecond = 12;
+    const auto constraints = constraintsOf(AdjustOptions{.speed = "off"}, file);
+    REQUIRE(constraints.has_value());
+    CHECK_FALSE(constraints->speed.has_value());
+}
+
+TEST_CASE("a file with the speed switched off keeps it off until asked",
+          "[cli][adjusting][settings]") {
+    DurationAdjustmentSettings file;
+    file.lengthen = false;
+    file.shorten = false;
+    CHECK_FALSE(constraintsOf(AdjustOptions{}, file)->speed.has_value());
+    CHECK(constraintsOf(AdjustOptions{.speed = "12"}, file)->speed ==
+          ReadingSpeed::create(12.0, true, false));
+    CHECK(constraintsOf(AdjustOptions{.shorten = true}, file)->speed ==
+          ReadingSpeed::create(15.0, true, true));
+}
+
+TEST_CASE("a hand-edited speed of zero is read as the speed being off",
+          "[cli][adjusting][settings]") {
+    DurationAdjustmentSettings file;
+    file.charactersPerSecond = 0;
+    const auto constraints = constraintsOf(AdjustOptions{}, file);
+    REQUIRE(constraints.has_value());
+    CHECK_FALSE(constraints->speed.has_value());
+}
+
 TEST_CASE("adjusting writes the ends and counts what gave way", "[cli][adjusting][CLI-ADJUST-04]") {
     InMemoryFileSystem files;
     files.addFile("a.srt", kTwo);
@@ -141,6 +227,7 @@ TEST_CASE("adjusting writes the ends and counts what gave way", "[cli][adjusting
                                     {"a.srt"},
                                     std::nullopt,
                                     DurationConstraints{},
+                                    Json{},
                                     std::nullopt,
                                     Destination::from("", "out", false, 1).value(),
                                     Reporter{errors, 1}.withRecords(records).forCommand("adjust"));
@@ -154,6 +241,9 @@ TEST_CASE("adjusting writes the ends and counts what gave way", "[cli][adjusting
                ContainsSubstring("\"counts\":{\"subtitles\":2,\"adjusted\":2,"
                                  "\"sacrificed\":{\"speed\":0,\"minimum\":0,\"gap\":0}}"));
     CHECK_THAT(records.str(), ContainsSubstring("\"constraints\":{\"speed\":{\"cps\":\"15\""));
+    // No settings file read: the record says so rather than leave the field out.
+    CHECK_THAT(records.str(), ContainsSubstring("\"settings\":null"));
+    CHECK_THAT(records.str(), ContainsSubstring("\"settings\":null"));
 }
 
 TEST_CASE("a range limits what is adjusted and what is counted",
@@ -167,6 +257,7 @@ TEST_CASE("a range limits what is adjusted and what is counted",
                                     {"a.srt"},
                                     std::nullopt,
                                     DurationConstraints{},
+                                    Json{},
                                     Range{.first = 2, .last = 2},
                                     Destination::from("", "out", false, 1).value(),
                                     Reporter{errors, 1}.withRecords(records).forCommand("adjust"));

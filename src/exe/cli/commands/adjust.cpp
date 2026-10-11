@@ -1,6 +1,7 @@
 #include "adjust.hpp"
 
 #include <subedit/cli/adjusting.hpp>
+#include <subedit/cli/shared_settings.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -56,9 +57,12 @@ CLI::App* describeAdjust(CLI::App& app, std::string_view name, AdjustCommandOpti
 ExitCode runAdjust(const AdjustCommandOptions& options,
                    core::FileSystem& files,
                    const std::optional<core::Encoding>& reading,
-                   const Reporter& reporter) {
+                   const Reporter& reporter,
+                   const SharedSettings& shared) {
+    announceSettings(reporter, shared);
+    // An option beats the file, which beats the core default (spec 17, D8).
     const std::expected<core::DurationConstraints, std::string> constraints =
-        constraintsOf(options.constraints);
+        constraintsOf(options.constraints, shared.values.durationAdjustment);
     if (!constraints) {
         return refuse(constraints.error());
     }
@@ -76,6 +80,7 @@ ExitCode runAdjust(const AdjustCommandOptions& options,
                      prepared->inputs.paths,
                      reading,
                      *constraints,
+                     settingsRecord(shared),
                      prepared->range,
                      prepared->destination,
                      reporter);
