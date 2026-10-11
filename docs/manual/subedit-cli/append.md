@@ -2,7 +2,7 @@
 
 ```
 subedit-cli append --output FICHIER
-                   [--dry-run] [--sort]
+                   [--dry-run] [--sort] [--disjoint]
                    <base> <fichier>...
 ```
 
@@ -44,6 +44,7 @@ Options:
   --output FILE               File to write
   --dry-run                   Work out and say what would be written, and write nothing
   --sort                      Put the subtitles in order of their start before writing
+  --disjoint                  Cut overlapping subtitles so that no range overlaps another, before writing
 ```
 
 ## Arguments et options
@@ -54,6 +55,7 @@ Options:
 | `--output` | **oui**, sauf avec `--dry-run` | un chemin de fichier ; son dossier est créé s'il manque | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 | `--sort` | non | un drapeau : met l'ensemble dans l'ordre de ses débuts **une fois tout ajouté**, voir [Trier le résultat](#trier-le-résultat) | désactivé |
+| `--disjoint` | non | un drapeau : découpe les sous-titres qui se chevauchent **une fois tout ajouté et trié**, voir [Rendre les plages disjointes](#rendre-les-plages-disjointes) | désactivé |
 
 **La destination ne peut être aucune des entrées**, la base comprise : écrire par-dessus un fichier qu'on est
 en train de lire est refusé avant que rien soit lu, code `1`. `--output` existant et distinct des entrées est
@@ -88,6 +90,10 @@ au contenu.
 
 Jamais par défaut. Avec l'option, la base le dit au premier niveau de narration, `<base>: N subtitles moved` ou `<base>: already in order`, et
 l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option**.
+
+## Rendre les plages disjointes
+
+Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, une fois tout ajouté, sur l'ensemble. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<chemin>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
 
 ## Quand les formats diffèrent
 

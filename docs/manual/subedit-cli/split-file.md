@@ -2,7 +2,7 @@
 
 ```
 subedit-cli split-file --at N --head FICHIER --tail FICHIER
-                       [--dry-run] [--sort]
+                       [--dry-run] [--sort] [--disjoint]
                        <fichier>
 ```
 
@@ -37,6 +37,7 @@ Options:
   --tail FILE                 File to write the subtitles from the cut on to
   --dry-run                   Work out and say what would be written, and write nothing
   --sort                      Put the subtitles in order of their start before cutting; --at counts in that order
+  --disjoint                  Cut overlapping subtitles so that no range overlaps another, before cutting
 ```
 
 ## Arguments et options
@@ -48,6 +49,7 @@ Options:
 | `--head`, `--tail` | **oui tous les deux**, sauf avec `--dry-run` | des chemins de fichier ; leur dossier est créé s'il manque | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 | `--sort` | non | un drapeau : met les sous-titres dans l'ordre de leur début **avant de couper** ; `--at` compte dans cet ordre | désactivé |
+| `--disjoint` | non | un drapeau : découpe les sous-titres qui se chevauchent **avant de couper** ; `--at` compte dans ce qui reste, voir [Rendre les plages disjointes](#rendre-les-plages-disjointes) | désactivé |
 
 **Avec `--dry-run`, aucune destination n'est exigée** : on peut n'en donner aucune, mais pas une seule des deux —
 `--head` et `--tail` vont ensemble. Celles qu'on donne sont jugées comme sans `--dry-run`.
@@ -79,6 +81,10 @@ tôt dans le temps. `--sort` met les sous-titres dans l'ordre de leurs débuts *
 
 Jamais par défaut. Avec l'option, le fichier dit au premier niveau de narration combien de sous-titres ont bougé (`<chemin>: N subtitles moved`
 ou `<chemin>: already in order`), et l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option**.
+
+## Rendre les plages disjointes
+
+Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, avant de juger la coupure, après le tri : `--at` compte dans ce que cela donne. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<chemin>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
 
 ## Quand la coupure est refusée
 

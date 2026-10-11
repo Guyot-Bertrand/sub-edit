@@ -712,3 +712,40 @@ TEST_CASE("a kind of anomaly is counted as a line of a summary", "[wording]") {
     CHECK(summaryOf(AnomalyKind::OverlappingSubtitles, 12) ==
           "subtitle starts before the previous one ends: 12");
 }
+
+TEST_CASE("what joining the repeats did is said as a count", "[wording]") {
+    using subedit::core::JoinReport;
+    using subedit::core::noticeOfJoin;
+
+    CHECK(noticeOfJoin(JoinReport{}) == "no repeated subtitles");
+    CHECK(noticeOfJoin(JoinReport{.chains = 1, .joined = 1}) == "1 repeated subtitle joined");
+    CHECK(noticeOfJoin(JoinReport{.chains = 1, .joined = 2}) == "2 repeated subtitles joined");
+}
+
+TEST_CASE("what making the ranges disjoint did is said, with what it could not do", "[wording]") {
+    using subedit::core::DisjointRefusal;
+    using subedit::core::DisjointReport;
+    using subedit::core::noticeOfDisjoint;
+    using subedit::core::refusalOfDisjoint;
+
+    CHECK(noticeOfDisjoint(DisjointReport{}) == "already disjoint");
+    CHECK(noticeOfDisjoint(DisjointReport{.groups = 1, .split = 2, .merged = 1}) ==
+          "2 subtitles split, 1 merged");
+
+    const DisjointReport everything{.groups = 1,
+                                    .split = 1,
+                                    .merged = 3,
+                                    .windowed = 1,
+                                    .absorbed = 2,
+                                    .tooShort = 1,
+                                    .endingBeforeStart = 1,
+                                    .extrasDropped = 1};
+    CHECK(noticeOfDisjoint(everything) ==
+          "1 subtitle split, 3 merged; 1 shown in windows for holding too many lines, 2 very "
+          "short taken over by a neighbour, 1 subtitle shorter than the limit left whole, 1 "
+          "merged with styles or positions that differ, the first kept, 1 subtitle ending "
+          "before the start left alone");
+
+    CHECK(refusalOfDisjoint(DisjointRefusal::NotInOrder).find("sort them first") !=
+          std::string::npos);
+}

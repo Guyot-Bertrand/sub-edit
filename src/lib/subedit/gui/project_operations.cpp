@@ -4,9 +4,11 @@
 #include <subedit/core/edit/command_preview.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/dialogue_dashes_command.hpp>
+#include <subedit/core/edit/disjoint_ranges.hpp>
 #include <subedit/core/edit/duration_adjustment.hpp>
 #include <subedit/core/edit/hearing_impaired_removal.hpp>
 #include <subedit/core/edit/italics_command.hpp>
+#include <subedit/core/edit/join_repeats.hpp>
 #include <subedit/core/edit/letter_case_command.hpp>
 #include <subedit/core/edit/rewrite_texts.hpp>
 #include <subedit/core/edit/session.hpp>
@@ -28,6 +30,7 @@
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/editing.hpp>
+#include <subedit/gui/disjoint_dialog.hpp>
 #include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
@@ -147,6 +150,50 @@ public:
 private:
     ProjectOperations::View* m_view;
 };
+
+/// The settings of the core a form of the window spells out.
+[[nodiscard]] core::DisjointSettings settingsOf(const DisjointChoice& choice) {
+    return core::DisjointSettings{.shortest = core::Duration::fromMilliseconds(choice.shortestMs),
+                                  .mostLines = static_cast<std::size_t>(choice.mostLines),
+                                  .dashes = choice.dashes};
+}
+
+/// Whether the account of an operation says something the user should stop and
+/// read: what could not be done in full.
+[[nodiscard]] bool hasCaveat(const core::DisjointReport& report) {
+    return report.windowed > 0 || report.absorbed > 0 || report.tooShort > 0 ||
+           report.extrasDropped > 0 || report.endingBeforeStart > 0;
+}
+
+/// Joins the repeated subtitles of `page`, saying nothing: the callers word the
+/// account.
+[[nodiscard]] core::JoinReport joinedQuietly(ProjectPage& page) {
+    core::JoinedRepeats joined = core::joinRepeats(page.session->project());
+    if (joined.command != nullptr) {
+        const std::vector<core::Change> changes = page.session->apply(std::move(joined.command));
+        page.model->applied(changes);
+        page.placedAt = -1;
+    }
+    return joined.report;
+}
+
+/// Puts the project of `page` in order and returns how many subtitles moved,
+/// saying nothing: the callers word the account.
+[[nodiscard]] std::size_t sortedQuietly(ProjectPage& page) {
+    if (page.session->project().isInOrder())
+        return 0;
+
+    const std::vector<core::Change> changes =
+        page.session->apply(std::make_unique<core::SortCommand>());
+    page.model->applied(changes);
+    // Playback was placed on a row that holds another subtitle now.
+    page.placedAt = -1;
+
+    std::size_t moved = 0;
+    for (const core::Change& change : changes)
+        moved += change.subtitles.count();
+    return moved;
+}
 
 } // namespace
 
@@ -386,6 +433,32 @@ void ProjectOperations::appendFile(ProjectPage& page) {
     m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
 }
 
+std::optional<core::DisjointReport>
+ProjectOperations::disjointedQuietly(ProjectPage& page, const core::DisjointSettings& settings) {
+    std::expected<core::DisjointRanges, core::DisjointRefusal> made =
+        core::makeDisjoint(page.session->project(), settings);
+    if (!made)
+        return std::nullopt;
+
+    if (made->command != nullptr) {
+        const std::vector<core::Change> changes = page.session->apply(std::move(made->command));
+        page.model->applied(changes);
+        page.placedAt = -1;
+    }
+    if (made->touched.has_value()) {
+        m_view->selectRows(static_cast<int>(made->touched->first.value()),
+                           static_cast<int>(made->touched->last.value()));
+    }
+    return made->report;
+}
+
+void ProjectOperations::tell(const std::string& account, bool stopAndRead) {
+    if (stopAndRead)
+        m_prompts->reportOutcome(account);
+    else
+        m_view->announce(account);
+}
+
 void ProjectOperations::sortSubtitles(ProjectPage& page) {
     if (page.session->project().isInOrder()) {
         m_view->announce(core::noticeOfSort(0));
@@ -396,16 +469,66 @@ void ProjectOperations::sortSubtitles(ProjectPage& page) {
     // otherwise sit still for as long as it takes to move them and to tell the
     // table so, and a user cannot tell that from a window that has hung.
     const BusyScope busy{*m_view};
-    const std::vector<core::Change> changes =
-        page.session->apply(std::make_unique<core::SortCommand>());
-    page.model->applied(changes);
-    // Playback was placed on a row that holds another subtitle now.
-    page.placedAt = -1;
+    m_view->announce(core::noticeOfSort(sortedQuietly(page)));
+}
 
-    std::size_t moved = 0;
-    for (const core::Change& change : changes)
-        moved += change.subtitles.count();
-    m_view->announce(core::noticeOfSort(moved));
+void ProjectOperations::joinRepeats(ProjectPage& page) {
+    const BusyScope busy{*m_view};
+    m_view->announce(core::noticeOfJoin(joinedQuietly(page)));
+}
+
+void ProjectOperations::makeDisjoint(ProjectPage& page) {
+    if (!page.session->project().isInOrder()) {
+        m_prompts->reportFailure(core::refusalOfDisjoint(core::DisjointRefusal::NotInOrder));
+        return;
+    }
+
+    DisjointDialog dialog{m_disjointChoice, m_view->dialogParent()};
+    if (!m_prompts->run(dialog))
+        return;
+    m_disjointChoice = dialog.choice();
+
+    const BusyScope busy{*m_view};
+    const std::optional<core::DisjointReport> report =
+        disjointedQuietly(page, settingsOf(m_disjointChoice));
+    if (report.has_value())
+        tell(core::noticeOfDisjoint(*report), hasCaveat(*report));
+}
+
+void ProjectOperations::repair(ProjectPage& page) {
+    DisjointDialog dialog{m_disjointChoice, m_view->dialogParent(), true};
+    if (!m_prompts->run(dialog))
+        return;
+    m_disjointChoice = dialog.choice();
+
+    fixAtOpening(page, true, true, true);
+}
+
+void ProjectOperations::fixAtOpening(ProjectPage& page, bool join, bool sort, bool disjoint) {
+    if (!join && !sort && !disjoint)
+        return;
+
+    const BusyScope busy{*m_view};
+    std::vector<std::string> accounts;
+    bool stopAndRead = false;
+    if (join)
+        accounts.push_back(core::noticeOfJoin(joinedQuietly(page)));
+    if (sort)
+        accounts.push_back(core::noticeOfSort(sortedQuietly(page)));
+    if (disjoint) {
+        const std::optional<core::DisjointReport> report =
+            disjointedQuietly(page, settingsOf(m_disjointChoice));
+        if (report.has_value()) {
+            accounts.push_back(core::noticeOfDisjoint(*report));
+            stopAndRead = hasCaveat(*report);
+        }
+    }
+
+    std::string account;
+    for (const std::string& each : accounts)
+        account += (account.empty() ? "" : "; ") + each;
+    if (!account.empty())
+        tell(account, stopAndRead);
 }
 
 void ProjectOperations::splitProject(ProjectPage& page) {

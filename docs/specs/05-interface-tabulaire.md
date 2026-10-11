@@ -502,6 +502,10 @@ Inscrites à l'état `prévue`, comme la règle l'exige, avant le code.
 | `GUI-SORT-02` | un fichier ouvert hors d'ordre propose d'être trié, et ne l'est que sur un oui |
 | `GUI-SORT-03` | la liste des diagnostics compte par sorte, lectures comme anomalies des sous-titres, suit les corrections, et mène au premier sous-titre concerné |
 | `GUI-SORT-04` | une barre indéterminée de la barre d'état dit qu'un tri est en cours, et s'en va avec lui |
+| `GUI-DISJOINT-01` | `Make Ranges Disjoint…` coupe les sous-titres qui se chevauchent sur tout le projet, annulablement, sélectionne les lignes écrites et dit ce qu'il a fait ; hors d'ordre, il est refusé avec la raison |
+| `GUI-DISJOINT-02` | un fichier ouvert avec des défauts corrigeables (répétés, hors d'ordre, chevauchements) les propose dans une seule boîte, une case par correction comptée là où elle se fait, et n'applique que ce qui est coché, dans l'ordre fusion, tri, découpage |
+| `GUI-JOIN-01` | `Join Repeated Subtitles` fait un seul sous-titre des morceaux d'un même texte qui se suivent, sans dépendre de l'ordre du fichier, annulablement, et dit combien il en a joint |
+| `GUI-JOIN-02` | `Repair Subtitles…` enchaîne la fusion des répétés, le tri et le découpage des plages d'un coup, annulablement, et en rend un seul compte |
 | `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible |
 | `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier |
 | `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique |

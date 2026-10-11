@@ -30,6 +30,8 @@ add_executable(
     cli/snap_test.cpp
     cli/split_file_test.cpp
     cli/sort_test.cpp
+    cli/disjoint_test.cpp
+    cli/join_test.cpp
     cli/text_rewriting_test.cpp
     cli/transform_test.cpp
     cli/translation_test.cpp

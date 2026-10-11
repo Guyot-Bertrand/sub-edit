@@ -29,6 +29,9 @@ fichier ouvert puis enregistré sans modification ne bouge pas d'un octet.
 | vérifier l'orthographe mot à mot, avec les dictionnaires du système | [`Check Spelling…`](subedit-gui/verifier-orthographe.md) |
 | allonger des sous-titres trop courts pour être lus | [`Adjust Durations…`](subedit-gui/operations.md#adjust-durations), ou [`adjust`](subedit-cli/adjust.md) |
 | remettre dans l'ordre un fichier dont les sous-titres ne le sont pas | [`sort`](subedit-cli/sort.md) |
+| refaire un seul sous-titre des morceaux d'un même texte qui se suivent | [`Join Repeated Subtitles`](subedit-gui/lignes.md#fusionner-les-sous-titres-répétés), ou [`join-repeats`](subedit-cli/join-repeats.md) |
+| remettre d'aplomb un fichier mal segmenté, mal ordonné et qui se chevauche, d'un coup | [`repair`](subedit-cli/repair.md) |
+| supprimer les chevauchements entre sous-titres | [`Make Ranges Disjoint…`](subedit-gui/lignes.md#rendre-les-plages-disjointes), ou [`disjoint`](subedit-cli/disjoint.md) |
 | mettre bout à bout les deux parties d'un film | [`Append File…`](subedit-gui/operations.md#append-file), ou [`append`](subedit-cli/append.md) |
 | couper un film en deux parties | [`Split Project…`](subedit-gui/operations.md#split-project), ou [`split-file`](subedit-cli/split-file.md) |
 | changer la casse, l'italique ou les tirets de dialogue de tout un fichier | [Les opérations](subedit-gui/operations.md#italic), ou [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |

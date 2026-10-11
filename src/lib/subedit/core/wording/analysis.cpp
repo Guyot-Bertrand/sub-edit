@@ -139,6 +139,10 @@ std::string_view nameOf(CommandKind kind) {
         return "splitting the project";
     case CommandKind::CorrectTexts:
         return "correcting texts";
+    case CommandKind::MakeDisjoint:
+        return "making the ranges disjoint";
+    case CommandKind::JoinRepeats:
+        return "joining repeated subtitles";
     }
 
     // Every one of `CommandKind` is handled and the compiler checks it. A

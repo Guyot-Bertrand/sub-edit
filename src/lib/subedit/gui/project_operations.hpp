@@ -4,6 +4,7 @@
 #include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/time/duration.hpp>
+#include <subedit/gui/disjoint_dialog.hpp>
 
 #include <expected>
 #include <filesystem>
@@ -18,6 +19,9 @@ namespace subedit::core {
 class Command;
 enum class CommandKind;
 struct Diagnostic;
+struct DisjointReport;
+struct DisjointSettings;
+struct JoinReport;
 enum class Document;
 enum class LetterCase;
 class Project;
@@ -165,6 +169,34 @@ public:
     /// an operation that changes nothing is not one to undo.
     void sortSubtitles(ProjectPage& page);
 
+    /// `Join Repeated Subtitles`: the subtitles that show the same thing one after
+    /// the other — a text cut in pieces that follow each other — become one. On
+    /// the whole project, whatever its order, which it leaves as it finds it.
+    void joinRepeats(ProjectPage& page);
+
+    /// `Make Ranges Disjoint…`: asks for the settings, then cuts the overlapping
+    /// subtitles of the **whole project** so that no range overlaps another, and
+    /// selects the rows it wrote.
+    ///
+    /// Refused, with the reason in a box, when the subtitles are not in order:
+    /// the groups are runs of neighbours, and the core never sorts of itself.
+    /// Something that could not be done in full — a very short interval taken
+    /// over, a merged subtitle shown in windows — is said in a box to close and
+    /// not in the status bar.
+    void makeDisjoint(ProjectPage& page);
+
+    /// `Repair Subtitles…`: asks for the settings of the cut, then does what the
+    /// three entries above do one after the other — the repeats joined, the
+    /// subtitles put in order, the ranges made disjoint — as one account. For a
+    /// file that is all three at once, such as a badly segmented one.
+    void repair(ProjectPage& page);
+
+    /// What the box offered at opening asked for: the repeats joined, the sort,
+    /// the ranges made disjoint with the settings of the last use — any of them,
+    /// **in that order**, which is the only one that works — as **one** account
+    /// of what they did.
+    void fixAtOpening(ProjectPage& page, bool join, bool sort, bool disjoint);
+
     /// `Remove Hearing-Impaired Mentions…`.
     void removeHearingImpaired(ProjectPage& page);
 
@@ -211,6 +243,15 @@ private:
     void convertFrameRateFrom(ProjectPage& page,
                               const std::optional<core::RateConversion>& proposed);
 
+    /// Makes the ranges of `page` disjoint, selects the rows written, and
+    /// returns what was done — nothing when the project is not in order.
+    [[nodiscard]] std::optional<core::DisjointReport>
+    disjointedQuietly(ProjectPage& page, const core::DisjointSettings& settings);
+
+    /// Says `account` in the status bar, or in a box to close when it holds
+    /// something the user should stop and read.
+    void tell(const std::string& account, bool stopAndRead);
+
     /// What an operation left past the end of the film, said as a sentence, or
     /// nothing.
     ///
@@ -227,6 +268,9 @@ private:
     /// The form of the last adjustment of durations, offered again by the next
     /// one.
     core::DurationAdjustmentSettings m_durationSettings;
+
+    /// What the last `Make Ranges Disjoint…` asked for, offered again.
+    DisjointChoice m_disjointChoice;
 };
 
 } // namespace subedit::gui

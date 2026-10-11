@@ -7,6 +7,8 @@
 
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/command/command_kind.hpp>
+#include <subedit/core/edit/disjoint_ranges.hpp>
+#include <subedit/core/edit/join_repeats.hpp>
 #include <subedit/core/edit/video_bounds.hpp>
 
 #include <cstddef>
@@ -56,5 +58,17 @@ struct SacrificedConstraints;
 
 /// Why a pattern cannot be searched for, in the words the dialog shows.
 [[nodiscard]] std::string reasonOf(const PatternError& error);
+
+/// What making the ranges disjoint did, in one sentence: « 3 subtitles split,
+/// 1 merged », then what it could not do in full, each clause only when it
+/// applies. « already disjoint » when no subtitle overlapped another.
+[[nodiscard]] std::string noticeOfDisjoint(const DisjointReport& report);
+
+/// What joining the repeated subtitles did, in one sentence: « 3 repeated
+/// subtitles joined », or « no repeated subtitles ».
+[[nodiscard]] std::string noticeOfJoin(const JoinReport& report);
+
+/// Why the ranges were not made disjoint.
+[[nodiscard]] std::string refusalOfDisjoint(DisjointRefusal refusal);
 
 } // namespace subedit::core

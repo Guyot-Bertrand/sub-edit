@@ -66,6 +66,10 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::RemoveDialogueDashes:
     // Every position they lay down lies between two that were already there.
     case CommandKind::Merge:
+    // Every piece lies inside the span of the overlap it replaces.
+    case CommandKind::MakeDisjoint:
+    // An end moves to the furthest end of subtitles that were already there.
+    case CommandKind::JoinRepeats:
     case CommandKind::Split:
     case CommandKind::Cut:
     case CommandKind::Replace:

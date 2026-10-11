@@ -76,6 +76,11 @@ enum class OrderPolicy {
     // The merged subtitle starts where the first of the run did, and nothing
     // after that run started earlier in an ordered file.
     case CommandKind::Merge:
+    // Its pieces lie inside the span of the group they replace, and the group
+    // ends before the next subtitle starts.
+    case CommandKind::MakeDisjoint:
+    // It moves ends and takes subtitles out, and never a start.
+    case CommandKind::JoinRepeats:
     // It empties texts, and no position is read.
     case CommandKind::Cut:
     // They rewrite texts, and read no position.

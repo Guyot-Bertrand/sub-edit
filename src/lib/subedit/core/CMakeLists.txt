@@ -37,6 +37,8 @@ add_library(
     edit/set_duration_command.cpp
     edit/set_text_command.cpp
     edit/command_preview.cpp
+    edit/disjoint_ranges.cpp
+    edit/join_repeats.cpp
     edit/sort_command.cpp
     text/capitalization.cpp
     text/enchant_spell_provider.cpp

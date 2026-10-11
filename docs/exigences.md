@@ -118,6 +118,10 @@ plus rien.
 | `GUI-SORT-02` | un fichier ouvert hors d'ordre propose d'être trié, et ne l'est que sur un oui | 5 | implémentée |
 | `GUI-SORT-03` | la liste des diagnostics compte par sorte, lectures comme anomalies des sous-titres, suit les corrections, et mène au premier sous-titre concerné | 5 | implémentée |
 | `GUI-SORT-04` | une barre indéterminée de la barre d'état dit qu'un tri est en cours, et s'en va avec lui | 5 | implémentée |
+| `GUI-DISJOINT-01` | `Make Ranges Disjoint…` coupe les sous-titres qui se chevauchent sur tout le projet, annulablement, sélectionne les lignes écrites et dit ce qu'il a fait ; hors d'ordre, il est refusé avec la raison | 5 | implémentée |
+| `GUI-DISJOINT-02` | un fichier ouvert avec des défauts corrigeables (répétés, hors d'ordre, chevauchements) les propose dans une seule boîte, une case par correction comptée là où elle se fait, et n'applique que ce qui est coché, dans l'ordre fusion, tri, découpage | 5 | implémentée |
+| `GUI-JOIN-01` | `Join Repeated Subtitles` fait un seul sous-titre des morceaux d'un même texte qui se suivent, sans dépendre de l'ordre du fichier, annulablement, et dit combien il en a joint | 5 | implémentée |
+| `GUI-JOIN-02` | `Repair Subtitles…` enchaîne la fusion des répétés, le tri et le découpage des plages d'un coup, annulablement, et en rend un seul compte | 5 | implémentée |
 | `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible | 5 | implémentée |
 | `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier | 5 | implémentée |
 | `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique | 5 | implémentée |
@@ -276,6 +280,13 @@ plus rien.
 | `CLI-SORT-01` | `sort` met les sous-titres dans l'ordre de leur début, de façon stable | 13 | implémentée |
 | `CLI-SORT-02` | `sort` dit combien de sous-titres ont bougé, et écrit le fichier même s'il est déjà en ordre | 13 | implémentée |
 | `CLI-SORT-03` | `convert`, `append` et `split-file` acceptent `--sort`, qui met les sous-titres dans l'ordre de leur début avant d'écrire et dit combien ont bougé | 13 | implémentée |
+| `CLI-DISJOINT-01` | `disjoint` coupe les sous-titres qui se chevauchent, fusionne ligne à ligne ce qui s'affiche ensemble, dit ce qu'il a fait, et un second passage ne change rien | 13 | implémentée |
+| `CLI-DISJOINT-02` | `disjoint` refuse un fichier dont les débuts ne sont pas dans l'ordre, sauf avec `--sort` qui le met d'abord en ordre | 13 | implémentée |
+| `CLI-DISJOINT-03` | `--minimum`, `--max-lines` et `--dashes` règlent l'opération ; une valeur absurde est une erreur d'usage nommant l'option | 13 | implémentée |
+| `CLI-DISJOINT-04` | `convert`, `append` et `split-file` acceptent `--disjoint`, qui découpe les plages avant d'écrire, après `--sort`, et dit ce qui a été coupé | 13 | implémentée |
+| `CLI-JOIN-01` | `join-repeats` fait un seul sous-titre des morceaux d'un même texte qui se suivent, dit combien il en a joint, et un second passage ne change rien | 13 | implémentée |
+| `CLI-JOIN-02` | `repair` enchaîne la fusion des répétés, le tri et le découpage des plages, dans cet ordre, et dit les trois comptes | 13 | implémentée |
+| `CLI-JOIN-03` | `convert` accepte `--join-repeats` (avant le tri et le découpage) et `--repair` (les trois d'un coup), et dit combien de sous-titres ont été joints | 13 | implémentée |
 | `CLI-TRANS-01` | `inspect -t` rapporte lignes rattachées, sous-titres nés, sans traduction et hors d'ordre | 13 | implémentée |
 | `CLI-TRANS-02` | `--document translation` exige `-t`, et `-t` exige `--document translation` sur une sous-commande de texte | 13 | implémentée |
 | `CLI-TRANS-03` | `-t` n'a de sens que pour une seule entrée ; avec un lot, il est refusé | 13 | implémentée |

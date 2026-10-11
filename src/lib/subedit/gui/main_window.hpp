@@ -225,6 +225,12 @@ public:
 
     [[nodiscard]] QAction* sortAction() const { return m_actions->sortSubtitles; }
 
+    [[nodiscard]] QAction* makeDisjointAction() const { return m_actions->makeDisjoint; }
+
+    [[nodiscard]] QAction* joinRepeatsAction() const { return m_actions->joinRepeats; }
+
+    [[nodiscard]] QAction* repairAction() const { return m_actions->repair; }
+
     [[nodiscard]] QAction* mergeAction() const { return m_actions->mergeSubtitles; }
 
     [[nodiscard]] QAction* splitAction() const { return m_actions->splitSubtitle; }
@@ -616,9 +622,11 @@ private:
     /// open, or nothing when it opened or was already there.
     [[nodiscard]] std::optional<std::string> openFile(const std::filesystem::path& path);
 
-    /// Offers to sort the file just opened when it is not in order of start, and
-    /// does it on a yes — undoably. Nothing is asked of a file in order.
-    void proposeSorting();
+    /// Offers, **in one box**, to put right what the file just opened has wrong
+    /// and can be: not in order of start, subtitles overlapping. Each correction
+    /// is its own case in the box and is undoable; nothing is asked of a file
+    /// with nothing to correct.
+    void proposeFixes();
 
     /// Asks which film to watch the document against, and associates it.
     void selectVideo();

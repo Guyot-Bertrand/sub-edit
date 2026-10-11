@@ -34,6 +34,9 @@ l'autre programme et pour savoir par où commencer, voir
 | [`italics`](italics.md) | mettre les textes en italique, ou retirer leur italique |
 | [`dialogue-dashes`](dialogue-dashes.md) | poser ou retirer les tirets de dialogue |
 | [`sort`](sort.md) | remettre les sous-titres dans l'ordre de leur début |
+| [`join-repeats`](join-repeats.md) | faire un seul sous-titre des morceaux d'un même texte qui se suivent |
+| [`disjoint`](disjoint.md) | découper les sous-titres qui se chevauchent pour que plus aucune plage n'en chevauche une autre |
+| [`repair`](repair.md) | enchaîner `join-repeats`, `sort` et `disjoint` sur un fichier mal segmenté, mal ordonné et qui se chevauche |
 | [`correct`](correct.md) | corriger les textes avec les motifs de Gaupol : mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage de lignes |
 | [`append`](append.md) | mettre des fichiers à la suite du premier, dans un seul fichier |
 | [`split-file`](split-file.md) | couper un fichier en deux, la queue ramenée à l'origine |
