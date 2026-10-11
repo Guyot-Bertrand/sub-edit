@@ -651,7 +651,7 @@ TEST_CASE("the file never turns a task on, nor sets a code, a length or a langua
                ContainsSubstring("--max-length is required by the task line-break"));
 }
 
-TEST_CASE("a number of lines below one in the file is ignored, and said",
+TEST_CASE("a number of lines outside 1 to 1000 in the file is ignored, and said",
           "[cli][correct][settings]") {
     InMemoryFileSystem files;
     int opened = 0;
@@ -661,7 +661,7 @@ TEST_CASE("a number of lines below one in the file is ignored, and said",
     options.code = "Latn";
     options.maxLength = "30";
 
-    for (const int nonsense : {0, -2}) {
+    for (const int nonsense : {0, -2, 1001}) {
         file.lineBreakMaxLines = nonsense;
         std::ostringstream errors;
         const auto run = subedit::cli::prepareCorrection(
@@ -671,8 +671,17 @@ TEST_CASE("a number of lines below one in the file is ignored, and said",
         CHECK(run->settings.lineBreakSkipMaxLines == 3);
         CHECK_THAT(errors.str(),
                    ContainsSubstring("settings: correction.line-break.max-lines " +
-                                     std::to_string(nonsense) + " ignored, must be 1 or more"));
+                                     std::to_string(nonsense) + " ignored, must be 1 to 1000"));
     }
+
+    // The bound itself is taken, and nothing is said.
+    file.lineBreakMaxLines = 1000;
+    std::ostringstream bound;
+    const auto most = subedit::cli::prepareCorrection(
+        files, Reporter{bound, 1}, options, "/shipped", "/user", englishOnly(opened), file);
+    REQUIRE(most.has_value());
+    CHECK(most->settings.lineBreakMaxLines == 1000);
+    CHECK_THAT(bound.str(), !ContainsSubstring("max-lines"));
 
     // Given on the command line, the file's value plays no part, and nothing is said.
     options.maxLines = "2";
@@ -682,4 +691,40 @@ TEST_CASE("a number of lines below one in the file is ignored, and said",
     REQUIRE(given.has_value());
     CHECK(given->settings.lineBreakMaxLines == 2);
     CHECK_THAT(errors.str(), !ContainsSubstring("max-lines"));
+}
+
+TEST_CASE("both classes off in the file is ignored, and said", "[cli][correct][settings]") {
+    InMemoryFileSystem files;
+    files.addFile("/shipped/Latn.common-error",
+                  "[Common Error Pattern]\nName=Ligature\nClasses=OCR;\n"
+                  "Pattern=ﬁ\nReplacement=fi\n");
+    int opened = 0;
+    subedit::core::CorrectionSettings file;
+    file.human = false;
+    file.ocr = false;
+
+    // Through the settings alone: both classes stay on.
+    const auto settings = correctionSettingsOf(optionsFor("common-errors"), catalogue(), file);
+    REQUIRE(settings.has_value());
+    CHECK(settings->human);
+    CHECK(settings->ocr);
+
+    // Through the preparation: said at level one.
+    CorrectionOptions options = optionsFor("common-errors");
+    std::ostringstream errors;
+    const auto run = subedit::cli::prepareCorrection(
+        files, Reporter{errors, 1}, options, "/shipped", "/user", englishOnly(opened), file);
+    REQUIRE(run.has_value());
+    CHECK(run->settings.ocr);
+    CHECK_THAT(errors.str(),
+               ContainsSubstring(
+                   "settings: correction.human and correction.ocr are both false, ignored\n"));
+
+    // With --classes the file plays no part, and nothing is said.
+    options.classes = "ocr";
+    std::ostringstream quiet;
+    const auto given = subedit::cli::prepareCorrection(
+        files, Reporter{quiet, 1}, options, "/shipped", "/user", englishOnly(opened), file);
+    REQUIRE(given.has_value());
+    CHECK_THAT(quiet.str(), !ContainsSubstring("correction.human"));
 }

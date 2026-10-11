@@ -616,7 +616,7 @@ TEST_CASE("a translation a mention would empty stays, empty, and only it is writ
         MatchesFile(corpus("attendus/translation/mentions.hearing-impaired.traduction.srt")));
 }
 
-TEST_CASE("correct reads no setting of the user", "[e2e][CLI-CORRECT-13]") {
+TEST_CASE("correct reads only four settings of the user's file", "[e2e][CLI-CORRECT-13]") {
     // The window's activations would switch « Ellipses » on, and a script would
     // then depend on what its author once ticked. Written here as the window
     // writes it: the file is read for its three values (spec 17, D8), never for

@@ -444,11 +444,22 @@ skipBoundOf(const std::string& written, std::string_view option, double fallback
     return std::nullopt;
 }
 
-/// The lines of the break the settings file gives, or Gaupol's when it gives
-/// fewer than one: the file is edited by hand, and its reader keeps any integer.
+/// Whether the lines of the break the settings file gives are within what
+/// `--max-lines` accepts: the file is edited by hand, and its reader keeps any integer.
+[[nodiscard]] bool fileMaxLinesValid(const core::CorrectionSettings& shared) {
+    return shared.lineBreakMaxLines >= 1 && shared.lineBreakMaxLines <= kMostLines;
+}
+
+/// The lines of the break the settings file gives, or Gaupol's when they are out
+/// of the bounds `--max-lines` has.
 [[nodiscard]] int fileMaxLines(const core::CorrectionSettings& shared) {
-    return shared.lineBreakMaxLines >= 1 ? shared.lineBreakMaxLines
-                                         : core::kDefaultLineBreakMaxLines;
+    return fileMaxLinesValid(shared) ? shared.lineBreakMaxLines : core::kDefaultLineBreakMaxLines;
+}
+
+/// Whether the settings file turns both classes off: a state `--classes` cannot
+/// write, and which would leave common-errors nothing to do.
+[[nodiscard]] bool fileClassesBothOff(const core::CorrectionSettings& shared) {
+    return !shared.human && !shared.ocr;
 }
 
 /// Applies `--enable` and `--disable`, or says why a name cannot be honoured.
@@ -527,7 +538,7 @@ correctionSettingsOf(const CorrectionOptions& options,
     if (std::optional<std::string> refused = classesInto(options.classes, settings)) {
         return std::unexpected{*std::move(refused)};
     }
-    if (options.classes.empty()) {
+    if (options.classes.empty() && !fileClassesBothOff(shared)) {
         settings.human = shared.human;
         settings.ocr = shared.ocr;
     }
@@ -664,10 +675,13 @@ prepareCorrection(core::FileSystem& files,
         return std::unexpected{settings.error()};
     }
     // A nonsense the file holds is not taken silently: it was put there by hand.
-    if (settings->lineBreak.enabled && options.maxLines.empty() && shared.lineBreakMaxLines < 1) {
+    if (settings->lineBreak.enabled && options.maxLines.empty() && !fileMaxLinesValid(shared)) {
         reporter.say(1,
                      "settings: correction.line-break.max-lines " +
-                         std::to_string(shared.lineBreakMaxLines) + " ignored, must be 1 or more");
+                         std::to_string(shared.lineBreakMaxLines) + " ignored, must be 1 to 1000");
+    }
+    if (settings->commonErrors.enabled && options.classes.empty() && fileClassesBothOff(shared)) {
+        reporter.say(1, "settings: correction.human and correction.ocr are both false, ignored");
     }
 
     CorrectionRun run{.catalogue = std::move(catalogue), .settings = *std::move(settings)};

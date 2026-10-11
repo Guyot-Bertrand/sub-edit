@@ -89,12 +89,15 @@ correctionSettingsOf(const CorrectionOptions& options,
 /// The same, with the three things the settings file gives `correct` (spec 17,
 /// D8) taken from `shared` — **an option beats the file, which beats the default**:
 ///
-/// - the classes, `human` and `ocr`, when `classes` is empty;
+/// - the classes, `human` and `ocr`, when `classes` is empty — unless both are
+///   off, which `--classes` cannot write: then both stay on (`prepareCorrection`
+///   says so);
 /// - the removal of the subtitles a correction empties, which
 ///   `keepBlankSubtitles` still forces off;
 /// - the lines of the break, when `maxLines` is empty — and with them the skip
-///   gate's, when `skipLines` is empty. A number below one, which only a file
-///   edited by hand holds, is ignored for Gaupol's 3 (`prepareCorrection` says so).
+///   gate's, when `skipLines` is empty. A number outside 1 to 1000, the bounds of
+///   `--max-lines`, which only a file edited by hand holds, is ignored for
+///   Gaupol's 3 (`prepareCorrection` says so).
 ///
 /// Nothing else of `shared` is read: tasks, codes, activations, length, language
 /// and the skip gate stay on the command line.
@@ -139,8 +142,9 @@ prepareCorrection(subedit::core::FileSystem& files,
                   const SpellProviderFactory& makeProvider);
 
 /// The same, with the settings file's three values for `correct`
-/// (`correctionSettingsOf`). A number of lines below one in the file, when the
-/// line break runs without `--max-lines`, is said at level one and ignored.
+/// (`correctionSettingsOf`). What the file holds and the run ignores is said at
+/// level one: a number of lines outside 1 to 1000, when the line break runs without
+/// `--max-lines`; both classes off, when common-errors runs without `--classes`.
 [[nodiscard]] std::expected<CorrectionRun, std::string>
 prepareCorrection(subedit::core::FileSystem& files,
                   const Reporter& reporter,

@@ -704,7 +704,7 @@ n'était déjà pris** — les sujets neufs sont `JSON`, `DRYRUN`, `RANGE`, `ADJ
 | `CLI-CORRECT-10` | `join-words` et `split-words` joignent et scindent selon le dictionnaire de `--language` |
 | `CLI-CORRECT-11` | sans dictionnaire pour `--language`, `correct` est refusé avec la phrase de la fenêtre, avant tout traitement |
 | `CLI-CORRECT-12` | les sous-titres vidés sont retirés, sauf `--keep-blank-subtitles` |
-| `CLI-CORRECT-13` | `correct` ne lit aucun réglage de l'utilisateur ni sa liste de remplacements |
+| `CLI-CORRECT-13` | `correct` ne lit du fichier de réglages que `correction.human`, `correction.ocr`, `correction.remove-blank` et `correction.line-break.max-lines`; ni les activations, ni sa liste de remplacements |
 | `CLI-REPLACE-01` | `replace` cherche dans le texte visible et remplace dans le texte source, sans casser une balise |
 | `CLI-REPLACE-02` | `--regex` lit une expression ; une expression illisible est refusée avant tout traitement, avec la raison |
 | `CLI-REPLACE-03` | les majuscules sont ignorées par défaut, `--case-sensitive` les distingue |
