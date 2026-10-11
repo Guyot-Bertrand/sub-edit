@@ -310,6 +310,11 @@ garde sa valeur** : décocher `Minimum duration` après avoir posé 2 s ne remet
 1,5 s, et la recocher retrouve 2 s. Les neuf réglages sont dans le
 [fichier de préférences](preferences.md#le-fichier), sous `duration-adjust.`.
 
+**The command line shares them.** [`subedit-cli adjust`](../subedit-cli/adjust.md) reads the
+same nine settings by default, so a speed set here is the speed it uses, unless its own options
+say otherwise; [`subedit-cli config`](../subedit-cli/config.md) shows and changes them. See
+[Two blocks, one shared with the command line](preferences.md#two-blocks-one-shared-with-the-command-line).
+
 ### Dans quel ordre, et laquelle gagne
 
 Chaque sous-titre de la cible passe les quatre contraintes **dans cet ordre**, et

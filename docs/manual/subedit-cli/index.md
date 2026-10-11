@@ -20,6 +20,7 @@ l'autre programme et pour savoir par où commencer, voir
 | :------ | :------ |
 | [Installation](installation.md) | construire et installer l'outil |
 | [Invocation](invocation.md) | options globales, sorties, codes de retour |
+| [The settings file](invocation.md#the-settings-file) | what `adjust` and `correct` read from the window's settings file, `--config`, `--no-config` |
 | [Traiter un arbre](lots.md) | plusieurs fichiers, un répertoire entier, `--recursive` |
 | [`inspect`](inspect.md) | rapporter ce qu'un fichier contient |
 | [`convert`](convert.md) | écrire un fichier dans un autre format ou une autre forme |
@@ -41,3 +42,4 @@ l'autre programme et pour savoir par où commencer, voir
 | [`append`](append.md) | mettre des fichiers à la suite du premier, dans un seul fichier |
 | [`split-file`](split-file.md) | couper un fichier en deux, la queue ramenée à l'origine |
 | [`pair`](pair.md) | écrire une traduction aux positions de son principal, et dire comment ses lignes se sont posées |
+| [`config`](config.md) | list, show and change the operation settings shared with the window |

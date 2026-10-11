@@ -71,6 +71,29 @@ Le fichier est du texte, et il se modifie à la main. C'est une propriété et n
 un effet de bord : c'est ce qui rend un réglage corrigeable quand l'interface
 qui le pose est justement celle qui ne va pas.
 
+### Two blocks, one shared with the command line
+
+The file is written in **two blocks**, each under a banner comment:
+
+| Block | Keys | Read by |
+| :---- | :--- | :------ |
+| `# Operation settings: shared by the window and the command line` | the `duration-adjust.*` and `correction.*` keys | the window **and** `subedit-cli` |
+| `# Display preferences: the window's own` | every other key — geometry, columns, theme, search, spell-check, editor, video, last directory, write encoding | the window only |
+
+**`subedit-cli` reads the operation block by default**: what `Adjust Durations…` and
+`Correct Texts…` remember here is also what [`subedit-cli adjust`](../subedit-cli/adjust.md)
+and part of [`subedit-cli correct`](../subedit-cli/correct.md) start from, unless an option of
+the command line says otherwise. **It never reads the display preferences.** Its
+[`config`](../subedit-cli/config.md) command lists the operation keys, shows their values and
+changes them — `subedit-cli config set duration-adjust.speed 12` — and the window sees the change
+at its next opening. **A change made while the window is open does not survive its closing**: the
+window rewrites the whole file with what it holds. `--no-config` makes a command line ignore the
+file. See
+[The settings file](../subedit-cli/invocation.md#the-settings-file).
+
+The reader takes the keys in any order, with or without the banners: a file written before the
+two blocks existed is read unchanged, and rewritten in two blocks at the next closing.
+
 | Option | Ce qu'elle vaut | Défaut |
 | :----- | :-------------- | :----- |
 | `window.geometry` | `x,y,largeur,hauteur`, en pixels ; largeur et hauteur non nulles | la fenêtre se dimensionne elle-même |

@@ -19,6 +19,9 @@ Options:
   -q,--quiet                  Say nothing but errors
   --encoding NAME             Encoding to read the files in; detected by default
   --format text|json          Form of the result on standard output: text or json
+  --config FILE               Read the operation settings from FILE instead of the user's settings file
+  --no-config Excludes: --config
+                              Ignore any settings file: use the built-in defaults
   --list-encodings            Write the encodings that can be read and written, one a line, and stop
 
 Subcommands:
@@ -42,6 +45,7 @@ Subcommands:
   append                      Put subtitle files one after another into a single file
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
+  config                      List, show and change the operation settings
 ```
 
 ## La ligne de commande est en anglais
@@ -71,9 +75,65 @@ de la sous-commande qu'il écrit, pas celui de l'outil.
 | `--encoding NOM` | lit les fichiers dans cet encodage, au lieu de le deviner |
 | `--list-encodings` | écrit les encodages que l'outil sait lire et écrire, un par ligne, et **s'arrête** (code `0`) — voir [`--list-encodings`](#--list-encodings) |
 | `--format text\|json` | forme du résultat sur la sortie standard : le texte, ou un objet JSON par fichier — voir [Sortie lisible par un script](#sortie-lisible-par-un-script) |
+| `--config FILE` | reads the operation settings from `FILE` instead of the user's settings file — see [The settings file](#the-settings-file) |
+| `--no-config` | reads no settings file: every operation setting not given on the line takes its built-in default — see [The settings file](#the-settings-file) |
 
 `--quiet` et `-v` dans la même invocation sont refusés : deux intentions
 opposées ne sont pas arbitrées au profit de la dernière écrite.
+
+`--config` and `--no-config` in the same invocation are refused too, with
+`--config excludes --no-config`.
+
+### The settings file
+
+**[`adjust`](adjust.md) and [`correct`](correct.md) read the operation settings of the
+settings file by default** — the values `Adjust Durations…` and `Correct Texts…` remember in
+the window, or that [`config set`](config.md) wrote. No other sub-command reads it. The file is:
+
+```
+$XDG_CONFIG_HOME/subedit/settings.conf
+```
+
+or `~/.config/subedit/settings.conf` when `XDG_CONFIG_HOME` is unset, empty or not an absolute
+path — the window's file, described in [its manual](../subedit-gui/preferences.md#le-fichier).
+
+**Priority, strongest first: the option on the command line, then the file, then the built-in
+default.** An option always wins: `--speed off` switches off a speed the file sets. Only the
+**operation block** of the file is read; the display preferences (geometry, columns, theme…)
+never are. [`config list`](config.md#config-list) names the keys, and which of them the command
+line reads: the nine `duration-adjust.*` keys, `correction.human`, `correction.ocr`,
+`correction.remove-blank` and `correction.line-break.max-lines`.
+
+**Reading never fails a command.** A missing file gives the defaults; a file that cannot be read
+gives the defaults and says so; a value that cannot be read keeps its default and is named; an
+unknown key is ignored. The file is never written by `adjust` or `correct`.
+
+**What was read is said**, at the default level 1, on the standard error, before the first file:
+
+| Case | Line |
+| :--- | :--- |
+| the file was read | `settings: read <path>` |
+| a value in it could not be read | `settings: <key>: cannot read '<value>', default kept` |
+| the file does not exist | `settings: <path> not found, defaults used` |
+| the file cannot be read | `settings: <path> unreadable, defaults used` |
+| `--no-config` | nothing |
+
+With [`--format json`](#sortie-lisible-par-un-script), the object of each file of `adjust` and
+`correct` carries `settings`: the path that was read, or `null` when none was.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt
+settings: mine.conf not found, defaults used
+a.srt: adjusted the durations of 1 subtitle (dry run, nothing written)
+```
+
+**`--no-config` makes a run reproducible**: the same line gives the same result on every
+machine, whatever its user set in the window. Use it in scripts, tests and bug reports — or
+`--config FILE` with a file that goes along with them.
+
+**`--config FILE` names another file**, read the same way. A `FILE` that does not exist is not an
+error either: the defaults are used and the line says `not found`.
 
 ### `--list-encodings`
 
@@ -178,13 +238,16 @@ subedit 0.15.12
 | [`append`](append.md) | met des fichiers à la suite du premier, dans **un seul** fichier | oui |
 | [`split-file`](split-file.md) | coupe un fichier en **deux** : une tête et une queue | oui |
 | [`pair`](pair.md) | écrit une traduction aux positions de son principal, et dit comment ses lignes se sont posées | oui |
+| [`config`](config.md) | lists, shows and changes the operation settings of the settings file | the settings file only |
 
-Les vingt sont là ; l'aide de l'outil les énumère dans le même ordre.
+Les vingt et une sont là ; l'aide de l'outil les énumère dans le même ordre.
 
 **Une seule ne touche à rien**, et c'est la colonne de droite : `inspect` lit et
 rapporte. Les dix-neuf autres écrivent, et ce qui suit vaut pour dix-sept d'entre elles :
 [`append`](append.md) et [`split-file`](split-file.md) ont chacune une arité à elles — N fichiers pour
 **un** résultat, un fichier pour **deux** — et donc leur propre destination, qu'elles décrivent sur leur page.
+[`config`](config.md) writes no subtitle file: it reads and changes the settings file, and
+nothing of what follows applies to it.
 
 ## La destination
 
@@ -411,6 +474,7 @@ d'erreur avec le code `1`, et la sortie standard reste vide.
 | `warnings` | un tableau de `{"kind", "line"?, "detail"?, "settled"?}` | si `ok` est vrai |
 | `alignment` | comment une traduction a été posée, voir [Une traduction](#une-traduction) | avec `-t`, et pour `pair` |
 | `constraints` | les réglages employés | `adjust` |
+| `settings` | the settings file that was read, or `null` when none was — see [The settings file](#the-settings-file) | `adjust`, `correct`, if `ok` is true |
 | `inputs`, `tail` | un élément par fichier ajouté ; le chemin de la queue | `append` ; `split-file` |
 
 `line` est absent d'un diagnostic qui parle du fichier entier ; `detail` l'est quand il n'y
@@ -699,6 +763,7 @@ jamais un lot à moitié traité.
 | :------------------ | :--------------------------------------- |
 | option ou sous-commande inconnue | le nom fautif, et un renvoi à `--help` |
 | `--quiet` avec `-v` | `--quiet and -v ask for opposite things; give one or the other` |
+| `--config` with `--no-config` | `--config excludes --no-config` |
 | fichier absent | `<chemin>: does not exist` |
 | fichier illisible | `<chemin>: cannot be opened: permission denied` |
 | encodage qui écrit sa propre marque | `"<nom>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |

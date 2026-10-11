@@ -58,12 +58,32 @@ Options:
 
 ## Ce qui est choisi, et ce qui ne l'est pas
 
-**Rien n'est coché d'avance, et rien n'est lu des réglages de qui lance.** La fenêtre
-ouvre ses cases dans l'état où l'utilisateur les a laissées ; une ligne de commande
-n'a pas d'utilisateur de cette sorte. Le résultat dépend de ses arguments, des
-fichiers qu'on lui donne, et de ce que l'installation fournit : ni les activations
-cochées un jour dans la fenêtre, ni la liste de remplacements du correcteur ne sont
-lues, et rien n'est écrit de ce côté.
+**Nothing is ticked beforehand.** The window opens its boxes as the user left them; a
+command line takes its tasks, its code, its line length and its language from its own line,
+never from the settings file: neither the tasks ticked one day in the window, nor the pattern
+boxes switched there (`correction.activations`), nor the spell-checker's replacement list are
+read, and nothing is written on that side.
+
+**Four settings come from the settings file, by default** — the values `Correct Texts…`
+remembers, or that [`config set`](config.md) wrote. **An option on the line always wins**, then
+the file, then the built-in default; see [The settings file](invocation.md#the-settings-file)
+for where it is, `--config` and `--no-config`.
+
+| Key | What it supplies | Option that overrides it |
+| :-- | :--------------- | :----------------------- |
+| `correction.human`, `correction.ocr` | the classes of common errors applied | `--classes` |
+| `correction.remove-blank` | whether the subtitles the correction empties are removed | `--keep-blank-subtitles` |
+| `correction.line-break.max-lines` | the most lines of `line-break` | `--max-lines` |
+
+- **`correction.remove-blank = false` has no option to undo it** on the line: `--no-config`
+  gives back the removal.
+- **A value of the file that `--classes` or `--max-lines` could not take is ignored, and said** at
+  level 1: both classes off — `settings: correction.human and correction.ocr are both false,
+  ignored` —, or a number of lines out of 1 to 1000 — `settings: correction.line-break.max-lines
+  N ignored, must be 1 to 1000`. The built-in default is used instead.
+
+The examples on this page are run with `--no-config`, so that they say what the built-in
+defaults do, whatever the settings of the machine that runs them.
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
@@ -71,12 +91,12 @@ lues, et rien n'est écrit de ce côté.
 | `--tasks` | **oui** | une liste séparée par des virgules : `mentions`, `join-words`, `split-words`, `common-errors`, `capitalization`, `line-break` | aucune tâche |
 | `--code` | **oui** avec une tâche de motifs, et **sans objet** autrement | `Écriture[-langue[-PAYS]]` : `Zyyy`, `Latn`, `Latn-en`, `Latn-en-US` | — |
 | `--language` | **oui** avec `join-words` ou `split-words`, et **sans objet** autrement | un code de langue : `fr`, `fr_FR`, `en_US` | — |
-| `--classes` | non | `human`, `ocr` ou `human,ocr` | les deux |
+| `--classes` | non | `human`, `ocr` ou `human,ocr` | les deux — or what the settings file says |
 | `--enable`, `--disable` | non, répétables | le nom anglais d'un motif, ou `type:nom` | les `.conf` livrés |
 | `--max-length` | **oui** avec `line-break` | un nombre de **caractères** supérieur à zéro | **aucun** — voir plus bas |
-| `--max-lines` | non | un nombre entier de lignes, supérieur à zéro | 3 |
+| `--max-lines` | non | un nombre entier de lignes, supérieur à zéro | 3 — or what the settings file says |
 | `--skip-length`, `--skip-lines` | non | un nombre, ou `off` | les mêmes bornes que `--max-length` et `--max-lines` |
-| `--keep-blank-subtitles` | non | un drapeau | les sous-titres vidés sont retirés |
+| `--keep-blank-subtitles` | non | un drapeau | les sous-titres vidés sont retirés — unless the settings file says otherwise |
 | `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir [`adjust`](adjust.md#--range) | tout le fichier |
 | `--document` | non | `main` ou `translation` — voir [Une traduction](invocation.md#une-traduction) | `main` |
 | `-t`, `--translation-file` | avec `--document translation` | un fichier de traduction, pour **une seule** entrée | — |
@@ -110,9 +130,9 @@ un défaut universel appliquerait *moins* que ce qu'on croit, sans le dire. Il v
 toutes les tâches d'un même lancement ; une tâche qui veut un code à elle est un second
 lancement. Un code mal écrit est une erreur d'usage :
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli correct --tasks common-errors --code francais --output b.srt a.srt; echo "code=$?" -->
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code francais --output b.srt a.srt; echo "code=$?" -->
 ```console
-$ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli correct --tasks common-errors --code francais --output b.srt a.srt; echo "code=$?"
+$ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code francais --output b.srt a.srt; echo "code=$?"
 --code: "francais" is not a pattern code: expected Script[-language[-COUNTRY]], like Zyyy, Latn or Latn-en-US
 code=1
 ```
@@ -140,9 +160,9 @@ Fedora), que `subedit-cli` partage avec la fenêtre. Elles n'ont donc ni code, n
 lu** et dans les mots de la fenêtre, qui grise la fonction et le dit — ici la ligne de commande
 refuse et le dit, plutôt que de se taire :
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nhel lo\n\n' > a.srt; subedit-cli correct --tasks join-words --language qq_QQ --output b.srt a.srt; echo "code=$?" -->
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nhel lo\n\n' > a.srt; subedit-cli --no-config correct --tasks join-words --language qq_QQ --output b.srt a.srt; echo "code=$?" -->
 ```console
-$ printf '1\n00:00:01,000 --> 00:00:02,000\nhel lo\n\n' > a.srt; subedit-cli correct --tasks join-words --language qq_QQ --output b.srt a.srt; echo "code=$?"
+$ printf '1\n00:00:01,000 --> 00:00:02,000\nhel lo\n\n' > a.srt; subedit-cli --no-config correct --tasks join-words --language qq_QQ --output b.srt a.srt; echo "code=$?"
 no dictionary for qq_QQ
 code=1
 ```
@@ -160,9 +180,9 @@ texte. **Recopier le 24 en caractères couperait presque tout, sans
 le dire** ; il n'y a donc **aucune longueur par défaut**, et `--max-length` est requis avec
 `line-break` :
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nUn texte\n\n' > a.srt; subedit-cli correct --tasks line-break --code Latn-en --output b.srt a.srt; echo "code=$?" -->
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nUn texte\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --output b.srt a.srt; echo "code=$?" -->
 ```console
-$ printf '1\n00:00:01,000 --> 00:00:03,000\nUn texte\n\n' > a.srt; subedit-cli correct --tasks line-break --code Latn-en --output b.srt a.srt; echo "code=$?"
+$ printf '1\n00:00:01,000 --> 00:00:03,000\nUn texte\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --output b.srt a.srt; echo "code=$?"
 --max-length is required by the task line-break: Gaupol's 24 is a width in ems, and has no value in characters
 code=1
 ```
@@ -173,9 +193,9 @@ laissé tel quel — reprend par défaut **les mêmes bornes** (`--skip-length` 
 `--skip-lines` = `--max-lines`), comme Gaupol ; `--skip-length off` et `--skip-lines off`
 l'éteignent, et le texte est alors relu comme un seul et recoupé :
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt -->
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt -->
 ```console
-$ printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt
+$ printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt
 a.srt: Edited 1 and removed 0 subtitles -> b.srt
 1
 00:00:01,000 --> 00:00:03,000
@@ -220,18 +240,18 @@ réglage peut survivre à un motif disparu ; une invocation n'a pas de survivant
 **Une tâche sans aucun motif actif est refusée**, code `1` — « rien à faire » est une
 réponse qui se dit, pas un succès silencieux :
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli correct --tasks mentions --code Latn --output b.srt a.srt; echo "code=$?" -->
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --output b.srt a.srt; echo "code=$?" -->
 ```console
-$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli correct --tasks mentions --code Latn --output b.srt a.srt; echo "code=$?"
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --output b.srt a.srt; echo "code=$?"
 mentions: no pattern is active under the code Latn; switch one on with --enable
 code=1
 ```
 
 Le même fichier, avec le balayage des crochets mis en route :
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt -->
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt -->
 ```console
-$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt
 a.srt: Edited 1 and removed 0 subtitles -> b.srt
 1
 00:00:01,000 --> 00:00:02,000
@@ -249,9 +269,9 @@ et garde son sous-titre.
 changés et des sous-titres retirés, **jamais des correspondances**. Un fichier où rien ne
 change est écrit quand même : une destination donnée est une destination écrite.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt -->
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt -->
 ```console
-$ printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt
+$ printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt
 a.srt: Edited 1 and removed 0 subtitles -> b.srt
 1
 00:00:01,000 --> 00:00:02,000
@@ -292,13 +312,14 @@ et `(removed)` sans ligne `+` pour un sous-titre que la correction retirerait ; 
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: Edited N and removed M subtitles -> <destination>`, les motifs qui n'ont pas pu s'appliquer, les fichiers de motifs qui ne se lisent pas |
+| 1 | `<chemin>: Edited N and removed M subtitles -> <destination>`, les motifs qui n'ont pas pu s'appliquer, les fichiers de motifs qui ne se lisent pas — and, first, the settings file read — `settings: read <path>` — and what of it was ignored |
 | 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` |
 | 3 | `<chemin>: N bytes read, M written`, puis chaque diagnostic de lecture |
 
 En JSON, `counts` porte `corrected` (les textes changés) et `removed` (les sous-titres
 retirés), et `changes` les sous-titres touchés. Avec `-t`, la clé `alignment` dit comment la
 traduction a été posée.
+`settings` names the settings file that was read, or is `null` when none was.
 
 ## Codes de retour
 

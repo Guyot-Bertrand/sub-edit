@@ -240,8 +240,9 @@ avec un objectif d'iso-fonctionnalité.
   `check-config-home.sh` encadre la porte de la même façon et surveille
   `~/.config/subedit`, que `git ls-files` ne voit pas. Ce qui le tient au vert :
   **un test ne résout jamais un emplacement de configuration, il en reçoit
-  un.** Le seul code qui en résout un est `gui::userSettingsPath()` — ADR 0022 —
-  et rien ne l'appelle pour écrire. Les trois harnais qui lancent quelque chose
+  un.** The only code that resolves one is `platform::resolvedUserSettingsPath()`,
+  called by the two `main` functions, which hand the path down;
+  `gui::userSettingsPath()` delegates to it — ADR 0022 and 0045. Les trois harnais qui lancent quelque chose
   déplacent en plus `XDG_CONFIG_HOME` vers un répertoire à eux : le binaire de
   tests d'interface pour lui-même, celui de bout en bout pour chaque binaire
   qu'il lance, et `check-installation.sh` pour ce qu'il vient d'installer.
