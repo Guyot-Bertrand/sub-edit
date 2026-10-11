@@ -722,6 +722,7 @@ n'était déjà pris** — les sujets neufs sont `JSON`, `DRYRUN`, `RANGE`, `ADJ
 | `CLI-DISJOINT-04` | `convert`, `append` et `split-file` acceptent `--disjoint`, qui découpe les plages avant d'écrire, après `--sort`, et dit ce qui a été coupé |
 | `CLI-JOIN-01` | `join-repeats` fait un seul sous-titre des morceaux d'un même texte qui se suivent, dit combien il en a joint, et un second passage ne change rien |
 | `CLI-JOIN-02` | `repair` enchaîne la fusion des répétés, le tri et le découpage des plages, dans cet ordre, et dit les trois comptes |
+| `CLI-JOIN-03` | `convert` accepte `--join-repeats` (avant le tri et le découpage) et `--repair` (les trois d'un coup), et dit combien de sous-titres ont été joints |
 | `CLI-TRANS-01` | `inspect -t` rapporte lignes rattachées, sous-titres nés, sans traduction et hors d'ordre |
 | `CLI-TRANS-02` | `--document translation` exige `-t`, et `-t` exige `--document translation` sur une sous-commande de texte |
 | `CLI-TRANS-03` | `-t` n'a de sens que pour une seule entrée ; avec un lot, il est refusé |

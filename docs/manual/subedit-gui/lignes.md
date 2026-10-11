@@ -1,6 +1,6 @@
 # Insérer, supprimer, fusionner, scinder, trier et rendre disjointes des lignes
 
-Sept entrées du menu `Edit`, sous un séparateur qui les sépare de
+Huit entrées du menu `Edit`, sous un séparateur qui les sépare de
 `Find and Replace…`. Quatre ont en commun de changer le nombre de lignes, là où
 couper, copier et coller, plus haut, déplacent des textes ; `Sort Subtitles` ne
 change que **l'ordre** des lignes, `Join Repeated Subtitles` refait un seul
@@ -16,8 +16,9 @@ les redécoupe là où elles se chevauchent.
 | `Join Repeated Subtitles` | aucun | fait un seul sous-titre des morceaux d'un même texte qui se suivent |
 | `Sort Subtitles` | aucun | remet les lignes dans l'ordre de leur début, sur tout le projet |
 | `Make Ranges Disjoint…` | aucun | découpe les lignes qui se chevauchent pour que plus aucune plage n'en chevauche une autre |
+| `Repair Subtitles…` | aucun | enchaîne les trois entrées qui précèdent — fusion des répétés, tri, découpage des plages — d'un coup |
 
-Les sept entrent dans l'historique : `Ctrl+Z` les défait comme le reste.
+Les huit entrent dans l'historique : `Ctrl+Z` les défait comme le reste.
 
 ## Insérer
 
@@ -256,6 +257,16 @@ début (laissés où ils sont).
 l'ordre de leur début** : les groupes sont des suites de voisins, et le noyau ne
 trie jamais de lui-même. `Sort Subtitles` d'abord — ou la boîte d'ouverture, qui
 fait les deux dans cet ordre.
+
+### Tout d'un coup : `Repair Subtitles…`
+
+`Repair Subtitles…` fait les trois entrées qui précèdent **l'une après l'autre**, dans le seul ordre qui marche : les
+répétés sont joints, les sous-titres mis dans l'ordre de leur début, puis les plages rendues disjointes. C'est l'entrée
+d'un fichier mal segmenté, mal ordonné et qui se chevauche, quand on sait qu'on veut les trois. Le dialogue demande les
+réglages du découpage (les mêmes que `Make Ranges Disjoint…`, retenus d'une fois à la suite) et dit qu'il joint et trie
+d'abord. La barre d'état — ou la boîte à fermer, quand quelque chose n'a pas pu être fait en entier — rend **un seul compte**
+des trois : `2 repeated subtitles joined; already in order; 2 subtitles split, 1 merged`. Chaque correction est son
+entrée d'historique : `Ctrl+Z` les défait une à une. En ligne de commande : [`repair`](../subedit-cli/repair.md).
 
 ### À l'ouverture, une seule boîte
 

@@ -117,6 +117,7 @@ WindowActions::WindowActions(QObject* owner)
       joinRepeats(buildAction(owner, QStringLiteral("&Join Repeated Subtitles"), {})),
       sortSubtitles(buildAction(owner, QStringLiteral("S&ort Subtitles"), {})),
       makeDisjoint(buildAction(owner, QStringLiteral("Make Ranges &Disjoint…"), {})),
+      repair(buildAction(owner, QStringLiteral("&Repair Subtitles…"), {})),
       mergeSubtitles(buildAction(owner, QStringLiteral("&Merge Subtitles"), {})),
       splitSubtitle(buildAction(owner, QStringLiteral("S&plit Subtitle"), {})),
       preferences(new QAction{QStringLiteral("&Preferences…"), owner}),
@@ -363,6 +364,7 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     edition->addAction(joinRepeats);
     edition->addAction(sortSubtitles);
     edition->addAction(makeDisjoint);
+    edition->addAction(repair);
     edition->addSeparator();
     // Under another: setting the theme is no edit at all.
     edition->addAction(preferences);

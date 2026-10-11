@@ -78,6 +78,7 @@ struct WindowActions final {
     QAction* joinRepeats = nullptr;
     QAction* sortSubtitles = nullptr;
     QAction* makeDisjoint = nullptr;
+    QAction* repair = nullptr;
     QAction* mergeSubtitles = nullptr;
     QAction* splitSubtitle = nullptr;
     QAction* preferences = nullptr;

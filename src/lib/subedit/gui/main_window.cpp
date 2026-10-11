@@ -682,6 +682,7 @@ MainWindow::MainWindow(core::FileSystem& files,
             &QAction::triggered,
             this,
             operateCommitted(&ProjectOperations::makeDisjoint));
+    connect(act.repair, &QAction::triggered, this, operateCommitted(&ProjectOperations::repair));
     connect(
         act.italic, &QAction::triggered, this, operateCommitted(&ProjectOperations::toggleItalics));
     connect(act.dialogueDashes,
@@ -1606,6 +1607,7 @@ void MainWindow::refreshStructureActions() {
     m_actions->joinRepeats->setEnabled(m_page->session->project().count() >= 2);
     m_actions->sortSubtitles->setEnabled(m_page->session->project().count() >= 2);
     m_actions->makeDisjoint->setEnabled(m_page->session->project().count() >= 2);
+    m_actions->repair->setEnabled(m_page->session->project().count() >= 2);
     m_actions->splitSubtitle->setEnabled(oneRun && rows.count() == 1);
 }
 

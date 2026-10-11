@@ -28,6 +28,8 @@ struct ConvertOptions {
     bool noBom = false;
     bool sort = false;
     bool disjoint = false;
+    bool join = false;
+    bool repair = false;
     DestinationOptions destination;
 };
 
@@ -78,6 +80,12 @@ CLI::App* describeConvert(CLI::App& app, std::string_view name, ConvertOptions& 
         "--disjoint",
         options.disjoint,
         "Cut overlapping subtitles so that no range overlaps another, before writing");
+    convert->add_flag("--join-repeats",
+                      options.join,
+                      "Join the subtitles that repeat each other into one, before writing");
+    convert->add_flag("--repair",
+                      options.repair,
+                      "Join the repeats, sort, then make the ranges disjoint, before writing");
 
     describeDestination(convert, options.destination);
     return convert;
@@ -128,8 +136,9 @@ ExitCode runConvert(const ConvertOptions& options,
                       *shape,
                       prepared->destination,
                       reporter,
-                      options.sort,
-                      options.disjoint);
+                      options.sort || options.repair,
+                      options.disjoint || options.repair,
+                      options.join || options.repair);
 }
 
 } // namespace

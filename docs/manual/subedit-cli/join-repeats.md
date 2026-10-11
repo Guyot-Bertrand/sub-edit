@@ -21,7 +21,7 @@ reportée à la plus grande fin de la suite ; les autres disparaissent.
 - **Rien n'est joint par erreur** : un autre texte, une autre traduction, d'autres réglages, un écart entre deux
   morceaux, un sous-titre sans texte ou dont la fin précède le début — dans tous ces cas ils restent séparés.
 - **À faire avant le reste** : le tri et le [découpage des chevauchements](disjoint.md) lisent mieux une suite propre.
-  [`repair`](repair.md) enchaîne les trois.
+  [`repair`](repair.md) enchaîne les trois, et [`convert`](convert.md#rendre-les-plages-disjointes) l'accepte en option (`--join-repeats`, `--repair`).
 
 <!-- exemple: subedit-cli join-repeats --help -->
 ```console

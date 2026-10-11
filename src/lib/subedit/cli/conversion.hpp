@@ -78,6 +78,9 @@ writeShapeOf(const std::string& lineEndings, const std::string& encoding, bool b
 /// **`disjoint` makes the ranges disjoint** after that, with the defaults of the
 /// `disjoint` command, on the same copy; a file out of order is refused unless
 /// `sort` puts it right. Opt-in as well.
+///
+/// **`join` joins the repeated subtitles first**, on the same copy: the corrections
+/// come in the order that works, join, sort, disjoint.
 [[nodiscard]] ExitCode convertAll(subedit::core::FileSystem& files,
                                   const std::vector<std::string>& paths,
                                   const subedit::core::ReadingChoices& reading,
@@ -86,6 +89,7 @@ writeShapeOf(const std::string& lineEndings, const std::string& encoding, bool b
                                   const Destination& destination,
                                   const Reporter& reporter,
                                   bool sort = false,
-                                  bool disjoint = false);
+                                  bool disjoint = false,
+                                  bool join = false);
 
 } // namespace subedit::cli

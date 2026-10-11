@@ -5,6 +5,7 @@
 
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/core/edit/disjoint_ranges.hpp>
+#include <subedit/core/edit/join_repeats.hpp>
 #include <subedit/core/model/encoding.hpp>
 
 #include <optional>
@@ -13,12 +14,21 @@
 
 namespace subedit::core {
 class FileSystem;
+class Project;
 } // namespace subedit::core
 
 namespace subedit::cli {
 
 class Destination;
 class Reporter;
+
+/// Joins the repeated subtitles of a bare project that has no history, and says
+/// what it did — what `--join-repeats` does on the commands that carry it.
+[[nodiscard]] subedit::core::JoinReport joinedInPlace(subedit::core::Project& project);
+
+/// What `--join-repeats` says about one file, at the first level.
+[[nodiscard]] std::string narrationOfJoin(const std::string& path,
+                                          const subedit::core::JoinReport& report);
 
 /// Joins the repeated subtitles of every path, and says how many were.
 ///

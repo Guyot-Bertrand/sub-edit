@@ -1,6 +1,7 @@
 // Joining the repeated subtitles of a batch, and the chain that goes on from
 // there, on an in-memory file system.
 
+#include <subedit/cli/conversion.hpp>
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/joining.hpp>
 #include <subedit/cli/reporter.hpp>
@@ -14,6 +15,7 @@
 #include <string>
 
 using Catch::Matchers::ContainsSubstring;
+using subedit::cli::convertAll;
 using subedit::cli::Destination;
 using subedit::cli::ExitCode;
 using subedit::cli::joinAll;
@@ -21,6 +23,7 @@ using subedit::cli::repairAll;
 using subedit::cli::Reporter;
 using subedit::core::DisjointSettings;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::SubtitleFormat;
 
 namespace {
 
@@ -111,4 +114,55 @@ TEST_CASE("repair sorts a file that is out of order before it cuts",
     CHECK_THAT(files.contentOf("out/a.srt").value_or(""),
                ContainsSubstring("00:00:03,000 --> 00:00:05,000\nA\nB\n"));
     CHECK_THAT(errors.str(), ContainsSubstring("no repeated subtitles; 2 subtitles moved; "));
+}
+
+TEST_CASE("the join option on convert joins the repeats before writing, and counts them",
+          "[cli][conversion][CLI-JOIN-03]") {
+    InMemoryFileSystem files;
+    files.addFile("in/a.srt", kRepeats);
+    std::ostringstream errors;
+    std::ostringstream records;
+
+    const ExitCode code = convertAll(files,
+                                     {"in/a.srt"},
+                                     subedit::core::ReadingChoices{},
+                                     SubtitleFormat::SubRip,
+                                     {},
+                                     into("out"),
+                                     Reporter{errors, 1}.withRecords(records).forCommand("convert"),
+                                     false,
+                                     false,
+                                     true);
+
+    CHECK(code == ExitCode::Success);
+    CHECK(files.contentOf("out/a.srt").value_or("") ==
+          "1\n00:00:01,000 --> 00:00:06,000\nAlpha\n\n2\n00:00:01,000 --> 00:00:06,000\nBeta\n\n");
+    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: 2 repeated subtitles joined"));
+    CHECK_THAT(records.str(), ContainsSubstring("\"joined\":2"));
+}
+
+TEST_CASE("the three options together are what repair does, on convert",
+          "[cli][conversion][CLI-JOIN-03]") {
+    InMemoryFileSystem files;
+    files.addFile("in/a.srt", kRepeats);
+    std::ostringstream errors;
+
+    const ExitCode code = convertAll(files,
+                                     {"in/a.srt"},
+                                     subedit::core::ReadingChoices{},
+                                     SubtitleFormat::SubRip,
+                                     {},
+                                     into("out"),
+                                     Reporter{errors, 1},
+                                     true,
+                                     true,
+                                     true);
+
+    CHECK(code == ExitCode::Success);
+    CHECK(files.contentOf("out/a.srt").value_or("") ==
+          "1\n00:00:01,000 --> 00:00:06,000\nAlpha\nBeta\n\n");
+    // In the order they are made: the repeats, the sort, the cut.
+    const std::string said = errors.str();
+    CHECK(said.find("repeated subtitles joined") < said.find("already in order"));
+    CHECK(said.find("already in order") < said.find("subtitles split"));
 }

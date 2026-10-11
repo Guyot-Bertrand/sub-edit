@@ -229,6 +229,8 @@ public:
 
     [[nodiscard]] QAction* joinRepeatsAction() const { return m_actions->joinRepeats; }
 
+    [[nodiscard]] QAction* repairAction() const { return m_actions->repair; }
+
     [[nodiscard]] QAction* mergeAction() const { return m_actions->mergeSubtitles; }
 
     [[nodiscard]] QAction* splitAction() const { return m_actions->splitSubtitle; }

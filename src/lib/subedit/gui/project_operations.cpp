@@ -495,6 +495,15 @@ void ProjectOperations::makeDisjoint(ProjectPage& page) {
         tell(core::noticeOfDisjoint(*report), hasCaveat(*report));
 }
 
+void ProjectOperations::repair(ProjectPage& page) {
+    DisjointDialog dialog{m_disjointChoice, m_view->dialogParent(), true};
+    if (!m_prompts->run(dialog))
+        return;
+    m_disjointChoice = dialog.choice();
+
+    fixAtOpening(page, true, true, true);
+}
+
 void ProjectOperations::fixAtOpening(ProjectPage& page, bool join, bool sort, bool disjoint) {
     if (!join && !sort && !disjoint)
         return;

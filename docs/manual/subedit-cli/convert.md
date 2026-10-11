@@ -4,6 +4,7 @@
 subedit-cli convert --to <format>
                     [--line-endings unix|windows|mac] [--to-encoding NOM]
                     [--bom | --no-bom] [--sort] [--disjoint]
+                    [--join-repeats] [--repair]
                     (--output FICHIER | --output-dir DOSSIER | --in-place)
                     [--dry-run]
                     [--recursive]
@@ -35,6 +36,8 @@ Options:
   --no-bom                    Write no byte order mark
   --sort                      Put the subtitles in order of their start before writing
   --disjoint                  Cut overlapping subtitles so that no range overlaps another, before writing
+  --join-repeats              Join the subtitles that repeat each other into one, before writing
+  --repair                    Join the repeats, sort, then make the ranges disjoint, before writing
   --output TEXT               File to write, for a single input
   --output-dir TEXT           Directory to write into
   --in-place                  Write back over the inputs
@@ -52,6 +55,8 @@ Options:
 | `--to-encoding` | non | tout encodage qu'ICU sait écrire, sauf ceux qui écrivent leur propre marque | celui du fichier lu |
 | `--bom` / `--no-bom` | non | drapeaux, exclusifs l'un de l'autre | ce que portait le fichier lu |
 | `--sort` | non | un drapeau : met les sous-titres dans l'ordre de leur début **avant d'écrire**, voir [Trier à l'écriture](#trier-à-lécriture) | désactivé |
+| `--join-repeats` | non | un drapeau : fait un seul sous-titre des morceaux d'un même texte qui se suivent, **avant tout le reste**, voir [Rendre les plages disjointes](#rendre-les-plages-disjointes) | désactivé |
+| `--repair` | non | un drapeau : équivaut à `--join-repeats --sort --disjoint`, dans cet ordre | désactivé |
 | `--disjoint` | non | un drapeau : découpe les sous-titres qui se chevauchent **avant d'écrire**, voir [Rendre les plages disjointes](#rendre-les-plages-disjointes) | désactivé |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
@@ -291,6 +296,11 @@ premier niveau de narration, `<chemin>: N subtitles moved` ou `<chemin>: already
 `--disjoint` découpe les sous-titres qui se chevauchent pour que plus aucune plage n'en chevauche une autre, **sur la même copie que le tri** : le fichier lu n'est pas touché.
 
 Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, avant d'écrire, après le tri. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<chemin>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
+
+**`--join-repeats` passe avant le tri et le découpage** : un texte coupé en morceaux qui se suivent est refait d'abord (voir
+[`join-repeats`](join-repeats.md)), puis les sous-titres sont triés, puis les plages rendues disjointes. **`--repair` est les trois à la fois**,
+comme [`repair`](repair.md), avec les réglages par défaut du découpage. Avec `--join-repeats`, chaque fichier dit `<chemin>: N repeated subtitles
+joined` au premier niveau de narration, et l'enregistrement `--format json` porte `counts.joined` — **absent sans l'option**.
 
 ## Sortie
 

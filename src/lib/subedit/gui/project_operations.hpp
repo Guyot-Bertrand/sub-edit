@@ -185,6 +185,12 @@ public:
     /// not in the status bar.
     void makeDisjoint(ProjectPage& page);
 
+    /// `Repair Subtitles…`: asks for the settings of the cut, then does what the
+    /// three entries above do one after the other — the repeats joined, the
+    /// subtitles put in order, the ranges made disjoint — as one account. For a
+    /// file that is all three at once, such as a badly segmented one.
+    void repair(ProjectPage& page);
+
     /// What the box offered at opening asked for: the repeats joined, the sort,
     /// the ranges made disjoint with the settings of the last use — any of them,
     /// **in that order**, which is the only one that works — as **one** account

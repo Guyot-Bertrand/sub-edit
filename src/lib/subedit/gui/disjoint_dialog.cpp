@@ -17,12 +17,13 @@ constexpr int kMostLinesAllowed = 10;
 
 } // namespace
 
-DisjointDialog::DisjointDialog(const DisjointChoice& initial, QWidget* parent)
+DisjointDialog::DisjointDialog(const DisjointChoice& initial, QWidget* parent, bool repairing)
     : QDialog(parent),
       m_shortest(new QSpinBox{this}),
       m_lines(new QSpinBox{this}),
       m_dashes(new QCheckBox{QStringLiteral("Put a dash before each subtitle's text"), this}) {
-    setWindowTitle(QStringLiteral("Make ranges disjoint"));
+    setWindowTitle(repairing ? QStringLiteral("Repair subtitles")
+                             : QStringLiteral("Make ranges disjoint"));
 
     m_shortest->setRange(0, kLongestShortest);
     m_shortest->setSuffix(QStringLiteral(" ms"));
@@ -38,11 +39,14 @@ DisjointDialog::DisjointDialog(const DisjointChoice& initial, QWidget* parent)
 
     m_dashes->setChecked(initial.dashes);
 
+    const QString cut = QStringLiteral(
+        "Overlapping subtitles are cut where they overlap, and what shows together is merged "
+        "line by line, the earliest first. Nothing is shortened or lengthened. ");
+    const QString first = QStringLiteral(
+        "The subtitles that repeat each other are joined first, and the rest put in order of "
+        "their start. ");
     auto* explanation = new QLabel{
-        QStringLiteral("Overlapping subtitles are cut where they overlap, and what shows "
-                       "together is merged line by line, the earliest first. Nothing is "
-                       "shortened or lengthened. The change can be undone."),
-        this};
+        (repairing ? first : QString{}) + cut + QStringLiteral("Each change can be undone."), this};
     explanation->setWordWrap(true);
 
     auto* fields = new QFormLayout;

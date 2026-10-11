@@ -27,7 +27,8 @@ struct DisjointChoice {
 };
 
 /// Asks for the settings of an operation that cuts overlapping subtitles so that
-/// no range overlaps another.
+/// no range overlaps another — alone, or as the last step of a repair that joins
+/// the repeats and sorts first.
 ///
 /// It acts on the whole project, never on a selection: a group of overlapping
 /// subtitles is cut where it overlaps, and half a group has no meaning.
@@ -36,7 +37,11 @@ class DisjointDialog final : public QDialog {
 
 public:
     /// Opens on `initial`, which is what the last use of this window asked for.
-    explicit DisjointDialog(const DisjointChoice& initial, QWidget* parent = nullptr);
+    /// With `repairing` it says that the repeats are joined and the subtitles
+    /// sorted first.
+    explicit DisjointDialog(const DisjointChoice& initial,
+                            QWidget* parent = nullptr,
+                            bool repairing = false);
 
     /// The form as the fields say it.
     [[nodiscard]] DisjointChoice choice() const;

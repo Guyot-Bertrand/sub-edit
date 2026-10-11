@@ -459,3 +459,45 @@ TEST_CASE("the repeats can be left out of the box", "[gui][GUI-DISJOINT-02]") {
     CHECK(rowsOf(window) == 4);
     CHECK_FALSE(window.undoAction()->isEnabled());
 }
+
+TEST_CASE("repair joins, sorts and makes the ranges disjoint in one go, undoably",
+          "[gui][GUI-JOIN-02]") {
+    InMemoryFileSystem files;
+    files.addFile("film.srt", kPieces);
+    FakePrompts prompts;
+    MainWindow window{files, read(files, "film.srt"), prompts};
+    window.show();
+    REQUIRE(window.repairAction()->isEnabled());
+    prompts.nextRun = true;
+    bool saysItJoinsFirst = false;
+    prompts.fill = [&saysItJoinsFirst](QDialog& dialog) {
+        saysItJoinsFirst = dialog.windowTitle() == QStringLiteral("Repair subtitles");
+    };
+
+    window.repairAction()->trigger();
+
+    CHECK(saysItJoinsFirst);
+    CHECK(rowsOf(window) == 1);
+    CHECK(textAt(window, 0) == "Alpha\nBeta");
+    const std::string said = window.statusBar()->currentMessage().toStdString();
+    CHECK(said.find("2 repeated subtitles joined; already in order; ") == 0);
+
+    // One entry for each of the corrections made.
+    window.undoAction()->trigger();
+    window.undoAction()->trigger();
+    CHECK(rowsOf(window) == 4);
+}
+
+TEST_CASE("cancelling the repair changes nothing", "[gui][GUI-JOIN-02]") {
+    InMemoryFileSystem files;
+    files.addFile("film.srt", kPieces);
+    FakePrompts prompts;
+    MainWindow window{files, read(files, "film.srt"), prompts};
+    window.show();
+    prompts.nextRun = false;
+
+    window.repairAction()->trigger();
+
+    CHECK(rowsOf(window) == 4);
+    CHECK_FALSE(window.undoAction()->isEnabled());
+}
