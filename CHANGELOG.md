@@ -9,9 +9,19 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **gui** — Plages disjointes, fusion des répétés et commande repair
+
+## 0.15.11 — 2026-10-10
+
 ### Corrections
 
 - **gui** — La table pose elle-même la hauteur de ses lignes
+
+### Documentation
+
+- **doc** — Journal des changements
 
 ## 0.15.10 — 2026-10-10
 
