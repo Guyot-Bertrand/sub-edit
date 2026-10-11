@@ -19,6 +19,7 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace subedit::core {
@@ -246,5 +247,15 @@ writeSettings(FileSystem& files, const std::filesystem::path& path, const Settin
 /// header and no banner, `#`-commented when at default. A banner never
 /// contains `" = "`, so a reader of this text can skip it.
 [[nodiscard]] std::string renderOperationSettings(const Settings& settings);
+
+/// Reads `value` for `key` as one line of the file would be read, into
+/// `settings`.
+///
+/// **All or nothing**: an unreadable value leaves `settings` untouched and
+/// returns the diagnostic the file's reader would have produced. An unknown key
+/// is ignored, as in the file. Used by `config set` through
+/// `setOperationOption`, so that the command validates with the reader itself.
+[[nodiscard]] std::optional<SettingsDiagnostic>
+applySettingText(Settings& settings, std::string_view key, std::string_view value);
 
 } // namespace subedit::core

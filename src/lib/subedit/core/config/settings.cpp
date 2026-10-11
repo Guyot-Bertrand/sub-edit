@@ -1236,6 +1236,19 @@ std::string renderOperationSettings(const Settings& settings) {
     return out;
 }
 
+std::optional<SettingsDiagnostic>
+applySettingText(Settings& settings, std::string_view key, std::string_view value) {
+    SettingsRead scratch{.settings = settings};
+    // The mark of `file.write-bom` is not an operation setting; a caller that
+    // sets it here gets the reading checked and nothing more.
+    bool wantsByteOrderMark = false;
+    applyOption(scratch, wantsByteOrderMark, key, value);
+    if (!scratch.diagnostics.empty())
+        return std::move(scratch.diagnostics.front());
+    settings = std::move(scratch.settings);
+    return std::nullopt;
+}
+
 std::expected<void, FileError>
 writeSettings(FileSystem& files, const std::filesystem::path& path, const Settings& settings) {
     // The directory first: at the first launch, nobody has made it.

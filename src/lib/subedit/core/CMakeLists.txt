@@ -102,6 +102,7 @@ add_library(
     format/translation_file.cpp
     config/settings.cpp
     config/settings_location.cpp
+    config/operation_settings.cpp
     config/duration_adjustment_settings.cpp
     config/correction_settings.cpp
     format/format_detection.cpp

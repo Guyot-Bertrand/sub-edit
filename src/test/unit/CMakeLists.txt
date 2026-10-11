@@ -144,6 +144,7 @@ add_executable(
     core/format/subtitle_file_test.cpp
     core/config/settings_test.cpp
     core/config/settings_location_test.cpp
+    core/config/operation_settings_test.cpp
     core/config/duration_adjustment_settings_test.cpp
     core/config/pattern_activation_test.cpp
     core/format/open_project_test.cpp
