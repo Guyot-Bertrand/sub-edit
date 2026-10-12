@@ -99,3 +99,24 @@ la fenêtre elle-même, et ne demande rien à la plateforme — voir
 
 `QT_QPA_PLATFORM=offscreen` fait tourner la fenêtre là où il n'y a pas de
 serveur graphique — c'est ce que font l'intégration continue et les tests.
+
+## Language
+
+The window speaks the language of its environment, **chosen once, when it starts**: changing the
+variables of a running window changes nothing until the next launch. The variables and the rules
+are those of the command line — `LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, `LANG`, `LC_ALL=C` for
+English, English **without a word** when the language asked for is not installed — described in
+[the command line's manual](../subedit-cli/invocation.md#language). The catalogues are the same
+files, installed under `<prefix>/share/subedit/locale`.
+
+| What | Follows the language |
+| :--- | :------------------- |
+| the menus and their entries, with their underlined letters; the toolbar; the tool tips | yes |
+| the columns of the table and of `View ▸ Columns`, the tabs, the status line, the play bar | yes |
+| the standard buttons Qt draws itself (`OK`, `Cancel`) | yes, when Qt's own catalogue of that language is installed (`qtbase_<language>.qm`); English otherwise |
+| the dialogs and the messages they show | their own labels no, English; a sentence they share with the command line — the account of an operation, the reason of a failure — yes |
+| the keyboard shortcuts | never: `Ctrl+S` is `Ctrl+S` in every language |
+| a message the catalogue does not translate | shown in English |
+
+This version installs `fr`, whose translation is still to be done: until it is, its messages are
+shown in English. The captures of this manual are taken in English.

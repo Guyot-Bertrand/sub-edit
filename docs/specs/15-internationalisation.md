@@ -225,6 +225,19 @@ json`, a value typed on the command line or a key of CLI11's formatter. **The JS
 *Language* section says so. The command line chooses its catalogue in `main`, as D4 says, from
 `<bin>/../share/subedit/locale`.
 
+**Lowered by #664 to 381 literals in 68 files.** The shell of the window is at zero — the menus and their
+actions with their `&` accelerators, the toolbar's words and title, the tool tips, the columns of the table and of
+`View ▸ Columns`, the tabs, the status line and the diagnostics button, the play bar — through `gui/messages.hpp`,
+which calls the core's catalogue under the same names and returns Qt's string type; there is no `QObject::tr`
+mechanism beside it. Shortcuts stay Qt key sequences, so `check-gui-manual.py` reads the same window. The one
+context is `toolbar` for `Main`, the toolbar's title, which the main document's name shares in English and not in a
+language whose adjective agrees. The window chooses its language in `main`, before it builds anything, by
+`gui::InterfaceLanguage`: the variables of D4, the catalogues of `<bin>/../share/subedit/locale`, and Qt's
+`qtbase_<lang>.qm` from Qt's own directory for the standard buttons, asked only for a language of ours and passed
+over silently when Qt has none. The window tests start in English (`LANGUAGE=en` in their `main`); one builds the
+window under a Russian fixture and finds every text the fixture holds translated (`GUI-I18N-01`, whose dialogs
+follow with #665). The dialogs, the prompts and the messages they show are left to #665.
+
 ## Settings shared by the window and the command line (#699)
 
 **Issue:** [#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699). Framed first as a standalone spec, then folded
