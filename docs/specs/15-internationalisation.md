@@ -104,6 +104,21 @@ English, worded inside the parser; the headings CLI11 puts in `--help` are trans
 
 The phase therefore ships **two languages**, with the machinery for twenty.
 
+**Delivered by #667.** `src/scripts/seed-catalogues.py` writes the **19 seeds** — every Gaupol locale but `fr`, which
+is installed and therefore never overwritten (#668 seeds it by hand into the reviewed catalogue). A seed is our
+template in its order, translated where Gaupol has the same message once `_` accelerators become `&` and Python
+placeholders become `%1`; a fuzzy, untranslated or obsolete entry, a plural whose number of forms is not the header's,
+and any placeholder that does not map one to one leave the entry empty. Of the template's 890 entries, the seeds
+translate **2 727 in all**, from 72 (8 %, `it_IT`) to 163 (18 %, `es`, `nl` and `pt`); `fr` would get 156. The share is
+lower than the 34 % counted on the window alone because the template now holds the command line and `core/wording/`,
+which Gaupol never had. The table is generated in [`docs/mesures/catalogue-seeds.md`](../mesures/catalogue-seeds.md).
+The headers record the upstream URL, file and revision, Gaupol's translators and the licence (GPL-3.0-or-later). **The
+installed languages are the lines of `src/po/LINGUAS`**, the one list read by `cmake/Translations.cmake`, `make po`,
+`check-installation.sh` and `check-rpm.sh`; `check-installation.sh` now also refuses a catalogue installed for a
+language that list does not name. `make po` merges the seeds without fuzzy matching, and leaves a fresh seed byte for
+byte. The fixture `src/test/data/i18n/seed/` is replayed by the `fixtures` step; how to re-seed is in
+`src/po/README.md`.
+
 ## D6 — The correction patterns
 
 Pattern files are Gaupol's, read as they are ([ADR 0037](../adr/0037-lire-les-motifs-de-gaupol-tels-quels.md)), and their
