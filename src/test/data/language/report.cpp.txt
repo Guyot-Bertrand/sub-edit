@@ -1,0 +1,7 @@
+#include <catch2/catch_test_macros.hpp>
+
+void ensureReadable(bool readable) {
+    if (!readable) {
+        FAIL("la lecture a échoué alors qu'elle devait aboutir");
+    }
+}

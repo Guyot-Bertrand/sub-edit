@@ -1,0 +1,91 @@
+[
+  {
+    "name": "an English repository with an empty list passes",
+    "files": {"README.md": "@english.md"},
+    "expect": []
+  },
+  {
+    "name": "a French sentence in a new file is refused",
+    "files": {"README.md": "@english.md", "notes.md": "@french.md"},
+    "expect": ["UNLISTED"]
+  },
+  {
+    "name": "a listed French file is accepted",
+    "files": {"notes.md": "@french.md", ".french-allowlist": "notes.md\n"},
+    "expect": []
+  },
+  {
+    "name": "a listed file with no French left is stale",
+    "files": {"notes.md": "@english.md", ".french-allowlist": "notes.md\n"},
+    "expect": ["STALE"]
+  },
+  {
+    "name": "a listed file that does not exist is missing",
+    "files": {"README.md": "@english.md", ".french-allowlist": "gone.md\n"},
+    "expect": ["MISSING"]
+  },
+  {
+    "name": "an unsorted list is refused",
+    "files": {"a.md": "@french.md", "b.md": "@french.md", ".french-allowlist": "b.md\na.md\n"},
+    "expect": ["UNSORTED"]
+  },
+  {
+    "name": "an entry added since the base is refused",
+    "base": {"a.md": "@french.md", ".french-allowlist": "a.md\n"},
+    "files": {"b.md": "@french.md", ".french-allowlist": "a.md\nb.md\n"},
+    "expect": ["GROWN"]
+  },
+  {
+    "name": "an entry removed since the base is accepted",
+    "base": {"a.md": "@french.md", "b.md": "@french.md", ".french-allowlist": "a.md\nb.md\n"},
+    "files": {"b.md": "@english.md", ".french-allowlist": "a.md\n"},
+    "expect": []
+  },
+  {
+    "name": "without a base the growth is not checked, and the note says so",
+    "files": {"a.md": "@french.md", ".french-allowlist": "a.md\n"},
+    "expect": [],
+    "growth_skipped": true
+  },
+  {
+    "name": "a base without a list does not constrain the first one",
+    "base": {"README.md": "@english.md"},
+    "files": {"a.md": "@french.md", ".french-allowlist": "a.md\n"},
+    "expect": [],
+    "growth_skipped": true
+  },
+  {
+    "name": "French in the two locale trees and in the changelog is not read",
+    "files": {
+      "src/po/fr.po": "@french.md",
+      "docs/i18n/fr/manual/index.md": "@french.md",
+      "CHANGELOG.md": "@french.md"
+    },
+    "expect": []
+  },
+  {
+    "name": "French test data is not read, the README of the data is",
+    "files": {"src/test/data/textes/a.srt": "@french.md", "src/test/data/textes/README.md": "@french.md"},
+    "expect": ["UNLISTED"]
+  },
+  {
+    "name": "French in a fenced block of Markdown is not read",
+    "files": {"example.md": "@fenced.md"},
+    "expect": []
+  },
+  {
+    "name": "a French C++ comment is refused",
+    "files": {"answer.cpp": "@comment.cpp.txt"},
+    "expect": ["UNLISTED"]
+  },
+  {
+    "name": "a French C++ string is data, and is not read",
+    "files": {"text.cpp": "@data.cpp.txt"},
+    "expect": []
+  },
+  {
+    "name": "a French message of a Catch2 macro is refused",
+    "files": {"report.cpp": "@report.cpp.txt"},
+    "expect": ["UNLISTED"]
+  }
+]

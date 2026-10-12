@@ -98,36 +98,23 @@ $(printf '    %s\n' ${offenders})
 # donc dans la porte et dans la CI. Lancer le binaire à la main exécute tous
 # les cas d'un coup, sans jamais nommer aucun d'eux : le test passe. Il a été
 # payé deux fois pendant l'écriture de la CLI avant d'être inscrit ici.
-# Invariant — aucun intitulé de cas de test n est en français.
+# Invariant — no test case title is in French.
 #
-# **La règle de langue avait une moitié dérivée, et une moitié qu on a crue
-# fausse** — issue #273. Elle disait « anglais pour les commentaires et les
-# intitulés de tests ». Les intitulés étaient bel et bien anglais — sauf ceux d
-# une phase, quatre-vingt-dix-huit d un coup, et un `--list-tests` rendait deux
-# langues mêlées : c est ce que ce contrôle-ci tient, et cette moitié-là est
-# réglée.
+# A test title is what `--list-tests` and every failure print, so it is written
+# in English like everything else the repository holds — ADR 0043. This check
+# predates the repository-wide one and stays because it is stricter: the
+# repository-wide check needs two French function words to call a sentence
+# French, while here **a non-ASCII character is enough**, since no title of
+# this repository needs one (#273).
 #
-# **L autre moitié a été retournée à l envers, et #312 l a remise d aplomb.**
-# #273 a conclu que les commentaires étaient français partout, en cherchant les
-# fichiers portant au moins un caractère accentué — une mesure qui ne pouvait
-# rendre que cela. Comptée ligne à ligne : 6 460 anglaises contre 1 161 sur le
-# C++, et l inverse exact sur les scripts. Le C++ se commente donc en anglais,
-# et `check_cpp_comments_are_english` le tient désormais.
+# **The check is a net, and says so.** Recognising a language is a heuristic:
+# this one looks for a non-ASCII character, or one of the function words that
+# exist only in French. Replayed on the tree before #273, it found 102 titles,
+# two of which a careful review had let through.
 #
-# La frontière retenue : **ce que le binaire imprime est en anglais, ce qui
-# explique pourquoi est en français.** Un intitulé de test est du premier côté ;
-# un commentaire du second.
-#
-# **Le contrôle est un filet, et il le dit.** Reconnaître une langue est une
-# heuristique : celle-ci cherche un caractère hors ASCII, ou l un des mots
-# outils qui n existent qu en français. Rejouée sur l arbre d avant la
-# traduction, elle relevait 102 intitulés — dont deux qu une relecture attentive
-# avait laissés passer. C est ce qui lui vaut sa place.
-#
-# **L exemption est nommée, une seule, et elle n est pas une entorse** : un
-# intitulé anglais qui cite un mot-clé du format des fixtures, lequel est
-# français. Une liste par titre plutôt qu un motif, pour qu ajouter une
-# exemption soit un geste qu on voit dans un diff.
+# **The exemption is named, one only**: an English title that quotes a keyword
+# of the fixture format, which is French. A list of titles rather than a
+# pattern, so that adding an exemption is a gesture a diff shows.
 check_test_titles_are_english() {
     local tests="${REPO_ROOT}/src/test"
     [[ -d "${tests}" ]] || return 0
@@ -136,10 +123,10 @@ check_test_titles_are_english() {
     french_words+='|sans|est|sont|aux|cette|ses|leur|elle|sur|quand|deux|rien'
     french_words+='|tel|telle|autre|autres|chaque|toujours|jamais|donc'
 
-    # Les intitulés anglais qui portent une donnée française, et pourquoi.
+    # The English titles that carry a French datum, and why.
     local -a allowed=(
-        # Le mot-clé du format .cas, qui est français parce que les fixtures le
-        # sont : l intitulé le cite comme son voisin cite « = ».
+        # The keyword of the .cas format, which is French because the fixtures
+        # are: the title quotes it as its neighbour quotes "=".
         '"an expected of supprimé means the subtitle does not survive"'
     )
 
@@ -155,13 +142,12 @@ check_test_titles_are_english() {
     done
 
     if [[ -n "${found}" ]]; then
-        report_failure "des intitulés de cas de test ne sont pas en anglais :
+        report_failure "test case titles that are not in English:
 $(printf '%s\n' "${found}" | sed 's/^/    /')
-    ce que le binaire imprime est en anglais ; ce qui explique pourquoi est en
-    français. Un intitulé cite parfois une donnée française — l inscrire alors
-    dans la liste « allowed » de ce contrôle, avec sa raison."
+    the repository is written in English (ADR 0043). A title sometimes quotes a
+    French datum: then add it to the allowed list of this check, with its reason."
     else
-        report_success "aucun intitulé de cas de test n est en français"
+        report_success "no test case title is in French"
     fi
 }
 
@@ -347,24 +333,18 @@ $(printf '    %s\n' ${offenders})
     fi
 }
 
-# Invariant — le C++ se commente en anglais, tout le reste en français.
+# Invariant — the repository is written in English; French is a locale.
 #
-# **La frontière est celle du fichier, et le compte le dit** : sur `src/`, 6 460
-# lignes de commentaire anglaises contre 1 161 françaises ; sur les scripts,
-# 1 971 françaises contre 6 ; sur le système de construction, 386 contre 4.
-# Chaque famille de fichiers a sa langue, et une seule des deux a dérivé.
+# ADR 0043 and #660: French is refused in every tracked file except the two
+# locale trees (`src/po/`, `docs/i18n/fr/`) and the files of `.french-allowlist`,
+# which only ever loses entries as the translation proceeds. It replaces the
+# split of #312, where only the C++ was held to English.
 #
-# **Elle a dérivé, et la dérive a une date.** Par semaine d'écriture, la part de
-# français dans les commentaires C++ : 0,0 %, puis 0,3 %, puis 2,7 %, puis
-# 30,2 % et 32,8 %. Trois semaines d'anglais, puis les phases d'interface. C'est
-# ce que #273 a vu à la fin de la quatrième semaine, et il a conclu que le dépôt
-# avait toujours été français — en cherchant les fichiers portant au moins un
-# caractère accentué, ce qui ne pouvait rendre que cela. Tranché en #312.
-#
-# Le contrôle vit dans un script à lui : il compte, et un compte se lit mieux en
-# Python qu'en awk. Voir `check-comment-language.py` pour ce qu'il reconnaît et
-# pour la faiblesse d'un cliquet global.
-check_cpp_comments_are_english() {
+# The check lives in a script of its own: it classifies lines by a vote of
+# function words, which reads better in Python than in awk. See
+# `check-comment-language.py` for what it reads, what it leaves out, and how
+# the allowlist is kept from growing.
+check_repository_is_english() {
     if "${REPO_ROOT}/src/scripts/check-comment-language.py"; then
         return 0
     fi
@@ -373,7 +353,7 @@ check_cpp_comments_are_english() {
 }
 
 check_core_has_no_ui
-check_cpp_comments_are_english
+check_repository_is_english
 check_sources_are_handwritten
 check_executables_are_thin
 check_scripts_are_executable
