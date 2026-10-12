@@ -79,15 +79,23 @@ std::filesystem::path cataloguePath(const std::filesystem::path& localeDirectory
     return localeDirectory / std::string{language} / "LC_MESSAGES" / "subedit.mo";
 }
 
-std::shared_ptr<const Catalogue> installedCatalogue(const std::vector<std::string>& candidates,
-                                                    const std::filesystem::path& localeDirectory) {
+std::optional<InstalledLanguage> installedLanguage(const std::vector<std::string>& candidates,
+                                                   const std::filesystem::path& localeDirectory) {
     for (const std::string& language : candidates) {
         auto catalogue = Catalogue::fromFile(cataloguePath(localeDirectory, language));
         if (catalogue) {
-            return std::make_shared<const Catalogue>(*std::move(catalogue));
+            return InstalledLanguage{.name = language,
+                                     .catalogue =
+                                         std::make_shared<const Catalogue>(*std::move(catalogue))};
         }
     }
-    return nullptr;
+    return std::nullopt;
+}
+
+std::shared_ptr<const Catalogue> installedCatalogue(const std::vector<std::string>& candidates,
+                                                    const std::filesystem::path& localeDirectory) {
+    std::optional<InstalledLanguage> found = installedLanguage(candidates, localeDirectory);
+    return found ? std::move(found->catalogue) : nullptr;
 }
 
 EnvironmentLookup processEnvironment() {
