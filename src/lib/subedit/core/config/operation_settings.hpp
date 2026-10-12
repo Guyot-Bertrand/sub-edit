@@ -1,6 +1,6 @@
 #pragma once
 
-// The operation part of the settings — spec 17, decisions D3, D7 and D8.
+// The operation part of the settings — spec 15, decisions S3, S7 and S8.
 //
 // **A slice of `Settings`, not a second struct to keep in step**: the window
 // keeps one flat `Settings`, and the command line is handed only this slice, so

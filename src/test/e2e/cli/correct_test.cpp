@@ -619,7 +619,7 @@ TEST_CASE("a translation a mention would empty stays, empty, and only it is writ
 TEST_CASE("correct reads only four settings of the user's file", "[e2e][CLI-CORRECT-13]") {
     // The window's activations would switch « Ellipses » on, and a script would
     // then depend on what its author once ticked. Written here as the window
-    // writes it: the file is read for its three values (spec 17, D8), never for
+    // writes it: the file is read for its three values (spec 15, S8), never for
     // the activations.
     const std::filesystem::path settings =
         std::filesystem::path{configHome()} / "subedit" / "settings.conf";
@@ -939,7 +939,7 @@ TEST_CASE("a language nobody has is refused, with the window's sentence, and not
         invoke({"correct", "--tasks", "join-words", "--language", "qq_QQ", "--output", out, in});
 
     CHECK(run.exitCode == 1);
-    // The note before it says no settings file was found (spec 17, D6).
+    // The note before it says no settings file was found (spec 15, S6).
     CHECK(run.errors == "settings: " + configHome() +
                             "/subedit/settings.conf not found, defaults used\n"
                             "no dictionary for qq_QQ\n");

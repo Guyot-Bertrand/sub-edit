@@ -502,7 +502,7 @@ correctionSettingsOf(const CorrectionOptions& options,
                      const core::PatternCatalogue& catalogue,
                      const core::CorrectionSettings& shared) {
     // Fresh, and not a copy of `shared`: tasks, codes, activations, length,
-    // language and the skip gate never come from the file (spec 17, D8).
+    // language and the skip gate never come from the file (spec 15, S8).
     core::CorrectionSettings settings;
     // **Nothing is ticked beforehand**: the defaults of the window are for a
     // person looking at a list, and a script that named no task asked for none.

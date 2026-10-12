@@ -106,7 +106,7 @@ ExitCode runCorrect(const CorrectOptions& options,
                     const SharedSettings& shared) {
     announceSettings(reporter, shared);
     // Everything that can be refused is, before a file is read. The file gives
-    // three things only; an option beats it (spec 17, D8).
+    // three things only; an option beats it (spec 15, S8).
     std::expected<CorrectionRun, std::string> run = prepareCorrection(
         files,
         reporter,

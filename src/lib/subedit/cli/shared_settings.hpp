@@ -1,7 +1,7 @@
 #pragma once
 
-// The operation settings the command line shares with the window — spec 17,
-// decisions D1, D2, D4 and D6.
+// The operation settings the command line shares with the window — spec 15,
+// decisions S1, S2, S4 and S6.
 //
 // **Loaded once, before any command runs**, and handed to the commands that
 // have a parameter in the file. Reading it never fails: a file that is absent,

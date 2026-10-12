@@ -146,7 +146,7 @@ TEST_CASE("the gap wins over the minimum, and what gave way is said",
     CHECK(run.exitCode == 0);
     // Subtitle 3 is held to 15.000 by the gap — the minimum would have made it
     // 15.700, over the start of the next — and the report names the minimum.
-    // The note before it says no settings file was found (spec 17, D6).
+    // The note before it says no settings file was found (spec 15, S6).
     CHECK(run.errors ==
           "settings: " + configHome() + "/subedit/settings.conf not found, defaults used\n" +
               input +

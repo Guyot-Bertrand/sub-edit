@@ -8,7 +8,7 @@
 
 **Tech Stack:** C++23, CLI11, Catch2, `core::FileSystem` / `InMemoryFileSystem`, the existing `Reporter` / `Json`.
 
-**Spec:** `docs/specs/17-shared-configuration.md`, `docs/adr/0045-one-settings-file-two-parts.md`. Task 1 amends both where this plan deliberately departs from them.
+**Spec:** the section *Settings shared by the window and the command line (#699)* of `docs/specs/15-internationalisation.md`, and `docs/adr/0045-one-settings-file-two-parts.md`. Task 1 amends both where this plan deliberately departs from them. The work was first framed as a standalone spec and folded into phase 15 on 2026-10-12; the decisions this plan calls D1 to D8 are S1 to S8 there.
 
 ## Global Constraints
 
@@ -36,7 +36,7 @@
 ### Task 1: Amend the spec and ADR where the plan departs
 
 **Files:**
-- Modify: `docs/specs/17-shared-configuration.md`
+- Modify: `docs/specs/15-internationalisation.md` (then a standalone spec)
 - Modify: `docs/adr/0045-one-settings-file-two-parts.md`
 
 Departures, each decided while reading the code:
@@ -52,7 +52,7 @@ Departures, each decided while reading the code:
 - [ ] **Step 3: Commit**
 
 ```bash
-git -C /home/beber/Projects/subedit add docs/specs/17-shared-configuration.md docs/adr/0045-one-settings-file-two-parts.md docs/superpowers/plans/2026-10-11-shared-configuration.md CLAUDE.md
+git -C /home/beber/Projects/subedit add docs/specs/15-internationalisation.md docs/adr/0045-one-settings-file-two-parts.md docs/superpowers/plans/2026-10-11-shared-configuration.md CLAUDE.md
 git -C /home/beber/Projects/subedit commit -m "docs(doc): spec, ADR 0045 and plan for shared configuration" \
   -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 ```
@@ -914,6 +914,6 @@ Per CLAUDE.md the manual lists, for each command: name, what it does and does no
 - [ ] **Step 3:** `make manual` (the version example is now stale).
 - [ ] **Step 4:** `make check-local` (runs `manual-check`, `check-cli-manual.py`, and `make bench` last — if the machine is busy it records nothing: say so in the PR, once, do not loop).
 - [ ] **Step 5:** `make check` once (≈17 min). If a step fails, fix it and resume with `./src/scripts/gate.sh check --from <step>`; do not rerun the whole gate.
-- [ ] **Step 6:** Update the rest of the docs not read by the gate: roadmap entry for phase 17 if the roadmap lists phases (`grep -n "16" docs/feuille-de-route.md`), the benchmark journal line from step 4, and the spec's status.
+- [ ] **Step 6:** Update the rest of the docs not read by the gate: the roadmap's phase 15 section (`grep -n "#699" docs/feuille-de-route.md`), the benchmark journal line from step 4, and the spec's status.
 - [ ] **Step 7:** Commit, regenerate the CHANGELOG with the project's script (see how earlier commits `docs(doc): journal des changements` were produced: `grep -rn changelog Makefile src/scripts | head`), push `feat/699`, and open the PR. Title (English, ≤ 72, validated by `./src/scripts/check-commit-message.sh`): `feat(cli): share operation settings with the window, add config`. Body ends with a line `Closes #699` and states which gate steps were run and whether `make bench` recorded a measurement.
 - [ ] **Step 8:** After merge, tag `vX.Y.Z` on the merge commit in `main` (CLAUDE.md, "Versions"): do not tag before the user confirms the merge.

@@ -86,8 +86,8 @@ struct CorrectionOptions {
 correctionSettingsOf(const CorrectionOptions& options,
                      const subedit::core::PatternCatalogue& catalogue);
 
-/// The same, with the three things the settings file gives `correct` (spec 17,
-/// D8) taken from `shared` — **an option beats the file, which beats the default**:
+/// The same, with the three things the settings file gives `correct` (spec 15,
+/// S8) taken from `shared` — **an option beats the file, which beats the default**:
 ///
 /// - the classes, `human` and `ocr`, when `classes` is empty — unless both are
 ///   off, which `--classes` cannot write: then both stay on (`prepareCorrection`
@@ -163,7 +163,7 @@ prepareCorrection(subedit::core::FileSystem& files,
 /// splitting words ask, opened once by the caller for the whole run; the
 /// dictionary was checked to exist before anything was read. `settingsFile` is
 /// the settings file read, as the record carries it: a path, or `null` when none
-/// was (spec 17, D6).
+/// was (spec 15, S6).
 [[nodiscard]] ExitCode correctIn(subedit::core::FileSystem& files,
                                  const std::vector<std::string>& paths,
                                  const std::optional<subedit::core::Encoding>& reading,

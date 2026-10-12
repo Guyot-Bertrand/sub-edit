@@ -3,7 +3,7 @@
 **Date:** 2026-10-11
 **Status:** accepted
 
-Decided at the framing of [#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699). Completes [0022](0022-configuration-au-noyau-et-tolerance-par-option.md); it does not replace it.
+Decided at the framing of [#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699), part of phase 15; the decisions are S1 to S8 of [its spec](../specs/15-internationalisation.md). Completes [0022](0022-configuration-au-noyau-et-tolerance-par-option.md); it does not replace it.
 
 ## Context
 

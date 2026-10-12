@@ -54,8 +54,8 @@ struct AdjustOptions {
 constraintsOf(const AdjustOptions& options);
 
 /// The same, on top of `base` — the settings file — instead of the core
-/// defaults: **an option beats the file, which beats the default** (spec 17,
-/// D8).
+/// defaults: **an option beats the file, which beats the default** (spec 15,
+/// S8).
 ///
 /// - `--speed off` switches the speed off whatever the file says. Otherwise the
 ///   speed is `--speed`, else the file's. The file's speed is active when it
@@ -85,7 +85,7 @@ constraintsOf(const AdjustOptions& options, const subedit::core::DurationAdjustm
 /// Gaupol does not say — which constraints some subtitle could not have, once the
 /// others had had their say. `range` limits the subtitles adjusted, in every file.
 /// `settings` is the settings file the constraints were read from, as the record
-/// carries it: a path, or `null` when none was read (spec 17, D6).
+/// carries it: a path, or `null` when none was read (spec 15, S6).
 [[nodiscard]] ExitCode adjustAll(subedit::core::FileSystem& files,
                                  const std::vector<std::string>& paths,
                                  const std::optional<subedit::core::Encoding>& reading,

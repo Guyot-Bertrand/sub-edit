@@ -1,5 +1,5 @@
 // `config list|show|set|unset`: the operation settings, read and changed
-// through the real binary — spec 17, decision D7.
+// through the real binary — spec 15, decision S7.
 //
 // **Every run that touches a file names it with `--config`**, inside a
 // `Scratch`: the user's settings file is never the one a test writes, and the

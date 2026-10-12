@@ -1,4 +1,4 @@
-// The operation part of the settings and its catalogue — spec 17, D3, D7, D8.
+// The operation part of the settings and its catalogue — spec 15, S3, S7, S8.
 //
 // The catalogue is a table written by hand, so the first tests pin it to the
 // file's own writer: a key the file writes and the catalogue omits, or the

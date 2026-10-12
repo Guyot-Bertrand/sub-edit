@@ -62,7 +62,7 @@ ExitCode runAdjust(const AdjustCommandOptions& options,
                    const Reporter& reporter,
                    const SharedSettings& shared) {
     announceSettings(reporter, shared);
-    // An option beats the file, which beats the core default (spec 17, D8).
+    // An option beats the file, which beats the core default (spec 15, S8).
     const std::expected<core::DurationConstraints, std::string> constraints =
         constraintsOf(options.constraints, shared.values.durationAdjustment);
     if (!constraints) {

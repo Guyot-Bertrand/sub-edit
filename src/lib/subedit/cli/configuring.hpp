@@ -1,7 +1,7 @@
 #pragma once
 
 // The `config` subcommands: list the operation keys, show the file, set and
-// unset one key — spec 17, decision D7.
+// unset one key — spec 15, decision S7.
 //
 // **The display preferences are never touched by name**: they are the window's,
 // and `set`/`unset` refuse them. They survive a rewrite all the same, because
