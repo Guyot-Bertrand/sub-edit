@@ -128,7 +128,7 @@ readAs(SubtitleFormat format, std::string_view content, const ReadingChoices& ch
     if (!format.has_value())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::UnknownFormat,
-            .detail = "aucun format reconnu",
+            .detail = "no format recognised",
         });
 
     std::expected<ReadResult, ReadError> result = readAs(*format, text, choices);

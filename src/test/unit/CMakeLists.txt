@@ -12,6 +12,7 @@ add_executable(
     core/analysis/grid_correction_test.cpp
     core/analysis/grid_repair_test.cpp
     core/version_test.cpp
+    core/wording_language_test.cpp
     core/wording_test.cpp
     core/i18n/catalogue_test.cpp
     core/i18n/language_test.cpp
@@ -180,7 +181,7 @@ target_compile_definitions(
 # construction par msgfmt, exactement comme le feront les traductions livrées. Un test du lecteur
 # lit donc ce que l'outil des traducteurs produit, et non un binaire écrit à la main.
 # `SUBEDIT_MSGFMT` vient de `cmake/Translations.cmake`, qui exige l'outil.
-set(subedit_i18n_fixtures fr ru bad-plural)
+set(subedit_i18n_fixtures fr ru bad-plural wording)
 set(subedit_i18n_catalogues "")
 foreach(language IN LISTS subedit_i18n_fixtures)
     set(po "${CMAKE_SOURCE_DIR}/src/test/data/i18n/${language}.po")

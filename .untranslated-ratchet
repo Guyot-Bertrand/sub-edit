@@ -7,7 +7,7 @@
 #
 # The target is zero before phase 15 closes.
 
-total 1159
+total 906
    10  src/exe/cli/application.cpp
     8  src/exe/cli/commands/adjust.cpp
     8  src/exe/cli/commands/append.cpp
@@ -34,22 +34,22 @@ total 1159
     2  src/exe/cli/main.cpp
     1  src/exe/gui/main.cpp
     9  src/lib/subedit/cli/adjusting.cpp
-    7  src/lib/subedit/cli/aligning.cpp
-    4  src/lib/subedit/cli/appending.cpp
+    5  src/lib/subedit/cli/aligning.cpp
+    2  src/lib/subedit/cli/appending.cpp
     3  src/lib/subedit/cli/batch.cpp
     5  src/lib/subedit/cli/changes.cpp
    15  src/lib/subedit/cli/configuring.cpp
-   15  src/lib/subedit/cli/conversion.cpp
+   14  src/lib/subedit/cli/conversion.cpp
    32  src/lib/subedit/cli/correcting.cpp
     6  src/lib/subedit/cli/destination.cpp
     1  src/lib/subedit/cli/diagnostics.cpp
     7  src/lib/subedit/cli/disjoining.cpp
-    4  src/lib/subedit/cli/expansion.cpp
-    5  src/lib/subedit/cli/frame_rate_conversion.cpp
+    3  src/lib/subedit/cli/expansion.cpp
+    4  src/lib/subedit/cli/frame_rate_conversion.cpp
     6  src/lib/subedit/cli/frame_rate_grammar.cpp
     1  src/lib/subedit/cli/hearing_impaired.cpp
    15  src/lib/subedit/cli/index_grammar.cpp
-   51  src/lib/subedit/cli/inspection.cpp
+   48  src/lib/subedit/cli/inspection.cpp
     2  src/lib/subedit/cli/joining.cpp
     6  src/lib/subedit/cli/options.cpp
     2  src/lib/subedit/cli/pairing.cpp
@@ -58,12 +58,12 @@ total 1159
     2  src/lib/subedit/cli/replacing.cpp
     1  src/lib/subedit/cli/rewriting.cpp
     9  src/lib/subedit/cli/shared_settings.cpp
-    9  src/lib/subedit/cli/shifting.cpp
+    8  src/lib/subedit/cli/shifting.cpp
     1  src/lib/subedit/cli/sorting.cpp
-   15  src/lib/subedit/cli/splitting.cpp
+   11  src/lib/subedit/cli/splitting.cpp
    11  src/lib/subedit/cli/text_rewriting.cpp
     6  src/lib/subedit/cli/time_grammar.cpp
-   14  src/lib/subedit/cli/transforming.cpp
+   12  src/lib/subedit/cli/transforming.cpp
     1  src/lib/subedit/cli/translation_writing.cpp
     1  src/lib/subedit/cli/verbosity.cpp
     4  src/lib/subedit/cli/writing.cpp
@@ -96,15 +96,6 @@ total 1159
     7  src/lib/subedit/core/text/pattern_catalogue.cpp
     4  src/lib/subedit/core/text/python_regex_syntax.cpp
     8  src/lib/subedit/core/text/replacement_template.cpp
-   57  src/lib/subedit/core/wording/analysis.cpp
-   32  src/lib/subedit/core/wording/conversion.cpp
-   15  src/lib/subedit/core/wording/correction.cpp
-   35  src/lib/subedit/core/wording/counts.cpp
-   36  src/lib/subedit/core/wording/editing.cpp
-   16  src/lib/subedit/core/wording/formats.cpp
-    9  src/lib/subedit/core/wording/settings.cpp
-   19  src/lib/subedit/core/wording/translation.cpp
-   10  src/lib/subedit/core/wording/video.cpp
     4  src/lib/subedit/gui/about_dialog.cpp
     4  src/lib/subedit/gui/command_label.cpp
     7  src/lib/subedit/gui/correction_confirmation_page.cpp
@@ -116,7 +107,7 @@ total 1159
     3  src/lib/subedit/gui/diagnostics_button.cpp
    12  src/lib/subedit/gui/disjoint_dialog.cpp
     8  src/lib/subedit/gui/duration_adjust_dialog.cpp
-   13  src/lib/subedit/gui/fixes_proposal_dialog.cpp
+   10  src/lib/subedit/gui/fixes_proposal_dialog.cpp
     6  src/lib/subedit/gui/frame_rate_dialog.cpp
     5  src/lib/subedit/gui/grid_analysis_dialog.cpp
     2  src/lib/subedit/gui/hearing_impaired_dialog.cpp
@@ -127,7 +118,7 @@ total 1159
     5  src/lib/subedit/gui/manual_window.cpp
     1  src/lib/subedit/gui/mpv_player.cpp
     4  src/lib/subedit/gui/open_translation_dialog.cpp
-   14  src/lib/subedit/gui/operation_dialog.cpp
+   10  src/lib/subedit/gui/operation_dialog.cpp
     2  src/lib/subedit/gui/pattern_code.cpp
     2  src/lib/subedit/gui/pattern_code_selector.cpp
     6  src/lib/subedit/gui/play_bar.cpp

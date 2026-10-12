@@ -62,9 +62,9 @@ ExitCode alignAll(core::FileSystem& files,
         // `framerate` and typed this reads « moved by at most 20 ms » where
         // they expected seconds, and knows at once.
         const std::size_t total = session.project().count();
-        return OperationResult{.sentence = core::countOf(total, "subtitle") + " aligned on " +
-                                           nameOf(rate) + " fps, " +
-                                           core::countOf(moved, "position") +
+        return OperationResult{.sentence = core::countOf(total, core::Counted::Subtitle) +
+                                           " aligned on " + nameOf(rate) + " fps, " +
+                                           core::countOf(moved, core::Counted::Position) +
                                            " moved, by at most " + std::to_string(furthest) + " ms",
                                .counts = {{"subtitles", static_cast<std::int64_t>(total)},
                                           {"moved", static_cast<std::int64_t>(moved)},

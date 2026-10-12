@@ -37,25 +37,28 @@ FixesProposalDialog::FixesProposalDialog(std::size_t repeated,
     stack->addWidget(intro);
 
     if (repeated > 0) {
-        m_join = new QCheckBox{QStringLiteral("Join the repeated subtitles: ") +
-                                   QString::fromStdString(core::countOf(repeated, "subtitle")) +
-                                   QStringLiteral(" repeat one that they touch"),
-                               this};
+        const QString text =
+            QStringLiteral("Join the repeated subtitles: ") +
+            QString::fromStdString(core::countOf(repeated, core::Counted::Subtitle)) +
+            QStringLiteral(" repeat one that they touch");
+        m_join = new QCheckBox{text, this};
         m_join->setChecked(true);
         stack->addWidget(m_join);
     }
     if (outOfOrder > 0) {
-        m_sort = new QCheckBox{QStringLiteral("Sort the subtitles: not in order of start (") +
-                                   QString::fromStdString(core::countOf(outOfOrder, "subtitle")) +
-                                   QStringLiteral(" out of place)"),
-                               this};
+        const QString text =
+            QStringLiteral("Sort the subtitles: not in order of start (") +
+            QString::fromStdString(core::countOf(outOfOrder, core::Counted::Subtitle)) +
+            QStringLiteral(" out of place)");
+        m_sort = new QCheckBox{text, this};
         m_sort->setChecked(true);
         stack->addWidget(m_sort);
     }
     if (overlapping > 0) {
-        const QString text = QStringLiteral("Make the ranges disjoint: ") +
-                             QString::fromStdString(core::countOf(overlapping, "subtitle")) +
-                             QStringLiteral(" start before the previous one ends");
+        const QString text =
+            QStringLiteral("Make the ranges disjoint: ") +
+            QString::fromStdString(core::countOf(overlapping, core::Counted::Subtitle)) +
+            QStringLiteral(" start before the previous one ends");
         m_disjoint = new QCheckBox{text, this};
         m_disjoint->setChecked(true);
         stack->addWidget(m_disjoint);

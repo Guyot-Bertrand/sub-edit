@@ -219,7 +219,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.15.15
+subedit 0.15.16
 ```
 
 ## Sous-commandes

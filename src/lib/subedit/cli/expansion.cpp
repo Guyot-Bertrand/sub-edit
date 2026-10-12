@@ -103,7 +103,7 @@ std::expected<Inputs, std::string> expandInputs(const core::FileSystem& files,
         }
         if (state.leftAside > 0) {
             reporter.say(2,
-                         path + ": " + core::countOf(state.leftAside, "file") +
+                         path + ": " + core::countOf(state.leftAside, core::Counted::File) +
                              " left aside, with no extension of a known format");
         }
     }

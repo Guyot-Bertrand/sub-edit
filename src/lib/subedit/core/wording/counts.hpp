@@ -38,12 +38,28 @@ namespace subedit::core {
 /// says so in these words, where Gaupol drops the page without a word.
 [[nodiscard]] std::string noDictionaryFor(std::string_view language);
 
-/// A count and its noun, agreeing: "1 subtitle", "2 subtitles".
+/// The nouns a count is said with by `countOf`. **A closed list, not a string**:
+/// each has its own singular and plural in the catalogue, because a language
+/// with three forms (Russian, Polish) cannot build them from an English noun
+/// and an « s » (spec 15, D2).
+enum class Counted {
+    Subtitle,
+    File,
+    Position,
+    Diagnostic,
+    Run,
+};
+
+/// A count and its noun, agreeing in the installed language: "1 subtitle",
+/// "2 subtitles".
 ///
 /// Small, and worth it: "1 subtitles" is the kind of sloppiness a reader
 /// notices immediately and that ends up copied into the manual, which is
-/// generated from what the tool actually prints.
-[[nodiscard]] std::string countOf(std::size_t count, std::string_view noun);
+/// generated from what the tool actually prints. A sentence of this family
+/// is written whole rather than built around it, so that a translation may
+/// agree its other words with the count too; `countOf` serves the sentences
+/// that are still assembled by their callers.
+[[nodiscard]] std::string countOf(std::size_t count, Counted noun);
 
 /// What a search that found nothing says: Gaupol's « "…" not found ».
 [[nodiscard]] std::string notFound(std::string_view pattern);

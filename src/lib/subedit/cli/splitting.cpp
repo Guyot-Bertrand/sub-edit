@@ -120,10 +120,10 @@ ExitCode splitFile(core::FileSystem& files,
             reporter,
             path,
             Failure{"at-out-of-bounds",
-                    total < 2 ? "a file of " + core::countOf(total, "subtitle") +
+                    total < 2 ? "a file of " + core::countOf(total, core::Counted::Subtitle) +
                                     " cannot be split: a cut needs a subtitle on each side"
                               : "--at " + std::to_string(request.at) + ": the file holds " +
-                                    core::countOf(total, "subtitle") +
+                                    core::countOf(total, core::Counted::Subtitle) +
                                     ", and the tail can start from 2 to " + std::to_string(total)});
         return ExitCode::AllFailed;
     }
@@ -180,8 +180,8 @@ ExitCode splitFile(core::FileSystem& files,
     const std::size_t kept = stays.count();
     const std::size_t moved = split->tail.count();
     const std::string made = path + ": split at subtitle " + std::to_string(request.at) + ": " +
-                             core::countOf(kept, "subtitle") + " in the head, " +
-                             core::countOf(moved, "subtitle") + " in the tail";
+                             core::countOf(kept, core::Counted::Subtitle) + " in the head, " +
+                             core::countOf(moved, core::Counted::Subtitle) + " in the tail";
     std::vector<Count> counts{{"subtitles", static_cast<std::int64_t>(total)},
                               {"head", static_cast<std::int64_t>(kept)},
                               {"tail", static_cast<std::int64_t>(moved)}};

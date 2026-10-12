@@ -72,7 +72,7 @@ void OperationDialog::chooseWholeProject(bool whole) {
 QString OperationDialog::targetLabel() const {
     const bool selectedOnly = m_scope.offersChoice() && !wholeProject();
     const std::size_t count = selectedOnly ? m_scope.selected : m_scope.whole;
-    return QString::fromStdString(core::countOf(count, "subtitle"));
+    return QString::fromStdString(core::countOf(count, core::Counted::Subtitle));
 }
 
 void OperationDialog::revalidate() {
@@ -100,9 +100,10 @@ void OperationDialog::showPreview(const OperationPreview& preview) {
 
     auto* stack = new QVBoxLayout{box};
     stack->addWidget(new QLabel{
-        preview.changed == 0 ? QStringLiteral("Nothing would change.")
-                             : QString::fromStdString(core::countOf(preview.changed, "subtitle")) +
-                                   QStringLiteral(" would change."),
+        preview.changed == 0
+            ? QStringLiteral("Nothing would change.")
+            : QString::fromStdString(core::countOf(preview.changed, core::Counted::Subtitle)) +
+                  QStringLiteral(" would change."),
         box});
 
     auto* table = new QTableWidget{static_cast<int>(preview.rows.size()), 4, box};
@@ -149,9 +150,10 @@ void OperationDialog::finish() {
         // the choice existed.
         const QString selectedText =
             QStringLiteral("Selected: ") +
-            QString::fromStdString(core::countOf(m_scope.selected, "subtitle"));
-        const QString wholeText = QStringLiteral("Whole project: ") +
-                                  QString::fromStdString(core::countOf(m_scope.whole, "subtitle"));
+            QString::fromStdString(core::countOf(m_scope.selected, core::Counted::Subtitle));
+        const QString wholeText =
+            QStringLiteral("Whole project: ") +
+            QString::fromStdString(core::countOf(m_scope.whole, core::Counted::Subtitle));
         m_selection = new QRadioButton{selectedText, this};
         m_project = new QRadioButton{wholeText, this};
         m_selection->setChecked(true);
