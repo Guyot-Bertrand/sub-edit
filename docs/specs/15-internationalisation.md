@@ -129,6 +129,15 @@ product had one language and becomes wrong the moment the repository is a candid
   History is not rewritten.
 - **Between the rule and the last translation** the repository is mixed. The allowlist makes it measurable and finite.
 
+**Specified by #660.** The allowlist is `.french-allowlist` (273 files when it was written), held by
+`check-comment-language.py` in the `arch` step; its cases are replayed by the `fixtures` step and `verify-gates.sh`
+proves on a scratch copy that a French file is refused and that the list cannot grow. Growth is judged against the list
+at the merge base with `origin/main`, and skipped with a note when there is none. Besides the two locale trees, three
+families are not read, each because its language is not prose of the repository: `CHANGELOG.md`, generated from a
+history that is not rewritten; `src/test/data/**`, whose French is the point of the data; and `packaging/patterns/**`,
+Gaupol's per-language patterns — the README files of the last two are read. In C++, comments and the messages of Catch2
+macros are read, and any other string literal is data.
+
 ## D8 — The documentation
 
 **English becomes the source; everything is translated** (decisions of 2026-10-09: all of it, about 220 000 words).

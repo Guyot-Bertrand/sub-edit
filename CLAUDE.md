@@ -101,8 +101,15 @@ avec un objectif d'iso-fonctionnalité.
   replaces the split of #312.
 
   **The repository is mixed until the translation is done.** What exists in
-  French is translated in place, in batches, behind a descending allowlist in
-  `check-comment-language.py` (#325): an entry can be removed and never added.
+  French is translated in place, in batches, behind a descending allowlist:
+  `.french-allowlist` names every tracked file that still contains French, and
+  `src/scripts/check-comment-language.py`, run by the `arch` step of the gate,
+  refuses French in any other file outside `src/po/` and `docs/i18n/fr/` —
+  code, scripts, build files, docs, YAML alike (#660). An entry can be removed
+  and never added: the check compares the list with its version at the merge
+  base with `origin/main`, and refuses a listed file that no longer contains
+  French, so translating a file means deleting its line in the same diff. The
+  script's header says what it reads and what it leaves out.
   Meanwhile, **anything new is written in English, in a French file as
   anywhere else**, and a French file that is touched in depth is translated in
   the same diff. This file is one of those still to translate; the sections
@@ -121,13 +128,13 @@ avec un objectif d'iso-fonctionnalité.
 - **Titre d'une pull request** — **la même grammaire, la même limite de 72
   caractères.** `.github/workflows/pull-request.yml` passe le titre à
   `check-commit-message.sh`, exactement comme le hook `commit-msg` lui passe un
-  message. « Relecture de fin de phase 5 » n'est donc pas un titre valide ;
-  « docs(doc): relecture de fin de phase 5 » l'est.
+  message. « Phase 5 review » n'est donc pas un titre valide ;
+  « docs(doc): review the end of phase 5 » l'est.
 
   Se vérifie avant d'ouvrir, en une seconde :
 
   ```console
-  $ ./src/scripts/check-commit-message.sh "docs(doc): relecture de fin de phase 5"
+  $ ./src/scripts/check-commit-message.sh "docs(doc): review the end of phase 5"
   ```
 
   Cette ligne manquait, et le silence a coûté : trois pull requests d'affilée

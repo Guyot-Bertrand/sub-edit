@@ -90,27 +90,25 @@ mal fait échouer la porte, sur le nom de la page.
 
 ## Conventions
 
-### Langue
+### Language
 
-**Ce que le binaire imprime est en anglais ; ce qui explique pourquoi est en
-français.** C'est la frontière, et elle ne passe pas là où le compilateur
-s'arrête.
+**Everything is written in English; French is a locale only** —
+[ADR 0043](docs/adr/0043-english-is-the-language-of-the-repository.md). Code,
+comments, scripts, build files, documentation, specs, ADRs, commit messages,
+issues, pull requests and test titles are English. French lives in the
+catalogue `src/po/fr.po` and the translated manual `docs/i18n/fr/manual/`.
 
-| Anglais | Français |
-| :------ | :------- |
-| les identifiants du code C++ | les commentaires, dans le code comme ailleurs |
-| tout ce que le binaire écrit à un utilisateur | la documentation, les specs, les ADR, les manuels |
-| les intitulés de cas de test, que Catch2 imprime | les messages de commit, les issues, les scripts |
+The repository is mixed until the existing French is translated. Two checks of
+`check-architecture.sh` hold the rule:
 
-Un intitulé de test est du côté anglais parce que c'est une phrase que le
-binaire imprime — `--list-tests` la montre, un rapport d'échec la cite. Un
-commentaire est du côté français parce que personne d'autre qu'un mainteneur ne
-le lit.
-
-`check-architecture.sh` tient la moitié qui se contrôle : un caractère hors
-ASCII ou un mot outil français dans un intitulé fait échouer la porte. Un
-intitulé qui cite une donnée française — le format des fixtures en porte —
-s'inscrit dans la liste d'exemptions du contrôle, avec sa raison.
+- `check-comment-language.py` refuses French in every tracked file outside the
+  two locale trees, except the files named in `.french-allowlist`. The list only
+  shrinks: translating a file means deleting its line, and a line that its
+  version on `origin/main` does not have is refused.
+- test case titles, which Catch2 prints, are held to a stricter rule: a
+  non-ASCII character or a French function word fails the gate. A title that
+  quotes a French datum — the fixture format has some — goes on the check's
+  exemption list, with its reason.
 
 ### Commits
 
