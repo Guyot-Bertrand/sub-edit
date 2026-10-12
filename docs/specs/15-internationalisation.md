@@ -238,6 +238,19 @@ over silently when Qt has none. The window tests start in English (`LANGUAGE=en`
 window under a Russian fixture and finds every text the fixture holds translated (`GUI-I18N-01`, whose dialogs
 follow with #665). The dialogs, the prompts and the messages they show are left to #665.
 
+**Lowered by #665 to 142 literals in 28 files.** The window is at zero, `src/lib/subedit/gui` and `src/exe/gui`
+alike: every dialog, every page of `Correct Texts…`, the prompts and the file dialogs' titles and filters, the
+messages the window reports and the lines it writes on its error stream go through `gui/messages.hpp`, sentences whole
+with positional arguments and counts through `translatePlural` — a paragraph that was assembled from pieces is now one
+message per variant, and the « The translation » subject that was put into two sentences is four sentences. The eight
+`QObject::tr` calls of the frame rate analysis moved to the same functions, so the window has one mechanism and
+`update-pot.sh` needs no keyword of its own. The encodings' families became a closed list worded where it is shown.
+Four literals were exempted rather than wrapped: the program's name before a version number (`--version`, About),
+`Zyyy`, the ISO 15924 code of the common script, and `en`, the code the spelling falls back to. One test builds every
+dialog under English and under the Russian fixture and finds each text the fixture holds translated, each text
+assembled from its words changed, and no key of the fixture left in English (`GUI-I18N-01`); others prove a count in
+three forms and a sentence whose arguments Russian reorders.
+
 ## Settings shared by the window and the command line (#699)
 
 **Issue:** [#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699). Framed first as a standalone spec, then folded
