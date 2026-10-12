@@ -116,6 +116,7 @@ files, installed under `<prefix>/share/subedit/locale`.
 | the standard buttons Qt draws itself (`OK`, `Cancel`) | yes, when Qt's own catalogue of that language is installed (`qtbase_<language>.qm`); English otherwise |
 | the dialogs, the pages of `Correct Texts…`, the file dialogs' titles and filters, the message boxes and what they say | yes |
 | the lines the window writes on its error stream, `subedit-gui: …` | yes, the program's name excepted |
+| the names of the correction patterns in `Correct Texts…`, and their descriptions in the tool tips | yes, for the patterns shipped with the program; a pattern of your own is shown as its file writes it |
 | the names of encodings, line endings and spelling languages (`UTF-8`, `CRLF`, `en_US`) | never: they are names, not words |
 | the keyboard shortcuts | never: `Ctrl+S` is `Ctrl+S` in every language |
 | a message the catalogue does not translate | shown in English |

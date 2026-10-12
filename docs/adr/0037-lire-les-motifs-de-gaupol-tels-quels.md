@@ -134,3 +134,24 @@ trouve ses motifs comme un binaire installé, sans option de mise au point.
 que son format ne sait pas porter — un motif propre à `subedit`, par exemple.
 Ce jour-là, un fichier à nous s'ajouterait à côté des siens plutôt que de les
 remplacer.
+
+## Addendum — the names and descriptions in the user's language ([#666](https://github.com/Guyot-Bertrand/sub-edit/issues/666))
+
+**The files stay Gaupol's, and English.** A pattern's `Name` and `Description` are translated the
+way Gaupol translates them: in the program's catalogue, never in the file. The catalogue is keyed
+by the English text — the msgid is the name or the description as the file writes it — and is
+looked up **when the pattern is shown**, by `core::patternName` and `core::patternDescription`
+(`core/wording/correction.hpp`): the tick boxes of `Correct Texts…`, with the description as their
+tool tip, the patterns its confirmation page says were not applied, and the same sentence on the
+command line's error stream. Nothing is written back: the files are read as they are and stay
+byte for byte what they were ([spec 15](../specs/15-internationalisation.md), D6).
+
+**A pattern the catalogue does not know shows as written**, which is what a user's own pattern is.
+**The English name stays the identifier**: a setting records it, `--enable` and `--disable` take
+it, and `--format json` writes it, whatever the language (D3).
+
+**How the template gets the msgids.** They are not C++ literals, so the extraction of the code
+cannot find them. `src/scripts/update-pot.sh` reads the shipped pattern files of
+`packaging/patterns/` as well, as the desktop-entry files they resemble, with `Name` and
+`Description` for keywords, and joins them to the extraction of the code; `make po` merges them
+into each language like any other message, and `pot-check` refuses a template that misses one.

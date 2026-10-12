@@ -62,6 +62,10 @@ départ de `Common Errors`, ce qui donne les motifs valables partout. **Les troi
 autres types n'ont de motifs que sous une écriture** : leur page s'ouvre sur la
 première que le catalogue propose, `Latn` avec les motifs livrés, et non sur `Zyyy`.
 
+**Each pattern's description is the tool tip of its box.** Names and descriptions follow the
+language of the window for the patterns shipped with the program; a pattern of your own is shown as
+its file writes it ([Language](invocation.md#language)).
+
 **Un motif décoché reste décoché tant qu'on ne le recoche pas**, y compris en
 changeant de code puis en y revenant, et ce choix est retenu d'une ouverture
 de l'assistant à l'autre. Recoché, il retrouve simplement son réglage
