@@ -205,6 +205,14 @@ an unwrapped label is refused, the same label in `tr` passes, and a ratchet reco
 `src/exe/cli`), `core/wording/` 229 (9 files), the rest of `core` 144 (29 files, 76 of them in `core/config`). The target
 is zero before the phase closes.
 
+**Lowered by #662 to 906 literals in 136 files.** `core/wording/` is at zero: every sentence goes through `translate`
+or `translatePlural`, written whole with positional arguments rather than assembled around a count, and English output is
+unchanged. `countOf` no longer takes an English noun to which it adds an « s »: it takes a closed `Counted` list whose
+nouns each have their own plural entry, which also lowered the command-line and window files that called it. The rest of
+`core` is left to the issues of its surfaces; note there that the `detail` of a `ReadError` is never shown to a user —
+the four that were French are now English, unwrapped — and that `--format json` writes a failure's `message` from these
+same sentences, which D3 wants language-independent (#663).
+
 ## Settings shared by the window and the command line (#699)
 
 **Issue:** [#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699). Framed first as a standalone spec, then folded
