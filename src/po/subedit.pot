@@ -599,11 +599,13 @@ msgstr ""
 
 #. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not read.
 #. TRANSLATORS: %1 is the file, or what a message is about; %2 the message.
+#. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such as shifting.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/batch.cpp
 #: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
 #: src/lib/subedit/cli/disjoining.cpp src/lib/subedit/cli/inspection.cpp
 #: src/lib/subedit/cli/joining.cpp src/lib/subedit/cli/records.cpp
 #: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/sorting.cpp
+#: src/lib/subedit/gui/command_label.cpp
 msgid "%1: %2"
 msgstr ""
 
@@ -2365,4 +2367,496 @@ msgstr ""
 #. TRANSLATORS: %1 is the file name of a video.
 #: src/lib/subedit/core/wording/video.cpp
 msgid "Video: %1"
+msgstr ""
+
+#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
+msgid "Undo"
+msgstr ""
+
+#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
+msgid "Redo"
+msgstr ""
+
+#: src/lib/subedit/gui/command_label.cpp
+msgid "Shift Whole File onto Grid"
+msgstr ""
+
+#. TRANSLATORS: %1 is how far the whole file moves, in seconds.
+#: src/lib/subedit/gui/command_label.cpp
+msgid "Shift Whole File onto Grid (%1)"
+msgstr ""
+
+#: src/lib/subedit/gui/diagnostics_button.cpp
+msgid ""
+"What the reading ran into, and what is wrong with the subtitles — click for "
+"the list"
+msgstr ""
+
+#: src/lib/subedit/gui/diagnostics_button.cpp
+msgid "%1 diagnostic"
+msgid_plural "%1 diagnostics"
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of unsaved
+#. changes, and stays as it is.
+#: src/lib/subedit/gui/main_window.cpp
+msgid "%1[*] — subedit"
+msgstr ""
+
+#: src/lib/subedit/gui/main_window.cpp
+msgid "untitled"
+msgstr ""
+
+#: src/lib/subedit/gui/main_window.cpp
+msgid "New project"
+msgstr ""
+
+#: src/lib/subedit/gui/main_window.cpp
+msgid "Open the installed manual"
+msgstr ""
+
+#: src/lib/subedit/gui/main_window.cpp
+msgid "No manual is installed beside this program"
+msgstr ""
+
+#. TRANSLATORS: %1 is the name of a file.
+#: src/lib/subedit/gui/main_window.cpp
+msgid "%1: already open"
+msgstr ""
+
+#: src/lib/subedit/gui/main_window.cpp
+msgid "%1 video dropped at once: a project watches one film"
+msgid_plural "%1 videos dropped at once: a project watches one film"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/gui/play_bar.cpp
+msgid "Position"
+msgstr ""
+
+#: src/lib/subedit/gui/play_bar.cpp
+msgid "Volume"
+msgstr ""
+
+#: src/lib/subedit/gui/play_bar.cpp
+msgid "Follow playback: keep the table on the subtitle that is showing"
+msgstr ""
+
+#: src/lib/subedit/gui/play_bar.cpp
+msgid "Follow"
+msgstr ""
+
+#: src/lib/subedit/gui/play_bar.cpp
+msgid "Pause"
+msgstr ""
+
+#: src/lib/subedit/gui/play_bar.cpp
+msgid "Play"
+msgstr ""
+
+#. TRANSLATORS: %1 is Main or Translation, the text an operation aims at.
+#: src/lib/subedit/gui/status_line.cpp
+msgid "Text: %1"
+msgstr ""
+
+#: src/lib/subedit/gui/subtitle_table_model.cpp
+msgid "Start"
+msgstr ""
+
+#: src/lib/subedit/gui/subtitle_table_model.cpp
+msgid "Start (frames)"
+msgstr ""
+
+#: src/lib/subedit/gui/subtitle_table_model.cpp
+msgid "End"
+msgstr ""
+
+#: src/lib/subedit/gui/subtitle_table_model.cpp
+msgid "End (frames)"
+msgstr ""
+
+#: src/lib/subedit/gui/subtitle_table_model.cpp
+msgid "Duration"
+msgstr ""
+
+#: src/lib/subedit/gui/subtitle_table_model.cpp
+msgid "Text"
+msgstr ""
+
+#: src/lib/subedit/gui/subtitle_table_model.cpp src/lib/subedit/gui/target.cpp
+msgid "Translation"
+msgstr ""
+
+#: src/lib/subedit/gui/table_columns.cpp
+msgid "&Duration"
+msgstr ""
+
+#: src/lib/subedit/gui/table_columns.cpp
+msgid "&End"
+msgstr ""
+
+#: src/lib/subedit/gui/table_columns.cpp
+msgid "&No."
+msgstr ""
+
+#: src/lib/subedit/gui/table_columns.cpp
+msgid "&Start"
+msgstr ""
+
+#: src/lib/subedit/gui/table_columns.cpp
+msgid "&Translation"
+msgstr ""
+
+#: src/lib/subedit/gui/table_columns.cpp
+msgid "Show the translation next to the text"
+msgstr ""
+
+#: src/lib/subedit/gui/target.cpp
+msgid "Main"
+msgstr ""
+
+#: src/lib/subedit/gui/video_pane.cpp src/lib/subedit/gui/window_actions.cpp
+msgid "Select Video…"
+msgstr ""
+
+#: src/lib/subedit/gui/video_pane.cpp
+msgid "%1: no video player is available"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&New Project"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Open…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Open &Translation…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Save"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Save As…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Save Tr&anslation"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Save Translation As…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Close"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Cu&t Texts"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Copy Texts"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Paste Texts"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Find and Replace…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Insert Subtitles…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Remove Subtitles"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Join Repeated Subtitles"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "S&ort Subtitles"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Make Ranges &Disjoint…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Repair Subtitles…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Merge Subtitles"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "S&plit Subtitle"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Preferences…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Positions in &Frames"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Play / Pause"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Play &Selection"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Seek &Previous"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Seek &Next"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Seek &Backward"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Seek &Forward"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "S&eek Selection Start"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "See&k Selection End"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Step Backward"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Step Forward"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Nudge Start Earlier"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Nudge Start Later"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Nudge End Earlier"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Nudge End Later"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Set S&tart from Video Position"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Set En&d from Video Position"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Insert Subtitle at Video Position"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Select Previous from Video Position"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Select Next from Video Position"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Volume &Down"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Volume &Up"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Language"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Shift Positions…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Transform Positions…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Convert Frame Rate…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Adjust Durations…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Append &File…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Spli&t Project…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Italic"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Dialogue"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Remove Hearing-Impaired Mentions…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Correct Texts…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Chec&k Spelling…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Spell-Check &Settings…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Snap to Frame Rate…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Frame Rate &Analysis…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Save All"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Close All"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Manual"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&About subedit"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Title Case"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Sentence case"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&UPPER CASE"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&lower case"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Open an empty project in a new tab"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&File"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Edit"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&View"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Columns"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Video"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Audio"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Tools"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Ca&se"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Projects"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Help"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "New"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Open"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Find"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Insert"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Remove"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Italic"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgctxt "toolbar"
+msgid "Main"
 msgstr ""

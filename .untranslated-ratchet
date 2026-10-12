@@ -7,7 +7,7 @@
 #
 # The target is zero before phase 15 closes.
 
-total 510
+total 381
     1  src/exe/gui/main.cpp
     1  src/lib/subedit/core/config/correction_settings.hpp
    56  src/lib/subedit/core/config/operation_settings.cpp
@@ -39,14 +39,12 @@ total 510
     4  src/lib/subedit/core/text/python_regex_syntax.cpp
     8  src/lib/subedit/core/text/replacement_template.cpp
     4  src/lib/subedit/gui/about_dialog.cpp
-    4  src/lib/subedit/gui/command_label.cpp
     7  src/lib/subedit/gui/correction_confirmation_page.cpp
     2  src/lib/subedit/gui/correction_progress_page.cpp
     3  src/lib/subedit/gui/correction_result_model.cpp
    14  src/lib/subedit/gui/correction_target_page.cpp
    14  src/lib/subedit/gui/correction_task_page.cpp
     1  src/lib/subedit/gui/correction_wizard.cpp
-    3  src/lib/subedit/gui/diagnostics_button.cpp
    12  src/lib/subedit/gui/disjoint_dialog.cpp
     8  src/lib/subedit/gui/duration_adjust_dialog.cpp
    10  src/lib/subedit/gui/fixes_proposal_dialog.cpp
@@ -56,14 +54,12 @@ total 510
     3  src/lib/subedit/gui/insert_dialog.cpp
     5  src/lib/subedit/gui/invocation.cpp
     5  src/lib/subedit/gui/join_split_page.cpp
-    8  src/lib/subedit/gui/main_window.cpp
     5  src/lib/subedit/gui/manual_window.cpp
     1  src/lib/subedit/gui/mpv_player.cpp
     4  src/lib/subedit/gui/open_translation_dialog.cpp
    10  src/lib/subedit/gui/operation_dialog.cpp
     2  src/lib/subedit/gui/pattern_code.cpp
     2  src/lib/subedit/gui/pattern_code_selector.cpp
-    6  src/lib/subedit/gui/play_bar.cpp
    12  src/lib/subedit/gui/preferences_dialog.cpp
     9  src/lib/subedit/gui/project_files.cpp
     1  src/lib/subedit/gui/project_operations.cpp
@@ -78,11 +74,5 @@ total 510
    11  src/lib/subedit/gui/spell_check_dialog.cpp
    10  src/lib/subedit/gui/spell_check_settings_dialog.cpp
     3  src/lib/subedit/gui/split_project_dialog.cpp
-    1  src/lib/subedit/gui/status_line.cpp
-    7  src/lib/subedit/gui/subtitle_table_model.cpp
-    6  src/lib/subedit/gui/table_columns.cpp
-    2  src/lib/subedit/gui/target.cpp
     8  src/lib/subedit/gui/transform_dialog.cpp
     8  src/lib/subedit/gui/unsaved_documents_dialog.cpp
-    2  src/lib/subedit/gui/video_pane.cpp
-   90  src/lib/subedit/gui/window_actions.cpp
