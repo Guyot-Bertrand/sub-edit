@@ -14,5 +14,844 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "ends before it starts"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "starts before the previous one ends"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "starts before the previous one starts"
+msgstr ""
+
+#. TRANSLATORS: %1 is a subtitle number, %2 what is wrong with it, such as
+#. « starts before the previous one ends ».
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "subtitle %1 %2"
+msgstr ""
+
+#. TRANSLATORS: %1 is what is wrong with a subtitle, such as « starts before
+#. the previous one ends », and %2 how many subtitles it is wrong with.
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "subtitle %1: %2"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "a line that fits nowhere"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "a timing line that could not be read"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "a SubRip block without its number"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "SubRip numbers that do not follow"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "text before the first timing line"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "a WebVTT block of an unknown kind"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "declares an event column this tool cannot fill"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "counts in frames and states no rate; it was read at"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "carries no end times; each one was taken from the next start"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "more than one kind of line ending"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "an encoding nothing declared"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "a byte order mark that contradicts the encoding asked for"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "left as it stands"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "settled by the reader"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "editing a text"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "editing a start"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "editing an end"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "editing a duration"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "inserting"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "removing"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "shifting"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "transforming"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "converting the frame rate"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "aligning on the frame rate"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "sorting"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "removing hearing-impaired mentions"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "putting in italics"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "taking italics out"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "changing the case"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "adding dialogue dashes"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "removing dialogue dashes"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "merging"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "splitting"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "cutting texts"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "pasting texts"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "opening a translation"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "adjusting durations"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "replacing"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "replacing all"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "appending a file"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "splitting the project"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "correcting texts"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "making the ranges disjoint"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "joining repeated subtitles"
+msgstr ""
+
+#. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
+#. partial, or none at all.
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "clean"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "partial"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "none"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "No grid"
+msgstr ""
+
+#. TRANSLATORS: %1 is a frame rate, %2 the word for a partial grid.
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "Grid: %1 fps (%2)"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "Grid: %1 fps"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "Frames: %1 fps"
+msgstr ""
+
+#. TRANSLATORS: %1 is the name of a subtitle format.
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "ends are not carried by %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "line breaks were joined in %1 subtitle"
+msgid_plural "line breaks were joined in %1 subtitles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "%1 tag dropped"
+msgid_plural "%1 tags dropped"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "the header was dropped"
+msgstr ""
+
+#. TRANSLATORS: %1 is the name of a subtitle format, %2 a count.
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "the %1 fields of %2 subtitle were dropped"
+msgid_plural "the %1 fields of %2 subtitles were dropped"
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANSLATORS: %1 is a number of milliseconds.
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "positions moved by up to %1 ms"
+msgstr ""
+
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "inserted %1 subtitle to fit the clipboard"
+msgid_plural "inserted %1 subtitles to fit the clipboard"
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANSLATORS: %1 and %2 are names of subtitle formats, %3 what was
+#. lost on the way, such as « 3 tags dropped ».
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "pasting %1 texts into %2: %3"
+msgstr ""
+
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "appended %1 subtitle"
+msgid_plural "appended %1 subtitles"
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANSLATORS: %1 and %2 are names of subtitle formats, %3 what was lost
+#. on the way, such as « 3 tags dropped ».
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "%1 into %2: %3"
+msgstr ""
+
+#. TRANSLATORS: %1 and %2 are frame rates.
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "converting from %1 to %2 fps"
+msgstr ""
+
+#. TRANSLATORS: %1 is « converting from 25 to 24 fps », %2 a frame rate,
+#. %3 to %5 percentages.
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid ""
+"%1 puts the positions on a %2 fps grid: %3, against %4 as they are and %5 "
+"for the next best conversion"
+msgstr ""
+
+#. TRANSLATORS: %1 and %2 are « converting from 25 to 24 fps », %3 and %4
+#. percentages.
+#: src/lib/subedit/core/wording/conversion.cpp
+msgid "%1 and %2 fit equally well (%3 and %4), so none is proposed"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "cannot be translated"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "will not compile"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "has an invalid replacement"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "timed out"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "never settled"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "grew the text too long"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "directory cannot be read"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "file cannot be read"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "malformed line"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "field outside any pattern"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "unknown field"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "missing field"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "invalid value"
+msgstr ""
+
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "malformed activation"
+msgstr ""
+
+#. TRANSLATORS: %1 is a file name, %2 a line number in it.
+#: src/lib/subedit/core/wording/correction.cpp
+msgid "%1, line %2"
+msgstr ""
+
+#. TRANSLATORS: %1 subtitles were edited and %2 removed. English says
+#. « subtitles » whatever the counts; the form is chosen by %2.
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "Edited %1 and removed %2 subtitles"
+msgid_plural "Edited %1 and removed %2 subtitles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "no mention to remove"
+msgstr ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 subtitle cleaned, %2 removed"
+msgid_plural "%1 subtitles cleaned, %2 removed"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid ""
+"subtitle %1 would start before the origin, which no subtitle file can hold"
+msgstr ""
+
+#. TRANSLATORS: %1 is a language code, such as en_GB.
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "no dictionary for %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 subtitle"
+msgid_plural "%1 subtitles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 file"
+msgid_plural "%1 files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 position"
+msgid_plural "%1 positions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 diagnostic"
+msgid_plural "%1 diagnostics"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 run"
+msgid_plural "%1 runs"
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANSLATORS: %1 is what the user searched for.
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "\"%1\" not found"
+msgstr ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "nothing to change"
+msgstr ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 subtitle put in italics"
+msgid_plural "%1 subtitles put in italics"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 subtitle taken out of italics"
+msgid_plural "%1 subtitles taken out of italics"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 subtitle recased"
+msgid_plural "%1 subtitles recased"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 subtitle dashed"
+msgid_plural "%1 subtitles dashed"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 subtitle undashed"
+msgid_plural "%1 subtitles undashed"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "replaced %1 match"
+msgid_plural "replaced %1 matches"
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANSLATORS: %1 is « replaced 4 matches », %2 the number of projects.
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 in %2 project"
+msgid_plural "%1 in %2 projects"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "split %1 subtitle into a new project"
+msgid_plural "split %1 subtitles into a new project"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "already in order"
+msgstr ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid "%1 subtitle moved"
+msgid_plural "%1 subtitles moved"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/counts.cpp
+msgid ""
+"Cannot split at subtitle %1: subtitle %2 would fall before the start of the "
+"video. Cut somewhere else."
+msgstr ""
+
+#. TRANSLATORS: %1 is an operation, such as « shifting », %2 a count, %3
+#. a length in seconds.
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 leaves %2 subtitle past the end of the video, by %3 at most"
+msgid_plural "%1 leaves %2 subtitles past the end of the video, by %3 at most"
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANSLATORS: %1 of %2 subtitles were aligned; %3 and %4 are frame rates.
+#: src/lib/subedit/core/wording/editing.cpp
+msgid ""
+"%1 of %2 subtitle aligned to %3 fps; the document is still read on a %4 fps "
+"grid"
+msgid_plural ""
+"%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps "
+"grid"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "nothing to look for"
+msgstr ""
+
+#. TRANSLATORS: %1 is the regular expression engine's own reason, in English.
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "not a regular expression (%1)"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "no duration to adjust"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "adjusted the durations of %1 subtitle"
+msgid_plural "adjusted the durations of %1 subtitles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "the reading speed in %1 subtitle"
+msgid_plural "the reading speed in %1 subtitles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "the minimum duration in %1 subtitle"
+msgid_plural "the minimum duration in %1 subtitles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "the gap in %1 subtitle"
+msgid_plural "the gap in %1 subtitles"
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANSLATORS: %1 is what the adjustment did, %2 the constraints it could
+#. not satisfy, such as « the gap in 2 subtitles ».
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1; could not satisfy %2"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "already disjoint"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 subtitle split, %2 merged"
+msgid_plural "%1 subtitles split, %2 merged"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 shown in windows for holding too many lines"
+msgid_plural "%1 shown in windows for holding too many lines"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 very short taken over by a neighbour"
+msgid_plural "%1 very short taken over by a neighbour"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 subtitle shorter than the limit left whole"
+msgid_plural "%1 subtitles shorter than the limit left whole"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 merged with styles or positions that differ, the first kept"
+msgid_plural "%1 merged with styles or positions that differ, the first kept"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 subtitle ending before the start left alone"
+msgid_plural "%1 subtitles ending before the start left alone"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "no repeated subtitles"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 repeated subtitle joined"
+msgid_plural "%1 repeated subtitles joined"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "The subtitles are not in the order of their start: sort them first."
+msgstr ""
+
+#. TRANSLATORS: %1 is the name of a character encoding, such as UTF-8; a BOM
+#. is a byte order mark.
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "%1, BOM"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "%1, no BOM"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "Encoding: %1"
+msgstr ""
+
+#. TRANSLATORS: %1 is the name the user gave for an encoding.
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "no encoding is named \"%1\""
+msgstr ""
+
+#. TRANSLATORS: %1 is the name the user gave for an encoding.
+#: src/lib/subedit/core/wording/formats.cpp
+msgid ""
+"\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE "
+"and UTF-16BE do"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "cannot be decoded in the chosen encoding"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "holds nothing recognisable as a subtitle"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "is in no format this tool knows"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "does not exist"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "cannot be opened: permission denied"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "cannot be read"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "cannot be written: permission denied"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "cannot be written"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "cannot be created: permission denied"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "cannot be created"
+msgstr ""
+
+#: src/lib/subedit/core/wording/formats.cpp
+msgid "holds a character the chosen encoding cannot write"
+msgstr ""
+
+#: src/lib/subedit/core/wording/settings.cpp
+msgid "System"
+msgstr ""
+
+#: src/lib/subedit/core/wording/settings.cpp
+msgid "Light"
+msgstr ""
+
+#: src/lib/subedit/core/wording/settings.cpp
+msgid "Dark"
+msgstr ""
+
+#: src/lib/subedit/core/wording/settings.cpp
+msgid "Above the selection"
+msgstr ""
+
+#: src/lib/subedit/core/wording/settings.cpp
+msgid "Below the selection"
+msgstr ""
+
+#: src/lib/subedit/core/wording/settings.cpp
+msgid "leaves the colours to the desktop"
+msgstr ""
+
+#: src/lib/subedit/core/wording/settings.cpp
+msgid ""
+"# subedit settings.\n"
+"#\n"
+"# Options left at their default are written commented out. Uncomment a\n"
+"# line and change its value to override it; delete the line to go back\n"
+"# to the default, whatever that default becomes in a later version.\n"
+"#\n"
+"# Two of them default to whatever the window chooses rather than to a\n"
+"# number: their commented line shows the shape of a value, not a\n"
+"# default that is in force.\n"
+"#\n"
+"# A value this file cannot read is left at its default, and said so on\n"
+"# the standard error when the program starts.\n"
+msgstr ""
+
+#: src/lib/subedit/core/wording/settings.cpp
+msgid "cannot be read, keeping the default"
+msgstr ""
+
+#: src/lib/subedit/core/wording/settings.cpp
+msgid "settings could not be written"
+msgstr ""
+
+#: src/lib/subedit/core/wording/translation.cpp
+msgid "translation: the file holds no line"
+msgstr ""
+
+#: src/lib/subedit/core/wording/translation.cpp
+msgid "%1 line attached"
+msgid_plural "%1 lines attached"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/translation.cpp
+msgid "%1 subtitle born of a line"
+msgid_plural "%1 subtitles born of a line"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/translation.cpp
+msgid "%1 subtitle left without a translation"
+msgid_plural "%1 subtitles left without a translation"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/translation.cpp
+msgid "%1 line out of order"
+msgid_plural "%1 lines out of order"
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANSLATORS: %1 is what became of the lines of a translation, such as
+#. « 4 lines attached; 1 line out of order ».
+#: src/lib/subedit/core/wording/translation.cpp
+msgid "translation: %1"
+msgstr ""
+
+#. TRANSLATORS: %1 is a length in seconds, %2 and %3 counts of lines.
+#: src/lib/subedit/core/wording/translation.cpp
+msgid ""
+"the lines sit %1 later than the subtitles; moved back, %2 line would attach "
+"instead of %3"
+msgid_plural ""
+"the lines sit %1 later than the subtitles; moved back, %2 lines would attach "
+"instead of %3"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/translation.cpp
+msgid ""
+"the lines sit %1 earlier than the subtitles; moved forward, %2 line would "
+"attach instead of %3"
+msgid_plural ""
+"the lines sit %1 earlier than the subtitles; moved forward, %2 lines would "
+"attach instead of %3"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/translation.cpp
+msgid "the file is already open as the main document"
+msgstr ""
+
+#: src/lib/subedit/core/wording/video.cpp
+msgid ""
+"positions cannot be shown in frames: the file is not counted in frames, the "
+"video declares no frame rate, and the positions fall on no grid"
+msgstr ""
+
+#: src/lib/subedit/core/wording/video.cpp
+msgid "the rate the video declares"
+msgstr ""
+
+#: src/lib/subedit/core/wording/video.cpp
+msgid "the rate of the file"
+msgstr ""
+
+#: src/lib/subedit/core/wording/video.cpp
+msgid "the grid the positions fall on"
+msgstr ""
+
+#. TRANSLATORS: %1 is a frame rate, %2 where it came from, such as « the
+#. rate the video declares ».
+#: src/lib/subedit/core/wording/video.cpp
+msgid "Positions are frame numbers, counted at %1 fps, %2"
+msgstr ""
+
+#: src/lib/subedit/core/wording/video.cpp
+msgid ""
+"no frame rate to count a frame by: the video declares none, the file is not "
+"counted in frames, and its positions fall on no grid. Associate a video that "
+"declares one."
+msgstr ""
+
+#: src/lib/subedit/core/wording/video.cpp
+msgid "No video"
+msgstr ""
+
+#. TRANSLATORS: %1 is the file name of a video, %2 the frame rate it declares.
+#: src/lib/subedit/core/wording/video.cpp
+msgid "Video: %1, %2 fps"
+msgstr ""
+
+#. TRANSLATORS: %1 is the file name of a video.
+#: src/lib/subedit/core/wording/video.cpp
+msgid "Video: %1"
+msgstr ""
