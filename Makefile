@@ -182,6 +182,17 @@ parallelism: ## Vérifie qu'aucun parallélisme ne contourne $(JOBS)
 	$(call step,"parallélisme maîtrisé")
 	@./src/scripts/check-parallelism.sh
 
+# User-visible strings outside the translation API — issue #661. `untranslated` (in `check`)
+# holds the count to its ratchet; `untranslated-record` rewrites the ratchet once a conversion
+# has lowered it, and the gate refuses a record above the one at the merge base.
+.PHONY: untranslated
+untranslated: ## Refuse a user-visible string outside the translation API beyond the ratchet
+	@./src/scripts/gate.sh untranslated
+
+.PHONY: untranslated-record
+untranslated-record: ## Rewrite .untranslated-ratchet from the counts of the tree
+	@./src/scripts/check-translatable-strings.py --record
+
 # Les catalogues de messages — issue #659. `pot` réécrit le gabarit d'après le code, `po` le fusionne
 # dans chaque langue de src/po/LINGUAS, `pot-check` (dans `check-local`) refuse un gabarit périmé.
 .PHONY: pot

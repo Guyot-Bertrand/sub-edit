@@ -11,11 +11,27 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **scripts** — Count user-visible strings that escape translation
+- **scripts** — Hold the untranslated count in the gate
+
+### Documentation
+
+- **doc** — Describe the untranslated-string ratchet
+
+### Tests
+
+- **scripts** — Prove the untranslated-string gate refuses a label
+
+## 0.15.14 — 2026-10-12
+
+### Ajouts
+
 - **scripts** — Refuse French everywhere, with a descending allowlist
 
 ### Documentation
 
 - **doc** — Describe the repository-wide language guard
+- **doc** — Regenerate the changelog
 
 ### Remaniements
 

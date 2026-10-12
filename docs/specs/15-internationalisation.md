@@ -182,6 +182,29 @@ Four checks, each proven by `verify-gates.sh`:
 Plus a **test harness that opens the window under a second catalogue with no screen** ([#669](https://github.com/Guyot-Bertrand/sub-edit/issues/669)),
 which catches an untranslated string and a truncated label the other checks cannot see.
 
+**Specified by #661.** `src/scripts/check-translatable-strings.py` reads the C++ that `git ls-files` names under
+`src/lib/` and `src/exe/` (tests, benchmarks and tools are not read) through its tokens: comments and preprocessor lines
+are skipped, raw strings are literals like any other, adjacent literals count once. A literal is counted when it has a
+word (two letters in a row), the call that directly receives it — type wrappers such as `QStringLiteral` looked through —
+is not `translate`, `translateIn`, `translatePlural` or `tr`, and no entry of **`.translation-exemptions`** matches it.
+That table, at the root of the repository, is the one place where a literal is declared not for a reader: 19 categories
+with their reason (identifier, JSON, option, format, constant, program, path, bytes, matched data, settings-file
+examples, player vocabulary, markup, regex, log, CSS, shortcut, file syntax, external program, spelling data), each
+entry a regex on the text, the name of the receiving call, a regex on the statement, or a file glob. The count therefore
+over-reports rather than under-reports: what the rules cannot place is counted, and a conversion issue wraps it or
+exempts it with its reason.
+
+The ratchet is **`.untranslated-ratchet`**: a `total` line and the count of each file. The `untranslated` step of
+`check`, after `arch`, refuses a file whose count rises or a new file with untranslated literals, a line above its
+file's count (it must be lowered, with `make untranslated-record`), and a total above the total at the merge base with
+`origin/main` — growth is judged on the total so that a refactoring may move literals between files. Its cases —
+annotated C++ where each category must be proven, and scratch repositories for each ratchet rule — live in
+`src/test/data/translatable/` and are replayed by the `fixtures` step; `verify-gates.sh` proves on a scratch copy that
+an unwrapped label is refused, the same label in `tr` passes, and a ratchet recorded upwards is refused. **Recorded on
+2026-10-12: 1 159 literals in 145 files** — window 373 (49 files), command line 413 (274 in `src/lib/subedit/cli`, 139 in
+`src/exe/cli`), `core/wording/` 229 (9 files), the rest of `core` 144 (29 files, 76 of them in `core/config`). The target
+is zero before the phase closes.
+
 ## Settings shared by the window and the command line (#699)
 
 **Issue:** [#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699). Framed first as a standalone spec, then folded

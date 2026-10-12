@@ -48,11 +48,15 @@ readonly RESET=$'\033[0m'
 # qu'il vienne. Le format passe avant la compilation parce qu'il coûte une
 # seconde et qu'un échec de format doit coûter une seconde. L'analyse statique
 # vient après la compilation parce qu'elle en est une.
+#
+# The scan of user-visible strings (#661) follows `arch` for the same reason the
+# format comes first: it reads the sources, builds nothing, and costs a second.
 readonly CHECK_STEPS=(
     untracked-record
     config-home-record
     format-check
     arch
+    untranslated
     build
     tidy
     asan
@@ -93,6 +97,7 @@ run_step() {
     format) "${STEPS_DIR}/format.sh" ;;
     arch) printf '%s▸ invariants d architecture%s\n' "${BOLD}" "${RESET}"
         "${REPO_ROOT}/src/scripts/check-architecture.sh" ;;
+    untranslated) "${STEPS_DIR}/untranslated.sh" ;;
     build) "${STEPS_DIR}/build.sh" ;;
     tidy) "${STEPS_DIR}/tidy.sh" ;;
     asan) "${STEPS_DIR}/asan.sh" ;;

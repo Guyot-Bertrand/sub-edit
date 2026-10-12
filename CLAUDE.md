@@ -124,6 +124,15 @@ avec un objectif d'iso-fonctionnalité.
   (#549). **A menu or dialog label that belongs to the window and has no
   command-line equivalent stays in the window's file**: the rule is about shared
   words, not about the surface that shows them.
+
+  **A string the user reads goes through the translation API** — `translate`,
+  `translateIn`, `translatePlural` (`core/i18n/messages.hpp`) or Qt's `tr`. The
+  `untranslated` step of `check` (`check-translatable-strings.py`, #661) counts,
+  file by file, the literals that do not, against `.untranslated-ratchet`, which
+  only descends and reaches zero before phase 15 closes. A literal that is not
+  for a reader — a key, an option name, a format's syntax — goes in
+  `.translation-exemptions`, with its reason. A conversion lowers the ratchet
+  with `make untranslated-record`.
 - **Commits** — Conventional Commits, scopes alignés sur les labels `area:`.
 - **Titre d'une pull request** — **la même grammaire, la même limite de 72
   caractères.** `.github/workflows/pull-request.yml` passe le titre à

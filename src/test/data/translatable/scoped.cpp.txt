@@ -1,0 +1,42 @@
+// The exemptions that hold in one file only: a vocabulary that is data there, and that the
+// same words elsewhere would not be. Each `// path:` line gives the file the code after it is
+// judged as.
+
+// path: src/lib/subedit/gui/mpv_player.cpp
+constexpr std::pair<const char*, const char*> kQuiet{"terminal", "no"}; // expect: exempt:player
+std::array<const char*, 3> load{"loadfile", path.c_str(), nullptr}; // expect: exempt:player
+mpv_set_property_string(handle, "pause", "yes"); // expect: exempt:player
+return std::unexpected("the video player could not be started"); // expect: counted
+
+// path: src/lib/subedit/gui/play_bar.cpp
+std::array<const char*, 3> load{"loadfile", path.c_str(), nullptr}; // expect: counted
+
+// path: src/lib/subedit/core/format/sub_station_alpha_reader.cpp
+constexpr std::string_view kEventsSection = "[Events]"; // expect: exempt:file-syntax
+constexpr std::string_view kDialogueKeyword = "Dialogue:"; // expect: exempt:file-syntax
+constexpr std::string_view kDefault = "{DEFAULT}"; // expect: exempt:file-syntax
+return failure("no dialogue line"); // expect: counted
+
+// path: src/lib/subedit/core/format/sub_station_alpha_syntax.hpp
+constexpr std::string_view kMarginLeft = "MarginL"; // expect: exempt:file-syntax
+constexpr std::string_view kEffect = "Effect"; // expect: exempt:file-syntax
+
+// path: src/lib/subedit/gui/preferences_dialog.cpp
+form->addRow(QStringLiteral("Language:"), m_language); // expect: counted
+
+// path: src/lib/subedit/core/i18n/catalogue.cpp
+constexpr std::string_view kKey = "Plural-Forms:"; // expect: exempt:file-syntax
+return std::unexpected("the header lacks nplurals or plural"); // expect: counted
+
+// path: src/lib/subedit/core/video/declared_frame_rate.cpp
+return {"error", "stream=r_frame_rate", "default=noprint_wrappers=1:nokey=1"}; // expect: exempt:external-program
+
+// path: src/lib/subedit/core/text/spell_checker.cpp
+const std::array suffixes{"1st", "2nd", "3rd"}; // expect: exempt:spelling-data
+const std::array contractions{"'ll", "'re", "'ve"}; // expect: exempt:spelling-data
+
+// path: src/lib/subedit/core/text/sub_station_alpha_markup.cpp
+constexpr std::string_view kFontPrefix = "fn"; // expect: exempt:markup
+
+// path: src/lib/subedit/cli/json.cpp
+out = *flag ? "true" : "false"; // expect: exempt:json

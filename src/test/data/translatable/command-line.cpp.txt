@@ -1,0 +1,87 @@
+// path: src/lib/subedit/cli/fixture.cpp
+// The command-line side and the shared wording: narration, errors, help, JSON, and the
+// vocabulary that is never translated.
+
+namespace subedit::cli {
+
+std::string noticeOf(std::size_t count) {
+    return translatePlural("%1 subtitle shifted", "%1 subtitles shifted", count); // expect: translated
+}
+
+std::string reasonOf() {
+    return std::string{translate("nothing to look for")}; // expect: translated
+}
+
+std::string_view unitOf() {
+    return translateIn("unit of length", "em"); // expect: translated
+}
+
+std::string refusalOf(const std::string& path) {
+    return path + ": cannot be read"; // expect: counted
+}
+
+std::string movedOf(std::size_t count) {
+    return countOf(count, "subtitle") + " moved"; // expect: counted
+}
+
+constexpr std::string_view kRaw = R"(a raw string is a literal too)"; // expect: counted
+constexpr std::string_view kPattern = R"(\bcolou?r\b)"; // expect: exempt:regex
+
+void declare(CLI::App& command, Options& options) {
+    command.add_option("--output,-o", options.output, // expect: exempt:option
+                       "File to write"); // expect: counted
+    command.add_flag("--dry-run", options.dryRun); // expect: exempt:option
+    command.add_option("files", options.files)->required(); // expect: exempt:option
+    command.add_option("--sort", options.sort)
+        ->check(CLI::IsMember({"position", "number"})) // expect: exempt:option
+        ->option_text("position|number") // expect: exempt:option
+        ->default_str("position"); // expect: exempt:option
+    command.add_option("--input", options.input)->option_text("FILE"); // expect: exempt:option
+}
+
+Json recordOf(std::size_t moved) {
+    return Json::object()
+        .set("kind", "shift") // expect: exempt:json
+        .set("moved", moved);
+}
+
+void count(std::vector<Count>& counts, std::size_t moved) {
+    counts.emplace_back("moved", static_cast<std::int64_t>(moved)); // expect: exempt:json
+}
+
+std::optional<Encoding> encodingNamed(std::string_view name) {
+    if (name == "utf8") // expect: exempt:matched
+        return Encoding::utf8();
+    if (name.starts_with("windows")) // expect: exempt:matched
+        return std::nullopt;
+    return lookup("ISO-8859-15"); // expect: exempt:format
+}
+
+void environment() {
+    variable("XDG_CONFIG_HOME"); // expect: exempt:constant
+    variable("ffprobe"); // expect: exempt:program
+}
+
+std::filesystem::path where(const std::filesystem::path& home) {
+    return home / "share" / "patterns"; // expect: exempt:path
+}
+
+std::filesystem::path settingsFile() {
+    return "README.md"; // expect: exempt:path
+}
+
+constexpr std::string_view kByteOrderMark = "\xEF\xBB\xBF"; // expect: exempt:bytes
+
+std::string tag() {
+    return "<font color=\"#"; // expect: exempt:markup
+}
+
+std::string override() {
+    return "{\\fs20}"; // expect: exempt:markup
+}
+
+void write(std::string& out) {
+    writeOption(out, key, "Western European", true); // expect: exempt:settings-file
+}
+
+} // namespace subedit::cli

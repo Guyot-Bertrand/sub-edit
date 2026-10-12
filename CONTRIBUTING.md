@@ -110,6 +110,14 @@ The repository is mixed until the existing French is translated. Two checks of
   quotes a French datum — the fixture format has some — goes on the check's
   exemption list, with its reason.
 
+A string the program shows is English in the source and goes through the
+translation API — `translate`, `translateIn`, `translatePlural` or Qt's `tr` —
+so that a catalogue can translate it. The `untranslated` step of `make check`
+counts the user-visible literals that do not, file by file, against
+`.untranslated-ratchet`: a new one fails the gate, and the count only goes down.
+A literal that is not for a reader — a settings key, an option name, a JSON key,
+a format's syntax — is exempted in `.translation-exemptions`, with its reason.
+
 ### Commits
 
 [Conventional Commits](https://www.conventionalcommits.org/fr/), vérifiés par un

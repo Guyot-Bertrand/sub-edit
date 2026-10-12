@@ -21,3 +21,5 @@ step "translated manual structure"
 "${REPO_ROOT}/src/scripts/check-translation-structure.py" --check-fixtures
 step "repository language: the classifier and the allowlist rules"
 "${REPO_ROOT}/src/scripts/check-comment-language.py" --check-fixtures
+step "translatable strings: the verdict of each marked literal and the ratchet rules"
+"${REPO_ROOT}/src/scripts/check-translatable-strings.py" --check-fixtures
