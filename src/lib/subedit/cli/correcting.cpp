@@ -240,19 +240,21 @@ switchPattern(const std::string& written,
     });
 }
 
+/// The pattern is named as it is shown, translated (D6); built under `SourceLanguage` for the
+/// JSON record, the name is the file's English one with the rest of the sentence.
 [[nodiscard]] std::string abandonedSentence(const core::PatternFailure& failure,
                                             const std::vector<std::size_t>& subtitles) {
     if (failure.text && *failure.text < subtitles.size()) {
         return core::substitute(
             // TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle number.
             core::translate("pattern \"%1\" (%2) was not applied to subtitle %3"),
-            {failure.name,
+            {core::patternName(failure.name),
              core::reasonOf(failure.kind),
              std::to_string(subtitles[*failure.text] + 1)});
     }
     // TRANSLATORS: %1 is the name of a pattern, %2 why it gave up.
     return core::substitute(core::translate("pattern \"%1\" (%2) was not applied"),
-                            {failure.name, core::reasonOf(failure.kind)});
+                            {core::patternName(failure.name), core::reasonOf(failure.kind)});
 }
 
 /// The tasks `--tasks` names, once each, or the first word that is none.

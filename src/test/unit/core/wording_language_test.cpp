@@ -14,10 +14,13 @@
 #include <subedit/core/format/degradation.hpp>
 #include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/text/common_errors.hpp>
+#include <subedit/core/text/correction_pattern.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/wording/analysis.hpp>
@@ -35,8 +38,10 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <utility>
+#include <vector>
 
 using namespace subedit::core;
 
@@ -97,6 +102,64 @@ TEST_CASE("the correction family speaks the installed language", "[wording][i18n
                                      .line = 4,
                                      .detail = {}}) ==
           "Zyyy.common-error, строка 4 (неверная строка)");
+}
+
+namespace {
+
+/// The record of `kind` named `name` in `code`'s cascade.
+[[nodiscard]] const CorrectionPattern& recordNamed(const PatternCatalogue& catalogue,
+                                                   PatternKind kind,
+                                                   std::string_view code,
+                                                   std::string_view name) {
+    const std::vector<const CorrectionPattern*> cascade = catalogue.cascade(kind, code);
+    const auto found = std::ranges::find_if(
+        cascade, [name](const CorrectionPattern* pattern) { return pattern->name == name; });
+    REQUIRE(found != cascade.end());
+    return **found;
+}
+
+} // namespace
+
+TEST_CASE("a Gaupol pattern is named in the installed language, and a user's own as written",
+          "[wording][i18n]") {
+    // The shipped files and a user's, read as they are: the translation is the catalogue's.
+    const RealFileSystem shipped;
+    const PatternCatalogue gaupol = readPatternCatalogue(shipped, SUBEDIT_PATTERNS_DIR, {});
+    const CorrectionPattern& letter = recordNamed(
+        gaupol, PatternKind::CommonError, "Latn-en", "Letter \"I\" in a lower case word");
+    const CorrectionPattern& pronoun =
+        recordNamed(gaupol, PatternKind::Capitalization, "Latn-en", "First person pronoun");
+
+    InMemoryFileSystem files;
+    files.addFile("/user/Latn-en.common-error",
+                  "[Common Error Pattern]\nName=A pattern of my own\nDescription=Mine, and in no "
+                  "catalogue\nClasses=OCR;\nPattern=a\nReplacement=b\n");
+    const PatternCatalogue users = readPatternCatalogue(files, "/shipped", "/user");
+    const CorrectionPattern& own =
+        recordNamed(users, PatternKind::CommonError, "Latn-en", "A pattern of my own");
+
+    SECTION("in English, every pattern as its file says it") {
+        CHECK(patternName(letter) == "Letter \"I\" in a lower case word");
+        CHECK(patternDescription(letter) ==
+              "Replace letter \"I\" with letter \"l\" in a lower case word");
+        CHECK(patternName(own) == "A pattern of my own");
+    }
+    SECTION("under the catalogue, Gaupol's translated and the user's as written") {
+        const InRussian russian;
+        CHECK(patternName(letter) == "Буква «I» в слове из строчных букв");
+        CHECK(patternDescription(letter) == "Заменить букву «I» на «l» в слове из строчных букв");
+        CHECK(patternName(pronoun) == "Местоимение первого лица");
+        CHECK(patternDescription(pronoun) == "Писать местоимение первого лица «I» с прописной");
+        // A name met elsewhere — a failure carries only the name — reads the same way.
+        CHECK(patternName(std::string_view{letter.name}) == "Буква «I» в слове из строчных букв");
+        CHECK(patternName(own) == "A pattern of my own");
+        CHECK(patternDescription(own) == "Mine, and in no catalogue");
+        // The record itself is untouched: the English name stays its identifier.
+        CHECK(letter.name == "Letter \"I\" in a lower case word");
+        // And text that must not follow the language gets the file's words.
+        CHECK(inSourceLanguage([&] { return patternName(letter); }) ==
+              "Letter \"I\" in a lower case word");
+    }
 }
 
 TEST_CASE("the counts family speaks the installed language, in three forms", "[wording][i18n]") {

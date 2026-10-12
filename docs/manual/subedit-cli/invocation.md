@@ -67,6 +67,10 @@ program itself: the locale does not need to be generated on the machine.
 | a language whose catalogue is not installed | the next one asked for, and English after the last, **without a word** |
 | a message the catalogue does not translate | shown in English |
 
+**The name of a correction pattern** that `correct` says it could not apply follows the language
+too, when the catalogue knows it — the patterns shipped with the program; a pattern of your own is
+named as its file writes it. The pattern files themselves are never rewritten.
+
 The catalogues are installed under `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
 and found from the executable's own directory. English is built in. This version installs `fr`,
 whose translation is still to be done: until it is, its messages are shown in English.
@@ -78,6 +82,7 @@ whose translation is still to be done: until it is, its messages are shown in En
 | `--format json` output: keys, values, and the `message` and `detail` of failures and warnings | the same bytes in every language; the words are English |
 | exit codes | the four of [Return codes](#codes-de-retour), in every language |
 | the names typed: subcommands, options, their values (`off`, `srt`), metavariables (`FILE`, `TEXT`, `OPTIONS`) | a command line written once works under every language |
+| the names of correction patterns that `correct --enable` and `--disable` take | a pattern is called by the English name its file holds |
 | the names of formats and encodings | a format is called by its name |
 | CLI11's own diagnostics — a missing required argument, an unknown option, a value an option does not accept — and its `Run with --help for more information.` | worded inside the parser the command line is built on; they stay English |
 
@@ -255,7 +260,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.15.19
+subedit 0.15.20
 ```
 
 ## Sous-commandes

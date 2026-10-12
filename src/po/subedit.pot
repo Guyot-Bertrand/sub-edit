@@ -18,6 +18,367 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
+#: packaging/patterns/Latn-en-US.common-error
+msgid "Add period after a shortened title, such as \"Mr\" and \"Dr\""
+msgstr ""
+
+#: packaging/patterns/Latn-en-US.common-error
+msgid "Period after title"
+msgstr ""
+
+#: packaging/patterns/Latn-en.capitalization
+msgid "Capitalize the first person pronoun \"I\""
+msgstr ""
+
+#: packaging/patterns/Latn-en.capitalization
+msgid "First person pronoun"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
+msgid "Add or remove space between a number and the associated unit"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error
+msgid "Letter \"I\" in a lower case word"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error
+msgid "Letter \"l\" in an upper case word"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error
+msgid "Okay"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error
+msgid "Remove spaces around an apostrophe"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error
+msgid "Replace letter \"I\" with letter \"l\" in a lower case word"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error
+msgid "Replace letter \"l\" with letter \"I\" in an upper case word"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error
+msgid "Replace zero with letter \"O\" in an upper case word"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
+msgid "Space between number and unit"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error
+msgid "Spaces around an apostrophe"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error
+msgid "Spell two-letter forms of \"okay\" in all upper case"
+msgstr ""
+
+#: packaging/patterns/Latn-en.common-error
+msgid "Zero in an upper case word"
+msgstr ""
+
+#: packaging/patterns/Latn-en.hearing-impaired
+msgid ""
+"Replace the uppercase name of the speaker before a colon with a dialogue dash"
+msgstr ""
+
+#: packaging/patterns/Latn-en.hearing-impaired
+msgid "Uppercase speaker before a colon"
+msgstr ""
+
+#: packaging/patterns/Latn-en.line-break
+msgid "Article"
+msgstr ""
+
+#: packaging/patterns/Latn-en.line-break
+msgid "Do not break after a possessive determiner, e.g. \"my\""
+msgstr ""
+
+#: packaging/patterns/Latn-en.line-break
+msgid "Do not break after a preposition"
+msgstr ""
+
+#: packaging/patterns/Latn-en.line-break
+msgid "Do not break after a title, e.g. \" Dr.\""
+msgstr ""
+
+#: packaging/patterns/Latn-en.line-break
+msgid "Do not break after an article"
+msgstr ""
+
+#: packaging/patterns/Latn-en.line-break
+msgid "Possessive determiner"
+msgstr ""
+
+#: packaging/patterns/Latn-en.line-break
+msgid "Preposition"
+msgstr ""
+
+#: packaging/patterns/Latn-en.line-break
+msgid "Title"
+msgstr ""
+
+#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
+msgid "Add space after various punctuation marks"
+msgstr ""
+
+#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
+msgid "Space after punctuation marks"
+msgstr ""
+
+#: packaging/patterns/Latn-fr.common-error
+msgid "Add or remove space before various punctuation marks"
+msgstr ""
+
+#: packaging/patterns/Latn-fr.common-error
+msgid "Add spaces around guillemets"
+msgstr ""
+
+#: packaging/patterns/Latn-fr.common-error packaging/patterns/Latn.common-error
+msgid "Space before punctuation marks"
+msgstr ""
+
+#: packaging/patterns/Latn-fr.common-error
+msgid "Spaces around guillemets"
+msgstr ""
+
+#: packaging/patterns/Latn.capitalization
+msgid "Capitalize after an ellipsis"
+msgstr ""
+
+#: packaging/patterns/Latn.capitalization
+msgid "Capitalize the first word of a sentence"
+msgstr ""
+
+#: packaging/patterns/Latn.capitalization
+msgid "Ellipsis"
+msgstr ""
+
+#: packaging/patterns/Latn.capitalization
+msgid "Sentence"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Add or remove spaces around parentheses and square brackets"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Add space after a dialogue dash"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Add space after an ellipsis"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Add spaces between musical note characters and lyrics"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid ""
+"Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Double apostrophe"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Letter \"O\" in a number"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Ligatures"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Multiple question- and exclamation marks"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Periods around a punctuation mark"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Remove period before or after various punctuation marks"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Remove space after a starting- and before an ending quotation mark"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Remove space after an ellipsis that starts a line"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Remove space before various punctuation marks"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Replace a double apostrophe with a quotation mark"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Replace a single clause-terminating dash with two dashes"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Replace letter \"O\" with a zero in a number"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid ""
+"Replace multiple consequtive question- and exclamation marks with only one"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Space after a dialogue dash"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Space after a starting ellipsis"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Space after an ellipsis"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Spaces around a quotation mark"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Spaces around brackets"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Spaces around musical notes"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Spelling of a.m. and p.m."
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Terminating double-dashes"
+msgstr ""
+
+#: packaging/patterns/Latn.common-error
+msgid "Unpack ligatures to individual characters"
+msgstr ""
+
+#: packaging/patterns/Latn.hearing-impaired
+msgid "One-line song lyrics between number signs"
+msgstr ""
+
+#: packaging/patterns/Latn.hearing-impaired
+msgid "Remove description of a sound between parentheses"
+msgstr ""
+
+#: packaging/patterns/Latn.hearing-impaired
+msgid "Remove description of a sound between square brackets"
+msgstr ""
+
+#: packaging/patterns/Latn.hearing-impaired
+msgid "Remove one-line song lyrics starting with or between number signs"
+msgstr ""
+
+#: packaging/patterns/Latn.hearing-impaired
+msgid "Remove song lyrics starting with or between number signs"
+msgstr ""
+
+#: packaging/patterns/Latn.hearing-impaired
+msgid "Replace the name of the speaker before a colon with a dialogue dash"
+msgstr ""
+
+#: packaging/patterns/Latn.hearing-impaired
+msgid "Song lyrics between number signs"
+msgstr ""
+
+#: packaging/patterns/Latn.hearing-impaired
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Sound in brackets"
+msgstr ""
+
+#: packaging/patterns/Latn.hearing-impaired
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Sound in parentheses"
+msgstr ""
+
+#: packaging/patterns/Latn.hearing-impaired
+msgid "Speaker before a colon"
+msgstr ""
+
+#: packaging/patterns/Latn.line-break
+msgid "Break according to clauses terminated by a punctuation mark"
+msgstr ""
+
+#: packaging/patterns/Latn.line-break
+msgid "Break according to dialogue separated by dashes"
+msgstr ""
+
+#: packaging/patterns/Latn.line-break
+msgid "Clause"
+msgstr ""
+
+#: packaging/patterns/Latn.line-break
+msgid "Dialogue"
+msgstr ""
+
+#: packaging/patterns/Latn.line-break
+msgid "Do not break between a number and associated unit"
+msgstr ""
+
+#: packaging/patterns/Latn.line-break
+msgid "Number and unit"
+msgstr ""
+
+#: packaging/patterns/Zyyy.common-error
+msgid "Ellipses"
+msgstr ""
+
+#: packaging/patterns/Zyyy.common-error
+msgid "Leading and trailing spaces"
+msgstr ""
+
+#: packaging/patterns/Zyyy.common-error
+msgid "Multiple consecutive spaces"
+msgstr ""
+
+#: packaging/patterns/Zyyy.common-error
+msgid "Musical notes"
+msgstr ""
+
+#: packaging/patterns/Zyyy.common-error
+msgid "Remove space between digits of a number"
+msgstr ""
+
+#: packaging/patterns/Zyyy.common-error
+msgid "Remove spaces from the beginning and end of lines"
+msgstr ""
+
+#: packaging/patterns/Zyyy.common-error
+msgid "Replace Unicode ellipses with three separate dots"
+msgstr ""
+
+#: packaging/patterns/Zyyy.common-error
+msgid "Replace Unicode musical note characters with number signs"
+msgstr ""
+
+#: packaging/patterns/Zyyy.common-error
+msgid "Replace multiple consecutive spaces with only one"
+msgstr ""
+
+#: packaging/patterns/Zyyy.common-error
+msgid "Space between digits"
+msgstr ""
+
 #: src/exe/cli/application.cpp
 msgid "Usage"
 msgstr ""
@@ -2521,14 +2882,6 @@ msgstr ""
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Line Break"
-msgstr ""
-
-#: src/lib/subedit/gui/correction_task_page.cpp
-msgid "Sound in brackets"
-msgstr ""
-
-#: src/lib/subedit/gui/correction_task_page.cpp
-msgid "Sound in parentheses"
 msgstr ""
 
 #: src/lib/subedit/gui/correction_task_page.cpp

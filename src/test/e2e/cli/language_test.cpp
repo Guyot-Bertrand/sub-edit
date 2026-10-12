@@ -9,6 +9,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <filesystem>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -18,12 +20,17 @@
 using Catch::Matchers::ContainsSubstring;
 using Catch::Matchers::EndsWith;
 using subedit::e2e::CliRun;
+using subedit::e2e::contentOf;
+using subedit::e2e::corpus;
+using subedit::e2e::dataHome;
 using subedit::e2e::invoke;
 using subedit::e2e::invokeIn;
 using subedit::e2e::invokeInEveryLanguage;
 using subedit::e2e::Locale;
 using subedit::e2e::russian;
 using subedit::e2e::Scratch;
+using subedit::e2e::UserPatterns;
+using subedit::e2e::writeFile;
 using subedit::e2e::writeSrt;
 using subedit::e2e::writeUnreadable;
 
@@ -35,6 +42,31 @@ const std::vector<std::string> kUsageError{"shift", "--output-dir", "out", "a.sr
 /// What the fixture says for that error.
 constexpr const char* kUsageErrorInRussian =
     "shift требует --by или --to-grid, чтобы вычислить величину по позициям\n";
+
+/// What a pattern file is: its bytes and the time it was last written.
+struct FileState {
+    std::string bytes;
+    std::filesystem::file_time_type written;
+
+    friend bool operator==(const FileState&, const FileState&) = default;
+};
+
+/// Every pattern file the translated copy reads — the shipped ones beside it, linked into its
+/// prefix, and the user's — by path.
+[[nodiscard]] std::map<std::filesystem::path, FileState> patternFiles() {
+    const std::filesystem::path prefix =
+        std::filesystem::path{SUBEDIT_TRANSLATED_CLI_BINARY}.parent_path().parent_path();
+    std::map<std::filesystem::path, FileState> files;
+    for (const std::filesystem::path& directory :
+         {prefix / "share" / "subedit" / "patterns",
+          std::filesystem::path{dataHome()} / "subedit" / "patterns"}) {
+        for (const auto& entry : std::filesystem::directory_iterator{directory})
+            files.emplace(entry.path(),
+                          FileState{.bytes = contentOf(entry.path()),
+                                    .written = std::filesystem::last_write_time(entry.path())});
+    }
+    return files;
+}
 
 } // namespace
 
@@ -196,4 +228,51 @@ TEST_CASE("the output of --format json is the same bytes in every language, fail
     const CliRun run = invokeIn(russian(), arguments);
     CHECK_THAT(run.errors, ContainsSubstring(scratch.of("in/absent.srt") + " — не существует"));
     CHECK_THAT(run.errors, ContainsSubstring(broken + " — не в известном программе формате"));
+}
+
+TEST_CASE("a pattern that gives up is named in the language, a user's own as written",
+          "[e2e][CLI-I18N-01][CLI-I18N-02]") {
+    // The command line names a pattern only when it gives up, and a shipped one never does: the
+    // user's file holds two that ICU cannot read. The first bears the English name of a shipped
+    // Gaupol pattern, which the catalogue knows by that text (spec 15, D6); the second is hers.
+    const Scratch scratch;
+    const UserPatterns patterns{"Latn-xg.common-error",
+                                contentOf(corpus("motifs/utilisateur/Latn-xg.common-error"))};
+    const std::map<std::filesystem::path, FileState> before = patternFiles();
+    REQUIRE(before.size() > 1);
+    const std::string in = writeFile(scratch, "a.srt", "1\n00:00:01,000 --> 00:00:02,000\nqqq\n\n");
+    const auto arguments = [&](const std::string& out) {
+        return std::vector<std::string>{
+            "correct", "--tasks", "common-errors", "--code", "Latn-xg", "--output", out, in};
+    };
+
+    const CliRun english = invoke(arguments(scratch.of("en.srt")));
+    CHECK(english.exitCode == 0);
+    CHECK_THAT(english.errors,
+               ContainsSubstring("pattern \"Letter \"I\" in a lower case word\" (cannot be "
+                                 "translated) was not applied\n"));
+    CHECK_THAT(english.errors,
+               ContainsSubstring(
+                   "pattern \"A pattern of my own\" (cannot be translated) was not applied\n"));
+
+    const CliRun run = invokeIn(russian(), arguments(scratch.of("ru.srt")));
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.errors,
+               ContainsSubstring(
+                   "шаблон «Буква «I» в слове из строчных букв» (не переводится) не применён\n"));
+    CHECK_THAT(run.errors,
+               ContainsSubstring("шаблон «A pattern of my own» (не переводится) не применён\n"));
+    CHECK_THAT(run.errors, !ContainsSubstring("lower case"));
+
+    // The record keeps the file's English name, the same bytes in both languages.
+    std::vector<std::string> json{"--format", "json"};
+    for (const std::string& argument : arguments(scratch.of("json.srt")))
+        json.push_back(argument);
+    const CliRun record = invokeInEveryLanguage(json);
+    CHECK_THAT(record.output,
+               ContainsSubstring(R"("detail":"pattern \"Letter \"I\" in a lower case word\" )"
+                                 R"((cannot be translated) was not applied")"));
+
+    // And the translation was looked up, never written: no pattern file has changed.
+    CHECK(patternFiles() == before);
 }

@@ -11,11 +11,27 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **i18n** — Extract the shipped patterns' names into the template
+- **core** — Name a correction pattern in the user's language
+
+### Documentation
+
+- **doc** — Say how the correction patterns follow the language
+
+### Tests
+
+- **i18n** — Prove the patterns follow the language, files untouched
+
+## 0.15.19 — 2026-10-12
+
+### Ajouts
+
 - **gui** — Translate the dialogs, the wizard pages and the prompts
 
 ### Documentation
 
 - **doc** — Say that the dialogs follow the language
+- **doc** — Regenerate the changelog
 
 ### Tests
 

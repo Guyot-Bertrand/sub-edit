@@ -111,6 +111,18 @@ titles are English. Their translation lives in our catalogue, keyed by the Engli
 **when displayed**; the files are never rewritten. A pattern the catalogue does not know — a user's own — shows as
 written. [#666](https://github.com/Guyot-Bertrand/sub-edit/issues/666).
 
+**Delivered by #666.** `core::patternName` and `core::patternDescription` (`core/wording/correction.hpp`)
+look the file's English text up in the installed catalogue and return it as written when the catalogue does not
+have it. They name a pattern wherever one is shown: the tick boxes of `Correct Texts…`, whose tool tip is now the
+description, as Gaupol shows it beside the name; the patterns its confirmation page lists as not applied; and the
+same sentence on the command line's error stream. There is no `correct --list`: the command line names a pattern
+only when one gives up. The English name stays the identifier — of a setting, of `--enable`, and of every value of
+`--format json`, built under `SourceLanguage` as before. `update-pot.sh` extracts the `Name` and `Description` of
+the shipped files of `packaging/patterns/` and joins them to the code's messages, so the template holds them and
+`make po` merges them; the files themselves are never rewritten, which the tests check byte for byte and by their
+time of writing (`GUI-I18N-04`). The ratchet does not move: a name passed to `translate` is not a literal.
+[ADR 0037](../adr/0037-lire-les-motifs-de-gaupol-tels-quels.md), addendum.
+
 ## D7 — The language of the repository
 
 **Decision.** Everything is written in English: C++, scripts, build files, documentation, commit messages, pull request
