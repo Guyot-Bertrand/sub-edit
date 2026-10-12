@@ -2,6 +2,7 @@
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/gui/diagnostics_button.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QAbstractItemView>
 #include <QFrame>
@@ -16,6 +17,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <ranges>
 #include <span>
 #include <string>
@@ -76,8 +78,8 @@ DiagnosticsButton::DiagnosticsButton(QWidget* parent)
     setAutoRaise(true);
     setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     setIcon(style()->standardIcon(QStyle::SP_MessageBoxWarning));
-    setToolTip(QStringLiteral("What the reading ran into, and what is wrong with the "
-                              "subtitles — click for the list"));
+    setToolTip(translate("What the reading ran into, and what is wrong with the "
+                         "subtitles — click for the list"));
 
     m_popup->setFrameShape(QFrame::StyledPanel);
     auto* stack = new QVBoxLayout{m_popup};
@@ -131,8 +133,9 @@ void DiagnosticsButton::rebuild() {
     }
 
     const int total = m_lines->count();
-    setText(total == 1 ? QStringLiteral("1 diagnostic")
-                       : QStringLiteral("%1 diagnostics").arg(total));
+    setText(substitute(
+        translatePlural("%1 diagnostic", "%1 diagnostics", static_cast<std::uint64_t>(total)),
+        QString::number(total)));
 
     // A list with nothing left to show goes with its button.
     if (total == 0)

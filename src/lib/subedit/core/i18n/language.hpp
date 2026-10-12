@@ -39,6 +39,21 @@ using EnvironmentLookup = std::function<std::optional<std::string>(std::string_v
 [[nodiscard]] std::filesystem::path cataloguePath(const std::filesystem::path& localeDirectory,
                                                   std::string_view language);
 
+/// A language found installed: the candidate it was found under, and its catalogue.
+struct InstalledLanguage {
+    std::string name;
+    std::shared_ptr<const Catalogue> catalogue;
+};
+
+/// The first of `candidates` that is installed under `localeDirectory` and reads, or nothing —
+/// English. The window needs the name as well as the catalogue: it asks Qt for its own catalogue
+/// of the same language (#664).
+///
+/// Silent, as `installedCatalogue` below, for the same reason.
+[[nodiscard]] std::optional<InstalledLanguage>
+installedLanguage(const std::vector<std::string>& candidates,
+                  const std::filesystem::path& localeDirectory);
+
 /// The catalogue of the first of `candidates` that is installed under `localeDirectory` and
 /// reads, or null — English.
 ///

@@ -1,6 +1,7 @@
 #include <subedit/core/edit/insert_command.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/set_position_command.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/find_video.hpp>
 #include <subedit/core/model/associated_video.hpp>
 #include <subedit/core/model/document.hpp>
@@ -18,6 +19,7 @@
 #include <subedit/core/video/video_player.hpp>
 #include <subedit/core/wording/video.hpp>
 #include <subedit/gui/frame_source.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/play_bar.hpp>
 #include <subedit/gui/project_page.hpp>
 #include <subedit/gui/prompts.hpp>
@@ -181,7 +183,7 @@ VideoPane::VideoPane(core::FileSystem& files,
       m_picture(new VideoSurface{m_videoBox}),
       m_bar(new PlayBar{m_videoBox}),
       m_banner(new QWidget{owner}),
-      m_invite(new QPushButton{QStringLiteral("Select Video…"), m_banner}),
+      m_invite(new QPushButton{translate("Select Video…"), m_banner}),
       m_ticker(new QTimer{owner}),
       m_seekGate(new QTimer{owner}),
       m_stepGate(new QTimer{owner}) {
@@ -400,7 +402,9 @@ void VideoPane::watch(ProjectPage& page) {
         // and where it is not a remark about something nobody asked for yet.
         // Why there is none — a libmpv that would not start — is one sentence in
         // the manual rather than a taxonomy in a dialog.
-        m_prompts->reportFailure(wanted.string() + ": no video player is available");
+        // TRANSLATORS: %1 is the film the user asked for.
+        m_prompts->reportFailure(core::substitute(
+            core::translate("%1: no video player is available"), {wanted.string()}));
     }
 
     // A film that has been left behind must not go on playing under a document

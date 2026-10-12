@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <memory>
 #include <string>
 #include <system_error>
 #include <unistd.h>
@@ -16,6 +17,7 @@
 using subedit::core::cataloguePath;
 using subedit::core::EnvironmentLookup;
 using subedit::core::installedCatalogue;
+using subedit::core::installedLanguage;
 using subedit::core::languageCandidates;
 
 namespace {
@@ -143,6 +145,25 @@ TEST_CASE("the first candidate that is installed is the one read", "[i18n][langu
     const auto catalogue = installedCatalogue({"de_DE", "de", "ru", "fr"}, locale.path());
     REQUIRE(catalogue != nullptr);
     CHECK(catalogue->findPlural("%1 subtitle", 5) == "%1 субтитров");
+}
+
+TEST_CASE("the language found says which candidate it was found under", "[i18n][language]") {
+    const LocaleDirectory locale;
+    locale.install("ru", "ru.mo");
+
+    const auto found = installedLanguage({"de_DE", "de", "ru"}, locale.path());
+    // Read through `if`, which is what the optional-access check understands.
+    std::string name;
+    std::shared_ptr<const subedit::core::Catalogue> catalogue;
+    if (found) {
+        name = found->name;
+        catalogue = found->catalogue;
+    }
+    CHECK(name == "ru");
+    REQUIRE(catalogue != nullptr);
+    CHECK(catalogue->findPlural("%1 subtitle", 5) == "%1 субтитров");
+
+    CHECK_FALSE(installedLanguage({"de"}, locale.path()).has_value());
 }
 
 TEST_CASE("no installed candidate, or none at all, is English and says nothing",

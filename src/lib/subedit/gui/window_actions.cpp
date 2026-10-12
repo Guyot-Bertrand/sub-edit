@@ -1,5 +1,6 @@
 #include <subedit/core/text/letter_case.hpp>
 #include <subedit/gui/command_label.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/window_actions.hpp>
 
 #include <QAction>
@@ -94,93 +95,93 @@ constexpr std::size_t kToolbarWords = 9;
 } // namespace
 
 WindowActions::WindowActions(QObject* owner)
-    : newProject(
-          buildLitAction(owner, QStringLiteral("&New Project"), QStringLiteral("document-new"))),
-      open(buildLitAction(owner, QStringLiteral("Open…"), QStringLiteral("document-open"))),
-      openTranslation(buildAction(owner, QStringLiteral("Open &Translation…"), {})),
-      save(buildLitAction(owner, QStringLiteral("Save"), QStringLiteral("document-save"))),
-      saveAs(buildLitAction(owner, QStringLiteral("Save As…"), QStringLiteral("document-save-as"))),
-      saveTranslation(buildAction(owner, QStringLiteral("Save Tr&anslation"), {})),
-      saveTranslationAs(buildAction(owner, QStringLiteral("Save Translation As…"), {})),
-      closeProject(buildAction(owner, QStringLiteral("&Close"), QStringLiteral("window-close"))),
+    : newProject(buildLitAction(owner, translate("&New Project"), QStringLiteral("document-new"))),
+      open(buildLitAction(owner, translate("Open…"), QStringLiteral("document-open"))),
+      openTranslation(buildAction(owner, translate("Open &Translation…"), {})),
+      save(buildLitAction(owner, translate("Save"), QStringLiteral("document-save"))),
+      saveAs(buildLitAction(owner, translate("Save As…"), QStringLiteral("document-save-as"))),
+      saveTranslation(buildAction(owner, translate("Save Tr&anslation"), {})),
+      saveTranslationAs(buildAction(owner, translate("Save Translation As…"), {})),
+      closeProject(buildAction(owner, translate("&Close"), QStringLiteral("window-close"))),
       nextTab(new QAction{owner}),
       previousTab(new QAction{owner}),
-      undo(buildAction(owner, QStringLiteral("Undo"), QStringLiteral("edit-undo"))),
-      redo(buildAction(owner, QStringLiteral("Redo"), QStringLiteral("edit-redo"))),
-      cut(buildAction(owner, QStringLiteral("Cu&t Texts"), QStringLiteral("edit-cut"))),
-      copy(buildAction(owner, QStringLiteral("&Copy Texts"), QStringLiteral("edit-copy"))),
-      paste(buildAction(owner, QStringLiteral("&Paste Texts"), QStringLiteral("edit-paste"))),
-      findAndReplace(buildAction(
-          owner, QStringLiteral("&Find and Replace…"), QStringLiteral("edit-find-replace"))),
-      insert(buildAction(owner, QStringLiteral("Insert Subtitles…"), QStringLiteral("list-add"))),
-      remove(buildAction(owner, QStringLiteral("Remove Subtitles"), QStringLiteral("list-remove"))),
-      joinRepeats(buildAction(owner, QStringLiteral("&Join Repeated Subtitles"), {})),
-      sortSubtitles(buildAction(owner, QStringLiteral("S&ort Subtitles"), {})),
-      makeDisjoint(buildAction(owner, QStringLiteral("Make Ranges &Disjoint…"), {})),
-      repair(buildAction(owner, QStringLiteral("&Repair Subtitles…"), {})),
-      mergeSubtitles(buildAction(owner, QStringLiteral("&Merge Subtitles"), {})),
-      splitSubtitle(buildAction(owner, QStringLiteral("S&plit Subtitle"), {})),
-      preferences(new QAction{QStringLiteral("&Preferences…"), owner}),
+      undo(buildAction(owner, translate("Undo"), QStringLiteral("edit-undo"))),
+      redo(buildAction(owner, translate("Redo"), QStringLiteral("edit-redo"))),
+      cut(buildAction(owner, translate("Cu&t Texts"), QStringLiteral("edit-cut"))),
+      copy(buildAction(owner, translate("&Copy Texts"), QStringLiteral("edit-copy"))),
+      paste(buildAction(owner, translate("&Paste Texts"), QStringLiteral("edit-paste"))),
+      findAndReplace(
+          buildAction(owner, translate("&Find and Replace…"), QStringLiteral("edit-find-replace"))),
+      insert(buildAction(owner, translate("Insert Subtitles…"), QStringLiteral("list-add"))),
+      remove(buildAction(owner, translate("Remove Subtitles"), QStringLiteral("list-remove"))),
+      joinRepeats(buildAction(owner, translate("&Join Repeated Subtitles"), {})),
+      sortSubtitles(buildAction(owner, translate("S&ort Subtitles"), {})),
+      makeDisjoint(buildAction(owner, translate("Make Ranges &Disjoint…"), {})),
+      repair(buildAction(owner, translate("&Repair Subtitles…"), {})),
+      mergeSubtitles(buildAction(owner, translate("&Merge Subtitles"), {})),
+      splitSubtitle(buildAction(owner, translate("S&plit Subtitle"), {})),
+      preferences(new QAction{translate("&Preferences…"), owner}),
       // Out until a window says there is a rate to count frames at.
-      framePositions(buildAction(owner, QStringLiteral("Positions in &Frames"), {})),
-      selectVideo(buildLitAction(owner, QStringLiteral("Select Video…"), {})),
-      playPause(buildAction(
-          owner, QStringLiteral("Play / Pause"), QStringLiteral("media-playback-start"))),
+      framePositions(buildAction(owner, translate("Positions in &Frames"), {})),
+      selectVideo(buildLitAction(owner, translate("Select Video…"), {})),
+      playPause(
+          buildAction(owner, translate("Play / Pause"), QStringLiteral("media-playback-start"))),
       // **Gaupol's seven gestures, under Gaupol's names** — issue #615: the menu `Video` is where
       // somebody who knows one looks for the others.
-      playSelection(buildAction(owner, QStringLiteral("Play &Selection"), {})),
-      seekPrevious(buildAction(owner, QStringLiteral("Seek &Previous"), {})),
-      seekNext(buildAction(owner, QStringLiteral("Seek &Next"), {})),
-      seekBackward(buildAction(owner, QStringLiteral("Seek &Backward"), {})),
-      seekForward(buildAction(owner, QStringLiteral("Seek &Forward"), {})),
-      seekSelectionStart(buildAction(owner, QStringLiteral("S&eek Selection Start"), {})),
-      seekSelectionEnd(buildAction(owner, QStringLiteral("See&k Selection End"), {})),
+      playSelection(buildAction(owner, translate("Play &Selection"), {})),
+      seekPrevious(buildAction(owner, translate("Seek &Previous"), {})),
+      seekNext(buildAction(owner, translate("Seek &Next"), {})),
+      seekBackward(buildAction(owner, translate("Seek &Backward"), {})),
+      seekForward(buildAction(owner, translate("Seek &Forward"), {})),
+      seekSelectionStart(buildAction(owner, translate("S&eek Selection Start"), {})),
+      seekSelectionEnd(buildAction(owner, translate("See&k Selection End"), {})),
       // **The step and the nudge** — issue #618 — which Gaupol does not have: a frame at a time,
       // and an edge moved by the same count of frames.
-      stepBackward(buildAction(owner, QStringLiteral("Step Backward"), {})),
-      stepForward(buildAction(owner, QStringLiteral("Step Forward"), {})),
-      nudgeStartEarlier(buildAction(owner, QStringLiteral("Nudge Start Earlier"), {})),
-      nudgeStartLater(buildAction(owner, QStringLiteral("Nudge Start Later"), {})),
-      nudgeEndEarlier(buildAction(owner, QStringLiteral("Nudge End Earlier"), {})),
-      nudgeEndLater(buildAction(owner, QStringLiteral("Nudge End Later"), {})),
+      stepBackward(buildAction(owner, translate("Step Backward"), {})),
+      stepForward(buildAction(owner, translate("Step Forward"), {})),
+      nudgeStartEarlier(buildAction(owner, translate("Nudge Start Earlier"), {})),
+      nudgeStartLater(buildAction(owner, translate("Nudge Start Later"), {})),
+      nudgeEndEarlier(buildAction(owner, translate("Nudge End Earlier"), {})),
+      nudgeEndLater(buildAction(owner, translate("Nudge End Later"), {})),
       // **The five marks of Gaupol** — issue #617 — under its names, `Video Position` and all.
-      setStartFromVideo(buildAction(owner, QStringLiteral("Set S&tart from Video Position"), {})),
-      setEndFromVideo(buildAction(owner, QStringLiteral("Set En&d from Video Position"), {})),
-      insertAtVideo(buildAction(owner, QStringLiteral("&Insert Subtitle at Video Position"), {})),
+      setStartFromVideo(buildAction(owner, translate("Set S&tart from Video Position"), {})),
+      setEndFromVideo(buildAction(owner, translate("Set En&d from Video Position"), {})),
+      insertAtVideo(buildAction(owner, translate("&Insert Subtitle at Video Position"), {})),
       selectPreviousFromVideo(
-          buildAction(owner, QStringLiteral("Select Previous from Video Position"), {})),
-      selectNextFromVideo(
-          buildAction(owner, QStringLiteral("Select Next from Video Position"), {})),
-      volumeDown(buildAction(owner, QStringLiteral("Volume &Down"), {})),
-      volumeUp(buildAction(owner, QStringLiteral("Volume &Up"), {})),
-      audioLanguage(std::make_unique<QMenu>(QStringLiteral("&Language"))),
-      shift(buildAction(owner, QStringLiteral("Shift Positions…"), {})),
-      transform(buildAction(owner, QStringLiteral("Transform Positions…"), {})),
-      frameRate(buildAction(owner, QStringLiteral("Convert Frame Rate…"), {})),
-      adjustDurations(buildAction(owner, QStringLiteral("Adjust Durations…"), {})),
-      appendFile(buildAction(owner, QStringLiteral("Append &File…"), {})),
-      splitProject(buildAction(owner, QStringLiteral("Spli&t Project…"), {})),
-      italic(buildAction(owner, QStringLiteral("&Italic"), QStringLiteral("format-text-italic"))),
-      dialogueDashes(buildAction(owner, QStringLiteral("&Dialogue"), {})),
-      hearingImpaired(buildAction(owner, QStringLiteral("Remove Hearing-Impaired Mentions…"), {})),
-      correctTexts(buildAction(owner, QStringLiteral("&Correct Texts…"), {})),
-      checkSpelling(buildAction(owner, QStringLiteral("Chec&k Spelling…"), {})),
-      spellCheckSettings(buildAction(owner, QStringLiteral("Spell-Check &Settings…"), {})),
-      snap(buildAction(owner, QStringLiteral("Snap to Frame Rate…"), {})),
+          buildAction(owner, translate("Select Previous from Video Position"), {})),
+      selectNextFromVideo(buildAction(owner, translate("Select Next from Video Position"), {})),
+      volumeDown(buildAction(owner, translate("Volume &Down"), {})),
+      volumeUp(buildAction(owner, translate("Volume &Up"), {})),
+      audioLanguage(std::make_unique<QMenu>(translate("&Language"))),
+      shift(buildAction(owner, translate("Shift Positions…"), {})),
+      transform(buildAction(owner, translate("Transform Positions…"), {})),
+      frameRate(buildAction(owner, translate("Convert Frame Rate…"), {})),
+      adjustDurations(buildAction(owner, translate("Adjust Durations…"), {})),
+      appendFile(buildAction(owner, translate("Append &File…"), {})),
+      splitProject(buildAction(owner, translate("Spli&t Project…"), {})),
+      italic(buildAction(owner, translate("&Italic"), QStringLiteral("format-text-italic"))),
+      dialogueDashes(buildAction(owner, translate("&Dialogue"), {})),
+      hearingImpaired(buildAction(owner, translate("Remove Hearing-Impaired Mentions…"), {})),
+      correctTexts(buildAction(owner, translate("&Correct Texts…"), {})),
+      checkSpelling(buildAction(owner, translate("Chec&k Spelling…"), {})),
+      spellCheckSettings(buildAction(owner, translate("Spell-Check &Settings…"), {})),
+      snap(buildAction(owner, translate("Snap to Frame Rate…"), {})),
       shiftOntoGrid(buildAction(owner, shiftOntoGridLabel(std::nullopt), {})),
-      analyseGrid(buildAction(owner, QStringLiteral("Frame Rate &Analysis…"), {})),
-      saveAllDocuments(buildLitAction(owner, QStringLiteral("&Save All"), {})),
-      closeAllProjects(buildLitAction(owner, QStringLiteral("&Close All"), {})),
-      manual(buildAction(owner, QStringLiteral("&Manual"), {})),
-      about(new QAction{QStringLiteral("&About subedit"), owner}) {
+      analyseGrid(buildAction(owner, translate("Frame Rate &Analysis…"), {})),
+      saveAllDocuments(buildLitAction(owner, translate("&Save All"), {})),
+      closeAllProjects(buildLitAction(owner, translate("&Close All"), {})),
+      manual(buildAction(owner, translate("&Manual"), {})),
+      about(new QAction{translate("&About subedit"), owner}) {
     // **Gaupol's four, in Gaupol's order** — `Text ▸ Case` offers Title,
     // Sentence, Upper, Lower, and a user who knows one knows the other.
-    static constexpr std::array<const char*, 4> kCaseLabels = {
-        "&Title Case", "&Sentence case", "&UPPER CASE", "&lower case"};
+    const std::array<QString, 4> caseLabels = {translate("&Title Case"),
+                                               translate("&Sentence case"),
+                                               translate("&UPPER CASE"),
+                                               translate("&lower case")};
     for (std::size_t which = 0; which < letterCase.size(); ++which)
-        letterCase.at(which) = buildAction(owner, QString::fromUtf8(kCaseLabels.at(which)), {});
+        letterCase.at(which) = buildAction(owner, caseLabels.at(which), {});
 
-    newProject->setToolTip(QStringLiteral("Open an empty project in a new tab"));
+    newProject->setToolTip(translate("Open an empty project in a new tab"));
 
     // **Every binding the platform gives "redo", and not the first** — issue
     // #274.
@@ -320,7 +321,7 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     // does to it, what accompanies it, what inspects it, what explains it.
     // Reading order and not construction order — the two had drifted apart, and
     // it is the first that a user meets.
-    QMenu* file = window.menuBar()->addMenu(QStringLiteral("&File"));
+    QMenu* file = window.menuBar()->addMenu(translate("&File"));
     file->addAction(newProject);
     file->addAction(open);
     file->addAction(openTranslation);
@@ -338,7 +339,7 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     file->addSeparator();
     file->addAction(closeProject);
 
-    QMenu* edition = window.menuBar()->addMenu(QStringLiteral("&Edit"));
+    QMenu* edition = window.menuBar()->addMenu(translate("&Edit"));
     edition->addAction(undo);
     edition->addAction(redo);
     edition->addSeparator();
@@ -372,10 +373,10 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     // Born with the translation column, and where the other columns would sit
     // one day — issue #442. After `Edit` and before `Video`: what one does to
     // the document, then how one looks at it, then what accompanies it.
-    QMenu* view = window.menuBar()->addMenu(QStringLiteral("&View"));
+    QMenu* view = window.menuBar()->addMenu(translate("&View"));
     // A submenu, as Gaupol's `View ▸ Columns`: five entries loose in the menu
     // would be five entries for one question.
-    QMenu* columnMenu = view->addMenu(QStringLiteral("&Columns"));
+    QMenu* columnMenu = view->addMenu(translate("&Columns"));
     for (QAction* entry : columns)
         columnMenu->addAction(entry);
     view->addSeparator();
@@ -385,7 +386,7 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     view->setToolTipsVisible(true);
     view->addAction(framePositions);
 
-    QMenu* video = window.menuBar()->addMenu(QStringLiteral("&Video"));
+    QMenu* video = window.menuBar()->addMenu(translate("&Video"));
     video->addAction(selectVideo);
     video->addSeparator();
     video->addAction(playPause);
@@ -416,13 +417,13 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     video->addAction(selectNextFromVideo);
     video->addSeparator();
     // A submenu, as Gaupol's: the languages of the soundtrack will come beside the volume.
-    QMenu* audio = video->addMenu(QStringLiteral("&Audio"));
+    QMenu* audio = video->addMenu(translate("&Audio"));
     audio->addMenu(audioLanguage.get());
     audio->addSeparator();
     audio->addAction(volumeDown);
     audio->addAction(volumeUp);
 
-    QMenu* tools = window.menuBar()->addMenu(QStringLiteral("&Tools"));
+    QMenu* tools = window.menuBar()->addMenu(translate("&Tools"));
     tools->addAction(shift);
     tools->addAction(transform);
     tools->addAction(frameRate);
@@ -441,7 +442,7 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     tools->addAction(dialogueDashes);
     // A submenu for the four, which is what Gaupol does: four entries side by
     // side in a menu of nine would drown the rest.
-    QMenu* caseMenu = tools->addMenu(QStringLiteral("Ca&se"));
+    QMenu* caseMenu = tools->addMenu(translate("Ca&se"));
     for (QAction* one : letterCase)
         caseMenu->addAction(one);
     tools->addAction(hearingImpaired);
@@ -463,11 +464,11 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     // What acts on every project at once. Gaupol's menu of the same name also
     // lists the tabs and has `Save All As…`; the first is left to the tab bar
     // and the second is a series of `Save As…` that `Save All` already asks.
-    QMenu* projects = window.menuBar()->addMenu(QStringLiteral("&Projects"));
+    QMenu* projects = window.menuBar()->addMenu(translate("&Projects"));
     projects->addAction(saveAllDocuments);
     projects->addAction(closeAllProjects);
 
-    QMenu* help = window.menuBar()->addMenu(QStringLiteral("&Help"));
+    QMenu* help = window.menuBar()->addMenu(translate("&Help"));
     help->addAction(manual);
     help->addSeparator();
     help->addAction(about);
@@ -482,20 +483,22 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     // Each button reads a short word of its own; the menus keep the whole
     // entry. The table of what differs from Gaupol, and why, is in spec 11.
     const std::array<std::pair<QAction*, QString>, kToolbarWords> words{{
-        {newProject, QStringLiteral("New")},
-        {open, QStringLiteral("Open")},
-        {save, QStringLiteral("Save")},
-        {undo, QStringLiteral("Undo")},
-        {redo, QStringLiteral("Redo")},
-        {findAndReplace, QStringLiteral("Find")},
-        {insert, QStringLiteral("Insert")},
-        {remove, QStringLiteral("Remove")},
-        {italic, QStringLiteral("Italic")},
+        {newProject, translate("New")},
+        {open, translate("Open")},
+        {save, translate("Save")},
+        {undo, translate("Undo")},
+        {redo, translate("Redo")},
+        {findAndReplace, translate("Find")},
+        {insert, translate("Insert")},
+        {remove, translate("Remove")},
+        {italic, translate("Italic")},
     }};
     for (const auto& [action, word] : words)
         action->setIconText(word);
 
-    QToolBar* bar = window.addToolBar(QStringLiteral("Main"));
+    // In a context: the main toolbar and the main document are one English word, and not one word
+    // in a language whose adjective agrees with its noun.
+    QToolBar* bar = window.addToolBar(translateIn("toolbar", "Main"));
     bar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     bar->addAction(newProject);
     bar->addAction(open);

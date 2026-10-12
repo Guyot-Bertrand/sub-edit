@@ -11,6 +11,22 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **i18n** — Say which language the catalogue lookup found
+- **gui** — Translate the window's menus, toolbar, columns and status
+- **gui** — Choose the window's language and Qt's catalogue at start-up
+
+### Documentation
+
+- **doc** — Say how the window chooses its language
+
+### Tests
+
+- **gui** — Run the window under a second catalogue
+
+## 0.15.17 — 2026-10-12
+
+### Ajouts
+
 - **i18n** — Add a source-language scope and the catalogue lookup
 - **cli** — Translate the help, narration and errors of the command line
 
@@ -22,6 +38,7 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — Say how the command line chooses its language
+- **doc** — Regenerate the changelog
 
 ### Tests
 

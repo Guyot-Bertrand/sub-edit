@@ -3,6 +3,7 @@
 #include <subedit/core/time/frame.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/wording/video.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/play_bar.hpp>
 
 #include <QAction>
@@ -250,12 +251,12 @@ PlayBar::PlayBar(QWidget* parent)
     m_lengthText->setMinimumWidth(m_lengthText->sizeHint().width());
 
     m_position->setRange(0, 0);
-    m_position->setToolTip(QStringLiteral("Position"));
+    m_position->setToolTip(translate("Position"));
 
     m_volume->setRange(0, core::kLargestVolume);
     m_volume->setPageStep(kVolumePage);
     m_volume->setFixedWidth(kVolumeWidth);
-    m_volume->setToolTip(QStringLiteral("Volume"));
+    m_volume->setToolTip(translate("Volume"));
 
     auto* row = new QHBoxLayout{this};
     row->setContentsMargins(4, 2, 4, 2);
@@ -272,8 +273,8 @@ PlayBar::PlayBar(QWidget* parent)
     // word says that better than a symbol would. Checked while the table follows playback.
     m_follow->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_follow->setToolTip(
-        QStringLiteral("Follow playback: keep the table on the subtitle that is showing"));
-    m_follow->setAccessibleName(QStringLiteral("Follow"));
+        translate("Follow playback: keep the table on the subtitle that is showing"));
+    m_follow->setAccessibleName(translate("Follow"));
     m_follow->setCheckable(true);
     m_follow->setChecked(true);
     m_follow->setAutoRaise(true);
@@ -397,7 +398,7 @@ void PlayBar::showFollowing(bool following) {
 void PlayBar::showPlaying(bool playing) {
     m_playing = playing;
     m_play->setIcon(playing ? m_pauseIcon : m_playIcon);
-    m_play->setToolTip(playing ? QStringLiteral("Pause") : QStringLiteral("Play"));
+    m_play->setToolTip(playing ? translate("Pause") : translate("Play"));
 }
 
 } // namespace subedit::gui

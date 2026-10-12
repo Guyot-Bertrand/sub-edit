@@ -329,7 +329,7 @@ plus rien.
 | `CLI-I18N-02` | `--format json` output is byte-identical whatever the language | 15 | implémentée |
 | `CLI-I18N-03` | `LC_ALL=C` yields English | 15 | implémentée |
 | `CLI-I18N-04` | `subedit-cli(1)` and one page per sub-command are installed, and list the options `--help` lists | 15 | prévue |
-| `GUI-I18N-01` | the window shows its menus, dialogs and messages in the chosen language, English when it is not installed | 15 | prévue |
+| `GUI-I18N-01` | the window shows its menus, dialogs and messages in the chosen language, English when it is not installed | 15 | implémentée |
 | `GUI-I18N-02` | `Preferences…` offers the interface language; it is kept from one session to the next and applies at the next launch | 15 | prévue |
 | `GUI-I18N-03` | `Help ▸ Manual` opens the manual of the chosen language, English when the page or the language is missing | 15 | prévue |
 | `GUI-I18N-04` | the names and descriptions of Gaupol's correction patterns are shown translated, and a user's own pattern is shown as written | 15 | prévue |
