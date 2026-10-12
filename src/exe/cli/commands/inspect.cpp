@@ -1,6 +1,7 @@
 #include "inspect.hpp"
 
 #include <subedit/cli/inspection.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <iostream>
@@ -21,13 +22,17 @@ struct InspectOptions {
 };
 
 CLI::App* describeInspect(CLI::App& app, std::string_view name, InspectOptions& options) {
-    CLI::App* inspect =
-        app.add_subcommand(std::string{name}, "Report what a subtitle file is made of");
-    inspect->add_option("files", options.files, "Subtitle files to report on")->required();
+    CLI::App* inspect = app.add_subcommand(
+        std::string{name}, std::string{core::translate("Report what a subtitle file is made of")});
+    inspect
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to report on")})
+        ->required();
     describeRecursive(inspect, options.recursive);
     inspect->add_flag("--detail",
                       options.detail,
-                      "List every anomaly, subtitle by subtitle, instead of counting them");
+                      std::string{core::translate(
+                          "List every anomaly, subtitle by subtitle, instead of counting them")});
     // **Reading, here, and writing too on `convert`** — one rate, one option,
     // spelled the same on both. It is not global as `--encoding` is, because a
     // global option has to come before the subcommand: `--frame-rate` would
@@ -35,7 +40,9 @@ CLI::App* describeInspect(CLI::App& app, std::string_view name, InspectOptions& 
     // where it also governs what is written.
     inspect
         ->add_option(
-            "--frame-rate", options.frameRate, "Frame rate of a file counted in frames: 25, 23.976")
+            "--frame-rate",
+            options.frameRate,
+            std::string{core::translate("Frame rate of a file counted in frames: 25, 23.976")})
         ->option_text("RATE");
 
     describeTranslation(inspect, options.translation);

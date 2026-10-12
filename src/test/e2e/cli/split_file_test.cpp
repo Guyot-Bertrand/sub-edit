@@ -18,6 +18,7 @@ using subedit::e2e::CliRun;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
+using subedit::e2e::invokeInEveryLanguage;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 using subedit::e2e::writeFile;
@@ -130,20 +131,20 @@ TEST_CASE("a cut outside the file is refused before anything is written", "[e2e]
 }
 
 TEST_CASE("the record is one object, the head as destination and the tail beside it",
-          "[e2e][CLI-PSPLIT-01][CLI-JSON-09]") {
+          "[e2e][CLI-PSPLIT-01][CLI-JSON-09][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string input = writeFile(scratch, "in/film.srt", kFilm);
 
-    const CliRun run = invoke({"--format",
-                               "json",
-                               "split-file",
-                               input,
-                               "--at",
-                               "3",
-                               "--head",
-                               scratch.of("out/head.srt"),
-                               "--tail",
-                               scratch.of("out/tail.srt")});
+    const CliRun run = invokeInEveryLanguage({"--format",
+                                              "json",
+                                              "split-file",
+                                              input,
+                                              "--at",
+                                              "3",
+                                              "--head",
+                                              scratch.of("out/head.srt"),
+                                              "--tail",
+                                              scratch.of("out/tail.srt")});
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(anonymised(run.output, scratch.path(), "<scratch>"),

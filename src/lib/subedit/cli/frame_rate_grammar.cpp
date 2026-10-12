@@ -1,5 +1,6 @@
 #include <subedit/cli/digits.hpp>
 #include <subedit/cli/frame_rate_grammar.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <algorithm>
 #include <array>
@@ -14,7 +15,8 @@ using core::FrameRate;
 using core::StandardFrameRate;
 
 std::string refusal(std::string_view text, std::string_view why) {
-    return "\"" + std::string{text} + "\" is not a frame rate: " + std::string{why};
+    // TRANSLATORS: %1 is what the user typed, %2 why it does not read.
+    return core::substitute(core::translate("\"%1\" is not a frame rate: %2"), {text, why});
 }
 
 /// A decimal that is the customary name of a rate it cannot write exactly.
@@ -106,25 +108,28 @@ std::optional<FrameRate> labelled(FrameRate rate) {
 
 std::expected<FrameRate, std::string> parseFrameRate(std::string_view text) {
     if (text.empty()) {
-        return std::unexpected{refusal(text, "it is empty")};
+        return std::unexpected{refusal(text, core::translate("it is empty"))};
     }
     if (text.contains(',')) {
-        return std::unexpected{
-            refusal(text, "use a decimal point and not a comma, the command line being English")};
+        return std::unexpected{refusal(
+            text, core::translate("use a decimal point and not a comma, in every language"))};
     }
 
     const std::optional<Decimal> read = decimalOf(text);
     if (!read.has_value()) {
-        return std::unexpected{refusal(text, "expected frames per second, like 25 or 23.976")};
+        return std::unexpected{
+            refusal(text, core::translate("expected frames per second, like 25 or 23.976"))};
     }
     if (read->negative || read->numerator == 0) {
-        return std::unexpected{
-            refusal(text, "a frame rate must be strictly positive; nothing runs at that speed")};
+        return std::unexpected{refusal(
+            text,
+            core::translate("a frame rate must be strictly positive; nothing runs at that speed"))};
     }
 
     const std::optional<FrameRate> rate = FrameRate::create(read->numerator, read->denominator);
     if (!rate.has_value()) {
-        return std::unexpected{refusal(text, "no video runs at that many frames per second")};
+        return std::unexpected{
+            refusal(text, core::translate("no video runs at that many frames per second"))};
     }
 
     // The label wins over the letters: see the header for why.

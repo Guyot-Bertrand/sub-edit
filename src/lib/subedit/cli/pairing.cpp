@@ -24,7 +24,7 @@ std::expected<Paired, Failure> pair(const core::FileSystem& files,
         core::openTranslation(files, session.project(), pairing.translation, reading);
     if (!read) {
         return std::unexpected{
-            Failure{idOf(read.error()), std::string{core::reasonOf(read.error())}}};
+            Failure{idOf(read.error()), [&] { return core::reasonOf(read.error()); }}};
     }
 
     core::AttachedTranslation attached =

@@ -21,6 +21,7 @@ using subedit::e2e::CliRun;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
+using subedit::e2e::invokeInEveryLanguage;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 using subedit::e2e::writeFile;
@@ -156,21 +157,22 @@ TEST_CASE("only the translation is written, and the main file is left alone",
     }
 }
 
-TEST_CASE("the record is one object carrying the alignment", "[e2e][CLI-PAIR-01][CLI-JSON-09]") {
+TEST_CASE("the record is one object carrying the alignment",
+          "[e2e][CLI-PAIR-01][CLI-JSON-09][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string main =
         writeFile(scratch, "in/film.srt", contentOf(pairFile("temoin", "principal.srt")));
     const std::string translation =
         writeFile(scratch, "in/traduction.srt", contentOf(pairFile("temoin", "traduction.srt")));
 
-    const CliRun run = invoke({"--format",
-                               "json",
-                               "pair",
-                               main,
-                               "-t",
-                               translation,
-                               "--output",
-                               scratch.of("out/fr.srt")});
+    const CliRun run = invokeInEveryLanguage({"--format",
+                                              "json",
+                                              "pair",
+                                              main,
+                                              "-t",
+                                              translation,
+                                              "--output",
+                                              scratch.of("out/fr.srt")});
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(anonymised(run.output, scratch.path(), "<scratch>"),

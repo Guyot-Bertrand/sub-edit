@@ -99,11 +99,12 @@ TEST_CASE("every failure kind and every warning kind has its identifier", "[cli]
 }
 
 TEST_CASE("a failure without a kind is a refusal", "[cli][records]") {
-    const Failure plain{"it did not work"};
-    const Failure named{"no-grid", "nothing to bring back"};
+    const Failure plain{[] { return "it did not work"; }};
+    const Failure named{"no-grid", [] { return "nothing to bring back"; }};
 
     CHECK(plain.kind == "refused");
     CHECK(plain.message == "it did not work");
+    CHECK(plain.english == "it did not work");
     CHECK(named.kind == "no-grid");
 }
 

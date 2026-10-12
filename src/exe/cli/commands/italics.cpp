@@ -1,6 +1,7 @@
 #include "italics.hpp"
 
 #include <subedit/cli/text_rewriting.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -26,12 +27,16 @@ struct ItalicsOptions {
 };
 
 CLI::App* describeItalics(CLI::App& app, std::string_view name, ItalicsOptions& options) {
-    CLI::App* italics = app.add_subcommand(std::string{name},
-                                           "Put the texts in italics, or take their italics out");
-    italics->add_option("files", options.files, "Subtitle files to change")->required();
+    CLI::App* italics = app.add_subcommand(
+        std::string{name},
+        std::string{core::translate("Put the texts in italics, or take their italics out")});
+    italics
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to change")})
+        ->required();
     describeRecursive(italics, options.recursive);
-    italics->add_flag("--on", options.on, "Put the texts in italics");
-    italics->add_flag("--off", options.off, "Take the italics out");
+    italics->add_flag("--on", options.on, std::string{core::translate("Put the texts in italics")});
+    italics->add_flag("--off", options.off, std::string{core::translate("Take the italics out")});
     describeRange(italics, options.range);
     describeDocument(italics, options.translation);
 

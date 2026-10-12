@@ -46,10 +46,6 @@ std::string countOf(std::size_t count, Counted noun) {
         return substitute(translatePlural("%1 subtitle", "%1 subtitles", count), {number});
     case Counted::File:
         return substitute(translatePlural("%1 file", "%1 files", count), {number});
-    case Counted::Position:
-        return substitute(translatePlural("%1 position", "%1 positions", count), {number});
-    case Counted::Diagnostic:
-        return substitute(translatePlural("%1 diagnostic", "%1 diagnostics", count), {number});
     case Counted::Run:
         return substitute(translatePlural("%1 run", "%1 runs", count), {number});
     }

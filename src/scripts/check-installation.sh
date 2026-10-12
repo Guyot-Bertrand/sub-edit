@@ -241,7 +241,9 @@ check_binary() {
     fi
 
     local said
-    said="$(cd "${prefix}" && QT_QPA_PLATFORM=offscreen XDG_CONFIG_HOME="${prefix}/config" \
+    # LANGUAGE=en: what is compared is the English the binary speaks, whatever the
+    # machine's locale and whatever catalogue is installed beside it (spec 15, D4).
+    said="$(cd "${prefix}" && QT_QPA_PLATFORM=offscreen XDG_CONFIG_HOME="${prefix}/config" LANGUAGE=en \
         "${binary}" --version 2>&1)" || {
         report_failure "${name} installé ne se lance pas"
         return
@@ -502,7 +504,8 @@ check_one_man_page() {
     local written listed
     written="$(sed -n '/^\.SH SUBCOMMANDS/,/^\.SH [A-Z]/p' <<< "${page}" \
         | sed -n 's/^\.B \([a-z][a-z-]*\)$/\1/p' | sort -u)"
-    listed="$(cd "${prefix}" && QT_QPA_PLATFORM=offscreen XDG_CONFIG_HOME="${prefix}/config" \
+    # LANGUAGE=en: the heading read is the English one (spec 15, D4).
+    listed="$(cd "${prefix}" && QT_QPA_PLATFORM=offscreen XDG_CONFIG_HOME="${prefix}/config" LANGUAGE=en \
         "${prefix}/bin/${name}" --help 2>&1 \
         | awk '/^Subcommands:/ { seen = 1; next } seen && NF { print $1 }' | sort -u)"
 

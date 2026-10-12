@@ -125,12 +125,48 @@ public:
 [[nodiscard]] std::string enchantHome();
 
 /// The environment a launched binary receives: this process's own, with the
-/// configuration home, the data home and the Enchant home replaced by the above.
+/// configuration home, the data home and the Enchant home replaced by the above,
+/// and `LANGUAGE=en` — English, whatever the machine's locale says (spec 15, D4).
 ///
 /// Exported so that the substitution can be asserted on rather than trusted —
 /// it happens in the one place a binary is started, and a harness nobody
 /// checks is a harness that stops working quietly.
 [[nodiscard]] std::vector<std::string> childEnvironment();
+
+/// The four variables a binary chooses its language from (spec 15, D4), each set
+/// to a value or left unset. A run in a language says all four, so that what the
+/// machine running the tests has set cannot decide for it.
+struct Locale {
+    std::optional<std::string> language{};
+    std::optional<std::string> all{};
+    std::optional<std::string> messages{};
+    std::optional<std::string> lang{};
+};
+
+/// The same environment as `childEnvironment()`, the language variables being
+/// exactly those of `locale`.
+[[nodiscard]] std::vector<std::string> childEnvironment(const Locale& locale);
+
+/// `LC_ALL=ru_RU.UTF-8` and nothing else: the language of the fixture catalogue.
+[[nodiscard]] Locale russian();
+
+/// Runs **the translated copy** of subedit-cli under `locale`.
+///
+/// The copy lives in a prefix of the tests' own, beside a catalogue compiled from
+/// `data/i18n/cli.po` as Russian (`ru`); it finds it from where it runs, as an
+/// installed binary finds its own (`e2e/CMakeLists.txt`). Every other run of the
+/// harness is in English: `childEnvironment()` gives it `LANGUAGE=en`.
+CliRun invokeIn(const Locale& locale, const std::vector<std::string>& args);
+
+/// Runs `args` in English and again under the fixture catalogue, **checks that
+/// standard output and the exit code are the same bytes in both**, and returns the
+/// English run — for `--format json`, whose records never follow the language
+/// (spec 15, D3; `CLI-I18N-02`).
+///
+/// Only for a run that can be made twice: an `--in-place` run would find, the
+/// second time, the file the first one wrote.
+CliRun invokeInEveryLanguage(const std::vector<std::string>& args,
+                             const std::optional<std::string>& workingDirectory = std::nullopt);
 
 /// A path into the test corpus, resolved by the build.
 ///

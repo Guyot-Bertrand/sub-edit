@@ -6,6 +6,7 @@
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
 #include <subedit/core/edit/shift_limits.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
@@ -30,19 +31,30 @@ namespace {
 /// The rule has lived in the core since issue #132: the window asks for it too,
 /// and two copies of one rule drift apart.
 [[nodiscard]] OperationOutcome
-shiftWhole(core::Session& session, core::Duration by, const std::string& suffix) {
+shiftWhole(core::Session& session, core::Duration by, const std::string& gridRate) {
     const core::Selection whole = core::Selection::all(session.project());
     if (const std::optional<core::SubtitleIndex> refused =
             core::firstBeforeOrigin(session.project(), whole, by);
         refused.has_value()) {
-        return std::unexpected{
-            Failure{"before-the-origin", core::shiftBeforeTheOrigin(refused->number())}};
+        return std::unexpected{Failure{
+            "before-the-origin", [&] { return core::shiftBeforeTheOrigin(refused->number()); }}};
     }
 
     session.apply(std::make_unique<core::ShiftCommand>(whole, by));
     const std::size_t count = session.project().count();
-    return OperationResult{.sentence = core::countOf(count, core::Counted::Subtitle) +
-                                       " shifted by " + core::secondsOf(by) + suffix,
+    const std::string sentence =
+        gridRate.empty()
+            ? core::substitute(
+                  // TRANSLATORS: %1 subtitles were shifted by the duration %2; %3 is a frame rate.
+                  core::translatePlural(
+                      "%1 subtitle shifted by %2", "%1 subtitles shifted by %2", count),
+                  {std::to_string(count), core::secondsOf(by)})
+            : core::substitute(
+                  core::translatePlural("%1 subtitle shifted by %2 onto their %3 fps grid",
+                                        "%1 subtitles shifted by %2 onto their %3 fps grid",
+                                        count),
+                  {std::to_string(count), core::secondsOf(by), gridRate});
+    return OperationResult{.sentence = sentence,
                            .counts = {{"subtitles", static_cast<std::int64_t>(count)},
                                       {"shifted_by_ms", by.milliseconds()}}};
 }
@@ -52,8 +64,8 @@ shiftWhole(core::Session& session, core::Duration by, const std::string& suffix)
 std::expected<std::optional<core::Duration>, std::string> shiftAmountOf(bool toGrid,
                                                                         const std::string& by) {
     if (toGrid && !by.empty()) {
-        return std::unexpected{
-            std::string{"--by and --to-grid both say by how much to move; give one or the other"}};
+        return std::unexpected{std::string{core::translate(
+            "--by and --to-grid both say by how much to move; give one or the other")}};
     }
     // Measured rather than given, and file by file: two files shifted off the same
     // grid by different amounts come back by different amounts.
@@ -61,8 +73,8 @@ std::expected<std::optional<core::Duration>, std::string> shiftAmountOf(bool toG
         return std::optional<core::Duration>{};
     }
     if (by.empty()) {
-        return std::unexpected{std::string{
-            "shift needs --by, or --to-grid to work the amount out from the positions"}};
+        return std::unexpected{std::string{core::translate(
+            "shift needs --by, or --to-grid to work the amount out from the positions")}};
     }
 
     const std::expected<core::Duration, std::string> parsed = parseTime(by);
@@ -79,10 +91,10 @@ ExitCode shiftAll(core::FileSystem& files,
                   const Destination& destination,
                   const Reporter& reporter) {
     const Operation shift = [by](core::Session& session) -> OperationOutcome {
-        return shiftWhole(session, by, "");
+        return shiftWhole(session, by, {});
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "shifted", shift);
+    return rewriteAll(files, paths, reading, destination, reporter, Verb::Shifted, shift);
 }
 
 ExitCode shiftOntoGridAll(core::FileSystem& files,
@@ -95,16 +107,17 @@ ExitCode shiftOntoGridAll(core::FileSystem& files,
         const std::optional<core::Duration> by = core::shiftOntoGrid(grid);
         if (!by.has_value()) {
             return std::unexpected{
-                Failure{"no-grid",
-                        "no frame rate grid was found in these positions, so there is "
-                        "nothing to bring them back onto"}};
+                Failure{"no-grid", [] {
+                            return core::translate(
+                                "no frame rate grid was found in these positions, so there "
+                                "is nothing to bring them back onto");
+                        }}};
         }
 
-        return shiftWhole(
-            session, *by, " onto their " + std::string{nameOf(grid.retained.rate)} + " fps grid");
+        return shiftWhole(session, *by, std::string{nameOf(grid.retained.rate)});
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "shifted", onto);
+    return rewriteAll(files, paths, reading, destination, reporter, Verb::Shifted, onto);
 }
 
 } // namespace subedit::cli

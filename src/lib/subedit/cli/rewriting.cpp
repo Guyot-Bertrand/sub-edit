@@ -9,6 +9,7 @@
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/encoding.hpp>
@@ -77,7 +78,12 @@ bool rewriteFile(core::FileSystem& files,
         std::expected<core::Selection, std::string> chosen =
             selectionOf(*range, session.project().count());
         if (!chosen) {
-            reportFailure(reporter, path, Failure{"range-out-of-bounds", chosen.error()});
+            // Worded again under `SourceLanguage` for the record: the bounds are pure.
+            reportFailure(reporter,
+                          path,
+                          Failure{"range-out-of-bounds", [&] {
+                                      return selectionOf(*range, session.project().count()).error();
+                                  }});
             return false;
         }
         selection = *std::move(chosen);
@@ -112,17 +118,22 @@ bool rewriteFile(core::FileSystem& files,
     // Said once: an operation whose sentence already is the alignment (`pair`)
     // has said it at level one.
     if (alignment && done->sentence != core::noticeOf(*alignment)) {
-        reporter.say(2, path + ": " + core::noticeOf(*alignment));
+        reporter.say(
+            2, core::substitute(core::translate("%1: %2"), {path, core::noticeOf(*alignment)}));
     }
     // What the operation went on without is data: said at level 1 whatever the
     // rest, and in every record.
     Json warnings = warningsOf(diagnostics);
     for (const Warning& warning : done->warnings) {
-        reporter.say(1, path + ": " + warning.detail);
-        warnings.push(Json::object().set("kind", warning.kind).set("detail", warning.detail));
+        reporter.say(1, core::substitute(core::translate("%1: %2"), {path, warning.detail}));
+        // English in the record, whatever the language (D3).
+        warnings.push(Json::object().set("kind", warning.kind).set("detail", warning.english));
     }
     if (dryRun) {
-        reporter.say(1, path + ": " + done->sentence + " (dry run, nothing written)");
+        reporter.say(1,
+                     // TRANSLATORS: %1 is a file, %2 what was done to it.
+                     core::substitute(core::translate("%1: %2 (dry run, nothing written)"),
+                                      {path, done->sentence}));
         if (done->changes) {
             reporter.result(textOf(path, *done->changes));
         }
@@ -135,7 +146,10 @@ bool rewriteFile(core::FileSystem& files,
         return true;
     }
 
-    reporter.say(1, path + ": " + done->sentence + " -> " + out.string());
+    reporter.say(
+        1,
+        // TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
+        core::substitute(core::translate("%1: %2 -> %3"), {path, done->sentence, out.string()}));
     // The diagnostics are data: they go into the record at every level, where the
     // narration keeps them for the third.
     reporter.record(writtenRecord(reporter.command(),
@@ -155,7 +169,7 @@ ExitCode rewriteAll(core::FileSystem& files,
                     const std::optional<core::Encoding>& reading,
                     const Destination& destination,
                     const Reporter& reporter,
-                    std::string_view verb,
+                    Verb verb,
                     const ChangingOperation& operation,
                     const std::optional<Range>& range,
                     const std::optional<Pairing>& pairing) {
@@ -193,7 +207,7 @@ ExitCode rewriteAll(core::FileSystem& files,
                     const std::optional<core::Encoding>& reading,
                     const Destination& destination,
                     const Reporter& reporter,
-                    std::string_view verb,
+                    Verb verb,
                     const Operation& operation) {
     // An operation that lists nothing is asked for nothing.
     const ChangingOperation changing = [&operation](core::Session& session, const Request&) {

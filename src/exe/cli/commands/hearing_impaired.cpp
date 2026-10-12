@@ -1,6 +1,7 @@
 #include "hearing_impaired.hpp"
 
 #include <subedit/cli/hearing_impaired.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <string>
@@ -25,12 +26,17 @@ struct HearingImpairedOptions {
 
 CLI::App*
 describeHearingImpaired(CLI::App& app, std::string_view name, HearingImpairedOptions& options) {
-    CLI::App* hearing = app.add_subcommand(std::string{name},
-                                           "Remove the sounds described between square brackets");
-    hearing->add_option("files", options.files, "Subtitle files to clean")->required();
+    CLI::App* hearing = app.add_subcommand(
+        std::string{name},
+        std::string{core::translate("Remove the sounds described between square brackets")});
+    hearing
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to clean")})
+        ->required();
     hearing->add_flag("--parentheses",
                       options.parentheses,
-                      "Also remove the sounds between parentheses, often whispered lines");
+                      std::string{core::translate(
+                          "Also remove the sounds between parentheses, often whispered lines")});
     describeRecursive(hearing, options.recursive);
     describeDocument(hearing, options.translation);
 

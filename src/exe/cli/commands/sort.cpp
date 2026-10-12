@@ -1,6 +1,7 @@
 #include "sort.hpp"
 
 #include <subedit/cli/sorting.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -22,8 +23,10 @@ struct SortOptions {
 CLI::App* describeSort(CLI::App& app, std::string_view name, SortOptions& options) {
     CLI::App* sort = app.add_subcommand(
         std::string{name},
-        "Put the subtitles in the order of their start, keeping ties as they are");
-    sort->add_option("files", options.files, "Subtitle files to sort")->required();
+        std::string{core::translate(
+            "Put the subtitles in the order of their start, keeping ties as they are")});
+    sort->add_option("files", options.files, std::string{core::translate("Subtitle files to sort")})
+        ->required();
     describeRecursive(sort, options.recursive);
 
     describeDestination(sort, options.destination);

@@ -7,66 +7,8 @@
 #
 # The target is zero before phase 15 closes.
 
-total 906
-   10  src/exe/cli/application.cpp
-    8  src/exe/cli/commands/adjust.cpp
-    8  src/exe/cli/commands/append.cpp
-    9  src/exe/cli/commands/command.cpp
-   10  src/exe/cli/commands/config.cpp
-   12  src/exe/cli/commands/convert.cpp
-   13  src/exe/cli/commands/correct.cpp
-    4  src/exe/cli/commands/dialogue_dashes.cpp
-    6  src/exe/cli/commands/disjoint.cpp
-    4  src/exe/cli/commands/framerate.cpp
-    3  src/exe/cli/commands/hearing_impaired.cpp
-    4  src/exe/cli/commands/inspect.cpp
-    4  src/exe/cli/commands/italics.cpp
-    2  src/exe/cli/commands/join_repeats.cpp
-    3  src/exe/cli/commands/letter_case.cpp
-    3  src/exe/cli/commands/pair.cpp
-    5  src/exe/cli/commands/repair.cpp
-    6  src/exe/cli/commands/replace.cpp
-    4  src/exe/cli/commands/shift.cpp
-    3  src/exe/cli/commands/snap.cpp
-    2  src/exe/cli/commands/sort.cpp
-   10  src/exe/cli/commands/split_file.cpp
-    4  src/exe/cli/commands/transform.cpp
-    2  src/exe/cli/main.cpp
+total 510
     1  src/exe/gui/main.cpp
-    9  src/lib/subedit/cli/adjusting.cpp
-    5  src/lib/subedit/cli/aligning.cpp
-    2  src/lib/subedit/cli/appending.cpp
-    3  src/lib/subedit/cli/batch.cpp
-    5  src/lib/subedit/cli/changes.cpp
-   15  src/lib/subedit/cli/configuring.cpp
-   14  src/lib/subedit/cli/conversion.cpp
-   32  src/lib/subedit/cli/correcting.cpp
-    6  src/lib/subedit/cli/destination.cpp
-    1  src/lib/subedit/cli/diagnostics.cpp
-    7  src/lib/subedit/cli/disjoining.cpp
-    3  src/lib/subedit/cli/expansion.cpp
-    4  src/lib/subedit/cli/frame_rate_conversion.cpp
-    6  src/lib/subedit/cli/frame_rate_grammar.cpp
-    1  src/lib/subedit/cli/hearing_impaired.cpp
-   15  src/lib/subedit/cli/index_grammar.cpp
-   48  src/lib/subedit/cli/inspection.cpp
-    2  src/lib/subedit/cli/joining.cpp
-    6  src/lib/subedit/cli/options.cpp
-    2  src/lib/subedit/cli/pairing.cpp
-    3  src/lib/subedit/cli/records.cpp
-    1  src/lib/subedit/cli/records.hpp
-    2  src/lib/subedit/cli/replacing.cpp
-    1  src/lib/subedit/cli/rewriting.cpp
-    9  src/lib/subedit/cli/shared_settings.cpp
-    8  src/lib/subedit/cli/shifting.cpp
-    1  src/lib/subedit/cli/sorting.cpp
-   11  src/lib/subedit/cli/splitting.cpp
-   11  src/lib/subedit/cli/text_rewriting.cpp
-    6  src/lib/subedit/cli/time_grammar.cpp
-   12  src/lib/subedit/cli/transforming.cpp
-    1  src/lib/subedit/cli/translation_writing.cpp
-    1  src/lib/subedit/cli/verbosity.cpp
-    4  src/lib/subedit/cli/writing.cpp
     1  src/lib/subedit/core/config/correction_settings.hpp
    56  src/lib/subedit/core/config/operation_settings.cpp
    19  src/lib/subedit/core/config/settings.cpp

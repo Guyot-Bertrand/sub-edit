@@ -28,6 +28,11 @@ namespace subedit::platform {
 /// a binary run from it finds them the same way.
 [[nodiscard]] std::filesystem::path installedPatternsPath();
 
+/// Where the message catalogues are installed — `<bin>/../share/subedit/locale`, worked out
+/// from the executable for the reason the patterns are, and laid out as
+/// `cmake/Translations.cmake` writes them in the build tree and in the prefix (ADR 0042).
+[[nodiscard]] std::filesystem::path installedLocalePath();
+
 /// Where a user drops patterns of her own, read from the real environment — the
 /// one place allowed to, since `core::userPatternsPath` takes the two strings
 /// rather than reading them. **A test never calls this to find a location**: it

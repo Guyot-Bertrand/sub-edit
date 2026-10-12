@@ -65,7 +65,7 @@ ExitCode removeHearingImpairedIn(core::FileSystem& files,
     };
 
     return rewriteAll(
-        files, paths, reading, destination, reporter, "cleaned", clean, std::nullopt, pairing);
+        files, paths, reading, destination, reporter, Verb::Cleaned, clean, std::nullopt, pairing);
 }
 
 } // namespace subedit::cli

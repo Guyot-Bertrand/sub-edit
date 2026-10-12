@@ -152,7 +152,7 @@ certains seulement, `1` sur une erreur d'usage.
 
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |
-| virgule décimale | `"…" is not a time: use a decimal point and not a comma, the command line being English` |
+| virgule décimale | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | plus fin que la milliseconde | `"…" is not a time: positions are held to the millisecond, no finer` |
 | texte qui n'est pas une durée | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
 | décalage avant l'origine | `<chemin>: subtitle N would start before the origin, which no subtitle file can hold` |

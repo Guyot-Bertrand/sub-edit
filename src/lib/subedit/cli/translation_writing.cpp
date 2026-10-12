@@ -25,8 +25,15 @@ ExitCode writeTranslationAt(core::FileSystem& files,
             .sentence = core::noticeOf(request.alignment.value_or(core::TranslationOutcome{})),
             .counts = {{"subtitles", static_cast<std::int64_t>(session.project().count())}}};
     };
-    return rewriteAll(
-        files, {mainPath}, reading, destination, reporter, "paired", lay, std::nullopt, pairing);
+    return rewriteAll(files,
+                      {mainPath},
+                      reading,
+                      destination,
+                      reporter,
+                      Verb::Paired,
+                      lay,
+                      std::nullopt,
+                      pairing);
 }
 
 } // namespace subedit::cli

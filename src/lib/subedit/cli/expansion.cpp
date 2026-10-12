@@ -1,6 +1,7 @@
 #include <subedit/cli/destination.hpp>
 #include <subedit/cli/expansion.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/formats.hpp>
@@ -89,7 +90,9 @@ std::expected<Inputs, std::string> expandInputs(const core::FileSystem& files,
             continue;
         }
         if (!recursive) {
-            return std::unexpected{path + ": is a directory: use --recursive"};
+            return std::unexpected{
+                // TRANSLATORS: %1 is a directory the user named.
+                core::substitute(core::translate("%1: is a directory: use --recursive"), {path})};
         }
 
         Walk state{.files = files, .outputDir = outputDir, .found = inputs};
@@ -99,12 +102,21 @@ std::expected<Inputs, std::string> expandInputs(const core::FileSystem& files,
         inputs.roots.emplace_back(path);
 
         if (state.keptHere == 0) {
-            reporter.say(1, path + ": holds no file in a format this tool walks for");
+            reporter.say(1,
+                         core::substitute(
+                             // TRANSLATORS: %1 is a directory.
+                             core::translate("%1: holds no file in a format this tool walks for"),
+                             {path}));
         }
         if (state.leftAside > 0) {
             reporter.say(2,
-                         path + ": " + core::countOf(state.leftAside, core::Counted::File) +
-                             " left aside, with no extension of a known format");
+                         core::substitute(
+                             // TRANSLATORS: %1 is a directory, %2 a number of files in it.
+                             core::translatePlural(
+                                 "%1: %2 file left aside, with no extension of a known format",
+                                 "%1: %2 files left aside, with no extension of a known format",
+                                 state.leftAside),
+                             {path, std::to_string(state.leftAside)}));
         }
     }
     return inputs;

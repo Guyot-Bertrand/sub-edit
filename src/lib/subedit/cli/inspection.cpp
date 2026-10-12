@@ -16,6 +16,7 @@
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/subtitle_file.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/file_extras.hpp>
@@ -51,15 +52,15 @@ using core::DiagnosticKind;
 /// them. A file assembled out of two others does that more often than it
 /// should, and it is worth saying rather than silently normalising.
 std::string lineEndings(core::Newline newline, const std::vector<core::Diagnostic>& diagnostics) {
-    std::string text{nameOf(newline)};
-
     const auto mixed = std::ranges::find_if(diagnostics, [](const core::Diagnostic& d) {
         return d.kind == DiagnosticKind::MixedNewlines;
     });
     if (mixed != diagnostics.end()) {
-        text += ", mixed from line " + std::to_string(mixed->line);
+        // TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind starts.
+        return core::substitute(core::translate("%1, mixed from line %2"),
+                                {nameOf(newline), std::to_string(mixed->line)});
     }
-    return text;
+    return std::string{nameOf(newline)};
 }
 
 /// The encoding, and how the reading arrived at it.
@@ -74,9 +75,13 @@ std::string lineEndings(core::Newline newline, const std::vector<core::Diagnosti
 /// for — and the reading says so in its diagnostics.
 std::string encoding(const core::Encoding& read, bool asked) {
     if (read.byteOrderMark() == core::ByteOrderMark::Present)
-        return std::string{read.charset()} + ", from its byte order mark";
+        // TRANSLATORS: %1 is the name of an encoding.
+        return core::substitute(core::translate("%1, from its byte order mark"), {read.charset()});
 
-    return std::string{read.charset()} + (asked ? ", as asked for" : ", detected");
+    // TRANSLATORS: %1 is the name of an encoding.
+    return core::substitute(asked ? core::translate("%1, as asked for")
+                                  : core::translate("%1, detected"),
+                            {read.charset()});
 }
 
 /// The rate a file counted in frames was read at, and where that rate came from.
@@ -93,7 +98,10 @@ std::string frameRate(core::FrameRate rate, const std::vector<core::Diagnostic>&
     const bool assumed = std::ranges::any_of(diagnostics, [](const core::Diagnostic& d) {
         return d.kind == DiagnosticKind::AssumedFrameRate;
     });
-    return std::string{core::nameOf(rate)} + " fps, " + (assumed ? "assumed" : "as asked for");
+    // TRANSLATORS: %1 is a frame rate.
+    return core::substitute(assumed ? core::translate("%1 fps, assumed")
+                                    : core::translate("%1 fps, as asked for"),
+                            {core::nameOf(rate)});
 }
 
 /// The whole stretch the subtitles cover: the earliest start and the latest
@@ -126,7 +134,11 @@ void sayGrid(std::ostream& out, const core::Project& project) {
     const core::FrameRateDeduction grid = core::deduceFrameRate(project);
 
     if (!grid.enoughStarts) {
-        out << "  frame rate grid: " << nameOf(grid.verdict) << " (too few subtitles to tell)\n";
+        out << "  "
+            // TRANSLATORS: %1 is the verdict on the grid, such as « silent ».
+            << core::substitute(core::translate("frame rate grid: %1 (too few subtitles to tell)"),
+                                {nameOf(grid.verdict)})
+            << '\n';
         return;
     }
 
@@ -135,31 +147,60 @@ void sayGrid(std::ostream& out, const core::Project& project) {
         // candidates: a file regular on a grid that is none of the eight would
         // otherwise be reported as the least wrong of them. « I do not know »
         // is the right answer, and it is what makes the deduction usable.
-        out << "  frame rate grid: " << nameOf(grid.verdict) << " (best candidate at "
-            << core::percentOf(grid.ranked.front().concentration) << ")\n";
+        out << "  "
+            // TRANSLATORS: %1 is the verdict on the grid, %2 a percentage.
+            << core::substitute(
+                   core::translate("frame rate grid: %1 (best candidate at %2)"),
+                   {nameOf(grid.verdict), core::percentOf(grid.ranked.front().concentration)})
+            << '\n';
         return;
     }
 
-    out << "  frame rate grid: " << core::nameOf(grid.retained.rate) << " fps, "
-        << nameOf(grid.verdict) << " (" << core::percentOf(grid.retained.concentration) << ")\n";
+    out << "  "
+        // TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a percentage.
+        << core::substitute(core::translate("frame rate grid: %1 fps, %2 (%3)"),
+                            {core::nameOf(grid.retained.rate),
+                             nameOf(grid.verdict),
+                             core::percentOf(grid.retained.concentration)})
+        << '\n';
 
     if (grid.retained.phase != core::Duration::zero())
-        out << "  grid offset: " << core::secondsOf(grid.retained.phase) << "\n";
+        out << "  "
+            // TRANSLATORS: %1 is a duration, in seconds.
+            << core::substitute(core::translate("grid offset: %1"),
+                                {core::secondsOf(grid.retained.phase)})
+            << '\n';
 
     if (grid.harmonic.has_value())
-        out << "  also fits: " << core::nameOf(*grid.harmonic)
-            << " fps, of which this rate is a whole divisor\n";
+        out << "  "
+            << core::substitute(
+                   // TRANSLATORS: %1 is a frame rate.
+                   core::translate("also fits: %1 fps, of which this rate is a whole divisor"),
+                   {core::nameOf(*grid.harmonic)})
+            << '\n';
 
     if (!grid.notSeparated.empty()) {
-        out << "  too short a span to separate:";
+        std::string rates;
         for (const core::FrameRate other : grid.notSeparated)
-            out << " " << core::nameOf(other) << " fps";
-        out << "\n";
+            // TRANSLATORS: %1 is a frame rate.
+            rates += " " + core::substitute(core::translate("%1 fps"), {core::nameOf(other)});
+        // TRANSLATORS: %1 lists frame rates, each with a space before it.
+        out << "  " << core::substitute(core::translate("too short a span to separate:%1"), {rates})
+            << '\n';
     }
 
     if (!grid.strays.empty())
-        out << "  off the grid: " << grid.strays.size() << " of " << grid.starts << " starts, in "
-            << core::countOf(core::runsOfStrays(grid), core::Counted::Run) << "\n";
+        out << "  "
+            << core::substitute(
+                   // TRANSLATORS: %1 starts of %2 are off the grid, %3 is a number of runs (« 2
+                   // runs »).
+                   core::translatePlural("off the grid: %1 of %2 start, in %3",
+                                         "off the grid: %1 of %2 starts, in %3",
+                                         grid.starts),
+                   {std::to_string(grid.strays.size()),
+                    std::to_string(grid.starts),
+                    core::countOf(core::runsOfStrays(grid), core::Counted::Run)})
+            << '\n';
 }
 
 /// What is wrong with the document: **how many of each kind** by default, and
@@ -175,12 +216,12 @@ void sayGrid(std::ostream& out, const core::Project& project) {
 /// and which kinds it carries is what tells the user what to run. The detail is
 /// asked for, and stays a list and not a sentence: a hundred comma-joined
 /// statements on one line can be neither read nor searched. A document with
-/// nothing wrong keeps its single line, `none`, which is what a script looks
-/// for.
+/// nothing wrong keeps its single line, `none` — in the user's language: a
+/// script reads `anomalies` in `--format json`, which does not change with it.
 std::string anomalies(const core::Project& project, bool detailed) {
     const std::vector<core::Anomaly> found = core::scanAnomalies(project);
     if (found.empty())
-        return " none\n";
+        return " " + std::string{core::translate("none")} + "\n";
 
     std::string text = "\n";
     if (!detailed) {
@@ -378,10 +419,7 @@ bool inspectFile(const core::FileSystem& files,
         if (!paired) {
             // The file working on is the main one, and the failure is the
             // translation's: it names it.
-            reportFailure(
-                reporter,
-                path,
-                Failure{paired.error().kind, pairing->translation + ": " + paired.error().message});
+            reportFailure(reporter, path, paired.error().about(pairing->translation));
             return false;
         }
         alignment = paired->outcome;
@@ -393,21 +431,33 @@ bool inspectFile(const core::FileSystem& files,
     const core::Project& project = opened->project;
     const core::SourceFile& source = project.sourceFile();
 
-    reporter.say(3, path + ": " + std::to_string(opened->bytes) + " bytes read");
+    reporter.say(3,
+                 // TRANSLATORS: %1 is a file, %2 a number of bytes.
+                 core::substitute(
+                     core::translatePlural("%1: %2 bytes read", "%1: %2 bytes read", opened->bytes),
+                     {path, std::to_string(opened->bytes)}));
     // Most detailed first, least detailed last: that order is what makes each
     // level contain the one below it line for line.
     reporter.say(3,
-                 path + ": " +
-                     core::countOf(opened->diagnostics.size(), core::Counted::Diagnostic) +
-                     " while reading");
+                 // TRANSLATORS: %1 is a file, %2 a number of diagnostics.
+                 core::substitute(core::translatePlural("%1: %2 diagnostic while reading",
+                                                        "%1: %2 diagnostics while reading",
+                                                        opened->diagnostics.size()),
+                                  {path, std::to_string(opened->diagnostics.size())}));
     sayDiagnostics(reporter, path, opened->diagnostics);
-    reporter.say(2,
-                 path + ": " + std::string{nameOf(source.format)} + ", " + nameOf(source.encoding) +
-                     ", " + std::string{nameOf(source.newline)} + " line endings");
+    reporter.say(
+        2,
+        // TRANSLATORS: %1 is a file, %2 a format, %3 an encoding, %4 a kind of line ending.
+        core::substitute(
+            core::translate("%1: %2, %3, %4 line endings"),
+            {path, nameOf(source.format), nameOf(source.encoding), nameOf(source.newline)}));
     reporter.say(1,
-                 path + ": " + core::countOf(project.subtitles().size(), core::Counted::Subtitle));
+                 core::substitute(
+                     core::translate("%1: %2"),
+                     {path, core::countOf(project.subtitles().size(), core::Counted::Subtitle)}));
     if (alignment) {
-        reporter.say(1, path + ": " + core::noticeOf(*alignment));
+        reporter.say(
+            1, core::substitute(core::translate("%1: %2"), {path, core::noticeOf(*alignment)}));
     }
 
     // The description as a record, and not as lines: what the text says for a
@@ -419,26 +469,46 @@ bool inspectFile(const core::FileSystem& files,
     }
 
     out << path << '\n';
-    out << "  format: " << nameOf(source.format) << '\n';
-    out << "  encoding: " << encoding(source.encoding, reading.encoding.has_value()) << '\n';
-    out << "  byte order mark: "
-        << (source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "present" : "absent")
+    // TRANSLATORS: the lines of the report of `inspect`; %1 is the value of each.
+    out << "  " << core::substitute(core::translate("format: %1"), {nameOf(source.format)}) << '\n';
+    out << "  "
+        << core::substitute(core::translate("encoding: %1"),
+                            {encoding(source.encoding, reading.encoding.has_value())})
         << '\n';
-    out << "  line endings: " << lineEndings(source.newline, opened->diagnostics) << '\n';
-    out << "  subtitles: " << project.subtitles().size() << '\n';
-    out << "  span: " << span(project.subtitles()) << '\n';
+    out << "  "
+        << (source.encoding.byteOrderMark() == core::ByteOrderMark::Present
+                ? core::translate("byte order mark: present")
+                : core::translate("byte order mark: absent"))
+        << '\n';
+    out << "  "
+        << core::substitute(core::translate("line endings: %1"),
+                            {lineEndings(source.newline, opened->diagnostics)})
+        << '\n';
+    out << "  "
+        << core::substitute(core::translate("subtitles: %1"),
+                            {std::to_string(project.subtitles().size())})
+        << '\n';
+    out << "  " << core::substitute(core::translate("span: %1"), {span(project.subtitles())})
+        << '\n';
     // **A file counted in frames gets its rate, not a grid.** Deducing one from
     // positions that were computed *from* frames at that very rate would answer
     // with the number it was given, dressed as a measurement.
     if (const auto* frames = std::get_if<core::MicroDvdFile>(&source.extras)) {
-        out << "  frame rate: " << frameRate(frames->rate, opened->diagnostics) << '\n';
+        out << "  "
+            << core::substitute(core::translate("frame rate: %1"),
+                                {frameRate(frames->rate, opened->diagnostics)})
+            << '\n';
     } else {
         sayGrid(out, project);
     }
-    out << "  anomalies:" << anomalies(project, detailed);
+    out << "  " << core::translate("anomalies:") << anomalies(project, detailed);
     if (alignment && pairing) {
-        out << "  translation file: " << pairing->translation << ", matched by "
-            << (pairing->method == core::TranslationMethod::Position ? "position" : "number")
+        out << "  "
+            << core::substitute(pairing->method == core::TranslationMethod::Position
+                                    // TRANSLATORS: %1 is the translation file.
+                                    ? core::translate("translation file: %1, matched by position")
+                                    : core::translate("translation file: %1, matched by number"),
+                                {pairing->translation})
             << '\n';
         out << "  " << core::noticeOf(*alignment) << '\n';
     }
@@ -459,7 +529,7 @@ ExitCode inspectAll(const core::FileSystem& files,
             ++done;
         }
     }
-    return tally(reporter, "inspected", done, paths.size());
+    return tally(reporter, Verb::Inspected, done, paths.size());
 }
 
 } // namespace subedit::cli

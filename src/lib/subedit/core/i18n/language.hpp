@@ -7,7 +7,11 @@
 // variables in the same order, by our own code, and answers with names to look for: whether
 // a catalogue of that name exists is for the caller to find out.
 
+#include <subedit/core/i18n/catalogue.hpp>
+
+#include <filesystem>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -29,5 +33,20 @@ using EnvironmentLookup = std::function<std::optional<std::string>(std::string_v
 
 /// The process's own environment.
 [[nodiscard]] EnvironmentLookup processEnvironment();
+
+/// Where the catalogue of `language` is under `localeDirectory`: gettext's own layout,
+/// `<directory>/<language>/LC_MESSAGES/subedit.mo`, which `cmake/Translations.cmake` installs.
+[[nodiscard]] std::filesystem::path cataloguePath(const std::filesystem::path& localeDirectory,
+                                                  std::string_view language);
+
+/// The catalogue of the first of `candidates` that is installed under `localeDirectory` and
+/// reads, or null — English.
+///
+/// **Silent, on purpose** (D4): a language that is not installed, and a catalogue that is
+/// refused, are passed over like a missing one. A user who asks for a language the program
+/// does not ship gets English, which is the source, rather than a complaint on every run.
+[[nodiscard]] std::shared_ptr<const Catalogue>
+installedCatalogue(const std::vector<std::string>& candidates,
+                   const std::filesystem::path& localeDirectory);
 
 } // namespace subedit::core

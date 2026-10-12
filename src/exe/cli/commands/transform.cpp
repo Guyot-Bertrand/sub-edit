@@ -2,6 +2,7 @@
 
 #include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/transforming.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <string>
@@ -22,15 +23,24 @@ struct TransformOptions {
 
 CLI::App* describeTransform(CLI::App& app, std::string_view name, TransformOptions& options) {
     CLI::App* transform = app.add_subcommand(
-        std::string{name}, "Correct every position from two points known to be right");
-    transform->add_option("files", options.files, "Subtitle files to transform")->required();
+        std::string{name},
+        std::string{core::translate("Correct every position from two points known to be right")});
+    transform
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to transform")})
+        ->required();
     describeRecursive(transform, options.recursive);
     transform
         ->add_option(
-            "--first", options.first, "Earlier reference, as <index>=<time>: 1=00:00:01.000")
+            "--first",
+            options.first,
+            std::string{core::translate("Earlier reference, as <index>=<time>: 1=00:00:01.000")})
         ->required();
     transform
-        ->add_option("--last", options.last, "Later reference, as <index>=<time>: 3=00:00:10.000")
+        ->add_option(
+            "--last",
+            options.last,
+            std::string{core::translate("Later reference, as <index>=<time>: 3=00:00:10.000")})
         ->required();
 
     describeDestination(transform, options.destination);

@@ -1,4 +1,5 @@
 #include <subedit/cli/shared_settings.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <optional>
 #include <string>
@@ -38,7 +39,9 @@ SharedSettings loadSharedSettings(const core::FileSystem& files, const SettingsC
 
 std::optional<std::string> missingNamedFile(const SharedSettings& shared) {
     if (shared.named && shared.source == SettingsSource::Missing) {
-        return "settings file not found: " + shared.path.string();
+        // TRANSLATORS: %1 is the settings file named by --config.
+        return core::substitute(core::translate("settings file not found: %1"),
+                                {shared.path.string()});
     }
     return std::nullopt;
 }
@@ -49,20 +52,29 @@ void announceSettings(const Reporter& reporter, const SharedSettings& shared) {
     case SettingsSource::Disabled:
         return;
     case SettingsSource::Read:
-        reporter.say(1, "settings: read " + path);
+        // TRANSLATORS: %1 is the settings file.
+        reporter.say(1, core::substitute(core::translate("settings: read %1"), {path}));
         for (const core::SettingsDiagnostic& diagnostic : shared.diagnostics) {
-            reporter.say(1,
-                         "settings: " + diagnostic.key + ": cannot read '" + diagnostic.value +
-                             "', default kept");
+            reporter.say(
+                1,
+                // TRANSLATORS: %1 is a settings key, %2 the value the file gave it.
+                core::substitute(core::translate("settings: %1: cannot read '%2', default kept"),
+                                 {diagnostic.key, diagnostic.value}));
         }
         return;
     case SettingsSource::Missing:
         if (!path.empty()) {
-            reporter.say(1, "settings: " + path + " not found, defaults used");
+            reporter.say(
+                1,
+                // TRANSLATORS: %1 is the settings file.
+                core::substitute(core::translate("settings: %1 not found, defaults used"), {path}));
         }
         return;
     case SettingsSource::Unreadable:
-        reporter.say(1, "settings: " + path + " unreadable, defaults used");
+        reporter.say(
+            1,
+            // TRANSLATORS: %1 is the settings file.
+            core::substitute(core::translate("settings: %1 unreadable, defaults used"), {path}));
         return;
     }
 }

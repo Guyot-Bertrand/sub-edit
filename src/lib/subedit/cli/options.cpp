@@ -1,5 +1,6 @@
 #include <subedit/cli/frame_rate_grammar.hpp>
 #include <subedit/cli/options.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <utility>
 
@@ -21,7 +22,8 @@ std::expected<std::optional<Range>, std::string> rangeOf(const std::string& rang
     }
     const std::expected<Range, std::string> read = parseRange(range);
     if (!read) {
-        return std::unexpected{"--range: " + read.error()};
+        // TRANSLATORS: %1 is why the range does not read.
+        return std::unexpected{core::substitute(core::translate("--range: %1"), {read.error()})};
     }
     return std::optional{*read};
 }
@@ -32,20 +34,23 @@ pairingOf(const TranslationOptions& options, bool withDocument, const Inputs& in
     const bool given = !options.file.empty();
 
     if (withDocument && translation && !given) {
-        return std::unexpected{"--document translation needs the translation file: use -t"};
+        return std::unexpected{std::string{
+            core::translate("--document translation needs the translation file: use -t")}};
     }
     if (withDocument && given && !translation) {
-        return std::unexpected{"-t names a translation to change: use --document translation"};
+        return std::unexpected{std::string{
+            core::translate("-t names a translation to change: use --document translation")}};
     }
     if (!given) {
         if (!options.alignMethod.empty()) {
-            return std::unexpected{"--align-method needs a translation file: use -t"};
+            return std::unexpected{
+                std::string{core::translate("--align-method needs a translation file: use -t")}};
         }
         return std::optional<Pairing>{};
     }
     if (inputs.paths.size() > 1 || !inputs.roots.empty()) {
-        return std::unexpected{
-            "-t names one file but several inputs were given: use one invocation per pair"};
+        return std::unexpected{std::string{core::translate(
+            "-t names one file but several inputs were given: use one invocation per pair")}};
     }
 
     return std::optional{Pairing{.translation = options.file,
@@ -124,7 +129,9 @@ readingWith(const std::optional<core::Encoding>& encoding, const std::string& fr
 
     const std::expected<core::FrameRate, std::string> rate = parseFrameRate(frameRate);
     if (!rate.has_value())
-        return std::unexpected("--frame-rate: " + rate.error());
+        // TRANSLATORS: %1 is why the frame rate does not read.
+        return std::unexpected(
+            core::substitute(core::translate("--frame-rate: %1"), {rate.error()}));
     choices.frameRate = *rate;
     return choices;
 }

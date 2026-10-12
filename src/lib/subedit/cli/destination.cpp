@@ -1,4 +1,5 @@
 #include <subedit/cli/destination.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/file_system.hpp>
 
 #include <algorithm>
@@ -40,7 +41,9 @@ bool sameFile(const core::FileSystem& files,
 }
 
 std::string refusalOverInput(const std::filesystem::path& output, const std::string& input) {
-    return output.string() + ": would be written over the input " + input;
+    // TRANSLATORS: %1 is the file that would be written, %2 the input it is.
+    return core::substitute(core::translate("%1: would be written over the input %2"),
+                            {output.string(), input});
 }
 
 std::optional<std::string> overwrittenInput(const core::FileSystem& files,
@@ -63,16 +66,16 @@ std::expected<Destination, std::string> Destination::from(std::string_view outpu
                       static_cast<int>(inPlace);
 
     if (given == 0 && !dryRun) {
-        return std::unexpected{
-            std::string{"no destination given: use --output, --output-dir or --in-place"}};
+        return std::unexpected{std::string{
+            core::translate("no destination given: use --output, --output-dir or --in-place")}};
     }
     if (given > 1) {
-        return std::unexpected{
-            std::string{"--output, --output-dir and --in-place exclude one another"}};
+        return std::unexpected{std::string{
+            core::translate("--output, --output-dir and --in-place exclude one another")}};
     }
     if (!output.empty() && inputCount > 1) {
-        return std::unexpected{std::string{
-            "--output names one file but several were given: use --output-dir instead"}};
+        return std::unexpected{std::string{core::translate(
+            "--output names one file but several were given: use --output-dir instead")}};
     }
 
     Destination destination;
@@ -143,8 +146,11 @@ Destination::plan(const core::FileSystem& files,
 
         for (const std::size_t earlier : destinations[bucket]) {
             if (sameFile(files, jobs[earlier].output, job.output)) {
-                return std::unexpected{job.output.string() + ": would be written by both " +
-                                       jobs[earlier].input + " and " + job.input};
+                return std::unexpected{
+                    // TRANSLATORS: %1 is a file to write, %2 and %3 the two inputs it would come
+                    // from.
+                    core::substitute(core::translate("%1: would be written by both %2 and %3"),
+                                     {job.output.string(), jobs[earlier].input, job.input})};
             }
         }
         destinations[bucket].push_back(i);

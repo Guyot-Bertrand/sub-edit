@@ -22,6 +22,7 @@ using subedit::e2e::CliRun;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
+using subedit::e2e::invokeInEveryLanguage;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 using subedit::e2e::writeFile;
@@ -62,48 +63,49 @@ std::size_t linesOf(const std::string& text) {
 } // namespace
 
 TEST_CASE("inspect describes each input in a record, failures included",
-          "[e2e][CLI-JSON-01][CLI-JSON-02][CLI-JSON-03][CLI-JSON-08][CLI-JSON-10]") {
+          "[e2e][CLI-JSON-01][CLI-JSON-02][CLI-JSON-03][CLI-JSON-08][CLI-JSON-10][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string good = writeSrt(scratch, "in/a.srt", 2);
     const std::string broken = writeUnreadable(scratch, "in/broken.srt");
 
-    const CliRun run =
-        invoke({"--format", "json", "inspect", good, scratch.of("in/absent.srt"), broken});
+    const CliRun run = invokeInEveryLanguage(
+        {"--format", "json", "inspect", good, scratch.of("in/absent.srt"), broken});
 
     CHECK(run.exitCode == 3);
     CHECK_THAT(outputOf(run, scratch), MatchesFile(expected("inspect-batch.jsonl")));
 }
 
 TEST_CASE("the grid, or the rate of a file counted in frames, is described without a decimal point",
-          "[e2e][CLI-JSON-06][CLI-JSON-08][CLI-JSON-10]") {
+          "[e2e][CLI-JSON-06][CLI-JSON-08][CLI-JSON-10][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string frames = writeFile(scratch, "in/frames.sub", "{25}{50}Un.\n{75}{100}Deux.\n");
 
-    const CliRun grid =
-        invoke({"--format", "json", "inspect", corpus("grilles/grille-24-courte.srt")});
-    const CliRun counted = invoke({"--format", "json", "inspect", "--frame-rate", "25", frames});
+    const CliRun grid = invokeInEveryLanguage(
+        {"--format", "json", "inspect", corpus("grilles/grille-24-courte.srt")});
+    const CliRun counted =
+        invokeInEveryLanguage({"--format", "json", "inspect", "--frame-rate", "25", frames});
 
     CHECK(outputOf(grid, scratch) + outputOf(counted, scratch) ==
           contentOf(expected("inspect-grid.jsonl")));
 }
 
 TEST_CASE("a batch that writes gives one record per input, in the order of the inputs",
-          "[e2e][CLI-JSON-02][CLI-JSON-09][CLI-JSON-10]") {
+          "[e2e][CLI-JSON-02][CLI-JSON-09][CLI-JSON-10][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string first = writeSrt(scratch, "in/a.srt", 2);
     const std::string broken = writeUnreadable(scratch, "in/broken.srt");
     const std::string last = writeSrt(scratch, "in/c.srt", 2);
 
-    const CliRun run = invoke({"--format",
-                               "json",
-                               "shift",
-                               "--by",
-                               "1",
-                               "--output-dir",
-                               scratch.of("out"),
-                               first,
-                               broken,
-                               last});
+    const CliRun run = invokeInEveryLanguage({"--format",
+                                              "json",
+                                              "shift",
+                                              "--by",
+                                              "1",
+                                              "--output-dir",
+                                              scratch.of("out"),
+                                              first,
+                                              broken,
+                                              last});
 
     CHECK(run.exitCode == 3);
     // Never zero and never two for an input, whatever became of it.
@@ -112,7 +114,7 @@ TEST_CASE("a batch that writes gives one record per input, in the order of the i
 }
 
 TEST_CASE("every subcommand that writes says its destination and its counts",
-          "[e2e][CLI-JSON-09][CLI-JSON-10]") {
+          "[e2e][CLI-JSON-09][CLI-JSON-10][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string input = writeSrt(scratch, "in/a.srt", 2);
     const std::string out = scratch.of("out");
@@ -127,7 +129,7 @@ TEST_CASE("every subcommand that writes says its destination and its counts",
         std::vector<std::string> command{"--format", "json"};
         command.insert(command.end(), arguments.begin(), arguments.end());
         command.insert(command.end(), {"--output-dir", out, input});
-        const CliRun run = invoke(command);
+        const CliRun run = invokeInEveryLanguage(command);
         REQUIRE(run.exitCode == 0);
         all += outputOf(run, scratch);
     }
@@ -135,7 +137,7 @@ TEST_CASE("every subcommand that writes says its destination and its counts",
 }
 
 TEST_CASE("what the reading had to decide is in the record, at every level of narration",
-          "[e2e][CLI-JSON-05][CLI-JSON-10]") {
+          "[e2e][CLI-JSON-05][CLI-JSON-10][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string input = writeFile(scratch,
                                         "in/unnumbered.srt",
@@ -143,15 +145,15 @@ TEST_CASE("what the reading had to decide is in the record, at every level of na
                                         "00:00:02,000 --> 00:00:02,500\nDeux\n\n");
 
     for (const char* level : {"-q", "-vv", "-vvv"}) {
-        const CliRun run = invoke({level,
-                                   "--format",
-                                   "json",
-                                   "shift",
-                                   "--by",
-                                   "1",
-                                   "--output-dir",
-                                   scratch.of("out"),
-                                   input});
+        const CliRun run = invokeInEveryLanguage({level,
+                                                  "--format",
+                                                  "json",
+                                                  "shift",
+                                                  "--by",
+                                                  "1",
+                                                  "--output-dir",
+                                                  scratch.of("out"),
+                                                  input});
         CHECK(run.exitCode == 0);
         CHECK_THAT(outputOf(run, scratch), MatchesFile(expected("warnings.jsonl")));
     }

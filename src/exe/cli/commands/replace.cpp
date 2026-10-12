@@ -1,6 +1,7 @@
 #include "replace.hpp"
 
 #include <subedit/cli/replacing.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -26,17 +27,30 @@ struct ReplaceOptions {
 
 CLI::App* describeReplace(CLI::App& app, std::string_view name, ReplaceOptions& options) {
     CLI::App* replace = app.add_subcommand(
-        std::string{name}, "Replace a text in the subtitles, without breaking a tag");
-    replace->add_option("pattern", options.pattern, "Text to look for in what is shown")
+        std::string{name},
+        std::string{core::translate("Replace a text in the subtitles, without breaking a tag")});
+    replace
+        ->add_option("pattern",
+                     options.pattern,
+                     std::string{core::translate("Text to look for in what is shown")})
         ->required();
-    replace->add_option("replacement", options.replacement, "What replaces it, tags allowed")
+    replace
+        ->add_option("replacement",
+                     options.replacement,
+                     std::string{core::translate("What replaces it, tags allowed")})
         ->required();
-    replace->add_option("files", options.files, "Subtitle files to change")->required();
+    replace
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to change")})
+        ->required();
     describeRecursive(replace, options.recursive);
     replace->add_flag(
-        "--regex", options.regex, "Read the text to look for as a regular expression");
-    replace->add_flag(
-        "--case-sensitive", options.caseSensitive, "Tell capitals from small letters");
+        "--regex",
+        options.regex,
+        std::string{core::translate("Read the text to look for as a regular expression")});
+    replace->add_flag("--case-sensitive",
+                      options.caseSensitive,
+                      std::string{core::translate("Tell capitals from small letters")});
     describeRange(replace, options.range);
     describeDocument(replace, options.translation);
 

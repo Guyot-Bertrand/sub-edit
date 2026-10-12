@@ -20,6 +20,7 @@ using subedit::e2e::CliRun;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
+using subedit::e2e::invokeInEveryLanguage;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 using subedit::e2e::writeFile;
@@ -284,7 +285,7 @@ TEST_CASE("a range limits the three to the subtitles named", "[e2e][CLI-CASE-01]
 }
 
 TEST_CASE("a dry run of each proposes number, text before and text after, in json too",
-          "[e2e][CLI-CASE-01][CLI-ITALIC-01][CLI-DASH-01][CLI-DRYRUN-05]") {
+          "[e2e][CLI-CASE-01][CLI-ITALIC-01][CLI-DASH-01][CLI-DRYRUN-05][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string cased = writeFile(scratch, "in/c.srt", srt(kCase));
     const std::string italic = writeFile(scratch, "in/i.srt", srt(kItalics));
@@ -299,7 +300,7 @@ TEST_CASE("a dry run of each proposes number, text before and text after, in jso
              {"dialogue-dashes", "--add", "--dry-run", "--output-dir", out, dashed}}) {
         std::vector<std::string> command{"--format", "json"};
         command.insert(command.end(), line.begin(), line.end());
-        const CliRun run = invoke(command);
+        const CliRun run = invokeInEveryLanguage(command);
 
         REQUIRE(run.exitCode == 0);
         all += anonymised(run.output, scratch.path(), "<scratch>");

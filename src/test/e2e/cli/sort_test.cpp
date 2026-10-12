@@ -18,6 +18,7 @@ using subedit::e2e::CliRun;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
+using subedit::e2e::invokeInEveryLanguage;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 using subedit::e2e::writeFile;
@@ -90,13 +91,13 @@ TEST_CASE("a file already in order is written all the same, and says so", "[e2e]
 }
 
 TEST_CASE("a batch says its destination and how many moved, file by file",
-          "[e2e][CLI-SORT-02][CLI-JSON-09]") {
+          "[e2e][CLI-SORT-02][CLI-JSON-09][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string first = writeFile(scratch, "in/a.srt", kDisorder);
     const std::string second = writeFile(scratch, "in/b.srt", kTies);
     const std::string third = writeFile(scratch, "in/c.srt", kOrdered);
 
-    const CliRun run = invoke(
+    const CliRun run = invokeInEveryLanguage(
         {"--format", "json", "sort", "--output-dir", scratch.of("out"), first, second, third});
 
     CHECK(run.exitCode == 0);

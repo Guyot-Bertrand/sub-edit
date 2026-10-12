@@ -2,6 +2,7 @@
 
 #include <subedit/cli/frame_rate_conversion.hpp>
 #include <subedit/cli/frame_rate_grammar.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <string>
@@ -22,12 +23,23 @@ struct FrameRateOptions {
 
 CLI::App* describeFrameRate(CLI::App& app, std::string_view name, FrameRateOptions& options) {
     CLI::App* framerate = app.add_subcommand(
-        std::string{name}, "Re-time a file mastered at one frame rate for another");
-    framerate->add_option("files", options.files, "Subtitle files to re-time")->required();
-    describeRecursive(framerate, options.recursive);
-    framerate->add_option("--from", options.from, "Frame rate the file is timed at: 25, 23.976")
+        std::string{name},
+        std::string{core::translate("Re-time a file mastered at one frame rate for another")});
+    framerate
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to re-time")})
         ->required();
-    framerate->add_option("--to", options.to, "Frame rate to time it for: 24, 29.97")->required();
+    describeRecursive(framerate, options.recursive);
+    framerate
+        ->add_option("--from",
+                     options.from,
+                     std::string{core::translate("Frame rate the file is timed at: 25, 23.976")})
+        ->required();
+    framerate
+        ->add_option("--to",
+                     options.to,
+                     std::string{core::translate("Frame rate to time it for: 24, 29.97")})
+        ->required();
 
     describeDestination(framerate, options.destination);
     return framerate;

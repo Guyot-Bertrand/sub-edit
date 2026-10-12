@@ -17,8 +17,9 @@ reported(std::expected<core::OpenedFile, core::OpenError> opened,
          const std::string& path,
          const Reporter& reporter) {
     if (!opened) {
-        reportFailure(
-            reporter, path, Failure{idOf(opened.error()), std::string{reasonOf(opened.error())}});
+        reportFailure(reporter, path, Failure{idOf(opened.error()), [&] {
+                                                  return reasonOf(opened.error());
+                                              }});
         return std::nullopt;
     }
     return std::move(*opened);

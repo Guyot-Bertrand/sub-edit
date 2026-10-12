@@ -12,6 +12,7 @@
 #include <subedit/core/edit/split_project.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
@@ -86,7 +87,10 @@ ExitCode splitFile(core::FileSystem& files,
     // **Before any file is read**: what the command line says is judged on the
     // command line alone.
     if (!head.empty() && sameFile(files, head, tail)) {
-        reporter.failed(head.string() + ": named as both the head and the tail");
+        reporter.failed(
+            // TRANSLATORS: %1 is a file the user named.
+            core::substitute(core::translate("%1: named as both the head and the tail"),
+                             {head.string()}));
         return ExitCode::Usage;
     }
     for (const std::filesystem::path& out : std::array{head, tail}) {
@@ -119,12 +123,29 @@ ExitCode splitFile(core::FileSystem& files,
         reportFailure(
             reporter,
             path,
-            Failure{"at-out-of-bounds",
-                    total < 2 ? "a file of " + core::countOf(total, core::Counted::Subtitle) +
-                                    " cannot be split: a cut needs a subtitle on each side"
-                              : "--at " + std::to_string(request.at) + ": the file holds " +
-                                    core::countOf(total, core::Counted::Subtitle) +
-                                    ", and the tail can start from 2 to " + std::to_string(total)});
+            Failure{
+                "at-out-of-bounds", [&] {
+                    return total < 2
+                               ? core::substitute(
+                                     // TRANSLATORS: %1 is a number of subtitles.
+                                     core::translatePlural(
+                                         "a file of %1 subtitle cannot be split: a cut needs a "
+                                         "subtitle on each side",
+                                         "a file of %1 subtitles cannot be split: a cut needs a "
+                                         "subtitle on each side",
+                                         total),
+                                     {std::to_string(total)})
+                               : core::substitute(
+                                     // TRANSLATORS: %1 is the number given to --at, %2 how many
+                                     // subtitles the file holds.
+                                     core::translatePlural(
+                                         "--at %1: the file holds %2 subtitle, and the tail can "
+                                         "start from 2 to %2",
+                                         "--at %1: the file holds %2 subtitles, and the tail can "
+                                         "start from 2 to %2",
+                                         total),
+                                     {std::to_string(request.at), std::to_string(total)});
+                }});
         return ExitCode::AllFailed;
     }
 
@@ -132,10 +153,10 @@ ExitCode splitFile(core::FileSystem& files,
     std::expected<core::SplitProject, core::SplitRefusal> split =
         core::splitProject(session.project(), from);
     if (!split) {
-        reportFailure(reporter,
-                      path,
-                      Failure{"split-overlap",
-                              core::refusalOfSplit(request.at, split.error().before.value() + 1)});
+        reportFailure(reporter, path, Failure{"split-overlap", [&] {
+                                                  return core::refusalOfSplit(
+                                                      request.at, split.error().before.value() + 1);
+                                              }});
         return ExitCode::AllFailed;
     }
     (void)session.apply(std::move(split->command));
@@ -169,19 +190,28 @@ ExitCode splitFile(core::FileSystem& files,
     }
 
     const core::SourceFile& source = stays.sourceFile();
-    narrateKept(reporter,
-                path,
-                opened->bytes,
-                std::to_string(halves[0].bytes) + " and " + std::to_string(halves[1].bytes),
-                dryRun,
-                source,
-                opened->diagnostics);
+    narrateKept(
+        reporter,
+        path,
+        opened->bytes,
+        // TRANSLATORS: %1 and %2 are the numbers of bytes of the head and the tail.
+        core::substitute(core::translate("%1 and %2"),
+                         {std::to_string(halves[0].bytes), std::to_string(halves[1].bytes)}),
+        dryRun,
+        source,
+        opened->diagnostics);
 
     const std::size_t kept = stays.count();
     const std::size_t moved = split->tail.count();
-    const std::string made = path + ": split at subtitle " + std::to_string(request.at) + ": " +
-                             core::countOf(kept, core::Counted::Subtitle) + " in the head, " +
-                             core::countOf(moved, core::Counted::Subtitle) + " in the tail";
+    const std::string made =
+        // TRANSLATORS: %1 is a file, %2 the subtitle the tail starts at, %3 and %4 numbers of
+        // subtitles (« 12 subtitles »).
+        core::substitute(
+            core::translate("%1: split at subtitle %2: %3 in the head, %4 in the tail"),
+            {path,
+             std::to_string(request.at),
+             core::countOf(kept, core::Counted::Subtitle),
+             core::countOf(moved, core::Counted::Subtitle)});
     std::vector<Count> counts{{"subtitles", static_cast<std::int64_t>(total)},
                               {"head", static_cast<std::int64_t>(kept)},
                               {"tail", static_cast<std::int64_t>(moved)}};
@@ -190,7 +220,7 @@ ExitCode splitFile(core::FileSystem& files,
         counts.emplace_back("moved", static_cast<std::int64_t>(reordered));
     addCountsOfDisjoint(counts, cut);
     if (dryRun) {
-        reporter.say(1, made + " (dry run, nothing written)");
+        reporter.say(1, core::substitute(core::translate("%1 (dry run, nothing written)"), {made}));
         reporter.record(dryRunRecord(reporter.command(),
                                      path,
                                      counts,
@@ -198,7 +228,10 @@ ExitCode splitFile(core::FileSystem& files,
                                      std::nullopt,
                                      {{"tail", Json{nullptr}}}));
     } else {
-        reporter.say(1, made + " -> " + head.string() + ", " + tail.string());
+        reporter.say(1,
+                     // TRANSLATORS: %1 is what was done, %2 and %3 the two files written.
+                     core::substitute(core::translate("%1 -> %2, %3"),
+                                      {made, head.string(), tail.string()}));
         reporter.record(writtenRecord(reporter.command(),
                                       path,
                                       head,

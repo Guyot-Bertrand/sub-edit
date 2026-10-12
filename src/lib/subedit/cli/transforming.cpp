@@ -2,6 +2,7 @@
 #include <subedit/cli/transforming.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/transform_command.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
@@ -36,21 +37,24 @@ std::optional<std::string> beyondOf(const Reference& reference, std::size_t coun
     if (reference.number <= count) {
         return std::nullopt;
     }
-    return "subtitle " + std::to_string(reference.number) + " is past the end: the file holds " +
-           core::countOf(count, core::Counted::Subtitle);
+    // TRANSLATORS: %1 is a subtitle number, %2 how many subtitles the file holds.
+    return core::substitute(
+        core::translatePlural("subtitle %1 is past the end: the file holds %2 subtitle",
+                              "subtitle %1 is past the end: the file holds %2 subtitles",
+                              count),
+        {std::to_string(reference.number), std::to_string(count)});
 }
 
-/// Says which subtitle the transform would take before the origin, if any.
+/// The number of the subtitle the transform would take before the origin, if any.
 ///
 /// Read from the project **after** the transform rather than predicted from the
 /// ratio: the arithmetic that decides belongs to the core, and a second copy of
 /// it here would be one to keep in step.
-std::optional<std::string> beforeOriginOf(const core::Project& project) {
+std::optional<std::size_t> beforeOriginOf(const core::Project& project) {
     const std::span<const core::Subtitle> subtitles = project.subtitles();
     for (std::size_t i = 0; i < subtitles.size(); ++i) {
         if (subtitles[i].start.milliseconds() < 0 || subtitles[i].end.milliseconds() < 0) {
-            return "subtitle " + std::to_string(i + 1) +
-                   " would land before the origin, which no subtitle file can hold";
+            return i + 1;
         }
     }
     return std::nullopt;
@@ -60,9 +64,11 @@ std::optional<std::string> beforeOriginOf(const core::Project& project) {
 
 std::expected<Transform, std::string> Transform::between(Reference first, Reference last) {
     if (first.number == last.number) {
-        return std::unexpected{"--first and --last both name subtitle " +
-                               std::to_string(first.number) +
-                               ", and two references on one subtitle define no transform"};
+        return std::unexpected{core::substitute(
+            // TRANSLATORS: %1 is a subtitle number.
+            core::translate("--first and --last both name subtitle %1, and two references on one "
+                            "subtitle define no transform"),
+            {std::to_string(first.number)})};
     }
     return Transform{first, last};
 }
@@ -75,11 +81,11 @@ ExitCode transformAll(core::FileSystem& files,
                       const Reporter& reporter) {
     const Operation retime = [&transform](core::Session& session) -> OperationOutcome {
         const std::size_t count = session.project().subtitles().size();
-        if (const std::optional<std::string> beyond = beyondOf(transform.first(), count)) {
-            return std::unexpected{Failure{"beyond-the-end", *beyond}};
-        }
-        if (const std::optional<std::string> beyond = beyondOf(transform.last(), count)) {
-            return std::unexpected{Failure{"beyond-the-end", *beyond}};
+        for (const Reference& reference : {transform.first(), transform.last()}) {
+            if (beyondOf(reference, count)) {
+                return std::unexpected{
+                    Failure{"beyond-the-end", [&] { return *beyondOf(reference, count); }}};
+            }
         }
 
         std::optional<core::TransformCommand> command = core::TransformCommand::create(
@@ -93,28 +99,45 @@ ExitCode transformAll(core::FileSystem& files,
                                      .target = transform.last().target});
         if (!command.has_value()) {
             return std::unexpected{
-                Failure{"no-transform",
-                        "subtitles " + std::to_string(transform.first().number) + " and " +
-                            std::to_string(transform.last().number) +
-                            " start at the same moment, so they define no transform"}};
+                Failure{"no-transform", [&] {
+                            return core::substitute(
+                                // TRANSLATORS: %1 and %2 are subtitle numbers.
+                                core::translate(
+                                    "subtitles %1 and %2 start at the same moment, so they define "
+                                    "no transform"),
+                                {std::to_string(transform.first().number),
+                                 std::to_string(transform.last().number)});
+                        }}};
         }
 
         session.apply(std::make_unique<core::TransformCommand>(std::move(*command)));
 
         // Undone rather than left applied: an operation that says it failed
         // leaves the session as it found it, whatever the caller does next.
-        if (const std::optional<std::string> refused = beforeOriginOf(session.project())) {
+        if (const std::optional<std::size_t> refused = beforeOriginOf(session.project())) {
             session.undo();
-            return std::unexpected{Failure{"before-the-origin", *refused}};
+            return std::unexpected{
+                Failure{"before-the-origin", [&] {
+                            // TRANSLATORS: %1 is a subtitle number.
+                            return core::substitute(
+                                core::translate("subtitle %1 would land before the origin, "
+                                                "which no subtitle file can hold"),
+                                {std::to_string(*refused)});
+                        }}};
         }
         const std::size_t total = session.project().count();
-        return OperationResult{.sentence = core::countOf(total, core::Counted::Subtitle) +
-                                           " transformed onto " + wordedOf(transform.first()) +
-                                           " and " + wordedOf(transform.last()),
-                               .counts = {{"subtitles", static_cast<std::int64_t>(total)}}};
+        return OperationResult{
+            .sentence = core::substitute(
+                // TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two references, as
+                // typed: 1=00:00:01.000.
+                core::translatePlural("%1 subtitle transformed onto %2 and %3",
+                                      "%1 subtitles transformed onto %2 and %3",
+                                      total),
+                {std::to_string(total), wordedOf(transform.first()), wordedOf(transform.last())}),
+            .counts = {{"subtitles", static_cast<std::int64_t>(total)}}};
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "transformed", retime);
+    return rewriteAll(files, paths, reading, destination, reporter, Verb::Transformed, retime);
 }
 
 } // namespace subedit::cli

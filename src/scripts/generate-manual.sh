@@ -33,6 +33,11 @@
 
 set -euo pipefail
 
+# The examples are those of the English manual: every command they run speaks English,
+# whatever the machine's locale — `LANGUAGE=en` names the source language first (spec 15,
+# D4), and changes nothing else of the locale the examples run in.
+export LANGUAGE=en
+
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 readonly MANUAL_DIR="${REPO_ROOT}/docs/manual"
 # Le preset dev, et non release : la sortie d'un programme ne dépend pas de son

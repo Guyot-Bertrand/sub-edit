@@ -2,6 +2,7 @@
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/snap_command.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle.hpp>
@@ -62,16 +63,25 @@ ExitCode alignAll(core::FileSystem& files,
         // `framerate` and typed this reads « moved by at most 20 ms » where
         // they expected seconds, and knows at once.
         const std::size_t total = session.project().count();
-        return OperationResult{.sentence = core::countOf(total, core::Counted::Subtitle) +
-                                           " aligned on " + nameOf(rate) + " fps, " +
-                                           core::countOf(moved, core::Counted::Position) +
-                                           " moved, by at most " + std::to_string(furthest) + " ms",
+        const std::string movedClause =
+            // TRANSLATORS: %1 positions moved, by at most %2 milliseconds.
+            core::substitute(core::translatePlural("%1 position moved, by at most %2 ms",
+                                                   "%1 positions moved, by at most %2 ms",
+                                                   moved),
+                             {std::to_string(moved), std::to_string(furthest)});
+        return OperationResult{.sentence = core::substitute(
+                                   // TRANSLATORS: %1 subtitles aligned on the frame rate %2; %3 is
+                                   // « 4 positions moved, by at most 20 ms ».
+                                   core::translatePlural("%1 subtitle aligned on %2 fps, %3",
+                                                         "%1 subtitles aligned on %2 fps, %3",
+                                                         total),
+                                   {std::to_string(total), nameOf(rate), movedClause}),
                                .counts = {{"subtitles", static_cast<std::int64_t>(total)},
                                           {"moved", static_cast<std::int64_t>(moved)},
                                           {"furthest_ms", furthest}}};
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "aligned", align);
+    return rewriteAll(files, paths, reading, destination, reporter, Verb::Aligned, align);
 }
 
 } // namespace subedit::cli

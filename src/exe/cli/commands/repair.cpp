@@ -2,6 +2,7 @@
 
 #include <subedit/cli/disjoining.hpp>
 #include <subedit/cli/joining.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -24,23 +25,32 @@ struct RepairOptions {
 CLI::App* describeRepair(CLI::App& app, std::string_view name, RepairOptions& options) {
     CLI::App* repair = app.add_subcommand(
         std::string{name},
-        "Join the repeated subtitles, put them in order, then make the ranges disjoint");
-    repair->add_option("files", options.files, "Subtitle files to repair")->required();
+        std::string{core::translate(
+            "Join the repeated subtitles, put them in order, then make the ranges disjoint")});
+    repair
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to repair")})
+        ->required();
     describeRecursive(repair, options.recursive);
     repair
         ->add_option("--minimum",
                      options.settings.minimum,
-                     "Shortest interval kept; a shorter one is taken over by a neighbour "
-                     "(default 0.08)")
+                     std::string{core::translate(
+                         "Shortest interval kept; a shorter one is taken over by a neighbour "
+                         "(default 0.08)")})
         ->option_text("TIME");
     repair
-        ->add_option("--max-lines",
-                     options.settings.maxLines,
-                     "Most lines of a merged subtitle; more are shown in windows, 0 for no limit "
-                     "(default 2)")
+        ->add_option(
+            "--max-lines",
+            options.settings.maxLines,
+            std::string{core::translate(
+                "Most lines of a merged subtitle; more are shown in windows, 0 for no limit "
+                "(default 2)")})
         ->option_text("N");
     repair->add_flag(
-        "--dashes", options.settings.dashes, "Put a dash before the text of each merged subtitle");
+        "--dashes",
+        options.settings.dashes,
+        std::string{core::translate("Put a dash before the text of each merged subtitle")});
 
     describeDestination(repair, options.destination);
     return repair;

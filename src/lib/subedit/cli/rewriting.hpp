@@ -2,6 +2,7 @@
 
 // Reading a file, changing what it holds, writing it back as it was found.
 
+#include <subedit/cli/batch.hpp>
 #include <subedit/cli/changes.hpp>
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/cli/index_grammar.hpp>
@@ -28,10 +29,13 @@ namespace subedit::cli {
 class Destination;
 class Reporter;
 
-/// One thing an operation went on without: a stable identifier, and the words.
+/// One thing an operation went on without: a stable identifier, and the words —
+/// `detail` in the user's language for standard error, `english` for the record,
+/// as a `Failure` has them and for the same reason.
 struct Warning {
     std::string kind;
     std::string detail;
+    std::string english;
 };
 
 /// What an operation did to one file: its counts, and the sentence they make.
@@ -128,7 +132,7 @@ using ChangingOperation = std::function<OperationOutcome(subedit::core::Session&
                                   const std::optional<subedit::core::Encoding>& reading,
                                   const Destination& destination,
                                   const Reporter& reporter,
-                                  std::string_view verb,
+                                  Verb verb,
                                   const Operation& operation);
 
 /// The same, for an operation that lists its changes and takes a selection.
@@ -154,7 +158,7 @@ using ChangingOperation = std::function<OperationOutcome(subedit::core::Session&
                                   const std::optional<subedit::core::Encoding>& reading,
                                   const Destination& destination,
                                   const Reporter& reporter,
-                                  std::string_view verb,
+                                  Verb verb,
                                   const ChangingOperation& operation,
                                   const std::optional<Range>& range = std::nullopt,
                                   const std::optional<Pairing>& pairing = std::nullopt);

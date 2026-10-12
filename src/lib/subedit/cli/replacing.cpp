@@ -3,6 +3,7 @@
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/wording/counts.hpp>
@@ -20,7 +21,9 @@ std::expected<core::SearchPattern, std::string> compilePattern(std::string_view 
     std::expected<core::SearchPattern, core::PatternError> compiled =
         core::SearchPattern::compile(pattern, options);
     if (!compiled) {
-        return std::unexpected{"pattern: " + core::reasonOf(compiled.error())};
+        return std::unexpected{
+            // TRANSLATORS: %1 is why the text to look for does not compile.
+            core::substitute(core::translate("pattern: %1"), {core::reasonOf(compiled.error())})};
     }
     return std::move(*compiled);
 }
@@ -75,7 +78,7 @@ ExitCode replaceIn(core::FileSystem& files,
     };
 
     return rewriteAll(
-        files, paths, reading, destination, reporter, "replaced", replace, range, pairing);
+        files, paths, reading, destination, reporter, Verb::Replaced, replace, range, pairing);
 }
 
 } // namespace subedit::cli

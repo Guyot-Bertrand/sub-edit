@@ -4,6 +4,7 @@
 #include <subedit/cli/sorting.hpp>
 #include <subedit/core/edit/join_repeats.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/editing.hpp>
@@ -40,7 +41,7 @@ core::JoinReport joinedInPlace(core::Project& project) {
 }
 
 std::string narrationOfJoin(const std::string& path, const core::JoinReport& report) {
-    return path + ": " + core::noticeOfJoin(report);
+    return core::substitute(core::translate("%1: %2"), {path, core::noticeOfJoin(report)});
 }
 
 ExitCode joinAll(core::FileSystem& files,
@@ -56,7 +57,7 @@ ExitCode joinAll(core::FileSystem& files,
                                           {"chains", count(report.chains)}}};
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "joined", join);
+    return rewriteAll(files, paths, reading, destination, reporter, Verb::Joined, join);
 }
 
 ExitCode repairAll(core::FileSystem& files,
@@ -88,7 +89,7 @@ ExitCode repairAll(core::FileSystem& files,
                                .counts = std::move(counts)};
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "repaired", repair);
+    return rewriteAll(files, paths, reading, destination, reporter, Verb::Repaired, repair);
 }
 
 } // namespace subedit::cli

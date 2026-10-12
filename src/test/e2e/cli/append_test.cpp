@@ -18,6 +18,7 @@ using subedit::e2e::CliRun;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
+using subedit::e2e::invokeInEveryLanguage;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 using subedit::e2e::writeFile;
@@ -98,20 +99,20 @@ TEST_CASE("what crossing into the format of the first costs is said, file by fil
 }
 
 TEST_CASE("the record is one object for the whole run, with what each file cost",
-          "[e2e][CLI-APPEND-01][CLI-JSON-09]") {
+          "[e2e][CLI-APPEND-01][CLI-JSON-09][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string first = writeFile(scratch, "in/a.srt", kFirst);
     const std::string second = writeFile(scratch, "in/b.srt", kSecond);
     const std::string third = writeFile(scratch, "in/d.ass", kAss);
 
-    const CliRun run = invoke({"--format",
-                               "json",
-                               "append",
-                               first,
-                               second,
-                               third,
-                               "--output",
-                               scratch.of("out/all.srt")});
+    const CliRun run = invokeInEveryLanguage({"--format",
+                                              "json",
+                                              "append",
+                                              first,
+                                              second,
+                                              third,
+                                              "--output",
+                                              scratch.of("out/all.srt")});
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(anonymised(run.output, scratch.path(), "<scratch>"),

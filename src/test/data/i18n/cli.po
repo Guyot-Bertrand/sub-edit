@@ -1,0 +1,84 @@
+# Russian fixture of the tests of the command line under a second language (#663): the help of
+# `shift` and the words CLI11 puts around it, a usage error, the failures the versioned JSON
+# expectations carry, and the narration of a batch — with three plural forms, so that a sentence
+# assembled around an English « s » would show. Where Russian writes two forms alike, the second
+# carries a mark, « (форма 2–4) », so that a test can tell which form was chosen.
+#
+# Compiled by msgfmt at the build: into the unit tests' directory for `subedit_cli_test`, and into
+# a prefix of its own for the end-to-end tests, under `share/subedit/locale/ru/LC_MESSAGES/`, next
+# to a copy of `subedit-cli` (src/test/e2e/CMakeLists.txt).
+msgid ""
+msgstr ""
+"Project-Id-Version: fixture\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+# The help: CLI11's words and ours
+msgid "Read, inspect and retime subtitle files."
+msgstr "Читать, проверять и сдвигать файлы субтитров."
+
+msgid "Usage"
+msgstr "Использование"
+
+msgid "Options"
+msgstr "Параметры"
+
+msgid "Positionals"
+msgstr "Позиционные"
+
+msgid "Subcommands"
+msgstr "Подкоманды"
+
+msgid "REQUIRED"
+msgstr "ОБЯЗАТЕЛЬНО"
+
+msgid "Print this help message and exit"
+msgstr "Показать эту справку и выйти"
+
+msgid "Move every position of a file by a fixed amount"
+msgstr "Сдвинуть все позиции файла на постоянную величину"
+
+msgid "Subtitle files to shift"
+msgstr "Файлы субтитров для сдвига"
+
+msgid "Amount to move by: 2.999, -7.001, or 00:00:07.001"
+msgstr "Величина сдвига: 2.999, -7.001 или 00:00:07.001"
+
+# A usage error
+msgid "shift needs --by, or --to-grid to work the amount out from the positions"
+msgstr "shift требует --by или --to-grid, чтобы вычислить величину по позициям"
+
+# Failures: the words of core/wording, and the line that puts the file before them
+msgid "%1: %2"
+msgstr "%1 — %2"
+
+msgid "does not exist"
+msgstr "не существует"
+
+msgid "is in no format this tool knows"
+msgstr "не в известном программе формате"
+
+# Narration
+msgid "%1 subtitle shifted by %2"
+msgid_plural "%1 subtitles shifted by %2"
+msgstr[0] "%1 субтитр сдвинут на %2"
+msgstr[1] "%1 субтитра сдвинуто на %2"
+msgstr[2] "%1 субтитров сдвинуто на %2"
+
+msgid "%1: %2 -> %3"
+msgstr "%1: %2 → %3"
+
+msgid "%1 of %2 file shifted"
+msgid_plural "%1 of %2 files shifted"
+msgstr[0] "сдвинут %1 из %2 файла"
+msgstr[1] "сдвинуто %1 из %2 файлов (форма 2–4)"
+msgstr[2] "сдвинуто %1 из %2 файлов"
+
+msgid "%1, %2 failed"
+msgid_plural "%1, %2 failed"
+msgstr[0] "%1, %2 с ошибкой"
+msgstr[1] "%1, %2 с ошибками (форма 2–4)"
+msgstr[2] "%1, %2 с ошибками"

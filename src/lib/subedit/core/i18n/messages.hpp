@@ -17,6 +17,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace subedit::core {
 
@@ -40,5 +41,34 @@ translatePlural(std::string_view singular, std::string_view plural, std::uint64_
 /// arguments, stay as written. Positional so that a translation may reorder them.
 [[nodiscard]] std::string substitute(std::string_view text,
                                      std::initializer_list<std::string_view> arguments);
+
+/// While one lives, `translate`, `translateIn` and `translatePlural` answer **in English** on
+/// this thread, whatever catalogue is installed — the catalogue itself is left alone, so a view
+/// it handed out earlier stays valid.
+///
+/// **For text that must not follow the language** (spec 15, D3): the `message` of a failure in
+/// `--format json` is the same bytes in every language, yet it is the very sentence the error
+/// stream shows translated. Rather than a second, English copy of every sentence, the sentence
+/// is built twice — once as usual, once under this — by `inSourceLanguage`. Scopes nest.
+class SourceLanguage {
+
+public:
+    SourceLanguage();
+    ~SourceLanguage();
+
+    SourceLanguage(const SourceLanguage&) = delete;
+    SourceLanguage& operator=(const SourceLanguage&) = delete;
+    SourceLanguage(SourceLanguage&&) = delete;
+    SourceLanguage& operator=(SourceLanguage&&) = delete;
+};
+
+/// What `words()` says in English: the sentence a builder makes, built under `SourceLanguage`.
+/// The builder must be pure — it is called for its words, and may already have been called once
+/// for the translated ones.
+template<typename Words>
+[[nodiscard]] std::string inSourceLanguage(Words&& words) {
+    const SourceLanguage english;
+    return std::string{std::forward<Words>(words)()};
+}
 
 } // namespace subedit::core

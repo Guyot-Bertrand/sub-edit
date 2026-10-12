@@ -1,6 +1,7 @@
 #include "split_file.hpp"
 
 #include <subedit/cli/splitting.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -26,28 +27,42 @@ struct SplitFileOptions {
 };
 
 CLI::App* describeSplitFile(CLI::App& app, std::string_view name, SplitFileOptions& options) {
-    CLI::App* split =
-        app.add_subcommand(std::string{name}, "Cut a subtitle file in two, a head and a tail");
-    split->add_option("file", options.file, "Subtitle file to cut")->required();
+    CLI::App* split = app.add_subcommand(
+        std::string{name},
+        std::string{core::translate("Cut a subtitle file in two, a head and a tail")});
+    split->add_option("file", options.file, std::string{core::translate("Subtitle file to cut")})
+        ->required();
     split
         ->add_option("--at",
                      options.at,
-                     "Number of the first subtitle of the tail, as the table numbers them")
+                     std::string{core::translate(
+                         "Number of the first subtitle of the tail, as the table numbers them")})
         ->required()
         ->option_text("N");
-    split->add_option("--head", options.head, "File to write the subtitles before the cut to")
+    split
+        ->add_option("--head",
+                     options.head,
+                     std::string{core::translate("File to write the subtitles before the cut to")})
         ->option_text("FILE");
-    split->add_option("--tail", options.tail, "File to write the subtitles from the cut on to")
+    split
+        ->add_option("--tail",
+                     options.tail,
+                     std::string{core::translate("File to write the subtitles from the cut on to")})
         ->option_text("FILE");
     split->add_flag(
-        "--dry-run", options.dryRun, "Work out and say what would be written, and write nothing");
+        "--dry-run",
+        options.dryRun,
+        std::string{core::translate("Work out and say what would be written, and write nothing")});
     split->add_flag("--sort",
                     options.sort,
-                    "Put the subtitles in order of their start before cutting; --at counts in "
-                    "that order");
-    split->add_flag("--disjoint",
-                    options.disjoint,
-                    "Cut overlapping subtitles so that no range overlaps another, before cutting");
+                    std::string{core::translate(
+                        "Put the subtitles in order of their start before cutting; --at counts in "
+                        "that order")});
+    split->add_flag(
+        "--disjoint",
+        options.disjoint,
+        std::string{core::translate(
+            "Cut overlapping subtitles so that no range overlaps another, before cutting")});
     return split;
 }
 
@@ -56,10 +71,12 @@ ExitCode runSplitFile(const SplitFileOptions& options,
                       const std::optional<core::Encoding>& reading,
                       const Reporter& reporter) {
     if (!options.dryRun && (options.head.empty() || options.tail.empty())) {
-        return refuse("no destination given: split-file writes two files, use --head and --tail");
+        return refuse(core::translate(
+            "no destination given: split-file writes two files, use --head and --tail"));
     }
     if (options.dryRun && options.head.empty() != options.tail.empty()) {
-        return refuse("--head and --tail go together: give both, or neither with --dry-run");
+        return refuse(
+            core::translate("--head and --tail go together: give both, or neither with --dry-run"));
     }
 
     return splitFile(files,

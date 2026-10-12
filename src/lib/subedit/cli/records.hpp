@@ -13,8 +13,10 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/translation_file.hpp>
 #include <subedit/core/format/write_error.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/file_system.hpp>
 
+#include <concepts>
 #include <cstdint>
 #include <filesystem>
 #include <optional>
@@ -35,16 +37,34 @@ inline constexpr int kSchema = 1;
 /// Why one file did not come to anything: a stable identifier, and the words.
 ///
 /// **The identifier is promised, the words are not.** A script tests the kind;
-/// the message is English for a human and is reworded when it should be.
+/// the message is for a human and is reworded when it should be.
+///
+/// **The words, twice** (spec 15, D3). `message` is in the user's language and
+/// goes to standard error; `english` is the same sentence in English and goes
+/// into the record, whose bytes do not depend on the language. Both come from
+/// one builder, called as usual and then under `core::SourceLanguage` — so a
+/// failure is never given a finished string, which would be in one language
+/// only, but the function that words it.
 struct Failure {
     std::string kind;
     std::string message;
+    std::string english;
 
     /// A failure nobody gave a kind: `refused`, the general one.
-    Failure(std::string words) : kind{"refused"}, message{std::move(words)} {}
+    template<std::invocable Words>
+    explicit Failure(Words&& words) : Failure{"refused", std::forward<Words>(words)} {}
 
-    Failure(std::string_view identifier, std::string words)
-        : kind{identifier}, message{std::move(words)} {}
+    template<std::invocable Words>
+    Failure(std::string_view identifier, Words&& words)
+        : kind{identifier},
+          message{std::string{words()}},
+          english{core::inSourceLanguage(std::forward<Words>(words))} {}
+
+    /// The same failure, its words put after `prefix` and `": "` — the file it is about.
+    [[nodiscard]] Failure about(std::string_view prefix) const;
+
+private:
+    Failure() = default;
 };
 
 /// One count of an operation, by name.
