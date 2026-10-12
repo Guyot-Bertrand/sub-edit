@@ -1,0 +1,23 @@
+# -*- conf -*-
+# Two patterns a user dropped, neither of which ICU can read (a group name with an underscore),
+# so that the command line names both when they give up (issue #666). The first bears the
+# English name and description of a shipped Gaupol pattern, which the catalogue knows by that
+# text; the second is the user's own, which no catalogue knows and which is shown as written.
+
+[Common Error Pattern]
+Name=Letter "I" in a lower case word
+Description=Replace letter "I" with letter "l" in a lower case word
+Classes=OCR;
+Pattern=(?P<no_underscore>a)
+Flags=DOTALL;MULTILINE;
+Replacement=b
+Repeat=False
+
+[Common Error Pattern]
+Name=A pattern of my own
+Description=Mine, and in no catalogue
+Classes=OCR;
+Pattern=(?P<nor_this>c)
+Flags=DOTALL;MULTILINE;
+Replacement=d
+Repeat=False

@@ -107,3 +107,17 @@ msgstr "Нет видео"
 
 msgid "Video: %1, %2 fps"
 msgstr "Видео (%2 кадр/с): %1"
+
+# The correction patterns (#666): the English name and description of shipped Gaupol patterns,
+# which the catalogue knows by that text. A user's own pattern is in no catalogue.
+msgid "Letter \"I\" in a lower case word"
+msgstr "Буква «I» в слове из строчных букв"
+
+msgid "Replace letter \"I\" with letter \"l\" in a lower case word"
+msgstr "Заменить букву «I» на «l» в слове из строчных букв"
+
+msgid "First person pronoun"
+msgstr "Местоимение первого лица"
+
+msgid "Capitalize the first person pronoun \"I\""
+msgstr "Писать местоимение первого лица «I» с прописной"

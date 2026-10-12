@@ -19,6 +19,7 @@
 #include <subedit/core/i18n/catalogue.hpp>
 #include <subedit/core/i18n/language.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/project.hpp>
@@ -33,6 +34,8 @@
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/about_dialog.hpp>
+#include <subedit/gui/correction_confirmation_page.hpp>
+#include <subedit/gui/correction_progress_page.hpp>
 #include <subedit/gui/correction_result_model.hpp>
 #include <subedit/gui/correction_wizard.hpp>
 #include <subedit/gui/disjoint_dialog.hpp>
@@ -47,6 +50,7 @@
 #include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/open_translation_dialog.hpp>
 #include <subedit/gui/operation_dialog.hpp>
+#include <subedit/gui/pattern_list.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/prompts.hpp>
 #include <subedit/gui/qt_prompts.hpp>
@@ -64,6 +68,7 @@
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QAction>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -75,10 +80,12 @@
 #include <QList>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QSignalSpy>
 #include <QSpinBox>
 #include <QString>
 #include <QTableView>
 #include <QTableWidget>
+#include <QTemporaryDir>
 #include <QWidget>
 #include <QWizard>
 #include <QWizardPage>
@@ -88,7 +95,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <fstream>
 #include <functional>
+#include <iterator>
+#include <map>
 #include <memory>
 #include <optional>
 #include <set>
@@ -526,4 +536,112 @@ TEST_CASE("what stops the window is said behind its name", "[gui][i18n]") {
     std::ostringstream errors;
     subedit::gui::reportFatal(errors, "out of memory");
     CHECK(errors.str() == "subedit-gui: out of memory\n");
+}
+
+namespace {
+
+/// A pattern file as it was: its bytes and the time it was last written.
+struct FileState {
+    std::string bytes;
+    std::filesystem::file_time_type written;
+
+    friend bool operator==(const FileState&, const FileState&) = default;
+};
+
+[[nodiscard]] std::map<std::filesystem::path, FileState>
+statesOf(const std::vector<std::filesystem::path>& directories) {
+    std::map<std::filesystem::path, FileState> states;
+    for (const std::filesystem::path& directory : directories) {
+        for (const auto& entry : std::filesystem::directory_iterator{directory}) {
+            std::ifstream in{entry.path(), std::ios::binary};
+            states.emplace(entry.path(),
+                           FileState{.bytes = std::string{std::istreambuf_iterator<char>{in}, {}},
+                                     .written = std::filesystem::last_write_time(entry.path())});
+        }
+    }
+    return states;
+}
+
+/// The box `list` shows for the pattern whose English name is `name` — its identifier.
+[[nodiscard]] const QCheckBox& boxOf(const subedit::gui::PatternList& list, const char* name) {
+    const auto* box = list.findChild<QCheckBox*>(QString::fromUtf8(name));
+    REQUIRE(box != nullptr);
+    return *box;
+}
+
+} // namespace
+
+TEST_CASE("Gaupol's patterns are shown in the language, a user's own as written",
+          "[gui][i18n][GUI-I18N-04]") {
+    // The shipped files, and one a user dropped: both read as they are (ADR 0037).
+    const QTemporaryDir user;
+    REQUIRE(user.isValid());
+    const std::filesystem::path userDirectory = user.path().toStdString();
+    std::ofstream{userDirectory / "Latn-en.common-error"}
+        << "[Common Error Pattern]\nName=A pattern of my own\n"
+           "Description=Mine, and in no catalogue\nClasses=OCR;\nPattern=a\nReplacement=b\n";
+    const std::vector<std::filesystem::path> directories{SUBEDIT_PATTERNS_DIR, userDirectory};
+    const auto before = statesOf(directories);
+
+    const subedit::core::RealFileSystem files;
+    const subedit::core::PatternCatalogue catalogue =
+        subedit::core::readPatternCatalogue(files, SUBEDIT_PATTERNS_DIR, userDirectory);
+
+    SECTION("in English, as their files say them") {
+        subedit::gui::PatternList list{catalogue, subedit::core::PatternKind::CommonError};
+        list.setCode("Latn-en", subedit::core::CorrectionSettings{});
+        const QCheckBox& gaupol = boxOf(list, "Letter \"I\" in a lower case word");
+        CHECK(gaupol.text().toStdString() == "Letter \"I\" in a lower case word");
+        CHECK(gaupol.toolTip().toStdString() ==
+              "Replace letter \"I\" with letter \"l\" in a lower case word");
+        CHECK(boxOf(list, "A pattern of my own").text().toStdString() == "A pattern of my own");
+    }
+    SECTION("under the catalogue, Gaupol's translated and the user's as written") {
+        const InterfaceLanguage language{russian(), kLocale, QString{}};
+        subedit::gui::PatternList common{catalogue, subedit::core::PatternKind::CommonError};
+        common.setCode("Latn-en", subedit::core::CorrectionSettings{});
+        const QCheckBox& gaupol = boxOf(common, "Letter \"I\" in a lower case word");
+        CHECK(gaupol.text().toStdString() == "Буква «I» в слове из строчных букв");
+        CHECK(gaupol.toolTip().toStdString() ==
+              "Заменить букву «I» на «l» в слове из строчных букв");
+        const QCheckBox& own = boxOf(common, "A pattern of my own");
+        CHECK(own.text().toStdString() == "A pattern of my own");
+        CHECK(own.toolTip().toStdString() == "Mine, and in no catalogue");
+
+        subedit::gui::PatternList capitals{catalogue, subedit::core::PatternKind::Capitalization};
+        capitals.setCode("Latn-en", subedit::core::CorrectionSettings{});
+        const QCheckBox& pronoun = boxOf(capitals, "First person pronoun");
+        CHECK(pronoun.text().toStdString() == "Местоимение первого лица");
+        CHECK(pronoun.toolTip().toStdString() == "Писать местоимение первого лица «I» с прописной");
+
+        // A pattern that gave up is named the same way on the confirmation page.
+        subedit::gui::CorrectionProgressPage progress;
+        progress.setComputation([] {
+            subedit::core::CorrectionProposal result;
+            for (const char* name : {"Letter \"I\" in a lower case word", "A pattern of my own"})
+                result.failures.push_back(subedit::core::PatternFailure{
+                    .kind = subedit::core::FailureKind::Untranslatable,
+                    .code = "Latn-en",
+                    .rank = 1,
+                    .name = name,
+                    .text = std::nullopt,
+                    .detail = ""});
+            return result;
+        });
+        QSignalSpy spy{&progress, &subedit::gui::CorrectionProgressPage::completeChanged};
+        progress.initializePage();
+        REQUIRE(spy.wait(2000));
+        subedit::gui::CorrectionConfirmationPage page;
+        page.setProgressPage(&progress);
+        page.initializePage();
+        const std::string abandoned =
+            page.findChild<QLabel*>(QStringLiteral("abandonedPatterns"))->text().toStdString();
+        INFO(abandoned);
+        CHECK(abandoned.find("Буква «I» в слове из строчных букв (") != std::string::npos);
+        CHECK(abandoned.find("A pattern of my own (") != std::string::npos);
+        CHECK(abandoned.find("lower case") == std::string::npos);
+    }
+
+    // The translation was looked up, never written: no pattern file has changed.
+    CHECK(statesOf(directories) == before);
 }
