@@ -2,6 +2,7 @@
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/gui/frame_rate_box.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QComboBox>
 #include <QFormLayout>
@@ -22,7 +23,7 @@ FrameRateDialog::FrameRateDialog(OperationScope scope,
     : OperationDialog(scope, parent),
       m_input(new FrameRateBox{this}),
       m_output(new FrameRateBox{this}) {
-    setWindowTitle(QStringLiteral("Convert frame rate"));
+    setWindowTitle(translate("Convert frame rate"));
 
     // **The positions first, the project's assumption second.** Before phase 16
     // this field could only open on what the project carried, and the manual
@@ -51,8 +52,8 @@ FrameRateDialog::FrameRateDialog(OperationScope scope,
     for (FrameRateBox* box : {m_input, m_output})
         connect(box, &QComboBox::currentIndexChanged, this, [this] { revalidate(); });
 
-    fields()->addRow(QStringLiteral("Timed against"), m_input);
-    fields()->addRow(QStringLiteral("Should play at"), m_output);
+    fields()->addRow(translate("Timed against"), m_input);
+    fields()->addRow(translate("Should play at"), m_output);
 
     // Added only when there is something to say. Without a film, without
     // `ffprobe`, and without a grid, this dialog is exactly the one that came
@@ -63,12 +64,12 @@ FrameRateDialog::FrameRateDialog(OperationScope scope,
     // another grid, and the difference is the reason the alignment exists.
     if (deduced.has_value()) {
         m_deduced = new QLabel{QString::fromStdString(core::nameOf(*deduced)), this};
-        fields()->addRow(QStringLiteral("The positions say"), m_deduced);
+        fields()->addRow(translate("The positions say"), m_deduced);
     }
 
     if (declared.has_value()) {
         m_declared = new QLabel{QString::fromStdString(core::nameOf(*declared)), this};
-        fields()->addRow(QStringLiteral("The video declares"), m_declared);
+        fields()->addRow(translate("The video declares"), m_declared);
     }
 
     // The one row that says where a number came from rather than what it
@@ -77,7 +78,7 @@ FrameRateDialog::FrameRateDialog(OperationScope scope,
     // one — the conversion then recomputes every position from the frames.
     if (read.has_value()) {
         m_read = new QLabel{QString::fromStdString(core::nameOf(*read)), this};
-        fields()->addRow(QStringLiteral("The file was read at"), m_read);
+        fields()->addRow(translate("The file was read at"), m_read);
     }
 
     finish();

@@ -3,8 +3,8 @@
 #
 # **Ce que le gabarit liste** : chaque littéral passé à l'API de `core/i18n/messages.hpp`
 # (`translate`, `translateIn`, `translatePlural`), dans `src/lib` et `src/exe`. Les tests n'en
-# font pas partie : leurs messages ne sont pas ceux de l'utilisateur. Les mots-clés de la
-# fenêtre (`tr`) s'ajouteront avec le ticket qui y branche l'API.
+# font pas partie : leurs messages ne sont pas ceux de l'utilisateur. The window has no keyword
+# of its own: `gui/messages.hpp` bears the same three names, and no `tr` is left (#665).
 #
 # **Reproductible, octet pour octet** — c'est ce que le ticket exige, et ce que `--check`
 # éprouve : les sources sont triées, les emplacements n'écrivent que le fichier (un numéro de

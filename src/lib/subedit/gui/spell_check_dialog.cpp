@@ -1,4 +1,5 @@
 #include <subedit/core/text/spell_check_walk.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/spell_check_dialog.hpp>
 
 #include <QDialogButtonBox>
@@ -33,16 +34,16 @@ SpellCheckDialog::SpellCheckDialog(core::SpellCheckWalk& walk, QWidget* parent)
       m_replacement(new QLineEdit{this}),
       m_suggestions(new QListWidget{this}),
       m_grid(new QWidget{this}),
-      m_add(new QPushButton{QStringLiteral("Add"), m_grid}),
-      m_ignore(new QPushButton{QStringLiteral("Ignore"), m_grid}),
-      m_ignoreAll(new QPushButton{QStringLiteral("Ignore All"), m_grid}),
-      m_replace(new QPushButton{QStringLiteral("Replace"), m_grid}),
-      m_replaceAll(new QPushButton{QStringLiteral("Replace All"), m_grid}),
-      m_joinBack(new QPushButton{QStringLiteral("Join with Previous"), m_grid}),
-      m_joinForward(new QPushButton{QStringLiteral("Join with Next"), m_grid}),
-      m_save(new QPushButton{QStringLiteral("Save and Resume"), m_grid}),
+      m_add(new QPushButton{translate("Add"), m_grid}),
+      m_ignore(new QPushButton{translate("Ignore"), m_grid}),
+      m_ignoreAll(new QPushButton{translate("Ignore All"), m_grid}),
+      m_replace(new QPushButton{translate("Replace"), m_grid}),
+      m_replaceAll(new QPushButton{translate("Replace All"), m_grid}),
+      m_joinBack(new QPushButton{translate("Join with Previous"), m_grid}),
+      m_joinForward(new QPushButton{translate("Join with Next"), m_grid}),
+      m_save(new QPushButton{translate("Save and Resume"), m_grid}),
       m_buttons(new QDialogButtonBox{QDialogButtonBox::Close, this}) {
-    setWindowTitle(QStringLiteral("Check Spelling"));
+    setWindowTitle(translate("Check Spelling"));
 
     auto* buttons = new QGridLayout{m_grid};
     buttons->setContentsMargins(0, 0, 0, 0);
@@ -52,9 +53,9 @@ SpellCheckDialog::SpellCheckDialog(core::SpellCheckWalk& walk, QWidget* parent)
         buttons->addWidget(button, row++, 0);
 
     auto* middle = new QGridLayout{};
-    middle->addWidget(new QLabel{QStringLiteral("Replace with:"), this}, 0, 0);
+    middle->addWidget(new QLabel{translate("Replace with:"), this}, 0, 0);
     middle->addWidget(m_replacement, 1, 0);
-    middle->addWidget(new QLabel{QStringLiteral("Suggestions:"), this}, 2, 0);
+    middle->addWidget(new QLabel{translate("Suggestions:"), this}, 2, 0);
     middle->addWidget(m_suggestions, 3, 0);
     middle->addWidget(m_grid, 0, 1, 4, 1);
 

@@ -596,12 +596,13 @@ msgstr ""
 #. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not read.
 #. TRANSLATORS: %1 is the file, or what a message is about; %2 the message.
 #. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such as shifting.
+#. TRANSLATORS: %1 is a file's path, %2 what went wrong with it.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/batch.cpp
 #: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
 #: src/lib/subedit/cli/disjoining.cpp src/lib/subedit/cli/inspection.cpp
 #: src/lib/subedit/cli/joining.cpp src/lib/subedit/cli/records.cpp
 #: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/sorting.cpp
-#: src/lib/subedit/gui/command_label.cpp
+#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/invocation.cpp
 msgid "%1: %2"
 msgstr ""
 
@@ -1252,6 +1253,7 @@ msgstr ""
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/inspection.cpp
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "%1 fps"
 msgstr ""
 
@@ -2365,6 +2367,18 @@ msgstr ""
 msgid "Video: %1"
 msgstr ""
 
+#: src/lib/subedit/gui/about_dialog.cpp
+msgid "A subtitle editor."
+msgstr ""
+
+#: src/lib/subedit/gui/about_dialog.cpp
+msgid "Licensed under the GPL, version 3 or later."
+msgstr ""
+
+#: src/lib/subedit/gui/about_dialog.cpp
+msgid "About subedit"
+msgstr ""
+
 #: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Undo"
 msgstr ""
@@ -2382,6 +2396,179 @@ msgstr ""
 msgid "Shift Whole File onto Grid (%1)"
 msgstr ""
 
+#. TRANSLATORS: %1 lists the patterns left out, each with its reason.
+#: src/lib/subedit/gui/correction_confirmation_page.cpp
+msgid "Not applied: %1"
+msgstr ""
+
+#. TRANSLATORS: %1 lists the pattern files that could not be read.
+#: src/lib/subedit/gui/correction_confirmation_page.cpp
+msgid "Could not be read: %1"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_confirmation_page.cpp
+msgid "Mark All"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_confirmation_page.cpp
+msgid "Unmark All"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_confirmation_page.cpp
+#: src/lib/subedit/gui/operation_dialog.cpp
+msgid "Preview"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_confirmation_page.cpp
+msgid "Remove all blank subtitles"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_confirmation_page.cpp
+msgid "Confirmation"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_progress_page.cpp
+msgid "Progress"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_progress_page.cpp
+msgid "Computing the proposed corrections…"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_result_model.cpp
+msgid "Accept"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_result_model.cpp
+msgid "Original"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_result_model.cpp
+msgid "Corrected Text"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+msgid "Tasks and Target"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/spell_check_settings_dialog.cpp
+msgid "Target"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/spell_check_settings_dialog.cpp
+msgid "Selection"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/spell_check_settings_dialog.cpp
+msgid "Current Project"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/spell_check_settings_dialog.cpp
+msgid "All Open Projects"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/spell_check_settings_dialog.cpp
+msgid "Document"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/operation_dialog.cpp
+#: src/lib/subedit/gui/spell_check_settings_dialog.cpp
+#: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transform_dialog.cpp
+msgid "Text"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/spell_check_settings_dialog.cpp
+#: src/lib/subedit/gui/subtitle_table_model.cpp src/lib/subedit/gui/target.cpp
+msgid "Translation"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+msgid "Tasks"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Mentions"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/join_split_page.cpp
+msgid "Join or Split Words"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Common Errors"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Capitalization"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_target_page.cpp
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Line Break"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Sound in brackets"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Sound in parentheses"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Human"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "OCR"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Skip subtitles with maximum line length of"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Skip subtitles with maximum line amount of"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_task_page.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Characters"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_task_page.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Ems"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Maximum length:"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Maximum lines:"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_task_page.cpp
+msgid "Unit:"
+msgstr ""
+
+#: src/lib/subedit/gui/correction_wizard.cpp
+msgid "Correct Texts"
+msgstr ""
+
 #: src/lib/subedit/gui/diagnostics_button.cpp
 msgid ""
 "What the reading ran into, and what is wrong with the subtitles — click for "
@@ -2394,13 +2581,279 @@ msgid_plural "%1 diagnostics"
 msgstr[0] ""
 msgstr[1] ""
 
+#: src/lib/subedit/gui/disjoint_dialog.cpp
+msgid "Put a dash before each subtitle's text"
+msgstr ""
+
+#: src/lib/subedit/gui/disjoint_dialog.cpp
+msgid "Make ranges disjoint"
+msgstr ""
+
+#: src/lib/subedit/gui/disjoint_dialog.cpp
+msgid "Repair subtitles"
+msgstr ""
+
+#. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
+#: src/lib/subedit/gui/disjoint_dialog.cpp
+msgid " ms"
+msgstr ""
+
+#: src/lib/subedit/gui/disjoint_dialog.cpp
+msgid ""
+"An interval shorter than this is taken over by a neighbour. Zero keeps every "
+"interval."
+msgstr ""
+
+#: src/lib/subedit/gui/disjoint_dialog.cpp
+msgid "No limit"
+msgstr ""
+
+#: src/lib/subedit/gui/disjoint_dialog.cpp
+msgid ""
+"A merged subtitle with more lines is shown in windows of this many lines, "
+"one after the other."
+msgstr ""
+
+#: src/lib/subedit/gui/disjoint_dialog.cpp
+msgid ""
+"The subtitles that repeat each other are joined first, and the rest put in "
+"order of their start. Overlapping subtitles are cut where they overlap, and "
+"what shows together is merged line by line, the earliest first. Nothing is "
+"shortened or lengthened. Each change can be undone."
+msgstr ""
+
+#: src/lib/subedit/gui/disjoint_dialog.cpp
+msgid ""
+"Overlapping subtitles are cut where they overlap, and what shows together is "
+"merged line by line, the earliest first. Nothing is shortened or lengthened. "
+"Each change can be undone."
+msgstr ""
+
+#: src/lib/subedit/gui/disjoint_dialog.cpp
+msgid "Shortest interval kept"
+msgstr ""
+
+#: src/lib/subedit/gui/disjoint_dialog.cpp
+msgid "Most lines in a subtitle"
+msgstr ""
+
+#. TRANSLATORS: the unit after a number of seconds, with its space: « 1.5 s ».
+#: src/lib/subedit/gui/duration_adjust_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid " s"
+msgstr ""
+
+#: src/lib/subedit/gui/duration_adjust_dialog.cpp
+msgid "Lengthen durations to match it"
+msgstr ""
+
+#: src/lib/subedit/gui/duration_adjust_dialog.cpp
+msgid "Shorten durations to match it"
+msgstr ""
+
+#: src/lib/subedit/gui/duration_adjust_dialog.cpp
+msgid "Minimum duration"
+msgstr ""
+
+#: src/lib/subedit/gui/duration_adjust_dialog.cpp
+msgid "Maximum duration"
+msgstr ""
+
+#: src/lib/subedit/gui/duration_adjust_dialog.cpp
+msgid "Gap between subtitles"
+msgstr ""
+
+#: src/lib/subedit/gui/duration_adjust_dialog.cpp
+msgid "Adjust durations"
+msgstr ""
+
+#. TRANSLATORS: the unit after a reading speed, with its space: « 15 char/s ».
+#: src/lib/subedit/gui/duration_adjust_dialog.cpp
+msgid " char/s"
+msgstr ""
+
+#: src/lib/subedit/gui/duration_adjust_dialog.cpp
+msgid "Reading speed"
+msgstr ""
+
+#: src/lib/subedit/gui/fixes_proposal_dialog.cpp
+msgid "Problems found in this file"
+msgstr ""
+
+#: src/lib/subedit/gui/fixes_proposal_dialog.cpp
+msgid ""
+"Opening this file found something that can be put right. Each correction can "
+"be undone."
+msgstr ""
+
+#: src/lib/subedit/gui/fixes_proposal_dialog.cpp
+msgid "Fix"
+msgstr ""
+
+#: src/lib/subedit/gui/fixes_proposal_dialog.cpp
+msgid "Keep as is"
+msgstr ""
+
+#: src/lib/subedit/gui/fixes_proposal_dialog.cpp
+msgid "Join the repeated subtitles: %1 subtitle repeat one that they touch"
+msgid_plural ""
+"Join the repeated subtitles: %1 subtitles repeat one that they touch"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/gui/fixes_proposal_dialog.cpp
+msgid "Sort the subtitles: not in order of start (%1 subtitle out of place)"
+msgid_plural ""
+"Sort the subtitles: not in order of start (%1 subtitles out of place)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/gui/fixes_proposal_dialog.cpp
+msgid ""
+"Make the ranges disjoint: %1 subtitle start before the previous one ends"
+msgid_plural ""
+"Make the ranges disjoint: %1 subtitles start before the previous one ends"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/gui/frame_rate_dialog.cpp
+msgid "Convert frame rate"
+msgstr ""
+
+#: src/lib/subedit/gui/frame_rate_dialog.cpp
+msgid "Timed against"
+msgstr ""
+
+#: src/lib/subedit/gui/frame_rate_dialog.cpp
+msgid "Should play at"
+msgstr ""
+
+#: src/lib/subedit/gui/frame_rate_dialog.cpp
+msgid "The positions say"
+msgstr ""
+
+#: src/lib/subedit/gui/frame_rate_dialog.cpp
+msgid "The video declares"
+msgstr ""
+
+#: src/lib/subedit/gui/frame_rate_dialog.cpp
+msgid "The file was read at"
+msgstr ""
+
+#. TRANSLATORS: %1 is the number of subtitles the file has, too few to measure.
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+msgid "Too few subtitles to tell: %1 of them."
+msgstr ""
+
+#. TRANSLATORS: %1 is a share, « 41.2 % ».
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+msgid ""
+"No frame rate grid explains these positions. The closest candidate reaches "
+"%1."
+msgstr ""
+
+#. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a share.
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+msgid "Written on a %1 fps grid — %2, %3."
+msgstr ""
+
+#. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, « 1:32:05 ».
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+msgid "Measured on %1 start, over %2."
+msgid_plural "Measured on %1 starts, over %2."
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANSLATORS: %1 is a length of time, « 0.020 s ».
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+msgid "Shifted off the grid by %1."
+msgstr ""
+
+#. TRANSLATORS: %1 is a frame rate.
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+msgid "%1 fps fits just as well, being a whole multiple of it."
+msgstr ""
+
+#. TRANSLATORS: %1 is a frame rate.
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+msgid "This span is too short to tell it from %1 fps."
+msgstr ""
+
+#. TRANSLATORS: %1 is a number of starts, %2 a number of runs, « 3 runs ».
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+msgid "%1 of these starts leaves the grid, in %2."
+msgid_plural "%1 of these starts leave the grid, in %2."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+msgid "Frame Rate Analysis"
+msgstr ""
+
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+msgid "Fit"
+msgstr ""
+
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+msgid "Frame rate"
+msgstr ""
+
+#: src/lib/subedit/gui/grid_analysis_dialog.cpp
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Convert Frame Rate…"
+msgstr ""
+
+#: src/lib/subedit/gui/hearing_impaired_dialog.cpp
+msgid "Remove hearing-impaired mentions"
+msgstr ""
+
+#: src/lib/subedit/gui/hearing_impaired_dialog.cpp
+msgid ""
+"Mentions in square brackets are removed; parentheses are kept.\n"
+"A subtitle left with nothing is taken away."
+msgstr ""
+
+#: src/lib/subedit/gui/insert_dialog.cpp
+msgid "Insert subtitles"
+msgstr ""
+
+#: src/lib/subedit/gui/insert_dialog.cpp
+msgid "How many"
+msgstr ""
+
+#: src/lib/subedit/gui/insert_dialog.cpp
+msgid "Where"
+msgstr ""
+
+#. TRANSLATORS: the start of every line the window writes on its error stream.
+#: src/lib/subedit/gui/invocation.cpp
+msgid "subedit-gui: %1"
+msgstr ""
+
+#: src/lib/subedit/gui/invocation.cpp
+msgid "%1: \"%2\" %3"
+msgstr ""
+
+#: src/lib/subedit/gui/join_split_page.cpp
+msgid "Join words"
+msgstr ""
+
+#: src/lib/subedit/gui/join_split_page.cpp
+msgid "Split words"
+msgstr ""
+
+#: src/lib/subedit/gui/join_split_page.cpp
+#: src/lib/subedit/gui/spell_check_settings_dialog.cpp
+msgid "Language:"
+msgstr ""
+
 #. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of unsaved
 #. changes, and stays as it is.
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1[*] — subedit"
 msgstr ""
 
-#: src/lib/subedit/gui/main_window.cpp
+#: src/lib/subedit/gui/main_window.cpp src/lib/subedit/gui/project_files.cpp
 msgid "untitled"
 msgstr ""
 
@@ -2427,6 +2880,92 @@ msgid_plural "%1 videos dropped at once: a project watches one film"
 msgstr[0] ""
 msgstr[1] ""
 
+#: src/lib/subedit/gui/manual_window.cpp
+msgid "Back"
+msgstr ""
+
+#: src/lib/subedit/gui/manual_window.cpp
+msgid "Contents"
+msgstr ""
+
+#: src/lib/subedit/gui/manual_window.cpp
+msgid "subedit — manual"
+msgstr ""
+
+#. TRANSLATORS: %1 is the path of a page of the manual.
+#: src/lib/subedit/gui/manual_window.cpp
+msgid "%1 could not be read."
+msgstr ""
+
+#. TRANSLATORS: %1 is the path a link of the manual names.
+#: src/lib/subedit/gui/manual_window.cpp
+msgid ""
+"%1 is not part of the installed manual; it lives in the project's repository."
+msgstr ""
+
+#: src/lib/subedit/gui/mpv_player.cpp
+msgid "the video player could not be started"
+msgstr ""
+
+#: src/lib/subedit/gui/open_translation_dialog.cpp
+msgid "Open Translation"
+msgstr ""
+
+#: src/lib/subedit/gui/open_translation_dialog.cpp
+msgid "How should the lines of %1 be matched to the subtitles?"
+msgstr ""
+
+#: src/lib/subedit/gui/open_translation_dialog.cpp
+msgid "By position — each line goes to the subtitle it falls in"
+msgstr ""
+
+#: src/lib/subedit/gui/open_translation_dialog.cpp
+msgid "By number — the nth line goes to the nth subtitle"
+msgstr ""
+
+#: src/lib/subedit/gui/operation_dialog.cpp
+msgid "Preview changes…"
+msgstr ""
+
+#: src/lib/subedit/gui/operation_dialog.cpp
+msgid "Nothing would change."
+msgstr ""
+
+#: src/lib/subedit/gui/operation_dialog.cpp
+msgid "%1 subtitle would change."
+msgid_plural "%1 subtitles would change."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/gui/operation_dialog.cpp
+msgid "After"
+msgstr ""
+
+#: src/lib/subedit/gui/operation_dialog.cpp
+msgid "Before"
+msgstr ""
+
+#: src/lib/subedit/gui/operation_dialog.cpp
+msgid "Selected: %1"
+msgstr ""
+
+#: src/lib/subedit/gui/operation_dialog.cpp
+msgid "Whole project: %1"
+msgstr ""
+
+#. TRANSLATORS: %1 is a count of subtitles, « 120 subtitles ».
+#: src/lib/subedit/gui/operation_dialog.cpp
+msgid "Applies to: %1"
+msgstr ""
+
+#: src/lib/subedit/gui/pattern_code_selector.cpp
+msgid "(every language)"
+msgstr ""
+
+#: src/lib/subedit/gui/pattern_code_selector.cpp
+msgid "(every country)"
+msgstr ""
+
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Position"
 msgstr ""
@@ -2449,6 +2988,320 @@ msgstr ""
 
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Play"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Show line lengths in cells"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Show line lengths in the editor"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Decode on the graphics card"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Preferences"
+msgstr ""
+
+#. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames ».
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid " frames"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Theme"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Length unit"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Seek length"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Context length"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Frame step"
+msgstr ""
+
+#: src/lib/subedit/gui/project_files.cpp
+msgid "Save All stopped: %1 of %2 document saved"
+msgid_plural "Save All stopped: %1 of %2 documents saved"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/gui/project_files.cpp
+msgid "Nothing to save"
+msgstr ""
+
+#: src/lib/subedit/gui/project_files.cpp
+msgid "%1 document saved"
+msgid_plural "%1 documents saved"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/gui/project_operations.cpp
+msgid "the two references define no correction"
+msgstr ""
+
+#. TRANSLATORS: %1 is Main or Translation.
+#: src/lib/subedit/gui/project_search.cpp
+msgid "Searching in: %1"
+msgstr ""
+
+#: src/lib/subedit/gui/project_search.cpp
+msgid "Search wrapped around"
+msgstr ""
+
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt *.vtt ».
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Subtitles (%1)"
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "All files (*)"
+msgstr ""
+
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv *.mp4 ».
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Videos (%1)"
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp src/lib/subedit/gui/window_actions.cpp
+msgid "Open"
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Select Video"
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "The translation is no longer where it was read from."
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "The translation has changes that were never written."
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "The document is no longer where it was read from."
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "The document has changes that were never written."
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Unsaved changes"
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Saving will lose something"
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid ""
+"%1\n"
+"\n"
+"Open it again, moved?"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Western"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Central European"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Cyrillic"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Greek"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Turkish"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Japanese"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Chinese simplified"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Chinese traditional"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Byte order mark"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Other…"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Name of an encoding, e.g. cp1257"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Encoding:"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Line endings:"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "Save As"
+msgstr ""
+
+#: src/lib/subedit/gui/save_shape.cpp
+msgid "nothing was chosen"
+msgstr ""
+
+#: src/lib/subedit/gui/search_dialog.cpp
+msgid "Regular expression"
+msgstr ""
+
+#: src/lib/subedit/gui/search_dialog.cpp
+msgid "Ignore case"
+msgstr ""
+
+#: src/lib/subedit/gui/search_dialog.cpp
+msgid "All open projects"
+msgstr ""
+
+#: src/lib/subedit/gui/search_dialog.cpp
+msgid "Find &Previous"
+msgstr ""
+
+#: src/lib/subedit/gui/search_dialog.cpp
+msgid "Find &Next"
+msgstr ""
+
+#: src/lib/subedit/gui/search_dialog.cpp
+msgid "&Replace"
+msgstr ""
+
+#: src/lib/subedit/gui/search_dialog.cpp
+msgid "Replace &All"
+msgstr ""
+
+#: src/lib/subedit/gui/search_dialog.cpp
+msgid "Find and replace"
+msgstr ""
+
+#: src/lib/subedit/gui/search_dialog.cpp src/lib/subedit/gui/window_actions.cpp
+msgid "Find"
+msgstr ""
+
+#: src/lib/subedit/gui/search_dialog.cpp
+msgid "Replace with"
+msgstr ""
+
+#: src/lib/subedit/gui/shift_dialog.cpp
+msgid "Shift positions"
+msgstr ""
+
+#: src/lib/subedit/gui/shift_dialog.cpp
+msgid "Shift by"
+msgstr ""
+
+#: src/lib/subedit/gui/snap_dialog.cpp
+msgid "Snap to frame rate"
+msgstr ""
+
+#: src/lib/subedit/gui/snap_dialog.cpp
+msgid "Lay positions on"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_controller.cpp
+msgid "Nothing to check."
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_controller.cpp
+msgid "Could not save the replacements for %1: %2"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_dialog.cpp
+msgid "Add"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_dialog.cpp
+msgid "Ignore"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_dialog.cpp
+msgid "Ignore All"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_dialog.cpp
+msgid "Replace"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_dialog.cpp
+msgid "Replace All"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_dialog.cpp
+msgid "Join with Previous"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_dialog.cpp
+msgid "Join with Next"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_dialog.cpp
+msgid "Save and Resume"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_dialog.cpp
+msgid "Check Spelling"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_dialog.cpp
+msgid "Replace with:"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_dialog.cpp
+msgid "Suggestions:"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_settings_dialog.cpp
+msgid "Check spelling while editing"
+msgstr ""
+
+#: src/lib/subedit/gui/spell_check_settings_dialog.cpp
+msgid "Spell-Check Settings"
+msgstr ""
+
+#: src/lib/subedit/gui/split_project_dialog.cpp
+msgid "Split project"
+msgstr ""
+
+#: src/lib/subedit/gui/split_project_dialog.cpp
+msgid "Split at subtitle"
+msgstr ""
+
+#: src/lib/subedit/gui/split_project_dialog.cpp
+msgid ""
+"The subtitles from this one on move to a new project, opened in a tab of its "
+"own."
 msgstr ""
 
 #. TRANSLATORS: %1 is Main or Translation, the text an operation aims at.
@@ -2474,14 +3327,6 @@ msgstr ""
 
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "Duration"
-msgstr ""
-
-#: src/lib/subedit/gui/subtitle_table_model.cpp
-msgid "Text"
-msgstr ""
-
-#: src/lib/subedit/gui/subtitle_table_model.cpp src/lib/subedit/gui/target.cpp
-msgid "Translation"
 msgstr ""
 
 #: src/lib/subedit/gui/table_columns.cpp
@@ -2510,6 +3355,59 @@ msgstr ""
 
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
+msgstr ""
+
+#: src/lib/subedit/gui/transform_dialog.cpp
+msgid "Transform positions"
+msgstr ""
+
+#: src/lib/subedit/gui/transform_dialog.cpp
+msgid "Subtitle"
+msgstr ""
+
+#: src/lib/subedit/gui/transform_dialog.cpp
+msgid "Now starts"
+msgstr ""
+
+#: src/lib/subedit/gui/transform_dialog.cpp
+msgid "Should start"
+msgstr ""
+
+#: src/lib/subedit/gui/transform_dialog.cpp
+msgid ""
+"Pick two subtitles and say when each one should start.\n"
+"All the other subtitles are moved and stretched to match."
+msgstr ""
+
+#: src/lib/subedit/gui/transform_dialog.cpp
+msgid "Reference 1"
+msgstr ""
+
+#: src/lib/subedit/gui/transform_dialog.cpp
+msgid "Reference 2"
+msgstr ""
+
+#. TRANSLATORS: %1 is « Main — film.srt », a document and its file.
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "%1 (file is gone from the disk)"
+msgstr ""
+
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "&Save"
+msgstr ""
+
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Close &Without Saving"
+msgstr ""
+
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr ""
+
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid ""
+"These documents have changes that were never written.\n"
+"Tick the ones to save."
 msgstr ""
 
 #: src/lib/subedit/gui/video_pane.cpp src/lib/subedit/gui/window_actions.cpp
@@ -2705,10 +3603,6 @@ msgid "Transform Positions…"
 msgstr ""
 
 #: src/lib/subedit/gui/window_actions.cpp
-msgid "Convert Frame Rate…"
-msgstr ""
-
-#: src/lib/subedit/gui/window_actions.cpp
 msgid "Adjust Durations…"
 msgstr ""
 
@@ -2830,14 +3724,6 @@ msgstr ""
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "New"
-msgstr ""
-
-#: src/lib/subedit/gui/window_actions.cpp
-msgid "Open"
-msgstr ""
-
-#: src/lib/subedit/gui/window_actions.cpp
-msgid "Find"
 msgstr ""
 
 #: src/lib/subedit/gui/window_actions.cpp

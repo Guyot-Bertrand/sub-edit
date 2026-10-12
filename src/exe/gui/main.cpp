@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
         subedit::gui::writeUserSettings(files, window.settings(), std::cerr);
         return code;
     } catch (const std::exception& error) {
-        std::cerr << "subedit-gui: " << error.what() << "\n";
+        subedit::gui::reportFatal(std::cerr, error.what());
         return 2;
     }
 }

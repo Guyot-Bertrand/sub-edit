@@ -498,13 +498,13 @@ refus le bon —, et la fenêtre, qui répond à la question par le double `Fake
 
 ## Relevé
 
-    total : 74
+    total : 73
 
-Relevé sur la version 0.14.17, le 2026-10-08.
+Relevé sur la version 0.15.19, le 2026-10-12.
 
 | Lignes | Fichier |
 | -----: | :------ |
-| 52 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 50 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 4 | `src/lib/subedit/core/process/start_process.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
@@ -518,4 +518,5 @@ Relevé sur la version 0.14.17, le 2026-10-08.
 | 1 | `src/lib/subedit/gui/correction_target_page.cpp` |
 | 1 | `src/lib/subedit/gui/correction_wizard.cpp` |
 | 1 | `src/lib/subedit/gui/player_factory.cpp` |
+| 1 | `src/lib/subedit/gui/project_files.cpp` |
 | 1 | `src/lib/subedit/gui/save_shape.cpp` |

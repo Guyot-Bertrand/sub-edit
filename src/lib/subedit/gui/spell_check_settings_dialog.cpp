@@ -1,6 +1,7 @@
 #include <subedit/core/text/spell_dictionary.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/gui/join_split_page.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/spell_check_settings_dialog.hpp>
 
 #include <QCheckBox>
@@ -22,32 +23,32 @@ SpellCheckSettingsDialog::SpellCheckSettingsDialog(const core::SpellProvider* pr
       m_provider(provider),
       m_language(new QComboBox{this}),
       m_reason(new QLabel{this}),
-      m_inline(new QCheckBox{QStringLiteral("Check spelling while editing"), this}),
+      m_inline(new QCheckBox{translate("Check spelling while editing"), this}),
       m_buttons(new QDialogButtonBox{QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this}) {
-    setWindowTitle(QStringLiteral("Spell-Check Settings"));
+    setWindowTitle(translate("Spell-Check Settings"));
 
-    auto* targetGroup = new QGroupBox{QStringLiteral("Target"), this};
-    m_selection = new QRadioButton{QStringLiteral("Selection"), targetGroup};
+    auto* targetGroup = new QGroupBox{translate("Target"), this};
+    m_selection = new QRadioButton{translate("Selection"), targetGroup};
     m_selection->setEnabled(selectionAvailable);
-    m_currentProject = new QRadioButton{QStringLiteral("Current Project"), targetGroup};
+    m_currentProject = new QRadioButton{translate("Current Project"), targetGroup};
     m_currentProject->setChecked(true);
-    m_allProjects = new QRadioButton{QStringLiteral("All Open Projects"), targetGroup};
+    m_allProjects = new QRadioButton{translate("All Open Projects"), targetGroup};
     auto* targetLayout = new QVBoxLayout{targetGroup};
     targetLayout->addWidget(m_selection);
     targetLayout->addWidget(m_currentProject);
     targetLayout->addWidget(m_allProjects);
 
-    auto* documentGroup = new QGroupBox{QStringLiteral("Document"), this};
-    m_text = new QRadioButton{QStringLiteral("Text"), documentGroup};
+    auto* documentGroup = new QGroupBox{translate("Document"), this};
+    m_text = new QRadioButton{translate("Text"), documentGroup};
     m_text->setChecked(true);
-    m_translation = new QRadioButton{QStringLiteral("Translation"), documentGroup};
+    m_translation = new QRadioButton{translate("Translation"), documentGroup};
     m_translation->setEnabled(translationAvailable);
     auto* documentLayout = new QVBoxLayout{documentGroup};
     documentLayout->addWidget(m_text);
     documentLayout->addWidget(m_translation);
 
     auto* form = new QFormLayout{};
-    form->addRow(QStringLiteral("Language:"), m_language);
+    form->addRow(translate("Language:"), m_language);
 
     auto* layout = new QVBoxLayout{this};
     layout->addLayout(form);

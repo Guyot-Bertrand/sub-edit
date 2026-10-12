@@ -6,6 +6,7 @@
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/editing.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/project_page.hpp>
 #include <subedit/gui/project_search.hpp>
 #include <subedit/gui/search_dialog.hpp>
@@ -92,7 +93,8 @@ void ProjectSearch::refresh() {
     // Two texts, and only then: the box of a window that never opens a
     // translation has nothing to choose between, and says nothing.
     m_dialog->setField(m_view->twoTexts()
-                           ? QStringLiteral("Searching in: %1").arg(documentName(aimed))
+                           // TRANSLATORS: %1 is Main or Translation.
+                           ? substitute(translate("Searching in: %1"), documentName(aimed))
                            : QString{});
 }
 
@@ -200,7 +202,7 @@ void ProjectSearch::findAcrossProjects(bool forward, const core::SearchPattern& 
 
     m_view->show(where);
     m_view->project(where).match = found;
-    m_dialog->setStatus(wrapped ? QStringLiteral("Search wrapped around") : QString{});
+    m_dialog->setStatus(wrapped ? translate("Search wrapped around") : QString{});
     m_view->moveTo(static_cast<int>(found->index.value()));
 }
 

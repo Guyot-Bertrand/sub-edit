@@ -1,4 +1,5 @@
 #include <subedit/gui/disjoint_dialog.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
@@ -21,37 +22,40 @@ DisjointDialog::DisjointDialog(const DisjointChoice& initial, QWidget* parent, b
     : QDialog(parent),
       m_shortest(new QSpinBox{this}),
       m_lines(new QSpinBox{this}),
-      m_dashes(new QCheckBox{QStringLiteral("Put a dash before each subtitle's text"), this}) {
-    setWindowTitle(repairing ? QStringLiteral("Repair subtitles")
-                             : QStringLiteral("Make ranges disjoint"));
+      m_dashes(new QCheckBox{translate("Put a dash before each subtitle's text"), this}) {
+    setWindowTitle(repairing ? translate("Repair subtitles") : translate("Make ranges disjoint"));
 
     m_shortest->setRange(0, kLongestShortest);
-    m_shortest->setSuffix(QStringLiteral(" ms"));
+    // TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
+    m_shortest->setSuffix(translate(" ms"));
     m_shortest->setValue(initial.shortestMs);
-    m_shortest->setToolTip(QStringLiteral("An interval shorter than this is taken over by a "
-                                          "neighbour. Zero keeps every interval."));
+    m_shortest->setToolTip(translate("An interval shorter than this is taken over by a "
+                                     "neighbour. Zero keeps every interval."));
 
     m_lines->setRange(0, kMostLinesAllowed);
-    m_lines->setSpecialValueText(QStringLiteral("No limit"));
+    m_lines->setSpecialValueText(translate("No limit"));
     m_lines->setValue(initial.mostLines);
-    m_lines->setToolTip(QStringLiteral("A merged subtitle with more lines is shown in windows of "
-                                       "this many lines, one after the other."));
+    m_lines->setToolTip(translate("A merged subtitle with more lines is shown in windows of "
+                                  "this many lines, one after the other."));
 
     m_dashes->setChecked(initial.dashes);
 
-    const QString cut = QStringLiteral(
-        "Overlapping subtitles are cut where they overlap, and what shows together is merged "
-        "line by line, the earliest first. Nothing is shortened or lengthened. ");
-    const QString first = QStringLiteral(
-        "The subtitles that repeat each other are joined first, and the rest put in order of "
-        "their start. ");
+    // Each paragraph whole, so that a translation is never assembled from pieces.
     auto* explanation = new QLabel{
-        (repairing ? first : QString{}) + cut + QStringLiteral("Each change can be undone."), this};
+        repairing ? translate("The subtitles that repeat each other are joined first, and the "
+                              "rest put in order of their start. Overlapping subtitles are cut "
+                              "where they overlap, and what shows together is merged line by "
+                              "line, the earliest first. Nothing is shortened or lengthened. "
+                              "Each change can be undone.")
+                  : translate("Overlapping subtitles are cut where they overlap, and what shows "
+                              "together is merged line by line, the earliest first. Nothing is "
+                              "shortened or lengthened. Each change can be undone."),
+        this};
     explanation->setWordWrap(true);
 
     auto* fields = new QFormLayout;
-    fields->addRow(QStringLiteral("Shortest interval kept"), m_shortest);
-    fields->addRow(QStringLiteral("Most lines in a subtitle"), m_lines);
+    fields->addRow(translate("Shortest interval kept"), m_shortest);
+    fields->addRow(translate("Most lines in a subtitle"), m_lines);
     fields->addRow(QString{}, m_dashes);
 
     auto* buttons = new QDialogButtonBox{QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this};

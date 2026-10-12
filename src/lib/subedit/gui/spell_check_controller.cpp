@@ -1,4 +1,5 @@
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/text/correction_run.hpp>
@@ -121,7 +122,7 @@ void SpellCheckController::openCheck() {
     std::vector<core::CorrectionTarget> targets = correctionTargetsOf(
         scopeOf(m_settings.target), documentOf(m_settings.document), pages, m_view->shownProject());
     if (targets.empty()) {
-        m_view->announce("Nothing to check.");
+        m_view->announce(std::string{core::translate("Nothing to check.")});
         return;
     }
 
@@ -152,8 +153,10 @@ void SpellCheckController::openCheck() {
 
     const auto saved = core::saveSpellReplacements(walk.checker(), files, replacementFile);
     if (!saved.has_value())
-        m_prompts->reportFailure("Could not save the replacements for " + language + ": " +
-                                 std::string{core::reasonOfWriting(saved.error().kind)});
+        // TRANSLATORS: %1 is a language code, « en_GB »; %2 is why the file was not written.
+        m_prompts->reportFailure(
+            core::substitute(core::translate("Could not save the replacements for %1: %2"),
+                             {language, core::reasonOfWriting(saved.error().kind)}));
 
     m_view->announce(core::noticeOfCorrection(tally.corrected, tally.removed));
 }

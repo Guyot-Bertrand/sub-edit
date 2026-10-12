@@ -1,5 +1,5 @@
-#include <subedit/core/wording/counts.hpp>
 #include <subedit/gui/fixes_proposal_dialog.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
@@ -18,17 +18,16 @@ FixesProposalDialog::FixesProposalDialog(std::size_t repeated,
                                          std::size_t overlapping,
                                          QWidget* parent)
     : QDialog(parent) {
-    setWindowTitle(QStringLiteral("Problems found in this file"));
+    setWindowTitle(translate("Problems found in this file"));
 
-    auto* intro =
-        new QLabel{QStringLiteral("Opening this file found something that can be put right. "
-                                  "Each correction can be undone."),
-                   this};
+    auto* intro = new QLabel{translate("Opening this file found something that can be put right. "
+                                       "Each correction can be undone."),
+                             this};
     intro->setWordWrap(true);
 
     auto* buttons = new QDialogButtonBox{this};
-    auto* fix = buttons->addButton(QStringLiteral("Fix"), QDialogButtonBox::AcceptRole);
-    buttons->addButton(QStringLiteral("Keep as is"), QDialogButtonBox::RejectRole);
+    auto* fix = buttons->addButton(translate("Fix"), QDialogButtonBox::AcceptRole);
+    buttons->addButton(translate("Keep as is"), QDialogButtonBox::RejectRole);
     fix->setDefault(true);
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -37,28 +36,32 @@ FixesProposalDialog::FixesProposalDialog(std::size_t repeated,
     stack->addWidget(intro);
 
     if (repeated > 0) {
-        const QString text =
-            QStringLiteral("Join the repeated subtitles: ") +
-            QString::fromStdString(core::countOf(repeated, core::Counted::Subtitle)) +
-            QStringLiteral(" repeat one that they touch");
+        const QString text = substitute(
+            translatePlural("Join the repeated subtitles: %1 subtitle repeat one that they touch",
+                            "Join the repeated subtitles: %1 subtitles repeat one that they touch",
+                            repeated),
+            QString::number(repeated));
         m_join = new QCheckBox{text, this};
         m_join->setChecked(true);
         stack->addWidget(m_join);
     }
     if (outOfOrder > 0) {
-        const QString text =
-            QStringLiteral("Sort the subtitles: not in order of start (") +
-            QString::fromStdString(core::countOf(outOfOrder, core::Counted::Subtitle)) +
-            QStringLiteral(" out of place)");
+        const QString text = substitute(
+            translatePlural("Sort the subtitles: not in order of start (%1 subtitle out of place)",
+                            "Sort the subtitles: not in order of start (%1 subtitles out of place)",
+                            outOfOrder),
+            QString::number(outOfOrder));
         m_sort = new QCheckBox{text, this};
         m_sort->setChecked(true);
         stack->addWidget(m_sort);
     }
     if (overlapping > 0) {
-        const QString text =
-            QStringLiteral("Make the ranges disjoint: ") +
-            QString::fromStdString(core::countOf(overlapping, core::Counted::Subtitle)) +
-            QStringLiteral(" start before the previous one ends");
+        const QString text = substitute(
+            translatePlural(
+                "Make the ranges disjoint: %1 subtitle start before the previous one ends",
+                "Make the ranges disjoint: %1 subtitles start before the previous one ends",
+                overlapping),
+            QString::number(overlapping));
         m_disjoint = new QCheckBox{text, this};
         m_disjoint->setChecked(true);
         stack->addWidget(m_disjoint);

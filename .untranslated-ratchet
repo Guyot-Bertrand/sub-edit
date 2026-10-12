@@ -7,9 +7,7 @@
 #
 # The target is zero before phase 15 closes.
 
-total 381
-    1  src/exe/gui/main.cpp
-    1  src/lib/subedit/core/config/correction_settings.hpp
+total 142
    56  src/lib/subedit/core/config/operation_settings.cpp
    19  src/lib/subedit/core/config/settings.cpp
     1  src/lib/subedit/core/edit/split_project.cpp
@@ -35,44 +33,6 @@ total 381
     2  src/lib/subedit/core/text/hearing_impaired_correction.cpp
     1  src/lib/subedit/core/text/icu_pattern_engine.cpp
     1  src/lib/subedit/core/text/line_breaking.cpp
-    7  src/lib/subedit/core/text/pattern_catalogue.cpp
+    6  src/lib/subedit/core/text/pattern_catalogue.cpp
     4  src/lib/subedit/core/text/python_regex_syntax.cpp
     8  src/lib/subedit/core/text/replacement_template.cpp
-    4  src/lib/subedit/gui/about_dialog.cpp
-    7  src/lib/subedit/gui/correction_confirmation_page.cpp
-    2  src/lib/subedit/gui/correction_progress_page.cpp
-    3  src/lib/subedit/gui/correction_result_model.cpp
-   14  src/lib/subedit/gui/correction_target_page.cpp
-   14  src/lib/subedit/gui/correction_task_page.cpp
-    1  src/lib/subedit/gui/correction_wizard.cpp
-   12  src/lib/subedit/gui/disjoint_dialog.cpp
-    8  src/lib/subedit/gui/duration_adjust_dialog.cpp
-   10  src/lib/subedit/gui/fixes_proposal_dialog.cpp
-    6  src/lib/subedit/gui/frame_rate_dialog.cpp
-    5  src/lib/subedit/gui/grid_analysis_dialog.cpp
-    2  src/lib/subedit/gui/hearing_impaired_dialog.cpp
-    3  src/lib/subedit/gui/insert_dialog.cpp
-    5  src/lib/subedit/gui/invocation.cpp
-    5  src/lib/subedit/gui/join_split_page.cpp
-    5  src/lib/subedit/gui/manual_window.cpp
-    1  src/lib/subedit/gui/mpv_player.cpp
-    4  src/lib/subedit/gui/open_translation_dialog.cpp
-   10  src/lib/subedit/gui/operation_dialog.cpp
-    2  src/lib/subedit/gui/pattern_code.cpp
-    2  src/lib/subedit/gui/pattern_code_selector.cpp
-   12  src/lib/subedit/gui/preferences_dialog.cpp
-    9  src/lib/subedit/gui/project_files.cpp
-    1  src/lib/subedit/gui/project_operations.cpp
-    2  src/lib/subedit/gui/project_search.cpp
-   13  src/lib/subedit/gui/qt_prompts.cpp
-    7  src/lib/subedit/gui/save_shape.cpp
-   11  src/lib/subedit/gui/save_shape.hpp
-   10  src/lib/subedit/gui/search_dialog.cpp
-    2  src/lib/subedit/gui/shift_dialog.cpp
-    2  src/lib/subedit/gui/snap_dialog.cpp
-    2  src/lib/subedit/gui/spell_check_controller.cpp
-   11  src/lib/subedit/gui/spell_check_dialog.cpp
-   10  src/lib/subedit/gui/spell_check_settings_dialog.cpp
-    3  src/lib/subedit/gui/split_project_dialog.cpp
-    8  src/lib/subedit/gui/transform_dialog.cpp
-    8  src/lib/subedit/gui/unsaved_documents_dialog.cpp

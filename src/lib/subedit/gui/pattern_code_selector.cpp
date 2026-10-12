@@ -1,5 +1,6 @@
 // The script/language/country widget of a task page — issue #505, task 7.
 
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/pattern_code.hpp>
 #include <subedit/gui/pattern_code_selector.hpp>
 
@@ -25,8 +26,8 @@ PatternCodeSelector::PatternCodeSelector(const core::PatternCatalogue& catalogue
     layout->addWidget(m_language);
     layout->addWidget(m_country);
 
-    m_language->addItem(QStringLiteral("(every language)"), QString{});
-    m_country->addItem(QStringLiteral("(every country)"), QString{});
+    m_language->addItem(translate("(every language)"), QString{});
+    m_country->addItem(translate("(every country)"), QString{});
     for (const std::string& script : scriptsOf(*m_catalogue, m_kind))
         m_script->addItem(QString::fromStdString(script), QString::fromStdString(script));
 

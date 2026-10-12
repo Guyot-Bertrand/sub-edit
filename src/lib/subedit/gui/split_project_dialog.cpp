@@ -1,3 +1,4 @@
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/split_project_dialog.hpp>
 
 #include <QDialogButtonBox>
@@ -21,7 +22,7 @@ constexpr int kSmallestNumber = 2;
 
 SplitProjectDialog::SplitProjectDialog(std::size_t count, std::size_t initial, QWidget* parent)
     : QDialog(parent), m_subtitle(new QSpinBox{this}) {
-    setWindowTitle(QStringLiteral("Split project"));
+    setWindowTitle(translate("Split project"));
 
     const int largest = static_cast<int>(count);
     m_subtitle->setRange(kSmallestNumber, std::max(kSmallestNumber, largest));
@@ -33,15 +34,15 @@ SplitProjectDialog::SplitProjectDialog(std::size_t count, std::size_t initial, Q
     });
 
     auto* fields = new QFormLayout;
-    fields->addRow(QStringLiteral("Split at subtitle"), m_subtitle);
+    fields->addRow(translate("Split at subtitle"), m_subtitle);
 
     auto* buttons = new QDialogButtonBox{QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this};
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     auto* stack = new QVBoxLayout{this};
-    stack->addWidget(new QLabel{QStringLiteral("The subtitles from this one on move to a new "
-                                               "project, opened in a tab of its own."),
+    stack->addWidget(new QLabel{translate("The subtitles from this one on move to a new "
+                                          "project, opened in a tab of its own."),
                                 this});
     stack->addLayout(fields);
     stack->addWidget(buttons);

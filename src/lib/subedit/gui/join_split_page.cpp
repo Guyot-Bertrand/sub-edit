@@ -2,6 +2,7 @@
 #include <subedit/core/text/spell_dictionary.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/gui/join_split_page.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -36,13 +37,13 @@ JoinSplitPage::JoinSplitPage(const core::SpellProvider* provider, QWidget* paren
     : QWizardPage(parent),
       m_provider(provider),
       m_language(new QComboBox{this}),
-      m_join(new QCheckBox{QStringLiteral("Join words"), this}),
-      m_split(new QCheckBox{QStringLiteral("Split words"), this}),
+      m_join(new QCheckBox{translate("Join words"), this}),
+      m_split(new QCheckBox{translate("Split words"), this}),
       m_reason(new QLabel{this}) {
-    setTitle(QStringLiteral("Join or Split Words"));
+    setTitle(translate("Join or Split Words"));
 
     auto* form = new QFormLayout{};
-    form->addRow(QStringLiteral("Language:"), m_language);
+    form->addRow(translate("Language:"), m_language);
 
     auto* layout = new QVBoxLayout{this};
     layout->addLayout(form);

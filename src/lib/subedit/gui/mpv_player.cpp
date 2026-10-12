@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/video/seeking.hpp>
@@ -109,9 +110,6 @@ constexpr std::size_t kOverlayCommandWords = 10;
 /// Where the replica sits: centred, at the foot of the picture, which is where
 /// a viewer's eye already goes looking for it.
 constexpr const char* kBottomCentre = "{\\an2}";
-
-/// What a player that could not be built answers.
-constexpr const char* kNotStarted = "the video player could not be started";
 
 /// How many parameters a software render takes, the closing invalid one counted.
 constexpr std::size_t kRenderParameters = 6;
@@ -351,9 +349,12 @@ std::expected<MpvPlayer, core::PlayerError> MpvPlayer::create(Sound sound) {
         ready = mpv_render_context_create(&context, handle.get(), parameters.data()) >= 0;
     }
     RenderContext render{context};
+    // What a player that could not be built answers, looked up whether it is needed or not: in
+    // the language the window speaks, and on a line that runs.
+    const std::string_view notStarted = core::translate("the video player could not be started");
 
     if (!ready)
-        return std::unexpected(core::PlayerError{.reason = kNotStarted});
+        return std::unexpected(core::PlayerError{.reason = std::string{notStarted}});
 
     auto notifier = std::make_unique<Notifier>();
     mpv_render_context_set_update_callback(

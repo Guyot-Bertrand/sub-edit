@@ -1,4 +1,5 @@
 #include <subedit/core/config/search_options.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/search_dialog.hpp>
 
 #include <QCheckBox>
@@ -17,20 +18,20 @@ SearchDialog::SearchDialog(QWidget* parent)
     : QDialog(parent),
       m_pattern(new QLineEdit{this}),
       m_replacement(new QLineEdit{this}),
-      m_regex(new QCheckBox{QStringLiteral("Regular expression"), this}),
-      m_ignoreCase(new QCheckBox{QStringLiteral("Ignore case"), this}),
-      m_allProjects(new QCheckBox{QStringLiteral("All open projects"), this}),
+      m_regex(new QCheckBox{translate("Regular expression"), this}),
+      m_ignoreCase(new QCheckBox{translate("Ignore case"), this}),
+      m_allProjects(new QCheckBox{translate("All open projects"), this}),
       m_field(new QLabel{this}),
       m_status(new QLabel{this}),
-      m_previous(new QPushButton{QStringLiteral("Find &Previous"), this}),
-      m_next(new QPushButton{QStringLiteral("Find &Next"), this}),
-      m_replace(new QPushButton{QStringLiteral("&Replace"), this}),
-      m_replaceAll(new QPushButton{QStringLiteral("Replace &All"), this}) {
-    setWindowTitle(QStringLiteral("Find and replace"));
+      m_previous(new QPushButton{translate("Find &Previous"), this}),
+      m_next(new QPushButton{translate("Find &Next"), this}),
+      m_replace(new QPushButton{translate("&Replace"), this}),
+      m_replaceAll(new QPushButton{translate("Replace &All"), this}) {
+    setWindowTitle(translate("Find and replace"));
 
     auto* fields = new QFormLayout;
-    fields->addRow(QStringLiteral("Find"), m_pattern);
-    fields->addRow(QStringLiteral("Replace with"), m_replacement);
+    fields->addRow(translate("Find"), m_pattern);
+    fields->addRow(translate("Replace with"), m_replacement);
 
     auto* options = new QHBoxLayout;
     options->addWidget(m_regex);

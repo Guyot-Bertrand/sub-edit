@@ -1,5 +1,6 @@
 #include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/gui/duration_adjust_dialog.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QCheckBox>
 #include <QDoubleSpinBox>
@@ -46,7 +47,8 @@ constexpr double kMillisecondsPerSecond = 1000.0;
     box->setRange(0.0, kLongestDuration);
     box->setSingleStep(kDurationStep);
     box->setDecimals(kDurationDecimals);
-    box->setSuffix(QStringLiteral(" s"));
+    // TRANSLATORS: the unit after a number of seconds, with its space: « 1.5 s ».
+    box->setSuffix(translate(" s"));
     return box;
 }
 
@@ -66,20 +68,21 @@ DurationAdjustDialog::DurationAdjustDialog(OperationScope scope,
                                            QWidget* parent)
     : OperationDialog(scope, parent),
       m_speed(decimalBox(this)),
-      m_lengthen(new QCheckBox{QStringLiteral("Lengthen durations to match it"), this}),
-      m_shorten(new QCheckBox{QStringLiteral("Shorten durations to match it"), this}),
-      m_useMinimum(new QCheckBox{QStringLiteral("Minimum duration"), this}),
+      m_lengthen(new QCheckBox{translate("Lengthen durations to match it"), this}),
+      m_shorten(new QCheckBox{translate("Shorten durations to match it"), this}),
+      m_useMinimum(new QCheckBox{translate("Minimum duration"), this}),
       m_minimum(durationBox(this)),
-      m_useMaximum(new QCheckBox{QStringLiteral("Maximum duration"), this}),
+      m_useMaximum(new QCheckBox{translate("Maximum duration"), this}),
       m_maximum(durationBox(this)),
-      m_useGap(new QCheckBox{QStringLiteral("Gap between subtitles"), this}),
+      m_useGap(new QCheckBox{translate("Gap between subtitles"), this}),
       m_gap(durationBox(this)) {
-    setWindowTitle(QStringLiteral("Adjust durations"));
+    setWindowTitle(translate("Adjust durations"));
 
     m_speed->setRange(kSlowestSpeed, kFastestSpeed);
     m_speed->setSingleStep(kSpeedStep);
     m_speed->setDecimals(kSpeedDecimals);
-    m_speed->setSuffix(QStringLiteral(" char/s"));
+    // TRANSLATORS: the unit after a reading speed, with its space: « 15 char/s ».
+    m_speed->setSuffix(translate(" char/s"));
 
     // Every field shows its own value, checked or not: the form keeps the
     // number a switched-off case held, so that switching it on is one click
@@ -95,7 +98,7 @@ DurationAdjustDialog::DurationAdjustDialog(OperationScope scope,
     m_gap->setValue(secondsOf(initial.gapMilliseconds));
 
     // In the order they are applied, which is the order the manual gives.
-    fields()->addRow(QStringLiteral("Reading speed"), m_speed);
+    fields()->addRow(translate("Reading speed"), m_speed);
     fields()->addRow(QString{}, m_lengthen);
     fields()->addRow(QString{}, m_shorten);
     fields()->addRow(m_useMinimum, m_minimum);

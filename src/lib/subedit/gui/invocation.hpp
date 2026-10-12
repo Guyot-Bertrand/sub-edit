@@ -6,6 +6,7 @@
 #include <QStringList>
 
 #include <iosfwd>
+#include <string_view>
 
 // `QStringList` is an alias for `QList<QString>` and not a class, so it cannot
 // be declared by hand the way `QWidget` is elsewhere in this directory.
@@ -28,6 +29,10 @@ class MainWindow;
 /// Returns whether the version was asked for, which is also whether there is
 /// anything left to do: `--version` is answered and nothing else happens.
 [[nodiscard]] bool reportVersion(const QStringList& arguments, std::ostream& out);
+
+/// Says on `errors` what stopped the program, `what` behind the program's name, in the
+/// interface's language (#665): the line `main` writes when an exception reaches it.
+void reportFatal(std::ostream& errors, std::string_view what);
 
 /// Opens what the command line names, and says on `errors` what it could not.
 ///

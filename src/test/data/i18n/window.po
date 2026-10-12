@@ -1,7 +1,9 @@
 # Russian fixture of the window under a second language (#664): every top-level menu title, the
 # submenus, a sample of actions with their accelerators, of the toolbar's words and tool tips, the
 # columns of the table and of `View ▸ Columns`, and the status line with a count, in three plural
-# forms. Where Russian writes two forms alike, the second carries a mark, « (форма 2–4) », so that a
+# forms. Then (#665) every word the dialogs and the pages of `Correct Texts…` show, the prompts,
+# the core's words they borrow, sentences with a count in three forms, and one whose arguments
+# Russian puts in the other order. Where Russian writes two forms alike, the second carries a mark, « (форма 2–4) », so that a
 # test can tell which form was chosen.
 #
 # Compiled by msgfmt at the build into a locale directory of the window tests, laid out as an
@@ -148,3 +150,656 @@ msgid_plural "%1 diagnostics"
 msgstr[0] "%1 замечание"
 msgstr[1] "%1 замечания (форма 2–4)"
 msgstr[2] "%1 замечаний"
+
+# ── The dialogs and wizards (#665) ──────────────────────────────────────────────────────────
+
+# About
+msgid "About subedit"
+msgstr "О программе subedit"
+
+msgid "A subtitle editor."
+msgstr "Редактор субтитров."
+
+msgid "Licensed under the GPL, version 3 or later."
+msgstr "Распространяется по лицензии GPL версии 3 или более поздней."
+
+# Preferences, and the core's words it shows
+msgid "Preferences"
+msgstr "Параметры"
+
+msgid "System"
+msgstr "Системная"
+
+msgid "Light"
+msgstr "Светлая"
+
+msgid "Dark"
+msgstr "Тёмная"
+
+msgid "leaves the colours to the desktop"
+msgstr "оставляет цвета рабочему столу"
+
+msgid "Ems"
+msgstr "Круглые шпации"
+
+msgid "Characters"
+msgstr "Символы"
+
+msgid "Show line lengths in cells"
+msgstr "Показывать длину строк в ячейках"
+
+msgid "Show line lengths in the editor"
+msgstr "Показывать длину строк в редакторе"
+
+msgid " s"
+msgstr " с"
+
+msgid " frames"
+msgstr " кадр."
+
+msgid "Decode on the graphics card"
+msgstr "Декодировать на видеокарте"
+
+msgid "Theme"
+msgstr "Тема"
+
+msgid "Length unit"
+msgstr "Единица длины"
+
+msgid "Seek length"
+msgstr "Шаг перемотки"
+
+msgid "Context length"
+msgstr "Длина контекста"
+
+msgid "Frame step"
+msgstr "Шаг по кадрам"
+
+# Correct Texts
+msgid "Correct Texts"
+msgstr "Исправить тексты"
+
+msgid "Tasks and Target"
+msgstr "Задачи и цель"
+
+msgid "Target"
+msgstr "Цель"
+
+msgid "Selection"
+msgstr "Выделение"
+
+msgid "Current Project"
+msgstr "Текущий проект"
+
+msgid "All Open Projects"
+msgstr "Все открытые проекты"
+
+msgid "Document"
+msgstr "Документ"
+
+msgid "Tasks"
+msgstr "Задачи"
+
+msgid "Mentions"
+msgstr "Пометки"
+
+msgid "Join or Split Words"
+msgstr "Слияние и разделение слов"
+
+msgid "Common Errors"
+msgstr "Частые ошибки"
+
+msgid "Capitalization"
+msgstr "Заглавные буквы"
+
+msgid "Line Break"
+msgstr "Перенос строк"
+
+msgid "(every language)"
+msgstr "(все языки)"
+
+msgid "(every country)"
+msgstr "(все страны)"
+
+msgid "Sound in brackets"
+msgstr "Звуки в квадратных скобках"
+
+msgid "Sound in parentheses"
+msgstr "Звуки в круглых скобках"
+
+msgid "Join words"
+msgstr "Сливать слова"
+
+msgid "Split words"
+msgstr "Разделять слова"
+
+msgid "no dictionary for %1"
+msgstr "нет словаря для %1"
+
+msgid "Language:"
+msgstr "Язык:"
+
+msgid "Human"
+msgstr "Человеческие"
+
+msgid "OCR"
+msgstr "Распознавание"
+
+msgid "Skip subtitles with maximum line length of"
+msgstr "Пропускать субтитры с наибольшей длиной строки"
+
+msgid "Skip subtitles with maximum line amount of"
+msgstr "Пропускать субтитры с наибольшим числом строк"
+
+msgid "Maximum length:"
+msgstr "Наибольшая длина:"
+
+msgid "Maximum lines:"
+msgstr "Наибольшее число строк:"
+
+msgid "Unit:"
+msgstr "Единица:"
+
+msgid "Progress"
+msgstr "Ход работы"
+
+msgid "Computing the proposed corrections…"
+msgstr "Вычисление предлагаемых исправлений…"
+
+msgid "Confirmation"
+msgstr "Подтверждение"
+
+msgid "Mark All"
+msgstr "Отметить все"
+
+msgid "Unmark All"
+msgstr "Снять все отметки"
+
+msgid "Preview"
+msgstr "Предпросмотр"
+
+msgid "Remove all blank subtitles"
+msgstr "Удалить все пустые субтитры"
+
+msgid "Accept"
+msgstr "Принять"
+
+msgid "Original"
+msgstr "Исходный"
+
+msgid "Corrected Text"
+msgstr "Исправленный текст"
+
+msgid "Not applied: %1"
+msgstr "Не применены: %1"
+
+# Check Spelling and its settings
+msgid "Check Spelling"
+msgstr "Проверка орфографии"
+
+msgid "Add"
+msgstr "Добавить"
+
+msgid "Ignore"
+msgstr "Пропустить"
+
+msgid "Ignore All"
+msgstr "Пропустить все"
+
+msgid "Replace"
+msgstr "Заменить"
+
+msgid "Replace All"
+msgstr "Заменить все"
+
+msgid "Join with Previous"
+msgstr "Слить с предыдущим"
+
+msgid "Join with Next"
+msgstr "Слить со следующим"
+
+msgid "Save and Resume"
+msgstr "Сохранить и продолжить"
+
+msgid "Replace with:"
+msgstr "Заменить на:"
+
+msgid "Suggestions:"
+msgstr "Варианты:"
+
+msgid "Spell-Check Settings"
+msgstr "Параметры проверки орфографии"
+
+msgid "Check spelling while editing"
+msgstr "Проверять орфографию при правке"
+
+# Adjust Durations, and the target of an operation
+msgid "Adjust durations"
+msgstr "Настроить длительности"
+
+msgid " char/s"
+msgstr " симв./с"
+
+msgid "Lengthen durations to match it"
+msgstr "Удлинять под неё"
+
+msgid "Shorten durations to match it"
+msgstr "Укорачивать под неё"
+
+msgid "Minimum duration"
+msgstr "Наименьшая длительность"
+
+msgid "Maximum duration"
+msgstr "Наибольшая длительность"
+
+msgid "Gap between subtitles"
+msgstr "Промежуток между субтитрами"
+
+msgid "Reading speed"
+msgstr "Скорость чтения"
+
+msgid "Selected: %1"
+msgstr "Выделено: %1"
+
+msgid "Whole project: %1"
+msgstr "Весь проект: %1"
+
+msgid "Applies to: %1"
+msgstr "Затрагивает: %1"
+
+msgid "%1 subtitle"
+msgid_plural "%1 subtitles"
+msgstr[0] "%1 субтитр"
+msgstr[1] "%1 субтитра"
+msgstr[2] "%1 субтитров"
+
+# Convert Frame Rate, Snap, Shift, Transform
+msgid "Convert frame rate"
+msgstr "Пересчитать частоту кадров"
+
+msgid "Timed against"
+msgstr "Привязано к"
+
+msgid "Should play at"
+msgstr "Должно идти с"
+
+msgid "The positions say"
+msgstr "По позициям"
+
+msgid "The video declares"
+msgstr "Видео заявляет"
+
+msgid "The file was read at"
+msgstr "Файл прочитан с"
+
+msgid "Snap to frame rate"
+msgstr "Привязать к частоте кадров"
+
+msgid "Lay positions on"
+msgstr "Положить позиции на"
+
+msgid "Shift positions"
+msgstr "Сдвинуть позиции"
+
+msgid "Shift by"
+msgstr "Сдвинуть на"
+
+msgid "Transform positions"
+msgstr "Преобразовать позиции"
+
+msgid ""
+"Pick two subtitles and say when each one should start.\n"
+"All the other subtitles are moved and stretched to match."
+msgstr ""
+"Выберите два субтитра и укажите, когда каждый должен начинаться.\n"
+"Остальные субтитры будут сдвинуты и растянуты соответственно."
+
+msgid "Reference 1"
+msgstr "Опора 1"
+
+msgid "Reference 2"
+msgstr "Опора 2"
+
+msgid "Subtitle"
+msgstr "Субтитр"
+
+msgid "Now starts"
+msgstr "Сейчас начинается"
+
+msgid "Should start"
+msgstr "Должен начинаться"
+
+# Remove Hearing-Impaired Mentions, and an operation's preview
+msgid "Remove hearing-impaired mentions"
+msgstr "Удалить пометки для слабослышащих"
+
+msgid ""
+"Mentions in square brackets are removed; parentheses are kept.\n"
+"A subtitle left with nothing is taken away."
+msgstr ""
+"Пометки в квадратных скобках удаляются, круглые скобки остаются.\n"
+"Опустевший субтитр убирается."
+
+msgid "Preview changes…"
+msgstr "Предпросмотр изменений…"
+
+msgid "Nothing would change."
+msgstr "Ничего не изменится."
+
+msgid "%1 subtitle would change."
+msgid_plural "%1 subtitles would change."
+msgstr[0] "Изменится %1 субтитр."
+msgstr[1] "Изменятся %1 субтитра."
+msgstr[2] "Изменятся %1 субтитров."
+
+msgid "Before"
+msgstr "До"
+
+msgid "After"
+msgstr "После"
+
+# Insert Subtitles
+msgid "Insert subtitles"
+msgstr "Вставить субтитры"
+
+msgid "Above the selection"
+msgstr "Над выделением"
+
+msgid "Below the selection"
+msgstr "Под выделением"
+
+msgid "How many"
+msgstr "Сколько"
+
+msgid "Where"
+msgstr "Куда"
+
+# Make Ranges Disjoint, Repair Subtitles, and the fixes proposed when a file opens
+msgid "Make ranges disjoint"
+msgstr "Разнести интервалы"
+
+msgid "Repair subtitles"
+msgstr "Починить субтитры"
+
+msgid ""
+"An interval shorter than this is taken over by a neighbour. Zero keeps every "
+"interval."
+msgstr ""
+"Интервал короче этого поглощается соседним. Ноль сохраняет все интервалы."
+
+msgid " ms"
+msgstr " мс"
+
+msgid ""
+"A merged subtitle with more lines is shown in windows of this many lines, one "
+"after the other."
+msgstr ""
+"Объединённый субтитр с большим числом строк показывается окнами по столько "
+"строк, одно за другим."
+
+msgid "No limit"
+msgstr "Без ограничения"
+
+msgid "Put a dash before each subtitle's text"
+msgstr "Ставить тире перед текстом каждого субтитра"
+
+msgid ""
+"Overlapping subtitles are cut where they overlap, and what shows together is "
+"merged line by line, the earliest first. Nothing is shortened or lengthened. "
+"Each change can be undone."
+msgstr ""
+"Перекрывающиеся субтитры разрезаются там, где перекрываются, а то, что "
+"показывается вместе, объединяется построчно, начиная с раннего. Ничего не "
+"укорачивается и не удлиняется. Каждое изменение можно отменить."
+
+msgid ""
+"The subtitles that repeat each other are joined first, and the rest put in "
+"order of their start. Overlapping subtitles are cut where they overlap, and "
+"what shows together is merged line by line, the earliest first. Nothing is "
+"shortened or lengthened. Each change can be undone."
+msgstr ""
+"Сначала повторяющиеся субтитры объединяются, остальные упорядочиваются по "
+"началу. Перекрывающиеся субтитры разрезаются там, где перекрываются, а то, "
+"что показывается вместе, объединяется построчно, начиная с раннего. Ничего не "
+"укорачивается и не удлиняется. Каждое изменение можно отменить."
+
+msgid "Shortest interval kept"
+msgstr "Кратчайший сохраняемый интервал"
+
+msgid "Most lines in a subtitle"
+msgstr "Наибольшее число строк в субтитре"
+
+msgid "Problems found in this file"
+msgstr "В этом файле найдены проблемы"
+
+msgid ""
+"Opening this file found something that can be put right. Each correction can "
+"be undone."
+msgstr ""
+"При открытии файла найдено то, что можно исправить. Каждое исправление можно "
+"отменить."
+
+msgid "Fix"
+msgstr "Исправить"
+
+msgid "Keep as is"
+msgstr "Оставить как есть"
+
+msgid "Join the repeated subtitles: %1 subtitle repeat one that they touch"
+msgid_plural ""
+"Join the repeated subtitles: %1 subtitles repeat one that they touch"
+msgstr[0] "Объединить повторы: %1 субтитр повторяет соседний"
+msgstr[1] "Объединить повторы: %1 субтитра повторяют соседний"
+msgstr[2] "Объединить повторы: %1 субтитров повторяют соседний"
+
+msgid "Sort the subtitles: not in order of start (%1 subtitle out of place)"
+msgid_plural ""
+"Sort the subtitles: not in order of start (%1 subtitles out of place)"
+msgstr[0] "Упорядочить субтитры: %1 субтитр не на своём месте"
+msgstr[1] "Упорядочить субтитры: %1 субтитра не на своём месте"
+msgstr[2] "Упорядочить субтитры: %1 субтитров не на своём месте"
+
+msgid "Make the ranges disjoint: %1 subtitle start before the previous one ends"
+msgid_plural ""
+"Make the ranges disjoint: %1 subtitles start before the previous one ends"
+msgstr[0] "Разнести интервалы: %1 субтитр начинается до конца предыдущего"
+msgstr[1] "Разнести интервалы: %1 субтитра начинаются до конца предыдущего"
+msgstr[2] "Разнести интервалы: %1 субтитров начинаются до конца предыдущего"
+
+# Frame Rate Analysis: « Measured on » puts the span first in Russian
+msgid "Frame Rate Analysis"
+msgstr "Анализ частоты кадров"
+
+msgid "Frame rate"
+msgstr "Частота кадров"
+
+msgid "Fit"
+msgstr "Совпадение"
+
+msgid "%1 fps"
+msgstr "%1 к/с"
+
+msgid "Convert Frame Rate…"
+msgstr "Пересчитать частоту кадров…"
+
+msgid "partial"
+msgstr "частичная"
+
+msgid "clean"
+msgstr "чистая"
+
+msgid "Written on a %1 fps grid — %2, %3."
+msgstr "Записано по сетке %1 к/с — %2, %3."
+
+msgid "Measured on %1 start, over %2."
+msgid_plural "Measured on %1 starts, over %2."
+msgstr[0] "За %2 измерено %1 начало."
+msgstr[1] "За %2 измерено %1 начала."
+msgstr[2] "За %2 измерено %1 начал."
+
+msgid "Shifted off the grid by %1."
+msgstr "Смещено относительно сетки на %1."
+
+msgid "%1 fps fits just as well, being a whole multiple of it."
+msgstr "%1 к/с подходит так же, будучи кратной ей."
+
+msgid "This span is too short to tell it from %1 fps."
+msgstr "Этот отрезок слишком короток, чтобы отличить её от %1 к/с."
+
+msgid "%1 of these starts leaves the grid, in %2."
+msgid_plural "%1 of these starts leave the grid, in %2."
+msgstr[0] "%1 из этих начал выходит из сетки, в %2."
+msgstr[1] "%1 из этих начал выходят из сетки, в %2."
+msgstr[2] "%1 из этих начал выходят из сетки, в %2."
+
+msgid "%1 run"
+msgid_plural "%1 runs"
+msgstr[0] "%1 серии"
+msgstr[1] "%1 сериях"
+msgstr[2] "%1 сериях"
+
+# Open Translation
+msgid "Open Translation"
+msgstr "Открыть перевод"
+
+msgid "How should the lines of %1 be matched to the subtitles?"
+msgstr "Как сопоставить строки файла %1 с субтитрами?"
+
+msgid "By position — each line goes to the subtitle it falls in"
+msgstr "По позиции — каждая строка идёт к субтитру, в который попадает"
+
+msgid "By number — the nth line goes to the nth subtitle"
+msgstr "По номеру — n-я строка идёт к n-му субтитру"
+
+# Find and Replace
+msgid "Find and replace"
+msgstr "Найти и заменить"
+
+msgid "Regular expression"
+msgstr "Регулярное выражение"
+
+msgid "Ignore case"
+msgstr "Без учёта регистра"
+
+msgid "All open projects"
+msgstr "Все открытые проекты"
+
+msgid "Find &Previous"
+msgstr "Найти &предыдущее"
+
+msgid "Find &Next"
+msgstr "Найти &следующее"
+
+msgid "&Replace"
+msgstr "&Заменить"
+
+msgid "Replace &All"
+msgstr "Заменить &все"
+
+msgid "Replace with"
+msgstr "Заменить на"
+
+# Split Project
+msgid "Split project"
+msgstr "Разделить проект"
+
+msgid "Split at subtitle"
+msgstr "Разделить на субтитре"
+
+msgid ""
+"The subtitles from this one on move to a new project, opened in a tab of its "
+"own."
+msgstr ""
+"Субтитры начиная с этого переходят в новый проект, открытый в отдельной "
+"вкладке."
+
+# The unsaved documents, and the prompts
+msgid "Unsaved changes"
+msgstr "Несохранённые изменения"
+
+msgid "&Save"
+msgstr "&Сохранить"
+
+msgid "Close &Without Saving"
+msgstr "Закрыть &без сохранения"
+
+msgid "Cancel"
+msgstr "Отмена"
+
+msgid ""
+"These documents have changes that were never written.\n"
+"Tick the ones to save."
+msgstr ""
+"В этих документах есть незаписанные изменения.\n"
+"Отметьте те, что нужно сохранить."
+
+msgid "%1 (file is gone from the disk)"
+msgstr "%1 (файла больше нет на диске)"
+
+msgid "The translation is no longer where it was read from."
+msgstr "Перевод больше не там, откуда был прочитан."
+
+msgid "Subtitles (%1)"
+msgstr "Субтитры (%1)"
+
+msgid "Videos (%1)"
+msgstr "Видео (%1)"
+
+msgid "All files (*)"
+msgstr "Все файлы (*)"
+
+msgid "subedit-gui: %1"
+msgstr "subedit-gui — %1"
+
+# Save As: the fields it adds
+msgid "Encoding:"
+msgstr "Кодировка:"
+
+msgid "Western"
+msgstr "западная"
+
+msgid "Central European"
+msgstr "центральноевропейская"
+
+msgid "Cyrillic"
+msgstr "кириллица"
+
+msgid "Greek"
+msgstr "греческая"
+
+msgid "Turkish"
+msgstr "турецкая"
+
+msgid "Japanese"
+msgstr "японская"
+
+msgid "Chinese simplified"
+msgstr "китайская упрощённая"
+
+msgid "Chinese traditional"
+msgstr "китайская традиционная"
+
+msgid "Other…"
+msgstr "Другая…"
+
+msgid "Name of an encoding, e.g. cp1257"
+msgstr "Название кодировки, например cp1257"
+
+msgid "Line endings:"
+msgstr "Концы строк:"
+
+msgid "Byte order mark"
+msgstr "Метка порядка байтов"
+
+# The manual
+msgid "subedit — manual"
+msgstr "subedit — руководство"
+
+msgid "Back"
+msgstr "Назад"
+
+msgid "Contents"
+msgstr "Содержание"
+
+msgid "%1 could not be read."
+msgstr "Не удалось прочитать %1."

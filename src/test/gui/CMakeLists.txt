@@ -25,7 +25,7 @@ add_executable(
     window_player_test.cpp player_factory_test.cpp video_surface_test.cpp play_bar_test.cpp audio_track_menu_test.cpp invocation_test.cpp
     window_video_bounds_test.cpp window_grid_test.cpp window_commit_edit_test.cpp
     window_appearance_test.cpp settings_path_test.cpp window_settings_test.cpp theme_test.cpp
-    window_language_test.cpp
+    window_language_test.cpp dialog_language_test.cpp
     ${CMAKE_SOURCE_DIR}/src/test/unit/grid_fixtures.cpp)
 
 target_link_libraries(

@@ -1,6 +1,8 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/wording/formats.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 #include <subedit/gui/save_shape.hpp>
 
@@ -23,6 +25,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace subedit::gui {
@@ -41,12 +44,36 @@ constexpr std::array<core::Newline, 3> kNewlines = {
     core::Newline::Cr,
 };
 
+/// Who writes in `family`, as the list says it.
+[[nodiscard]] QString nameOf(EncodingFamily family) {
+    switch (family) {
+    case EncodingFamily::Unicode:
+        return QStringLiteral("Unicode");
+    case EncodingFamily::Western:
+        return translate("Western");
+    case EncodingFamily::CentralEuropean:
+        return translate("Central European");
+    case EncodingFamily::Cyrillic:
+        return translate("Cyrillic");
+    case EncodingFamily::Greek:
+        return translate("Greek");
+    case EncodingFamily::Turkish:
+        return translate("Turkish");
+    case EncodingFamily::Japanese:
+        return translate("Japanese");
+    case EncodingFamily::ChineseSimplified:
+        return translate("Chinese simplified");
+    case EncodingFamily::ChineseTraditional:
+        return translate("Chinese traditional");
+    }
+    std::unreachable();
+}
+
 /// « UTF-8 (Unicode) », the label of one entry of the list.
 [[nodiscard]] QString labelOf(const OfferedEncoding& offered) {
     return QStringLiteral("%1 (%2)").arg(
         QString::fromUtf8(offered.charset.data(), static_cast<int>(offered.charset.size())),
-        QString::fromUtf8(offered.description.data(),
-                          static_cast<int>(offered.description.size())));
+        nameOf(offered.family));
 }
 
 /// The same names, as Qt holds a list of them.
@@ -65,7 +92,7 @@ SaveShape::SaveShape(const core::Encoding& encoding, core::Newline newline, QWid
       m_encoding(new QComboBox{this}),
       m_other(new QLineEdit{this}),
       m_newline(new QComboBox{this}),
-      m_mark(new QCheckBox{QStringLiteral("Byte order mark"), this}) {
+      m_mark(new QCheckBox{translate("Byte order mark"), this}) {
     // The index of the entry carried as its datum: that is what says which
     // encoding the list offers, without reading a label back.
     for (std::size_t index = 0; index < kOfferedEncodings.size(); ++index)
@@ -74,9 +101,9 @@ SaveShape::SaveShape(const core::Encoding& encoding, core::Newline newline, QWid
     // **« Other… » rather than a list of ninety-seven entries.** What the list
     // offers is what a subtitle file carries in practice; what the field takes
     // is anything ICU can convert.
-    m_encoding->addItem(QStringLiteral("Other…"), kOtherEncoding);
+    m_encoding->addItem(translate("Other…"), kOtherEncoding);
 
-    m_other->setPlaceholderText(QStringLiteral("Name of an encoding, e.g. cp1257"));
+    m_other->setPlaceholderText(translate("Name of an encoding, e.g. cp1257"));
 
     // **What makes the fifteenth encoding cost three letters** — issue #316.
     // Gaupol puts ninety-seven in a menu; this window puts fourteen there and
@@ -168,12 +195,12 @@ void SaveShape::layOutInto(QGridLayout& grid, int firstRow) {
     constexpr int kLabels = 0;
     constexpr int kFields = 1;
 
-    grid.addWidget(new QLabel{QStringLiteral("Encoding:"), this}, firstRow, kLabels);
+    grid.addWidget(new QLabel{translate("Encoding:"), this}, firstRow, kLabels);
     grid.addWidget(m_encoding, firstRow, kFields);
     // Under its list and with no label: the field is the rest of « Other… »,
     // not one more question. Hidden, it takes no height at all.
     grid.addWidget(m_other, firstRow + 1, kFields);
-    grid.addWidget(new QLabel{QStringLiteral("Line endings:"), this}, firstRow + 2, kLabels);
+    grid.addWidget(new QLabel{translate("Line endings:"), this}, firstRow + 2, kLabels);
     grid.addWidget(m_newline, firstRow + 2, kFields);
     grid.addWidget(m_mark, firstRow + 3, kFields);
 }
@@ -215,7 +242,7 @@ SaveShape* addSaveShapeTo(QWidget& host, const core::Encoding& encoding, core::N
 
 std::unique_ptr<QFileDialog>
 saveDialogFor(const core::SourceFile& current, const core::Encoding& encoding, QWidget* owner) {
-    auto dialog = std::make_unique<QFileDialog>(owner, QStringLiteral("Save As"));
+    auto dialog = std::make_unique<QFileDialog>(owner, translate("Save As"));
 
     // **Qt's own and not the system's**: a native dialog lets nothing be added
     // to it, and the three fields are worth that price.
@@ -241,7 +268,7 @@ std::expected<SaveTarget, std::string> targetOf(const QFileDialog& dialog) {
     // both.
     const auto* shape = dialog.findChild<const SaveShape*>();
     if (shape == nullptr || dialog.selectedFiles().isEmpty())
-        return std::unexpected(std::string{"nothing was chosen"});
+        return std::unexpected(std::string{core::translate("nothing was chosen")});
 
     // An encoding the model refuses does not write a file wrong: it writes no
     // file. The words are the core's, as everywhere — the command line says the
