@@ -105,7 +105,11 @@ def run(binary, arguments):
     **Jamais de shell**, et #290 dit pourquoi : les chemins peuvent porter des
     espaces et des crochets, et une ligne de commande recomposée les éclate.
     """
-    return subprocess.run([str(binary), *arguments], capture_output=True, text=True, check=False)
+    # In English, whatever the machine's locale: `format_of` reads the words of `inspect`, which
+    # follow the language now that French is installed (#668), and `LANGUAGE=en` names the source
+    # language first (spec 15, D4).
+    return subprocess.run([str(binary), *arguments], capture_output=True, text=True, check=False,
+                          env={**os.environ, "LANGUAGE": "en"})
 
 
 def targets(binary):
