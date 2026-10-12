@@ -24,6 +24,7 @@
 
 using Catch::Matchers::ContainsSubstring;
 using subedit::e2e::CliRun;
+using subedit::e2e::configHome;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
@@ -145,8 +146,10 @@ TEST_CASE("the gap wins over the minimum, and what gave way is said",
     CHECK(run.exitCode == 0);
     // Subtitle 3 is held to 15.000 by the gap — the minimum would have made it
     // 15.700, over the start of the next — and the report names the minimum.
+    // The note before it says no settings file was found (spec 15, S6).
     CHECK(run.errors ==
-          input +
+          "settings: " + configHome() + "/subedit/settings.conf not found, defaults used\n" +
+              input +
               ": adjusted the durations of 3 subtitles; could not satisfy the minimum "
               "duration in 1 subtitle -> " +
               scratch.of("out/d.srt") + "\n");
@@ -289,4 +292,155 @@ TEST_CASE("what adjust sacrifices on the fixtures is what was worked out by hand
         CHECK(run.exitCode == 0);
         CHECK_THAT(anonymised(run.output, root, "<corpus>"), MatchesFile(corpus(setting.expected)));
     }
+}
+
+TEST_CASE("adjust reads the operation settings from --config", "[e2e][adjust][settings]") {
+    const Scratch scratch;
+    const std::string input = writeFile(scratch, "in/d.srt", kInput);
+    const std::string config =
+        writeFile(scratch,
+                  "settings.conf",
+                  "duration-adjust.lengthen = false\nduration-adjust.shorten = false\n"
+                  "duration-adjust.minimum-ms = 1500\n");
+
+    const CliRun run = invoke({"--format",
+                               "json",
+                               "--config",
+                               config,
+                               "adjust",
+                               "--output-dir",
+                               scratch.of("out"),
+                               input});
+
+    REQUIRE(run.exitCode == 0);
+    // The same as case B2, `--speed off`: worked out in the file's header.
+    CHECK(endsOf(contentOf(scratch.of("out/d.srt"))) ==
+          std::vector<std::string>{"00:00:01,500", "00:00:14,000", "00:00:15,000", "00:00:16,500"});
+    // The record says which file the settings came from, and what they were.
+    CHECK_THAT(run.output, ContainsSubstring("\"settings\":\"" + config + "\""));
+    CHECK_THAT(run.output, ContainsSubstring("\"constraints\":{\"speed\":null,"));
+}
+
+TEST_CASE("an option beats --config, and --no-config ignores it", "[e2e][adjust][settings]") {
+    const Scratch scratch;
+    const std::string input = writeFile(scratch, "in/d.srt", kInput);
+    const std::string config =
+        writeFile(scratch,
+                  "settings.conf",
+                  "duration-adjust.lengthen = false\nduration-adjust.shorten = false\n"
+                  "duration-adjust.minimum-ms = 1500\n");
+
+    // --speed 15 brings back the speed the file switched off: case A.
+    const CliRun overridden = invoke(
+        {"--config", config, "adjust", "--speed", "15", "--output-dir", scratch.of("over"), input});
+    REQUIRE(overridden.exitCode == 0);
+    CHECK(endsOf(contentOf(scratch.of("over/d.srt"))) ==
+          std::vector<std::string>{"00:00:02,000", "00:00:14,000", "00:00:15,000", "00:00:16,500"});
+
+    // --no-config: the file is not read, and the core defaults hold — case A.
+    const CliRun ignored = invoke({"--format",
+                                   "json",
+                                   "--no-config",
+                                   "adjust",
+                                   "--output-dir",
+                                   scratch.of("ignored"),
+                                   input});
+    REQUIRE(ignored.exitCode == 0);
+    CHECK(endsOf(contentOf(scratch.of("ignored/d.srt"))) ==
+          std::vector<std::string>{"00:00:02,000", "00:00:14,000", "00:00:15,000", "00:00:16,500"});
+    CHECK_THAT(ignored.output, ContainsSubstring("\"settings\":null"));
+    CHECK_THAT(ignored.errors, !ContainsSubstring("settings:"));
+}
+
+TEST_CASE("maximum off switches off a maximum --config enables", "[e2e][adjust][settings]") {
+    const Scratch scratch;
+    const std::string input = writeFile(scratch, "in/d.srt", kInput);
+    const std::string config =
+        writeFile(scratch,
+                  "settings.conf",
+                  "duration-adjust.maximum-enabled = true\nduration-adjust.maximum-ms = 4000\n");
+
+    const CliRun kept = invoke({"--format",
+                                "json",
+                                "--config",
+                                config,
+                                "adjust",
+                                "--output-dir",
+                                scratch.of("kept"),
+                                input});
+    REQUIRE(kept.exitCode == 0);
+    CHECK_THAT(kept.output, ContainsSubstring("\"maximum_ms\":4000"));
+
+    const CliRun off = invoke({"--format",
+                               "json",
+                               "--config",
+                               config,
+                               "adjust",
+                               "--maximum",
+                               "off",
+                               "--output-dir",
+                               scratch.of("off"),
+                               input});
+    REQUIRE(off.exitCode == 0);
+    CHECK_THAT(off.output, ContainsSubstring("\"maximum_ms\":null"));
+}
+
+TEST_CASE("giving both --config and --no-config is a usage error", "[e2e][settings]") {
+    const Scratch scratch;
+    const std::string input = writeFile(scratch, "in/d.srt", kInput);
+
+    const CliRun run = invoke({"--config",
+                               scratch.of("settings.conf"),
+                               "--no-config",
+                               "adjust",
+                               "--output-dir",
+                               scratch.of("out"),
+                               input});
+
+    // The usage code: the command line itself is wrong, nothing is touched.
+    CHECK(run.exitCode == 1);
+    CHECK_THAT(run.errors, ContainsSubstring("excludes"));
+    CHECK_FALSE(std::filesystem::exists(scratch.of("out")));
+}
+
+TEST_CASE("adjust refuses a missing file named by --config", "[e2e][adjust][settings]") {
+    const Scratch scratch;
+    const std::string input = writeFile(scratch, "in/d.srt", kInput);
+    const std::string config = scratch.of("no-such.conf");
+
+    const CliRun run =
+        invoke({"--config", config, "adjust", "--output-dir", scratch.of("out"), input});
+
+    // The usage code: a misspelt name is not a request for the defaults.
+    CHECK(run.exitCode == 1);
+    CHECK_THAT(run.errors, ContainsSubstring("settings file not found: " + config));
+    CHECK_FALSE(std::filesystem::exists(scratch.of("out")));
+    CHECK_FALSE(std::filesystem::exists(config));
+}
+
+TEST_CASE("a note names the settings file read, at the default verbosity",
+          "[e2e][adjust][settings]") {
+    const Scratch scratch;
+    const std::string input = writeFile(scratch, "in/d.srt", kInput);
+    const std::string config =
+        writeFile(scratch, "settings.conf", "duration-adjust.minimum-ms = soon\n");
+
+    const CliRun run =
+        invoke({"--config", config, "adjust", "--output-dir", scratch.of("out"), input});
+
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.errors, ContainsSubstring("settings: read " + config + "\n"));
+    // A value it cannot read is named, and its default kept.
+    CHECK_THAT(run.errors,
+               ContainsSubstring("settings: duration-adjust.minimum-ms: cannot read 'soon', "
+                                 "default kept\n"));
+    // The minimum kept at its default: case A.
+    CHECK(endsOf(contentOf(scratch.of("out/d.srt"))) ==
+          std::vector<std::string>{"00:00:02,000", "00:00:14,000", "00:00:15,000", "00:00:16,500"});
+
+    // --quiet silences the note with the rest.
+    const CliRun quiet =
+        invoke({"--quiet", "--config", config, "adjust", "--output-dir", scratch.of("q"), input});
+    CHECK(quiet.exitCode == 0);
+    CHECK_THAT(quiet.errors, !ContainsSubstring("settings:"));
 }

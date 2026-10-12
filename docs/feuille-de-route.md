@@ -1416,6 +1416,13 @@ l'anglais et le français, et l'outillage pour les vingt de Gaupol, dont les aut
 issues, [#658](https://github.com/Guyot-Bertrand/sub-edit/issues/658) à
 [#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684), rédigées en anglais ; clôture en 0.16.0.
 
+**Folded in on 2026-10-12: the settings shared by the window and the command line**
+([#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699), [ADR 0045](adr/0045-one-settings-file-two-parts.md)).
+Framed first as a standalone spec, it is not a phase of its own: the maintainer placed it in this phase and its milestone.
+The settings file gets an operation part, which the command line reads by default (`--no-config`, `--config FILE`), and a
+display part, which stays the window's; `subedit-cli config list|show|set|unset` documents, shows and changes the
+operation part. Its decisions are S1 to S8 of the [phase spec](specs/15-internationalisation.md).
+
 # Troisième partie — au-delà de Gaupol
 
 Ces phases ne sont plus de l'iso-fonctionnalité : elles ajoutent ce que Gaupol

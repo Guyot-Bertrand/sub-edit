@@ -48,6 +48,7 @@ using subedit::core::LengthUnit;
 using subedit::core::PatternActivation;
 using subedit::core::PatternKind;
 using subedit::core::readSettings;
+using subedit::core::renderOperationSettings;
 using subedit::core::renderSettings;
 using subedit::core::Settings;
 using subedit::core::SettingsRead;
@@ -698,6 +699,37 @@ TEST_CASE("a value of the correction assistant that cannot be read leaves its de
     }
 }
 
+TEST_CASE("a line-break limit out of its bounds is refused and leaves its default", "[config]") {
+    for (const char* line : {"correction.line-break.max-lines = 0\n",
+                             "correction.line-break.max-lines = -2\n",
+                             "correction.line-break.max-lines = 1001\n",
+                             "correction.line-break.max-lines = 100000\n",
+                             "correction.line-break.skip-max-lines = 0\n",
+                             "correction.line-break.skip-max-lines = 1001\n",
+                             "correction.line-break.max-length = 0\n",
+                             "correction.line-break.max-length = -3.5\n",
+                             "correction.line-break.max-length = inf\n",
+                             "correction.line-break.skip-max-length = 0\n"}) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.correction == CorrectionSettings{});
+        CHECK(read.diagnostics.size() == 1);
+    }
+}
+
+TEST_CASE("a line-break limit at its bounds is read", "[config]") {
+    const SettingsRead read = readOf("correction.line-break.max-lines = 1000\n"
+                                     "correction.line-break.skip-max-lines = 1\n"
+                                     "correction.line-break.max-length = 0.5\n"
+                                     "correction.line-break.skip-max-length = 42.5\n");
+
+    CHECK(read.diagnostics.empty());
+    CHECK(read.settings.correction.lineBreakMaxLines == 1000);
+    CHECK(read.settings.correction.lineBreakSkipMaxLines == 1);
+    CHECK(read.settings.correction.lineBreakMaxLength == 0.5);
+    CHECK(read.settings.correction.lineBreakSkipMaxLength == 42.5);
+}
+
 TEST_CASE("an activation naming a pattern that no longer exists changes nothing it could find",
           "[config]") {
     // Decision D2: a name a shipped file no longer carries is ignored, like
@@ -1023,4 +1055,50 @@ TEST_CASE("hardware decoding is on by default and can be turned off", "[config]"
     const SettingsRead unreadable = readOf("video.hardware-decoding = maybe\n");
     CHECK(unreadable.settings.video.hardwareDecoding);
     CHECK(unreadable.diagnostics.size() == 1);
+}
+
+TEST_CASE("A settings file read reports that it was found", "[settings]") {
+    InMemoryFileSystem files;
+    CHECK_FALSE(readSettings(files, kPath).found);
+    REQUIRE(writeSettings(files, kPath, Settings{}).has_value());
+    CHECK(readSettings(files, kPath).found);
+}
+
+TEST_CASE("The written file has the operation block before the display block", "[settings]") {
+    const std::string text = renderSettings(Settings{});
+    const std::size_t operation = text.find("duration-adjust.speed");
+    const std::size_t display = text.find("window.geometry");
+    REQUIRE(operation != std::string::npos);
+    REQUIRE(display != std::string::npos);
+    CHECK(operation < display);
+}
+
+TEST_CASE("renderOperationSettings holds operation keys and no display key", "[settings]") {
+    const std::string text = renderOperationSettings(Settings{});
+    CHECK(text.find("duration-adjust.speed") != std::string::npos);
+    CHECK(text.find("correction.human") != std::string::npos);
+    CHECK(text.find("window.geometry") == std::string::npos);
+    CHECK(text.find("theme") == std::string::npos);
+}
+
+TEST_CASE("A file written before the split is read unchanged", "[settings]") {
+    // The old order: display keys first, operation keys after, no banners.
+    InMemoryFileSystem files;
+    files.addFile(kPath, "general.theme = dark\nduration-adjust.speed = 12\n");
+    const SettingsRead read = readSettings(files, kPath);
+    CHECK(read.settings.theme == Theme::Dark);
+    CHECK(read.settings.durationAdjustment.charactersPerSecond == 12.0);
+    CHECK(read.diagnostics.empty());
+}
+
+TEST_CASE("settings are written to a bare file name without making a directory", "[config]") {
+    InMemoryFileSystem files;
+    const std::filesystem::path bare = "settings.conf";
+
+    REQUIRE(writeSettings(files, bare, Settings{}).has_value());
+
+    // A bare name has an empty parent, which no file system can create.
+    CHECK(files.directoriesAsked().empty());
+    CHECK(files.contentOf(bare).has_value());
+    CHECK(readSettings(files, bare).diagnostics.empty());
 }

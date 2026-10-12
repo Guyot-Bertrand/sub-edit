@@ -11,11 +11,45 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **core** — Resolve the settings path without Qt
+- **core** — Write settings as operation and display blocks
+- **core** — Operation settings, their catalogue and their reader
+- **cli** — Give commands shared settings, with --config and --no-config
+- **cli** — Adjust takes its defaults from the settings file
+- **cli** — Correct takes three defaults from the settings file
+- **cli** — List, show, set and unset operation settings
+- **cli** — The config command
+- **cli** — Accept off for adjust --maximum
+
+### Corrections
+
+- **core** — Pin the operation catalogue and its set/unset round trip
+- **cli** — Correct ignores nonsense classes and max lines in the file
+- **core** — Write settings to a bare file name
+- **cli** — Say what a config rewrite replaces; clear tidy findings
+- **core** — Bound line-break limits; refuse an empty --config
+- **cli** — Fail on a missing explicit --config file
+
+### Documentation
+
+- **doc** — Spec, ADR 0045 and plan for shared configuration
+- **doc** — Manual for shared configuration and the config command
+- **doc** — Fold shared configuration into phase 15
+
+### Tests
+
+- **cli** — Pin adjust's settings rules with hand-worked cases
+
+## 0.15.12 — 2026-10-11
+
+### Ajouts
+
 - **gui** — Plages disjointes, fusion des répétés et commande repair
 - **gui** — Repair et fusion des répétés sur convert et dans le menu Edit
 
 ### Documentation
 
+- **doc** — Journal des changements
 - **doc** — Journal des changements
 
 ## 0.15.11 — 2026-10-10

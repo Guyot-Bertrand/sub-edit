@@ -4,6 +4,7 @@ add_executable(subedit-cli
     commands/adjust.cpp
     commands/append.cpp
     commands/command.cpp
+    commands/config.cpp
     commands/convert.cpp
     commands/correct.cpp
     commands/dialogue_dashes.cpp

@@ -127,6 +127,17 @@ Cut a subtitle file in two, a head and a tail.
 .TP
 .B pair
 Write a translation at the positions of its main file, and say how it lined up.
+.TP
+.B config
+List, show and change the operation settings of the settings file:
+.BR "config list" ,
+.BR "config show" ,
+.B config set
+.I KEY VALUE
+and
+.B config unset
+.IR KEY .
+Writes no subtitle file.
 .PP
 .BR framerate " and " snap
 take the same arguments and do opposite things: the first re\-times a file
@@ -168,6 +179,27 @@ accepted, aliases included \(em
 name one encoding \(em and a name nothing can convert is refused before a file
 is read. A byte order mark wins over this option, and the reading says so.
 .TP
+.BI \-\-config " FILE"
+Read the operation settings from
+.I FILE
+instead of the user's settings file. An empty
+.I FILE
+is refused. A
+.I FILE
+that does not exist makes
+.BR adjust " and " correct
+stop with code 1;
+.B config show
+still shows it as not found, and
+.B config set
+creates it.
+.TP
+.B \-\-no\-config
+Read no settings file: every operation setting not given on the command line
+takes its built\-in default. Use it for a run that gives the same result on
+every machine. Excludes
+.BR \-\-config .
+.TP
 .BR \-v ", " \-vv ", " \-vvv
 Say more. One is the default; two adds what was recognised of each file; three
 adds the bytes read and written, and every diagnostic the reading ran into.
@@ -177,6 +209,22 @@ together with
 .B \-v
 is refused: two opposite intentions are not arbitrated in favour of whichever
 was written last.
+.SH SETTINGS
+.B adjust
+and
+.B correct
+read the operation settings of the settings file by default: the values the
+window's Adjust Durations and Correct Texts remember, or that
+.B config set
+wrote. An option on the command line wins over the file, and the file over the
+built\-in default. Only the operation part of the file is read, never the
+display preferences. A missing or unreadable user's file gives the defaults and
+fails nothing; a missing
+.B \-\-config
+file is a usage error. At the default verbosity the command says which file it read, and with
+.BR \-\-format " json"
+each object carries it as
+.BR settings .
 .SH ENCODINGS
 A subtitle file declares its encoding nowhere \(em there is no header and no
 naming convention \(em except through a byte order mark, which only the Unicode
@@ -229,6 +277,15 @@ No file could be treated.
 .B 3
 Some files were treated, others were not.
 .SH FILES
+.TP
+.I $XDG_CONFIG_HOME/subedit/settings.conf
+The settings file shared with
+.BR subedit\-gui (1),
+or
+.I ~/.config/subedit/settings.conf
+when
+.B XDG_CONFIG_HOME
+is unset.
 .TP
 .I @SUBEDIT_MANUAL_DIR@
 The complete manual, in Markdown. It is exhaustive where this page is not:

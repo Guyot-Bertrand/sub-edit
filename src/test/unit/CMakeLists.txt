@@ -143,6 +143,8 @@ add_executable(
     core/text/encoding_test.cpp
     core/format/subtitle_file_test.cpp
     core/config/settings_test.cpp
+    core/config/settings_location_test.cpp
+    core/config/operation_settings_test.cpp
     core/config/duration_adjustment_settings_test.cpp
     core/config/pattern_activation_test.cpp
     core/format/open_project_test.cpp
@@ -238,6 +240,8 @@ add_executable(
     cli/options_test.cpp
     cli/rewriting_test.cpp
     cli/reporter_test.cpp
+    cli/configuring_test.cpp
+    cli/shared_settings_test.cpp
     cli/shifting_test.cpp
     cli/sorting_test.cpp
     cli/disjoining_test.cpp

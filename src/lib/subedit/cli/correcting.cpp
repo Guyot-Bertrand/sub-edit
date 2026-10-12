@@ -3,6 +3,7 @@
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/core/command/command.hpp>
+#include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
@@ -304,8 +305,9 @@ tasksOf(const std::string& list) {
     return std::nullopt;
 }
 
-/// More lines than a subtitle can hold on a screen: a typo, not a wish.
-constexpr double kMostLines = 1000.0;
+/// More lines than a subtitle can hold on a screen: a typo, not a wish. The
+/// settings file's reader holds the same bound.
+constexpr double kMostLines = core::kMostLineBreakLines;
 
 /// Reads the dictionary's language and the two tasks that need it into `settings`,
 /// or says why `--language` cannot be honoured. **Required with a task that
@@ -380,8 +382,12 @@ skipBoundOf(const std::string& written, std::string_view option, double fallback
 /// Reads the four options of the line break into `settings`, or says which cannot
 /// be honoured. **In characters, and without a default length**: the 24 of Gaupol
 /// is in ems, and copied as letters it would cut nearly everything, silently.
-[[nodiscard]] std::optional<std::string>
-lineBreakInto(const CorrectionOptions& options, bool asked, core::CorrectionSettings& settings) {
+/// `defaultLines` is what an empty `--max-lines` means — the settings file's, else
+/// Gaupol's — and the skip gate's lines follow it when `--skip-lines` is empty.
+[[nodiscard]] std::optional<std::string> lineBreakInto(const CorrectionOptions& options,
+                                                       bool asked,
+                                                       int defaultLines,
+                                                       core::CorrectionSettings& settings) {
     const std::array<std::pair<std::string_view, const std::string*>, 4> given{{
         {"--max-length", &options.maxLength},
         {"--max-lines", &options.maxLines},
@@ -406,7 +412,7 @@ lineBreakInto(const CorrectionOptions& options, bool asked, core::CorrectionSett
         return "--max-length: \"" + options.maxLength +
                "\" is not a length: expected a number of characters greater than zero";
     }
-    int lines = core::kDefaultLineBreakMaxLines;
+    int lines = defaultLines;
     if (!options.maxLines.empty()) {
         const std::optional<double> written = positiveNumber(options.maxLines);
         if (!written || *written != std::floor(*written) || *written > kMostLines) {
@@ -438,6 +444,12 @@ lineBreakInto(const CorrectionOptions& options, bool asked, core::CorrectionSett
     settings.lineBreakSkipOnLines = skipLines->on;
     settings.lineBreakSkipMaxLines = static_cast<int>(skipLines->value);
     return std::nullopt;
+}
+
+/// Whether the settings file turns both classes off: a state `--classes` cannot
+/// write, and which would leave common-errors nothing to do.
+[[nodiscard]] bool fileClassesBothOff(const core::CorrectionSettings& shared) {
+    return !shared.human && !shared.ocr;
 }
 
 /// Applies `--enable` and `--disable`, or says why a name cannot be honoured.
@@ -482,6 +494,15 @@ lineBreakInto(const CorrectionOptions& options, bool asked, core::CorrectionSett
 
 std::expected<core::CorrectionSettings, std::string>
 correctionSettingsOf(const CorrectionOptions& options, const core::PatternCatalogue& catalogue) {
+    return correctionSettingsOf(options, catalogue, core::CorrectionSettings{});
+}
+
+std::expected<core::CorrectionSettings, std::string>
+correctionSettingsOf(const CorrectionOptions& options,
+                     const core::PatternCatalogue& catalogue,
+                     const core::CorrectionSettings& shared) {
+    // Fresh, and not a copy of `shared`: tasks, codes, activations, length,
+    // language and the skip gate never come from the file (spec 15, S8).
     core::CorrectionSettings settings;
     // **Nothing is ticked beforehand**: the defaults of the window are for a
     // person looking at a list, and a script that named no task asked for none.
@@ -507,9 +528,14 @@ correctionSettingsOf(const CorrectionOptions& options, const core::PatternCatalo
     if (std::optional<std::string> refused = classesInto(options.classes, settings)) {
         return std::unexpected{*std::move(refused)};
     }
+    if (options.classes.empty() && !fileClassesBothOff(shared)) {
+        settings.human = shared.human;
+        settings.ocr = shared.ocr;
+    }
     const bool breaks = std::ranges::any_of(
         tasks, [](const TaskName* task) { return task->task == core::CorrectionTask::LineBreak; });
-    if (std::optional<std::string> refused = lineBreakInto(options, breaks, settings)) {
+    if (std::optional<std::string> refused =
+            lineBreakInto(options, breaks, shared.lineBreakMaxLines, settings)) {
         return std::unexpected{*std::move(refused)};
     }
 
@@ -531,7 +557,7 @@ correctionSettingsOf(const CorrectionOptions& options, const core::PatternCatalo
         }
     }
 
-    settings.removeBlankSubtitles = !options.keepBlankSubtitles;
+    settings.removeBlankSubtitles = !options.keepBlankSubtitles && shared.removeBlankSubtitles;
     return settings;
 }
 
@@ -544,14 +570,15 @@ ExitCode correctIn(core::FileSystem& files,
                    const Destination& destination,
                    const Reporter& reporter,
                    const std::optional<Pairing>& pairing,
-                   const core::SpellChecker* spellChecker) {
+                   const core::SpellChecker* spellChecker,
+                   const Json& settingsFile) {
     // One engine for the whole run: it is read, never changed.
     const auto engine = std::make_shared<const core::IcuPatternEngine>();
     const core::CharacterLineMeasure measure;
 
-    const ChangingOperation correct = [&catalogue, &settings, &measure, engine, spellChecker](
-                                          core::Session& session,
-                                          const Request& request) -> OperationOutcome {
+    const ChangingOperation correct =
+        [&catalogue, &settings, &measure, engine, spellChecker, &settingsFile](
+            core::Session& session, const Request& request) -> OperationOutcome {
         const core::CorrectionTarget target{.project = &session.project(),
                                             .selection = request.selection,
                                             .document = request.document};
@@ -594,6 +621,7 @@ ExitCode correctIn(core::FileSystem& files,
                                .counts = {{"corrected", static_cast<std::int64_t>(tally.corrected)},
                                           {"removed", static_cast<std::int64_t>(tally.removed)}},
                                .changes = std::move(changes),
+                               .fields = {{"settings", settingsFile}},
                                .warnings = std::move(warnings)};
     };
 
@@ -608,6 +636,23 @@ prepareCorrection(core::FileSystem& files,
                   const std::filesystem::path& installedPatterns,
                   const std::filesystem::path& userPatterns,
                   const SpellProviderFactory& makeProvider) {
+    return prepareCorrection(files,
+                             reporter,
+                             options,
+                             installedPatterns,
+                             userPatterns,
+                             makeProvider,
+                             core::CorrectionSettings{});
+}
+
+std::expected<CorrectionRun, std::string>
+prepareCorrection(core::FileSystem& files,
+                  const Reporter& reporter,
+                  const CorrectionOptions& options,
+                  const std::filesystem::path& installedPatterns,
+                  const std::filesystem::path& userPatterns,
+                  const SpellProviderFactory& makeProvider,
+                  const core::CorrectionSettings& shared) {
     core::PatternCatalogue catalogue =
         core::readPatternCatalogue(files, installedPatterns, userPatterns);
     for (const core::PatternDiagnostic& diagnostic : catalogue.diagnostics()) {
@@ -615,9 +660,15 @@ prepareCorrection(core::FileSystem& files,
     }
 
     std::expected<core::CorrectionSettings, std::string> settings =
-        correctionSettingsOf(options, catalogue);
+        correctionSettingsOf(options, catalogue, shared);
     if (!settings) {
         return std::unexpected{settings.error()};
+    }
+    // A nonsense the file holds is not taken silently: it was put there by hand.
+    // (A number of lines out of bounds never gets this far: the file's reader
+    // refuses it, and says so.)
+    if (settings->commonErrors.enabled && options.classes.empty() && fileClassesBothOff(shared)) {
+        reporter.say(1, "settings: correction.human and correction.ocr are both false, ignored");
     }
 
     CorrectionRun run{.catalogue = std::move(catalogue), .settings = *std::move(settings)};

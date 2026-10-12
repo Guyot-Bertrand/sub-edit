@@ -19,6 +19,7 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace subedit::core {
@@ -208,6 +209,9 @@ struct SettingsRead {
     /// none — every setting is at its default. An absent file leaves it empty,
     /// since a first launch is not a failure.
     std::optional<FileError> unreadable{};
+
+    /// True when the file existed and was read. An absent file leaves it false.
+    bool found = false;
 };
 
 /// Reads the settings written at `path`, and never fails.
@@ -238,5 +242,20 @@ writeSettings(FileSystem& files, const std::filesystem::path& path, const Settin
 
 /// The text `writeSettings` would write. Exposed for the tests that read it.
 [[nodiscard]] std::string renderSettings(const Settings& settings);
+
+/// The operation block of `renderSettings` alone: its option lines, with no
+/// header and no banner, `#`-commented when at default. A banner never
+/// contains `" = "`, so a reader of this text can skip it.
+[[nodiscard]] std::string renderOperationSettings(const Settings& settings);
+
+/// Reads `value` for `key` as one line of the file would be read, into
+/// `settings`.
+///
+/// **All or nothing**: an unreadable value leaves `settings` untouched and
+/// returns the diagnostic the file's reader would have produced. An unknown key
+/// is ignored, as in the file. Used by `config set` through
+/// `setOperationOption`, so that the command validates with the reader itself.
+[[nodiscard]] std::optional<SettingsDiagnostic>
+applySettingText(Settings& settings, std::string_view key, std::string_view value);
 
 } // namespace subedit::core

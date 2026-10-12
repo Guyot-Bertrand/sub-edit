@@ -5,6 +5,7 @@
 #include <subedit/cli/exit_code.hpp>
 #include <subedit/cli/index_grammar.hpp>
 #include <subedit/cli/json.hpp>
+#include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/edit/duration_adjustment.hpp>
 #include <subedit/core/model/encoding.hpp>
 
@@ -39,8 +40,8 @@ struct AdjustOptions {
 ///
 /// **`off` switches a constraint off, which is not setting it to zero**: an
 /// absent constraint is not tested, and a minimum of zero is a minimum of zero.
-/// The maximum is off by default and has no `off`: not giving it is how it is
-/// switched off.
+/// The maximum is off by default; its `off` matters on top of a file that
+/// enables one.
 ///
 /// Refused here, before any file is read:
 /// - a number that is not a positive reading speed, a duration that is not a
@@ -51,6 +52,24 @@ struct AdjustOptions {
 ///   that does nothing and says it succeeded is the worse answer.
 [[nodiscard]] std::expected<subedit::core::DurationConstraints, std::string>
 constraintsOf(const AdjustOptions& options);
+
+/// The same, on top of `base` — the settings file — instead of the core
+/// defaults: **an option beats the file, which beats the default** (spec 15,
+/// S8).
+///
+/// - `--speed off` switches the speed off whatever the file says. Otherwise the
+///   speed is `--speed`, else the file's. The file's speed is active when it
+///   moves an end one way or the other; its directions are then the starting
+///   ones, and `(lengthen, not shorten)` when it is not. `--no-lengthen` takes
+///   lengthening away and `--shorten` adds shortening. A file whose speed is
+///   off, with neither `--speed` nor a direction given, leaves the speed off.
+/// - A speed of zero or less in the file — edited by hand — is read as the
+///   speed being off, as `core::constraintsOf` reads it (ADR 0022).
+/// - `--minimum`, `--maximum` and `--gap`: `off`, a value, else the file's
+///   when enabled.
+/// - The refusals are those of the overload above, unchanged.
+[[nodiscard]] std::expected<subedit::core::DurationConstraints, std::string>
+constraintsOf(const AdjustOptions& options, const subedit::core::DurationAdjustmentSettings& base);
 
 /// The constraints in the form the record carries them: the reading speed as a
 /// string of characters per second and the two ways it moves an end, or `null`;
@@ -65,10 +84,13 @@ constraintsOf(const AdjustOptions& options);
 /// Only the ends move. The report says what was adjusted and — the one thing
 /// Gaupol does not say — which constraints some subtitle could not have, once the
 /// others had had their say. `range` limits the subtitles adjusted, in every file.
+/// `settings` is the settings file the constraints were read from, as the record
+/// carries it: a path, or `null` when none was read (spec 15, S6).
 [[nodiscard]] ExitCode adjustAll(subedit::core::FileSystem& files,
                                  const std::vector<std::string>& paths,
                                  const std::optional<subedit::core::Encoding>& reading,
                                  const subedit::core::DurationConstraints& constraints,
+                                 const Json& settings,
                                  const std::optional<Range>& range,
                                  const Destination& destination,
                                  const Reporter& reporter);

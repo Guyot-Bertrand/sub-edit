@@ -19,6 +19,7 @@ add_executable(
     cli/inspect_test.cpp
     cli/narration_test.cpp
     cli/adjust_test.cpp
+    cli/config_test.cpp
     cli/batch_test.cpp
     cli/convert_test.cpp
     cli/formats_test.cpp

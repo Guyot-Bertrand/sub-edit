@@ -8,8 +8,13 @@ changements sans jamais les imposer.
 **Éteinte sur un document vide** : il n'y a rien à corriger.
 
 **La ligne de commande fait la même chose** pour toutes les tâches : [`subedit-cli correct`](../subedit-cli/correct.md), avec les
-mêmes motifs et les mêmes comptes, mais sans rien lire des réglages de cette fenêtre — et en
-caractères là où la fenêtre mesure en ems.
+mêmes motifs et les mêmes comptes — et en caractères là où la fenêtre mesure en ems.
+**It reads four of this assistant's remembered settings** by default — the two classes of
+common errors (`Human`, `OCR`), `Remove all blank subtitles` and the maximum number of lines of
+`Line Break` — and takes everything else (the tasks, their code, the line length, the language,
+the pattern boxes) from its own line. See
+[Two blocks, one shared with the command line](preferences.md#two-blocks-one-shared-with-the-command-line)
+and [`subedit-cli config`](../subedit-cli/config.md).
 
 ## Tasks and Target — la première page
 

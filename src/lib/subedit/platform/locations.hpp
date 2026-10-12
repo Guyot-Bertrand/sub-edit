@@ -34,4 +34,9 @@ namespace subedit::platform {
 /// is given one, and the harness moves `XDG_DATA_HOME` for every binary it runs.
 [[nodiscard]] std::filesystem::path resolvedUserPatternsPath();
 
+/// Where the user's settings file is, read from the real environment. The one
+/// place the settings location is read from the environment; a test never calls
+/// it — it is given a path, and the harness moves `XDG_CONFIG_HOME`.
+[[nodiscard]] std::filesystem::path resolvedUserSettingsPath();
+
 } // namespace subedit::platform

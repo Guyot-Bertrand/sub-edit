@@ -268,7 +268,7 @@ plus rien.
 | `CLI-CORRECT-10` | `join-words` et `split-words` joignent et scindent selon le dictionnaire de `--language` | 13 | implémentée |
 | `CLI-CORRECT-11` | sans dictionnaire pour `--language`, `correct` est refusé avec la phrase de la fenêtre, avant tout traitement | 13 | implémentée |
 | `CLI-CORRECT-12` | les sous-titres vidés sont retirés, sauf `--keep-blank-subtitles` | 13 | implémentée |
-| `CLI-CORRECT-13` | `correct` ne lit aucun réglage de l'utilisateur ni sa liste de remplacements | 13 | implémentée |
+| `CLI-CORRECT-13` | `correct` ne lit du fichier de réglages que `correction.human`, `correction.ocr`, `correction.remove-blank` et `correction.line-break.max-lines`; ni les activations, ni sa liste de remplacements | 13 | implémentée |
 | `CLI-REPLACE-01` | `replace` cherche dans le texte visible et remplace dans le texte source, sans casser une balise | 13 | implémentée |
 | `CLI-REPLACE-02` | `--regex` lit une expression ; une expression illisible est refusée avant tout traitement, avec la raison | 13 | implémentée |
 | `CLI-REPLACE-03` | les majuscules sont ignorées par défaut, `--case-sensitive` les distingue | 13 | implémentée |

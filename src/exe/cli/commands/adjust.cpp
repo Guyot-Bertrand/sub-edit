@@ -1,6 +1,7 @@
 #include "adjust.hpp"
 
 #include <subedit/cli/adjusting.hpp>
+#include <subedit/cli/shared_settings.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -40,8 +41,10 @@ CLI::App* describeAdjust(CLI::App& app, std::string_view name, AdjustCommandOpti
         ->add_option(
             "--minimum", options.constraints.minimum, "Shortest duration, or off (default 1.5)")
         ->option_text("TIME|off");
-    adjust->add_option("--maximum", options.constraints.maximum, "Longest duration (default: none)")
-        ->option_text("TIME");
+    adjust
+        ->add_option(
+            "--maximum", options.constraints.maximum, "Longest duration, or off (default: none)")
+        ->option_text("TIME|off");
     adjust
         ->add_option("--gap",
                      options.constraints.gap,
@@ -56,9 +59,17 @@ CLI::App* describeAdjust(CLI::App& app, std::string_view name, AdjustCommandOpti
 ExitCode runAdjust(const AdjustCommandOptions& options,
                    core::FileSystem& files,
                    const std::optional<core::Encoding>& reading,
-                   const Reporter& reporter) {
+                   const Reporter& reporter,
+                   const SharedSettings& shared) {
+    // A file named and not there is a mistake in the command line, not a
+    // request for the defaults.
+    if (const std::optional<std::string> missing = missingNamedFile(shared)) {
+        return refuse(*missing);
+    }
+    announceSettings(reporter, shared);
+    // An option beats the file, which beats the core default (spec 15, S8).
     const std::expected<core::DurationConstraints, std::string> constraints =
-        constraintsOf(options.constraints);
+        constraintsOf(options.constraints, shared.values.durationAdjustment);
     if (!constraints) {
         return refuse(constraints.error());
     }
@@ -76,6 +87,7 @@ ExitCode runAdjust(const AdjustCommandOptions& options,
                      prepared->inputs.paths,
                      reading,
                      *constraints,
+                     settingsRecord(shared),
                      prepared->range,
                      prepared->destination,
                      reporter);

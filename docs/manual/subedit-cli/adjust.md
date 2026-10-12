@@ -2,7 +2,7 @@
 
 ```
 subedit-cli adjust [--speed CPS|off] [--shorten] [--no-lengthen]
-                   [--minimum TIME|off] [--maximum TIME] [--gap TIME|off]
+                   [--minimum TIME|off] [--maximum TIME|off] [--gap TIME|off]
                    [--range N-M|N-]
                    (--output FICHIER | --output-dir DOSSIER | --in-place)
                    [--dry-run]
@@ -37,12 +37,46 @@ d'un sous-titre est celui du fichier, **choisi ou non** par `--range`.
 | vitesse | `--speed CPS` | **15** caractères par seconde | `--speed off` |
 | sens de la vitesse | `--shorten`, `--no-lengthen` | elle **allonge** seulement | — |
 | minimum | `--minimum TIME` | **1,5 s** | `--minimum off` |
-| maximum | `--maximum TIME` | **aucun** | ne pas le donner |
+| maximum | `--maximum TIME` | **aucun** | `--maximum off` |
 | écart | `--gap TIME` | **0** | `--gap off` |
 
 Ce sont les réglages de Gaupol et de la première ouverture de la fenêtre. **`off` éteint une
 contrainte : elle n'est plus vérifiée.** Ce n'est pas la mettre à zéro — un minimum de `0`
 est un minimum de zéro, un écart de `0` interdit tout recouvrement.
+
+## What the settings file supplies
+
+**The defaults above are the built-in ones.** By default `adjust` reads the operation settings of
+the settings file — the values `Adjust Durations…` remembers in the window, or that
+[`config set`](config.md) wrote — and they take the place of the built-in defaults. **An option
+given on the line always wins**, then the file, then the built-in default. See
+[The settings file](invocation.md#the-settings-file) for where the file is, `--config` and
+`--no-config`.
+
+| Key | What it supplies | Option that overrides it |
+| :-- | :--------------- | :----------------------- |
+| `duration-adjust.speed` | the reading speed, in characters per second | `--speed CPS` |
+| `duration-adjust.lengthen`, `duration-adjust.shorten` | which way the speed may move an end; both `false` switch the speed off | `--no-lengthen`, `--shorten`, `--speed off`; giving `--speed CPS` switches a speed the file turned off back on, lengthening |
+| `duration-adjust.minimum-enabled`, `duration-adjust.minimum-ms` | the shortest duration, or none | `--minimum TIME`, `--minimum off` |
+| `duration-adjust.maximum-enabled`, `duration-adjust.maximum-ms` | the longest duration, or none | `--maximum TIME`, `--maximum off` |
+| `duration-adjust.gap-enabled`, `duration-adjust.gap-ms` | the least gap, or none | `--gap TIME`, `--gap off` |
+
+The flags only move the speed's directions **from what the file says**: `--shorten` adds
+shortening, `--no-lengthen` takes lengthening away. `--maximum off` drops a maximum the file
+switches on. Shortening the file switches on has no flag to undo it on the line: `--speed off`
+or `--no-config` drops it. With `--format json`, `constraints` says the settings
+really used, wherever they came from, and `settings` the file that was read:
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine/settings.conf config set duration-adjust.speed 12 2>/dev/null; subedit-cli --config mine/settings.conf --format json adjust --dry-run a.srt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine/settings.conf config set duration-adjust.speed 12 2>/dev/null; subedit-cli --config mine/settings.conf --format json adjust --dry-run a.srt
+settings: read mine/settings.conf
+a.srt: adjusted the durations of 1 subtitle (dry run, nothing written)
+{"schema":1,"command":"adjust","file":"a.srt","ok":true,"dry_run":true,"destination":null,"counts":{"subtitles":1,"adjusted":1,"sacrificed":{"speed":0,"minimum":0,"gap":0}},"constraints":{"speed":{"cps":"12","lengthen":true,"shorten":false},"minimum_ms":1500,"maximum_ms":null,"gap_ms":0},"settings":"mine/settings.conf","warnings":[]}
+```
+
+The other examples on this page are run with `--no-config`, so that they say what the built-in
+defaults do, whatever the settings of the machine that runs them.
 
 <!-- exemple: subedit-cli adjust --help -->
 ```console
@@ -60,7 +94,7 @@ Options:
   --shorten                   Let the reading speed bring an end earlier
   --no-lengthen               Do not let the reading speed move an end later
   --minimum TIME|off          Shortest duration, or off (default 1.5)
-  --maximum TIME              Longest duration (default: none)
+  --maximum TIME|off          Longest duration, or off (default: none)
   --gap TIME|off              Least time left before the next subtitle, or off (default 0)
   --range N-M|N-              Act only on subtitles N to M, or N to the end
   --output TEXT               File to write, for a single input
@@ -79,7 +113,7 @@ Options:
 | `--shorten` | non | un drapeau : la vitesse peut aussi **avancer** une fin | désactivé |
 | `--no-lengthen` | non | un drapeau : la vitesse ne **recule** plus une fin | désactivé |
 | `--minimum` | non | une durée de zéro ou plus, ou `off` | `1.5` |
-| `--maximum` | non | une durée **supérieure à zéro** | aucun |
+| `--maximum` | non | une durée **supérieure à zéro**, or `off` | aucun |
 | `--gap` | non | une durée de zéro ou plus, ou `off` | `0` |
 | `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir ci-dessous | tout le fichier |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
@@ -121,9 +155,9 @@ les autres appliquées. Le maximum n'a pas de compte : il est appliqué avant l'
 que raccourcir, donc il tient toujours. Un minimum au-dessus du maximum cède au maximum et est
 compté comme un minimum.
 
-<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli adjust --output ajuste.srt courts.srt; grep -e '-->' ajuste.srt -->
+<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --output ajuste.srt courts.srt; grep -e '-->' ajuste.srt -->
 ```console
-$ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli adjust --output ajuste.srt courts.srt; grep -e '-->' ajuste.srt
+$ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --output ajuste.srt courts.srt; grep -e '-->' ajuste.srt
 courts.srt: adjusted the durations of 3 subtitles; could not satisfy the minimum duration in 1 subtitle -> ajuste.srt
 00:00:00,000 --> 00:00:02,000
 00:00:10,000 --> 00:00:14,000
@@ -136,9 +170,9 @@ Le troisième sous-titre voudrait finir à 15,7 s pour durer 1,5 s, mais le quat
 
 Éteindre l'écart laisse le minimum l'emporter — et les deux sous-titres se recouvrent :
 
-<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli adjust --gap off --output libre.srt courts.srt; grep -e '-->' libre.srt -->
+<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --gap off --output libre.srt courts.srt; grep -e '-->' libre.srt -->
 ```console
-$ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli adjust --gap off --output libre.srt courts.srt; grep -e '-->' libre.srt
+$ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --gap off --output libre.srt courts.srt; grep -e '-->' libre.srt
 courts.srt: adjusted the durations of 3 subtitles -> libre.srt
 00:00:00,000 --> 00:00:02,000
 00:00:10,000 --> 00:00:14,000
@@ -148,9 +182,9 @@ courts.srt: adjusted the durations of 3 subtitles -> libre.srt
 
 Et rien n'est sacrifié ni ajusté quand le fichier tient déjà dans ses limites :
 
-<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli adjust --speed off --minimum off --output intact.srt courts.srt -->
+<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --speed off --minimum off --output intact.srt courts.srt -->
 ```console
-$ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli adjust --speed off --minimum off --output intact.srt courts.srt
+$ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --speed off --minimum off --output intact.srt courts.srt
 courts.srt: no duration to adjust -> intact.srt
 ```
 
@@ -162,7 +196,7 @@ Le fichier est écrit tel quel : **une destination donnée est une destination �
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: adjusted the durations of N subtitles; could not satisfy …  -> <destination>`, ou `<chemin>: no duration to adjust -> <destination>` |
+| 1 | `<chemin>: adjusted the durations of N subtitles; could not satisfy …  -> <destination>`, ou `<chemin>: no duration to adjust -> <destination>` — and, first, the settings file read — `settings: read <path>` — see [The settings file](invocation.md#the-settings-file) |
 | 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
 | 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
@@ -182,15 +216,16 @@ porte, en plus de l'enveloppe :
 | `counts.sacrificed.speed`, `.minimum`, `.gap` | les sous-titres qui ne tiennent pas encore cette contrainte, une fois les autres appliquées, **y compris ceux dont la fin n'a pas bougé** |
 | `constraints.speed` | `{"cps", "lengthen", "shorten"}` — les caractères par seconde **en chaîne** (`"15"`, `"12.5"`) — ou `null` si éteinte |
 | `constraints.minimum_ms`, `.maximum_ms`, `.gap_ms` | les durées employées, en **millisecondes entières**, ou `null` si éteintes |
+| `settings` | the settings file that was read, or `null` when none was |
 
 `constraints` dit **les réglages réellement employés**, défauts compris : deux calculs
 qui portent sur les mêmes sous-titres se comparent alors sans lire la ligne de commande.
 
-<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --format json adjust --dry-run --maximum 1.8 courts.srt -->
+<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config --format json adjust --dry-run --maximum 1.8 courts.srt -->
 ```console
-$ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --format json adjust --dry-run --maximum 1.8 courts.srt
+$ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config --format json adjust --dry-run --maximum 1.8 courts.srt
 courts.srt: adjusted the durations of 4 subtitles; could not satisfy the reading speed in 1 subtitle, the minimum duration in 1 subtitle (dry run, nothing written)
-{"schema":1,"command":"adjust","file":"courts.srt","ok":true,"dry_run":true,"destination":null,"counts":{"subtitles":4,"adjusted":4,"sacrificed":{"speed":1,"minimum":1,"gap":0}},"constraints":{"speed":{"cps":"15","lengthen":true,"shorten":false},"minimum_ms":1500,"maximum_ms":1800,"gap_ms":0},"warnings":[]}
+{"schema":1,"command":"adjust","file":"courts.srt","ok":true,"dry_run":true,"destination":null,"counts":{"subtitles":4,"adjusted":4,"sacrificed":{"speed":1,"minimum":1,"gap":0}},"constraints":{"speed":{"cps":"15","lengthen":true,"shorten":false},"minimum_ms":1500,"maximum_ms":1800,"gap_ms":0},"settings":null,"warnings":[]}
 ```
 
 ## Codes de retour
@@ -202,6 +237,7 @@ seulement, `1` sur une erreur d'usage. Un fichier qui tient déjà dans ses limi
 
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |
+| a file named by `--config` that does not exist — the user's own file, missing, gives the defaults | `settings file not found: <FILE>` |
 | aucune contrainte active | `adjust has nothing to adjust to: every constraint is off, or the reading speed is told to move no end` |
 | vitesse qui n'en est pas une | `--speed: "…" is not a reading speed: expected a number of characters per second above zero, like 15 or 12.5, or off` |
 | `--shorten`/`--no-lengthen` avec `--speed off` | `--shorten and --no-lengthen say which way the reading speed may move an end, and --speed off switches the reading speed off` |

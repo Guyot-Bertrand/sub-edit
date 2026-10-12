@@ -92,84 +92,31 @@ avec un objectif d'iso-fonctionnalité.
 
 ## Conventions
 
-- **Langue** — deux frontières, et la première est celle du fichier : **le C++
-  s'écrit en anglais de bout en bout, identifiants comme commentaires ; tout le
-  reste du dépôt s'écrit en français.** La seconde ne vaut qu'à l'intérieur de
-  la première : **ce que le binaire imprime est en anglais, ce qui explique
-  pourquoi est en français.**
+- **Language** — **everything is written in English**: C++ (identifiers and
+  comments), scripts, build files, documentation, specs, ADRs, issue and pull
+  request titles and bodies, commit messages, test titles, and everything the
+  binary prints to a user. **French exists as a locale only**: the catalogue
+  `src/po/fr.po` and the translated manual `docs/i18n/fr/manual/`. Decided in
+  [ADR 0043](docs/adr/0043-english-is-the-language-of-the-repository.md), which
+  replaces the split of #312.
 
-  | Anglais | Français |
-  | :------ | :------- |
-  | le C++, identifiants **et commentaires** | la documentation, les specs, les ADR, les manuels |
-  | tout ce que le binaire écrit à un utilisateur | les scripts et le système de construction |
-  | les intitulés de cas de test, que Catch2 imprime | les messages de commit et les échanges |
+  **The repository is mixed until the translation is done.** What exists in
+  French is translated in place, in batches, behind a descending allowlist in
+  `check-comment-language.py` (#325): an entry can be removed and never added.
+  Meanwhile, **anything new is written in English, in a French file as
+  anywhere else**, and a French file that is touched in depth is translated in
+  the same diff. This file is one of those still to translate; the sections
+  below are in French until then.
 
-  **Tranché en #312, sur un compte** — et dans l'autre sens que #273, qui avait
-  écrit l'inverse. Chaque famille de fichiers a sa langue, sans mélange :
-
-  | | anglais | français |
-  | :--- | ------: | -------: |
-  | `src/**.cpp`, `src/**.hpp` | **6 460** | 1 161 |
-  | `src/scripts` | 6 | **1 971** |
-  | `cmake`, `Makefile` | 4 | **386** |
-
-  **Une seule des deux moitiés a dérivé, et la dérive a une date.** Part de
-  français dans les commentaires C++, par semaine d'écriture :
-
-  | S32 | S33 | S34 | S35 | S36 |
-  | --: | --: | --: | --: | --: |
-  | 0,0 % | 0,3 % | 2,7 % | **30,2 %** | **32,8 %** |
-
-  Trois semaines d'anglais, puis les phases d'interface. C'est ce que #273 a vu
-  à la fin de la quatrième semaine — et il en a conclu que le dépôt avait
-  *toujours* été français, en cherchant les fichiers portant **au moins un**
-  caractère accentué, ce qui ne pouvait rendre que cela. Un fichier de cinquante
-  commentaires anglais et d'un français y comptait pour français. C'est le
-  défaut de #268 — vérifier avec l'outil qui ne compte pas — commis une issue
-  après avoir été inscrit.
-
-  **Un cliquet tient la règle**, parce que les deux versions précédentes ont
-  cessé de décrire le dépôt sans que personne le voie :
-  `check-comment-language.py` compte les lignes françaises restées dans le C++
-  et **refuse qu'elles montent**. Il est appelé par `check-architecture.sh`,
-  donc par `make check`. Le baisser est le geste normal d'une pull request qui
-  traduit ; il n'y a pas de bouton pour le remonter.
-
-  **Mille lignes et des poussières restent à traduire**, concentrées dans une
-  cinquantaine de fichiers d'interface — issue #325. En attendant, la règle vaut
-  pour ce qu'on écrit : **du C++ neuf se commente en anglais**, dans un fichier
-  français comme ailleurs. Le mélange est transitoire et le cliquet en garantit
-  la fin ; écrire une phrase française de plus, non.
-
-  **Un fichier français qu'on retouche en profondeur se traduit d'un bloc**,
-  dans le même diff, et le cliquet descend d'autant. C'est ce qui garde les
-  fichiers lisibles pendant la transition, et ce qui fait avancer #325 sans lui
-  consacrer une pull request.
-
-  Les intitulés de tests, eux, avaient bien dérivé : **cent en français**,
-  presque tous nés d'une seule phase, et un `--list-tests` qui rendait deux
-  langues mêlées. Ils ont été traduits, et `check-architecture.sh` tient la
-  règle — un caractère hors ASCII ou un mot
-  outil français dans un intitulé fait échouer la porte, sauf exemption inscrite
-  et motivée.
-
-  **Anglais aussi pour tout ce que le binaire écrit à un utilisateur** — sortie
-  standard, sortie d'erreur, en-têtes de colonne, libellés de menu, messages de
-  dialogue. **Ce que les deux surfaces peuvent dire toutes les deux** — le nom
-  d'un format, un compte rendu d'opération, une raison d'échec — vit dans
-  [`core/wording/`](src/lib/subedit/core/wording/), l'unique endroit où c'est
-  écrit — **un en-tête par famille** (`formats`, `settings`, `analysis`,
-  `counts`, `translation`, `conversion`, `editing`, `video`), qu'on inclut pour
-  ce qu'on dit et non en bloc : modifier une famille ne recompile que ses
-  lecteurs (#549) ; **un libellé de menu ou de dialogue, propre à la fenêtre et
-  sans équivalent en ligne de commande, reste dans le fichier de la fenêtre**
-  — la règle porte sur les mots partagés, pas sur la surface qui les affiche.
-  La traduction est une phase à elle seule ; d'ici là, une seule langue.
-
-  Cette ligne manquait, et le silence a coûté : la fenêtre des phases 5 est née
-  en français — « N° », « Début », « Annuler : décalage » — pendant que la
-  ligne de commande écrivait en anglais. Repris en août 2026, une fois la
-  troisième issue d'interface fusionnée.
+  **What both surfaces can say** — a format name, an account of an operation, a
+  reason for failure — lives in
+  [`core/wording/`](src/lib/subedit/core/wording/), the only place it is
+  written: one header per family (`formats`, `settings`, `analysis`, `counts`,
+  `translation`, `conversion`, `editing`, `video`), included for what is said
+  and not as a whole, so that changing a family recompiles only its readers
+  (#549). **A menu or dialog label that belongs to the window and has no
+  command-line equivalent stays in the window's file**: the rule is about shared
+  words, not about the surface that shows them.
 - **Commits** — Conventional Commits, scopes alignés sur les labels `area:`.
 - **Titre d'une pull request** — **la même grammaire, la même limite de 72
   caractères.** `.github/workflows/pull-request.yml` passe le titre à
@@ -293,8 +240,9 @@ avec un objectif d'iso-fonctionnalité.
   `check-config-home.sh` encadre la porte de la même façon et surveille
   `~/.config/subedit`, que `git ls-files` ne voit pas. Ce qui le tient au vert :
   **un test ne résout jamais un emplacement de configuration, il en reçoit
-  un.** Le seul code qui en résout un est `gui::userSettingsPath()` — ADR 0022 —
-  et rien ne l'appelle pour écrire. Les trois harnais qui lancent quelque chose
+  un.** The only code that resolves one is `platform::resolvedUserSettingsPath()`,
+  called by the two `main` functions, which hand the path down;
+  `gui::userSettingsPath()` delegates to it — ADR 0022 and 0045. Les trois harnais qui lancent quelque chose
   déplacent en plus `XDG_CONFIG_HOME` vers un répertoire à eux : le binaire de
   tests d'interface pour lui-même, celui de bout en bout pour chaque binaire
   qu'il lance, et `check-installation.sh` pour ce qu'il vient d'installer.

@@ -31,6 +31,7 @@ add_library(
     frame_rate_grammar.cpp
     inspection.cpp
     pairing.cpp
+    configuring.cpp
     conversion.cpp
     correcting.cpp
     index_grammar.cpp
@@ -40,6 +41,7 @@ add_library(
     rewriting.cpp
     writing.cpp
     hearing_impaired.cpp
+    shared_settings.cpp
     shifting.cpp
     splitting.cpp
     sorting.cpp

@@ -17,11 +17,11 @@ namespace subedit::gui {
 /// or works through `InMemoryFileSystem`. What used to be a rule to remember
 /// is a shape the code has.
 ///
-/// **Derived from the generic config location and never from the running
-/// program's name.** `AppConfigLocation` would append whatever
-/// `QCoreApplication::applicationName()` holds, which is the executable's name
-/// when nobody set it — `subedit_gui_test` under the test binary. A path that
-/// changes with the process that asks for it is a path no test can state.
+/// **Delegates to `platform::resolvedUserSettingsPath()`**, which the command
+/// line shares, so that both surfaces read the same file by the same code. It
+/// honours `$XDG_CONFIG_HOME` (when absolute) and falls back to `~/.config`, and
+/// never depends on the running program's name: a path that changes with the
+/// process that asks for it is a path no test can state.
 ///
 /// Absolute, and it need not exist: a missing file is every default, which is
 /// not an error.
