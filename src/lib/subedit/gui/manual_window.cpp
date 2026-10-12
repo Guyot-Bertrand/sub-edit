@@ -1,5 +1,6 @@
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/gui/manual_window.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QAction>
 #include <QImage>
@@ -123,9 +124,9 @@ ManualWindow::ManualWindow(core::FileSystem& files,
       m_directory(std::move(directory)),
       m_view(new QTextBrowser{this}),
       m_notice(new QLabel{this}),
-      m_back(new QAction{QStringLiteral("Back"), this}),
-      m_home(new QAction{QStringLiteral("Contents"), this}) {
-    setWindowTitle(QStringLiteral("subedit — manual"));
+      m_back(new QAction{translate("Back"), this}),
+      m_home(new QAction{translate("Contents"), this}) {
+    setWindowTitle(translate("subedit — manual"));
     resize(kWidth, kHeight);
 
     // **Links are not opened by the text browser.** Its own would call
@@ -177,8 +178,9 @@ void ManualWindow::openPage(const std::filesystem::path& page) {
         // **Said rather than left unsaid.** A partial installation is the case
         // the scoping names, and a window that opened empty would suggest an
         // empty manual rather than a missing file.
-        m_notice->setText(QStringLiteral("%1 could not be read.")
-                              .arg(QString::fromStdString((m_directory / page).string())));
+        // TRANSLATORS: %1 is the path of a page of the manual.
+        m_notice->setText(substitute(translate("%1 could not be read."),
+                                     QString::fromStdString((m_directory / page).string())));
         m_notice->show();
         return;
     }
@@ -216,9 +218,10 @@ void ManualWindow::followLink(const QUrl& target) {
     const std::filesystem::path page = resolved(m_current, asked);
 
     if (!inside(page) || !m_files->exists(m_directory / page)) {
-        m_notice->setText(QStringLiteral("%1 is not part of the installed manual; it lives in the "
-                                         "project's repository.")
-                              .arg(QString::fromStdString(asked.string())));
+        // TRANSLATORS: %1 is the path a link of the manual names.
+        m_notice->setText(substitute(translate("%1 is not part of the installed manual; it lives "
+                                               "in the project's repository."),
+                                     QString::fromStdString(asked.string())));
         m_notice->show();
         return;
     }

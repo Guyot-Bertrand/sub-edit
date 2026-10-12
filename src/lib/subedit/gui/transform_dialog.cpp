@@ -2,6 +2,7 @@
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
 #include <QFont>
@@ -46,7 +47,7 @@ TransformDialog::TransformDialog(OperationScope scope, AnchorLookup lookup, QWid
       m_lookup(std::move(lookup)),
       m_first(makeRow(scope.whole)),
       m_second(makeRow(scope.whole)) {
-    setWindowTitle(QStringLiteral("Transform positions"));
+    setWindowTitle(translate("Transform positions"));
 
     // The second reference defaults to the last subtitle: two distant
     // references give a surer correction than two neighbouring ones, and that
@@ -70,21 +71,21 @@ TransformDialog::TransformDialog(OperationScope scope, AnchorLookup lookup, QWid
         fields()->addRow(label);
     };
     const auto add = [this](const Row& row) {
-        fields()->addRow(QStringLiteral("Subtitle"), row.number);
-        fields()->addRow(QStringLiteral("Now starts"), row.current);
-        fields()->addRow(QStringLiteral("Should start"), row.target);
-        fields()->addRow(QStringLiteral("Text"), row.text);
+        fields()->addRow(translate("Subtitle"), row.number);
+        fields()->addRow(translate("Now starts"), row.current);
+        fields()->addRow(translate("Should start"), row.target);
+        fields()->addRow(translate("Text"), row.text);
     };
     auto* explanation =
-        new QLabel{QStringLiteral("Pick two subtitles and say when each one should start.\n"
-                                  "All the other subtitles are moved and stretched to match."),
+        new QLabel{translate("Pick two subtitles and say when each one should start.\n"
+                             "All the other subtitles are moved and stretched to match."),
                    this};
     explanation->setWordWrap(true);
     fields()->addRow(explanation);
 
-    heading(QStringLiteral("Reference 1"));
+    heading(translate("Reference 1"));
     add(m_first);
-    heading(QStringLiteral("Reference 2"));
+    heading(translate("Reference 2"));
     add(m_second);
     finish();
 }

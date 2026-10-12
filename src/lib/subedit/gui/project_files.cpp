@@ -2,6 +2,7 @@
 #include <subedit/core/edit/translation.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/translation_file.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/encoding.hpp>
@@ -24,6 +25,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <filesystem>
 #include <optional>
@@ -186,7 +188,8 @@ std::vector<ModifiedDocument> ProjectFiles::modifiedDocuments(const ProjectPage&
 
         modified.push_back(ModifiedDocument{
             .document = document,
-            .name = source.path.has_value() ? source.path->filename().string() : "untitled",
+            .name = source.path.has_value() ? source.path->filename().string()
+                                            : std::string{core::translate("untitled")},
             .missing = missing,
         });
     }
@@ -293,15 +296,20 @@ void ProjectFiles::saveAll() {
     if (shown)
         m_view->show(origin);
 
-    const auto documents = [](int count) {
-        return std::to_string(count) + (count == 1 ? " document" : " documents");
-    };
     if (stopped) {
-        m_prompts->reportOutcome("Save All stopped: " + std::to_string(written) + " of " +
-                                 documents(total) + " saved");
+        m_prompts->reportOutcome(
+            core::substitute(core::translatePlural("Save All stopped: %1 of %2 document saved",
+                                                   "Save All stopped: %1 of %2 documents saved",
+                                                   static_cast<std::uint64_t>(total)),
+                             {std::to_string(written), std::to_string(total)}));
         return;
     }
-    m_view->announce(total == 0 ? "Nothing to save" : documents(written) + " saved");
+    m_view->announce(
+        total == 0 ? std::string{core::translate("Nothing to save")}
+                   : core::substitute(core::translatePlural("%1 document saved",
+                                                            "%1 documents saved",
+                                                            static_cast<std::uint64_t>(written)),
+                                      {std::to_string(written)}));
 }
 
 bool ProjectFiles::mayReplaceTranslation(ProjectPage& page) {
@@ -312,7 +320,8 @@ bool ProjectFiles::mayReplaceTranslation(ProjectPage& page) {
         page.session->project().sourceFile(core::Document::Translation);
     const ModifiedDocument modified{
         .document = core::Document::Translation,
-        .name = source.path.has_value() ? source.path->filename().string() : "untitled",
+        .name = source.path.has_value() ? source.path->filename().string()
+                                        : std::string{core::translate("untitled")},
     };
 
     switch (m_prompts->aboutUnsavedChanges(modified)) {

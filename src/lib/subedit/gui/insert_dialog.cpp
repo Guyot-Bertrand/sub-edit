@@ -1,6 +1,7 @@
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/wording/settings.hpp>
 #include <subedit/gui/insert_dialog.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QButtonGroup>
 #include <QDialogButtonBox>
@@ -41,7 +42,7 @@ InsertDialog::InsertDialog(bool hasSubtitles, core::InsertPlacement placement, Q
       m_count(new QSpinBox{this}),
       m_above(buttonFor(core::InsertPlacement::Above, this)),
       m_below(buttonFor(core::InsertPlacement::Below, this)) {
-    setWindowTitle(QStringLiteral("Insert subtitles"));
+    setWindowTitle(translate("Insert subtitles"));
 
     m_count->setRange(kSmallestCount, kLargestCount);
     m_count->setValue(kSmallestCount);
@@ -62,8 +63,8 @@ InsertDialog::InsertDialog(bool hasSubtitles, core::InsertPlacement placement, Q
     m_below->setEnabled(hasSubtitles);
 
     auto* fields = new QFormLayout;
-    fields->addRow(QStringLiteral("How many"), m_count);
-    fields->addRow(QStringLiteral("Where"), m_above);
+    fields->addRow(translate("How many"), m_count);
+    fields->addRow(translate("Where"), m_above);
     fields->addRow(QString{}, m_below);
 
     auto* buttons = new QDialogButtonBox{QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this};

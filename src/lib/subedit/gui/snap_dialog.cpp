@@ -1,4 +1,5 @@
 #include <subedit/gui/frame_rate_box.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/snap_dialog.hpp>
 
 #include <QFormLayout>
@@ -14,7 +15,7 @@ SnapDialog::SnapDialog(OperationScope scope,
                        std::optional<core::FrameRate> declared,
                        QWidget* parent)
     : OperationDialog(scope, parent), m_rate(new FrameRateBox{this}) {
-    setWindowTitle(QStringLiteral("Snap to frame rate"));
+    setWindowTitle(translate("Snap to frame rate"));
 
     // In two steps, because the second may find nothing — see `FrameRateBox`,
     // which is where that contract is written.
@@ -22,7 +23,7 @@ SnapDialog::SnapDialog(OperationScope scope,
     if (declared.has_value())
         m_rate->pick(*declared);
 
-    fields()->addRow(QStringLiteral("Lay positions on"), m_rate);
+    fields()->addRow(translate("Lay positions on"), m_rate);
 
     finish();
 }

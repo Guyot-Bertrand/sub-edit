@@ -1,6 +1,7 @@
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/gui/correction_target.hpp>
 #include <subedit/gui/correction_target_page.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QCheckBox>
 #include <QGroupBox>
@@ -13,34 +14,34 @@ CorrectionTargetPage::CorrectionTargetPage(bool selectionAvailable,
                                            bool translationAvailable,
                                            QWidget* parent)
     : QWizardPage(parent) {
-    setTitle(QStringLiteral("Tasks and Target"));
+    setTitle(translate("Tasks and Target"));
 
-    auto* targetGroup = new QGroupBox{QStringLiteral("Target"), this};
-    m_selection = new QRadioButton{QStringLiteral("Selection"), targetGroup};
+    auto* targetGroup = new QGroupBox{translate("Target"), this};
+    m_selection = new QRadioButton{translate("Selection"), targetGroup};
     m_selection->setEnabled(selectionAvailable);
-    m_currentProject = new QRadioButton{QStringLiteral("Current Project"), targetGroup};
+    m_currentProject = new QRadioButton{translate("Current Project"), targetGroup};
     m_currentProject->setChecked(true);
-    m_allProjects = new QRadioButton{QStringLiteral("All Open Projects"), targetGroup};
+    m_allProjects = new QRadioButton{translate("All Open Projects"), targetGroup};
     auto* targetLayout = new QVBoxLayout{targetGroup};
     targetLayout->addWidget(m_selection);
     targetLayout->addWidget(m_currentProject);
     targetLayout->addWidget(m_allProjects);
 
-    auto* documentGroup = new QGroupBox{QStringLiteral("Document"), this};
-    m_text = new QRadioButton{QStringLiteral("Text"), documentGroup};
+    auto* documentGroup = new QGroupBox{translate("Document"), this};
+    m_text = new QRadioButton{translate("Text"), documentGroup};
     m_text->setChecked(true);
-    m_translation = new QRadioButton{QStringLiteral("Translation"), documentGroup};
+    m_translation = new QRadioButton{translate("Translation"), documentGroup};
     m_translation->setEnabled(translationAvailable);
     auto* documentLayout = new QVBoxLayout{documentGroup};
     documentLayout->addWidget(m_text);
     documentLayout->addWidget(m_translation);
 
-    auto* taskGroup = new QGroupBox{QStringLiteral("Tasks"), this};
-    m_mentions = new QCheckBox{QStringLiteral("Mentions"), taskGroup};
-    m_joinSplit = new QCheckBox{QStringLiteral("Join or Split Words"), taskGroup};
-    m_commonErrors = new QCheckBox{QStringLiteral("Common Errors"), taskGroup};
-    m_capitalization = new QCheckBox{QStringLiteral("Capitalization"), taskGroup};
-    m_lineBreak = new QCheckBox{QStringLiteral("Line Break"), taskGroup};
+    auto* taskGroup = new QGroupBox{translate("Tasks"), this};
+    m_mentions = new QCheckBox{translate("Mentions"), taskGroup};
+    m_joinSplit = new QCheckBox{translate("Join or Split Words"), taskGroup};
+    m_commonErrors = new QCheckBox{translate("Common Errors"), taskGroup};
+    m_capitalization = new QCheckBox{translate("Capitalization"), taskGroup};
+    m_lineBreak = new QCheckBox{translate("Line Break"), taskGroup};
     auto* taskLayout = new QVBoxLayout{taskGroup};
     taskLayout->addWidget(m_mentions);
     taskLayout->addWidget(m_joinSplit);

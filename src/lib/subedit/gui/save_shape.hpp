@@ -7,6 +7,7 @@
 #include <QWidget>
 
 #include <array>
+#include <cstdint>
 #include <expected>
 #include <memory>
 #include <optional>
@@ -21,14 +22,28 @@ class QLineEdit;
 
 namespace subedit::gui {
 
+/// Who writes in an encoding, in the words gedit uses and Gaupol copied: a closed list, each
+/// worded where it is shown, so that a catalogue translates it (#665).
+enum class EncodingFamily : std::uint8_t {
+    Unicode,
+    Western,
+    CentralEuropean,
+    Cyrillic,
+    Greek,
+    Turkish,
+    Japanese,
+    ChineseSimplified,
+    ChineseTraditional,
+};
+
 /// An encoding the window offers, and what it is for.
 struct OfferedEncoding {
     /// The name ICU knows it by, which is the one the report and the settings
     /// file carry.
     std::string_view charset;
 
-    /// Who writes in it, in the words gedit uses and Gaupol copied.
-    std::string_view description;
+    /// Who writes in it.
+    EncodingFamily family;
 };
 
 /// The encodings the window offers, in the order it offers them.
@@ -43,20 +58,20 @@ struct OfferedEncoding {
 /// UTF-8 first because it is what to write when nothing forces otherwise; the
 /// rest by script, as Gaupol groups them.
 inline constexpr std::array<OfferedEncoding, 14> kOfferedEncodings = {
-    OfferedEncoding{.charset = "UTF-8", .description = "Unicode"},
-    OfferedEncoding{.charset = "UTF-16LE", .description = "Unicode"},
-    OfferedEncoding{.charset = "UTF-16BE", .description = "Unicode"},
-    OfferedEncoding{.charset = "ISO-8859-1", .description = "Western"},
-    OfferedEncoding{.charset = "windows-1252", .description = "Western"},
-    OfferedEncoding{.charset = "ISO-8859-2", .description = "Central European"},
-    OfferedEncoding{.charset = "windows-1250", .description = "Central European"},
-    OfferedEncoding{.charset = "windows-1251", .description = "Cyrillic"},
-    OfferedEncoding{.charset = "KOI8-R", .description = "Cyrillic"},
-    OfferedEncoding{.charset = "ISO-8859-7", .description = "Greek"},
-    OfferedEncoding{.charset = "ISO-8859-9", .description = "Turkish"},
-    OfferedEncoding{.charset = "Shift_JIS", .description = "Japanese"},
-    OfferedEncoding{.charset = "GB18030", .description = "Chinese simplified"},
-    OfferedEncoding{.charset = "Big5", .description = "Chinese traditional"},
+    OfferedEncoding{.charset = "UTF-8", .family = EncodingFamily::Unicode},
+    OfferedEncoding{.charset = "UTF-16LE", .family = EncodingFamily::Unicode},
+    OfferedEncoding{.charset = "UTF-16BE", .family = EncodingFamily::Unicode},
+    OfferedEncoding{.charset = "ISO-8859-1", .family = EncodingFamily::Western},
+    OfferedEncoding{.charset = "windows-1252", .family = EncodingFamily::Western},
+    OfferedEncoding{.charset = "ISO-8859-2", .family = EncodingFamily::CentralEuropean},
+    OfferedEncoding{.charset = "windows-1250", .family = EncodingFamily::CentralEuropean},
+    OfferedEncoding{.charset = "windows-1251", .family = EncodingFamily::Cyrillic},
+    OfferedEncoding{.charset = "KOI8-R", .family = EncodingFamily::Cyrillic},
+    OfferedEncoding{.charset = "ISO-8859-7", .family = EncodingFamily::Greek},
+    OfferedEncoding{.charset = "ISO-8859-9", .family = EncodingFamily::Turkish},
+    OfferedEncoding{.charset = "Shift_JIS", .family = EncodingFamily::Japanese},
+    OfferedEncoding{.charset = "GB18030", .family = EncodingFamily::ChineseSimplified},
+    OfferedEncoding{.charset = "Big5", .family = EncodingFamily::ChineseTraditional},
 };
 
 /// The shape of the file `Save As…` is about to write, beyond its format.

@@ -1,4 +1,5 @@
 #include <subedit/gui/correction_task_page.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/pattern_code_selector.hpp>
 #include <subedit/gui/pattern_list.hpp>
 
@@ -75,9 +76,9 @@ void CorrectionTaskPage::applyBase(const std::string& code,
 
 MentionsPage::MentionsPage(const core::PatternCatalogue& catalogue, QWidget* parent)
     : CorrectionTaskPage(
-          QStringLiteral("Mentions"), catalogue, core::PatternKind::HearingImpaired, parent),
-      m_brackets(new QCheckBox{QStringLiteral("Sound in brackets"), this}),
-      m_parentheses(new QCheckBox{QStringLiteral("Sound in parentheses"), this}) {
+          translate("Mentions"), catalogue, core::PatternKind::HearingImpaired, parent),
+      m_brackets(new QCheckBox{translate("Sound in brackets"), this}),
+      m_parentheses(new QCheckBox{translate("Sound in parentheses"), this}) {
     extraLayout()->addWidget(m_brackets);
     extraLayout()->addWidget(m_parentheses);
 }
@@ -98,9 +99,9 @@ bool MentionsPage::soundInParentheses() const {
 
 CommonErrorsPage::CommonErrorsPage(const core::PatternCatalogue& catalogue, QWidget* parent)
     : CorrectionTaskPage(
-          QStringLiteral("Common Errors"), catalogue, core::PatternKind::CommonError, parent),
-      m_human(new QCheckBox{QStringLiteral("Human"), this}),
-      m_ocr(new QCheckBox{QStringLiteral("OCR"), this}) {
+          translate("Common Errors"), catalogue, core::PatternKind::CommonError, parent),
+      m_human(new QCheckBox{translate("Human"), this}),
+      m_ocr(new QCheckBox{translate("OCR"), this}) {
     extraLayout()->addWidget(m_human);
     extraLayout()->addWidget(m_ocr);
 }
@@ -121,15 +122,14 @@ bool CommonErrorsPage::ocr() const {
 
 CapitalizationPage::CapitalizationPage(const core::PatternCatalogue& catalogue, QWidget* parent)
     : CorrectionTaskPage(
-          QStringLiteral("Capitalization"), catalogue, core::PatternKind::Capitalization, parent) {}
+          translate("Capitalization"), catalogue, core::PatternKind::Capitalization, parent) {}
 
 void CapitalizationPage::applySettings(const core::CorrectionSettings& settings) {
     applyBase(settings.capitalization.code, settings);
 }
 
 LineBreakPage::LineBreakPage(const core::PatternCatalogue& catalogue, QWidget* parent)
-    : CorrectionTaskPage(
-          QStringLiteral("Line Break"), catalogue, core::PatternKind::LineBreak, parent),
+    : CorrectionTaskPage(translate("Line Break"), catalogue, core::PatternKind::LineBreak, parent),
       m_maxLength(new QDoubleSpinBox{this}),
       m_maxLines(new QSpinBox{this}),
       m_unit(new QComboBox{this}),
@@ -139,17 +139,17 @@ LineBreakPage::LineBreakPage(const core::PatternCatalogue& catalogue, QWidget* p
       m_skipMaxLines(new QSpinBox{this}) {
     m_maxLength->setRange(1.0, kMaxLineBreakLength);
     m_maxLines->setRange(1, kMaxLineBreakLines);
-    m_skipOnLength->setText(QStringLiteral("Skip subtitles with maximum line length of"));
-    m_skipOnLines->setText(QStringLiteral("Skip subtitles with maximum line amount of"));
+    m_skipOnLength->setText(translate("Skip subtitles with maximum line length of"));
+    m_skipOnLines->setText(translate("Skip subtitles with maximum line amount of"));
     m_skipMaxLength->setRange(1.0, kMaxLineBreakLength);
     m_skipMaxLines->setRange(1, kMaxLineBreakLines);
-    m_unit->addItem(QStringLiteral("Characters"));
-    m_unit->addItem(QStringLiteral("Ems"));
+    m_unit->addItem(translate("Characters"));
+    m_unit->addItem(translate("Ems"));
 
     auto* form = new QFormLayout{};
-    form->addRow(QStringLiteral("Maximum length:"), m_maxLength);
-    form->addRow(QStringLiteral("Maximum lines:"), m_maxLines);
-    form->addRow(QStringLiteral("Unit:"), m_unit);
+    form->addRow(translate("Maximum length:"), m_maxLength);
+    form->addRow(translate("Maximum lines:"), m_maxLines);
+    form->addRow(translate("Unit:"), m_unit);
     form->addRow(m_skipOnLength, m_skipMaxLength);
     form->addRow(m_skipOnLines, m_skipMaxLines);
     extraLayout()->addLayout(form);

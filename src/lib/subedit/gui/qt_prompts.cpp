@@ -2,6 +2,7 @@
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/model/video_file.hpp>
 #include <subedit/core/wording/formats.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/qt_prompts.hpp>
 #include <subedit/gui/save_shape.hpp>
 
@@ -43,8 +44,9 @@ QString subtitleFilters() {
         entries += QStringLiteral(";;") + filterFor(format);
     }
 
-    return QStringLiteral("Subtitles (") + patterns + QLatin1Char(')') + entries +
-           QStringLiteral(";;All files (*)");
+    // TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt *.vtt ».
+    return substitute(translate("Subtitles (%1)"), patterns) + entries + QStringLiteral(";;") +
+           translate("All files (*)");
 }
 
 QString videoFilters() {
@@ -56,7 +58,9 @@ QString videoFilters() {
             QStringLiteral("*") + QString::fromUtf8(extension.data(), qsizetype(extension.size()));
     }
 
-    return QStringLiteral("Videos (") + patterns + QStringLiteral(");;All files (*)");
+    // TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv *.mp4 ».
+    return substitute(translate("Videos (%1)"), patterns) + QStringLiteral(";;") +
+           translate("All files (*)");
 }
 
 core::SubtitleFormat formatOfFilter(const QString& filter) {
@@ -85,10 +89,8 @@ UnsavedChoice choiceOf(int button) {
 }
 
 std::optional<std::filesystem::path> QtPrompts::fileToOpen(const std::filesystem::path& directory) {
-    const QString chosen = QFileDialog::getOpenFileName(m_owner,
-                                                        QStringLiteral("Open"),
-                                                        QString::fromStdString(directory.string()),
-                                                        subtitleFilters());
+    const QString chosen = QFileDialog::getOpenFileName(
+        m_owner, translate("Open"), QString::fromStdString(directory.string()), subtitleFilters());
     if (chosen.isEmpty())
         return std::nullopt;
 
@@ -98,7 +100,7 @@ std::optional<std::filesystem::path> QtPrompts::fileToOpen(const std::filesystem
 std::optional<std::filesystem::path>
 QtPrompts::videoToOpen(const std::filesystem::path& directory) {
     const QString chosen = QFileDialog::getOpenFileName(m_owner,
-                                                        QStringLiteral("Select Video"),
+                                                        translate("Select Video"),
                                                         QString::fromStdString(directory.string()),
                                                         videoFilters());
     if (chosen.isEmpty())
@@ -125,19 +127,19 @@ std::optional<SaveTarget> QtPrompts::saveTarget(const core::SourceFile& current,
 QString sentenceAboutUnsaved(const ModifiedDocument& document) {
     // What was always said, for the document that has always been there; and
     // the translation named as what it is, since a project may hold two.
-    const QString subject = document.document == core::Document::Translation
-                                ? QStringLiteral("The translation")
-                                : QStringLiteral("The document");
-    const QString what = document.missing
-                             ? QStringLiteral("%1 is no longer where it was read from.")
-                             : QStringLiteral("%1 has changes that were never written.");
-    return what.arg(subject);
+    // Four whole sentences rather than a subject put into two: the subject's form may change
+    // with what is said of it.
+    if (document.document == core::Document::Translation)
+        return document.missing ? translate("The translation is no longer where it was read from.")
+                                : translate("The translation has changes that were never written.");
+    return document.missing ? translate("The document is no longer where it was read from.")
+                            : translate("The document has changes that were never written.");
 }
 
 UnsavedChoice QtPrompts::aboutUnsavedChanges(const ModifiedDocument& document) {
     return choiceOf(
         QMessageBox::question(m_owner,
-                              QStringLiteral("Unsaved changes"),
+                              translate("Unsaved changes"),
                               sentenceAboutUnsaved(document),
                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
                               QMessageBox::Save));
@@ -149,15 +151,16 @@ bool QtPrompts::aboutLoss(const std::string& notice) {
     // default is the safe one — a return key pressed without reading keeps the
     // file as it is.
     return QMessageBox::warning(m_owner,
-                                QStringLiteral("Saving will lose something"),
+                                translate("Saving will lose something"),
                                 QString::fromStdString(notice),
                                 QMessageBox::Save | QMessageBox::Cancel,
                                 QMessageBox::Cancel) == QMessageBox::Save;
 }
 
 bool QtPrompts::proposeShiftedReopening(const std::string& message) {
+    // TRANSLATORS: %1 says how the positions of the file were found to be off.
     const QString text =
-        QString::fromStdString(message) + QStringLiteral("\n\nOpen it again, moved?");
+        substitute(translate("%1\n\nOpen it again, moved?"), QString::fromStdString(message));
     const auto answers = QMessageBox::Yes | QMessageBox::No;
     const auto chosen =
         QMessageBox::question(m_owner, QStringLiteral("subedit"), text, answers, QMessageBox::No);

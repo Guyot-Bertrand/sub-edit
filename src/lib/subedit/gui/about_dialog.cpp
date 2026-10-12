@@ -1,5 +1,6 @@
 #include <subedit/core/version.hpp>
 #include <subedit/gui/about_dialog.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -20,8 +21,8 @@ namespace {
     return QStringList{
         QStringLiteral("subedit %1")
             .arg(QString::fromStdString(std::string{core::versionString()})),
-        QStringLiteral("A subtitle editor."),
-        QStringLiteral("Licensed under the GPL, version 3 or later."),
+        translate("A subtitle editor."),
+        translate("Licensed under the GPL, version 3 or later."),
     }
         .join(QStringLiteral("\n\n"));
 }
@@ -29,7 +30,7 @@ namespace {
 } // namespace
 
 AboutDialog::AboutDialog(QWidget* parent) : QDialog(parent), m_text(new QLabel{said(), this}) {
-    setWindowTitle(QStringLiteral("About subedit"));
+    setWindowTitle(translate("About subedit"));
 
     m_text->setTextInteractionFlags(Qt::TextSelectableByMouse);
 

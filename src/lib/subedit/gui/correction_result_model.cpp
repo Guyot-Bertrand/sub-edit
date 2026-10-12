@@ -2,6 +2,7 @@
 #include <subedit/core/text/text_diff.hpp>
 #include <subedit/gui/correction_diff_view.hpp>
 #include <subedit/gui/correction_result_model.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QPainter>
 #include <QTextDocument>
@@ -118,11 +119,11 @@ CorrectionResultModel::headerData(int section, Qt::Orientation orientation, int 
         return {};
     switch (section) {
     case Accept:
-        return QStringLiteral("Accept");
+        return translate("Accept");
     case Original:
-        return QStringLiteral("Original");
+        return translate("Original");
     case Proposed:
-        return QStringLiteral("Corrected Text");
+        return translate("Corrected Text");
     default:
         return {};
     }

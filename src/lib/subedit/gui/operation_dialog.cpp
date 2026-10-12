@@ -1,6 +1,7 @@
 #include <subedit/core/edit/command_preview.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/wording/counts.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/operation_dialog.hpp>
 
 #include <QAbstractScrollArea>
@@ -80,7 +81,7 @@ void OperationDialog::revalidate() {
 }
 
 void OperationDialog::offerPreview(PreviewProvider provider) {
-    auto* button = new QPushButton{QStringLiteral("Preview changes…"), this};
+    auto* button = new QPushButton{translate("Preview changes…"), this};
     button->setObjectName(QStringLiteral("preview-button"));
     connect(button, &QPushButton::clicked, this, [this, provider = std::move(provider)] {
         showPreview(provider());
@@ -94,23 +95,22 @@ void OperationDialog::showPreview(const OperationPreview& preview) {
 
     auto* box = new QDialog{this};
     box->setObjectName(QStringLiteral("preview"));
-    box->setWindowTitle(QStringLiteral("Preview"));
+    box->setWindowTitle(translate("Preview"));
     box->setAttribute(Qt::WA_DeleteOnClose);
     box->setSizeGripEnabled(true);
 
     auto* stack = new QVBoxLayout{box};
-    stack->addWidget(new QLabel{
-        preview.changed == 0
-            ? QStringLiteral("Nothing would change.")
-            : QString::fromStdString(core::countOf(preview.changed, core::Counted::Subtitle)) +
-                  QStringLiteral(" would change."),
-        box});
+    const QString changed = preview.changed == 0
+                                ? translate("Nothing would change.")
+                                : substitute(translatePlural("%1 subtitle would change.",
+                                                             "%1 subtitles would change.",
+                                                             preview.changed),
+                                             QString::number(preview.changed));
+    stack->addWidget(new QLabel{changed, box});
 
     auto* table = new QTableWidget{static_cast<int>(preview.rows.size()), 4, box};
-    table->setHorizontalHeaderLabels(QStringList{QStringLiteral("#"),
-                                                 QStringLiteral("Before"),
-                                                 QStringLiteral("After"),
-                                                 QStringLiteral("Text")});
+    table->setHorizontalHeaderLabels(QStringList{
+        QStringLiteral("#"), translate("Before"), translate("After"), translate("Text")});
     table->verticalHeader()->hide();
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setSelectionMode(QAbstractItemView::NoSelection);
@@ -148,19 +148,22 @@ void OperationDialog::finish() {
         // Some of the rows are selected, not all: two targets are possible, and
         // the user says which. The selection is the default, as it was before
         // the choice existed.
-        const QString selectedText =
-            QStringLiteral("Selected: ") +
-            QString::fromStdString(core::countOf(m_scope.selected, core::Counted::Subtitle));
-        const QString wholeText =
-            QStringLiteral("Whole project: ") +
-            QString::fromStdString(core::countOf(m_scope.whole, core::Counted::Subtitle));
+        // TRANSLATORS: %1 is a count of subtitles, « 3 subtitles ».
+        const QString selectedText = substitute(
+            translate("Selected: %1"),
+            QString::fromStdString(core::countOf(m_scope.selected, core::Counted::Subtitle)));
+        // TRANSLATORS: %1 is a count of subtitles, « 120 subtitles ».
+        const QString wholeText = substitute(
+            translate("Whole project: %1"),
+            QString::fromStdString(core::countOf(m_scope.whole, core::Counted::Subtitle)));
         m_selection = new QRadioButton{selectedText, this};
         m_project = new QRadioButton{wholeText, this};
         m_selection->setChecked(true);
         stack->addWidget(m_selection);
         stack->addWidget(m_project);
     } else {
-        stack->addWidget(new QLabel{QStringLiteral("Applies to: ") + targetLabel(), this});
+        // TRANSLATORS: %1 is a count of subtitles, « 120 subtitles ».
+        stack->addWidget(new QLabel{substitute(translate("Applies to: %1"), targetLabel()), this});
     }
 
     stack->addWidget(m_buttons);

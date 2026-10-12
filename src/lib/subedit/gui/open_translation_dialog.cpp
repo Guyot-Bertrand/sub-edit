@@ -1,4 +1,5 @@
 #include <subedit/core/edit/translation.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/open_translation_dialog.hpp>
 
 #include <QDialogButtonBox>
@@ -10,17 +11,18 @@ namespace subedit::gui {
 
 OpenTranslationDialog::OpenTranslationDialog(const QString& fileName, QWidget* parent)
     : QDialog(parent) {
-    setWindowTitle(QStringLiteral("Open Translation"));
+    setWindowTitle(translate("Open Translation"));
 
     // **Built here, from named strings, one statement to a line.** Gcov
     // attributes to a widget built from a temporary and spread over several
     // lines the exit its exception would take, and counts that line as never
     // run — for a line that runs on every call.
+    // TRANSLATORS: %1 is the name of the file of the translation.
     const QString question =
-        QStringLiteral("How should the lines of %1 be matched to the subtitles?").arg(fileName);
+        substitute(translate("How should the lines of %1 be matched to the subtitles?"), fileName);
     const QString byPosition =
-        QStringLiteral("By position — each line goes to the subtitle it falls in");
-    const QString byNumber = QStringLiteral("By number — the nth line goes to the nth subtitle");
+        translate("By position — each line goes to the subtitle it falls in");
+    const QString byNumber = translate("By number — the nth line goes to the nth subtitle");
 
     m_text = new QLabel{question, this};
     m_text->setWordWrap(true);

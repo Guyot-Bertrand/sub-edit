@@ -1,5 +1,6 @@
 #include <subedit/core/text/correction_run.hpp>
 #include <subedit/gui/correction_progress_page.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QLabel>
 #include <QProgressBar>
@@ -30,13 +31,13 @@ CorrectionProgressPage::CorrectionProgressPage(QWidget* parent)
     : QWizardPage(parent),
       m_watcher(std::make_unique<QFutureWatcher<core::CorrectionProposal>>()),
       m_result(std::make_unique<core::CorrectionProposal>()) {
-    setTitle(QStringLiteral("Progress"));
+    setTitle(translate("Progress"));
 
     auto* bar = new QProgressBar{this};
     bar->setRange(0, 0); // indeterminate: proposeCorrections reports no progress of its own
 
     auto* layout = new QVBoxLayout{this};
-    layout->addWidget(new QLabel{QStringLiteral("Computing the proposed corrections…"), this});
+    layout->addWidget(new QLabel{translate("Computing the proposed corrections…"), this});
     layout->addWidget(bar);
 
     connect(m_watcher.get(), &QFutureWatcher<core::CorrectionProposal>::finished, this, [this] {

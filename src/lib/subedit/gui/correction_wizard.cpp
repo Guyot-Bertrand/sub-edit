@@ -5,6 +5,7 @@
 #include <subedit/gui/correction_task_page.hpp>
 #include <subedit/gui/correction_wizard.hpp>
 #include <subedit/gui/join_split_page.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <algorithm>
 #include <array>
@@ -39,7 +40,7 @@ CorrectionWizard::CorrectionWizard(const core::PatternCatalogue& catalogue,
       m_lineBreak(new LineBreakPage{catalogue}),
       m_progress(new CorrectionProgressPage{}),
       m_confirmation(new CorrectionConfirmationPage{}) {
-    setWindowTitle(QStringLiteral("Correct Texts"));
+    setWindowTitle(translate("Correct Texts"));
     setPage(TargetId, m_target);
     setPage(MentionsId, m_mentions);
     setPage(JoinSplitId, m_joinSplit);

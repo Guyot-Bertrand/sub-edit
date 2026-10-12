@@ -1,4 +1,5 @@
 #include <subedit/gui/hearing_impaired_dialog.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QFormLayout>
 #include <QLabel>
@@ -10,11 +11,11 @@ namespace subedit::gui {
 
 HearingImpairedDialog::HearingImpairedDialog(OperationScope scope, QWidget* parent)
     : OperationDialog(scope, parent) {
-    setWindowTitle(QStringLiteral("Remove hearing-impaired mentions"));
+    setWindowTitle(translate("Remove hearing-impaired mentions"));
 
     fields()->addRow(
-        new QLabel{QStringLiteral("Mentions in square brackets are removed; parentheses are kept.\n"
-                                  "A subtitle left with nothing is taken away."),
+        new QLabel{translate("Mentions in square brackets are removed; parentheses are kept.\n"
+                             "A subtitle left with nothing is taken away."),
                    this});
     finish();
 }

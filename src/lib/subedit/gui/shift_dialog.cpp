@@ -1,5 +1,6 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/shift_dialog.hpp>
 
 #include <QFormLayout>
@@ -13,12 +14,12 @@ namespace subedit::gui {
 
 ShiftDialog::ShiftDialog(OperationScope scope, QWidget* parent)
     : OperationDialog(scope, parent), m_by(new QLineEdit{this}) {
-    setWindowTitle(QStringLiteral("Shift positions"));
+    setWindowTitle(translate("Shift positions"));
 
     m_by->setPlaceholderText(QStringLiteral("00:00:02,500"));
     connect(m_by, &QLineEdit::textChanged, this, [this] { revalidate(); });
 
-    fields()->addRow(QStringLiteral("Shift by"), m_by);
+    fields()->addRow(translate("Shift by"), m_by);
     finish();
 }
 

@@ -4,6 +4,7 @@
 #include <subedit/gui/correction_confirmation_page.hpp>
 #include <subedit/gui/correction_progress_page.hpp>
 #include <subedit/gui/correction_result_model.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QCheckBox>
 #include <QHBoxLayout>
@@ -26,10 +27,13 @@ namespace {
         for (const core::PatternFailure& failure : failures)
             lines << QString::fromStdString(failure.name) + " (" +
                          QString::fromUtf8(core::reasonOf(failure.kind).data()) + ")";
-        paragraphs << QStringLiteral("Not applied: ") + lines.join(QStringLiteral(", "));
+        // TRANSLATORS: %1 lists the patterns left out, each with its reason.
+        paragraphs << substitute(translate("Not applied: %1"), lines.join(QStringLiteral(", ")));
     }
     if (!unreadable.isEmpty())
-        paragraphs << QStringLiteral("Could not be read: ") + unreadable.join(QStringLiteral(", "));
+        // TRANSLATORS: %1 lists the pattern files that could not be read.
+        paragraphs << substitute(translate("Could not be read: %1"),
+                                 unreadable.join(QStringLiteral(", ")));
     return paragraphs.join(QStringLiteral("\n"));
 }
 
@@ -38,13 +42,13 @@ namespace {
 CorrectionConfirmationPage::CorrectionConfirmationPage(QWidget* parent)
     : QWizardPage(parent),
       m_table(new QTableView{this}),
-      m_markAll(new QPushButton{QStringLiteral("Mark All"), this}),
-      m_unmarkAll(new QPushButton{QStringLiteral("Unmark All"), this}),
-      m_preview(new QPushButton{QStringLiteral("Preview"), this}),
-      m_removeBlank(new QCheckBox{QStringLiteral("Remove all blank subtitles"), this}),
+      m_markAll(new QPushButton{translate("Mark All"), this}),
+      m_unmarkAll(new QPushButton{translate("Unmark All"), this}),
+      m_preview(new QPushButton{translate("Preview"), this}),
+      m_removeBlank(new QCheckBox{translate("Remove all blank subtitles"), this}),
       m_abandoned(new QLabel{this}),
       m_delegate(new CorrectionDiffDelegate{m_table}) {
-    setTitle(QStringLiteral("Confirmation"));
+    setTitle(translate("Confirmation"));
     m_removeBlank->setChecked(true);
     m_abandoned->setObjectName(QStringLiteral("abandonedPatterns"));
     m_abandoned->setWordWrap(true);

@@ -1,5 +1,7 @@
 #include <subedit/core/model/document.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/prompts.hpp>
+#include <subedit/gui/target.hpp>
 #include <subedit/gui/unsaved_documents_dialog.hpp>
 
 #include <QCheckBox>
@@ -19,13 +21,11 @@ namespace {
 /// « Translation — film.en.srt », and what is wrong with the file when
 /// something is.
 [[nodiscard]] QString labelOf(const ModifiedDocument& modified) {
-    const QString kind = modified.document == core::Document::Translation
-                             ? QStringLiteral("Translation")
-                             : QStringLiteral("Main");
-    QString label = QStringLiteral("%1 — %2").arg(kind, QString::fromStdString(modified.name));
-    if (modified.missing)
-        label += QStringLiteral(" (file is gone from the disk)");
-    return label;
+    const QString label = QStringLiteral("%1 — %2").arg(documentName(modified.document),
+                                                        QString::fromStdString(modified.name));
+    // TRANSLATORS: %1 is « Main — film.srt », a document and its file.
+    return modified.missing ? substitute(translate("%1 (file is gone from the disk)"), label)
+                            : label;
 }
 
 } // namespace
@@ -33,16 +33,15 @@ namespace {
 UnsavedDocumentsDialog::UnsavedDocumentsDialog(std::span<const ModifiedDocument> documents,
                                                QWidget* parent)
     : QDialog(parent),
-      m_save(new QPushButton{QStringLiteral("&Save"), this}),
-      m_discard(new QPushButton{QStringLiteral("Close &Without Saving"), this}),
-      m_cancel(new QPushButton{QStringLiteral("Cancel"), this}) {
-    setWindowTitle(QStringLiteral("Unsaved changes"));
+      m_save(new QPushButton{translate("&Save"), this}),
+      m_discard(new QPushButton{translate("Close &Without Saving"), this}),
+      m_cancel(new QPushButton{translate("Cancel"), this}) {
+    setWindowTitle(translate("Unsaved changes"));
 
     auto* layout = new QVBoxLayout{this};
-    layout->addWidget(
-        new QLabel{QStringLiteral("These documents have changes that were never written.\n"
-                                  "Tick the ones to save."),
-                   this});
+    layout->addWidget(new QLabel{translate("These documents have changes that were never written.\n"
+                                           "Tick the ones to save."),
+                                 this});
 
     for (const ModifiedDocument& modified : documents) {
         auto* box = new QCheckBox{labelOf(modified), this};

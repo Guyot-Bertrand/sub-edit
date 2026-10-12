@@ -19,6 +19,7 @@
 #include <subedit/core/edit/split_project.hpp>
 #include <subedit/core/edit/transform_command.hpp>
 #include <subedit/core/format/diagnostic.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/associated_video.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
@@ -301,7 +302,8 @@ void ProjectOperations::transform(ProjectPage& page) {
     const core::Selection target = chosenIn(page, dialog);
     std::optional<core::TransformCommand> command = transformOf(project, target, *first, *second);
     if (!command.has_value()) {
-        m_prompts->reportFailure("the two references define no correction");
+        m_prompts->reportFailure(
+            std::string{core::translate("the two references define no correction")});
         return;
     }
 

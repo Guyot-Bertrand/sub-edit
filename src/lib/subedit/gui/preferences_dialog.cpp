@@ -1,5 +1,6 @@
 #include <subedit/core/config/theme.hpp>
 #include <subedit/core/wording/settings.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 
 #include <QCheckBox>
@@ -31,7 +32,7 @@ constexpr std::array<core::LengthUnit, 2> kUnits = {core::LengthUnit::Ems,
                                                     core::LengthUnit::Characters};
 
 [[nodiscard]] QString labelOf(core::LengthUnit unit) {
-    return unit == core::LengthUnit::Ems ? QStringLiteral("Ems") : QStringLiteral("Characters");
+    return unit == core::LengthUnit::Ems ? translate("Ems") : translate("Characters");
 }
 
 /// A second, in milliseconds, and the step of the lead-in's field in seconds.
@@ -47,13 +48,13 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
     : QDialog(parent),
       m_theme(new QComboBox{this}),
       m_lengthUnit(new QComboBox{this}),
-      m_showInCells(new QCheckBox{QStringLiteral("Show line lengths in cells"), this}),
-      m_showInEditor(new QCheckBox{QStringLiteral("Show line lengths in the editor"), this}),
+      m_showInCells(new QCheckBox{translate("Show line lengths in cells"), this}),
+      m_showInEditor(new QCheckBox{translate("Show line lengths in the editor"), this}),
       m_seekLength(new QSpinBox{this}),
       m_contextLength(new QDoubleSpinBox{this}),
       m_stepFrames(new QSpinBox{this}),
-      m_hardwareDecoding(new QCheckBox{QStringLiteral("Decode on the graphics card"), this}) {
-    setWindowTitle(QStringLiteral("Preferences"));
+      m_hardwareDecoding(new QCheckBox{translate("Decode on the graphics card"), this}) {
+    setWindowTitle(translate("Preferences"));
 
     for (const core::Theme one : kThemes)
         m_theme->addItem(QString::fromUtf8(core::nameOf(one)));
@@ -73,7 +74,8 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
     // selection — Gaupol's Preferences ▸ Video. Whole seconds for the jump, and tenths for the
     // lead-in: one second is a lead-in, and so is a half.
     m_seekLength->setRange(core::kSmallestSeekLengthSeconds, core::kLargestSeekLengthSeconds);
-    m_seekLength->setSuffix(QStringLiteral(" s"));
+    // TRANSLATORS: the unit after a number of seconds, with its space: « 1.5 s ».
+    m_seekLength->setSuffix(translate(" s"));
     m_seekLength->setValue(video.seekLengthSeconds);
     m_contextLength->setRange(0.0,
                               core::kLargestContextLengthMilliseconds / kMillisecondsPerSecond);
@@ -83,22 +85,23 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
     m_contextLength->setLocale(QLocale::c());
     m_contextLength->setDecimals(1);
     m_contextLength->setSingleStep(kContextStepSeconds);
-    m_contextLength->setSuffix(QStringLiteral(" s"));
+    m_contextLength->setSuffix(translate(" s"));
     m_contextLength->setValue(video.contextLengthMilliseconds / kMillisecondsPerSecond);
     // Frames and never milliseconds: a step of N is N pictures, whatever the rate of the film.
     m_stepFrames->setRange(core::kSmallestStepFrames, core::kLargestStepFrames);
-    m_stepFrames->setSuffix(QStringLiteral(" frames"));
+    // TRANSLATORS: the unit after a number of frames, with its space: « 2 frames ».
+    m_stepFrames->setSuffix(translate(" frames"));
     m_stepFrames->setValue(video.stepFrames);
     m_hardwareDecoding->setChecked(video.hardwareDecoding);
 
     auto* fields = new QFormLayout;
-    fields->addRow(QStringLiteral("Theme"), m_theme);
-    fields->addRow(QStringLiteral("Length unit"), m_lengthUnit);
+    fields->addRow(translate("Theme"), m_theme);
+    fields->addRow(translate("Length unit"), m_lengthUnit);
     fields->addRow(m_showInCells);
     fields->addRow(m_showInEditor);
-    fields->addRow(QStringLiteral("Seek length"), m_seekLength);
-    fields->addRow(QStringLiteral("Context length"), m_contextLength);
-    fields->addRow(QStringLiteral("Frame step"), m_stepFrames);
+    fields->addRow(translate("Seek length"), m_seekLength);
+    fields->addRow(translate("Context length"), m_contextLength);
+    fields->addRow(translate("Frame step"), m_stepFrames);
     fields->addRow(m_hardwareDecoding);
 
     // What "system" does, said where it is read: without this line, a reader
