@@ -157,6 +157,16 @@ TEST_CASE(
         Reporter{errors, 1},
         Pairing{.translation = "film.fr.srt", .method = TranslationMethod::Number}));
     CHECK_THAT(out.str(), ContainsSubstring("matched by number"));
+
+    std::ostringstream byPosition;
+    CHECK(subedit::cli::inspectFile(
+        files,
+        "film.srt",
+        {},
+        byPosition,
+        Reporter{errors, 1},
+        Pairing{.translation = "film.fr.srt", .method = TranslationMethod::Position}));
+    CHECK_THAT(byPosition.str(), ContainsSubstring("matched by position"));
     CHECK_THAT(out.str(), ContainsSubstring("translation: 2 lines attached"));
 
     std::ostringstream failures;

@@ -1,6 +1,7 @@
 #include <subedit/cli/inspection.hpp>
 #include <subedit/cli/reporter.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
+#include <subedit/core/model/encoding.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -411,4 +412,16 @@ TEST_CASE("a file counted in time still reports the grid it falls on", "[cli][in
 
     CHECK_THAT(out.str(), ContainsSubstring("frame rate grid:"));
     CHECK_FALSE(out.str().contains("  frame rate: "));
+}
+
+TEST_CASE("an encoding asked for is reported as asked for", "[cli][inspection]") {
+    const InMemoryFileSystem files = withFile("a.srt", kTwoSubtitles);
+    std::ostringstream out;
+    std::ostringstream errors;
+    const subedit::core::ReadingChoices asked{
+        .encoding = subedit::core::Encoding::utf8(subedit::core::ByteOrderMark::Absent)};
+
+    CHECK(inspectFile(files, "a.srt", asked, out, Reporter{errors, 0}));
+
+    CHECK_THAT(out.str(), ContainsSubstring("  encoding: UTF-8, as asked for\n"));
 }

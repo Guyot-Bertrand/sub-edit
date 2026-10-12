@@ -45,8 +45,6 @@ namespace subedit::core {
 enum class Counted {
     Subtitle,
     File,
-    Position,
-    Diagnostic,
     Run,
 };
 

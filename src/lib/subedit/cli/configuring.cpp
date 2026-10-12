@@ -140,12 +140,18 @@ showSettings(core::FileSystem& files, const std::filesystem::path& path, const R
     const core::SettingsRead read = core::readSettings(files, path);
     const bool exists = read.found || read.unreadable.has_value();
 
-    std::string text =
+    std::string text;
+    if (read.unreadable) {
         // TRANSLATORS: %1 is the settings file, %2 why it could not be read.
-        read.unreadable ? core::substitute(core::translate("File: %1 (unreadable: %2)"),
-                                           {path.string(), core::reasonOf(read.unreadable->kind)})
-        : read.found    ? core::substitute(core::translate("File: %1 (found)"), {path.string()})
-                     : core::substitute(core::translate("File: %1 (not found)"), {path.string()});
+        text = core::substitute(core::translate("File: %1 (unreadable: %2)"),
+                                {path.string(), core::reasonOf(read.unreadable->kind)});
+    } else if (read.found) {
+        // TRANSLATORS: %1 is the settings file.
+        text = core::substitute(core::translate("File: %1 (found)"), {path.string()});
+    } else {
+        // TRANSLATORS: %1 is the settings file.
+        text = core::substitute(core::translate("File: %1 (not found)"), {path.string()});
+    }
     text += '\n';
     reporter.record(recordOf(reporter).set("file", path.string()).set("exists", exists));
     reporter.result(text + entriesOf(read.settings, reporter));

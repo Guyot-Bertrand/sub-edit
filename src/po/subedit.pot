@@ -825,10 +825,12 @@ msgstr ""
 msgid "File: %1 (unreadable: %2)"
 msgstr ""
 
+#. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "File: %1 (found)"
 msgstr ""
 
+#. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "File: %1 (not found)"
 msgstr ""
@@ -1944,18 +1946,6 @@ msgstr[1] ""
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 file"
 msgid_plural "%1 files"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/lib/subedit/core/wording/counts.cpp
-msgid "%1 position"
-msgid_plural "%1 positions"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/lib/subedit/core/wording/counts.cpp
-msgid "%1 diagnostic"
-msgid_plural "%1 diagnostics"
 msgstr[0] ""
 msgstr[1] ""
 

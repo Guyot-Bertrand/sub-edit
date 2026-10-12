@@ -8,6 +8,8 @@
 
 #include <filesystem>
 #include <sstream>
+#include <string>
+#include <utility>
 #include <vector>
 
 using Catch::Matchers::ContainsSubstring;
@@ -145,4 +147,27 @@ TEST_CASE("arranging a dry run makes no directory, and a refused plan is refused
     const auto refused = arrange(files, given, {"a/film.srt", "b/film.srt"}, "", reporter);
     REQUIRE_FALSE(refused.has_value());
     CHECK(refused.error() == ExitCode::Usage);
+}
+
+TEST_CASE("every verb of a batch has its own sentence", "[cli][batch]") {
+    for (const auto& [verb, words] :
+         std::vector<std::pair<Verb, std::string>>{{Verb::Adjusted, "adjusted"},
+                                                   {Verb::Aligned, "aligned"},
+                                                   {Verb::Changed, "changed"},
+                                                   {Verb::Cleaned, "cleaned"},
+                                                   {Verb::Converted, "converted"},
+                                                   {Verb::Corrected, "corrected"},
+                                                   {Verb::Inspected, "inspected"},
+                                                   {Verb::Joined, "joined"},
+                                                   {Verb::MadeDisjoint, "made disjoint"},
+                                                   {Verb::Paired, "paired"},
+                                                   {Verb::Recased, "recased"},
+                                                   {Verb::Repaired, "repaired"},
+                                                   {Verb::Replaced, "replaced"},
+                                                   {Verb::Retimed, "retimed"},
+                                                   {Verb::Shifted, "shifted"},
+                                                   {Verb::Sorted, "sorted"},
+                                                   {Verb::Transformed, "transformed"}}) {
+        CHECK(summaryOf(verb, 2, 3) == "2 of 3 files " + words + ", 1 failed");
+    }
 }

@@ -19,12 +19,15 @@ namespace subedit::cli {
 
 namespace {
 
+/// Why a file out of order is refused here, with the option that would have sorted it.
+[[nodiscard]] std::string notInOrderSentence(core::DisjointRefusal refusal) {
+    // TRANSLATORS: %1 is why the subtitles cannot be made disjoint as they are.
+    return core::substitute(core::translate("%1 Use --sort to do that here."),
+                            {core::refusalOfDisjoint(refusal)});
+}
+
 [[nodiscard]] Failure notInOrder(core::DisjointRefusal refusal) {
-    return Failure{"not-in-order", [refusal] {
-                       // TRANSLATORS: %1 is why the subtitles cannot be made disjoint as they are.
-                       return core::substitute(core::translate("%1 Use --sort to do that here."),
-                                               {core::refusalOfDisjoint(refusal)});
-                   }};
+    return Failure{"not-in-order", [refusal] { return notInOrderSentence(refusal); }};
 }
 
 } // namespace

@@ -121,7 +121,7 @@ std::string summaryOf(Verb verb, std::size_t done, std::size_t total) {
         return {};
     }
 
-    const std::string line =
+    std::string line =
         core::substitute(sentenceOf(verb, total), {std::to_string(done), std::to_string(total)});
     if (done == total) {
         return line;

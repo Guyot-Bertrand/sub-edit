@@ -443,8 +443,8 @@ std::vector<std::string> childEnvironment(const Locale& locale) {
     const std::array<const std::optional<std::string>*, 4> values{
         &locale.language, &locale.all, &locale.messages, &locale.lang};
     for (std::size_t at = 0; at < kLanguageVariables.size(); ++at) {
-        if (values[at]->has_value())
-            variables.push_back(std::string{kLanguageVariables[at]} + "=" + **values[at]);
+        if (const std::optional<std::string>& value = *values[at]; value.has_value())
+            variables.push_back(std::string{kLanguageVariables[at]} + "=" + *value);
     }
     return variables;
 }
