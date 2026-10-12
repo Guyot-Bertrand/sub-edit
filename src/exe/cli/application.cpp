@@ -94,6 +94,12 @@ ExitCode run(int argc, char** argv) {
         return refuse(level.error());
     }
 
+    // An empty name names no file: taken as not given, it would fall back on
+    // the user's own file, the one `--config` was given to avoid.
+    if (configOption->count() > 0 && configFile.empty()) {
+        return refuse("--config needs a file name");
+    }
+
     // Before the help and before any subcommand: the list is the whole answer, and
     // it does not depend on `-q` — a result is not narration.
     if (listEncodings) {

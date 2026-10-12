@@ -95,9 +95,8 @@ correctionSettingsOf(const CorrectionOptions& options,
 /// - the removal of the subtitles a correction empties, which
 ///   `keepBlankSubtitles` still forces off;
 /// - the lines of the break, when `maxLines` is empty — and with them the skip
-///   gate's, when `skipLines` is empty. A number outside 1 to 1000, the bounds of
-///   `--max-lines`, which only a file edited by hand holds, is ignored for
-///   Gaupol's 3 (`prepareCorrection` says so).
+///   gate's, when `skipLines` is empty. The file's reader holds them within 1
+///   to 1000, the bounds of `--max-lines`, and refuses the rest for Gaupol's 3.
 ///
 /// Nothing else of `shared` is read: tasks, codes, activations, length, language
 /// and the skip gate stay on the command line.
@@ -143,8 +142,7 @@ prepareCorrection(subedit::core::FileSystem& files,
 
 /// The same, with the settings file's three values for `correct`
 /// (`correctionSettingsOf`). What the file holds and the run ignores is said at
-/// level one: a number of lines outside 1 to 1000, when the line break runs without
-/// `--max-lines`; both classes off, when common-errors runs without `--classes`.
+/// level one: both classes off, when common-errors runs without `--classes`.
 [[nodiscard]] std::expected<CorrectionRun, std::string>
 prepareCorrection(subedit::core::FileSystem& files,
                   const Reporter& reporter,

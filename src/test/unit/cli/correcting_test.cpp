@@ -651,8 +651,9 @@ TEST_CASE("the file never turns a task on, nor sets a code, a length or a langua
                ContainsSubstring("--max-length is required by the task line-break"));
 }
 
-TEST_CASE("a number of lines outside 1 to 1000 in the file is ignored, and said",
-          "[cli][correct][settings]") {
+TEST_CASE("the file's number of lines is taken up to its bound", "[cli][correct][settings]") {
+    // Out of 1 to 1000 the file's reader refuses it (settings_test): only a
+    // bound value reaches the command.
     InMemoryFileSystem files;
     int opened = 0;
     subedit::core::CorrectionSettings file;
@@ -661,20 +662,6 @@ TEST_CASE("a number of lines outside 1 to 1000 in the file is ignored, and said"
     options.code = "Latn";
     options.maxLength = "30";
 
-    for (const int nonsense : {0, -2, 1001}) {
-        file.lineBreakMaxLines = nonsense;
-        std::ostringstream errors;
-        const auto run = subedit::cli::prepareCorrection(
-            files, Reporter{errors, 1}, options, "/shipped", "/user", englishOnly(opened), file);
-        REQUIRE(run.has_value());
-        CHECK(run->settings.lineBreakMaxLines == 3);
-        CHECK(run->settings.lineBreakSkipMaxLines == 3);
-        CHECK_THAT(errors.str(),
-                   ContainsSubstring("settings: correction.line-break.max-lines " +
-                                     std::to_string(nonsense) + " ignored, must be 1 to 1000"));
-    }
-
-    // The bound itself is taken, and nothing is said.
     file.lineBreakMaxLines = 1000;
     std::ostringstream bound;
     const auto most = subedit::cli::prepareCorrection(

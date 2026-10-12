@@ -3,6 +3,7 @@
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/core/command/command.hpp>
+#include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
@@ -304,8 +305,9 @@ tasksOf(const std::string& list) {
     return std::nullopt;
 }
 
-/// More lines than a subtitle can hold on a screen: a typo, not a wish.
-constexpr double kMostLines = 1000.0;
+/// More lines than a subtitle can hold on a screen: a typo, not a wish. The
+/// settings file's reader holds the same bound.
+constexpr double kMostLines = core::kMostLineBreakLines;
 
 /// Reads the dictionary's language and the two tasks that need it into `settings`,
 /// or says why `--language` cannot be honoured. **Required with a task that
@@ -444,18 +446,6 @@ skipBoundOf(const std::string& written, std::string_view option, double fallback
     return std::nullopt;
 }
 
-/// Whether the lines of the break the settings file gives are within what
-/// `--max-lines` accepts: the file is edited by hand, and its reader keeps any integer.
-[[nodiscard]] bool fileMaxLinesValid(const core::CorrectionSettings& shared) {
-    return shared.lineBreakMaxLines >= 1 && shared.lineBreakMaxLines <= kMostLines;
-}
-
-/// The lines of the break the settings file gives, or Gaupol's when they are out
-/// of the bounds `--max-lines` has.
-[[nodiscard]] int fileMaxLines(const core::CorrectionSettings& shared) {
-    return fileMaxLinesValid(shared) ? shared.lineBreakMaxLines : core::kDefaultLineBreakMaxLines;
-}
-
 /// Whether the settings file turns both classes off: a state `--classes` cannot
 /// write, and which would leave common-errors nothing to do.
 [[nodiscard]] bool fileClassesBothOff(const core::CorrectionSettings& shared) {
@@ -545,7 +535,7 @@ correctionSettingsOf(const CorrectionOptions& options,
     const bool breaks = std::ranges::any_of(
         tasks, [](const TaskName* task) { return task->task == core::CorrectionTask::LineBreak; });
     if (std::optional<std::string> refused =
-            lineBreakInto(options, breaks, fileMaxLines(shared), settings)) {
+            lineBreakInto(options, breaks, shared.lineBreakMaxLines, settings)) {
         return std::unexpected{*std::move(refused)};
     }
 
@@ -675,11 +665,8 @@ prepareCorrection(core::FileSystem& files,
         return std::unexpected{settings.error()};
     }
     // A nonsense the file holds is not taken silently: it was put there by hand.
-    if (settings->lineBreak.enabled && options.maxLines.empty() && !fileMaxLinesValid(shared)) {
-        reporter.say(1,
-                     "settings: correction.line-break.max-lines " +
-                         std::to_string(shared.lineBreakMaxLines) + " ignored, must be 1 to 1000");
-    }
+    // (A number of lines out of bounds never gets this far: the file's reader
+    // refuses it, and says so.)
     if (settings->commonErrors.enabled && options.classes.empty() && fileClassesBothOff(shared)) {
         reporter.say(1, "settings: correction.human and correction.ocr are both false, ignored");
     }

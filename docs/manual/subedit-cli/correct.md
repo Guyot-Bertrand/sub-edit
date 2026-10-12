@@ -77,10 +77,12 @@ for where it is, `--config` and `--no-config`.
 
 - **`correction.remove-blank = false` has no option to undo it** on the line: `--no-config`
   gives back the removal.
-- **A value of the file that `--classes` or `--max-lines` could not take is ignored, and said** at
-  level 1: both classes off — `settings: correction.human and correction.ocr are both false,
-  ignored` —, or a number of lines out of 1 to 1000 — `settings: correction.line-break.max-lines
-  N ignored, must be 1 to 1000`. The built-in default is used instead.
+- **Both classes off in the file is ignored, and said** at level 1 — `settings: correction.human
+  and correction.ocr are both false, ignored` —: `--classes` could not write it, and it would
+  leave common-errors nothing to do. Both classes are applied instead.
+- **A number of lines out of 1 to 1000 is not read from the file at all**: the file's reader
+  refuses it — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, at
+  level 1 — and the built-in 3 is used.
 
 The examples on this page are run with `--no-config`, so that they say what the built-in
 defaults do, whatever the settings of the machine that runs them.

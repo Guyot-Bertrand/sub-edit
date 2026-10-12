@@ -121,6 +121,11 @@ and their `Used by:` line says so, with the option of `correct` that takes their
 | `correction.line-break.max-lines` | `correct` and `Correct Texts…` |
 | every other `correction.*` key | `Correct Texts…` only — `correct` takes `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` and `--disable` from its own line |
 
+The numbers of lines, `correction.line-break.max-lines` and `correction.line-break.skip-max-lines`,
+are whole numbers from 1 to 1000 — the bounds of `correct --max-lines` —, and the line lengths,
+`correction.line-break.max-length` and `correction.line-break.skip-max-length`, are numbers above
+0: `set` refuses the rest, and a file edited by hand that holds one keeps the default.
+
 `correct` takes the tasks, the code and the line length from its own line on purpose: nothing is
 ticked beforehand on a command line, and the window measures lines in ems where the command line
 counts characters. `correction.activations`, the list of pattern boxes the window manages, is not
@@ -184,7 +189,9 @@ key already at its default succeeds and changes nothing.
 Both **rewrite the file whole and atomically**: every display preference already in it is kept,
 the operation block comes first and the display block second, each under its banner. **A value
 the file could not read, and an unknown key, are not kept** — the rewrite is the window's, which
-drops them too. The file and its directory are created when missing.
+drops them too. **Each value dropped is said**, on the standard error at the default level, display
+preferences included: `<key>: unreadable value '<value>' replaced by its default`. The file and
+its directory are created when missing.
 
 The confirmation goes to the standard error, at the default level: `KEY = VALUE` for `set`,
 `KEY reset to its default (DEFAULT)` for `unset`.
@@ -205,7 +212,7 @@ duration-adjust.gap-ms reset to its default (0)
 | Code | Meaning |
 | :--- | :------ |
 | `0` | done — including `show` on a missing file and `unset` on a key at its default |
-| `1` | usage error: no sub-command, a missing argument, a refused key or value, `--no-config` with `set` or `unset`, no user's file and no `--config`; nothing is written |
+| `1` | usage error: no sub-command, a missing argument, a refused key or value, `--no-config` with `set` or `unset`, `--config` with an empty name, no user's file and no `--config`; nothing is written |
 | `2` | the file cannot be read or written; nothing is written |
 
 ## Errors
@@ -219,6 +226,7 @@ duration-adjust.gap-ms reset to its default (0)
 | `set` or `unset` with `--no-config` | `--no-config has nothing to write to` |
 | no user's file can be located, and no `--config` | `no settings file could be located; give one with --config FILE` |
 | `--config` with `--no-config` | `--config excludes --no-config` |
+| `--config` with an empty name | `--config needs a file name` |
 | a file that exists and cannot be read, for `set` or `unset` | `<path>: cannot be read; nothing written` |
 | a file that cannot be written | `<path>: cannot be written`, or `<path>: cannot be written: permission denied` |
 

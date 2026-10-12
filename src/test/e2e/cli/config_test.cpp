@@ -333,6 +333,36 @@ TEST_CASE("config set and unset with --no-config are usage errors", "[e2e][confi
     }
 }
 
+TEST_CASE("an empty --config name is a usage error, not the user's file", "[e2e][config]") {
+    for (const std::vector<std::string>& line : std::vector<std::vector<std::string>>{
+             {"--config", "", "config", "set", "duration-adjust.speed", "12"},
+             {"--config", "", "config", "show"}}) {
+        INFO(line[3]);
+        const CliRun run = invoke(line);
+
+        CHECK(run.exitCode == 1);
+        CHECK(run.output.empty());
+        CHECK(run.errors == "--config needs a file name\n");
+    }
+}
+
+TEST_CASE("config set refuses a number of lines out of 1 to 1000", "[e2e][config]") {
+    const Scratch scratch;
+    const std::string file = scratch.of("settings.conf");
+
+    for (const char* value : {"0", "-2", "1001", "100000"}) {
+        INFO(value);
+        const CliRun run =
+            invoke({"--config", file, "config", "set", "correction.line-break.max-lines", value});
+
+        CHECK(run.exitCode == 1);
+        CHECK_THAT(run.errors, ContainsSubstring("correction.line-break.max-lines"));
+    }
+    CHECK_FALSE(std::filesystem::exists(file));
+    CHECK(invoke({"--config", file, "config", "set", "correction.line-break.max-lines", "1000"})
+              .exitCode == 0);
+}
+
 TEST_CASE("config needs one of its subcommands", "[e2e][config]") {
     const CliRun bare = invoke({"config"});
     CHECK(bare.exitCode == 1);

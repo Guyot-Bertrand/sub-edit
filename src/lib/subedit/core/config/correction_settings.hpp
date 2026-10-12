@@ -16,6 +16,11 @@ namespace subedit::core {
 inline constexpr double kDefaultLineBreakMaxLength = 24.0;
 inline constexpr int kDefaultLineBreakMaxLines = 3;
 
+/// The most lines a break may aim at or a skip may allow: more than a subtitle
+/// can hold on a screen is a typo, not a wish. The file's reader and
+/// `correct --max-lines` refuse beyond it.
+inline constexpr int kMostLineBreakLines = 1000;
+
 /// One task's own settings: whether it runs, and which cascade it reads —
 /// `Script[-language[-COUNTRY]]`, `Zyyy` for every script.
 struct TaskSettings {

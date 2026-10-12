@@ -1,3 +1,4 @@
+#include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
@@ -329,6 +330,14 @@ constexpr char kActivationFieldSeparator = ':';
     return speed;
 }
 
+/// A line length, which is strictly positive: a line of no width holds nothing.
+[[nodiscard]] std::optional<double> lineLengthOf(std::string_view text) {
+    std::optional<double> length = decimalOf(text);
+    if (length.has_value() && *length <= 0.0)
+        length.reset();
+    return length;
+}
+
 /// A duration in milliseconds, which is not negative.
 ///
 /// Zero is a duration: a minimum or a gap of zero is asked for, not absent.
@@ -350,6 +359,12 @@ boundedIntegerOf(std::string_view text, int smallest, int largest) {
     if (number.has_value() && (*number < smallest || *number > largest))
         number.reset();
     return number;
+}
+
+/// A number of lines, from one to `kMostLineBreakLines`: what `correct
+/// --max-lines` accepts, so that the file cannot hold what the line refuses.
+[[nodiscard]] std::optional<int> lineCountOf(std::string_view text) {
+    return boundedIntegerOf(text, 1, kMostLineBreakLines);
 }
 
 /// A directory, if it is absolute.
@@ -602,19 +617,19 @@ void applyLineBreakLimitOption(SettingsRead& read, std::string_view key, std::st
 
     CorrectionSettings& form = read.settings.correction;
     if (key == kCorrectionLineBreakMaxLengthKey)
-        take(decimalOf(value), form.lineBreakMaxLength);
+        take(lineLengthOf(value), form.lineBreakMaxLength);
     else if (key == kCorrectionLineBreakMaxLinesKey)
-        take(integerOf(value), form.lineBreakMaxLines);
+        take(lineCountOf(value), form.lineBreakMaxLines);
     else if (key == kCorrectionLineBreakInEmsKey)
         take(booleanOf(value), form.lineBreakInEms);
     else if (key == kCorrectionLineBreakSkipOnLengthKey)
         take(booleanOf(value), form.lineBreakSkipOnLength);
     else if (key == kCorrectionLineBreakSkipMaxLengthKey)
-        take(decimalOf(value), form.lineBreakSkipMaxLength);
+        take(lineLengthOf(value), form.lineBreakSkipMaxLength);
     else if (key == kCorrectionLineBreakSkipOnLinesKey)
         take(booleanOf(value), form.lineBreakSkipOnLines);
     else if (key == kCorrectionLineBreakSkipMaxLinesKey)
-        take(integerOf(value), form.lineBreakSkipMaxLines);
+        take(lineCountOf(value), form.lineBreakSkipMaxLines);
 }
 
 /// Keeps one of the four join-and-split options of the correction assistant —

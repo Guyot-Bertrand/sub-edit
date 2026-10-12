@@ -699,6 +699,37 @@ TEST_CASE("a value of the correction assistant that cannot be read leaves its de
     }
 }
 
+TEST_CASE("a line-break limit out of its bounds is refused and leaves its default", "[config]") {
+    for (const char* line : {"correction.line-break.max-lines = 0\n",
+                             "correction.line-break.max-lines = -2\n",
+                             "correction.line-break.max-lines = 1001\n",
+                             "correction.line-break.max-lines = 100000\n",
+                             "correction.line-break.skip-max-lines = 0\n",
+                             "correction.line-break.skip-max-lines = 1001\n",
+                             "correction.line-break.max-length = 0\n",
+                             "correction.line-break.max-length = -3.5\n",
+                             "correction.line-break.max-length = inf\n",
+                             "correction.line-break.skip-max-length = 0\n"}) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.correction == CorrectionSettings{});
+        CHECK(read.diagnostics.size() == 1);
+    }
+}
+
+TEST_CASE("a line-break limit at its bounds is read", "[config]") {
+    const SettingsRead read = readOf("correction.line-break.max-lines = 1000\n"
+                                     "correction.line-break.skip-max-lines = 1\n"
+                                     "correction.line-break.max-length = 0.5\n"
+                                     "correction.line-break.skip-max-length = 42.5\n");
+
+    CHECK(read.diagnostics.empty());
+    CHECK(read.settings.correction.lineBreakMaxLines == 1000);
+    CHECK(read.settings.correction.lineBreakSkipMaxLines == 1);
+    CHECK(read.settings.correction.lineBreakMaxLength == 0.5);
+    CHECK(read.settings.correction.lineBreakSkipMaxLength == 42.5);
+}
+
 TEST_CASE("an activation naming a pattern that no longer exists changes nothing it could find",
           "[config]") {
     // Decision D2: a name a shipped file no longer carries is ignored, like

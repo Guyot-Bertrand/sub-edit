@@ -182,7 +182,9 @@ is read. A byte order mark wins over this option, and the reading says so.
 .BI \-\-config " FILE"
 Read the operation settings from
 .I FILE
-instead of the user's settings file.
+instead of the user's settings file. An empty
+.I FILE
+is refused.
 .TP
 .B \-\-no\-config
 Read no settings file: every operation setting not given on the command line

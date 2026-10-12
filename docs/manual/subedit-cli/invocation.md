@@ -82,7 +82,9 @@ de la sous-commande qu'il écrit, pas celui de l'outil.
 opposées ne sont pas arbitrées au profit de la dernière écrite.
 
 `--config` and `--no-config` in the same invocation are refused too, with
-`--config excludes --no-config`.
+`--config excludes --no-config`, and so is `--config` with an empty name, with
+`--config needs a file name`: an empty name names no file, and the user's own file is not read in
+its place.
 
 ### The settings file
 
@@ -764,6 +766,7 @@ jamais un lot à moitié traité.
 | option ou sous-commande inconnue | le nom fautif, et un renvoi à `--help` |
 | `--quiet` avec `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` with `--no-config` | `--config excludes --no-config` |
+| `--config` with an empty name | `--config needs a file name` |
 | fichier absent | `<chemin>: does not exist` |
 | fichier illisible | `<chemin>: cannot be opened: permission denied` |
 | encodage qui écrit sa propre marque | `"<nom>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
