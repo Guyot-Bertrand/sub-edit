@@ -27,6 +27,7 @@ using subedit::e2e::CliRun;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
+using subedit::e2e::invokeInEveryLanguage;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 using subedit::e2e::writeFile;
@@ -209,12 +210,12 @@ TEST_CASE("a dry run proposes each change as number, text before and text after"
 }
 
 TEST_CASE("the same changes are the json, with the counts of matches",
-          "[e2e][CLI-REPLACE-04][CLI-DRYRUN-05]") {
+          "[e2e][CLI-REPLACE-04][CLI-DRYRUN-05][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string input = writeFile(scratch, "in/r.srt", srt(kTexts));
 
-    const CliRun run =
-        invoke({"--format", "json", "replace", "--dry-run", "Bonjour", "Salut", input});
+    const CliRun run = invokeInEveryLanguage(
+        {"--format", "json", "replace", "--dry-run", "Bonjour", "Salut", input});
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(anonymised(run.output, scratch.path(), "<scratch>"),

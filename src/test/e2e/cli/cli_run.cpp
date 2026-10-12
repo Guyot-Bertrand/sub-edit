@@ -1,5 +1,8 @@
 #include "cli_run.hpp"
 
+#include <catch2/catch_test_macros.hpp>
+
+#include <algorithm>
 #include <array>
 #include <cerrno>
 #include <cstddef>
@@ -204,6 +207,23 @@ constexpr std::string_view kConfigHomeVariable = "XDG_CONFIG_HOME=";
 constexpr std::string_view kDataHomeVariable = "XDG_DATA_HOME=";
 constexpr std::string_view kEnchantHomeVariable = "ENCHANT_CONFIG_DIR=";
 
+/// The four variables a binary chooses its language from (spec 15, D4), in the
+/// order it reads them.
+constexpr std::array<std::string_view, 4> kLanguageVariables{
+    "LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"};
+
+/// What every launched binary is given unless a test asks for a language:
+/// `LANGUAGE=en`, which names the source language first and so means English
+/// whatever the locale — without touching `LC_ALL` or `LANG`, which say more than
+/// the language to the libraries a binary loads.
+constexpr std::string_view kEnglish = "LANGUAGE=en";
+
+/// Whether `variable` (`NAME=value`) defines `name`.
+bool defines(std::string_view variable, std::string_view name) {
+    return variable.size() > name.size() && variable.starts_with(name) &&
+           variable[name.size()] == '=';
+}
+
 /// A directory of this process's own, removed when it ends: the configuration
 /// home, the data home, the Enchant home — one each, named after what it is for.
 class PrivateConfigHome {
@@ -250,10 +270,12 @@ const PrivateConfigHome& privateEnchantHome() {
 }
 
 /// Starts `binary` with `args` and waits for it. The only difference between
-/// the two exported runners is which path lands in argv[0].
+/// the exported runners is which path lands in argv[0], and — for a run in a
+/// language — the environment.
 CliRun run(const char* binary,
            const std::vector<std::string>& args,
-           const std::optional<std::string>& workingDirectory = std::nullopt) {
+           const std::optional<std::string>& workingDirectory = std::nullopt,
+           const std::vector<std::string>& environment = childEnvironment()) {
     Channel out = makeChannel();
     Channel err = makeChannel();
 
@@ -288,7 +310,7 @@ CliRun run(const char* binary,
 
     // The child's environment rather than ours: everything this process has,
     // with the configuration home pointed somewhere it can do no harm.
-    std::vector<std::string> ownedEnvironment = childEnvironment();
+    std::vector<std::string> ownedEnvironment = environment;
 
     std::vector<char*> envp;
     envp.reserve(ownedEnvironment.size() + 1);
@@ -397,7 +419,7 @@ std::vector<std::string> childEnvironment() {
         // as it is, and which of two definitions of the same name wins is the
         // child's business, not ours.
         if (variable.starts_with(kConfigHomeVariable) || variable.starts_with(kDataHomeVariable) ||
-            variable.starts_with(kEnchantHomeVariable))
+            variable.starts_with(kEnchantHomeVariable) || defines(variable, "LANGUAGE"))
             continue;
 
         variables.emplace_back(variable);
@@ -406,6 +428,24 @@ std::vector<std::string> childEnvironment() {
     variables.emplace_back(std::string{kConfigHomeVariable} + configHome());
     variables.emplace_back(std::string{kDataHomeVariable} + dataHome());
     variables.emplace_back(std::string{kEnchantHomeVariable} + enchantHome());
+    variables.emplace_back(kEnglish);
+    return variables;
+}
+
+std::vector<std::string> childEnvironment(const Locale& locale) {
+    std::vector<std::string> variables;
+    for (std::string& variable : childEnvironment()) {
+        if (std::ranges::none_of(kLanguageVariables, [&variable](std::string_view name) {
+                return defines(variable, name);
+            }))
+            variables.push_back(std::move(variable));
+    }
+    const std::array<const std::optional<std::string>*, 4> values{
+        &locale.language, &locale.all, &locale.messages, &locale.lang};
+    for (std::size_t at = 0; at < kLanguageVariables.size(); ++at) {
+        if (values[at]->has_value())
+            variables.push_back(std::string{kLanguageVariables[at]} + "=" + **values[at]);
+    }
     return variables;
 }
 
@@ -565,6 +605,24 @@ std::string writeUnreadable(const Scratch& scratch, const std::string& name) {
 CliRun invoke(const std::vector<std::string>& args,
               const std::optional<std::string>& workingDirectory) {
     return run(SUBEDIT_CLI_BINARY, args, workingDirectory);
+}
+
+CliRun invokeIn(const Locale& locale, const std::vector<std::string>& args) {
+    return run(SUBEDIT_TRANSLATED_CLI_BINARY, args, std::nullopt, childEnvironment(locale));
+}
+
+Locale russian() {
+    return Locale{.all = "ru_RU.UTF-8"};
+}
+
+CliRun invokeInEveryLanguage(const std::vector<std::string>& args,
+                             const std::optional<std::string>& workingDirectory) {
+    const CliRun english = run(SUBEDIT_CLI_BINARY, args, workingDirectory);
+    const CliRun translated =
+        run(SUBEDIT_TRANSLATED_CLI_BINARY, args, workingDirectory, childEnvironment(russian()));
+    CHECK(translated.exitCode == english.exitCode);
+    CHECK(translated.output == english.output);
+    return english;
 }
 
 CliRun invokePatternCatalogue() {

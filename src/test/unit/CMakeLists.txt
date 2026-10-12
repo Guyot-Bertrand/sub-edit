@@ -181,7 +181,7 @@ target_compile_definitions(
 # construction par msgfmt, exactement comme le feront les traductions livrées. Un test du lecteur
 # lit donc ce que l'outil des traducteurs produit, et non un binaire écrit à la main.
 # `SUBEDIT_MSGFMT` vient de `cmake/Translations.cmake`, qui exige l'outil.
-set(subedit_i18n_fixtures fr ru bad-plural wording)
+set(subedit_i18n_fixtures fr ru bad-plural wording cli)
 set(subedit_i18n_catalogues "")
 foreach(language IN LISTS subedit_i18n_fixtures)
     set(po "${CMAKE_SOURCE_DIR}/src/test/data/i18n/${language}.po")
@@ -247,6 +247,7 @@ add_executable(
     cli/sorting_test.cpp
     cli/disjoining_test.cpp
     cli/joining_test.cpp
+    cli/language_test.cpp
     cli/splitting_test.cpp
     cli/text_rewriting_test.cpp
     cli/time_grammar_test.cpp
@@ -260,8 +261,12 @@ target_link_libraries(subedit_cli_test PRIVATE subedit::cli Catch2::Catch2WithMa
 # Les fixtures de grille, et la racine où elles vivent : le rapport d'inspection
 # les lit, comme le noyau, et il n'y a qu'un jeu de fichiers pour les deux.
 target_include_directories(subedit_cli_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_definitions(subedit_cli_test
-                           PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
+target_compile_definitions(
+    subedit_cli_test PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
+                             SUBEDIT_COMPILED_I18N_DIR="${CMAKE_CURRENT_BINARY_DIR}/i18n")
+
+# The fixture catalogue of the command line (#663), compiled with the others above.
+add_dependencies(subedit_cli_test subedit_i18n_fixtures)
 
 subedit_set_warnings(subedit_cli_test)
 

@@ -21,6 +21,7 @@ using subedit::e2e::CliRun;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
+using subedit::e2e::invokeInEveryLanguage;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 using subedit::e2e::writeSrt;
@@ -249,13 +250,15 @@ TEST_CASE("a dry run says on standard error that nothing was written", "[e2e][CL
     CHECK_THAT(narration, MatchesFile(corpus("attendus/dry-run/narration.txt")));
 }
 
-TEST_CASE("a dry run in json says it and has no destination", "[e2e][CLI-JSON-09][CLI-DRYRUN-01]") {
+TEST_CASE("a dry run in json says it and has no destination",
+          "[e2e][CLI-JSON-09][CLI-DRYRUN-01][CLI-I18N-02]") {
     const Scratch scratch;
     const std::string input = writeSrt(scratch, "in/a.srt", 2);
 
     std::string all;
     for (const std::vector<std::string>& writer : kSixWriters) {
-        const CliRun run = invoke(with({"--format", "json"}, with(writer, {"--dry-run", input})));
+        const CliRun run =
+            invokeInEveryLanguage(with({"--format", "json"}, with(writer, {"--dry-run", input})));
         REQUIRE(run.exitCode == 0);
         all += anonymised(run.output, scratch);
     }
@@ -295,10 +298,10 @@ TEST_CASE("a dry run of a subcommand of text prints each change: number, before,
 }
 
 TEST_CASE("the same changes are the json `changes`, after being null for a removal",
-          "[e2e][CLI-DRYRUN-05]") {
+          "[e2e][CLI-DRYRUN-05][CLI-I18N-02]") {
     const Scratch scratch;
 
-    const CliRun run = invoke(
+    const CliRun run = invokeInEveryLanguage(
         {"--format", "json", "hearing-impaired", "--dry-run", corpus("valides/mentions.srt")});
 
     CHECK(run.exitCode == 0);

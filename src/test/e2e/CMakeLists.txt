@@ -14,6 +14,7 @@ add_executable(
     cli/recursive_test.cpp
     cli/replace_test.cpp
     cli/json_test.cpp
+    cli/language_test.cpp
     cli/dry_run_test.cpp
     cli/usage_test.cpp
     cli/inspect_test.cpp
@@ -59,6 +60,42 @@ target_compile_definitions(
 # $<TARGET_FILE:…> donne un chemin, pas un ordre de construction. Sans cette
 # ligne, rien ne garantit que le binaire existe quand le test le lance.
 add_dependencies(subedit_e2e_test subedit-cli subedit-gui subedit_pattern_catalogue)
+
+# **The command line under a second language** (#663, spec 15 D4): a prefix of the
+# tests' own, laid out as an installation is — `bin/subedit-cli`, a copy of the
+# binary, and `share/subedit/locale/ru/LC_MESSAGES/subedit.mo`, compiled from the
+# versioned fixture `src/test/data/i18n/cli.po`. The binary finds its catalogues from
+# where it runs, as it does installed, so nothing in it is there for the tests.
+#
+# **A copy, and not the build tree's own binary**: a fixture catalogue next to it
+# would be a language the build tree offers. The patterns are linked in, as they are
+# for the build tree (`cmake/Installation.cmake`), so the copy reads what the
+# original reads.
+set(subedit_translated_prefix "${CMAKE_CURRENT_BINARY_DIR}/translated")
+set(subedit_translated_cli "${subedit_translated_prefix}/bin/subedit-cli")
+set(subedit_translated_mo "${subedit_translated_prefix}/share/subedit/locale/ru/LC_MESSAGES/subedit.mo")
+file(MAKE_DIRECTORY "${subedit_translated_prefix}/share/subedit")
+file(
+    CREATE_LINK "${CMAKE_SOURCE_DIR}/packaging/patterns"
+    "${subedit_translated_prefix}/share/subedit/patterns"
+    COPY_ON_ERROR SYMBOLIC)
+add_custom_command(
+    OUTPUT "${subedit_translated_cli}"
+    COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:subedit-cli>" "${subedit_translated_cli}"
+    DEPENDS subedit-cli
+    COMMENT "subedit-cli, copied next to the fixture catalogue"
+    VERBATIM)
+add_custom_command(
+    OUTPUT "${subedit_translated_mo}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${subedit_translated_prefix}/share/subedit/locale/ru/LC_MESSAGES"
+    COMMAND "${SUBEDIT_MSGFMT}" --output-file "${subedit_translated_mo}" "${CMAKE_SOURCE_DIR}/src/test/data/i18n/cli.po"
+    DEPENDS "${CMAKE_SOURCE_DIR}/src/test/data/i18n/cli.po"
+    COMMENT "msgfmt cli.po"
+    VERBATIM)
+add_custom_target(subedit_translated_cli DEPENDS "${subedit_translated_cli}" "${subedit_translated_mo}")
+add_dependencies(subedit_e2e_test subedit_translated_cli)
+target_compile_definitions(subedit_e2e_test
+                           PRIVATE SUBEDIT_TRANSLATED_CLI_BINARY="${subedit_translated_cli}")
 
 subedit_set_warnings(subedit_e2e_test)
 

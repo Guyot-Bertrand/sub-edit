@@ -28,6 +28,7 @@ using subedit::e2e::configHome;
 using subedit::e2e::contentOf;
 using subedit::e2e::corpus;
 using subedit::e2e::invoke;
+using subedit::e2e::invokeInEveryLanguage;
 using subedit::e2e::MatchesFile;
 using subedit::e2e::Scratch;
 using subedit::e2e::writeFile;
@@ -118,14 +119,15 @@ std::vector<std::string> command(std::vector<std::string> arguments, const Scrat
 } // namespace
 
 TEST_CASE("each constraint is set, switched off, or switched on, and Gaupol's order holds",
-          "[e2e][CLI-ADJUST-01][CLI-ADJUST-02][CLI-ADJUST-04][CLI-ADJUST-05][CLI-RANGE-01]") {
+          "[e2e][CLI-ADJUST-01][CLI-ADJUST-02][CLI-ADJUST-04][CLI-ADJUST-05][CLI-RANGE-01][CLI-"
+          "I18N-02]") {
     const Scratch scratch;
     writeFile(scratch, "in/d.srt", kInput);
 
     std::string records;
     for (const Case& one : kCases) {
         INFO(one.name);
-        const CliRun run = invoke(command(one.arguments, scratch));
+        const CliRun run = invokeInEveryLanguage(command(one.arguments, scratch));
 
         REQUIRE(run.exitCode == 0);
         CHECK(endsOf(contentOf(scratch.of("out/d.srt"))) == one.ends);
@@ -254,7 +256,7 @@ TEST_CASE("a dry run counts and writes nothing, without a destination",
 }
 
 TEST_CASE("what adjust sacrifices on the fixtures is what was worked out by hand",
-          "[e2e][CLI-ADJUST-06]") {
+          "[e2e][CLI-ADJUST-06][CLI-I18N-02]") {
     // Nine small files, one for each pair of constraints and each overlap — see
     // `data/durees/LISEZMOI.md`. The expected counts were calculated from the
     // definitions, on paper; the script that predicts them
@@ -286,7 +288,7 @@ TEST_CASE("what adjust sacrifices on the fixtures is what was worked out by hand
             line.push_back(corpus("durees/" + name));
         }
 
-        const CliRun run = invoke(line);
+        const CliRun run = invokeInEveryLanguage(line);
 
         INFO(setting.expected);
         CHECK(run.exitCode == 0);
