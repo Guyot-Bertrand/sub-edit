@@ -352,6 +352,39 @@ TEST_CASE("an option beats --config, and --no-config ignores it", "[e2e][adjust]
     CHECK_THAT(ignored.errors, !ContainsSubstring("settings:"));
 }
 
+TEST_CASE("maximum off switches off a maximum --config enables", "[e2e][adjust][settings]") {
+    const Scratch scratch;
+    const std::string input = writeFile(scratch, "in/d.srt", kInput);
+    const std::string config =
+        writeFile(scratch,
+                  "settings.conf",
+                  "duration-adjust.maximum-enabled = true\nduration-adjust.maximum-ms = 4000\n");
+
+    const CliRun kept = invoke({"--format",
+                                "json",
+                                "--config",
+                                config,
+                                "adjust",
+                                "--output-dir",
+                                scratch.of("kept"),
+                                input});
+    REQUIRE(kept.exitCode == 0);
+    CHECK_THAT(kept.output, ContainsSubstring("\"maximum_ms\":4000"));
+
+    const CliRun off = invoke({"--format",
+                               "json",
+                               "--config",
+                               config,
+                               "adjust",
+                               "--maximum",
+                               "off",
+                               "--output-dir",
+                               scratch.of("off"),
+                               input});
+    REQUIRE(off.exitCode == 0);
+    CHECK_THAT(off.output, ContainsSubstring("\"maximum_ms\":null"));
+}
+
 TEST_CASE("giving both --config and --no-config is a usage error", "[e2e][settings]") {
     const Scratch scratch;
     const std::string input = writeFile(scratch, "in/d.srt", kInput);

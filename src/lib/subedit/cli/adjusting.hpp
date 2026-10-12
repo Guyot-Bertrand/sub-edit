@@ -40,8 +40,8 @@ struct AdjustOptions {
 ///
 /// **`off` switches a constraint off, which is not setting it to zero**: an
 /// absent constraint is not tested, and a minimum of zero is a minimum of zero.
-/// The maximum is off by default and has no `off`: not giving it is how it is
-/// switched off.
+/// The maximum is off by default; its `off` matters on top of a file that
+/// enables one.
 ///
 /// Refused here, before any file is read:
 /// - a number that is not a positive reading speed, a duration that is not a
@@ -65,8 +65,8 @@ constraintsOf(const AdjustOptions& options);
 ///   off, with neither `--speed` nor a direction given, leaves the speed off.
 /// - A speed of zero or less in the file — edited by hand — is read as the
 ///   speed being off, as `core::constraintsOf` reads it (ADR 0022).
-/// - `--minimum` and `--gap`: `off`, a value, else the file's when enabled.
-///   `--maximum`: a value, else the file's when enabled.
+/// - `--minimum`, `--maximum` and `--gap`: `off`, a value, else the file's
+///   when enabled.
 /// - The refusals are those of the overload above, unchanged.
 [[nodiscard]] std::expected<subedit::core::DurationConstraints, std::string>
 constraintsOf(const AdjustOptions& options, const subedit::core::DurationAdjustmentSettings& base);

@@ -2,7 +2,7 @@
 
 ```
 subedit-cli adjust [--speed CPS|off] [--shorten] [--no-lengthen]
-                   [--minimum TIME|off] [--maximum TIME] [--gap TIME|off]
+                   [--minimum TIME|off] [--maximum TIME|off] [--gap TIME|off]
                    [--range N-M|N-]
                    (--output FICHIER | --output-dir DOSSIER | --in-place)
                    [--dry-run]
@@ -37,7 +37,7 @@ d'un sous-titre est celui du fichier, **choisi ou non** par `--range`.
 | vitesse | `--speed CPS` | **15** caractères par seconde | `--speed off` |
 | sens de la vitesse | `--shorten`, `--no-lengthen` | elle **allonge** seulement | — |
 | minimum | `--minimum TIME` | **1,5 s** | `--minimum off` |
-| maximum | `--maximum TIME` | **aucun** | ne pas le donner |
+| maximum | `--maximum TIME` | **aucun** | `--maximum off` |
 | écart | `--gap TIME` | **0** | `--gap off` |
 
 Ce sont les réglages de Gaupol et de la première ouverture de la fenêtre. **`off` éteint une
@@ -58,12 +58,13 @@ given on the line always wins**, then the file, then the built-in default. See
 | `duration-adjust.speed` | the reading speed, in characters per second | `--speed CPS` |
 | `duration-adjust.lengthen`, `duration-adjust.shorten` | which way the speed may move an end; both `false` switch the speed off | `--no-lengthen`, `--shorten`, `--speed off`; giving `--speed CPS` switches a speed the file turned off back on, lengthening |
 | `duration-adjust.minimum-enabled`, `duration-adjust.minimum-ms` | the shortest duration, or none | `--minimum TIME`, `--minimum off` |
-| `duration-adjust.maximum-enabled`, `duration-adjust.maximum-ms` | the longest duration, or none | `--maximum TIME` |
+| `duration-adjust.maximum-enabled`, `duration-adjust.maximum-ms` | the longest duration, or none | `--maximum TIME`, `--maximum off` |
 | `duration-adjust.gap-enabled`, `duration-adjust.gap-ms` | the least gap, or none | `--gap TIME`, `--gap off` |
 
 The flags only move the speed's directions **from what the file says**: `--shorten` adds
-shortening, `--no-lengthen` takes lengthening away. A maximum the file switches on has no
-`off` on the line: `--no-config` drops it. With `--format json`, `constraints` says the settings
+shortening, `--no-lengthen` takes lengthening away. `--maximum off` drops a maximum the file
+switches on. Shortening the file switches on has no flag to undo it on the line: `--speed off`
+or `--no-config` drops it. With `--format json`, `constraints` says the settings
 really used, wherever they came from, and `settings` the file that was read:
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine/settings.conf config set duration-adjust.speed 12 2>/dev/null; subedit-cli --config mine/settings.conf --format json adjust --dry-run a.srt -->
@@ -93,7 +94,7 @@ Options:
   --shorten                   Let the reading speed bring an end earlier
   --no-lengthen               Do not let the reading speed move an end later
   --minimum TIME|off          Shortest duration, or off (default 1.5)
-  --maximum TIME              Longest duration (default: none)
+  --maximum TIME|off          Longest duration, or off (default: none)
   --gap TIME|off              Least time left before the next subtitle, or off (default 0)
   --range N-M|N-              Act only on subtitles N to M, or N to the end
   --output TEXT               File to write, for a single input
@@ -112,7 +113,7 @@ Options:
 | `--shorten` | non | un drapeau : la vitesse peut aussi **avancer** une fin | désactivé |
 | `--no-lengthen` | non | un drapeau : la vitesse ne **recule** plus une fin | désactivé |
 | `--minimum` | non | une durée de zéro ou plus, ou `off` | `1.5` |
-| `--maximum` | non | une durée **supérieure à zéro** | aucun |
+| `--maximum` | non | une durée **supérieure à zéro**, or `off` | aucun |
 | `--gap` | non | une durée de zéro ou plus, ou `off` | `0` |
 | `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir ci-dessous | tout le fichier |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |

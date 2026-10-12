@@ -143,15 +143,13 @@ TEST_CASE("an option beats the file, which beats the default", "[cli][adjusting]
     // File over default: nothing on the command line.
     const auto fromFile = constraintsOf(AdjustOptions{}, file);
     REQUIRE(fromFile.has_value());
-    REQUIRE(fromFile->speed.has_value());
-    CHECK(fromFile->speed->charactersPerSecond() == 12.0);
+    CHECK(fromFile->speed == ReadingSpeed::create(12.0, true, false));
     CHECK(fromFile->minimum == Duration::fromMilliseconds(2000));
 
     // Option over file.
     const auto overridden = constraintsOf(AdjustOptions{.speed = "20", .minimum = "off"}, file);
     REQUIRE(overridden.has_value());
-    REQUIRE(overridden->speed.has_value());
-    CHECK(overridden->speed->charactersPerSecond() == 20.0);
+    CHECK(overridden->speed == ReadingSpeed::create(20.0, true, false));
     CHECK_FALSE(overridden->minimum.has_value());
 }
 
@@ -178,6 +176,22 @@ TEST_CASE("the file's directions, maximum and gap are its own until an option sa
     CHECK(overridden->speed == ReadingSpeed::create(15.0, false, true));
     CHECK(overridden->maximum == Duration::fromMilliseconds(5000));
     CHECK_FALSE(overridden->gap.has_value());
+}
+
+TEST_CASE("maximum off switches off a maximum the file enables", "[cli][adjusting][settings]") {
+    DurationAdjustmentSettings file;
+    file.maximumEnabled = true;
+    file.maximumMilliseconds = 4000;
+
+    const auto constraints = constraintsOf(AdjustOptions{.maximum = "off"}, file);
+    REQUIRE(constraints.has_value());
+    CHECK_FALSE(constraints->maximum.has_value());
+    CHECK(constraints->minimum == Duration::fromMilliseconds(1500));
+
+    // Without the file, off is the default it already was.
+    const auto plain = constraintsOf({.maximum = "off"});
+    REQUIRE(plain.has_value());
+    CHECK_FALSE(plain->maximum.has_value());
 }
 
 TEST_CASE("default settings give exactly the old behaviour", "[cli][adjusting][settings]") {

@@ -13,6 +13,7 @@
 #include <memory>
 #include <string_view>
 #include <system_error>
+#include <tuple>
 #include <utility>
 
 namespace subedit::cli {
@@ -70,6 +71,58 @@ parseLimit(std::string_view option, std::string_view text, bool allowZero) {
     return std::optional{*time};
 }
 
+/// The reading speed the options leave: `current` — the file's — unless an
+/// option names one, its two directions being options of their own.
+[[nodiscard]] std::expected<std::optional<core::ReadingSpeed>, std::string>
+speedFrom(const AdjustOptions& options,
+          const core::DurationAdjustmentSettings& base,
+          const std::optional<core::ReadingSpeed>& current) {
+    if (options.speed == kOff) {
+        if (options.shorten || options.noLengthen) {
+            return std::unexpected{
+                "--shorten and --no-lengthen say which way the reading speed may move an end, "
+                "and --speed off switches the reading speed off"};
+        }
+        return std::nullopt;
+    }
+    const bool active = base.lengthen || base.shorten;
+    if (!active && options.speed.empty() && !options.shorten && !options.noLengthen) {
+        return current;
+    }
+    double speed = base.charactersPerSecond;
+    if (!options.speed.empty()) {
+        const std::expected<double, std::string> read = parseSpeed(options.speed);
+        if (!read) {
+            return std::unexpected{read.error()};
+        }
+        speed = *read;
+    }
+    const bool lengthen = (active ? base.lengthen : true) && !options.noLengthen;
+    const bool shorten = (active && base.shorten) || options.shorten;
+    // A speed of zero edited into the file is no speed: switched off, not
+    // refused (ADR 0022).
+    if (speed > 0.0) {
+        return core::ReadingSpeed::create(speed, lengthen, shorten);
+    }
+    return std::nullopt;
+}
+
+/// A duration limit the options leave: `off` switches it off, a time replaces
+/// `current` — the file's —, and an option not given keeps it.
+[[nodiscard]] std::expected<std::optional<core::Duration>, std::string>
+limitFrom(std::string_view option,
+          std::string_view text,
+          bool allowZero,
+          const std::optional<core::Duration>& current) {
+    if (text == kOff) {
+        return std::nullopt;
+    }
+    if (text.empty()) {
+        return current;
+    }
+    return parseLimit(option, text, allowZero);
+}
+
 [[nodiscard]] Json millisecondsOf(const std::optional<core::Duration>& duration) {
     return duration ? Json{duration->milliseconds()} : Json{};
 }
@@ -93,60 +146,21 @@ constraintsOf(const AdjustOptions& options, const core::DurationAdjustmentSettin
     // The file's constraints, which each option given then replaces.
     core::DurationConstraints constraints = core::constraintsOf(base);
 
-    // The reading speed, whose two directions are options of their own.
-    if (options.speed == kOff) {
-        if (options.shorten || options.noLengthen) {
-            return std::unexpected{
-                "--shorten and --no-lengthen say which way the reading speed may move an end, "
-                "and --speed off switches the reading speed off"};
-        }
-        constraints.speed.reset();
-    } else {
-        const bool active = base.lengthen || base.shorten;
-        if (active || !options.speed.empty() || options.shorten || options.noLengthen) {
-            double speed = base.charactersPerSecond;
-            if (!options.speed.empty()) {
-                const std::expected<double, std::string> read = parseSpeed(options.speed);
-                if (!read) {
-                    return std::unexpected{read.error()};
-                }
-                speed = *read;
-            }
-            const bool lengthen = (active ? base.lengthen : true) && !options.noLengthen;
-            const bool shorten = (active && base.shorten) || options.shorten;
-            // A speed of zero edited into the file is no speed: switched off,
-            // not refused (ADR 0022).
-            constraints.speed =
-                speed > 0.0 ? core::ReadingSpeed::create(speed, lengthen, shorten) : std::nullopt;
-        }
+    const auto speed = speedFrom(options, base, constraints.speed);
+    if (!speed) {
+        return std::unexpected{speed.error()};
     }
+    constraints.speed = *speed;
 
-    if (options.minimum == kOff) {
-        constraints.minimum.reset();
-    } else if (!options.minimum.empty()) {
-        const auto read = parseLimit("--minimum", options.minimum, true);
-        if (!read) {
-            return std::unexpected{read.error()};
+    for (const auto& [option, text, allowZero, target] :
+         {std::tuple{"--minimum", &options.minimum, true, &constraints.minimum},
+          std::tuple{"--maximum", &options.maximum, false, &constraints.maximum},
+          std::tuple{"--gap", &options.gap, true, &constraints.gap}}) {
+        const auto limit = limitFrom(option, *text, allowZero, *target);
+        if (!limit) {
+            return std::unexpected{limit.error()};
         }
-        constraints.minimum = *read;
-    }
-
-    if (!options.maximum.empty()) {
-        const auto read = parseLimit("--maximum", options.maximum, false);
-        if (!read) {
-            return std::unexpected{read.error()};
-        }
-        constraints.maximum = *read;
-    }
-
-    if (options.gap == kOff) {
-        constraints.gap.reset();
-    } else if (!options.gap.empty()) {
-        const auto read = parseLimit("--gap", options.gap, true);
-        if (!read) {
-            return std::unexpected{read.error()};
-        }
-        constraints.gap = *read;
+        *target = *limit;
     }
 
     if (!constraints.isAny()) {
