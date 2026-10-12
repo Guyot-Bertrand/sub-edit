@@ -242,7 +242,8 @@ bool convertFile(core::FileSystem& files,
                  path + ": " + std::string{nameOf(source.format)} + " -> " +
                      std::string{nameOf(target)} + ", " + nameOf(encoding) + ", " +
                      std::string{nameOf(newline)} + " line endings");
-    const std::string made = path + ": " + core::countOf(converted.subtitles.size(), "subtitle");
+    const std::string made =
+        path + ": " + core::countOf(converted.subtitles.size(), core::Counted::Subtitle);
     reporter.say(1,
                  dryRun
                      ? made + " converted to " + std::string{nameOf(target)} +

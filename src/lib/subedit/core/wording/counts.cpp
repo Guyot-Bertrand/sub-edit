@@ -1,83 +1,120 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/wording/counts.hpp>
 
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace subedit::core {
 
 std::string noticeOfCorrection(std::size_t corrected, std::size_t removed) {
-    return "Edited " + std::to_string(corrected) + " and removed " + std::to_string(removed) +
-           " subtitles";
+    // TRANSLATORS: %1 subtitles were edited and %2 removed. English says
+    // « subtitles » whatever the counts; the form is chosen by %2.
+    return substitute(translatePlural("Edited %1 and removed %2 subtitles",
+                                      "Edited %1 and removed %2 subtitles",
+                                      removed),
+                      {std::to_string(corrected), std::to_string(removed)});
 }
 
 std::string noMentionToRemove() {
-    return "no mention to remove";
+    return std::string{translate("no mention to remove")};
 }
 
 std::string noticeOfMentionsRemoved(std::size_t cleaned, std::size_t removed) {
-    return countOf(cleaned, "subtitle") + " cleaned, " + std::to_string(removed) + " removed";
+    return substitute(translatePlural("%1 subtitle cleaned, %2 removed",
+                                      "%1 subtitles cleaned, %2 removed",
+                                      cleaned),
+                      {std::to_string(cleaned), std::to_string(removed)});
 }
 
 std::string shiftBeforeTheOrigin(std::size_t number) {
-    return "subtitle " + std::to_string(number) +
-           " would start before the origin, which no subtitle file can hold";
+    return substitute(
+        translate("subtitle %1 would start before the origin, which no subtitle file can hold"),
+        {std::to_string(number)});
 }
 
 std::string noDictionaryFor(std::string_view language) {
-    return "no dictionary for " + std::string{language};
+    // TRANSLATORS: %1 is a language code, such as en_GB.
+    return substitute(translate("no dictionary for %1"), {language});
 }
 
-std::string countOf(std::size_t count, std::string_view noun) {
-    std::string text = std::to_string(count) + " " + std::string{noun};
-    if (count != 1) {
-        text += "s";
+std::string countOf(std::size_t count, Counted noun) {
+    const std::string number = std::to_string(count);
+    switch (noun) {
+    case Counted::Subtitle:
+        return substitute(translatePlural("%1 subtitle", "%1 subtitles", count), {number});
+    case Counted::File:
+        return substitute(translatePlural("%1 file", "%1 files", count), {number});
+    case Counted::Position:
+        return substitute(translatePlural("%1 position", "%1 positions", count), {number});
+    case Counted::Diagnostic:
+        return substitute(translatePlural("%1 diagnostic", "%1 diagnostics", count), {number});
+    case Counted::Run:
+        return substitute(translatePlural("%1 run", "%1 runs", count), {number});
     }
-    return text;
+    std::unreachable();
 }
 
 std::string notFound(std::string_view pattern) {
-    return "\"" + std::string{pattern} + "\" not found";
+    // TRANSLATORS: %1 is what the user searched for.
+    return substitute(translate("\"%1\" not found"), {pattern});
 }
 
 std::string nothingToChange() {
-    return "nothing to change";
+    return std::string{translate("nothing to change")};
 }
 
 std::string noticeOfItalics(std::size_t count, bool italic) {
-    return countOf(count, "subtitle") + (italic ? " put in italics" : " taken out of italics");
+    return substitute(
+        italic ? translatePlural("%1 subtitle put in italics", "%1 subtitles put in italics", count)
+               : translatePlural("%1 subtitle taken out of italics",
+                                 "%1 subtitles taken out of italics",
+                                 count),
+        {std::to_string(count)});
 }
 
 std::string noticeOfRecase(std::size_t count) {
-    return countOf(count, "subtitle") + " recased";
+    return substitute(translatePlural("%1 subtitle recased", "%1 subtitles recased", count),
+                      {std::to_string(count)});
 }
 
 std::string noticeOfDialogueDashes(std::size_t count, bool dashed) {
-    return countOf(count, "subtitle") + (dashed ? " dashed" : " undashed");
+    return substitute(dashed
+                          ? translatePlural("%1 subtitle dashed", "%1 subtitles dashed", count)
+                          : translatePlural("%1 subtitle undashed", "%1 subtitles undashed", count),
+                      {std::to_string(count)});
 }
 
 std::string noticeOfReplaceAll(std::size_t count) {
-    // Not `countOf`, which adds an « s »: « match » takes « es ».
-    return "replaced " + std::to_string(count) + (count == 1 ? " match" : " matches");
+    return substitute(translatePlural("replaced %1 match", "replaced %1 matches", count),
+                      {std::to_string(count)});
 }
 
 std::string noticeOfReplaceAll(std::size_t count, std::size_t projects) {
-    return noticeOfReplaceAll(count) + " in " + std::to_string(projects) +
-           (projects == 1 ? " project" : " projects");
+    // TRANSLATORS: %1 is « replaced 4 matches », %2 the number of projects.
+    return substitute(translatePlural("%1 in %2 project", "%1 in %2 projects", projects),
+                      {noticeOfReplaceAll(count), std::to_string(projects)});
 }
 
 std::string noticeOfSplit(std::size_t count) {
-    return "split " + countOf(count, "subtitle") + " into a new project";
+    return substitute(translatePlural("split %1 subtitle into a new project",
+                                      "split %1 subtitles into a new project",
+                                      count),
+                      {std::to_string(count)});
 }
 
 std::string noticeOfSort(std::size_t moved) {
-    return moved == 0 ? std::string{"already in order"} : countOf(moved, "subtitle") + " moved";
+    if (moved == 0)
+        return std::string{translate("already in order")};
+    return substitute(translatePlural("%1 subtitle moved", "%1 subtitles moved", moved),
+                      {std::to_string(moved)});
 }
 
 std::string refusalOfSplit(std::size_t cutAt, std::size_t before) {
-    return "Cannot split at subtitle " + std::to_string(cutAt) + ": subtitle " +
-           std::to_string(before) +
-           " would fall before the start of the video. Cut somewhere else.";
+    return substitute(translate("Cannot split at subtitle %1: subtitle %2 would fall before the "
+                                "start of the video. Cut somewhere else."),
+                      {std::to_string(cutAt), std::to_string(before)});
 }
 
 } // namespace subedit::core

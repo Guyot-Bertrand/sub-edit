@@ -159,7 +159,7 @@ void sayGrid(std::ostream& out, const core::Project& project) {
 
     if (!grid.strays.empty())
         out << "  off the grid: " << grid.strays.size() << " of " << grid.starts << " starts, in "
-            << core::countOf(core::runsOfStrays(grid), "run") << "\n";
+            << core::countOf(core::runsOfStrays(grid), core::Counted::Run) << "\n";
 }
 
 /// What is wrong with the document: **how many of each kind** by default, and
@@ -397,13 +397,15 @@ bool inspectFile(const core::FileSystem& files,
     // Most detailed first, least detailed last: that order is what makes each
     // level contain the one below it line for line.
     reporter.say(3,
-                 path + ": " + core::countOf(opened->diagnostics.size(), "diagnostic") +
+                 path + ": " +
+                     core::countOf(opened->diagnostics.size(), core::Counted::Diagnostic) +
                      " while reading");
     sayDiagnostics(reporter, path, opened->diagnostics);
     reporter.say(2,
                  path + ": " + std::string{nameOf(source.format)} + ", " + nameOf(source.encoding) +
                      ", " + std::string{nameOf(source.newline)} + " line endings");
-    reporter.say(1, path + ": " + core::countOf(project.subtitles().size(), "subtitle"));
+    reporter.say(1,
+                 path + ": " + core::countOf(project.subtitles().size(), core::Counted::Subtitle));
     if (alignment) {
         reporter.say(1, path + ": " + core::noticeOf(*alignment));
     }

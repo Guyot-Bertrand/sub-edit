@@ -69,9 +69,9 @@ TEST_CASE("the level is readable", "[cli][reporter]") {
 }
 
 TEST_CASE("a count agrees with its noun", "[cli][wording]") {
-    CHECK(subedit::core::countOf(0, "subtitle") == "0 subtitles");
-    CHECK(subedit::core::countOf(1, "subtitle") == "1 subtitle");
-    CHECK(subedit::core::countOf(2, "subtitle") == "2 subtitles");
+    CHECK(subedit::core::countOf(0, subedit::core::Counted::Subtitle) == "0 subtitles");
+    CHECK(subedit::core::countOf(1, subedit::core::Counted::Subtitle) == "1 subtitle");
+    CHECK(subedit::core::countOf(2, subedit::core::Counted::Subtitle) == "2 subtitles");
 }
 
 TEST_CASE("a result goes to the text output, as it is", "[cli][reporter][CLI-DRYRUN-04]") {

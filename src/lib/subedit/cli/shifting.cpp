@@ -41,8 +41,8 @@ shiftWhole(core::Session& session, core::Duration by, const std::string& suffix)
 
     session.apply(std::make_unique<core::ShiftCommand>(whole, by));
     const std::size_t count = session.project().count();
-    return OperationResult{.sentence = core::countOf(count, "subtitle") + " shifted by " +
-                                       core::secondsOf(by) + suffix,
+    return OperationResult{.sentence = core::countOf(count, core::Counted::Subtitle) +
+                                       " shifted by " + core::secondsOf(by) + suffix,
                            .counts = {{"subtitles", static_cast<std::int64_t>(count)},
                                       {"shifted_by_ms", by.milliseconds()}}};
 }

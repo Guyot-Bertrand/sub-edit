@@ -162,8 +162,8 @@ ExitCode appendAll(core::FileSystem& files,
         reporter, basePath, bytesRead, std::to_string(*written), dryRun, source, diagnostics);
 
     const std::size_t total = session.project().count();
-    const std::string made = basePath + ": " + core::countOf(total, "subtitle") + " from " +
-                             core::countOf(paths.size(), "file");
+    const std::string made = basePath + ": " + core::countOf(total, core::Counted::Subtitle) +
+                             " from " + core::countOf(paths.size(), core::Counted::File);
     std::vector<Count> counts{{"files", static_cast<std::int64_t>(paths.size())},
                               {"subtitles", static_cast<std::int64_t>(total)},
                               {"appended", static_cast<std::int64_t>(inserted)}};

@@ -27,8 +27,9 @@ ExitCode convertFrameRateAll(core::FileSystem& files,
         session.apply(std::make_unique<core::ConvertFrameRateCommand>(
             session.project(), core::Selection::all(session.project()), input, output));
         const std::size_t total = session.project().count();
-        return OperationResult{.sentence = core::countOf(total, "subtitle") + " retimed from " +
-                                           nameOf(input) + " to " + nameOf(output) + " fps",
+        return OperationResult{.sentence = core::countOf(total, core::Counted::Subtitle) +
+                                           " retimed from " + nameOf(input) + " to " +
+                                           nameOf(output) + " fps",
                                .counts = {{"subtitles", static_cast<std::int64_t>(total)}}};
     };
 

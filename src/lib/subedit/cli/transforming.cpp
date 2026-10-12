@@ -37,7 +37,7 @@ std::optional<std::string> beyondOf(const Reference& reference, std::size_t coun
         return std::nullopt;
     }
     return "subtitle " + std::to_string(reference.number) + " is past the end: the file holds " +
-           core::countOf(count, "subtitle");
+           core::countOf(count, core::Counted::Subtitle);
 }
 
 /// Says which subtitle the transform would take before the origin, if any.
@@ -108,9 +108,9 @@ ExitCode transformAll(core::FileSystem& files,
             return std::unexpected{Failure{"before-the-origin", *refused}};
         }
         const std::size_t total = session.project().count();
-        return OperationResult{.sentence = core::countOf(total, "subtitle") + " transformed onto " +
-                                           wordedOf(transform.first()) + " and " +
-                                           wordedOf(transform.last()),
+        return OperationResult{.sentence = core::countOf(total, core::Counted::Subtitle) +
+                                           " transformed onto " + wordedOf(transform.first()) +
+                                           " and " + wordedOf(transform.last()),
                                .counts = {{"subtitles", static_cast<std::int64_t>(total)}}};
     };
 
