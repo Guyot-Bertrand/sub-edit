@@ -23,3 +23,5 @@ step "repository language: the classifier and the allowlist rules"
 "${REPO_ROOT}/src/scripts/check-comment-language.py" --check-fixtures
 step "translatable strings: the verdict of each marked literal and the ratchet rules"
 "${REPO_ROOT}/src/scripts/check-translatable-strings.py" --check-fixtures
+step "catalogue seeds: accelerators, placeholders, plurals and fuzzy entries, replayed on a fixture"
+"${REPO_ROOT}/src/scripts/seed-catalogues.py" --check-fixtures

@@ -1,0 +1,10 @@
+# German catalogue of the fixture: an older seed, which a new run overwrites.
+# seed-catalogues.py: a seed, neither reviewed nor installed (spec 15, D5).
+msgid ""
+msgstr ""
+"Project-Id-Version: subedit\n"
+"Language: de\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "&Open"
+msgstr "stale"

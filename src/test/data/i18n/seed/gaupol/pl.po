@@ -1,0 +1,53 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-26 17:17+0300\n"
+"PO-Revision-Date: 2016-07-07 00:55+0000\n"
+"Language-Team: Polish (https://app.transifex.com/otsaloma/teams/64879/pl/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: pl\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: gaupol/actions/file.py:10
+msgid "_Open"
+msgstr "_Otwórz"
+
+#: gaupol/agents/edit.py:24
+#, python-brace-format
+msgid "Removed {:d} subtitle"
+msgid_plural "Removed {:d} subtitles"
+msgstr[0] "Usunięto {:d} napis"
+msgstr[1] "Usunięto {:d} napisy"
+msgstr[2] "Usunięto {:d} napisów"
+
+#: gaupol/agents/edit.py:25
+#, python-brace-format
+msgid "Joined {:d} subtitle"
+msgid_plural "Joined {:d} subtitles"
+msgstr[0] "Połączono {:d} napis"
+msgstr[1] "Połączono {:d} napisy"
+
+#: gaupol/agents/edit.py:26
+#, python-brace-format
+msgid "Merged {:d} file"
+msgid_plural "Merged {:d} files"
+msgstr[0] "Połączono jeden plik"
+msgstr[1] "Połączono {:d} pliki"
+msgstr[2] "Połączono {:d} plików"
+
+#: gaupol/agents/edit.py:27
+#, python-brace-format
+msgid "{n:d} line"
+msgid_plural "{n:d} lines"
+msgstr[0] "Jedna linia"
+msgstr[1] "{n:d} linie"
+msgstr[2] "{n:d} linii"
