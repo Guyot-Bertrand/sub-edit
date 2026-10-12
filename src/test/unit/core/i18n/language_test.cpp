@@ -5,11 +5,17 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <map>
 #include <string>
+#include <system_error>
+#include <unistd.h>
 #include <vector>
 
+using subedit::core::cataloguePath;
 using subedit::core::EnvironmentLookup;
+using subedit::core::installedCatalogue;
 using subedit::core::languageCandidates;
 
 namespace {
@@ -27,6 +33,48 @@ Names candidatesFor(const std::map<std::string, std::string, std::less<>>& varia
     };
     return languageCandidates(environment);
 }
+
+/// A locale directory of the test's own, laid out as an installation is, removed
+/// when the test ends.
+class LocaleDirectory {
+public:
+    LocaleDirectory()
+        : m_path{std::filesystem::temp_directory_path() /
+                 ("subedit-locale-test-" + std::to_string(::getpid()))} {
+        std::filesystem::remove_all(m_path);
+        std::filesystem::create_directories(m_path);
+    }
+
+    LocaleDirectory(const LocaleDirectory&) = delete;
+    LocaleDirectory& operator=(const LocaleDirectory&) = delete;
+    LocaleDirectory(LocaleDirectory&&) = delete;
+    LocaleDirectory& operator=(LocaleDirectory&&) = delete;
+
+    ~LocaleDirectory() {
+        std::error_code ignored;
+        std::filesystem::remove_all(m_path, ignored);
+    }
+
+    /// Puts the compiled fixture `fixture` (`ru.mo`) where `language` is looked for.
+    void install(const std::string& language, const std::string& fixture) const {
+        const std::filesystem::path target = cataloguePath(m_path, language);
+        std::filesystem::create_directories(target.parent_path());
+        std::filesystem::copy_file(std::filesystem::path{SUBEDIT_COMPILED_I18N_DIR} / fixture,
+                                   target);
+    }
+
+    /// Puts bytes that are no catalogue where `language` is looked for.
+    void damage(const std::string& language) const {
+        const std::filesystem::path target = cataloguePath(m_path, language);
+        std::filesystem::create_directories(target.parent_path());
+        std::ofstream{target} << "not a catalogue";
+    }
+
+    [[nodiscard]] const std::filesystem::path& path() const { return m_path; }
+
+private:
+    std::filesystem::path m_path;
+};
 
 } // namespace
 
@@ -79,4 +127,41 @@ TEST_CASE("the process's environment is what the lookup reads", "[i18n][language
     CHECK(environment("SUBEDIT_TEST_LANGUAGE_PROBE") == "fr_FR");
     REQUIRE(unsetenv("SUBEDIT_TEST_LANGUAGE_PROBE") == 0);
     CHECK_FALSE(environment("SUBEDIT_TEST_LANGUAGE_PROBE").has_value());
+}
+
+TEST_CASE("a catalogue is looked for where gettext puts it", "[i18n][language]") {
+    CHECK(cataloguePath("/usr/share/subedit/locale", "pt_BR") ==
+          std::filesystem::path{"/usr/share/subedit/locale/pt_BR/LC_MESSAGES/subedit.mo"});
+}
+
+TEST_CASE("the first candidate that is installed is the one read", "[i18n][language]") {
+    const LocaleDirectory locale;
+    locale.install("ru", "ru.mo");
+    locale.install("fr", "fr.mo");
+
+    // `de` is not installed, and is passed over; `ru` comes before `fr`.
+    const auto catalogue = installedCatalogue({"de_DE", "de", "ru", "fr"}, locale.path());
+    REQUIRE(catalogue != nullptr);
+    CHECK(catalogue->findPlural("%1 subtitle", 5) == "%1 субтитров");
+}
+
+TEST_CASE("no installed candidate, or none at all, is English and says nothing",
+          "[i18n][language]") {
+    const LocaleDirectory locale;
+    locale.install("ru", "ru.mo");
+
+    CHECK(installedCatalogue({"de", "xx"}, locale.path()) == nullptr);
+    CHECK(installedCatalogue({}, locale.path()) == nullptr);
+    CHECK(installedCatalogue({"ru"}, locale.path() / "absent") == nullptr);
+}
+
+TEST_CASE("a catalogue that does not read is passed over like a missing one", "[i18n][language]") {
+    const LocaleDirectory locale;
+    locale.damage("fr");
+    locale.install("ru", "ru.mo");
+
+    CHECK(installedCatalogue({"fr"}, locale.path()) == nullptr);
+    const auto catalogue = installedCatalogue({"fr", "ru"}, locale.path());
+    REQUIRE(catalogue != nullptr);
+    CHECK(catalogue->findPlural("%1 subtitle", 1) == "%1 субтитр");
 }

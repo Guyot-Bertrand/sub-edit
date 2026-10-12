@@ -49,3 +49,16 @@ TEST_CASE("the user's patterns directory follows the variables the process has",
     CHECK(subedit::platform::resolvedUserPatternsPath() ==
           subedit::core::userPatternsPath(xdg, home));
 }
+
+TEST_CASE("the installed catalogues are under the shared data, seen from the executable",
+          "[platform][i18n]") {
+    const std::filesystem::path installed = subedit::platform::installedLocalePath();
+
+    // `<bin>/../share/subedit/locale` — where `cmake/Translations.cmake` installs them.
+    CHECK(installed ==
+          (subedit::platform::executableDirectory() / ".." / "share" / "subedit" / "locale")
+              .lexically_normal());
+    CHECK(installed.filename() == "locale");
+    CHECK(installed.parent_path().filename() == "subedit");
+    CHECK(installed.parent_path().parent_path().filename() == "share");
+}

@@ -106,3 +106,34 @@ TEST_CASE("a placeholder with nothing to fill it stays as written", "[i18n][mess
 TEST_CASE("an argument that looks like a placeholder is not expanded", "[i18n][messages]") {
     CHECK(substitute("%1 %2", {"%2", "b"}) == "%2 b");
 }
+
+TEST_CASE("under SourceLanguage the installed catalogue is not consulted, and it is again after",
+          "[i18n][messages]") {
+    const EnglishAfterwards guard;
+    installCatalogue(load("ru.mo"));
+    const std::string_view before = translatePlural("%1 subtitle", "%1 subtitles", 5);
+    {
+        const SourceLanguage english;
+        CHECK(translate("Save") == "Save");
+        CHECK(translateIn("verb", "Open") == "Open");
+        CHECK(translatePlural("%1 subtitle", "%1 subtitles", 5) == "%1 subtitles");
+        {
+            // Scopes nest: the inner one closing leaves English in force.
+            const SourceLanguage again;
+        }
+        CHECK(translatePlural("%1 subtitle", "%1 subtitles", 1) == "%1 subtitle");
+    }
+    CHECK(translatePlural("%1 subtitle", "%1 subtitles", 5) == before);
+    CHECK(before != "%1 subtitles");
+}
+
+TEST_CASE("inSourceLanguage builds the English of a sentence, the catalogue left installed",
+          "[i18n][messages]") {
+    const EnglishAfterwards guard;
+    installCatalogue(load("fr.mo"));
+    const auto words = [] { return substitute(translate("Save"), {}); };
+
+    CHECK(words() == "Enregistrer");
+    CHECK(inSourceLanguage(words) == "Save");
+    CHECK(words() == "Enregistrer");
+}

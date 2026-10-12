@@ -12,7 +12,23 @@ std::shared_ptr<const Catalogue>& installed() {
     return catalogue;
 }
 
+/// How many `SourceLanguage` scopes are open on this thread.
+thread_local int sourceLanguageDepth = 0;
+
+/// The catalogue to consult: none inside a `SourceLanguage` scope.
+const Catalogue* consulted() {
+    return sourceLanguageDepth > 0 ? nullptr : installed().get();
+}
+
 } // namespace
+
+SourceLanguage::SourceLanguage() {
+    ++sourceLanguageDepth;
+}
+
+SourceLanguage::~SourceLanguage() {
+    --sourceLanguageDepth;
+}
 
 void installCatalogue(std::shared_ptr<const Catalogue> catalogue) {
     installed() = std::move(catalogue);
@@ -23,7 +39,7 @@ std::string_view translate(std::string_view text) {
 }
 
 std::string_view translateIn(std::string_view context, std::string_view text) {
-    if (const auto& catalogue = installed()) {
+    if (const Catalogue* catalogue = consulted()) {
         if (const auto found = catalogue->find(context, text)) {
             return *found;
         }
@@ -33,7 +49,7 @@ std::string_view translateIn(std::string_view context, std::string_view text) {
 
 std::string_view
 translatePlural(std::string_view singular, std::string_view plural, std::uint64_t n) {
-    if (const auto& catalogue = installed()) {
+    if (const Catalogue* catalogue = consulted()) {
         if (const auto found = catalogue->findPlural(singular, n)) {
             return *found;
         }

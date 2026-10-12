@@ -33,6 +33,11 @@ std::filesystem::path installedPatternsPath() {
     return core::shippedPatternsPath(executableDirectory());
 }
 
+std::filesystem::path installedLocalePath() {
+    // `lexically_normal`, as for the patterns: the `..` leaves the path.
+    return (executableDirectory() / ".." / "share" / "subedit" / "locale").lexically_normal();
+}
+
 std::filesystem::path resolvedUserPatternsPath() {
     return core::userPatternsPath(variable("XDG_DATA_HOME"), variable("HOME"));
 }

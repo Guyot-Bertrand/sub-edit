@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <utility>
 
 namespace subedit::core {
 
@@ -71,6 +72,22 @@ std::vector<std::string> languageCandidates(const EnvironmentLookup& environment
         }
     }
     return candidates;
+}
+
+std::filesystem::path cataloguePath(const std::filesystem::path& localeDirectory,
+                                    std::string_view language) {
+    return localeDirectory / std::string{language} / "LC_MESSAGES" / "subedit.mo";
+}
+
+std::shared_ptr<const Catalogue> installedCatalogue(const std::vector<std::string>& candidates,
+                                                    const std::filesystem::path& localeDirectory) {
+    for (const std::string& language : candidates) {
+        auto catalogue = Catalogue::fromFile(cataloguePath(localeDirectory, language));
+        if (catalogue) {
+            return std::make_shared<const Catalogue>(*std::move(catalogue));
+        }
+    }
+    return nullptr;
 }
 
 EnvironmentLookup processEnvironment() {
