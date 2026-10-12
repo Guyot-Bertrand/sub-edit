@@ -1,0 +1,109 @@
+# Russian fixture of the tests of core/wording under a second language (#662): one sentence or
+# more of each family, three plural forms, and translations that reorder their arguments.
+msgid ""
+msgstr ""
+"Project-Id-Version: fixture\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+# analysis
+msgid "ends before it starts"
+msgstr "заканчивается раньше, чем начинается"
+
+msgid "subtitle %1 %2"
+msgstr "субтитр %1 %2"
+
+msgid "partial"
+msgstr "частичная"
+
+msgid "Grid: %1 fps (%2)"
+msgstr "Сетка (%2): %1 кадр/с"
+
+# conversion
+msgid "%1 tag dropped"
+msgid_plural "%1 tags dropped"
+msgstr[0] "удалён %1 тег"
+msgstr[1] "удалено %1 тега"
+msgstr[2] "удалено %1 тегов"
+
+msgid "%1 into %2: %3"
+msgstr "%1 в %2: %3"
+
+# correction
+msgid "timed out"
+msgstr "превышено время ожидания"
+
+msgid "malformed line"
+msgstr "неверная строка"
+
+msgid "%1, line %2"
+msgstr "%1, строка %2"
+
+# counts
+msgid "already in order"
+msgstr "уже по порядку"
+
+msgid "%1 subtitle moved"
+msgid_plural "%1 subtitles moved"
+msgstr[0] "перемещён %1 субтитр"
+msgstr[1] "перемещено %1 субтитра"
+msgstr[2] "перемещено %1 субтитров"
+
+msgid "%1 file"
+msgid_plural "%1 files"
+msgstr[0] "%1 файл"
+msgstr[1] "%1 файла"
+msgstr[2] "%1 файлов"
+
+# editing
+msgid "nothing to look for"
+msgstr "нечего искать"
+
+msgid "%1 repeated subtitle joined"
+msgid_plural "%1 repeated subtitles joined"
+msgstr[0] "объединён %1 повторяющийся субтитр"
+msgstr[1] "объединено %1 повторяющихся субтитра"
+msgstr[2] "объединено %1 повторяющихся субтитров"
+
+# formats
+msgid "does not exist"
+msgstr "не существует"
+
+msgid "Encoding: %1"
+msgstr "Кодировка: %1"
+
+msgid "%1, no BOM"
+msgstr "%1, без BOM"
+
+# settings
+msgid "Dark"
+msgstr "Тёмная"
+
+msgid "settings could not be written"
+msgstr "не удалось записать настройки"
+
+# translation
+msgid "translation: %1"
+msgstr "перевод: %1"
+
+msgid "%1 line attached"
+msgid_plural "%1 lines attached"
+msgstr[0] "%1 строка привязана"
+msgstr[1] "%1 строки привязаны"
+msgstr[2] "%1 строк привязано"
+
+msgid "%1 line out of order"
+msgid_plural "%1 lines out of order"
+msgstr[0] "%1 строка не по порядку"
+msgstr[1] "%1 строки не по порядку"
+msgstr[2] "%1 строк не по порядку"
+
+# video
+msgid "No video"
+msgstr "Нет видео"
+
+msgid "Video: %1, %2 fps"
+msgstr "Видео (%2 кадр/с): %1"
