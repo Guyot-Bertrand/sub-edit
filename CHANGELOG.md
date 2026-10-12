@@ -11,12 +11,36 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **i18n** — Translate the counts family of the core wording
+- **i18n** — Translate the other families of the core wording
+
+### Corrections
+
+- **core** — Write the readers' failure details in English
+
+### Documentation
+
+- **doc** — Record what #662 lowered in spec 15
+
+### Remaniements
+
+- **gui** — Build the fix proposal labels before their boxes
+
+### Tests
+
+- **i18n** — Prove each wording family follows the language
+
+## 0.15.15 — 2026-10-12
+
+### Ajouts
+
 - **scripts** — Count user-visible strings that escape translation
 - **scripts** — Hold the untranslated count in the gate
 
 ### Documentation
 
 - **doc** — Describe the untranslated-string ratchet
+- **doc** — Regenerate the changelog
 
 ### Tests
 
