@@ -1,5 +1,6 @@
 #include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <type_traits>
 #include <utility>
@@ -200,11 +201,21 @@ Json dryRunRecord(std::string_view command,
     return resultRecord(command, file, true, Json{}, counts, std::move(warnings), changes, fields);
 }
 
+Failure Failure::about(std::string_view prefix) const {
+    Failure prefixed;
+    prefixed.kind = kind;
+    // TRANSLATORS: %1 is the file, or what a message is about; %2 the message.
+    prefixed.message = core::substitute(core::translate("%1: %2"), {prefix, message});
+    prefixed.english = std::string{prefix} + ": " + english;
+    return prefixed;
+}
+
 void reportFailure(const Reporter& reporter, std::string_view file, const Failure& failure) {
-    const std::string line = std::string{file} + ": " + failure.message;
-    reporter.failed(line);
+    const Failure located = failure.about(file);
+    reporter.failed(located.message);
     if (reporter.recording()) {
-        reporter.record(failureRecord(reporter.command(), file, line, failure.kind));
+        // **English, whatever the language** (D3): the record is read by a script.
+        reporter.record(failureRecord(reporter.command(), file, located.english, failure.kind));
     }
 }
 

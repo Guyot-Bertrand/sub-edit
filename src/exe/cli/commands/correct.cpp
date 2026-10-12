@@ -2,6 +2,7 @@
 
 #include <subedit/cli/correcting.hpp>
 #include <subedit/cli/shared_settings.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/text/enchant_spell_provider.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
@@ -33,65 +34,84 @@ struct CorrectOptions {
 };
 
 CLI::App* describeCorrect(CLI::App& app, std::string_view name, CorrectOptions& options) {
-    CLI::App* correct = app.add_subcommand(
-        std::string{name}, "Correct the texts with the patterns of the correction assistant");
-    correct->add_option("files", options.files, "Subtitle files to correct")->required();
+    CLI::App* correct =
+        app.add_subcommand(std::string{name},
+                           std::string{core::translate(
+                               "Correct the texts with the patterns of the correction assistant")});
+    correct
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to correct")})
+        ->required();
     describeRecursive(correct, options.recursive);
     correct
-        ->add_option("--tasks",
-                     options.correction.tasks,
-                     "The tasks to run, in a list: none is chosen beforehand")
+        ->add_option(
+            "--tasks",
+            options.correction.tasks,
+            std::string{core::translate("The tasks to run, in a list: none is chosen beforehand")})
         ->required()
         ->option_text("LIST");
     correct
-        ->add_option("--code",
-                     options.correction.code,
-                     "The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US")
+        ->add_option(
+            "--code",
+            options.correction.code,
+            std::string{core::translate(
+                "The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US")})
         ->option_text("CODE");
     correct
-        ->add_option("--classes",
-                     options.correction.classes,
-                     "The classes of common errors to apply: both by default")
+        ->add_option(
+            "--classes",
+            options.correction.classes,
+            std::string{core::translate("The classes of common errors to apply: both by default")})
         ->option_text("human|ocr|human,ocr");
     correct
         ->add_option("--enable",
                      options.correction.enable,
-                     "Switch a pattern on, by its English name or type:name; repeatable")
+                     std::string{core::translate(
+                         "Switch a pattern on, by its English name or type:name; repeatable")})
         ->option_text("NAME");
     correct
         ->add_option("--disable",
                      options.correction.disable,
-                     "Switch a pattern off, by its English name or type:name; repeatable")
+                     std::string{core::translate(
+                         "Switch a pattern off, by its English name or type:name; repeatable")})
         ->option_text("NAME");
     correct
         ->add_option("--language",
                      options.correction.language,
-                     "The dictionary join-words and split-words read: fr_FR, en_US, en...")
+                     std::string{core::translate(
+                         "The dictionary join-words and split-words read: fr_FR, en_US, en...")})
         ->option_text("CODE");
     correct
-        ->add_option("--max-length",
-                     options.correction.maxLength,
-                     "Longest line of line-break, in characters; no default, Gaupol's is in ems")
+        ->add_option(
+            "--max-length",
+            options.correction.maxLength,
+            std::string{core::translate(
+                "Longest line of line-break, in characters; no default, Gaupol's is in ems")})
         ->option_text("N");
     correct
-        ->add_option(
-            "--max-lines", options.correction.maxLines, "Most lines of line-break: 3, as Gaupol's")
+        ->add_option("--max-lines",
+                     options.correction.maxLines,
+                     std::string{core::translate("Most lines of line-break: 3, as Gaupol's")})
         ->option_text("N");
     correct
         ->add_option(
             "--skip-length",
             options.correction.skipLength,
-            "Leave alone a subtitle whose longest line is within this, or off: --max-length")
+            std::string{core::translate(
+                "Leave alone a subtitle whose longest line is within this, or off: --max-length")})
         ->option_text("N|off");
     correct
-        ->add_option("--skip-lines",
-                     options.correction.skipLines,
-                     "Leave alone a subtitle whose line count is within this, or off: --max-lines")
+        ->add_option(
+            "--skip-lines",
+            options.correction.skipLines,
+            std::string{core::translate(
+                "Leave alone a subtitle whose line count is within this, or off: --max-lines")})
         ->option_text("N|off");
     correct->add_flag(
         "--keep-blank-subtitles",
         options.correction.keepBlankSubtitles,
-        "Leave the subtitles the correction empties, empty, instead of removing them");
+        std::string{core::translate(
+            "Leave the subtitles the correction empties, empty, instead of removing them")});
     describeRange(correct, options.range);
     describeDocument(correct, options.translation);
 

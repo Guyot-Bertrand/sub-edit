@@ -7,6 +7,7 @@
 #include <subedit/core/edit/letter_case_command.hpp>
 #include <subedit/core/edit/rewrite_texts.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
@@ -47,7 +48,7 @@ struct TextRewrite {
 [[nodiscard]] ExitCode rewriteTexts(core::FileSystem& files,
                                     const std::vector<std::string>& paths,
                                     const std::optional<core::Encoding>& reading,
-                                    std::string_view verb,
+                                    Verb verb,
                                     const TextRewrite& rewrite,
                                     const std::optional<Range>& range,
                                     const Destination& destination,
@@ -114,9 +115,10 @@ core::LetterCase letterCaseNamed(const std::string& name) {
 std::expected<bool, std::string> italicsDirectionOf(bool on, bool off) {
     if (on == off) {
         return std::unexpected{
-            on ? std::string{"--on and --off say opposite things; give one of them"}
-               : std::string{"italics needs --on to put the texts in italics, or "
-                             "--off"}};
+            on ? std::string{core::translate(
+                     "--on and --off say opposite things; give one of them")}
+               : std::string{
+                     core::translate("italics needs --on to put the texts in italics, or --off")}};
     }
     return on;
 }
@@ -124,8 +126,10 @@ std::expected<bool, std::string> italicsDirectionOf(bool on, bool off) {
 std::expected<bool, std::string> dashesDirectionOf(bool add, bool remove) {
     if (add == remove) {
         return std::unexpected{
-            add ? std::string{"--add and --remove say opposite things; give one of them"}
-                : std::string{"dialogue-dashes needs --add to put dashes on, or --remove"}};
+            add ? std::string{core::translate(
+                      "--add and --remove say opposite things; give one of them")}
+                : std::string{core::translate(
+                      "dialogue-dashes needs --add to put dashes on, or --remove")}};
     }
     return add;
 }
@@ -147,7 +151,7 @@ ExitCode recaseIn(core::FileSystem& files,
             },
         .notice = [](std::size_t count) { return core::noticeOfRecase(count); }};
     return rewriteTexts(
-        files, paths, reading, "recased", rewrite, range, destination, reporter, pairing);
+        files, paths, reading, Verb::Recased, rewrite, range, destination, reporter, pairing);
 }
 
 ExitCode italicsIn(core::FileSystem& files,
@@ -174,12 +178,19 @@ ExitCode italicsIn(core::FileSystem& files,
             if (core::abilitiesOf(format).italic) {
                 return std::nullopt;
             }
-            return Failure{"no-style",
-                           std::string{core::nameOf(format)} + " writes no style: there are no " +
-                               "italics to " + (italic ? "put on" : "take out")};
+            return Failure{
+                "no-style", [format, italic] {
+                    return core::substitute(
+                        // TRANSLATORS: %1 is the name of a subtitle format.
+                        italic
+                            ? core::translate("%1 writes no style: there are no italics to put on")
+                            : core::translate(
+                                  "%1 writes no style: there are no italics to take out"),
+                        {core::nameOf(format)});
+                }};
         }};
     return rewriteTexts(
-        files, paths, reading, "changed", rewrite, range, destination, reporter, pairing);
+        files, paths, reading, Verb::Changed, rewrite, range, destination, reporter, pairing);
 }
 
 ExitCode dialogueDashesIn(core::FileSystem& files,
@@ -200,7 +211,7 @@ ExitCode dialogueDashesIn(core::FileSystem& files,
         .notice =
             [dashed](std::size_t count) { return core::noticeOfDialogueDashes(count, dashed); }};
     return rewriteTexts(
-        files, paths, reading, "changed", rewrite, range, destination, reporter, pairing);
+        files, paths, reading, Verb::Changed, rewrite, range, destination, reporter, pairing);
 }
 
 } // namespace subedit::cli

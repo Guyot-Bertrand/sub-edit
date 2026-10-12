@@ -1,6 +1,7 @@
 #include "disjoint.hpp"
 
 #include <subedit/cli/disjoining.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -22,27 +23,38 @@ struct DisjointCommandOptions {
 CLI::App* describeDisjoint(CLI::App& app, std::string_view name, DisjointCommandOptions& options) {
     CLI::App* disjoint = app.add_subcommand(
         std::string{name},
-        "Cut overlapping subtitles so that no range overlaps another, merging what overlaps");
-    disjoint->add_option("files", options.files, "Subtitle files to make disjoint")->required();
+        std::string{core::translate(
+            "Cut overlapping subtitles so that no range overlaps another, merging what overlaps")});
+    disjoint
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to make disjoint")})
+        ->required();
     describeRecursive(disjoint, options.recursive);
     disjoint
         ->add_option("--minimum",
                      options.settings.minimum,
-                     "Shortest interval kept; a shorter one is taken over by a neighbour "
-                     "(default 0.08)")
+                     std::string{core::translate(
+                         "Shortest interval kept; a shorter one is taken over by a neighbour "
+                         "(default 0.08)")})
         ->option_text("TIME");
     disjoint
-        ->add_option("--max-lines",
-                     options.settings.maxLines,
-                     "Most lines of a merged subtitle; more are shown in windows, 0 for no limit "
-                     "(default 2)")
+        ->add_option(
+            "--max-lines",
+            options.settings.maxLines,
+            std::string{core::translate(
+                "Most lines of a merged subtitle; more are shown in windows, 0 for no limit "
+                "(default 2)")})
         ->option_text("N");
     disjoint->add_flag(
-        "--dashes", options.settings.dashes, "Put a dash before the text of each merged subtitle");
-    disjoint->add_flag("--sort",
-                       options.settings.sort,
-                       "Put the subtitles in order of their start first; without it, a file out of "
-                       "order is refused");
+        "--dashes",
+        options.settings.dashes,
+        std::string{core::translate("Put a dash before the text of each merged subtitle")});
+    disjoint->add_flag(
+        "--sort",
+        options.settings.sort,
+        std::string{core::translate(
+            "Put the subtitles in order of their start first; without it, a file out of "
+            "order is refused")});
 
     describeDestination(disjoint, options.destination);
     return disjoint;

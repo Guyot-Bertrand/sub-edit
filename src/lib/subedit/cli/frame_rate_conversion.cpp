@@ -2,6 +2,7 @@
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/core/edit/convert_frame_rate_command.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/wording/analysis.hpp>
@@ -27,13 +28,17 @@ ExitCode convertFrameRateAll(core::FileSystem& files,
         session.apply(std::make_unique<core::ConvertFrameRateCommand>(
             session.project(), core::Selection::all(session.project()), input, output));
         const std::size_t total = session.project().count();
-        return OperationResult{.sentence = core::countOf(total, core::Counted::Subtitle) +
-                                           " retimed from " + nameOf(input) + " to " +
-                                           nameOf(output) + " fps",
+        return OperationResult{.sentence = core::substitute(
+                                   // TRANSLATORS: %1 subtitles were retimed from the frame rate %2
+                                   // to the frame rate %3.
+                                   core::translatePlural("%1 subtitle retimed from %2 to %3 fps",
+                                                         "%1 subtitles retimed from %2 to %3 fps",
+                                                         total),
+                                   {std::to_string(total), nameOf(input), nameOf(output)}),
                                .counts = {{"subtitles", static_cast<std::int64_t>(total)}}};
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "retimed", retime);
+    return rewriteAll(files, paths, reading, destination, reporter, Verb::Retimed, retime);
 }
 
 } // namespace subedit::cli

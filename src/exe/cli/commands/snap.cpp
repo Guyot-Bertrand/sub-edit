@@ -2,6 +2,7 @@
 
 #include <subedit/cli/aligning.hpp>
 #include <subedit/cli/frame_rate_grammar.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <string>
@@ -22,10 +23,16 @@ struct SnapOptions {
 CLI::App* describeSnap(CLI::App& app, std::string_view name, SnapOptions& options) {
     CLI::App* snap = app.add_subcommand(
         std::string{name},
-        "Move every position onto the nearest frame of a frame rate (see framerate)");
-    snap->add_option("files", options.files, "Subtitle files to align")->required();
+        std::string{core::translate(
+            "Move every position onto the nearest frame of a frame rate (see framerate)")});
+    snap->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to align")})
+        ->required();
     describeRecursive(snap, options.recursive);
-    snap->add_option("--rate", options.rate, "Frame rate to align on: 25, 23.976")->required();
+    snap->add_option("--rate",
+                     options.rate,
+                     std::string{core::translate("Frame rate to align on: 25, 23.976")})
+        ->required();
 
     describeDestination(snap, options.destination);
     return snap;

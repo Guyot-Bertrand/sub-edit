@@ -1,6 +1,7 @@
 #include "pair.hpp"
 
 #include <subedit/cli/translation_writing.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -24,8 +25,10 @@ struct PairOptions {
 CLI::App* describePair(CLI::App& app, std::string_view name, PairOptions& options) {
     CLI::App* pair = app.add_subcommand(
         std::string{name},
-        "Write a translation at the positions of its main file, and say how it lined up");
-    pair->add_option("main", options.main, "The main subtitle file")->required();
+        std::string{core::translate(
+            "Write a translation at the positions of its main file, and say how it lined up")});
+    pair->add_option("main", options.main, std::string{core::translate("The main subtitle file")})
+        ->required();
     describeTranslation(pair, options.translation);
 
     describeDestination(pair, options.destination);
@@ -37,7 +40,8 @@ ExitCode runPair(const PairOptions& options,
                  const std::optional<core::Encoding>& reading,
                  const Reporter& reporter) {
     if (options.translation.file.empty()) {
-        return refuse("pair needs the translation file to lay over the main one: use -t");
+        return refuse(
+            core::translate("pair needs the translation file to lay over the main one: use -t"));
     }
 
     // -t is given, so there is a pairing; `--document` does not exist here.

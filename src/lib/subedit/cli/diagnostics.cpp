@@ -1,5 +1,6 @@
 #include <subedit/cli/diagnostics.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/wording/analysis.hpp>
 
 #include <cstddef>
@@ -28,14 +29,27 @@ std::string boundedOf(const std::string& detail) {
 std::string reportOf(const core::Diagnostic& diagnostic) {
     // A diagnostic about the whole file has no line to name, and "line 0"
     // would name a place that is not there — see `kWholeFile`.
-    std::string report = diagnostic.line == core::kWholeFile
-                             ? std::string{}
-                             : "line " + std::to_string(diagnostic.line) + ": ";
-    report += std::string{nameOf(diagnostic.kind)};
-    if (!diagnostic.detail.empty()) {
-        report += " (\"" + boundedOf(diagnostic.detail) + "\")";
+    const std::string severity{nameOf(diagnostic.severity)};
+    const std::string_view kind = nameOf(diagnostic.kind);
+    const std::string line = std::to_string(diagnostic.line);
+    if (diagnostic.detail.empty()) {
+        return diagnostic.line == core::kWholeFile
+                   // TRANSLATORS: %1 is what a reading met, such as « ignored line », %2 how
+                   // serious it is.
+                   ? core::substitute(core::translate("%1, %2"), {kind, severity})
+                   // TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 how
+                   // serious it is.
+                   : core::substitute(core::translate("line %1: %2, %3"), {line, kind, severity});
     }
-    return report + ", " + std::string{nameOf(diagnostic.severity)};
+    const std::string detail = boundedOf(diagnostic.detail);
+    return diagnostic.line == core::kWholeFile
+               // TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how serious
+               // it is.
+               ? core::substitute(core::translate("%1 (\"%2\"), %3"), {kind, detail, severity})
+               // TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an excerpt
+               // of the file, %4 how serious it is.
+               : core::substitute(core::translate("line %1: %2 (\"%3\"), %4"),
+                                  {line, kind, detail, severity});
 }
 
 void sayDiagnostics(const Reporter& reporter,

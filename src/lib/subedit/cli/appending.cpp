@@ -13,6 +13,7 @@
 #include <subedit/core/format/degradation.hpp>
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/source_file.hpp>
@@ -162,8 +163,13 @@ ExitCode appendAll(core::FileSystem& files,
         reporter, basePath, bytesRead, std::to_string(*written), dryRun, source, diagnostics);
 
     const std::size_t total = session.project().count();
-    const std::string made = basePath + ": " + core::countOf(total, core::Counted::Subtitle) +
-                             " from " + core::countOf(paths.size(), core::Counted::File);
+    const std::string made =
+        // TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
+        // and %3 a number of files (« 3 files »).
+        core::substitute(core::translate("%1: %2 from %3"),
+                         {basePath,
+                          core::countOf(total, core::Counted::Subtitle),
+                          core::countOf(paths.size(), core::Counted::File)});
     std::vector<Count> counts{{"files", static_cast<std::int64_t>(paths.size())},
                               {"subtitles", static_cast<std::int64_t>(total)},
                               {"appended", static_cast<std::int64_t>(inserted)}};
@@ -179,11 +185,11 @@ ExitCode appendAll(core::FileSystem& files,
     fields.emplace_back("inputs", std::move(inputs));
 
     if (dryRun) {
-        reporter.say(1, made + " (dry run, nothing written)");
+        reporter.say(1, core::substitute(core::translate("%1 (dry run, nothing written)"), {made}));
         reporter.record(dryRunRecord(
             reporter.command(), basePath, counts, warningsOf(diagnostics), std::nullopt, fields));
     } else {
-        reporter.say(1, made + " -> " + out.string());
+        reporter.say(1, core::substitute(core::translate("%1 -> %2"), {made, out.string()}));
         reporter.record(writtenRecord(reporter.command(),
                                       basePath,
                                       out,

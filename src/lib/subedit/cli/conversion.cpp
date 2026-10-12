@@ -14,6 +14,7 @@
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/format/read_error.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/file_extras.hpp>
@@ -57,14 +58,19 @@ frameRateForFrames(const core::Project& project,
 
     const core::FrameRateDeduction deduced = core::deduceFrameRate(project);
     if (deduced.verdict == core::GridVerdict::Silent) {
-        return std::unexpected(Failure{"no-frame-rate",
-                                       "writing frames needs a frame rate, and the positions "
-                                       "fall on no grid to take one from — give --frame-rate"});
+        return std::unexpected(
+            Failure{"no-frame-rate", [] {
+                        return core::translate(
+                            "writing frames needs a frame rate, and the positions fall on "
+                            "no grid to take one from — give --frame-rate");
+                    }});
     }
 
     reporter.say(2,
-                 path + ": counted in frames at " + core::nameOf(deduced.retained.rate) +
-                     ", the grid the positions fall on");
+                 core::substitute(
+                     // TRANSLATORS: %1 is a file, %2 a frame rate.
+                     core::translate("%1: counted in frames at %2, the grid the positions fall on"),
+                     {path, core::nameOf(deduced.retained.rate)}));
     return deduced.retained.rate;
 }
 
@@ -170,10 +176,12 @@ bool convertFile(core::FileSystem& files,
     if (encoding.byteOrderMark() == core::ByteOrderMark::Present &&
         encoding.byteOrderMarkBytes().empty()) {
         reportFailure(
-            reporter,
-            path,
-            Failure{"no-byte-order-mark",
-                    std::string{encoding.charset()} + " has no byte order mark to write"});
+            reporter, path, Failure{"no-byte-order-mark", [&] {
+                                        // TRANSLATORS: %1 is the name of an encoding.
+                                        return core::substitute(
+                                            core::translate("%1 has no byte order mark to write"),
+                                            {encoding.charset()});
+                                    }});
         return false;
     }
 
@@ -228,9 +236,15 @@ bool convertFile(core::FileSystem& files,
         return false;
     }
 
-    reporter.say(3,
-                 path + ": " + std::to_string(opened->bytes) + " bytes read, " +
-                     std::to_string(*written) + (dryRun ? " would be written" : " written"));
+    reporter.say(
+        3,
+        core::substitute(dryRun ? core::translatePlural("%1: %2 bytes read, %3 would be written",
+                                                        "%1: %2 bytes read, %3 would be written",
+                                                        opened->bytes)
+                                : core::translatePlural("%1: %2 bytes read, %3 written",
+                                                        "%1: %2 bytes read, %3 written",
+                                                        opened->bytes),
+                         {path, std::to_string(opened->bytes), std::to_string(*written)}));
     sayDiagnostics(reporter, path, opened->diagnostics);
     if (arranged->joined.has_value())
         reporter.say(1, narrationOfJoin(path, *arranged->joined));
@@ -238,23 +252,31 @@ bool convertFile(core::FileSystem& files,
         reporter.say(1, narrationOfSort(path, arranged->moved));
     if (arranged->cut.has_value())
         reporter.say(1, narrationOfDisjoint(path, *arranged->cut));
-    reporter.say(2,
-                 path + ": " + std::string{nameOf(source.format)} + " -> " +
-                     std::string{nameOf(target)} + ", " + nameOf(encoding) + ", " +
-                     std::string{nameOf(newline)} + " line endings");
-    const std::string made =
-        path + ": " + core::countOf(converted.subtitles.size(), core::Counted::Subtitle);
-    reporter.say(1,
-                 dryRun
-                     ? made + " converted to " + std::string{nameOf(target)} +
-                           " (dry run, nothing written)"
-                     : made + " written as " + std::string{nameOf(target)} + " -> " + out.string());
+    reporter.say(
+        2,
+        // TRANSLATORS: %1 is a file, %2 and %3 formats, %4 an encoding, %5 a kind of line ending.
+        core::substitute(
+            core::translate("%1: %2 -> %3, %4, %5 line endings"),
+            {path, nameOf(source.format), nameOf(target), nameOf(encoding), nameOf(newline)}));
+    const std::size_t count = converted.subtitles.size();
+    reporter.say(
+        1,
+        // TRANSLATORS: %1 is a file, %2 a number of subtitles, %3 a format, %4 the file written.
+        dryRun ? core::substitute(core::translatePlural(
+                                      "%1: %2 subtitle converted to %3 (dry run, nothing written)",
+                                      "%1: %2 subtitles converted to %3 (dry run, nothing written)",
+                                      count),
+                                  {path, std::to_string(count), nameOf(target)})
+               : core::substitute(core::translatePlural("%1: %2 subtitle written as %3 -> %4",
+                                                        "%1: %2 subtitles written as %3 -> %4",
+                                                        count),
+                                  {path, std::to_string(count), nameOf(target), out.string()}));
     // **Said last, and only when there is something to say.** A conversion that
     // loses nothing is silent, which is what makes the line worth reading when
     // it does appear.
     if (const std::string notice = core::noticeOf(converted.loss, source.format, target);
         !notice.empty())
-        reporter.say(1, path + ": " + notice);
+        reporter.say(1, core::substitute(core::translate("%1: %2"), {path, notice}));
     if (dryRun) {
         reporter.record(dryRunRecord(reporter.command(),
                                      path,
@@ -283,8 +305,8 @@ bool convertFile(core::FileSystem& files,
 std::expected<WriteShape, std::string>
 writeShapeOf(const std::string& lineEndings, const std::string& encoding, bool bom, bool noBom) {
     if (bom && noBom) {
-        return std::unexpected{
-            std::string{"--bom and --no-bom ask for opposite things; give one or the other"}};
+        return std::unexpected{std::string{
+            core::translate("--bom and --no-bom ask for opposite things; give one or the other")}};
     }
 
     WriteShape shape;
@@ -310,8 +332,8 @@ writeShapeOf(const std::string& lineEndings, const std::string& encoding, bool b
 std::optional<std::string>
 refusalOfInPlaceRename(bool inPlace, const std::vector<std::string>& paths, SubtitleFormat target) {
     if (inPlace && wouldMisname(paths, target)) {
-        return std::string{"--in-place cannot change the format: the file would keep a name "
-                           "its content no longer matches"};
+        return std::string{core::translate("--in-place cannot change the format: the file would "
+                                           "keep a name its content no longer matches")};
     }
     return std::nullopt;
 }
@@ -356,7 +378,7 @@ ExitCode convertAll(core::FileSystem& files,
             ++done;
         }
     }
-    return tally(reporter, "converted", done, paths.size());
+    return tally(reporter, Verb::Converted, done, paths.size());
 }
 
 } // namespace subedit::cli

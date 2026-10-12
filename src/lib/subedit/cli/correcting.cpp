@@ -5,6 +5,7 @@
 #include <subedit/core/command/command.hpp>
 #include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
@@ -177,17 +178,21 @@ switchPattern(const std::string& written,
         }
     }
 
-    const std::string quoted = std::string{option} + ": \"" + written + "\"";
     if (found.empty()) {
-        return std::unexpected{quoted + " names no pattern of the tasks given, under the code " +
-                               code};
+        return std::unexpected{core::substitute(
+            // TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a pattern code.
+            core::translate("%1: \"%2\" names no pattern of the tasks given, under the code %3"),
+            {option, written, code})};
     }
     for (const Found& one : found) {
         if (one.kind != found.front().kind) {
-            return std::unexpected{quoted +
-                                   " names patterns of several types: write type:name, with the "
-                                   "type one of common-error, capitalization, hearing-impaired, "
-                                   "line-break"};
+            return std::unexpected{core::substitute(
+                // TRANSLATORS: %1 is --enable or --disable, %2 what the user typed. The types
+                // are values the user types, as written.
+                core::translate("%1: \"%2\" names patterns of several types: write type:name, "
+                                "with the type one of common-error, capitalization, "
+                                "hearing-impaired, line-break"),
+                {option, written})};
         }
     }
 
@@ -237,12 +242,17 @@ switchPattern(const std::string& written,
 
 [[nodiscard]] std::string abandonedSentence(const core::PatternFailure& failure,
                                             const std::vector<std::size_t>& subtitles) {
-    std::string sentence = "pattern \"" + failure.name + "\" (" +
-                           std::string{core::reasonOf(failure.kind)} + ") was not applied";
     if (failure.text && *failure.text < subtitles.size()) {
-        sentence += " to subtitle " + std::to_string(subtitles[*failure.text] + 1);
+        return core::substitute(
+            // TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle number.
+            core::translate("pattern \"%1\" (%2) was not applied to subtitle %3"),
+            {failure.name,
+             core::reasonOf(failure.kind),
+             std::to_string(subtitles[*failure.text] + 1)});
     }
-    return sentence;
+    // TRANSLATORS: %1 is the name of a pattern, %2 why it gave up.
+    return core::substitute(core::translate("pattern \"%1\" (%2) was not applied"),
+                            {failure.name, core::reasonOf(failure.kind)});
 }
 
 /// The tasks `--tasks` names, once each, or the first word that is none.
@@ -252,9 +262,11 @@ tasksOf(const std::string& list) {
     for (const std::string_view name : splitList(list)) {
         const TaskName* task = taskNamed(name);
         if (task == nullptr) {
-            return std::unexpected{"--tasks: \"" + std::string{name} +
-                                   "\" is not a task: expected mentions, join-words, split-words, "
-                                   "common-errors, capitalization or line-break"};
+            return std::unexpected{core::substitute(
+                // TRANSLATORS: %1 is what the user typed; the tasks are typed as written.
+                core::translate("--tasks: \"%1\" is not a task: expected mentions, join-words, "
+                                "split-words, common-errors, capitalization or line-break"),
+                {name})};
         }
         if (std::ranges::find(tasks, task) == tasks.end()) {
             tasks.push_back(task);
@@ -270,16 +282,21 @@ tasksOf(const std::string& list) {
     if (!readsPatterns) {
         return options.code.empty()
                    ? std::nullopt
-                   : std::optional<std::string>{
-                         "--code is for the tasks that read patterns, and none was asked for"};
+                   : std::optional<std::string>{core::translate(
+                         "--code is for the tasks that read patterns, and none was asked for")};
     }
     if (options.code.empty()) {
-        return std::string{"--code is required by the tasks that read patterns: "} + options.tasks;
+        return core::substitute(
+            // TRANSLATORS: %1 is the list of tasks the user gave.
+            core::translate("--code is required by the tasks that read patterns: %1"),
+            {options.tasks});
     }
     if (!isPatternCode(options.code)) {
-        return "--code: \"" + options.code +
-               "\" is not a pattern code: expected Script[-language[-COUNTRY]], "
-               "like Zyyy, Latn or Latn-en-US";
+        // TRANSLATORS: %1 is what the user typed.
+        return core::substitute(core::translate("--code: \"%1\" is not a pattern code: expected "
+                                                "Script[-language[-COUNTRY]], like Zyyy, Latn or "
+                                                "Latn-en-US"),
+                                {options.code});
     }
     return std::nullopt;
 }
@@ -298,8 +315,11 @@ tasksOf(const std::string& list) {
         } else if (name == "ocr") {
             settings.ocr = true;
         } else {
-            return "--classes: \"" + std::string{name} +
-                   "\" is not a class: expected human, ocr or human,ocr";
+            return core::substitute(
+                // TRANSLATORS: %1 is what the user typed; human and ocr are typed as written.
+                core::translate(
+                    "--classes: \"%1\" is not a class: expected human, ocr or human,ocr"),
+                {name});
         }
     }
     return std::nullopt;
@@ -326,16 +346,20 @@ constexpr double kMostLines = core::kMostLineBreakLines;
         return options.language.empty()
                    ? std::nullopt
                    : std::optional<std::string>{
-                         "--language is for the tasks join-words and split-words, which were not "
-                         "asked for"};
+                         core::translate("--language is for the tasks join-words and split-words, "
+                                         "which were not asked for")};
     }
     if (options.language.empty()) {
-        return std::string{"--language is required by the tasks that check words: "} +
-               options.tasks;
+        return core::substitute(
+            // TRANSLATORS: %1 is the list of tasks the user gave.
+            core::translate("--language is required by the tasks that check words: %1"),
+            {options.tasks});
     }
     if (!core::isValidSpellLanguage(options.language)) {
-        return "--language: \"" + options.language +
-               "\" is not a language: expected a locale code, like fr, en_US or sr@Latn";
+        // TRANSLATORS: %1 is what the user typed.
+        return core::substitute(core::translate("--language: \"%1\" is not a language: expected "
+                                                "a locale code, like fr, en_US or sr@Latn"),
+                                {options.language});
     }
     settings.joinSplitEnabled = true;
     settings.joinWords = join;
@@ -373,8 +397,11 @@ skipBoundOf(const std::string& written, std::string_view option, double fallback
     }
     const std::optional<double> value = positiveNumber(written);
     if (!value) {
-        return std::unexpected{std::string{option} + ": \"" + written +
-                               "\" is not a bound: expected a number greater than zero, or off"};
+        return std::unexpected{core::substitute(
+            // TRANSLATORS: %1 is an option, %2 what the user typed; « off » is typed as written.
+            core::translate(
+                "%1: \"%2\" is not a bound: expected a number greater than zero, or off"),
+            {option, written})};
     }
     return SkipBound{.on = true, .value = *value};
 }
@@ -397,27 +424,35 @@ skipBoundOf(const std::string& written, std::string_view option, double fallback
     if (!asked) {
         for (const auto& [name, written] : given) {
             if (!written->empty()) {
-                return std::string{name} + " is for the task line-break, which was not asked for";
+                return core::substitute(
+                    // TRANSLATORS: %1 is an option of the task line-break.
+                    core::translate("%1 is for the task line-break, which was not asked for"),
+                    {name});
             }
         }
         return std::nullopt;
     }
 
     if (options.maxLength.empty()) {
-        return std::string{"--max-length is required by the task line-break: Gaupol's 24 is a "
-                           "width in ems, and has no value in characters"};
+        return std::string{core::translate("--max-length is required by the task line-break: "
+                                           "Gaupol's 24 is a width in ems, and has no value in "
+                                           "characters")};
     }
     const std::optional<double> length = positiveNumber(options.maxLength);
     if (!length) {
-        return "--max-length: \"" + options.maxLength +
-               "\" is not a length: expected a number of characters greater than zero";
+        // TRANSLATORS: %1 is what the user typed.
+        return core::substitute(core::translate("--max-length: \"%1\" is not a length: expected a "
+                                                "number of characters greater than zero"),
+                                {options.maxLength});
     }
     int lines = defaultLines;
     if (!options.maxLines.empty()) {
         const std::optional<double> written = positiveNumber(options.maxLines);
         if (!written || *written != std::floor(*written) || *written > kMostLines) {
-            return "--max-lines: \"" + options.maxLines +
-                   "\" is not a number of lines: expected a whole number greater than zero";
+            // TRANSLATORS: %1 is what the user typed.
+            return core::substitute(core::translate("--max-lines: \"%1\" is not a number of lines: "
+                                                    "expected a whole number greater than zero"),
+                                    {options.maxLines});
         }
         lines = static_cast<int>(*written);
     }
@@ -432,8 +467,11 @@ skipBoundOf(const std::string& written, std::string_view option, double fallback
         return skipLines.error();
     }
     if (skipLines->value != std::floor(skipLines->value)) {
-        return "--skip-lines: \"" + options.skipLines +
-               "\" is not a number of lines: expected a whole number greater than zero, or off";
+        // TRANSLATORS: %1 is what the user typed; « off » is typed as written.
+        return core::substitute(
+            core::translate("--skip-lines: \"%1\" is not a number of lines: "
+                            "expected a whole number greater than zero, or off"),
+            {options.skipLines});
     }
 
     settings.lineBreakMaxLength = *length;
@@ -459,7 +497,10 @@ skipBoundOf(const std::string& written, std::string_view option, double fallback
                                                       core::CorrectionSettings& settings) {
     for (const std::string& written : options.enable) {
         if (std::ranges::find(options.disable, written) != options.disable.end()) {
-            return "\"" + written + "\" is given to --enable and to --disable: choose one";
+            return core::substitute(
+                // TRANSLATORS: %1 is the name of a pattern, as the user typed it.
+                core::translate("\"%1\" is given to --enable and to --disable: choose one"),
+                {written});
         }
         if (std::expected<void, std::string> done =
                 switchPattern(written, true, "--enable", tasks, options.code, catalogue, settings);
@@ -551,9 +592,11 @@ correctionSettingsOf(const CorrectionOptions& options,
 
     for (const TaskName* task : tasks) {
         if (!hasWork(*task, catalogue, settings, options.code)) {
-            return std::unexpected{std::string{task->name} +
-                                   ": no pattern is active under the code " + options.code +
-                                   "; switch one on with --enable"};
+            return std::unexpected{core::substitute(
+                // TRANSLATORS: %1 is a task, as typed; %2 a pattern code.
+                core::translate("%1: no pattern is active under the code %2; switch one on with "
+                                "--enable"),
+                {task->name, options.code})};
         }
     }
 
@@ -593,8 +636,11 @@ ExitCode correctIn(core::FileSystem& files,
         std::vector<Warning> warnings;
         warnings.reserve(proposal.failures.size());
         for (const core::PatternFailure& failure : proposal.failures) {
-            warnings.push_back(
-                {.kind = "pattern-failed", .detail = abandonedSentence(failure, subtitles)});
+            // Worded twice: translated for standard error, English for the record (D3).
+            warnings.push_back({.kind = "pattern-failed",
+                                .detail = abandonedSentence(failure, subtitles),
+                                .english = core::inSourceLanguage(
+                                    [&] { return abandonedSentence(failure, subtitles); })});
         }
 
         std::optional<std::vector<TextChange>> changes;
@@ -626,7 +672,7 @@ ExitCode correctIn(core::FileSystem& files,
     };
 
     return rewriteAll(
-        files, paths, reading, destination, reporter, "corrected", correct, range, pairing);
+        files, paths, reading, destination, reporter, Verb::Corrected, correct, range, pairing);
 }
 
 std::expected<CorrectionRun, std::string>
@@ -656,7 +702,9 @@ prepareCorrection(core::FileSystem& files,
     core::PatternCatalogue catalogue =
         core::readPatternCatalogue(files, installedPatterns, userPatterns);
     for (const core::PatternDiagnostic& diagnostic : catalogue.diagnostics()) {
-        reporter.say(1, "patterns: " + core::describe(diagnostic));
+        // TRANSLATORS: %1 is what was wrong with a pattern file.
+        reporter.say(
+            1, core::substitute(core::translate("patterns: %1"), {core::describe(diagnostic)}));
     }
 
     std::expected<core::CorrectionSettings, std::string> settings =
@@ -668,7 +716,9 @@ prepareCorrection(core::FileSystem& files,
     // (A number of lines out of bounds never gets this far: the file's reader
     // refuses it, and says so.)
     if (settings->commonErrors.enabled && options.classes.empty() && fileClassesBothOff(shared)) {
-        reporter.say(1, "settings: correction.human and correction.ocr are both false, ignored");
+        reporter.say(1,
+                     core::translate("settings: correction.human and correction.ocr are both "
+                                     "false, ignored"));
     }
 
     CorrectionRun run{.catalogue = std::move(catalogue), .settings = *std::move(settings)};

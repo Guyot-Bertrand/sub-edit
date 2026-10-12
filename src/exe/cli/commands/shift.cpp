@@ -2,6 +2,7 @@
 
 #include <subedit/cli/shifting.hpp>
 #include <subedit/cli/time_grammar.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <string>
@@ -26,14 +27,22 @@ struct ShiftOptions {
 };
 
 CLI::App* describeShift(CLI::App& app, std::string_view name, ShiftOptions& options) {
-    CLI::App* shift =
-        app.add_subcommand(std::string{name}, "Move every position of a file by a fixed amount");
-    shift->add_option("files", options.files, "Subtitle files to shift")->required();
+    CLI::App* shift = app.add_subcommand(
+        std::string{name},
+        std::string{core::translate("Move every position of a file by a fixed amount")});
+    shift
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to shift")})
+        ->required();
     describeRecursive(shift, options.recursive);
-    shift->add_option("--by", options.by, "Amount to move by: 2.999, -7.001, or 00:00:07.001");
+    shift->add_option(
+        "--by",
+        options.by,
+        std::string{core::translate("Amount to move by: 2.999, -7.001, or 00:00:07.001")});
     shift->add_flag("--to-grid",
                     options.toGrid,
-                    "Move by the amount that puts the positions back on their frame grid");
+                    std::string{core::translate(
+                        "Move by the amount that puts the positions back on their frame grid")});
 
     describeDestination(shift, options.destination);
     return shift;

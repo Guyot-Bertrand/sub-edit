@@ -3,6 +3,7 @@
 #include <subedit/cli/sorting.hpp>
 #include <subedit/cli/time_grammar.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/wording/editing.hpp>
 
@@ -19,8 +20,11 @@ namespace subedit::cli {
 namespace {
 
 [[nodiscard]] Failure notInOrder(core::DisjointRefusal refusal) {
-    return Failure{"not-in-order",
-                   core::refusalOfDisjoint(refusal) + " Use --sort to do that here."};
+    return Failure{"not-in-order", [refusal] {
+                       // TRANSLATORS: %1 is why the subtitles cannot be made disjoint as they are.
+                       return core::substitute(core::translate("%1 Use --sort to do that here."),
+                                               {core::refusalOfDisjoint(refusal)});
+                   }};
 }
 
 } // namespace
@@ -31,11 +35,15 @@ std::expected<core::DisjointSettings, std::string> settingsOf(const DisjointOpti
     if (!options.minimum.empty()) {
         const std::expected<core::Duration, std::string> time = parseTime(options.minimum);
         if (!time) {
-            return std::unexpected{"--minimum: " + time.error()};
+            // TRANSLATORS: %1 is why the value does not read as a time.
+            return std::unexpected{
+                core::substitute(core::translate("--minimum: %1"), {time.error()})};
         }
         if (time->milliseconds() < 0) {
-            return std::unexpected{"--minimum: \"" + options.minimum +
-                                   "\" is not a duration of zero or more"};
+            return std::unexpected{core::substitute(
+                // TRANSLATORS: %1 is what the user typed.
+                core::translate("--minimum: \"%1\" is not a duration of zero or more"),
+                {options.minimum})};
         }
         settings.shortest = *time;
     }
@@ -45,9 +53,11 @@ std::expected<core::DisjointSettings, std::string> settingsOf(const DisjointOpti
         const std::string_view text = options.maxLines;
         const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), lines);
         if (error != std::errc{} || end != text.data() + text.size()) {
-            return std::unexpected{"--max-lines: \"" + options.maxLines +
-                                   "\" is not a number of lines: expected a whole number, 0 for no "
-                                   "limit"};
+            return std::unexpected{core::substitute(
+                // TRANSLATORS: %1 is what the user typed.
+                core::translate("--max-lines: \"%1\" is not a number of lines: expected a whole "
+                                "number, 0 for no limit"),
+                {options.maxLines})};
         }
         settings.mostLines = lines;
     }
@@ -79,7 +89,7 @@ std::expected<core::DisjointReport, Failure> disjointedInPlace(core::Project& pr
 }
 
 std::string narrationOfDisjoint(const std::string& path, const core::DisjointReport& report) {
-    return path + ": " + core::noticeOfDisjoint(report);
+    return core::substitute(core::translate("%1: %2"), {path, core::noticeOfDisjoint(report)});
 }
 
 std::vector<Count> fullCountsOfDisjoint(const core::DisjointReport& report) {
@@ -137,7 +147,7 @@ ExitCode disjointAll(core::FileSystem& files,
                                .counts = std::move(counts)};
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "made disjoint", disjoint);
+    return rewriteAll(files, paths, reading, destination, reporter, Verb::MadeDisjoint, disjoint);
 }
 
 } // namespace subedit::cli

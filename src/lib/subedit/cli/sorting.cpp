@@ -3,6 +3,7 @@
 #include <subedit/core/command/change.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/sort_command.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/wording/counts.hpp>
 
@@ -34,7 +35,7 @@ std::size_t sortedInPlace(core::Project& project) {
 }
 
 std::string narrationOfSort(const std::string& path, std::size_t moved) {
-    return path + ": " + core::noticeOfSort(moved);
+    return core::substitute(core::translate("%1: %2"), {path, core::noticeOfSort(moved)});
 }
 
 ExitCode sortAll(core::FileSystem& files,
@@ -52,7 +53,7 @@ ExitCode sortAll(core::FileSystem& files,
                                           {"moved", static_cast<std::int64_t>(moved)}}};
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "sorted", sort);
+    return rewriteAll(files, paths, reading, destination, reporter, Verb::Sorted, sort);
 }
 
 } // namespace subedit::cli

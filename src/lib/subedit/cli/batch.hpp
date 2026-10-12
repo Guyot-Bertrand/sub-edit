@@ -62,14 +62,39 @@ createDirectoriesFor(subedit::core::FileSystem& files,
 /// output back.
 [[nodiscard]] ExitCode outcomeOf(std::size_t done, std::size_t total);
 
-/// The summary line, `verb` being what was done to the files — "inspected".
+/// What a batch did to its files, as its summary says it — "3 of 5 files shifted".
+///
+/// **A closed list, not a string**, for the reason `core::Counted` is one: each
+/// verb has its own sentence in the catalogue, so that a language may agree the
+/// participle with the files and choose its plural by their number (spec 15, D2).
+enum class Verb {
+    Adjusted,
+    Aligned,
+    Changed,
+    Cleaned,
+    Converted,
+    Corrected,
+    Inspected,
+    Joined,
+    MadeDisjoint,
+    Paired,
+    Recased,
+    Repaired,
+    Replaced,
+    Retimed,
+    Shifted,
+    Sorted,
+    Transformed,
+};
+
+/// The summary line, `verb` being what was done to the files.
 ///
 /// Empty below two files: on a single input, "1 of 1 files inspected" repeats
 /// the line just above it.
-[[nodiscard]] std::string summaryOf(std::string_view verb, std::size_t done, std::size_t total);
+[[nodiscard]] std::string summaryOf(Verb verb, std::size_t done, std::size_t total);
 
 /// Writes the summary through `reporter` and returns the exit code.
 [[nodiscard]] ExitCode
-tally(const Reporter& reporter, std::string_view verb, std::size_t done, std::size_t total);
+tally(const Reporter& reporter, Verb verb, std::size_t done, std::size_t total);
 
 } // namespace subedit::cli

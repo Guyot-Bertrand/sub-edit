@@ -17,7 +17,8 @@ namespace subedit::cli {
 ///     [-]S[.mmm]        seconds — `30`, `2.999`, `-7.001`
 ///     [-]HH:MM:SS.mmm   a timestamp — `01:39:37.040`, `-00:00:07.001`
 ///
-/// **The decimal mark is the point**, the command line speaking English. A
+/// **The decimal mark is the point**, in every language: what is typed does not
+/// follow the language the program speaks (spec 15, D3). A
 /// comma is refused rather than interpreted: half the world writes `7,001` for
 /// seven thousand and one, and reading it as seven seconds would be a guess
 /// that is wrong for that half.

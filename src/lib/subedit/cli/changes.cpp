@@ -1,4 +1,5 @@
 #include <subedit/cli/changes.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 
@@ -27,6 +28,19 @@ void appendLines(std::string& out, std::string_view prefix, std::string_view tex
 
 [[nodiscard]] std::string_view nameOf(core::Document document) {
     return document == core::Document::Main ? "main" : "translation";
+}
+
+/// The line that opens a change in the text of a dry run.
+[[nodiscard]] std::string_view headingOf(const TextChange& change) {
+    const bool translation = change.document == core::Document::Translation;
+    if (!change.after) {
+        // TRANSLATORS: %1 is a file, %2 the number of a subtitle.
+        return translation ? core::translate("%1: subtitle %2 (translation) (removed)")
+                           : core::translate("%1: subtitle %2 (removed)");
+    }
+    // TRANSLATORS: %1 is a file, %2 the number of a subtitle.
+    return translation ? core::translate("%1: subtitle %2 (translation)")
+                       : core::translate("%1: subtitle %2");
 }
 
 } // namespace
@@ -88,14 +102,7 @@ Json changesOf(const std::vector<TextChange>& changes) {
 std::string textOf(std::string_view file, const std::vector<TextChange>& changes) {
     std::string out;
     for (const TextChange& change : changes) {
-        out += file;
-        out += ": subtitle " + std::to_string(change.subtitle);
-        if (change.document == core::Document::Translation) {
-            out += " (translation)";
-        }
-        if (!change.after) {
-            out += " (removed)";
-        }
+        out += core::substitute(headingOf(change), {file, std::to_string(change.subtitle)});
         out += '\n';
         appendLines(out, "- ", change.before);
         if (change.after) {

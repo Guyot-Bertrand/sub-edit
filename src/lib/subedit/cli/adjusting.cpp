@@ -2,6 +2,7 @@
 #include <subedit/cli/rewriting.hpp>
 #include <subedit/cli/time_grammar.hpp>
 #include <subedit/core/edit/session.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/wording/editing.hpp>
 
@@ -46,9 +47,11 @@ constexpr std::string_view kOff = "off";
             return speed;
         }
     }
-    return std::unexpected{"--speed: \"" + std::string{text} +
-                           "\" is not a reading speed: expected a number of characters per second "
-                           "above zero, like 15 or 12.5, or off"};
+    return std::unexpected{core::substitute(
+        // TRANSLATORS: %1 is what the user typed. « off » is a value of the option, as typed.
+        core::translate("--speed: \"%1\" is not a reading speed: expected a number of characters "
+                        "per second above zero, like 15 or 12.5, or off"),
+        {text})};
 }
 
 /// A duration option: `off`, a time, or the default when not given.
@@ -60,13 +63,16 @@ constexpr std::string_view kOff = "off";
 parseLimit(std::string_view option, std::string_view text, bool allowZero) {
     const std::expected<core::Duration, std::string> time = parseTime(text);
     if (!time) {
-        return std::unexpected{std::string{option} + ": " + time.error()};
+        // TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not read.
+        return std::unexpected{core::substitute(core::translate("%1: %2"), {option, time.error()})};
     }
     const std::int64_t milliseconds = time->milliseconds();
     if (milliseconds < 0 || (milliseconds == 0 && !allowZero)) {
-        return std::unexpected{
-            std::string{option} + ": \"" + std::string{text} + "\" is not " +
-            (allowZero ? "a duration of zero or more" : "a duration above zero")};
+        return std::unexpected{core::substitute(
+            // TRANSLATORS: %1 is an option, such as --minimum; %2 what the user typed.
+            allowZero ? core::translate("%1: \"%2\" is not a duration of zero or more")
+                      : core::translate("%1: \"%2\" is not a duration above zero"),
+            {option, text})};
     }
     return std::optional{*time};
 }
@@ -79,9 +85,9 @@ speedFrom(const AdjustOptions& options,
           const std::optional<core::ReadingSpeed>& current) {
     if (options.speed == kOff) {
         if (options.shorten || options.noLengthen) {
-            return std::unexpected{
-                "--shorten and --no-lengthen say which way the reading speed may move an end, "
-                "and --speed off switches the reading speed off"};
+            return std::unexpected{std::string{
+                core::translate("--shorten and --no-lengthen say which way the reading speed may "
+                                "move an end, and --speed off switches the reading speed off")}};
         }
         return std::nullopt;
     }
@@ -165,8 +171,8 @@ constraintsOf(const AdjustOptions& options, const core::DurationAdjustmentSettin
 
     if (!constraints.isAny()) {
         return std::unexpected{
-            "adjust has nothing to adjust to: every constraint is off, or the reading speed "
-            "is told to move no end"};
+            std::string{core::translate("adjust has nothing to adjust to: every constraint is off, "
+                                        "or the reading speed is told to move no end")}};
     }
     return constraints;
 }
@@ -221,7 +227,7 @@ ExitCode adjustAll(core::FileSystem& files,
             .fields = {{"constraints", constraintsRecord(constraints)}, {"settings", settings}}};
     };
 
-    return rewriteAll(files, paths, reading, destination, reporter, "adjusted", adjust, range);
+    return rewriteAll(files, paths, reading, destination, reporter, Verb::Adjusted, adjust, range);
 }
 
 } // namespace subedit::cli

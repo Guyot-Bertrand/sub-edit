@@ -27,6 +27,7 @@ using subedit::cli::Range;
 using subedit::cli::Reporter;
 using subedit::cli::Request;
 using subedit::cli::rewriteAll;
+using subedit::cli::Verb;
 using subedit::core::IndexRange;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::SubtitleIndex;
@@ -81,7 +82,7 @@ TEST_CASE("an operation is handed the whole file when no range is given",
                                      std::nullopt,
                                      Destination::from("", "out", false, 1).value(),
                                      Reporter{errors, 1},
-                                     "looked at",
+                                     Verb::Inspected,
                                      spy.operation());
 
     CHECK(code == ExitCode::Success);
@@ -101,7 +102,7 @@ TEST_CASE("an operation is handed what the range names, from one",
                                      std::nullopt,
                                      Destination::from("", "out", false, 1).value(),
                                      Reporter{errors, 1},
-                                     "looked at",
+                                     Verb::Inspected,
                                      spy.operation(),
                                      Range{.first = 2, .last = 4});
 
@@ -123,7 +124,7 @@ TEST_CASE("a range holds for every file of the batch, each against its own lengt
                                      std::nullopt,
                                      Destination::from("", "out", false, 2).value(),
                                      Reporter{errors, 1},
-                                     "looked at",
+                                     Verb::Inspected,
                                      spy.operation(),
                                      Range{.first = 3, .last = std::nullopt});
 
@@ -146,7 +147,7 @@ TEST_CASE("a range a file does not hold fails that file before the operation, an
                                      std::nullopt,
                                      Destination::from("", "out", false, 2).value(),
                                      Reporter{errors, 0},
-                                     "looked at",
+                                     Verb::Inspected,
                                      spy.operation(),
                                      Range{.first = 2, .last = 6});
 
@@ -174,7 +175,7 @@ TEST_CASE("a range a file does not hold is a failure of kind range-out-of-bounds
                      std::nullopt,
                      Destination::from("", "out", false, 1).value(),
                      Reporter{errors, 1}.withRecords(records).forCommand("test"),
-                     "looked at",
+                     Verb::Inspected,
                      spy.operation(),
                      Range{.first = 4, .last = std::nullopt}) == ExitCode::AllFailed);
 

@@ -2,6 +2,7 @@
 
 #include <subedit/cli/adjusting.hpp>
 #include <subedit/cli/shared_settings.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -24,31 +25,41 @@ struct AdjustCommandOptions {
 CLI::App* describeAdjust(CLI::App& app, std::string_view name, AdjustCommandOptions& options) {
     CLI::App* adjust = app.add_subcommand(
         std::string{name},
-        "Bring the duration of every subtitle within a reading speed and limits");
-    adjust->add_option("files", options.files, "Subtitle files to adjust")->required();
+        std::string{core::translate(
+            "Bring the duration of every subtitle within a reading speed and limits")});
+    adjust
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to adjust")})
+        ->required();
     describeRecursive(adjust, options.recursive);
     adjust
         ->add_option("--speed",
                      options.constraints.speed,
-                     "Reading speed in characters per second, or off (default 15)")
+                     std::string{core::translate(
+                         "Reading speed in characters per second, or off (default 15)")})
         ->option_text("CPS|off");
+    adjust->add_flag("--shorten",
+                     options.constraints.shorten,
+                     std::string{core::translate("Let the reading speed bring an end earlier")});
     adjust->add_flag(
-        "--shorten", options.constraints.shorten, "Let the reading speed bring an end earlier");
-    adjust->add_flag("--no-lengthen",
-                     options.constraints.noLengthen,
-                     "Do not let the reading speed move an end later");
+        "--no-lengthen",
+        options.constraints.noLengthen,
+        std::string{core::translate("Do not let the reading speed move an end later")});
     adjust
-        ->add_option(
-            "--minimum", options.constraints.minimum, "Shortest duration, or off (default 1.5)")
+        ->add_option("--minimum",
+                     options.constraints.minimum,
+                     std::string{core::translate("Shortest duration, or off (default 1.5)")})
         ->option_text("TIME|off");
     adjust
-        ->add_option(
-            "--maximum", options.constraints.maximum, "Longest duration, or off (default: none)")
+        ->add_option("--maximum",
+                     options.constraints.maximum,
+                     std::string{core::translate("Longest duration, or off (default: none)")})
         ->option_text("TIME|off");
     adjust
         ->add_option("--gap",
                      options.constraints.gap,
-                     "Least time left before the next subtitle, or off (default 0)")
+                     std::string{core::translate(
+                         "Least time left before the next subtitle, or off (default 0)")})
         ->option_text("TIME|off");
     describeRange(adjust, options.range);
 

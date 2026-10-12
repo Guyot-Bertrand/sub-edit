@@ -3,6 +3,7 @@
 #include <subedit/cli/records.hpp>
 #include <subedit/core/config/operation_settings.hpp>
 #include <subedit/core/config/settings.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/wording/formats.hpp>
 
 #include <algorithm>
@@ -49,22 +50,25 @@ template<typename Change>
         return ExitCode::Usage;
     }
     if (read.unreadable) {
-        reporter.failed(path.string() + ": " + std::string{core::reasonOf(read.unreadable->kind)} +
-                        "; nothing written");
+        // TRANSLATORS: %1 is the settings file, %2 why it could not be read.
+        reporter.failed(core::substitute(core::translate("%1: %2; nothing written"),
+                                         {path.string(), core::reasonOf(read.unreadable->kind)}));
         return ExitCode::AllFailed;
     }
     // Said at the default level: the rewrite loses what the file held, and a
     // loss is not a detail.
     for (const core::SettingsDiagnostic& diagnostic : read.diagnostics) {
-        reporter.say(1,
-                     diagnostic.key + ": unreadable value '" + diagnostic.value +
-                         "' replaced by its default");
+        reporter.say(
+            1,
+            // TRANSLATORS: %1 is a settings key, %2 the value the file gave it.
+            core::substitute(core::translate("%1: unreadable value '%2' replaced by its default"),
+                             {diagnostic.key, diagnostic.value}));
     }
     if (const std::expected<void, core::FileError> saved =
             core::writeSettings(files, path, read.settings);
         !saved) {
-        reporter.failed(path.string() + ": " +
-                        std::string{core::reasonOfWriting(saved.error().kind)});
+        reporter.failed(core::substitute(
+            core::translate("%1: %2"), {path.string(), core::reasonOfWriting(saved.error().kind)}));
         return ExitCode::AllFailed;
     }
     return ExitCode::Success;
@@ -87,9 +91,15 @@ template<typename Change>
                             .set("default", entry.defaultValue)
                             .set("used_by", entry.key->usedBy)
                             .set("surface", surfaceName(entry.key->surface)));
-        text += std::string{entry.key->key} + " = " + entry.value;
-        text += entry.fromFile ? "   [file]   (default " + entry.defaultValue + ")\n"
-                               : std::string{"   [default]\n"};
+        // TRANSLATORS: %1 is a settings key, %2 its value, %3 its default. The value
+        // came from the file; « file » and « default » name where it came from.
+        text += entry.fromFile
+                    ? core::substitute(core::translate("%1 = %2   [file]   (default %3)"),
+                                       {entry.key->key, entry.value, entry.defaultValue})
+                    // TRANSLATORS: %1 is a settings key, %2 its default value.
+                    : core::substitute(core::translate("%1 = %2   [default]"),
+                                       {entry.key->key, entry.value});
+        text += '\n';
     }
     return text;
 }
@@ -114,9 +124,12 @@ ExitCode listSettingKeys(const Reporter& reporter) {
         }
         text += std::string{key.key} + '\n';
         text += "    " + std::string{key.description} + '\n';
-        text += "    Accepts: " + std::string{key.accepts} + '\n';
-        text += "    Default: " + fallback + '\n';
-        text += "    Used by: " + std::string{key.usedBy} + '\n';
+        // TRANSLATORS: %1 is what a settings key accepts, as « true or false ».
+        text += "    " + core::substitute(core::translate("Accepts: %1"), {key.accepts}) + '\n';
+        // TRANSLATORS: %1 is the default value of a settings key.
+        text += "    " + core::substitute(core::translate("Default: %1"), {fallback}) + '\n';
+        // TRANSLATORS: %1 lists the commands and window actions that read a settings key.
+        text += "    " + core::substitute(core::translate("Used by: %1"), {key.usedBy}) + '\n';
     }
     reporter.result(text);
     return ExitCode::Success;
@@ -127,12 +140,13 @@ showSettings(core::FileSystem& files, const std::filesystem::path& path, const R
     const core::SettingsRead read = core::readSettings(files, path);
     const bool exists = read.found || read.unreadable.has_value();
 
-    std::string text = "File: " + path.string();
-    if (read.unreadable) {
-        text += " (unreadable: " + std::string{core::reasonOf(read.unreadable->kind)} + ")\n";
-    } else {
-        text += read.found ? " (found)\n" : " (not found)\n";
-    }
+    std::string text =
+        // TRANSLATORS: %1 is the settings file, %2 why it could not be read.
+        read.unreadable ? core::substitute(core::translate("File: %1 (unreadable: %2)"),
+                                           {path.string(), core::reasonOf(read.unreadable->kind)})
+        : read.found    ? core::substitute(core::translate("File: %1 (found)"), {path.string()})
+                     : core::substitute(core::translate("File: %1 (not found)"), {path.string()});
+    text += '\n';
     reporter.record(recordOf(reporter).set("file", path.string()).set("exists", exists));
     reporter.result(text + entriesOf(read.settings, reporter));
     return ExitCode::Success;
@@ -140,7 +154,8 @@ showSettings(core::FileSystem& files, const std::filesystem::path& path, const R
 
 ExitCode showDefaultSettings(const Reporter& reporter) {
     reporter.record(recordOf(reporter).set("file", nullptr).set("exists", false));
-    reporter.result("File: none (--no-config)\n" + entriesOf(core::Settings{}, reporter));
+    reporter.result(std::string{core::translate("File: none (--no-config)")} + '\n' +
+                    entriesOf(core::Settings{}, reporter));
     return ExitCode::Success;
 }
 
@@ -173,7 +188,9 @@ ExitCode unsetSetting(core::FileSystem& files,
         return unset;
     });
     if (code == ExitCode::Success)
-        reporter.say(1, std::string{key} + " reset to its default (" + now + ")");
+        // TRANSLATORS: %1 is a settings key, %2 the default it now has.
+        reporter.say(1,
+                     core::substitute(core::translate("%1 reset to its default (%2)"), {key, now}));
     return code;
 }
 

@@ -24,6 +24,15 @@ text      [a-z][a-z0-9]*(?:[._-][a-z0-9]+)+[._-]?
 text      [a-z][a-z0-9]*[._-]
 text      [a-z]+(?:[A-Z][a-z0-9]*)+
 call      setObjectName
+# The key CLI11's formatter looks a word of its help up by; what it shows is translated (#663).
+call      label
+# The values of `--format json` the command line writes, one word each: a kind of failure, of
+# line ending, of document, a verdict, an origin, a method, a surface (#663).
+file      src/lib/subedit/cli/records.* [a-z]+
+file      src/lib/subedit/cli/inspection.cpp lf|crlf|cr|clean|partial|silent|asked|detected
+file      src/lib/subedit/cli/pairing.cpp position|number
+file      src/lib/subedit/cli/changes.cpp main|translation
+file      src/lib/subedit/cli/configuring.cpp both
 
 [json] The `--format json` output is a contract: its keys and values are the same in every language (D3).
 statement \.set\(
@@ -39,6 +48,8 @@ statement \.name\s*=\s*@
 call      option_text
 call      default_str
 call      IsMember
+# The value that switches a limit of `adjust` off, as the user types it (#663).
+file      src/lib/subedit/cli/adjusting.cpp off
 
 [format] Names of subtitle formats and their option names, and names of character encodings (D3). A format is called by its name in every language.
 text      SubRip|WebVTT|SubViewer 2|Sub Station Alpha|Advanced SSA|MicroDVD|MPL2|TMPlayer|LRC

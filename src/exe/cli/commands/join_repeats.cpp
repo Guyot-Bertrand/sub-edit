@@ -1,6 +1,7 @@
 #include "join_repeats.hpp"
 
 #include <subedit/cli/joining.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -22,8 +23,12 @@ struct JoinOptions {
 CLI::App* describeJoin(CLI::App& app, std::string_view name, JoinOptions& options) {
     CLI::App* join = app.add_subcommand(
         std::string{name},
-        "Join the subtitles that repeat each other, one after the other, into one");
-    join->add_option("files", options.files, "Subtitle files to join the repeats of")->required();
+        std::string{core::translate(
+            "Join the subtitles that repeat each other, one after the other, into one")});
+    join->add_option("files",
+                     options.files,
+                     std::string{core::translate("Subtitle files to join the repeats of")})
+        ->required();
     describeRecursive(join, options.recursive);
 
     describeDestination(join, options.destination);

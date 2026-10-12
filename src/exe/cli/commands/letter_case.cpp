@@ -1,6 +1,7 @@
 #include "letter_case.hpp"
 
 #include <subedit/cli/text_rewriting.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -23,10 +24,17 @@ struct CaseOptions {
 
 CLI::App* describeCase(CLI::App& app, std::string_view name, CaseOptions& options) {
     CLI::App* recase = app.add_subcommand(
-        std::string{name}, "Put the texts in title, sentence, upper or lower case, tags intact");
-    recase->add_option("files", options.files, "Subtitle files to change")->required();
+        std::string{name},
+        std::string{
+            core::translate("Put the texts in title, sentence, upper or lower case, tags intact")});
+    recase
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to change")})
+        ->required();
     describeRecursive(recase, options.recursive);
-    recase->add_option("--to", options.to, "The case to put the texts in")
+    recase
+        ->add_option(
+            "--to", options.to, std::string{core::translate("The case to put the texts in")})
         ->required()
         ->check(CLI::IsMember({"title", "sentence", "upper", "lower"}))
         ->option_text("title|sentence|upper|lower");

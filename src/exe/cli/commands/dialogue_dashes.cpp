@@ -1,6 +1,7 @@
 #include "dialogue_dashes.hpp"
 
 #include <subedit/cli/text_rewriting.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
 #include <optional>
@@ -24,12 +25,19 @@ struct DialogueDashesOptions {
 
 CLI::App*
 describeDialogueDashes(CLI::App& app, std::string_view name, DialogueDashesOptions& options) {
-    CLI::App* dashes =
-        app.add_subcommand(std::string{name}, "Put dialogue dashes on the lines, or take them off");
-    dashes->add_option("files", options.files, "Subtitle files to change")->required();
+    CLI::App* dashes = app.add_subcommand(
+        std::string{name},
+        std::string{core::translate("Put dialogue dashes on the lines, or take them off")});
+    dashes
+        ->add_option(
+            "files", options.files, std::string{core::translate("Subtitle files to change")})
+        ->required();
     describeRecursive(dashes, options.recursive);
-    dashes->add_flag("--add", options.add, "Put a dialogue dash at the head of the lines");
-    dashes->add_flag("--remove", options.remove, "Take the dialogue dashes off");
+    dashes->add_flag("--add",
+                     options.add,
+                     std::string{core::translate("Put a dialogue dash at the head of the lines")});
+    dashes->add_flag(
+        "--remove", options.remove, std::string{core::translate("Take the dialogue dashes off")});
     describeRange(dashes, options.range);
     describeDocument(dashes, options.translation);
 

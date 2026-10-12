@@ -1,5 +1,6 @@
 #include <subedit/cli/digits.hpp>
 #include <subedit/cli/time_grammar.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
 #include <algorithm>
@@ -20,7 +21,8 @@ constexpr std::int64_t kMillisecondsPerSecond = 1000;
 constexpr std::size_t kDecimalsHeld = 3;
 
 std::string refusal(std::string_view text, std::string_view why) {
-    return "\"" + std::string{text} + "\" is not a time: " + std::string{why};
+    // TRANSLATORS: %1 is what the user typed, %2 why it does not read.
+    return core::substitute(core::translate("\"%1\" is not a time: %2"), {text, why});
 }
 
 /// Why a text is not the seconds form.
@@ -105,14 +107,15 @@ std::size_t decimalCountOf(std::string_view text) {
 
 std::expected<Duration, std::string> parseTime(std::string_view text) {
     if (text.empty()) {
-        return std::unexpected{refusal(text, "it is empty")};
+        return std::unexpected{refusal(text, core::translate("it is empty"))};
     }
     if (text.contains(',')) {
-        return std::unexpected{
-            refusal(text, "use a decimal point and not a comma, the command line being English")};
+        return std::unexpected{refusal(
+            text, core::translate("use a decimal point and not a comma, in every language"))};
     }
     if (decimalCountOf(text) > kDecimalsHeld) {
-        return std::unexpected{refusal(text, "positions are held to the millisecond, no finer")};
+        return std::unexpected{
+            refusal(text, core::translate("positions are held to the millisecond, no finer"))};
     }
 
     const std::expected<std::int64_t, NotSeconds> seconds = secondsFormOf(text);
@@ -120,8 +123,9 @@ std::expected<Duration, std::string> parseTime(std::string_view text) {
         return Duration::fromMilliseconds(*seconds);
     }
     if (seconds.error() == NotSeconds::TooLarge) {
-        return std::unexpected{
-            refusal(text, "it is too large to hold, positions being counted in milliseconds")};
+        return std::unexpected{refusal(
+            text,
+            core::translate("it is too large to hold, positions being counted in milliseconds"))};
     }
 
     // A timestamp, then. The core reads those, and more permissively than this
@@ -132,8 +136,8 @@ std::expected<Duration, std::string> parseTime(std::string_view text) {
         return Duration::fromMilliseconds(stamp->milliseconds());
     }
 
-    return std::unexpected{
-        refusal(text, "expected seconds like 2.999, or a timestamp like 00:00:07.001")};
+    return std::unexpected{refusal(
+        text, core::translate("expected seconds like 2.999, or a timestamp like 00:00:07.001"))};
 }
 
 } // namespace subedit::cli
