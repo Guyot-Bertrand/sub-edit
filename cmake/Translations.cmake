@@ -6,7 +6,7 @@
 # gabarit est tenu à jour par une étape de `check-local`.
 #
 # **Les langues installées sont celles de `src/po/LINGUAS`**, une par ligne. Un `.po` qui n'y est
-# pas — les graines importées de Gaupol, issue #671 — reste dans le dépôt sans être compilé ni
+# pas — les graines importées de Gaupol, issue #667 — reste dans le dépôt sans être compilé ni
 # livré : une langue entre dans les paquets quand elle est complète et relue (spec 15, D5).
 #
 # **L'arbre de construction reproduit l'installation**, comme pour les motifs (#566) : les `.mo`

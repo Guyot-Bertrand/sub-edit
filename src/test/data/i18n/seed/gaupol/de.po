@@ -1,0 +1,98 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+# Translators:
+# Erste Übersetzerin <erste@example.org>, 2016
+# Zweiter Übersetzer, 2023
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-26 17:17+0300\n"
+"PO-Revision-Date: 2016-07-07 00:55+0000\n"
+"Last-Translator: Zweiter Übersetzer, 2023\n"
+"Language-Team: German (https://app.transifex.com/otsaloma/teams/64879/de/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: gaupol/actions/file.py:10
+msgid "_Open"
+msgstr "Ö_ffnen"
+
+#: gaupol/actions/file.py:11
+msgid "Save _As…"
+msgstr "Speichern _unter…"
+
+#: gaupol/actions/file.py:12
+msgid "_Close All"
+msgstr "_Alle schließen"
+
+#: gaupol/actions/edit.py:13
+msgid "Find __ and _Replace"
+msgstr "Suche __ und _Ersetze"
+
+#: gaupol/actions/edit.py:14
+msgid "Search & _Replace"
+msgstr "Suchen & _Ersetzen"
+
+#: gaupol/actions/view.py:15
+msgid "_Preview"
+msgstr "_Vorschau"
+
+#: gaupol/actions/file.py:16
+msgid "Open"
+msgstr "Öffnen"
+
+#: gaupol/agents/save.py:17
+msgid "Use file_name as the name"
+msgstr "file_name als Namen verwenden"
+
+#: gaupol/dialogs/search.py:18
+#, python-brace-format
+msgid "\"{}\" not found"
+msgstr "\"{}\" nicht gefunden"
+
+#: gaupol/agents/open.py:19
+#, python-brace-format
+msgid "{count:d} of {total:d} files"
+msgstr "{total:d} Dateien, davon {count:d}"
+
+#: gaupol/agents/save.py:20
+#, python-brace-format
+msgid "Saved {}"
+msgstr "Gespeichert"
+
+#: gaupol/agents/video.py:21
+#, python-brace-format
+msgid "Rate {:.3f}"
+msgstr "Rate {:.3f}"
+
+#: gaupol/actions/file.py:22
+#, fuzzy
+msgid "Quit"
+msgstr "Beenden"
+
+#: gaupol/actions/help.py:23
+msgid "Help"
+msgstr ""
+
+#: gaupol/agents/edit.py:24
+#, python-brace-format
+msgid "Removed {:d} subtitle"
+msgid_plural "Removed {:d} subtitles"
+msgstr[0] "{:d} Untertitel entfernt"
+msgstr[1] "{:d} Untertitel entfernt"
+
+#: gaupol/agents/only.py:25
+msgid "Only in Gaupol"
+msgstr "Nur in Gaupol"
+
+#~ msgid "Old"
+#~ msgstr "Alt"

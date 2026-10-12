@@ -1,0 +1,36 @@
+{
+  "revision": "0123456789abcdef0123456789abcdef01234567",
+  "seeded": ["de", "pl"],
+  "untouched": {
+    "fr.po": "an installed language of LINGUAS is never overwritten by a seed",
+    "nl.po": "a seed whose marker line is gone belongs to a translator"
+  },
+  "entries": {
+    "de": {
+      "&Open": "Ö&ffnen",
+      "Save &As…": "Speichern &unter…",
+      "Close &All": "&Alle schließen",
+      "Find _ and &Replace": "Suche _ und &Ersetze",
+      "Search && &Replace": "Suchen && &Ersetzen",
+      "Preview": "",
+      "Open": "Öffnen",
+      "Use file_name as the name": "file_name als Namen verwenden",
+      "\"%1\" not found": "\"%1\" nicht gefunden",
+      "%1 of %2 files": "%2 Dateien, davon %1",
+      "Saved %1": "",
+      "Rate %1": "",
+      "Quit": "",
+      "Help": "",
+      "Old": "",
+      "Only in Gaupol": null,
+      "Removed %1 subtitle": ["%1 Untertitel entfernt", "%1 Untertitel entfernt"]
+    },
+    "pl": {
+      "&Open": "&Otwórz",
+      "Removed %1 subtitle": ["Usunięto %1 napis", "Usunięto %1 napisy", "Usunięto %1 napisów"],
+      "Joined %1 subtitle": ["", "", ""],
+      "Merged %1 file": ["", "", ""],
+      "%1 line": ["Jedna linia", "%1 linie", "%1 linii"]
+    }
+  }
+}

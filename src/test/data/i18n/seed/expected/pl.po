@@ -1,0 +1,125 @@
+# Polish catalogue of subedit, seeded from Gaupol.
+#
+# Origin: https://github.com/otsaloma/gaupol, file po/pl.po, revision 0123456789abcdef0123456789abcdef01234567.
+# The translations are those of Gaupol's translators, credited in that file:
+# (no translator is named in that file)
+# This file is distributed under the GNU General Public License, version 3 or
+# later (GPL-3.0-or-later), as Gaupol and subedit are.
+#
+# seed-catalogues.py: a seed, neither reviewed nor installed (spec 15, D5).
+# Delete the line above to take the file over: the script then leaves it alone.
+msgid ""
+msgstr ""
+"Project-Id-Version: subedit\n"
+"Report-Msgid-Bugs-To: https://github.com/Guyot-Bertrand/sub-edit/issues\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2016-07-07 00:55+0000\n"
+"Last-Translator: \n"
+"Language-Team: Polish\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Open"
+msgstr "&Otwórz"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Save &As…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Close &All"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Find _ and &Replace"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Search && &Replace"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Preview"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Open"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgctxt "toolbar"
+msgid "Open"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.hpp
+msgid "Use file_name as the name"
+msgstr ""
+
+#. TRANSLATORS: %1 is the text searched for.
+#: src/lib/subedit/core/wording/editing.hpp
+msgid "\"%1\" not found"
+msgstr ""
+
+#. TRANSLATORS: %1 counts the files changed, %2 the files read.
+#: src/lib/subedit/core/wording/counts.hpp
+msgid "%1 of %2 files"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.hpp
+msgid "Saved %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.hpp
+msgid "Rate %1"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Quit"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Help"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Old"
+msgstr ""
+
+#: src/lib/subedit/core/wording/counts.hpp
+msgid "Removed %1 subtitle"
+msgid_plural "Removed %1 subtitles"
+msgstr[0] "Usunięto %1 napis"
+msgstr[1] "Usunięto %1 napisy"
+msgstr[2] "Usunięto %1 napisów"
+
+#: src/lib/subedit/core/wording/counts.hpp
+msgid "Joined %1 subtitle"
+msgid_plural "Joined %1 subtitles"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/lib/subedit/core/wording/counts.hpp
+msgid "Merged %1 file"
+msgid_plural "Merged %1 files"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/lib/subedit/core/wording/counts.hpp
+msgid "%1 line"
+msgid_plural "%1 lines"
+msgstr[0] "Jedna linia"
+msgstr[1] "%1 linie"
+msgstr[2] "%1 linii"
+
+#: src/lib/subedit/core/wording/counts.hpp
+msgid ""
+"A message only subedit has, long enough to be wrapped by msgmerge when a "
+"translation is laid out"
+msgstr ""

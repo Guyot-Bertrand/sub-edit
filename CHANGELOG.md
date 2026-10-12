@@ -11,12 +11,28 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **scripts** — Seed the catalogues from Gaupol's, tested on a fixture
+- **i18n** — Seed nineteen catalogues from Gaupol, none installed
+
+### Construction
+
+- **i18n** — Merge the seeds in make po, refuse them at installation
+
+### Documentation
+
+- **doc** — Say how the seeds are made, credited and kept out
+
+## 0.15.20 — 2026-10-12
+
+### Ajouts
+
 - **i18n** — Extract the shipped patterns' names into the template
 - **core** — Name a correction pattern in the user's language
 
 ### Documentation
 
 - **doc** — Say how the correction patterns follow the language
+- **doc** — Regenerate the changelog
 
 ### Tests
 

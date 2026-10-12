@@ -1,0 +1,17 @@
+# Translators:
+# Een vertaler, 2020
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"PO-Revision-Date: 2016-07-07 00:55+0000\n"
+"Language-Team: Dutch (https://app.transifex.com/otsaloma/teams/64879/nl/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "_Open"
+msgstr "_Openen"
