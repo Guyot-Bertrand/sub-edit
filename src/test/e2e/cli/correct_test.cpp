@@ -550,6 +550,22 @@ TEST_CASE("the settings file can keep the emptied subtitles, and --no-config ign
     CHECK_THAT(ignored.errors, !ContainsSubstring("settings:"));
 }
 
+TEST_CASE("correct refuses a missing file named by --config", "[e2e][CLI-CORRECT-12][settings]") {
+    const Scratch scratch;
+    const std::string in = writeFile(scratch, "a.srt", srt({"[Door]", "Hello"}));
+    const std::string config = scratch.of("no-such.conf");
+    const std::string out = scratch.of("out.srt");
+
+    const CliRun run =
+        invoke({"--config", config, "correct", "--tasks", "mentions", "--output", out, in});
+
+    // The usage code: a misspelt name is not a request for the defaults.
+    CHECK(run.exitCode == 1);
+    CHECK_THAT(run.errors, ContainsSubstring("settings file not found: " + config));
+    CHECK_FALSE(std::filesystem::exists(out));
+    CHECK_FALSE(std::filesystem::exists(config));
+}
+
 TEST_CASE("a dry run lists the texts before and after, and a removal has no after",
           "[e2e][CLI-CORRECT-03]") {
     const Scratch scratch;

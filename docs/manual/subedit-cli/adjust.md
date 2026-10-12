@@ -237,6 +237,7 @@ seulement, `1` sur une erreur d'usage. Un fichier qui tient déjà dans ses limi
 
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |
+| a file named by `--config` that does not exist — the user's own file, missing, gives the defaults | `settings file not found: <FILE>` |
 | aucune contrainte active | `adjust has nothing to adjust to: every constraint is off, or the reading speed is told to move no end` |
 | vitesse qui n'en est pas une | `--speed: "…" is not a reading speed: expected a number of characters per second above zero, like 15 or 12.5, or off` |
 | `--shorten`/`--no-lengthen` avec `--speed off` | `--shorten and --no-lengthen say which way the reading speed may move an end, and --speed off switches the reading speed off` |

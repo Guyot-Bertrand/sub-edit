@@ -7,6 +7,10 @@
 // have a parameter in the file. Reading it never fails: a file that is absent,
 // unreadable or partly unreadable leaves the core defaults where it says
 // nothing, which is what the window does with the same file.
+//
+// **Except for a file `--config` names and that is not there**: loading still
+// does not fail, but a command that reads the values asks `missingNamedFile`
+// and refuses to run on defaults the user did not ask for.
 
 #include <subedit/cli/json.hpp>
 #include <subedit/cli/reporter.hpp>
@@ -14,6 +18,8 @@
 #include <subedit/core/io/file_system.hpp>
 
 #include <filesystem>
+#include <optional>
+#include <string>
 #include <vector>
 
 namespace subedit::cli {
@@ -56,6 +62,9 @@ struct SharedSettings {
 
     SettingsSource source = SettingsSource::Disabled;
 
+    /// Whether the file was named by `--config`, rather than the user's own.
+    bool named = false;
+
     /// The values that could not be read, in the file's order.
     std::vector<core::SettingsDiagnostic> diagnostics{};
 };
@@ -63,6 +72,11 @@ struct SharedSettings {
 /// Reads the settings `choice` designates. Never fails.
 [[nodiscard]] SharedSettings loadSharedSettings(const core::FileSystem& files,
                                                 const SettingsChoice& choice);
+
+/// Why a command that reads the values cannot run: the file `--config` named
+/// is not there. Nothing when the file was read, unreadable, the user's own or
+/// disabled — a missing user file is the defaults, a misspelt name is not.
+[[nodiscard]] std::optional<std::string> missingNamedFile(const SharedSettings& shared);
 
 /// Says, at the default level, which file was read and what it refused.
 void announceSettings(const Reporter& reporter, const SharedSettings& shared);

@@ -61,6 +61,11 @@ ExitCode runAdjust(const AdjustCommandOptions& options,
                    const std::optional<core::Encoding>& reading,
                    const Reporter& reporter,
                    const SharedSettings& shared) {
+    // A file named and not there is a mistake in the command line, not a
+    // request for the defaults.
+    if (const std::optional<std::string> missing = missingNamedFile(shared)) {
+        return refuse(*missing);
+    }
     announceSettings(reporter, shared);
     // An option beats the file, which beats the core default (spec 15, S8).
     const std::expected<core::DurationConstraints, std::string> constraints =

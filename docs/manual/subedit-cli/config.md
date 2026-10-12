@@ -52,7 +52,7 @@ file and the form of the output:
 
 | Global option | Effect on `config` |
 | :------------ | :----------------- |
-| `--config FILE` | `show`, `set` and `unset` act on `FILE` instead of the user's file; `list` ignores it |
+| `--config FILE` | `show`, `set` and `unset` act on `FILE` instead of the user's file, even when it does not exist yet; `list` ignores it |
 | `--no-config` | `list` works as usual; `show` shows the defaults, with `File: none (--no-config)`; `set` and `unset` are refused: there is no file to write to |
 | `--format json` | `list` and `show` write one JSON object a line; `set` and `unset` write nothing on standard output |
 | `-q`, `--quiet` | `set` and `unset` no longer confirm what they wrote |
@@ -157,7 +157,9 @@ duration-adjust.lengthen = true   [default]
 duration-adjust.shorten = false   [default]
 ```
 
-A missing file is not an error: `show` writes the defaults, and the code is `0`. With
+A missing file is not an error: `show` writes the defaults, and the code is `0` — the user's
+file as a `FILE` named by `--config`, which [`adjust`](adjust.md) and [`correct`](correct.md), on
+the contrary, refuse (see [The settings file](invocation.md#the-settings-file)). With
 `--no-config`:
 
 <!-- exemple: subedit-cli --no-config config show | head -2 -->

@@ -332,6 +332,7 @@ seulement, `1` sur une erreur d'usage.
 
 | Ce qui la déclenche | Ce qui est écrit, sur la sortie d'erreur |
 | :------------------ | :--------------------------------------- |
+| a file named by `--config` that does not exist — the user's own file, missing, gives the defaults | `settings file not found: <FILE>` |
 | `--tasks` absent | `--tasks is required`, suivi d'un renvoi à `--help` |
 | une tâche inconnue | `--tasks: "<nom>" is not a task: expected mentions, join-words, split-words, common-errors, capitalization or line-break` |
 | `--code` absent | `--code is required by the tasks that read patterns: <tâches>` |

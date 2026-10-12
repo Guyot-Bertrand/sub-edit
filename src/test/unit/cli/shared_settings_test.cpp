@@ -69,6 +69,35 @@ TEST_CASE("No resolvable user path is defaults, said as missing", "[shared-setti
     CHECK(shared.diagnostics.empty());
 }
 
+TEST_CASE("A missing file named by --config is refused; the user's is not", "[shared-settings]") {
+    const InMemoryFileSystem files;
+    const SharedSettings named =
+        loadSharedSettings(files, {.explicitPath = kOther, .userPath = kUser});
+    CHECK(named.named);
+    CHECK(named.source == SettingsSource::Missing);
+    CHECK(missingNamedFile(named) == "settings file not found: /o/other.conf");
+
+    // The user's own file, absent: the defaults, and no refusal.
+    CHECK_FALSE(missingNamedFile(loadSharedSettings(files, {.userPath = kUser})).has_value());
+    CHECK_FALSE(missingNamedFile(loadSharedSettings(files, {})).has_value());
+    // --no-config reads nothing, so nothing is missing.
+    CHECK_FALSE(missingNamedFile(loadSharedSettings(files, {.disabled = true})).has_value());
+
+    // Named and there: read, and no refusal.
+    InMemoryFileSystem present;
+    REQUIRE(present.writeFile(kOther, "duration-adjust.speed = 20\n").has_value());
+    CHECK_FALSE(
+        missingNamedFile(loadSharedSettings(present, {.explicitPath = kOther})).has_value());
+
+    // Named and unreadable: the defaults, as before.
+    InMemoryFileSystem locked;
+    REQUIRE(locked.writeFile(kOther, "duration-adjust.speed = 20\n").has_value());
+    locked.failNextRead(subedit::core::FileErrorKind::PermissionDenied);
+    const SharedSettings unreadable = loadSharedSettings(locked, {.explicitPath = kOther});
+    CHECK(unreadable.source == SettingsSource::Unreadable);
+    CHECK_FALSE(missingNamedFile(unreadable).has_value());
+}
+
 namespace {
 std::string announced(const SharedSettings& shared, int level = 1) {
     std::ostringstream errors;

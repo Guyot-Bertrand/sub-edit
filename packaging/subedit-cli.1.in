@@ -184,7 +184,15 @@ Read the operation settings from
 .I FILE
 instead of the user's settings file. An empty
 .I FILE
-is refused.
+is refused. A
+.I FILE
+that does not exist makes
+.BR adjust " and " correct
+stop with code 1;
+.B config show
+still shows it as not found, and
+.B config set
+creates it.
 .TP
 .B \-\-no\-config
 Read no settings file: every operation setting not given on the command line
@@ -210,8 +218,10 @@ window's Adjust Durations and Correct Texts remember, or that
 .B config set
 wrote. An option on the command line wins over the file, and the file over the
 built\-in default. Only the operation part of the file is read, never the
-display preferences. A missing or unreadable file gives the defaults and fails
-nothing. At the default verbosity the command says which file it read, and with
+display preferences. A missing or unreadable user's file gives the defaults and
+fails nothing; a missing
+.B \-\-config
+file is a usage error. At the default verbosity the command says which file it read, and with
 .BR \-\-format " json"
 each object carries it as
 .BR settings .

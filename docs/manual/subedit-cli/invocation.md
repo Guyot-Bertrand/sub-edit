@@ -106,8 +106,8 @@ never are. [`config list`](config.md#config-list) names the keys, and which of t
 line reads: the nine `duration-adjust.*` keys, `correction.human`, `correction.ocr`,
 `correction.remove-blank` and `correction.line-break.max-lines`.
 
-**Reading never fails a command.** A missing file gives the defaults; a file that cannot be read
-gives the defaults and says so; a value that cannot be read keeps its default and is named; an
+**Reading the user's file never fails a command.** A missing file gives the defaults; a file
+that cannot be read gives the defaults and says so; a value that cannot be read keeps its default and is named; an
 unknown key is ignored. The file is never written by `adjust` or `correct`.
 
 **What was read is said**, at the default level 1, on the standard error, before the first file:
@@ -116,26 +116,32 @@ unknown key is ignored. The file is never written by `adjust` or `correct`.
 | :--- | :--- |
 | the file was read | `settings: read <path>` |
 | a value in it could not be read | `settings: <key>: cannot read '<value>', default kept` |
-| the file does not exist | `settings: <path> not found, defaults used` |
+| the user's file does not exist | `settings: <path> not found, defaults used` |
 | the file cannot be read | `settings: <path> unreadable, defaults used` |
 | `--no-config` | nothing |
 
 With [`--format json`](#sortie-lisible-par-un-script), the object of each file of `adjust` and
 `correct` carries `settings`: the path that was read, or `null` when none was.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt -->
-```console
-$ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt
-settings: mine.conf not found, defaults used
-a.srt: adjusted the durations of 1 subtitle (dry run, nothing written)
-```
 
 **`--no-config` makes a run reproducible**: the same line gives the same result on every
 machine, whatever its user set in the window. Use it in scripts, tests and bug reports — or
 `--config FILE` with a file that goes along with them.
 
-**`--config FILE` names another file**, read the same way. A `FILE` that does not exist is not an
-error either: the defaults are used and the line says `not found`.
+**`--config FILE` names another file**, read the same way — **except that it must exist**. A
+name given on the command line is not a request for the defaults: when `FILE` does not exist,
+`adjust` and `correct` stop before any input is read, write `settings file not found: <FILE>` on
+the standard error, and exit with the usage code `1`. A `FILE` that exists and cannot be read
+gives the defaults and says so, as the user's file does. [`config show`](config.md#config-show)
+still shows a missing `FILE` as `(not found)`, and [`config set`](config.md#config-set-and-config-unset) still
+creates it.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
+settings file not found: mine.conf
+code=1
+```
 
 ### `--list-encodings`
 

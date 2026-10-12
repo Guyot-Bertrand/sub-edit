@@ -104,6 +104,11 @@ ExitCode runCorrect(const CorrectOptions& options,
                     const std::optional<core::Encoding>& reading,
                     const Reporter& reporter,
                     const SharedSettings& shared) {
+    // A file named and not there is a mistake in the command line, not a
+    // request for the defaults.
+    if (const std::optional<std::string> missing = missingNamedFile(shared)) {
+        return refuse(*missing);
+    }
     announceSettings(reporter, shared);
     // Everything that can be refused is, before a file is read. The file gives
     // three things only; an option beats it (spec 15, S8).

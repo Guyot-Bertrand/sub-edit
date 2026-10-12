@@ -1,5 +1,6 @@
 #include <subedit/cli/shared_settings.hpp>
 
+#include <optional>
 #include <string>
 
 namespace subedit::cli {
@@ -7,6 +8,7 @@ namespace subedit::cli {
 SharedSettings loadSharedSettings(const core::FileSystem& files, const SettingsChoice& choice) {
     SharedSettings shared;
     shared.target = choice.explicitPath.empty() ? choice.userPath : choice.explicitPath;
+    shared.named = !choice.explicitPath.empty();
     if (choice.disabled) {
         return shared;
     }
@@ -32,6 +34,13 @@ SharedSettings loadSharedSettings(const core::FileSystem& files, const SettingsC
     shared.values = read.settings;
     shared.diagnostics = std::move(read.diagnostics);
     return shared;
+}
+
+std::optional<std::string> missingNamedFile(const SharedSettings& shared) {
+    if (shared.named && shared.source == SettingsSource::Missing) {
+        return "settings file not found: " + shared.path.string();
+    }
+    return std::nullopt;
 }
 
 void announceSettings(const Reporter& reporter, const SharedSettings& shared) {

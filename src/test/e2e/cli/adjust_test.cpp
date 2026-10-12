@@ -403,6 +403,21 @@ TEST_CASE("giving both --config and --no-config is a usage error", "[e2e][settin
     CHECK_FALSE(std::filesystem::exists(scratch.of("out")));
 }
 
+TEST_CASE("adjust refuses a missing file named by --config", "[e2e][adjust][settings]") {
+    const Scratch scratch;
+    const std::string input = writeFile(scratch, "in/d.srt", kInput);
+    const std::string config = scratch.of("no-such.conf");
+
+    const CliRun run =
+        invoke({"--config", config, "adjust", "--output-dir", scratch.of("out"), input});
+
+    // The usage code: a misspelt name is not a request for the defaults.
+    CHECK(run.exitCode == 1);
+    CHECK_THAT(run.errors, ContainsSubstring("settings file not found: " + config));
+    CHECK_FALSE(std::filesystem::exists(scratch.of("out")));
+    CHECK_FALSE(std::filesystem::exists(config));
+}
+
 TEST_CASE("a note names the settings file read, at the default verbosity",
           "[e2e][adjust][settings]") {
     const Scratch scratch;
