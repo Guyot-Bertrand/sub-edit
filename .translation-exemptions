@@ -1,0 +1,108 @@
+# The string literals that are not messages — spec 15, D3 and D10, issue #661.
+#
+# `src/scripts/check-translatable-strings.py` counts every string literal of `src/lib` and
+# `src/exe` that has a word in it and does not pass through the translation API. This table is
+# the one place that says which of them are not for a reader, and why: what it matches is never
+# counted. Everything else is, until it is wrapped in `translate`, `translateIn`,
+# `translatePlural` or `tr`.
+#
+# A section opens with `[category]` and the reason that category is never translated. Each
+# entry below it is one of:
+#
+#   text      <regex>   the literal's whole text matches (Python `re.fullmatch`)
+#   call      <name>    the call that directly receives the literal has this name
+#   statement <regex>   the statement holding the literal matches; the literal is written `@`
+#   file      <glob> [<regex>]
+#                       a literal of a matching file — every one, or those whose whole text
+#                       matches the regex: a vocabulary that is data in that file only
+#
+# An entry is added with the reason that justifies it, and reviewed like code: an exemption
+# that is too wide hides the very messages the ratchet is there to find.
+
+[identifier] A name the program matches or writes — a settings key, a diagnostic code, a JSON key, an object or icon name. It is an identifier, not a word, and translating it would break whatever reads it.
+text      [a-z][a-z0-9]*(?:[._-][a-z0-9]+)+[._-]?
+text      [a-z][a-z0-9]*[._-]
+text      [a-z]+(?:[A-Z][a-z0-9]*)+
+call      setObjectName
+
+[json] The `--format json` output is a contract: its keys and values are the same in every language (D3).
+statement \.set\(
+statement ^@,\s*(?:count\(|static_cast<std::int64_t>\(|Json\b|std::vector<Count>|constraintsRecord\(|settings(?:File)?$|0$)
+statement \b(?:counts|fields)\.emplace_back\(\s*@
+file      src/lib/subedit/cli/json.cpp \S+
+
+[option] Command-line option, sub-command and positional names, and the metavariables and values of an option. The user types them; they are never translated (D3).
+text      --?[A-Za-z][\w-]*(?:\s*[,/]\s*--?[A-Za-z][\w-]*)*
+text      [A-Za-z][\w,-]*(?:\|[A-Za-z][\w,-]*)+
+statement \badd_(?:option|flag|subcommand)\(\s*@
+statement \.name\s*=\s*@
+call      option_text
+call      default_str
+call      IsMember
+
+[format] Names of subtitle formats and their option names, and names of character encodings (D3). A format is called by its name in every language.
+text      SubRip|WebVTT|SubViewer 2|Sub Station Alpha|Advanced SSA|MicroDVD|MPL2|TMPlayer|LRC
+text      srt|vtt|subviewer2|ssa|ass|microdvd|mpl2|tmplayer|lrc|sub|txt|json|text
+text      (?:UTF|ISO|KOI8|EUC|CP|IBM)-?[\w-]*(?:,version=\d)?|windows-\d+|Shift_JIS|Big5|GB\d+|Unicode
+
+[constant] An all-capitals token: an environment variable, a keyword of a file format, a placeholder of the syntax. It is a name, not a sentence.
+text      [A-Z][A-Z0-9_]*(?:[ -][A-Z0-9_]+)*
+
+[program] The names of the program, its executables and the programs it drives: a name is not translated.
+text      subedit(?:-cli|-gui)?|libmpv|mpv|ffprobe|ffmpeg
+
+[path] A file name, an extension or a path.
+text      \.?[\w.-]*\.[a-z0-9]{2,4}
+text      \.[\w-]+
+text      /[\w/.-]*
+statement /\s*@|@\s*/
+
+[bytes] Escape sequences and digit alphabets: bytes and characters the program reads or writes, not text.
+text      (?:\\x[0-9A-Fa-f]{2})+
+text      0123456789abcdef|abcdefghijklmnopqrstuvwxyz
+
+[matched] A string compared with, or searched for in, data the program reads — a value of the settings file, a field of a pattern file, a flag of a regular expression. It matches what is written there, which is not in the user's language.
+statement (?:==|!=)\s*(?:[\w:]+\s*[({]\s*)?@|@\s*[)}]?\s*(?:==|!=)
+statement \.(?:find|rfind|starts_with|ends_with|startsWith|endsWith|contains|indexOf)\(\s*@
+statement \b(?:get|need|needText|refuseValue|numberOf|attributeOf)\(\s*@
+
+[settings-file] The example values written into the settings file: data, read back by the program.
+call      writeOption
+
+[player] The property names, commands and values of libmpv, the video player: its own vocabulary.
+file      src/lib/subedit/gui/mpv_player.cpp [a-z][\w+-]*
+call      mpv_set_property
+call      mpv_set_property_string
+call      mpv_get_property
+call      mpv_command
+
+[markup] Subtitle markup and escaping: tags, entities and override blocks of the formats, written into files.
+file      src/lib/subedit/core/text/*markup* \S+
+text      </?[A-Za-z][^>]*>?.*
+text      &[a-z]+;
+text      .*\{\\[^}]*\}?.*
+
+[regex] A regular expression: what the program looks for, written in the syntax of the engine.
+text      .*(?:\\[dDsSwWbBpPAzZ]|\(\?[:=!<]|\[\^|\\[1-9]).*
+
+[log] Lines for developers, written to a log and not to the user, stay English (D3).
+statement \bq(?:Debug|Info|Warning|Critical|Fatal)\(
+statement \bstd::clog\b
+
+[css] Qt style sheets: CSS, read by Qt and never shown.
+call      setStyleSheet
+
+[shortcut] Key sequences stay the Qt sequences in every language (D3).
+call      setShortcut
+text      (?:(?:Ctrl|Alt|Shift|Meta)\+)+\S+|F\d{1,2}
+
+[file-syntax] What a subtitle file or a message catalogue contains: section headers, keywords and fields, read and written as the format defines them.
+file      src/lib/subedit/core/format/*_syntax.hpp
+file      src/lib/subedit/core/format/* \[[^\]]+\].*|[A-Z]\w*[:=] ?|\{[A-Z]+\}
+file      src/lib/subedit/core/i18n/catalogue.cpp [\w-]+[:=]
+
+[external-program] The arguments given to another program, in its own syntax.
+file      src/lib/subedit/core/video/declared_frame_rate.cpp \S+
+
+[spelling-data] What the spell checker matches in the subtitles' own text: English ordinal suffixes and contractions, data of the language checked and not of the interface.
+file      src/lib/subedit/core/text/spell_checker.cpp \S+

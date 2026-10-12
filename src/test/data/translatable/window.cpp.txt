@@ -1,0 +1,40 @@
+// path: src/lib/subedit/gui/fixture_dialog.cpp
+// The window side: what Qt shows, wrapped or not, and the exemptions a dialog meets.
+#include "fixture_dialog.hpp" // expect: none
+
+namespace subedit::gui {
+
+// A quotation in a comment is not a literal: "Open the file". // expect: none
+/* Nor in a block comment: "Save the file". */ // expect: none
+
+void FixtureDialog::build() {
+    setWindowTitle(QStringLiteral("Find and replace")); // expect: counted
+    setWindowTitle(tr("Find and replace")); // expect: translated
+    m_label->setText(QStringLiteral("Reading speed")); // expect: counted
+    m_label->setToolTip(QString::fromUtf8("Play")); // expect: counted
+    menu->addMenu(QStringLiteral("&File")); // expect: counted
+    QMessageBox::warning(this,
+                         QStringLiteral("subedit"), // expect: exempt:program
+                         QStringLiteral("Saving will lose something")); // expect: counted
+    m_action->setText(tr("Make Ranges &Disjoint…")); // expect: translated
+    m_action->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+D"))); // expect: exempt:shortcut
+    m_play->setShortcut(QStringLiteral("Space")); // expect: exempt:shortcut
+    const QKeySequence next{QStringLiteral("Alt+Right")}; // expect: exempt:shortcut
+    m_preview->setObjectName(QStringLiteral("previewButton")); // expect: exempt:identifier
+    m_list->setObjectName(QStringLiteral("abandoned-patterns")); // expect: exempt:identifier
+    m_count->setText(QStringLiteral("%1")); // expect: not-prose
+    m_count->setText(QStringLiteral(", ")); // expect: not-prose
+    m_hint->setText(tr("%1 of these starts leave the grid, in %2 runs.").arg(starts)); // expect: translated
+    m_name->setText(QStringLiteral("SubRip")); // expect: exempt:format
+    const auto key = QStringLiteral("window.geometry"); // expect: exempt:identifier
+    if (theme == QStringLiteral("dark")) // expect: exempt:matched
+        apply();
+    m_text->setText(QStringLiteral("Shown on " // expect: counted
+                                   "two lines, counted once"));
+    connect(m_button, &QPushButton::clicked, this, [this] { m_status->setText(QStringLiteral("Done")); }); // expect: counted
+    qWarning() << "mpv refused the property" << name; // expect: exempt:log
+    std::clog << "frame rate probe answered " << answer; // expect: exempt:log
+    setStyleSheet(QStringLiteral("QLabel { color: red; }")); // expect: exempt:css
+}
+
+} // namespace subedit::gui

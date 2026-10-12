@@ -1,0 +1,157 @@
+[
+  {
+    "name": "a wrapped literal passes with an empty ratchet",
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(tr(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 0\n"
+    },
+    "expect": []
+  },
+  {
+    "name": "an unwrapped literal in a file with no line is refused",
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(QStringLiteral(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 0\n"
+    },
+    "expect": [
+      "NEW"
+    ]
+  },
+  {
+    "name": "a recorded literal passes",
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(QStringLiteral(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 1\n1 src/lib/subedit/gui/a.cpp\n"
+    },
+    "expect": []
+  },
+  {
+    "name": "a second literal in a recorded file is refused",
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() {\n    m_label->setText(QStringLiteral(\"Open the file\"));\n    m_label->setToolTip(QStringLiteral(\"Save the file\"));\n}\n",
+      ".untranslated-ratchet": "total 1\n1 src/lib/subedit/gui/a.cpp\n"
+    },
+    "expect": [
+      "RISEN"
+    ]
+  },
+  {
+    "name": "a converted literal leaves its line stale",
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(tr(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 1\n1 src/lib/subedit/gui/a.cpp\n"
+    },
+    "expect": [
+      "STALE"
+    ]
+  },
+  {
+    "name": "a deleted file leaves its line stale",
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(QStringLiteral(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 2\n1 src/lib/subedit/gui/a.cpp\n1 src/lib/subedit/gui/b.cpp\n"
+    },
+    "expect": [
+      "STALE"
+    ]
+  },
+  {
+    "name": "a total that is not the sum of the lines is refused",
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(QStringLiteral(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 2\n1 src/lib/subedit/gui/a.cpp\n"
+    },
+    "expect": [
+      "TOTAL"
+    ]
+  },
+  {
+    "name": "lines out of order are refused",
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(QStringLiteral(\"Open the file\")); }\n",
+      "src/lib/subedit/gui/b.cpp": "void f() { m_label->setText(QStringLiteral(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 2\n1 src/lib/subedit/gui/b.cpp\n1 src/lib/subedit/gui/a.cpp\n"
+    },
+    "expect": [
+      "UNSORTED"
+    ]
+  },
+  {
+    "name": "an exempt literal is not counted",
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_button->setObjectName(QStringLiteral(\"preview-button\")); }\n",
+      ".untranslated-ratchet": "total 0\n"
+    },
+    "expect": []
+  },
+  {
+    "name": "a test is not read",
+    "files": {
+      "src/test/unit/a_test.cpp": "void f() { m_label->setText(QStringLiteral(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 0\n"
+    },
+    "expect": []
+  },
+  {
+    "name": "a ratchet lowered below its base passes",
+    "base": {
+      "src/lib/subedit/gui/a.cpp": "void f() {\n    m_label->setText(QStringLiteral(\"Open the file\"));\n    m_label->setToolTip(QStringLiteral(\"Save the file\"));\n}\n",
+      ".untranslated-ratchet": "total 2\n2 src/lib/subedit/gui/a.cpp\n"
+    },
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(QStringLiteral(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 1\n1 src/lib/subedit/gui/a.cpp\n"
+    },
+    "expect": []
+  },
+  {
+    "name": "a ratchet raised above its base is refused",
+    "base": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(QStringLiteral(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 1\n1 src/lib/subedit/gui/a.cpp\n"
+    },
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() {\n    m_label->setText(QStringLiteral(\"Open the file\"));\n    m_label->setToolTip(QStringLiteral(\"Save the file\"));\n}\n",
+      ".untranslated-ratchet": "total 2\n2 src/lib/subedit/gui/a.cpp\n"
+    },
+    "expect": [
+      "GROWN"
+    ]
+  },
+  {
+    "name": "literals moved to another file pass",
+    "base": {
+      "src/lib/subedit/gui/a.cpp": "void f() {\n    m_label->setText(QStringLiteral(\"Open the file\"));\n    m_label->setToolTip(QStringLiteral(\"Save the file\"));\n}\n",
+      ".untranslated-ratchet": "total 2\n2 src/lib/subedit/gui/a.cpp\n"
+    },
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(tr(\"Open the file\")); }\n",
+      "src/lib/subedit/gui/b.cpp": "void f() {\n    m_label->setText(QStringLiteral(\"Open the file\"));\n    m_label->setToolTip(QStringLiteral(\"Save the file\"));\n}\n",
+      ".untranslated-ratchet": "total 2\n2 src/lib/subedit/gui/b.cpp\n"
+    },
+    "expect": []
+  },
+  {
+    "name": "a base with no ratchet skips the growth check",
+    "base": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(tr(\"Open the file\")); }\n"
+    },
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(QStringLiteral(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 1\n1 src/lib/subedit/gui/a.cpp\n"
+    },
+    "expect": [],
+    "growth_skipped": true
+  },
+  {
+    "name": "an exemption table that does not read is refused",
+    "files": {
+      "src/lib/subedit/gui/a.cpp": "void f() { m_label->setText(QStringLiteral(\"Open the file\")); }\n",
+      ".untranslated-ratchet": "total 1\n1 src/lib/subedit/gui/a.cpp\n",
+      ".translation-exemptions": "text before any category\n"
+    },
+    "expect": [
+      "EXEMPTIONS"
+    ]
+  }
+]
