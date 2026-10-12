@@ -44,7 +44,7 @@ TEST_CASE("A file named by --config wins over the user's", "[shared-settings]") 
 }
 
 TEST_CASE("A missing file is defaults, said as missing", "[shared-settings]") {
-    InMemoryFileSystem files;
+    const InMemoryFileSystem files;
     const SharedSettings shared = loadSharedSettings(files, {.userPath = kUser});
     CHECK(shared.source == SettingsSource::Missing);
     CHECK(shared.values == subedit::core::OperationSettings{});

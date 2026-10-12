@@ -53,10 +53,12 @@ template<typename Change>
                         "; nothing written");
         return ExitCode::AllFailed;
     }
+    // Said at the default level: the rewrite loses what the file held, and a
+    // loss is not a detail.
     for (const core::SettingsDiagnostic& diagnostic : read.diagnostics) {
-        reporter.say(2,
-                     "settings: " + diagnostic.key + ": cannot read '" + diagnostic.value +
-                         "', default written");
+        reporter.say(1,
+                     diagnostic.key + ": unreadable value '" + diagnostic.value +
+                         "' replaced by its default");
     }
     if (const std::expected<void, core::FileError> saved =
             core::writeSettings(files, path, read.settings);

@@ -105,7 +105,7 @@ TEST_CASE("An unreadable operation value keeps the default and is reported",
 }
 
 TEST_CASE("A missing file is every default and not an error", "[operation-settings]") {
-    InMemoryFileSystem files;
+    const InMemoryFileSystem files;
     const OperationSettingsRead read = readOperationSettings(files, kPath);
     CHECK_FALSE(read.found);
     CHECK_FALSE(read.unreadable.has_value());
@@ -175,6 +175,21 @@ TEST_CASE("unset puts back a default the reader would refuse, and keeps the othe
     CHECK_FALSE(settings.correction.ocr);
     CHECK(settings.correction.patternActivations.size() == 1);
     CHECK(settings.maximised);
+}
+
+TEST_CASE("unset refuses when another key holds a value the reader would refuse",
+          "[operation-settings]") {
+    // Built directly: a file cannot give it, the reader refuses "Fr".
+    Settings settings;
+    settings.correction.spellLanguage = "Fr";
+    settings.durationAdjustment.charactersPerSecond = 12.0;
+    const Settings before = settings;
+
+    const auto refused = unsetOperationOption(settings, "duration-adjust.speed");
+
+    REQUIRE_FALSE(refused.has_value());
+    CHECK(refused.error().find("correction.join-split.language") != std::string::npos);
+    CHECK(settings == before);
 }
 
 TEST_CASE("set refuses an unreadable value and leaves the settings alone", "[operation-settings]") {

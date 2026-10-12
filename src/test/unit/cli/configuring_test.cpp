@@ -111,6 +111,50 @@ TEST_CASE("config show on a missing file says not found and shows defaults", "[c
     CHECK(files.fileCount() == 0);
 }
 
+TEST_CASE("config show on an unreadable file says why and shows defaults", "[config]") {
+    InMemoryFileSystem files;
+    REQUIRE(files.writeFile(kPath, "duration-adjust.speed = 12\n").has_value());
+    files.failNextRead(FileErrorKind::PermissionDenied);
+    std::ostringstream out;
+    std::ostringstream err;
+    const Reporter reporter = Reporter{err, 1}.withTextOutput(out);
+
+    CHECK(showSettings(files, kPath, reporter) == ExitCode::Success);
+
+    const std::string text = out.str();
+    CHECK(text.starts_with("File: /c/subedit/settings.conf (unreadable: cannot be opened: "
+                           "permission denied)\n"));
+    CHECK_THAT(text, ContainsSubstring("\nduration-adjust.speed = 15   [default]\n"));
+}
+
+TEST_CASE("config show on an unreadable file in json says the file exists", "[config]") {
+    InMemoryFileSystem files;
+    REQUIRE(files.writeFile(kPath, "duration-adjust.speed = 12\n").has_value());
+    files.failNextRead(FileErrorKind::PermissionDenied);
+    std::ostringstream records;
+    std::ostringstream err;
+    const Reporter reporter = Reporter{err, 1}.withRecords(records).forCommand("config");
+
+    CHECK(showSettings(files, kPath, reporter) == ExitCode::Success);
+
+    CHECK(records.str().starts_with(
+        R"({"schema":1,"command":"config","file":"/c/subedit/settings.conf","exists":true})"
+        "\n"));
+}
+
+TEST_CASE("config show on a missing file in json says the file does not exist", "[config]") {
+    InMemoryFileSystem files;
+    std::ostringstream records;
+    std::ostringstream err;
+    const Reporter reporter = Reporter{err, 1}.withRecords(records).forCommand("config");
+
+    CHECK(showSettings(files, kPath, reporter) == ExitCode::Success);
+
+    CHECK(records.str().starts_with(
+        R"({"schema":1,"command":"config","file":"/c/subedit/settings.conf","exists":false})"
+        "\n"));
+}
+
 TEST_CASE("config show in json writes the file first, then one record per key", "[config]") {
     InMemoryFileSystem files;
     REQUIRE(files.writeFile(kPath, "duration-adjust.speed = 12\n").has_value());
@@ -199,7 +243,8 @@ TEST_CASE("config set creates the file and its directory", "[config]") {
     CHECK(setSetting(files, path, "duration-adjust.gap-ms", "250", reporter) == ExitCode::Success);
 
     REQUIRE(files.contentOf(path).has_value());
-    CHECK_THAT(*files.contentOf(path), ContainsSubstring("\nduration-adjust.gap-ms = 250\n"));
+    CHECK_THAT(files.contentOf(path).value_or(""),
+               ContainsSubstring("\nduration-adjust.gap-ms = 250\n"));
     REQUIRE(files.directoriesAsked().size() == 1);
     CHECK(files.directoriesAsked().front() == std::filesystem::path{"/new/dir"});
 }
@@ -257,17 +302,36 @@ TEST_CASE("config set whose write fails says why", "[config]") {
     CHECK(err.str() == "/c/subedit/settings.conf: cannot be written: permission denied\n");
 }
 
-TEST_CASE("config set rewrites an unreadable value as its default, said at level 2", "[config]") {
+TEST_CASE("config set rewrites an unreadable value as its default, and says so", "[config]") {
     InMemoryFileSystem files;
-    REQUIRE(files.writeFile(kPath, "duration-adjust.gap-ms = soon\n").has_value());
+    REQUIRE(files.writeFile(kPath, "duration-adjust.gap-ms = soon\nwindow.maximised = maybe\n")
+                .has_value());
     std::ostringstream err;
-    const Reporter reporter{err, 2};
+    const Reporter reporter{err, 1};
 
     CHECK(setSetting(files, kPath, "duration-adjust.speed", "12", reporter) == ExitCode::Success);
 
-    CHECK(err.str() == "settings: duration-adjust.gap-ms: cannot read 'soon', default written\n"
-                       "duration-adjust.speed = 12\n");
-    CHECK_THAT(*files.contentOf(kPath), ContainsSubstring("\n#duration-adjust.gap-ms = 0\n"));
+    // A display preference is lost the same way, and said the same way.
+    CHECK_THAT(err.str(),
+               ContainsSubstring(
+                   "duration-adjust.gap-ms: unreadable value 'soon' replaced by its default\n"));
+    CHECK_THAT(
+        err.str(),
+        ContainsSubstring("window.maximised: unreadable value 'maybe' replaced by its default\n"));
+    CHECK_THAT(err.str(), ContainsSubstring("duration-adjust.speed = 12\n"));
+    CHECK_THAT(files.contentOf(kPath).value_or(""),
+               ContainsSubstring("\n#duration-adjust.gap-ms = 0\n"));
+}
+
+TEST_CASE("config set says nothing of an unreadable value when quiet", "[config]") {
+    InMemoryFileSystem files;
+    REQUIRE(files.writeFile(kPath, "duration-adjust.gap-ms = soon\n").has_value());
+    std::ostringstream err;
+    const Reporter reporter{err, 0};
+
+    CHECK(setSetting(files, kPath, "duration-adjust.speed", "12", reporter) == ExitCode::Success);
+
+    CHECK(err.str().empty());
 }
 
 TEST_CASE("config unset restores the default and leaves it commented", "[config]") {
@@ -279,7 +343,8 @@ TEST_CASE("config unset restores the default and leaves it commented", "[config]
 
     CHECK(unsetSetting(files, kPath, "duration-adjust.speed", reporter) == ExitCode::Success);
 
-    CHECK_THAT(*files.contentOf(kPath), ContainsSubstring("\n#duration-adjust.speed = 15\n"));
+    CHECK_THAT(files.contentOf(kPath).value_or(""),
+               ContainsSubstring("\n#duration-adjust.speed = 15\n"));
     const auto read = subedit::core::readSettings(files, kPath);
     CHECK(read.settings.durationAdjustment.charactersPerSecond ==
           subedit::core::Settings{}.durationAdjustment.charactersPerSecond);
@@ -295,7 +360,8 @@ TEST_CASE("config unset on a key already at its default succeeds", "[config]") {
     CHECK(unsetSetting(files, kPath, "duration-adjust.gap-ms", reporter) == ExitCode::Success);
 
     REQUIRE(files.contentOf(kPath).has_value());
-    CHECK_THAT(*files.contentOf(kPath), ContainsSubstring("\n#duration-adjust.gap-ms = 0\n"));
+    CHECK_THAT(files.contentOf(kPath).value_or(""),
+               ContainsSubstring("\n#duration-adjust.gap-ms = 0\n"));
     CHECK(err.str() == "duration-adjust.gap-ms reset to its default (0)\n");
 }
 
@@ -308,4 +374,18 @@ TEST_CASE("config unset refuses a key that is not an operation key", "[config]")
     CHECK(unsetSetting(files, kPath, "general.theme", reporter) == ExitCode::Usage);
 
     CHECK(*files.readFile(kPath) == "window.maximised = true\n");
+}
+
+TEST_CASE("config unset on an unreadable file fails and writes nothing", "[config]") {
+    InMemoryFileSystem files;
+    REQUIRE(files.writeFile(kPath, "duration-adjust.speed = 12\n").has_value());
+    files.failNextRead(FileErrorKind::PermissionDenied);
+    std::ostringstream err;
+    const Reporter reporter{err, 1};
+
+    CHECK(unsetSetting(files, kPath, "duration-adjust.speed", reporter) == ExitCode::AllFailed);
+
+    CHECK(*files.readFile(kPath) == "duration-adjust.speed = 12\n");
+    CHECK(err.str() ==
+          "/c/subedit/settings.conf: cannot be opened: permission denied; nothing written\n");
 }

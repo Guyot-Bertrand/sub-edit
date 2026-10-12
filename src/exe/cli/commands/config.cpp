@@ -82,11 +82,11 @@ Declared declareConfig(CLI::App& app, std::string_view name) {
     // that runs is a subcommand of it.
     auto options = std::make_shared<ConfigOptions>();
     const CLI::App* config = describeConfig(app, name, *options);
-    return Declared{config,
-                    [options](core::FileSystem& files,
-                              const std::optional<core::Encoding>& /*reading*/,
-                              const Reporter& reporter,
-                              const SharedSettings& shared) {
+    return Declared{.app = config,
+                    .run = [options](core::FileSystem& files,
+                                     const std::optional<core::Encoding>& /*reading*/,
+                                     const Reporter& reporter,
+                                     const SharedSettings& shared) {
                         return runConfig(*options, files, reporter, shared);
                     }};
 }
