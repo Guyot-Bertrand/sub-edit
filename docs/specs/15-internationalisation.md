@@ -79,7 +79,8 @@ reader safe on hostile input.
 json` is byte-identical whatever the language (the versioned expected files of phase 13 hold it).
 
 CLI11's own diagnostics (a missing required option, an unknown flag) are English. Whether to replace them by our own
-messages is decided in [#663](https://github.com/Guyot-Bertrand/sub-edit/issues/663) and written in the manual.
+messages is decided in [#663](https://github.com/Guyot-Bertrand/sub-edit/issues/663) and written in the manual: they stay
+English, worded inside the parser; the headings CLI11 puts in `--help` are translated, since it lets each be replaced.
 
 ## D4 — Choosing the language
 
@@ -212,6 +213,17 @@ nouns each have their own plural entry, which also lowered the command-line and 
 `core` is left to the issues of its surfaces; note there that the `detail` of a `ReadError` is never shown to a user —
 the four that were French are now English, unwrapped — and that `--format json` writes a failure's `message` from these
 same sentences, which D3 wants language-independent (#663).
+
+**Lowered by #663 to 510 literals in 78 files.** The command line is at zero, `src/lib/subedit/cli` and
+`src/exe/cli` alike: option descriptions, subcommand summaries, usage errors, failures and narration go through
+`translate` or `translatePlural`, written whole with positional arguments; the summary of a batch takes a closed `Verb`
+list, each verb its own plural sentence. Twenty-two literals were exempted rather than wrapped, each a value of `--format
+json`, a value typed on the command line or a key of CLI11's formatter. **The JSON record stays English** without a second copy of any sentence: a
+`Failure` (and a warning) is given the function that words it, called once as usual and once under
+`core::SourceLanguage`, a scope in which the translation functions answer in English; the record takes the second.
+**CLI11's own diagnostics stay English**, its help headings do not (point 1 of the open points, closed): the manual's
+*Language* section says so. The command line chooses its catalogue in `main`, as D4 says, from
+`<bin>/../share/subedit/locale`.
 
 ## Settings shared by the window and the command line (#699)
 
@@ -404,7 +416,8 @@ scripts are independent of one another.
 
 ## Open points
 
-1. **CLI11's own messages** — translate through a custom failure message, or leave in English and say so (#663).
+1. **CLI11's own messages** — decided in #663: left in English, and said in the manual; the headings of its help are
+   translated.
 2. **A catalogue per binary or one shared** — `subedit.mo` serves both executables in D1; if the command line's start-up
    cost shows the shared catalogue too large, split it (#684 measures).
 3. **Per-language screenshots** — the manual's captures are English; a French set needs the French catalogue installed

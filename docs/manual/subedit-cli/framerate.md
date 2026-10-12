@@ -165,7 +165,7 @@ code=1
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |
 | cadence nulle ou négative | `"…" is not a frame rate: a frame rate must be strictly positive; nothing runs at that speed` |
-| virgule décimale | `"…" is not a frame rate: use a decimal point and not a comma, the command line being English` |
+| virgule décimale | `"…" is not a frame rate: use a decimal point and not a comma, in every language` |
 | texte qui n'est pas un nombre | `"…" is not a frame rate: expected frames per second, like 25 or 23.976` |
 | cadence démesurée | `"…" is not a frame rate: no video runs at that many frames per second` |
 
