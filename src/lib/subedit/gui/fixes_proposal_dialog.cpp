@@ -37,20 +37,20 @@ FixesProposalDialog::FixesProposalDialog(std::size_t repeated,
     stack->addWidget(intro);
 
     if (repeated > 0) {
-        m_join = new QCheckBox{
+        const QString text =
             QStringLiteral("Join the repeated subtitles: ") +
-                QString::fromStdString(core::countOf(repeated, core::Counted::Subtitle)) +
-                QStringLiteral(" repeat one that they touch"),
-            this};
+            QString::fromStdString(core::countOf(repeated, core::Counted::Subtitle)) +
+            QStringLiteral(" repeat one that they touch");
+        m_join = new QCheckBox{text, this};
         m_join->setChecked(true);
         stack->addWidget(m_join);
     }
     if (outOfOrder > 0) {
-        m_sort = new QCheckBox{
+        const QString text =
             QStringLiteral("Sort the subtitles: not in order of start (") +
-                QString::fromStdString(core::countOf(outOfOrder, core::Counted::Subtitle)) +
-                QStringLiteral(" out of place)"),
-            this};
+            QString::fromStdString(core::countOf(outOfOrder, core::Counted::Subtitle)) +
+            QStringLiteral(" out of place)");
+        m_sort = new QCheckBox{text, this};
         m_sort->setChecked(true);
         stack->addWidget(m_sort);
     }
