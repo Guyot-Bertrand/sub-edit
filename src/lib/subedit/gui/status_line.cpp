@@ -7,6 +7,7 @@
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/core/wording/formats.hpp>
 #include <subedit/core/wording/video.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/target.hpp>
 
@@ -45,7 +46,8 @@ StatusLine::StatusLine(QStatusBar& bar)
 
 void StatusLine::showTarget(std::optional<core::Document> aimed) {
     if (aimed.has_value())
-        m_target->setText(QStringLiteral("Text: %1").arg(documentName(*aimed)));
+        // TRANSLATORS: %1 is Main or Translation, the text an operation aims at.
+        m_target->setText(substitute(translate("Text: %1"), documentName(*aimed)));
     else
         m_target->clear();
     m_target->setVisible(aimed.has_value());

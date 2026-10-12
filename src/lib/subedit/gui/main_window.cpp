@@ -16,6 +16,7 @@
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/format/translation_file.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/find_video.hpp>
 #include <subedit/core/io/real_file_system.hpp>
@@ -46,6 +47,7 @@
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/play_bar.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/project_files.hpp>
@@ -132,8 +134,10 @@ namespace {
     if (!source.path.has_value())
         return QStringLiteral("subedit[*]");
 
-    return QString::fromStdString(source.path.value().filename().string()) +
-           QStringLiteral("[*] — subedit");
+    // TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of unsaved
+    // changes, and stays as it is.
+    return substitute(translate("%1[*] — subedit"),
+                      QString::fromStdString(source.path.value().filename().string()));
 }
 
 /// What a tab says: the file name, or that there is none yet — the title
@@ -142,7 +146,7 @@ namespace {
 [[nodiscard]] QString tabLabelFor(const core::Project& project, bool modified) {
     const std::optional<std::filesystem::path>& path = project.sourceFile().path;
     const QString name = path.has_value() ? QString::fromStdString(path->filename().string())
-                                          : QStringLiteral("untitled");
+                                          : translate("untitled");
     // An asterisk by hand: the `[*]` Qt reads is for a window's title alone.
     return modified ? name + QStringLiteral("*") : name;
 }
@@ -566,7 +570,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     // a gesture one looks for on the bar of tabs, not in a menu.
     m_newTab->setText(QStringLiteral("+"));
     m_newTab->setAutoRaise(true);
-    m_newTab->setToolTip(QStringLiteral("New project"));
+    m_newTab->setToolTip(translate("New project"));
     connect(m_newTab, &QToolButton::clicked, m_actions->newProject, &QAction::trigger);
 
     // The tabs, the « + » against the last of them, and the rest of the row
@@ -982,10 +986,9 @@ void MainWindow::setManualPath(std::filesystem::path directory) {
     // The home page and not the directory: a directory that is there but empty
     // is a partial installation, and that is the case the scoping names.
     m_actions->manual->setEnabled(m_files->exists(m_manualDirectory / "index.md"));
-    m_actions->manual->setToolTip(
-        m_actions->manual->isEnabled()
-            ? QStringLiteral("Open the installed manual")
-            : QStringLiteral("No manual is installed beside this program"));
+    m_actions->manual->setToolTip(m_actions->manual->isEnabled()
+                                      ? translate("Open the installed manual")
+                                      : translate("No manual is installed beside this program"));
 }
 
 void MainWindow::openManual() {
@@ -1115,9 +1118,10 @@ std::optional<std::string> MainWindow::openFile(const std::filesystem::path& pat
     // reading it a second time — Gaupol's own rule.
     if (const std::optional<int> already = m_projectFiles->indexOf(path); already.has_value()) {
         switchToPage(*already);
-        statusBar()->showMessage(
-            QString::fromStdString(path.filename().string() + ": already open"),
-            kOperationStatusTimeoutMs);
+        // TRANSLATORS: %1 is the name of a file.
+        statusBar()->showMessage(substitute(translate("%1: already open"),
+                                            QString::fromStdString(path.filename().string())),
+                                 kOperationStatusTimeoutMs);
         return std::nullopt;
     }
 
@@ -1201,8 +1205,12 @@ void MainWindow::openDropped(std::span<const std::filesystem::path> paths) {
         m_page->session->chooseVideo(dropped.films.front());
         refreshVideo();
     } else if (dropped.films.size() > 1) {
-        failures.push_back(std::to_string(dropped.films.size()) +
-                           " videos dropped at once: a project watches one film");
+        // Never fewer than two here, but a language may have more than one form above one.
+        failures.push_back(core::substitute(
+            core::translatePlural("%1 video dropped at once: a project watches one film",
+                                  "%1 videos dropped at once: a project watches one film",
+                                  dropped.films.size()),
+            {std::to_string(dropped.films.size())}));
     }
 
     // One box and not one per file: a drop of ten unreadable files is one

@@ -1,6 +1,7 @@
 #include <subedit/core/command/command_kind.hpp>
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/gui/command_label.hpp>
+#include <subedit/gui/messages.hpp>
 
 #include <QString>
 
@@ -20,25 +21,27 @@ using core::CommandKind;
     if (!kind.has_value())
         return verb;
 
-    return verb + QStringLiteral(": ") + QString::fromUtf8(core::nameOf(*kind));
+    // TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such as shifting.
+    return substitute(translate("%1: %2"), verb, QString::fromUtf8(core::nameOf(*kind)));
 }
 
 } // namespace
 
 QString undoLabel(std::optional<CommandKind> kind) {
-    return actionLabel(QStringLiteral("Undo"), kind);
+    return actionLabel(translate("Undo"), kind);
 }
 
 QString redoLabel(std::optional<CommandKind> kind) {
-    return actionLabel(QStringLiteral("Redo"), kind);
+    return actionLabel(translate("Redo"), kind);
 }
 
 QString shiftOntoGridLabel(std::optional<core::Duration> by) {
     if (!by.has_value())
-        return QStringLiteral("Shift Whole File onto Grid");
+        return translate("Shift Whole File onto Grid");
 
-    return QStringLiteral("Shift Whole File onto Grid (%1)")
-        .arg(QString::fromStdString(core::secondsOf(*by)));
+    // TRANSLATORS: %1 is how far the whole file moves, in seconds.
+    return substitute(translate("Shift Whole File onto Grid (%1)"),
+                      QString::fromStdString(core::secondsOf(*by)));
 }
 
 } // namespace subedit::gui

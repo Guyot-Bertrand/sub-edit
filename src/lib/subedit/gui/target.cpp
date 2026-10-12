@@ -2,6 +2,7 @@
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/model/selection.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/target.hpp>
 
 #include <QItemSelectionModel>
@@ -33,8 +34,7 @@ core::Selection targetOf(const QItemSelectionModel& selection, const core::Proje
 }
 
 QString documentName(core::Document document) {
-    return document == core::Document::Translation ? QStringLiteral("Translation")
-                                                   : QStringLiteral("Main");
+    return document == core::Document::Translation ? translate("Translation") : translate("Main");
 }
 
 } // namespace subedit::gui

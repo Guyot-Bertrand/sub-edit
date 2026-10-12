@@ -61,6 +61,9 @@ text      [A-Z][A-Z0-9_]*(?:[ -][A-Z0-9_]+)*
 
 [program] The names of the program, its executables and the programs it drives: a name is not translated.
 text      subedit(?:-cli|-gui)?|libmpv|mpv|ffprobe|ffmpeg
+# The window's title when nothing is open: the name, and `[*]`, the token where Qt puts the mark
+# of unsaved changes (#664).
+text      subedit\[\*\]
 
 [path] A file name, an extension or a path.
 text      \.?[\w.-]*\.[a-z0-9]{2,4}

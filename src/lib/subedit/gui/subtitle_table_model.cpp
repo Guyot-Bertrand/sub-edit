@@ -17,6 +17,7 @@
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/core/wording/formats.hpp>
 #include <subedit/core/wording/video.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 
 #include <QBrush>
@@ -405,15 +406,15 @@ QVariant SubtitleTableModel::headerData(int section, Qt::Orientation orientation
     case Number:
         return QStringLiteral("#");
     case Start:
-        return m_frameRate.has_value() ? QStringLiteral("Start (frames)") : QStringLiteral("Start");
+        return m_frameRate.has_value() ? translate("Start (frames)") : translate("Start");
     case End:
-        return m_frameRate.has_value() ? QStringLiteral("End (frames)") : QStringLiteral("End");
+        return m_frameRate.has_value() ? translate("End (frames)") : translate("End");
     case Duration:
-        return QStringLiteral("Duration");
+        return translate("Duration");
     case Text:
-        return QStringLiteral("Text");
+        return translate("Text");
     case Translation:
-        return QStringLiteral("Translation");
+        return translate("Translation");
     }
 
     std::unreachable();

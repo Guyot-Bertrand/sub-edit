@@ -2,6 +2,7 @@
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/gui/messages.hpp>
 #include <subedit/gui/project_page.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
@@ -31,21 +32,19 @@ static_assert(core::kTableColumnCount == SubtitleTableModel::kColumnCount);
 TableColumns::TableColumns(SubtitleTable& table, QObject* owner) : m_table(&table) {
     // The four that may go, beside the translation. `No.` as Gaupol names it:
     // the header's « # » reads badly as a menu entry.
-    const std::array<QString, 4> names = {QStringLiteral("&No."),
-                                          QStringLiteral("&Start"),
-                                          QStringLiteral("&End"),
-                                          QStringLiteral("&Duration")};
+    const std::array<QString, 4> names = {
+        translate("&No."), translate("&Start"), translate("&End"), translate("&Duration")};
     for (std::size_t column = 0; column < m_positions.size(); ++column) {
         m_positions.at(column) = new QAction{names.at(column), owner};
         m_positions.at(column)->setCheckable(true);
         m_positions.at(column)->setChecked(true);
     }
 
-    m_translation = new QAction{QStringLiteral("&Translation"), owner};
+    m_translation = new QAction{translate("&Translation"), owner};
     m_translation->setCheckable(true);
     m_translation->setChecked(true);
     m_translation->setEnabled(false);
-    m_translation->setToolTip(QStringLiteral("Show the translation next to the text"));
+    m_translation->setToolTip(translate("Show the translation next to the text"));
 
     // **The header's columns are dragged into another order** — issue #442.
     // The order belongs to the one table, and so to every tab: a model does
