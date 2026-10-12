@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/wording/correction.hpp>
 
 #include <string>
@@ -8,17 +9,17 @@ namespace subedit::core {
 std::string_view reasonOf(FailureKind kind) {
     switch (kind) {
     case FailureKind::Untranslatable:
-        return "cannot be translated";
+        return translate("cannot be translated");
     case FailureKind::CompileError:
-        return "will not compile";
+        return translate("will not compile");
     case FailureKind::InvalidReplacement:
-        return "has an invalid replacement";
+        return translate("has an invalid replacement");
     case FailureKind::TimedOut:
-        return "timed out";
+        return translate("timed out");
     case FailureKind::TooManyPasses:
-        return "never settled";
+        return translate("never settled");
     case FailureKind::TooLong:
-        return "grew the text too long";
+        return translate("grew the text too long");
     }
     return {}; // unreachable: every enumerator is handled above
 }
@@ -26,23 +27,23 @@ std::string_view reasonOf(FailureKind kind) {
 std::string_view reasonOf(PatternProblem problem) {
     switch (problem) {
     case PatternProblem::DirectoryUnreadable:
-        return "directory cannot be read";
+        return translate("directory cannot be read");
     case PatternProblem::FileUnreadable:
-        return "file cannot be read";
+        return translate("file cannot be read");
     case PatternProblem::MalformedLine:
-        return "malformed line";
+        return translate("malformed line");
     case PatternProblem::FieldOutsideRecord:
-        return "field outside any pattern";
+        return translate("field outside any pattern");
     case PatternProblem::UnknownField:
-        return "unknown field";
+        return translate("unknown field");
     case PatternProblem::MissingField:
-        return "missing field";
+        return translate("missing field");
     case PatternProblem::InvalidValue:
-        return "invalid value";
+        return translate("invalid value");
     case PatternProblem::MalformedActivation:
         break; // answered below, so that no unreachable line is left after the switch
     }
-    return "malformed activation";
+    return translate("malformed activation");
 }
 
 std::string describe(const PatternDiagnostic& diagnostic) {
@@ -50,7 +51,8 @@ std::string describe(const PatternDiagnostic& diagnostic) {
     if (text.empty())
         text = diagnostic.file.string();
     if (diagnostic.line > 0)
-        text += ", line " + std::to_string(diagnostic.line);
+        // TRANSLATORS: %1 is a file name, %2 a line number in it.
+        text = substitute(translate("%1, line %2"), {text, std::to_string(diagnostic.line)});
     text += " (" + std::string{reasonOf(diagnostic.problem)};
     if (!diagnostic.detail.empty())
         text += ": " + diagnostic.detail;

@@ -20,8 +20,14 @@
 // unit that said any word at all (issue #549). Each header includes only what
 // its own signatures need, and a change to a family now costs its readers only.
 //
-// English, like everything the tool prints. Translation is a phase of its own;
-// these files are where it will have to reach.
+// **Written in English and said in the installed language** (issue #662): every
+// sentence passes through `translate` or `translatePlural` of `core/i18n`, its
+// arguments are positional (`%1`..`%9`) so that a translation may reorder them,
+// and a count chooses its form from the catalogue rather than from an « s ». A
+// `std::string_view` these functions return may therefore point into the
+// installed catalogue, which lives as long as the program (ADR 0042). What is
+// never translated stays out (spec 15, D3): format names, option names,
+// extensions, line endings.
 
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/read_error.hpp>

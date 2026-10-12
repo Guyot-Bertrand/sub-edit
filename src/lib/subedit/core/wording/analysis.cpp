@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/wording/analysis.hpp>
 
 #include <cmath>
@@ -18,55 +19,59 @@ constexpr std::int64_t kMillisecondsPerSecond = 1000;
 std::string_view nameOf(AnomalyKind kind) {
     switch (kind) {
     case AnomalyKind::EndBeforeStart:
-        return "ends before it starts";
+        return translate("ends before it starts");
     case AnomalyKind::OverlappingSubtitles:
-        return "starts before the previous one ends";
+        return translate("starts before the previous one ends");
     case AnomalyKind::OutOfOrder:
-        return "starts before the previous one starts";
+        return translate("starts before the previous one starts");
     }
     std::unreachable();
 }
 
 std::string statementOf(const Anomaly& anomaly) {
-    return "subtitle " + std::to_string(anomaly.index.number()) + " " +
-           std::string{nameOf(anomaly.kind)};
+    // TRANSLATORS: %1 is a subtitle number, %2 what is wrong with it, such as
+    // « starts before the previous one ends ».
+    return substitute(translate("subtitle %1 %2"),
+                      {std::to_string(anomaly.index.number()), nameOf(anomaly.kind)});
 }
 
 std::string summaryOf(AnomalyKind kind, std::size_t count) {
-    return "subtitle " + std::string{nameOf(kind)} + ": " + std::to_string(count);
+    // TRANSLATORS: %1 is what is wrong with a subtitle, such as « starts before
+    // the previous one ends », and %2 how many subtitles it is wrong with.
+    return substitute(translate("subtitle %1: %2"), {nameOf(kind), std::to_string(count)});
 }
 
 std::string_view nameOf(DiagnosticKind kind) {
     switch (kind) {
     case DiagnosticKind::IgnoredLine:
-        return "a line that fits nowhere";
+        return translate("a line that fits nowhere");
     case DiagnosticKind::MalformedTimestamp:
-        return "a timing line that could not be read";
+        return translate("a timing line that could not be read");
     case DiagnosticKind::MissingNumbering:
-        return "a SubRip block without its number";
+        return translate("a SubRip block without its number");
     case DiagnosticKind::InconsistentNumbering:
-        return "SubRip numbers that do not follow";
+        return translate("SubRip numbers that do not follow");
     case DiagnosticKind::TextBeforeAnyTimestamp:
-        return "text before the first timing line";
+        return translate("text before the first timing line");
     case DiagnosticKind::UnknownBlock:
-        return "a WebVTT block of an unknown kind";
+        return translate("a WebVTT block of an unknown kind");
     case DiagnosticKind::UnknownEventField:
         // The column is the detail, so the sentence does not name it twice.
-        return "declares an event column this tool cannot fill";
+        return translate("declares an event column this tool cannot fill");
     case DiagnosticKind::AssumedFrameRate:
         // The rate is the detail. What the sentence has to carry is that the
         // file did not say it — every position on screen rests on the answer.
-        return "counts in frames and states no rate; it was read at";
+        return translate("counts in frames and states no rate; it was read at");
     case DiagnosticKind::DeducedEnds:
         // No detail: what the sentence has to carry is that not one end in the
         // table came from the file, and naming a line would say the opposite.
-        return "carries no end times; each one was taken from the next start";
+        return translate("carries no end times; each one was taken from the next start");
     case DiagnosticKind::MixedNewlines:
-        return "more than one kind of line ending";
+        return translate("more than one kind of line ending");
     case DiagnosticKind::GuessedEncoding:
-        return "an encoding nothing declared";
+        return translate("an encoding nothing declared");
     case DiagnosticKind::MarkOverridesEncoding:
-        return "a byte order mark that contradicts the encoding asked for";
+        return translate("a byte order mark that contradicts the encoding asked for");
     }
     std::unreachable();
 }
@@ -74,9 +79,9 @@ std::string_view nameOf(DiagnosticKind kind) {
 std::string_view nameOf(core::Severity severity) {
     switch (severity) {
     case Severity::Warning:
-        return "left as it stands";
+        return translate("left as it stands");
     case Severity::Recovered:
-        return "settled by the reader";
+        return translate("settled by the reader");
     }
     std::unreachable();
 }
@@ -84,65 +89,65 @@ std::string_view nameOf(core::Severity severity) {
 std::string_view nameOf(CommandKind kind) {
     switch (kind) {
     case CommandKind::SetText:
-        return "editing a text";
+        return translate("editing a text");
     case CommandKind::SetStart:
-        return "editing a start";
+        return translate("editing a start");
     case CommandKind::SetEnd:
-        return "editing an end";
+        return translate("editing an end");
     case CommandKind::SetDuration:
-        return "editing a duration";
+        return translate("editing a duration");
     case CommandKind::Insert:
-        return "inserting";
+        return translate("inserting");
     case CommandKind::Remove:
-        return "removing";
+        return translate("removing");
     case CommandKind::Shift:
-        return "shifting";
+        return translate("shifting");
     case CommandKind::Transform:
-        return "transforming";
+        return translate("transforming");
     case CommandKind::ConvertFrameRate:
-        return "converting the frame rate";
+        return translate("converting the frame rate");
     case CommandKind::Snap:
-        return "aligning on the frame rate";
+        return translate("aligning on the frame rate");
     case CommandKind::Sort:
-        return "sorting";
+        return translate("sorting");
     case CommandKind::RemoveHearingImpaired:
-        return "removing hearing-impaired mentions";
+        return translate("removing hearing-impaired mentions");
     case CommandKind::Italicise:
-        return "putting in italics";
+        return translate("putting in italics");
     case CommandKind::Unitalicise:
-        return "taking italics out";
+        return translate("taking italics out");
     case CommandKind::ChangeCase:
-        return "changing the case";
+        return translate("changing the case");
     case CommandKind::AddDialogueDashes:
-        return "adding dialogue dashes";
+        return translate("adding dialogue dashes");
     case CommandKind::RemoveDialogueDashes:
-        return "removing dialogue dashes";
+        return translate("removing dialogue dashes");
     case CommandKind::Merge:
-        return "merging";
+        return translate("merging");
     case CommandKind::Split:
-        return "splitting";
+        return translate("splitting");
     case CommandKind::Cut:
-        return "cutting texts";
+        return translate("cutting texts");
     case CommandKind::Paste:
-        return "pasting texts";
+        return translate("pasting texts");
     case CommandKind::AttachTranslation:
-        return "opening a translation";
+        return translate("opening a translation");
     case CommandKind::AdjustDurations:
-        return "adjusting durations";
+        return translate("adjusting durations");
     case CommandKind::Replace:
-        return "replacing";
+        return translate("replacing");
     case CommandKind::ReplaceAll:
-        return "replacing all";
+        return translate("replacing all");
     case CommandKind::Append:
-        return "appending a file";
+        return translate("appending a file");
     case CommandKind::SplitProject:
-        return "splitting the project";
+        return translate("splitting the project");
     case CommandKind::CorrectTexts:
-        return "correcting texts";
+        return translate("correcting texts");
     case CommandKind::MakeDisjoint:
-        return "making the ranges disjoint";
+        return translate("making the ranges disjoint");
     case CommandKind::JoinRepeats:
-        return "joining repeated subtitles";
+        return translate("joining repeated subtitles");
     }
 
     // Every one of `CommandKind` is handled and the compiler checks it. A
@@ -177,11 +182,13 @@ std::string nameOf(core::FrameRate rate) {
 std::string_view nameOf(GridVerdict verdict) {
     switch (verdict) {
     case GridVerdict::Clean:
-        return "clean";
+        // TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
+        // partial, or none at all.
+        return translate("clean");
     case GridVerdict::Partial:
-        return "partial";
+        return translate("partial");
     case GridVerdict::Silent:
-        return "none";
+        return translate("none");
     }
 
     // The three are handled and the compiler checks it.
@@ -196,16 +203,16 @@ std::string percentOf(double value) {
 
 std::string gridStatusOf(GridVerdict verdict, std::optional<FrameRate> rate) {
     if (!rate.has_value())
-        return "No grid";
+        return std::string{translate("No grid")};
 
-    std::string text = "Grid: " + nameOf(*rate) + " fps";
     if (verdict == GridVerdict::Partial)
-        text += " (" + std::string{nameOf(verdict)} + ")";
-    return text;
+        // TRANSLATORS: %1 is a frame rate, %2 the word for a partial grid.
+        return substitute(translate("Grid: %1 fps (%2)"), {nameOf(*rate), nameOf(verdict)});
+    return substitute(translate("Grid: %1 fps"), {nameOf(*rate)});
 }
 
 std::string framesStatusOf(FrameRate rate) {
-    return "Frames: " + nameOf(rate) + " fps";
+    return substitute(translate("Frames: %1 fps"), {nameOf(rate)});
 }
 
 std::string secondsOf(Duration length) {

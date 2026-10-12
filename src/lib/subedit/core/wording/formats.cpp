@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/wording/formats.hpp>
 
 #include <optional>
@@ -115,22 +116,27 @@ std::string_view nameOf(Newline newline) {
 }
 
 std::string nameOf(const Encoding& encoding) {
-    return std::string{encoding.charset()} +
-           (encoding.byteOrderMark() == ByteOrderMark::Present ? ", BOM" : ", no BOM");
+    // TRANSLATORS: %1 is the name of a character encoding, such as UTF-8; a BOM
+    // is a byte order mark.
+    return substitute(encoding.byteOrderMark() == ByteOrderMark::Present ? translate("%1, BOM")
+                                                                         : translate("%1, no BOM"),
+                      {encoding.charset()});
 }
 
 std::string encodingStatusOf(const Encoding& encoding) {
-    return "Encoding: " + nameOf(encoding);
+    return substitute(translate("Encoding: %1"), {nameOf(encoding)});
 }
 
 std::string refusalOf(EncodingRefusal refusal, std::string_view name) {
     switch (refusal) {
     case EncodingRefusal::Unknown:
-        return "no encoding is named \"" + std::string{name} + "\"";
+        // TRANSLATORS: %1 is the name the user gave for an encoding.
+        return substitute(translate("no encoding is named \"%1\""), {name});
     case EncodingRefusal::WritesItsOwnMark:
-        return "\"" + std::string{name} +
-               "\" writes a byte order mark of its own; name the byte order, "
-               "as UTF-16LE and UTF-16BE do";
+        // TRANSLATORS: %1 is the name the user gave for an encoding.
+        return substitute(translate("\"%1\" writes a byte order mark of its own; name the byte "
+                                    "order, as UTF-16LE and UTF-16BE do"),
+                          {name});
     }
     std::unreachable();
 }
@@ -138,11 +144,11 @@ std::string refusalOf(EncodingRefusal refusal, std::string_view name) {
 std::string_view reasonOf(ReadErrorKind kind) {
     switch (kind) {
     case ReadErrorKind::Undecodable:
-        return "cannot be decoded in the chosen encoding";
+        return translate("cannot be decoded in the chosen encoding");
     case ReadErrorKind::NoSubtitleFound:
-        return "holds nothing recognisable as a subtitle";
+        return translate("holds nothing recognisable as a subtitle");
     case ReadErrorKind::UnknownFormat:
-        return "is in no format this tool knows";
+        return translate("is in no format this tool knows");
     }
     std::unreachable();
 }
@@ -150,11 +156,11 @@ std::string_view reasonOf(ReadErrorKind kind) {
 std::string_view reasonOf(FileErrorKind kind) {
     switch (kind) {
     case FileErrorKind::NotFound:
-        return "does not exist";
+        return translate("does not exist");
     case FileErrorKind::PermissionDenied:
-        return "cannot be opened: permission denied";
+        return translate("cannot be opened: permission denied");
     case FileErrorKind::Io:
-        return "cannot be read";
+        return translate("cannot be read");
     }
     std::unreachable();
 }
@@ -162,10 +168,10 @@ std::string_view reasonOf(FileErrorKind kind) {
 std::string_view reasonOfWriting(FileErrorKind kind) {
     switch (kind) {
     case FileErrorKind::PermissionDenied:
-        return "cannot be written: permission denied";
+        return translate("cannot be written: permission denied");
     case FileErrorKind::NotFound:
     case FileErrorKind::Io:
-        return "cannot be written";
+        return translate("cannot be written");
     }
     std::unreachable();
 }
@@ -173,10 +179,10 @@ std::string_view reasonOfWriting(FileErrorKind kind) {
 std::string_view reasonOfCreating(FileErrorKind kind) {
     switch (kind) {
     case FileErrorKind::PermissionDenied:
-        return "cannot be created: permission denied";
+        return translate("cannot be created: permission denied");
     case FileErrorKind::NotFound:
     case FileErrorKind::Io:
-        return "cannot be created";
+        return translate("cannot be created");
     }
     std::unreachable();
 }
@@ -184,7 +190,7 @@ std::string_view reasonOfCreating(FileErrorKind kind) {
 std::string_view reasonOf(WriteErrorKind kind) {
     switch (kind) {
     case WriteErrorKind::Unencodable:
-        return "holds a character the chosen encoding cannot write";
+        return translate("holds a character the chosen encoding cannot write");
     }
     std::unreachable();
 }
