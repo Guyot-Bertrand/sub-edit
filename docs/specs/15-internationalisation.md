@@ -119,6 +119,32 @@ language that list does not name. `make po` merges the seeds without fuzzy match
 byte. The fixture `src/test/data/i18n/seed/` is replayed by the `fixtures` step; how to re-seed is in
 `src/po/README.md`.
 
+**Delivered by #668.** `src/po/fr.po` is complete: **890 entries, none untranslated, none fuzzy**. 156
+come from Gaupol's French, produced by `seed-catalogues.py --output-dir` into a scratch directory and
+carried over; each says so in a `From Gaupol.` comment, and the header credits Gaupol's translators,
+the upstream revision and the licence, as a seed's does — without the seed marker, since `fr` is a
+reviewed catalogue the script never touches. 18 of the 156 were corrected rather than kept: a `_`
+that Gaupol's translation put where our message has no accelerator (`Other…`, `Add`); seven that
+said something else (`Correct Texts` read as an adjective, a « remove » translated « add », the
+number sign `#` translated as « numbers » in five pattern names); three of number or agreement
+(`Corrected Text`, `Tasks and Target`, `Spaces around an apostrophe`); and six accelerators moved so
+that no two entries of a menu share a letter (`É&dition`, `&Vidéo`, `Aid&e`, `&Jouer la sélection`,
+`A&vancer`, `Duré&e`). The other **734 were written for subedit** and are
+reviewed by the maintainer (D5). Terminology follows the French manual and Gaupol: `sous-titre`,
+`position`, `décaler`, `caler` (snap), `cadence d'images` and `i/s` for a frame rate, `grille`,
+`plage` and `disjointes`, `motif`, `tâche`, `réglages`, `encodage`, `marque d'ordre des octets`,
+`fins de ligne`, `mentions pour malentendants`; a plain space before `:`, `;`, `?` and `!`, as the
+manual writes them; the source's ellipsis `…`; the option names, values typed, format and encoding
+names, the `%N` arguments and the keys of `--format json` untouched. `make po` leaves the file byte
+for byte. Two tests read the shipped catalogue rather than a fixture: the command line's help, a
+usage error, a batch's narration and a failure in French, English under `LC_ALL=C` and
+`LANGUAGE=en:fr`, and `--format json` the same bytes (`CLI-I18N-01` to `03`); and the window's
+shell, every text of it translated as the catalogue says (`GUI-I18N-01`). With French installed, a
+developer's French locale reached two maintenance scripts that read the words of `inspect` —
+`measure-conversion-loss.py`, which the `conversion` step runs, and
+`measure-duration-constraints.py`; both now ask for `LANGUAGE=en`, as the test harnesses already
+did.
+
 ## D6 — The correction patterns
 
 Pattern files are Gaupol's, read as they are ([ADR 0037](../adr/0037-lire-les-motifs-de-gaupol-tels-quels.md)), and their

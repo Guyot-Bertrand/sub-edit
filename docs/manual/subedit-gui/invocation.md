@@ -121,5 +121,6 @@ files, installed under `<prefix>/share/subedit/locale`.
 | the keyboard shortcuts | never: `Ctrl+S` is `Ctrl+S` in every language |
 | a message the catalogue does not translate | shown in English |
 
-This version installs `fr`, whose translation is still to be done: until it is, its messages are
-shown in English. The captures of this manual are taken in English.
+This version installs `fr`, French, translated in full: on a French desktop the menu bar reads
+`&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. The captures of
+this manual are taken in English.
