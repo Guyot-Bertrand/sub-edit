@@ -37,6 +37,7 @@ deviner. Le contrôle dit donc *quels noms existent*, jamais *ce qu'ils font*.
 from __future__ import annotations
 
 import argparse
+import os
 import pathlib
 import re
 import subprocess
@@ -56,8 +57,14 @@ SUBCOMMAND_ROW = re.compile(r"^\|\s*\[?`([a-z][a-z0-9-]*)`\]?")
 
 def run_help(binary: pathlib.Path, *args: str) -> str:
     """La sortie de `binary args --help`."""
+    # In English, whatever the machine's locale: the manual checked here is the English one,
+    # and `LANGUAGE=en` names the source language first (spec 15, D4).
     result = subprocess.run(
-        [str(binary), *args, "--help"], capture_output=True, text=True, check=False
+        [str(binary), *args, "--help"],
+        capture_output=True,
+        text=True,
+        check=False,
+        env={**os.environ, "LANGUAGE": "en"},
     )
     return result.stdout + result.stderr
 
