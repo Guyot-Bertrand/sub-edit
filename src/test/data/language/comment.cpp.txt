@@ -1,0 +1,2 @@
+// Ce commentaire est écrit en français, et la porte doit le refuser.
+int answer() { return 42; }

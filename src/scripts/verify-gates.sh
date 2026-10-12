@@ -926,6 +926,65 @@ expect_french_test_title_closes() {
 
 expect_french_test_title_closes
 
+# French outside the locales, and an allowlist that grows — #660.
+#
+# The check reads what git tracks, so the proofs run on a scratch repository
+# made of the tracked files of this one, committed once: that commit is the base
+# the list may not outgrow. Nothing of the repository is touched, and the
+# scratch directory goes with the proof. Three proofs: the copy as it is passes
+# (the check does not cry wolf on the real tree), a French sentence in a new file
+# is refused, and the same file refused again once its line is added to the list
+# — the list descends, it never grows.
+expect_repository_language_gate() {
+    local script="${REPO_ROOT}/src/scripts/check-comment-language.py"
+    local root output
+    root="$(mktemp -d)"
+    git -C "${REPO_ROOT}" ls-files -z | (cd "${REPO_ROOT}" && tar --null -T - -cf -) \
+        | tar -xf - -C "${root}"
+    git -C "${root}" init --quiet
+    git -C "${root}" add --all
+    git -C "${root}" -c user.name=proof -c user.email=proof@example.invalid \
+        commit --quiet -m base
+
+    proof_header '%s▸ the tracked tree, as it is%s\n' "${BOLD}" "${RESET}"
+    if "${script}" --root "${root}" --base HEAD >/dev/null 2>&1; then
+        printf '  %s✓ « check-comment-language.py » accepted the tree%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refuses the tree as it is%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ a French sentence in a new file%s\n' "${BOLD}" "${RESET}"
+    cp "${REPO_ROOT}/src/test/data/language/french.md" "${root}/zz-proof.md"
+    git -C "${root}" add zz-proof.md
+    if output="$("${script}" --root "${root}" --base HEAD 2>&1)"; then
+        printf '  %s✗ the check let the French file through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"UNLISTED"*"zz-proof.md"* ]]; then
+        printf '  %s✓ « check-comment-language.py » refused the new file%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refused, but not for the new file%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ the same file, added to the allowlist%s\n' "${BOLD}" "${RESET}"
+    printf 'zz-proof.md\n' >> "${root}/.french-allowlist"
+    git -C "${root}" add .french-allowlist
+    if output="$("${script}" --root "${root}" --base HEAD 2>&1)"; then
+        printf '  %s✗ the check let the allowlist grow%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"GROWN"*"zz-proof.md"* && "${output}" != *"UNLISTED"* ]]; then
+        printf '  %s✓ « check-comment-language.py » refused the added entry%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refused, but not for the added entry%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_repository_language_gate
+
 # La porte refuse ce qu une exécution a laissé derrière elle — #226.
 #
 # **Deux preuves et non une**, parce que le contrôle a deux modes d échec et

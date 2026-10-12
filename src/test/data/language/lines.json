@@ -1,0 +1,15 @@
+[
+  {"class": "fr", "line": "Ce contrôle refuse le français partout dans le dépôt."},
+  {"class": "fr", "line": "il ne dit pas tout, mais il le dit sans accent"},
+  {"class": "fr", "line": "# l'entrée qu'on retire ne revient jamais sur la liste"},
+  {"class": "fr", "line": "    printf 'la porte a laissé passer le défaut\\n' >&2"},
+  {"class": "fr", "line": "| Commande | Ce qu'on en dit dans le manuel |"},
+  {"class": "en", "line": "The check refuses French everywhere in the repository."},
+  {"class": "en", "line": "if [[ $count -ne 0 && $size -le 10 ]]; then du -sh build; fi"},
+  {"class": "en", "line": "The label « Fichier de sous-titres » is the one the French manual shows."},
+  {"class": "en", "line": "Run `git ls-files | grep -v le-la-les` to see what is read."},
+  {"class": "en", "line": "    r\"\\b(le|la|les|une|des|qui|que|qu|pour|dans|est|pas)\\b\""},
+  {"class": "en", "line": "la la la is what the lyrics say for the whole chorus"},
+  {"class": "en", "line": "See https://example.org/le-fichier-de-la-semaine-est-ici for the source."},
+  {"class": "en", "line": "Le Monde and Le Figaro are newspapers."}
+]

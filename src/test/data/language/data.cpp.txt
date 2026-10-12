@@ -1,0 +1,5 @@
+#include <string>
+
+// The subtitle below is French on purpose: it is what the test reads.
+const std::string kText = "Le vent se lève sur le port, et la mer est calme dans la baie.";
+const std::string kRaw = R"(Il ne dit rien // et ce n'est pas un commentaire)";

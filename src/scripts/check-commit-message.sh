@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Valide un message de commit contre la grammaire Conventional Commits.
+# Validates a commit message against the Conventional Commits grammar.
 #
-# Utilisé par le hook commit-msg en local et par la CI sur l'historique poussé.
-# Argument : un fichier contenant le message, ou le message lui-même.
+# Used by the commit-msg hook locally, by CI on the pushed history, and on pull
+# request titles. Argument: a file holding the message, or the message itself.
+# Messages are written in English (ADR 0043); the grammar does not check that.
 
 set -euo pipefail
 
@@ -13,48 +14,48 @@ readonly SUBJECT_MAX_LENGTH=72
 readonly RED=$'\033[31m'
 readonly RESET=$'\033[0m'
 
-input="${1:?usage : $(basename "$0") <fichier|message>}"
+input="${1:?usage: $(basename "$0") <file|message>}"
 if [[ -f "${input}" ]]; then
     message="$(cat "${input}")"
 else
     message="${input}"
 fi
 
-# Les lignes de commentaire de git ne font pas partie du message.
+# Git's comment lines are not part of the message.
 subject="$(printf '%s\n' "${message}" | grep -v '^#' | sed '/^[[:space:]]*$/d' | head -1)"
 
 reject() {
-    printf '%smessage de commit invalide%s\n\n' "${RED}" "${RESET}" >&2
+    printf '%sinvalid commit message%s\n\n' "${RED}" "${RESET}" >&2
     printf '  %s\n\n' "${subject}" >&2
     printf '%s\n' "$*" >&2
     cat >&2 <<EOF
 
-Grammaire attendue :
+Expected grammar:
 
   <type>(<scope>): <description>
 
   types  : ${TYPES//|/, }
-  scopes : ${SCOPES//|/, }   (facultatif)
+  scopes : ${SCOPES//|/, }   (optional)
 
-Exemples :
+Examples:
 
-  feat(core): lecture des fichiers SubRip
-  fix(cli): code de retour non nul en cas d'échec partiel
-  docs: feuille de route des huit phases
+  feat(core): read SubRip files
+  fix(cli): exit with a non-zero status on a partial failure
+  docs: roadmap of the eight phases
 EOF
     exit 1
 }
 
-# Les commits de fusion sont produits par git, pas par un humain.
+# Merge commits are written by git, not by a person.
 [[ "${subject}" =~ ^Merge\  ]] && exit 0
 
-[[ -n "${subject}" ]] || reject "le message est vide."
+[[ -n "${subject}" ]] || reject "the message is empty."
 
 [[ "${subject}" =~ ^(${TYPES})(\((${SCOPES})\))?!?:\ .+ ]] \
-    || reject "l'en-tête ne suit pas la grammaire, ou le scope n'appartient pas à la liste."
+    || reject "the header does not follow the grammar, or the scope is not in the list."
 
 (( ${#subject} <= SUBJECT_MAX_LENGTH )) \
-    || reject "l'en-tête fait ${#subject} caractères, maximum ${SUBJECT_MAX_LENGTH}."
+    || reject "the header is ${#subject} characters long, at most ${SUBJECT_MAX_LENGTH}."
 
 [[ ! "${subject}" =~ \.$ ]] \
-    || reject "l'en-tête ne se termine pas par un point."
+    || reject "the header does not end with a period."
