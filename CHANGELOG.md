@@ -11,6 +11,26 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **i18n** — Add a source-language scope and the catalogue lookup
+- **cli** — Translate the help, narration and errors of the command line
+
+### Corrections
+
+- **scripts** — Read the help in English in the manual and install checks
+- **cli** — Meet the gate on the translated command line
+
+### Documentation
+
+- **doc** — Say how the command line chooses its language
+
+### Tests
+
+- **cli** — Run the command line under a second catalogue
+
+## 0.15.16 — 2026-10-12
+
+### Ajouts
+
 - **i18n** — Translate the counts family of the core wording
 - **i18n** — Translate the other families of the core wording
 
@@ -21,6 +41,7 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — Record what #662 lowered in spec 15
+- **doc** — Regenerate the changelog
 
 ### Remaniements
 
