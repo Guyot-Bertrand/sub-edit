@@ -15,6 +15,8 @@
 #include <QTableView>
 #include <QVBoxLayout>
 
+#include <string_view>
+
 namespace subedit::gui {
 
 namespace {
@@ -24,9 +26,12 @@ namespace {
     QStringList paragraphs;
     if (!failures.empty()) {
         QStringList lines;
-        for (const core::PatternFailure& failure : failures)
-            lines << QString::fromStdString(failure.name) + " (" +
+        for (const core::PatternFailure& failure : failures) {
+            // The name as it is shown, translated when the catalogue knows it (D6).
+            const std::string_view name = core::patternName(failure.name);
+            lines << QString::fromUtf8(name.data(), static_cast<qsizetype>(name.size())) + " (" +
                          QString::fromUtf8(core::reasonOf(failure.kind).data()) + ")";
+        }
         // TRANSLATORS: %1 lists the patterns left out, each with its reason.
         paragraphs << substitute(translate("Not applied: %1"), lines.join(QStringLiteral(", ")));
     }

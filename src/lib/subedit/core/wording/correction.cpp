@@ -1,10 +1,25 @@
 #include <subedit/core/i18n/messages.hpp>
+#include <subedit/core/text/correction_pattern.hpp>
 #include <subedit/core/wording/correction.hpp>
 
 #include <string>
 #include <string_view>
 
 namespace subedit::core {
+
+std::string_view patternName(std::string_view englishName) {
+    // Not a literal: the msgid is the file's own text, which the template takes from the
+    // shipped patterns (`update-pot.sh`).
+    return translate(englishName);
+}
+
+std::string_view patternName(const CorrectionPattern& pattern) {
+    return patternName(pattern.name);
+}
+
+std::string_view patternDescription(const CorrectionPattern& pattern) {
+    return translate(pattern.description);
+}
 
 std::string_view reasonOf(FailureKind kind) {
     switch (kind) {

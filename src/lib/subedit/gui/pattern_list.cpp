@@ -1,5 +1,6 @@
 #include <subedit/core/text/hearing_impaired_correction.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
+#include <subedit/core/wording/correction.hpp>
 #include <subedit/gui/pattern_list.hpp>
 
 #include <QCheckBox>
@@ -7,9 +8,18 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+#include <string_view>
 #include <utility>
 
 namespace subedit::gui {
+
+namespace {
+
+[[nodiscard]] QString shown(std::string_view text) {
+    return QString::fromUtf8(text.data(), static_cast<qsizetype>(text.size()));
+}
+
+} // namespace
 
 PatternList::PatternList(const core::PatternCatalogue& catalogue,
                          core::PatternKind kind,
@@ -51,7 +61,10 @@ void PatternList::setCode(std::string_view code, const core::CorrectionSettings&
             found->box->setChecked(found->openedChecked);
             continue;
         }
-        auto* box = new QCheckBox{QString::fromStdString(record->name), this};
+        // Shown in the language, with its description as Gaupol shows it beside the name (D6);
+        // the English name stays the box's identifier, as it stays the setting's.
+        auto* box = new QCheckBox{shown(core::patternName(*record)), this};
+        box->setToolTip(shown(core::patternDescription(*record)));
         box->setObjectName(QString::fromStdString(record->name));
         const bool opened = core::patternEnabled(*record, settings);
         box->setChecked(opened);
