@@ -158,6 +158,11 @@ struct Locale {
 /// harness is in English: `childEnvironment()` gives it `LANGUAGE=en`.
 CliRun invokeIn(const Locale& locale, const std::vector<std::string>& args);
 
+/// Runs **the build tree's own** subedit-cli under `locale`: the binary every other
+/// runner starts, beside the catalogues the build compiles from `src/po/` and installs
+/// — French, today (#668). What the user of an installed program reads.
+CliRun invokeShipped(const Locale& locale, const std::vector<std::string>& args);
+
 /// Runs `args` in English and again under the fixture catalogue, **checks that
 /// standard output and the exit code are the same bytes in both**, and returns the
 /// English run — for `--format json`, whose records never follow the language

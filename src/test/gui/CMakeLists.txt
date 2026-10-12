@@ -25,7 +25,7 @@ add_executable(
     window_player_test.cpp player_factory_test.cpp video_surface_test.cpp play_bar_test.cpp audio_track_menu_test.cpp invocation_test.cpp
     window_video_bounds_test.cpp window_grid_test.cpp window_commit_edit_test.cpp
     window_appearance_test.cpp settings_path_test.cpp window_settings_test.cpp theme_test.cpp
-    window_language_test.cpp dialog_language_test.cpp
+    window_language_test.cpp dialog_language_test.cpp shipped_french_test.cpp
     ${CMAKE_SOURCE_DIR}/src/test/unit/grid_fixtures.cpp)
 
 target_link_libraries(
@@ -70,6 +70,12 @@ add_custom_command(
 add_custom_target(subedit_gui_test_catalogue DEPENDS "${subedit_gui_catalogue}")
 add_dependencies(subedit_gui_test subedit_gui_test_catalogue)
 target_compile_definitions(subedit_gui_test PRIVATE SUBEDIT_TEST_LOCALE_DIR="${subedit_gui_locale}")
+
+# The French that ships (#668): the catalogues of the build tree, compiled from `src/po/` and laid
+# out as `cmake/Translations.cmake` installs them, read by one test as the window reads them.
+add_dependencies(subedit_gui_test subedit_locale)
+target_compile_definitions(subedit_gui_test
+                           PRIVATE SUBEDIT_SHIPPED_LOCALE_DIR="${SUBEDIT_LOCALE_BUILD_DIR}")
 
 # Les fixtures de grille, partagées avec les tests du noyau et ceux de la ligne
 # de commande : il n'y a qu'un jeu de fichiers, et qu'une façon de l'ouvrir.
