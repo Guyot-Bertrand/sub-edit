@@ -251,7 +251,7 @@ std::expected<ReadResult, ReadError> WebVttReader::read(std::string_view content
     if (firstText == lines.end() || !trimmedBlanks(*firstText).starts_with(kSignature))
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::UnknownFormat,
-            .detail = "signature WEBVTT absente",
+            .detail = "no WEBVTT signature",
         });
 
     Parser parser;
@@ -265,7 +265,7 @@ std::expected<ReadResult, ReadError> WebVttReader::read(std::string_view content
     if (result.subtitles.empty())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::NoSubtitleFound,
-            .detail = "aucune cue",
+            .detail = "no cue",
         });
 
     return result;

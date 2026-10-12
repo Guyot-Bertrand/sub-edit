@@ -281,7 +281,7 @@ std::expected<ReadResult, ReadError> SubRipReader::read(std::string_view content
     if (result.subtitles.empty())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::NoSubtitleFound,
-            .detail = "aucune ligne d'horodatage",
+            .detail = "no timestamp line",
         });
 
     return result;
