@@ -25,6 +25,7 @@ add_executable(
     window_player_test.cpp player_factory_test.cpp video_surface_test.cpp play_bar_test.cpp audio_track_menu_test.cpp invocation_test.cpp
     window_video_bounds_test.cpp window_grid_test.cpp window_commit_edit_test.cpp
     window_appearance_test.cpp settings_path_test.cpp window_settings_test.cpp theme_test.cpp
+    window_language_test.cpp
     ${CMAKE_SOURCE_DIR}/src/test/unit/grid_fixtures.cpp)
 
 target_link_libraries(
@@ -52,6 +53,23 @@ target_compile_definitions(subedit_gui_test
 # (#505). Versionnés, donc présents partout, comme pour subedit_core_test.
 target_compile_definitions(subedit_gui_test
                            PRIVATE SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns")
+
+# The window under a second language (#664): the Russian fixture `data/i18n/window.po`, compiled
+# by msgfmt into a locale directory of this binary's own, laid out as an installation is, so that
+# the window finds it the way `main` finds an installed catalogue.
+set(subedit_gui_locale "${CMAKE_CURRENT_BINARY_DIR}/locale")
+set(subedit_gui_catalogue "${subedit_gui_locale}/ru/LC_MESSAGES/subedit.mo")
+add_custom_command(
+    OUTPUT "${subedit_gui_catalogue}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${subedit_gui_locale}/ru/LC_MESSAGES"
+    COMMAND "${SUBEDIT_MSGFMT}" --output-file "${subedit_gui_catalogue}"
+            "${CMAKE_SOURCE_DIR}/src/test/data/i18n/window.po"
+    DEPENDS "${CMAKE_SOURCE_DIR}/src/test/data/i18n/window.po"
+    COMMENT "msgfmt window.po"
+    VERBATIM)
+add_custom_target(subedit_gui_test_catalogue DEPENDS "${subedit_gui_catalogue}")
+add_dependencies(subedit_gui_test subedit_gui_test_catalogue)
+target_compile_definitions(subedit_gui_test PRIVATE SUBEDIT_TEST_LOCALE_DIR="${subedit_gui_locale}")
 
 # Les fixtures de grille, partagées avec les tests du noyau et ceux de la ligne
 # de commande : il n'y a qu'un jeu de fichiers, et qu'une façon de l'ouvrir.

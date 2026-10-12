@@ -152,6 +152,13 @@ int main(int argc, char** argv) {
     // the moment it exists, and a variable set after it would arrive late.
     const PrivateConfigHome configHome;
 
+    // **English, explicitly** (spec 15, D4): no test may depend on the language of the machine
+    // it runs on. Nothing here installs a catalogue unless a test asks for one, and this makes
+    // English also the answer of whatever reads the language from the environment — an entry
+    // naming English ends the search, whatever `LANG` says. A test of another language passes
+    // its own environment.
+    qputenv("LANGUAGE", "en");
+
     const QApplication application{argc, argv};
     return Catch::Session().run(argc, argv);
 }
