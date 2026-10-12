@@ -11,6 +11,20 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **gui** — Translate the dialogs, the wizard pages and the prompts
+
+### Documentation
+
+- **doc** — Say that the dialogs follow the language
+
+### Tests
+
+- **gui** — Open every dialog under a second catalogue
+
+## 0.15.18 — 2026-10-12
+
+### Ajouts
+
 - **i18n** — Say which language the catalogue lookup found
 - **gui** — Translate the window's menus, toolbar, columns and status
 - **gui** — Choose the window's language and Qt's catalogue at start-up
@@ -18,6 +32,7 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — Say how the window chooses its language
+- **doc** — Regenerate the changelog
 
 ### Tests
 
