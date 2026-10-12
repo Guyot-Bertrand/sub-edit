@@ -7,6 +7,7 @@
 #include <subedit/core/config/settings.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/project.hpp>
+#include <subedit/gui/interface_language.hpp>
 #include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/player_factory.hpp>
@@ -26,6 +27,10 @@ int main(int argc, char** argv) {
         const QStringList arguments = QApplication::arguments();
         if (subedit::gui::reportVersion(arguments, std::cout))
             return 0;
+
+        // The language, once, before anything is built (spec 15, D4): every label is
+        // translated as the window builds it, and English is put back as this goes.
+        const subedit::gui::InterfaceLanguage language;
 
         subedit::core::RealFileSystem files;
         subedit::core::OpenedFile opened =
