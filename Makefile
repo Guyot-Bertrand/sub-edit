@@ -193,18 +193,20 @@ untranslated: ## Refuse a user-visible string outside the translation API beyond
 untranslated-record: ## Rewrite .untranslated-ratchet from the counts of the tree
 	@./src/scripts/check-translatable-strings.py --record
 
-# Les catalogues de messages — issue #659. `pot` réécrit le gabarit d'après le code, `po` le fusionne
-# dans chaque langue de src/po/LINGUAS, `pot-check` (dans `check-local`) refuse un gabarit périmé.
+# The message catalogues — issues #659 and #667. `pot` rewrites the template from the code, `po`
+# merges it into every catalogue of src/po/ (the installed languages of LINGUAS and the seeds from
+# Gaupol), `pot-check` (in `check-local`) refuses a stale template. The seeds themselves are written
+# by `src/scripts/seed-catalogues.py`, run by hand: see src/po/README.md.
 .PHONY: pot
-pot: ## Réécrit src/po/subedit.pot d'après le code
+pot: ## Rewrite src/po/subedit.pot from the code
 	@./src/scripts/update-pot.sh
 
 .PHONY: po
-po: ## Fusionne le gabarit dans les catalogues de src/po/LINGUAS
+po: ## Merge the template into every catalogue of src/po/, seeds included
 	@./src/scripts/update-po.sh
 
 .PHONY: pot-check
-pot-check: ## Vérifie que src/po/subedit.pot est ce que le code produit
+pot-check: ## Check that src/po/subedit.pot is what the code produces
 	@./src/scripts/gate.sh pot-check
 
 .PHONY: fixtures

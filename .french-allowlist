@@ -232,7 +232,6 @@ src/scripts/setup-github.sh
 src/scripts/setup-toolchain.sh
 src/scripts/shifted-pairs.py
 src/scripts/subtitle-fixtures.py
-src/scripts/update-po.sh
 src/scripts/verify-gates.sh
 src/scripts/video-fixtures.sh
 src/scripts/wrong-rate-pairs.py

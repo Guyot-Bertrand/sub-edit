@@ -369,6 +369,18 @@ check_catalogues() {
         checked=$((checked + 1))
     done < <(installed_languages)
 
+    # **And no other language**: the seeds imported from Gaupol live in src/po/ beside the shipped
+    # catalogues and must not be installed until they are complete and reviewed (spec 15, D5, #667).
+    local directory
+    for directory in "${root}"/*/; do
+        [[ -d "${directory}" ]] || continue
+        language="$(basename "${directory}")"
+        if ! installed_languages | grep -qxF "${language}"; then
+            report_failure "a catalogue is installed for \"${language}\", which src/po/LINGUAS does not name
+    a seed ships only once it is complete and reviewed (spec 15, D5)"
+        fi
+    done
+
     if (( checked > 0 )) && (( failures == 0 )); then
         report_success "les ${checked} catalogue(s) de langue sont installés sous share/subedit/locale"
     fi
