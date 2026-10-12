@@ -985,6 +985,79 @@ expect_repository_language_gate() {
 
 expect_repository_language_gate
 
+# A user-visible string outside the translation API, and a ratchet that rises — #661.
+#
+# The scan reads what git tracks, so the proofs run on a scratch repository made of the tracked
+# files of this one, committed once: that commit is the base whose total the ratchet may not
+# exceed. Nothing of the repository is touched, and the scratch directory goes with the proof.
+# Four proofs: the copy as it is passes, an unwrapped label in a new source is refused, the same
+# label wrapped in `tr` passes, and the unwrapped one recorded into the ratchet is refused as
+# growth — the ratchet descends, it never rises.
+expect_untranslated_gate() {
+    local script="${REPO_ROOT}/src/scripts/check-translatable-strings.py"
+    local root output
+    local -r source="src/lib/subedit/gui/zz_proof.cpp"
+    root="$(mktemp -d)"
+    git -C "${REPO_ROOT}" ls-files -z | (cd "${REPO_ROOT}" && tar --null -T - -cf -) \
+        | tar -xf - -C "${root}"
+    git -C "${root}" init --quiet
+    git -C "${root}" add --all
+    git -C "${root}" -c user.name=proof -c user.email=proof@example.invalid \
+        commit --quiet -m base
+
+    proof_header '%s▸ the tracked tree, as it is%s\n' "${BOLD}" "${RESET}"
+    if "${script}" --root "${root}" --base HEAD >/dev/null 2>&1; then
+        printf '  %s✓ « check-translatable-strings.py » accepted the tree%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refuses the tree as it is%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ an unwrapped label in a new source%s\n' "${BOLD}" "${RESET}"
+    printf 'void proof(QLabel& label) { label.setText(QStringLiteral("Nobody translates this")); }\n' \
+        > "${root}/${source}"
+    git -C "${root}" add "${source}"
+    if output="$("${script}" --root "${root}" --base HEAD 2>&1)"; then
+        printf '  %s✗ the check let the unwrapped label through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"NEW"*"zz_proof.cpp"* ]]; then
+        printf '  %s✓ « check-translatable-strings.py » refused the label%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refused, but not for the label%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ the same label, wrapped in tr%s\n' "${BOLD}" "${RESET}"
+    printf 'void proof(QLabel& label) { label.setText(tr("Nobody translates this")); }\n' \
+        > "${root}/${source}"
+    if "${script}" --root "${root}" --base HEAD >/dev/null 2>&1; then
+        printf '  %s✓ « check-translatable-strings.py » accepted the wrapped label%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refuses the wrapped label%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ the unwrapped label, recorded into the ratchet%s\n' "${BOLD}" "${RESET}"
+    printf 'void proof(QLabel& label) { label.setText(QStringLiteral("Nobody translates this")); }\n' \
+        > "${root}/${source}"
+    "${script}" --root "${root}" --record >/dev/null
+    if output="$("${script}" --root "${root}" --base HEAD 2>&1)"; then
+        printf '  %s✗ the check let the ratchet rise%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"GROWN"* && "${output}" != *"NEW"* ]]; then
+        printf '  %s✓ « check-translatable-strings.py » refused the raised ratchet%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refused, but not for the raised ratchet%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_untranslated_gate
+
 # La porte refuse ce qu une exécution a laissé derrière elle — #226.
 #
 # **Deux preuves et non une**, parce que le contrôle a deux modes d échec et
