@@ -10,6 +10,25 @@ A `.po` that is not in `LINGUAS` stays in the repository without being built or 
 complete — no untranslated and no fuzzy entry — and has been reviewed by someone who reads it (spec 15, D5). Today
 that is French alone.
 
+## French
+
+`fr.po` is complete and installed (#668): a catalogue taken over, never a seed. It started from Gaupol's French — the
+156 entries `seed-catalogues.py --output-dir <scratch>` gives it — and the other 734 were written for subedit. An entry
+carried from Gaupol says so in a `# From Gaupol.` comment, and the header credits Gaupol's translators, the upstream
+revision and the licence. It has no seed marker, so the script never writes it, and `make po` merges it **with** fuzzy
+matching: a changed English sentence comes back flagged `fuzzy`, which a translator reviews before the language ships
+again. Check it with:
+
+```console
+$ msgfmt --check --statistics -o /dev/null src/po/fr.po
+890 translated messages.
+```
+
+Conventions: the terms of the French manual (*sous-titre*, *décaler*, *caler*, *cadence d'images*, `i/s`, *plage*,
+*motif*, *réglages*); a plain space before `:`, `;`, `?` and `!`; `…` where the source has it; one `&` per label, its
+letter unique within its menu or dialog; option names, values typed, format names and the `%N` arguments kept as they
+are.
+
 ## Workflow
 
 ```console
