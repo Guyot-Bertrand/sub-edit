@@ -11,6 +11,20 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **scripts** — Refuse French everywhere, with a descending allowlist
+
+### Documentation
+
+- **doc** — Describe the repository-wide language guard
+
+### Remaniements
+
+- **scripts** — Write the commit grammar check in English
+
+## 0.15.13 — 2026-10-12
+
+### Ajouts
+
 - **core** — Resolve the settings path without Qt
 - **core** — Write settings as operation and display blocks
 - **core** — Operation settings, their catalogue and their reader
@@ -35,6 +49,7 @@ ne pas l'éditer à la main.
 - **doc** — Spec, ADR 0045 and plan for shared configuration
 - **doc** — Manual for shared configuration and the config command
 - **doc** — Fold shared configuration into phase 15
+- **doc** — Regenerate the changelog
 
 ### Tests
 
