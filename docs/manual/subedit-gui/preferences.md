@@ -12,6 +12,9 @@ thème n'en a aucun, ni l'unité des longueurs de lignes, ni les deux cases qui
 les montrent, ni le saut et l'avance du lecteur. Voir [Le thème](#le-thème),
 [Les longueurs de lignes](#les-longueurs-de-lignes) et [Le lecteur](#le-lecteur).
 
+**The interface language is in the same dialog, and it is the one that waits**: it applies at the
+next launch, not at once. See [The interface language](#the-interface-language).
+
 **Le volume n'en a pas** : la barre sous l'image et deux gestes le règlent, et il est retenu.
 
 **Une autre se règle là où elle sert** : le côté où `Insert Subtitles…` pose ses
@@ -78,7 +81,7 @@ The file is written in **two blocks**, each under a banner comment:
 | Block | Keys | Read by |
 | :---- | :--- | :------ |
 | `# Operation settings: shared by the window and the command line` | the `duration-adjust.*` and `correction.*` keys | the window **and** `subedit-cli` |
-| `# Display preferences: the window's own` | every other key — geometry, columns, theme, search, spell-check, editor, video, last directory, write encoding | the window only |
+| `# Display preferences: the window's own` | every other key — geometry, columns, theme, interface language, search, spell-check, editor, video, last directory, write encoding | the window only |
 
 **`subedit-cli` reads the operation block by default**: what `Adjust Durations…` and
 `Correct Texts…` remember here is also what [`subedit-cli adjust`](../subedit-cli/adjust.md)
@@ -104,6 +107,7 @@ two blocks existed is read unchanged, and rewritten in two blocks at the next cl
 | `window.table-share` | la part de la hauteur donnée à la table, en pour cent, de 1 à 99 | la fenêtre partage comme elle l'a toujours fait |
 | `file.directory` | un chemin **absolu** de répertoire | aucun : `Open…` s'ouvre là où le programme a été lancé |
 | `general.theme` | `system`, `light` ou `dark` | `system` |
+| `interface.language` | `system`, or a language's name as its catalogue is named: two or three lower-case letters, then optionally `_` and two capitals — `fr`, `pt_BR`; `en` for English | `system` |
 | `edit.insert-placement` | `above` ou `below` | `below` |
 | `file.write-encoding` | le nom d'un encodage qu'ICU sait écrire, et dont le convertisseur n'écrit pas sa propre marque | aucun |
 | `file.write-bom` | `true` ou `false` | `false` |
@@ -265,6 +269,43 @@ outre, quel que soit le bureau.
 **Les teintes d'anomalie restent lisibles dans les deux palettes** — voir
 [La table](table.md#les-anomalies). Ce n'est pas une supposition : le contraste
 du texte sur chacune des teintes est vérifié par un test, sur les deux fonds.
+
+## The interface language
+
+`Edit ▸ Preferences…` chooses the language of the window, under the theme.
+
+| Field | Values | Default |
+| :---- | :----- | :------ |
+| `Interface language` | `System default`; `English`; then each language installed with the program, by its own name — `Français` | `System default` |
+
+**It takes effect at the next launch**, and the dialog says so under the field: the window is
+translated as it is built, and a running window keeps the language it started in. The choice is
+kept in the settings file, under `interface.language`, and read when the window next opens.
+
+| Choice | The window starts in |
+| :----- | :------------------- |
+| `System default` | the language of the environment, as before any choice — `LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, `LANG`; see [Language](invocation.md#language) |
+| `English` | English, whatever the environment says |
+| an installed language | that language, **whatever the environment says**, `LC_ALL=C` included: a choice made here is an explicit one |
+
+The list holds the languages whose catalogue is installed under `<prefix>/share/subedit/locale`;
+English is always there, since it is the language the program is written in. A language is shown
+by its own name, which no catalogue translates, so that a reader finds the one they read.
+
+**A value the program cannot honour costs nothing but the choice:**
+
+| What the file says | What happens |
+| :----------------- | :----------- |
+| a language's name with no catalogue installed — a file brought from another machine | the window follows the environment, without a word; `Preferences…` shows that language, by its name or its code, and keeps it unless another is chosen |
+| something that is not a language's name — `French`, `fr_FR.UTF-8` | `system`, the default, and the option is named on the error stream, as any unreadable value is |
+
+```console
+$ subedit-gui film.srt
+subedit-gui: /home/vous/.config/subedit/settings.conf: interface.language: "French" cannot be read, keeping the default
+```
+
+**The command line never reads it**: `subedit-cli` chooses its language from the environment
+alone, and `subedit-cli config set interface.language fr` is refused as a display preference.
 
 ## Les longueurs de lignes
 

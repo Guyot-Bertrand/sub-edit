@@ -92,6 +92,29 @@ English, worded inside the parser; the headings CLI11 puts in `--help` are trans
 - **Every test binary starts in English explicitly**, so no test depends on the machine's environment; tests of another
   language ask for it.
 
+**Delivered by #669.** `interface.language` is a display preference of `core::Settings`, written in the display
+block after `general.theme`: `system` by default, written commented, or a catalogue's name — two or three lower-case
+letters, then optionally `_` and two capitals (`fr`, `pt_BR`, `en`), the shape `core::isLanguageName` checks. Anything
+else is unreadable: `system` is kept and the window names the option on its error stream, as every unreadable value is
+(ADR 0022). The reader opens no directory, so whether the catalogue is installed is decided at start-up, by
+`core::chosenLanguage`: **the setting wins over the environment** when it names English or an installed language —
+over `LANGUAGE` and over `LC_ALL=C` alike, since a choice made in the window is an explicit one — and an uninstalled
+one is passed over silently, the environment deciding, as an uninstalled language of the environment is. `main` reads
+the value before it builds anything (`gui::settingsLanguage`, silent: the diagnostics are written once, translated,
+when the window reads the same file) and hands it to `gui::InterfaceLanguage`. `Preferences…` gains `Interface
+language`, with `Takes effect at the next launch.` under it: `System default`, `English`, then each language whose
+catalogue reads under `<bin>/../share/subedit/locale` (`core::availableLanguages`, which tries each with the code that
+loads one), each by its own name in its own language (`core::endonymOf`, a table of English and the twenty languages
+of `src/po/`, exempted from the scanner as `[language-name]`; a code it does not know is shown as written). A value
+from the file that is not in that list is shown and kept rather than changed behind the user's back. The choice is
+kept by the window and written at closing; it is never applied to the window it was chosen in. The command line never
+reads it, and `config set interface.language` is refused as a display preference — the display keys are those the
+file renders, so nothing else had to change. The harness of #664 is the harness of this issue too: `InterfaceLanguage`
+given a settings file, an environment and the fixture's locale directory, then a window built with no screen; it now
+proves the setting (`GUI-I18N-02`): offered, kept from one session to the next, applied at the next launch and not
+before, winning over an English environment and over `LC_ALL=C`, `system` following the environment, an uninstalled
+or unreadable value leaving it to the environment.
+
 ## D5 — Which languages ship
 
 - **English** is the source and always present.
@@ -400,7 +423,7 @@ value is a usage error, an unwritable file is the I/O error.
 ### Out of scope for #699
 
 - Display preferences on the command line.
-- The interface language, which comes from the environment (D4, #658).
+- The interface language on the command line, which comes from the environment (D4, #658); the window's setting is #669's, a display preference.
 - Any setting that has no command line equivalent.
 - `correction.activations`, a list managed by the window.
 
