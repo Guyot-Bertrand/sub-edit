@@ -13,7 +13,7 @@ that is French alone.
 ## French
 
 `fr.po` is complete and installed (#668): a catalogue taken over, never a seed. It started from Gaupol's French — the
-156 entries `seed-catalogues.py --output-dir <scratch>` gives it — and the other 734 were written for subedit. An entry
+156 entries `seed-catalogues.py --output-dir <scratch>` gives it — and the other 737 were written for subedit. An entry
 carried from Gaupol says so in a `# From Gaupol.` comment, and the header credits Gaupol's translators, the upstream
 revision and the licence. It has no seed marker, so the script never writes it, and `make po` merges it **with** fuzzy
 matching: a changed English sentence comes back flagged `fuzzy`, which a translator reviews before the language ships
@@ -21,7 +21,7 @@ again. Check it with:
 
 ```console
 $ msgfmt --check --statistics -o /dev/null src/po/fr.po
-890 translated messages.
+893 translated messages.
 ```
 
 Conventions: the terms of the French manual (*sous-titre*, *décaler*, *caler*, *cadence d'images*, `i/s`, *plage*,
