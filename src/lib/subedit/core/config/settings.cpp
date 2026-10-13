@@ -1,5 +1,6 @@
 #include <subedit/core/config/correction_settings.hpp>
 #include <subedit/core/config/settings.hpp>
+#include <subedit/core/i18n/language.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/model/encoding.hpp>
@@ -19,6 +20,7 @@
 #include <string_view>
 #include <system_error>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace subedit::core {
@@ -36,6 +38,7 @@ constexpr std::string_view kHiddenColumnsKey = "table.hidden";
 constexpr std::string_view kTableShareKey = "window.table-share";
 constexpr std::string_view kDirectoryKey = "file.directory";
 constexpr std::string_view kThemeKey = "general.theme";
+constexpr std::string_view kInterfaceLanguageKey = "interface.language";
 constexpr std::string_view kInsertPlacementKey = "edit.insert-placement";
 constexpr std::string_view kWriteEncodingKey = "file.write-encoding";
 constexpr std::string_view kWriteBomKey = "file.write-bom";
@@ -127,6 +130,10 @@ constexpr std::string_view kTranslationDocument = "translation";
 constexpr std::string_view kSystemTheme = "system";
 constexpr std::string_view kLightTheme = "light";
 constexpr std::string_view kDarkTheme = "dark";
+
+// The value of `interface.language` that names no language: the environment's. The theme's
+// word, the same in the file for the same idea — the desktop decides.
+constexpr std::string_view kSystemLanguage = kSystemTheme;
 
 // The two sides of an insertion, as the file carries them — and for the reason
 // the theme is: these are tokens of a format, not the labels the dialog
@@ -234,6 +241,17 @@ constexpr char kActivationFieldSeparator = ':';
         return kDarkTheme;
     }
     std::unreachable();
+}
+
+/// `system`, which names no language, or the name of a catalogue — the outer
+/// option empty for anything else, the inner one empty for `system`. Whether
+/// the catalogue is installed is the window's to find out (see `Settings`).
+[[nodiscard]] std::optional<std::optional<std::string>> interfaceLanguageOf(std::string_view text) {
+    if (text == kSystemLanguage)
+        return std::optional<std::optional<std::string>>{std::in_place};
+    if (!isLanguageName(text))
+        return std::nullopt;
+    return std::optional<std::optional<std::string>>{std::in_place, std::string{text}};
 }
 
 [[nodiscard]] std::optional<InsertPlacement> placementOf(std::string_view text) {
@@ -820,6 +838,8 @@ void applyOption(SettingsRead& read,
         take(directoryOf(value), read.settings.lastDirectory);
     else if (key == kThemeKey)
         take(themeOf(value), read.settings.theme);
+    else if (key == kInterfaceLanguageKey)
+        take(interfaceLanguageOf(value), read.settings.interfaceLanguage);
     else if (key == kInsertPlacementKey)
         take(placementOf(value), read.settings.insertPlacement);
     else if (key == kWriteEncodingKey)
@@ -1195,6 +1215,11 @@ void renderDisplayBlock(std::string& out, const Settings& settings) {
 
     writeOption(
         out, kThemeKey, std::string{textOf(settings.theme)}, settings.theme == Theme::System);
+
+    writeOption(out,
+                kInterfaceLanguageKey,
+                settings.interfaceLanguage.value_or(std::string{kSystemLanguage}),
+                !settings.interfaceLanguage.has_value());
 
     writeOption(out,
                 kInsertPlacementKey,

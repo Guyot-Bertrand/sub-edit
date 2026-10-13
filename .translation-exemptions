@@ -29,6 +29,8 @@ call      setObjectName
 text      Zyyy
 # The language the spelling falls back to when the system names none: a code Enchant reads (#665).
 file      src/lib/subedit/gui/join_split_page.cpp en
+# The code of the source language, which Preferences offers whatever is installed (#669).
+file      src/lib/subedit/gui/preferences_dialog.cpp en
 # The key CLI11's formatter looks a word of its help up by; what it shows is translated (#663).
 call      label
 # The values of `--format json` the command line writes, one word each: a kind of failure, of
@@ -125,6 +127,9 @@ file      src/lib/subedit/core/i18n/catalogue.cpp [\w-]+[:=]
 
 [external-program] The arguments given to another program, in its own syntax.
 file      src/lib/subedit/core/video/declared_frame_rate.cpp \S+
+
+[language-name] A language's name in that language, as a list of languages shows it: a reader looks for the name of the language they read, written as they write it (#669).
+file      src/lib/subedit/core/i18n/language_names.cpp
 
 [spelling-data] What the spell checker matches in the subtitles' own text: English ordinal suffixes and contractions, data of the language checked and not of the interface.
 file      src/lib/subedit/core/text/spell_checker.cpp \S+

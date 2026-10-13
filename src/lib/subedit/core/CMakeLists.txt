@@ -95,6 +95,7 @@ add_library(
     text/utf8.cpp
     i18n/catalogue.cpp
     i18n/language.cpp
+    i18n/language_names.cpp
     i18n/messages.cpp
     i18n/plural_expression.cpp
     format/subtitle_file.cpp

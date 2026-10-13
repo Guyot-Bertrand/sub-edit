@@ -207,6 +207,11 @@ TEST_CASE("set names a display preference as one, and an unknown key as unknown"
     const auto display = setOperationOption(settings, "general.theme", "dark");
     REQUIRE_FALSE(display.has_value());
     CHECK(display.error().find("display preference") != std::string::npos);
+    // The interface language is the window's own (#669): the command line never reads it.
+    const auto language = setOperationOption(settings, "interface.language", "fr");
+    REQUIRE_FALSE(language.has_value());
+    CHECK(language.error() == "interface.language is a display preference; set it in the window");
+    CHECK(findOperationKey("interface.language") == nullptr);
     const auto unknown = setOperationOption(settings, "no.such.key", "1");
     REQUIRE_FALSE(unknown.has_value());
     CHECK(unknown.error().find("unknown") != std::string::npos);

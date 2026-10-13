@@ -133,6 +133,20 @@ struct Settings {
 
     Theme theme = Theme::System;
 
+    /// The language the window speaks — spec 15, D4, issue #669.
+    ///
+    /// **Absent is `system`, the default**: the window follows `LANGUAGE`,
+    /// `LC_ALL`, `LC_MESSAGES` and `LANG`, as the command line does. Present,
+    /// it names a catalogue — `fr`, `pt_BR`, or `en` for the source language —
+    /// and wins over the environment, `LC_ALL=C` included: a choice made in
+    /// `Preferences…` is an explicit one.
+    ///
+    /// **Whether that catalogue is installed is not the reader's business**:
+    /// the core reads a file and opens no directory. The window finds out at
+    /// start-up, and follows the environment when it is not. It is read once,
+    /// before the window is built, and a change applies at the next launch.
+    std::optional<std::string> interfaceLanguage{};
+
     /// Which side of the selection `Insert Subtitles…` lays its rows on.
     ///
     /// **Below it by default**, which is Gaupol's default. It is the direction

@@ -54,6 +54,36 @@ struct InstalledLanguage {
 installedLanguage(const std::vector<std::string>& candidates,
                   const std::filesystem::path& localeDirectory);
 
+/// Whether `text` has the shape of a catalogue's name: two or three lower-case letters, then
+/// optionally `_` and two upper-case letters — `fr`, `ast`, `pt_BR`. What the settings file
+/// accepts for `interface.language` (#669); whether such a catalogue exists is another question.
+[[nodiscard]] bool isLanguageName(std::string_view text);
+
+/// The language the window starts in — D4, issue #669: `preferred`, the user's setting, when it
+/// names English or a language installed under `localeDirectory`; the environment's otherwise.
+///
+/// **The setting wins**, over `LANGUAGE` and over `LC_ALL=C` alike: it was chosen in the window,
+/// on purpose. A setting whose catalogue is not installed — a file carried to another machine, a
+/// language removed — is passed over silently, as an uninstalled language of the environment is,
+/// and the environment decides. Nothing for English.
+[[nodiscard]] std::optional<InstalledLanguage>
+chosenLanguage(const std::optional<std::string>& preferred,
+               const EnvironmentLookup& environment,
+               const std::filesystem::path& localeDirectory);
+
+/// The languages installed under `localeDirectory`, by name and sorted: every directory whose
+/// catalogue reads, tried by the code that loads one, so that a language offered is a language
+/// that would load. English is not among them: it is the source and has no catalogue. Empty when
+/// the directory is missing.
+[[nodiscard]] std::vector<std::string>
+availableLanguages(const std::filesystem::path& localeDirectory);
+
+/// A language by its own name, in its own language — `Français` for `fr`, `English` for `en` —
+/// or nothing for a language this table does not know. A regional name with no entry of its own
+/// takes its language's: `fr_CA` is `Français`. Never translated: a reader looks for the name of
+/// the language they read (#669).
+[[nodiscard]] std::optional<std::string_view> endonymOf(std::string_view language);
+
 /// The catalogue of the first of `candidates` that is installed under `localeDirectory` and
 /// reads, or null — English.
 ///

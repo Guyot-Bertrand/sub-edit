@@ -293,7 +293,9 @@ TEST_CASE("config set refuses a display preference", "[e2e][config]") {
 
     for (const std::vector<std::string>& line : std::vector<std::vector<std::string>>{
              {"--config", file, "config", "set", "general.theme", "light"},
-             {"--config", file, "config", "unset", "window.maximised"}}) {
+             {"--config", file, "config", "unset", "window.maximised"},
+             // The window's language (#669): the command line never reads it.
+             {"--config", file, "config", "set", "interface.language", "fr"}}) {
         INFO(line[4]);
         const CliRun run = invoke(line);
 

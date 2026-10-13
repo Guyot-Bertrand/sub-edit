@@ -23,6 +23,13 @@ constexpr std::string_view kEffect = "Effect"; // expect: exempt:file-syntax
 
 // path: src/lib/subedit/gui/preferences_dialog.cpp
 form->addRow(QStringLiteral("Language:"), m_language); // expect: counted
+constexpr std::string_view kEnglish = "en"; // expect: exempt:identifier
+
+// path: src/lib/subedit/core/i18n/language_names.cpp
+constexpr std::pair<std::string_view, std::string_view> kFrench{"fr", "Français"}; // expect: exempt:language-name
+
+// path: src/lib/subedit/core/i18n/language.cpp
+return "Français"; // expect: counted
 
 // path: src/lib/subedit/core/i18n/catalogue.cpp
 constexpr std::string_view kKey = "Plural-Forms:"; // expect: exempt:file-syntax

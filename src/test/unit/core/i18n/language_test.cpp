@@ -9,15 +9,22 @@
 #include <fstream>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <system_error>
 #include <unistd.h>
+#include <utility>
 #include <vector>
 
+using subedit::core::availableLanguages;
 using subedit::core::cataloguePath;
+using subedit::core::chosenLanguage;
+using subedit::core::endonymOf;
 using subedit::core::EnvironmentLookup;
 using subedit::core::installedCatalogue;
 using subedit::core::installedLanguage;
+using subedit::core::isLanguageName;
 using subedit::core::languageCandidates;
 
 namespace {
@@ -185,4 +192,85 @@ TEST_CASE("a catalogue that does not read is passed over like a missing one", "[
     const auto catalogue = installedCatalogue({"fr", "ru"}, locale.path());
     REQUIRE(catalogue != nullptr);
     CHECK(catalogue->findPlural("%1 subtitle", 1) == "%1 субтитр");
+}
+
+// ## The setting `interface.language` — issue #669
+
+namespace {
+
+/// An environment of the test's own: `variables`, and nothing else.
+EnvironmentLookup environmentOf(std::map<std::string, std::string, std::less<>> variables) {
+    return [variables = std::move(variables)](std::string_view name) -> std::optional<std::string> {
+        const auto found = variables.find(name);
+        if (found == variables.end())
+            return std::nullopt;
+        return found->second;
+    };
+}
+
+/// The name of the language `chosenLanguage` settles on, empty for English.
+std::string chosenName(const std::optional<std::string>& preferred,
+                       const EnvironmentLookup& environment,
+                       const std::filesystem::path& locale) {
+    const auto found = chosenLanguage(preferred, environment, locale);
+    return found ? found->name : std::string{};
+}
+
+} // namespace
+
+TEST_CASE("a language's name is two or three letters, and a region of two", "[i18n][language]") {
+    for (const char* name : {"fr", "ast", "pt_BR", "en", "zh_CN"})
+        CHECK(isLanguageName(name));
+    for (const char* name :
+         {"", "f", "fren", "FR", "fr_", "fr_br", "fr_BRA", "fr-FR", "fr_FR.UTF-8", "system", "é"})
+        CHECK_FALSE(isLanguageName(name));
+}
+
+TEST_CASE("the setting wins over the environment when its language is installed",
+          "[i18n][language]") {
+    const LocaleDirectory locale;
+    locale.install("ru", "ru.mo");
+    locale.install("fr", "fr.mo");
+
+    const EnvironmentLookup french = environmentOf({{"LANG", "fr_FR.UTF-8"}});
+    CHECK(chosenName("ru", french, locale.path()) == "ru");
+    // A region falls back on its language, as a locale of the environment does.
+    CHECK(chosenName("ru_RU", french, locale.path()) == "ru");
+    // `LC_ALL=C` is the environment's way of asking for English; a setting is asked for too.
+    CHECK(chosenName("ru", environmentOf({{"LC_ALL", "C"}}), locale.path()) == "ru");
+    // English, named, is English whatever the environment says.
+    CHECK(chosenName("en", french, locale.path()).empty());
+    CHECK(chosenName("en_GB", french, locale.path()).empty());
+}
+
+TEST_CASE("no setting, or one that is not installed, leaves the environment to decide",
+          "[i18n][language]") {
+    const LocaleDirectory locale;
+    locale.install("ru", "ru.mo");
+
+    const EnvironmentLookup russian = environmentOf({{"LANG", "ru_RU.UTF-8"}});
+    CHECK(chosenName(std::nullopt, russian, locale.path()) == "ru");
+    CHECK(chosenName("de", russian, locale.path()) == "ru");
+    CHECK(chosenName("de", environmentOf({}), locale.path()).empty());
+}
+
+TEST_CASE("the languages offered are those whose catalogue reads", "[i18n][language]") {
+    const LocaleDirectory locale;
+    locale.install("ru", "ru.mo");
+    locale.install("fr", "fr.mo");
+    locale.damage("de");
+
+    CHECK(availableLanguages(locale.path()) == Names{"fr", "ru"});
+    CHECK(availableLanguages(locale.path() / "absent").empty());
+}
+
+TEST_CASE("a language is named in its own language", "[i18n][language]") {
+    CHECK(endonymOf("en") == "English");
+    CHECK(endonymOf("fr") == "Français");
+    CHECK(endonymOf("ru") == "Русский");
+    CHECK(endonymOf("pt_BR") == "Português do Brasil");
+    // A region with no name of its own takes its language's.
+    CHECK(endonymOf("fr_CA") == "Français");
+    CHECK_FALSE(endonymOf("xx").has_value());
+    CHECK_FALSE(endonymOf("xx_YY").has_value());
 }
