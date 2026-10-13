@@ -1,0 +1,87 @@
+[
+  {
+    "name": "a complete installed language passes, and the two other catalogues are only reported as seeds",
+    "linguas": ["de"],
+    "status": 0,
+    "counts": {"de": [8, 0, 0, 0], "fr": [4, 3, 1, 3], "pl": [8, 0, 0, 0]},
+    "findings": [
+      ["fr", "UNTRANSLATED", "Close", false],
+      ["fr", "FUZZY", "Rate %1 frames per second", false],
+      ["fr", "NEW", "Shift the selected subtitles by a duration", false],
+      ["fr", "NEW", "Added since the last merge", false],
+      ["fr", "GONE", "Shift the selected subtitle by a duration", false],
+      ["fr", "GONE", "Toggle the waveform", false],
+      ["pl", "ACCELERATOR", "&Open", false],
+      ["pl", "PLACEHOLDERS", "Saved %1", false],
+      ["pl", "PLURAL-FORMS", "Removed %1 subtitle", false]
+    ]
+  },
+  {
+    "name": "an installed language with a missing, a fuzzy, a changed, a new and a dropped entry fails and names each",
+    "linguas": ["fr"],
+    "status": 1,
+    "counts": {"de": [8, 0, 0, 0], "fr": [4, 2, 2, 2], "pl": [8, 0, 0, 0]},
+    "findings": [
+      ["fr", "UNTRANSLATED", "Close", true],
+      ["fr", "FUZZY", "Rate %1 frames per second", true],
+      ["fr", "CHANGED", "Shift the selected subtitles by a duration", true],
+      ["fr", "NEW", "Added since the last merge", true],
+      ["fr", "GONE", "Toggle the waveform", true],
+      ["pl", "ACCELERATOR", "&Open", false],
+      ["pl", "PLACEHOLDERS", "Saved %1", false],
+      ["pl", "PLURAL-FORMS", "Removed %1 subtitle", false]
+    ]
+  },
+  {
+    "name": "an installed language whose placeholders, mnemonic and plural forms are wrong fails",
+    "linguas": ["pl"],
+    "status": 1,
+    "counts": {"de": [8, 0, 0, 0], "fr": [4, 3, 1, 3], "pl": [8, 0, 0, 0]},
+    "findings": [
+      ["fr", "UNTRANSLATED", "Close", false],
+      ["fr", "FUZZY", "Rate %1 frames per second", false],
+      ["fr", "NEW", "Shift the selected subtitles by a duration", false],
+      ["fr", "NEW", "Added since the last merge", false],
+      ["fr", "GONE", "Shift the selected subtitle by a duration", false],
+      ["fr", "GONE", "Toggle the waveform", false],
+      ["pl", "ACCELERATOR", "&Open", true],
+      ["pl", "PLACEHOLDERS", "Saved %1", true],
+      ["pl", "PLURAL-FORMS", "Removed %1 subtitle", true]
+    ]
+  },
+  {
+    "name": "the same defects in seeds only, with nothing installed, are reported and pass",
+    "linguas": [],
+    "status": 0,
+    "counts": {"de": [8, 0, 0, 0], "fr": [4, 3, 1, 3], "pl": [8, 0, 0, 0]},
+    "findings": [
+      ["fr", "UNTRANSLATED", "Close", false],
+      ["fr", "FUZZY", "Rate %1 frames per second", false],
+      ["fr", "NEW", "Shift the selected subtitles by a duration", false],
+      ["fr", "NEW", "Added since the last merge", false],
+      ["fr", "GONE", "Shift the selected subtitle by a duration", false],
+      ["fr", "GONE", "Toggle the waveform", false],
+      ["pl", "ACCELERATOR", "&Open", false],
+      ["pl", "PLACEHOLDERS", "Saved %1", false],
+      ["pl", "PLURAL-FORMS", "Removed %1 subtitle", false]
+    ]
+  },
+  {
+    "name": "LINGUAS naming a language without a catalogue fails",
+    "linguas": ["de", "zz"],
+    "status": 1,
+    "counts": {"de": [8, 0, 0, 0], "fr": [4, 3, 1, 3], "pl": [8, 0, 0, 0]},
+    "findings": [
+      ["zz", "NO-FILE", null, true],
+      ["fr", "UNTRANSLATED", "Close", false],
+      ["fr", "FUZZY", "Rate %1 frames per second", false],
+      ["fr", "NEW", "Shift the selected subtitles by a duration", false],
+      ["fr", "NEW", "Added since the last merge", false],
+      ["fr", "GONE", "Shift the selected subtitle by a duration", false],
+      ["fr", "GONE", "Toggle the waveform", false],
+      ["pl", "ACCELERATOR", "&Open", false],
+      ["pl", "PLACEHOLDERS", "Saved %1", false],
+      ["pl", "PLURAL-FORMS", "Removed %1 subtitle", false]
+    ]
+  }
+]

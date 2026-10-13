@@ -209,6 +209,13 @@ po: ## Merge the template into every catalogue of src/po/, seeds included
 pot-check: ## Check that src/po/subedit.pot is what the code produces
 	@./src/scripts/gate.sh pot-check
 
+# Translations that fall behind their source — issue #670. The template is merged into a scratch
+# copy of every catalogue, as `make po` would; an installed language must come out complete, a
+# seed is only reported. In `check-local`, after `pot-check`.
+.PHONY: translations
+translations: ## Refuse an installed language with an untranslated, fuzzy or stale entry
+	@./src/scripts/gate.sh translations
+
 .PHONY: fixtures
 fixtures: ## Vérifie que les fixtures engendrées sont ce que leur table dit
 	@./src/scripts/gate.sh fixtures

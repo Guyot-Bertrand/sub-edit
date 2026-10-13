@@ -133,6 +133,12 @@ avec un objectif d'iso-fonctionnalité.
   for a reader — a key, an option name, a format's syntax — goes in
   `.translation-exemptions`, with its reason. A conversion lowers the ratchet
   with `make untranslated-record`.
+
+  **An installed language stays complete.** The `translations` step of
+  `check-local` (#670) merges the template into a copy of every catalogue, as
+  `make po` would, and refuses an untranslated, fuzzy or stale entry in a
+  language of `src/po/LINGUAS`; a seed is only reported. A changed English
+  message therefore means `make po` and its French translation in the same diff.
 - **Commits** — Conventional Commits, scopes alignés sur les labels `area:`.
 - **Titre d'une pull request** — **la même grammaire, la même limite de 72
   caractères.** `.github/workflows/pull-request.yml` passe le titre à

@@ -1,0 +1,54 @@
+# A catalogue the template has moved past: an empty entry, a fuzzy one, a source sentence
+# changed since the last merge, an entry the template added since, one it dropped, and an old
+# obsolete one.
+msgid ""
+msgstr ""
+"Project-Id-Version: subedit\n"
+"Report-Msgid-Bugs-To: https://github.com/Guyot-Bertrand/sub-edit/issues\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Open"
+msgstr "&Ouvrir"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Close"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "Saved %1"
+msgstr "%1 enregistré"
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 of %2 files"
+msgstr "%1 fichiers sur %2"
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "Removed %1 subtitle"
+msgid_plural "Removed %1 subtitles"
+msgstr[0] "%1 sous-titre supprimé"
+msgstr[1] "%1 sous-titres supprimés"
+
+#: src/lib/subedit/core/wording/video.cpp
+#, fuzzy
+msgid "Rate %1 frames per second"
+msgstr "Cadence de %1 images par seconde"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Shift the selected subtitle by a duration"
+msgstr "Décaler le sous-titre sélectionné d'une durée"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Toggle the waveform"
+msgstr "Afficher la forme d'onde"
+
+#~ msgid "Quit"
+#~ msgstr "Quitter"

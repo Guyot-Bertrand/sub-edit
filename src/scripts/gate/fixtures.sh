@@ -25,3 +25,5 @@ step "translatable strings: the verdict of each marked literal and the ratchet r
 "${REPO_ROOT}/src/scripts/check-translatable-strings.py" --check-fixtures
 step "catalogue seeds: accelerators, placeholders, plurals and fuzzy entries, replayed on a fixture"
 "${REPO_ROOT}/src/scripts/seed-catalogues.py" --check-fixtures
+step "stale translations: installed languages fail, seeds are reported, replayed on a fixture"
+"${REPO_ROOT}/src/scripts/check-translations.py" --check-fixtures

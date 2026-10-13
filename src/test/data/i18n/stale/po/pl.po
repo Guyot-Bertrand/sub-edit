@@ -1,0 +1,49 @@
+# A complete catalogue whose forms are wrong: a placeholder renumbered, a mnemonic lost, and a
+# plural with two forms where the header says three.
+msgid ""
+msgstr ""
+"Project-Id-Version: subedit\n"
+"Report-Msgid-Bugs-To: https://github.com/Guyot-Bertrand/sub-edit/issues\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: Polish\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Open"
+msgstr "Otwórz"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Close"
+msgstr "Zamknij"
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "Saved %1"
+msgstr "Zapisano %2"
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 of %2 files"
+msgstr "%1 z %2 plików"
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "Removed %1 subtitle"
+msgid_plural "Removed %1 subtitles"
+msgstr[0] "Usunięto %1 napis"
+msgstr[1] "Usunięto %1 napisy"
+
+#: src/lib/subedit/core/wording/video.cpp
+msgid "Rate %1 frames per second"
+msgstr "Częstotliwość %1 klatek na sekundę"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Shift the selected subtitles by a duration"
+msgstr "Przesuń zaznaczone napisy o czas"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Added since the last merge"
+msgstr "Dodane od ostatniego scalenia"

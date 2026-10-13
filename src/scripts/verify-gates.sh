@@ -1058,6 +1058,64 @@ expect_untranslated_gate() {
 
 expect_untranslated_gate
 
+# A translation that falls behind its source — #670.
+#
+# The check reads the catalogues of `src/po/` only, so the proofs run on a scratch copy of the
+# files git tracks there; nothing of the repository is touched, and the copy goes with the proof.
+# Three proofs: the copy as it is passes (the check does not cry wolf on the shipped French), one
+# French entry emptied is refused and named, and the same entry emptied in a seed passes — it is
+# reported, its translated count one lower, and nothing fails.
+expect_stale_translation_gate() {
+    local script="${REPO_ROOT}/src/scripts/check-translations.py"
+    local root output seed_before seed_after
+    root="$(mktemp -d)"
+    git -C "${REPO_ROOT}" ls-files -z src/po | (cd "${REPO_ROOT}" && tar --null -T - -cf -) \
+        | tar -xf - -C "${root}"
+    local -r empty_edit='/^msgid "&Edit"$/{n;s/^msgstr ".*"$/msgstr ""/}'
+
+    proof_header '%s▸ the catalogues, as they are%s\n' "${BOLD}" "${RESET}"
+    if output="$("${script}" --root "${root}" 2>&1)"; then
+        printf '  %s✓ « check-translations.py » accepted the catalogues%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refuses the catalogues as they are%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+    seed_before="$(grep '^de ' <<<"${output}" || true)"
+
+    proof_header '%s▸ an entry emptied in an installed language%s\n' "${BOLD}" "${RESET}"
+    cp "${root}/src/po/fr.po" "${root}/fr.po.orig"
+    sed -i "${empty_edit}" "${root}/src/po/fr.po"
+    if output="$("${script}" --root "${root}" 2>&1)"; then
+        printf '  %s✗ the check let the empty French entry through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"UNTRANSLATED  fr.po: '&Edit'"* ]]; then
+        printf '  %s✓ « check-translations.py » refused and named the entry%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refused, but did not name the entry%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+    mv "${root}/fr.po.orig" "${root}/src/po/fr.po"
+
+    proof_header '%s▸ the same entry emptied in a seed%s\n' "${BOLD}" "${RESET}"
+    sed -i "${empty_edit}" "${root}/src/po/de.po"
+    if output="$("${script}" --root "${root}" 2>&1)"; then
+        seed_after="$(grep '^de ' <<<"${output}" || true)"
+        if [[ -n "${seed_before}" && "${seed_after}" != "${seed_before}" ]]; then
+            printf '  %s✓ « check-translations.py » reported the seed and passed%s\n' "${GREEN}" "${RESET}"
+        else
+            printf '  %s✗ the check passed without counting the emptied entry%s\n' "${RED}" "${RESET}"
+            failures=$((failures + 1))
+        fi
+    else
+        printf '  %s✗ the check refuses a seed%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_stale_translation_gate
+
 # La porte refuse ce qu une exécution a laissé derrière elle — #226.
 #
 # **Deux preuves et non une**, parce que le contrôle a deux modes d échec et
