@@ -4,10 +4,10 @@
 subedit-cli adjust [--speed CPS|off] [--shorten] [--no-lengthen]
                    [--minimum TIME|off] [--maximum TIME|off] [--gap TIME|off]
                    [--range N-M|N-]
-                   (--output FICHIER | --output-dir DOSSIER | --in-place)
+                   (--output FILE | --output-dir DIR | --in-place)
                    [--dry-run]
                    [--recursive]
-                   <fichier>...
+                   <file>...
 ```
 
 Ajuste la **durée** de chaque sous-titre à une vitesse de lecture et à des bornes : un
@@ -15,7 +15,7 @@ sous-titre trop court pour être lu est allongé, un sous-titre qui laisse l'éc
 trop longtemps peut être raccourci, et deux sous-titres ne se recouvrent pas. **Seule la
 fin bouge** : déplacer le début déplacerait le sous-titre, ce qui est le travail de
 [`shift`](shift.md). C'est l'opération `Adjust Durations…` de la
-[fenêtre](../subedit-gui/operations.md#adjust-durations), avec les mêmes défauts.
+[fenêtre](../../../../manual/subedit-gui/operations.md#adjust-durations), avec les mêmes défauts.
 
 ## Les quatre contraintes, et leur ordre
 
@@ -107,7 +107,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--speed` | non | un nombre de caractères par seconde, **supérieur à zéro** (`15`, `12.5`), ou `off` | `15` |
 | `--shorten` | non | un drapeau : la vitesse peut aussi **avancer** une fin | désactivé |
@@ -139,8 +139,8 @@ comprises** ; `--range 3-` va jusqu'au dernier. Un seul sous-titre s'écrit `4-4
   refusés comme erreur d'usage (code `1`).
 - **Elle vaut pour chaque fichier du lot**, ce qui n'a de sens que si les fichiers se
   ressemblent. Elle est jugée **contre chaque fichier** : une plage qui dépasse celui-ci est
-  refusée **avant qu'on y touche**, en nommant la borne — `range 3-9 ends after the last
-  subtitle: the file has 4` —, ce fichier échoue (code `2` ou `3`, identifiant
+  refusée **avant qu'on y touche**, en nommant la borne —
+  `range 3-9 ends after the last subtitle: the file has 4` —, ce fichier échoue (code `2` ou `3`, identifiant
   `range-out-of-bounds`) et les autres continuent.
 - Les comptes du rapport ne portent que sur les sous-titres choisis.
 
@@ -196,9 +196,9 @@ Le fichier est écrit tel quel : **une destination donnée est une destination �
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: adjusted the durations of N subtitles; could not satisfy …  -> <destination>`, ou `<chemin>: no duration to adjust -> <destination>` — and, first, the settings file read — `settings: read <path>` — see [The settings file](invocation.md#the-settings-file) |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: adjusted the durations of N subtitles; could not satisfy …  -> <destination>`, ou `<path>: no duration to adjust -> <destination>` — and, first, the settings file read — `settings: read <path>` — see [The settings file](invocation.md#the-settings-file) |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 La phrase est celle de la fenêtre : `N` est le nombre de sous-titres dont la fin a bougé, et la
 suite, absente quand rien n'a cédé, énumère ce qui n'a pas été tenu — `the reading speed`,
@@ -246,7 +246,7 @@ seulement, `1` sur une erreur d'usage. Un fichier qui tient déjà dans ses limi
 | maximum nul ou négatif | `--maximum: "0" is not a duration above zero` |
 | plage mal écrite | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | plage qui finit avant de commencer | `--range: "5-3" is not a range: it ends before it starts` |
-| plage hors du fichier | `<chemin>: range N-M starts after the last subtitle: the file has K`, ou `… ends after …` |
+| plage hors du fichier | `<path>: range N-M starts after the last subtitle: the file has K`, ou `… ends after …` |
 
 Les erreurs de la destination sont communes aux sous-commandes qui écrivent :
 voir [Invocation](invocation.md#la-destination).

@@ -2,15 +2,15 @@
 
 ```
 subedit-cli dialogue-dashes (--add | --remove) [--range N-M|N-]
-                            (--output FICHIER | --output-dir DOSSIER | --in-place)
+                            (--output FILE | --output-dir DIR | --in-place)
                             [--dry-run]
                             [--recursive]
-                            [--document main|translation] [-t FICHIER] [--align-method position|number]
-                            <fichier>...
+                            [--document main|translation] [-t FILE] [--align-method position|number]
+                            <file>...
 ```
 
 Met un **tiret de dialogue** en tête des lignes, ou les retire. C'est `Dialogue Dashes` de la
-[fenêtre](../subedit-gui/operations.md).
+[fenêtre](../../../../manual/subedit-gui/operations.md).
 
 **Deux mots, comme [`italics`](italics.md)** : `--add` et `--remove` s'excluent, et il en faut un.
 
@@ -52,7 +52,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--add` / `--remove` | **l'un des deux** | des drapeaux | — |
 | `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir [`adjust`](adjust.md#--range) | tout le fichier |
@@ -62,7 +62,7 @@ Options:
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 
-**Le texte principal par défaut ; la traduction avec `--document translation -t FICHIER`.** C'est alors
+**Le texte principal par défaut ; la traduction avec `--document translation -t FILE`.** C'est alors
 la traduction qui est changée et écrite, et elle seule — voir [Une traduction](invocation.md#une-traduction).
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt -->
@@ -86,9 +86,9 @@ changements, décrite dans [Voir avant d'écrire](invocation.md#voir-avant-décr
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles dashed -> <destination>`, ou `N subtitles undashed`, ou `nothing to change` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles dashed -> <destination>`, ou `N subtitles undashed`, ou `nothing to change` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 `N` est le nombre de sous-titres **dont le texte a changé**, lu de l'opération elle-même.
 

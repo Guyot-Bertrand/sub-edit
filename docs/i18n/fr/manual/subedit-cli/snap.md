@@ -1,11 +1,11 @@
 # `snap`
 
 ```
-subedit-cli snap --rate <cadence>
-                 (--output FICHIER | --output-dir DOSSIER | --in-place)
+subedit-cli snap --rate <rate>
+                 (--output FILE | --output-dir DIR | --in-place)
                  [--dry-run]
                  [--recursive]
-                 <fichier>...
+                 <file>...
 ```
 
 Porte **chaque horodatage** — début et fin — sur l'image la plus proche de la
@@ -18,7 +18,7 @@ Les deux commandes ont la même forme — des fichiers, une destination, une cad
 
 | | [`framerate`](framerate.md) | `snap` |
 | :--- | :-------------------------- | :----- |
-| ce qu'elle calcule | `t' = t x cadence d'entrée / cadence de sortie` | l'image la plus proche, sur la grille de `--rate` |
+| ce qu'elle calcule | `t' = t x input rate / output rate` | l'image la plus proche, sur la grille de `--rate` |
 | de combien elle déplace | proportionnellement au temps — **plusieurs secondes** sur un long métrage | une demi-image au plus, **partout** |
 | pour quel fichier | un fichier dont le **minutage est faux** | un fichier dont le minutage est **juste** et dont la grille est fausse |
 
@@ -58,7 +58,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--rate` | **oui** | une cadence en images par seconde, écrite comme pour [`framerate`](framerate.md#écrire-une-cadence) | — |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
@@ -77,9 +77,9 @@ Le format du fichier lu est **conservé** : changer de format est le travail de
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 **Les deux nombres sont l'intérêt de la ligne.** Une demi-image à 25 images par
 seconde vaut vingt millisecondes, et rien de plus ne peut être écrit là. Qui

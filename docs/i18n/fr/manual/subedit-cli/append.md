@@ -1,13 +1,13 @@
 # `append`
 
 ```
-subedit-cli append --output FICHIER
+subedit-cli append --output FILE
                    [--dry-run] [--sort] [--disjoint]
-                   <base> <fichier>...
+                   <base> <file>...
 ```
 
 Met des fichiers **à la suite du premier**, dans **un seul** fichier : le film en deux parties, rendu en un
-seul jeu de sous-titres. C'est `Append File…` de la fenêtre — [le même moteur](../subedit-gui/operations.md#append-file),
+seul jeu de sous-titres. C'est `Append File…` de la fenêtre — [le même moteur](../../../../manual/subedit-gui/operations.md#append-file),
 les mêmes comptes — appliqué autant de fois qu'il y a de fichiers à ajouter.
 
 - **Le premier fichier est la base.** Il donne au résultat **son format, son encodage, sa marque
@@ -51,7 +51,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<base> <fichier>...` | oui, **deux au moins** | des chemins : la base, puis ce qu'on met à sa suite, dans l'ordre | — |
+| `<base> <file>...` | oui, **deux au moins** | des chemins : la base, puis ce qu'on met à sa suite, dans l'ordre | — |
 | `--output` | **oui**, sauf avec `--dry-run` | un chemin de fichier ; son dossier est créé s'il manque | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 | `--sort` | non | un drapeau : met l'ensemble dans l'ordre de ses débuts **une fois tout ajouté**, voir [Trier le résultat](#trier-le-résultat) | désactivé |
@@ -93,13 +93,13 @@ l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option
 
 ## Rendre les plages disjointes
 
-Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, une fois tout ajouté, sur l'ensemble. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<chemin>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
+Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, une fois tout ajouté, sur l'ensemble. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<path>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
 
 ## Quand les formats diffèrent
 
 Le résultat est dans **le format de la base**, quel que soit celui des autres. Ce que la traversée coûte est
 dit fichier par fichier, avec les mots de la fenêtre — la même phrase que `Append File…` et que
-[le collage d'un autre format](../subedit-gui/presse-papiers.md#les-balises-dun-autre-format-sont-traduites) :
+[le collage d'un autre format](../../../../manual/subedit-gui/presse-papiers.md#les-balises-dun-autre-format-sont-traduites) :
 
 ```text
 d.ass: appended 1 subtitle; Advanced SSA into SubRip: 1 tag dropped, the header was dropped
@@ -115,7 +115,7 @@ qui est déjà dans ce format, ou l'on convertit ensuite avec [`convert`](conver
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | une ligne par fichier ajouté — `<chemin>: appended N subtitles`, suivie, quand le format a coûté quelque chose, de `; <format source> into <format de la base>: <ce qui est perdu>` — puis `<base>: N subtitles from M files -> <destination>` (avec `--dry-run`, `(dry run, nothing written)` à la place de `-> <destination>`) |
+| 1 | une ligne par fichier ajouté — `<path>: appended N subtitles`, suivie, quand le format a coûté quelque chose, de `; <source format> into <base format>: <what is lost>` — puis `<base>: N subtitles from M files -> <destination>` (avec `--dry-run`, `(dry run, nothing written)` à la place de `-> <destination>`) |
 | 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne de la base, remis tels quels |
 | 3 | `<base>: N bytes read, M written` (tous les fichiers ensemble), puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
@@ -154,9 +154,9 @@ Un échec est un objet lui aussi, **un seul** : celui du premier fichier qui n'a
 | :------------------- | :------ |
 | un seul fichier donné | `append needs a base file and at least one file to put after it` |
 | ni `--output` ni `--dry-run` | `no destination given: append writes one file, use --output` |
-| `--output` désigne une entrée | `<destination>: would be written over the input <entrée>` |
-| un fichier absent, illisible ou d'un format inconnu | `<chemin>: does not exist`, `<chemin>: is in no format this tool knows`… — les mêmes que partout |
+| `--output` désigne une entrée | `<destination>: would be written over the input <input>` |
+| un fichier absent, illisible ou d'un format inconnu | `<path>: does not exist`, `<path>: is in no format this tool knows`… — les mêmes que partout |
 
 **Un fichier vide ne s'ajoute pas** : aucun format ne se lit sans un sous-titre au moins, et le fichier est
-refusé comme tout fichier qui ne se lit pas — `<chemin>: holds nothing recognisable as a subtitle` —, ce qui
+refusé comme tout fichier qui ne se lit pas — `<path>: holds nothing recognisable as a subtitle` —, ce qui
 arrête le lancement et n'écrit rien.

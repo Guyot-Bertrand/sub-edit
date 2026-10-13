@@ -1,11 +1,11 @@
 # `transform`
 
 ```
-subedit-cli transform --first <indice>=<temps> --last <indice>=<temps>
-                      (--output FICHIER | --output-dir DOSSIER | --in-place)
+subedit-cli transform --first <index>=<time> --last <index>=<time>
+                      (--output FILE | --output-dir DIR | --in-place)
                       [--dry-run]
                       [--recursive]
-                      <fichier>...
+                      <file>...
 ```
 
 Corrige **toutes** les positions du fichier à partir de deux points dont on
@@ -40,10 +40,10 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--first` | **oui** | un repère, `<indice>=<temps>` | — |
-| `--last` | **oui** | un repère, `<indice>=<temps>` | — |
+| `--first` | **oui** | un repère, `<index>=<time>` | — |
+| `--last` | **oui** | un repère, `<index>=<time>` | — |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 
@@ -55,7 +55,7 @@ lettres.
 Un repère nomme un sous-titre et dit où son **début** doit désormais tomber :
 
 ```
-<indice>=<temps>
+<index>=<time>
 ```
 
 **L'indice est compté à partir de 1**, comme il s'affiche et comme un fichier
@@ -82,14 +82,14 @@ des deux repères suit comme ce qui est entre eux**.
 Les deux repères fixent un facteur d'échelle, et toute position le suit :
 
 ```
-t′ = y₁ + (t − x₁) × r      avec r = (y₂ − y₁) / (x₂ − x₁)
+t′ = y₁ + (t − x₁) × r      with r = (y₂ − y₁) / (x₂ − x₁)
 ```
 
 `x₁`, `x₂` sont les débuts actuels des deux sous-titres nommés, `y₁`, `y₂` les
 temps demandés. Le facteur est tenu comme un rationnel exact et **l'arrondi
 n'a lieu qu'une fois**, à la milliseconde ; c'est ce qui fait que les deux
 repères tombent **exactement** sur les temps demandés et non à un millième près
-(voir l'[ADR 0013](../../adr/0013-mise-a-l-echelle-exacte-des-positions.md)).
+(voir l'[ADR 0013](../../../../adr/0013-mise-a-l-echelle-exacte-des-positions.md)).
 
 Chaque sous-titre reste à l'écran **proportionnellement** à ce qu'il y restait :
 la fin suit la même échelle que le début. Une transformation n'est pas un
@@ -164,9 +164,9 @@ le premier repère** et que l'échelle le repousse au-delà de zéro. Rien n'est
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000 -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000 -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 Les repères sont réécrits avec le point décimal, tels qu'ils ont pu être tapés.
 
@@ -189,9 +189,9 @@ certains seulement, `1` sur une erreur d'usage.
 | indice qui n'est pas un entier | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | temps invalide | ceux de [`shift`](shift.md) |
 | `--first` et `--last` sur le même indice | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| indice hors bornes | `<chemin>: subtitle N is past the end: the file holds M subtitles` |
-| deux sous-titres commençant ensemble | `<chemin>: subtitles N and M start at the same moment, so they define no transform` |
-| position avant l'origine | `<chemin>: subtitle N would land before the origin, which no subtitle file can hold` |
+| indice hors bornes | `<path>: subtitle N is past the end: the file holds M subtitles` |
+| deux sous-titres commençant ensemble | `<path>: subtitles N and M start at the same moment, so they define no transform` |
+| position avant l'origine | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Rien n'est écrit sans l'une des trois options de destination**, et ses
 erreurs sont communes aux sous-commandes qui écrivent :

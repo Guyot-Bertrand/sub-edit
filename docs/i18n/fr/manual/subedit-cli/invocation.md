@@ -1,7 +1,7 @@
 # Invocation
 
 ```
-subedit-cli [options globales] <sous-commande> [options] <fichier>...
+subedit-cli [global options] <subcommand> [options] <file>...
 ```
 
 Sans sous-commande, l'outil écrit son aide et s'arrête.
@@ -105,8 +105,8 @@ code=1
 `The following argument was not expected: --encoding`. Il en va de même de
 `--version`, de `-v` et de `--quiet`.
 
-**`--help` est l'exception, et elle n'en est pas une** : `subedit-cli inspect
---help` est accepté parce que chaque sous-commande porte le sien, et c'est celui
+**`--help` est l'exception, et elle n'en est pas une** :
+`subedit-cli inspect --help` est accepté parce que chaque sous-commande porte le sien, et c'est celui
 de la sous-commande qu'il écrit, pas celui de l'outil.
 
 | Option | Effet |
@@ -115,7 +115,7 @@ de la sous-commande qu'il écrit, pas celui de l'outil.
 | `--version` | écrit `subedit <version>` et s'arrête |
 | `-q`, `--quiet` | niveau 0 — plus aucune narration |
 | `-v`, `-vv`, `-vvv` | niveaux 1 à 3 ; le niveau 1 est celui par défaut |
-| `--encoding NOM` | lit les fichiers dans cet encodage, au lieu de le deviner |
+| `--encoding NAME` | lit les fichiers dans cet encodage, au lieu de le deviner |
 | `--list-encodings` | écrit les encodages que l'outil sait lire et écrire, un par ligne, et **s'arrête** (code `0`) — voir [`--list-encodings`](#--list-encodings) |
 | `--format text\|json` | forme du résultat sur la sortie standard : le texte, ou un objet JSON par fichier — voir [Sortie lisible par un script](#sortie-lisible-par-un-script) |
 | `--config FILE` | reads the operation settings from `FILE` instead of the user's settings file — see [The settings file](#the-settings-file) |
@@ -140,7 +140,7 @@ $XDG_CONFIG_HOME/subedit/settings.conf
 ```
 
 or `~/.config/subedit/settings.conf` when `XDG_CONFIG_HOME` is unset, empty or not an absolute
-path — the window's file, described in [its manual](../subedit-gui/preferences.md#le-fichier).
+path — the window's file, described in [its manual](../../../../manual/subedit-gui/preferences.md#le-fichier).
 
 **Priority, strongest first: the option on the command line, then the file, then the built-in
 default.** An option always wins: `--speed off` switches off a speed the file sets. Only the
@@ -176,7 +176,7 @@ name given on the command line is not a request for the defaults: when `FILE` do
 `adjust` and `correct` stop before any input is read, write `settings file not found: <FILE>` on
 the standard error, and exit with the usage code `1`. A `FILE` that exists and cannot be read
 gives the defaults and says so, as the user's file does. [`config show`](config.md#config-show)
-still shows a missing `FILE` as `(not found)`, and [`config set`](config.md#config-set-and-config-unset) still
+still shows a missing `FILE` as `(not found)`, and [`config set`](config.md#config-set-et-config-unset) still
 creates it.
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
@@ -324,8 +324,8 @@ et n'en exige donc aucune.
 
 | Option | Où va le résultat |
 | :----- | :---------------- |
-| `--output FICHIER` | dans ce fichier, sous ce nom exact ; une seule entrée |
-| `--output-dir DOSSIER` | dans ce dossier, sous le nom de base de l'entrée |
+| `--output FILE` | dans ce fichier, sous ce nom exact ; une seule entrée |
+| `--output-dir DIR` | dans ce dossier, sous le nom de base de l'entrée |
 | `--in-place` | par-dessus l'entrée, par écriture atomique |
 
 Un outil qui écrase son entrée parce qu'on ne lui a rien dit est un outil qu'on
@@ -368,11 +368,11 @@ autres conservent celui du fichier lu, donc son extension.
 | aucune destination, sans `--dry-run` | `no destination given: use --output, --output-dir or --in-place` |
 | deux destinations | `--output, --output-dir and --in-place exclude one another` |
 | `--output` sur un lot | `--output names one file but several were given: use --output-dir instead` |
-| deux entrées, une destination | `<destination>: would be written by both <entrée> and <entrée>` |
-| une entrée serait écrasée | `<destination>: would be written over the input <entrée>` — la même phrase pour [`append`](append.md) et [`split-file`](split-file.md) |
-| dossier de sortie impossible à créer | `<dossier>: cannot be created: permission denied`, ou `: cannot be created` |
-| destination non inscriptible | `<chemin>: <destination>: cannot be written: permission denied`, ou `: cannot be written` |
-| caractère absent de l'encodage écrit | `<chemin>: holds a character the chosen encoding cannot write` |
+| deux entrées, une destination | `<destination>: would be written by both <input> and <input>` |
+| une entrée serait écrasée | `<destination>: would be written over the input <input>` — la même phrase pour [`append`](append.md) et [`split-file`](split-file.md) |
+| dossier de sortie impossible à créer | `<directory>: cannot be created: permission denied`, ou `: cannot be created` |
+| destination non inscriptible | `<path>: <destination>: cannot be written: permission denied`, ou `: cannot be written` |
+| caractère absent de l'encodage écrit | `<path>: holds a character the chosen encoding cannot write` |
 
 **Le dernier mérite une phrase.** Un fichier est réécrit dans **l'encodage où il
 a été lu**, comme il l'est avec ses fins de ligne et sa marque. Si une
@@ -415,9 +415,9 @@ a.srt
 proposés**. Un bloc par sous-titre changé, dans l'ordre du fichier :
 
 ```
-<chemin>: subtitle <numéro>
-- <le texte d'avant, une ligne par ligne>
-+ <le texte d'après, une ligne par ligne>
+<path>: subtitle <number>
+- <the text before, line by line>
++ <the text after, line by line>
 ```
 
 - le **numéro** est celui que le sous-titre a dans le fichier lu, compté depuis un ;
@@ -425,7 +425,7 @@ proposés**. Un bloc par sous-titre changé, dans l'ordre du fichier :
   de plusieurs lignes se lit tel quel, et une ligne qui commence elle-même par un tiret de
   dialogue donne `- - ` ;
 - **un sous-titre que l'opération supprimerait** le dit sur sa première ligne,
-  `<chemin>: subtitle <numéro> (removed)`, et n'a pas de lignes `+` ;
+  `<path>: subtitle <number> (removed)`, et n'a pas de lignes `+` ;
 - un sous-titre de la traduction, avec `--document translation`, s'annonce `(translation)` à la même
   place — voir [Une traduction](#une-traduction) ;
 - la première ligne de chaque bloc commence par le chemin, de sorte que `grep '^film.srt: '`
@@ -701,8 +701,8 @@ qui a renoncé. Il est dit au niveau 1 et porte, dans l'objet du fichier, l'iden
 
 ## Une traduction
 
-Un fichier de traduction se traite **comme un fichier de sous-titres quelconque** : `subedit-cli
-case --to sentence film.fr.srt` le change sans rien de nouveau. Ce que l'appariement ajoute, et ce que
+Un fichier de traduction se traite **comme un fichier de sous-titres quelconque** :
+`subedit-cli case --to sentence film.fr.srt` le change sans rien de nouveau. Ce que l'appariement ajoute, et ce que
 trois options disent, est étroit : **savoir comment les lignes d'une traduction tombent sur les
 sous-titres du principal** — c'est `inspect -t` —, et **changer la traduction pendant qu'on la tient
 posée sur son principal**, avec les mêmes règles que la fenêtre.
@@ -725,7 +725,7 @@ posée sur son principal**, avec les mêmes règles que la fenêtre.
   avec un répertoire pris par `--recursive`, il est refusé comme `--output`, **avant qu'un fichier soit
   lu**. Pour un lot, on passe une invocation par paire.
 - **Un fichier de traduction identique au principal est refusé** — quelle que soit la façon dont son
-  chemin est écrit : `<traduction>: the file is already open as the main document`, code `2`.
+  chemin est écrit : `<translation>: the file is already open as the main document`, code `2`.
 - **Seul le document visé est écrit**, à **son propre chemin et dans son propre format** : le format,
   l'encodage et les fins de ligne du fichier de traduction. `--output` nomme le fichier de la
   traduction, `--output-dir` y met son nom de base, `--in-place` la réécrit ; **le fichier principal
@@ -735,8 +735,8 @@ posée sur son principal**, avec les mêmes règles que la fenêtre.
   personne n'a traduit s'écrit comme un bloc sans texte**, qui se lit sans anomalie.
 - **`--encoding` et `--frame-rate` valent pour les deux fichiers.**
 - Les sous-commandes de **position** — `shift`, `transform`, `framerate`, `snap`, `adjust` — n'ont pas
-  ces options : on leur donne les deux fichiers, comme à un lot, `subedit-cli shift --by 2 film.srt
-  film.fr.srt --output-dir out/`.
+  ces options : on leur donne les deux fichiers, comme à un lot,
+  `subedit-cli shift --by 2 film.srt film.fr.srt --output-dir out/`.
 - **Écrire la traduction recalée sur le principal** — la seule chose que l'appariement fait et qu'un fichier seul
   ne fait pas — est le travail de [`pair`](pair.md), qui n'a ni `--document` ni `--recursive`.
 
@@ -816,14 +816,14 @@ jamais un lot à moitié traité.
 | `--quiet` avec `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` with `--no-config` | `--config excludes --no-config` |
 | `--config` with an empty name | `--config needs a file name` |
-| fichier absent | `<chemin>: does not exist` |
-| fichier illisible | `<chemin>: cannot be opened: permission denied` |
-| encodage qui écrit sa propre marque | `"<nom>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| octets qui ne se décodent pas | `<chemin>: cannot be decoded in the chosen encoding` |
-| format non reconnu | `<chemin>: is in no format this tool knows` |
-| rien qui ressemble à un sous-titre | `<chemin>: holds nothing recognisable as a subtitle` |
+| fichier absent | `<path>: does not exist` |
+| fichier illisible | `<path>: cannot be opened: permission denied` |
+| encodage qui écrit sa propre marque | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
+| octets qui ne se décodent pas | `<path>: cannot be decoded in the chosen encoding` |
+| format non reconnu | `<path>: is in no format this tool knows` |
+| rien qui ressemble à un sous-titre | `<path>: holds nothing recognisable as a subtitle` |
 | `--document translation` sans `-t` | `--document translation needs the translation file: use -t` |
 | `-t` sans `--document translation` | `-t names a translation to change: use --document translation` |
 | `--align-method` sans `-t` | `--align-method needs a translation file: use -t` |
 | `-t` avec plusieurs entrées, ou un répertoire | `-t names one file but several inputs were given: use one invocation per pair` |
-| traduction identique au principal | `<traduction>: the file is already open as the main document` |
+| traduction identique au principal | `<translation>: the file is already open as the main document` |

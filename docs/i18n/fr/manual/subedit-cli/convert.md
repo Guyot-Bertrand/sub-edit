@@ -2,13 +2,13 @@
 
 ```
 subedit-cli convert --to <format>
-                    [--line-endings unix|windows|mac] [--to-encoding NOM]
+                    [--line-endings unix|windows|mac] [--to-encoding NAME]
                     [--bom | --no-bom] [--sort] [--disjoint]
                     [--join-repeats] [--repair]
-                    (--output FICHIER | --output-dir DOSSIER | --in-place)
+                    (--output FILE | --output-dir DIR | --in-place)
                     [--dry-run]
                     [--recursive]
-                    <fichier>...
+                    <file>...
 ```
 
 Écrit chaque fichier dans le format et la forme demandés. **Ne modifie jamais
@@ -48,7 +48,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--to` | **oui** | un nom de la table ci-dessous, et rien d'autre | — |
 | `--line-endings` | non | `unix`, `windows` ou `mac` | celles du fichier lu |
@@ -96,7 +96,7 @@ Nous le disons en plus, par un diagnostic que `--verbose` affiche sur les trois
 sous-commandes :
 
 ```
-fichier.lrc: carries no end times; each one was taken from the next start, settled by the reader
+file.lrc: carries no end times; each one was taken from the next start, settled by the reader
 ```
 
 **En écriture**, les fins ne sont pas écrites, faute d'endroit où les mettre.
@@ -122,8 +122,8 @@ conversion vers MicroDVD compte les images.
 | `--frame-rate` | non | une fréquence en images par seconde : `25`, `23.976`, `29.97` | voir ci-dessous |
 
 **À la lecture, sans `--frame-rate`, le fichier est lu à 23,976** — la valeur de
-Gaupol — et le niveau `-vvv` le dit : `counts in frames and states no rate; it
-was read at`. C'est le seul endroit de l'outil où toutes les positions affichées
+Gaupol — et le niveau `-vvv` le dit :
+`counts in frames and states no rate; it was read at`. C'est le seul endroit de l'outil où toutes les positions affichées
 reposent sur une hypothèse que le fichier ne peut pas confirmer.
 
 **À l'écriture, sans `--frame-rate`, trois cas et trois réponses :**
@@ -168,10 +168,10 @@ choses** — gras, italique, souligné, couleur, police et taille :
 | SubRip | `<b>` | `<i>` | `<u>` | `<font color="#RRGGBB">` | — | — |
 | WebVTT | `<b>` | `<i>` | `<u>` | — | — | — |
 | SubViewer 2 | `<b>` | `<i>` | `<u>` | `<font color="#RRGGBB">` | — | — |
-| Sub Station Alpha | `{\b1}` | `{\i1}` | — | `{\c&HBBGGRR&}` | `{\fnNOM}` | `{\fsN}` |
-| Advanced SSA | `{\b1}` | `{\i1}` | `{\u1}` | `{\c&HBBGGRR&}` | `{\fnNOM}` | `{\fsN}` |
-| MicroDVD | `{Y:b}` | `{Y:i}` | `{Y:u}` | `{C:$BBGGRR}` | `{F:NOM}` | `{S:N}` |
-| MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NOM}` | `{S:N}` |
+| Sub Station Alpha | `{\b1}` | `{\i1}` | — | `{\c&HBBGGRR&}` | `{\fnNAME}` | `{\fsN}` |
+| Advanced SSA | `{\b1}` | `{\i1}` | `{\u1}` | `{\c&HBBGGRR&}` | `{\fnNAME}` | `{\fsN}` |
+| MicroDVD | `{Y:b}` | `{Y:i}` | `{Y:u}` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
+| MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
 | TMPlayer | — | — | — | — | — | — |
 | LRC | — | — | — | — | — | — |
 
@@ -288,19 +288,19 @@ Bonjour.
 pas touché, et ce qui est écrit est ce que [`sort`](sort.md) en aurait fait — stable, deux sous-titres qui commencent ensemble gardent leur ordre.
 
 **Jamais par défaut** : l'ordre d'un fichier est celui de son auteur tant qu'on ne demande pas autre chose. Avec l'option, chaque fichier le dit, au
-premier niveau de narration, `<chemin>: N subtitles moved` ou `<chemin>: already in order`, et l'enregistrement `--format json` porte un compte
+premier niveau de narration, `<path>: N subtitles moved` ou `<path>: already in order`, et l'enregistrement `--format json` porte un compte
 `moved` — **absent sans l'option**, pour ne pas changer la forme de ce que lisent les scripts existants.
 
 ## Rendre les plages disjointes
 
 `--disjoint` découpe les sous-titres qui se chevauchent pour que plus aucune plage n'en chevauche une autre, **sur la même copie que le tri** : le fichier lu n'est pas touché.
 
-Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, avant d'écrire, après le tri. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<chemin>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
+Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, avant d'écrire, après le tri. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<path>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
 
 **`--join-repeats` passe avant le tri et le découpage** : un texte coupé en morceaux qui se suivent est refait d'abord (voir
 [`join-repeats`](join-repeats.md)), puis les sous-titres sont triés, puis les plages rendues disjointes. **`--repair` est les trois à la fois**,
-comme [`repair`](repair.md), avec les réglages par défaut du découpage. Avec `--join-repeats`, chaque fichier dit `<chemin>: N repeated subtitles
-joined` au premier niveau de narration, et l'enregistrement `--format json` porte `counts.joined` — **absent sans l'option**.
+comme [`repair`](repair.md), avec les réglages par défaut du découpage. Avec `--join-repeats`, chaque fichier dit
+`<path>: N repeated subtitles joined` au premier niveau de narration, et l'enregistrement `--format json` porte `counts.joined` — **absent sans l'option**.
 
 ## Sortie
 
@@ -310,9 +310,9 @@ Sur la sortie d'erreur, selon le niveau :
 
 | Niveau | Ce qui s'ajoute |
 | :----- | :-------------- |
-| 1 | `<chemin>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<chemin>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — l'encodage nommé est celui qui est écrit |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
+| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — l'encodage nommé est celui qui est écrit |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ### En JSON
 
@@ -329,10 +329,10 @@ certains seulement, `1` sur une erreur d'usage.
 | :------------------ | :------ |
 | `--bom` avec `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` qui change le format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` sur un encodage qui n'en a pas | `<chemin>: <encodage> has no byte order mark to write` |
-| `--to-encoding` nommant un encodage inconnu | `no encoding is named "<nom>"` |
-| `--to-encoding` nommant un encodage qui écrit sa propre marque | `"<nom>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| caractère absent de l'encodage écrit | `<chemin>: holds a character the chosen encoding cannot write` |
+| `--bom` sur un encodage qui n'en a pas | `<path>: <encoding> has no byte order mark to write` |
+| `--to-encoding` nommant un encodage inconnu | `no encoding is named "<name>"` |
+| `--to-encoding` nommant un encodage qui écrit sa propre marque | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
+| caractère absent de l'encodage écrit | `<path>: holds a character the chosen encoding cannot write` |
 
 **Le refus de `--bom` sur un encodage qui n'en porte pas n'est pas une
 pédanterie.** Une marque d'ordre des octets existe pour les encodages Unicode et

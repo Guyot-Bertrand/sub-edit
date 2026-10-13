@@ -2,7 +2,7 @@
 
 ```
 subedit-cli inspect [--frame-rate RATE] [--recursive] [--detail]
-                   [-t FICHIER] [--align-method position|number] <fichier>...
+                   [-t FILE] [--align-method position|number] <file>...
 ```
 
 Rapporte ce que chaque fichier contient. **Ne modifie rien et n'écrit aucun
@@ -31,7 +31,7 @@ Options:
 
 | Argument | Requis | Valeur | Défaut |
 | :------- | :----- | :----- | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins de fichiers de sous-titres | — |
+| `<file>...` | oui | un ou plusieurs chemins de fichiers de sous-titres | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--detail` | non | un drapeau : nomme chaque anomalie, au lieu de les compter — voir [Ce que `anomalies` rapporte](#ce-que-anomalies-rapporte) | désactivé |
 
@@ -95,7 +95,7 @@ fichier lui-même reste celui du fichier seul** : un sous-titre né d'une ligne 
 `subtitles`.
 
 Les erreurs de `-t` sont celles d'une lecture, dites avec le chemin de la traduction, et celle-ci :
-`<traduction>: the file is already open as the main document`, quand le fichier donné est le principal.
+`<translation>: the file is already open as the main document`, quand le fichier donné est le principal.
 `--align-method` sans `-t` est une erreur d'usage, et `-t` avec plusieurs entrées aussi — voir
 [Une traduction](invocation.md#une-traduction).
 
@@ -286,10 +286,12 @@ $ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,50
 
 Et avec `--detail`, le sous-titre nommé :
 
-<!-- exemple: subedit-cli --quiet inspect --detail desordre.srt | tail -3 -->
+<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect --detail desordre.srt | tail -3 -->
 ```console
-$ subedit-cli --quiet inspect --detail desordre.srt | tail -3
-desordre.srt: does not exist
+$ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect --detail desordre.srt | tail -3
+  anomalies:
+    subtitle 3 starts before the previous one ends
+    subtitle 3 starts before the previous one starts
 ```
 
 **Une ligne par anomalie avec `--detail`**, parce qu'une centaine de constats
@@ -340,9 +342,9 @@ Sur la sortie d'erreur, selon le niveau demandé :
 
 | Niveau | Ce qui s'ajoute |
 | :----- | :-------------- |
-| 1 | `<chemin>: N subtitles` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings` |
-| 3 | `<chemin>: N bytes read`, `<chemin>: N diagnostic(s) while reading`, puis **chacun d'eux** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings` |
+| 3 | `<path>: N bytes read`, `<path>: N diagnostic(s) while reading`, puis **chacun d'eux** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ## Codes de retour
 
@@ -357,11 +359,11 @@ celles de `-t` : voir plus haut. `inspect` n'écrit rien qui puisse être refus�
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |
 | aucun chemin donné | `files is required`, suivi d'un renvoi à `--help` |
-| fichier absent | `<chemin>: does not exist` |
-| fichier illisible | `<chemin>: cannot be opened: permission denied` |
-| octets qui ne se décodent pas | `<chemin>: cannot be decoded in the chosen encoding` |
-| format non reconnu | `<chemin>: is in no format this tool knows` |
-| rien qui ressemble à un sous-titre | `<chemin>: holds nothing recognisable as a subtitle` |
+| fichier absent | `<path>: does not exist` |
+| fichier illisible | `<path>: cannot be opened: permission denied` |
+| octets qui ne se décodent pas | `<path>: cannot be decoded in the chosen encoding` |
+| format non reconnu | `<path>: is in no format this tool knows` |
+| rien qui ressemble à un sous-titre | `<path>: holds nothing recognisable as a subtitle` |
 
 Ce sont les mêmes messages pour les dix-sept sous-commandes : la recette d'ouverture
 est écrite une fois, au noyau.

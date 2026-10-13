@@ -9,10 +9,10 @@
 
 ```
 subedit-cli framerate --from <fps> --to <fps>
-                      (--output FICHIER | --output-dir DOSSIER | --in-place)
+                      (--output FILE | --output-dir DIR | --in-place)
                       [--dry-run]
                       [--recursive]
-                      <fichier>...
+                      <file>...
 ```
 
 Recale un fichier minuté pour une cadence d'images vers une autre. C'est
@@ -47,7 +47,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--from` | **oui** | une cadence, voir ci-dessous | — |
 | `--to` | **oui** | une cadence, voir ci-dessous | — |
@@ -95,7 +95,7 @@ dirait autre chose que la fenêtre pour les mêmes mots.
 ## Ce que les positions deviennent
 
 ```
-t′ = arrondi( t × (from / to) )
+t′ = round( t × (from / to) )
 ```
 
 Un film masterisé à 23.976 et joué à 25 images par seconde défile plus vite,
@@ -107,7 +107,7 @@ chemin qui paraît équivalent — convertir la position en numéro d'image à l
 cadence d'entrée, puis revenir en millisecondes à celle de sortie — ne l'est
 pas : il quantifie chaque position sur la grille d'entrée et se trompe jusqu'à
 une demi-image, soit 21 ms mesurées. Voir
-l'[ADR 0013](../../adr/0013-mise-a-l-echelle-exacte-des-positions.md).
+l'[ADR 0013](../../../../adr/0013-mise-a-l-echelle-exacte-des-positions.md).
 
 Concrètement, de 25 vers 23.976, le facteur vaut `1001/960` :
 
@@ -131,9 +131,9 @@ Un.
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles retimed from 25 to 24000/1001 fps -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles retimed from 25 to 24000/1001 fps -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 **La narration nomme la cadence exacte, pas l'étiquette tapée.** Écrire
 `23.976` sur cette ligne rapporterait une conversion qui n'a pas eu lieu ; c'est

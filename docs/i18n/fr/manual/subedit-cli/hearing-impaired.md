@@ -2,11 +2,11 @@
 
 ```
 subedit-cli hearing-impaired
-                  (--output FICHIER | --output-dir DOSSIER | --in-place)
+                  (--output FILE | --output-dir DIR | --in-place)
                   [--dry-run]
                   [--recursive] [--parentheses]
-                  [--document main|translation] [-t FICHIER] [--align-method position|number]
-                  <fichier>...
+                  [--document main|translation] [-t FILE] [--align-method position|number]
+                  <file>...
 ```
 
 Retire les **mentions pour malentendants** — les bruits décrits entre crochets — de tout
@@ -17,7 +17,7 @@ aussi, pour un fichier qui y décrit ses sons.
 Ce qu'elle ne fait pas : les paroles de chanson entre dièses, le nom du locuteur
 avant deux-points, la remise en majuscule, la correction d'erreurs d'OCR. Ces
 motifs-là sont ceux de l'assistant
-[`Correct Texts…`](../subedit-gui/correct-texts.md) de la fenêtre, que la ligne de
+[`Correct Texts…`](../../../../manual/subedit-gui/correct-texts.md) de la fenêtre, que la ligne de
 commande offre sous le nom de [`correct`](correct.md) ; et rien ici ne se règle : la
 transformation est décidée, pas configurable.
 
@@ -48,7 +48,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--parentheses` | non | un drapeau : retire aussi les mentions entre parenthèses | désactivé |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--document` | non | `main` ou `translation` — voir [Une traduction](invocation.md#une-traduction) | `main` |
@@ -60,7 +60,7 @@ Options:
 Le format du fichier lu est **conservé** : changer de format est le travail de
 [`convert`](convert.md).
 
-**Le texte principal par défaut ; la traduction avec `--document translation -t FICHIER`.** C'est alors
+**Le texte principal par défaut ; la traduction avec `--document translation -t FILE`.** C'est alors
 la traduction qui est changée et écrite, et elle seule — voir [Une traduction](invocation.md#une-traduction).
 
 **Une mention qui viderait une traduction l'écrit vide, et garde le sous-titre** : le sous-titre
@@ -163,9 +163,9 @@ a.srt: no mention to remove -> b.srt
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles cleaned, M removed -> <destination>`, ou `<chemin>: no mention to remove -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles cleaned, M removed -> <destination>`, ou `<path>: no mention to remove -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 `N` compte les sous-titres dont le texte a changé, `M` ceux que le retrait a
 entièrement vidés et qui ont donc quitté le fichier.

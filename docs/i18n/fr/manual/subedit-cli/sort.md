@@ -1,10 +1,10 @@
 # `sort`
 
 ```
-subedit-cli sort (--output FICHIER | --output-dir DOSSIER | --in-place)
+subedit-cli sort (--output FILE | --output-dir DIR | --in-place)
                  [--dry-run]
                  [--recursive]
-                 <fichier>...
+                 <file>...
 ```
 
 Remet les sous-titres **dans l'ordre de leur début**. Rien d'autre ne change : ni les textes, ni les
@@ -43,7 +43,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
@@ -88,9 +88,9 @@ pas de fichier, et la ligne de narration le dit — voir [Voir avant d'écrire](
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles moved -> <destination>`, ou `<chemin>: already in order -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles moved -> <destination>`, ou `<path>: already in order -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ### En JSON
 

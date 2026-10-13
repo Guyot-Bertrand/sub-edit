@@ -1,14 +1,14 @@
 # `pair`
 
 ```
-subedit-cli pair (--output FICHIER | --output-dir DOSSIER | --in-place)
-                 -t FICHIER [--align-method position|number]
+subedit-cli pair (--output FILE | --output-dir DIR | --in-place)
+                 -t FILE [--align-method position|number]
                  [--dry-run]
-                 <principal>
+                 <main>
 ```
 
 Écrit **la traduction recalée sur les positions du principal**, et dit comment ses lignes ont trouvé leur
-sous-titre. C'est `Open Translation…` de la fenêtre — [le même appariement](../subedit-gui/fichiers.md#ouvrir-une-traduction),
+sous-titre. C'est `Open Translation…` de la fenêtre — [le même appariement](../../../../manual/subedit-gui/fichiers.md#ouvrir-une-traduction),
 la même phrase — suivi de l'écriture du résultat, que la fenêtre fait par `Save Translation`.
 
 **C'est la seule chose que l'appariement fait et qu'un fichier traité seul ne fait pas.** Les autres sous-commandes
@@ -50,7 +50,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<principal>` | oui | **un seul** chemin | — |
+| `<main>` | oui | **un seul** chemin | — |
 | `-t`, `--translation-file` | **oui** | le fichier de traduction | — |
 | `--align-method` | non | `position` ou `number` — voir [Une traduction](invocation.md#une-traduction) | `position` |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
@@ -98,9 +98,9 @@ chaque méthode.
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<traduction>: translation: N lines attached; … -> <destination>` — **le chemin est celui de la traduction**, qui est le fichier écrit ; avec `--dry-run`, `(dry run, nothing written)` à la place de `-> <destination>` |
-| 2 | `<traduction>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne **de la traduction**, remis tels quels |
-| 3 | `<traduction>: N bytes read, M written`, puis **chaque diagnostic de lecture** du principal et de la traduction — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<translation>: translation: N lines attached; … -> <destination>` — **le chemin est celui de la traduction**, qui est le fichier écrit ; avec `--dry-run`, `(dry run, nothing written)` à la place de `-> <destination>` |
+| 2 | `<translation>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne **de la traduction**, remis tels quels |
+| 3 | `<translation>: N bytes read, M written`, puis **chaque diagnostic de lecture** du principal et de la traduction — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ### En JSON
 
@@ -121,6 +121,6 @@ pas un échec** : elle est écrite, et la phrase dit ce qui n'a pas trouvé sa p
 | :------------------- | :------ |
 | pas de `-t` | `pair needs the translation file to lay over the main one: use -t` |
 | `--document` | `The following argument was not expected: --document` — il n'existe pas pour `pair` |
-| plus d'un fichier principal | `The following argument was not expected: <chemin>` |
-| la traduction est le principal | `<traduction>: the file is already open as the main document`, code `2` |
+| plus d'un fichier principal | `The following argument was not expected: <path>` |
+| la traduction est le principal | `<translation>: the file is already open as the main document`, code `2` |
 | un des fichiers absent, illisible ou d'un format inconnu | les mêmes que partout, avec le chemin du fichier en cause |

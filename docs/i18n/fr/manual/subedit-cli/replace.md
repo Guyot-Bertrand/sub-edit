@@ -2,15 +2,15 @@
 
 ```
 subedit-cli replace [--regex] [--case-sensitive] [--range N-M|N-]
-                    (--output FICHIER | --output-dir DOSSIER | --in-place)
+                    (--output FILE | --output-dir DIR | --in-place)
                     [--dry-run]
                     [--recursive]
-                    [--document main|translation] [-t FICHIER] [--align-method position|number]
-                    <motif> <remplacement> <fichier>...
+                    [--document main|translation] [-t FILE] [--align-method position|number]
+                    <pattern> <replacement> <file>...
 ```
 
 Remplace un texte dans les sous-titres **sans casser une balise**. C'est l'opération
-`Replace All` de la [recherche](../subedit-gui/recherche.md) de la fenêtre, avec ses règles :
+`Replace All` de la [recherche](../../../../manual/subedit-gui/recherche.md) de la fenêtre, avec ses règles :
 
 - **on cherche dans le texte visible** — ce que le spectateur lit. Les balises n'en font pas
   partie : chercher `<i>` ne trouve rien, et chercher `Bonjour` trouve un « Bonjour » dont la
@@ -54,9 +54,9 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<motif>` | oui | le texte à chercher dans ce qui est affiché ; **non vide** | — |
-| `<remplacement>` | oui | ce qui le remplace, balises permises ; peut être vide | — |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<pattern>` | oui | le texte à chercher dans ce qui est affiché ; **non vide** | — |
+| `<replacement>` | oui | ce qui le remplace, balises permises ; peut être vide | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--regex` | non | un drapeau : le motif est une expression régulière ICU | du texte simple |
 | `--case-sensitive` | non | un drapeau : distingue majuscules et minuscules | elles sont ignorées |
@@ -69,7 +69,7 @@ Options:
 
 **Un motif qui commence par un tiret** s'écrit après `--` : `subedit-cli replace -- -- "—" film.srt`.
 
-**Le texte principal par défaut ; la traduction avec `--document translation -t FICHIER`.** C'est alors
+**Le texte principal par défaut ; la traduction avec `--document translation -t FILE`.** C'est alors
 la traduction qui est changée et écrite, et elle seule — voir [Une traduction](invocation.md#une-traduction).
 
 ### Texte simple, ou expression
@@ -167,9 +167,9 @@ changements ci-dessus.
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: replaced N matches -> <destination>`, ou `"<motif>" not found`, ou `nothing to change` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: replaced N matches -> <destination>`, ou `"<pattern>" not found`, ou `nothing to change` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 `N` compte **les correspondances remplacées dans les sous-titres dont le texte a changé** — c'est le
 nombre que la fenêtre dit aussi.
@@ -194,7 +194,7 @@ Ceux de l'outil : `0` si tous les fichiers ont été traités — un fichier où
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |
 | motif vide | `pattern: nothing to look for` |
-| expression illisible | `pattern: not a regular expression (<raison d'ICU>)` |
+| expression illisible | `pattern: not a regular expression (<ICU's reason>)` |
 | plage mal écrite ou hors du fichier | voir [`adjust`](adjust.md#--range) |
 
 **Le motif est lu avant le premier fichier** : une expression illisible est une erreur d'usage

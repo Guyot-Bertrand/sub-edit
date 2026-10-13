@@ -1,22 +1,22 @@
 # `correct`
 
 ```
-subedit-cli correct --tasks LISTE --code CODE
+subedit-cli correct --tasks LIST --code CODE
                     [--classes human|ocr|human,ocr]
-                    [--enable NOM]... [--disable NOM]...
+                    [--enable NAME]... [--disable NAME]...
                     [--language CODE]
                     [--max-length N] [--max-lines N]
                     [--skip-length N|off] [--skip-lines N|off]
                     [--keep-blank-subtitles] [--range N-M|N-]
-                    [--document main|translation] [-t FICHIER] [--align-method position|number]
-                    (--output FICHIER | --output-dir DOSSIER | --in-place)
+                    [--document main|translation] [-t FILE] [--align-method position|number]
+                    (--output FILE | --output-dir DIR | --in-place)
                     [--dry-run]
                     [--recursive]
-                    <fichier>...
+                    <file>...
 ```
 
 Corrige les textes avec les **motifs de Gaupol**, comme l'assistant
-[`Correct Texts…`](../subedit-gui/correct-texts.md) de la fenêtre — mêmes motifs,
+[`Correct Texts…`](../../../../manual/subedit-gui/correct-texts.md) de la fenêtre — mêmes motifs,
 même moteur, mêmes comptes. Six tâches existent ici : les **mentions pour
 malentendants**, la **jonction** et la **scission de mots**, les **erreurs courantes**, les
 **majuscules** et le **découpage de lignes**.
@@ -77,8 +77,8 @@ for where it is, `--config` and `--no-config`.
 
 - **`correction.remove-blank = false` has no option to undo it** on the line: `--no-config`
   gives back the removal.
-- **Both classes off in the file is ignored, and said** at level 1 — `settings: correction.human
-  and correction.ocr are both false, ignored` —: `--classes` could not write it, and it would
+- **Both classes off in the file is ignored, and said** at level 1 —
+  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` could not write it, and it would
   leave common-errors nothing to do. Both classes are applied instead.
 - **A number of lines out of 1 to 1000 is not read from the file at all**: the file's reader
   refuses it — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, at
@@ -89,12 +89,12 @@ defaults do, whatever the settings of the machine that runs them.
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--tasks` | **oui** | une liste séparée par des virgules : `mentions`, `join-words`, `split-words`, `common-errors`, `capitalization`, `line-break` | aucune tâche |
-| `--code` | **oui** avec une tâche de motifs, et **sans objet** autrement | `Écriture[-langue[-PAYS]]` : `Zyyy`, `Latn`, `Latn-en`, `Latn-en-US` | — |
+| `--code` | **oui** avec une tâche de motifs, et **sans objet** autrement | `Script[-language[-COUNTRY]]` : `Zyyy`, `Latn`, `Latn-en`, `Latn-en-US` | — |
 | `--language` | **oui** avec `join-words` ou `split-words`, et **sans objet** autrement | un code de langue : `fr`, `fr_FR`, `en_US` | — |
 | `--classes` | non | `human`, `ocr` ou `human,ocr` | les deux — or what the settings file says |
-| `--enable`, `--disable` | non, répétables | le nom anglais d'un motif, ou `type:nom` | les `.conf` livrés |
+| `--enable`, `--disable` | non, répétables | le nom anglais d'un motif, ou `type:name` | les `.conf` livrés |
 | `--max-length` | **oui** avec `line-break` | un nombre de **caractères** supérieur à zéro | **aucun** — voir plus bas |
 | `--max-lines` | non | un nombre entier de lignes, supérieur à zéro | 3 — or what the settings file says |
 | `--skip-length`, `--skip-lines` | non | un nombre, ou `off` | les mêmes bornes que `--max-length` et `--max-lines` |
@@ -141,7 +141,7 @@ code=1
 
 Les motifs que l'utilisateur dépose dans `$XDG_DATA_HOME/subedit/patterns` (ou
 `~/.local/share/subedit/patterns`) **s'ajoutent aux motifs livrés**, comme dans la
-fenêtre, et un motif livré qui ne se lit pas est dit au niveau 1 : `patterns: <fichier>, line N (<raison>)`.
+fenêtre, et un motif livré qui ne se lit pas est dit au niveau 1 : `patterns: <file>, line N (<reason>)`.
 
 ### La jonction et la scission de mots, et le dictionnaire
 
@@ -232,9 +232,9 @@ Trois choses sont des **erreurs d'usage**, code `1`, dites avant qu'un fichier s
 
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |
-| un nom qui ne désigne aucun motif des tâches données, sous le code donné | `--enable: "<nom>" names no pattern of the tasks given, under the code <code>` |
-| un nom qui désigne des motifs de deux types — il s'écrit alors `type:nom`, le type étant `common-error`, `capitalization`, `hearing-impaired` ou `line-break` | `--enable: "<nom>" names patterns of several types: write type:name, …` |
-| un nom donné à `--enable` et à `--disable` | `"<nom>" is given to --enable and to --disable: choose one` |
+| un nom qui ne désigne aucun motif des tâches données, sous le code donné | `--enable: "<name>" names no pattern of the tasks given, under the code <code>` |
+| un nom qui désigne des motifs de deux types — il s'écrit alors `type:name`, le type étant `common-error`, `capitalization`, `hearing-impaired` ou `line-break` | `--enable: "<name>" names patterns of several types: write type:name, …` |
+| un nom donné à `--enable` et à `--disable` | `"<name>" is given to --enable and to --disable: choose one` |
 
 **Une faute de frappe est bruyante** : la fenêtre ignore un réglage périmé parce qu'un
 réglage peut survivre à un motif disparu ; une invocation n'a pas de survivant.
@@ -299,8 +299,8 @@ fenêtre : la page de confirmation nomme le motif une seule fois, sans le texte.
 | `never settled` | `Repeat` changeait encore le texte après cent passes |
 | `grew the text too long` | le texte dépassait ce qu'un sous-titre peut tenir |
 
-Au niveau 1, sur la sortie d'erreur : `<chemin>: pattern "<nom>" (<raison>) was not applied to
-subtitle N` — sans la fin quand le motif est écarté pour tous les textes. **Le numéro est celui du
+Au niveau 1, sur la sortie d'erreur : 
+`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — sans la fin quand le motif est écarté pour tous les textes. **Le numéro est celui du
 fichier**, quelles que soient les tâches qui ont retiré des sous-titres avant. En JSON, c'est
 un avertissement `pattern-failed` du fichier, dont `detail` porte la phrase. **Un motif
 abandonné n'est pas un fichier en échec** : le fichier est écrit, et le code de retour est `0`.
@@ -314,9 +314,9 @@ et `(removed)` sans ligne `+` pour un sous-titre que la correction retirerait ; 
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: Edited N and removed M subtitles -> <destination>`, les motifs qui n'ont pas pu s'appliquer, les fichiers de motifs qui ne se lisent pas — and, first, the settings file read — `settings: read <path>` — and what of it was ignored |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<chemin>: N bytes read, M written`, puis chaque diagnostic de lecture |
+| 1 | `<path>: Edited N and removed M subtitles -> <destination>`, les motifs qui n'ont pas pu s'appliquer, les fichiers de motifs qui ne se lisent pas — and, first, the settings file read — `settings: read <path>` — and what of it was ignored |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
+| 3 | `<path>: N bytes read, M written`, puis chaque diagnostic de lecture |
 
 En JSON, `counts` porte `corrected` (les textes changés) et `removed` (les sous-titres
 retirés), et `changes` les sous-titres touchés. Avec `-t`, la clé `alignment` dit comment la
@@ -334,20 +334,20 @@ seulement, `1` sur une erreur d'usage.
 | :------------------ | :--------------------------------------- |
 | a file named by `--config` that does not exist — the user's own file, missing, gives the defaults | `settings file not found: <FILE>` |
 | `--tasks` absent | `--tasks is required`, suivi d'un renvoi à `--help` |
-| une tâche inconnue | `--tasks: "<nom>" is not a task: expected mentions, join-words, split-words, common-errors, capitalization or line-break` |
-| `--code` absent | `--code is required by the tasks that read patterns: <tâches>` |
+| une tâche inconnue | `--tasks: "<name>" is not a task: expected mentions, join-words, split-words, common-errors, capitalization or line-break` |
+| `--code` absent | `--code is required by the tasks that read patterns: <tasks>` |
 | `--code` sans tâche de motifs | `--code is for the tasks that read patterns, and none was asked for` |
-| `--language` absent avec `join-words` ou `split-words` | `--language is required by the tasks that check words: <tâches>` |
-| `--language` qui n'est pas un code de langue | `--language: "<valeur>" is not a language: expected a locale code, like fr, en_US or sr@Latn` |
+| `--language` absent avec `join-words` ou `split-words` | `--language is required by the tasks that check words: <tasks>` |
+| `--language` qui n'est pas un code de langue | `--language: "<value>" is not a language: expected a locale code, like fr, en_US or sr@Latn` |
 | `--language` sans l'une de ces deux tâches | `--language is for the tasks join-words and split-words, which were not asked for` |
-| une langue sans dictionnaire | `no dictionary for <langue>` |
+| une langue sans dictionnaire | `no dictionary for <language>` |
 | un code mal écrit | `--code: "<code>" is not a pattern code: expected Script[-language[-COUNTRY]], like Zyyy, Latn or Latn-en-US` |
 | `--max-length` absent avec `line-break` | `--max-length is required by the task line-break: Gaupol's 24 is a width in ems, and has no value in characters` |
-| `--max-length` qui n'est pas un nombre supérieur à zéro | `--max-length: "<valeur>" is not a length: expected a number of characters greater than zero` |
-| `--max-lines`, `--skip-lines` qui ne sont pas un nombre entier de lignes | `--max-lines: "<valeur>" is not a number of lines: expected a whole number greater than zero` |
-| `--skip-length` ou `--skip-lines` illisible | `--skip-length: "<valeur>" is not a bound: expected a number greater than zero, or off` |
+| `--max-length` qui n'est pas un nombre supérieur à zéro | `--max-length: "<value>" is not a length: expected a number of characters greater than zero` |
+| `--max-lines`, `--skip-lines` qui ne sont pas un nombre entier de lignes | `--max-lines: "<value>" is not a number of lines: expected a whole number greater than zero` |
+| `--skip-length` ou `--skip-lines` illisible | `--skip-length: "<value>" is not a bound: expected a number greater than zero, or off` |
 | l'une des quatre options sans `line-break` | `--max-length is for the task line-break, which was not asked for` |
-| une classe inconnue | `--classes: "<nom>" is not a class: expected human, ocr or human,ocr` |
+| une classe inconnue | `--classes: "<name>" is not a class: expected human, ocr or human,ocr` |
 | un nom de motif fautif | voir la table plus haut |
-| une tâche sans motif actif | `<tâche>: no pattern is active under the code <code>; switch one on with --enable` |
+| une tâche sans motif actif | `<task>: no pattern is active under the code <code>; switch one on with --enable` |
 | `--range`, `-t`, `--document`, la destination | ceux de [Invocation](invocation.md#erreurs) et de [Une traduction](invocation.md#une-traduction) |

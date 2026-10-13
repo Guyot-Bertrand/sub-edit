@@ -1,14 +1,14 @@
 # `disjoint`
 
 ```
-subedit-cli disjoint (--output FICHIER | --output-dir DOSSIER | --in-place)
-                     [--minimum TEMPS] [--max-lines N] [--dashes] [--sort]
+subedit-cli disjoint (--output FILE | --output-dir DIR | --in-place)
+                     [--minimum TIME] [--max-lines N] [--dashes] [--sort]
                      [--dry-run] [--recursive]
-                     <fichier>...
+                     <file>...
 ```
 
-Découpe les sous-titres qui se chevauchent pour que **plus aucune plage `[début, fin]` n'en chevauche
-une autre**. C'est `Make Ranges Disjoint…` de la fenêtre — [le même moteur](../subedit-gui/lignes.md#rendre-les-plages-disjointes).
+Découpe les sous-titres qui se chevauchent pour que **plus aucune plage `[start, end]` n'en chevauche
+une autre**. C'est `Make Ranges Disjoint…` de la fenêtre — [le même moteur](../../../../manual/subedit-gui/lignes.md#rendre-les-plages-disjointes).
 
 **Rien n'est raccourci ni prolongé** : à chaque instant, le fichier montre les mêmes textes qu'avant. Ce qui
 change, c'est la façon dont la ligne de temps est découpée :
@@ -45,7 +45,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--minimum` | non | une durée : `0.08`, `1.5`, `00:00:00,080`. Zéro garde tout intervalle | `0.08` (environ deux images) |
 | `--max-lines` | non | un entier : le plus de lignes d'un sous-titre fusionné ; `0` lève la limite | `2` |
 | `--dashes` | non | un drapeau : un tiret devant le texte que chaque sous-titre apporte à un sous-titre fusionné | désactivé |
@@ -139,9 +139,9 @@ phrase dit `already disjoint`.
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles split, M merged -> <destination>`, suivi après un `;` de ce qui n'a pas pu être fait en entier : `K shown in windows for holding too many lines`, `K very short taken over by a neighbour`, `K subtitles shorter than the limit left whole`, `K merged with styles or positions that differ, the first kept`, `K subtitles ending before the start left alone` — ou `<chemin>: already disjoint -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** |
+| 1 | `<path>: N subtitles split, M merged -> <destination>`, suivi après un `;` de ce qui n'a pas pu être fait en entier : `K shown in windows for holding too many lines`, `K very short taken over by a neighbour`, `K subtitles shorter than the limit left whole`, `K merged with styles or positions that differ, the first kept`, `K subtitles ending before the start left alone` — ou `<path>: already disjoint -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** |
 
 `N subtitles split` compte les sous-titres d'origine coupés en plusieurs morceaux, `M merged` les morceaux qui
 montrent plusieurs sous-titres ensemble.
@@ -170,7 +170,7 @@ aucun, `3` si certains seulement, `1` sur une erreur d'usage.
 
 | Ce qui les déclenche | Message |
 | :------------------- | :------ |
-| un fichier hors d'ordre sans `--sort` | `<chemin>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| un fichier hors d'ordre sans `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` n'est pas une durée, ou est négatif | `--minimum: …` |
 | `--max-lines` n'est pas un nombre entier | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

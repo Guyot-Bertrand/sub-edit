@@ -1,10 +1,10 @@
 # `repair`
 
 ```
-subedit-cli repair (--output FICHIER | --output-dir DOSSIER | --in-place)
-                   [--minimum TEMPS] [--max-lines N] [--dashes]
+subedit-cli repair (--output FILE | --output-dir DIR | --in-place)
+                   [--minimum TIME] [--max-lines N] [--dashes]
                    [--dry-run] [--recursive]
-                   <fichier>...
+                   <file>...
 ```
 
 Fait, en une fois, ce que font trois commandes l'une après l'autre : [`join-repeats`](join-repeats.md), puis
@@ -39,7 +39,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--minimum` | non | une durée : `0.08`, `1.5`, `00:00:00,080`. Zéro garde tout intervalle | `0.08` (environ deux images) |
 | `--max-lines` | non | un entier ; `0` lève la limite | `2` |
 | `--dashes` | non | un drapeau : un tiret devant le texte que chaque sous-titre apporte à un sous-titre fusionné | désactivé |

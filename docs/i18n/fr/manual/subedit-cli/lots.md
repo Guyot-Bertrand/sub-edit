@@ -1,7 +1,7 @@
 # Traiter un arbre
 
 ```
-subedit-cli <sous-commande> --recursive [options] <dossier>...
+subedit-cli <subcommand> --recursive [options] <directory>...
 ```
 
 Toutes les sous-commandes qui lisent un lot de fichiers — `inspect` comprise, et non
@@ -58,7 +58,7 @@ films: 1 file left aside, with no extension of a known format
 ```
 
 Un répertoire qui ne contient rien de parcourable le dit au niveau par défaut
-(`<dossier>: holds no file in a format this tool walks for`) et n'est pas une erreur.
+(`<directory>: holds no file in a format this tool walks for`) et n'est pas une erreur.
 
 ## Où le parcours écrit
 
@@ -105,4 +105,4 @@ code=1
 
 Le lot reste séquentiel : sa durée est la somme de celle de ses fichiers. Le banc
 `make bench` mesure le parcours et le même travail en un seul fichier ; les chiffres
-sont au [journal des performances](../../mesures/performances.md).
+sont au [journal des performances](../../../../mesures/performances.md).

@@ -15,7 +15,7 @@ autrement chez Debian et chez Fedora.
 
 ```bash
 sudo apt install ./subedit_<version>_amd64.deb      # Debian, Ubuntu
-sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, et parentes
+sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 ```
 
 | Ce que le paquet dépose | Où  |
@@ -28,7 +28,7 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, et parentes
 
 `ffmpeg` est **recommandé et non requis** par les deux paquets : sans lui, la
 fenêtre cesse seulement de proposer la cadence que le film déclare — voir
-[ce que `ffmpeg` change](../subedit-gui/video.md#ffmpeg-nest-pas-requis).
+[ce que `ffmpeg` change](../../../../manual/subedit-gui/video.md#ffmpeg-nest-pas-requis).
 
 ### Ce que les paquets exigent de la distribution
 
@@ -39,9 +39,9 @@ une Fedora qui a pourtant ce qu'il faut à portée de `dnf` :
 
 ```console
 $ rpm -i subedit-0.13.0-1.fc43.x86_64.rpm
-erreur : Dépendances requises :
-        libicui18n.so.77()(64bit) est nécessaire pour subedit-0.13.0-1.fc43.x86_64
-        libicuuc.so.77()(64bit) est nécessaire pour subedit-0.13.0-1.fc43.x86_64
+error: Failed dependencies:
+        libicui18n.so.77()(64bit) is needed by subedit-0.13.0-1.fc43.x86_64
+        libicuuc.so.77()(64bit) is needed by subedit-0.13.0-1.fc43.x86_64
 ```
 
 `sudo dnf install ./subedit-<version>-1.fc43.x86_64.rpm` va chercher ces
@@ -110,7 +110,7 @@ défaut des règles d'installation, pas du format.
 n'a pas changé : `dpkg -i` demande les droits de l'administrateur, qu'une porte
 de qualité n'a pas et ne doit pas demander. Le `.rpm`, lui, s'installe dans un
 conteneur qui n'appartient à personne. Voir
-[l'ADR 0023](../../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md).
+[l'ADR 0023](../../../../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md).
 
 **Flatpak et AppImage ne sont pas proposés**, et c'est un choix — pas un oubli.
 Il est expliqué dans la même ADR, et il est **définitif** : une distribution qui
@@ -146,7 +146,7 @@ ensuite. Pour construire l'outil seul, sans réseau, voir plus bas.
 
 | Ce qui est facultatif | Ce qu'on perd sans lui |
 | :-------------------- | :--------------------- |
-| `ffmpeg`, pour son `ffprobe` | la fenêtre ne propose plus la cadence que le film déclare — [le détail](../subedit-gui/video.md#ffmpeg-nest-pas-requis) |
+| `ffmpeg`, pour son `ffprobe` | la fenêtre ne propose plus la cadence que le film déclare — [le détail](../../../../manual/subedit-gui/video.md#ffmpeg-nest-pas-requis) |
 | un serveur graphique | rien pour `subedit-cli` ; `subedit-gui` en a besoin pour s'afficher |
 
 ### Construire
@@ -187,13 +187,13 @@ choisi :
 
 | Fichier | Où  |
 | :------ | :-- |
-| `subedit-cli`, `subedit-gui` | `<préfixe>/bin` |
-| l'entrée de menu de bureau | `<préfixe>/share/applications` |
-| l'icône | `<préfixe>/share/icons/hicolor/scalable/apps` |
-| les métadonnées de logithèque | `<préfixe>/share/metainfo` |
-| ce manuel, en Markdown | `<préfixe>/share/subedit/manual` |
-| les motifs de correction de Gaupol | `<préfixe>/share/subedit/patterns` |
-| les pages de manuel des deux binaires | `<préfixe>/share/man/man1` |
+| `subedit-cli`, `subedit-gui` | `<prefix>/bin` |
+| l'entrée de menu de bureau | `<prefix>/share/applications` |
+| l'icône | `<prefix>/share/icons/hicolor/scalable/apps` |
+| les métadonnées de logithèque | `<prefix>/share/metainfo` |
+| ce manuel, en Markdown | `<prefix>/share/subedit/manual` |
+| les motifs de correction de Gaupol | `<prefix>/share/subedit/patterns` |
+| les pages de manuel des deux binaires | `<prefix>/share/man/man1` |
 
 **Ce sont les mêmes fichiers que les paquets déposent** : ils en sortent,
 plutôt que d'être décrits une seconde fois.
@@ -235,9 +235,9 @@ indique en général que l'alternative `c++` du système pointe sur `gcc` au lie
 de `g++` : le C++ compile, mais la bibliothèque standard n'est pas liée.
 
 ```bash
-ls -l /etc/alternatives/c++                                       # vérifier
-sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100   # corriger
-CXX=g++ make build                                                # contourner
+ls -l /etc/alternatives/c++                                       # check
+sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100   # fix
+CXX=g++ make build                                                # work around
 ```
 
 La configuration CMake détecte ce cas et s'arrête avec ce message plutôt que de
@@ -246,8 +246,8 @@ laisser l'édition des liens échouer.
 ### Si l'installation du paquet se plaint de `libicu`
 
 ```console
-erreur : Dépendances requises :
-        libicuuc.so.74()(64bit) est nécessaire pour subedit-<version>.x86_64
+error: Failed dependencies:
+        libicuuc.so.74()(64bit) is needed by subedit-<version>.x86_64
 ```
 
 Trois causes, qui se distinguent par la commande tapée et par le nom du fichier :

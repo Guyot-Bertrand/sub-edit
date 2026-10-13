@@ -1,12 +1,12 @@
 # `split-file`
 
 ```
-subedit-cli split-file --at N --head FICHIER --tail FICHIER
+subedit-cli split-file --at N --head FILE --tail FILE
                        [--dry-run] [--sort] [--disjoint]
-                       <fichier>
+                       <file>
 ```
 
-Coupe un fichier **en deux** : une tête et une queue. C'est `Split Project…` de la fenêtre — [le même moteur](../subedit-gui/operations.md#split-project),
+Coupe un fichier **en deux** : une tête et une queue. C'est `Split Project…` de la fenêtre — [le même moteur](../../../../manual/subedit-gui/operations.md#split-project),
 les mêmes comptes, le même refus — et **l'inverse exact de [`append`](append.md)** : ajouter la queue à la
 tête rend le fichier de départ.
 
@@ -44,7 +44,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>` | oui | **un seul** chemin | — |
+| `<file>` | oui | **un seul** chemin | — |
 | `--at` | oui | un entier, de 2 au nombre de sous-titres du fichier | — |
 | `--head`, `--tail` | **oui tous les deux**, sauf avec `--dry-run` | des chemins de fichier ; leur dossier est créé s'il manque | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
@@ -79,12 +79,12 @@ qui commençait à 6 s, commence à 2 s.
 tôt dans le temps. `--sort` met les sous-titres dans l'ordre de leurs débuts **avant de juger la coupure** — stable, comme [`sort`](sort.md) —, et
 `--at` compte alors dans cet ordre.
 
-Jamais par défaut. Avec l'option, le fichier dit au premier niveau de narration combien de sous-titres ont bougé (`<chemin>: N subtitles moved`
-ou `<chemin>: already in order`), et l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option**.
+Jamais par défaut. Avec l'option, le fichier dit au premier niveau de narration combien de sous-titres ont bougé (`<path>: N subtitles moved`
+ou `<path>: already in order`), et l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option**.
 
 ## Rendre les plages disjointes
 
-Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, avant de juger la coupure, après le tri : `--at` compte dans ce que cela donne. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<chemin>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
+Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, avant de juger la coupure, après le tri : `--at` compte dans ce que cela donne. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<path>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
 
 ## Quand la coupure est refusée
 
@@ -109,9 +109,9 @@ vide. Un fichier d'un seul sous-titre ne se coupe pas.
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <tête>, <queue>` ; avec `--dry-run`, `(dry run, nothing written)` à la place de `-> …` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, H and T written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>` ; avec `--dry-run`, `(dry run, nothing written)` à la place de `-> …` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, H and T written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ### En JSON
 
@@ -136,9 +136,9 @@ moitié).
 | :------------------- | :------ |
 | ni `--head` ni `--tail` | `no destination given: split-file writes two files, use --head and --tail` |
 | une seule des deux, avec `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
-| les deux destinations sont un même fichier | `<chemin>: named as both the head and the tail` |
-| une destination est l'entrée | `<chemin>: would be written over the input <entrée>` |
-| `--at` hors du fichier | `<fichier>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| un fichier d'un sous-titre | `<fichier>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| chevauchement | `<fichier>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| un fichier absent, illisible ou d'un format inconnu | `<chemin>: does not exist`… — les mêmes que partout |
+| les deux destinations sont un même fichier | `<path>: named as both the head and the tail` |
+| une destination est l'entrée | `<path>: would be written over the input <input>` |
+| `--at` hors du fichier | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| un fichier d'un sous-titre | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| chevauchement | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| un fichier absent, illisible ou d'un format inconnu | `<path>: does not exist`… — les mêmes que partout |

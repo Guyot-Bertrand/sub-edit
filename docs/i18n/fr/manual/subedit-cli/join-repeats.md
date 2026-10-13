@@ -1,15 +1,15 @@
 # `join-repeats`
 
 ```
-subedit-cli join-repeats (--output FICHIER | --output-dir DOSSIER | --in-place)
+subedit-cli join-repeats (--output FILE | --output-dir DIR | --in-place)
                          [--dry-run]
                          [--recursive]
-                         <fichier>...
+                         <file>...
 ```
 
 Fait **un seul sous-titre** des sous-titres qui montrent la même chose à la suite : un texte découpé en morceaux
 qui se suivent, comme le laissent certains outils de segmentation. C'est `Join Repeated Subtitles` de la fenêtre —
-[le même moteur](../subedit-gui/lignes.md#fusionner-les-sous-titres-répétés).
+[le même moteur](../../../../manual/subedit-gui/lignes.md#fusionner-les-sous-titres-répétés).
 
 **Un répété** est un sous-titre qui a **le même texte, la même traduction et les mêmes réglages de format** (un
 style, une position, des réglages de cue) qu'un autre, **et qui commence au plus tard quand celui-ci finit** : ils
@@ -45,7 +45,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
@@ -72,9 +72,9 @@ resté. Un second passage ne change rien et le dit : `no repeated subtitles`.
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N repeated subtitles joined -> <destination>`, ou `<chemin>: no repeated subtitles -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** |
+| 1 | `<path>: N repeated subtitles joined -> <destination>`, ou `<path>: no repeated subtitles -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** |
 
 ### En JSON
 

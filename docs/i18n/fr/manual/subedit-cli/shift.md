@@ -1,11 +1,11 @@
 # `shift`
 
 ```
-subedit-cli shift (--by <temps> | --to-grid)
-                  (--output FICHIER | --output-dir DOSSIER | --in-place)
+subedit-cli shift (--by <time> | --to-grid)
+                  (--output FILE | --output-dir DIR | --in-place)
                   [--dry-run]
                   [--recursive]
-                  <fichier>...
+                  <file>...
 ```
 
 Décale **toutes** les positions du fichier de la même durée, dans un sens ou
@@ -36,7 +36,7 @@ Options:
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
+| `<file>...` | oui | un ou plusieurs chemins | — |
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--by` | **l'une des deux** | une durée signée, voir ci-dessous | — |
 | `--to-grid` | **l'une des deux** | drapeau : le montant est mesuré, voir ci-dessous | — |
@@ -135,9 +135,9 @@ code=2
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles shifted by 2.999 s -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles shifted by 2.999 s -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ### En JSON
 
@@ -155,7 +155,7 @@ certains seulement, `1` sur une erreur d'usage.
 | virgule décimale | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | plus fin que la milliseconde | `"…" is not a time: positions are held to the millisecond, no finer` |
 | texte qui n'est pas une durée | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| décalage avant l'origine | `<chemin>: subtitle N would start before the origin, which no subtitle file can hold` |
+| décalage avant l'origine | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Rien n'est écrit sans l'une des trois options de destination**, et ses
 erreurs sont communes aux sous-commandes qui écrivent :
