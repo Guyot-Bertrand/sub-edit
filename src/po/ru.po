@@ -3521,6 +3521,11 @@ msgstr ""
 msgid "Play"
 msgstr ""
 
+#. TRANSLATORS: the interface language that follows the environment, LANGUAGE and LANG.
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "System default"
+msgstr ""
+
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Show line lengths in cells"
 msgstr ""
@@ -3544,6 +3549,14 @@ msgstr ""
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Theme"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Interface language"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Takes effect at the next launch."
 msgstr ""
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
