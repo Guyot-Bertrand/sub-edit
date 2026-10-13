@@ -11,6 +11,24 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **i18n** — Complete the French catalogue from Gaupol's and ours
+
+### Corrections
+
+- **i18n** — Read inspect in English in the two measuring scripts
+
+### Documentation
+
+- **doc** — Say French ships complete, in the spec and the manuals
+
+### Tests
+
+- **test** — Prove the shipped French catalogue end to end
+
+## 0.15.21 — 2026-10-12
+
+### Ajouts
+
 - **scripts** — Seed the catalogues from Gaupol's, tested on a fixture
 - **i18n** — Seed nineteen catalogues from Gaupol, none installed
 
@@ -21,6 +39,7 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — Say how the seeds are made, credited and kept out
+- **doc** — Regenerate the changelog
 
 ## 0.15.20 — 2026-10-12
 

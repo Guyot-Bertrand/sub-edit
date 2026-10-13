@@ -41,6 +41,7 @@ add_executable(
     cli/correct_oracle_test.cpp
     cli/pattern_catalogue_test.cpp
     cli/framerate_test.cpp
+    cli/shipped_french_test.cpp
     gui/version_test.cpp)
 
 # subedit::core pour versionString() : l'attendu d'un test se calcule, il ne se
@@ -96,6 +97,10 @@ add_custom_target(subedit_translated_cli DEPENDS "${subedit_translated_cli}" "${
 add_dependencies(subedit_e2e_test subedit_translated_cli)
 target_compile_definitions(subedit_e2e_test
                            PRIVATE SUBEDIT_TRANSLATED_CLI_BINARY="${subedit_translated_cli}")
+
+# **The French that ships** (#668): the build tree's binary reads the catalogues the build
+# compiles beside it, as an installed one does, so a test of them needs them built first.
+add_dependencies(subedit_e2e_test subedit_locale)
 
 subedit_set_warnings(subedit_e2e_test)
 

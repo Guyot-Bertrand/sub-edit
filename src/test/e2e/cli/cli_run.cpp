@@ -611,6 +611,10 @@ CliRun invokeIn(const Locale& locale, const std::vector<std::string>& args) {
     return run(SUBEDIT_TRANSLATED_CLI_BINARY, args, std::nullopt, childEnvironment(locale));
 }
 
+CliRun invokeShipped(const Locale& locale, const std::vector<std::string>& args) {
+    return run(SUBEDIT_CLI_BINARY, args, std::nullopt, childEnvironment(locale));
+}
+
 Locale russian() {
     return Locale{.all = "ru_RU.UTF-8"};
 }

@@ -104,6 +104,7 @@ corpus, et un corpus privé ne se nomme jamais.
 import argparse
 import json
 import math
+import os
 import re
 import subprocess
 import sys
@@ -340,8 +341,11 @@ def confront(files: list[Path], binary: str) -> int:
         cues = cues_of(path)
         if not cues:
             continue
+        # In English, whatever the machine's locale: the words of `inspect` read below follow the
+        # language now that French is installed (#668); `LANGUAGE=en` names the source first.
         told = subprocess.run([binary, "inspect", str(path)],
-                              capture_output=True, text=True, check=False).stdout
+                              capture_output=True, text=True, check=False,
+                              env={**os.environ, "LANGUAGE": "en"}).stdout
         counted = count.search(told)
         bounds = span.search(told)
         if counted is None or bounds is None:

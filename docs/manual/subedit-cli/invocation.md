@@ -73,7 +73,9 @@ named as its file writes it. The pattern files themselves are never rewritten.
 
 The catalogues are installed under `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
 and found from the executable's own directory. English is built in. This version installs `fr`,
-whose translation is still to be done: until it is, its messages are shown in English.
+French, translated in full: under `LANG=fr_FR.UTF-8`, `subedit-cli --help` begins with "Lire,
+inspecter et recaler des fichiers de sous-titres." A script that reads the words of the text
+output sets `LANGUAGE=en` (or `LC_ALL=C`) — or reads `--format json`, which never changes.
 
 **What never follows the language** — what a script reads:
 
@@ -260,7 +262,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.15.21
+subedit 0.15.22
 ```
 
 ## Sous-commandes
