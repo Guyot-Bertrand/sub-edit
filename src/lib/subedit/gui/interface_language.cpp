@@ -1,6 +1,8 @@
+#include <subedit/core/config/settings.hpp>
 #include <subedit/core/i18n/language.hpp>
 #include <subedit/core/i18n/messages.hpp>
 #include <subedit/gui/interface_language.hpp>
+#include <subedit/gui/settings_path.hpp>
 #include <subedit/platform/locations.hpp>
 
 #include <QCoreApplication>
@@ -11,20 +13,30 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <string>
 #include <utility>
 
 namespace subedit::gui {
 
-InterfaceLanguage::InterfaceLanguage()
-    : InterfaceLanguage(core::processEnvironment(),
+InterfaceLanguage::InterfaceLanguage() : InterfaceLanguage(std::nullopt) {}
+
+InterfaceLanguage::InterfaceLanguage(const std::optional<std::string>& preferred)
+    : InterfaceLanguage(preferred,
+                        core::processEnvironment(),
                         platform::installedLocalePath(),
                         QLibraryInfo::path(QLibraryInfo::TranslationsPath)) {}
 
 InterfaceLanguage::InterfaceLanguage(const core::EnvironmentLookup& environment,
                                      const std::filesystem::path& localeDirectory,
+                                     const QString& qtDirectory)
+    : InterfaceLanguage(std::nullopt, environment, localeDirectory, qtDirectory) {}
+
+InterfaceLanguage::InterfaceLanguage(const std::optional<std::string>& preferred,
+                                     const core::EnvironmentLookup& environment,
+                                     const std::filesystem::path& localeDirectory,
                                      const QString& qtDirectory) {
     std::optional<core::InstalledLanguage> found =
-        core::installedLanguage(core::languageCandidates(environment), localeDirectory);
+        core::chosenLanguage(preferred, environment, localeDirectory);
     if (!found)
         return;
 
@@ -44,6 +56,15 @@ InterfaceLanguage::~InterfaceLanguage() {
         QCoreApplication::removeTranslator(m_qt.get());
     if (m_language)
         core::installCatalogue(nullptr);
+}
+
+std::optional<std::string> settingsLanguage(const core::FileSystem& files,
+                                            const std::filesystem::path& path) {
+    return core::readSettings(files, path).settings.interfaceLanguage;
+}
+
+std::optional<std::string> settingsLanguage(const core::FileSystem& files) {
+    return settingsLanguage(files, userSettingsPath());
 }
 
 } // namespace subedit::gui

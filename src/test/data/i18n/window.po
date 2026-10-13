@@ -203,6 +203,15 @@ msgstr "Декодировать на видеокарте"
 msgid "Theme"
 msgstr "Тема"
 
+msgid "Interface language"
+msgstr "Язык интерфейса"
+
+msgid "System default"
+msgstr "Как в системе"
+
+msgid "Takes effect at the next launch."
+msgstr "Вступит в силу при следующем запуске."
+
 msgid "Length unit"
 msgstr "Единица длины"
 

@@ -109,6 +109,11 @@ English, English **without a word** when the language asked for is not installed
 [the command line's manual](../subedit-cli/invocation.md#language). The catalogues are the same
 files, installed under `<prefix>/share/subedit/locale`.
 
+**A language chosen in `Edit ▸ Preferences…` comes first**, and the environment is read only
+when it is `System default`, which it is until one is chosen: an installed language chosen there
+wins over every variable, `LC_ALL=C` included. The choice, too, applies at the next launch. See
+[The interface language](preferences.md#the-interface-language).
+
 | What | Follows the language |
 | :--- | :------------------- |
 | the menus and their entries, with their underlined letters; the toolbar; the tool tips | yes |

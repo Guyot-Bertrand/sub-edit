@@ -16,6 +16,7 @@
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/subtitle_writer.hpp>
 #include <subedit/core/format/translation_file.hpp>
+#include <subedit/core/i18n/language.hpp>
 #include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/find_video.hpp>
@@ -1840,9 +1841,19 @@ std::optional<LineLengthDisplay> MainWindow::lengthDisplay(core::Document docume
 }
 
 void MainWindow::openPreferences() {
-    PreferencesDialog dialog{m_theme, m_editor, m_video->settings(), this};
+    PreferencesDialog dialog{
+        m_theme,
+        m_editor,
+        m_video->settings(),
+        LanguageChoice{.chosen = m_interfaceLanguage,
+                       .installed = core::availableLanguages(m_localeDirectory)},
+        this};
     if (!m_prompts->run(dialog))
         return;
+
+    // Kept for the settings, and not applied: the window speaks the language it was built in
+    // until the next launch, which the dialog says (D4).
+    m_interfaceLanguage = dialog.interfaceLanguage();
 
     // Laid down at once: a preference whose effect waits for a restart looks
     // like a preference that was not taken.
@@ -1902,6 +1913,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
 
     m_theme = settings.theme;
     applyTheme(m_theme);
+    m_interfaceLanguage = settings.interfaceLanguage;
 
     m_editor = settings.editor;
     refreshLengths();
@@ -1944,6 +1956,7 @@ core::Settings MainWindow::settings() const {
         settings.lastDirectory = m_projectFiles->lastDirectory();
 
     settings.theme = m_theme;
+    settings.interfaceLanguage = m_interfaceLanguage;
     settings.editor = m_editor;
     settings.insertPlacement = m_insertPlacement;
     settings.search = m_search->options();

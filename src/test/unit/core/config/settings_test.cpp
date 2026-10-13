@@ -223,6 +223,48 @@ TEST_CASE("the three themes are written back as they read", "[config]") {
     }
 }
 
+// ## The interface language, which came with #669
+
+TEST_CASE("the interface language reads as system or as a language's name", "[config]") {
+    CHECK_FALSE(readOf("").settings.interfaceLanguage.has_value());
+    CHECK_FALSE(readOf("interface.language = system\n").settings.interfaceLanguage.has_value());
+    CHECK(readOf("interface.language = fr\n").settings.interfaceLanguage == "fr");
+    CHECK(readOf("interface.language = pt_BR\n").settings.interfaceLanguage == "pt_BR");
+    CHECK(readOf("interface.language = en\n").settings.interfaceLanguage == "en");
+}
+
+TEST_CASE("an unreadable interface language leaves the default, and says so", "[config]") {
+    for (const char* value : {"French", "fr_FR.UTF-8", "", "SYSTEM"}) {
+        INFO(value);
+        const SettingsRead read = readOf(std::string{"interface.language = "} + value + "\n");
+        CHECK_FALSE(read.settings.interfaceLanguage.has_value());
+        REQUIRE(read.diagnostics.size() == 1);
+        CHECK(read.diagnostics.front().key == "interface.language");
+        CHECK(read.diagnostics.front().value == value);
+    }
+}
+
+TEST_CASE("the interface language is written back as it read, commented when system", "[config]") {
+    CHECK_THAT(renderSettings(Settings{}), ContainsSubstring("\n#interface.language = system\n"));
+    CHECK_THAT(renderSettings(Settings{.interfaceLanguage = "fr"}),
+               ContainsSubstring("\ninterface.language = fr\n"));
+
+    for (const std::optional<std::string>& language :
+         {std::optional<std::string>{}, std::optional<std::string>{"ru"}}) {
+        InMemoryFileSystem files;
+        REQUIRE(writeSettings(files, kPath, Settings{.interfaceLanguage = language}).has_value());
+        CHECK(readSettings(files, kPath).settings.interfaceLanguage == language);
+    }
+}
+
+TEST_CASE("the interface language is a display preference, out of the operation block",
+          "[config]") {
+    const std::string written = renderSettings(Settings{});
+    CHECK(written.find("interface.language") > written.find("# Display preferences"));
+    CHECK_THAT(renderOperationSettings(Settings{.interfaceLanguage = "fr"}),
+               !ContainsSubstring("interface.language"));
+}
+
 // ## The side of an insertion, which came with #242
 
 TEST_CASE("the two sides of an insertion read, and nothing else", "[config]") {

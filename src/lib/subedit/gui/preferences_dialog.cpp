@@ -1,4 +1,5 @@
 #include <subedit/core/config/theme.hpp>
+#include <subedit/core/i18n/language.hpp>
 #include <subedit/core/wording/settings.hpp>
 #include <subedit/gui/messages.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
@@ -14,9 +15,14 @@
 #include <QString>
 #include <QVBoxLayout>
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace subedit::gui {
 
@@ -35,6 +41,36 @@ constexpr std::array<core::LengthUnit, 2> kUnits = {core::LengthUnit::Ems,
     return unit == core::LengthUnit::Ems ? translate("Ems") : translate("Characters");
 }
 
+/// The source language, offered whatever is installed.
+constexpr std::string_view kEnglish = "en";
+
+/// A language as the list shows it: by its own name, or by its code when the table of names does
+/// not know it.
+[[nodiscard]] QString labelOf(std::string_view language) {
+    return QString::fromUtf8(core::endonymOf(language).value_or(language));
+}
+
+/// The list of the language field: `System default`, English, each installed language, and the
+/// language chosen if it is none of these — a setting carried from another machine is shown as it
+/// is and kept, rather than silently changed to something nobody chose.
+void fillLanguages(QComboBox& box, const LanguageChoice& choice) {
+    // TRANSLATORS: the interface language that follows the environment, LANGUAGE and LANG.
+    box.addItem(translate("System default"), QString{});
+
+    std::vector<std::string> languages{std::string{kEnglish}};
+    for (const std::string& one : choice.installed)
+        if (std::ranges::find(languages, one) == languages.end())
+            languages.push_back(one);
+    if (choice.chosen && std::ranges::find(languages, *choice.chosen) == languages.end())
+        languages.push_back(*choice.chosen);
+
+    for (const std::string& one : languages)
+        box.addItem(labelOf(one), QString::fromStdString(one));
+
+    if (choice.chosen)
+        box.setCurrentIndex(box.findData(QString::fromStdString(*choice.chosen)));
+}
+
 /// A second, in milliseconds, and the step of the lead-in's field in seconds.
 constexpr double kMillisecondsPerSecond = 1000.0;
 constexpr double kContextStepSeconds = 0.5;
@@ -44,9 +80,11 @@ constexpr double kContextStepSeconds = 0.5;
 PreferencesDialog::PreferencesDialog(core::Theme theme,
                                      const core::EditorSettings& editor,
                                      const core::VideoSettings& video,
+                                     const LanguageChoice& language,
                                      QWidget* parent)
     : QDialog(parent),
       m_theme(new QComboBox{this}),
+      m_language(new QComboBox{this}),
       m_lengthUnit(new QComboBox{this}),
       m_showInCells(new QCheckBox{translate("Show line lengths in cells"), this}),
       m_showInEditor(new QCheckBox{translate("Show line lengths in the editor"), this}),
@@ -60,6 +98,8 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
         m_theme->addItem(QString::fromUtf8(core::nameOf(one)));
 
     m_theme->setCurrentIndex(static_cast<int>(theme));
+
+    fillLanguages(*m_language, language);
 
     for (const core::LengthUnit one : kUnits)
         m_lengthUnit->addItem(labelOf(one));
@@ -96,6 +136,11 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
 
     auto* fields = new QFormLayout;
     fields->addRow(translate("Theme"), m_theme);
+    fields->addRow(translate("Interface language"), m_language);
+    // Said where it is chosen (D4): a language that changed nothing would look like a broken one.
+    auto* nextLaunch = new QLabel{translate("Takes effect at the next launch."), this};
+    nextLaunch->setWordWrap(true);
+    fields->addRow(QString{}, nextLaunch);
     fields->addRow(translate("Length unit"), m_lengthUnit);
     fields->addRow(m_showInCells);
     fields->addRow(m_showInEditor);
@@ -138,6 +183,13 @@ core::VideoSettings PreferencesDialog::video() const {
                 static_cast<int>(std::lround(m_contextLength->value() * kMillisecondsPerSecond)),
             .stepFrames = m_stepFrames->value(),
             .hardwareDecoding = m_hardwareDecoding->isChecked()};
+}
+
+std::optional<std::string> PreferencesDialog::interfaceLanguage() const {
+    const QString code = m_language->currentData().toString();
+    if (code.isEmpty())
+        return std::nullopt;
+    return code.toStdString();
 }
 
 core::Theme PreferencesDialog::theme() const {

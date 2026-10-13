@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <system_error>
 #include <utility>
 
 namespace subedit::core {
@@ -90,6 +91,45 @@ std::optional<InstalledLanguage> installedLanguage(const std::vector<std::string
         }
     }
     return std::nullopt;
+}
+
+bool isLanguageName(std::string_view text) {
+    // ASCII letters, and not `std::islower`: that one follows the locale.
+    const auto lower = [](char c) { return c >= 'a' && c <= 'z'; };
+    const auto upper = [](char c) { return c >= 'A' && c <= 'Z'; };
+    const std::string_view language = text.substr(0, text.find('_'));
+    if (language.size() < 2 || language.size() > 3 || !std::ranges::all_of(language, lower))
+        return false;
+    if (language.size() == text.size())
+        return true;
+    const std::string_view region = text.substr(language.size() + 1);
+    return region.size() == 2 && std::ranges::all_of(region, upper);
+}
+
+std::optional<InstalledLanguage> chosenLanguage(const std::optional<std::string>& preferred,
+                                                const EnvironmentLookup& environment,
+                                                const std::filesystem::path& localeDirectory) {
+    if (preferred) {
+        const std::vector<std::string> names = expand(*preferred);
+        if (!names.empty() && isEnglish(languageOf(names.front())))
+            return std::nullopt;
+        if (std::optional<InstalledLanguage> found = installedLanguage(names, localeDirectory))
+            return found;
+    }
+    return installedLanguage(languageCandidates(environment), localeDirectory);
+}
+
+std::vector<std::string> availableLanguages(const std::filesystem::path& localeDirectory) {
+    std::vector<std::string> names;
+    // An error code rather than an exception: a missing directory is no language at all.
+    std::error_code error;
+    for (const auto& entry : std::filesystem::directory_iterator(localeDirectory, error)) {
+        std::string name = entry.path().filename().string();
+        if (installedLanguage({name}, localeDirectory))
+            names.push_back(std::move(name));
+    }
+    std::ranges::sort(names);
+    return names;
 }
 
 std::shared_ptr<const Catalogue> installedCatalogue(const std::vector<std::string>& candidates,

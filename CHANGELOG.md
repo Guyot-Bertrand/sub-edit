@@ -11,6 +11,18 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **core** — Read and write the interface language setting
+- **gui** — Choose the interface language in Preferences
+- **i18n** — Translate the interface language field into French
+
+### Documentation
+
+- **doc** — Describe the interface language setting
+
+## 0.15.22 — 2026-10-13
+
+### Ajouts
+
 - **i18n** — Complete the French catalogue from Gaupol's and ours
 
 ### Corrections
@@ -20,6 +32,7 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — Say French ships complete, in the spec and the manuals
+- **doc** — Regenerate the changelog
 
 ### Tests
 
