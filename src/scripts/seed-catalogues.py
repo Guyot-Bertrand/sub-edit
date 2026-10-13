@@ -176,7 +176,8 @@ def parse_po(path: pathlib.Path) -> list[Entry]:
         if line.startswith("#~"):
             current.obsolete = True
             line = line[2:].strip()
-            if not line or line.startswith("#"):
+            # `#~|` is the previous msgid of an obsolete fuzzy entry, a comment like `#|`.
+            if not line or line.startswith("#") or line.startswith("|"):
                 continue
         elif line.startswith("#"):
             if current.msgid is not None:
