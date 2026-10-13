@@ -1,0 +1,49 @@
+# The template of the stale-translation fixture (issue #670).
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: subedit\n"
+"Report-Msgid-Bugs-To: https://github.com/Guyot-Bertrand/sub-edit/issues\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Open"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Close"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "Saved %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 of %2 files"
+msgstr ""
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "Removed %1 subtitle"
+msgid_plural "Removed %1 subtitles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/video.cpp
+msgid "Rate %1 frames per second"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Shift the selected subtitles by a duration"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Added since the last merge"
+msgstr ""

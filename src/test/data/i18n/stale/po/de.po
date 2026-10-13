@@ -1,0 +1,48 @@
+# A complete catalogue: nothing to find.
+msgid ""
+msgstr ""
+"Project-Id-Version: subedit\n"
+"Report-Msgid-Bugs-To: https://github.com/Guyot-Bertrand/sub-edit/issues\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "&Open"
+msgstr "Ö&ffnen"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Close"
+msgstr "Schließen"
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "Saved %1"
+msgstr "%1 gespeichert"
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "%1 of %2 files"
+msgstr "%2 Dateien, davon %1"
+
+#: src/lib/subedit/core/wording/editing.cpp
+msgid "Removed %1 subtitle"
+msgid_plural "Removed %1 subtitles"
+msgstr[0] "Einen Untertitel entfernt"
+msgstr[1] "%1 Untertitel entfernt"
+
+#: src/lib/subedit/core/wording/video.cpp
+msgid "Rate %1 frames per second"
+msgstr "Bildrate %1 Bilder pro Sekunde"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Shift the selected subtitles by a duration"
+msgstr "Die ausgewählten Untertitel um eine Dauer verschieben"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Added since the last merge"
+msgstr "Seit dem letzten Abgleich hinzugefügt"
