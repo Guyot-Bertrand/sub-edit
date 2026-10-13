@@ -1,34 +1,34 @@
 # `append`
 
 ```
-subedit-cli append --output FICHIER
+subedit-cli append --output FILE
                    [--dry-run] [--sort] [--disjoint]
-                   <base> <fichier>...
+                   <base> <file>...
 ```
 
-Met des fichiers **à la suite du premier**, dans **un seul** fichier : le film en deux parties, rendu en un
-seul jeu de sous-titres. C'est `Append File…` de la fenêtre — [le même moteur](../subedit-gui/operations.md#append-file),
-les mêmes comptes — appliqué autant de fois qu'il y a de fichiers à ajouter.
+Puts files **after the first one**, into **a single** file: the film in two parts, turned into a
+single set of subtitles. It is `Append File…` of the window — [the same engine](../subedit-gui/operations.md#append-file),
+the same counts — applied as many times as there are files to append.
 
-- **Le premier fichier est la base.** Il donne au résultat **son format, son encodage, sa marque
-  d'octets et ses fins de ligne**.
-- **Rien n'est inséré entre deux fichiers** : chacun est décalé de **la fin du dernier sous-titre de ce qui
-  le précède**, ses positions gardant leur ordre et leur écart. Le troisième suit le deuxième, non la
-  base : les fichiers se suivent dans l'ordre où ils sont donnés.
-- **Chaque fichier ajouté traverse la conversion** vers le format de la base : ses balises sont traduites,
-  et ce que ce format ne sait pas écrire est dit, fichier par fichier, dans les mots de la fenêtre.
-- **Les fichiers ajoutés n'ont pas de traduction** : un fichier ouvert seul n'en a pas à donner.
-- **Un fichier peut être donné plusieurs fois**, ou ajouté à lui-même : rien ne l'interdit.
+- **The first file is the base.** It gives the result **its format, its encoding, its byte
+  order mark and its line endings**.
+- **Nothing is inserted between two files**: each one is shifted by **the end of the last subtitle of what
+  precedes it**, its positions keeping their order and their spacing. The third follows the second, not the
+  base: the files follow each other in the order they are given.
+- **Each appended file goes through the conversion** to the base's format: its tags are translated,
+  and what that format cannot write is said, file by file, in the window's words.
+- **The appended files have no translation**: a file opened alone has none to give.
+- **A file can be given several times**, or appended to itself: nothing forbids it.
 
-**`append` n'est pas un lot.** N entrées, **une** sortie : la boucle des autres sous-commandes — un résultat
-par fichier, et un échec qui laisse les autres aller — n'a pas de sens ici. Il en découle trois choses :
+**`append` is not a batch.** N inputs, **one** output: the loop of the other subcommands — one result
+per file, and a failure that lets the others go on — makes no sense here. Three things follow from it:
 
-- **la destination est `--output`, et rien d'autre.** `--output-dir` et `--in-place` n'existent pas pour
-  `append` et sont refusés comme toute option inconnue, code `1` ; `--recursive` de même : l'ordre des
-  fichiers est celui qu'on donne, et un arbre parcouru n'en a pas ;
-- **tout ou rien** : le premier fichier qui ne se lit pas arrête le lancement, et **rien n'est écrit**. Un
-  film en trois parties dont une manque n'est pas un film en deux ;
-- **une seule ligne par lancement** pour le résultat, et, en JSON, **un seul objet**.
+- **the destination is `--output`, and nothing else.** `--output-dir` and `--in-place` do not exist for
+  `append` and are refused like any unknown option, code `1`; `--recursive` likewise: the order of the
+  files is the one given, and a walked tree has none;
+- **all or nothing**: the first file that cannot be read stops the run, and **nothing is written**. A
+  film in three parts one of which is missing is not a film in two;
+- **a single line per run** for the result, and, in JSON, **a single object**.
 
 <!-- exemple: subedit-cli append --help -->
 ```console
@@ -47,19 +47,19 @@ Options:
   --disjoint                  Cut overlapping subtitles so that no range overlaps another, before writing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<base> <fichier>...` | oui, **deux au moins** | des chemins : la base, puis ce qu'on met à sa suite, dans l'ordre | — |
-| `--output` | **oui**, sauf avec `--dry-run` | un chemin de fichier ; son dossier est créé s'il manque | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
-| `--sort` | non | un drapeau : met l'ensemble dans l'ordre de ses débuts **une fois tout ajouté**, voir [Trier le résultat](#trier-le-résultat) | désactivé |
-| `--disjoint` | non | un drapeau : découpe les sous-titres qui se chevauchent **une fois tout ajouté et trié**, voir [Rendre les plages disjointes](#rendre-les-plages-disjointes) | désactivé |
+| `<base> <file>...` | yes, **at least two** | paths: the base, then what is put after it, in order | — |
+| `--output` | **yes**, except with `--dry-run` | a file path; its directory is created if it is missing | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
+| `--sort` | no | a flag: puts the whole in the order of its starts **once everything is appended**, see [Sorting the result](#sorting-the-result) | off |
+| `--disjoint` | no | a flag: cuts the overlapping subtitles **once everything is appended and sorted**, see [Making the ranges disjoint](#making-the-ranges-disjoint) | off |
 
-**La destination ne peut être aucune des entrées**, la base comprise : écrire par-dessus un fichier qu'on est
-en train de lire est refusé avant que rien soit lu, code `1`. `--output` existant et distinct des entrées est
-écrasé, comme partout.
+**The destination cannot be any of the inputs**, the base included: writing over a file one is
+reading is refused before anything is read, code `1`. An existing `--output` distinct from the inputs is
+overwritten, as everywhere.
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
@@ -79,84 +79,84 @@ deux
 trois
 ```
 
-Le dernier sous-titre de `partie1.srt` finit à 4 s ; celui de `partie2.srt`, qui commençait à 0,5 s, commence à
-4,5 s.
+The last subtitle of `partie1.srt` ends at 4 s; the one of `partie2.srt`, which started at 0.5 s, starts at
+4.5 s.
 
-## Trier le résultat
+## Sorting the result
 
-Chaque fichier est décalé **à partir de la fin de ce qui le précède** : l'ordre qui peut se rompre est donc celui des fichiers eux-mêmes. `--sort`
-met le résultat dans l'ordre des débuts, **en une fois, après le dernier ajout**, comme le ferait [`sort`](sort.md) — stable, et sans rien changer
-au contenu.
+Each file is shifted **from the end of what precedes it**: the order that can break is therefore that of the files themselves. `--sort`
+puts the result in the order of the starts, **in one go, after the last append**, as [`sort`](sort.md) would — stable, and without changing anything
+in the content.
 
-Jamais par défaut. Avec l'option, la base le dit au premier niveau de narration, `<base>: N subtitles moved` ou `<base>: already in order`, et
-l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option**.
+Never by default. With the option, the base says so at the first narration level, `<base>: N subtitles moved` or `<base>: already in order`, and
+the `--format json` record carries a `moved` count, **absent without the option**.
 
-## Rendre les plages disjointes
+## Making the ranges disjoint
 
-Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, une fois tout ajouté, sur l'ensemble. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<chemin>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
+Never by default. The option does what [`disjoint`](disjoint.md) does, **with its default settings**, once everything is appended, on the whole. It needs a file in order: otherwise it is refused, and `--sort` — which comes first — puts it in order beforehand. The file says so at the first narration level (`<path>: N subtitles split, M merged`), and the `--format json` record carries the `split` and `merged` counts, **absent without the option**.
 
-## Quand les formats diffèrent
+## When the formats differ
 
-Le résultat est dans **le format de la base**, quel que soit celui des autres. Ce que la traversée coûte est
-dit fichier par fichier, avec les mots de la fenêtre — la même phrase que `Append File…` et que
-[le collage d'un autre format](../subedit-gui/presse-papiers.md#les-balises-dun-autre-format-sont-traduites) :
+The result is in **the base's format**, whatever the others'. What the crossing costs is
+said file by file, in the window's words — the same sentence as `Append File…` and as
+[pasting from another format](../subedit-gui/presse-papiers.md#les-balises-dun-autre-format-sont-traduites):
 
 ```text
 d.ass: appended 1 subtitle; Advanced SSA into SubRip: 1 tag dropped, the header was dropped
 ```
 
-Ce que l'on perd ne dépend que du format de **chaque** fichier ajouté : une base en Advanced SSA reçoit un
-fichier SubRip sans rien perdre, l'inverse non. Pour choisir le format du résultat, on met en premier un fichier
-qui est déjà dans ce format, ou l'on convertit ensuite avec [`convert`](convert.md).
+What is lost depends only on the format of **each** appended file: a base in Advanced SSA receives a
+SubRip file without losing anything, not the reverse. To choose the format of the result, put first a file
+that is already in that format, or convert afterwards with [`convert`](convert.md).
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Standard output** — nothing: the result is the file written.
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | une ligne par fichier ajouté — `<chemin>: appended N subtitles`, suivie, quand le format a coûté quelque chose, de `; <format source> into <format de la base>: <ce qui est perdu>` — puis `<base>: N subtitles from M files -> <destination>` (avec `--dry-run`, `(dry run, nothing written)` à la place de `-> <destination>`) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne de la base, remis tels quels |
-| 3 | `<base>: N bytes read, M written` (tous les fichiers ensemble), puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | one line per appended file — `<path>: appended N subtitles`, followed, when the format cost something, by `; <source format> into <base format>: <what is lost>` — then `<base>: N subtitles from M files -> <destination>` (with `--dry-run`, `(dry run, nothing written)` in place of `-> <destination>`) |
+| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the base, put back as they were |
+| 3 | `<base>: N bytes read, M written` (all the files together), then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), **un seul objet** pour tout le lancement,
-dont `file` est **la base**. Ses `counts` :
+With [`--format json`](invocation.md#output-a-script-can-read), **a single object** for the whole run,
+whose `file` is **the base**. Its `counts`:
 
-| Compte | Ce qu'il dit |
+| Count | What it says |
 | :----- | :----------- |
-| `files` | les fichiers du lancement, la base comprise |
-| `subtitles` | les sous-titres du résultat |
-| `appended` | ceux qui viennent des fichiers ajoutés |
-| `lost_ends`, `lost_header` | `0` ou `1` : un des fichiers ajoutés l'a perdu |
-| `joined_lines`, `lost_tags`, `lost_fields` | la somme de ce que les fichiers ajoutés ont perdu |
-| `furthest_ms` | le plus grand déplacement d'une position, tous fichiers confondus |
+| `files` | the files of the run, the base included |
+| `subtitles` | the subtitles of the result |
+| `appended` | those that come from the appended files |
+| `lost_ends`, `lost_header` | `0` or `1`: one of the appended files lost it |
+| `joined_lines`, `lost_tags`, `lost_fields` | the sum of what the appended files lost |
+| `furthest_ms` | the largest move of a position, all files together |
 
-**Un tableau `inputs`** accompagne les `counts`, hors d'eux : un élément par fichier ajouté, dans l'ordre,
-`{"file", "counts"}` — `counts` portant `appended`, puis les mêmes pertes, **pour ce fichier seul**. C'est ce qui
-dit, dans un lancement de dix fichiers, lequel a coûté quoi. Les avertissements de lecture de tous les fichiers
-sont réunis dans `warnings`.
+**An `inputs` array** goes with the `counts`, outside them: one element per appended file, in order,
+`{"file", "counts"}` — `counts` carrying `appended`, then the same losses, **for that file alone**. It is what
+says, in a run of ten files, which one cost what. The reading warnings of all the files
+are gathered in `warnings`.
 
-Un échec est un objet lui aussi, **un seul** : celui du premier fichier qui n'a pas pu être lu.
+A failure is an object too, **a single one**: that of the first file that could not be read.
 
-## Codes de retour
+## Exit codes
 
-| Code | Quand |
+| Code | When |
 | :--- | :---- |
-| `0` | le résultat est écrit — ou calculé, avec `--dry-run` |
-| `1` | erreur d'usage : moins de deux fichiers, pas de `--output`, une option qu'`append` n'a pas, une destination qui est une des entrées |
-| `2` | **un fichier n'a pas pu être lu**, ou la destination n'a pas pu être écrite : rien n'est écrit. Il n'y a pas de code `3` : un lancement qui n'écrit qu'un fichier est réussi ou ne l'est pas |
+| `0` | the result is written — or computed, with `--dry-run` |
+| `1` | usage error: fewer than two files, no `--output`, an option `append` does not have, a destination that is one of the inputs |
+| `2` | **a file could not be read**, or the destination could not be written: nothing is written. There is no code `3`: a run that writes only one file succeeds or does not |
 
-## Erreurs
+## Errors
 
-| Ce qui les déclenche | Message |
+| What triggers them | Message |
 | :------------------- | :------ |
-| un seul fichier donné | `append needs a base file and at least one file to put after it` |
-| ni `--output` ni `--dry-run` | `no destination given: append writes one file, use --output` |
-| `--output` désigne une entrée | `<destination>: would be written over the input <entrée>` |
-| un fichier absent, illisible ou d'un format inconnu | `<chemin>: does not exist`, `<chemin>: is in no format this tool knows`… — les mêmes que partout |
+| a single file given | `append needs a base file and at least one file to put after it` |
+| neither `--output` nor `--dry-run` | `no destination given: append writes one file, use --output` |
+| `--output` names an input | `<destination>: would be written over the input <input>` |
+| a file missing, unreadable or of an unknown format | `<path>: does not exist`, `<path>: is in no format this tool knows`… — the same as everywhere |
 
-**Un fichier vide ne s'ajoute pas** : aucun format ne se lit sans un sous-titre au moins, et le fichier est
-refusé comme tout fichier qui ne se lit pas — `<chemin>: holds nothing recognisable as a subtitle` —, ce qui
-arrête le lancement et n'écrit rien.
+**An empty file is not appended**: no format reads without at least one subtitle, and the file is
+refused like any file that cannot be read — `<path>: holds nothing recognisable as a subtitle` —, which
+stops the run and writes nothing.

@@ -1,5 +1,7 @@
 # Annuler et rétablir
 
+<!-- language: fr -->
+
 Chaque opération entre dans un historique, et se défait. Une cellule éditée
 compte pour **une** entrée : la frappe ne s'y inscrit pas touche par touche,
 seule la validation compte.

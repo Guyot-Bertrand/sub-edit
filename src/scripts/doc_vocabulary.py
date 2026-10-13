@@ -1,27 +1,32 @@
 #!/usr/bin/env python3
-"""Le vocabulaire que les contrôles du manuel cherchent, une table par langue.
+"""The vocabulary the manual checks look for, one table per language.
 
-**Un contrôle qui cherche un mot français et n'en trouve pas sur une page anglaise ne
-échoue pas : il dit « rien à vérifier ».** C'est la panne que `docs/exigences.md` nomme
-(#657). Les contrôles qui lisent le manuel — `check-gui-manual.py`, `check-cli-manual.py` —
-ne portent donc aucun mot de page dans leur logique : ils les demandent ici, par langue.
+**A check that looks for a French word and finds none on an English page does not
+fail: it says "nothing to check".** That is the failure `docs/exigences.md` names
+(#657). The checks that read the manual — `check-gui-manual.py`, `check-cli-manual.py` —
+therefore carry no word of a page in their logic: they ask for them here, per language.
 
-    langue d'une page   déclarée par `<!-- language: en -->` dans ses cinq premières lignes,
-                        sinon celle de son arbre : `docs/i18n/<langue>/manual/`, sinon la
-                        langue source (`SOURCE_LANGUAGE`)
-    vocabulaire         `TABLES[langue]`, complété par un fichier JSON (`--vocabulary`)
+    language of a page  declared by `<!-- language: fr -->` in its first five lines,
+                        otherwise that of its tree: `docs/i18n/<lang>/manual/`, otherwise
+                        the source language (`SOURCE_LANGUAGE`) of `docs/manual/`
+    vocabulary          `TABLES[language]`, completed by a JSON file (`--vocabulary`)
 
-**Une page dont la langue n'a pas de table fait échouer le contrôle**, une seule fois par
-langue. Ajouter une langue au manuel, c'est ajouter sa table, et rien d'autre ne le permet.
-Aucune table n'est livrée pour l'anglais avant que le dépôt ne le parle (#660).
+**A page whose language has no table fails the check**, once per language. Adding a
+language to the manual means adding its table here, and nothing else allows it: a
+translated tree `docs/i18n/<lang>/manual/` is read by the checks as soon as it exists,
+and refused until its table does.
 
-Clés d'une table :
+The declaration is the exception, for a page whose tree does not say its language: a page
+of `docs/manual/` that is not yet in the source language (the window manual until #672)
+declares the language it is written in.
 
-    shortcut_header     l'en-tête de la colonne des raccourcis
-    label_headers       les en-têtes possibles de la colonne qui nomme l'action
-    no_shortcut_words   les mots qui disent « pas de raccourci » (en plus de « », « — », « - »)
-    option_header       l'en-tête de la première colonne des tableaux d'options
-    subcommand_header   l'en-tête du tableau des sous-commandes de `invocation.md`
+Keys of a table:
+
+    shortcut_header     the header of the shortcut column
+    label_headers       the possible headers of the column that names the action
+    no_shortcut_words   the words that say "no shortcut" (besides "", "—", "-")
+    option_header       the header of the first column of the option tables
+    subcommand_header   the header of the subcommand table of `invocation.md`
 """
 
 from __future__ import annotations
@@ -32,13 +37,19 @@ import re
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 
-# La langue des pages qui ne sont ni déclarées ni sous `docs/i18n/` : celle de `docs/manual/`.
-# #660 la fera passer à « en » et déplacera le français sous `docs/i18n/fr/`.
-SOURCE_LANGUAGE = "fr"
+# The language of the pages that are neither declared nor under `docs/i18n/`: that of `docs/manual/`.
+SOURCE_LANGUAGE = "en"
 
 KEYS = ("shortcut_header", "label_headers", "no_shortcut_words", "option_header", "subcommand_header")
 
 TABLES: dict[str, dict] = {
+    "en": {
+        "shortcut_header": "Shortcut",
+        "label_headers": ["Command", "Entry", "Action", "Menu entry"],
+        "no_shortcut_words": ["none"],
+        "option_header": "Option",
+        "subcommand_header": "Subcommand",
+    },
     "fr": {
         "shortcut_header": "Raccourci",
         "label_headers": ["Commande", "Entrée", "Action", "Entrée du menu"],
@@ -48,34 +59,47 @@ TABLES: dict[str, dict] = {
     },
 }
 
-DECLARATION = re.compile(r"<!--\s*language:\s*([A-Za-z][A-Za-z_-]*)\s*-->")
+DECLARATION = re.compile(r"<!--\s*language:\s*([A-Za-z][A-Za-z_@-]*)\s*-->")
 TREE = re.compile(r"(?:^|/)i18n/([^/]+)/manual(?:/|$)")
 
 
 def load_tables(extra: pathlib.Path | None) -> dict[str, dict]:
-    """Les tables livrées, plus celles d'un fichier JSON `{langue: table}`."""
+    """The tables shipped, plus those of a JSON file `{language: table}`."""
     tables = {language: dict(table) for language, table in TABLES.items()}
     if extra is not None:
         for language, table in json.loads(extra.read_text(encoding="utf-8")).items():
             missing = [key for key in KEYS if key not in table]
             if missing:
-                raise SystemExit(f"{extra} : la table « {language} » n'a pas {', '.join(missing)}")
+                raise SystemExit(f"{extra}: the table \"{language}\" has no {', '.join(missing)}")
             tables[language] = table
     return tables
 
 
-def language_of(page: pathlib.Path, text: str) -> str:
-    """La langue d'une page : sa déclaration, sinon son arbre, sinon la langue source."""
+def declared_language(text: str) -> str | None:
+    """The language a page declares in its first five lines, or None."""
     for line in text.splitlines()[:5]:
         if match := DECLARATION.search(line):
             return match.group(1)
+    return None
+
+
+def language_of(page: pathlib.Path, text: str) -> str:
+    """The language of a page: its declaration, otherwise its tree, otherwise the source language."""
+    if declared := declared_language(text):
+        return declared
     if match := TREE.search(page.resolve().as_posix()):
         return match.group(1)
     return SOURCE_LANGUAGE
 
 
+def translated_trees(manual_root: pathlib.Path, part: str) -> list[pathlib.Path]:
+    """`docs/i18n/<lang>/manual/<part>` for every language that has one, in a stable order."""
+    i18n = manual_root.parent / "i18n"
+    return sorted(tree for tree in i18n.glob(f"*/manual/{part}") if tree.is_dir())
+
+
 def missing_table(tables: dict[str, dict], pages_by_language: dict[str, list[str]]) -> list[str]:
-    """Un écart par langue de page qui n'a pas de table, avec les pages qui la parlent."""
+    """One finding per page language that has no table, with the pages that speak it."""
     return [
         f"LANGUE SANS VOCABULAIRE : les pages en « {language} » ({', '.join(sorted(pages))}) "
         f"n'ont pas de table de vocabulaire (doc_vocabulary.py, ou --vocabulary)"

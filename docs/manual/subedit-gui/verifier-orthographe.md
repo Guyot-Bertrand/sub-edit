@@ -1,5 +1,7 @@
 # Check Spelling…
 
+<!-- language: fr -->
+
 `Tools ▸ Check Spelling…` parcourt les mots que le dictionnaire ne connaît pas,
 un à la fois, sur le modèle du correcteur de Gaupol. Elle a une compagne,
 `Tools ▸ Spell-Check Settings…`, qui règle la langue, la cible et le document, et le soulignement à la frappe.

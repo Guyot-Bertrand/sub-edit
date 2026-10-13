@@ -1,19 +1,19 @@
 # `transform`
 
 ```
-subedit-cli transform --first <indice>=<temps> --last <indice>=<temps>
-                      (--output FICHIER | --output-dir DOSSIER | --in-place)
+subedit-cli transform --first <index>=<time> --last <index>=<time>
+                      (--output FILE | --output-dir DIR | --in-place)
                       [--dry-run]
                       [--recursive]
-                      <fichier>...
+                      <file>...
 ```
 
-Corrige **toutes** les positions du fichier à partir de deux points dont on
-connaît la bonne valeur. C'est l'opération qu'appelle un sous-titrage qui dérive
-— juste au début, faux à la fin — là où [`shift`](shift.md), qui déplace tout de
-la même durée, ne peut rien.
+Corrects **every** position of the file from two points whose right value
+is known. It is the operation a drifting subtitling calls for
+— right at the start, wrong at the end — where [`shift`](shift.md), which moves everything by
+the same amount, can do nothing.
 
-Le format du fichier lu est **conservé** : changer de format est le travail de
+The format of the file read is **kept**: changing the format is the work of
 [`convert`](convert.md).
 
 <!-- exemple: subedit-cli transform --help -->
@@ -36,64 +36,64 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--first` | **oui** | un repère, `<indice>=<temps>` | — |
-| `--last` | **oui** | un repère, `<indice>=<temps>` | — |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<file>...` | yes | one or more paths | — |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--first` | **yes** | a reference, `<index>=<time>` | — |
+| `--last` | **yes** | a reference, `<index>=<time>` | — |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
-Il n'y a pas de forme courte : ces deux options ne s'écrivent qu'en toutes
-lettres.
+There is no short form: these two options are only written out in
+full.
 
-## Écrire un repère
+## Writing a reference
 
-Un repère nomme un sous-titre et dit où son **début** doit désormais tomber :
+A reference names a subtitle and says where its **start** must now fall:
 
 ```
-<indice>=<temps>
+<index>=<time>
 ```
 
-**L'indice est compté à partir de 1**, comme il s'affiche et comme un fichier
-SubRip le numérote. `0` est refusé, et un indice qui dépasse le dernier
-sous-titre aussi.
+**The index is counted from 1**, as it is shown and as a SubRip
+file numbers it. `0` is refused, and so is an index past the last
+subtitle.
 
-**Le temps s'écrit comme celui de [`shift`](shift.md)** — secondes ou
-horodatage, séparateur décimal le point, résolution la milliseconde :
+**The time is written as that of [`shift`](shift.md)** — seconds or
+timestamp, the decimal separator a point, the resolution the millisecond:
 
-| Forme | Exemples |
+| Form | Examples |
 | :---- | :------- |
-| secondes | `10`, `2.999` |
-| horodatage | `00:00:10.000`, `01:39:37.040` |
+| seconds | `10`, `2.999` |
+| timestamp | `00:00:10.000`, `01:39:37.040` |
 
-`--first 3=10` et `--first 3=00:00:10.000` disent la même chose.
+`--first 3=10` and `--first 3=00:00:10.000` say the same thing.
 
-`--first` et `--last` nomment deux points, pas un intervalle. Leurs noms disent
-l'usage attendu — un repère au début du fichier, l'autre à la fin — et non une
-contrainte : les inverser donne le même résultat, et **tout ce qui est en dehors
-des deux repères suit comme ce qui est entre eux**.
+`--first` and `--last` name two points, not an interval. Their names say
+the expected use — one reference at the start of the file, the other at the end — and not a
+constraint: swapping them gives the same result, and **everything outside
+the two references follows like what is between them**.
 
-## Ce que les autres positions deviennent
+## What the other positions become
 
-Les deux repères fixent un facteur d'échelle, et toute position le suit :
+The two references set a scale factor, and every position follows it:
 
 ```
-t′ = y₁ + (t − x₁) × r      avec r = (y₂ − y₁) / (x₂ − x₁)
+t′ = y₁ + (t − x₁) × r      with r = (y₂ − y₁) / (x₂ − x₁)
 ```
 
-`x₁`, `x₂` sont les débuts actuels des deux sous-titres nommés, `y₁`, `y₂` les
-temps demandés. Le facteur est tenu comme un rationnel exact et **l'arrondi
-n'a lieu qu'une fois**, à la milliseconde ; c'est ce qui fait que les deux
-repères tombent **exactement** sur les temps demandés et non à un millième près
-(voir l'[ADR 0013](../../adr/0013-mise-a-l-echelle-exacte-des-positions.md)).
+`x₁`, `x₂` are the current starts of the two subtitles named, `y₁`, `y₂` the
+times asked for. The factor is held as an exact rational and **the rounding
+happens only once**, to the millisecond; that is what makes the two
+references fall **exactly** on the times asked for and not to within a thousandth
+(see [ADR 0013](../../adr/0013-mise-a-l-echelle-exacte-des-positions.md)).
 
-Chaque sous-titre reste à l'écran **proportionnellement** à ce qu'il y restait :
-la fin suit la même échelle que le début. Une transformation n'est pas un
-décalage, et n'en a pas la propriété.
+Each subtitle stays on screen **in proportion** to how long it stayed there:
+the end follows the same scale as the start. A transform is not a
+shift, and does not have its property.
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,001 --> 00:00:07,000\nDeux.\n\n3\n00:00:09,000 --> 00:00:11,000\nTrois.\n\n' > a.srt; subedit-cli transform --first 1=00:00:01.000 --last 3=00:00:10.000 --output b.srt a.srt; cat b.srt -->
 ```console
@@ -112,26 +112,26 @@ Deux.
 Trois.
 ```
 
-Le premier repère ne bouge pas, le troisième va de 9 s à 10 s : le facteur est
-`9/8`, et le deuxième sous-titre — qui n'était nommé par personne — passe de
-`5,001` à `5,501`, soit `1000 + 4001 × 9/8` arrondi une fois.
+The first reference does not move, the third goes from 9 s to 10 s: the factor is
+`9/8`, and the second subtitle — which nobody named — goes from
+`5,001` to `5,501`, that is `1000 + 4001 × 9/8` rounded once.
 
-## Deux repères qui n'en sont pas
+## Two references that are not
 
-| Situation | Quand c'est vu | Code |
+| Situation | When it is seen | Code |
 | :-------- | :------------- | :--- |
-| `--first` et `--last` nomment le même indice | avant toute lecture | `1` |
-| un indice dépasse le dernier sous-titre | à l'ouverture du fichier | `2` ou `3` |
-| les deux sous-titres nommés commencent au même instant | à l'ouverture du fichier | `2` ou `3` |
+| `--first` and `--last` name the same index | before any reading | `1` |
+| an index is past the last subtitle | when the file is opened | `2` or `3` |
+| the two subtitles named start at the same moment | when the file is opened | `2` or `3` |
 
-Les trois se refusent pour la même raison : `x₂ − x₁` vaut zéro, et deux points
-confondus ne définissent aucune droite. Rendre une division par zéro déguisée en
-résultat serait pire que refuser.
+All three are refused for the same reason: `x₂ − x₁` is zero, and two
+coinciding points define no line. Returning a division by zero dressed up as a
+result would be worse than refusing.
 
-Le premier cas est une **erreur d'usage** — les deux options sont fautives quels
-que soient les fichiers, donc un seul message est dû, pas un par fichier. Les
-deux autres dépendent du fichier ouvert, et se comptent donc comme un échec de
-traitement.
+The first case is a **usage error** — the two options are at fault whatever
+the files, so a single message is due, not one per file. The
+other two depend on the file opened, and therefore count as a processing
+failure.
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n' > a.srt; subedit-cli transform --first 2=1.000 --last 2=4.000 --output b.srt a.srt; echo "code=$?" -->
 ```console
@@ -140,8 +140,8 @@ $ printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n' > a.srt; subedit-cli transf
 code=1
 ```
 
-Un indice hors bornes est refusé **en nommant la borne**, ce qui dit du même
-coup ce qu'on pouvait écrire :
+An index out of bounds is refused **naming the bound**, which says at the
+same time what could have been written:
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,000 --> 00:00:07,000\nDeux.\n\n' > a.srt; subedit-cli transform --first 1=1.000 --last 9=10.000 --output b.srt a.srt; echo "code=$?" -->
 ```console
@@ -150,49 +150,49 @@ a.srt: subtitle 9 is past the end: the file holds 2 subtitles
 code=2
 ```
 
-## Une position avant l'origine est refusée
+## A position before the origin is refused
 
-Comme pour [`shift`](shift.md), et pour la même raison : une position négative
-s'écrit `-00:00:01,000`, forme qu'aucun des neuf formats ne définit et qu'aucun
-lecteur n'accepte. Le cas se présente ici quand un sous-titre se trouve **avant
-le premier repère** et que l'échelle le repousse au-delà de zéro. Rien n'est
-écrit, le code est `2`, et le message nomme le sous-titre en cause.
+As for [`shift`](shift.md), and for the same reason: a negative position
+is written `-00:00:01,000`, a form none of the nine formats defines and no
+reader accepts. The case arises here when a subtitle lies **before
+the first reference** and the scale pushes it past zero. Nothing is
+written, the code is `2`, and the message names the subtitle at fault.
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, rien non plus : il n'y a pas de fichier, et la ligne de narration le dit — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire).
+**Standard output** — nothing: the result is the file written. With `--dry-run`, nothing either: there is no file, and the narration line says so — see [Seeing before writing](invocation.md#seeing-before-writing).
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000 -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000 -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
+| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
-Les repères sont réécrits avec le point décimal, tels qu'ils ont pu être tapés.
+The references are written back with the decimal point, however they were typed.
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.subtitles` (tous les sous-titres du fichier). Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
+With [`--format json`](invocation.md#output-a-script-can-read), the object of each file carries `counts.subtitles` (every subtitle of the file). The full table is [Invocation](invocation.md#what-each-subcommand-puts-in-counts)'s.
 
-## Codes de retour
+## Exit codes
 
-Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` si
-certains seulement, `1` sur une erreur d'usage.
+Those of the tool: `0` if every file was written, `2` if none, `3` if
+only some, `1` on a usage error.
 
-## Erreurs
+## Errors
 
-| Ce qui la déclenche | Message |
+| What triggers it | Message |
 | :------------------ | :------ |
-| repère sans `=` | `"…" is not a reference: write it <index>=<time>, as in 3=00:00:10.000` |
-| repère dont une moitié manque | `"…" is missing one of its two halves: write it <index>=<time>, as in 3=00:00:10.000` |
-| indice `0` | `"0" is not a subtitle number: subtitles are counted from 1, as the file shows them` |
-| indice qui n'est pas un entier | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
-| temps invalide | ceux de [`shift`](shift.md) |
-| `--first` et `--last` sur le même indice | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| indice hors bornes | `<chemin>: subtitle N is past the end: the file holds M subtitles` |
-| deux sous-titres commençant ensemble | `<chemin>: subtitles N and M start at the same moment, so they define no transform` |
-| position avant l'origine | `<chemin>: subtitle N would land before the origin, which no subtitle file can hold` |
+| reference without `=` | `"…" is not a reference: write it <index>=<time>, as in 3=00:00:10.000` |
+| reference missing one half | `"…" is missing one of its two halves: write it <index>=<time>, as in 3=00:00:10.000` |
+| index `0` | `"0" is not a subtitle number: subtitles are counted from 1, as the file shows them` |
+| index that is not a whole number | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
+| invalid time | those of [`shift`](shift.md) |
+| `--first` and `--last` on the same index | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
+| index out of bounds | `<path>: subtitle N is past the end: the file holds M subtitles` |
+| two subtitles starting together | `<path>: subtitles N and M start at the same moment, so they define no transform` |
+| position before the origin | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
 
-**Rien n'est écrit sans l'une des trois options de destination**, et ses
-erreurs sont communes aux sous-commandes qui écrivent :
-voir [Invocation](invocation.md#la-destination).
+**Nothing is written without one of the three destination options**, and their
+errors are common to the subcommands that write:
+see [Invocation](invocation.md#the-destination).

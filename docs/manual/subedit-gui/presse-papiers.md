@@ -1,5 +1,7 @@
 # Couper, copier et coller des textes
 
+<!-- language: fr -->
+
 Trois entrées du menu `Edit`, sous `Undo` et `Redo`, et au-dessus de
 `Find and Replace…`.
 

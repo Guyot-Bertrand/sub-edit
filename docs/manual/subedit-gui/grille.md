@@ -1,5 +1,7 @@
 # La grille d'images
 
+<!-- language: fr -->
+
 Un fichier de sous-titres **ne déclare pas** la fréquence d'image contre
 laquelle ses positions ont été calculées : SubRip n'a pas d'en-tête, celui de
 WebVTT est du texte libre. La fenêtre la **déduit** des positions elles-mêmes,

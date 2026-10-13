@@ -2,29 +2,29 @@
 
 ```
 subedit-cli case --to title|sentence|upper|lower [--range N-M|N-]
-                 (--output FICHIER | --output-dir DOSSIER | --in-place)
+                 (--output FILE | --output-dir DIR | --in-place)
                  [--dry-run]
                  [--recursive]
-                 [--document main|translation] [-t FICHIER] [--align-method position|number]
-                 <fichier>...
+                 [--document main|translation] [-t FILE] [--align-method position|number]
+                 <file>...
 ```
 
-Met les textes en **casse de titre, de phrase, en capitales ou en minuscules**, sans toucher une
-balise. C'est `Text ▸ Case` de la [fenêtre](../subedit-gui/operations.md), avec ses règles.
+Puts the texts in **title case, sentence case, capitals or small letters**, without touching a
+tag. It is `Text ▸ Case` of the [window](../subedit-gui/operations.md), with its rules.
 
-| `--to` | Effet | `bonjour marie` devient |
+| `--to` | Effect | `bonjour marie` becomes |
 | :----- | :---- | :---------------------- |
-| `title` | chaque mot prend une capitale, le reste redescend | `Bonjour Marie` |
-| `sentence` | la première lettre du texte, et elle seule ; le reste redescend | `Bonjour marie` |
-| `upper` | tout en capitales | `BONJOUR MARIE` |
-| `lower` | tout en minuscules | `bonjour marie` |
+| `title` | each word takes a capital, the rest comes down | `Bonjour Marie` |
+| `sentence` | the first letter of the text, and only it; the rest comes down | `Bonjour marie` |
+| `upper` | all in capitals | `BONJOUR MARIE` |
+| `lower` | all in small letters | `bonjour marie` |
 
-- **Ce qui précède la première lettre ou le premier chiffre n'est pas touché** : un tiret de
-  dialogue, un guillemet ouvrant ou une parenthèse survivent (`- bonjour` donne `- Bonjour`).
-- **Les balises ne sont pas du texte** : elles ne changent pas de casse — `<I>` reste `<I>` — et ne
-  changent pas de place : une balise qui coupe un mot le coupe encore après.
-- **ICU décide où commence un mot** : `l'été sera chaud` donne `L'été Sera Chaud`, et les accents
-  tiennent (`éléonore` donne `Éléonore`).
+- **What comes before the first letter or the first digit is not touched**: a dialogue
+  dash, an opening quotation mark or a parenthesis survive (`- bonjour` gives `- Bonjour`).
+- **Tags are not text**: they do not change case — `<I>` stays `<I>` — and do not
+  change place: a tag that cuts a word still cuts it afterwards.
+- **ICU decides where a word begins**: `l'été sera chaud` gives `L'été Sera Chaud`, and the accents
+  hold (`éléonore` gives `Éléonore`).
 
 <!-- exemple: subedit-cli case --help -->
 ```console
@@ -51,22 +51,22 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--to` | **oui** | `title`, `sentence`, `upper`, `lower` | — |
-| `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir [`adjust`](adjust.md#--range) | tout le fichier |
-| `--document` | non | `main` ou `translation` — voir [Une traduction](invocation.md#une-traduction) | `main` |
-| `-t`, `--translation-file` | avec `--document translation` | un fichier de traduction, pour **une seule** entrée | — |
-| `--align-method` | non, et seulement avec `-t` | `position` ou `number` | `position` |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<file>...` | yes | one or more paths | — |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--to` | **yes** | `title`, `sentence`, `upper`, `lower` | — |
+| `--range` | no | `N-M`, or `N-` up to the end — see [`adjust`](adjust.md#--range) | the whole file |
+| `--document` | no | `main` or `translation` — see [A translation](invocation.md#a-translation) | `main` |
+| `-t`, `--translation-file` | with `--document translation` | a translation file, for **a single** input | — |
+| `--align-method` | no, and only with `-t` | `position` or `number` | `position` |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
-**Le texte principal par défaut ; la traduction avec `--document translation -t FICHIER`.** C'est alors
-la traduction qui est changée et écrite, et elle seule — voir [Une traduction](invocation.md#une-traduction).
+**The main text by default; the translation with `--document translation -t FILE`.** It is then
+the translation that is changed and written, and only it — see [A translation](invocation.md#a-translation).
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt -->
 ```console
@@ -81,8 +81,8 @@ a.srt: 2 subtitles recased -> titre.srt
 - Bonjour Marie
 ```
 
-Un fichier dont **aucun texte ne change** — tout est déjà dans la casse demandée — est écrit tel quel et
-le dit :
+A file where **no text changes** — everything is already in the case asked for — is written as it is and
+says so:
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt -->
 ```console
@@ -90,37 +90,37 @@ $ printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli ca
 a.srt: nothing to change -> b.srt
 ```
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, la liste des
-changements, décrite dans [Voir avant d'écrire](invocation.md#voir-avant-décrire).
+**Standard output** — nothing: the result is the file written. With `--dry-run`, the list of
+changes, described in [Seeing before writing](invocation.md#seeing-before-writing).
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles recased -> <destination>`, ou `nothing to change` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles recased -> <destination>`, or `nothing to change` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
+| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
-`N` est le nombre de sous-titres **dont le texte a changé**, lu de l'opération elle-même.
+`N` is the number of subtitles **whose text changed**, read from the operation itself.
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte
-`counts.changed` — le `N` de la phrase — et `changes`, la liste des sous-titres changés
-(`{"subtitle", "document", "before", "after"}`, **vide** quand rien n'a changé).
+With [`--format json`](invocation.md#output-a-script-can-read), the object of each file carries
+`counts.changed` — the `N` of the sentence — and `changes`, the list of changed subtitles
+(`{"subtitle", "document", "before", "after"}`, **empty** when nothing changed).
 
-## Codes de retour
+## Exit codes
 
-Ceux de l'outil : `0` si tous les fichiers ont été traités — un fichier où rien ne change l'est —,
-`2` si aucun, `3` si certains seulement, `1` sur une erreur d'usage.
+Those of the tool: `0` if every file was processed — a file where nothing changes is —,
+`2` if none, `3` if only some, `1` on a usage error.
 
-## Erreurs
+## Errors
 
-| Ce qui la déclenche | Message |
+| What triggers it | Message |
 | :------------------ | :------ |
-| `--to` absent | `--to is required` |
-| une valeur qui n'est pas l'une des quatre | `--to: … not in {title,sentence,upper,lower}` |
-| plage mal écrite ou hors du fichier | voir [`adjust`](adjust.md#--range) |
+| `--to` missing | `--to is required` |
+| a value that is not one of the four | `--to: … not in {title,sentence,upper,lower}` |
+| range badly written or outside the file | see [`adjust`](adjust.md#--range) |
 
-Les erreurs de la destination sont communes aux sous-commandes qui écrivent :
-voir [Invocation](invocation.md#la-destination).
+The errors of the destination are common to the subcommands that write:
+see [Invocation](invocation.md#the-destination).

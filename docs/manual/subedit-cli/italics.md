@@ -2,27 +2,27 @@
 
 ```
 subedit-cli italics (--on | --off) [--range N-M|N-]
-                    (--output FICHIER | --output-dir DOSSIER | --in-place)
+                    (--output FILE | --output-dir DIR | --in-place)
                     [--dry-run]
                     [--recursive]
-                    [--document main|translation] [-t FICHIER] [--align-method position|number]
-                    <fichier>...
+                    [--document main|translation] [-t FILE] [--align-method position|number]
+                    <file>...
 ```
 
-Met les textes **en italique**, ou **retire leur italique**, dans les balises du format du fichier.
-C'est `Italic` de la [fenêtre](../subedit-gui/operations.md).
+Puts the texts **in italics**, or **takes their italics out**, in the tags of the file's format.
+It is `Italic` of the [window](../subedit-gui/operations.md).
 
-**Deux mots et non une bascule** : le bouton de la fenêtre demande au noyau dans quel sens il
-joue ; ici on le dit. `--on` et `--off` s'excluent, et il en faut un — l'omettre, ou donner les deux,
-est une erreur d'usage (code `1`).
+**Two words and not a toggle**: the window's button asks the core which way it
+plays; here one says it. `--on` and `--off` exclude each other, and one is needed — leaving it out, or giving both,
+is a usage error (code `1`).
 
-- **`--on`** enveloppe chaque texte d'une seule paire de balises, **après avoir retiré celles qui y
-  étaient** : un texte déjà en italique n'est pas enveloppé deux fois, et un italique coupé en deux
-  est refait d'un seul tenant. Sur plusieurs lignes, une paire couvre le tout.
-- **`--off`** retire les balises d'italique ; **le reste d'une balise est gardé** (`{\b1\i1}` donne
+- **`--on`** wraps each text in a single pair of tags, **after removing those that
+  were in it**: a text already in italics is not wrapped twice, and italics cut in two
+  are redone in one piece. Over several lines, one pair covers the whole.
+- **`--off`** removes the italic tags; **the rest of a tag is kept** (`{\b1\i1}` gives
   `{\b1}`).
-- Le texte est écrit **comme le format du fichier écrit l'italique** : `<i>…</i>` pour SubRip, WebVTT et
-  SubViewer 2, `{\i1}…{\i0}` pour les deux Sub Station Alpha, `{Y:i}` pour MicroDVD.
+- The text is written **as the format of the file writes italics**: `<i>…</i>` for SubRip, WebVTT and
+  SubViewer 2, `{\i1}…{\i0}` for the two Sub Station Alphas, `{Y:i}` for MicroDVD.
 
 <!-- exemple: subedit-cli italics --help -->
 ```console
@@ -49,22 +49,22 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--on` / `--off` | **l'un des deux** | des drapeaux | — |
-| `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir [`adjust`](adjust.md#--range) | tout le fichier |
-| `--document` | non | `main` ou `translation` — voir [Une traduction](invocation.md#une-traduction) | `main` |
-| `-t`, `--translation-file` | avec `--document translation` | un fichier de traduction, pour **une seule** entrée | — |
-| `--align-method` | non, et seulement avec `-t` | `position` ou `number` | `position` |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<file>...` | yes | one or more paths | — |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--on` / `--off` | **one of the two** | flags | — |
+| `--range` | no | `N-M`, or `N-` up to the end — see [`adjust`](adjust.md#--range) | the whole file |
+| `--document` | no | `main` or `translation` — see [A translation](invocation.md#a-translation) | `main` |
+| `-t`, `--translation-file` | with `--document translation` | a translation file, for **a single** input | — |
+| `--align-method` | no, and only with `-t` | `position` or `number` | `position` |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
-**Le texte principal par défaut ; la traduction avec `--document translation -t FICHIER`.** C'est alors
-la traduction qui est changée et écrite, et elle seule — voir [Une traduction](invocation.md#une-traduction).
+**The main text by default; the translation with `--document translation -t FILE`.** It is then
+the translation that is changed and written, and only it — see [A translation](invocation.md#a-translation).
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt -->
 ```console
@@ -80,13 +80,13 @@ a.srt: 2 subtitles put in italics -> i.srt
 Marie</i>
 ```
 
-## Un format sans style refuse
+## A format without style refuses
 
-**TMPlayer et LRC n'écrivent aucun style** : il n'y a ni italique à poser ni italique à retirer. La
-fenêtre grise l'entrée plutôt que de la cacher ; la ligne de commande **refuse, fichier par
-fichier, avec la raison**, et les autres fichiers du lot continuent. Ce qui compte est ce que le
-format peut porter, non la façon dont il l'écrit : SubRip et WebVTT écrivent l'italique de la même
-manière, et ne disent pas la même chose de la couleur.
+**TMPlayer and LRC write no style**: there are no italics to put on nor italics to take out. The
+window greys the entry out rather than hiding it; the command line **refuses, file by
+file, with the reason**, and the other files of the batch go on. What counts is what the
+format can carry, not the way it writes it: SubRip and WebVTT write italics the same
+way, and do not say the same thing about colour.
 
 <!-- exemple: printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?" -->
 ```console
@@ -95,40 +95,40 @@ a.txt: TMPlayer writes no style: there are no italics to put on
 code=2
 ```
 
-En JSON, l'échec porte l'identifiant **`no-style`**.
+In JSON, the failure carries the identifier **`no-style`**.
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, la liste des
-changements, décrite dans [Voir avant d'écrire](invocation.md#voir-avant-décrire).
+**Standard output** — nothing: the result is the file written. With `--dry-run`, the list of
+changes, described in [Seeing before writing](invocation.md#seeing-before-writing).
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles put in italics -> <destination>`, ou `N subtitles taken out of italics`, ou `nothing to change` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles put in italics -> <destination>`, or `N subtitles taken out of italics`, or `nothing to change` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
+| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
-`N` est le nombre de sous-titres **dont le texte a changé**, lu de l'opération elle-même.
+`N` is the number of subtitles **whose text changed**, read from the operation itself.
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte
-`counts.changed` — le `N` de la phrase — et `changes`, la liste des sous-titres changés
-(`{"subtitle", "document", "before", "after"}`, **vide** quand rien n'a changé).
+With [`--format json`](invocation.md#output-a-script-can-read), the object of each file carries
+`counts.changed` — the `N` of the sentence — and `changes`, the list of changed subtitles
+(`{"subtitle", "document", "before", "after"}`, **empty** when nothing changed).
 
-## Codes de retour
+## Exit codes
 
-Ceux de l'outil : `0` si tous les fichiers ont été traités — un fichier où rien ne change l'est —,
-`2` si aucun, `3` si certains seulement, `1` sur une erreur d'usage.
+Those of the tool: `0` if every file was processed — a file where nothing changes is —,
+`2` if none, `3` if only some, `1` on a usage error.
 
-## Erreurs
+## Errors
 
-| Ce qui la déclenche | Message |
+| What triggers it | Message |
 | :------------------ | :------ |
-| ni `--on` ni `--off` | `italics needs --on to put the texts in italics, or --off` |
-| les deux | `--on and --off say opposite things; give one of them` |
-| un format sans style | `<chemin>: TMPlayer writes no style: there are no italics to put on` (ou `take out`) |
-| plage mal écrite ou hors du fichier | voir [`adjust`](adjust.md#--range) |
+| neither `--on` nor `--off` | `italics needs --on to put the texts in italics, or --off` |
+| both | `--on and --off say opposite things; give one of them` |
+| a format without style | `<path>: TMPlayer writes no style: there are no italics to put on` (or `take out`) |
+| range badly written or outside the file | see [`adjust`](adjust.md#--range) |
 
-Les erreurs de la destination sont communes aux sous-commandes qui écrivent :
-voir [Invocation](invocation.md#la-destination).
+The errors of the destination are common to the subcommands that write:
+see [Invocation](invocation.md#the-destination).

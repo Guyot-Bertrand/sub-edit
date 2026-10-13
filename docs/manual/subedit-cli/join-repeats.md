@@ -1,27 +1,27 @@
 # `join-repeats`
 
 ```
-subedit-cli join-repeats (--output FICHIER | --output-dir DOSSIER | --in-place)
+subedit-cli join-repeats (--output FILE | --output-dir DIR | --in-place)
                          [--dry-run]
                          [--recursive]
-                         <fichier>...
+                         <file>...
 ```
 
-Fait **un seul sous-titre** des sous-titres qui montrent la même chose à la suite : un texte découpé en morceaux
-qui se suivent, comme le laissent certains outils de segmentation. C'est `Join Repeated Subtitles` de la fenêtre —
-[le même moteur](../subedit-gui/lignes.md#fusionner-les-sous-titres-répétés).
+Makes **a single subtitle** of the subtitles that show the same thing one after the other: a text cut into pieces
+that follow each other, as some segmentation tools leave it. It is `Join Repeated Subtitles` of the window —
+[the same engine](../subedit-gui/lignes.md#fusionner-les-sous-titres-répétés).
 
-**Un répété** est un sous-titre qui a **le même texte, la même traduction et les mêmes réglages de format** (un
-style, une position, des réglages de cue) qu'un autre, **et qui commence au plus tard quand celui-ci finit** : ils
-se touchent ou se recouvrent. Une suite de répétés devient **celui qui commence le premier**, dont la fin est
-reportée à la plus grande fin de la suite ; les autres disparaissent.
+**A repeat** is a subtitle that has **the same text, the same translation and the same format settings** (a
+style, a position, cue settings) as another one, **and that starts at the latest when that one ends**: they
+touch or overlap. A run of repeats becomes **the one that starts first**, whose end is
+carried to the latest end of the run; the others disappear.
 
-- **L'ordre du fichier n'y change rien, et n'en change pas** : le sous-titre gardé est celui qui commence le premier,
-  où que les autres se trouvent. Un fichier dans l'ordre le reste.
-- **Rien n'est joint par erreur** : un autre texte, une autre traduction, d'autres réglages, un écart entre deux
-  morceaux, un sous-titre sans texte ou dont la fin précède le début — dans tous ces cas ils restent séparés.
-- **À faire avant le reste** : le tri et le [découpage des chevauchements](disjoint.md) lisent mieux une suite propre.
-  [`repair`](repair.md) enchaîne les trois, et [`convert`](convert.md#rendre-les-plages-disjointes) l'accepte en option (`--join-repeats`, `--repair`).
+- **The order of the file makes no difference, and is not changed**: the subtitle kept is the one that starts first,
+  wherever the others are. A file in order stays in order.
+- **Nothing is joined by mistake**: another text, another translation, other settings, a gap between two
+  pieces, a subtitle without text or whose end comes before its start — in all these cases they stay apart.
+- **To be done before the rest**: sorting and [cutting the overlaps](disjoint.md) read a clean run better.
+  [`repair`](repair.md) chains all three, and [`convert`](convert.md#making-the-ranges-disjoint) accepts it as an option (`--join-repeats`, `--repair`).
 
 <!-- exemple: subedit-cli join-repeats --help -->
 ```console
@@ -41,14 +41,14 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<file>...` | yes | one or more paths | — |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:04,000 --> 00:00:06,000\nAlpha\n\n4\n00:00:08,000 --> 00:00:09,000\nBeta\n\n' > morceaux.srt; subedit-cli join-repeats --output joint.srt morceaux.srt; cat joint.srt -->
 ```console
@@ -63,30 +63,30 @@ Alpha
 Beta
 ```
 
-Les trois morceaux d'`Alpha`, qui se suivent de 1 s à 6 s, n'en font plus qu'un. `Beta`, séparé par un écart, est
-resté. Un second passage ne change rien et le dit : `no repeated subtitles`.
+The three pieces of `Alpha`, which follow each other from 1 s to 6 s, now make only one. `Beta`, separated by a gap,
+stayed. A second pass changes nothing and says so: `no repeated subtitles`.
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Standard output** — nothing: the result is the file written.
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N repeated subtitles joined -> <destination>`, ou `<chemin>: no repeated subtitles -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** |
+| 1 | `<path>: N repeated subtitles joined -> <destination>`, or `<path>: no repeated subtitles -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
+| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** |
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), les `counts` de chaque fichier : `subtitles` (ceux du fichier
-écrit), `joined` (les sous-titres retirés parce qu'un autre les couvre) et `chains` (les suites jointes).
+With [`--format json`](invocation.md#output-a-script-can-read), the `counts` of each file: `subtitles` (those of the file
+written), `joined` (the subtitles removed because another one covers them) and `chains` (the runs joined).
 
-## Codes de retour
+## Exit codes
 
-Ceux de l'outil : `0` si tous les fichiers ont été traités — un fichier sans répété l'est —, `2` si aucun, `3` si
-certains seulement, `1` sur une erreur d'usage.
+Those of the tool: `0` if every file was processed — a file without repeats is —, `2` if none, `3` if
+only some, `1` on a usage error.
 
-## Erreurs
+## Errors
 
-Aucune qui soit propre à `join-repeats` : un fichier illisible échoue comme pour toute sous-commande, et les erreurs de
-la destination sont communes aux sous-commandes qui écrivent : voir [Invocation](invocation.md#la-destination).
+None specific to `join-repeats`: an unreadable file fails as for any subcommand, and the errors of
+the destination are common to the subcommands that write: see [Invocation](invocation.md#the-destination).

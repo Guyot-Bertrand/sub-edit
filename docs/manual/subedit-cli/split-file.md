@@ -1,25 +1,25 @@
 # `split-file`
 
 ```
-subedit-cli split-file --at N --head FICHIER --tail FICHIER
+subedit-cli split-file --at N --head FILE --tail FILE
                        [--dry-run] [--sort] [--disjoint]
-                       <fichier>
+                       <file>
 ```
 
-Coupe un fichier **en deux** : une tête et une queue. C'est `Split Project…` de la fenêtre — [le même moteur](../subedit-gui/operations.md#split-project),
-les mêmes comptes, le même refus — et **l'inverse exact de [`append`](append.md)** : ajouter la queue à la
-tête rend le fichier de départ.
+Cuts a file **in two**: a head and a tail. It is `Split Project…` of the window — [the same engine](../subedit-gui/operations.md#split-project),
+the same counts, the same refusal — and **the exact inverse of [`append`](append.md)**: appending the tail to the
+head gives back the starting file.
 
-- **`--at N` est le numéro du premier sous-titre de la queue**, numéroté comme la table de la fenêtre le
-  numérote : à partir de 1. `--at 3` met les sous-titres 1 et 2 dans la tête, et le troisième et la suite dans la
-  queue. Il va **du deuxième au dernier** : une coupure veut un sous-titre de chaque côté.
-- **La queue est ramenée à l'origine** : elle est décalée de moins la fin du dernier sous-titre resté dans la tête,
-  ses positions gardant leur ordre et leur écart. C'est ce qui fait de `split-file` l'inverse d'`append`.
-- **Les deux moitiés gardent le format, l'encodage, la marque d'octets et les fins de ligne du fichier lu**, et
-  sont renumérotées à partir de 1 par l'écriture, comme tout fichier réécrit.
-- **Deux sorties, donc une destination à elle** : `--head` et `--tail`, **tous deux requis**. `--output`,
-  `--output-dir`, `--in-place` et `--recursive` n'existent pas pour `split-file` et sont refusés comme toute option
-  inconnue, code `1` : il n'y a ni dossier où répartir deux fichiers nommés, ni entrée à écraser.
+- **`--at N` is the number of the first subtitle of the tail**, numbered as the window's table
+  numbers it: from 1. `--at 3` puts subtitles 1 and 2 in the head, and the third and the rest in the
+  tail. It goes **from the second to the last**: a cut needs a subtitle on each side.
+- **The tail is brought back to the origin**: it is shifted by minus the end of the last subtitle left in the head,
+  its positions keeping their order and their spacing. That is what makes `split-file` the inverse of `append`.
+- **Both halves keep the format, the encoding, the byte order mark and the line endings of the file read**, and
+  are renumbered from 1 by the writing, like any file written back.
+- **Two outputs, so a destination of its own**: `--head` and `--tail`, **both required**. `--output`,
+  `--output-dir`, `--in-place` and `--recursive` do not exist for `split-file` and are refused like any unknown
+  option, code `1`: there is neither a directory to share two named files into, nor an input to overwrite.
 
 <!-- exemple: subedit-cli split-file --help -->
 ```console
@@ -40,22 +40,22 @@ Options:
   --disjoint                  Cut overlapping subtitles so that no range overlaps another, before cutting
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>` | oui | **un seul** chemin | — |
-| `--at` | oui | un entier, de 2 au nombre de sous-titres du fichier | — |
-| `--head`, `--tail` | **oui tous les deux**, sauf avec `--dry-run` | des chemins de fichier ; leur dossier est créé s'il manque | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
-| `--sort` | non | un drapeau : met les sous-titres dans l'ordre de leur début **avant de couper** ; `--at` compte dans cet ordre | désactivé |
-| `--disjoint` | non | un drapeau : découpe les sous-titres qui se chevauchent **avant de couper** ; `--at` compte dans ce qui reste, voir [Rendre les plages disjointes](#rendre-les-plages-disjointes) | désactivé |
+| `<file>` | yes | **a single** path | — |
+| `--at` | yes | a whole number, from 2 to the number of subtitles of the file | — |
+| `--head`, `--tail` | **yes, both**, except with `--dry-run` | file paths; their directory is created if it is missing | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
+| `--sort` | no | a flag: puts the subtitles in the order of their start **before cutting**; `--at` counts in that order | off |
+| `--disjoint` | no | a flag: cuts the overlapping subtitles **before cutting**; `--at` counts in what is left, see [Making the ranges disjoint](#making-the-ranges-disjoint) | off |
 
-**Avec `--dry-run`, aucune destination n'est exigée** : on peut n'en donner aucune, mais pas une seule des deux —
-`--head` et `--tail` vont ensemble. Celles qu'on donne sont jugées comme sans `--dry-run`.
+**With `--dry-run`, no destination is required**: none may be given, but not just one of the two —
+`--head` and `--tail` go together. Those that are given are judged as without `--dry-run`.
 
-**Les deux destinations ne peuvent être ni l'entrée ni un même fichier** : écrire par-dessus ce qu'on est en train
-de lire, ou écrire la queue sur la tête, est refusé avant que rien soit lu, code `1`.
+**The two destinations can be neither the input nor the same file**: writing over what one is
+reading, or writing the tail over the head, is refused before anything is read, code `1`.
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
@@ -70,75 +70,75 @@ trois
 quatre
 ```
 
-Le deuxième sous-titre, resté dans la tête, finit à 4 s : la queue recule de 4 s, et le troisième sous-titre,
-qui commençait à 6 s, commence à 2 s.
+The second subtitle, left in the head, ends at 4 s: the tail moves back by 4 s, and the third subtitle,
+which started at 6 s, starts at 2 s.
 
-## Couper dans l'ordre du temps
+## Cutting in time order
 
-`--at` numérote les sous-titres **tels que le fichier les donne**. Sur un fichier dont l'ordre est rompu, la tête n'est donc pas la moitié la plus
-tôt dans le temps. `--sort` met les sous-titres dans l'ordre de leurs débuts **avant de juger la coupure** — stable, comme [`sort`](sort.md) —, et
-`--at` compte alors dans cet ordre.
+`--at` numbers the subtitles **as the file gives them**. On a file whose order is broken, the head is therefore not the half that is earliest
+in time. `--sort` puts the subtitles in the order of their starts **before judging the cut** — stable, as [`sort`](sort.md) does —, and
+`--at` then counts in that order.
 
-Jamais par défaut. Avec l'option, le fichier dit au premier niveau de narration combien de sous-titres ont bougé (`<chemin>: N subtitles moved`
-ou `<chemin>: already in order`), et l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option**.
+Never by default. With the option, the file says at the first narration level how many subtitles moved (`<path>: N subtitles moved`
+or `<path>: already in order`), and the `--format json` record carries a `moved` count, **absent without the option**.
 
-## Rendre les plages disjointes
+## Making the ranges disjoint
 
-Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, avant de juger la coupure, après le tri : `--at` compte dans ce que cela donne. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<chemin>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
+Never by default. The option does what [`disjoint`](disjoint.md) does, **with its default settings**, before judging the cut, after the sort: `--at` counts in what that gives. It needs a file in order: otherwise it is refused, and `--sort` — which comes first — puts it in order beforehand. The file says so at the first narration level (`<path>: N subtitles split, M merged`), and the `--format json` record carries the `split` and `merged` counts, **absent without the option**.
 
-## Quand la coupure est refusée
+## When the cut is refused
 
-**Deux moitiés qui se chevauchent à la coupure ne se coupent pas.** Si un sous-titre de la queue commençait avant
-la fin du dernier sous-titre resté, le décalage le porterait avant le début de la vidéo — une position négative,
-qu'aucun format n'écrit. `split-file` refuse **en nommant le sous-titre**, avec les mots de la fenêtre :
+**Two halves that overlap at the cut are not cut.** If a subtitle of the tail started before
+the end of the last subtitle left behind, the shift would carry it before the start of the video — a negative position,
+which no format writes. `split-file` refuses **naming the subtitle**, in the window's words:
 
 ```text
 o.srt: Cannot split at subtitle 3: subtitle 3 would fall before the start of the video. Cut somewhere else.
 ```
 
-Le code est `2` et **rien n'est écrit**. On coupe ailleurs. Arriver exactement au début est permis : zéro est une
+The code is `2` and **nothing is written**. Cut somewhere else. Landing exactly on the start is allowed: zero is a
 position.
 
-**`--at` hors du fichier est refusé de la même façon**, le fichier lu : `--at 1` — le premier sous-titre ne peut
-pas commencer une queue, il ne resterait rien — et `--at` au-delà du dernier sous-titre, qui laisserait une queue
-vide. Un fichier d'un seul sous-titre ne se coupe pas.
+**`--at` outside the file is refused the same way**, once the file is read: `--at 1` — the first subtitle cannot
+start a tail, nothing would be left — and `--at` past the last subtitle, which would leave an empty
+tail. A file of a single subtitle cannot be cut.
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est les deux fichiers écrits.
+**Standard output** — nothing: the result is the two files written.
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <tête>, <queue>` ; avec `--dry-run`, `(dry run, nothing written)` à la place de `-> …` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, H and T written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; with `--dry-run`, `(dry run, nothing written)` in place of `-> …` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
+| 3 | `<path>: N bytes read, H and T written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), **un seul objet**, dont `file` est le fichier coupé.
-**`destination` est la tête** — le fichier que l'entrée devient — et **`tail` la queue**, un chemin, ou `null` avec
-`--dry-run` comme `destination`. Les `counts` : `subtitles` (ceux du fichier lu), `head` et `tail` (ceux de chaque
-moitié).
+With [`--format json`](invocation.md#output-a-script-can-read), **a single object**, whose `file` is the file cut.
+**`destination` is the head** — the file the input becomes — and **`tail` the tail**, a path, or `null` with
+`--dry-run` like `destination`. The `counts`: `subtitles` (those of the file read), `head` and `tail` (those of each
+half).
 
-## Codes de retour
+## Exit codes
 
-| Code | Quand |
+| Code | When |
 | :--- | :---- |
-| `0` | les deux fichiers sont écrits — ou calculés, avec `--dry-run` |
-| `1` | erreur d'usage : pas de `--head` et de `--tail`, une option que `split-file` n'a pas, une destination qui est l'entrée ou qui est l'autre destination, un `--at` qui n'est pas un entier positif |
-| `2` | le fichier n'a pas pu être lu, **la coupure est refusée** (hors du fichier, ou chevauchement), ou une destination n'a pas pu être écrite. Il n'y a pas de code `3` : un seul fichier est traité |
+| `0` | both files are written — or computed, with `--dry-run` |
+| `1` | usage error: no `--head` and `--tail`, an option `split-file` does not have, a destination that is the input or the other destination, an `--at` that is not a positive whole number |
+| `2` | the file could not be read, **the cut is refused** (outside the file, or overlap), or a destination could not be written. There is no code `3`: a single file is processed |
 
-**La tête est écrite la première** : un disque qui refuse la queue laisse la tête derrière lui, et le code est `2`.
+**The head is written first**: a disk that refuses the tail leaves the head behind it, and the code is `2`.
 
-## Erreurs
+## Errors
 
-| Ce qui les déclenche | Message |
+| What triggers them | Message |
 | :------------------- | :------ |
-| ni `--head` ni `--tail` | `no destination given: split-file writes two files, use --head and --tail` |
-| une seule des deux, avec `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
-| les deux destinations sont un même fichier | `<chemin>: named as both the head and the tail` |
-| une destination est l'entrée | `<chemin>: would be written over the input <entrée>` |
-| `--at` hors du fichier | `<fichier>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| un fichier d'un sous-titre | `<fichier>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| chevauchement | `<fichier>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| un fichier absent, illisible ou d'un format inconnu | `<chemin>: does not exist`… — les mêmes que partout |
+| neither `--head` nor `--tail` | `no destination given: split-file writes two files, use --head and --tail` |
+| only one of the two, with `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
+| the two destinations are the same file | `<path>: named as both the head and the tail` |
+| a destination is the input | `<path>: would be written over the input <input>` |
+| `--at` outside the file | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| a file of one subtitle | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| overlap | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| a file missing, unreadable or of an unknown format | `<path>: does not exist`… — the same as everywhere |

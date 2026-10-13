@@ -1,39 +1,39 @@
 # `snap`
 
 ```
-subedit-cli snap --rate <cadence>
-                 (--output FICHIER | --output-dir DOSSIER | --in-place)
+subedit-cli snap --rate <rate>
+                 (--output FILE | --output-dir DIR | --in-place)
                  [--dry-run]
                  [--recursive]
-                 <fichier>...
+                 <file>...
 ```
 
-Porte **chaque horodatage** — début et fin — sur l'image la plus proche de la
-cadence donnée. Rien n'est re-miné : chaque position bouge d'une demi-image au
-plus.
+Puts **every timestamp** — start and end — on the nearest frame of the
+frame rate given. Nothing is re-timed: each position moves by half a frame at
+most.
 
-## `snap` n'est pas `framerate`, et s'en tromper ne se voit pas
+## `snap` is not `framerate`, and mixing them up does not show
 
-Les deux commandes ont la même forme — des fichiers, une destination, une cadence — et font des choses opposées.
+The two commands have the same form — files, a destination, a frame rate — and do opposite things.
 
 | | [`framerate`](framerate.md) | `snap` |
 | :--- | :-------------------------- | :----- |
-| ce qu'elle calcule | `t' = t x cadence d'entrée / cadence de sortie` | l'image la plus proche, sur la grille de `--rate` |
-| de combien elle déplace | proportionnellement au temps — **plusieurs secondes** sur un long métrage | une demi-image au plus, **partout** |
-| pour quel fichier | un fichier dont le **minutage est faux** | un fichier dont le minutage est **juste** et dont la grille est fausse |
+| what it computes | `t' = t x input rate / output rate` | the nearest frame, on the grid of `--rate` |
+| by how much it moves | in proportion to time — **several seconds** on a feature film | half a frame at most, **everywhere** |
+| for which file | a file whose **timing is wrong** | a file whose timing is **right** and whose grid is wrong |
 
-**Le cas d'usage de `snap`**, en toutes lettres : un film à 25 images par
-seconde, un fichier de sous-titres écrit sur une grille à 24, des répliques déjà
-à peu près à leur place à quelques millisecondes près. Il n'y a rien à re-miner
-— seulement à reposer les horodatages sur les bonnes images.
+**The use case of `snap`**, spelled out: a film at 25 frames per
+second, a subtitle file written on a grid at 24, lines already
+more or less in their place to within a few milliseconds. There is nothing to re-time
+— only to put the timestamps back on the right frames.
 
-**Le cas d'usage de `framerate`** est l'autre : un fichier calé pour un master à
-25 qu'on veut jouer sur une copie à 23,976, et dont le minutage dérive de
-plusieurs secondes en fin de film.
+**The use case of `framerate`** is the other one: a file timed for a master at
+25 that one wants to play on a copy at 23.976, and whose timing drifts by
+several seconds by the end of the film.
 
-Se tromper de l'une pour l'autre **ne provoque aucune erreur** : les deux
-acceptent le fichier et écrivent un résultat. La ligne de narration est ce qui
-les distingue — `snap` dit toujours de combien il a bougé les positions.
+Taking one for the other **causes no error**: both
+accept the file and write a result. The narration line is what
+tells them apart — `snap` always says by how much it moved the positions.
 
 <!-- exemple: subedit-cli snap --help -->
 ```console
@@ -54,42 +54,42 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--rate` | **oui** | une cadence en images par seconde, écrite comme pour [`framerate`](framerate.md#écrire-une-cadence) | — |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<file>...` | yes | one or more paths | — |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--rate` | **yes** | a frame rate in frames per second, written as for [`framerate`](framerate.md#writing-a-frame-rate) | — |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
-`--rate` accepte **n'importe quelle cadence valide**, et pas seulement les huit
-normalisées : c'est le choix de l'utilisateur, comme pour `framerate`. Une
-cadence nulle ou négative est refusée.
+`--rate` accepts **any valid frame rate**, and not only the eight
+standard ones: it is the user's choice, as for `framerate`. A zero or negative
+frame rate is refused.
 
-Le format du fichier lu est **conservé** : changer de format est le travail de
+The format of the file read is **kept**: changing the format is the work of
 [`convert`](convert.md).
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, rien non plus : il n'y a pas de fichier, et la ligne de narration le dit — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire).
+**Standard output** — nothing: the result is the file written. With `--dry-run`, nothing either: there is no file, and the narration line says so — see [Seeing before writing](invocation.md#seeing-before-writing).
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
+| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
-**Les deux nombres sont l'intérêt de la ligne.** Une demi-image à 25 images par
-seconde vaut vingt millisecondes, et rien de plus ne peut être écrit là. Qui
-voulait `framerate` et a tapé `snap` lit « by at most 20 ms » là où il attendait
-des secondes, et le sait aussitôt.
+**The two numbers are the point of the line.** Half a frame at 25 frames per
+second is twenty milliseconds, and nothing larger can be written there. Whoever
+wanted `framerate` and typed `snap` reads "by at most 20 ms" where they expected
+seconds, and knows straight away.
 
-## Un exemple
+## An example
 
-Une réplique à `00:00:01,010`, alignée sur 25 images par seconde — donc sur un
-multiple de quarante millisecondes :
+A line at `00:00:01,010`, aligned on 25 frames per second — so on a
+multiple of forty milliseconds:
 
 <!-- exemple: printf '1\n00:00:01,010 --> 00:00:03,020\nUn.\n\n' > a.srt; subedit-cli snap --rate 25 --output b.srt a.srt; cat b.srt -->
 ```console
@@ -100,38 +100,38 @@ a.srt: 1 subtitle aligned on 25 fps, 2 positions moved, by at most 20 ms -> b.sr
 Un.
 ```
 
-## Deux propriétés
+## Two properties
 
-**Aligner deux fois ne change rien la seconde fois.** Une position déjà sur une
-image y reste : c'est la même opération appliquée au même résultat.
+**Aligning twice changes nothing the second time.** A position already on a
+frame stays there: it is the same operation applied to the same result.
 
-**L'ordre des sous-titres est préservé.** L'arrondi à l'image la plus proche est
-monotone, donc deux débuts distants d'au moins une image le restent. Plus
-proches, ils peuvent se confondre — ce qui est une anomalie que
-[`inspect`](inspect.md#ce-que-anomalies-rapporte) sait nommer, et non une
+**The order of the subtitles is kept.** Rounding to the nearest frame is
+monotonic, so two starts at least one frame apart stay so. Closer
+together, they can merge — which is an anomaly that
+[`inspect`](inspect.md#what-anomalies-reports) knows how to name, and not an
 inversion.
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.subtitles`, `counts.moved` (les positions déplacées) et `counts.furthest_ms` (le plus grand déplacement, en millisecondes). Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
+With [`--format json`](invocation.md#output-a-script-can-read), the object of each file carries `counts.subtitles`, `counts.moved` (the positions moved) and `counts.furthest_ms` (the largest move, in milliseconds). The full table is [Invocation](invocation.md#what-each-subcommand-puts-in-counts)'s.
 
-## Codes de retour
+## Exit codes
 
-Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` si
-certains seulement, `1` sur une erreur d'usage.
+Those of the tool: `0` if every file was written, `2` if none, `3` if
+only some, `1` on a usage error.
 
-## Erreurs
+## Errors
 
-Celles d'une cadence, mot pour mot celles de [`framerate`](framerate.md#erreurs)
-— les deux lisent la même valeur par le même chemin :
+Those of a frame rate, word for word those of [`framerate`](framerate.md#errors)
+— both read the same value by the same path:
 
-| Ce qui la déclenche | Message |
+| What triggers it | Message |
 | :------------------ | :------ |
-| cadence nulle ou négative | `"…" is not a frame rate: a frame rate must be strictly positive; nothing runs at that speed` |
-| virgule décimale | `"…" is not a frame rate: use a decimal point and not a comma, in every language` |
-| texte qui n'est pas un nombre | `"…" is not a frame rate: expected frames per second, like 25 or 23.976` |
-| cadence démesurée | `"…" is not a frame rate: no video runs at that many frames per second` |
+| zero or negative frame rate | `"…" is not a frame rate: a frame rate must be strictly positive; nothing runs at that speed` |
+| decimal comma | `"…" is not a frame rate: use a decimal point and not a comma, in every language` |
+| text that is not a number | `"…" is not a frame rate: expected frames per second, like 25 or 23.976` |
+| frame rate out of all proportion | `"…" is not a frame rate: no video runs at that many frames per second` |
 
-**Rien n'est écrit sans l'une des trois options de destination**, et ses erreurs
-sont communes aux sous-commandes qui écrivent :
-voir [Invocation](invocation.md#la-destination).
+**Nothing is written without one of the three destination options**, and their errors
+are common to the subcommands that write:
+see [Invocation](invocation.md#the-destination).

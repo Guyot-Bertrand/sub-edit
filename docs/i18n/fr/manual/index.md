@@ -1,0 +1,89 @@
+# subedit — manuel
+
+subedit lit, inspecte et recale des fichiers de sous-titres. Il vient en deux
+programmes qui partagent le même noyau, donc les mêmes règles et les mêmes mots.
+
+| Programme | Pour quoi faire | Son manuel |
+| :-------- | :-------------- | :--------- |
+| `subedit-gui` | ouvrir un fichier, le voir dans une table, l'éditer, le regarder contre le film | [manuel de la fenêtre](../../../manual/subedit-gui/index.md) |
+| `subedit-cli` | traiter des fichiers en lot, depuis un script, sans interface | [manuel de la ligne de commande](subedit-cli/index.md) |
+
+Les deux lisent et écrivent **les neuf formats** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — et
+reconnaissent le format au contenu plutôt qu'à l'extension. **L'encodage aussi
+est reconnu au contenu** : un fichier en Latin-1, en CP1252 ou en UTF-16
+s'ouvre, ce qu'il a été lu comme est dit, et il est réécrit dans le sien — un
+fichier ouvert puis enregistré sans modification ne bouge pas d'un octet.
+
+## Par où commencer
+
+| Ce que vous voulez | Où aller |
+| :----------------- | :------- |
+| installer l'outil | [Installation](subedit-cli/installation.md) — elle vaut pour les deux programmes |
+| ouvrir un fichier et regarder ce qu'il contient | [La table](../../../manual/subedit-gui/table.md) |
+| recaler des sous-titres décalés d'une durée constante | [Les opérations](../../../manual/subedit-gui/operations.md#shift-positions), ou [`shift`](subedit-cli/shift.md) |
+| recaler un fichier écrit pour une autre cadence d'images | [`framerate`](subedit-cli/framerate.md), et [`snap`](subedit-cli/snap.md) si le minutage est déjà juste |
+| savoir contre quelle cadence un fichier a été écrit | [La grille d'images](../../../manual/subedit-gui/grille.md), ou [`inspect`](subedit-cli/inspect.md) |
+| retirer les mentions pour malentendants | [Les opérations](../../../manual/subedit-gui/operations.md#remove-hearing-impaired-mentions), ou [`hearing-impaired`](subedit-cli/hearing-impaired.md) |
+| corriger des mentions, des erreurs courantes, la casse et le découpage des lignes en un seul passage | [`Correct Texts…`](../../../manual/subedit-gui/correct-texts.md), ou [`correct`](subedit-cli/correct.md) |
+| vérifier l'orthographe mot à mot, avec les dictionnaires du système | [`Check Spelling…`](../../../manual/subedit-gui/verifier-orthographe.md) |
+| allonger des sous-titres trop courts pour être lus | [`Adjust Durations…`](../../../manual/subedit-gui/operations.md#adjust-durations), ou [`adjust`](subedit-cli/adjust.md) |
+| remettre dans l'ordre un fichier dont les sous-titres ne le sont pas | [`sort`](subedit-cli/sort.md) |
+| refaire un seul sous-titre des morceaux d'un même texte qui se suivent | [`Join Repeated Subtitles`](../../../manual/subedit-gui/lignes.md#fusionner-les-sous-titres-répétés), ou [`join-repeats`](subedit-cli/join-repeats.md) |
+| remettre d'aplomb un fichier mal segmenté, mal ordonné et qui se chevauche, d'un coup | [`repair`](subedit-cli/repair.md) |
+| supprimer les chevauchements entre sous-titres | [`Make Ranges Disjoint…`](../../../manual/subedit-gui/lignes.md#rendre-les-plages-disjointes), ou [`disjoint`](subedit-cli/disjoint.md) |
+| mettre bout à bout les deux parties d'un film | [`Append File…`](../../../manual/subedit-gui/operations.md#append-file), ou [`append`](subedit-cli/append.md) |
+| couper un film en deux parties | [`Split Project…`](../../../manual/subedit-gui/operations.md#split-project), ou [`split-file`](subedit-cli/split-file.md) |
+| changer la casse, l'italique ou les tirets de dialogue de tout un fichier | [Les opérations](../../../manual/subedit-gui/operations.md#italic), ou [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
+| chercher un mot et le remplacer, sans casser les balises | [Rechercher et remplacer](../../../manual/subedit-gui/recherche.md), ou [`replace`](subedit-cli/replace.md) |
+| traduire en regard du texte d'origine | [Ouvrir une traduction](../../../manual/subedit-gui/fichiers.md#ouvrir-une-traduction), ou [`pair`](subedit-cli/pair.md) pour la recaler sur le principal |
+| traiter cent fichiers d'un coup | [Traiter un arbre](subedit-cli/lots.md), puis [Invocation](subedit-cli/invocation.md) |
+
+**Entre `framerate` et `snap`, on se trompe sans que rien ne le signale.** Si
+vous hésitez, [`snap`](subedit-cli/snap.md#snap-nest-pas-framerate-et-sen-tromper-ne-se-voit-pas)
+ouvre sur la comparaison des deux.
+
+## Ce que ce manuel promet
+
+**Il décrit ce qui existe, jamais ce qui est prévu.** Ce qui viendra, et dans
+quel ordre, est dans la [feuille de route](../../../feuille-de-route.md).
+
+**Ce manuel est la traduction française d'un manuel écrit en anglais.** Il le
+suit page pour page, sous le répertoire `docs/i18n/` du dépôt, un arbre par
+langue. Les programmes parlent la langue de leur environnement ; les noms qu'ils
+affichent — sous-commandes, options, intitulés de menu — sont cités ici tels que
+le programme les écrit en anglais.
+
+**Les exemples et les images sont engendrés, la prose non.** Les blocs
+`console` sont produits en exécutant réellement la commande ; les captures
+d'écran, en construisant la vraie fenêtre et en la photographiant. Aucun des
+deux ne peut donc décrire un outil qui n'existe plus. Ce qui reste sans filet
+est le texte autour, dont la justesse repose sur la relecture.
+
+**Les captures montrent les deux palettes**, `Light` et `Dark` — celles que
+[les préférences](../../../manual/subedit-gui/preferences.md#le-thème) proposent.
+
+## Les deux surfaces disent les mêmes mots
+
+Une raison de lire l'un des deux manuels quand on se sert de l'autre : les
+messages d'erreur, les noms de format, les verdicts de grille et les libellés
+d'annulation sont écrits **une fois**, dans le noyau, et les deux programmes les
+citent. Un fichier refusé donne la même phrase des deux côtés.
+
+Ce qui diffère est ce que chaque surface peut faire :
+
+| | `subedit-gui` | `subedit-cli` |
+| :--- | :------------ | :------------ |
+| plusieurs fichiers d'un coup | oui — un onglet par projet | oui |
+| une traduction en regard du principal | oui | oui — `-t` sur les sous-commandes de texte, et [`pair`](subedit-cli/pair.md) pour la recaler |
+| ajouter un fichier à la suite, scinder un projet | oui | oui — [`append`](subedit-cli/append.md), [`split-file`](subedit-cli/split-file.md) |
+| annuler | oui, mille entrées | sans objet — rien n'est modifié en place sans le demander |
+| éditer un texte ou une position à la main | oui | non |
+| insérer, supprimer, fusionner et scinder des lignes | oui | non |
+| rechercher et remplacer | oui | oui — [`replace`](subedit-cli/replace.md) |
+| couper, copier et coller des textes | oui | non |
+| ajuster les durées, l'italique, la casse, les tirets | oui | oui — [`adjust`](subedit-cli/adjust.md), [`italics`](subedit-cli/italics.md), [`case`](subedit-cli/case.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
+| corriger les textes par motifs | oui — `Correct Texts…` | oui — [`correct`](subedit-cli/correct.md) |
+| vérifier l'orthographe mot à mot | oui — `Check Spelling…` | non |
+| regarder le film pendant qu'on cale | oui | non |
+| écrire par-dessus l'entrée | `Save` | `--in-place` |

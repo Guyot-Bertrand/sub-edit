@@ -1,0 +1,190 @@
+# `hearing-impaired`
+
+```
+subedit-cli hearing-impaired
+                  (--output FILE | --output-dir DIR | --in-place)
+                  [--dry-run]
+                  [--recursive] [--parentheses]
+                  [--document main|translation] [-t FILE] [--align-method position|number]
+                  <file>...
+```
+
+Retire les **mentions pour malentendants** — les bruits décrits entre crochets — de tout
+le fichier. **Les parenthèses restent par défaut** : elles servent aussi souvent à une réplique
+chuchotée qu'à un bruit décrit, et les retirer effacerait du dialogue. `--parentheses` les retire
+aussi, pour un fichier qui y décrit ses sons.
+
+Ce qu'elle ne fait pas : les paroles de chanson entre dièses, le nom du locuteur
+avant deux-points, la remise en majuscule, la correction d'erreurs d'OCR. Ces
+motifs-là sont ceux de l'assistant
+[`Correct Texts…`](../../../../manual/subedit-gui/correct-texts.md) de la fenêtre, que la ligne de
+commande offre sous le nom de [`correct`](correct.md) ; et rien ici ne se règle : la
+transformation est décidée, pas configurable.
+
+<!-- exemple: subedit-cli hearing-impaired --help -->
+```console
+$ subedit-cli hearing-impaired --help
+Remove the sounds described between square brackets
+Usage: subedit-cli hearing-impaired [OPTIONS] files...
+
+Positionals:
+  files TEXT ... REQUIRED     Subtitle files to clean
+
+Options:
+  -h,--help                   Print this help message and exit
+  --parentheses               Also remove the sounds between parentheses, often whispered lines
+  -r,--recursive              Take directories as inputs, and every subtitle file in them
+  --document main|translation The document to change: the main one, or the translation given by -t
+  -t,--translation-file FILE  Translation file to lay over the subtitle file, for a single input
+  --align-method position|number
+                              How the lines of the translation find their subtitles
+  --output TEXT               File to write, for a single input
+  --output-dir TEXT           Directory to write into
+  --in-place                  Write back over the inputs
+  --dry-run                   Work out and say what would be written, and write nothing
+```
+
+## Arguments et options
+
+| Option | Requis | Valeurs | Défaut |
+| :----- | :----- | :------ | :----- |
+| `<file>...` | oui | un ou plusieurs chemins | — |
+| `--parentheses` | non | un drapeau : retire aussi les mentions entre parenthèses | désactivé |
+| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
+| `--document` | non | `main` ou `translation` — voir [Une traduction](invocation.md#une-traduction) | `main` |
+| `-t`, `--translation-file` | avec `--document translation` | un fichier de traduction, pour **une seule** entrée | — |
+| `--align-method` | non, et seulement avec `-t` | `position` ou `number` | `position` |
+| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
+| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+
+Le format du fichier lu est **conservé** : changer de format est le travail de
+[`convert`](convert.md).
+
+**Le texte principal par défaut ; la traduction avec `--document translation -t FILE`.** C'est alors
+la traduction qui est changée et écrite, et elle seule — voir [Une traduction](invocation.md#une-traduction).
+
+**Une mention qui viderait une traduction l'écrit vide, et garde le sous-titre** : le sous-titre
+reste dans le fichier, sans texte. Le texte principal, lui, perd un sous-titre entièrement vidé, comme
+ci-dessous.
+
+## Ce qui est retiré, et ce qui reste
+
+Une mention est un crochet — ou une parenthèse, avec `--parentheses` — et ce qu'elle enferme, **saut de
+ligne compris** : dans de vrais fichiers, une mention est souvent coupée par la
+fin de ligne.
+
+| Entrée | Sortie |
+| :----- | :----- |
+| `Bonjour [il tousse] Marie` | `Bonjour Marie` |
+| `Bonjour[il tousse]Marie` | `Bonjour Marie` |
+| `[Bruit de pas] Bonjour` | `Bonjour` |
+| `A [un] [deux] B` | `A B` |
+
+Le retrait laisse **exactement une espace entre ce qui l'entourait, et rien en
+bord de ligne**. Ce n'est pas un nettoyage des espaces du fichier : deux espaces
+que le texte portait déjà restent deux espaces.
+
+**Quand la mention enjambe le saut de ligne, c'est le saut qui subsiste** — les
+deux lignes restent deux lignes. Ce cas n'est pas une curiosité : sur quinze
+sous-titrages réels, tous les crochets qui semblaient orphelins étaient des
+mentions coupées ainsi.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nReculez ! [Il\nhurle] Tout de suite !\n\n' > a.srt; subedit-cli --quiet hearing-impaired --output b.srt a.srt; cat b.srt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:03,000\nReculez ! [Il\nhurle] Tout de suite !\n\n' > a.srt; subedit-cli --quiet hearing-impaired --output b.srt a.srt; cat b.srt
+1
+00:00:01,000 --> 00:00:03,000
+Reculez !
+Tout de suite !
+```
+
+**Ce qui n'est pas une mention et ne bouge pas :**
+
+| Cas | Ce qui se passe |
+| :-- | :-------------- |
+| contenu purement numérique — `[1]`, `(12)`, `[ 156478 ]` | gardé tel quel, délimiteurs compris : une référence n'a jamais désigné un bruit |
+| une parenthèse et ce qu'elle enferme, sans `--parentheses` | gardée telle quelle : `Venez (chut) ici` ne change pas |
+| crochet ou parenthèse que rien ne referme | laissé tel quel |
+| une balise de format — `<i>`, `</i>` | jamais retirée |
+
+Un blanc **entre** les chiffres, une lettre ou un signe — `[1 2]`, `[1a]`,
+`[-1]` — en font une mention. Un contenu vide, `[]` ou `( )`, aussi : aucun
+chiffre, donc pas une référence ; rien à dire, donc rien à garder.
+
+## Ce qui disparaît entièrement
+
+**Une ligne que le retrait a vidée disparaît**, et **un sous-titre entièrement
+vidé est retiré du fichier**. Les sous-titres qui suivent sont renumérotés.
+
+Une ligne compte pour vide quand il n'y reste que des blancs, des balises de
+format, ou un tiret de dialogue seul — `<i>[Musique]</i>` ne laisse pas un
+`<i></i>` à l'écran.
+
+**Les balises sont celles du format du fichier.** `{\i1}[Musique]{\i0}` dans un
+Advanced SSA, `{Y:i}[Musique]` dans un MicroDVD et `/[Musique]` dans un MPL2 ne
+laissent rien non plus. À l'inverse, un `<i>` dans un format qui n'écrit aucune
+balise — TMPlayer, LRC — est du texte que le spectateur lit, et la ligne qui le
+porte n'est pas vide.
+
+**Un dialogue réduit à une seule voix n'en est plus un**, et le tiret qui reste
+s'en va. Tant qu'il reste deux voix, les tirets restent.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt
+a.srt: 1 subtitle cleaned, 1 removed -> b.srt
+1
+00:00:04,000 --> 00:00:06,000
+Attends Marie.
+
+2
+00:00:07,000 --> 00:00:09,000
+Voir [1] la note.
+```
+
+## Un fichier sans aucune mention est écrit quand même
+
+Il est recopié à l'identique, le code de retour est `0`, et le rapport dit qu'il
+n'y avait rien à retirer.
+
+C'est la règle des sous-commandes qui écrivent : **une destination donnée est
+une destination écrite**. En faire l'exception ici obligerait un script à savoir
+laquelle des sous-commandes produit parfois un fichier et parfois rien.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt
+a.srt: no mention to remove -> b.srt
+```
+
+## Sortie
+
+**Sortie standard** — rien : le résultat est le fichier écrit. **Avec `--dry-run`, ce sont les changements proposés** : pour chaque sous-titre dont le texte changerait, son numéro, le texte d'avant et le texte d'après — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire).
+
+| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| :----- | :------------------------------------- |
+| 1 | `<path>: N subtitles cleaned, M removed -> <destination>`, ou `<path>: no mention to remove -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+
+`N` compte les sous-titres dont le texte a changé, `M` ceux que le retrait a
+entièrement vidés et qui ont donc quitté le fichier.
+
+### En JSON
+
+Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.cleaned` (les textes réécrits) et `counts.removed` (les sous-titres supprimés) ; **avec `--dry-run`**, la clé `changes` liste en plus les sous-titres changés, comme la sortie standard de la forme texte. Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
+
+## Codes de retour
+
+Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` si
+certains seulement, `1` sur une erreur d'usage.
+
+## Erreurs
+
+Cette sous-commande n'a pas d'erreur qui lui soit propre : elle ne prend aucune
+valeur à analyser, et aucun texte ne peut lui faire refuser un fichier. Ce qui
+peut échouer est la lecture ou l'écriture, comme pour les autres.
+
+**Rien n'est écrit sans l'une des trois options de destination**, et ses erreurs
+sont communes aux sous-commandes qui écrivent :
+voir [Invocation](invocation.md#la-destination).

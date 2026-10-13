@@ -2,17 +2,17 @@
 
 ```
 subedit-cli convert --to <format>
-                    [--line-endings unix|windows|mac] [--to-encoding NOM]
+                    [--line-endings unix|windows|mac] [--to-encoding NAME]
                     [--bom | --no-bom] [--sort] [--disjoint]
                     [--join-repeats] [--repair]
-                    (--output FICHIER | --output-dir DOSSIER | --in-place)
+                    (--output FILE | --output-dir DIR | --in-place)
                     [--dry-run]
                     [--recursive]
-                    <fichier>...
+                    <file>...
 ```
 
-Écrit chaque fichier dans le format et la forme demandés. **Ne modifie jamais
-l'entrée**, sauf si `--in-place` le demande explicitement.
+Writes each file in the format and the shape asked for. **Never changes
+the input**, unless `--in-place` explicitly asks for it.
 
 <!-- exemple: subedit-cli convert --help -->
 ```console
@@ -44,28 +44,28 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--to` | **oui** | un nom de la table ci-dessous, et rien d'autre | — |
-| `--line-endings` | non | `unix`, `windows` ou `mac` | celles du fichier lu |
-| `--to-encoding` | non | tout encodage qu'ICU sait écrire, sauf ceux qui écrivent leur propre marque | celui du fichier lu |
-| `--bom` / `--no-bom` | non | drapeaux, exclusifs l'un de l'autre | ce que portait le fichier lu |
-| `--sort` | non | un drapeau : met les sous-titres dans l'ordre de leur début **avant d'écrire**, voir [Trier à l'écriture](#trier-à-lécriture) | désactivé |
-| `--join-repeats` | non | un drapeau : fait un seul sous-titre des morceaux d'un même texte qui se suivent, **avant tout le reste**, voir [Rendre les plages disjointes](#rendre-les-plages-disjointes) | désactivé |
-| `--repair` | non | un drapeau : équivaut à `--join-repeats --sort --disjoint`, dans cet ordre | désactivé |
-| `--disjoint` | non | un drapeau : découpe les sous-titres qui se chevauchent **avant d'écrire**, voir [Rendre les plages disjointes](#rendre-les-plages-disjointes) | désactivé |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<file>...` | yes | one or more paths | — |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--to` | **yes** | a name from the table below, and nothing else | — |
+| `--line-endings` | no | `unix`, `windows` or `mac` | those of the file read |
+| `--to-encoding` | no | any encoding ICU can write, except those that write their own mark | that of the file read |
+| `--bom` / `--no-bom` | no | flags, exclusive of one another | what the file read carried |
+| `--sort` | no | a flag: puts the subtitles in the order of their start **before writing**, see [Sorting on writing](#sorting-on-writing) | off |
+| `--join-repeats` | no | a flag: makes a single subtitle of the pieces of one text that follow each other, **before anything else**, see [Making the ranges disjoint](#making-the-ranges-disjoint) | off |
+| `--repair` | no | a flag: the same as `--join-repeats --sort --disjoint`, in that order | off |
+| `--disjoint` | no | a flag: cuts the overlapping subtitles **before writing**, see [Making the ranges disjoint](#making-the-ranges-disjoint) | off |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
-`mac` désigne le retour chariot seul (`\r`), la fin de ligne du Mac OS classique.
+`mac` names the carriage return alone (`\r`), the line ending of the classic Mac OS.
 
-## Les formats que `--to` accepte
+## The formats `--to` accepts
 
-| Nom | Format | Extension écrite |
+| Name | Format | Extension written |
 | :-- | :----- | :--------------- |
 | `srt` | SubRip | `.srt` |
 | `vtt` | WebVTT | `.vtt` |
@@ -77,116 +77,116 @@ Options:
 | `tmplayer` | TMPlayer | `.txt` |
 | `lrc` | LRC | `.lrc` |
 
-**Un nom, et pas une extension.** Deux extensions désignent deux formats
-chacune — `.sub` est aussi celle de MicroDVD, `.txt` celle de MPL2 et de
-TMPlayer — donc une option qui prendrait des extensions ne saurait pas lequel
-est demandé. Les noms ci-dessus sont sans ambiguïté, et coïncident avec
-l'extension partout où celle-ci l'est aussi.
+**A name, and not an extension.** Two extensions name two formats
+each — `.sub` is also MicroDVD's, `.txt` that of MPL2 and of
+TMPlayer — so an option that took extensions would not know which one
+is asked for. The names above are unambiguous, and match the
+extension wherever the extension is unambiguous too.
 
-**La liste est close.** C'est celle de Gaupol, et les neuf y sont.
+**The list is closed.** It is Gaupol's, and all nine are in it.
 
-## Les deux formats qui ne portent pas de fin
+## The two formats that carry no end
 
-**TMPlayer et LRC n'écrivent qu'une position par réplique**, son début. Cela se
-lit des deux côtés.
+**TMPlayer and LRC write only one position per line**, its start. This
+shows on both sides.
 
-**En lecture**, les fins sont déduites : celle d'une réplique est le début de
-la suivante, et la dernière reçoit cinq secondes. C'est ce que fait Gaupol.
-Nous le disons en plus, par un diagnostic que `--verbose` affiche sur les trois
-sous-commandes :
+**On reading**, the ends are deduced: that of a line is the start of
+the next one, and the last one gets five seconds. That is what Gaupol does.
+We say so as well, through a diagnostic that `--verbose` shows on the three
+subcommands:
 
 ```
-fichier.lrc: carries no end times; each one was taken from the next start, settled by the reader
+file.lrc: carries no end times; each one was taken from the next start, settled by the reader
 ```
 
-**En écriture**, les fins ne sont pas écrites, faute d'endroit où les mettre.
-Convertir vers l'un de ces deux formats les perd donc, et un aller-retour ne
-les retrouve pas — il les redéduit.
+**On writing**, the ends are not written, for want of a place to put them.
+Converting to one of these two formats therefore loses them, and a round trip does not
+find them again — it deduces them again.
 
-**LRC perd une chose de plus** : il n'a aucun moyen de porter un saut de ligne.
-Une réplique de deux lignes s'écrit sur une seule, les deux lignes jointes par
-une espace. Cette perte-là ne se répare pas non plus.
+**LRC loses one more thing**: it has no way of carrying a line break.
+A line of dialogue on two lines is written on one, the two lines joined by
+a space. That loss cannot be repaired either.
 
-Ni l'un ni l'autre n'a de vocabulaire pour l'italique.
+Neither one has a vocabulary for italics.
 
-## `--frame-rate`, et le seul format qui compte en images
+## `--frame-rate`, and the one format that counts in frames
 
-**MicroDVD ne compte pas en secondes** : ses positions *sont* des numéros
-d'image, et aucun fichier MicroDVD ne déclare la fréquence à laquelle ils ont
-été comptés. `--frame-rate` la donne, et sert des deux côtés : elle est la
-fréquence à laquelle un `.sub` en images est lu, et celle à laquelle une
-conversion vers MicroDVD compte les images.
+**MicroDVD does not count in seconds**: its positions *are* frame
+numbers, and no MicroDVD file declares the rate at which they were
+counted. `--frame-rate` gives it, and serves on both sides: it is the
+rate at which a `.sub` in frames is read, and the one at which a
+conversion to MicroDVD counts the frames.
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `--frame-rate` | non | une fréquence en images par seconde : `25`, `23.976`, `29.97` | voir ci-dessous |
+| `--frame-rate` | no | a rate in frames per second: `25`, `23.976`, `29.97` | see below |
 
-**À la lecture, sans `--frame-rate`, le fichier est lu à 23,976** — la valeur de
-Gaupol — et le niveau `-vvv` le dit : `counts in frames and states no rate; it
-was read at`. C'est le seul endroit de l'outil où toutes les positions affichées
-reposent sur une hypothèse que le fichier ne peut pas confirmer.
+**On reading, without `--frame-rate`, the file is read at 23.976** — Gaupol's
+value — and level `-vvv` says so:
+`counts in frames and states no rate; it was read at`. It is the one place in the tool where every position shown
+rests on an assumption the file cannot confirm.
 
-**À l'écriture, sans `--frame-rate`, trois cas et trois réponses :**
+**On writing, without `--frame-rate`, three cases and three answers:**
 
-| Le fichier de départ | Ce qui se passe |
+| The starting file | What happens |
 | :------------------- | :-------------- |
-| est déjà du MicroDVD | la fréquence qui l'a lu le réécrit, et les images reviennent identiques |
-| est temporel, et ses positions tombent sur une grille | la grille est prise, et `-vv` dit laquelle |
-| est temporel, sans grille | **refus**, code 2 : `writing frames needs a frame rate, and the positions fall on no grid to take one from — give --frame-rate` |
+| is already MicroDVD | the rate that read it writes it back, and the frames come back identical |
+| is time-based, and its positions fall on a grid | the grid is taken, and `-vv` says which one |
+| is time-based, with no grid | **refusal**, code 2: `writing frames needs a frame rate, and the positions fall on no grid to take one from — give --frame-rate` |
 
-Le refus est délibéré. Le seul geste restant serait d'inventer un chiffre, et
-chaque réplique du fichier bougerait de ce qu'il aurait de faux.
+The refusal is deliberate. The only gesture left would be to make up a figure, and
+every line of the file would move by however wrong it was.
 
-## Ce qu'une conversion perd
+## What a conversion loses
 
-**Convertir vers un autre format n'est jamais sans perte**, et ce qui ne survit
-pas dépend de la paire :
+**Converting to another format is never lossless**, and what does not survive
+depends on the pair:
 
-| Ce qui ne traverse pas | Pourquoi |
+| What does not get through | Why |
 | :--------------------- | :------- |
-| l'en-tête | il n'a de sens que dans son format : `[INFORMATION]` n'est pas une en-tête WebVTT |
-| les données propres au format | les coordonnées de SubRip, l'identifiant et les réglages d'une cellule WebVTT n'ont pas d'équivalent ailleurs |
-| la précision | SubViewer 2, les deux Sub Station Alpha et LRC écrivent au centième, MPL2 au dixième, TMPlayer à la seconde, MicroDVD à l'image ; `01:00:00,017` en revient à `01:00:00,020` |
-| la fin d'une réplique | TMPlayer et LRC n'ont pas de champ pour elle ; la lecture suivante la redéduit |
-| les sauts de ligne | LRC seul : ses répliques tiennent sur une ligne, et les deux sont recollées par une espace |
-| les balises que le format d'arrivée ne sait pas écrire | WebVTT n'a pas de `<font color>`, TMPlayer et LRC n'ont rien du tout |
-| la mise en page | `{\pos(x,y)}`, `{\an8}`, `<v Marie>`, `<ruby>` : ils traversent un aller-retour dans leur propre format, et disparaissent à la conversion |
+| the header | it only makes sense in its own format: `[INFORMATION]` is not a WebVTT header |
+| the data specific to the format | SubRip's coordinates, the identifier and the settings of a WebVTT cue have no equivalent elsewhere |
+| the precision | SubViewer 2, the two Sub Station Alphas and LRC write to the hundredth, MPL2 to the tenth, TMPlayer to the second, MicroDVD to the frame; `01:00:00,017` comes back as `01:00:00,020` |
+| the end of a line | TMPlayer and LRC have no field for it; the next reading deduces it again |
+| the line breaks | LRC alone: its lines fit on one line, and the two are glued back by a space |
+| the tags the target format cannot write | WebVTT has no `<font color>`, TMPlayer and LRC have nothing at all |
+| the layout | `{\pos(x,y)}`, `{\an8}`, `<v Marie>`, `<ruby>`: they survive a round trip in their own format, and disappear in conversion |
 
-**Réécrire un fichier dans son propre format ne perd rien** — c'est la garantie
-qui tient tout le reste, et `--to srt` sur un `.srt` rend les mêmes octets. Rien
-n'y est même décodé : le texte reste la chaîne brute qui a été lue.
+**Writing a file back in its own format loses nothing** — that is the guarantee
+that holds up all the rest, and `--to srt` on a `.srt` gives back the same bytes. Nothing
+is even decoded: the text stays the raw string that was read.
 
-## Les balises sont traduites, pas recopiées
+## Tags are translated, not copied
 
-**Chaque format écrit l'italique à sa façon**, et convertir sans traduire
-laisserait un `{\i1}` dans un `.srt` : du texte que l'utilisateur voit, dans un
-fichier qui ne saura jamais l'interpréter. Ce qui traverse, ce sont **six
-choses** — gras, italique, souligné, couleur, police et taille :
+**Each format writes italics its own way**, and converting without translating
+would leave a `{\i1}` in a `.srt`: text the user sees, in a
+file that will never know how to interpret it. What gets through are **six
+things** — bold, italics, underline, colour, font and size:
 
-| Format | Gras | Italique | Souligné | Couleur | Police | Taille |
+| Format | Bold | Italics | Underline | Colour | Font | Size |
 | :----- | :--: | :------: | :------: | :-----: | :----: | :----: |
 | SubRip | `<b>` | `<i>` | `<u>` | `<font color="#RRGGBB">` | — | — |
 | WebVTT | `<b>` | `<i>` | `<u>` | — | — | — |
 | SubViewer 2 | `<b>` | `<i>` | `<u>` | `<font color="#RRGGBB">` | — | — |
-| Sub Station Alpha | `{\b1}` | `{\i1}` | — | `{\c&HBBGGRR&}` | `{\fnNOM}` | `{\fsN}` |
-| Advanced SSA | `{\b1}` | `{\i1}` | `{\u1}` | `{\c&HBBGGRR&}` | `{\fnNOM}` | `{\fsN}` |
-| MicroDVD | `{Y:b}` | `{Y:i}` | `{Y:u}` | `{C:$BBGGRR}` | `{F:NOM}` | `{S:N}` |
-| MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NOM}` | `{S:N}` |
+| Sub Station Alpha | `{\b1}` | `{\i1}` | — | `{\c&HBBGGRR&}` | `{\fnNAME}` | `{\fsN}` |
+| Advanced SSA | `{\b1}` | `{\i1}` | `{\u1}` | `{\c&HBBGGRR&}` | `{\fnNAME}` | `{\fsN}` |
+| MicroDVD | `{Y:b}` | `{Y:i}` | `{Y:u}` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
+| MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
 | TMPlayer | — | — | — | — | — | — |
 | LRC | — | — | — | — | — | — |
 
-**Un tiret est une perte annoncée.** Convertir un `.srt` coloré en WebVTT retire
-la couleur et le dit ; le fichier produit est du WebVTT, pas du SubRip déguisé.
+**A dash is an announced loss.** Converting a coloured `.srt` to WebVTT removes
+the colour and says so; the file produced is WebVTT, not SubRip in disguise.
 
-**MicroDVD et MPL2 ne savent pas styler un morceau de ligne.** Leurs balises
-n'ont pas de fin : `{y:i}` penche tout ce qui suit jusqu'au bout de la ligne, et
-`{Y:i}` jusqu'au bout de la réplique. Une ligne dont une moitié seulement était
-en gras s'écrit donc sans gras du tout, plutôt qu'avec un gras qui déborde.
+**MicroDVD and MPL2 cannot style part of a line.** Their tags
+have no end: `{y:i}` slants everything that follows to the end of the line, and
+`{Y:i}` to the end of the subtitle. A line only half of which was
+bold is therefore written with no bold at all, rather than with bold that overflows.
 
-## Ce que la conversion dit qu'elle a perdu
+## What the conversion says it lost
 
-**Elle le dit quand elle perd, et se tait quand elle ne perd rien.** Un rapport
-qui s'affiche à chaque appel est un rapport que personne ne lit.
+**It says so when it loses, and keeps quiet when it loses nothing.** A report
+that shows up at every call is a report nobody reads.
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
@@ -195,82 +195,82 @@ a.srt: 1 subtitle written as LRC -> b.lrc
 a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
 ```
 
-La ligne paraît au niveau de bavardage par défaut, et à tous ceux au-dessus.
-Les postes, dans cet ordre :
+The line appears at the default verbosity level, and at every one above it.
+The items, in this order:
 
-| Poste | Ce qu'il dit |
+| Item | What it says |
 | :---- | :----------- |
-| `ends are not carried by <format>` | le format d'arrivée n'écrit aucune fin |
-| `line breaks were joined in N subtitles` | LRC seul : N répliques tenaient sur plusieurs lignes |
-| `N tags dropped` | N balises n'ont pas su être écrites, mise en page comprise |
-| `the header was dropped` | l'en-tête ne traverse pas une frontière de format |
-| `the <format> fields of N subtitles were dropped` | N répliques portaient des données propres à leur format |
-| `positions moved by up to N ms` | la plus grande distance dont une position a bougé |
+| `ends are not carried by <format>` | the target format writes no end |
+| `line breaks were joined in N subtitles` | LRC alone: N subtitles were on several lines |
+| `N tags dropped` | N tags could not be written, layout included |
+| `the header was dropped` | the header does not cross a format boundary |
+| `the <format> fields of N subtitles were dropped` | N subtitles carried data specific to their format |
+| `positions moved by up to N ms` | the largest distance by which a position moved |
 
-## Changer d'encodage
+## Changing the encoding
 
-**`--to-encoding` choisit l'encodage écrit ; `--encoding` dit celui qui est
-lu.** Les deux ensemble réencodent un fichier :
+**`--to-encoding` chooses the encoding written; `--encoding` says the one that is
+read.** The two together re-encode a file:
 
 ```console
 $ subedit-cli convert --to srt --encoding cp1252 --to-encoding utf-8 \
       --output-dir sortie film.srt
 ```
 
-Sans `--to-encoding`, le fichier est réécrit dans **l'encodage où il a été lu**,
-comme il l'est avec ses fins de ligne et sa marque : un fichier converti sans
-consigne d'encodage rend les mêmes caractères, aux mêmes octets.
+Without `--to-encoding`, the file is written in **the encoding it was read in**,
+as it is with its line endings and its mark: a file converted without an
+instruction about encoding gives back the same characters, at the same bytes.
 
-**Un caractère que l'encodage cible ne sait pas écrire arrête le fichier**, et
-rien n'est écrit. Un `ł` n'a pas de place en Latin-1 ; le remplacer par un `?`
-perdrait du texte entre la lecture et l'écriture, sans que personne le voie.
+**A character the target encoding cannot write stops the file**, and
+nothing is written. An `ł` has no place in Latin-1; replacing it with a `?`
+would lose text between reading and writing, without anyone seeing it.
 
-**Une marque d'ordre des octets n'existe que pour les encodages Unicode.**
-`--bom` avec un `--to-encoding` qui n'en porte pas est refusé plutôt qu'ignoré
-— voir la table des erreurs ci-dessous.
+**A byte order mark exists only for the Unicode encodings.**
+`--bom` with a `--to-encoding` that carries none is refused rather than ignored
+— see the table of errors below.
 
-**Et l'encodage doit nommer son ordre d'octets.** `UTF-16` et `UTF-32` sont des
-noms qu'ICU connaît, dont le convertisseur écrit **sa propre marque**, quoi
-qu'on lui demande : `--no-bom` serait alors accepté et désobéi. Les deux sont
-donc refusés, et le message nomme la sortie :
+**And the encoding has to name its byte order.** `UTF-16` and `UTF-32` are
+names ICU knows, whose converter writes **a mark of its own**, whatever
+it is asked: `--no-bom` would then be accepted and disobeyed. Both are
+therefore refused, and the message names the output:
 
 ```console
 $ subedit-cli convert --to srt --to-encoding UTF-16 --output copie.srt film.srt
 "UTF-16" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do
 ```
 
-`UTF-16LE`, `UTF-16BE`, `UTF-32LE` et `UTF-32BE` écrivent exactement les mêmes
-octets, marque comprise — mais sous le contrôle de `--bom` et de `--no-bom`. Le
-refus ne coûte donc rien d'autre qu'un nom plus précis, et il vaut pour la
-lecture comme pour l'écriture : `--encoding UTF-16` reçoit la même réponse.
+`UTF-16LE`, `UTF-16BE`, `UTF-32LE` and `UTF-32BE` write exactly the same
+bytes, mark included — but under the control of `--bom` and `--no-bom`. The
+refusal therefore costs nothing but a more precise name, and it holds for
+reading as for writing: `--encoding UTF-16` gets the same answer.
 
-## La destination
+## The destination
 
-Les trois options et leurs règles sont communes aux sous-commandes qui
-écrivent : voir [Invocation](invocation.md#la-destination). Rien n'est écrit
-sans l'une d'elles.
+The three options and their rules are common to the subcommands that
+write: see [Invocation](invocation.md#the-destination). Nothing is written
+without one of them.
 
-Ce qui est propre à `convert` : **`--output-dir` change l'extension avec le
-format.** `convert --to vtt` sur `a.srt` écrit `a.vtt`, jamais `a.srt` contenant
-du WebVTT — un fichier dont le nom ment fait trébucher tous les autres outils.
+What is specific to `convert`: **`--output-dir` changes the extension with the
+format.** `convert --to vtt` on `a.srt` writes `a.vtt`, never an `a.srt` holding
+WebVTT — a file whose name lies trips up every other tool.
 
-## Convertir sur place est refusé
+## Converting in place is refused
 
-`--in-place` avec un `--to` qui change le format donne le code `1` et n'écrit
-rien : sur place, il n'y a pas de second nom pour porter le nouveau format, et
-le fichier resterait sous une extension que son contenu ne justifie plus.
+`--in-place` with a `--to` that changes the format gives code `1` and writes
+nothing: in place, there is no second name to carry the new format, and
+the file would stay under an extension its content no longer justifies.
 
-`--in-place` reste utilisable pour changer **la forme sans le format** —
-réécrire un `.srt` en `.srt` avec d'autres fins de ligne, par exemple.
+`--in-place` can still be used to change **the shape without the format** —
+writing a `.srt` back as a `.srt` with other line endings, for example.
 
-Le refus se décide sur **l'extension seule**, avant toute lecture : une erreur
-d'usage ne doit jamais laisser un lot à moitié écrit.
+The refusal is decided on **the extension alone**, before any reading: a usage
+error must never leave a batch half written.
 
-## Fins de ligne et marque d'ordre des octets
+## Line endings and byte order mark
 
-Par défaut, **le fichier écrit reprend ce que portait le fichier lu**. Le modèle
-retient les deux à la lecture ; les imposer par défaut perdrait à chaque
-conversion une information conservée exprès.
+By default, **the file written takes up what the file read carried**. The model
+keeps both on reading; imposing them by default would lose, at every
+conversion, a piece of information kept on purpose.
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
@@ -282,66 +282,66 @@ WEBVTT
 Bonjour.
 ```
 
-## Trier à l'écriture
+## Sorting on writing
 
-`--sort` écrit le fichier **dans l'ordre des débuts**, quel que soit le format d'arrivée. Le tri est fait **sur une copie** : le fichier lu n'est
-pas touché, et ce qui est écrit est ce que [`sort`](sort.md) en aurait fait — stable, deux sous-titres qui commencent ensemble gardent leur ordre.
+`--sort` writes the file **in the order of the starts**, whatever the target format. The sort is done **on a copy**: the file read is
+not touched, and what is written is what [`sort`](sort.md) would have made of it — stable, two subtitles that start together keep their order.
 
-**Jamais par défaut** : l'ordre d'un fichier est celui de son auteur tant qu'on ne demande pas autre chose. Avec l'option, chaque fichier le dit, au
-premier niveau de narration, `<chemin>: N subtitles moved` ou `<chemin>: already in order`, et l'enregistrement `--format json` porte un compte
-`moved` — **absent sans l'option**, pour ne pas changer la forme de ce que lisent les scripts existants.
+**Never by default**: the order of a file is its author's as long as nothing else is asked for. With the option, each file says so, at the
+first narration level, `<path>: N subtitles moved` or `<path>: already in order`, and the `--format json` record carries a
+`moved` count — **absent without the option**, so as not to change the shape of what existing scripts read.
 
-## Rendre les plages disjointes
+## Making the ranges disjoint
 
-`--disjoint` découpe les sous-titres qui se chevauchent pour que plus aucune plage n'en chevauche une autre, **sur la même copie que le tri** : le fichier lu n'est pas touché.
+`--disjoint` cuts the overlapping subtitles so that no range overlaps another any more, **on the same copy as the sort**: the file read is not touched.
 
-Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, avant d'écrire, après le tri. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<chemin>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
+Never by default. The option does what [`disjoint`](disjoint.md) does, **with its default settings**, before writing, after the sort. It needs a file in order: otherwise it is refused, and `--sort` — which comes first — puts it in order beforehand. The file says so at the first narration level (`<path>: N subtitles split, M merged`), and the `--format json` record carries the `split` and `merged` counts, **absent without the option**.
 
-**`--join-repeats` passe avant le tri et le découpage** : un texte coupé en morceaux qui se suivent est refait d'abord (voir
-[`join-repeats`](join-repeats.md)), puis les sous-titres sont triés, puis les plages rendues disjointes. **`--repair` est les trois à la fois**,
-comme [`repair`](repair.md), avec les réglages par défaut du découpage. Avec `--join-repeats`, chaque fichier dit `<chemin>: N repeated subtitles
-joined` au premier niveau de narration, et l'enregistrement `--format json` porte `counts.joined` — **absent sans l'option**.
+**`--join-repeats` comes before the sort and the cutting**: a text cut into pieces that follow each other is rebuilt first (see
+[`join-repeats`](join-repeats.md)), then the subtitles are sorted, then the ranges made disjoint. **`--repair` is all three at once**,
+like [`repair`](repair.md), with the default settings of the cutting. With `--join-repeats`, each file says
+`<path>: N repeated subtitles joined` at the first narration level, and the `--format json` record carries `counts.joined` — **absent without the option**.
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, rien non plus : il n'y a pas de fichier, et la ligne de narration le dit — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire).
+**Standard output** — nothing: the result is the file written. With `--dry-run`, nothing either: there is no file, and the narration line says so — see [Seeing before writing](invocation.md#seeing-before-writing).
 
-Sur la sortie d'erreur, selon le niveau :
+On the error output, according to the level:
 
-| Niveau | Ce qui s'ajoute |
+| Level | What is added |
 | :----- | :-------------- |
-| 1 | `<chemin>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<chemin>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — l'encodage nommé est celui qui est écrit |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
+| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — the encoding named is the one written |
+| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.subtitles`, puis ce que la conversion a perdu : `lost_ends` et `lost_header` (`0` ou `1`), `joined_lines`, `lost_tags`, `lost_fields` et `furthest_ms` — les postes de [la phrase de perte](#ce-que-la-conversion-dit-quelle-a-perdu). Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
+With [`--format json`](invocation.md#output-a-script-can-read), the object of each file carries `counts.subtitles`, then what the conversion lost: `lost_ends` and `lost_header` (`0` or `1`), `joined_lines`, `lost_tags`, `lost_fields` and `furthest_ms` — the items of [the sentence of loss](#what-the-conversion-says-it-lost). The full table is [Invocation](invocation.md#what-each-subcommand-puts-in-counts)'s.
 
-## Codes de retour
+## Exit codes
 
-Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` si
-certains seulement, `1` sur une erreur d'usage.
+Those of the tool: `0` if every file was written, `2` if none, `3` if
+only some, `1` on a usage error.
 
-## Erreurs
+## Errors
 
-| Ce qui la déclenche | Message |
+| What triggers it | Message |
 | :------------------ | :------ |
-| `--bom` avec `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
-| `--in-place` qui change le format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` sur un encodage qui n'en a pas | `<chemin>: <encodage> has no byte order mark to write` |
-| `--to-encoding` nommant un encodage inconnu | `no encoding is named "<nom>"` |
-| `--to-encoding` nommant un encodage qui écrit sa propre marque | `"<nom>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| caractère absent de l'encodage écrit | `<chemin>: holds a character the chosen encoding cannot write` |
+| `--bom` with `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
+| `--in-place` that changes the format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
+| `--bom` on an encoding that has none | `<path>: <encoding> has no byte order mark to write` |
+| `--to-encoding` naming an unknown encoding | `no encoding is named "<name>"` |
+| `--to-encoding` naming an encoding that writes its own mark | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
+| character missing from the encoding written | `<path>: holds a character the chosen encoding cannot write` |
 
-**Le refus de `--bom` sur un encodage qui n'en porte pas n'est pas une
-pédanterie.** Une marque d'ordre des octets existe pour les encodages Unicode et
-pour aucun autre : la demander sur un fichier en Windows-1252, c'est demander
-quelque chose qui n'existe pas. Le fichier s'écrirait sans elle, et personne ne
-saurait que la demande n'a pas été honorée.
+**Refusing `--bom` on an encoding that carries none is not
+pedantry.** A byte order mark exists for the Unicode encodings and
+for no other: asking for one on a file in Windows-1252 is asking for
+something that does not exist. The file would be written without it, and nobody would
+know the request was not honoured.
 
-Celles de la destination sont communes aux sous-commandes qui écrivent :
-voir [Invocation](invocation.md#la-destination).
+Those of the destination are common to the subcommands that write:
+see [Invocation](invocation.md#the-destination).
 
-Les erreurs de lecture sont celles d'[`inspect`](inspect.md) : elles portent sur
-le fichier d'entrée et ont les mêmes messages.
+The reading errors are those of [`inspect`](inspect.md): they concern
+the input file and have the same messages.

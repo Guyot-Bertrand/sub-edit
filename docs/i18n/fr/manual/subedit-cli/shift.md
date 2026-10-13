@@ -1,0 +1,162 @@
+# `shift`
+
+```
+subedit-cli shift (--by <time> | --to-grid)
+                  (--output FILE | --output-dir DIR | --in-place)
+                  [--dry-run]
+                  [--recursive]
+                  <file>...
+```
+
+Décale **toutes** les positions du fichier de la même durée, dans un sens ou
+dans l'autre. Aucun sous-titre ne reste à l'écran plus ou moins longtemps :
+c'est ce qui fait d'un décalage un décalage.
+
+<!-- exemple: subedit-cli shift --help -->
+```console
+$ subedit-cli shift --help
+Move every position of a file by a fixed amount
+Usage: subedit-cli shift [OPTIONS] files...
+
+Positionals:
+  files TEXT ... REQUIRED     Subtitle files to shift
+
+Options:
+  -h,--help                   Print this help message and exit
+  -r,--recursive              Take directories as inputs, and every subtitle file in them
+  --by TEXT                   Amount to move by: 2.999, -7.001, or 00:00:07.001
+  --to-grid                   Move by the amount that puts the positions back on their frame grid
+  --output TEXT               File to write, for a single input
+  --output-dir TEXT           Directory to write into
+  --in-place                  Write back over the inputs
+  --dry-run                   Work out and say what would be written, and write nothing
+```
+
+## Arguments et options
+
+| Option | Requis | Valeurs | Défaut |
+| :----- | :----- | :------ | :----- |
+| `<file>...` | oui | un ou plusieurs chemins | — |
+| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
+| `--by` | **l'une des deux** | une durée signée, voir ci-dessous | — |
+| `--to-grid` | **l'une des deux** | drapeau : le montant est mesuré, voir ci-dessous | — |
+| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
+| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+
+Le format du fichier lu est **conservé** : changer de format est le travail de
+[`convert`](convert.md).
+
+## `--to-grid` : le montant mesuré plutôt que donné
+
+Un fichier dont les positions sont sur une grille d'images **à une constante
+près** a été décalé, et cette constante se mesure sur les positions elles-mêmes.
+`--to-grid` la mesure et l'applique, sans qu'on ait à la connaître.
+
+Le montant est **propre à chaque fichier** : deux fichiers décalés de la même
+grille de deux quantités différentes reviennent chacun de la sienne. Il est
+écrit dans la narration, avec la cadence retrouvée.
+
+**Le chemin est le plus court.** Passé la demi-image, la ligne de grille la plus
+proche est la suivante : la correction va vers l'avant plutôt que de reculer de
+presque une image entière.
+
+<!-- exemple: k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40 + 7)); e=$((s+2000)); k=$((k+1)); printf '%d\n%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\nRéplique %d.\n\n' $k $((s/3600000)) $((s/60000%60)) $((s/1000%60)) $((s%1000)) $((e/3600000)) $((e/60000%60)) $((e/1000%60)) $((e%1000)) $k; done > decale.srt; subedit-cli shift --to-grid --output recale.srt decale.srt -->
+```console
+$ k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40 + 7)); e=$((s+2000)); k=$((k+1)); printf '%d\n%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\nRéplique %d.\n\n' $k $((s/3600000)) $((s/60000%60)) $((s/1000%60)) $((s%1000)) $((e/3600000)) $((e/60000%60)) $((e/1000%60)) $((e%1000)) $k; done > decale.srt; subedit-cli shift --to-grid --output recale.srt decale.srt
+decale.srt: 12 subtitles shifted by -0.007 s onto their 25 fps grid -> recale.srt
+```
+
+**Un fichier sur aucune grille connue est refusé, et on lui dit pourquoi.** Il
+n'y a rien à rejoindre, et une phase mesurée sur du bruit déplacerait le fichier
+au hasard. Voir [`inspect`](inspect.md#ce-que-frame-rate-grid-rapporte) pour
+savoir ce qu'un fichier donne avant de tenter l'opération.
+
+`--by` et `--to-grid` disent tous deux de combien décaler : les donner ensemble
+est une erreur d'usage, n'en donner aucun aussi.
+
+**`--to-grid` n'est pas [`snap`](snap.md).** Celui-ci décale tout le fichier
+d'une même quantité et préserve **exactement** le minutage relatif ; `snap`
+déplace chaque position indépendamment et absorbe au passage celles qui avaient
+été corrigées à la main. Sur un fichier propre les deux donnent le même
+résultat ; sur un fichier partiel, non.
+
+## Écrire une durée
+
+Deux formes, et deux seulement :
+
+| Forme | Exemples |
+| :---- | :------- |
+| secondes | `30`, `2.999`, `-7.001`, `+1.5` |
+| horodatage | `00:00:07.001`, `01:39:37.040`, `-00:00:07.001` |
+
+Les deux disent la même chose : `--by 7.001` et `--by 00:00:07.001` produisent
+le même fichier.
+
+**Le séparateur décimal est le point**, la ligne de commande parlant anglais.
+Une virgule est refusée plutôt qu'interprétée : la moitié du monde écrit `7,001`
+pour sept mille un, et lire cela comme sept secondes serait une supposition —
+fausse pour cette moitié-là.
+
+**La résolution est la milliseconde.** Plus fin est refusé plutôt qu'arrondi en
+silence : un arrondi tacite donnerait un résultat qui ne correspond à rien de ce
+qui a été demandé.
+
+<!-- exemple: printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by -7.001 --output b.srt a.srt; cat b.srt -->
+```console
+$ printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by -7.001 --output b.srt a.srt; cat b.srt
+a.srt: 1 subtitle shifted by -7.001 s -> b.srt
+1
+00:00:02,999 --> 00:00:04,999
+Bonjour.
+```
+
+## Un décalage avant l'origine est refusé
+
+Reculer au-delà de zéro donne le code `2` et **n'écrit rien**. Le message nomme
+le sous-titre qui ne pouvait pas encaisser le décalage, ce qui dit du même coup
+jusqu'où l'on peut aller.
+
+La raison n'est pas un principe : une position avant l'origine s'écrit
+`-00:00:01,000`, forme qu'aucun des neuf formats ne définit et qu'aucun lecteur
+n'accepte. Le noyau, lui, autorise ces positions — les refuser ferait d'une
+opération d'édition un cas particulier — mais un fichier est autre chose qu'un
+modèle en mémoire.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by -7.001 --output b.srt a.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by -7.001 --output b.srt a.srt; echo "code=$?"
+a.srt: subtitle 1 would start before the origin, which no subtitle file can hold
+code=2
+```
+
+## Sortie
+
+**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, rien non plus : il n'y a pas de fichier, et la ligne de narration le dit — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire).
+
+| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| :----- | :------------------------------------- |
+| 1 | `<path>: N subtitles shifted by 2.999 s -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+
+### En JSON
+
+Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.subtitles` (tous les sous-titres du fichier) et `counts.shifted_by_ms` (le décalage, en millisecondes entières, **signé**). Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
+
+## Codes de retour
+
+Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` si
+certains seulement, `1` sur une erreur d'usage.
+
+## Erreurs
+
+| Ce qui la déclenche | Message |
+| :------------------ | :------ |
+| virgule décimale | `"…" is not a time: use a decimal point and not a comma, in every language` |
+| plus fin que la milliseconde | `"…" is not a time: positions are held to the millisecond, no finer` |
+| texte qui n'est pas une durée | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
+| décalage avant l'origine | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+
+**Rien n'est écrit sans l'une des trois options de destination**, et ses
+erreurs sont communes aux sous-commandes qui écrivent :
+voir [Invocation](invocation.md#la-destination).

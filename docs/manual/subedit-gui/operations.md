@@ -1,5 +1,7 @@
 # Les opérations
 
+<!-- language: fr -->
+
 Le menu **Tools** porte seize opérations, une analyse et deux entrées d'orthographe. Chacune des
 seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien. `Check Spelling…` s'annule aussi, et `Spell-Check Settings…` ne touche à aucun texte.
 

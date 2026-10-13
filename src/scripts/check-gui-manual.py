@@ -31,6 +31,9 @@ Erreurs (code 1), chacune nommée :
                            qui en a un.
     LANGUE SANS VOCABULAIRE   une page est dans une langue qui n'a pas de table (`doc_vocabulary.py`) :
                            elle ne serait pas lue, et le contrôle ne dirait rien.
+    PAGE LANGUAGE IN DOUBT a page is read in one language and its shortcut tables are headed in
+                           another's words: it would be read as having no table (#671).
+    NO SHORTCUT TABLE      no page of the manual has a shortcut table the check can read.
     RACCOURCI NON DOCUMENTÉ   une action répond à un raccourci, et aucun de ses raccourcis
                            n'est écrit nulle part dans le manuel de la fenêtre.
 
@@ -162,6 +165,7 @@ def check(binary: pathlib.Path, manual: pathlib.Path, vocabularies: dict[str, di
     pages = sorted(manual.glob("*.md"))
     all_text = ""
     unread: dict[str, list[str]] = {}
+    rows_read = 0
 
     for page in pages:
         text = page.read_text(encoding="utf-8")
@@ -173,7 +177,23 @@ def check(binary: pathlib.Path, manual: pathlib.Path, vocabularies: dict[str, di
             continue
         vocabulary = vocabularies[language]
 
+        # A page read in the wrong language finds none of its tables, and says nothing: a shortcut
+        # column headed in another language's words, and never in its own, is that mistake (#671).
+        headers = [cells(line) for line in text.splitlines() if line.lstrip().startswith("|")]
+        own = any(vocabulary["shortcut_header"] in header for header in headers)
+        foreign = sorted({other for other, table in vocabularies.items()
+                          if table["shortcut_header"] != vocabulary["shortcut_header"]
+                          and any(table["shortcut_header"] in header for header in headers)})
+        if foreign and not own:
+            failures.append(
+                f"PAGE LANGUAGE IN DOUBT: {page.name} is read as \"{language}\", but its shortcut tables are "
+                f"headed in the words of \"{', '.join(foreign)}\" — declare its language "
+                f"(<!-- language: … -->) or move it under docs/i18n/<lang>/manual/"
+            )
+            continue
+
         for number, label, cell in tables(text, vocabulary):
+            rows_read += 1
             where = f"{page.name}:{number}"
             if label not in by_label:
                 failures.append(f"ACTION INCONNUE : {where} nomme `{label}`, que la fenêtre n'a pas")
@@ -197,6 +217,8 @@ def check(binary: pathlib.Path, manual: pathlib.Path, vocabularies: dict[str, di
                 )
 
     failures.extend(doc_vocabulary.missing_table(vocabularies, unread))
+    if pages and rows_read == 0 and not unread:
+        failures.append(f"NO SHORTCUT TABLE: no page of {manual} has one this check can read")
 
     # Chaque action qui répond à un raccourci le voit écrit quelque part — sous une des formes de la touche.
     spans = {canonical(span) for span in code_spans(all_text) if SEQUENCE.match(span.strip())}
@@ -219,7 +241,8 @@ def main() -> int:
     parser.add_argument("--binary", type=pathlib.Path,
                         default=REPO_ROOT / "build/dev/bin/subedit_list_shortcuts")
     parser.add_argument("--manual", type=pathlib.Path,
-                        default=REPO_ROOT / "docs/manual/subedit-gui")
+                        help="one manual to check; by default docs/manual/subedit-gui and every "
+                             "docs/i18n/<lang>/manual/subedit-gui")
     parser.add_argument("--vocabulary", type=pathlib.Path,
                         help="un fichier JSON {langue: table} qui complète les tables livrées")
     arguments = parser.parse_args()
@@ -228,7 +251,16 @@ def main() -> int:
         print(f"binaire introuvable : {arguments.binary}", file=sys.stderr)
         return 2
 
-    failures = check(arguments.binary, arguments.manual, doc_vocabulary.load_tables(arguments.vocabulary))
+    tables = doc_vocabulary.load_tables(arguments.vocabulary)
+    if arguments.manual is not None:
+        failures = check(arguments.binary, arguments.manual, tables)
+    else:
+        # The source manual and every translation of it, whatever the language (#671): each
+        # tree has to write every shortcut, in the words of its own language.
+        failures = check(arguments.binary, REPO_ROOT / "docs/manual/subedit-gui", tables)
+        for tree in doc_vocabulary.translated_trees(REPO_ROOT / "docs/manual", "subedit-gui"):
+            label = tree.relative_to(REPO_ROOT)
+            failures.extend(f"{label}: {failure}" for failure in check(arguments.binary, tree, tables))
     if failures:
         for failure in failures:
             print(failure, file=sys.stderr)

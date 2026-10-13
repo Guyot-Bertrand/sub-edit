@@ -2,26 +2,26 @@
 
 ```
 subedit-cli replace [--regex] [--case-sensitive] [--range N-M|N-]
-                    (--output FICHIER | --output-dir DOSSIER | --in-place)
+                    (--output FILE | --output-dir DIR | --in-place)
                     [--dry-run]
                     [--recursive]
-                    [--document main|translation] [-t FICHIER] [--align-method position|number]
-                    <motif> <remplacement> <fichier>...
+                    [--document main|translation] [-t FILE] [--align-method position|number]
+                    <pattern> <replacement> <file>...
 ```
 
-Remplace un texte dans les sous-titres **sans casser une balise**. C'est l'opération
-`Replace All` de la [recherche](../subedit-gui/recherche.md) de la fenêtre, avec ses règles :
+Replaces a text in the subtitles **without breaking a tag**. It is the
+`Replace All` operation of the window's [search](../subedit-gui/recherche.md), with its rules:
 
-- **on cherche dans le texte visible** — ce que le spectateur lit. Les balises n'en font pas
-  partie : chercher `<i>` ne trouve rien, et chercher `Bonjour` trouve un « Bonjour » dont la
-  moitié est en italique ;
-- **on remplace dans le texte source**, celui du fichier, en gardant les balises là où elles
-  étaient. Une balise qui coupe le mot cherché englobe le remplacement entier ; un style qui
-  touche la correspondance couvre tout le remplacement ; ce que la correspondance ne touche pas
-  ne bouge pas. Les règles, cas par cas, sont celles de la recherche de la fenêtre.
+- **the search is in the visible text** — what the viewer reads. Tags are not part
+  of it: looking for `<i>` finds nothing, and looking for `Bonjour` finds a "Bonjour" half of which
+  is in italics;
+- **the replacement is in the source text**, the file's, keeping the tags where they
+  were. A tag that cuts the word looked for encloses the whole replacement; a style that
+  touches the match covers the whole replacement; what the match does not touch
+  does not move. The rules, case by case, are those of the window's search.
 
-**Il n'y a pas de sous-commande `find`** : pour voir où un motif se trouve sans rien changer,
-c'est [`--dry-run`](invocation.md#voir-avant-décrire) qui liste chaque sous-titre concerné.
+**There is no `find` subcommand**: to see where a pattern is without changing anything,
+it is [`--dry-run`](invocation.md#seeing-before-writing) that lists each subtitle concerned.
 
 <!-- exemple: subedit-cli replace --help -->
 ```console
@@ -50,45 +50,45 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<motif>` | oui | le texte à chercher dans ce qui est affiché ; **non vide** | — |
-| `<remplacement>` | oui | ce qui le remplace, balises permises ; peut être vide | — |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--regex` | non | un drapeau : le motif est une expression régulière ICU | du texte simple |
-| `--case-sensitive` | non | un drapeau : distingue majuscules et minuscules | elles sont ignorées |
-| `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir [`adjust`](adjust.md#--range) | tout le fichier |
-| `--document` | non | `main` ou `translation` — voir [Une traduction](invocation.md#une-traduction) | `main` |
-| `-t`, `--translation-file` | avec `--document translation` | un fichier de traduction, pour **une seule** entrée | — |
-| `--align-method` | non, et seulement avec `-t` | `position` ou `number` | `position` |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<pattern>` | yes | the text to look for in what is shown; **not empty** | — |
+| `<replacement>` | yes | what replaces it, tags allowed; can be empty | — |
+| `<file>...` | yes | one or more paths | — |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--regex` | no | a flag: the pattern is an ICU regular expression | plain text |
+| `--case-sensitive` | no | a flag: tells capitals from small letters | they are ignored |
+| `--range` | no | `N-M`, or `N-` up to the end — see [`adjust`](adjust.md#--range) | the whole file |
+| `--document` | no | `main` or `translation` — see [A translation](invocation.md#a-translation) | `main` |
+| `-t`, `--translation-file` | with `--document translation` | a translation file, for **a single** input | — |
+| `--align-method` | no, and only with `-t` | `position` or `number` | `position` |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
-**Un motif qui commence par un tiret** s'écrit après `--` : `subedit-cli replace -- -- "—" film.srt`.
+**A pattern that begins with a dash** is written after `--`: `subedit-cli replace -- -- "—" film.srt`.
 
-**Le texte principal par défaut ; la traduction avec `--document translation -t FICHIER`.** C'est alors
-la traduction qui est changée et écrite, et elle seule — voir [Une traduction](invocation.md#une-traduction).
+**The main text by default; the translation with `--document translation -t FILE`.** It is then
+the translation that is changed and written, and only it — see [A translation](invocation.md#a-translation).
 
-### Texte simple, ou expression
+### Plain text, or expression
 
-Par défaut le motif est **lu tel quel** : `a.b` cherche un `a`, un point, un `b`. Les
-majuscules sont ignorées avec la même finesse que la fenêtre — `É` et `é` sont une seule lettre.
+By default the pattern is **read as it is**: `a.b` looks for an `a`, a dot, a `b`. Case
+is ignored with the same finesse as in the window — `É` and `é` are a single letter.
 
-Avec `--regex`, le motif est une expression régulière **ICU**, lue comme Gaupol la lit : `.` traverse
-un saut de ligne, `^` et `$` valent à chaque ligne d'un sous-titre. Dans le remplacement, et
-seulement alors :
+With `--regex`, the pattern is an **ICU** regular expression, read as Gaupol reads it: `.` crosses
+a line break, `^` and `$` hold at each line of a subtitle. In the replacement, and
+only then:
 
-| Écrire | Pour dire |
+| Write | To say |
 | :----- | :-------- |
-| `$1` à `$9` | les groupes de la correspondance |
-| `$0` | la correspondance entière |
-| `\n` | un saut de ligne |
-| `\$`, `\\` | un `$`, une barre oblique inverse |
+| `$1` to `$9` | the groups of the match |
+| `$0` | the whole match |
+| `\n` | a line break |
+| `\$`, `\\` | a `$`, a backslash |
 
-Pensez aux guillemets du shell : `'$1 EUR'`, et non `"$1 EUR"` qui laisserait le shell lire `$1`.
+Mind the shell's quotes: `'$1 EUR'`, and not `"$1 EUR"`, which would let the shell read `$1`.
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt -->
 ```console
@@ -99,9 +99,9 @@ prix.srt: replaced 2 matches -> euros.srt
 Prix: 12 EUR, et 7 EUR.
 ```
 
-## Les balises
+## Tags
 
-Un texte dont une balise coupe le mot cherché :
+A text where a tag cuts the word looked for:
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt -->
 ```console
@@ -116,22 +116,22 @@ balises.srt: replaced 2 matches -> salut.srt
 Salut <i>Marie</i>, ca va
 ```
 
-Dans le premier sous-titre, la balise coupait « Bonjour » : elle englobe désormais « Salut ».
-Dans le second, elle n'est pas touchée et reste où elle est. **Une balise laissée ouverte le
-reste** : réparer un balisage bancal serait une autre opération.
+In the first subtitle, the tag cut "Bonjour": it now encloses "Salut".
+In the second, it is not touched and stays where it is. **A tag left open
+stays open**: repairing shaky markup would be another operation.
 
-Le remplacement se lit dans **les balises du format du fichier** : `<i>…</i>` pour du SubRip,
-`{\i1}…` pour de l'Advanced SSA. C'est le seul moyen de mettre en forme ce qu'on écrit.
+The replacement is read in **the tags of the file's format**: `<i>…</i>` for SubRip,
+`{\i1}…` for Advanced SSA. It is the only way to format what one writes.
 
-## Rien trouvé, rien à changer
+## Nothing found, nothing to change
 
-Deux réponses qui ne sont pas des échecs — le code de retour est `0` et **le fichier est écrit
-quand même**, une destination donnée étant une destination écrite :
+Two answers that are not failures — the exit code is `0` and **the file is written
+all the same**, a destination given being a destination written:
 
-| Situation | Phrase |
+| Situation | Sentence |
 | :-------- | :----- |
-| le motif n'est nulle part | `"zzz" not found` |
-| il est là, mais chaque correspondance se remplace par elle-même | `nothing to change` |
+| the pattern is nowhere | `"zzz" not found` |
+| it is there, but each match is replaced by itself | `nothing to change` |
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt -->
 ```console
@@ -142,8 +142,8 @@ a.srt: nothing to change -> c.srt
 
 ## `--dry-run`
 
-La sortie standard liste **chaque sous-titre dont le texte changerait**, avant et après, tels
-qu'ils sont dans le fichier — balises comprises :
+The standard output lists **each subtitle whose text would change**, before and after, as
+they are in the file — tags included:
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt -->
 ```console
@@ -157,48 +157,48 @@ balises.srt: subtitle 2
 + Salut <i>Marie</i>, ca va
 ```
 
-La forme de la liste est décrite dans [Voir avant d'écrire](invocation.md#voir-avant-décrire) ;
-en JSON, c'est `changes`.
+The form of the list is described in [Seeing before writing](invocation.md#seeing-before-writing);
+in JSON, it is `changes`.
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, la liste des
-changements ci-dessus.
+**Standard output** — nothing: the result is the file written. With `--dry-run`, the list of
+changes above.
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: replaced N matches -> <destination>`, ou `"<motif>" not found`, ou `nothing to change` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: replaced N matches -> <destination>`, or `"<pattern>" not found`, or `nothing to change` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
+| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
-`N` compte **les correspondances remplacées dans les sous-titres dont le texte a changé** — c'est le
-nombre que la fenêtre dit aussi.
+`N` counts **the matches replaced in the subtitles whose text changed** — it is the
+number the window says too.
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte :
+With [`--format json`](invocation.md#output-a-script-can-read), the object of each file carries:
 
-| Clé | Contenu |
+| Key | Content |
 | :-- | :------ |
-| `counts.replaced` | les correspondances remplacées, dans les sous-titres dont le texte a changé : le `N` de la phrase |
-| `counts.matched` | les correspondances trouvées, **que leur remplacement ait changé le texte ou non** — c'est ce qui distingue « rien trouvé » (`0`) de « rien à changer » (`replaced` à `0`, `matched` positif) |
-| `changes` | les sous-titres changés : `{"subtitle", "document", "before", "after"}`, **vide** quand rien n'a changé |
+| `counts.replaced` | the matches replaced, in the subtitles whose text changed: the `N` of the sentence |
+| `counts.matched` | the matches found, **whether their replacement changed the text or not** — that is what tells "nothing found" (`0`) from "nothing to change" (`replaced` at `0`, `matched` positive) |
+| `changes` | the changed subtitles: `{"subtitle", "document", "before", "after"}`, **empty** when nothing changed |
 
-## Codes de retour
+## Exit codes
 
-Ceux de l'outil : `0` si tous les fichiers ont été traités — un fichier où rien n'a été trouvé l'est
-—, `2` si aucun, `3` si certains seulement, `1` sur une erreur d'usage.
+Those of the tool: `0` if every file was processed — a file where nothing was found is
+—, `2` if none, `3` if only some, `1` on a usage error.
 
-## Erreurs
+## Errors
 
-| Ce qui la déclenche | Message |
+| What triggers it | Message |
 | :------------------ | :------ |
-| motif vide | `pattern: nothing to look for` |
-| expression illisible | `pattern: not a regular expression (<raison d'ICU>)` |
-| plage mal écrite ou hors du fichier | voir [`adjust`](adjust.md#--range) |
+| empty pattern | `pattern: nothing to look for` |
+| unreadable expression | `pattern: not a regular expression (<ICU's reason>)` |
+| range badly written or outside the file | see [`adjust`](adjust.md#--range) |
 
-**Le motif est lu avant le premier fichier** : une expression illisible est une erreur d'usage
-(code `1`), rien n'est lu ni écrit.
+**The pattern is read before the first file**: an unreadable expression is a usage error
+(code `1`), nothing is read nor written.
 
-Les erreurs de la destination sont communes aux sous-commandes qui écrivent :
-voir [Invocation](invocation.md#la-destination).
+The errors of the destination are common to the subcommands that write:
+see [Invocation](invocation.md#the-destination).

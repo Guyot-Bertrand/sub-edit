@@ -1,5 +1,7 @@
 # La vidéo associée
 
+<!-- language: fr -->
+
 Le menu **Video** porte d'abord deux commandes, et les gestes qui pilotent le film
 — voir [Le lecteur](lecteur.md#se-déplacer-dans-le-film).
 

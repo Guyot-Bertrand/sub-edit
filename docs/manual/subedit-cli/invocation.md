@@ -1,10 +1,10 @@
 # Invocation
 
 ```
-subedit-cli [options globales] <sous-commande> [options] <fichier>...
+subedit-cli [global options] <subcommand> [options] <file>...
 ```
 
-Sans sous-commande, l'outil écrit son aide et s'arrête.
+Without a subcommand, the tool writes its help and stops.
 
 <!-- exemple: subedit-cli -->
 ```console
@@ -82,7 +82,7 @@ output sets `LANGUAGE=en` (or `LC_ALL=C`) — or reads `--format json`, which ne
 | Never translated | Why |
 | :--------------- | :-- |
 | `--format json` output: keys, values, and the `message` and `detail` of failures and warnings | the same bytes in every language; the words are English |
-| exit codes | the four of [Return codes](#codes-de-retour), in every language |
+| exit codes | the four of [Exit codes](#exit-codes), in every language |
 | the names typed: subcommands, options, their values (`off`, `srt`), metavariables (`FILE`, `TEXT`, `OPTIONS`) | a command line written once works under every language |
 | the names of correction patterns that `correct --enable` and `--disable` take | a pattern is called by the English name its file holds |
 | the names of formats and encodings | a format is called by its name |
@@ -97,32 +97,32 @@ shift needs --by, or --to-grid to work the amount out from the positions
 code=1
 ```
 
-## Options globales
+## Global options
 
-**Elles s'écrivent avant le nom de la sous-commande, et là seulement.**
-`subedit-cli --encoding cp1252 inspect film.srt` est la forme ;
-`subedit-cli inspect --encoding cp1252 film.srt` est refusé, avec
-`The following argument was not expected: --encoding`. Il en va de même de
-`--version`, de `-v` et de `--quiet`.
+**They are written before the name of the subcommand, and only there.**
+`subedit-cli --encoding cp1252 inspect film.srt` is the form;
+`subedit-cli inspect --encoding cp1252 film.srt` is refused, with
+`The following argument was not expected: --encoding`. The same goes for
+`--version`, `-v` and `--quiet`.
 
-**`--help` est l'exception, et elle n'en est pas une** : `subedit-cli inspect
---help` est accepté parce que chaque sous-commande porte le sien, et c'est celui
-de la sous-commande qu'il écrit, pas celui de l'outil.
+**`--help` is the exception, and it is not really one**:
+`subedit-cli inspect --help` is accepted because every subcommand carries its own, and it is the
+subcommand's help that it writes, not the tool's.
 
-| Option | Effet |
+| Option | Effect |
 | :----- | :---- |
-| `-h`, `--help` | écrit l'aide et s'arrête ; celle de la sous-commande si l'on en nomme une |
-| `--version` | écrit `subedit <version>` et s'arrête |
-| `-q`, `--quiet` | niveau 0 — plus aucune narration |
-| `-v`, `-vv`, `-vvv` | niveaux 1 à 3 ; le niveau 1 est celui par défaut |
-| `--encoding NOM` | lit les fichiers dans cet encodage, au lieu de le deviner |
-| `--list-encodings` | écrit les encodages que l'outil sait lire et écrire, un par ligne, et **s'arrête** (code `0`) — voir [`--list-encodings`](#--list-encodings) |
-| `--format text\|json` | forme du résultat sur la sortie standard : le texte, ou un objet JSON par fichier — voir [Sortie lisible par un script](#sortie-lisible-par-un-script) |
+| `-h`, `--help` | writes the help and stops; the subcommand's if one is named |
+| `--version` | writes `subedit <version>` and stops |
+| `-q`, `--quiet` | level 0 — no narration at all |
+| `-v`, `-vv`, `-vvv` | levels 1 to 3; level 1 is the default |
+| `--encoding NAME` | reads the files in this encoding, instead of guessing it |
+| `--list-encodings` | writes the encodings the tool can read and write, one a line, and **stops** (code `0`) — see [`--list-encodings`](#--list-encodings) |
+| `--format text\|json` | the form of the result on standard output: the text, or one JSON object per file — see [Output a script can read](#output-a-script-can-read) |
 | `--config FILE` | reads the operation settings from `FILE` instead of the user's settings file — see [The settings file](#the-settings-file) |
 | `--no-config` | reads no settings file: every operation setting not given on the line takes its built-in default — see [The settings file](#the-settings-file) |
 
-`--quiet` et `-v` dans la même invocation sont refusés : deux intentions
-opposées ne sont pas arbitrées au profit de la dernière écrite.
+`--quiet` and `-v` in the same invocation are refused: two opposite intentions
+are not settled in favour of the last one written.
 
 `--config` and `--no-config` in the same invocation are refused too, with
 `--config excludes --no-config`, and so is `--config` with an empty name, with
@@ -163,7 +163,7 @@ unknown key is ignored. The file is never written by `adjust` or `correct`.
 | the file cannot be read | `settings: <path> unreadable, defaults used` |
 | `--no-config` | nothing |
 
-With [`--format json`](#sortie-lisible-par-un-script), the object of each file of `adjust` and
+With [`--format json`](#output-a-script-can-read), the object of each file of `adjust` and
 `correct` carries `settings`: the path that was read, or `null` when none was.
 
 
@@ -188,9 +188,9 @@ code=1
 
 ### `--list-encodings`
 
-**Les encodages que l'outil sait lire et écrire, un par ligne, triés par nom**, sur la sortie standard —
-puis l'outil s'arrête, avec le code `0`, comme `--version` : c'est la réponse, non une étape. Une
-sous-commande donnée en plus n'est pas exécutée.
+**The encodings the tool can read and write, one a line, sorted by name**, on the standard output —
+then the tool stops, with code `0`, as `--version` does: it is the answer, not a step. A
+subcommand given as well is not run.
 
 <!-- exemple: subedit-cli --list-encodings | grep '^UTF' | head -4 -->
 ```console
@@ -201,206 +201,206 @@ UTF-32BE
 UTF-32LE
 ```
 
-- **Ce sont les noms que `--encoding` accepte**, canoniques ; ses alias (`cp1252`) y sont acceptés aussi,
-  sans y figurer.
-- **Le nombre dépend de l'ICU installée**, et aucun nom n'est promis hors de ceux que toute ICU a
-  (`UTF-8`, `UTF-16LE`, `windows-1252`…). Le manuel ne donne donc pas de nombre.
-- **`UTF-16` et `UTF-32` n'y sont pas** : ICU les connaît, mais leur convertisseur écrit sa propre marque,
-  et le modèle les refuse — voir plus bas. Une liste où l'on choisit ne propose pas ce que le champ suivant
-  refuserait.
-- **Avec `--format json`**, **un objet par encodage** :
-  `{"schema":1,"command":"list-encodings","name":"UTF-8"}`. Ce n'est pas le compte rendu d'un fichier : ces
-  objets **ne portent ni `file` ni `ok`**, la seule exception à l'enveloppe de
-  [la forme](#la-forme). Ils restent un objet par ligne, un par entrée.
-- **Le niveau de narration n'y change rien** : une liste est un résultat, et `-q` ne l'enlève pas.
+- **They are the names `--encoding` accepts**, the canonical ones; their aliases (`cp1252`) are accepted too,
+  without being listed.
+- **The count depends on the installed ICU**, and no name is promised beyond those every ICU has
+  (`UTF-8`, `UTF-16LE`, `windows-1252`…). The manual therefore gives no count.
+- **`UTF-16` and `UTF-32` are not in it**: ICU knows them, but their converter writes a mark of its own,
+  and the model refuses them — see below. A list to choose from does not offer what the next field
+  would refuse.
+- **With `--format json`**, **one object per encoding**:
+  `{"schema":1,"command":"list-encodings","name":"UTF-8"}`. It is not the report of a file: these
+  objects **carry neither `file` nor `ok`**, the one exception to the envelope of
+  [the shape](#the-shape). They are still one object a line, one per entry.
+- **The narration level changes nothing**: a list is a result, and `-q` does not take it away.
 
-### `--encoding`, et ce qu'il ne peut pas forcer
+### `--encoding`, and what it cannot force
 
-**Il vaut pour toutes les sous-commandes**, parce que toutes lisent : un fichier
-dont l'encodage est mal deviné l'est quoi qu'on lui fasse, et une option que
-seul `inspect` porterait laisserait un décalage sans recours.
+**It applies to every subcommand**, because they all read: a file whose
+encoding is guessed wrong stays wrong whatever is done to it, and an option
+only `inspect` carried would leave a mismatch with no remedy.
 
-**Le nom est celui d'ICU, et tous ses alias sont acceptés** : `cp1252`,
-`windows-1252` et `WINDOWS 1252` désignent le même encodage. L'ensemble n'est
-écrit nulle part : c'est celui que l'ICU de la machine sait convertir, et
-[`--list-encodings`](#--list-encodings) l'énumère. Un nom qu'elle ne sait pas
-convertir est refusé avant qu'un seul fichier soit lu :
+**The name is ICU's, and all its aliases are accepted**: `cp1252`,
+`windows-1252` and `WINDOWS 1252` name the same encoding. The set is written
+nowhere: it is the one the machine's ICU can convert, and
+[`--list-encodings`](#--list-encodings) lists it. A name it cannot convert is
+refused before a single file is read:
 
 ```console
 $ subedit-cli --encoding klingon-1 inspect film.srt
 no encoding is named "klingon-1"
 ```
 
-**Une exception, et une seule : l'encodage doit nommer son ordre d'octets.**
-`UTF-16` et `UTF-32` sont des noms qu'ICU connaît et dont le convertisseur
-écrit **sa propre marque**. Un encodage pareil ne peut pas vivre dans ce
-modèle — la marque cesse d'être un choix, `--no-bom` serait accepté et
-désobéi — donc les deux sont refusés, à la lecture comme à l'écriture :
+**One exception, and only one: the encoding has to name its byte order.**
+`UTF-16` and `UTF-32` are names ICU knows and whose converter writes **a mark
+of its own**. Such an encoding cannot live in this model — the mark stops
+being a choice, `--no-bom` would be accepted and disobeyed — so both are
+refused, for reading as for writing:
 
 ```console
 $ subedit-cli --encoding UTF-16 inspect film.srt
 "UTF-16" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do
 ```
 
-`UTF-16LE` et `UTF-16BE` lisent et écrivent les mêmes octets, marque comprise ;
-ce que le nom précis ajoute est qu'on sache lesquels.
+`UTF-16LE` and `UTF-16BE` read and write the same bytes, mark included; what
+the precise name adds is that one knows which.
 
-**Une marque d'ordre des octets l'emporte sur l'option.** C'est la seule chose
-qu'un fichier de sous-titres déclare de lui-même, et le lire autrement qu'il ne
-se déclare serait obéir à l'appelant contre le fichier. L'écart est **dit**, en
-diagnostic :
+**A byte order mark wins over the option.** It is the one thing a subtitle
+file declares about itself, and reading it otherwise than it declares itself
+would be obeying the caller against the file. The mismatch is **said**, as a
+diagnostic:
 
 ```console
 $ subedit-cli -vvv --encoding cp1252 inspect avec-bom.srt
 avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16LE"), settled by the reader
 ```
 
-C'est ce que fait Gaupol — il recommence la lecture avec l'encodage de la
-marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce qui a
-été fait n'est pas un silence.
+That is what Gaupol does — it starts the reading again with the encoding of
+the mark — but without saying so; here the gap between what was asked for and
+what was done is not a silence.
 
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.15.24
+subedit 0.15.25
 ```
 
-## Sous-commandes
+## Subcommands
 
-| Sous-commande | Ce qu'elle fait | Écrit-elle ? |
+| Subcommand | What it does | Does it write? |
 | :------------ | :-------------- | :----------- |
-| [`inspect`](inspect.md) | rapporte ce qu'un fichier contient, sans rien modifier | non |
-| [`convert`](convert.md) | écrit un fichier dans un autre format, ou une autre forme | oui |
-| [`shift`](shift.md) | décale toutes les positions d'une même durée | oui |
-| [`transform`](transform.md) | corrige toutes les positions à partir de deux repères | oui |
-| [`framerate`](framerate.md) | recale un fichier d'une cadence d'images vers une autre | oui |
-| [`snap`](snap.md) | repose chaque horodatage sur l'image la plus proche | oui |
-| [`hearing-impaired`](hearing-impaired.md) | retire les mentions pour malentendants | oui |
-| [`adjust`](adjust.md) | ajuste les durées à une vitesse de lecture et à des bornes | oui |
-| [`replace`](replace.md) | remplace un texte dans les sous-titres, sans casser une balise | oui |
-| [`case`](case.md) | met les textes en casse de titre, de phrase, en capitales ou en minuscules | oui |
-| [`italics`](italics.md) | met les textes en italique, ou retire leur italique | oui |
-| [`dialogue-dashes`](dialogue-dashes.md) | pose ou retire les tirets de dialogue | oui |
-| [`sort`](sort.md) | remet les sous-titres dans l'ordre de leur début | oui |
-| [`join-repeats`](join-repeats.md) | fait un seul sous-titre des morceaux d'un même texte qui se suivent | oui |
-| [`disjoint`](disjoint.md) | découpe les sous-titres qui se chevauchent pour que plus aucune plage n'en chevauche une autre | oui |
-| [`repair`](repair.md) | enchaîne `join-repeats`, `sort` et `disjoint` | oui |
-| [`correct`](correct.md) | corrige les textes avec les motifs de Gaupol : mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage de lignes | oui |
-| [`append`](append.md) | met des fichiers à la suite du premier, dans **un seul** fichier | oui |
-| [`split-file`](split-file.md) | coupe un fichier en **deux** : une tête et une queue | oui |
-| [`pair`](pair.md) | écrit une traduction aux positions de son principal, et dit comment ses lignes se sont posées | oui |
+| [`inspect`](inspect.md) | reports what a file is made of, without changing anything | no |
+| [`convert`](convert.md) | writes a file in another format, or another shape | yes |
+| [`shift`](shift.md) | moves every position by the same amount | yes |
+| [`transform`](transform.md) | corrects every position from two points known to be right | yes |
+| [`framerate`](framerate.md) | re-times a file from one frame rate to another | yes |
+| [`snap`](snap.md) | moves every timestamp onto the nearest frame | yes |
+| [`hearing-impaired`](hearing-impaired.md) | removes the mentions for the hearing impaired | yes |
+| [`adjust`](adjust.md) | adjusts the durations to a reading speed and to limits | yes |
+| [`replace`](replace.md) | replaces a text in the subtitles, without breaking a tag | yes |
+| [`case`](case.md) | puts the texts in title, sentence, upper or lower case | yes |
+| [`italics`](italics.md) | puts the texts in italics, or takes their italics out | yes |
+| [`dialogue-dashes`](dialogue-dashes.md) | puts dialogue dashes on, or takes them off | yes |
+| [`sort`](sort.md) | puts the subtitles back in the order of their start | yes |
+| [`join-repeats`](join-repeats.md) | makes a single subtitle of the pieces of one text that follow each other | yes |
+| [`disjoint`](disjoint.md) | cuts the overlapping subtitles so that no range overlaps another any more | yes |
+| [`repair`](repair.md) | chains `join-repeats`, `sort` and `disjoint` | yes |
+| [`correct`](correct.md) | corrects the texts with Gaupol's patterns: mentions, joining and splitting words, common errors, capitalization, line breaking | yes |
+| [`append`](append.md) | puts files after the first one, into **a single** file | yes |
+| [`split-file`](split-file.md) | cuts a file in **two**: a head and a tail | yes |
+| [`pair`](pair.md) | writes a translation at the positions of its main file, and says how its lines lined up | yes |
 | [`config`](config.md) | lists, shows and changes the operation settings of the settings file | the settings file only |
 
-Les vingt et une sont là ; l'aide de l'outil les énumère dans le même ordre.
+All twenty-one are there; the tool's help lists them in the same order.
 
-**Une seule ne touche à rien**, et c'est la colonne de droite : `inspect` lit et
-rapporte. Les dix-neuf autres écrivent, et ce qui suit vaut pour dix-sept d'entre elles :
-[`append`](append.md) et [`split-file`](split-file.md) ont chacune une arité à elles — N fichiers pour
-**un** résultat, un fichier pour **deux** — et donc leur propre destination, qu'elles décrivent sur leur page.
+**Only one touches nothing**, and that is the right-hand column: `inspect` reads and
+reports. The other nineteen write, and what follows holds for seventeen of them:
+[`append`](append.md) and [`split-file`](split-file.md) each have an arity of their own — N files for
+**one** result, one file for **two** — and so their own destination, which they describe on their page.
 [`config`](config.md) writes no subtitle file: it reads and changes the settings file, and
 nothing of what follows applies to it.
 
-## La destination
+## The destination
 
-Les dix-sept sous-commandes qui écrivent — [`convert`](convert.md),
+The seventeen subcommands that write — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — prennent leur destination de la même façon. ([`append`](append.md) et
-[`split-file`](split-file.md) ont la leur, sur leur page.) [`inspect`](inspect.md) n'écrit aucun fichier et
-n'accepte aucune de ces options.
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — take their destination the same way. ([`append`](append.md) and
+[`split-file`](split-file.md) have their own, on their page.) [`inspect`](inspect.md) writes no file and
+accepts none of these options.
 
-**Une destination qui existe déjà est écrasée**, sans question ni option pour
-l'éviter : l'écriture est atomique — le fichier n'est jamais écrit à moitié, et
-une écriture interrompue laisse l'ancien intact —, mais le contenu d'avant est
-perdu. Ce n'est pas un défaut qu'on garde : c'est la règle, et rejouer une
-commande sur le même dossier de sortie la rejoue par-dessus elle-même.
+**A destination that already exists is overwritten**, with no question and no option to
+avoid it: the writing is atomic — the file is never half written, and an
+interrupted writing leaves the old one intact —, but the previous content is
+lost. This is not a flaw kept around: it is the rule, and running a command
+again on the same output directory runs it again over itself.
 
-**Rien n'est jamais écrit sans destination explicite.** Les trois façons de la
-donner s'excluent, et il en faut une : sans elle, rien n'est écrit et le code de
-retour est `1` — sauf avec [`--dry-run`](#voir-avant-décrire), qui n'écrit rien
-et n'en exige donc aucune.
+**Nothing is ever written without an explicit destination.** The three ways of
+giving it exclude one another, and one is needed: without it, nothing is written and the exit
+code is `1` — except with [`--dry-run`](#seeing-before-writing), which writes nothing
+and therefore requires none.
 
-| Option | Où va le résultat |
+| Option | Where the result goes |
 | :----- | :---------------- |
-| `--output FICHIER` | dans ce fichier, sous ce nom exact ; une seule entrée |
-| `--output-dir DOSSIER` | dans ce dossier, sous le nom de base de l'entrée |
-| `--in-place` | par-dessus l'entrée, par écriture atomique |
+| `--output FILE` | into this file, under this exact name; a single input |
+| `--output-dir DIR` | into this directory, under the base name of the input |
+| `--in-place` | over the input, by atomic writing |
 
-Un outil qui écrase son entrée parce qu'on ne lui a rien dit est un outil qu'on
-cesse d'utiliser à la deuxième fois. Le refus coûte une ligne et sauve le
-fichier.
+A tool that overwrites its input because it was told nothing is a tool one
+stops using the second time. The refusal costs a line and saves the
+file.
 
-`--output` avec plusieurs entrées est refusé : le dernier fichier s'écrirait sur
-les précédents. Avec un lot, `--output-dir` est le seul des trois qui ait un
-sens, avec `--in-place`.
+`--output` with several inputs is refused: the last file would be written over
+the previous ones. With a batch, `--output-dir` is the only one of the three that makes
+sense, along with `--in-place`.
 
-**Le dossier de sortie est créé** s'il manque, parents compris — pour
-`--output-dir`, et pour le dossier où `--output` écrit. C'est fait une fois la
-ligne de commande validée et **avant le premier fichier**. S'il ne peut pas
-l'être, c'est dit une fois, aucun fichier n'est lu, et le code de retour est
+**The output directory is created** if it is missing, parents included — for
+`--output-dir`, and for the directory `--output` writes into. That is done once the
+command line is validated and **before the first file**. If it cannot be,
+it is said once, no file is read, and the exit code is
 `2`.
 
-**Le lot est jugé en entier avant d'écrire.** La destination de chaque entrée
-est calculée d'abord, et deux refus en découlent — des erreurs d'usage, code
-`1`, **aucun fichier écrit** et aucun dossier créé :
+**The batch is judged as a whole before writing.** The destination of each input
+is worked out first, and two refusals follow from it — usage errors, code
+`1`, **no file written** and no directory created:
 
-- **deux entrées qui aboutiraient au même fichier** — `a/film.srt` et
-  `b/film.srt` avec `--output-dir`, ou `a/film.srt` et `b/film.vtt` converties
-  toutes deux en WebVTT, dont la destination finale a changé d'extension. Le
-  message nomme la destination et les deux entrées ; renommer la seconde ou
-  laisser la dernière gagner perdrait un fichier sans le dire, et le refuser
-  coûte une ligne ;
-- **une destination qui est l'une des entrées**, sans `--in-place` — y compris
-  par `--output-dir .`, par `--output` ou par un lien symbolique. Écrire par-dessus
-  son entrée est un geste qu'on nomme.
+- **two inputs that would end up in the same file** — `a/film.srt` and
+  `b/film.srt` with `--output-dir`, or `a/film.srt` and `b/film.vtt` both
+  converted to WebVTT, whose final destination changed extension. The
+  message names the destination and both inputs; renaming the second or
+  letting the last one win would lose a file without saying so, and refusing
+  costs a line;
+- **a destination that is one of the inputs**, without `--in-place` — including
+  through `--output-dir .`, through `--output` or through a symbolic link. Writing over
+  one's input is a gesture one names.
 
-Deux chemins désignent le même fichier quand le système le dit, non quand ils
-s'écrivent pareil : `in/../in/film.srt` et `in/film.srt` sont un seul fichier.
+Two paths name the same file when the system says so, not when they are
+written alike: `in/../in/film.srt` and `in/film.srt` are a single file.
 
-**L'extension suit le format écrit.** Elle ne change que pour
-[`convert`](convert.md), seule sous-commande qui change de format ; les
-autres conservent celui du fichier lu, donc son extension.
+**The extension follows the format written.** It changes only for
+[`convert`](convert.md), the one subcommand that changes format; the
+others keep the format of the file read, and so its extension.
 
-| Ce qui la déclenche | Message |
+| What triggers it | Message |
 | :------------------ | :------ |
-| aucune destination, sans `--dry-run` | `no destination given: use --output, --output-dir or --in-place` |
-| deux destinations | `--output, --output-dir and --in-place exclude one another` |
-| `--output` sur un lot | `--output names one file but several were given: use --output-dir instead` |
-| deux entrées, une destination | `<destination>: would be written by both <entrée> and <entrée>` |
-| une entrée serait écrasée | `<destination>: would be written over the input <entrée>` — la même phrase pour [`append`](append.md) et [`split-file`](split-file.md) |
-| dossier de sortie impossible à créer | `<dossier>: cannot be created: permission denied`, ou `: cannot be created` |
-| destination non inscriptible | `<chemin>: <destination>: cannot be written: permission denied`, ou `: cannot be written` |
-| caractère absent de l'encodage écrit | `<chemin>: holds a character the chosen encoding cannot write` |
+| no destination, without `--dry-run` | `no destination given: use --output, --output-dir or --in-place` |
+| two destinations | `--output, --output-dir and --in-place exclude one another` |
+| `--output` on a batch | `--output names one file but several were given: use --output-dir instead` |
+| two inputs, one destination | `<destination>: would be written by both <input> and <input>` |
+| an input would be overwritten | `<destination>: would be written over the input <input>` — the same sentence for [`append`](append.md) and [`split-file`](split-file.md) |
+| output directory that cannot be created | `<directory>: cannot be created: permission denied`, or `: cannot be created` |
+| destination that cannot be written | `<path>: <destination>: cannot be written: permission denied`, or `: cannot be written` |
+| character missing from the encoding written | `<path>: holds a character the chosen encoding cannot write` |
 
-**Le dernier mérite une phrase.** Un fichier est réécrit dans **l'encodage où il
-a été lu**, comme il l'est avec ses fins de ligne et sa marque. Si une
-modification y a introduit un caractère que cet encodage ne connaît pas — un
-`ł` dans du Latin-1 —, l'écriture échoue et **rien n'est écrit**. Le remplacer
-par un `?` serait perdre du texte sous les yeux de qui vient de l'écrire.
+**The last one deserves a sentence.** A file is written back in **the encoding it
+was read in**, as it is with its line endings and its mark. If a
+change brought into it a character that this encoding does not know — an
+`ł` in Latin-1 —, the writing fails and **nothing is written**. Replacing it
+with a `?` would be losing text before the eyes of whoever just wrote it.
 
-## Voir avant d'écrire
+## Seeing before writing
 
-**`--dry-run`** est accepté par chacune des seize sous-commandes qui écrivent, et dit la même
-chose partout : **lire, calculer, rendre compte, n'écrire aucun fichier**. On l'ajoute à la
-ligne qu'on s'apprêtait à lancer ; appliquer, c'est relancer la même ligne sans lui. Le calcul est
-déterministe : ce qu'un `--dry-run` a montré est ce que le lancement suivant écrira, tant que le
-fichier n'a pas changé.
+**`--dry-run`** is accepted by each of the sixteen subcommands that write, and means the same
+thing everywhere: **read, compute, report, write no file**. One adds it to the
+line one was about to run; applying is running the same line again without it. The computation is
+deterministic: what a `--dry-run` showed is what the next run will write, as long as the
+file has not changed.
 
-- **Il n'écrit aucun fichier et ne crée aucun dossier**, `--in-place` compris : le fichier
-  d'entrée reste tel qu'il était.
-- **Il n'exige aucune destination.** On peut en donner une, et **elle est alors vérifiée comme sans
-  `--dry-run`** : deux entrées pour une même destination, une entrée qui serait écrasée,
-  `--output` sur un lot, deux façons de dire où — une ligne de commande refusée sans `--dry-run`
-  l'est avec, par la même phrase et le même code `1`.
-- **Le code de retour est celui d'un vrai lancement** : `0` quand tout s'est calculé, `2` ou `3`
-  quand des fichiers n'ont pas pu être lus ou traités, `1` pour l'usage. Un caractère que
-  l'encodage du fichier ne saurait pas écrire fait échouer un lancement à blanc comme un vrai.
-  **Que des changements existent ne change pas le code** : les quatre codes disent si l'outil a
-  réussi, non si le fichier est conforme.
-- **La narration le dit.** Là où un vrai lancement écrit `-> <destination>`, un lancement à
-  blanc écrit `(dry run, nothing written)`.
+- **It writes no file and creates no directory**, `--in-place` included: the input
+  file stays as it was.
+- **It requires no destination.** One can be given, and **it is then checked as without
+  `--dry-run`**: two inputs for the same destination, an input that would be overwritten,
+  `--output` on a batch, two ways of saying where — a command line refused without `--dry-run`
+  is refused with it, by the same sentence and the same code `1`.
+- **The exit code is that of a real run**: `0` when everything was computed, `2` or `3`
+  when files could not be read or processed, `1` for usage. A character that
+  the file's encoding could not write fails a dry run as it fails a real one.
+  **That changes exist does not change the code**: the four codes say whether the tool
+  succeeded, not whether the file conforms.
+- **The narration says so.** Where a real run writes `-> <destination>`, a dry
+  run writes `(dry run, nothing written)`.
 
 <!-- exemple: printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt -->
 ```console
@@ -409,28 +409,28 @@ a.srt: 1 subtitle shifted by 1.000 s (dry run, nothing written)
 a.srt
 ```
 
-**Sur une sous-commande qui change des textes** —
+**On a subcommand that changes texts** —
 [`hearing-impaired`](hearing-impaired.md), [`replace`](replace.md), [`case`](case.md),
-[`italics`](italics.md), [`dialogue-dashes`](dialogue-dashes.md) et [`correct`](correct.md) —, **la sortie standard porte les changements
-proposés**. Un bloc par sous-titre changé, dans l'ordre du fichier :
+[`italics`](italics.md), [`dialogue-dashes`](dialogue-dashes.md) and [`correct`](correct.md) —, **the standard output carries the proposed
+changes**. One block per changed subtitle, in the order of the file:
 
 ```
-<chemin>: subtitle <numéro>
-- <le texte d'avant, une ligne par ligne>
-+ <le texte d'après, une ligne par ligne>
+<path>: subtitle <number>
+- <the text before, line by line>
++ <the text after, line by line>
 ```
 
-- le **numéro** est celui que le sous-titre a dans le fichier lu, compté depuis un ;
-- chaque ligne du texte d'avant porte `- ` devant, chaque ligne du texte d'après `+ ` : un texte
-  de plusieurs lignes se lit tel quel, et une ligne qui commence elle-même par un tiret de
-  dialogue donne `- - ` ;
-- **un sous-titre que l'opération supprimerait** le dit sur sa première ligne,
-  `<chemin>: subtitle <numéro> (removed)`, et n'a pas de lignes `+` ;
-- un sous-titre de la traduction, avec `--document translation`, s'annonce `(translation)` à la même
-  place — voir [Une traduction](#une-traduction) ;
-- la première ligne de chaque bloc commence par le chemin, de sorte que `grep '^film.srt: '`
-  retrouve les blocs d'un fichier dans un lot ;
-- **aucun bloc** quand rien ne changerait.
+- the **number** is the one the subtitle has in the file read, counted from one;
+- each line of the text before carries `- ` in front, each line of the text after `+ `: a text
+  of several lines reads as it is, and a line that itself begins with a dialogue
+  dash gives `- - `;
+- **a subtitle the operation would remove** says so on its first line,
+  `<path>: subtitle <number> (removed)`, and has no `+` lines;
+- a subtitle of the translation, with `--document translation`, announces itself `(translation)` in the same
+  place — see [A translation](#a-translation);
+- the first line of each block begins with the path, so that `grep '^film.srt: '`
+  finds the blocks of one file in a batch;
+- **no block** when nothing would change.
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt -->
 ```console
@@ -447,40 +447,40 @@ mentions.srt: subtitle 3
 + Qui est là ?
 ```
 
-**La liste est la même en JSON** : l'objet du fichier porte un tableau `changes`, voir
-[la forme](#la-forme), avec `after` valant `null` pour un sous-titre supprimé. **Elle n'est
-calculée que quand `--dry-run` ou `--format json` la demande** : un lot de milliers de
-sous-titres ne la construit pas pour rien.
+**The list is the same in JSON**: the object of the file carries a `changes` array, see
+[the shape](#the-shape), with `after` set to `null` for a removed subtitle. **It is only
+computed when `--dry-run` or `--format json` asks for it**: a batch of thousands of
+subtitles does not build it for nothing.
 
-Sur **les autres sous-commandes** — [`convert`](convert.md), [`shift`](shift.md),
+On **the other subcommands** — [`convert`](convert.md), [`shift`](shift.md),
 [`transform`](transform.md), [`framerate`](framerate.md), [`snap`](snap.md),
-[`adjust`](adjust.md), [`sort`](sort.md), [`append`](append.md), [`split-file`](split-file.md), [`pair`](pair.md) —, la sortie
-standard porte ce que porterait celle d'un vrai lancement, c'est-à-dire rien en texte ; en
-JSON, l'objet de chaque fichier avec `"dry_run":true`, `"destination":null` et les mêmes
+[`adjust`](adjust.md), [`sort`](sort.md), [`append`](append.md), [`split-file`](split-file.md), [`pair`](pair.md) —, the standard
+output carries what that of a real run would carry, that is nothing in text; in
+JSON, the object of each file with `"dry_run":true`, `"destination":null` and the same
 `counts`.
 
-## Deux sorties, deux rôles
+## Two outputs, two roles
 
-| Sortie | Ce qu'elle porte |
+| Output | What it carries |
 | :----- | :--------------- |
-| standard | **le résultat, et lui seul** — le rapport d'`inspect`, les changements proposés d'un [`--dry-run`](#voir-avant-décrire) de texte ; avec `--format json`, un objet par fichier — un par lancement pour [`append`](append.md), [`split-file`](split-file.md) et [`pair`](pair.md) |
-| erreur | **tout le reste** — la narration, les avertissements, les erreurs |
+| standard | **the result, and only the result** — the report of `inspect`, the proposed changes of a text [`--dry-run`](#seeing-before-writing); with `--format json`, one object per file — one per run for [`append`](append.md), [`split-file`](split-file.md) and [`pair`](pair.md) |
+| error | **everything else** — the narration, the warnings, the errors |
 
-C'est ce partage qui permet de rediriger le résultat sans y récupérer le récit :
+It is this split that lets one redirect the result without getting the story in it:
 
 ```console
 $ subedit-cli inspect *.srt > rapport.txt
 ```
 
-Le rapport part dans le fichier, la narration reste à l'écran.
+The report goes to the file, the narration stays on the screen.
 
-## Sortie lisible par un script
+## Output a script can read
 
-**`--format json`** remplace le texte de la sortie standard par **un objet JSON par
-fichier d'entrée**, au format JSON Lines : un objet compact par ligne, en UTF-8 sans
-marque, la fin de ligne est `\n`. `text` est le défaut et ne change pas. C'est une
-option globale, qui s'écrit donc avant la sous-commande ; une valeur autre que
-`text` et `json` est une erreur d'usage, code `1`.
+**`--format json`** replaces the text of the standard output with **one JSON object per
+input file**, in the JSON Lines format: one compact object a line, in UTF-8 without a
+mark, the line ending is `\n`. `text` is the default and does not change. It is a
+global option, and is therefore written before the subcommand; a value other than
+`text` and `json` is a usage error, code `1`.
 
 <!-- exemple: printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?" -->
 ```console
@@ -493,140 +493,140 @@ absent.srt: does not exist
 code=3
 ```
 
-**Un objet par entrée, jamais zéro, jamais deux**, que l'entrée ait réussi ou non, dans
-l'ordre où les entrées ont été données — ou trouvées, avec [`--recursive`](lots.md). On
-compte les lignes, on retrouve ses fichiers. **Trois sous-commandes font exception, parce que leur
-arité n'est pas celle d'un lot : [`append`](append.md) (N entrées, une sortie), [`split-file`](split-file.md)
-(une entrée, deux sorties) et [`pair`](pair.md) (deux fichiers, une sortie) écrivent **un objet pour tout le
-lancement**, qui nomme le fichier que leur page dit.** **Les sous-commandes qui réécrivent écrivent
-donc aussi sur la sortie standard**, ce que leur contrat ne faisait pas en texte : leur
-fichier reste leur résultat, et l'objet en est le compte rendu.
+**One object per input, never zero, never two**, whether the input succeeded or not, in
+the order the inputs were given — or found, with [`--recursive`](lots.md). One
+counts the lines, one finds one's files. **Three subcommands are the exception, because their
+arity is not that of a batch: [`append`](append.md) (N inputs, one output), [`split-file`](split-file.md)
+(one input, two outputs) and [`pair`](pair.md) (two files, one output) write **one object for the whole
+run**, which names the file their page says.** **The subcommands that rewrite therefore also write
+on the standard output**, which their contract did not do in text: their
+file stays their result, and the object is the report of it.
 
-**La narration ne change pas.** `-q`, `-v`, `-vv` et `-vvv` agissent sur la sortie
-d'erreur, en texte, comme sans `--format` ; **la sortie standard ne varie pas avec eux**.
-Les diagnostics de lecture, que le texte range au niveau 3, sont des données et sont
-**toujours** dans `warnings`. Une erreur d'usage n'écrit aucun objet : elle est détectée
-avant de toucher un fichier, il n'y a donc rien à quoi l'attacher ; elle va sur la sortie
-d'erreur avec le code `1`, et la sortie standard reste vide.
+**The narration does not change.** `-q`, `-v`, `-vv` and `-vvv` act on the error
+output, in text, as without `--format`; **the standard output does not vary with them**.
+The reading diagnostics, which the text keeps at level 3, are data and are
+**always** in `warnings`. A usage error writes no object: it is detected
+before any file is touched, so there is nothing to attach it to; it goes to the error
+output with code `1`, and the standard output stays empty.
 
-### La forme
+### The shape
 
-| Clé | Contenu | Présente |
+| Key | Content | Present |
 | :-- | :------ | :------- |
-| `schema` | entier, la version de cette forme — `1` | toujours |
-| `command` | le nom de la sous-commande | toujours |
-| `file` | le chemin **tel que donné**, ou tel que le parcours d'un répertoire l'a composé | toujours |
-| `ok` | booléen | toujours |
-| `error` | `{"kind", "message"}` | si `ok` est faux |
-| `dry_run` | booléen : vrai pour un [`--dry-run`](#voir-avant-décrire) | si `ok` est vrai, sur une sous-commande qui écrit |
-| `destination` | le chemin écrit, ou `null` quand `dry_run` est vrai : rien n'a été écrit | idem |
-| `counts` | un objet d'**entiers**, propre à la sous-commande | idem |
-| `changes` | un tableau de `{"subtitle", "document", "before", "after"}` : les textes changés, voir ci-dessous | sur une sous-commande qui change des textes |
-| `warnings` | un tableau de `{"kind", "line"?, "detail"?, "settled"?}` | si `ok` est vrai |
-| `alignment` | comment une traduction a été posée, voir [Une traduction](#une-traduction) | avec `-t`, et pour `pair` |
-| `constraints` | les réglages employés | `adjust` |
+| `schema` | integer, the version of this shape — `1` | always |
+| `command` | the name of the subcommand | always |
+| `file` | the path **as given**, or as the walk of a directory composed it | always |
+| `ok` | boolean | always |
+| `error` | `{"kind", "message"}` | if `ok` is false |
+| `dry_run` | boolean: true for a [`--dry-run`](#seeing-before-writing) | if `ok` is true, on a subcommand that writes |
+| `destination` | the path written, or `null` when `dry_run` is true: nothing was written | likewise |
+| `counts` | an object of **integers**, specific to the subcommand | likewise |
+| `changes` | an array of `{"subtitle", "document", "before", "after"}`: the changed texts, see below | on a subcommand that changes texts |
+| `warnings` | an array of `{"kind", "line"?, "detail"?, "settled"?}` | if `ok` is true |
+| `alignment` | how a translation was laid, see [A translation](#a-translation) | with `-t`, and for `pair` |
+| `constraints` | the settings used | `adjust` |
 | `settings` | the settings file that was read, or `null` when none was — see [The settings file](#the-settings-file) | `adjust`, `correct`, if `ok` is true |
-| `inputs`, `tail` | un élément par fichier ajouté ; le chemin de la queue | `append` ; `split-file` |
+| `inputs`, `tail` | one element per file appended; the path of the tail | `append`; `split-file` |
 
-`line` est absent d'un diagnostic qui parle du fichier entier ; `detail` l'est quand il n'y
-a rien à ajouter ; `settled` vaut `true` quand la lecture a **tranché** quelque chose — une
-numérotation régénérée —, et est absent quand elle a laissé tel quel.
+`line` is absent from a diagnostic about the whole file; `detail` is when there is
+nothing to add; `settled` is `true` when the reading **settled** something — a
+regenerated numbering —, and is absent when it left things as they stand.
 
-**`changes`** liste, dans l'ordre du fichier, chaque sous-titre dont le texte change :
-`subtitle` est son numéro dans le fichier lu, compté depuis un ; `document` vaut `"main"`
-ou `"translation"` ; `before` est le texte d'avant ; `after` celui d'après, ou **`null` quand
-le sous-titre est supprimé**. Les retours à la ligne d'un texte y sont des `\n`. Elle est
-écrite pour un vrai lancement comme pour un [`--dry-run`](#voir-avant-décrire), et **vide
-(`[]`) quand rien ne change** : sa présence dit que la sous-commande liste ses changements,
-son absence qu'elle n'en a pas.
+**`changes`** lists, in the order of the file, every subtitle whose text changes:
+`subtitle` is its number in the file read, counted from one; `document` is `"main"`
+or `"translation"`; `before` is the text before; `after` the text after, or **`null` when
+the subtitle is removed**. The line breaks of a text are `\n` in it. It is
+written for a real run as for a [`--dry-run`](#seeing-before-writing), and **empty
+(`[]`) when nothing changes**: its presence says that the subcommand lists its changes,
+its absence that it has none.
 
-**Aucun nombre à virgule, nulle part.** Une position ou une durée est un entier de
-**millisecondes** (`…_ms`) ; un compte est un entier ; une cadence est une **chaîne**
-(`"25"`, `"24000/1001"`) parce qu'elle est exacte, un rationnel que la virgule flottante ne
-tient pas ; une concentration de grille est un entier en **millièmes** — `1000` est une
-grille parfaite. Deux sorties se comparent alors octet pour octet, sans arrondi.
+**No floating-point number, anywhere.** A position or a duration is an integer of
+**milliseconds** (`…_ms`); a count is an integer; a frame rate is a **string**
+(`"25"`, `"24000/1001"`) because it is exact, a rational floating point cannot
+hold; a grid concentration is an integer in **thousandths** — `1000` is a
+perfect grid. Two outputs then compare byte for byte, with no rounding.
 
-**Un chemin qui n'est pas de l'UTF-8** — Linux le permet — ne se représente pas en JSON : il
-est écrit avec U+FFFD à la place des octets invalides, et l'objet porte l'avertissement
-`path-not-utf8`. La fidélité d'un tel chemin n'est pas promise, et c'est dit.
+**A path that is not UTF-8** — Linux allows it — cannot be represented in JSON: it
+is written with U+FFFD in place of the invalid bytes, and the object carries the warning
+`path-not-utf8`. The faithfulness of such a path is not promised, and that is said.
 
-### Ce que chaque sous-commande met dans `counts`
+### What each subcommand puts in `counts`
 
-| Sous-commande | Clés de `counts` |
+| Subcommand | Keys of `counts` |
 | :------------ | :--------------- |
-| [`shift`](shift.md) | `subtitles`, `shifted_by_ms` (signé) |
+| [`shift`](shift.md) | `subtitles`, `shifted_by_ms` (signed) |
 | [`transform`](transform.md) | `subtitles` |
 | [`framerate`](framerate.md) | `subtitles` |
-| [`snap`](snap.md) | `subtitles`, `moved` (positions déplacées), `furthest_ms` (le plus grand déplacement) |
-| [`hearing-impaired`](hearing-impaired.md) | `cleaned` (textes réécrits), `removed` (sous-titres supprimés) |
-| [`replace`](replace.md) | `replaced` (correspondances remplacées dans les sous-titres changés), `matched` (correspondances trouvées) |
-| [`case`](case.md), [`italics`](italics.md), [`dialogue-dashes`](dialogue-dashes.md) | `changed` (sous-titres dont le texte a changé) |
-| [`correct`](correct.md) | `corrected` (textes changés), `removed` (sous-titres supprimés) — jamais des correspondances |
-| [`sort`](sort.md) | `subtitles`, `moved` (les places qui ont changé de sous-titre) |
-| [`adjust`](adjust.md) | `subtitles` (les sous-titres visés), `adjusted` (ceux dont la fin a bougé), puis le groupe `sacrificed` : `speed`, `minimum`, `gap` ; et, hors de `counts`, `constraints` — les réglages employés |
-| [`convert`](convert.md) | `subtitles`, puis ce que la conversion a perdu : `lost_ends` et `lost_header` (0 ou 1), `joined_lines`, `lost_tags`, `lost_fields`, `furthest_ms` |
-| [`append`](append.md) | `files`, `subtitles`, `appended`, puis `lost_ends`, `lost_header`, `joined_lines`, `lost_tags`, `lost_fields`, `furthest_ms` sommés ; et, hors de `counts`, `inputs` — un élément par fichier ajouté |
-| [`split-file`](split-file.md) | `subtitles`, `head`, `tail` ; et, hors de `counts`, `tail` — le chemin de la queue (`destination` est la tête) |
-| [`pair`](pair.md) | `subtitles` (ceux du fichier écrit) ; et, hors de `counts`, `alignment` |
-| [`inspect`](inspect.md) | pas de `counts` : la description du fichier, voir sa page |
+| [`snap`](snap.md) | `subtitles`, `moved` (positions moved), `furthest_ms` (the largest move) |
+| [`hearing-impaired`](hearing-impaired.md) | `cleaned` (texts rewritten), `removed` (subtitles removed) |
+| [`replace`](replace.md) | `replaced` (matches replaced in the changed subtitles), `matched` (matches found) |
+| [`case`](case.md), [`italics`](italics.md), [`dialogue-dashes`](dialogue-dashes.md) | `changed` (subtitles whose text changed) |
+| [`correct`](correct.md) | `corrected` (texts changed), `removed` (subtitles removed) — never matches |
+| [`sort`](sort.md) | `subtitles`, `moved` (the places that changed subtitle) |
+| [`adjust`](adjust.md) | `subtitles` (the subtitles aimed at), `adjusted` (those whose end moved), then the `sacrificed` group: `speed`, `minimum`, `gap`; and, outside `counts`, `constraints` — the settings used |
+| [`convert`](convert.md) | `subtitles`, then what the conversion lost: `lost_ends` and `lost_header` (0 or 1), `joined_lines`, `lost_tags`, `lost_fields`, `furthest_ms` |
+| [`append`](append.md) | `files`, `subtitles`, `appended`, then `lost_ends`, `lost_header`, `joined_lines`, `lost_tags`, `lost_fields`, `furthest_ms` summed; and, outside `counts`, `inputs` — one element per file appended |
+| [`split-file`](split-file.md) | `subtitles`, `head`, `tail`; and, outside `counts`, `tail` — the path of the tail (`destination` is the head) |
+| [`pair`](pair.md) | `subtitles` (those of the file written); and, outside `counts`, `alignment` |
+| [`inspect`](inspect.md) | no `counts`: the description of the file, see its page |
 
-### Les identifiants d'erreur
+### Error identifiers
 
-Un `error.kind` est l'un de ceux-ci ; **un lecteur traite un identifiant inconnu comme
-« autre »**.
+An `error.kind` is one of these; **a reader treats an unknown identifier as
+"other"**.
 
-| `kind` | Ce que c'est |
+| `kind` | What it is |
 | :----- | :----------- |
-| `not-found`, `permission-denied`, `io` | le système a refusé de lire — ou d'écrire — le fichier |
-| `unknown-format`, `no-subtitle-found`, `undecodable` | le fichier est lu et ne se laisse pas lire |
-| `unencodable` | un caractère que l'encodage choisi ne sait pas écrire |
-| `no-byte-order-mark`, `no-frame-rate` | ce que `convert` ne peut pas écrire sans qu'on le précise |
-| `before-the-origin`, `beyond-the-end`, `no-transform`, `no-grid` | une opération qui ne peut pas s'appliquer à ce fichier |
-| `range-out-of-bounds` | une plage `--range` que ce fichier ne contient pas |
-| `no-style` | un format qui n'écrit aucun style (TMPlayer, LRC), pour `italics` |
-| `refused` | tout autre refus d'une opération |
+| `not-found`, `permission-denied`, `io` | the system refused to read — or to write — the file |
+| `unknown-format`, `no-subtitle-found`, `undecodable` | the file is read and does not let itself be read |
+| `unencodable` | a character the chosen encoding cannot write |
+| `no-byte-order-mark`, `no-frame-rate` | what `convert` cannot write without being told |
+| `before-the-origin`, `beyond-the-end`, `no-transform`, `no-grid` | an operation that cannot apply to this file |
+| `range-out-of-bounds` | a `--range` this file does not contain |
+| `no-style` | a format that writes no style (TMPlayer, LRC), for `italics` |
+| `refused` | any other refusal of an operation |
 
-### Ce qui est promis, et ce qui ne l'est pas
+### What is promised, and what is not
 
-**Promis tant que `schema` vaut `1`** : les noms des clés, leur type et leur unité ; le sens
-de `ok`, de `file` et de `destination` ; **un objet par entrée, dans l'ordre des entrées** — un par lancement pour les trois sous-commandes à arité propre ;
-les identifiants `kind` qui existent ; le déterminisme — mêmes entrées, mêmes arguments,
-mêmes octets.
+**Promised as long as `schema` is `1`**: the names of the keys, their type and their unit; the meaning
+of `ok`, `file` and `destination`; **one object per input, in the order of the inputs** — one per run for the three subcommands with an arity of their own;
+the `kind` identifiers that exist; determinism — same inputs, same arguments,
+same bytes.
 
-**Pas promis** : le **texte des messages** (`message`, `detail`), de l'anglais pour un humain
-qu'on corrige quand il le faut — un script qui le compare est cassé d'avance ; l'**ordre des
-clés** dans un objet, fixe mais que JSON ne garantit pas ; la présence de **clés qu'on n'a pas
-encore ajoutées**.
+**Not promised**: the **text of the messages** (`message`, `detail`), English for a human
+that is corrected when it has to be — a script that compares it is broken in advance; the **order of
+the keys** in an object, fixed but not guaranteed by JSON; the presence of **keys not added
+yet**.
 
-**Un lecteur ignore donc une clé inconnue**, et traite un `kind` inconnu comme « autre » :
-ajouter une clé ou un identifiant ne change pas `schema`. Retirer ou renommer une clé,
-changer un type ou une unité, retirer un identifiant l'incrémentent — c'est une rupture,
-annoncée au CHANGELOG et ici.
+**A reader therefore ignores an unknown key**, and treats an unknown `kind` as "other":
+adding a key or an identifier does not change `schema`. Removing or renaming a key,
+changing a type or a unit, removing an identifier increments it — that is a break,
+announced in the CHANGELOG and here.
 
-## Niveaux de narration
+## Narration levels
 
-Chaque niveau **contient le précédent** : monter d'un cran ajoute, ne remplace
-jamais.
+Each level **contains the previous one**: going up a notch adds, never
+replaces.
 
-| Niveau | Comment | Ce que la sortie d'erreur porte |
+| Level | How | What the error output carries |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | rien, **sauf les erreurs** |
-| 1 | par défaut, ou `-v` | une ligne par fichier traité, et un bilan dès qu'il y en a plusieurs |
-| 2 | `-vv` | et ce qui a été reconnu : format, encodage, BOM, fins de ligne |
-| 3 | `-vvv` | et la trace de mise au point : octets lus et écrits, et **chaque diagnostic de lecture** |
+| 0 | `--quiet` | nothing, **except the errors** |
+| 1 | by default, or `-v` | one line per file processed, and a summary as soon as there are several |
+| 2 | `-vv` | and what was recognised: format, encoding, BOM, line endings |
+| 3 | `-vvv` | and the debugging trace: bytes read and written, and **every reading diagnostic** |
 
-**Les erreurs ne sont jamais tues, `--quiet` compris.** Une commande qui échoue
-en silence ne laisserait que son code de retour.
+**Errors are never silenced, `--quiet` included.** A command that fails
+silently would leave nothing but its exit code.
 
-Le bilan n'apparaît qu'à partir de deux fichiers : sur une entrée unique, il
-répéterait la ligne qui le précède.
+The summary only appears from two files on: on a single input, it would
+repeat the line before it.
 
-## Les diagnostics de lecture
+## Reading diagnostics
 
-Les formats de sous-titres se lisent **au mieux** : devant une anomalie, le
-lecteur ne s'arrête pas — il décide, ou il laisse en l'état, et il le dit. Ce
-qu'il a rencontré sort au **niveau 3**, une ligne par diagnostic, sur la sortie
-d'erreur :
+Subtitle formats are read **as well as can be**: faced with an anomaly, the
+reader does not stop — it decides, or it leaves things as they stand, and it says so. What
+it came across is output at **level 3**, one line per diagnostic, on the error
+output:
 
 ```
 a.srt: 2 diagnostics while reading
@@ -634,111 +634,111 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Les dix-sept sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
-un fichier lu au mieux puis réécrit a subi les mêmes décisions, et les taire
-laisserait croire que rien ne s'est passé.
+All seventeen subcommands report them, not only [`inspect`](inspect.md):
+a file read as well as can be and then written back went through the same decisions, and keeping them quiet
+would let one believe nothing happened.
 
-**Un diagnostic n'est jamais un échec.** Le fichier a été lu, la commande a
-abouti, le code de retour est `0`. C'est pourquoi ils vivent au niveau le plus
-détaillé : plus bas, ils enterreraient la ligne qui dit ce qui a réellement été
-fait.
+**A diagnostic is never a failure.** The file was read, the command
+succeeded, the exit code is `0`. That is why they live at the most
+detailed level: lower down, they would bury the line that says what was really
+done.
 
-### Ce que chaque ligne porte
+### What each line carries
 
-| Partie | Ce qu'elle dit |
+| Part | What it says |
 | :----- | :------------- |
-| `line N` | où, compté à partir de 1, comme un éditeur l'affiche ; **absent** pour ce qui porte sur le fichier entier |
-| la phrase | ce qui a été rencontré, parmi les douze catégories ci-dessous |
-| `("…")` | le texte fautif du fichier, quand la catégorie ne suffit pas ; tronqué à 80 octets |
-| la fin | ce qui en a été fait : `settled by the reader`, ou `left as it stands` |
+| `line N` | where, counted from 1, as an editor shows it; **absent** for what concerns the whole file |
+| the sentence | what was come across, among the twelve categories below |
+| `("…")` | the faulty text of the file, when the category is not enough; truncated to 80 bytes |
+| the end | what was done about it: `settled by the reader`, or `left as it stands` |
 
-**Deux catégories n'ont pas de ligne**, et ce sont les deux qui portent sur
-l'encodage : les octets ont été pesés, ou leur marque lue, avant qu'une seule
-ligne du fichier existe. Leur ligne commence donc par la phrase, sans `line N`
-devant — il n'y a pas de place à nommer.
+**Two categories have no line**, and they are the two about the
+encoding: the bytes were weighed, or their mark read, before a single
+line of the file existed. Their line therefore begins with the sentence, with no `line N`
+in front — there is no place to name.
 
-**La fin de la ligne est le plus important.** `settled by the reader` veut dire
-que le lecteur a tranché et que le fichier écrit porte sa décision — une
-numérotation absente est régénérée. `left as it stands` veut dire qu'il n'a rien
-touché parce que **vous seul pouvez décider** : un sous-titre qui finit avant de
-commencer reste tel quel.
+**The end of the line is what matters most.** `settled by the reader` means
+that the reader decided and that the file written carries its decision — a
+missing numbering is regenerated. `left as it stands` means that it touched
+nothing because **only you can decide**: a subtitle that ends before it
+begins stays as it is.
 
-### Le numéro de ligne d'un bloc
+### The line number of a block
 
-Une anomalie qui porte sur **un bloc entier** est ancrée sur sa ligne
-d'horodatage, et non sur la ligne exacte qui la déclenche. Une numérotation
-incohérente écrite ligne 5 se rapporte donc ligne 6, celle de l'horodatage qui
-suit — le numéro fautif est dans le `("…")`. Seules les anomalies qui portent sur
-**une ligne** — un horodatage illisible, du texte avant le premier — se
-rapportent sur elles-mêmes.
+An anomaly about **a whole block** is anchored on its timing
+line, and not on the exact line that triggers it. An inconsistent numbering
+written on line 5 is therefore reported on line 6, that of the timing line that
+follows — the faulty number is in the `("…")`. Only the anomalies about
+**a line** — an unreadable timing line, text before the first one — are
+reported on themselves.
 
-### Les douze catégories
+### The twelve categories
 
-| Phrase | Ce qui la déclenche |
+| Sentence | What triggers it |
 | :----- | :------------------ |
-| `a line that fits nowhere` | une ligne qui n'entre dans aucun bloc |
-| `a timing line that could not be read` | une ligne d'horodatage illisible |
-| `a SubRip block without its number` | numérotation absente, régénérée à l'écriture |
-| `SubRip numbers that do not follow` | numérotation qui saute |
-| `text before the first timing line` | du texte avant le premier horodatage |
-| `a WebVTT block of an unknown kind` | un bloc WebVTT non reconnu |
-| `declares an event column this tool cannot fill` | une colonne d'événement Sub Station Alpha que rien ici ne remplit |
-| `counts in frames and states no rate; it was read at` | un fichier en images, qui n'énonce aucune fréquence — celle retenue est le détail |
-| `carries no end times; each one was taken from the next start` | un format sans fin, TMPlayer ou LRC : **aucune fin de la table ne vient du fichier** |
-| `more than one kind of line ending` | des fins de ligne mélangées |
-| `an encoding nothing declared` | l'encodage a été proposé en pesant les octets, et il n'est pas de l'UTF-8 |
-| `a byte order mark that contradicts the encoding asked for` | le fichier porte une marque, et `--encoding` en nommait un autre — la marque l'emporte |
+| `a line that fits nowhere` | a line that enters no block |
+| `a timing line that could not be read` | an unreadable timing line |
+| `a SubRip block without its number` | missing numbering, regenerated on writing |
+| `SubRip numbers that do not follow` | numbering that jumps |
+| `text before the first timing line` | text before the first timing line |
+| `a WebVTT block of an unknown kind` | an unrecognised WebVTT block |
+| `declares an event column this tool cannot fill` | a Sub Station Alpha event column that nothing here fills |
+| `counts in frames and states no rate; it was read at` | a file in frames, which states no frame rate — the one used is the detail |
+| `carries no end times; each one was taken from the next start` | a format without ends, TMPlayer or LRC: **no end in the table comes from the file** |
+| `more than one kind of line ending` | mixed line endings |
+| `an encoding nothing declared` | the encoding was proposed by weighing the bytes, and it is not UTF-8 |
+| `a byte order mark that contradicts the encoding asked for` | the file carries a mark, and `--encoding` named another one — the mark wins |
 
-**Les trois du milieu sont celles de la phase 9**, et les deux dernières de ces
-trois-là ne parlent pas d'une ligne mais du fichier entier : elles disent qu'une
-valeur affichée n'a pas été lue. Une colonne `End` remplie sur un LRC, une
-position sur un MicroDVD — le fichier n'en portait rien.
+**The three in the middle are those of phase 9**, and the last two of those
+three do not speak of a line but of the whole file: they say that a
+value shown was not read. An `End` column filled on an LRC, a
+position on a MicroDVD — the file carried none of it.
 
-**Une opération peut ajouter le sien**, qui n'est pas un diagnostic de lecture :
-[`correct`](correct.md#un-motif-qui-ne-peut-pas-sappliquer) dit, avec le sous-titre, le motif
-qui a renoncé. Il est dit au niveau 1 et porte, dans l'objet du fichier, l'identifiant
-`pattern-failed` — jamais un échec du fichier.
+**An operation can add its own**, which is not a reading diagnostic:
+[`correct`](correct.md#a-pattern-that-cannot-apply) says, with the subtitle, the pattern
+that gave up. It is said at level 1 and carries, in the object of the file, the identifier
+`pattern-failed` — never a failure of the file.
 
-## Une traduction
+## A translation
 
-Un fichier de traduction se traite **comme un fichier de sous-titres quelconque** : `subedit-cli
-case --to sentence film.fr.srt` le change sans rien de nouveau. Ce que l'appariement ajoute, et ce que
-trois options disent, est étroit : **savoir comment les lignes d'une traduction tombent sur les
-sous-titres du principal** — c'est `inspect -t` —, et **changer la traduction pendant qu'on la tient
-posée sur son principal**, avec les mêmes règles que la fenêtre.
+A translation file is processed **like any subtitle file**:
+`subedit-cli case --to sentence film.fr.srt` changes it with nothing new. What pairing adds, and what
+three options say, is narrow: **knowing how the lines of a translation fall on the
+subtitles of the main file** — that is `inspect -t` —, and **changing the translation while holding it
+laid on its main file**, with the same rules as the window.
 
-| Option | Où | Valeur | Défaut |
+| Option | Where | Value | Default |
 | :----- | :---- | :----- | :----- |
-| `-t`, `--translation-file` | `inspect`, `hearing-impaired`, `replace`, `case`, `italics`, `dialogue-dashes`, `correct`, `pair` | le fichier de traduction | — |
-| `--document` | les six sous-commandes de texte, pas `inspect` ni `pair` | `main` ou `translation` | `main` |
-| `--align-method` | comme `-t` | `position` ou `number` | `position` |
+| `-t`, `--translation-file` | `inspect`, `hearing-impaired`, `replace`, `case`, `italics`, `dialogue-dashes`, `correct`, `pair` | the translation file | — |
+| `--document` | the six text subcommands, not `inspect` nor `pair` | `main` or `translation` | `main` |
+| `--align-method` | as `-t` | `position` or `number` | `position` |
 
-- **`position`** compare le milieu de chaque ligne aux bornes des sous-titres : une ligne qui manque ne
-  décale pas celles qui suivent. **`number`** envoie la ligne *n* au sous-titre *n*, sans regarder les
-  positions. La position est le défaut, pour la raison que la fenêtre a : une ligne manquante au
-  milieu fait glisser tout le reste d'une traduction appariée par numéro.
-- **`--document translation` exige `-t`, et `-t` exige `--document translation`** sur une sous-commande
-  de texte — l'un sans l'autre est une erreur d'usage, code `1`, parce qu'un fichier lu qu'aucun geste
-  n'emploie est une omission et non une préférence. `-t` sur `inspect` n'a pas de `--document` : il
-  rapporte. **`--align-method` sans `-t` est aussi une erreur d'usage.**
-- **`-t` nomme un fichier, et n'a donc de sens que pour une seule entrée** : avec plusieurs entrées, ou
-  avec un répertoire pris par `--recursive`, il est refusé comme `--output`, **avant qu'un fichier soit
-  lu**. Pour un lot, on passe une invocation par paire.
-- **Un fichier de traduction identique au principal est refusé** — quelle que soit la façon dont son
-  chemin est écrit : `<traduction>: the file is already open as the main document`, code `2`.
-- **Seul le document visé est écrit**, à **son propre chemin et dans son propre format** : le format,
-  l'encodage et les fins de ligne du fichier de traduction. `--output` nomme le fichier de la
-  traduction, `--output-dir` y met son nom de base, `--in-place` la réécrit ; **le fichier principal
-  n'est jamais touché**. Les chemins du rapport sont ceux de la traduction.
-- **Les sous-titres que l'appariement fait naître** — une ligne que rien n'a atteint — sont écrits dans
-  la traduction avec **leurs propres positions**, quelle que soit la méthode ; **un sous-titre que
-  personne n'a traduit s'écrit comme un bloc sans texte**, qui se lit sans anomalie.
-- **`--encoding` et `--frame-rate` valent pour les deux fichiers.**
-- Les sous-commandes de **position** — `shift`, `transform`, `framerate`, `snap`, `adjust` — n'ont pas
-  ces options : on leur donne les deux fichiers, comme à un lot, `subedit-cli shift --by 2 film.srt
-  film.fr.srt --output-dir out/`.
-- **Écrire la traduction recalée sur le principal** — la seule chose que l'appariement fait et qu'un fichier seul
-  ne fait pas — est le travail de [`pair`](pair.md), qui n'a ni `--document` ni `--recursive`.
+- **`position`** compares the middle of each line with the bounds of the subtitles: a missing line does not
+  shift those that follow. **`number`** sends line *n* to subtitle *n*, without looking at the
+  positions. Position is the default, for the reason the window has: a missing line in the
+  middle shifts the whole rest of a translation paired by number.
+- **`--document translation` requires `-t`, and `-t` requires `--document translation`** on a text
+  subcommand — one without the other is a usage error, code `1`, because a file read that no gesture
+  uses is an omission and not a preference. `-t` on `inspect` has no `--document`: it
+  reports. **`--align-method` without `-t` is a usage error too.**
+- **`-t` names a file, and so only makes sense for a single input**: with several inputs, or
+  with a directory taken by `--recursive`, it is refused as `--output` is, **before a file is
+  read**. For a batch, run one invocation per pair.
+- **A translation file identical to the main file is refused** — however its
+  path is written: `<translation>: the file is already open as the main document`, code `2`.
+- **Only the document aimed at is written**, at **its own path and in its own format**: the format,
+  the encoding and the line endings of the translation file. `--output` names the file of the
+  translation, `--output-dir` puts its base name there, `--in-place` rewrites it; **the main file
+  is never touched**. The paths of the report are those of the translation.
+- **The subtitles pairing brings to life** — a line that nothing reached — are written into
+  the translation with **their own positions**, whatever the method; **a subtitle nobody
+  translated is written as a block without text**, which reads with no anomaly.
+- **`--encoding` and `--frame-rate` apply to both files.**
+- The **position** subcommands — `shift`, `transform`, `framerate`, `snap`, `adjust` — do not have
+  these options: give them both files, as for a batch,
+  `subedit-cli shift --by 2 film.srt film.fr.srt --output-dir out/`.
+- **Writing the translation re-timed on the main file** — the one thing pairing does and a file alone
+  does not — is the work of [`pair`](pair.md), which has neither `--document` nor `--recursive`.
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt -->
 ```console
@@ -753,21 +753,21 @@ Bonjour.
 Au revoir.
 ```
 
-Avec `--format json`, l'objet de chaque fichier porte en plus la clé `alignment`, qui dit comment la
-traduction a été posée — `{"file", "method", "attached", "born", "untranslated", "out_of_order"}`, comme
-la clé `translation` de [`inspect`](inspect.md#en-json) — et, **avec `--dry-run`**, `changes` liste
-les sous-titres de la traduction, chacun avec `"document":"translation"`.
+With `--format json`, the object of each file also carries the `alignment` key, which says how the
+translation was laid — `{"file", "method", "attached", "born", "untranslated", "out_of_order"}`, like
+the `translation` key of [`inspect`](inspect.md#in-json) — and, **with `--dry-run`**, `changes` lists
+the subtitles of the translation, each with `"document":"translation"`.
 
-## Plusieurs fichiers
+## Several files
 
-Toutes les sous-commandes acceptent plusieurs chemins, sauf [`append`](append.md), [`split-file`](split-file.md) et
-[`pair`](pair.md), dont l'arité est celle de leur page. Chacun est traité
-indépendamment : l'échec de l'un n'interrompt pas les autres, et les échecs
-sont rapportés en nommant le fichier et la raison.
+Every subcommand accepts several paths, except [`append`](append.md), [`split-file`](split-file.md) and
+[`pair`](pair.md), whose arity is the one on their page. Each one is processed
+independently: the failure of one does not interrupt the others, and the failures
+are reported naming the file and the reason.
 
-**Un répertoire vaut les fichiers qu'il contient, avec `--recursive` (`-r`)** :
-sans cette option, en donner un est une erreur d'usage, code `1`, et rien n'est
-traité — le refuser vaut mieux que de n'en traiter rien et de rendre `0` :
+**A directory stands for the files it contains, with `--recursive` (`-r`)**:
+without this option, giving one is a usage error, code `1`, and nothing is
+processed — refusing it is better than processing nothing and returning `0`:
 
 <!-- exemple: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
@@ -776,54 +776,54 @@ films: is a directory: use --recursive
 code=1
 ```
 
-Le parcours, l'arborescence conservée sous `--output-dir` et ce qui est laissé
-de côté sont décrits dans [Traiter un arbre](lots.md).
+The walk, the tree kept under `--output-dir` and what is left
+aside are described in [Processing a tree](lots.md).
 
-## La page de manuel
+## The manual page
 
-Une installation dépose `subedit-cli(1)` sous `share/man/man1`, à côté de
-`subedit-gui(1)` :
+An installation puts `subedit-cli(1)` under `share/man/man1`, next to
+`subedit-gui(1)`:
 
 ```console
 $ man subedit-cli
 ```
 
-Elle tient en une page ce que ce manuel dit en dix : la forme d'appel, ce que
-chaque sous-commande fait, les options globales, les codes de retour — puis où
-lire le reste. **Elle est courte délibérément** : la recopier entière ici en
-produirait une seconde version à tenir, qui divergerait.
+It holds in one page what this manual says in ten: the form of a call, what
+each subcommand does, the global options, the exit codes — then where to
+read the rest. **It is short on purpose**: copying it here whole would
+produce a second version to keep up, which would drift apart.
 
-## Codes de retour
+## Exit codes
 
-| Code | Signification |
+| Code | Meaning |
 | :--- | :------------ |
-| `0` | tout a réussi |
-| `1` | erreur d'usage — option inconnue, valeur invalide, combinaison interdite |
-| `2` | aucun fichier n'a pu être traité |
-| `3` | certains fichiers ont été traités, d'autres non |
+| `0` | everything succeeded |
+| `1` | usage error — unknown option, invalid value, forbidden combination |
+| `2` | no file could be processed |
+| `3` | some files were processed, others not |
 
-`2` et `3` sont distingués pour qu'un script sache agir sans relire la sortie :
-« rien n'a marché » et « il en manque un » n'appellent pas la même réaction.
+`2` and `3` are told apart so that a script knows how to act without reading the output again:
+"nothing worked" and "one is missing" do not call for the same reaction.
 
-Une erreur d'usage est détectée **avant tout traitement** : elle ne laisse
-jamais un lot à moitié traité.
+A usage error is detected **before any processing**: it never leaves a
+batch half processed.
 
-## Erreurs
+## Errors
 
-| Ce qui la déclenche | Ce qui est écrit, sur la sortie d'erreur |
+| What triggers it | What is written, on the error output |
 | :------------------ | :--------------------------------------- |
-| option ou sous-commande inconnue | le nom fautif, et un renvoi à `--help` |
-| `--quiet` avec `-v` | `--quiet and -v ask for opposite things; give one or the other` |
+| unknown option or subcommand | the faulty name, and a pointer to `--help` |
+| `--quiet` with `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` with `--no-config` | `--config excludes --no-config` |
 | `--config` with an empty name | `--config needs a file name` |
-| fichier absent | `<chemin>: does not exist` |
-| fichier illisible | `<chemin>: cannot be opened: permission denied` |
-| encodage qui écrit sa propre marque | `"<nom>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| octets qui ne se décodent pas | `<chemin>: cannot be decoded in the chosen encoding` |
-| format non reconnu | `<chemin>: is in no format this tool knows` |
-| rien qui ressemble à un sous-titre | `<chemin>: holds nothing recognisable as a subtitle` |
-| `--document translation` sans `-t` | `--document translation needs the translation file: use -t` |
-| `-t` sans `--document translation` | `-t names a translation to change: use --document translation` |
-| `--align-method` sans `-t` | `--align-method needs a translation file: use -t` |
-| `-t` avec plusieurs entrées, ou un répertoire | `-t names one file but several inputs were given: use one invocation per pair` |
-| traduction identique au principal | `<traduction>: the file is already open as the main document` |
+| missing file | `<path>: does not exist` |
+| unreadable file | `<path>: cannot be opened: permission denied` |
+| encoding that writes its own mark | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
+| bytes that do not decode | `<path>: cannot be decoded in the chosen encoding` |
+| format not recognised | `<path>: is in no format this tool knows` |
+| nothing that looks like a subtitle | `<path>: holds nothing recognisable as a subtitle` |
+| `--document translation` without `-t` | `--document translation needs the translation file: use -t` |
+| `-t` without `--document translation` | `-t names a translation to change: use --document translation` |
+| `--align-method` without `-t` | `--align-method needs a translation file: use -t` |
+| `-t` with several inputs, or a directory | `-t names one file but several inputs were given: use one invocation per pair` |
+| translation identical to the main file | `<translation>: the file is already open as the main document` |

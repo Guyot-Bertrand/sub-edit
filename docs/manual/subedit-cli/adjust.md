@@ -4,45 +4,45 @@
 subedit-cli adjust [--speed CPS|off] [--shorten] [--no-lengthen]
                    [--minimum TIME|off] [--maximum TIME|off] [--gap TIME|off]
                    [--range N-M|N-]
-                   (--output FICHIER | --output-dir DOSSIER | --in-place)
+                   (--output FILE | --output-dir DIR | --in-place)
                    [--dry-run]
                    [--recursive]
-                   <fichier>...
+                   <file>...
 ```
 
-Ajuste la **durée** de chaque sous-titre à une vitesse de lecture et à des bornes : un
-sous-titre trop court pour être lu est allongé, un sous-titre qui laisse l'écran
-trop longtemps peut être raccourci, et deux sous-titres ne se recouvrent pas. **Seule la
-fin bouge** : déplacer le début déplacerait le sous-titre, ce qui est le travail de
-[`shift`](shift.md). C'est l'opération `Adjust Durations…` de la
-[fenêtre](../subedit-gui/operations.md#adjust-durations), avec les mêmes défauts.
+Adjusts the **duration** of each subtitle to a reading speed and to limits: a
+subtitle too short to be read is lengthened, a subtitle that leaves the screen
+too late can be shortened, and two subtitles do not overlap. **Only the
+end moves**: moving the start would move the subtitle, which is the work of
+[`shift`](shift.md). It is the `Adjust Durations…` operation of the
+[window](../subedit-gui/operations.md#adjust-durations), with the same defaults.
 
-## Les quatre contraintes, et leur ordre
+## The four constraints, and their order
 
-Elles s'appliquent **dans cet ordre**, chacune posant la fin, la dernière gagnant :
+They apply **in this order**, each one setting the end, the last one winning:
 
-1. **la vitesse de lecture** — la durée dont le texte a besoin, à tant de caractères par
-   seconde (les balises ne comptent pas, les retours à la ligne oui) ;
-2. **le minimum** — une durée en deçà est portée au minimum ;
-3. **le maximum** — une durée au-delà est ramenée au maximum ;
-4. **l'écart** — le temps laissé avant le sous-titre suivant. Il vient en dernier et
-   **il gagne** : deux sous-titres affichés ensemble sont une faute que le spectateur voit,
-   un sous-titre un peu court non.
+1. **the reading speed** — the duration the text needs, at so many characters per
+   second (tags do not count, line breaks do);
+2. **the minimum** — a duration below it is brought up to the minimum;
+3. **the maximum** — a duration above it is brought down to the maximum;
+4. **the gap** — the time left before the next subtitle. It comes last and
+   **it wins**: two subtitles shown together are a fault the viewer sees,
+   a subtitle a little short is not.
 
-Le dernier sous-titre du fichier n'a pas de suivant, donc pas d'écart à tenir. Le suivant
-d'un sous-titre est celui du fichier, **choisi ou non** par `--range`.
+The last subtitle of the file has no next one, and so no gap to keep. The next one
+of a subtitle is the one in the file, **whether chosen or not** by `--range`.
 
-| Contrainte | Option | Défaut | Éteindre |
+| Constraint | Option | Default | Switching it off |
 | :--------- | :----- | :----- | :------- |
-| vitesse | `--speed CPS` | **15** caractères par seconde | `--speed off` |
-| sens de la vitesse | `--shorten`, `--no-lengthen` | elle **allonge** seulement | — |
-| minimum | `--minimum TIME` | **1,5 s** | `--minimum off` |
-| maximum | `--maximum TIME` | **aucun** | `--maximum off` |
-| écart | `--gap TIME` | **0** | `--gap off` |
+| speed | `--speed CPS` | **15** characters per second | `--speed off` |
+| direction of the speed | `--shorten`, `--no-lengthen` | it only **lengthens** | — |
+| minimum | `--minimum TIME` | **1.5 s** | `--minimum off` |
+| maximum | `--maximum TIME` | **none** | `--maximum off` |
+| gap | `--gap TIME` | **0** | `--gap off` |
 
-Ce sont les réglages de Gaupol et de la première ouverture de la fenêtre. **`off` éteint une
-contrainte : elle n'est plus vérifiée.** Ce n'est pas la mettre à zéro — un minimum de `0`
-est un minimum de zéro, un écart de `0` interdit tout recouvrement.
+These are the settings of Gaupol and of the window's first opening. **`off` switches a
+constraint off: it is no longer checked.** That is not setting it to zero — a minimum of `0`
+is a minimum of zero, a gap of `0` forbids any overlap.
 
 ## What the settings file supplies
 
@@ -103,57 +103,57 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--speed` | non | un nombre de caractères par seconde, **supérieur à zéro** (`15`, `12.5`), ou `off` | `15` |
-| `--shorten` | non | un drapeau : la vitesse peut aussi **avancer** une fin | désactivé |
-| `--no-lengthen` | non | un drapeau : la vitesse ne **recule** plus une fin | désactivé |
-| `--minimum` | non | une durée de zéro ou plus, ou `off` | `1.5` |
-| `--maximum` | non | une durée **supérieure à zéro**, or `off` | aucun |
-| `--gap` | non | une durée de zéro ou plus, ou `off` | `0` |
-| `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir ci-dessous | tout le fichier |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<file>...` | yes | one or more paths | — |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--speed` | no | a number of characters per second, **above zero** (`15`, `12.5`), or `off` | `15` |
+| `--shorten` | no | a flag: the speed may also **bring** an end **earlier** | off |
+| `--no-lengthen` | no | a flag: the speed no longer **moves** an end **later** | off |
+| `--minimum` | no | a duration of zero or more, or `off` | `1.5` |
+| `--maximum` | no | a duration **above zero**, or `off` | none |
+| `--gap` | no | a duration of zero or more, or `off` | `0` |
+| `--range` | no | `N-M`, or `N-` up to the end — see below | the whole file |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
-Une durée s'écrit comme pour [`shift`](shift.md#écrire-une-durée) : `2.5`, `00:00:02.500`.
+A duration is written as for [`shift`](shift.md#writing-a-duration): `2.5`, `00:00:02.500`.
 
-**Sans aucune contrainte active, `adjust` est refusé** (code `1`, rien d'écrit) : il n'y aurait
-rien à quoi ajuster, et une commande qui ne fait rien en disant qu'elle a réussi est la pire
-réponse. C'est le cas de `--speed off --minimum off --gap off` sans maximum, et de
-`--no-lengthen` seul avec le minimum et l'écart éteints : une vitesse qui ne déplace aucune
-fin ne contraint rien.
+**Without any active constraint, `adjust` is refused** (code `1`, nothing written): there would
+be nothing to adjust to, and a command that does nothing while saying it succeeded is the worst
+answer. That is the case of `--speed off --minimum off --gap off` without a maximum, and of
+`--no-lengthen` alone with the minimum and the gap switched off: a speed that moves no
+end constrains nothing.
 
-`--shorten` et `--no-lengthen` disent dans quel sens la vitesse déplace une fin ; ils n'ont de
-sens qu'avec une vitesse, et **`--speed off` les refuse**.
+`--shorten` and `--no-lengthen` say which way the speed moves an end; they only make
+sense with a speed, and **`--speed off` refuses them**.
 
 ### `--range`
 
-`--range 3-7` limite l'ajustement aux sous-titres 3 à 7, **comptés depuis 1 et bornes
-comprises** ; `--range 3-` va jusqu'au dernier. Un seul sous-titre s'écrit `4-4`.
+`--range 3-7` limits the adjustment to subtitles 3 to 7, **counted from 1, bounds
+included**; `--range 3-` goes up to the last one. A single subtitle is written `4-4`.
 
-- Une plage **qui finit avant de commencer**, un `0`, un signe ou un nombre seul sont
-  refusés comme erreur d'usage (code `1`).
-- **Elle vaut pour chaque fichier du lot**, ce qui n'a de sens que si les fichiers se
-  ressemblent. Elle est jugée **contre chaque fichier** : une plage qui dépasse celui-ci est
-  refusée **avant qu'on y touche**, en nommant la borne — `range 3-9 ends after the last
-  subtitle: the file has 4` —, ce fichier échoue (code `2` ou `3`, identifiant
-  `range-out-of-bounds`) et les autres continuent.
-- Les comptes du rapport ne portent que sur les sous-titres choisis.
+- A range **that ends before it starts**, a `0`, a sign or a lone number are
+  refused as a usage error (code `1`).
+- **It holds for every file of the batch**, which only makes sense if the files
+  look alike. It is judged **against each file**: a range that goes past that file is
+  refused **before it is touched**, naming the bound —
+  `range 3-9 ends after the last subtitle: the file has 4` —, that file fails (code `2` or `3`, identifier
+  `range-out-of-bounds`) and the others go on.
+- The counts of the report only concern the subtitles chosen.
 
-## Ce qui est sacrifié
+## What is sacrificed
 
-Deux contraintes peuvent se contredire sur un même sous-titre : un minimum de 1,5 s ne tient
-pas dans les 0,8 s que laisse le sous-titre suivant. **L'ordre décide, et le compte rendu dit
-ce qui a cédé** — c'est ce que Gaupol ne fait pas : il viole en silence.
+Two constraints can contradict each other on the same subtitle: a minimum of 1.5 s does not fit
+in the 0.8 s the next subtitle leaves. **The order decides, and the report says
+what gave way** — which is what Gaupol does not do: it breaks them silently.
 
-Chaque contrainte n'est nommée que si **un sous-titre au moins ne l'a pas obtenue**, une fois
-les autres appliquées. Le maximum n'a pas de compte : il est appliqué avant l'écart, qui ne peut
-que raccourcir, donc il tient toujours. Un minimum au-dessus du maximum cède au maximum et est
-compté comme un minimum.
+Each constraint is named only if **at least one subtitle did not get it**, once
+the others are applied. The maximum has no count: it is applied before the gap, which can
+only shorten, so it always holds. A minimum above the maximum gives way to the maximum and is
+counted as a minimum.
 
 <!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --output ajuste.srt courts.srt; grep -e '-->' ajuste.srt -->
 ```console
@@ -165,10 +165,10 @@ courts.srt: adjusted the durations of 3 subtitles; could not satisfy the minimum
 00:00:15,000 --> 00:00:16,500
 ```
 
-Le troisième sous-titre voudrait finir à 15,7 s pour durer 1,5 s, mais le quatrième commence à
-15,0 s : **l'écart gagne**, il finit à 15,0 s, et le compte rendu nomme le minimum.
+The third subtitle would like to end at 15.7 s to last 1.5 s, but the fourth starts at
+15.0 s: **the gap wins**, it ends at 15.0 s, and the report names the minimum.
 
-Éteindre l'écart laisse le minimum l'emporter — et les deux sous-titres se recouvrent :
+Switching the gap off lets the minimum win — and the two subtitles overlap:
 
 <!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --gap off --output libre.srt courts.srt; grep -e '-->' libre.srt -->
 ```console
@@ -180,7 +180,7 @@ courts.srt: adjusted the durations of 3 subtitles -> libre.srt
 00:00:15,000 --> 00:00:16,500
 ```
 
-Et rien n'est sacrifié ni ajusté quand le fichier tient déjà dans ses limites :
+And nothing is sacrificed nor adjusted when the file already fits within its limits:
 
 <!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --speed off --minimum off --output intact.srt courts.srt -->
 ```console
@@ -188,38 +188,38 @@ $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\
 courts.srt: no duration to adjust -> intact.srt
 ```
 
-Le fichier est écrit tel quel : **une destination donnée est une destination écrite**.
+The file is written as it is: **a destination given is a destination written**.
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Standard output** — nothing: the result is the file written.
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: adjusted the durations of N subtitles; could not satisfy …  -> <destination>`, ou `<chemin>: no duration to adjust -> <destination>` — and, first, the settings file read — `settings: read <path>` — see [The settings file](invocation.md#the-settings-file) |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: adjusted the durations of N subtitles; could not satisfy …  -> <destination>`, or `<path>: no duration to adjust -> <destination>` — and, first, the settings file read — `settings: read <path>` — see [The settings file](invocation.md#the-settings-file) |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
+| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
-La phrase est celle de la fenêtre : `N` est le nombre de sous-titres dont la fin a bougé, et la
-suite, absente quand rien n'a cédé, énumère ce qui n'a pas été tenu — `the reading speed`,
-`the minimum duration`, `the gap` — avec le nombre de sous-titres concernés.
+The sentence is the window's: `N` is the number of subtitles whose end moved, and the
+rest, absent when nothing gave way, lists what was not kept — `the reading speed`,
+`the minimum duration`, `the gap` — with the number of subtitles concerned.
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier
-porte, en plus de l'enveloppe :
+With [`--format json`](invocation.md#output-a-script-can-read), the object of each file
+carries, besides the envelope:
 
-| Clé | Contenu |
+| Key | Content |
 | :-- | :------ |
-| `counts.subtitles` | les sous-titres **visés** : tout le fichier, ou la plage |
-| `counts.adjusted` | ceux dont la fin a bougé |
-| `counts.sacrificed.speed`, `.minimum`, `.gap` | les sous-titres qui ne tiennent pas encore cette contrainte, une fois les autres appliquées, **y compris ceux dont la fin n'a pas bougé** |
-| `constraints.speed` | `{"cps", "lengthen", "shorten"}` — les caractères par seconde **en chaîne** (`"15"`, `"12.5"`) — ou `null` si éteinte |
-| `constraints.minimum_ms`, `.maximum_ms`, `.gap_ms` | les durées employées, en **millisecondes entières**, ou `null` si éteintes |
+| `counts.subtitles` | the subtitles **aimed at**: the whole file, or the range |
+| `counts.adjusted` | those whose end moved |
+| `counts.sacrificed.speed`, `.minimum`, `.gap` | the subtitles that still do not keep this constraint, once the others are applied, **including those whose end did not move** |
+| `constraints.speed` | `{"cps", "lengthen", "shorten"}` — the characters per second **as a string** (`"15"`, `"12.5"`) — or `null` if switched off |
+| `constraints.minimum_ms`, `.maximum_ms`, `.gap_ms` | the durations used, in **whole milliseconds**, or `null` if switched off |
 | `settings` | the settings file that was read, or `null` when none was |
 
-`constraints` dit **les réglages réellement employés**, défauts compris : deux calculs
-qui portent sur les mêmes sous-titres se comparent alors sans lire la ligne de commande.
+`constraints` says **the settings really used**, defaults included: two computations
+about the same subtitles then compare without reading the command line.
 
 <!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config --format json adjust --dry-run --maximum 1.8 courts.srt -->
 ```console
@@ -228,25 +228,25 @@ courts.srt: adjusted the durations of 4 subtitles; could not satisfy the reading
 {"schema":1,"command":"adjust","file":"courts.srt","ok":true,"dry_run":true,"destination":null,"counts":{"subtitles":4,"adjusted":4,"sacrificed":{"speed":1,"minimum":1,"gap":0}},"constraints":{"speed":{"cps":"15","lengthen":true,"shorten":false},"minimum_ms":1500,"maximum_ms":1800,"gap_ms":0},"settings":null,"warnings":[]}
 ```
 
-## Codes de retour
+## Exit codes
 
-Ceux de l'outil : `0` si tous les fichiers ont été traités, `2` si aucun, `3` si certains
-seulement, `1` sur une erreur d'usage. Un fichier qui tient déjà dans ses limites est traité.
+Those of the tool: `0` if every file was processed, `2` if none, `3` if only
+some, `1` on a usage error. A file that already fits within its limits is processed.
 
-## Erreurs
+## Errors
 
-| Ce qui la déclenche | Message |
+| What triggers it | Message |
 | :------------------ | :------ |
 | a file named by `--config` that does not exist — the user's own file, missing, gives the defaults | `settings file not found: <FILE>` |
-| aucune contrainte active | `adjust has nothing to adjust to: every constraint is off, or the reading speed is told to move no end` |
-| vitesse qui n'en est pas une | `--speed: "…" is not a reading speed: expected a number of characters per second above zero, like 15 or 12.5, or off` |
-| `--shorten`/`--no-lengthen` avec `--speed off` | `--shorten and --no-lengthen say which way the reading speed may move an end, and --speed off switches the reading speed off` |
-| durée qui n'en est pas une | `--minimum: "…" is not a time: …` (idem `--maximum`, `--gap`) |
-| durée négative | `--minimum: "-1" is not a duration of zero or more` (idem `--gap`) |
-| maximum nul ou négatif | `--maximum: "0" is not a duration above zero` |
-| plage mal écrite | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
-| plage qui finit avant de commencer | `--range: "5-3" is not a range: it ends before it starts` |
-| plage hors du fichier | `<chemin>: range N-M starts after the last subtitle: the file has K`, ou `… ends after …` |
+| no active constraint | `adjust has nothing to adjust to: every constraint is off, or the reading speed is told to move no end` |
+| a speed that is not one | `--speed: "…" is not a reading speed: expected a number of characters per second above zero, like 15 or 12.5, or off` |
+| `--shorten`/`--no-lengthen` with `--speed off` | `--shorten and --no-lengthen say which way the reading speed may move an end, and --speed off switches the reading speed off` |
+| a duration that is not one | `--minimum: "…" is not a time: …` (likewise `--maximum`, `--gap`) |
+| negative duration | `--minimum: "-1" is not a duration of zero or more` (likewise `--gap`) |
+| zero or negative maximum | `--maximum: "0" is not a duration above zero` |
+| badly written range | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
+| range that ends before it starts | `--range: "5-3" is not a range: it ends before it starts` |
+| range outside the file | `<path>: range N-M starts after the last subtitle: the file has K`, or `… ends after …` |
 
-Les erreurs de la destination sont communes aux sous-commandes qui écrivent :
-voir [Invocation](invocation.md#la-destination).
+The errors of the destination are common to the subcommands that write:
+see [Invocation](invocation.md#the-destination).

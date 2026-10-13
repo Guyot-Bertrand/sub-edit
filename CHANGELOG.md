@@ -9,6 +9,14 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Documentation
+
+- **doc** — Move the French command-line manual to docs/i18n/fr
+- **doc** — Write the command-line manual in English
+- **doc** — Check every translated manual, whatever its language
+
+## 0.15.24 — 2026-10-13
+
 ### Ajouts
 
 - **i18n** — Refuse an installed language that falls behind the template
@@ -17,6 +25,7 @@ ne pas l'éditer à la main.
 
 - **doc** — Describe the stale-translation gate
 - **doc** — Bring the French counts of the po README up to date
+- **doc** — Regenerate the changelog
 
 ### Remaniements
 

@@ -14,6 +14,9 @@ Ce qui est confronté :
     ce que le binaire DIT      `subedit-cli --help` et `subedit-cli <sc> --help`
     ce que le manuel ÉCRIT     docs/manual/subedit-cli/*.md, et packaging/subedit-cli.1.in
 
+Every translated tree docs/i18n/<lang>/manual/subedit-cli is checked the same way, read with
+the vocabulary of its language (doc_vocabulary.py); the `man` page only with the source (#671).
+
 Erreurs (code 1), chacune nommée :
 
     PAGE ABSENTE        une sous-commande du binaire n'a pas de page `<nom>.md`.
@@ -136,7 +139,7 @@ def option_column(markdown: str, option_header: str) -> set[str]:
     return found
 
 
-def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path,
+def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path | None,
           vocabularies: dict[str, dict]) -> list[str]:
     failures: list[str] = []
     unread: dict[str, list[str]] = {}
@@ -187,7 +190,9 @@ def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path,
             if match:
                 listed.add(match.group(1))
             elif not line.startswith("|"):
-                inside = False
+                # Only the first table: the later ones that open on the same word (the keys of
+                # `counts`, one row per subcommand) would list a subcommand the table forgot (#671).
+                break
     failures.extend(doc_vocabulary.missing_table(vocabularies, unread))
     if subcommand_header is not None:
         for name in sorted(set(names) - listed):
@@ -195,11 +200,12 @@ def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path,
         for name in sorted(listed - set(names)):
             failures.append(f"SOUS-COMMANDE INCONNUE : {invocation.name} liste `{name}`, que le binaire ne connaît pas")
 
-    man_text = man_page.read_text(encoding="utf-8") if man_page.is_file() else ""
+    # The `man` page is checked once, with the source manual: a translated tree has no page of its own yet (#683).
+    man_text = man_page.read_text(encoding="utf-8") if man_page is not None and man_page.is_file() else ""
     for option in sorted(long_options(top_help)):
         if f"`{option}" not in invocation_text:
             failures.append(f"OPTION GLOBALE ABSENTE : `{option}` n'est pas écrite dans {invocation.name}")
-        if option.replace("-", r"\-") not in man_text:
+        if man_page is not None and option.replace("-", r"\-") not in man_text:
             failures.append(f"OPTION GLOBALE ABSENTE : `{option}` n'est pas écrite dans {man_page.name}")
     return failures
 
@@ -209,7 +215,8 @@ def main() -> int:
     parser.add_argument("--binary", type=pathlib.Path,
                         default=REPO_ROOT / "build/dev/bin/subedit-cli")
     parser.add_argument("--manual", type=pathlib.Path,
-                        default=REPO_ROOT / "docs/manual/subedit-cli")
+                        help="one manual to check; by default docs/manual/subedit-cli and every "
+                             "docs/i18n/<lang>/manual/subedit-cli")
     parser.add_argument("--man-page", type=pathlib.Path,
                         default=REPO_ROOT / "packaging/subedit-cli.1.in")
     parser.add_argument("--vocabulary", type=pathlib.Path,
@@ -220,8 +227,17 @@ def main() -> int:
         print(f"binaire introuvable : {arguments.binary}", file=sys.stderr)
         return 2
 
-    failures = check(arguments.binary, arguments.manual, arguments.man_page,
-                     doc_vocabulary.load_tables(arguments.vocabulary))
+    tables = doc_vocabulary.load_tables(arguments.vocabulary)
+    if arguments.manual is not None:
+        failures = check(arguments.binary, arguments.manual, arguments.man_page, tables)
+    else:
+        # The source manual and every translation of it, whatever the language: each one is
+        # read with its own vocabulary, and a language without a table is refused.
+        source = REPO_ROOT / "docs/manual/subedit-cli"
+        failures = check(arguments.binary, source, arguments.man_page, tables)
+        for tree in doc_vocabulary.translated_trees(REPO_ROOT / "docs/manual", "subedit-cli"):
+            label = tree.relative_to(REPO_ROOT)
+            failures.extend(f"{label}: {failure}" for failure in check(arguments.binary, tree, None, tables))
     if failures:
         for failure in failures:
             print(failure, file=sys.stderr)

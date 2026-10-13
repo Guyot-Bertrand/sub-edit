@@ -1,25 +1,25 @@
 # `sort`
 
 ```
-subedit-cli sort (--output FICHIER | --output-dir DOSSIER | --in-place)
+subedit-cli sort (--output FILE | --output-dir DIR | --in-place)
                  [--dry-run]
                  [--recursive]
-                 <fichier>...
+                 <file>...
 ```
 
-Remet les sous-titres **dans l'ordre de leur début**. Rien d'autre ne change : ni les textes, ni les
-positions, ni le format du fichier. Les sous-titres sont **renumérotés** à partir de 1 par l'écriture,
-comme pour tout fichier réécrit.
+Puts the subtitles back **in the order of their start**. Nothing else changes: neither the texts, nor the
+positions, nor the format of the file. The subtitles are **renumbered** from 1 by the writing,
+as for any file written back.
 
-**Le noyau ne trie jamais de lui-même** : lire un fichier laisse son ordre tel qu'il était, et
-[`inspect`](inspect.md#ce-que-anomalies-rapporte) signale une rupture d'ordre par
-`subtitle N starts before the previous one starts`. `sort` est **le geste fait exprès**, pour un fichier
-ou un lot dont l'ordre est rompu — et il se défait, dans la fenêtre, comme n'importe quelle opération.
+**The core never sorts on its own**: reading a file leaves its order as it was, and
+[`inspect`](inspect.md#what-anomalies-reports) reports a break in order with
+`subtitle N starts before the previous one starts`. `sort` is **the gesture made on purpose**, for a file
+or a batch whose order is broken — and it can be undone, in the window, like any operation.
 
-- **Le tri est stable** : deux sous-titres qui commencent au même instant **gardent l'ordre que le
-  fichier leur donnait**. Aucun ne précède l'autre ; les déplacer serait une décision que personne n'a
-  demandée.
-- **`sort` ne prend ni plage ni document** : il n'y a rien à choisir, l'ordre est celui des débuts.
+- **The sort is stable**: two subtitles that start at the same moment **keep the order the
+  file gave them**. Neither comes before the other; moving them would be a decision nobody
+  asked for.
+- **`sort` takes neither a range nor a document**: there is nothing to choose, the order is that of the starts.
 
 <!-- exemple: subedit-cli sort --help -->
 ```console
@@ -39,14 +39,14 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<file>...` | yes | one or more paths | — |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
 <!-- exemple: printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt -->
 ```console
@@ -65,15 +65,15 @@ trois
 cinq
 ```
 
-## Ce qui est compté
+## What is counted
 
-**Le compte est celui des places qui ont changé de sous-titre**, tel que le noyau le rapporte — ce que
-l'historique de la fenêtre appellerait déplacé. Un seul sous-titre mal placé en décale plusieurs : dans
-l'exemple ci-dessus, aucune des trois places ne garde son sous-titre, et la phrase dit `3 subtitles moved`.
+**The count is that of the places that changed subtitle**, as the core reports it — what
+the window's history would call moved. A single misplaced subtitle shifts several: in
+the example above, none of the three places keeps its subtitle, and the sentence says `3 subtitles moved`.
 
-**Un fichier déjà en ordre est écrit quand même**, et le dit : une destination donnée est une
-destination écrite, et faire de `sort` l'exception obligerait un script à savoir quelles
-sous-commandes produisent parfois un fichier et parfois rien.
+**A file already in order is written all the same**, and says so: a destination given is a
+destination written, and making `sort` the exception would force a script to know which
+subcommands sometimes produce a file and sometimes nothing.
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt -->
 ```console
@@ -81,30 +81,30 @@ $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,0
 ordre.srt: already in order -> copie.srt
 ```
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, rien non plus : il n'y a
-pas de fichier, et la ligne de narration le dit — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire).
+**Standard output** — nothing: the result is the file written. With `--dry-run`, nothing either: there is
+no file, and the narration line says so — see [Seeing before writing](invocation.md#seeing-before-writing).
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles moved -> <destination>`, ou `<chemin>: already in order -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles moved -> <destination>`, or `<path>: already in order -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
+| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte
-`counts.subtitles` (tous les sous-titres du fichier) et `counts.moved` (les places qui ont changé ;
-`0` pour un fichier déjà en ordre).
+With [`--format json`](invocation.md#output-a-script-can-read), the object of each file carries
+`counts.subtitles` (every subtitle of the file) and `counts.moved` (the places that changed;
+`0` for a file already in order).
 
-## Codes de retour
+## Exit codes
 
-Ceux de l'outil : `0` si tous les fichiers ont été traités — un fichier déjà en ordre l'est —, `2` si
-aucun, `3` si certains seulement, `1` sur une erreur d'usage.
+Those of the tool: `0` if every file was processed — a file already in order is —, `2` if
+none, `3` if only some, `1` on a usage error.
 
-## Erreurs
+## Errors
 
-Aucune qui soit propre à `sort` : un fichier illisible échoue comme pour toute sous-commande, et les
-erreurs de la destination sont communes aux sous-commandes qui écrivent :
-voir [Invocation](invocation.md#la-destination).
+None specific to `sort`: an unreadable file fails as for any subcommand, and the
+errors of the destination are common to the subcommands that write:
+see [Invocation](invocation.md#the-destination).

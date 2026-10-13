@@ -1,5 +1,7 @@
 # subedit-gui — manuel
 
+<!-- language: fr -->
+
 La fenêtre de subedit : ouvrir un fichier de sous-titres et le voir dans une
 table. Pour l'autre programme et pour savoir par où commencer, voir
 [le manuel](../index.md).

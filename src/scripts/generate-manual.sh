@@ -234,9 +234,15 @@ else
     printf '%sexemples du manuel%s\n' "${BOLD}" "${RESET}"
 fi
 
+# The source manual and every translation of it, `docs/i18n/<lang>/manual/`, whatever the language
+# (#671): a translated page carries the same examples, byte for byte (check-translation-structure.py),
+# so they are replayed and rewritten with the source's, never left to drift.
 while IFS= read -r manual_file; do
     process_file "${manual_file}"
-done < <(find "${MANUAL_DIR}" -name '*.md' -type f | sort)
+done < <(
+    shopt -s nullglob
+    find "${MANUAL_DIR}" "${REPO_ROOT}"/docs/i18n/*/manual -name '*.md' -type f | sort
+)
 
 if [[ "${mode}" == "check" ]]; then
     if (( stale > 0 )); then

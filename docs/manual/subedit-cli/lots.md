@@ -1,23 +1,23 @@
-# Traiter un arbre
+# Processing a tree
 
 ```
-subedit-cli <sous-commande> --recursive [options] <dossier>...
+subedit-cli <subcommand> --recursive [options] <directory>...
 ```
 
-Toutes les sous-commandes qui lisent un lot de fichiers — `inspect` comprise, et non
-[`append`](append.md), [`split-file`](split-file.md) ni [`pair`](pair.md), dont l'arité est celle d'une paire ou
-d'un film — acceptent un **répertoire** à la place d'un fichier, avec `--recursive` (`-r`).
-Cette page dit ce que le parcours prend, dans quel ordre, et où il écrit.
+Every subcommand that reads a batch of files — `inspect` included, and not
+[`append`](append.md), [`split-file`](split-file.md) nor [`pair`](pair.md), whose arity is that of a pair or
+of a film — accepts a **directory** in place of a file, with `--recursive` (`-r`).
+This page says what the walk takes, in what order, and where it writes.
 
-**Rien de ce qui suit ne change ce qui est fait à un fichier** : chacun est lu,
-traité et écrit indépendamment, l'échec de l'un n'arrête pas les autres, et les
-quatre codes de retour sont ceux de [l'invocation](invocation.md#codes-de-retour).
-Le parcours produit une liste de chemins, que le reste du lot consomme comme s'ils
-avaient été tapés.
+**Nothing of what follows changes what is done to a file**: each one is read,
+processed and written independently, the failure of one does not stop the others, and the
+four exit codes are those of [the invocation](invocation.md#exit-codes).
+The walk produces a list of paths, which the rest of the batch consumes as if they
+had been typed.
 
-## Sans `--recursive`, un répertoire est refusé
+## Without `--recursive`, a directory is refused
 
-Erreur d'usage, code `1`, aucun fichier traité ni écrit :
+Usage error, code `1`, no file processed nor written:
 
 <!-- exemple: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
@@ -26,30 +26,30 @@ films: is a directory: use --recursive
 code=1
 ```
 
-## Ce que le parcours prend
+## What the walk takes
 
-Le parcours est **récursif, déterministe et sans surprise** :
+The walk is **recursive, deterministic and unsurprising**:
 
-- **l'ordre** — les entrées de chaque répertoire sont prises dans l'ordre de leurs
-  noms, **octet par octet** (les majuscules avant les minuscules, sans égard à la
-  langue de la machine), et un sous-répertoire est parcouru à sa place, en
-  profondeur d'abord. Deux exécutions donnent les mêmes octets, sur toutes les
-  machines ;
-- **les liens symboliques ne sont pas suivis** — ni vers un fichier, ni vers un
-  répertoire : un arbre qui contient un lien vers l'un de ses parents n'aurait pas
-  de fin ;
-- **les fichiers et dossiers cachés sont ignorés** — ceux dont le nom commence par
-  un point ;
-- **seules les extensions des formats connus sont retenues** : `.srt`, `.vtt`,
-  `.ssa`, `.ass`, `.lrc`, `.sub`, sans égard à la casse. **`.txt` est exclu** : il
-  désigne deux formats, mais surtout tous les `LISEZMOI.txt` du monde, et un lot qui
-  échouerait sur chacun serait inutilisable.
+- **the order** — the entries of each directory are taken in the order of their
+  names, **byte by byte** (capitals before lower case, regardless of the
+  machine's language), and a subdirectory is walked in its place, depth
+  first. Two runs give the same bytes, on every
+  machine;
+- **symbolic links are not followed** — neither to a file, nor to a
+  directory: a tree that contains a link to one of its parents would have no
+  end;
+- **hidden files and directories are ignored** — those whose name begins with
+  a dot;
+- **only the extensions of the known formats are kept**: `.srt`, `.vtt`,
+  `.ssa`, `.ass`, `.lrc`, `.sub`, regardless of case. **`.txt` is excluded**: it
+  names two formats, but above all every `LISEZMOI.txt` in the world, and a batch that
+  failed on each one would be unusable.
 
-**Un fichier nommé sur la ligne de commande n'est jamais filtré.** Le nommer, c'est
-le vouloir : `subedit-cli shift --by 1 --in-place notes.txt` le traite, quelle que
-soit son extension, et ne se plaint que si son contenu n'est dans aucun format.
+**A file named on the command line is never filtered.** Naming it is
+wanting it: `subedit-cli shift --by 1 --in-place notes.txt` processes it, whatever
+its extension, and only complains if its content is in no format.
 
-**Ce qui a été laissé de côté est compté**, et dit au niveau `-vv` :
+**What was left aside is counted**, and said at level `-vv`:
 
 <!-- exemple: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; printf 'note\n' > films/LISEZMOI.txt; subedit-cli -vv inspect --recursive films 2>&1 | head -1 -->
 ```console
@@ -57,16 +57,16 @@ $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt;
 films: 1 file left aside, with no extension of a known format
 ```
 
-Un répertoire qui ne contient rien de parcourable le dit au niveau par défaut
-(`<dossier>: holds no file in a format this tool walks for`) et n'est pas une erreur.
+A directory that contains nothing to walk says so at the default level
+(`<directory>: holds no file in a format this tool walks for`) and is not an error.
 
-## Où le parcours écrit
+## Where the walk writes
 
-**L'arborescence est conservée sous `--output-dir`** : le chemin d'un fichier,
-**relatif au répertoire donné**, est reproduit sous le dossier de sortie. Le nom
-du répertoire donné n'en fait pas partie — c'est la sémantique de `rsync` avec une
-barre finale, non celle de `cp -r` : on nomme la destination, et on y ajoute le
-niveau qu'on veut (`--output-dir sortie/films`).
+**The tree is kept under `--output-dir`**: the path of a file,
+**relative to the directory given**, is reproduced under the output directory. The name
+of the directory given is not part of it — these are the semantics of `rsync` with a
+trailing slash, not those of `cp -r`: one names the destination, and adds the
+level one wants to it (`--output-dir sortie/films`).
 
 <!-- exemple: mkdir -p films/a/b; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/x.srt; cp films/x.srt films/a/x.srt; cp films/x.srt films/a/b/y.srt; printf 'note\n' > films/LISEZMOI.txt; subedit-cli shift --by 1 --recursive --output-dir sortie films; find sortie -type f | sort -->
 ```console
@@ -80,19 +80,19 @@ sortie/a/x.srt
 sortie/x.srt
 ```
 
-Le dossier de sortie et ceux de l'arborescence sont **créés** s'ils manquent. Avec
-`--in-place`, chaque fichier retenu est réécrit à sa place. Une extension que
-`convert` change se change aussi dans l'arborescence : `films/a/x.srt` converti
-en WebVTT s'écrit `sortie/a/x.vtt`.
+The output directory and those of the tree are **created** if they are missing. With
+`--in-place`, each file kept is written back in its place. An extension that
+`convert` changes changes in the tree too: `films/a/x.srt` converted
+to WebVTT is written `sortie/a/x.vtt`.
 
-**Le dossier de sortie, s'il est dans l'arbre parcouru, est exclu du parcours** :
-une seconde exécution ne relit pas ce que la première a écrit.
+**The output directory, if it is inside the tree walked, is excluded from the walk**:
+a second run does not read again what the first one wrote.
 
-## Deux répertoires, et les collisions
+## Two directories, and collisions
 
-La règle de [la destination](invocation.md#la-destination) tranche : deux fichiers
-qui aboutiraient au même chemin sont refusés **avant tout écrit**, code `1`, les
-deux entrées et la destination nommées.
+The rule of [the destination](invocation.md#the-destination) settles it: two files
+that would end up at the same path are refused **before anything is written**, code `1`, the
+two inputs and the destination named.
 
 <!-- exemple: mkdir -p un/a deux/a; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > un/a/x.srt; cp un/a/x.srt deux/a/x.srt; subedit-cli shift --by 1 -r --output-dir sortie un deux; echo "code=$?" -->
 ```console
@@ -101,8 +101,8 @@ sortie/a/x.srt: would be written by both un/a/x.srt and deux/a/x.srt
 code=1
 ```
 
-## Ce que ça coûte
+## What it costs
 
-Le lot reste séquentiel : sa durée est la somme de celle de ses fichiers. Le banc
-`make bench` mesure le parcours et le même travail en un seul fichier ; les chiffres
-sont au [journal des performances](../../mesures/performances.md).
+The batch stays sequential: its duration is the sum of those of its files. The
+`make bench` benchmark measures the walk and the same work in a single file; the figures
+are in the [performance log](../../mesures/performances.md).

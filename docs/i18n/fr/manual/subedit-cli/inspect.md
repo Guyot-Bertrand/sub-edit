@@ -1,0 +1,381 @@
+# `inspect`
+
+```
+subedit-cli inspect [--frame-rate RATE] [--recursive] [--detail]
+                   [-t FILE] [--align-method position|number] <file>...
+```
+
+Rapporte ce que chaque fichier contient. **Ne modifie rien et n'écrit aucun
+fichier.**
+
+<!-- exemple: subedit-cli inspect --help -->
+```console
+$ subedit-cli inspect --help
+Report what a subtitle file is made of
+Usage: subedit-cli inspect [OPTIONS] files...
+
+Positionals:
+  files TEXT ... REQUIRED     Subtitle files to report on
+
+Options:
+  -h,--help                   Print this help message and exit
+  -r,--recursive              Take directories as inputs, and every subtitle file in them
+  --detail                    List every anomaly, subtitle by subtitle, instead of counting them
+  --frame-rate RATE           Frame rate of a file counted in frames: 25, 23.976
+  -t,--translation-file FILE  Translation file to lay over the subtitle file, for a single input
+  --align-method position|number
+                              How the lines of the translation find their subtitles
+```
+
+## Arguments
+
+| Argument | Requis | Valeur | Défaut |
+| :------- | :----- | :----- | :----- |
+| `<file>...` | oui | un ou plusieurs chemins de fichiers de sous-titres | — |
+| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
+| `--detail` | non | un drapeau : nomme chaque anomalie, au lieu de les compter — voir [Ce que `anomalies` rapporte](#ce-que-anomalies-rapporte) | désactivé |
+
+Aucun chemin n'est une erreur d'usage, donc le code `1`.
+
+## Options
+
+| Option | Requise | Valeur | Défaut |
+| :----- | :------ | :----- | :----- |
+| `--frame-rate` | non | une fréquence en images par seconde : `25`, `23.976`, `29.97` | 23,976 |
+
+**Elle ne sert qu'aux fichiers comptés en images**, c'est-à-dire à MicroDVD, le
+seul des neuf. Un fichier MicroDVD ne porte que des numéros d'image ; la
+fréquence à laquelle on les lit décide de **chaque position du rapport**, à
+commencer par `span`. Donnée ailleurs, elle ne change rien et n'est pas une
+erreur.
+
+Une valeur que rien ne nomme est une erreur d'usage, donc le code `1` :
+
+<!-- exemple: subedit-cli inspect --frame-rate douze film.sub; echo $? -->
+```console
+$ subedit-cli inspect --frame-rate douze film.sub; echo $?
+--frame-rate: "douze" is not a frame rate: expected frames per second, like 25 or 23.976
+1
+```
+
+C'est la même option que sur [`convert`](convert.md), au mot près, parce que
+c'est la même fréquence. `convert` s'en sert en plus pour **écrire**.
+
+## Une traduction : `-t`
+
+| Option | Requise | Valeur | Défaut |
+| :----- | :------ | :----- | :----- |
+| `-t`, `--translation-file` | non | un fichier de traduction, pour **une seule** entrée | — |
+| `--align-method` | non, et seulement avec `-t` | `position` ou `number` | `position` |
+
+Avec `-t`, la traduction est posée sur le fichier **comme la fenêtre le fait à l'ouverture** — voir
+[Une traduction](invocation.md#une-traduction) — et le rapport dit **comment ses lignes ont trouvé leur
+sous-titre**. Un script sait ainsi si une traduction est alignée avant de la corriger.
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour.\n\n' > film.fr.srt; subedit-cli --quiet inspect -t film.fr.srt film.srt | tail -3 -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour.\n\n' > film.fr.srt; subedit-cli --quiet inspect -t film.fr.srt film.srt | tail -3
+  anomalies: none
+  translation file: film.fr.srt, matched by position
+  translation: 1 line attached; 1 subtitle left without a translation
+```
+
+La première ligne ajoutée nomme le fichier et la méthode ; la seconde est **la phrase que la fenêtre
+dit** quand elle ouvre une traduction, chaque partie seulement quand elle n'est pas nulle :
+
+| Partie | Ce qu'elle compte |
+| :----- | :---------------- |
+| `N lines attached` | les lignes de la traduction qui ont trouvé un sous-titre du principal |
+| `N subtitles born of a line` | les lignes qui n'en ont trouvé aucun et ont donné naissance au leur, à leurs propres positions |
+| `N subtitles left without a translation` | les sous-titres du principal qu'aucune ligne n'a atteint |
+| `N lines out of order` | les lignes venues après une plus tardive dans le fichier |
+
+Une traduction qui ne porte aucune ligne dit `translation: the file holds no line`. **Le rapport du
+fichier lui-même reste celui du fichier seul** : un sous-titre né d'une ligne n'est pas compté dans
+`subtitles`.
+
+Les erreurs de `-t` sont celles d'une lecture, dites avec le chemin de la traduction, et celle-ci :
+`<translation>: the file is already open as the main document`, quand le fichier donné est le principal.
+`--align-method` sans `-t` est une erreur d'usage, et `-t` avec plusieurs entrées aussi — voir
+[Une traduction](invocation.md#une-traduction).
+
+## Sortie
+
+Le rapport va sur la **sortie standard** — c'est le résultat de la commande, et
+il est écrit à tous les niveaux, `--quiet` compris. Un bloc par fichier, précédé
+du chemin :
+
+<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,500\nLe canot dérive.\n\n2\n00:00:04,000 --> 00:00:06,200\nPersonne n a vu la côte.\n' > exemple.srt; subedit-cli --quiet inspect exemple.srt -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:03,500\nLe canot dérive.\n\n2\n00:00:04,000 --> 00:00:06,200\nPersonne n a vu la côte.\n' > exemple.srt; subedit-cli --quiet inspect exemple.srt
+exemple.srt
+  format: SubRip
+  encoding: UTF-8, detected
+  byte order mark: absent
+  line endings: LF
+  subtitles: 2
+  span: 00:00:01.000 -> 00:00:06.200
+  frame rate grid: none (too few subtitles to tell)
+  anomalies: none
+```
+
+| Champ | Ce qu'il dit |
+| :---- | :----------- |
+| `format` | l'un des formats que `--to` accepte, écrit en toutes lettres : `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `encoding` | l'encodage lu, suivi de **d'où vient la réponse** : `, from its byte order mark` si le fichier la déclare, `, as asked for` si `--encoding` l'a imposée, `, detected` si elle a été pesée |
+| `byte order mark` | `present` ou `absent` |
+| `line endings` | `LF`, `CRLF` ou `CR`, suivi de `, mixed from line N` si le fichier en mélange |
+| `subtitles` | le nombre de sous-titres lus |
+| `span` | du début le plus tôt à la fin la plus tardive, `HH:MM:SS.mmm` |
+| `frame rate grid` | la fréquence d'image sur laquelle les positions ont été calculées, **déduite** — voir ci-dessous |
+| `frame rate` | pour un fichier compté en images, la fréquence à laquelle il a été lu et **d'où elle vient** — remplace la ligne précédente, voir ci-dessous |
+| `anomalies` | `none` sur la même ligne, ou ce qui cloche : **une sorte par ligne avec son nombre**, en retrait sous `anomalies:` ; avec `--detail`, **une anomalie par ligne**, sous-titre par sous-titre |
+
+**`span` n'est pas « du premier au dernier »** mais du plus tôt au plus tard :
+sur un fichier dont l'ordre est rompu, les deux diffèrent, et seul le second dit
+la vérité sur ce que le fichier couvre.
+
+**`anomalies`, avec `--detail`, compte les sous-titres à partir de 1**, comme le fichier les
+numérote — et non les lignes du fichier. Un numéro de sous-titre survit à une
+modification ; un numéro de ligne, non. Voir ci-dessous.
+
+## Ce que `frame rate grid` rapporte
+
+**Un fichier de sous-titres ne déclare pas sa fréquence d'image.** SubRip n'a pas
+d'en-tête, celui de WebVTT est du texte libre. Cette ligne ne lit donc rien :
+elle **déduit**, en mesurant si les positions tombent sur une grille d'images.
+
+Ce qui est mesuré, ce sont les **débuts**. Partout où une grille existe ils y
+sont sans exception, tandis que les fins s'en écartent souvent — une fin est
+fréquemment calculée par une règle de vitesse de lecture plutôt que posée sur
+une image.
+
+La première ligne dit toujours la même chose : la fréquence retenue, le verdict,
+et la concentration qui l'appuie.
+
+| Verdict | Ce qu'il veut dire |
+| :------ | :----------------- |
+| `clean` | les positions sont sur une grille |
+| `partial` | une partie l'est, le reste non |
+| `none` | aucune candidate n'explique quoi que ce soit |
+
+`none` a **deux causes, et ce ne sont pas la même réponse** : ou bien aucune
+grille ne convient — la ligne donne alors la meilleure candidate et son score,
+pour qu'on voie de combien elle échoue — ou bien le fichier compte trop peu de
+sous-titres pour qu'on puisse en dire quoi que ce soit. Deux débuts paraissent
+toujours parfaitement alignés ; ça ne prouve rien.
+
+**Un fichier régulier sur une fréquence non normalisée sort `none`, et c'est
+voulu.** L'ensemble des candidates est clos — les huit fréquences que la
+conversion propose — et rapporter la moins fausse d'entre elles serait donner
+une mauvaise réponse là où « je ne sais pas » est la bonne.
+
+### Les lignes qui suivent, quand elles ont quelque chose à dire
+
+| Ligne | Quand elle apparaît |
+| :---- | :------------------ |
+| `grid offset` | les positions sont sur la grille **à une constante près** : le fichier a été décalé, et voici de combien |
+| `also fits` | une autre candidate convient tout aussi bien, parce qu'elle est un multiple entier de celle retenue |
+| `too short a span to separate` | l'étendue du fichier ne permet pas de départager la fréquence retenue de celles nommées |
+| `off the grid` | combien de débuts s'écartent de la grille, et en combien de **suites** |
+
+**`also fits` n'est pas une hésitation.** Une grille à 25 images par seconde est
+*incluse* dans une grille à 50 : un fichier calé sur 25 convient donc aux deux.
+L'inverse est faux — un vrai 50 s'effondre sur 25 — donc c'est la plus basse qui
+est retenue, et l'autre est nommée plutôt que passée sous silence. Les seules
+paires concernées sont 25 et 50, 29,97 et 59,94, 30 et 60.
+
+**`too short a span to separate` protège d'une réponse trop confiante.** 23,976
+et 24 dérivent d'une milliseconde par seconde de film : sur un long métrage elles
+se séparent sans appel, sur dix secondes elles sont indiscernables. La ligne dit
+laquelle reste possible.
+
+**`off the grid` distingue deux histoires que le seul pourcentage confond.**
+Beaucoup de suites d'un seul début, ce sont des positions corrigées à la main,
+une par une. Quelques longues suites, c'est une section recalée ou un fichier
+assemblé à partir de deux autres. Le nombre de suites est ce qui les sépare.
+
+### Un exemple
+
+Douze répliques posées sur une grille à 25 images par seconde — donc à des
+positions multiples de 40 millisecondes — étalées sur près de neuf minutes :
+
+<!-- exemple: k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40)); e=$((s+2000)); k=$((k+1)); printf '%d\n%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\nRéplique %d.\n\n' $k $((s/3600000)) $((s/60000%60)) $((s/1000%60)) $((s%1000)) $((e/3600000)) $((e/60000%60)) $((e/1000%60)) $((e%1000)) $k; done > grille.srt; subedit-cli --quiet inspect grille.srt | tail -3 -->
+```console
+$ k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40)); e=$((s+2000)); k=$((k+1)); printf '%d\n%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\nRéplique %d.\n\n' $k $((s/3600000)) $((s/60000%60)) $((s/1000%60)) $((s%1000)) $((e/3600000)) $((e/60000%60)) $((e/1000%60)) $((e%1000)) $k; done > grille.srt; subedit-cli --quiet inspect grille.srt | tail -3
+  frame rate grid: 25 fps, clean (100.0%)
+  also fits: 50 fps, of which this rate is a whole divisor
+  anomalies: none
+```
+
+L'exemple fabrique son fichier plutôt que d'en lire un du dépôt, et c'est
+délibéré : il est rejouable tel quel, et la boucle montre ce qu'est une grille
+mieux qu'une phrase — des positions multiples d'une durée d'image.
+
+## Ce que `frame rate` rapporte, et pourquoi ce n'est pas une grille
+
+**Un seul des neuf formats compte en images** : MicroDVD, dont chaque ligne
+porte deux numéros d'image et rien d'autre. Sur un fichier pareil, `inspect`
+n'écrit pas `frame rate grid` mais `frame rate`, et les deux lignes ne
+s'affichent jamais ensemble.
+
+**La raison tient en une phrase.** Les positions d'un fichier MicroDVD ont été
+calculées *à partir* de ses images, à une fréquence donnée ; les déduire d'une
+grille rendrait cette fréquence-là, telle qu'on vient de la fournir. Ce serait
+un chiffre donné, habillé en mesure.
+
+Ce qui est écrit à la place est **la fréquence de lecture et d'où elle vient** —
+la même forme que la ligne `encoding` :
+
+| Ce que la ligne dit | Quand |
+| :------------------ | :---- |
+| `frame rate: 25 fps, as asked for` | `--frame-rate` l'a imposée |
+| `frame rate: 24000/1001 fps, assumed` | personne ne l'a dite ; c'est le défaut |
+
+**Deux réponses et non trois**, là où `encoding` en a trois : un fichier
+MicroDVD ne déclare rien. C'est tout le problème — la fréquence vient
+nécessairement du dehors, et le rapport dit lequel des deux dehors.
+
+**La fréquence décide de tout le reste du rapport.** `span` la traverse, et deux
+lectures du même fichier à deux fréquences donnent deux étendues :
+
+<!-- exemple: printf '{25}{75}Première.\n{100}{150}Deuxième.\n{200}{260}Troisième.\n' > images.sub; subedit-cli --quiet inspect images.sub | tail -3; subedit-cli --quiet inspect --frame-rate 25 images.sub | tail -3 -->
+```console
+$ printf '{25}{75}Première.\n{100}{150}Deuxième.\n{200}{260}Troisième.\n' > images.sub; subedit-cli --quiet inspect images.sub | tail -3; subedit-cli --quiet inspect --frame-rate 25 images.sub | tail -3
+  span: 00:00:01.043 -> 00:00:10.844
+  frame rate: 24000/1001 fps, assumed
+  anomalies: none
+  span: 00:00:01.000 -> 00:00:10.400
+  frame rate: 25 fps, as asked for
+  anomalies: none
+```
+
+## Ce que `anomalies` rapporte
+
+Trois choses peuvent clocher dans un document, et chacune se répare autrement.
+**Par défaut `inspect` les compte**, une ligne par sorte, dans l'ordre du tableau :
+un fichier mal fait en porte des centaines, et savoir combien de chaque sorte
+est ce qui dit quoi lancer. **`--detail` les nomme une à une.**
+
+| Ce qui est écrit | Avec `--detail` | Ce que ça veut dire |
+| :--------------- | :-------------- | :------------------ |
+| `subtitle ends before it starts: N` | `subtitle N ends before it starts` | la fin précède le début |
+| `subtitle starts before the previous one ends: N` | `subtitle N starts before the previous one ends` | il chevauche celui d'avant |
+| `subtitle starts before the previous one starts: N` | `subtitle N starts before the previous one starts` | il rompt l'ordre du fichier — [`sort`](sort.md) le remet |
+
+Une sorte absente n'est pas écrite. Dans la colonne de gauche, `N` est le nombre
+de sous-titres ; dans la suivante, le numéro d'un sous-titre.
+
+**Un même sous-titre peut apparaître deux fois**, et c'est voulu : celui qui
+commence avant que le précédent ait commencé commence aussi avant qu'il ait
+fini. Le premier point se règle en déplaçant le sous-titre, le second en
+changeant une durée.
+
+**Le sous-titre nommé est celui qui est mal placé**, pas celui contre lequel il
+l'est. Sur des débuts à `0`, `4 s`, `2 s`, `3 s` : le troisième rompt l'ordre, le
+quatrième suit pourtant le troisième et n'est donc pas nommé — il n'y a rien à
+faire de lui.
+
+<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -3 -->
+```console
+$ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -3
+  anomalies:
+    subtitle starts before the previous one ends: 1
+    subtitle starts before the previous one starts: 1
+```
+
+Et avec `--detail`, le sous-titre nommé :
+
+<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect --detail desordre.srt | tail -3 -->
+```console
+$ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect --detail desordre.srt | tail -3
+  anomalies:
+    subtitle 3 starts before the previous one ends
+    subtitle 3 starts before the previous one starts
+```
+
+**Une ligne par anomalie avec `--detail`**, parce qu'une centaine de constats
+collés sur une ligne ne se lit ni ne se cherche. Un document sans défaut garde
+sa ligne unique, `anomalies: none`, que cherche un script. **L'enregistrement
+`--format json` liste toujours chaque anomalie** : un script lit le détail, et
+`--detail` ne change que le texte.
+
+**Ce n'est pas un diagnostic de lecture.** Les diagnostics disent ce que la
+lecture a rencontré et pointent une **ligne du fichier** ; les anomalies disent
+ce que le document *est* et pointent un **sous-titre**. Un fichier dont l'ordre
+est rompu n'est pas malformé pour autant : la lecture n'a rien à en dire.
+
+## En JSON
+
+Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), `inspect` écrit **un
+objet par fichier** au lieu des blocs ci-dessus ; la narration reste sur la sortie d'erreur.
+Les clés décrivent ce que le texte dit, et **aucune n'est à relire dans une phrase** :
+
+| Clé | Contenu |
+| :-- | :------ |
+| `format` | l'identifiant du format, celui que `convert --to` accepte : `srt`, `vtt`… |
+| `encoding` | `{"charset", "origin", "byte_order_mark"}` — `origin` vaut `byte-order-mark`, `asked` ou `detected` |
+| `line_endings` | `{"kind", "mixed_from_line"}` — `lf`, `crlf` ou `cr` ; la ligne où une seconde sorte apparaît, ou `null` |
+| `subtitles` | le nombre de sous-titres |
+| `span_ms` | `{"start", "end"}` — le premier début et la dernière fin, en millisecondes |
+| `frame_rate` | pour un fichier compté en images : `{"rate", "origin"}` (`asked` ou `assumed`) ; sinon `null` |
+| `grid` | pour les autres : la grille déduite, ou `null` pour un fichier compté en images |
+| `anomalies` | un tableau de `{"subtitle", "kind"}` — `end-before-start`, `overlapping-subtitles`, `out-of-order` |
+| `translation` | **seulement avec `-t`** : `{"file", "method", "attached", "born", "untranslated", "out_of_order"}` — `method` vaut `position` ou `number`, et les quatre comptes sont ceux de la phrase ci-dessus |
+| `warnings` | ce que la lecture a rencontré, à tous les niveaux |
+
+`grid` porte `verdict` (`clean`, `partial` ou `silent`), `enough_starts`, `rate` (une chaîne,
+ou `null` quand rien n'est nommé), `concentration_permille` (millièmes, `null` sans assez de
+débuts), `offset_ms`, `also_fits` (la cadence dont celle-ci est un diviseur entier, ou
+`null`), `not_separated` (les cadences qu'une étendue trop courte ne sépare pas), `strays`
+(les débuts hors grille) et `starts`.
+
+<!-- exemple: printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json inspect --frame-rate 25 f.sub 2>/dev/null -->
+```console
+$ printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json inspect --frame-rate 25 f.sub 2>/dev/null
+{"schema":1,"command":"inspect","file":"f.sub","ok":true,"format":"microdvd","encoding":{"charset":"UTF-8","origin":"detected","byte_order_mark":false},"line_endings":{"kind":"lf","mixed_from_line":null},"subtitles":2,"span_ms":{"start":1000,"end":4000},"frame_rate":{"rate":"25","origin":"asked"},"grid":null,"anomalies":[],"warnings":[]}
+```
+
+## Narration
+
+Sur la sortie d'erreur, selon le niveau demandé :
+
+| Niveau | Ce qui s'ajoute |
+| :----- | :-------------- |
+| 1 | `<path>: N subtitles` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings` |
+| 3 | `<path>: N bytes read`, `<path>: N diagnostic(s) while reading`, puis **chacun d'eux** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+
+## Codes de retour
+
+Ceux de l'outil : `0` si tous les fichiers ont été lus, `2` si aucun, `3` si
+certains seulement, `1` sur une erreur d'usage.
+
+## Erreurs
+
+Celles d'une lecture — celle du fichier, et celle de la traduction quand `-t` est donné —, et
+celles de `-t` : voir plus haut. `inspect` n'écrit rien qui puisse être refusé.
+
+| Ce qui la déclenche | Message |
+| :------------------ | :------ |
+| aucun chemin donné | `files is required`, suivi d'un renvoi à `--help` |
+| fichier absent | `<path>: does not exist` |
+| fichier illisible | `<path>: cannot be opened: permission denied` |
+| octets qui ne se décodent pas | `<path>: cannot be decoded in the chosen encoding` |
+| format non reconnu | `<path>: is in no format this tool knows` |
+| rien qui ressemble à un sous-titre | `<path>: holds nothing recognisable as a subtitle` |
+
+Ce sont les mêmes messages pour les dix-sept sous-commandes : la recette d'ouverture
+est écrite une fois, au noyau.
+
+## Un exemple qui échoue
+
+Un fichier vide ne correspond à aucun format. Il n'est pas rapporté comme vide :
+il est refusé, et nommé.
+
+<!-- exemple: : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?" -->
+```console
+$ : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?"
+vide.srt: is in no format this tool knows
+code=2
+```

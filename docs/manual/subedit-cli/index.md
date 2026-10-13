@@ -1,45 +1,45 @@
-# subedit-cli — manuel
+# subedit-cli — manual
 
-Outil en ligne de commande de subedit : manipulation de fichiers de sous-titres
-sans interface graphique, en traitement par lot ou depuis un script. Pour
-l'autre programme et pour savoir par où commencer, voir
-[le manuel](../index.md).
+The command-line tool of subedit: working on subtitle files without a graphical
+interface, in batches or from a script. For the other program and to know
+where to begin, see
+[the manual](../index.md).
 
-> **État actuel.** Les dix-sept sous-commandes de `subedit-cli` existent : inspecter,
-> convertir, décaler, transformer, recaler la cadence, aligner sur une grille d'images, retirer
-> les mentions pour malentendants, ajuster les durées, remplacer un texte, changer la casse,
-> l'italique et les tirets de dialogue, remettre les sous-titres dans l'ordre, corriger les
-> textes avec les motifs de Gaupol, mettre des fichiers à la suite l'un de l'autre, couper un
-> fichier en deux, et écrire une traduction aux positions de son principal. Ce manuel
-> décrit ce qui existe, jamais ce qui est prévu ; ce qui vient ensuite est dans
-> la [feuille de route](../../feuille-de-route.md).
+> **Current state.** The seventeen subcommands of `subedit-cli` exist: inspect,
+> convert, shift, transform, re-time the frame rate, snap onto a frame grid, remove
+> the mentions for the hearing impaired, adjust the durations, replace a text, change the case,
+> the italics and the dialogue dashes, put the subtitles back in order, correct the
+> texts with Gaupol's patterns, put files one after another, cut a
+> file in two, and write a translation at the positions of its main file. This manual
+> describes what exists, never what is planned; what comes next is in
+> the [roadmap](../../feuille-de-route.md).
 
 ## Sections
 
-| Section | Contenu |
+| Section | Content |
 | :------ | :------ |
-| [Installation](installation.md) | construire et installer l'outil |
-| [Invocation](invocation.md) | options globales, sorties, codes de retour |
+| [Installation](installation.md) | building and installing the tool |
+| [Invocation](invocation.md) | global options, outputs, exit codes |
 | [The settings file](invocation.md#the-settings-file) | what `adjust` and `correct` read from the window's settings file, `--config`, `--no-config` |
-| [Traiter un arbre](lots.md) | plusieurs fichiers, un répertoire entier, `--recursive` |
-| [`inspect`](inspect.md) | rapporter ce qu'un fichier contient |
-| [`convert`](convert.md) | écrire un fichier dans un autre format ou une autre forme |
-| [`shift`](shift.md) | décaler toutes les positions d'une même durée |
-| [`transform`](transform.md) | corriger toutes les positions à partir de deux repères |
-| [`framerate`](framerate.md) | recaler un fichier d'une cadence d'images vers une autre |
-| [`snap`](snap.md) | reposer les horodatages sur les images d'une cadence |
-| [`hearing-impaired`](hearing-impaired.md) | retirer les mentions pour malentendants |
-| [`adjust`](adjust.md) | ajuster les durées à une vitesse de lecture et à des bornes |
-| [`replace`](replace.md) | remplacer un texte sans casser une balise |
-| [`case`](case.md) | mettre les textes en casse de titre, de phrase, en capitales ou en minuscules |
-| [`italics`](italics.md) | mettre les textes en italique, ou retirer leur italique |
-| [`dialogue-dashes`](dialogue-dashes.md) | poser ou retirer les tirets de dialogue |
-| [`sort`](sort.md) | remettre les sous-titres dans l'ordre de leur début |
-| [`join-repeats`](join-repeats.md) | faire un seul sous-titre des morceaux d'un même texte qui se suivent |
-| [`disjoint`](disjoint.md) | découper les sous-titres qui se chevauchent pour que plus aucune plage n'en chevauche une autre |
-| [`repair`](repair.md) | enchaîner `join-repeats`, `sort` et `disjoint` sur un fichier mal segmenté, mal ordonné et qui se chevauche |
-| [`correct`](correct.md) | corriger les textes avec les motifs de Gaupol : mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage de lignes |
-| [`append`](append.md) | mettre des fichiers à la suite du premier, dans un seul fichier |
-| [`split-file`](split-file.md) | couper un fichier en deux, la queue ramenée à l'origine |
-| [`pair`](pair.md) | écrire une traduction aux positions de son principal, et dire comment ses lignes se sont posées |
+| [Processing a tree](lots.md) | several files, a whole directory, `--recursive` |
+| [`inspect`](inspect.md) | report what a file is made of |
+| [`convert`](convert.md) | write a file in another format or another shape |
+| [`shift`](shift.md) | move every position by the same amount |
+| [`transform`](transform.md) | correct every position from two points known to be right |
+| [`framerate`](framerate.md) | re-time a file from one frame rate to another |
+| [`snap`](snap.md) | put the timestamps back on the frames of a frame rate |
+| [`hearing-impaired`](hearing-impaired.md) | remove the mentions for the hearing impaired |
+| [`adjust`](adjust.md) | adjust the durations to a reading speed and to limits |
+| [`replace`](replace.md) | replace a text without breaking a tag |
+| [`case`](case.md) | put the texts in title, sentence, upper or lower case |
+| [`italics`](italics.md) | put the texts in italics, or take their italics out |
+| [`dialogue-dashes`](dialogue-dashes.md) | put dialogue dashes on, or take them off |
+| [`sort`](sort.md) | put the subtitles back in the order of their start |
+| [`join-repeats`](join-repeats.md) | make a single subtitle of the pieces of one text that follow each other |
+| [`disjoint`](disjoint.md) | cut the overlapping subtitles so that no range overlaps another any more |
+| [`repair`](repair.md) | chain `join-repeats`, `sort` and `disjoint` on a file that is badly segmented, out of order and overlapping |
+| [`correct`](correct.md) | correct the texts with Gaupol's patterns: mentions, joining and splitting words, common errors, capitalization, line breaking |
+| [`append`](append.md) | put files after the first one, into a single file |
+| [`split-file`](split-file.md) | cut a file in two, the tail brought back to the origin |
+| [`pair`](pair.md) | write a translation at the positions of its main file, and say how its lines lined up |
 | [`config`](config.md) | list, show and change the operation settings shared with the window |

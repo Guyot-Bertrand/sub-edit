@@ -1,23 +1,23 @@
 # `disjoint`
 
 ```
-subedit-cli disjoint (--output FICHIER | --output-dir DOSSIER | --in-place)
-                     [--minimum TEMPS] [--max-lines N] [--dashes] [--sort]
+subedit-cli disjoint (--output FILE | --output-dir DIR | --in-place)
+                     [--minimum TIME] [--max-lines N] [--dashes] [--sort]
                      [--dry-run] [--recursive]
-                     <fichier>...
+                     <file>...
 ```
 
-Découpe les sous-titres qui se chevauchent pour que **plus aucune plage `[début, fin]` n'en chevauche
-une autre**. C'est `Make Ranges Disjoint…` de la fenêtre — [le même moteur](../subedit-gui/lignes.md#rendre-les-plages-disjointes).
+Cuts the overlapping subtitles so that **no `[start, end]` range overlaps
+another any more**. It is `Make Ranges Disjoint…` of the window — [the same engine](../subedit-gui/lignes.md#rendre-les-plages-disjointes).
 
-**Rien n'est raccourci ni prolongé** : à chaque instant, le fichier montre les mêmes textes qu'avant. Ce qui
-change, c'est la façon dont la ligne de temps est découpée :
+**Nothing is shortened nor lengthened**: at every moment, the file shows the same texts as before. What
+changes is the way the timeline is cut:
 
-- elle est coupée à **chaque début et chaque fin** des sous-titres d'un groupe qui se chevauchent ;
-- un intervalle couvert par **un seul** sous-titre reste ce sous-titre ;
-- un intervalle couvert par **plusieurs** devient **un** sous-titre dont les lignes sont les leurs, **dans
-  l'ordre de leurs débuts** — le plus tôt en ligne 1, le suivant en ligne 2 ;
-- un sous-titre qui ne chevauche rien n'est pas touché, et l'ordre du reste est conservé.
+- it is cut at **every start and every end** of the subtitles of an overlapping group;
+- an interval covered by **a single** subtitle stays that subtitle;
+- an interval covered by **several** becomes **one** subtitle whose lines are theirs, **in
+  the order of their starts** — the earliest on line 1, the next on line 2;
+- a subtitle that overlaps nothing is not touched, and the order of the rest is kept.
 
 <!-- exemple: subedit-cli disjoint --help -->
 ```console
@@ -41,18 +41,18 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--minimum` | non | une durée : `0.08`, `1.5`, `00:00:00,080`. Zéro garde tout intervalle | `0.08` (environ deux images) |
-| `--max-lines` | non | un entier : le plus de lignes d'un sous-titre fusionné ; `0` lève la limite | `2` |
-| `--dashes` | non | un drapeau : un tiret devant le texte que chaque sous-titre apporte à un sous-titre fusionné | désactivé |
-| `--sort` | non | un drapeau : met les sous-titres dans l'ordre de leur début **avant** — voir [Il faut un fichier dans l'ordre](#il-faut-un-fichier-dans-lordre) | désactivé |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<file>...` | yes | one or more paths | — |
+| `--minimum` | no | a duration: `0.08`, `1.5`, `00:00:00,080`. Zero keeps every interval | `0.08` (about two frames) |
+| `--max-lines` | no | a whole number: the most lines of a merged subtitle; `0` lifts the limit | `2` |
+| `--dashes` | no | a flag: a dash in front of the text each subtitle brings to a merged subtitle | off |
+| `--sort` | no | a flag: puts the subtitles in the order of their start **first** — see [A file in order is needed](#a-file-in-order-is-needed) | off |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
 <!-- exemple: printf '1\n00:00:00,000 --> 00:00:05,000\nA\n\n2\n00:00:03,000 --> 00:00:08,000\nB\n\n' > chevauche.srt; subedit-cli disjoint --output disjoint.srt chevauche.srt; cat disjoint.srt -->
 ```console
@@ -72,25 +72,25 @@ B
 B
 ```
 
-`A [0, 5]` et `B [3, 8]` donnent trois sous-titres disjoints : `A` seul, `A` et `B` ensemble, `B` seul. Aucun
-instant n'est perdu ni ajouté.
+`A [0, 5]` and `B [3, 8]` give three disjoint subtitles: `A` alone, `A` and `B` together, `B` alone. No
+moment is lost nor added.
 
-## Ce que l'opération décide
+## What the operation decides
 
-**Une ligne n'est jamais dupliquée.** Deux sous-titres de même texte donnent une seule ligne là où ils se
-recouvrent, et deux morceaux voisins qui montrent la même chose ne font qu'un sous-titre. Le texte d'un
-sous-titre coupé en plusieurs morceaux est, sinon, **répété dans chacun** : c'est ce qui est à l'écran à cet
-instant.
+**A line is never duplicated.** Two subtitles with the same text give a single line where they
+overlap, and two neighbouring pieces that show the same thing make only one subtitle. The text of a
+subtitle cut into several pieces is otherwise **repeated in each one**: it is what is on screen at that
+moment.
 
-**Un intervalle très court est repris par un voisin.** Sous `--minimum`, un intervalle disparaît : le voisin
-**étend sa plage pour le couvrir**, de sorte qu'aucun instant ne reste vide et que rien ne bouge de plus que ce
-seuil. Le voisin retenu est celui dont les lignes **contiennent déjà** celles de l'intervalle, sinon le plus
-long. Le texte de l'intervalle n'est perdu que si aucun voisin ne le porte, et alors pour moins que le seuil.
-**Un sous-titre entier plus court que le seuil n'est jamais repris** : il est laissé, et compté.
+**A very short interval is taken over by a neighbour.** Under `--minimum`, an interval disappears: the neighbour
+**extends its range to cover it**, so that no moment is left empty and nothing moves by more than that
+threshold. The neighbour chosen is the one whose lines **already contain** those of the interval, otherwise the
+longest. The text of the interval is lost only if no neighbour carries it, and then for less than the threshold.
+**A whole subtitle shorter than the threshold is never taken over**: it is left, and counted.
 
-**Plus de lignes que la limite : des fenêtres.** Un sous-titre fusionné qui aurait plus de `--max-lines` lignes
-est montré **en fenêtres successives** de cette taille, en parts égales de la durée. Trois lignes sur trois
-secondes :
+**More lines than the limit: windows.** A merged subtitle that would have more than `--max-lines` lines
+is shown **in successive windows** of that size, in equal shares of the duration. Three lines over three
+seconds:
 
 <!-- exemple: printf '1\n00:00:00,000 --> 00:00:03,000\nA\n\n2\n00:00:00,000 --> 00:00:03,000\nB\n\n3\n00:00:00,000 --> 00:00:03,000\nC\n\n' > trois.srt; subedit-cli disjoint --output fenetres.srt trois.srt; cat fenetres.srt -->
 ```console
@@ -107,19 +107,19 @@ B
 C
 ```
 
-Quatre lignes donnent trois fenêtres, et ainsi de suite : la fenêtre glisse d'une ligne à la fois. Rien n'est
-tronqué ni recoupé.
+Four lines give three windows, and so on: the window slides one line at a time. Nothing is
+truncated nor cut again.
 
-**La traduction suit les mêmes coupes**, puisqu'un sous-titre porte les deux textes. **Ce que le format porte
-en plus** — un style, une position — est celui du premier sous-titre qui couvre ; la perte est comptée quand
-les sous-titres fusionnés diffèrent.
+**The translation follows the same cuts**, since a subtitle carries both texts. **What the format carries
+on top** — a style, a position — is that of the first subtitle that covers; the loss is counted when
+the merged subtitles differ.
 
-**Un sous-titre dont la fin précède le début** n'est pas deviné : il est laissé où il est, et compté.
+**A subtitle whose end comes before its start** is not guessed at: it is left where it is, and counted.
 
-## Il faut un fichier dans l'ordre
+## A file in order is needed
 
-Les groupes sont des suites de voisins : hors d'ordre, les voisins ne sont pas ceux qui se chevauchent. Un fichier
-dont les débuts ne sont pas dans l'ordre est donc **refusé**, et le message le dit :
+The groups are runs of neighbours: out of order, the neighbours are not the ones that overlap. A file
+whose starts are not in order is therefore **refused**, and the message says so:
 
 <!-- exemple: printf '1\n00:00:03,000 --> 00:00:08,000\nB\n\n2\n00:00:00,000 --> 00:00:05,000\nA\n\n' > desordre.srt; subedit-cli disjoint --output x.srt desordre.srt; echo "code $?" -->
 ```console
@@ -128,61 +128,61 @@ desordre.srt: The subtitles are not in the order of their start: sort them first
 code 2
 ```
 
-`--sort` fait le tri d'abord — le même que [`sort`](sort.md) —, et le dit. Le noyau ne trie jamais de lui-même.
+`--sort` does the sort first — the same as [`sort`](sort.md) —, and says so. The core never sorts on its own.
 
-Un second passage ne change rien : une fois les plages disjointes, il n'y a plus rien à couper, et la
-phrase dit `already disjoint`.
+A second pass changes nothing: once the ranges are disjoint, there is nothing left to cut, and the
+sentence says `already disjoint`.
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Standard output** — nothing: the result is the file written.
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles split, M merged -> <destination>`, suivi après un `;` de ce qui n'a pas pu être fait en entier : `K shown in windows for holding too many lines`, `K very short taken over by a neighbour`, `K subtitles shorter than the limit left whole`, `K merged with styles or positions that differ, the first kept`, `K subtitles ending before the start left alone` — ou `<chemin>: already disjoint -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** |
+| 1 | `<path>: N subtitles split, M merged -> <destination>`, followed after a `;` by what could not be done in full: `K shown in windows for holding too many lines`, `K very short taken over by a neighbour`, `K subtitles shorter than the limit left whole`, `K merged with styles or positions that differ, the first kept`, `K subtitles ending before the start left alone` — or `<path>: already disjoint -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
+| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** |
 
-`N subtitles split` compte les sous-titres d'origine coupés en plusieurs morceaux, `M merged` les morceaux qui
-montrent plusieurs sous-titres ensemble.
+`N subtitles split` counts the original subtitles cut into several pieces, `M merged` the pieces that
+show several subtitles together.
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), les `counts` de chaque fichier :
+With [`--format json`](invocation.md#output-a-script-can-read), the `counts` of each file:
 
-| Compte | Ce qu'il dit |
+| Count | What it says |
 | :----- | :----------- |
-| `subtitles` | les sous-titres du fichier écrit |
-| `split`, `merged` | comme dans la phrase |
-| `windowed` | les morceaux montrés en fenêtres |
-| `absorbed` | les intervalles repris par un voisin |
-| `too_short` | les sous-titres plus courts que le seuil, laissés entiers |
-| `ending_before_start` | les sous-titres dont la fin précède le début, laissés |
-| `extras_dropped` | les morceaux fusionnés dont le style ou la position diffèrent |
-| `moved` | avec `--sort` seulement : les places qui ont changé |
+| `subtitles` | the subtitles of the file written |
+| `split`, `merged` | as in the sentence |
+| `windowed` | the pieces shown in windows |
+| `absorbed` | the intervals taken over by a neighbour |
+| `too_short` | the subtitles shorter than the threshold, left whole |
+| `ending_before_start` | the subtitles whose end comes before their start, left alone |
+| `extras_dropped` | the merged pieces whose style or position differ |
+| `moved` | with `--sort` only: the places that changed |
 
-## Codes de retour
+## Exit codes
 
-Ceux de l'outil : `0` si tous les fichiers ont été traités — un fichier sans chevauchement l'est —, `2` si
-aucun, `3` si certains seulement, `1` sur une erreur d'usage.
+Those of the tool: `0` if every file was processed — a file without overlaps is —, `2` if
+none, `3` if only some, `1` on a usage error.
 
-## Erreurs
+## Errors
 
-| Ce qui les déclenche | Message |
+| What triggers them | Message |
 | :------------------- | :------ |
-| un fichier hors d'ordre sans `--sort` | `<chemin>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
-| `--minimum` n'est pas une durée, ou est négatif | `--minimum: …` |
-| `--max-lines` n'est pas un nombre entier | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
+| a file out of order without `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| `--minimum` is not a duration, or is negative | `--minimum: …` |
+| `--max-lines` is not a whole number | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 
-Un fichier illisible échoue comme pour toute sous-commande ; les erreurs de la destination sont communes aux
-sous-commandes qui écrivent : voir [Invocation](invocation.md#la-destination).
+An unreadable file fails as for any subcommand; the errors of the destination are common to the
+subcommands that write: see [Invocation](invocation.md#the-destination).
 
-## Dans les autres commandes
+## In the other commands
 
-[`convert`](convert.md#rendre-les-plages-disjointes), [`append`](append.md#rendre-les-plages-disjointes) et
-[`split-file`](split-file.md#rendre-les-plages-disjointes) acceptent `--disjoint`, qui fait la même chose avec
-les réglages par défaut, avant d'écrire.
+[`convert`](convert.md#making-the-ranges-disjoint), [`append`](append.md#making-the-ranges-disjoint) and
+[`split-file`](split-file.md#making-the-ranges-disjoint) accept `--disjoint`, which does the same thing with
+the default settings, before writing.
 
-Sur un fichier mal segmenté — un texte coupé en morceaux qui se suivent, donné hors d'ordre —, le tri et le découpage
-seuls donnent des lignes qui basculent d'un morceau à l'autre : [`join-repeats`](join-repeats.md) d'abord, ou
-[`repair`](repair.md), qui enchaîne les trois.
+On a badly segmented file — a text cut into pieces that follow each other, given out of order —, sorting and cutting
+alone give lines that flip from one piece to the next: [`join-repeats`](join-repeats.md) first, or
+[`repair`](repair.md), which chains all three.

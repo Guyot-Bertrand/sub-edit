@@ -87,5 +87,15 @@
     "name": "a French message of a Catch2 macro is refused",
     "files": {"report.cpp": "@report.cpp.txt"},
     "expect": ["UNLISTED"]
+  },
+  {
+    "name": "the example marker of the manual is a shell line, and is not read",
+    "files": {"manual.md": "@example-marker.md"},
+    "expect": []
+  },
+  {
+    "name": "any other French comment of Markdown is still read",
+    "files": {"notes.md": "@french-comment.md"},
+    "expect": ["UNLISTED"]
   }
 ]

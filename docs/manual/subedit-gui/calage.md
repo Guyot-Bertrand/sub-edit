@@ -1,5 +1,7 @@
 # Caler depuis la vidéo
 
+<!-- language: fr -->
+
 *On suppose le film ouvert et le lecteur connu : voir [Le lecteur](lecteur.md).*
 
 On regarde le film, on s'arrête sur l'image où une réplique doit commencer, et **cette position devient

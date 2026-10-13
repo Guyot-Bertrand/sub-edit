@@ -1,26 +1,26 @@
 # `framerate`
 
-> **Ce n'est pas [`snap`](snap.md).** Cette commande **met le fichier à
-> l'échelle** : elle sert quand le minutage est faux et dérive de plusieurs
-> secondes en fin de film. `snap` repose les horodatages sur la grille la plus
-> proche sans re-miner quoi que ce soit, et sert quand le minutage est déjà
-> juste. Les deux ont la même forme, une cadence ou deux, et se tromper ne provoque
-> aucune erreur.
+> **This is not [`snap`](snap.md).** This command **scales the
+> file**: it is for when the timing is wrong and drifts by several
+> seconds by the end of the film. `snap` puts the timestamps back on the nearest
+> grid without re-timing anything, and is for when the timing is already
+> right. Both have the same form, one frame rate or two, and getting them mixed up causes
+> no error.
 
 ```
 subedit-cli framerate --from <fps> --to <fps>
-                      (--output FICHIER | --output-dir DOSSIER | --in-place)
+                      (--output FILE | --output-dir DIR | --in-place)
                       [--dry-run]
                       [--recursive]
-                      <fichier>...
+                      <file>...
 ```
 
-Recale un fichier minuté pour une cadence d'images vers une autre. C'est
-l'opération qu'appelle un fichier de sous-titres récupéré pour une copie qui
-n'est pas celle du film qu'on a — un DVD PAL contre un transfert NTSC, par
-exemple.
+Re-times a file timed for one frame rate to another. It is
+the operation a subtitle file calls for when it was picked up for a copy that
+is not the one of the film one has — a PAL DVD against an NTSC transfer, for
+example.
 
-Le format du fichier lu est **conservé** : changer de format est le travail de
+The format of the file read is **kept**: changing the format is the work of
 [`convert`](convert.md).
 
 <!-- exemple: subedit-cli framerate --help -->
@@ -43,75 +43,75 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--from` | **oui** | une cadence, voir ci-dessous | — |
-| `--to` | **oui** | une cadence, voir ci-dessous | — |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<file>...` | yes | one or more paths | — |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--from` | **yes** | a frame rate, see below | — |
+| `--to` | **yes** | a frame rate, see below | — |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
-`--from` est la cadence pour laquelle le fichier **est** minuté, `--to` celle
-pour laquelle on veut qu'il le soit. Les intervertir décale le fichier dans
-l'autre sens — de l'ordre de sept secondes sur un long métrage entre 25 et
-23.976 — et rien ne le signale avant qu'on lise le film.
+`--from` is the frame rate the file **is** timed for, `--to` the one
+it is wanted for. Swapping them shifts the file the
+other way — around seven seconds on a feature film between 25 and
+23.976 — and nothing flags it before the film is watched.
 
-## Écrire une cadence
+## Writing a frame rate
 
-En images par seconde, décimales comprises, le point pour séparateur :
+In frames per second, decimals included, with the point as separator:
 
 ```
 25      24      23.976      29.97      60
 ```
 
-**Une cadence nulle ou négative est refusée** : ce n'est pas une cadence.
+**A zero or negative frame rate is refused**: it is not a frame rate.
 
-### Les trois cadences NTSC ne s'écrivent pas exactement
+### The three NTSC frame rates cannot be written exactly
 
-`23.976`, `29.97` et `59.94` sont des **étiquettes**. Les cadences qu'elles
-désignent sont `24000/1001`, `30000/1001` et `60000/1001`, dont aucune n'a
-d'écriture décimale finie. L'outil les reconnaît comme telles :
+`23.976`, `29.97` and `59.94` are **labels**. The frame rates they
+name are `24000/1001`, `30000/1001` and `60000/1001`, none of which has
+a finite decimal writing. The tool recognises them as such:
 
-| Ce qui s'écrit | Ce que cela désigne |
+| What is written | What it names |
 | :------------- | :------------------ |
-| `23.976` | `24000/1001` — cinéma transféré en vidéo NTSC |
-| `24` | `24` — cinéma |
-| `25` | `25` — vidéo PAL et SECAM |
-| `29.97` | `30000/1001` — vidéo NTSC |
-| `30`, `50`, `60` | eux-mêmes |
+| `23.976` | `24000/1001` — cinema transferred to NTSC video |
+| `24` | `24` — cinema |
+| `25` | `25` — PAL and SECAM video |
+| `29.97` | `30000/1001` — NTSC video |
+| `30`, `50`, `60` | themselves |
 | `59.94` | `60000/1001` |
 
-La reconnaissance porte sur **la valeur et non sur les lettres** : `23.9760`
-désigne la même cadence que `23.976`.
+The recognition is about **the value and not the letters**: `23.9760`
+names the same frame rate as `23.976`.
 
-Toute autre décimale est prise au pied de la lettre — `23.9` n'est le standard
-de personne, il n'y a rien à y lire. C'est aussi ce qui rend la table ci-dessus
-nécessaire : sans elle, `23.976` vaudrait `23976/1000`, et la ligne de commande
-dirait autre chose que la fenêtre pour les mêmes mots.
+Any other decimal is taken literally — `23.9` is nobody's
+standard, there is nothing to read into it. That is also what makes the table above
+necessary: without it, `23.976` would be `23976/1000`, and the command line
+would say something other than the window for the same words.
 
-## Ce que les positions deviennent
+## What the positions become
 
 ```
-t′ = arrondi( t × (from / to) )
+t′ = round( t × (from / to) )
 ```
 
-Un film masterisé à 23.976 et joué à 25 images par seconde défile plus vite,
-donc ses sous-titres arrivent plus tôt ; dans l'autre sens ils arrivent plus
-tard.
+A film mastered at 23.976 and played at 25 frames per second runs faster,
+so its subtitles arrive earlier; the other way, they arrive
+later.
 
-**Le facteur est un rationnel exact, et l'arrondi n'a lieu qu'une fois.** Le
-chemin qui paraît équivalent — convertir la position en numéro d'image à la
-cadence d'entrée, puis revenir en millisecondes à celle de sortie — ne l'est
-pas : il quantifie chaque position sur la grille d'entrée et se trompe jusqu'à
-une demi-image, soit 21 ms mesurées. Voir
-l'[ADR 0013](../../adr/0013-mise-a-l-echelle-exacte-des-positions.md).
+**The factor is an exact rational, and the rounding happens only once.** The
+path that looks equivalent — converting the position to a frame number at the
+input rate, then back to milliseconds at the output rate — is
+not: it quantises each position on the input grid and is wrong by up to
+half a frame, 21 ms measured. See
+[ADR 0013](../../adr/0013-mise-a-l-echelle-exacte-des-positions.md).
 
-Concrètement, de 25 vers 23.976, le facteur vaut `1001/960` :
+In practice, from 25 to 23.976, the factor is `1001/960`:
 
-| Position lue | Écrite | Ce que donnerait le passage par les images |
+| Position read | Written | What going through the frames would give |
 | -----------: | -----: | -----------------------------------------: |
 | `1 010 ms` | `1 053 ms` | `1 043 ms` |
 | `3 600 017 ms` | `3 753 768 ms` | `3 753 750 ms` |
@@ -125,33 +125,33 @@ a.srt: 1 subtitle retimed from 25 to 24000/1001 fps -> b.srt
 Un.
 ```
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit. Avec `--dry-run`, rien non plus : il n'y a pas de fichier, et la ligne de narration le dit — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire).
+**Standard output** — nothing: the result is the file written. With `--dry-run`, nothing either: there is no file, and the narration line says so — see [Seeing before writing](invocation.md#seeing-before-writing).
 
-| Niveau | Ce qui s'ajoute sur la sortie d'erreur |
+| Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<chemin>: N subtitles retimed from 25 to 24000/1001 fps -> <destination>` |
-| 2 | `<chemin>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<chemin>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `<path>: N subtitles retimed from 25 to 24000/1001 fps -> <destination>` |
+| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
+| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
-**La narration nomme la cadence exacte, pas l'étiquette tapée.** Écrire
-`23.976` sur cette ligne rapporterait une conversion qui n'a pas eu lieu ; c'est
-le seul endroit où l'on voit laquelle des deux a servi. Une cadence qu'une
-décimale écrit exactement s'y affiche en décimale, les autres en fraction.
+**The narration names the exact frame rate, not the label typed.** Writing
+`23.976` on that line would report a conversion that did not happen; it is
+the one place where one sees which of the two was used. A frame rate a
+decimal writes exactly is shown as a decimal there, the others as a fraction.
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), l'objet de chaque fichier porte `counts.subtitles` (tous les sous-titres du fichier). Le tableau complet est celui d'[Invocation](invocation.md#ce-que-chaque-sous-commande-met-dans-counts).
+With [`--format json`](invocation.md#output-a-script-can-read), the object of each file carries `counts.subtitles` (every subtitle of the file). The full table is [Invocation](invocation.md#what-each-subcommand-puts-in-counts)'s.
 
-## Codes de retour
+## Exit codes
 
-Ceux de l'outil : `0` si tous les fichiers ont été écrits, `2` si aucun, `3` si
-certains seulement, `1` sur une erreur d'usage.
+Those of the tool: `0` if every file was written, `2` if none, `3` if
+only some, `1` on a usage error.
 
-Aucun refus ne dépend du contenu d'un fichier : deux cadences définissent
-toujours un facteur. C'est la seule des sous-commandes qui écrivent dont
-tous les refus tombent avant la première lecture.
+No refusal depends on the content of a file: two frame rates always define
+a factor. It is the only one of the subcommands that write all of whose
+refusals come before the first reading.
 
 <!-- exemple: printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 0 --to 25 --output b.srt a.srt; echo "code=$?" -->
 ```console
@@ -160,15 +160,15 @@ $ printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framer
 code=1
 ```
 
-## Erreurs
+## Errors
 
-| Ce qui la déclenche | Message |
+| What triggers it | Message |
 | :------------------ | :------ |
-| cadence nulle ou négative | `"…" is not a frame rate: a frame rate must be strictly positive; nothing runs at that speed` |
-| virgule décimale | `"…" is not a frame rate: use a decimal point and not a comma, in every language` |
-| texte qui n'est pas un nombre | `"…" is not a frame rate: expected frames per second, like 25 or 23.976` |
-| cadence démesurée | `"…" is not a frame rate: no video runs at that many frames per second` |
+| zero or negative frame rate | `"…" is not a frame rate: a frame rate must be strictly positive; nothing runs at that speed` |
+| decimal comma | `"…" is not a frame rate: use a decimal point and not a comma, in every language` |
+| text that is not a number | `"…" is not a frame rate: expected frames per second, like 25 or 23.976` |
+| frame rate out of all proportion | `"…" is not a frame rate: no video runs at that many frames per second` |
 
-**Rien n'est écrit sans l'une des trois options de destination**, et ses
-erreurs sont communes aux sous-commandes qui écrivent :
-voir [Invocation](invocation.md#la-destination).
+**Nothing is written without one of the three destination options**, and their
+errors are common to the subcommands that write:
+see [Invocation](invocation.md#the-destination).

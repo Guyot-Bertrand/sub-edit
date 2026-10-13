@@ -1,18 +1,18 @@
 # `repair`
 
 ```
-subedit-cli repair (--output FICHIER | --output-dir DOSSIER | --in-place)
-                   [--minimum TEMPS] [--max-lines N] [--dashes]
+subedit-cli repair (--output FILE | --output-dir DIR | --in-place)
+                   [--minimum TIME] [--max-lines N] [--dashes]
                    [--dry-run] [--recursive]
-                   <fichier>...
+                   <file>...
 ```
 
-Fait, en une fois, ce que font trois commandes l'une après l'autre : [`join-repeats`](join-repeats.md), puis
-[`sort`](sort.md), puis [`disjoint`](disjoint.md). **Dans cet ordre, qui est le seul qui marche** : le découpage lit
-l'ordre des débuts, et les morceaux répétés d'un même texte sont mieux partis avant l'un comme l'autre. Sur un fichier
-mal segmenté, mal ordonné et qui se chevauche, c'est la commande à lancer.
+Does, in one go, what three commands do one after the other: [`join-repeats`](join-repeats.md), then
+[`sort`](sort.md), then [`disjoint`](disjoint.md). **In that order, which is the only one that works**: the cutting reads
+the order of the starts, and the repeated pieces of one text are better gone before either. On a file
+that is badly segmented, out of order and overlapping, it is the command to run.
 
-Les réglages sont ceux de `disjoint`, qui termine la chaîne ; `--sort` n'existe pas ici, puisque le tri est toujours fait.
+The settings are those of `disjoint`, which ends the chain; `--sort` does not exist here, since the sort is always done.
 
 <!-- exemple: subedit-cli repair --help -->
 ```console
@@ -35,17 +35,17 @@ Options:
   --dry-run                   Work out and say what would be written, and write nothing
 ```
 
-## Arguments et options
+## Arguments and options
 
-| Option | Requis | Valeurs | Défaut |
+| Option | Required | Values | Default |
 | :----- | :----- | :------ | :----- |
-| `<fichier>...` | oui | un ou plusieurs chemins | — |
-| `--minimum` | non | une durée : `0.08`, `1.5`, `00:00:00,080`. Zéro garde tout intervalle | `0.08` (environ deux images) |
-| `--max-lines` | non | un entier ; `0` lève la limite | `2` |
-| `--dashes` | non | un drapeau : un tiret devant le texte que chaque sous-titre apporte à un sous-titre fusionné | désactivé |
-| `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
-| `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
-| `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
+| `<file>...` | yes | one or more paths | — |
+| `--minimum` | no | a duration: `0.08`, `1.5`, `00:00:00,080`. Zero keeps every interval | `0.08` (about two frames) |
+| `--max-lines` | no | a whole number; `0` lifts the limit | `2` |
+| `--dashes` | no | a flag: a dash in front of the text each subtitle brings to a merged subtitle | off |
+| `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
+| `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
+| `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
 <!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:01,000 --> 00:00:04,000\nBeta\n\n' > segments.srt; subedit-cli repair --output repare.srt segments.srt; cat repare.srt -->
 ```console
@@ -57,22 +57,22 @@ Alpha
 Beta
 ```
 
-`Alpha`, coupé en deux morceaux qui se suivent, redevient un seul sous-titre ; il occupe alors la même plage que `Beta`,
-et les deux n'en font qu'un à deux lignes, le plus tôt d'abord.
+`Alpha`, cut into two pieces that follow each other, becomes a single subtitle again; it then takes up the same range as `Beta`,
+and the two make only one, of two lines, the earliest first.
 
-## Sortie
+## Output
 
-**Sortie standard** — rien : le résultat est le fichier écrit. Sur la sortie d'erreur, au premier niveau, **une phrase
-qui enchaîne les trois comptes**, séparés par des points-virgules : ce que `join-repeats`, `sort` et `disjoint` disent
-chacun, dans leurs mots — `N repeated subtitles joined; M subtitles moved; K subtitles split, L merged…`.
+**Standard output** — nothing: the result is the file written. On the error output, at the first level, **a sentence
+that chains the three counts**, separated by semicolons: what `join-repeats`, `sort` and `disjoint` each say,
+in their own words — `N repeated subtitles joined; M subtitles moved; K subtitles split, L merged…`.
 
-### En JSON
+### In JSON
 
-Avec [`--format json`](invocation.md#sortie-lisible-par-un-script), les `counts` de chaque fichier : `subtitles`, `joined`,
-`moved`, puis ceux de [`disjoint`](disjoint.md#en-json) (`split`, `merged`, `windowed`, `absorbed`, `too_short`,
+With [`--format json`](invocation.md#output-a-script-can-read), the `counts` of each file: `subtitles`, `joined`,
+`moved`, then those of [`disjoint`](disjoint.md#in-json) (`split`, `merged`, `windowed`, `absorbed`, `too_short`,
 `ending_before_start`, `extras_dropped`).
 
-## Codes de retour et erreurs
+## Exit codes and errors
 
-Ceux de l'outil. Aucune erreur n'est propre à `repair` hors des réglages, qui sont jugés comme ceux de `disjoint` :
-`--minimum` qui n'est pas une durée ou est négatif, `--max-lines` qui n'est pas un entier, code `1`.
+Those of the tool. No error is specific to `repair` beyond the settings, which are judged as those of `disjoint`:
+`--minimum` that is not a duration or is negative, `--max-lines` that is not a whole number, code `1`.

@@ -1,5 +1,7 @@
 # Rechercher et remplacer
 
+<!-- language: fr -->
+
 `Edit ▸ Find and Replace…`, ou `Ctrl+F`, ouvre le dialogue de recherche.
 
 ![Le dialogue de recherche, un motif saisi, sur ses options par

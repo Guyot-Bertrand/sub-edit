@@ -1,5 +1,7 @@
 # Correct Texts…
 
+<!-- language: fr -->
+
 `Tools ▸ Correct Texts…` ouvre un assistant à plusieurs pages, sur le modèle de
 celui de Gaupol : une page de cible et de tâches, une page par tâche cochée,
 une page de progression, et une page de confirmation qui propose les
