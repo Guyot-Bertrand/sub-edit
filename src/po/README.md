@@ -40,6 +40,35 @@ $ make pot-check  # fail when subedit.pot is not what the code produces (part of
 `make pot` is reproducible: same sources, same bytes. Sources are sorted, locations name the file only (a line number
 would change at every insertion), and `POT-Creation-Date` is the template value.
 
+## The gate: translations that fall behind
+
+```console
+$ make translations   # part of check-local, right after pot-check
+```
+
+The `translations` step (`src/scripts/check-translations.py`, #670) merges the template into a scratch copy of every
+catalogue — `update-po.sh --into`, the same merge as `make po` — and compares the result with the committed file by
+content: entries, translations and flags, never line wrapping, references or the header. **A language of `LINGUAS`
+must come out complete**; a seed is only reported. The report is a table, one line per language — translated,
+untranslated, fuzzy and obsolete entries of the merged copy, and the share of the template it translates — then a
+line per seed with what else it has, then, for an installed language that fails, its first ten entries by kind:
+
+| Kind | What it means | What to do |
+| :--- | :------------ | :--------- |
+| `NO-FILE` | `LINGUAS` names a language that has no `.po` | add the catalogue, or remove the line |
+| `UNTRANSLATED` | the entry has no translation, or a plural form is empty | translate it |
+| `NEW` | the template has the entry and the committed catalogue does not | `make po`, then translate it |
+| `FUZZY` | the committed entry is flagged `fuzzy` | review it, then remove the flag |
+| `CHANGED` | the merge brings the entry back flagged `fuzzy`: its English changed | `make po`, then review it |
+| `GONE` | the template no longer has an entry the catalogue translates | `make po`, which makes it obsolete |
+| `DIFFERS` | the merge changes the entry's flags | `make po` |
+| `PLACEHOLDERS` | the `%N` arguments are not the source's — each plural form a subset, together all of them | fix the translation |
+| `ACCELERATOR` | the source has an `&` mnemonic and the translation not, the reverse, or two | fix the translation |
+| `PLURAL-FORMS` | a plural has not as many forms as the header's `Plural-Forms` | fix the forms or the header |
+
+Obsolete entries are counted and never fail: `make po` keeps them. A seed's accelerator mismatches are real — Gaupol
+put no mnemonic where we have one — and wait for the translator who takes the seed over.
+
 ## The seeds from Gaupol
 
 Every `<lang>.po` that `LINGUAS` does not name is a **seed** (#667): our template, with the translations of Gaupol's

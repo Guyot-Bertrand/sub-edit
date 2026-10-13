@@ -327,6 +327,27 @@ dialog under English and under the Russian fixture and finds each text the fixtu
 assembled from its words changed, and no key of the fixture left in English (`GUI-I18N-01`); others prove a count in
 three forms and a sentence whose arguments Russian reorders.
 
+**Delivered by #670.** `src/scripts/check-translations.py` judges every catalogue of `src/po/` by what `make po` would
+make of it: the template, as `pot-check` proves it, is merged into a scratch copy of each catalogue by
+`update-po.sh --into`, the same function and flags as `make po` (fuzzy matching for a language of `LINGUAS`, none for a
+seed), and nothing of `src/po/` is written. The committed and the merged catalogue are compared by **content, not
+bytes** — each entry's context, msgid, plural and obsolete state as its key, its translations and flags as its value;
+line wrapping, references, comments and the header are layout, and a harmless rewrap does not fail. Per language it
+counts translated, untranslated, fuzzy and obsolete entries, and finds, entry by entry: untranslated, `NEW` (added to
+the template since the catalogue was last merged), `FUZZY`, `CHANGED` (brought back fuzzy by the merge), `GONE` (made
+obsolete by the merge), a `%N` set that is not the source's, an `&` mnemonic lost, added or doubled, and a plural
+whose forms are not the header's `Plural-Forms`. **An installed language fails on any of them**, and so does a line of
+`LINGUAS` with no catalogue; the report names the first ten offending entries with their kind. **A seed is only
+reported**: its counts, its share of the template and how many entries of each kind it has; obsolete entries are
+counted and never fail. The step is `translations`, in `check-local` right after `pot-check` — it reads `.po` files,
+needs msgmerge only and takes about a second, and, like `pot-check`, it fails with the install hint when the tool is
+missing. Its cases — one template, a complete, a stale and a malformed catalogue, run under five `LINGUAS` — live in
+`src/test/data/i18n/stale/` and are replayed by the `fixtures` step; `verify-gates.sh` proves on a scratch copy of
+`src/po/` that the catalogues pass as they are, that one French entry emptied is refused and named, and that the same
+entry emptied in the German seed passes, reported. **On 2026-10-13** French is complete, 893 of 893; the 19 seeds
+translate from 72 (8 %, `it_IT`) to 163 (18 %, `es`, `nl`, `pt`), and five of them carry 31 accelerator mismatches in
+all, reported only.
+
 ## Settings shared by the window and the command line (#699)
 
 **Issue:** [#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699). Framed first as a standalone spec, then folded
