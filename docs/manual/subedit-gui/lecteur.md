@@ -1,5 +1,7 @@
 # Le lecteur
 
+<!-- language: fr -->
+
 La vidéo associée se regarde **dans la fenêtre**, avec la réplique courante
 dessinée par-dessus. C'est ce qui permet de vérifier sur le film le résultat
 d'un décalage, d'une transformation ou d'une conversion de fréquence.

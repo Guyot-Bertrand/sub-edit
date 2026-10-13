@@ -1800,6 +1800,11 @@ expect_gui_manual_gate() {
     sed -i 's/| `Ctrl+P` | joue si/| aucun | joue si/' "${root}/manual/lecteur.md"
     expect_gui_manual_refused "aucun pour Play / Pause" "RACCOURCI OUBLIÉ"
 
+    proof_header '%s▸ a French page whose language is not declared, read as English%s\n' "${BOLD}" "${RESET}"
+    fresh_manual
+    sed -i '/^<!-- language: fr -->$/d' "${root}/manual/lecteur.md"
+    expect_gui_manual_refused "lecteur.md without its declaration" "PAGE LANGUAGE IN DOUBT"
+
     proof_header '%s▸ une action dont le raccourci n est écrit nulle part%s\n' "${BOLD}" "${RESET}"
     fresh_manual
     cat > "${root}/faux-programme" <<FAKE
@@ -1817,10 +1822,12 @@ expect_gui_manual_gate
 
 # Les contrôles du manuel lisent le vocabulaire de la langue de la page — #657.
 #
-# **Deux preuves par contrôle, et la même page pour les deux** : une page anglaise de quelques
-# lignes, sous `docs/i18n/en/manual/`, est acceptée quand une table anglaise est fournie, et
+# **Deux preuves par contrôle, et la même page pour les deux** : une page espagnole de quelques
+# lignes, sous `docs/i18n/es/manual/`, est acceptée quand une table espagnole est fournie, et
 # **refusée, en le disant, quand elle ne l'est pas**. Le défaut est le silence : un contrôle qui
-# cherche « Raccourci » sur une page qui écrit « Shortcut » ne trouve aucun tableau, et se tait.
+# cherche « Shortcut » sur une page qui écrit « Atajo » ne trouve aucun tableau, et se tait.
+# The fixture is in a language with no shipped table on purpose: English and French have theirs
+# since #671, and the proof is about any language that does not, whichever it is.
 # Les deux programmes sont de faux binaires qui déclarent juste de quoi faire concorder la page,
 # pour qu'aucun autre écart ne se mêle au seul qu'on cherche.
 expect_vocabulary_gate() {
@@ -1841,7 +1848,7 @@ esac
 FAKE
     chmod +x "${root}/fake-gui" "${root}/fake-cli"
 
-    local tree="${fixture}/docs/i18n/en/manual" table="${fixture}/vocabulary-en.json"
+    local tree="${fixture}/docs/i18n/es/manual" table="${fixture}/vocabulary-es.json"
     local name script manual binary output
     local -a extra
     for name in gui cli; do
@@ -1851,11 +1858,11 @@ FAKE
         extra=()
         [[ "${name}" == cli ]] && extra=(--man-page "${root}/absent.1.in")
 
-        proof_header '%s▸ une page anglaise, avec sa table de vocabulaire (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
+        proof_header '%s▸ a Spanish page, with its vocabulary table (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
         if "${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" --vocabulary "${table}" >/dev/null 2>&1; then
-            printf '  %s✓ « check-%s-manual.py » a lu la page anglaise, comme attendu%s\n' "${GREEN}" "${name}" "${RESET}"
+            printf '  %s✓ « check-%s-manual.py » read the Spanish page, as expected%s\n' "${GREEN}" "${name}" "${RESET}"
         else
-            printf '  %s✗ le contrôle refuse une page anglaise munie de sa table%s\n' "${RED}" "${RESET}"
+            printf '  %s✗ the check refuses a Spanish page that has its table%s\n' "${RED}" "${RESET}"
             failures=$((failures + 1))
         fi
 

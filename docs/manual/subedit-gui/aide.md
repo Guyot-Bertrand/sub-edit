@@ -1,5 +1,7 @@
 # Le manuel dans la fenêtre
 
+<!-- language: fr -->
+
 `Help ▸ Manual`, ou `F1`, ouvre **ce manuel-ci** dans une fenêtre à lui.
 
 ![Le manuel ouvert dans sa fenêtre, palette claire : la barre de navigation, le

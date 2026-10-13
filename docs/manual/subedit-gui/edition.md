@@ -1,5 +1,7 @@
 # Éditer une cellule
 
+<!-- language: fr -->
+
 Quatre colonnes s'éditent en place : `Start`, `End`, `Duration` et `Text` — cinq
 avec la colonne `Translation`, quand le projet a une traduction. `#` ne s'édite
 pas — le numéro est le rang de la ligne, pas une donnée du fichier.

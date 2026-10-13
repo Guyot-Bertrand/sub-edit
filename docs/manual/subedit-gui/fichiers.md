@@ -1,5 +1,7 @@
 # Ouvrir et enregistrer
 
+<!-- language: fr -->
+
 Le menu **File** porte les trois commandes, deux pour les onglets, et trois de
 plus pour la traduction ; le menu **Projects** agit sur tous les onglets à la fois.
 

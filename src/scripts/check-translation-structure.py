@@ -35,6 +35,13 @@ A link that leaves the tree is compared after resolving it, and a link into the
 translated tree counts as its counterpart in the source tree, so `../x.md`
 written from a page one directory deeper is the same link.
 
+**A page of the source tree that declares another language is not a source
+yet**, and no translation of it is required: until the window manual is
+translated (#672), its French pages live in `docs/manual/` and say so with
+`<!-- language: fr -->` in their first lines (`doc_vocabulary.py`). They are
+counted and named in the report, never silently left out; the declaration
+of the source language itself exempts nothing.
+
 With no translated tree the check says so and passes: it does not pretend to
 have compared anything. `--check-fixtures` replays the versioned cases of
 `src/test/data/traductions/`.
@@ -51,6 +58,8 @@ import shutil
 import sys
 import tempfile
 from dataclasses import dataclass, field
+
+import doc_vocabulary
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 SOURCE = REPO_ROOT / "docs/manual"
@@ -287,10 +296,21 @@ def pages(root: pathlib.Path) -> dict[str, pathlib.Path]:
     return {str(page.relative_to(root)): page for page in sorted(root.rglob("*.md"))}
 
 
+def not_yet_source(source: pathlib.Path) -> list[str]:
+    """The pages of the source tree that declare a language other than the source's."""
+    root = source.resolve()
+    return [
+        name for name, page in pages(root).items()
+        if doc_vocabulary.declared_language(page.read_text(encoding="utf-8"))
+        not in (None, doc_vocabulary.SOURCE_LANGUAGE)
+    ]
+
+
 def check_pair(source: pathlib.Path, translation: pathlib.Path) -> list[tuple[str, str, int, str]]:
     source_root = source.resolve()
     translation_root = translation.resolve()
-    from_source = pages(source_root)
+    pending = set(not_yet_source(source_root))
+    from_source = {name: page for name, page in pages(source_root).items() if name not in pending}
     from_translation = pages(translation_root)
     found: list[tuple[str, str, int, str]] = []
     for name in sorted(from_source.keys() - from_translation.keys()):
@@ -324,6 +344,9 @@ def check_fixtures() -> int:
             docs = pathlib.Path(scratch) / "docs"
             shutil.copytree(CASES / "docs", docs)
             translation = docs / "i18n/es/manual"
+            for name, text in case.get("source_edit", {}).items():
+                path = docs / "manual" / name
+                path.write_text(text + path.read_text(encoding="utf-8"), encoding="utf-8")
             edit = case.get("edit", {})
             if "delete" in edit:
                 (translation / edit["delete"]).unlink()
@@ -374,6 +397,11 @@ def main() -> int:
     if not trees:
         print(f"{GREEN}✓{RESET} no translated manual: nothing to compare with the source")
         return 0
+
+    pending = not_yet_source(args.source)
+    if pending:
+        print(f"• {len(pending)} page(s) of {args.source} not yet in the source language, "
+              f"so not required of a translation: {', '.join(pending)}")
 
     total = 0
     for tree in trees:

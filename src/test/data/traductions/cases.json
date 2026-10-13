@@ -43,5 +43,12 @@
    "expect": {"kind": "CODE SPAN", "page": "sub/page.md", "line": 3}},
   {"name": "a list item lost",
    "edit": {"file": "index.md", "old": "- un tercer elemento\n", "new": ""},
-   "expect": {"kind": "LIST ITEMS", "page": "index.md", "line": 8}}
+   "expect": {"kind": "LIST ITEMS", "page": "index.md", "line": 8}},
+  {"name": "a source page declared in another language is not required of a translation",
+   "source_edit": {"sub/page.md": "<!-- language: fr -->\n"},
+   "edit": {"delete": "sub/page.md"}},
+  {"name": "a source page declared in the source language is still required",
+   "source_edit": {"sub/page.md": "<!-- language: en -->\n"},
+   "edit": {"delete": "sub/page.md"},
+   "expect": {"kind": "MISSING PAGE", "page": "sub/page.md", "line": 0}}
 ]

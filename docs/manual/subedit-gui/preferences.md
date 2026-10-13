@@ -1,5 +1,7 @@
 # Les préférences
 
+<!-- language: fr -->
+
 La fenêtre se souvient de ce qu'on a posé à la souris — **où elle était**, **si
 elle était agrandie**, **la largeur de ses colonnes**, **la position de la
 poignée** entre le film et la table — et de **là où l'on travaille**, pour que

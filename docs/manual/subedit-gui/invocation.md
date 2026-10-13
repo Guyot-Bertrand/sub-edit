@@ -1,5 +1,7 @@
 # Invocation
 
+<!-- language: fr -->
+
 ```
 subedit-gui [--version] [<fichier>]
 ```

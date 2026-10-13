@@ -63,7 +63,9 @@ Before the vote, a line loses what is not prose: inline code between backticks,
 URLs, Markdown link targets, quotations between guillemets or curly quotes,
 alternations of words (`le|la|les`, the vocabulary of a language check),
 command-line options (`-ne`, `--le`), and, in Markdown, whole fenced code
-blocks. Lines shorter than twelve characters are not voted on. A line that
+blocks and the example markers of the manual (`<!-- exemple: <shell line> -->`,
+the line `generate-manual.sh` runs and repeats at the head of the block below:
+code, whatever language its sample subtitles are in). Lines shorter than twelve characters are not voted on. A line that
 names a French locale explicitly — `[fr]`, `xml:lang="fr"` — is a translation
 and is skipped.
 
@@ -141,6 +143,8 @@ ALTERNATION = re.compile(r"\|?\w+(?:\|\w+)+")
 OPTION = re.compile(r"(?<![\w-])--?[A-Za-z][\w-]*")
 LOCALE_TAG = re.compile(r"\[fr(?:_[A-Z]{2})?\]|lang=[\"']fr")
 FENCE = re.compile(r"^\s*(```|~~~)")
+# The marker of a replayed example of the manual: a shell line, not prose (generate-manual.sh).
+EXAMPLE_MARKER = re.compile(r"^\s*<!--\s*exemple:.*-->\s*$")
 CPP = (".cpp", ".hpp", ".h", ".cc")
 # A comment, a raw string, a string or a character literal of C++, in the order they open.
 CPP_TOKEN = re.compile(
@@ -244,7 +248,7 @@ def french_lines(path: str, text: str) -> list[int]:
         if markdown and FENCE.match(line):
             fenced = not fenced
             continue
-        if fenced:
+        if fenced or (markdown and EXAMPLE_MARKER.match(line)):
             continue
         if is_french(line):
             found.append(number)

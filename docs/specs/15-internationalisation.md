@@ -233,6 +233,32 @@ macros are read, and any other string literal is data.
 - **Translator.** Claude translates; the maintainer reads the English. Identifiers (requirement IDs, ADR numbers, anchors,
   option and key names) never change.
 
+**Delivered by [#671](https://github.com/Guyot-Bertrand/sub-edit/issues/671) — the command-line manual.** The French
+pages of `docs/manual/subedit-cli/` and the top-level `docs/manual/index.md` moved to `docs/i18n/fr/manual/`, same names,
+same layout; the English pages took their place and are the source. `config.md`, written in English by #699, got its
+French page. Nothing in the layout or the checks names French: a manual in language `<lang>` is the tree
+`docs/i18n/<lang>/manual/`, and every check finds it by that path.
+
+| Check | What it holds for every `docs/i18n/<lang>/manual/` |
+| :---- | :------------------------------------------------- |
+| `check-translation-structure.py` | every source page has its translation, with the same headings, tables, code blocks, links and inline code |
+| `generate-manual.sh` | the examples of every tree are replayed and rewritten, so they never drift from the source's |
+| `check-cli-manual.py`, `check-gui-manual.py` | each tree is read with the vocabulary of its language (`doc_vocabulary.py`), and a language without a table is refused |
+| `check-manual-links.py` | the links of every tree resolve |
+
+Inline code and code blocks are the same bytes in every tree, so the placeholders of the synopses and messages are
+English everywhere (`<path>`, `FILE`, `DIR`), like the metavariables the program prints. A page of `docs/manual/` that
+is not yet in English — the window manual, until [#672](https://github.com/Guyot-Bertrand/sub-edit/issues/672) —
+declares its language with `<!-- language: fr -->` under its title: the vocabulary checks read it in that language,
+the structure check names it and does not require its translation, and a French table read as English is refused
+(`PAGE LANGUAGE IN DOUBT`) rather than silently skipped.
+
+**Starting the manual of a new language** is: copy `docs/manual/` to `docs/i18n/<lang>/manual/`, add the language's
+table to `doc_vocabulary.py` (the words of its shortcut, option and subcommand headers), and translate the prose. From
+the first commit of the tree, the checks hold it to the source page for page: a missing or extra page, a heading, a
+table row, a code block or a link that differs fails `manual-check`, and so does a tree whose language has no table. A
+partial translation is not accepted — there is no exemption list.
+
 ## D9 — Help and `man` pages: one source
 
 The manual is the single source. **The window's help** installs `docs/manual` and each installed language's tree under

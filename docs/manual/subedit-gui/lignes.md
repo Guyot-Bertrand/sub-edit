@@ -1,5 +1,7 @@
 # Insérer, supprimer, fusionner, scinder, trier et rendre disjointes des lignes
 
+<!-- language: fr -->
+
 Huit entrées du menu `Edit`, sous un séparateur qui les sépare de
 `Find and Replace…`. Quatre ont en commun de changer le nombre de lignes, là où
 couper, copier et coller, plus haut, déplacent des textes ; `Sort Subtitles` ne
@@ -179,9 +181,9 @@ pour qu'on les trouve sans faire défiler la table.
 
 En ligne de commande, [`sort`](../subedit-cli/sort.md) fait de même sur des
 fichiers, et `--sort` le fait au passage sur
-[`convert`](../subedit-cli/convert.md#trier-à-lécriture),
-[`append`](../subedit-cli/append.md#trier-le-résultat) et
-[`split-file`](../subedit-cli/split-file.md#couper-dans-lordre-du-temps).
+[`convert`](../subedit-cli/convert.md#sorting-on-writing),
+[`append`](../subedit-cli/append.md#sorting-the-result) et
+[`split-file`](../subedit-cli/split-file.md#cutting-in-time-order).
 
 ## Fusionner les sous-titres répétés
 
@@ -295,9 +297,9 @@ est une entrée d'historique, et un fichier sans rien à corriger n'est l'objet
 d'aucune question.
 
 En ligne de commande, [`disjoint`](../subedit-cli/disjoint.md) fait de même sur des fichiers, et `--disjoint`
-le fait au passage sur [`convert`](../subedit-cli/convert.md#rendre-les-plages-disjointes),
-[`append`](../subedit-cli/append.md#rendre-les-plages-disjointes) et
-[`split-file`](../subedit-cli/split-file.md#rendre-les-plages-disjointes).
+le fait au passage sur [`convert`](../subedit-cli/convert.md#making-the-ranges-disjoint),
+[`append`](../subedit-cli/append.md#making-the-ranges-disjoint) et
+[`split-file`](../subedit-cli/split-file.md#making-the-ranges-disjoint).
 
 ### Pourquoi pas les raccourcis de Gaupol
 

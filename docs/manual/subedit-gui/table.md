@@ -1,5 +1,7 @@
 # La table
 
+<!-- language: fr -->
+
 La fenêtre montre les sous-titres du fichier ouvert, un par ligne, dans cinq
 colonnes — six quand le projet porte une traduction.
 
