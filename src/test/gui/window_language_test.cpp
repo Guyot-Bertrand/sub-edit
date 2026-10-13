@@ -2,7 +2,14 @@
 // toolbar, columns, tabs, status line) follows the catalogue chosen at start-up, and English is
 // what remains when the language asked for is not installed. Read through the fixture
 // `data/i18n/window.po`, compiled as Russian, which has three plural forms.
+//
+// **The harness of #669 is this one**: `InterfaceLanguage` given an environment, a settings file
+// and the fixture's locale directory, then a window built with no screen, as `main` builds it.
+// The setting `interface.language` is proven here too (`GUI-I18N-02`): offered by `Preferences…`,
+// kept in the settings file, and applied at the next launch — never to the window it was chosen in.
 
+#include <subedit/core/config/settings.hpp>
+#include <subedit/core/config/theme.hpp>
 #include <subedit/core/format/diagnostic.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/i18n/catalogue.hpp>
@@ -11,14 +18,18 @@
 #include <subedit/core/model/document.hpp>
 #include <subedit/gui/diagnostics_button.hpp>
 #include <subedit/gui/interface_language.hpp>
+#include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/messages.hpp>
+#include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/target.hpp>
 
 #include <QAbstractItemModel>
 #include <QAction>
 #include <QByteArray>
+#include <QComboBox>
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QFile>
 #include <QLabel>
@@ -42,6 +53,7 @@
 #include <filesystem>
 #include <map>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -379,4 +391,204 @@ TEST_CASE("a message's arguments are substituted in one pass, whatever they hold
                                    QStringLiteral("%2"),
                                    QStringLiteral("é")) == QStringLiteral("é before %2"));
     CHECK(subedit::gui::translateIn("toolbar", "Main") == QStringLiteral("Main"));
+}
+
+// ## The setting `interface.language` — issue #669
+
+namespace {
+
+using subedit::gui::LanguageChoice;
+using subedit::gui::PreferencesDialog;
+
+/// Where the settings file is, in memory: a test never resolves a location, it is given one.
+constexpr const char* kSettings = "/config/subedit/settings.conf";
+
+/// An English user's environment.
+[[nodiscard]] EnvironmentLookup english() {
+    return environmentOf({{"LANG", "en_US.UTF-8"}});
+}
+
+/// The language the window starts in, as `main` chooses it: the settings in `files`, then
+/// `environment`, against the fixture's catalogues.
+[[nodiscard]] std::optional<std::string> startedIn(const InMemoryFileSystem& files,
+                                                   const EnvironmentLookup& environment) {
+    const InterfaceLanguage language{
+        subedit::gui::settingsLanguage(files, kSettings), environment, kLocale, QString{}};
+    const EmptyWindow shell;
+    // The window follows the language chosen, whatever it is.
+    CHECK(menuTitles(shell.window).front() ==
+          (language.language() == "ru" ? QStringLiteral("&Файл") : QStringLiteral("&File")));
+    return language.language();
+}
+
+/// A settings file holding `content`.
+[[nodiscard]] InMemoryFileSystem settingsOf(const std::string& content) {
+    InMemoryFileSystem files;
+    files.addFile(kSettings, content);
+    return files;
+}
+
+/// The texts of a combo box, in order.
+[[nodiscard]] std::vector<QString> entriesOf(const QComboBox& box) {
+    std::vector<QString> entries;
+    entries.reserve(static_cast<std::size_t>(box.count()));
+    for (int index = 0; index < box.count(); ++index)
+        entries.push_back(box.itemText(index));
+    return entries;
+}
+
+/// Picks `language` in the dialog the window opens, when it is `Preferences…`.
+void pick(subedit::test::FakePrompts& prompts, const QString& language) {
+    prompts.fill = [language](QDialog& dialog) {
+        if (auto* preferences = dynamic_cast<PreferencesDialog*>(&dialog)) {
+            QComboBox& box = *preferences->languageBox();
+            box.setCurrentIndex(box.findData(language));
+        }
+    };
+}
+
+} // namespace
+
+TEST_CASE("Preferences offers the system's language and every installed one, by its own name",
+          "[gui][i18n][GUI-I18N-02]") {
+    const PreferencesDialog dialog{
+        subedit::core::Theme::System,
+        {},
+        {},
+        LanguageChoice{.installed = subedit::core::availableLanguages(kLocale)}};
+
+    // English, the source, is always there; the fixture installs Russian.
+    CHECK(entriesOf(*dialog.languageBox()) == std::vector<QString>{QStringLiteral("System default"),
+                                                                   QStringLiteral("English"),
+                                                                   QStringLiteral("Русский")});
+    CHECK(dialog.languageBox()->currentIndex() == 0);
+    CHECK_FALSE(dialog.interfaceLanguage().has_value());
+
+    // And it says when the choice applies.
+    const QList<QLabel*> labels = dialog.findChildren<QLabel*>();
+    CHECK(std::ranges::any_of(labels, [](const QLabel* label) {
+        return label->text() == QStringLiteral("Takes effect at the next launch.");
+    }));
+
+    dialog.languageBox()->setCurrentIndex(2);
+    CHECK(dialog.interfaceLanguage() == "ru");
+    dialog.languageBox()->setCurrentIndex(1);
+    CHECK(dialog.interfaceLanguage() == "en");
+}
+
+TEST_CASE("Preferences opens on the language the settings name, kept even when not installed",
+          "[gui][i18n][GUI-I18N-02]") {
+    const PreferencesDialog russian{
+        subedit::core::Theme::System, {}, {}, LanguageChoice{.chosen = "ru", .installed = {"ru"}}};
+    CHECK(russian.languageBox()->currentText() == QStringLiteral("Русский"));
+    CHECK(russian.interfaceLanguage() == "ru");
+
+    // A setting brought from another machine is shown as it is, and given back unchanged.
+    const PreferencesDialog german{
+        subedit::core::Theme::System, {}, {}, LanguageChoice{.chosen = "de"}};
+    CHECK(german.languageBox()->currentText() == QStringLiteral("Deutsch"));
+    CHECK(german.interfaceLanguage() == "de");
+    const PreferencesDialog unknown{
+        subedit::core::Theme::System, {}, {}, LanguageChoice{.chosen = "xx"}};
+    CHECK(unknown.languageBox()->currentText() == QStringLiteral("xx"));
+    CHECK(unknown.interfaceLanguage() == "xx");
+}
+
+TEST_CASE("the language chosen is kept to the next session, and applies at the next launch",
+          "[gui][i18n][GUI-I18N-02]") {
+    InMemoryFileSystem settingsFiles;
+    std::ostringstream errors;
+    {
+        EmptyWindow first;
+        first.window.setLocaleDirectory(kLocale);
+        pick(first.prompts, QStringLiteral("ru"));
+        first.prompts.nextRun = true;
+        first.window.preferencesAction()->trigger();
+
+        // Not applied to the window it was chosen in: it was built in English and stays so.
+        CHECK(menuTitles(first.window).front() == QStringLiteral("&File"));
+        CHECK(first.window.settings().interfaceLanguage == "ru");
+        subedit::gui::writeUserSettings(settingsFiles, kSettings, first.window.settings(), errors);
+    }
+
+    // The next launch: an English environment, and the setting wins.
+    CHECK(startedIn(settingsFiles, english()) == "ru");
+
+    // Read back by the window, and handed back to the file it came from.
+    EmptyWindow second;
+    second.window.applySettings(subedit::gui::readUserSettings(settingsFiles, kSettings, errors));
+    CHECK(second.window.settings().interfaceLanguage == "ru");
+    CHECK(errors.str().empty());
+}
+
+TEST_CASE("main reads the language where the window's settings are written",
+          "[gui][i18n][GUI-I18N-02]") {
+    // In memory, at the location the harness moved (`XDG_CONFIG_HOME`): the resolving overloads
+    // are used as keys and nothing else, as `configureFromEnvironment`'s test uses them.
+    InMemoryFileSystem files;
+    std::ostringstream errors;
+    subedit::gui::writeUserSettings(
+        files, subedit::core::Settings{.interfaceLanguage = "ru"}, errors);
+
+    CHECK(subedit::gui::settingsLanguage(files) == "ru");
+    CHECK(errors.str().empty());
+}
+
+TEST_CASE("cancelled preferences leave the interface language as it was",
+          "[gui][i18n][GUI-I18N-02]") {
+    EmptyWindow shell;
+    shell.window.setLocaleDirectory(kLocale);
+    shell.window.applySettings(subedit::core::Settings{.interfaceLanguage = "en"});
+    pick(shell.prompts, QStringLiteral("ru"));
+    shell.prompts.nextRun = false;
+
+    shell.window.preferencesAction()->trigger();
+
+    CHECK(shell.window.settings().interfaceLanguage == "en");
+}
+
+TEST_CASE("the setting wins over the environment, and system follows it",
+          "[gui][i18n][GUI-I18N-02]") {
+    SECTION("a language installed, under an English environment") {
+        CHECK(startedIn(settingsOf("interface.language = ru\n"), english()) == "ru");
+    }
+    SECTION("a language installed, under LC_ALL=C") {
+        CHECK(startedIn(settingsOf("interface.language = ru\n"),
+                        environmentOf({{"LC_ALL", "C"}})) == "ru");
+    }
+    SECTION("English, under a Russian environment") {
+        CHECK_FALSE(startedIn(settingsOf("interface.language = en\n"), russian()).has_value());
+    }
+    SECTION("system, under a Russian environment and under an English one") {
+        CHECK(startedIn(settingsOf("interface.language = system\n"), russian()) == "ru");
+        CHECK_FALSE(startedIn(settingsOf("interface.language = system\n"), english()).has_value());
+    }
+    SECTION("no settings file at all") {
+        CHECK(startedIn(InMemoryFileSystem{}, russian()) == "ru");
+    }
+}
+
+TEST_CASE("a language that is not installed, or a value that cannot be read, leaves the default",
+          "[gui][i18n][GUI-I18N-02]") {
+    SECTION("not installed: the environment decides, silently") {
+        const InMemoryFileSystem files = settingsOf("interface.language = de\n");
+        CHECK_FALSE(startedIn(files, english()).has_value());
+        CHECK(startedIn(files, russian()) == "ru");
+
+        std::ostringstream errors;
+        CHECK(subedit::gui::readUserSettings(files, kSettings, errors).interfaceLanguage == "de");
+        CHECK(errors.str().empty());
+    }
+    SECTION("unreadable: system, and the diagnostic every setting gives") {
+        const InMemoryFileSystem files = settingsOf("interface.language = Klingon\n");
+        CHECK_FALSE(subedit::gui::settingsLanguage(files, kSettings).has_value());
+        CHECK_FALSE(startedIn(files, english()).has_value());
+        CHECK(startedIn(files, russian()) == "ru");
+
+        std::ostringstream errors;
+        CHECK_FALSE(
+            subedit::gui::readUserSettings(files, kSettings, errors).interfaceLanguage.has_value());
+        CHECK(errors.str() == "subedit-gui: /config/subedit/settings.conf: interface.language: "
+                              "\"Klingon\" cannot be read, keeping the default\n");
+    }
 }

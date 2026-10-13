@@ -28,11 +28,12 @@ int main(int argc, char** argv) {
         if (subedit::gui::reportVersion(arguments, std::cout))
             return 0;
 
-        // The language, once, before anything is built (spec 15, D4): every label is
-        // translated as the window builds it, and English is put back as this goes.
-        const subedit::gui::InterfaceLanguage language;
-
         subedit::core::RealFileSystem files;
+
+        // The language, once, before anything is built (spec 15, D4): every label is
+        // translated as the window builds it, and English is put back as this goes. The
+        // setting `interface.language` first, the environment otherwise (#669).
+        const subedit::gui::InterfaceLanguage language{subedit::gui::settingsLanguage(files)};
         subedit::core::OpenedFile opened =
             subedit::gui::openFromArguments(files, arguments, std::cerr);
 

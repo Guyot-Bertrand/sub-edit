@@ -123,6 +123,7 @@ void configureFromEnvironment(MainWindow& window,
                               std::ostream& errors) {
     window.applySettings(readUserSettings(files, errors));
     window.setManualPath(installedManualPath());
+    window.setLocaleDirectory(platform::installedLocalePath());
     window.setPatternCatalogue(core::readPatternCatalogue(
         files, platform::installedPatternsPath(), platform::resolvedUserPatternsPath()));
     window.setSpellChecking(std::make_shared<const core::EnchantSpellProvider>(),

@@ -321,9 +321,13 @@ TEST_CASE("every dialog shows its words in the chosen language", "[gui][i18n][GU
         checkTranslated([] { return std::make_shared<subedit::gui::AboutDialog>(); });
     }
     SECTION("Preferences") {
-        checkTranslated([] {
-            return std::make_shared<subedit::gui::PreferencesDialog>(subedit::core::Theme::System);
-        });
+        // A language is listed by its own name, which no catalogue translates (#669).
+        checkTranslated(
+            [] {
+                return std::make_shared<subedit::gui::PreferencesDialog>(
+                    subedit::core::Theme::System);
+            },
+            {QStringLiteral("English")});
     }
     SECTION("Correct Texts, every page") {
         const auto catalogue = std::make_shared<subedit::core::PatternCatalogue>(emptyCatalogue());

@@ -404,6 +404,15 @@ public:
     /// nothing, it puts an entry out.
     void setManualPath(std::filesystem::path directory);
 
+    /// Where the installed message catalogues are, for the languages `Preferences…` offers —
+    /// issue #669. **Received, not resolved**, as the manual is: `configureFromEnvironment` passes
+    /// `platform::installedLocalePath()`, a test its own. Read when the dialog opens, not before:
+    /// the list costs nothing to a session that never asks for it. Empty by default, which offers
+    /// English alone.
+    void setLocaleDirectory(std::filesystem::path directory) {
+        m_localeDirectory = std::move(directory);
+    }
+
     /// The patterns the assistant offers — resolved once, in `main.cpp`, the
     /// same road `installedManualPath()`/`setManualPath` already take (ADR 0022).
     /// Left empty by default: every existing test constructs a window without
@@ -799,6 +808,14 @@ private:
     /// The theme asked for, to be handed back to the settings. Laid down, not
     /// deduced: the current palette does not say which of the three made it.
     core::Theme m_theme = core::Theme::System;
+
+    /// The interface language the settings name, nothing for `system` — handed back to them as
+    /// it came, or as `Preferences…` changed it. **Never applied to this window** (spec 15, D4):
+    /// the language was chosen at start-up, and a change waits for the next one.
+    std::optional<std::string> m_interfaceLanguage;
+
+    /// Where the catalogues are, for the list of languages `Preferences…` offers.
+    std::filesystem::path m_localeDirectory;
 
     /// Which side of the selection the next insertion will lay its rows on.
     ///
