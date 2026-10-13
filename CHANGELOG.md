@@ -11,6 +11,25 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **i18n** — Refuse an installed language that falls behind the template
+
+### Documentation
+
+- **doc** — Describe the stale-translation gate
+- **doc** — Bring the French counts of the po README up to date
+
+### Remaniements
+
+- **scripts** — Let update-po.sh merge into a scratch directory
+
+### Tests
+
+- **scripts** — Prove the stale-translation gate in verify-gates
+
+## 0.15.23 — 2026-10-13
+
+### Ajouts
+
 - **core** — Read and write the interface language setting
 - **gui** — Choose the interface language in Preferences
 - **i18n** — Translate the interface language field into French
@@ -18,6 +37,7 @@ ne pas l'éditer à la main.
 ### Documentation
 
 - **doc** — Describe the interface language setting
+- **doc** — Regenerate the changelog
 
 ## 0.15.22 — 2026-10-13
 
