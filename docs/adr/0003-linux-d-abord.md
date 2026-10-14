@@ -1,43 +1,42 @@
-# 0003 — Cibler Linux d'abord, sans fermer la porte aux autres systèmes
+# 0003 — Target Linux first, without closing the door to other systems
 
-**Date :** 2026-08-04
-**Statut :** acceptée
+**Date:** 2026-08-04
+**Status:** accepted
 
-## Contexte
+## Context
 
-L'utilisateur final travaille sous Linux, comme Gaupol dont les installateurs
-Windows ne sont plus produits depuis la version 1.3.1. Cibler trois systèmes dès
-le départ multiplierait le coût de chaque décision — dépendances, empaquetage,
-lecteur vidéo, tests — pour un besoin qui n'existe pas encore.
+The end user works on Linux, like Gaupol, whose Windows installers have not been
+produced since version 1.3.1. Targeting three systems from the start would
+multiply the cost of every decision — dependencies, packaging, video player,
+tests — for a need that does not exist yet.
 
-Mais un portage ultérieur ne doit pas exiger de changer de socle technique.
+But a later port must not require changing the technical foundation.
 
-## Décision
+## Decision
 
-Linux est la seule plateforme construite, testée et empaquetée. En revanche,
-**aucun choix ne doit rendre un portage coûteux** : à qualité comparable, on
-retient systématiquement l'option portable.
+Linux is the only platform built, tested and packaged. On the other hand, **no
+choice may make a port costly**: at comparable quality, the portable option is
+always chosen.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Linux exclusivement, sans égard à la portabilité** — le plus simple à court
-  terme. Écarté parce que les choix non portables se découvrent tard, quand ils
-  sont enchâssés : c'est ce qui a coûté Windows à Gaupol.
-- **Trois plateformes dès le départ** — multiplierait le travail sur chaque
-  phase pour un besoin hypothétique.
+- **Linux only, with no regard for portability** — the simplest in the short
+  term. Dismissed because non-portable choices are discovered late, once they
+  are embedded: that is what cost Gaupol Windows.
+- **Three platforms from the start** — would multiply the work in every phase
+  for a hypothetical need.
 
-## Conséquences
+## Consequences
 
-Cette décision oriente concrètement plusieurs choix ultérieurs :
+This decision concretely steers several later choices:
 
-- Qt plutôt que GTK — voir [0001](0001-cpp20-et-qt6.md) ;
-- pas d'appel direct aux API POSIX là où la bibliothèque standard ou Qt offrent
-  un équivalent ;
-- `std::filesystem` plutôt que les fonctions POSIX de manipulation de chemins ;
-- le choix du backend vidéo (phase 6) devra être arbitré en tenant compte de sa
-  disponibilité sous Windows.
+- Qt rather than GTK — see [0001](0001-cpp20-et-qt6.md);
+- no direct call to POSIX APIs where the standard library or Qt offers an
+  equivalent;
+- `std::filesystem` rather than the POSIX path-handling functions;
+- the choice of video backend (phase 6) will have to take its availability on
+  Windows into account.
 
-Le déclencheur qui rouvrirait cette décision : un besoin réel exprimé pour
-Windows. Il rouvrirait aussi [0004](0004-gestion-des-dependances.md), puisque
-les dépendances devraient alors être versionnées de façon identique sur les deux
-systèmes.
+The trigger that would reopen this decision: a real need expressed for Windows.
+It would also reopen [0004](0004-gestion-des-dependances.md), since the
+dependencies would then have to be versioned identically on both systems.

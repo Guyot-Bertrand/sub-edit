@@ -1,162 +1,159 @@
-# 0014 — Nommer les exigences dans un registre plat, les citer par un tag de test
+# 0014 — Name requirements in a flat register, cite them by a test tag
 
-**Date :** 2026-08-10
-**Statut :** acceptée
+**Date:** 2026-08-10
+**Status:** accepted
 
-## Contexte
+## Context
 
-La phase 3 ouvre la ligne de commande. C'est la première fois que le projet aura
-quelque chose qu'un utilisateur invoque, et une commande est un tout :
-arguments analysés, fichier lu, opération appliquée, fichier écrit, code de
-retour rendu. Les tests unitaires disent que chaque morceau fonctionne ; aucun
-ne dit que l'assemblage fonctionne, et c'est l'assemblage que l'utilisateur
-invoque.
+Phase 3 opens the command line. It is the first time the project will have
+something a user invokes, and a command is a whole: arguments parsed, file
+read, operation applied, file written, exit code returned. Unit tests say that
+each piece works; none says that the assembly works, and the assembly is what
+the user invokes.
 
-La couverture de lignes ne comble pas ce trou. Elle dit **quel code a été
-exécuté**, jamais **quelle fonctionnalité annoncée est démontrée**. Les deux
-questions se ressemblent et n'ont pas la même réponse : un fichier couvert à
-100 % peut ne rien promettre, et une promesse du manuel peut n'être vérifiée
-nulle part sans qu'aucun chiffre ne baisse.
+Line coverage does not fill this gap. It says **which code was executed**,
+never **which advertised feature is demonstrated**. The two questions look
+alike and do not have the same answer: a file covered at 100% may promise
+nothing, and a promise of the manual may be checked nowhere without any figure
+dropping.
 
-Le manuel décrit déjà exhaustivement ce que l'utilisateur voit — c'est une règle
-du projet. Ce qu'il ne fait pas, et ne peut pas faire, c'est se lier à ce qui le
-prouve : une phrase de manuel et le test qui la démontre n'ont aujourd'hui aucun
-point commun qu'une machine sache lire.
+The manual already describes exhaustively what the user sees — that is a
+project rule. What it does not do, and cannot do, is bind itself to what proves
+it: a sentence of the manual and the test that demonstrates it have, today, no
+common ground a machine can read.
 
-Ce qu'on sait au moment de décider : le projet n'a qu'un exécutable, qui affiche
-sa version, et le manuel le spécifie exhaustivement. Ce qu'on ignore : combien
-de sous-commandes la phase 3 produira, et si les phases d'interface graphique
-sauront se prêter au même mécanisme.
+What is known at the time of deciding: the project has only one executable,
+which prints its version, and the manual specifies it exhaustively. What is
+not known: how many subcommands phase 3 will produce, and whether the graphical
+interface phases will lend themselves to the same mechanism.
 
-## Décision
+## Decision
 
-Les exigences vivent dans **un registre plat et citable**, `docs/exigences.md` :
-une table, une ligne par exigence, quatre colonnes — identifiant, énoncé, phase,
-état.
+Requirements live in **a flat, citable register**, `docs/exigences.md`: one
+table, one row per requirement, four columns — identifier, statement, phase,
+state.
 
-Une exigence est **ce que le binaire montre** : sortie standard, sortie
-d'erreur, code de retour, fichier produit. Les garanties internes du noyau n'en
-sont pas ; leurs tests unitaires et la couverture de lignes tiennent ce rôle.
+A requirement is **what the binary shows**: standard output, standard error,
+exit code, file produced. The core's internal guarantees are not requirements;
+their unit tests and line coverage play that role.
 
-Un identifiant a la forme `SURFACE-SUJET-NN`, en capitales — `CLI-VERSION-01`.
-La forme n'est pas décorative : c'est elle qui permet de reconnaître un
-identifiant parmi les tags d'un test sans tenir de liste. Un tag ordinaire du
-projet — `[e2e]`, `[format]`, `[framerate]` — n'a ni capitales ni segment
-numérique final, et ne peut donc pas être pris pour un identifiant. La
-réciproque est ce qui compte : un tag qui a cette forme **doit** désigner une
-exigence, sans quoi le script échoue.
+An identifier has the form `SURFACE-SUBJECT-NN`, in capitals —
+`CLI-VERSION-01`. The form is not decorative: it is what makes it possible to
+recognise an identifier among a test's tags without keeping a list. An ordinary
+project tag — `[e2e]`, `[format]`, `[framerate]` — has neither capitals nor a
+final numeric segment, and so cannot be mistaken for an identifier. The
+converse is what matters: a tag that has this form **must** designate a
+requirement, or the script fails.
 
-**Un identifiant n'est jamais réutilisé.** Une ligne remplacée reste, barrée,
-avec sa raison. Un identifiant qui disparaît sans trace laisse un trou que
-personne ne sait interpréter.
+**An identifier is never reused.** A replaced row stays, struck through, with
+its reason. An identifier that disappears without a trace leaves a gap nobody
+knows how to interpret.
 
-Quatre états, et chacun contraint la présence d'un test dans les deux sens :
+Four states, and each constrains the presence of a test in both directions:
 
-| État | Ce que le registre affirme |
-| :--- | :------------------------- |
-| `implémentée` | au moins un test la cite |
-| `prévue` | aucun test ne la cite |
-| `abandonnée` | aucun test ne la cite |
-| `remplacée` | aucun test ne la cite |
+| State | What the register asserts |
+| :---- | :------------------------ |
+| `implemented` | at least one test cites it |
+| `planned` | no test cites it |
+| `abandoned` | no test cites it |
+| `replaced` | no test cites it |
 
-Les tests de bout en bout de `src/test/e2e/` citent une exigence par un **tag
-Catch2**, `[CLI-VERSION-01]`, et non par un préfixe de titre.
-`src/scripts/check-requirements.sh` interroge le binaire de test — `--list-tags`
-sort l'ensemble exact des tags — et confronte les deux listes. Il entre dans
-`make check-local`, pas dans `make check` : la CI n'exécute que `make check`,
-et cette vérification ne gate donc pas chaque push. `make check-local` est la
-cible dédiée aux vérifications qu'on veut voir passer avant d'ouvrir une pull
-request sans les voir gater la CI.
+The end-to-end tests of `src/test/e2e/` cite a requirement by a **Catch2
+tag**, `[CLI-VERSION-01]`, and not by a title prefix.
+`src/scripts/check-requirements.sh` queries the test binary — `--list-tags`
+outputs the exact set of tags — and compares the two lists. It is part of
+`make check-local`, not `make check`: CI only runs `make check`, so this check
+does not gate every push. `make check-local` is the target dedicated to checks
+one wants to see pass before opening a pull request without having them gate
+CI.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Chercher les tags en analysant le C++.** Un `grep` sur `TEST_CASE` aurait
-  évité de construire le binaire. Écarté parce que la réponse serait
-  *approchée* : elle raterait un tag produit par une macro ou par une
-  compilation conditionnelle, et inventerait ceux d'un fichier commenté. Catch2
-  connaît ses tags exactement ; les lui demander rend la vérification exacte au
-  lieu de plausible.
+- **Finding the tags by parsing the C++.** A `grep` on `TEST_CASE` would have
+  avoided building the binary. Dismissed because the answer would be
+  *approximate*: it would miss a tag produced by a macro or by conditional
+  compilation, and invent those of a commented-out file. Catch2 knows its tags
+  exactly; asking it makes the check exact instead of plausible.
 
-- **Étiqueter par un préfixe dans le titre du test**, `TEST_CASE("[CLI-VERSION-01]
-  l'invocation…")`. Écarté pour la raison inverse et symétrique : le binaire ne
-  saurait plus lister les identifiants lui-même, et on retomberait sur l'analyse
-  de texte qu'on vient d'écarter.
+- **Labelling by a prefix in the test title**, `TEST_CASE("[CLI-VERSION-01]
+  the invocation…")`. Dismissed for the opposite, symmetrical reason: the
+  binary could no longer list the identifiers itself, and we would fall back on
+  the text parsing just dismissed.
 
-- **Deux registres, l'un pour les exigences, l'autre pour les
-  fonctionnalités.** Écarté : le rôle du second est déjà tenu par le manuel, que
-  la règle du projet oblige à être exhaustif sur tout ce que l'utilisateur voit.
-  Trois endroits pour dire la même chose feraient deux occasions de diverger.
+- **Two registers, one for requirements, the other for features.** Dismissed:
+  the second one's role is already held by the manual, which the project rule
+  obliges to be exhaustive about everything the user sees. Three places saying
+  the same thing would make two opportunities to diverge.
 
-- **Donner un identifiant aussi aux garanties du noyau** — annulation exacte,
-  aller-retour de format, politique d'ordre. Écarté : la frontière de « ce qui
-  mérite un identifiant » redeviendrait une question à trancher à chaque test,
-  et le registre doublerait la suite unitaire sans rien affirmer de plus. La
-  portée « ce que le binaire montre » a l'avantage d'être décidable sans
+- **Giving an identifier to the core's guarantees too** — exact undo, format
+  round trip, ordering policy. Dismissed: the boundary of "what deserves an
+  identifier" would again become a question to settle for every test, and the
+  register would duplicate the unit suite without asserting anything more. The
+  scope "what the binary shows" has the advantage of being decidable without
   discussion.
 
-- **Autoriser un test unitaire à couvrir une exigence.** Écarté : une exigence
-  de bout en bout « couverte » par un test qui n'invoque jamais le binaire est
-  exactement la confusion que le harnais existe pour dissiper.
+- **Allowing a unit test to cover a requirement.** Dismissed: an end-to-end
+  requirement "covered" by a test that never invokes the binary is exactly the
+  confusion the harness exists to dispel.
 
-- **Rapporter plutôt qu'échouer**, ou n'échouer que sur `implémentée` en
-  laissant les autres états en avertissement. Écarté : un avertissement noyé
-  dans dix minutes de sortie est un avertissement que personne ne lit. Une
-  contrainte qui ne referme pas la porte n'en est pas une.
+- **Reporting rather than failing**, or failing only on `implemented` while
+  leaving the other states as warnings. Dismissed: a warning drowned in ten
+  minutes of output is a warning nobody reads. A constraint that does not shut
+  the gate is not one.
 
-- **Ne contraindre que l'état `implémentée`**, les trois autres restant
-  documentaires. Écarté de peu — c'est la lecture littérale du besoin. Mais un
-  test qui cite une exigence `prévue` prouve qu'elle est implémentée et que
-  l'état n'a pas été tourné ; un test qui cite une exigence `abandonnée` est un
-  test resté derrière. Ces deux dérives sont mécaniquement décidables, donc il
-  n'y a pas de raison de les laisser à la relecture.
+- **Constraining only the `implemented` state**, the other three remaining
+  documentary. Narrowly dismissed — it is the literal reading of the need. But
+  a test that cites a `planned` requirement proves it is implemented and that
+  the state was not flipped; a test that cites an `abandoned` requirement is a
+  test left behind. These two drifts are mechanically decidable, so there is no
+  reason to leave them to review.
 
-## Conséquences
+## Consequences
 
-Ce que la décision rend facile : lire en un seul endroit ce que l'outil promet
-et ce qui le prouve. Une exigence implémentée sans test ne franchit plus
-`make check-local`, et un tag qui ne désigne rien non plus.
+What the decision makes easy: reading in a single place what the tool promises
+and what proves it. An implemented requirement without a test no longer passes
+`make check-local`, and neither does a tag that designates nothing.
 
-Ce qu'elle rend contraignant : **toute issue qui ajoute un comportement visible
-alimente le registre en début de travail**, avant le code. C'est le but, et
-c'est une discipline qui ne tient que parce qu'un script la vérifie — la même
-règle écrite dans `CLAUDE.md` aurait dérivé, comme y a dérivé la règle du
-`Closes #N`.
+What it makes demanding: **every issue that adds a visible behaviour feeds the
+register at the start of the work**, before the code. That is the point, and it
+is a discipline that holds only because a script checks it — the same rule
+written in `CLAUDE.md` would have drifted, as the `Closes #N` rule drifted
+there.
 
-Le coût réel de la placer dans `check-local` plutôt que dans `check` : le
-script ne gate pas la CI. Une pull request dont le registre et les tags
-divergent n'est arrêtée que si quelqu'un lance `make check-local` avant de
-l'ouvrir — rien ne l'y oblige mécaniquement, contrairement à `make check`, que
-la CI impose à tout le monde. C'est acceptable pour ce que la vérification
-protège : un registre qui ment sur ce qui est prouvé est un défaut visible à
-la prochaine lecture du fichier, pas un bug livré à l'utilisateur — la nature
-du risque tolère un filet plus lâche que celui qui protège contre une fuite
-mémoire ou une régression de couverture. Mais c'est une vraie faiblesse, pas
-une chose à enjoliver : sans discipline locale, une pull request peut fusionner
-avec le registre en dérive, et rien ne le signale avant qu'une relecture
-humaine ou un `make check-local` tardif ne le remarque.
+The real cost of placing it in `check-local` rather than `check`: the script
+does not gate CI. A pull request whose register and tags diverge is stopped
+only if someone runs `make check-local` before opening it — nothing forces it
+mechanically, unlike `make check`, which CI imposes on everyone. That is
+acceptable for what the check protects: a register that lies about what is
+proven is a defect visible at the next reading of the file, not a bug shipped
+to the user — the nature of the risk tolerates a looser net than the one that
+protects against a memory leak or a coverage regression. But it is a real
+weakness, not something to embellish: without local discipline, a pull request
+can merge with the register drifting, and nothing flags it until a human
+review or a late `make check-local` notices.
 
-Le harnais lance un vrai processus, ce qui a un effet à surveiller sur la
-mesure de couverture : sous le preset `coverage`, `subedit-cli` est lui aussi
-instrumenté et chaque invocation gonflerait la couverture de `src/lib` sans
-qu'aucun test unitaire ait été écrit pour ce code. Les tests de bout en bout ne
-sont donc **enregistrés dans CTest que sous `asan` et `release`** — l'option de
-cache `SUBEDIT_REGISTER_E2E`, à `ON` dans ces deux presets et nulle part
-ailleurs, le déclare plutôt que de le laisser déduire des drapeaux de
-compilation.
+The harness launches a real process, which has an effect to watch on the
+coverage measurement: under the `coverage` preset, `subedit-cli` is also
+instrumented and each invocation would inflate the coverage of `src/lib`
+without any unit test having been written for that code. The end-to-end tests
+are therefore **registered in CTest only under `asan` and `release`** — the
+cache option `SUBEDIT_REGISTER_E2E`, `ON` in those two presets and nowhere
+else, declares it rather than leaving it to be deduced from the compilation
+flags.
 
-Sous `asan`, une fuite du binaire réel se voit. `release` est le mode livré,
-donc le seul dont le comportement engage l'utilisateur. `dev` n'y gagnait
-rien : c'est un build Debug comme `asan`, qui est strictement plus informatif.
-Conséquence à connaître, écrite aussi dans la spec des fondations :
-**`make test` n'exerce pas le harnais** ; `make asan` est le chemin le plus
-court pour le faire.
+Under `asan`, a leak in the real binary shows. `release` is the shipped mode,
+hence the only one whose behaviour commits the user. `dev` gained nothing from
+it: it is a Debug build like `asan`, which is strictly more informative.
+Consequence to know, also written in the foundations spec: **`make test` does
+not exercise the harness**; `make asan` is the shortest path to doing so.
 
-Le registre ne dit rien du noyau, et c'est délibéré. Si une garantie interne
-mérite un jour d'être nommée, ce sera par une décision distincte, pas par un
-glissement de portée.
+The register says nothing about the core, and that is deliberate. If an
+internal guarantee one day deserves a name, it will be through a separate
+decision, not through a drift in scope.
 
-Défaire la décision coûterait peu : retirer le script de `check-local` suffit,
-les tags redeviennent des tags inertes et le registre un document. Le déclencheur
-d'un réexamen est identifié — le jour où une exigence ne sera démontrable que
-par l'interface graphique, le harnais devra couvrir une seconde surface, et
-« un binaire, un `--list-tags` » devra devenir « plusieurs ».
+Undoing the decision would cost little: removing the script from `check-local`
+suffices, the tags become inert tags again and the register a document. The
+trigger for a review is identified — the day a requirement can only be
+demonstrated through the graphical interface, the harness will have to cover a
+second surface, and "one binary, one `--list-tags`" will have to become
+"several".

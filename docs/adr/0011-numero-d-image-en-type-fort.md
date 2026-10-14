@@ -1,65 +1,63 @@
-# 0011 — Typer le numéro d'image plutôt que le laisser entier
+# 0011 — Type the frame number rather than leave it an integer
 
-**Date :** 2026-08-06
-**Statut :** acceptée
+**Date:** 2026-08-06
+**Status:** accepted
 
-## Contexte
+## Context
 
-[0006](0006-positions-en-millisecondes.md) pose trois types forts —
-`Timestamp`, `Duration`, `FrameRate` — et énonce que le numéro d'image n'est
-pas une représentation interne, mais « une vue, obtenue par conversion
-explicite avec une `FrameRate` ». Il ne dit pas de quel type est cette vue.
+[0006](0006-positions-en-millisecondes.md) sets three strong types —
+`Timestamp`, `Duration`, `FrameRate` — and states that the frame number is not
+an internal representation but "a view, obtained by explicit conversion with a
+`FrameRate`". It does not say what type that view has.
 
-La question se pose à l'écriture de l'issue #2, au moment de donner une
-signature aux conversions temps ↔ images. Deux réponses se présentent : un
-`std::int64_t` nu, ou un quatrième type.
+The question arises while writing issue #2, when the time ↔ frame conversions
+need a signature. Two answers present themselves: a bare `std::int64_t`, or a
+fourth type.
 
-Or les [principes de conception](../principes-de-conception.md) interdisent
-« un `int` nu pour représenter une durée, une position, un numéro de sous-titre
-ou un indice de piste ». Un numéro d'image est une position. Rendre la vue
-entière reviendrait à réintroduire, à la frontière de conversion, exactement la
-confusion que les trois autres types éliminent : rien n'empêcherait d'ajouter
-un numéro d'image à un compte de millisecondes.
+Yet the [design principles](../principes-de-conception.md) forbid "a bare
+`int` to represent a duration, a position, a subtitle number or a track index".
+A frame number is a position. Making the view an integer would reintroduce, at
+the conversion boundary, exactly the confusion the three other types eliminate:
+nothing would prevent adding a frame number to a count of milliseconds.
 
-## Décision
+## Decision
 
-Le numéro d'image est un type fort, **`Frame`**, non convertible implicitement
-vers un entier ni vers les autres types de position.
+The frame number is a strong type, **`Frame`**, not implicitly convertible to
+an integer nor to the other position types.
 
-Les conversions sont deux fonctions membres explicites de `Timestamp` :
-`Timestamp::fromFrame(Frame, FrameRate)` et `Timestamp::toFrame(FrameRate)`.
+The conversions are two explicit member functions of `Timestamp`:
+`Timestamp::fromFrame(Frame, FrameRate)` and `Timestamp::toFrame(FrameRate)`.
 
-Contrairement au temps, l'image n'a pas de sous-unité : le même type sert de
-position et de compte, et `Frame + Frame` a un sens. C'est la seule différence
-de forme avec le couple `Timestamp` / `Duration`.
+Unlike time, a frame has no sub-unit: the same type serves as position and
+count, and `Frame + Frame` has a meaning. That is the only difference in shape
+from the `Timestamp` / `Duration` pair.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **`std::int64_t` nu** — fidèle à la lettre de [0006](0006-positions-en-millisecondes.md),
-  qui ne nomme que trois types, et une surface d'API plus petite. Écarté :
-  l'économie est d'une trentaine de lignes, le coût est un trou dans la seule
-  garantie que ces types existent pour donner.
-- **Deux types, `Frame` et `FrameCount`**, calqués sur `Timestamp` et
-  `Duration`. Écarté : la distinction n'a pas de contrepartie physique — une
-  image dure une image — et l'arithmétique deviendrait plus lourde que ce
-  qu'elle protège.
-- **Conversions en fonctions libres** plutôt que membres. Écarté sans grande
-  conviction : `position.toFrame(rate)` se lit mieux que `toFrame(position,
-  rate)`, et `time/` reste un module unique dont les types se connaissent.
+- **Bare `std::int64_t`** — faithful to the letter of
+  [0006](0006-positions-en-millisecondes.md), which names only three types, and
+  a smaller API surface. Dismissed: the saving is some thirty lines, the cost is
+  a hole in the only guarantee these types exist to give.
+- **Two types, `Frame` and `FrameCount`**, modelled on `Timestamp` and
+  `Duration`. Dismissed: the distinction has no physical counterpart — a frame
+  lasts one frame — and the arithmetic would become heavier than what it
+  protects.
+- **Conversions as free functions** rather than members. Dismissed without much
+  conviction: `position.toFrame(rate)` reads better than `toFrame(position,
+  rate)`, and `time/` stays a single module whose types know each other.
 
-## Conséquences
+## Consequences
 
-Confondre une image et une milliseconde devient une erreur de compilation, au
-même titre que confondre une durée et une position.
+Confusing a frame with a millisecond becomes a compilation error, just like
+confusing a duration with a position.
 
-La phase 9 accueille les formats nativement en images — MicroDVD — sans avoir
-à choisir un type à ce moment-là.
+Phase 9 welcomes natively frame-based formats — MicroDVD — without having to
+choose a type at that point.
 
-En contrepartie, un quatrième type à maintenir, et une conversion à écrire
-partout où un numéro d'image est affiché ou lu. C'est le prix déjà accepté en
+In return, a fourth type to maintain, and a conversion to write wherever a
+frame number is displayed or read. That is the price already accepted in
 [0006](0006-positions-en-millisecondes.md).
 
-Défaire cette décision toucherait chaque site de conversion. Le déclencheur
-serait un usage montrant que `Frame` gêne plus qu'il ne protège — par exemple
-une arithmétique d'images assez riche pour que les fabriques nommées deviennent
-du bruit.
+Undoing this decision would touch every conversion site. The trigger would be
+a use showing that `Frame` hinders more than it protects — for instance frame
+arithmetic rich enough for the named factories to become noise.

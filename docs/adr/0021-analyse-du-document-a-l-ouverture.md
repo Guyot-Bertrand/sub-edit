@@ -1,122 +1,119 @@
-# 0021 — Une analyse du document, calculée à l'ouverture
+# 0021 — A document analysis, computed on opening
 
-**Date :** 2026-08-25
-**Statut :** acceptée
+**Date:** 2026-08-25
+**Status:** accepted
 
-## Contexte
+## Context
 
-La phase 16 apporte une chose que le noyau n'a jamais eue : **un jugement sur un
-document**. Jusqu'ici, tout ce qu'il produisait était soit une donnée lue — des
-sous-titres, une fréquence déclarée par un conteneur — soit le résultat d'une
-opération que l'utilisateur avait demandée. La déduction de fréquence n'est ni
-l'un ni l'autre : personne ne l'a demandée, et elle ne figure dans aucun
-fichier. Elle est **inférée**.
+Phase 16 brings something the core never had: **a judgement on a document**.
+Until now, everything it produced was either data read — subtitles, a frame
+rate declared by a container — or the result of an operation the user had
+requested. Frame-rate deduction is neither: nobody requested it, and it appears
+in no file. It is **inferred**.
 
-Deux questions se posent ensemble, et les séparer donnerait deux mauvaises
-réponses.
+Two questions arise together, and separating them would give two wrong answers.
 
-**Où vit une inférence ?** `core/time/` porte les primitives — `Timestamp`,
-`Duration`, `Frame`, `FrameRate`, `Ratio` — et une déduction n'en est pas une :
-elle prend un document et rend un avis. `core/model/` porte ce qu'un document
-*est*, et un avis n'en fait pas partie. `core/edit/` porte ce qui le *change*,
-et une inférence ne change rien.
+**Where does an inference live?** `core/time/` carries the primitives —
+`Timestamp`, `Duration`, `Frame`, `FrameRate`, `Ratio` — and a deduction is not
+one: it takes a document and returns an opinion. `core/model/` carries what a
+document *is*, and an opinion is not part of it. `core/edit/` carries what
+*changes* it, and an inference changes nothing.
 
-Il existe déjà un précédent qu'on n'a pas su nommer : `core/model/anomaly.hpp`
-est une inférence, elle aussi — « ce sous-titre finit avant de commencer » n'est
-pas une donnée du fichier, c'est un jugement porté sur lui. Elle a atterri dans
-le modèle faute d'un meilleur endroit.
+There is already a precedent nobody managed to name: `core/model/anomaly.hpp`
+is an inference too — "this subtitle ends before it starts" is not data from
+the file, it is a judgement passed on it. It landed in the model for want of a
+better place.
 
-**Quand se calcule-t-elle ?** À l'ouverture, ou à la demande ? La question n'est
-pas de goût : elle décide ce que les surfaces ont le droit de montrer sans rien
-réclamer à l'utilisateur, et elle pose un coût sur le chemin de lecture, qui est
-mesuré depuis la phase 1.
+**When is it computed?** On opening, or on demand? The question is not one of
+taste: it decides what the surfaces are allowed to show without asking the user
+for anything, and it puts a cost on the reading path, which has been measured
+since phase 1.
 
-## Décision
+## Decision
 
-**Un répertoire `core/analysis/`, et la déduction calculée à l'ouverture, sous
-un budget explicite.**
+**A `core/analysis/` directory, and the deduction computed on opening, under an
+explicit budget.**
 
-`core/analysis/` accueille ce qui **observe** un document sans le changer ni le
-décrire : la déduction de fréquence aujourd'hui, les anomalies le jour où on les
-déplacera. Une fonction d'analyse est pure, ne connaît ni `Project`, ni
-`Session`, ni l'historique, et ne dépend que des primitives de `core/time/` et
-des types de valeur du modèle.
+`core/analysis/` hosts what **observes** a document without changing or
+describing it: frame-rate deduction today, anomalies the day they are moved. An
+analysis function is pure, knows neither `Project`, nor `Session`, nor the
+history, and depends only on the primitives of `core/time/` and on the model's
+value types.
 
-**La déduction tourne à l'ouverture du fichier.** Son budget est **un cinquième
-du coût de la lecture** — soit 0,5 ms pour 4000 sous-titres, la lecture en
-coûtant 2,5. Le budget est vérifié au benchmark, et non espéré.
+**The deduction runs when the file is opened.** Its budget is **one fifth of
+the cost of reading** — that is 0.5 ms for 4000 subtitles, reading costing
+2.5. The budget is checked by the benchmark, not hoped for.
 
-## Pourquoi à l'ouverture
+## Why on opening
 
-Parce que **les trois surfaces qui la montrent la montrent sans être
-sollicitées** : la barre d'état porte le verdict en permanence, le dialogue de
-conversion pré-remplit son entrée au moment où il s'ouvre, et `inspect` la
-rapporte dans sa sortie ordinaire. Une déduction paresseuse rendrait chacune de
-ces trois surfaces responsable de la déclencher, donc de décider quand — et
-trois décisions séparées sur le même sujet finissent par diverger.
+Because **the three surfaces that show it show it without being asked**: the
+status bar carries the verdict permanently, the conversion dialog pre-fills its
+input the moment it opens, and `inspect` reports it in its ordinary output. A
+lazy deduction would make each of those three surfaces responsible for
+triggering it, hence for deciding when — and three separate decisions on the
+same subject end up diverging.
 
-Le coût est réel et il est petit. La méthode est une passe sur les débuts, huit
-fois, et une somme de vecteurs : elle est du même ordre que la lecture, en
-nettement plus simple. Si le budget ne tenait pas, la réponse serait de rendre
-la déduction paresseuse derrière un cache porté par le document — et c'est
-précisément parce que cette porte de sortie existe qu'on peut commencer par le
-choix simple.
+The cost is real and it is small. The method is a pass over the starts, eight
+times, and a sum of vectors: it is of the same order as reading, while being
+much simpler. If the budget did not hold, the answer would be to make the
+deduction lazy behind a cache carried by the document — and it is precisely
+because this way out exists that one can start with the simple choice.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-**Ranger la déduction dans `core/time/`.** C'est là que vit `FrameRate`, et la
-tentation est grande. Mais `core/time/` est un ensemble de primitives sans
-mémoire : chacune répond à une question fermée sur une valeur. Une déduction
-répond à une question ouverte sur une collection, et l'y mettre ferait de
-`core/time/` un endroit où l'on range ce qui parle de temps — c'est-à-dire à peu
-près tout.
+**Filing the deduction in `core/time/`.** That is where `FrameRate` lives, and
+the temptation is great. But `core/time/` is a set of memoryless primitives:
+each answers a closed question about a value. A deduction answers an open
+question about a collection, and putting it there would make `core/time/` a
+place where whatever talks about time is filed — that is, nearly everything.
 
-**Ranger la déduction dans `core/model/`, avec les anomalies.** Ce serait
-cohérent avec l'existant, et c'est justement le problème : l'existant est un
-défaut qu'on reproduirait. Le modèle décrit ce qu'un document est ; une anomalie
-et une déduction disent ce qu'on en pense. Créer `core/analysis/` maintenant
-donne un endroit à ce déplacement, sans l'imposer aujourd'hui — déplacer
-`anomaly.hpp` toucherait la table, la CLI et leurs tests pour un gain nul tant
-qu'il n'y a qu'une seule analyse.
+**Filing the deduction in `core/model/`, with the anomalies.** It would be
+consistent with what exists, and that is exactly the problem: what exists is a
+defect that would be reproduced. The model describes what a document is; an
+anomaly and a deduction say what one thinks of it. Creating `core/analysis/`
+now gives that move a destination, without imposing it today — moving
+`anomaly.hpp` would touch the table, the CLI and their tests for zero gain as
+long as there is only one analysis.
 
-**La calculer à la demande.** Elle ne coûterait rien à l'ouverture, et chaque
-surface paierait la première fois. Écartée pour la raison ci-dessus : trois
-surfaces, trois décisions, une divergence. Et le gain se chiffre à une fraction
-de milliseconde sur une opération qui en coûte déjà deux et demie.
+**Computing it on demand.** It would cost nothing on opening, and each surface
+would pay the first time. Dismissed for the reason above: three surfaces, three
+decisions, a divergence. And the gain amounts to a fraction of a millisecond on
+an operation that already costs two and a half.
 
-**La calculer à l'ouverture et la ranger dans le document.** C'est la variante
-qui reviendra si le budget ne tient pas. Elle est écartée aujourd'hui parce
-qu'elle fait entrer dans le modèle une valeur dérivée, donc une invalidation à
-tenir : toute édition d'une position la périme. Une fonction pure qu'on rappelle
-n'a pas ce problème, et tant qu'elle est assez rapide pour être rappelée, elle
-est le choix sûr.
+**Computing it on opening and storing it in the document.** That is the variant
+that will come back if the budget does not hold. It is dismissed today because
+it brings a derived value into the model, hence an invalidation to maintain:
+any edit of a position makes it stale. A pure function that is called again
+does not have this problem, and as long as it is fast enough to be called
+again, it is the safe choice.
 
-## Conséquences
+## Consequences
 
-**Un répertoire de plus dans le noyau**, et une place pour ce qui n'en avait
-pas. `check-architecture.sh` n'a rien à y changer : l'invariant qui compte —
-`subedit_core` libre de toute dépendance d'interface — vaut pour lui comme pour
-les autres.
+**One more directory in the core**, and a place for what had none.
+`check-architecture.sh` has nothing to change for it: the invariant that
+matters — `subedit_core` free of any interface dependency — holds for it as for
+the others.
 
-**Un coût sur le chemin de lecture**, petit et mesuré. `lecture de 4000
-sous-titres` est le relevé qui le porte, et c'est lui qui dira si le budget est
-tenu. Le journal des mesures rend ce contrôle continu plutôt que ponctuel.
+**A cost on the reading path**, small and measured. `lecture de 4000
+sous-titres` is the record that carries it, and it is the one that will tell
+whether the budget holds. The measurement journal makes this check continuous
+rather than one-off.
 
-**Une invalidation qu'on n'a pas à tenir**, tant que la déduction reste une
-fonction pure. C'est ce qui rend le choix réversible : passer au cache est une
-addition, pas une réécriture.
+**An invalidation we do not have to maintain**, as long as the deduction stays
+a pure function. That is what makes the choice reversible: moving to a cache is
+an addition, not a rewrite.
 
-**Un déplacement placé et non fait.** `core/model/anomaly.hpp` a désormais une
-destination écrite. Le faire demande une seconde analyse pour en valoir la
-peine ; le jour où elle existe, la question est déjà tranchée.
+**A move planned and not made.** `core/model/anomaly.hpp` now has a written
+destination. Making the move requires a second analysis to be worth it; the day
+one exists, the question is already settled.
 
-> **Fait depuis, par la #227.** La phase 16 a posé la déduction de fréquence et
-> la correction de grille : la seconde analyse existe, donc la condition écrite
-> ci-dessus est remplie. `anomaly.hpp` et `anomaly.cpp` vivent dans
-> `core/analysis/`, les appelants ont suivi, et rien de leur comportement n'a
-> changé. La décision, elle, n'est pas revenue en discussion — c'est le propre
-> d'un déclencheur écrit à l'avance.
+> **Done since, by #227.** Phase 16 delivered frame-rate deduction and grid
+> correction: the second analysis exists, so the condition written above is
+> met. `anomaly.hpp` and `anomaly.cpp` live in `core/analysis/`, the callers
+> followed, and nothing in their behaviour changed. The decision itself did not
+> come back up for discussion — that is the point of a trigger written in
+> advance.
 
-Le déclencheur qui rouvrirait cette décision : le budget d'un cinquième non
-tenu, ou une seconde analyse assez coûteuse pour qu'aucune ne puisse plus tourner
-à l'ouverture. Aucun des deux n'est en vue.
+The trigger that would reopen this decision: the one-fifth budget not held, or
+a second analysis expensive enough that none could run on opening any more.
+Neither is in sight.

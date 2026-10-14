@@ -1,106 +1,107 @@
-# 0017 — Écrire l'analyseur de mentions à la main, sans moteur d'expressions rationnelles
+# 0017 — Write the mention parser by hand, without a regular expression engine
 
-**Date :** 2026-08-15
-**Statut :** acceptée
+**Date:** 2026-08-15
+**Status:** accepted
 
-## Contexte
+## Context
 
-La phase 4 retire d'un sous-titrage les mentions pour malentendants : les bruits
-décrits entre crochets ou entre parenthèses. Gaupol le fait avec deux
-expressions rationnelles, `\[.*?\]` et `\(.*?\)`, en `DOTALL`.
+Phase 4 removes hearing-impaired mentions from a subtitle file: the sounds
+described between square brackets or between parentheses. Gaupol does it with
+two regular expressions, `\[.*?\]` and `\(.*?\)`, in `DOTALL`.
 
-Le projet vise l'iso-fonctionnalité, et la pente naturelle serait donc de
-reprendre ces deux motifs. La feuille de route l'avait d'ailleurs anticipé en
-notant que ces motifs n'ont **aucune référence arrière** — l'arbitrage entre
-PCRE2 et RE2, qui se posera à la phase 12, ne bloque pas celle-ci.
+The project aims at feature parity, so the natural inclination would be to take
+over those two patterns. The roadmap had in fact anticipated it, noting that
+those patterns have **no back-reference** — the choice between PCRE2 and RE2,
+which will come up in phase 12, does not block this one.
 
-Reste à décider avec quoi cette phase-ci reconnaît les mentions.
+What remains to decide is what this phase recognises mentions with.
 
-## Décision
+## Decision
 
-**Un balayage écrit à la main**, dans `src/lib/subedit/core/text/`. Aucun moteur
-d'expressions rationnelles : ni PCRE2, ni RE2, ni `std::regex`.
+**A hand-written scan**, in `src/lib/subedit/core/text/`. No regular expression
+engine: neither PCRE2, nor RE2, nor `std::regex`.
 
-## Ce qui décide : la couture est locale, une passe est globale
+## What decides: the seam is local, a pass is global
 
-Les deux motifs de Gaupol ne suffisent pas, et Gaupol le sait : il les fait
-suivre de **sept passes de rattrapage** (`_remove_leftover_hi`) qui recollent ce
-que le retrait a laissé — bords de ligne, espaces consécutifs, lignes vides,
-tirets de dialogue orphelins.
+Gaupol's two patterns are not enough, and Gaupol knows it: it follows them
+with **seven clean-up passes** (`_remove_leftover_hi`) that patch up what the
+removal left behind — line edges, consecutive spaces, empty lines, orphaned
+dialogue dashes.
 
-Notre règle, écrite cas par cas dans `src/test/data/textes/mentions.cas` avant
-tout code, dit autre chose :
+Our rule, written case by case in `src/test/data/textes/mentions.cas` before
+any code, says something else:
 
-> Une mention retirée laisse **exactement un espace entre ce qui l'entourait**,
-> et **rien en bord de ligne**. Ce n'est pas « on recolle les espaces qui
-> traînent » : `Bonjour[il tousse]Marie` n'en avait aucun et en gagne un.
+> A removed mention leaves **exactly one space between what surrounded it**,
+> and **nothing at a line edge**. It is not "patch up the stray spaces":
+> `Bonjour[il tousse]Marie` had none and gains one.
 
-**C'est une règle sur le site du retrait.** Une passe d'expression rationnelle,
-elle, ne sait pas où était la mention : `" {2,}" → " "` réécrit tous les doubles
-espaces du texte, y compris ceux que le fichier portait déjà et auxquels
-personne n'a demandé de toucher. La règle globale n'est pas une approximation de
-la règle locale, c'en est une autre — et sur du texte réel, les deux ne rendent
-pas le même résultat.
+**It is a rule about the site of the removal.** A regular expression pass, on
+the other hand, does not know where the mention was: `" {2,}" → " "` rewrites
+every double space in the text, including those the file already carried and
+that nobody asked to touch. The global rule is not an approximation of the
+local rule, it is a different one — and on real text, the two do not give the
+same result.
 
-Pour rester local, il faut savoir où était la mention : donc parcourir les
-correspondances une à une et assembler la sortie soi-même. À ce moment-là,
-l'analyseur est écrit, et le moteur ne fournit plus que « trouve le prochain
-`[…]` » — une boucle de quinze lignes. Le même raisonnement vaut pour la mention
-coupée par le saut de ligne : le balayage sait trivialement si le morceau retiré
-contenait un `\n`, quand il faudrait le redemander à une expression sous forme
-d'une capture de plus.
+To stay local, one must know where the mention was: hence walk the matches one
+by one and assemble the output oneself. At that point, the parser is written,
+and the engine only provides "find the next `[…]`" — a fifteen-line loop. The
+same reasoning holds for the mention split by a line break: the scan trivially
+knows whether the removed piece contained a `\n`, whereas an expression would
+have to be asked again in the form of one more capture.
 
-Ce que le moteur apporterait — deux motifs déclaratifs et relisibles — n'est
-donc pas ce qui est difficile ici.
+What the engine would bring — two declarative, readable patterns — is
+therefore not what is difficult here.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **`std::regex`** — aucune dépendance à installer, puisque c'est la
-  bibliothèque standard, et elle sait faire davantage qu'il n'y paraît : garder
-  les références numériques tient dans une alternance qui capture ce qu'on
-  garde, `(\[[ \t]*[0-9]+[ \t]*\])|\[[\s\S]*?\]|\([\s\S]*?\)` remplacé par
-  `$1`. Écartée sur la couture, argument ci-dessus, et non sur ses défauts
-  connus — l'absence de drapeau `DOTALL`, qu'on contourne par `[\s\S]`, et sa
-  lenteur, qui pèserait sur le chemin que la fixture de #89 vient précisément de
-  rendre mesurable. Ce serait de surcroît un troisième moteur, adopté pour être
-  remplacé à la phase 12.
-- **Trancher PCRE2 ou RE2 dès maintenant** — pour ne le faire qu'une fois. Mais
-  ce serait choisir un moteur pour des besoins qu'on ne connaît pas : les
-  références arrière, les motifs par langue et le correcteur orthographique
-  arrivent à la phase 12, et c'est là que les critères de comparaison
-  apparaîtront. Le seul usage qu'on saurait mesurer aujourd'hui — deux
-  délimiteurs littéraux — ne départage pas deux moteurs.
-- **Reprendre les données de motifs de Gaupol** — écartée à #88, pour ses
-  propres raisons : la copie serait licite, les deux projets sont sous GPL-3,
-  mais elle engagerait sur un format de fichiers qu'on n'a pas choisi, dont un
-  `.conf` XML et des sections INI homonymes qu'aucun lecteur standard n'accepte.
+- **`std::regex`** — no dependency to install, since it is the standard
+  library, and it can do more than it seems: keeping numeric references fits in
+  an alternation that captures what is kept,
+  `(\[[ \t]*[0-9]+[ \t]*\])|\[[\s\S]*?\]|\([\s\S]*?\)` replaced by `$1`.
+  Dismissed on the seam, argument above, and not on its known shortcomings —
+  the absence of a `DOTALL` flag, worked around with `[\s\S]`, and its
+  slowness, which would weigh on the path that the #89 fixture has just made
+  measurable. It would moreover be a third engine, adopted only to be replaced
+  in phase 12.
+- **Settling PCRE2 or RE2 right now** — so as to do it only once. But that
+  would mean choosing an engine for needs we do not know: back-references,
+  per-language patterns and the spell checker arrive in phase 12, and that is
+  where the comparison criteria will appear. The only use we could measure
+  today — two literal delimiters — does not separate two engines.
+- **Taking over Gaupol's pattern data** — dismissed in #88, for its own
+  reasons: the copy would be lawful, both projects being under GPL-3, but it
+  would commit us to a file format we did not choose, including an XML `.conf`
+  and homonymous INI sections that no standard reader accepts.
 
-## Conséquences
+## Consequences
 
-**Aucune dépendance nouvelle**, ce qui laisse la question du moteur entière et
-libre pour la phase 12 — elle la tranchera avec ses vrais critères sous les yeux.
+**No new dependency**, which leaves the engine question whole and open for
+phase 12 — it will settle it with its real criteria in front of it.
 
-**Une fonction pure**, `withoutHearingImpaired`, sans état ni contexte : les
-cas de `mentions.cas` l'éprouvent directement, sans construire de
-projet ni de commande. Un moteur aurait imposé le sien — compilation des motifs,
-durée de vie, gestion d'erreur de compilation — entre les cas et la règle.
+**A pure function**, `withoutHearingImpaired`, without state or context: the
+cases of `mentions.cas` exercise it directly, without building a project or a
+command. An engine would have imposed its own — pattern compilation, lifetime,
+compilation error handling — between the cases and the rule.
 
-**Ce qui rend la décision peu coûteuse à défaire :** la règle vit derrière une
-fonction libre d'une seule signature. La phase 12, si son moteur permet
-d'exprimer la couture locale, réécrira son corps sans toucher ni à la commande,
-ni à la CLI, ni aux cas qui l'éprouvent — et ce sont eux qui diront si la
-réécriture est fidèle.
+**What makes the decision cheap to undo:** the rule lives behind a free
+function with a single signature. Phase 12, if its engine can express the
+local seam, will rewrite its body without touching the command, the CLI, or
+the cases that exercise it — and they are what will tell whether the rewrite is
+faithful.
 
-**Ce qu'il faudra surveiller** : la tentation d'ajouter au balayage les motifs
-de la phase 12 un par un, jusqu'à écrire un moteur d'expressions rationnelles
-sans l'avoir décidé. Le déclencheur est écrit : le troisième motif demandé, quel
-qu'il soit, rouvre cette ADR.
+**What will need watching**: the temptation to add the phase 12 patterns to
+the scan one by one, until a regular expression engine has been written
+without being decided. The trigger is written: the third pattern requested,
+whatever it is, reopens this ADR.
 
-## Mise à jour — #691 : les crochets seuls, par défaut
+## Update — #691: square brackets only, by default
 
-Le cadrage disait « ce qui vaut entre crochets vaut entre parenthèses », et le balayage retirait les deux. **Une
-parenthèse est aussi souvent une réplique chuchotée qu'un bruit décrit**, et retirer les deux par défaut effaçait du
-dialogue. Le balayage prend désormais ses délimiteurs en paramètre (`MentionBrackets`) : **les crochets seuls par
-défaut**, les parenthèses à la demande — `--parentheses` pour `hearing-impaired`, la case `Sound in parentheses` pour
-l'assistant, dont chaque case commande maintenant son propre délimiteur. Le reste de l'ADR — l'analyseur écrit à la
-main, la règle de couture — est inchangé, et les cas des parenthèses vivent dans `mentions-parentheses.cas`.
+The scoping said "what holds between square brackets holds between
+parentheses", and the scan removed both. **A parenthesis is as often a
+whispered line as a described sound**, and removing both by default erased
+dialogue. The scan now takes its delimiters as a parameter
+(`MentionBrackets`): **square brackets only by default**, parentheses on
+request — `--parentheses` for `hearing-impaired`, the `Sound in parentheses`
+box for the assistant, each of whose boxes now controls its own delimiter. The
+rest of the ADR — the hand-written parser, the seam rule — is unchanged, and
+the parenthesis cases live in `mentions-parentheses.cas`.

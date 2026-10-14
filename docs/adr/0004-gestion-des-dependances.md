@@ -1,44 +1,42 @@
-# 0004 — Résoudre les dépendances par les paquets système
+# 0004 — Resolve dependencies through system packages
 
-**Date :** 2026-08-04
-**Statut :** acceptée
+**Date:** 2026-08-04
+**Status:** accepted
 
-## Contexte
+## Context
 
-Le projet dépendra de Qt 6, d'un moteur d'expressions régulières, d'ICU et d'un
-correcteur orthographique. Deux gestionnaires de paquets C++ pouvaient être
-adoptés d'emblée : Conan 2 et vcpkg.
+The project will depend on Qt 6, a regular expression engine, ICU and a spell
+checker. Two C++ package managers could have been adopted from the outset:
+Conan 2 and vcpkg.
 
-## Décision
+## Decision
 
-Les dépendances sont résolues par `find_package` sur les paquets de la
-distribution. Aucun gestionnaire de paquets C++ n'est mis en place.
+Dependencies are resolved by `find_package` on the distribution's packages. No
+C++ package manager is set up.
 
-Catch2 fait exception, récupéré par `FetchContent` : il se compile en quelques
-secondes et sa version doit être identique partout, faute de quoi une mise à
-jour de distribution pourrait casser les tests.
+Catch2 is the exception, fetched by `FetchContent`: it compiles in a few seconds
+and its version must be the same everywhere, otherwise a distribution update
+could break the tests.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **vcpkg dès maintenant** — garantirait des versions identiques sur toutes les
-  plateformes, mais compile Qt depuis les sources : des heures au premier build
-  et à chaque CI dont le cache est froid.
-- **Conan 2 dès maintenant** — meilleur que vcpkg sur le versionnement, les
-  profils de compilation et les paquets binaires. Écarté parce qu'il ne tient
-  pas sa promesse là où elle compterait : la recette Qt de ConanCenter est
-  lourde et se recompile souvent depuis les sources. On paierait un second
-  système de construction pour économiser l'installation de quelques paquets.
+- **vcpkg right now** — would guarantee identical versions on every platform,
+  but compiles Qt from source: hours on the first build and on every CI run with
+  a cold cache.
+- **Conan 2 right now** — better than vcpkg on versioning, build profiles and
+  binary packages. Dismissed because it does not keep its promise where it would
+  matter: ConanCenter's Qt recipe is heavy and often rebuilds from source. We
+  would pay for a second build system to save installing a few packages.
 
-## Conséquences
+## Consequences
 
-Le premier build est rapide et ne dépend que de `apt`. En contrepartie, les
-versions des dépendances sont celles de la distribution, donc variables d'une
-machine à l'autre — acceptable tant que la cible est une seule plateforme.
+The first build is fast and depends only on `apt`. In return, the dependency
+versions are the distribution's, and so vary from one machine to another —
+acceptable as long as the target is a single platform.
 
-**Ce qui rend la décision peu coûteuse à défaire :** Conan et vcpkg fonctionnent
-tous deux en s'interposant sur `find_package`. Tant que le CMake du projet est
-écrit autour de ce mécanisme, et non autour de chemins codés en dur, les adopter
-plus tard demandera un fichier de manifeste, pas une réécriture.
+**What makes the decision cheap to undo:** Conan and vcpkg both work by
+interposing themselves on `find_package`. As long as the project's CMake is
+written around that mechanism, and not around hard-coded paths, adopting them
+later will take a manifest file, not a rewrite.
 
-Le déclencheur : un portage Windows effectif — voir
-[0003](0003-linux-d-abord.md).
+The trigger: an actual Windows port — see [0003](0003-linux-d-abord.md).

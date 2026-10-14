@@ -1,47 +1,45 @@
-# 0002 — Publier subedit sous GPL-3.0-or-later
+# 0002 — Publish subedit under GPL-3.0-or-later
 
-**Date :** 2026-08-04
-**Statut :** acceptée
+**Date:** 2026-08-04
+**Status:** accepted
 
-## Contexte
+## Context
 
-Gaupol est publié sous GPL-3.0-or-later. Le code n'est pas repris — subedit est
-une réécriture indépendante — mais Gaupol embarque des **données** sous la même
-licence, qui représentent des années de travail linguistique :
+Gaupol is published under GPL-3.0-or-later. Its code is not reused — subedit is
+an independent rewrite — but Gaupol ships **data** under the same licence, which
+represent years of linguistic work:
 
-- les motifs de correction (`aeidon/data/patterns/`) : erreurs courantes
-  classées Humain/OCR, remise en majuscule, suppression des mentions pour
-  malentendants, pénalités de coupure de ligne, déclinés par script, langue et
-  pays ;
-- les en-têtes par défaut des formats (`aeidon/data/headers/`) ;
-- les traductions de l'interface (`po/`, 20 locales).
+- the correction patterns (`aeidon/data/patterns/`): common errors classified as
+  Human/OCR, capitalisation, removal of hearing-impaired annotations, line-break
+  penalties, broken down by script, language and country;
+- the formats' default headers (`aeidon/data/headers/`);
+- the interface translations (`po/`, 20 locales).
 
-Reproduire ce corpus de zéro représenterait un effort considérable, pour un
-résultat de moindre qualité, et éloignerait le projet de son objectif
-d'iso-fonctionnalité.
+Rebuilding this corpus from scratch would be a considerable effort, for a result
+of lower quality, and would take the project away from its goal of feature
+parity.
 
-## Décision
+## Decision
 
-subedit est publié sous **GPL-3.0-or-later**, ce qui autorise la réutilisation
-directe des données de Gaupol, avec attribution.
+subedit is published under **GPL-3.0-or-later**, which allows Gaupol's data to
+be reused directly, with attribution.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Licence permissive (MIT, Apache-2.0) avec motifs réécrits** — offrirait une
-  liberté d'usage totale, mais imposerait de reconstruire tout le travail
-  linguistique. Le moteur de correction est la partie la plus riche en valeur
-  métier : la repartir de zéro dégraderait le produit sans bénéfice pour son
-  utilisateur.
-- **Licence permissive sans moteur de correction** — reviendrait à renoncer à
-  l'iso-fonctionnalité, qui est l'objectif du projet.
+- **A permissive licence (MIT, Apache-2.0) with rewritten patterns** — would
+  offer complete freedom of use, but would require rebuilding all the linguistic
+  work. The correction engine is the part richest in domain value: starting it
+  over from scratch would degrade the product with no benefit to its user.
+- **A permissive licence without a correction engine** — would mean giving up
+  feature parity, which is the project's goal.
 
-## Conséquences
+## Consequences
 
-Toute distribution de subedit doit s'accompagner de ses sources. Le projet ne
-peut pas être intégré à un produit propriétaire — ce qui n'est ni un objectif
-ni une contrainte pour un éditeur de sous-titres destiné à un usage personnel.
+Every distribution of subedit must come with its sources. The project cannot be
+built into a proprietary product — which is neither a goal nor a constraint for
+a subtitle editor meant for personal use.
 
-Les dépendances doivent rester compatibles GPL-3.0 : Qt en LGPLv3 lié
-dynamiquement l'est, ce qui interdit en revanche un lien statique avec Qt.
+Dependencies must stay GPL-3.0 compatible: Qt under LGPLv3, dynamically linked,
+is; this rules out, on the other hand, static linking with Qt.
 
-L'origine des données reprises est à créditer explicitement dans le dépôt.
+The origin of the reused data must be credited explicitly in the repository.
