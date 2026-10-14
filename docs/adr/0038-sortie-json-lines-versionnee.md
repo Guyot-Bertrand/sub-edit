@@ -1,223 +1,220 @@
-# 0038 — Offrir une sortie lisible par un script : JSON Lines, versionnée
+# 0038 — Offer output a script can read: JSON Lines, versioned
 
-**Date :** 2026-10-01
-**Statut :** acceptée
+**Date:** 2026-10-01
+**Status:** accepted
 
-Décidée en cadrant la phase 13, issue
-[#542](https://github.com/Guyot-Bertrand/sub-edit/issues/542). Lève le point ouvert que
-la [spec de la phase 3](../specs/03-cli.md) avait écrit : « forme d'une sortie lisible
-par une machine — phase 13, quand un appelant réel en aura besoin ».
+Decided while scoping phase 13, issue
+[#542](https://github.com/Guyot-Bertrand/sub-edit/issues/542). Settles the open point the
+[phase 3 spec](../specs/03-cli.md) had written down: "shape of a machine-readable output —
+phase 13, when a real caller needs it".
 
-## Contexte
+## Context
 
-La ligne de commande écrit deux choses sur deux sorties : le **résultat** sur la sortie
-standard — aujourd'hui, le seul rapport d'`inspect`, en blocs de texte —, et **tout le
-reste** sur la sortie d'erreur, aux quatre niveaux de narration. Les sous-commandes qui
-réécrivent n'écrivent rien sur la sortie standard : leur résultat *est* le fichier.
+The command line writes two things to two outputs: the **result** to standard output —
+today, only the `inspect` report, in blocks of text —, and **everything else** to the
+error stream, at the four narration levels. The subcommands that rewrite write nothing to
+standard output: their result *is* the file.
 
-**Aucune sortie structurée n'existe**, et la phase 3 l'avait écartée avec une raison
-qu'il faut garder : « rien ne la consommerait aujourd'hui ; sa forme doit être dictée par
-un appelant réel ». L'appelant est venu, et il est précis : un script qui traite des
-centaines de fichiers et doit savoir, **par fichier**, s'il a réussi, ce qu'il a compté
-(sous-titres changés, contraintes sacrifiées, motifs abandonnés), ce que la lecture a dû
-décider, et où le résultat est allé. Le code de retour ne dit que `0`, `2` ou `3` pour
-tout le lot ; relire une phrase anglaise pour en extraire un nombre est exactement ce
-qu'une sortie « exploitable » doit éviter, et ce que chaque correction de libellé
-casserait en silence.
+**No structured output exists**, and phase 3 had dismissed it with a reason worth
+keeping: "nothing would consume it today; its shape must be dictated by a real caller".
+The caller has come, and it is precise: a script that processes hundreds of files and
+must know, **per file**, whether it succeeded, what it counted (subtitles changed,
+constraints sacrificed, patterns abandoned), what reading had to decide, and where the
+result went. The exit code only says `0`, `2` or `3` for the whole batch; re-reading an
+English sentence to extract a number from it is exactly what a "usable" output must
+avoid, and what every wording fix would silently break.
 
-Le dépôt a déjà l'outil qui rend la promesse **prouvable** : `MatchesFile`
-([#543](https://github.com/Guyot-Bertrand/sub-edit/issues/543)), un comparateur d'octets
-contre un fichier attendu versionné, qui montre la première ligne divergente.
+The repository already has the tool that makes the promise **provable**: `MatchesFile`
+([#543](https://github.com/Guyot-Bertrand/sub-edit/issues/543)), a byte comparator
+against a versioned expected file, which shows the first diverging line.
 
-## Précision : `--list-encodings` est une exception à l'enveloppe
+## Clarification: `--list-encodings` is an exception to the envelope
 
-Écrite par [#564](https://github.com/Guyot-Bertrand/sub-edit/issues/564). `--list-encodings` n'a pas
-de fichier d'entrée, et son résultat est un ensemble, non le compte rendu d'un fichier. **Avec
-`--format json`, il écrit un objet par encodage** — `{"schema":1,"command":"list-encodings","name":"UTF-8"}` —,
-ce qui garde la propriété qui compte : un objet par entrée, un par ligne, que le flux se coupe et se
-concatène comme les autres. **Il ne porte ni `file` ni `ok`** : l'enveloppe des objets de fichier
-(`schema`, `command`, `file`, `ok`) n'a pas de sens pour un nom d'encodage, et lui en inventer un aurait
-été écrire `"file": null` pour que la forme paraisse uniforme. `schema` et `command` y sont, parce que
-chaque ligne doit rester lisible seule.
+Written by [#564](https://github.com/Guyot-Bertrand/sub-edit/issues/564). `--list-encodings` has no
+input file, and its result is a set, not the account of a file. **With `--format json`, it writes
+one object per encoding** — `{"schema":1,"command":"list-encodings","name":"UTF-8"}` —, which keeps
+the property that matters: one object per entry, one per line, a stream that can be cut and
+concatenated like the others. **It carries neither `file` nor `ok`**: the envelope of file objects
+(`schema`, `command`, `file`, `ok`) makes no sense for an encoding name, and inventing one for it
+would have meant writing `"file": null` so that the shape looked uniform. `schema` and `command` are
+there, because each line must remain readable on its own.
 
-## Décision
+## Decision
 
-**`--format json`, option globale, opt-in.** `text` reste le défaut et ne change pas.
-Avec `json`, la sortie standard porte **un objet JSON par fichier d'entrée, en JSON Lines**
-(un objet compact par ligne, UTF-8 sans marque, fin de ligne `\n`), dans l'ordre des
-entrées. **Les sous-commandes qui réécrivent y écrivent aussi** — c'est ce qui change
-leur contrat de la phase 3 — ; leur fichier reste leur résultat, et l'objet est son
-compte rendu. La narration (`-q`, `-v`, `-vv`, `-vvv`) reste sur la sortie d'erreur,
-**en texte, inchangée**.
+**`--format json`, a global option, opt-in.** `text` remains the default and does not
+change. With `json`, standard output carries **one JSON object per input file, as JSON
+Lines** (one compact object per line, UTF-8 without a byte order mark, `\n` line
+endings), in input order. **The subcommands that rewrite write there too** — which is
+what changes their phase 3 contract —; their file remains their result, and the object
+is its account. Narration (`-q`, `-v`, `-vv`, `-vvv`) stays on the error stream, **as
+text, unchanged**.
 
-### La forme
+### The shape
 
-Un objet par entrée, **jamais zéro, jamais deux**, que l'entrée ait réussi ou non :
+One object per input, **never zero, never two**, whether the input succeeded or not:
 
 ```json
 {"schema":1,"command":"shift","file":"a.vtt","ok":true,"dry_run":false,"destination":"out/a.vtt","counts":{"subtitles":1356,"shifted_by_ms":-7001},"warnings":[]}
 {"schema":1,"command":"shift","file":"b.vtt","ok":false,"error":{"kind":"unknown-format","message":"b.vtt: is in no format this tool knows"}}
 ```
 
-| Clé | Contenu | Présente |
-| :-- | :------ | :------- |
-| `schema` | entier, la version de cette forme | toujours |
-| `command` | le nom de la sous-commande | toujours |
-| `file` | le chemin **tel que donné** sur la ligne de commande — ou tel que le parcours d'un répertoire l'a composé —, jamais normalisé | toujours |
-| `ok` | booléen | toujours |
-| `error` | `{"kind", "message"}` | si `ok` est faux |
-| `destination` | le chemin écrit, ou `null` en `--dry-run` | si `ok` est vrai, sur une sous-commande qui écrit |
-| `dry_run` | booléen | si `ok` est vrai, sur une sous-commande qui écrit |
-| `counts` | un objet de **entiers**, propre à la sous-commande | si `ok` est vrai |
-| `warnings` | un tableau d'objets `{"kind", "line"?, "detail"?, "settled"?}` | si `ok` est vrai |
+| Key | Content | Present |
+| :-- | :------ | :------ |
+| `schema` | integer, the version of this shape | always |
+| `command` | the subcommand's name | always |
+| `file` | the path **as given** on the command line — or as the walk of a directory composed it —, never normalized | always |
+| `ok` | boolean | always |
+| `error` | `{"kind", "message"}` | if `ok` is false |
+| `destination` | the path written, or `null` under `--dry-run` | if `ok` is true, on a subcommand that writes |
+| `dry_run` | boolean | if `ok` is true, on a subcommand that writes |
+| `counts` | an object of **integers**, specific to the subcommand | if `ok` is true |
+| `warnings` | an array of objects `{"kind", "line"?, "detail"?, "settled"?}` | if `ok` is true |
 
-**Les clés propres à chaque sous-commande** — celles de `counts`, et pour `inspect` la
-description du fichier — sont **écrites dans le manuel**, sous forme d'un tableau par
-sous-commande et d'un exemple rejoué par `manual-check`. La spec n'en copie pas la liste :
-une seconde liste est une seconde chose à tenir. Les trois choix qui engagent, eux, sont
-ici :
+**The keys specific to each subcommand** — those of `counts`, and for `inspect` the
+description of the file — are **written in the manual**, as one table per subcommand
+and an example replayed by `manual-check`. The spec does not copy the list: a second
+list is a second thing to maintain. The three choices that commit us, however, are
+here:
 
-- **Aucun nombre à virgule.** Une position ou une durée est un **entier de millisecondes**
-  (`…_ms`), comme le modèle (ADR 0006) ; un compte est un entier ; une cadence est une
-  **chaîne** (`"23.976"`) parce qu'elle est exacte, un rationnel (ADR 0013) que la virgule
-  flottante ne tient pas ; une concentration de grille est un entier en **millièmes**.
-  Comparer deux sorties octet pour octet ne dépend alors d'aucun arrondi.
-- **Les diagnostics de lecture vont toujours dans `warnings`**, à tous les niveaux de
-  narration. Le texte les met au niveau 3 parce qu'il est fait pour être lu ; un script
-  les veut toujours, et un objet dont le contenu changerait avec `-q` ne serait pas
-  exploitable. **La verbosité n'agit pas sur la sortie standard en `json`.**
-- **Une erreur d'usage n'écrit aucun objet** : elle est détectée avant tout traitement
-  (`CLI-USAGE-03`), il n'y a donc pas d'entrée à laquelle l'attacher. Elle va sur la
-  sortie d'erreur, en texte, avec le code `1`, et la sortie standard reste vide.
+- **No floating-point numbers.** A position or a duration is an **integer number of
+  milliseconds** (`…_ms`), like the model (ADR 0006); a count is an integer; a frame rate
+  is a **string** (`"23.976"`) because it is exact, a rational (ADR 0013) that floating
+  point cannot hold; a grid concentration is an integer in **thousandths**. Comparing two
+  outputs byte for byte then depends on no rounding.
+- **Reading diagnostics always go into `warnings`**, at every narration level. Text puts
+  them at level 3 because it is meant to be read; a script always wants them, and an
+  object whose content changed with `-q` would not be usable. **Verbosity has no effect
+  on standard output under `json`.**
+- **A usage error writes no object**: it is detected before any processing
+  (`CLI-USAGE-03`), so there is no input to attach it to. It goes to the error stream, as
+  text, with code `1`, and standard output stays empty.
 
-### Le versionnage
+### Versioning
 
-`schema` vaut `1`. Il est **sur chaque objet** : un flux se coupe, se concatène, se filtre,
-et chaque ligne doit rester lisible seule.
+`schema` is `1`. It is **on every object**: a stream gets cut, concatenated, filtered,
+and each line must remain readable on its own.
 
-**Ce qui est promis stable tant que `schema` vaut `1`** :
+**What is promised stable as long as `schema` is `1`**:
 
-- les noms des clés, leur type et leur unité ;
-- le sens de `ok`, de `file`, de `destination` ;
-- **un objet par entrée, dans l'ordre des entrées** ; l'ordre des éléments d'un tableau
-  quand il a un sens (les avertissements dans l'ordre de lecture, les anomalies par numéro
-  de sous-titre) ;
-- les **identifiants** `kind` — des erreurs et des avertissements — qui existent ;
-- le déterminisme : mêmes entrées, mêmes arguments, mêmes octets.
+- the names of the keys, their type and their unit;
+- the meaning of `ok`, `file`, `destination`;
+- **one object per input, in input order**; the order of the elements of an array when
+  it has a meaning (warnings in reading order, anomalies by subtitle number);
+- the existing `kind` **identifiers** — of errors and warnings;
+- determinism: same inputs, same arguments, same bytes.
 
-**Ce qui n'est pas promis** :
+**What is not promised**:
 
-- **le texte des messages** (`message`, `detail`) : c'est de l'anglais pour un humain, il
-  vit dans `core/wording/` et se corrige. Un script qui le compare est un script cassé
-  d'avance ;
-- l'**ordre des clés** dans un objet — il est fixe, parce que le déterminisme l'exige, mais
-  JSON ne le dit pas et un lecteur ne doit pas s'y fier ;
-- la présence de **clés qu'on n'a pas encore ajoutées**.
+- **the text of messages** (`message`, `detail`): it is English for a human, it lives in
+  `core/wording/` and gets corrected. A script that compares it is a script broken in
+  advance;
+- the **order of keys** in an object — it is fixed, because determinism requires it, but
+  JSON does not say so and a reader must not rely on it;
+- the presence of **keys not yet added**.
 
-**Une évolution compatible ne change pas `schema`** : ajouter une clé, ajouter un
-identifiant `kind`. **Un lecteur doit donc ignorer une clé inconnue et traiter un `kind`
-inconnu comme « autre »** ; c'est écrit au manuel, en tête de la section. **Une évolution
-incompatible incrémente `schema`** : retirer ou renommer une clé, changer un type ou une
-unité, retirer un identifiant, changer ce que dit une valeur. L'incrément est une
-rupture, annoncée au CHANGELOG et au manuel ; `--format json` écrit toujours la version
-courante, sans sélecteur (voir « Ce qui justifierait de rouvrir »).
+**A compatible change does not change `schema`**: adding a key, adding a `kind`
+identifier. **A reader must therefore ignore an unknown key and treat an unknown `kind`
+as "other"**; this is written in the manual, at the head of the section. **An
+incompatible change increments `schema`**: removing or renaming a key, changing a type
+or a unit, removing an identifier, changing what a value means. The increment is a
+break, announced in the CHANGELOG and the manual; `--format json` always writes the
+current version, without a selector (see "What would justify reopening").
 
-### La preuve
+### The proof
 
-**Les attendus sont versionnés et écrits à la main** — `src/test/data/attendus/json/`, un
-fichier `.jsonl` par cas —, **lus par un test de bout en bout qui les compare par
-`MatchesFile`**. Jamais la sortie du programme relue par le programme : c'est la leçon de
-#338, et c'est la raison d'être de #543. Un changement de format se voit alors comme un
-**diff de fixture**, jamais comme un test qui s'adapte seul.
+**The expected results are versioned and written by hand** —
+`src/test/data/attendus/json/`, one `.jsonl` file per case —, **read by an end-to-end
+test that compares them through `MatchesFile`**. Never the program's output read back by
+the program: that is the lesson of #338, and it is the raison d'être of #543. A format
+change then shows up as a **fixture diff**, never as a test that adapts on its own.
 
-**Un script Python** (bibliothèque standard, `json`) vérifie que **chaque ligne de chaque
-attendu est du JSON valide, porte l'enveloppe, et ne contient aucun nombre à virgule** ;
-`check-architecture.sh` l'appelle. Le C++ n'a pas de lecteur JSON — il n'en a pas besoin,
-il n'écrit que — et le script est le second regard, indépendant de l'écrivain.
+**A Python script** (standard library, `json`) checks that **every line of every
+expected file is valid JSON, carries the envelope, and contains no floating-point
+number**; `check-architecture.sh` calls it. The C++ has no JSON reader — it does not need
+one, it only writes — and the script is the second pair of eyes, independent of the
+writer.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Un tableau JSON unique** — `[ {…}, {…} ]`. Il ne se lit qu'à la fin : un processus
-  interrompu au milliersième fichier ne laisse rien de lisible, et le lot entier s'accumule
-  en mémoire avant le premier octet. Les JSON Lines se lisent, se coupent et se filtrent
-  (`grep`, `head`, `jq -c`) pendant que le lot tourne.
-- **Un objet final de bilan** (`{"processed":…,"failed":…}`). Une ligne d'une autre forme
-  au milieu d'un flux homogène force chaque lecteur à la distinguer, et le bilan existe
-  déjà : le code de retour (`0`, `2`, `3`), et le texte du niveau 1 sur la sortie
-  d'erreur. **« Un objet par entrée, jamais zéro, jamais deux »** est une propriété qu'un
-  test sait énoncer ; un bilan l'aurait rendue fausse.
-- **TSV ou CSV.** Les avertissements et les comptes par contrainte sont imbriqués, et les
-  textes de `correct --dry-run` portent des sauts de ligne, des tabulations et des guillemets
-  qu'il faudrait échapper de toute façon, dans un format que chaque outil échappe
-  autrement.
-- **Stabiliser les lignes de texte** (`clé: valeur`) — c'est ce qu'`inspect` écrit déjà.
-  Cela engagerait chaque phrase à ne plus jamais changer, et interdirait précisément ce que
-  `wording/` a besoin de faire : corriger un libellé. Le texte reste fait pour un humain,
-  et on ne lui promet rien.
-- **`--json`, un drapeau.** `--format` se lit mieux (`text`, `json`) et laisse la place d'un
-  autre format sans nouvelle option. **Aucun autre n'est promis.**
-- **Écrire un fichier de schéma JSON Schema.** Il serait une seconde description à tenir,
-  à côté des tableaux du manuel et des attendus ; il se justifierait le jour où un
-  consommateur outillé le demande.
-- **Une bibliothèque JSON** (nlohmann, RapidJSON) — une dépendance de plus
-  ([ADR 0004](0004-gestion-des-dependances.md), payée dans le `.deb`, le `.rpm` et la CI)
-  pour écrire une centaine de lignes. Un écrivain minimal, conforme à la RFC 8259, suffit
-  puisqu'on n'a **rien à lire**.
-- **Une version du schéma dans la valeur de l'option** (`--format json:1`). Prématuré :
-  il n'y a pas de seconde version. Le sélecteur s'ajoute le jour où un incrément
-  l'exige, sans rien casser.
+- **A single JSON array** — `[ {…}, {…} ]`. It can only be read at the end: a process
+  interrupted at the thousandth file leaves nothing readable, and the whole batch
+  accumulates in memory before the first byte. JSON Lines can be read, cut and filtered
+  (`grep`, `head`, `jq -c`) while the batch runs.
+- **A final summary object** (`{"processed":…,"failed":…}`). A line of another shape in
+  the middle of a homogeneous stream forces every reader to tell it apart, and the
+  summary already exists: the exit code (`0`, `2`, `3`), and the level 1 text on the
+  error stream. **"One object per input, never zero, never two"** is a property a test
+  can state; a summary would have made it false.
+- **TSV or CSV.** Warnings and per-constraint counts are nested, and the texts of
+  `correct --dry-run` carry line breaks, tabs and quotes that would have to be escaped
+  anyway, in a format every tool escapes differently.
+- **Stabilizing the text lines** (`key: value`) — which is what `inspect` already writes.
+  That would commit every sentence never to change again, and would forbid precisely
+  what `wording/` needs to do: fix a label. Text remains meant for a human, and nothing
+  is promised to it.
+- **`--json`, a flag.** `--format` reads better (`text`, `json`) and leaves room for
+  another format without a new option. **No other is promised.**
+- **Writing a JSON Schema file.** It would be a second description to maintain, next to
+  the manual's tables and the expected files; it would be justified the day a tooled
+  consumer asks for it.
+- **A JSON library** (nlohmann, RapidJSON) — one more dependency
+  ([ADR 0004](0004-gestion-des-dependances.md), paid for in the `.deb`, the `.rpm` and CI)
+  to write about a hundred lines. A minimal writer, conforming to RFC 8259, is enough
+  since there is **nothing to read**.
+- **A schema version in the option's value** (`--format json:1`). Premature: there is no
+  second version. The selector gets added the day an increment requires it, without
+  breaking anything.
 
-## Conséquences
+## Consequences
 
-**Un résultat structuré remplace la phrase.** `cli::Operation` rend aujourd'hui une chaîne
-(« 4000 subtitles shifted by 2.999 s »), et un compte ne se retrouve pas dans une phrase.
-Chaque opération rend désormais **ses comptes**, et la phrase du niveau 1 s'écrit **depuis
-ces mêmes comptes**, par `core/wording/` quand la fenêtre dit la même chose : le texte et
-le JSON ne peuvent plus diverger, parce qu'ils viennent du même objet. C'est la discipline
-que #541 avait inscrite pour toute sous-commande neuve, tenue ici par construction.
+**A structured result replaces the sentence.** `cli::Operation` currently returns a
+string ("4000 subtitles shifted by 2.999 s"), and a count cannot be recovered from a
+sentence. Each operation now returns **its counts**, and the level 1 sentence is written
+**from those same counts**, through `core/wording/` when the window says the same thing:
+the text and the JSON can no longer diverge, because they come from the same object.
+That is the discipline #541 had set down for every new subcommand, held here by
+construction.
 
-**Un écrivain JSON dans `subedit_cli`**, sans dépendance, avec ses propres tests :
-échappement des guillemets, des barres obliques inverses et des caractères de contrôle ;
-les autres caractères — les accents, les caractères hors du plan de base — sortent tels
-quels, en UTF-8.
+**A JSON writer in `subedit_cli`**, without dependency, with its own tests: escaping of
+quotes, backslashes and control characters; other characters — accents, characters
+outside the basic plane — come out as they are, in UTF-8.
 
-**Les chemins qui ne sont pas de l'UTF-8** — possibles sous Linux — ne se représentent pas
-en JSON. Ils sont écrits avec U+FFFD à la place des octets invalides, et l'objet porte un
-avertissement `path-not-utf8` : la fidélité n'est pas promise pour eux, et c'est dit.
+**Paths that are not UTF-8** — possible on Linux — cannot be represented in JSON. They
+are written with U+FFFD in place of the invalid bytes, and the object carries a
+`path-not-utf8` warning: fidelity is not promised for them, and that is stated.
 
-**Coût de défaire** : élevé, et c'est pourquoi cette ADR existe. Un script écrit contre
-`schema` 1 est dans les mains de quelqu'un que le dépôt ne voit pas. Ajouter des clés ne
-coûte rien ; retirer l'une d'elles coûte un incrément et la patience de qui l'avait lue.
+**Cost of undoing**: high, and that is why this ADR exists. A script written against
+`schema` 1 is in the hands of someone the repository does not see. Adding keys costs
+nothing; removing one costs an increment and the patience of whoever had read it.
 
-**Ce qui justifierait de rouvrir** : un consommateur qui a besoin de lire l'ancienne forme
-après un incrément (le sélecteur de version) ; un format de plus que demanderait un
-appelant réel ; ou la preuve que l'ordre des objets ne suffit pas à un lot parallèle, si
-le lot le devient (ADR 0039).
+**What would justify reopening**: a consumer that needs to read the old shape after an
+increment (the version selector); one more format a real caller would ask for; or proof
+that the order of objects is not enough for a parallel batch, if the batch becomes one
+(ADR 0039).
 
-## Mise en œuvre (#556)
+## Implementation (#556)
 
-Relue à l'implémentation ; **aucune décision n'est changée**, six précisions que l'ADR ne
-disait pas — la forme y gagne des clés, elle n'en perd aucune :
+Reviewed at implementation; **no decision is changed**, six clarifications the ADR did
+not state — the shape gains keys, it loses none:
 
-- **Les identifiants `kind` des erreurs** sont ceux que le manuel énumère : `not-found`,
-  `permission-denied`, `io` (le système) ; `unknown-format`, `no-subtitle-found`,
-  `undecodable` (la lecture) ; `unencodable` (l'écriture) ; `no-byte-order-mark`,
-  `no-frame-rate` (`convert`) ; `before-the-origin`, `beyond-the-end`, `no-transform`,
-  `no-grid` (les opérations) ; `refused` pour tout autre refus.
-- **`settled` n'est écrit que lorsqu'il est vrai** — la lecture a tranché quelque chose —,
-  comme `line` n'est écrit que pour un diagnostic qui a une ligne et `detail` quand il a
-  quelque chose à dire.
-- **`concentration_permille` va de 0 à 1000** : la concentration du noyau va de 0 à 100, et
-  le millième est celui du tout — une grille parfaite vaut 1000.
-- **Un échec porte `warnings` dans un seul cas** : le chemin n'est pas de l'UTF-8. La table
-  de la décision réserve `warnings` aux succès ; l'avertissement `path-not-utf8` est la
-  seule chose qu'un échec a à dire de plus, et le taire aurait écrit un objet qui ne se
-  décrit pas lui-même.
-- **`inspect` décrit le fichier** par des clés que le manuel énumère : `format` (l'identifiant
-  de `convert --to`), `encoding`, `line_endings`, `subtitles`, `span_ms`, `frame_rate` ou
-  `grid` (l'un des deux est `null`), `anomalies`.
-- **Le texte et le JSON viennent du même objet** : `cli::OperationResult` porte les comptes
-  et la phrase, que l'opération construit des mêmes valeurs. La phrase n'a pas changé d'un
-  mot — c'est le critère — mais elle n'est plus écrite par `core/wording/` : celle de la
-  fenêtre et celle de la ligne de commande ne se recouvrent pas.
-
+- **The `kind` identifiers of errors** are those the manual enumerates: `not-found`,
+  `permission-denied`, `io` (the system); `unknown-format`, `no-subtitle-found`,
+  `undecodable` (reading); `unencodable` (writing); `no-byte-order-mark`,
+  `no-frame-rate` (`convert`); `before-the-origin`, `beyond-the-end`, `no-transform`,
+  `no-grid` (the operations); `refused` for any other refusal.
+- **`settled` is written only when it is true** — reading decided something —, just as
+  `line` is written only for a diagnostic that has a line and `detail` when it has
+  something to say.
+- **`concentration_permille` ranges from 0 to 1000**: the core's concentration ranges
+  from 0 to 100, and the thousandth is that of the whole — a perfect grid is 1000.
+- **A failure carries `warnings` in one case only**: the path is not UTF-8. The
+  decision's table reserves `warnings` for successes; the `path-not-utf8` warning is the
+  only extra thing a failure has to say, and keeping it quiet would have written an
+  object that does not describe itself.
+- **`inspect` describes the file** with keys the manual enumerates: `format` (the
+  identifier of `convert --to`), `encoding`, `line_endings`, `subtitles`, `span_ms`,
+  `frame_rate` or `grid` (one of the two is `null`), `anomalies`.
+- **The text and the JSON come from the same object**: `cli::OperationResult` carries the
+  counts and the sentence, which the operation builds from the same values. The sentence
+  has not changed by a word — that is the criterion — but it is no longer written by
+  `core/wording/`: the window's and the command line's do not overlap.

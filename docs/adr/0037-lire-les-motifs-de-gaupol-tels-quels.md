@@ -1,139 +1,134 @@
-# 0037 — Lire les fichiers de motifs de Gaupol tels quels
+# 0037 — Read Gaupol's pattern files as they are
 
-**Date :** 2026-09-26
-**Statut :** acceptée
+**Date:** 2026-09-26
+**Status:** accepted
 
-Décidée en cadrant la phase 12, issue
+Decided while scoping phase 12, issue
 [#493](https://github.com/Guyot-Bertrand/sub-edit/issues/493).
 
-## Contexte
+## Context
 
-Les motifs de correction de Gaupol sont vingt-quatre fichiers : douze fichiers
-de motifs, nommés `<Code>.<type>`, et leurs douze `.conf` d'activation. Le code
-est `Écriture[-langue[-PAYS]]`, `Zyyy` valant « toute écriture ». Un fichier de
-motifs est une suite d'enregistrements à la manière de GKeyFile — un en-tête
-`[Common Error Pattern]`, puis `Name`, `Description`, `Classes`, `Pattern`,
-`Flags`, `Replacement`, `Repeat`, `Policy`, `SkipIn`, `Capitalize`, `Group`,
-`Penalty` —, **avec des en-têtes répétés** qu'aucun lecteur INI standard
-n'accepte. Un `.conf` est un XML d'une ligne par nom : `<pattern name="…"
-enabled="…"/>`.
+Gaupol's correction patterns are twenty-four files: twelve pattern files, named
+`<Code>.<type>`, and their twelve activation `.conf` files. The code is
+`Script[-language[-COUNTRY]]`, `Zyyy` meaning "any script". A pattern file is a
+sequence of GKeyFile-like records — a `[Common Error Pattern]` header, then
+`Name`, `Description`, `Classes`, `Pattern`, `Flags`, `Replacement`, `Repeat`,
+`Policy`, `SkipIn`, `Capitalize`, `Group`, `Penalty` —, **with repeated
+headers** that no standard INI reader accepts. A `.conf` is an XML file with one
+line per name: `<pattern name="…" enabled="…"/>`.
 
-La question avait été posée une première fois à la phase 4 et écartée (#88) :
-« la copie serait licite, les deux projets sont sous GPL-3, mais elle
-engagerait sur un format de fichiers qu'on n'a pas choisi ». Depuis, deux faits
-ont changé la donne :
+The question had been raised once before in phase 4 and dismissed (#88):
+"copying would be lawful, both projects are under GPL-3, but it would commit us
+to a file format we did not choose". Since then, two facts have changed the
+picture:
 
-- **#494 a versionné ces fichiers** dans `src/test/data/motifs/gaupol/`, avec
-  leur attribution, et les attendus que Gaupol en tire : ce que le moteur doit
-  reproduire est écrit, **à partir de ces fichiers-là** ;
-- **la phase 12 doit lire des fichiers de motifs de toute façon** — ceux de
-  l'utilisateur. Gaupol lit ceux qu'on dépose dans son répertoire de données
-  (`~/.local/share/gaupol/patterns`), et l'iso-fonctionnalité demande la même
-  porte.
+- **#494 put these files under version control** in
+  `src/test/data/motifs/gaupol/`, with their attribution, and the expected
+  results Gaupol derives from them: what the engine must reproduce is written
+  down, **from these very files**;
+- **phase 12 must read pattern files anyway** — the user's. Gaupol reads those
+  dropped into its data directory (`~/.local/share/gaupol/patterns`), and
+  feature parity calls for the same door.
 
-## Décision
+## Decision
 
-**Lire le format de Gaupol tel quel**, par un lecteur écrit au noyau, et en
-faire au chargement un modèle typé — un enregistrement est un
-`CorrectionPattern` à champs nommés, pas un dictionnaire de chaînes. Les
-fichiers livrés sont **ceux de Gaupol, sans retouche**, installés avec le
-programme. Ce qu'on garde de l'utilisateur — l'activation de chaque motif — va
-dans **nos réglages**, et non dans des `.conf` écrits à la manière de Gaupol.
+**Read Gaupol's format as it is**, with a reader written in the core, and turn
+it at load time into a typed model — a record is a `CorrectionPattern` with
+named fields, not a dictionary of strings. The shipped files are **Gaupol's,
+untouched**, installed with the program. What is kept from the user — the
+activation of each pattern — goes into **our settings**, not into `.conf` files
+written the Gaupol way.
 
-## Ce qui décide
+## What decides
 
-**Une seule copie, lue par tout le monde.** L'oracle Python de #494 lit ces
-fichiers ; le moteur C++ lira les mêmes ; le paquet installe les mêmes. Un
-format à nous demanderait un convertisseur, et le jour où Gaupol modifie un
-motif, il faudrait convertir avant de pouvoir relancer l'oracle — deux vérités
-au lieu d'une.
+**A single copy, read by everyone.** The Python oracle of #494 reads these
+files; the C++ engine will read the same ones; the package installs the same
+ones. A format of our own would need a converter, and the day Gaupol changes a
+pattern, one would have to convert before rerunning the oracle — two truths
+instead of one.
 
-**La mise à jour depuis l'amont reste un geste de copie.** `LISEZMOI.md` de #494
-le décrit déjà : recopier l'ensemble depuis une révision plus récente, relancer
-l'oracle, lire le diff des attendus. Aucun format intermédiaire ne s'intercale.
+**Updating from upstream remains a copy operation.** The `LISEZMOI.md` of #494
+already describes it: copy the whole set from a more recent revision, rerun the
+oracle, read the diff of the expected results. No intermediate format gets in
+between.
 
-**Un fichier de l'utilisateur de Gaupol se lit chez nous.** Quelqu'un qui a
-écrit ses motifs pour Gaupol les dépose dans notre répertoire et ils
-s'appliquent — sous réserve de la traduction de syntaxe de
-l'[ADR 0036](0036-icu-pour-les-motifs-de-correction.md), qui dit ce qu'elle
-refuse.
+**A Gaupol user's file is readable here.** Someone who wrote their patterns for
+Gaupol drops them into our directory and they apply — subject to the syntax
+translation of [ADR 0036](0036-icu-pour-les-motifs-de-correction.md), which
+says what it refuses.
 
-**Les objections de #88 ont une réponse.** Le format n'est pas le nôtre, mais le
-lecteur tient en une centaine de lignes, et ses règles sont déjà écrites deux
-fois — dans `aeidon/patternman.py` et dans `pattern-oracle.py`, qui en nomme
-chaque étape : commentaire de ligne entière, `\0` non suivi d'un chiffre
-retiré, clés préfixées d'un souligné acceptées. Les en-têtes répétés, qu'aucun
-lecteur INI n'accepte, ne sont un problème que pour qui cherche un lecteur
-INI ; on n'en cherche pas.
+**The objections of #88 have an answer.** The format is not ours, but the
+reader fits in about a hundred lines, and its rules are already written twice —
+in `aeidon/patternman.py` and in `pattern-oracle.py`, which names each step:
+whole-line comment, `\0` not followed by a digit removed, keys prefixed with an
+underscore accepted. The repeated headers, which no INI reader accepts, are a
+problem only for someone looking for an INI reader; we are not looking for one.
 
-## Ce qui ne vient pas de Gaupol
+## What does not come from Gaupol
 
-**L'activation se garde dans nos réglages.** Gaupol écrit un `.conf` XML par code
-dans son répertoire de configuration. Chez nous, les `.conf` livrés donnent
-**les valeurs par défaut** ; ce que l'utilisateur coche ou décoche se retient
-dans le fichier de réglages de l'[ADR 0022](0022-configuration-au-noyau-et-tolerance-par-option.md),
-par type, code et nom — l'endroit unique de la configuration, tolérant option
-par option. Écrire un second mécanisme de persistance pour une liste de cases à
-cocher serait l'inverse de 0022.
+**Activation is kept in our settings.** Gaupol writes one XML `.conf` per code
+into its configuration directory. Here, the shipped `.conf` files give **the
+default values**; what the user ticks or unticks is remembered in the settings
+file of [ADR 0022](0022-configuration-au-noyau-et-tolerance-par-option.md), by
+type, code and name — the single place of configuration, tolerant option by
+option. Writing a second persistence mechanism for a list of check boxes would
+be the opposite of 0022.
 
-**La clé est le nom anglais.** Gaupol traduit `Name` et `Description` par
-gettext, mais active et retrouve un motif par son nom non traduit ; plusieurs
-enregistrements partagent un nom et une seule case. On garde la clé ; la
-traduction attend la phase 15.
+**The key is the English name.** Gaupol translates `Name` and `Description`
+through gettext, but activates and finds a pattern by its untranslated name;
+several records share a name and a single box. We keep the key; translation
+waits for phase 15.
 
-**Les fichiers livrés quittent le répertoire des tests.** Ils sont aujourd'hui
-dans `src/test/data/motifs/gaupol/`, parce que #494 n'avait qu'un oracle à
-nourrir. Le programme installé ne peut pas lire un répertoire de tests : ils
-passent dans `packaging/patterns/`, à côté des autres fichiers que le paquet
-installe, et l'oracle comme les tests les y lisent. **Une copie, pas deux.**
+**The shipped files leave the test directory.** They are currently in
+`src/test/data/motifs/gaupol/`, because #494 had only an oracle to feed. The
+installed program cannot read a test directory: they move to
+`packaging/patterns/`, next to the other files the package installs, and the
+oracle and the tests read them there. **One copy, not two.**
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Convertir une fois vers un format à nous** — TOML, JSON, ou un format ligne
-  à ligne. Plus lisible, et l'on choisirait ses champs. Mais la conversion
-  devient une étape de plus à chaque mise à jour amont, l'oracle devrait lire
-  l'un ou l'autre, et les fichiers d'un utilisateur de Gaupol ne se liraient
-  plus sans outil.
-- **Compiler les motifs dans le binaire** — des tables C++ engendrées au
-  moment de la construction. Aucun fichier à trouver à l'exécution, mais plus
-  aucun moyen d'ajouter un motif sans recompiler, et la porte des motifs de
-  l'utilisateur, que Gaupol ouvre, se refermerait.
-- **Écrire des `.conf` à la manière de Gaupol** pour l'activation — la
-  compatibilité jusqu'au bout. Mais la compatibilité qui compte est celle des
-  motifs, pas celle de leurs cases à cocher, et le prix serait un second
-  mécanisme de configuration à côté de celui de l'ADR 0022.
+- **Converting once to a format of our own** — TOML, JSON, or a line-by-line
+  format. More readable, and we would choose our fields. But conversion becomes
+  one more step at every upstream update, the oracle would have to read one or
+  the other, and a Gaupol user's files would no longer be readable without a
+  tool.
+- **Compiling the patterns into the binary** — C++ tables generated at build
+  time. No file to find at run time, but no way left to add a pattern without
+  recompiling, and the door to user patterns, which Gaupol opens, would close.
+- **Writing Gaupol-style `.conf` files** for activation — compatibility all the
+  way. But the compatibility that matters is that of the patterns, not of their
+  check boxes, and the price would be a second configuration mechanism next to
+  that of ADR 0022.
 
-## Conséquences
+## Consequences
 
-**Un lecteur à tenir au noyau**, avec ses diagnostics : un enregistrement sans
-`Pattern`, une clé inconnue, un fichier illisible se disent — fichier, ligne,
-raison — et n'arrêtent pas la lecture des autres, comme l'ouverture d'un
-sous-titre ([ADR 0008](0008-lecture-au-mieux-avec-diagnostics.md)).
+**A reader to maintain in the core**, with its diagnostics: a record without
+`Pattern`, an unknown key, an unreadable file are reported — file, line,
+reason — and do not stop the reading of the others, like opening a subtitle
+file ([ADR 0008](0008-lecture-au-mieux-avec-diagnostics.md)).
 
-**Un répertoire de données à l'exécution.** Le programme doit trouver les
-fichiers livrés, et il le fait comme il trouve son manuel,
-`installedManualPath()` : **à partir de l'exécutable**, `../share/subedit/patterns`,
-jamais par un chemin figé à la construction — le préfixe de configuration et
-celui d'installation ne sont pas le même. Les motifs de l'utilisateur ont leur
-emplacement, `$XDG_DATA_HOME/subedit/patterns`, résolu par une seule fonction
-comme `userSettingsPath()` ; et, comme pour lui, **un test ne résout jamais ni
-l'un ni l'autre** : il reçoit ses répertoires. Le premier emplacement étant
-propre à l'exécutable, et la ligne de commande devant corriger en phase 13, sa
-résolution vit hors de `gui`.
+**A data directory at run time.** The program must find the shipped files, and
+it does so the way it finds its manual, `installedManualPath()`: **from the
+executable**, `../share/subedit/patterns`, never through a path fixed at build
+time — the configuration prefix and the installation prefix are not the same.
+The user's patterns have their location, `$XDG_DATA_HOME/subedit/patterns`,
+resolved by a single function like `userSettingsPath()`; and, as for that one,
+**a test never resolves either of them**: it receives its directories. Since the
+first location is specific to the executable, and the command line has to
+correct in phase 13, its resolution lives outside `gui`.
 
-**Où, depuis #566** : `subedit::platform` (`src/lib/subedit/platform/`), une
-bibliothèque sans Qt que la fenêtre et la ligne de commande lient toutes deux. Le
-noyau garde ses deux fonctions pures et ne lit toujours aucune variable ; la
-bibliothèque est ce qui leur donne leurs arguments — le répertoire de l'exécutable
-(`/proc/self/exe` sous Linux, la porte ouverte ailleurs, ADR 0003), `XDG_DATA_HOME` et
-`HOME`. L'arbre de construction reproduit l'installation, par un lien que CMake pose
-(`build/<preset>/share/subedit/patterns`), si bien qu'un binaire lancé depuis lui
-trouve ses motifs comme un binaire installé, sans option de mise au point.
+**Where, since #566**: `subedit::platform` (`src/lib/subedit/platform/`), a
+Qt-free library that the window and the command line both link. The core keeps
+its two pure functions and still reads no variable; the library is what gives
+them their arguments — the executable's directory (`/proc/self/exe` on Linux,
+the door left open elsewhere, ADR 0003), `XDG_DATA_HOME` and `HOME`. The build
+tree reproduces the installation, through a link CMake sets up
+(`build/<preset>/share/subedit/patterns`), so that a binary launched from it
+finds its patterns like an installed binary, without a debugging option.
 
-**Ce qui justifierait de rouvrir** : Gaupol qui change de format, ou un besoin
-que son format ne sait pas porter — un motif propre à `subedit`, par exemple.
-Ce jour-là, un fichier à nous s'ajouterait à côté des siens plutôt que de les
-remplacer.
+**What would justify reopening**: Gaupol changing its format, or a need its
+format cannot carry — a pattern specific to `subedit`, for instance. That day, a
+file of our own would be added next to its files rather than replacing them.
 
 ## Addendum — the names and descriptions in the user's language ([#666](https://github.com/Guyot-Bertrand/sub-edit/issues/666))
 

@@ -1,58 +1,58 @@
-# 0026 — Laisser le graphe d'inclusions tel quel, et pourquoi
+# 0026 — Leave the include graph as it is, and why
 
-**Date :** 2026-08-31
-**Statut :** acceptée
+**Date:** 2026-08-31
+**Status:** accepted
 
-## Contexte
+## Context
 
-L'issue [#269](https://github.com/Guyot-Bertrand/sub-edit/issues/269) a rendu
-l'analyse statique incrémentale : clang-tidy est accroché à la règle de
-compilation de chaque source, et ce qui décide de réanalyser un fichier est le
-graphe de dépendances que le compilateur a écrit. Une propriété jusque-là
-invisible est devenue mesurable, et chère : **toucher un en-tête coûte
-exactement le nombre d'unités de traduction qui l'atteignent.**
+Issue [#269](https://github.com/Guyot-Bertrand/sub-edit/issues/269) made static
+analysis incremental: clang-tidy is hooked onto each source's compilation rule,
+and what decides to reanalyse a file is the dependency graph the compiler
+wrote. A property invisible until then became measurable, and expensive:
+**touching a header costs exactly the number of translation units that reach
+it.**
 
-Mesuré aussitôt, sur douze cœurs :
+Measured straight away, on twelve cores:
 
 ```
-rien n'a changé            0,4 s
-un .cpp touché             1 unité
-un en-tête profond touché  129 unités
+nothing changed            0.4 s
+one .cpp touched           1 unit
+one deep header touched    129 units
 ```
 
-D'où la question, qui se pose naturellement une fois le chiffre sous les yeux :
-**peut-on déclarer plus de types par anticipation, pour réduire le rayon d'une
-modification d'en-tête ? Et pour quel gain ?**
+Hence the question, which arises naturally once the figure is in front of you:
+**can more types be forward-declared, to reduce the radius of a header change?
+And for what gain?**
 
-Elle mérite une réponse mesurée, parce que la réponse par défaut du métier —
-« oui, toujours, les déclarations anticipées sont une bonne pratique » — est
-celle qu'on applique sans vérifier.
+It deserves a measured answer, because the trade's default answer — "yes,
+always, forward declarations are good practice" — is the one applied without
+checking.
 
-### Ce qui a été mesuré, et comment
+### What was measured, and how
 
-Le graphe vient de `ninja -C build/tidy -t deps`, c'est-à-dire des fichiers de
-dépendances que le compilateur a produits en compilant. Pas d'un `grep` sur les
-lignes `#include` : la fermeture transitive réelle, celle qui gouverne les
-réanalyses. 337 unités de traduction, 125 en-têtes du projet, 3062 arêtes.
+The graph comes from `ninja -C build/tidy -t deps`, that is, from the
+dependency files the compiler produced while compiling. Not from a `grep` on
+`#include` lines: the real transitive closure, the one that governs
+reanalyses. 337 translation units, 125 project headers, 3062 edges.
 
-## Décision
+## Decision
 
-**Le graphe d'inclusions reste tel quel.** On ne généralise pas les déclarations
-anticipées, et on n'écrit pas de règle qui les encourage.
+**The include graph stays as it is.** Forward declarations are not
+generalised, and no rule encouraging them is written.
 
-Une seule coupe est retenue comme envisageable, et elle n'est pas une
-déclaration anticipée : déplacer les deux fonctions-passerelles entre `Frame` et
-`Timestamp`. Elle n'est pas faite ici — voir « Conséquences ».
+A single cut is kept as conceivable, and it is not a forward declaration:
+moving the two bridge functions between `Frame` and `Timestamp`. It is not made
+here — see "Consequences".
 
-## Alternatives écartées
+## Alternatives dismissed
 
-### Généraliser les déclarations anticipées — écartée, structurellement impossible
+### Generalising forward declarations — dismissed, structurally impossible
 
-Les en-têtes au plus gros rayon sont **tous des types-valeurs**, et c'est
-exactement ce qu'une déclaration anticipée ne sait pas servir.
+The headers with the largest radius are **all value types**, and that is
+exactly what a forward declaration cannot serve.
 
-| En-tête | Unités atteintes | sur 337 |
-| :------ | ---------------: | ------: |
+| Header | Units reached | out of 337 |
+| :----- | ------------: | ---------: |
 | `core/time/ratio.hpp` | 153 | 45 % |
 | `core/time/frame_rate.hpp` | 149 | 44 % |
 | `core/time/duration.hpp` | 145 | 43 % |
@@ -61,60 +61,60 @@ exactement ce qu'une déclaration anticipée ne sait pas servir.
 | `core/model/subtitle_format.hpp` | 126 | 37 % |
 | `core/model/source_file.hpp` | 123 | 36 % |
 
-`Timestamp` porte `Duration`, `Frame`, `FrameRate` et `Ratio` **par valeur, dans
-des corps `constexpr` écrits en ligne** : il appelle `rate.millisecondsPerFrame()`,
-`frame.number()`, `factor.scale(…)`. `Subtitle` porte `Timestamp start` et
-`FormatExtras extras` comme membres. `Project` expose `subtitleAt()` en ligne sur
-un `std::vector<Subtitle>`.
+`Timestamp` carries `Duration`, `Frame`, `FrameRate` and `Ratio` **by value, in
+`constexpr` bodies written inline**: it calls `rate.millisecondsPerFrame()`,
+`frame.number()`, `factor.scale(…)`. `Subtitle` carries `Timestamp start` and
+`FormatExtras extras` as members. `Project` exposes `subtitleAt()` inline over
+a `std::vector<Subtitle>`.
 
-Le compilateur a besoin du type complet dans chacun de ces cas. Ce n'est pas
-« peu commode », c'est **impossible** : une fonction `constexpr` se définit dans
-l'en-tête, et son corps ne compile pas sur un type incomplet.
+The compiler needs the complete type in each of these cases. It is not
+"inconvenient", it is **impossible**: a `constexpr` function is defined in the
+header, and its body does not compile on an incomplete type.
 
-**Et c'est notre propre conception qui l'impose.** Les
-[principes de conception](../principes-de-conception.md) demandent des modèles
-typés et des valeurs plutôt que des indirections ; l'ADR
-[0013](0013-mise-a-l-echelle-exacte-des-positions.md) fait de `Ratio` un type
-exact manipulé par valeur. Un graphe d'inclusions dense est la contrepartie de
-ce choix, pas un défaut d'hygiène.
+**And it is our own design that imposes it.** The
+[design principles](../principes-de-conception.md) call for typed models and
+values rather than indirections; ADR
+[0013](0013-mise-a-l-echelle-exacte-des-positions.md) makes `Ratio` an exact
+type handled by value. A dense include graph is the counterpart of that choice,
+not a lapse of hygiene.
 
-### Couper les arêtes les plus lourdes — écartée, le plafond est trop bas
+### Cutting the heaviest edges — dismissed, the ceiling is too low
 
-Le gain de chaque coupe a été calculé exactement, arête par arête, en retirant
-l'arête du graphe et en recomptant la fermeture transitive. Indépendamment de
-toute faisabilité :
+The gain of each cut was computed exactly, edge by edge, by removing the edge
+from the graph and recounting the transitive closure. Regardless of any
+feasibility:
 
-| Gain | Arête coupée |
-| ---: | :----------- |
-| **6,2 %** | `model/project.hpp` ⇏ `model/subtitle.hpp` |
-| 4,0 % | `time/timestamp.hpp` ⇏ `time/frame.hpp` |
-| 3,4 % | `model/subtitle.hpp` ⇏ `model/boundary.hpp` |
-| 3,2 % | `model/subtitle.hpp` ⇏ `model/format_extras.hpp` |
-| 3,0 % | `model/subtitle.hpp` ⇏ `time/timestamp.hpp` |
+| Gain | Edge cut |
+| ---: | :------- |
+| **6.2 %** | `model/project.hpp` ⇏ `model/subtitle.hpp` |
+| 4.0 % | `time/timestamp.hpp` ⇏ `time/frame.hpp` |
+| 3.4 % | `model/subtitle.hpp` ⇏ `model/boundary.hpp` |
+| 3.2 % | `model/subtitle.hpp` ⇏ `model/format_extras.hpp` |
+| 3.0 % | `model/subtitle.hpp` ⇏ `time/timestamp.hpp` |
 
-**La meilleure coupe imaginable vaut 6,2 % du graphe, et elle est infaisable :**
-`Project` expose `subtitles()`, `setSubtitles()` et `subtitleAt()` en ligne sur
-son `std::vector<Subtitle>`. Les sortir hors ligne mettrait un appel de fonction
-sur `subtitleAt`, appelé une fois par ligne visible à chaque repeint de la
-table. C'est un prix payé à chaque image pour économiser des secondes d'analyse
-une fois par trimestre.
+**The best imaginable cut is worth 6.2 % of the graph, and it is not
+feasible:** `Project` exposes `subtitles()`, `setSubtitles()` and
+`subtitleAt()` inline over its `std::vector<Subtitle>`. Moving them out of line
+would put a function call on `subtitleAt`, called once per visible row on every
+repaint of the table. That is a price paid on every frame to save seconds of
+analysis once a quarter.
 
-### Traquer les inclusions mortes — écartée, il n'y en a pas
+### Hunting dead includes — dismissed, there are none
 
-`misc-include-cleaner` — désactivé dans `.clang-tidy`, avec sa justification —
-a été relancé comme instrument de mesure sur deux unités du noyau : **une seule
-inclusion inutile.** Il n'y a pas de gisement.
+`misc-include-cleaner` — disabled in `.clang-tidy`, with its justification —
+was rerun as a measuring instrument on two core units: **a single useless
+include.** There is no seam to mine.
 
-## Conséquences
+## Consequences
 
-### Ce que la mesure a retourné : le rayon ne coûte que quand l'en-tête change
+### What the measurement turned up: the radius costs only when the header changes
 
-C'est le résultat que la question n'attendait pas, et il vaut plus que la
-réponse elle-même. En pondérant le rayon par le nombre de commits qui ont touché
-chaque fichier depuis le début du projet :
+It is the result the question was not expecting, and it is worth more than the
+answer itself. Weighting the radius by the number of commits that have touched
+each file since the start of the project:
 
-| Coût | Rayon | Commits | En-tête |
-| ---: | ----: | ------: | :------ |
+| Cost | Radius | Commits | Header |
+| ---: | -----: | ------: | :----- |
 | **783** | 87 | **9** | `core/model/project.hpp` |
 | 438 | 146 | 3 | `core/time/frame_rate.hpp` |
 | 300 | 150 | **2** | `core/time/ratio.hpp` |
@@ -122,66 +122,65 @@ chaque fichier depuis le début du projet :
 | 284 | 71 | 4 | `core/io/file_system.hpp` |
 | — | 130 | **1** | `core/time/frame.hpp` |
 
-**`ratio.hpp` touche 45 % du dépôt et a changé deux fois en deux ans.
-`frame.hpp` en touche 39 % et a changé une fois.** Ce sont des types-valeurs
-finis : ils ont le plus gros rayon parce qu'ils sont fondamentaux, et ils ne
-bougent pas *parce qu'*ils sont fondamentaux. Les deux propriétés ont la même
-cause, ce qui est précisément ce qui rend l'optimisation vaine.
+**`ratio.hpp` reaches 45 % of the repository and has changed twice in two
+years. `frame.hpp` reaches 39 % and has changed once.** They are finished value
+types: they have the largest radius because they are fundamental, and they do
+not move *because* they are fundamental. Both properties have the same cause,
+which is precisely what makes the optimisation pointless.
 
-Le vrai foyer de coût est ailleurs, et il est double : `project.hpp`, dont le
-rayon est moyen mais qui bouge souvent ; et `gui/main_window.hpp`, dont le rayon
-est petit et le churn énorme.
+The real hot spot of cost is elsewhere, and it is twofold: `project.hpp`, whose
+radius is medium but which moves often; and `gui/main_window.hpp`, whose radius
+is small and whose churn is enormous.
 
-### En secondes, puisque c'est la seule unité qui compte
+### In seconds, since it is the only unit that matters
 
-Mesuré à douze cœurs, sur l'arbre `build/tidy` à jour :
+Measured on twelve cores, on an up-to-date `build/tidy` tree:
 
-| En-tête touché | Unités | Temps |
-| :------------- | -----: | ----: |
+| Header touched | Units | Time |
+| :------------- | ----: | ---: |
 | `core/model/project.hpp` | 90 | **331 s** |
 | `gui/main_window.hpp` | 16 | **115 s** |
 
-Une unité d'interface coûte trois fois une unité de noyau — 7,2 s contre 3,7 —
-parce qu'elle traîne les en-têtes de Qt. **Le rayon seul est donc un mauvais
-estimateur du coût :** seize unités d'interface valent trente unités de noyau.
+An interface unit costs three times a core unit — 7.2 s against 3.7 — because
+it drags in Qt's headers. **The radius alone is therefore a poor estimator of
+cost:** sixteen interface units are worth thirty core units.
 
-### Ce qui reste ouvert, et ce qui ne l'est pas
+### What remains open, and what does not
 
-**La passerelle `Frame` ↔ `Timestamp` est la seule coupe nette.**
-`timestamp.hpp` inclut `frame.hpp` pour deux fonctions — `fromFrame(Frame,
-FrameRate)` et `toFrame(FrameRate)` — qui ont **douze utilisateurs réels** :
-quatre dans la bibliothèque, huit dans les tests. Elles imposent `frame.hpp` à
-130 unités.
+**The `Frame` ↔ `Timestamp` bridge is the only clean cut.** `timestamp.hpp`
+includes `frame.hpp` for two functions — `fromFrame(Frame, FrameRate)` and
+`toFrame(FrameRate)` — which have **twelve real users**: four in the library,
+eight in the tests. They impose `frame.hpp` on 130 units.
 
-Les déplacer en fonctions libres dans un en-tête de conversion ferait tomber ce
-rayon de 130 à 12, sans rien sortir hors ligne et sans toucher au modèle. Ce
-n'est pas une déclaration anticipée mais un déplacement de fonction, et c'est ce
-qui le rend possible : la dépendance vient d'une commodité posée sur `Timestamp`
-plutôt que d'une propriété du type.
+Moving them into free functions in a conversion header would bring that radius
+down from 130 to 12, without moving anything out of line and without touching
+the model. It is not a forward declaration but a function move, and that is
+what makes it possible: the dependency comes from a convenience placed on
+`Timestamp` rather than from a property of the type.
 
-**Elle n'est pas faite, et pas parce qu'elle est difficile.** `frame.hpp` a
-changé une fois en deux ans : le gain espéré est de quelques minutes sur la
-durée de vie du projet. La coupe se fera le jour où l'on rouvrira ce fichier
-pour une autre raison, pas pour elle-même.
+**It is not made, and not because it is hard.** `frame.hpp` has changed once in
+two years: the expected gain is a few minutes over the project's lifetime. The
+cut will be made the day that file is reopened for another reason, not for its
+own sake.
 
-### Ce qui rouvrirait la question
+### What would reopen the question
 
-Trois choses, et aucune n'est une opinion sur les déclarations anticipées :
+Three things, and none of them is an opinion on forward declarations:
 
-- **`project.hpp` continue de bouger.** Neuf commits l'ont touché, chacun coûtant
-  331 s d'analyse. Si son interface ne se stabilise pas, le levier n'est pas
-  l'inclusion mais la stabilité — sortir de son en-tête ce qui bouge, et non ce
-  qu'il inclut.
-- **Une unité d'interface coûte trois fois une unité de noyau.** Si `src/` devient
-  majoritairement du Qt, le calcul ci-dessus change de conclusion sans qu'aucun
-  chiffre du graphe ait bougé.
-- **Un type-valeur du noyau se met à changer souvent.** Ce serait le signe que
-  quelque chose lui a été ajouté qui n'en relève pas, et la réponse serait de le
-  lui retirer — pas de le déclarer par anticipation.
+- **`project.hpp` keeps moving.** Nine commits have touched it, each costing
+  331 s of analysis. If its interface does not settle, the lever is not the
+  include but stability — moving out of its header what moves, not what it
+  includes.
+- **An interface unit costs three times a core unit.** If `src/` becomes mostly
+  Qt, the calculation above changes its conclusion without any figure of the
+  graph having moved.
+- **A core value type starts changing often.** It would be the sign that
+  something has been added to it that does not belong there, and the answer
+  would be to take it away — not to forward-declare it.
 
-### Ce que cette décision coûterait à défaire
+### What undoing this decision would cost
 
-Rien : elle n'écrit aucun code. Elle écrit une mesure et un raisonnement, pour
-qu'on ne les refasse pas. Le coût de ne pas l'avoir écrite serait de rouvrir la
-question tous les six mois et d'y répondre chaque fois par l'intuition du
-métier, qui donne ici la mauvaise réponse.
+Nothing: it writes no code. It writes a measurement and a line of reasoning, so
+that they are not redone. The cost of not having written it would be to reopen
+the question every six months and to answer it each time by the trade's
+intuition, which here gives the wrong answer.

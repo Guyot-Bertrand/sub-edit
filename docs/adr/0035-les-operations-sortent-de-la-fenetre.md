@@ -1,68 +1,70 @@
-# 0035 — Les opérations de `Tools` sortent de la fenêtre
+# 0035 — The `Tools` operations leave the window
 
-Statut : acceptée — 2026-09-25
-Issue [#486](https://github.com/Guyot-Bertrand/sub-edit/issues/486), sortie de l'analyse de `MainWindow`
-demandée avant la clôture de la phase 11. **Revient sur une alternative que l'[ADR
-0034](0034-trois-collaborateurs-de-la-fenetre.md) avait écartée.**
+**Date:** 2026-09-25
+**Status:** accepted
 
-## Contexte
+Issue [#486](https://github.com/Guyot-Bertrand/sub-edit/issues/486), arising from the analysis of `MainWindow`
+requested before phase 11 closed. **Goes back on an alternative that [ADR
+0034](0034-trois-collaborateurs-de-la-fenetre.md) had dismissed.**
 
-L'ADR 0034 a laissé les opérations de `Tools` dans la fenêtre, avec cette raison : « elles sont déjà
-minces — un dialogue, une fonction du noyau, `applyOperation` —, et n'ont pas d'état : les déplacer ne
-rendrait rien de plus testable ». Deux choses ont changé depuis.
+## Context
 
-- **#461 a rendu la page explicite.** `applyOperation` reçoit la page visée et ne lit plus `m_page` ; la
-  cible d'une opération se lit dans la sélection **de la page** (`ProjectPage::tableSelection`), qui est
-  celle de la table quand la page est affichée. Une opération peut donc s'exécuter sur une page construite
-  seule, ce qui était faux quand 0034 a été écrite.
-- **Le poids.** Après #483, #484 et #485, les treize opérations de `Tools` et la route vers l'historique
-  pesaient encore **environ 350 lignes** d'un `main_window.cpp` de 1 851 — la plus grosse famille restante.
-  L'utilisateur a rouvert la question en retenant la piste à l'analyse.
+ADR 0034 left the `Tools` operations in the window, with this reason: "they are already
+thin — a dialog, a core function, `applyOperation` —, and have no state: moving them would
+make nothing more testable". Two things have changed since.
 
-La raison de 0034 était juste sur un point : ces opérations ne tiennent presque pas d'état. Elle ne l'était
-plus sur l'autre : sans fenêtre, elles ne se testaient pas du tout.
+- **#461 made the page explicit.** `applyOperation` receives the targeted page and no longer reads `m_page`; the
+  target of an operation is read in the selection **of the page** (`ProjectPage::tableSelection`), which is
+  the table's when the page is displayed. An operation can therefore run on a page built
+  on its own, which was false when 0034 was written.
+- **The weight.** After #483, #484 and #485, the thirteen `Tools` operations and the route to the history
+  still weighed **about 350 lines** of a 1,851-line `main_window.cpp` — the largest remaining family.
+  The user reopened the question by keeping this lead from the analysis.
 
-## Décision
+0034's reason was right on one point: these operations hold almost no state. It no longer was
+on the other: without a window, they were not tested at all.
 
-**Un collaborateur `ProjectOperations`**, sur le modèle de 0034, porte :
+## Decision
 
-- les treize opérations de `Tools` — décaler, transformer, convertir, ajuster les durées, ajouter un fichier,
-  scinder le projet, retirer les mentions, italique, casse, tirets, aligner, ramener sur la grille,
-  analyser la grille ;
-- **la route unique vers l'historique**, `apply` et `applyQuietly`, avec ce qu'une opération laisse passé la
-  fin du film. Les gestes d'`Edit` et la recherche l'empruntent aussi : elle n'a qu'un chemin, et ce chemin
-  est ici ;
-- le seul état de la famille : la forme du dernier ajustement des durées, que les réglages lisent et
-  écrivent.
+**A collaborator `ProjectOperations`**, on the model of 0034, carries:
 
-**Chaque opération reçoit la page** et lit sa cible dans la sélection de cette page. **Ce qui appartient à
-l'écran passe par `ProjectOperations::View`** : le parent des boîtes, le texte visé, la durée du film de la
-page, le message passager de la barre d'état, le fichier à ajouter et sa lecture — qui restent à
-`ProjectFiles` —, le panneau des diagnostics, la sélection de lignes, et l'ouverture d'un projet à côté
-pour la queue d'une scission.
+- the thirteen `Tools` operations — shift, transform, convert, adjust durations, append a file,
+  split the project, remove mentions, italics, case, dashes, align, snap to the grid,
+  analyse the grid;
+- **the single route to the history**, `apply` and `applyQuietly`, with what an operation leaves past the
+  end of the film. The `Edit` gestures and search take it too: it has only one path, and that path
+  is here;
+- the family's only state: the shape of the last duration adjustment, which the settings read and
+  write.
 
-**La fenêtre garde les `connect`**, et ce qui précède un geste sans dialogue : `commitCellEditor`, qui
-valide la cellule ouverte avant que l'italique, la casse ou les tirets ne lisent leur cible (#397).
+**Each operation receives the page** and reads its target in that page's selection. **What belongs to
+the screen goes through `ProjectOperations::View`**: the parent of the message boxes, the targeted text, the duration of the page's
+film, the status bar's transient message, the file to append and its reading — which stay with
+`ProjectFiles` —, the diagnostics panel, the row selection, and opening a project alongside
+for the tail of a split.
 
-## Alternatives écartées
+**The window keeps the `connect` calls**, and what precedes a gesture without a dialog: `commitCellEditor`, which
+commits the open cell before italics, case or dashes read their target (#397).
 
-- **Laisser `applyOperation` dans la fenêtre** et n'en sortir que les opérations. Elles l'auraient
-  demandé par la `View`, qui aurait alors porté le cœur de la famille ; et la route qu'elles empruntent
-  toutes n'aurait pas été testée avec elles.
-- **Une classe par opération.** Treize types pour treize gestes qui partagent une route, une cible et un
-  compte rendu : la frontière serait devenue le nombre de fichiers.
-- **Passer la cible en argument** plutôt que la lire dans la page. C'était possible, et plus pur ; mais
-  `Split Project…` a besoin de la sélection elle-même — il la montre pendant le choix et la rend si l'on
-  annule (#462) —, et deux façons de trouver la cible dans une même famille en font une de trop.
+## Alternatives dismissed
 
-## Conséquences
+- **Leaving `applyOperation` in the window** and taking only the operations out. They would have
+  asked for it through the `View`, which would then have carried the heart of the family; and the route they
+  all take would not have been tested with them.
+- **One class per operation.** Thirteen types for thirteen gestures that share a route, a target and a
+  report: the boundary would have become the number of files.
+- **Passing the target as an argument** rather than reading it in the page. That was possible, and purer; but
+  `Split Project…` needs the selection itself — it shows it during the choice and restores it if the user
+  cancels (#462) —, and two ways of finding the target within the same family is one too many.
 
-- **Les opérations ont leurs tests, sans fenêtre** (`project_operations_test.cpp`) ; ceux de la fenêtre ne
-  changent pas.
-- `main_window.cpp` passe de 1 851 à 1 506 lignes, `main_window.hpp` de 794 à 692 ; l'analyse visait
-  environ 1 450.
-- Une interface de plus, et la plus large des quatre — neuf gestes. Elle se lit comme la liste de ce qu'une
-  opération ne peut pas faire seule, et c'est ce qui justifie chacun.
-- **Ce qui reste à la fenêtre** : les onglets et la liste des pages, les gestes d'`Edit` qui manipulent la
-  table (insérer, retirer, fusionner, scinder une ligne, le presse-papiers), l'ouverture des fichiers et des
-  traductions, les réglages. L'ADR 0034 disait que les onglets en sont le cœur ; c'est toujours vrai.
+## Consequences
+
+- **The operations have their tests, without a window** (`project_operations_test.cpp`); those of the window do not
+  change.
+- `main_window.cpp` goes from 1,851 to 1,506 lines, `main_window.hpp` from 794 to 692; the analysis aimed at
+  about 1,450.
+- One more interface, and the widest of the four — nine gestures. It reads as the list of what an
+  operation cannot do on its own, and that is what justifies each of them.
+- **What stays with the window**: the tabs and the list of pages, the `Edit` gestures that manipulate the
+  table (insert, remove, merge, split a row, the clipboard), opening files and
+  translations, the settings. ADR 0034 said the tabs are its heart; that is still true.

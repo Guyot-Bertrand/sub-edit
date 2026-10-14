@@ -1,115 +1,114 @@
-# 0030 — Ce qu'un document retient de son fichier, la fréquence comprise
+# 0030 — What a document keeps from its file, frame rate included
 
-Statut : acceptée — 2026-09-07
-Décidée en cadrant la phase 9, issue #337.
+**Date:** 2026-09-07
+**Status:** accepted
 
-## Contexte
+Decided while scoping phase 9, issue #337.
 
-Un document `subedit` retient déjà de son fichier ce qu'aucun sous-titre ne
-porte : son **format**, son **encodage**, sa **marque d'ordre des octets**, ses
-**fins de ligne** et son **en-tête**, une chaîne libre. C'est ce qui rend
-l'aller-retour d'octets possible — l'écriture repose ce que la lecture a trouvé.
+## Context
 
-Les sept formats de la phase 9 ajoutent trois choses à cette liste, et la
-troisième est la plus lourde.
+A `subedit` document already keeps from its file what no subtitle carries: its
+**format**, its **encoding**, its **byte order mark**, its **line endings** and
+its **header**, a free-form string. That is what makes the byte round trip
+possible — writing puts back what reading found.
 
-**L'ordre des champs d'événement SSA.** Un fichier SSA déclare ses colonnes :
+The seven formats of phase 9 add three things to this list, and the third is
+the heaviest.
+
+**The order of SSA event fields.** An SSA file declares its columns:
 `Format: Marked, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text`.
-Gaupol le garde dans `event_fields` parce que l'ordre varie d'un producteur à
-l'autre. L'oublier ferait réécrire tout le fichier avec d'autres colonnes.
+Gaupol keeps it in `event_fields` because the order varies from one producer to
+another. Forgetting it would rewrite the whole file with other columns.
 
-**Un réglage de forme, `two_digit_hour`.** TMPlayer s'écrit `0:00:12:` ou
-`00:00:12:` selon le fichier, et Gaupol retient lequel.
+**A shape setting, `two_digit_hour`.** TMPlayer is written `0:00:12:` or
+`00:00:12:` depending on the file, and Gaupol remembers which.
 
-**La fréquence d'image de MicroDVD.** Elle est d'une autre nature, et c'est le
-cœur de cette décision. MicroDVD ne compte pas en temps : ses positions **sont**
-des numéros d'image — `{1194}{1285}`. Le modèle, lui, compte en millisecondes
-entières depuis l'[ADR 0006](0006-positions-en-millisecondes.md). Lire un
-MicroDVD demande donc une fréquence, et **aucun fichier MicroDVD n'en déclare.**
+**MicroDVD's frame rate.** It is of another nature, and it is the heart of this
+decision. MicroDVD does not count in time: its positions **are** frame numbers —
+`{1194}{1285}`. The model, for its part, counts in whole milliseconds since
+[ADR 0006](0006-positions-en-millisecondes.md). Reading a MicroDVD therefore
+requires a frame rate, and **no MicroDVD file declares one.**
 
-La déduction de la phase 16 ne peut rien : `deduceFrameRate` cherche une grille
-dans des millisecondes, et des numéros d'image consécutifs tombent sur toutes
-les grilles à la fois.
+Phase 16's deduction is of no help: `deduceFrameRate` looks for a grid in
+milliseconds, and consecutive frame numbers fall on every grid at once.
 
-## Décision
+## Decision
 
-**Un `variant` par format au niveau du fichier**, jumeau de `FormatExtras` au
-niveau du sous-titre, porte ce qu'un fichier déclare de lui-même et qu'aucun
-sous-titre ne porte. L'en-tête libre reste la chaîne qu'il est.
+**One `variant` per format at the file level**, the twin of `FormatExtras` at
+the subtitle level, carries what a file declares about itself and no subtitle
+carries. The free-form header remains the string it is.
 
-**La fréquence d'un fichier en images y entre**, et l'écriture la reprend : c'est
-ce qui rend l'aller-retour exact quelle que soit sa valeur.
+**The frame rate of a frame-based file goes into it**, and writing takes it back:
+that is what makes the round trip exact whatever its value.
 
-**Elle a trois sources, dans cet ordre**, et la lecture dit toujours laquelle a
-servi :
+**It has three sources, in this order**, and reading always says which one was
+used:
 
-1. ce que l'utilisateur dit — `--frame-rate`, ou le dialogue de la fenêtre ;
-2. ce que la vidéo associée déclare, quand il y en a une ;
-3. **un défaut déclaré, 23,976**, annoncé par un diagnostic.
+1. what the user says — `--frame-rate`, or the window's dialog;
+2. what the associated video declares, when there is one;
+3. **a declared default, 23.976**, announced by a diagnostic.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-### Garder les images dans le modèle
+### Keeping frames in the model
 
-Ce serait le `modes.FRAME` de Gaupol, et cela contredit frontalement
-l'[ADR 0006](0006-positions-en-millisecondes.md), dont tout le noyau dépend :
-chaque opération, chaque commande d'annulation, chaque anomalie et la table
-entière raisonnent en millisecondes. Un second mode de positions doublerait la
-surface du modèle pour un format sur neuf.
+That would be Gaupol's `modes.FRAME`, and it flatly contradicts
+[ADR 0006](0006-positions-en-millisecondes.md), on which the whole core depends:
+every operation, every undo command, every anomaly and the entire table reason
+in milliseconds. A second position mode would double the surface of the model
+for one format out of nine.
 
-L'[ADR 0011](0011-numero-d-image-en-type-fort.md) a déjà tranché la forme que
-prend une image chez nous : un type fort `Frame`, qui traverse une conversion et
-ne s'installe pas dans le modèle.
+[ADR 0011](0011-numero-d-image-en-type-fort.md) already settled the form a
+frame takes here: a strong type `Frame`, which passes through a conversion and
+does not settle in the model.
 
-### Refuser d'ouvrir faute de fréquence
+### Refusing to open for lack of a frame rate
 
-C'est la voie la plus honnête sur le papier — nous n'inventons rien — et elle a
-été écartée sur l'usage. Un fichier qu'on vient de double-cliquer doit s'ouvrir.
-Une valeur annoncée qu'on peut corriger en une action vaut mieux qu'un refus qui
-laisse la fenêtre vide et n'apprend rien.
+It is the most honest route on paper — we invent nothing — and it was dismissed
+on usage. A file that has just been double-clicked must open. An announced value
+that can be corrected in one action is better than a refusal that leaves the
+window empty and teaches nothing.
 
-Elle contredirait aussi la règle de la maison : la lecture ouvre au mieux et
-signale ([0008](0008-lecture-au-mieux-avec-diagnostics.md)). Refuser est réservé
-à ce qui n'est pas lisible du tout.
+It would also contradict the house rule: reading opens as best it can and
+reports ([0008](0008-lecture-au-mieux-avec-diagnostics.md)). Refusal is reserved
+for what is not readable at all.
 
-### Deviner la fréquence dans le contenu
+### Guessing the frame rate from the content
 
-Il n'y a rien à deviner. Un `{1194}{1285}` est compatible avec 23,976 comme avec
-60 ; ce qu'on lirait n'est pas une fréquence mais une préférence.
+There is nothing to guess. A `{1194}{1285}` is compatible with 23.976 as well as
+with 60; what we would read is not a frame rate but a preference.
 
-### Un défaut à 25
+### A default of 25
 
-25 est la fréquence PAL, celle de l'Europe, et probablement la plus fréquente
-sur les fichiers que ce projet rencontrera. **23,976 est celle de Gaupol**, et
-l'iso-fonctionnalité est la seule raison qui départage deux chiffres également
-arbitraires. Un fichier ouvert par les deux outils doit donner les mêmes
-horodatages, sans quoi la comparaison qui fonde tout le projet ne veut plus rien
-dire.
+25 is the PAL frame rate, Europe's, and probably the most frequent on the files
+this project will encounter. **23.976 is Gaupol's**, and iso-functionality is
+the only reason that decides between two equally arbitrary figures. A file
+opened by both tools must give the same timestamps, otherwise the comparison
+that underpins the whole project no longer means anything.
 
-### Tout mettre dans l'en-tête
+### Putting everything in the header
 
-`header` est une chaîne, et elle suffit à ce qu'un aller-retour doit rendre
-puisque rien n'a besoin de la comprendre. Elle ne suffit pas à `event_fields` :
-l'écriture doit **relire** l'ordre des colonnes pour composer chaque ligne
-`Dialogue:`, donc le reconstruire par analyse de la chaîne à chaque écriture. Ce
-serait ranger une donnée structurée dans du texte libre pour la réanalyser
-aussitôt.
+`header` is a string, and it is enough for what a round trip must give back,
+since nothing needs to understand it. It is not enough for `event_fields`:
+writing must **read back** the column order to compose each `Dialogue:` line,
+and therefore rebuild it by parsing the string on every write. That would be
+storing structured data in free text only to parse it again right away.
 
-## Conséquences
+## Consequences
 
-**`FormatExtras` ne devient pas un variant à neuf branches.** Cinq des neuf
-formats ne portent rien par sous-titre — SubViewer 2, MicroDVD, MPL2, TMPlayer,
-LRC restent sur `std::monostate` — et SSA et ASS partagent une branche. Il passe
-de trois à quatre. La garde du compilateur que son commentaire revendique tient
-sans changer de forme.
+**`FormatExtras` does not become a nine-branch variant.** Five of the nine
+formats carry nothing per subtitle — SubViewer 2, MicroDVD, MPL2, TMPlayer and
+LRC stay on `std::monostate` — and SSA and ASS share a branch. It goes from
+three to four. The compiler guard its comment claims holds without changing
+shape.
 
-**Un document en images a une fréquence, un document en temps n'en a pas.** La
-distinction est portée par le variant, donc par le compilateur : demander sa
-fréquence à un document SubRip ne compile pas.
+**A frame-based document has a frame rate, a time-based document has none.** The
+distinction is carried by the variant, hence by the compiler: asking a SubRip
+document for its frame rate does not compile.
 
-**La conversion vers un format en images demande une fréquence qui n'existe pas
-dans la source.** Elle vient alors de `--frame-rate`, ou de la grille déduite —
-et c'est le seul endroit du projet où la phase 16 sert à autre chose qu'à
-informer : la grille d'un fichier temporel *est* la fréquence à laquelle il a
-été calé. Sans l'une ni l'autre, la conversion refuse plutôt que d'inventer un
-chiffre qui déplacerait chaque réplique.
+**Converting to a frame-based format requires a frame rate that does not exist
+in the source.** It then comes from `--frame-rate`, or from the deduced grid —
+and it is the only place in the project where phase 16 serves something other
+than informing: the grid of a time-based file *is* the frame rate it was
+timed to. Without either, the conversion refuses rather than inventing a figure
+that would move every cue.

@@ -1,79 +1,79 @@
-# 0041 — Afficher la vidéo par le rendu logiciel de libmpv
+# 0041 — Display the video through libmpv's software rendering
 
-**Date :** 2026-10-06
-**Statut :** acceptée
+**Date:** 2026-10-06
+**Status:** accepted
 
-**Complète [0020](0020-libmpv-pour-le-lecteur-integre.md)** : libmpv reste le moteur, et rien de ce que 0020 a pesé n'est remis en cause. Ce qui change est **la façon dont l'image arrive dans la fenêtre**, que 0020 avait laissée « tranchée à l'implémentation » — #173 avait retenu la fenêtre native adoptée par `wid`. Décidée par l'utilisateur au cadrage de la phase 14 ([#190](https://github.com/Guyot-Bertrand/sub-edit/issues/190), [#609](https://github.com/Guyot-Bertrand/sub-edit/issues/609)).
+**Complements [0020](0020-libmpv-pour-le-lecteur-integre.md)**: libmpv remains the engine, and nothing 0020 weighed is called into question. What changes is **the way the image reaches the window**, which 0020 had left "settled at implementation" — #173 had chosen the native window adopted through `wid`. Decided by the user while scoping phase 14 ([#190](https://github.com/Guyot-Bertrand/sub-edit/issues/190), [#609](https://github.com/Guyot-Bertrand/sub-edit/issues/609)).
 
-## Contexte
+## Context
 
-La voie de #173 a coûté plus qu'elle ne promettait, et la mesure en est dans #190 :
+The path of #173 cost more than it promised, and the measure of it is in #190:
 
-- **adopter une fenêtre native est un mécanisme X11** — l'en-tête de libmpv le dit — : `subedit-gui` demande `xcb` quand la session le laisse faire, et refuse de construire un lecteur sur toute autre plateforme Qt ;
-- le contexte doit être nommé, la fenêtre doit être à l'écran avant d'être adoptée, et sept lignes de couverture ne se parcourent qu'avec une session X11 ;
-- **l'image n'est pas dans la fenêtre Qt** : ce que Qt photographie ne la contient pas, et sans écran il n'y a pas d'image du tout. Le manuel ne peut pas la montrer, un test ne peut pas la lire, et l'incrustation que la phase 14 ajoute (le timecode) ne peut pas être dessinée par Qt dessus.
+- **adopting a native window is an X11 mechanism** — libmpv's header says so —: `subedit-gui` asks for `xcb` when the session allows it, and refuses to build a player on any other Qt platform;
+- the context must be named, the window must be on screen before being adopted, and seven lines of coverage can only be walked with an X11 session;
+- **the image is not in the Qt window**: what Qt photographs does not contain it, and without a screen there is no image at all. The manual cannot show it, a test cannot read it, and the overlay phase 14 adds (the timecode) cannot be drawn on it by Qt.
 
-La phase 14 rouvre ce code de toute façon — l'image par image, l'incrustation, la barre de lecture — : c'est le moment, et le seul bon marché.
+Phase 14 reopens this code anyway — frame stepping, the overlay, the playback bar —: this is the moment, and the only cheap one.
 
-**libmpv offre deux API de rendu** : OpenGL, que sa documentation recommande, et **logicielle** (`MPV_RENDER_API_TYPE_SW`), qui dessine dans un tampon que l'appelant fournit. Cette dernière n'a pas besoin de contexte graphique, ni de fenêtre, ni de X11.
+**libmpv offers two rendering APIs**: OpenGL, which its documentation recommends, and **software** (`MPV_RENDER_API_TYPE_SW`), which draws into a buffer the caller provides. The latter needs no graphics context, no window, and no X11.
 
-**Mesuré à l'ouverture de ce cadrage**, sur une machine de développement, avec une vidéo H.264 1920×1080 à 25 images par seconde, sans décodage matériel, `BLOCK_FOR_TARGET_TIME` à zéro : le rendu coûte **2,2 à 3,4 ms par image en moyenne** pour un tampon de 640×360 à 1920×1080, **20 à 40 ms au pire** sur une machine chargée (charge 9 sur 12 cœurs), et **la lecture tient le temps réel** — 123 à 125 images en cinq secondes, aucune perdue. Ce qui n'a pas été mesuré : le 4K, le HDR, un codec lourd (HEVC, AV1) et une machine modeste.
+**Measured at the start of this scoping**, on a development machine, with an H.264 1920×1080 video at 25 frames per second, without hardware decoding, `BLOCK_FOR_TARGET_TIME` at zero: rendering costs **2.2 to 3.4 ms per frame on average** for a buffer of 640×360 to 1920×1080, **20 to 40 ms at worst** on a loaded machine (load 9 on 12 cores), and **playback keeps up with real time** — 123 to 125 frames in five seconds, none dropped. What was not measured: 4K, HDR, a heavy codec (HEVC, AV1) and a modest machine.
 
-## Décision
+## Decision
 
-**L'image est rendue par l'API de rendu logicielle de libmpv, dans un tampon que `VideoSurface` — un widget Qt — peint.** `MpvPlayer` crée un contexte de rendu (`vo=libmpv`) ; le rappel de mise à jour, appelé d'un fil de mpv, **passe au fil de la fenêtre**, qui rend sans attendre l'heure cible et demande une peinture. Le tampon est à la taille du widget **en pixels physiques** ; libmpv conserve le rapport d'aspect. La fenêtre native adoptée, le contexte `xcb` imposé et l'identifiant de fenêtre de `PlayerFactory` **disparaissent**.
+**The image is rendered by libmpv's software rendering API, into a buffer that `VideoSurface` — a Qt widget — paints.** `MpvPlayer` creates a render context (`vo=libmpv`); the update callback, called from an mpv thread, **hands over to the window's thread**, which renders without waiting for the target time and requests a paint. The buffer is the size of the widget **in physical pixels**; libmpv preserves the aspect ratio. The adopted native window, the imposed `xcb` context and `PlayerFactory`'s window identifier **go away**.
 
-L'interface `VideoPlayer` ne change pas pour cela : elle ne sait toujours ni libmpv ni Qt, et l'image n'y passe pas. **La surface est l'affaire de `subedit_gui`.**
+The `VideoPlayer` interface does not change for this: it still knows neither libmpv nor Qt, and the image does not go through it. **The surface is `subedit_gui`'s business.**
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Rester sur la fenêtre native (`wid`).** Le moins de travail, et rien ne casse. Écartée : elle laisse l'image hors de Qt — donc ni capture pour le manuel, ni lecture de l'image par un test, ni incrustation dessinée par Qt — et fait dépendre `subedit-gui` d'XWayland pour toujours.
-- **L'API de rendu OpenGL.** La recommandée, qui permet le décodage matériel sans copie. Écartée **pour cette phase**, pas pour toujours : elle demande un contexte OpenGL tenu à la main, des rappels de rendu câblés sur le fil de la fenêtre, et **une surface de test qui ne devient pas plus facile** — un contexte GL sans écran est un environnement de plus à tenir sur la machine de chacun. Le coût logiciel mesuré ne le justifie pas à la taille d'un éditeur de sous-titres.
-- **Qt Multimedia.** Écartée par 0020 sur le calage fin, et rien n'a changé.
+- **Staying with the native window (`wid`).** The least work, and nothing breaks. Dismissed: it leaves the image outside Qt — hence no screenshot for the manual, no reading of the image by a test, no overlay drawn by Qt — and makes `subedit-gui` depend on XWayland forever.
+- **The OpenGL rendering API.** The recommended one, which allows zero-copy hardware decoding. Dismissed **for this phase**, not forever: it requires an OpenGL context managed by hand, render callbacks wired onto the window's thread, and **a test surface that does not get any easier** — a headless GL context is one more environment to maintain on everyone's machine. The measured software cost does not justify it at the scale of a subtitle editor.
+- **Qt Multimedia.** Dismissed by 0020 on fine-grained timing, and nothing has changed.
 
-## Conséquences
+## Consequences
 
-**L'image est dans la fenêtre**, donc : photographiable par `make manual` ; lisible par un test sans écran, qui compare l'image affichée à l'image numérotée de [#610](https://github.com/Guyot-Bertrand/sub-edit/issues/610) ; surchargeable par Qt (le timecode) ; et **la même sous Wayland, X11 et ailleurs**. Le garde de plateforme et ses lignes de couverture partent.
+**The image is in the window**, hence: photographable by `make manual`; readable by a headless test, which compares the displayed image to the numbered frame of [#610](https://github.com/Guyot-Bertrand/sub-edit/issues/610); overlayable by Qt (the timecode); and **the same under Wayland, X11 and elsewhere**. The platform guard and its coverage lines go away.
 
-**Tout passe par le processeur.** Le décodage matériel sans copie n'est pas disponible avec ce rendu — `hwdec-copy`, s'il convient, copie chaque image — et la mise à l'échelle comme les conversions de couleur sont celles de libmpv logiciel. Une image coûte une copie du tampon vers `QImage` : 3,7 Mo à 720p, 25 fois par seconde, sans conséquence mesurable.
+**Everything goes through the processor.** Zero-copy hardware decoding is not available with this rendering — `hwdec-copy`, if suitable, copies each frame — and scaling as well as colour conversions are those of software libmpv. A frame costs one copy of the buffer into a `QImage`: 3.7 MB at 720p, 25 times per second, with no measurable consequence.
 
-**Un fil de plus à traverser** : l'appel de rappel vient d'un fil de mpv et ne touche à rien ; tout le reste — la demande de rendu, la peinture, les ordres au lecteur — reste sur le fil de la fenêtre, ce que `VideoPlayer` promet déjà (« un seul fil »).
+**One more thread to cross**: the callback comes from an mpv thread and touches nothing; everything else — the render request, the painting, the orders to the player — stays on the window's thread, which `VideoPlayer` already promises ("a single thread").
 
-**Un coût à défaire modeste** : la surface est un widget derrière `MpvPlayer`. Passer à OpenGL plus tard remplacerait le tampon par un contexte, sans toucher à l'interface ni aux appelants.
+**A modest cost to undo**: the surface is a widget behind `MpvPlayer`. Switching to OpenGL later would replace the buffer with a context, without touching the interface or the callers.
 
-**Déclencheur pour reconsidérer :** un utilisateur dont la lecture perd des images à une taille et un codec ordinaires — la relecture de fin de phase mesure sur ce qu'on regarde vraiment —, ou le besoin d'un format que le rendu logiciel traite mal (HDR, 10 bits). La réponse est alors l'API OpenGL **derrière la même surface**.
+**Trigger for reconsidering:** a user whose playback drops frames at an ordinary size and codec — the end-of-phase review measures on what is actually watched —, or the need for a format software rendering handles badly (HDR, 10-bit). The answer is then the OpenGL API **behind the same surface**.
 
-## Mesuré à la relecture de fin de phase 14 ([#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623))
+## Measured at the end-of-phase-14 review ([#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623))
 
-**La décision tient pour ce qu'elle a mesuré, et une limite est maintenant chiffrée.** Trois films de dix secondes, 25 images par seconde, du bruit ajouté pour qu'ils pèsent comme de vrais films, **décodés sous la limite de deux cœurs de la porte** (`limit-cores.sh`) :
+**The decision holds for what it measured, and a limit is now quantified.** Three ten-second films, 25 frames per second, with noise added so that they weigh like real films, **decoded under the gate's two-core limit** (`limit-cores.sh`):
 
-| Film | Débit | Décodage de 10 s de film | Vitesse |
-| :--- | ----: | -----------------------: | ------: |
-| H.264 1080p | 69 Mb/s | 4,0 s | 2,5 × le temps réel |
-| HEVC 4K, 8 bits | 117 Mb/s | 16,1 s | **0,62 ×** |
-| HEVC 4K, 10 bits | 70 Mb/s | 10,9 s | **0,92 ×** |
-| HEVC 4K, 8 bits, VAAPI (ffmpeg) | 117 Mb/s | 4,7 s | 2,1 × |
+| Film | Bit rate | Decoding 10 s of film | Speed |
+| :--- | -------: | --------------------: | ----: |
+| H.264 1080p | 69 Mb/s | 4.0 s | 2.5 × real time |
+| HEVC 4K, 8-bit | 117 Mb/s | 16.1 s | **0.62 ×** |
+| HEVC 4K, 10-bit | 70 Mb/s | 10.9 s | **0.92 ×** |
+| HEVC 4K, 8-bit, VAAPI (ffmpeg) | 117 Mb/s | 4.7 s | 2.1 × |
 
-- **Le 1080p H.264 tient le temps réel avec de la marge**, comme l'ADR l'avait mesuré. Le rendu lui-même — la mise à l'échelle et la conversion dans le tampon — ne dépend pas du film.
-- **Le 4K HEVC lourd ne le tient pas sur deux cœurs**, en 8 comme en 10 bits. Le pas d'une image, qui est une recherche exacte et décode depuis l'image-clé, coûte de 0,4 s (25 images de l'image-clé) à 5 s (225 images) sur ces films, qui n'ont qu'une image-clé ; un vrai film en a une toutes les deux à dix secondes.
-- **Le décodage matériel de cette machine** ramène le 4K à plus de deux fois le temps réel — mesuré par ffmpeg, pas à travers libmpv. Le déclencheur ci-dessus est atteint pour qui regarde du 4K sur une machine modeste, et **la réponse est `hwdec=auto-copy` sous la même surface, pas l'API OpenGL** : [#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647).
-- **Ce qui n'est pas mesuré** : le décodage matériel à travers libmpv, la lecture suivie avec comptage des images perdues, le HDR, AV1, une machine sans carte graphique. Les films ne sont pas versionnés ; le banc `seeking and stepping on a real film` les prend par `SUBEDIT_BENCH_REAL_FILM` et s'abstient sans.
+- **H.264 1080p keeps up with real time with margin to spare**, as the ADR had measured. The rendering itself — scaling and conversion into the buffer — does not depend on the film.
+- **Heavy HEVC 4K does not keep up on two cores**, in 8-bit as in 10-bit. A frame step, which is an exact seek and decodes from the keyframe, costs from 0.4 s (25 frames from the keyframe) to 5 s (225 frames) on these films, which have only one keyframe; a real film has one every two to ten seconds.
+- **This machine's hardware decoding** brings 4K to more than twice real time — measured by ffmpeg, not through libmpv. The trigger above is reached for anyone who watches 4K on a modest machine, and **the answer is `hwdec=auto-copy` under the same surface, not the OpenGL API**: [#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647).
+- **What is not measured**: hardware decoding through libmpv, continuous playback with a count of dropped frames, HDR, AV1, a machine without a graphics card. The films are not versioned; the `seeking and stepping on a real film` bench takes them through `SUBEDIT_BENCH_REAL_FILM` and abstains without it.
 
-## Addendum — le décodage matériel avec copie ([#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647))
+## Addendum — hardware decoding with copy ([#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647))
 
-**`MpvPlayer` demande `hwdec=auto-copy`.** La carte décode, l'image est recopiée en mémoire, et le rendu logiciel la dessine comme avant : la surface, les tests sans écran et les captures du manuel ne changent pas. Sur une machine sans carte, mpv décode sur le processeur sans rien dire. Un réglage de `Preferences…`, `video.hardware-decoding` (actif par défaut), le coupe, à l'instant et pour les films suivants.
+**`MpvPlayer` asks for `hwdec=auto-copy`.** The card decodes, the frame is copied back into memory, and software rendering draws it as before: the surface, the headless tests and the manual's screenshots do not change. On a machine without a card, mpv decodes on the processor without saying anything. A `Preferences…` setting, `video.hardware-decoding` (on by default), turns it off, immediately and for the following films.
 
-**Mesuré à travers libmpv**, sous la limite de deux cœurs (`limit-cores.sh`), sur les films de dix secondes de la relecture de fin de phase 14, 100 échantillons par cas, machine non au repos (charge de 2 à 3). Chercher une image puis la rendre, moyenne, avec la carte puis sans :
+**Measured through libmpv**, under the two-core limit (`limit-cores.sh`), on the ten-second films of the end-of-phase-14 review, 100 samples per case, machine not idle (load 2 to 3). Seeking to a frame then rendering it, average, with the card then without:
 
-| Film | à 25 images de l'image-clé | à 100 images | à 225 images |
-| :--- | -------------------------: | -----------: | -----------: |
-| H.264 1080p | 0,10 s contre 0,36 s | 0,47 s contre 1,55 s | 1,11 s contre 3,49 s |
-| HEVC 4K, 8 bits | 0,83 s contre 1,59 s | 2,66 s contre 4,66 s | 4,79 s contre 5,32 s |
-| HEVC 4K, 10 bits | 0,72 s contre 0,98 s | 1,74 s contre 2,94 s | 3,83 s contre 5,15 s |
+| Film | 25 frames from the keyframe | 100 frames | 225 frames |
+| :--- | --------------------------: | ---------: | ---------: |
+| H.264 1080p | 0.10 s vs 0.36 s | 0.47 s vs 1.55 s | 1.11 s vs 3.49 s |
+| HEVC 4K, 8-bit | 0.83 s vs 1.59 s | 2.66 s vs 4.66 s | 4.79 s vs 5.32 s |
+| HEVC 4K, 10-bit | 0.72 s vs 0.98 s | 1.74 s vs 2.94 s | 3.83 s vs 5.15 s |
 
-Le pas d'une image donne les mêmes ordres de grandeur (même recherche exacte).
+A frame step gives the same orders of magnitude (same exact seek).
 
-- **Le gain est réel et il est inégal.** Il va de 1,1 × (4K 8 bits, loin de l'image-clé) à 3,2 × (1080p). Il est **plus faible que les 2,1 × du décodage seul mesuré par ffmpeg** : la copie de l'image vers la mémoire, la conversion de couleur et la mise à l'échelle restent sur le processeur, et à 4K elles pèsent.
-- **Le 4K lourd ne devient pas fluide.** À 225 images de l'image-clé, un pas coûte encore près de quatre secondes. Ce que la copie ne règle pas — et que seule l'API OpenGL sans copie réglerait, le déclencheur de l'ADR restant ce qu'il est — est le prix de la recherche exacte, qui décode depuis l'image-clé.
-- **L'exactitude ne bouge pas** : les tests sur vidéos numérotées passent avec et sans (`seeking and stepping are exact with and without hardware decoding`). Sur une machine sans carte, les deux séries sont logicielles et ne prouvent que cela ; avec une carte, elles prouvent que l'image recopiée est celle qu'on a demandée.
-- **Ce qui n'est toujours pas mesuré** : la lecture suivie avec comptage d'images perdues, le HDR, AV1, une machine sans carte.
+- **The gain is real and it is uneven.** It ranges from 1.1 × (4K 8-bit, far from the keyframe) to 3.2 × (1080p). It is **smaller than the 2.1 × of decoding alone measured by ffmpeg**: copying the frame into memory, colour conversion and scaling remain on the processor, and at 4K they weigh.
+- **Heavy 4K does not become smooth.** At 225 frames from the keyframe, a step still costs nearly four seconds. What the copy does not solve — and what only the zero-copy OpenGL API would solve, the ADR's trigger remaining what it is — is the price of exact seeking, which decodes from the keyframe.
+- **Exactness does not move**: the tests on numbered videos pass with and without (`seeking and stepping are exact with and without hardware decoding`). On a machine without a card, both series are software and prove only that; with a card, they prove that the copied-back frame is the one requested.
+- **What is still not measured**: continuous playback with a count of dropped frames, HDR, AV1, a machine without a card.

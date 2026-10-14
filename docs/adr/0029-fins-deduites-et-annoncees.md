@@ -1,94 +1,96 @@
-# 0029 — Déduire les fins que le fichier ne porte pas, et l'annoncer
+# 0029 — Deduce the ends the file does not carry, and announce it
 
-Statut : acceptée — 2026-09-07
-Décidée en cadrant la phase 9, issue #337.
+**Date:** 2026-09-07
+**Status:** accepted
 
-## Contexte
+Decided while scoping phase 9, issue #337.
 
-**Deux des neuf formats ne portent qu'une position par ligne.** LRC écrit
-`[00:12.34]texte`, TMPlayer écrit `00:00:12:texte` : le début d'une réplique, et
-rien d'autre. Aucun des deux n'a de champ pour la fin.
+## Context
 
-Gaupol lit ces fichiers en posant la fin d'une réplique au début de la suivante,
-et en donnant cinq secondes à la dernière — `subtitles[-1].duration_seconds = 5`,
-la même ligne dans `lrc.py` et dans `tmplayer.py`.
+**Two of the nine formats carry only one position per line.** LRC writes
+`[00:12.34]text`, TMPlayer writes `00:00:12:text`: the start of a cue, and
+nothing else. Neither has a field for the end.
 
-Notre `Subtitle` porte `start` **et** `end`, tous deux non optionnels, depuis la
-phase 1. La question est de savoir si un fichier qui ne dit pas la fin a le
-droit de faire porter au modèle une valeur qu'il n'a pas lue.
+Gaupol reads these files by setting a cue's end at the start of the next one,
+and by giving the last one five seconds — `subtitles[-1].duration_seconds = 5`,
+the same line in `lrc.py` and in `tmplayer.py`.
 
-Elle n'est pas rhétorique : le modèle a jusqu'ici refusé d'inventer. Il tolère
-un `end` antérieur au `start` plutôt que de le corriger, il refuse de trier de
-lui-même ([0012](0012-ordre-des-sous-titres-par-composition.md)), et sa règle
-d'ouverture est de signaler plutôt que de réparer
+Our `Subtitle` carries `start` **and** `end`, both non-optional, since phase 1.
+The question is whether a file that does not state the end has the right to
+make the model carry a value it has not read.
+
+It is not rhetorical: the model has so far refused to invent. It tolerates an
+`end` earlier than the `start` rather than correcting it, it refuses to sort on
+its own ([0012](0012-ordre-des-sous-titres-par-composition.md)), and its rule on
+opening is to report rather than repair
 ([0008](0008-lecture-au-mieux-avec-diagnostics.md)).
 
-## Décision
+## Decision
 
-**Les fins sont déduites à la lecture** — la fin d'une réplique est le début de
-la suivante, la dernière reçoit cinq secondes — **et la lecture émet un
-diagnostic qui le dit.**
+**Ends are deduced on reading** — a cue's end is the start of the next one, the
+last one receives five seconds — **and reading emits a diagnostic that says
+so.**
 
-Le modèle ne change pas. `Subtitle::end` reste un `Timestamp`.
+The model does not change. `Subtitle::end` remains a `Timestamp`.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-### Rendre `end` optionnel
+### Making `end` optional
 
-C'est la voie qui dit la vérité, et c'est pourquoi elle a été instruite avant
-d'être écartée.
+It is the route that tells the truth, and that is why it was examined before
+being dismissed.
 
-Le compte n'est pas ce qui décide, mais il donne l'échelle : **vingt-huit
-endroits** de `src/lib` et `src/exe` lisent ou écrivent `end` directement, six
-appellent `duration()`, et `position(Boundary::End)` rend une référence qui ne
-peut plus en être une.
+The count is not what decides, but it gives the scale: **twenty-eight places**
+in `src/lib` and `src/exe` read or write `end` directly, six call
+`duration()`, and `position(Boundary::End)` returns a reference that can no
+longer be one.
 
-**Ce qui décide est qu'il n'y a rien à décider vingt-huit fois.** Que fait un
-décalage sur un sous-titre sans fin ? Rien. Qu'affiche la colonne Durée ? Rien.
-Que signifie un chevauchement quand l'un des deux n'a pas de fin ? La question
-ne se pose pas. Chacune de ces réponses est un vide qu'il faudrait écrire,
-tester et maintenir — et pas une n'apprend quoi que ce soit à l'utilisateur.
+**What decides is that there is nothing to decide twenty-eight times.** What
+does a shift do to a subtitle without an end? Nothing. What does the Duration
+column show? Nothing. What does an overlap mean when one of the two has no end?
+The question does not arise. Each of these answers is a void that would have to
+be written, tested and maintained — and not one teaches the user anything.
 
-**Et l'état ne survit à rien.** Il naît de deux formats sur neuf, et disparaît
-dès que le document est enregistré ailleurs : SubRip, WebVTT, SubViewer 2, SSA,
-ASS, MicroDVD et MPL2 exigent tous une fin. Faire porter à tout le noyau un cas
-que sept formats sur neuf ne peuvent pas représenter est un mauvais échange.
+**And the state survives nothing.** It arises from two formats out of nine, and
+disappears as soon as the document is saved in another: SubRip, WebVTT,
+SubViewer 2, SSA, ASS, MicroDVD and MPL2 all require an end. Making the whole
+core carry a case that seven formats out of nine cannot represent is a bad
+trade.
 
-### Refuser les deux formats
+### Refusing both formats
 
-Contredit l'iso-fonctionnalité, qui est l'objet du projet. Écartée sans plus.
+Contradicts iso-functionality, which is the purpose of the project. Dismissed
+without further ado.
 
-### Déduire en silence, comme Gaupol
+### Deducing silently, as Gaupol does
 
-C'est la voie de Gaupol, et c'est **la seule chose que cette décision lui
-ajoute** : le silence. Un utilisateur qui ouvre un LRC voit une colonne Fin
-remplie de valeurs plausibles, et rien ne lui dit qu'aucune ne vient de son
-fichier. S'il en corrige une, il corrige une invention.
+It is Gaupol's route, and **the only thing this decision changes in it** is
+the silence. A user who opens an LRC sees an End column filled with
+plausible values, and nothing tells them that none of them comes from their
+file. If they correct one, they are correcting an invention.
 
-L'[ADR 0008](0008-lecture-au-mieux-avec-diagnostics.md) tranche déjà ce genre de
-cas dans l'autre sens, et le vocabulaire existe depuis la phase 1 : un
-`Diagnostic` porté par la lecture, montré par la fenêtre et par
-`--verbose` sur les trois sous-commandes.
+[ADR 0008](0008-lecture-au-mieux-avec-diagnostics.md) already settles this
+kind of case the other way, and the vocabulary has existed since phase 1: a
+`Diagnostic` carried by reading, shown by the window and by `--verbose` on the
+three subcommands.
 
-## Conséquences
+## Consequences
 
-**L'aller-retour d'octets reste exact, et il ne prouve rien.** L'écriture ne rend
-que des débuts, donc tout ce qui a été déduit est redéduit à la lecture suivante
-et le fichier revient identique — **quelle que soit la valeur inventée.** Un
-test qui ne comparerait que les octets resterait vert si la déduction posait les
-fins n'importe où.
+**The byte round trip stays exact, and it proves nothing.** Writing returns only
+starts, so everything that was deduced is deduced again on the next read and the
+file comes back identical — **whatever the invented value.** A test that
+compared only bytes would stay green if the deduction put the ends anywhere at
+all.
 
-C'est ce que la table de promesses de #338 appelle **l'octet à vide**, et
-pourquoi ces deux formats y portent leurs quatre fins attendues écrites à la
-main. La propriété qui les couvre n'est pas la comparaison d'octets, c'est cette
-attente-là.
+That is what #338's table of promises calls **the vacuous byte check**, and why
+these two formats carry in it their four expected ends written by hand. The
+property that covers them is not the byte comparison, it is that expectation.
 
-**Les cinq secondes de la dernière réplique sont arbitraires, et le restent.**
-Le choix est celui de Gaupol, retenu par iso-fonctionnalité. Une règle plus
-savante — la durée médiane du fichier, une vitesse de lecture — serait moins
-prévisible sans être plus vraie, et la phase 10 apporte de toute façon
-l'ajustement des durées à qui veut mieux.
+**The last cue's five seconds are arbitrary, and stay so.** The choice is
+Gaupol's, kept for iso-functionality. A cleverer rule — the file's median
+duration, a reading speed — would be less predictable without being any truer,
+and phase 10 brings duration adjustment anyway to whoever wants better.
 
-**La conversion, elle, perd vraiment.** Convertir un SubRip en LRC jette les
-fins, et cette perte-là n'est pas déduite mais subie : c'est la politique de
-dégradation de la phase, et `docs/mesures/conversion.md` la déclare.
+**Conversion, on the other hand, really loses.** Converting a SubRip to LRC
+throws the ends away, and that loss is not deduced but suffered: it is the
+phase's degradation policy, and `docs/mesures/conversion.md` declares it.

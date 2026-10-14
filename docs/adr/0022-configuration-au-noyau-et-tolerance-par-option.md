@@ -1,153 +1,153 @@
-# 0022 — Une configuration au noyau, tolérante option par option
+# 0022 — A configuration in the core, tolerant option by option
 
-Statut : acceptée — 2026-08-28
-Décidée au cadrage de la phase 7 (#237).
+**Date:** 2026-08-28
+**Status:** accepted
 
-## Contexte
+Decided when phase 7 was scoped (#237).
 
-La phase 7 apporte des préférences persistées : géométrie de la fenêtre,
-largeur des colonnes, thème, fréquence d'image par défaut. Deux questions se
-posent ensemble, et il vaut mieux les trancher ensemble parce que la seconde
-dépend de la première : **où vit la configuration**, et **ce qui arrive quand
-le fichier ne dit pas ce qu'on attend**.
+## Context
 
-La seconde n'est pas théorique. Un fichier de configuration survit aux versions
-du logiciel qui l'écrit : il est écrit par la version d'aujourd'hui et relu par
-celle de dans deux ans, qui a ajouté des options, en a retiré, et en a changé
-les défauts.
+Phase 7 brings persisted preferences: window geometry, column widths, theme,
+default frame rate. Two questions arise together, and they are better settled
+together because the second depends on the first: **where the configuration
+lives**, and **what happens when the file does not say what is expected**.
 
-### Ce que fait Gaupol, lu plutôt que supposé
+The second is not theoretical. A configuration file outlives the versions of
+the software that writes it: it is written by today's version and read back by
+the one two years from now, which has added options, removed some, and changed
+the defaults.
 
-`gaupol/config.py` a été lu au cadrage de la phase 5 et relu ici. **Il n'y a
-aucune migration, et ce n'est pas un oubli : c'est un dispositif complet.**
+### What Gaupol does, read rather than assumed
 
-- Le fichier est de l'INI à sections imbriquées — `[a::b]` — dont les valeurs
-  sont du JSON, plus un codec pour les énumérations.
-- Une clé inconnue est **acceptée** à la lecture, puis **effacée à l'écriture**
-  si elle n'est plus dans les défauts.
-- Une valeur illisible imprime sur la sortie d'erreur et **laisse le défaut en
-  place**. Une valeur nulle est écartée de même.
-- Toute option restée à sa valeur par défaut est réécrite **commentée**, si
-  bien qu'un changement de défaut prend effet chez qui ne l'a jamais surchargée.
-- `general.version` est écrit et **n'est jamais relu** : une trace, pas un
-  déclencheur.
-- Lecture et écriture sont enveloppées : un échec imprime et n'arrête rien.
+`gaupol/config.py` was read when phase 5 was scoped and read again here.
+**There is no migration, and it is not an oversight: it is a complete
+mechanism.**
 
-Vingt ans d'usage sans migration versionnée. Ce n'est pas une preuve, mais
-c'est une donnée.
+- The file is INI with nested sections — `[a::b]` — whose values are JSON, plus
+  a codec for enumerations.
+- An unknown key is **accepted** on reading, then **erased on writing** if it is
+  no longer among the defaults.
+- An unreadable value prints to standard error and **leaves the default in
+  place**. A null value is discarded likewise.
+- Every option left at its default value is written back **commented out**, so
+  that a change of default takes effect for whoever never overrode it.
+- `general.version` is written and **never read back**: a trace, not a trigger.
+- Reading and writing are wrapped: a failure prints and stops nothing.
 
-## Décision
+Twenty years of use without versioned migration. It is not proof, but it is a
+data point.
 
-**La configuration est un type du noyau, qui lit et écrit par
-`core::FileSystem`, et qui reçoit son emplacement plutôt que de le chercher.**
+## Decision
 
-**Elle est tolérante option par option, sans version ni migration** — le
-dispositif de Gaupol, y compris la réécriture commentée des valeurs par défaut.
+**The configuration is a core type, which reads and writes through
+`core::FileSystem`, and which receives its location rather than looking for
+it.**
 
-Concrètement :
+**It is tolerant option by option, with neither version nor migration** —
+Gaupol's mechanism, including writing default values back commented out.
 
-| Cas | Ce qui se passe |
-| :-- | :-------------- |
-| clé inconnue | ignorée à la lecture, absente à la réécriture |
-| valeur illisible | le défaut est gardé, un diagnostic est produit |
-| option absente | le défaut, sans que ce soit un cas particulier |
-| option à son défaut | réécrite **commentée** |
-| fichier absent | tous les défauts, et ce n'est pas une erreur |
-| fichier illisible | tous les défauts, et un diagnostic |
+Concretely:
 
-## Pourquoi au noyau plutôt que dans `QSettings`
+| Case | What happens |
+| :--- | :----------- |
+| unknown key | ignored on reading, absent on rewriting |
+| unreadable value | the default is kept, a diagnostic is produced |
+| missing option | the default, without it being a special case |
+| option at its default | written back **commented out** |
+| missing file | all the defaults, and it is not an error |
+| unreadable file | all the defaults, and a diagnostic |
 
-`QSettings` donnerait l'emplacement, l'analyse et l'écriture atomique sans
-qu'on écrive une ligne. Trois raisons de ne pas le prendre, et la troisième est
-la décisive.
+## Why in the core rather than in `QSettings`
 
-**Nos valeurs sont typées.** Une fréquence d'image par défaut n'est pas un
-flottant : c'est une `FrameRate`, dont l'invariant est qu'elle est l'une des
-huit. `QSettings` rend des `QVariant`, donc la frontière entre le fichier et le
-type fort existerait de toute façon — et elle est précisément l'endroit où le
-comportement ci-dessus doit être écrit. `QSettings` ne supprime pas le travail,
-il le déplace.
+`QSettings` would provide the location, the parsing and atomic writing without
+our writing a line. Three reasons not to take it, and the third is the decisive
+one.
 
-**Le noyau est libre de Qt, et `check-architecture.sh` le vérifie.** Une
-configuration dans `gui/` couperait la ligne de commande de toute préférence,
-définitivement. On n'en veut aucune aujourd'hui, mais fermer la porte par un
-choix de bibliothèque plutôt que par une décision serait la fermer sans l'avoir
-décidé.
+**Our values are typed.** A default frame rate is not a float: it is a
+`FrameRate`, whose invariant is that it is one of the eight. `QSettings` returns
+`QVariant`s, so the boundary between the file and the strong type would exist
+anyway — and it is precisely the place where the behaviour above must be
+written. `QSettings` does not remove the work, it moves it.
 
-**La couture existe déjà et elle est éprouvée.** `core::FileSystem` est
-l'abstraction par laquelle les formats se testent sans disque, et
-`InMemoryFileSystem` en est l'implantation de test. Une configuration qui passe
-par elle est éprouvable sans écrire nulle part — ce qui est exactement ce que
-l'issue #238 cherche, et elle l'obtient sans réglage global de Qt ni mode test.
+**The core is free of Qt, and `check-architecture.sh` checks it.** A
+configuration in `gui/` would cut the command line off from any preference,
+for good. We want none today, but closing the door through a choice of library
+rather than through a decision would be closing it without having decided to.
 
-**Ce que `QStandardPaths` devient alors :** une ligne de câblage dans
-`src/exe/gui/main.cpp`, qui donne l'emplacement au type. C'est la définition du
-câblage, et c'est le seul chemin que les tests ne couvriront pas — il est nommé
-ici pour qu'on le sache.
+**The seam already exists and it is proven.** `core::FileSystem` is the
+abstraction through which formats are tested without a disk, and
+`InMemoryFileSystem` is its test implementation. A configuration that goes
+through it can be tested without writing anywhere — which is exactly what issue
+#238 is after, and it gets it without a global Qt setting or a test mode.
 
-> **Corrigé en le posant, #238.** Ce chemin est couvert, et il n'a pas coûté
-> cher de le rendre tel : `gui::userSettingsPath()` est une fonction de
-> bibliothèque — `main.cpp` l'appellera d'une ligne quand #240 lui donnera un
-> type à servir — et un test lit ce qu'elle répond sans qu'aucun processus
-> n'ait à démarrer. Ce que l'ADR anticipait — une ligne hors de portée —
-> était le prix d'un `QStandardPaths` appelé sur place ; il suffisait de ne
-> pas l'y appeler. Reste vraie la phrase qui compte : c'est le
-> **seul** endroit où un emplacement standard est résolu.
+**What `QStandardPaths` then becomes:** a line of wiring in
+`src/exe/gui/main.cpp`, which hands the location to the type. That is the
+definition of wiring, and it is the only path the tests will not cover — it is
+named here so that it is known.
 
-## Pourquoi la tolérance plutôt qu'une migration versionnée
+> **Corrected while laying it down, #238.** That path is covered, and making it
+> so was not expensive: `gui::userSettingsPath()` is a library function —
+> `main.cpp` will call it in one line when #240 gives it a type to serve — and
+> a test reads what it returns without any process having to start. What the
+> ADR anticipated — one line out of reach — was the price of a
+> `QStandardPaths` called in place; it was enough not to call it there. The
+> sentence that matters remains true: it is the **only** place where a
+> standard location is resolved.
 
-**Elles ne coûtent pas au même moment.** La tolérance coûte à chaque lecture, un
-peu ; la migration coûte à chaque changement de format, beaucoup, et le coût
-tombe sur celui qui change le format — c'est-à-dire au pire moment, quand on a
-la tête à autre chose.
+## Why tolerance rather than a versioned migration
 
-**Une migration ne se teste que contre des fichiers qu'on a fabriqués.** Elle
-n'attrape que les cas qu'on a imaginés, et son mode d'échec est de refuser un
-fichier légitime. La tolérance a le mode d'échec inverse : elle accepte trop, et
-ce qu'elle laisse passer retombe sur un défaut, qui est écrit.
+**They do not cost at the same moment.** Tolerance costs on every read, a
+little; migration costs on every change of format, a lot, and the cost falls on
+whoever changes the format — that is, at the worst moment, when one's mind is
+on something else.
 
-**La réécriture commentée est ce qui rend la tolérance suffisante**, et c'est le
-détail de Gaupol qu'il faut retenir : sans elle, une option jamais touchée par
-l'utilisateur serait figée à la valeur du jour où elle a été écrite. Un défaut
-qu'on améliore n'atteindrait jamais personne. Avec elle, changer un défaut
-change le comportement de tous ceux qui ne l'ont pas surchargé — ce qui est très
-exactement ce qu'un défaut doit faire.
+**A migration can only be tested against files one has made up.** It catches
+only the cases one has imagined, and its failure mode is to refuse a legitimate
+file. Tolerance has the opposite failure mode: it accepts too much, and what it
+lets through falls back on a default, which is written down.
 
-## Alternatives écartées
+**Writing defaults back commented out is what makes tolerance sufficient**, and
+it is the detail of Gaupol worth keeping: without it, an option the user never
+touched would be frozen at the value of the day it was written. An improved
+default would never reach anyone. With it, changing a default changes the
+behaviour of everyone who has not overridden it — which is exactly what a
+default should do.
 
-**`QSettings`.** Voir plus haut. Écarté sur l'argument du noyau libre de Qt,
-pas sur le confort — il en offre.
+## Alternatives dismissed
 
-**Une migration versionnée, déclenchée par un numéro écrit dans le fichier.**
-Écartée pour son coût et son mode d'échec. Notons que Gaupol *écrit* ce numéro
-et ne le relit jamais : la trace est utile pour lire un fichier à la main, le
-déclencheur ne l'est pas. Nous n'écrivons pas de numéro du tout — un champ qui
-n'est jamais relu est un champ dont personne ne saura s'il est juste.
+**`QSettings`.** See above. Dismissed on the argument of the Qt-free core, not
+on convenience — it offers plenty.
 
-**Refuser un fichier qu'on ne comprend pas.** C'est le comportement le plus
-strict, et le pire : il transforme une préférence perdue en logiciel qui ne
-démarre pas. Une configuration est un confort ; sa défaillance doit coûter le
-confort et rien d'autre.
+**A versioned migration, triggered by a number written in the file.**
+Dismissed for its cost and its failure mode. Note that Gaupol *writes* that
+number and never reads it back: the trace is useful when reading a file by
+hand, the trigger is not. We write no number at all — a field that is never
+read back is a field nobody will know to be right.
 
-## Conséquences
+**Refusing a file we do not understand.** It is the strictest behaviour, and the
+worst: it turns a lost preference into software that does not start. A
+configuration is a convenience; its failure should cost the convenience and
+nothing else.
 
-**Le diagnostic a besoin d'une sortie, et la fenêtre n'en a pas.** Gaupol
-imprime sur la sortie d'erreur, y compris depuis son interface graphique. C'est
-la voie la moins chère et elle est acceptable pour un défaut qui n'empêche rien ;
-l'issue d'implémentation le tranche, et une fenêtre modale au démarrage pour une
-préférence illisible serait un mauvais échange.
+## Consequences
 
-> **Tranché en le posant, #240 : la sortie d'erreur.** Une ligne par option
-> illisible, plus une pour le fichier entier quand il existe et se refuse ;
-> chacune nomme le fichier, l'option, et cite la valeur fautive — sans elle,
-> « cannot be read » laisse l'utilisateur chercher dans son fichier ce qui
-> n'allait pas. La mise en forme vit dans `gui::readUserSettings`, et non dans
-> `main.cpp` : un point d'entrée câble, il ne compose pas des messages.
+**The diagnostic needs an output, and the window has none.** Gaupol prints to
+standard error, including from its graphical interface. It is the cheapest
+route and it is acceptable for a fault that prevents nothing; the
+implementation issue settles it, and a modal dialog at startup for an
+unreadable preference would be a bad trade.
 
-**Le fichier reste lisible et modifiable à la main**, ce qui est une propriété
-et non un effet de bord : c'est ce qui rend une préférence corrigeable quand
-l'interface qui la pose est justement celle qui ne va pas.
+> **Settled while laying it down, #240: standard error.** One line per
+> unreadable option, plus one for the whole file when it exists and refuses to
+> be read; each names the file, the option, and quotes the offending value —
+> without it, "cannot be read" leaves the user searching their file for what
+> was wrong. The formatting lives in `gui::readUserSettings`, not in
+> `main.cpp`: an entry point wires, it does not compose messages.
 
-**Un défaut changé change le comportement des utilisateurs existants.** C'est
-voulu, et c'est le revers de la réécriture commentée : un changement de défaut
-n'est pas anodin et se décide comme un changement de comportement.
+**The file stays readable and editable by hand**, which is a property and not a
+side effect: it is what makes a preference fixable when the interface that sets
+it is precisely the one that is misbehaving.
+
+**A changed default changes the behaviour of existing users.** That is
+intended, and it is the flip side of writing defaults back commented out: a
+change of default is not trivial and is decided like a change of behaviour.
