@@ -1587,7 +1587,7 @@ PY
         printf '  %s✗ le garde-fou a laissé passer la sombre absente du manuel%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
-    elif [[ "${output}" != *"PAIRE"*"seul.png"* || "${output}" == *"ecran.png"* ]]; then
+    elif [[ "${output}" != *"PAIR"*"seul.png"* || "${output}" == *"ecran.png"* ]]; then
         printf '  %s✗ le garde-fou a refusé sans nommer la bonne image%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
@@ -1599,6 +1599,86 @@ PY
 }
 
 expect_screenshot_pairs
+
+# One set of screenshots per language — #672.
+#
+# Every manual tree shows its own captures, taken under its own language, and
+# the guard reads each tree on its own, whatever its language. Three proofs on
+# scratch copies, nothing of the repository touched: a capture of a
+# translated tree deleted is refused and named; a translated page showing an
+# image of its tree that nothing produces is refused as frozen; a translated
+# page borrowing the English set is refused as foreign — a window in the wrong
+# language. The first is a copy of the real program and manuals; the others a
+# hand-written set, as the pair proofs above.
+expect_screenshot_trees() {
+    local script="${REPO_ROOT}/src/scripts/check-screenshots.py"
+    local root output
+    root="$(mktemp -d)"
+
+    proof_header '%s▸ a French capture deleted%s\n' "${BOLD}" "${RESET}"
+    mkdir -p "${root}/real/src/test/tools" "${root}/real/docs"
+    cp "${REPO_ROOT}/src/test/tools/screenshots.cpp" "${root}/real/src/test/tools/"
+    cp -r "${REPO_ROOT}/docs/manual" "${REPO_ROOT}/docs/i18n" "${root}/real/docs/"
+    rm "${root}/real/docs/i18n/fr/manual/subedit-gui/captures/fenetre.png"
+    if output="$("${script}" --root "${root}/real" 2>&1)"; then
+        printf '  %s✗ the guard let a missing French capture through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"BROKEN"*"fenetre.png"*"i18n/fr/manual/subedit-gui/captures"* ]]; then
+        printf '  %s✓ « check-screenshots.py » refused and named fenetre.png of the French set%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the guard refused, but not for the right reason%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    mkdir -p "${root}/set/src/test/tools" "${root}/set/docs/manual/subedit-gui/captures" \
+        "${root}/set/docs/i18n/fr/manual/subedit-gui/captures"
+    local english="${root}/set/docs/manual/subedit-gui"
+    local french="${root}/set/docs/i18n/fr/manual/subedit-gui"
+    printf '%s\n' 'capture(w, w, d, "ecran");' 'capture(w, w, d, "ecran-sombre");' \
+        > "${root}/set/src/test/tools/screenshots.cpp"
+    printf '%s\n' '![Light.](captures/ecran.png)' '![Dark.](captures/ecran-sombre.png)' \
+        > "${english}/page.md"
+    cp "${english}/page.md" "${french}/page.md"
+    touch "${english}/captures/ecran.png" "${english}/captures/ecran-sombre.png" \
+        "${french}/captures/ecran.png" "${french}/captures/ecran-sombre.png"
+    if ! "${script}" --root "${root}/set" >/dev/null 2>&1; then
+        printf '  %s✗ the guard refuses two complete sets%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ a French page showing a capture nothing produces%s\n' "${BOLD}" "${RESET}"
+    touch "${french}/captures/gelee.png"
+    printf '%s\n' '![Frozen.](captures/gelee.png)' >> "${french}/page.md"
+    if output="$("${script}" --root "${root}/set" 2>&1)"; then
+        printf '  %s✗ the guard let a frozen capture through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"FROZEN"*"gelee.png"* ]]; then
+        printf '  %s✓ « check-screenshots.py » refused and named gelee.png, as expected%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the guard refused, but not for the right reason%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ a French page showing the English capture%s\n' "${BOLD}" "${RESET}"
+    cp "${english}/page.md" "${french}/page.md"
+    printf '%s\n' '![English.](../../../../manual/subedit-gui/captures/ecran.png)' >> "${french}/page.md"
+    if output="$("${script}" --root "${root}/set" 2>&1)"; then
+        printf '  %s✗ the guard let a borrowed capture through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"FOREIGN"*"page.md"* ]]; then
+        printf '  %s✓ « check-screenshots.py » refused the borrowed capture, as expected%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the guard refused, but not for the right reason%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_screenshot_trees
 
 # Les renvois du manuel — #243.
 #

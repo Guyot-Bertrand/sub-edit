@@ -1,26 +1,29 @@
 #!/usr/bin/env python3
-"""Vérifie que les renvois du manuel désignent quelque chose.
+"""Check that the references of the manual point at something.
 
-**Le manuel est la seule partie du dépôt dont la justesse repose entièrement sur
-la relecture.** Ses blocs `console` sont engendrés en exécutant la commande, ses
-images en photographiant la vraie fenêtre — mais ses renvois internes, eux, ne
-sont vérifiés par rien. Une section renommée laisse derrière elle des ancres qui
-ne mènent nulle part, et un lien mort s'affiche aussi proprement qu'un lien
-juste.
+**The manual is the one part of the repository whose correctness rests entirely on
+review.** Its `console` blocks are produced by running the command, its images by
+photographing the real window — but its internal references were checked by nothing.
+A renamed section leaves behind anchors that lead nowhere, and a dead link displays as
+cleanly as a right one.
 
-Ce qui est confronté :
+What is confronted:
 
-    ce que le manuel POINTE      docs/manual/**/*.md et docs/i18n/*/manual/**/*.md, liens relatifs
-    ce qui EXISTE                le fichier visé, et l'ancre visée dans ce fichier
+    what a manual POINTS AT   docs/manual/**/*.md and docs/i18n/*/manual/**/*.md, relative
+                              links and images
+    what EXISTS               the file aimed at, and the anchor aimed at in that file
 
-Erreurs (code 1)
+Errors (exit code 1)
 
-    CIBLE ABSENTE  le lien désigne un fichier qui n'existe pas.
-    ANCRE ABSENTE  le fichier existe, mais aucun titre n'y produit cette ancre.
+    MISSING TARGET   the link names a file that does not exist.
+    MISSING ANCHOR   the file exists, but no heading in it produces that anchor.
+    MISSING IMAGE    the page shows an image that does not exist (#672: every tree shows its
+                     own captures, so a translated tree whose captures were not taken fails here,
+                     whatever its language).
 
-Les liens externes — `http:`, `https:`, `mailto:` — ne sont pas suivis : un
-contrôle qui sort sur le réseau échoue pour des raisons qui ne regardent pas le
-dépôt. Les images sont laissées à `check-screenshots.py`, qui en sait plus.
+External links — `http:`, `https:`, `mailto:` — are not followed: a check that goes out on the
+network fails for reasons that are none of the repository's business. Whether an image is the
+tree's own and is produced by something is `check-screenshots.py`'s to say.
 """
 
 from __future__ import annotations
@@ -31,17 +34,20 @@ import sys
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 MANUAL = REPO_ROOT / "docs/manual"
-# Les manuels traduits (ADR 0043) : leurs renvois se vérifient comme ceux de la source, et leurs ancres sont
-# celles de leurs titres traduits.
+# The translated manuals (ADR 0043): their references are checked like the source's, and their
+# anchors are those of their translated headings.
 TRANSLATED = sorted((REPO_ROOT / "docs/i18n").glob("*/manual"))
 
-# [texte](cible) — en excluant les images, qui commencent par « ! ».
+# [text](target) — images, which start with "!", excluded.
 LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)\s]+)\)")
-# Un titre ATX : le niveau, puis son texte.
+# ![text](target) — an image.
+IMAGE = re.compile(r"!\[[^\]]*\]\(([^)\s]+)\)")
+# An ATX heading: its level, then its text.
 HEADING = re.compile(r"^(#{1,6})\s+(.*?)\s*$", re.MULTILINE)
-# Ce qu'une ancre GitHub ne garde pas : tout sauf lettres, chiffres, espaces,
-# tirets et soulignés. Les lettres accentuées sont des lettres, et restent.
+# What a GitHub anchor does not keep: everything but letters, digits, spaces, hyphens and
+# underscores. Accented letters are letters, and stay.
 DROPPED = re.compile(r"[^\w\s-]", re.UNICODE)
+EXTERNAL = ("http:", "https:", "mailto:")
 
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -49,12 +55,12 @@ RESET = "\033[0m"
 
 
 def anchor(title: str) -> str:
-    """L'ancre que GitHub donne à ce titre."""
+    """The anchor GitHub gives this heading."""
     return DROPPED.sub("", title.strip().lower()).replace(" ", "-")
 
 
 def anchors(page: pathlib.Path) -> set[str]:
-    """Toutes les ancres d'une page, doublons numérotés compris."""
+    """Every anchor of a page, numbered duplicates included."""
     found: set[str] = set()
     seen: dict[str, int] = {}
     for _, title in HEADING.findall(page.read_text(encoding="utf-8")):
@@ -68,37 +74,44 @@ def anchors(page: pathlib.Path) -> set[str]:
 def main() -> int:
     errors: list[str] = []
     checked = 0
+    images = 0
 
     for page in sorted(page for root in (MANUAL, *TRANSLATED) for page in root.rglob("*.md")):
         here = page.relative_to(REPO_ROOT)
-        for target in LINK.findall(page.read_text(encoding="utf-8")):
-            if target.startswith(("http:", "https:", "mailto:", "#")):
-                # Une ancre nue vise la page elle-même : elle est vérifiée
-                # comme les autres, sans partie fichier.
-                if not target.startswith("#"):
-                    continue
-                path, _, fragment = page, None, target[1:]
+        text = page.read_text(encoding="utf-8")
+        for target in LINK.findall(text):
+            if target.startswith(EXTERNAL):
+                continue
+            if target.startswith("#"):
+                # A bare anchor aims at the page itself: it is checked like the others, with no
+                # file part.
+                path, fragment = page, target[1:]
             else:
                 file_part, _, fragment = target.partition("#")
                 path = (page.parent / file_part).resolve()
 
             checked += 1
-
             if not path.is_file():
-                errors.append(f"CIBLE ABSENTE  {here} → {target}")
+                errors.append(f"MISSING TARGET  {here} → {target}")
                 continue
-
             if fragment and path.suffix == ".md" and fragment not in anchors(path):
-                errors.append(f"ANCRE ABSENTE  {here} → {target}")
+                errors.append(f"MISSING ANCHOR  {here} → {target}")
+
+        for target in IMAGE.findall(text):
+            if target.startswith(EXTERNAL):
+                continue
+            images += 1
+            if not (page.parent / target).resolve().is_file():
+                errors.append(f"MISSING IMAGE   {here} → {target}")
 
     for line in errors:
         print(f"{RED}✗{RESET} {line}")
 
     if errors:
-        print(f"\n{RED}✗{RESET} {len(errors)} renvoi(s) du manuel ne mènent nulle part")
+        print(f"\n{RED}✗{RESET} {len(errors)} reference(s) of the manual lead nowhere")
         return 1
 
-    print(f"{GREEN}✓{RESET} {checked} renvoi(s) du manuel, tous valides")
+    print(f"{GREEN}✓{RESET} {checked} link(s) and {images} image(s) of the manual, all valid")
     return 0
 
 

@@ -1,44 +1,45 @@
 #!/usr/bin/env python3
-"""Garde-fou de cohérence des captures d'écran du manuel.
+"""Consistency guard of the manual's screenshots.
 
-Le dispositif a trois pièces mobiles, et rien ne les confrontait :
+The arrangement has three moving parts, and nothing confronted them:
 
-    ce que le programme de capture ENGENDRE   src/test/tools/screenshots.cpp
-    ce que le manuel MONTRE                   docs/manual/**/*.md
-    ce qui EXISTE sur le disque               docs/manual/subedit-gui/captures/
+    what the capture program PRODUCES   src/test/tools/screenshots.cpp
+    what a manual SHOWS                 docs/manual/**/*.md, docs/i18n/<lang>/manual/**/*.md
+    what EXISTS on disk                 the `subedit-gui/captures/` directory of each tree
 
-Chacun des défauts ci-dessous est **silencieux dans une chaîne verte**, parce
-que `compare-screenshots.py` ne voit jamais que les `*.new.png` qu'une exécution
-a produits : il ne peut rien savoir d'un manuel qui pointe vers rien, ni d'une
-référence que plus rien ne réengendre.
+**One set per language** (#672): a shot carries the window's words, so every manual tree has
+its own captures, with the same names — `docs/manual/subedit-gui/captures/` for English, the
+source, and `docs/i18n/<lang>/manual/subedit-gui/captures/` for every other language, taken by
+the same program under that language's catalogue (`make manual`). **Each tree is checked on its
+own**, whatever its language: a page shows the images of its own tree, never another's.
 
-Erreurs (code 1)
+Each defect below is **silent in a green chain**, because `compare-screenshots.py` only ever sees
+the `*.new.png` a run produced: it cannot know of a manual pointing at nothing, nor of a reference
+nothing produces any more.
 
-    CONTOURNEMENT  une capture écrit directement le nom de la référence au lieu
-                   de `<nom>.new.png`, donc le comparateur ne la compare jamais :
-                   l'exécution écrase la référence sur place et une régression
-                   visuelle entre au manuel sans que personne la voie.
-    CASSÉE         le manuel montre une image qui n'existe pas sur le disque.
-    FIGÉE          le manuel montre une image que plus rien n'engendre : la
-                   référence ne peut plus être réengendrée, donc elle s'éloigne
-                   de la vraie fenêtre pour toujours. C'est le défaut le plus
-                   coûteux, parce qu'une image périmée s'affiche aussi
-                   proprement qu'une image juste.
-    PAIRE          une capture claire n'a pas sa sombre : le manuel promet, deux
-                   fois, que chaque écran est montré sous les deux palettes, et
-                   rien ne tenait cette promesse. Deux cas, une seule erreur :
-                   `X-sombre` n'est pas engendrée, ou le manuel montre `X.png`
-                   sans montrer `X-sombre.png`. Issue #400, née de deux écrans
-                   de la phase 10 ajoutés avec leur seule palette claire.
+Errors (exit code 1)
 
-Un écran qui n'a vraiment qu'une palette s'inscrit dans `SINGLE_PALETTE`, avec
-sa raison : une exemption sans motif est une paire oubliée qui s'ignore.
+    BYPASS    a shot writes the reference's name directly instead of `<name>.new.png`, so the
+              comparator never compares it: the run overwrites the reference in place, and a
+              visual regression enters the manual with nobody seeing it.
+    BROKEN    a manual shows an image that does not exist on disk — in a translated tree, a
+              capture of that language that was never taken.
+    FOREIGN   a manual shows an image outside its own tree's captures: a translated page that
+              borrows the English set would show a window in the wrong language.
+    FROZEN    a manual shows an image nothing produces: the reference can no longer be
+              produced again, so it drifts away from the real window for ever. The costliest
+              defect, because a stale image displays as cleanly as a right one.
+    PAIR      a light shot has no dark one: the manual promises that every screen is shown under
+              both palettes. Two cases, one error: `X-sombre` is not produced, or a manual shows
+              `X.png` without showing `X-sombre.png`. Issue #400.
 
-Remarques (code 0)
+A screen that truly has one palette goes in `SINGLE_PALETTE`, with its reason: an exemption with
+no reason is a forgotten pair that does not know it.
 
-    INUTILISÉE     une capture qu'aucun manuel ne montre — du temps de
-                   construction dépensé pour rien.
-    MORTE          un fichier que rien n'engendre et que personne ne montre.
+Notices (exit code 0)
+
+    UNUSED    a shot no manual of the tree shows — build time spent for nothing.
+    DEAD      a file of a tree's captures that nothing produces and nobody shows.
 """
 
 from __future__ import annotations
@@ -50,41 +51,33 @@ import sys
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 
-# Les trois emplacements se lisent sous une racine, celle du dépôt par défaut :
-# `--root` la déplace vers un jeu écrit à la main, ce qui est ce qui permet à
-# `verify-gates.sh` d'éprouver ce contrôle sans toucher aux vraies captures.
+# The locations are read under a root, the repository's by default: `--root` moves it to a set
+# written by hand, which is what lets `verify-gates.sh` put this check to the test without
+# touching the real captures.
 TOOL = "src/test/tools/screenshots.cpp"
-CAPTURES = "docs/manual/subedit-gui/captures"
 MANUAL = "docs/manual"
+TRANSLATIONS = "docs/i18n"
+# Where the captures of a manual tree live, relative to that tree.
+CAPTURES = "subedit-gui/captures"
 
-# Le suffixe qui fait d'une capture la sombre de la claire : `table` et
-# `table-sombre`. Un nom calculé échapperait à `produced()`, donc le programme
-# de capture écrit les deux en toutes lettres et ce suffixe ne sert qu'ici.
+# The suffix that makes a shot the dark one of the light one: `table` and `table-sombre`. A
+# computed name would escape `produced()`, so the capture program writes both in full and this
+# suffix is used here alone.
 DARK_SUFFIX = "-sombre"
 
-# Les écrans qui n'ont vraiment qu'une palette : le nom de la capture claire,
-# sans `.png`, et POURQUOI elle n'a pas de sombre. **Vide aujourd'hui** — les
-# onze écrans photographiés le sont sous les deux palettes. Une entrée est une
-# décision, pas un contournement : la raison s'écrit, et une relecture la lit.
+# The screens that truly have one palette: the name of the light shot, without `.png`, and WHY
+# it has no dark one. **Empty today.** An entry is a decision, not a workaround: the reason is
+# written, and a review reads it.
 SINGLE_PALETTE: dict[str, str] = {}
 
-# `capture…(` — le début d'un appel qui photographie. Ce qui suit est lu en
-# comptant les parenthèses plutôt qu'avec une expression rationnelle : un
-# argument peut lui-même en contenir — `*window.table()` — et clang-format est
-# libre de couper l'appel sur quatre lignes le jour où il s'allonge. Un motif
-# qui supposerait « une ligne, un appel » cesserait de voir la moitié des
-# captures à la première mise en forme, et sans rien dire.
-#
-# **Le suffixe est accepté depuis l'issue #321**, qui a donné à la boîte
-# « Save As… » sa propre fonction — `captureSaveAsStrip`, parce qu'elle
-# construit la boîte et n'en garde qu'un bandeau. Un motif ancré sur
-# `capture(` exactement ne la voyait pas, et déclarait figées deux références
-# que le programme engendre bel et bien : un contrôle qui se trompe de sens est
-# pire qu'un contrôle absent, celui-ci ayant en plus le mérite de crier.
+# `capture…(` — the start of a call that photographs. What follows is read by counting
+# parentheses rather than with a regular expression: an argument may hold some itself —
+# `*window.table()` — and clang-format is free to break the call over four lines the day it
+# grows. **The suffix is accepted since #321** (`captureSaveAsStrip`).
 CAPTURE_CALL = re.compile(r"\bcapture[A-Za-z]*\(")
-# Tout littéral qui nomme un PNG dans le programme de capture.
+# Every literal that names a PNG in the capture program.
 PNG_LITERAL = re.compile(r'"([^"]*\.png)"')
-# ![texte](chemin.png) dans le manuel.
+# ![text](path.png) in a manual.
 MARKDOWN_IMAGE = re.compile(r"!\[[^\]]*\]\(([^)\s]+\.png)\)")
 
 RED = "\033[31m"
@@ -94,25 +87,18 @@ RESET = "\033[0m"
 
 
 def produced(root: pathlib.Path = REPO_ROOT) -> set[str]:
-    """Les captures que le programme engendre, lues dans sa source.
-
-    Le nom est le dernier littéral de l'appel, quels que soient les arguments
-    qui le précèdent et la façon dont ils sont mis en forme.
-    """
+    """The shots the program produces, read from its source: the last literal of each call."""
     source = (root / TOOL).read_text(encoding="utf-8")
     names: set[str] = set()
-
     for call in CAPTURE_CALL.finditer(source):
-        arguments = balanced(source, call.end())
-        literals = re.findall(r'"([^"]*)"', arguments)
+        literals = re.findall(r'"([^"]*)"', balanced(source, call.end()))
         if literals:
             names.add(literals[-1])
-
     return names
 
 
 def balanced(source: str, start: int) -> str:
-    """Ce qui va de `start` jusqu'à la parenthèse qui referme celle d'avant."""
+    """What runs from `start` to the parenthesis that closes the one before it."""
     depth = 1
     for index in range(start, len(source)):
         if source[index] == "(":
@@ -125,12 +111,7 @@ def balanced(source: str, start: int) -> str:
 
 
 def bypasses(root: pathlib.Path = REPO_ROOT) -> list[str]:
-    """Les littéraux PNG du programme qui ne passent pas par `.new.png`.
-
-    Le programme ne doit connaître qu'un seul suffixe. Un `save()` qui écrirait
-    « fenetre.png » court-circuiterait le comparateur, et c'est exactement le
-    défaut qu'aucun autre contrôle ne verrait.
-    """
+    """The PNG literals of the program that do not go through `.new.png`."""
     return [
         literal
         for literal in PNG_LITERAL.findall((root / TOOL).read_text(encoding="utf-8"))
@@ -138,97 +119,98 @@ def bypasses(root: pathlib.Path = REPO_ROOT) -> list[str]:
     ]
 
 
-def shown(root: pathlib.Path = REPO_ROOT) -> dict[str, list[pathlib.Path]]:
-    """Les images que le manuel montre, et où il les montre."""
+def trees(root: pathlib.Path = REPO_ROOT) -> list[pathlib.Path]:
+    """The source manual and every translated one, `docs/i18n/<lang>/manual`, in a stable order."""
+    found = [root / MANUAL] if (root / MANUAL).is_dir() else []
+    return found + sorted(tree for tree in (root / TRANSLATIONS).glob("*/manual") if tree.is_dir())
+
+
+def shown(tree: pathlib.Path, root: pathlib.Path) -> tuple[dict[str, list[pathlib.Path]], list[str]]:
+    """The images a tree shows from its own captures, by name, and where; and those it borrows."""
+    captures = (tree / CAPTURES).resolve()
     where: dict[str, list[pathlib.Path]] = {}
-    for page in sorted((root / MANUAL).rglob("*.md")):
+    foreign: list[str] = []
+    for page in sorted(tree.rglob("*.md")):
         for reference in MARKDOWN_IMAGE.findall(page.read_text(encoding="utf-8")):
             target = (page.parent / reference).resolve()
-            where.setdefault(target.name, []).append(page.relative_to(root))
-    return where
+            here = page.relative_to(root)
+            if target.parent != captures:
+                foreign.append(f"FOREIGN   {here} shows {reference}, outside its own tree's captures")
+                continue
+            where.setdefault(target.name, []).append(here)
+    return where, foreign
 
 
-def on_disk(root: pathlib.Path = REPO_ROOT) -> set[str]:
-    captures = root / CAPTURES
+def on_disk(tree: pathlib.Path) -> set[str]:
+    captures = tree / CAPTURES
     return {found.name for found in captures.glob("*.png")} if captures.is_dir() else set()
 
 
-def unpaired(
-    engendrées: set[str],
-    montrées: dict[str, list[pathlib.Path]],
-    exemptions: dict[str, str],
-) -> list[str]:
-    """Les captures claires dont la sombre manque, engendrée ou montrée.
-
-    « Claire » veut dire : toute capture engendrée ou montrée dont le nom ne
-    finit pas par `-sombre`. Les deux ensembles, et non le seul programme : une
-    image que le manuel montre sans que rien ne l'engendre est déjà FIGÉE, mais
-    la paire qui lui manque est un second défaut, et le dire est gratuit.
-    """
-    clairs = sorted(
+def unpaired(produced_names: set[str], shown_names: dict[str, list[pathlib.Path]],
+             exemptions: dict[str, str], label: str) -> list[str]:
+    """The light shots whose dark one is missing, produced or shown."""
+    light = sorted(
         name
-        for name in engendrées | {image.removesuffix(".png") for image in montrées}
+        for name in produced_names | {image.removesuffix(".png") for image in shown_names}
         if not name.endswith(DARK_SUFFIX) and name not in exemptions
     )
-
     errors: list[str] = []
-    for name in clairs:
-        sombre = f"{name}{DARK_SUFFIX}"
-        if sombre not in engendrées:
+    for name in light:
+        dark = f"{name}{DARK_SUFFIX}"
+        if dark not in produced_names:
             errors.append(
-                f"PAIRE          {name}.png — {sombre}.png n'est engendrée par personne ;\n"
-                f"               chaque écran se montre sous les deux palettes, ou s'exempte\n"
-                f"               dans SINGLE_PALETTE, avec sa raison"
+                f"PAIR      {name}.png — {dark}.png is produced by nobody;\n"
+                f"          every screen is shown under both palettes, or is exempted\n"
+                f"          in SINGLE_PALETTE, with its reason"
             )
-        elif f"{name}.png" in montrées and f"{sombre}.png" not in montrées:
-            errors.append(
-                f"PAIRE          {name}.png — montrée, mais {sombre}.png ne l'est par aucun manuel"
-            )
+        elif f"{name}.png" in shown_names and f"{dark}.png" not in shown_names:
+            errors.append(f"PAIR      {name}.png — shown, but {dark}.png is not, in {label}")
     return errors
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
-    parser.add_argument(
-        "--root",
-        type=pathlib.Path,
-        default=REPO_ROOT,
-        help="la racine sous laquelle lire le programme, le manuel et les captures",
-    )
+    parser.add_argument("--root", type=pathlib.Path, default=REPO_ROOT,
+                        help="the root under which to read the program, the manuals and the captures")
     root = parser.parse_args(argv).root
 
-    engendrées = produced(root)
-    montrées = shown(root)
-    présentes = on_disk(root)
-
+    produced_names = produced(root)
     errors: list[str] = []
     notices: list[str] = []
 
     for literal in bypasses(root):
         errors.append(
-            f"CONTOURNEMENT  {literal} — le programme écrirait la référence sans passer\n"
-            f"               par le comparateur ; le suffixe est « .new.png », toujours"
+            f"BYPASS    {literal} — the program would write the reference without going\n"
+            f"          through the comparator; the suffix is \".new.png\", always"
         )
 
-    for name, pages in sorted(montrées.items()):
-        lieux = ", ".join(str(page) for page in pages)
-        if name not in présentes:
-            errors.append(f"CASSÉE         {name} — montrée par {lieux}, absente du disque")
-        elif name.removesuffix(".png") not in engendrées:
-            errors.append(
-                f"FIGÉE          {name} — montrée par {lieux}, engendrée par personne ;\n"
-                f"               plus rien ne la réengendre, elle s'éloignera de la fenêtre"
-            )
+    shown_total = 0
+    every_tree = trees(root)
+    for tree in every_tree:
+        label = str(tree.relative_to(root))
+        shown_names, foreign = shown(tree, root)
+        present = on_disk(tree)
+        shown_total += len(shown_names)
+        errors.extend(foreign)
 
-    errors.extend(unpaired(engendrées, montrées, SINGLE_PALETTE))
+        for name, pages in sorted(shown_names.items()):
+            places = ", ".join(str(page) for page in pages)
+            if name not in present:
+                errors.append(f"BROKEN    {name} — shown by {places}, absent from {label}/{CAPTURES}")
+            elif name.removesuffix(".png") not in produced_names:
+                errors.append(
+                    f"FROZEN    {name} — shown by {places}, produced by nobody;\n"
+                    f"          nothing produces it again, it will drift from the window"
+                )
 
-    for name in sorted(engendrées):
-        if f"{name}.png" not in montrées:
-            notices.append(f"INUTILISÉE     {name}.png — engendrée, montrée par aucun manuel")
+        errors.extend(unpaired(produced_names, shown_names, SINGLE_PALETTE, label))
 
-    for name in sorted(présentes):
-        if name.removesuffix(".png") not in engendrées and name not in montrées:
-            notices.append(f"MORTE          {name} — ni engendrée, ni montrée")
+        for name in sorted(produced_names):
+            if f"{name}.png" not in shown_names:
+                notices.append(f"UNUSED    {name}.png — produced, shown by no page of {label}")
+        for name in sorted(present):
+            if name.removesuffix(".png") not in produced_names and name not in shown_names:
+                notices.append(f"DEAD      {label}/{CAPTURES}/{name} — neither produced nor shown")
 
     for line in notices:
         print(f"{YELLOW}⚠{RESET} {line}")
@@ -236,12 +218,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{RED}✗{RESET} {line}", file=sys.stderr)
 
     if errors:
-        print(f"{RED}{len(errors)} incohérence(s) de captures{RESET}", file=sys.stderr)
+        print(f"{RED}{len(errors)} screenshot inconsistency(ies){RESET}", file=sys.stderr)
         return 1
 
     print(
-        f"{GREEN}✓{RESET} {len(engendrées)} capture(s) engendrée(s), "
-        f"{len(montrées)} montrée(s), rien d'incohérent"
+        f"{GREEN}✓{RESET} {len(produced_names)} shot(s) produced, {shown_total} shown "
+        f"across {len(every_tree)} manual tree(s), nothing inconsistent"
     )
     return 0
 
