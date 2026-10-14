@@ -11,11 +11,26 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **doc** — Translate the README and two top-level docs into English
+- **doc** — Translate the requirements registry into English
+- **doc** — Translate the roadmap into English
+- **doc** — Translate the format detection journal into English
+- **doc** — Translate the encoding detection journal into English
+- **doc** — Translate the conversion loss journal into English
+- **doc** — Translate the coverage ratchet journal into English
+- **doc** — Translate the performance journal into English
+- **doc** — Quote the conversion journal's English anchor
+
+## 0.15.26 — 2026-10-14
+
+### Documentation
+
 - **doc** — Move the French window manual to docs/i18n/fr
 - **doc** — Give the window manual's pages English file names
 - **doc** — Write the window manual in English
 - **doc** — Point the manuals at the renamed window pages
 - **doc** — Record the per-language window manual in spec 15
+- **doc** — Regenerate the changelog
 
 ### Tests
 
