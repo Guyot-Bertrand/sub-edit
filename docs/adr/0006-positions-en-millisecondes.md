@@ -1,92 +1,91 @@
-# 0006 — Représenter les positions en millisecondes entières, avec des types forts
+# 0006 — Represent positions as whole milliseconds, with strong types
 
-**Date :** 2026-08-05
-**Statut :** acceptée
+**Date:** 2026-08-05
+**Status:** accepted
 
-## Contexte
+## Context
 
-Gaupol encode le *type* d'une position dans le **type Python de la valeur** :
-un `int` est un numéro d'image, un `float` des secondes, une `str` un temps
-`"HH:MM:SS.mmm"`. Chaque méthode de son `Calculator` commence par une chaîne de
-dispatch, et les temps sont découpés par indices de caractères :
+Gaupol encodes the *kind* of a position in the **Python type of the value**: an
+`int` is a frame number, a `float` is seconds, a `str` is a `"HH:MM:SS.mmm"`
+time. Every method of its `Calculator` starts with a dispatch chain, and times
+are split by character index:
 
 ```python
 float(time[:2]) * 3600 + float(time[3:5]) * 60 + float(time[6:8]) + float(time[9:]) / 1000
 ```
 
-Un sous-titre stocke ses positions « en unités natives » — chaîne de temps ou
-entier d'images selon un attribut `mode` porté par le sous-titre lui-même.
+A subtitle stores its positions "in native units" — a time string or a frame
+integer depending on a `mode` attribute carried by the subtitle itself.
 
-Le contour du MVP impose par ailleurs la conversion de fréquence d'image, donc
-des allers-retours entre temps et images qui ne doivent pas dériver.
+The MVP's outline also requires frame rate conversion, hence round trips between
+times and frames that must not drift.
 
-## Décision
+## Decision
 
-Trois types distincts, non convertibles implicitement entre eux ni vers un type
-entier :
+Three distinct types, not implicitly convertible to one another nor to an
+integer type:
 
-- **`Timestamp`** — position absolue, `std::int64_t` de millisecondes signées ;
-- **`Duration`** — durée, `std::int64_t` de millisecondes signées ;
-- **`FrameRate`** — fréquence d'image, **rationnel exact** `numérateur /
-  dénominateur`, par exemple `24000/1001` pour 23,976.
+- **`Timestamp`** — absolute position, `std::int64_t` of signed milliseconds;
+- **`Duration`** — duration, `std::int64_t` of signed milliseconds;
+- **`FrameRate`** — frame rate, an **exact rational** `numerator /
+  denominator`, for example `24000/1001` for 23.976.
 
-L'arithmétique autorisée est celle qui a un sens :
+The arithmetic allowed is the arithmetic that makes sense:
 
 ```
 Timestamp − Timestamp → Duration
 Timestamp ± Duration  → Timestamp
 Duration  ± Duration  → Duration
-Duration  × scalaire  → Duration
-Timestamp + Timestamp → ne compile pas
+Duration  × scalar    → Duration
+Timestamp + Timestamp → does not compile
 ```
 
-Le numéro d'image n'est **pas** une représentation interne : c'est une vue,
-obtenue par conversion explicite avec une `FrameRate`.
+The frame number is **not** an internal representation: it is a view, obtained
+by explicit conversion with a `FrameRate`.
 
-**Les positions négatives sont valides.** Un décalage peut légitimement faire
-passer un sous-titre avant l'origine, et Gaupol le permet déjà.
+**Negative positions are valid.** A shift can legitimately move a subtitle
+before the origin, and Gaupol already allows it.
 
-**Arrondi : à l'entier le plus proche, la moitié s'éloignant de zéro.** Ce choix
-est symétrique autour de zéro, donc décaler de la même quantité un sous-titre
-avant et après l'origine donne des résultats cohérents. Gaupol hérite de
-l'arrondi au pair le plus proche de Python, qui ne l'est pas.
+**Rounding: to the nearest integer, halves away from zero.** This choice is
+symmetric around zero, so shifting a subtitle before and after the origin by the
+same amount gives consistent results. Gaupol inherits Python's round-half-to-even,
+which is not.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Reproduire le modèle de Gaupol** — unités natives par sous-titre, type porté
-  par la valeur. Écarté sans hésitation : c'est le contre-modèle nommé dans
-  [`../principes-de-conception.md`](../principes-de-conception.md), et il oblige
-  chaque fonction à un dispatch à l'exécution que le compilateur devrait faire.
-- **Secondes en virgule flottante** — simple, mais l'accumulation d'erreurs sur
-  un décalage puis une transformation affine est exactement ce qu'un éditeur de
-  sous-titres ne doit pas produire. Deux positions égales à l'affichage
-  pourraient différer en mémoire.
-- **`std::chrono::milliseconds`** — sémantiquement juste et tentant. Écarté
-  parce que `chrono` ne distingue pas un instant d'une durée sans passer par
-  `time_point`, dont l'horloge n'a aucun sens ici, et parce que le formatage vers
-  `HH:MM:SS,mmm` et l'arithmétique avec une fréquence rationnelle demanderaient
-  de toute façon un type propre. Rien n'interdit de s'appuyer dessus en interne.
-- **Fréquence d'image en `double`** — ce que fait Gaupol. Écarté : `24/1.001`
-  n'est pas représentable exactement, et l'erreur se propage à chaque conversion.
-  Un rationnel exact supprime la question.
+- **Reproduce Gaupol's model** — native units per subtitle, type carried by the
+  value. Dismissed without hesitation: it is the counter-model named in
+  [`../principes-de-conception.md`](../principes-de-conception.md), and it forces
+  every function into a run-time dispatch that the compiler should be doing.
+- **Floating-point seconds** — simple, but the accumulation of errors over a
+  shift followed by an affine transformation is exactly what a subtitle editor
+  must not produce. Two positions equal on display could differ in memory.
+- **`std::chrono::milliseconds`** — semantically right and tempting. Dismissed
+  because `chrono` does not distinguish an instant from a duration without going
+  through `time_point`, whose clock makes no sense here, and because formatting
+  to `HH:MM:SS,mmm` and arithmetic with a rational frame rate would need a type
+  of our own anyway. Nothing prevents relying on it internally.
+- **Frame rate as a `double`** — what Gaupol does. Dismissed: `24/1.001` is not
+  exactly representable, and the error spreads with every conversion. An exact
+  rational removes the question.
 
-## Conséquences
+## Consequences
 
-**Un aller-retour image → millisecondes → image est exact** tant que la fréquence
-ne change pas. À 60 images par seconde, une image dure 16,67 ms : la grille des
-millisecondes est plus fine que celle des images, donc rien ne se perd. C'est ce
-qui rend sûr d'unifier la représentation interne sur les millisecondes, y compris
-pour un format nativement en images comme MicroDVD en phase 9.
+**A frame → milliseconds → frame round trip is exact** as long as the frame rate
+does not change. At 60 frames per second, a frame lasts 16.67 ms: the millisecond
+grid is finer than the frame grid, so nothing is lost. That is what makes it
+safe to unify the internal representation on milliseconds, including for a
+natively frame-based format such as MicroDVD in phase 9.
 
-**L'aller-retour inverse ne l'est pas** — millisecondes → image → millisecondes
-perd la précision infra-image. C'est inhérent, pas un défaut de conception, et
-la spec de la phase 1 l'énonce comme comportement attendu et testé.
+**The reverse round trip is not** — milliseconds → frame → milliseconds loses
+sub-frame precision. This is inherent, not a design flaw, and the phase 1 spec
+states it as expected and tested behaviour.
 
-Confondre une durée et une position devient une erreur de compilation. C'est la
-faute classique dans un éditeur de sous-titres, et elle disparaît.
+Confusing a duration with a position becomes a compile error. It is the classic
+mistake in a subtitle editor, and it disappears.
 
-En contrepartie, chaque conversion doit être écrite. C'est voulu : une conversion
-implicite est une décision d'arrondi que personne n'a prise.
+In return, every conversion has to be written. This is intended: an implicit
+conversion is a rounding decision nobody took.
 
-La saturation à `99:59:59.999` de Gaupol est une contrainte de **formatage**, pas
-de représentation : `int64_t` couvre bien au-delà. Elle s'applique à l'écriture.
+Gaupol's saturation at `99:59:59.999` is a **formatting** constraint, not a
+representation one: `int64_t` reaches far beyond it. It applies on writing.

@@ -37,17 +37,6 @@ cmake/Tidy.cmake
 cmake/ToolchainSanity.cmake
 cmake/Translations.cmake
 cmake/Warnings.cmake
-docs/adr/0000-modele.md
-docs/adr/0001-cpp20-et-qt6.md
-docs/adr/0002-licence-gpl3.md
-docs/adr/0003-linux-d-abord.md
-docs/adr/0004-gestion-des-dependances.md
-docs/adr/0005-catch2-pour-les-tests.md
-docs/adr/0006-positions-en-millisecondes.md
-docs/adr/0007-cpp23-et-std-expected.md
-docs/adr/0008-lecture-au-mieux-avec-diagnostics.md
-docs/adr/0009-texte-en-chaine-brute.md
-docs/adr/0010-annulation-par-commandes.md
 docs/adr/0011-numero-d-image-en-type-fort.md
 docs/adr/0012-ordre-des-sous-titres-par-composition.md
 docs/adr/0013-mise-a-l-echelle-exacte-des-positions.md

@@ -1,27 +1,25 @@
-# NNNN — Titre à l'infinitif
+# NNNN — Title in the imperative
 
-**Date :** AAAA-MM-JJ
-**Statut :** proposée | acceptée | remplacée par [NNNN](NNNN-titre.md)
+**Date:** YYYY-MM-DD
+**Status:** proposed | accepted | superseded by [NNNN](NNNN-title.md)
 
-## Contexte
+## Context
 
-Ce qui rend une décision nécessaire. Les contraintes en vigueur, ce qu'on sait
-et ce qu'on ignore au moment de décider.
+What makes a decision necessary. The constraints in force, what is known and
+what is not known at the time of deciding.
 
-## Décision
+## Decision
 
-Ce qui est décidé, en une ou deux phrases affirmatives.
+What is decided, in one or two affirmative sentences.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-La partie qui justifie l'existence de ce document. L'historique git dira *ce
-qui* a été fait ; seule cette section dit *pourquoi les autres options ont été
-rejetées*.
+The part that justifies this document's existence. The git history will say
+*what* was done; only this section says *why the other options were rejected*.
 
-- **Option** — pourquoi elle a été écartée.
+- **Option** — why it was dismissed.
 
-## Conséquences
+## Consequences
 
-Ce que cette décision rend facile, ce qu'elle rend difficile, et ce qu'elle
-coûterait à défaire. Le cas échéant, le déclencheur qui justifierait de la
-reconsidérer.
+What this decision makes easy, what it makes hard, and what it would cost to
+undo. Where relevant, the trigger that would justify reconsidering it.

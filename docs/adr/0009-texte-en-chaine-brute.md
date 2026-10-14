@@ -1,81 +1,79 @@
-# 0009 — Stocker le texte comme chaîne brute portant les balises du format
+# 0009 — Store text as a raw string carrying the format's markup
 
-**Date :** 2026-08-05
-**Statut :** acceptée
+**Date:** 2026-08-05
+**Status:** accepted
 
-## Contexte
+## Context
 
-Le texte d'un sous-titre porte des balises de mise en forme, propres à chaque
-format : `<i>`, `<b>`, `<u>`, `<font color="#RRGGBB">` pour SubRip ; les mêmes
-sans `<font>` pour WebVTT, plus `<c.classe>`, `<v Locuteur>`, `<ruby>` et des
-horodatages internes ; des surcharges arbitraires `{\an8}`, `{\pos(x,y)}`,
-`{\t(...)}` pour ASS en phase 9.
+A subtitle's text carries formatting markup, specific to each format: `<i>`,
+`<b>`, `<u>`, `<font color="#RRGGBB">` for SubRip; the same without `<font>` for
+WebVTT, plus `<c.class>`, `<v Speaker>`, `<ruby>` and inline timestamps;
+arbitrary overrides `{\an8}`, `{\pos(x,y)}`, `{\t(...)}` for ASS in phase 9.
 
-Deux représentations étaient envisageables : conserver la chaîne telle quelle,
-ou décoder vers un modèle structuré — texte plus intervalles de style.
+Two representations were conceivable: keep the string as it is, or decode it
+into a structured model — text plus style ranges.
 
-L'analyse de Gaupol a tranché la question de fait. Son format pivot interne
-existe **uniquement le temps d'une conversion entre formats** ; rien n'est
-stocké sous cette forme. Et ce décodage est destructeur : `markups/webvtt.py`
-annonce que les balises comme `<c>` « ne peuvent pas être supportées », et son
-`_post_decode` supprime **toute balise non reconnue** :
+The analysis of Gaupol settled the question in practice. Its internal pivot
+format exists **only for the duration of a conversion between formats**;
+nothing is stored in that form. And that decoding is destructive:
+`markups/webvtt.py` states that tags such as `<c>` "cannot be supported", and
+its `_post_decode` removes **every unrecognised tag**:
 
 ```python
 text = self._substitute(text, r"</?[^biu]>", "")
 text = self._substitute(text, r"</?[^/>]{2,}>", "")
 ```
 
-Gaupol ne perd donc `<v Marie>` ou `<c.loud>` que lorsqu'il convertit. À
-l'ouverture, l'édition et l'enregistrement d'un `.vtt`, rien n'est décodé et
-rien n'est perdu. **Sa fidélité vient précisément du stockage en chaîne brute.**
+So Gaupol only loses `<v Marie>` or `<c.loud>` when it converts. When a `.vtt`
+is opened, edited and saved, nothing is decoded and nothing is lost. **Its
+fidelity comes precisely from storing a raw string.**
 
-## Décision
+## Decision
 
-Le texte est stocké **tel qu'il apparaît dans le fichier**, balises comprises.
-Aucun décodage n'a lieu à l'ouverture ni à l'enregistrement.
+Text is stored **as it appears in the file**, markup included. No decoding takes
+place on opening or on saving.
 
-Les opérations qui transforment le texte passent par un **parseur conscient des
-balises** : il retire les balises, mémorise leurs positions, applique la
-transformation au texte nu, puis les réinsère.
+Operations that transform the text go through a **markup-aware parser**: it
+removes the tags, remembers their positions, applies the transformation to the
+bare text, then reinserts them.
 
-Un modèle structuré reste utilisé, comme chez Gaupol, **uniquement comme pivot
-lors d'une conversion entre formats**, où la perte est inévitable et assumée.
+A structured model is still used, as in Gaupol, **only as a pivot during a
+conversion between formats**, where the loss is unavoidable and accepted.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Modèle structuré permanent — texte et intervalles de style.** Sémantiquement
-  bien plus propre, et les opérations de texte y deviennent triviales. Écarté
-  parce qu'il impose le décodage destructeur **en permanence** : ouvrir un `.vtt`
-  contenant `<v Marie>` et l'enregistrer perdrait ces balises. Sur l'un des deux
-  formats prioritaires, dès le MVP. La perte ne serait pas différée à la phase 9,
-  elle commencerait tout de suite.
-- **Modèle structuré avec fragments opaques** — les balises non comprises
-  seraient conservées verbatim dans des fragments traités comme atomiques. Cette
-  variante préserve la fidélité et garde une sémantique propre. Écartée pour un
-  motif de simplicité assumé : elle demande de concevoir dès la phase 1 un modèle
-  de fragments dont seule la phase 9 éprouvera la solidité, alors que la chaîne
-  brute est fidèle par construction et sans conception préalable. Reste la
-  meilleure porte de sortie si le parseur conscient des balises se révélait
-  intenable.
+- **A permanent structured model — text and style ranges.** Semantically much
+  cleaner, and text operations become trivial in it. Dismissed because it
+  imposes the destructive decoding **all the time**: opening a `.vtt` containing
+  `<v Marie>` and saving it would lose those tags. On one of the two priority
+  formats, from the MVP onwards. The loss would not be deferred to phase 9; it
+  would start right away.
+- **A structured model with opaque fragments** — tags that are not understood
+  would be kept verbatim in fragments treated as atomic. This variant preserves
+  fidelity and keeps clean semantics. Dismissed for a deliberate reason of
+  simplicity: it requires designing, from phase 1, a fragment model whose
+  soundness only phase 9 will test, whereas the raw string is faithful by
+  construction and with no prior design. It remains the best way out should the
+  markup-aware parser prove untenable.
 
-## Conséquences
+## Consequences
 
-**La fidélité de l'aller-retour est acquise par construction**, pour tous les
-formats, y compris pour des balises que nous ne connaissons pas.
+**Round-trip fidelity is obtained by construction**, for every format, including
+for tags we do not know.
 
-En contrepartie, **aucune opération de texte n'est triviale**. Chacune doit
-passer par le parseur, sous peine de casser les balises : appliquer `\[.*?\]`
-directement au texte pour supprimer une mention pour malentendants effacerait
-une balise ouvrante située à l'intérieur des crochets, laissant sa fermante
-orpheline. C'est un coût réel et récurrent, payé à chaque opération.
+In return, **no text operation is trivial**. Each must go through the parser, or
+it will break the markup: applying `\[.*?\]` directly to the text to remove a
+hearing-impaired annotation would erase an opening tag located inside the
+brackets, leaving its closing tag orphaned. It is a real and recurring cost, paid
+on every operation.
 
-Le parseur est donc une pièce d'infrastructure de premier plan. Il est écrit une
-fois, en phase 4 où il devient nécessaire, et réutilisé par les phases 10 et 12.
-Sa conception mérite le même soin que le modèle de données, et ses cas limites —
-balises chevauchant une correspondance, balises encadrant toutes les lignes,
-insertion à la frontière d'une balise — appellent des tests dédiés.
+The parser is therefore a first-rank piece of infrastructure. It is written
+once, in phase 4 where it becomes necessary, and reused by phases 10 and 12. Its
+design deserves the same care as the data model, and its edge cases — tags
+overlapping a match, tags enclosing every line, insertion at a tag boundary —
+call for dedicated tests.
 
-Le modèle ne peut pas garantir que les balises sont bien formées : un `<i>` sans
-fermeture reste tel quel. C'est cohérent avec
-[0008](0008-lecture-au-mieux-avec-diagnostics.md) — signaler par un diagnostic,
-ne pas réparer d'autorité.
+The model cannot guarantee that markup is well formed: an unclosed `<i>` stays
+as it is. This is consistent with
+[0008](0008-lecture-au-mieux-avec-diagnostics.md) — report it with a diagnostic,
+do not repair it unasked.

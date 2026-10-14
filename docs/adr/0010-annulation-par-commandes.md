@@ -1,76 +1,77 @@
-# 0010 — Annuler par des commandes portant leur propre inverse
+# 0010 — Undo through commands that carry their own inverse
 
-**Date :** 2026-08-05
-**Statut :** acceptée
+**Date:** 2026-08-05
+**Status:** accepted
 
-## Contexte
+## Context
 
-L'annulation n'apparaît pas dans les priorités de l'utilisateur, mais éditer
-dans une table l'implique, et c'est typiquement ce qu'on ne peut pas ajouter
-après coup : la moindre opération écrite sans elle devra être reprise.
+Undo does not appear among the user's priorities, but editing in a table implies
+it, and it is typically what cannot be added after the fact: every operation
+written without it would have to be reworked.
 
-Gaupol la traite ainsi : chaque action réversible porte une **fonction inverse**
-et ses arguments (`RevertableAction.revert_function`, `revert_args`). Annuler
-consiste à appeler cette fonction avec `register=UNDO`, ce qui la fait s'empiler
-sur la pile de rétablissement. Défaire et refaire empruntent donc la même
-machinerie. L'état antérieur n'est pas capturé en bloc mais **dans les arguments
-de l'opération inverse**, donc réduit au strict nécessaire : supprimer des
-sous-titres enregistre comme inverse « insérer ces sous-titres à ces indices ».
+Gaupol handles it this way: each revertible action carries an **inverse
+function** and its arguments (`RevertableAction.revert_function`,
+`revert_args`). Undoing consists of calling that function with `register=UNDO`,
+which makes it push itself onto the redo stack. Undo and redo therefore use the
+same machinery. The previous state is not captured wholesale but **in the
+arguments of the inverse operation**, and so reduced to the bare minimum:
+removing subtitles records "insert these subtitles at these indices" as its
+inverse.
 
-## Décision
+## Decision
 
-Une **commande** est un objet portant `apply` et `revert`, ainsi que ce qu'il
-faut pour se défaire — capturé à la construction, et limité au nécessaire.
-L'historique tient deux piles de commandes.
+A **command** is an object carrying `apply` and `revert`, along with what it
+needs to undo itself — captured at construction, and limited to what is
+necessary. The history holds two stacks of commands.
 
-Trois mécanismes repris de Gaupol, parce qu'ils répondent à des besoins réels :
+Three mechanisms taken from Gaupol, because they meet real needs:
 
-- **Regroupement.** Une commande composite contient une suite de commandes et ne
-  compte que pour une entrée dans l'historique. Une opération qui en enchaîne
-  d'autres ne doit pas obliger l'utilisateur à annuler sept fois.
-- **Compteur de modification par document.** Un entier décalé de ±1 à chaque
-  action ; zéro signifie « identique au fichier sur disque ». L'état revient
-  donc à « non modifié » quand on annule jusqu'au point de sauvegarde, ce qu'un
-  simple booléen ne sait pas faire.
-- **Indices des éléments touchés.** Chaque commande rapporte les indices
-  qu'elle affecte, et à quel titre — positions, texte principal, texte de
-  traduction, insertion, suppression. C'est ce qui permettra à l'interface de la
-  phase 5 de ne rafraîchir que ce qui change au lieu de tout reconstruire.
+- **Grouping.** A composite command contains a sequence of commands and counts
+  as a single entry in the history. An operation that chains others must not
+  force the user to undo seven times.
+- **A modification counter per document.** An integer moved by ±1 on each
+  action; zero means "identical to the file on disk". The state therefore
+  returns to "unmodified" when one undoes back to the save point, which a plain
+  boolean cannot do.
+- **Indices of the elements touched.** Each command reports the indices it
+  affects, and in what respect — positions, main text, translation text,
+  insertion, removal. This is what will let the phase 5 interface refresh only
+  what changes instead of rebuilding everything.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Capturer l'état complet avant et après** — robuste, et impossible à écrire
-  de travers. Écarté sur le coût : un remplacement global sur un fichier de
-  plusieurs milliers de sous-titres dupliquerait l'ensemble à chaque opération,
-  et l'historique le conserverait. C'est précisément le genre de gaspillage que
-  la performance comme objectif transversal proscrit.
-- **Journal de différences** — économe, mais impose de définir un format de
-  différence pour chaque type de donnée, et de le maintenir à chaque évolution
-  du modèle. Complexité sans contrepartie à cette échelle.
-- **`QUndoStack` de Qt** — existe déjà et fait le travail. Écarté sans hésiter :
-  il placerait l'historique dans le code Qt, alors que la ligne de commande de
-  la phase 3 en a besoin et que le cœur ne connaît pas Qt. L'interface s'y
-  branchera, elle n'en tiendra pas une seconde.
-- **Fonction inverse et arguments, à l'identique de Gaupol** — c'est la même
-  idée, exprimée en Python. En C++, un objet commande la porte plus clairement
-  qu'un pointeur de fonction accompagné d'un sac d'arguments, et le compilateur
-  vérifie que l'inverse reçoit ce qu'il attend.
+- **Capture the complete state before and after** — robust, and impossible to
+  get wrong. Dismissed on cost: a global replacement on a file of several
+  thousand subtitles would duplicate the whole set on every operation, and the
+  history would keep it. That is precisely the kind of waste that performance as
+  a cross-cutting goal rules out.
+- **A log of differences** — economical, but requires defining a difference
+  format for each kind of data, and maintaining it with every change to the
+  model. Complexity with no return at this scale.
+- **Qt's `QUndoStack`** — already exists and does the job. Dismissed without
+  hesitation: it would put the history in Qt code, whereas the phase 3 command
+  line needs it and the core does not know Qt. The interface will plug into the
+  core's history; it will not keep a second one.
+- **An inverse function and arguments, exactly as in Gaupol** — it is the same
+  idea, expressed in Python. In C++, a command object carries it more clearly
+  than a function pointer accompanied by a bag of arguments, and the compiler
+  checks that the inverse receives what it expects.
 
-## Conséquences
+## Consequences
 
-Toute opération du noyau s'écrit comme une commande, dès la phase 2. Une
-fonction qui modifie un projet sans passer par là est un défaut, et cette règle
-doit être posée avant qu'une seule opération existe — c'est la raison d'être de
-cette décision en phase 1.
+Every core operation is written as a command, from phase 2 onwards. A function
+that modifies a project without going through this is a defect, and the rule
+must be laid down before a single operation exists — that is why this decision
+is taken in phase 1.
 
-Chaque commande doit savoir se défaire **exactement**. Une opération non
-inversible — s'il en apparaît une — devra vider la pile plutôt que de mentir sur
-sa réversibilité.
+Each command must be able to undo itself **exactly**. A non-invertible
+operation — should one appear — will have to clear the stack rather than lie
+about its reversibility.
 
-La taille de l'historique est bornée. Gaupol fixe une limite de 100 000, soit en
-pratique aucune ; nous mesurerons l'empreinte réelle avant de choisir un chiffre
-plutôt que de recopier le sien.
+The size of the history is bounded. Gaupol sets a limit of 100,000, which in
+practice means none; we will measure the real footprint before choosing a
+number rather than copying Gaupol's.
 
-L'historique appartient au projet et vit dans le cœur, sans dépendance à
-l'interface. Il est donc testable sans fenêtre, et utilisable par la ligne de
-commande.
+The history belongs to the project and lives in the core, with no dependency on
+the interface. It is therefore testable without a window, and usable by the
+command line.

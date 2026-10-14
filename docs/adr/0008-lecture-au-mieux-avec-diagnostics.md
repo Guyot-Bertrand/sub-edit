@@ -1,76 +1,71 @@
-# 0008 — Ouvrir les fichiers au mieux, en rapportant des diagnostics
+# 0008 — Open files as best we can, reporting diagnostics
 
-**Date :** 2026-08-05
-**Statut :** acceptée
+**Date:** 2026-08-05
+**Status:** accepted
 
-## Contexte
+## Context
 
-Les fichiers de sous-titres réels sont souvent imparfaits : issus d'OCR,
-récupérés sur le web, produits par des outils approximatifs, édités à la main.
-L'utilisateur visé travaille précisément sur de tels fichiers — la suppression
-des mentions pour malentendants figure dans ses priorités, ce qui suppose des
-sources récupérées.
+Real subtitle files are often imperfect: produced by OCR, fetched from the web,
+written by approximate tools, edited by hand. The intended user works precisely
+on such files — removing hearing-impaired annotations is among their priorities,
+which implies salvaged sources.
 
-L'analyse de Gaupol montre une tolérance **asymétrique** : ses expressions
-régulières sont délibérément permissives sur les horodatages — champs de 1 ou
-2 chiffres, millisecondes de 1 à 3 chiffres, heures facultatives en WebVTT,
-virgule ou point, temps négatifs — mais sa structure n'est pas protégée. Un
-`.srt` dont le premier bloc non vide n'est pas un horodatage produit un
-`IndexError`, alors que les exceptions documentées sont `IOError` et
-`UnicodeError`.
+The analysis of Gaupol shows an **asymmetric** tolerance: its regular
+expressions are deliberately lenient on timestamps — fields of 1 or 2 digits,
+milliseconds of 1 to 3 digits, optional hours in WebVTT, comma or period,
+negative times — but its structure is not protected. An `.srt` whose first
+non-empty block is not a timestamp produces an `IndexError`, whereas the
+documented exceptions are `IOError` and `UnicodeError`.
 
-Autrement dit : Gaupol est tolérant sur ce qu'il a prévu et échoue de façon
-inexploitable sur le reste.
+In other words: Gaupol is tolerant about what it anticipated and fails
+unusably on the rest.
 
-## Décision
+## Decision
 
-La lecture **ouvre au mieux et rapporte**. Deux niveaux nettement séparés :
+Reading **opens as best it can and reports**. Two clearly separated levels:
 
-- **Échec** — le fichier est illisible ou indécodable : accès refusé, séquence
-  d'octets invalide pour l'encodage, aucun sous-titre reconnaissable. La lecture
-  renvoie une erreur, rien n'est ouvert.
-- **Diagnostic** — le fichier est exploitable mais quelque chose n'a pas été
-  compris ou paraît douteux : ligne ignorée, horodatage incohérent, fin
-  antérieure au début, chevauchement, bloc de format inconnu. Les sous-titres
-  sont renvoyés **avec** la liste des diagnostics.
+- **Failure** — the file is unreadable or undecodable: access denied, a byte
+  sequence invalid for the encoding, no recognisable subtitle. Reading returns
+  an error, nothing is opened.
+- **Diagnostic** — the file is usable but something was not understood or looks
+  doubtful: ignored line, inconsistent timestamp, end before start, overlap,
+  unknown format block. The subtitles are returned **with** the list of
+  diagnostics.
 
-Chaque diagnostic porte une **gravité**, un **numéro de ligne**, une **catégorie
-énumérée** et un détail facultatif. La catégorie est un `enum class`, pas une
-chaîne : elle doit être traduisible et testable sans comparer du texte.
+Each diagnostic carries a **severity**, a **line number**, an **enumerated
+category** and an optional detail. The category is an `enum class`, not a
+string: it must be translatable and testable without comparing text.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Échec net à la moindre anomalie** — plus sûr en apparence. Écarté : refuser
-  d'ouvrir un fichier de deux mille sous-titres à cause d'une ligne douteuse
-  laisse l'utilisateur sans recours, alors que l'outil qu'il tient en main est
-  précisément un éditeur.
-- **Tolérance silencieuse, comme Gaupol** — le plus simple. Écarté parce que
-  l'utilisateur ne peut pas savoir qu'il a perdu quelque chose. Un fichier
-  ouvert puis enregistré en ayant discrètement laissé tomber trois lignes est un
-  défaut plus grave qu'un refus d'ouvrir.
-- **Réparer automatiquement** — inverser une fin antérieure au début, corriger
-  les chevauchements. Écarté : c'est une décision éditoriale, elle appartient à
-  l'utilisateur. Les opérations correspondantes existeront comme commandes
-  explicites et annulables.
+- **Fail outright on the slightest anomaly** — safer in appearance. Dismissed:
+  refusing to open a file of two thousand subtitles because of one doubtful line
+  leaves the user with no recourse, when the tool in their hands is precisely an
+  editor.
+- **Silent tolerance, like Gaupol** — the simplest. Dismissed because the user
+  cannot know they have lost something. A file opened and then saved after
+  quietly dropping three lines is a more serious defect than a refusal to open.
+- **Repair automatically** — swap an end that precedes the start, fix overlaps.
+  Dismissed: that is an editorial decision, and it belongs to the user. The
+  corresponding operations will exist as explicit, undoable commands.
 
-## Conséquences
+## Consequences
 
-Toutes les fonctions de lecture renvoient un `std::expected` — voir
-[0007](0007-cpp23-et-std-expected.md) — dont le succès transporte les
-diagnostics. La signature dit donc la vérité : le succès n'implique pas
-l'absence de problème.
+All reading functions return a `std::expected` — see
+[0007](0007-cpp23-et-std-expected.md) — whose success carries the diagnostics.
+The signature therefore tells the truth: success does not imply the absence of
+problems.
 
-**Un invariant est délibérément non imposé** : `fin ≥ début` n'est pas garanti
-par le modèle. Les principes de conception demandent de rendre les états
-invalides non représentables, mais un fichier réel peut contenir un sous-titre
-dont la fin précède le début, et l'utilisateur doit pouvoir le voir pour le
-corriger. Rendre cet état impossible rendrait le fichier impossible à ouvrir.
-C'est une exception assumée, et la seule de ce type.
+**One invariant is deliberately not enforced**: `end ≥ start` is not guaranteed
+by the model. The design principles ask for invalid states to be made
+unrepresentable, but a real file can contain a subtitle whose end precedes its
+start, and the user must be able to see it in order to fix it. Making that state
+impossible would make the file impossible to open. It is an accepted exception,
+and the only one of its kind.
 
-L'interface de la phase 5 devra présenter ces diagnostics — un bandeau, une
-liste consultable — sans bloquer l'ouverture. La ligne de commande de la
-phase 3 les écrira sur la sortie d'erreur et les comptera dans son code de
-retour.
+The phase 5 interface will have to present these diagnostics — a banner, a
+browsable list — without blocking the opening. The phase 3 command line will
+write them to standard error and count them in its exit code.
 
-Le corpus de test doit contenir des fichiers réellement malformés, faute de quoi
-ce mécanisme ne serait jamais éprouvé.
+The test corpus must contain genuinely malformed files, otherwise this
+mechanism would never be put to the test.
