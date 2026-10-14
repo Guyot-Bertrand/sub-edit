@@ -26,7 +26,7 @@ plus rien.
 
 ## Le nombre, et ce qu'il vaut
 
-    aller-retour intacts : N/M
+    intact round trips: N/M
 
 **Il mélange sciemment deux choses** — ce qu'un format ne *peut* pas porter, et
 ce que notre conversion perd sans y être obligée. Les séparer demanderait de
