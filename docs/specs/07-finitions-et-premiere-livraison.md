@@ -1,485 +1,483 @@
-# Phase 7 — Finitions et première livraison
+# Phase 7 — Finishing touches and first release
 
-Cadrage : #237. Initialisation : #236.
+Framing: #237. Initialisation: #236.
 
-## Objectif
+## Goal
 
-Ce qui manque pour qu'un tiers installe et utilise l'outil.
+What is missing for a third party to install and use the tool.
 
-Six phases ont produit un logiciel qui marche et qui ne s'installe pas. Celle-ci
-ne cherche pas une fonctionnalité de plus : elle cherche la distance entre
-« ça marche chez moi » et « quelqu'un d'autre s'en sert ».
+Six phases have produced software that works and does not install. This one is
+not after one more feature: it is after the distance between "it works on my
+machine" and "someone else uses it".
 
-## Ce qui la distingue
+## What sets it apart
 
-**Son livrable n'est pas du code mais une installation.** Aucun test unitaire ne
-dit qu'un tiers peut installer l'outil ; cela se prouve en installant, dans un
-préfixe qui n'est pas l'arbre de construction. C'est l'objet de #239.
+**Its deliverable is not code but an installation.** No unit test says that a
+third party can install the tool; that is proven by installing, into a prefix
+that is not the build tree. This is the purpose of #239.
 
-**Une bonne part de ce qu'elle change ne se voit qu'à l'œil.** Un thème clair et
-un thème sombre, une géométrie retenue d'une session à l'autre, un manuel
-complet : trois choses dont la vérification par défaut est « quelqu'un regarde
-et trouve que c'est bien ». C'est l'objet de #199.
+**A good part of what it changes can only be seen by eye.** A light theme and a
+dark theme, a geometry remembered from one session to the next, a complete
+manual: three things whose default verification is "someone looks and finds it
+fine". This is the purpose of #199.
 
-**Son analyse préalable est en partie déjà faite**, et c'est la première fois.
-`gaupol/config.py` avait été lu au cadrage de la phase 5 ; ce cadrage l'a relu
-et étendu, et le résultat est dans [l'ADR 0022](../adr/0022-configuration-au-noyau-et-tolerance-par-option.md).
+**Its preliminary analysis is partly already done**, and this is the first
+time. `gaupol/config.py` had been read when phase 5 was framed; this framing
+read it again and extended it, and the result is in
+[ADR 0022](../adr/0022-configuration-au-noyau-et-tolerance-par-option.md).
 
-## L'analyse préalable, et ce qu'elle a donné
+## The preliminary analysis, and what it yielded
 
-Lu dans `reference/gaupol` : `gaupol/config.py`, `gaupol/style.py`,
+Read in `reference/gaupol`: `gaupol/config.py`, `gaupol/style.py`,
 `gaupol/applicationman.py`, `gaupol/agents/help.py`, `gaupol/actions/edit.py`,
 `gaupol/dialogs/insert.py`, `data/`, `PACKAGING.md`, `Makefile`, `flatpak/`.
 
-Quatre résultats, dont deux corrigent ce que la feuille de route attendait.
+Four results, two of which correct what the roadmap expected.
 
-**`style.py` ne parle pas du thème.** La feuille de route le listait au titre du
-thème clair et sombre ; il ne contient que du CSS et une police d'éditeur
-personnalisable. Le thème vit dans `applicationman.py`, et il y vit bien.
+**`style.py` does not deal with the theme.** The roadmap listed it under the
+light and dark theme; it contains only CSS and a customisable editor font. The
+theme lives in `applicationman.py`, and it does live there.
 
-**Gaupol a exactement notre contrainte, une version en avance.** Son thème est
-une énumération à trois valeurs — système, clair, sombre — persistée dans la
-configuration. « Système » n'est résolu que sur GTK 4.20 et plus ; en dessous,
-`_update_theme` **ne fait rien du tout** et laisse la boîte à outils décider.
-C'est la jumelle de notre situation sous Qt 6.4.2, et c'est ce qui transforme
-notre contrainte en comportement conçu plutôt qu'en impasse.
+**Gaupol has exactly our constraint, one version ahead.** Its theme is an
+enumeration with three values — system, light, dark — persisted in the
+configuration. "System" is only resolved on GTK 4.20 and later; below that,
+`_update_theme` **does nothing at all** and lets the toolkit decide. This is the
+twin of our situation under Qt 6.4.2, and it is what turns our constraint into
+designed behaviour rather than a dead end.
 
-**`Help ▸ Browse documentation` ouvre une URL**, pas un fichier local.
-`gaupol.util.show_uri(gaupol.DOCUMENTATION_URL)`. Le seul document que Gaupol
-installe est une page de manuel, `data/gaupol.1`.
+**`Help ▸ Browse documentation` opens a URL**, not a local file.
+`gaupol.util.show_uri(gaupol.DOCUMENTATION_URL)`. The only document Gaupol
+installs is a manual page, `data/gaupol.1`.
 
-**L'installation précède le format.** Le `Makefile` installe binaire, icônes,
-`.desktop`, AppStream, page de manuel et traductions avec `DESTDIR` et
-`PREFIX` ; le manifeste Flatpak se sert par-dessus. Gaupol ne choisit pas un
-format, il produit une installation correcte. C'est ce que reprend
-[l'ADR 0023](../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md).
+**Installation comes before format.** The `Makefile` installs the binary, icons,
+`.desktop`, AppStream, manual page and translations with `DESTDIR` and
+`PREFIX`; the Flatpak manifest builds on top of it. Gaupol does not choose a
+format, it produces a correct installation. This is what
+[ADR 0023](../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md) takes up.
 
-## Portée
+## Scope
 
-| Dans la phase | Hors de la phase |
-| :------------ | :--------------- |
-| préférences persistées | les préférences que personne ne réclame |
-| thème clair, sombre, système | un thème propre à l'application |
-| insertion et suppression depuis la fenêtre | fusionner, scinder — phase 10 |
-| manuel utilisateur complet | la traduction du manuel — phase 15 |
-| règles `install()`, paquets `.deb` et `.rpm` | Flatpak, AppImage — écartés, ADR 0023 et #265 |
-| `Help ▸ Manual` rallumée | une aide contextuelle |
-| une seule recette d'ouverture (#154) | |
+| In the phase | Out of the phase |
+| :----------- | :--------------- |
+| persisted preferences | the preferences nobody asks for |
+| light, dark, system theme | an application-specific theme |
+| insertion and removal from the window | merging, splitting — phase 10 |
+| complete user manual | translating the manual — phase 15 |
+| `install()` rules, `.deb` and `.rpm` packages | Flatpak, AppImage — ruled out, ADR 0023 and #265 |
+| `Help ▸ Manual` re-enabled | context help |
+| a single opening recipe (#154) | |
 
-## Décisions applicables
+## Applicable decisions
 
-**D1 — la configuration est un type du noyau, tolérante option par option.**
-[ADR 0022](../adr/0022-configuration-au-noyau-et-tolerance-par-option.md). Elle
-lit et écrit par `core::FileSystem`, **reçoit** son emplacement, et n'a ni
-numéro de version ni migration. Une clé inconnue est ignorée, une valeur
-illisible laisse le défaut en place avec un diagnostic, et **une option restée à
-son défaut est réécrite commentée**.
+**D1 — the configuration is a core type, tolerant option by option.**
+[ADR 0022](../adr/0022-configuration-au-noyau-et-tolerance-par-option.md). It
+reads and writes through `core::FileSystem`, **receives** its location, and has
+neither a version number nor a migration. An unknown key is ignored, an
+unreadable value leaves the default in place with a diagnostic, and **an option
+left at its default is rewritten commented out**.
 
-**D2 — deux paquets natifs, `.deb` et `.rpm`, après des règles `install()`.**
-[ADR 0023](../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md). L'installation
-d'abord, les formats ensuite ; Flatpak et AppImage différés avec leur raison —
-et **écartés depuis**, la question ayant été instruite après la phase : #265.
+**D2 — two native packages, `.deb` and `.rpm`, after `install()` rules.**
+[ADR 0023](../adr/0023-deb-et-rpm-pour-la-premiere-livraison.md). Installation
+first, formats next; Flatpak and AppImage deferred with their reason — and
+**ruled out since**, the question having been investigated after the phase:
+#265.
 
-**Deux, et le second est ce qui met la décision à l'épreuve.** « L'installation
-d'abord » est une affirmation tant qu'un seul format l'exerce ; un `.rpm`
-construit depuis les mêmes règles la vérifie, puisque **s'il demandait de
-retoucher l'installation, c'est que l'installation était fausse.**
+**Two, and the second is what puts the decision to the test.** "Installation
+first" is an assertion as long as a single format exercises it; an `.rpm` built
+from the same rules verifies it, since **if it required touching up the
+installation, the installation was wrong.**
 
-**Ce qui diffère réellement entre les deux n'est pas la liste des fichiers mais
-les dépendances déclarées** : Qt 6 et libmpv ne portent pas les mêmes noms de
-paquets chez Debian et chez Fedora. C'est là que le paquet peut être faux sans
-que rien ne le montre à la construction.
+**What really differs between the two is not the list of files but the declared
+dependencies**: Qt 6 and libmpv do not carry the same package names on Debian
+and on Fedora. That is where the package can be wrong without anything showing
+it at build time.
 
-**Et une asymétrie assumée, écrite plutôt que tue** : un `.rpm` construit sur
-Ubuntu ne peut pas y être installé. Le `.deb` est prouvé de bout en bout par
-#239 ; le `.rpm` l'est jusqu'à son contenu — liste des fichiers et dépendances
-déclarées, par `rpm -qlp` et `rpm -qp --requires`. Livrer les deux en laissant
-croire qu'ils ont été éprouvés pareil serait le vrai défaut.
+**And an acknowledged asymmetry, written rather than kept quiet**: an `.rpm`
+built on Ubuntu cannot be installed there. The `.deb` is proven end to end by
+#239; the `.rpm` is proven up to its content — list of files and declared
+dependencies, through `rpm -qlp` and `rpm -qp --requires`. Shipping both while
+letting it be believed that they were tested alike would be the real defect.
 
-**D3 — le thème est une préférence à trois valeurs, et « système » ne fait
-rien.** Sous Qt 6.4.2 il n'existe aucune API de schéma de couleurs —
-`QStyleHints::colorScheme` est arrivée en 6.5 — donc l'application ne peut ni
-demander au système ce qu'il préfère, ni être prévenue quand il change d'avis.
-« Système » signifie donc **laisser la palette au thème de plate-forme**, ce que
-la fenêtre fait déjà aujourd'hui. « Clair » et « sombre » posent une palette
-explicite.
+**D3 — the theme is a three-valued preference, and "system" does nothing.**
+Under Qt 6.4.2 there is no colour scheme API — `QStyleHints::colorScheme`
+arrived in 6.5 — so the application can neither ask the system what it prefers
+nor be notified when it changes its mind. "System" therefore means **leaving
+the palette to the platform theme**, which the window already does today.
+"Light" and "dark" set an explicit palette.
 
-C'est le comportement de Gaupol sous GTK antérieur à 4.20, et il est honnête :
-il livre les deux thèmes que l'utilisateur peut demander, et il n'invente pas
-une lecture du système qu'il ne sait pas faire.
+This is Gaupol's behaviour under GTK earlier than 4.20, and it is honest: it
+delivers the two themes the user can ask for, and it does not invent a reading
+of the system that it cannot perform.
 
-**D4 — et c'est D3 qui rend le thème éprouvable.** Parce que « clair » et
-« sombre » sont des palettes *que nous posons*, un test peut les poser aussi, et
-une capture d'écran peut les montrer toutes les deux. Si le thème avait été une
-lecture du système, ni l'un ni l'autre ne serait possible sous Qt 6.4.
+**D4 — and it is D3 that makes the theme testable.** Because "light" and "dark"
+are palettes *that we set*, a test can set them too, and a screenshot can show
+both of them. Had the theme been a reading of the system, neither would be
+possible under Qt 6.4.
 
-**Conséquence directe pour #199 : deux captures par écran, et elles sont
-atteignables.** La question laissée ouverte par #236 est tranchée ici.
+**Direct consequence for #199: two screenshots per screen, and they are
+attainable.** The question left open by #236 is settled here.
 
-**D5 — une préférence est persistée si l'oublier ennuie, et si s'en souvenir
-est sans risque.** Le critère est celui de l'exclusion, parce que c'est celui
-qui manque toujours : une préférence est facile à ajouter et impossible à
-retirer une fois qu'un utilisateur s'y appuie.
+**D5 — a preference is persisted if forgetting it is annoying, and if
+remembering it is risk-free.** The criterion is the exclusion one, because that
+is the one that is always missing: a preference is easy to add and impossible
+to withdraw once a user relies on it.
 
-Ce qui passe : géométrie de la fenêtre, état maximisé, largeur des colonnes,
-thème. **Plus trois, ajoutées après coup** — la position de la poignée entre la
-vidéo et la table et le dernier répertoire ouvert, que #254 porte, puis le côté
-de l'insertion, `edit.insert-placement`, que D7 a rendu persistant et que cette
-liste ne comptait pas. Le paragraphe ci-dessous dit pourquoi le répertoire passe
-là où le dernier *fichier* ne passe pas.
+What gets in: window geometry, maximised state, column widths, theme. **Plus
+three, added after the fact** — the position of the handle between the video
+and the table and the last opened directory, which #254 carries, then the
+insertion side, `edit.insert-placement`, which D7 made persistent and which this
+list did not count. The paragraph below says why the directory gets in where
+the last *file* does not.
 
-**La fréquence d'image par défaut, elle, ne passe pas — et cette liste l'a
-promise pendant toute la phase.** Rien ne la lit : aucun dialogue ne s'en sert,
-aucun document n'en hérite. Une préférence dont personne ne se sert est une case
-qui ment, et #241 a eu raison de ne pas l'écrire. Le mot est retiré ici plutôt
-que le manque comblé, et la question a été instruite puis close : elle **ne
-viendra pas** — [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267).
+**The default frame rate, however, does not get in — and this list promised it
+throughout the phase.** Nothing reads it: no dialog uses it, no document
+inherits it. A preference nobody uses is a box that lies, and #241 was right not
+to write it. The word is withdrawn here rather than the gap filled, and the
+question has been investigated and then closed: it **will not come** —
+[#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267).
 
-Sept options, donc, et le fichier de configuration en porte sept.
+Seven options, then, and the configuration file carries seven.
 
-Ce qui ne passe pas, et pourquoi : **le dernier fichier ouvert.** S'en souvenir
-veut dire rouvrir au lancement un document que l'utilisateur n'a pas demandé,
-et le mode strict de l'ADR 0012 fait qu'ouvrir n'est pas neutre. La liste des
-fichiers récents est autre chose — une fonctionnalité, pas une préférence —, et
-elle n'est pas de cette phase.
+What does not get in, and why: **the last opened file.** Remembering it means
+reopening at launch a document the user did not ask for, and the strict mode of
+ADR 0012 makes opening not neutral. The list of recent files is something else —
+a feature, not a preference — and it does not belong to this phase.
 
-**Retenir un répertoire n'est pas retenir un fichier**, et c'est la coupure que
-le critère fait passer là où on ne l'attend pas : un répertoire *pointe* une
-boîte de dialogue, il n'ouvre rien. Les deux moitiés du critère ne tranchent
-pas au même endroit, et c'est la seconde — « s'en souvenir est sans risque » —
-qu'on oublie de poser.
+**Remembering a directory is not remembering a file**, and this is the cut the
+criterion makes where it is not expected: a directory *points* a dialog, it
+opens nothing. The two halves of the criterion do not decide at the same place,
+and it is the second — "remembering it is risk-free" — that one forgets to
+apply.
 
-**Ce que la relecture de #240 a écarté**, et qui vaut d'être écrit pour ne pas
-être reproposé : le panneau de diagnostics replié — le replier coûte un clic ;
-le volume du lecteur — il n'y a pas de réglage de volume avant la barre de
-lecture ; le format d'enregistrement par défaut — il vient du fichier ouvert,
-ADR 0018 ; et **tout nombre qui appartient à un document** — une durée de
-décalage, deux repères de transformation, vrais d'un fichier et faux du suivant.
+**What the review of #240 ruled out**, and which is worth writing down so that
+it is not proposed again: the collapsed diagnostics panel — collapsing it costs
+a click; the player's volume — there is no volume setting before the playback
+bar; the default save format — it comes from the opened file, ADR 0018; and
+**any number that belongs to a document** — a shift duration, two
+transformation marks, true for one file and false for the next.
 
-Elle a aussi mesuré ce que la conception avait déjà économisé. Les trois quarts
-de la centaine d'options de Gaupol sont l'état collant d'un dialogue, dont six
-`target` qui disent sur quoi une opération porte. `targetOf()` le déduit de la
-sélection, donc aucune n'a d'équivalent ici.
+It also measured what the design had already saved. Three quarters of Gaupol's
+hundred or so options are a dialog's sticky state, six of them `target` options
+that say what an operation applies to. `targetOf()` deduces it from the
+selection, so none of them has an equivalent here.
 
-**D6 — `Help ▸ Manual` ouvre le manuel installé, et non une URL.** Gaupol ouvre
-une URL ; nous ne le suivons pas ici, et pour une raison précise : **une URL
-décrit `main`, pas la version installée.** Un utilisateur qui lit le manuel
-d'une version qu'il n'a pas est moins bien servi qu'un utilisateur sans manuel.
+**D6 — `Help ▸ Manual` opens the installed manual, not a URL.** Gaupol opens a
+URL; we do not follow it here, and for a precise reason: **a URL describes
+`main`, not the installed version.** A user reading the manual of a version
+they do not have is served worse than a user without a manual.
 
-Le manuel reste du Markdown — c'est sa forme source et celle que le dépôt
-relit. `QTextDocument::setMarkdown` sait le rendre sans outil externe ni
-navigateur, donc sans dépendance nouvelle. **À vérifier dans l'issue** : nos
-sections usent de tableaux, et le rendu Markdown de Qt a ses limites ; si elles
-mordent, l'alternative est un rendu HTML à la construction, avec la dépendance
-que cela demande.
+The manual remains Markdown — that is its source form and the one the
+repository reviews. `QTextDocument::setMarkdown` can render it with no external
+tool or browser, hence with no new dependency. **To be checked in the issue**:
+our sections use tables, and Qt's Markdown rendering has its limits; if they
+bite, the alternative is HTML rendering at build time, with the dependency it
+requires.
 
-**D7 — l'insertion suit la règle de Gaupol, parce qu'elle est déjà au noyau.**
-`InsertCommand::blank` implémente sa règle de partage du temps disponible, et
-son commentaire le dit. Le geste suit :
+**D7 — insertion follows Gaupol's rule, because it is already in the core.**
+`InsertCommand::blank` implements its rule for sharing the available time, and
+its comment says so. The gesture follows:
 
 | | |
 | :--- | :--- |
-| combien | demandé, un par défaut |
-| où | avant ou après la sélection, au choix, et **ce choix est persisté** |
-| l'index | le **dernier** sélectionné, plus un si « après » |
-| fichier vide | index zéro, et aucune sélection n'est exigée |
-| suppression | la sélection, touche `Del` |
+| how many | asked, one by default |
+| where | before or after the selection, as chosen, and **that choice is persisted** |
+| the index | the **last** selected, plus one if "after" |
+| empty file | index zero, and no selection is required |
+| removal | the selection, `Del` key |
 
-Le dernier sélectionné et non le premier : c'est le point qu'on invente mal si
-on ne le lit pas, et Gaupol le fait ainsi depuis vingt ans.
+The last selected and not the first: this is the point one gets wrong if one
+does not read it, and Gaupol has done it this way for twenty years.
 
-**D8 — le déclencheur de l'ADR 0019 ne se déclenche pas, et c'est écrit ici.**
-L'ADR demandait de mesurer avant de construire un `Session` qui annonce un
-changement de structure. #236 a établi que **la part de la vue n'est pas
-mesurable** dans le harnais de banc — il n'a pas de `QApplication`, et en
-ajouter une la ferait tourner sans écran, ce que le commentaire du banc écarte
-déjà nommément.
+**D8 — the trigger of ADR 0019 does not fire, and it is written here.** The ADR
+asked to measure before building a `Session` that announces a change of
+structure. #236 established that **the view's share is not measurable** in the
+bench harness — it has no `QApplication`, and adding one would make it run
+without a screen, which the bench's comment already rules out by name.
 
-Ce qui reste est le chiffre du modèle : `réinitialisation du modèle après une
-ligne retirée`, autour de 10 µs sur quatre mille sous-titres. Une insertion est
-un geste humain. **Construire une optimisation dont le bénéfice n'est pas
-mesurable est exactement ce que l'ADR demandait d'éviter**, donc on ne la
-construit pas.
+What remains is the model's figure: `réinitialisation du modèle après une ligne
+retirée`, around 10 µs on four thousand subtitles. An insertion is a human
+gesture. **Building an optimisation whose benefit is not measurable is exactly
+what the ADR asked to avoid**, so it is not built.
 
-Le déclencheur est reformulé plutôt qu'abandonné : il se rouvre le jour où
-quelqu'un mesure sur une machine avec écran et trouve que ça pique, ou le jour
-où un producteur change la structure plus vite qu'un humain ne clique.
+The trigger is reformulated rather than abandoned: it reopens the day someone
+measures on a machine with a screen and finds that it stings, or the day a
+producer changes the structure faster than a human clicks.
 
-## Le noyau
+## The core
 
 ### `core/config/settings.hpp`
 
-Le type de D1. Il porte les valeurs, leurs défauts, et rien d'autre : ni
-emplacement par défaut, ni singleton.
+The type of D1. It carries the values, their defaults, and nothing else:
+neither a default location nor a singleton.
 
 ```
 [[nodiscard]] std::expected<Settings, ConfigError> readSettings(const FileSystem&, const std::filesystem::path&);
 [[nodiscard]] std::expected<void, FileError>       writeSettings(const FileSystem&, const std::filesystem::path&, const Settings&);
 ```
 
-Un fichier absent n'est pas une erreur : c'est `Settings{}`. Ce qui produit un
-diagnostic, c'est une valeur qu'on n'a pas su lire — et le diagnostic accompagne
-la valeur par défaut plutôt que de la remplacer.
+An absent file is not an error: it is `Settings{}`. What produces a diagnostic
+is a value that could not be read — and the diagnostic accompanies the default
+value rather than replacing it.
 
 ### `core/edit/`
 
-Rien de neuf. `InsertCommand::blank` et `RemoveCommand` existent depuis la
-phase 2 et n'ont jamais eu de surface. **Cette phase est leur première preuve de
-bout en bout**, ce qui est en soi un résultat : deux commandes du noyau vivaient
-jusqu'ici sans qu'aucun utilisateur puisse les déclencher.
+Nothing new. `InsertCommand::blank` and `RemoveCommand` have existed since
+phase 2 and never had a surface. **This phase is their first end-to-end
+proof**, which is a result in itself: two core commands lived until now without
+any user being able to trigger them.
 
-### Ce que #154 déplace
+### What #154 moves
 
-`gui/opening.cpp` et `gui/saving.cpp` ne contiennent pas une ligne de Qt. Ils
-descendent au noyau, et la fenêtre y gagne de nommer la vraie cause d'un échec
-d'ouverture. L'issue porte son propre constat et ce cadrage ne le rejoue pas.
+`gui/opening.cpp` and `gui/saving.cpp` do not contain a line of Qt. They move
+down to the core, and the window gains from it the ability to name the real
+cause of an opening failure. The issue carries its own finding and this framing
+does not replay it.
 
-## La fenêtre
+## The window
 
-| Entrée | Menu | Raccourci |
-| :----- | :--- | :-------- |
+| Entry | Menu | Shortcut |
+| :---- | :--- | :------- |
 | `Insert Subtitles…` | Edit | `Ins` |
 | `Remove Subtitles` | Edit | `Del` |
 | `Preferences…` | Edit | — |
 | `Manual` | Help | — |
 
-Les deux premières après `Undo`/`Redo`, séparateur entre les deux groupes :
-défaire est ce qu'on fait *à* une édition, insérer et supprimer *sont* des
-éditions.
+The first two after `Undo`/`Redo`, with a separator between the two groups:
+undoing is what one does *to* an edit, inserting and removing *are* edits.
 
-`Preferences…` porte le thème, et lui seul. La géométrie et les largeurs de
-colonnes ne s'y montrent pas — elles se règlent en déplaçant la fenêtre, et une
-préférence qui a déjà un geste n'a pas besoin d'un champ ; le côté de
-l'insertion se règle dans le dialogue qui s'en sert. Reste le thème, la seule
-qui n'ait aucun geste ailleurs.
+`Preferences…` carries the theme, and only the theme. The geometry and the
+column widths do not show there — they are set by moving the window, and a
+preference that already has a gesture does not need a field; the insertion side
+is set in the dialog that uses it. That leaves the theme, the only one that has
+no gesture elsewhere.
 
-**Le cadrage y ajoutait la fréquence par défaut, et la phase ne l'a pas
-livrée** — voir D5 : rien ne la lirait. La ligne est corrigée ici plutôt que
-laissée dire ce qui n'existe pas ; le manuel, lui, le disait déjà juste. La
-question a été rouverte après la phase et refermée pour de bon : **une seule
-préférence a un dialogue, et ce sera le thème.**
+**The framing added the default frame rate to it, and the phase did not deliver
+it** — see D5: nothing would read it. The row is corrected here rather than left
+saying what does not exist; the manual already had it right. The question was
+reopened after the phase and closed for good: **only one preference has a
+dialog, and it will be the theme.**
 
-## L'installation
+## The installation
 
-Ce que posent les règles `install()`, chemins issus de `GNUInstallDirs` :
+What the `install()` rules put in place, with paths from `GNUInstallDirs`:
 
-| Fichier | Où |
-| :------ | :- |
+| File | Where |
+| :--- | :---- |
 | `subedit-gui`, `subedit-cli` | `${CMAKE_INSTALL_BINDIR}` |
-| icône | `${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps` |
+| icon | `${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps` |
 | `.desktop` | `${CMAKE_INSTALL_DATADIR}/applications` |
 | AppStream | `${CMAKE_INSTALL_DATADIR}/metainfo` |
-| manuel | `${CMAKE_INSTALL_DATADIR}/subedit/manual` |
+| manual | `${CMAKE_INSTALL_DATADIR}/subedit/manual` |
 | `subedit-cli.1` | `${CMAKE_INSTALL_MANDIR}/man1` |
 
-**Deux de ces règles existent depuis #239** — les binaires et le manuel — parce
-qu'un contrôle d'installation n'a rien à prouver sans elles. Les quatre autres
-nomment des fichiers que le dépôt ne contient pas encore : l'icône, le
-`.desktop`, les métadonnées AppStream et la page de manuel de `subedit-cli`
-viennent avec #244, et leurs règles s'ajoutent dans `cmake/Installation.cmake`.
+**Two of these rules have existed since #239** — the binaries and the manual —
+because an installation check has nothing to prove without them. The other four
+name files the repository does not contain yet: the icon, the `.desktop`, the
+AppStream metadata and the manual page of `subedit-cli` come with #244, and
+their rules are added in `cmake/Installation.cmake`.
 
-**Ce qu'on empaquette est ce que produit `make release`, issue #247.** La cible
-existe depuis cette phase ; auparavant, pour obtenir un binaire optimisé, on
-lançait `make bench` et on l'interrompait. Elle ne construit ni le banc ni le
-harnais de bout en bout — ce qui est demandé est ce qu'un utilisateur lance, pas
-ce qui l'éprouve.
+**What is packaged is what `make release` produces, issue #247.** The target
+has existed since this phase; before it, to get an optimised binary, one ran
+`make bench` and interrupted it. It builds neither the bench nor the end-to-end
+harness — what is asked for is what a user runs, not what tests it.
 
 ## Tests
 
-**La configuration s'éprouve sans écrire nulle part**, par `InMemoryFileSystem`
-et un emplacement donné. C'est ce que #238 met en place, et c'est ce qui fait
-que le contrôle de #226 n'a rien à voir ici : aucun test ne touche à un vrai
-emplacement.
+**The configuration is tested without writing anywhere**, through
+`InMemoryFileSystem` and a given location. This is what #238 puts in place, and
+it is why the check of #226 has nothing to do with it: no test touches a real
+location.
 
-**Le thème s'éprouve parce qu'il est posé** — D4. Un test demande « sombre » et
-lit la palette obtenue.
+**The theme is testable because it is set** — D4. A test asks for "dark" and
+reads the resulting palette.
 
-**L'installation s'éprouve dans un préfixe temporaire** — #239 — et le préfixe
-ne laisse rien derrière lui, ce que le contrôle de #226 verrait. `make
-install-check` installe, lance les deux binaires installés, et confronte le
-manuel déposé à celui du dépôt — liste **calculée** et non recopiée, sans quoi
-un chapitre ajouté manquerait en silence.
+**The installation is tested in a temporary prefix** — #239 — and the prefix
+leaves nothing behind, which the check of #226 would see. `make
+install-check` installs, runs the two installed binaries, and compares the
+deposited manual with the repository's — a list that is **computed** and not
+copied, otherwise an added chapter would go missing silently.
 
-Ce qu'elle ne prouve pas est écrit dans son en-tête plutôt que laissé croire
-prouvé : rien des paquets natifs, qui n'existent pas encore, et rien de ce
-qu'aucune machine Ubuntu ne peut dire d'un `.rpm` — il s'y construit et ne s'y
-installe pas.
+What it does not prove is written in its header rather than left to be believed
+proven: nothing about the native packages, which do not exist yet, and nothing
+of what no Ubuntu machine can say about an `.rpm` — it is built there and not
+installed there.
 
-**Les captures d'écran sont doublées** — D4 encore.
+**The screenshots are doubled** — D4 again.
 
-## Mesures
+## Measurements
 
-Rien de neuf n'est attendu au banc. La lecture d'une configuration est un
-fichier de quelques lignes lu une fois au démarrage ; la mesurer serait mesurer
-`readFile`.
+Nothing new is expected on the bench. Reading a configuration is a file of a
+few lines read once at startup; measuring it would be measuring `readFile`.
 
-Le seul chiffre qui compte pour cette phase existe déjà, et D8 l'a interprété.
+The only figure that matters for this phase already exists, and D8 has
+interpreted it.
 
-## Exigences
+## Requirements
 
-| Identifiant | Ce qu'il promet |
-| :---------- | :-------------- |
-| `GUI-CONFIG-01` | la fenêtre retrouve sa géométrie et ses colonnes d'une session à l'autre |
-| `GUI-CONFIG-02` | une valeur illisible laisse le défaut en place, et le dit |
-| `GUI-CONFIG-03` | une option restée à son défaut est réécrite commentée, donc un défaut changé prend effet |
-| `GUI-THEME-01` | le thème se choisit entre trois valeurs, se retient, et « système » ne pose rien |
-| `GUI-THEME-02` | « clair » et « sombre » posent une palette explicite |
-| `GUI-INSERT-01` | insérer place les sous-titres après le dernier sélectionné, ou avant au choix |
-| `GUI-INSERT-02` | insérer dans un document vide ne demande aucune sélection |
-| `GUI-REMOVE-01` | supprimer retire la sélection, et l'opération s'annule |
-| `GUI-MANUAL-01` | `Help ▸ Manual` ouvre le manuel installé |
+| ID | Requirement |
+| :- | :---------- |
+| `GUI-CONFIG-01` | the window recovers its geometry and its columns from one session to the next |
+| `GUI-CONFIG-02` | an unreadable value leaves the default in place, and says so |
+| `GUI-CONFIG-03` | an option left at its default is rewritten commented out, so a changed default takes effect |
+| `GUI-THEME-01` | the theme is chosen among three values, is remembered, and "system" sets nothing |
+| `GUI-THEME-02` | "light" and "dark" set an explicit palette |
+| `GUI-INSERT-01` | inserting places the subtitles after the last selected one, or before as chosen |
+| `GUI-INSERT-02` | inserting into an empty document requires no selection |
+| `GUI-REMOVE-01` | removing takes away the selection, and the operation can be undone |
+| `GUI-MANUAL-01` | `Help ▸ Manual` opens the installed manual |
 
-**Neuf, et l'empaquetage n'en porte aucune.** Ce n'est pas un oubli : le
-registre est confronté aux **tests** par `check-requirements.sh`, et
-l'installation ne se prouve pas par un test mais par une cible qui installe puis
-lance — #239. Une exigence qu'aucun test ne peut citer serait une ligne morte au
-registre.
+**Nine, and packaging carries none of them.** This is not an oversight: the
+registry is confronted with the **tests** by `check-requirements.sh`, and the
+installation is not proven by a test but by a target that installs then runs —
+#239. A requirement no test can cite would be a dead row in the registry.
 
-**Elles entrent au registre en début d'issue, à l'état `prévue`**, comme la
-phase 16 l'a tenu. Elle était la première où la règle servait vraiment ; celle-ci
-est la seconde, et c'est là qu'on saura si elle tient hors du cas favorable.
+**They enter the registry at the start of the issue, in the `planned` state**,
+as phase 16 held to. It was the first where the rule really served; this one is
+the second, and it is here that we will know whether it holds outside the
+favourable case.
 
-**Neuf, et le registre n'en a longtemps porté que huit.** #241 a fondu
-`GUI-THEME-02` dans `GUI-THEME-01` sans que rien ne le dise, ce qui a coûté une
-promesse : la ligne restante dit que le thème a trois valeurs et se retient, elle
-ne dit pas que « clair » et « sombre » posent une palette. Or c'est précisément
-cette palette-là qui tient D3 et D4, et deux cas de `theme_test.cpp` la
-prouvaient déjà sans que rien ne les rattache à une promesse. La relecture de fin
-de phase rend donc `GUI-THEME-02` au registre et lui donne ses tags, plutôt que
-d'entériner la fusion.
+**Nine, and the registry long carried only eight.** #241 merged `GUI-THEME-02`
+into `GUI-THEME-01` without anything saying so, which cost a promise: the
+remaining row says that the theme has three values and is remembered, it does
+not say that "light" and "dark" set a palette. Yet it is precisely that palette
+that holds D3 and D4, and two cases of `theme_test.cpp` already proved it
+without anything tying them to a promise. The end-of-phase review therefore
+returns `GUI-THEME-02` to the registry and gives it its tags, rather than
+endorsing the merge.
 
-**Et elle donne au défaut son contrôle**, parce que c'est la deuxième phase de
-suite où il passe — la phase 16 avait retiré `CLI-SNAP-03` sans que sa spec
-suive et laissé naître `GUI-GRID-03` sans l'y inscrire.
-`check-requirements.sh` confronte désormais **la table de chaque spec aux lignes
-du registre qui portent sa phase**, dans les deux sens, avec la phase et le
-barré. Il a trouvé quatre écarts de plus au passage, tous antérieurs : trois
-`CLI-VERSION` remplacées et une `CLI-OUTPUT-06` née en cours de route, absentes
-de la spec de la phase 3, et une `CLI-INSPECT-04` absente de celle de la phase 5.
+**And it gives the defect its check**, because this is the second phase in a
+row where it gets through — phase 16 had withdrawn `CLI-SNAP-03` without its
+spec following and let `GUI-GRID-03` be born without recording it there.
+`check-requirements.sh` now confronts **each spec's table with the registry
+rows that carry its phase**, in both directions, with the phase and the
+strikethrough. It found four more gaps along the way, all earlier: three
+`CLI-VERSION` replaced and a `CLI-OUTPUT-06` born along the way, absent from the
+phase 3 spec, and a `CLI-INSPECT-04` absent from the phase 5 one.
 
-## Manuel
+## Manual
 
-C'est le livrable le plus lourd de la phase, et le seul qui touche tout ce qui
-précède : les six sections d'interface sont de la prose sans filet depuis #116,
-et cette phase y ajoute des préférences, un thème, deux opérations et une
-installation.
+It is the heaviest deliverable of the phase, and the only one that touches
+everything before it: the six interface sections have been prose without a
+safety net since #116, and this phase adds preferences, a theme, two operations
+and an installation to them.
 
-L'ordre importe : **#199 avant l'écriture**, sans quoi les captures se prennent
-à la main et le manuel décrit à nouveau une interface sur parole.
-`docs/manual/subedit-cli/installation.md` est à reprendre en entier — il dit
-aujourd'hui que l'outil se lance depuis l'arbre de construction.
+The order matters: **#199 before the writing**, otherwise the screenshots are
+taken by hand and the manual once again describes an interface on trust.
+`docs/manual/subedit-cli/installation.md` is to be redone entirely — it says
+today that the tool is launched from the build tree.
 
-## Découpage en issues
+## Split into issues
 
-| Issue | Sujet | Dépend de |
-| :---- | :---- | :-------- |
-| #247 | une cible qui produit les binaires en Release | — |
-| #238 | isoler l'emplacement de configuration | — |
-| #199 | captures d'écran engendrées | D4 |
-| #154 | une seule recette d'ouverture | — |
-| #240 | la configuration persistée | #238, D1 |
-| #241 | le thème clair et sombre | #240, D3 |
-| #254 | la poignée et le dernier répertoire retenus | #240, D5 |
-| #242 | insérer et supprimer depuis la fenêtre | D7 |
-| #243 | le manuel utilisateur complet | #199, #240, #241, #242, #254 |
-| #244 | l'empaquetage : `install()`, `.deb` et `.rpm` | #243, #239, #247 |
-| #245 | `Help ▸ Manual` rallumée | #244, D6 |
+| Issue | Subject | Depends on |
+| :---- | :------ | :--------- |
+| #247 | a target that produces the binaries in Release | — |
+| #238 | isolating the configuration location | — |
+| #199 | generated screenshots | D4 |
+| #154 | a single opening recipe | — |
+| #240 | the persisted configuration | #238, D1 |
+| #241 | the light and dark theme | #240, D3 |
+| #254 | the handle and the last directory remembered | #240, D5 |
+| #242 | inserting and removing from the window | D7 |
+| #243 | the complete user manual | #199, #240, #241, #242, #254 |
+| #244 | packaging: `install()`, `.deb` and `.rpm` | #243, #239, #247 |
+| #245 | `Help ▸ Manual` re-enabled | #244, D6 |
 
-#154 ne dépend de rien et vient tôt : elle remanie le chemin d'ouverture auquel
-#240 s'accroche, et sa moitié visible atterrit avant que #243 la décrive.
+#154 depends on nothing and comes early: it reworks the opening path that #240
+hooks into, and its visible half lands before #243 describes it.
 
-#245 est dernière par construction, et c'est une chaîne sans raccourci : le
-manuel doit être complet pour être installé, l'empaquetage doit être tranché
-pour décider où il vit, et l'entrée ne se rallume qu'une fois les deux faits.
+#245 is last by construction, and it is a chain with no shortcut: the manual
+must be complete to be installed, packaging must be settled to decide where it
+lives, and the entry is only re-enabled once both are done.
 
-#254 est née de la relecture de #240 plutôt que de ce cadrage, et elle touche le
-même type que #241 : les faire ensemble évite un conflit sur `core::Settings`.
+#254 was born from the review of #240 rather than from this framing, and it
+touches the same type as #241: doing them together avoids a conflict on
+`core::Settings`.
 
-## Renvois
+## Deferrals
 
-| Ce qui est renvoyé | Où |
-| :----------------- | :- |
-| un conteneur Fedora pour éprouver le `.rpm` | [#266](https://github.com/Guyot-Bertrand/sub-edit/issues/266) |
-| un bump de Qt pour lire le schéma de couleurs du système | hors phase ; D3 livre sans lui, et l'ADR 0001 se rouvrirait |
-| la liste des fichiers récents | hors phase — une fonctionnalité, pas une préférence, D5 |
-| la traduction du manuel | phase 15 |
+| What is deferred | Where |
+| :--------------- | :---- |
+| a Fedora container to test the `.rpm` | [#266](https://github.com/Guyot-Bertrand/sub-edit/issues/266) |
+| a Qt bump to read the system's colour scheme | outside the phase; D3 delivers without it, and ADR 0001 would reopen |
+| the list of recent files | outside the phase — a feature, not a preference, D5 |
+| translating the manual | phase 15 |
 
-**Les quatre renvois qui ne désignaient personne ont été instruits, et trois
-d'entre eux sont morts de l'être.** C'est le résultat qu'on n'attend pas d'une
-mise au propre : une condition sans référent survit parce que personne ne la
-regarde, et la regarder suffit souvent à la conclure.
+**The four deferrals that designated no one have been investigated, and three of
+them died of it.** This is the result one does not expect from a clean-up: a
+condition with no referent survives because nobody looks at it, and looking at
+it is often enough to conclude it.
 
-| Ce qui était renvoyé | Ce qui a été décidé |
-| :------------------- | :------------------ |
-| le déclencheur de l'ADR 0019, reformulé par D8 | **abandonné** — [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264). D8 se suffit : la part de la vue n'est pas mesurable au banc, celle du modèle est de l'ordre de 10 µs, et une insertion est un geste humain |
-| Flatpak et AppImage, différés par l'ADR 0023 | **écartés** — [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265). `.deb` et `.rpm` suffisent au contour visé ; ailleurs, on construit depuis les sources, et le manuel décrit ce chemin en entier |
-| la fréquence d'image par défaut dans les préférences | **écartée** — [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267). Aucun des trois lecteurs possibles n'en avait besoin, et D5 avait donc raison la première fois |
-| un conteneur Fedora pour éprouver le `.rpm` | **retenu**, et seul des quatre : c'est le seul écart de l'empaquetage qui reste ouvert |
+| What was deferred | What was decided |
+| :---------------- | :--------------- |
+| the trigger of ADR 0019, reformulated by D8 | **abandoned** — [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264). D8 is sufficient: the view's share is not measurable on the bench, the model's is of the order of 10 µs, and an insertion is a human gesture |
+| Flatpak and AppImage, deferred by ADR 0023 | **ruled out** — [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265). `.deb` and `.rpm` are enough for the intended outline; elsewhere, one builds from source, and the manual describes that path in full |
+| the default frame rate in the preferences | **ruled out** — [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267). None of the three possible readers needed it, and D5 was therefore right the first time |
+| a Fedora container to test the `.rpm` | **kept**, and alone of the four: it is the only packaging gap that remains open |
 
-Trois d'entre eux étaient formulés par une condition — « le jour où quelqu'un
-mesure », « quand quelqu'un installera vraiment le paquet », « le jour où quelque
-chose la lira ». Une condition sans référent finit par s'oublier ; c'est le
-défaut que le déroulé d'une phase décrit, et c'est la deuxième relecture
-d'affilée à le trouver. **Trois « peut-être » sont devenus trois « non », et
-c'est un gain** : un « non » écrit ne se repropose pas.
+Three of them were phrased as a condition — "the day someone measures", "when
+someone actually installs the package", "the day something reads it". A
+condition with no referent ends up forgotten; this is the defect that the course
+of a phase describes, and it is the second review in a row to find it. **Three
+"maybe"s have become three "no"s, and that is a gain**: a written "no" is not
+proposed again.
 
-## Ce que la relecture de fin de phase a sorti
+## What the end-of-phase review brought out
 
-Sept axes, discutés et retenus, chacun avec son issue. Aucun n'est corrigé
-ici — c'est la règle du regard critique.
+Seven lines of inquiry, discussed and kept, each with its issue. None is
+corrected here — that is the rule of the critical look.
 
-| Issue | Ce qu'elle porte |
-| :---- | :--------------- |
-| [#268](https://github.com/Guyot-Bertrand/sub-edit/issues/268) | chaque vérification passe-t-elle par l'outil qui compte ? Le manuel n'est jamais rendu par Qt, la page de manuel jamais par groff |
-| [#269](https://github.com/Guyot-Bertrand/sub-edit/issues/269) | un commentaire ajouté au `Makefile` fait passer clang-tidy de 2 fichiers à 223 |
-| [#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270) | six des treize relevés de la phase sont pris au-dessus du seuil de charge |
-| [#271](https://github.com/Guyot-Bertrand/sub-edit/issues/271) | `check-installation.sh` a triplé : une chose, ou deux ? |
-| [#272](https://github.com/Guyot-Bertrand/sub-edit/issues/272) | `subedit-gui` n'a pas de page de manuel, et Gaupol n'en a qu'une, pour sa fenêtre |
-| [#273](https://github.com/Guyot-Bertrand/sub-edit/issues/273) | 75 intitulés de tests en français contre 1188 en anglais, tous nés dans cette phase |
-| [#274](https://github.com/Guyot-Bertrand/sub-edit/issues/274) | deux raccourcis que Qt ne pose pas sous X11, et que le manuel promettait |
+| Issue | What it carries |
+| :---- | :-------------- |
+| [#268](https://github.com/Guyot-Bertrand/sub-edit/issues/268) | does each check go through the tool that counts? The manual is never rendered by Qt, the manual page never by groff |
+| [#269](https://github.com/Guyot-Bertrand/sub-edit/issues/269) | a comment added to the `Makefile` takes clang-tidy from 2 files to 223 |
+| [#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270) | six of the phase's thirteen records are taken above the load threshold |
+| [#271](https://github.com/Guyot-Bertrand/sub-edit/issues/271) | `check-installation.sh` has tripled: one thing, or two? |
+| [#272](https://github.com/Guyot-Bertrand/sub-edit/issues/272) | `subedit-gui` has no manual page, and Gaupol has only one, for its window |
+| [#273](https://github.com/Guyot-Bertrand/sub-edit/issues/273) | 75 test titles in French against 1188 in English, all born in this phase |
+| [#274](https://github.com/Guyot-Bertrand/sub-edit/issues/274) | two shortcuts that Qt does not set under X11, and that the manual promised |
 
-## Ce que la mesure a tranché
+## What the measurement settled
 
-**La phase 16 avait conclu l'inverse, et sa conclusion est fausse.** Elle avait
-inscrit, parmi ses trois « affirmations démenties par la mesure » :
+**Phase 16 had concluded the opposite, and its conclusion is wrong.** It had
+recorded, among its three "assertions refuted by measurement":
 
-> « la garde du slot est inatteignable » → **Qt invoque le slot d'une action
-> éteinte**
+> "the slot's guard is unreachable" → **Qt invokes the slot of a disabled
+> action**
 
-Qt ne l'invoque pas. `QAction::trigger()` et `QAction::activate(Trigger)` sur
-une action éteinte n'émettent rien :
+Qt does not invoke it. `QAction::trigger()` and `QAction::activate(Trigger)` on
+a disabled action emit nothing:
 
 ```
-activée, trigger()   -> 1
-éteinte, trigger()   -> 0
-éteinte, activate()  -> 0
+enabled, trigger()   -> 1
+disabled, trigger()  -> 0
+disabled, activate() -> 0
 ```
 
-Le cas qui était censé le trancher — `the entry that is out does nothing when
-triggered` — **ne pouvait pas le faire** : ses deux assertions, la barre d'état
-inchangée et l'annulation toujours éteinte, sont vraies que le slot soit atteint
-ou non. Son commentaire disait pourtant « This case is what says so ».
+The case that was supposed to settle it — `the entry that is out does nothing
+when triggered` — **could not do so**: its two assertions, the status bar
+unchanged and undo still disabled, are true whether the slot is reached or not.
+Its comment nevertheless said "This case is what says so".
 
-Le cas compte désormais les émissions plutôt que de les inférer, et il vérifie
-aussi le sens positif — la même action rallumée atteint bien le slot. C'est ce
-qui distingue « mesuré » de « rien n'a bougé ».
+The case now counts the emissions rather than inferring them, and it also checks
+the positive direction — the same action, re-enabled, does reach the slot. That
+is what distinguishes "measured" from "nothing moved".
 
-Trois commentaires de cette phase-ci reposaient déjà sur le comportement réel :
-c'est pourquoi `une suppression vide n'entre pas dans l'historique` et `le retour
-forcé sans historique ne fait rien` rallument l'action à la main pour atteindre
-le garde qu'ils éprouvent. `docs/mesures/couverture.md` le dit aussi depuis la
-phase 6 — « Qt ne déclenche pas une action désactivée, donc rien ne peut la
-parcourir ». Le quatrième, plus ancien, disait le contraire ; il est corrigé.
+Three comments from this very phase already relied on the real behaviour: that
+is why `an empty removal does not enter the history` and `back forced with no
+history does nothing` re-enable the action by hand to reach the guard they test.
+`docs/mesures/couverture.md` has also said so since phase 6 — "Qt does not
+trigger a disabled action, so nothing can walk it". The fourth, older, said the
+opposite; it is corrected.
 
-**La leçon de la phase 16 tient malgré cela, et elle se retourne :** un cas
-écrit pour trancher ne tranche que si ses assertions distinguent les deux
-réponses. Celui-là n'en distinguait aucune, et il a servi pendant une phase
-entière à soutenir la mauvaise.
+**The lesson of phase 16 holds nonetheless, and it turns around:** a case
+written to settle something only settles it if its assertions distinguish the
+two answers. That one distinguished neither, and for a whole phase it served to
+support the wrong one.
 
-## Critères de fin
+## Completion criteria
 
-- [x] Les six issues d'implémentation sont fermées, plus #154, #199, #238, #239, #247, #254
-- [x] Un tiers installe le paquet et lance l'outil sans l'arbre de construction
-- [x] Le manuel décrit ce qui existe, captures comprises, dans les deux thèmes
-- [x] `Help ▸ Manual` ouvre le manuel installé
-- [x] La relecture de fin de phase est faite — #263
+- [x] The six implementation issues are closed, plus #154, #199, #238, #239, #247, #254
+- [x] A third party installs the package and runs the tool without the build tree
+- [x] The manual describes what exists, screenshots included, in both themes
+- [x] `Help ▸ Manual` opens the installed manual
+- [x] The end-of-phase review is done — #263
