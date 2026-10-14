@@ -1,7 +1,5 @@
 # Le manuel dans la fenêtre
 
-<!-- language: fr -->
-
 `Help ▸ Manual`, ou `F1`, ouvre **ce manuel-ci** dans une fenêtre à lui.
 
 ![Le manuel ouvert dans sa fenêtre, palette claire : la barre de navigation, le
@@ -17,7 +15,7 @@ Une adresse décrirait la version en cours de développement, pas celle qu'on a
 sous la main. Un utilisateur qui lit le manuel d'une version qu'il n'a pas est
 moins bien servi qu'un utilisateur sans manuel — c'est pourquoi la fenêtre lit
 les fichiers déposés par l'installation, sous
-`<préfixe>/share/subedit/manual`. Voir [Installation](../subedit-cli/installation.md).
+`<prefix>/share/subedit/manual`. Voir [Installation](../subedit-cli/installation.md).
 
 Il s'ouvre sur la [page d'accueil](../index.md), celle qui dit par où commencer.
 

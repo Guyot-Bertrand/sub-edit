@@ -1,7 +1,5 @@
 # La table
 
-<!-- language: fr -->
-
 La fenêtre montre les sous-titres du fichier ouvert, un par ligne, dans cinq
 colonnes — six quand le projet porte une traduction.
 
@@ -101,7 +99,7 @@ colonne qui n'est simplement pas l'orthographe exacte du fichier.
 Ce que la table garantit est donc **la valeur et le séparateur**, non le nombre
 de décimales. Ce qu'un format d'arrivée arrondirait est dit au moment de
 l'enregistrement — voir
-[Ce qu'un format ne portera pas](fichiers.md#ce-quun-format-ne-portera-pas-dit-avant-décrire).
+[Ce qu'un format ne portera pas](files.md#ce-quun-format-ne-portera-pas-dit-avant-décrire).
 
 **La durée (`Duration`) est calculée**, jamais stockée : la saisir déplace la
 fin. Un sous-titre dont la fin précède le
@@ -109,7 +107,7 @@ début affiche une durée négative plutôt que zéro : c'est une anomalie du
 fichier, et la masquer la rendrait introuvable.
 
 **Le début, la fin, la durée, le texte et la traduction s'éditent en place** ; le
-numéro non. Voir [Éditer une cellule](edition.md).
+numéro non. Voir [Éditer une cellule](editing.md).
 
 **La sélection désigne ce sur quoi une opération porte** — voir
 [Les opérations](operations.md).
@@ -148,13 +146,13 @@ pas compté en images, la vidéo ne déclare pas de fréquence, et les positions
 
 - **Un numéro est le numéro de l'image où tombe la position**, arrondi à l'image la plus proche. **Saisi, il
   donne l'instant où cette image commence**, arrondi **une seule fois** depuis le rapport exact
-  ([ADR 0013](../../adr/0013-mise-a-l-echelle-exacte-des-positions.md)) : l'image 37 à 23,976 images par seconde
+  ([ADR 0013](../../../../adr/0013-mise-a-l-echelle-exacte-des-positions.md)) : l'image 37 à 23,976 images par seconde
   commence à 1 543,04 ms, soit `00:00:01,543`.
 - **Seuls les nombres entiers sont acceptés** — avec le signe moins, un début pouvant précéder le film. Un
   timestamp saisi en mode images, ou un nombre qui n'en est pas un, laisse la cellule comme elle était.
 - **La barre de lecture suit le même réglage** : la position et la durée de part et d'autre du curseur
   s'écrivent en numéros d'image comme `Start` et `End`, au même instant — voir
-  [La barre de lecture](lecteur.md#la-barre-de-lecture). Le chrono dessiné en haut de l'image reste un
+  [La barre de lecture](player.md#la-barre-de-lecture). Le chrono dessiné en haut de l'image reste un
   timestamp.
 - **Ce réglage n'est pas retenu** d'une session à l'autre : c'est un réglage de la fenêtre, non d'un
   document, et il se rallume d'un geste.
@@ -213,7 +211,7 @@ place.](captures/table-traduction.png)
 **La colonne n'est là que si le projet a une traduction.** Sans elle, la table
 garde ses cinq colonnes, et la fenêtre se comporte comme si la traduction
 n'existait pas — rien n'est grisé ni ajouté. `File ▸ Open Translation…` en ouvre
-une : voir [Ouvrir une traduction](fichiers.md#ouvrir-une-traduction).
+une : voir [Ouvrir une traduction](files.md#ouvrir-une-traduction).
 
 **Une entrée du menu `View` la montre ou la retire** :
 
@@ -229,7 +227,7 @@ projet, et revient avec l'entrée. Ouvrir un fichier qui n'en porte pas retire l
 colonne.
 
 **Les cellules de la traduction se saisissent comme celles du texte** — voir
-[Éditer une cellule](edition.md).
+[Éditer une cellule](editing.md).
 
 ### Le texte que les opérations visent
 
@@ -242,7 +240,7 @@ principal partout ailleurs — dans une colonne de temps comme dans `Text`.
 | :-------- | :-------------- |
 | `Italic`, `Case`, `Dialogue`, `Remove Hearing-Impaired Mentions…` | le texte de la colonne courante |
 | `Cut Texts`, `Copy Texts`, `Paste Texts` | le texte de la colonne courante |
-| `Find and Replace…` | le texte de la colonne courante — voir [Rechercher et remplacer](recherche.md#dans-quel-texte) |
+| `Find and Replace…` | le texte de la colonne courante — voir [Rechercher et remplacer](find-and-replace.md#dans-quel-texte) |
 | les opérations de position, l'insertion, la suppression, la fusion, la scission | **les deux textes** : un sous-titre est un tout |
 
 **La barre d'état le dit quand il y a deux textes**, à gauche des autres
@@ -261,7 +259,7 @@ dit `Text: Translation`.](captures/fenetre-traduction.png)
 ![La même fenêtre sous la palette sombre.](captures/fenetre-traduction-sombre.png)
 
 **La réplique dessinée sur l'image suit la même règle** : c'est celle du texte de la
-colonne courante. Voir [Le lecteur](lecteur.md#la-réplique-dessinée).
+colonne courante. Voir [Le lecteur](player.md#la-réplique-dessinée).
 
 **Rien n'est grisé.** Les opérations de texte restent disponibles quelle que soit
 la colonne courante, et sans colonne de traduction elles visent le texte
@@ -272,7 +270,7 @@ principal, comme avant.
 `Edit ▸ Insert Subtitles…` et `Edit ▸ Remove Subtitles` posent et retirent des
 lignes, `Edit ▸ Merge Subtitles` et `Edit ▸ Split Subtitle` en fusionnent et en
 scindent ; la table se renumérote toute seule. Voir
-[Insérer, supprimer, fusionner et scinder des lignes](lignes.md).
+[Insérer, supprimer, fusionner et scinder des lignes](lines.md).
 
 ## Ce que la table ne fait pas
 

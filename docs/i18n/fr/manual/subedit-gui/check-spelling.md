@@ -1,7 +1,5 @@
 # Check Spelling…
 
-<!-- language: fr -->
-
 `Tools ▸ Check Spelling…` parcourt les mots que le dictionnaire ne connaît pas,
 un à la fois, sur le modèle du correcteur de Gaupol. Elle a une compagne,
 `Tools ▸ Spell-Check Settings…`, qui règle la langue, la cible et le document, et le soulignement à la frappe.
@@ -136,7 +134,7 @@ Edited 2 and removed 0 subtitles
 ```
 
 **La liste de remplacements** — ce que l'utilisateur a remplacé, et par quoi —
-s'écrit à la fermeture dans `spell-check/<langue>.repl`, sous le répertoire de
+s'écrit à la fermeture dans `spell-check/<language>.repl`, sous le répertoire de
 configuration de `subedit`, et non dans celui de Gaupol, qui n'est jamais lu.
 Elle compte ensuite parmi les suggestions du correcteur, ici comme dans
 [`Correct Texts…`](correct-texts.md#join-or-split-words--recoller-et-scinder-daprès-le-correcteur).

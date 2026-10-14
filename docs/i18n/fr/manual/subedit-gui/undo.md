@@ -1,7 +1,5 @@
 # Annuler et rétablir
 
-<!-- language: fr -->
-
 Chaque opération entre dans un historique, et se défait. Une cellule éditée
 compte pour **une** entrée : la frappe ne s'y inscrit pas touche par touche,
 seule la validation compte.
@@ -86,7 +84,7 @@ plus. C'est le comportement de tous les éditeurs, et il est délibéré.
 
 **Pendant qu'une cellule est ouverte**, `Undo` et `Redo` — par le menu ou la
 barre d'outils — valident d'abord la saisie, comme les autres gestes de
-[Éditer une cellule](edition.md). Ce qui vient d'être tapé devient alors la
+[Éditer une cellule](editing.md). Ce qui vient d'être tapé devient alors la
 dernière entrée de l'historique : `Undo` la défait, et non l'opération d'avant ;
 `Redo` n'a plus rien à rétablir, puisqu'une saisie efface ce qu'il y avait à
 rétablir. Une cellule ouverte où rien n'a été tapé ne laisse aucune entrée :

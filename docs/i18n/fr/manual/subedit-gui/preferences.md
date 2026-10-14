@@ -1,7 +1,5 @@
 # Les préférences
 
-<!-- language: fr -->
-
 La fenêtre se souvient de ce qu'on a posé à la souris — **où elle était**, **si
 elle était agrandie**, **la largeur de ses colonnes**, **la position de la
 poignée** entre le film et la table — et de **là où l'on travaille**, pour que
@@ -21,12 +19,12 @@ next launch, not at once. See [The interface language](#the-interface-language).
 
 **Une autre se règle là où elle sert** : le côté où `Insert Subtitles…` pose ses
 lignes est un champ de ce dialogue-là, et le dernier choix est retenu. Voir
-[Insérer, supprimer, fusionner et scinder des lignes](lignes.md#le-côté-est-retenu).
+[Insérer, supprimer, fusionner et scinder des lignes](lines.md#le-côté-est-retenu).
 
 **Les deux options de la recherche aussi** : `Regular expression` et
 `Ignore case` restent cochées ou décochées d'une ouverture du dialogue à la
 suivante, et d'une session à la suivante. Voir
-[Rechercher et remplacer](recherche.md#les-deux-options).
+[Rechercher et remplacer](find-and-replace.md#les-deux-options).
 
 **Les réglages d'`Adjust Durations…` aussi** : la vitesse de lecture, ses deux
 sens, et les trois durées avec leurs cases — chacune garde sa valeur, cochée ou
@@ -38,7 +36,7 @@ octets. Voir [le fichier](#le-fichier).
 **Et ce que l'assistant `Correct Texts…` et `Spell-Check Settings…` règlent** : les
 tâches cochées et leur code, les cases de motifs, les réglages du découpage, la langue,
 la cible de la vérification et le soulignement à la frappe. Voir [Correct Texts…](correct-texts.md) et
-[Check Spelling…](verifier-orthographe.md#spell-check-settings). **La cible et le
+[Check Spelling…](check-spelling.md#spell-check-settings). **La cible et le
 document de `Correct Texts…` ne sont pas retenus.**
 
 **Ce qui n'est pas retenu :** le dernier fichier ouvert — voir
@@ -58,7 +56,7 @@ Quatre champs. **Seek length** et **Context length** sont ceux de Gaupol et ont 
 Ils s'appliquent **à l'instant**, sans attendre un redémarrage, et sont retenus d'une session à l'autre
 sous `video.seek-length` (en secondes), `video.context-length-ms` (en millisecondes) `video.step-frames` (en images) et `video.hardware-decoding` (`true` ou `false`).
 **Une valeur hors des bornes, ou qui n'est pas un nombre**, n'empêche pas la fenêtre de s'ouvrir : elle
-est ignorée, le défaut reste, et la fenêtre le dit à l'ouverture. **Le pas d'image n'est jamais en millisecondes** : un pas de N images est toujours N images, quelle que soit la fréquence du film — voir [Caler depuis la vidéo](calage.md#image-par-image). Le volume est retenu à `video.volume`,
+est ignorée, le défaut reste, et la fenêtre le dit à l'ouverture. **Le pas d'image n'est jamais en millisecondes** : un pas de N images est toujours N images, quelle que soit la fréquence du film — voir [Caler depuis la vidéo](timing.md#image-par-image). Le volume est retenu à `video.volume`,
 de 0 à 100, avec la même tolérance.
 
 ## Le fichier
@@ -101,7 +99,7 @@ two blocks existed is read unchanged, and rewritten in two blocks at the next cl
 
 | Option | Ce qu'elle vaut | Défaut |
 | :----- | :-------------- | :----- |
-| `window.geometry` | `x,y,largeur,hauteur`, en pixels ; largeur et hauteur non nulles | la fenêtre se dimensionne elle-même |
+| `window.geometry` | `x,y,width,height`, en pixels ; largeur et hauteur non nulles | la fenêtre se dimensionne elle-même |
 | `window.maximised` | `true` ou `false` | `false` |
 | `table.columns` | quatre largeurs en pixels, séparées par des virgules — `#`, `Start`, `End`, `Duration`, même masquées | la table se dimensionne elle-même |
 | `table.order` | les six colonnes, **chacune une fois**, dans l'ordre où la table les montre : `number`, `start`, `end`, `duration`, `text`, `translation` | `number,start,end,duration,text,translation` |
@@ -125,7 +123,7 @@ two blocks existed is read unchanged, and rewritten in two blocks at the next cl
 | `duration-adjust.gap-enabled` | `true` ou `false` — l'écart au sous-titre suivant est demandé | `true` |
 | `duration-adjust.gap-ms` | l'écart, en millisecondes, entier et non négatif | `0` |
 | `correction.mentions.enabled`, `correction.common-errors.enabled`, `correction.capitalization.enabled`, `correction.line-break.enabled` | `true` ou `false` — la tâche est cochée sur la première page de `Correct Texts…` | `false`, `true`, `true`, `false` |
-| `correction.mentions.code`, `correction.common-errors.code`, `correction.capitalization.code`, `correction.line-break.code` | le code des motifs de la tâche : `Zyyy`, ou `Écriture[-langue[-PAYS]]` — `Latn-en-US` ; non vide | `Zyyy` |
+| `correction.mentions.code`, `correction.common-errors.code`, `correction.capitalization.code`, `correction.line-break.code` | le code des motifs de la tâche : `Zyyy`, ou `Script[-language[-COUNTRY]]` — `Latn-en-US` ; non vide | `Zyyy` |
 | `correction.human`, `correction.ocr` | `true` ou `false` — les classes des erreurs courantes | `true`, `true` |
 | `correction.sound-in-brackets`, `correction.sound-in-parentheses` | `true` ou `false` — les deux cases de la page `Mentions` | `false`, `false` |
 | `correction.line-break.max-length` | la longueur maximale d'une ligne, décimale ; le dialogue la borne de 1 à 1000 | `24` |
@@ -137,7 +135,7 @@ two blocks existed is read unchanged, and rewritten in two blocks at the next cl
 | `correction.join-split.join`, `correction.join-split.split` | `true` ou `false` — recoller, scinder | `true`, `false` |
 | `correction.join-split.language` | un code de locale — `fr`, `en_US`, `sr@Latn` — ; vide : la langue du système | vide |
 | `correction.remove-blank` | `true` ou `false` — `Remove all blank subtitles` | `true` |
-| `correction.activations` | les cases de motifs que l'utilisateur a changées, `<type>:<code>:<nom>:<0\|1>`, séparées par des virgules ; **une virgule ou une barre oblique inverse dans un nom s'écrit précédée d'une barre oblique inverse** (`\,` et `\\`), et une entrée illisible ne fait perdre que son propre réglage — elle est signalée, les autres sont gardées | vide |
+| `correction.activations` | les cases de motifs que l'utilisateur a changées, `<type>:<code>:<name>:<0\|1>`, séparées par des virgules ; **une virgule ou une barre oblique inverse dans un nom s'écrit précédée d'une barre oblique inverse** (`\,` et `\\`), et une entrée illisible ne fait perdre que son propre réglage — elle est signalée, les autres sont gardées | vide |
 | `spell-check.language` | un code de locale, tel que `fr_FR` ; vide : la langue du système | vide |
 | `spell-check.target` | `selection`, `current-project` ou `all-projects` | `current-project` |
 | `spell-check.document` | `main` ou `translation` | `main` |
@@ -331,7 +329,7 @@ table, et les éditeurs qui s'ouvrent ensuite le suivent. Les trois valeurs sont
 retenues d'une session à l'autre : `editor.length-unit`, `editor.show-lengths-cell`
 et `editor.show-lengths-edit`, dans le tableau [du fichier](#le-fichier). Voir
 [La longueur des lignes](table.md#la-longueur-des-lignes) et
-[dans l'éditeur](edition.md#la-longueur-des-lignes).
+[dans l'éditeur](editing.md#la-longueur-des-lignes).
 
 **Ce n'est pas la limite de l'assistant.** L'unité de `Correct Texts…` — la
 longueur à laquelle il coupe les lignes — est un réglage à part, dans son
@@ -357,4 +355,4 @@ un écart sont des choix de méthode plutôt que des mesures d'un fichier, et
 persistent d'une session à l'autre pour cette raison.
 
 Ce manuel décrit ce qui existe : ce qui viendra est dans la
-[feuille de route](../../feuille-de-route.md).
+[feuille de route](../../../../feuille-de-route.md).

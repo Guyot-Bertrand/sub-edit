@@ -1,7 +1,5 @@
 # Ouvrir et enregistrer
 
-<!-- language: fr -->
-
 Le menu **File** porte les trois commandes, deux pour les onglets, et trois de
 plus pour la traduction ; le menu **Projects** agit sur tous les onglets à la fois.
 
@@ -183,8 +181,8 @@ X11, où il n'a pas été essayé à part.
 
 - **Chaque fichier de sous-titres ouvre son onglet**, dans l'ordre où ils ont
   été déposés — exactement comme `Open…`. Un fichier **déjà ouvert** n'est pas
-  relu : son onglet passe devant, et la barre d'état le dit (`premier.srt:
-  already open`).
+  relu : son onglet passe devant, et la barre d'état le dit
+  (`premier.srt: already open`).
 - **Une vidéo déposée est associée à l'onglet courant**, comme par
   `Select Video…`. Déposée avec des sous-titres, elle va au dernier onglet
   qu'ils ont ouvert, quel que soit l'ordre du dépôt. Une vidéo se reconnaît à
@@ -216,7 +214,7 @@ ligne mélangées. **Ce qu'elle a rencontré tient dans un bouton de la barre d'
 — `2 diagnostics`, à gauche de ce que la barre dit déjà du document —, et **la liste s'ouvre d'un clic
 dans une fenêtre flottante** au-dessus du bouton. Aucune ligne de la fenêtre n'est prise pour cela :
 la table garde toute sa hauteur, que la lecture ait eu quelque chose à dire ou non. La liste se
-ferme d'un clic ailleurs ou d'`Echap`.
+ferme d'un clic ailleurs ou d'`Esc`.
 
 ```
 a SubRip block without its number, settled by the reader: 5
@@ -267,7 +265,7 @@ diagnostics de sa propre lecture, et le bouton montre ceux du projet affiché.
 ## L'encodage dans la barre d'état
 
 **La barre d'état dit toujours l'encodage du document ouvert**, à gauche de ce
-qu'elle dit de la [grille d'images](grille.md) et de la
+qu'elle dit de la [grille d'images](frame-grid.md) et de la
 [vidéo associée](video.md) :
 
 | Situation | Ce qui est écrit |
@@ -510,8 +508,8 @@ touche qu'une partie du fichier —, quand deux décalages rendraient l'ouvertur
 par numéro, où les positions ne sont pas regardées. Il n'y a **aucune ligne de commande** pour
 cela.
 
-**Ouvrir une traduction est une seule entrée d'historique**, `Undo: opening a
-translation`, et l'annuler rend tout : les textes, les sous-titres nés retirés,
+**Ouvrir une traduction est une seule entrée d'historique**, `Undo: opening a translation`,
+et l'annuler rend tout : les textes, les sous-titres nés retirés,
 le fichier de la traduction détaché — la colonne s'en va avec. Pour l'ouvrir par
 l'autre méthode, on annule d'abord.
 
@@ -586,8 +584,8 @@ l'avant. **Si un enregistrement échoue, l'action ne se poursuit pas.** Fermer l
 boîte sans répondre vaut `Cancel`.
 
 **Avec un seul document modifié, la question est celle qu'on a toujours eue**,
-décrite plus bas, et la phrase dit lequel : `The translation has changes that
-were never written.` ou `The document has …`.
+décrite plus bas, et la phrase dit lequel : `The translation has changes that were never written.`
+ou `The document has …`.
 
 **Un fichier disparu du disque compte comme modifié**, et la liste le dit —
 `(file is gone from the disk)` : ce que la fenêtre tient est alors **la seule

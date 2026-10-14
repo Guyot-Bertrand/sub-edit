@@ -1,7 +1,5 @@
 # La grille d'images
 
-<!-- language: fr -->
-
 Un fichier de sous-titres **ne déclare pas** la fréquence d'image contre
 laquelle ses positions ont été calculées : SubRip n'a pas d'en-tête, celui de
 WebVTT est du texte libre. La fenêtre la **déduit** des positions elles-mêmes,
@@ -16,7 +14,7 @@ question.
 ## Ce que la barre d'état montre
 
 À droite, entre ce qu'elle dit de
-l'[encodage](fichiers.md#lencodage-dans-la-barre-détat) du fichier lu et ce
+l'[encodage](files.md#lencodage-dans-la-barre-détat) du fichier lu et ce
 qu'elle dit de la [vidéo associée](video.md#ce-que-la-barre-détat-montre) :
 
 | Situation | Ce qui est écrit |
@@ -57,7 +55,7 @@ fréquence-là ; en déduire une grille rendrait ce nombre, c'est-à-dire une do
 habillée en mesure.
 
 **D'où elle vient est dit une fois**, par la lecture, dans le
-[liste des diagnostics](fichiers.md#les-diagnostics-dune-lecture) :
+[liste des diagnostics](files.md#les-diagnostics-dune-lecture) :
 `counts in frames and states no rate; it was read at ("24000/1001")`. La ligne
 de la barre d'état, elle, dit ce qui est, en permanence.
 

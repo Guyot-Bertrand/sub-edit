@@ -1,7 +1,5 @@
 # Correct Texts…
 
-<!-- language: fr -->
-
 `Tools ▸ Correct Texts…` ouvre un assistant à plusieurs pages, sur le modèle de
 celui de Gaupol : une page de cible et de tâches, une page par tâche cochée,
 une page de progression, et une page de confirmation qui propose les
@@ -44,8 +42,8 @@ sur `Current Project` et `Text`. Les tâches cochées, elles, se retiennent.
 un projet qui n'en porte pas n'a rien à proposer dans une colonne vide, et
 l'assistant ne le compte pas.
 
-**Les pages de tâche suivent, dans l'ordre de Gaupol — `Mentions`, `Join or
-Split Words`, `Common Errors`, `Capitalization`, `Line Break` — jamais celui dans lequel les cases
+**Les pages de tâche suivent, dans l'ordre de Gaupol — `Mentions`,
+`Join or Split Words`, `Common Errors`, `Capitalization`, `Line Break` — jamais celui dans lequel les cases
 ont été cochées.** Une tâche non cochée n'a pas de page ; ses réglages
 retenus ne changent pas pour autant. **Aucune page de tâche ne porte sa propre
 case « active »** : c'est celle de cette première page, et elle seule, qui
@@ -100,7 +98,7 @@ saut, sur leurs valeurs par défaut.](captures/correction-decoupage.png)
 | :------ | :------------ | :----- |
 | `Maximum length` | la longueur d'une ligne, dans l'unité choisie ; de `1` à `1000` | `24` |
 | `Maximum lines` | le nombre de lignes visé ; de `1` à `100` | `3` |
-| `Unit` | `Characters` compte les caractères ; `Ems` mesure la largeur avec la police de la fenêtre, où une lettre minuscule moyenne vaut `0,55` — l'unité de Gaupol | `Ems` |
+| `Unit` | `Characters` compte les caractères ; `Ems` mesure la largeur avec la police de la fenêtre, où une lettre minuscule moyenne vaut `0.55` — l'unité de Gaupol | `Ems` |
 | `Skip subtitles with maximum line length of` | laisse tel quel un sous-titre dont la ligne la plus longue tient dans cette longueur, dans l'unité choisie | cochée, `24` |
 | `Skip subtitles with maximum line amount of` | laisse tel quel un sous-titre dont le nombre de lignes tient dans ce nombre | cochée, `3` |
 
@@ -149,7 +147,7 @@ lettres, dans le même ordre. Deux suggestions de cette sorte, ou aucune : rien
 n'est fait. Un mot dont seule l'initiale est en capitale (`Bonjourtous`) n'est
 jamais scindé : c'est souvent un nom, et les dictionnaires n'en ont pas.
 
-**La liste de remplacements de l'utilisateur** (`spell-check/<langue>.repl`,
+**La liste de remplacements de l'utilisateur** (`spell-check/<language>.repl`,
 dans le répertoire de configuration du programme) compte parmi les suggestions
 du correcteur ; l'assistant la lit et ne l'écrit pas.
 
@@ -170,7 +168,7 @@ mêmes menus — rien ne les distingue une fois chargés.
 
 | Motifs | Où |
 | :----- | :-- |
-| livrés | `<préfixe>/share/subedit/patterns`, à côté de `<préfixe>/bin` |
+| livrés | `<prefix>/share/subedit/patterns`, à côté de `<prefix>/bin` |
 | de l'utilisateur | `$XDG_DATA_HOME/subedit/patterns`, ou `~/.local/share/subedit/patterns` si la variable n'est pas posée ou n'est pas un chemin absolu |
 
 **Le format est celui de Gaupol, lu tel quel** : un fichier `<Code>.<type>` par écriture,
@@ -262,8 +260,8 @@ Could not be read: Zyyy.common-error, line 8 (malformed line)
 | :----- | :------------------ |
 | `directory cannot be read` | le répertoire des motifs livrés n'a pas pu être parcouru |
 | `file cannot be read` | un fichier de motifs n'a pas pu être lu |
-| `malformed line` | une ligne qui n'est ni un en-tête, ni un commentaire, ni `Clé=Valeur` |
-| `field outside any pattern` | un `Clé=Valeur` avant le premier en-tête de motif |
+| `malformed line` | une ligne qui n'est ni un en-tête, ni un commentaire, ni `Key=Value` |
+| `field outside any pattern` | un `Key=Value` avant le premier en-tête de motif |
 | `unknown field` | une clé dont ce type de motif n'a pas l'usage — le motif est gardé |
 | `missing field` | une clé sans laquelle ce type de motif ne peut rien — le motif est écarté |
 | `invalid value` | une valeur que la clé n'accepte pas — le motif est écarté |
@@ -293,8 +291,8 @@ prochaine ouverture de l'assistant repart des réglages d'avant.
 ## Un exemple
 
 Un fichier ouvert porte deux espaces entre deux mots d'une réplique et une
-mention entre crochets sans autre texte. `Tools ▸ Correct Texts…`, `Common
-Errors` déjà coché, `Next` jusqu'à la confirmation : la ligne des deux espaces
+mention entre crochets sans autre texte. `Tools ▸ Correct Texts…`,
+`Common Errors` déjà coché, `Next` jusqu'à la confirmation : la ligne des deux espaces
 montre `Bonjour  Marie` à gauche, `Bonjour Marie` à droite, la correction en
 gras et déjà acceptée. `Finish` l'applique, et la barre d'état dit :
 

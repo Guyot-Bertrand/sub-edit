@@ -1,7 +1,5 @@
 # Le lecteur
 
-<!-- language: fr -->
-
 La vidéo associée se regarde **dans la fenêtre**, avec la réplique courante
 dessinée par-dessus. C'est ce qui permet de vérifier sur le film le résultat
 d'un décalage, d'une transformation ou d'une conversion de fréquence.
@@ -50,7 +48,7 @@ Sous l'image, de gauche à droite — les trois boutons sont des **icônes**, ce
 
 | Élément | Ce qu'il fait |
 | :------ | :------------ |
-| les deux boutons de pas | reculent, avancent le film **d'un pas d'image** — voir [Image par image](calage.md#image-par-image) |
+| les deux boutons de pas | reculent, avancent le film **d'un pas d'image** — voir [Image par image](timing.md#image-par-image) |
 | lecture / pause | joue ou arrête, comme `Ctrl+P` — le bouton montre **ce qu'il fera** : un triangle à l'arrêt, deux barres en lecture ; l'infobulle le dit en toutes lettres |
 | la position | `HH:MM:SS,mmm`, écrite comme la table écrit une position — **en numéro d'image** quand [`View ▸ Positions in Frames`](table.md#les-positions-en-images) est coché |
 | le curseur | **se lit et se déplace** : on tire la poignée, on clique dans la rainure, on utilise les flèches |
@@ -186,7 +184,7 @@ format — qui le lit avant de le donner à l'image :
 
 | Dans le fichier | Sur l'image |
 | :-------------- | :---------- |
-| gras, italique, souligné | appliqués : `<i>non</i>` s'affiche *non*, sans ses balises |
+| gras, italique, souligné | appliqués : `<i>no</i>` s'affiche *no*, sans ses balises |
 | couleur | appliquée |
 | police, taille | retirées, le texte reste |
 | position, alignement, locuteur, tout ce qui n'a pas d'équivalent à l'écran | retirés, le texte reste |
@@ -204,7 +202,7 @@ pendant que la table montre autre chose.
 
 Il n'y a **rien de particulier à faire** : on applique l'opération, on regarde
 le film, et on choisit `Undo: shifting` — ou l'opération concernée — si le
-résultat ne convient pas. Voir [Annuler et rétablir](annulation.md).
+résultat ne convient pas. Voir [Annuler et rétablir](undo.md).
 
 Aucun mode de prévisualisation séparé n'existe, et c'est délibéré : ce qu'on
 regarde est le document tel qu'il est, pas un état provisoire invisible.
@@ -215,8 +213,8 @@ Deux messages possibles, tous deux préfixés du chemin du fichier :
 
 | Message | Ce qui s'est passé |
 | :------ | :----------------- |
-| `<fichier>: <raison>` | le lecteur a refusé le fichier — format inconnu, fichier absent, répertoire |
-| `<fichier>: no video player is available` | aucun lecteur n'a pu être construit |
+| `<file>: <reason>` | le lecteur a refusé le fichier — format inconnu, fichier absent, répertoire |
+| `<file>: no video player is available` | aucun lecteur n'a pu être construit |
 
 Dans les deux cas, **la vidéo reste associée** — il faut bien voir de quel
 fichier il s'agit pour en choisir un autre — et **la fenêtre reste utilisable** :
@@ -244,7 +242,7 @@ même image avec et sans. Pour la couper, décochez `Decode on the graphics card
 ## Ce qui n'y est pas
 
 **Poser un repère, avancer image par image et décaler un bord d'une image** sont dans
-[Caler depuis la vidéo](calage.md), pas ici. Ce qui n'existe pas, et qu'il est inutile de chercher :
+[Caler depuis la vidéo](timing.md), pas ici. Ce qui n'existe pas, et qu'il est inutile de chercher :
 
 - une forme d'onde ;
 - la lecture automatique à l'ouverture d'un film ;
@@ -252,4 +250,4 @@ même image avec et sans. Pour la couper, décochez `Decode on the graphics card
 - le décodage matériel sans copie : voir « Quand l'image n'apparaît pas » plus haut.
 
 Ce manuel décrit ce qui existe : ce qui viendra, et dans quel ordre, est dans la
-[feuille de route](../../feuille-de-route.md).
+[feuille de route](../../../../feuille-de-route.md).

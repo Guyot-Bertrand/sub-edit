@@ -1,7 +1,5 @@
 # Les opérations
 
-<!-- language: fr -->
-
 Le menu **Tools** porte seize opérations, une analyse et deux entrées d'orthographe. Chacune des
 seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien. `Check Spelling…` s'annule aussi, et `Spell-Check Settings…` ne touche à aucun texte.
 
@@ -21,11 +19,11 @@ seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien. `Check Spelling…` s'
 | `Case ▸ lower case` | **non** | tout en minuscules |
 | `Remove Hearing-Impaired Mentions…` | oui, sans réglage | retire les mentions pour malentendants |
 | `Correct Texts…` | oui, un assistant à plusieurs pages | propose des corrections — mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage — et les applique une fois acceptées, voir [Correct Texts…](correct-texts.md) |
-| `Check Spelling…` | oui, un parcours mot à mot | parcourt les mots inconnus du dictionnaire et applique ce qu'on a corrigé, voir [Check Spelling…](verifier-orthographe.md) |
-| `Spell-Check Settings…` | oui | choisit la langue, la cible et le document de la vérification, et le soulignement à la frappe, voir [Check Spelling…](verifier-orthographe.md#spell-check-settings) |
+| `Check Spelling…` | oui, un parcours mot à mot | parcourt les mots inconnus du dictionnaire et applique ce qu'on a corrigé, voir [Check Spelling…](check-spelling.md) |
+| `Spell-Check Settings…` | oui | choisit la langue, la cible et le document de la vérification, et le soulignement à la frappe, voir [Check Spelling…](check-spelling.md#spell-check-settings) |
 | `Snap to Frame Rate…` | oui | repose chaque horodatage sur l'image la plus proche |
 | `Shift Whole File onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
-| `Frame Rate Analysis…` | oui, sans réglage | **ne modifie rien** — voir [La grille d'images](grille.md) |
+| `Frame Rate Analysis…` | oui, sans réglage | **ne modifie rien** — voir [La grille d'images](frame-grid.md) |
 
 **Ce qu'une opération a fait se dit dans une boîte d'information qu'il faut
 fermer, sauf pour `Italic`, `Case` et `Dialogue`** : ces trois-là n'ouvrent pas
@@ -36,7 +34,7 @@ section de chaque opération.
 
 Insérer, supprimer, fusionner et scinder des lignes ne sont pas ici mais dans le
 menu `Edit`, parce qu'elles changent le nombre de lignes. Voir
-[Insérer, supprimer, fusionner et scinder des lignes](lignes.md).
+[Insérer, supprimer, fusionner et scinder des lignes](lines.md).
 
 ## Sur quoi elles portent
 
@@ -63,14 +61,14 @@ Cocher `Whole project` élargit l'opération à tout le fichier sans qu'il faill
 d'abord changer la sélection. Quand il n'y a rien à choisir — rien de
 sélectionné, ou tout —, la ligne `Applies to:` ci-dessus reste seule.
 
-Les dialogues de `Shift Positions…`, `Transform Positions…`, `Convert Frame
-Rate…`, `Adjust Durations…`, `Snap to Frame Rate…` et `Remove Hearing-Impaired
-Mentions…` offrent ce choix.
+Les dialogues de `Shift Positions…`, `Transform Positions…`,
+`Convert Frame Rate…`, `Adjust Durations…`, `Snap to Frame Rate…` et
+`Remove Hearing-Impaired Mentions…` offrent ce choix.
 
 ### Voir avant d'appliquer
 
-`Shift Positions…`, `Transform Positions…`, `Convert Frame Rate…`, `Adjust
-Durations…` et `Snap to Frame Rate…` portent un bouton **`Preview changes…`**.
+`Shift Positions…`, `Transform Positions…`, `Convert Frame Rate…`,
+`Adjust Durations…` et `Snap to Frame Rate…` portent un bouton **`Preview changes…`**.
 Il ouvre une petite fenêtre qui dit combien de sous-titres l'opération
 changerait **avec ce qui est saisi à ce moment-là, sur la cible cochée**, et en
 liste les douze premiers : leur numéro, leur position avant, leur position
@@ -95,8 +93,8 @@ dit.
 
 **Avec une traduction, quel texte ?** Les opérations de position et de structure
 portent sur le sous-titre entier — ses deux textes suivent. Celles qui
-réécrivent un texte — `Italic`, `Case`, `Dialogue`, `Remove Hearing-Impaired
-Mentions…` — visent **le texte de la colonne de la cellule courante** : la
+réécrivent un texte — `Italic`, `Case`, `Dialogue`,
+`Remove Hearing-Impaired Mentions…` — visent **le texte de la colonne de la cellule courante** : la
 traduction dans sa colonne, le texte principal ailleurs. L'autre reste intact, et
 la barre d'état dit lequel est visé. Voir [La table](table.md#le-texte-que-les-opérations-visent).
 
@@ -113,7 +111,7 @@ lui dit. Voir [la sienne](#split-project).
 **`Correct Texts…` choisit sa cible sur sa propre page**, plutôt que de suivre
 la sélection en cours : la sélection, le projet courant ou tous les projets
 ouverts. Voir [Correct Texts…](correct-texts.md). **`Check Spelling…` la choisit dans
-`Spell-Check Settings…`**, et la retient : voir [Check Spelling…](verifier-orthographe.md).
+`Spell-Check Settings…`**, et la retient : voir [Check Spelling…](check-spelling.md).
 
 **Les deux opérations de grille ne parlent pas de la même chose que la grille.**
 Une opération porte sur la sélection ; l'analyse et la barre d'état parlent du
@@ -121,7 +119,7 @@ Une opération porte sur la sélection ; l'analyse et la barre d'état parlent d
 cinq-là — la table le montre — sans que ni l'une ni l'autre ne bouge, ce qui se
 lit comme un rafraîchissement manqué. C'en n'est pas un : elles n'ont rien à
 dire. Voir [`Snap to Frame Rate…`](#snap-to-frame-rate) et
-[La grille d'images](grille.md).
+[La grille d'images](frame-grid.md).
 
 ### Ce que « rien de sélectionné » veut dire, entrée par entrée
 
@@ -140,8 +138,8 @@ La règle vaut pour le menu `Tools` et pour la recherche. Les entrées du menu
 | `Split Subtitle` | **éteinte** | exactement une ligne |
 | `Insert Subtitles…` | éteinte, sauf sur un document vide | une ligne où se situer |
 
-Chaque page en donne la raison : [le presse-papiers](presse-papiers.md#sur-quoi-elles-portent),
-[les lignes](lignes.md), [la recherche](recherche.md#sur-quoi-porte-la-recherche).
+Chaque page en donne la raison : [le presse-papiers](clipboard.md#sur-quoi-elles-portent),
+[les lignes](lines.md), [la recherche](find-and-replace.md#sur-quoi-porte-la-recherche).
 
 Les entrées sont **inactives sur un fichier vide** : il n'y aurait rien à
 décaler. `Italic` a une seconde condition, que sa section décrit : le format
@@ -182,8 +180,8 @@ Le dialogue demande deux fois la même chose : un numéro de sous-titre, et la
 position où son début appartient. Pour chaque repère, il montre **ce que ce
 numéro désigne** — son texte (`Text`) et l'heure à laquelle il commence
 **maintenant** (`Now starts`), en simples étiquettes — et ils suivent le numéro
-à mesure qu'on le change. **Un seul champ est à saisir par repère : `Should
-start`**, l'heure où ce sous-titre doit commencer. Il n'y a pas à chercher dans le tableau quelle ligne est la `980`.
+à mesure qu'on le change. **Un seul champ est à saisir par repère :
+`Should start`**, l'heure où ce sous-titre doit commencer. Il n'y a pas à chercher dans le tableau quelle ligne est la `980`.
 
 `Should start` est **proposé à la valeur actuelle** : tant qu'on n'y
 touche pas, le repère dit « ce sous-titre est déjà où il doit être ». On ne
@@ -227,7 +225,7 @@ quelque chose à dire :
 
 | Ligne | Ce qu'elle dit | Ce qu'elle pré-remplit |
 | :---- | :------------- | :--------------------- |
-| `The positions say` | la [grille d'images](grille.md) déduite des positions du fichier | `Timed against` |
+| `The positions say` | la [grille d'images](frame-grid.md) déduite des positions du fichier | `Timed against` |
 | `The video declares` | la fréquence que le conteneur annonce, par exemple `24000/1001` | `Should play at` |
 | `The file was read at` | la fréquence à laquelle un fichier **compté en images** a été lu | `Timed against` |
 
@@ -238,7 +236,7 @@ doivent arriver — c'est la liste du bas.
 
 **Seule une grille nette pré-remplit l'entrée.** Une grille partielle est un
 indice que la déduction elle-même qualifie de partiel, et ce champ décide d'une
-opération sur le fichier entier. La [barre d'état](grille.md) et l'analyse
+opération sur le fichier entier. La [barre d'état](frame-grid.md) et l'analyse
 portent ce cas-là ; celui-ci non.
 
 **Un fichier compté en images remplace la grille plutôt que de s'y ajouter.**
@@ -246,7 +244,7 @@ MicroDVD porte des numéros d'image, et les positions du document en ont été
 calculées à la fréquence de lecture : une grille déduite de ces positions-là ne
 peut que retrouver ce nombre. `The positions say` disparaît donc, et
 `The file was read at` prend sa place — c'est le même choix que fait
-[la barre d'état](grille.md#un-document-compté-en-images-na-pas-de-grille-il-a-une-fréquence).
+[la barre d'état](frame-grid.md#un-document-compté-en-images-na-pas-de-grille-il-a-une-fréquence).
 
 **C'est ainsi qu'on change la fréquence d'un MicroDVD.** Poser la fréquence lue
 en entrée et la vraie en sortie recalcule chaque position à partir des images du
@@ -324,10 +322,10 @@ chacune pose la fin à son tour :
 
 | Rang | Contrainte | Ce qu'elle pose |
 | ---: | :--------- | :-------------- |
-| 1 | vitesse de lecture | `fin = début + longueur ÷ vitesse`, si le sous-titre est trop court (`Lengthen`) ou trop long (`Shorten`) |
-| 2 | durée minimale | `fin = début + minimum`, si la durée est plus courte |
-| 3 | durée maximale | `fin = début + maximum`, si la durée est plus longue |
-| 4 | écart | `fin = début du suivant − écart`, si la fin en est trop près — jamais avant le début |
+| 1 | vitesse de lecture | `end = start + length ÷ speed`, si le sous-titre est trop court (`Lengthen`) ou trop long (`Shorten`) |
+| 2 | durée minimale | `end = start + minimum`, si la durée est plus courte |
+| 3 | durée maximale | `end = start + maximum`, si la durée est plus longue |
+| 4 | écart | `end = next start − gap`, si la fin en est trop près — jamais avant le début |
 
 **La dernière appliquée gagne.** L'écart vient en dernier et peut ramener une
 durée sous le minimum qu'on venait de poser : deux sous-titres à l'écran en même
@@ -374,7 +372,7 @@ projet, exactement comme Gaupol le fait.
 sélecteur de fichier s'ouvre, sans encodage à choisir — comme `Open…`.
 
 **Le fichier ajouté traverse la conversion**, dans les mots de `Save As…` et du
-[collage d'un autre format](presse-papiers.md#les-balises-dun-autre-format-sont-traduites) :
+[collage d'un autre format](clipboard.md#les-balises-dun-autre-format-sont-traduites) :
 ses balises sont traduites dans le format du projet, et ce que ce format ne
 sait pas écrire est dit :
 
@@ -391,7 +389,7 @@ propre au document qui l'a reçue, et le fichier ajouté arrive seul.
 **Sélectionné après coup**, comme les lignes qu'un collage a écrites au-delà de
 la fin. Quand rien n'est perdu, le compte s'affiche dans la barre d'état plutôt
 que dans une boîte à fermer — la même règle que
-[l'ouverture d'une traduction](fichiers.md#ouvrir-une-traduction).
+[l'ouverture d'une traduction](files.md#ouvrir-une-traduction).
 
 **Une seule entrée d'historique**, quel que soit le nombre de sous-titres
 ajoutés : `Ctrl+Z` les retire tous d'un coup.
@@ -526,7 +524,7 @@ normal.
 et préserve **exactement** le minutage relatif ; l'alignement déplace chaque
 position indépendamment et absorbe au passage celles qui avaient été corrigées à
 la main. Sur un fichier propre les deux donnent le même résultat ; sur un
-fichier partiel, non — et le [détail de l'analyse](grille.md) dit lequel des
+fichier partiel, non — et le [détail de l'analyse](frame-grid.md) dit lequel des
 deux on a sous les yeux.
 
 ## `Italic`
@@ -545,14 +543,14 @@ C'est la seule opération du menu `Tools` qui ait un bouton dans la
 ### Ce qu'elle écrit, format par format
 
 Le texte d'un sous-titre est celui de son fichier, balises comprises — voir
-[Éditer une cellule](edition.md). Chaque format a les siennes, et c'est ce que
+[Éditer une cellule](editing.md). Chaque format a les siennes, et c'est ce que
 cette entrée dispense de connaître :
 
 | Format | Ce qui est écrit |
 | :----- | :--------------- |
-| SubRip, WebVTT, SubViewer 2 | `<i>texte</i>` |
-| Sub Station Alpha, Advanced SSA | `{\i1}texte{\i0}` |
-| MicroDVD | `{Y:i}texte` — la balise court jusqu'à la fin du sous-titre, il n'y a rien à refermer |
+| SubRip, WebVTT, SubViewer 2 | `<i>text</i>` |
+| Sub Station Alpha, Advanced SSA | `{\i1}text{\i0}` |
+| MicroDVD | `{Y:i}text` — la balise court jusqu'à la fin du sous-titre, il n'y a rien à refermer |
 | MPL2 | `/` en tête de **chaque** ligne, le marqueur ne portant que sur la sienne |
 | TMPlayer, LRC | rien : ces deux formats n'écrivent aucun style |
 
@@ -603,7 +601,7 @@ Deux transformations du **texte visible**, et les balises n'y touchent pas : un
 sous-titre mis en minuscules garde son `<I>` tel quel, et un tiret se pose
 devant le texte, pas devant une balise ouvrante. **Aucune balise ne change de
 place** : `<i>bon</i>jour` en capitales donne `<i>BON</i>JOUR`, là où
-[un remplacement](recherche.md#le-texte-cherché-est-le-texte-visible) aurait
+[un remplacement](find-and-replace.md#le-texte-cherché-est-le-texte-visible) aurait
 étendu l'italique au mot entier.
 
 | Entrée | Raccourci | Ce qu'elle fait |
@@ -715,7 +713,7 @@ entier.
 > entrées de structure du menu `Edit` — insérer, supprimer, fusionner, scinder —
 > changent la structure elles aussi, et rendent une sélection à la place de celle
 > qu'elles ont emportée — voir
-> [Insérer, supprimer, fusionner et scinder des lignes](lignes.md).
+> [Insérer, supprimer, fusionner et scinder des lignes](lines.md).
 
 Une référence purement numérique — « Voir [1] la note » — n'est pas une mention
 et reste telle quelle.

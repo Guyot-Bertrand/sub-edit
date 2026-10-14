@@ -1,14 +1,12 @@
 # La vidéo associée
 
-<!-- language: fr -->
-
 Le menu **Video** porte d'abord deux commandes, et les gestes qui pilotent le film
-— voir [Le lecteur](lecteur.md#se-déplacer-dans-le-film).
+— voir [Le lecteur](player.md#se-déplacer-dans-le-film).
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
 | `Select Video…` | aucun | choisit le fichier vidéo que le document accompagne |
-| `Play / Pause` | `Ctrl+P` | joue ou arrête la vidéo — voir [Le lecteur](lecteur.md#jouer-et-arrêter) |
+| `Play / Pause` | `Ctrl+P` | joue ou arrête la vidéo — voir [Le lecteur](player.md#jouer-et-arrêter) |
 
 La vidéo associée est **une propriété du document ouvert**, pas un réglage de
 l'application : ouvrir un autre fichier de sous-titres repart de zéro. Elle
@@ -34,7 +32,7 @@ piste qui joue.
 
 - **Le sous-menu est éteint** sans vidéo ou sans piste audio. Avec une seule piste, il reste actif et
   la montre, cochée : il dit la langue du film. Les deux gestes du volume, qui sont à côté, restent
-  actifs quoi qu'il en soit : voir [Le volume](lecteur.md#le-volume).
+  actifs quoi qu'il en soit : voir [Le volume](player.md#le-volume).
 - **La piste n'est pas retenue** d'une vidéo à l'autre, ni d'une session à l'autre : un numéro de piste est
   celui de son fichier, et le reporter sur le film suivant choisirait ce qui porte ce numéro là-bas.
   Revenir sur un onglet rouvre son film sur la piste que le lecteur choisit de lui-même.
@@ -51,10 +49,10 @@ Il propose aussi d'afficher tous les fichiers. Renoncer au dialogue ne change
 rien.
 
 Le fichier choisi est **ouvert aussitôt** : l'image apparaît dans la fenêtre, à
-l'arrêt sur son premier instant. Voir [Le lecteur](lecteur.md).
+l'arrêt sur son premier instant. Voir [Le lecteur](player.md).
 
 **Glisser un fichier vidéo sur la fenêtre fait la même chose** — voir
-[Glisser des fichiers sur la fenêtre](fichiers.md#glisser-des-fichiers-sur-la-fenêtre).
+[Glisser des fichiers sur la fenêtre](files.md#glisser-des-fichiers-sur-la-fenêtre).
 
 **La vidéo est celle du projet de l'onglet courant.** Chaque onglet garde la
 sienne ; changer d'onglet change le film. **Revenir sur un onglet reprend son
@@ -86,8 +84,8 @@ correction tient.
 ## Ce que la barre d'état montre
 
 À droite de la barre d'état, une ligne dit ce que le document accompagne. Elle
-est la dernière des trois : l'[encodage](fichiers.md#lencodage-dans-la-barre-détat)
-du fichier lu vient en premier, la [grille d'images](grille.md) déduite des
+est la dernière des trois : l'[encodage](files.md#lencodage-dans-la-barre-détat)
+du fichier lu vient en premier, la [grille d'images](frame-grid.md) déduite des
 positions ensuite.
 
 | Situation | Ce qui est écrit |
@@ -98,7 +96,7 @@ positions ensuite.
 
 **La cadence va avec le film plutôt qu'à côté.** Ce sont un seul fait — ce que
 ce document accompagne — et une troisième mention la mettrait au même rang que
-la [grille déduite des positions](grille.md), qui en est un autre.
+la [grille déduite des positions](frame-grid.md), qui en est un autre.
 
 ## Quand il n'y a pas de film
 

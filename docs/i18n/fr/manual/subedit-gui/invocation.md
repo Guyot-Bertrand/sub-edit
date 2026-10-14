@@ -1,14 +1,12 @@
 # Invocation
 
-<!-- language: fr -->
-
 ```
-subedit-gui [--version] [<fichier>]
+subedit-gui [--version] [<file>]
 ```
 
 | Argument | Requis | Valeur | Défaut |
 | :------- | :----- | :----- | :----- |
-| `<fichier>` | non | le chemin d'un fichier de sous-titres à ouvrir | aucun — la fenêtre s'ouvre vide |
+| `<file>` | non | le chemin d'un fichier de sous-titres à ouvrir | aucun — la fenêtre s'ouvre vide |
 | `--version` | non | — | — |
 
 **Un seul fichier.** Les arguments suivants sont ignorés : la fenêtre ne tient
@@ -34,7 +32,7 @@ $ subedit-gui film.srt
 ```
 
 Les formats lus sont **les neuf** que le filtre d'ouverture énumère — voir
-[Ouvrir et enregistrer](fichiers.md#ouvrir). Le format est reconnu au contenu et
+[Ouvrir et enregistrer](files.md#ouvrir). Le format est reconnu au contenu et
 non à l'extension, et **l'encodage l'est aussi** : un BOM
 si le fichier en porte un, sinon l'encodage que ses octets proposent.
 
@@ -65,7 +63,7 @@ chose, et l'échec d'un argument n'est pas une raison de ne pas se lancer.
 
 **Un fichier mal formé mais lisible s'ouvre**, et ce que la lecture a rattrapé
 en chemin se lit dans un bouton de la barre d'état — voir
-[les diagnostics d'une lecture](fichiers.md#les-diagnostics-dune-lecture).
+[les diagnostics d'une lecture](files.md#les-diagnostics-dune-lecture).
 
 ## Codes de retour
 
@@ -97,7 +95,7 @@ posée, `subedit-gui` la respecte sans discuter.**
 
 Si elle ne l'est pas, il laisse Qt choisir : le lecteur intégré dessine l'image dans
 la fenêtre elle-même, et ne demande rien à la plateforme — voir
-[Le lecteur](lecteur.md).
+[Le lecteur](player.md).
 
 `QT_QPA_PLATFORM=offscreen` fait tourner la fenêtre là où il n'y a pas de
 serveur graphique — c'est ce que font l'intégration continue et les tests.

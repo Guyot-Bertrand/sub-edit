@@ -1,7 +1,5 @@
 # Insérer, supprimer, fusionner, scinder, trier et rendre disjointes des lignes
 
-<!-- language: fr -->
-
 Huit entrées du menu `Edit`, sous un séparateur qui les sépare de
 `Find and Replace…`. Quatre ont en commun de changer le nombre de lignes, là où
 couper, copier et coller, plus haut, déplacent des textes ; `Sort Subtitles` ne
@@ -176,14 +174,14 @@ une opération à défaire. L'entrée est éteinte pour un projet d'un sous-titr
 
 Un fichier **avec quelque chose à corriger à l'ouverture** le propose de lui-même,
 [dans une seule boîte](#à-louverture-une-seule-boîte) : voir plus bas. Les sous-titres
-mal placés sont aussi [comptés avec les diagnostics](fichiers.md#les-diagnostics-dune-lecture),
+mal placés sont aussi [comptés avec les diagnostics](files.md#les-diagnostics-dune-lecture),
 pour qu'on les trouve sans faire défiler la table.
 
 En ligne de commande, [`sort`](../subedit-cli/sort.md) fait de même sur des
 fichiers, et `--sort` le fait au passage sur
-[`convert`](../subedit-cli/convert.md#sorting-on-writing),
-[`append`](../subedit-cli/append.md#sorting-the-result) et
-[`split-file`](../subedit-cli/split-file.md#cutting-in-time-order).
+[`convert`](../subedit-cli/convert.md#trier-à-lécriture),
+[`append`](../subedit-cli/append.md#trier-le-résultat) et
+[`split-file`](../subedit-cli/split-file.md#couper-dans-lordre-du-temps).
 
 ## Fusionner les sous-titres répétés
 
@@ -194,8 +192,8 @@ laissent certains outils de segmentation. Il agit sur **tout le projet**.
 **Un répété** a le même texte, la même traduction et les mêmes réglages de format
 (un style, une position, des réglages de cue) qu'un autre, **et commence au plus
 tard quand celui-ci finit**. Une suite de répétés devient celui qui commence le
-premier, avec la plus grande fin de la suite ; les autres disparaissent. `Alpha
-[1, 2]`, `Alpha [2, 4]` et `Alpha [4, 6]` donnent `Alpha [1, 6]`.
+premier, avec la plus grande fin de la suite ; les autres disparaissent.
+`Alpha [1, 2]`, `Alpha [2, 4]` et `Alpha [4, 6]` donnent `Alpha [1, 6]`.
 
 - **L'ordre du fichier n'y change rien, et n'en change pas** : le sous-titre gardé
   est celui qui commence le premier, où que les autres se trouvent.
@@ -214,7 +212,7 @@ les trois dans cet ordre.
 ## Rendre les plages disjointes
 
 `Make Ranges Disjoint…` coupe les sous-titres qui se chevauchent pour que **plus
-aucune plage `[début, fin]` n'en chevauche une autre**. Il agit sur **tout le
+aucune plage `[start, end]` n'en chevauche une autre**. Il agit sur **tout le
 projet**, jamais sur la sélection : un groupe de sous-titres qui se chevauchent
 se coupe là où ils se chevauchent, et la moitié d'un groupe ne veut rien dire.
 
@@ -297,9 +295,9 @@ est une entrée d'historique, et un fichier sans rien à corriger n'est l'objet
 d'aucune question.
 
 En ligne de commande, [`disjoint`](../subedit-cli/disjoint.md) fait de même sur des fichiers, et `--disjoint`
-le fait au passage sur [`convert`](../subedit-cli/convert.md#making-the-ranges-disjoint),
-[`append`](../subedit-cli/append.md#making-the-ranges-disjoint) et
-[`split-file`](../subedit-cli/split-file.md#making-the-ranges-disjoint).
+le fait au passage sur [`convert`](../subedit-cli/convert.md#rendre-les-plages-disjointes),
+[`append`](../subedit-cli/append.md#rendre-les-plages-disjointes) et
+[`split-file`](../subedit-cli/split-file.md#rendre-les-plages-disjointes).
 
 ### Pourquoi pas les raccourcis de Gaupol
 
@@ -324,15 +322,15 @@ tout ce que le format portait.
 
 Une correction proposée à l'ouverture est une entrée d'historique par correction : la fusion, le tri, puis le découpage, se défont l'un après l'autre.
 
-Voir [Annuler et rétablir](annulation.md).
+Voir [Annuler et rétablir](undo.md).
 
 ## Les raccourcis pendant qu'une cellule est ouverte
 
 `Ins` et `Del` appartiennent au champ de saisie tant qu'un éditeur de cellule
 est ouvert : la touche de suppression y efface un caractère, et non un
-sous-titre. Fermer l'éditeur — `Entrée` ou `Échap` — leur rend leur sens. Lancé
+sous-titre. Fermer l'éditeur — `Enter` ou `Esc` — leur rend leur sens. Lancé
 par le menu, `Remove Subtitles` valide d'abord la saisie, comme les autres
-gestes de [Éditer une cellule](edition.md).
+gestes de [Éditer une cellule](editing.md).
 
 Ce manuel nomme les touches comme le menu les affiche — voir
 [Les menus](index.md#les-menus).

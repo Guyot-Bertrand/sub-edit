@@ -1,7 +1,5 @@
 # Éditer une cellule
 
-<!-- language: fr -->
-
 Quatre colonnes s'éditent en place : `Start`, `End`, `Duration` et `Text` — cinq
 avec la colonne `Translation`, quand le projet a une traduction. `#` ne s'édite
 pas — le numéro est le rang de la ligne, pas une donnée du fichier.
@@ -24,17 +22,17 @@ l'autre — voir [plus bas](#une-validation-qui-ne-change-rien-ne-fait-rien).
 
 L'éditeur est un champ **multiligne**, et il s'ouvre à la hauteur du sous-titre :
 un sous-titre de deux lignes s'y saisit tel qu'il sera écrit, ses deux lignes
-lisibles et sans ascenseur. Un `Maj+Entrée` qui en ajoute une agrandit
+lisibles et sans ascenseur. Un `Shift+Enter` qui en ajoute une agrandit
 l'éditeur ; la ligne de la table s'ajuste à la validation.
 
 | Touche | Effet |
 | :----- | :---- |
-| `Entrée` | valide et referme l'éditeur |
-| `Maj+Entrée` | insère un saut de ligne dans le texte |
-| `Échap` | referme l'éditeur ; la cellule garde ce qu'elle avait |
+| `Enter` | valide et referme l'éditeur |
+| `Shift+Enter` | insère un saut de ligne dans le texte |
+| `Esc` | referme l'éditeur ; la cellule garde ce qu'elle avait |
 | `Tab` | valide et passe à la cellule suivante |
 
-Cliquer ailleurs valide aussi : la perte du focus vaut `Entrée`.
+Cliquer ailleurs valide aussi : la perte du focus vaut `Enter`.
 
 **Onze gestes sans dialogue valident de même** avant de calculer leur cible :
 `Italic`, `Case ▸ …`, `Dialogue`, `Merge Subtitles`, `Split Subtitle`,
@@ -42,11 +40,11 @@ Cliquer ailleurs valide aussi : la perte du focus vaut `Entrée`.
 Lancés depuis le menu, la barre d'outils ou un raccourci de la fenêtre, ils
 reprennent le texte tel que l'éditeur vient de le valider, comme après un clic
 ailleurs. `Ctrl+X`, `Ctrl+C` et `Ctrl+V` restent pourtant à l'éditeur tant
-qu'il est ouvert — voir [Couper, copier et coller](presse-papiers.md) : c'est le
+qu'il est ouvert — voir [Couper, copier et coller](clipboard.md) : c'est le
 menu qui lance alors `Cut Texts`, `Copy Texts` et `Paste Texts`.
 
 `Undo` et `Redo` lisent l'historique et non le document : voir
-[Annuler et rétablir](annulation.md). Un geste qui ouvre un dialogue n'a pas
+[Annuler et rétablir](undo.md). Un geste qui ouvre un dialogue n'a pas
 besoin de cette règle, puisque le dialogue prend le focus en s'ouvrant, ce qui
 valide déjà la saisie.
 
@@ -128,7 +126,7 @@ le sous-titre disparaît alors à l'instant où il apparaît.
 **Une fin qui passe par-dessus le sous-titre suivant est permise.** Le
 chevauchement est teinté dans la table, avec son infobulle — voir
 [La table](table.md#les-anomalies) — un avis, pas un refus : c'est peut-être ce
-qu'on voulait. La [liste des diagnostics](fichiers.md#les-diagnostics-dune-lecture)
+qu'on voulait. La [liste des diagnostics](files.md#les-diagnostics-dune-lecture)
 le porte aussi, et le retire quand on a corrigé.
 
 **Une fin saisie au-delà de la fin du film n'est pas signalée**, à la différence
@@ -141,7 +139,7 @@ une durée identique à celle affichée n'entre pas dans l'historique.
 
 ## Une validation qui ne change rien ne fait rien
 
-Ouvrir une cellule, ne rien taper, appuyer sur `Entrée` : il ne se passe rien.
+Ouvrir une cellule, ne rien taper, appuyer sur `Enter` : il ne se passe rien.
 Aucune modification n'est enregistrée, et le fichier reste réputé identique à
 celui du disque.
 
@@ -152,7 +150,7 @@ change donc rien non plus.
 ## Ce qu'une cellule éditée devient
 
 Elle **s'annule** — une cellule, une entrée. Voir
-[Annuler et rétablir](annulation.md).
+[Annuler et rétablir](undo.md).
 
 Elle **s'enregistre**, et fermer la fenêtre sans l'avoir fait demande
-confirmation. Voir [Ouvrir et enregistrer](fichiers.md).
+confirmation. Voir [Ouvrir et enregistrer](files.md).

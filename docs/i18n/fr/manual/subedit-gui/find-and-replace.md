@@ -1,7 +1,5 @@
 # Rechercher et remplacer
 
-<!-- language: fr -->
-
 `Edit ▸ Find and Replace…`, ou `Ctrl+F`, ouvre le dialogue de recherche.
 
 ![Le dialogue de recherche, un motif saisi, sur ses options par
@@ -28,7 +26,7 @@ L'entrée est éteinte sur un document vide : il n'y a rien à chercher.
 | Bouton | Ce qu'il fait |
 | :----- | :------------ |
 | `Find Previous` | trouve la correspondance précédente, et la table s'y rend |
-| `Find Next` | trouve la suivante — c'est le bouton qu'`Entrée` presse |
+| `Find Next` | trouve la suivante — c'est le bouton qu'`Enter` presse |
 | `Replace` | remplace la correspondance trouvée, puis trouve la suivante |
 | `Replace All` | remplace toutes celles de la cible |
 
@@ -219,4 +217,4 @@ sous-titres dont le texte a changé.
 | `Replace` | `Undo: replacing` — un par remplacement |
 | `Replace All` | `Undo: replacing all` — **une seule entrée**, quel que soit le nombre de correspondances |
 
-Voir [Annuler et rétablir](annulation.md).
+Voir [Annuler et rétablir](undo.md).

@@ -1,7 +1,5 @@
 # Couper, copier et coller des textes
 
-<!-- language: fr -->
-
 Trois entrées du menu `Edit`, sous `Undo` et `Redo`, et au-dessus de
 `Find and Replace…`.
 
@@ -34,7 +32,7 @@ Pendant qu'une cellule est ouverte, `Ctrl+X`, `Ctrl+C` et `Ctrl+V` appartiennent
 au champ de saisie : ils coupent, copient et collent des caractères, comme `Del`
 y efface un caractère et non un sous-titre. Lancées par le menu, elles valident
 d'abord la saisie : `Copy Texts` copie alors le texte tel qu'il vient d'être
-tapé. Voir [Éditer une cellule](edition.md).
+tapé. Voir [Éditer une cellule](editing.md).
 
 ## Copier
 
@@ -58,7 +56,7 @@ Copier ne modifie pas le document, et n'entre pas dans l'historique.
 
 `Cut Texts` copie, puis **vide les textes** des lignes sélectionnées. Les lignes
 restent, avec leurs positions : couper n'est pas supprimer — pour retirer des
-lignes, c'est [`Remove Subtitles`](lignes.md#supprimer).
+lignes, c'est [`Remove Subtitles`](lines.md#supprimer).
 
 Couper des textes déjà tous vides ne fait rien, et n'entre pas dans
 l'historique.
@@ -122,4 +120,4 @@ lignes qu'il écrit ou ajoute.
 | couper | `Undo: cutting texts` |
 | coller | `Undo: pasting texts` |
 
-Voir [Annuler et rétablir](annulation.md).
+Voir [Annuler et rétablir](undo.md).
