@@ -82,7 +82,6 @@ docs/adr/0041-afficher-la-video-par-le-rendu-logiciel.md
 docs/adr/README.md
 docs/mesures/conversion.md
 docs/mesures/couverture.md
-docs/mesures/detection-d-encodage.md
 docs/mesures/performances.md
 docs/specs/00-fondations.md
 docs/specs/01-noyau.md

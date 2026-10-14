@@ -1216,14 +1216,14 @@ expect_encoding_fixture_gate
 # prouverait la même chose en moins sûr, et il faudrait la recompiler.
 expect_detection_score_gates() {
     local recorded
-    recorded="$(sed -n 's/^ *corpus étiqueté *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
+    recorded="$(sed -n 's/^ *labelled corpus *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
         "${DETECTION_JOURNAL}")"
     local right="${recorded% *}"
     local total="${recorded#* }"
 
     proof_header '%s▸ un score de détection en dessous de son relevé%s\n' "${BOLD}" "${RESET}"
 
-    sed -i "s|^ *corpus étiqueté *:.*$|    corpus étiqueté : ${total}/${total}|" \
+    sed -i "s|^ *labelled corpus *:.*$|    labelled corpus: ${total}/${total}|" \
         "${DETECTION_JOURNAL}"
 
     if make -C "${REPO_ROOT}" --no-print-directory score >/dev/null 2>&1; then
@@ -1237,7 +1237,7 @@ expect_detection_score_gates() {
 
     proof_header '%s▸ un score de détection au dessus de son relevé%s\n' "${BOLD}" "${RESET}"
 
-    sed -i "s|^ *corpus étiqueté *:.*$|    corpus étiqueté : $((right - 1))/${total}|" \
+    sed -i "s|^ *labelled corpus *:.*$|    labelled corpus: $((right - 1))/${total}|" \
         "${DETECTION_JOURNAL}"
 
     if make -C "${REPO_ROOT}" --no-print-directory score >/dev/null 2>&1; then

@@ -93,11 +93,11 @@ JOURNAL = REPO_ROOT / "docs" / "mesures" / "detection-d-encodage.md"
 
 # Les deux bornes du bloc que `--record` réécrit ; tout le reste du journal est
 # de la prose écrite à la main, et elle survit à un réenregistrement.
-BLOCK_OPEN = "<!-- relevé engendré : ne pas modifier à la main -->"
-BLOCK_CLOSE = "<!-- fin du relevé -->"
+BLOCK_OPEN = "<!-- generated record: do not edit by hand -->"
+BLOCK_CLOSE = "<!-- end of record -->"
 
 # L'ancre que `--journal` relit dans ce bloc.
-RECORDED = re.compile(r"^\s*corpus étiqueté\s*:\s*(\d+)\s*/\s*(\d+)\s*$", re.MULTILINE)
+RECORDED = re.compile(r"^\s*labelled corpus\s*:\s*(\d+)\s*/\s*(\d+)\s*$", re.MULTILINE)
 
 GREEN = "\033[32m"
 RED = "\033[31m"
@@ -516,7 +516,7 @@ def recorded_score(text):
     """
     found = RECORDED.findall(text)
     if len(found) != 1:
-        print(f"{RED}✗{RESET} « corpus étiqueté : N/M » apparaît {len(found)} fois dans"
+        print(f"{RED}✗{RESET} « labelled corpus: N/M » apparaît {len(found)} fois dans"
               f" {JOURNAL.relative_to(REPO_ROOT)}, une seule attendue", file=sys.stderr)
         print("  corriger le fichier à la main avant de relancer.", file=sys.stderr)
         sys.exit(1)
@@ -543,15 +543,15 @@ def rewrite_journal(right, total, confusions):
               f" {JOURNAL.relative_to(REPO_ROOT)}", file=sys.stderr)
         sys.exit(1)
 
-    body = [f"{BLOCK_OPEN}\n\n", f"    corpus étiqueté : {right}/{total}\n\n",
-            f"Relevé sur la version {version_of()}, le"
+    body = [f"{BLOCK_OPEN}\n\n", f"    labelled corpus: {right}/{total}\n\n",
+            f"Recorded on version {version_of()}, on"
             f" {datetime.date.today().isoformat()}.\n\n"]
     if confusions:
-        body.append("| Fixture | Écrite en | Lue comme |\n| :------ | :-------- | :-------- |\n")
+        body.append("| Fixture | Written in | Read as |\n| :------ | :--------- | :------ |\n")
         for name, wanted, said in confusions:
             body.append(f"| `{name}` | `{wanted}` | `{said}` |\n")
     else:
-        body.append("Aucune confusion.\n")
+        body.append("No confusion.\n")
     body.append("\n")
 
     written = text[:opened] + "".join(body) + text[closed:]
