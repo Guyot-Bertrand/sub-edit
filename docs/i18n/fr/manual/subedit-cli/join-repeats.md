@@ -9,7 +9,7 @@ subedit-cli join-repeats (--output FILE | --output-dir DIR | --in-place)
 
 Fait **un seul sous-titre** des sous-titres qui montrent la même chose à la suite : un texte découpé en morceaux
 qui se suivent, comme le laissent certains outils de segmentation. C'est `Join Repeated Subtitles` de la fenêtre —
-[le même moteur](../../../../manual/subedit-gui/lignes.md#fusionner-les-sous-titres-répétés).
+[le même moteur](../subedit-gui/lines.md#fusionner-les-sous-titres-répétés).
 
 **Un répété** est un sous-titre qui a **le même texte, la même traduction et les mêmes réglages de format** (un
 style, une position, des réglages de cue) qu'un autre, **et qui commence au plus tard quand celui-ci finit** : ils

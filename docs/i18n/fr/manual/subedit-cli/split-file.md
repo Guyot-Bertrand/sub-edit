@@ -6,7 +6,7 @@ subedit-cli split-file --at N --head FILE --tail FILE
                        <file>
 ```
 
-Coupe un fichier **en deux** : une tête et une queue. C'est `Split Project…` de la fenêtre — [le même moteur](../../../../manual/subedit-gui/operations.md#split-project),
+Coupe un fichier **en deux** : une tête et une queue. C'est `Split Project…` de la fenêtre — [le même moteur](../subedit-gui/operations.md#split-project),
 les mêmes comptes, le même refus — et **l'inverse exact de [`append`](append.md)** : ajouter la queue à la
 tête rend le fichier de départ.
 

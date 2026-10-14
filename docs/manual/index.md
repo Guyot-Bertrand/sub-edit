@@ -23,20 +23,20 @@ file opened then saved without a change does not move by a byte.
 | open a file and look at what it holds | [The table](subedit-gui/table.md) |
 | re-time subtitles shifted by a constant amount | [The operations](subedit-gui/operations.md#shift-positions), or [`shift`](subedit-cli/shift.md) |
 | re-time a file written for another frame rate | [`framerate`](subedit-cli/framerate.md), and [`snap`](subedit-cli/snap.md) if the timing is already right |
-| know which frame rate a file was written against | [The frame grid](subedit-gui/grille.md), or [`inspect`](subedit-cli/inspect.md) |
+| know which frame rate a file was written against | [The frame grid](subedit-gui/frame-grid.md), or [`inspect`](subedit-cli/inspect.md) |
 | remove the mentions for the hearing impaired | [The operations](subedit-gui/operations.md#remove-hearing-impaired-mentions), or [`hearing-impaired`](subedit-cli/hearing-impaired.md) |
 | correct mentions, common errors, case and line breaking in a single pass | [`Correct Texts…`](subedit-gui/correct-texts.md), or [`correct`](subedit-cli/correct.md) |
-| check the spelling word by word, with the system's dictionaries | [`Check Spelling…`](subedit-gui/verifier-orthographe.md) |
+| check the spelling word by word, with the system's dictionaries | [`Check Spelling…`](subedit-gui/check-spelling.md) |
 | lengthen subtitles too short to be read | [`Adjust Durations…`](subedit-gui/operations.md#adjust-durations), or [`adjust`](subedit-cli/adjust.md) |
 | put back in order a file whose subtitles are not | [`sort`](subedit-cli/sort.md) |
-| make a single subtitle of the pieces of one text that follow each other | [`Join Repeated Subtitles`](subedit-gui/lignes.md#fusionner-les-sous-titres-répétés), or [`join-repeats`](subedit-cli/join-repeats.md) |
+| make a single subtitle of the pieces of one text that follow each other | [`Join Repeated Subtitles`](subedit-gui/lines.md#joining-repeated-subtitles), or [`join-repeats`](subedit-cli/join-repeats.md) |
 | straighten out, in one go, a file that is badly segmented, out of order and overlapping | [`repair`](subedit-cli/repair.md) |
-| remove the overlaps between subtitles | [`Make Ranges Disjoint…`](subedit-gui/lignes.md#rendre-les-plages-disjointes), or [`disjoint`](subedit-cli/disjoint.md) |
+| remove the overlaps between subtitles | [`Make Ranges Disjoint…`](subedit-gui/lines.md#making-the-ranges-disjoint), or [`disjoint`](subedit-cli/disjoint.md) |
 | put the two parts of a film end to end | [`Append File…`](subedit-gui/operations.md#append-file), or [`append`](subedit-cli/append.md) |
 | cut a film in two parts | [`Split Project…`](subedit-gui/operations.md#split-project), or [`split-file`](subedit-cli/split-file.md) |
 | change the case, the italics or the dialogue dashes of a whole file | [The operations](subedit-gui/operations.md#italic), or [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
-| look for a word and replace it, without breaking the tags | [Find and replace](subedit-gui/recherche.md), or [`replace`](subedit-cli/replace.md) |
-| translate alongside the original text | [Opening a translation](subedit-gui/fichiers.md#ouvrir-une-traduction), or [`pair`](subedit-cli/pair.md) to re-time it on the main file |
+| look for a word and replace it, without breaking the tags | [Find and replace](subedit-gui/find-and-replace.md), or [`replace`](subedit-cli/replace.md) |
+| translate alongside the original text | [Opening a translation](subedit-gui/files.md#opening-a-translation), or [`pair`](subedit-cli/pair.md) to re-time it on the main file |
 | process a hundred files at once | [Processing a tree](subedit-cli/lots.md), then [Invocation](subedit-cli/invocation.md) |
 
 **Between `framerate` and `snap`, a mistake goes unnoticed.** If
@@ -60,7 +60,7 @@ of the two can therefore describe a tool that no longer exists. What remains wit
 is the text around them, whose correctness rests on proofreading.
 
 **The screenshots show both palettes**, `Light` and `Dark` — those
-[the preferences](subedit-gui/preferences.md#le-thème) offer.
+[the preferences](subedit-gui/preferences.md#the-theme) offer.
 
 ## The two surfaces say the same words
 

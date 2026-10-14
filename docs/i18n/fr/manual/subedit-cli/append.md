@@ -7,7 +7,7 @@ subedit-cli append --output FILE
 ```
 
 Met des fichiers **à la suite du premier**, dans **un seul** fichier : le film en deux parties, rendu en un
-seul jeu de sous-titres. C'est `Append File…` de la fenêtre — [le même moteur](../../../../manual/subedit-gui/operations.md#append-file),
+seul jeu de sous-titres. C'est `Append File…` de la fenêtre — [le même moteur](../subedit-gui/operations.md#append-file),
 les mêmes comptes — appliqué autant de fois qu'il y a de fichiers à ajouter.
 
 - **Le premier fichier est la base.** Il donne au résultat **son format, son encodage, sa marque
@@ -99,7 +99,7 @@ Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec 
 
 Le résultat est dans **le format de la base**, quel que soit celui des autres. Ce que la traversée coûte est
 dit fichier par fichier, avec les mots de la fenêtre — la même phrase que `Append File…` et que
-[le collage d'un autre format](../../../../manual/subedit-gui/presse-papiers.md#les-balises-dun-autre-format-sont-traduites) :
+[le collage d'un autre format](../subedit-gui/clipboard.md#les-balises-dun-autre-format-sont-traduites) :
 
 ```text
 d.ass: appended 1 subtitle; Advanced SSA into SubRip: 1 tag dropped, the header was dropped

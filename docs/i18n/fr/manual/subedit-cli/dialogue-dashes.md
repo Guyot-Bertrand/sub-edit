@@ -10,7 +10,7 @@ subedit-cli dialogue-dashes (--add | --remove) [--range N-M|N-]
 ```
 
 Met un **tiret de dialogue** en tête des lignes, ou les retire. C'est `Dialogue Dashes` de la
-[fenêtre](../../../../manual/subedit-gui/operations.md).
+[fenêtre](../subedit-gui/operations.md).
 
 **Deux mots, comme [`italics`](italics.md)** : `--add` et `--remove` s'excluent, et il en faut un.
 

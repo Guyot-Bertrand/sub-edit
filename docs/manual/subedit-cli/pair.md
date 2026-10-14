@@ -8,7 +8,7 @@ subedit-cli pair (--output FILE | --output-dir DIR | --in-place)
 ```
 
 Writes **the translation re-timed on the positions of the main file**, and says how its lines found their
-subtitle. It is `Open Translation…` of the window — [the same pairing](../subedit-gui/fichiers.md#ouvrir-une-traduction),
+subtitle. It is `Open Translation…` of the window — [the same pairing](../subedit-gui/files.md#opening-a-translation),
 the same sentence — followed by writing the result, which the window does through `Save Translation`.
 
 **It is the one thing pairing does that a file processed alone does not.** The other subcommands

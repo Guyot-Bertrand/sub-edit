@@ -140,7 +140,7 @@ $XDG_CONFIG_HOME/subedit/settings.conf
 ```
 
 or `~/.config/subedit/settings.conf` when `XDG_CONFIG_HOME` is unset, empty or not an absolute
-path — the window's file, described in [its manual](../../../../manual/subedit-gui/preferences.md#le-fichier).
+path — the window's file, described in [its manual](../subedit-gui/preferences.md#le-fichier).
 
 **Priority, strongest first: the option on the command line, then the file, then the built-in
 default.** An option always wins: `--speed off` switches off a speed the file sets. Only the

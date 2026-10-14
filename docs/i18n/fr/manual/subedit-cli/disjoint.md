@@ -8,7 +8,7 @@ subedit-cli disjoint (--output FILE | --output-dir DIR | --in-place)
 ```
 
 Découpe les sous-titres qui se chevauchent pour que **plus aucune plage `[start, end]` n'en chevauche
-une autre**. C'est `Make Ranges Disjoint…` de la fenêtre — [le même moteur](../../../../manual/subedit-gui/lignes.md#rendre-les-plages-disjointes).
+une autre**. C'est `Make Ranges Disjoint…` de la fenêtre — [le même moteur](../subedit-gui/lines.md#rendre-les-plages-disjointes).
 
 **Rien n'est raccourci ni prolongé** : à chaque instant, le fichier montre les mêmes textes qu'avant. Ce qui
 change, c'est la façon dont la ligne de temps est découpée :

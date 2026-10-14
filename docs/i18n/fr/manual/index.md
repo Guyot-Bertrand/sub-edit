@@ -5,7 +5,7 @@ programmes qui partagent le même noyau, donc les mêmes règles et les mêmes m
 
 | Programme | Pour quoi faire | Son manuel |
 | :-------- | :-------------- | :--------- |
-| `subedit-gui` | ouvrir un fichier, le voir dans une table, l'éditer, le regarder contre le film | [manuel de la fenêtre](../../../manual/subedit-gui/index.md) |
+| `subedit-gui` | ouvrir un fichier, le voir dans une table, l'éditer, le regarder contre le film | [manuel de la fenêtre](subedit-gui/index.md) |
 | `subedit-cli` | traiter des fichiers en lot, depuis un script, sans interface | [manuel de la ligne de commande](subedit-cli/index.md) |
 
 Les deux lisent et écrivent **les neuf formats** — SubRip, WebVTT, SubViewer 2,
@@ -20,23 +20,23 @@ fichier ouvert puis enregistré sans modification ne bouge pas d'un octet.
 | Ce que vous voulez | Où aller |
 | :----------------- | :------- |
 | installer l'outil | [Installation](subedit-cli/installation.md) — elle vaut pour les deux programmes |
-| ouvrir un fichier et regarder ce qu'il contient | [La table](../../../manual/subedit-gui/table.md) |
-| recaler des sous-titres décalés d'une durée constante | [Les opérations](../../../manual/subedit-gui/operations.md#shift-positions), ou [`shift`](subedit-cli/shift.md) |
+| ouvrir un fichier et regarder ce qu'il contient | [La table](subedit-gui/table.md) |
+| recaler des sous-titres décalés d'une durée constante | [Les opérations](subedit-gui/operations.md#shift-positions), ou [`shift`](subedit-cli/shift.md) |
 | recaler un fichier écrit pour une autre cadence d'images | [`framerate`](subedit-cli/framerate.md), et [`snap`](subedit-cli/snap.md) si le minutage est déjà juste |
-| savoir contre quelle cadence un fichier a été écrit | [La grille d'images](../../../manual/subedit-gui/grille.md), ou [`inspect`](subedit-cli/inspect.md) |
-| retirer les mentions pour malentendants | [Les opérations](../../../manual/subedit-gui/operations.md#remove-hearing-impaired-mentions), ou [`hearing-impaired`](subedit-cli/hearing-impaired.md) |
-| corriger des mentions, des erreurs courantes, la casse et le découpage des lignes en un seul passage | [`Correct Texts…`](../../../manual/subedit-gui/correct-texts.md), ou [`correct`](subedit-cli/correct.md) |
-| vérifier l'orthographe mot à mot, avec les dictionnaires du système | [`Check Spelling…`](../../../manual/subedit-gui/verifier-orthographe.md) |
-| allonger des sous-titres trop courts pour être lus | [`Adjust Durations…`](../../../manual/subedit-gui/operations.md#adjust-durations), ou [`adjust`](subedit-cli/adjust.md) |
+| savoir contre quelle cadence un fichier a été écrit | [La grille d'images](subedit-gui/frame-grid.md), ou [`inspect`](subedit-cli/inspect.md) |
+| retirer les mentions pour malentendants | [Les opérations](subedit-gui/operations.md#remove-hearing-impaired-mentions), ou [`hearing-impaired`](subedit-cli/hearing-impaired.md) |
+| corriger des mentions, des erreurs courantes, la casse et le découpage des lignes en un seul passage | [`Correct Texts…`](subedit-gui/correct-texts.md), ou [`correct`](subedit-cli/correct.md) |
+| vérifier l'orthographe mot à mot, avec les dictionnaires du système | [`Check Spelling…`](subedit-gui/check-spelling.md) |
+| allonger des sous-titres trop courts pour être lus | [`Adjust Durations…`](subedit-gui/operations.md#adjust-durations), ou [`adjust`](subedit-cli/adjust.md) |
 | remettre dans l'ordre un fichier dont les sous-titres ne le sont pas | [`sort`](subedit-cli/sort.md) |
-| refaire un seul sous-titre des morceaux d'un même texte qui se suivent | [`Join Repeated Subtitles`](../../../manual/subedit-gui/lignes.md#fusionner-les-sous-titres-répétés), ou [`join-repeats`](subedit-cli/join-repeats.md) |
+| refaire un seul sous-titre des morceaux d'un même texte qui se suivent | [`Join Repeated Subtitles`](subedit-gui/lines.md#fusionner-les-sous-titres-répétés), ou [`join-repeats`](subedit-cli/join-repeats.md) |
 | remettre d'aplomb un fichier mal segmenté, mal ordonné et qui se chevauche, d'un coup | [`repair`](subedit-cli/repair.md) |
-| supprimer les chevauchements entre sous-titres | [`Make Ranges Disjoint…`](../../../manual/subedit-gui/lignes.md#rendre-les-plages-disjointes), ou [`disjoint`](subedit-cli/disjoint.md) |
-| mettre bout à bout les deux parties d'un film | [`Append File…`](../../../manual/subedit-gui/operations.md#append-file), ou [`append`](subedit-cli/append.md) |
-| couper un film en deux parties | [`Split Project…`](../../../manual/subedit-gui/operations.md#split-project), ou [`split-file`](subedit-cli/split-file.md) |
-| changer la casse, l'italique ou les tirets de dialogue de tout un fichier | [Les opérations](../../../manual/subedit-gui/operations.md#italic), ou [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
-| chercher un mot et le remplacer, sans casser les balises | [Rechercher et remplacer](../../../manual/subedit-gui/recherche.md), ou [`replace`](subedit-cli/replace.md) |
-| traduire en regard du texte d'origine | [Ouvrir une traduction](../../../manual/subedit-gui/fichiers.md#ouvrir-une-traduction), ou [`pair`](subedit-cli/pair.md) pour la recaler sur le principal |
+| supprimer les chevauchements entre sous-titres | [`Make Ranges Disjoint…`](subedit-gui/lines.md#rendre-les-plages-disjointes), ou [`disjoint`](subedit-cli/disjoint.md) |
+| mettre bout à bout les deux parties d'un film | [`Append File…`](subedit-gui/operations.md#append-file), ou [`append`](subedit-cli/append.md) |
+| couper un film en deux parties | [`Split Project…`](subedit-gui/operations.md#split-project), ou [`split-file`](subedit-cli/split-file.md) |
+| changer la casse, l'italique ou les tirets de dialogue de tout un fichier | [Les opérations](subedit-gui/operations.md#italic), ou [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
+| chercher un mot et le remplacer, sans casser les balises | [Rechercher et remplacer](subedit-gui/find-and-replace.md), ou [`replace`](subedit-cli/replace.md) |
+| traduire en regard du texte d'origine | [Ouvrir une traduction](subedit-gui/files.md#ouvrir-une-traduction), ou [`pair`](subedit-cli/pair.md) pour la recaler sur le principal |
 | traiter cent fichiers d'un coup | [Traiter un arbre](subedit-cli/lots.md), puis [Invocation](subedit-cli/invocation.md) |
 
 **Entre `framerate` et `snap`, on se trompe sans que rien ne le signale.** Si
@@ -61,7 +61,7 @@ deux ne peut donc décrire un outil qui n'existe plus. Ce qui reste sans filet
 est le texte autour, dont la justesse repose sur la relecture.
 
 **Les captures montrent les deux palettes**, `Light` et `Dark` — celles que
-[les préférences](../../../manual/subedit-gui/preferences.md#le-thème) proposent.
+[les préférences](subedit-gui/preferences.md#le-thème) proposent.
 
 ## Les deux surfaces disent les mêmes mots
 

@@ -10,7 +10,7 @@ subedit-cli case --to title|sentence|upper|lower [--range N-M|N-]
 ```
 
 Met les textes en **casse de titre, de phrase, en capitales ou en minuscules**, sans toucher une
-balise. C'est `Text ▸ Case` de la [fenêtre](../../../../manual/subedit-gui/operations.md), avec ses règles.
+balise. C'est `Text ▸ Case` de la [fenêtre](../subedit-gui/operations.md), avec ses règles.
 
 | `--to` | Effet | `bonjour marie` devient |
 | :----- | :---- | :---------------------- |

@@ -15,7 +15,7 @@ sous-titre trop court pour être lu est allongé, un sous-titre qui laisse l'éc
 trop longtemps peut être raccourci, et deux sous-titres ne se recouvrent pas. **Seule la
 fin bouge** : déplacer le début déplacerait le sous-titre, ce qui est le travail de
 [`shift`](shift.md). C'est l'opération `Adjust Durations…` de la
-[fenêtre](../../../../manual/subedit-gui/operations.md#adjust-durations), avec les mêmes défauts.
+[fenêtre](../subedit-gui/operations.md#adjust-durations), avec les mêmes défauts.
 
 ## Les quatre contraintes, et leur ordre
 

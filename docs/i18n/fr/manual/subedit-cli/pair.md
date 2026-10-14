@@ -8,7 +8,7 @@ subedit-cli pair (--output FILE | --output-dir DIR | --in-place)
 ```
 
 Écrit **la traduction recalée sur les positions du principal**, et dit comment ses lignes ont trouvé leur
-sous-titre. C'est `Open Translation…` de la fenêtre — [le même appariement](../../../../manual/subedit-gui/fichiers.md#ouvrir-une-traduction),
+sous-titre. C'est `Open Translation…` de la fenêtre — [le même appariement](../subedit-gui/files.md#ouvrir-une-traduction),
 la même phrase — suivi de l'écriture du résultat, que la fenêtre fait par `Save Translation`.
 
 **C'est la seule chose que l'appariement fait et qu'un fichier traité seul ne fait pas.** Les autres sous-commandes

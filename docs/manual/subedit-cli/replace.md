@@ -10,7 +10,7 @@ subedit-cli replace [--regex] [--case-sensitive] [--range N-M|N-]
 ```
 
 Replaces a text in the subtitles **without breaking a tag**. It is the
-`Replace All` operation of the window's [search](../subedit-gui/recherche.md), with its rules:
+`Replace All` operation of the window's [search](../subedit-gui/find-and-replace.md), with its rules:
 
 - **the search is in the visible text** — what the viewer reads. Tags are not part
   of it: looking for `<i>` finds nothing, and looking for `Bonjour` finds a "Bonjour" half of which

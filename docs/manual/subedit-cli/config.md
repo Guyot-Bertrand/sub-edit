@@ -14,7 +14,7 @@ values there, and [`adjust`](adjust.md) and [`correct`](correct.md) read them by
 
 **What it does not do:** it never reads nor writes a **display preference** (the window's
 geometry, columns, theme, search options, spell-check, video…). Those stay the window's
-business, set in the window and described in [its manual](../subedit-gui/preferences.md#le-fichier).
+business, set in the window and described in [its manual](../subedit-gui/preferences.md#the-file).
 It never touches a subtitle file either.
 
 <!-- exemple: subedit-cli config --help -->

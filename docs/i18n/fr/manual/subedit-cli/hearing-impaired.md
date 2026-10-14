@@ -17,7 +17,7 @@ aussi, pour un fichier qui y décrit ses sons.
 Ce qu'elle ne fait pas : les paroles de chanson entre dièses, le nom du locuteur
 avant deux-points, la remise en majuscule, la correction d'erreurs d'OCR. Ces
 motifs-là sont ceux de l'assistant
-[`Correct Texts…`](../../../../manual/subedit-gui/correct-texts.md) de la fenêtre, que la ligne de
+[`Correct Texts…`](../subedit-gui/correct-texts.md) de la fenêtre, que la ligne de
 commande offre sous le nom de [`correct`](correct.md) ; et rien ici ne se règle : la
 transformation est décidée, pas configurable.
 

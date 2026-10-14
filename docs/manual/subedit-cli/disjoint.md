@@ -8,7 +8,7 @@ subedit-cli disjoint (--output FILE | --output-dir DIR | --in-place)
 ```
 
 Cuts the overlapping subtitles so that **no `[start, end]` range overlaps
-another any more**. It is `Make Ranges Disjoint…` of the window — [the same engine](../subedit-gui/lignes.md#rendre-les-plages-disjointes).
+another any more**. It is `Make Ranges Disjoint…` of the window — [the same engine](../subedit-gui/lines.md#making-the-ranges-disjoint).
 
 **Nothing is shortened nor lengthened**: at every moment, the file shows the same texts as before. What
 changes is the way the timeline is cut:

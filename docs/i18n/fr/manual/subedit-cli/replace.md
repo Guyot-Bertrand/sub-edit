@@ -10,7 +10,7 @@ subedit-cli replace [--regex] [--case-sensitive] [--range N-M|N-]
 ```
 
 Remplace un texte dans les sous-titres **sans casser une balise**. C'est l'opération
-`Replace All` de la [recherche](../../../../manual/subedit-gui/recherche.md) de la fenêtre, avec ses règles :
+`Replace All` de la [recherche](../subedit-gui/find-and-replace.md) de la fenêtre, avec ses règles :
 
 - **on cherche dans le texte visible** — ce que le spectateur lit. Les balises n'en font pas
   partie : chercher `<i>` ne trouve rien, et chercher `Bonjour` trouve un « Bonjour » dont la
