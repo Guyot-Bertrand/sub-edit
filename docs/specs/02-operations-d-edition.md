@@ -1,104 +1,102 @@
-# Phase 2 — Opérations d'édition
+# Phase 2 — Editing operations
 
-**État :** conception validée, prête à découper
-**Milestone :** `2 — Opérations d'édition`
+**State:** design approved, ready to be split
+**Milestone:** `2 — Opérations d'édition`
 
-## Objectif
+## Goal
 
-Donner au noyau les opérations que l'édition dans une table suppose, et les
-trois opérations de positions listées en priorité. Toutes annulables, toutes
-écrites comme des commandes sur le socle de la phase 1.
+Give the core the operations that editing in a table presupposes, and the three
+position operations listed as priorities. All undoable, all written as commands
+on the foundation of phase 1.
 
-À l'issue de cette phase, on peut modifier un sous-titre, en insérer, en
-supprimer, décaler, transformer et convertir la fréquence d'image — sans
-interface, qui relève de la phase 5.
+At the end of this phase, one can modify a subtitle, insert some, remove some,
+shift, transform and convert the frame rate — with no interface, which belongs
+to phase 5.
 
-## Portée
+## Scope
 
-**Inclus** — modifier un texte, un début, une fin ; insérer, supprimer ;
-décaler, transformer par deux points de repère, convertir la fréquence
-d'image ; trier ; la cible d'une opération ; le type qui réunit un projet et
-son historique.
+**Included** — modifying a text, a start, an end; inserting, removing;
+shifting, transforming by two reference points, converting the frame rate;
+sorting; the target of an operation; the type that brings a project and its
+history together.
 
-**Exclu, par phase** — ajustement des durées, casse, italiques, tirets de
-dialogue, fusion, scission, recherche et remplacement, presse-papiers
-(phase 10) ; suppression des mentions pour malentendants (phase 4) ; toute
-interface (phases 3 et 5).
+**Excluded, by phase** — duration adjustment, case, italics, dialogue dashes,
+merging, splitting, find and replace, clipboard (phase 10); removal of hearing
+impaired annotations (phase 4); any interface (phases 3 and 5).
 
-## Décisions applicables
+## Applicable decisions
 
-| ADR | Décision |
+| ADR | Decision |
 | :-- | :------- |
-| [0006](../adr/0006-positions-en-millisecondes.md) | positions en millisecondes entières, types forts |
-| [0010](../adr/0010-annulation-par-commandes.md) | commandes portant leur propre inverse |
-| [0011](../adr/0011-numero-d-image-en-type-fort.md) | numéro d'image en type fort |
-| [0012](../adr/0012-ordre-des-sous-titres-par-composition.md) | ne pas trier de soi-même, mode strict par composition |
-| [0013](../adr/0013-mise-a-l-echelle-exacte-des-positions.md) | mise à l'échelle par un rationnel exact, arrondi une fois |
+| [0006](../adr/0006-positions-en-millisecondes.md) | positions in whole milliseconds, strong types |
+| [0010](../adr/0010-annulation-par-commandes.md) | commands carrying their own inverse |
+| [0011](../adr/0011-numero-d-image-en-type-fort.md) | frame number as a strong type |
+| [0012](../adr/0012-ordre-des-sous-titres-par-composition.md) | never sort on its own, strict mode by composition |
+| [0013](../adr/0013-mise-a-l-echelle-exacte-des-positions.md) | scaling by an exact rational, rounded once |
 
-Les deux dernières sont propres à cette phase et ont été écrites avant elle.
+The last two are specific to this phase and were written before it.
 
-## Ce qui manque au noyau
+## What the core lacks
 
-L'état des lieux, fait avant d'écrire cette spec, a relevé quatre manques et
-une incohérence. Ils commandent le découpage.
+Taking stock, done before writing this spec, found four gaps and one
+inconsistency. They drive the split.
 
-| Manque | Conséquence |
-| :----- | :---------- |
-| aucune mise à l'échelle d'une position | transformation et conversion de fréquence inexprimables |
-| `Project` ne sait ni insérer ni supprimer | deux opérations sur sept sans support |
-| rien ne réunit un projet et son historique | toute opération a besoin des deux |
-| une commande n'a pas de nom | la phase 5 n'aurait rien à afficher |
+| Gap | Consequence |
+| :-- | :---------- |
+| no scaling of a position | transformation and frame rate conversion cannot be expressed |
+| `Project` can neither insert nor remove | two operations out of seven without support |
+| nothing brings a project and its history together | every operation needs both |
+| a command has no name | phase 5 would have nothing to display |
 
-L'incohérence : l'ADR 0010 pose que modifier un projet hors d'une commande est
-un défaut, alors que `setSubtitles`, `setFrameRate` et l'accès mutable à un
-sous-titre sont publics et sans garde-fou. Traitée plus bas.
+The inconsistency: ADR 0010 states that modifying a project outside a command is
+a defect, whereas `setSubtitles`, `setFrameRate` and mutable access to a
+subtitle are public and unguarded. Dealt with below.
 
-## Mise à l'échelle des positions
+## Scaling positions
 
 ```cpp
-class Ratio;   // rationnel exact, signé, réduit
+class Ratio;   // exact rational, signed, reduced
 
 Timestamp Timestamp::scaledBy(Ratio) const;
 Duration  Duration::scaledBy(Ratio) const;
 ```
 
-Une méthode nommée plutôt qu'un opérateur : mettre une position à l'échelle est
-une **décision d'arrondi**, et l'ADR 0006 veut qu'aucune ne se prenne
-implicitement.
+A named method rather than an operator: scaling a position is a **rounding
+decision**, and ADR 0006 wants none of those to be made implicitly.
 
-**L'aller-retour par les images ne convient pas.** On pourrait croire que
-convertir une fréquence s'écrit `fromFrame(toFrame(t, entrée), sortie)`. C'est
-faux : ce chemin quantifie chaque position sur la grille d'images d'entrée,
-perte que la spec de la phase 1 documente déjà — `ms → image → ms` n'est pas
-l'identité. Mesuré de 25 vers 24000/1001, l'écart avec le calcul exact atteint
-**21 ms**, soit une demi-image :
+**The round trip through frames does not do.** One might think that converting
+a frame rate is written `fromFrame(toFrame(t, input), output)`. It is wrong:
+that path quantises every position onto the input frame grid, a loss the
+phase 1 spec already documents — `ms → frame → ms` is not the identity.
+Measured from 25 to 24000/1001, the difference from the exact calculation
+reaches **21 ms**, that is half a frame:
 
-| position | par les images | exact | écart |
-| -------: | -------------: | ----: | ----: |
+| position | through frames | exact | difference |
+| -------: | -------------: | ----: | ---------: |
 | 1010 ms | 1043 | 1053 | 10 ms |
 | 1020 ms | 1084 | 1064 | 20 ms |
 
-La règle est donc : **un seul arrondi, sur un rationnel exact.** Les calculs
-intermédiaires tiennent dans un `std::int64_t` — une position plausible ne
-dépasse pas `3,6 × 10⁸` ms, et un rationnel réduit garde un numérateur du même
-ordre.
+The rule is therefore: **a single rounding, on an exact rational.** The
+intermediate calculations fit in a `std::int64_t` — a plausible position does
+not exceed `3.6 × 10⁸` ms, and a reduced rational keeps a numerator of the same
+order.
 
-## Cible d'une opération
+## Target of an operation
 
 ```cpp
-class Selection;   // indices triés, sans doublon
+class Selection;   // sorted indices, no duplicates
 
 Selection::all(const Project&);
 Selection::of(std::span<const SubtitleIndex>);
 Selection::range(SubtitleIndex first, SubtitleIndex last);
 ```
 
-Gaupol répète dans chaque signature un paramètre `indices` qui vaut `None` pour
-« tout le projet ». Une valeur absente qui signifie « tous » est exactement le
-genre de convention que le compilateur devrait porter : `Selection::all` le dit.
+Gaupol repeats in every signature an `indices` parameter that is `None` for
+"the whole project". An absent value that means "all" is exactly the kind of
+convention the compiler should carry: `Selection::all` says it.
 
-Trié et sans doublon **par construction**, ce dont l'insertion et la suppression
-ont besoin pour être justes.
+Sorted and without duplicates **by construction**, which insertion and removal
+need in order to be correct.
 
 ## Session
 
@@ -112,153 +110,151 @@ class Session {
 };
 ```
 
-Le type qui manquait. L'issue #4 a écarté de mettre `History` dans `Project` —
-`model` dépendrait de `command`, et surtout un `Project` cesserait d'être
-copiable. `Session` les réunit sans les mêler : c'est ce qu'une application
-tient par fichier ouvert, et ce que la ligne de commande de la phase 3 comme la
-fenêtre de la phase 5 manipuleront.
+The missing type. Issue #4 ruled out putting `History` in `Project` — `model`
+would depend on `command`, and above all a `Project` would stop being copyable.
+`Session` brings them together without mixing them: it is what an application
+holds per open file, and what the command line of phase 3 as well as the window
+of phase 5 will handle.
 
-Elle vit dans un cinquième module, `core/edit/`, qui héberge aussi les
-opérations.
+It lives in a fifth module, `core/edit/`, which also hosts the operations.
 
-**`Session::project()` rend une référence constante.** C'est la réponse à
-l'incohérence relevée plus haut : à l'intérieur d'une session, le seul chemin
-vers une modification est une commande, et le compilateur le tient. Un `Project`
-nu reste modifiable — le lecteur doit bien le remplir — mais qui en tient un est
-en train de le construire, pas de l'éditer. L'ADR 0010 s'entend ainsi, et la
-frontière est vérifiable au lieu d'être promise.
+**`Session::project()` returns a const reference.** It is the answer to the
+inconsistency found above: inside a session, the only path to a modification is
+a command, and the compiler enforces it. A bare `Project` remains modifiable —
+the reader does have to fill it — but whoever holds one is building it, not
+editing it. That is how ADR 0010 is to be understood, and the boundary is
+checkable instead of being promised.
 
-## Le groupement d'actions — question close
+## Grouping actions — a closed question
 
-**Fermée par la phase 5, et sans mécanisme.** La feuille de route posait ici la
-question en pensant à la frappe : vingt caractères tapés dans une cellule ne
-doivent pas faire vingt entrées d'annulation, et il fallait bien un moyen de les
-réunir.
+**Closed by phase 5, and without a mechanism.** The roadmap raised the question
+here with typing in mind: twenty characters typed into a cell must not make
+twenty undo entries, and a way to bring them together seemed needed.
 
-Le moyen n'a pas eu à être construit, parce que la frappe ne produit rien. Un
-`QStyledItemDelegate` ne rend sa valeur qu'une fois — à `Entrée` ou à la perte du
-focus —, jamais touche par touche. **Une cellule éditée produit une commande**,
-donc il n'y a rien à grouper.
+The way did not have to be built, because typing produces nothing. A
+`QStyledItemDelegate` returns its value only once — on `Enter` or on focus
+loss —, never keystroke by keystroke. **An edited cell produces one command**,
+so there is nothing to group.
 
-Le mécanisme qui aurait servi existe d'ailleurs, écrit pour une autre raison :
-`CompositeCommand` fait déjà tenir une opération et le tri que la politique
-stricte lui ajoute dans une seule entrée. Il attendra un besoin réel — la
-recherche-remplacement de la phase 10 en est un candidat, qui touche plusieurs
-sous-titres d'un geste.
+The mechanism that would have served exists anyway, written for another reason:
+`CompositeCommand` already fits an operation and the sort the strict policy
+adds to it into a single entry. It will wait for a real need — the find and
+replace of phase 10 is a candidate, as it touches several subtitles in one
+gesture.
 
-Constaté à l'issue [#129](https://github.com/Guyot-Bertrand/sub-edit/issues/129),
-qui a posé les délégués d'édition.
+Observed in issue [#129](https://github.com/Guyot-Bertrand/sub-edit/issues/129),
+which put the editing delegates in place.
 
-## Politique d'ordre
+## Order policy
 
-**`Lenient` par défaut.** Le noyau ne trie jamais de lui-même : il rapporte et
-ne répare pas, comme l'ADR 0008 le pose pour la lecture. Un fichier ouvert garde
-l'ordre de son fichier, et une édition ne déplace aucune ligne.
+**`Lenient` by default.** The core never sorts on its own: it reports and does
+not repair, as ADR 0008 lays down for reading. An opened file keeps the order of
+its file, and an edit moves no row.
 
-**`Strict` est une politique de composition, pas un invariant de modèle.** Après
-une opération susceptible de rompre l'ordre, la session enchaîne une commande de
-tri dans la même composite : une seule entrée d'historique, une seule annulation.
+**`Strict` is a composition policy, not a model invariant.** After an operation
+that may break the order, the session chains a sort command into the same
+composite: a single history entry, a single undo.
 
-Ce choix, plutôt qu'un invariant tenu par `Project` :
+This choice, rather than an invariant held by `Project`:
 
-- **les indices restent stables à l'intérieur d'une commande.** `Change`
-  transporte des `SubtitleIndex`, l'historique rejoue des commandes, la table se
-  rafraîchira par indice. Si une édition pouvait déplacer une ligne en silence,
-  *toute* commande deviendrait « et peut-être un déplacement » ;
-- **un seul modèle de données.** Deux invariants selon un mode, ce ne serait pas
-  un réglage mais deux modèles, et chaque commande devrait demander lequel ;
-- **le tri devient annulable**, ce qu'il n'est pas chez Gaupol, où il précède
-  l'existence de l'historique ;
-- **le compteur de modification dit la vérité.** Ouvrir un fichier désordonné en
-  mode strict marque le document modifié — ce qu'il est, puisqu'il diffère du
-  disque.
+- **indices stay stable inside a command.** `Change` carries `SubtitleIndex`
+  values, the history replays commands, the table will refresh by index. If an
+  edit could silently move a row, *every* command would become "and maybe a
+  move";
+- **a single data model.** Two invariants depending on a mode would not be a
+  setting but two models, and every command would have to ask which one;
+- **sorting becomes undoable**, which it is not in Gaupol, where it predates
+  the existence of the history;
+- **the modification counter tells the truth.** Opening an unordered file in
+  strict mode marks the document modified — which it is, since it differs from
+  the disk.
 
-Prix assumé : quand le tri se déclenche, la composite déplace des lignes et son
-`Change` doit l'exprimer. La différence est que ce cas vient d'une commande
-identifiée, pas de n'importe laquelle.
+Accepted price: when the sort kicks in, the composite moves rows and its
+`Change` must express that. The difference is that this case comes from an
+identified command, not from any command at all.
 
-### Ce que Gaupol fait, et pourquoi nous nous en écartons
+### What Gaupol does, and why we depart from it
 
-Gaupol maintient l'ordre à deux endroits seulement : à l'ouverture, où il trie
-et avertit par une boîte de dialogue ; et sur `set_start`. `replace_positions` —
-par où passent le décalage, la transformation et la conversion de fréquence — ne
-trie pas. Décaler une partie d'une sélection peut donc y désordonner le fichier
-sans que rien ne le remarque : **l'invariant n'en est pas un.**
+Gaupol maintains the order in two places only: on opening, where it sorts and
+warns through a dialog box; and on `set_start`. `replace_positions` — through
+which shifting, transformation and frame rate conversion go — does not sort.
+Shifting part of a selection can therefore leave the file out of order there
+without anything noticing: **the invariant is not one.**
 
-Son comptage a de plus un trou. Il compte en images ce qu'il trie en secondes :
-deux sous-titres inversés de moins d'une image ne sont pas comptés, aucune boîte
-de dialogue ne s'ouvre, et le fichier est pourtant réordonné.
+Its counting has a hole too. It counts in frames what it sorts in seconds: two
+subtitles inverted by less than a frame are not counted, no dialog box opens,
+and yet the file is reordered.
 
-Notre modèle de diagnostics répond mieux à ce besoin qu'un dialogue : un
-`Diagnostic` est un **état** qui persiste dans le `ReadResult`, non un événement
-qui disparaît une fois la fenêtre fermée.
+Our diagnostics model meets this need better than a dialog: a `Diagnostic` is a
+**state** that persists in the `ReadResult`, not an event that disappears once
+the window is closed.
 
-### Ce que la lecture doit apprendre à dire
+### What reading must learn to say
 
-`DiagnosticKind` gagne `OutOfOrder` — un sous-titre dont le début précède celui
-du sous-titre précédent. Nous signalons déjà le chevauchement, qui est plus
-faible. Comme toute valeur de cette énumération, elle est émise par un lecteur :
-une valeur que personne ne produit est une promesse non tenue.
+`DiagnosticKind` gains `OutOfOrder` — a subtitle whose start precedes that of
+the previous subtitle. We already report overlap, which is weaker. Like every
+value of this enumeration, it is emitted by a reader: a value nobody produces is
+a broken promise.
 
-`Project` gagne une requête pure, `outOfOrder()`, qui rend les indices concernés.
-L'interface s'en sert pour montrer le désordre sans que la règle vive dans
-l'interface.
+`Project` gains a pure query, `outOfOrder()`, which returns the indices
+concerned. The interface uses it to show the disorder without the rule living
+in the interface.
 
-## Les opérations
+## The operations
 
-Toutes sont des commandes. Chacune capture à la construction ce qu'il faut pour
-se défaire, et rien de plus.
+All of them are commands. Each captures at construction what it needs to undo
+itself, and nothing more.
 
-| Opération | Ce que l'inverse retient |
+| Operation | What the inverse retains |
 | :-------- | :----------------------- |
-| modifier un texte | l'ancien texte, l'indice, le document |
-| modifier un début, une fin | l'ancienne position |
-| insérer | les indices insérés |
-| supprimer | les sous-titres retirés et leurs indices |
-| décaler | le décalage, à appliquer en sens inverse |
-| transformer | les positions antérieures de la sélection |
-| convertir la fréquence | les positions antérieures, et l'ancienne fréquence |
-| trier | l'ordre antérieur |
+| modify a text | the old text, the index, the document |
+| modify a start, an end | the old position |
+| insert | the inserted indices |
+| remove | the removed subtitles and their indices |
+| shift | the offset, to be applied in reverse |
+| transform | the previous positions of the selection |
+| convert the frame rate | the previous positions, and the old frame rate |
+| sort | the previous order |
 
-Le décalage retient un `Duration` et non les positions antérieures : son inverse
-est exact, et c'est l'économie que l'ADR 0010 réclame. La transformation et la
-conversion, elles, arrondissent — leur inverse ne peut pas être un second calcul
-et doit retenir les positions.
+Shifting retains a `Duration` and not the previous positions: its inverse is
+exact, and that is the economy ADR 0010 calls for. Transformation and
+conversion, on the other hand, round — their inverse cannot be a second
+calculation and must retain the positions.
 
 ### Insertion
 
-Insérer sans contenu crée des sous-titres vides, à la manière de Gaupol : ils se
-partagent la fenêtre libre avant le sous-titre suivant, ou durent trois secondes
-s'ils sont ajoutés à la fin.
+Inserting without content creates empty subtitles, in Gaupol's manner: they
+share the free window before the next subtitle, or last three seconds if they
+are added at the end.
 
-### Transformation par deux points de repère
+### Transformation by two reference points
 
-L'utilisateur désigne deux sous-titres et la position que leur début doit
-prendre. La correction est affine :
-
-```
-t′ = arrondi( (t − x₁) × r ) + y₁        avec r = (y₂ − y₁) / (x₂ − x₁)
-```
-
-Écrite ainsi plutôt que `arrondi(r × t) + constante` — la forme de Gaupol —
-pour deux raisons : **un seul arrondi**, et surtout **les deux repères tombent
-exactement où l'utilisateur les a demandés**, puisque `(x₂ − x₁) × r` vaut
-`y₂ − y₁` exactement. La forme de Gaupol ne le garantit pas.
-
-`r` est un `Ratio`, donc exact. Un dénominateur nul — deux repères sur le même
-sous-titre — est refusé à la construction.
-
-### Conversion de fréquence d'image
+The user designates two subtitles and the position their start must take. The
+correction is affine:
 
 ```
-t′ = arrondi( t × (entrée / sortie) )
+t′ = round( (t − x₁) × r ) + y₁        with r = (y₂ − y₁) / (x₂ − x₁)
 ```
 
-C'est la sémantique de Gaupol : un film masterisé à 23,976 et lu à 25 images par
-seconde défile plus vite, donc les positions avancent. La commande change aussi
-la fréquence du projet, et son inverse restitue les deux.
+Written this way rather than `round(r × t) + constant` — Gaupol's form — for two
+reasons: **a single rounding**, and above all **the two reference points land
+exactly where the user asked for them**, since `(x₂ − x₁) × r` equals `y₂ − y₁`
+exactly. Gaupol's form does not guarantee it.
 
-## Nom d'une commande
+`r` is a `Ratio`, hence exact. A zero denominator — two reference points on the
+same subtitle — is refused at construction.
+
+### Frame rate conversion
+
+```
+t′ = round( t × (input / output) )
+```
+
+These are Gaupol's semantics: a film mastered at 23.976 and played at 25 frames
+per second runs faster, so the positions move earlier. The command also changes
+the project's frame rate, and its inverse restores both.
+
+## Name of a command
 
 ```cpp
 enum class CommandKind { SetText, SetStart, SetEnd, Insert, Remove,
@@ -267,70 +263,72 @@ enum class CommandKind { SetText, SetStart, SetEnd, Insert, Remove,
 CommandKind Command::kind() const;
 ```
 
-Une énumération et non une chaîne, pour la raison qui vaut déjà pour
-`DiagnosticKind` : elle se traduit, et un test s'y accroche sans comparer une
-prose qui sera reformulée. C'est ce que la phase 5 affichera dans « Annuler :
-décalage des positions ».
+An enumeration and not a string, for the reason that already holds for
+`DiagnosticKind`: it can be translated, and a test can hook onto it without
+comparing prose that will be reworded. It is what phase 5 will display in
+"Undo: shift positions".
 
-## Ce que `Project` gagne
+## What `Project` gains
 
 ```cpp
 void insert(SubtitleIndex at, std::span<const Subtitle>);
-std::vector<Subtitle> remove(const Selection&);   // rend ce qui a été retiré
+std::vector<Subtitle> remove(const Selection&);   // returns what was removed
 std::vector<SubtitleIndex> outOfOrder() const;
 ```
 
-`remove` rend les sous-titres retirés : c'est exactement l'état que la commande
-inverse doit retenir, et le rendre évite de le relire avant de l'effacer.
+`remove` returns the removed subtitles: it is exactly the state the inverse
+command must retain, and returning it avoids reading it again before erasing
+it.
 
 ## Tests
 
-Pour chacune des huit opérations : appliquer puis annuler restitue l'état
-**exact**, et rétablir le reproduit. C'est la propriété que l'issue #4 a prouvée
-sur des commandes factices ; elle se vérifie ici sur les vraies.
+For each of the eight operations: applying then undoing restores the **exact**
+state, and redoing reproduces it. It is the property issue #4 proved on dummy
+commands; here it is checked on the real ones.
 
-Cas qui ne se devinent pas et doivent être couverts :
+Cases that cannot be guessed and must be covered:
 
-- les **deux repères d'une transformation tombent exactement** sur les positions
-  demandées ;
-- une conversion de fréquence donne le **même résultat que le calcul rationnel
-  exact**, et non celui de l'aller-retour par les images ;
-- un **décalage partiel** qui rompt l'ordre : signalé en `Lenient`, trié en
-  `Strict`, et annulable dans les deux cas ;
-- une suppression suivie d'une annulation restitue les sous-titres **à leurs
-  indices d'origine**, y compris pour une sélection discontinue ;
-- le **compteur de modification** revient à zéro en annulant jusqu'au point de
-  sauvegarde, à travers une composite.
+- the **two reference points of a transformation land exactly** on the
+  requested positions;
+- a frame rate conversion gives the **same result as the exact rational
+  calculation**, and not that of the round trip through frames;
+- a **partial shift** that breaks the order: reported under `Lenient`, sorted
+  under `Strict`, and undoable in both cases;
+- a removal followed by an undo restores the subtitles **at their original
+  indices**, including for a discontinuous selection;
+- the **modification counter** comes back to zero when undoing back to the save
+  point, through a composite.
 
-Le benchmark de conversion de fréquence posé à l'issue #9 mesure l'aller-retour
-par les images, c'est-à-dire une opération que cette phase n'implémentera pas.
-Il est à refaire.
+The frame rate conversion benchmark set up in issue #9 measures the round trip
+through frames, that is an operation this phase will not implement. It has to
+be redone.
 
-## Découpage en issues
+## Split into issues
 
-Dans l'ordre de traitement.
+In order of processing.
 
-| Travail | Nature |
-| :------ | :----- |
-| `Ratio`, mise à l'échelle de `Timestamp` et `Duration` | structurante |
-| `Selection`, `Project::insert` / `remove` / `outOfOrder`, diagnostic `OutOfOrder` | structurante |
-| `Session`, `CommandKind`, politique d'ordre, commande de tri | **point de contrôle** |
-| modifier un texte, un début, une fin | mécanique |
-| insérer, supprimer | mécanique |
-| décaler | mécanique |
-| transformer par deux repères | mécanique |
-| convertir la fréquence d'image | mécanique |
-| benchmarks refaits, section de manuel | mécanique |
+| Work | Nature |
+| :--- | :----- |
+| `Ratio`, scaling of `Timestamp` and `Duration` | structuring |
+| `Selection`, `Project::insert` / `remove` / `outOfOrder`, `OutOfOrder` diagnostic | structuring |
+| `Session`, `CommandKind`, order policy, sort command | **checkpoint** |
+| modify a text, a start, an end | mechanical |
+| insert, remove | mechanical |
+| shift | mechanical |
+| transform by two reference points | mechanical |
+| convert the frame rate | mechanical |
+| benchmarks redone, manual section | mechanical |
 
-La troisième est le point de contrôle : elle fixe la frontière entre le modèle
-et la politique, et tout ce qui suit s'y appuie.
+The third is the checkpoint: it sets the boundary between the model and the
+policy, and everything that follows builds on it.
 
-## Critères de fin
+## Completion criteria
 
-- [ ] Les huit opérations s'annulent et se rétablissent à l'identique
-- [ ] Les deux repères d'une transformation tombent exactement sur leur cible
-- [ ] La conversion de fréquence égale le calcul rationnel exact
-- [ ] Un décalage partiel rompant l'ordre est signalé en souple, trié en strict
-- [ ] `Session::project()` est constante : aucune modification hors commande
-- [ ] `make check` passe, cliquet de couverture tenu
-- [ ] Benchmarks refaits, section de manuel et entrée de CHANGELOG à jour
+- [ ] The eight operations are undone and redone identically
+- [ ] The two reference points of a transformation land exactly on their target
+- [ ] The frame rate conversion equals the exact rational calculation
+- [ ] A partial shift breaking the order is reported in lenient mode, sorted in
+      strict mode
+- [ ] `Session::project()` is const: no modification outside a command
+- [ ] `make check` passes, coverage ratchet held
+- [ ] Benchmarks redone, manual section and CHANGELOG entry up to date
