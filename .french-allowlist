@@ -38,7 +38,6 @@ cmake/ToolchainSanity.cmake
 cmake/Translations.cmake
 cmake/Warnings.cmake
 docs/mesures/performances.md
-docs/specs/05-interface-tabulaire.md
 docs/specs/06-lecteur-integre.md
 docs/specs/07-finitions-et-premiere-livraison.md
 docs/specs/08-encodages.md

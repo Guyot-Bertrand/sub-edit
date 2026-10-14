@@ -1,640 +1,626 @@
-# Phase 5 — Interface : édition tabulaire
+# Phase 5 — Interface: tabular editing
 
-Cadrée le 2026-08-17, issue [#125](https://github.com/Guyot-Bertrand/sub-edit/issues/125).
+Framed on 2026-08-17, issue [#125](https://github.com/Guyot-Bertrand/sub-edit/issues/125).
 
-## Objectif
+## Goal
 
-Le cœur de l'usage : **ouvrir un fichier, l'éditer dans une table, l'enregistrer,
-annuler.** C'est la première phase dont le produit est une fenêtre, et la
-première où un utilisateur voit le projet autrement que par une sortie de
-terminal.
+The heart of the usage: **open a file, edit it in a table, save it, undo.** This
+is the first phase whose product is a window, and the first where a user sees
+the project other than through a terminal's output.
 
-Les quatre phases précédentes ont construit un noyau et une ligne de commande.
-Celle-ci n'ajoute presque aucune capacité au noyau : elle en expose ce qui
-existe. Trois commandes — `SetStart`, `SetEnd` et `Insert` — n'ont d'ailleurs
-**aucune preuve de bout en bout** à ce jour, et deux autres — `SetText` et
-`Remove` — ne sont atteintes qu'indirectement, par le retrait des mentions qui
-les compose. Aucune sous-commande ne les expose. La fenêtre est la première
-surface qui les appelle pour elles-mêmes, et elle n'en couvre que deux :
-`SetStart` et `SetEnd`, `Insert` restant à la phase 7.
+The four previous phases built a core and a command line. This one adds almost
+no capability to the core: it exposes what exists. Three commands — `SetStart`,
+`SetEnd` and `Insert` — in fact have **no end-to-end proof** to date, and two
+others — `SetText` and `Remove` — are only reached indirectly, through the
+removal of annotations that composes them. No subcommand exposes them. The
+window is the first surface that calls them for their own sake, and it covers
+only two of them: `SetStart` and `SetEnd`, `Insert` being left to phase 7.
 
-## Portée
+## Scope
 
-**Ce que la phase construit :**
+**What the phase builds:**
 
-- une fenêtre, un projet à la fois, une table à cinq colonnes — numéro, début,
-  fin, durée, texte ;
-- l'édition en place du texte, du début et de la fin ;
-- ouvrir, enregistrer, enregistrer sous ;
-- annuler et rétablir, branchés sur l'historique du noyau ;
-- quatre opérations par dialogue — décaler, transformer, convertir la fréquence
-  d'image, retirer les mentions pour malentendants ;
-- le marquage des sous-titres en désordre.
+- a window, one project at a time, a five-column table — number, start, end,
+  duration, text;
+- in-place editing of the text, the start and the end;
+- open, save, save as;
+- undo and redo, wired to the core's history;
+- four operations through a dialog — shift, transform, convert the frame rate,
+  remove hearing impaired annotations;
+- marking out-of-order subtitles.
 
-**Ce qui n'y est pas, et où ça va :**
+**What is not in it, and where it goes:**
 
-| Écarté | Où | Pourquoi |
-| :----- | :- | :------- |
-| insertion et suppression de sous-titres depuis la fenêtre | phase 7 | l'édition des cellules est le cœur de l'usage ; ajouter une ligne ne l'est pas |
-| configuration persistée, préférences | phase 7 | la feuille de route l'y place déjà, et rien de persistant n'est requis pour que la table fonctionne |
-| multi-projets en onglets | phase 11 | hors contour du MVP |
-| colonne de traduction | phase 11 | le modèle l'accueille, l'interface ne la construit pas |
-| colonnes configurables, coloration des différences | non planifié | hors contour du MVP |
-| mode d'édition en images | phase 9 | aucun format à images avant MicroDVD |
-| édition de la durée | phase 10 | le noyau n'a pas de `SetDurationCommand`, et la phase 2 s'est arrêtée à « un texte, un début, une fin » |
+| Set aside | Where | Why |
+| :-------- | :---- | :-- |
+| inserting and removing subtitles from the window | phase 7 | editing cells is the heart of the usage; adding a row is not |
+| persisted configuration, preferences | phase 7 | the roadmap already puts it there, and nothing persistent is required for the table to work |
+| multiple projects in tabs | phase 11 | outside the MVP outline |
+| translation column | phase 11 | the model accommodates it, the interface does not build it |
+| configurable columns, highlighting of differences | not planned | outside the MVP outline |
+| frame-based editing mode | phase 9 | no frame-based format before MicroDVD |
+| editing the duration | phase 10 | the core has no `SetDurationCommand`, and phase 2 stopped at "a text, a start, an end" |
 
-**Trois travaux de noyau précèdent la fenêtre**, et ils sont dans la phase parce
-qu'elle les déclenche : la réorganisation de `format/` et `model/`, la scission
-des diagnostics, et la représentation compacte des sélections et des changements
-([#45](https://github.com/Guyot-Bertrand/sub-edit/issues/45)).
+**Three pieces of core work come before the window**, and they are in the phase
+because it triggers them: the reorganisation of `format/` and `model/`, the
+split of the diagnostics, and the compact representation of selections and
+changes ([#45](https://github.com/Guyot-Bertrand/sub-edit/issues/45)).
 
-## Décisions applicables
+## Applicable decisions
 
-| ADR | Ce qu'elle fixe |
+| ADR | What it settles |
 | :-- | :-------------- |
-| [0001](../adr/0001-cpp20-et-qt6.md) | Qt 6, et un cœur sans dépendance à l'interface |
-| [0010](../adr/0010-annulation-par-commandes.md) | des commandes portant leur propre inverse |
-| [0012](../adr/0012-ordre-des-sous-titres-par-composition.md) | le modèle ne trie pas de lui-même |
-| [0014](../adr/0014-registre-d-exigences.md) | des exigences citées par un tag de test |
-| [0018](../adr/0018-vocabulaire-des-formats-dans-le-modele.md) | le vocabulaire des formats au modèle, les opérations à `format/` |
-| [0019](../adr/0019-table-en-adaptateur-mince.md) | une table qui lit à travers le modèle, un noyau qui rend ses changements |
+| [0001](../adr/0001-cpp20-et-qt6.md) | Qt 6, and a core with no dependency on the interface |
+| [0010](../adr/0010-annulation-par-commandes.md) | commands carrying their own inverse |
+| [0012](../adr/0012-ordre-des-sous-titres-par-composition.md) | the model does not sort on its own |
+| [0014](../adr/0014-registre-d-exigences.md) | requirements cited by a test tag |
+| [0018](../adr/0018-vocabulaire-des-formats-dans-le-modele.md) | the format vocabulary in the model, the operations in `format/` |
+| [0019](../adr/0019-table-en-adaptateur-mince.md) | a table that reads through the model, a core that returns its changes |
 
-## Ce que Gaupol fait, et où nous divergeons
+## What Gaupol does, and where we diverge
 
-L'analyse a porté sur `gaupol/view.py`, `page.py`, `application.py`,
-`renderers/multiline.py`, `config.py` et les dialogues d'opération.
+The analysis covered `gaupol/view.py`, `page.py`, `application.py`,
+`renderers/multiline.py`, `config.py` and the operation dialogs.
 
-**Il duplique intégralement la table.** `page.py` recopie chaque sous-titre dans
-un `Gtk.ListStore` et le tient à jour par huit gestionnaires de signaux. Le prix
-est écrit dans son code : `reload_view_all()` reconstruit tout à l'ouverture,
-`_on_project_subtitles_removed` débranche le modèle de la vue au-delà de
-cinquante lignes retirées — « une grande série de mises à jour vives faites
-directement à la vue est lente » —, et un `iterate_main()` traîne après chaque
-rafraîchissement. Nous prenons l'adaptateur mince, et [0019](../adr/0019-table-en-adaptateur-mince.md)
-dit pourquoi.
+**It duplicates the table entirely.** `page.py` copies every subtitle into a
+`Gtk.ListStore` and keeps it up to date through eight signal handlers. The price
+is written in its code: `reload_view_all()` rebuilds everything on opening,
+`_on_project_subtitles_removed` disconnects the model from the view beyond fifty
+removed rows — "a large series of live updates made directly to the view is
+slow" —, and an `iterate_main()` lingers after each refresh. We take the thin
+adapter, and [0019](../adr/0019-table-en-adaptateur-mince.md) says why.
 
-**Il ne stocke pas le numéro** : une fonction de cellule le calcule depuis
-l'indice de ligne. Nous faisons pareil — le numéro est un rang, pas une donnée.
+**It does not store the number**: a cell function computes it from the row
+index. We do the same — the number is a rank, not data.
 
-**Il n'a aucune migration de configuration, et c'est un dispositif.** Le fichier
-est lu option par option ; une clé inconnue est acceptée puis effacée à
-l'écriture si elle n'est plus dans les défauts ; une valeur illisible imprime sur
-la sortie d'erreur et laisse le défaut ; toute option restée à sa valeur par
-défaut est réécrite **commentée**, si bien qu'un changement de défaut prend effet
-chez qui ne l'a jamais surchargé. `general.version` est écrit et n'est jamais
-relu : une trace, pas un déclencheur. Le constat est consigné ici pour la
-phase 7, qui en hérite.
+**It has no configuration migration, and that is a mechanism.** The file is read
+option by option; an unknown key is accepted then erased on writing if it is no
+longer among the defaults; an unreadable value prints on error output and
+leaves the default; every option left at its default value is rewritten
+**commented out**, so that a change of default takes effect for anyone who never
+overrode it. `general.version` is written and never read back: a trace, not a
+trigger. The finding is recorded here for phase 7, which inherits it.
 
-**Sa fréquence d'entrée vient d'une préférence.**
-`FramerateConvertDialog._init_values()` pose les deux listes sur
-`page.project.framerate`, qui vient de `conf.editor.framerate` — 23,976 par
-défaut. Aucune heuristique de nom de fichier, aucune lecture de vidéo, en vingt
-ans. Voir « L'origine de la fréquence » plus bas.
+**Its input frame rate comes from a preference.**
+`FramerateConvertDialog._init_values()` sets both lists to
+`page.project.framerate`, which comes from `conf.editor.framerate` — 23.976 by
+default. No file name heuristic, no reading of the video, in twenty years. See
+"The origin of the input frame rate" below.
 
-**Son édition multiligne lui a coûté un widget.** `MultilineCellRenderer` fabrique
-un `CellTextView`, une `Gtk.TextView` qui implémente `Gtk.CellEditable`, avec
-`Entrée` et `Échap` gérés à la main et un contournement à la perte de focus
-— « supprimer l'éditeur là envoie la gestion du focus de GTK dans une boucle
-infinie ». Qt offre le même geste par un chemin documenté : un
-`QStyledItemDelegate` qui rend un `QPlainTextEdit`.
+**Its multi-line editing cost it a widget.** `MultilineCellRenderer` builds a
+`CellTextView`, a `Gtk.TextView` that implements `Gtk.CellEditable`, with
+`Enter` and `Escape` handled by hand and a workaround on focus loss — "removing
+the editor there sends GTK's focus handling into an infinite loop". Qt offers
+the same gesture through a documented path: a `QStyledItemDelegate` that returns
+a `QPlainTextEdit`.
 
-## Le noyau avant la fenêtre
+## The core before the window
 
-### 1. Le vocabulaire des formats rejoint le modèle
+### 1. The format vocabulary joins the model
 
-`SourceFile` retient tout du fichier d'origine sauf son format. Une fenêtre qui
-ouvre puis enregistre en a besoin, et l'y ajouter créerait la première arête
-`model/ → format/`.
+`SourceFile` retains everything about the original file except its format. A
+window that opens then saves needs it, and adding it there would create the
+first `model/ → format/` edge.
 
-[0018](../adr/0018-vocabulaire-des-formats-dans-le-modele.md) tranche : `format/`
-ne garde que les opérations, le vocabulaire va au modèle, et ce qui ignore
-jusqu'au mot « sous-titre » sort des deux — `io/` pour le disque, `text/` pour
-les chaînes. `SourceFile` porte alors son format sans arête nouvelle.
+[0018](../adr/0018-vocabulaire-des-formats-dans-le-modele.md) settles it:
+`format/` keeps only the operations, the vocabulary goes to the model, and what
+does not even know the word "subtitle" leaves both — `io/` for the disk, `text/`
+for strings. `SourceFile` then carries its format without a new edge.
 
-Le déplacement est **mécanique et sans changement de comportement** : 38 fichiers
-dont les inclusions changent. Il faisait alors retomber `tidy-scope.sh` sur
-l'analyse complète, donc une porte à plein tarif, payée une fois. Ce script a
-disparu avec #269 : l'analyse suit désormais les dépendances que le compilateur
-a écrites, et un déplacement d'en-têtes réanalyse ce qui les inclut, ni plus.
+The move is **mechanical and without any change of behaviour**: 38 files whose
+includes change. At the time it made `tidy-scope.sh` fall back to the full
+analysis, hence a gate at full price, paid once. That script disappeared with
+#269: the analysis now follows the dependencies the compiler has written, and a
+move of headers reanalyses what includes them, nothing more.
 
-### 2. Les diagnostics se scindent
+### 2. The diagnostics split
 
-Trois catégories de `DiagnosticKind` ne décrivent pas ce qu'une lecture a
-rencontré mais ce qu'un document est. Elles se séparent, et le repère dit
-pourquoi : **une ligne n'existe qu'au moment de la lecture, un indice survit à
-l'édition.**
+Three categories of `DiagnosticKind` do not describe what a reading encountered
+but what a document is. They separate, and the locator says why: **a line exists
+only at the moment of reading, an index survives editing.**
 
-| Reste dans `format/diagnostic.hpp`, repéré par une ligne | Passe dans `model/anomaly.hpp`, repéré par un `SubtitleIndex` |
+| Stays in `format/diagnostic.hpp`, located by a line | Moves to `model/anomaly.hpp`, located by a `SubtitleIndex` |
 | :--- | :--- |
 | `IgnoredLine`, `MalformedTimestamp`, `MissingNumbering`, `InconsistentNumbering`, `TextBeforeAnyTimestamp`, `UnknownBlock`, `MixedNewlines` | `EndBeforeStart`, `OverlappingSubtitles`, `OutOfOrder` |
 
-Le modèle expose `scanAnomalies(const Project&)`, que lisent **`inspect` et la
-fenêtre**. `Project::outOfOrder()` disparaît avec `OrderReport` : rien ne lisait
-plus la liste, et la politique d'ordre stricte se contente d'un `isInOrder()`
-qui n'alloue rien. **`--order-report` part dans le même mouvement**, faute de
-consommateur — le retrait était annoncé pour #134, il a suivi la fonction qui
-l'alimentait.
+The model exposes `scanAnomalies(const Project&)`, which **`inspect` and the
+window** read. `Project::outOfOrder()` disappears with `OrderReport`: nothing
+read the list any more, and the strict order policy makes do with an
+`isInOrder()` that allocates nothing. **`--order-report` goes in the same
+move**, for lack of a consumer — its removal was announced for #134, it followed
+the function that fed it.
 
-**Ce que ça change pour l'utilisateur**, corrigé au moment de le faire : je
-craignais ici la perte d'un repère de ligne. Elle n'a pas lieu pour le désordre —
-la ligne `order:` de `inspect` **donnait déjà un numéro de sous-titre**, sous
-l'étiquette trompeuse « line ». Le changement réel est ailleurs : la fin avant le
-début et le chevauchement quittent les diagnostics, où ils portaient une vraie
-ligne de fichier, pour rejoindre les anomalies, qui portent un sous-titre. C'est
-un repère moins précis pour qui ouvre le fichier dans un éditeur de texte, et il
-est accepté parce que l'indice est le seul qui survive à une édition — sans quoi
-aucune anomalie ne serait calculable après une modification.
+**What it changes for the user**, corrected when doing it: I feared here the
+loss of a line locator. It does not happen for disorder — the `order:` line of
+`inspect` **already gave a subtitle number**, under the misleading label
+"line". The real change is elsewhere: end before start and overlap leave the
+diagnostics, where they carried a real file line, to join the anomalies, which
+carry a subtitle. It is a less precise locator for whoever opens the file in a
+text editor, and it is accepted because the index is the only one that survives
+an edit — otherwise no anomaly could be computed after a modification.
 
-La ligne `order:` devient `anomalies:`, et son étiquette cesse de mentir.
+The `order:` line becomes `anomalies:`, and its label stops lying.
 
-**La lecture du désordre est tranchée : `Breaks`.** Sur les départs
-`0, 4000, 2000, 3000`, elle nomme `{2}` quand l'autre nomme `{2, 3}` — or la
-ligne 3 est à sa place vis-à-vis de la 2 : la signaler désigne une ligne qu'il
-n'y a rien à corriger. Une table qui surligne les fautives doit surligner celles
-qu'on déplace.
+**The reading of disorder is settled: `Breaks`.** On the starts
+`0, 4000, 2000, 3000`, it names `{2}` where the other names `{2, 3}` — yet row 3
+is in its place relative to row 2: reporting it points at a row with nothing to
+correct. A table that highlights the faulty rows must highlight the ones to be
+moved.
 
-**Le corpus n'a pas départagé, et il faut le dire.** La phase 3 avait exposé les
-deux lectures sous `--order-report` pour « les comparer sur des fichiers réels ».
-Les deux lectures ont été lancées sur les quinze fichiers de `src/data/` :
-**aucun n'est en désordre**, elles s'accordent trivialement partout, et huit ne
-sont pas de l'UTF-8 valide. La décision est donc prise par raisonnement, faute de
-données, et non par mesure. `--order-report` disparaît.
+**The corpus did not decide, and that must be said.** Phase 3 had exposed both
+readings under `--order-report` to "compare them on real files". Both readings
+were run on the fifteen files of `src/data/`: **none is out of order**, they
+agree trivially everywhere, and eight are not valid UTF-8. The decision is
+therefore made by reasoning, for lack of data, and not by measurement.
+`--order-report` disappears.
 
-### 3. Le coût d'une opération portant sur tout un fichier
+### 3. The cost of an operation on a whole file
 
-[#45](https://github.com/Guyot-Bertrand/sub-edit/issues/45) passe **avant** la
-table, et cet ordre change ce qu'elle doit produire.
+[#45](https://github.com/Guyot-Bertrand/sub-edit/issues/45) goes **before** the
+table, and that order changes what it must produce.
 
-Le modèle de table traduit un `Change` en `dataChanged(topLeft, bottomRight)` :
-**Qt veut des plages, pas des indices.** Une table écrite avant #45 déballerait
-quatre mille indices pour les recoller en intervalles ; écrite après, elle
-consomme la forme compacte telle quelle. La représentation que #45 introduit doit
-donc **exposer des intervalles utilisables directement**, et pas seulement
-occuper moins de mémoire.
+The table model translates a `Change` into `dataChanged(topLeft, bottomRight)`:
+**Qt wants ranges, not indices.** A table written before #45 would unpack four
+thousand indices only to glue them back into intervals; written after, it
+consumes the compact form as is. The representation that #45 introduces must
+therefore **expose directly usable intervals**, and not merely take up less
+memory.
 
-Deux notes sur la mesure et la portée :
+Two notes on the measurement and the scope:
 
-- elle se prendra sur les benchmarks du noyau et non sur la fenêtre, qui n'existe
-  pas encore ; l'empreinte de l'historique est déjà chiffrée — 32 Ko par
-  décalage, 64 Ko par transformation — et c'est le point de comparaison ;
-- son point 2, le retrait quadratique, garde sa raison d'être malgré l'absence
-  de menu « supprimer » : `removeHearingImpaired` produit un `RemoveCommand` que
-  l'annulation ré-insère.
+- it will be taken on the core benchmarks and not on the window, which does not
+  exist yet; the history footprint is already quantified — 32 KB per shift,
+  64 KB per transformation — and that is the point of comparison;
+- its point 2, the quadratic removal, keeps its reason for being despite the
+  absence of a "delete" menu: `removeHearingImpaired` produces a `RemoveCommand`
+  that undo reinserts.
 
-## L'architecture de la fenêtre
+## The architecture of the window
 
-### Où vit le code
+### Where the code lives
 
-`src/lib/subedit/gui/`, bibliothèque `subedit::gui`, sur le modèle de
-`subedit::cli`. `src/exe/gui/main.cpp` reste du câblage.
+`src/lib/subedit/gui/`, library `subedit::gui`, on the model of `subedit::cli`.
+`src/exe/gui/main.cpp` stays wiring.
 
-Ce n'est pas un choix de style : `check-architecture.sh` refuse un `main` qui
-définit une classe ou dépasse sa limite de lignes, et refuse toute inclusion de
-Qt sous `core/`. La frontière est tenue par la porte.
+This is not a choice of style: `check-architecture.sh` refuses a `main` that
+defines a class or exceeds its line limit, and refuses any Qt include under
+`core/`. The boundary is held by the gate.
 
-### Le modèle de table
+### The table model
 
-`SubtitleTableModel : QAbstractTableModel`, adaptateur mince sur `const Project&`.
+`SubtitleTableModel : QAbstractTableModel`, a thin adapter over
+`const Project&`.
 
-| Colonne | Contenu | Éditable |
-| :------ | :------ | :------- |
-| numéro | `row + 1`, jamais stocké | non |
-| début | `Timestamp::format()` | oui |
-| fin | `Timestamp::format()` | oui |
-| durée | `fin − début`, formatée | non |
-| texte | le texte du document principal | oui |
+| Column | Content | Editable |
+| :----- | :------ | :------- |
+| number | `row + 1`, never stored | no |
+| start | `Timestamp::format()` | yes |
+| end | `Timestamp::format()` | yes |
+| duration | `end − start`, formatted | no |
+| text | the text of the main document | yes |
 
-`data()` va chercher `project.subtitleAt(index)` et formate à la volée. Aucun
-sous-titre n'est recopié, et le modèle ne matérialise jamais ce qui n'est pas
-visible.
+`data()` fetches `project.subtitleAt(index)` and formats on the fly. No subtitle
+is copied, and the model never materialises what is not visible.
 
-La durée n'est pas éditable : le noyau n'a pas de commande pour ça, et en
-inventer une ici serait du travail de noyau glissé dans une phase d'interface.
+The duration is not editable: the core has no command for it, and inventing one
+here would be core work slipped into an interface phase.
 
-Le séparateur décimal affiché suit le format du projet — virgule pour SubRip,
-point pour WebVTT — pour que ce qu'on lit à l'écran soit ce qui sera écrit.
+The decimal separator displayed follows the project's format — comma for
+SubRip, point for WebVTT — so that what one reads on screen is what will be
+written.
 
-### Ce que la fenêtre apprend d'un changement
+### What the window learns from a change
 
-`Session::apply`, `undo` et `redo` rendent `std::vector<Change>` au lieu de
-`void`. L'annulation le rend inversé, par une fonction libre `invert(ChangeKind)`
-— les indices sont les mêmes dans les deux sens.
+`Session::apply`, `undo` and `redo` return `std::vector<Change>` instead of
+`void`. Undo returns it inverted, through a free function `invert(ChangeKind)` —
+the indices are the same in both directions.
 
-Le modèle traduit :
+The model translates:
 
-| Ce que le `Change` dit | Ce que le modèle émet |
-| :--------------------- | :-------------------- |
-| `Positions` | `dataChanged` sur les colonnes début, fin, durée |
-| `MainText` | `dataChanged` sur la colonne texte |
-| `Reordering` | `dataChanged` sur toute la largeur des plages |
+| What the `Change` says | What the model emits |
+| :--------------------- | :------------------- |
+| `Positions` | `dataChanged` on the start, end, duration columns |
+| `MainText` | `dataChanged` on the text column |
+| `Reordering` | `dataChanged` over the full width of the ranges |
 | `Insertion`, `Removal` | `beginResetModel` / `endResetModel` |
 
-La réinitialisation est le prix de l'ordre des choses : Qt exige d'encadrer un
-changement de structure **avant** qu'il ait lieu, `Session` ne le rapporte
-qu'après, et aucune commande ne peut le prédire — `removeHearingImpaired` ne sait
-quels sous-titres la règle vide qu'une fois la règle appliquée.
-[0019](../adr/0019-table-en-adaptateur-mince.md) porte la décision et son
-déclencheur de réexamen.
+The reset is the price of the order of things: Qt requires a structural change
+to be bracketed **before** it happens, `Session` only reports it afterwards, and
+no command can predict it — `removeHearingImpaired` only knows which subtitles
+the rule empties once the rule has been applied.
+[0019](../adr/0019-table-en-adaptateur-mince.md) carries the decision and its
+trigger for re-examination.
 
-### L'annulation
+### Undo
 
-Pas de `QUndoStack`. `canUndo()` et `canRedo()` pilotent deux `QAction` ; le
-libellé « Undo: … » vient de `CommandKind` traduit par une fonction libre de
-`subedit::gui` — l'énumération existe pour ça, son commentaire le dit.
+No `QUndoStack`. `canUndo()` and `canRedo()` drive two `QAction`s; the label
+"Undo: …" comes from `CommandKind` translated by a free function of
+`subedit::gui` — the enumeration exists for that, its comment says so.
 
-Écrit « Annuler : … » au cadrage, et corrigé à la relecture : l'interface est en
-anglais depuis [#145](https://github.com/Guyot-Bertrand/sub-edit/issues/145), et
-une spec qui garde l'ancien mot fait douter du code plutôt que d'elle-même.
+Written as the French label for "Undo: …" at framing time, and corrected at
+review: the interface has been in English since
+[#145](https://github.com/Guyot-Bertrand/sub-edit/issues/145), and a spec that
+keeps the old word makes one doubt the code rather than itself.
 
-**La question de groupement laissée ouverte en phase 2 se referme sans
-mécanisme.** Un `QStyledItemDelegate` valide une fois, à `Entrée` ou à la perte
-du focus : une cellule éditée produit **une** commande. Il n'y a rien à grouper,
-donc rien à construire.
+**The grouping question left open in phase 2 closes without a mechanism.** A
+`QStyledItemDelegate` commits once, on `Enter` or on focus loss: an edited cell
+produces **one** command. There is nothing to group, hence nothing to build.
 
-### L'édition en place
+### In-place editing
 
-Trois délégués :
+Three delegates:
 
-- **texte** — `QPlainTextEdit`, multiligne, `Entrée` valide, `Maj+Entrée` insère
-  un saut de ligne, `Échap` annule ;
-- **début** et **fin** — champ de saisie contraint, lu par `Timestamp::parse`,
-  qui est déjà permissif comme les fichiers réels l'exigent ; une saisie illisible
-  laisse la cellule inchangée.
+- **text** — `QPlainTextEdit`, multi-line, `Enter` commits, `Shift+Enter`
+  inserts a line break, `Escape` cancels;
+- **start** and **end** — a constrained input field, read by `Timestamp::parse`,
+  which is already permissive as real files demand; an unreadable entry leaves
+  the cell unchanged.
 
-Une validation qui ne change rien ne produit aucune commande : l'historique n'a
-pas à retenir une frappe suivie d'un `Entrée` sur un texte identique.
+A commit that changes nothing produces no command: the history has no need to
+remember a keystroke followed by `Enter` on an identical text.
 
-## La surface visible
+## The visible surface
 
-### Ouvrir
+### Opening
 
-`subedit-gui <fichier>` d'abord — la fenêtre est utile et testable dès qu'elle
-prend un chemin en argument —, le dialogue d'ouverture ensuite.
+`subedit-gui <file>` first — the window is useful and testable as soon as it
+takes a path as an argument —, the open dialog afterwards.
 
-La lecture passe par `readSubtitles`. Un `ReadError` donne un message et rien
-d'ouvert. **Les diagnostics de lecture sont montrés** dans un panneau repliable :
-c'est le premier endroit du projet où ils atteignent un utilisateur autrement que
-par `-vvv`.
+Reading goes through `readSubtitles`. A `ReadError` gives a message and nothing
+opened. **The reading diagnostics are shown** in a collapsible panel: it is the
+first place in the project where they reach a user other than through `-vvv`.
 
-*Remplacé à la relecture de la phase 13 ([#605](https://github.com/Guyot-Bertrand/sub-edit/issues/605)) : le panneau
-replié prenait une rangée de la fenêtre pour une information rare, lue une fois. Ce sont maintenant un bouton de
-la barre d'état et une liste flottante ; `GUI-OPEN-03` ne change pas.*
+*Replaced at the phase 13 review ([#605](https://github.com/Guyot-Bertrand/sub-edit/issues/605)): the collapsed panel
+took a row of the window for rare information, read once. They are now a button
+of the status bar and a floating list; `GUI-OPEN-03` does not change.*
 
-### Enregistrer, enregistrer sous
+### Save, save as
 
-Enregistrer réécrit dans le format, les fins de ligne, le BOM et l'en-tête
-d'origine — `SourceFile` les porte tous, et portera le format après la
-réorganisation. L'écriture passe par l'écriture atomique existante, et
-`Session::markSaved` remet le compteur de modifications à zéro.
+Save rewrites in the original format, line endings, BOM and header —
+`SourceFile` carries them all, and will carry the format after the
+reorganisation. Writing goes through the existing atomic write, and
+`Session::markSaved` resets the modification counter to zero.
 
-« Enregistrer sous » ajoute le choix du chemin et du format.
+"Save as" adds the choice of path and format.
 
-**Les `FormatExtras` de l'autre variante : regardé, et rien à faire.** La
-question était ouverte — un projet lu en WebVTT porte des `WebVttExtras` qu'un
-écrivain SubRip n'a que faire, et réciproquement. Les deux écrivains
-interrogent la variante par `std::get_if` et retombent sur leurs valeurs par
-défaut quand elle appartient à l'autre format : `sub_rip_writer.cpp` pour les
-coordonnées, `web_vtt_writer.cpp` pour l'identifiant, les réglages, le style et
-le commentaire.
+**The `FormatExtras` of the other variant: looked at, and nothing to do.** The
+question was open — a project read as WebVTT carries `WebVttExtras` that a
+SubRip writer has no use for, and vice versa. Both writers query the variant
+through `std::get_if` and fall back on their default values when it belongs to
+the other format: `sub_rip_writer.cpp` for the coordinates, `web_vtt_writer.cpp`
+for the identifier, the settings, the style and the comment.
 
-Ce qui n'appartient pas au format écrit est donc **ignoré silencieusement**, et
-non traduit au hasard ni recopié tel quel. C'est le bon comportement, il était
-déjà là, et rien ne le disait : deux tests le disent désormais. Les extras ne
-sont pas perdus pour autant — ils restent dans le projet, et réenregistrer dans
-le format d'origine les réécrit.
+What does not belong to the written format is therefore **silently ignored**,
+and neither translated at random nor copied as is. It is the right behaviour, it
+was already there, and nothing said so: two tests now say it. The extras are not
+lost for all that — they remain in the project, and saving again in the original
+format rewrites them.
 
-Constaté à l'issue [#131](https://github.com/Guyot-Bertrand/sub-edit/issues/131).
+Found in issue [#131](https://github.com/Guyot-Bertrand/sub-edit/issues/131).
 
-Fermer ou ouvrir un autre fichier alors que `hasUnsavedChanges` est vrai demande
+Closing or opening another file while `hasUnsavedChanges` is true asks for
 confirmation.
 
-### Les opérations
+### The operations
 
-Quatre dialogues, et une cible commune : **la sélection, ou tout le fichier**.
-C'est ce que la phase 4 avait renvoyé ici — « phase 5, qui apporte une vraie
-sélection ».
+Four dialogs, and a common target: **the selection, or the whole file**. This is
+what phase 4 had sent here — "phase 5, which brings a real selection".
 
-| Dialogue | Ce qu'il demande |
-| :------- | :--------------- |
-| décaler | une durée signée |
-| transformer | deux repères, indice et position corrigée |
-| convertir la fréquence | fréquence d'entrée, fréquence de sortie |
-| retirer les mentions | rien qu'une confirmation, et un compte rendu |
+| Dialog | What it asks for |
+| :----- | :--------------- |
+| shift | a signed duration |
+| transform | two reference points, index and corrected position |
+| convert the frame rate | input frame rate, output frame rate |
+| remove annotations | nothing but a confirmation, and a report |
 
-Le retrait des mentions demande **une signature de plus au noyau** :
-`removeHearingImpaired` parcourt aujourd'hui tout le projet en dur, et doit
-accepter une `Selection`.
+The removal of annotations requires **one more signature from the core**:
+`removeHearingImpaired` currently walks the whole project unconditionally, and
+must accept a `Selection`.
 
-Une opération qui ne change rien — `removeHearingImpaired` rend `nullptr` dans ce
-cas — n'entre pas dans l'historique et le dit.
+An operation that changes nothing — `removeHearingImpaired` returns `nullptr` in
+that case — does not enter the history and says so.
 
-### L'origine de la fréquence d'entrée
+### The origin of the input frame rate
 
-**Question close, et sans heuristique.** Le dialogue de conversion demande la
-fréquence d'entrée, pré-remplie par celle du projet.
+**Question closed, and without a heuristic.** The conversion dialog asks for the
+input frame rate, pre-filled with the project's.
 
-Le fichier ne la porte pas et ne peut pas la porter : SubRip n'a pas d'en-tête,
-celui de WebVTT est du texte libre, et les deux formats du MVP sont temporels.
-Une heuristique tirée du nom de fichier a été **écartée faute de données** — les
-quinze fichiers de `src/data/` ont été renommés à la main, leurs noms sont le
-produit d'un nettoyage et non une observation, et aucun fichier aux noms intacts
-n'est disponible. Se tromper de fréquence décale tout le fichier sans rien
-signaler : silencieux et global, le pire mode d'échec de cette opération.
+The file does not carry it and cannot carry it: SubRip has no header, WebVTT's
+is free text, and the two MVP formats are time-based. A heuristic drawn from the
+file name was **set aside for lack of data** — the fifteen files of `src/data/`
+were renamed by hand, their names are the product of a clean-up and not an
+observation, and no file with intact names is available. Getting the frame rate
+wrong shifts the whole file without reporting anything: silent and global, the
+worst failure mode of this operation.
 
-Gaupol ne fait pas mieux et n'a jamais fait mieux ; l'iso-fonctionnalité est
-atteinte.
+Gaupol does no better and never has; iso-functionality is reached.
 
-**Deux pistes existent, et aucune n'est de cette phase.** Le conteneur vidéo
-*déclare* sa fréquence, et la phase 6 associe déjà une vidéo au projet. Et les
-positions elles-mêmes la *trahissent* : convertir une fréquence suppose qu'elles
-étaient calées sur une grille d'images, et cette grille se mesure — huit des
-quinze fichiers du corpus privé la donnent sans ambiguïté, contre un bruit de
-fond de quelques pour cent. C'est l'objet de la **phase 16**, née de ce
-cadrage.
+**Two leads exist, and neither belongs to this phase.** The video container
+*declares* its frame rate, and phase 6 already associates a video with the
+project. And the positions themselves *betray* it: converting a frame rate
+assumes they were aligned on a frame grid, and that grid can be measured — eight
+of the fifteen files of the private corpus give it unambiguously, against a
+background noise of a few percent. That is the subject of **phase 16**, born of
+this framing.
 
-**La phase 5 ne dépend d'aucune des deux.** Son dialogue demande la fréquence et
-la pré-remplit par celle du projet ; le jour où une mesure existe, elle
-remplacera ce pré-remplissage sans que le dialogue change de forme. Écrire
-l'inverse — attendre la mesure pour construire le dialogue — ferait dépendre le
-MVP d'une capacité qui n'existe nulle part ailleurs.
+**Phase 5 depends on neither.** Its dialog asks for the frame rate and
+pre-fills it with the project's; the day a measurement exists, it will replace
+that pre-filling without the dialog changing shape. Writing the reverse —
+waiting for the measurement to build the dialog — would make the MVP depend on
+a capability that exists nowhere else.
 
-Aucune action dédiée ne déclare la fréquence : avec deux formats temporels, elle
-ne sert qu'à la conversion, et c'est la liste d'entrée du dialogue qui la
-déclare. Gaupol a un menu parce que Gaupol lit des formats à images ; nous n'en
-avons aucun avant la phase 9.
+No dedicated action declares the frame rate: with two time-based formats, it
+only serves the conversion, and it is the dialog's input list that declares it.
+Gaupol has a menu because Gaupol reads frame-based formats; we have none before
+phase 9.
 
-**Le `ChangeKind` de la fréquence reste écarté.** La phase 2 avait posé la
-condition — « si la fenêtre affiche la fréquence courante, elle aura besoin de
-savoir qu'elle a changé ». Elle ne l'affiche pas. L'énumérateur n'aurait toujours
-aucun lecteur, et la règle que `DiagnosticKind` énonce tient : un énumérateur que
-personne ne lit est une promesse sans garant.
+**The frame rate `ChangeKind` stays set aside.** Phase 2 had set the condition —
+"if the window displays the current frame rate, it will need to know that it
+changed". It does not display it. The enumerator would still have no reader, and
+the rule that `DiagnosticKind` states holds: an enumerator that nobody reads is
+a promise without a guarantor.
 
-### Le désordre à l'écran
+### Disorder on screen
 
-Les sous-titres que `scanAnomalies` signale sont marqués dans la table — fond
-teinté sur les colonnes de position, et une infobulle qui nomme l'anomalie. Le
-marquage se recalcule après chaque changement de positions.
+The subtitles that `scanAnomalies` reports are marked in the table — a tinted
+background on the position columns, and a tooltip that names the anomaly. The
+marking is recomputed after every change of positions.
 
-### Ce que la fenêtre n'a pas
+### What the window does not have
 
-Nommé pour que personne ne le cherche : pas de barre de recherche, pas de
-presse-papiers, pas d'aperçu vidéo, pas de préférences, pas d'onglets, pas de
-colonne de traduction, pas de menu d'insertion.
+Named so that nobody looks for it: no search bar, no clipboard, no video
+preview, no preferences, no tabs, no translation column, no insertion menu.
 
 ## Tests
 
-Le harnais est celui de [#119](https://github.com/Guyot-Bertrand/sub-edit/issues/119) :
-**Catch2, et de Qt seulement ses fonctions de pilotage.** Le binaire fournit son
-`main`, la `QApplication` vit sur sa pile, et `QT_QPA_PLATFORM=offscreen` est
-posé par défaut.
+The harness is that of [#119](https://github.com/Guyot-Bertrand/sub-edit/issues/119):
+**Catch2, and from Qt only its driving functions.** The binary provides its
+`main`, the `QApplication` lives on its stack, and `QT_QPA_PLATFORM=offscreen`
+is set by default.
 
-| Niveau | Ce qui est éprouvé |
-| :----- | :----------------- |
-| unitaire, sans widget | la traduction d'un `Change` en signaux du modèle ; `invert` ; le libellé d'un `CommandKind` ; `scanAnomalies` |
-| modèle de table | `rowCount`, `columnCount`, `data` sur chaque colonne, `setData` produisant une commande et une seule |
-| fenêtre, piloté par `QTest` | ouvrir un fichier, éditer une cellule, annuler, rétablir, enregistrer, chaque dialogue d'opération |
+| Level | What is tested |
+| :---- | :------------- |
+| unit, without widgets | the translation of a `Change` into model signals; `invert`; the label of a `CommandKind`; `scanAnomalies` |
+| table model | `rowCount`, `columnCount`, `data` on each column, `setData` producing one command and only one |
+| window, driven by `QTest` | open a file, edit a cell, undo, redo, save, each operation dialog |
 
-**Ce qu'un test d'interface ne doit pas devenir :** une capture de pixels. On
-assert sur ce que le modèle rend et sur ce que la session contient, jamais sur
-un rendu.
+**What an interface test must not become:** a pixel capture. We assert on what
+the model returns and on what the session contains, never on a rendering.
 
-Le corpus de fichiers de `src/test/data/` sert à l'ouverture ; **`src/data/` n'est
-lu par aucun test**, la règle du projet ne changeant pas ici.
+The file corpus of `src/test/data/` serves for opening; **`src/data/` is read by
+no test**, the project's rule not changing here.
 
-**Une limite, écrite à la relecture parce qu'elle n'était nulle part.**
-`src/exe/gui/main.cpp` n'est prouvé que par `--version`. Le chemin « un fichier
-en argument », et le message que le manuel cite quand il échoue, ne sont
-vérifiés par rien — et **aucun test de bout en bout ne peut les atteindre** :
-passé l'argument, le binaire montre une fenêtre et entre dans
-`QApplication::exec()`, dont il ne sort qu'à la fermeture d'une fenêtre que
-personne ne ferme. Ce que la fenêtre fait s'éprouve donc un cran plus bas,
-contre `MainWindow`, ce que le harnais de #119 avait prévu. Ce qui reste sans
-preuve est le câblage de `main`, une quinzaine de lignes que
-`check-architecture.sh` maintient triviales — et c'est précisément pour cela
-qu'il les maintient triviales.
+**A limit, written at review because it was nowhere.**
+`src/exe/gui/main.cpp` is only proven by `--version`. The "a file as argument"
+path, and the message the manual quotes when it fails, are checked by nothing —
+and **no end-to-end test can reach them**: once past the argument, the binary
+shows a window and enters `QApplication::exec()`, which it leaves only when a
+window that nobody closes is closed. What the window does is therefore tested
+one notch lower, against `MainWindow`, as the #119 harness had planned. What
+remains without proof is the wiring of `main`, some fifteen lines that
+`check-architecture.sh` keeps trivial — and it is precisely for that reason that
+it keeps them trivial.
 
-La spec annonçait par ailleurs que le corpus versionné servait à l'ouverture,
-et aucun test de fenêtre ne le lisait : tous passaient par `InMemoryFileSystem`.
-Corrigé à [#153](https://github.com/Guyot-Bertrand/sub-edit/issues/153), qui
-ouvre un fichier du corpus à travers un vrai système de fichiers.
+The spec also announced that the versioned corpus served for opening, and no
+window test read it: they all went through `InMemoryFileSystem`. Corrected in
+[#153](https://github.com/Guyot-Bertrand/sub-edit/issues/153), which opens a
+corpus file through a real file system.
 
-## Mesures
+## Measurements
 
-`make bench` tourne à chaque issue, comme partout. Deux mesures nouvelles
-arrivent avec le code qui les rend possibles :
+`make bench` runs on every issue, as everywhere. Two new measurements arrive
+with the code that makes them possible:
 
-- **#45** — empreinte de l'historique et coût d'un retrait, avant et après, en
-  `Release`. Point de comparaison : 270 o par édition de texte, 32 Ko par
-  décalage, 64 Ko par transformation.
-- **le modèle de table** — construire un modèle sur un projet de quatre mille
-  sous-titres, et mesurer `data()` sur une fenêtre de lignes visibles. C'est la
-  mesure qui dit si l'adaptateur mince tient sa promesse.
+- **#45** — history footprint and cost of a removal, before and after, in
+  `Release`. Point of comparison: 270 B per text edit, 32 KB per shift, 64 KB
+  per transformation.
+- **the table model** — build a model on a project of four thousand subtitles,
+  and measure `data()` over a window of visible rows. It is the measurement that
+  says whether the thin adapter keeps its promise.
 
-Il n'y a pas de benchmark d'interface au sens d'une fenêtre pilotée : #116 l'a
-écarté, et sa raison tient toujours — la mesure vient avec le code qu'elle
-mesure.
+There is no interface benchmark in the sense of a driven window: #116 set it
+aside, and its reason still holds — the measurement comes with the code it
+measures.
 
-**L'empreinte n'a pas été mesurée, et elle ne pouvait pas l'être.** Le projet
-n'a aucun instrument de mesure mémoire : `make bench` chronomètre, et rien
-d'autre. #45 a donc rendu des temps — la suppression d'un sous-titre sur deux
-passée de 9,09 ms à 168 µs, celle des mentions de 5,34 ms à 1,15 ms — et jamais
-les octets que cette ligne promettait. Constaté à la relecture, et écrit ici
-plutôt que laissé croire.
+**The footprint was not measured, and it could not be.** The project has no
+memory measurement instrument: `make bench` times, and nothing else. #45
+therefore returned times — removing one subtitle out of two went from 9.09 ms
+to 168 µs, removing annotations from 5.34 ms to 1.15 ms — and never the bytes
+this line promised. Found at review, and written here rather than left to be
+believed.
 
-Ce qu'on peut affirmer se lit dans les structures, et c'est une dérivation, pas
-une mesure :
+What can be asserted is read from the structures, and it is a derivation, not a
+measurement:
 
-| Opération sur 4000 sous-titres | Avant | Après |
-| :----------------------------- | ----: | ----: |
-| décalage | 32 Ko | **deux bornes** |
-| transformation | 64 Ko de positions + 32 Ko de sélection | 64 Ko de positions |
-| édition d'un texte | 270 o | 270 o |
+| Operation on 4000 subtitles | Before | After |
+| :-------------------------- | -----: | ----: |
+| shift | 32 KB | **two bounds** |
+| transformation | 64 KB of positions + 32 KB of selection | 64 KB of positions |
+| text edit | 270 B | 270 B |
 
-Le décalage était **entièrement** sa sélection : `ShiftCommand` ne retient qu'une
-`Duration`, son inverse étant le même décalage à l'envers, exact et sans
-arrondi. La transformation garde une position par sous-titre et les gardera —
-la mise à l'échelle arrondit, donc elle n'est pas inversible sans elles ;
-l'économie de l'[ADR 0010](../adr/0010-annulation-par-commandes.md) ne vaut que
-pour les commandes qui portent leur propre inverse. Elle n'a donc gagné que les
-32 Ko de sa sélection, soit un tiers.
+The shift was **entirely** its selection: `ShiftCommand` retains only a
+`Duration`, its inverse being the same shift reversed, exact and without
+rounding. The transformation keeps one position per subtitle and will keep them
+— scaling rounds, so it is not invertible without them; the saving of
+[ADR 0010](../adr/0010-annulation-par-commandes.md) only applies to commands
+that carry their own inverse. It therefore gained only the 32 KB of its
+selection, that is a third.
 
-**Une mesure d'empreinte reste à construire le jour où une décision en
-dépendra.** Aucune n'en dépend aujourd'hui : le plafond de l'historique est à
-mille entrées, et la commande la plus lourde du MVP pèse 64 Ko.
+**A footprint measurement remains to be built the day a decision depends on
+it.** None depends on it today: the history ceiling is a thousand entries, and
+the heaviest command of the MVP weighs 64 KB.
 
-**Une mesure nouvelle est née de la relecture** : la réinitialisation du modèle
-sur changement de structure, que l'[ADR 0019](../adr/0019-table-en-adaptateur-mince.md)
-demandait de chiffrer avant que la phase 7 ne construise dessus. Réponse, sur
-une machine au repos : **8,15 µs** après une ligne retirée, contre 8,25 µs pour
-rafraîchir un décalage de quatre mille sous-titres et 8,38 µs pour construire le
-modèle. **Les trois sont le même chiffre**, à un vingtième près, et c'est le
-`scanAnomalies` qu'elles partagent — côté modèle,
-réinitialiser ne coûte rien de plus que rafraîchir. Le déclencheur de l'ADR ne
-trouvera donc pas son argument là, mais côté vue, qu'un binaire de benchmarks
-sans `QApplication` ne peut pas atteindre. La mesure ne répond pas à la question
-de la phase 7 : elle la déplace, et dit où elle vit.
+**A new measurement was born of the review**: the model reset on a structural
+change, which [ADR 0019](../adr/0019-table-en-adaptateur-mince.md) asked to
+quantify before phase 7 built on it. Answer, on an idle machine: **8.15 µs**
+after a removed row, against 8.25 µs to refresh a shift of four thousand
+subtitles and 8.38 µs to build the model. **All three are the same figure**, to
+within a twentieth, and it is the `scanAnomalies` they share — on the model
+side, resetting costs nothing more than refreshing. The ADR's trigger will
+therefore not find its argument there, but on the view side, which a benchmark
+binary without a `QApplication` cannot reach. The measurement does not answer
+phase 7's question: it moves it, and says where it lives.
 
-## Exigences
+## Requirements
 
-Inscrites à l'état `prévue`, comme la règle l'exige, avant le code.
+Registered in the `planned` state, as the rule requires, before the code.
 
-| ID | Exigence |
-| :- | :------- |
-| `GUI-VERSION-01` | `subedit-gui --version` écrit `subedit <version>`, code 0 |
-| `GUI-OPEN-01` | `subedit-gui <fichier>` ouvre le fichier et affiche ses sous-titres |
-| `GUI-OPEN-02` | un fichier illisible donne un message et laisse la fenêtre vide |
-| `GUI-OPEN-03` | les diagnostics de lecture sont montrés, avec leur ligne |
-| `GUI-TABLE-01` | les cinq colonnes affichent numéro, début, fin, durée et texte |
-| `GUI-TABLE-02` | les sous-titres en anomalie sont marqués et nommés |
-| `GUI-EDIT-01` | éditer une cellule de texte modifie le sous-titre et rien d'autre |
-| `GUI-EDIT-02` | éditer un début ou une fin lit un horodatage permissif |
-| `GUI-EDIT-03` | une validation qui ne change rien n'entre pas dans l'historique |
-| `GUI-UNDO-01` | annuler rétablit l'état précédent, l'action nomme l'opération |
-| `GUI-UNDO-02` | rétablir refait ce qui vient d'être annulé |
-| `GUI-SAVE-01` | enregistrer réécrit le fichier dans sa forme d'origine |
-| `GUI-SAVE-02` | enregistrer sous choisit chemin et format |
-| `GUI-SAVE-03` | fermer avec des modifications non enregistrées demande confirmation |
-| `GUI-SHIFT-01` | le dialogue de décalage décale la cible |
-| `GUI-TRANSFORM-01` | le dialogue de transformation corrige par deux repères |
-| `GUI-SCOPE-01` | un dialogue d'opération offre le choix entre la sélection et tout le projet quand une partie seulement est sélectionnée |
-| `GUI-PREVIEW-01` | un dialogue d'opération montre, avant d'appliquer, les premiers sous-titres qu'il changerait |
-| `GUI-SORT-01` | `Sort Subtitles` met le projet dans l'ordre des débuts, annulablement, et dit combien de sous-titres ont changé de place |
-| `GUI-SORT-02` | un fichier ouvert hors d'ordre propose d'être trié, et ne l'est que sur un oui |
-| `GUI-SORT-03` | la liste des diagnostics compte par sorte, lectures comme anomalies des sous-titres, suit les corrections, et mène au premier sous-titre concerné |
-| `GUI-SORT-04` | une barre indéterminée de la barre d'état dit qu'un tri est en cours, et s'en va avec lui |
-| `GUI-DISJOINT-01` | `Make Ranges Disjoint…` coupe les sous-titres qui se chevauchent sur tout le projet, annulablement, sélectionne les lignes écrites et dit ce qu'il a fait ; hors d'ordre, il est refusé avec la raison |
-| `GUI-DISJOINT-02` | un fichier ouvert avec des défauts corrigeables (répétés, hors d'ordre, chevauchements) les propose dans une seule boîte, une case par correction comptée là où elle se fait, et n'applique que ce qui est coché, dans l'ordre fusion, tri, découpage |
-| `GUI-JOIN-01` | `Join Repeated Subtitles` fait un seul sous-titre des morceaux d'un même texte qui se suivent, sans dépendre de l'ordre du fichier, annulablement, et dit combien il en a joint |
-| `GUI-JOIN-02` | `Repair Subtitles…` enchaîne la fusion des répétés, le tri et le découpage des plages d'un coup, annulablement, et en rend un seul compte |
-| `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible |
-| `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier |
-| `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique |
-| `CLI-INSPECT-04` | les anomalies d'un document sont rapportées par numéro de sous-titre |
-| `CLI-INSPECT-08` | `inspect` compte les anomalies par sorte, une par ligne avec `--detail`, et garde `none` sur la ligne de `anomalies` quand il n'y en a pas |
+| ID | Requirement |
+| :- | :---------- |
+| `GUI-VERSION-01` | `subedit-gui --version` writes `subedit <version>`, code 0 |
+| `GUI-OPEN-01` | `subedit-gui <file>` opens the file and displays its subtitles |
+| `GUI-OPEN-02` | an unreadable file gives a message and leaves the window empty |
+| `GUI-OPEN-03` | the reading diagnostics are shown, with their line |
+| `GUI-TABLE-01` | the five columns display number, start, end, duration and text |
+| `GUI-TABLE-02` | the subtitles with an anomaly are marked and named |
+| `GUI-EDIT-01` | editing a text cell modifies the subtitle and nothing else |
+| `GUI-EDIT-02` | editing a start or an end reads a permissive timestamp |
+| `GUI-EDIT-03` | a commit that changes nothing does not enter the history |
+| `GUI-UNDO-01` | undo restores the previous state, the action names the operation |
+| `GUI-UNDO-02` | redo redoes what was just undone |
+| `GUI-SAVE-01` | save rewrites the file in its original form |
+| `GUI-SAVE-02` | save as chooses path and format |
+| `GUI-SAVE-03` | closing with unsaved changes asks for confirmation |
+| `GUI-SHIFT-01` | the shift dialog shifts the target |
+| `GUI-TRANSFORM-01` | the transformation dialog corrects by two reference points |
+| `GUI-SCOPE-01` | an operation dialog offers the choice between the selection and the whole project when only part is selected |
+| `GUI-PREVIEW-01` | an operation dialog shows, before applying, the first subtitles it would change |
+| `GUI-SORT-01` | `Sort Subtitles` puts the project in order of starts, undoably, and says how many subtitles changed place |
+| `GUI-SORT-02` | a file opened out of order offers to be sorted, and is sorted only on a yes |
+| `GUI-SORT-03` | the list of diagnostics counts by kind, reading ones as well as subtitle anomalies, follows the corrections, and leads to the first subtitle concerned |
+| `GUI-SORT-04` | an indeterminate bar in the status bar says that a sort is in progress, and goes away with it |
+| `GUI-DISJOINT-01` | `Make Ranges Disjoint…` cuts the overlapping subtitles over the whole project, undoably, selects the rows written and says what it did; out of order, it is refused with the reason |
+| `GUI-DISJOINT-02` | a file opened with correctable defects (repeated, out of order, overlaps) offers them in a single box, one checkbox per correction counted where it is made, and applies only what is checked, in the order join, sort, cut |
+| `GUI-JOIN-01` | `Join Repeated Subtitles` makes a single subtitle of the consecutive pieces of the same text, without depending on the file's order, undoably, and says how many it joined |
+| `GUI-JOIN-02` | `Repair Subtitles…` chains the joining of repeated subtitles, the sort and the cutting of ranges in one go, undoably, and reports a single account of it |
+| `GUI-FRAMERATE-01` | the conversion dialog re-times the target |
+| `GUI-HEARING-01` | the removal of annotations applies to the selection or to the file |
+| `GUI-HEARING-02` | a removal that changes nothing says so and does not enter the history |
+| `CLI-INSPECT-04` | a document's anomalies are reported by subtitle number |
+| `CLI-INSPECT-08` | `inspect` counts the anomalies by kind, one per line with `--detail`, and keeps `none` on the `anomalies` line when there are none |
 
-`GUI-VERSION-01` a été ajoutée à cette table à la relecture : elle est née avec
-le harnais de #119, avant que cette liste ne soit écrite, et le registre la
-portait sans que la spec la compte. Dix-neuf, donc, et non dix-huit.
+`GUI-VERSION-01` was added to this table at review: it was born with the #119
+harness, before this list was written, and the registry carried it without the
+spec counting it. Nineteen, therefore, and not eighteen.
 
-`CLI-INSPECT-04` l'a été à celle de la phase 7, et pour la même raison : la
-phase 5 l'a créée, la spec la nommait dans la phrase ci-dessous et jamais dans
-la table. **Vingt, donc.** C'est la ligne de la ligne de commande qu'une phase
-d'interface a fait naître — les anomalies deviennent une notion du noyau ici, et
-`inspect` les rapporte du même coup.
+`CLI-INSPECT-04` was added at the phase 7 review, and for the same reason:
+phase 5 created it, the spec named it in the sentence below and never in the
+table. **Twenty, therefore.** It is the command-line row that an interface phase
+gave birth to — anomalies become a core notion here, and `inspect` reports them
+at the same stroke.
 
-Une ligne du registre bouge par ailleurs : `CLI-INSPECT-03` passe à
-`abandonnée` — `--order-report` disparaît.
+One registry row moves besides: `CLI-INSPECT-03` moves to `abandoned` —
+`--order-report` disappears.
 
-## Manuel
+## Manual
 
-`docs/manual/subedit-gui/`, **en prose**. #116 a écarté captures engendrées et
-description engendrée de l'arbre de widgets, avec leurs raisons ; `make manual`
-ne tiendra pas ce manuel, et sa justesse repose sur la relecture de fin de phase.
-C'est écrit ici pour que personne ne croie le contraire.
+`docs/manual/subedit-gui/`, **in prose**. #116 set aside generated screenshots
+and a generated description of the widget tree, with their reasons;
+`make manual` will not maintain this manual, and its correctness rests on the
+end-of-phase review. It is written here so that nobody believes otherwise.
 
-Chaque issue met à jour la section qu'elle change, à l'étape 7 de l'ordre du
-projet — après la porte, qui ne lit pas le manuel.
+Each issue updates the section it changes, at step 7 of the project's order —
+after the gate, which does not read the manual.
 
-## Découpage en issues
+## Split into issues
 
-| Ordre | Issue | Dépend de |
-| :---: | :---- | :-------- |
-| 1 | [#126](https://github.com/Guyot-Bertrand/sub-edit/issues/126) — ranger le vocabulaire des formats, les opérations, et le reste | — |
-| 2 | [#127](https://github.com/Guyot-Bertrand/sub-edit/issues/127) — scinder les diagnostics de lecture et les anomalies d'un document | #126 |
-| 3 | [#45](https://github.com/Guyot-Bertrand/sub-edit/issues/45) — coût d'une opération portant sur tout un fichier | #126 |
-| 4 | [#128](https://github.com/Guyot-Bertrand/sub-edit/issues/128) — la fenêtre et son modèle de table | #127, #45 |
-| 5 | [#129](https://github.com/Guyot-Bertrand/sub-edit/issues/129) — éditer une cellule : texte multiligne, début, fin | #128 |
-| 6 | [#130](https://github.com/Guyot-Bertrand/sub-edit/issues/130) — annuler, rétablir, et le libellé de l'action | #129 |
-| 7 | [#131](https://github.com/Guyot-Bertrand/sub-edit/issues/131) — ouvrir, enregistrer, enregistrer sous | #130 |
-| 8 | [#132](https://github.com/Guyot-Bertrand/sub-edit/issues/132) — décaler, transformer, convertir la fréquence | #131 |
-| 9 | [#133](https://github.com/Guyot-Bertrand/sub-edit/issues/133) — retirer les mentions, sur une sélection | #132 |
-| 10 | [#134](https://github.com/Guyot-Bertrand/sub-edit/issues/134) — marquer les anomalies dans la table | #128, #127 |
-| 11 | [#135](https://github.com/Guyot-Bertrand/sub-edit/issues/135) — relecture de fin de phase 5 | tout |
+| Order | Issue | Depends on |
+| :---: | :---- | :--------- |
+| 1 | [#126](https://github.com/Guyot-Bertrand/sub-edit/issues/126) — tidy up the format vocabulary, the operations, and the rest | — |
+| 2 | [#127](https://github.com/Guyot-Bertrand/sub-edit/issues/127) — split reading diagnostics and a document's anomalies | #126 |
+| 3 | [#45](https://github.com/Guyot-Bertrand/sub-edit/issues/45) — cost of an operation on a whole file | #126 |
+| 4 | [#128](https://github.com/Guyot-Bertrand/sub-edit/issues/128) — the window and its table model | #127, #45 |
+| 5 | [#129](https://github.com/Guyot-Bertrand/sub-edit/issues/129) — editing a cell: multi-line text, start, end | #128 |
+| 6 | [#130](https://github.com/Guyot-Bertrand/sub-edit/issues/130) — undo, redo, and the action's label | #129 |
+| 7 | [#131](https://github.com/Guyot-Bertrand/sub-edit/issues/131) — open, save, save as | #130 |
+| 8 | [#132](https://github.com/Guyot-Bertrand/sub-edit/issues/132) — shift, transform, convert the frame rate | #131 |
+| 9 | [#133](https://github.com/Guyot-Bertrand/sub-edit/issues/133) — remove annotations, on a selection | #132 |
+| 10 | [#134](https://github.com/Guyot-Bertrand/sub-edit/issues/134) — mark the anomalies in the table | #128, #127 |
+| 11 | [#135](https://github.com/Guyot-Bertrand/sub-edit/issues/135) — end-of-phase 5 review | all |
 
-**Trois issues sont nées en cours de phase**, et ce tableau les ignorait :
-[#145](https://github.com/Guyot-Bertrand/sub-edit/issues/145), qui a remis
-l'interface en anglais — la règle de langue ne couvrait pas ce que le binaire
-écrit, et le silence a coûté une fenêtre entière en français ;
-[#152](https://github.com/Guyot-Bertrand/sub-edit/issues/152), un arbre de
-couverture périmé par le déplacement de #126 ; et
-[#153](https://github.com/Guyot-Bertrand/sub-edit/issues/153), ce que la
-relecture a trouvé dans le code.
+**Three issues were born during the phase**, and this table ignored them:
+[#145](https://github.com/Guyot-Bertrand/sub-edit/issues/145), which put the
+interface back in English — the language rule did not cover what the binary
+writes, and the silence cost a whole window in French;
+[#152](https://github.com/Guyot-Bertrand/sub-edit/issues/152), a coverage tree
+made stale by the move of #126; and
+[#153](https://github.com/Guyot-Bertrand/sub-edit/issues/153), what the review
+found in the code.
 
-L'ordre 5 → 6 → 7 mérite un mot : l'annulation vient **après** l'édition parce
-qu'il faut quelque chose à annuler, et l'ouverture **après** l'annulation parce
-qu'un chemin en argument suffit jusque-là. Chaque issue laisse un binaire qui
-sert à quelque chose.
+The order 5 → 6 → 7 deserves a word: undo comes **after** editing because there
+must be something to undo, and opening **after** undo because a path as argument
+suffices until then. Each issue leaves a binary that is good for something.
 
-## Renvois
+## Deferrals
 
-Tout « plus tard » de cette spec atterrit sur une phase nommée.
+Every "later" of this spec lands on a named phase.
 
-| Ce qui est renvoyé | Où |
-| :----------------- | :- |
-| lire la fréquence d'image dans le conteneur vidéo | phase 6 |
-| déduire la fréquence d'image des positions, et corriger | phase 16 |
-| signaler les positions qui sortent de la grille d'images | phase 16, qui dit pourquoi pas ici |
-| insertion et suppression depuis la fenêtre | phase 7 |
-| configuration persistée, préférences, thème | phase 7 |
-| édition de la durée | phase 10 |
-| mode d'édition en images | phase 9 |
-| multi-projets, colonne de traduction | phase 11 |
-| un `Session` qui annonce un changement de structure avant de le faire | phase 7, si la mesure le demande |
+| What is deferred | Where |
+| :--------------- | :---- |
+| reading the frame rate from the video container | phase 6 |
+| deducing the frame rate from the positions, and correcting | phase 16 |
+| reporting positions that fall off the frame grid | phase 16, which says why not here |
+| insertion and removal from the window | phase 7 |
+| persisted configuration, preferences, theme | phase 7 |
+| editing the duration | phase 10 |
+| frame-based editing mode | phase 9 |
+| multiple projects, translation column | phase 11 |
+| a `Session` that announces a structural change before making it | phase 7, if the measurement calls for it |
 
-**Les neuf atterrissent, deux d'entre eux depuis la relecture seulement.** La
-phase 9 ne disait rien du mode d'édition en images, et la phase 10 portait
-l'ajustement des durées sans dire que la colonne `Duration` deviendrait
-saisissable avec la commande qui lui manque. Un renvoi vers une phase qui ne le
-mentionne pas n'est pas un renvoi : c'est un oubli qui a l'air rangé.
+**All nine land, two of them only since the review.** Phase 9 said nothing about
+the frame-based editing mode, and phase 10 carried the adjustment of durations
+without saying that the `Duration` column would become editable with the
+command it lacks. A deferral to a phase that does not mention it is not a
+deferral: it is an oversight that looks tidied away.
 
-## Ce que la relecture a trouvé
+## What the review found
 
-[#135](https://github.com/Guyot-Bertrand/sub-edit/issues/135), sur la spec, le
-registre, le manuel, les trente fichiers de `src/lib/subedit/gui/`, les tests et
-les deux relevés de mesures.
+[#135](https://github.com/Guyot-Bertrand/sub-edit/issues/135), on the spec, the
+registry, the manual, the thirty files of `src/lib/subedit/gui/`, the tests and
+the two measurement records.
 
-**Un défaut visible à l'écran**, et un seul. Les quatre dialogues d'opération
-recevaient le compte du projet là où l'opération portait sur la cible : deux
-lignes sélectionnées sur quatre donnaient « Applies to: 4 subtitles » et deux
-sous-titres changés. Le seul test du libellé construisait les dialogues à la
-main, sans passer par la fenêtre — **la garantie était exactement là où le
-défaut n'était pas.** Corrigé à
-[#153](https://github.com/Guyot-Bertrand/sub-edit/issues/153).
+**A defect visible on screen**, and only one. The four operation dialogs
+received the project's count where the operation applied to the target: two
+rows selected out of four gave "Applies to: 4 subtitles" and two subtitles
+changed. The only test of the label built the dialogs by hand, without going
+through the window — **the guarantee was exactly where the defect was not.**
+Corrected in [#153](https://github.com/Guyot-Bertrand/sub-edit/issues/153).
 
-**Une langue perdue de vue.** Onze des trente fichiers de `gui/`, deux de `cli/`
-écrits pendant cette phase, douze des quatorze fichiers de tests d'interface :
-leurs commentaires étaient en français, contre la règle du projet, et zéro
-partout ailleurs dans le noyau. Le même silence que celui qui avait donné la
-fenêtre en français à #145 — sauf que la règle, cette fois, existait. Corrigé à
-#153, quatre cent quarante lignes.
+**A language lost from sight.** Eleven of the thirty files of `gui/`, two of
+`cli/` written during this phase, twelve of the fourteen interface test files:
+their comments were in French, against the project's rule, and zero everywhere
+else in the core. The same silence as the one that had given the window in
+French in #145 — except that the rule, this time, existed. Corrected in #153,
+four hundred and forty lines.
 
-**Trois axes, et deux issues.** #153 a porté le reste du code : des boîtes
-modales qui ne se posaient sur aucune fenêtre, trois commentaires décrivant un
-état révolu, le benchmark de la réinitialisation, l'ouverture d'un fichier du
-corpus. [#154](https://github.com/Guyot-Bertrand/sub-edit/issues/154) porte ce
-qui ne pouvait pas tenir dans une porte de fin de phase : `gui/opening.cpp` et
-`gui/saving.cpp` ne contiennent pas une ligne de Qt, la recette qu'ils tiennent
-est écrite quatre fois dans le dépôt, et la fenêtre écrase quatre causes
-d'échec d'ouverture en un seul message là où la ligne de commande les distingue.
+**Three axes, and two issues.** #153 carried the rest of the code: modal boxes
+that were parented to no window, three comments describing a bygone state, the
+reset benchmark, opening a corpus file.
+[#154](https://github.com/Guyot-Bertrand/sub-edit/issues/154) carries what
+could not fit into an end-of-phase gate: `gui/opening.cpp` and `gui/saving.cpp`
+contain not a single line of Qt, the recipe they hold is written four times in
+the repository, and the window crushes four causes of opening failure into a
+single message where the command line distinguishes them.
 
-**Ce qui tient.** Les dix-neuf exigences `GUI-…` sont citées par au moins un
-test, tag par tag. La frontière de l'ADR 0018 n'a pas bougé : `format/` ne
-contient que des lecteurs, des écrivains, une détection et les types qu'ils
-produisent. `OperationDialog` porte ce qui est commun aux quatre dialogues et
-rien de plus — le défaut y était un paramètre mal alimenté, pas une redite. Et
-les trois gardes qu'aucun utilisateur ne peut atteindre sont traversées par des
-tests, ce qui est la bonne réponse à « une garde qu'aucun test ne traverse est
-une promesse que personne ne vérifie ».
+**What holds.** The nineteen `GUI-…` requirements are cited by at least one
+test, tag by tag. The boundary of ADR 0018 has not moved: `format/` contains
+only readers, writers, a detection and the types they produce.
+`OperationDialog` carries what is common to the four dialogs and nothing more —
+the defect there was a badly fed parameter, not a repetition. And the three
+guards that no user can reach are traversed by tests, which is the right answer
+to "a guard that no test traverses is a promise that nobody checks".
 
-## Critères de fin
+## Completion criteria
 
-- [x] La fenêtre ouvre, édite, enregistre, annule et rétablit
-- [x] Les quatre opérations sont accessibles, sur sélection ou fichier entier
-- [x] Le noyau est réorganisé, les diagnostics scindés, #45 fait et mesuré — en
-      temps ; son empreinte est dérivée et non mesurée, et la section « Mesures »
-      dit pourquoi
-- [x] `--order-report` a disparu, du binaire, du manuel et du registre
-- [x] Chaque exigence `GUI-…` est `implémentée` et citée par un test
-- [x] `docs/manual/subedit-gui/` décrit ce que la fenêtre fait, et rien de plus
-- [x] Les benchmarks sont rejoués et les mesures relevées
-- [x] La relecture de fin de phase a eu lieu
+- [x] The window opens, edits, saves, undoes and redoes
+- [x] The four operations are accessible, on a selection or the whole file
+- [x] The core is reorganised, the diagnostics split, #45 done and measured — in
+      time; its footprint is derived and not measured, and the "Measurements"
+      section says why
+- [x] `--order-report` has disappeared, from the binary, the manual and the
+      registry
+- [x] Every `GUI-…` requirement is `implemented` and cited by a test
+- [x] `docs/manual/subedit-gui/` describes what the window does, and nothing
+      more
+- [x] The benchmarks are rerun and the measurements recorded
+- [x] The end-of-phase review has taken place
