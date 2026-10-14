@@ -11,6 +11,13 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **doc** — Translate ADRs 0000 to 0010 into English
+- **doc** — Translate ADRs 0011 to 0021 into English
+
+## 0.15.27 — 2026-10-14
+
+### Documentation
+
 - **doc** — Translate the README and two top-level docs into English
 - **doc** — Translate the requirements registry into English
 - **doc** — Translate the roadmap into English
@@ -20,6 +27,7 @@ ne pas l'éditer à la main.
 - **doc** — Translate the coverage ratchet journal into English
 - **doc** — Translate the performance journal into English
 - **doc** — Quote the conversion journal's English anchor
+- **doc** — Regenerate the changelog
 
 ## 0.15.26 — 2026-10-14
 
