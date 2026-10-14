@@ -1,259 +1,259 @@
-# 0023 — Deux paquets natifs, `.deb` et `.rpm`, pour la première livraison
+# 0023 — Two native packages, `.deb` and `.rpm`, for the first release
 
-Statut : acceptée — 2026-08-28
-Décidée au cadrage de la phase 7 (#237).
+**Date:** 2026-08-28
+**Status:** accepted
 
-> **Note de statut — 2026-08-30, après la relecture de fin de phase 7.**
-> Ce qui suit dit que Flatpak et AppImage sont **différés** ; ils sont depuis
-> **écartés**. La question a été instruite en
-> [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265) et refermée :
-> `.deb` et `.rpm` suffisent au contour visé, et une distribution qui n'est ni
-> de la famille Debian ni de la famille Fedora construit depuis les sources —
-> chemin que `docs/manual/subedit-cli/installation.md` décrit en entier.
+Decided when phase 7 was scoped (#237).
+
+> **Status note — 2026-08-30, after the end-of-phase-7 review.**
+> What follows says that Flatpak and AppImage are **deferred**; they have since
+> been **dismissed**. The question was examined in
+> [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265) and closed:
+> `.deb` and `.rpm` are enough for the intended scope, and a distribution that
+> belongs neither to the Debian family nor to the Fedora family builds from
+> source — a path that `docs/manual/subedit-cli/installation.md` describes in
+> full.
 >
-> **Le corps de l'ADR n'est pas réécrit**, parce qu'un enregistrement de
-> décision garde ce qu'il a décidé et quand. Les deux sections « Pourquoi pas »
-> restent donc justes sur leur fond : elles disaient déjà que le coût ne se
-> justifiait pas. Seul leur « pour l'instant » a cessé d'être vrai.
+> **The body of the ADR is not rewritten**, because a decision record keeps
+> what it decided and when. The two "Why not" sections therefore remain right
+> in substance: they already said the cost was not justified. Only their "for
+> now" has stopped being true.
 
-## Contexte
+## Context
 
-La phase 7 est celle qui rend l'outil installable. Le projet n'a aujourd'hui
-**aucune règle `install()`** — vérifié, aucune occurrence dans l'arbre — et
-`docs/manual/subedit-cli/installation.md` dit encore que l'outil se lance depuis
-l'arbre de construction.
+Phase 7 is the one that makes the tool installable. The project has today **no
+`install()` rule** — checked, no occurrence in the tree — and
+`docs/manual/subedit-cli/installation.md` still says the tool is run from the
+build tree.
 
-La feuille de route pose la question sous la forme d'un choix entre trois
-formats : Flatpak, `.deb`, AppImage. Elle a été laissée ouverte depuis le
-cadrage de la phase 3, volontairement — « une cible écrite avant que le format
-d'empaquetage soit tranché préjugerait de la réponse ».
+The roadmap puts the question as a choice between three formats: Flatpak,
+`.deb`, AppImage. It has been left open since phase 3 was scoped, deliberately
+— "a target written before the packaging format is settled would prejudge the
+answer".
 
-### Ce que fait Gaupol
+### What Gaupol does
 
-Un `Makefile` avec `DESTDIR` et `PREFIX`, qui installe le lanceur dans `BINDIR`,
-les icônes sous `$DATADIR/icons/hicolor/{scalable,symbolic}/apps`, le fichier
-`.desktop` dans `$DATADIR/applications`, le fichier AppStream dans
-`$DATADIR/metainfo`, la page de manuel dans `$MANDIR/man1`, et les traductions
-sous `LOCALEDIR`. Il appelle `update-desktop-database` seulement quand
-`DESTDIR` est vide, c'est-à-dire quand l'installation n'est pas mise en scène
-pour un paquet.
+A `Makefile` with `DESTDIR` and `PREFIX`, which installs the launcher into
+`BINDIR`, the icons under `$DATADIR/icons/hicolor/{scalable,symbolic}/apps`,
+the `.desktop` file into `$DATADIR/applications`, the AppStream file into
+`$DATADIR/metainfo`, the manual page into `$MANDIR/man1`, and the translations
+under `LOCALEDIR`. It calls `update-desktop-database` only when `DESTDIR` is
+empty, that is, when the installation is not being staged for a package.
 
-Et, **à côté**, un manifeste Flatpak. `PACKAGING.md` s'adresse aux empaqueteurs
-de distributions et décrit deux découpages possibles.
+And, **alongside**, a Flatpak manifest. `PACKAGING.md` is addressed to
+distribution packagers and describes two possible splits.
 
-Autrement dit : Gaupol ne choisit pas un format. Il produit une **installation
-correcte**, et les formats se servent dessus.
+In other words: Gaupol does not choose a format. It produces a **correct
+installation**, and the formats build on it.
 
-## Décision
+## Decision
 
-**Des règles `install()` dans CMake, honorant `DESTDIR` et
-`CMAKE_INSTALL_PREFIX`, puis deux paquets natifs produits par CPack : un `.deb`
-et un `.rpm`.**
+**`install()` rules in CMake, honouring `DESTDIR` and `CMAKE_INSTALL_PREFIX`,
+then two native packages produced by CPack: a `.deb` and an `.rpm`.**
 
-Flatpak et AppImage ne sont pas refusés : ils sont **différés**, et leur raison
-est écrite plus bas.
+Flatpak and AppImage are not refused: they are **deferred**, and the reason is
+written below.
 
-L'ordre a un sens et il est la moitié de la décision : **l'installation
-d'abord, les formats ensuite.** C'est ce que Gaupol montre, et c'est ce qui rend
-le choix de format réversible — un format de plus se sert de la même
-installation.
+The order has a meaning and it is half of the decision: **the installation
+first, the formats after.** That is what Gaupol shows, and it is what makes the
+choice of format reversible — one more format builds on the same installation.
 
-## Pourquoi deux, et pourquoi ces deux-là
+## Why two, and why these two
 
-**Deux familles couvrent l'essentiel du bureau Linux**, et ce sont celles-là :
-Debian et ses dérivées d'un côté, Fedora et ses parentes de l'autre. Livrer pour
-une seule reviendrait à choisir entre deux moitiés d'utilisateurs sur un critère
-qui n'a rien à voir avec le logiciel.
+**Two families cover most of the Linux desktop**, and these are the ones:
+Debian and its derivatives on one side, Fedora and its relatives on the other.
+Shipping for only one would mean choosing between two halves of the users on a
+criterion that has nothing to do with the software.
 
-**Le second paquet est ce qui met la décision à l'épreuve.** « L'installation
-d'abord, les formats ensuite » est une affirmation tant qu'un seul format
-l'exerce. Un second format construit depuis les mêmes règles `install()` la
-vérifie : **s'il demandait de retoucher l'installation, c'est que l'installation
-était fausse.** C'est la meilleure raison d'en faire deux tout de suite plutôt
-qu'un maintenant et un plus tard.
+**The second package is what puts the decision to the test.** "The
+installation first, the formats after" is an assertion as long as a single
+format exercises it. A second format built from the same `install()` rules
+verifies it: **if it required touching up the installation, then the
+installation was wrong.** That is the best reason to make two right away rather
+than one now and one later.
 
-**Ubuntu reste la cible déclarée du développement** — `setup-toolchain.sh` le
-dit en première ligne, l'ADR 0003 cible Linux d'abord, et la chaîne d'outils est
-décrite en paquets APT. C'est la plate-forme sur laquelle le paquet sera vérifié
-le plus complètement, et c'est une asymétrie qu'il faut écrire plutôt que
-laisser croire à une parité qui n'existe pas — voir « ce qu'on ne saura pas
-prouver ».
+**Ubuntu remains the declared development target** — `setup-toolchain.sh` says
+so in its first line, ADR 0003 targets Linux first, and the toolchain is
+described as APT packages. It is the platform on which the package will be
+verified most completely, and that is an asymmetry worth writing down rather
+than letting a parity that does not exist be believed — see "what we will not
+be able to prove".
 
-**CPack produit les deux depuis les mêmes règles `install()`**, donc sans
-description séparée à tenir en phase. Un paquet qui dérive de l'installation ne
-peut pas diverger d'elle.
+**CPack produces both from the same `install()` rules**, hence without a
+separate description to keep in step. A package derived from the installation
+cannot diverge from it.
 
-## Ce qui diffère réellement entre les deux, et c'est le seul vrai travail
+## What really differs between the two, and it is the only real work
 
-Pas la liste des fichiers : elle vient de l'installation, une fois pour les
-deux. **Les dépendances déclarées**, en revanche, ne se traduisent pas :
-`CPACK_DEBIAN_PACKAGE_DEPENDS` et `CPACK_RPM_PACKAGE_REQUIRES` nomment les mêmes
-bibliothèques par des noms de paquets différents, et ces noms sont propres à
-chaque famille — Qt 6 et libmpv en premier lieu.
+Not the list of files: it comes from the installation, once for both. **The
+declared dependencies**, on the other hand, do not translate:
+`CPACK_DEBIAN_PACKAGE_DEPENDS` and `CPACK_RPM_PACKAGE_REQUIRES` name the same
+libraries by different package names, and those names are specific to each
+family — Qt 6 and libmpv first and foremost.
 
-C'est là que le paquet peut être faux sans que rien ne le montre à la
-construction : un nom de dépendance erroné produit un `.rpm` parfaitement valide
-qui refuse de s'installer, ou pire, qui s'installe et ne se lance pas.
+That is where the package can be wrong without anything showing it at build
+time: a wrong dependency name produces a perfectly valid `.rpm` that refuses to
+install, or worse, that installs and does not start.
 
-## Ce qu'on ne saura pas prouver, et qui doit être écrit
+## What we will not be able to prove, and which must be written down
 
-**Un `.rpm` construit sur Ubuntu ne peut pas y être installé.** `rpmbuild` sait
-le produire — le paquet `rpm` le fournit —, mais l'éprouver demande une machine
-Fedora, que ni la porte ni la CI n'ont.
+**An `.rpm` built on Ubuntu cannot be installed there.** `rpmbuild` can produce
+it — the `rpm` package provides it —, but testing it requires a Fedora machine,
+which neither the gate nor CI has.
 
-Ce qui reste vérifiable sans Fedora, et qui n'est pas rien :
+What remains verifiable without Fedora, and it is not nothing:
 
-| Vérifiable ici | Non vérifiable ici |
-| :------------- | :----------------- |
-| la liste des fichiers, par `rpm -qlp` | que le paquet s'installe |
-| les dépendances déclarées, par `rpm -qp --requires` | que les noms de dépendances existent chez Fedora |
-| que les chemins sont ceux de `GNUInstallDirs` | que le binaire se lance une fois installé |
+| Verifiable here | Not verifiable here |
+| :-------------- | :------------------ |
+| the list of files, through `rpm -qlp` | that the package installs |
+| the declared dependencies, through `rpm -qp --requires` | that the dependency names exist on Fedora |
+| that the paths are those of `GNUInstallDirs` | that the binary starts once installed |
 
-**La conséquence est une asymétrie assumée** : le `.deb` est prouvé de bout en
-bout par #239, le `.rpm` est prouvé jusqu'à son contenu. Le dire vaut mieux que
-livrer les deux en laissant croire qu'ils ont été éprouvés pareil.
+**The consequence is an acknowledged asymmetry**: the `.deb` is proven end to
+end by #239, the `.rpm` is proven up to its contents. Saying so is better than
+shipping both while letting people believe they were tested alike.
 
-Ce qui refermerait l'écart : un conteneur Fedora. C'est une dépendance
-d'exécution lourde pour la porte, et le quota d'Actions du mois est déjà épuisé
-(#232). À rouvrir quand quelqu'un installera vraiment le `.rpm`.
+What would close the gap: a Fedora container. It is a heavy runtime dependency
+for the gate, and this month's Actions quota is already exhausted (#232). To be
+reopened when someone actually installs the `.rpm`.
 
-## L'écart est refermé — août 2026, issue #266
+## The gap is closed — August 2026, issue #266
 
-**Le conteneur existe.** `src/scripts/check-rpm.sh` installe le `.rpm` sur une
-`fedora:42`, et `.github/workflows/fedora.yml` le rejoue le mardi sur `main`.
-Le tableau ci-dessus n'a plus de colonne droite : `dnf` mène la transaction, les
-deux binaires installés se lancent, `man subedit-cli` rend la page, et le manuel
-est lisible là où la page l'annonce.
+**The container exists.** `src/scripts/check-rpm.sh` installs the `.rpm` on a
+`fedora:42`, and `.github/workflows/fedora.yml` replays it on Tuesdays on
+`main`. The table above no longer has a right-hand column: `dnf` carries out
+the transaction, the two installed binaries start, `man subedit-cli` renders
+the page, and the manual is readable where the page says it is.
 
-**Il a trouvé un défaut du premier coup, et pas celui qu'on surveillait.** Les
-noms de dépendances étaient justes — `qt6-qtbase-gui` et `mpv-libs` résolvent
-trente-neuf paquets. C'étaient les répertoires : le `.rpm` déclarait posséder
-`/usr/share/applications`, `/usr/share/icons` et six autres, que `filesystem` et
-`hicolor-icon-theme` possèdent déjà, et `dnf` refusait la transaction entière
-sur six conflits. L'exclusion existait depuis #244 et n'excluait rien — elle
-était écrite en chemins relatifs, CPack en attend d'absolus.
+**It found a defect on the first try, and not the one being watched for.** The
+dependency names were right — `qt6-qtbase-gui` and `mpv-libs` resolve
+thirty-nine packages. It was the directories: the `.rpm` claimed to own
+`/usr/share/applications`, `/usr/share/icons` and six others, which
+`filesystem` and `hicolor-icon-theme` already own, and `dnf` refused the whole
+transaction over six conflicts. The exclusion had existed since #244 and
+excluded nothing — it was written in relative paths, CPack expects absolute
+ones.
 
-**Ce que cela dit de l'asymétrie de cette ADR est plus intéressant que le
-défaut.** « Prouvé jusqu'à son contenu » était vrai et sonnait comme « presque
-prouvé ». Ça ne l'était pas : le paquet était irréprochable à l'inspection et
-inutilisable à l'installation, et aucun degré d'inspection n'y menait — un
-conflit de propriété n'est pas dans le paquet, il est entre le paquet et la
-distribution. Un paquet ne se prouve qu'en l'installant.
+**What this says about this ADR's asymmetry is more interesting than the
+defect.** "Proven up to its contents" was true and sounded like "almost
+proven". It was not: the package was flawless on inspection and unusable on
+installation, and no degree of inspection led there — an ownership conflict is
+not in the package, it is between the package and the distribution. A package
+is only proven by installing it.
 
-**La leçon a aussi une moitié bon marché**, et c'est elle qu'on paie tous les
-jours : `check-installation.sh` refuse désormais un `.rpm` qui possède un
-répertoire hors de `share/subedit`. C'est la cause du défaut, elle se lit sans
-Fedora, et elle tient les pull requests pendant que le conteneur tient la
-semaine. Les deux ne voient pas la même chose — le contrôle local ne verrait ni
-un nom de dépendance erroné, ni une bibliothèque manquante à l'exécution — et
-c'est pour cela qu'ils sont deux.
+**The lesson also has a cheap half**, and it is the one we pay every day:
+`check-installation.sh` now refuses an `.rpm` that owns a directory outside
+`share/subedit`. That is the cause of the defect, it can be read without
+Fedora, and it holds the pull requests while the container holds the week. The
+two do not see the same thing — the local check would see neither a wrong
+dependency name nor a library missing at run time — and that is why there are
+two of them.
 
-## Pourquoi pas Flatpak, pour l'instant
+## Why not Flatpak, for now
 
-C'est le meilleur format pour une diffusion large, et c'est précisément
-pourquoi il ne convient pas ici : **il demande des décisions qui n'ont rien à
-voir avec cette phase.** Un choix de runtime et de sa version, un manifeste qui
-redéclare toutes les dépendances, un bac à sable de construction, et surtout la
-question de l'accès aux fichiers de l'utilisateur et à la vidéo — un éditeur de
-sous-titres ouvre des fichiers arbitraires et joue un film à côté.
+It is the best format for wide distribution, and that is precisely why it does
+not fit here: **it requires decisions that have nothing to do with this
+phase.** A choice of runtime and of its version, a manifest that redeclares
+every dependency, a build sandbox, and above all the question of access to the
+user's files and to video — a subtitle editor opens arbitrary files and plays a
+film alongside.
 
-**libmpv rend cette question plus lourde, pas plus légère.** L'ADR 0020 l'a fait
-entrer par `pkg-config` ; dans un bac à sable, c'est le runtime qui décide de ce
-que le lecteur peut décoder.
+**libmpv makes that question heavier, not lighter.** ADR 0020 brought it in
+through `pkg-config`; in a sandbox, it is the runtime that decides what the
+player can decode.
 
-Et deux paquets natifs réduisent son urgence : ce que Flatpak apporterait en
-plus est la couverture des distributions qu'on ne nomme pas. C'est un vrai
-besoin, ce n'est pas celui d'une première livraison.
+And two native packages reduce its urgency: what Flatpak would add is coverage
+of the distributions we do not name. It is a real need, it is not that of a
+first release.
 
-## Pourquoi pas AppImage
+## Why not AppImage
 
-Il embarque tout, Qt compris, ce qui en fait le plus gros artefact et le moins
-relisible : ce qu'on livre n'est plus ce que le dépôt décrit mais un
-empaquetage de l'arbre de construction d'une machine. Pour une première
-livraison dont l'objet est justement de vérifier que l'installation est juste,
-c'est le format qui le vérifie le moins.
+It bundles everything, Qt included, which makes it the largest artefact and the
+least reviewable: what is shipped is no longer what the repository describes
+but a packaging of one machine's build tree. For a first release whose purpose
+is precisely to verify that the installation is right, it is the format that
+verifies it least.
 
-## Ce que l'installation doit poser, et qui n'existe pas encore
+## What the installation must lay down, and which does not exist yet
 
-Le choix des formats ne dispense d'aucun de ces fichiers, et c'est pourquoi ils
-appartiennent à l'installation plutôt qu'aux paquets :
+The choice of formats exempts from none of these files, and that is why they
+belong to the installation rather than to the packages:
 
-| Fichier | Où |
-| :------ | :- |
+| File | Where |
+| :--- | :---- |
 | `subedit-gui`, `subedit-cli` | `${CMAKE_INSTALL_BINDIR}` |
-| une icône | `${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps` |
-| un `.desktop` | `${CMAKE_INSTALL_DATADIR}/applications` |
-| un fichier AppStream | `${CMAKE_INSTALL_DATADIR}/metainfo` |
-| le manuel | `${CMAKE_INSTALL_DATADIR}/subedit/manual` |
-| une page de manuel `subedit-cli.1` | `${CMAKE_INSTALL_MANDIR}/man1` |
+| an icon | `${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps` |
+| a `.desktop` | `${CMAKE_INSTALL_DATADIR}/applications` |
+| an AppStream file | `${CMAKE_INSTALL_DATADIR}/metainfo` |
+| the manual | `${CMAKE_INSTALL_DATADIR}/subedit/manual` |
+| a manual page `subedit-cli.1` | `${CMAKE_INSTALL_MANDIR}/man1` |
 
-Ces chemins viennent de `GNUInstallDirs`, et non de constantes écrites à la
-main : c'est ce qui fait qu'un empaqueteur peut les déplacer.
+These paths come from `GNUInstallDirs`, not from hand-written constants: that
+is what lets a packager move them.
 
-## Ce que le second format a révélé — 2026-08-30, issue #244
+## What the second format revealed — 2026-08-30, issue #244
 
-L'ADR pariait qu'un second format mettrait l'installation à l'épreuve : « s'il
-demandait de retoucher l'installation, c'est que l'installation était fausse ».
-**Il a demandé une retouche, et l'installation était effectivement fausse** — sur
-un point, petit et réel.
+The ADR wagered that a second format would put the installation to the test:
+"if it required touching up the installation, then the installation was
+wrong". **It required a touch-up, and the installation was indeed wrong** — on
+one point, small and real.
 
-`rpmbuild` compresse les pages de manuel lui-même. Le `.deb`, lui, portait
-`subedit-cli.1` en clair, ce que la charte Debian ne veut pas. Les deux listes de
-fichiers ne coïncidaient donc pas, et l'écart désignait un manquement du côté
-Debian plutôt qu'une divergence des formats.
+`rpmbuild` compresses manual pages itself. The `.deb`, for its part, carried
+`subedit-cli.1` uncompressed, which the Debian policy does not want. The two
+file lists therefore did not match, and the gap pointed to a shortcoming on the
+Debian side rather than to a divergence between the formats.
 
-La retouche a porté sur l'installation et non sur l'un des deux paquets : elle
-compresse désormais la page elle-même, les deux paquets portent le même
-`subedit-cli.1.gz`, et une installation à la main en bénéficie aussi. **C'est
-exactement le mode de fonctionnement que l'ordre « l'installation d'abord »
-promettait** : ce qu'un format apprend, l'installation le corrige, et l'autre
-format en profite.
+The touch-up was made to the installation and not to either package: it now
+compresses the page itself, both packages carry the same `subedit-cli.1.gz`,
+and an installation by hand benefits from it too. **That is exactly the way of
+working that the order "the installation first" promised**: what one format
+learns, the installation corrects, and the other format benefits.
 
-Deux autres écarts sont apparus et n'en étaient pas : `rpmbuild` pose des liens
-`/usr/lib/.build-id/…` pour ses propres outils de débogage, et un `.rpm` possède
-les répertoires que sa distribution ne possède pas déjà. Ce sont des propriétés
-des formats, et `check-installation.sh` les écarte nommément plutôt que
-globalement — écarter en bloc aurait caché le premier écart avec eux.
+Two other gaps appeared and were not gaps: `rpmbuild` lays down
+`/usr/lib/.build-id/…` links for its own debugging tools, and an `.rpm` owns
+the directories its distribution does not already own. Those are properties of
+the formats, and `check-installation.sh` excludes them by name rather than
+wholesale — excluding in bulk would have hidden the first gap along with them.
 
-## Conséquences
+## Consequences
 
-**Trois dépendances d'outillage apparaissent**, et l'issue #239 les porte :
-`desktop-file-validate` et `appstreamcli`, qui valident deux des fichiers
-ci-dessus, et **`rpm`, qui fournit `rpmbuild`** et sans lequel le générateur RPM
-de CPack ne produit rien. Les deux premiers sont présents sur la machine de
-développement par la base de bureau d'Ubuntu ; `rpm` ne l'est pas. Aucun des
-trois n'est déclaré dans `setup-toolchain.sh`, et l'ADR 0004 demande qu'une
-dépendance se justifie.
+**Three tooling dependencies appear**, and issue #239 carries them:
+`desktop-file-validate` and `appstreamcli`, which validate two of the files
+above, and **`rpm`, which provides `rpmbuild`** and without which CPack's RPM
+generator produces nothing. The first two are present on the development
+machine through Ubuntu's desktop base; `rpm` is not. None of the three is
+declared in `setup-toolchain.sh`, and ADR 0004 requires a dependency to be
+justified.
 
-**Le manuel installé décide de ce qu'ouvre `Help ▸ Manual`**, et donc du moment
-où cette entrée peut être rallumée — après l'empaquetage, ce qui la place en
-dernier dans la phase.
+**The installed manual decides what `Help ▸ Manual` opens**, and therefore when
+that entry can be switched back on — after packaging, which puts it last in the
+phase.
 
-**Les exemples du manuel deviennent vrais.** Ils montrent `$ subedit-cli` comme
-si l'outil était dans le `PATH`, ce qui ne l'est qu'à partir d'ici. La
-génération, elle, ne change pas : `generate-manual.sh` met `build/dev/bin` en
-tête du `PATH`, et cela doit le rester — sans quoi le manuel décrirait la
-version installée plutôt que celle du dépôt.
+**The manual's examples become true.** They show `$ subedit-cli` as if the tool
+were on the `PATH`, which it is only from here on. Generation, however, does
+not change: `generate-manual.sh` puts `build/dev/bin` at the head of the
+`PATH`, and it must stay so — otherwise the manual would describe the installed
+version rather than the repository's.
 
-**Le manuel doit dire ce qui est éprouvé et ce qui ne l'est pas.** Un
-utilisateur Fedora a le droit de savoir que son paquet est produit par les mêmes
-règles que l'autre et vérifié moins loin.
+**The manual must say what is tested and what is not.** A Fedora user has the
+right to know that their package is produced by the same rules as the other one
+and verified less far.
 
-**Le jour où Flatpak est repris, rien de ceci n'est perdu.** Un manifeste se
-sert des règles `install()`, comme celui de Gaupol se sert de son `Makefile`.
+**The day Flatpak is taken up again, none of this is lost.** A manifest builds
+on the `install()` rules, as Gaupol's builds on its `Makefile`.
 
-## Révision : le `.rpm` se construit sur chaque Fedora publiée
+## Revision: the `.rpm` is built on each released Fedora
 
-Constatée en v0.13.11 : un `.rpm` construit sur Ubuntu demande `libicuuc.so.74`, et
-une Fedora qui n'a ni ICU 74 ni son paquet de compatibilité refuse de l'installer. La
-décision d'origine — **un seul `.rpm`, construit là où l'on développe** — supposait
-que les dépendances se résolvent partout ; ICU, dont les symboles portent la version
-majeure, montre que non.
+Observed in v0.13.11: an `.rpm` built on Ubuntu requires `libicuuc.so.74`, and
+a Fedora that has neither ICU 74 nor its compatibility package refuses to
+install it. The original decision — **a single `.rpm`, built where development
+happens** — assumed that dependencies resolve everywhere; ICU, whose symbols
+carry the major version, shows that they do not.
 
-**Le `.rpm` publié est désormais construit sur Fedora, contre son ICU, une fois par
-version publiée** (42, 43 et 44) : `src/scripts/build-rpm.sh`, lancé par le travail
-`rpm` de `release.yml` dans l'image `fedora:N`. Le nom du fichier porte la
-distribution (`…-1.fc43.x86_64.rpm`). Le `.deb` ne change pas. **Le coût** : un
-`.rpm` par Fedora et une construction de plus par version ; une Fedora absente de la
-matrice se construit depuis les sources. `make rpm-check` éprouve toujours le `.rpm`
-construit sur Ubuntu, et ne dit donc plus rien des paquets publiés.
+**The published `.rpm` is now built on Fedora, against its ICU, once per
+released version** (42, 43 and 44): `src/scripts/build-rpm.sh`, run by the
+`rpm` job of `release.yml` in the `fedora:N` image. The file name carries the
+distribution (`…-1.fc43.x86_64.rpm`). The `.deb` does not change. **The cost**:
+one `.rpm` per Fedora and one more build per version; a Fedora missing from the
+matrix builds from source. `make rpm-check` still tests the `.rpm` built on
+Ubuntu, and therefore no longer says anything about the published packages.

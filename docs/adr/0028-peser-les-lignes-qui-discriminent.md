@@ -1,139 +1,138 @@
-# 0028 — La détection ne pèse que les lignes qui discriminent
+# 0028 — Detection weighs only the lines that discriminate
 
-Statut : acceptée — 2026-09-05
-Décidée en mesurant la détection, issue #310.
+**Date:** 2026-09-05
+**Status:** accepted
 
-## Contexte
+Decided while measuring detection, issue #310.
 
-L'[ADR 0027](0027-icu-pour-les-encodages.md) a choisi ICU pour détecter et pour
-convertir, sur un banc d'essai où elle rendait 9/9. Ce banc ne portait que des
-fichiers **monolingues** : chaque fixture est écrite d'un bout à l'autre dans un
-seul alphabet.
+## Context
 
-Un fichier de sous-titres réel ne l'est pas toujours. Un film russe sous-titré
-porte des cartons anglais ; un fansub porte une note de traducteur ; un
-sous-titrage anglais porte trois apostrophes typographiques déposées par un
-traitement de texte. Dans tous ces cas, **la quasi-totalité du fichier est de
-l'ASCII**, et le peu qui ne l'est pas est ce qui porte toute la question.
+[ADR 0027](0027-icu-pour-les-encodages.md) chose ICU to detect and to convert,
+on a test bench where it scored 9/9. That bench held only **monolingual**
+files: every fixture is written from end to end in a single script.
 
-L'issue #310 demandait de mesurer où la détection cesse d'être fiable. La mesure
-— `score-encoding-detection.py --par-longueur`, et le relevé de
+A real subtitle file is not always so. A subtitled Russian film carries English
+title cards; a fansub carries a translator's note; an English subtitle track
+carries three typographic apostrophes left by a word processor. In all these
+cases, **almost the whole file is ASCII**, and the little that is not is what
+carries the whole question.
+
+Issue #310 asked to measure where detection stops being reliable. The
+measurement — `score-encoding-detection.py --par-longueur`, and the record in
 [`docs/mesures/detection-d-encodage.md`](../mesures/detection-d-encodage.md) —
-a répondu autre chose que la question posée.
+answered something other than the question asked.
 
-## Ce qui a été mesuré
+## What was measured
 
-Sur des fichiers SubRip engendrés, soixante tirages par ligne :
+On generated SubRip files, sixty draws per row:
 
-| Écrit en | Répliques | Accentuées | Octets | Exact | Écriture conservée |
-| :------- | --------: | ---------: | -----: | ----: | -----------------: |
-| KOI8-R | 200 | 3 | 13 195 | **0 %** | **0 %** |
-| KOI8-R | 600 | 10 | 39 724 | **0 %** | **0 %** |
-| CP1250 | 600 | 1 | 39 815 | 0 % | 63 % |
+| Written in | Cues | Accented | Bytes | Exact | Script preserved |
+| :--------- | ---: | -------: | ----: | ----: | ---------------: |
+| KOI8-R | 200 | 3 | 13,195 | **0 %** | **0 %** |
+| KOI8-R | 600 | 10 | 39,724 | **0 %** | **0 %** |
+| CP1250 | 600 | 1 | 39,815 | 0 % | 63 % |
 
-Soixante fois sur soixante, un fichier de quarante kilooctets dont dix
-répliques sont cyrilliques revenait en `ISO-8859-1` : le russe en latin
-accentué, en entier, et le diagnostic « an encoding nothing declared » annonçant
-`ISO-8859-1` avec l'aplomb qu'il aurait eu à annoncer le bon encodage.
+Sixty times out of sixty, a forty-kilobyte file of which ten cues are Cyrillic
+came back as `ISO-8859-1`: the Russian as accented Latin, in full, and the
+diagnostic "an encoding nothing declared" announcing `ISO-8859-1` with the
+assurance it would have had announcing the right encoding.
 
-**Ce n'était pas une limite de l'information disponible**, et c'est ce qui
-transforme une fatalité en défaut. Sur le même fichier :
+**It was not a limit of the available information**, and that is what turns an
+inevitability into a defect. On the same file:
 
-| Détecteur | Réponse |
-| :-------- | :------ |
-| la nôtre, ICU | `ISO-8859-1` |
-| `uchardet`, témoin | `KOI8-R` |
+| Detector | Answer |
+| :------- | :----- |
+| ours, ICU | `ISO-8859-1` |
+| `uchardet`, control | `KOI8-R` |
 
-Le classement d'ICU explique le reste. Elle place `ISO-8859-1` à une confiance
-de 66, étiquetée « en », et `KOI8-R` à 2, dernière des six candidates. Son
-détecteur note des statistiques de lettres sur l'ensemble des octets : treize
-mille octets d'anglais y pèsent, et les cent quatre-vingt-dix octets de russe
-n'y pèsent rien. La règle « le premier candidat qui décode réellement » n'y peut
-rien — un mono-octet décode presque tout, donc le premier du classement gagne
-toujours.
+ICU's ranking explains the rest. It puts `ISO-8859-1` at a confidence of 66,
+labelled "en", and `KOI8-R` at 2, last of the six candidates. Its detector
+scores letter statistics over all the bytes: thirteen thousand bytes of English
+weigh in it, and the hundred and ninety bytes of Russian weigh nothing. The rule
+"the first candidate that actually decodes" can do nothing about it — a
+single-byte encoding decodes almost anything, so the first in the ranking
+always wins.
 
-## Décision
+## Decision
 
-**ICU ne reçoit que les lignes qui portent un octet hors ASCII.** Le reste du
-fichier lui est retiré avant qu'elle le pèse.
+**ICU receives only the lines that carry a non-ASCII byte.** The rest of the
+file is withheld from it before it weighs anything.
 
-Le raisonnement tient en une phrase : **une ligne d'ASCII pur se lit de la même
-façon sous toutes les candidates, donc elle ne peut pas les départager.** Ce
-qu'elle peut faire, et qu'elle faisait, c'est peser dans une statistique où elle
-n'a rien à dire. Ce n'est pas une heuristique de plus ; c'est le retrait de ce
-qui n'est pas de l'information.
+The reasoning fits in one sentence: **a line of pure ASCII reads the same way
+under every candidate, so it cannot tell them apart.** What it can do, and what
+it did, is weigh in a statistic where it has nothing to say. It is not one more
+heuristic; it is the removal of what is not information.
 
-Le même fichier, ses lignes d'ASCII retirées, place `KOI8-R` à 54 et ne propose
-plus `ISO-8859-1` du tout.
+The same file, with its ASCII lines removed, puts `KOI8-R` at 54 and no longer
+proposes `ISO-8859-1` at all.
 
-**Ce qui est pesé n'est pas ce qui est décodé.** Le classement se fait sur les
-lignes retenues ; chaque candidate est ensuite éprouvée **contre le fichier
-entier**, parce qu'un encodage qui n'en lit pas la totalité n'est pas une
-réponse. Cette règle-là ne bouge pas.
+**What is weighed is not what is decoded.** The ranking is made on the retained
+lines; each candidate is then tested **against the whole file**, because an
+encoding that does not read all of it is not an answer. That rule does not
+move.
 
-**Deux sorties rendent les octets intacts**, et chacune ferme une façon de nuire
-plutôt que d'aider :
+**Two exits return the bytes untouched**, and each closes off a way of harming
+rather than helping:
 
-- **un NUL quelque part.** C'est un encodage large — UTF-16 avant tout — où
-  `0x0a` est une moitié d'unité de code, donc y couper tranche un caractère et
-  non une fin de ligne ; et où une ligne d'ASCII pur est une suite de `X\0X\0`
-  qui ne porte aucun octet haut et disparaîtrait tout entière. Mesuré : sans
-  cette sortie, un fichier UTF-16LE sans BOM était rendu `UTF-16BE`.
-- **rien de retiré.** Un fichier accentué de bout en bout n'a pas de masse
-  d'ASCII à retirer, et le reconstruire ne ferait que normaliser ses fins de
-  ligne pour rien.
+- **a NUL anywhere.** It is a wide encoding — UTF-16 above all — where `0x0a`
+  is half a code unit, so cutting there slices a character and not a line end;
+  and where a line of pure ASCII is a run of `X\0X\0` that carries no high byte
+  and would vanish entirely. Measured: without that exit, a UTF-16LE file
+  without a BOM was returned as `UTF-16BE`.
+- **nothing removed.** A file accented from end to end has no mass of ASCII to
+  remove, and rebuilding it would only normalise its line endings for nothing.
 
-## Ce que la décision coûte, écrit plutôt que tu
+## What the decision costs, written rather than left unsaid
 
-**Une passe de plus sur les octets, et une copie.** Elle n'a lieu que dans la
-branche où les octets ne sont pas de l'UTF-8 valide, c'est-à-dire jamais pour la
-grande majorité des fichiers. Le banc ne la voit pas.
+**One more pass over the bytes, and a copy.** It happens only in the branch
+where the bytes are not valid UTF-8, that is, never for the vast majority of
+files. The bench does not see it.
 
-**Les fichiers courts perdent leurs horodatages, qui étaient du volume.** Sur
-les fichiers entièrement accentués de moins de six répliques, retirer les lignes
-d'index et de temps divise la taille pesée par trois, et le taux d'exactitude du
-CP1250 recule de quelques points — 92 % à 85 % sur cinq répliques, dans le bruit
-de soixante tirages mais dans le mauvais sens. **L'écriture, elle, reste juste à
-100 %** : ce qui recule est le choix entre deux latins, jamais le choix de
-l'alphabet. C'est le prix, et il est payé là où il coûte le moins.
+**Short files lose their timestamps, which were bulk.** On fully accented files
+of fewer than six cues, removing the index and time lines divides the weighed
+size by three, and CP1250's accuracy rate drops by a few points — 92 % to 85 %
+on five cues, within the noise of sixty draws but in the wrong direction. **The
+script, however, stays 100 % right**: what drops is the choice between two
+Latin encodings, never the choice of alphabet. That is the price, and it is
+paid where it costs least.
 
-**Le corpus étiqueté ne peut pas mesurer seul ce que cette décision change.**
-`koi8-r-rare.srt` a été ajouté pour cela — vingt répliques d'anglais et une de
-russe, la seule fixture dont la réponse bouge d'avant à après.
+**The labelled corpus cannot by itself measure what this decision changes.**
+`koi8-r-rare.srt` was added for that — twenty English cues and one Russian, the
+only fixture whose answer moves from before to after.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-**Remplacer ICU par `uchardet`.** Elle répond juste ici, et l'ADR 0027 avait
-déjà noté qu'elle détecte aussi bien. Écartée pour la raison qui l'avait déjà
-fait écarter : elle ne convertit pas, donc elle s'ajouterait à ICU au lieu de la
-remplacer — une dépendance de plus pour un cas que trente lignes traitent.
+**Replacing ICU with `uchardet`.** It answers correctly here, and ADR 0027 had
+already noted that it detects as well. Dismissed for the reason that had
+already dismissed it: it does not convert, so it would be added to ICU instead
+of replacing it — one more dependency for a case thirty lines handle.
 
-**Poser un seuil de longueur, et rendre `nullopt` en deçà.** C'est ce
-qu'envisageait #310, et la mesure l'écarte deux fois. Le défaut réel est sur des
-fichiers de quarante kilooctets, qu'aucune borne inférieure sur la taille ne
-voit. Et la détection n'est consultée que lorsque les octets ne sont **pas** de
-l'UTF-8 valide : rendre `nullopt` fait retomber la lecture sur l'UTF-8, qui
-échoue par construction, donc le fichier ne s'ouvrirait plus du tout. Une
-réponse imparfaite qu'un diagnostic annonce vaut mieux qu'un refus.
+**Setting a length threshold, and returning `nullopt` below it.** That is what
+#310 envisaged, and the measurement dismisses it twice. The real defect is on
+forty-kilobyte files, which no lower bound on size sees. And detection is
+consulted only when the bytes are **not** valid UTF-8: returning `nullopt`
+makes reading fall back on UTF-8, which fails by construction, so the file
+would no longer open at all. An imperfect answer that a diagnostic announces is
+better than a refusal.
 
-**Peser les deux et garder la meilleure confiance.** ICU rend une confiance par
-candidate, et on pourrait comparer le classement du fichier entier à celui des
-lignes retenues. Mesuré : sur le fichier bilingue, `ISO-8859-1` sur tout le
-fichier vaut 66 et `KOI8-R` sur les lignes retenues vaut 54. La confiance monte
-avec le volume pesé, donc cette comparaison redonnerait précisément la mauvaise
-réponse. Deux chiffres calculés sur deux échantillons différents ne se comparent
-pas.
+**Weighing both and keeping the better confidence.** ICU returns a confidence
+per candidate, and the ranking of the whole file could be compared with that of
+the retained lines. Measured: on the bilingual file, `ISO-8859-1` over the whole
+file is worth 66 and `KOI8-R` over the retained lines is worth 54. Confidence
+rises with the volume weighed, so that comparison would give back precisely the
+wrong answer. Two figures computed on two different samples are not
+comparable.
 
-**Retirer l'ASCII caractère par caractère plutôt que ligne par ligne.** Plus
-agressif, et faux : une lettre haute isolée de son mot perd le contexte que les
-statistiques de bigrammes d'ICU utilisent. La ligne est l'unité qui garde le mot
-entier tout en jetant ce qui n'en est pas un.
+**Removing ASCII character by character rather than line by line.** More
+aggressive, and wrong: a high letter isolated from its word loses the context
+ICU's bigram statistics use. The line is the unit that keeps the whole word
+while throwing away what is not one.
 
-## Conséquences
+## Consequences
 
-**L'ADR 0027 n'est pas remplacée, elle est complétée.** ICU reste le détecteur
-et le convertisseur ; ce qui change est ce qu'on lui soumet.
+**ADR 0027 is not superseded, it is complemented.** ICU remains the detector and
+the converter; what changes is what it is given.
 
-**Le corpus étiqueté porte désormais un cas bilingue**, et le score se rejoue à
-chaque pull request — issue #311. Une régression sur ce point ne peut plus
-passer inaperçue : elle fait échouer `make score`.
+**The labelled corpus now carries a bilingual case**, and the score is replayed
+on every pull request — issue #311. A regression on this point can no longer go
+unnoticed: it makes `make score` fail.

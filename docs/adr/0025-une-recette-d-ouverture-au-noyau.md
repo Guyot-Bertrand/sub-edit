@@ -1,108 +1,106 @@
-# 0025 — Une seule recette d'ouverture, au noyau, et l'erreur qui en sort
+# 0025 — A single opening recipe, in the core, and the error that comes out of it
 
-Statut : acceptée — 2026-08-28
-Décidée en réalisant l'issue #154.
+**Date:** 2026-08-28
+**Status:** accepted
 
-## Contexte
+Decided while implementing issue #154.
 
-Lire un fichier de sous-titres, c'est enchaîner trois appels dans cet ordre :
-les octets sont demandés au système, `readSubtitles` les reconnaît, et le
-projet garde ce qu'il faut pour réécrire le fichier tel qu'il est arrivé —
-son format compris, depuis l'[ADR 0018](0018-vocabulaire-des-formats-dans-le-modele.md).
+## Context
 
-**Cet enchaînement était écrit quatre fois** : dans `gui/opening.cpp` et dans
-les trois commandes de `cli/` qui lisent avant d'agir. Un seul des quatre sites
-portait un commentaire disant pourquoi l'ordre est celui-là. C'est la définition
-d'un contournement qui se répète.
+Reading a subtitle file means chaining three calls in this order: the bytes are
+requested from the system, `readSubtitles` recognises them, and the project
+keeps what it needs to write the file back as it arrived — its format
+included, since [ADR 0018](0018-vocabulaire-des-formats-dans-le-modele.md).
 
-La copie de la fenêtre en avait tiré une conséquence de plus, et coûteuse.
-Elle traduisait **toute** `FileError` en `ReadErrorKind::NoSubtitleFound` :
+**That chain was written four times**: in `gui/opening.cpp` and in the three
+`cli/` commands that read before acting. Only one of the four sites carried a
+comment saying why the order is what it is. That is the definition of a
+workaround that repeats itself.
+
+The window's copy had drawn one more consequence from it, and a costly one. It
+translated **every** `FileError` into `ReadErrorKind::NoSubtitleFound`:
 
 ```cpp
 // A file that cannot be opened and a file that cannot be understood are
 // both « nothing to show », and the window says so the same way.
 ```
 
-Le raisonnement se défend pour ce que la fenêtre *fait* — dans les deux cas,
-rien ne s'ouvre. Il ne se défend pas pour ce qu'elle *dit* : un fichier absent,
-un fichier refusé par le système, des octets qui ne sont pas de l'UTF-8 et un
-document Word recevaient la même phrase, et elle n'était vraie que du dernier.
-La fenêtre avait donc **moins d'information que le terminal** exactement là où
-l'utilisateur en a le plus besoin : au moment où il ne comprend pas pourquoi son
-fichier ne s'ouvre pas.
+The reasoning holds for what the window *does* — in both cases, nothing opens.
+It does not hold for what it *says*: a missing file, a file refused by the
+system, bytes that are not UTF-8 and a Word document all received the same
+sentence, and it was true only of the last. The window therefore had **less
+information than the terminal** exactly where the user needs it most: at the
+moment they do not understand why their file does not open.
 
-## Décision
+## Decision
 
-**La recette vit dans `core/format/`, sous le nom `openProject`, et les quatre
-sites l'appellent.** Son pendant `saveProject` l'accompagne.
+**The recipe lives in `core/format/`, under the name `openProject`, and the
+four sites call it.** Its counterpart `saveProject` goes with it.
 
-**Ce qu'elle rend en cas d'échec est une somme des deux erreurs qui peuvent se
-produire**, et non l'une écrasée dans l'autre :
+**What it returns on failure is a sum of the two errors that can occur**, not
+one crushed into the other:
 
 ```cpp
 using OpenError = std::variant<FileError, ReadError>;
 ```
 
-## Pourquoi `format/` et non `io/`
+## Why `format/` and not `io/`
 
-C'est la question que l'issue laissait ouverte, parce qu'aucune des deux
-réponses n'est évidente : la fonction touche au système de fichiers, ce que
-`readSubtitles` ne fait pas, et elle connaît les formats, ce que `io/` ne fait
-pas.
+It is the question the issue left open, because neither answer is obvious: the
+function touches the file system, which `readSubtitles` does not, and it knows
+the formats, which `io/` does not.
 
-**Ce qui tranche est le type qu'elle rend.** `io/` rend des octets et des
-erreurs de système ; `format/` rend des modèles. `openProject` rend un `Project`
-— un modèle — donc elle est du côté du format, qui se sert de `io/` comme
-`writeAtomically` se sert de `FileSystem`. Le dépendant nomme le répertoire, pas
-la dépendance.
+**What settles it is the type it returns.** `io/` returns bytes and system
+errors; `format/` returns models. `openProject` returns a `Project` — a model —
+so it is on the format's side, which uses `io/` as `writeAtomically` uses
+`FileSystem`. The dependent names the directory, not the dependency.
 
-Le pendant existait déjà et penchait dans l'autre sens en apparence :
-`writeAtomically` vit dans `io/`. Ce n'est pas une contradiction, c'est la même
-règle appliquée : `writeAtomically` rend des octets à un fichier et ne sait rien
-d'un sous-titre. `saveProject`, qui part d'un `Project`, est dans `format/` avec
+The counterpart already existed and seemed to lean the other way:
+`writeAtomically` lives in `io/`. It is not a contradiction, it is the same
+rule applied: `writeAtomically` hands bytes to a file and knows nothing of a
+subtitle. `saveProject`, which starts from a `Project`, is in `format/` with
 `openProject`.
 
-## Pourquoi une somme, et non une troisième énumération
+## Why a sum, and not a third enumeration
 
-Les deux énumérations suivent la même règle, écrite dans `read_error.hpp` :
-**chacune de leurs valeurs est produite par quelque chose.** Une valeur que rien
-n'émet est une promesse non tenue — chaque appelant qui la traduit en message
-porte une branche qu'aucun test ne peut atteindre. `ReadErrorKind` a d'ailleurs
-perdu un membre pour cette raison, `FileNotReadable`, que rien n'émettait.
+Both enumerations follow the same rule, written in `read_error.hpp`: **each of
+their values is produced by something.** A value nothing emits is a broken
+promise — every caller that translates it into a message carries a branch no
+test can reach. `ReadErrorKind` actually lost a member for that reason,
+`FileNotReadable`, which nothing emitted.
 
-Fondre les sept causes en une liste unique demanderait de maintenir une
-correspondance dans les deux sens, et d'y ajouter, à chaque cause nouvelle d'un
-côté, une valeur de l'autre. La somme ne produit rien de neuf : elle exprime le
-choix, et rien que le choix.
+Merging the seven causes into a single list would require maintaining a
+mapping in both directions, and adding to it, for each new cause on one side, a
+value on the other. The sum produces nothing new: it expresses the choice, and
+nothing but the choice.
 
-**Les mots existaient déjà.** `core/wording/formats.hpp` savait dire les sept ; seule la
-fenêtre ne pouvait pas les atteindre. Un `reasonOf(const OpenError&)` de trois
-lignes suffit, et c'est tout ce que la moitié visible du ticket a coûté.
+**The words already existed.** `core/wording/formats.hpp` could say all seven;
+only the window could not reach them. A three-line `reasonOf(const
+OpenError&)` is enough, and that is all the visible half of the ticket cost.
 
-## Conséquences
+## Consequences
 
-**`src/lib/subedit/gui/` ne contient plus de recette de noyau.** C'est ce qui
-rend la frontière lisible, et `check-architecture.sh` la tient déjà dans l'autre
-sens en refusant Qt sous `core/`.
+**`src/lib/subedit/gui/` no longer contains a core recipe.** That is what makes
+the boundary readable, and `check-architecture.sh` already holds it in the
+other direction by refusing Qt under `core/`.
 
-Une exception subsiste et elle est nommée : `mpv_player` ne contient pas une
-ligne de Qt et reste dans `gui/`, pour la raison que
-l'[ADR 0020](0020-libmpv-pour-le-lecteur-integre.md) écrit — un lecteur est un
-élément d'interface, il n'existe que pour la fenêtre, il en reçoit la sienne. La
-règle n'est donc **pas mécanisée** : un contrôle qui refuserait tout fichier
-sans Qt sous `gui/` signalerait celui-là à chaque exécution, et un contrôle qui
-crie au loup finit désactivé.
+One exception remains and it is named: `mpv_player` contains not a line of Qt
+and stays in `gui/`, for the reason
+[ADR 0020](0020-libmpv-pour-le-lecteur-integre.md) gives — a player is an
+interface element, it exists only for the window, it receives the window's
+own. The rule is therefore **not mechanised**: a check that refused every file
+without Qt under `gui/` would flag that one on every run, and a check that
+cries wolf ends up disabled.
 
-**La fenêtre dit ce que disait déjà le terminal.** Le manuel de la fenêtre
-énumère désormais les messages qu'elle écrit vraiment ; il disait auparavant que
-le message était « le même pour les quatre cas », ce qui était exact et
-regrettable.
+**The window says what the terminal already said.** The window's manual now
+lists the messages it actually writes; it used to say the message was "the
+same for all four cases", which was accurate and regrettable.
 
-**L'écriture n'a pas été unifiée avec celle de la ligne de commande**, et ce
-n'était pas demandé sans réserve : l'issue disait de regarder, et de ne le faire
-que si ça tenait. Ça ne tient pas. La ligne de commande écrit vers une
-destination calculée, en lot, avec une forme que ses options peuvent changer ;
-la fenêtre écrit un fichier vers un chemin que l'utilisateur vient de choisir.
-Ce qu'elles partagent est `writeSubtitles` puis `writeAtomically`, qu'elles
-appellent déjà toutes les deux. `saveProject` descend au noyau parce que sa
-place était mal choisie, pas parce qu'un second appelant l'attendait.
+**Writing has not been unified with the command line's**, and that was not
+asked without reservation: the issue said to look, and to do it only if it held
+up. It does not. The command line writes to a computed destination, in batch,
+with a shape its options can change; the window writes one file to a path the
+user has just chosen. What they share is `writeSubtitles` then
+`writeAtomically`, which they both already call. `saveProject` moves down to
+the core because its place was badly chosen, not because a second caller was
+waiting for it.
