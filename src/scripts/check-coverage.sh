@@ -91,16 +91,16 @@ if (( record == 1 )); then
     fi
 fi
 
-# Le cliquet a deux ancres textuelles : le titre « ## Relevé » (frontière entre
+# Le cliquet a deux ancres textuelles : le titre « ## Record » (frontière entre
 # le préambule et la section réécrite) et les lignes « | compte | `fichier` |
 # » de sa table. Une ancre absente ou dupliquée — titre renommé à la main,
 # fusion mal résolue — ne fait planter ni le sed qui la cherche ni le python
 # qui compare : le premier ne coupe rien, le second continue sur une table
 # tronquée. Le vérifier une fois ici, avant toute lecture ou écriture, vaut
 # mieux qu'un ✓ sur un fichier déjà incohérent.
-heading_count="$(grep -c '^## Relevé$' "${RATCHET}" || true)"
+heading_count="$(grep -c '^## Record$' "${RATCHET}" || true)"
 if [[ "${heading_count}" -ne 1 ]]; then
-    printf '%s✗%s le titre « ## Relevé » de %s apparaît %s fois, une seule attendue\n' \
+    printf '%s✗%s le titre « ## Record » de %s apparaît %s fois, une seule attendue\n' \
         "${RED}" "${RESET}" "${RATCHET#"${REPO_ROOT}"/}" "${heading_count}" >&2
     printf '  corriger le fichier à la main avant de relancer.\n' >&2
     exit 1
@@ -171,12 +171,12 @@ readonly measured_total="${measured[0]}"
     exit 1
 }
 
-# L'ancre du cliquet : une ligne « total : N » dans un bloc de code.
+# L'ancre du cliquet : une ligne « total: N » dans un bloc de code.
 recorded_total="$(sed -n 's/^[[:space:]]\+total[[:space:]]*:[[:space:]]*\([0-9]\+\)[[:space:]]*$/\1/p' \
     "${RATCHET}" | head -1)"
 
 [[ -n "${recorded_total}" ]] || {
-    printf '%s✗%s aucune ligne « total : N » lisible dans %s\n' \
+    printf '%s✗%s aucune ligne « total: N » lisible dans %s\n' \
         "${RED}" "${RESET}" "${RATCHET#"${REPO_ROOT}"/}" >&2
     exit 1
 }
@@ -247,12 +247,12 @@ write_ratchet() {
     tmp_ratchet="$(mktemp "${RATCHET}.XXXXXX")"
 
     {
-        # Le préambule est conservé tel quel : seule la section « Relevé » est
+        # Le préambule est conservé tel quel : seule la section « Record » est
         # réécrite. On coupe au titre de section pour ne pas perdre la prose.
-        sed '/^## Relevé$/,$d' "${RATCHET}"
-        printf '## Relevé\n\n    total : %s\n\n' "${measured_total}"
-        printf 'Relevé sur la version %s, le %s.\n\n' "${version}" "${today}"
-        printf '| Lignes | Fichier |\n| -----: | :------ |\n'
+        sed '/^## Record$/,$d' "${RATCHET}"
+        printf '## Record\n\n    total: %s\n\n' "${measured_total}"
+        printf 'Recorded on version %s, on %s.\n\n' "${version}" "${today}"
+        printf '| Lines | File |\n| ----: | :--- |\n'
         local row
         for row in "${new_rows[@]}"; do
             printf '| %s | `%s` |\n' "${row%%$'\t'*}" "${row#*$'\t'}"
