@@ -37,12 +37,6 @@ cmake/Tidy.cmake
 cmake/ToolchainSanity.cmake
 cmake/Translations.cmake
 cmake/Warnings.cmake
-docs/adr/0036-icu-pour-les-motifs-de-correction.md
-docs/adr/0037-lire-les-motifs-de-gaupol-tels-quels.md
-docs/adr/0038-sortie-json-lines-versionnee.md
-docs/adr/0039-le-lot-collisions-dossiers-et-arborescence.md
-docs/adr/0040-correct-ecrit-directement-dry-run-propose.md
-docs/adr/0041-afficher-la-video-par-le-rendu-logiciel.md
 docs/adr/README.md
 docs/mesures/performances.md
 docs/specs/00-fondations.md

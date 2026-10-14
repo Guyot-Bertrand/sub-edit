@@ -1,181 +1,179 @@
-# 0039 — Un lot sûr : collisions refusées, dossier créé, arborescence conservée
+# 0039 — A safe batch: collisions refused, directory created, tree preserved
 
-**Date :** 2026-10-01
-**Statut :** acceptée
+**Date:** 2026-10-01
+**Status:** accepted
 
-Décidée en cadrant la phase 13, issue
-[#542](https://github.com/Guyot-Bertrand/sub-edit/issues/542), sur les constats de
+Decided while scoping phase 13, issue
+[#542](https://github.com/Guyot-Bertrand/sub-edit/issues/542), on the findings of
 [#544](https://github.com/Guyot-Bertrand/sub-edit/issues/544).
 
-## Contexte
+## Context
 
-Le lot de la phase 3 est une boucle séquentielle sur des chemins donnés : chacun est lu,
-traité et écrit indépendamment, les échecs sont nommés, le code de retour est global
-(`0`, `2`, `3`). **Cela suffisait tant que le lot était un harnais** ; ce n'est plus assez
-pour ce qu'un script fait à des milliers de fichiers. Les tests de #544 ont écrit trois
-comportements qui n'avaient jamais été décidés, et que le manuel
-(`docs/manual/subedit-cli/invocation.md`) avoue sous « trois choses que l'outil ne fait
-pas » :
+The phase 3 batch is a sequential loop over given paths: each one is read, processed and
+written independently, failures are named, the exit code is global (`0`, `2`, `3`).
+**That was enough as long as the batch was a harness**; it is no longer enough for what a
+script does to thousands of files. The tests of #544 wrote down three behaviours that had
+never been decided, and that the manual (`docs/manual/subedit-cli/invocation.md`) admits
+under "three things the tool does not do":
 
-- **deux entrées de même nom de base** — `a/film.srt`, `b/film.srt` — **écrivent au même
-  endroit** avec `--output-dir` : code `0`, chaque entrée annonce sa destination, la seconde
-  écrase la première, sans un mot ;
-- **le dossier de `--output-dir` n'est pas créé** : s'il manque, toute entrée échoue, et le
-  libellé dit « `cannot be read` » pour une **écriture** — `reasonOf(FileErrorKind::Io)` est
-  la phrase de la lecture, que l'écriture emprunte — alors que le manuel annonce « `cannot be
-  opened: permission denied` » ;
-- **une destination qui existe est écrasée**, sans question ni option, par écriture
-  atomique.
+- **two inputs with the same base name** — `a/film.srt`, `b/film.srt` — **write to the
+  same place** with `--output-dir`: code `0`, each input announces its destination, the
+  second overwrites the first, without a word;
+- **the `--output-dir` directory is not created**: if it is missing, every input fails,
+  and the label says "`cannot be read`" for a **write** — `reasonOf(FileErrorKind::Io)` is
+  the reading sentence, which writing borrows — whereas the manual announces "`cannot be
+  opened: permission denied`";
+- **a destination that exists is overwritten**, without question or option, by atomic
+  write.
 
-Un quatrième, que #544 n'a pas vu et que l'analyse du cadrage a trouvé : `--output-dir .`
-avec des entrées qui sont dans `.` **écrase les entrées elles-mêmes**, sans `--in-place`. La
-règle « rien n'est écrit sans destination explicite, et écraser son entrée est un geste
-qu'on nomme » (spec 03) n'y tient pas.
+A fourth, which #544 did not see and the scoping analysis found: `--output-dir .` with
+inputs that are in `.` **overwrites the inputs themselves**, without `--in-place`. The
+rule "nothing is written without an explicit destination, and overwriting one's input is
+an act one names" (spec 03) does not hold there.
 
-Et la phase demande ce que la boucle ne sait pas faire : prendre des **répertoires** en
-entrée.
+And the phase asks for what the loop cannot do: take **directories** as input.
 
-## Décision
+## Decision
 
-**Quatre règles de sûreté, et une extension.**
+**Four safety rules, and one extension.**
 
-1. **Deux entrées qui aboutissent à la même destination sont refusées avant tout écrit.**
-   Erreur d'usage, code `1`, **aucun fichier écrit** — la règle de `CLI-USAGE-03` : une
-   erreur d'usage ne laisse jamais un lot à moitié écrit. Le message nomme la destination
-   **et les deux entrées**. La comparaison porte sur la destination **finale** — extension
-   comprise, `convert` la change — et se fait sur les chemins normalisés.
-2. **Une destination qui est l'une des entrées est refusée sans `--in-place`**, même règle,
-   même code, mêmes raisons ; `std::filesystem::equivalent` tranche quand le fichier existe.
-3. **Le dossier de sortie est créé** s'il manque, parents compris, **après** la validation
-   de la ligne de commande et **avant** le premier fichier traité ; jamais en `--dry-run`.
-   Le dossier où `--output FICHIER` écrit suit la même règle. Si la création échoue, **c'est
-   dit une fois**, aucun fichier n'est lu, et le code est `2`.
-4. **Une destination qui existe est écrasée**, par écriture atomique — le contenu d'avant
-   est perdu, le fichier n'est jamais écrit à moitié. **Ce n'est pas un défaut qu'on garde :
-   c'est la règle, et le manuel la dit** dans la section de la destination, en tête et non
-   plus sous une rubrique de réserves.
-5. **Des répertoires en entrée, avec `--recursive` (`-r`).**
+1. **Two inputs that end up at the same destination are refused before anything is
+   written.** Usage error, code `1`, **no file written** — the rule of `CLI-USAGE-03`: a
+   usage error never leaves a half-written batch. The message names the destination
+   **and both inputs**. The comparison is on the **final** destination — extension
+   included, `convert` changes it — and is done on normalized paths.
+2. **A destination that is one of the inputs is refused without `--in-place`**, same
+   rule, same code, same reasons; `std::filesystem::equivalent` decides when the file
+   exists.
+3. **The output directory is created** if it is missing, parents included, **after** the
+   validation of the command line and **before** the first file processed; never under
+   `--dry-run`. The directory `--output FILE` writes into follows the same rule. If the
+   creation fails, **it is said once**, no file is read, and the code is `2`.
+4. **A destination that exists is overwritten**, by atomic write — the previous content
+   is lost, the file is never half-written. **This is not a defect we keep: it is the
+   rule, and the manual states it** in the destination section, at the top and no longer
+   under a heading of caveats.
+5. **Directories as input, with `--recursive` (`-r`).**
 
-   - Un répertoire donné **sans** `--recursive` est une erreur d'usage (code `1`) :
-     `<dossier>: is a directory: use --recursive`. Le refuser vaut mieux que de n'en
-     traiter rien et de rendre `0`.
-   - Avec `--recursive`, le parcours est **récursif, déterministe et sans surprise** :
-     les entrées de chaque répertoire sont triées par nom (comparaison d'octets), en
-     profondeur d'abord ; **les liens symboliques ne sont pas suivis** (pas de boucle) ;
-     **les fichiers cachés sont ignorés**.
-   - **Seuls les fichiers dont l'extension est celle d'un format connu sont retenus** :
-     `.srt`, `.vtt`, `.ssa`, `.ass`, `.lrc`, `.sub`. **`.txt` est exclu du parcours** : il
-     désigne MPL2 et TMPlayer, mais surtout tous les `LISEZMOI.txt` du monde, et un lot qui
-     échouerait sur chacun serait inutilisable. **Un fichier nommé sur la ligne de commande
-     n'est jamais filtré** : le nommer, c'est le vouloir. Ce qui a été laissé de côté est
-     compté, et dit au niveau 2.
-   - **L'arborescence est conservée sous `--output-dir`** : le chemin d'un fichier **relatif
-     au répertoire donné** est reproduit sous le dossier de sortie (`films/a/x.srt`,
-     donné `films/`, s'écrit `out/a/x.srt`). Le nom du répertoire donné n'en fait pas partie
-     — la sémantique de `rsync` avec une barre finale, non celle de `cp -r` — : l'utilisateur
-     nomme la destination, et ajoute le niveau qu'il veut. **Avec deux répertoires, la règle 1
-     tranche** ce qui se recouvre.
-   - **Le dossier de sortie, s'il est dans l'arbre parcouru, est exclu du parcours** : une
-     seconde exécution ne relit pas ce que la première a écrit.
-   - La liste des entrées est **établie en entier avant le premier écrit** — c'est ce qui
-     rend les règles 1 et 2 vérifiables avant tout, et le parcours indépendant de ce que
-     l'écriture change.
-   - `--in-place` avec `--recursive` réécrit chaque fichier retenu à sa place.
-6. **Le libellé d'une écriture qui échoue dit « written »**, jamais « read » ni « opened » :
-   `<destination>: cannot be written: permission denied`, ou `: cannot be written` pour le
-   reste. La lecture et l'écriture ne partagent plus `reasonOf(FileErrorKind)`.
+   - A directory given **without** `--recursive` is a usage error (code `1`):
+     `<directory>: is a directory: use --recursive`. Refusing it is better than
+     processing nothing of it and returning `0`.
+   - With `--recursive`, the walk is **recursive, deterministic and unsurprising**: the
+     entries of each directory are sorted by name (byte comparison), depth first;
+     **symbolic links are not followed** (no loop); **hidden files are ignored**.
+   - **Only files whose extension is that of a known format are kept**: `.srt`, `.vtt`,
+     `.ssa`, `.ass`, `.lrc`, `.sub`. **`.txt` is excluded from the walk**: it denotes MPL2
+     and TMPlayer, but above all every `README.txt` in the world, and a batch that failed
+     on each of them would be unusable. **A file named on the command line is never
+     filtered**: naming it means wanting it. What was left aside is counted, and said at
+     level 2.
+   - **The tree is preserved under `--output-dir`**: the path of a file **relative to the
+     given directory** is reproduced under the output directory (`films/a/x.srt`, given
+     `films/`, is written `out/a/x.srt`). The name of the given directory is not part of
+     it — the semantics of `rsync` with a trailing slash, not those of `cp -r` —: the user
+     names the destination, and adds the level they want. **With two directories, rule 1
+     decides** what overlaps.
+   - **The output directory, if it is inside the walked tree, is excluded from the
+     walk**: a second run does not re-read what the first one wrote.
+   - The list of inputs is **established in full before the first write** — which is
+     what makes rules 1 and 2 checkable before anything, and the walk independent of what
+     writing changes.
+   - `--in-place` with `--recursive` rewrites each kept file in place.
+6. **The label of a write that fails says "written"**, never "read" nor "opened":
+   `<destination>: cannot be written: permission denied`, or `: cannot be written` for
+   the rest. Reading and writing no longer share `reasonOf(FileErrorKind)`.
 
-**Ce qui ne change pas** : chaque fichier est traité indépendamment, l'échec de l'un
-n'arrête pas les autres, les échecs sont nommés, les codes de retour restent les quatre de
-la phase 3. Le parcours produit **une liste de chemins**, que le reste du lot consomme comme
-avant : `--format json` (ADR 0038) y trouve ses « un objet par entrée ».
+**What does not change**: each file is processed independently, the failure of one does
+not stop the others, failures are named, the exit codes remain the four of phase 3. The
+walk produces **a list of paths**, which the rest of the batch consumes as before:
+`--format json` (ADR 0038) finds its "one object per input" there.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Renommer la seconde entrée** (`film-2.srt`). Le nom d'un fichier écrit devient une
-  fonction de l'ordre des entrées : un script qui relance le même lot dans un autre ordre
-  écrit autre chose, et celui qui cherche `film.srt` ne sait pas lequel il a trouvé. Un
-  refus coûte une ligne ; un renommage silencieux coûte une enquête.
-- **Laisser passer la première, échouer la seconde** (code `3`). Un lot à moitié écrit est
-  le pire cas, et la règle de la phase 3 existe pour l'empêcher. La collision est connue
-  *avant* d'écrire : la dire alors est possible, donc exigible.
-- **Garder « la dernière gagne »** et l'écrire au manuel. C'est l'état d'aujourd'hui ; il
-  perd un fichier sans que rien ne le dise.
-- **Refuser un dossier de sortie absent.** Plus prudent contre une faute de frappe, et
-  c'était la pente du premier constat de #544. Écarté : l'utilisateur **nomme** ce dossier,
-  il est le produit de la commande, et lui demander un `mkdir` préalable est le geste que
-  chaque script ajoute. La faute de frappe crée un dossier de plus, visible et inoffensif,
-  là où l'écrasement d'un fichier ne l'est pas.
-- **Une option `--no-clobber`.** Légitime, et non demandée : la collision et l'atomicité
-  couvrent les deux dégâts qu'on a vus. Candidate si un appelant la réclame.
-- **S'en remettre au shell** (`**/*.srt`, `find … -exec`). `globstar` est désactivé par
-  défaut dans bash, `**` n'existe pas partout, la liste dépasse parfois la longueur d'une
-  ligne de commande, et surtout **le shell ne conserve pas l'arborescence sous un dossier
-  de sortie** : c'est la moitié du besoin.
-- **Un motif de noms (`--include '*.fr.srt'`)**. Utile, et plus de grammaire : les
-  extensions connues règlent le cas courant. Candidat.
-- **Suivre les liens symboliques.** Une boucle d'arborescence est un défaut qu'on trouve en
-  production ; ne pas les suivre en est un qu'on lit au manuel.
-- **Un lot parallèle.** La boucle est séquentielle, son coût est la somme de ses fichiers,
-  et la sortie reste déterministe sans rien arbitrer. La mesure qui en dirait l'intérêt
-  naît avec le parcours (issue du lot, banc de #541) ; le parallélisme n'est retenu que si
-  elle le montre — et il demanderait de rouvrir l'ordre des objets de l'ADR 0038.
-- **Inclure le nom du répertoire donné sous `--output-dir`** (`cp -r`). Plus familier, mais
-  l'on ne peut pas alors écrire « mon arbre `films/` dans `out/` sans niveau de plus » ; on
-  peut toujours écrire `--output-dir out/films`.
+- **Renaming the second input** (`film-2.srt`). The name of a written file becomes a
+  function of the order of inputs: a script that reruns the same batch in another order
+  writes something else, and whoever looks for `film.srt` does not know which one they
+  found. A refusal costs a line; a silent renaming costs an investigation.
+- **Letting the first through, failing the second** (code `3`). A half-written batch is
+  the worst case, and the phase 3 rule exists to prevent it. The collision is known
+  *before* writing: saying so then is possible, hence required.
+- **Keeping "the last one wins"** and writing it in the manual. That is today's state; it
+  loses a file without anything saying so.
+- **Refusing a missing output directory.** More cautious against a typo, and it was the
+  leaning of the first finding of #544. Dismissed: the user **names** this directory, it
+  is the product of the command, and asking for a prior `mkdir` is the step every script
+  adds. The typo creates one more directory, visible and harmless, where overwriting a
+  file is not.
+- **A `--no-clobber` option.** Legitimate, and not requested: the collision rule and
+  atomicity cover the two kinds of damage we have seen. A candidate if a caller asks for
+  it.
+- **Relying on the shell** (`**/*.srt`, `find … -exec`). `globstar` is disabled by default
+  in bash, `**` does not exist everywhere, the list sometimes exceeds the length of a
+  command line, and above all **the shell does not preserve the tree under an output
+  directory**: that is half the need.
+- **A name pattern (`--include '*.fr.srt'`)**. Useful, and more grammar: the known
+  extensions settle the common case. A candidate.
+- **Following symbolic links.** A tree loop is a defect one finds in production; not
+  following them is one you read about in the manual.
+- **A parallel batch.** The loop is sequential, its cost is the sum of its files, and the
+  output stays deterministic without arbitrating anything. The measurement that would
+  tell its worth is born with the walk (batch issue, bench of #541); parallelism is
+  retained only if it shows it — and it would require reopening the order of objects of
+  ADR 0038.
+- **Including the given directory's name under `--output-dir`** (`cp -r`). More familiar,
+  but then one cannot write "my `films/` tree into `out/` without an extra level"; one can
+  always write `--output-dir out/films`.
 
-## Conséquences
+## Consequences
 
-**Le comportement change pour qui comptait sur l'écrasement ou sur l'absence de création** :
-deux entrées de même nom de base, qui s'écrasaient, sont maintenant refusées ; un dossier de
-sortie absent, qui faisait échouer, est maintenant créé. Les tests de #544 qui **fixent
-l'état d'avant** — `batch_test.cpp`, `generated_batch_test.cpp` — deviennent des diffs
-visibles, c'est le but de les avoir écrits avant ; le paragraphe d'`invocation.md` se
-réécrit.
+**The behaviour changes for anyone who relied on overwriting or on directories not being
+created**: two inputs with the same base name, which overwrote each other, are now
+refused; a missing output directory, which caused failure, is now created. The tests of
+#544 that **pin the previous state** — `batch_test.cpp`, `generated_batch_test.cpp` —
+become visible diffs, which is the point of having written them first; the paragraph of
+`invocation.md` gets rewritten.
 
-**La liste des entrées est un objet** (`std::vector` de `{chemin donné, destination
-calculée, relatif}`) que la validation, le parcours, l'écriture et le JSON se partagent ; la
-destination se calcule **une fois**, à la validation, et l'écriture la relit.
+**The list of inputs is an object** (`std::vector` of `{given path, computed
+destination, relative}`) that validation, the walk, writing and JSON share; the
+destination is computed **once**, at validation, and writing reads it back.
 
-**Le banc du lot** : le parcours rend le lot mesurable — N fichiers engendrés dans un
-`Scratch` contre le même travail en un seul —, et la mesure naît avec lui, dans le journal.
+**The batch bench**: the walk makes the batch measurable — N files generated in a
+`Scratch` against the same work in a single one —, and the measurement is born with it,
+in the log.
 
-**Ce qui justifierait de rouvrir** : un lot assez grand pour que la boucle séquentielle se
-voie ; un appelant qui veut un motif de noms ou `--no-clobber` ; un système de fichiers
-insensible à la casse qui ferait collisionner deux noms que la comparaison d'octets
-distingue (la règle 1 s'appuie sur `equivalent` quand le fichier existe, et non sur la
-chaîne, pour cela).
+**What would justify reopening**: a batch large enough for the sequential loop to show;
+a caller who wants a name pattern or `--no-clobber`; a case-insensitive file system that
+would make two names collide that byte comparison tells apart (rule 1 relies on
+`equivalent` when the file exists, and not on the string, for that reason).
 
-## Mise en œuvre de la première moitié (#554)
+## Implementation of the first half (#554)
 
-Relue à l'implémentation ; **aucune décision n'est changée**, trois précisions que
-l'ADR ne disait pas :
+Reviewed at implementation; **no decision is changed**, three clarifications the ADR did
+not state:
 
-- **Une écriture qui trouve son dossier absent dit « cannot be written »**, comme
-  les autres refus d'écriture hors permission : le dossier de sortie est créé avant
-  tout écrit, ce cas n'est plus l'ordinaire. La création qui échoue a sa propre phrase,
-  `cannot be created` (`reasonOfCreating`).
-- **La séparation lecture/écriture vaut aussi pour la fenêtre** : `reasonOf(SaveError)`
-  et l'enregistrement des remplacements du correcteur disent « written » eux aussi.
-  Les deux surfaces gardaient la même phrase fausse ; elles gardent maintenant la même
-  phrase juste.
-- **L'identité de deux chemins** se juge par l'orthographe absolue normalisée, puis par
-  `FileSystem::equivalent` (nouveau, vrai quand les deux existent) — avec un tamis sur
-  le nom de fichier, sans casse, pour que la comparaison reste linéaire dans la taille
-  du lot.
+- **A write that finds its directory missing says "cannot be written"**, like the other
+  write refusals other than permission: the output directory is created before anything
+  is written, so this case is no longer the ordinary one. A creation that fails has its
+  own sentence, `cannot be created` (`reasonOfCreating`).
+- **The separation of reading and writing also holds for the window**:
+  `reasonOf(SaveError)` and the saving of the corrector's replacements say "written" as
+  well. Both surfaces kept the same wrong sentence; they now keep the same right one.
+- **The identity of two paths** is judged by the normalized absolute spelling, then by
+  `FileSystem::equivalent` (new, true when both exist) — with a sieve on the file name,
+  case-insensitive, so that the comparison stays linear in the size of the batch.
 
-## Mise en œuvre de la seconde moitié (#555)
+## Implementation of the second half (#555)
 
-Relue à l'implémentation ; **aucune décision n'est changée**, quatre précisions :
+Reviewed at implementation; **no decision is changed**, four clarifications:
 
-- **Le parcours passe par `FileSystem`** — `entriesIn` (entrées typées, liens non suivis,
-  triées par octets) et `isDirectory` — et non par `std::filesystem` : il se teste sans
-  disque, et l'ordre est celui du contrat, non celui du système.
-- **« Laissé de côté » ne compte que les fichiers d'une extension inconnue** (dont
-  `.txt`) : les entrées cachées et les liens sont ignorés sans bruit, parce que les
-  compter ferait un chiffre que personne n'a demandé.
-- **Un répertoire sans rien à parcourir est dit au niveau 1 et n'est pas une erreur** :
-  le lot de zéro fichier réussit, comme tout lot vide.
-- **L'arborescence passe par `Destination::withRoots`** plutôt que par un type de liste
-  d'entrées : les fonctions du lot gardent leurs signatures, et une entrée trouvée sous
-  une racine garde son chemin relatif tandis qu'une entrée nommée n'en garde que le nom.
+- **The walk goes through `FileSystem`** — `entriesIn` (typed entries, links not
+  followed, sorted by bytes) and `isDirectory` — and not through `std::filesystem`: it is
+  tested without a disk, and the order is the contract's, not the system's.
+- **"Left aside" counts only files with an unknown extension** (including `.txt`): hidden
+  entries and links are ignored silently, because counting them would make a number
+  nobody asked for.
+- **A directory with nothing to walk is said at level 1 and is not an error**: the batch
+  of zero files succeeds, like any empty batch.
+- **The tree goes through `Destination::withRoots`** rather than through a list-of-inputs
+  type: the batch functions keep their signatures, and an input found under a root keeps
+  its relative path while a named input keeps only its name.
