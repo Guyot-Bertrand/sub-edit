@@ -1266,14 +1266,14 @@ expect_detection_score_gates
 # sûr, et il faudrait la recompiler.
 expect_conversion_loss_gates() {
     local recorded
-    recorded="$(sed -n 's/^ *aller-retour intacts *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
+    recorded="$(sed -n 's/^ *intact round trips *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
         "${CONVERSION_JOURNAL}")"
     local kept="${recorded% *}"
     local total="${recorded#* }"
 
     proof_header '%s▸ une perte de conversion plus grande que son relevé%s\n' "${BOLD}" "${RESET}"
 
-    sed -i "s|^ *aller-retour intacts *:.*$|    aller-retour intacts : ${total}/${total}|" \
+    sed -i "s|^ *intact round trips *:.*$|    intact round trips: ${total}/${total}|" \
         "${CONVERSION_JOURNAL}"
 
     if make -C "${REPO_ROOT}" --no-print-directory conversion >/dev/null 2>&1; then
@@ -1287,7 +1287,7 @@ expect_conversion_loss_gates() {
 
     proof_header '%s▸ une perte de conversion plus petite que son relevé%s\n' "${BOLD}" "${RESET}"
 
-    sed -i "s|^ *aller-retour intacts *:.*$|    aller-retour intacts : $((kept - 1))/${total}|" \
+    sed -i "s|^ *intact round trips *:.*$|    intact round trips: $((kept - 1))/${total}|" \
         "${CONVERSION_JOURNAL}"
 
     if make -C "${REPO_ROOT}" --no-print-directory conversion >/dev/null 2>&1; then
