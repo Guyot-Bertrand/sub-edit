@@ -540,8 +540,8 @@ value is a usage error, an unwritable file is the I/O error.
 
 ## Requirements
 
-**Eight**, registered `prévue` in `docs/exigences.md` with this spec; each issue re-reads its own before its code and the
-state moves to `implémentée` when a test cites it.
+**Eight**, registered `planned` in `docs/exigences.md` with this spec; each issue re-reads its own before its code and the
+state moves to `implemented` when a test cites it.
 
 | Identifier | What it promises |
 | :--------- | :--------------- |

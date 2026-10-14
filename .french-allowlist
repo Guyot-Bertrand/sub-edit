@@ -80,7 +80,6 @@ docs/adr/0039-le-lot-collisions-dossiers-et-arborescence.md
 docs/adr/0040-correct-ecrit-directement-dry-run-propose.md
 docs/adr/0041-afficher-la-video-par-le-rendu-logiciel.md
 docs/adr/README.md
-docs/exigences.md
 docs/feuille-de-route.md
 docs/mesures/conversion.md
 docs/mesures/couverture.md

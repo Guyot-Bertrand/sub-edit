@@ -103,7 +103,7 @@ body:
         - [ ] La spec et le réalisé concordent, ou l'écart est inscrit
         - [ ] Tout renvoi atterrit sur une phase ou une issue nommée
         - [ ] Le manuel a été relu d'un bloc, par quelqu'un qui le découvre
-        - [ ] Chaque exigence de la phase est `implémentée` et citée par un test
+        - [ ] Chaque exigence de la phase est `implemented` et citée par un test
         - [ ] Les ADR de la phase décrivent ce qui a été construit
         - [ ] Les axes retenus par la relecture ont leur issue
     validations:

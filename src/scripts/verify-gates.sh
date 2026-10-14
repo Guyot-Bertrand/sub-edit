@@ -469,7 +469,7 @@ rm -rf "${REPO_ROOT}/build/coverage-report"
 # une exigence au registre et absente de sa spec — et la preuve ne dirait plus
 # rien du contrôle qu'elle vise : elle passerait même si la confrontation aux
 # tests était cassée. Une preuve qui a deux causes n'en prouve aucune.
-printf '%s\n' '| `CLI-FANTOME-01` | exigence injectée que rien ne démontre | 3 | implémentée |' \
+printf '%s\n' '| `CLI-FANTOME-01` | exigence injectée que rien ne démontre | 3 | implemented |' \
     >> "${REGISTRY}"
 printf '%s\n' '| `CLI-FANTOME-01` | exigence injectée que rien ne démontre |' >> "${SPEC_SOURCE}"
 expect_gate_closes \
@@ -486,7 +486,7 @@ expect_gate_closes \
     "exigence du registre absente de la table de sa spec" \
     "requirements" \
     "${REGISTRY}" \
-    '| `CLI-FANTOME-02` | exigence injectée que sa spec ignore | 3 | prévue |'
+    '| `CLI-FANTOME-02` | exigence injectée que sa spec ignore | 3 | planned |'
 
 # Le sens inverse : une exigence qu'une spec promet et que le registre ne porte
 # pas. C'est le défaut exact que la phase 7 a trouvé chez elle — `GUI-THEME-02`

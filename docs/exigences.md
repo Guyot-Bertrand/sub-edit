@@ -1,335 +1,335 @@
-# Registre des exigences
+# Requirements registry
 
-Ce que `subedit` promet, ligne par ligne, avec l'état de ce qui le prouve.
+What `subedit` promises, line by line, with the state of what proves it.
 
-Une exigence est **ce que le binaire montre** : sortie standard, sortie
-d'erreur, code de retour, fichier produit. Les garanties internes du noyau n'en
-sont pas — leurs tests unitaires et la couverture de lignes tiennent ce rôle.
-La décision, et les sept options écartées, sont dans
-[l'ADR 0014](adr/0014-registre-d-exigences.md).
+A requirement is **what the binary shows**: standard output, standard error,
+exit code, file produced. The internal guarantees of the core are not
+requirements — their unit tests and line coverage play that role. The decision,
+and the seven options set aside, are in
+[ADR 0014](adr/0014-registre-d-exigences.md).
 
-Ce registre ne remplace pas le [manuel](manual/), qui reste la description
-exhaustive de ce que l'utilisateur voit. Il dit autre chose : **quelle promesse
-est démontrée par un test**, ce qu'aucun taux de couverture ne sait dire.
+This registry does not replace the [manual](manual/), which remains the
+exhaustive description of what the user sees. It says something else: **which
+promise is demonstrated by a test**, which no coverage rate can tell.
 
-## Identifiants
+## Identifiers
 
-`SURFACE-SUJET-NN`, en capitales, numéro sur deux chiffres — `CLI-VERSION-01`.
-`CLI` pour la ligne de commande, `GUI` pour la fenêtre.
+`SURFACE-SUBJECT-NN`, in capitals, two-digit number — `CLI-VERSION-01`. `CLI`
+for the command line, `GUI` for the window.
 
-Cette forme est ce qui permet de reconnaître un identifiant parmi les tags d'un
-test sans tenir de liste à jour : un tag ordinaire du projet — `[e2e]`,
-`[format]`, `[framerate]` — n'a ni capitales ni segment numérique final.
+This shape is what makes it possible to recognise an identifier among a test's
+tags without maintaining a list: an ordinary tag of the project — `[e2e]`,
+`[format]`, `[framerate]` — has neither capitals nor a final numeric segment.
 
-**Un identifiant n'est jamais réutilisé.** Une exigence qui disparaît laisse sa
-ligne, barrée, la raison dans la colonne d'état. Un identifiant retiré sans
-trace laisse un trou que personne ne sait interpréter six mois plus tard.
+**An identifier is never reused.** A requirement that disappears leaves its
+line, struck through, with the reason in the state column. An identifier removed
+without a trace leaves a gap nobody knows how to interpret six months later.
 
-## États
+## States
 
-| État | Ce que la ligne affirme | Ce que le contrôle exige |
-| :--- | :---------------------- | :----------------------- |
-| `prévue` | l'exigence est décidée, le code ne l'honore pas encore | aucun test ne la cite |
-| `implémentée` | le code l'honore | au moins un test la cite |
-| `abandonnée` | elle ne sera pas honorée ; la raison suit dans la colonne | aucun test ne la cite |
-| `remplacée` | une autre exigence prend sa place ; son identifiant suit | aucun test ne la cite |
+| State | What the line asserts | What the check requires |
+| :---- | :-------------------- | :---------------------- |
+| `planned` | the requirement is decided, the code does not honour it yet | no test cites it |
+| `implemented` | the code honours it | at least one test cites it |
+| `abandoned` | it will not be honoured; the reason follows in the column | no test cites it |
+| `replaced` | another requirement takes its place; its identifier follows | no test cites it |
 
-Un test cite une exigence par un **tag Catch2** :
+A test cites a requirement through a **Catch2 tag**:
 
 ```cpp
 TEST_CASE("invoking with no argument writes the version", "[e2e][CLI-VERSION-01]")
 ```
 
-`src/scripts/check-requirements.sh` confronte ces affirmations aux tags que le
-binaire de test déclare, et `make check-local` l'exécute. Une exigence
-`implémentée` sans test ne franchit pas la porte ; un tag qui ne désigne
-aucune exigence non plus.
+`src/scripts/check-requirements.sh` compares these assertions with the tags the
+test binary declares, and `make check-local` runs it. An `implemented`
+requirement without a test does not pass the gate; nor does a tag that names no
+requirement.
 
-**Le registre s'alimente en début d'issue**, avant le code. Une exigence écrite
-après coup décrit ce qui a été fait ; écrite avant, elle décide ce qui sera
-fait.
+**The registry is fed at the start of an issue**, before the code. A
+requirement written after the fact describes what was done; written before, it
+decides what will be done.
 
-## Registre
+## Registry
 
-**Rien ne suit cette table.** `src/scripts/verify-gates.sh` prouve que la porte
-se referme en ajoutant une ligne en fin de fichier ; du texte après la table
-lui ferait injecter son défaut au mauvais endroit, et la preuve ne prouverait
-plus rien.
+**Nothing follows this table.** `src/scripts/verify-gates.sh` proves that the
+gate closes by appending a line at the end of the file; text after the table
+would make it inject its defect in the wrong place, and the proof would no
+longer prove anything.
 
-| ID | Exigence | Phase | État |
-| :- | :------- | :---- | :--- |
-| ~~`CLI-VERSION-01`~~ | l'invocation sans argument écrit `subedit <version>` sur la sortie standard | 3 | remplacée par `CLI-USAGE-01` |
-| ~~`CLI-VERSION-02`~~ | rien n'est écrit sur la sortie d'erreur | 3 | remplacée par `CLI-VERSION-05` |
-| ~~`CLI-VERSION-03`~~ | tout argument est ignoré, code de retour 0 | 3 | remplacée par `CLI-USAGE-02` |
-| `CLI-VERSION-04` | `--version` écrit `subedit <version>` sur la sortie standard, code 0 | 3 | implémentée |
-| `CLI-VERSION-05` | une invocation qui réussit n'écrit rien sur la sortie d'erreur | 3 | implémentée |
-| `CLI-USAGE-01` | sans argument, l'aide est écrite sur la sortie standard, code 0 | 3 | implémentée |
-| `CLI-USAGE-02` | une option inconnue ou une valeur invalide donne le code 1 | 3 | implémentée |
-| `CLI-USAGE-03` | une erreur d'usage est détectée avant tout traitement | 3 | implémentée |
-| `CLI-USAGE-04` | `--quiet` et `-v` ensemble donnent une erreur d'usage | 3 | implémentée |
-| `CLI-OUTPUT-01` | seul le résultat va sur la sortie standard, la narration sur la sortie d'erreur | 3 | implémentée |
-| `CLI-OUTPUT-02` | `--quiet` supprime toute narration et laisse passer les erreurs | 3 | implémentée |
-| `CLI-OUTPUT-03` | chaque niveau de verbosité contient le précédent, ligne pour ligne | 3 | implémentée |
-| `CLI-OUTPUT-04` | le niveau par défaut écrit une ligne par fichier traité | 3 | implémentée |
-| `CLI-OUTPUT-05` | le bilan n'apparaît qu'à partir de deux fichiers d'entrée | 3 | implémentée |
-| `CLI-OUTPUT-06` | le niveau 3 nomme chaque diagnostic de lecture, sur toutes les sous-commandes | 3 | implémentée |
-| `CLI-BATCH-01` | plusieurs fichiers sont traités indépendamment, les échecs nommés | 3 | implémentée |
-| `CLI-BATCH-02` | tous en échec donne le code 2, un échec partiel le code 3 | 3 | implémentée |
-| `CLI-INSPECT-01` | format, encodage, BOM, fins de ligne, nombre et étendue sont rapportés | 3 | implémentée |
-| `CLI-INSPECT-02` | des fins de ligne mélangées sont signalées avec leur ligne | 3 | implémentée |
-| ~~`CLI-INSPECT-03`~~ | `--order-report` rend les deux lectures du désordre | 3 | abandonnée : le corpus n'a pas départagé les deux lectures, l'option disparaît et le rapport nomme ce qui rompt l'ordre |
-| `CLI-CONVERT-01` | `--to` produit le format demandé | 3 | implémentée |
-| `CLI-CONVERT-02` | fins de ligne et BOM sont conservés par défaut, réglables sinon | 3 | implémentée |
-| `CLI-CONVERT-03` | sans destination explicite, rien n'est écrit et le code est 1 | 3 | implémentée |
-| `CLI-SHIFT-01` | `--by` décale toutes les positions, dans les deux sens | 3 | implémentée |
-| `CLI-SHIFT-02` | un décalage rendant une position négative est refusé en nommant le sous-titre | 3 | implémentée |
-| `CLI-TRANSFORM-01` | deux repères transforment les positions, les autres suivent | 3 | implémentée |
-| `CLI-TRANSFORM-02` | deux indices confondus sont refusés | 3 | implémentée |
-| `CLI-FRAMERATE-01` | `--from`/`--to` convertit les positions | 3 | implémentée |
-| `CLI-FRAMERATE-02` | une fréquence nulle ou négative est refusée | 3 | implémentée |
-| `CLI-HEARING-01` | `hearing-impaired` retire les mentions entre crochets, et laisse les parenthèses par défaut | 4 | implémentée |
-| `CLI-HEARING-02` | un sous-titre que le retrait vide est supprimé du fichier écrit | 4 | implémentée |
-| `CLI-HEARING-03` | une référence purement numérique est laissée telle quelle | 4 | implémentée |
-| `CLI-HEARING-04` | le rapport nomme le nombre de sous-titres changés et supprimés | 4 | implémentée |
-| `CLI-HEARING-05` | un fichier sans aucune mention est écrit inchangé, code 0 | 4 | implémentée |
-| `CLI-HEARING-06` | sans destination explicite, rien n'est écrit et le code est 1 | 4 | implémentée |
-| `CLI-HEARING-07` | `--parentheses` retire aussi les mentions entre parenthèses | 4 | implémentée |
-| `GUI-VERSION-01` | `subedit-gui --version` écrit `subedit <version>` sur la sortie standard, code 0 | 5 | implémentée |
-| `GUI-OPEN-01` | `subedit-gui <fichier>` ouvre le fichier et affiche ses sous-titres | 5 | implémentée |
-| `GUI-OPEN-02` | un fichier illisible donne un message et laisse la fenêtre vide | 5 | implémentée |
-| `GUI-OPEN-03` | les diagnostics de lecture sont montrés, avec leur ligne | 5 | implémentée |
-| `GUI-TABLE-01` | les cinq colonnes affichent numéro, début, fin, durée et texte | 5 | implémentée |
-| `GUI-TABLE-02` | les sous-titres en anomalie sont marqués et nommés | 5 | implémentée |
-| `GUI-TABLE-03` | les colonnes, sauf le texte, se masquent ; toutes se déplacent ; la table s'en souvient | 11 | implémentée |
-| `GUI-EDIT-01` | éditer une cellule de texte modifie le sous-titre et rien d'autre | 5 | implémentée |
-| `GUI-EDIT-02` | éditer un début ou une fin lit un horodatage permissif | 5 | implémentée |
-| `GUI-EDIT-03` | une validation qui ne change rien n'entre pas dans l'historique | 5 | implémentée |
-| `GUI-EDIT-04` | chaque ligne d'une cellule de texte et de son éditeur montre sa longueur, balises non comptées, en ems ou en caractères selon le réglage, et les réglages la retirent | 12 | implémentée |
-| `GUI-UNDO-01` | annuler rétablit l'état précédent, l'action nomme l'opération | 5 | implémentée |
-| `GUI-UNDO-02` | rétablir refait ce qui vient d'être annulé | 5 | implémentée |
-| `GUI-SAVE-01` | enregistrer réécrit le fichier dans sa forme d'origine | 5 | implémentée |
-| `GUI-SAVE-02` | enregistrer sous choisit chemin et format | 5 | implémentée |
-| `GUI-SAVE-03` | fermer avec des modifications non enregistrées demande confirmation | 5 | implémentée |
-| `GUI-SHIFT-01` | le dialogue de décalage décale la cible | 5 | implémentée |
-| `GUI-TRANSFORM-01` | le dialogue de transformation corrige par deux repères | 5 | implémentée |
-| `GUI-SCOPE-01` | un dialogue d'opération offre le choix entre la sélection et tout le projet quand une partie seulement est sélectionnée | 5 | implémentée |
-| `GUI-PREVIEW-01` | un dialogue d'opération montre, avant d'appliquer, les premiers sous-titres qu'il changerait | 5 | implémentée |
-| `GUI-SORT-01` | `Sort Subtitles` met le projet dans l'ordre des débuts, annulablement, et dit combien de sous-titres ont changé de place | 5 | implémentée |
-| `GUI-SORT-02` | un fichier ouvert hors d'ordre propose d'être trié, et ne l'est que sur un oui | 5 | implémentée |
-| `GUI-SORT-03` | la liste des diagnostics compte par sorte, lectures comme anomalies des sous-titres, suit les corrections, et mène au premier sous-titre concerné | 5 | implémentée |
-| `GUI-SORT-04` | une barre indéterminée de la barre d'état dit qu'un tri est en cours, et s'en va avec lui | 5 | implémentée |
-| `GUI-DISJOINT-01` | `Make Ranges Disjoint…` coupe les sous-titres qui se chevauchent sur tout le projet, annulablement, sélectionne les lignes écrites et dit ce qu'il a fait ; hors d'ordre, il est refusé avec la raison | 5 | implémentée |
-| `GUI-DISJOINT-02` | un fichier ouvert avec des défauts corrigeables (répétés, hors d'ordre, chevauchements) les propose dans une seule boîte, une case par correction comptée là où elle se fait, et n'applique que ce qui est coché, dans l'ordre fusion, tri, découpage | 5 | implémentée |
-| `GUI-JOIN-01` | `Join Repeated Subtitles` fait un seul sous-titre des morceaux d'un même texte qui se suivent, sans dépendre de l'ordre du fichier, annulablement, et dit combien il en a joint | 5 | implémentée |
-| `GUI-JOIN-02` | `Repair Subtitles…` enchaîne la fusion des répétés, le tri et le découpage des plages d'un coup, annulablement, et en rend un seul compte | 5 | implémentée |
-| `GUI-FRAMERATE-01` | le dialogue de conversion re-cale la cible | 5 | implémentée |
-| `GUI-HEARING-01` | le retrait des mentions s'applique à la sélection ou au fichier | 5 | implémentée |
-| `GUI-HEARING-02` | un retrait qui ne change rien le dit et n'entre pas dans l'historique | 5 | implémentée |
-| `CLI-INSPECT-04` | les anomalies d'un document sont rapportées par numéro de sous-titre | 5 | implémentée |
-| `CLI-INSPECT-08` | `inspect` compte les anomalies par sorte, une par ligne avec `--detail`, et garde `none` sur la ligne de `anomalies` quand il n'y en a pas | 5 | implémentée |
-| `CLI-INSPECT-05` | `inspect` écrit la grille déduite, sa concentration et le verdict | 16 | implémentée |
-| `CLI-INSPECT-06` | un fichier sans grille le dit, et ne nomme aucune fréquence | 16 | implémentée |
-| `CLI-INSPECT-07` | une ambiguïté harmonique est nommée, et la plus basse est retenue | 16 | implémentée |
-| `CLI-SNAP-01` | `snap --rate R` porte chaque position sur l'image la plus proche de R | 16 | implémentée |
-| `CLI-SNAP-02` | `snap` écrit combien de positions ont bougé, et de combien au plus | 16 | implémentée |
-| `CLI-SHIFT-03` | `shift --to-grid` décale du montant mesuré, et l'écrit | 16 | implémentée |
-| `CLI-SHIFT-04` | `shift --to-grid` sur un fichier sans grille refuse et dit pourquoi | 16 | implémentée |
-| `GUI-GRID-01` | la barre d'état porte le verdict de la déduction | 16 | implémentée |
-| `GUI-GRID-02` | la modale d'analyse montre les huit candidates, l'étendue et les écarts | 16 | implémentée |
-| `GUI-FRAMERATE-03` | le dialogue de conversion pré-remplit l'entrée avec la mesure, et le dit | 16 | implémentée |
-| `GUI-FRAMERATE-04` | un désaccord entre la mesure et ce que la vidéo déclare est montré sans être arbitré | 16 | implémentée |
-| `GUI-SNAP-01` | la fenêtre aligne le document sur une cadence, et l'opération s'annule | 16 | implémentée |
-| `GUI-GRID-03` | ramener sur la grille affiche son montant, et s'éteint sans grille | 16 | implémentée |
-| `GUI-VIDEO-01` | choisir une vidéo l'associe au document, et la fenêtre la nomme | 6 | implémentée |
-| `GUI-VIDEO-02` | ouvrir un fichier de sous-titres propose la vidéo voisine de même nom | 6 | implémentée |
-| `GUI-PLAYER-01` | la vidéo s'ouvre dans la fenêtre, et se joue | 6 | implémentée |
-| `GUI-PLAYER-02` | sélectionner un sous-titre place la lecture à son début | 6 | implémentée |
-| `GUI-PLAYER-03` | une vidéo qui ne s'ouvre pas le dit, et laisse la fenêtre utilisable | 6 | implémentée |
-| `GUI-FRAMERATE-02` | la fréquence lue dans la vidéo est proposée, et sa provenance est dite | 6 | implémentée |
-| `GUI-BOUNDS-01` | une opération qui dépasse la fin du film le signale sans l'empêcher | 6 | implémentée |
-| `GUI-CONFIG-01` | la fenêtre retrouve sa géométrie et ses colonnes d'une session à l'autre | 7 | implémentée |
-| `GUI-CONFIG-02` | une valeur illisible laisse le défaut en place, et le dit | 7 | implémentée |
-| `GUI-CONFIG-03` | une option restée à son défaut est réécrite commentée, donc un défaut changé prend effet | 7 | implémentée |
-| `GUI-THEME-01` | le thème se choisit entre trois valeurs, se retient, et « système » ne pose rien | 7 | implémentée |
-| `GUI-THEME-02` | « clair » et « sombre » posent une palette explicite | 7 | implémentée |
-| `GUI-INSERT-01` | insérer place les sous-titres après le dernier sélectionné, ou avant au choix | 7 | implémentée |
-| `GUI-INSERT-02` | insérer dans un document vide ne demande aucune sélection | 7 | implémentée |
-| `GUI-REMOVE-01` | supprimer retire la sélection, et l'opération s'annule | 7 | implémentée |
-| `GUI-MANUAL-01` | `Help ▸ Manual` ouvre le manuel installé | 7 | implémentée |
-| `CLI-ENC-01` | un fichier non-UTF-8 s'ouvre, et l'encodage retenu est dit | 8 | implémentée |
-| `CLI-ENC-02` | `--encoding` impose l'encodage de lecture et l'emporte sur la détection | 8 | implémentée |
-| `CLI-ENC-03` | un BOM l'emporte sur `--encoding`, et l'écart est dit | 8 | implémentée |
-| `CLI-ENC-04` | `--to-encoding` choisit l'encodage produit à l'écriture | 8 | implémentée |
-| `CLI-ENC-05` | un fichier réécrit sans consigne rend les mêmes octets, encodage compris | 8 | implémentée |
-| `CLI-ENC-06` | un fichier qu'aucun encodage ne décode est refusé, et la raison le dit | 8 | implémentée |
-| `CLI-ENC-07` | `inspect` rapporte l'encodage lu et s'il a été deviné | 8 | implémentée |
-| `GUI-ENC-01` | la fenêtre ouvre un fichier non-UTF-8 et affiche l'encodage retenu | 8 | implémentée |
-| `GUI-ENC-02` | `Save As…` choisit l'encodage, la fin de ligne et le BOM | 8 | implémentée |
-| `GUI-ENC-03` | les réglages retiennent le dernier encodage d'écriture choisi | 8 | implémentée |
-| `CLI-FORMAT-01` | chacun des neuf formats s'ouvre, et se réécrit octet pour octet | 9 | implémentée |
-| `CLI-FORMAT-02` | un fichier qu'aucun des neuf ne revendique est refusé, sans supposition | 9 | implémentée |
-| `CLI-FORMAT-03` | `inspect` nomme le format lu parmi les neuf | 9 | implémentée |
-| `CLI-FORMAT-04` | un format sans fin s'ouvre, ses fins sont déduites, et la lecture le dit | 9 | implémentée |
-| `CLI-FRAMES-01` | un fichier en images s'ouvre à une fréquence déclarée, que la lecture nomme | 9 | implémentée |
-| `CLI-FRAMES-02` | `--frame-rate` impose la fréquence, à la lecture comme à l'écriture | 9 | implémentée |
-| `CLI-CONVERT-04` | `--to` accepte les neuf formats | 9 | implémentée |
-| `CLI-CONVERT-05` | convertir vers un format en images sans fréquence prend la grille déduite, et le dit | 9 | implémentée |
-| `CLI-CONVERT-06` | sans fréquence ni grille, une conversion vers un format en images est refusée | 9 | implémentée |
-| `CLI-CONVERT-07` | une conversion qui perd quelque chose le dit, poste par poste | 9 | implémentée |
-| `GUI-FORMAT-01` | la fenêtre ouvre les neuf formats | 9 | implémentée |
-| `GUI-FORMAT-02` | `Save As…` propose les neuf formats | 9 | implémentée |
-| `GUI-FORMAT-03` | enregistrer dans un format à perte annonce ce qui sera perdu avant d'écrire | 9 | implémentée |
-| `GUI-FRAMES-01` | ouvrir un fichier en images annonce la fréquence retenue, et laisse la changer | 9 | implémentée |
-| `GUI-ITALIC-01` | une entrée met la sélection en italique et l'en retire, dans les balises du format ouvert | 10 | implémentée |
-| `GUI-ITALIC-02` | un format qui ne porte aucun style éteint l'entrée sans la cacher | 10 | implémentée |
-| `GUI-CASE-01` | les quatre casses s'appliquent à la cible sans toucher aux balises | 10 | implémentée |
-| `GUI-DASH-01` | les tirets de dialogue se posent et se retirent d'un même geste | 10 | implémentée |
-| `GUI-SPLIT-01` | fusionner et scinder, et l'annulation rend le document tel qu'il était | 10 | implémentée |
-| `GUI-DURATION-01` | la colonne `Duration` se saisit, et déplace la fin | 10 | implémentée |
-| `GUI-ADJUST-01` | l'ajustement applique les quatre contraintes dans l'ordre spécifié | 10 | implémentée |
-| `GUI-ADJUST-02` | ce qu'aucune fin ne peut satisfaire est dit, et compté | 10 | implémentée |
-| `GUI-SEARCH-01` | chercher dans le texte visible, remplacer dans le source, sans casser les balises | 10 | implémentée |
-| `GUI-SEARCH-02` | la recherche porte sur la sélection, ou sur tout le document | 10 | implémentée |
-| `GUI-CLIP-01` | copier, couper, coller des textes, et des lignes naissent s'il en manque | 10 | implémentée |
-| `GUI-CLIP-02` | coller depuis un document d'un autre format traduit les balises et dit la perte | 10 | implémentée |
-| `GUI-TRANS-01` | ouvrir un fichier de traduction l'aligne sur le principal, par position ou par numéro | 11 | implémentée |
-| `GUI-TRANS-02` | l'ouverture dit ce qui s'est passé : lignes rattachées, sous-titres nés, sous-titres sans traduction, lignes hors d'ordre | 11 | implémentée |
-| `GUI-TRANS-03` | ouvrir une traduction est une seule entrée d'historique, et l'annulation rend le document tel qu'il était | 11 | implémentée |
-| `GUI-TRANS-04` | la colonne de traduction apparaît avec la traduction, et se saisit | 11 | implémentée |
-| `GUI-TRANS-05` | une opération de texte vise le document de la colonne courante, et la barre d'état le dit | 11 | implémentée |
-| `GUI-TRANS-06` | la traduction s'enregistre à part du principal, chacun avec son état modifié | 11 | implémentée |
-| `GUI-CLOSE-01` | fermer avec plusieurs documents modifiés pose une seule question, une case par document | 11 | implémentée |
-| `GUI-SEARCH-03` | la recherche porte sur le document visé, et remplacer écrit dans son texte source | 11 | implémentée |
-| `GUI-PLAYER-04` | la réplique dessinée sur l'image est celle du document visé | 11 | implémentée |
-| `GUI-APPEND-01` | ajouter un fichier décale de la fin du dernier sous-titre, dit ce que la conversion perd, et s'annule d'un coup | 11 | implémentée |
-| `GUI-TABS-01` | plusieurs projets s'ouvrent en onglets, chacun avec son historique, sa sélection et sa vidéo | 11 | implémentée |
-| `GUI-TABS-02` | fermer tout, ou quitter, avec une seule question pour tous les projets | 11 | implémentée |
-| `GUI-TABS-03` | l'étiquette d'un onglet dit que son projet est modifié | 11 | implémentée |
-| `GUI-TABS-04` | glisser des fichiers sur la fenêtre les ouvre : un onglet par sous-titre, une vidéo à l'onglet courant | 11 | implémentée |
-| `GUI-SAVE-04` | enregistrer tout écrit chaque document modifié, onglet par onglet, et s'arrête à un abandon en disant ce qui a été écrit | 11 | implémentée |
-| `GUI-PSPLIT-01` | scinder un projet en deux, et l'ajout de la suite rend le projet de départ | 11 | implémentée |
-| `GUI-SEARCH-04` | la recherche porte, au choix, sur tous les projets ouverts | 11 | implémentée |
-| `GUI-CORRECT-01` | l'assistant applique les tâches cochées à la cible choisie — sélection, projet, tous les projets — et au document choisi | 12 | implémentée |
-| `GUI-CORRECT-02` | chaque texte changé se montre avec son original avant d'être appliqué, et s'accepte, se refuse ou se retouche | 12 | implémentée |
-| `GUI-CORRECT-03` | appliquer fait une entrée d'historique par projet, et la barre d'état dit combien de sous-titres ont été modifiés et supprimés | 12 | implémentée |
-| `GUI-CORRECT-04` | les motifs se cochent par nom, pour une écriture, une langue et un pays, et le choix est retenu | 12 | implémentée |
-| `GUI-CORRECT-05` | décocher Humain ou OCR retire ces motifs de l'application | 12 | implémentée |
-| `GUI-CORRECT-06` | un motif qui ne se lit pas, ne se traduit pas ou ne termine pas est nommé, et les autres s'appliquent | 12 | implémentée |
-| `GUI-CORRECT-07` | les motifs déposés par l'utilisateur s'ajoutent aux motifs livrés | 12 | implémentée |
-| `GUI-HEARING-03` | l'assistant retire les paroles entre dièses et le nom du locuteur, en plus des crochets et des parenthèses | 12 | implémentée |
-| `GUI-BREAK-01` | le découpage tient la longueur et le nombre de lignes demandés, en caractères ou en ems, et saute les sous-titres qui les tiennent déjà | 12 | implémentée |
-| `GUI-SPELL-01` | la vérification parcourt les mots inconnus : ignorer, tout ignorer, ajouter au dictionnaire, remplacer, tout remplacer, joindre au précédent ou au suivant | 12 | implémentée |
-| `GUI-SPELL-02` | sans dictionnaire pour la langue choisie, les fonctions du correcteur sont grisées et disent pourquoi | 12 | implémentée |
-| `GUI-SPELL-03` | l'assistant joint et scinde des mots selon le correcteur | 12 | implémentée |
-| `GUI-SPELL-04` | un mot inconnu est souligné pendant qu'on le tape dans l'éditeur d'une cellule de texte, quand le réglage est vrai et qu'un dictionnaire existe ; sans dictionnaire, rien n'est souligné et rien n'échoue | 12 | implémentée |
-| `CLI-JSON-01` | `--format json` écrit sur la sortie standard un objet JSON par ligne ; `text` est le défaut et ne change pas | 13 | implémentée |
-| `CLI-JSON-02` | chaque entrée donne **exactement un** objet, échec compris, dans l'ordre des entrées | 13 | implémentée |
-| `CLI-JSON-03` | chaque objet porte `schema`, `command`, `file` et `ok` ; un échec porte `error.kind` et `error.message` | 13 | implémentée |
-| `CLI-JSON-04` | la verbosité n'agit pas sur la sortie standard en `json` ; la narration reste du texte sur la sortie d'erreur | 13 | implémentée |
-| `CLI-JSON-05` | les diagnostics de lecture sont dans `warnings`, à tous les niveaux | 13 | implémentée |
-| `CLI-JSON-06` | aucun nombre à virgule : positions en millisecondes entières, cadences en chaînes | 13 | implémentée |
-| `CLI-JSON-07` | une erreur d'usage n'écrit rien sur la sortie standard, en `json` comme en `text` | 13 | implémentée |
-| `CLI-JSON-08` | `inspect` décrit le fichier : format, encodage, marque, fins de ligne, nombre, étendue, grille ou cadence, anomalies | 13 | implémentée |
-| `CLI-JSON-09` | chaque sous-commande qui écrit dit sa destination et ses comptes | 13 | implémentée |
-| `CLI-JSON-10` | mêmes entrées et mêmes arguments donnent les octets des attendus versionnés | 13 | implémentée |
-| `CLI-DRYRUN-01` | `--dry-run` n'écrit aucun fichier et ne crée aucun dossier, et le code est celui d'un vrai lancement | 13 | implémentée |
-| `CLI-DRYRUN-02` | `--dry-run` n'exige aucune destination | 13 | implémentée |
-| `CLI-DRYRUN-03` | une destination donnée avec `--dry-run` est vérifiée comme sans lui | 13 | implémentée |
-| `CLI-DRYRUN-04` | sur une sous-commande de texte, la sortie standard porte, par sous-titre changé, son numéro, le texte d'avant et le texte d'après | 13 | implémentée |
-| `CLI-DRYRUN-05` | en `json`, `changes` porte les mêmes changements, `after` valant `null` pour une suppression | 13 | implémentée |
-| `CLI-DRYRUN-06` | la narration d'un `--dry-run` dit que rien n'a été écrit | 13 | implémentée |
-| `CLI-BATCH-03` | deux entrées de même destination sont refusées avant tout écrit, code `1`, les deux nommées | 13 | implémentée |
-| `CLI-BATCH-04` | une destination qui est une entrée est refusée sans `--in-place` | 13 | implémentée |
-| `CLI-BATCH-05` | le dossier de sortie absent est créé | 13 | implémentée |
-| `CLI-BATCH-06` | une écriture qui échoue dit « written », jamais « read » | 13 | implémentée |
-| `CLI-BATCH-07` | une destination existante est écrasée par écriture atomique | 13 | implémentée |
-| `CLI-BATCH-08` | un répertoire en entrée sans `--recursive` est refusé, code `1` | 13 | implémentée |
-| `CLI-BATCH-09` | `--recursive` parcourt dans l'ordre des noms, sans suivre de lien, les extensions des formats connus, `.txt` exclu | 13 | implémentée |
-| `CLI-BATCH-10` | l'arborescence relative au répertoire donné est conservée sous `--output-dir` | 13 | implémentée |
-| `CLI-BATCH-11` | le dossier de sortie compris dans l'arbre parcouru est exclu du parcours | 13 | implémentée |
-| `CLI-BATCH-12` | un fichier nommé sur la ligne de commande n'est jamais filtré par son extension | 13 | implémentée |
-| `CLI-RANGE-01` | `--range N-M` limite l'opération aux sous-titres N à M, bornes comprises ; `N-` va jusqu'à la fin | 13 | implémentée |
-| `CLI-RANGE-02` | une plage hors bornes est refusée en nommant la borne, avant tout traitement | 13 | implémentée |
-| `CLI-ADJUST-01` | `adjust` sans option applique les quatre contraintes de Gaupol, dans leur ordre | 13 | implémentée |
-| `CLI-ADJUST-02` | chaque contrainte se règle et s'éteint (`off`) ; `--maximum` l'allume | 13 | implémentée |
-| `CLI-ADJUST-03` | sans aucune contrainte active, `adjust` est refusé | 13 | implémentée |
-| `CLI-ADJUST-04` | le compte rendu dit ce qui a été ajusté et ce qui a été sacrifié, contrainte par contrainte | 13 | implémentée |
-| `CLI-ADJUST-05` | en `json`, `counts` porte `adjusted` et `sacrificed.{speed,minimum,gap}`, et `constraints` les contraintes employées | 13 | implémentée |
-| `CLI-ADJUST-06` | les comptes sacrifiés s'accordent avec ceux que le script de mesure prédit sur les fixtures versionnées | 13 | implémentée |
-| `CLI-CORRECT-01` | `--tasks` est requis et nomme les tâches ; aucune n'est cochée d'avance | 13 | implémentée |
-| `CLI-CORRECT-02` | `--code` est requis dès qu'une tâche lit des motifs | 13 | implémentée |
-| `CLI-CORRECT-03` | le compte rendu dit les textes changés et supprimés, jamais les correspondances | 13 | implémentée |
-| `CLI-CORRECT-04` | `--classes` retire de l'application les motifs de la classe décochée | 13 | implémentée |
-| `CLI-CORRECT-05` | `--enable` / `--disable` règlent un motif par son nom ; un nom inconnu ou ambigu est refusé | 13 | implémentée |
-| `CLI-CORRECT-06` | une tâche de motifs sans aucun motif actif est refusée | 13 | implémentée |
-| `CLI-CORRECT-07` | les motifs de l'utilisateur s'ajoutent aux motifs livrés | 13 | implémentée |
-| `CLI-CORRECT-08` | un motif qui ne se lit pas, ne se traduit pas ou ne termine pas est nommé avec le sous-titre, et les autres s'appliquent | 13 | implémentée |
-| `CLI-CORRECT-09` | `line-break` mesure en caractères ; `--max-length` est requis ; les bornes du saut suivent, et s'éteignent | 13 | implémentée |
-| `CLI-CORRECT-10` | `join-words` et `split-words` joignent et scindent selon le dictionnaire de `--language` | 13 | implémentée |
-| `CLI-CORRECT-11` | sans dictionnaire pour `--language`, `correct` est refusé avec la phrase de la fenêtre, avant tout traitement | 13 | implémentée |
-| `CLI-CORRECT-12` | les sous-titres vidés sont retirés, sauf `--keep-blank-subtitles` | 13 | implémentée |
-| `CLI-CORRECT-13` | `correct` ne lit du fichier de réglages que `correction.human`, `correction.ocr`, `correction.remove-blank` et `correction.line-break.max-lines`; ni les activations, ni sa liste de remplacements | 13 | implémentée |
-| `CLI-REPLACE-01` | `replace` cherche dans le texte visible et remplace dans le texte source, sans casser une balise | 13 | implémentée |
-| `CLI-REPLACE-02` | `--regex` lit une expression ; une expression illisible est refusée avant tout traitement, avec la raison | 13 | implémentée |
-| `CLI-REPLACE-03` | les majuscules sont ignorées par défaut, `--case-sensitive` les distingue | 13 | implémentée |
-| `CLI-REPLACE-04` | le compte rendu dit les textes changés, ou que rien n'a été trouvé | 13 | implémentée |
-| `CLI-CASE-01` | `case` applique les quatre casses sans toucher aux balises | 13 | implémentée |
-| `CLI-ITALIC-01` | `italics --on` / `--off` pose et retire l'italique dans les balises du format du fichier | 13 | implémentée |
-| `CLI-ITALIC-02` | un format qui ne porte aucun style refuse, fichier par fichier, avec la raison | 13 | implémentée |
-| `CLI-DASH-01` | `dialogue-dashes --add` / `--remove` pose et retire les tirets de dialogue | 13 | implémentée |
-| `CLI-SORT-01` | `sort` met les sous-titres dans l'ordre de leur début, de façon stable | 13 | implémentée |
-| `CLI-SORT-02` | `sort` dit combien de sous-titres ont bougé, et écrit le fichier même s'il est déjà en ordre | 13 | implémentée |
-| `CLI-SORT-03` | `convert`, `append` et `split-file` acceptent `--sort`, qui met les sous-titres dans l'ordre de leur début avant d'écrire et dit combien ont bougé | 13 | implémentée |
-| `CLI-DISJOINT-01` | `disjoint` coupe les sous-titres qui se chevauchent, fusionne ligne à ligne ce qui s'affiche ensemble, dit ce qu'il a fait, et un second passage ne change rien | 13 | implémentée |
-| `CLI-DISJOINT-02` | `disjoint` refuse un fichier dont les débuts ne sont pas dans l'ordre, sauf avec `--sort` qui le met d'abord en ordre | 13 | implémentée |
-| `CLI-DISJOINT-03` | `--minimum`, `--max-lines` et `--dashes` règlent l'opération ; une valeur absurde est une erreur d'usage nommant l'option | 13 | implémentée |
-| `CLI-DISJOINT-04` | `convert`, `append` et `split-file` acceptent `--disjoint`, qui découpe les plages avant d'écrire, après `--sort`, et dit ce qui a été coupé | 13 | implémentée |
-| `CLI-JOIN-01` | `join-repeats` fait un seul sous-titre des morceaux d'un même texte qui se suivent, dit combien il en a joint, et un second passage ne change rien | 13 | implémentée |
-| `CLI-JOIN-02` | `repair` enchaîne la fusion des répétés, le tri et le découpage des plages, dans cet ordre, et dit les trois comptes | 13 | implémentée |
-| `CLI-JOIN-03` | `convert` accepte `--join-repeats` (avant le tri et le découpage) et `--repair` (les trois d'un coup), et dit combien de sous-titres ont été joints | 13 | implémentée |
-| `CLI-TRANS-01` | `inspect -t` rapporte lignes rattachées, sous-titres nés, sans traduction et hors d'ordre | 13 | implémentée |
-| `CLI-TRANS-02` | `--document translation` exige `-t`, et `-t` exige `--document translation` sur une sous-commande de texte | 13 | implémentée |
-| `CLI-TRANS-03` | `-t` n'a de sens que pour une seule entrée ; avec un lot, il est refusé | 13 | implémentée |
-| `CLI-TRANS-04` | seul le document visé est écrit, à son propre chemin et dans son propre format | 13 | implémentée |
-| `CLI-TRANS-05` | `--align-method` choisit entre position (défaut) et numéro | 13 | implémentée |
-| `CLI-LISTENC-01` | `--list-encodings` écrit les encodages qu'ICU sait convertir, un par ligne, et s'arrête | 13 | implémentée |
-| `CLI-APPEND-01` | `append` ajoute les fichiers à la suite du premier, décalés de la fin du dernier sous-titre, dans une seule sortie | 13 | implémentée |
-| `CLI-PSPLIT-01` | `split-file --at N` écrit les deux moitiés, la seconde ramenée à l'origine, ou refuse en nommant le sous-titre | 13 | implémentée |
-| `CLI-PAIR-01` | `pair` écrit la traduction recalée sur les positions du principal, et dit l'alignement | 13 | implémentée |
-| `GUI-SURFACE-01` | l'image de la vidéo est dessinée dans la fenêtre, redimensionnable, son rapport d'aspect conservé | 14 | implémentée |
-| `GUI-SURFACE-02` | après un saut, l'image affichée est celle de la position demandée, la plus proche | 14 | implémentée |
-| `GUI-SURFACE-03` | la fenêtre n'adopte aucune fenêtre native et n'exige pas X11 | 14 | implémentée |
-| `GUI-STEP-01` | avancer d'une image affiche l'image suivante | 14 | implémentée |
-| `GUI-STEP-02` | reculer d'une image affiche l'image précédente | 14 | implémentée |
-| `GUI-STEP-03` | la durée d'une image vient de la vidéo, à défaut du document, à défaut de la grille ; sans aucune, le geste refuse en le disant | 14 | implémentée |
-| `GUI-STEP-04` | le pas se règle en nombre d'images, au minimum une ; une valeur absurde ne casse pas l'ouverture | 14 | implémentée |
-| `GUI-NUDGE-01` | décaler le début ou la fin d'un sous-titre d'une image est annulable en une entrée | 14 | implémentée |
-| `GUI-SEEK-01` | le curseur de position se lit et se déplace | 14 | implémentée |
-| `GUI-SEEK-02` | reculer et avancer d'un pas réglable | 14 | implémentée |
-| `GUI-SEEK-03` | le sous-titre précédent et le suivant placent la lecture à leur début | 14 | implémentée |
-| `GUI-SEEK-04` | le début et la fin de la sélection placent la lecture, avec l'avance réglée | 14 | implémentée |
-| `GUI-SEEK-05` | jouer la sélection s'arrête à sa fin | 14 | implémentée |
-| `GUI-VOLUME-01` | le volume se règle et se retient d'une session à l'autre | 14 | implémentée |
-| `GUI-TIMECODE-01` | le timecode est incrusté sur l'image | 14 | implémentée |
-| `GUI-AUDIO-01` | la piste audio se choisit parmi celles de la vidéo | 14 | implémentée |
-| `GUI-MARK-01` | poser le début d'un sous-titre depuis la position de la vidéo, en une entrée d'historique | 14 | implémentée |
-| `GUI-MARK-02` | poser sa fin depuis la position de la vidéo | 14 | implémentée |
-| `GUI-MARK-03` | insérer un sous-titre à la position de la vidéo | 14 | implémentée |
-| `GUI-MARK-04` | sélectionner le sous-titre précédent ou suivant depuis la position de la vidéo | 14 | implémentée |
-| `GUI-FOLLOW-01` | la table centre le sous-titre courant pendant la lecture | 14 | implémentée |
-| `GUI-FOLLOW-02` | un défilement à la main suspend le suivi | 14 | implémentée |
-| `GUI-FOLLOW-03` | le suivi reprend sur un geste du lecteur ou à la demande | 14 | implémentée |
-| `GUI-REPLICA-01` | la réplique dessinée sur l'image n'a plus de balises brutes | 14 | implémentée |
-| `GUI-FRAMES-02` | les positions s'affichent et se saisissent en numéros d'image, la fréquence dite | 14 | implémentée |
-| `GUI-DRIFT-01` | l'ouverture d'une traduction dit qu'un décalage constant la rattacherait mieux, sans le dire d'une dérive | 14 | implémentée |
-| `GUI-DRIFT-02` | rouvrir décalée rattache selon le décalage proposé, en une entrée d'historique | 14 | implémentée |
-| `GUI-REPAIR-01` | la modale d'analyse propose la conversion de fréquence qui remet le fichier sur une grille, ou rien quand deux se valent | 14 | implémentée |
-| `GUI-REPAIR-02` | `Convert Frame Rate…` s'ouvre préremplie par cette proposition | 14 | implémentée |
-| `CLI-I18N-01` | the command line's help, narration and errors follow the language chosen by `LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, `LANG`, English when it is unknown | 15 | implémentée |
-| `CLI-I18N-02` | `--format json` output is byte-identical whatever the language | 15 | implémentée |
-| `CLI-I18N-03` | `LC_ALL=C` yields English | 15 | implémentée |
-| `CLI-I18N-04` | `subedit-cli(1)` and one page per sub-command are installed, and list the options `--help` lists | 15 | prévue |
-| `GUI-I18N-01` | the window shows its menus, dialogs and messages in the chosen language, English when it is not installed | 15 | implémentée |
-| `GUI-I18N-02` | `Preferences…` offers the interface language; it is kept from one session to the next and applies at the next launch | 15 | implémentée |
-| `GUI-I18N-03` | `Help ▸ Manual` opens the manual of the chosen language, English when the page or the language is missing | 15 | prévue |
-| `GUI-I18N-04` | the names and descriptions of Gaupol's correction patterns are shown translated, and a user's own pattern is shown as written | 15 | implémentée |
+| ID | Requirement | Phase | State |
+| :- | :---------- | :---- | :---- |
+| ~~`CLI-VERSION-01`~~ | invoking with no argument writes `subedit <version>` on standard output | 3 | replaced by `CLI-USAGE-01` |
+| ~~`CLI-VERSION-02`~~ | nothing is written on standard error | 3 | replaced by `CLI-VERSION-05` |
+| ~~`CLI-VERSION-03`~~ | any argument is ignored, exit code 0 | 3 | replaced by `CLI-USAGE-02` |
+| `CLI-VERSION-04` | `--version` writes `subedit <version>` on standard output, code 0 | 3 | implemented |
+| `CLI-VERSION-05` | a successful invocation writes nothing on standard error | 3 | implemented |
+| `CLI-USAGE-01` | with no argument, the help is written on standard output, code 0 | 3 | implemented |
+| `CLI-USAGE-02` | an unknown option or an invalid value gives code 1 | 3 | implemented |
+| `CLI-USAGE-03` | a usage error is detected before any processing | 3 | implemented |
+| `CLI-USAGE-04` | `--quiet` and `-v` together give a usage error | 3 | implemented |
+| `CLI-OUTPUT-01` | only the result goes to standard output, the narration to standard error | 3 | implemented |
+| `CLI-OUTPUT-02` | `--quiet` suppresses all narration and lets errors through | 3 | implemented |
+| `CLI-OUTPUT-03` | each verbosity level contains the previous one, line for line | 3 | implemented |
+| `CLI-OUTPUT-04` | the default level writes one line per file processed | 3 | implemented |
+| `CLI-OUTPUT-05` | the summary only appears from two input files on | 3 | implemented |
+| `CLI-OUTPUT-06` | level 3 names each reading diagnostic, on every subcommand | 3 | implemented |
+| `CLI-BATCH-01` | several files are processed independently, the failures named | 3 | implemented |
+| `CLI-BATCH-02` | all failing gives code 2, a partial failure code 3 | 3 | implemented |
+| `CLI-INSPECT-01` | format, encoding, BOM, line endings, count and span are reported | 3 | implemented |
+| `CLI-INSPECT-02` | mixed line endings are flagged with their line | 3 | implemented |
+| ~~`CLI-INSPECT-03`~~ | `--order-report` gives both readings of the disorder | 3 | abandoned: the corpus did not decide between the two readings, the option goes away and the report names what breaks the order |
+| `CLI-CONVERT-01` | `--to` produces the requested format | 3 | implemented |
+| `CLI-CONVERT-02` | line endings and BOM are preserved by default, adjustable otherwise | 3 | implemented |
+| `CLI-CONVERT-03` | without an explicit destination, nothing is written and the code is 1 | 3 | implemented |
+| `CLI-SHIFT-01` | `--by` shifts every position, in both directions | 3 | implemented |
+| `CLI-SHIFT-02` | a shift that makes a position negative is refused, naming the subtitle | 3 | implemented |
+| `CLI-TRANSFORM-01` | two reference points transform the positions, the others follow | 3 | implemented |
+| `CLI-TRANSFORM-02` | two identical indices are refused | 3 | implemented |
+| `CLI-FRAMERATE-01` | `--from`/`--to` converts the positions | 3 | implemented |
+| `CLI-FRAMERATE-02` | a zero or negative frame rate is refused | 3 | implemented |
+| `CLI-HEARING-01` | `hearing-impaired` removes the mentions between brackets, and leaves parentheses by default | 4 | implemented |
+| `CLI-HEARING-02` | a subtitle the removal empties is deleted from the written file | 4 | implemented |
+| `CLI-HEARING-03` | a purely numeric reference is left as is | 4 | implemented |
+| `CLI-HEARING-04` | the report names the number of subtitles changed and deleted | 4 | implemented |
+| `CLI-HEARING-05` | a file without any mention is written unchanged, code 0 | 4 | implemented |
+| `CLI-HEARING-06` | without an explicit destination, nothing is written and the code is 1 | 4 | implemented |
+| `CLI-HEARING-07` | `--parentheses` also removes the mentions between parentheses | 4 | implemented |
+| `GUI-VERSION-01` | `subedit-gui --version` writes `subedit <version>` on standard output, code 0 | 5 | implemented |
+| `GUI-OPEN-01` | `subedit-gui <file>` opens the file and displays its subtitles | 5 | implemented |
+| `GUI-OPEN-02` | an unreadable file gives a message and leaves the window empty | 5 | implemented |
+| `GUI-OPEN-03` | the reading diagnostics are shown, with their line | 5 | implemented |
+| `GUI-TABLE-01` | the five columns display number, start, end, duration and text | 5 | implemented |
+| `GUI-TABLE-02` | subtitles with anomalies are marked and named | 5 | implemented |
+| `GUI-TABLE-03` | the columns, except the text, can be hidden; all can be moved; the table remembers it | 11 | implemented |
+| `GUI-EDIT-01` | editing a text cell modifies the subtitle and nothing else | 5 | implemented |
+| `GUI-EDIT-02` | editing a start or an end reads a permissive timestamp | 5 | implemented |
+| `GUI-EDIT-03` | a commit that changes nothing does not enter the history | 5 | implemented |
+| `GUI-EDIT-04` | each line of a text cell and of its editor shows its length, tags not counted, in ems or in characters depending on the setting, and the settings remove it | 12 | implemented |
+| `GUI-UNDO-01` | undo restores the previous state, the action names the operation | 5 | implemented |
+| `GUI-UNDO-02` | redo does again what was just undone | 5 | implemented |
+| `GUI-SAVE-01` | save rewrites the file in its original form | 5 | implemented |
+| `GUI-SAVE-02` | save as chooses path and format | 5 | implemented |
+| `GUI-SAVE-03` | closing with unsaved changes asks for confirmation | 5 | implemented |
+| `GUI-SHIFT-01` | the shift dialog shifts the target | 5 | implemented |
+| `GUI-TRANSFORM-01` | the transform dialog corrects through two reference points | 5 | implemented |
+| `GUI-SCOPE-01` | an operation dialog offers the choice between the selection and the whole project when only part of it is selected | 5 | implemented |
+| `GUI-PREVIEW-01` | an operation dialog shows, before applying, the first subtitles it would change | 5 | implemented |
+| `GUI-SORT-01` | `Sort Subtitles` puts the project in order of starts, undoably, and says how many subtitles moved | 5 | implemented |
+| `GUI-SORT-02` | a file opened out of order offers to be sorted, and is sorted only on a yes | 5 | implemented |
+| `GUI-SORT-03` | the list of diagnostics counts by kind, reading diagnostics as well as subtitle anomalies, follows the corrections, and leads to the first subtitle concerned | 5 | implemented |
+| `GUI-SORT-04` | an indeterminate bar in the status bar says a sort is in progress, and goes away with it | 5 | implemented |
+| `GUI-DISJOINT-01` | `Make Ranges Disjoint…` cuts the overlapping subtitles across the whole project, undoably, selects the lines written and says what it did; out of order, it is refused with the reason | 5 | implemented |
+| `GUI-DISJOINT-02` | a file opened with fixable defects (repeats, out of order, overlaps) offers them in a single box, one checkbox per correction counted where it takes place, and applies only what is checked, in the order join, sort, cut | 5 | implemented |
+| `GUI-JOIN-01` | `Join Repeated Subtitles` makes a single subtitle out of consecutive pieces of the same text, without depending on the file's order, undoably, and says how many it joined | 5 | implemented |
+| `GUI-JOIN-02` | `Repair Subtitles…` chains joining repeats, sorting and cutting ranges in one go, undoably, and gives a single account of it | 5 | implemented |
+| `GUI-FRAMERATE-01` | the conversion dialog re-times the target | 5 | implemented |
+| `GUI-HEARING-01` | removing mentions applies to the selection or to the file | 5 | implemented |
+| `GUI-HEARING-02` | a removal that changes nothing says so and does not enter the history | 5 | implemented |
+| `CLI-INSPECT-04` | the anomalies of a document are reported by subtitle number | 5 | implemented |
+| `CLI-INSPECT-08` | `inspect` counts the anomalies by kind, one per line with `--detail`, and keeps `none` on the `anomalies` line when there are none | 5 | implemented |
+| `CLI-INSPECT-05` | `inspect` writes the inferred grid, its concentration and the verdict | 16 | implemented |
+| `CLI-INSPECT-06` | a file without a grid says so, and names no frame rate | 16 | implemented |
+| `CLI-INSPECT-07` | a harmonic ambiguity is named, and the lowest one is retained | 16 | implemented |
+| `CLI-SNAP-01` | `snap --rate R` moves each position to the nearest frame of R | 16 | implemented |
+| `CLI-SNAP-02` | `snap` writes how many positions moved, and by how much at most | 16 | implemented |
+| `CLI-SHIFT-03` | `shift --to-grid` shifts by the measured amount, and writes it | 16 | implemented |
+| `CLI-SHIFT-04` | `shift --to-grid` on a file without a grid refuses and says why | 16 | implemented |
+| `GUI-GRID-01` | the status bar carries the verdict of the inference | 16 | implemented |
+| `GUI-GRID-02` | the analysis dialog shows the eight candidates, the span and the deviations | 16 | implemented |
+| `GUI-FRAMERATE-03` | the conversion dialog pre-fills the input with the measurement, and says so | 16 | implemented |
+| `GUI-FRAMERATE-04` | a disagreement between the measurement and what the video declares is shown without being arbitrated | 16 | implemented |
+| `GUI-SNAP-01` | the window snaps the document to a frame rate, and the operation can be undone | 16 | implemented |
+| `GUI-GRID-03` | bringing back onto the grid displays its amount, and is disabled without a grid | 16 | implemented |
+| `GUI-VIDEO-01` | choosing a video associates it with the document, and the window names it | 6 | implemented |
+| `GUI-VIDEO-02` | opening a subtitle file offers the neighbouring video with the same name | 6 | implemented |
+| `GUI-PLAYER-01` | the video opens in the window, and plays | 6 | implemented |
+| `GUI-PLAYER-02` | selecting a subtitle puts playback at its start | 6 | implemented |
+| `GUI-PLAYER-03` | a video that does not open says so, and leaves the window usable | 6 | implemented |
+| `GUI-FRAMERATE-02` | the frame rate read from the video is offered, and its origin is stated | 6 | implemented |
+| `GUI-BOUNDS-01` | an operation that goes past the end of the film flags it without preventing it | 6 | implemented |
+| `GUI-CONFIG-01` | the window finds its geometry and its columns again from one session to the next | 7 | implemented |
+| `GUI-CONFIG-02` | an unreadable value leaves the default in place, and says so | 7 | implemented |
+| `GUI-CONFIG-03` | an option left at its default is rewritten commented out, so a changed default takes effect | 7 | implemented |
+| `GUI-THEME-01` | the theme is chosen among three values, is remembered, and "system" sets nothing | 7 | implemented |
+| `GUI-THEME-02` | "light" and "dark" set an explicit palette | 7 | implemented |
+| `GUI-INSERT-01` | inserting places the subtitles after the last selected one, or before by choice | 7 | implemented |
+| `GUI-INSERT-02` | inserting into an empty document requires no selection | 7 | implemented |
+| `GUI-REMOVE-01` | removing deletes the selection, and the operation can be undone | 7 | implemented |
+| `GUI-MANUAL-01` | `Help ▸ Manual` opens the installed manual | 7 | implemented |
+| `CLI-ENC-01` | a non-UTF-8 file opens, and the encoding retained is stated | 8 | implemented |
+| `CLI-ENC-02` | `--encoding` imposes the reading encoding and overrides detection | 8 | implemented |
+| `CLI-ENC-03` | a BOM overrides `--encoding`, and the discrepancy is stated | 8 | implemented |
+| `CLI-ENC-04` | `--to-encoding` chooses the encoding produced on writing | 8 | implemented |
+| `CLI-ENC-05` | a file rewritten without instructions gives back the same bytes, encoding included | 8 | implemented |
+| `CLI-ENC-06` | a file no encoding decodes is refused, and the reason says so | 8 | implemented |
+| `CLI-ENC-07` | `inspect` reports the encoding read and whether it was guessed | 8 | implemented |
+| `GUI-ENC-01` | the window opens a non-UTF-8 file and displays the encoding retained | 8 | implemented |
+| `GUI-ENC-02` | `Save As…` chooses the encoding, the line ending and the BOM | 8 | implemented |
+| `GUI-ENC-03` | the settings remember the last writing encoding chosen | 8 | implemented |
+| `CLI-FORMAT-01` | each of the nine formats opens, and is rewritten byte for byte | 9 | implemented |
+| `CLI-FORMAT-02` | a file none of the nine claims is refused, without guessing | 9 | implemented |
+| `CLI-FORMAT-03` | `inspect` names the format read among the nine | 9 | implemented |
+| `CLI-FORMAT-04` | a format without ends opens, its ends are inferred, and the reading says so | 9 | implemented |
+| `CLI-FRAMES-01` | a frame-based file opens at a declared frame rate, which the reading names | 9 | implemented |
+| `CLI-FRAMES-02` | `--frame-rate` imposes the frame rate, on reading as on writing | 9 | implemented |
+| `CLI-CONVERT-04` | `--to` accepts the nine formats | 9 | implemented |
+| `CLI-CONVERT-05` | converting to a frame-based format without a frame rate takes the inferred grid, and says so | 9 | implemented |
+| `CLI-CONVERT-06` | with neither frame rate nor grid, a conversion to a frame-based format is refused | 9 | implemented |
+| `CLI-CONVERT-07` | a conversion that loses something says so, item by item | 9 | implemented |
+| `GUI-FORMAT-01` | the window opens the nine formats | 9 | implemented |
+| `GUI-FORMAT-02` | `Save As…` offers the nine formats | 9 | implemented |
+| `GUI-FORMAT-03` | saving to a lossy format announces what will be lost before writing | 9 | implemented |
+| `GUI-FRAMES-01` | opening a frame-based file announces the frame rate retained, and lets it be changed | 9 | implemented |
+| `GUI-ITALIC-01` | one action puts the selection in italics and takes it out, in the tags of the open format | 10 | implemented |
+| `GUI-ITALIC-02` | a format that carries no style disables the action without hiding it | 10 | implemented |
+| `GUI-CASE-01` | the four cases apply to the target without touching the tags | 10 | implemented |
+| `GUI-DASH-01` | dialogue dashes are added and removed with the same gesture | 10 | implemented |
+| `GUI-SPLIT-01` | merge and split, and undo gives back the document as it was | 10 | implemented |
+| `GUI-DURATION-01` | the `Duration` column can be edited, and moves the end | 10 | implemented |
+| `GUI-ADJUST-01` | adjusting applies the four constraints in the specified order | 10 | implemented |
+| `GUI-ADJUST-02` | what no end can satisfy is stated, and counted | 10 | implemented |
+| `GUI-SEARCH-01` | search in the visible text, replace in the source, without breaking the tags | 10 | implemented |
+| `GUI-SEARCH-02` | the search covers the selection, or the whole document | 10 | implemented |
+| `GUI-CLIP-01` | copy, cut, paste texts, and lines are created if there are not enough | 10 | implemented |
+| `GUI-CLIP-02` | pasting from a document of another format translates the tags and states the loss | 10 | implemented |
+| `GUI-TRANS-01` | opening a translation file aligns it with the main one, by position or by number | 11 | implemented |
+| `GUI-TRANS-02` | opening says what happened: lines attached, subtitles created, subtitles without a translation, lines out of order | 11 | implemented |
+| `GUI-TRANS-03` | opening a translation is a single history entry, and undo gives back the document as it was | 11 | implemented |
+| `GUI-TRANS-04` | the translation column appears with the translation, and can be edited | 11 | implemented |
+| `GUI-TRANS-05` | a text operation targets the document of the current column, and the status bar says so | 11 | implemented |
+| `GUI-TRANS-06` | the translation is saved separately from the main one, each with its own modified state | 11 | implemented |
+| `GUI-CLOSE-01` | closing with several modified documents asks a single question, one checkbox per document | 11 | implemented |
+| `GUI-SEARCH-03` | the search covers the targeted document, and replace writes into its source text | 11 | implemented |
+| `GUI-PLAYER-04` | the line drawn on the picture is that of the targeted document | 11 | implemented |
+| `GUI-APPEND-01` | appending a file shifts it by the end of the last subtitle, states what the conversion loses, and is undone in one go | 11 | implemented |
+| `GUI-TABS-01` | several projects open in tabs, each with its history, its selection and its video | 11 | implemented |
+| `GUI-TABS-02` | close all, or quit, with a single question for all projects | 11 | implemented |
+| `GUI-TABS-03` | a tab's label says its project is modified | 11 | implemented |
+| `GUI-TABS-04` | dropping files on the window opens them: one tab per subtitle file, a video to the current tab | 11 | implemented |
+| `GUI-SAVE-04` | save all writes each modified document, tab by tab, and stops at a cancellation, saying what was written | 11 | implemented |
+| `GUI-PSPLIT-01` | split a project in two, and appending the second part gives back the original project | 11 | implemented |
+| `GUI-SEARCH-04` | the search covers, optionally, all open projects | 11 | implemented |
+| `GUI-CORRECT-01` | the assistant applies the checked tasks to the chosen target — selection, project, all projects — and to the chosen document | 12 | implemented |
+| `GUI-CORRECT-02` | each changed text is shown with its original before being applied, and is accepted, rejected or touched up | 12 | implemented |
+| `GUI-CORRECT-03` | applying makes one history entry per project, and the status bar says how many subtitles were modified and deleted | 12 | implemented |
+| `GUI-CORRECT-04` | patterns are checked by name, for a script, a language and a country, and the choice is remembered | 12 | implemented |
+| `GUI-CORRECT-05` | unchecking Human or OCR removes those patterns from the application | 12 | implemented |
+| `GUI-CORRECT-06` | a pattern that does not read, does not translate or does not terminate is named, and the others apply | 12 | implemented |
+| `GUI-CORRECT-07` | patterns dropped in by the user are added to the shipped patterns | 12 | implemented |
+| `GUI-HEARING-03` | the assistant removes lyrics between hash signs and the speaker's name, in addition to brackets and parentheses | 12 | implemented |
+| `GUI-BREAK-01` | line breaking holds the requested length and number of lines, in characters or in ems, and skips the subtitles that already hold them | 12 | implemented |
+| `GUI-SPELL-01` | the check walks through the unknown words: ignore, ignore all, add to dictionary, replace, replace all, join with the previous or the next | 12 | implemented |
+| `GUI-SPELL-02` | without a dictionary for the chosen language, the spell checker's functions are greyed out and say why | 12 | implemented |
+| `GUI-SPELL-03` | the assistant joins and splits words according to the spell checker | 12 | implemented |
+| `GUI-SPELL-04` | an unknown word is underlined while it is typed in a text cell's editor, when the setting is true and a dictionary exists; without a dictionary, nothing is underlined and nothing fails | 12 | implemented |
+| `CLI-JSON-01` | `--format json` writes one JSON object per line on standard output; `text` is the default and does not change | 13 | implemented |
+| `CLI-JSON-02` | each input gives **exactly one** object, failure included, in the order of the inputs | 13 | implemented |
+| `CLI-JSON-03` | each object carries `schema`, `command`, `file` and `ok`; a failure carries `error.kind` and `error.message` | 13 | implemented |
+| `CLI-JSON-04` | verbosity does not act on standard output in `json`; the narration stays text on standard error | 13 | implemented |
+| `CLI-JSON-05` | the reading diagnostics are in `warnings`, at every level | 13 | implemented |
+| `CLI-JSON-06` | no floating-point number: positions in whole milliseconds, frame rates as strings | 13 | implemented |
+| `CLI-JSON-07` | a usage error writes nothing on standard output, in `json` as in `text` | 13 | implemented |
+| `CLI-JSON-08` | `inspect` describes the file: format, encoding, mark, line endings, count, span, grid or frame rate, anomalies | 13 | implemented |
+| `CLI-JSON-09` | each subcommand that writes states its destination and its counts | 13 | implemented |
+| `CLI-JSON-10` | the same inputs and the same arguments give the bytes of the versioned expected outputs | 13 | implemented |
+| `CLI-DRYRUN-01` | `--dry-run` writes no file and creates no directory, and the code is that of a real run | 13 | implemented |
+| `CLI-DRYRUN-02` | `--dry-run` requires no destination | 13 | implemented |
+| `CLI-DRYRUN-03` | a destination given with `--dry-run` is checked as it would be without it | 13 | implemented |
+| `CLI-DRYRUN-04` | on a text subcommand, standard output carries, for each changed subtitle, its number, the text before and the text after | 13 | implemented |
+| `CLI-DRYRUN-05` | in `json`, `changes` carries the same changes, `after` being `null` for a deletion | 13 | implemented |
+| `CLI-DRYRUN-06` | the narration of a `--dry-run` says that nothing was written | 13 | implemented |
+| `CLI-BATCH-03` | two inputs with the same destination are refused before anything is written, code `1`, both named | 13 | implemented |
+| `CLI-BATCH-04` | a destination that is an input is refused without `--in-place` | 13 | implemented |
+| `CLI-BATCH-05` | the missing output directory is created | 13 | implemented |
+| `CLI-BATCH-06` | a write that fails says "written", never "read" | 13 | implemented |
+| `CLI-BATCH-07` | an existing destination is overwritten by an atomic write | 13 | implemented |
+| `CLI-BATCH-08` | a directory as input without `--recursive` is refused, code `1` | 13 | implemented |
+| `CLI-BATCH-09` | `--recursive` walks in name order, without following links, the extensions of the known formats, `.txt` excluded | 13 | implemented |
+| `CLI-BATCH-10` | the tree relative to the given directory is preserved under `--output-dir` | 13 | implemented |
+| `CLI-BATCH-11` | the output directory, when inside the walked tree, is excluded from the walk | 13 | implemented |
+| `CLI-BATCH-12` | a file named on the command line is never filtered by its extension | 13 | implemented |
+| `CLI-RANGE-01` | `--range N-M` limits the operation to subtitles N to M, bounds included; `N-` goes to the end | 13 | implemented |
+| `CLI-RANGE-02` | an out-of-bounds range is refused, naming the bound, before any processing | 13 | implemented |
+| `CLI-ADJUST-01` | `adjust` without an option applies Gaupol's four constraints, in their order | 13 | implemented |
+| `CLI-ADJUST-02` | each constraint can be set and turned off (`off`); `--maximum` turns it on | 13 | implemented |
+| `CLI-ADJUST-03` | without any active constraint, `adjust` is refused | 13 | implemented |
+| `CLI-ADJUST-04` | the report states what was adjusted and what was sacrificed, constraint by constraint | 13 | implemented |
+| `CLI-ADJUST-05` | in `json`, `counts` carries `adjusted` and `sacrificed.{speed,minimum,gap}`, and `constraints` the constraints used | 13 | implemented |
+| `CLI-ADJUST-06` | the sacrificed counts agree with those the measurement script predicts on the versioned fixtures | 13 | implemented |
+| `CLI-CORRECT-01` | `--tasks` is required and names the tasks; none is checked in advance | 13 | implemented |
+| `CLI-CORRECT-02` | `--code` is required as soon as a task reads patterns | 13 | implemented |
+| `CLI-CORRECT-03` | the report states the texts changed and deleted, never the matches | 13 | implemented |
+| `CLI-CORRECT-04` | `--classes` removes the patterns of the unchecked class from the application | 13 | implemented |
+| `CLI-CORRECT-05` | `--enable` / `--disable` set a pattern by its name; an unknown or ambiguous name is refused | 13 | implemented |
+| `CLI-CORRECT-06` | a pattern task with no active pattern is refused | 13 | implemented |
+| `CLI-CORRECT-07` | the user's patterns are added to the shipped patterns | 13 | implemented |
+| `CLI-CORRECT-08` | a pattern that does not read, does not translate or does not terminate is named along with the subtitle, and the others apply | 13 | implemented |
+| `CLI-CORRECT-09` | `line-break` measures in characters; `--max-length` is required; the break's bounds follow, and can be turned off | 13 | implemented |
+| `CLI-CORRECT-10` | `join-words` and `split-words` join and split according to the dictionary of `--language` | 13 | implemented |
+| `CLI-CORRECT-11` | without a dictionary for `--language`, `correct` is refused with the window's sentence, before any processing | 13 | implemented |
+| `CLI-CORRECT-12` | emptied subtitles are removed, unless `--keep-blank-subtitles` | 13 | implemented |
+| `CLI-CORRECT-13` | `correct` reads from the settings file only `correction.human`, `correction.ocr`, `correction.remove-blank` and `correction.line-break.max-lines`; neither the activations, nor its replacement list | 13 | implemented |
+| `CLI-REPLACE-01` | `replace` searches in the visible text and replaces in the source text, without breaking a tag | 13 | implemented |
+| `CLI-REPLACE-02` | `--regex` reads an expression; an unreadable expression is refused before any processing, with the reason | 13 | implemented |
+| `CLI-REPLACE-03` | case is ignored by default, `--case-sensitive` distinguishes it | 13 | implemented |
+| `CLI-REPLACE-04` | the report states the texts changed, or that nothing was found | 13 | implemented |
+| `CLI-CASE-01` | `case` applies the four cases without touching the tags | 13 | implemented |
+| `CLI-ITALIC-01` | `italics --on` / `--off` sets and removes italics in the tags of the file's format | 13 | implemented |
+| `CLI-ITALIC-02` | a format that carries no style refuses, file by file, with the reason | 13 | implemented |
+| `CLI-DASH-01` | `dialogue-dashes --add` / `--remove` adds and removes dialogue dashes | 13 | implemented |
+| `CLI-SORT-01` | `sort` puts the subtitles in order of their start, stably | 13 | implemented |
+| `CLI-SORT-02` | `sort` says how many subtitles moved, and writes the file even if it is already in order | 13 | implemented |
+| `CLI-SORT-03` | `convert`, `append` and `split-file` accept `--sort`, which puts the subtitles in order of their start before writing and says how many moved | 13 | implemented |
+| `CLI-DISJOINT-01` | `disjoint` cuts the overlapping subtitles, merges line by line what is displayed together, says what it did, and a second pass changes nothing | 13 | implemented |
+| `CLI-DISJOINT-02` | `disjoint` refuses a file whose starts are not in order, except with `--sort`, which puts it in order first | 13 | implemented |
+| `CLI-DISJOINT-03` | `--minimum`, `--max-lines` and `--dashes` set the operation; an absurd value is a usage error naming the option | 13 | implemented |
+| `CLI-DISJOINT-04` | `convert`, `append` and `split-file` accept `--disjoint`, which cuts the ranges before writing, after `--sort`, and says what was cut | 13 | implemented |
+| `CLI-JOIN-01` | `join-repeats` makes a single subtitle out of consecutive pieces of the same text, says how many it joined, and a second pass changes nothing | 13 | implemented |
+| `CLI-JOIN-02` | `repair` chains joining repeats, sorting and cutting ranges, in that order, and states the three counts | 13 | implemented |
+| `CLI-JOIN-03` | `convert` accepts `--join-repeats` (before sorting and cutting) and `--repair` (all three in one go), and says how many subtitles were joined | 13 | implemented |
+| `CLI-TRANS-01` | `inspect -t` reports lines attached, subtitles created, without a translation and out of order | 13 | implemented |
+| `CLI-TRANS-02` | `--document translation` requires `-t`, and `-t` requires `--document translation` on a text subcommand | 13 | implemented |
+| `CLI-TRANS-03` | `-t` only makes sense for a single input; with a batch, it is refused | 13 | implemented |
+| `CLI-TRANS-04` | only the targeted document is written, at its own path and in its own format | 13 | implemented |
+| `CLI-TRANS-05` | `--align-method` chooses between position (default) and number | 13 | implemented |
+| `CLI-LISTENC-01` | `--list-encodings` writes the encodings ICU can convert, one per line, and stops | 13 | implemented |
+| `CLI-APPEND-01` | `append` adds the files after the first one, shifted by the end of the last subtitle, into a single output | 13 | implemented |
+| `CLI-PSPLIT-01` | `split-file --at N` writes the two halves, the second brought back to the origin, or refuses, naming the subtitle | 13 | implemented |
+| `CLI-PAIR-01` | `pair` writes the translation re-timed on the positions of the main one, and states the alignment | 13 | implemented |
+| `GUI-SURFACE-01` | the video picture is drawn in the window, resizable, its aspect ratio preserved | 14 | implemented |
+| `GUI-SURFACE-02` | after a seek, the picture displayed is that of the requested position, the nearest one | 14 | implemented |
+| `GUI-SURFACE-03` | the window adopts no native window and does not require X11 | 14 | implemented |
+| `GUI-STEP-01` | stepping forward one frame displays the next frame | 14 | implemented |
+| `GUI-STEP-02` | stepping back one frame displays the previous frame | 14 | implemented |
+| `GUI-STEP-03` | the duration of a frame comes from the video, failing that from the document, failing that from the grid; with none of them, the gesture refuses and says so | 14 | implemented |
+| `GUI-STEP-04` | the step is set as a number of frames, at least one; an absurd value does not break opening | 14 | implemented |
+| `GUI-NUDGE-01` | moving the start or the end of a subtitle by one frame is undoable in one entry | 14 | implemented |
+| `GUI-SEEK-01` | the position slider can be read and moved | 14 | implemented |
+| `GUI-SEEK-02` | step back and forward by an adjustable step | 14 | implemented |
+| `GUI-SEEK-03` | the previous and the next subtitle put playback at their start | 14 | implemented |
+| `GUI-SEEK-04` | the start and the end of the selection place playback, with the configured lead | 14 | implemented |
+| `GUI-SEEK-05` | playing the selection stops at its end | 14 | implemented |
+| `GUI-VOLUME-01` | the volume can be set and is remembered from one session to the next | 14 | implemented |
+| `GUI-TIMECODE-01` | the timecode is overlaid on the picture | 14 | implemented |
+| `GUI-AUDIO-01` | the audio track is chosen among those of the video | 14 | implemented |
+| `GUI-MARK-01` | set a subtitle's start from the video position, in one history entry | 14 | implemented |
+| `GUI-MARK-02` | set its end from the video position | 14 | implemented |
+| `GUI-MARK-03` | insert a subtitle at the video position | 14 | implemented |
+| `GUI-MARK-04` | select the previous or next subtitle from the video position | 14 | implemented |
+| `GUI-FOLLOW-01` | the table centres the current subtitle during playback | 14 | implemented |
+| `GUI-FOLLOW-02` | scrolling by hand suspends following | 14 | implemented |
+| `GUI-FOLLOW-03` | following resumes on a player gesture or on request | 14 | implemented |
+| `GUI-REPLICA-01` | the line drawn on the picture no longer has raw tags | 14 | implemented |
+| `GUI-FRAMES-02` | positions are displayed and entered as frame numbers, the frame rate stated | 14 | implemented |
+| `GUI-DRIFT-01` | opening a translation says that a constant shift would attach it better, without saying so of a drift | 14 | implemented |
+| `GUI-DRIFT-02` | reopening shifted attaches according to the proposed shift, in one history entry | 14 | implemented |
+| `GUI-REPAIR-01` | the analysis dialog proposes the frame rate conversion that puts the file back on a grid, or nothing when two are equally good | 14 | implemented |
+| `GUI-REPAIR-02` | `Convert Frame Rate…` opens pre-filled with that proposal | 14 | implemented |
+| `CLI-I18N-01` | the command line's help, narration and errors follow the language chosen by `LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, `LANG`, English when it is unknown | 15 | implemented |
+| `CLI-I18N-02` | `--format json` output is byte-identical whatever the language | 15 | implemented |
+| `CLI-I18N-03` | `LC_ALL=C` yields English | 15 | implemented |
+| `CLI-I18N-04` | `subedit-cli(1)` and one page per sub-command are installed, and list the options `--help` lists | 15 | planned |
+| `GUI-I18N-01` | the window shows its menus, dialogs and messages in the chosen language, English when it is not installed | 15 | implemented |
+| `GUI-I18N-02` | `Preferences…` offers the interface language; it is kept from one session to the next and applies at the next launch | 15 | implemented |
+| `GUI-I18N-03` | `Help ▸ Manual` opens the manual of the chosen language, English when the page or the language is missing | 15 | planned |
+| `GUI-I18N-04` | the names and descriptions of Gaupol's correction patterns are shown translated, and a user's own pattern is shown as written | 15 | implemented |
