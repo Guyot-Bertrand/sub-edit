@@ -2679,12 +2679,12 @@ expect_bench_extremes_hold() {
     }
 
     printf '%s\n' \
-        '# Journal' '' '<!-- extrêmes -->' '' \
-        '| Mesure | Minimum | Relevé le | Maximum | Relevé le |' \
+        '# Journal' '' '<!-- extremes -->' '' \
+        '| Measure | Minimum | Recorded on | Maximum | Recorded on |' \
         '| :----- | ------: | :-------- | ------: | :-------- |' \
         '| ancienne | 100 ns | 0.0.1 — 2020-01-01 | 300 ns | 0.0.1 — 2020-01-01 |' '' \
         '<!-- ancienne min=100.0 max=300.0 -->' '' \
-        '## Relevés' '' '<!-- relevés -->' '' > "${journal}"
+        '## Records' '' '<!-- records -->' '' > "${journal}"
 
     # Premier passage, machine occupée : la mesure neuve entre au relevé et
     # **pas** dans la table.
@@ -2749,17 +2749,17 @@ expect_bench_extremes_hold() {
     # relevés, ce qui donne un seuil de 6,25 % : le relevé ci-dessous est calme
     # et six fois plus dispersé que d habitude.
     printf '%s\n' \
-        '# Journal' '' '<!-- extrêmes -->' '' \
-        '| Mesure | Minimum | Relevé le | Maximum | Relevé le |' \
+        '# Journal' '' '<!-- extremes -->' '' \
+        '| Measure | Minimum | Recorded on | Maximum | Recorded on |' \
         '| :----- | ------: | :-------- | ------: | :-------- |' \
         '| stable | 1000 ns | 0.0.1 — 2020-01-01 | 1000 ns | 0.0.1 — 2020-01-01 |' '' \
         '<!-- stable min=1000.0 max=1000.0 -->' '' \
-        '## Relevés' '' '<!-- relevés -->' '' > "${journal}"
+        '## Records' '' '<!-- records -->' '' > "${journal}"
     local passe
     for passe in 1 2 3 4 5 6; do
         printf '%s\n' \
-            "### 0.0.${passe} — $(date +%F) — Release — charge 0.5 — allure ×1.00" '' \
-            '| Mesure | Moyenne | Écart-type |' '| :----- | ------: | ---------: |' \
+            "### 0.0.${passe} — $(date +%F) — Release — load 0.5 — pace ×1.00" '' \
+            '| Measure | Mean | Standard deviation |' '| :----- | ------: | ---------: |' \
             '| stable | 1000 ns | 50 ns |' '' >> "${journal}"
     done
 
@@ -2811,7 +2811,7 @@ expect_await_quiet_decides() {
     proof_header '%s▸ %s%s\n' "${BOLD}" "la décision de mesurer ou non" "${RESET}"
 
     # Le script a une échappatoire pour une machine sans /proc/loadavg — il rend
-    # « inconnue » et zéro. Cette preuve-là n a alors rien à démontrer, et le
+    # « unknown » et zéro. Cette preuve-là n a alors rien à démontrer, et le
     # dire vaut mieux que la faire échouer pour une raison qui ne regarde pas le
     # dépôt.
     if [[ ! -r /proc/loadavg ]]; then

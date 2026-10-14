@@ -1,407 +1,397 @@
-# Journal des performances
+# Performance journal
 
-Ce que les benchmarks ont mesuré, version par version. Rejoués en `Release`,
-le mode livré — c'est le seul dont les chiffres veulent dire quelque chose pour
-un utilisateur.
+What the benchmarks measured, version by version. Replayed in `Release`, the
+shipped mode — it is the only one whose figures mean anything to a user.
 
-**Aucun seuil d'alerte, délibérément.** La variance naturelle des mesures n'est
-pas connue : le même tri a rendu 240 µs puis 456 µs à une heure d'intervalle,
-sur la même machine et le même binaire. Poser un cliquet sur des chiffres
-pareils, ce serait se garantir de fausses alertes et l'habitude de les ignorer.
-La table des extrêmes ci-dessous existe pour que cette variance devienne
-connue ; le seuil viendra quand elle le sera. Voir
-[l'ADR 0015](../adr/0015-memoire-des-mesures.md).
+**No alert threshold, deliberately.** The natural variance of the measurements
+is not known: the same sort gave 240 µs then 456 µs an hour apart, on the same
+machine and the same binary. Setting a ratchet on figures like that would
+guarantee false alerts and the habit of ignoring them. The table of extremes
+below exists so that this variance becomes known; the threshold will come when
+it is. See [ADR 0015](../adr/0015-memoire-des-mesures.md).
 
-## La charge de la machine, et pourquoi elle est écrite
+## The machine's load, and why it is written down
 
-Une mesure prise pendant qu'un navigateur compile du JavaScript ne dit rien du
-code : elle dit l'état de la machine. Chaque relevé porte donc la **charge
-moyenne d'une minute** relevée juste avant, dans son en-tête, et la règle qui en
-découle est mécanique :
+A measurement taken while a browser compiles JavaScript says nothing about the
+code: it says the state of the machine. Each record therefore carries the
+**one-minute load average** read just before, in its header, and the rule that
+follows is mechanical:
 
-> **Un relevé pris au-dessus de `BENCH_MAX_LOAD` — une et demie, par défaut —
-> n'entre pas au journal.** Les benchmarks tournent, leurs chiffres s'affichent,
-> et rien n'est écrit.
+> **A record taken above `BENCH_MAX_LOAD` — one and a half, by default — does
+> not enter the journal.** The benchmarks run, their figures are displayed, and
+> nothing is written.
 
-> **Et une mesure plus dispersée que d'habitude ne fixe aucun extrême**, même
-> sur une machine calme : au-delà de **1,25 fois sa dispersion médiane**, elle
-> entre au relevé et reste hors de la table.
+> **And a measurement more dispersed than usual sets no extreme**, even on a
+> quiet machine: beyond **1.25 times its median spread**, it enters the record
+> and stays out of the table.
 
-### Deux critères, parce qu'un seul ne lit pas la mesure — #202
+### Two criteria, because one alone does not read the measurement — #202
 
-Le seuil de charge lit **la machine**. Il ne lit pas **la mesure**, qui est
-pourtant la seule chose que le banc sache dire de sa propre fiabilité — et elle
-est là, dans la colonne « Écart-type » de chaque relevé.
+The load threshold reads **the machine**. It does not read **the measurement**,
+which is nevertheless the only thing the bench can say about its own
+reliability — and it is there, in the "Standard deviation" column of each
+record.
 
-Un relevé pris à charge 1,44 — donc admis — a posé un maximum définitif sur un
-ticket qui ne changeait aucun `.cpp` : 3,4 ms pour la lecture de 4000
-sous-titres, contre 3,28. Son écart-type valait **26 % de sa moyenne**, là où
-cette mesure-là se tient autour de 10 %. La mesure disait elle-même qu'elle ne
-valait rien.
+A record taken at load 1.44 — so admitted — set a permanent maximum on a ticket
+that changed no `.cpp`: 3.4 ms for reading 4000 subtitles, against 3.28. Its
+standard deviation was **26 % of its mean**, where that measurement usually sits
+around 10 %. The measurement itself said it was worth nothing.
 
-**Le critère est relatif à chaque mesure, et il le fallait.** La dispersion
-médiane du journal est de 17 %, et elle va de 3,8 % pour la mise à l'échelle
-d'un rationnel à 43,6 % pour un décalage de quatre mille sous-titres. Un seuil
-unique à 10 % refuserait plus d'une mesure sur deux. Ce qui compte n'est pas
-qu'une mesure soit dispersée, c'est qu'elle le soit **plus que d'habitude**.
+**The criterion is relative to each measurement, and it had to be.** The median
+spread of the journal is 17 %, and it ranges from 3.8 % for scaling by a
+rational to 43.6 % for a shift of four thousand subtitles. A single threshold at
+10 % would refuse more than one measurement in two. What matters is not that a
+measurement is dispersed, it is that it is **more dispersed than usual**.
 
-**Le facteur vaut un quart au-dessus de la médiane**, et c'est là que la courbe
-tourne. Mesuré sur les 87 relevés du journal, en comptant les maxima posés et
-ceux que les cinq relevés suivants démentent :
+**The factor is a quarter above the median**, and that is where the curve
+turns. Measured on the 87 records of the journal, counting the maxima set and
+those that the next five records contradict:
 
-| Critère | Maxima posés | Démentis |
-| :------ | -----------: | -------: |
-| charge seule — la règle d'avant | 134 | **11** (8,2 %) |
-| charge, et dispersion ≤ 1,0 × sa médiane | 119 | 4 |
-| **charge, et dispersion ≤ 1,25 × sa médiane** | **126** | **4** (3,2 %) |
-| charge, et dispersion ≤ 1,5 × sa médiane | 121 | 5 |
-| charge, et dispersion ≤ 2,0 × sa médiane | 131 | 6 |
+| Criterion | Maxima set | Contradicted |
+| :-------- | ---------: | -----------: |
+| load alone — the previous rule | 134 | **11** (8.2 %) |
+| load, and spread ≤ 1.0 × its median | 119 | 4 |
+| **load, and spread ≤ 1.25 × its median** | **126** | **4** (3.2 %) |
+| load, and spread ≤ 1.5 × its median | 121 | 5 |
+| load, and spread ≤ 2.0 × its median | 131 | 6 |
 
-**La pointe n'était pas la bonne lunette.** L'instrument comptait ce qui dépasse
-d'une moitié ses voisines ; un maximum se pose en dépassant le précédent d'un
-cheveu, et il est définitif. Le relevé de #202 valait ×1,15 : jamais une pointe,
-et pourtant une enveloppe faussée pour toujours. `analyse-bench-journal.py`
-compte désormais les deux.
+**The spike was not the right lens.** The instrument counted what exceeds its
+neighbours by a half; a maximum is set by exceeding the previous one by a hair,
+and it is permanent. The record of #202 was at ×1.15: never a spike, and yet an
+envelope skewed forever. `analyse-bench-journal.py` now counts both.
 
-**Le second critère s'ajoute au premier, il ne le remplace pas.** La dispersion
-seule est nettement moins bonne — 24 pointes admises contre 5 — et la charge se
-lit **avant** de mesurer, ce qui permet de renoncer ; la dispersion ne se connaît
-qu'après.
+**The second criterion adds to the first, it does not replace it.** Spread alone
+is clearly worse — 24 spikes admitted against 5 — and the load is read
+**before** measuring, which allows giving up; the spread is only known after.
 
-**En deçà de cinq relevés, une mesure n'a pas de médiane** et le critère ne
-s'applique pas : la charge reste seule juge, et la règle de #189 tient déjà les
-mesures neuves hors de la table jusqu'au premier relevé calme.
+**Below five records, a measurement has no median** and the criterion does not
+apply: the load remains the only judge, and the rule of #189 already keeps new
+measurements out of the table until the first quiet record.
 
-### Ce que la règle a réparé derrière elle
+### What the rule repaired behind it
 
-Une règle qui se resserre ne répare pas le passé toute seule : **un maximum ne
-tombe que devant un maximum plus haut.** Vingt-quatre des soixante extrêmes de
-la table avaient été posés par un relevé que les deux critères refusent, et ils
-ont été recalculés — `src/scripts/recompute-bench-extremes.py`, qui ne touche
-qu'un extrême dont **le relevé d'origine** est refusé, et laisse ceux dont la
-source a été élaguée.
+A rule that tightens does not repair the past on its own: **a maximum only falls
+before a higher maximum.** Twenty-four of the sixty extremes in the table had
+been set by a record that both criteria refuse, and they were recomputed —
+`src/scripts/recompute-bench-extremes.py`, which touches only an extreme whose
+**originating record** is refused, and leaves those whose source has been
+pruned.
 
-Sept sont dans ce cas : ni jugeables ni remplaçables, laissés tels quels. Le
-dire vaut mieux que de recalculer sur une histoire tronquée.
+Seven are in that case: neither judgeable nor replaceable, left as they are.
+Saying so is better than recomputing on a truncated history.
 
-`make bench` attend d'abord que la charge redescende, **trente secondes au
-plus** : la cause la plus fréquente est la cible qui précède, et la moyenne
-d'une minute met une minute à l'oublier. Passé ce délai il mesure quand même —
-les chiffres restent utiles à qui vient de lancer la commande — mais il ne verse
-rien, et il le dit.
+`make bench` first waits for the load to come down, **thirty seconds at most**:
+the most frequent cause is the target that precedes it, and the one-minute
+average takes a minute to forget it. Past that delay it measures anyway — the
+figures remain useful to whoever just ran the command — but it records nothing,
+and says so.
 
-### Pourquoi trente secondes, et pourquoi ne rien écrire — #270
+### Why thirty seconds, and why write nothing — #270
 
-La phase 7 a donné treize relevés dont **six au-dessus du seuil**. La question
-posée était : le seuil est-il tenable dans le déroulé prescrit ?
+Phase 7 gave thirteen records of which **six were above the threshold**. The
+question asked was: is the threshold tenable in the prescribed sequence?
 
-**Ce qui a été mesuré, et ce que ça a corrigé.** Première idée, fausse : que la
-charge vienne des deux étapes qui précèdent `bench` dans `check-local`. Relevée
-à la sortie d'`install-check`, toutes les cinq secondes, elle culmine à 1,78
-cinq secondes après la fin — la moyenne d'une minute retarde sur ce qui vient de
-finir — et repasse sous le seuil en une vingtaine de secondes. `e2e` et
-`install-check` sont courts ; ils ne chargent presque rien.
+**What was measured, and what it corrected.** First idea, wrong: that the load
+came from the two steps that precede `bench` in `check-local`. Read at the exit
+of `install-check`, every five seconds, it peaks at 1.78 five seconds after the
+end — the one-minute average lags behind what has just finished — and drops
+back under the threshold in about twenty seconds. `e2e` and `install-check` are
+short; they load almost nothing.
 
-**Ce qui charge est ce qui précède le tout.** Le déroulé prescrit enchaîne
-`make check` puis `make check-local` : un quart d'heure de clang-tidy, de tests
-sous sanitizers et de couverture, immédiatement avant. C'est cet héritage-là que
-`bench` trouve, et non celui de ses deux voisines. Quatre exécutions réelles, le
-même jour et sur la même machine :
+**What loads is what precedes the whole.** The prescribed sequence chains
+`make check` then `make check-local`: a quarter of an hour of clang-tidy, of
+tests under sanitizers and of coverage, immediately before. It is that
+inheritance that `bench` finds, and not that of its two neighbours. Four real
+runs, on the same day and on the same machine:
 
-| Contexte de l'exécution | Charge à `bench` | Sort |
-| :---------------------- | ---------------: | :--- |
-| `check-local` dans la foulée de `make check` | 2,78 | refusé |
-| idem, une seconde fois | 1,84 | refusé |
-| `check-local` seul, machine au repos | 1,38 | **inscrit** |
-| `check-local` pendant une session de bureau active | 2,88 | refusé |
-| idem, plus chargée | 6,56 | refusé |
+| Context of the run | Load at `bench` | Outcome |
+| :----------------- | --------------: | :------ |
+| `check-local` straight after `make check` | 2.78 | refused |
+| same, a second time | 1.84 | refused |
+| `check-local` alone, machine at rest | 1.38 | **recorded** |
+| `check-local` during an active desktop session | 2.88 | refused |
+| same, more loaded | 6.56 | refused |
 
-Le relevé de la version `0.8.6` est celui de la troisième ligne, et il a survécu
-aux deux exécutions refusées qui l'ont suivi : **un refus n'écrit pas, donc il
-n'efface pas non plus** la mesure propre déjà en place.
+The record of version `0.8.6` is the one in the third row, and it survived the
+two refused runs that followed it: **a refusal does not write, so it does not
+erase either** the clean measurement already in place.
 
-Les deux dernières ne sont pas des cas du projet : les processus en tête de `ps`
-n'appartenaient pas à ce dépôt — un navigateur, un environnement de
-développement, deux serveurs — et la charge est retombée à 0,64 dès que la
-session s'est calmée, sans que rien du projet n'ait changé.
+The last two are not cases of the project: the processes at the top of `ps` did
+not belong to this repository — a browser, a development environment, two
+servers — and the load fell back to 0.64 as soon as the session calmed down,
+without anything in the project having changed.
 
-**Le seuil est donc tenable, et ce n'est pas lui qu'il fallait regarder.** Une
-mesure prise hors de la traîne de `make check`, sur une machine qui n'est qu'à
-nous, passe. Les six échecs de la phase 7 étaient l'une ou l'autre des deux
-causes ci-dessus, et aucune ne se soigne en attendant plus longtemps : la traîne
-d'un quart d'heure de compilation et la session de bureau durent toutes deux
-plus que n'importe quel délai qu'on accepterait de payer à chaque exécution.
+**The threshold is therefore tenable, and it is not what needed looking at.** A
+measurement taken outside the tail of `make check`, on a machine that is ours
+alone, passes. The six failures of phase 7 were one or the other of the two
+causes above, and neither is cured by waiting longer: the tail of a quarter of
+an hour of compilation and the desktop session both last longer than any delay
+one would accept to pay on every run.
 
-**D'où trente secondes.** Ce qui se rattrape se rattrape en vingt ; ce qui ne se
-rattrape pas ne se rattrape pas en trois minutes non plus. Attendre au-delà,
-c'était payer le délai pour les seuls cas où il ne pouvait rien.
+**Hence thirty seconds.** What can be caught up is caught up in twenty; what
+cannot be caught up is not caught up in three minutes either. Waiting beyond
+that was paying the delay only for the cases where it could do nothing.
 
-**Et l'inscription sans droit d'extrême était une demi-mesure au sens propre.**
-Le journal a une section par version : une section qu'on ne peut comparer à rien
-— puisqu'on ignore ce qui, dedans, vient du code — occupe la place de celle qui
-manque, et **cache** le fait qu'il n'y a pas eu de mesure. Une version sans
-section le dit. Presque un relevé sur deux de la phase 7 était dans ce cas.
+**And recording without the right to set extremes was a half-measure in the
+literal sense.** The journal has a section per version: a section that cannot
+be compared to anything — since one does not know what, in it, comes from the
+code — takes the place of the one that is missing, and **hides** the fact that
+there was no measurement. A version without a section says so. Almost one
+record in two of phase 7 was in that case.
 
-### La place du banc dans le déroulé, tranchée — #307
+### The bench's place in the sequence, settled — #307
 
-#270 laissait cette question ouverte, en disant qu'elle le dépassait : le banc
-est enchaîné par `check-local`, donc juste derrière la seule étape qui chauffe
-vraiment la machine. **La phase 8 a mesuré ce que cela coûte**, et la relecture
-de fin de phase l'a tranché.
+#270 left this question open, saying it went beyond it: the bench is chained by
+`check-local`, so just behind the only step that really heats the machine.
+**Phase 8 measured what that costs**, and the end-of-phase review settled it.
 
-| Phase | Relevés versés | Refusés pour charge |
-| :---- | -------------: | ------------------: |
-| 7 | 7 sur 13 | 6 |
-| 8 | 3 sur 6 | 3 — charges 1,59 · 2,08 · 10,64 |
+| Phase | Records written | Refused for load |
+| :---- | --------------: | ---------------: |
+| 7 | 7 out of 13 | 6 |
+| 8 | 3 out of 6 | 3 — loads 1.59 · 2.08 · 10.64 |
 
-Les deux premières charges de la phase 8 sont la traîne de `make check`, celle
-que #270 avait mesurée à 2,78 puis 1,84 dans les mêmes conditions. La troisième
-est une session de bureau, que rien du projet ne peut soigner.
+The first two loads of phase 8 are the tail of `make check`, the one #270 had
+measured at 2.78 then 1.84 under the same conditions. The third is a desktop
+session, which nothing in the project can cure.
 
-**Première décision : l'échange des deux cibles**, `make check-local` d'abord,
-`make check` ensuite — le banc trouve une machine que rien n'a chauffée, et
-c'est aussi l'ordre que le principe « du moins cher au plus cher » voulait
-déjà.
+**First decision: swapping the two targets**, `make check-local` first,
+`make check` after — the bench finds a machine that nothing has heated, and it
+is also the order that the principle "from the cheapest to the most expensive"
+already wanted.
 
-**Elle ne suffit pas, et sa première exécution l'a dit.** Machine partie de
-0,63, nouvel ordre : le banc a lu **2,21** et n'a rien inscrit. La traîne de
-`make check` n'était donc pas toute la cause.
+**It is not enough, and its first run said so.** Machine starting from 0.63,
+new order: the bench read **2.21** and recorded nothing. The tail of
+`make check` was therefore not the whole cause.
 
-### Le garde lisait la charge après l'avoir créée
+### The guard read the load after creating it
 
-Deux exécutions à une minute d'intervalle, le même jour et sur la même machine :
+Two runs a minute apart, on the same day and on the same machine:
 
-| Exécution | Charge lue | Sort |
-| :-------- | ---------: | :--- |
-| `check-local` complet, avec reconstruction Release | 2,21 | refusé |
-| `make bench` seul, arbre Release déjà à jour | **1,32** | **inscrit** |
+| Run | Load read | Outcome |
+| :-- | --------: | :------ |
+| full `check-local`, with a Release rebuild | 2.21 | refused |
+| `make bench` alone, Release tree already up to date | **1.32** | **recorded** |
 
-**La seconde partait d'une machine plus chargée, et s'est inscrite.** Ce qui les
-sépare est la construction Release que l'étape du banc lance elle-même, juste
-avant de demander si la machine est libre.
+**The second started from a more loaded machine, and was recorded.** What
+separates them is the Release build that the bench step launches itself, just
+before asking whether the machine is free.
 
-`/proc/loadavg` donne une moyenne d'**une minute**, c'est-à-dire le passé. Lue
-après une compilation, elle répond sur cette compilation. **Le seuil n'a jamais
-eu tort, ni le délai : on posait la question au seul moment où le garde ne
-pouvait pas répondre.**
+`/proc/loadavg` gives an average over **one minute**, that is, the past. Read
+after a compilation, it answers about that compilation. **The threshold was
+never wrong, nor the delay: the question was being asked at the only moment
+when the guard could not answer.**
 
-La lecture passe donc avant la construction. Le garde répond désormais « la
-machine était-elle à nous quand on a commencé », ce qui est la bonne question :
-une charge concurrente — navigateur, environnement de développement, la session
-de bureau à 10,64 — est là avant comme pendant. Ce qu'il cesse de voir est une
-charge qui démarrerait pendant la construction, et c'est le critère de
-dispersion qui la voit, après coup.
+The reading therefore comes before the build. The guard now answers "was the
+machine ours when we started", which is the right question: a competing load —
+browser, development environment, the desktop session at 10.64 — is there
+before as well as during. What it stops seeing is a load that would start
+during the build, and it is the spread criterion that sees it, after the fact.
 
-**Ni le seuil ni le délai ne bougent.** Aucune mesure ne les met en cause. Voir
-[l'ADR 0015](../adr/0015-memoire-des-mesures.md) et `CLAUDE.md`.
+**Neither the threshold nor the delay moves.** No measurement calls them into
+question. See [ADR 0015](../adr/0015-memoire-des-mesures.md) and `CLAUDE.md`.
 
-La règle de la table des extrêmes, elle, ne bouge pas : elle vaut toujours pour
-le seul relevé qui peut encore arriver avec une charge non qualifiée, celui
-d'une machine sans `/proc/loadavg`.
+The rule of the table of extremes does not move either: it still holds for the
+only record that can still arrive with an unqualified load, that of a machine
+without `/proc/loadavg`.
 
-Sans cette règle, un maximum posé par du bruit est **définitif** — la table
-n'est jamais élaguée — et rend la mesure aveugle à toute régression plus petite
-que ce bruit.
+Without that rule, a maximum set by noise is **permanent** — the table is never
+pruned — and makes the measurement blind to any regression smaller than that
+noise.
 
-**Cela s'est produit.** Le relevé de la version `0.2.15` a été pris sous une
-charge de 7,2 et a posé treize maxima d'un coup, dont un à 3,4 fois sa valeur
-habituelle, pour un ticket qui ne touchait aucun chemin mesuré. La table a été
-recalculée sans lui, depuis les relevés conservés — tous les extrêmes qu'elle
-citait en venaient, donc rien n'a été perdu qu'un peu de précision : les relevés
-n'affichent que trois chiffres significatifs.
+**It happened.** The record of version `0.2.15` was taken under a load of 7.2
+and set thirteen maxima at once, one of them at 3.4 times its usual value, for a
+ticket that touched no measured path. The table was recomputed without it, from
+the kept records — all the extremes it cited came from them, so nothing was lost
+but a little precision: the records display only three significant digits.
 
-**Cela s'était reproduit pour une mesure neuve, par une autre porte**, et cette
-porte-là est refermée depuis #189. Une mesure sans histoire posait ses deux
-extrêmes au premier relevé qui la portait, **même pris au-dessus du seuil** : il
-n'y avait rien à comparer, donc rien à refuser, et la règle ci-dessus ne
-s'appliquait jamais à ce qui venait de naître. Les quatre mesures de la version
-`0.5.13` sont nées ainsi, sous une charge de 5,73 — puis le relevé a été rejoué
-à 2,75, remplaçant la section de version sans toucher à la table. Les extrêmes
-citaient alors, pour une version présente au journal, des chiffres qu'elle n'y
-montrait plus : un maximum de 27,8 ms pour l'ouverture d'une vidéo là où le
-relevé conservé en montre 10,9. La table a été corrigée à la main, comme elle
-l'avait été pour `0.2.15`.
+**It had happened again for a new measurement, through another door**, and that
+door has been closed since #189. A measurement without history set its two
+extremes on the first record that carried it, **even taken above the
+threshold**: there was nothing to compare, so nothing to refuse, and the rule
+above never applied to what had just been born. The four measurements of
+version `0.5.13` were born that way, under a load of 5.73 — then the record was
+replayed at 2.75, replacing the version section without touching the table. The
+extremes then cited, for a version present in the journal, figures it no longer
+showed there: a maximum of 27.8 ms for opening a video where the kept record
+shows 10.9. The table was corrected by hand, as it had been for `0.2.15`.
 
-**Deux règles en sont sorties**, et `verify-gates.sh` les tient :
+**Two rules came out of it**, and `verify-gates.sh` holds them:
 
-- **une mesure neuve n'entre dans la table que sur un relevé propre.** Prise sur
-  une machine occupée, elle est consignée au relevé et laissée hors de
-  l'enveloppe ; elle y entrera au premier relevé calme, et le script le dit ;
-- **un extrême posé par le relevé qu'on remplace est repris du relevé courant**,
-  meilleur ou pire. Sa section disparaît du fichier ; le laisser tel quel ferait
-  citer des chiffres que cette version n'y montre plus. Quand le relevé courant
-  n'est pas propre, l'extrême reste tel quel et le script signale qu'il n'est
-  plus vérifiable.
+- **a new measurement enters the table only on a clean record.** Taken on a busy
+  machine, it is logged in the record and left out of the envelope; it will
+  enter it on the first quiet record, and the script says so;
+- **an extreme set by the record being replaced is taken from the current
+  record**, better or worse. Its section disappears from the file; leaving it as
+  it is would cite figures this version no longer shows there. When the current
+  record is not clean, the extreme stays as it is and the script reports that it
+  is no longer verifiable.
 
-**Conséquence pratique : l'enveloppe ne grandit que sur une machine libre.** Un
-relevé pris pendant qu'on travaille ailleurs sur la même machine est consigné,
-daté, comparable — mais il ne touche pas la table. Ce n'est pas un échec, et
-`make check-local` ne s'en émeut pas. Pour nourrir l'enveloppe, lancer
-`make bench` quand on ne se sert pas de la machine.
+**Practical consequence: the envelope grows only on a free machine.** A record
+taken while working on something else on the same machine is logged, dated,
+comparable — but it does not touch the table. It is not a failure, and
+`make check-local` is not troubled by it. To feed the envelope, run
+`make bench` when the machine is not in use.
 
-**Le seuil lui-même est une heuristique**, et la colonne de charge existe pour
-l'affiner. Il a d'ailleurs été abaissé de deux à une et demie le jour où il a été
-posé : le relevé de la version `0.3.5`, pris à 1,88 et donc admis, a fixé un
-maximum de 853 µs pour l'écriture de 4000 sous-titres là où les dix-sept relevés
-précédents allaient de 492 à 641. Ceux pris sous 1,4 n'ont posé que des minima.
+**The threshold itself is a heuristic**, and the load column exists to refine
+it. It was in fact lowered from two to one and a half on the day it was set: the
+record of version `0.3.5`, taken at 1.88 and so admitted, set a maximum of
+853 µs for writing 4000 subtitles where the seventeen previous records ranged
+from 492 to 641. Those taken under 1.4 set only minima.
 
-Ce fichier est écrit par `make bench` : ne pas l'éditer à la main — sauf cette
-préface, que le script recopie telle quelle.
+This file is written by `make bench`: do not edit it by hand — except this
+preface, which the script copies as it is.
 
-## Le texte de la fixture d'édition a changé une fois, en 0.3.9
+## The text of the editing fixture changed once, in 0.3.9
 
-Les mesures de `core/edit` portent sur un document engendré de quatre mille
-sous-titres. **Ses positions n'ont jamais bougé et ne bougeront pas** — c'est ce
-qui rend chaque chiffre comparable à son propre passé. Son **texte**, lui, a
-changé une fois : jusqu'à la version `0.3.8` les quatre mille répliques étaient
-la même chaîne de cinquante-trois octets ; depuis la `0.3.9`, le texte varie et
-un sous-titre sur cinq porte une mention pour malentendants, dans les
-proportions que donnent de vrais fichiers. Le pourquoi et les chiffres sont dans
-`src/test/bench/full_length_project.hpp` ; ce qui compte ici est que le document
-pèse désormais 122 Ko de texte au lieu de 212 Ko.
+The `core/edit` measurements bear on a generated document of four thousand
+subtitles. **Its positions have never moved and will not move** — that is what
+makes each figure comparable to its own past. Its **text** changed once: up to
+version `0.3.8` the four thousand cues were the same string of fifty-three
+bytes; since `0.3.9`, the text varies and one subtitle in five carries a
+hearing-impaired mention, in the proportions real files give. The why and the
+figures are in `src/test/bench/full_length_project.hpp`; what matters here is
+that the document now weighs 122 KB of text instead of 212 KB.
 
-**L'effet sur les mesures qui ne portent pas sur le texte est sous le bruit.**
-Les deux fixtures ont été mesurées le même jour, à une heure d'intervalle, sur
-une machine à 0,6 de charge : la lecture de 4000 sous-titres, dont la fixture n'a
-pas bougé d'un octet, s'est écartée de 14 % entre les deux exécutions — davantage
-que toute mesure d'édition. Le décalage, mesuré à 11,3 puis 8,67 µs, est revenu à
-9,01 au relevé de la `0.3.9` : à 0,02 µs de son minimum historique.
+**The effect on the measurements that do not bear on the text is below the
+noise.** The two fixtures were measured on the same day, an hour apart, on a
+machine at 0.6 load: reading 4000 subtitles, whose fixture did not move by a
+byte, varied by 14 % between the two runs — more than any editing measurement.
+The shift, measured at 11.3 then 8.67 µs, came back to 9.01 in the record of
+`0.3.9`: 0.02 µs from its historical minimum.
 
-**Une mesure fait exception, et c'est la seule qui recopie du texte.** La
-suppression d'un sous-titre sur deux garde ce qu'elle retire, pour pouvoir
-l'annuler : `Project::remove` copie chacun des deux mille sous-titres ôtés, donc
-leurs chaînes. Deux fois moins d'octets à copier se voient — son minimum est
-passé de 9,92 à 8,95 ms. Ce n'est pas une amélioration du code, c'est une fixture
-plus légère : pour cette mesure, les relevés antérieurs à la `0.3.9` et les
-suivants ne se comparent qu'à un dixième près.
+**One measurement is the exception, and it is the only one that copies text.**
+Removing one subtitle in two keeps what it removes, so it can be undone:
+`Project::remove` copies each of the two thousand subtitles taken out, so their
+strings. Half as many bytes to copy shows — its minimum went from 9.92 to
+8.95 ms. It is not an improvement of the code, it is a lighter fixture: for this
+measurement, the records before `0.3.9` and those after compare only to within a
+tenth.
 
-Rien n'a été élagué de la table pour autant : l'enveloppe d'avant reste vraie de
-ce qu'elle mesurait.
+Nothing was pruned from the table for all that: the earlier envelope remains
+true of what it measured.
 
-## Le modèle de table scrute les anomalies, en 0.4.18
+## The table model scans for anomalies, in 0.4.18
 
-Trois mesures font un bond, et il est attendu plutôt que subi :
+Three measurements jump, and the jump is expected rather than suffered:
 
-| Mesure | Avant | Après |
-| :----- | ----: | ----: |
+| Measure | Before | After |
+| :------ | -----: | ----: |
 | construction du modèle sur 4000 sous-titres | 59 ns | ~8 µs |
 | rafraîchir après un décalage de 4000 sous-titres | 26 ns | ~9 µs |
 | édition d'une cellule de position | 579 ns | ~10 µs |
 
-**La troisième ligne a été ajoutée à la relecture de fin de phase**, qui l'a
-trouvée en confrontant les relevés : elle avait bondi d'un facteur dix-sept
-entre la `0.4.17` et la `0.4.18` sans que rien ne le dise, et cette note en
-annonçait deux.
+**The third row was added at the end-of-phase review**, which found it by
+comparing the records: it had jumped by a factor of seventeen between `0.4.17`
+and `0.4.18` without anything saying so, and this note announced two.
 
-L'issue #134 fait marquer par la table les sous-titres dont les positions ne
-tiennent pas debout. Le calcul est `scanAnomalies`, qui parcourt le document
-entier ; le modèle le refait à sa construction et après **chaque changement de
-position** — c'est ce qui garantit qu'un marquage n'est jamais périmé, y compris
-après une annulation.
+Issue #134 has the table mark the subtitles whose positions do not hold
+together. The computation is `scanAnomalies`, which walks the whole document;
+the model redoes it on construction and after **every change of position** —
+that is what guarantees that a marking is never stale, including after an undo.
 
-**Le rapport est de cent, la somme est de huit microsecondes.** Le calcul a lieu
-une fois par opération, jamais par cellule : ouvrir un fichier coûte 2,4 ms de
-lecture, où ces 8 µs pèsent trois millièmes ; décaler quatre mille sous-titres
-coûtait 7,7 µs et en coûte le double, ce qu'aucun œil ne distingue d'un geste.
+**The ratio is a hundred, the sum is eight microseconds.** The computation
+happens once per operation, never per cell: opening a file costs 2.4 ms of
+reading, in which these 8 µs weigh three thousandths; shifting four thousand
+subtitles cost 7.7 µs and now costs twice that, which no eye tells apart from a
+gesture.
 
-**La troisième est la seule qui soit sur le chemin d'une frappe**, et elle
-mérite d'être regardée pour elle-même : valider une position rescanne le
-document entier, donc une cellule éditée dans un fichier de quatre mille
-sous-titres coûte désormais dix microsecondes au lieu d'une demie. C'est
-toujours mille fois moins que ce qu'un doigt peut sentir, et c'est le prix d'un
-marquage qui n'est jamais périmé. L'éditer un texte, lui, n'a pas bougé : un
-texte n'entre dans aucune anomalie, et rien n'est recalculé.
+**The third is the only one on the path of a keystroke**, and it deserves to be
+looked at for itself: validating a position rescans the whole document, so a
+cell edited in a file of four thousand subtitles now costs ten microseconds
+instead of half of one. It is still a thousand times less than what a finger can
+feel, and it is the price of a marking that is never stale. Editing a text has
+not moved: a text enters no anomaly, and nothing is recomputed.
 
-Ce qui aurait été économisé, et pourquoi ça ne l'a pas été : rendre le calcul
-paresseux — marquer sale, recalculer au premier affichage — rendrait ces deux
-mesures à leur valeur d'avant sans rien changer au programme, puisque
-l'affichage suit toujours l'opération. Ce serait optimiser le banc d'essai.
+What could have been saved, and why it was not: making the computation lazy —
+mark dirty, recompute at the first display — would bring these two measurements
+back to their earlier value without changing anything in the program, since
+the display always follows the operation. That would be optimising the test
+bench.
 
-Ce qui l'a été : `data()` cherche les anomalies d'une ligne par dichotomie et
-non par balayage. Aucun benchmark ne le montre — leur fixture est saine, donc la
-liste est vide — mais sur un fichier très abîmé, un balayage ferait payer à
-chaque cellule le nombre d'anomalies du document.
+What was saved: `data()` looks up the anomalies of a row by bisection and not
+by scanning. No benchmark shows it — their fixture is sound, so the list is
+empty — but on a badly damaged file, a scan would make each cell pay for the
+number of anomalies in the document.
 
-## Réinitialiser coûte ce que rafraîchir coûte, en 0.4.20
+## Resetting costs what refreshing costs, in 0.4.20
 
-Une mesure nouvelle, demandée par
-[l'ADR 0019](../adr/0019-table-en-adaptateur-mince.md) avant que la phase 7 ne
-construise dessus : **un changement de structure réinitialise le modèle**, et
-l'ADR se donne pour déclencheur de réexamen le moment où un menu ajoutera les
-lignes une par une — « une réinitialisation complète à chaque ligne ajoutée
-serait alors ridicule ».
+A new measurement, asked for by
+[ADR 0019](../adr/0019-table-en-adaptateur-mince.md) before phase 7 built on
+it: **a structural change resets the model**, and the ADR sets as its trigger
+for re-examination the moment a menu adds rows one by one — "a complete reset
+for every row added would then be ridiculous".
 
-Le chiffre ne dit pas ce qu'on attendait :
+The figure does not say what was expected:
 
-| Mesure | Ordre de grandeur |
-| :----- | ----------------: |
+| Measure | Order of magnitude |
+| :------ | -----------------: |
 | réinitialisation du modèle après une ligne retirée | ~13 µs |
 | rafraîchir après un décalage de 4000 sous-titres | ~12 µs |
 | construction du modèle sur 4000 sous-titres | ~10 µs |
 
-**Les trois sont le même chiffre**, et c'est le `scanAnomalies` qu'elles
-partagent. Côté modèle, réinitialiser ne coûte rien de plus que rafraîchir : les
-`beginResetModel` / `endResetModel` sont deux signaux, le reste est le balayage
-du document que toute opération de position paie déjà.
+**The three are the same figure**, and it is the `scanAnomalies` they share. On
+the model side, resetting costs nothing more than refreshing: the
+`beginResetModel` / `endResetModel` are two signals, the rest is the walk of the
+document that every position operation already pays.
 
-**Ce que la mesure ne contient pas, et ne peut pas contenir : la part de la
-vue.** Un `QTableView` demande une `QApplication`, et le binaire de benchmarks
-n'en a pas — il prend le `main` de Catch2, et les modèles qu'il mesure sont des
-`QObject`. Or c'est précisément la vue qui reconstruit tout, perd la sélection
-et refait sa mise en page.
+**What the measurement does not contain, and cannot contain: the view's
+share.** A `QTableView` needs a `QApplication`, and the benchmark binary has
+none — it takes Catch2's `main`, and the models it measures are `QObject`s. Yet
+it is precisely the view that rebuilds everything, loses the selection and
+redoes its layout.
 
-Le déclencheur de l'ADR ne trouvera donc pas son argument ici. La mesure ne
-répond pas à la question : **elle la déplace, et dit où elle vit.** C'est ce
-qu'on peut en attendre de plus honnête avant d'avoir un écran sous la main.
+The ADR's trigger will therefore not find its argument here. The measurement
+does not answer the question: **it moves it, and says where it lives.** That is
+the most honest thing one can expect of it before having a screen at hand.
 
-## Deux conversions qui ne faisaient rien, en 0.9.5
+## Two conversions that did nothing, in 0.9.5
 
-Les issues #314 et #318, du même geste : ICU convertissait dans deux cas où il
-n'y avait rien à convertir.
+Issues #314 and #318, in the same gesture: ICU converted in two cases where
+there was nothing to convert.
 
-**À l'écriture, quand la cible est de l'UTF-8**, les deux convertisseurs sont le
-même : le texte faisait l'aller-retour par UTF-16 pour revenir tel qu'il était
-parti. C'est le cas ordinaire — la grande majorité des fichiers écrits.
+**On writing, when the target is UTF-8**, the two converters are the same: the
+text made the round trip through UTF-16 to come back as it had left. It is the
+ordinary case — the great majority of files written.
 
-| | avant | après |
+| | before | after |
 | :--- | ----: | ----: |
 | écriture de 4000 sous-titres | 852 µs | **~610 µs** |
 
-**Rien n'est perdu à sauter ce passage**, et il fallait le vérifier plutôt que
-le supposer : l'aller-retour n'était pas un filet. Le rappel d'arrêt est posé
-sur le convertisseur de sortie, qui refuse un caractère que la cible ne sait pas
-écrire ; rien n'était posé sur celui d'entrée, si bien qu'un UTF-8 malformé
-entrant était remplacé par des U+FFFD et écrit — en silence. Le recopier n'est
-pas pire, et le modèle ne porte que de l'UTF-8 de toute façon.
+**Nothing is lost by skipping this passage**, and it had to be checked rather
+than assumed: the round trip was not a safety net. The stop callback is set on
+the output converter, which refuses a character the target cannot write;
+nothing was set on the input one, so that malformed incoming UTF-8 was replaced
+by U+FFFD and written — silently. Copying it is no worse, and the model carries
+only UTF-8 anyway.
 
-**À la lecture, le fichier était décodé deux fois** : une fois par la détection,
-qui ne peut répondre sans lire, et une fois par la lecture elle-même. La
-détection rend désormais le texte qu'elle a produit.
+**On reading, the file was decoded twice**: once by the detection, which cannot
+answer without reading, and once by the reading itself. The detection now
+returns the text it produced.
 
-Ce gain-là **ne se voit pas au banc**, et c'est ce qu'il faut savoir de lui : il
-vaut un décodage du fichier entier, mesuré à part parce que la dispersion du
-relevé de lecture est plus grande que lui à cette taille.
+That gain **does not show on the bench**, and that is what must be known about
+it: it is worth one decoding of the whole file, measured separately because the
+spread of the reading record is larger than it at this size.
 
-| Taille | Un décodage |
-| :----- | ----------: |
-| 4 000 sous-titres, 359 Ko | **212 µs** sur 2,7 ms de lecture, soit 8 % |
-| 40 000 sous-titres, 3,6 Mo | **2 195 µs** |
+| Size | One decoding |
+| :--- | -----------: |
+| 4 000 subtitles, 359 KB | **212 µs** out of 2.7 ms of reading, i.e. 8 % |
+| 40 000 subtitles, 3.6 MB | **2 195 µs** |
 
-Il est donc proportionnel au fichier, et c'est la seule chose qui le rende digne
-d'intérêt : à quatre mille répliques il disparaît dans le bruit, à quarante
-mille il vaut deux millisecondes. #314 demandait précisément que la question
-soit rouverte par une mesure plutôt que par le souvenir ; la voici.
+It is therefore proportional to the file, and that is the only thing that makes
+it worth attention: at four thousand cues it disappears in the noise, at forty
+thousand it is worth two milliseconds. #314 asked precisely that the question be
+reopened by a measurement rather than by memory; here it is.
 
-## Extrêmes
+## Extremes
 
-Le minimum et le maximum jamais relevés pour chaque mesure. Cette table n'est
-jamais élaguée — c'est elle qui garde l'enveloppe quand les relevés s'effacent.
-Une mesure renommée ou retirée y garde ses extrêmes indéfiniment : rien ici ne
-distingue une entrée vivante d'une orpheline — élaguer les orphelines n'est
-pas le sujet de ce ticket.
+The minimum and the maximum ever recorded for each measurement. This table is
+never pruned — it is what keeps the envelope when the records are erased. A
+renamed or removed measurement keeps its extremes there indefinitely: nothing
+here distinguishes a live entry from an orphan — pruning the orphans is not the
+subject of this ticket.
 
-<!-- extrêmes -->
-| Mesure | Minimum | Relevé le | Maximum | Relevé le |
+<!-- extremes -->
+| Measure | Minimum | Recorded on | Maximum | Recorded on |
 | :----- | ------: | :-------- | ------: | :-------- |
 | versionString | 29.2 ns | 0.5.9 — 2026-08-23 | 55.1 ns | 0.4.4 — 2026-08-17 |
 | parse | 29.9 ns | 0.2.6 — 2026-08-13 | 67.3 ns | 0.9.18 — 2026-09-08 |
@@ -525,16 +515,16 @@ pas le sujet de ce ticket.
 <!-- centrer une ligne sur 4000 sous-titres min=1064.1 max=1300.8 -->
 <!-- recherche de conversion sur 4000 sous-titres min=361110.0 max=447822.0 -->
 
-## Relevés
+## Records
 
-Une section par version. Les relevés de plus d'un mois sont élagués ; leurs
-extrêmes survivent dans la table ci-dessus.
+One section per version. Records older than a month are pruned; their
+extremes survive in the table above.
 
-<!-- relevés -->
+<!-- records -->
 
-### 0.15.24 — 2026-10-13 — Release — charge 1.43 — allure ×0.99
+### 0.15.24 — 2026-10-13 — Release — load 1.43 — pace ×0.99
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.68 µs | 1.56 µs |
 | traduire une réplique balisée pour l'image | 830 ns | 27.3 ns |
@@ -597,9 +587,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 31.5 ms | 1.23 ms |
 | shift of one file of 4000 subtitles | 3.35 ms | 584 µs |
 
-### 0.15.22 — 2026-10-13 — Release — charge 1.39 — allure ×1.12
+### 0.15.22 — 2026-10-13 — Release — load 1.39 — pace ×1.12
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.8 µs | 1.64 µs |
 | traduire une réplique balisée pour l'image | 826 ns | 31.2 ns |
@@ -662,9 +652,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 37.1 ms | 1.82 ms |
 | shift of one file of 4000 subtitles | 3.17 ms | 205 µs |
 
-### 0.15.20 — 2026-10-12 — Release — charge 1.49 — allure ×1.00
+### 0.15.20 — 2026-10-12 — Release — load 1.49 — pace ×1.00
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.26 µs | 175 ns |
 | traduire une réplique balisée pour l'image | 825 ns | 22.9 ns |
@@ -727,9 +717,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 35.4 ms | 1.15 ms |
 | shift of one file of 4000 subtitles | 2.87 ms | 91.3 µs |
 
-### 0.15.19 — 2026-10-12 — Release — charge 1.45 — allure ×0.99
+### 0.15.19 — 2026-10-12 — Release — load 1.45 — pace ×0.99
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.97 µs | 1.81 µs |
 | traduire une réplique balisée pour l'image | 835 ns | 112 ns |
@@ -792,9 +782,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 33.2 ms | 1.95 ms |
 | shift of one file of 4000 subtitles | 2.86 ms | 93.4 µs |
 
-### 0.15.18 — 2026-10-12 — Release — charge 1.46 — allure ×1.18
+### 0.15.18 — 2026-10-12 — Release — load 1.46 — pace ×1.18
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 6.82 µs | 2 µs |
 | traduire une réplique balisée pour l'image | 1.14 µs | 630 ns |
@@ -857,9 +847,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 38.5 ms | 705 µs |
 | shift of one file of 4000 subtitles | 3.58 ms | 423 µs |
 
-### 0.15.15 — 2026-10-12 — Release — charge 1.42 — allure ×0.99
+### 0.15.15 — 2026-10-12 — Release — load 1.42 — pace ×0.99
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.72 µs | 251 ns |
 | traduire une réplique balisée pour l'image | 828 ns | 41.4 ns |
@@ -922,9 +912,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 31.9 ms | 1.5 ms |
 | shift of one file of 4000 subtitles | 2.88 ms | 87.1 µs |
 
-### 0.15.13 — 2026-10-12 — Release — charge 1.49 — allure ×0.99
+### 0.15.13 — 2026-10-12 — Release — load 1.49 — pace ×0.99
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.2 µs | 198 ns |
 | traduire une réplique balisée pour l'image | 837 ns | 24.4 ns |
@@ -987,9 +977,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 34.9 ms | 1.05 ms |
 | shift of one file of 4000 subtitles | 3.01 ms | 183 µs |
 
-### 0.15.10 — 2026-10-10 — Release — charge 1.36 — allure ×0.99
+### 0.15.10 — 2026-10-10 — Release — load 1.36 — pace ×0.99
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.84 µs | 1.85 µs |
 | traduire une réplique balisée pour l'image | 829 ns | 28.1 ns |
@@ -1052,9 +1042,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 32.4 ms | 1.98 ms |
 | shift of one file of 4000 subtitles | 2.85 ms | 354 µs |
 
-### 0.15.9 — 2026-10-10 — Release — charge 1.46 — allure ×0.96
+### 0.15.9 — 2026-10-10 — Release — load 1.46 — pace ×0.96
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.71 µs | 1.83 µs |
 | traduire une réplique balisée pour l'image | 856 ns | 174 ns |
@@ -1117,9 +1107,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 35.7 ms | 1.06 ms |
 | shift of one file of 4000 subtitles | 2.93 ms | 206 µs |
 
-### 0.15.7 — 2026-10-09 — Release — charge 1.48 — allure ×0.98
+### 0.15.7 — 2026-10-09 — Release — load 1.48 — pace ×0.98
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.69 µs | 499 ns |
 | traduire une réplique balisée pour l'image | 990 ns | 104 ns |
@@ -1182,9 +1172,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 36.7 ms | 1.32 ms |
 | shift of one file of 4000 subtitles | 3.35 ms | 108 µs |
 
-### 0.15.5 — 2026-10-09 — Release — charge 1.42 — allure ×0.91
+### 0.15.5 — 2026-10-09 — Release — load 1.42 — pace ×0.91
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.25 µs | 1.44 µs |
 | traduire une réplique balisée pour l'image | 815 ns | 29 ns |
@@ -1247,9 +1237,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 32.9 ms | 1.85 ms |
 | shift of one file of 4000 subtitles | 2.98 ms | 262 µs |
 
-### 0.15.0 — 2026-10-09 — Release — charge 1.26 — allure ×0.99
+### 0.15.0 — 2026-10-09 — Release — load 1.26 — pace ×0.99
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 8.75 µs | 3.43 µs |
 | traduire une réplique balisée pour l'image | 959 ns | 133 ns |
@@ -1312,9 +1302,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 36.2 ms | 1.82 ms |
 | shift of one file of 4000 subtitles | 3.08 ms | 281 µs |
 
-### 0.14.19 — 2026-10-08 — Release — charge 1.49 — allure ×1.05
+### 0.14.19 — 2026-10-08 — Release — load 1.49 — pace ×1.05
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 6.78 µs | 1.73 µs |
 | traduire une réplique balisée pour l'image | 1.17 µs | 426 ns |
@@ -1377,9 +1367,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 35.9 ms | 995 µs |
 | shift of one file of 4000 subtitles | 3.34 ms | 82.4 µs |
 
-### 0.14.7 — 2026-10-07 — Release — charge 1.46 — allure ×0.95
+### 0.14.7 — 2026-10-07 — Release — load 1.46 — pace ×0.95
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.31 µs | 902 ns |
 | composer une réplique de deux lignes | 185 ns | 32.4 ns |
@@ -1439,9 +1429,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 35.6 ms | 3.08 ms |
 | shift of one file of 4000 subtitles | 3.45 ms | 263 µs |
 
-### 0.14.5 — 2026-10-06 — Release — charge 1.49 — allure ×1.06
+### 0.14.5 — 2026-10-06 — Release — load 1.49 — pace ×1.06
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 4.94 µs | 1.83 µs |
 | composer une réplique de deux lignes | 180 ns | 3.42 ns |
@@ -1501,9 +1491,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 37.1 ms | 1.9 ms |
 | shift of one file of 4000 subtitles | 3.7 ms | 614 µs |
 
-### 0.14.3 — 2026-10-06 — Release — charge 1.48 — allure ×1.10
+### 0.14.3 — 2026-10-06 — Release — load 1.48 — pace ×1.10
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.94 µs | 2.74 µs |
 | composer une réplique de deux lignes | 168 ns | 2.88 ns |
@@ -1553,9 +1543,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 36.8 ms | 2.15 ms |
 | shift of one file of 4000 subtitles | 3.27 ms | 213 µs |
 
-### 0.13.33 — 2026-10-06 — Release — charge 1.48 — allure ×0.95
+### 0.13.33 — 2026-10-06 — Release — load 1.48 — pace ×0.95
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.93 µs | 317 ns |
 | composer une réplique de deux lignes | 284 ns | 5.57 ns |
@@ -1605,9 +1595,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 33.2 ms | 1.84 ms |
 | shift of one file of 4000 subtitles | 2.89 ms | 114 µs |
 
-### 0.13.27 — 2026-10-05 — Release — charge 1.39 — allure ×1.16
+### 0.13.27 — 2026-10-05 — Release — load 1.39 — pace ×1.16
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.72 µs | 5.33 µs |
 | composer une réplique de deux lignes | 213 ns | 4.01 ns |
@@ -1657,9 +1647,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 37.9 ms | 359 µs |
 | shift of one file of 4000 subtitles | 3.58 ms | 257 µs |
 
-### 0.13.25 — 2026-10-05 — Release — charge 1.39 — allure ×0.98
+### 0.13.25 — 2026-10-05 — Release — load 1.39 — pace ×0.98
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.69 µs | 246 ns |
 | composer une réplique de deux lignes | 177 ns | 2.8 ns |
@@ -1709,9 +1699,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 32.3 ms | 1.8 ms |
 | shift of one file of 4000 subtitles | 3.12 ms | 231 µs |
 
-### 0.13.21 — 2026-10-05 — Release — charge 1.39 — allure ×1.02
+### 0.13.21 — 2026-10-05 — Release — load 1.39 — pace ×1.02
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.36 µs | 2.1 µs |
 | composer une réplique de deux lignes | 169 ns | 2.88 ns |
@@ -1761,9 +1751,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 36.3 ms | 1.89 ms |
 | shift of one file of 4000 subtitles | 3.02 ms | 300 µs |
 
-### 0.13.14 — 2026-10-02 — Release — charge 1.41 — allure ×0.95
+### 0.13.14 — 2026-10-02 — Release — load 1.41 — pace ×0.95
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.49 µs | 1.36 µs |
 | composer une réplique de deux lignes | 167 ns | 3.36 ns |
@@ -1813,9 +1803,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 34.6 ms | 1.57 ms |
 | shift of one file of 4000 subtitles | 2.94 ms | 195 µs |
 
-### 0.13.13 — 2026-10-02 — Release — charge 1.39 — allure ×0.92
+### 0.13.13 — 2026-10-02 — Release — load 1.39 — pace ×0.92
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.3 µs | 1.73 µs |
 | composer une réplique de deux lignes | 205 ns | 75.5 ns |
@@ -1865,9 +1855,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 34.2 ms | 1.66 ms |
 | shift of one file of 4000 subtitles | 3.24 ms | 387 µs |
 
-### 0.13.10 — 2026-10-01 — Release — charge 1.46 — allure ×1.06
+### 0.13.10 — 2026-10-01 — Release — load 1.46 — pace ×1.06
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 4.91 µs | 1.94 µs |
 | composer une réplique de deux lignes | 166 ns | 3.61 ns |
@@ -1917,9 +1907,9 @@ extrêmes survivent dans la table ci-dessus.
 | shift of 200 files of 20 subtitles | 38.5 ms | 2.83 ms |
 | shift of one file of 4000 subtitles | 3.6 ms | 333 µs |
 
-### 0.13.0 — 2026-10-01 — Release — charge 0.85 — allure ×1.02
+### 0.13.0 — 2026-10-01 — Release — load 0.85 — pace ×1.02
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 8.76 µs | 1.9 µs |
 | composer une réplique de deux lignes | 162 ns | 3.92 ns |
@@ -1966,9 +1956,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 802 µs | 50.1 µs |
 | déduction de fréquence sur 4000 sous-titres | 429 µs | 21 µs |
 
-### 0.12.23 — 2026-09-30 — Release — charge 1.46 — allure ×0.97
+### 0.12.23 — 2026-09-30 — Release — load 1.46 — pace ×0.97
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.23 µs | 174 ns |
 | composer une réplique de deux lignes | 162 ns | 4.02 ns |
@@ -2015,9 +2005,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 820 µs | 31.2 µs |
 | déduction de fréquence sur 4000 sous-titres | 373 µs | 21.9 µs |
 
-### 0.12.19 — 2026-09-30 — Release — charge 1.44 — allure ×1.20
+### 0.12.19 — 2026-09-30 — Release — load 1.44 — pace ×1.20
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.01 µs | 1.19 µs |
 | composer une réplique de deux lignes | 203 ns | 4.38 ns |
@@ -2064,9 +2054,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 995 µs | 72.1 µs |
 | déduction de fréquence sur 4000 sous-titres | 451 µs | 32.1 µs |
 
-### 0.12.12 — 2026-09-29 — Release — charge 1.39 — allure ×1.05
+### 0.12.12 — 2026-09-29 — Release — load 1.39 — pace ×1.05
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 6.88 µs | 1.77 µs |
 | composer une réplique de deux lignes | 179 ns | 2.61 ns |
@@ -2113,9 +2103,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 832 µs | 51.7 µs |
 | déduction de fréquence sur 4000 sous-titres | 374 µs | 20.5 µs |
 
-### 0.12.9 — 2026-09-28 — Release — charge 1.41 — allure ×1.01
+### 0.12.9 — 2026-09-28 — Release — load 1.41 — pace ×1.01
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.28 µs | 674 ns |
 | composer une réplique de deux lignes | 196 ns | 77.9 ns |
@@ -2162,9 +2152,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 899 µs | 51.6 µs |
 | déduction de fréquence sur 4000 sous-titres | 382 µs | 36.9 µs |
 
-### 0.12.8 — 2026-09-27 — Release — charge 1.18 — allure ×0.98
+### 0.12.8 — 2026-09-27 — Release — load 1.18 — pace ×0.98
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.59 µs | 1.4 µs |
 | composer une réplique de deux lignes | 179 ns | 2.2 ns |
@@ -2210,9 +2200,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 806 µs | 34.3 µs |
 | déduction de fréquence sur 4000 sous-titres | 369 µs | 11.1 µs |
 
-### 0.12.7 — 2026-09-27 — Release — charge 1.08 — allure ×0.95
+### 0.12.7 — 2026-09-27 — Release — load 1.08 — pace ×0.95
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.08 µs | 214 ns |
 | composer une réplique de deux lignes | 162 ns | 2.03 ns |
@@ -2256,9 +2246,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 782 µs | 36.2 µs |
 | déduction de fréquence sur 4000 sous-titres | 426 µs | 25.5 µs |
 
-### 0.12.0 — 2026-09-26 — Release — charge 1.29 — allure ×0.99
+### 0.12.0 — 2026-09-26 — Release — load 1.29 — pace ×0.99
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 4.94 µs | 2.91 µs |
 | composer une réplique de deux lignes | 169 ns | 3.44 ns |
@@ -2300,9 +2290,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 871 µs | 58.1 µs |
 | déduction de fréquence sur 4000 sous-titres | 377 µs | 24 µs |
 
-### 0.11.30 — 2026-09-25 — Release — charge 1.44 — allure ×1.02
+### 0.11.30 — 2026-09-25 — Release — load 1.44 — pace ×1.02
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.4 µs | 1.41 µs |
 | composer une réplique de deux lignes | 167 ns | 3.28 ns |
@@ -2344,9 +2334,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 883 µs | 85.8 µs |
 | déduction de fréquence sur 4000 sous-titres | 387 µs | 42.2 µs |
 
-### 0.11.25 — 2026-09-25 — Release — charge 1.37 — allure ×1.19
+### 0.11.25 — 2026-09-25 — Release — load 1.37 — pace ×1.19
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 14.1 µs | 2.34 µs |
 | composer une réplique de deux lignes | 817 ns | 67.1 ns |
@@ -2388,9 +2378,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 973 µs | 60 µs |
 | déduction de fréquence sur 4000 sous-titres | 436 µs | 22 µs |
 
-### 0.11.21 — 2026-09-24 — Release — charge 1.47 — allure ×0.96
+### 0.11.21 — 2026-09-24 — Release — load 1.47 — pace ×0.96
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 6.01 µs | 1.24 µs |
 | composer une réplique de deux lignes | 187 ns | 3.06 ns |
@@ -2432,9 +2422,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 855 µs | 61.2 µs |
 | déduction de fréquence sur 4000 sous-titres | 368 µs | 14.5 µs |
 
-### 0.11.7 — 2026-09-21 — Release — charge 1.41 — allure ×0.98
+### 0.11.7 — 2026-09-21 — Release — load 1.41 — pace ×0.98
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.17 µs | 1.85 µs |
 | composer une réplique de deux lignes | 164 ns | 3.11 ns |
@@ -2476,9 +2466,9 @@ extrêmes survivent dans la table ci-dessus.
 | alignement d'une traduction de 4000 lignes, par numéro | 824 µs | 64.9 µs |
 | déduction de fréquence sur 4000 sous-titres | 370 µs | 19 µs |
 
-### 0.11.1 — 2026-09-19 — Release — charge 1.39 — allure ×1.11
+### 0.11.1 — 2026-09-19 — Release — load 1.39 — pace ×1.11
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.83 µs | 993 ns |
 | composer une réplique de deux lignes | 206 ns | 18.6 ns |
@@ -2518,9 +2508,9 @@ extrêmes survivent dans la table ci-dessus.
 | collage de 4000 textes | 1.26 ms | 189 µs |
 | déduction de fréquence sur 4000 sous-titres | 447 µs | 14.4 µs |
 
-### 0.10.18 — 2026-09-19 — Release — charge 0.85 — allure ×0.95
+### 0.10.18 — 2026-09-19 — Release — load 0.85 — pace ×0.95
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 4.74 µs | 1.28 µs |
 | composer une réplique de deux lignes | 188 ns | 56 ns |
@@ -2560,9 +2550,9 @@ extrêmes survivent dans la table ci-dessus.
 | collage de 4000 textes | 1.04 ms | 79 µs |
 | déduction de fréquence sur 4000 sous-titres | 427 µs | 17.6 µs |
 
-### 0.10.17 — 2026-09-19 — Release — charge 0.91 — allure ×0.86
+### 0.10.17 — 2026-09-19 — Release — load 0.91 — pace ×0.86
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 6.01 µs | 3.47 µs |
 | composer une réplique de deux lignes | 176 ns | 2.87 ns |
@@ -2602,9 +2592,9 @@ extrêmes survivent dans la table ci-dessus.
 | collage de 4000 textes | 964 µs | 32.9 µs |
 | déduction de fréquence sur 4000 sous-titres | 367 µs | 9.61 µs |
 
-### 0.10.15 — 2026-09-16 — Release — charge 0.75 — allure ×1.13
+### 0.10.15 — 2026-09-16 — Release — load 0.75 — pace ×1.13
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.63 µs | 2.19 µs |
 | composer une réplique de deux lignes | 194 ns | 3.52 ns |
@@ -2638,9 +2628,9 @@ extrêmes survivent dans la table ci-dessus.
 | mise en italique de 4000 sous-titres | 1.87 ms | 555 µs |
 | déduction de fréquence sur 4000 sous-titres | 432 µs | 25 µs |
 
-### 0.10.14 — 2026-09-15 — Release — charge 1.12 — allure ×1.05
+### 0.10.14 — 2026-09-15 — Release — load 1.12 — pace ×1.05
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.19 µs | 2 µs |
 | composer une réplique de deux lignes | 220 ns | 66.3 ns |
@@ -2674,9 +2664,9 @@ extrêmes survivent dans la table ci-dessus.
 | mise en italique de 4000 sous-titres | 1.24 ms | 68.7 µs |
 | déduction de fréquence sur 4000 sous-titres | 371 µs | 13.5 µs |
 
-### 0.10.10 — 2026-09-13 — Release — charge 1.48 — allure ×1.10
+### 0.10.10 — 2026-09-13 — Release — load 1.48 — pace ×1.10
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.61 µs | 2.33 µs |
 | composer une réplique de deux lignes | 224 ns | 172 ns |
@@ -2710,9 +2700,9 @@ extrêmes survivent dans la table ci-dessus.
 | mise en italique de 4000 sous-titres | 1.39 ms | 44.8 µs |
 | déduction de fréquence sur 4000 sous-titres | 434 µs | 40.1 µs |
 
-### 0.10.7 — 2026-09-12 — Release — charge 0.75 — allure ×0.83
+### 0.10.7 — 2026-09-12 — Release — load 0.75 — pace ×0.83
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.52 µs | 2.26 µs |
 | composer une réplique de deux lignes | 176 ns | 6.62 ns |
@@ -2746,9 +2736,9 @@ extrêmes survivent dans la table ci-dessus.
 | mise en italique de 4000 sous-titres | 1.15 ms | 26.1 µs |
 | déduction de fréquence sur 4000 sous-titres | 367 µs | 8.67 µs |
 
-### 0.10.6 — 2026-09-12 — Release — charge 0.60 — allure ×0.93
+### 0.10.6 — 2026-09-12 — Release — load 0.60 — pace ×0.93
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 7.24 µs | 1.65 µs |
 | composer une réplique de deux lignes | 182 ns | 5.38 ns |
@@ -2782,9 +2772,9 @@ extrêmes survivent dans la table ci-dessus.
 | mise en italique de 4000 sous-titres | 1.13 ms | 178 µs |
 | déduction de fréquence sur 4000 sous-titres | 412 µs | 41.1 µs |
 
-### 0.10.2 — 2026-09-12 — Release — charge 1.46 — allure ×1.05
+### 0.10.2 — 2026-09-12 — Release — load 1.46 — pace ×1.05
 
-| Mesure | Moyenne | Écart-type |
+| Measure | Mean | Standard deviation |
 | :----- | ------: | ---------: |
 | la réplique en cours, sur 4000 sous-titres | 5.7 µs | 1.13 µs |
 | composer une réplique de deux lignes | 208 ns | 16.1 ns |

@@ -79,7 +79,7 @@ is_below() {
 # s'applique pas plutôt que d'échouer : mieux vaut une mesure non qualifiée
 # qu'une chaîne de construction qui refuse de tourner.
 if [[ ! -r /proc/loadavg ]]; then
-    printf 'inconnue\n'
+    printf 'unknown\n'
     exit 0
 fi
 
