@@ -31,7 +31,7 @@ play and pause, and the volume. See [The playback bar](#the-playback-bar).
 
 | Command | Shortcut | What it does |
 | :------ | :------- | :----------- |
-| `Video ▸ Play / Pause` | `Ctrl+P` | plays if playback is stopped, stops it otherwise |
+| Video ▸ Play / Pause | `Ctrl+P` | plays if playback is stopped, stops it otherwise |
 
 The command is **disabled as long as no video is open**. A video that
 has just been associated is opened **stopped**: opening a film is not
@@ -79,13 +79,13 @@ playback; the three that act on the selection are also disabled as long as nothi
 
 | Command | Shortcut | What it does |
 | :------ | :------- | :----------- |
-| `Video ▸ Play Selection` | `Ctrl+Shift+P` | plays from **a little before the start** of the selection **to the end of its last subtitle**, and stops on the picture |
-| `Video ▸ Seek Previous` | `Ctrl+Left` | puts playback at the start of the last subtitle **ended** before the position |
-| `Video ▸ Seek Next` | `Ctrl+Right` | puts playback at the start of the first subtitle that **starts** after the position |
-| `Video ▸ Seek Backward` | `Ctrl+Shift+Left` | goes back by one jump — thirty seconds by default |
-| `Video ▸ Seek Forward` | `Ctrl+Shift+Right` | goes forward by one jump |
-| `Video ▸ Seek Selection Start` | `Ctrl+Up` | puts playback at the start of the selection, **the lead before it** |
-| `Video ▸ Seek Selection End` | `Ctrl+Down` | puts playback at the end of the selection, **the lead before it** |
+| Video ▸ Play Selection | `Ctrl+Shift+P` | plays from **a little before the start** of the selection **to the end of its last subtitle**, and stops on the picture |
+| Video ▸ Seek Previous | `Ctrl+Left` | puts playback at the start of the last subtitle **ended** before the position |
+| Video ▸ Seek Next | `Ctrl+Right` | puts playback at the start of the first subtitle that **starts** after the position |
+| Video ▸ Seek Backward | `Ctrl+Shift+Left` | goes back by one jump — thirty seconds by default |
+| Video ▸ Seek Forward | `Ctrl+Shift+Right` | goes forward by one jump |
+| Video ▸ Seek Selection Start | `Ctrl+Up` | puts playback at the start of the selection, **the lead before it** |
+| Video ▸ Seek Selection End | `Ctrl+Down` | puts playback at the end of the selection, **the lead before it** |
 
 **The shortcuts are Gaupol's**, except one: `Play Selection` is `O` there, and a
 bare letter is taken by the window before the cell being edited sees it — typing an
@@ -109,8 +109,8 @@ the bar, or by two gestures, in the `Video ▸ Audio` submenu, in steps of five:
 
 | Command | Shortcut | What it does |
 | :------ | :------- | :----------- |
-| `Video ▸ Audio ▸ Volume Down` | `Ctrl+-` | lowers the volume by five |
-| `Video ▸ Audio ▸ Volume Up` | `Ctrl++` or `Ctrl+=` | raises it by five — the second for keyboards where the plus needs the shift key |
+| Video ▸ Audio ▸ Volume Down | `Ctrl+-` | lowers the volume by five |
+| Video ▸ Audio ▸ Volume Up | `Ctrl++` or `Ctrl+=` | raises it by five — the second for keyboards where the plus needs the shift key |
 
 **It is remembered from one session to the next**, and given to each video you open. A value outside
 0 to 100 in the settings file does not break the opening: it is ignored, and the window says so.

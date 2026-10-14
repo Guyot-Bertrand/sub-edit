@@ -6,7 +6,7 @@ poignée** entre le film et la table — et de **là où l'on travaille**, pour 
 `Open…` s'ouvre au bon endroit. Rien de tout cela ne se règle par un dialogue :
 on déplace, on tire, et c'est retenu.
 
-**Six préférences ont un dialogue à elles**, `Edit ▸ Preferences…`, et c'est le
+**Six préférences ont un dialogue à elles**, `Édition ▸ Préférences…`, et c'est le
 critère : une préférence qui a déjà un geste n'a pas besoin d'un champ. Le
 thème n'en a aucun, ni l'unité des longueurs de lignes, ni les deux cases qui
 les montrent, ni le saut et l'avance du lecteur. Voir [Le thème](#le-thème),
@@ -244,7 +244,7 @@ rouvrir au lancement un document que personne n'a demandé. Retenir un répertoi
 
 ## Le thème
 
-`Edit ▸ Preferences…` ouvre le thème, préférence sans geste, au-dessus des
+`Édition ▸ Préférences…` ouvre le thème, préférence sans geste, au-dessus des
 [longueurs de lignes](#les-longueurs-de-lignes).
 
 | Valeur | Ce qu'elle fait |
@@ -272,7 +272,7 @@ du texte sur chacune des teintes est vérifié par un test, sur les deux fonds.
 
 ## The interface language
 
-`Edit ▸ Preferences…` chooses the language of the window, under the theme.
+`Édition ▸ Préférences…` chooses the language of the window, under the theme.
 
 | Field | Values | Default |
 | :---- | :----- | :------ |
@@ -314,7 +314,7 @@ les deux cases qui les montrent.](captures/preferences.png)
 
 ![Le même dialogue sous la palette sombre.](captures/preferences-sombre.png)
 
-`Edit ▸ Preferences…` règle aussi **ce que la table et l'éditeur montrent de la
+`Édition ▸ Préférences…` règle aussi **ce que la table et l'éditeur montrent de la
 longueur des lignes** — la règle et la marge de Gaupol.
 
 | Champ | Ce qu'il fait | Défaut |

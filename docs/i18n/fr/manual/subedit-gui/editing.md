@@ -35,7 +35,7 @@ l'éditeur ; la ligne de la table s'ajuste à la validation.
 Cliquer ailleurs valide aussi : la perte du focus vaut `Enter`.
 
 **Onze gestes sans dialogue valident de même** avant de calculer leur cible :
-`Italic`, `Case ▸ …`, `Dialogue`, `Merge Subtitles`, `Split Subtitle`,
+`Italic`, `Casse ▸ …`, `Dialogue`, `Merge Subtitles`, `Split Subtitle`,
 `Cut Texts`, `Paste Texts`, `Copy Texts`, `Remove Subtitles`, `Undo` et `Redo`.
 Lancés depuis le menu, la barre d'outils ou un raccourci de la fenêtre, ils
 reprennent le texte tel que l'éditeur vient de le valider, comme après un clic
@@ -77,7 +77,7 @@ ligne**, alignée sur la première rangée de cette ligne. La marge est aussi la
 que le plus grand nombre, se met à jour **à la frappe**, et suit le défilement.
 Un texte vide ne montre rien. Les longueurs sont celles de la table — sans les
 balises, arrondies vers le bas, dans l'unité réglée — et se retirent avec la case
-`Show line lengths in the editor` de `Edit ▸ Preferences…`. Voir
+`Show line lengths in the editor` de `Édition ▸ Préférences…`. Voir
 [Les longueurs de lignes](preferences.md#les-longueurs-de-lignes).
 
 ## Le début et la fin

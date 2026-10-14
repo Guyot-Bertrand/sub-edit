@@ -17,8 +17,14 @@ translated tree `docs/i18n/<lang>/manual/` is read by the checks as soon as it e
 and refused until its table does.
 
 The declaration is the exception, for a page whose tree does not say its language: a page
-of `docs/manual/` that is not yet in the source language (the window manual until #672)
-declares the language it is written in.
+of `docs/manual/` that is not yet in the source language declares the language it is written
+in. The window manual was the last such tree; #672 wrote it in English, and moved its French
+pages to `docs/i18n/fr/manual/`, where the tree says their language.
+
+**The language of a page is also the window's it is compared with** (#672): a translated page
+quotes the labels of the translated window, so `check-gui-manual.py` lists the window in the
+language this module gives the page — the source language with no option, any other under its
+shipped catalogue. A tree in a language the window cannot be built in is refused there.
 
 Keys of a table:
 
@@ -101,8 +107,8 @@ def translated_trees(manual_root: pathlib.Path, part: str) -> list[pathlib.Path]
 def missing_table(tables: dict[str, dict], pages_by_language: dict[str, list[str]]) -> list[str]:
     """One finding per page language that has no table, with the pages that speak it."""
     return [
-        f"LANGUE SANS VOCABULAIRE : les pages en « {language} » ({', '.join(sorted(pages))}) "
-        f"n'ont pas de table de vocabulaire (doc_vocabulary.py, ou --vocabulary)"
+        f"LANGUAGE WITHOUT VOCABULARY: the pages in \"{language}\" ({', '.join(sorted(pages))}) "
+        f"have no vocabulary table (doc_vocabulary.py, or --vocabulary)"
         for language, pages in sorted(pages_by_language.items())
         if language not in tables
     ]

@@ -133,7 +133,6 @@ src/scripts/check-cli-manual.py
 src/scripts/check-commit-range.sh
 src/scripts/check-config-home.sh
 src/scripts/check-coverage.sh
-src/scripts/check-gui-manual.py
 src/scripts/check-icon.py
 src/scripts/check-installation.sh
 src/scripts/check-json-fixtures.py
@@ -145,7 +144,6 @@ src/scripts/check-rpm.sh
 src/scripts/check-untracked.sh
 src/scripts/clean-stale-coverage.sh
 src/scripts/compare-screenshots.py
-src/scripts/doc_vocabulary.py
 src/scripts/encoding-fixtures.py
 src/scripts/gate.sh
 src/scripts/gate/asan.sh

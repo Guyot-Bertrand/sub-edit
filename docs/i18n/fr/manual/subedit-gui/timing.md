@@ -5,15 +5,15 @@
 On regarde le film, on s'arrête sur l'image où une réplique doit commencer, et **cette position devient
 le début du sous-titre**. Cinq gestes, au menu **Video**, sous les noms que Gaupol leur donne. Ils
 reposent sur ce qui existe déjà : poser une position est **la même commande que saisir la valeur dans la
-cellule**, et insérer est **la même que `Edit ▸ Insert Subtitles…`**.
+cellule**, et insérer est **la même que `Édition ▸ Insérer des sous-titres…`**.
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
-| `Video ▸ Set Start from Video Position` | `Alt+U` | pose le **début** du sous-titre sélectionné à la position du film |
-| `Video ▸ Set End from Video Position` | `Alt+K` | pose sa **fin** à la position du film |
-| `Video ▸ Insert Subtitle at Video Position` | `Alt+J` | insère un sous-titre qui **commence** à la position, et le sélectionne |
-| `Video ▸ Select Previous from Video Position` | `Alt+Up` | sélectionne le dernier sous-titre qui **commence avant** la position |
-| `Video ▸ Select Next from Video Position` | `Alt+Down` | sélectionne le premier qui **commence après** la position |
+| Vidéo ▸ Fixer le début à la position de la vidéo | `Alt+U` | pose le **début** du sous-titre sélectionné à la position du film |
+| Vidéo ▸ Fixer la fin à la position de la vidéo | `Alt+K` | pose sa **fin** à la position du film |
+| Vidéo ▸ Insérer un sous-titre à la position de la vidéo | `Alt+J` | insère un sous-titre qui **commence** à la position, et le sélectionne |
+| Vidéo ▸ Sélectionner le précédent depuis la position de la vidéo | `Alt+Up` | sélectionne le dernier sous-titre qui **commence avant** la position |
+| Vidéo ▸ Sélectionner le suivant depuis la position de la vidéo | `Alt+Down` | sélectionne le premier qui **commence après** la position |
 
 **Tous sont éteints sans vidéo ouverte**, comme les gestes du lecteur. `Set Start…` et `Set End…`
 le sont aussi tant que rien n'est sélectionné : ils agissent sur la **première ligne** de la
@@ -28,7 +28,7 @@ deux lettres. Une cellule en cours d'édition est **validée** avant `Set Start�
 
 ## Poser un bord
 
-- **Une entrée d'historique par geste** : `Edit ▸ Undo` rend la position d'avant, et rien d'autre.
+- **Une entrée d'historique par geste** : `Édition ▸ Annuler` rend la position d'avant, et rien d'autre.
 - **Les mêmes règles que la cellule.** Un début posé après la fin du sous-titre, ou une fin avant son
   début, **n'est pas refusé** : il est posé, et la table marque le sous-titre comme elle marque celui
   dont on a saisi la valeur à la main — voir [Les anomalies](table.md#les-anomalies). Rien n'est corrigé en silence.
@@ -57,8 +57,8 @@ Deux gestes, et deux boutons dans la barre de lecture, de part et d'autre du bou
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
-| `Video ▸ Step Backward` | `Alt+Left` | recule le film du pas d'image |
-| `Video ▸ Step Forward` | `Alt+Right` | l'avance du pas d'image |
+| Vidéo ▸ Reculer d'une image | `Alt+Left` | recule le film du pas d'image |
+| Vidéo ▸ Avancer d'une image | `Alt+Right` | l'avance du pas d'image |
 
 - **Le pas est un nombre d'images, une au moins** : c'est le réglage `Frame step` des
   [préférences](preferences.md#le-lecteur). Un pas de N images montre l'image **N plus loin**, à 25 images par
@@ -79,10 +79,10 @@ Pour régler un bord au clavier : **le début ou la fin du sous-titre sélection
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
-| `Video ▸ Nudge Start Earlier` | `Alt+Q` | le sous-titre **commence un pas plus tôt** |
-| `Video ▸ Nudge Start Later` | `Alt+W` | il **commence un pas plus tard** |
-| `Video ▸ Nudge End Earlier` | `Alt+Shift+Q` | il **finit un pas plus tôt** |
-| `Video ▸ Nudge End Later` | `Alt+Shift+W` | il **finit un pas plus tard** |
+| Vidéo ▸ Début plus tôt | `Alt+Q` | le sous-titre **commence un pas plus tôt** |
+| Vidéo ▸ Début plus tard | `Alt+W` | il **commence un pas plus tard** |
+| Vidéo ▸ Fin plus tôt | `Alt+Shift+Q` | il **finit un pas plus tôt** |
+| Vidéo ▸ Fin plus tard | `Alt+Shift+W` | il **finit un pas plus tard** |
 
 `Q` et `W` sont ceux de Gaupol pour *plus tôt* et *plus tard*, avec `Alt` pour la raison donnée plus haut ; la fin
 prend `Alt+Shift`, parce que le `E` de Gaupol est ici la lettre de `Edit`.

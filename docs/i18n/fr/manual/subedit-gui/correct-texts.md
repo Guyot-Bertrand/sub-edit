@@ -1,6 +1,6 @@
 # Correct Texts…
 
-`Tools ▸ Correct Texts…` ouvre un assistant à plusieurs pages, sur le modèle de
+`Outils ▸ Corriger les textes…` ouvre un assistant à plusieurs pages, sur le modèle de
 celui de Gaupol : une page de cible et de tâches, une page par tâche cochée,
 une page de progression, et une page de confirmation qui propose les
 changements sans jamais les imposer.
@@ -291,7 +291,7 @@ prochaine ouverture de l'assistant repart des réglages d'avant.
 ## Un exemple
 
 Un fichier ouvert porte deux espaces entre deux mots d'une réplique et une
-mention entre crochets sans autre texte. `Tools ▸ Correct Texts…`,
+mention entre crochets sans autre texte. `Outils ▸ Corriger les textes…`,
 `Common Errors` déjà coché, `Next` jusqu'à la confirmation : la ligne des deux espaces
 montre `Bonjour  Marie` à gauche, `Bonjour Marie` à droite, la correction en
 gras et déjà acceptée. `Finish` l'applique, et la barre d'état dit :

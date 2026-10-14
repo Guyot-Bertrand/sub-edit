@@ -109,7 +109,7 @@ English, English **without a word** when the language asked for is not installed
 [the command line's manual](../subedit-cli/invocation.md#language). The catalogues are the same
 files, installed under `<prefix>/share/subedit/locale`.
 
-**A language chosen in `Edit ▸ Preferences…` comes first**, and the environment is read only
+**A language chosen in `Édition ▸ Préférences…` comes first**, and the environment is read only
 when it is `System default`, which it is until one is chosen: an installed language chosen there
 wins over every variable, `LC_ALL=C` included. The choice, too, applies at the next launch. See
 [The interface language](preferences.md#the-interface-language).
@@ -117,7 +117,7 @@ wins over every variable, `LC_ALL=C` included. The choice, too, applies at the n
 | What | Follows the language |
 | :--- | :------------------- |
 | the menus and their entries, with their underlined letters; the toolbar; the tool tips | yes |
-| the columns of the table and of `View ▸ Columns`, the tabs, the status line, the play bar | yes |
+| the columns of the table and of `Affichage ▸ Colonnes`, the tabs, the status line, the play bar | yes |
 | the standard buttons Qt draws itself (`OK`, `Cancel`) | yes, when Qt's own catalogue of that language is installed (`qtbase_<language>.qm`); English otherwise |
 | the dialogs, the pages of `Correct Texts…`, the file dialogs' titles and filters, the message boxes and what they say | yes |
 | the lines the window writes on its error stream, `subedit-gui: …` | yes, the program's name excepted |

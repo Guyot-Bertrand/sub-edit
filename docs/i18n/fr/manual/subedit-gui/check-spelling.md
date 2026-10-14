@@ -1,8 +1,8 @@
 # Check Spelling…
 
-`Tools ▸ Check Spelling…` parcourt les mots que le dictionnaire ne connaît pas,
+`Outils ▸ Vérifier l'orthographe…` parcourt les mots que le dictionnaire ne connaît pas,
 un à la fois, sur le modèle du correcteur de Gaupol. Elle a une compagne,
-`Tools ▸ Spell-Check Settings…`, qui règle la langue, la cible et le document, et le soulignement à la frappe.
+`Outils ▸ Réglages de la vérification orthographique…`, qui règle la langue, la cible et le document, et le soulignement à la frappe.
 Les deux s'appuient sur les dictionnaires du système, par Enchant.
 
 Le libellé de la première s'écrit `Chec&k Spelling…` : `C` est déjà
@@ -168,7 +168,7 @@ vérifie rien.
 ## Un exemple
 
 Un fichier ouvert porte `Elle est partie hier soir avec sa valse`. Le dictionnaire
-français est là : `Tools ▸ Check Spelling…` s'arrête sur `valse`, sélectionne la
+français est là : `Outils ▸ Vérifier l'orthographe…` s'arrête sur `valse`, sélectionne la
 ligne dans la table, et propose `valise`, déjà dans `Replace with:`. `Replace`
 puis `Close` : la ligne devient `Elle est partie hier soir avec sa valise`, et la
 barre d'état dit :

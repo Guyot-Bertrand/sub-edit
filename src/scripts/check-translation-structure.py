@@ -23,8 +23,16 @@ translation must agree on:
                    `check-manual-links.py` checks that each resolves)
     IMAGE          the images shown
     CODE SPAN      the inline code outside tables: identifiers are never
-                   translated
+                   translated — with one exception, below
     LIST ITEMS     the number of list items
+
+**A menu path is the one inline code that is translated** (#672): a span holding `▸`
+(`Video ▸ Play / Pause`) quotes the window's labels, and the window of a translated
+manual shows them in its own language — its screenshots too. Such a span is compared
+by its shape alone, the number of entries of the path, never by its words: a path one
+level shorter or deeper is still refused. Every other span, a bare label included,
+stays byte for byte; the labels of the shortcut tables are plain text, checked
+against the window in each tree's language by `check-gui-manual.py`.
 
 **There is no exemption.** A translated page may not lag behind its source: the
 check fails until the two agree again. This settles the question phase 15 left
@@ -36,11 +44,12 @@ translated tree counts as its counterpart in the source tree, so `../x.md`
 written from a page one directory deeper is the same link.
 
 **A page of the source tree that declares another language is not a source
-yet**, and no translation of it is required: until the window manual is
-translated (#672), its French pages live in `docs/manual/` and say so with
-`<!-- language: fr -->` in their first lines (`doc_vocabulary.py`). They are
-counted and named in the report, never silently left out; the declaration
-of the source language itself exempts nothing.
+yet**, and no translation of it is required: it says so with
+`<!-- language: … -->` in its first lines (`doc_vocabulary.py`). The window
+manual was such a tree until #672 wrote it in English; none is left, and the
+mechanism stays for the next page written before its source. Such pages are
+counted and named in the report, never silently left out; the declaration of
+the source language itself exempts nothing.
 
 With no translated tree the check says so and passes: it does not pretend to
 have compared anything. `--check-fixtures` replays the versioned cases of
@@ -77,6 +86,8 @@ CODE_SPAN = re.compile(r"(`+)(.+?)\1")
 IMAGE = re.compile(r"!\[[^\]]*\]\(([^)\s]+)\)")
 LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)\s]+)\)")
 EXTERNAL = ("http:", "https:", "mailto:")
+# The separator of a menu path: the one inline code that is translated, compared by its shape.
+MENU_SEPARATOR = "▸"
 
 
 @dataclass
@@ -118,8 +129,16 @@ def split_cells(row: str) -> list[str]:
     return cells
 
 
+def span_key(span: str) -> str:
+    """What a code span is compared by: its text, or the shape of a menu path."""
+    span = span.strip()
+    if MENU_SEPARATOR not in span:
+        return span
+    return f"menu path of {span.count(MENU_SEPARATOR) + 1} entries"
+
+
 def spans_of(text: str) -> tuple[str, ...]:
-    return tuple(sorted(match.group(2).strip() for match in CODE_SPAN.finditer(text)))
+    return tuple(sorted(span_key(match.group(2)) for match in CODE_SPAN.finditer(text)))
 
 
 def blank_code(text: str) -> str:
@@ -197,7 +216,7 @@ def parse(page: pathlib.Path, root: pathlib.Path, source_root: pathlib.Path) -> 
         for target in LINK.findall(bare):
             parsed.links.append((number, canonical(target, page, root, source_root)))
         for match in CODE_SPAN.finditer(line):
-            parsed.spans.append((number, match.group(2).strip()))
+            parsed.spans.append((number, span_key(match.group(2))))
 
     close_table()
     if fence is not None:

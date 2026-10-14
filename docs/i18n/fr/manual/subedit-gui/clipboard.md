@@ -5,9 +5,9 @@ Trois entrées du menu `Edit`, sous `Undo` et `Redo`, et au-dessus de
 
 | Entrée | Raccourci | Ce qu'elle fait |
 | :----- | :-------- | :-------------- |
-| `Cut Texts` | `Ctrl+X` | copie les textes de la sélection, puis les vide |
-| `Copy Texts` | `Ctrl+C` | copie les textes de la sélection |
-| `Paste Texts` | `Ctrl+V` | écrit les textes copiés à partir de la première ligne sélectionnée |
+| Couper les textes | `Ctrl+X` | copie les textes de la sélection, puis les vide |
+| Copier les textes | `Ctrl+C` | copie les textes de la sélection |
+| Coller les textes | `Ctrl+V` | écrit les textes copiés à partir de la première ligne sélectionnée |
 
 **Ce sont des textes qui voyagent, et rien d'autre** : ni début, ni fin, ni ligne
 entière. Coller ne déplace donc aucune position — le calage de la ligne qui

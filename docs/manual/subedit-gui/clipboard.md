@@ -5,9 +5,9 @@ Three entries of the `Edit` menu, under `Undo` and `Redo`, and above
 
 | Entry | Shortcut | What it does |
 | :---- | :------- | :----------- |
-| `Cut Texts` | `Ctrl+X` | copies the texts of the selection, then empties them |
-| `Copy Texts` | `Ctrl+C` | copies the texts of the selection |
-| `Paste Texts` | `Ctrl+V` | writes the copied texts starting from the first selected line |
+| Cut Texts | `Ctrl+X` | copies the texts of the selection, then empties them |
+| Copy Texts | `Ctrl+C` | copies the texts of the selection |
+| Paste Texts | `Ctrl+V` | writes the copied texts starting from the first selected line |
 
 **It is texts that travel, and nothing else**: no start, no end, no whole
 line. Pasting therefore moves no position — the timing of the line that

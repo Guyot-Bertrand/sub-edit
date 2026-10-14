@@ -9,14 +9,14 @@ les redécoupe là où elles se chevauchent.
 
 | Entrée | Raccourci | Ce qu'elle fait |
 | :----- | :-------- | :-------------- |
-| `Insert Subtitles…` | `Ins` | ouvre un dialogue, puis pose des lignes vierges |
-| `Remove Subtitles` | `Del` | retire la sélection, sans rien demander |
-| `Merge Subtitles` | aucun | fait une seule ligne d'un bloc de lignes voisines |
-| `Split Subtitle` | aucun | coupe une ligne en deux au milieu de sa durée |
-| `Join Repeated Subtitles` | aucun | fait un seul sous-titre des morceaux d'un même texte qui se suivent |
-| `Sort Subtitles` | aucun | remet les lignes dans l'ordre de leur début, sur tout le projet |
-| `Make Ranges Disjoint…` | aucun | découpe les lignes qui se chevauchent pour que plus aucune plage n'en chevauche une autre |
-| `Repair Subtitles…` | aucun | enchaîne les trois entrées qui précèdent — fusion des répétés, tri, découpage des plages — d'un coup |
+| Insérer des sous-titres… | `Ins` | ouvre un dialogue, puis pose des lignes vierges |
+| Supprimer les sous-titres | `Del` | retire la sélection, sans rien demander |
+| Fusionner les sous-titres | aucun | fait une seule ligne d'un bloc de lignes voisines |
+| Scinder le sous-titre | aucun | coupe une ligne en deux au milieu de sa durée |
+| Joindre les sous-titres répétés | aucun | fait un seul sous-titre des morceaux d'un même texte qui se suivent |
+| Trier les sous-titres | aucun | remet les lignes dans l'ordre de leur début, sur tout le projet |
+| Rendre les plages disjointes… | aucun | découpe les lignes qui se chevauchent pour que plus aucune plage n'en chevauche une autre |
+| Réparer les sous-titres… | aucun | enchaîne les trois entrées qui précèdent — fusion des répétés, tri, découpage des plages — d'un coup |
 
 Les huit entrent dans l'historique : `Ctrl+Z` les défait comme le reste.
 

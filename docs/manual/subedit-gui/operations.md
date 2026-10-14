@@ -535,7 +535,7 @@ it is undone with a `Ctrl+Z` like the others.
 
 | Action | Shortcut | Where |
 | :----- | :------- | :---- |
-| `Italic` | `Ctrl+I` | **Tools** menu, toolbar |
+| Italic | `Ctrl+I` | **Tools** menu, toolbar |
 
 It is the only operation of the `Tools` menu that has a button in the
 [toolbar](index.md#the-toolbar).
@@ -606,11 +606,11 @@ extended the italics to the whole word.
 
 | Entry | Shortcut | What it does |
 | :---- | :------- | :----------- |
-| `Case ▸ Title Case` | — | `bonjour marie` becomes `Bonjour Marie` |
-| `Case ▸ Sentence case` | — | `BONJOUR MARIE` becomes `Bonjour marie` |
-| `Case ▸ UPPER CASE` | — | everything in capitals |
-| `Case ▸ lower case` | — | everything in lower case |
-| `Dialogue` | — | adds or removes the dashes |
+| Case ▸ Title Case | — | `bonjour marie` becomes `Bonjour Marie` |
+| Case ▸ Sentence case | — | `BONJOUR MARIE` becomes `Bonjour marie` |
+| Case ▸ UPPER CASE | — | everything in capitals |
+| Case ▸ lower case | — | everything in lower case |
+| Dialogue | — | adds or removes the dashes |
 
 ### What case does not touch
 

@@ -5,14 +5,14 @@ more for the translation; the **Projects** menu acts on all tabs at once.
 
 | Command | Shortcut | What it does |
 | :------ | :------- | :----------- |
-| `New Project` | `Ctrl+N` | an empty project, in a new tab — also the `+` button after the last tab |
-| `Open…` | `Ctrl+O` | chooses a file and opens it in a new tab — or in place of a blank project |
-| `Open Translation…` | — | chooses a translation file and aligns it on the main file of the current tab |
-| `Save` | `Ctrl+S` | rewrites the open file |
-| `Save As…` | `Ctrl+Shift+S` | chooses a path and a format, then writes |
-| `Save Translation` | — | rewrites the translation's file |
-| `Save Translation As…` | — | chooses a path and a format for the translation, then writes |
-| `Close` | `Ctrl+W` | closes the current tab — disabled if there is only one |
+| New Project | `Ctrl+N` | an empty project, in a new tab — also the `+` button after the last tab |
+| Open… | `Ctrl+O` | chooses a file and opens it in a new tab — or in place of a blank project |
+| Open Translation… | — | chooses a translation file and aligns it on the main file of the current tab |
+| Save | `Ctrl+S` | rewrites the open file |
+| Save As… | `Ctrl+Shift+S` | chooses a path and a format, then writes |
+| Save Translation | — | rewrites the translation's file |
+| Save Translation As… | — | chooses a path and a format for the translation, then writes |
+| Close | `Ctrl+W` | closes the current tab — disabled if there is only one |
 
 `New Project`, `Open…` and `Save` are also in the
 [toolbar](index.md#the-toolbar), under the words `New`, `Open` and
@@ -88,8 +88,8 @@ Two commands act on all projects at once.
 
 | Command | Shortcut | What it does |
 | :------ | :------- | :----------- |
-| `Save All` | `Ctrl+Shift+L` | writes each modified document, tab by tab |
-| `Close All` | `Ctrl+Shift+W` | closes all projects — that is, the window |
+| Save All | `Ctrl+Shift+L` | writes each modified document, tab by tab |
+| Close All | `Ctrl+Shift+W` | closes all projects — that is, the window |
 
 **`Save All` goes in the order of the tabs**, the main document before the translation.
 A document that has a file is rewritten there **without its tab coming to the front**;

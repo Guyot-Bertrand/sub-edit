@@ -5,8 +5,8 @@ Le menu **Video** porte d'abord deux commandes, et les gestes qui pilotent le fi
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
-| `Select Video…` | aucun | choisit le fichier vidéo que le document accompagne |
-| `Play / Pause` | `Ctrl+P` | joue ou arrête la vidéo — voir [Le lecteur](player.md#jouer-et-arrêter) |
+| Choisir une vidéo… | aucun | choisit le fichier vidéo que le document accompagne |
+| Lecture / Pause | `Ctrl+P` | joue ou arrête la vidéo — voir [Le lecteur](player.md#jouer-et-arrêter) |
 
 La vidéo associée est **une propriété du document ouvert**, pas un réglage de
 l'application : ouvrir un autre fichier de sous-titres repart de zéro. Elle
@@ -15,7 +15,7 @@ n'est écrite dans aucun fichier et disparaît avec la fenêtre.
 ## La piste audio
 
 Un film peut porter plusieurs pistes sonores — la version originale, un doublage, un commentaire. Le
-sous-menu **`Video ▸ Audio ▸ Language`** les liste, **une entrée par piste**, et **marque celle qui joue** :
+sous-menu **`Vidéo ▸ Audio ▸ Langue`** les liste, **une entrée par piste**, et **marque celle qui joue** :
 
 | Ce que le fichier donne | Ce que l'entrée dit |
 | :---------------------- | :------------------ |

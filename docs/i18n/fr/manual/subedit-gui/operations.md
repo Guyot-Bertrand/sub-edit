@@ -13,10 +13,10 @@ seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien. `Check Spelling…` s'
 | `Split Project…` | oui | coupe le projet en deux, la suite passe dans un nouvel onglet |
 | `Italic` | **non** | met la cible en italique, ou l'en retire |
 | `Dialogue` | **non** | pose un tiret de dialogue en tête de chaque ligne, ou le retire |
-| `Case ▸ Title Case` | **non** | chaque mot prend une capitale |
-| `Case ▸ Sentence case` | **non** | la première lettre du texte, et elle seule |
-| `Case ▸ UPPER CASE` | **non** | tout en capitales |
-| `Case ▸ lower case` | **non** | tout en minuscules |
+| `Casse ▸ Casse de titre` | **non** | chaque mot prend une capitale |
+| `Casse ▸ Casse de phrase` | **non** | la première lettre du texte, et elle seule |
+| `Casse ▸ MAJUSCULES` | **non** | tout en capitales |
+| `Casse ▸ minuscules` | **non** | tout en minuscules |
 | `Remove Hearing-Impaired Mentions…` | oui, sans réglage | retire les mentions pour malentendants |
 | `Correct Texts…` | oui, un assistant à plusieurs pages | propose des corrections — mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage — et les applique une fois acceptées, voir [Correct Texts…](correct-texts.md) |
 | `Check Spelling…` | oui, un parcours mot à mot | parcourt les mots inconnus du dictionnaire et applique ce qu'on a corrigé, voir [Check Spelling…](check-spelling.md) |
@@ -535,7 +535,7 @@ elle s'annule d'un `Ctrl+Z` comme les autres.
 
 | Action | Raccourci | Où |
 | :----- | :-------- | :--- |
-| `Italic` | `Ctrl+I` | menu **Tools**, barre d'outils |
+| Italique | `Ctrl+I` | menu **Tools**, barre d'outils |
 
 C'est la seule opération du menu `Tools` qui ait un bouton dans la
 [barre d'outils](index.md#la-barre-doutils).
@@ -606,11 +606,11 @@ place** : `<i>bon</i>jour` en capitales donne `<i>BON</i>JOUR`, là où
 
 | Entrée | Raccourci | Ce qu'elle fait |
 | :----- | :-------- | :--- |
-| `Case ▸ Title Case` | — | `bonjour marie` devient `Bonjour Marie` |
-| `Case ▸ Sentence case` | — | `BONJOUR MARIE` devient `Bonjour marie` |
-| `Case ▸ UPPER CASE` | — | tout en capitales |
-| `Case ▸ lower case` | — | tout en minuscules |
-| `Dialogue` | — | pose ou retire les tirets |
+| Casse ▸ Casse de titre | — | `bonjour marie` devient `Bonjour Marie` |
+| Casse ▸ Casse de phrase | — | `BONJOUR MARIE` devient `Bonjour marie` |
+| Casse ▸ MAJUSCULES | — | tout en capitales |
+| Casse ▸ minuscules | — | tout en minuscules |
+| Dialogue | — | pose ou retire les tirets |
 
 ### Ce que la casse ne touche pas
 

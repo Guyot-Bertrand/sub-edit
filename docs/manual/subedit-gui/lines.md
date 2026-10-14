@@ -9,14 +9,14 @@ re-cuts them where they overlap.
 
 | Entry | Shortcut | What it does |
 | :---- | :------- | :----------- |
-| `Insert Subtitles…` | `Ins` | opens a dialog, then adds blank lines |
-| `Remove Subtitles` | `Del` | removes the selection, without asking anything |
-| `Merge Subtitles` | none | makes a single line of a block of neighbouring lines |
-| `Split Subtitle` | none | cuts a line in two in the middle of its duration |
-| `Join Repeated Subtitles` | none | makes a single subtitle of the consecutive pieces of one same text |
-| `Sort Subtitles` | none | puts the lines back in the order of their start, over the whole project |
-| `Make Ranges Disjoint…` | none | cuts the overlapping lines so that no range overlaps another any more |
-| `Repair Subtitles…` | none | chains the three preceding entries — joining the repeats, sorting, cutting the ranges — in one go |
+| Insert Subtitles… | `Ins` | opens a dialog, then adds blank lines |
+| Remove Subtitles | `Del` | removes the selection, without asking anything |
+| Merge Subtitles | none | makes a single line of a block of neighbouring lines |
+| Split Subtitle | none | cuts a line in two in the middle of its duration |
+| Join Repeated Subtitles | none | makes a single subtitle of the consecutive pieces of one same text |
+| Sort Subtitles | none | puts the lines back in the order of their start, over the whole project |
+| Make Ranges Disjoint… | none | cuts the overlapping lines so that no range overlaps another any more |
+| Repair Subtitles… | none | chains the three preceding entries — joining the repeats, sorting, cutting the ranges — in one go |
 
 All eight enter the history: `Ctrl+Z` undoes them like the rest.
 

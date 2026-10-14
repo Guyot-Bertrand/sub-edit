@@ -37,7 +37,7 @@ C'est ce que fait Gaupol.
 | **les balises** | ne comptent pas : `<i>Bonjour</i>` fait `[7]`, comme `Bonjour` |
 | **l'arrondi** | vers le bas : une ligne de 12,9 ems s'affiche `[12]` |
 | **une ligne vide** | n'a pas de longueur ; un texte vide non plus |
-| **l'unité** | *ems* par défaut, ou caractères — `Edit ▸ Preferences…` |
+| **l'unité** | *ems* par défaut, ou caractères — `Édition ▸ Préférences…` |
 | **une ligne trop longue pour la colonne** | est coupée par `…` **avant** le nombre, qui reste visible |
 
 **L'*em* est celle de Gaupol, non celle de la typographie** : l'alphabet minuscule
@@ -50,20 +50,20 @@ l'œil de le comparer à la limite que l'on s'est fixée — comme Gaupol. Ce n'
 la limite de l'assistant `Correct Texts…`, qui a son propre réglage.
 
 **Pour ne pas les voir :** décocher `Show line lengths in cells` dans
-`Edit ▸ Preferences…`. Voir [Les longueurs de lignes](preferences.md#les-longueurs-de-lignes).
+`Édition ▸ Préférences…`. Voir [Les longueurs de lignes](preferences.md#les-longueurs-de-lignes).
 
 ## Masquer et déplacer les colonnes
 
-**`View ▸ Columns`** porte une entrée à cocher par colonne, **sauf `Text`** :
+**`Affichage ▸ Colonnes`** porte une entrée à cocher par colonne, **sauf `Text`** :
 sans le texte principal, il n'y aurait plus rien à éditer.
 
 | Entrée | Colonne |
 | :----- | :------ |
-| `View ▸ Columns ▸ No.` | `#` |
-| `View ▸ Columns ▸ Start` | `Start` |
-| `View ▸ Columns ▸ End` | `End` |
-| `View ▸ Columns ▸ Duration` | `Duration` |
-| `View ▸ Columns ▸ Translation` | `Translation` — voir [La colonne de traduction](#la-colonne-de-traduction) |
+| `Affichage ▸ Colonnes ▸ N°` | `#` |
+| `Affichage ▸ Colonnes ▸ Début` | `Start` |
+| `Affichage ▸ Colonnes ▸ Fin` | `End` |
+| `Affichage ▸ Colonnes ▸ Durée` | `Duration` |
+| `Affichage ▸ Colonnes ▸ Traduction` | `Translation` — voir [La colonne de traduction](#la-colonne-de-traduction) |
 
 Décocher une entrée retire sa colonne, la recocher la remet, à la largeur
 qu'elle avait. **Le réglage vaut pour toute la fenêtre**, tous les onglets
@@ -124,7 +124,7 @@ d'une ligne de la table ne change pas quand on tire le bord d'une colonne.
 
 ## Les positions en images
 
-**`View ▸ Positions in Frames`** — une entrée à cocher, un seul réglage pour la fenêtre — montre les colonnes
+**`Affichage ▸ Positions en images`** — une entrée à cocher, un seul réglage pour la fenêtre — montre les colonnes
 `Start` et `End` **en numéros d'image** au lieu de timestamps, et **accepte un numéro d'image à la saisie**. Les
 en-têtes le disent : `Start (frames)` et `End (frames)`.
 
@@ -210,14 +210,14 @@ place.](captures/table-traduction.png)
 
 **La colonne n'est là que si le projet a une traduction.** Sans elle, la table
 garde ses cinq colonnes, et la fenêtre se comporte comme si la traduction
-n'existait pas — rien n'est grisé ni ajouté. `File ▸ Open Translation…` en ouvre
+n'existait pas — rien n'est grisé ni ajouté. `Fichier ▸ Ouvrir une traduction…` en ouvre
 une : voir [Ouvrir une traduction](files.md#ouvrir-une-traduction).
 
 **Une entrée du menu `View` la montre ou la retire** :
 
 | Entrée | Ce qu'elle fait |
 | :----- | :-------------- |
-| `View ▸ Columns ▸ Translation` | coche : la colonne est montrée ; décoche : elle est retirée |
+| `Affichage ▸ Colonnes ▸ Traduction` | coche : la colonne est montrée ; décoche : elle est retirée |
 
 L'entrée est **éteinte quand le projet n'a pas de traduction** — il n'y a rien à
 montrer — et cochée au démarrage. **Le choix de la retirer est celui de
@@ -267,8 +267,8 @@ principal, comme avant.
 
 ## Ajouter et retirer des lignes
 
-`Edit ▸ Insert Subtitles…` et `Edit ▸ Remove Subtitles` posent et retirent des
-lignes, `Edit ▸ Merge Subtitles` et `Edit ▸ Split Subtitle` en fusionnent et en
+`Édition ▸ Insérer des sous-titres…` et `Édition ▸ Supprimer les sous-titres` posent et retirent des
+lignes, `Édition ▸ Fusionner les sous-titres` et `Édition ▸ Scinder le sous-titre` en fusionnent et en
 scindent ; la table se renumérote toute seule. Voir
 [Insérer, supprimer, fusionner et scinder des lignes](lines.md).
 

@@ -5,14 +5,14 @@ plus pour la traduction ; le menu **Projects** agit sur tous les onglets à la f
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
-| `New Project` | `Ctrl+N` | un projet vide, dans un nouvel onglet — aussi le bouton `+` après le dernier onglet |
-| `Open…` | `Ctrl+O` | choisit un fichier et l'ouvre dans un nouvel onglet — ou à la place d'un projet vierge |
-| `Open Translation…` | — | choisit un fichier de traduction et l'aligne sur le principal de l'onglet courant |
-| `Save` | `Ctrl+S` | réécrit le fichier ouvert |
-| `Save As…` | `Ctrl+Shift+S` | choisit un chemin et un format, puis écrit |
-| `Save Translation` | — | réécrit le fichier de la traduction |
-| `Save Translation As…` | — | choisit un chemin et un format pour la traduction, puis écrit |
-| `Close` | `Ctrl+W` | ferme l'onglet courant — éteinte s'il n'y en a qu'un |
+| Nouveau projet | `Ctrl+N` | un projet vide, dans un nouvel onglet — aussi le bouton `+` après le dernier onglet |
+| Ouvrir… | `Ctrl+O` | choisit un fichier et l'ouvre dans un nouvel onglet — ou à la place d'un projet vierge |
+| Ouvrir une traduction… | — | choisit un fichier de traduction et l'aligne sur le principal de l'onglet courant |
+| Enregistrer | `Ctrl+S` | réécrit le fichier ouvert |
+| Enregistrer sous… | `Ctrl+Shift+S` | choisit un chemin et un format, puis écrit |
+| Enregistrer la traduction | — | réécrit le fichier de la traduction |
+| Enregistrer la traduction sous… | — | choisit un chemin et un format pour la traduction, puis écrit |
+| Fermer | `Ctrl+W` | ferme l'onglet courant — éteinte s'il n'y en a qu'un |
 
 `New Project`, `Open…` et `Save` sont aussi dans la
 [barre d'outils](index.md#la-barre-doutils), sous les mots `New`, `Open` et
@@ -88,8 +88,8 @@ Deux commandes agissent sur tous les projets à la fois.
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
-| `Save All` | `Ctrl+Shift+L` | écrit chaque document modifié, onglet par onglet |
-| `Close All` | `Ctrl+Shift+W` | ferme tous les projets — c'est-à-dire la fenêtre |
+| Tout enregistrer | `Ctrl+Shift+L` | écrit chaque document modifié, onglet par onglet |
+| Tout fermer | `Ctrl+Shift+W` | ferme tous les projets — c'est-à-dire la fenêtre |
 
 **`Save All` va dans l'ordre des onglets**, le principal avant la traduction.
 Un document qui a un fichier y est réécrit **sans que son onglet passe devant** ;
@@ -437,7 +437,7 @@ modification peut produire.
 
 ## Ouvrir une traduction
 
-`File ▸ Open Translation…` pose un **second fichier** en regard du principal.
+`Fichier ▸ Ouvrir une traduction…` pose un **second fichier** en regard du principal.
 L'entrée est éteinte tant qu'il n'y a aucun sous-titre à qui donner les lignes de
 la traduction.
 

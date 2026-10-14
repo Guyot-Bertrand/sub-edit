@@ -6,8 +6,8 @@ seule la validation compte.
 
 | Action | Raccourci | Où  |
 | :----- | :-------- | :-- |
-| `Undo` | `Ctrl+Z` | menu **Edit**, barre d'outils |
-| `Redo` | `Ctrl+Shift+Z` | menu **Edit**, barre d'outils |
+| Annuler | `Ctrl+Z` | menu **Edit**, barre d'outils |
+| Rétablir | `Ctrl+Shift+Z` | menu **Edit**, barre d'outils |
 
 ## L'action nomme ce qu'elle défera
 

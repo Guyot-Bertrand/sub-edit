@@ -90,15 +90,15 @@ shortcut is the same.
 
 | Button | Menu entry | Shortcut |
 | :----- | :--------- | :------- |
-| `New` | `File ▸ New Project` | `Ctrl+N` |
-| `Open` | `File ▸ Open…` | `Ctrl+O` |
-| `Save` | `File ▸ Save` | `Ctrl+S` |
-| `Undo` | `Edit ▸ Undo` | `Ctrl+Z` |
-| `Redo` | `Edit ▸ Redo` | `Ctrl+Shift+Z` |
-| `Find` | `Edit ▸ Find and Replace…` | `Ctrl+F` |
-| `Insert` | `Edit ▸ Insert Subtitles…` | `Ins` |
-| `Remove` | `Edit ▸ Remove Subtitles` | `Del` |
-| `Italic` | `Tools ▸ Italic` | `Ctrl+I` |
+| New | File ▸ New Project | `Ctrl+N` |
+| Open | File ▸ Open… | `Ctrl+O` |
+| Save | File ▸ Save | `Ctrl+S` |
+| Undo | Edit ▸ Undo | `Ctrl+Z` |
+| Redo | Edit ▸ Redo | `Ctrl+Shift+Z` |
+| Find | Edit ▸ Find and Replace… | `Ctrl+F` |
+| Insert | Edit ▸ Insert Subtitles… | `Ins` |
+| Remove | Edit ▸ Remove Subtitles | `Del` |
+| Italic | Tools ▸ Italic | `Ctrl+I` |
 
 **A disabled button is disabled for the same reason as its entry**: `Undo` with
 nothing to undo, `Remove` with no line chosen. The translation's entries

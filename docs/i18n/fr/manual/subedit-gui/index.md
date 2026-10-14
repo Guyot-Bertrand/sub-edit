@@ -29,7 +29,7 @@ table. Pour l'autre programme et pour savoir par où commencer, voir
 > **proposent sans jamais appliquer** : une traduction décalée d'une valeur constante, qu'on peut **rouvrir
 > décalée**, et la conversion de fréquence qui remet un fichier sur une grille. Elle **retient sa géométrie, l'ordre, la largeur et la présence de ses
 > colonnes, et ses réglages** d'une
-> session à l'autre, et se porte **claire ou sombre** au choix. `Help ▸ Manual`
+> session à l'autre, et se porte **claire ou sombre** au choix. `Aide ▸ Manuel`
 > ouvre **ce manuel** dans une fenêtre. Ce manuel décrit ce qui existe, jamais
 > ce qui est prévu ; ce qui vient ensuite est dans la
 > [feuille de route](../../../../feuille-de-route.md).
@@ -91,15 +91,15 @@ raccourci est le même.
 
 | Bouton | Entrée du menu | Raccourci |
 | :----- | :------------- | :-------- |
-| `New` | `File ▸ New Project` | `Ctrl+N` |
-| `Open` | `File ▸ Open…` | `Ctrl+O` |
-| `Save` | `File ▸ Save` | `Ctrl+S` |
-| `Undo` | `Edit ▸ Undo` | `Ctrl+Z` |
-| `Redo` | `Edit ▸ Redo` | `Ctrl+Shift+Z` |
-| `Find` | `Edit ▸ Find and Replace…` | `Ctrl+F` |
-| `Insert` | `Edit ▸ Insert Subtitles…` | `Ins` |
-| `Remove` | `Edit ▸ Remove Subtitles` | `Del` |
-| `Italic` | `Tools ▸ Italic` | `Ctrl+I` |
+| Nouveau | Fichier ▸ Nouveau projet | `Ctrl+N` |
+| Ouvrir | Fichier ▸ Ouvrir… | `Ctrl+O` |
+| Enregistrer | Fichier ▸ Enregistrer | `Ctrl+S` |
+| Annuler | Édition ▸ Annuler | `Ctrl+Z` |
+| Rétablir | Édition ▸ Rétablir | `Ctrl+Shift+Z` |
+| Rechercher | Édition ▸ Rechercher et remplacer… | `Ctrl+F` |
+| Insérer | Édition ▸ Insérer des sous-titres… | `Ins` |
+| Supprimer | Édition ▸ Supprimer les sous-titres | `Del` |
+| Italique | Outils ▸ Italique | `Ctrl+I` |
 
 **Un bouton éteint l'est pour la même raison que son entrée** : `Undo` sans
 rien à annuler, `Remove` sans ligne choisie. Les entrées de la
@@ -127,4 +127,4 @@ menus : elles servent moins souvent, ou pas à tout le monde.
 | [Le lecteur](player.md) | la vue vidéo, la barre de lecture, jouer, se déplacer, le volume, la table qui suit, la réplique dessinée |
 | [Caler depuis la vidéo](timing.md) | poser le début ou la fin d'un sous-titre, insérer, sélectionner depuis la position du film, avancer image par image, décaler un bord |
 | [Les préférences](preferences.md) | le thème, le fichier de préférences, ses options, et ce qu'il advient d'une valeur illisible |
-| [Le manuel dans la fenêtre](help.md) | `Help ▸ Manual`, ce qu'il ouvre et comment y naviguer |
+| [Le manuel dans la fenêtre](help.md) | `Aide ▸ Manuel`, ce qu'il ouvre et comment y naviguer |

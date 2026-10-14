@@ -1,6 +1,6 @@
 # Le manuel dans la fenêtre
 
-`Help ▸ Manual`, ou `F1`, ouvre **ce manuel-ci** dans une fenêtre à lui.
+`Aide ▸ Manuel`, ou `F1`, ouvre **ce manuel-ci** dans une fenêtre à lui.
 
 ![Le manuel ouvert dans sa fenêtre, palette claire : la barre de navigation, le
 titre, et les tableaux rendus.](captures/manuel.png)
@@ -45,11 +45,11 @@ clic sans effet.
 it lives in the project's repository.
 ```
 
-Ils se lisent sur le dépôt, dont l'adresse est dans `Help ▸ About subedit`.
+Ils se lisent sur le dépôt, dont l'adresse est dans `Aide ▸ À propos de subedit`.
 
 ## Quand l'entrée est éteinte
 
-**`Help ▸ Manual` est éteinte quand il n'y a pas de manuel à côté du
+**`Aide ▸ Manuel` est éteinte quand il n'y a pas de manuel à côté du
 programme.** Deux cas, et aucun n'est une panne :
 
 | Cas | Pourquoi |

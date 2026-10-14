@@ -15,3 +15,5 @@ done
 ```
 
 Back to the [guide](../index.md).
+
+Or use `Edit ▸ Shift`, which does the same.

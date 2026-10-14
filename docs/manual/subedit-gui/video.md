@@ -5,8 +5,8 @@ The **Video** menu carries first two commands, and the gestures that drive the f
 
 | Command | Shortcut | What it does |
 | :------ | :------- | :----------- |
-| `Select Video…` | none | chooses the video file the document goes with |
-| `Play / Pause` | `Ctrl+P` | plays or stops the video — see [The player](player.md#playing-and-stopping) |
+| Select Video… | none | chooses the video file the document goes with |
+| Play / Pause | `Ctrl+P` | plays or stops the video — see [The player](player.md#playing-and-stopping) |
 
 The associated video is **a property of the open document**, not a setting of
 the application: opening another subtitle file starts from scratch. It

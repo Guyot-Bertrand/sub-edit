@@ -6,8 +6,8 @@ commit counts.
 
 | Action | Shortcut | Where |
 | :----- | :------- | :---- |
-| `Undo` | `Ctrl+Z` | **Edit** menu, toolbar |
-| `Redo` | `Ctrl+Shift+Z` | **Edit** menu, toolbar |
+| Undo | `Ctrl+Z` | **Edit** menu, toolbar |
+| Redo | `Ctrl+Shift+Z` | **Edit** menu, toolbar |
 
 ## The action names what it will undo
 

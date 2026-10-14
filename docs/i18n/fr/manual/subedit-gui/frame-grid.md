@@ -9,7 +9,7 @@ question.
 | Surface | Ce qu'elle donne |
 | :------ | :--------------- |
 | la barre d'état | **la réponse**, en permanence et sans qu'on la demande |
-| `Tools ▸ Frame Rate Analysis…` | **le raisonnement**, quand on veut le voir |
+| `Outils ▸ Analyse de la cadence d'images…` | **le raisonnement**, quand on veut le voir |
 
 ## Ce que la barre d'état montre
 
@@ -65,7 +65,7 @@ il s'ouvre sur la fréquence de lecture et dit que c'est elle.
 
 ## Ce que l'analyse montre
 
-`Tools ▸ Frame Rate Analysis…` **ne modifie rien.** Elle ouvre sur un résumé et
+`Outils ▸ Analyse de la cadence d'images…` **ne modifie rien.** Elle ouvre sur un résumé et
 le classement des huit candidates avec leur score.
 
 ![La modale d'analyse, palette claire : le résumé, puis les huit candidates

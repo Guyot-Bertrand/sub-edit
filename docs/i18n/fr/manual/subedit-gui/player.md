@@ -31,7 +31,7 @@ lecture et pause, et le volume. Voir [La barre de lecture](#la-barre-de-lecture)
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
-| `Video ▸ Play / Pause` | `Ctrl+P` | joue si la lecture est arrêtée, l'arrête sinon |
+| Vidéo ▸ Lecture / Pause | `Ctrl+P` | joue si la lecture est arrêtée, l'arrête sinon |
 
 La commande est **inactive tant qu'aucune vidéo n'est ouverte**. Une vidéo qui
 vient d'être associée est ouverte **arrêtée** : ouvrir un film n'est pas le
@@ -50,7 +50,7 @@ Sous l'image, de gauche à droite — les trois boutons sont des **icônes**, ce
 | :------ | :------------ |
 | les deux boutons de pas | reculent, avancent le film **d'un pas d'image** — voir [Image par image](timing.md#image-par-image) |
 | lecture / pause | joue ou arrête, comme `Ctrl+P` — le bouton montre **ce qu'il fera** : un triangle à l'arrêt, deux barres en lecture ; l'infobulle le dit en toutes lettres |
-| la position | `HH:MM:SS,mmm`, écrite comme la table écrit une position — **en numéro d'image** quand [`View ▸ Positions in Frames`](table.md#les-positions-en-images) est coché |
+| la position | `HH:MM:SS,mmm`, écrite comme la table écrit une position — **en numéro d'image** quand [`Affichage ▸ Positions en images`](table.md#les-positions-en-images) est coché |
 | le curseur | **se lit et se déplace** : on tire la poignée, on clique dans la rainure, on utilise les flèches |
 | la durée | celle que la vidéo déclare, écrite comme la position |
 | le volume | de 0 à 100, voir [Le volume](#le-volume) |
@@ -79,13 +79,13 @@ la lecture ; les trois qui agissent sur la sélection le sont aussi tant que rie
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
-| `Video ▸ Play Selection` | `Ctrl+Shift+P` | joue de **un peu avant le début** de la sélection **jusqu'à la fin de son dernier sous-titre**, et s'arrête sur l'image |
-| `Video ▸ Seek Previous` | `Ctrl+Left` | place la lecture au début du dernier sous-titre **terminé** avant la position |
-| `Video ▸ Seek Next` | `Ctrl+Right` | place la lecture au début du premier sous-titre qui **commence** après la position |
-| `Video ▸ Seek Backward` | `Ctrl+Shift+Left` | recule d'un saut — trente secondes par défaut |
-| `Video ▸ Seek Forward` | `Ctrl+Shift+Right` | avance d'un saut |
-| `Video ▸ Seek Selection Start` | `Ctrl+Up` | place la lecture au début de la sélection, **l'avance avant lui** |
-| `Video ▸ Seek Selection End` | `Ctrl+Down` | place la lecture à la fin de la sélection, **l'avance avant elle** |
+| Vidéo ▸ Jouer la sélection | `Ctrl+Shift+P` | joue de **un peu avant le début** de la sélection **jusqu'à la fin de son dernier sous-titre**, et s'arrête sur l'image |
+| Vidéo ▸ Précédent | `Ctrl+Left` | place la lecture au début du dernier sous-titre **terminé** avant la position |
+| Vidéo ▸ Suivant | `Ctrl+Right` | place la lecture au début du premier sous-titre qui **commence** après la position |
+| Vidéo ▸ Reculer | `Ctrl+Shift+Left` | recule d'un saut — trente secondes par défaut |
+| Vidéo ▸ Avancer | `Ctrl+Shift+Right` | avance d'un saut |
+| Vidéo ▸ Aller au début de la sélection | `Ctrl+Up` | place la lecture au début de la sélection, **l'avance avant lui** |
+| Vidéo ▸ Aller à la fin de la sélection | `Ctrl+Down` | place la lecture à la fin de la sélection, **l'avance avant elle** |
 
 **Les raccourcis sont ceux de Gaupol**, sauf un : `Play Selection` est `O` chez lui, et une
 lettre seule est prise par la fenêtre avant que la cellule en cours d'édition la voie — taper un
@@ -105,12 +105,12 @@ ouvert : `Ctrl+Left` y déplace le curseur d'un mot, et non la lecture.
 ## Le volume
 
 Le volume est celui du **lecteur**, de 0 à 100, et non celui du système. Il se règle au curseur de
-la barre, ou par deux gestes, au sous-menu `Video ▸ Audio`, de cinq en cinq :
+la barre, ou par deux gestes, au sous-menu `Vidéo ▸ Audio`, de cinq en cinq :
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
-| `Video ▸ Audio ▸ Volume Down` | `Ctrl+-` | baisse le volume de cinq |
-| `Video ▸ Audio ▸ Volume Up` | `Ctrl++` ou `Ctrl+=` | le monte de cinq — le second pour les claviers où le plus demande la touche majuscule |
+| Vidéo ▸ Audio ▸ Diminuer le volume | `Ctrl+-` | baisse le volume de cinq |
+| Vidéo ▸ Audio ▸ Augmenter le volume | `Ctrl++` ou `Ctrl+=` | le monte de cinq — le second pour les claviers où le plus demande la touche majuscule |
 
 **Il est retenu d'une session à l'autre**, et donné à chaque vidéo qu'on ouvre. Une valeur hors de
 0 à 100 dans le fichier de réglages ne casse pas l'ouverture : elle est ignorée, et la fenêtre le dit.

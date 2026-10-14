@@ -9,11 +9,11 @@ cell**, and inserting is **the same as `Edit ▸ Insert Subtitles…`**.
 
 | Command | Shortcut | What it does |
 | :------ | :------- | :----------- |
-| `Video ▸ Set Start from Video Position` | `Alt+U` | sets the **start** of the selected subtitle to the film's position |
-| `Video ▸ Set End from Video Position` | `Alt+K` | sets its **end** to the film's position |
-| `Video ▸ Insert Subtitle at Video Position` | `Alt+J` | inserts a subtitle that **starts** at the position, and selects it |
-| `Video ▸ Select Previous from Video Position` | `Alt+Up` | selects the last subtitle that **starts before** the position |
-| `Video ▸ Select Next from Video Position` | `Alt+Down` | selects the first one that **starts after** the position |
+| Video ▸ Set Start from Video Position | `Alt+U` | sets the **start** of the selected subtitle to the film's position |
+| Video ▸ Set End from Video Position | `Alt+K` | sets its **end** to the film's position |
+| Video ▸ Insert Subtitle at Video Position | `Alt+J` | inserts a subtitle that **starts** at the position, and selects it |
+| Video ▸ Select Previous from Video Position | `Alt+Up` | selects the last subtitle that **starts before** the position |
+| Video ▸ Select Next from Video Position | `Alt+Down` | selects the first one that **starts after** the position |
 
 **All are disabled with no video open**, like the player's gestures. `Set Start…` and `Set End…`
 are also disabled as long as nothing is selected: they act on the **first line** of the
@@ -57,8 +57,8 @@ Two gestures, and two buttons in the playback bar, on either side of the play bu
 
 | Command | Shortcut | What it does |
 | :------ | :------- | :----------- |
-| `Video ▸ Step Backward` | `Alt+Left` | moves the film back by the frame step |
-| `Video ▸ Step Forward` | `Alt+Right` | moves it forward by the frame step |
+| Video ▸ Step Backward | `Alt+Left` | moves the film back by the frame step |
+| Video ▸ Step Forward | `Alt+Right` | moves it forward by the frame step |
 
 - **The step is a number of frames, one at least**: it is the `Frame step` setting of the
   [preferences](preferences.md#the-player). A step of N frames shows the frame **N further on**, at 25 frames per
@@ -79,10 +79,10 @@ To adjust an edge with the keyboard: **the start or the end of the selected subt
 
 | Command | Shortcut | What it does |
 | :------ | :------- | :----------- |
-| `Video ▸ Nudge Start Earlier` | `Alt+Q` | the subtitle **starts one step earlier** |
-| `Video ▸ Nudge Start Later` | `Alt+W` | it **starts one step later** |
-| `Video ▸ Nudge End Earlier` | `Alt+Shift+Q` | it **ends one step earlier** |
-| `Video ▸ Nudge End Later` | `Alt+Shift+W` | it **ends one step later** |
+| Video ▸ Nudge Start Earlier | `Alt+Q` | the subtitle **starts one step earlier** |
+| Video ▸ Nudge Start Later | `Alt+W` | it **starts one step later** |
+| Video ▸ Nudge End Earlier | `Alt+Shift+Q` | it **ends one step earlier** |
+| Video ▸ Nudge End Later | `Alt+Shift+W` | it **ends one step later** |
 
 `Q` and `W` are Gaupol's for *earlier* and *later*, with `Alt` for the reason given above; the end
 takes `Alt+Shift`, because Gaupol's `E` is here the letter of `Edit`.
